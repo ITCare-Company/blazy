@@ -7,6 +7,73 @@ blazy:
     gpl-compatible: true
   js:
     /libraries/blazy/blazy.min.js: {}
+
+components:
+  version: VERSION
+  css:
+    component:
+      css/components/blazy.ratio.css: {}
+      css/components/blazy.loading.css: {}
+
+load:
+  version: VERSION
+  js:
     js/blazy.load.min.js: {}
   dependencies:
     - core/jquery
+    - core/jquery.once
+    - core/drupal
+    - core/drupalSettings
+    - blazy/blazy
+    - blazy/components
+
+admin:
+  version: VERSION
+  js:
+    js/blazy.admin.min.js: {}
+  css:
+    theme:
+      css/blazy.admin.css: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupal
+
+colorbox:
+  version: VERSION
+  js:
+    js/blazy.colorbox.min.js: {}
+  css:
+    component:
+      css/components/blazy.colorbox.css: {}
+      css/components/blazy.lightbox.css: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupal
+    - core/drupalSettings
+    - colorbox/colorbox
+
+photobox:
+  remote: https://github.com/yairEO/photobox/
+  version: 1.x
+  license:
+    name: MIT
+    url: https://github.com/yairEO/photobox/issues/17
+    gpl-compatible: true
+  js:
+    /libraries/photobox/photobox/jquery.photobox.js: {}
+    js/blazy.photobox.min.js: {}
+  css:
+    base:
+      /libraries/photobox/photobox/photobox.css: {}
+    component:
+      css/components/blazy.lightbox.css: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupal
+    - core/drupalSettings
+    # use photobox when available instead.
+    # - photobox/photobox
+

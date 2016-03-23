@@ -1,0 +1,25 @@
+
+
+Blazy 8.x-1.0-dev, 2016-03-23
+-----------------------------
+- Added lazyload support for core Responsive image.
+- Moved a few Slick carousel goodness into this module: admin CSS, lightboxes
+  and re-usable methods so that Slick carousel, Mason, GridStack can use them
+  all from one place.
+- Added basic loading indicator to the lazyloaded elements.
+- Split library into core and custom JS loader.
+- Added blazy_ui.module.
+- Added basic stylings including aspect ratio CSS.
+- Added blazy services for re-usable methods across dependee modules.
+- Added own themes.
+- Added re-usable Traits and methods for dependee modules.
+- Added a scope to a more limited container using [data-blazy] attribute to
+  get consistent with the supported field formatters.
+- Added retina support.
+- Added responsive multi-serving images options.
+- Added supports for the image and colorbox/photobox.
+- Added basic configuration.
+
+Blazy 8.x-1.0-dev, 2016-01-19
+-----------------------------
+Initial commit.

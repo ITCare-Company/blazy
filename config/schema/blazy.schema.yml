@@ -1,0 +1,74 @@
+blazy.settings:
+  type: config_object
+  label: 'Blazy settings'
+  mapping:
+    admin_css:
+      type: boolean
+      label: 'Admin CSS'
+    responsive_image:
+      type: boolean
+      label: 'Support Responsive image'
+    one_pixel:
+      type: boolean
+      label: 'One pixel placeholder'
+    blazy:
+      type: mapping
+      label: Blazy
+      mapping:
+        loadInvisible:
+          type: boolean
+          label: 'Load invisible'
+        offset:
+          type: integer
+          label: 'Offset'
+        saveViewportOffsetDelay:
+          type: integer
+          label: 'Save viewport offset delay'
+
+blazy_base:
+  type: mapping
+  label: 'Blazy image base display format settings'
+  mapping:
+    box_style:
+      type: string
+      label: 'Lightbox style'
+    breakpoints:
+      type: mapping
+      label: 'Breakpoints'
+    caption:
+      type: sequence
+      label: 'Captions'
+      sequence:
+        - type: string
+          label: 'Caption'
+    dimension:
+      type: string
+      label: 'Lightbox media dimension'
+    icon:
+      type: boolean
+      label: 'Use Blazy icon'
+    image_style:
+      type: string
+      label: 'Image style'
+    media_switch:
+      type: string
+      label: 'Media switch'
+    ratio:
+      type: string
+      label: 'Ratio'
+    responsive_image_style:
+      type: string
+      label: 'Responsive image style'
+    retina:
+      type: string
+      label: 'Retina'
+    skin:
+      type: string
+      label: 'Skin'
+    thumbnail_style:
+      type: string
+      label: 'Thumbnail style'
+
+field.formatter.settings.blazy:
+  type: blazy_base
+  label: 'Blazy image display format settings'

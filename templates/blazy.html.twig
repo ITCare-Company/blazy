@@ -1,0 +1,61 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a formatted blazy image/media field.
+ *
+ * Available variables:
+ * - image: A collection of image data.
+ * - url: An URL the image can be linked to.
+ * - attributes: Link attributes.
+ * - ratio: The aspect ratio to fix layout reflow for lazyloaded images/iframes.
+ *
+ * @see template_preprocess_image_formatter()
+ * @see template_preprocess_colorbox_formatter()
+ * @see template_preprocess_blazy()
+ *
+ * Debug:
+ * @see https://www.drupal.org/node/1906780
+ * @see https://www.drupal.org/node/1903374
+ * Use Kint: {{ kint(variable) }}
+ * Dump all available variables and their contents: {{ dump() }}
+ * Dump only the available variable keys: {{ dump(_context|keys) }}
+ *
+ * @todo IFRAME for Media entity and Video embed field inetgration, if any.
+ * Note the classes media ratio are based on Slick for easy integration.
+ *
+ * @ingroup themeable
+ */
+#}
+{%
+  set ratio_classes = [
+    'media',
+    settings.lazy ? 'media--loading',
+    settings.ratio ? 'media--ratio media--ratio--' ~ settings.ratio
+  ]
+%}
+
+{% set media %}
+  <div{{ ratio_attributes.addClass(ratio_classes) }}>
+    {{ image }}
+    {% if settings.icon %} {{ settings.icon }} {% endif %}
+    {% if noscript %}<noscript>{{ noscript }}</noscript>{% endif %}
+  </div>
+{% endset %}
+
+{% spaceless %}
+  {% if url and not settings.player %}
+    <a href="{{ url }}"{{ url_attributes }}>{{ media }}</a>
+  {% else %}
+    {{ media }}
+  {% endif %}
+
+  {% if captions %}
+    <div{{ caption_attributes }}>
+    {% for caption in captions %}
+      {% if caption.content %}
+        <{{ caption.tag }} {{ caption.attributes }}>{{ caption.content }}</{{ caption.tag }}>
+      {% endif %}
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endspaceless %}
