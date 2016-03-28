@@ -22,12 +22,12 @@ services:
     class: Drupal\blazy\Form\BlazyAdminBase
     arguments: ['@entity_display.repository', '@config.typed', '@blazy.manager']
 
-  blazy.admin.extended:
-    class: Drupal\blazy\Dejavu\BlazyAdminExtended
-    parent: blazy.admin.base
-
   blazy.admin.formatter:
     class: Drupal\blazy\Form\BlazyAdminFormatter
+    parent: blazy.admin.base
+
+  blazy.admin.extended:
+    class: Drupal\blazy\Dejavu\BlazyAdminExtended
     parent: blazy.admin.base
 
   blazy.admin:

@@ -11,11 +11,14 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\NestedArray;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Implements a blazy manager.
+ * Implements BlazyManagerInterface.
  */
 abstract class BlazyManagerBase implements BlazyManagerInterface {
 
@@ -128,6 +131,103 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function entityLoadMultiple($entity_type = 'image_style', $ids = NULL) {
     return $this->entityTypeManager->getStorage($entity_type)->loadMultiple($ids);
+  }
+
+  /**
+   * Returns array of needed assets suitable for #attached property.
+   */
+  public function attach($attach = []) {
+    $load   = [];
+    $attach += ['blazy_colorbox' => TRUE, 'blazy_photobox' => TRUE];
+    $switch = empty($attach['media_switch']) ? '' : $attach['media_switch'];
+
+    if ($switch && $switch != 'content') {
+      $attach[$switch] = $switch;
+    }
+
+    // @todo redo this when colorbox has JS loader again, or just array.
+    if (!empty($attach['colorbox'])) {
+      $dummy = [];
+      \Drupal::service('colorbox.attachment')->attach($dummy);
+      $load = NestedArray::mergeDeep($load, $dummy['#attached']);
+      $load['library'][] = 'colorbox/colorbox';
+      if (!empty($attach['blazy_colorbox'])) {
+        $load['library'][] = 'blazy/colorbox';
+      }
+    }
+
+    if (!empty($attach['photobox']) && !empty($attach['blazy_photobox'])) {
+      $load['library'][] = 'blazy/photobox';
+    }
+
+    // Core Blazy libraries.
+    if (!empty($attach['lazy']) && ($attach['lazy'] == 'blazy' || $attach['lazy'] == 'responsive')) {
+      $load['library'][] = 'blazy/load';
+      $globals = $this->configLoad()['blazy'];
+      $blazy_data = empty($attach['blazy_data']) ? [] : $attach['blazy_data'];
+
+      // Allows other modules to provide custom settings.
+      if (!empty($blazy_data['_reset'])) {
+        $blazy_data = [];
+      }
+      $load['drupalSettings']['blazy'] = empty($blazy_data) ? $globals : array_merge($globals, $blazy_data);
+    }
+
+    if (!empty($attach['ratio'])) {
+      $load['library'][] = 'blazy/ratio';
+    }
+
+    $this->moduleHandler->alter('blazy_attach', $load, $attach);
+    return $load;
+  }
+
+  /**
+   * Collects defined skins as registered via hook_MODULE_NAME_skins_info().
+   */
+  public function buildSkins($namespace, $skin_class, $methods = []) {
+    $skins = [];
+    $cid = $namespace . ':skins';
+    if ($cache = $this->cache->get($cid)) {
+      $skins = $cache->data;
+    }
+    else {
+      $classes = $this->moduleHandler->invokeAll($namespace . '_skins_info');
+      $classes = array_merge([$skin_class], $classes);
+      $items   = $skins = [];
+      foreach ($classes as $class) {
+        if (class_exists($class)) {
+          $reflection = new \ReflectionClass($class);
+          if ($reflection->implementsInterface($skin_class . 'Interface')) {
+            $skin = new $class;
+            if (empty($methods) && method_exists($skin, 'skins')) {
+              $items = $skin->skins();
+            }
+            else {
+              foreach ($methods as $method) {
+                $items[$method] = method_exists($skin, $method) ? $skin->$method() : [];
+              }
+            }
+          }
+        }
+        $skins = NestedArray::mergeDeep($skins, $items);
+      }
+
+      $count = isset($items['skins']) ? count($items['skins']) : count($items);
+      $tags  = Cache::buildTags($cid, ['count:' . $count]);
+
+      $this->cache->set($cid, $skins, Cache::PERMANENT, $tags);
+    }
+    return $skins;
+  }
+
+  /**
+   * Returns the HTML ID common for Blazy, GridStack, Mason, Slick.
+   */
+  public static function getHtmlId($string = 'blazy', $id = '') {
+    $blazy_id = &drupal_static('blazy_id', 0);
+
+    // Do not use dynamic Html::getUniqueId, otherwise broken AJAX.
+    return $id ?: Html::getId($string . '-' . ++$blazy_id);
   }
 
 }

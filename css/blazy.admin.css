@@ -1137,8 +1137,12 @@ td .form__title {
 }
 
 /* Prevents overlapping Views edit options */
-[data-drupal-selector="edit-options"] details {
+.ui-front [data-drupal-selector="edit-options"] details {
   clear: both;
+}
+
+[data-drupal-selector="edit-options-settings"] details {
+  clear: none;
 }
 
 .form--slick.form--half {

@@ -70,61 +70,63 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
     $definition = [];
 
     // Formatter based fields.
-    $fields = $this->displayHandler->getOption('fields');
-    foreach ($fields as $field => $handler) {
+    $fields = [];
+    foreach ($this->displayHandler->getOption('fields') as $field => $handler) {
       // This is formatter based type, not actual field type.
       if (isset($handler['type'])) {
         switch ($handler['type']) {
           case 'image':
           case 'blazy':
           case 'media':
-            $definition['images'][$field] = $field_names[$field];
-            $definition['overlays'][$field] = $field_names[$field];
-            $definition['thumbnails'][$field] = $field_names[$field];
+            $fields['images'][$field] = $field_names[$field];
+            $fields['overlays'][$field] = $field_names[$field];
+            $fields['thumbnails'][$field] = $field_names[$field];
             break;
 
           case 'list_key':
-            $definition['layouts'][$field] = $field_names[$field];
+            $fields['layouts'][$field] = $field_names[$field];
             break;
 
           case 'entity_reference':
           case 'text':
           case 'string':
           case 'link':
-            $definition['links'][$field] = $field_names[$field];
-            $definition['titles'][$field] = $field_names[$field];
+            $fields['links'][$field] = $field_names[$field];
+            $fields['titles'][$field] = $field_names[$field];
             if ($handler['type'] != 'link') {
-              $definition['thumb_captions'][$field] = $field_names[$field];
+              $fields['thumb_captions'][$field] = $field_names[$field];
             }
             break;
         }
 
         if (in_array($handler['type'], ['list_key', 'entity_reference', 'text', 'string'])) {
-          $definition['classes'][$field] = $field_names[$field];
+          $fields['classes'][$field] = $field_names[$field];
         }
       }
 
       // Content: title is not really a field, unless title.module installed.
       if (isset($handler['field'])) {
         if ($handler['field'] == 'title') {
-          $definition['classes'][$field] = $field_names[$field];
-          $definition['titles'][$field] = $field_names[$field];
-          $definition['thumb_captions'][$field] = $field_names[$field];
+          $fields['classes'][$field] = $field_names[$field];
+          $fields['titles'][$field] = $field_names[$field];
+          $fields['thumb_captions'][$field] = $field_names[$field];
         }
 
         if ($handler['field'] == 'view_node') {
-          $definition['links'][$field] = $field_names[$field];
+          $fields['links'][$field] = $field_names[$field];
         }
       }
 
       // Captions can be anything to get custom works going.
-      $definition['captions'][$field] = $field_names[$field];
+      $fields['captions'][$field] = $field_names[$field];
     }
 
     $definition['settings'] = $this->options;
     $definition['current_view_mode'] = $this->view->current_display;
+
+    // Provides the requested fields.
     foreach ($definitions as $key) {
-      $definition[$key] = isset($definition[$key]) ? $definition[$key] : [];
+      $definition[$key] = isset($fields[$key]) ? $fields[$key] : [];
     }
 
     return $definition;
@@ -139,8 +141,12 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
 
     // Add main image fields if so configured.
     if ($field_image = $settings['image']) {
+      // Supports individual grid/box image style either inline IMG, or CSS.
+      $grid_style = empty($grids) && !isset($grids[$index]['image_style']) ? '' : $grids[$index]['image_style'];
+      $image      = $this->getImageRenderable($settings, $row, $index, $grid_style);
+      $rendered   = empty($image['rendered']) ? [] : $image['rendered'];
+
       // Check if the formatter is Blazy which has multi-serving images.
-      // This can be overriden by providing similar breakpoints elements.
       if (isset($rendered['#build']['settings']['blazy_data'])) {
         if ($index == 0) {
           $settings['blazy_data'] = $rendered['#build']['settings']['blazy_data'];
@@ -149,11 +155,6 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
           $settings['breakpoints'] = $rendered['#build']['settings']['breakpoints'];
         }
       }
-
-      // Supports individual grid/box image style either inline IMG, or CSS.
-      $grid_style        = empty($grids) && !isset($grids[$index]['image_style']) ? '' : $grids[$index]['image_style'];
-      $image             = $this->getImageRenderable($settings, $row, $index, $grid_style);
-      $rendered          = empty($image['rendered']) ? [] : $image['rendered'];
 
       $element['item']   = $this->getImageItem($image);
       $element[$item_id] = empty($settings['background']) ? $rendered : '';

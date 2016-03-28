@@ -16,20 +16,28 @@ class BlazyFormatterManager extends BlazyManager {
    * {@inheritdoc}
    */
   public function buildSettings(array &$build = [], $items) {
-    $settings       = &$build['settings'];
+    $settings = &$build['settings'];
+
+    // Sniffs for Views to allow block__no_wrapper, viewa_no_wrapper, etc.
+    if (function_exists('views_get_current_view') && $view = views_get_current_view()) {
+      $settings['view_name'] = $view->storage->id();
+      $settings['current_view_mode'] = $view->current_display;
+    }
+
+    $count          = $items->count();
     $field          = $items->getFieldDefinition();
     $entity         = $items->getEntity();
     $entity_type_id = $entity->getEntityTypeId();
     $entity_id      = $entity->id();
+    $bundle         = $entity->bundle();
     $field_name     = $field->getName();
+    $field_type     = $field->getType();
     $field_clean    = str_replace("field_", '', $field_name);
     $target_type    = $field->getFieldStorageDefinition()->getSetting('target_type');
-    $optionset_name = empty($settings['optionset']) ? 'default' : $settings['optionset'];
-    $unique         = empty($settings['skin']) ? '-' . $optionset_name : '-' . $optionset_name . '-' . $settings['skin'];
     $view_mode      = empty($settings['current_view_mode']) ? '_custom' : $settings['current_view_mode'];
     $namespace      = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
-    $id             = parent::getHtmlId("{$namespace}-{$entity_type_id}-{$entity_id}-{$field_clean}{$unique}");
-    $internal_path  = $absolute_path = $url = NULL;
+    $id             = self::getHtmlId("{$namespace}-{$entity_type_id}-{$entity_id}-{$field_clean}-{$view_mode}");
+    $internal_path  = $absolute_path = NULL;
 
     // Deals with UndefinedLinkTemplateException such as paragraphs type.
     // @see #2596385, or fetch the host entity.
@@ -43,21 +51,33 @@ class BlazyFormatterManager extends BlazyManager {
 
     $settings += [
       'absolute_path'  => $absolute_path,
-      'bundle'         => $entity->bundle(),
-      'count'          => $items->count(),
+      'bundle'         => $bundle,
+      'count'          => $count,
       'entity_id'      => $entity_id,
       'entity_type_id' => $entity_type_id,
-      'field_type'     => $field->getType(),
+      'field_type'     => $field_type,
       'field_name'     => $field_name,
-      'id'             => $id,
       'internal_path'  => $internal_path,
       'lightbox'       => !empty($settings['media_switch']) && strpos($settings['media_switch'], 'box') !== FALSE,
       'target_type'    => $target_type,
-      'cache_metadata' => ['keys' => [$id, $view_mode, $optionset_name]],
+      'cache_metadata' => ['keys' => [$id, $count]],
     ];
 
-    $settings['caption']  = empty($settings['caption']) ? [] : array_filter($settings['caption']);
-    $settings['resimage'] = function_exists('responsive_image_get_image_dimensions');
+    $this->cleanUpBreakpoints($settings);
+
+    $settings['id']          = $id;
+    $settings['breakpoints'] = empty($settings['breakpoints']) ? [] : array_filter($settings['breakpoints']);
+    $settings['caption']     = empty($settings['caption']) ? [] : array_filter($settings['caption']);
+    $settings['resimage']    = function_exists('responsive_image_get_image_dimensions');
+    $settings['blazy_data']  = $field_type == 'image' ? $this->buildDataBlazy($settings, $items[0]) : [];
+
+    // Aspect ratio isn't working with Responsive image and breakpoints, yet.
+    $ratio = empty($settings['responsive_image_style']) && empty($settings['breakpoints']) && !empty($settings['ratio']);
+    if ($settings['ratio'] == 'enforced') {
+      $ratio = TRUE;
+    }
+    $settings['ratio'] = $ratio ? $settings['ratio'] : FALSE;
+
     unset($entity, $field);
   }
 

@@ -7,6 +7,7 @@
 
 namespace Drupal\blazy\Form;
 
+use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
@@ -19,8 +20,8 @@ use Drupal\blazy\BlazyManagerInterface;
  * A base for blazy admin integration to have re-usable methods in one place.
  *
  * @see \Drupal\gridstack\Form\GridStackAdmin
- * @see \Drupal\mason\MasonAdmin
- * @see \Drupal\slick\SlickAdmin
+ * @see \Drupal\mason\Form\MasonAdmin
+ * @see \Drupal\slick\Form\SlickAdmin
  * @see \Drupal\blazy\Form\BlazyAdminFormatterBase
  */
 abstract class BlazyAdminBase implements BlazyAdminInterface {
@@ -91,30 +92,103 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
+   * Returns shared form elements across field formatter and Views.
+   */
+  public function openingForm(array &$form, $definition = []) {
+    if (!isset($definition['namespace'])) {
+      return;
+    }
+
+    $namespace = $definition['namespace'];
+    $path      = drupal_get_path('module', $namespace);
+    $readme    = Url::fromUri('base:' . $path . '/README.txt')->toString();
+
+    $form['skin'] = [
+      '#type'        => 'select',
+      '#title'       => t('Skin'),
+      '#options'     => isset($definition['skins']) ? $definition['skins'] : [],
+      '#enforced'    => TRUE,
+      '#description' => t('Skins allow various layouts with just CSS. Some options below depend on a skin. Leave empty to DIY. Or use the provided hook_info() and implement the skin interface to register ones.', [':url' => $readme]),
+      '#weight'      => -107,
+      '#access'      => isset($definition['skins']),
+    ];
+
+    $form['background'] = [
+      '#type'        => 'checkbox',
+      '#title'       => t('Use CSS background'),
+      '#description' => t('Check this to turn the image into CSS background instead.'),
+      '#access'      => isset($definition['background']),
+    ];
+
+    $form['layout'] = [
+      '#type'        => 'select',
+      '#title'       => t('Layout'),
+      '#options'     => isset($definition['layouts']) ? $definition['layouts'] : [],
+      '#description' => t('Requires a skin. The builtin layouts affects the entire items uniformly. Leave empty to DIY.'),
+      '#access'      => isset($definition['layouts']),
+      '#weight'      => 2,
+    ];
+
+    $form['caption'] = [
+      '#type'        => 'checkboxes',
+      '#title'       => t('Caption fields'),
+      '#options'     => isset($definition['captions']) ? $definition['captions'] : [],
+      '#description' => t('Enable any of the following fields as captions. These fields are treated and wrapped as captions.'),
+      '#access'      => isset($definition['captions']),
+      '#weight'      => 80,
+    ];
+
+    $weight = -99;
+    foreach (Element::children($form) as $key) {
+      if (!isset($form[$key]['#weight'])) {
+        $form[$key]['#weight'] = ++$weight;
+      }
+    }
+  }
+
+  /**
    * Defines re-usable breakpoints form.
    */
   public function breakpointsForm(array &$form, $definition = []) {
     $settings     = $definition['settings'];
     $image_styles = image_style_options(FALSE);
 
-    $title = t('Leave Breakpoints empty to disable multi-serving images. <small>Ignored if core Responsive image is provided.</small>');
+    $title = t('Leave Breakpoints empty to disable multi-serving images. <small>If provided, Blazy lazyload applies. Ignored if core Responsive image is provided.</small>');
     $form['breakpoints'] = [
       '#type'       => 'table',
       '#tree'       => TRUE,
       '#header'     => [t('Breakpoint'), t('Max width'), t('Image style')],
       '#prefix'     => '<h2 class="form__title">' . $title . '</h2>',
       '#attributes' => ['class' => ['form-wrapper--table']],
+      '#weight'     => 110,
+      '#enforced'   => TRUE,
     ];
+
+    // Unlike D7, D8 form states seem to not recognize individual field form.
+    $vanilla = ':input[name$="[vanilla]"]';
+    if (isset($definition['field_name'])) {
+      $vanilla = ':input[name="fields[' . $definition['field_name'] . '][settings_edit_form][settings][vanilla]"]';
+    }
+
+    if (!empty($definition['_views'])) {
+      $vanilla = ':input[name="options[settings][vanilla]"]';
+    }
 
     $breakpoints = $this->breakpointElements($definition);
     foreach ($breakpoints as $breakpoint => $elements) {
       foreach ($elements as $key => $element) {
         $form['breakpoints'][$breakpoint][$key] = $element;
+
+        // Do this because otherwise the entire form disappears for table type.
         $form['breakpoints'][$breakpoint][$key]['#states'] = [
           'enabled' => [
             'select[name$="[responsive_image_style]"]' => ['value' => ''],
           ],
         ];
+
+        if (isset($definition['vanilla'])) {
+          $form['breakpoints'][$breakpoint][$key]['#states']['enabled'][$vanilla] = ['checked' => FALSE];
+        }
         $value = isset($settings['breakpoints'][$breakpoint][$key]) ? $settings['breakpoints'][$breakpoint][$key] : '';
         $form['breakpoints'][$breakpoint][$key]['#default_value'] = $value;
       }
@@ -134,30 +208,31 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
     foreach ($definition['breakpoints'] as $breakpoint) {
       $form[$breakpoint]['breakpoint'] = [
-        '#markup'     => $breakpoint,
-        '#weight'     => -10,
+        '#type'               => 'item',
+        '#markup'             => $breakpoint,
+        '#weight'             => 1,
         '#wrapper_attributes' => ['class' => ['form-item--right']],
       ];
 
       $form[$breakpoint]['width'] = [
-        '#type'          => 'textfield',
-        '#title'         => t('Width'),
-        '#title_display' => 'invisible',
-        '#field_suffix'  => 'px',
-        '#maz_length'    => 4,
-        '#size'          => 6,
-        '#weight'        => 2,
-        '#attributes'    => ['class' => ['form-text--width']],
+        '#type'               => 'textfield',
+        '#title'              => t('Width'),
+        '#title_display'      => 'invisible',
+        '#field_suffix'       => 'px',
+        '#maz_length'         => 4,
+        '#size'               => 6,
+        '#weight'             => 2,
+        '#attributes'         => ['class' => ['form-text--width']],
         '#wrapper_attributes' => ['class' => ['form-item--width']],
       ];
 
       $form[$breakpoint]['image_style'] = [
-        '#type'          => 'select',
-        '#title'         => t('Image style'),
-        '#title_display' => 'invisible',
-        '#options'       => $image_styles,
-        '#empty_option'  => t('- None -'),
-        '#weight'        => 3,
+        '#type'               => 'select',
+        '#title'              => t('Image style'),
+        '#title_display'      => 'invisible',
+        '#options'            => $image_styles,
+        '#empty_option'       => t('- None -'),
+        '#weight'             => 3,
         '#wrapper_attributes' => ['class' => ['form-item--left']],
       ];
     }
@@ -166,10 +241,24 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
+   * Returns shared ending form elements across field formatter and Views.
+   */
+  public function closingForm(array &$form, $definition = []) {
+    $form['current_view_mode'] = [
+      '#type'          => 'hidden',
+      '#default_value' => isset($definition['current_view_mode']) ? $definition['current_view_mode'] : '_custom',
+      '#weight'        => 100,
+    ];
+
+    $this->finalizeForm($form, $definition);
+  }
+
+  /**
    * Returns re-usable logic, styling and assets across fields and Views.
    */
   public function finalizeForm(array &$form, $definition = []) {
     $namespace = isset($definition['namespace']) ? $definition['namespace'] : 'slick';
+    $settings  = isset($definition['settings']) ? $definition['settings'] : [];
     $vanilla   = isset($definition['vanilla']) ? ' form--vanilla' : '';
     $fallback  = $namespace == 'slick' ? 'form--slick' : 'form--' . $namespace . ' form--slick';
     $classes   = isset($definition['form_opening_classes'])
@@ -178,17 +267,16 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
     $form['opening'] = [
       '#markup' => '<div class="' . $classes . '">',
-      '#weight' => -110,
+      '#weight' => -120,
     ];
 
     $form['closing'] = [
       '#markup' => '</div>',
-      '#weight' => 110,
+      '#weight' => 120,
     ];
 
     $admin_css = isset($definition['admin_css']) ? $definition['admin_css'] : '';
     $admin_css = $admin_css ?: $this->blazyManager->configLoad('admin_css', 'blazy.settings');
-    $settings  = isset($definition['settings']) ? $definition['settings'] : [];
     $excludes  = ['container', 'details', 'item', 'hidden', 'submit'];
 
     foreach (Element::children($form) as $key) {
@@ -228,6 +316,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           }
         }
       }
+
+      if (isset($form[$key]['#access']) && $form[$key]['#access'] == FALSE) {
+        // $form[$key]['#disabled'] = TRUE;
+        unset($form[$key]['#default_value']);
+      }
     }
 
     if ($admin_css) {
@@ -260,6 +353,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
     asort($optionsets);
     return $optionsets;
+  }
+
+  /**
+   * Returns available view modes for select options.
+   */
+  public function getViewModeOptions($target_type) {
+    return $this->entityDisplayRepository->getViewModeOptions($target_type);
   }
 
 }

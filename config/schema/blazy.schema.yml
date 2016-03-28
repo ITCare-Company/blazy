@@ -5,12 +5,12 @@ blazy.settings:
     admin_css:
       type: boolean
       label: 'Admin CSS'
-    responsive_image:
-      type: boolean
-      label: 'Support Responsive image'
     one_pixel:
       type: boolean
       label: 'One pixel placeholder'
+    responsive_image:
+      type: boolean
+      label: 'Support Responsive image'
     blazy:
       type: mapping
       label: Blazy
@@ -29,45 +29,12 @@ blazy_base:
   type: mapping
   label: 'Blazy image base display format settings'
   mapping:
-    box_style:
-      type: string
-      label: 'Lightbox style'
-    breakpoints:
-      type: mapping
-      label: 'Breakpoints'
     caption:
       type: sequence
       label: 'Captions'
       sequence:
         - type: string
           label: 'Caption'
-    dimension:
-      type: string
-      label: 'Lightbox media dimension'
-    icon:
-      type: boolean
-      label: 'Use Blazy icon'
-    image_style:
-      type: string
-      label: 'Image style'
-    media_switch:
-      type: string
-      label: 'Media switch'
-    ratio:
-      type: string
-      label: 'Ratio'
-    responsive_image_style:
-      type: string
-      label: 'Responsive image style'
-    retina:
-      type: string
-      label: 'Retina'
-    skin:
-      type: string
-      label: 'Skin'
-    thumbnail_style:
-      type: string
-      label: 'Thumbnail style'
 
 field.formatter.settings.blazy:
   type: blazy_base

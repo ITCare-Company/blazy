@@ -9,7 +9,7 @@
 
   Drupal.behaviors.blazyPhotobox = {
     attach: function (context) {
-      $('div[data-blazy]', context).once('blazy-photobox').each(function () {
+      $('div[data-blazy], .slick--photobox', context).once('blazy-photobox').each(function () {
         $(this).photobox('a[data-photobox]', {thumbAttr: 'data-thumb'});
       });
     }

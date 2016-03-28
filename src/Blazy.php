@@ -85,7 +85,7 @@ class Blazy extends BlazyManager {
       self::buildBreakpointAttributes($attributes, $settings);
 
       // Aspect ratio to fix layout reflow with lazyloaded images responsively.
-      if (!empty($settings['ratio']) && !empty($settings['height']) && $settings['ratio'] == 'fluid') {
+      if (!empty($settings['ratio']) && !empty($settings['height']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
         $ratio_attributes->setAttribute('style', 'padding-bottom: ' . round((($settings['height'] / $settings['width']) * 100), 2) . '%');
       }
     }
@@ -141,15 +141,7 @@ class Blazy extends BlazyManager {
       return;
     }
 
-    $settings  = $element['#blazy'];
-    $base_hook = $settings['base_hook'];
-
-    $variables['attributes']['class'][] = str_replace('_', '-', $base_hook . '--blazy');
-
-    if (!empty($settings['ratio'])) {
-      $variables['attributes']['class'][] = str_replace('_', '-', $base_hook . '--blazy-ratio');
-    }
-
+    $settings = $element['#blazy'];
     $settings['blazy_data']['ratio'] = !empty($settings['ratio']);
     if (!empty($settings['responsive_image_style'])) {
       $settings['ratio'] = FALSE;
@@ -158,7 +150,12 @@ class Blazy extends BlazyManager {
     // Defines [data-blazy] attribute as required by the Blazy loader.
     $settings['blazy_data']['container'] = '#' . $settings['id'];
     $variables['attributes']['id'] = $settings['id'];
+    $variables['attributes']['class'][] = 'blazy';
     $variables['attributes']['data-blazy'] = Json::encode($settings['blazy_data']);
+
+    if (!empty($settings['ratio'])) {
+      $variables['attributes']['class'][] = 'blazy--ratio';
+    }
   }
 
   /**
@@ -195,11 +192,17 @@ class Blazy extends BlazyManager {
   /**
    * Implements hook_config_schema_info_alter().
    */
-  public static function configSchemaInfoAlter(array &$definitions) {
-    // @todo also override supported formatters.
-    $formatter = 'blazy_base';
+  public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', $settings = []) {
     if (isset($definitions[$formatter])) {
       $mappings = &$definitions[$formatter]['mapping'];
+      $settings = $settings ?: BlazyDefault::extendedSettings();
+      foreach ($settings as $key => $value) {
+        $mappings[$key]['type'] = $key == 'breakpoints' ? 'mapping' : (is_array($value) ? 'sequence' : gettype($value));
+
+        if (!is_array($value)) {
+          $mappings[$key]['label'] = Unicode::ucfirst(str_replace('_' , ' ' , $key));
+        }
+      }
       foreach (BlazyDefault::getConstantBreakpoints() as $key) {
         $mappings['breakpoints']['mapping'][$key]['type'] = 'mapping';
         foreach (['breakpoint', 'width', 'image_style'] as $item) {
@@ -222,7 +225,7 @@ class Blazy extends BlazyManager {
   /**
    * Returns the HTML ID of a single instance.
    */
-  public static function getHtmlId($string = 'gridstack', $id = '') {
+  public static function getHtmlId($string = 'blazy', $id = '') {
     return parent::getHtmlId($string, $id);
   }
 

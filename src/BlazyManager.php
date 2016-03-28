@@ -9,7 +9,6 @@ namespace Drupal\blazy;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Component\Serialization\Json;
-use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 
 /**
@@ -35,6 +34,106 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
+   * Cleans up empty breakpoints.
+   */
+  public function cleanUpBreakpoints(array &$settings = []) {
+    foreach ($settings['breakpoints'] as $key => $breakpoint) {
+      if (empty($breakpoint['width']) && empty($breakpoint['image_style'])) {
+        unset($settings['breakpoints'][$key]);
+      }
+    }
+
+    // If breakpoints provided, enforce Blazy lazyloading without further ado.
+    $settings['blazy'] = !empty($settings['breakpoints']);
+  }
+
+  /**
+   * Checks for Blazy formatter such as from within a Views style plugin.
+   *
+   * Ensures the settings traverse up to the container where Blazy is clueless.
+   * The supported plugins can add [data-blazy] attribute into its container
+   * containing $settings['blazy_data'] converted into [data-blazy] JSON.
+   *
+   * @see \Drupal\gridstack\Plugin\views\style\GridStackViews::render().
+   * @see \Drupal\slick_views\Plugin\views\style\SlickViews::render().
+   * @see template_preprocess_slick().
+   * @see template_preprocess_gridstack().
+   *
+   * @todo unified way between View style plugin and field formatter.
+   */
+  public function isBlazy(array &$settings = [], $item = []) {
+    if (isset($item['settings']['blazy_data'])) {
+      $settings['blazy_data'] = $item['settings']['blazy_data'];
+    }
+
+    // Allows breakpoints overrides such as multi-styled images by GridStack.
+    if (empty($settings['breakpoints']) && isset($item['settings']['breakpoints'])) {
+      $settings['breakpoints'] = $item['settings']['breakpoints'];
+    }
+
+    // Prepare Blazy data into the container to convert into JSON object.
+    if (isset($item['item'])) {
+      $settings['blazy_data'] = $this->buildDataBlazy($settings, $item['item']);
+      $settings['blazy_data']['_reset'] = TRUE;
+    }
+  }
+
+  /**
+   * Builds breakpoints suitable for top-level [data-blazy] wrapper attributes.
+   */
+  public function buildDataBlazy(array &$settings = [], $item = NULL) {
+    if (!is_object($item)) {
+      return [];
+    }
+
+    if (!isset($settings['uri'])) {
+      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+    }
+
+    $json = $sources = [];
+    if (!empty($settings['breakpoints'])) {
+      foreach ($settings['breakpoints'] as $key => $breakpoint) {
+        if (!empty($breakpoint['image_style'])) {
+          $width = $breakpoint['width'];
+
+          $image_styles[$width] = $this->entityLoad($breakpoint['image_style'], 'image_style');
+
+          $dimensions[$width] = [
+            'width'  => isset($item->width)  ? $item->width  : NULL,
+            'height' => isset($item->height) ? $item->height : NULL,
+          ];
+
+          $image_styles[$width]->transformDimensions($dimensions[$width], $settings['uri']);
+          $json['dimensions'][$width]['height'] = (int) $dimensions[$width]['height'];
+          $json['dimensions'][$width]['width']  = (int) $dimensions[$width]['width'];
+
+          $source = [];
+          $source['width'] = (int) $width;
+          $source['src'] = 'data-src-' . $key;
+          $sources[] = $source;
+        }
+      }
+    }
+
+    if ($sources) {
+      $json['breakpoints'] = $sources;
+
+      // Identify that Blazy can be activated only by breakpoints.
+      $settings['blazy'] = TRUE;
+    }
+
+    // Addresses the trouble with non-mobile-first approach.
+    $settings['_dimensions_reset'] = TRUE;
+    $this->getUrlDimensions($settings, $item);
+    if (!empty($settings['width'])) {
+      $json['max'] = [$settings['width'], $settings['height']];
+    }
+
+    unset($settings['uri'], $settings['image_url']);
+    return $json;
+  }
+
+  /**
    * Defines image dimensions once as it costs, unless reset for breakpoints.
    */
   public function getUrlDimensions(array &$settings = [], $item = NULL, $modifier = NULL) {
@@ -42,11 +141,9 @@ class BlazyManager extends BlazyManagerBase {
       return;
     }
 
-    if (!isset($settings['uri'])) {
-      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
-    }
-
+    $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
     $settings['cache_tags'] = [];
+
     if (empty($modifier) && isset($settings['image_style'])) {
       $modifier = $settings['image_style'];
     }
@@ -84,59 +181,16 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * Builds breakpoints suitable for [data-blazy] wrapper attributes.
-   */
-  public function buildDataBlazy($item = NULL, $settings = []) {
-    if (!is_object($item) && empty($settings['breakpoints'])) {
-      return [];
-    }
-
-    if (!isset($settings['uri'])) {
-      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
-    }
-
-    $json = $sources = [];
-    $breakpoints = array_keys($settings['breakpoints']);
-    foreach ($settings['breakpoints'] as $key => $breakpoint) {
-      if (!empty($breakpoint['image_style'])) {
-        $width = $breakpoint['width'];
-
-        $image_styles[$width] = $this->entityLoad($breakpoint['image_style'], 'image_style');
-
-        $dimensions[$width] = [
-          'width'  => isset($item->width)  ? $item->width  : NULL,
-          'height' => isset($item->height) ? $item->height : NULL,
-        ];
-
-        $image_styles[$width]->transformDimensions($dimensions[$width], $settings['uri']);
-        $json['dimensions'][$width]['height'] = (int) $dimensions[$width]['height'];
-        $json['dimensions'][$width]['width']  = (int) $dimensions[$width]['width'];
-
-        $source = [];
-        $source['width'] = (int) $width;
-        $source['src'] = 'data-src-' . $key;
-        $sources[] = $source;
-      }
-    }
-
-    if ($sources) {
-      $json['breakpoints'] = $sources;
-    }
-    return $json;
-  }
-
-  /**
    * Returns the image based on the Responsive image mapping, or blazy.
    */
   public function getImage($build = []) {
-    $item     = $build['item'];
-    $settings = &$build['settings'];
-
-    $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
-    $theme_image = isset($settings['theme_hook_image']) ? $settings['theme_hook_image'] : 'blazy';
+    $item      = $build['item'];
+    $settings  = &$build['settings'];
+    $namespace = $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
+    $theme     = isset($settings['theme_hook_image']) ? $settings['theme_hook_image'] : 'blazy';
 
     $image = [
-      '#theme'       => $theme_image,
+      '#theme'       => $theme,
       '#item'        => [],
       '#delta'       => $settings['delta'],
       '#image_style' => $settings['image_style'],
@@ -161,7 +215,7 @@ class BlazyManager extends BlazyManagerBase {
       $image['#theme_wrappers'][] = $settings['theme_hook_image_wrapper'];
     }
 
-    $this->getModuleHandler()->alter('blazy_image', $image, $settings);
+    $this->getModuleHandler()->alter($namespace . '_image', $image, $settings);
     return $image;
   }
 
@@ -177,7 +231,8 @@ class BlazyManager extends BlazyManagerBase {
       return [];
     }
 
-    $settings = &$build['settings'];
+    $settings  = &$build['settings'];
+    $namespace = $settings['namespace'];
 
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
@@ -205,7 +260,7 @@ class BlazyManager extends BlazyManagerBase {
 
       // Allows custom lazyload solution such as Slick builtin lazyloads.
       $settings['lazy_attribute'] = empty($settings['lazy_attribute']) ? 'src' : $settings['lazy_attribute'];
-      if (!empty($settings['blazy']) || $settings['namespace'] == 'blazy') {
+      if (!empty($settings['blazy']) || $namespace == 'blazy') {
         $item_attributes['class'][] = 'b-lazy';
       }
     }
@@ -214,16 +269,16 @@ class BlazyManager extends BlazyManagerBase {
       $item_attributes['data-thumb'] = $this->entityLoad($settings['thumbnail_style'], 'image_style')->buildUrl($settings['uri']);
     }
 
-    $element['#url'] = '';
-    $element['#settings'] = $settings;
-    $element['#captions'] = isset($build['captions']) ? $build['captions'] : [];
+    $element['#url']             = '';
+    $element['#settings']        = $settings;
+    $element['#captions']        = isset($build['captions']) ? $build['captions'] : [];
     $element['#item_attributes'] = $item_attributes;
 
     if (!empty($settings['media_switch']) && ($settings['media_switch'] == 'content' || strpos($settings['media_switch'], 'box') !== FALSE)) {
       $this->getMediaSwitch($element, $settings);
     }
 
-    $this->getModuleHandler()->alter('blazy_image_pre_render', $element, $settings);
+    $this->getModuleHandler()->alter($namespace . '_image_pre_render', $element, $settings);
     return $element;
   }
 
@@ -231,9 +286,10 @@ class BlazyManager extends BlazyManagerBase {
    * Gets the media switch options: colorbox, photobox, content.
    */
   public function getMediaSwitch(array &$element = [], $settings = []) {
-    $type   = isset($settings['type']) ? $settings['type'] : 'image';
-    $uri    = $settings['uri'];
-    $switch = $settings['media_switch'];
+    $type      = isset($settings['type']) ? $settings['type'] : 'image';
+    $uri       = $settings['uri'];
+    $switch    = $settings['media_switch'];
+    $namespace = $settings['namespace'];
 
     // Provide relevant URL if it is a lightbox.
     if (strpos($switch, 'box') !== FALSE) {
@@ -256,7 +312,7 @@ class BlazyManager extends BlazyManagerBase {
         $url = empty($settings['box_style']) ? file_create_url($uri) : $this->entityLoad($settings['box_style'], 'image_style')->buildUrl($uri);
       }
 
-      $classes = ['blazy-' . $switch, 'litebox'];
+      $classes = ['blazy__' . $switch, 'litebox'];
       if ($switch == 'colorbox' && $settings['count'] > 1) {
         $json['rel'] = $settings['id'];
       }
@@ -283,7 +339,7 @@ class BlazyManager extends BlazyManagerBase {
       $element['#url'] = $settings['absolute_path'];
     }
 
-    $this->getModuleHandler()->alter('blazy_media_switch', $element, $settings);
+    $this->getModuleHandler()->alter($namespace . '_media_switch', $element, $settings);
   }
 
   /**
@@ -302,99 +358,6 @@ class BlazyManager extends BlazyManagerBase {
       $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
     }
     return $cache_tags;
-  }
-
-  /**
-   * Collects defined skins as registered via hook_MODULE_NAME_skins_info().
-   */
-  public function buildSkins($namespace, $skin_class, $methods = []) {
-    $skins = [];
-    $cid = $namespace . ':skins';
-    if ($cache = $this->getCache()->get($cid)) {
-      $skins = $cache->data;
-    }
-    else {
-      $classes = $this->getModuleHandler()->invokeAll($namespace . '_skins_info');
-      $classes = array_merge([$skin_class], $classes);
-      $items   = $skins = [];
-      foreach ($classes as $class) {
-        if (class_exists($class)) {
-          $reflection = new \ReflectionClass($class);
-          if ($reflection->implementsInterface($skin_class . 'Interface')) {
-            $skin = new $class;
-            if (empty($methods) && method_exists($skin, 'skins')) {
-              $items = $skin->skins();
-            }
-            else {
-              foreach ($methods as $method) {
-                $items[$method] = method_exists($skin, $method) ? $skin->$method() : [];
-              }
-            }
-          }
-        }
-        $skins = NestedArray::mergeDeep($skins, $items);
-      }
-
-      $count = isset($items['skins']) ? count($items['skins']) : count($items);
-      $tags  = Cache::buildTags($cid, ['count:' . $count]);
-
-      $this->getCache()->set($cid, $skins, Cache::PERMANENT, $tags);
-    }
-    return $skins;
-  }
-
-  /**
-   * Returns array of needed assets suitable for #attached property.
-   */
-  public function attach($attach = []) {
-    $load   = [];
-    $attach += ['blazy_colorbox' => TRUE, 'blazy_photobox' => TRUE];
-    $switch = empty($attach['media_switch']) ? '' : $attach['media_switch'];
-
-    if ($switch && $switch != 'content') {
-      $attach[$switch] = $switch;
-    }
-
-    // @todo redo this when colorbox has JS loader again, or just array.
-    if (!empty($attach['colorbox'])) {
-      $dummy = [];
-      \Drupal::service('colorbox.attachment')->attach($dummy);
-      $load = NestedArray::mergeDeep($load, $dummy['#attached']);
-      $load['library'][] = 'colorbox/colorbox';
-      if (!empty($attach['blazy_colorbox'])) {
-        $load['library'][] = 'blazy/colorbox';
-      }
-    }
-
-    if (!empty($attach['photobox']) && !empty($attach['blazy_photobox'])) {
-      $load['library'][] = 'blazy/photobox';
-    }
-
-    // Core Blazy libraries.
-    if (!empty($attach['lazy']) && ($attach['lazy'] == 'blazy' || $attach['lazy'] == 'responsive')) {
-      $load['library'][] = 'blazy/load';
-      $globals = $this->configLoad()['blazy'];
-      $blazy_data = empty($attach['blazy_data']) ? [] : $attach['blazy_data'];
-
-      // Allows other modules to provide custom settings.
-      if (!empty($blazy_data['_reset'])) {
-        $blazy_data = [];
-      }
-      $load['drupalSettings']['blazy'] = empty($blazy_data) ? $globals : array_merge($globals, $blazy_data);
-    }
-
-    $this->getModuleHandler()->alter('blazy_attach', $load, $attach);
-    return $load;
-  }
-
-  /**
-   * Returns the HTML ID common for Blazy, GridStack, Mason, Slick.
-   */
-  public static function getHtmlId($string = 'blazy', $id = '') {
-    $blazy_id = &drupal_static('blazy_id', 0);
-
-    // Do not use dynamic Html::getUniqueId, otherwise broken AJAX.
-    return $id ?: Html::getId($string . '-' . ++$blazy_id);
   }
 
 }

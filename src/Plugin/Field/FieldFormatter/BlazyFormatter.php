@@ -87,16 +87,9 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
     }
 
     // Collects specific settings to this formatter.
-    $formatter               = $this->blazyFormatterManager;
-    $settings                = $this->getSettings();
-    $settings['namespace']   = $settings['lazy'] = 'blazy';
-    $settings['base_hook']   = $settings['item_id'] = 'field';
-    $settings['breakpoints'] = array_filter($settings['breakpoints']);
-
-    // Defines breakpoints and dimensions suitable for JSON at field wrapper.
-    $item       = $files[0]->_referringItem;
-    $blazy_data = $formatter->buildDataBlazy($item, $settings);
-    $settings['blazy_data'] = $blazy_data;
+    $formatter             = $this->blazyFormatterManager;
+    $settings              = $this->getSettings();
+    $settings['namespace'] = $settings['item_id'] = $settings['lazy'] = 'blazy';
 
     // Build the settings.
     $build = ['settings' => $settings];
@@ -154,16 +147,28 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $element    = [];
-    $definition = [
-      'settings'    => $this->getSettings(),
-      'breakpoints' => BlazyDefault::getConstantBreakpoints(),
-      'retina'      => TRUE,
-      'namespace'   => 'blazy',
-    ];
+    $definition = $this->getScopedFormElements();
 
     $this->blazyAdminFormatter()->buildSettingsForm($element, $definition);
-    $this->blazyAdminFormatter()->finalizeForm($element, $definition);
+
     return $element;
+  }
+
+  /**
+   * Defines the scope for the form elements.
+   */
+  public function getScopedFormElements() {
+    return [
+      'breakpoints'       => BlazyDefault::getConstantBreakpoints(),
+      'captions'          => ['title' => t('Title'), 'alt' => t('Alt')],
+      'current_view_mode' => $this->viewMode,
+      'image_style_form'  => TRUE,
+      'media_switch_form' => TRUE,
+      'namespace'         => 'blazy',
+      'retina'            => TRUE,
+      'settings'          => $this->getSettings(),
+      'thumbnail_styles'  => TRUE,
+    ];
   }
 
   /**

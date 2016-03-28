@@ -8,12 +8,17 @@ blazy:
   js:
     /libraries/blazy/blazy.min.js: {}
 
-components:
+loading:
+  version: VERSION
+  css:
+    component:
+      css/components/blazy.loading.css: {}
+
+ratio:
   version: VERSION
   css:
     component:
       css/components/blazy.ratio.css: {}
-      css/components/blazy.loading.css: {}
 
 load:
   version: VERSION
@@ -25,34 +30,40 @@ load:
     - core/drupal
     - core/drupalSettings
     - blazy/blazy
-    - blazy/components
+    - blazy/loading
 
-admin:
+media:
   version: VERSION
   js:
-    js/blazy.admin.min.js: {}
+    js/blazy.media.min.js: {}
   css:
-    theme:
-      css/blazy.admin.css: {}
+    component:
+      css/components/blazy.media.css: {}
   dependencies:
     - core/jquery
-    - core/jquery.once
     - core/drupal
+    - core/drupalSettings
+    - core/jquery.once
+    - blazy/ratio
+
+colorbox.skin:
+  version: VERSION
+  css:
+    component:
+      css/components/blazy.colorbox.css: {}
+      css/components/blazy.lightbox.css: {}
 
 colorbox:
   version: VERSION
   js:
     js/blazy.colorbox.min.js: {}
-  css:
-    component:
-      css/components/blazy.colorbox.css: {}
-      css/components/blazy.lightbox.css: {}
   dependencies:
     - core/jquery
     - core/jquery.once
     - core/drupal
     - core/drupalSettings
     - colorbox/colorbox
+    - blazy/colorbox.skin
 
 photobox:
   remote: https://github.com/yairEO/photobox/
@@ -77,3 +88,14 @@ photobox:
     # use photobox when available instead.
     # - photobox/photobox
 
+admin:
+  version: VERSION
+  js:
+    js/blazy.admin.min.js: {}
+  css:
+    theme:
+      css/blazy.admin.css: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupal

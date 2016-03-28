@@ -40,7 +40,7 @@ function blazy_preprocess_field(array &$variables) {
  * Implements hook_config_schema_info_alter().
  */
 function blazy_config_schema_info_alter(array &$definitions) {
-  Blazy::configSchemaInfoAlter($definitions);
+  Blazy::configSchemaInfoAlter($definitions, 'blazy_base');
 }
 
 /**

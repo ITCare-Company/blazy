@@ -11,7 +11,7 @@
   Drupal.behaviors.blazyColorbox = {
     attach: function (context) {
 
-      $('.blazy-colorbox', context).once('blazy-colorbox').each(function () {
+      $('.blazy__colorbox', context).once('blazy-colorbox').each(function () {
         var t = $(this);
         var media = t.data('media') || {};
         var runtimeOptions = {

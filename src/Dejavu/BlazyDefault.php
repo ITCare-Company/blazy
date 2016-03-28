@@ -33,6 +33,7 @@ class BlazyDefault {
     return [
       'cache'             => -1,
       'current_view_mode' => '',
+      'item_id'           => '',
       'optionset'         => 'default',
       'skin'              => '',
     ];
@@ -47,6 +48,7 @@ class BlazyDefault {
       'box_style'              => '',
       'breakpoints'            => [],
       'caption'                => [],
+      'icon'                   => FALSE,
       'image_style'            => '',
       'layout'                 => '',
       'media_switch'           => '',
@@ -64,11 +66,11 @@ class BlazyDefault {
     return [
       'class'       => '',
       'dimension'   => '',
+      'id'          => '',
       'iframe_lazy' => FALSE,
       'image'       => '',
       'link'        => '',
       'overlay'     => '',
-      'stamp'       => [],
       'title'       => '',
       'view_mode'   => '',
       'vanilla'     => FALSE,

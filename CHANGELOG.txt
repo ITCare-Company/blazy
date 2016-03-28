@@ -1,5 +1,11 @@
 
 
+Blazy 8.x-1.0-dev, 2016-03-28
+-----------------------------
+- Refined integration with sub-modules.
+- Moved generic method BlazyManager::buildSkins() BlazyManager::getHtmlId() into
+  BlazyManagerBase.
+
 Blazy 8.x-1.0-dev, 2016-03-23
 -----------------------------
 - Added lazyload support for core Responsive image.

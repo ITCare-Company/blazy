@@ -9,7 +9,7 @@ o Mason
 o GridStack
 o ... counting.
 
-Those modules do not all necessarily depend on the Blazy JS library, however
+Those modules do not all necessarily use the Blazy JS library, however
 this module is a reasonable place to reduce duplication efforts and DRY stuffs.
 
 A few things that bring those module here:

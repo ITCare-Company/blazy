@@ -16,7 +16,7 @@
     attach: function (context) {
       var me = Drupal.blazy;
       var $blazy = $('[data-blazy]', context);
-      var globals = Drupal.blazy.globalSettings();
+      var globals = me.globalSettings();
 
       if (!$blazy.length) {
         me.init = new Blazy(globals);
@@ -32,6 +32,10 @@
         }
 
         me.init = new Blazy($.extend({}, globals, data));
+
+        me.ratio = me.init.options.ratio;
+        me.dimensions = me.init.options.dimensions || null;
+        me.max = me.init.options.max || null;
 
         me.resizing(function () {
           me.windowWidth = window.innerWidth || document.documentElement.clientWidth || $(window).width();
@@ -50,6 +54,9 @@
   Drupal.blazy = {
     init: null,
     windowWidth: 0,
+    ratio: false,
+    dimensions: null,
+    max: null,
     globalSettings: function () {
       var me = this;
       var settings = drupalSettings.blazy || {};
@@ -84,28 +91,29 @@
       var me = this;
       var th = null;
       var tw = null;
-      var dimensions = me.init.options.dimensions || null;
+      var ow = me.max !== null ? me.max[0] : elm.attr('width');
+      var oh = me.max !== null ? me.max[1] : elm.attr('height');
 
-      if (dimensions === null) {
+      if (me.dimensions === null) {
         return;
       }
 
-      var keys = $.map(dimensions, function (item, idx) { return idx; });
+      var keys = $.map(me.dimensions, function (item, idx) { return idx; });
       var first = keys[0];
       var last = keys[keys.length - 1];
 
       // This should be easier when Blazy supports mobile first.
       if (first >= me.windowWidth) {
-        th = dimensions[first].height;
-        tw = dimensions[first].width;
-      }
-      else if (me.windowWidth > last) {
-        th = elm.attr('height');
-        tw = elm.attr('width');
+        th = me.dimensions[first].height;
+        tw = me.dimensions[first].width;
       }
       else {
-        $.each(dimensions, function (key, v) {
-          if (key <= me.windowWidth) {
+        $.each(me.dimensions, function (key, v) {
+          if (me.windowWidth > last) {
+            th = oh;
+            tw = ow;
+          }
+          else if (key <= me.windowWidth) {
             th = v.height;
             tw = v.width;
           }
@@ -119,10 +127,11 @@
 
     setRatio: function (elm, th, tw) {
       var me = this;
+      var $ratio = elm.closest('.media--ratio');
 
       elm.attr('height', th).attr('width', tw);
-      if (me.init.options.ratio && elm.closest('.media--ratio').length) {
-        elm.closest('.media--ratio').css({
+      if (me.ratio && $ratio.length) {
+        $ratio.css({
           paddingBottom: Math.round((th / tw) * 100) + '%'
         });
       }
@@ -133,9 +142,14 @@
       var $elm = $(elm);
       var $blazy = $elm.closest('[data-blazy]');
       var blazyClasses;
+      var updateRatio = me.dimensions !== 'undefined';
+
+      if (updateRatio) {
+        me.updateRatio($elm);
+      }
 
       $blazy.on('resizing', function (e, windowWidth) {
-        if (me.init.options.dimensions !== 'undefined') {
+        if (updateRatio) {
           me.updateRatio($elm);
         }
       });

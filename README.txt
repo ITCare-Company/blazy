@@ -42,9 +42,7 @@ o Go to Manage display page, e.g.:
 o Find "Blazy" formatter under "Manage display".
 
 o Go to "admin/config/media/blazy" to manage few global options, including
-  enabling support for lazyloading core Responsive image. If you don't intend
-  to lazyload Responsive image via Blazy formatter, be sure to keep it disabled
-  to avoid library override in the first place.
+  enabling support for lazyloading core Responsive image.
 
 For custom usages, add a class "b-lazy" along with a "data-src" attribute
 referring to an expected image or iframe URL, or to any supported element:
@@ -70,6 +68,8 @@ https://www.drupal.org/project/lazyloader
 
 
 TROUBLESHOOTING
+Resing is not supported. Just reload the page.
+
 VIEWS INTEGRATION
 Be sure to check "Use field template" under "Style settings" when using Views,
   if trouble with Blazy Formatter as stand alone Views output.
@@ -94,7 +94,7 @@ Be sure to add a min-height CSS to individual element to avoid layout reflow
   if having Aspect ratio enabled in the first place.
 
 The blazy.ratio.css adds this by default to prevent collapsing field container:
-  .field--blazy-ratio {
+  .blazy--ratio {
     min-width: 50%;
   }
 
