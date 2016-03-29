@@ -35,7 +35,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    * A state that represents the thumbnail style is enabled.
    */
   const STATE_THUMBNAIL_STYLE_ENABLED = 3;
-
+  
   /**
    * Returns re-usable image formatter form elements.
    */

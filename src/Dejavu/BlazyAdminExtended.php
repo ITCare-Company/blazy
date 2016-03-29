@@ -114,7 +114,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
       '#type'        => 'select',
       '#title'       => t('Item class'),
       '#options'     => isset($definition['classes']) ? $definition['classes'] : [],
-      '#description' => t('If provided, individual item will have this class, e.g.: to have different background with transparent images. Be sure its formatter is Key.'),
+      '#description' => t('If provided, individual item will have this class, e.g.: to have different background with transparent images. Be sure its formatter is Key or Label. Accepted field types: list text, string (e.g.: node title), term/entity reference label.'),
       '#access'      => isset($definition['classes']),
       '#weight'      => 6,
     ];
@@ -137,7 +137,6 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
       $form['caption']['#description'] .= ' ' . t('Be sure to make them visible at their relevant Manage display.');
     }
     else {
-      $form['image']['#description'] .= ' ' . t('Use Blazy formatter to have it lazyloaded.');
       $form['overlay']['#description'] .= ' ' . t('Be sure to CHECK "Use field template" under its formatter if using Slick field formatter.');
     }
   }

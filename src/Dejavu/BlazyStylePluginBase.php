@@ -87,7 +87,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
             $fields['layouts'][$field] = $field_names[$field];
             break;
 
-          case 'entity_reference':
+          case 'entity_reference_label':
           case 'text':
           case 'string':
           case 'link':
@@ -99,7 +99,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
             break;
         }
 
-        if (in_array($handler['type'], ['list_key', 'entity_reference', 'text', 'string'])) {
+        if (in_array($handler['type'], ['list_key', 'entity_reference_label', 'text', 'string'])) {
           $fields['classes'][$field] = $field_names[$field];
         }
       }
@@ -142,19 +142,9 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
     // Add main image fields if so configured.
     if ($field_image = $settings['image']) {
       // Supports individual grid/box image style either inline IMG, or CSS.
-      $grid_style = empty($grids) && !isset($grids[$index]['image_style']) ? '' : $grids[$index]['image_style'];
-      $image      = $this->getImageRenderable($settings, $row, $index, $grid_style);
-      $rendered   = empty($image['rendered']) ? [] : $image['rendered'];
-
-      // Check if the formatter is Blazy which has multi-serving images.
-      if (isset($rendered['#build']['settings']['blazy_data'])) {
-        if ($index == 0) {
-          $settings['blazy_data'] = $rendered['#build']['settings']['blazy_data'];
-        }
-        if (empty($settings['breakpoints']) && isset($rendered['#build']['settings']['breakpoints'])) {
-          $settings['breakpoints'] = $rendered['#build']['settings']['breakpoints'];
-        }
-      }
+      $grid_style        = empty($grids) && !isset($grids[$index]['image_style']) ? '' : $grids[$index]['image_style'];
+      $image             = $this->getImageRenderable($settings, $row, $index, $grid_style);
+      $rendered          = empty($image['rendered']) ? [] : $image['rendered'];
 
       $element['item']   = $this->getImageItem($image);
       $element[$item_id] = empty($settings['background']) ? $rendered : '';
@@ -277,20 +267,6 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
   }
 
   /**
-   * Returns the renderable array of field containing rendered and raw data.
-   */
-  public function getFieldRenderable($row, $index, $field_name = '', $multiple = FALSE) {
-    if (empty($field_name)) {
-      return FALSE;
-    }
-
-    // Be sure to not check "Use field template" under "Style settings" to have
-    // renderable array to work with, otherwise flattened string!
-    $result = isset($this->view->field[$field_name]) ? $this->view->field[$field_name]->getItems($row) : [];
-    return empty($result) ? [] : ($multiple ? $result : $result[0]);
-  }
-
-  /**
    * Returns the rendered caption fields.
    */
   public function getCaption($index, $settings = []) {
@@ -338,16 +314,50 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
   }
 
   /**
-   * Returns the string values for the expected Title, ET, List, Term.
+   * Returns the renderable array of field containing rendered and raw data.
    */
-  public function getFieldString($row, $field_name, $idx) {
+  public function getFieldRenderable($row, $index, $field_name = '', $multiple = FALSE) {
+    if (empty($field_name)) {
+      return FALSE;
+    }
+
+    // Be sure to not check "Use field template" under "Style settings" to have
+    // renderable array to work with, otherwise flattened string!
+    $result = isset($this->view->field[$field_name]) ? $this->view->field[$field_name]->getItems($row) : [];
+    return empty($result) ? [] : ($multiple ? $result : $result[0]);
+  }
+
+  /**
+   * Returns the string values for the expected Title, ET label, List, Term.
+   *
+   * @todo re-check this, or if any consistent way to retrieve string values.
+   */
+  public function getFieldString($row, $field_name, $index) {
     $values   = [];
     $renderer = $this->blazyManager->getRenderer();
 
     // Content title/List/Text, either as link or plain text.
-    if ($value = $this->getFieldString($idx, $field_name)) {
-      $value = is_string($value) ? $value : (isset($value[0]['value'])? $value[0]['value'] : '');
-      $values[$idx] = empty($value) ? '' : Html::cleanCssIdentifier(Unicode::strtolower($value));
+    if ($value = $this->getFieldValue($index, $field_name)) {
+      $value = is_array($value) ? array_filter($value) : $value;
+
+      // Entity reference label.
+      if (empty($value) && $markup = $this->getField($index, $field_name)) {
+        $value = is_object($markup) ? trim(strip_tags($markup->__toString())) : $value;
+      }
+
+      // Tags has comma separated value, although can be changed, just too much.
+      if (strpos($value, ',') !== FALSE) {
+        $tags = explode(',', $value);
+        $rendered_tags = [];
+        foreach ($tags as $tag) {
+          $rendered_tags[] = Html::cleanCssIdentifier(Unicode::strtolower(trim($tag)));
+        }
+        $values[$index] = implode(' ', $rendered_tags);
+      }
+      else {
+        $value = is_string($value) ? $value : (isset($value[0]['value'])? $value[0]['value'] : '');
+        $values[$index] = empty($value) ? '' : Html::cleanCssIdentifier(Unicode::strtolower($value));
+      }
     }
 
     // Term reference/ET, either as link or plain text.
@@ -355,10 +365,10 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
       $value = [];
       foreach ($renderable as $key => $render) {
         $class = isset($render['rendered']['#title']) ? $render['rendered']['#title'] : $renderer->render($render['rendered']);
-        $class = strip_tags($class);
+        $class = trim(strip_tags($class));
         $value[$key] = Html::cleanCssIdentifier(Unicode::strtolower($class));
       }
-      $values[$idx] = empty($value) ? '' : implode(' ', $value);
+      $values[$index] = empty($value) ? '' : implode(' ', $value);
     }
     return $values;
   }

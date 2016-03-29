@@ -62,17 +62,28 @@ class BlazyManager extends BlazyManagerBase {
    * @todo unified way between View style plugin and field formatter.
    */
   public function isBlazy(array &$settings = [], $item = []) {
-    if (isset($item['settings']['blazy_data'])) {
-      $settings['blazy_data'] = $item['settings']['blazy_data'];
+    // Retrives Blazy formatter related settings from within Views style plugin.
+    $item_id = $settings['item_id'];
+    if (isset($item['settings']) && isset($item[$item_id]['#build']['settings'])) {
+      $blazy_settings = $item[$item_id]['#build']['settings'];
+
+      if (isset($blazy_settings['blazy_data'])) {
+        $settings['blazy_data'] = $blazy_settings['blazy_data'];
+      }
+
+      // Allows breakpoints overrides such as multi-styled images by GridStack.
+      if (empty($settings['breakpoints']) && isset($blazy_settings['breakpoints'])) {
+        $settings['breakpoints'] = $blazy_settings['breakpoints'];
+      }
+
+      foreach (['box_style', 'image_style', 'lazy', 'media_switch', 'ratio', 'retina'] as $key) {
+        $fallback = isset($settings[$key]) ? $settings[$key] : '';
+        $settings[$key] = isset($blazy_settings[$key]) && empty($fallback) ? $blazy_settings[$key] : $fallback;
+      }
     }
 
-    // Allows breakpoints overrides such as multi-styled images by GridStack.
-    if (empty($settings['breakpoints']) && isset($item['settings']['breakpoints'])) {
-      $settings['breakpoints'] = $item['settings']['breakpoints'];
-    }
-
-    // Prepare Blazy data into the container to convert into JSON object.
-    if (isset($item['item'])) {
+    // If not Blazy formatter, build the Blazy data as some plugins use Blazy.
+    if (isset($item['item']) && !isset($settings['blazy_data'])) {
       $settings['blazy_data'] = $this->buildDataBlazy($settings, $item['item']);
       $settings['blazy_data']['_reset'] = TRUE;
     }

@@ -37,7 +37,7 @@
 {% set media %}
   <div{{ ratio_attributes.addClass(ratio_classes) }}>
     {{ image }}
-    {% if settings.icon %} {{ settings.icon }} {% endif %}
+    {{ settings.icon }}
     {% if noscript %}<noscript>{{ noscript }}</noscript>{% endif %}
   </div>
 {% endset %}
