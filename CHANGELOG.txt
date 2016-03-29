@@ -1,4 +1,7 @@
 
+Blazy 8.x-1.0-dev, 2016-03-29
+-----------------------------
+- Added fallback for missing $settings['item_id'].
 
 Blazy 8.x-1.0-dev, 2016-03-28
 -----------------------------
