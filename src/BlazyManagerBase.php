@@ -163,14 +163,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     // Core Blazy libraries.
     if (!empty($attach['lazy']) && ($attach['lazy'] == 'blazy' || $attach['lazy'] == 'responsive')) {
       $load['library'][] = 'blazy/load';
-      $globals = $this->configLoad()['blazy'];
-      $blazy_data = empty($attach['blazy_data']) ? [] : $attach['blazy_data'];
-
-      // Allows other modules to provide custom settings.
-      if (!empty($blazy_data['_reset'])) {
-        $blazy_data = [];
-      }
-      $load['drupalSettings']['blazy'] = empty($blazy_data) ? $globals : array_merge($globals, $blazy_data);
+      $load['drupalSettings']['blazy'] = $this->configLoad()['blazy'];
     }
 
     if (!empty($attach['ratio'])) {

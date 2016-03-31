@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2016-03-31
+-----------------------------
+- A few cleanups and fixes with multiple blazy instances, etc.
+
 Blazy 8.x-1.0-dev, 2016-03-29
 -----------------------------
 - A few fixes with item class options, etc.

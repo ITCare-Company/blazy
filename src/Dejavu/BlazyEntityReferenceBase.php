@@ -30,7 +30,6 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase imp
    */
   public function buildElements(array &$build = [], $entities, $langcode) {
     $settings  = &$build['settings'];
-    $item_id   = $settings['item_id'];
     $view_mode = $settings['view_mode'] ?: 'full';
 
     foreach ($entities as $delta => $entity) {
@@ -180,7 +179,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase imp
   }
 
   /**
-   * Builds slide overlay placed within the caption.
+   * Builds overlay placed within the caption.
    */
   public function getOverlay(array &$element = [], $entity, $langcode) {
     return [];

@@ -18,7 +18,7 @@ class BlazyFormatterManager extends BlazyManager {
   public function buildSettings(array &$build = [], $items) {
     $settings = &$build['settings'];
 
-    // Sniffs for Views to allow block__no_wrapper, viewa_no_wrapper, etc.
+    // Sniffs for Views to allow block__no_wrapper, views_no_wrapper, etc.
     if (function_exists('views_get_current_view') && $view = views_get_current_view()) {
       $settings['view_name'] = $view->storage->id();
       $settings['current_view_mode'] = $view->current_display;
@@ -65,13 +65,13 @@ class BlazyFormatterManager extends BlazyManager {
 
     $this->cleanUpBreakpoints($settings);
 
-    $settings['id']          = $id;
-    $settings['breakpoints'] = empty($settings['breakpoints']) ? [] : array_filter($settings['breakpoints']);
-    $settings['caption']     = empty($settings['caption']) ? [] : array_filter($settings['caption']);
-    $settings['resimage']    = function_exists('responsive_image_get_image_dimensions');
-    $settings['blazy_data']  = $field_type == 'image' ? $this->buildDataBlazy($settings, $items[0]) : [];
+    $settings['id']         = $id;
+    $settings['caption']    = empty($settings['caption']) ? [] : array_filter($settings['caption']);
+    $settings['resimage']   = function_exists('responsive_image_get_image_dimensions');
+    $settings['blazy_data'] = $field_type == 'image' ? $this->buildDataBlazy($settings, $items[0]) : [];
 
     // Aspect ratio isn't working with Responsive image and breakpoints, yet.
+    // However allows custom work to get going with an enforced.
     $ratio = empty($settings['responsive_image_style']) && empty($settings['breakpoints']) && !empty($settings['ratio']);
     if ($settings['ratio'] == 'enforced') {
       $ratio = TRUE;

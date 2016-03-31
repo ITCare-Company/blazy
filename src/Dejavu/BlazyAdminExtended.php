@@ -8,7 +8,6 @@
 namespace Drupal\blazy\Dejavu;
 
 use Drupal\Core\Url;
-use Drupal\Core\Render\Element;
 use Drupal\blazy\Form\BlazyAdminFormatterBase;
 
 /**

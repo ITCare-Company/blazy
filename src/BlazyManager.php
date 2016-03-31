@@ -43,6 +43,8 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
 
+    $settings['breakpoints'] = empty($settings['breakpoints']) ? [] : array_filter($settings['breakpoints']);
+
     // If breakpoints provided, enforce Blazy lazyloading without further ado.
     $settings['blazy'] = !empty($settings['breakpoints']);
   }

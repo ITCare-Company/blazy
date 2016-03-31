@@ -197,14 +197,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
   /**
    * Defines re-usable breakpoints form.
+   *
+   * @todo re-check if retina is supported per breakpoint.
    */
   public function breakpointElements($definition = []) {
     if (!isset($definition['breakpoints'])) {
       return [];
     }
-
-    $settings     = $definition['settings'];
-    $image_styles = image_style_options(FALSE);
 
     foreach ($definition['breakpoints'] as $breakpoint) {
       $form[$breakpoint]['breakpoint'] = [
@@ -230,7 +229,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'               => 'select',
         '#title'              => t('Image style'),
         '#title_display'      => 'invisible',
-        '#options'            => $image_styles,
+        '#options'            => image_style_options(FALSE),
         '#empty_option'       => t('- None -'),
         '#weight'             => 3,
         '#wrapper_attributes' => ['class' => ['form-item--left']],
@@ -318,7 +317,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
 
       if (isset($form[$key]['#access']) && $form[$key]['#access'] == FALSE) {
-        // $form[$key]['#disabled'] = TRUE;
         unset($form[$key]['#default_value']);
       }
     }
