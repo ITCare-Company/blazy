@@ -3,42 +3,58 @@
  * @file
  * Default theme implementation to display a formatted blazy image/media field.
  *
+ * The Blazy supports core image, responsive image and media entity.
+ * If iframe switcher is enabled, audio/video iframe will be hidden below image
+ * overlay, and only visible when toggled. Otherwise iframe only, and image is
+ * emptied.
+ *
  * Available variables:
- * - image: A collection of image data.
- * - url: An URL the image can be linked to.
- * - attributes: Link attributes.
- * - ratio: The aspect ratio to fix layout reflow for lazyloaded images/iframes.
+ *   - image: A collection of image data.
+ *   - attributes: An array of attributes.
+ *   - content_attributes: An array of content attributes, including iframe SRC.
+ *   - url: An optional URL the image can be linked to, can be any of
+ *       audio/video, or entity URLs, when using Colorbox/Photobox, or Link to
+ *       content.
+ *   - settings: An array containing the given settings.
  *
- * @see template_preprocess_image_formatter()
- * @see template_preprocess_colorbox_formatter()
  * @see template_preprocess_blazy()
- *
- * Debug:
- * @see https://www.drupal.org/node/1906780
- * @see https://www.drupal.org/node/1903374
- * Use Kint: {{ kint(variable) }}
- * Dump all available variables and their contents: {{ dump() }}
- * Dump only the available variable keys: {{ dump(_context|keys) }}
- *
- * @todo IFRAME for Media entity and Video embed field inetgration, if any.
- * Note the classes media ratio are based on Slick for easy integration.
  *
  * @ingroup themeable
  */
 #}
 {%
-  set ratio_classes = [
+  set classes = [
     'media',
     settings.lazy ? 'media--loading',
-    settings.ratio ? 'media--ratio media--ratio--' ~ settings.ratio
+    settings.type ? 'media--' ~ settings.type,
+    settings.ratio ? 'media--ratio media--ratio--' ~ settings.ratio,
+    settings.media_switch ? 'media--switch media--switch--' ~ settings.media_switch|clean_class,
+    settings.player ? 'media--player',
+    settings.responsive_image_style_id ? 'media--responsive'
+  ]
+%}
+{%
+  set content_classes = [
+    'media_iframe',
+    settings.ratio ? 'media__element'
   ]
 %}
 
+{% set player %}
+  {% if settings.player %}
+    <iframe{{ content_attributes.addClass(content_classes) }} allowfullscreen></iframe>
+    {% if settings.media_switch %}
+      <i class="media__icon media__icon--close"></i>
+      <i class="media__icon media__icon--play"></i>
+    {% endif %}
+  {% endif %}
+{% endset %}
+
 {% set media %}
-  <div{{ ratio_attributes.addClass(ratio_classes) }}>
+  <div{{ attributes.addClass(classes) }}>
     {{ image }}
+    {{ player }}
     {{ settings.icon }}
-    {% if noscript %}<noscript>{{ noscript }}</noscript>{% endif %}
   </div>
 {% endset %}
 

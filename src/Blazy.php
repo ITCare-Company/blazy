@@ -26,21 +26,18 @@ class Blazy extends BlazyManager {
    * Prepares variables for blazy templates.
    */
   public static function buildAttributes(&$variables) {
-    // Merge the supported formatter $variables: image and colorbox.
     $element = $variables['element'];
     foreach (['captions', 'delta', 'item', 'item_attributes', 'settings', 'url', 'url_attributes'] as $key) {
       $variables[$key] = isset($element["#$key"]) ? $element["#$key"] : [];
     }
 
     // Load the supported formatter variables for the possesive blazy wrapper.
-    $variables['attributes'] = $variables['item_attributes'];
-    $attributes = &$variables['attributes'];
-    $settings   = &$variables['settings'];
-    $item       = $variables['item'];
+    $settings           = &$variables['settings'];
+    $item               = $variables['item'];
+    $image_attributes   = &$variables['item_attributes'];
+    $content_attributes = [];
 
     // Modifies variables.
-    $variables['noscript'] = '';
-    $ratio_attributes = new Attribute();
     foreach (['icon', 'player', 'type', 'uri'] as $key) {
       $settings[$key] = isset($settings[$key]) ? $settings[$key] : '';
     }
@@ -52,6 +49,10 @@ class Blazy extends BlazyManager {
       $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
     }
 
+    if (empty($settings['icon']) && !empty($settings['lightbox'])) {
+      $settings['icon'] = ['#markup' => '<span class="media__icon media__icon--litebox"></span>'];
+    }
+
     if (!empty($settings['caption'])) {
       $variables['caption_attributes'] = new Attribute();
       $variables['caption_attributes']->addClass($settings['item_id'] . '__caption');
@@ -59,47 +60,60 @@ class Blazy extends BlazyManager {
 
     // @todo adjust themes (IMG/IFRAME) based on type: image/video/audio.
     // Supports non-blazy formatter, that is, responsive image theme.
-    $media = &$variables['image'];
+    $media = !empty($settings['url']) && !empty($settings['type']) && in_array($settings['type'], ['video', 'audio']);
+    $image = &$variables['image'];
 
-    $media['#uri'] = $settings['uri'];
-    $media['#alt'] = isset($item->alt) ? $item->alt : NULL;
+    $image['#uri'] = $settings['uri'];
+    $image['#alt'] = isset($item->alt) ? $item->alt : NULL;
 
     // Do not output an empty 'title' attribute.
     if (Unicode::strlen($item->title) != 0) {
-      $media['#title'] = $item->title;
+      $image['#title'] = $item->title;
     }
 
     // Check whether we have responsive image, or plain one.
     if (!empty($settings['responsive_image_style_id'])) {
-      $media['#type'] = 'responsive_image';
-      $media['#responsive_image_style_id'] = $settings['responsive_image_style_id'];
+      $image['#type'] = 'responsive_image';
+      $image['#responsive_image_style_id'] = $settings['responsive_image_style_id'];
 
       // Disable aspect ratio which is not yet supported due to complexity.
       $settings['ratio'] = FALSE;
+      $image_attributes['class'][] = 'media__image';
     }
     elseif (!empty($settings['lazy']) && empty($settings['responsive_image_style_id'])) {
-      $media['#theme'] = 'image';
-      $media['#uri']   = static::PLACEHOLDER;
+      $image['#theme'] = 'image';
+      $image['#uri']   = static::PLACEHOLDER;
 
       // Defines attributes, builtin, or supported lazyload such as Slick.
-      self::buildBreakpointAttributes($attributes, $settings);
+      self::buildBreakpointAttributes($image_attributes, $settings);
 
       // Aspect ratio to fix layout reflow with lazyloaded images responsively.
       if (!empty($settings['ratio']) && !empty($settings['height']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
-        $ratio_attributes->setAttribute('style', 'padding-bottom: ' . round((($settings['height'] / $settings['width']) * 100), 2) . '%');
+        $variables['attributes']['style'] = 'padding-bottom: ' . round((($settings['height'] / $settings['width']) * 100), 2) . '%';
       }
+
+      $image_attributes['class'][] = 'media__image';
     }
 
-    $attributes['class'][] = 'media__element';
-    $media['#attributes'] = $attributes;
+    $image_attributes['class'][] = 'media__element';
+    $image['#attributes'] = $image_attributes;
 
-    if (empty($settings['icon']) && !empty($settings['lightbox'])) {
-      $settings['icon'] = ['#markup' => '<span class="media__icon media__icon--litebox"></span>'];
+    // Prepares a media player.
+    if ($media) {
+      // image : If iframe switch disabled, fallback to iframe, remove image.
+      // player: If no colorbox/photobox, it is an image to iframe switcher.
+      // data- : Gets consistent with colorbox to share JS manipulation.
+      // @todo re-check blazy 'data-src' IFRAME lazyload against blazy.media.js.
+      $image                            = empty($settings['media_switch']) ? [] : $image;
+      $settings['player']               = !$settings['lightbox'];
+      $content_attributes['data-media'] = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
+      $content_attributes['data-lazy']  = $settings['url'];
+      $content_attributes['src']        = empty($settings['iframe_lazy']) ? $settings['url'] : 'about:blank';
     }
 
     // URL can be entity or lightbox URL different from the content image URL.
-    $variables['url_attributes']   = new Attribute($variables['url_attributes']);
-    $variables['ratio_attributes'] = $ratio_attributes;
+    $variables['content_attributes'] = new Attribute($content_attributes);
+    $variables['url_attributes']     = new Attribute($variables['url_attributes']);
   }
 
   /**
@@ -127,6 +141,8 @@ class Blazy extends BlazyManager {
 
   /**
    * Overrides any supported template to have blazy wrapper variables.
+   *
+   * @todo make it generic enough to copy/paste elsewhere.
    */
   public static function buildWrapperAttributes(&$variables) {
     $element = $variables['element'];

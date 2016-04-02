@@ -25,6 +25,11 @@
   /* padding-top: 30px; IE7 fix */
 }
 
+/* Allows to fix broken images with hidden elements, see slick.load.js. */
+.js-media--ratio {
+  height: auto;
+}
+
 /* Aspect ratio element: IMG, IFRAME, DIV. */
 .media--ratio .media__element {
   display: block;

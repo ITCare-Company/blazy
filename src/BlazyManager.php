@@ -37,9 +37,11 @@ class BlazyManager extends BlazyManagerBase {
    * Cleans up empty breakpoints.
    */
   public function cleanUpBreakpoints(array &$settings = []) {
-    foreach ($settings['breakpoints'] as $key => $breakpoint) {
-      if (empty($breakpoint['width']) && empty($breakpoint['image_style'])) {
-        unset($settings['breakpoints'][$key]);
+    if (!empty($settings['breakpoints'])) {
+      foreach ($settings['breakpoints'] as $key => $breakpoint) {
+        if (empty($breakpoint['width']) && empty($breakpoint['image_style'])) {
+          unset($settings['breakpoints'][$key]);
+        }
       }
     }
 
@@ -255,6 +257,7 @@ class BlazyManager extends BlazyManagerBase {
     $element['#item'] = $item;
 
     // Responsive image integration.
+    $settings['responsive_image_style_id'] = '';
     if (!empty($settings['resimage']) && !empty($settings['responsive_image_style'])) {
       $responsive_image_style = $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style');
       $settings['responsive_image_style_id'] = $responsive_image_style->id() ?: '';
