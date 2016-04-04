@@ -118,6 +118,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       '#title'       => t('Use CSS background'),
       '#description' => t('Check this to turn the image into CSS background instead.'),
       '#access'      => isset($definition['background']),
+      '#weight'      => -98,
     ];
 
     $form['layout'] = [

@@ -78,6 +78,8 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
           case 'image':
           case 'blazy':
           case 'media':
+          case 'video_embed_field_thumbnail':
+          case 'video_embed_field_colorbox':
             $fields['images'][$field] = $field_names[$field];
             $fields['overlays'][$field] = $field_names[$field];
             $fields['thumbnails'][$field] = $field_names[$field];
@@ -101,6 +103,11 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
 
         if (in_array($handler['type'], ['list_key', 'entity_reference_label', 'text', 'string'])) {
           $fields['classes'][$field] = $field_names[$field];
+        }
+
+        $overlays = ['slick_image', 'slick_media', 'slick_text', 'video_embed_field_video'];
+        if (in_array($handler['type'], $overlays)) {
+          $fields['overlays'][$field] = $field_names[$field];
         }
       }
 

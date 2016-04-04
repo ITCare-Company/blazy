@@ -84,19 +84,30 @@ class Blazy extends BlazyManager {
       $image['#theme'] = 'image';
       $image['#uri']   = static::PLACEHOLDER;
 
-      // Defines attributes, builtin, or supported lazyload such as Slick.
-      self::buildBreakpointAttributes($image_attributes, $settings);
-
       // Aspect ratio to fix layout reflow with lazyloaded images responsively.
-      if (!empty($settings['ratio']) && !empty($settings['height']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
+      if (!empty($settings['height']) && !empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
         $variables['attributes']['style'] = 'padding-bottom: ' . round((($settings['height'] / $settings['width']) * 100), 2) . '%';
+      }
+
+      // Defines attributes, builtin, or supported lazyload such as Slick.
+      if (!empty($settings['background'])) {
+        self::buildBreakpointAttributes($variables['attributes'], $settings);
+        $variables['attributes']['class'][] = 'b-lazy';
+        $variables['attributes']['class'][] = 'media--background';
+        $image = [];
+      }
+      else {
+        // Defines attributes, builtin, or supported lazyload such as Slick.
+        self::buildBreakpointAttributes($image_attributes, $settings);
       }
 
       $image_attributes['class'][] = 'media__image';
     }
 
-    $image_attributes['class'][] = 'media__element';
-    $image['#attributes'] = $image_attributes;
+    if ($image) {
+      $image_attributes['class'][] = 'media__element';
+      $image['#attributes'] = $image_attributes;
+    }
 
     // Prepares a media player.
     if ($media) {

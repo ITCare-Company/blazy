@@ -37,7 +37,7 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
   protected $blazyFormatterManager;
 
   /**
-   * Constructs an BlazyFormatter object.
+   * Constructs a BlazyFormatter object.
    */
   public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, BlazyFormatterManager $blazy_formatter_manager) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
@@ -70,7 +70,7 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
   /**
    * Returns the blazy admin service.
    */
-  public function blazyAdminFormatter() {
+  public function admin() {
     return \Drupal::service('blazy.admin.formatter');
   }
 
@@ -149,7 +149,7 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
     $element    = [];
     $definition = $this->getScopedFormElements();
 
-    $this->blazyAdminFormatter()->buildSettingsForm($element, $definition);
+    $this->admin()->buildSettingsForm($element, $definition);
 
     return $element;
   }
@@ -176,16 +176,7 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
    */
   public function settingsSummary() {
     $summary = [];
-    if ($breakpoints = array_filter($this->getSetting('breakpoints'))) {
-      $widths = [];
-      foreach ($breakpoints as $key => $breakpoint) {
-        if (!empty($breakpoint['width'])) {
-          $widths[] = $breakpoint['width'];
-        }
-      }
-      $summary[] = t('Breakpoints: <strong>@breakpoints</strong>', ['@breakpoints' => $widths ? implode(', ', $widths) : t('None')]);
-    }
-    return $this->blazyAdminFormatter()->settingsSummary($this, $summary);
+    return $this->admin()->settingsSummary($this, $summary);
   }
 
 }

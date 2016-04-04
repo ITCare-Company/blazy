@@ -1,8 +1,14 @@
 
+Blazy 8.x-1.0-dev, 2016-04-04
+-----------------------------
+- Added support for video_embed_field via BlazyStylePluginBase.
+- Added support for overlay with nested slicks via BlazyStylePluginBase.
+- Added support to turn images into CSS background images.
+
 Blazy 8.x-1.0-dev, 2016-04-03
 -----------------------------
 - Added composer.json.
-- Prepared Media entity integration.
+- Prepared Media entity supports.
 - Added .js-media--ratio to solve hidden blazies such as Slick carousels within
   hidden containers/ Ultimenu regions.
 - Fixed for undefined index notices.

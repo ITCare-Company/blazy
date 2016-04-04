@@ -69,13 +69,16 @@ class BlazyFormatterManager extends BlazyManager {
     $settings['caption']    = empty($settings['caption']) ? [] : array_filter($settings['caption']);
     $settings['resimage']   = function_exists('responsive_image_get_image_dimensions');
     $settings['blazy_data'] = $field_type == 'image' ? $this->buildDataBlazy($settings, $items[0]) : [];
+    $noresimage             = empty($settings['responsive_image_style']);
+    $settings['background'] = $noresimage && !empty($settings['background']);
+    $settings['blazy']      = !empty($settings['background']) || !empty($settings['breakpoints']);
 
     // Aspect ratio isn't working with Responsive image and breakpoints, yet.
     // However allows custom work to get going with an enforced.
     $ratio = FALSE;
     if (!empty($settings['ratio'])) {
       $ratio = empty($settings['responsive_image_style']) && empty($settings['breakpoints']);
-      if ($settings['ratio'] == 'enforced') {
+      if ($settings['ratio'] == 'enforced' || $settings['background']) {
         $ratio = TRUE;
       }
     }

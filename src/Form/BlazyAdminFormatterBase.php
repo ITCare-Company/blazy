@@ -92,6 +92,8 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       $url = Url::fromRoute('entity.responsive_image_style.collection')->toString();
       $form['responsive_image_style']['#description'] .= ' ' . t('<a href=":url" target="_blank">Manage responsive image styles</a>.', [':url' => $url]);
     }
+
+    $form['background']['#states'] = $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition);
   }
 
   /**
@@ -132,7 +134,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
         '@link'       => '//www.smashingmagazine.com/2014/02/27/making-embedded-content-work-in-responsive-design/',
       ]),
       '#access'       => isset($definition['media_switch_form']),
-      '#weight'       => -99,
+      '#weight'       => -96,
       '#states'       => $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition),
     ];
 
@@ -142,7 +144,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
         '#title'       => t('Lazy iframe'),
         '#description' => t('Check to make the video/audio iframes truly lazyloaded, and speed up loading time. Depends on JS enabled at client side.'),
         '#access'      => isset($definition['multimedia']),
-        '#weight'      => -99,
+        '#weight'      => -96,
         '#states'      => $this->getState(static::STATE_IFRAME_ENABLED, $definition),
       ];
 
@@ -152,7 +154,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
         '#title'       => t('View mode'),
         '#description' => t('Required to grab the fields. Be sure the selected "View mode" is enabled, and the enabled fields here are not hidden there. Manage view modes on the <a href=":view_modes">View modes page</a>.', [':view_modes' => Url::fromRoute('entity.entity_view_mode.collection')->toString()]),
         '#access'      => isset($definition['target_type']),
-        '#weight'      => -99,
+        '#weight'      => -96,
       ];
     }
 
@@ -197,6 +199,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     $elements     = $plugin->settingsForm($form, $form_state);
     $definition   = $this->typedConfig->getDefinition('field.formatter.settings.' . $plugin->getPluginId());
     $image_styles = image_style_options(TRUE);
+    $breakpoints  = isset($settings['breakpoints']) ? array_filter($settings['breakpoints']) : [];
 
     unset($image_styles['']);
 
@@ -206,32 +209,48 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       $options = isset($elements[$key]['#options']) ? $elements[$key]['#options'] : [];
       $vanilla = !empty($settings['vanilla']) && !isset($elements[$key]['#enforced']);
 
-      if (is_array($setting) || empty($title) || $vanilla || !$access) {
-        continue;
-      }
+      if ($key == 'breakpoints') {
+        if ($breakpoints) {
+          $widths = [];
+          foreach ($breakpoints as $id => $breakpoint) {
+            if (!empty($breakpoint['width'])) {
+              $widths[] = $breakpoint['width'];
+            }
+          }
+        }
 
-      if ($definition['mapping'][$key]['type'] == 'boolean') {
-        if (empty($setting)) {
+        $title   = t('Breakpoints');
+        $setting = $widths ? implode(', ', $widths) : t('None');
+      }
+      else {
+        if (is_array($setting) || empty($title) || $vanilla || !$access) {
           continue;
         }
-        $setting = t('Yes');
-      }
-      elseif ($definition['mapping'][$key]['type'] == 'string' && empty($setting)) {
-        continue;
-      }
-      if ($key == 'cache') {
-        $setting = $this->getCacheOptions()[$setting];
-      }
 
-      if (isset($options[$settings[$key]])) {
-        $setting = is_object($options[$settings[$key]]) ? $options[$settings[$key]]->render() : $options[$settings[$key]];
+        if ($definition['mapping'][$key]['type'] == 'boolean') {
+          if (empty($setting)) {
+            continue;
+          }
+          $setting = t('Yes');
+        }
+        elseif ($definition['mapping'][$key]['type'] == 'string' && empty($setting)) {
+          continue;
+        }
+        if ($key == 'cache') {
+          $setting = $this->getCacheOptions()[$setting];
+        }
+
+        // Value is based on select options.
+        if (isset($options[$settings[$key]])) {
+          $setting = is_object($options[$settings[$key]]) ? $options[$settings[$key]]->render() : $options[$settings[$key]];
+        }
       }
 
       if (isset($settings[$key])) {
-        $summary[] = t('@title: <strong>@setting</strong>', array(
+        $summary[] = t('@title: <strong>@setting</strong>', [
           '@title'   => $title,
           '@setting' => $setting,
-        ));
+        ]);
       }
     }
     return $summary;

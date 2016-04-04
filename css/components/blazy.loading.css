@@ -63,3 +63,7 @@
   -webkit-animation: rotateplane 1.2s infinite ease-in-out;
   animation: rotateplane 1.2s infinite ease-in-out;
 }
+
+.media--background {
+  background-size: cover;
+}
