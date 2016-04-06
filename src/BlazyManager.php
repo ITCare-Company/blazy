@@ -146,6 +146,7 @@ class BlazyManager extends BlazyManagerBase {
       $json['max'] = [$settings['width'], $settings['height']];
     }
 
+    // Clean up URIs since this is meant for the top-level.
     unset($settings['uri'], $settings['image_url']);
     return $json;
   }
@@ -158,13 +159,18 @@ class BlazyManager extends BlazyManagerBase {
       return;
     }
 
-    $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+    if (!isset($settings['uri'])) {
+      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+    }
+
     $settings['cache_tags'] = [];
 
     if (empty($modifier) && isset($settings['image_style'])) {
       $modifier = $settings['image_style'];
     }
 
+    $height = isset($item->height) ? $item->height : (isset($settings['height']) ? $settings['height'] : NULL);
+    $width  = isset($item->width)  ? $item->width  : (isset($settings['width'])  ? $settings['width']  : NULL);
     if (!empty($modifier)) {
       $style = $this->entityLoad($modifier, 'image_style');
 
@@ -175,8 +181,8 @@ class BlazyManager extends BlazyManagerBase {
       // Unless reset for multi-styled images, set dimensions once.
       if (empty($settings['_dimensions']) || isset($settings['_dimensions_reset'])) {
         $dimensions = [
-          'width'  => isset($item->width)  ? $item->width  : '',
-          'height' => isset($item->height) ? $item->height : '',
+          'width'  => $width,
+          'height' => $height,
         ];
         $style->transformDimensions($dimensions, $settings['uri']);
         $settings['height']      = $dimensions['height'];
@@ -185,9 +191,9 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
     else {
-      $settings['image_url'] = $item->entity->url();
-      $settings['height']    = $item->height;
-      $settings['width']     = $item->width;
+      $settings['image_url'] = isset($settings['image_url']) ? $settings['image_url'] : $item->entity->url();
+      $settings['height']    = $height;
+      $settings['width']     = $width;
     }
 
     if (!empty($settings['retina'])) {
@@ -253,8 +259,11 @@ class BlazyManager extends BlazyManagerBase {
 
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
-    $item_attributes = $item->_attributes;
-    unset($item->_attributes);
+    $item_attributes = [];
+    if (isset($item->_attributes)) {
+      $item_attributes = $item->_attributes;
+      unset($item->_attributes);
+    }
 
     $element['#item'] = $item;
 
@@ -284,7 +293,7 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     if (!empty($settings['thumbnail_style'])) {
-      $item_attributes['data-thumb'] = $this->entityLoad($settings['thumbnail_style'], 'image_style')->buildUrl($settings['uri']);
+      $settings['thumbnail_url'] = $this->entityLoad($settings['thumbnail_style'], 'image_style')->buildUrl($settings['uri']);
     }
 
     $element['#url']             = '';

@@ -38,7 +38,7 @@ class Blazy extends BlazyManager {
     $content_attributes = [];
 
     // Modifies variables.
-    foreach (['icon', 'player', 'type', 'uri'] as $key) {
+    foreach (['icon', 'player', 'scheme', 'media_switch', 'type', 'uri'] as $key) {
       $settings[$key] = isset($settings[$key]) ? $settings[$key] : '';
     }
 
@@ -60,8 +60,9 @@ class Blazy extends BlazyManager {
 
     // @todo adjust themes (IMG/IFRAME) based on type: image/video/audio.
     // Supports non-blazy formatter, that is, responsive image theme.
-    $media = !empty($settings['url']) && !empty($settings['type']) && in_array($settings['type'], ['video', 'audio']);
-    $image = &$variables['image'];
+    $switch = $settings['media_switch'];
+    $media  = !empty($settings['url']) && !empty($settings['type']) && in_array($settings['type'], ['video', 'audio']);
+    $image  = &$variables['image'];
 
     $image['#uri'] = $settings['uri'];
     $image['#alt'] = isset($item->alt) ? $item->alt : NULL;
@@ -90,6 +91,8 @@ class Blazy extends BlazyManager {
       }
 
       // Defines attributes, builtin, or supported lazyload such as Slick.
+      // Attaches data-attributes to the IMG container for the CSS background
+      // to still allow lazyloading such as a fullscreen Slick. Else IMG tag.
       if (!empty($settings['background'])) {
         self::buildBreakpointAttributes($variables['attributes'], $settings);
         $variables['attributes']['class'][] = 'b-lazy';
@@ -97,11 +100,15 @@ class Blazy extends BlazyManager {
         $image = [];
       }
       else {
-        // Defines attributes, builtin, or supported lazyload such as Slick.
+        $image_attributes['class'][] = 'b-lazy';
         self::buildBreakpointAttributes($image_attributes, $settings);
       }
 
       $image_attributes['class'][] = 'media__image';
+    }
+
+    if (!empty($settings['thumbnail_url'])) {
+      $variables['attributes']['data-thumb'] = $settings['thumbnail_url'];
     }
 
     if ($image) {
@@ -116,7 +123,7 @@ class Blazy extends BlazyManager {
       // data- : Gets consistent with colorbox to share JS manipulation.
       // @todo re-check blazy 'data-src' IFRAME lazyload against blazy.media.js.
       $image                            = empty($settings['media_switch']) ? [] : $image;
-      $settings['player']               = !$settings['lightbox'];
+      $settings['player']               = !$settings['lightbox'] && $switch != 'content';
       $content_attributes['data-media'] = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
       $content_attributes['data-lazy']  = $settings['url'];
       $content_attributes['src']        = empty($settings['iframe_lazy']) ? $settings['url'] : 'about:blank';

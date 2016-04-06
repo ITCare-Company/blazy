@@ -30,7 +30,7 @@
   opacity: 0;
   position: absolute;
   visibility: hidden;
-  z-index: 9;
+  z-index: 8;
 }
 
 .media__icon--play,

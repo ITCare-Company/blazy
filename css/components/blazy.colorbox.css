@@ -34,6 +34,7 @@
 
 .colorbox-on--media .media--ratio {
   height: 0 !important;
+  padding-bottom: 56%;
 }
 
 .colorbox-on--media #cboxLoadedContent .cboxIframe {

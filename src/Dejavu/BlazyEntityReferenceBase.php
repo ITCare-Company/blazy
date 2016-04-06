@@ -11,7 +11,6 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
-use Drupal\blazy\Dejavu\BlazyDefault;
 
 /**
  * Base class for blazy entity reference formatters.
@@ -219,14 +218,17 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase imp
    * Returns the formatted renderable array of the field.
    */
   public function getFieldRenderable($entity, $field_name = '', $view_mode) {
-    $has_field = $field_name && isset($entity->$field_name) && !empty($entity->$field_name->view($view_mode)[0]);
-    $view = $entity->$field_name->view($view_mode);
+    $has_field = $field_name && isset($entity->$field_name);
+    $view = [];
+    if ($has_field && !empty($entity->$field_name->view($view_mode)[0])) {
+      $view = $entity->$field_name->view($view_mode);
 
-    // Prevents quickedit to operate here as otherwise JS error.
-    // @see 2314185, 2284917, 2160321.
-    // @see quickedit_preprocess_field().
-    $view['#view_mode'] = '_custom';
-    return $has_field ? $view : [];
+      // Prevents quickedit to operate here as otherwise JS error.
+      // @see 2314185, 2284917, 2160321.
+      // @see quickedit_preprocess_field().
+      $view['#view_mode'] = '_custom';
+    }
+    return $view;
   }
 
   /**
@@ -278,6 +280,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase imp
       'target_bundles'    => $bundles,
       'target_type'       => $this->getFieldSetting('target_type'),
       'thumb_captions'    => $texts,
+      'nav'               => TRUE,
       'titles'            => $texts,
       'vanilla'           => TRUE,
     ];

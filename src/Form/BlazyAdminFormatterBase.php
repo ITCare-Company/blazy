@@ -138,25 +138,23 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       '#states'       => $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition),
     ];
 
-    if (isset($definition['fieldable_form'])) {
-      $form['iframe_lazy'] = [
-        '#type'        => 'checkbox',
-        '#title'       => t('Lazy iframe'),
-        '#description' => t('Check to make the video/audio iframes truly lazyloaded, and speed up loading time. Depends on JS enabled at client side.'),
-        '#access'      => isset($definition['multimedia']),
-        '#weight'      => -96,
-        '#states'      => $this->getState(static::STATE_IFRAME_ENABLED, $definition),
-      ];
+    $form['iframe_lazy'] = [
+      '#type'        => 'checkbox',
+      '#title'       => t('Lazy iframe'),
+      '#description' => t('Check to make the video/audio iframes truly lazyloaded, and speed up loading time. Depends on JS enabled at client side.'),
+      '#access'      => isset($definition['multimedia']),
+      '#weight'      => -96,
+      '#states'      => $this->getState(static::STATE_IFRAME_ENABLED, $definition),
+    ];
 
-      $form['view_mode'] = [
-        '#type'        => 'select',
-        '#options'     => isset($definition['target_type']) ? $this->getViewModeOptions($definition['target_type']) : [],
-        '#title'       => t('View mode'),
-        '#description' => t('Required to grab the fields. Be sure the selected "View mode" is enabled, and the enabled fields here are not hidden there. Manage view modes on the <a href=":view_modes">View modes page</a>.', [':view_modes' => Url::fromRoute('entity.entity_view_mode.collection')->toString()]),
-        '#access'      => isset($definition['target_type']),
-        '#weight'      => -96,
-      ];
-    }
+    $form['view_mode'] = [
+      '#type'        => 'select',
+      '#options'     => isset($definition['target_type']) ? $this->getViewModeOptions($definition['target_type']) : [],
+      '#title'       => t('View mode'),
+      '#description' => t('Required to grab the fields. Be sure the selected "View mode" is enabled, and the enabled fields here are not hidden there. Manage view modes on the <a href=":view_modes">View modes page</a>.', [':view_modes' => Url::fromRoute('entity.entity_view_mode.collection')->toString()]),
+      '#access'      => isset($definition['fieldable_form']) && isset($definition['target_type']),
+      '#weight'      => -96,
+    ];
 
     // Optional lightbox integration.
     if ($is_colorbox || $is_photobox) {
@@ -177,15 +175,14 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
         '#states'  => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
       ];
 
-      if (isset($definition['multimedia']) && isset($definition['fieldable_form'])) {
-        $form['dimension'] = [
-          '#type'        => 'textfield',
-          '#title'       => t('Lightbox media dimension'),
-          '#description' => t('Use WIDTHxHEIGHT, e.g.: 640x360. This allows video dimensions for the lightbox to be different from the lightbox image style.'),
-          '#weight'      => -99,
-          '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
-        ];
-      }
+      $form['dimension'] = [
+        '#type'        => 'textfield',
+        '#title'       => t('Lightbox media dimension'),
+        '#description' => t('Use WIDTHxHEIGHT, e.g.: 640x360. This allows video dimensions for the lightbox to be different from the lightbox image style.'),
+        '#access'      => isset($definition['multimedia']),
+        '#weight'      => -99,
+        '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
+      ];
     }
   }
 
@@ -210,8 +207,8 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       $vanilla = !empty($settings['vanilla']) && !isset($elements[$key]['#enforced']);
 
       if ($key == 'breakpoints') {
+        $widths = [];
         if ($breakpoints) {
-          $widths = [];
           foreach ($breakpoints as $id => $breakpoint) {
             if (!empty($breakpoint['width'])) {
               $widths[] = $breakpoint['width'];
@@ -227,15 +224,18 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
           continue;
         }
 
-        if ($definition['mapping'][$key]['type'] == 'boolean') {
-          if (empty($setting)) {
+        if (isset($definition['mapping'])) {
+          if ($definition['mapping'][$key]['type'] == 'boolean') {
+            if (empty($setting)) {
+              continue;
+            }
+            $setting = t('Yes');
+          }
+          elseif ($definition['mapping'][$key]['type'] == 'string' && empty($setting)) {
             continue;
           }
-          $setting = t('Yes');
         }
-        elseif ($definition['mapping'][$key]['type'] == 'string' && empty($setting)) {
-          continue;
-        }
+
         if ($key == 'cache') {
           $setting = $this->getCacheOptions()[$setting];
         }

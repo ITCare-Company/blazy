@@ -1,4 +1,16 @@
 
+Blazy 8.x-1.0-dev, 2016-04-06
+-----------------------------
+- A couple of fixes.
+- Prepared optional supports for Video embed field.
+- Ported Lightbox video dimension option to fix for colorbox videos.
+- Added support for unmanaged file such as VEF.
+- Moved [data-thumb] out of IMG tag into .media container, since IMG is optional
+  or can be removed when "Use CSS background" option is selected. This allows
+  flexibility with Slick thumbnail hover/grid as well when the option is on.
+  Affected:
+  - blazy.photobox.min.js.
+
 Blazy 8.x-1.0-dev, 2016-04-04
 -----------------------------
 - Added support for video_embed_field via BlazyStylePluginBase.

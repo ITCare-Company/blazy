@@ -37,6 +37,7 @@ class BlazyFormatterManager extends BlazyManager {
     $view_mode      = empty($settings['current_view_mode']) ? '_custom' : $settings['current_view_mode'];
     $namespace      = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
     $id             = self::getHtmlId("{$namespace}-{$entity_type_id}-{$entity_id}-{$field_clean}-{$view_mode}");
+    $switch         = empty($settings['media_switch']) ? '' : empty($settings['media_switch']);
     $internal_path  = $absolute_path = NULL;
 
     // Deals with UndefinedLinkTemplateException such as paragraphs type.
@@ -58,7 +59,7 @@ class BlazyFormatterManager extends BlazyManager {
       'field_type'     => $field_type,
       'field_name'     => $field_name,
       'internal_path'  => $internal_path,
-      'lightbox'       => !empty($settings['media_switch']) && strpos($settings['media_switch'], 'box') !== FALSE,
+      'lightbox'       => $switch && strpos($switch, 'box') !== FALSE,
       'target_type'    => $target_type,
       'cache_metadata' => ['keys' => [$id, $count]],
     ];
@@ -68,10 +69,15 @@ class BlazyFormatterManager extends BlazyManager {
     $settings['id']         = $id;
     $settings['caption']    = empty($settings['caption']) ? [] : array_filter($settings['caption']);
     $settings['resimage']   = function_exists('responsive_image_get_image_dimensions');
-    $settings['blazy_data'] = $field_type == 'image' ? $this->buildDataBlazy($settings, $items[0]) : [];
-    $noresimage             = empty($settings['responsive_image_style']);
-    $settings['background'] = $noresimage && !empty($settings['background']);
-    $settings['blazy']      = !empty($settings['background']) || !empty($settings['breakpoints']);
+    $settings['background'] = empty($settings['responsive_image_style']) && !empty($settings['background']);
+
+    // @todo simplify these doors.
+    $blazy = isset($settings['theme_hook_image']) && $settings['theme_hook_image'] == 'blazy';
+    $settings['blazy'] = $blazy || !empty($settings['background']) || !empty($settings['breakpoints']);
+
+    if (!isset($settings['blazy_data'])) {
+      $settings['blazy_data'] = $field_type == 'image' ? $this->buildDataBlazy($settings, $items[0]) : [];
+    }
 
     // Aspect ratio isn't working with Responsive image and breakpoints, yet.
     // However allows custom work to get going with an enforced.
