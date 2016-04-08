@@ -23,8 +23,10 @@ trait BlazyVideoTrait {
     $definitions = $this->providerManager->loadDefinitionFromInput($media_url);
 
     // @todo extract URL from the SRC of final rendered TWIG instead.
-    $render = $provider->renderEmbedCode(640, 360, '0');
-    $query  = $render['#query'];
+    $render  = $provider->renderEmbedCode(640, 360, '0');
+    $old_url = isset($render['#attributes']) && isset($render['#attributes']['src']) ? $render['#attributes']['src'] : '';
+    $url     = isset($render['#url']) ? $render['#url'] : $old_url;
+    $query   = isset($render['#query']) ? $render['#query'] : [];
 
     // Prevents complication by now.
     unset($query['autoplay'], $query['auto_play']);
@@ -34,7 +36,7 @@ trait BlazyVideoTrait {
       list($settings['width'], $settings['height']) = getimagesize($settings['image_url']);
     }
 
-    $settings['url']           = Url::fromUri($render['#url'], ['query' => $query])->toString();
+    $settings['url']           = Url::fromUri($url, ['query' => $query])->toString();
     $settings['scheme']        = $definitions['id'];
     $settings['thumbnail_uri'] = $provider->getLocalThumbnailUri();
     $settings['type']          = 'video';

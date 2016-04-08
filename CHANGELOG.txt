@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2016-04-09
+-----------------------------
+- Added support for old video embed field's syntax with html_tag.
+
 Blazy 8.x-1.0-dev, 2016-04-08
 -----------------------------
 - Fixed for JS error.

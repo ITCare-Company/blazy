@@ -141,7 +141,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     $form['iframe_lazy'] = [
       '#type'        => 'checkbox',
       '#title'       => t('Lazy iframe'),
-      '#description' => t('Check to make the video/audio iframes truly lazyloaded, and speed up loading time. Depends on JS enabled at client side.'),
+      '#description' => t('Check to make the video/audio iframes truly lazyloaded, and speed up loading time. Depends on JS enabled at client side. <a href=":more" target="_blank">Read more</a> to <a href=":url" target="_blank">decide</a>.', [':more' => '//goo.gl/FQLFQ6', ':url' => '//goo.gl/f78pMl']),
       '#access'      => isset($definition['multimedia']),
       '#weight'      => -96,
       '#states'      => $this->getState(static::STATE_IFRAME_ENABLED, $definition),
