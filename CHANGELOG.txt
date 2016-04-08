@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2016-04-08
+-----------------------------
+- Fixed for JS error.
+- A few cleanups.
+
 Blazy 8.x-1.0-dev, 2016-04-06
 -----------------------------
 - A couple of fixes.

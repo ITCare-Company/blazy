@@ -146,12 +146,12 @@
         $elm.removeClass('b-error b-loaded').addClass('b-loaded').closest('.media--loading').removeClass('media--loading');
       }, 200);
 
-      if (data.dimensions) {
+      if (data && data.dimensions) {
         me.updateRatio($elm, data);
       }
 
       $blazy.on('resizing', function (e, windowWidth) {
-        if (data.dimensions) {
+        if (data && data.dimensions) {
           me.updateRatio($elm, data);
         }
       });

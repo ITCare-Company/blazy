@@ -90,12 +90,4 @@ abstract class BlazyVideoBase extends FormatterBase implements ContainerFactoryP
     ];
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function isApplicable(FieldDefinitionInterface $field_definition) {
-    $storage = $field_definition->getFieldStorageDefinition();
-    return $storage->isMultiple();
-  }
-
 }
