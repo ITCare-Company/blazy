@@ -249,7 +249,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase imp
     $element['media_switch']['#description'] .= ' ' . t('Be sure the enabled fields here are not hidden/disabled at its view mode.');
 
     $element['image']['#description'] .= ' ' . t('For video/audio, this allows separate highres image.');
-    $element['caption']['#description'] = t('Check fields to be treated as captions.');
+    $element['caption']['#description'] = t('Check fields to be treated as captions, even if not caption texts.');
 
     return $element;
   }

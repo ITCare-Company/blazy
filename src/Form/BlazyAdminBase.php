@@ -99,16 +99,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       return;
     }
 
-    $namespace = $definition['namespace'];
-    $path      = drupal_get_path('module', $namespace);
-    $readme    = Url::fromUri('base:' . $path . '/README.txt')->toString();
-
     $form['skin'] = [
       '#type'        => 'select',
       '#title'       => t('Skin'),
       '#options'     => isset($definition['skins']) ? $definition['skins'] : [],
       '#enforced'    => TRUE,
-      '#description' => t('Skins allow various layouts with just CSS. Some options below depend on a skin. Leave empty to DIY. Or use the provided hook_info() and implement the skin interface to register ones.', [':url' => $readme]),
+      '#description' => t('Skins allow various layouts with just CSS. Some options below depend on a skin. Leave empty to DIY. Or use the provided hook_info() and implement the skin interface to register ones.'),
       '#weight'      => -107,
       '#access'      => isset($definition['skins']),
     ];
@@ -151,10 +147,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Defines re-usable breakpoints form.
    */
   public function breakpointsForm(array &$form, $definition = []) {
-    $settings     = $definition['settings'];
-    $image_styles = image_style_options(FALSE);
-
+    $settings = $definition['settings'];
     $title = t('Leave Breakpoints empty to disable multi-serving images. <small>If provided, Blazy lazyload applies. Ignored if core Responsive image is provided.</small>');
+
     $form['breakpoints'] = [
       '#type'       => 'table',
       '#tree'       => TRUE,

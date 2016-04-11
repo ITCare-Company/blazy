@@ -157,7 +157,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     ];
 
     // Optional lightbox integration.
-    if ($is_colorbox || $is_photobox) {
+    if ($is_colorbox || $is_photobox || isset($definition['lightbox'])) {
       if ($is_colorbox) {
         $form['media_switch']['#options']['colorbox'] = t('Image to colorbox');
       }
@@ -172,8 +172,11 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
         '#title'   => t('Lightbox image style'),
         '#options' => $image_styles,
         '#weight'  => -99,
-        '#states'  => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
       ];
+
+      if (!isset($definition['lightbox'])) {
+        $form['box_style']['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition);
+      }
 
       $form['dimension'] = [
         '#type'        => 'textfield',

@@ -52,17 +52,16 @@ colorbox.skin:
     component:
       css/components/blazy.colorbox.css: {}
       css/components/blazy.lightbox.css: {}
+  dependencies:
+    - colorbox/colorbox
 
 colorbox:
   version: VERSION
   js:
     js/blazy.colorbox.min.js: {}
   dependencies:
-    - core/jquery
-    - core/jquery.once
     - core/drupal
     - core/drupalSettings
-    - colorbox/colorbox
     - blazy/colorbox.skin
 
 photobox:

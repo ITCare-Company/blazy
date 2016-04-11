@@ -166,6 +166,10 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $load['drupalSettings']['blazy'] = $this->configLoad()['blazy'];
     }
 
+    if (!empty($attach['media'])) {
+      $load['library'][] = 'blazy/media';
+    }
+
     if (!empty($attach['ratio'])) {
       $load['library'][] = 'blazy/ratio';
     }
@@ -214,7 +218,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
-   * Returns the HTML ID common for Blazy, GridStack, Mason, Slick.
+   * Returns the trusted HTML ID common for Blazy, GridStack, Mason, Slick.
    */
   public static function getHtmlId($string = 'blazy', $id = '') {
     $blazy_id = &drupal_static('blazy_id', 0);

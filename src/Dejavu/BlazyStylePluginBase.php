@@ -105,8 +105,9 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
           $fields['classes'][$field] = $field_names[$field];
         }
 
-        $overlays = ['slick_image', 'slick_media', 'slick_text', 'video_embed_field_video'];
-        if (in_array($handler['type'], $overlays)) {
+        $slicks   = strpos($handler['type'], 'slick') !== FALSE;
+        $overlays = ['entity_reference_entity_view', 'video_embed_field_video'];
+        if ($slicks || in_array($handler['type'], $overlays)) {
           $fields['overlays'][$field] = $field_names[$field];
         }
       }

@@ -15,7 +15,7 @@ use Drupal\Core\Url;
 trait BlazyVideoTrait {
 
   /**
-   * {@inheritdoc}
+   * Builds relevant video embed field settings based on the given media url.
    */
   public function buildVideo(array &$settings = [], $media_url) {
     /** @var \Drupal\video_embed_field\ProviderManagerInterface $provider */
