@@ -122,7 +122,7 @@ class Blazy extends BlazyManager {
       // player: If no colorbox/photobox, it is an image to iframe switcher.
       // data- : Gets consistent with colorbox to share JS manipulation.
       // @todo re-check blazy 'data-src' IFRAME lazyload against blazy.media.js.
-      $image                            = empty($settings['media_switch']) ? [] : $image;
+      $image                            = empty($switch) ? [] : $image;
       $settings['player']               = !$settings['lightbox'] && $switch != 'content';
       $content_attributes['data-media'] = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
       $content_attributes['data-lazy']  = $settings['url'];

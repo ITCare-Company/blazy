@@ -9,13 +9,12 @@ namespace Drupal\blazy\Dejavu;
 
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
 
 /**
  * Base class for blazy entity reference formatters.
  */
-abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase implements ContainerFactoryPluginInterface {
+abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
 
   /**
    * {@inheritdoc}
