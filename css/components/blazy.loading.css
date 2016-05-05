@@ -40,6 +40,11 @@
   opacity: 1;
 }
 
+/* Needed to display preloader with CSS BG image, otherwise hidden. */
+.media--loading.media--background {
+  opacity: 1;
+}
+
 .media--loading {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;

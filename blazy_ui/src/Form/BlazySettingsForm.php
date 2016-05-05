@@ -36,42 +36,42 @@ class BlazySettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('blazy.settings');
 
-    $form['admin_css'] = array(
+    $form['admin_css'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Admin CSS'),
       '#default_value' => $config->get('admin_css'),
       '#description'   => $this->t('Uncheck to disable blazy related admin compact form styling, only if not compatible with your admin theme.'),
-    );
+    ];
 
-    $form['responsive_image'] = array(
+    $form['responsive_image'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Support Responsive image'),
       '#default_value' => $config->get('responsive_image'),
       '#description'   => $this->t('Check to support lazyloading for the core Responsive image module. Be sure to use Blazy formatter to have relevant styling.'),
-    );
+    ];
 
-    $form['one_pixel'] = array(
+    $form['one_pixel'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('One pixel placeholder'),
       '#default_value' => $config->get('one_pixel'),
       '#description'   => $this->t('By default a one pixel image is the placeholder for lazyloaded Responsive image. Useful to perform a lot better. Uncheck to disable, and use Drupal-managed smallest/fallback image style instead. Be sure to add proper dimensions or at least min-height/min-width via CSS accordingly to avoid layout reflow since Aspect ratio is not supported with Responsive image yet.'),
-    );
+    ];
 
-    $form['blazy'] = array(
+    $form['blazy'] = [
       '#type'        => 'container',
       '#tree'        => TRUE,
       '#title'       => $this->t('Blazy JS settings'),
       '#description' => $this->t('The following are JS related settings.'),
-    );
+    ];
 
-    $form['blazy']['loadInvisible'] = array(
+    $form['blazy']['loadInvisible'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Load invisible'),
       '#default_value' => $config->get('blazy.loadInvisible'),
       '#description'   => $this->t('Set to true if you want to load invisible (hidden) elements.'),
-    );
+    ];
 
-    $form['blazy']['offset'] = array(
+    $form['blazy']['offset'] = [
       '#type'          => 'textfield',
       '#title'         => $this->t('Offset'),
       '#default_value' => $config->get('blazy.offset'),
@@ -79,9 +79,9 @@ class BlazySettingsForm extends ConfigFormBase {
       '#field_suffix'  => 'px',
       '#maxlength'     => 5,
       '#size'          => 10,
-    );
+    ];
 
-    $form['blazy']['saveViewportOffsetDelay'] = array(
+    $form['blazy']['saveViewportOffsetDelay'] = [
       '#type'          => 'textfield',
       '#title'         => $this->t('Save viewport offset delay'),
       '#default_value' => $config->get('blazy.saveViewportOffsetDelay'),
@@ -89,7 +89,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#field_suffix'  => 'ms',
       '#maxlength'     => 5,
       '#size'          => 10,
-    );
+    ];
 
     return parent::buildForm($form, $form_state);
   }
@@ -110,7 +110,7 @@ class BlazySettingsForm extends ConfigFormBase {
     // Invalidate the library discovery cache to update the responsive image.
     \Drupal::service('library.discovery')->clearCachedDefinitions();
 
-    drupal_set_message($this->t('Be sure to <a href=":clear_cache">clear the cache</a> if trouble to see the updated settings', array(':clear_cache' => Url::fromRoute('system.performance_settings')->toString())));
+    drupal_set_message($this->t('Be sure to <a href=":clear_cache">clear the cache</a> if trouble to see the updated settings', [':clear_cache' => Url::fromRoute('system.performance_settings')->toString()]));
 
     parent::submitForm($form, $form_state);
   }

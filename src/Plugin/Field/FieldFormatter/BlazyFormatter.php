@@ -78,12 +78,12 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $elements = [];
+    $build = [];
     $files = $this->getEntitiesToView($items, $langcode);
 
     // Early opt-out if the field is empty.
     if (empty($files)) {
-      return $elements;
+      return $build;
     }
 
     // Collects specific settings to this formatter.
@@ -165,7 +165,6 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,
       'namespace'         => 'blazy',
-      'retina'            => TRUE,
       'settings'          => $this->getSettings(),
       'thumbnail_styles'  => TRUE,
     ];
@@ -175,8 +174,7 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    $summary = [];
-    return $this->admin()->settingsSummary($this, $summary);
+    return $this->admin()->settingsSummary($this);
   }
 
 }

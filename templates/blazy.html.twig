@@ -44,8 +44,8 @@
   {% if settings.player %}
     <iframe{{ content_attributes.addClass(content_classes) }} allowfullscreen></iframe>
     {% if settings.media_switch %}
-      <i class="media__icon media__icon--close"></i>
-      <i class="media__icon media__icon--play"></i>
+      <span class="media__icon media__icon--close"></span>
+      <span class="media__icon media__icon--play"></span>
     {% endif %}
   {% endif %}
 {% endset %}

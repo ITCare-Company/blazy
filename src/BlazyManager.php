@@ -23,12 +23,24 @@ class BlazyManager extends BlazyManagerBase {
    */
   public function getUrlBreakpoints(array &$settings = []) {
     if (!empty($settings['breakpoints']) && !empty($settings['uri'])) {
+      $srcset = [];
       foreach ($settings['breakpoints'] as $key => $breakpoint) {
         $image_style = empty($breakpoint['image_style']) ? '' : $breakpoint['image_style'];
+
         if (!empty($image_style)) {
           $image_styles[$key] = $this->entityLoad($image_style, 'image_style');
-          $settings['breakpoints'][$key]['url'] = $image_styles[$key]->buildUrl($settings['uri']);
+          $url = $image_styles[$key]->buildUrl($settings['uri']);
+          $settings['breakpoints'][$key]['url'] = $url;
+
+          if ($breakpoint['width'] !== '') {
+            $width = is_numeric($breakpoint['width']) ? $breakpoint['width'] . 'w' : $breakpoint['width'];
+            $srcset[] = $url . ' ' . $width;
+          }
         }
+      }
+
+      if ($srcset) {
+        $settings['srcset'] = implode(', ', $srcset);
       }
     }
   }
@@ -82,7 +94,7 @@ class BlazyManager extends BlazyManagerBase {
         $settings['breakpoints'] = $blazy_settings['breakpoints'];
       }
 
-      foreach (['box_style', 'image_style', 'lazy', 'media_switch', 'ratio', 'retina'] as $key) {
+      foreach (['box_style', 'image_style', 'lazy', 'media_switch', 'ratio'] as $key) {
         $fallback = isset($settings[$key]) ? $settings[$key] : '';
         $settings[$key] = isset($blazy_settings[$key]) && empty($fallback) ? $blazy_settings[$key] : $fallback;
       }
@@ -109,31 +121,44 @@ class BlazyManager extends BlazyManagerBase {
 
     $json = $sources = [];
     if (!empty($settings['breakpoints'])) {
+      $end = end($settings['breakpoints']);
       foreach ($settings['breakpoints'] as $key => $breakpoint) {
-        if (!empty($breakpoint['image_style'])) {
-          $width = $breakpoint['width'];
+        if (empty($breakpoint['image_style'])) {
+          continue;
+        }
 
-          $image_styles[$width] = $this->entityLoad($breakpoint['image_style'], 'image_style');
+        $point = $breakpoint['width'];
 
-          $dimensions[$width] = [
-            'width'  => isset($item->width)  ? $item->width  : NULL,
-            'height' => isset($item->height) ? $item->height : NULL,
-          ];
+        $image_styles[$point] = $this->entityLoad($breakpoint['image_style'], 'image_style');
 
-          $image_styles[$width]->transformDimensions($dimensions[$width], $settings['uri']);
-          $json['dimensions'][$width]['height'] = (int) $dimensions[$width]['height'];
-          $json['dimensions'][$width]['width']  = (int) $dimensions[$width]['width'];
+        $dimensions[$point] = [
+          'width'  => isset($item->width)  ? $item->width  : NULL,
+          'height' => isset($item->height) ? $item->height : NULL,
+        ];
 
-          $source = [];
-          $source['width'] = (int) $width;
-          $source['src'] = 'data-src-' . $key;
-          $sources[] = $source;
+        $image_styles[$point]->transformDimensions($dimensions[$point], $settings['uri']);
+
+        $descriptor = $this->getDescriptors($point);
+        $padding = round((($dimensions[$point]['height'] / $dimensions[$point]['width']) * 100), 2);
+        $json['dimensions'][$descriptor] = $padding;
+
+        // Helper for the BG option.
+        if (empty($point)) {
+          $point = $dimensions[$point]['width'];
+        }
+
+        if (!empty($settings['background'])) {
+          $source          = [];
+          $source['width'] = (int) $point;
+          $source['src']   = 'data-src-' . $key;
+          $sources[]       = $source;
+        }
+
+        // Only set CSS padding-bottom value for the last breakpoint.
+        if ($key == $end['breakpoint'] && $end['width'] == $point) {
+          $settings['padding_bottom'] = $padding;
         }
       }
-    }
-
-    if ($sources) {
-      $json['breakpoints'] = $sources;
 
       // Identify that Blazy can be activated only by breakpoints.
       $settings['blazy'] = TRUE;
@@ -142,13 +167,48 @@ class BlazyManager extends BlazyManagerBase {
     // Addresses the trouble with non-mobile-first approach.
     $settings['_dimensions_reset'] = TRUE;
     $this->getUrlDimensions($settings, $item);
-    if (!empty($settings['width'])) {
-      $json['max'] = [$settings['width'], $settings['height']];
+
+    if ($sources) {
+      // As of Blazy v1.6.0 applied to BG only.
+      $json['breakpoints'] = $sources;
+
+      // @todo drop or fetch the last from breakpoints if available.
+      if (!empty($settings['width'])) {
+        $json['default'] = [$settings['width'], $settings['height']];
+      }
     }
 
     // Clean up URIs since this is meant for the top-level.
     unset($settings['uri'], $settings['image_url']);
     return $json;
+  }
+
+  /**
+   * Get the "w" (width) descriptor.
+   */
+  public function getDescriptors($point = '') {
+    // Dynamic multi-serving aspect ratio with backward compatibility.
+    if (is_numeric($point)) {
+      $descriptor = $point;
+    }
+    else {
+      // Cleanup w descriptor to fetch numerical width for JS aspect ratio.
+      if (strpos($point, "w") !== FALSE) {
+        $descriptor = str_replace('w', '', $point);
+      }
+
+      // If both w and x descriptors are provided.
+      if (strpos($point, " ") !== FALSE) {
+        // If the position is expected: 640w 2x.
+        list($descriptor, $px) = array_pad(array_map('trim', explode(" ", $descriptor, 2)), 2, NULL);
+
+        // If the position is reversed: 2x 640w.
+        if (is_numeric($px) && strpos($descriptor, "x") !== FALSE) {
+          $descriptor = $px;
+        }
+      }
+    }
+    return $descriptor;
   }
 
   /**
@@ -194,12 +254,6 @@ class BlazyManager extends BlazyManagerBase {
       $settings['image_url'] = isset($settings['image_url']) ? $settings['image_url'] : $item->entity->url();
       $settings['height']    = $height;
       $settings['width']     = $width;
-    }
-
-    if (!empty($settings['retina'])) {
-      $retina = $this->entityLoad($settings['retina'], 'image_style');
-      $settings['retina_url'] = $retina->buildUrl($settings['uri']);
-      $settings['image_url']  = $settings['image_url'] . '|' . $settings['retina_url'];
     }
   }
 

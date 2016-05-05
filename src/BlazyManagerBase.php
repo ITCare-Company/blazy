@@ -224,7 +224,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $blazy_id = &drupal_static('blazy_id', 0);
 
     // Do not use dynamic Html::getUniqueId, otherwise broken AJAX.
-    return $id ?: Html::getId($string . '-' . ++$blazy_id);
+    return empty($id) ? Html::getId($string . '-' . ++$blazy_id) : $id;
   }
 
 }

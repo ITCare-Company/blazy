@@ -73,17 +73,18 @@ class BlazyFormatterManager extends BlazyManager {
 
     // @todo simplify these doors.
     $blazy = isset($settings['theme_hook_image']) && $settings['theme_hook_image'] == 'blazy';
+    // @todo do not enforce blazy such as for slick media/video embed
     $settings['blazy'] = $blazy || !empty($settings['background']) || !empty($settings['breakpoints']);
 
     if (!isset($settings['blazy_data'])) {
       $settings['blazy_data'] = $field_type == 'image' ? $this->buildDataBlazy($settings, $items[0]) : [];
     }
 
-    // Aspect ratio isn't working with Responsive image and breakpoints, yet.
+    // Aspect ratio isn't working with Responsive image, yet.
     // However allows custom work to get going with an enforced.
     $ratio = FALSE;
     if (!empty($settings['ratio'])) {
-      $ratio = empty($settings['responsive_image_style']) && empty($settings['breakpoints']);
+      $ratio = empty($settings['responsive_image_style']);
       if ($settings['ratio'] == 'enforced' || $settings['background']) {
         $ratio = TRUE;
       }

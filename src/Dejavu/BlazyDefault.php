@@ -17,7 +17,7 @@ class BlazyDefault {
    *
    * @const $breakpoints.
    */
-  private static $breakpoints = ['xs', 'sm', 'md'];
+  private static $breakpoints = ['xs', 'sm', 'md', 'lg', 'xl'];
 
   /**
    * Returns Blazy specific breakpoints.
@@ -53,8 +53,8 @@ class BlazyDefault {
       'layout'                 => '',
       'media_switch'           => '',
       'ratio'                  => '',
-      'retina'                 => '',
       'responsive_image_style' => '',
+      'sizes'                  => '',
       'thumbnail_style'        => '',
     ] + self::baseSettings();
   }

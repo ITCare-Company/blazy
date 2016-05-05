@@ -1,4 +1,11 @@
 
+Blazy 8.x-1.0-dev, 2016-05-05
+-----------------------------
+- Issue #2716765: Map or rework breakpoints into srcset as per v1.6.0.
+- Removed Retina option since it is now possible with SRCSET descriptors.
+- Added aspect ratio support for multi-breakpoint images.
+- Made efficient blazy_preprocess_field().
+
 Blazy 8.x-1.0-dev, 2016-04-22
 -----------------------------
 - Fixed for media_iframe typo, should be media__iframe.

@@ -25,13 +25,8 @@
       $blazy.once('blazy').each(function () {
         var $elm = $(this);
         var data = $elm.data('blazy') || {};
-
-        // Prevents custom breakpoints from merging, e.g.: 767 x 768.
-        if (typeof data.breakpoints !== 'undefined' && typeof globals.breakpoints !== 'undefined') {
-          globals.breakpoints = [];
-        }
-
         var options = $.extend({}, globals, data);
+
         me.init = new Blazy(options);
 
         $elm.data('blazy', options);
@@ -58,12 +53,10 @@
       var settings = drupalSettings.blazy || {};
       var commons = {
         dimensions: false,
-        ratio: false,
         success: function (elm) {
           me.clearing(elm);
         },
-        error: function (elm) {
-          me.loadSrcset(elm);
+        error: function (elm, msg) {
           me.clearing(elm);
         }
       };
@@ -71,66 +64,20 @@
       return $.extend(settings, commons);
     },
 
-    // @todo drop for https://github.com/dinbror/blazy/issues/75.
-    loadSrcset: function (elm) {
-      var $elm = $(elm);
-      var srcset = $elm.data('srcset');
-
-      if (!$elm.attr('srcset') && srcset && window.picturefill) {
-        $elm.attr('srcset', srcset);
-        window.picturefill({reevaluate: true, elements: [elm]});
-
-        $elm.removeAttr('data-srcset');
-      }
-    },
-
-    updateRatio: function (elm, data) {
+    updateRatio: function (elm, ratio, data) {
       var me = this;
-      var th = null;
-      var tw = null;
-      var ow = data.max !== 'undefined' ? data.max[0] : null;
-      var oh = data.max !== 'undefined' ? data.max[1] : null;
+      var pad = null;
 
-      if (!data.dimensions) {
-        return;
-      }
-
-      var keys = $.map(data.dimensions, function (item, idx) { return idx; });
-      var first = keys[0];
-      var last = keys[keys.length - 1];
-
-      // This should be easier when Blazy supports mobile first.
-      if (first >= me.windowWidth) {
-        th = data.dimensions[first].height;
-        tw = data.dimensions[first].width;
-      }
-      else {
+      if (data.dimensions) {
         $.each(data.dimensions, function (key, v) {
-          if (oh !== null && me.windowWidth > last) {
-            th = oh;
-            tw = ow;
-          }
-          else if (key <= me.windowWidth) {
-            th = v.height;
-            tw = v.width;
-          }
+          pad = me.windowWidth >= key ? v : null;
         });
-      }
 
-      if (th !== null) {
-        me.setRatio(elm, th, tw);
-      }
-    },
-
-    setRatio: function (elm, th, tw) {
-      var me = this;
-      var $ratio = elm.closest('.media--ratio');
-
-      elm.attr('height', th).attr('width', tw);
-      if ($ratio.length) {
-        $ratio.css({
-          paddingBottom: Math.round((th / tw) * 100) + '%'
-        });
+        if (pad !== null) {
+          ratio.css({
+            paddingBottom: pad + '%'
+          });
+        }
       }
     },
 
@@ -139,22 +86,21 @@
       var blazyClasses;
       var $elm = $(elm);
       var $blazy = $elm.closest('[data-blazy]');
+      var $ratio = $elm.closest('.media--ratio');
       var data = $blazy.data('blazy');
 
       window.clearTimeout(blazyClasses);
       blazyClasses = window.setTimeout(function () {
-        $elm.removeClass('b-error b-loaded').addClass('b-loaded').closest('.media--loading').removeClass('media--loading');
+        $elm.closest('.media--loading').removeClass('media--loading');
       }, 200);
 
-      if (data && data.dimensions) {
-        me.updateRatio($elm, data);
-      }
+      if (data && $ratio.length) {
+        me.updateRatio($elm, $ratio, data);
 
-      $blazy.on('resizing', function (e, windowWidth) {
-        if (data && data.dimensions) {
-          me.updateRatio($elm, data);
-        }
-      });
+        $blazy.on('resizing', function () {
+          me.updateRatio($elm, $ratio, data);
+        });
+      }
     },
 
     // Thanks to https://github.com/louisremi/jquery-smartresize

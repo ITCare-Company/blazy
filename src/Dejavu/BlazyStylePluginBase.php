@@ -70,63 +70,76 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
     $definition = [];
 
     // Formatter based fields.
-    $fields = [];
+    $options = [];
     foreach ($this->displayHandler->getOption('fields') as $field => $handler) {
       // This is formatter based type, not actual field type.
       if (isset($handler['type'])) {
         switch ($handler['type']) {
-          case 'image':
+          // @todo recheck other reasonable image-related formatters.
           case 'blazy':
+          case 'image':
           case 'media':
+          case 'media_thumbnail':
+          case 'intense':
+          case 'responsive_image':
           case 'video_embed_field_thumbnail':
           case 'video_embed_field_colorbox':
-            $fields['images'][$field] = $field_names[$field];
-            $fields['overlays'][$field] = $field_names[$field];
-            $fields['thumbnails'][$field] = $field_names[$field];
+          case 'youtube_thumbnail':
+            $options['images'][$field] = $field_names[$field];
+            $options['overlays'][$field] = $field_names[$field];
+            $options['thumbnails'][$field] = $field_names[$field];
             break;
 
           case 'list_key':
-            $fields['layouts'][$field] = $field_names[$field];
+            $options['layouts'][$field] = $field_names[$field];
             break;
 
           case 'entity_reference_label':
           case 'text':
           case 'string':
           case 'link':
-            $fields['links'][$field] = $field_names[$field];
-            $fields['titles'][$field] = $field_names[$field];
+            $options['links'][$field] = $field_names[$field];
+            $options['titles'][$field] = $field_names[$field];
             if ($handler['type'] != 'link') {
-              $fields['thumb_captions'][$field] = $field_names[$field];
+              $options['thumb_captions'][$field] = $field_names[$field];
             }
             break;
         }
 
         if (in_array($handler['type'], ['list_key', 'entity_reference_label', 'text', 'string'])) {
-          $fields['classes'][$field] = $field_names[$field];
+          $options['classes'][$field] = $field_names[$field];
         }
 
         $slicks   = strpos($handler['type'], 'slick') !== FALSE;
-        $overlays = ['entity_reference_entity_view', 'video_embed_field_video'];
+        $overlays = ['entity_reference_entity_view', 'video_embed_field_video', 'youtube_video'];
         if ($slicks || in_array($handler['type'], $overlays)) {
-          $fields['overlays'][$field] = $field_names[$field];
+          $options['overlays'][$field] = $field_names[$field];
+        }
+
+        // Allows advanced formatters/video as the main image replacement.
+        // They are not reasonable for thumbnails, but main images.
+        // Note: Certain Responsive image has no ID at Views, possibly a bug.
+        $images = ['colorbox', 'photobox', 'video_embed_field_video', 'youtube_video'];
+        if (in_array($handler['type'], $images)) {
+          $options['images'][$field] = $field_names[$field];
         }
       }
 
       // Content: title is not really a field, unless title.module installed.
       if (isset($handler['field'])) {
         if ($handler['field'] == 'title') {
-          $fields['classes'][$field] = $field_names[$field];
-          $fields['titles'][$field] = $field_names[$field];
-          $fields['thumb_captions'][$field] = $field_names[$field];
+          $options['classes'][$field] = $field_names[$field];
+          $options['titles'][$field] = $field_names[$field];
+          $options['thumb_captions'][$field] = $field_names[$field];
         }
 
         if ($handler['field'] == 'view_node') {
-          $fields['links'][$field] = $field_names[$field];
+          $options['links'][$field] = $field_names[$field];
         }
       }
 
       // Captions can be anything to get custom works going.
-      $fields['captions'][$field] = $field_names[$field];
+      $options['captions'][$field] = $field_names[$field];
     }
 
     $definition['settings'] = $this->options;
@@ -134,7 +147,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
 
     // Provides the requested fields.
     foreach ($definitions as $key) {
-      $definition[$key] = isset($fields[$key]) ? $fields[$key] : [];
+      $definition[$key] = isset($options[$key]) ? $options[$key] : [];
     }
 
     return $definition;
@@ -172,8 +185,6 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
    *
    * Allows one formatter to have different image styles based on $grid_style.
    * The supported formatters: image, colorbox, or any with #image_style.
-   *
-   * @todo decide if should use one formatter only: by BlazyManager::getImage();
    */
   public function getImageRenderable(array &$settings = [], $row, $index, $grid_style = '') {
     $image = $this->isImageRenderable($row, $index, $settings['image']);
@@ -183,6 +194,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
       return $image;
     }
 
+    // If the image has #item property, lazyload may work, otherwise skip.
     if ($item = $this->getImageItem($image)) {
       $file = $item->getEntity()->get($settings['image']);
       $settings['target_id'] = $item->getValue()['target_id'];
@@ -208,21 +220,6 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
     if (!empty($grid_style)) {
       // If it is an image_formatter, modify the image style based on new one.
       $image['rendered']['#image_style'] = $grid_style;
-
-      // The supported formatters: colorbox.
-      // if (isset($image['rendered']['#settings'])) {
-      // $image_settings = &$image['rendered']['#settings'];
-      // if ($image['rendered']['#theme'] == 'colorbox_formatter') {
-      // if ($index == 0 && !empty($settings['colorbox_node_style_first'])) {
-      // $settings['style_first'] = TRUE;
-      // $settings['style_name'] = $settings['colorbox_node_style_first'];
-      // }
-      // else {
-      // $settings['style_first'] = FALSE;
-      // $settings['style_name'] = $grid_style;
-      // }
-      // }
-      // }
 
       // The supported formatters: blazy.
       // if (isset($image['rendered']['#build']['settings'])) {
@@ -250,6 +247,11 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
       if ($item = $this->getImageItem($image)) {
         return $image;
       }
+
+      // Dump Video embed thumbnail/video/colorbox as it is.
+      if (isset($image['rendered'])) {
+       return $image;
+      }
     }
     return [];
   }
@@ -268,6 +270,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
       $item = $image['rendered']['#build']['item'];
     }
 
+    // Don't know other reasonable formatters to work with.
     if (!is_object($item)) {
       return [];
     }

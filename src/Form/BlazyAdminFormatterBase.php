@@ -9,32 +9,11 @@ namespace Drupal\blazy\Form;
 
 use Drupal\Core\Url;
 use Drupal\Core\Form\FormState;
-use Drupal\Component\Utility\Html;
 
 /**
  * A base for field formatter admin to have re-usable methods in one place.
  */
 abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
-
-  /**
-   * A state that represents the responsive image style is disabled.
-   */
-  const STATE_RESPONSIVE_IMAGE_STYLE_DISABLED = 0;
-
-  /**
-   * A state that represents the media switch lightbox is enabled.
-   */
-  const STATE_LIGHTBOX_ENABLED = 1;
-
-  /**
-   * A state that represents the media switch iframe is enabled.
-   */
-  const STATE_IFRAME_ENABLED = 2;
-
-  /**
-   * A state that represents the thumbnail style is enabled.
-   */
-  const STATE_THUMBNAIL_STYLE_ENABLED = 3;
 
   /**
    * Returns re-usable image formatter form elements.
@@ -47,7 +26,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       '#type'        => 'select',
       '#title'       => t('Image style'),
       '#options'     => $image_styles,
-      '#description' => t('The content image style.'),
+      '#description' => t('The content image style. Ignored if Breakpoints are provided, use smaller image style here instead. Otherwise this is the only image displayed.'),
       '#weight'      => -100,
     ];
 
@@ -55,7 +34,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       '#type'        => 'select',
       '#title'       => t('Responsive image'),
       '#options'     => $this->getResponsiveImageOptions(),
-      '#description' => t('Responsive image style for the main stage image is only reasonable for large images. Not compatible with aspect ratio, yet. Leave empty to disable.'),
+      '#description' => t('Responsive image style for the main stage image is more reasonable for large images. Not compatible with aspect ratio, yet. Leave empty to disable.'),
       '#access'      => $is_responsive && $this->getResponsiveImageOptions(),
       '#weight'      => -100,
     ];
@@ -76,16 +55,6 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       '#access'      => isset($definition['thumbnail_effects']),
       '#weight'      => -100,
       // '#states'      => $this->getState(static::STATE_THUMBNAIL_STYLE_ENABLED, $definition),
-    ];
-
-    $form['retina'] = [
-      '#type'        => 'select',
-      '#title'       => t('Retina'),
-      '#options'     => $image_styles,
-      '#description' => t('Optionally provide retina display. Only supports the main image style. Ignored if core Responsive image is provided.'),
-      '#access'      => isset($definition['retina']),
-      '#states'      => $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition),
-      '#weight'      => -100,
     ];
 
     if ($is_responsive) {
@@ -128,7 +97,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       '#type'        => 'select',
       '#title'       => t('Aspect ratio'),
       '#options'     => array_combine($ratio, $ratio),
-      '#description' => t('Aspect ratio to get consistently responsive images and iframes. And to fix layout reflow and excessive height issues. <a href="@dimensions" target="_blank">Image styles and video dimensions</a> must <a href="@follow" target="_blank">follow the aspect ratio</a>. If not, images will be unexpectedly distorted. Choose <strong>fluid</strong> if unsure. Choose <strong>enforced</strong> if you can stick to one aspect ratio and want multi-serving, or Responsive images. <a href="@link" target="_blank">Learn more</a>, or leave empty if you care not for aspect ratio, or prefer to DIY. <br /><strong>Note!</strong> Not compatible with Responsive image and multi-serving images, unless they stick to one aspect ratio with an <strong>enforced</strong> ratio.', [
+      '#description' => t('Aspect ratio to get consistently responsive images and iframes. And to fix layout reflow and excessive height issues. <a href="@dimensions" target="_blank">Image styles and video dimensions</a> must <a href="@follow" target="_blank">follow the aspect ratio</a>. If not, images will be unexpectedly distorted. Choose <strong>fluid</strong> if unsure. Choose <strong>enforced</strong> if you can stick to one aspect ratio and want multi-serving, or Responsive images. <a href="@link" target="_blank">Learn more</a>, or leave empty if you care not for aspect ratio, or prefer to DIY. <br /><strong>Note!</strong> Only compatible with Blazy multi-serving images, but not with Responsive image, unless they stick to one aspect ratio with an <strong>enforced</strong> ratio.', [
         '@dimensions' => '//size43.com/jqueryVideoTool.html',
         '@follow'     => '//en.wikipedia.org/wiki/Aspect_ratio_%28image%29',
         '@link'       => '//www.smashingmagazine.com/2014/02/27/making-embedded-content-work-in-responsive-design/',
@@ -192,7 +161,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
   /**
    * Return the field formatter settings summary.
    */
-  public function settingsSummary($plugin, array &$summary = []) {
+  public function settingsSummary($plugin) {
     $form         = [];
     $form_state   = new FormState();
     $settings     = $plugin->getSettings();
@@ -227,7 +196,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
           continue;
         }
 
-        if (isset($definition['mapping'])) {
+        if (isset($definition['mapping']) && isset($definition['mapping'][$key])) {
           if ($definition['mapping'][$key]['type'] == 'boolean') {
             if (empty($setting)) {
               continue;
@@ -290,57 +259,14 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     if ($this->blazyManager()->getModuleHandler()->moduleExists('responsive_image')) {
       $image_styles = $this->blazyManager()->entityLoadMultiple('responsive_image_style');
       if (!empty($image_styles)) {
-        foreach ($image_styles as $machine_name => $image_style) {
+        foreach ($image_styles as $name => $image_style) {
           if ($image_style->hasImageStyleMappings()) {
-            $options[$machine_name] = Html::escape($image_style->label());
+            $options[$name] = strip_tags($image_style->label());
           }
         }
       }
     }
     return $options;
-  }
-
-  /**
-   * Get one of the pre-defined states used in this form.
-   *
-   * Thanks to SAM152 at colorbox.module for the little sweet idea.
-   *
-   * @param string $state
-   *   The state to get that matches one of the state class constants.
-   *
-   * @return array
-   *   A corresponding form API state.
-   */
-  protected function getState($state, $definition = []) {
-    // $field_name = isset($definition['field_name']) ? $definition['field_name'] : '';
-    // if (!empty($definition['_views'])) {
-    // $vanilla = ':input[name="options[settings][vanilla]"]';
-    // }
-
-    // fields[field_media][settings_edit_form][settings][media_switch]
-    $states = [
-      static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED => [
-        'visible' => [
-          'select[name$="[responsive_image_style]"]' => ['value' => ''],
-        ],
-      ],
-      static::STATE_LIGHTBOX_ENABLED => [
-        'visible' => [
-          'select[name*="[media_switch]"]' => [['value' => 'colorbox'], ['value' => 'photobox']],
-        ],
-      ],
-      static::STATE_IFRAME_ENABLED => [
-        'visible' => [
-          'select[name*="[media_switch]"]' => ['value' => 'media'],
-        ],
-      ],
-      static::STATE_THUMBNAIL_STYLE_ENABLED => [
-        'visible' => [
-          'select[name$="[thumbnail_style]"]' => ['!value' => ''],
-        ],
-      ],
-    ];
-    return $states[$state];
   }
 
 }

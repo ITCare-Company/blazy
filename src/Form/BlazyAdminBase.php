@@ -27,6 +27,26 @@ use Drupal\blazy\BlazyManagerInterface;
 abstract class BlazyAdminBase implements BlazyAdminInterface {
 
   /**
+   * A state that represents the responsive image style is disabled.
+   */
+  const STATE_RESPONSIVE_IMAGE_STYLE_DISABLED = 0;
+
+  /**
+   * A state that represents the media switch lightbox is enabled.
+   */
+  const STATE_LIGHTBOX_ENABLED = 1;
+
+  /**
+   * A state that represents the media switch iframe is enabled.
+   */
+  const STATE_IFRAME_ENABLED = 2;
+
+  /**
+   * A state that represents the thumbnail style is enabled.
+   */
+  const STATE_THUMBNAIL_STYLE_ENABLED = 3;
+
+  /**
    * The entity type manager service.
    *
    * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
@@ -145,18 +165,40 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
   /**
    * Defines re-usable breakpoints form.
+   *
+   * @see https://html.spec.whatwg.org/multipage/embedded-content.html#attr-img-srcset
+   * @see http://ericportis.com/posts/2014/srcset-sizes/
+   * @see http://www.sitepoint.com/how-to-build-responsive-images-with-srcset/
    */
   public function breakpointsForm(array &$form, $definition = []) {
     $settings = $definition['settings'];
-    $title = t('Leave Breakpoints empty to disable multi-serving images. <small>If provided, Blazy lazyload applies. Ignored if core Responsive image is provided.</small>');
+    $title = t('Leave Breakpoints empty to disable multi-serving images. <small>If provided, Blazy lazyload applies. Ignored if core Responsive image is provided.<br /> If only two is needed, simply leave the rest empty.</small>');
+
+    $form['preloader'] = [
+      '#type'               => 'checkbox',
+      '#title'              => t('Preloader'),
+      '#description'        => t('Only reasonable for images, not text. It automatically takes effect when the lazyLoad is Blazy.'),
+      '#weight'             => 108,
+      '#access'             => isset($definition['preloaders']),
+    ];
+
+    $form['sizes'] = [
+      '#type'               => 'textfield',
+      '#title'              => t('Sizes'),
+      '#description'        => t('E.g.: (min-width: 1290px) 1290px, 100vw. Use sizes to implement different size image (different height, width) on different screen sizes along with the <strong>w (width)</strong> descriptor below. Ignored by Responsive image.'),
+      '#weight'             => 114,
+      '#attributes'         => ['class' => ['form-text--sizes', 'js-expandable']],
+      '#wrapper_attributes' => ['class' => ['form-item--sizes']],
+      '#states'             => $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition),
+    ];
 
     $form['breakpoints'] = [
       '#type'       => 'table',
       '#tree'       => TRUE,
-      '#header'     => [t('Breakpoint'), t('Max width'), t('Image style')],
+      '#header'     => [t('Breakpoint'), t('Image style'), t('Width/Descriptor')],
       '#prefix'     => '<h2 class="form__title">' . $title . '</h2>',
       '#attributes' => ['class' => ['form-wrapper--table']],
-      '#weight'     => 110,
+      '#weight'     => 115,
       '#enforced'   => TRUE,
     ];
 
@@ -193,8 +235,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
   /**
    * Defines re-usable breakpoints form.
-   *
-   * @todo re-check if retina is supported per breakpoint.
    */
   public function breakpointElements($definition = []) {
     if (!isset($definition['breakpoints'])) {
@@ -209,26 +249,26 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#wrapper_attributes' => ['class' => ['form-item--right']],
       ];
 
-      $form[$breakpoint]['width'] = [
-        '#type'               => 'textfield',
-        '#title'              => t('Width'),
-        '#title_display'      => 'invisible',
-        '#field_suffix'       => 'px',
-        '#maz_length'         => 4,
-        '#size'               => 6,
-        '#weight'             => 2,
-        '#attributes'         => ['class' => ['form-text--width']],
-        '#wrapper_attributes' => ['class' => ['form-item--width']],
-      ];
-
       $form[$breakpoint]['image_style'] = [
         '#type'               => 'select',
         '#title'              => t('Image style'),
         '#title_display'      => 'invisible',
         '#options'            => image_style_options(FALSE),
         '#empty_option'       => t('- None -'),
-        '#weight'             => 3,
+        '#weight'             => 2,
         '#wrapper_attributes' => ['class' => ['form-item--left']],
+      ];
+
+      $form[$breakpoint]['width'] = [
+        '#type'               => 'textfield',
+        '#title'              => t('Width'),
+        '#title_display'      => 'invisible',
+        '#description'        => t('E.g.: <strong>640</strong>, or <strong>2x</strong>, or for <strong>small devices</strong> may be combined into <strong>640w 2x</strong> where <strong>x (pixel density)</strong> descriptor is used to define the device-pixel ratio, and <strong>w (width)</strong> descriptor is the width of image source and works in tandem with <strong>sizes</strong> attributes. Use <strong>w (width)</strong> if any issue/ unsure. Default to <strong>w</strong> if no descriptor provided for backward compatibility.'),
+        '#maz_length'         => 32,
+        '#size'               => 6,
+        '#weight'             => 3,
+        '#attributes'         => ['class' => ['form-text--width', 'js-expandable']],
+        '#wrapper_attributes' => ['class' => ['form-item--width']],
       ];
     }
 
@@ -242,7 +282,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $form['current_view_mode'] = [
       '#type'          => 'hidden',
       '#default_value' => isset($definition['current_view_mode']) ? $definition['current_view_mode'] : '_custom',
-      '#weight'        => 100,
+      '#weight'        => 120,
     ];
 
     $this->finalizeForm($form, $definition);
@@ -354,6 +394,43 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    */
   public function getViewModeOptions($target_type) {
     return $this->entityDisplayRepository->getViewModeOptions($target_type);
+  }
+
+  /**
+   * Get one of the pre-defined states used in this form.
+   *
+   * Thanks to SAM152 at colorbox.module for the little sweet idea.
+   *
+   * @param string $state
+   *   The state to get that matches one of the state class constants.
+   *
+   * @return array
+   *   A corresponding form API state.
+   */
+  protected function getState($state, $definition = []) {
+    $states = [
+      static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED => [
+        'visible' => [
+          'select[name$="[responsive_image_style]"]' => ['value' => ''],
+        ],
+      ],
+      static::STATE_LIGHTBOX_ENABLED => [
+        'visible' => [
+          'select[name*="[media_switch]"]' => [['value' => 'colorbox'], ['value' => 'photobox']],
+        ],
+      ],
+      static::STATE_IFRAME_ENABLED => [
+        'visible' => [
+          'select[name*="[media_switch]"]' => ['value' => 'media'],
+        ],
+      ],
+      static::STATE_THUMBNAIL_STYLE_ENABLED => [
+        'visible' => [
+          'select[name$="[thumbnail_style]"]' => ['!value' => ''],
+        ],
+      ],
+    ];
+    return $states[$state];
   }
 
 }
