@@ -1,6 +1,8 @@
 
 Blazy 8.x-1.0-dev, 2016-05-06
 -----------------------------
+- #2719541 by gausarts, scoff: Fallback to default Media entity thumbnail when
+  Main image empty.
 - Fixed for Undefined index: target_bundles when accessing Media entity field
   options from within Views UI.
 

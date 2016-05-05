@@ -74,8 +74,13 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     $delta     = $settings['delta'];
     $item_id   = $settings['item_id'];
     $view_mode = $settings['view_mode'] ?: 'full';
+    $fields    = $entity->getFields();
+    $image     = [];
+    $thumbnail = isset($fields['thumbnail']) ? 'thumbnail' : '';
 
-    $image = [];
+    // Fallback to default thumbnail if any.
+    $settings['image'] = empty($settings['image']) ? $thumbnail : $settings['image'];
+
     $this->buildMedia($settings, $entity, $langcode);
 
     // Main image can be separate image item from video thumbnail for highres.
@@ -88,6 +93,11 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
       // Collect cache tags to be added for each item in the field.
       $settings['file_tags'] = $file->referencedEntities()[0]->getCacheTags();
       $settings['uri']       = $file->referencedEntities()[0]->getFileUri();
+
+      // Fallback to default thumbnail URI if no HIRES image provided.
+      if (!empty($settings['thumbnail_uri']) && (strpos($settings['uri'], 'embeddable_video') !== FALSE)) {
+        $settings['uri'] = $settings['thumbnail_uri'];
+      }
 
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
       $element['item']     = $file->get(0);
@@ -247,7 +257,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     $element['media_switch']['#options']['media'] = t('Image to iframe');
     $element['media_switch']['#description'] .= ' ' . t('Be sure the enabled fields here are not hidden/disabled at its view mode.');
 
-    $element['image']['#description'] .= ' ' . t('For video/audio, this allows separate highres image.');
+    $element['image']['#description'] .= ' ' . t('For video, this allows separate highres image, and may be left empty to fallback to the video provider thumbnails. If unsure, leave it empty to fetch from Media entity source fields instead.');
     $element['caption']['#description'] = t('Check fields to be treated as captions, even if not caption texts.');
 
     return $element;
