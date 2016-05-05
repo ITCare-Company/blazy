@@ -52,7 +52,10 @@ class Blazy extends BlazyManager {
 
     // Supports non-blazy formatter, that is, responsive image theme.
     $image = &$variables['image'];
-    $media = !empty($variables['url']) && !empty($settings['type']) && in_array($settings['type'], ['video', 'audio']);
+
+    // Media URL is stored in the settings.
+    // @todo re-check for a mix for image + video.
+    $media = !empty($settings['embed_url']) && !empty($settings['type']) && in_array($settings['type'], ['video', 'audio']);
 
     // The regular non-responsive, non-lazyloaded image.
     $image['#uri'] = $settings['uri'];
@@ -112,8 +115,8 @@ class Blazy extends BlazyManager {
       $image                            = empty($settings['media_switch']) ? [] : $image;
       $settings['player']               = empty($settings['lightbox']) && $settings['media_switch'] != 'content';
       $content_attributes['data-media'] = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
-      $content_attributes['data-lazy']  = $variables['url'];
-      $content_attributes['src']        = empty($settings['iframe_lazy']) ? $variables['url'] : 'about:blank';
+      $content_attributes['data-lazy']  = $settings['embed_url'];
+      $content_attributes['src']        = empty($settings['iframe_lazy']) ? $settings['embed_url'] : 'about:blank';
     }
 
     // With CSS background, IMG may be emptied, so add to the container.

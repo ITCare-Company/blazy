@@ -36,7 +36,8 @@ trait BlazyVideoTrait {
       list($settings['width'], $settings['height']) = getimagesize($settings['image_url']);
     }
 
-    $settings['url']           = Url::fromUri($url, ['query' => $query])->toString();
+    // @todo drop possible conflict $settings['url'] later.
+    $settings['url']           = $settings['embed_url'] = Url::fromUri($url, ['query' => $query])->toString();
     $settings['scheme']        = $definitions['id'];
     $settings['thumbnail_uri'] = $provider->getLocalThumbnailUri();
     $settings['type']          = 'video';
