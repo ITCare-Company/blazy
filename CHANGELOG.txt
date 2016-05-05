@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2016-05-06
+-----------------------------
+- Fixed for Undefined index: target_bundles when accessing Media entity field
+  options from within Views UI.
+
 Blazy 8.x-1.0-dev, 2016-05-05
 -----------------------------
 - Issue #2716765: Map or rework breakpoints into srcset as per v1.6.0.

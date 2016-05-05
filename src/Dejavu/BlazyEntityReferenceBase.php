@@ -258,7 +258,8 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
    */
   public function getScopedFormElements() {
     $admin    = $this->admin();
-    $bundles  = $this->getFieldSetting('handler_settings')['target_bundles'];
+    $views_ui = $this->getFieldSetting('handler') == 'default';
+    $bundles  = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
     $strings  = $admin->getFieldOptions($bundles, ['text', 'string', 'list_string']);
     $texts    = $admin->getFieldOptions($bundles, ['text', 'text_long', 'string', 'string_long', 'link']);
 

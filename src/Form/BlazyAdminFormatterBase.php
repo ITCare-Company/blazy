@@ -235,7 +235,13 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     $options = [];
     $storage = $this->blazyManager()->getEntityTypeManager()->getStorage('field_config');
 
-    foreach ($target_bundles as $bundle) {
+    // Fix for Views UI not recognizing Media bundles, unlike Formatters.
+    $bundle_service = \Drupal::service('entity_type.bundle.info');
+    if (empty($target_bundles)) {
+      $target_bundles = $bundle_service->getBundleInfo($entity_type_id);
+    }
+
+    foreach ($target_bundles as $bundle => $label) {
       if ($fields = $storage->loadByProperties(['entity_type' => $entity_type_id, 'bundle' => $bundle])) {
         foreach ((array) $fields as $field_name => $field) {
           if (empty($allowed_field_types)) {
