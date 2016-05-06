@@ -31,17 +31,17 @@ trait BlazyVideoTrait {
     // Prevents complication by now.
     unset($query['autoplay'], $query['auto_play']);
 
+    $settings['video_id']  = $provider::getIdFromInput($media_url);
+    $settings['embed_url'] = Url::fromUri($url, ['query' => $query])->toString();
+    $settings['scheme']    = $definitions['id'];
+    $settings['uri']       = $provider->getLocalThumbnailUri();
+    $settings['image_url'] = file_create_url($settings['uri']);
+    $settings['type']      = 'video';
+
     // No file API with unmanaged VEF image without image_style.
     if (empty($settings['image_style']) && !empty($settings['image_url'])) {
       list($settings['width'], $settings['height']) = getimagesize($settings['image_url']);
     }
-
-    // @todo drop possible conflict $settings['url'] later.
-    $settings['url']           = $settings['embed_url'] = Url::fromUri($url, ['query' => $query])->toString();
-    $settings['scheme']        = $definitions['id'];
-    $settings['thumbnail_uri'] = $provider->getLocalThumbnailUri();
-    $settings['type']          = 'video';
-    $settings['video_id']      = $provider::getIdFromInput($media_url);
   }
 
 }

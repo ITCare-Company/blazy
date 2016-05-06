@@ -52,6 +52,7 @@ class BlazyDefault {
       'image_style'            => '',
       'layout'                 => '',
       'media_switch'           => '',
+      'preloader'              => TRUE,
       'ratio'                  => '',
       'responsive_image_style' => '',
       'sizes'                  => '',

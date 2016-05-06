@@ -70,41 +70,46 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
    * Returns slide contents.
    */
   public function buildElement(array &$build = [], $entity, $langcode) {
-    $settings  = &$build['settings'];
-    $delta     = $settings['delta'];
-    $item_id   = $settings['item_id'];
-    $view_mode = $settings['view_mode'] ?: 'full';
-    $fields    = $entity->getFields();
-    $image     = [];
-    $thumbnail = isset($fields['thumbnail']) ? 'thumbnail' : '';
-
-    // Fallback to default thumbnail if any.
-    $settings['image'] = empty($settings['image']) ? $thumbnail : $settings['image'];
+    $settings    = &$build['settings'];
+    $delta       = $settings['delta'];
+    $item_id     = $settings['item_id'];
+    $view_mode   = $settings['view_mode'] ?: 'full';
+    $fields      = $entity->getFields();
+    $image       = [];
+    $field_image = '';
 
     $this->buildMedia($settings, $entity, $langcode);
 
     // Main image can be separate image item from video thumbnail for highres.
-    $field_image = $settings['image'];
-    if ($field_image && isset($entity->$field_image)) {
+    // Fallback to default thumbnail if any which has no file API. empty($settings['image']) &&
+    if (isset($fields['thumbnail'])) {
+      $field_image = $settings['source_field'];
+      $item = $fields['thumbnail']->get(0);
+      $settings['file_tags'] = ['file:' . $item->target_id];
+    }
 
+    $field_image = empty($settings['image']) ? $field_image : $settings['image'];
+
+    if ($field_image && isset($entity->$field_image)) {
       /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $file */
       $file = $entity->get($field_image);
 
       // Collect cache tags to be added for each item in the field.
-      $settings['file_tags'] = $file->referencedEntities()[0]->getCacheTags();
-      $settings['uri']       = $file->referencedEntities()[0]->getFileUri();
-
-      // Fallback to default thumbnail URI if no HIRES image provided.
-      if (!empty($settings['thumbnail_uri']) && (strpos($settings['uri'], 'embeddable_video') !== FALSE)) {
-        $settings['uri'] = $settings['thumbnail_uri'];
+      if (method_exists($file, 'referencedEntities') && isset($file->referencedEntities()[0])) {
+        $item = $file->get(0);
+        $settings['file_tags'] = $file->referencedEntities()[0]->getCacheTags();
+        $settings['uri'] = $file->referencedEntities()[0]->getFileUri();
       }
+    }
 
+    if ($settings['uri']) {
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-      $element['item']     = $file->get(0);
+      $element['item']     = $item;
       $element['settings'] = $settings;
 
       $image = $this->formatter->getImage($element);
     }
+
 
     // Optional image with responsive image, lazyLoad, and lightbox supports.
     $element[$item_id] = $image;
@@ -201,6 +206,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     $settings['media_url']      = $entity->url();
     $settings['media_id']       = $entity->id();
     $settings['target_bundles'] = $this->getFieldSetting('handler_settings')['target_bundles'];
+    $settings['plugin_id']      = $entity->getType()->getPluginId();
 
     // @todo get 'type' independent from bundle names: image, video, audio.
     $settings['type']           = $entity->bundle();
@@ -226,7 +232,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
   /**
    * Returns the formatted renderable array of the field.
    */
-  public function getFieldRenderable($entity, $field_name = '', $view_mode) {
+  public function getFieldRenderable($entity, $field_name = '', $view_mode = 'full') {
     $has_field = $field_name && isset($entity->$field_name);
     $view = [];
     if ($has_field && !empty($entity->$field_name->view($view_mode)[0])) {
@@ -257,7 +263,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     $element['media_switch']['#options']['media'] = t('Image to iframe');
     $element['media_switch']['#description'] .= ' ' . t('Be sure the enabled fields here are not hidden/disabled at its view mode.');
 
-    $element['image']['#description'] .= ' ' . t('For video, this allows separate highres image, and may be left empty to fallback to the video provider thumbnails. If unsure, leave it empty to fetch from Media entity source fields instead.');
+    $element['image']['#description'] .= ' ' . t('For video, this allows separate highres image, be sure the same field used for Image to have a mix of videos and images. Leave empty to fallback to the video provider thumbnails.');
     $element['caption']['#description'] = t('Check fields to be treated as captions, even if not caption texts.');
 
     return $element;

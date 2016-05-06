@@ -200,6 +200,8 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
       $settings['target_id'] = $item->getValue()['target_id'];
       $settings['uri'] = $file->referencedEntities()[0]->getFileUri();
       $settings['image_url'] = $item->entity->url();
+
+      // @todo deal with "link to content/image" by formatters within Views.
       $settings['url'] = isset($image['rendered']['#url']) ? $image['rendered']['#url'] : '';
 
       // @todo support multiple image styles within a single view.
@@ -298,9 +300,12 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
       $items['data'] = $caption_items;
     }
 
-    $items['link']    = empty($settings['link'])    ? [] : $this->getFieldRendered($index, $settings['link']);
-    $items['overlay'] = empty($settings['overlay']) ? [] : $this->getFieldRendered($index, $settings['overlay']);
-    $items['title']   = empty($settings['title'])   ? [] : $this->getFieldRendered($index, $settings['title'], TRUE);
+    $items['link']  = empty($settings['link'])  ? [] : $this->getFieldRendered($index, $settings['link']);
+    $items['title'] = empty($settings['title']) ? [] : $this->getFieldRendered($index, $settings['title'], TRUE);
+
+    if (empty($settings['overlay'])) {
+      $items['overlay'] = $this->getFieldRendered($index, $settings['overlay']);
+    }
 
     return $items;
   }

@@ -27,7 +27,7 @@ class Blazy extends BlazyManager {
    */
   public static function buildAttributes(&$variables) {
     $element = $variables['element'];
-    foreach (['captions', 'item', 'item_attributes', 'settings', 'url', 'url_attributes'] as $key) {
+    foreach (['captions', 'embed_url', 'item', 'item_attributes', 'settings', 'url', 'url_attributes'] as $key) {
       $variables[$key] = isset($element["#$key"]) ? $element["#$key"] : [];
     }
 
@@ -55,7 +55,7 @@ class Blazy extends BlazyManager {
 
     // Media URL is stored in the settings.
     // @todo re-check for a mix for image + video.
-    $media = !empty($settings['embed_url']) && !empty($settings['type']) && in_array($settings['type'], ['video', 'audio']);
+    $media = !empty($variables['embed_url']) && !empty($settings['type']) && in_array($settings['type'], ['video', 'audio']);
 
     // The regular non-responsive, non-lazyloaded image.
     $image['#uri'] = $settings['uri'];
@@ -98,7 +98,7 @@ class Blazy extends BlazyManager {
       $image['#alt'] = isset($item->alt) ? $item->alt : NULL;
 
       // Do not output an empty 'title' attribute.
-      if (Unicode::strlen($item->title) != 0) {
+      if (isset($item->title) && (Unicode::strlen($item->title) != 0)) {
         $image['#title'] = $item->title;
       }
 
@@ -115,8 +115,8 @@ class Blazy extends BlazyManager {
       $image                            = empty($settings['media_switch']) ? [] : $image;
       $settings['player']               = empty($settings['lightbox']) && $settings['media_switch'] != 'content';
       $content_attributes['data-media'] = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
-      $content_attributes['data-lazy']  = $settings['embed_url'];
-      $content_attributes['src']        = empty($settings['iframe_lazy']) ? $settings['embed_url'] : 'about:blank';
+      $content_attributes['data-lazy']  = $variables['embed_url'];
+      $content_attributes['src']        = empty($settings['iframe_lazy']) ? $variables['embed_url'] : 'about:blank';
     }
 
     // With CSS background, IMG may be emptied, so add to the container.

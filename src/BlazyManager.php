@@ -111,12 +111,14 @@ class BlazyManager extends BlazyManagerBase {
    * Builds breakpoints suitable for top-level [data-blazy] wrapper attributes.
    */
   public function buildDataBlazy(array &$settings = [], $item = NULL) {
-    if (!is_object($item)) {
-      return [];
-    }
-
-    if (!isset($settings['uri'])) {
-      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+    $settings['width']  = isset($settings['width'])  ? $settings['width']  : NULL;
+    $settings['height'] = isset($settings['height']) ? $settings['height'] : NULL;
+    if ($item) {
+      $settings['width']  = isset($item->width)  ? $item->width  : NULL;
+      $settings['height'] = isset($item->height) ? $item->height : NULL;
+      if (!isset($settings['uri'])) {
+        $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+      }
     }
 
     $json = $sources = [];
@@ -132,8 +134,8 @@ class BlazyManager extends BlazyManagerBase {
         $image_styles[$point] = $this->entityLoad($breakpoint['image_style'], 'image_style');
 
         $dimensions[$point] = [
-          'width'  => isset($item->width)  ? $item->width  : NULL,
-          'height' => isset($item->height) ? $item->height : NULL,
+          'width'  => $settings['width'],
+          'height' => $settings['height'],
         ];
 
         $image_styles[$point]->transformDimensions($dimensions[$point], $settings['uri']);
@@ -155,7 +157,7 @@ class BlazyManager extends BlazyManagerBase {
         }
 
         // Only set CSS padding-bottom value for the last breakpoint.
-        if ($key == $end['breakpoint'] && $end['width'] == $point) {
+        if (!empty($end['breakpoint']) && ($key == $end['breakpoint'] && $end['width'] == $point)) {
           $settings['padding_bottom'] = $padding;
         }
       }
@@ -215,22 +217,25 @@ class BlazyManager extends BlazyManagerBase {
    * Defines image dimensions once as it costs, unless reset for breakpoints.
    */
   public function getUrlDimensions(array &$settings = [], $item = NULL, $modifier = NULL) {
-    if (!is_object($item)) {
-      return;
+    $settings['width']  = isset($settings['width'])  ? $settings['width']  : NULL;
+    $settings['height'] = isset($settings['height']) ? $settings['height'] : NULL;
+
+    if ($item) {
+      $settings['width']  = isset($item->width)  ? $item->width  : NULL;
+      $settings['height'] = isset($item->height) ? $item->height : NULL;
+      $settings['image_url'] = isset($settings['image_url']) ? $settings['image_url'] : $item->entity->url();
+
+      if (!isset($settings['uri'])) {
+        $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+      }
     }
 
-    if (!isset($settings['uri'])) {
-      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
-    }
-
-    $settings['cache_tags'] = [];
+    $settings['cache_tags'] = empty($settings['cache_tags']) ? [] : $settings['cache_tags'];
 
     if (empty($modifier) && isset($settings['image_style'])) {
       $modifier = $settings['image_style'];
     }
 
-    $height = isset($item->height) ? $item->height : (isset($settings['height']) ? $settings['height'] : NULL);
-    $width  = isset($item->width)  ? $item->width  : (isset($settings['width'])  ? $settings['width']  : NULL);
     if (!empty($modifier)) {
       $style = $this->entityLoad($modifier, 'image_style');
 
@@ -241,19 +246,14 @@ class BlazyManager extends BlazyManagerBase {
       // Unless reset for multi-styled images, set dimensions once.
       if (empty($settings['_dimensions']) || isset($settings['_dimensions_reset'])) {
         $dimensions = [
-          'width'  => $width,
-          'height' => $height,
+          'width'  => $settings['width'],
+          'height' => $settings['height'],
         ];
         $style->transformDimensions($dimensions, $settings['uri']);
         $settings['height']      = $dimensions['height'];
         $settings['width']       = $dimensions['width'];
         $settings['_dimensions'] = TRUE;
       }
-    }
-    else {
-      $settings['image_url'] = isset($settings['image_url']) ? $settings['image_url'] : $item->entity->url();
-      $settings['height']    = $height;
-      $settings['width']     = $width;
     }
   }
 
@@ -283,7 +283,7 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     $file_tags = isset($settings['file_tags']) ? $settings['file_tags'] : [];
-    $settings['cache_tags'] = Cache::mergeTags($settings['cache_tags'], $file_tags);
+    $settings['cache_tags'] = empty($settings['cache_tags']) ? [] : Cache::mergeTags($settings['cache_tags'], $file_tags);
 
     $image['#build'] = $build;
     $image['#cache'] = ['tags' => $settings['cache_tags']];
@@ -304,11 +304,11 @@ class BlazyManager extends BlazyManagerBase {
     $item  = $build['item'];
     unset($element['#build']);
 
+    $settings = &$build['settings'];
     if (empty($item)) {
       return [];
     }
 
-    $settings  = &$build['settings'];
     $namespace = $settings['namespace'];
 
     // Extract field item attributes for the theme function, and unset them
@@ -350,6 +350,7 @@ class BlazyManager extends BlazyManagerBase {
       $settings['thumbnail_url'] = $this->entityLoad($settings['thumbnail_style'], 'image_style')->buildUrl($settings['uri']);
     }
 
+    $element['#embed_url']       = empty($settings['embed_url']) ? '' : $settings['embed_url'];
     $element['#url']             = '';
     $element['#settings']        = $settings;
     $element['#captions']        = isset($build['captions']) ? $build['captions'] : [];
@@ -376,8 +377,10 @@ class BlazyManager extends BlazyManagerBase {
     if (strpos($switch, 'box') !== FALSE) {
       $json = ['type' => $type];
       $url_attributes = [];
-      if (!empty($settings['url'])) {
-        $url = $settings['url'];
+
+      // If it is a video/audio, otherwise image to image.
+      if (!empty($settings['embed_url'])) {
+        $url = $settings['embed_url'];
         $json['scheme'] = $settings['scheme'];
         // Force autoplay for media URL on lightboxes, saving another click.
         if ($json['scheme'] == 'soundcloud') {
@@ -397,7 +400,7 @@ class BlazyManager extends BlazyManagerBase {
       if ($switch == 'colorbox' && $settings['count'] > 1) {
         $json['rel'] = $settings['id'];
       }
-      elseif ($switch == 'photobox' && !empty($settings['url'])) {
+      elseif ($switch == 'photobox' && !empty($settings['embed_url'])) {
         $url_attributes['rel'] = 'video';
       }
 
