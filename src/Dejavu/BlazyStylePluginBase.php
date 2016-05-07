@@ -303,7 +303,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
     $items['link']  = empty($settings['link'])  ? [] : $this->getFieldRendered($index, $settings['link']);
     $items['title'] = empty($settings['title']) ? [] : $this->getFieldRendered($index, $settings['title'], TRUE);
 
-    if (empty($settings['overlay'])) {
+    if (!empty($settings['overlay'])) {
       $items['overlay'] = $this->getFieldRendered($index, $settings['overlay']);
     }
 

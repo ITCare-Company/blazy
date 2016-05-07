@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2016-05-07
+-----------------------------
+- Fixed for Overlays regression.
+
 Blazy 8.x-1.0-dev, 2016-05-06
 -----------------------------
 - #2719541 by gausarts, scoff: Fallback to default Media entity thumbnail when
