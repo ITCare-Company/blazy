@@ -292,7 +292,6 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
       'links'             => $admin->getFieldOptions($bundles, ['text', 'string', 'link']),
       'media_switch_form' => TRUE,
       'multimedia'        => TRUE,
-      'preloaders'        => TRUE,
       'settings'          => $this->getSettings(),
       'target_bundles'    => $bundles,
       'target_type'       => $this->getFieldSetting('target_type'),

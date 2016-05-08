@@ -91,7 +91,7 @@
 
       window.clearTimeout(blazyClasses);
       blazyClasses = window.setTimeout(function () {
-        $elm.closest('.media--loading').removeClass('media--loading');
+        $elm.closest('.media').removeClass('media--loading').addClass('media--loaded');
       }, 200);
 
       if (data && $ratio.length) {

@@ -283,7 +283,7 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     $file_tags = isset($settings['file_tags']) ? $settings['file_tags'] : [];
-    $settings['cache_tags'] = empty($settings['cache_tags']) ? [] : Cache::mergeTags($settings['cache_tags'], $file_tags);
+    $settings['cache_tags'] = empty($settings['cache_tags']) ? $file_tags : Cache::mergeTags($settings['cache_tags'], $file_tags);
 
     $image['#build'] = $build;
     $image['#cache'] = ['tags' => $settings['cache_tags']];
@@ -293,6 +293,7 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     $this->getModuleHandler()->alter($namespace . '_image', $image, $settings);
+    unset($settings['cache_tags'], $settings['cache_metadata'], $settings['file_tags'], $settings['overridables']);
     return $image;
   }
 
@@ -338,12 +339,6 @@ class BlazyManager extends BlazyManagerBase {
     elseif (!empty($settings['width'])) {
       $item_attributes['height'] = $settings['height'];
       $item_attributes['width']  = $settings['width'];
-
-      // Allows custom lazyload solution such as Slick builtin lazyloads.
-      $settings['lazy_attribute'] = empty($settings['lazy_attribute']) ? 'src' : $settings['lazy_attribute'];
-      if (!empty($settings['blazy']) || $namespace == 'blazy') {
-        $item_attributes['class'][] = 'b-lazy';
-      }
     }
 
     if (!empty($settings['thumbnail_style'])) {

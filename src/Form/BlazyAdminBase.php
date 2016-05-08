@@ -174,14 +174,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $settings = $definition['settings'];
     $title = t('Leave Breakpoints empty to disable multi-serving images. <small>If provided, Blazy lazyload applies. Ignored if core Responsive image is provided.<br /> If only two is needed, simply leave the rest empty.</small>');
 
-    $form['preloader'] = [
-      '#type'               => 'checkbox',
-      '#title'              => t('Preloader'),
-      '#description'        => t('Only reasonable for images, not text. It automatically takes effect when the lazyLoad is Blazy.'),
-      '#weight'             => 108,
-      '#access'             => isset($definition['preloaders']),
-    ];
-
     $form['sizes'] = [
       '#type'               => 'textfield',
       '#title'              => t('Sizes'),

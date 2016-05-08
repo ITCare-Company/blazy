@@ -1,4 +1,10 @@
 
+Blazy 8.x-1.0-dev, 2016-05-09
+-----------------------------
+- Removed redundant Preloader option since the classes are within image
+  containers. Maybe more reasonable for Views later which can text, images, etc.
+- Added support for non-lazyloaded images such as Slick carousel.
+
 Blazy 8.x-1.0-dev, 2016-05-07
 -----------------------------
 - Fixed for Overlays regression.

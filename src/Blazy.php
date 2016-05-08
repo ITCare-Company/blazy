@@ -58,7 +58,7 @@ class Blazy extends BlazyManager {
     $media = !empty($variables['embed_url']) && !empty($settings['type']) && in_array($settings['type'], ['video', 'audio']);
 
     // The regular non-responsive, non-lazyloaded image.
-    $image['#uri'] = $settings['uri'];
+    $image['#uri'] = empty($settings['image_url']) ? $settings['uri'] : $settings['image_url'];
 
     // Check whether we have responsive image, or lazyloaded one.
     if (!empty($settings['responsive_image_style_id'])) {
@@ -68,28 +68,29 @@ class Blazy extends BlazyManager {
       // Disable aspect ratio which is not yet supported due to complexity.
       $settings['ratio'] = FALSE;
     }
-    elseif (!empty($settings['lazy'])) {
+    else {
+      // Supports non-lazyloaded image.
       $image['#theme'] = 'image';
-      $image['#uri'] = static::PLACEHOLDER;
 
-      // Attach data-attributes to the either DIV or IMG container.
-      if (empty($settings['background'])) {
-        if (!empty($settings['blazy'])) {
-          $image_attributes['class'][] = 'b-lazy';
+      if (!empty($settings['lazy'])) {
+        $image['#uri'] = static::PLACEHOLDER;
+
+        // Attach data-attributes to the either DIV or IMG container.
+        if (empty($settings['background'])) {
+          self::buildBreakpointAttributes($image_attributes, $settings);
         }
-        self::buildBreakpointAttributes($image_attributes, $settings);
-      }
-      else {
-        self::buildBreakpointAttributes($attributes, $settings);
-        $attributes['class'][] = 'b-lazy';
-        $attributes['class'][] = 'media--background';
-        $image = [];
+        else {
+          self::buildBreakpointAttributes($attributes, $settings);
+          $attributes['class'][] = 'media--background';
+         $image = [];
+        }
       }
 
       // Aspect ratio to fix layout reflow with lazyloaded images responsively.
       if (!empty($settings['height']) && !empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
         $padding_bottom = isset($settings['padding_bottom']) ? $settings['padding_bottom'] : round((($settings['height'] / $settings['width']) * 100), 2);
         $attributes['style'] = 'padding-bottom: ' . $padding_bottom . '%';
+        $attributes['data-dimension'] = $settings['width'] . ':' . $settings['height'];
       }
     }
 
@@ -146,9 +147,11 @@ class Blazy extends BlazyManager {
    */
   public static function buildBreakpointAttributes(array &$attributes = [], $settings = []) {
     $lazy_attribute = empty($settings['lazy_attribute']) ? 'src' : $settings['lazy_attribute'];
+    $lazy_class = empty($settings['lazy_class']) ? 'b-lazy' : $settings['lazy_class'];
 
     // Defines attributes, builtin, or supported lazyload such as Slick.
     // Required for multi-serving images as of Blazy v1.6.0.
+    $attributes['class'][] = $lazy_class;
     $attributes['data-' . $lazy_attribute] = empty($settings['image_url']) ? '' : $settings['image_url'];
 
     if (!empty($settings['breakpoints'])) {
