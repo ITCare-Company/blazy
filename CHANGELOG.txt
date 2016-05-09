@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2016-05-10
+-----------------------------
+- Added default sizes.
+
 Blazy 8.x-1.0-dev, 2016-05-09
 -----------------------------
 - Removed redundant Preloader option since the classes are within image

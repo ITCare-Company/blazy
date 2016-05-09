@@ -90,7 +90,6 @@ class Blazy extends BlazyManager {
       if (!empty($settings['height']) && !empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
         $padding_bottom = isset($settings['padding_bottom']) ? $settings['padding_bottom'] : round((($settings['height'] / $settings['width']) * 100), 2);
         $attributes['style'] = 'padding-bottom: ' . $padding_bottom . '%';
-        $attributes['data-dimension'] = $settings['width'] . ':' . $settings['height'];
       }
     }
 
@@ -165,6 +164,7 @@ class Blazy extends BlazyManager {
       elseif (!empty($settings['srcset'])) {
         $attributes['srcset'] = '';
         $attributes['data-srcset'] = $settings['srcset'];
+        $attributes['sizes'] = '100w';
 
         if (!empty($settings['sizes'])) {
           $attributes['sizes'] = trim($settings['sizes']);
