@@ -400,10 +400,12 @@ class BlazyManager extends BlazyManagerBase {
       }
 
       // Provides lightbox media dimension if so configured.
-      if ($type != 'image' && !empty($settings['dimension'])) {
-        list($settings['width'], $settings['height']) = array_pad(array_map('trim', explode("x", $settings['dimension'], 2)), 2, NULL);
-        $json['width']  = $settings['width'];
-        $json['height'] = $settings['height'];
+      if ($type != 'image') {
+        if (!empty($settings['dimension'])) {
+          list($settings['box_width'], $settings['box_height']) = array_pad(array_map('trim', explode("x", $settings['dimension'], 2)), 2, NULL);
+        }
+        $json['width']  = empty($settings['box_width'])  ? $settings['width']  : $settings['box_width'];
+        $json['height'] = empty($settings['box_height']) ? $settings['height'] : $settings['box_height'];
       }
 
       $url_attributes['class'] = $classes;

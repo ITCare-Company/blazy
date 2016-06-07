@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2016-06-07
+-----------------------------
+- Removed the possessive CSS background taken over by Blazy, since Slick can now
+  work with unslick CSS background.
+
 Blazy 8.x-1.0-dev, 2016-05-10
 -----------------------------
 - Added default sizes.

@@ -82,7 +82,7 @@ class Blazy extends BlazyManager {
         else {
           self::buildBreakpointAttributes($attributes, $settings);
           $attributes['class'][] = 'media--background';
-         $image = [];
+          $image = [];
         }
       }
 

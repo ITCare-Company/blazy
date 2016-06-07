@@ -73,8 +73,8 @@ class BlazyFormatterManager extends BlazyManager {
 
     // @todo simplify these doors.
     $blazy = isset($settings['theme_hook_image']) && $settings['theme_hook_image'] == 'blazy';
-    // @todo do not enforce blazy such as for slick media/video embed
-    $settings['blazy'] = $blazy || !empty($settings['background']) || !empty($settings['breakpoints']);
+    // @todo do not enforce Blazy such as for slick media/video embed.
+    $settings['blazy'] = $blazy || !empty($settings['breakpoints']);
 
     if (!isset($settings['blazy_data'])) {
       $settings['blazy_data'] = $field_type == 'image' ? $this->buildDataBlazy($settings, $items[0]) : [];
