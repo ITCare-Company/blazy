@@ -6,7 +6,7 @@ blazy:
     url: http://opensource.org/licenses/MIT
     gpl-compatible: true
   js:
-    /libraries/blazy/blazy.min.js: {}
+    /libraries/blazy/blazy.min.js: { weight: -4 }
 
 loading:
   version: VERSION
@@ -23,7 +23,7 @@ ratio:
 load:
   version: VERSION
   js:
-    js/blazy.load.min.js: {}
+    js/blazy.load.min.js: { weight: -1 }
   dependencies:
     - core/jquery
     - core/jquery.once

@@ -57,13 +57,15 @@ class Blazy extends BlazyManager {
     // @todo re-check for a mix for image + video.
     $media = !empty($variables['embed_url']) && !empty($settings['type']) && in_array($settings['type'], ['video', 'audio']);
 
-    // The regular non-responsive, non-lazyloaded image.
+    // The regular non-responsive, non-lazyloaded image URI where image_url may
+    // contain image_style which is not expected by responsive_image.
     $image['#uri'] = empty($settings['image_url']) ? $settings['uri'] : $settings['image_url'];
 
     // Check whether we have responsive image, or lazyloaded one.
-    if (!empty($settings['responsive_image_style_id'])) {
+    if (!empty($settings['responsive_image_style_id']) && !empty($settings['uri'])) {
       $image['#type'] = 'responsive_image';
       $image['#responsive_image_style_id'] = $settings['responsive_image_style_id'];
+      $image['#uri'] = $settings['uri'];
 
       // Disable aspect ratio which is not yet supported due to complexity.
       $settings['ratio'] = FALSE;
