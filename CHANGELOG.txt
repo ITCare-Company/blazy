@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2016-06-09
+-----------------------------
+- Fixed for .media--loading.
+- Fixed for Slick CSS background regression.
+
 Blazy 8.x-1.0-dev, 2016-06-08
 -----------------------------
 - Fixed for broken Responsive image.

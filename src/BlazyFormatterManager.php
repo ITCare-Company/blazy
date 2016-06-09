@@ -72,9 +72,9 @@ class BlazyFormatterManager extends BlazyManager {
     $settings['background'] = empty($settings['responsive_image_style']) && !empty($settings['background']);
 
     // @todo simplify these doors.
+    $resimage = $this->configLoad('responsive_image') && !empty($settings['responsive_image_style']);
     $blazy = isset($settings['theme_hook_image']) && $settings['theme_hook_image'] == 'blazy';
-    // @todo do not enforce Blazy such as for slick media/video embed.
-    $settings['blazy'] = $blazy || !empty($settings['breakpoints']);
+    $settings['blazy'] = $blazy || !empty($settings['blazy']) || !empty($settings['breakpoints']) || $resimage;
 
     if (!isset($settings['blazy_data'])) {
       $settings['blazy_data'] = $field_type == 'image' ? $this->buildDataBlazy($settings, $items[0]) : [];

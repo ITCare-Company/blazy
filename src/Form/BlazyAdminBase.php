@@ -172,7 +172,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    */
   public function breakpointsForm(array &$form, $definition = []) {
     $settings = $definition['settings'];
-    $title = t('Leave Breakpoints empty to disable multi-serving images. <small>If provided, Blazy lazyload applies. Ignored if core Responsive image is provided.<br /> If only two is needed, simply leave the rest empty.</small>');
+    $title = t('Leave Breakpoints empty to disable multi-serving images. <small>If provided, Blazy lazyload applies. Ignored if core Responsive image is provided.<br /> If only two is needed, simply leave the rest empty. At any rate, the last should target the largest monitor.</small>');
+
+    if (isset($definition['background'])) {
+      $title .= '<small>' . t('If <strong>Use CSS background</strong> enabled, <strong>Width</strong> is treated as <strong>max-width</strong>.') . '</small>';
+    }
 
     $form['sizes'] = [
       '#type'               => 'textfield',

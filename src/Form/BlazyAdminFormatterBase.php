@@ -26,7 +26,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       '#type'        => 'select',
       '#title'       => t('Image style'),
       '#options'     => $image_styles,
-      '#description' => t('The content image style. Ignored if Breakpoints are provided, use smaller image style here instead. Otherwise this is the only image displayed.'),
+      '#description' => t('The content image style. This will be treated as the fallback image, which is normally smaller, if Breakpoints are provided. Otherwise this is the only image displayed.'),
       '#weight'      => -100,
     ];
 

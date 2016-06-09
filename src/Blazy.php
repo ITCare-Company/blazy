@@ -78,13 +78,19 @@ class Blazy extends BlazyManager {
         $image['#uri'] = static::PLACEHOLDER;
 
         // Attach data-attributes to the either DIV or IMG container.
-        if (empty($settings['background'])) {
+        if (empty($settings['background']) || empty($settings['blazy'])) {
           self::buildBreakpointAttributes($image_attributes, $settings);
         }
-        else {
+
+        // Supports both Slick and Blazy CSS background lazyloading.
+        if (!empty($settings['background'])) {
           self::buildBreakpointAttributes($attributes, $settings);
           $attributes['class'][] = 'media--background';
-          $image = [];
+
+          // Blazy doesn't need IMG to lazyload CSS background. Slick does.
+          if (!empty($settings['blazy'])) {
+            $image = [];
+          }
         }
       }
 

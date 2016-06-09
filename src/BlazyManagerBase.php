@@ -161,7 +161,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     // Core Blazy libraries.
-    if (!empty($attach['lazy']) && ($attach['lazy'] == 'blazy' || $attach['lazy'] == 'responsive')) {
+    // @todo remove last condition when Mason and Gridstack updated to blazy.
+    if (!empty($attach['blazy']) || (!empty($attach['lazy']) && $attach['lazy'] == 'blazy')) {
       $load['library'][] = 'blazy/load';
       $load['drupalSettings']['blazy'] = $this->configLoad()['blazy'];
     }
