@@ -30,21 +30,21 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       '#weight'      => -100,
     ];
 
-    $form['responsive_image_style'] = [
-      '#type'        => 'select',
-      '#title'       => t('Responsive image'),
-      '#options'     => $this->getResponsiveImageOptions(),
-      '#description' => t('Responsive image style for the main stage image is more reasonable for large images. Not compatible with aspect ratio, yet. Leave empty to disable.'),
-      '#access'      => $is_responsive && $this->getResponsiveImageOptions(),
-      '#weight'      => -100,
-    ];
-
     $form['thumbnail_style'] = [
       '#type'        => 'select',
       '#title'       => t('Thumbnail style'),
       '#options'     => $image_styles,
       '#description' => t('Usages: Photobox thumbnail, or custom work with thumbnails. Leave empty to not use thumbnails.'),
       '#access'      => isset($definition['thumbnail_styles']),
+      '#weight'      => -100,
+    ];
+
+    $form['responsive_image_style'] = [
+      '#type'        => 'select',
+      '#title'       => t('Responsive image'),
+      '#options'     => $this->getResponsiveImageOptions(),
+      '#description' => t('Responsive image style for the main stage image is more reasonable for large images. Not compatible with aspect ratio, yet. Leave empty to disable.'),
+      '#access'      => $is_responsive && $this->getResponsiveImageOptions(),
       '#weight'      => -100,
     ];
 
@@ -69,11 +69,11 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    * Returns re-usable media switch form elements.
    */
   public function mediaSwitchForm(array &$form, $definition = []) {
-    $is_colorbox   = function_exists('colorbox_theme');
-    $is_photobox   = function_exists('photobox_theme');
-    $is_responsive = function_exists('responsive_image_get_image_dimensions');
-    $image_styles  = image_style_options(FALSE);
-    $photobox      = \Drupal::root() . '/libraries/photobox/photobox/jquery.photobox.js';
+    $is_colorbox  = function_exists('colorbox_theme');
+    $is_photobox  = function_exists('photobox_theme');
+    $is_token     = function_exists('token_theme');
+    $image_styles = image_style_options(FALSE);
+    $photobox     = \Drupal::root() . '/libraries/photobox/photobox/jquery.photobox.js';
 
     if (is_file($photobox)) {
       $is_photobox = TRUE;
@@ -145,6 +145,46 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
 
       if (!isset($definition['lightbox'])) {
         $form['box_style']['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition);
+      }
+
+      $box_captions = [
+        'auto'         => t('Automatic'),
+        'alt'          => t('Alt text'),
+        'title'        => t('Title text'),
+        'alt_title'    => t('Alt and Title'),
+        'title_alt'    => t('Title and Alt'),
+        'entity_title' => t('Content title'),
+        'custom'       => t('Custom'),
+      ];
+
+      $form['box_caption'] = [
+        '#type'        => 'select',
+        '#title'       => t('Lightbox caption'),
+        '#options'     => $box_captions,
+        '#access'      => isset($definition['box_captions']),
+        '#weight'      => -99,
+        '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
+        '#description' => t('Automatic will search for Alt text first, then Title text.'),
+      ];
+
+      $form['box_caption_custom'] = [
+        '#title'       => t('Lightbox custom caption'),
+        '#type'        => 'textfield',
+        '#access'      => isset($definition['box_captions']),
+        '#weight'      => -99,
+        '#states'      => $this->getState(static::STATE_LIGHTBOX_CUSTOM, $definition),
+        '#description' => t('Multi-value rich text field will be mapped to each image by its delta.'),
+      ];
+
+      if ($is_token) {
+        $form['box_caption_custom']['#field_suffix'] = [
+          '#theme'       => 'token_tree_link',
+          '#text'        => t('Tokens'),
+          '#token_types' => isset($definition['entity_type']) ? [$definition['entity_type']] : [],
+        ];
+      }
+      else {
+        $form['box_caption_custom']['#description'] .= ' ' . t('Install Token module to browse available tokens.');
       }
 
       $form['dimension'] = [

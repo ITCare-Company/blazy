@@ -27,7 +27,7 @@ class Blazy extends BlazyManager {
    */
   public static function buildAttributes(&$variables) {
     $element = $variables['element'];
-    foreach (['captions', 'embed_url', 'item', 'item_attributes', 'settings', 'url', 'url_attributes'] as $key) {
+    foreach (['attributes', 'captions', 'embed_url', 'item', 'item_attributes', 'settings', 'url', 'url_attributes'] as $key) {
       $variables[$key] = isset($element["#$key"]) ? $element["#$key"] : [];
     }
 
@@ -54,7 +54,6 @@ class Blazy extends BlazyManager {
     $image = &$variables['image'];
 
     // Media URL is stored in the settings.
-    // @todo re-check for a mix for image + video.
     $media = !empty($variables['embed_url']) && !empty($settings['type']) && in_array($settings['type'], ['video', 'audio']);
 
     // The regular non-responsive, non-lazyloaded image URI where image_url may
@@ -125,11 +124,6 @@ class Blazy extends BlazyManager {
       $content_attributes['data-media'] = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
       $content_attributes['data-lazy']  = $variables['embed_url'];
       $content_attributes['src']        = empty($settings['iframe_lazy']) ? $variables['embed_url'] : 'about:blank';
-    }
-
-    // With CSS background, IMG may be emptied, so add to the container.
-    if (!empty($settings['thumbnail_url'])) {
-      $attributes['data-thumb'] = $settings['thumbnail_url'];
     }
 
     if (!empty($settings['caption'])) {

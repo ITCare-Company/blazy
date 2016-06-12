@@ -202,7 +202,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
             }
             else {
               foreach ($methods as $method) {
-                $items[$method] = method_exists($skin, $method) ? $skin->$method() : [];
+                $items[$method] = method_exists($skin, $method) ? $skin->{$method}() : [];
               }
             }
           }

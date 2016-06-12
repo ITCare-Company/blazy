@@ -45,6 +45,8 @@ class BlazyDefault {
   public static function imageSettings() {
     return [
       'background'             => FALSE,
+      'box_caption'            => [],
+      'box_caption_custom'     => '',
       'box_style'              => '',
       'breakpoints'            => [],
       'caption'                => [],

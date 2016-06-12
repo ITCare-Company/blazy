@@ -106,7 +106,7 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
   }
 
   /**
-   * Build the slick carousel elements.
+   * Build the Blazy elements.
    */
   public function buildElements(array &$build = [], $files) {
     $settings = &$build['settings'];
@@ -126,7 +126,7 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
       // Build caption if so configured.
       if (!empty($settings['caption'])) {
         foreach ($settings['caption'] as $caption) {
-          $box['captions'][$caption]['content'] = empty($item->$caption) ? [] : ['#markup' => Xss::filterAdmin($item->$caption)];
+          $box['captions'][$caption]['content'] = empty($item->{$caption}) ? [] : ['#markup' => Xss::filterAdmin($item->{$caption})];
           $box['captions'][$caption]['tag'] = $caption == 'title' ? 'h2' : 'div';
           if (!isset($box['captions'][$caption]['attributes'])) {
             $class = $caption == 'alt' ? 'description' : $caption;
@@ -158,10 +158,15 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
    * Defines the scope for the form elements.
    */
   public function getScopedFormElements() {
+    $field       = $this->fieldDefinition;
+    $entity_type = $field->getTargetEntityTypeId();
+
     return [
+      'box_captions'      => TRUE,
       'breakpoints'       => BlazyDefault::getConstantBreakpoints(),
       'captions'          => ['title' => t('Title'), 'alt' => t('Alt')],
       'current_view_mode' => $this->viewMode,
+      'entity_type'       => $entity_type,
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,
       'namespace'         => 'blazy',

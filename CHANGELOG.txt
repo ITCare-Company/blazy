@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2016-06-13
+-----------------------------
+- Added lightbox caption option.
+
 Blazy 8.x-1.0-dev, 2016-06-09
 -----------------------------
 - Fixed for .media--loading.

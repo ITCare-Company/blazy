@@ -47,6 +47,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   const STATE_THUMBNAIL_STYLE_ENABLED = 3;
 
   /**
+   * A state that represents the media switch lightbox is enabled.
+   */
+  const STATE_LIGHTBOX_CUSTOM = 4;
+
+  /**
    * The entity type manager service.
    *
    * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
@@ -413,6 +418,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       static::STATE_LIGHTBOX_ENABLED => [
         'visible' => [
           'select[name*="[media_switch]"]' => [['value' => 'colorbox'], ['value' => 'photobox']],
+        ],
+      ],
+      static::STATE_LIGHTBOX_CUSTOM => [
+        'visible' => [
+          ['select[name*="[media_switch]"]' => [['value' => 'colorbox'], ['value' => 'photobox']]],
+          ['select[name$="[box_caption]"]' => ['value' => 'custom']],
         ],
       ],
       static::STATE_IFRAME_ENABLED => [
