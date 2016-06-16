@@ -1,6 +1,7 @@
 
 Blazy 8.x-1.0-dev, 2016-06-16
 -----------------------------
+- Fixed for empty values at BlazyStylePluginBase::getFieldString().
 - #2749071 by agx: Empty image alt with Responsive image.
 
 Blazy 8.x-1.0-dev, 2016-06-13
