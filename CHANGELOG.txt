@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2016-06-16
+-----------------------------
+- #2749071 by agx: Empty image alt with Responsive image.
+
 Blazy 8.x-1.0-dev, 2016-06-13
 -----------------------------
 - Added lightbox caption option.

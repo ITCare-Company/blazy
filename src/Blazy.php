@@ -102,11 +102,11 @@ class Blazy extends BlazyManager {
 
     // Image is optional for Video, and CSS background images.
     if ($image) {
-      $image['#alt'] = isset($item->alt) ? $item->alt : NULL;
+      $image_attributes['alt'] = isset($item->alt) ? $item->alt : NULL;
 
       // Do not output an empty 'title' attribute.
       if (isset($item->title) && (Unicode::strlen($item->title) != 0)) {
-        $image['#title'] = $item->title;
+        $image_attributes['title'] = $item->title;
       }
 
       $image_attributes['class'][] = 'media__image media__element';
