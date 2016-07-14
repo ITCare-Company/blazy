@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2016-06-27
+-----------------------------
+- Removed deprecated @file docblock as per [#2665992], [#2304909].
+- Cleaned up options.
+
 Blazy 8.x-1.0-dev, 2016-06-16
 -----------------------------
 - Fixed for empty values at BlazyStylePluginBase::getFieldString().

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\blazy\Dejavu\BlazyVideoBase.
- */
-
 namespace Drupal\blazy\Dejavu;
 
 use Drupal\Core\Field\FormatterBase;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\blazy\Blazy.
- */
-
 namespace Drupal\blazy;
 
 use Drupal\Core\Template\Attribute;

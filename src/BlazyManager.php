@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\blazy\BlazyManager.
- */
-
 namespace Drupal\blazy;
 
 use Drupal\Core\Cache\Cache;

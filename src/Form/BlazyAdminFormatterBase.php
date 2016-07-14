@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\blazy\Form\BlazyAdminFormatterBase.
- */
-
 namespace Drupal\blazy\Form;
 
 use Drupal\Core\Url;
@@ -30,32 +25,36 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       '#weight'      => -100,
     ];
 
-    $form['thumbnail_style'] = [
-      '#type'        => 'select',
-      '#title'       => t('Thumbnail style'),
-      '#options'     => $image_styles,
-      '#description' => t('Usages: Photobox thumbnail, or custom work with thumbnails. Leave empty to not use thumbnails.'),
-      '#access'      => isset($definition['thumbnail_styles']),
-      '#weight'      => -100,
-    ];
+    if (isset($definition['thumbnail_styles'])) {
+      $form['thumbnail_style'] = [
+        '#type'        => 'select',
+        '#title'       => t('Thumbnail style'),
+        '#options'     => $image_styles,
+        '#description' => t('Usages: Photobox thumbnail, or custom work with thumbnails. Leave empty to not use thumbnails.'),
+        '#access'      => isset($definition['thumbnail_styles']),
+        '#weight'      => -100,
+      ];
+    }
 
     $form['responsive_image_style'] = [
       '#type'        => 'select',
       '#title'       => t('Responsive image'),
       '#options'     => $this->getResponsiveImageOptions(),
-      '#description' => t('Responsive image style for the main stage image is more reasonable for large images. Not compatible with aspect ratio, yet. Leave empty to disable.'),
+      '#description' => t('Responsive image style for the main stage image is more reasonable for large images. Only expects multi-serving IMG, but not PICTURE element. Not compatible with breakpoints and aspect ratio, yet. Leave empty to disable.'),
       '#access'      => $is_responsive && $this->getResponsiveImageOptions(),
       '#weight'      => -100,
     ];
 
-    $form['thumbnail_effect'] = [
-      '#type'        => 'select',
-      '#title'       => t('Thumbnail effect'),
-      '#options'     => isset($definition['thumbnail_effects']) ? $definition['thumbnail_effects'] : [],
-      '#access'      => isset($definition['thumbnail_effects']),
-      '#weight'      => -100,
-      // '#states'      => $this->getState(static::STATE_THUMBNAIL_STYLE_ENABLED, $definition),
-    ];
+    if (isset($definition['thumbnail_effects'])) {
+      $form['thumbnail_effect'] = [
+        '#type'        => 'select',
+        '#title'       => t('Thumbnail effect'),
+        '#options'     => isset($definition['thumbnail_effects']) ? $definition['thumbnail_effects'] : [],
+        '#access'      => isset($definition['thumbnail_effects']),
+        '#weight'      => -100,
+        // '#states'      => $this->getState(static::STATE_THUMBNAIL_STYLE_ENABLED, $definition),
+      ];
+    }
 
     if ($is_responsive) {
       $url = Url::fromRoute('entity.responsive_image_style.collection')->toString();

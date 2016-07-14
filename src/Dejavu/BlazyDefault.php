@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\blazy\Dejavu\BlazyDefault.
- */
-
 namespace Drupal\blazy\Dejavu;
 
 /**

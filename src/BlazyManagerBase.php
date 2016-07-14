@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\blazy\BlazyManagerBase.
- */
-
 namespace Drupal\blazy;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;

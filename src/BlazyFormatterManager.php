@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\blazy\BlazyFormatterManager.
- */
-
 namespace Drupal\blazy;
 
 /**

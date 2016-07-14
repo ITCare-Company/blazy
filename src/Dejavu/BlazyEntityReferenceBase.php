@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\blazy\Dejavu\BlazyEntityReferenceBase.
- */
-
 namespace Drupal\blazy\Dejavu;
 
 use Drupal\Component\Utility\Xss;

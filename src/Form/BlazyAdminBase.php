@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\blazy\Form\BlazyAdminBase.
- */
-
 namespace Drupal\blazy\Form;
 
 use Drupal\Core\Url;

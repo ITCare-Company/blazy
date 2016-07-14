@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\blazy\Dejavu\BlazyVideoTrait.
- */
-
 namespace Drupal\blazy\Dejavu;
 
 use Drupal\Core\Url;
