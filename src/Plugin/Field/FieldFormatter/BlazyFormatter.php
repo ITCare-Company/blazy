@@ -59,7 +59,7 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return ['icon' => FALSE] + BlazyDefault::imageSettings();
+    return BlazyDefault::imageSettings();
   }
 
   /**
