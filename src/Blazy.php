@@ -31,7 +31,6 @@ class Blazy extends BlazyManager {
     $settings           = &$variables['settings'];
     $attributes         = &$variables['attributes'];
     $image_attributes   = &$variables['item_attributes'];
-    $content_attributes = [];
 
     // Modifies variables.
     foreach (['icon', 'lightbox', 'media_switch', 'player', 'scheme', 'type'] as $key) {
@@ -46,7 +45,8 @@ class Blazy extends BlazyManager {
     }
 
     // Supports non-blazy formatter, that is, responsive image theme.
-    $image = &$variables['image'];
+    $image  = &$variables['image'];
+    $iframe = [];
 
     // Media URL is stored in the settings.
     $media = !empty($variables['embed_url']) && !empty($settings['type']) && in_array($settings['type'], ['video', 'audio']);
@@ -113,12 +113,13 @@ class Blazy extends BlazyManager {
       // image : If iframe switch disabled, fallback to iframe, remove image.
       // player: If no colorbox/photobox, it is an image to iframe switcher.
       // data- : Gets consistent with colorbox to share JS manipulation.
-      // @todo re-check blazy 'data-src' IFRAME lazyload against blazy.media.js.
-      $image                            = empty($settings['media_switch']) ? [] : $image;
-      $settings['player']               = empty($settings['lightbox']) && $settings['media_switch'] != 'content';
-      $content_attributes['data-media'] = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
-      $content_attributes['data-lazy']  = $variables['embed_url'];
-      $content_attributes['src']        = empty($settings['iframe_lazy']) ? $variables['embed_url'] : 'about:blank';
+      $lazy                    = empty($settings['lazy_attribute']) ? 'src' : $settings['lazy_attribute'];
+      $image                   = empty($settings['media_switch']) ? [] : $image;
+      $settings['player']      = empty($settings['lightbox']) && $settings['media_switch'] != 'content';
+      $iframe['data-media']    = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
+      $iframe['data-' . $lazy] = $variables['embed_url'];
+      $iframe['class'][]       = empty($settings['lazy_class']) ? 'b-lazy' : $settings['lazy_class'];
+      $iframe['src']           = empty($settings['iframe_lazy']) ? $variables['embed_url'] : 'about:blank';
     }
 
     if (!empty($settings['caption'])) {
@@ -127,7 +128,7 @@ class Blazy extends BlazyManager {
     }
 
     // URL can be entity or lightbox URL different from the content image URL.
-    $variables['content_attributes'] = new Attribute($content_attributes);
+    $variables['content_attributes'] = new Attribute($iframe);
     $variables['url_attributes']     = new Attribute($variables['url_attributes']);
   }
 

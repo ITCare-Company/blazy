@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2016-07-15
+-----------------------------
+- #2766665 by gausarts: Support plain iframe.
+
 Blazy 8.x-1.0-dev, 2016-07-14
 -----------------------------
 - #2750823 by royal121: Schema errors with slick.
