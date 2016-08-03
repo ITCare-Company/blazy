@@ -417,8 +417,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ],
       static::STATE_LIGHTBOX_CUSTOM => [
         'visible' => [
-          ['select[name*="[media_switch]"]' => [['value' => 'colorbox'], ['value' => 'photobox']]],
-          ['select[name$="[box_caption]"]' => ['value' => 'custom']],
+          'select[name$="[box_caption]"]' => ['value' => 'custom'],
+          'select[name*="[media_switch]"]' => [['value' => 'colorbox'], ['value' => 'photobox']],
         ],
       ],
       static::STATE_IFRAME_ENABLED => [
