@@ -1,6 +1,7 @@
 
 Blazy 8.x-1.0-dev, 2016-08-03
 -----------------------------
+- #2768463 by chr.fritsch: Add libraries support.
 - Fixed for lightbox custom caption form states.
 
 Blazy 8.x-1.0-dev, 2016-07-15
