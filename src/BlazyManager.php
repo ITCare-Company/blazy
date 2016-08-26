@@ -293,7 +293,7 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * Builds the Slick image as a structured array ready for ::renderer().
+   * Builds the Blazy image as a structured array ready for ::renderer().
    */
   public function preRenderImage($element) {
     $build = $element['#build'];

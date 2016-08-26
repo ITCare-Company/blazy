@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2016-08-27
+-----------------------------
+- Allowed a few reasonable HTML tags within H2.slide__title.
+- A few cleanups.
+
 Blazy 8.x-1.0-dev, 2016-08-03
 -----------------------------
 - #2768463 by chr.fritsch: Add libraries support.

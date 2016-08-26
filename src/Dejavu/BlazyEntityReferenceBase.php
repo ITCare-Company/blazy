@@ -76,7 +76,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     $this->buildMedia($settings, $entity, $langcode);
 
     // Main image can be separate image item from video thumbnail for highres.
-    // Fallback to default thumbnail if any which has no file API. empty($settings['image']) &&
+    // Fallback to default thumbnail if any which has no file API.
     if (isset($fields['thumbnail'])) {
       $field_image = $settings['source_field'];
       $item = $fields['thumbnail']->get(0);
@@ -97,14 +97,13 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
       }
     }
 
-    if ($settings['uri']) {
+    if (!empty($settings['uri'])) {
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
       $element['item']     = $item;
       $element['settings'] = $settings;
 
       $image = $this->formatter->getImage($element);
     }
-
 
     // Optional image with responsive image, lazyLoad, and lightbox supports.
     $element[$item_id] = $image;
@@ -126,7 +125,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     $element['settings']['class'] = strip_tags($class);
     $build['items'][$delta] = $element;
 
-    if ($settings['nav']) {
+    if (!empty($settings['nav'])) {
       // Thumbnail usages: asNavFor pagers, dot, arrows, photobox thumbnails.
       $element[$item_id]  = empty($settings['thumbnail_style']) ? [] : $this->formatter->getThumbnail($element['settings']);
       $element['caption'] = $this->getFieldRenderable($entity, $settings['thumbnail_caption'], $view_mode);
@@ -147,8 +146,9 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     $has_title = $field_title && isset($entity->{$field_title});
     if ($has_title && $title = $entity->getTranslation($langcode)->get($field_title)->getValue()) {
       if (!empty($title[0]['value']) && !isset($title[0]['uri'])) {
-        // Prevents HTML-filter-enabled text from having bad markups (h2 > p).
-        $element['caption']['title']['#markup'] = Xss::filterAdmin($title[0]['value']);
+        // Prevents HTML-filter-enabled text from having bad markups (h2 > p),
+        // except for a few reasonable tags acceptable within H2 tag.
+        $element['caption']['title']['#markup'] = strip_tags($title[0]['value'], '<a><strong><em><span><small>');
       }
       elseif (isset($title[0]['uri']) && !empty($title[0]['title'])) {
         $element['caption']['title'] = $this->getFieldRenderable($entity, $field_title, $view_mode)[0];
@@ -170,7 +170,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     }
 
     // Link, if so configured.
-    $field_link = $settings['link'];
+    $field_link = isset($settings['link']) ? $settings['link'] : '';
     if ($field_link && isset($entity->{$field_link})) {
       $links = $this->getFieldRenderable($entity, $field_link, $view_mode);
       // Only simplify markups for known formatters registered by link.module.
