@@ -1,6 +1,7 @@
 
 Blazy 8.x-1.0-dev, 2016-08-27
 -----------------------------
+- #2778615 by DuneBL: A notice is popping up without image style.
 - Allowed a few reasonable HTML tags within H2.slide__title.
 - A few cleanups.
 

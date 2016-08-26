@@ -212,26 +212,28 @@ class BlazyManager extends BlazyManagerBase {
    * Defines image dimensions once as it costs, unless reset for breakpoints.
    */
   public function getUrlDimensions(array &$settings = [], $item = NULL, $modifier = NULL) {
-    $settings['width']  = isset($settings['width'])  ? $settings['width']  : NULL;
-    $settings['height'] = isset($settings['height']) ? $settings['height'] : NULL;
+    $settings['width']      = isset($settings['width'])  ? $settings['width']  : NULL;
+    $settings['height']     = isset($settings['height']) ? $settings['height'] : NULL;
+    $settings['cache_tags'] = empty($settings['cache_tags']) ? [] : $settings['cache_tags'];
 
     if ($item) {
       $settings['width']  = isset($item->width)  ? $item->width  : NULL;
       $settings['height'] = isset($item->height) ? $item->height : NULL;
-      $settings['image_url'] = isset($settings['image_url']) ? $settings['image_url'] : $item->entity->url();
 
       if (!isset($settings['uri'])) {
         $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
       }
-    }
 
-    $settings['cache_tags'] = empty($settings['cache_tags']) ? [] : $settings['cache_tags'];
+      if (!isset($settings['image_url'])) {
+        $settings['image_url'] = file_create_url($settings['uri']);
+      }
+    }
 
     if (empty($modifier) && isset($settings['image_style'])) {
       $modifier = $settings['image_style'];
     }
 
-    if (!empty($modifier)) {
+    if (!empty($modifier) && !empty($settings['uri'])) {
       $style = $this->entityLoad($modifier, 'image_style');
 
       // Image URLs are for lazyloaded images.
