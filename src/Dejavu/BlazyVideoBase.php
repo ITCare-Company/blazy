@@ -63,7 +63,7 @@ abstract class BlazyVideoBase extends FormatterBase implements ContainerFactoryP
     $definition['_views'] = isset($form['field_api_classes']);
 
     $this->admin()->buildSettingsForm($element, $definition);
-    $element['media_switch']['#options']['media'] = t('Image to iframe');
+    $element['media_switch']['#options']['media'] = $this->t('Image to iframe');
 
     return $element;
   }

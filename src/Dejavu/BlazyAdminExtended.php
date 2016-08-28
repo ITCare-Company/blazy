@@ -65,7 +65,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
 
     $form['image'] = [
       '#type'        => 'select',
-      '#title'       => t('Main image'),
+      '#title'       => t('Main stage'),
       '#options'     => isset($definition['images']) ? $definition['images'] : [],
       '#description' => t('Main background/stage image field.'),
       '#access'      => isset($definition['images']),

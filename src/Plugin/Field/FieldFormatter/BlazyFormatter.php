@@ -159,7 +159,7 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
     return [
       'box_captions'      => TRUE,
       'breakpoints'       => BlazyDefault::getConstantBreakpoints(),
-      'captions'          => ['title' => t('Title'), 'alt' => t('Alt')],
+      'captions'          => ['title' => $this->t('Title'), 'alt' => $this->t('Alt')],
       'current_view_mode' => $this->viewMode,
       'entity_type'       => $entity_type,
       'image_style_form'  => TRUE,

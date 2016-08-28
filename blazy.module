@@ -86,20 +86,20 @@ function blazy_config_schema_info_alter(array &$definitions) {
 }
 
 /**
+ * Implements hook_library_info_alter().
+ */
+function blazy_library_info_alter(&$libraries, $extension) {
+  if ($extension == 'blazy' && function_exists('libraries_get_path')) {
+    $libraries['blazy']['js'] = ['/' . libraries_get_path('blazy') . '/blazy.min.js' => []];
+  }
+}
+
+/**
  * Implements hook_help().
  */
 function blazy_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     case 'help.page.blazy':
       return check_markup(file_get_contents(dirname(__FILE__) . '/README.txt'));
-  }
-}
-
-/**
- * Implements hook_library_info_alter().
- */
-function blazy_library_info_alter(&$libraries, $extension) {
-  if ($extension == 'blazy' && function_exists('libraries_get_path')) {
-    $libraries['blazy']['js'] = ['/' . libraries_get_path('blazy') . '/blazy.min.js' => []];
   }
 }

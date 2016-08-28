@@ -26,7 +26,7 @@ class BlazyDefault {
    */
   public static function baseSettings() {
     return [
-      'cache'             => -1,
+      'cache'             => 0,
       'current_view_mode' => '',
       'item_id'           => '',
       'optionset'         => 'default',

@@ -106,15 +106,9 @@ class BlazyManager extends BlazyManagerBase {
    * Builds breakpoints suitable for top-level [data-blazy] wrapper attributes.
    */
   public function buildDataBlazy(array &$settings = [], $item = NULL) {
-    $settings['width']  = isset($settings['width'])  ? $settings['width']  : NULL;
-    $settings['height'] = isset($settings['height']) ? $settings['height'] : NULL;
-    if ($item) {
-      $settings['width']  = isset($item->width)  ? $item->width  : NULL;
-      $settings['height'] = isset($item->height) ? $item->height : NULL;
-      if (!isset($settings['uri'])) {
-        $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
-      }
-    }
+    // Addresses the trouble with non-mobile-first approach.
+    $settings['_dimensions_reset'] = TRUE;
+    $this->getUrlDimensions($settings, $item);
 
     $json = $sources = [];
     if (!empty($settings['breakpoints'])) {
@@ -160,10 +154,6 @@ class BlazyManager extends BlazyManagerBase {
       // Identify that Blazy can be activated only by breakpoints.
       $settings['blazy'] = TRUE;
     }
-
-    // Addresses the trouble with non-mobile-first approach.
-    $settings['_dimensions_reset'] = TRUE;
-    $this->getUrlDimensions($settings, $item);
 
     if ($sources) {
       // As of Blazy v1.6.0 applied to BG only.
@@ -229,8 +219,10 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
 
-    if (empty($modifier) && isset($settings['image_style'])) {
-      $modifier = $settings['image_style'];
+    // No file API, no $item, with unmanaged VEF image without image_style.
+    $modifier = empty($modifier) ? $settings['image_style'] : $modifier;
+    if (empty($modifier) && empty($settings['width']) && !empty($settings['image_url'])) {
+      list($settings['width'], $settings['height']) = getimagesize($settings['image_url']);
     }
 
     if (!empty($modifier) && !empty($settings['uri'])) {
@@ -290,7 +282,7 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     $this->getModuleHandler()->alter($namespace . '_image', $image, $settings);
-    unset($settings['cache_tags'], $settings['cache_metadata'], $settings['file_tags'], $settings['overridables']);
+
     return $image;
   }
 
@@ -306,8 +298,6 @@ class BlazyManager extends BlazyManagerBase {
     if (empty($item)) {
       return [];
     }
-
-    $namespace = $settings['namespace'];
 
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
@@ -360,11 +350,10 @@ class BlazyManager extends BlazyManagerBase {
    * Gets the media switch options: colorbox, photobox, content.
    */
   public function getMediaSwitch(array &$element = [], $settings = []) {
-    $item      = $element['#item'];
-    $type      = isset($settings['type']) ? $settings['type'] : 'image';
-    $uri       = $settings['uri'];
-    $switch    = $settings['media_switch'];
-    $namespace = $settings['namespace'];
+    $item   = $element['#item'];
+    $type   = isset($settings['type']) ? $settings['type'] : 'image';
+    $uri    = $settings['uri'];
+    $switch = $settings['media_switch'];
 
     // Provide relevant URL if it is a lightbox.
     if (strpos($switch, 'box') !== FALSE) {

@@ -136,7 +136,7 @@ class Blazy extends BlazyManager {
    * Provides re-usable breakpoint data-attributes.
    *
    * $settings['breakpoints'] must contain: xs, sm, md, lg breakpoints with
-   * the expected keys: width, image_style,	url.
+   * the expected keys: width, image_style, url.
    *
    * @see self::buildAttributes()
    * @see BlazyManager::buildDataBlazy()
