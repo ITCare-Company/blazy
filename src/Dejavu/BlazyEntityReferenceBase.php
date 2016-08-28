@@ -286,6 +286,8 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     $texts       = $admin->getFieldOptions($bundles, ['text', 'text_long', 'string', 'string_long', 'link'], $target_type);
 
     return [
+      'background'        => TRUE,
+      'box_captions'      => TRUE,
       'breakpoints'       => BlazyDefault::getConstantBreakpoints(),
       'captions'          => $admin->getFieldOptions($bundles, [], $target_type),
       'classes'           => $strings,

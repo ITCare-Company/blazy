@@ -72,15 +72,21 @@ abstract class BlazyVideoBase extends FormatterBase implements ContainerFactoryP
    * Defines the scope for the form elements.
    */
   public function getScopedFormElements() {
+    $field       = $this->fieldDefinition;
+    $entity_type = $field->getTargetEntityTypeId();
+    $target_type = $this->getFieldSetting('target_type');
+
     return [
       'background'        => TRUE,
       'breakpoints'       => BlazyDefault::getConstantBreakpoints(),
       'current_view_mode' => $this->viewMode,
+      'entity_type'       => $entity_type,
       'field_name'        => $this->fieldDefinition->getName(),
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,
       'multimedia'        => TRUE,
       'settings'          => $this->getSettings(),
+      'target_type'       => $target_type,
       'nav'               => TRUE,
     ];
   }

@@ -1,6 +1,7 @@
 
 Blazy 8.x-1.0-dev, 2016-08-29
 -----------------------------
+- Added lightbox captions and use CSS background options for Slick Media.
 - Made BlazyEntityReferenceBase::getOverlay() do something useful by default.
 - Added entity_type at BlazyEntityReferenceBase::getScopedFormElements().
 - Fixed for VEF integration with failing thumbnail downloads.

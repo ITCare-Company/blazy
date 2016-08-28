@@ -176,10 +176,12 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       ];
 
       if ($is_token) {
+        $types = isset($definition['entity_type']) ? [$definition['entity_type']] : [];
+        $types = isset($definition['target_type']) ? array_merge($types, [$definition['target_type']]) : $types;
         $form['box_caption_custom']['#field_suffix'] = [
           '#theme'       => 'token_tree_link',
           '#text'        => t('Tokens'),
-          '#token_types' => isset($definition['entity_type']) ? [$definition['entity_type']] : [],
+          '#token_types' => $types,
         ];
       }
       else {
