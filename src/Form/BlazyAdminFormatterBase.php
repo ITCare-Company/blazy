@@ -273,23 +273,27 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
   /**
    * Returns available fields for select options.
    */
-  public function getFieldOptions($target_bundles = [], $allowed_field_types = [], $entity_type_id = 'media', $target_type = '') {
+  public function getFieldOptions($target_bundles = [], $allowed_field_types = [], $entity_type = 'media', $target_type = '') {
     $options = [];
     $storage = $this->blazyManager()->getEntityTypeManager()->getStorage('field_config');
 
     // Fix for Views UI not recognizing Media bundles, unlike Formatters.
     if (empty($target_bundles)) {
       $bundle_service = \Drupal::service('entity_type.bundle.info');
-      $target_bundles = $bundle_service->getBundleInfo($entity_type_id);
+      $target_bundles = $bundle_service->getBundleInfo($entity_type);
     }
 
     foreach ($target_bundles as $bundle => $label) {
-      if ($fields = $storage->loadByProperties(['entity_type' => $entity_type_id, 'target_type' => $target_type, 'bundle' => $bundle])) {
+      if ($fields = $storage->loadByProperties(['entity_type' => $entity_type, 'bundle' => $bundle])) {
         foreach ((array) $fields as $field_name => $field) {
           if (empty($allowed_field_types)) {
             $options[$field->getName()] = $field->getLabel();
           }
           elseif (in_array($field->getType(), $allowed_field_types)) {
+            $options[$field->getName()] = $field->getLabel();
+          }
+
+          if (!empty($target_type) && ($field->getSetting('target_type') == $target_type)) {
             $options[$field->getName()] = $field->getLabel();
           }
         }

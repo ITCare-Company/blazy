@@ -206,42 +206,45 @@ class BlazyManager extends BlazyManagerBase {
     $settings['height']     = isset($settings['height']) ? $settings['height'] : NULL;
     $settings['cache_tags'] = empty($settings['cache_tags']) ? [] : $settings['cache_tags'];
 
-    if ($item) {
+    // This is not always available with a VEF textfield.
+    if ($item && is_object($item)) {
       $settings['width']  = isset($item->width)  ? $item->width  : NULL;
       $settings['height'] = isset($item->height) ? $item->height : NULL;
 
       if (!isset($settings['uri'])) {
         $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
       }
+    }
 
+    if (!empty($settings['uri'])) {
       if (!isset($settings['image_url'])) {
         $settings['image_url'] = file_create_url($settings['uri']);
       }
-    }
 
-    // No file API, no $item, with unmanaged VEF image without image_style.
-    $modifier = empty($modifier) ? $settings['image_style'] : $modifier;
-    if (empty($modifier) && empty($settings['width']) && !empty($settings['image_url'])) {
-      list($settings['width'], $settings['height']) = getimagesize($settings['image_url']);
-    }
+      // No file API, no $item, with unmanaged VEF image without image_style.
+      $modifier = empty($modifier) ? $settings['image_style'] : $modifier;
+      if (empty($modifier) && empty($settings['width']) && !empty($settings['image_url'])) {
+        list($settings['width'], $settings['height']) = getimagesize($settings['image_url']);
+      }
 
-    if (!empty($modifier) && !empty($settings['uri'])) {
-      $style = $this->entityLoad($modifier, 'image_style');
+      if (!empty($modifier)) {
+        $style = $this->entityLoad($modifier, 'image_style');
 
-      // Image URLs are for lazyloaded images.
-      $settings['image_url']  = $style->buildUrl($settings['uri']);
-      $settings['cache_tags'] = $style->getCacheTags();
+        // Image URLs are for lazyloaded images.
+        $settings['image_url']  = $style->buildUrl($settings['uri']);
+        $settings['cache_tags'] = $style->getCacheTags();
 
-      // Unless reset for multi-styled images, set dimensions once.
-      if (empty($settings['_dimensions']) || isset($settings['_dimensions_reset'])) {
-        $dimensions = [
-          'width'  => $settings['width'],
-          'height' => $settings['height'],
-        ];
-        $style->transformDimensions($dimensions, $settings['uri']);
-        $settings['height']      = $dimensions['height'];
-        $settings['width']       = $dimensions['width'];
-        $settings['_dimensions'] = TRUE;
+        // Unless reset for multi-styled images, set dimensions once.
+        if (empty($settings['_dimensions']) || isset($settings['_dimensions_reset'])) {
+          $dimensions = [
+            'width'  => $settings['width'],
+            'height' => $settings['height'],
+          ];
+          $style->transformDimensions($dimensions, $settings['uri']);
+          $settings['height']      = $dimensions['height'];
+          $settings['width']       = $dimensions['width'];
+          $settings['_dimensions'] = TRUE;
+        }
       }
     }
   }

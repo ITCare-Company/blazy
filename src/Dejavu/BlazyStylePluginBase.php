@@ -245,7 +245,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
         return $image;
       }
 
-      // Dump Video embed thumbnail/video/colorbox as it is.
+      // Dump Video embed thumbnail/video/colorbox as is.
       if (isset($image['rendered'])) {
        return $image;
       }

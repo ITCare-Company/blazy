@@ -259,13 +259,17 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'               => 'textfield',
         '#title'              => t('Width'),
         '#title_display'      => 'invisible',
-        '#description'        => t('E.g.: <strong>640</strong>, or <strong>2x</strong>, or for <strong>small devices</strong> may be combined into <strong>640w 2x</strong> where <strong>x (pixel density)</strong> descriptor is used to define the device-pixel ratio, and <strong>w (width)</strong> descriptor is the width of image source and works in tandem with <strong>sizes</strong> attributes. Use <strong>w (width)</strong> if any issue/ unsure. Default to <strong>w</strong> if no descriptor provided for backward compatibility.'),
+        '#description'        => t('See <strong>XS</strong> for detailed info.'),
         '#maz_length'         => 32,
         '#size'               => 6,
         '#weight'             => 3,
         '#attributes'         => ['class' => ['form-text--width', 'js-expandable']],
         '#wrapper_attributes' => ['class' => ['form-item--width']],
       ];
+
+      if ($breakpoint == 'xs') {
+        $form[$breakpoint]['width']['#description'] = t('E.g.: <strong>640</strong>, or <strong>2x</strong>, or for <strong>small devices</strong> may be combined into <strong>640w 2x</strong> where <strong>x (pixel density)</strong> descriptor is used to define the device-pixel ratio, and <strong>w (width)</strong> descriptor is the width of image source and works in tandem with <strong>sizes</strong> attributes. Use <strong>w (width)</strong> if any issue/ unsure. Default to <strong>w</strong> if no descriptor provided for backward compatibility.');
+      }
     }
 
     return $form;

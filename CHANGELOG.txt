@@ -1,4 +1,10 @@
 
+Blazy 8.x-1.0-dev, 2016-08-30
+-----------------------------
+- Added video support to the main background/stage for Slick Paragraphs which
+  is normally image.
+- Fixed for BlazyAdminFormatterBase::getFieldOptions() target_type.
+
 Blazy 8.x-1.0-dev, 2016-08-29
 -----------------------------
 - Added lightbox captions and use CSS background options for Slick Media.
