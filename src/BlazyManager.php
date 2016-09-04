@@ -274,11 +274,13 @@ class BlazyManager extends BlazyManagerBase {
       $this->getUrlBreakpoints($settings);
     }
 
-    $file_tags = isset($settings['file_tags']) ? $settings['file_tags'] : [];
-    $settings['cache_tags'] = empty($settings['cache_tags']) ? $file_tags : Cache::mergeTags($settings['cache_tags'], $file_tags);
-
     $image['#build'] = $build;
-    $image['#cache'] = ['tags' => $settings['cache_tags']];
+
+    if (!isset($settings['_no_cache'])) {
+      $file_tags = isset($settings['file_tags']) ? $settings['file_tags'] : [];
+      $settings['cache_tags'] = empty($settings['cache_tags']) ? $file_tags : Cache::mergeTags($settings['cache_tags'], $file_tags);
+      $image['#cache'] = ['tags' => $settings['cache_tags']];
+    }
 
     if (isset($settings['theme_hook_image_wrapper'])) {
       $image['#theme_wrappers'][] = $settings['theme_hook_image_wrapper'];

@@ -13,7 +13,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
    * Defines re-usable form elements.
    */
   public function buildSettingsForm(array &$form, $definition = []) {
-    $settings = $definition['settings'];
+    $definition['responsive_images'] = TRUE;
 
     $this->openingForm($form, $definition);
     $this->imageStyleForm($form, $definition);

@@ -20,28 +20,32 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
 
     $namespace = $definition['namespace'];
 
-    $form['vanilla'] = [
-      '#type'        => 'checkbox',
-      '#title'       => t('Vanilla @namespace', ['@namespace' => $namespace]),
-      '#description' => t('<strong>Check</strong>:<ul><li>To render individual item as is as without extra logic.</li><li>To disable 99% @module features, and most of the mentioned options here, such as layouts, et al.</li><li>When the @module features can not satisfy the need.</li><li>Things may be broken! You are on your own.</li></ul><strong>Uncheck</strong>:<ul><li>To get consistent markups and its advanced features -- relevant for the provided options as @module needs to know what to style/work with.</li></ul>', ['@module' => $namespace]),
-      '#weight'      => -109,
-      '#enforced'    => TRUE,
-      '#access'      => isset($definition['vanilla']),
-      '#wrapper_attributes' => ['class' => ['form-item--full', 'form-item--tooltip-bottom']],
-    ];
+    if (isset($definition['vanilla'])) {
+      $form['vanilla'] = [
+        '#type'        => 'checkbox',
+        '#title'       => t('Vanilla @namespace', ['@namespace' => $namespace]),
+        '#description' => t('<strong>Check</strong>:<ul><li>To render individual item as is as without extra logic.</li><li>To disable 99% @module features, and most of the mentioned options here, such as layouts, et al.</li><li>When the @module features can not satisfy the need.</li><li>Things may be broken! You are on your own.</li></ul><strong>Uncheck</strong>:<ul><li>To get consistent markups and its advanced features -- relevant for the provided options as @module needs to know what to style/work with.</li></ul>', ['@module' => $namespace]),
+        '#weight'      => -109,
+        '#enforced'    => TRUE,
+        '#access'      => isset($definition['vanilla']),
+       '#wrapper_attributes' => ['class' => ['form-item--full', 'form-item--tooltip-bottom']],
+      ];
+    }
 
-    $form['optionset'] = [
-      '#type'        => 'select',
-      '#title'       => t('Optionset'),
-      '#options'     => isset($definition['optionsets']) ? $definition['optionsets'] : $this->getOptionsetOptions($namespace),
-      '#enforced'    => TRUE,
-      '#description' => t('Enable the optionset UI module to manage the optionsets.'),
-      '#access'      => isset($definition['optionsets']),
-      '#weight'      => -108,
-    ];
+    if (isset($definition['optionsets'])) {
+      $form['optionset'] = [
+        '#type'        => 'select',
+        '#title'       => t('Optionset'),
+        '#options'     => isset($definition['optionsets']) ? $definition['optionsets'] : $this->getOptionsetOptions($namespace),
+        '#enforced'    => TRUE,
+        '#description' => t('Enable the optionset UI module to manage the optionsets.'),
+        '#access'      => isset($definition['optionsets']),
+        '#weight'      => -108,
+      ];
 
-    if (isset($definition['optionsets']) && $this->blazyManager()->getModuleHandler()->moduleExists($namespace . '_ui')) {
-      $form['optionset']['#description'] = t('Manage optionsets at <a href=":url" target="_blank">the optionset admin page</a>.', [':url' => Url::fromRoute('entity.' . $namespace . '.collection')->toString()]);
+      if ($this->blazyManager()->getModuleHandler()->moduleExists($namespace . '_ui')) {
+        $form['optionset']['#description'] = t('Manage optionsets at <a href=":url" target="_blank">the optionset admin page</a>.', [':url' => Url::fromRoute('entity.' . $namespace . '.collection')->toString()]);
+      }
     }
 
     parent::openingForm($form, $definition);
@@ -213,7 +217,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
    * Returns shared ending form elements across field formatter and Views.
    */
   public function closingForm(array &$form, $definition = []) {
-    if (isset($definition['caches'])) {
+    if (isset($definition['caches']) && $definition['caches']) {
       $form['cache'] = [
         '#type'        => 'select',
         '#title'       => t('Cache'),

@@ -119,41 +119,49 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       return;
     }
 
-    $form['skin'] = [
-      '#type'        => 'select',
-      '#title'       => t('Skin'),
-      '#options'     => isset($definition['skins']) ? $definition['skins'] : [],
-      '#enforced'    => TRUE,
-      '#description' => t('Skins allow various layouts with just CSS. Some options below depend on a skin. Leave empty to DIY. Or use the provided hook_info() and implement the skin interface to register ones.'),
-      '#weight'      => -107,
-      '#access'      => isset($definition['skins']),
-    ];
+    if (isset($definition['skins'])) {
+      $form['skin'] = [
+        '#type'        => 'select',
+        '#title'       => t('Skin'),
+        '#options'     => isset($definition['skins']) ? $definition['skins'] : [],
+        '#enforced'    => TRUE,
+        '#description' => t('Skins allow various layouts with just CSS. Some options below depend on a skin. Leave empty to DIY. Or use the provided hook_info() and implement the skin interface to register ones.'),
+        '#weight'      => -107,
+        '#access'      => isset($definition['skins']),
+      ];
+    }
 
-    $form['background'] = [
-      '#type'        => 'checkbox',
-      '#title'       => t('Use CSS background'),
-      '#description' => t('Check this to turn the image into CSS background instead.'),
-      '#access'      => isset($definition['background']),
-      '#weight'      => -98,
-    ];
+    if (isset($definition['background'])) {
+      $form['background'] = [
+        '#type'        => 'checkbox',
+        '#title'       => t('Use CSS background'),
+        '#description' => t('Check this to turn the image into CSS background instead.'),
+        '#access'      => isset($definition['background']),
+        '#weight'      => -98,
+      ];
+    }
 
-    $form['layout'] = [
-      '#type'        => 'select',
-      '#title'       => t('Layout'),
-      '#options'     => isset($definition['layouts']) ? $definition['layouts'] : [],
-      '#description' => t('Requires a skin. The builtin layouts affects the entire items uniformly. Leave empty to DIY.'),
-      '#access'      => isset($definition['layouts']),
-      '#weight'      => 2,
-    ];
+    if (isset($definition['layouts'])) {
+      $form['layout'] = [
+        '#type'        => 'select',
+        '#title'       => t('Layout'),
+        '#options'     => isset($definition['layouts']) ? $definition['layouts'] : [],
+        '#description' => t('Requires a skin. The builtin layouts affects the entire items uniformly. Leave empty to DIY.'),
+        '#access'      => isset($definition['layouts']),
+        '#weight'      => 2,
+      ];
+    }
 
-    $form['caption'] = [
-      '#type'        => 'checkboxes',
-      '#title'       => t('Caption fields'),
-      '#options'     => isset($definition['captions']) ? $definition['captions'] : [],
-      '#description' => t('Enable any of the following fields as captions. These fields are treated and wrapped as captions.'),
-      '#access'      => isset($definition['captions']),
-      '#weight'      => 80,
-    ];
+    if (isset($definition['captions'])) {
+      $form['caption'] = [
+        '#type'        => 'checkboxes',
+        '#title'       => t('Caption fields'),
+        '#options'     => isset($definition['captions']) ? $definition['captions'] : [],
+        '#description' => t('Enable any of the following fields as captions. These fields are treated and wrapped as captions.'),
+        '#access'      => isset($definition['captions']),
+        '#weight'      => 80,
+      ];
+    }
 
     $weight = -99;
     foreach (Element::children($form) as $key) {

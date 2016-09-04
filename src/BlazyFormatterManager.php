@@ -31,7 +31,8 @@ class BlazyFormatterManager extends BlazyManager {
     $target_type    = $field->getFieldStorageDefinition()->getSetting('target_type');
     $view_mode      = empty($settings['current_view_mode']) ? '_custom' : $settings['current_view_mode'];
     $namespace      = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
-    $id             = self::getHtmlId("{$namespace}-{$entity_type_id}-{$entity_id}-{$field_clean}-{$view_mode}");
+    $id             = isset($settings['id']) ? $settings['id'] : '';
+    $id             = self::getHtmlId("{$namespace}-{$entity_type_id}-{$entity_id}-{$field_clean}-{$view_mode}", $id);
     $switch         = empty($settings['media_switch']) ? '' : empty($settings['media_switch']);
     $internal_path  = $absolute_path = NULL;
 

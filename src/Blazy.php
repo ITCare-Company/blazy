@@ -187,12 +187,21 @@ class Blazy extends BlazyManager {
           $mappings[$key]['label'] = Unicode::ucfirst(str_replace('_' , ' ' , $key));
         }
       }
-      foreach (BlazyDefault::getConstantBreakpoints() as $breakpoint) {
-        $mappings['breakpoints']['mapping'][$breakpoint]['type'] = 'mapping';
-        foreach (['breakpoint', 'width', 'image_style'] as $item) {
-          $mappings['breakpoints']['mapping'][$breakpoint]['mapping'][$item]['type']  = 'string';
-          $mappings['breakpoints']['mapping'][$breakpoint]['mapping'][$item]['label'] = Unicode::ucfirst(str_replace('_' , ' ' , $item));
+
+      if (isset($mappings['breakpoints'])) {
+        foreach (BlazyDefault::getConstantBreakpoints() as $breakpoint) {
+          $mappings['breakpoints']['mapping'][$breakpoint]['type'] = 'mapping';
+          foreach (['breakpoint', 'width', 'image_style'] as $item) {
+            $mappings['breakpoints']['mapping'][$breakpoint]['mapping'][$item]['type']  = 'string';
+            $mappings['breakpoints']['mapping'][$breakpoint]['mapping'][$item]['label'] = Unicode::ucfirst(str_replace('_' , ' ' , $item));
+          }
         }
+      }
+
+      if (isset($mappings['overridables'])) {
+        $mappings['overridables']['label'] = 'Overridable options';
+        $mappings['overridables']['sequence'][0]['type'] = 'string';
+        $mappings['overridables']['sequence'][0]['label'] = 'Overridable';
       }
     }
   }

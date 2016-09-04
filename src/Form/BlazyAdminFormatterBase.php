@@ -36,14 +36,16 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       ];
     }
 
-    $form['responsive_image_style'] = [
-      '#type'        => 'select',
-      '#title'       => t('Responsive image'),
-      '#options'     => $this->getResponsiveImageOptions(),
-      '#description' => t('Responsive image style for the main stage image is more reasonable for large images. Only expects multi-serving IMG, but not PICTURE element. Not compatible with breakpoints and aspect ratio, yet. Leave empty to disable.'),
-      '#access'      => $is_responsive && $this->getResponsiveImageOptions(),
-      '#weight'      => -100,
-    ];
+    if ($is_responsive && !empty($definition['responsive_images'])) {
+      $form['responsive_image_style'] = [
+        '#type'        => 'select',
+        '#title'       => t('Responsive image'),
+        '#options'     => $this->getResponsiveImageOptions(),
+        '#description' => t('Responsive image style for the main stage image is more reasonable for large images. Only expects multi-serving IMG, but not PICTURE element. Not compatible with breakpoints and aspect ratio, yet. Leave empty to disable.'),
+        '#access'      => $this->getResponsiveImageOptions(),
+        '#weight'      => -100,
+      ];
+    }
 
     if (isset($definition['thumbnail_effects'])) {
       $form['thumbnail_effect'] = [
@@ -56,12 +58,14 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       ];
     }
 
-    if ($is_responsive) {
+    if ($is_responsive && isset($form['responsive_image_style'])) {
       $url = Url::fromRoute('entity.responsive_image_style.collection')->toString();
       $form['responsive_image_style']['#description'] .= ' ' . t('<a href=":url" target="_blank">Manage responsive image styles</a>.', [':url' => $url]);
     }
 
-    $form['background']['#states'] = $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition);
+    if (isset($form['background'])) {
+      $form['background']['#states'] = $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition);
+    }
   }
 
   /**
@@ -202,23 +206,27 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
   /**
    * Return the field formatter settings summary.
    */
-  public function settingsSummary($plugin) {
+  public function settingsSummary($plugin, $excludes = []) {
     $form         = [];
     $summary      = [];
     $form_state   = new FormState();
     $settings     = $plugin->getSettings();
     $elements     = $plugin->settingsForm($form, $form_state);
-    $definition   = $this->typedConfig->getDefinition('field.formatter.settings.' . $plugin->getPluginId());
     $image_styles = image_style_options(TRUE);
     $breakpoints  = isset($settings['breakpoints']) ? array_filter($settings['breakpoints']) : [];
 
     unset($image_styles['']);
 
     foreach ($settings as $key => $setting) {
-      $access  = isset($elements[$key]['#access'])  ? $elements[$key]['#access']  : TRUE;
-      $title   = isset($elements[$key]['#title'])   ? $elements[$key]['#title']   : '';
-      $options = isset($elements[$key]['#options']) ? $elements[$key]['#options'] : [];
-      $vanilla = !empty($settings['vanilla']) && !isset($elements[$key]['#enforced']);
+      if (!empty($excludes) && in_array($key, $excludes)) {
+        continue;
+      }
+      $access   = isset($elements[$key]['#access']) ? $elements[$key]['#access'] : TRUE;
+      $title    = isset($elements[$key]['#title']) ? $elements[$key]['#title'] : '';
+      $options  = isset($elements[$key]['#options']) ? $elements[$key]['#options'] : [];
+      $vanilla  = !empty($settings['vanilla']) && !isset($elements[$key]['#enforced']);
+      $multiple = isset($elements[$key]['#multiple']) && $elements[$key]['#multiple'];
+      $type     = isset($elements[$key]['#type']) ? $elements[$key]['#type'] : '';
 
       if ($key == 'breakpoints') {
         $widths = [];
@@ -234,30 +242,54 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
         $setting = $widths ? implode(', ', $widths) : t('None');
       }
       else {
-        if (is_array($setting) || empty($title) || $vanilla || !$access) {
+        if (empty($title) || $vanilla || !$access) {
           continue;
         }
 
-        if (isset($definition['mapping']) && isset($definition['mapping'][$key])) {
-          if ($definition['mapping'][$key]['type'] == 'boolean') {
-            if (empty($setting)) {
-              continue;
-            }
-            $setting = t('Yes');
+        if ($key == 'override' && empty($setting)) {
+          unset($settings['overridables']);
+        }
+
+        if (is_bool($setting) && $setting) {
+          $setting = t('Yes');
+        }
+        elseif (is_string($setting)) {
+          // The value is based on select options.
+          if (!$multiple && $type == 'select' && isset($options[$setting])) {
+            $setting = is_object($options[$setting]) ? $options[$setting]->render() : $options[$setting];
           }
-          elseif ($definition['mapping'][$key]['type'] == 'string' && empty($setting)) {
-            continue;
+        }
+        elseif (is_array($setting)) {
+          $values = array_filter($setting);
+
+          if (!empty($values)) {
+            // Combine possible multi-value select, or checkboxes.
+            $multiple_values = array_combine($values, $values);
+
+            foreach ($multiple_values as $i => $value) {
+              if (isset($options[$i])) {
+                $multiple_values[$i] = is_object($options[$i]) ? $options[$i]->render() : $options[$i];
+              }
+            }
+
+            $setting = implode(', ', $multiple_values);
+          }
+
+          if (is_array($setting)) {
+            $setting = array_filter($setting);
+            if (!empty($setting)) {
+              $setting = implode(', ', $setting);
+            }
           }
         }
 
         if ($key == 'cache') {
           $setting = $this->getCacheOptions()[$setting];
         }
+      }
 
-        // Value is based on select options.
-        if (isset($options[$settings[$key]])) {
-          $setting = is_object($options[$settings[$key]]) ? $options[$settings[$key]]->render() : $options[$settings[$key]];
-        }
+      if (empty($setting)) {
+        continue;
       }
 
       if (isset($settings[$key])) {
