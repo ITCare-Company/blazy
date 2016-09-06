@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2016-09-07
+-----------------------------
+- Marked it Beta3.
+- Added "Use CSS background" option.
+
 Blazy 8.x-1.0-dev, 2016-09-05
 -----------------------------
 - Refined form elements and summaries.

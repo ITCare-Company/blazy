@@ -37,7 +37,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
 
       $settings['delta'] = $delta;
       if ($entity->id()) {
-        if ($settings['vanilla']) {
+        if (!empty($settings['vanilla'])) {
           $build['items'][$delta] = $this->manager()->getEntityTypeManager()->getViewBuilder($entity->getEntityTypeId())->view($entity, $view_mode, $langcode);
         }
         else {
@@ -221,7 +221,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
 
       // Do not proceed if it is a Media entity video.
       if (isset($value[0]) && $value[0]) {
-        // If an image, even if multi-value, we can only have one stage per slide.
+        // If image, even if multi-value, we can only have one stage per slide.
         if (isset($value[0]['target_id']) && !empty($value[0]['target_id'])) {
           if (method_exists($file, 'referencedEntities') && isset($file->referencedEntities()[0])) {
             /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */

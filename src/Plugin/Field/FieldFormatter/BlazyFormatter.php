@@ -85,6 +85,7 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
     $formatter             = $this->blazyFormatterManager;
     $settings              = $this->getSettings();
     $settings['namespace'] = $settings['item_id'] = $settings['lazy'] = 'blazy';
+    $settings['blazy']     = TRUE;
 
     // Build the settings.
     $build = ['settings' => $settings];
@@ -157,6 +158,7 @@ class BlazyFormatter extends ImageFormatterBase implements ContainerFactoryPlugi
     $entity_type = $field->getTargetEntityTypeId();
 
     return [
+      'background'        => TRUE,
       'box_captions'      => TRUE,
       'breakpoints'       => BlazyDefault::getConstantBreakpoints(),
       'captions'          => ['title' => $this->t('Title'), 'alt' => $this->t('Alt')],
