@@ -12,10 +12,18 @@ trait BlazyVideoTrait {
   /**
    * Builds relevant video embed field settings based on the given media url.
    */
-  public function buildVideo(array &$settings = [], $external_url) {
+  public function buildVideo(array &$settings = [], $external_url, $provider_manager = NULL) {
     /** @var \Drupal\video_embed_field\ProviderManagerInterface $provider */
-    $provider    = $this->providerManager->loadProviderFromInput($external_url);
-    $definitions = $this->providerManager->loadDefinitionFromInput($external_url);
+    if ($provider_manager) {
+      $provider    = $provider_manager->loadProviderFromInput($external_url);
+      $definitions = $provider_manager->loadDefinitionFromInput($external_url);
+    }
+    else {
+      // @todo drop for Beta > 4 so this method can be used without DI such as
+      // by Slick Browser with a combination of different entities.
+      $provider    = $this->providerManager->loadProviderFromInput($external_url);
+      $definitions = $this->providerManager->loadDefinitionFromInput($external_url);
+    }
 
     // Ensures thumbnail is available.
     $provider->downloadThumbnail();

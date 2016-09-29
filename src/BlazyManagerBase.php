@@ -155,19 +155,18 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $load['library'][] = 'blazy/photobox';
     }
 
-    // Core Blazy libraries.
-    // @todo remove last condition when Mason and Gridstack updated to blazy.
-    if (!empty($attach['blazy']) || (!empty($attach['lazy']) && $attach['lazy'] == 'blazy')) {
-      $load['library'][] = 'blazy/load';
-      $load['drupalSettings']['blazy'] = $this->configLoad()['blazy'];
-    }
-
     if (!empty($attach['media'])) {
       $load['library'][] = 'blazy/media';
     }
 
     if (!empty($attach['ratio'])) {
       $load['library'][] = 'blazy/ratio';
+    }
+
+    // Core Blazy libraries.
+    if (!empty($attach['blazy'])) {
+      $load['library'][] = 'blazy/load';
+      $load['drupalSettings']['blazy'] = $this->configLoad()['blazy'];
     }
 
     $this->moduleHandler->alter('blazy_attach', $load, $attach);

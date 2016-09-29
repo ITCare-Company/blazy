@@ -4,13 +4,12 @@ namespace Drupal\blazy\Dejavu;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
-use Drupal\Component\Utility\Xss;
-use Drupal\file\Entity\File;
 
 /**
  * Base class for blazy entity reference formatters.
  */
 abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
+  use BlazyEntityTrait;
 
   /**
    * {@inheritdoc}
@@ -235,10 +234,11 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
         // If a VEF with a text, or link field.
         elseif (isset($value[0]['value']) || isset($value[0]['uri'])) {
           $external_url = $this->getFieldString($entity, $stage, $langcode);
+          $provider_manager = $this->providerManager;
 
           /** @var \Drupal\video_embed_field\ProviderManagerInterface $provider */
-          if ($external_url && $this->providerManager->loadProviderFromInput($external_url)) {
-            $this->buildVideo($settings, $external_url);
+          if ($external_url && $provider_manager->loadProviderFromInput($external_url)) {
+            $this->buildVideo($settings, $external_url, $provider_manager);
             $item = $value;
           }
         }
@@ -246,42 +246,6 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     }
 
     return $item;
-  }
-
-  /**
-   * Returns the string value of the fields: link, or text.
-   */
-  public function getFieldString($entity, $field_name = '', $langcode) {
-    $value = '';
-    if ($field_name && isset($entity->{$field_name})) {
-      $values = $entity->getTranslation($langcode)->get($field_name)->getValue();
-      // If any text field.
-      if (!empty($values[0]['value'])) {
-        $value = strip_tags($values[0]['value']);
-      }
-      // If a VEF URL is using a link field.
-      elseif (isset($values[0]['uri']) && !empty($values[0]['title'])) {
-        $value = strip_tags($values[0]['uri']);
-      }
-    }
-    return trim($value);
-  }
-
-  /**
-   * Returns the formatted renderable array of the field.
-   */
-  public function getFieldRenderable($entity, $field_name = '', $view_mode = 'full') {
-    $view = [];
-    $has_field = $field_name && isset($entity->{$field_name});
-    if ($has_field && !empty($entity->{$field_name}->view($view_mode)[0])) {
-      $view = $entity->get($field_name)->view($view_mode);
-
-      // Prevents quickedit to operate here as otherwise JS error.
-      // @see 2314185, 2284917, 2160321.
-      // @see quickedit_preprocess_field().
-      $view['#view_mode'] = '_custom';
-    }
-    return $view;
   }
 
   /**
@@ -347,6 +311,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
       'target_bundles'    => $bundles,
       'target_type'       => $target_type,
       'thumb_captions'    => $texts,
+      'thumb_positions'   => TRUE,
       'nav'               => TRUE,
       'titles'            => $texts,
       'vanilla'           => TRUE,

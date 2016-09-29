@@ -131,6 +131,13 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
         if ($handler['field'] == 'view_node') {
           $options['links'][$field] = $field_names[$field];
         }
+
+        $blazies = strpos($handler['field'], 'blazy_') !== FALSE;
+        if ($blazies) {
+          $options['images'][$field] = $field_names[$field];
+          $options['overlays'][$field] = $field_names[$field];
+          $options['thumbnails'][$field] = $field_names[$field];
+        }
       }
 
       // Captions can be anything to get custom works going.
@@ -247,7 +254,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
 
       // Dump Video embed thumbnail/video/colorbox as is.
       if (isset($image['rendered'])) {
-       return $image;
+        return $image;
       }
     }
     return [];

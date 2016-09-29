@@ -3,6 +3,7 @@
 namespace Drupal\blazy;
 
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\NestedArray;
 
@@ -253,15 +254,20 @@ class BlazyManager extends BlazyManagerBase {
    * Returns the image based on the Responsive image mapping, or blazy.
    */
   public function getImage($build = []) {
+    /* @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
     $item      = $build['item'];
     $settings  = &$build['settings'];
     $namespace = $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
     $theme     = isset($settings['theme_hook_image']) ? $settings['theme_hook_image'] : 'blazy';
 
+    if (empty($item)) {
+      return [];
+    }
+
     $image = [
       '#theme'       => $theme,
       '#item'        => [],
-      '#delta'       => $settings['delta'],
+      '#delta'       => isset($settings['delta']) ? $settings['delta'] : 0,
       '#image_style' => $settings['image_style'],
       '#pre_render'  => [[$this, 'preRenderImage']],
     ];
@@ -280,6 +286,10 @@ class BlazyManager extends BlazyManagerBase {
       $file_tags = isset($settings['file_tags']) ? $settings['file_tags'] : [];
       $settings['cache_tags'] = empty($settings['cache_tags']) ? $file_tags : Cache::mergeTags($settings['cache_tags'], $file_tags);
       $image['#cache'] = ['tags' => $settings['cache_tags']];
+
+      if (isset($settings['cache_keys'])) {
+        $image['#cache']['keys'] = $settings['cache_keys'];
+      }
     }
 
     if (isset($settings['theme_hook_image_wrapper'])) {
@@ -328,17 +338,12 @@ class BlazyManager extends BlazyManagerBase {
         $element['#cache']['tags'] = $this->getResponsiveImageCacheTags($responsive_image_style);
       }
     }
-    elseif (!empty($settings['width'])) {
-      $item_attributes['height'] = $settings['height'];
-      $item_attributes['width']  = $settings['width'];
-    }
 
     // With CSS background, IMG may be empty, so add thumbnail to the container.
     if (!empty($settings['thumbnail_style'])) {
-      $element['#attributes']['data-thumb'] = $this->entityLoad($settings['thumbnail_style'], 'image_style')->buildUrl($settings['uri']);
+      $settings['thumbnail_url'] = $this->entityLoad($settings['thumbnail_style'], 'image_style')->buildUrl($settings['uri']);
     }
 
-    $element['#embed_url']       = empty($settings['embed_url']) ? '' : $settings['embed_url'];
     $element['#url']             = '';
     $element['#settings']        = $settings;
     $element['#captions']        = isset($build['captions']) ? ['inline' => $build['captions']] : [];
@@ -456,8 +461,8 @@ class BlazyManager extends BlazyManagerBase {
         if ($entity = $item->getEntity()) {
           $entity_type = $entity->getEntityTypeId();
 
-          $options = array('clear' => TRUE);
-          $caption = $token->replace($settings['box_caption_custom'], array($entity_type => $entity, 'file' => $item), $options);
+          $options = ['clear' => TRUE];
+          $caption = $token->replace($settings['box_caption_custom'], [$entity_type => $entity, 'file' => $item], $options);
 
           // Checks for multi-value text fields, and maps its delta to image.
           if (strpos($caption, ", <p>") !== FALSE) {
@@ -473,6 +478,28 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     return empty($caption) ? [] : ['#markup' => $caption];
+  }
+
+  /**
+   * Returns the entity view, if available.
+   */
+  public function getEntityView($entity = NULL, $settings = []) {
+    if ($entity && $entity instanceof EntityInterface) {
+      $entity_type_id = $entity->getEntityTypeId();
+      $view_hook      = $entity_type_id . '_view';
+
+      // If module implements own {entity_type}_view.
+      if (function_exists($view_hook)) {
+        return $view_hook($entity);
+      }
+      // If entity has view_builder handler.
+      elseif ($this->getEntityTypeManager()->hasHandler($entity_type_id, 'view_builder')) {
+        $view_mode = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
+        return $this->getEntityTypeManager()->getViewBuilder($entity_type_id)->view($entity, $view_mode, $entity->language()->getId());
+      }
+    }
+
+    return FALSE;
   }
 
   /**

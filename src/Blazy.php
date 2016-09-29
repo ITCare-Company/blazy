@@ -22,7 +22,7 @@ class Blazy extends BlazyManager {
    */
   public static function buildAttributes(&$variables) {
     $element = $variables['element'];
-    foreach (['attributes', 'captions', 'embed_url', 'item', 'item_attributes', 'settings', 'url', 'url_attributes'] as $key) {
+    foreach (['attributes', 'captions', 'item', 'item_attributes', 'settings', 'url', 'url_attributes'] as $key) {
       $variables[$key] = isset($element["#$key"]) ? $element["#$key"] : [];
     }
 
@@ -49,11 +49,20 @@ class Blazy extends BlazyManager {
     $iframe = [];
 
     // Media URL is stored in the settings.
-    $media = !empty($variables['embed_url']) && !empty($settings['type']) && in_array($settings['type'], ['video', 'audio']);
+    $media = !empty($settings['embed_url']) && !empty($settings['type']) && in_array($settings['type'], ['video', 'audio']);
 
     // The regular non-responsive, non-lazyloaded image URI where image_url may
     // contain image_style which is not expected by responsive_image.
     $image['#uri'] = empty($settings['image_url']) ? $settings['uri'] : $settings['image_url'];
+
+    if (!empty($settings['thumbnail_url'])) {
+      $attributes['data-thumb'] = $settings['thumbnail_url'];
+    }
+
+    $height = isset($item->height) ? $item->height : NULL;
+    $width  = isset($item->width) ? $item->width : NULL;
+    $height = isset($settings['height']) ? $settings['height'] : $height;
+    $width  = isset($settings['width']) ? $settings['width'] : $width;
 
     // Check whether we have responsive image, or lazyloaded one.
     if (!empty($settings['responsive_image_style_id']) && !empty($settings['uri'])) {
@@ -89,15 +98,17 @@ class Blazy extends BlazyManager {
       }
 
       // Aspect ratio to fix layout reflow with lazyloaded images responsively.
-      if (!empty($settings['height']) && !empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
-        $padding_bottom = isset($settings['padding_bottom']) ? $settings['padding_bottom'] : round((($settings['height'] / $settings['width']) * 100), 2);
+      if (!empty($height) && !empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
+        $padding_bottom = isset($settings['padding_bottom']) ? $settings['padding_bottom'] : round((($height / $width) * 100), 2);
         $attributes['style'] = 'padding-bottom: ' . $padding_bottom . '%';
       }
     }
 
     // Image is optional for Video, and CSS background images.
     if ($image) {
-      $image_attributes['alt'] = isset($item->alt) ? $item->alt : NULL;
+      $image_attributes['height'] = $height;
+      $image_attributes['width']  = $width;
+      $image_attributes['alt']    = isset($item->alt) ? $item->alt : NULL;
 
       // Do not output an empty 'title' attribute.
       if (isset($item->title) && (Unicode::strlen($item->title) != 0)) {
@@ -117,9 +128,9 @@ class Blazy extends BlazyManager {
       $image                   = empty($settings['media_switch']) ? [] : $image;
       $settings['player']      = empty($settings['lightbox']) && $settings['media_switch'] != 'content';
       $iframe['data-media']    = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
-      $iframe['data-' . $lazy] = $variables['embed_url'];
+      $iframe['data-' . $lazy] = $settings['embed_url'];
       $iframe['class'][]       = empty($settings['lazy_class']) ? 'b-lazy' : $settings['lazy_class'];
-      $iframe['src']           = empty($settings['iframe_lazy']) ? $variables['embed_url'] : 'about:blank';
+      $iframe['src']           = empty($settings['iframe_lazy']) ? $settings['embed_url'] : 'about:blank';
     }
 
     if (!empty($settings['caption'])) {

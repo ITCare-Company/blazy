@@ -59,28 +59,26 @@
   </div>
 {% endset %}
 
-{% spaceless %}
-  {% if url and not settings.player %}
-    <a href="{{ url }}"{{ url_attributes }}>{{ media }}</a>
+{% if url and not settings.player %}
+  <a href="{{ url }}"{{ url_attributes }}>{{ media }}</a>
 
-    {# Allows fieldable captions with A tag, such as social share. #}
-    {% if captions and captions.lightbox is defined %}
-      <div class="litebox-caption visually-hidden">
-        {{ captions.lightbox }}
-      </div>
-    {% endif %}
-
-  {% else %}
-    {{ media }}
-  {% endif %}
-
-  {% if captions and captions.inline is defined %}
-    <div{{ caption_attributes }}>
-    {% for caption in captions.inline %}
-      {% if caption.content %}
-        <{{ caption.tag }} {{ caption.attributes }}>{{ caption.content }}</{{ caption.tag }}>
-      {% endif %}
-    {% endfor %}
+  {# Allows fieldable captions with A tag, such as social share. #}
+  {% if captions and captions.lightbox is defined %}
+    <div class="litebox-caption visually-hidden">
+      {{ captions.lightbox }}
     </div>
   {% endif %}
-{% endspaceless %}
+
+{% else %}
+  {{ media }}
+{% endif %}
+
+{% if captions and captions.inline is defined %}
+  <div{{ caption_attributes }}>
+  {% for caption in captions.inline %}
+    {% if caption.content %}
+      <{{ caption.tag }} {{ caption.attributes }}>{{ caption.content }}</{{ caption.tag }}>
+    {% endif %}
+  {% endfor %}
+  </div>
+{% endif %}

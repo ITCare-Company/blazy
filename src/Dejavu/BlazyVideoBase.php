@@ -87,6 +87,7 @@ abstract class BlazyVideoBase extends FormatterBase implements ContainerFactoryP
       'multimedia'        => TRUE,
       'settings'          => $this->getSettings(),
       'target_type'       => $target_type,
+      'thumb_positions'   => TRUE,
       'nav'               => TRUE,
     ];
   }

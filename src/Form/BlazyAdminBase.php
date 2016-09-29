@@ -325,7 +325,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     foreach (Element::children($form) as $key) {
       if (isset($form[$key]['#type']) && !in_array($form[$key]['#type'], $excludes)) {
         if (!isset($form[$key]['#default_value']) && isset($settings[$key])) {
-          $form[$key]['#default_value'] = $settings[$key];
+          $value = is_array($settings[$key]) ? array_values((array) $settings[$key]) : $settings[$key];
+          $form[$key]['#default_value'] = $value;
         }
         if (!isset($form[$key]['#attributes']) && isset($form[$key]['#description'])) {
           $form[$key]['#attributes'] = ['class' => ['is-tooltip']];
@@ -366,7 +367,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
 
     if ($admin_css) {
-      $form['#attached']['library'][] = 'blazy/admin';
+      $form['closing']['#attached']['library'][] = 'blazy/admin';
     }
   }
 

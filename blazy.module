@@ -89,7 +89,7 @@ function blazy_config_schema_info_alter(array &$definitions) {
  * Implements hook_library_info_alter().
  */
 function blazy_library_info_alter(&$libraries, $extension) {
-  if ($extension == 'blazy' && function_exists('libraries_get_path')) {
+  if ($extension === 'blazy' && function_exists('libraries_get_path')) {
     $libraries['blazy']['js'] = ['/' . libraries_get_path('blazy') . '/blazy.min.js' => []];
   }
 }
