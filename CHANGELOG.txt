@@ -1,6 +1,8 @@
 
 Blazy 8.x-1.0-dev, 2016-09-29
 -----------------------------
+- Marked it Beta4.
+- Fixed for Twig indentation.
 - Fixed for Undefined index: <No caching> in
   Drupal\blazy\Form\BlazyAdminFormatterBase->settingsSummary() (line 296 ...
 - Moved re-usable methods from BlazyEntityReferenceBase into BlazyEntityTrait.

@@ -75,10 +75,10 @@
 
 {% if captions and captions.inline is defined %}
   <div{{ caption_attributes }}>
-  {% for caption in captions.inline %}
-    {% if caption.content %}
-      <{{ caption.tag }} {{ caption.attributes }}>{{ caption.content }}</{{ caption.tag }}>
-    {% endif %}
-  {% endfor %}
+    {% for caption in captions.inline %}
+      {% if caption.content %}
+        <{{ caption.tag }} {{ caption.attributes }}>{{ caption.content }}</{{ caption.tag }}>
+      {% endif %}
+    {% endfor %}
   </div>
 {% endif %}

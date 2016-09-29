@@ -127,6 +127,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       '#description' => t('Required to grab the fields. Be sure the selected "View mode" is enabled, and the enabled fields here are not hidden there. Manage view modes on the <a href=":view_modes">View modes page</a>.', [':view_modes' => Url::fromRoute('entity.entity_view_mode.collection')->toString()]),
       '#access'      => isset($definition['fieldable_form']) && isset($definition['target_type']),
       '#weight'      => -96,
+      '#enforced'    => TRUE,
     ];
 
     // Optional lightbox integration.
