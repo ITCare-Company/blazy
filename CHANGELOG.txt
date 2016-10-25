@@ -1,6 +1,7 @@
 
 Blazy 8.x-1.0-dev, 2016-10-25
 -----------------------------
+- Minified please. Never commit anything when you are tired.
 - Added optional "Blazy Image with Media" formatter to retain VEM/ME within
   image/file ER environment if VEM/ME is installed.
 - Added optional supports for Media Entity when using BlazyViewsFieldFile().
