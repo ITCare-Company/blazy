@@ -1267,6 +1267,10 @@ td .form__title {
     text-align: right;
     white-space: normal;
   }
+
+  .form--slick.form--wide .form-checkboxes .form-item {
+    width: 33.3333%;
+  }
 }
 
 @media screen and (min-width: 1280px) {
@@ -1301,6 +1305,10 @@ td .form__title {
   .toolbar-tray-open .form--slick .form__half--last .form-item {
     float: right;
     width: auto;
+  }
+
+  .form--slick.form--wide .form-checkboxes .form-item {
+    width: 24.9999%;
   }
 }
 

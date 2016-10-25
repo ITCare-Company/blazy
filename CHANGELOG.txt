@@ -1,4 +1,25 @@
 
+Blazy 8.x-1.0-dev, 2016-10-25
+-----------------------------
+- Added optional "Blazy Image with Media" formatter to retain VEM/ME within
+  image/file ER environment if VEM/ME is installed.
+- Added optional supports for Media Entity when using BlazyViewsFieldFile().
+- Deprecated methods for clarity and to reduce road blocks to theme_blazy():
+  o BlazyManager::getUrlDimensions() for Blazy::buildUrl()
+  o BlazyManager::getUrlBreakpoints() for Blazy::buildBreakpointAttributes()
+  o BlazyManager::getDescriptors() for BlazyManager::widthFromDescriptors()
+
+- Decoupled Blazy service from BlazyManager to reduce complexity. This allows
+  moving individual item methods into Blazy out of the BlazyManager so to use
+  theme_blazy() doesn't need to travel around into BlazyManager::getImage().
+- Updated blazy JS files.
+- Fixed for the new "Use CSS background" option with multi-serving images.
+- Moved Slick grid into Blazy to be re-usable for divities, not only list.
+- Moved Blazy Views field library to hook_views_pre_render() to reduce function
+  calls.
+- Re-used Views field image and entity view builder approach for Slick Browser.
+- Added Twig block section for easy partial extensions, and reduce dups.
+
 Blazy 8.x-1.0-dev, 2016-09-29
 -----------------------------
 - Marked it Beta4.

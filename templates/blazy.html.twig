@@ -11,7 +11,7 @@
  * Available variables:
  *   - image: A collection of image data.
  *   - attributes: An array of attributes applied to .media container.
- *   - content_attributes: An array of content attributes, including iframe SRC.
+ *   - content_attributes: An array of iframe attributes, including iframe SRC.
  *   - settings: An array containing the given settings.
  *   - url: An optional URL the image can be linked to, can be any of
  *       audio/video, or entity URLs, when using Colorbox/Photobox, or Link to
@@ -43,42 +43,50 @@
 
 {% set player %}
   {% if settings.player %}
-    <iframe{{ content_attributes.addClass(content_classes) }} allowfullscreen></iframe>
-    {% if settings.media_switch %}
-      <span class="media__icon media__icon--close"></span>
-      <span class="media__icon media__icon--play"></span>
-    {% endif %}
+    {% block blazy_player %}
+      <iframe{{ content_attributes.addClass(content_classes) }} allowfullscreen></iframe>
+      {% if settings.media_switch %}
+        <span class="media__icon media__icon--close"></span>
+        <span class="media__icon media__icon--play" data-url="{{ settings.embed_url }}"></span>
+      {% endif %}
+    {% endblock %}
   {% endif %}
 {% endset %}
 
 {% set media %}
-  <div{{ attributes.addClass(classes) }}>
-    {{ image }}
-    {{ player }}
-    {{ settings.icon }}
-  </div>
+  {% block blazy_media %}
+    <div{{ attributes.addClass(classes) }}>
+      {{ image }}
+      {{ player }}
+      {{ settings.icon }}
+    </div>
+  {% endblock %}
 {% endset %}
 
-{% if url and not settings.player %}
-  <a href="{{ url }}"{{ url_attributes }}>{{ media }}</a>
+{% block blazy_content %}
+  {% if url and not settings.player %}
+    <a href="{{ url }}"{{ url_attributes }}>{{ media }}</a>
 
-  {# Allows fieldable captions with A tag, such as social share. #}
-  {% if captions and captions.lightbox is defined %}
-    <div class="litebox-caption visually-hidden">
-      {{ captions.lightbox }}
-    </div>
+    {# Allows fieldable captions with A tag, such as social share. #}
+    {% if captions and captions.lightbox is defined %}
+      <div class="litebox-caption visually-hidden">
+        {{ captions.lightbox }}
+      </div>
+    {% endif %}
+
+  {% else %}
+    {{ media }}
   {% endif %}
-
-{% else %}
-  {{ media }}
-{% endif %}
+{% endblock %}
 
 {% if captions and captions.inline is defined %}
-  <div{{ caption_attributes }}>
-    {% for caption in captions.inline %}
-      {% if caption.content %}
-        <{{ caption.tag }} {{ caption.attributes }}>{{ caption.content }}</{{ caption.tag }}>
-      {% endif %}
-    {% endfor %}
-  </div>
+  {% block blazy_caption %}
+    <div{{ caption_attributes }}>
+      {% for caption in captions.inline %}
+        {% if caption.content %}
+          <{{ caption.tag }} {{ caption.attributes }}>{{ caption.content }}</{{ caption.tag }}>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endblock %}
 {% endif %}

@@ -5,7 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Component\Serialization\Json;
-use Drupal\Component\Utility\NestedArray;
+use Drupal\image\Entity\ImageStyle;
 
 /**
  * Implements a public facing blazy manager.
@@ -15,34 +15,7 @@ use Drupal\Component\Utility\NestedArray;
 class BlazyManager extends BlazyManagerBase {
 
   /**
-   * Builds URLs for individual breakpoint, 0 is respected.
-   */
-  public function getUrlBreakpoints(array &$settings = []) {
-    if (!empty($settings['breakpoints']) && !empty($settings['uri'])) {
-      $srcset = [];
-      foreach ($settings['breakpoints'] as $key => $breakpoint) {
-        $image_style = empty($breakpoint['image_style']) ? '' : $breakpoint['image_style'];
-
-        if (!empty($image_style)) {
-          $image_styles[$key] = $this->entityLoad($image_style, 'image_style');
-          $url = $image_styles[$key]->buildUrl($settings['uri']);
-          $settings['breakpoints'][$key]['url'] = $url;
-
-          if ($breakpoint['width'] !== '') {
-            $width = is_numeric($breakpoint['width']) ? $breakpoint['width'] . 'w' : $breakpoint['width'];
-            $srcset[] = $url . ' ' . $width;
-          }
-        }
-      }
-
-      if ($srcset) {
-        $settings['srcset'] = implode(', ', $srcset);
-      }
-    }
-  }
-
-  /**
-   * Cleans up empty breakpoints.
+   * Used at top-level element: Cleans up empty breakpoints.
    */
   public function cleanUpBreakpoints(array &$settings = []) {
     if (!empty($settings['breakpoints'])) {
@@ -53,12 +26,8 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
 
-    $settings['breakpoints'] = empty($settings['breakpoints']) ? [] : array_filter($settings['breakpoints']);
-
     // If breakpoints provided, enforce Blazy lazyloading without further ado.
-    if (!empty($settings['breakpoints'])) {
-      $settings['blazy'] = TRUE;
-    }
+    $settings['blazy'] = !empty($settings['breakpoints']);
   }
 
   /**
@@ -73,33 +42,38 @@ class BlazyManager extends BlazyManagerBase {
    * @see template_preprocess_slick().
    * @see template_preprocess_gridstack().
    *
-   * @todo unified way between View style plugin and field formatter.
+   * @todo unified way between Views styles, Views fields and field formatters.
    */
   public function isBlazy(array &$settings = [], $item = []) {
-    // Retrives Blazy formatter related settings from within Views style plugin.
+    // Retrieves Blazy formatter related settings from within Views style.
     $item_id = $settings['item_id'];
-    if (isset($item['settings']) && isset($item[$item_id]['#build']['settings'])) {
-      $blazy_settings = $item[$item_id]['#build']['settings'];
 
-      if (isset($blazy_settings['blazy_data'])) {
-        $settings['blazy_data'] = $blazy_settings['blazy_data'];
-      }
+    // 1. Blazy formatter within Views fields by supported modules.
+    if (isset($item['settings'])) {
+      $blazy = isset($item[$item_id]['#build']['settings']) ? $item[$item_id]['#build']['settings'] : [];
 
       // Allows breakpoints overrides such as multi-styled images by GridStack.
-      if (empty($settings['breakpoints']) && isset($blazy_settings['breakpoints'])) {
-        $settings['breakpoints'] = $blazy_settings['breakpoints'];
+      if (empty($settings['breakpoints']) && isset($blazy['breakpoints'])) {
+        $settings['breakpoints'] = $blazy['breakpoints'];
       }
 
-      foreach (['box_style', 'image_style', 'lazy', 'media_switch', 'ratio'] as $key) {
+      foreach (['blazy', 'box_style', 'image_style', 'lazy', 'media_switch', 'ratio', 'uri'] as $key) {
         $fallback = isset($settings[$key]) ? $settings[$key] : '';
-        $settings[$key] = isset($blazy_settings[$key]) && empty($fallback) ? $blazy_settings[$key] : $fallback;
+        $settings[$key] = isset($blazy[$key]) && empty($fallback) ? $blazy[$key] : $fallback;
       }
     }
 
-    // If not Blazy formatter, build the Blazy data as some plugins use Blazy.
-    if (isset($item['item']) && !isset($settings['blazy_data'])) {
+    // 2. Blazy Views fields by supported modules.
+    if (isset($item[$item_id]['#view']) && ($view = $item[$item_id]['#view'])) {
+      if ($blazy_field = Blazy::blazyViewsField($view)) {
+        $settings = array_merge($blazy_field->mergedViewsSettings(), $settings);
+      }
+    }
+
+    // Provide data for the [data-blazy] attribute at the containing element.
+    // Supported modules can add blazy_data as [data-blazy] to the container.
+    if (isset($item['item'])) {
       $settings['blazy_data'] = $this->buildDataBlazy($settings, $item['item']);
-      $settings['blazy_data']['_reset'] = TRUE;
     }
   }
 
@@ -109,7 +83,9 @@ class BlazyManager extends BlazyManagerBase {
   public function buildDataBlazy(array &$settings = [], $item = NULL) {
     // Addresses the trouble with non-mobile-first approach.
     $settings['_dimensions_reset'] = TRUE;
-    $this->getUrlDimensions($settings, $item);
+
+    // Sets dimensions from the first item once, and let child elements inherit.
+    Blazy::buildUrl($settings, $item);
 
     $json = $sources = [];
     if (!empty($settings['breakpoints'])) {
@@ -121,18 +97,20 @@ class BlazyManager extends BlazyManagerBase {
 
         $point = $breakpoint['width'];
 
-        $image_styles[$point] = $this->entityLoad($breakpoint['image_style'], 'image_style');
+        $image_styles[$point] = ImageStyle::load($breakpoint['image_style']);
 
         $dimensions[$point] = [
           'width'  => $settings['width'],
           'height' => $settings['height'],
         ];
 
-        $image_styles[$point]->transformDimensions($dimensions[$point], $settings['uri']);
+        if (!empty($settings['uri'])) {
+          $image_styles[$point]->transformDimensions($dimensions[$point], $settings['uri']);
+        }
 
-        $descriptor = $this->getDescriptors($point);
+        $width = static::widthFromDescriptors($point);
         $padding = round((($dimensions[$point]['height'] / $dimensions[$point]['width']) * 100), 2);
-        $json['dimensions'][$descriptor] = $padding;
+        $json['dimensions'][$width] = $padding;
 
         // Helper for the BG option.
         if (empty($point)) {
@@ -141,7 +119,7 @@ class BlazyManager extends BlazyManagerBase {
 
         if (!empty($settings['background'])) {
           $source          = [];
-          $source['width'] = (int) $point;
+          $source['width'] = (int) $width;
           $source['src']   = 'data-src-' . $key;
           $sources[]       = $source;
         }
@@ -159,102 +137,46 @@ class BlazyManager extends BlazyManagerBase {
     if ($sources) {
       // As of Blazy v1.6.0 applied to BG only.
       $json['breakpoints'] = $sources;
-
-      // @todo drop or fetch the last from breakpoints if available.
-      if (!empty($settings['width'])) {
-        $json['default'] = [$settings['width'], $settings['height']];
-      }
     }
 
-    // Clean up URIs since this is meant for the top-level.
+    $json['ratio'] = empty($settings['ratio']) ? FALSE : $settings['ratio'];
+
+    // Clean up URIs since this is meant for the top-level containing element.
     unset($settings['uri'], $settings['image_url']);
     return $json;
   }
 
   /**
-   * Get the "w" (width) descriptor.
+   * Used at top-level element: Gets the numeric "width" part from a descriptor.
    */
-  public function getDescriptors($point = '') {
+  public static function widthFromDescriptors($descriptor = '') {
     // Dynamic multi-serving aspect ratio with backward compatibility.
-    if (is_numeric($point)) {
-      $descriptor = $point;
+    if (is_numeric($descriptor)) {
+      return $descriptor;
     }
-    else {
-      // Cleanup w descriptor to fetch numerical width for JS aspect ratio.
-      if (strpos($point, "w") !== FALSE) {
-        $descriptor = str_replace('w', '', $point);
-      }
 
-      // If both w and x descriptors are provided.
-      if (strpos($point, " ") !== FALSE) {
-        // If the position is expected: 640w 2x.
-        list($descriptor, $px) = array_pad(array_map('trim', explode(" ", $descriptor, 2)), 2, NULL);
+    // Cleanup w descriptor to fetch numerical width for JS aspect ratio.
+    $width = strpos($descriptor, "w") !== FALSE ? str_replace('w', '', $descriptor) : $descriptor;
 
-        // If the position is reversed: 2x 640w.
-        if (is_numeric($px) && strpos($descriptor, "x") !== FALSE) {
-          $descriptor = $px;
-        }
-      }
-    }
-    return $descriptor;
-  }
+    // If both w and x descriptors are provided.
+    if (strpos($descriptor, " ") !== FALSE) {
+      // If the position is expected: 640w 2x.
+      list($width, $px) = array_pad(array_map('trim', explode(" ", $width, 2)), 2, NULL);
 
-  /**
-   * Defines image dimensions once as it costs, unless reset for breakpoints.
-   */
-  public function getUrlDimensions(array &$settings = [], $item = NULL, $modifier = NULL) {
-    $settings['width']      = isset($settings['width'])  ? $settings['width']  : NULL;
-    $settings['height']     = isset($settings['height']) ? $settings['height'] : NULL;
-    $settings['cache_tags'] = empty($settings['cache_tags']) ? [] : $settings['cache_tags'];
-
-    // This is not always available with a VEF textfield.
-    if ($item && is_object($item)) {
-      $settings['width']  = isset($item->width)  ? $item->width  : NULL;
-      $settings['height'] = isset($item->height) ? $item->height : NULL;
-
-      if (!isset($settings['uri'])) {
-        $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+      // If the position is reversed: 2x 640w.
+      if (is_numeric($px) && strpos($width, "x") !== FALSE) {
+        $width = $px;
       }
     }
 
-    if (!empty($settings['uri'])) {
-      if (!isset($settings['image_url'])) {
-        $settings['image_url'] = file_create_url($settings['uri']);
-      }
-
-      // No file API, no $item, with unmanaged VEF image without image_style.
-      $modifier = empty($modifier) ? $settings['image_style'] : $modifier;
-      if (empty($modifier) && empty($settings['width']) && !empty($settings['image_url'])) {
-        list($settings['width'], $settings['height']) = getimagesize($settings['image_url']);
-      }
-
-      if (!empty($modifier)) {
-        $style = $this->entityLoad($modifier, 'image_style');
-
-        // Image URLs are for lazyloaded images.
-        $settings['image_url']  = $style->buildUrl($settings['uri']);
-        $settings['cache_tags'] = $style->getCacheTags();
-
-        // Unless reset for multi-styled images, set dimensions once.
-        if (empty($settings['_dimensions']) || isset($settings['_dimensions_reset'])) {
-          $dimensions = [
-            'width'  => $settings['width'],
-            'height' => $settings['height'],
-          ];
-          $style->transformDimensions($dimensions, $settings['uri']);
-          $settings['height']      = $dimensions['height'];
-          $settings['width']       = $dimensions['width'];
-          $settings['_dimensions'] = TRUE;
-        }
-      }
-    }
+    return $width;
   }
 
   /**
    * Returns the image based on the Responsive image mapping, or blazy.
    */
   public function getImage($build = []) {
-    /* @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+    /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
     $item      = $build['item'];
     $settings  = &$build['settings'];
     $namespace = $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
@@ -264,37 +186,22 @@ class BlazyManager extends BlazyManagerBase {
       return [];
     }
 
+    $settings['image_style'] = isset($settings['image_style']) ? $settings['image_style'] : '';
+    if (!isset($settings['uri'])) {
+      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+    }
+    if ($theme == 'blazy') {
+      $settings['blazy'] = TRUE;
+    }
+
     $image = [
       '#theme'       => $theme,
       '#item'        => [],
       '#delta'       => isset($settings['delta']) ? $settings['delta'] : 0,
       '#image_style' => $settings['image_style'],
+      '#build'       => $build,
       '#pre_render'  => [[$this, 'preRenderImage']],
     ];
-
-    // Gets individual image URLs, and dimensions set once.
-    $this->getUrlDimensions($settings, $item, $image['#image_style']);
-
-    // Gets multi-serving image URLs if breakpoints are provided.
-    if (!empty($settings['breakpoints'])) {
-      $this->getUrlBreakpoints($settings);
-    }
-
-    $image['#build'] = $build;
-
-    if (!isset($settings['_no_cache'])) {
-      $file_tags = isset($settings['file_tags']) ? $settings['file_tags'] : [];
-      $settings['cache_tags'] = empty($settings['cache_tags']) ? $file_tags : Cache::mergeTags($settings['cache_tags'], $file_tags);
-      $image['#cache'] = ['tags' => $settings['cache_tags']];
-
-      if (isset($settings['cache_keys'])) {
-        $image['#cache']['keys'] = $settings['cache_keys'];
-      }
-    }
-
-    if (isset($settings['theme_hook_image_wrapper'])) {
-      $image['#theme_wrappers'][] = $settings['theme_hook_image_wrapper'];
-    }
 
     $this->getModuleHandler()->alter($namespace . '_image', $image, $settings);
 
@@ -339,11 +246,6 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
 
-    // With CSS background, IMG may be empty, so add thumbnail to the container.
-    if (!empty($settings['thumbnail_style'])) {
-      $settings['thumbnail_url'] = $this->entityLoad($settings['thumbnail_style'], 'image_style')->buildUrl($settings['uri']);
-    }
-
     $element['#url']             = '';
     $element['#settings']        = $settings;
     $element['#captions']        = isset($build['captions']) ? ['inline' => $build['captions']] : [];
@@ -357,7 +259,7 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * Gets the media switch options: colorbox, photobox, content.
+   * Gets media switch options: colorbox, photobox, content -- not iframe, etc.
    */
   public function getMediaSwitch(array &$element = [], $settings = []) {
     $item   = $element['#item'];
@@ -367,7 +269,7 @@ class BlazyManager extends BlazyManagerBase {
 
     // Provide relevant URL if it is a lightbox.
     if (strpos($switch, 'box') !== FALSE) {
-      $json = ['type' => $type];
+      $json = ['type' => $type, 'width' => 640, 'height' => 360];
       $url_attributes = [];
 
       // If it is a video/audio, otherwise image to image.
@@ -388,7 +290,6 @@ class BlazyManager extends BlazyManagerBase {
         $url = empty($settings['box_style']) ? file_create_url($uri) : $this->entityLoad($settings['box_style'], 'image_style')->buildUrl($uri);
       }
 
-      $classes = ['blazy__' . $switch, 'litebox'];
       if ($switch == 'colorbox' && $settings['count'] > 1) {
         $json['rel'] = $settings['id'];
       }
@@ -396,16 +297,12 @@ class BlazyManager extends BlazyManagerBase {
         $url_attributes['rel'] = 'video';
       }
 
-      // Provides lightbox media dimension if so configured.
-      if ($type != 'image') {
-        if (!empty($settings['dimension'])) {
-          list($settings['box_width'], $settings['box_height']) = array_pad(array_map('trim', explode("x", $settings['dimension'], 2)), 2, NULL);
-        }
-        $json['width']  = empty($settings['box_width'])  ? $settings['width']  : $settings['box_width'];
-        $json['height'] = empty($settings['box_height']) ? $settings['height'] : $settings['box_height'];
+      // Provides custom lightbox media dimension if so configured.
+      if ($type != 'image' && !empty($settings['dimension'])) {
+        list($json['width'], $json['height']) = array_pad(array_map('trim', explode("x", $settings['dimension'], 2)), 2, NULL);
       }
 
-      $url_attributes['class'] = $classes;
+      $url_attributes['class'] = ['blazy__' . $switch, 'litebox'];
       $url_attributes['data-media'] = Json::encode($json);
       $url_attributes['data-' . $switch] = TRUE;
 
@@ -483,19 +380,23 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Returns the entity view, if available.
    */
-  public function getEntityView($entity = NULL, $settings = []) {
+  public function getEntityView($entity, $settings = [], $fallback = []) {
     if ($entity && $entity instanceof EntityInterface) {
       $entity_type_id = $entity->getEntityTypeId();
       $view_hook      = $entity_type_id . '_view';
+      $view_mode      = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
+      $langcode       = $entity->language()->getId();
 
       // If module implements own {entity_type}_view.
       if (function_exists($view_hook)) {
-        return $view_hook($entity);
+        return $view_hook($entity, $view_mode, $langcode);
       }
       // If entity has view_builder handler.
       elseif ($this->getEntityTypeManager()->hasHandler($entity_type_id, 'view_builder')) {
-        $view_mode = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
-        return $this->getEntityTypeManager()->getViewBuilder($entity_type_id)->view($entity, $view_mode, $entity->language()->getId());
+        return $this->getEntityTypeManager()->getViewBuilder($entity_type_id)->view($entity, $view_mode, $langcode);
+      }
+      elseif ($fallback) {
+        return ['#markup' => $fallback];
       }
     }
 
@@ -519,5 +420,19 @@ class BlazyManager extends BlazyManagerBase {
     }
     return $cache_tags;
   }
+
+  /**
+   * Now included within theme_blazy().
+   *
+   * @deprecated: Removed for Blazy::buildBreakpointAttributes().
+   */
+  public function getUrlBreakpoints(array &$settings = []) {}
+
+  /**
+   * Now included within theme_blazy().
+   *
+   * @deprecated: Removed prior to release for Blazy::buildUrl().
+   */
+  public function getUrlDimensions(array &$settings = [], $item = NULL, $modifier = NULL) {}
 
 }

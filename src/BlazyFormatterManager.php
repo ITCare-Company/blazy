@@ -8,7 +8,12 @@ namespace Drupal\blazy;
 class BlazyFormatterManager extends BlazyManager {
 
   /**
-   * {@inheritdoc}
+   * Returns the field formatter.
+   *
+   * @param array $build
+   *   The array containing: settings, or potential optionset for extensions.
+   * @param array $items
+   *   The items to prepare settings for.
    */
   public function buildSettings(array &$build = [], $items) {
     $settings = &$build['settings'];
@@ -32,7 +37,7 @@ class BlazyFormatterManager extends BlazyManager {
     $view_mode      = empty($settings['current_view_mode']) ? '_custom' : $settings['current_view_mode'];
     $namespace      = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
     $id             = isset($settings['id']) ? $settings['id'] : '';
-    $id             = self::getHtmlId("{$namespace}-{$entity_type_id}-{$entity_id}-{$field_clean}-{$view_mode}", $id);
+    $id             = Blazy::getHtmlId("{$namespace}-{$entity_type_id}-{$entity_id}-{$field_clean}-{$view_mode}", $id);
     $switch         = empty($settings['media_switch']) ? '' : empty($settings['media_switch']);
     $internal_path  = $absolute_path = NULL;
 
@@ -67,13 +72,12 @@ class BlazyFormatterManager extends BlazyManager {
     $settings['resimage']   = function_exists('responsive_image_get_image_dimensions');
     $settings['background'] = empty($settings['responsive_image_style']) && !empty($settings['background']);
 
-    // @todo simplify these doors.
-    $resimage = $this->configLoad('responsive_image') && !empty($settings['responsive_image_style']);
-    $blazy = isset($settings['theme_hook_image']) && $settings['theme_hook_image'] == 'blazy';
-    $settings['blazy'] = $blazy || !empty($settings['blazy']) || !empty($settings['breakpoints']) || $resimage;
+    $resimage_lazy     = $this->configLoad('responsive_image') && !empty($settings['responsive_image_style']);
+    $blazy             = isset($settings['theme_hook_image']) && $settings['theme_hook_image'] == 'blazy';
+    $settings['blazy'] = $blazy || $resimage_lazy || !empty($settings['blazy']);
 
-    if (!isset($settings['blazy_data'])) {
-      $settings['blazy_data'] = $field_type == 'image' ? $this->buildDataBlazy($settings, $items[0]) : [];
+    if (!empty($settings['blazy'])) {
+      $settings['lazy'] = 'blazy';
     }
 
     // Aspect ratio isn't working with Responsive image, yet.

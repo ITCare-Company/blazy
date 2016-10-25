@@ -1,8 +1,6 @@
 /**
  * @file
  * Provides admin utilities.
- *
- * @todo move to Blazy for re-usablity across Blazy, Slick, Mason, GridStack...
  */
 
 (function ($, Drupal) {
@@ -14,9 +12,9 @@
       var $form = $('.form--slick', context);
 
       $('.description', $form).once('blazy-tooltip').each(function () {
-        var tip = $(this);
-        if (!tip.siblings('.hint').length) {
-          tip.closest('.form-item').append('<span class="hint">?</span>');
+        var $tip = $(this);
+        if (!$tip.siblings('.hint').length) {
+          $tip.closest('.form-item').append('<span class="hint">?</span>');
         }
       });
 
@@ -26,12 +24,7 @@
 
         t.on('click', '.form-checkbox', function () {
           var t = $(this);
-          if (t.prop('checked')) {
-            t.addClass('on');
-          }
-          else {
-            t.removeClass('on');
-          }
+          t[t.prop('checked') ? 'addClass' : 'removeClass']('on');
         });
 
         t.on('mouseenter', '.hint', function () {

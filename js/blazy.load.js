@@ -34,6 +34,8 @@
         me.resizing(function () {
           me.windowWidth = window.innerWidth || document.documentElement.clientWidth || $(window).width();
 
+          $('.media--ratio', context).each(me.updateRatio);
+
           $elm.trigger('resizing', [me.windowWidth]);
         })();
       });
@@ -45,14 +47,13 @@
    *
    * @namespace
    */
-  Drupal.blazy = {
+  Drupal.blazy = Drupal.blazy || {
     init: null,
     windowWidth: 0,
     globalSettings: function () {
       var me = this;
       var settings = drupalSettings.blazy || {};
       var commons = {
-        dimensions: false,
         success: function (elm) {
           me.clearing(elm);
         },
@@ -64,43 +65,44 @@
       return $.extend(settings, commons);
     },
 
-    updateRatio: function (elm, ratio, data) {
-      var me = this;
+    updateRatio: function (i, item) {
+      var me = Drupal.blazy;
+      var data = $(item).closest('[data-blazy]').data('blazy') || null;
+      var dimensions = data && data.dimensions ? data.dimensions : null;
       var pad = null;
+      var keys;
 
-      if (data.dimensions) {
-        $.each(data.dimensions, function (key, v) {
-          pad = me.windowWidth >= key ? v : null;
-        });
+      if (dimensions === null) {
+        return;
+      }
 
-        if (pad !== null) {
-          ratio.css({
-            paddingBottom: pad + '%'
-          });
+      keys = Object.keys(dimensions);
+      var xs = keys[0];
+      var xl = keys[keys.length - 1];
+
+      $.each(dimensions, function (w, v) {
+        if (w >= me.windowWidth) {
+          pad = v;
+          return false;
         }
+      });
+
+      if (pad === null) {
+        pad = dimensions[me.windowWidth >= xl ? xl : xs];
+      }
+
+      if (pad !== null) {
+        $(item).css({
+          paddingBottom: pad + '%'
+        });
       }
     },
 
     clearing: function (elm) {
-      var me = this;
-      var blazyClasses;
-      var $elm = $(elm);
-      var $blazy = $elm.closest('[data-blazy]');
-      var $ratio = $elm.closest('.media--ratio');
-      var data = $blazy.data('blazy');
-
-      window.clearTimeout(blazyClasses);
-      blazyClasses = window.setTimeout(function () {
-        $elm.closest('.media--loading').removeClass('media--loading').addClass('media--loaded');
-      }, 200);
-
-      if (data && $ratio.length) {
-        me.updateRatio($elm, $ratio, data);
-
-        $blazy.on('resizing', function () {
-          me.updateRatio($elm, $ratio, data);
-        });
-      }
+      // .b-lazy can be attached to IMG, or DIV as CSS background.
+      $(elm).removeClass('media--loading').parents('[class*="loading"]').removeClass(function (index, css) {
+        return (css.match(/(\S+)loading/g) || []).join(' ');
+      });
     },
 
     // Thanks to https://github.com/louisremi/jquery-smartresize

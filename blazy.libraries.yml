@@ -10,19 +10,21 @@ blazy:
     /libraries/blazy/blazy.min.js: { weight: -4, minified: true }
 
 loading:
-  version: VERSION
   css:
     component:
       css/components/blazy.loading.css: {}
 
 ratio:
-  version: VERSION
   css:
     component:
       css/components/blazy.ratio.css: {}
 
+grid:
+  css:
+    component:
+      css/components/blazy.grid.css: {}
+
 load:
-  version: VERSION
   js:
     js/blazy.load.min.js: { weight: -1, minified: true }
   dependencies:
@@ -34,7 +36,6 @@ load:
     - blazy/loading
 
 media:
-  version: VERSION
   js:
     js/blazy.media.min.js: {}
   css:
@@ -48,7 +49,6 @@ media:
     - blazy/ratio
 
 colorbox.skin:
-  version: VERSION
   css:
     component:
       css/components/blazy.colorbox.css: {}
@@ -57,7 +57,6 @@ colorbox.skin:
     - colorbox/colorbox
 
 colorbox:
-  version: VERSION
   js:
     js/blazy.colorbox.min.js: { minified: true }
   dependencies:
@@ -89,7 +88,6 @@ photobox:
     # - photobox/photobox
 
 admin:
-  version: VERSION
   js:
     js/blazy.admin.min.js: { minified: true }
   css:

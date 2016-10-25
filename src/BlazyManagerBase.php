@@ -53,7 +53,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   protected $cache;
 
   /**
-   * Constructs a BlazyManager object
+   * Constructs a BlazyManager object.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, RendererInterface $renderer, ConfigFactoryInterface $config_factory, CacheBackendInterface $cache) {
     $this->entityTypeManager = $entity_type_manager;
@@ -151,16 +151,11 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
-    if (!empty($attach['photobox']) && !empty($attach['blazy_photobox'])) {
-      $load['library'][] = 'blazy/photobox';
-    }
-
-    if (!empty($attach['media'])) {
-      $load['library'][] = 'blazy/media';
-    }
-
-    if (!empty($attach['ratio'])) {
-      $load['library'][] = 'blazy/ratio';
+    $attach['photobox'] = !empty($attach['photobox']) && !empty($attach['blazy_photobox']);
+    foreach (['grid', 'media', 'photobox', 'ratio'] as $component) {
+      if (!empty($attach[$component])) {
+        $load['library'][] = 'blazy/' . $component;
+      }
     }
 
     // Core Blazy libraries.
@@ -214,6 +209,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
   /**
    * Returns the trusted HTML ID common for Blazy, GridStack, Mason, Slick.
+   *
+   * @deprecated: Removed prior to release for Blazy::getHtmlId().
    */
   public static function getHtmlId($string = 'blazy', $id = '') {
     $blazy_id = &drupal_static('blazy_id', 0);

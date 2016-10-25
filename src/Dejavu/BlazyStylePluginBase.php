@@ -8,6 +8,7 @@ use Drupal\Component\Utility\Unicode;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 use Drupal\blazy\BlazyManagerInterface;
+use Drupal\blazy\Blazy;
 
 /**
  * A base for blazy views integration to have re-usable methods in one place.
@@ -233,11 +234,10 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
       // Blazy modifiers, see GridStack multi-styled images for the boxes.
       $settings['_dimensions_reset'] = TRUE;
       $settings['image_style'] = $grid_style;
+      $settings['grid_style'] = $grid_style;
 
-      // $this->blazyManager->getImage($build);
       // Updates settings to contain image dimensions along with image URLs.
-      $this->blazyManager->getUrlDimensions($settings, $image['raw'], $grid_style);
-      $this->blazyManager->getUrlBreakpoints($settings);
+      Blazy::buildUrl($settings, $image['raw'], $grid_style);
     }
 
     return $image;
