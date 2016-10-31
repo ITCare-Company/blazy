@@ -24,6 +24,11 @@ grid:
     component:
       css/components/blazy.grid.css: {}
 
+column:
+  css:
+    component:
+      css/components/blazy.column.css: {}
+
 load:
   js:
     js/blazy.load.min.js: { weight: -1, minified: true }
@@ -62,6 +67,8 @@ colorbox:
   dependencies:
     - core/drupal
     - core/drupalSettings
+    - blazy/load
+    - blazy/ratio
     - blazy/colorbox.skin
 
 photobox:
@@ -84,6 +91,7 @@ photobox:
     - core/jquery.once
     - core/drupal
     - core/drupalSettings
+    - blazy/load
     # use photobox when available instead.
     # - photobox/photobox
 

@@ -23,8 +23,8 @@
         $('.details-legend-prefix', t).removeClass('element-invisible');
 
         t.on('click', '.form-checkbox', function () {
-          var t = $(this);
-          t[t.prop('checked') ? 'addClass' : 'removeClass']('on');
+          var $input = $(this);
+          $input[$input.prop('checked') ? 'addClass' : 'removeClass']('on');
         });
 
         t.on('mouseenter', '.hint', function () {

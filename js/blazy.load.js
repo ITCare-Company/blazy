@@ -67,8 +67,10 @@
 
     updateRatio: function (i, item) {
       var me = Drupal.blazy;
-      var data = $(item).closest('[data-blazy]').data('blazy') || null;
-      var dimensions = data && data.dimensions ? data.dimensions : null;
+      var $item = $(item);
+      var $blazy = $item.closest('[data-blazy]');
+      var dataGlobal = $blazy.length && $blazy.data('blazy') ? $blazy.data('blazy') : {};
+      var dimensions = $item.data('dimensions') || dataGlobal.dimensions || null;
       var pad = null;
       var keys;
 
@@ -92,7 +94,7 @@
       }
 
       if (pad !== null) {
-        $(item).css({
+        $item.css({
           paddingBottom: pad + '%'
         });
       }

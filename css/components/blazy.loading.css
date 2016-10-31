@@ -36,11 +36,8 @@
   transition: opacity 500ms ease-in-out;
 }
 
-.b-loaded {
-  opacity: 1;
-}
-
 /* Needed to display preloader with CSS BG image, otherwise hidden. */
+.b-loaded,
 .media--loading.media--background {
   opacity: 1;
 }

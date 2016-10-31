@@ -139,72 +139,6 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
   }
 
   /**
-   * Returns re-usable grid elements across field formatter and Views.
-   */
-  public function gridForm(array &$form, $definition = []) {
-    $range = range(1, 12);
-    $grid_options = array_combine($range, $range);
-
-    $header = $this->t('Group individual items as block grid?<small>Only works if the total items &gt; <strong>Visible items</strong>.</small>');
-    $form['grid_header'] = [
-      '#type'   => 'item',
-      '#markup' => '<h3 class="form__title">' . $header . '</h3>',
-    ];
-
-    $form['grid'] = [
-      '#type'        => 'select',
-      '#title'       => $this->t('Grid large'),
-      '#options'     => $grid_options,
-      '#description' => $this->t('The amount of block grid columns for large monitors 64.063em - 90em. <br /><strong>Requires</strong>:<ol><li>Visible items,</li><li>Skin Grid for starter,</li><li>A reasonable amount of contents.</li></ol>Leave empty to DIY, or to not build grids.'),
-      '#enforced'    => TRUE,
-    ];
-
-    $form['grid_medium'] = [
-      '#type'        => 'select',
-      '#title'       => $this->t('Grid medium'),
-      '#options'     => $grid_options,
-      '#description' => $this->t('The amount of block grid columns for medium devices 40.063em - 64em.'),
-    ];
-
-    $form['grid_small'] = [
-      '#type'        => 'select',
-      '#title'       => $this->t('Grid small'),
-      '#options'     => $grid_options,
-      '#description' => $this->t('The amount of block grid columns for small devices 0 - 40em.'),
-    ];
-
-    $form['visible_items'] = [
-      '#type'        => 'select',
-      '#title'       => $this->t('Visible items'),
-      '#options'     => array_combine(range(1, 32), range(1, 32)),
-      '#description' => $this->t('How many items per display at a time.'),
-    ];
-
-    $form['preserve_keys'] = [
-      '#type'        => 'checkbox',
-      '#title'       => $this->t('Preserve keys'),
-      '#description' => $this->t('If checked, keys will be preserved. Default is FALSE which will reindex the grid chunk numerically.'),
-    ];
-
-    $grids = [
-      'grid_header',
-      'grid_medium',
-      'grid_small',
-      'visible_items',
-      'preserve_keys',
-    ];
-
-    foreach ($grids as $key) {
-      $form[$key]['#enforced'] = TRUE;
-      $form[$key]['#states'] = [
-        'visible' => [
-          'select[name$="[grid]"]' => ['!value' => ''],
-        ],
-      ];
-    }
-  }
-
-  /**
    * Returns shared ending form elements across field formatter and Views.
    */
   public function closingForm(array &$form, $definition = []) {
@@ -215,7 +149,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
         '#options'     => $this->getCacheOptions(),
         '#weight'      => 98,
         '#enforced'    => TRUE,
-        '#description' => $this->t('Ditch all the logic to cached bare HTML. <ol><li><strong>Permanent</strong>: cached contents will persist (be displayed) till the next cron runs.</li><li><strong>Any number</strong>: expired by the selected expiration time, and fresh contents are fetched till the next cache rebuilt.</li></ol>A working cron job is required to clear stale cache. At any rate, cached contents will be refreshed regardless of the expiration time after the cron hits. <br />Leave it empty to disable caching.<br /><strong>Warning!</strong> Be sure no useless/ sensitive data such as Edit links as they are rendered as is regardless permissions. No permissions are changed, just ugly. Only enable it when all is done, otherwise cached options will be displayed while changing them.'),
+        '#description' => $this->t('Ditch all the logic to cached bare HTML. <ol><li><strong>Permanent</strong>: cached contents will persist (be displayed) till the next cron runs.</li><li><strong>Any number</strong>: expired by the selected expiration time, and fresh contents are fetched till the next cache rebuilt.</li></ol>A working cron job is required to clear stale cache. At any rate, cached contents will be refreshed regardless of the expiration time after the cron hits. <br />Leave it empty to disable caching.<br /><strong>Warning!</strong> Be sure no useless/ sensitive data such as Edit links as they are rendered as is regardless permissions. No permissions are changed, just ugly. Only enable it when all is done, otherwise cached options will be displayed while changing them. If it is built within Views, also disable Views cache (<strong>Advanced &gt; Caching</strong>) temporarily _only if trouble to see updated settings.'),
       ];
     }
 

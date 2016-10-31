@@ -83,8 +83,8 @@ class BlazyDefault {
       'grid_header'   => '',
       'grid_medium'   => 0,
       'grid_small'    => 0,
-      'preserve_keys' => FALSE,
-      'visible_items' => 0,
+      // 'preserve_keys' => FALSE,
+      // 'visible_items' => 0,
     ];
   }
 

@@ -152,7 +152,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     $attach['photobox'] = !empty($attach['photobox']) && !empty($attach['blazy_photobox']);
-    foreach (['grid', 'media', 'photobox', 'ratio'] as $component) {
+
+    // Only load grid xor column, but not both.
+    $attach['column'] = !empty($attach['style']) && $attach['style'] == 'column';
+    if (!empty($attach['column'])) {
+      $attach['grid'] = FALSE;
+    }
+    foreach (['column', 'grid', 'media', 'photobox', 'ratio'] as $component) {
       if (!empty($attach[$component])) {
         $load['library'][] = 'blazy/' . $component;
       }

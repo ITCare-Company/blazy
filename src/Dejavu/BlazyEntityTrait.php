@@ -77,7 +77,7 @@ trait BlazyEntityTrait {
 
       $settings = $data['settings'];
 
-      // Provide simple Blazy, unless multimedia lightbox is required.
+      // Provide simple Blazy, if required.
       if (empty($settings['_basic'])) {
         $build = $this->blazyManager()->getImage($data);
       }

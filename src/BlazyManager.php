@@ -11,6 +11,11 @@ use Drupal\image\Entity\ImageStyle;
  * Implements a public facing blazy manager.
  *
  * A few modules re-use this: GridStack, Mason, Slick...
+ *
+ * @see \Drupal\gridstack\Plugin\views\style\GridStackViews::render().
+ * @see \Drupal\slick_views\Plugin\views\style\SlickViews::render().
+ * @see template_preprocess_slick().
+ * @see template_preprocess_gridstack().
  */
 class BlazyManager extends BlazyManagerBase {
 
@@ -18,15 +23,18 @@ class BlazyManager extends BlazyManagerBase {
    * Used at top-level element: Cleans up empty breakpoints.
    */
   public function cleanUpBreakpoints(array &$settings = []) {
-    if (!empty($settings['breakpoints'])) {
-      foreach ($settings['breakpoints'] as $key => $breakpoint) {
-        if (empty($breakpoint['width']) && empty($breakpoint['image_style'])) {
-          unset($settings['breakpoints'][$key]);
-        }
+    if (empty($settings['breakpoints'])) {
+      return;
+    }
+
+    foreach ($settings['breakpoints'] as $key => &$breakpoint) {
+      $breakpoint = array_filter($breakpoint);
+      if (empty($breakpoint['width']) || empty($breakpoint['image_style'])) {
+        unset($settings['breakpoints'][$key]);
       }
     }
 
-    // If breakpoints provided, enforce Blazy lazyloading without further ado.
+    // Identify that Blazy can be activated only by breakpoints.
     $settings['blazy'] = !empty($settings['breakpoints']);
   }
 
@@ -37,11 +45,6 @@ class BlazyManager extends BlazyManagerBase {
    * The supported plugins can add [data-blazy] attribute into its container
    * containing $settings['blazy_data'] converted into [data-blazy] JSON.
    *
-   * @see \Drupal\gridstack\Plugin\views\style\GridStackViews::render().
-   * @see \Drupal\slick_views\Plugin\views\style\SlickViews::render().
-   * @see template_preprocess_slick().
-   * @see template_preprocess_gridstack().
-   *
    * @todo unified way between Views styles, Views fields and field formatters.
    */
   public function isBlazy(array &$settings = [], $item = []) {
@@ -49,6 +52,9 @@ class BlazyManager extends BlazyManagerBase {
     $item_id = $settings['item_id'];
 
     // 1. Blazy formatter within Views fields by supported modules.
+    // Image/Media related slick formatters, e.g.:
+    // \Drupal\slick\Plugin\Field\FieldFormatter\SlickFileFormatterBase.
+    // \Drupal\blazy\Dejavu\BlazyEntityReferenceBase
     if (isset($item['settings'])) {
       $blazy = isset($item[$item_id]['#build']['settings']) ? $item[$item_id]['#build']['settings'] : [];
 
@@ -66,15 +72,14 @@ class BlazyManager extends BlazyManagerBase {
     // 2. Blazy Views fields by supported modules.
     if (isset($item[$item_id]['#view']) && ($view = $item[$item_id]['#view'])) {
       if ($blazy_field = Blazy::blazyViewsField($view)) {
-        $settings = array_merge($blazy_field->mergedViewsSettings(), $settings);
+        $settings = array_merge(array_filter($blazy_field->mergedViewsSettings()), array_filter($settings));
       }
     }
 
     // Provide data for the [data-blazy] attribute at the containing element.
     // Supported modules can add blazy_data as [data-blazy] to the container.
-    if (isset($item['item'])) {
-      $settings['blazy_data'] = $this->buildDataBlazy($settings, $item['item']);
-    }
+    $image = isset($item['item']) ? $item['item'] : NULL;
+    $this->buildDataBlazy($settings, $image);
   }
 
   /**
@@ -91,11 +96,11 @@ class BlazyManager extends BlazyManagerBase {
     if (!empty($settings['breakpoints'])) {
       $end = end($settings['breakpoints']);
       foreach ($settings['breakpoints'] as $key => $breakpoint) {
-        if (empty($breakpoint['image_style'])) {
+        if (empty($breakpoint['image_style']) || empty($breakpoint['width'])) {
           continue;
         }
 
-        $point = $breakpoint['width'];
+        $point = trim($breakpoint['width']);
 
         $image_styles[$point] = ImageStyle::load($breakpoint['image_style']);
 
@@ -108,7 +113,7 @@ class BlazyManager extends BlazyManagerBase {
           $image_styles[$point]->transformDimensions($dimensions[$point], $settings['uri']);
         }
 
-        $width = static::widthFromDescriptors($point);
+        $width = Blazy::widthFromDescriptors($point);
         $padding = round((($dimensions[$point]['height'] / $dimensions[$point]['width']) * 100), 2);
         $json['dimensions'][$width] = $padding;
 
@@ -118,7 +123,6 @@ class BlazyManager extends BlazyManagerBase {
         }
 
         if (!empty($settings['background'])) {
-          $source          = [];
           $source['width'] = (int) $width;
           $source['src']   = 'data-src-' . $key;
           $sources[]       = $source;
@@ -142,34 +146,8 @@ class BlazyManager extends BlazyManagerBase {
     $json['ratio'] = empty($settings['ratio']) ? FALSE : $settings['ratio'];
 
     // Clean up URIs since this is meant for the top-level containing element.
-    unset($settings['uri'], $settings['image_url']);
-    return $json;
-  }
-
-  /**
-   * Used at top-level element: Gets the numeric "width" part from a descriptor.
-   */
-  public static function widthFromDescriptors($descriptor = '') {
-    // Dynamic multi-serving aspect ratio with backward compatibility.
-    if (is_numeric($descriptor)) {
-      return $descriptor;
-    }
-
-    // Cleanup w descriptor to fetch numerical width for JS aspect ratio.
-    $width = strpos($descriptor, "w") !== FALSE ? str_replace('w', '', $descriptor) : $descriptor;
-
-    // If both w and x descriptors are provided.
-    if (strpos($descriptor, " ") !== FALSE) {
-      // If the position is expected: 640w 2x.
-      list($width, $px) = array_pad(array_map('trim', explode(" ", $width, 2)), 2, NULL);
-
-      // If the position is reversed: 2x 640w.
-      if (is_numeric($px) && strpos($width, "x") !== FALSE) {
-        $width = $px;
-      }
-    }
-
-    return $width;
+    // unset($settings['uri'], $settings['image_url']);
+    $settings['blazy_data'] = $json;
   }
 
   /**
@@ -186,10 +164,13 @@ class BlazyManager extends BlazyManagerBase {
       return [];
     }
 
+    $settings['delta']       = isset($settings['delta']) ? $settings['delta'] : 0;
     $settings['image_style'] = isset($settings['image_style']) ? $settings['image_style'] : '';
+
     if (!isset($settings['uri'])) {
       $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
     }
+
     if ($theme == 'blazy') {
       $settings['blazy'] = TRUE;
     }
@@ -197,7 +178,7 @@ class BlazyManager extends BlazyManagerBase {
     $image = [
       '#theme'       => $theme,
       '#item'        => [],
-      '#delta'       => isset($settings['delta']) ? $settings['delta'] : 0,
+      '#delta'       => $settings['delta'],
       '#image_style' => $settings['image_style'],
       '#build'       => $build,
       '#pre_render'  => [[$this, 'preRenderImage']],
@@ -251,71 +232,82 @@ class BlazyManager extends BlazyManagerBase {
     $element['#captions']        = isset($build['captions']) ? ['inline' => $build['captions']] : [];
     $element['#item_attributes'] = $item_attributes;
 
-    if (!empty($settings['media_switch']) && ($settings['media_switch'] == 'content' || strpos($settings['media_switch'], 'box') !== FALSE)) {
-      $this->getMediaSwitch($element, $settings);
+    if (!empty($settings['media_switch'])) {
+      if ($settings['media_switch'] == 'content' && !empty($settings['absolute_path'])) {
+        $element['#url'] = $settings['absolute_path'];
+      }
+      elseif (strpos($settings['media_switch'], 'box') !== FALSE) {
+        $this->getMediaSwitch($element);
+      }
+    }
+
+    if (!empty($settings['_grid'])) {
+      $element['#wrapper_attributes']['class'][] = 'grid__content';
     }
 
     return $element;
   }
 
   /**
-   * Gets media switch options: colorbox, photobox, content -- not iframe, etc.
+   * Gets media switch options: colorbox, photobox, not content nor iframe, etc.
    */
-  public function getMediaSwitch(array &$element = [], $settings = []) {
-    $item   = $element['#item'];
-    $type   = isset($settings['type']) ? $settings['type'] : 'image';
-    $uri    = $settings['uri'];
-    $switch = $settings['media_switch'];
+  public function getMediaSwitch(array &$element = []) {
+    $item     = $element['#item'];
+    $settings = $element['#settings'];
+    $type     = isset($settings['type']) ? $settings['type'] : 'image';
+    $uri      = $settings['uri'];
+    $switch   = $settings['media_switch'];
+    $multiple = !empty($settings['count']) && $settings['count'] > 1;
 
     // Provide relevant URL if it is a lightbox.
-    if (strpos($switch, 'box') !== FALSE) {
-      $json = ['type' => $type, 'width' => 640, 'height' => 360];
-      $url_attributes = [];
+    $json = ['type' => $type];
+    $url_attributes = [];
 
-      // If it is a video/audio, otherwise image to image.
-      if (!empty($settings['embed_url'])) {
-        $url = $settings['embed_url'];
-        $json['scheme'] = $settings['scheme'];
-        // Force autoplay for media URL on lightboxes, saving another click.
-        if ($json['scheme'] == 'soundcloud') {
-          if (strpos($url, 'auto_play') === FALSE || strpos($url, 'auto_play=false') !== FALSE) {
-            $url = strpos($url, '?') === FALSE ? $url . '?auto_play=true' : $url . '&amp;auto_play=true';
-          }
-        }
-        elseif (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
-          $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&amp;autoplay=1';
-        }
-      }
-      else {
-        $url = empty($settings['box_style']) ? file_create_url($uri) : $this->entityLoad($settings['box_style'], 'image_style')->buildUrl($uri);
-      }
+    // If it is a video/audio, otherwise image to image.
+    if (!empty($settings['embed_url'])) {
+      $url = $settings['embed_url'];
 
-      if ($switch == 'colorbox' && $settings['count'] > 1) {
-        $json['rel'] = $settings['id'];
+      $json['scheme'] = $settings['scheme'];
+      $json['width']  = 640;
+      $json['height'] = 360;
+
+      // Force autoplay for media URL on lightboxes, saving another click.
+      if ($json['scheme'] == 'soundcloud') {
+        if (strpos($url, 'auto_play') === FALSE || strpos($url, 'auto_play=false') !== FALSE) {
+          $url = strpos($url, '?') === FALSE ? $url . '?auto_play=true' : $url . '&auto_play=true';
+        }
       }
-      elseif ($switch == 'photobox' && !empty($settings['embed_url'])) {
-        $url_attributes['rel'] = 'video';
+      elseif (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
+        $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
       }
 
       // Provides custom lightbox media dimension if so configured.
-      if ($type != 'image' && !empty($settings['dimension'])) {
+      if (!empty($settings['dimension'])) {
         list($json['width'], $json['height']) = array_pad(array_map('trim', explode("x", $settings['dimension'], 2)), 2, NULL);
       }
 
-      $url_attributes['class'] = ['blazy__' . $switch, 'litebox'];
-      $url_attributes['data-media'] = Json::encode($json);
-      $url_attributes['data-' . $switch] = TRUE;
-
-      $element['#url'] = $url;
-      $element['#url_attributes'] = $url_attributes;
-      $element['#settings']['lightbox'] = $switch;
-
-      if (!empty($settings['box_caption'])) {
-        $element['#captions']['lightbox'] = self::buildCaptions($item, $settings);
+      if ($switch == 'photobox') {
+        $url_attributes['rel'] = 'video';
       }
     }
-    elseif ($switch == 'content' && !empty($settings['absolute_path'])) {
-      $element['#url'] = $settings['absolute_path'];
+    else {
+      $url = empty($settings['box_style']) ? file_create_url($uri) : $this->entityLoad($settings['box_style'], 'image_style')->buildUrl($uri);
+    }
+
+    if ($switch == 'colorbox' && $multiple) {
+      $json['rel'] = empty($settings['id']) ? 'blazy_colorbox' : $settings['id'];
+    }
+
+    $url_attributes['class'] = ['blazy__' . $switch, 'litebox'];
+    $url_attributes['data-media'] = Json::encode($json);
+    $url_attributes['data-' . $switch . '-trigger'] = TRUE;
+
+    $element['#url'] = $url;
+    $element['#url_attributes'] = $url_attributes;
+    $element['#settings']['lightbox'] = $switch;
+
+    if (!empty($settings['box_caption'])) {
+      $element['#captions']['lightbox'] = self::buildCaptions($item, $settings);
     }
   }
 
@@ -325,7 +317,7 @@ class BlazyManager extends BlazyManagerBase {
   public static function buildCaptions($item, $settings = []) {
     $title   = empty($item->title) ? '' : $item->title;
     $alt     = empty($item->alt)   ? '' : $item->alt;
-    $delta   = $settings['delta'];
+    $delta   = empty($settings['delta']) ? 0 : $settings['delta'];
     $caption = '';
 
     switch ($settings['box_caption']) {
@@ -353,13 +345,10 @@ class BlazyManager extends BlazyManagerBase {
         break;
 
       case 'custom':
-        $token = \Drupal::token();
         $caption = '';
-        if ($entity = $item->getEntity()) {
-          $entity_type = $entity->getEntityTypeId();
-
+        if (!empty($settings['box_caption_custom']) && ($entity = $item->getEntity())) {
           $options = ['clear' => TRUE];
-          $caption = $token->replace($settings['box_caption_custom'], [$entity_type => $entity, 'file' => $item], $options);
+          $caption = \Drupal::token()->replace($settings['box_caption_custom'], [$entity->getEntityTypeId() => $entity, 'file' => $item], $options);
 
           // Checks for multi-value text fields, and maps its delta to image.
           if (strpos($caption, ", <p>") !== FALSE) {
@@ -378,9 +367,75 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
+   * Returns items as a grid display.
+   */
+  public function buildGrid($items = [], array &$settings) {
+    $grids = [];
+    foreach ($items as $delta => $item) {
+      // @todo support non-Blazy which normally uses item_id.
+      $item_settings = isset($item['#build']['settings']) ? $item['#build']['settings'] : $settings;
+      $item_settings['delta'] = $delta;
+
+      $grid = [];
+      $grid['content'] = $item;
+      $this->buildGridItemAttributes($grid, $item_settings);
+
+      $grids[] = $grid;
+    }
+
+    $count = empty($settings['count']) ? count($grids) : $settings['count'];
+    $blazy = empty($settings['blazy_data']) ? [] : $settings['blazy_data'];
+    $element = [
+      '#theme' => 'item_list',
+      '#items' => $grids,
+      '#attributes' => [
+       'class' => [
+         'blazy',
+         'blazy--grid',
+         'block-' . $settings['style'],
+         'block-count-' . $count,
+        ],
+        'data-blazy' => Json::encode($blazy),
+      ],
+      '#wrapper_attributes' => [
+        'class' => ['item-list--blazy', 'item-list--blazy-grid'],
+      ],
+    ];
+
+    $settings['grid_large'] = $settings['grid'];
+    foreach (['small', 'medium', 'large'] as $grid) {
+      if (!empty($settings['grid_' . $grid])) {
+        $element['#attributes']['class'][] = $grid . '-block-' . $settings['style'] . '-' . $settings['grid_' . $grid];
+      }
+    }
+
+    return $element;
+  }
+
+  /**
+   * Returns a grid item.
+   */
+  public function buildGridItemAttributes(array &$grid = [], $settings = []) {
+    $grid['#wrapper_attributes']['class'][] = 'grid';
+
+    if (!empty($settings['type'])) {
+      $grid['#wrapper_attributes']['class'][] = 'grid--' . $settings['type'];
+    }
+
+    if (!empty($settings['media_switch'])) {
+      $grid['#wrapper_attributes']['class'][] = 'grid--' . $settings['media_switch'];
+      if (strpos($settings['media_switch'], 'box') !== FALSE) {
+        $grid['#wrapper_attributes']['class'][] = 'grid--litebox';
+      }
+    }
+
+    $grid['#wrapper_attributes']['class'][] = 'grid--' . $settings['delta'];
+  }
+
+  /**
    * Returns the entity view, if available.
    */
-  public function getEntityView($entity, $settings = [], $fallback = []) {
+  public function getEntityView($entity = NULL, $settings = [], $fallback = []) {
     if ($entity && $entity instanceof EntityInterface) {
       $entity_type_id = $entity->getEntityTypeId();
       $view_hook      = $entity_type_id . '_view';

@@ -8,7 +8,7 @@ namespace Drupal\blazy;
 class BlazyFormatterManager extends BlazyManager {
 
   /**
-   * Returns the field formatter.
+   * Returns the field formatter settings inherited by child elements.
    *
    * @param array $build
    *   The array containing: settings, or potential optionset for extensions.
@@ -17,6 +17,8 @@ class BlazyFormatterManager extends BlazyManager {
    */
   public function buildSettings(array &$build = [], $items) {
     $settings = &$build['settings'];
+    // @todo: Enable after proper checks.
+    // $settings = array_filter($settings);
 
     // Sniffs for Views to allow block__no_wrapper, views_no_wrapper, etc.
     if (function_exists('views_get_current_view') && $view = views_get_current_view()) {
@@ -59,15 +61,20 @@ class BlazyFormatterManager extends BlazyManager {
       'entity_type_id' => $entity_type_id,
       'field_type'     => $field_type,
       'field_name'     => $field_name,
+      'id'             => $id,
       'internal_path'  => $internal_path,
       'lightbox'       => $switch && strpos($switch, 'box') !== FALSE,
       'target_type'    => $target_type,
       'cache_metadata' => ['keys' => [$id, $count]],
     ];
 
+    unset($entity, $field);
+    if (!empty($settings['vanilla'])) {
+      return;
+    }
+
     $this->cleanUpBreakpoints($settings);
 
-    $settings['id']         = $id;
     $settings['caption']    = empty($settings['caption']) ? [] : array_filter($settings['caption']);
     $settings['resimage']   = function_exists('responsive_image_get_image_dimensions');
     $settings['background'] = empty($settings['responsive_image_style']) && !empty($settings['background']);
@@ -90,8 +97,6 @@ class BlazyFormatterManager extends BlazyManager {
       }
     }
     $settings['ratio'] = $ratio ? $settings['ratio'] : FALSE;
-
-    unset($entity, $field);
   }
 
 }

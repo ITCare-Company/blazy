@@ -11,7 +11,7 @@
  * Available variables:
  *   - image: A collection of image data.
  *   - attributes: An array of attributes applied to .media container.
- *   - content_attributes: An array of iframe attributes, including iframe SRC.
+ *   - iframe_attributes: An array of iframe attributes, including iframe SRC.
  *   - settings: An array containing the given settings.
  *   - url: An optional URL the image can be linked to, can be any of
  *       audio/video, or entity URLs, when using Colorbox/Photobox, or Link to
@@ -44,7 +44,7 @@
 {% set player %}
   {% if settings.player %}
     {% block blazy_player %}
-      <iframe{{ content_attributes.addClass(content_classes) }} allowfullscreen></iframe>
+      <iframe{{ iframe_attributes.addClass(content_classes) }} allowfullscreen></iframe>
       {% if settings.media_switch %}
         <span class="media__icon media__icon--close"></span>
         <span class="media__icon media__icon--play" data-url="{{ settings.embed_url }}"></span>
@@ -63,30 +63,40 @@
   {% endblock %}
 {% endset %}
 
-{% block blazy_content %}
-  {% if url and not settings.player %}
-    <a href="{{ url }}"{{ url_attributes }}>{{ media }}</a>
+{% set blazy %}
+  {% block blazy_content %}
+    {% if url and not settings.player %}
+      <a href="{{ url }}"{{ url_attributes }}>{{ media }}</a>
 
-    {# Allows fieldable captions with A tag, such as social share. #}
-    {% if captions and captions.lightbox is defined %}
-      <div class="litebox-caption visually-hidden">
-        {{ captions.lightbox }}
-      </div>
+      {# Allows fieldable captions with A tag, such as social share. #}
+      {% if captions and captions.lightbox is defined %}
+        <div class="litebox-caption visually-hidden">
+          {{ captions.lightbox }}
+        </div>
+      {% endif %}
+
+    {% else %}
+      {{ media }}
     {% endif %}
-
-  {% else %}
-    {{ media }}
-  {% endif %}
-{% endblock %}
-
-{% if captions and captions.inline is defined %}
-  {% block blazy_caption %}
-    <div{{ caption_attributes }}>
-      {% for caption in captions.inline %}
-        {% if caption.content %}
-          <{{ caption.tag }} {{ caption.attributes }}>{{ caption.content }}</{{ caption.tag }}>
-        {% endif %}
-      {% endfor %}
-    </div>
   {% endblock %}
+
+  {% if captions and captions.inline is defined %}
+    {% block blazy_caption %}
+      <div{{ caption_attributes }}>
+        {% for caption in captions.inline %}
+          {% if caption.content %}
+            <{{ caption.tag }} {{ caption.attributes }}>{{ caption.content }}</{{ caption.tag }}>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endblock %}
+  {% endif %}
+{% endset %}
+
+{% if wrapper_attributes %}
+  <div{{ wrapper_attributes }}>
+    {{ blazy }}
+  </div>
+{% else %}
+  {{ blazy }}
 {% endif %}

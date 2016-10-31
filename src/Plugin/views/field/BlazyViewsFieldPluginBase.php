@@ -109,6 +109,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
     return [
       'image_style'     => '',
       'media_switch'    => 'media',
+      'ratio'           => 'fluid',
       'thumbnail_style' => '',
       'view_mode'       => 'default',
     ];
@@ -118,7 +119,13 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    * Merges the settings.
    */
   public function mergedViewsSettings() {
-    return array_merge(BlazyDefault::entitySettings(), $this->options);
+    $settings = $this->options;
+
+    $settings['count'] = count($this->view->result);
+    $settings['current_view_mode'] = $this->view->current_display;
+    $settings['view_name'] = $this->view->storage->id();
+
+    return array_merge(BlazyDefault::entitySettings(), $settings);
   }
 
   /**

@@ -87,7 +87,8 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     $this->getCaption($element, $entity, $langcode);
 
     // Layouts can be builtin, or field, if so configured.
-    if ($layout = $settings['layout']) {
+    if (!empty($settings['layout'])) {
+      $layout = $settings['layout'];
       if (strpos($layout, 'field_') !== FALSE) {
         $settings['layout'] = $this->getFieldString($entity, $layout, $langcode);
       }
@@ -95,7 +96,9 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     }
 
     // Classes, if so configured.
-    $element['settings']['class'] = $this->getFieldString($entity, $settings['class'], $langcode);
+    if (!empty($settings['class'])) {
+      $element['settings']['class'] = $this->getFieldString($entity, $settings['class'], $langcode);
+    }
 
     // Build the main item.
     $build['items'][$delta] = $element;
@@ -104,7 +107,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     if (!empty($settings['nav'])) {
       // Thumbnail usages: asNavFor pagers, dot, arrows, photobox thumbnails.
       $element[$item_id]  = empty($settings['thumbnail_style']) ? [] : $this->formatter->getThumbnail($element['settings']);
-      $element['caption'] = $this->getFieldRenderable($entity, $settings['thumbnail_caption'], $view_mode);
+      $element['caption'] = empty($settings['thumbnail_caption']) ? [] : $this->getFieldRenderable($entity, $settings['thumbnail_caption'], $view_mode);
 
       $build['thumb']['items'][$delta] = $element;
     }
@@ -118,16 +121,18 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     $view_mode = $settings['view_mode'];
 
     // Title can be plain text, or link field.
-    $field_title = $settings['title'];
-    $has_title = !empty($field_title) && isset($entity->{$field_title});
-    if ($has_title && $title = $entity->getTranslation($langcode)->get($field_title)->getValue()) {
-      if (!empty($title[0]['value']) && !isset($title[0]['uri'])) {
-        // Prevents HTML-filter-enabled text from having bad markups (h2 > p),
-        // except for a few reasonable tags acceptable within H2 tag.
-        $element['caption']['title']['#markup'] = strip_tags($title[0]['value'], '<a><strong><em><span><small>');
-      }
-      elseif (isset($title[0]['uri']) && !empty($title[0]['title'])) {
-        $element['caption']['title'] = $this->getFieldRenderable($entity, $field_title, $view_mode)[0];
+    if (!empty($settings['title'])) {
+      $field_title = $settings['title'];
+      $has_title = !empty($field_title) && isset($entity->{$field_title});
+      if ($has_title && $title = $entity->getTranslation($langcode)->get($field_title)->getValue()) {
+        if (!empty($title[0]['value']) && !isset($title[0]['uri'])) {
+          // Prevents HTML-filter-enabled text from having bad markups (h2 > p),
+          // except for a few reasonable tags acceptable within H2 tag.
+          $element['caption']['title']['#markup'] = strip_tags($title[0]['value'], '<a><strong><em><span><small>');
+        }
+        elseif (isset($title[0]['uri']) && !empty($title[0]['title'])) {
+          $element['caption']['title'] = $this->getFieldRenderable($entity, $field_title, $view_mode)[0];
+        }
       }
     }
 
@@ -146,18 +151,20 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     }
 
     // Link, if so configured.
-    $field_link = isset($settings['link']) ? $settings['link'] : '';
-    if ($field_link && isset($entity->{$field_link})) {
-      $links = $this->getFieldRenderable($entity, $field_link, $view_mode);
+    if (!empty($settings['link'])) {
+      $field_link = $settings['link'];
+      if ($field_link && isset($entity->{$field_link})) {
+        $links = $this->getFieldRenderable($entity, $field_link, $view_mode);
 
-      // Only simplify markups for known formatters registered by link.module.
-      if ($links && isset($links['#formatter']) && in_array($links['#formatter'], ['link'])) {
-        $links = [];
-        foreach ($entity->{$field_link} as $i => $link) {
-          $links[$i] = $link->view($view_mode);
+        // Only simplify markups for known formatters registered by link.module.
+        if ($links && isset($links['#formatter']) && in_array($links['#formatter'], ['link'])) {
+          $links = [];
+          foreach ($entity->{$field_link} as $i => $link) {
+            $links[$i] = $link->view($view_mode);
+          }
         }
+        $element['caption']['link'] = $links;
       }
-      $element['caption']['link'] = $links;
     }
 
     if (!empty($settings['overlay'])) {

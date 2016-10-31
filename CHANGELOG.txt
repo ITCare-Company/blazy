@@ -1,4 +1,16 @@
 
+Blazy 8.x-1.0-dev, 2016-10-31
+-----------------------------
+- Added support for multi-breakpoint aspect ratio with irregular sizes.
+- Added blazy.column.css.
+- Optimized blazy.grid.css.
+- Added Display style to have a pure and simple CSS Masonry like grid display,
+  and Grid Foundation from within Blazy formatters, not only Slick.
+- Moved grid form into BlazyAdminBase for re-usability by Blazy, not only Slick.
+- Added support for video colorbox.
+- Added colorbox video gallery support when using Blazy Views fields.
+- Fixed regression with numeric aspect ratio.
+
 Blazy 8.x-1.0-dev, 2016-10-25
 -----------------------------
 - Minified please. Never commit anything when you are tired.

@@ -122,6 +122,24 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       return;
     }
 
+    // Display style: column, plain static grid, slick grid, slick carousel.
+    // https://drafts.csswg.org/css-multicol
+    if (!empty($definition['style'])) {
+      $form['style'] = [
+        '#type'          => 'select',
+        '#title'         => $this->t('Display style'),
+        '#description'   => $this->t('Only reasonable for unlimited cardinality (multi-value fields). Either <strong>CSS3 Columns</strong> (experimental pure CSS Masonry) or <strong>Grid Foundation</strong> requires <strong>Grid</strong>. Difference: <strong>Columns</strong> is best with irregular image sizes. <strong>Grid</strong> with regular ones. Both do not carousel unless using Slick carousel. Leave empty to use default formatter or style.'),
+        '#enforced'      => TRUE,
+        '#empty_option'  => '- None -',
+        '#options'       => [
+          'column' => $this->t('CSS3 Columns'),
+          'grid'   => $this->t('Grid Foundation'),
+        ],
+        '#weight'             => -112,
+        '#wrapper_attributes' => ['class' => ['form-item--style']],
+      ];
+    }
+
     if (isset($definition['skins'])) {
       $form['skin'] = [
         '#type'        => 'select',
@@ -290,6 +308,72 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
+   * Returns re-usable grid elements across field formatter and Views.
+   */
+  public function gridForm(array &$form, $definition = []) {
+    $range = range(1, 12);
+    $grid_options = array_combine($range, $range);
+
+    $header = $this->t('Group individual items as block grid?<small>Depends on the <strong>Display style</strong>.</small>');
+    $form['grid_header'] = [
+      '#type'   => 'item',
+      '#markup' => '<h3 class="form__title">' . $header . '</h3>',
+    ];
+
+    $form['grid'] = [
+      '#type'        => 'select',
+      '#title'       => $this->t('Grid large'),
+      '#options'     => $grid_options,
+      '#description' => $this->t('The amount of block grid columns for large monitors 64.063em - 90em. <br /><strong>Requires</strong>:<ol><li>Visible items,</li><li>Skin Grid for starter,</li><li>A reasonable amount of contents.</li></ol>Leave empty to DIY, or to not build grids.'),
+      '#enforced'    => TRUE,
+    ];
+
+    $form['grid_medium'] = [
+      '#type'        => 'select',
+      '#title'       => $this->t('Grid medium'),
+      '#options'     => $grid_options,
+      '#description' => $this->t('The amount of block grid columns for medium devices 40.063em - 64em.'),
+    ];
+
+    $form['grid_small'] = [
+      '#type'        => 'select',
+      '#title'       => $this->t('Grid small'),
+      '#options'     => $grid_options,
+      '#description' => $this->t('The amount of block grid columns for small devices 0 - 40em.'),
+    ];
+
+    $form['visible_items'] = [
+      '#type'        => 'select',
+      '#title'       => $this->t('Visible items'),
+      '#options'     => array_combine(range(1, 32), range(1, 32)),
+      '#description' => $this->t('How many items per display at a time.'),
+    ];
+
+    $form['preserve_keys'] = [
+      '#type'        => 'checkbox',
+      '#title'       => $this->t('Preserve keys'),
+      '#description' => $this->t('If checked, keys will be preserved. Default is FALSE which will reindex the grid chunk numerically.'),
+    ];
+
+    $grids = [
+      'grid_header',
+      'grid_medium',
+      'grid_small',
+      'visible_items',
+      'preserve_keys',
+    ];
+
+    foreach ($grids as $key) {
+      $form[$key]['#enforced'] = TRUE;
+      $form[$key]['#states'] = [
+        'visible' => [
+          'select[name$="[grid]"]' => ['!value' => ''],
+        ],
+      ];
+    }
+  }
+
+  /**
    * Returns shared ending form elements across field formatter and Views.
    */
   public function closingForm(array &$form, $definition = []) {
@@ -332,7 +416,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           'content' => $this->t('Image linked to content'),
         ],
         '#empty_option' => $this->t('- None -'),
-        '#description'  => $this->t('May depend on the enabled supported modules: colorbox, photobox. Be sure to add Thumbnail style if using Photobox.'),
+        '#description'  => $this->t('May depend on the enabled supported modules: colorbox, photobox. Be sure to add Thumbnail style if using Photobox. Try selecting "<strong>- None -</strong>" first before changing if trouble with this complex form states.'),
         '#weight'       => -99,
       ];
 
@@ -351,6 +435,22 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       if (!empty($definition['multimedia'])) {
         $form['media_switch']['#options']['media'] = $this->t('Image to iframe');
       }
+
+      // http://en.wikipedia.org/wiki/List_of_common_resolutions
+      $ratio = ['1:1', '3:2', '4:3', '8:5', '16:9', 'fluid', 'enforced'];
+      $form['ratio'] = [
+        '#type'         => 'select',
+        '#title'        => $this->t('Aspect ratio'),
+        '#options'      => array_combine($ratio, $ratio),
+        '#empty_option' => $this->t('- None -'),
+        '#description'  => $this->t('Aspect ratio to get consistently responsive images and iframes. And to fix layout reflow and excessive height issues. <a href="@dimensions" target="_blank">Image styles and video dimensions</a> must <a href="@follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. Choose <strong>fluid</strong> if unsure. Choose <strong>enforced</strong> if you can stick to one aspect ratio and want multi-serving, or Responsive images. <a href="@link" target="_blank">Learn more</a>, or leave empty if you prefer to DIY. <br /><strong>Note!</strong> Only compatible with Blazy multi-serving images, but not with Responsive image.', [
+          '@dimensions'  => '//size43.com/jqueryVideoTool.html',
+          '@follow'      => '//en.wikipedia.org/wiki/Aspect_ratio_%28image%29',
+          '@link'        => '//www.smashingmagazine.com/2014/02/27/making-embedded-content-work-in-responsive-design/',
+        ]),
+        '#weight'        => -96,
+        '#states'        => $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition),
+      ];
     }
 
     if (!empty($definition['target_type']) && !empty($definition['view_mode'])) {

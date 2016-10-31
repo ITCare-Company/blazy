@@ -5,6 +5,7 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\Component\Utility\Xss;
+use Drupal\blazy\Blazy;
 
 /**
  * A Trait common for blazy image and file ER formatters.
@@ -35,21 +36,28 @@ trait BlazyFormatterTrait {
     $settings['namespace'] = $settings['item_id'] = $settings['lazy'] = 'blazy';
     $settings['blazy']     = TRUE;
     $settings['plugin_id'] = $this->getPluginId();
+    $settings['_grid']     = !empty($settings['style']) && !empty($settings['grid']);
 
     // Build the settings.
     $build = ['settings' => $settings];
+
     $this->blazyManager->buildSettings($build, $items);
 
     // Build the elements.
     $this->buildElements($build, $files);
 
-    // Supports Blazy multi-breakpoint images if provided.
-    $this->blazyManager->isBlazy($build['settings'], $build[0]['#build']);
-
-    $build['#blazy']    = $build['settings'];
-    $build['#attached'] = $this->blazyManager->attach($build['settings']);
+    $settings = $build['settings'];
     unset($build['settings']);
 
+    // Build grid if provided.
+    if (!empty($settings['_grid'])) {
+      $build = $this->blazyManager->buildGrid($build, $settings);
+    }
+    else {
+      $build['#blazy'] = $settings;
+    }
+
+    $build['#attached'] = $this->blazyManager->attach($settings);
     return $build;
   }
 
@@ -57,8 +65,8 @@ trait BlazyFormatterTrait {
    * Build the Blazy elements.
    */
   public function buildElements(array &$build = [], $files) {
-    $settings = &$build['settings'];
-    $media    = method_exists($this, 'getMediaItem');
+    $settings = $build['settings'];
+    $is_media = method_exists($this, 'getMediaItem');
 
     foreach ($files as $delta => $file) {
       /* @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
@@ -73,7 +81,7 @@ trait BlazyFormatterTrait {
       $box['settings'] = $settings;
 
       // If imported Drupal\blazy\Dejavu\BlazyVideoTrait.
-      if ($media) {
+      if ($is_media) {
         /** @var Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
         // EntityReferenceItem provides $item->entity Drupal\file\Entity\File.
         if (!empty($this->getImageItem($item, $delta))) {
@@ -87,7 +95,7 @@ trait BlazyFormatterTrait {
       // Build caption if so configured.
       if (!empty($settings['caption'])) {
         foreach ($settings['caption'] as $caption) {
-          $box['captions'][$caption]['content'] = empty($item->{$caption}) ? [] : ['#markup' => Xss::filterAdmin($item->{$caption})];
+          $box['captions'][$caption]['content'] = empty($box['item']->{$caption}) ? [] : ['#markup' => Xss::filterAdmin($box['item']->{$caption})];
           $box['captions'][$caption]['tag'] = $caption == 'title' ? 'h2' : 'div';
           if (!isset($box['captions'][$caption]['attributes'])) {
             $class = $caption == 'alt' ? 'description' : $caption;
@@ -97,10 +105,14 @@ trait BlazyFormatterTrait {
         }
       }
 
-      // Image with responsive image, lazyLoad, and lightbox supports.
-      $build[$delta] = $this->blazyManager->getImage($box);
+      // Image with grid, responsive image, lazyLoad, and lightbox supports.
+      $build[$delta] = $this->blazyManager()->getImage($box);
       unset($box);
     }
+
+    // Supports Blazy multi-breakpoint images if provided.
+    $item = isset($build[0]['content']['#build']) ? $build[0]['content']['#build'] : $build[0]['#build'];
+    $this->blazyManager()->isBlazy($build['settings'], $item);
   }
 
   /**

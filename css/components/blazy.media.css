@@ -1,8 +1,6 @@
 /**
  * @file
  * Provides media integration with pure CSS fluid video wrapper.
- *
- * @todo move to Blazy for re-usability across Blazy, GridStack, Mason, Slick.
  */
 
 .litebox,

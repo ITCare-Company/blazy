@@ -13,12 +13,14 @@ o Supports Retina display.
 o Multi-serving images for configurable XS, SM and MD breakpoints, almost
   similar to core Responsive image, only less complex.
 o CSS background lazyloading, see Mason, GridStack, and future Slick carousel.
-o IFRAME urls via custom coded.
+o IFRAME urls via Blazy Image with Media, or see Slick Video, Slick Media.
 o Delay loading for below-fold images until 100px (configurable) before they are
   visible at viewport.
 o A simple effortless CSS loading indicator.
 o It doesn't take over all images, so it can be enabled as needed via Blazy
   formatter, or its supporting modules.
+o Views fields for File ER and a basic Media Entity integration.
+o Field formatters: Blazy, and a basic Blazy Image with Media integration.
 
 
 REQUIREMENTS
@@ -71,27 +73,28 @@ TROUBLESHOOTING
 Resing is not supported. Just reload the page.
 
 VIEWS INTEGRATION
-Be sure to check "Use field template" under "Style settings" when using Views,
-  if trouble with Blazy Formatter as stand alone Views output.
-  On the contrary, be sure to uncheck "Use field template", when Blazy formatter
+Blazy provides two simple Views fields for File ER and Media Entity.
+
+When using Blazy formatter within Views, check "Use field template" under
+  "Style settings", if trouble with Blazy Formatter as stand alone Views output.
+  On the contrary, uncheck "Use field template", when Blazy formatter
   is embedded inside another module such as GridStack so to pass the renderable
   array accordingly.
   This is a Views common gotcha with field formatter, so be aware of it.
   This confusion should be solved later when Blazy formatter is aware of Views.
 
 MIN-WIDTH
-If the images appear to be shrinked within a floating container, be sure to add
+If the images appear to be shrinked within a floating container, add
   some expected width or min-width to the parent container via CSS accordingly.
   Non-floating image parent containers aren't affected.
 
 MIN-HEIGHT
-Be sure to add a min-height CSS to individual element to avoid layout reflow
-  if not using Aspect ratio or when Aspect ratio is not supported such as with
-  Responsive image. Otherwise some collapsed images containers will defeat
-  the purpose of lazyloading. When using CSS background, the container may also
-  be collapse.
+Add a min-height CSS to individual element to avoid layout reflow if not using
+  Aspect ratio or when Aspect ratio is not supported such as with Responsive
+  image. Otherwise some collapsed images containers will defeat the purpose of
+  lazyloading. When using CSS background, the container may also be collapsed.
   Both layout reflow and lazyloading delay issues are actually tacken care of
-  if having Aspect ratio enabled in the first place.
+  if Aspect ratio is enabled in the first place.
 
 The blazy.ratio.css adds this by default to prevent collapsing field container:
   .blazy--ratio {
@@ -104,7 +107,9 @@ Adjust, and override it accordingly.
 ROADMAP/TODO
 [x] Adds a basic configuration to load the library, probably an image formatter.
     2/24/2016
-o Media entity image/video, and Video embed field lazyloading, if any.
+[x] Media entity image/video, and Video embed field lazyloading, if any.
+    10/25/2016
+    Added both simple Blazy Media formatter and Views field Media Entity.
 o Makes a solid lazyloading solution for IMG, DIV, IFRAME tags.
 
 
@@ -115,8 +120,11 @@ some code cleanup, and optimization where needed. Patches are very much welcome.
 Alpha and Beta releases are for developers only. Be aware of possible breakage.
 
 However if it is broken, unless an update is explicitly required, clearing cache
-should fix most issues durig DEV phases. Always visit prior to any update:
+should fix most issues during DEV phases. Prior to any update, always visit:
 /admin/config/development/performance
+
+And hit "Clear all caches" button once the new Blazy is in place. Regenerate CSS
+and JS as the latest fixes may contain changes to the assets.
 
 
 AUTHOR/MAINTAINER/CREDITS

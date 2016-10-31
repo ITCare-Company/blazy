@@ -8,6 +8,9 @@ blazy_views_field:
     media_switch:
       type: string
       label: 'Media switch'
+    ratio:
+      type: string
+      label: 'Aspect ratio'
     view_mode:
       type: string
       label: 'View mode'

@@ -20,6 +20,22 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
     $this->imageStyleForm($form, $definition);
     $this->mediaSwitchForm($form, $definition);
 
+    if (isset($definition['grid_form']) && !isset($form['grid'])) {
+      $this->gridForm($form, $definition);
+
+      // Blazy doesn't need complex grid with multiple groups.
+      if ($definition['namespace'] == 'blazy') {
+        unset($form['preserve_keys'], $form['visible_items']);
+
+        if (isset($form['grid'])) {
+          $form['grid']['#description'] = $this->t('The amount of block grid columns for large monitors 64.063em - 90em. <br /><strong>Requires</strong>:<ol><li>Display style.</li><li>A reasonable amount of contents.</li></ol>Leave empty to DIY, or to not build grids.');
+        }
+        if (isset($form['grid_small']['#description'])) {
+          $form['grid_small']['#description'] .= ' ' . $this->t('Specific to <strong>CSS3 Cclumns</strong>, only 1 - 2 column is respected due to small real estate at smallest device.');
+        }
+      }
+    }
+
     if (!empty($definition['breakpoints'])) {
       $this->breakpointsForm($form, $definition);
     }

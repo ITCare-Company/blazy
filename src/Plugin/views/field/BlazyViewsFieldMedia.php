@@ -19,6 +19,7 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
     $media = $values->_entity;
 
     $data['settings'] = $this->mergedViewsSettings();
+    $data['settings']['delta'] = $values->index;
 
     return $this->buildPreview($data, $media, $media->label());
   }
@@ -27,7 +28,7 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
    * Defines the scope for the form elements.
    */
   public function getScopedFormElements() {
-    return ['multimedia' => TRUE, 'view_mode' => TRUE] + parent::getScopedFormElements();
+    return ['multimedia' => TRUE, 'view_mode' => 'default'] + parent::getScopedFormElements();
   }
 
 }

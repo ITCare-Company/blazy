@@ -73,22 +73,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     if (isset($definition['media_switch_form'])) {
       $form['media_switch'] = $this->baseForm($definition)['media_switch'];
       $form['media_switch']['#prefix'] = '<h3 class="form__title">' . $this->t('Media switcher') . '</h3>';
-
-
-      // http://en.wikipedia.org/wiki/List_of_common_resolutions
-      $ratio = ['1:1', '3:2', '4:3', '8:5', '16:9', 'fluid', 'enforced'];
-      $form['ratio'] = [
-        '#type'        => 'select',
-        '#title'       => $this->t('Aspect ratio'),
-        '#options'     => array_combine($ratio, $ratio),
-        '#description' => $this->t('Aspect ratio to get consistently responsive images and iframes. And to fix layout reflow and excessive height issues. <a href="@dimensions" target="_blank">Image styles and video dimensions</a> must <a href="@follow" target="_blank">follow the aspect ratio</a>. If not, images will be unexpectedly distorted. Choose <strong>fluid</strong> if unsure. Choose <strong>enforced</strong> if you can stick to one aspect ratio and want multi-serving, or Responsive images. <a href="@link" target="_blank">Learn more</a>, or leave empty if you care not for aspect ratio, or prefer to DIY. <br /><strong>Note!</strong> Only compatible with Blazy multi-serving images, but not with Responsive image, unless they stick to one aspect ratio with an <strong>enforced</strong> ratio.', [
-          '@dimensions' => '//size43.com/jqueryVideoTool.html',
-          '@follow'     => '//en.wikipedia.org/wiki/Aspect_ratio_%28image%29',
-          '@link'       => '//www.smashingmagazine.com/2014/02/27/making-embedded-content-work-in-responsive-design/',
-        ]),
-        '#weight'       => -96,
-        '#states'       => $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition),
-      ];
+      $form['ratio'] = $this->baseForm($definition)['ratio'];
     }
 
     if (isset($definition['multimedia'])) {

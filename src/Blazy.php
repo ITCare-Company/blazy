@@ -37,7 +37,7 @@ class Blazy implements BlazyInterface {
     $image_attributes = &$variables['item_attributes'];
 
     // Provides sensible defaults to shut up notices when lacking of settings.
-    foreach (['icon', 'image_style', 'lightbox', 'media_switch', 'player', 'scheme', 'type'] as $key) {
+    foreach (['embed_url', 'icon', 'image_style', 'media_switch', 'player', 'ratio', 'scheme', 'type'] as $key) {
       $settings[$key] = isset($settings[$key]) ? $settings[$key] : '';
     }
 
@@ -46,12 +46,13 @@ class Blazy implements BlazyInterface {
     self::buildUrl($settings, $item, $settings['grid_style']);
 
     // Do not proceed if no URI is provided.
-    // URI is stored within settings, not theme_blazy() property, as it always
-    // called for different purposes prior to arriving at theme_blazy().
+    // URI is stored within settings, not theme_blazy() property, as it is
+    // always called for different purposes prior to arriving at theme_blazy().
     if (empty($settings['uri'])) {
       return;
     }
 
+    // Do this here because Twig clean_class converts colon to underscore.
     $settings['ratio']   = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
     $settings['item_id'] = empty($settings['item_id']) ? 'blazy' : $settings['item_id'];
 
@@ -63,15 +64,15 @@ class Blazy implements BlazyInterface {
     $image  = &$variables['image'];
     $iframe = [];
 
-    // Media URL is stored in the settings.
-    $media = !empty($settings['embed_url']) && in_array($settings['type'], ['video', 'audio']);
+    // Media embed URL is stored in the settings.
+    $media = $settings['embed_url'] && in_array($settings['type'], ['video', 'audio']);
 
     // The regular non-responsive, non-lazyloaded image URI where image_url may
     // contain image_style which is not expected by responsive_image.
     $image['#uri'] = empty($settings['image_url']) ? $settings['uri'] : $settings['image_url'];
 
     if (!empty($settings['thumbnail_style'])) {
-      // With CSS background, IMG may be empty, so add thumbnail to the container.
+      // With CSS background, IMG may be empty, add thumbnail to the container.
       $attributes['data-thumb'] = ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
     }
 
@@ -98,6 +99,13 @@ class Blazy implements BlazyInterface {
         }
       }
 
+      // Aspect ratio to fix layout reflow with lazyloaded images responsively.
+      if (!empty($settings['width']) && !empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
+        $padding_bottom = isset($settings['padding_bottom']) ? $settings['padding_bottom'] : round((($settings['height'] / $settings['width']) * 100), 2);
+        $attributes['style'] = 'padding-bottom: ' . $padding_bottom . '%';
+        $settings['_breakpoint_ratio'] = $settings['ratio'];
+      }
+
       if (!empty($settings['lazy'])) {
         $image['#uri'] = static::PLACEHOLDER;
 
@@ -116,12 +124,11 @@ class Blazy implements BlazyInterface {
             $image = [];
           }
         }
-      }
 
-      // Aspect ratio to fix layout reflow with lazyloaded images responsively.
-      if (!empty($settings['height']) && !empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
-        $padding_bottom = isset($settings['padding_bottom']) ? $settings['padding_bottom'] : round((($settings['height'] / $settings['width']) * 100), 2);
-        $attributes['style'] = 'padding-bottom: ' . $padding_bottom . '%';
+        // Multi-breakpoint aspect ratio.
+        if (!empty($settings['_breakpoint_dimensions'])) {
+          $attributes['data-dimensions'] = $settings['_breakpoint_dimensions'];
+        }
       }
     }
 
@@ -163,8 +170,11 @@ class Blazy implements BlazyInterface {
     }
 
     // URL can be entity, or lightbox URL different from image URL.
-    $variables['content_attributes'] = new Attribute($iframe);
-    $variables['url_attributes']     = new Attribute($variables['url_attributes']);
+    $variables['iframe_attributes'] = new Attribute($iframe);
+    $variables['url_attributes']    = new Attribute($variables['url_attributes']);
+
+    // Provides wrapper attributes if requested for complex need such as grid.
+    $variables['wrapper_attributes'] = isset($element['#wrapper_attributes']) ? new Attribute($element['#wrapper_attributes']) : [];
   }
 
   /**
@@ -176,47 +186,69 @@ class Blazy implements BlazyInterface {
    * @see self::buildAttributes()
    * @see BlazyManager::buildDataBlazy()
    */
-  public static function buildBreakpointAttributes(array &$attributes = [], $settings = []) {
+  public static function buildBreakpointAttributes(array &$attributes = [], array &$settings = []) {
     $lazy_attribute = empty($settings['lazy_attribute']) ? 'src' : $settings['lazy_attribute'];
-    $lazy_class = empty($settings['lazy_class']) ? 'b-lazy' : $settings['lazy_class'];
 
     // Defines attributes, builtin, or supported lazyload such as Slick.
     // Required for multi-serving images as of Blazy v1.6.0.
-    $attributes['class'][] = $lazy_class;
-    $attributes['data-' . $lazy_attribute] = empty($settings['image_url']) ? '' : $settings['image_url'];
+    $attributes['class'][] = empty($settings['lazy_class']) ? 'b-lazy' : $settings['lazy_class'];
+    $attributes['data-' . $lazy_attribute] = $settings['image_url'];
 
     // Only provide multi-serving image URLs if breakpoints are provided.
-    if (!empty($settings['breakpoints'])) {
-      $srcset = [];
-      foreach ($settings['breakpoints'] as $key => $breakpoint) {
-        if (!empty($breakpoint['image_style'])) {
-          $image_styles[$key] = ImageStyle::load($breakpoint['image_style']);
-          $url = $image_styles[$key]->buildUrl($settings['uri']);
+    if (empty($settings['breakpoints'])) {
+      return;
+    }
 
-          $settings['breakpoints'][$key]['url'] = $url;
+    $srcset = $json = [];
+    foreach ($settings['breakpoints'] as $key => $breakpoint) {
+      if (empty($breakpoint['image_style']) || empty($breakpoint['width'])) {
+        continue;
+      }
 
-          if (!empty($settings['background'])) {
-            $attributes['data-src-' . $key] = $url;
-          }
-          elseif ($breakpoint['width'] !== '') {
-            $width = is_numeric($breakpoint['width']) ? $breakpoint['width'] . 'w' : $breakpoint['width'];
-            $srcset[] = $url . ' ' . $width;
-          }
+      $image_styles[$key] = ImageStyle::load($breakpoint['image_style']);
+      $url = $image_styles[$key]->buildUrl($settings['uri']);
+
+      // Supports multi-breakpoint aspect ratio with irregular sizes.
+      // @todo: Compare to global, and only proceed if different.
+      if (!empty($settings['_breakpoint_ratio'])) {
+        $dimensions = [
+          'width'  => $settings['width'],
+          'height' => $settings['height'],
+        ];
+
+        $image_styles[$key]->transformDimensions($dimensions, $settings['uri']);
+        if ($width = self::widthFromDescriptors($breakpoint['width'])) {
+          $json[$width] = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
         }
       }
 
-      if ($srcset) {
-        $settings['srcset'] = implode(', ', $srcset);
+      $settings['breakpoints'][$key]['url'] = $url;
 
-        $attributes['srcset'] = '';
-        $attributes['data-srcset'] = $settings['srcset'];
-        $attributes['sizes'] = '100w';
-
-        if (!empty($settings['sizes'])) {
-          $attributes['sizes'] = trim($settings['sizes']);
-          unset($attributes['height'], $attributes['width']);
-        }
+      if (!empty($settings['background'])) {
+        $attributes['data-src-' . $key] = $url;
       }
+      elseif (!empty($breakpoint['width'])) {
+        $width = trim($breakpoint['width']);
+        $width = is_numeric($width) ? $width . 'w' : $width;
+        $srcset[] = $url . ' ' . $width;
+      }
+    }
+
+    if ($srcset) {
+      $settings['srcset'] = implode(', ', $srcset);
+
+      $attributes['srcset'] = '';
+      $attributes['data-srcset'] = $settings['srcset'];
+      $attributes['sizes'] = '100w';
+
+      if (!empty($settings['sizes'])) {
+        $attributes['sizes'] = trim($settings['sizes']);
+        unset($attributes['height'], $attributes['width']);
+      }
+    }
+
+    if ($json) {
+      $settings['_breakpoint_dimensions'] = Json::encode($json);
     }
   }
 
@@ -224,11 +256,16 @@ class Blazy implements BlazyInterface {
    * Builds URLs, cache tags, and dimensions for individual image.
    */
   public static function buildUrl(array &$settings = [], $item = NULL, $modifier = NULL) {
+    $settings['image_style'] = isset($settings['image_style']) ? $settings['image_style'] : '';
     $modifier = empty($modifier) ? $settings['image_style'] : $modifier;
 
     // Blazy already sets URI, yet set fallback for direct theme_blazy() call.
-    if (empty($settings['uri'])) {
+    if (empty($settings['uri']) && $item) {
       $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+    }
+
+    if (empty($settings['uri'])) {
+      return;
     }
 
     // Lazyloaded elements expect image URL, not URI.
@@ -244,7 +281,7 @@ class Blazy implements BlazyInterface {
       $settings['height'] = isset($item->height) ? $item->height : NULL;
 
       // No file API, no $item, with unmanaged VEF image without image_style.
-      if (empty($modifier)) {
+      if (empty($modifier) || empty($settings['width'])) {
         list($settings['width'], $settings['height']) = getimagesize($settings['image_url']);
       }
     }
@@ -273,12 +310,38 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Used at top-level element: Gets the numeric "width" part from a descriptor.
+   */
+  public static function widthFromDescriptors($descriptor = '') {
+    // Dynamic multi-serving aspect ratio with backward compatibility.
+    if (is_numeric($descriptor)) {
+      return $descriptor;
+    }
+
+    // Cleanup w descriptor to fetch numerical width for JS aspect ratio.
+    $width = strpos($descriptor, "w") !== FALSE ? str_replace('w', '', $descriptor) : $descriptor;
+
+    // If both w and x descriptors are provided.
+    if (strpos($descriptor, " ") !== FALSE) {
+      // If the position is expected: 640w 2x.
+      list($width, $px) = array_pad(array_map('trim', explode(" ", $width, 2)), 2, NULL);
+
+      // If the position is reversed: 2x 640w.
+      if (is_numeric($px) && strpos($width, "x") !== FALSE) {
+        $width = $px;
+      }
+    }
+
+    return $width;
+  }
+
+  /**
    * Implements hook_config_schema_info_alter().
    */
   public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', $settings = []) {
     if (isset($definitions[$formatter])) {
       $mappings = &$definitions[$formatter]['mapping'];
-      $settings = $settings ?: BlazyDefault::extendedSettings();
+      $settings = $settings ?: BlazyDefault::extendedSettings() + BlazyDefault::gridSettings();
       foreach ($settings as $key => $value) {
         $mappings[$key]['type'] = $key == 'breakpoints' ? 'mapping' : (is_array($value) ? 'sequence' : gettype($value));
 
