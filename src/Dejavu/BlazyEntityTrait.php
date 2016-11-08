@@ -24,7 +24,7 @@ trait BlazyEntityTrait {
     if ($entity->hasTranslation($langcode)) {
       // If the entity has translation, fetch the translated value.
       $values = $entity->getTranslation($langcode)->get($field_name)->getValue();
-     }
+    }
     else {
       // Entity doesn't have translation, fetch original value.
       $values = $entity->get($field_name)->getValue();

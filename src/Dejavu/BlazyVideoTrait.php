@@ -18,10 +18,8 @@ use Drupal\file\Entity\File;
  * For more robust VEM/ME integration, use Slick Media instead.
  *
  * @see Drupal\blazy\Plugin\views\field\BlazyViewsFieldPluginBase
- * #see Drupal\slick_browser\SlickBrowser::widgetEntityBrowserFileFormAlter()
- * @see Drupal\slick_browser\Plugin\EntityBrowser\FieldWidgetDisplay\SlickBrowserBase
- * @see Drupal\slick_browser\Plugin\EntityBrowser\FieldWidgetDisplay\SlickBrowserFile
- * @see Drupal\slick_browser\Plugin\EntityBrowser\FieldWidgetDisplay\SlickBrowserMedia
+ * @see Drupal\slick_browser\SlickBrowser::widgetEntityBrowserFileFormAlter()
+ * @see Drupal\slick_browser\Plugin\EntityBrowser\FieldWidgetDisplay\...
  */
 trait BlazyVideoTrait {
 
