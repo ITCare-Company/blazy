@@ -8,19 +8,20 @@ data usage if they don't browse the whole page.
 FEATURES
 o Supports core Image.
 o Supports core Responsive image.
-o Supports Colorbox/Photobox.
+o Supports Colorbox/Photobox, also multimedia lightboxes.
 o Supports Retina display.
 o Multi-serving images for configurable XS, SM and MD breakpoints, almost
   similar to core Responsive image, only less complex.
 o CSS background lazyloading, see Mason, GridStack, and future Slick carousel.
-o IFRAME urls via Blazy Image with Media, or see Slick Video, Slick Media.
+o IFRAME urls via via custom coded, Blazy Image with Media entity via Video
+  Embed Media, or see Slick Video, Slick Media.
 o Delay loading for below-fold images until 100px (configurable) before they are
   visible at viewport.
 o A simple effortless CSS loading indicator.
+o Views fields for File ER and Media Entity integration, optional.
+o Field formatters: Blazy, and Blazy Image with Media integration, optional.
 o It doesn't take over all images, so it can be enabled as needed via Blazy
   formatter, or its supporting modules.
-o Views fields for File ER and a basic Media Entity integration.
-o Field formatters: Blazy, and a basic Blazy Image with Media integration.
 
 
 REQUIREMENTS
@@ -58,9 +59,13 @@ And load the blazy library accordingly.
 
 MODULES THAT INTEGRATE WITH OR REQUIRE BLAZY
 o GridStack
+o Intense
 o Mason
 o Slick (D8 only by now)
 o Slick Views (D8 only by now)
+o Slick Media
+o Slick Video
+o Slick Browser
 Most duplication efforts from the above modules will be merged into Blazy.
 
 
@@ -70,7 +75,7 @@ https://www.drupal.org/project/lazyloader
 
 
 TROUBLESHOOTING
-Resing is not supported. Just reload the page.
+Resizing is not supported. Just reload the page.
 
 VIEWS INTEGRATION
 Blazy provides two simple Views fields for File ER and Media Entity.
@@ -96,12 +101,7 @@ Add a min-height CSS to individual element to avoid layout reflow if not using
   Both layout reflow and lazyloading delay issues are actually tacken care of
   if Aspect ratio is enabled in the first place.
 
-The blazy.ratio.css adds this by default to prevent collapsing field container:
-  .blazy--ratio {
-    min-width: 50%;
-  }
-
-Adjust, and override it accordingly.
+Adjust, and override it blazy CSS files accordingly.
 
 
 ROADMAP/TODO

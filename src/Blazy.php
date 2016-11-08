@@ -100,6 +100,7 @@ class Blazy implements BlazyInterface {
       }
 
       // Aspect ratio to fix layout reflow with lazyloaded images responsively.
+      // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
       if (!empty($settings['width']) && !empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
         $padding_bottom = isset($settings['padding_bottom']) ? $settings['padding_bottom'] : round((($settings['height'] / $settings['width']) * 100), 2);
         $attributes['style'] = 'padding-bottom: ' . $padding_bottom . '%';
@@ -109,7 +110,7 @@ class Blazy implements BlazyInterface {
       if (!empty($settings['lazy'])) {
         $image['#uri'] = static::PLACEHOLDER;
 
-        // Attach data attributes to either DIV or IMG container.
+        // Attach data attributes to either IMG tag or DIV container.
         if (empty($settings['background']) || empty($settings['blazy'])) {
           self::buildBreakpointAttributes($image_attributes, $settings);
         }
@@ -205,32 +206,34 @@ class Blazy implements BlazyInterface {
         continue;
       }
 
-      $image_styles[$key] = ImageStyle::load($breakpoint['image_style']);
-      $url = $image_styles[$key]->buildUrl($settings['uri']);
+      if ($style = ImageStyle::load($breakpoint['image_style'])) {
+        $url = $style->buildUrl($settings['uri']);
 
-      // Supports multi-breakpoint aspect ratio with irregular sizes.
-      // @todo: Compare to global, and only proceed if different.
-      if (!empty($settings['_breakpoint_ratio'])) {
-        $dimensions = [
-          'width'  => $settings['width'],
-          'height' => $settings['height'],
-        ];
+        // Supports multi-breakpoint aspect ratio with irregular sizes.
+        // @todo: Compare to ::buildDataBlazy(), only proceed if different.
+        if (!empty($settings['_breakpoint_ratio'])) {
+          $dimensions = [
+            'width'  => $settings['width'],
+            'height' => $settings['height'],
+          ];
 
-        $image_styles[$key]->transformDimensions($dimensions, $settings['uri']);
-        if ($width = self::widthFromDescriptors($breakpoint['width'])) {
-          $json[$width] = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
+          $style->transformDimensions($dimensions, $settings['uri']);
+          if ($width = self::widthFromDescriptors($breakpoint['width'])) {
+            $json[$width] = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
+          }
         }
-      }
 
-      $settings['breakpoints'][$key]['url'] = $url;
+        $settings['breakpoints'][$key]['url'] = $url;
 
-      if (!empty($settings['background'])) {
-        $attributes['data-src-' . $key] = $url;
-      }
-      elseif (!empty($breakpoint['width'])) {
-        $width = trim($breakpoint['width']);
-        $width = is_numeric($width) ? $width . 'w' : $width;
-        $srcset[] = $url . ' ' . $width;
+        // @todo: Recheck library if multi-styled BG is still supported anyway.
+        if (!empty($settings['background'])) {
+          $attributes['data-src-' . $key] = $url;
+        }
+        elseif (!empty($breakpoint['width'])) {
+          $width = trim($breakpoint['width']);
+          $width = is_numeric($width) ? $width . 'w' : $width;
+          $srcset[] = $url . ' ' . $width;
+        }
       }
     }
 
@@ -287,9 +290,7 @@ class Blazy implements BlazyInterface {
     }
 
     // Image style modifier can be multi-style images such as GridStack.
-    if (!empty($modifier)) {
-      $style = ImageStyle::load($modifier, 'image_style');
-
+    if (!empty($modifier) && ($style = ImageStyle::load($modifier))) {
       // Image URLs, as opposed to URIs, are expected by lazyloaded images.
       $settings['image_url']  = $style->buildUrl($settings['uri']);
       $settings['cache_tags'] = $style->getCacheTags();
@@ -377,7 +378,7 @@ class Blazy implements BlazyInterface {
    * Implements hook_views_pre_render().
    */
   public static function viewsPreRender($view) {
-    // Load the Blazy library once if any Blazy Views field found.
+    // Load Blazy library once, not per field, if any Blazy Views field found.
     if ($blazy = self::blazyViewsField($view)) {
       $load = $blazy->blazyManager()->attach($blazy->mergedViewsSettings());
 

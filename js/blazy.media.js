@@ -92,10 +92,10 @@
       // pauseOnHover is disabled, and then trigger autoplay.
       if ($slider.length) {
         $slider.addClass('is-paused').slick('slickPause');
-      }
 
-      if ($nester) {
-        $nester.addClass('is-paused').slick('slickPause');
+        if ($nester) {
+          $nester.addClass('is-paused').slick('slickPause');
+        }
       }
 
       t.addClass('is-playing').append(newIframe);
@@ -145,10 +145,12 @@
     t.on('click.media-close', '.media__icon--close', stop);
 
     // Turns off any video if any change to the slider.
-    $slider.on('afterChange', closeOut);
+    if ($slider.length) {
+      $slider.on('afterChange', closeOut);
 
-    if ($nester) {
-      $nester.on('afterChange', closeOut);
+      if ($nester) {
+        $nester.on('afterChange', closeOut);
+      }
     }
   }
 

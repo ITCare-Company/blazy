@@ -102,30 +102,26 @@ class BlazyManager extends BlazyManagerBase {
 
         $point = trim($breakpoint['width']);
 
-        $image_styles[$point] = ImageStyle::load($breakpoint['image_style']);
+        if ($style = ImageStyle::load($breakpoint['image_style'])) {
+          $dimensions = [
+            'width'  => $settings['width'],
+            'height' => $settings['height'],
+          ];
 
-        $dimensions[$point] = [
-          'width'  => $settings['width'],
-          'height' => $settings['height'],
-        ];
+          if (!empty($settings['uri'])) {
+            $style->transformDimensions($dimensions, $settings['uri']);
+          }
 
-        if (!empty($settings['uri'])) {
-          $image_styles[$point]->transformDimensions($dimensions[$point], $settings['uri']);
-        }
+          $width = Blazy::widthFromDescriptors($point);
+          $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
+          $json['dimensions'][$width] = $padding;
 
-        $width = Blazy::widthFromDescriptors($point);
-        $padding = round((($dimensions[$point]['height'] / $dimensions[$point]['width']) * 100), 2);
-        $json['dimensions'][$width] = $padding;
-
-        // Helper for the BG option.
-        if (empty($point)) {
-          $point = $dimensions[$point]['width'];
-        }
-
-        if (!empty($settings['background'])) {
-          $source['width'] = (int) $width;
-          $source['src']   = 'data-src-' . $key;
-          $sources[]       = $source;
+          // Helper for the BG option.
+          if (!empty($settings['background'])) {
+            $source['width'] = (int) $width;
+            $source['src']   = 'data-src-' . $key;
+            $sources[]       = $source;
+          }
         }
 
         // Only set CSS padding-bottom value for the last breakpoint.
@@ -435,7 +431,7 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Returns the entity view, if available.
    */
-  public function getEntityView($entity = NULL, $settings = [], $fallback = []) {
+  public function getEntityView($entity = NULL, $settings = [], $fallback = '') {
     if ($entity && $entity instanceof EntityInterface) {
       $entity_type_id = $entity->getEntityTypeId();
       $view_hook      = $entity_type_id . '_view';

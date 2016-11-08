@@ -7,6 +7,7 @@
  */
 
 [class*="block-grid-"],
+.block [class*="block-grid-"],
 .item-list > [class*="block-grid-"] {
   display: block;
   list-style: none;
@@ -38,7 +39,8 @@
   text-align: center;
 }
 
-.block-grid--centered[class*="block-grid"] > .grid {
+.block-grid--centered[class*="block-grid"] > .grid,
+.item-list > .block-grid--centered[class*="block-grid"] > .grid {
   text-align: left;
   display: inline-block;
   float: none;

@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2016-11-09
+-----------------------------
+- Removed unwanted Grid and Display style options from non-multi-value fields.
+- A few cleanups, typos, descriptions, etc.
+
 Blazy 8.x-1.0-dev, 2016-10-31
 -----------------------------
 - Added support for multi-breakpoint aspect ratio with irregular sizes.

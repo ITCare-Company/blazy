@@ -20,7 +20,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
     $this->imageStyleForm($form, $definition);
     $this->mediaSwitchForm($form, $definition);
 
-    if (isset($definition['grid_form']) && !isset($form['grid'])) {
+    if (!empty($definition['grid_form']) && !isset($form['grid'])) {
       $this->gridForm($form, $definition);
 
       // Blazy doesn't need complex grid with multiple groups.

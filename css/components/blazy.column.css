@@ -5,6 +5,10 @@
  * column-count is the maximum number of columns and column-width is the minimum
  * width for those columns.
  * Gets consistent with Grid Foundation even if non-BEM classes.
+ * Note: The reason for making column-width somewhat flexible is to achieve
+ * scalable designs that can fit many screen sizes. To set an exact column
+ * width, the column gap and the width of the multicol element (assuming
+ * horizontal text) must also be specified.
  * @todo: Consider BEM classes at version 2.x, or so.
  */
 
@@ -12,8 +16,8 @@
 .item-list > [class*="block-column-"] {
   display: block;
   list-style: none;
-  padding: 0;
   margin: 0 auto;
+  padding: 0;
 }
 
 [class*="block-column-"] > .grid {
@@ -29,6 +33,15 @@
 .item-list > [class*="block-column-"] > .grid {
   margin: 0 0 1rem;
   padding: 0;
+}
+
+/** Fix for broken break-inside with extremely tall grid for FF. */
+[class*="block-column-"] .grid__content {
+  display: inline-block;
+  margin: 0;
+  max-width: 100%;
+  vertical-align: top;
+  width: 100%;
 }
 
 /** 480px with 16px base font. */

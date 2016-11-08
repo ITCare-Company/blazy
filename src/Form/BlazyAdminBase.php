@@ -128,7 +128,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['style'] = [
         '#type'          => 'select',
         '#title'         => $this->t('Display style'),
-        '#description'   => $this->t('Only reasonable for unlimited cardinality (multi-value fields). Either <strong>CSS3 Columns</strong> (experimental pure CSS Masonry) or <strong>Grid Foundation</strong> requires <strong>Grid</strong>. Difference: <strong>Columns</strong> is best with irregular image sizes. <strong>Grid</strong> with regular ones. Both do not carousel unless using Slick carousel. Leave empty to use default formatter or style.'),
+        '#description'   => $this->t('Only reasonable for unlimited cardinality (multi-value fields). Either <strong>CSS3 Columns</strong> (experimental pure CSS Masonry) or <strong>Grid Foundation</strong> requires <strong>Grid</strong>. Difference: <strong>Columns</strong> is best with irregular image sizes (scale width, empty height), affects the natural order of grid items. <strong>Grid</strong> with regular cropped ones. Both do not carousel unless using Slick carousel. Leave empty to use default formatter or style.'),
         '#enforced'      => TRUE,
         '#empty_option'  => '- None -',
         '#options'       => [
@@ -148,7 +148,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#enforced'    => TRUE,
         '#description' => $this->t('Skins allow various layouts with just CSS. Some options below depend on a skin. Leave empty to DIY. Or use the provided hook_info() and implement the skin interface to register ones.'),
         '#weight'      => -107,
-        '#access'      => isset($definition['skins']),
       ];
     }
 
@@ -157,7 +156,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'checkbox',
         '#title'       => $this->t('Use CSS background'),
         '#description' => $this->t('Check this to turn the image into CSS background instead. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires a consistent Aspect ratio, otherwise collapsed containers. Unless a min-height is added manually to <strong>.media--background</strong> selector. Not compatible with Responsive image, but compatible with Blazy multi-serving images, of course.'),
-        '#access'      => isset($definition['background']),
         '#weight'      => -98,
       ];
     }
@@ -168,7 +166,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#title'       => $this->t('Layout'),
         '#options'     => isset($definition['layouts']) ? $definition['layouts'] : [],
         '#description' => $this->t('Requires a skin. The builtin layouts affects the entire items uniformly. Leave empty to DIY.'),
-        '#access'      => isset($definition['layouts']),
         '#weight'      => 2,
       ];
     }
@@ -179,7 +176,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#title'       => $this->t('Caption fields'),
         '#options'     => isset($definition['captions']) ? $definition['captions'] : [],
         '#description' => $this->t('Enable any of the following fields as captions. These fields are treated and wrapped as captions.'),
-        '#access'      => isset($definition['captions']),
         '#weight'      => 80,
       ];
     }

@@ -84,6 +84,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase implements Conta
     $field       = $this->fieldDefinition;
     $entity_type = $field->getTargetEntityTypeId();
     $target_type = $this->getFieldSetting('target_type');
+    $multiple    = $field->getFieldStorageDefinition()->isMultiple();
 
     return [
       'background'        => TRUE,
@@ -94,12 +95,12 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase implements Conta
       'entity_type'       => $entity_type,
       'field_name'        => $field->getName(),
       'field_type'        => $field->getType(),
-      'grid_form'         => TRUE,
+      'grid_form'         => $multiple,
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,
       'namespace'         => 'blazy',
       'settings'          => $this->getSettings(),
-      'style'             => $field->getFieldStorageDefinition()->isMultiple(),
+      'style'             => $multiple,
       'target_type'       => $target_type,
       'thumbnail_style'   => TRUE,
     ];

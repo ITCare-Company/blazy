@@ -1172,6 +1172,10 @@ td .form__title {
   margin: 30px auto;
 }
 
+.form--views.form--half {
+  margin-top: 60px;
+}
+
 .form--slick .form-item label {
   line-height: 16px;
 }
@@ -1270,6 +1274,22 @@ td .form__title {
 
   .form--slick.form--wide .form-checkboxes .form-item {
     width: 33.3333%;
+  }
+
+  .field-plugin-settings-editing .form--slick {
+    margin-top: 62px;
+  }
+
+  .scroll .form--slick .form-item--style,
+  .field-plugin-settings-editing .form--slick .form-item--style {
+    background: none;
+    border: 0 ;
+    min-height: 32px;
+    padding: 0;
+    position: absolute;
+    right: 0;
+    top: -42px;
+    z-index: 9;
   }
 }
 

@@ -121,7 +121,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
           '#options'     => $box_captions,
           '#weight'      => -99,
           '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
-          '#description' => $this->t('Automatic will search for Alt text first, then Title text.'),
+          '#description' => $this->t('Automatic will search for Alt text first, then Title text. Try selecting <strong>- None -</strong> first when changing if trouble with form states.'),
         ];
 
         $form['box_caption_custom'] = [
