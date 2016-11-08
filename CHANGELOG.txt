@@ -1,6 +1,7 @@
 
 Blazy 8.x-1.0-dev, 2016-11-09
 -----------------------------
+- #2825706 by mErilainen: Invalid translation language.
 - Removed unwanted Grid and Display style options from non-multi-value fields.
 - A few cleanups, typos, descriptions, etc.
 

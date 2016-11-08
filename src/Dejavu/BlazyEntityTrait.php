@@ -17,13 +17,22 @@ trait BlazyEntityTrait {
    */
   public function getFieldString($entity, $field_name = '', $langcode) {
     $value = '';
-    if ($field_name && isset($entity->{$field_name})) {
-      // @todo check for multilingual if OK without ::getTranslation().
-      // $values = $entity->getTranslation($langcode)->get($field_name)->getValue();
-      $values = $entity->{$field_name}->getValue();
-      $value  = isset($values[0]['uri']) ? $values[0]['uri'] : (isset($values[0]['value']) ? $values[0]['value'] : '');
-      $value  = strip_tags($value);
+    if (empty($field_name)) {
+      return $value;
     }
+
+    if ($entity->hasTranslation($langcode)) {
+      // If the entity has translation, fetch the translated value.
+      $values = $entity->getTranslation($langcode)->get($field_name)->getValue();
+     }
+    else {
+      // Entity doesn't have translation, fetch original value.
+      $values = $entity->get($field_name)->getValue();
+    }
+
+    $value = isset($values[0]['uri']) ? $values[0]['uri'] : (isset($values[0]['value']) ? $values[0]['value'] : '');
+    $value = strip_tags($value);
+
     return trim($value);
   }
 

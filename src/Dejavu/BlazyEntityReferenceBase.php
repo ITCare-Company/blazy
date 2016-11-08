@@ -123,8 +123,15 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     // Title can be plain text, or link field.
     if (!empty($settings['title'])) {
       $field_title = $settings['title'];
-      $has_title = !empty($field_title) && isset($entity->{$field_title});
-      if ($has_title && $title = $entity->getTranslation($langcode)->get($field_title)->getValue()) {
+      if (isset($entity->{$field_title})) {
+        if ($entity->hasTranslation($langcode)) {
+          // If the entity has translation, fetch the translated value.
+          $title = $entity->getTranslation($langcode)->get($field_title)->getValue();
+        }
+        else {
+          // Entity doesn't have translation, fetch original value.
+          $title = $entity->get($field_title)->getValue();
+        }
         if (!empty($title[0]['value']) && !isset($title[0]['uri'])) {
           // Prevents HTML-filter-enabled text from having bad markups (h2 > p),
           // except for a few reasonable tags acceptable within H2 tag.
@@ -235,9 +242,8 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
 
     $this->admin()->buildSettingsForm($element, $definition);
 
-    $layout_description = $element['layout']['#description'];
-
     if (isset($element['layout'])) {
+      $layout_description = $element['layout']['#description'];
       $element['layout']['#description'] = $this->t('Create a dedicated List (text - max number 1) field related to the caption placement to have unique layout per slide with the following supported keys: top, right, bottom, left, center, center-top, etc. Be sure its formatter is Key.') . ' ' . $layout_description;
     }
 
