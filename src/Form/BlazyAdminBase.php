@@ -128,7 +128,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['style'] = [
         '#type'          => 'select',
         '#title'         => $this->t('Display style'),
-        '#description'   => $this->t('Only reasonable for unlimited cardinality (multi-value fields). Either <strong>CSS3 Columns</strong> (experimental pure CSS Masonry) or <strong>Grid Foundation</strong> requires <strong>Grid</strong>. Difference: <strong>Columns</strong> is best with irregular image sizes (scale width, empty height), affects the natural order of grid items. <strong>Grid</strong> with regular cropped ones. Both do not carousel unless using Slick carousel. Leave empty to use default formatter or style.'),
+        '#description'   => $this->t('Either <strong>CSS3 Columns</strong> (experimental pure CSS Masonry) or <strong>Grid Foundation</strong> requires <strong>Grid</strong>. Difference: <strong>Columns</strong> is best with irregular image sizes (scale width, empty height), affects the natural order of grid items. <strong>Grid</strong> with regular cropped ones. Unless required, leave empty to use default formatter, or style.'),
         '#enforced'      => TRUE,
         '#empty_option'  => '- None -',
         '#options'       => [
@@ -136,7 +136,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           'grid'   => $this->t('Grid Foundation'),
         ],
         '#weight'             => -112,
-        '#wrapper_attributes' => ['class' => ['form-item--style']],
+        '#wrapper_attributes' => ['class' => ['form-item--style', 'form-item--tooltip-bottom']],
       ];
     }
 
@@ -310,7 +310,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $range = range(1, 12);
     $grid_options = array_combine($range, $range);
 
-    $header = $this->t('Group individual items as block grid?<small>Depends on the <strong>Display style</strong>.</small>');
+    $header = $this->t('Group individual items as block grid<small>Depends on the <strong>Display style</strong>.</small>');
     $form['grid_header'] = [
       '#type'   => 'item',
       '#markup' => '<h3 class="form__title">' . $header . '</h3>',
@@ -320,7 +320,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       '#type'        => 'select',
       '#title'       => $this->t('Grid large'),
       '#options'     => $grid_options,
-      '#description' => $this->t('The amount of block grid columns for large monitors 64.063em - 90em. <br /><strong>Requires</strong>:<ol><li>Visible items,</li><li>Skin Grid for starter,</li><li>A reasonable amount of contents.</li></ol>Leave empty to DIY, or to not build grids.'),
+      '#description' => $this->t('Select <strong>- None -</strong> first if trouble with changing form states. The amount of block grid columns for large monitors 64.063em+. <br /><strong>Requires</strong>:<ol><li>Visible items,</li><li>Skin Grid for starter,</li><li>A reasonable amount of contents.</li></ol>Leave empty to DIY, or to not build grids.'),
       '#enforced'    => TRUE,
     ];
 
@@ -335,7 +335,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       '#type'        => 'select',
       '#title'       => $this->t('Grid small'),
       '#options'     => $grid_options,
-      '#description' => $this->t('The amount of block grid columns for small devices 0 - 40em.'),
+      '#description' => $this->t('The amount of block grid columns for small devices 0 - 40em. Specific to <strong>CSS3 Columns</strong>, only 1 - 2 column is respected due to small real estate at smallest device.'),
     ];
 
     $form['visible_items'] = [
@@ -373,11 +373,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns shared ending form elements across field formatter and Views.
    */
   public function closingForm(array &$form, $definition = []) {
-    $form['current_view_mode'] = [
-      '#type'          => 'hidden',
-      '#default_value' => isset($definition['current_view_mode']) ? $definition['current_view_mode'] : '_custom',
-      '#weight'        => 120,
-    ];
+    if (isset($definition['current_view_mode'])) {
+      $form['current_view_mode'] = [
+        '#type'          => 'hidden',
+        '#default_value' => isset($definition['current_view_mode']) ? $definition['current_view_mode'] : '_custom',
+        '#weight'        => 120,
+      ];
+    }
 
     $this->finalizeForm($form, $definition);
   }

@@ -20,13 +20,17 @@
   padding: 0;
 }
 
+/** https://developer.mozilla.org/en-US/docs/Web/CSS/break-inside */
 [class*="block-column-"] > .grid {
   display: block;
   float: none;
   height: auto;
-  -webkit-column-break-inside: avoid;
-  page-break-inside: avoid;
-  break-inside: avoid;
+  overflow: hidden;
+  -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
+  page-break-inside: avoid; /* Deprecated Firefox, works at 49.0.2 */
+  -moz-column-break-inside: avoid; /* Current Firefox, but no joy */
+  break-inside: avoid; /* IE 10+ */
+  break-inside: avoid-column;
 }
 
 [class*="block-column-"] > .grid ,

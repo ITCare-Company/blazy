@@ -24,15 +24,10 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
       $this->gridForm($form, $definition);
 
       // Blazy doesn't need complex grid with multiple groups.
-      if ($definition['namespace'] == 'blazy') {
-        unset($form['preserve_keys'], $form['visible_items']);
+      unset($form['preserve_keys'], $form['visible_items']);
 
-        if (isset($form['grid'])) {
-          $form['grid']['#description'] = $this->t('The amount of block grid columns for large monitors 64.063em - 90em. <br /><strong>Requires</strong>:<ol><li>Display style.</li><li>A reasonable amount of contents.</li></ol>Leave empty to DIY, or to not build grids.');
-        }
-        if (isset($form['grid_small']['#description'])) {
-          $form['grid_small']['#description'] .= ' ' . $this->t('Specific to <strong>CSS3 Cclumns</strong>, only 1 - 2 column is respected due to small real estate at smallest device.');
-        }
+      if (isset($form['grid'])) {
+        $form['grid']['#description'] = $this->t('The amount of block grid columns for large monitors 64.063em+. <br /><strong>Requires</strong>:<ol><li>Display style.</li><li>A reasonable amount of contents.</li></ol>Leave empty to DIY, or to not build grids.');
       }
     }
 
@@ -41,7 +36,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
     }
 
     if (isset($form['responsive_image_style'])) {
-      $form['responsive_image_style']['#description'] = $this->t('Only expects multi-serving IMG, but not PICTURE element. Not compatible with below breakpoints, aspect ratio, yet. However it can still lazyload by checking <strong>Responsive image</strong> option via Blazy UI. Leave empty to disable.');
+      $form['responsive_image_style']['#description'] = $this->t('Not compatible with below breakpoints, aspect ratio, yet. However it can still lazyload by checking <strong>Responsive image</strong> option via Blazy UI. Leave empty to disable.');
 
       if ($this->blazyManager()->getModuleHandler()->moduleExists('blazy_ui')) {
         $form['responsive_image_style']['#description'] .= ' ' . $this->t('<a href=":url" target="_blank">Enable lazyloading Responsive image</a>.', [':url' => Url::fromRoute('blazy.settings')->toString()]);

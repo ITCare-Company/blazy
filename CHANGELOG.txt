@@ -1,4 +1,10 @@
 
+Blazy 8.x-1.0-dev, 2016-11-10
+-----------------------------
+- Added Views style plugin Blazy Grid.
+- Added [data-blazy] attribute to Views container if having Blazy Views fields.
+- Fixed for Blazy regression being overriden by empty breakpoints.
+
 Blazy 8.x-1.0-dev, 2016-11-09
 -----------------------------
 - A few more cleanups.

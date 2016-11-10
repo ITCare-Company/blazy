@@ -49,6 +49,9 @@ trait BlazyFormatterTrait {
     $settings = $build['settings'];
     unset($build['settings']);
 
+    // Supports Blazy multi-breakpoint images if provided.
+    $this->blazyManager()->isBlazy($settings, $build[0]['#build']);
+
     // Build grid if provided.
     if (!empty($settings['_grid'])) {
       $build = $this->blazyManager->buildGrid($build, $settings);
@@ -109,10 +112,6 @@ trait BlazyFormatterTrait {
       $build[$delta] = $this->blazyManager()->getImage($box);
       unset($box);
     }
-
-    // Supports Blazy multi-breakpoint images if provided.
-    $item = isset($build[0]['content']['#build']) ? $build[0]['content']['#build'] : $build[0]['#build'];
-    $this->blazyManager()->isBlazy($build['settings'], $item);
   }
 
   /**

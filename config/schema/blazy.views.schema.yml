@@ -11,6 +11,9 @@ blazy_views_field:
     ratio:
       type: string
       label: 'Aspect ratio'
+    thumbnail_style:
+      type: string
+      label: 'Thumbnail style'
     view_mode:
       type: string
       label: 'View mode'
@@ -20,3 +23,7 @@ views.field.blazy_file:
 
 views.field.blazy_media:
   type: blazy_views_field
+
+views.style.blazy:
+  type: blazy_base
+  label: 'Blazy Grid'

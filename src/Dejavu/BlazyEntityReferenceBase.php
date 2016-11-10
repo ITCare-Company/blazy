@@ -75,6 +75,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     $element   = ['settings' => $settings];
 
     // Built early before stage to allow custom highres video thumbnail later.
+    // Implementor must import: Drupal\blazy\Dejavu\BlazyVideoTrait
     $this->getMediaItem($element, $entity);
 
     // Build the main stage.
@@ -160,7 +161,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     // Link, if so configured.
     if (!empty($settings['link'])) {
       $field_link = $settings['link'];
-      if ($field_link && isset($entity->{$field_link})) {
+      if (isset($entity->{$field_link})) {
         $links = $this->getFieldRenderable($entity, $field_link, $view_mode);
 
         // Only simplify markups for known formatters registered by link.module.
@@ -311,7 +312,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
   /**
    * Collects media definitions.
    *
-   * @todo: Drop to re-use BlazyEntityTrait::getMediaItem() for everything else.
+   * @todo: Drop to re-use BlazyVideoTrait::getMediaItem() for everything else.
    */
   public function buildMedia(array &$settings = [], $entity, $langcode) {}
 

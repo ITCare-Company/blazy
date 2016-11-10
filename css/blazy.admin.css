@@ -1280,7 +1280,7 @@ td .form__title {
     margin-top: 62px;
   }
 
-  .scroll .form--slick .form-item--style,
+  .scroll .form--slick.form--style .form-item--style,
   .field-plugin-settings-editing .form--slick .form-item--style {
     background: none;
     border: 0 ;

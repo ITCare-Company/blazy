@@ -4,6 +4,7 @@ namespace Drupal\blazy;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Template\Attribute;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Unicode;
@@ -384,8 +385,8 @@ class Blazy implements BlazyInterface {
 
       // Enforce Blazy to work with hidden element such as with EB selection.
       $load['drupalSettings']['blazy']['loadInvisible'] = TRUE;
-      $attachments = isset($view->element['#attached']) ? NestedArray::mergeDeep($view->element['#attached'], $load) : $load;
-      $view->element['#attached'] = $attachments;
+      $view->element['#attached'] = isset($view->element['#attached']) ? NestedArray::mergeDeep($view->element['#attached'], $load) : $load;
+      $view->element['#attributes']['data-blazy'] = TRUE;
     }
   }
 
@@ -403,6 +404,24 @@ class Blazy implements BlazyInterface {
       }
     }
     return FALSE;
+  }
+
+  /**
+   * Implements hook_field_formatter_info_alter().
+   */
+  public static function fieldFormatterInfoAlter(array &$info) {
+    // Supports optional Media Entity via VEM within VEF if available.
+    if (function_exists('video_embed_media_media_bundle_insert')) {
+      $info['blazy_file'] = [
+        'id'          => 'blazy_file',
+        'label'       => new TranslatableMarkup('Blazy Image with Media'),
+        'description' => new TranslatableMarkup('Display the images associated to VEM/ME as videos.'),
+        'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter',
+        'field_types' => ['entity_reference', 'image'],
+        'quickedit'   => ['editor' => 'disabled'],
+        'provider'    => 'blazy',
+      ];
+    }
   }
 
   /**

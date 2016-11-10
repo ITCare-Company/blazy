@@ -35,7 +35,9 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     // Identify that Blazy can be activated only by breakpoints.
-    $settings['blazy'] = !empty($settings['breakpoints']);
+    if (empty($settings['blazy'])) {
+      $settings['blazy'] = !empty($settings['breakpoints']);
+    }
   }
 
   /**
@@ -50,13 +52,14 @@ class BlazyManager extends BlazyManagerBase {
   public function isBlazy(array &$settings = [], $item = []) {
     // Retrieves Blazy formatter related settings from within Views style.
     $item_id = $settings['item_id'];
+    $content = isset($item[$item_id]) ? $item[$item_id] : $item;
 
     // 1. Blazy formatter within Views fields by supported modules.
     // Image/Media related slick formatters, e.g.:
     // \Drupal\slick\Plugin\Field\FieldFormatter\SlickFileFormatterBase.
     // \Drupal\blazy\Dejavu\BlazyEntityReferenceBase
     if (isset($item['settings'])) {
-      $blazy = isset($item[$item_id]['#build']['settings']) ? $item[$item_id]['#build']['settings'] : [];
+      $blazy = isset($content['#build']['settings']) ? $content['#build']['settings'] : [];
 
       // Allows breakpoints overrides such as multi-styled images by GridStack.
       if (empty($settings['breakpoints']) && isset($blazy['breakpoints'])) {
@@ -70,7 +73,7 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     // 2. Blazy Views fields by supported modules.
-    if (isset($item[$item_id]['#view']) && ($view = $item[$item_id]['#view'])) {
+    if (isset($content['#view']) && ($view = $content['#view'])) {
       if ($blazy_field = Blazy::blazyViewsField($view)) {
         $settings = array_merge(array_filter($blazy_field->mergedViewsSettings()), array_filter($settings));
       }
@@ -365,12 +368,19 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Returns items as a grid display.
    */
-  public function buildGrid($items = [], array &$settings) {
+  public function buildGrid($items = [], $settings = []) {
     $grids = [];
     foreach ($items as $delta => $item) {
       // @todo support non-Blazy which normally uses item_id.
       $item_settings = isset($item['#build']['settings']) ? $item['#build']['settings'] : $settings;
       $item_settings['delta'] = $delta;
+
+      // Supports complex fields such as Views, when theme_blazy() is absent.
+      // @todo: Decide whether to use this consistently for theme_blazy() too.
+      if (!isset($item['#build'])) {
+        $item['#theme_wrappers'][] = 'container';
+        $item['#attributes']['class'][] = 'grid__content';
+      }
 
       $grid = [];
       $grid['content'] = $item;
