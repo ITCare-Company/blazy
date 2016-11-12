@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2016-11-12
+-----------------------------
+- #2752865 by tjwelde, lilee, killua99: Support PICTURE element for the
+  responsive image.
+
 Blazy 8.x-1.0-dev, 2016-11-10
 -----------------------------
 - Triggered packager.

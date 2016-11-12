@@ -102,10 +102,16 @@ class Blazy implements BlazyInterface {
 
       // Aspect ratio to fix layout reflow with lazyloaded images responsively.
       // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
-      if (!empty($settings['width']) && !empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
-        $padding_bottom = isset($settings['padding_bottom']) ? $settings['padding_bottom'] : round((($settings['height'] / $settings['width']) * 100), 2);
-        $attributes['style'] = 'padding-bottom: ' . $padding_bottom . '%';
-        $settings['_breakpoint_ratio'] = $settings['ratio'];
+      if (!empty($settings['width'])) {
+        if (!empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
+          $padding_bottom = isset($settings['padding_bottom']) ? $settings['padding_bottom'] : round((($settings['height'] / $settings['width']) * 100), 2);
+          $attributes['style'] = 'padding-bottom: ' . $padding_bottom . '%';
+          $settings['_breakpoint_ratio'] = $settings['ratio'];
+        }
+
+        // Only output dimensions for non-responsive images.
+        $image_attributes['height'] = $settings['height'];
+        $image_attributes['width']  = $settings['width'];
       }
 
       if (!empty($settings['lazy'])) {
@@ -136,9 +142,7 @@ class Blazy implements BlazyInterface {
 
     // Image is optional for Video, and Blazy CSS background images.
     if ($image) {
-      $image_attributes['height'] = $settings['height'];
-      $image_attributes['width']  = $settings['width'];
-      $image_attributes['alt']    = isset($item->alt) ? $item->alt : NULL;
+      $image_attributes['alt'] = isset($item->alt) ? $item->alt : NULL;
 
       // Do not output an empty 'title' attribute.
       if (isset($item->title) && (Unicode::strlen($item->title) != 0)) {
