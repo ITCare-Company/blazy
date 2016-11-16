@@ -2,6 +2,9 @@ blazy_views_field:
   type: views_field
   label: 'Blazy'
   mapping:
+    box_style:
+      type: string
+      label: 'Lightbox image style'
     image_style:
       type: string
       label: 'Image style'

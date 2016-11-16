@@ -6,6 +6,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\Component\Utility\Xss;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyGrid;
 
 /**
  * A Trait common for blazy image and file ER formatters.
@@ -50,11 +51,11 @@ trait BlazyFormatterTrait {
     unset($build['settings']);
 
     // Supports Blazy multi-breakpoint images if provided.
-    $this->blazyManager()->isBlazy($settings, $build[0]['#build']);
+    $this->blazyManager->isBlazy($settings, $build[0]['#build']);
 
     // Build grid if provided.
-    if (!empty($settings['_grid'])) {
-      $build = $this->blazyManager->buildGrid($build, $settings);
+    if ($settings['_grid']) {
+      $build = BlazyGrid::buildGrid($build, $settings);
     }
     else {
       $build['#blazy'] = $settings;
@@ -109,7 +110,7 @@ trait BlazyFormatterTrait {
       }
 
       // Image with grid, responsive image, lazyLoad, and lightbox supports.
-      $build[$delta] = $this->blazyManager()->getImage($box);
+      $build[$delta] = $this->blazyManager->getImage($box);
       unset($box);
     }
   }

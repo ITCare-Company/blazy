@@ -38,12 +38,15 @@ class Blazy implements BlazyInterface {
     $image_attributes = &$variables['item_attributes'];
 
     // Provides sensible defaults to shut up notices when lacking of settings.
-    foreach (['embed_url', 'icon', 'image_style', 'media_switch', 'player', 'ratio', 'scheme', 'type'] as $key) {
+    foreach (['embed_url', 'icon', 'image_style', 'media_switch', 'player', 'scheme'] as $key) {
       $settings[$key] = isset($settings[$key]) ? $settings[$key] : '';
     }
 
     // Supports GridStack which can have multiple image styles per image.
     $settings['grid_style'] = empty($settings['grid_style']) ? $settings['image_style'] : $settings['grid_style'];
+    $settings['type'] = empty($settings['type']) ? 'image' : $settings['type'];
+    $settings['ratio']   = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
+    $settings['item_id'] = empty($settings['item_id']) ? 'blazy' : $settings['item_id'];
     self::buildUrl($settings, $item, $settings['grid_style']);
 
     // Do not proceed if no URI is provided.
@@ -51,14 +54,6 @@ class Blazy implements BlazyInterface {
     // always called for different purposes prior to arriving at theme_blazy().
     if (empty($settings['uri'])) {
       return;
-    }
-
-    // Do this here because Twig clean_class converts colon to underscore.
-    $settings['ratio']   = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
-    $settings['item_id'] = empty($settings['item_id']) ? 'blazy' : $settings['item_id'];
-
-    if (empty($settings['icon']) && !empty($settings['lightbox'])) {
-      $settings['icon'] = ['#markup' => '<span class="media__icon media__icon--litebox"></span>'];
     }
 
     // Supports non-blazy formatter, that is, responsive image theme.
@@ -72,8 +67,9 @@ class Blazy implements BlazyInterface {
     // contain image_style which is not expected by responsive_image.
     $image['#uri'] = empty($settings['image_url']) ? $settings['uri'] : $settings['image_url'];
 
+    // Thumbnails.
+    // With CSS background, IMG may be empty, add thumbnail to the container.
     if (!empty($settings['thumbnail_style'])) {
-      // With CSS background, IMG may be empty, add thumbnail to the container.
       $attributes['data-thumb'] = ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
     }
 
@@ -135,7 +131,7 @@ class Blazy implements BlazyInterface {
 
         // Multi-breakpoint aspect ratio.
         if (!empty($settings['_breakpoint_dimensions'])) {
-          $attributes['data-dimensions'] = $settings['_breakpoint_dimensions'];
+          $attributes['data-dimensions'] = Json::encode($settings['_breakpoint_dimensions']);
         }
       }
     }
@@ -187,7 +183,7 @@ class Blazy implements BlazyInterface {
    * Provides re-usable breakpoint data-attributes.
    *
    * $settings['breakpoints'] must contain: xs, sm, md, lg breakpoints with
-   * the expected keys: width, image_style, url.
+   * the expected keys: width, image_style.
    *
    * @see self::buildAttributes()
    * @see BlazyManager::buildDataBlazy()
@@ -256,7 +252,7 @@ class Blazy implements BlazyInterface {
     }
 
     if ($json) {
-      $settings['_breakpoint_dimensions'] = Json::encode($json);
+      $settings['_breakpoint_dimensions'] = $json;
     }
   }
 
@@ -289,9 +285,25 @@ class Blazy implements BlazyInterface {
       $settings['height'] = isset($item->height) ? $item->height : NULL;
 
       // No file API, no $item, with unmanaged VEF image without image_style.
+      // @todo: Decide to abandon, as videos without image style is edge case.
       if (empty($modifier) || empty($settings['width'])) {
         list($settings['width'], $settings['height']) = getimagesize($settings['image_url']);
       }
+    }
+
+    // Lingtboxes.
+    if (!empty($settings['lightbox'])) {
+      $settings['icon'] = empty($settings['icon']) ? ['#markup' => '<span class="media__icon media__icon--litebox"></span>'] : $settings['icon'];
+
+      $dimensions = ['width' => $settings['width'], 'height' => $settings['height']];
+      if (!empty($settings['box_style'])) {
+        $box_style = ImageStyle::load($settings['box_style']);
+        $box_style->transformDimensions($dimensions, $settings['uri']);
+      }
+
+      // Photoswipe needs these for the [data-size] attributes.
+      $settings['box_width'] = $dimensions['width'];
+      $settings['box_height'] = $dimensions['height'];
     }
 
     // Image style modifier can be multi-style images such as GridStack.
@@ -301,6 +313,7 @@ class Blazy implements BlazyInterface {
       $settings['cache_tags'] = $style->getCacheTags();
 
       // Unless reset for multi-styles, or top-level element, set em once.
+      // @todo: Recheck, this assumes a cropped image style, not scaled.
       if (empty($settings['_dimensions']) || isset($settings['_dimensions_reset'])) {
         $dimensions = [
           'width'  => $settings['width'],
@@ -316,7 +329,7 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Used at top-level element: Gets the numeric "width" part from a descriptor.
+   * Gets the numeric "width" part from a descriptor.
    */
   public static function widthFromDescriptors($descriptor = '') {
     // Dynamic multi-serving aspect ratio with backward compatibility.

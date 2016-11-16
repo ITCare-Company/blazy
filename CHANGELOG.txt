@@ -1,4 +1,14 @@
 
+Blazy 8.x-1.0-dev, 2016-11-17
+-----------------------------
+- Made lightboxes easier to extend.
+- Decoupled grid utilities into \Drupal\blazy\BlazyGrid.
+- Decoupled lightbox utilities into \Drupal\blazy\BlazyLightbox.
+- Added missing Lightbox image style for Views field.
+- Moved BlazyAdminFormatterBase::mediaSwitchForm() into BlazyAdminBase to re-use
+  for Views fields outside field formatters.
+- Fixed for regression for when no Image style is provided.
+
 Blazy 8.x-1.0-dev, 2016-11-12
 -----------------------------
 - #2752865 by tjwelde, lilee, killua99: Support PICTURE element for the

@@ -107,6 +107,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    */
   public function getDefaultValues() {
     return [
+      'box_style'       => '',
       'image_style'     => '',
       'media_switch'    => 'media',
       'ratio'           => 'fluid',

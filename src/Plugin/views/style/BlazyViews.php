@@ -6,6 +6,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\Dejavu\BlazyDefault;
+use Drupal\blazy\BlazyGrid;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -118,8 +119,8 @@ class BlazyViews extends StylePluginBase {
       }
 
       // Supports Blazy formatter multi-breakpoint images if available.
-      $this->blazyManager()->isBlazy($settings, $items[0]);
-      $elements = $this->blazyManager->buildGrid($items, $settings);
+      $this->blazyManager->isBlazy($settings, $items[0]);
+      $elements = BlazyGrid::buildGrid($items, $settings);
       $elements['#attached'] = $this->blazyManager->attach($settings);
 
       unset($this->view->row_index, $items);

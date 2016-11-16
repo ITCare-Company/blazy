@@ -138,7 +138,7 @@
     // Remove iframe to avoid browser requesting them till clicked.
     iframe.remove();
 
-    // Play the media player.
+    // Plays the media player.
     t.on('click.media-play', '.media__icon--play', play);
 
     // Closes the video.

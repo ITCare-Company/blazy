@@ -33,6 +33,11 @@ body.path-admin .form--slick *,
   clear: both;
 }
 
+.form--slick ~ .form-actions {
+  float: left;
+  width: 100%;
+}
+
 .form--half,
 .form--slick .vertical-tabs {
   border: 1px solid #dbe1e9;

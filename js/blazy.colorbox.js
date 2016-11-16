@@ -1,7 +1,5 @@
 /**
  * @file
- *
- * @todo bring in a little portion of Slick carousel goodness for easy styling.
  */
 
 (function ($, Drupal, drupalSettings, window) {

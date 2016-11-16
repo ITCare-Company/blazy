@@ -212,10 +212,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['sizes']['#states'] = $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition);
     }
 
-    if (isset($form['image_style']) && isset($form['background'])) {
-      $form['image_style']['#description'] .= ' ' . $this->t('If "Use CSS background" enabled, thia is the first loaded for the largest monitor.');
-    }
-
     $form['breakpoints'] = [
       '#type'       => 'table',
       '#tree'       => TRUE,
@@ -388,14 +384,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns simple form elements common for Views field, EB widget, formatters.
    */
   public function baseForm($definition = []) {
-    $is_colorbox = function_exists('colorbox_theme');
-    $is_photobox = function_exists('photobox_theme');
-    $photobox    = \Drupal::root() . '/libraries/photobox/photobox/jquery.photobox.js';
-    $settings    = isset($definition['settings']) ? $definition['settings'] : [];
-
-    if (is_file($photobox)) {
-      $is_photobox = TRUE;
-    }
+    $settings     = isset($definition['settings']) ? $definition['settings'] : [];
+    $lightboxes   = $this->blazyManager->getLightboxes();
+    $image_styles = image_style_options(FALSE);
+    $is_colorbox  = function_exists('colorbox_theme');
+    $is_photobox  = function_exists('photobox_theme');
 
     $form = [];
     $form['image_style'] = [
@@ -414,24 +407,35 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           'content' => $this->t('Image linked to content'),
         ],
         '#empty_option' => $this->t('- None -'),
-        '#description'  => $this->t('May depend on the enabled supported modules: colorbox, photobox. Be sure to add Thumbnail style if using Photobox. Try selecting "<strong>- None -</strong>" first before changing if trouble with this complex form states.'),
+        '#description'  => $this->t('May depend on the enabled supported or supportive modules: colorbox, photobox etc. Be sure to add Thumbnail style if using Photobox. Try selecting "<strong>- None -</strong>" first before changing if trouble with this complex form states.'),
         '#weight'       => -99,
       ];
 
       // Optional lightbox integration.
-      if ($is_colorbox || $is_photobox || !empty($definition['lightbox'])) {
-        if ($is_colorbox) {
-          $form['media_switch']['#options']['colorbox'] = $this->t('Image to colorbox');
+      if (!empty($lightboxes)) {
+        foreach ($lightboxes as $lightbox) {
+          $form['media_switch']['#options'][$lightbox] = $this->t('Image to @lightbox', ['@lightbox' => $lightbox]);
         }
 
-        if ($is_photobox) {
-          $form['media_switch']['#options']['photobox'] = $this->t('Image to photobox');
+        // Optional lightbox integration.
+        if ($is_colorbox || $is_photobox || isset($definition['lightbox'])) {
+          // Re-use the same image style for both lightboxes.
+          $form['box_style'] = [
+            '#type'    => 'select',
+            '#title'   => $this->t('Lightbox image style'),
+            '#options' => $image_styles,
+            '#weight'  => -99,
+          ];
+
+          if (!isset($definition['lightbox'])) {
+            $form['box_style']['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition);
+          }
         }
       }
 
       // Adds common supported entities for media integration.
       if (!empty($definition['multimedia'])) {
-        $form['media_switch']['#options']['media'] = $this->t('Image to iframe');
+        $form['media_switch']['#options']['media'] = $this->t('Image to iFrame');
       }
 
       // http://en.wikipedia.org/wiki/List_of_common_resolutions
@@ -472,7 +476,102 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
     }
 
+    $this->blazyManager->getModuleHandler()->alter('blazy_base_form_element', $form, $definition);
+
     return $form;
+  }
+
+  /**
+   * Returns re-usable media switch form elements.
+   */
+  public function mediaSwitchForm(array &$form, $definition = []) {
+    $is_colorbox  = function_exists('colorbox_theme');
+    $is_photobox  = function_exists('photobox_theme');
+    $is_token     = function_exists('token_theme');
+    $image_styles = image_style_options(FALSE);
+    $photobox     = \Drupal::root() . '/libraries/photobox/photobox/jquery.photobox.js';
+    $settings     = isset($definition['settings']) ? $definition['settings'] : [];
+
+    if (is_file($photobox)) {
+      $is_photobox = TRUE;
+    }
+
+    if (isset($definition['media_switch_form'])) {
+      $form['media_switch'] = $this->baseForm($definition)['media_switch'];
+      $form['media_switch']['#prefix'] = '<h3 class="form__title">' . $this->t('Media switcher') . '</h3>';
+      $form['ratio'] = $this->baseForm($definition)['ratio'];
+    }
+
+    if (isset($definition['multimedia'])) {
+      $form['iframe_lazy'] = [
+        '#type'        => 'checkbox',
+        '#title'       => $this->t('Lazy iframe'),
+        '#description' => $this->t('Check to make the video/audio iframes truly lazyloaded, and speed up loading time. Depends on JS enabled at client side. <a href=":more" target="_blank">Read more</a> to <a href=":url" target="_blank">decide</a>.', [':more' => '//goo.gl/FQLFQ6', ':url' => '//goo.gl/f78pMl']),
+        '#weight'      => -96,
+        '#states'      => $this->getState(static::STATE_IFRAME_ENABLED, $definition),
+      ];
+    }
+
+    if (!empty($definition['target_type']) && isset($definition['view_mode'])) {
+      $form['view_mode'] = $this->baseForm($definition)['view_mode'];
+    }
+
+    // Optional lightbox integration.
+    if ($is_colorbox || $is_photobox || isset($definition['lightbox'])) {
+      $form['box_style'] = $this->baseForm($definition)['box_style'];
+
+      $box_captions = [
+        'auto'         => $this->t('Automatic'),
+        'alt'          => $this->t('Alt text'),
+        'title'        => $this->t('Title text'),
+        'alt_title'    => $this->t('Alt and Title'),
+        'title_alt'    => $this->t('Title and Alt'),
+        'entity_title' => $this->t('Content title'),
+        'custom'       => $this->t('Custom'),
+      ];
+
+      if (isset($definition['box_captions'])) {
+        $form['box_caption'] = [
+          '#type'        => 'select',
+          '#title'       => $this->t('Lightbox caption'),
+          '#options'     => $box_captions,
+          '#weight'      => -99,
+          '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
+          '#description' => $this->t('Automatic will search for Alt text first, then Title text. Try selecting <strong>- None -</strong> first when changing if trouble with form states.'),
+        ];
+
+        $form['box_caption_custom'] = [
+          '#title'       => $this->t('Lightbox custom caption'),
+          '#type'        => 'textfield',
+          '#weight'      => -99,
+          '#states'      => $this->getState(static::STATE_LIGHTBOX_CUSTOM, $definition),
+          '#description' => $this->t('Multi-value rich text field will be mapped to each image by its delta.'),
+        ];
+
+        if ($is_token) {
+          $types = isset($definition['entity_type']) ? [$definition['entity_type']] : [];
+          $types = isset($definition['target_type']) ? array_merge($types, [$definition['target_type']]) : $types;
+          $form['box_caption_custom']['#field_suffix'] = [
+            '#theme'       => 'token_tree_link',
+            '#text'        => $this->t('Tokens'),
+            '#token_types' => $types,
+          ];
+        }
+        else {
+          $form['box_caption_custom']['#description'] .= ' ' . $this->t('Install Token module to browse available tokens.');
+        }
+      }
+
+      if (isset($definition['multimedia'])) {
+        $form['dimension'] = [
+          '#type'        => 'textfield',
+          '#title'       => $this->t('Lightbox media dimension'),
+          '#description' => $this->t('Use WIDTHxHEIGHT, e.g.: 640x360. This allows video dimensions for the lightbox to be different from the lightbox image style.'),
+          '#weight'      => -99,
+          '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
+        ];
+      }
+    }
   }
 
   /**
@@ -550,6 +649,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     if ($admin_css) {
       $form['closing']['#attached']['library'][] = 'blazy/admin';
     }
+
+    $this->blazyManager->getModuleHandler()->alter('blazy_complete_form_element', $form, $definition);
   }
 
   /**
@@ -598,6 +699,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    *   A corresponding form API state.
    */
   protected function getState($state, $definition = []) {
+    $lightboxes = [];
+    foreach ($this->blazyManager->getLightboxes() as $key => $lightbox) {
+      $lightboxes[$key]['value'] = $lightbox;
+    }
+
     $states = [
       static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED => [
         'visible' => [
@@ -606,13 +712,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ],
       static::STATE_LIGHTBOX_ENABLED => [
         'visible' => [
-          'select[name*="[media_switch]"]' => [['value' => 'colorbox'], ['value' => 'photobox']],
+          'select[name*="[media_switch]"]' => $lightboxes,
         ],
       ],
       static::STATE_LIGHTBOX_CUSTOM => [
         'visible' => [
           'select[name$="[box_caption]"]' => ['value' => 'custom'],
-          'select[name*="[media_switch]"]' => [['value' => 'colorbox'], ['value' => 'photobox']],
+          'select[name*="[media_switch]"]' => $lightboxes,
         ],
       ],
       static::STATE_IFRAME_ENABLED => [

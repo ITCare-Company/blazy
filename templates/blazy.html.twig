@@ -70,7 +70,7 @@
       <a href="{{ url }}"{{ url_attributes }}>{{ media }}</a>
 
       {# Allows fieldable captions with A tag, such as social share. #}
-      {% if captions and captions.lightbox is defined %}
+      {% if captions and captions.lightbox is not empty %}
         <div class="litebox-caption visually-hidden">
           {{ captions.lightbox }}
         </div>

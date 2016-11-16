@@ -145,7 +145,7 @@ class BlazyManager extends BlazyManagerBase {
     $json['ratio'] = empty($settings['ratio']) ? FALSE : $settings['ratio'];
 
     // Clean up URIs since this is meant for the top-level containing element.
-    // unset($settings['uri'], $settings['image_url']);
+    unset($settings['uri'], $settings['image_url']);
     $settings['blazy_data'] = $json;
   }
 
@@ -235,13 +235,9 @@ class BlazyManager extends BlazyManagerBase {
       if ($settings['media_switch'] == 'content' && !empty($settings['absolute_path'])) {
         $element['#url'] = $settings['absolute_path'];
       }
-      elseif (strpos($settings['media_switch'], 'box') !== FALSE) {
+      elseif ($this->getLightboxes() && in_array($settings['media_switch'], $this->getLightboxes())) {
         $this->getMediaSwitch($element);
       }
-    }
-
-    if (!empty($settings['_grid'])) {
-      $element['#wrapper_attributes']['class'][] = 'grid__content';
     }
 
     return $element;
@@ -251,191 +247,7 @@ class BlazyManager extends BlazyManagerBase {
    * Gets media switch options: colorbox, photobox, not content nor iframe, etc.
    */
   public function getMediaSwitch(array &$element = []) {
-    $item     = $element['#item'];
-    $settings = $element['#settings'];
-    $type     = isset($settings['type']) ? $settings['type'] : 'image';
-    $uri      = $settings['uri'];
-    $switch   = $settings['media_switch'];
-    $multiple = !empty($settings['count']) && $settings['count'] > 1;
-
-    // Provide relevant URL if it is a lightbox.
-    $json = ['type' => $type];
-    $url_attributes = [];
-
-    // If it is a video/audio, otherwise image to image.
-    if (!empty($settings['embed_url'])) {
-      $url = $settings['embed_url'];
-
-      $json['scheme'] = $settings['scheme'];
-      $json['width']  = 640;
-      $json['height'] = 360;
-
-      // Force autoplay for media URL on lightboxes, saving another click.
-      if ($json['scheme'] == 'soundcloud') {
-        if (strpos($url, 'auto_play') === FALSE || strpos($url, 'auto_play=false') !== FALSE) {
-          $url = strpos($url, '?') === FALSE ? $url . '?auto_play=true' : $url . '&auto_play=true';
-        }
-      }
-      elseif (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
-        $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
-      }
-
-      // Provides custom lightbox media dimension if so configured.
-      if (!empty($settings['dimension'])) {
-        list($json['width'], $json['height']) = array_pad(array_map('trim', explode("x", $settings['dimension'], 2)), 2, NULL);
-      }
-
-      if ($switch == 'photobox') {
-        $url_attributes['rel'] = 'video';
-      }
-    }
-    else {
-      $url = empty($settings['box_style']) ? file_create_url($uri) : $this->entityLoad($settings['box_style'], 'image_style')->buildUrl($uri);
-    }
-
-    if ($switch == 'colorbox' && $multiple) {
-      $json['rel'] = empty($settings['id']) ? 'blazy_colorbox' : $settings['id'];
-    }
-
-    $url_attributes['class'] = ['blazy__' . $switch, 'litebox'];
-    $url_attributes['data-media'] = Json::encode($json);
-    $url_attributes['data-' . $switch . '-trigger'] = TRUE;
-
-    $element['#url'] = $url;
-    $element['#url_attributes'] = $url_attributes;
-    $element['#settings']['lightbox'] = $switch;
-
-    if (!empty($settings['box_caption'])) {
-      $element['#captions']['lightbox'] = self::buildCaptions($item, $settings);
-    }
-  }
-
-  /**
-   * Build lightbox captions.
-   */
-  public static function buildCaptions($item, $settings = []) {
-    $title   = empty($item->title) ? '' : $item->title;
-    $alt     = empty($item->alt)   ? '' : $item->alt;
-    $delta   = empty($settings['delta']) ? 0 : $settings['delta'];
-    $caption = '';
-
-    switch ($settings['box_caption']) {
-      case 'auto':
-        $caption = $alt ?: $title;
-        break;
-
-      case 'alt':
-        $caption = $alt;
-        break;
-
-      case 'title':
-        $caption = $title;
-        break;
-
-      case 'alt_title':
-      case 'title_alt':
-        $alt     = $alt ? '<p>' . $alt . '</p>' : '';
-        $title   = $title ? '<h2>' . $title . '</h2>' : '';
-        $caption = $settings['box_caption'] == 'alt_title' ? $alt . $title : $title . $alt;
-        break;
-
-      case 'entity_title':
-        $caption = ($entity = $item->getEntity()) ? $entity->label() : '';
-        break;
-
-      case 'custom':
-        $caption = '';
-        if (!empty($settings['box_caption_custom']) && ($entity = $item->getEntity())) {
-          $options = ['clear' => TRUE];
-          $caption = \Drupal::token()->replace($settings['box_caption_custom'], [$entity->getEntityTypeId() => $entity, 'file' => $item], $options);
-
-          // Checks for multi-value text fields, and maps its delta to image.
-          if (strpos($caption, ", <p>") !== FALSE) {
-            $caption = str_replace(", <p>", '| <p>', $caption);
-            $captions = explode("|", $caption);
-            $caption = isset($captions[$delta]) ? $captions[$delta] : '';
-          }
-        }
-        break;
-
-      default:
-        $caption = '';
-    }
-
-    return empty($caption) ? [] : ['#markup' => $caption];
-  }
-
-  /**
-   * Returns items as a grid display.
-   */
-  public function buildGrid($items = [], $settings = []) {
-    $grids = [];
-    foreach ($items as $delta => $item) {
-      // @todo support non-Blazy which normally uses item_id.
-      $item_settings = isset($item['#build']['settings']) ? $item['#build']['settings'] : $settings;
-      $item_settings['delta'] = $delta;
-
-      // Supports complex fields such as Views, when theme_blazy() is absent.
-      // @todo: Decide whether to use this consistently for theme_blazy() too.
-      if (!isset($item['#build'])) {
-        $item['#theme_wrappers'][] = 'container';
-        $item['#attributes']['class'][] = 'grid__content';
-      }
-
-      $grid = [];
-      $grid['content'] = $item;
-      $this->buildGridItemAttributes($grid, $item_settings);
-
-      $grids[] = $grid;
-    }
-
-    $count = empty($settings['count']) ? count($grids) : $settings['count'];
-    $blazy = empty($settings['blazy_data']) ? [] : $settings['blazy_data'];
-    $element = [
-      '#theme' => 'item_list',
-      '#items' => $grids,
-      '#attributes' => [
-       'class' => [
-         'blazy',
-         'blazy--grid',
-         'block-' . $settings['style'],
-         'block-count-' . $count,
-        ],
-        'data-blazy' => Json::encode($blazy),
-      ],
-      '#wrapper_attributes' => [
-        'class' => ['item-list--blazy', 'item-list--blazy-grid'],
-      ],
-    ];
-
-    $settings['grid_large'] = $settings['grid'];
-    foreach (['small', 'medium', 'large'] as $grid) {
-      if (!empty($settings['grid_' . $grid])) {
-        $element['#attributes']['class'][] = $grid . '-block-' . $settings['style'] . '-' . $settings['grid_' . $grid];
-      }
-    }
-
-    return $element;
-  }
-
-  /**
-   * Returns a grid item.
-   */
-  public function buildGridItemAttributes(array &$grid = [], $settings = []) {
-    $grid['#wrapper_attributes']['class'][] = 'grid';
-
-    if (!empty($settings['type'])) {
-      $grid['#wrapper_attributes']['class'][] = 'grid--' . $settings['type'];
-    }
-
-    if (!empty($settings['media_switch'])) {
-      $grid['#wrapper_attributes']['class'][] = 'grid--' . $settings['media_switch'];
-      if (strpos($settings['media_switch'], 'box') !== FALSE) {
-        $grid['#wrapper_attributes']['class'][] = 'grid--litebox';
-      }
-    }
-
-    $grid['#wrapper_attributes']['class'][] = 'grid--' . $settings['delta'];
+    BlazyLightbox::switchMedia($element);
   }
 
   /**

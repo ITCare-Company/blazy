@@ -133,6 +133,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function attach($attach = []) {
     $load   = [];
+    $dummy  = [];
     $attach += ['blazy_colorbox' => TRUE, 'blazy_photobox' => TRUE];
     $switch = empty($attach['media_switch']) ? '' : $attach['media_switch'];
 
@@ -140,12 +141,9 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $attach[$switch] = $switch;
     }
 
-    // @todo redo this when colorbox has JS loader again, or just array.
     if (!empty($attach['colorbox'])) {
-      $dummy = [];
       \Drupal::service('colorbox.attachment')->attach($dummy);
-      $load = NestedArray::mergeDeep($load, $dummy['#attached']);
-      $load['library'][] = 'colorbox/colorbox';
+      $load = isset($dummy['#attached']) ? NestedArray::mergeDeep($load, $dummy['#attached']) : $load;
       if (!empty($attach['blazy_colorbox'])) {
         $load['library'][] = 'blazy/colorbox';
       }
@@ -211,6 +209,30 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $this->cache->set($cid, $skins, Cache::PERMANENT, $tags);
     }
     return $skins;
+  }
+
+  /**
+   * Gets the supported lightboxes.
+   *
+   * @return array
+   *   The supported lightboxes.
+   */
+  public function getLightboxes() {
+    $photobox = \Drupal::root() . '/libraries/photobox/photobox/jquery.photobox.js';
+
+    $lightboxes = [];
+    foreach (['colorbox', 'photobox'] as $lightbox) {
+      $supported = function_exists($lightbox . '_theme');
+      if ($lightbox == 'photobox' && is_file($photobox)) {
+        $supported = TRUE;
+      }
+      if ($supported) {
+        $lightboxes[] = $lightbox;
+      }
+    }
+
+    $this->moduleHandler->alter('blazy_lightboxes', $lightboxes);
+    return $lightboxes;
   }
 
   /**
