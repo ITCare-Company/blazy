@@ -12,13 +12,14 @@ o Supports Colorbox/Photobox, also multimedia lightboxes.
 o Supports Retina display.
 o Multi-serving images for configurable XS, SM and MD breakpoints, almost
   similar to core Responsive image, only less complex.
-o CSS background lazyloading, see Mason, GridStack, and future Slick carousel.
+o CSS background lazyloading, see Mason, GridStack, and Slick carousel.
 o IFRAME urls via via custom coded, Blazy Image with Media entity via Video
   Embed Media, or see Slick Video, Slick Media.
 o Delay loading for below-fold images until 100px (configurable) before they are
   visible at viewport.
 o A simple effortless CSS loading indicator.
 o Views fields for File ER and Media Entity integration, optional.
+o Views style plugin Blazy Grid.
 o Field formatters: Blazy, and Blazy Image with Media integration, optional.
 o It doesn't take over all images, so it can be enabled as needed via Blazy
   formatter, or its supporting modules.
@@ -98,7 +99,7 @@ Add a min-height CSS to individual element to avoid layout reflow if not using
   Aspect ratio or when Aspect ratio is not supported such as with Responsive
   image. Otherwise some collapsed images containers will defeat the purpose of
   lazyloading. When using CSS background, the container may also be collapsed.
-  Both layout reflow and lazyloading delay issues are actually tacken care of
+  Both layout reflow and lazyloading delay issues are actually taken care of
   if Aspect ratio is enabled in the first place.
 
 Adjust, and override it blazy CSS files accordingly.

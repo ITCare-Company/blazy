@@ -63,12 +63,13 @@ class BlazyFormatterManager extends BlazyManager {
       'field_name'     => $field_name,
       'id'             => $id,
       'internal_path'  => $internal_path,
-      'lightbox'       => $switch && in_array($switch, $this->getLightboxes()),
       'target_type'    => $target_type,
       'cache_metadata' => ['keys' => [$id, $count]],
     ];
 
     unset($entity, $field);
+    $settings['lightbox'] = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
+
     if (!empty($settings['vanilla'])) {
       return;
     }

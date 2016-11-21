@@ -134,22 +134,22 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   public function attach($attach = []) {
     $load   = [];
     $dummy  = [];
-    $attach += ['blazy_colorbox' => TRUE, 'blazy_photobox' => TRUE];
     $switch = empty($attach['media_switch']) ? '' : $attach['media_switch'];
 
     if ($switch && $switch != 'content') {
       $attach[$switch] = $switch;
+
+      if (in_array($switch, $this->getLightboxes())) {
+        $load['library'][] = 'blazy/lightbox';
+      }
     }
 
     if (!empty($attach['colorbox'])) {
       \Drupal::service('colorbox.attachment')->attach($dummy);
       $load = isset($dummy['#attached']) ? NestedArray::mergeDeep($load, $dummy['#attached']) : $load;
-      if (!empty($attach['blazy_colorbox'])) {
-        $load['library'][] = 'blazy/colorbox';
-      }
+      $load['library'][] = 'blazy/colorbox';
+      unset($dummy);
     }
-
-    $attach['photobox'] = !empty($attach['photobox']) && !empty($attach['blazy_photobox']);
 
     // Only load grid xor column, but not both.
     $attach['column'] = !empty($attach['style']) && $attach['style'] == 'column';

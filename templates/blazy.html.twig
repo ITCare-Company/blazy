@@ -72,12 +72,12 @@
       {# Allows fieldable captions with A tag, such as social share. #}
       {% if captions and captions.lightbox is not empty %}
         <div class="litebox-caption visually-hidden">
-          {{ captions.lightbox }}
+          {{- captions.lightbox -}}
         </div>
       {% endif %}
 
     {% else %}
-      {{ media }}
+      {{- media -}}
     {% endif %}
   {% endblock %}
 

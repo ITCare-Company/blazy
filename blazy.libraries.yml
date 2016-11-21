@@ -53,11 +53,15 @@ media:
     - core/jquery.once
     - blazy/ratio
 
+lightbox:
+  css:
+    component:
+      css/components/blazy.lightbox.css: {}
+
 colorbox.skin:
   css:
     component:
       css/components/blazy.colorbox.css: {}
-      css/components/blazy.lightbox.css: {}
   dependencies:
     - colorbox/colorbox
 
@@ -84,8 +88,6 @@ photobox:
   css:
     base:
       /libraries/photobox/photobox/photobox.css: {}
-    component:
-      css/components/blazy.lightbox.css: {}
   dependencies:
     - core/jquery
     - core/jquery.once

@@ -20,11 +20,13 @@ class BlazyGrid {
       $item_settings['delta'] = $delta;
 
       // Supports both single formatter field and complex fields such as Views.
-      $item['#theme_wrappers'][] = 'container';
-      $item['#attributes']['class'][] = 'grid__content';
-
       $grid = [];
-      $grid['content'] = $item;
+      $grid['content'] = [
+        '#theme'      => 'container',
+        '#children'   => $item,
+        '#attributes' => ['class' => ['grid__content']],
+      ];
+
       self::buildGridItemAttributes($grid, $item_settings);
 
       $grids[] = $grid;
@@ -47,8 +49,12 @@ class BlazyGrid {
       '#wrapper_attributes' => [
         'class' => ['item-list--blazy', 'item-list--blazy-' . $settings['style']],
       ],
-      '#settings' => $settings,
     ];
+
+    if (!empty($settings['media_switch'])) {
+      $switch = str_replace('_', '-', $settings['media_switch']);
+      $element['#attributes']['data-' . $switch . '-gallery'] = TRUE;
+    }
 
     $settings['grid_large'] = $settings['grid'];
     foreach (['small', 'medium', 'large'] as $grid) {
@@ -78,6 +84,10 @@ class BlazyGrid {
     }
 
     $grid['#wrapper_attributes']['class'][] = 'grid--' . $settings['delta'];
+
+    if ($settings['delta'] == 0) {
+      $grid['#settings'] = array_filter($settings);
+    }
   }
 
 }

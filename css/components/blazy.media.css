@@ -112,6 +112,7 @@
 
 .media--switch .media__image,
 .media__icon--play,
+.media:hover .media__icon--litebox,
 .is-playing .media__iframe,
 .is-playing.media--ratio > iframe,
 .is-playing:hover .media__icon--close {
@@ -137,13 +138,13 @@
 /**
  * Fallback non-JS.
  */
-.no-js .media--switch .media__image,
-.no-js .media--switch .media__icon {
+.no-js .media--player .media__image,
+.no-js .media--player .media__icon {
   opacity: 0;
   visibility: hidden;
 }
 
-.no-js .media--switch .media__iframe {
+.no-js .media--player .media__iframe {
   opacity: 1;
   visibility: visible;
 }

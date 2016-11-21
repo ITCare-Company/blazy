@@ -417,19 +417,24 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           $form['media_switch']['#options'][$lightbox] = $this->t('Image to @lightbox', ['@lightbox' => $lightbox]);
         }
 
-        // Optional lightbox integration.
-        if ($is_colorbox || $is_photobox || isset($definition['lightbox'])) {
-          // Re-use the same image style for both lightboxes.
-          $form['box_style'] = [
-            '#type'    => 'select',
-            '#title'   => $this->t('Lightbox image style'),
-            '#options' => $image_styles,
-            '#weight'  => -99,
-          ];
+        // Re-use the same image style for both lightboxes.
+        $form['box_style'] = [
+          '#type'    => 'select',
+          '#title'   => $this->t('Lightbox image style'),
+          '#options' => $image_styles,
+          '#states'  => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
+          '#weight'  => -99,
+        ];
 
-          if (!isset($definition['lightbox'])) {
-            $form['box_style']['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition);
-          }
+        if (!empty($definition['multimedia'])) {
+          $form['box_media_style'] = [
+            '#type'        => 'select',
+            '#title'       => $this->t('Lightbox video style'),
+            '#options'     => $image_styles,
+            '#description' => $this->t('Defines lightbox video dimensions. Allows video image style for the lightbox to be different from the lightbox image style. Can be used to have a swipable video if Blazy Photoswipe installed.'),
+            '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
+            '#weight'      => -99,
+          ];
         }
       }
 
@@ -471,7 +476,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'select',
         '#title'       => $this->t('Thumbnail style'),
         '#options'     => image_style_options(TRUE),
-        '#description' => $this->t('Usages: Photobox thumbnail, or custom work with thumbnails. Leave empty to not use thumbnails.'),
+        '#description' => $this->t('Usages: Photobox/Photoswipe thumbnail, or custom work with thumbnails. Leave empty to not use thumbnails.'),
         '#weight'      => -100,
       ];
     }
@@ -485,16 +490,10 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns re-usable media switch form elements.
    */
   public function mediaSwitchForm(array &$form, $definition = []) {
-    $is_colorbox  = function_exists('colorbox_theme');
-    $is_photobox  = function_exists('photobox_theme');
+    $lightboxes   = $this->blazyManager->getLightboxes();
     $is_token     = function_exists('token_theme');
     $image_styles = image_style_options(FALSE);
-    $photobox     = \Drupal::root() . '/libraries/photobox/photobox/jquery.photobox.js';
     $settings     = isset($definition['settings']) ? $definition['settings'] : [];
-
-    if (is_file($photobox)) {
-      $is_photobox = TRUE;
-    }
 
     if (isset($definition['media_switch_form'])) {
       $form['media_switch'] = $this->baseForm($definition)['media_switch'];
@@ -517,8 +516,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
 
     // Optional lightbox integration.
-    if ($is_colorbox || $is_photobox || isset($definition['lightbox'])) {
+    if (!empty($lightboxes)) {
       $form['box_style'] = $this->baseForm($definition)['box_style'];
+
+      if (!empty($definition['multimedia'])) {
+        $form['box_media_style'] = $this->baseForm($definition)['box_media_style'];
+      }
 
       $box_captions = [
         'auto'         => $this->t('Automatic'),
@@ -560,16 +563,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         else {
           $form['box_caption_custom']['#description'] .= ' ' . $this->t('Install Token module to browse available tokens.');
         }
-      }
-
-      if (isset($definition['multimedia'])) {
-        $form['dimension'] = [
-          '#type'        => 'textfield',
-          '#title'       => $this->t('Lightbox media dimension'),
-          '#description' => $this->t('Use WIDTHxHEIGHT, e.g.: 640x360. This allows video dimensions for the lightbox to be different from the lightbox image style.'),
-          '#weight'      => -99,
-          '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
-        ];
       }
     }
   }

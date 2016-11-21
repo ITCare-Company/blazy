@@ -5,6 +5,9 @@ blazy_views_field:
     box_style:
       type: string
       label: 'Lightbox image style'
+    box_media_style:
+      type: string
+      label: 'Lightbox video style'
     image_style:
       type: string
       label: 'Image style'

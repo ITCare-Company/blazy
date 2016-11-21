@@ -43,6 +43,7 @@ class BlazyDefault {
       'box_caption'            => '',
       'box_caption_custom'     => '',
       'box_style'              => '',
+      'box_media_style'        => '',
       'breakpoints'            => [],
       'caption'                => [],
       'iframe_lazy'            => TRUE,
@@ -64,7 +65,6 @@ class BlazyDefault {
   public static function extendedSettings() {
     return [
       'class'       => '',
-      'dimension'   => '',
       'id'          => '',
       'image'       => '',
       'link'        => '',

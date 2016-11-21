@@ -1,4 +1,13 @@
 
+Blazy 8.x-1.0-dev, 2016-11-21
+-----------------------------
+- Fixed for lightbox library.
+- Added Lightbox video style to replace Dimension option to allow swiping
+  video lightbox such as PhotoSwipe.
+- Removed hook_NAMESPACE_image_alter() into hook_blazy_alter() to swap all
+  Blazy-related image, including Slick, etc., once.
+- Fixed for duplicated grid__content class.
+
 Blazy 8.x-1.0-dev, 2016-11-17
 -----------------------------
 - Made lightboxes easier to extend.

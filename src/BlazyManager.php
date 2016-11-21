@@ -183,7 +183,7 @@ class BlazyManager extends BlazyManagerBase {
       '#pre_render'  => [[$this, 'preRenderImage']],
     ];
 
-    $this->getModuleHandler()->alter($namespace . '_image', $image, $settings);
+    $this->getModuleHandler()->alter('blazy', $image, $settings);
 
     return $image;
   }
@@ -236,18 +236,11 @@ class BlazyManager extends BlazyManagerBase {
         $element['#url'] = $settings['absolute_path'];
       }
       elseif ($this->getLightboxes() && in_array($settings['media_switch'], $this->getLightboxes())) {
-        $this->getMediaSwitch($element);
+        BlazyLightbox::switchMedia($element);
       }
     }
 
     return $element;
-  }
-
-  /**
-   * Gets media switch options: colorbox, photobox, not content nor iframe, etc.
-   */
-  public function getMediaSwitch(array &$element = []) {
-    BlazyLightbox::switchMedia($element);
   }
 
   /**
@@ -307,5 +300,14 @@ class BlazyManager extends BlazyManagerBase {
    * @deprecated: Removed prior to release for Blazy::buildUrl().
    */
   public function getUrlDimensions(array &$settings = [], $item = NULL, $modifier = NULL) {}
+
+  /**
+   * Now included within BlazyLightbox.
+   *
+   * @deprecated: Removed prior to release for BlazyLightbox::switchMedia().
+   */
+  public function getMediaSwitch(array &$element = []) {
+    BlazyLightbox::switchMedia($element);
+  }
 
 }

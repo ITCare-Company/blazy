@@ -15,7 +15,7 @@ class BlazyLightbox {
    */
   public static function switchMedia(array &$element = []) {
     $item     = $element['#item'];
-    $settings = $element['#settings'];
+    $settings = &$element['#settings'];
     $type     = empty($settings['type']) ? 'image' : $settings['type'];
     $uri      = $settings['uri'];
     $switch   = $settings['media_switch'];
@@ -28,6 +28,23 @@ class BlazyLightbox {
     $url_attributes['data-' . $switch . '-trigger'] = TRUE;
 
     // If it is a video/audio, otherwise image to image.
+    $settings['box_url']  = file_create_url($uri);
+    $settings['lightbox'] = $switch;
+    $settings['width']    = empty($settings['width']) ? $item->width : $settings['width'];
+    $settings['height']   = empty($settings['height']) ? $item->height : $settings['height'];
+    $settings['icon']     = empty($settings['icon']) ? ['#markup' => '<span class="media__icon media__icon--litebox"></span>'] : $settings['icon'];
+
+    $dimensions = ['width' => $settings['width'], 'height' => $settings['height']];
+    if (!empty($settings['box_style'])) {
+      $box_style = ImageStyle::load($settings['box_style']);
+      $box_style->transformDimensions($dimensions, $uri);
+      $settings['box_url'] = $box_style->buildUrl($uri);
+    }
+
+    // Photoswipe needs these for the [data-size] attributes.
+    $settings['box_width'] = $dimensions['width'];
+    $settings['box_height'] = $dimensions['height'];
+
     if (!empty($settings['embed_url'])) {
       $url = $settings['embed_url'];
 
@@ -46,8 +63,19 @@ class BlazyLightbox {
       }
 
       // Provides custom lightbox media dimension, if so configured.
+      // @todo: Remove for Lightbox media style.
       if (!empty($settings['dimension'])) {
         list($json['width'], $json['height']) = array_pad(array_map('trim', explode("x", $settings['dimension'], 2)), 2, NULL);
+      }
+
+      // This allows PhotoSwipe with videos still swipable.
+      if (!empty($settings['box_media_style'])) {
+        $box_media_style = ImageStyle::load($settings['box_media_style']);
+        $box_media_style->transformDimensions($dimensions, $uri);
+        $settings['box_url'] = $box_media_style->buildUrl($uri);
+
+        $json['width'] = $settings['box_width'] = $dimensions['width'];
+        $json['height'] = $settings['box_height'] = $dimensions['height'];
       }
 
       if ($switch == 'photobox') {
@@ -55,7 +83,7 @@ class BlazyLightbox {
       }
     }
     else {
-      $url = empty($settings['box_style']) ? file_create_url($uri) : ImageStyle::load($settings['box_style'])->buildUrl($uri);
+      $url = $settings['box_url'];
     }
 
     if ($switch == 'colorbox' && $multiple) {
@@ -70,7 +98,6 @@ class BlazyLightbox {
 
     $element['#url'] = $url;
     $element['#url_attributes'] = $url_attributes;
-    $element['#settings']['lightbox'] = $switch;
   }
 
   /**

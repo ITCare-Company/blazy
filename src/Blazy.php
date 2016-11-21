@@ -27,7 +27,7 @@ class Blazy implements BlazyInterface {
    */
   public static function buildAttributes(&$variables) {
     $element = $variables['element'];
-    foreach (['attributes', 'captions', 'item', 'item_attributes', 'settings', 'url', 'url_attributes'] as $key) {
+    foreach (['captions', 'item', 'item_attributes', 'settings', 'url', 'url_attributes'] as $key) {
       $variables[$key] = isset($element["#$key"]) ? $element["#$key"] : [];
     }
 
@@ -44,9 +44,10 @@ class Blazy implements BlazyInterface {
 
     // Supports GridStack which can have multiple image styles per image.
     $settings['grid_style'] = empty($settings['grid_style']) ? $settings['image_style'] : $settings['grid_style'];
-    $settings['type'] = empty($settings['type']) ? 'image' : $settings['type'];
-    $settings['ratio']   = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
-    $settings['item_id'] = empty($settings['item_id']) ? 'blazy' : $settings['item_id'];
+    $settings['type']       = empty($settings['type']) ? 'image' : $settings['type'];
+    $settings['ratio']      = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
+    $settings['item_id']    = empty($settings['item_id']) ? 'blazy' : $settings['item_id'];
+
     self::buildUrl($settings, $item, $settings['grid_style']);
 
     // Do not proceed if no URI is provided.
@@ -91,7 +92,7 @@ class Blazy implements BlazyInterface {
         $settings['cache_tags'] = empty($settings['cache_tags']) ? $file_tags : Cache::mergeTags($settings['cache_tags'], $file_tags);
         $image['#cache'] = ['tags' => $settings['cache_tags']];
 
-        if (isset($settings['cache_keys'])) {
+        if (!empty($settings['cache_keys'])) {
           $image['#cache']['keys'] = $settings['cache_keys'];
         }
       }
@@ -291,21 +292,6 @@ class Blazy implements BlazyInterface {
       }
     }
 
-    // Lingtboxes.
-    if (!empty($settings['lightbox'])) {
-      $settings['icon'] = empty($settings['icon']) ? ['#markup' => '<span class="media__icon media__icon--litebox"></span>'] : $settings['icon'];
-
-      $dimensions = ['width' => $settings['width'], 'height' => $settings['height']];
-      if (!empty($settings['box_style'])) {
-        $box_style = ImageStyle::load($settings['box_style']);
-        $box_style->transformDimensions($dimensions, $settings['uri']);
-      }
-
-      // Photoswipe needs these for the [data-size] attributes.
-      $settings['box_width'] = $dimensions['width'];
-      $settings['box_height'] = $dimensions['height'];
-    }
-
     // Image style modifier can be multi-style images such as GridStack.
     if (!empty($modifier) && ($style = ImageStyle::load($modifier))) {
       // Image URLs, as opposed to URIs, are expected by lazyloaded images.
@@ -386,7 +372,7 @@ class Blazy implements BlazyInterface {
       }
 
       // @todo: Drop non-UI stuffs.
-      foreach (['display', 'item_id'] as $key) {
+      foreach (['dimension', 'display', 'item_id'] as $key) {
         $mappings[$key]['type'] = 'string';
       }
     }
@@ -398,12 +384,17 @@ class Blazy implements BlazyInterface {
   public static function viewsPreRender($view) {
     // Load Blazy library once, not per field, if any Blazy Views field found.
     if ($blazy = self::blazyViewsField($view)) {
-      $load = $blazy->blazyManager()->attach($blazy->mergedViewsSettings());
+      $settings = $blazy->mergedViewsSettings();
+      $load = $blazy->blazyManager()->attach($settings);
 
       // Enforce Blazy to work with hidden element such as with EB selection.
       $load['drupalSettings']['blazy']['loadInvisible'] = TRUE;
       $view->element['#attached'] = isset($view->element['#attached']) ? NestedArray::mergeDeep($view->element['#attached'], $load) : $load;
       $view->element['#attributes']['data-blazy'] = TRUE;
+      if (!empty($settings['media_switch'])) {
+        $switch = str_replace('_', '-', $settings['media_switch']);
+        $view->element['#attributes']['data-' . $switch . '-gallery'] = TRUE;
+      }
     }
   }
 

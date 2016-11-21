@@ -101,6 +101,10 @@ function blazy_preprocess_field(array &$variables) {
   $settings = $element['#blazy'];
   $variables['attributes']['class'][] = 'blazy';
   $variables['attributes']['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
+  if (!empty($settings['media_switch'])) {
+    $switch = str_replace('_', '-', $settings['media_switch']);
+    $variables['attributes']['data-' . $switch . '-gallery'] = TRUE;
+  }
 }
 
 /**
