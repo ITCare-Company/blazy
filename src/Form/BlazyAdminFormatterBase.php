@@ -175,9 +175,15 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       $target_bundles = $bundle_service->getBundleInfo($entity_type);
     }
 
+    // Declutters options from less relevant options.
+    $excludes = $this->getExcludedFieldOptions();
+
     foreach ($target_bundles as $bundle => $label) {
       if ($fields = $storage->loadByProperties(['entity_type' => $entity_type, 'bundle' => $bundle])) {
         foreach ((array) $fields as $field_name => $field) {
+          if (in_array($field->getName(), $excludes)) {
+            continue;
+          }
           if (empty($allowed_field_types)) {
             $options[$field->getName()] = $field->getLabel();
           }
@@ -193,6 +199,18 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     }
 
     return $options;
+  }
+
+  /**
+   * Declutters options from less relevant options.
+   */
+  public function getExcludedFieldOptions() {
+    $excludes = 'field_document_size field_id field_media_in_library field_mime_type field_source field_tweet_author field_tweet_id field_tweet_url field_media_video_embed_field field_instagram_shortcode field_instagram_url';
+    $excludes = explode(' ', $excludes);
+    $excludes = array_combine($excludes, $excludes);
+
+    $this->blazyManager->getModuleHandler()->alter('blazy_excluded_field_options', $excludes);
+    return $excludes;
   }
 
   /**

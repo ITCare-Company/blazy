@@ -1,6 +1,13 @@
 
 Blazy 8.x-1.0-dev, 2016-11-21
 -----------------------------
+- Cleaned up Entity Reference field options from less relevant options. If you
+  need to bring them back, or clean out more, implement
+  hook_blazy_excluded_field_options_alter().
+  The excluded fields:
+  field_document_size field_id field_media_in_library field_mime_type
+  field_source field_tweet_author field_tweet_id field_tweet_url
+  field_media_video_embed_field field_instagram_shortcode field_instagram_url
 - Fixed for lightbox library.
 - Added Lightbox video style to replace Dimension option to allow swiping
   video lightbox such as PhotoSwipe.
