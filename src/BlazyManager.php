@@ -81,20 +81,13 @@ class BlazyManager extends BlazyManagerBase {
 
     // Provide data for the [data-blazy] attribute at the containing element.
     // Supported modules can add blazy_data as [data-blazy] to the container.
-    $image = isset($item['item']) ? $item['item'] : NULL;
-    $this->buildDataBlazy($settings, $image);
+    $this->buildDataBlazy($settings);
   }
 
   /**
    * Builds breakpoints suitable for top-level [data-blazy] wrapper attributes.
    */
-  public function buildDataBlazy(array &$settings = [], $item = NULL) {
-    // Addresses the trouble with non-mobile-first approach.
-    $settings['_dimensions_reset'] = TRUE;
-
-    // Sets dimensions from the first item once, and let child elements inherit.
-    Blazy::buildUrl($settings, $item);
-
+  public function buildDataBlazy(array &$settings = []) {
     $json = $sources = [];
     if (!empty($settings['breakpoints'])) {
       $end = end($settings['breakpoints']);
@@ -103,33 +96,11 @@ class BlazyManager extends BlazyManagerBase {
           continue;
         }
 
-        $point = trim($breakpoint['width']);
-
-        if ($style = ImageStyle::load($breakpoint['image_style'])) {
-          $dimensions = [
-            'width'  => $settings['width'],
-            'height' => $settings['height'],
-          ];
-
-          if (!empty($settings['uri'])) {
-            $style->transformDimensions($dimensions, $settings['uri']);
-          }
-
+        if (!empty($settings['background']) && ($style = ImageStyle::load($breakpoint['image_style']))) {
+          $point = trim($breakpoint['width']);
           $width = Blazy::widthFromDescriptors($point);
-          $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
-          $json['dimensions'][$width] = $padding;
 
-          // Helper for the BG option.
-          if (!empty($settings['background'])) {
-            $source['width'] = (int) $width;
-            $source['src']   = 'data-src-' . $key;
-            $sources[]       = $source;
-          }
-        }
-
-        // Only set CSS padding-bottom value for the last breakpoint.
-        if (!empty($end['breakpoint']) && ($key == $end['breakpoint'] && $end['width'] == $point)) {
-          $settings['padding_bottom'] = $padding;
+          $sources[] = ['width' => (int) $width, 'src' => 'data-src-' . $key];
         }
       }
 
@@ -137,15 +108,15 @@ class BlazyManager extends BlazyManagerBase {
       $settings['blazy'] = TRUE;
     }
 
+    // As of Blazy v1.6.0 applied to BG only.
     if ($sources) {
-      // As of Blazy v1.6.0 applied to BG only.
       $json['breakpoints'] = $sources;
     }
 
     $json['ratio'] = empty($settings['ratio']) ? FALSE : $settings['ratio'];
 
-    // Clean up URIs since this is meant for the top-level containing element.
-    unset($settings['uri'], $settings['image_url']);
+    // Provide data for the [data-blazy] attribute at the containing element.
+    // Supported modules can add blazy_data as [data-blazy] to the container.
     $settings['blazy_data'] = $json;
   }
 
@@ -154,10 +125,9 @@ class BlazyManager extends BlazyManagerBase {
    */
   public function getImage($build = []) {
     /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-    $item      = $build['item'];
-    $settings  = &$build['settings'];
-    $namespace = $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
-    $theme     = isset($settings['theme_hook_image']) ? $settings['theme_hook_image'] : 'blazy';
+    $item     = $build['item'];
+    $settings = &$build['settings'];
+    $theme    = isset($settings['theme_hook_image']) ? $settings['theme_hook_image'] : 'blazy';
 
     if (empty($item)) {
       return [];
@@ -165,6 +135,7 @@ class BlazyManager extends BlazyManagerBase {
 
     $settings['delta']       = isset($settings['delta']) ? $settings['delta'] : 0;
     $settings['image_style'] = isset($settings['image_style']) ? $settings['image_style'] : '';
+    $settings['namespace']   = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
 
     if (!isset($settings['uri'])) {
       $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;

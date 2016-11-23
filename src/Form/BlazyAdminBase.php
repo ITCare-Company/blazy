@@ -45,7 +45,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   const STATE_THUMBNAIL_STYLE_ENABLED = 3;
 
   /**
-   * A state that represents the media switch lightbox is enabled.
+   * A state that represents the custom lightbox caption is enabled.
    */
   const STATE_LIGHTBOX_CUSTOM = 4;
 
@@ -122,6 +122,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       return;
     }
 
+    $this->blazyManager->getModuleHandler()->alter('blazy_form_element_definition', $definition);
+
     // Display style: column, plain static grid, slick grid, slick carousel.
     // https://drafts.csswg.org/css-multicol
     if (!empty($definition['style'])) {
@@ -144,7 +146,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['skin'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Skin'),
-        '#options'     => isset($definition['skins']) ? $definition['skins'] : [],
+        '#options'     => empty($definition['skins']) ? [] : $definition['skins'],
         '#enforced'    => TRUE,
         '#description' => $this->t('Skins allow various layouts with just CSS. Some options below depend on a skin. Leave empty to DIY. Or use the provided hook_info() and implement the skin interface to register ones.'),
         '#weight'      => -107,
@@ -155,7 +157,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['background'] = [
         '#type'        => 'checkbox',
         '#title'       => $this->t('Use CSS background'),
-        '#description' => $this->t('Check this to turn the image into CSS background instead. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires a consistent Aspect ratio, otherwise collapsed containers. Unless a min-height is added manually to <strong>.media--background</strong> selector. Not compatible with Responsive image, but compatible with Blazy multi-serving images, of course.'),
+        '#description' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires a consistent Aspect ratio, otherwise collapsed containers. Unless a min-height is added manually to <strong>.media--background</strong> selector. Not compatible with Responsive image.'),
         '#weight'      => -98,
       ];
     }
@@ -164,7 +166,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['layout'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Layout'),
-        '#options'     => isset($definition['layouts']) ? $definition['layouts'] : [],
+        '#options'     => empty($definition['layouts']) ? [] : $definition['layouts'],
         '#description' => $this->t('Requires a skin. The builtin layouts affects the entire items uniformly. Leave empty to DIY.'),
         '#weight'      => 2,
       ];
@@ -174,7 +176,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['caption'] = [
         '#type'        => 'checkboxes',
         '#title'       => $this->t('Caption fields'),
-        '#options'     => isset($definition['captions']) ? $definition['captions'] : [],
+        '#options'     => empty($definition['captions']) ? [] : $definition['captions'],
         '#description' => $this->t('Enable any of the following fields as captions. These fields are treated and wrapped as captions.'),
         '#weight'      => 80,
       ];
@@ -196,6 +198,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * @see http://www.sitepoint.com/how-to-build-responsive-images-with-srcset/
    */
   public function breakpointsForm(array &$form, $definition = []) {
+    $responsive_image = function_exists('responsive_image_get_image_dimensions');
     $settings = isset($definition['settings']) ? $definition['settings'] : [];
     $title = $this->t('Leave Breakpoints empty to disable multi-serving images. <small>If provided, Blazy lazyload applies. Ignored if core Responsive image is provided.<br /> If only two is needed, simply leave the rest empty. At any rate, the last should target the largest monitor. <br />It uses <strong>max-width</strong>, not <strong>min-width</strong>.</small>');
 
@@ -208,7 +211,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       '#wrapper_attributes' => ['class' => ['form-item--sizes']],
     ];
 
-    if (isset($form['responsive_image_style'])) {
+    if ($responsive_image) {
       $form['sizes']['#states'] = $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition);
     }
 
@@ -216,8 +219,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       '#type'       => 'table',
       '#tree'       => TRUE,
       '#header'     => [$this->t('Breakpoint'), $this->t('Image style'), $this->t('Max-width/Descriptor')],
-      '#prefix'     => '<h2 class="form__title">' . $title . '</h2>',
-      '#attributes' => ['class' => ['form-wrapper--table']],
+      '#prefix'     => '<h2 class="form__title form__title--breakpoints">' . $title . '</h2>',
+      '#attributes' => ['class' => ['form-wrapper--table', 'form-wrapper--table-breakpoints']],
       '#weight'     => 115,
       '#enforced'   => TRUE,
     ];
@@ -238,11 +241,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         $form['breakpoints'][$breakpoint][$key] = $element;
 
         // Do this because otherwise the entire form disappears for table type.
-        $form['breakpoints'][$breakpoint][$key]['#states'] = [
-          'enabled' => [
-            'select[name$="[responsive_image_style]"]' => ['value' => ''],
-          ],
-        ];
+        if ($responsive_image) {
+          $form['breakpoints'][$breakpoint][$key]['#states'] = [
+            'enabled' => [
+              'select[name$="[responsive_image_style]"]' => ['value' => ''],
+            ],
+          ];
+        }
 
         if (isset($definition['vanilla'])) {
           $form['breakpoints'][$breakpoint][$key]['#states']['enabled'][$vanilla] = ['checked' => FALSE];
@@ -309,7 +314,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $header = $this->t('Group individual items as block grid<small>Depends on the <strong>Display style</strong>.</small>');
     $form['grid_header'] = [
       '#type'   => 'item',
-      '#markup' => '<h3 class="form__title">' . $header . '</h3>',
+      '#markup' => '<h3 class="form__title form__title--grid">' . $header . '</h3>',
     ];
 
     $form['grid'] = [
@@ -387,14 +392,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $settings     = isset($definition['settings']) ? $definition['settings'] : [];
     $lightboxes   = $this->blazyManager->getLightboxes();
     $image_styles = image_style_options(FALSE);
-    $is_colorbox  = function_exists('colorbox_theme');
-    $is_photobox  = function_exists('photobox_theme');
 
     $form = [];
     $form['image_style'] = [
       '#type'        => 'select',
       '#title'       => $this->t('Image style'),
-      '#options'     => image_style_options(FALSE),
+      '#options'     => $image_styles,
       '#description' => $this->t('The content image style. This will be treated as the fallback image, which is normally smaller, if Breakpoints are provided. Otherwise this is the only image displayed.'),
       '#weight'      => -100,
     ];
@@ -431,7 +434,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
             '#type'        => 'select',
             '#title'       => $this->t('Lightbox video style'),
             '#options'     => $image_styles,
-            '#description' => $this->t('Defines lightbox video dimensions. Allows video image style for the lightbox to be different from the lightbox image style. Can be used to have a swipable video if Blazy Photoswipe installed.'),
+            '#description' => $this->t('Allows different lightbox video dimensions. Or can be used to have a swipable video if Blazy PhotoSwipe installed.'),
             '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
             '#weight'      => -99,
           ];
@@ -450,20 +453,23 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#title'        => $this->t('Aspect ratio'),
         '#options'      => array_combine($ratio, $ratio),
         '#empty_option' => $this->t('- None -'),
-        '#description'  => $this->t('Aspect ratio to get consistently responsive images and iframes. And to fix layout reflow and excessive height issues. <a href="@dimensions" target="_blank">Image styles and video dimensions</a> must <a href="@follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. Choose <strong>fluid</strong> if unsure. Choose <strong>enforced</strong> if you can stick to one aspect ratio and want multi-serving, or Responsive images. <a href="@link" target="_blank">Learn more</a>, or leave empty if you prefer to DIY. <br /><strong>Note!</strong> Only compatible with Blazy multi-serving images, but not with Responsive image.', [
+        '#description'  => $this->t('Aspect ratio to get consistently responsive images and iframes. And to fix layout reflow and excessive height issues. <a href="@dimensions" target="_blank">Image styles and video dimensions</a> must <a href="@follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. Choose <strong>fluid</strong> if unsure. Choose <strong>enforced</strong> if you can stick to one aspect ratio and want multi-serving, or Responsive images. <a href="@link" target="_blank">Learn more</a>, or leave empty to DIY. <br /><strong>Note!</strong> Only compatible with Blazy multi-serving images, but not Responsive image.', [
           '@dimensions'  => '//size43.com/jqueryVideoTool.html',
           '@follow'      => '//en.wikipedia.org/wiki/Aspect_ratio_%28image%29',
           '@link'        => '//www.smashingmagazine.com/2014/02/27/making-embedded-content-work-in-responsive-design/',
         ]),
         '#weight'        => -96,
-        '#states'        => $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition),
       ];
+
+      if (function_exists('responsive_image_get_image_dimensions')) {
+        $form['ratio']['#states'] = $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition);
+      }
     }
 
     if (!empty($definition['target_type']) && !empty($definition['view_mode'])) {
       $form['view_mode'] = [
         '#type'        => 'select',
-        '#options'     => empty($definition['target_type']) ? [] : $this->getViewModeOptions($definition['target_type']),
+        '#options'     => $this->getViewModeOptions($definition['target_type']),
         '#title'       => $this->t('View mode'),
         '#description' => $this->t('Required to grab the fields, or to have custom entity display as fallback display. If it has fields, be sure the selected "View mode" is enabled, and the enabled fields here are not hidden there. Manage view modes on the <a href=":view_modes">View modes page</a>.', [':view_modes' => Url::fromRoute('entity.entity_view_mode.collection')->toString()]),
         '#weight'      => -96,
@@ -476,7 +482,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'select',
         '#title'       => $this->t('Thumbnail style'),
         '#options'     => image_style_options(TRUE),
-        '#description' => $this->t('Usages: Photobox/Photoswipe thumbnail, or custom work with thumbnails. Leave empty to not use thumbnails.'),
+        '#description' => $this->t('Usages: Photobox/PhotoSwipe thumbnail, or custom work with thumbnails. Leave empty to not use thumbnails.'),
         '#weight'      => -100,
       ];
     }
@@ -490,14 +496,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns re-usable media switch form elements.
    */
   public function mediaSwitchForm(array &$form, $definition = []) {
-    $lightboxes   = $this->blazyManager->getLightboxes();
-    $is_token     = function_exists('token_theme');
-    $image_styles = image_style_options(FALSE);
-    $settings     = isset($definition['settings']) ? $definition['settings'] : [];
+    $lightboxes = $this->blazyManager->getLightboxes();
+    $is_token   = function_exists('token_theme');
 
     if (isset($definition['media_switch_form'])) {
       $form['media_switch'] = $this->baseForm($definition)['media_switch'];
-      $form['media_switch']['#prefix'] = '<h3 class="form__title">' . $this->t('Media switcher') . '</h3>';
+      $form['media_switch']['#prefix'] = '<h3 class="form__title form__title--media-switch">' . $this->t('Media switcher') . '</h3>';
       $form['ratio'] = $this->baseForm($definition)['ratio'];
     }
 

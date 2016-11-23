@@ -165,6 +165,12 @@ class Blazy implements BlazyInterface {
       if (!empty($settings['iframe_lazy']) && empty($settings['media_switch'])) {
         $iframe['class'][] = 'b-lazy';
       }
+
+      // Prevents broken iframe when aspect ratio is empty.
+      if (empty($settings['ratio'])) {
+        $iframe['width'] = $settings['width'];
+        $iframe['height'] = $settings['height'];
+      }
     }
 
     if (!empty($settings['caption'])) {
@@ -212,7 +218,6 @@ class Blazy implements BlazyInterface {
         $url = $style->buildUrl($settings['uri']);
 
         // Supports multi-breakpoint aspect ratio with irregular sizes.
-        // @todo: Compare to ::buildDataBlazy(), only proceed if different.
         if (!empty($settings['_breakpoint_ratio'])) {
           $dimensions = [
             'width'  => $settings['width'],
@@ -278,17 +283,19 @@ class Blazy implements BlazyInterface {
       $settings['image_url'] = file_create_url($settings['uri']);
     }
 
-    // Dimensions are already set once at top-level containing element, see
-    // BlazyManager::buildDataBlazy(). Yet provides fallback for those which
-    // call theme_blazy() directly without BlazyManager service.
+    // Sets dimensions.
+    // @todo: Compare to ::buildDataBlazy(), only proceed if different.
     if (empty($settings['width'])) {
       $settings['width']  = isset($item->width)  ? $item->width  : NULL;
       $settings['height'] = isset($item->height) ? $item->height : NULL;
 
-      // No file API, no $item, with unmanaged VEF image without image_style.
-      // @todo: Decide to abandon, as videos without image style is edge case.
+      // Only applies when Image style is empty, no file API, no $item,
+      // with unmanaged VEF image without image_style.
       if (empty($modifier) || empty($settings['width'])) {
-        list($settings['width'], $settings['height']) = getimagesize($settings['image_url']);
+        // Prevents 404 warning when video thumbnail missing for a reason.
+        if ($data = @getimagesize($settings['uri'])) {
+          list($settings['width'], $settings['height']) = $data;
+        }
       }
     }
 
@@ -298,19 +305,13 @@ class Blazy implements BlazyInterface {
       $settings['image_url']  = $style->buildUrl($settings['uri']);
       $settings['cache_tags'] = $style->getCacheTags();
 
-      // Unless reset for multi-styles, or top-level element, set em once.
-      // @todo: Recheck, this assumes a cropped image style, not scaled.
-      if (empty($settings['_dimensions']) || isset($settings['_dimensions_reset'])) {
-        $dimensions = [
-          'width'  => $settings['width'],
-          'height' => $settings['height'],
-        ];
-        $style->transformDimensions($dimensions, $settings['uri']);
-        $settings['height']      = $dimensions['height'];
-        $settings['width']       = $dimensions['width'];
-        $settings['_dimensions'] = TRUE;
-        unset($settings['_dimensions_reset']);
-      }
+      $dimensions = [
+        'width'  => $settings['width'],
+        'height' => $settings['height'],
+      ];
+      $style->transformDimensions($dimensions, $settings['uri']);
+      $settings['height'] = $dimensions['height'];
+      $settings['width']  = $dimensions['width'];
     }
   }
 

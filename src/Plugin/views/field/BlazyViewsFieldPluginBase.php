@@ -79,6 +79,9 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
       if (isset($form[$key])) {
         $form[$key]['#default_value'] = isset($this->options[$key]) ? $this->options[$key] : $default;
         $form[$key]['#weight'] = 0;
+        if (in_array($key, ['box_style', 'box_media_style', 'box_mobile_style'])) {
+          $form[$key]['#empty_option'] = $this->t('- None -');
+        }
       }
     }
 

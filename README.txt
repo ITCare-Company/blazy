@@ -120,12 +120,20 @@ some code cleanup, and optimization where needed. Patches are very much welcome.
 
 Alpha and Beta releases are for developers only. Be aware of possible breakage.
 
-However if it is broken, unless an update is explicitly required, clearing cache
-should fix most issues during DEV phases. Prior to any update, always visit:
-/admin/config/development/performance
 
-And hit "Clear all caches" button once the new Blazy is in place. Regenerate CSS
-and JS as the latest fixes may contain changes to the assets.
+UPDATE SOP:
+Visit any of the following URLs when updating Blazy, or its related modules.
+
+1. /admin/config/development/performance
+  Unless an update is required, clearing cache should fix most issues.
+
+  o Hit "Clear all caches" button once the new Blazy in place.
+  o Regenerate CSS and JS as the latest fixes may contain changes to the assets.
+
+2. /admin/reports/status
+  Check for any pending update, and run /update.php from the brower address bar.
+
+3. If Twig templates are customized, compare against the latest.
 
 
 AUTHOR/MAINTAINER/CREDITS

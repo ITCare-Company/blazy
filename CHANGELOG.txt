@@ -1,4 +1,15 @@
 
+Blazy 8.x-1.0-dev, 2016-11-23
+-----------------------------
+- Decluttered Blazy form when Vanilla is enabled.
+- Added empty option for Blazy Views field for Lightbox image style.
+- Fixed 404 warning for when Video thumbnail is missing.
+- Cleaned out BlazyManager::buildDataBlazy() as top-level attributes cannot be
+  inherited by child elements with irregular image sizes. This is now only
+  relevant for CSS background since Blazy v1.6.0.
+- Fixed for Aspect ratio and Breakpoints options being disabled/invisible when
+  Responsive image not installed.
+
 Blazy 8.x-1.0-dev, 2016-11-21
 -----------------------------
 - Cleaned up Entity Reference field options from less relevant options. If you

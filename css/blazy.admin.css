@@ -1337,3 +1337,14 @@ td .form__title {
   }
 }
 
+/** Declutter form when Vanilla is enabled coz table states are broken. */
+.form--vanilla-on .form__title--media-switch,
+.form--vanilla-on .form__title--fields,
+.form--vanilla-on .form__title--breakpoints,
+.form--vanilla-on .tableresponsive-toggle-columns,
+.form--vanilla-on .form-wrapper--table-breakpoints,
+.form--responsive-image-on .form__title--breakpoints,
+.form--responsive-image-on .tableresponsive-toggle-columns,
+.form--responsive-image-on .form-wrapper--table-breakpoints {
+  display: none !important;
+}
