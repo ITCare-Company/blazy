@@ -157,6 +157,7 @@ trait BlazyVideoTrait {
     $fields = $media->getFields();
 
     $source_field[$bundle]    = $media->getType()->getConfiguration()['source_field'];
+    $settings['bundle']       = $bundle;
     $settings['source_field'] = $source_field[$bundle];
     $settings['media_url']    = $media->url();
     $settings['media_id']     = $media->id();
@@ -166,6 +167,7 @@ trait BlazyVideoTrait {
       $value = $media->{$field_name}->getValue();
       $url   = isset($value[0]['uri']) ? $value[0]['uri'] : (isset($value[0]['value']) ? $value[0]['value'] : '');
 
+      $settings['input_url'] = $url;
       if ($url) {
         $this->buildVideo($settings, $url);
       }

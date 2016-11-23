@@ -385,6 +385,7 @@ class Blazy implements BlazyInterface {
   public static function viewsPreRender($view) {
     // Load Blazy library once, not per field, if any Blazy Views field found.
     if ($blazy = self::blazyViewsField($view)) {
+      $plugin_id = $view->getStyle()->getPluginId();
       $settings = $blazy->mergedViewsSettings();
       $load = $blazy->blazyManager()->attach($settings);
 
@@ -392,7 +393,14 @@ class Blazy implements BlazyInterface {
       $load['drupalSettings']['blazy']['loadInvisible'] = TRUE;
       $view->element['#attached'] = isset($view->element['#attached']) ? NestedArray::mergeDeep($view->element['#attached'], $load) : $load;
       $view->element['#attributes']['data-blazy'] = TRUE;
-      if (!empty($settings['media_switch'])) {
+
+      $grid = $plugin_id == 'blazy';
+      if ($options = $view->getStyle()->options) {
+        $grid = empty($options['grid']) ? $grid : TRUE;
+      }
+
+      // Prevents dup [data-LIGHTBOX-gallery] if the Views style supports Grid.
+      if (!empty($settings['media_switch']) && !$grid) {
         $switch = str_replace('_', '-', $settings['media_switch']);
         $view->element['#attributes']['data-' . $switch . '-gallery'] = TRUE;
       }

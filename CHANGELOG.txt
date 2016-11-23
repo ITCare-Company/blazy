@@ -1,4 +1,10 @@
 
+Blazy 8.x-1.0-dev, 2016-11-24
+-----------------------------
+- Removed unwanted [data-LIGHTBOX-gallery] attributes from Views wrapper when
+  the Views style already supports Grid gallery, such as Blazy, Slick Browser,
+  or Slick Views with Grid display.
+
 Blazy 8.x-1.0-dev, 2016-11-23
 -----------------------------
 - Decluttered Blazy form when Vanilla is enabled.
