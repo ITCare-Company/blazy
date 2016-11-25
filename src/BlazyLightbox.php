@@ -22,7 +22,6 @@ class BlazyLightbox {
     $multiple = !empty($settings['count']) && $settings['count'] > 1;
 
     // Provide relevant URL if it is a lightbox.
-    $json = ['type' => $type];
     $url_attributes = [];
     $url_attributes['class'] = ['blazy__' . $switch, 'litebox'];
     $url_attributes['data-' . $switch . '-trigger'] = TRUE;
@@ -41,10 +40,14 @@ class BlazyLightbox {
       $settings['box_url'] = $box_style->buildUrl($uri);
     }
 
-    // Photoswipe needs these for the [data-size] attributes.
-    $settings['box_width'] = $dimensions['width'];
-    $settings['box_height'] = $dimensions['height'];
+    // Allows custom work to override this without image style, such as
+    // a combo of image, video, Instagram, etc.
+    if (empty($settings['_box_width'])) {
+      $settings['box_width'] = $dimensions['width'];
+      $settings['box_height'] = $dimensions['height'];
+    }
 
+    $json = ['type' => $type, 'width' => $settings['box_width'], 'height' => $settings['box_height']];
     if (!empty($settings['embed_url'])) {
       $url = $settings['embed_url'];
 
@@ -74,8 +77,15 @@ class BlazyLightbox {
         $box_media_style->transformDimensions($dimensions, $uri);
         $settings['box_url'] = $box_media_style->buildUrl($uri);
 
-        $json['width'] = $settings['box_width'] = $dimensions['width'];
-        $json['height'] = $settings['box_height'] = $dimensions['height'];
+        // Allows custom work to override this without image style, such as
+        // a combo of image, video, Instagram, etc.
+        if (empty($settings['_box_width'])) {
+          $settings['box_width']  = $dimensions['width'];
+          $settings['box_height'] = $dimensions['height'];
+        }
+
+        $json['width']  = $settings['box_width'];
+        $json['height'] = $settings['box_height'];
       }
 
       if ($switch == 'photobox') {

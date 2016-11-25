@@ -97,6 +97,7 @@ class BlazyDefault {
       'lazy'         => 'blazy',
       'media_switch' => 'media',
       'ratio'        => 'fluid',
+      'rendered'     => FALSE,
       'view_mode'    => 'default',
       '_detached'    => TRUE,
     ];

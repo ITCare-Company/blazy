@@ -27,28 +27,26 @@ class Blazy implements BlazyInterface {
    */
   public static function buildAttributes(&$variables) {
     $element = $variables['element'];
-    foreach (['captions', 'item', 'item_attributes', 'settings', 'url', 'url_attributes'] as $key) {
+    foreach (['captions', 'item_attributes', 'settings', 'url', 'url_attributes'] as $key) {
       $variables[$key] = isset($element["#$key"]) ? $element["#$key"] : [];
     }
 
     // Load the supported formatter variables for the possesive blazy wrapper.
-    $item             = $variables['item'];
+    $item             = isset($element['#item']) ? $element['#item'] : [];
     $settings         = &$variables['settings'];
     $attributes       = &$variables['attributes'];
     $image_attributes = &$variables['item_attributes'];
 
     // Provides sensible defaults to shut up notices when lacking of settings.
-    foreach (['embed_url', 'icon', 'image_style', 'media_switch', 'player', 'scheme'] as $key) {
+    foreach (['icon', 'image_style', 'media_switch', 'player', 'scheme'] as $key) {
       $settings[$key] = isset($settings[$key]) ? $settings[$key] : '';
     }
 
-    // Supports GridStack which can have multiple image styles per image.
-    $settings['grid_style'] = empty($settings['grid_style']) ? $settings['image_style'] : $settings['grid_style'];
-    $settings['type']       = empty($settings['type']) ? 'image' : $settings['type'];
-    $settings['ratio']      = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
-    $settings['item_id']    = empty($settings['item_id']) ? 'blazy' : $settings['item_id'];
+    $settings['type']    = empty($settings['type']) ? 'image' : $settings['type'];
+    $settings['ratio']   = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
+    $settings['item_id'] = empty($settings['item_id']) ? 'blazy' : $settings['item_id'];
 
-    self::buildUrl($settings, $item, $settings['grid_style']);
+    self::buildUrl($settings, $item);
 
     // Do not proceed if no URI is provided.
     // URI is stored within settings, not theme_blazy() property, as it is
@@ -58,11 +56,8 @@ class Blazy implements BlazyInterface {
     }
 
     // Supports non-blazy formatter, that is, responsive image theme.
-    $image  = &$variables['image'];
-    $iframe = [];
-
-    // Media embed URL is stored in the settings.
-    $media = $settings['embed_url'] && in_array($settings['type'], ['video', 'audio']);
+    $image = &$variables['image'];
+    $media = !empty($settings['embed_url']) && in_array($settings['type'], ['audio', 'video']);
 
     // The regular non-responsive, non-lazyloaded image URI where image_url may
     // contain image_style which is not expected by responsive_image.
@@ -71,7 +66,7 @@ class Blazy implements BlazyInterface {
     // Thumbnails.
     // With CSS background, IMG may be empty, add thumbnail to the container.
     if (!empty($settings['thumbnail_style'])) {
-      $attributes['data-thumb'] = ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
+      $attributes['data-thumb'] = self::buildThumbnailUrl($settings);
     }
 
     // Check whether we have responsive image, or lazyloaded one.
@@ -101,7 +96,7 @@ class Blazy implements BlazyInterface {
       // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
       if (!empty($settings['width'])) {
         if (!empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
-          $padding_bottom = isset($settings['padding_bottom']) ? $settings['padding_bottom'] : round((($settings['height'] / $settings['width']) * 100), 2);
+          $padding_bottom = round((($settings['height'] / $settings['width']) * 100), 2);
           $attributes['style'] = 'padding-bottom: ' . $padding_bottom . '%';
           $settings['_breakpoint_ratio'] = $settings['ratio'];
         }
@@ -171,6 +166,9 @@ class Blazy implements BlazyInterface {
         $iframe['width'] = $settings['width'];
         $iframe['height'] = $settings['height'];
       }
+
+      // Pass iframe attributes to template.
+      $variables['iframe_attributes'] = new Attribute($iframe);
     }
 
     if (!empty($settings['caption'])) {
@@ -179,7 +177,6 @@ class Blazy implements BlazyInterface {
     }
 
     // URL can be entity, or lightbox URL different from image URL.
-    $variables['iframe_attributes'] = new Attribute($iframe);
     $variables['url_attributes']    = new Attribute($variables['url_attributes']);
 
     // Provides wrapper attributes if requested for complex need such as grid.
@@ -266,7 +263,6 @@ class Blazy implements BlazyInterface {
    * Builds URLs, cache tags, and dimensions for individual image.
    */
   public static function buildUrl(array &$settings = [], $item = NULL, $modifier = NULL) {
-    $settings['image_style'] = isset($settings['image_style']) ? $settings['image_style'] : '';
     $modifier = empty($modifier) ? $settings['image_style'] : $modifier;
 
     // Blazy already sets URI, yet set fallback for direct theme_blazy() call.
@@ -313,6 +309,13 @@ class Blazy implements BlazyInterface {
       $settings['height'] = $dimensions['height'];
       $settings['width']  = $dimensions['width'];
     }
+  }
+
+  /**
+   * Builds thumbnail URL for Photobox, PhotoSwipe, Entity Browser, etc.
+   */
+  public static function buildThumbnailUrl($settings = []) {
+    return ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
   }
 
   /**

@@ -4,7 +4,8 @@
  */
 
 .litebox,
-.media__iframe {
+.media__iframe,
+[data-blazy] iframe {
   border: 0 none;
   display: block;
   max-width: 100%;
@@ -147,4 +148,23 @@
 .no-js .media--player .media__iframe {
   opacity: 1;
   visibility: visible;
+}
+
+/** Prevents Twitter iframe from breaking grid, even if unholy. */
+.grid .twitter-tweet-rendered {
+  margin: 0 !important;
+  min-width: 1px !important;
+}
+
+/** Fix for overflowing Facebook/ Twitter iframes. */
+.grid .media {
+  overflow: hidden;
+}
+
+.grid .fb_iframe_widget span {
+  width: 100% !important;
+}
+
+.grid .fb_iframe_widget iframe {
+  position: relative !important;
 }

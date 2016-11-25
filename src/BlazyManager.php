@@ -11,16 +11,14 @@ use Drupal\image\Entity\ImageStyle;
  * Implements a public facing blazy manager.
  *
  * A few modules re-use this: GridStack, Mason, Slick...
- *
- * @see \Drupal\gridstack\Plugin\views\style\GridStackViews::render().
- * @see \Drupal\slick_views\Plugin\views\style\SlickViews::render().
- * @see template_preprocess_slick().
- * @see template_preprocess_gridstack().
  */
 class BlazyManager extends BlazyManagerBase {
 
   /**
-   * Used at top-level element: Cleans up empty breakpoints.
+   * Cleans up empty breakpoints.
+   *
+   * @param array $settings
+   *   The settings being modified.
    */
   public function cleanUpBreakpoints(array &$settings = []) {
     if (empty($settings['breakpoints'])) {
@@ -46,6 +44,11 @@ class BlazyManager extends BlazyManagerBase {
    * Ensures the settings traverse up to the container where Blazy is clueless.
    * The supported plugins can add [data-blazy] attribute into its container
    * containing $settings['blazy_data'] converted into [data-blazy] JSON.
+   *
+   * @param array $settings
+   *   The settings being modified.
+   * @param \Drupal\image\Plugin\Field\FieldType\ImageItem $item
+   *   The image item.
    *
    * @todo unified way between Views styles, Views fields and field formatters.
    */
@@ -86,6 +89,9 @@ class BlazyManager extends BlazyManagerBase {
 
   /**
    * Builds breakpoints suitable for top-level [data-blazy] wrapper attributes.
+   *
+   * @param array $settings
+   *   The settings being modified.
    */
   public function buildDataBlazy(array &$settings = []) {
     $json = $sources = [];
@@ -121,7 +127,13 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * Returns the image based on the Responsive image mapping, or blazy.
+   * Returns the enforced content, or image using theme_blazy().
+   *
+   * @param array $build
+   *   The array containing: item, content, settings, or optional captions.
+   *
+   * @return array
+   *   The alterable and renderable array of enforced content, or theme_blazy().
    */
   public function getImage($build = []) {
     /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
@@ -145,14 +157,20 @@ class BlazyManager extends BlazyManagerBase {
       $settings['blazy'] = TRUE;
     }
 
-    $image = [
-      '#theme'       => $theme,
-      '#item'        => [],
-      '#delta'       => $settings['delta'],
-      '#image_style' => $settings['image_style'],
-      '#build'       => $build,
-      '#pre_render'  => [[$this, 'preRenderImage']],
-    ];
+    // Respects content not handled by theme_blazy(), but passed through.
+    if (empty($build['content'])) {
+      $image = [
+        '#theme'       => $theme,
+        '#delta'       => $settings['delta'],
+        '#item'        => [],
+        '#image_style' => $settings['image_style'],
+        '#build'       => $build,
+        '#pre_render'  => [[$this, 'preRenderImage']],
+      ];
+    }
+    else {
+      $image = $build['content'];
+    }
 
     $this->getModuleHandler()->alter('blazy', $image, $settings);
 
@@ -161,6 +179,12 @@ class BlazyManager extends BlazyManagerBase {
 
   /**
    * Builds the Blazy image as a structured array ready for ::renderer().
+   *
+   * @param array $element
+   *   The pre-rendered element.
+   *
+   * @return array
+   *   The renderable array of pre-rendered element.
    */
   public function preRenderImage($element) {
     $build = $element['#build'];
@@ -180,8 +204,6 @@ class BlazyManager extends BlazyManagerBase {
       unset($item->_attributes);
     }
 
-    $element['#item'] = $item;
-
     // Responsive image integration.
     $settings['responsive_image_style_id'] = '';
     if (!empty($settings['resimage']) && !empty($settings['responsive_image_style'])) {
@@ -197,10 +219,11 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
 
-    $element['#url']             = '';
-    $element['#settings']        = $settings;
+    $element['#item']            = $item;
     $element['#captions']        = isset($build['captions']) ? ['inline' => $build['captions']] : [];
     $element['#item_attributes'] = $item_attributes;
+    $element['#url']             = '';
+    $element['#settings']        = $settings;
 
     if (!empty($settings['media_switch'])) {
       if ($settings['media_switch'] == 'content' && !empty($settings['absolute_path'])) {
@@ -216,6 +239,12 @@ class BlazyManager extends BlazyManagerBase {
 
   /**
    * Returns the entity view, if available.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity being rendered.
+   *
+   * @return array|bool
+   *   The renderable array of the view builder, or false if not applicable.
    */
   public function getEntityView($entity = NULL, $settings = [], $fallback = '') {
     if ($entity && $entity instanceof EntityInterface) {
@@ -242,13 +271,19 @@ class BlazyManager extends BlazyManagerBase {
 
   /**
    * Returns the Responsive image cache tags.
+   *
+   * @param \Drupal\responsive_image\ResponsiveImageStyleInterface $responsive
+   *   The responsive image style entity.
+   *
+   * @return array
+   *   The responsive image cache tags, or empty array.
    */
-  public function getResponsiveImageCacheTags($responsive_image_style = NULL) {
+  public function getResponsiveImageCacheTags($responsive = NULL) {
     $cache_tags = [];
     $image_styles_to_load = [];
-    if ($responsive_image_style) {
-      $cache_tags = Cache::mergeTags($cache_tags, $responsive_image_style->getCacheTags());
-      $image_styles_to_load = $responsive_image_style->getImageStyleIds();
+    if ($responsive) {
+      $cache_tags = Cache::mergeTags($cache_tags, $responsive->getCacheTags());
+      $image_styles_to_load = $responsive->getImageStyleIds();
     }
 
     $image_styles = $this->entityLoadMultiple('image_style', $image_styles_to_load);

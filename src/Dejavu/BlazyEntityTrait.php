@@ -79,12 +79,11 @@ trait BlazyEntityTrait {
       $this->getMediaItem($data, $entity);
     }
 
+    $settings = &$data['settings'];
     if (!empty($data['item'])) {
-      if (empty($data['settings']['uri'])) {
-        $data['settings']['uri'] = ($file = $data['item']->entity) && empty($data['item']->uri) ? $file->getFileUri() : $data['item']->uri;
+      if (empty($settings['uri'])) {
+        $settings['uri'] = ($file = $data['item']->entity) && empty($data['item']->uri) ? $file->getFileUri() : $data['item']->uri;
       }
-
-      $settings = $data['settings'];
 
       // Provide simple Blazy, if required.
       if (empty($settings['_basic'])) {
@@ -112,7 +111,7 @@ trait BlazyEntityTrait {
       }
     }
     else {
-      $build = $this->blazyManager()->getEntityView($entity, $data['settings'], $fallback);
+      $build = $this->blazyManager()->getEntityView($entity, $settings, $fallback);
     }
 
     return $build;

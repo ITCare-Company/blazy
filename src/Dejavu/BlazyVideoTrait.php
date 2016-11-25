@@ -4,6 +4,7 @@ namespace Drupal\blazy\Dejavu;
 
 use Drupal\Core\Url;
 use Drupal\file\Entity\File;
+use Drupal\blazy\BlazyMedia;
 
 /**
  * A Trait common for optional Media Entity and Video Embed Media integration.
@@ -161,22 +162,34 @@ trait BlazyVideoTrait {
     $settings['source_field'] = $source_field[$bundle];
     $settings['media_url']    = $media->url();
     $settings['media_id']     = $media->id();
-
-    $field_name = empty($settings['source_field']) ? '' : $settings['source_field'];
-    if (!empty($field_name) && isset($media->{$field_name})) {
-      $value = $media->{$field_name}->getValue();
-      $url   = isset($value[0]['uri']) ? $value[0]['uri'] : (isset($value[0]['value']) ? $value[0]['value'] : '');
-
-      $settings['input_url'] = $url;
-      if ($url) {
-        $this->buildVideo($settings, $url);
-      }
-    }
+    $settings['view_mode']    = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
 
     // If Media entity has a defined thumbnail, add it to data item.
     if (isset($fields['thumbnail'])) {
       $data['item'] = $fields['thumbnail']->get(0);
       $settings['file_tags'] = ['file:' . $data['item']->target_id];
+
+      // Provides thumbnail URI for EB selection with various Media entities.
+      if (empty($settings['uri'])) {
+        $settings['uri'] = File::load($data['item']->target_id)->getFileUri();
+      }
+    }
+
+    $source = empty($settings['source_field']) ? '' : $settings['source_field'];
+    if ($source && isset($media->{$source})) {
+      $value     = $media->{$source}->getValue();
+      $input_url = isset($value[0]['uri']) ? $value[0]['uri'] : (isset($value[0]['value']) ? $value[0]['value'] : '');
+
+      if ($input_url) {
+        $settings['input_url'] = $input_url;
+        $this->buildVideo($settings, $input_url);
+      }
+
+      // Supports other Media entities: Facebook, Instagram, Twitter, etc.
+      // @todo: Check for Audio embed, if any, if it can be made responsive.
+      if ($build = BlazyMedia::build($media, $settings)) {
+        $data['content'] = $build;
+      }
     }
 
     $data['settings'] = $settings;

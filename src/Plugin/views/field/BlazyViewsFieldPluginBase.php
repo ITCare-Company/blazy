@@ -79,7 +79,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
       if (isset($form[$key])) {
         $form[$key]['#default_value'] = isset($this->options[$key]) ? $this->options[$key] : $default;
         $form[$key]['#weight'] = 0;
-        if (in_array($key, ['box_style', 'box_media_style', 'box_mobile_style'])) {
+        if (in_array($key, ['box_style', 'box_media_style'])) {
           $form[$key]['#empty_option'] = $this->t('- None -');
         }
       }
@@ -124,7 +124,12 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    * Merges the settings.
    */
   public function mergedViewsSettings() {
-    $settings = $this->options;
+    $settings = [];
+
+    // Only fetch what we already asked for.
+    foreach ($this->getDefaultValues() as $key => $default) {
+      $settings[$key] = isset($this->options[$key]) ? $this->options[$key] : $default;
+    }
 
     $settings['count'] = count($this->view->result);
     $settings['current_view_mode'] = $this->view->current_display;
@@ -138,7 +143,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    */
   public function getScopedFormElements() {
     return [
-      'settings' => $this->options,
+      'settings' => array_filter($this->options),
       'target_type' => $this->view->getBaseEntityType()->id(),
       'thumbnail_style' => TRUE,
     ];
