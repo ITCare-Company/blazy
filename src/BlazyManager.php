@@ -310,8 +310,6 @@ class BlazyManager extends BlazyManagerBase {
    *
    * @deprecated: Removed prior to release for BlazyLightbox::switchMedia().
    */
-  public function getMediaSwitch(array &$element = []) {
-    BlazyLightbox::switchMedia($element);
-  }
+  public function getMediaSwitch(array &$element = []) {}
 
 }

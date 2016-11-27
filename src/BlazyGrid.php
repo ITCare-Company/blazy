@@ -10,7 +10,15 @@ use Drupal\Component\Serialization\Json;
 class BlazyGrid {
 
   /**
-   * Returns items as a grid display.
+   * Returns items as a grid display wrapped by theme_item_list().
+   *
+   * @param array $items
+   *   The grid items being modified.
+   * @param array $settings
+   *   The given settings.
+   *
+   * @return array
+   *   The modified array of grid items.
    */
   public static function buildGrid($items = [], $settings = []) {
     $grids = [];
@@ -68,6 +76,11 @@ class BlazyGrid {
 
   /**
    * Returns a grid item.
+   *
+   * @param array $grid
+   *   The grid item being modified.
+   * @param array $settings
+   *   The given settings.
    */
   public static function buildGridItemAttributes(array &$grid = [], $settings = []) {
     $grid['#wrapper_attributes']['class'][] = 'grid';

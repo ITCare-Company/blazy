@@ -113,7 +113,7 @@ function blazy_preprocess_field(array &$variables) {
 function blazy_views_pre_render($view) {
   if (!isset($view)) {
     return;
-  }  
+  }
   Blazy::viewsPreRender($view);
 }
 

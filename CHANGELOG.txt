@@ -1,6 +1,7 @@
 
 Blazy 8.x-1.0-dev, 2016-11-28
 -----------------------------
+- Added BlazyGrid doc comments.
 - Cleaned up unused imports, and no-longer relevant stuffs.
 
 Blazy 8.x-1.0-dev, 2016-11-27
