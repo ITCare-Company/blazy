@@ -5,7 +5,6 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\Component\Utility\Xss;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyGrid;
 
 /**

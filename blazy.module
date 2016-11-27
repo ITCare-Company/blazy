@@ -111,9 +111,9 @@ function blazy_preprocess_field(array &$variables) {
  * Implements hook_views_pre_render().
  */
 function blazy_views_pre_render($view) {
-  if (!isset($view) || !isset($view->field)) {
+  if (!isset($view)) {
     return;
-  }
+  }  
   Blazy::viewsPreRender($view);
 }
 

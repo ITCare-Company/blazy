@@ -369,12 +369,6 @@ class Blazy implements BlazyInterface {
         }
       }
 
-      if (isset($mappings['overridables'])) {
-        $mappings['overridables']['label'] = 'Overridable options';
-        $mappings['overridables']['sequence'][0]['type'] = 'string';
-        $mappings['overridables']['sequence'][0]['label'] = 'Overridable';
-      }
-
       // @todo: Drop non-UI stuffs.
       foreach (['dimension', 'display', 'item_id'] as $key) {
         $mappings[$key]['type'] = 'string';
@@ -414,10 +408,6 @@ class Blazy implements BlazyInterface {
    * Returns one of the Blazy Views fields, if available.
    */
   public static function blazyViewsField($view) {
-    if (!isset($view->field)) {
-      return;
-    }
-
     foreach (['file', 'media'] as $entity) {
       if (isset($view->field['blazy_' . $entity])) {
         return $view->field['blazy_' . $entity];

@@ -4,8 +4,6 @@ namespace Drupal\blazy;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Component\Serialization\Json;
-use Drupal\image\Entity\ImageStyle;
 
 /**
  * Implements a public facing blazy manager.
@@ -102,7 +100,7 @@ class BlazyManager extends BlazyManagerBase {
           continue;
         }
 
-        if (!empty($settings['background']) && ($style = ImageStyle::load($breakpoint['image_style']))) {
+        if (!empty($settings['background'])) {
           $point = trim($breakpoint['width']);
           $width = Blazy::widthFromDescriptors($point);
 
@@ -191,7 +189,7 @@ class BlazyManager extends BlazyManagerBase {
     $item  = $build['item'];
     unset($element['#build']);
 
-    $settings = &$build['settings'];
+    $settings = $build['settings'];
     if (empty($item)) {
       return [];
     }

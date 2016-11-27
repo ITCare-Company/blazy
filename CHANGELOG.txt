@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2016-11-28
+-----------------------------
+- Cleaned up unused imports, and no-longer relevant stuffs.
+
 Blazy 8.x-1.0-dev, 2016-11-27
 -----------------------------
 - Fixed for fatal error with disconnected internet when ME Facebook kicks in,
