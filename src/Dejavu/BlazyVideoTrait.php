@@ -81,7 +81,7 @@ trait BlazyVideoTrait {
   /**
    * Gets the faked image item out of file entity, or ER, if applicable.
    *
-   * @param object $file
+   * @param \Drupal\file\Entity\FileInterface $file
    *   The expected file entity, or ER, to get image item from.
    *
    * @return array
@@ -184,9 +184,12 @@ trait BlazyVideoTrait {
         $settings['input_url'] = $input_url;
         $this->buildVideo($settings, $input_url);
       }
+      // @todo move it to actual loop.
+      elseif (isset($value[0]['alt'])) {
+        $settings['type'] = 'image';
+      }
 
       // Supports other Media entities: Facebook, Instagram, Twitter, etc.
-      // @todo: Check for Audio embed, if any, if it can be made responsive.
       if ($build = BlazyMedia::build($media, $settings)) {
         $data['content'] = $build;
       }

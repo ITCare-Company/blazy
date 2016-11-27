@@ -12,6 +12,9 @@ class BlazyLightbox {
 
   /**
    * Gets media switch options: colorbox, photobox, not content nor iframe, etc.
+   *
+   * @param array $element
+   *   The element being-modified.
    */
   public static function switchMedia(array &$element = []) {
     $item     = $element['#item'];
@@ -112,6 +115,14 @@ class BlazyLightbox {
 
   /**
    * Build lightbox captions.
+   *
+   * @param \Drupal\image\Plugin\Field\FieldType\ImageItem $item
+   *   The image item.
+   * @param array $settings
+   *   The settings to work with.   
+   *
+   * @return array
+   *   The renderable array of caption, or empy array.
    */
   public static function buildCaptions($item, $settings = []) {
     $title   = empty($item->title) ? '' : $item->title;

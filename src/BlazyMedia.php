@@ -9,20 +9,53 @@ class BlazyMedia {
 
   /**
    * Builds the media field which cannot be displayed using theme_blazy().
+   *
+   * Some use URLs from inputs, some local files.
+   *
+   * @param \Drupal\media_entity\Entity\MediaInterface $media
+   *   The media being rendered.
+   *
+   * @return array|bool
+   *   The renderable array of the media field, or false if not applicable.
    */
   public static function build($media, $settings = []) {
-    if (empty($settings['type'])) {
-      $build = $media->get($settings['source_field'])->view($settings['view_mode']);
-      $build['#settings'] = $settings;
-
-      return self::wrap($build);
+    // Do not proceed if it has type, already managed by theme_blazy().
+    if (!empty($settings['type'])) {
+      return FALSE;
     }
 
-    return FALSE;
+    // Prevents fatal error with disconnected internet when having ME Facebook,
+    // and resorted to static thumbnails to avoid broken displays instead.
+    // GuzzleHttp\Exception\ConnectException: cURL error 6.
+    if (!empty($settings['input_url'])) {
+      // @todo: Remove when ME Facebook alike handles this.
+      try {
+        $response = \Drupal::httpClient()->get($settings['input_url']);
+      }
+      catch (\Exception $e) {
+        return FALSE;
+      }
+    }
+
+    $build = $media->get($settings['source_field'])->view($settings['view_mode']);
+    $build['#settings'] = $settings;
+
+    return self::wrap($build);
   }
 
   /**
-   * Converts field with #type iframe into a responsive Blazy with ratio.
+   * Returns a field to be wrapped by theme_container().
+   *
+   * Currently Instagram, and SlideShare are known to use iframe, and thus can
+   * be converted into a responsive Blazy with fluid ratio. The rest are
+   * returned as is, only wrapped by .media wrapper for consistency with complex
+   * interaction like EB.
+   *
+   * @param array $field
+   *   The source renderable array $field.
+   *
+   * @return array
+   *   The new renderable array of the media item wrapped by theme_container().
    */
   public static function wrap($field = []) {
     // Media entity is a single being, reasonable to work with multi-value?
@@ -31,6 +64,7 @@ class BlazyMedia {
     $attributes = &$item['#attributes'];
     $iframe     = isset($item['#tag']) && $item['#tag'] == 'iframe';
 
+    // Converts iframes into lazyloaded ones.
     if ($iframe && !empty($attributes['src'])) {
       $attributes['data-src'] = $attributes['src'];
       $attributes['class'][] = 'b-lazy media__iframe media__element';

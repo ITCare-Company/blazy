@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2016-11-27
+-----------------------------
+- Fixed for fatal error with disconnected internet when ME Facebook kicks in,
+  and resorted to static thumbnails to avoid broken displays instead.
+
 Blazy 8.x-1.0-dev, 2016-11-26
 -----------------------------
 - Added doc comments.

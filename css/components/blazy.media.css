@@ -157,7 +157,8 @@
 }
 
 /** Fix for overflowing Facebook/ Twitter iframes. */
-.grid .media {
+.grid .media,
+.grid .fb_iframe_widget {
   overflow: hidden;
 }
 
