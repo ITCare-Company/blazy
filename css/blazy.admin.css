@@ -1277,7 +1277,7 @@ td .form__title {
     white-space: normal;
   }
 
-  .form--slick.form--wide .form-checkboxes .form-item {
+  .form--slick.form--half .form-checkboxes .form-item {
     width: 33.3333%;
   }
 
@@ -1332,7 +1332,7 @@ td .form__title {
     width: auto;
   }
 
-  .form--slick.form--wide .form-checkboxes .form-item {
+  .form--slick.form--half .form-checkboxes .form-item {
     width: 24.9999%;
   }
 }

@@ -2,6 +2,8 @@
 
 namespace Drupal\blazy;
 
+use Drupal\image\Entity\ImageStyle;
+
 /**
  * Provides extra media utilities.
  */
@@ -25,8 +27,7 @@ class BlazyMedia {
     }
 
     // Prevents fatal error with disconnected internet when having ME Facebook,
-    // and resorted to static thumbnails to avoid broken displays instead.
-    // GuzzleHttp\Exception\ConnectException: cURL error 6.
+    // ME SlideShare, resorted to static thumbnails to avoid broken displays.
     if (!empty($settings['input_url'])) {
       // @todo: Remove when ME Facebook alike handles this.
       try {
@@ -86,7 +87,7 @@ class BlazyMedia {
 
     // Adds helper for Entity Browser small thumbnail selection.
     if (!empty($settings['thumbnail_style']) && !empty($settings['uri'])) {
-      $build['#attributes']['data-thumb'] = Blazy::buildThumbnailUrl($settings);
+      $build['#attributes']['data-thumb'] = ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
     }
 
     // Currently known media entities using iframe: Instagram.

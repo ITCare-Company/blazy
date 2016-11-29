@@ -4,6 +4,7 @@ namespace Drupal\blazy;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\image\Entity\ImageStyle;
 
 /**
  * Implements a public facing blazy manager.
@@ -25,7 +26,7 @@ class BlazyManager extends BlazyManagerBase {
 
     foreach ($settings['breakpoints'] as $key => &$breakpoint) {
       $breakpoint = array_filter($breakpoint);
-      if (empty($breakpoint['width']) || empty($breakpoint['image_style'])) {
+      if (empty($breakpoint['width']) && empty($breakpoint['image_style'])) {
         unset($settings['breakpoints'][$key]);
       }
     }
@@ -34,6 +35,36 @@ class BlazyManager extends BlazyManagerBase {
     if (empty($settings['blazy'])) {
       $settings['blazy'] = !empty($settings['breakpoints']);
     }
+  }
+
+  /**
+   * Sets dimensions once, if applicable, such as with a crop image style.
+   *
+   * @param array $settings
+   *   The settings being modified.
+   * @param \Drupal\image\Plugin\Field\FieldType\ImageItem $item
+   *   The image item.
+   */
+  public function setDimensionsOnce(array &$settings = [], $item = NULL) {
+    $dimensions['width']  = $settings['original_width'] = isset($item->width) ? $item->width : NULL;
+    $dimensions['height'] = $settings['original_height'] = isset($item->height) ? $item->height : NULL;
+
+    // If image style crop, sets image dimension once, and let all inherit.
+    if (($style = ImageStyle::load($settings['image_style'])) && Blazy::isCrop($style)) {
+      $style->transformDimensions($dimensions, $settings['uri']);
+
+      $settings['height'] = $dimensions['height'];
+      $settings['width']  = $dimensions['width'];
+
+      // Informs individual images that dimensions are already set once.
+      $settings['_dimensions'] = TRUE;
+    }
+
+    // Also sets breakpoint dimensions once, if cropped.
+    if (!empty($settings['breakpoints'])) {
+      $this->buildDataBlazy($settings, $item);
+    }
+    unset($settings['uri']);
   }
 
   /**
@@ -47,8 +78,6 @@ class BlazyManager extends BlazyManagerBase {
    *   The settings being modified.
    * @param \Drupal\image\Plugin\Field\FieldType\ImageItem $item
    *   The image item.
-   *
-   * @todo unified way between Views styles, Views fields and field formatters.
    */
   public function isBlazy(array &$settings = [], $item = []) {
     // Retrieves Blazy formatter related settings from within Views style.
@@ -56,9 +85,6 @@ class BlazyManager extends BlazyManagerBase {
     $content = isset($item[$item_id]) ? $item[$item_id] : $item;
 
     // 1. Blazy formatter within Views fields by supported modules.
-    // Image/Media related slick formatters, e.g.:
-    // \Drupal\slick\Plugin\Field\FieldFormatter\SlickFileFormatterBase.
-    // \Drupal\blazy\Dejavu\BlazyEntityReferenceBase
     if (isset($item['settings'])) {
       $blazy = isset($content['#build']['settings']) ? $content['#build']['settings'] : [];
 
@@ -80,36 +106,70 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
 
-    // Provide data for the [data-blazy] attribute at the containing element.
-    // Supported modules can add blazy_data as [data-blazy] to the container.
-    $this->buildDataBlazy($settings);
+    // Provides data for the [data-blazy] attribute at the containing element.
+    $this->cleanUpBreakpoints($settings);
+    if (!empty($settings['breakpoints'])) {
+      $image = isset($item['item']) ? $item['item'] : NULL;
+      $this->buildDataBlazy($settings, $image);
+    }
+    unset($settings['uri']);
   }
 
   /**
    * Builds breakpoints suitable for top-level [data-blazy] wrapper attributes.
    *
+   * The hustle is because we need to define dimensions once, if applicable, and
+   * let all images inherit. Each breakpoint image may be cropped, or scaled
+   * without a crop. To set dimensions once requires all breakpoint images
+   * uniformly cropped. But that is not always the case.
+   *
    * @param array $settings
    *   The settings being modified.
+   * @param \Drupal\image\Plugin\Field\FieldType\ImageItem $item
+   *   The image item.
+   *
+   * @todo: Refine this like everything else.
    */
-  public function buildDataBlazy(array &$settings = []) {
+  public function buildDataBlazy(array &$settings = [], $item = NULL) {
+    // Early opt-out if blazy_data has already been defined.
+    // Blazy doesn't always deal with image directly.
+    if (!empty($settings['blazy_data'])) {
+      return;
+    }
+
+    if (empty($settings['original_width'])) {
+      $settings['original_width'] = isset($item->width) ? $item->width : NULL;
+      $settings['original_height'] = isset($item->height) ? $item->height : NULL;
+    }
+
     $json = $sources = [];
-    if (!empty($settings['breakpoints'])) {
-      $end = end($settings['breakpoints']);
-      foreach ($settings['breakpoints'] as $key => $breakpoint) {
-        if (empty($breakpoint['image_style']) || empty($breakpoint['width'])) {
-          continue;
+    $end = end($settings['breakpoints']);
+    foreach ($settings['breakpoints'] as $key => $breakpoint) {
+      if ($width = Blazy::widthFromDescriptors($breakpoint['width'])) {
+        // If a crop, sets image dimension once, and let all images inherit.
+        if (!empty($settings['uri']) && !empty($settings['ratio'])) {
+          $dimensions['width'] = $settings['original_width'];
+          $dimensions['height'] = $settings['original_height'];
+
+          if (($style = ImageStyle::load($breakpoint['image_style']))) {
+            $style->transformDimensions($dimensions, $settings['uri']);
+            if (Blazy::isCrop($style)) {
+              $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
+              $json['dimensions'][$width] = $padding;
+
+              // Only set CSS padding-bottom value for the last breakpoint.
+              if ($end['width'] == $breakpoint['width']) {
+                $settings['padding_bottom'] = $padding;
+              }
+            }
+          }
         }
 
+        // If BG, provide [data-src-BREAKPOINT].
         if (!empty($settings['background'])) {
-          $point = trim($breakpoint['width']);
-          $width = Blazy::widthFromDescriptors($point);
-
           $sources[] = ['width' => (int) $width, 'src' => 'data-src-' . $key];
         }
       }
-
-      // Identify that Blazy can be activated only by breakpoints.
-      $settings['blazy'] = TRUE;
     }
 
     // As of Blazy v1.6.0 applied to BG only.
@@ -117,11 +177,19 @@ class BlazyManager extends BlazyManagerBase {
       $json['breakpoints'] = $sources;
     }
 
-    $json['ratio'] = empty($settings['ratio']) ? FALSE : $settings['ratio'];
+    // @todo: A more efficient way not to do this in the first place.
+    // ATM, this is okay as this method is run once on the top-level container.
+    if (isset($json['dimensions']) && (count($settings['breakpoints']) != count($json['dimensions']))) {
+      unset($json['dimensions']);
+    }
 
-    // Provide data for the [data-blazy] attribute at the containing element.
     // Supported modules can add blazy_data as [data-blazy] to the container.
-    $settings['blazy_data'] = $json;
+    if ($json) {
+      $settings['blazy_data'] = $json;
+    }
+
+    // Identify that Blazy can be activated only by breakpoints.
+    $settings['blazy'] = TRUE;
   }
 
   /**
@@ -147,7 +215,7 @@ class BlazyManager extends BlazyManagerBase {
     $settings['image_style'] = isset($settings['image_style']) ? $settings['image_style'] : '';
     $settings['namespace']   = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
 
-    if (!isset($settings['uri'])) {
+    if (empty($settings['uri'])) {
       $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
     }
 
@@ -216,6 +284,17 @@ class BlazyManager extends BlazyManagerBase {
         $element['#cache']['tags'] = $this->getResponsiveImageCacheTags($responsive_image_style);
       }
     }
+    else {
+      if (!isset($settings['_no_cache'])) {
+        $file_tags = isset($settings['file_tags']) ? $settings['file_tags'] : [];
+        $settings['cache_tags'] = empty($settings['cache_tags']) ? $file_tags : Cache::mergeTags($settings['cache_tags'], $file_tags);
+        $element['#cache'] = ['tags' => $settings['cache_tags']];
+
+        if (!empty($settings['cache_keys'])) {
+          $element['#cache']['keys'] = $settings['cache_keys'];
+        }
+      }
+    }
 
     $element['#item']            = $item;
     $element['#captions']        = isset($build['captions']) ? ['inline' => $build['captions']] : [];
@@ -228,7 +307,7 @@ class BlazyManager extends BlazyManagerBase {
         $element['#url'] = $settings['absolute_path'];
       }
       elseif ($this->getLightboxes() && in_array($settings['media_switch'], $this->getLightboxes())) {
-        BlazyLightbox::switchMedia($element);
+        BlazyLightbox::build($element);
       }
     }
 
@@ -308,7 +387,7 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Now included within BlazyLightbox.
    *
-   * @deprecated: Removed prior to release for BlazyLightbox::switchMedia().
+   * @deprecated: Removed prior to release for BlazyLightbox::build().
    */
   public function getMediaSwitch(array &$element = []) {}
 

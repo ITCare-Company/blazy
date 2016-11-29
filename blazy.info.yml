@@ -5,4 +5,4 @@ version: VERSION
 core: 8.x
 package: Blazy
 dependencies:
-  - image
+  - drupal:image

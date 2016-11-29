@@ -76,6 +76,13 @@ trait BlazyVideoTrait {
     $settings['scheme']    = $video->loadDefinitionFromInput($external_url)['id'];
     $settings['uri']       = $provider->getLocalThumbnailUri();
     $settings['type']      = 'video';
+
+    // Only applies when Image style is empty, no file API, no $item,
+    // with unmanaged VEF image without image_style.
+    // Prevents 404 warning when video thumbnail missing for a reason.
+    if (empty($settings['image_style']) && ($data = @getimagesize($settings['uri']))) {
+      list($settings['width'], $settings['height']) = $data;
+    }
   }
 
   /**
@@ -184,7 +191,6 @@ trait BlazyVideoTrait {
         $settings['input_url'] = $input_url;
         $this->buildVideo($settings, $input_url);
       }
-      // @todo move it to actual loop.
       elseif (isset($value[0]['alt'])) {
         $settings['type'] = 'image';
       }

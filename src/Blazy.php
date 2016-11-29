@@ -2,9 +2,7 @@
 
 namespace Drupal\blazy;
 
-use Drupal\Core\Cache\Cache;
 use Drupal\Core\Template\Attribute;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Unicode;
@@ -66,7 +64,7 @@ class Blazy implements BlazyInterface {
     // Thumbnails.
     // With CSS background, IMG may be empty, add thumbnail to the container.
     if (!empty($settings['thumbnail_style'])) {
-      $attributes['data-thumb'] = self::buildThumbnailUrl($settings);
+      $attributes['data-thumb'] = ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
     }
 
     // Check whether we have responsive image, or lazyloaded one.
@@ -82,21 +80,11 @@ class Blazy implements BlazyInterface {
       // Supports non-lazyloaded image.
       $image['#theme'] = 'image';
 
-      if (!isset($settings['_no_cache'])) {
-        $file_tags = isset($settings['file_tags']) ? $settings['file_tags'] : [];
-        $settings['cache_tags'] = empty($settings['cache_tags']) ? $file_tags : Cache::mergeTags($settings['cache_tags'], $file_tags);
-        $image['#cache'] = ['tags' => $settings['cache_tags']];
-
-        if (!empty($settings['cache_keys'])) {
-          $image['#cache']['keys'] = $settings['cache_keys'];
-        }
-      }
-
       // Aspect ratio to fix layout reflow with lazyloaded images responsively.
       // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
       if (!empty($settings['width'])) {
         if (!empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
-          $padding_bottom = round((($settings['height'] / $settings['width']) * 100), 2);
+          $padding_bottom = empty($settings['padding_bottom']) ? round((($settings['height'] / $settings['width']) * 100), 2) : $settings['padding_bottom'];
           $attributes['style'] = 'padding-bottom: ' . $padding_bottom . '%';
           $settings['_breakpoint_ratio'] = $settings['ratio'];
         }
@@ -162,7 +150,7 @@ class Blazy implements BlazyInterface {
       }
 
       // Prevents broken iframe when aspect ratio is empty.
-      if (empty($settings['ratio'])) {
+      if (empty($settings['ratio']) && !empty($settings['width'])) {
         $iframe['width'] = $settings['width'];
         $iframe['height'] = $settings['height'];
       }
@@ -177,9 +165,7 @@ class Blazy implements BlazyInterface {
     }
 
     // URL can be entity, or lightbox URL different from image URL.
-    $variables['url_attributes']    = new Attribute($variables['url_attributes']);
-
-    // Provides wrapper attributes if requested for complex need such as grid.
+    $variables['url_attributes']     = new Attribute($variables['url_attributes']);
     $variables['wrapper_attributes'] = isset($element['#wrapper_attributes']) ? new Attribute($element['#wrapper_attributes']) : [];
   }
 
@@ -196,7 +182,6 @@ class Blazy implements BlazyInterface {
     $lazy_attribute = empty($settings['lazy_attribute']) ? 'src' : $settings['lazy_attribute'];
 
     // Defines attributes, builtin, or supported lazyload such as Slick.
-    // Required for multi-serving images as of Blazy v1.6.0.
     $attributes['class'][] = empty($settings['lazy_class']) ? 'b-lazy' : $settings['lazy_class'];
     $attributes['data-' . $lazy_attribute] = $settings['image_url'];
 
@@ -215,7 +200,9 @@ class Blazy implements BlazyInterface {
         $url = $style->buildUrl($settings['uri']);
 
         // Supports multi-breakpoint aspect ratio with irregular sizes.
-        if (!empty($settings['_breakpoint_ratio'])) {
+        // Yet, only provide individual dimensions if not already set.
+        // @see Drupal\blazy\BlazyManager::buildDataBlazy().
+        if (!empty($settings['_breakpoint_ratio']) && empty($settings['blazy_data']['dimensions'])) {
           $dimensions = [
             'width'  => $settings['width'],
             'height' => $settings['height'],
@@ -280,19 +267,10 @@ class Blazy implements BlazyInterface {
     }
 
     // Sets dimensions.
-    // @todo: Compare to ::buildDataBlazy(), only proceed if different.
+    // VEF without image style, or image style with crop, may already set these.
     if (empty($settings['width'])) {
       $settings['width']  = isset($item->width)  ? $item->width  : NULL;
       $settings['height'] = isset($item->height) ? $item->height : NULL;
-
-      // Only applies when Image style is empty, no file API, no $item,
-      // with unmanaged VEF image without image_style.
-      if (empty($modifier) || empty($settings['width'])) {
-        // Prevents 404 warning when video thumbnail missing for a reason.
-        if ($data = @getimagesize($settings['uri'])) {
-          list($settings['width'], $settings['height']) = $data;
-        }
-      }
     }
 
     // Image style modifier can be multi-style images such as GridStack.
@@ -301,21 +279,30 @@ class Blazy implements BlazyInterface {
       $settings['image_url']  = $style->buildUrl($settings['uri']);
       $settings['cache_tags'] = $style->getCacheTags();
 
-      $dimensions = [
-        'width'  => $settings['width'],
-        'height' => $settings['height'],
-      ];
-      $style->transformDimensions($dimensions, $settings['uri']);
-      $settings['height'] = $dimensions['height'];
-      $settings['width']  = $dimensions['width'];
+      // Only re-calculate dimensions if not cropped, nor already set.
+      if (empty($settings['_dimensions'])) {
+        $dimensions = [
+          'width'  => $settings['width'],
+          'height' => $settings['height'],
+        ];
+
+        $style->transformDimensions($dimensions, $settings['uri']);
+        $settings['height'] = $dimensions['height'];
+        $settings['width']  = $dimensions['width'];
+      }
     }
   }
 
   /**
-   * Builds thumbnail URL for Photobox, PhotoSwipe, Entity Browser, etc.
+   * Checks if an image style contains crop effect.
    */
-  public static function buildThumbnailUrl($settings = []) {
-    return ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
+  public static function isCrop($style = NULL) {
+    foreach ($style->getEffects() as $uuid => $effect) {
+      if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
+        return TRUE;
+      }
+    }
+    return FALSE;
   }
 
   /**
@@ -323,6 +310,7 @@ class Blazy implements BlazyInterface {
    */
   public static function widthFromDescriptors($descriptor = '') {
     // Dynamic multi-serving aspect ratio with backward compatibility.
+    $descriptor = trim($descriptor);
     if (is_numeric($descriptor)) {
       return $descriptor;
     }
@@ -414,24 +402,6 @@ class Blazy implements BlazyInterface {
       }
     }
     return FALSE;
-  }
-
-  /**
-   * Implements hook_field_formatter_info_alter().
-   */
-  public static function fieldFormatterInfoAlter(array &$info) {
-    // Supports optional Media Entity via VEM within VEF if available.
-    if (function_exists('video_embed_media_media_bundle_insert')) {
-      $info['blazy_file'] = [
-        'id'          => 'blazy_file',
-        'label'       => new TranslatableMarkup('Blazy Image with Media'),
-        'description' => new TranslatableMarkup('Display the images associated to VEM/ME as videos.'),
-        'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter',
-        'field_types' => ['entity_reference', 'image'],
-        'quickedit'   => ['editor' => 'disabled'],
-        'provider'    => 'blazy',
-      ];
-    }
   }
 
   /**

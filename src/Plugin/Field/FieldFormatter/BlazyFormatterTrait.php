@@ -54,7 +54,7 @@ trait BlazyFormatterTrait {
 
     // Build grid if provided.
     if ($settings['_grid']) {
-      $build = BlazyGrid::buildGrid($build, $settings);
+      $build = BlazyGrid::build($build, $settings);
     }
     else {
       $build['#blazy'] = $settings;

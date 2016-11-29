@@ -1,4 +1,14 @@
 
+Blazy 8.x-1.0-dev, 2016-11-29
+-----------------------------
+- Renamed BlazyGrid::buildGrid() into BlazyGrid::build()
+  Renamed BlazyLightbox::switchMedia() into BlazyLightbox::build()
+  Both to get consistent with BlazyMedia::build().
+- Moved Slick Video dimensions into BlazyVideoTrait as this is only used by
+  Slick Video, not necessarily Blazy.
+- Moved Blazy #cache property back into BlazyManager to reduce complexity at
+  preprocess since this is more module feature than custom code.
+
 Blazy 8.x-1.0-dev, 2016-11-28
 -----------------------------
 - Added BlazyGrid doc comments.

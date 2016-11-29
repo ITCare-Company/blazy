@@ -17,8 +17,6 @@ class BlazyFormatterManager extends BlazyManager {
    */
   public function buildSettings(array &$build = [], $items) {
     $settings = &$build['settings'];
-    // @todo: Enable after proper checks.
-    // $settings = array_filter($settings);
 
     // Sniffs for Views to allow block__no_wrapper, views_no_wrapper, etc.
     if (function_exists('views_get_current_view') && $view = views_get_current_view()) {
@@ -61,20 +59,27 @@ class BlazyFormatterManager extends BlazyManager {
       'entity_type_id' => $entity_type_id,
       'field_type'     => $field_type,
       'field_name'     => $field_name,
-      'id'             => $id,
       'internal_path'  => $internal_path,
       'target_type'    => $target_type,
       'cache_metadata' => ['keys' => [$id, $count]],
     ];
 
     unset($entity, $field);
-    $settings['lightbox'] = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
 
+    $settings['id']          = $id;
+    $settings['lightbox']    = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
+    $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
+
+    // @todo: Enable after proper checks.
+    // $settings = array_filter($settings);
     if (!empty($settings['vanilla'])) {
+      $settings = array_filter($settings);
       return;
     }
 
-    $this->cleanUpBreakpoints($settings);
+    if (!empty($settings['breakpoints'])) {
+      $this->cleanUpBreakpoints($settings);
+    }
 
     $settings['caption']    = empty($settings['caption']) ? [] : array_filter($settings['caption']);
     $settings['resimage']   = function_exists('responsive_image_get_image_dimensions');
@@ -98,6 +103,14 @@ class BlazyFormatterManager extends BlazyManager {
       }
     }
     $settings['ratio'] = $ratio ? $settings['ratio'] : FALSE;
+
+    // Sets dimensions once, if cropped, to reduce costs with ton of images.
+    // This is less expensive than re-defining dimensions per image.
+    // @todo: Supports Media Entity.
+    if ($field_type == 'image' && !empty($settings['image_style'])) {
+      $settings['uri'] = $items[0]->entity->getFileUri();
+      $this->setDimensionsOnce($settings, $items[0]);
+    }
   }
 
 }

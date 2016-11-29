@@ -120,7 +120,7 @@ class BlazyViews extends StylePluginBase {
 
       // Supports Blazy formatter multi-breakpoint images if available.
       $this->blazyManager->isBlazy($settings, $items[0]);
-      $elements = BlazyGrid::buildGrid($items, $settings);
+      $elements = BlazyGrid::build($items, $settings);
       $elements['#attached'] = $this->blazyManager->attach($settings);
 
       unset($this->view->row_index, $items);

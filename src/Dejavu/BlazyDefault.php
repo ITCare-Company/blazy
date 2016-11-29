@@ -4,6 +4,8 @@ namespace Drupal\blazy\Dejavu;
 
 /**
  * Defines shared plugin default settings for field formatter and Views style.
+ *
+ * @todo: Consider moving this into Drupal\blazy namespace.
  */
 class BlazyDefault {
 

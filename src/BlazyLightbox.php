@@ -11,12 +11,12 @@ use Drupal\image\Entity\ImageStyle;
 class BlazyLightbox {
 
   /**
-   * Gets media switch options: colorbox, photobox, not content nor iframe, etc.
+   * Gets media switch elements: all lightboxes, not content, nor iframe.
    *
    * @param array $element
-   *   The element being-modified.
+   *   The element being modified.
    */
-  public static function switchMedia(array &$element = []) {
+  public static function build(array &$element = []) {
     $item     = $element['#item'];
     $settings = &$element['#settings'];
     $type     = empty($settings['type']) ? 'image' : $settings['type'];
@@ -30,13 +30,13 @@ class BlazyLightbox {
     $url_attributes['data-' . $switch . '-trigger'] = TRUE;
 
     // If it is a video/audio, otherwise image to image.
-    $settings['box_url']  = file_create_url($uri);
-    $settings['lightbox'] = $switch;
-    $settings['width']    = empty($settings['width']) ? $item->width : $settings['width'];
-    $settings['height']   = empty($settings['height']) ? $item->height : $settings['height'];
-    $settings['icon']     = empty($settings['icon']) ? ['#markup' => '<span class="media__icon media__icon--litebox"></span>'] : $settings['icon'];
+    $settings['box_url']    = file_create_url($uri);
+    $settings['icon']       = empty($settings['icon']) ? ['#markup' => '<span class="media__icon media__icon--litebox"></span>'] : $settings['icon'];
+    $settings['lightbox']   = $switch;
+    $settings['box_width']  = isset($item->width) ? $item->width : NULL;
+    $settings['box_height'] = isset($item->height) ? $item->height : NULL;
 
-    $dimensions = ['width' => $settings['width'], 'height' => $settings['height']];
+    $dimensions = ['width' => $settings['box_width'], 'height' => $settings['box_height']];
     if (!empty($settings['box_style'])) {
       $box_style = ImageStyle::load($settings['box_style']);
       $box_style->transformDimensions($dimensions, $uri);
@@ -44,7 +44,7 @@ class BlazyLightbox {
     }
 
     // Allows custom work to override this without image style, such as
-    // a combo of image, video, Instagram, etc.
+    // a combo of image, video, Instagram, Facebook, etc.
     if (empty($settings['_box_width'])) {
       $settings['box_width'] = $dimensions['width'];
       $settings['box_height'] = $dimensions['height'];
@@ -59,13 +59,11 @@ class BlazyLightbox {
       $json['height'] = 360;
 
       // Force autoplay for media URL on lightboxes, saving another click.
-      if ($json['scheme'] == 'soundcloud') {
-        if (strpos($url, 'auto_play') === FALSE || strpos($url, 'auto_play=false') !== FALSE) {
-          $url = strpos($url, '?') === FALSE ? $url . '?auto_play=true' : $url . '&auto_play=true';
-        }
-      }
-      elseif (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
+      if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
         $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
+      }
+      if ($settings['scheme'] == 'soundcloud') {
+        $url = strpos($url, '?') === FALSE ? $url . '?auto_play=true' : $url . '&auto_play=true';
       }
 
       // Provides custom lightbox media dimension, if so configured.
@@ -80,8 +78,7 @@ class BlazyLightbox {
         $box_media_style->transformDimensions($dimensions, $uri);
         $settings['box_url'] = $box_media_style->buildUrl($uri);
 
-        // Allows custom work to override this without image style, such as
-        // a combo of image, video, Instagram, etc.
+        // Allows custom work to override this without image style.
         if (empty($settings['_box_width'])) {
           $settings['box_width']  = $dimensions['width'];
           $settings['box_height'] = $dimensions['height'];
@@ -114,15 +111,15 @@ class BlazyLightbox {
   }
 
   /**
-   * Build lightbox captions.
+   * Builds lightbox captions.
    *
    * @param \Drupal\image\Plugin\Field\FieldType\ImageItem $item
    *   The image item.
    * @param array $settings
-   *   The settings to work with.   
+   *   The settings to work with.
    *
    * @return array
-   *   The renderable array of caption, or empy array.
+   *   The renderable array of caption, or empty array.
    */
   public static function buildCaptions($item, $settings = []) {
     $title   = empty($item->title) ? '' : $item->title;

@@ -20,7 +20,7 @@ class BlazyGrid {
    * @return array
    *   The modified array of grid items.
    */
-  public static function buildGrid($items = [], $settings = []) {
+  public static function build($items = [], $settings = []) {
     $grids = [];
     foreach ($items as $delta => $item) {
       // @todo support non-Blazy which normally uses item_id.
@@ -75,7 +75,7 @@ class BlazyGrid {
   }
 
   /**
-   * Returns a grid item.
+   * Modifies the grid item wrapper attributes.
    *
    * @param array $grid
    *   The grid item being modified.
@@ -90,14 +90,12 @@ class BlazyGrid {
     }
 
     if (!empty($settings['media_switch'])) {
-      $grid['#wrapper_attributes']['class'][] = 'grid--' . $settings['media_switch'];
-      if (strpos($settings['media_switch'], 'box') !== FALSE) {
-        $grid['#wrapper_attributes']['class'][] = 'grid--litebox';
-      }
+      $grid['#wrapper_attributes']['class'][] = 'grid--' . str_replace('_', '-', $settings['media_switch']);
     }
 
     $grid['#wrapper_attributes']['class'][] = 'grid--' . $settings['delta'];
 
+    // Adds settings accessible from the first item only.
     if ($settings['delta'] == 0) {
       $grid['#settings'] = array_filter($settings);
     }
