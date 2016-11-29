@@ -1,6 +1,7 @@
 
 Blazy 8.x-1.0-dev, 2016-11-29
 -----------------------------
+- Marked it Beta5.
 - Renamed BlazyGrid::buildGrid() into BlazyGrid::build()
   Renamed BlazyLightbox::switchMedia() into BlazyLightbox::build()
   Both to get consistent with BlazyMedia::build().

@@ -49,7 +49,7 @@ class BlazyManager extends BlazyManagerBase {
     $dimensions['width']  = $settings['original_width'] = isset($item->width) ? $item->width : NULL;
     $dimensions['height'] = $settings['original_height'] = isset($item->height) ? $item->height : NULL;
 
-    // If image style crop, sets image dimension once, and let all inherit.
+    // If image style contains crop, sets dimension once, and let all inherit.
     if (($style = ImageStyle::load($settings['image_style'])) && Blazy::isCrop($style)) {
       $style->transformDimensions($dimensions, $settings['uri']);
 
@@ -146,7 +146,7 @@ class BlazyManager extends BlazyManagerBase {
     $end = end($settings['breakpoints']);
     foreach ($settings['breakpoints'] as $key => $breakpoint) {
       if ($width = Blazy::widthFromDescriptors($breakpoint['width'])) {
-        // If a crop, sets image dimension once, and let all images inherit.
+        // If contains crop, sets dimension once, and let all images inherit.
         if (!empty($settings['uri']) && !empty($settings['ratio'])) {
           $dimensions['width'] = $settings['original_width'];
           $dimensions['height'] = $settings['original_height'];
