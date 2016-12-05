@@ -12,7 +12,7 @@ class BlazyDefault {
   /**
    * The supported $breakpoints.
    *
-   * @const $breakpoints.
+   * @var array
    */
   private static $breakpoints = ['xs', 'sm', 'md', 'lg', 'xl'];
 

@@ -67,7 +67,7 @@ trait BlazyFormatterTrait {
   /**
    * Build the Blazy elements.
    */
-  public function buildElements(array &$build = [], $files) {
+  public function buildElements(array &$build, $files) {
     $settings = $build['settings'];
     $is_media = method_exists($this, 'getMediaItem');
 

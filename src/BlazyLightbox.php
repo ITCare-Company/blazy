@@ -50,7 +50,11 @@ class BlazyLightbox {
       $settings['box_height'] = $dimensions['height'];
     }
 
-    $json = ['type' => $type, 'width' => $settings['box_width'], 'height' => $settings['box_height']];
+    $json = [
+      'type'   => $type,
+      'width'  => $settings['box_width'],
+      'height' => $settings['box_height'],
+    ];
     if (!empty($settings['embed_url'])) {
       $url = $settings['embed_url'];
 
@@ -113,17 +117,18 @@ class BlazyLightbox {
   /**
    * Builds lightbox captions.
    *
-   * @param \Drupal\image\Plugin\Field\FieldType\ImageItem $item
-   *   The image item.
+   * @param object|mixed $item
+   *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item, or array when
+   *   dealing with Video Embed Field.
    * @param array $settings
    *   The settings to work with.
    *
    * @return array
    *   The renderable array of caption, or empty array.
    */
-  public static function buildCaptions($item, $settings = []) {
+  public static function buildCaptions($item, array $settings = []) {
     $title   = empty($item->title) ? '' : $item->title;
-    $alt     = empty($item->alt)   ? '' : $item->alt;
+    $alt     = empty($item->alt) ? '' : $item->alt;
     $delta   = empty($settings['delta']) ? 0 : $settings['delta'];
     $caption = '';
 

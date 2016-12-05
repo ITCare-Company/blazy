@@ -12,10 +12,10 @@ class BlazyFormatterManager extends BlazyManager {
    *
    * @param array $build
    *   The array containing: settings, or potential optionset for extensions.
-   * @param array $items
+   * @param object $items
    *   The items to prepare settings for.
    */
-  public function buildSettings(array &$build = [], $items) {
+  public function buildSettings(array &$build, $items) {
     $settings = &$build['settings'];
 
     // Sniffs for Views to allow block__no_wrapper, views_no_wrapper, etc.
@@ -38,7 +38,7 @@ class BlazyFormatterManager extends BlazyManager {
     $namespace      = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
     $id             = isset($settings['id']) ? $settings['id'] : '';
     $id             = Blazy::getHtmlId("{$namespace}-{$entity_type_id}-{$entity_id}-{$field_clean}-{$view_mode}", $id);
-    $switch         = empty($settings['media_switch']) ? '' : empty($settings['media_switch']);
+    $switch         = empty($settings['media_switch']) ? '' : $settings['media_switch'];
     $internal_path  = $absolute_path = NULL;
 
     // Deals with UndefinedLinkTemplateException such as paragraphs type.

@@ -20,7 +20,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * The entity type manager service.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface;
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
@@ -189,7 +189,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
         if (class_exists($class)) {
           $reflection = new \ReflectionClass($class);
           if ($reflection->implementsInterface($skin_class . 'Interface')) {
-            $skin = new $class;
+            $skin = new $class();
             if (empty($methods) && method_exists($skin, 'skins')) {
               $items = $skin->skins();
             }

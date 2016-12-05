@@ -99,6 +99,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase implements Conta
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,
       'namespace'         => 'blazy',
+      'plugin_id'         => $this->getPluginId(),
       'settings'          => $this->getSettings(),
       'style'             => $multiple,
       'target_type'       => $target_type,

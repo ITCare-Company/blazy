@@ -179,6 +179,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#options'     => empty($definition['captions']) ? [] : $definition['captions'],
         '#description' => $this->t('Enable any of the following fields as captions. These fields are treated and wrapped as captions.'),
         '#weight'      => 80,
+        '#attributes'  => ['class' => ['form-wrapper--caption']],
       ];
     }
 
@@ -218,7 +219,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $form['breakpoints'] = [
       '#type'       => 'table',
       '#tree'       => TRUE,
-      '#header'     => [$this->t('Breakpoint'), $this->t('Image style'), $this->t('Max-width/Descriptor')],
+      '#header'     => [
+        $this->t('Breakpoint'),
+        $this->t('Image style'),
+        $this->t('Max-width/Descriptor'),
+      ],
       '#prefix'     => '<h2 class="form__title form__title--breakpoints">' . $title . '</h2>',
       '#attributes' => ['class' => ['form-wrapper--table', 'form-wrapper--table-breakpoints']],
       '#weight'     => 115,
@@ -575,15 +580,19 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns re-usable logic, styling and assets across fields and Views.
    */
   public function finalizeForm(array &$form, $definition = []) {
-    $namespace  = isset($definition['namespace']) ? $definition['namespace'] : 'slick';
-    $settings   = isset($definition['settings']) ? $definition['settings'] : [];
-    $vanilla    = isset($definition['vanilla']) ? ' form--vanilla' : '';
-    $captions   = empty($definition['captions']) ? 0 : count($definition['captions']);
-    $wide       = $captions > 2 ? ' form--wide' : '';
-    $fallback   = $namespace == 'slick' ? 'form--slick' : 'form--' . $namespace . ' form--slick';
-    $classes    = isset($definition['form_opening_classes'])
+    $namespace = isset($definition['namespace']) ? $definition['namespace'] : 'slick';
+    $settings = isset($definition['settings']) ? $definition['settings'] : [];
+    $vanilla = isset($definition['vanilla']) ? ' form--vanilla' : '';
+    $captions = empty($definition['captions']) ? 0 : count($definition['captions']);
+    $wide = $captions > 2 ? ' form--wide' : '';
+    $fallback = $namespace == 'slick' ? 'form--slick' : 'form--' . $namespace . ' form--slick';
+    $classes = isset($definition['form_opening_classes'])
       ? $definition['form_opening_classes']
       : $fallback . ' form--half has-tooltip' . $wide . $vanilla;
+
+    if (!empty($definition['field_type'])) {
+      $classes .= ' form--' . str_replace('_', '-', $definition['field_type']);
+    }
 
     $form['opening'] = [
       '#markup' => '<div class="' . $classes . '">',
@@ -597,7 +606,10 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
     $admin_css = isset($definition['admin_css']) ? $definition['admin_css'] : '';
     $admin_css = $admin_css ?: $this->blazyManager->configLoad('admin_css', 'blazy.settings');
-    $excludes  = ['button', 'container', 'details', 'fieldset', 'hidden', 'markup', 'item', 'submit', 'table'];
+
+    // @todo: Check if needed: 'button', 'container', 'submit'.
+    $excludes = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
+    $selects  = ['cache', 'optionset', 'view_mode'];
 
     foreach (Element::children($form) as $key) {
       if (isset($form[$key]['#type']) && !in_array($form[$key]['#type'], $excludes)) {
@@ -621,7 +633,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
             }
           }
         }
-        if ($form[$key]['#type'] == 'select' && !in_array($key, ['cache', 'optionset', 'view_mode'])) {
+
+        if ($form[$key]['#type'] == 'select' && !in_array($key, $selects)) {
           if (!isset($form[$key]['#empty_option']) && !isset($form[$key]['#required'])) {
             $form[$key]['#empty_option'] = $this->t('- None -');
           }
@@ -654,7 +667,22 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns time in interval for select options.
    */
   public function getCacheOptions() {
-    $period = [0, 60, 180, 300, 600, 900, 1800, 2700, 3600, 10800, 21600, 32400, 43200, 86400];
+    $period = [
+      0,
+      60,
+      180,
+      300,
+      600,
+      900,
+      1800,
+      2700,
+      3600,
+      10800,
+      21600,
+      32400,
+      43200,
+      86400,
+    ];
     $period = array_map([\Drupal::service('date.formatter'), 'formatInterval'], array_combine($period, $period));
     $period[0] = '<' . $this->t('No caching') . '>';
     return $period + [Cache::PERMANENT => $this->t('Permanent')];

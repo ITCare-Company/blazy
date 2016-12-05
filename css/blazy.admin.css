@@ -62,7 +62,7 @@ body.path-admin .form--slick *,
 }
 
 .form--slick #edit-delete {
-  float: right;
+  display: block;
 }
 
 .form--vanilla {
@@ -379,6 +379,11 @@ html.js .form--slick .collapsed .details-legend .details-legend-prefix::after {
   width: 100%;
 }
 
+/** Third party settings. */
+.form--slick ~ .form-item {
+  clear: both;
+}
+
 .form--slick > div[id^="field-"] fieldset {
   border-left: 0;
   border-right: 0;
@@ -431,6 +436,10 @@ html.js .form--slick .collapsed .details-legend .details-legend-prefix::after {
   text-align: left;
   white-space: normal;
   z-index: 99;
+}
+
+.has-tooltip .form-item--tooltip-wide > .description {
+  min-width: 320px;
 }
 
 .has-tooltip .form-item > .description ul {
@@ -706,7 +715,7 @@ html.js .form--slick .collapsed .details-legend .details-legend-prefix::after {
   /* Overrides over-specified Seven */
   padding: 2px 5px 2px 5px !important;
   margin: 0;
-  text-align: right;
+  /* text-align: right; */
   white-space: normal;
 }
 
@@ -1044,6 +1053,10 @@ td .form__title {
   max-width: 210px;
 }
 
+.form--slick .form__header .form-item .form-checkbox {
+  max-width: 100%;
+}
+
 .form--slick .form__header .form-item label {
   float: none;
   text-align: left;
@@ -1103,10 +1116,6 @@ td .form__title {
 .ui-dialog-content .form--slick .form-item,
 .ui-dialog-content .form--slick .form-item .form-item {
   clear: none;
-}
-
-.ui-dialog-content .form--views {
-  /* padding-top: 40px; */
 }
 
 .ui-dialog-content .form--views > .details-wrapper {
@@ -1238,6 +1247,10 @@ td .form__title {
     float: left;
   }
 
+  .form--slick .form-item label {
+    text-align: right;
+  }
+
   .form--half .form-item,
   .toolbar-tray-open .form--optionset .form-item {
     width: 100%;
@@ -1281,20 +1294,36 @@ td .form__title {
     width: 33.3333%;
   }
 
+  .form--slick.form--image .form-wrapper--caption .form-item {
+    width: 49.9999%;
+  }
+
   .field-plugin-settings-editing .form--slick {
     margin-top: 62px;
   }
 
-  .scroll .form--slick.form--style .form-item--style,
+  .form--slick.form--half {
+    margin-bottom: 42px;
+  }
+
+  .scroll .form--slick.form--half .form-item--style,
   .field-plugin-settings-editing .form--slick .form-item--style {
     background: none;
-    border: 0 ;
+    border: 0;
     min-height: 32px;
     padding: 0;
     position: absolute;
     right: 0;
     top: -42px;
     z-index: 9;
+  }
+
+  .form--slick .form__header .form-type-checkbox {
+    max-width: 100px;
+  }
+
+  .form--slick #edit-delete {
+    float: right;
   }
 }
 
@@ -1334,6 +1363,15 @@ td .form__title {
 
   .form--slick.form--half .form-checkboxes .form-item {
     width: 24.9999%;
+  }
+
+  .form--slick.form--image .form-wrapper--caption .form-item {
+    width: 49.9999%;
+  }
+
+  .has-tooltip .form-item--tooltip-wide > .description {
+    max-width: 480px;
+    min-width: 480px;
   }
 }
 

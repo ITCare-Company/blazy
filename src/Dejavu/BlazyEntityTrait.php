@@ -15,7 +15,7 @@ trait BlazyEntityTrait {
   /**
    * Returns the string value of the fields: link, or text.
    */
-  public function getFieldString($entity, $field_name = '', $langcode) {
+  public function getFieldString($entity, $field_name = '', $langcode = NULL) {
     $value = '';
     if (empty($field_name)) {
       return $value;
@@ -67,7 +67,7 @@ trait BlazyEntityTrait {
    * @return array
    *   The renderable array of theme_blazy(), or view builder, else empty.
    */
-  public function buildPreview($data = [], $entity, $fallback = '') {
+  public function buildPreview(array $data, $entity, $fallback = '') {
     $build = [];
 
     if (!$entity instanceof EntityInterface) {
@@ -116,6 +116,5 @@ trait BlazyEntityTrait {
 
     return $build;
   }
-
 
 }

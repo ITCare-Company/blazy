@@ -37,11 +37,10 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
 
     if (isset($definition['thumbnail_effect'])) {
       $form['thumbnail_effect'] = [
-        '#type'        => 'select',
-        '#title'       => $this->t('Thumbnail effect'),
-        '#options'     => isset($definition['thumbnail_effect']) ? $definition['thumbnail_effect'] : [],
-        '#weight'      => -100,
-        // '#states'      => $this->getState(static::STATE_THUMBNAIL_STYLE_ENABLED, $definition),
+        '#type'    => 'select',
+        '#title'   => $this->t('Thumbnail effect'),
+        '#options' => isset($definition['thumbnail_effect']) ? $definition['thumbnail_effect'] : [],
+        '#weight'  => -100,
       ];
     }
 
@@ -70,6 +69,8 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
 
     unset($image_styles['']);
 
+    // @todo: Check if 'container' needed.
+    $extras = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
     foreach ($settings as $key => $setting) {
       $type = isset($elements[$key]['#type']) ? $elements[$key]['#type'] : '';
 
@@ -77,7 +78,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
         continue;
       }
 
-      if (in_array($type, ['button', 'container', 'details', 'fieldset', 'hidden', 'markup', 'item', 'submit', 'table']) || empty($type)) {
+      if (in_array($type, $extras) || empty($type)) {
         continue;
       }
 

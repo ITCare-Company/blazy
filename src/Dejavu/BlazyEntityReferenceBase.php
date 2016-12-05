@@ -22,7 +22,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
   /**
    * Returns media contents.
    */
-  public function buildElements(array &$build = [], $entities, $langcode) {
+  public function buildElements(array &$build, $entities, $langcode) {
     $settings  = &$build['settings'];
     $view_mode = $settings['view_mode'] ?: 'full';
 
@@ -67,7 +67,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
   /**
    * Returns slide contents.
    */
-  public function buildElement(array &$build = [], $entity, $langcode) {
+  public function buildElement(array &$build, $entity, $langcode) {
     $settings  = &$build['settings'];
     $delta     = $settings['delta'];
     $item_id   = $settings['item_id'];
@@ -75,7 +75,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     $element   = ['settings' => $settings];
 
     // Built early before stage to allow custom highres video thumbnail later.
-    // Implementor must import: Drupal\blazy\Dejavu\BlazyVideoTrait
+    // Implementor must import: Drupal\blazy\Dejavu\BlazyVideoTrait.
     $this->getMediaItem($element, $entity);
 
     // Build the main stage.
@@ -117,7 +117,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
   /**
    * Builds slide captions with possible multi-value fields.
    */
-  public function getCaption(array &$element = [], $entity, $langcode) {
+  public function getCaption(array &$element, $entity, $langcode) {
     $settings  = $element['settings'];
     $view_mode = $settings['view_mode'];
 
@@ -183,7 +183,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
   /**
    * Builds overlay placed within the caption.
    */
-  public function getOverlay($settings = [], $entity, $langcode) {
+  public function getOverlay(array $settings, $entity, $langcode) {
     return $entity->get($settings['overlay'])->view($settings['view_mode']);
   }
 
@@ -193,7 +193,7 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
    * Main image can be separate image item from video thumbnail for highres.
    * Fallback to default thumbnail if any, which has no file API.
    */
-  public function buildStage(array &$element = [], $entity, $langcode) {
+  public function buildStage(array &$element, $entity, $langcode) {
     $settings = &$element['settings'];
     $stage    = empty($settings['source_field']) ? '' : $settings['source_field'];
     $stage    = empty($settings['image']) ? $stage : $settings['image'];
@@ -277,8 +277,11 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     $target_type = $this->getFieldSetting('target_type');
     $views_ui    = $this->getFieldSetting('handler') == 'default';
     $bundles     = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
-    $strings     = $admin->getFieldOptions($bundles, ['text', 'string', 'list_string'], $target_type);
-    $texts       = $admin->getFieldOptions($bundles, ['text', 'text_long', 'string', 'string_long', 'link'], $target_type);
+    $strings     = ['text', 'string', 'list_string'];
+    $strings     = $admin->getFieldOptions($bundles, $strings, $target_type);
+    $texts       = ['text', 'text_long', 'string', 'string_long', 'link'];
+    $texts       = $admin->getFieldOptions($bundles, $texts, $target_type);
+    $links       = ['text', 'string', 'link'];
 
     return [
       'background'        => TRUE,
@@ -294,9 +297,10 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
       'images'            => $admin->getFieldOptions($bundles, ['image'], $target_type),
       'image_style_form'  => TRUE,
       'layouts'           => $strings,
-      'links'             => $admin->getFieldOptions($bundles, ['text', 'string', 'link'], $target_type),
+      'links'             => $admin->getFieldOptions($bundles, $links, $target_type),
       'media_switch_form' => TRUE,
       'multimedia'        => TRUE,
+      'plugin_id'         => $this->getPluginId(),
       'settings'          => $this->getSettings(),
       'target_bundles'    => $bundles,
       'target_type'       => $target_type,
@@ -314,6 +318,6 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
    *
    * @todo: Drop to re-use BlazyVideoTrait::getMediaItem() for everything else.
    */
-  public function buildMedia(array &$settings = [], $entity, $langcode) {}
+  public function buildMedia(array &$settings, $entity, $langcode) {}
 
 }

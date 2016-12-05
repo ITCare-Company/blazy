@@ -88,7 +88,7 @@ trait BlazyVideoTrait {
   /**
    * Gets the faked image item out of file entity, or ER, if applicable.
    *
-   * @param \Drupal\file\Entity\FileInterface $file
+   * @param object $file
    *   The expected file entity, or ER, to get image item from.
    *
    * @return array
@@ -112,15 +112,15 @@ trait BlazyVideoTrait {
     $uri = $entity->getFileUri();
 
     if ($type == 'image' && ($image = $this->imageFactory()->get($uri)) && $image->isValid()) {
-      $item             = new \stdClass();
-      $item->target_id  = $entity->id();
-      $item->width      = $image->getWidth();
-      $item->height     = $image->getHeight();
-      $item->alt        = $entity->getFilename();
-      $item->title      = $entity->getFilename();
-      $item->uri        = $uri;
-      $settings         = (array) $item;
-      $item->entity     = $entity;
+      $item            = new \stdClass();
+      $item->target_id = $entity->id();
+      $item->width     = $image->getWidth();
+      $item->height    = $image->getHeight();
+      $item->alt       = $entity->getFilename();
+      $item->title     = $entity->getFilename();
+      $item->uri       = $uri;
+      $settings        = (array) $item;
+      $item->entity    = $entity;
 
       $settings['type'] = 'image';
 
@@ -195,9 +195,12 @@ trait BlazyVideoTrait {
         $settings['type'] = 'image';
       }
 
+      // Do not proceed if it has type, already managed by theme_blazy().
       // Supports other Media entities: Facebook, Instagram, Twitter, etc.
-      if ($build = BlazyMedia::build($media, $settings)) {
-        $data['content'] = $build;
+      if (empty($settings['type'])) {
+        if ($build = BlazyMedia::build($media, $settings)) {
+          $data['content'] = $build;
+        }
       }
     }
 

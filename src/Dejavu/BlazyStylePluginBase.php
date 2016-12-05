@@ -102,12 +102,17 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
             break;
         }
 
-        if (in_array($handler['type'], ['list_key', 'entity_reference_label', 'text', 'string'])) {
+        $classes = ['list_key', 'entity_reference_label', 'text', 'string'];
+        if (in_array($handler['type'], $classes)) {
           $options['classes'][$field] = $field_names[$field];
         }
 
         $slicks   = strpos($handler['type'], 'slick') !== FALSE;
-        $overlays = ['entity_reference_entity_view', 'video_embed_field_video', 'youtube_video'];
+        $overlays = [
+          'entity_reference_entity_view',
+          'video_embed_field_video',
+          'youtube_video',
+        ];
         if ($slicks || in_array($handler['type'], $overlays)) {
           $options['overlays'][$field] = $field_names[$field];
         }
@@ -115,7 +120,12 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
         // Allows advanced formatters/video as the main image replacement.
         // They are not reasonable for thumbnails, but main images.
         // Note: Certain Responsive image has no ID at Views, possibly a bug.
-        $images = ['colorbox', 'photobox', 'video_embed_field_video', 'youtube_video'];
+        $images = [
+          'colorbox',
+          'photobox',
+          'video_embed_field_video',
+          'youtube_video',
+        ];
         if (in_array($handler['type'], $images)) {
           $options['images'][$field] = $field_names[$field];
         }
@@ -159,7 +169,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
   /**
    * Returns an individual row/element content.
    */
-  public function buildElement(array &$element = [], $row, $index, $grids = []) {
+  public function buildElement(array &$element, $row, $index, $grids = []) {
     $settings = &$element['settings'];
     $item_id  = empty($settings['item_id']) ? 'box' : $settings['item_id'];
 
@@ -170,7 +180,6 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
       $grid_style        = empty($grids) && !isset($grids[$index]['image_style']) ? '' : $grids[$index]['image_style'];
       $image             = $this->getImageRenderable($settings, $row, $index, $grid_style);
       $rendered          = empty($image['rendered']) ? [] : $image['rendered'];
-
       $element['item']   = $this->getImageItem($image);
       $element[$item_id] = empty($settings['background']) ? $rendered : '';
     }
@@ -190,7 +199,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
    * Allows one formatter to have different image styles based on $grid_style.
    * The supported formatters: image, colorbox, or any with #image_style.
    */
-  public function getImageRenderable(array &$settings = [], $row, $index, $grid_style = '') {
+  public function getImageRenderable(array &$settings, $row, $index, $grid_style = '') {
     $image = $this->isImageRenderable($row, $index, $settings['image']);
 
     /* @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
@@ -221,17 +230,11 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
       $grid_style = $image['rendered']['#image_style'];
     }
 
-    // $image_settings = [];
-    // $image['rendered']['#settings'] = $settings;
     if (!empty($grid_style)) {
       // If it is an image_formatter, modify the image style based on new one.
       $image['rendered']['#image_style'] = $grid_style;
 
       // The supported formatters: blazy.
-      // if (isset($image['rendered']['#build']['settings'])) {
-      // $image_settings = &$image['rendered']['#build']['settings'];
-      // }
-
       // Blazy modifiers, see GridStack multi-styled images for the boxes.
       $settings['_dimensions_reset'] = TRUE;
       $settings['image_style'] = $grid_style;
@@ -303,7 +306,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
       $items['data'] = $caption_items;
     }
 
-    $items['link']  = empty($settings['link'])  ? [] : $this->getFieldRendered($index, $settings['link']);
+    $items['link']  = empty($settings['link']) ? [] : $this->getFieldRendered($index, $settings['link']);
     $items['title'] = empty($settings['title']) ? [] : $this->getFieldRendered($index, $settings['title'], TRUE);
 
     if (!empty($settings['overlay'])) {
@@ -316,7 +319,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
   /**
    * Returns the rendered layout fields.
    */
-  public function getLayout(array &$settings = [], $index) {
+  public function getLayout(array &$settings, $index) {
     if (strpos($settings['layout'], 'field_') !== FALSE) {
       $settings['layout'] = strip_tags($this->getField($index, $settings['layout']));
     }

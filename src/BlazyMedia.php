@@ -14,18 +14,13 @@ class BlazyMedia {
    *
    * Some use URLs from inputs, some local files.
    *
-   * @param \Drupal\media_entity\Entity\MediaInterface $media
+   * @param object $media
    *   The media being rendered.
    *
    * @return array|bool
    *   The renderable array of the media field, or false if not applicable.
    */
   public static function build($media, $settings = []) {
-    // Do not proceed if it has type, already managed by theme_blazy().
-    if (!empty($settings['type'])) {
-      return FALSE;
-    }
-
     // Prevents fatal error with disconnected internet when having ME Facebook,
     // ME SlideShare, resorted to static thumbnails to avoid broken displays.
     if (!empty($settings['input_url'])) {
@@ -58,7 +53,7 @@ class BlazyMedia {
    * @return array
    *   The new renderable array of the media item wrapped by theme_container().
    */
-  public static function wrap($field = []) {
+  public static function wrap(array $field = []) {
     // Media entity is a single being, reasonable to work with multi-value?
     $item       = $field[0];
     $settings   = isset($field['#settings']) ? $field['#settings'] : [];

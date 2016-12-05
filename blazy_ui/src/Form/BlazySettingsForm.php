@@ -14,7 +14,7 @@ class BlazySettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormID() {
+  public function getFormId() {
     return 'blazy_settings';
   }
 

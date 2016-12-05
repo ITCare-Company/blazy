@@ -146,6 +146,9 @@ o If breakpoints provided with tons of images, using image styles with ANY crop
 AUTHOR/MAINTAINER/CREDITS
 gausarts
 
+Contributors:
+https://www.drupal.org/node/2663268/committers
+
 
 READ MORE
 See the project page on drupal.org: http://drupal.org/project/blazy.

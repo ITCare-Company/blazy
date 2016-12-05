@@ -42,8 +42,9 @@ class BlazyManager extends BlazyManagerBase {
    *
    * @param array $settings
    *   The settings being modified.
-   * @param \Drupal\image\Plugin\Field\FieldType\ImageItem $item
-   *   The image item.
+   * @param object|mixed $item
+   *   The expected \Drupal\image\Plugin\Field\FieldType\ImageItem item, or
+   *   possibly an array when accepting Video Embed Field values.
    */
   public function setDimensionsOnce(array &$settings = [], $item = NULL) {
     $dimensions['width']  = $settings['original_width'] = isset($item->width) ? $item->width : NULL;
@@ -76,13 +77,22 @@ class BlazyManager extends BlazyManagerBase {
    *
    * @param array $settings
    *   The settings being modified.
-   * @param \Drupal\image\Plugin\Field\FieldType\ImageItem $item
-   *   The image item.
+   * @param array $item
+   *   The item containing settings or item keys.
    */
-  public function isBlazy(array &$settings = [], $item = []) {
+  public function isBlazy(array &$settings, array $item = []) {
     // Retrieves Blazy formatter related settings from within Views style.
-    $item_id = $settings['item_id'];
-    $content = isset($item[$item_id]) ? $item[$item_id] : $item;
+    $item_id  = $settings['item_id'];
+    $content  = isset($item[$item_id]) ? $item[$item_id] : $item;
+    $cherries = [
+      'blazy',
+      'box_style',
+      'image_style',
+      'lazy',
+      'media_switch',
+      'ratio',
+      'uri',
+    ];
 
     // 1. Blazy formatter within Views fields by supported modules.
     if (isset($item['settings'])) {
@@ -93,7 +103,7 @@ class BlazyManager extends BlazyManagerBase {
         $settings['breakpoints'] = $blazy['breakpoints'];
       }
 
-      foreach (['blazy', 'box_style', 'image_style', 'lazy', 'media_switch', 'ratio', 'uri'] as $key) {
+      foreach ($cherries as $key) {
         $fallback = isset($settings[$key]) ? $settings[$key] : '';
         $settings[$key] = isset($blazy[$key]) && empty($fallback) ? $blazy[$key] : $fallback;
       }
@@ -125,12 +135,13 @@ class BlazyManager extends BlazyManagerBase {
    *
    * @param array $settings
    *   The settings being modified.
-   * @param \Drupal\image\Plugin\Field\FieldType\ImageItem $item
-   *   The image item.
+   * @param object|mixed $item
+   *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item, or array when
+   *   dealing with Video Embed Field.
    *
    * @todo: Refine this like everything else.
    */
-  public function buildDataBlazy(array &$settings = [], $item = NULL) {
+  public function buildDataBlazy(array &$settings, $item = NULL) {
     // Early opt-out if blazy_data has already been defined.
     // Blazy doesn't always deal with image directly.
     if (!empty($settings['blazy_data'])) {
@@ -201,7 +212,7 @@ class BlazyManager extends BlazyManagerBase {
    * @return array
    *   The alterable and renderable array of enforced content, or theme_blazy().
    */
-  public function getImage($build = []) {
+  public function getImage(array $build = []) {
     /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
     $item     = $build['item'];
     $settings = &$build['settings'];
@@ -252,7 +263,7 @@ class BlazyManager extends BlazyManagerBase {
    * @return array
    *   The renderable array of pre-rendered element.
    */
-  public function preRenderImage($element) {
+  public function preRenderImage(array $element) {
     $build = $element['#build'];
     $item  = $build['item'];
     unset($element['#build']);
@@ -302,7 +313,7 @@ class BlazyManager extends BlazyManagerBase {
     $element['#url']             = '';
     $element['#settings']        = $settings;
 
-    if (!empty($settings['media_switch'])) {
+    if (!empty($settings['media_switch']) && $settings['media_switch'] != 'media') {
       if ($settings['media_switch'] == 'content' && !empty($settings['absolute_path'])) {
         $element['#url'] = $settings['absolute_path'];
       }
@@ -317,14 +328,14 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Returns the entity view, if available.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param object $entity
    *   The entity being rendered.
    *
    * @return array|bool
    *   The renderable array of the view builder, or false if not applicable.
    */
   public function getEntityView($entity = NULL, $settings = [], $fallback = '') {
-    if ($entity && $entity instanceof EntityInterface) {
+    if ($entity instanceof EntityInterface) {
       $entity_type_id = $entity->getEntityTypeId();
       $view_hook      = $entity_type_id . '_view';
       $view_mode      = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
@@ -349,7 +360,7 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Returns the Responsive image cache tags.
    *
-   * @param \Drupal\responsive_image\ResponsiveImageStyleInterface $responsive
+   * @param object $responsive
    *   The responsive image style entity.
    *
    * @return array

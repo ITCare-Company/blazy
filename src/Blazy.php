@@ -25,7 +25,8 @@ class Blazy implements BlazyInterface {
    */
   public static function buildAttributes(&$variables) {
     $element = $variables['element'];
-    foreach (['captions', 'item_attributes', 'settings', 'url', 'url_attributes'] as $key) {
+    $all = ['captions', 'item_attributes', 'settings', 'url', 'url_attributes'];
+    foreach ($all as $key) {
       $variables[$key] = isset($element["#$key"]) ? $element["#$key"] : [];
     }
 
@@ -135,6 +136,7 @@ class Blazy implements BlazyInterface {
 
     // Prepares a media player, and allows a tiny video preview without iframe.
     if ($media && empty($settings['_noiframe'])) {
+      // Contains iframe-related settings.
       // image : If iframe switch disabled, fallback to iframe, remove image.
       // player: If no colorbox/photobox, it is an image to iframe switcher.
       // data- : Gets consistent with colorbox to share JS manipulation.
@@ -176,7 +178,6 @@ class Blazy implements BlazyInterface {
    * the expected keys: width, image_style.
    *
    * @see self::buildAttributes()
-   * @see BlazyManager::buildDataBlazy()
    */
   public static function buildBreakpointAttributes(array &$attributes = [], array &$settings = []) {
     $lazy_attribute = empty($settings['lazy_attribute']) ? 'src' : $settings['lazy_attribute'];
@@ -269,7 +270,7 @@ class Blazy implements BlazyInterface {
     // Sets dimensions.
     // VEF without image style, or image style with crop, may already set these.
     if (empty($settings['width'])) {
-      $settings['width']  = isset($item->width)  ? $item->width  : NULL;
+      $settings['width']  = isset($item->width) ? $item->width : NULL;
       $settings['height'] = isset($item->height) ? $item->height : NULL;
     }
 
@@ -343,7 +344,7 @@ class Blazy implements BlazyInterface {
         $mappings[$key]['type'] = $key == 'breakpoints' ? 'mapping' : (is_array($value) ? 'sequence' : gettype($value));
 
         if (!is_array($value)) {
-          $mappings[$key]['label'] = Unicode::ucfirst(str_replace('_' , ' ' , $key));
+          $mappings[$key]['label'] = Unicode::ucfirst(str_replace('_', ' ', $key));
         }
       }
 
@@ -352,7 +353,7 @@ class Blazy implements BlazyInterface {
           $mappings['breakpoints']['mapping'][$breakpoint]['type'] = 'mapping';
           foreach (['breakpoint', 'width', 'image_style'] as $item) {
             $mappings['breakpoints']['mapping'][$breakpoint]['mapping'][$item]['type']  = 'string';
-            $mappings['breakpoints']['mapping'][$breakpoint]['mapping'][$item]['label'] = Unicode::ucfirst(str_replace('_' , ' ' , $item));
+            $mappings['breakpoints']['mapping'][$breakpoint]['mapping'][$item]['label'] = Unicode::ucfirst(str_replace('_', ' ', $item));
           }
         }
       }

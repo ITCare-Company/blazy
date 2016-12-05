@@ -72,7 +72,7 @@ class BlazyViews extends StylePluginBase {
   }
 
   /**
-   * Overrides \Drupal\views\Plugin\views\style\StylePluginBase::buildOptionsForm().
+   * Overrides StylePluginBase::buildOptionsForm().
    */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     $definition = [

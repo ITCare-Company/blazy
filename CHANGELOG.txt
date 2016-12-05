@@ -1,4 +1,11 @@
 
+Blazy 8.x-1.0-dev, 2016-12-05
+-----------------------------
+- Fixed for coding standards.
+- Fixed for a few admin CSS for small device.
+- Fixed for settings lightbox due to old approach with boolean, not string.
+- Moved Grid settings from the first Grid item into theme_item_list() context.
+
 Blazy 8.x-1.0-dev, 2016-11-29
 -----------------------------
 - Marked it Beta5.
