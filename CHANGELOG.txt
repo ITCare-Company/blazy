@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2016-12-07
+-----------------------------
+- Improved settings lightbox to reduce method calls for View fields, and Entity
+  Browser plugins with tons of images.
+
 Blazy 8.x-1.0-dev, 2016-12-05
 -----------------------------
 - Fixed for coding standards.

@@ -57,6 +57,9 @@ trait BlazyEntityTrait {
   /**
    * Build image/video preview either using theme_blazy(), or view builder.
    *
+   * This is alternative to Drupal\blazy\BlazyFormatterManager used outside
+   * field formatters, such as Views field, or Entity Browser displays, etc.
+   *
    * @param array $data
    *   An array of data containing settings, and image item.
    * @param object $entity
@@ -81,6 +84,10 @@ trait BlazyEntityTrait {
 
     $settings = &$data['settings'];
     if (!empty($data['item'])) {
+      if (!empty($settings['media_switch'])) {
+        $is_lightbox = $this->blazyManager()->getLightboxes() && in_array($settings['media_switch'], $this->blazyManager()->getLightboxes());
+        $settings['lightbox'] = $is_lightbox ? $settings['media_switch'] : FALSE;
+      }
       if (empty($settings['uri'])) {
         $settings['uri'] = ($file = $data['item']->entity) && empty($data['item']->uri) ? $file->getFileUri() : $data['item']->uri;
       }

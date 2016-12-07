@@ -195,6 +195,8 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     // Supported modules can add blazy_data as [data-blazy] to the container.
+    // This also informs individual images to not work with dimensions any more
+    // if the image style contains 'crop'.
     if ($json) {
       $settings['blazy_data'] = $json;
     }
@@ -317,7 +319,7 @@ class BlazyManager extends BlazyManagerBase {
       if ($settings['media_switch'] == 'content' && !empty($settings['absolute_path'])) {
         $element['#url'] = $settings['absolute_path'];
       }
-      elseif ($this->getLightboxes() && in_array($settings['media_switch'], $this->getLightboxes())) {
+      elseif (!empty($settings['lightbox'])) {
         BlazyLightbox::build($element);
       }
     }

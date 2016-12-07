@@ -42,9 +42,12 @@ class BlazyGrid {
 
     $count = empty($settings['count']) ? count($grids) : $settings['count'];
     $blazy = empty($settings['blazy_data']) ? '' : $settings['blazy_data'];
+    $settings['style'] = empty($settings['style']) ? 'grid' : $settings['style'];
+
     $element = [
       '#theme' => 'item_list',
       '#items' => $grids,
+      '#context' => ['settings' => $settings],
       '#attributes' => [
         'class' => [
           'blazy',
@@ -57,7 +60,6 @@ class BlazyGrid {
       '#wrapper_attributes' => [
         'class' => ['item-list--blazy', 'item-list--blazy-' . $settings['style']],
       ],
-      '#context' => ['settings' => $settings],
     ];
 
     if (!empty($settings['media_switch'])) {
