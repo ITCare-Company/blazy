@@ -1,4 +1,13 @@
 
+Blazy 8.x-1.0-dev, 2016-12-09
+-----------------------------
+- Supported Media Entity to set dimensions once to reduce method calls.
+- Simplified BlazyManager::setDimensionsOnce() to support Media Entity, etc.
+- Cleaned out deprecated methods which were already merged into theme_blazy():
+  BlazyManager::getUrlBreakpoints()
+  BlazyManager::getUrlDimensions()
+  BlazyManager::getMediaSwitch()
+
 Blazy 8.x-1.0-dev, 2016-12-07
 -----------------------------
 - Improved settings lightbox to reduce method calls for View fields, and Entity

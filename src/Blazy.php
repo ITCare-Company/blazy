@@ -41,9 +41,10 @@ class Blazy implements BlazyInterface {
       $settings[$key] = isset($settings[$key]) ? $settings[$key] : '';
     }
 
-    $settings['type']    = empty($settings['type']) ? 'image' : $settings['type'];
-    $settings['ratio']   = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
-    $settings['item_id'] = empty($settings['item_id']) ? 'blazy' : $settings['item_id'];
+    $settings['type']      = empty($settings['type']) ? 'image' : $settings['type'];
+    $settings['ratio']     = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
+    $settings['item_id']   = empty($settings['item_id']) ? 'blazy' : $settings['item_id'];
+    $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
 
     self::buildUrl($settings, $item);
 
@@ -153,7 +154,7 @@ class Blazy implements BlazyInterface {
 
       // Prevents broken iframe when aspect ratio is empty.
       if (empty($settings['ratio']) && !empty($settings['width'])) {
-        $iframe['width'] = $settings['width'];
+        $iframe['width']  = $settings['width'];
         $iframe['height'] = $settings['height'];
       }
 

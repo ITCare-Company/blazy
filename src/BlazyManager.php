@@ -38,15 +38,13 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * Sets dimensions once, if applicable, such as with a crop image style.
+   * Sets dimensions once to reduce method calls, if image style contains crop.
    *
    * @param array $settings
    *   The settings being modified.
-   * @param object|mixed $item
-   *   The expected \Drupal\image\Plugin\Field\FieldType\ImageItem item, or
-   *   possibly an array when accepting Video Embed Field values.
    */
-  public function setDimensionsOnce(array &$settings = [], $item = NULL) {
+  public function setDimensionsOnce(array &$settings = []) {
+    $item                 = isset($settings['item']) ? $settings['item'] : NULL;
     $dimensions['width']  = $settings['original_width'] = isset($item->width) ? $item->width : NULL;
     $dimensions['height'] = $settings['original_height'] = isset($item->height) ? $item->height : NULL;
 
@@ -65,7 +63,9 @@ class BlazyManager extends BlazyManagerBase {
     if (!empty($settings['breakpoints'])) {
       $this->buildDataBlazy($settings, $item);
     }
-    unset($settings['uri']);
+
+    // Remove these since this method is meant for top-level container.
+    unset($settings['uri'], $settings['item']);
   }
 
   /**
@@ -191,7 +191,7 @@ class BlazyManager extends BlazyManagerBase {
     // @todo: A more efficient way not to do this in the first place.
     // ATM, this is okay as this method is run once on the top-level container.
     if (isset($json['dimensions']) && (count($settings['breakpoints']) != count($json['dimensions']))) {
-      unset($json['dimensions']);
+      unset($json['dimensions'], $settings['padding_bottom']);
     }
 
     // Supported modules can add blazy_data as [data-blazy] to the container.
@@ -226,14 +226,9 @@ class BlazyManager extends BlazyManagerBase {
 
     $settings['delta']       = isset($settings['delta']) ? $settings['delta'] : 0;
     $settings['image_style'] = isset($settings['image_style']) ? $settings['image_style'] : '';
-    $settings['namespace']   = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
 
     if (empty($settings['uri'])) {
       $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
-    }
-
-    if ($theme == 'blazy') {
-      $settings['blazy'] = TRUE;
     }
 
     // Respects content not handled by theme_blazy(), but passed through.
@@ -382,26 +377,5 @@ class BlazyManager extends BlazyManagerBase {
     }
     return $cache_tags;
   }
-
-  /**
-   * Now included within theme_blazy().
-   *
-   * @deprecated: Removed for Blazy::buildBreakpointAttributes().
-   */
-  public function getUrlBreakpoints(array &$settings = []) {}
-
-  /**
-   * Now included within theme_blazy().
-   *
-   * @deprecated: Removed prior to release for Blazy::buildUrl().
-   */
-  public function getUrlDimensions(array &$settings = [], $item = NULL, $modifier = NULL) {}
-
-  /**
-   * Now included within BlazyLightbox.
-   *
-   * @deprecated: Removed prior to release for BlazyLightbox::build().
-   */
-  public function getMediaSwitch(array &$element = []) {}
 
 }

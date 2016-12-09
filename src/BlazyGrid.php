@@ -22,6 +22,10 @@ class BlazyGrid {
    */
   public static function build(array $items = [], array $settings = []) {
     $grids = [];
+    $blazy = empty($settings['blazy_data']) ? '' : $settings['blazy_data'];
+
+    $settings['style'] = empty($settings['style']) ? 'grid' : $settings['style'];
+
     foreach ($items as $delta => $item) {
       // @todo support non-Blazy which normally uses item_id.
       $item_settings = isset($item['#build']['settings']) ? $item['#build']['settings'] : $settings;
@@ -41,9 +45,6 @@ class BlazyGrid {
     }
 
     $count = empty($settings['count']) ? count($grids) : $settings['count'];
-    $blazy = empty($settings['blazy_data']) ? '' : $settings['blazy_data'];
-    $settings['style'] = empty($settings['style']) ? 'grid' : $settings['style'];
-
     $element = [
       '#theme' => 'item_list',
       '#items' => $grids,

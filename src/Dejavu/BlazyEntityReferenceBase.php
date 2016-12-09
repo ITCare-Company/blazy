@@ -313,11 +313,4 @@ abstract class BlazyEntityReferenceBase extends EntityReferenceFormatterBase {
     ];
   }
 
-  /**
-   * Collects media definitions.
-   *
-   * @todo: Drop to re-use BlazyVideoTrait::getMediaItem() for everything else.
-   */
-  public function buildMedia(array &$settings, $entity, $langcode) {}
-
 }
