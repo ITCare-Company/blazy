@@ -1,6 +1,7 @@
 
 Blazy 8.x-1.0-dev, 2016-12-12
 -----------------------------
+- #2834759 by DuneBL: Allow missing image.
 - Decoupled base entity reference formatter without field supports into
   \Drupal\blazy\Dejavu\BlazyEntityBase to allow a simple ER formatter.
 - Added form--style- classes for easy decluterring of Blazy/ Slick form which is

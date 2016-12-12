@@ -106,7 +106,7 @@ class BlazyFormatterManager extends BlazyManager {
     // Sets dimensions once, if cropped, to reduce costs with ton of images.
     // This is less expensive than re-defining dimensions per image.
     if (!empty($settings['image_style'])) {
-      if ($field_type == 'image') {
+      if ($field_type == 'image' && $items[0]) {
         $settings['item'] = $items[0];
         $settings['uri']  = $items[0]->entity->getFileUri();
       }
