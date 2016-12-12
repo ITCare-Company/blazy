@@ -183,6 +183,10 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
     }
 
+    if (!empty($definition['target_type']) && !empty($definition['view_mode'])) {
+      $form['view_mode'] = $this->baseForm($definition)['view_mode'];
+    }
+
     $weight = -99;
     foreach (Element::children($form) as $key) {
       if (!isset($form[$key]['#weight'])) {
@@ -518,10 +522,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#weight'      => -96,
         '#states'      => $this->getState(static::STATE_IFRAME_ENABLED, $definition),
       ];
-    }
-
-    if (!empty($definition['target_type']) && isset($definition['view_mode'])) {
-      $form['view_mode'] = $this->baseForm($definition)['view_mode'];
     }
 
     // Optional lightbox integration.

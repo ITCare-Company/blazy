@@ -42,14 +42,6 @@
       }
     };
 
-    if (drupalSettings.colorbox.mobiledetect && window.matchMedia) {
-      // Disable Colorbox for small screens.
-      var mq = window.matchMedia('(max-device-width: ' + drupalSettings.colorbox.mobiledevicewidth + ')');
-      if (mq.matches) {
-        return;
-      }
-    }
-
     /**
      * Remove the custom colorbox classes.
      */
@@ -103,6 +95,14 @@
    */
   Drupal.behaviors.blazyColorbox = {
     attach: function (context) {
+      if (drupalSettings.colorbox.mobiledetect && window.matchMedia) {
+        // Disable Colorbox for small screens.
+        var mq = window.matchMedia('(max-device-width: ' + drupalSettings.colorbox.mobiledevicewidth + ')');
+        if (mq.matches) {
+          return;
+        }
+      }
+
       $('[data-colorbox-trigger]', context).once('blazy-colorbox').each(blazyColorbox);
     }
   };

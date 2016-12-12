@@ -27,7 +27,7 @@
   }
 }
 
-/* The lazyloaded element: IMG, IFRAME, DIV */
+/* The lazyloaded element: IMG, IFRAME, DIV. */
 .b-lazy,
 .b-responsive {
   display: block;

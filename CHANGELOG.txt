@@ -1,4 +1,15 @@
 
+Blazy 8.x-1.0-dev, 2016-12-12
+-----------------------------
+- Decoupled base entity reference formatter without field supports into
+  \Drupal\blazy\Dejavu\BlazyEntityBase to allow a simple ER formatter.
+- Added form--style- classes for easy decluterring of Blazy/ Slick form which is
+  not easy with form states.
+- Changed library weights.
+- Moved Colorbox mobile dimension check outside the loop.
+- Updated blazy.admin.js to declutter options which are not properly managed
+  by form states.
+
 Blazy 8.x-1.0-dev, 2016-12-09
 -----------------------------
 - Supported Media Entity to set dimensions once to reduce method calls.
