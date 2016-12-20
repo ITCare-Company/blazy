@@ -55,20 +55,14 @@ class BlazyLightbox {
       'width'  => $settings['box_width'],
       'height' => $settings['box_height'],
     ];
-    if (!empty($settings['embed_url'])) {
-      $url = $settings['embed_url'];
 
+    if (!empty($settings['embed_url'])) {
       $json['scheme'] = $settings['scheme'];
       $json['width']  = 640;
       $json['height'] = 360;
 
       // Force autoplay for media URL on lightboxes, saving another click.
-      if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
-        $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
-      }
-      if ($settings['scheme'] == 'soundcloud') {
-        $url = strpos($url, '?') === FALSE ? $url . '?auto_play=true' : $url . '&auto_play=true';
-      }
+      $url = empty($settings['autoplay_url']) ? $settings['embed_url'] : $settings['autoplay_url'];
 
       // Provides custom lightbox media dimension, if so configured.
       // @todo: Remove for Lightbox media style.

@@ -32,20 +32,21 @@ trait BlazyFormatterTrait {
     }
 
     // Collects specific settings to this formatter.
-    $settings              = $this->getSettings();
-    $settings['namespace'] = $settings['item_id'] = $settings['lazy'] = 'blazy';
+    $settings              = $this->buildSettings();
     $settings['blazy']     = TRUE;
-    $settings['plugin_id'] = $this->getPluginId();
+    $settings['namespace'] = $settings['item_id'] = $settings['lazy'] = 'blazy';
     $settings['_grid']     = !empty($settings['style']) && !empty($settings['grid']);
 
     // Build the settings.
     $build = ['settings' => $settings];
 
+    // Modifies settings.
     $this->blazyManager->buildSettings($build, $items);
 
     // Build the elements.
     $this->buildElements($build, $files);
 
+    // Updates settings.
     $settings = $build['settings'];
     unset($build['settings']);
 
@@ -53,11 +54,11 @@ trait BlazyFormatterTrait {
     $this->blazyManager->isBlazy($settings, $build[0]['#build']);
 
     // Build grid if provided.
-    if ($settings['_grid']) {
-      $build = BlazyGrid::build($build, $settings);
+    if (empty($settings['_grid'])) {
+      $build['#blazy'] = $settings;
     }
     else {
-      $build['#blazy'] = $settings;
+      $build = BlazyGrid::build($build, $settings);
     }
 
     $build['#attached'] = $this->blazyManager->attach($settings);

@@ -5,7 +5,7 @@ namespace Drupal\blazy;
 use Drupal\image\Entity\ImageStyle;
 
 /**
- * Provides extra media utilities.
+ * Provides extra media utilities without dependencies on Media Entity, etc.
  */
 class BlazyMedia {
 

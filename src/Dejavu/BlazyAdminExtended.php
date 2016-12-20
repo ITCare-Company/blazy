@@ -20,7 +20,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
 
     $namespace = $definition['namespace'];
 
-    if (isset($definition['vanilla'])) {
+    if (!empty($definition['vanilla'])) {
       $form['vanilla'] = [
         '#type'        => 'checkbox',
         '#title'       => $this->t('Vanilla @namespace', ['@namespace' => $namespace]),
@@ -36,7 +36,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
       $form['optionset'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Optionset'),
-        '#options'     => isset($definition['optionsets']) ? $definition['optionsets'] : $this->getOptionsetOptions($namespace),
+        '#options'     => $definition['optionsets'],
         '#enforced'    => TRUE,
         '#description' => $this->t('Enable the optionset UI module to manage the optionsets.'),
         '#weight'      => -108,
@@ -58,7 +58,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
       $form['image'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Main stage'),
-        '#options'     => isset($definition['images']) ? $definition['images'] : [],
+        '#options'     => is_array($definition['images']) ? $definition['images'] : [],
         '#description' => $this->t('Main background/stage image field.'),
         '#prefix'      => '<h3 class="form__title form__title--fields">' . $this->t('Fields') . '</h3>',
       ];
@@ -68,7 +68,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
       $form['thumbnail'] = array(
         '#type'        => 'select',
         '#title'       => $this->t('Thumbnail image'),
-        '#options'     => isset($definition['thumbnails']) ? $definition['thumbnails'] : [],
+        '#options'     => is_array($definition['thumbnails']) ? $definition['thumbnails'] : [],
         '#description' => t("Leave empty to not use thumbnail pager."),
       );
     }
@@ -77,7 +77,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
       $form['overlay'] = array(
         '#type'        => 'select',
         '#title'       => $this->t('Overlay media'),
-        '#options'     => isset($definition['overlays']) ? $definition['overlays'] : [],
+        '#options'     => is_array($definition['overlays']) ? $definition['overlays'] : [],
         '#description' => $this->t('Overlay is displayed over the main main.'),
       );
     }
@@ -86,7 +86,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
       $form['title'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Title'),
-        '#options'     => isset($definition['titles']) ? $definition['titles'] : [],
+        '#options'     => is_array($definition['titles']) ? $definition['titles'] : [],
         '#description' => $this->t('If provided, it will bre wrapped with H2.'),
       ];
     }
@@ -95,7 +95,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
       $form['link'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Link'),
-        '#options'     => isset($definition['links']) ? $definition['links'] : [],
+        '#options'     => is_array($definition['links']) ? $definition['links'] : [],
         '#description' => $this->t('Link to content: Read more, View Case Study, etc.'),
       ];
     }
@@ -104,13 +104,13 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
       $form['class'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Item class'),
-        '#options'     => isset($definition['classes']) ? $definition['classes'] : [],
+        '#options'     => is_array($definition['classes']) ? $definition['classes'] : [],
         '#description' => $this->t('If provided, individual item will have this class, e.g.: to have different background with transparent images. Be sure its formatter is Key or Label. Accepted field types: list text, string (e.g.: node title), term/entity reference label.'),
         '#weight'      => 6,
       ];
     }
 
-    if (isset($definition['id'])) {
+    if (!empty($definition['id'])) {
       $form['id'] = [
         '#type'         => 'textfield',
         '#title'        => $this->t('@namespace ID', ['@namespace' => $definition['namespace']]),

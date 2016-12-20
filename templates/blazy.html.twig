@@ -48,7 +48,7 @@
       <iframe{{ iframe_attributes.addClass(iframe_classes) }} allowfullscreen></iframe>
       {% if settings.media_switch %}
         <span class="media__icon media__icon--close"></span>
-        <span class="media__icon media__icon--play" data-url="{{ settings.embed_url }}"></span>
+        <span class="media__icon media__icon--play" data-url="{{ settings.autoplay_url }}"></span>
       {% endif %}
     {% endblock %}
   {% endif %}

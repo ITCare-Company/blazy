@@ -51,6 +51,16 @@
       t[$select.val() === '' ? 'removeClass' : 'addClass']('form--responsive-image-on');
     }).change();
 
+    $('select[name$="[media_switch]"]', t).on('change', function () {
+      var $select = $(this);
+
+      t.removeClass(function (index, css) {
+        return (css.match(/(^|\s)form--media-switch-\S+/g) || []).join(' ');
+      });
+
+      t[$select.val() === '' ? 'removeClass' : 'addClass']('form--media-switch-' + $select.val());
+    }).change();
+
     t.on('mouseenter touchstart', '.hint', function () {
       $(this).closest('.form-item').addClass('is-hovered');
     });

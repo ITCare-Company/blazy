@@ -18,11 +18,14 @@ o IFRAME urls via via custom coded, Blazy Image with Media entity via Video
 o Delay loading for below-fold images until 100px (configurable) before they are
   visible at viewport.
 o A simple effortless CSS loading indicator.
-o Views fields for File ER and Media Entity integration, optional.
-o Views style plugin Blazy Grid.
-o Field formatters: Blazy, and Blazy Image with Media integration, optional.
 o It doesn't take over all images, so it can be enabled as needed via Blazy
   formatter, or its supporting modules.
+
+
+OPTIONAL FEATURES
+o Views fields for File ER and Media Entity integration.
+o Views style plugin Blazy Grid.
+o Field formatters: Blazy, and Blazy Image with Media integration.
 
 
 REQUIREMENTS
@@ -59,6 +62,7 @@ And load the blazy library accordingly.
 
 
 MODULES THAT INTEGRATE WITH OR REQUIRE BLAZY
+o Blazy PhotoSwipe
 o GridStack
 o Intense
 o Mason
@@ -67,7 +71,9 @@ o Slick Views (D8 only by now)
 o Slick Media
 o Slick Video
 o Slick Browser
-Most duplication efforts from the above modules will be merged into Blazy.
+
+Most duplication efforts from the above modules will be merged into
+\Drupal\blazy\Dejavu namespace.
 
 
 SIMILAR MODULES
@@ -79,7 +85,7 @@ TROUBLESHOOTING
 Resizing is not supported. Just reload the page.
 
 VIEWS INTEGRATION
-Blazy provides two simple Views fields for File ER and Media Entity.
+Blazy provides two simple Views fields for File ER, and Media Entity.
 
 When using Blazy formatter within Views, check "Use field template" under
   "Style settings", if trouble with Blazy Formatter as stand alone Views output.
@@ -102,7 +108,7 @@ Add a min-height CSS to individual element to avoid layout reflow if not using
   Both layout reflow and lazyloading delay issues are actually taken care of
   if Aspect ratio is enabled in the first place.
 
-Adjust, and override it blazy CSS files accordingly.
+Adjust, and override blazy CSS files accordingly.
 
 
 ROADMAP/TODO
@@ -140,7 +146,8 @@ PERFORMANCE TIPS:
 o If breakpoints provided with tons of images, using image styles with ANY crop
   is recommended to avoid image dimension calculation with individual images.
   The image dimensions will be set once, and inherited by all images as long as
-  they have a crop. If using scaled image styles, regular calculation applies.
+  they contain word crop. If using scaled image styles, regular calculation
+  applies.
 
 
 AUTHOR/MAINTAINER/CREDITS

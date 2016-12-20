@@ -68,6 +68,6 @@
 }
 
 /* Be sure to add width to the container accordingly, otherwise collapsed. */
-.blazy--ratio.field {
+.field[data-blazy] {
   min-width: 50%;
 }

@@ -1375,7 +1375,7 @@ td .form__title {
   }
 }
 
-/** Declutter form when Vanilla is enabled coz table states are broken. */
+/** Declutter form when Vanilla is enabled coz table form states are broken. */
 .form--vanilla-on .form__title--media-switch,
 .form--vanilla-on .form__title--fields,
 .form--vanilla-on .form__title--breakpoints,
@@ -1383,6 +1383,13 @@ td .form__title {
 .form--vanilla-on .form-wrapper--table-breakpoints,
 .form--responsive-image-on .form__title--breakpoints,
 .form--responsive-image-on .tableresponsive-toggle-columns,
-.form--responsive-image-on .form-wrapper--table-breakpoints {
+.form--responsive-image-on .form-wrapper--table-breakpoints,
+.form--responsive-image-on .form-item--sizes,
+.form--media-switch-rendered .form__title--breakpoints,
+.form--media-switch-rendered .tableresponsive-toggle-columns,
+.form--media-switch-rendered .form-wrapper--table-breakpoints,
+.form--media-switch-rendered .form-item--background,
+.form--media-switch-rendered .form-item--image-style,
+.form--media-switch-rendered .form-item--ratio {
   display: none !important;
 }

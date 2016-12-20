@@ -1,4 +1,22 @@
 
+Blazy 8.x-1.0-dev, 2016-12-20
+-----------------------------
+- Decoupled Views stuffs from Blazy into BlazyViews.
+- Simplified media switch player JS.
+- Fixed for schema error with double and float insanity at sub-modules.
+- Simplified Blazy::buildUrl() to remove image_style $modifier assumption, and
+  let the actual extender use regular image_style override instead. GridStack
+  and Mason should update this accordingly.
+- Added Media switcher "Image rendered by its formatter" option to render images
+  as is for a special formatter with fieldable entities like Media, or
+  Paragraphs formatters such as with Image Link Formatter.
+- Refined select #options conditions.
+- Removed some complex form states to use custom JS with CSS visibility instead.
+- Allowed disabling Aspect ratio option which is not relevant for fixed grids
+  like Mason or GridStack. Alo image_style option such as with GridStack multi-
+  image-style grids field formatters.
+- Decoupled iframe related attributes into Blazy::buildIframeAttributes().
+
 Blazy 8.x-1.0-dev, 2016-12-12
 -----------------------------
 - #2834759 by DuneBL: Allow missing image.

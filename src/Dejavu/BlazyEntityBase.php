@@ -6,7 +6,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
 
 /**
- * Base class for entity reference formatters without field supports.
+ * Base class for entity reference formatters without field details.
  */
 abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
 
@@ -14,26 +14,18 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
    * Returns media contents.
    */
   public function buildElements(array &$build, $entities, $langcode) {
-    $settings  = &$build['settings'];
-    $view_mode = empty($settings['view_mode']) ? 'full' : $settings['view_mode'];
-
     foreach ($entities as $delta => $entity) {
       // Protect ourselves from recursive rendering.
       static $depth = 0;
       $depth++;
       if ($depth > 20) {
-        $this->loggerFactory->get('entity')->error('Recursive rendering detected when rendering entity @entity_type @entity_id. Aborting rendering.', array('@entity_type' => $entity->getEntityTypeId(), '@entity_id' => $entity->id()));
+        $this->loggerFactory->get('entity')->error('Recursive rendering detected when rendering entity @entity_type @entity_id. Aborting rendering.', ['@entity_type' => $entity->getEntityTypeId(), '@entity_id' => $entity->id()]);
         return $build;
       }
 
-      $settings['delta'] = $delta;
+      $build['settings']['delta'] = $delta;
       if ($entity->id()) {
-        if (!empty($settings['vanilla'])) {
-          $build['items'][$delta] = $this->manager()->getEntityTypeManager()->getViewBuilder($entity->getEntityTypeId())->view($entity, $view_mode, $langcode);
-        }
-        else {
-          $this->buildElement($build, $entity, $langcode);
-        }
+        $this->buildElement($build, $entity, $langcode);
 
         // Add the entity to cache dependencies so to clear when it is updated.
         $this->manager()->getRenderer()->addCacheableDependency($build['items'][$delta], $entity);
@@ -41,24 +33,27 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
       else {
         $this->referencedEntities = NULL;
         // This is an "auto_create" item.
-        $build[$delta] = array('#markup' => $entity->label());
+        $build['items'][$delta] = ['#markup' => $entity->label()];
       }
 
       $depth = 0;
     }
 
     // Supports Blazy formatter multi-breakpoint images if available.
-    if (empty($settings['vanilla'])) {
+    if (empty($build['settings']['vanilla'])) {
       $this->formatter->isBlazy($build['settings'], $build['items'][0]);
     }
-
-    return $build;
   }
 
   /**
-   * Returns slide contents.
+   * Returns item contents.
    */
-  public function buildElement(array &$build, $entity, $langcode) {}
+  public function buildElement(array &$build, $entity, $langcode) {
+    $view_mode = empty($build['settings']['view_mode']) ? 'full' : $build['settings']['view_mode'];
+    $delta = $build['settings']['delta'];
+
+    $build['items'][$delta] = $this->manager()->getEntityTypeManager()->getViewBuilder($entity->getEntityTypeId())->view($entity, $view_mode, $langcode);
+  }
 
   /**
    * {@inheritdoc}

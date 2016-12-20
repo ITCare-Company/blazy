@@ -114,7 +114,7 @@ function blazy_views_pre_render($view) {
   if (!isset($view)) {
     return;
   }
-  Blazy::viewsPreRender($view);
+  \Drupal\blazy\BlazyViews::viewsPreRender($view);
 }
 
 /**

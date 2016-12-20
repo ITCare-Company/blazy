@@ -5,7 +5,7 @@ namespace Drupal\blazy\Dejavu;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Base class for entity reference formatters with field supports.
+ * Base class for entity reference formatters with field details.
  */
 abstract class BlazyEntityReferenceBase extends BlazyEntityBase {
 
@@ -34,6 +34,11 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityBase {
 
     // Build the main stage.
     $this->buildStage($element, $entity, $langcode);
+
+    // If Image rendered is picked, render image as is.
+    if (!empty($settings['image']) && (!empty($settings['media_switch']) && $settings['media_switch'] == 'rendered')) {
+      $element['content'][] = $this->getFieldRenderable($entity, $settings['image'], $view_mode);
+    }
 
     // Optional image with responsive image, lazyLoad, and lightbox supports.
     $element[$item_id] = empty($element['item']) ? [] : $this->formatter->getImage($element);
@@ -197,7 +202,8 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityBase {
       $element['layout']['#description'] = $this->t('Create a dedicated List (text - max number 1) field related to the caption placement to have unique layout per slide with the following supported keys: top, right, bottom, left, center, center-top, etc. Be sure its formatter is Key.') . ' ' . $layout_description;
     }
 
-    if (isset($element['media_switch']['#description'])) {
+    if (isset($element['media_switch'])) {
+      $element['media_switch']['#options']['rendered'] = $this->t('Image rendered by its formatter');
       $element['media_switch']['#description'] .= ' ' . $this->t('Be sure the enabled fields here are not hidden/disabled at its view mode.');
     }
 
@@ -206,18 +212,18 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityBase {
     }
 
     if (isset($element['image']['#description'])) {
-      $element['image']['#description'] .= ' ' . $this->t('For video, this allows separate highres image, be sure the same field used for Image to have a mix of videos and images. Leave empty to fallback to the video provider thumbnails. The renderer is managed by <strong>@namespace</strong> formatter. <strong>Supported fields</strong>: Image, Video Embed Field.', ['@namespace' => $this->getPluginId()]);
+      $element['image']['#description'] .= ' ' . $this->t('For video, this allows separate highres image, be sure the same field used for Image to have a mix of videos and images. Leave empty to fallback to the video provider thumbnails. The formatter/renderer is managed by <strong>@namespace</strong> formatter. Meaning original formatter ignored. If you want original formatters, check <strong>Vanilla</strong> option. Alternatively choose <strong>Media switcher &gt; Image rendered </strong>, other image-related settings here will be ignored. <strong>Supported fields</strong>: Image, Video Embed Field.', ['@namespace' => $this->getPluginId()]);
     }
 
     if (isset($element['overlay']['#description'])) {
-      $element['overlay']['#description'] .= ' ' . $this->t('The renderer is managed by the child formatter. <strong>Supported fields</strong>: Image, Video Embed Field, Media Entity.');
+      $element['overlay']['#description'] .= ' ' . $this->t('The formatter/renderer is managed by the child formatter. <strong>Supported fields</strong>: Image, Video Embed Field, Media Entity.');
     }
 
     return $element;
   }
 
   /**
-   * Defines the scope for the form elements.
+   * {@inheritdoc}
    */
   public function getScopedFormElements() {
     $admin       = $this->admin();

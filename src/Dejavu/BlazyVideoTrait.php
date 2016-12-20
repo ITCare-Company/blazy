@@ -68,7 +68,7 @@ trait BlazyVideoTrait {
     $embed_url = isset($render['#url']) ? $render['#url'] : $old_url;
     $query     = isset($render['#query']) ? $render['#query'] : [];
 
-    // Prevents complication by now.
+    // Prevents complication with multiple videos by now.
     unset($query['autoplay'], $query['auto_play']);
 
     $settings['video_id']  = $provider::getIdFromInput($external_url);
@@ -77,11 +77,22 @@ trait BlazyVideoTrait {
     $settings['uri']       = $provider->getLocalThumbnailUri();
     $settings['type']      = 'video';
 
+    // Adds autoplay for media URL on lightboxes, saving another click.
+    $url = $settings['embed_url'];
+    if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
+      $settings['autoplay_url'] = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
+    }
+    if ($settings['scheme'] == 'soundcloud') {
+      $settings['autoplay_url'] = strpos($url, '?') === FALSE ? $url . '?auto_play=true' : $url . '&auto_play=true';
+    }
+
     // Only applies when Image style is empty, no file API, no $item,
     // with unmanaged VEF image without image_style.
     // Prevents 404 warning when video thumbnail missing for a reason.
-    if (empty($settings['image_style']) && ($data = @getimagesize($settings['uri']))) {
-      list($settings['width'], $settings['height']) = $data;
+    if (empty($settings['image_style'])) {
+      if ($data = @getimagesize($settings['uri'])) {
+        list($settings['width'], $settings['height']) = $data;
+      }
     }
   }
 
@@ -199,7 +210,7 @@ trait BlazyVideoTrait {
       // Supports other Media entities: Facebook, Instagram, Twitter, etc.
       if (empty($settings['type'])) {
         if ($build = BlazyMedia::build($media, $settings)) {
-          $data['content'] = $build;
+          $data['content'][] = $build;
         }
       }
     }

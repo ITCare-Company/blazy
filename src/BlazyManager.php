@@ -40,6 +40,8 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Sets dimensions once to reduce method calls, if image style contains crop.
    *
+   * The implementor should only call this if not using Responsive image style.
+   *
    * @param array $settings
    *   The settings being modified.
    */
@@ -111,7 +113,7 @@ class BlazyManager extends BlazyManagerBase {
 
     // 2. Blazy Views fields by supported modules.
     if (isset($content['#view']) && ($view = $content['#view'])) {
-      if ($blazy_field = Blazy::blazyViewsField($view)) {
+      if ($blazy_field = BlazyViews::viewsField($view)) {
         $settings = array_merge(array_filter($blazy_field->mergedViewsSettings()), array_filter($settings));
       }
     }
@@ -156,22 +158,24 @@ class BlazyManager extends BlazyManagerBase {
     $json = $sources = [];
     $end = end($settings['breakpoints']);
     foreach ($settings['breakpoints'] as $key => $breakpoint) {
+      if (empty($breakpoint['image_style']) || empty($breakpoint['width'])) {
+        continue;
+      }
+
       if ($width = Blazy::widthFromDescriptors($breakpoint['width'])) {
         // If contains crop, sets dimension once, and let all images inherit.
         if (!empty($settings['uri']) && !empty($settings['ratio'])) {
           $dimensions['width'] = $settings['original_width'];
           $dimensions['height'] = $settings['original_height'];
 
-          if (($style = ImageStyle::load($breakpoint['image_style']))) {
+          if (($style = ImageStyle::load($breakpoint['image_style'])) && Blazy::isCrop($style)) {
             $style->transformDimensions($dimensions, $settings['uri']);
-            if (Blazy::isCrop($style)) {
-              $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
-              $json['dimensions'][$width] = $padding;
+            $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
+            $json['dimensions'][$width] = $padding;
 
-              // Only set CSS padding-bottom value for the last breakpoint.
-              if ($end['width'] == $breakpoint['width']) {
-                $settings['padding_bottom'] = $padding;
-              }
+            // Only set CSS padding-bottom value for the last breakpoint.
+            if ($end['width'] == $breakpoint['width']) {
+              $settings['padding_bottom'] = $padding;
             }
           }
         }
@@ -296,23 +300,25 @@ class BlazyManager extends BlazyManagerBase {
       if (!isset($settings['_no_cache'])) {
         $file_tags = isset($settings['file_tags']) ? $settings['file_tags'] : [];
         $settings['cache_tags'] = empty($settings['cache_tags']) ? $file_tags : Cache::mergeTags($settings['cache_tags'], $file_tags);
-        $element['#cache'] = ['tags' => $settings['cache_tags']];
 
-        if (!empty($settings['cache_keys'])) {
-          $element['#cache']['keys'] = $settings['cache_keys'];
+        $element['#cache']['max-age'] = -1;
+        foreach (['contexts', 'keys', 'tags'] as $key) {
+          if (!empty($settings['cache_' . $key])) {
+            $element['#cache'][$key] = $settings['cache_' . $key];
+          }
         }
       }
     }
 
     $element['#item']            = $item;
-    $element['#captions']        = isset($build['captions']) ? ['inline' => $build['captions']] : [];
+    $element['#captions']        = empty($build['captions']) ? [] : ['inline' => $build['captions']];
     $element['#item_attributes'] = $item_attributes;
     $element['#url']             = '';
     $element['#settings']        = $settings;
 
     if (!empty($settings['media_switch']) && $settings['media_switch'] != 'media') {
-      if ($settings['media_switch'] == 'content' && !empty($settings['absolute_path'])) {
-        $element['#url'] = $settings['absolute_path'];
+      if ($settings['media_switch'] == 'content' && !empty($settings['content_url'])) {
+        $element['#url'] = $settings['content_url'];
       }
       elseif (!empty($settings['lightbox'])) {
         BlazyLightbox::build($element);

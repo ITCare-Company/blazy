@@ -4,7 +4,6 @@ namespace Drupal\blazy;
 
 use Drupal\Core\Template\Attribute;
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Serialization\Json;
 use Drupal\image\Entity\ImageStyle;
@@ -99,7 +98,7 @@ class Blazy implements BlazyInterface {
       if (!empty($settings['lazy'])) {
         $image['#uri'] = static::PLACEHOLDER;
 
-        // Attach data attributes to either IMG tag or DIV container.
+        // Attach data attributes to either IMG tag, or DIV container.
         if (empty($settings['background']) || empty($settings['blazy'])) {
           self::buildBreakpointAttributes($image_attributes, $settings);
         }
@@ -137,29 +136,7 @@ class Blazy implements BlazyInterface {
 
     // Prepares a media player, and allows a tiny video preview without iframe.
     if ($media && empty($settings['_noiframe'])) {
-      // Contains iframe-related settings.
-      // image : If iframe switch disabled, fallback to iframe, remove image.
-      // player: If no colorbox/photobox, it is an image to iframe switcher.
-      // data- : Gets consistent with colorbox to share JS manipulation.
-      $image                = empty($settings['media_switch']) ? [] : $image;
-      $settings['player']   = empty($settings['lightbox']) && $settings['media_switch'] != 'content';
-      $iframe['data-media'] = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
-      $iframe['data-src']   = $settings['embed_url'];
-      $iframe['src']        = empty($settings['iframe_lazy']) ? $settings['embed_url'] : 'about:blank';
-
-      // Only lazyload if media switcher is empty, but iframe lazy enabled.
-      if (!empty($settings['iframe_lazy']) && empty($settings['media_switch'])) {
-        $iframe['class'][] = 'b-lazy';
-      }
-
-      // Prevents broken iframe when aspect ratio is empty.
-      if (empty($settings['ratio']) && !empty($settings['width'])) {
-        $iframe['width']  = $settings['width'];
-        $iframe['height'] = $settings['height'];
-      }
-
-      // Pass iframe attributes to template.
-      $variables['iframe_attributes'] = new Attribute($iframe);
+      self::buildIframeAttributes($variables);
     }
 
     if (!empty($settings['caption'])) {
@@ -170,6 +147,39 @@ class Blazy implements BlazyInterface {
     // URL can be entity, or lightbox URL different from image URL.
     $variables['url_attributes']     = new Attribute($variables['url_attributes']);
     $variables['wrapper_attributes'] = isset($element['#wrapper_attributes']) ? new Attribute($element['#wrapper_attributes']) : [];
+  }
+
+  /**
+   * Modifies variables for iframes.
+   */
+  public static function buildIframeAttributes(&$variables) {
+    // Prepares a media player, and allows a tiny video preview without iframe.
+    // image : If iframe switch disabled, fallback to iframe, remove image.
+    // player: If no colorbox/photobox, it is an image to iframe switcher.
+    // data- : Gets consistent with colorbox to share JS manipulation.
+    $settings           = &$variables['settings'];
+    $variables['image'] = empty($settings['media_switch']) ? [] : $variables['image'];
+    $settings['player'] = empty($settings['lightbox']) && $settings['media_switch'] != 'content';
+    $iframe['data-src'] = $settings['embed_url'];
+    $iframe['src']      = empty($settings['iframe_lazy']) ? $settings['embed_url'] : 'about:blank';
+
+    // Only lazyload if media switcher is empty, but iframe lazy enabled.
+    if (!empty($settings['iframe_lazy']) && empty($settings['media_switch'])) {
+      $iframe['class'][] = 'b-lazy';
+    }
+
+    // Prevents broken iframe when aspect ratio is empty.
+    if (empty($settings['ratio']) && !empty($settings['width'])) {
+      $iframe['width']  = $settings['width'];
+      $iframe['height'] = $settings['height'];
+    }
+
+    // Pass iframe attributes to template.
+    $settings['autoplay_url'] = empty($settings['autoplay_url']) ? $settings['embed_url'] : $settings['autoplay_url'];
+    $variables['iframe_attributes'] = new Attribute($iframe);
+
+    // Iframe is removed on lazyloaded, puts data at non-removable storage.
+    $variables['attributes']['data-media'] = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
   }
 
   /**
@@ -203,7 +213,7 @@ class Blazy implements BlazyInterface {
 
         // Supports multi-breakpoint aspect ratio with irregular sizes.
         // Yet, only provide individual dimensions if not already set.
-        // @see Drupal\blazy\BlazyManager::buildDataBlazy().
+        // @see Drupal\blazy\BlazyManager::setDimensionsOnce().
         if (!empty($settings['_breakpoint_ratio']) && empty($settings['blazy_data']['dimensions'])) {
           $dimensions = [
             'width'  => $settings['width'],
@@ -219,6 +229,7 @@ class Blazy implements BlazyInterface {
         $settings['breakpoints'][$key]['url'] = $url;
 
         // @todo: Recheck library if multi-styled BG is still supported anyway.
+        // Confirmed: still working with GridStack multi-image-style per item.
         if (!empty($settings['background'])) {
           $attributes['data-src-' . $key] = $url;
         }
@@ -251,9 +262,7 @@ class Blazy implements BlazyInterface {
   /**
    * Builds URLs, cache tags, and dimensions for individual image.
    */
-  public static function buildUrl(array &$settings = [], $item = NULL, $modifier = NULL) {
-    $modifier = empty($modifier) ? $settings['image_style'] : $modifier;
-
+  public static function buildUrl(array &$settings = [], $item = NULL) {
     // Blazy already sets URI, yet set fallback for direct theme_blazy() call.
     if (empty($settings['uri']) && $item) {
       $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
@@ -276,7 +285,7 @@ class Blazy implements BlazyInterface {
     }
 
     // Image style modifier can be multi-style images such as GridStack.
-    if (!empty($modifier) && ($style = ImageStyle::load($modifier))) {
+    if (!empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
       // Image URLs, as opposed to URIs, are expected by lazyloaded images.
       $settings['image_url']  = $style->buildUrl($settings['uri']);
       $settings['cache_tags'] = $style->getCacheTags();
@@ -342,7 +351,10 @@ class Blazy implements BlazyInterface {
       $mappings = &$definitions[$formatter]['mapping'];
       $settings = $settings ?: BlazyDefault::extendedSettings() + BlazyDefault::gridSettings();
       foreach ($settings as $key => $value) {
-        $mappings[$key]['type'] = $key == 'breakpoints' ? 'mapping' : (is_array($value) ? 'sequence' : gettype($value));
+        // Seems double is ignored, and causes a missing schema, unlike float.
+        $type = gettype($value);
+        $type = $type == 'double' ? 'float' : $type;
+        $mappings[$key]['type'] = $key == 'breakpoints' ? 'mapping' : (is_array($value) ? 'sequence' : $type);
 
         if (!is_array($value)) {
           $mappings[$key]['label'] = Unicode::ucfirst(str_replace('_', ' ', $key));
@@ -364,46 +376,6 @@ class Blazy implements BlazyInterface {
         $mappings[$key]['type'] = 'string';
       }
     }
-  }
-
-  /**
-   * Implements hook_views_pre_render().
-   */
-  public static function viewsPreRender($view) {
-    // Load Blazy library once, not per field, if any Blazy Views field found.
-    if ($blazy = self::blazyViewsField($view)) {
-      $plugin_id = $view->getStyle()->getPluginId();
-      $settings = $blazy->mergedViewsSettings();
-      $load = $blazy->blazyManager()->attach($settings);
-
-      // Enforce Blazy to work with hidden element such as with EB selection.
-      $load['drupalSettings']['blazy']['loadInvisible'] = TRUE;
-      $view->element['#attached'] = isset($view->element['#attached']) ? NestedArray::mergeDeep($view->element['#attached'], $load) : $load;
-      $view->element['#attributes']['data-blazy'] = TRUE;
-
-      $grid = $plugin_id == 'blazy';
-      if ($options = $view->getStyle()->options) {
-        $grid = empty($options['grid']) ? $grid : TRUE;
-      }
-
-      // Prevents dup [data-LIGHTBOX-gallery] if the Views style supports Grid.
-      if (!empty($settings['media_switch']) && !$grid) {
-        $switch = str_replace('_', '-', $settings['media_switch']);
-        $view->element['#attributes']['data-' . $switch . '-gallery'] = TRUE;
-      }
-    }
-  }
-
-  /**
-   * Returns one of the Blazy Views fields, if available.
-   */
-  public static function blazyViewsField($view) {
-    foreach (['file', 'media'] as $entity) {
-      if (isset($view->field['blazy_' . $entity])) {
-        return $view->field['blazy_' . $entity];
-      }
-    }
-    return FALSE;
   }
 
   /**

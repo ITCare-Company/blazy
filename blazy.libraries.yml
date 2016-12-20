@@ -35,7 +35,6 @@ load:
   dependencies:
     - core/jquery
     - core/jquery.once
-    - core/drupalSettings
     - core/drupal
     - blazy/blazy
     - blazy/loading
@@ -49,7 +48,6 @@ media:
   dependencies:
     - core/jquery
     - core/jquery.once
-    - core/drupalSettings
     - core/drupal
     - blazy/ratio
 
@@ -69,7 +67,6 @@ colorbox:
   js:
     js/blazy.colorbox.min.js: { minified: true }
   dependencies:
-    - core/drupalSettings
     - core/drupal
     - blazy/load
     - blazy/ratio
@@ -91,7 +88,6 @@ photobox:
   dependencies:
     - core/jquery
     - core/jquery.once
-    - core/drupalSettings
     - core/drupal
     - blazy/load
     # use photobox when available instead.

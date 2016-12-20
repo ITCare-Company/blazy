@@ -72,6 +72,16 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase implements Conta
   }
 
   /**
+   * Builds the settings.
+   */
+  public function buildSettings() {
+    $settings              = $this->getSettings();
+    $settings['plugin_id'] = $this->getPluginId();
+
+    return $settings;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
@@ -79,6 +89,16 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase implements Conta
     $definition = $this->getScopedFormElements();
 
     $definition['_views'] = isset($form['field_api_classes']);
+    if (!empty($definition['_views'])) {
+      $view = $form_state->get('view');
+      // Disables problematic options for GridStack plugin since GridStack
+      // will not work with Responsive image, and has its own breakpoints.
+      if ($view->getExecutable()->getStyle()->getPluginId() == 'gridstack') {
+        $definition['breakpoints'] = $definition['ratio'] = FALSE;
+        $definition['responsive_image'] = FALSE;
+        $definition['no_ratio'] = TRUE;
+      }
+    }
 
     $this->admin()->buildSettingsForm($element, $definition);
 

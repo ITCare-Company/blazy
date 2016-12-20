@@ -41,7 +41,7 @@ trait BlazyEntityTrait {
    */
   public function getFieldRenderable($entity, $field_name = '', $view_mode = 'full') {
     $view = [];
-    $has_field = $field_name && isset($entity->{$field_name});
+    $has_field = !empty($field_name) && isset($entity->{$field_name});
     if ($has_field && !empty($entity->{$field_name}->view($view_mode)[0])) {
       $view = $entity->get($field_name)->view($view_mode);
 

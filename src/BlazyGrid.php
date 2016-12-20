@@ -21,13 +21,12 @@ class BlazyGrid {
    *   The modified array of grid items.
    */
   public static function build(array $items = [], array $settings = []) {
-    $grids = [];
     $blazy = empty($settings['blazy_data']) ? '' : $settings['blazy_data'];
-
     $settings['style'] = empty($settings['style']) ? 'grid' : $settings['style'];
 
+    $grids = [];
     foreach ($items as $delta => $item) {
-      // @todo support non-Blazy which normally uses item_id.
+      // @todo: Support non-Blazy which normally uses item_id.
       $item_settings = isset($item['#build']['settings']) ? $item['#build']['settings'] : $settings;
       $item_settings['delta'] = $delta;
 
@@ -42,6 +41,7 @@ class BlazyGrid {
       self::buildGridItemAttributes($grid, $item_settings);
 
       $grids[] = $grid;
+      unset($grid);
     }
 
     $count = empty($settings['count']) ? count($grids) : $settings['count'];
@@ -87,6 +87,10 @@ class BlazyGrid {
    *   The given settings.
    */
   public static function buildGridItemAttributes(array &$grid = [], array $settings = []) {
+    if (!empty($settings['grid_item_class'])) {
+      $grid['#wrapper_attributes']['class'][] = $settings['grid_item_class'];
+    }
+
     $grid['#wrapper_attributes']['class'][] = 'grid';
 
     if (!empty($settings['type'])) {
