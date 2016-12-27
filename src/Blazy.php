@@ -114,9 +114,9 @@ class Blazy implements BlazyInterface {
           }
         }
 
-        // Multi-breakpoint aspect ratio.
-        if (!empty($settings['_breakpoint_dimensions'])) {
-          $attributes['data-dimensions'] = Json::encode($settings['_breakpoint_dimensions']);
+        // Multi-breakpoint aspect ratio only applies if lazyloaded.
+        if (!empty($settings['blazy_data']['dimensions'])) {
+          $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
         }
       }
     }
@@ -255,7 +255,7 @@ class Blazy implements BlazyInterface {
     }
 
     if ($json) {
-      $settings['_breakpoint_dimensions'] = $json;
+      $settings['blazy_data']['dimensions'] = $json;
     }
   }
 

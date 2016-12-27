@@ -4,7 +4,7 @@ blazy:
   version: 1.x
   license:
     name: MIT
-    url: http://opensource.org/licenses/MIT
+    url: https://github.com/dinbror/blazy/blob/master/LICENSE
     gpl-compatible: true
   js:
     /libraries/blazy/blazy.min.js: { weight: -4, minified: true }
@@ -29,14 +29,17 @@ column:
     component:
       css/components/blazy.column.css: {}
 
+dblazy:
+  js:
+    js/dblazy.min.js: { weight: -2, minified: true }
+
 load:
   js:
     js/blazy.load.min.js: { weight: -1, minified: true }
   dependencies:
-    - core/jquery
-    - core/jquery.once
     - core/drupal
     - blazy/blazy
+    - blazy/dblazy
     - blazy/loading
 
 media:
@@ -46,8 +49,6 @@ media:
     component:
       css/components/blazy.media.css: {}
   dependencies:
-    - core/jquery
-    - core/jquery.once
     - core/drupal
     - blazy/ratio
 

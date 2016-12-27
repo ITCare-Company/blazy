@@ -56,8 +56,9 @@ referring to an expected image or iframe URL, or to any supported element:
 IMG, IFRAME or DIV/BODY, etc.
 Non-media element, DIV/BODY/etc., will have background image lazyloaded instead.
 
-Wrap the parent container with [data-blazy] attribute containing the expected
-options to limit the scope.
+Wrap the parent container with [data-blazy attribute containing the expected
+options to limit the scope, or for simple need without aspect ratio. Add extra
+class .blazy to support aspect ratio with multi-serving images.
 And load the blazy library accordingly.
 
 

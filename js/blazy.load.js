@@ -1,11 +1,9 @@
 /**
  * @file
  * Provides bLazy loader.
- *
- * @todo: Use Vanilla JS.
  */
 
-(function ($, Drupal, drupalSettings, window, document) {
+(function (Drupal, drupalSettings, _db, window, document) {
 
   'use strict';
 
@@ -17,6 +15,7 @@
   Drupal.blazy = Drupal.blazy || {
     init: null,
     windowWidth: 0,
+    done: false,
     globals: function () {
       var me = this;
       var settings = drupalSettings.blazy || {};
@@ -25,97 +24,98 @@
         error: me.clearing
       };
 
-      return $.extend(settings, commons);
+      return _db.extend(settings, commons);
     },
 
-    clearing: function (elm) {
-      // .b-lazy can be attached to IMG, or DIV as CSS background.
-      var l = $(elm).closest('.is-loading');
-      var c = l.length ? l : $(elm).closest('[class*="loading"]');
+    clearing: function (el) {
+      // The .b-lazy element can be attached to IMG, or DIV as CSS background.
+      el.className = el.className.replace(/(\S+)loading/, '');
 
-      $(elm).removeClass('media--loading').parentsUntil(c.parent()).removeClass(function (i, css) {
-        return (css.match(/(\S+)loading/g) || []).join(' ');
+      // The .is-loading can be .grid, .slide__content, .box__content, etc.
+      var loaders = [
+        _db.closest(el, '.is-loading'),
+        _db.closest(el, '[class*="loading"]')
+      ];
+
+      // Also cleans up closest containers containing loading class.
+      _db.forEach(loaders, function (wrapEl) {
+        if (wrapEl !== null) {
+          wrapEl.className = wrapEl.className.replace(/(\S+)loading/, '');
+        }
       });
-    },
-
-    // Thanks to https://github.com/louisremi/jquery-smartresize
-    resizing: function (c, t) {
-      window.onresize = function () {
-        window.clearTimeout(t);
-        t = window.setTimeout(c, 200);
-      };
-      return c;
     }
   };
 
   /**
    * Blazy utility functions.
    *
-   * @param {int} i
-   *   The index of the current element.
    * @param {HTMLElement} elm
-   *   The .blazy HTML element.
+   *   The Blazy HTML element.
    */
-  function blazyLoad(i, elm) {
+  function doBlazy(elm) {
     var me = Drupal.blazy;
-    var $elm = $(elm);
-    var globals = me.globals();
-    var data = $elm.data('blazy') || {};
-    var opts = data ? $.extend({}, globals, data) : globals;
-    var $ratio = $('.media--ratio', elm).length ? $('.media--ratio', elm) : null;
+    var dataAttr = elm.getAttribute('data-blazy');
+    var empty = dataAttr === '' || dataAttr === '[]';
+    var data = empty ? false : _db.parse(dataAttr);
+    var opts = !data ? me.globals() : _db.extend({}, me.globals(), data);
+    var ratios = elm.querySelectorAll('[data-dimensions]');
+    var loopRatio = ratios.length > 0;
 
     /**
-     * Updates aspect ratio.
+     * Updates the dynamic multi-breakpoint aspect ratio.
      *
-     * @param {int} i
-     *   The index of the current element.
-     * @param {HTMLElement} item
-     *   The .b-lazy HTML element.
+     * This only applies to multi-serving images with aspect ratio fluid if
+     * each element contains [data-dimensions] attribute.
+     * Static single aspect ratio, e.g. `media--ratio--169`, will be ignored,
+     * and will use CSS instead.
+     *
+     * @param {HTMLElement} el
+     *   The .media--ratio HTML element.
      */
-    function updateRatio(i, item) {
-      var $item = $(item);
-      var dimensions = $item.data('dimensions') || data.dimensions || null;
-      var pad = null;
-      var keys;
+    function updateRatio(el) {
+      var dimensions = !el.getAttribute('data-dimensions') ? false : _db.parse(el.getAttribute('data-dimensions'));
 
-      if (dimensions === null) {
+      if (!dimensions) {
         return;
       }
 
-      keys = Object.keys(dimensions);
+      var keys = Object.keys(dimensions);
       var xs = keys[0];
       var xl = keys[keys.length - 1];
+      var mw = function (w) {
+        return w >= me.windowWidth;
+      };
+      var pad = keys.filter(mw).map(function (v) {
+        return dimensions[v];
+      }).shift();
 
-      $.each(dimensions, function (w, v) {
-        if (w >= me.windowWidth) {
-          pad = v;
-          return false;
-        }
-      });
-
-      if (pad === null) {
+      if (pad === 'undefined') {
         pad = dimensions[me.windowWidth >= xl ? xl : xs];
       }
 
-      if (pad !== null) {
-        $item.css({
-          paddingBottom: pad + '%'
-        });
+      if (pad !== 'undefined') {
+        el.style.paddingBottom = pad + '%';
       }
     }
 
-    // Initializes Blazy.
+    // Initializes Blazy instance.
     me.init = new Blazy(opts);
 
-    me.resizing(function () {
-      me.windowWidth = window.innerWidth || document.documentElement.clientWidth || $(window).width();
+    // Reacts on resizing.
+    if (!me.done) {
+      _db.resize(function () {
+        me.windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 
-      if ($ratio !== null) {
-        $ratio.each(updateRatio);
-      }
+        if (loopRatio) {
+          _db.forEach(ratios, updateRatio, elm);
+        }
 
-      $elm.trigger('resizing', [me.windowWidth]);
-    })();
+        // Dispatch resizing event.
+        _db.trigger(elm, 'resizing', {windowWidth: me.windowWidth});
+      })();
+
+      me.done = true;
+    }
   }
 
   /**
@@ -126,17 +126,19 @@
   Drupal.behaviors.blazy = {
     attach: function (context) {
       var me = Drupal.blazy;
-      var $blazy = $('[data-blazy]', context);
-      var globals = me.globals();
+      var el = context.querySelector('[data-blazy]');
 
-      // Executes basic Blazy when no [data-blazy] found like a single image.
-      if (!$blazy.length) {
-        me.init = new Blazy(globals);
+      // Runs basic Blazy if no [data-blazy] found, probably a single image.
+      // Cannot use .contains(), as IE11 doesn't support method 'contains'.
+      if (el === null) {
+        me.init = new Blazy(me.globals());
         return;
       }
 
-      $blazy.once('blazy').each(blazyLoad);
+      // Runs Blazy with multi-serving images, and aspect ratio supports.
+      var blazies = context.querySelectorAll('.blazy');
+      _db.once(_db.forEach(blazies, doBlazy, context));
     }
   };
 
-}(jQuery, Drupal, drupalSettings, this, this.document));
+}(Drupal, drupalSettings, dBlazy, this, this.document));

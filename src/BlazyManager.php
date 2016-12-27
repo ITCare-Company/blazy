@@ -173,7 +173,7 @@ class BlazyManager extends BlazyManagerBase {
             $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
             $json['dimensions'][$width] = $padding;
 
-            // Only set CSS padding-bottom value for the last breakpoint.
+            // Only set padding-bottom for the last breakpoint to avoid FOUC.
             if ($end['width'] == $breakpoint['width']) {
               $settings['padding_bottom'] = $padding;
             }

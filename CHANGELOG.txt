@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2016-12-27
+-----------------------------
+- #2838213 by gausarts: Use vanilla JS.
+
 Blazy 8.x-1.0-dev, 2016-12-20
 -----------------------------
 - Decoupled Views stuffs from Blazy into BlazyViews.
