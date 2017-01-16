@@ -1,6 +1,10 @@
 
 Blazy 8.x-1.0-dev, 2016-12-27
 -----------------------------
+- Fixed for broken grid when the theme has no CSS box-sizing rules.
+- Added blazy_settings_alter() to programtically alter settings prior to being
+  processed by field formatters.
+- Added Object.assign to use modern native extend before fallback to custom.
 - #2838213 by gausarts: Use vanilla JS.
 
 Blazy 8.x-1.0-dev, 2016-12-20

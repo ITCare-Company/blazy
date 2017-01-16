@@ -116,6 +116,8 @@ class BlazyFormatterManager extends BlazyManager {
         $this->setDimensionsOnce($settings);
       }
     }
+
+    $this->getModuleHandler()->alter($namespace . '_settings', $build, $items);
   }
 
 }

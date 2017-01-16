@@ -13,6 +13,12 @@
  */
 
 [class*="block-column-"],
+[class*="block-column-"] * {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+[class*="block-column-"],
 .item-list > [class*="block-column-"] {
   display: block;
   list-style: none;

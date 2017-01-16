@@ -116,8 +116,7 @@
    *
    * @name dBlazy.extend
    *
-   * @author @adamfschwartz and @zackbloom
-   * @link http://youmightnotneedjquery.com/
+   * Inspired by @adamfschwartz, @zackbloom, http://youmightnotneedjquery.com.
    *
    * @param {Object} out
    *   The objects to merge together.
@@ -125,7 +124,7 @@
    * @return {Object}
    *   Merged values of defaults and options.
    */
-  dBlazy.extend = function (out) {
+  dBlazy.extend = Object.assign || function (out) {
     out = out || {};
 
     for (var i = 1, len = arguments.length; i < len; i++) {
