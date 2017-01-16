@@ -4,5 +4,6 @@ description: 'Provides Blazy configuration UI.'
 version: VERSION
 core: 8.x
 package: Blazy
+configure: blazy.settings
 dependencies:
-  - blazy
+  - blazy:blazy

@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2017-01-16
+-----------------------------
+- #2843449 by gausarts, Jaesin: Consider adding `configure: blazy.settings` to
+  .info.yml on blazy_ui
+
 Blazy 8.x-1.0-dev, 2016-12-27
 -----------------------------
 - Fixed for broken grid when the theme has no CSS box-sizing rules.
