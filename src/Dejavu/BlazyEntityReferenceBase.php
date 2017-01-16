@@ -22,7 +22,12 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityBase {
    * {@inheritdoc}
    */
   public function buildElement(array &$build, $entity, $langcode) {
-    $settings  = &$build['settings'];
+    $settings = &$build['settings'];
+
+    if (!empty($settings['vanilla'])) {
+      return parent::buildElement($build, $entity, $langcode);
+    }
+
     $delta     = $settings['delta'];
     $item_id   = $settings['item_id'];
     $view_mode = empty($settings['view_mode']) ? 'full' : $settings['view_mode'];

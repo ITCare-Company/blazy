@@ -1,6 +1,8 @@
 
 Blazy 8.x-1.0-dev, 2017-01-16
 -----------------------------
+- #2841316 by gausarts, tjwelde: User error: "item" is an invalid render array
+  key.
 - #2843449 by gausarts, Jaesin: Consider adding `configure: blazy.settings` to
   .info.yml on blazy_ui
 
