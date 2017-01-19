@@ -23,7 +23,9 @@ body.path-admin .form--slick *,
   position: relative;
 }
 
-.form--slick::after {
+.form--slick::after,
+.form--slick .fieldset-wrapper::after,
+.form--slick .form-checkboxes {
   content: "";
   display: table;
   clear: both;
@@ -587,21 +589,17 @@ html.js .form--slick .collapsed .details-legend .details-legend-prefix::after {
  * Form items
  */
 .form--slick .form-item {
-  background: white;
-  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4gPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJncmFkIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCIgeDE9IjAuNSIgeTE9IjAuMCIgeDI9IjAuNSIgeTI9IjEuMCI+PHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIwLjYiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmYWZhZmEiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyYWQpIiAvPjwvc3ZnPiA=');
-  background-size: 100%;
-  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, rgba(255, 255, 255, 0.6)), color-stop(100%, #fafafa));
-  background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.6) 0%, #fafafa 100%);
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.6) 0%, #fafafa 100%);
+  background: none;
   border-bottom: 1px solid #dadada;
   border-top: 1px solid white;
+  bottom: -1px;
   float: left;
   font-size: 13px;
   font-size: 0.8125rem;
   line-height: 32px;
   margin: 0;
   min-height: 72px;
-  padding: 20px 0 12px;
+  padding: 20px 12px 12px;
   position: relative;
   width: 100%;
 }
@@ -671,7 +669,7 @@ html.js .form--slick .collapsed .details-legend .details-legend-prefix::after {
   line-height: 18px; /* Fix for Chrome linux */
   min-height: 28px;
   min-width: 120px;
-  padding: 4px 2px 2px; /* Fix for Chrome linux */
+  padding: 4px 4px 2px; /* Fix for Chrome linux */
   vertical-align: middle;
   -moz-appearance: none;
   -webkit-appearance: none;
@@ -713,7 +711,7 @@ html.js .form--slick .collapsed .details-legend .details-legend-prefix::after {
 .form--slick .form-item label {
   display: block;
   /* Overrides over-specified Seven */
-  padding: 2px 5px 2px 5px !important;
+  padding: 2px 5px 2px 0 !important;
   margin: 0;
   /* text-align: right; */
   white-space: normal;
@@ -721,7 +719,7 @@ html.js .form--slick .collapsed .details-legend .details-legend-prefix::after {
 
 .form--slick .form-item.form-type-textfield input {
   width: auto;
-  max-width: 140px;
+  max-width: 150px;
 }
 
 .form--slick .form-item.form-type-textfield .form-text--int {
@@ -956,7 +954,9 @@ html.js .form--slick .collapsed .details-legend .details-legend-prefix::after {
 
 .form--slick .form-checkboxes {
   border-top: 2px solid #e7e7e7;
+  clear: both;
   margin-top: -1px;
+  width: 100%;
 }
 
 /**
@@ -987,12 +987,20 @@ html.js .form--slick .collapsed .details-legend .details-legend-prefix::after {
   width: 100%;
 }
 
+.form--slick .form-item.form-item--sizes {
+  background: none;
+  border: 0;
+  min-height: 42px;
+  padding: 10px 0;
+}
+
 td .form__title {
   margin: -10px auto;
 }
 
 .field-ui-overview td .form__title {
   margin: 0 auto;
+  position: relative;
 }
 
 .form--vanilla .form__header {
@@ -1007,6 +1015,7 @@ td .form__title {
   background: none;
   border: 0;
   display: block;
+  height: 62px;
   left: 0;
   position: absolute;
   top: 0;
@@ -1234,6 +1243,13 @@ td .form__title {
 @media screen and (min-width: 760px) {
   .form--slick .form-item {
     border-right: 1px solid #e7e7e7;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .form--slick .form-item label {
+    /* Overrides over-specified Seven */
+    padding: 2px 5px 2px 5px !important;
   }
 
   .form--optionset .form-item,
@@ -1285,7 +1301,7 @@ td .form__title {
 
   .form--slick .form-item label {
     float: left;
-    width: 180px;
+    width: 160px;
     text-align: right;
     white-space: normal;
   }
@@ -1319,7 +1335,7 @@ td .form__title {
   }
 
   .form--slick .form__header .form-type-checkbox {
-    max-width: 100px;
+    max-width: 160px;
   }
 
   .form--slick #edit-delete {
@@ -1365,13 +1381,34 @@ td .form__title {
     width: 24.9999%;
   }
 
-  .form--slick.form--image .form-wrapper--caption .form-item {
+  .form--slick.form--image .form-wrapper--caption .form-item,
+  .form--slick.form--caption-2 .form-wrapper--caption .form-item {
     width: 49.9999%;
+  }
+
+  .form--slick.form--caption-3 .form-wrapper--caption .form-item {
+    width: 33.3333%;
   }
 
   .has-tooltip .form-item--tooltip-wide > .description {
     max-width: 480px;
     min-width: 480px;
+  }
+
+  .form--slick .form-item label {
+    width: 180px;
+  }
+
+  .form--slick.form--half {
+    max-width: 960px;
+  }
+}
+
+@media screen and (min-width: 1400px) {
+  .form--slick .form-item input,
+  .form--slick .form-item select {
+    max-width: 180px;
+    min-width: 180px;
   }
 }
 

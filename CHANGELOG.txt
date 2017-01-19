@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2017-01-19
+-----------------------------
+- A couple of cosmetic fixes.
+
 Blazy 8.x-1.0-dev, 2017-01-16
 -----------------------------
 - #2841316 by gausarts, tjwelde: User error: "item" is an invalid render array

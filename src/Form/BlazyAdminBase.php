@@ -218,6 +218,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       '#weight'             => 114,
       '#attributes'         => ['class' => ['form-text--sizes', 'js-expandable']],
       '#wrapper_attributes' => ['class' => ['form-item--sizes']],
+      '#prefix'             => '<h2 class="form__title form__title--breakpoints">' . $title . '</h2>',
     ];
 
     $form['breakpoints'] = [
@@ -228,7 +229,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         $this->t('Image style'),
         $this->t('Max-width/Descriptor'),
       ],
-      '#prefix'     => '<h2 class="form__title form__title--breakpoints">' . $title . '</h2>',
       '#attributes' => ['class' => ['form-wrapper--table', 'form-wrapper--table-breakpoints']],
       '#weight'     => 115,
       '#enforced'   => TRUE,
