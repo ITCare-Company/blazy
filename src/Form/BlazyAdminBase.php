@@ -590,7 +590,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $settings = isset($definition['settings']) ? $definition['settings'] : [];
     $vanilla = isset($definition['vanilla']) ? ' form--vanilla' : '';
     $captions = empty($definition['captions']) ? 0 : count($definition['captions']);
-    $wide = $captions > 2 ? ' form--wide' : '';
+    $wide = $captions > 2 ? ' form--wide form--caption-' . $captions : ' form--caption-' . $captions;
     $fallback = $namespace == 'slick' ? 'form--slick' : 'form--' . $namespace . ' form--slick';
     $classes = isset($definition['form_opening_classes'])
       ? $definition['form_opening_classes']

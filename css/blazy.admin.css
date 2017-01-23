@@ -1326,6 +1326,7 @@ td .form__title {
   .field-plugin-settings-editing .form--slick .form-item--style {
     background: none;
     border: 0;
+    height: 62px;
     min-height: 32px;
     padding: 0;
     position: absolute;

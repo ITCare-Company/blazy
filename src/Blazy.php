@@ -24,8 +24,7 @@ class Blazy implements BlazyInterface {
    */
   public static function buildAttributes(&$variables) {
     $element = $variables['element'];
-    $all = ['captions', 'item_attributes', 'settings', 'url', 'url_attributes'];
-    foreach ($all as $key) {
+    foreach (['captions', 'item_attributes', 'settings', 'url'] as $key) {
       $variables[$key] = isset($element["#$key"]) ? $element["#$key"] : [];
     }
 
@@ -139,14 +138,11 @@ class Blazy implements BlazyInterface {
       self::buildIframeAttributes($variables);
     }
 
-    if (!empty($settings['caption'])) {
-      $variables['caption_attributes'] = new Attribute();
-      $variables['caption_attributes']->addClass($settings['item_id'] . '__caption');
+    // Provides optional attributes.
+    foreach (['caption', 'media', 'url', 'wrapper'] as $key) {
+      $attr = $key . '_attributes';
+      $variables[$attr] = empty($element['#' . $attr]) ? [] : new Attribute($element['#' . $attr]);
     }
-
-    // URL can be entity, or lightbox URL different from image URL.
-    $variables['url_attributes']     = new Attribute($variables['url_attributes']);
-    $variables['wrapper_attributes'] = isset($element['#wrapper_attributes']) ? new Attribute($element['#wrapper_attributes']) : [];
   }
 
   /**

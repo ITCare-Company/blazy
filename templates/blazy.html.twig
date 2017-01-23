@@ -66,19 +66,21 @@
 
 {% set blazy %}
   {% block blazy_content %}
-    {% if url and not settings.player %}
-      <a href="{{ url }}"{{ url_attributes }}>{{ media }}</a>
+    {% if media_attributes %}<div{{ media_attributes }}>{% endif %}
+      {% if url and not settings.player %}
+        <a href="{{ url }}"{{ url_attributes }}>{{ media }}</a>
 
-      {# Allows fieldable captions with A tag, such as social share. #}
-      {% if captions and captions.lightbox is not empty %}
-        <div class="litebox-caption visually-hidden">
-          {{- captions.lightbox -}}
-        </div>
+        {# Allows fieldable captions with A tag, such as social share. #}
+        {% if captions and captions.lightbox is not empty %}
+          <div class="litebox-caption visually-hidden">
+            {{- captions.lightbox -}}
+          </div>
+        {% endif %}
+
+      {% else %}
+        {{- media -}}
       {% endif %}
-
-    {% else %}
-      {{- media -}}
-    {% endif %}
+    {% if media_attributes %}</div>{% endif %}
   {% endblock %}
 
   {% if captions and captions.inline is defined %}

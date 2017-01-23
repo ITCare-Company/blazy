@@ -116,6 +116,8 @@
 
       me.done = true;
     }
+
+    elm.className += ' blazy--on';
   }
 
   /**
@@ -136,8 +138,8 @@
       }
 
       // Runs Blazy with multi-serving images, and aspect ratio supports.
-      var blazies = context.querySelectorAll('.blazy');
-      _db.once(_db.forEach(blazies, doBlazy, context));
+      var blazies = context.querySelectorAll('.blazy:not(.blazy--on)');
+      _db.once(_db.forEach(blazies, doBlazy));
     }
   };
 

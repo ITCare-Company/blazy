@@ -70,7 +70,12 @@ trait BlazyFormatterTrait {
    */
   public function buildElements(array &$build, $files) {
     $settings = $build['settings'];
+    $item_id  = $settings['item_id'];
     $is_media = method_exists($this, 'getMediaItem');
+
+    if (!empty($settings['caption'])) {
+      $settings['caption_attributes']['class'][] = $item_id . '__caption';
+    }
 
     foreach ($files as $delta => $file) {
       /* @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
@@ -104,7 +109,7 @@ trait BlazyFormatterTrait {
           if (!isset($box['captions'][$caption]['attributes'])) {
             $class = $caption == 'alt' ? 'description' : $caption;
             $box['captions'][$caption]['attributes'] = new Attribute();
-            $box['captions'][$caption]['attributes']->addClass($settings['item_id'] . '__' . $class);
+            $box['captions'][$caption]['attributes']->addClass($item_id . '__' . $class);
           }
         }
       }

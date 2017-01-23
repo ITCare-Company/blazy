@@ -91,6 +91,8 @@
 
     // Closes the video.
     _db.on(t, 'click', '.media__icon--close', stop);
+
+    t.className += ' media--player--on';
   }
 
   /**
@@ -100,7 +102,7 @@
    */
   Drupal.behaviors.blazyMedia = {
     attach: function (context) {
-      var players = context.querySelectorAll('.media--player');
+      var players = context.querySelectorAll('.media--player:not(.media--player--on)');
       _db.once(_db.forEach(players, blazyMedia));
     }
   };

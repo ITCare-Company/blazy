@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2017-01-24
+-----------------------------
+- Split BlazyDefault::imageSettings() into BlazyDefault::baseImageSettings().
+- Added media_attributes to position media container properly with aspect ratio.
+
 Blazy 8.x-1.0-dev, 2017-01-19
 -----------------------------
 - A couple of cosmetic fixes.

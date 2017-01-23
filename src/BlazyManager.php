@@ -316,6 +316,12 @@ class BlazyManager extends BlazyManagerBase {
     $element['#url']             = '';
     $element['#settings']        = $settings;
 
+    foreach (['caption', 'media', 'wrapper'] as $key) {
+      if (!empty($settings["$key" . '_attributes'])) {
+        $element["#$key" . '_attributes'] = $settings["$key" . '_attributes'];
+      }
+    }
+
     if (!empty($settings['media_switch']) && $settings['media_switch'] != 'media') {
       if ($settings['media_switch'] == 'content' && !empty($settings['content_url'])) {
         $element['#url'] = $settings['content_url'];
