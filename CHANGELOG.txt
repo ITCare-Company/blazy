@@ -1,6 +1,7 @@
 
 Blazy 8.x-1.0-dev, 2017-01-26
 -----------------------------
+- Added raf.min.js polyfill to support vanilla JS animation, like Lory, Jumper.
 - #2846560 by gausarts, chr.fritsch: Images of gallery will not be loaded.
 
 Blazy 8.x-1.0-dev, 2017-01-24
