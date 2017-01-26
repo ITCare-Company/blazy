@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2017-01-26
+-----------------------------
+- #2846560 by gausarts, chr.fritsch: Images of gallery will not be loaded.
+
 Blazy 8.x-1.0-dev, 2017-01-24
 -----------------------------
 - Split BlazyDefault::imageSettings() into BlazyDefault::baseImageSettings().

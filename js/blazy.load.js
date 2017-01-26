@@ -103,6 +103,8 @@
 
     // Reacts on resizing.
     if (!me.done) {
+      me.init.revalidate();
+
       _db.resize(function () {
         me.windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 
