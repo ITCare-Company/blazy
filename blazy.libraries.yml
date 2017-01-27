@@ -29,10 +29,6 @@ column:
     component:
       css/components/blazy.column.css: {}
 
-raf:
-  js:
-    js/raf.min.js: { weight: -3, minified: true }
-
 dblazy:
   js:
     js/dblazy.min.js: { weight: -2, minified: true }
