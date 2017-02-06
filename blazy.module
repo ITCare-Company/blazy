@@ -41,7 +41,12 @@ function blazy_preprocess_responsive_image(&$variables) {
     _blazy_preprocess_responsive_image_picture_sources($variables);
 
     // Fetches the picture element fallback URI, and empty it later.
-    $fallback_uri = $variables['img_element']['#srcset'][0]['uri'];
+    if (isset($variables['img_element']['#srcset'])) {
+      $fallback_uri = $variables['img_element']['#srcset'][0]['uri'];
+    }
+    else {
+      $fallback_uri = $variables['img_element']['#uri'];
+    }
 
     // Cleans up the no-longer relevant attributes for controlling element.
     unset($variables['attributes']['data-srcset'], $variables['img_element']['#attributes']['data-srcset']);

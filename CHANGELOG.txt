@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2017-02-07
+-----------------------------
+- #2849191 by tjwelde, chr.fritsch: Drupal 8.3 error.
+
 Blazy 8.x-1.0-dev, 2017-01-27
 -----------------------------
 - Reverted changes to support RAF for old browsers.
