@@ -268,12 +268,16 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
    * All this mess is because Views may render/flatten images earlier.
    */
   public function getImageItem($image) {
-    // Image formatter.
-    $item = empty($image['rendered']['#item']) ? [] : $image['rendered']['#item'];
+    $item = [];
 
-    // Blazy formatter.
-    if (isset($image['rendered']['#build'])) {
-      $item = $image['rendered']['#build']['item'];
+    // Image formatter.
+    if (isset($image['raw'])) {
+      $item = empty($image['rendered']['#item']) ? [] : $image['rendered']['#item'];
+
+      // Blazy formatter.
+      if (isset($image['rendered']['#build'])) {
+        $item = $image['rendered']['#build']['item'];
+      }
     }
 
     // Don't know other reasonable formatters to work with.

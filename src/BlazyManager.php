@@ -98,7 +98,9 @@ class BlazyManager extends BlazyManagerBase {
 
     // 1. Blazy formatter within Views fields by supported modules.
     if (isset($item['settings'])) {
-      $blazy = isset($content['#build']['settings']) ? $content['#build']['settings'] : [];
+      // Prevents edge case with unexpected flattened Views results which is
+      // normally triggered by checking "Use field template" option.
+      $blazy = is_array($content) && isset($content['#build']['settings']) ? $content['#build']['settings'] : [];
 
       // Allows breakpoints overrides such as multi-styled images by GridStack.
       if (empty($settings['breakpoints']) && isset($blazy['breakpoints'])) {
@@ -112,7 +114,7 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     // 2. Blazy Views fields by supported modules.
-    if (isset($content['#view']) && ($view = $content['#view'])) {
+    if (is_array($content) && isset($content['#view']) && ($view = $content['#view'])) {
       if ($blazy_field = BlazyViews::viewsField($view)) {
         $settings = array_merge(array_filter($blazy_field->mergedViewsSettings()), array_filter($settings));
       }

@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2017-02-20
+-----------------------------
+- Fixed for Blazy libraries weight regression at hook_library_info_alter().
+- Fixed for Views integration edge case with unexpected flattened Views results.
+
 Blazy 8.x-1.0-dev, 2017-02-07
 -----------------------------
 - #2849191 by tjwelde, chr.fritsch: Drupal 8.3 error.
