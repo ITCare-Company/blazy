@@ -1,4 +1,12 @@
 
+Blazy 8.x-1.0-dev, 2017-03-02
+-----------------------------
+- Fixed for few typos.
+- Added support for block_field.module for Slick Views elements.
+- Split re-usable BlazyViewsStylePluginBase methods into BlazyStylePluginTrait
+  to have advanced options when extending other style plugins: HTML list, etc.
+  which may require existing/ different markups for free.
+
 Blazy 8.x-1.0-dev, 2017-02-20
 -----------------------------
 - Fixed for Blazy libraries weight regression at hook_library_info_alter().

@@ -78,7 +78,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
         '#type'        => 'select',
         '#title'       => $this->t('Overlay media'),
         '#options'     => is_array($definition['overlays']) ? $definition['overlays'] : [],
-        '#description' => $this->t('Overlay is displayed over the main main.'),
+        '#description' => $this->t('Overlay is displayed over the main stage.'),
       );
     }
 

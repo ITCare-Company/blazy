@@ -319,8 +319,8 @@ class BlazyManager extends BlazyManagerBase {
     $element['#settings']        = $settings;
 
     foreach (['caption', 'media', 'wrapper'] as $key) {
-      if (!empty($settings["$key" . '_attributes'])) {
-        $element["#$key" . '_attributes'] = $settings["$key" . '_attributes'];
+      if (!empty($settings[$key . '_attributes'])) {
+        $element["#$key" . '_attributes'] = $settings[$key . '_attributes'];
       }
     }
 
