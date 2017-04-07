@@ -117,6 +117,9 @@ class BlazyFormatterManager extends BlazyManager {
       }
     }
 
+    // Add the entity to formatter cache tags.
+    $settings['cache_tags'][] = $settings['entity_type_id'] . ':' . $settings['entity_id'];
+
     $this->getModuleHandler()->alter($namespace . '_settings', $build, $items);
   }
 

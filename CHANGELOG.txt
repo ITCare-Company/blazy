@@ -1,6 +1,8 @@
 
 Blazy 8.x-1.0-dev, 2017-04-07
 -----------------------------
+- #2867553 by gambry: Field formatter cache is not invalidated when the entity
+  it belongs to is updated.
 - A few cleanups: .eslintignore, .ui-dialog, JS doc comments, grid.
 
 Blazy 8.x-1.0-dev, 2017-03-02
