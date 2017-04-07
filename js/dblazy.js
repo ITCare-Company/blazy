@@ -111,12 +111,9 @@
   /**
    * Returns a new object after merging two, or more objects.
    *
-   * Or use https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/
-   * Global_Objects/Object/assign.
+   * Inspired by @adamfschwartz, @zackbloom, http://youmightnotneedjquery.com.
    *
    * @name dBlazy.extend
-   *
-   * Inspired by @adamfschwartz, @zackbloom, http://youmightnotneedjquery.com.
    *
    * @param {Object} out
    *   The objects to merge together.

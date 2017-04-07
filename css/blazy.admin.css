@@ -1322,6 +1322,7 @@ td .form__title {
     margin-bottom: 42px;
   }
 
+  .ui-dialog .form--slick.form--half .form-item--style,
   .scroll .form--slick.form--half .form-item--style,
   .field-plugin-settings-editing .form--slick .form-item--style {
     background: none;

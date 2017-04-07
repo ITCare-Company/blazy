@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2017-04-07
+-----------------------------
+- A few cleanups: .eslintignore, .ui-dialog, JS doc comments, grid.
+
 Blazy 8.x-1.0-dev, 2017-03-02
 -----------------------------
 - Fixed for few typos.
