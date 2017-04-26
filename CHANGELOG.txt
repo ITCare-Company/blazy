@@ -1,4 +1,13 @@
 
+Blazy 8.x-1.0-dev, 2017-04-09
+-----------------------------
+- Fixed for iframe mixes with/without "Image to iframe" on the same page.
+- Marked final ROADMAP/TODO completed.
+- Moved reusable files and videos (VEF) into BlazyFormatterBaseTrait.php.
+- Added Blazy Video formatter for iframes.
+- Fixed for non-existent field check such as for a mix of image and video.
+- A few cleanups, and documentation.
+
 Blazy 8.x-1.0-dev, 2017-04-07
 -----------------------------
 - #2867553 by gambry: Field formatter cache is not invalidated when the entity

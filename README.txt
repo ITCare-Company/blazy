@@ -107,7 +107,7 @@ Add a min-height CSS to individual element to avoid layout reflow if not using
   image. Otherwise some collapsed images containers will defeat the purpose of
   lazyloading. When using CSS background, the container may also be collapsed.
   Both layout reflow and lazyloading delay issues are actually taken care of
-  if Aspect ratio is enabled in the first place.
+  if Aspect ratio option is enabled in the first place.
 
 Adjust, and override blazy CSS files accordingly.
 
@@ -118,7 +118,9 @@ ROADMAP/TODO
 [x] Media entity image/video, and Video embed field lazyloading, if any.
     10/25/2016
     Added both simple Blazy Media formatter and Views field Media Entity.
-o Makes a solid lazyloading solution for IMG, DIV, IFRAME tags.
+[x] Makes a solid lazyloading solution for IMG, DIV, IFRAME tags.
+    4/9/2017
+    Added IFRAME (Blazy Video), apart from existing IMG/ DIV (CSS background).
 
 
 CURRENT DEVELOPMENT STATUS
@@ -130,17 +132,104 @@ Alpha and Beta releases are for developers only. Be aware of possible breakage.
 
 UPDATE SOP:
 Visit any of the following URLs when updating Blazy, or its related modules.
+Please ignore any documentation if already aware of Drupal site building. This
+is for the sake of completed documentation for those who may need it.
 
 1. /admin/config/development/performance
   Unless an update is required, clearing cache should fix most issues.
 
   o Hit "Clear all caches" button once the new Blazy in place.
   o Regenerate CSS and JS as the latest fixes may contain changes to the assets.
+    Ignore below if you are aware, and found no asset changes from commits.
+    Normally clearing cache suffices when no asset changes are found.
+    - Uncheck CSS and JS aggregation options under Bandwidth optimization.
+    - Save.
+    - [Ignorable] See one of Blazy related pages if display is expected.
+    - [Ignorable] Only clear cache if needed.
+    - Check both options again.
+    - Save again.
+    - [Ignorable] Press F5, or CMD/ CTRL + R to refresh browser cache if needed.
 
 2. /admin/reports/status
   Check for any pending update, and run /update.php from the brower address bar.
 
 3. If Twig templates are customized, compare against the latest.
+
+
+PROGRAMATICALLY
+This is reasonable for a single image.
+<code>
+  $settings = [
+    // URI is stored in #settings property so to allow traveling around video
+    // and lightboxes before being passed into theme_blazy().
+    'uri' =>  'public://logo.jpg',
+
+    // Explicitly request for Blazy.
+    // This allows Slick lazyLoad to not load Blazy.
+    'lazy' => 'blazy',
+
+    // Optionally provide an image style:
+    'image_style' => 'thumbnail',
+  ];
+
+  $image = [
+    '#theme'    => 'blazy',
+    '#settings' => $settings,
+
+    // Or below for clarity:
+    '#settings' => ['uri' => 'public://logo.jpg', 'lazy' => 'blazy'],
+
+    // Finally load the library:
+    '#attached' => ['library' => ['blazy/load']],
+  ];
+
+  return $image;
+</code>
+
+This is reasonable for multiple images.
+For advanced usages with multiple images, and a few Blazy features such as
+lightboxes, lazyloaded images, or iframes, including CSS background and aspect
+ratio, etc.:
+o Invoke blazy.manager, and or blazy.formatter.manager, services
+o Use \Drupal\blazy\BlazyManager::getImage() method to work with images and pass
+  relevant settings which request for particular Blazy features accordingly.
+o Use \Drupal\blazy\BlazyManager::attach() to load relevant libraries at ease.
+
+More samples are found at any Blazy related formatters, including GridStack,
+Slick, e.g.:
+- \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait::buildElements()
+- \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter::buildElements()
+- \Drupal\gridstack\Plugin\Field\FieldFormatter\GridStackFileFormatterBase::buildElements()
+- \Drupal\slick\Plugin\Field\FieldFormatter\SlickFileFormatterBase::buildElements()
+
+
+Finally.
+Delay blazy/load library above into parent theme, or container, accordingly:
+<code>
+  $build['#attached']['library'][] = 'blazy/load';
+</code>
+
+Or for various library inclusion, use blazy.manager service:
+<code>
+  $settings = [
+    // Explicitly request for Blazy library.
+    // This allows Slick lazyLoad, or text formatter, to not load Blazy.
+    'blazy' => TRUE,
+
+    // Supported media switcher options dependent on available modules:
+    // colorbox, media, photobox
+    'media_switch' => 'media',
+  ];
+
+  // Build images.
+  $build = [
+    // Load images via \Drupal\blazy\BlazyManager::getImage()
+    // See above NAMESPACEFormatter::buildElements() for consistent samples.
+  ];
+
+  // Finally attach libraries as requested via $settings.
+  $build['#attached'] = \Drupal\blazy\BlazyManager::attach($settings);
+</code>
 
 
 PERFORMANCE TIPS:

@@ -126,16 +126,26 @@ function blazy_views_pre_render($view) {
  * Implements hook_field_formatter_info_alter().
  */
 function blazy_field_formatter_info_alter(array &$info) {
-  // Supports optional Media Entity via VEM within VEF if available.
+  // Supports optional Media Entity via VEM/VEF if available.
+  $common = [
+    'description' => t('Displays lazyloaded images, or iframes, for VEF/ ME.'),
+    'quickedit'   => ['editor' => 'disabled'],
+    'provider'    => 'blazy',
+  ];
+
   if (function_exists('video_embed_media_media_bundle_insert')) {
-    $info['blazy_file'] = [
+    $info['blazy_file'] = $common + [
       'id'          => 'blazy_file',
       'label'       => t('Blazy Image with Media'),
-      'description' => t('Display the images associated to VEM/ME as videos.'),
       'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter',
       'field_types' => ['entity_reference', 'image'],
-      'quickedit'   => ['editor' => 'disabled'],
-      'provider'    => 'blazy',
+    ];
+
+    $info['blazy_video'] = $common + [
+      'id'          => 'blazy_video',
+      'label'       => t('Blazy Video'),
+      'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter',
+      'field_types' => ['video_embed_field'],
     ];
   }
 }

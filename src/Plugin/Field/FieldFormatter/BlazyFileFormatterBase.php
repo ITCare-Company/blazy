@@ -26,12 +26,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 abstract class BlazyFileFormatterBase extends FileFormatterBase implements ContainerFactoryPluginInterface {
 
-  /**
-   * The blazy manager service.
-   *
-   * @var \Drupal\blazy\BlazyFormatterManager
-   */
-  protected $blazyManager;
+  use BlazyFormatterBaseTrait;
 
   /**
    * Constructs a BlazyFormatter object.
@@ -58,27 +53,10 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase implements Conta
   }
 
   /**
-   * Returns the blazy manager.
-   */
-  public function blazyManager() {
-    return $this->blazyManager;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function defaultSettings() {
     return BlazyDefault::imageSettings() + BlazyDefault::gridSettings();
-  }
-
-  /**
-   * Builds the settings.
-   */
-  public function buildSettings() {
-    $settings              = $this->getSettings();
-    $settings['plugin_id'] = $this->getPluginId();
-
-    return $settings;
   }
 
   /**
