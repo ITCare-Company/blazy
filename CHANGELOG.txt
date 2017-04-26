@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2017-04-26
+-----------------------------
+- Issue #2871085 by chr.fritsch: Exception if configured image style does not
+  exist anymore.
+
 Blazy 8.x-1.0-dev, 2017-04-09
 -----------------------------
 - Fixed for iframe mixes with/without "Image to iframe" on the same page.

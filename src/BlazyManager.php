@@ -288,9 +288,9 @@ class BlazyManager extends BlazyManagerBase {
     $settings['responsive_image_style_id'] = '';
     if (!empty($settings['resimage']) && !empty($settings['responsive_image_style'])) {
       $responsive_image_style = $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style');
-      $settings['responsive_image_style_id'] = $responsive_image_style->id() ?: '';
       $settings['lazy'] = '';
-      if (!empty($settings['responsive_image_style_id'])) {
+      if (!empty($responsive_image_style)) {
+        $settings['responsive_image_style_id'] = $responsive_image_style->id();
         if ($this->configLoad('responsive_image')) {
           $item_attributes['data-srcset'] = TRUE;
           $settings['lazy'] = 'responsive';
