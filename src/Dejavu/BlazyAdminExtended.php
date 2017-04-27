@@ -65,21 +65,21 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
     }
 
     if (isset($definition['thumbnails'])) {
-      $form['thumbnail'] = array(
+      $form['thumbnail'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Thumbnail image'),
         '#options'     => is_array($definition['thumbnails']) ? $definition['thumbnails'] : [],
         '#description' => t("Leave empty to not use thumbnail pager."),
-      );
+      ];
     }
 
     if (isset($definition['overlays'])) {
-      $form['overlay'] = array(
+      $form['overlay'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Overlay media'),
         '#options'     => is_array($definition['overlays']) ? $definition['overlays'] : [],
         '#description' => $this->t('Overlay is displayed over the main stage.'),
-      );
+      ];
     }
 
     if (isset($definition['titles'])) {

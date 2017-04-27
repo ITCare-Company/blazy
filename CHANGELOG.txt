@@ -1,6 +1,8 @@
 
 Blazy 8.x-1.0-dev, 2017-04-27
 -----------------------------
+- #2873191 by Pavan B S, dhruveshdtripathi: Convert module to use short array
+  syntax (new coding standard).
 - Updated README.
 - Respected hand-coded image attributes.
 
