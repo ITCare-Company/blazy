@@ -70,6 +70,7 @@ class BlazyFormatterManager extends BlazyManager {
     $settings['id']          = $id;
     $settings['lightbox']    = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
     $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
+    $settings['resimage']    = function_exists('responsive_image_get_image_dimensions');
 
     // @todo: Enable after proper checks.
     // $settings = array_filter($settings);
@@ -83,7 +84,6 @@ class BlazyFormatterManager extends BlazyManager {
     }
 
     $settings['caption']    = empty($settings['caption']) ? [] : array_filter($settings['caption']);
-    $settings['resimage']   = function_exists('responsive_image_get_image_dimensions');
     $settings['background'] = empty($settings['responsive_image_style']) && !empty($settings['background']);
     $resimage_lazy          = $this->configLoad('responsive_image') && !empty($settings['responsive_image_style']);
     $settings['blazy']      = $resimage_lazy || !empty($settings['blazy']);

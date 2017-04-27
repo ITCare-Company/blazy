@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2017-04-27
+-----------------------------
+- Updated README.
+- Respected hand-coded image attributes.
+
 Blazy 8.x-1.0-dev, 2017-04-26
 -----------------------------
 - Issue #2871085 by chr.fritsch: Exception if configured image style does not

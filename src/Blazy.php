@@ -90,8 +90,11 @@ class Blazy implements BlazyInterface {
         }
 
         // Only output dimensions for non-responsive images.
-        $image_attributes['height'] = $settings['height'];
-        $image_attributes['width']  = $settings['width'];
+        // Respects hand-coded image attributes.
+        if (!isset($image_attributes['width'])) {
+          $image_attributes['height'] = $settings['height'];
+          $image_attributes['width']  = $settings['width'];
+        }
       }
 
       if (!empty($settings['lazy'])) {
@@ -122,7 +125,10 @@ class Blazy implements BlazyInterface {
 
     // Image is optional for Video, and Blazy CSS background images.
     if ($image) {
-      $image_attributes['alt'] = isset($item->alt) ? $item->alt : NULL;
+      // Respects hand-coded image attributes.
+      if (!isset($image_attributes['alt'])) {
+        $image_attributes['alt'] = isset($item->alt) ? $item->alt : NULL;
+      }
 
       // Do not output an empty 'title' attribute.
       if (isset($item->title) && (Unicode::strlen($item->title) != 0)) {

@@ -8,13 +8,12 @@ data usage if they don't browse the whole page.
 FEATURES
 o Supports core Image.
 o Supports core Responsive image.
-o Supports Colorbox/Photobox, also multimedia lightboxes.
-o Supports Retina display.
-o Multi-serving images for configurable XS, SM and MD breakpoints, almost
-  similar to core Responsive image, only less complex.
+o Supports Colorbox/Photobox/ PhotoSwipe, also multimedia lightboxes.
+o Multi-serving images for configurable breakpoints, almost similar to core
+  Responsive image, only less complex.
 o CSS background lazyloading, see Mason, GridStack, and Slick carousel.
-o IFRAME urls via via custom coded, Blazy Image with Media entity via Video
-  Embed Media, or see Slick Video, Slick Media.
+o IFRAME urls via custom coded, Blazy Video, Blazy Image with Media entity via
+  Video Embed Media, or see Slick Video, Slick Media.
 o Delay loading for below-fold images until 100px (configurable) before they are
   visible at viewport.
 o A simple effortless CSS loading indicator.
@@ -23,9 +22,9 @@ o It doesn't take over all images, so it can be enabled as needed via Blazy
 
 
 OPTIONAL FEATURES
-o Views fields for File ER and Media Entity integration.
+o Views fields for File ER and Media Entity integration, see Slick Browser.
 o Views style plugin Blazy Grid.
-o Field formatters: Blazy, and Blazy Image with Media integration.
+o Field formatters: Blazy, Blazy Video, and Blazy Image with Media integration.
 
 
 REQUIREMENTS
@@ -50,16 +49,6 @@ o Find "Blazy" formatter under "Manage display".
 
 o Go to "admin/config/media/blazy" to manage few global options, including
   enabling support for lazyloading core Responsive image.
-
-For custom usages, add a class "b-lazy" along with a "data-src" attribute
-referring to an expected image or iframe URL, or to any supported element:
-IMG, IFRAME or DIV/BODY, etc.
-Non-media element, DIV/BODY/etc., will have background image lazyloaded instead.
-
-Wrap the parent container with [data-blazy attribute containing the expected
-options to limit the scope, or for simple need without aspect ratio. Add extra
-class .blazy to support aspect ratio with multi-serving images.
-And load the blazy library accordingly.
 
 
 MODULES THAT INTEGRATE WITH OR REQUIRE BLAZY
@@ -179,6 +168,16 @@ This is reasonable for a single image.
     // Or below for clarity:
     '#settings' => ['uri' => 'public://logo.jpg', 'lazy' => 'blazy'],
 
+    // Pass custom attributes into the same #item_attributes property as Blazy
+    // formatters so to respect external modules like RDF, etc. without extra
+    // property. The regular #attributes property is reserved by Blazy container
+    // which holds either IMG, icons, or iFrame. Meaning Blazy is not just IMG.
+    '#item_attributes' => [
+      'alt'   => t('Thumbnail'),
+      'title' => t('Thumbnail title'),
+      'width' => '120',
+    ],
+
     // Finally load the library:
     '#attached' => ['library' => ['blazy/load']],
   ];
@@ -190,7 +189,7 @@ This is reasonable for multiple images.
 For advanced usages with multiple images, and a few Blazy features such as
 lightboxes, lazyloaded images, or iframes, including CSS background and aspect
 ratio, etc.:
-o Invoke blazy.manager, and or blazy.formatter.manager, services
+o Invoke blazy.manager, and or blazy.formatter.manager, services.
 o Use \Drupal\blazy\BlazyManager::getImage() method to work with images and pass
   relevant settings which request for particular Blazy features accordingly.
 o Use \Drupal\blazy\BlazyManager::attach() to load relevant libraries at ease.
@@ -217,14 +216,14 @@ Or for various library inclusion, use blazy.manager service:
     'blazy' => TRUE,
 
     // Supported media switcher options dependent on available modules:
-    // colorbox, media, photobox
+    // colorbox, media, photobox.
     'media_switch' => 'media',
   ];
 
   // Build images.
   $build = [
     // Load images via \Drupal\blazy\BlazyManager::getImage()
-    // See above NAMESPACEFormatter::buildElements() for consistent samples.
+    // See above ...Formatter::buildElements() for consistent samples.
   ];
 
   // Finally attach libraries as requested via $settings.
