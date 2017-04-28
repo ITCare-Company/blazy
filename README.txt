@@ -216,7 +216,7 @@ Or for various library inclusion, use blazy.manager service:
     'blazy' => TRUE,
 
     // Supported media switcher options dependent on available modules:
-    // colorbox, media, photobox.
+    // colorbox, media (Image to iframe), photobox.
     'media_switch' => 'media',
   ];
 

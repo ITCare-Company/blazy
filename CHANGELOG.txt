@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2017-04-28
+-----------------------------
+- Fixed for Soundcloud integration which has special source_field name:
+  source_url_field. And exluded from VEF integration.
+
 Blazy 8.x-1.0-dev, 2017-04-27
 -----------------------------
 - #2873191 by Pavan B S, dhruveshdtripathi: Convert module to use short array
