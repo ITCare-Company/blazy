@@ -55,6 +55,10 @@ class BlazyMedia {
    */
   public static function wrap(array $field = []) {
     // Media entity is a single being, reasonable to work with multi-value?
+    if (!isset($field[0])) {
+      return;
+    }
+
     $item       = $field[0];
     $settings   = isset($field['#settings']) ? $field['#settings'] : [];
     $iframe     = isset($item['#tag']) && $item['#tag'] == 'iframe';

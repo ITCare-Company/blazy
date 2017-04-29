@@ -1,6 +1,7 @@
 
 Blazy 8.x-1.0-dev, 2017-04-28
 -----------------------------
+- Fixed for Instagram integration with empty entity for some reason.
 - Fixed for Soundcloud integration which has special source_field name:
   source_url_field. And exluded from VEF integration.
 
