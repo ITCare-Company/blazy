@@ -36,7 +36,7 @@ class BlazyMedia {
     $build = $media->get($settings['source_field'])->view($settings['view_mode']);
     $build['#settings'] = $settings;
 
-    return self::wrap($build);
+    return isset($build[0]) ? self::wrap($build) : $build;
   }
 
   /**
@@ -55,10 +55,6 @@ class BlazyMedia {
    */
   public static function wrap(array $field = []) {
     // Media entity is a single being, reasonable to work with multi-value?
-    if (!isset($field[0])) {
-      return;
-    }
-
     $item       = $field[0];
     $settings   = isset($field['#settings']) ? $field['#settings'] : [];
     $iframe     = isset($item['#tag']) && $item['#tag'] == 'iframe';

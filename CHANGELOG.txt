@@ -1,4 +1,8 @@
 
+Blazy 8.x-1.0-dev, 2017-04-29
+-----------------------------
+- Added blazy.api.php.
+
 Blazy 8.x-1.0-dev, 2017-04-28
 -----------------------------
 - Fixed for Instagram integration with empty entity for some reason.
