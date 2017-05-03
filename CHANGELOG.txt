@@ -1,4 +1,9 @@
 
+Blazy 8.x-1.0-dev, 2017-05-03
+-----------------------------
+- #2873319 by gausarts, tjwelde: IE11 and below: responsive_image IE fix not
+  working.
+
 Blazy 8.x-1.0-dev, 2017-04-29
 -----------------------------
 - Added blazy.api.php.

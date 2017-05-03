@@ -171,6 +171,28 @@
   };
 
   /**
+   * A simple hasClass wrapper.
+   *
+   * @name dBlazy.hasClass
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} name
+   *   The class name.
+   *
+   * @return {bool}
+   *   True if of of the method is supported.
+   */
+  dBlazy.hasClass = function (el, name) {
+    if (el.classList) {
+      return el.classList.contains(name);
+    }
+    else {
+      return el.className.indexOf(name) !== -1;
+    }
+  };
+
+  /**
    * A simple wrapper for event delegation like jQuery.on().
    *
    * Inspired by http://stackoverflow.com/questions/30880757/
