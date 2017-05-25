@@ -1,4 +1,15 @@
 
+Blazy 8.x-1.0-dev, 2017-05-26
+-----------------------------
+- Added tests.
+- Moved lightbox and other optional integration outside classes due to breaking
+  test coverage. Be sure to clear cache to pick up new alter functions.
+- Moved Responsive image integration into Blazy to declutter module file, and
+  add test coverage.
+- Refactored field settings summary to avoid heavy form elements.
+- Deprecated BlazyAdminFormatterBase::settingsSummary for ::getSettingsSummary()
+  to reduce complexity with unpredictable form elements.
+
 Blazy 8.x-1.0-dev, 2017-05-03
 -----------------------------
 - #2873319 by gausarts, tjwelde: IE11 and below: responsive_image IE fix not

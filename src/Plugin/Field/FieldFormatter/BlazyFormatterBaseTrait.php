@@ -42,7 +42,7 @@ trait BlazyFormatterBaseTrait {
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    return $this->admin()->settingsSummary($this);
+    return $this->admin()->getSettingsSummary($this->getScopedFormElements());
   }
 
 }

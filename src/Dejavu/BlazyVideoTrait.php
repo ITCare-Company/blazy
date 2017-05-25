@@ -196,6 +196,7 @@ trait BlazyVideoTrait {
     if ($source && isset($media->{$source})) {
       $value     = $media->{$source}->getValue();
       $input_url = isset($value[0]['uri']) ? $value[0]['uri'] : (isset($value[0]['value']) ? $value[0]['value'] : '');
+      $input_url = strip_tags($input_url);
 
       if ($input_url) {
         $settings['input_url'] = $input_url;

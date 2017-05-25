@@ -75,7 +75,7 @@ class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPlug
     unset($build['settings']);
 
     // Supports Blazy multi-breakpoint images if provided.
-    if (!empty($build['settings']['uri'])) {
+    if (!empty($settings['uri'])) {
       $this->blazyManager->isBlazy($settings, $build[0]['#build']);
     }
 
@@ -89,10 +89,9 @@ class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPlug
    */
   public function buildElements(array &$build, $items) {
     $settings = $build['settings'];
-    $item_id  = $settings['item_id'];
 
     foreach ($items as $delta => $item) {
-      $media_url = $item->value;
+      $media_url = strip_tags($item->value);
 
       $settings['delta'] = $delta;
       if (empty($media_url)) {

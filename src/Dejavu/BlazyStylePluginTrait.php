@@ -133,6 +133,12 @@ trait BlazyStylePluginTrait {
       $definition[$key] = isset($options[$key]) ? $options[$key] : [];
     }
 
+    $contexts = [
+      'handler' => $this->displayHandler,
+      'view' => $this->view,
+    ];
+    $this->blazyManager->getModuleHandler()->alter('blazy_views_field_options', $definition, $contexts);
+
     return $definition;
   }
 
