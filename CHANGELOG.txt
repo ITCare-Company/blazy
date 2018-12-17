@@ -1,4 +1,16 @@
 
+Blazy 8.x-1.0-dev, 2018-12-17
+-----------------------------
+- Issue #2991721 by jcourtice: Expose Validate Delay setting in admin UI
+- Issue #2951529 by jansete, dench0: Bad performance when use responsive images
+- Issue #2994049 by Maffoo: Add installation requirements for library
+- Issue #2979418 by IT-Cru: Invalid argument supplied for foreach() in
+  Blazy::preprocessResponsiveImage()
+- Issue #2860586 by gausarts, miroslav-lee, michaelsoetaert, Paul B, wrd: 
+  Warnings with mixed contents
+- Issue #2906799 by mxh: Manually defined value for theme variable #url might 
+  get lost
+
 Blazy 8.x-1.0-dev, 2017-05-26
 -----------------------------
 - Added tests.
@@ -472,3 +484,4 @@ Blazy 8.x-1.0-dev, 2016-03-23
 Blazy 8.x-1.0-dev, 2016-01-19
 -----------------------------
 Initial commit.
+
