@@ -352,12 +352,14 @@ class Blazy implements BlazyInterface {
     // Prepare all <picture> [data-srcset] attributes on <source> elements.
     if (!$variables['output_image_tag']) {
       /** @var \Drupal\Core\Template\Attribute $source */
-      foreach ($variables['sources'] as &$source) {
-        $srcset = $source['srcset'];
-        $srcset_values = $srcset->value();
+      if (isset($variables['sources']) && is_array($variables['sources'])) {
+        foreach ($variables['sources'] as &$source) {
+          $srcset = $source['srcset'];
+          $srcset_values = $srcset->value();
 
-        $source->setAttribute('data-srcset', $srcset_values);
-        $source->removeAttribute('srcset');
+          $source->setAttribute('data-srcset', $srcset_values);
+          $source->removeAttribute('srcset');
+        }
       }
 
       // Fetches the picture element fallback URI, and empty it later.
