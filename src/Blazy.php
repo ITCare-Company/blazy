@@ -221,7 +221,7 @@ class Blazy implements BlazyInterface {
       }
 
       if ($style = ImageStyle::load($breakpoint['image_style'])) {
-        $url = $style->buildUrl($settings['uri']);
+        $url = file_url_transform_relative($style->buildUrl($settings['uri']));
 
         // Supports multi-breakpoint aspect ratio with irregular sizes.
         // Yet, only provide individual dimensions if not already set.
@@ -286,7 +286,7 @@ class Blazy implements BlazyInterface {
 
     // Lazyloaded elements expect image URL, not URI.
     if (empty($settings['image_url'])) {
-      $settings['image_url'] = file_create_url($settings['uri']);
+      $settings['image_url'] = file_url_transform_relative(file_create_url($settings['uri']));
     }
 
     // Sets dimensions.
@@ -299,7 +299,7 @@ class Blazy implements BlazyInterface {
     // Image style modifier can be multi-style images such as GridStack.
     if (!empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
       // Image URLs, as opposed to URIs, are expected by lazyloaded images.
-      $settings['image_url']  = $style->buildUrl($settings['uri']);
+      $settings['image_url']  = file_url_transform_relative($style->buildUrl($settings['uri']));
       $settings['cache_tags'] = $style->getCacheTags();
 
       // Only re-calculate dimensions if not cropped, nor already set.
