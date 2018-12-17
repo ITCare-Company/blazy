@@ -328,7 +328,6 @@ class BlazyManager extends BlazyManagerBase {
     $element['#item']            = $item;
     $element['#captions']        = empty($build['captions']) ? [] : ['inline' => $build['captions']];
     $element['#item_attributes'] = $item_attributes;
-    $element['#url']             = '';
     $element['#settings']        = $settings;
 
     foreach (['caption', 'media', 'wrapper'] as $key) {
