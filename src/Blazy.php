@@ -76,6 +76,14 @@ class Blazy implements BlazyInterface {
       $image['#responsive_image_style_id'] = $settings['responsive_image_style_id'];
       $image['#uri'] = $settings['uri'];
 
+      // Responsive images with height and width save a lot of calls to
+      // image.factory service for every image and breakpoint in
+      // _responsive_image_build_source_attributes(). Very necessary for
+      // external file system like Amazon S3.
+      if (empty($image['#width']) || empty($image['#height'])) {
+        $image['#width'] = $settings['width'];
+        $image['#height'] = $settings['height'];
+      }
       // Disable aspect ratio which is not yet supported due to complexity.
       $settings['ratio'] = FALSE;
     }
