@@ -1,5 +1,6 @@
 Blazy 8.x-1.0-dev, 2018-12-18
 -----------------------------
+- Fixed for photobox captions.
 - Issue #2979286 by gausarts, Grimreaper, Mistrae: Broken with user picture.
 - Added minor fixes, refinements: spaces, re-usable options, admin CSS, etc.
 - Added hook_blazy_base_settings_alter() to modify/ extend UI options at one go.
