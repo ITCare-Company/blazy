@@ -1,3 +1,7 @@
+Blazy 8.x-1.0-dev, 2018-12-18
+-----------------------------
+- Added minor fixes, refinements: spaces, re-usable options, admin CSS, etc.
+- Added hook_blazy_base_settings_alter() to modify/ extend UI options at one go.
 
 Blazy 8.x-1.0-dev, 2018-12-17
 -----------------------------
