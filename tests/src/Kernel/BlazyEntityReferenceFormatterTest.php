@@ -19,10 +19,9 @@ class BlazyEntityReferenceFormatterTest extends KernelTestBase {
   /**
    * Set to TRUE to strict check all configuration saved.
    *
-   * @see \Drupal\Core\Config\Development\ConfigSchemaChecker
-   * @todo remove once schema issue fixed for: view_mode, current_view_mode.
-   *
    * @var bool
+   * @todo remove once schema issue fixed for: view_mode, current_view_mode.
+   * @see \Drupal\Core\Config\Development\ConfigSchemaChecker
    */
   protected $strictConfigSchema = FALSE;
 

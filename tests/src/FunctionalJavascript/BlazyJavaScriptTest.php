@@ -70,9 +70,9 @@ class BlazyJavaScriptTest extends JavascriptTestBase {
 
     // Wait for the loaded images, at least one will do dependent on viewport.
     // @fixme https://www.drupal.org/project/drupal/issues/2892440
-    // $loaded = $this->assertSession()->waitForElementVisible('css', '.b-loaded');
+    // $loaded = $this->assertSession()->waitForElementVisible('css',
+    // '.b-loaded');
     // $this->assertNotNull($loaded, 'Blazy image is loaded, one or more.');
-
     // Wait a moment.
     $session->wait(10000);
 

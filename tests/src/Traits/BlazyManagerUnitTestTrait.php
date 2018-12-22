@@ -22,9 +22,7 @@ trait BlazyManagerUnitTestTrait {
     $this->entityTypeManager  = $this->getMock('\Drupal\Core\Entity\EntityTypeManagerInterface');
     $this->renderer           = $this->getMock('\Drupal\Core\Render\RendererInterface');
     $this->cache              = $this->getMock('\Drupal\Core\Cache\CacheBackendInterface');
-    $this->moduleHandler      = $this->getMockBuilder('Drupal\Core\Extension\ModuleHandler')
-          ->disableOriginalConstructor()
-          ->getMock();
+    $this->moduleHandler      = $this->getMockBuilder('Drupal\Core\Extension\ModuleHandler')->disableOriginalConstructor()->getMock();
 
     $this->token = $this->getMockBuilder('\Drupal\Core\Utility\Token')
       ->disableOriginalConstructor()

@@ -139,7 +139,7 @@ trait BlazyCreationTestTrait {
     $settings   = $this->getFormatterSettings() + $this->formatterPluginManager->getDefaultSettings($plugin_id);
 
     if (!$this->getBlazyFieldDefinition($field_name)) {
-      return null;
+      return NULL;
     }
 
     $options = [
@@ -218,9 +218,8 @@ trait BlazyCreationTestTrait {
    *   The node instance.
    */
   protected function setUpContentWithItems($bundle = '', array $settings = []) {
-    $title = empty($settings['title']) ? $this->testPluginId : $settings['title'];
-    $data  = empty($settings['values']) ? [] : $settings['values'];
-
+    $title  = empty($settings['title']) ? $this->testPluginId : $settings['title'];
+    $data   = empty($settings['values']) ? [] : $settings['values'];
     $values = $data + [
       'title'  => $title . ' : ' . $this->randomMachineName(),
       'type'   => $bundle,
