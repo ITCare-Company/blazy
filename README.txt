@@ -37,7 +37,7 @@ REQUIREMENTS
 
 INSTALLATION
 Install the module as usual, more info can be found on:
-http://drupal.org/documentation/install/modules-themes/modules-7
+https://www.drupal.org/docs/8/extending-drupal-8/installing-drupal-8-modules
 
 
 USAGES
