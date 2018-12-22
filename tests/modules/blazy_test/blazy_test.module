@@ -55,7 +55,7 @@ function blazy_test_blazy_alter(array &$image, array $settings = []) {
 }
 
 /**
- * #pre_render callback: Sets blazy_test related URL attributes.
+ * The #pre_render callback: Sets blazy_test related URL attributes.
  */
 function blazy_test_pre_render($image) {
   $settings = isset($image['#settings']) ? $image['#settings'] : [];

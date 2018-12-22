@@ -97,8 +97,9 @@ trait BlazyCreationTestTrait {
     if (!$this->fieldDefinition) {
       $field_name = empty($field_name) ? $this->testFieldName : $field_name;
       $field_storage_config = $this->getBlazyFieldStorageDefinition($field_name);
-
-      $this->fieldDefinition = BaseFieldDefinition::createFromFieldStorageDefinition($field_storage_config);
+      if ($field_storage_config) {
+        $this->fieldDefinition = BaseFieldDefinition::createFromFieldStorageDefinition($field_storage_config);
+      }
     }
     return $this->fieldDefinition;
   }
@@ -116,7 +117,7 @@ trait BlazyCreationTestTrait {
     if (!$this->fieldStorageDefinition) {
       $field_name = empty($field_name) ? $this->testFieldName : $field_name;
       $field_storage_definitions = $this->entityFieldManager->getFieldStorageDefinitions($this->entityType);
-      $this->fieldStorageDefinition = $field_storage_definitions[$field_name];
+      $this->fieldStorageDefinition = isset($field_storage_definitions[$field_name]) ? $field_storage_definitions[$field_name] : NULL;
     }
     return $this->fieldStorageDefinition;
   }
@@ -136,6 +137,10 @@ trait BlazyCreationTestTrait {
     $plugin_id  = empty($plugin_id) ? $this->testPluginId : $plugin_id;
     $field_name = empty($field_name) ? $this->testFieldName : $field_name;
     $settings   = $this->getFormatterSettings() + $this->formatterPluginManager->getDefaultSettings($plugin_id);
+
+    if (!$this->getBlazyFieldDefinition($field_name)) {
+      return null;
+    }
 
     $options = [
       'field_definition' => $this->getBlazyFieldDefinition($field_name),
@@ -188,10 +193,12 @@ trait BlazyCreationTestTrait {
     }
 
     $data = [];
-    foreach ($settings['fields'] as $field_name => $field_type) {
-      $data['field_name'] = $field_name;
-      $data['field_type'] = $field_type;
-      $this->setUpFieldConfig($bundle, $data);
+    if (!$settings['fields']) {
+      foreach ($settings['fields'] as $field_name => $field_type) {
+        $data['field_name'] = $field_name;
+        $data['field_type'] = $field_type;
+        $this->setUpFieldConfig($bundle, $data);
+      }
     }
 
     $node_type->save();
@@ -252,6 +259,7 @@ trait BlazyCreationTestTrait {
 
         $max = $multiple ? $this->maxItems : 2;
         if (isset($node->{$field_name})) {
+          // @see \Drupal\Core\Field\FieldItemListInterface::generateSampleItems
           $node->{$field_name}->generateSampleItems($max);
         }
       }

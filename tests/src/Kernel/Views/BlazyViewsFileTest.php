@@ -15,6 +15,16 @@ use Drupal\blazy\BlazyViews;
 class BlazyViewsFileTest extends BlazyViewsTestBase {
 
   /**
+   * Set to TRUE to strict check all configuration saved.
+   *
+   * @see \Drupal\Core\Config\Development\ConfigSchemaChecker
+   * @todo remove once schema issue fixed for: view_mode, current_view_mode.
+   *
+   * @var bool
+   */
+  protected $strictConfigSchema = FALSE;
+
+  /**
    * {@inheritdoc}
    */
   public static $testViews = ['test_blazy_entity', 'test_blazy_entity_2'];
@@ -29,6 +39,8 @@ class BlazyViewsFileTest extends BlazyViewsTestBase {
     $this->entityPluginId  = 'blazy_entity_test';
     $this->targetBundle    = 'bundle_target_test';
     $this->targetBundles   = [$this->targetBundle];
+
+    $this->setUpRealImage();
 
     $bundle = $this->bundle;
     $settings['image_settings'] = [

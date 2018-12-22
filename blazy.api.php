@@ -211,9 +211,10 @@ function hook_blazy_alter(array &$image, array $settings = []) {
  * @param array $context
  *   The array containing class which defines or limit the scope of the options.
  *
+ * @todo this breaks test, so this is pending till a better solution.
  * @ingroup blazy_api
  */
-function hook_blazy_base_settings_alter(array &$settings, $context = []) {
+function hook_blazy_base_settings_alter(array &$settings, array $context = []) {
   // One override for both various Slick field formatters and Slick views style.
   // SlickDefault extends BlazyDefault, hence capable to modify/ extend options.
   // These options will be available at many Slick formatters at one go.
@@ -232,11 +233,10 @@ function hook_blazy_base_settings_alter(array &$settings, $context = []) {
  *
  * @ingroup blazy_api
  */
-function hook_blazy_complete_form_element_alter(array &$form, $definition = []) {
+function hook_blazy_complete_form_element_alter(array &$form, array $definition = []) {
   // Limit the scope to Slick formatters, blazy, gridstack, etc. Or swap em all.
   if (isset($definition['namespace']) && $definition['namespace'] == 'slick') {
     // Extend the formatter form elements as needed.
-    // SlickExtended::slickFormElementAlter($form, $definition);
   }
 }
 

@@ -149,7 +149,7 @@ class Blazy implements BlazyInterface {
       }
 
       // Do not output an empty 'title' attribute.
-      if (isset($item->title) && (Unicode::strlen($item->title) != 0)) {
+      if (isset($item->title) && (mb_strlen($item->title) != 0)) {
         $image_attributes['title'] = $item->title;
       }
 

@@ -721,11 +721,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    *
    * @param string $state
    *   The state to get that matches one of the state class constants.
+   * @param array $definition
+   *   The foem definitions or settings.
    *
    * @return array
    *   A corresponding form API state.
    */
-  protected function getState($state, $definition = []) {
+  protected function getState($state, array $definition = []) {
     $lightboxes = [];
 
     foreach ($this->blazyManager->getLightboxes() as $key => $lightbox) {

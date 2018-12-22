@@ -251,7 +251,7 @@ class BlazyManager extends BlazyManagerBase {
     // Respects content not handled by theme_blazy(), but passed through.
     if (empty($build['content'])) {
       $image = [
-        '#theme'       => empty($settings['theme_hook_image']) ?'blazy' : $settings['theme_hook_image'],
+        '#theme'       => empty($settings['theme_hook_image']) ? 'blazy' : $settings['theme_hook_image'],
         '#delta'       => $settings['delta'],
         '#item'        => isset($settings['entity_type_id']) && $settings['entity_type_id'] == 'user' ? $item : [],
         '#image_style' => $settings['image_style'],
