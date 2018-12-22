@@ -504,6 +504,7 @@ trait BlazyCreationTestTrait {
       file_unmanaged_copy($source, $uri, FILE_EXISTS_REPLACE);
     }
 
+    $uri = 'public://simpletest/' . $this->testPluginId . '/' . $name;
     $item = File::create([
       'uri' => $uri,
       'uid' => \Drupal::currentUser()->id(),
