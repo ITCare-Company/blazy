@@ -359,3 +359,14 @@ if (!function_exists('file_create_url')) {
   }
 
 }
+
+if (!function_exists('file_url_transform_relative')) {
+
+  /**
+   * Dummy function.
+   */
+  function file_url_transform_relative() {
+    // Empty block to satisfy coder.
+  }
+
+}

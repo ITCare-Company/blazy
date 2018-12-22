@@ -33,11 +33,8 @@ class BlazyLightbox {
     $settings['box_url']    = file_create_url($uri);
     $settings['icon']       = empty($settings['icon']) ? ['#markup' => '<span class="media__icon media__icon--litebox"></span>'] : $settings['icon'];
     $settings['lightbox']   = $switch;
-    $settings['box_width']  = isset($item->width) ? $item->width : NULL;
-    $settings['box_height'] = isset($item->height) ? $item->height : NULL;
-
-    $settings['box_width']  = isset($settings['box_width']) ? $settings['box_width'] : $settings['width'];
-    $settings['box_height'] = isset($settings['box_height']) ? $settings['box_height'] : $settings['height'];
+    $settings['box_width']  = isset($item->width) ? $item->width : (empty($settings['width']) ? NULL : $settings['width']);
+    $settings['box_height'] = isset($item->height) ? $item->height : (empty($settings['height']) ? NULL : $settings['height']);
 
     $dimensions = ['width' => $settings['box_width'], 'height' => $settings['box_height']];
     if (!empty($settings['box_style'])) {

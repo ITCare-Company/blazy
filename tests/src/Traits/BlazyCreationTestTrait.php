@@ -251,7 +251,9 @@ trait BlazyCreationTestTrait {
         }
 
         $max = $multiple ? $this->maxItems : 2;
-        $node->{$field_name}->generateSampleItems($max);
+        if (isset($node->{$field_name})) {
+          $node->{$field_name}->generateSampleItems($max);
+        }
       }
     }
 

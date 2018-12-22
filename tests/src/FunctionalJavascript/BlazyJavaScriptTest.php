@@ -68,6 +68,9 @@ class BlazyJavaScriptTest extends JavascriptTestBase {
     // Trigger Blazy to load images by scrolling down window.
     $session->executeScript('window.scrollTo(0, document.body.scrollHeight);');
 
+    // Wait a moment after scrolling.
+    $session->wait(8000);
+
     // Wait for the loaded images, at least one will do dependent on viewport.
     $loaded = $this->assertSession()->waitForElement('css', '.b-loaded');
     $this->assertNotEmpty($loaded, 'Blazy image is loaded, one or more.');

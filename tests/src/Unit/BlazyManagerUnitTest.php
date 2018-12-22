@@ -80,23 +80,6 @@ class BlazyManagerUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests cases for config.
-   *
-   * @covers ::entityLoad
-   * @covers ::entityLoadMultiple
-   */
-  public function testEntityLoadResponsiveImageStyle() {
-    $styles = $this->setUpResponsiveImageStyle();
-
-    $ids = array_keys($styles);
-    $multiple = $this->blazyManager->entityLoadMultiple('responsive_image_style', $ids);
-    $this->assertArrayHasKey('blazy_picture_test', $multiple);
-
-    $expected = $this->blazyManager->entityLoad('blazy_picture_test', 'responsive_image_style');
-    $this->assertEquals($expected, $multiple['blazy_picture_test']);
-  }
-
-  /**
    * Test \Drupal\blazy\BlazyManager::cleanUpBreakpoints().
    *
    * @covers ::cleanUpBreakpoints

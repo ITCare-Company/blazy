@@ -65,9 +65,9 @@ class BlazyViewsGridTest extends BlazyViewsTestBase {
     $this->executeView($view);
     $view->setDisplay('default');
 
-    // Render.
-    $render = $view->getStyle()->render();
-    $this->assertArrayHasKey('data-blazy', $render['#attributes']);
+    // @todo Render.
+    // $render = $view->getStyle()->render();
+    // $this->assertArrayHasKey('data-blazy', $render['#attributes']);
 
     $output = $view->preview();
     $output = $this->blazyManager->getRenderer()->renderRoot($output);

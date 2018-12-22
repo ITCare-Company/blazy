@@ -150,6 +150,8 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
   /**
    * Tests the Blazy formatter file.
+   *
+   * @requires module video_embed_media
    */
   public function testBlazyFile() {
     $settings = [
