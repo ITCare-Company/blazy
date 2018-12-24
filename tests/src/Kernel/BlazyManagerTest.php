@@ -5,7 +5,7 @@ namespace Drupal\Tests\blazy\Kernel;
 use Drupal\Core\Cache\Cache;
 use Drupal\entity_test\Entity\EntityTest;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\Dejavu\BlazyDefault;
+use Drupal\blazy\BlazyDefault;
 
 /**
  * Tests the Blazy manager methods.

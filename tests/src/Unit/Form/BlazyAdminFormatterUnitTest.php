@@ -4,7 +4,7 @@ namespace Drupal\Tests\blazy\Unit\Form;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\blazy\Form\BlazyAdminFormatter;
-use Drupal\blazy\Dejavu\BlazyDefault;
+use Drupal\blazy\BlazyDefault;
 use Drupal\Tests\UnitTestCase;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;

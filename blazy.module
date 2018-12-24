@@ -9,6 +9,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyDefault;
 
 /**
  * Implements hook_theme().
@@ -147,6 +148,13 @@ function blazy_blazy_settings_alter(array &$build, $items) {
     $settings['view_name'] = $view->storage->id();
     $settings['current_view_mode'] = $view->current_display;
   }
+}
+
+/**
+ * Alters blazy settings here due to static FormatterBase::defaultSettings().
+ */
+function blazy_alterable_settings(array &$settings) {
+  return BlazyDefault::getInstance()->alterableSettings($settings);
 }
 
 /**

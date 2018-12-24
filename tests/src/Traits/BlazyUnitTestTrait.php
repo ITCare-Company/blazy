@@ -3,7 +3,7 @@
 namespace Drupal\Tests\blazy\Traits;
 
 use Drupal\Core\Cache\Cache;
-use Drupal\blazy\Dejavu\BlazyDefault;
+use Drupal\blazy\BlazyDefault;
 
 /**
  * A Trait common for Blazy Unit tests.
@@ -334,6 +334,19 @@ trait BlazyUnitTestTrait {
     $this->testItem = $item;
     $this->data['item'] = $item;
     $item->entity = $entity;
+  }
+
+}
+
+namespace Drupal\blazy;
+
+if (!function_exists('blazy_alterable_settings')) {
+
+  /**
+   * Dummy function.
+   */
+  function blazy_alterable_settings() {
+    // Empty block to satisfy coder.
   }
 
 }

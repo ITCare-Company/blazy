@@ -7,7 +7,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Serialization\Json;
 use Drupal\image\Entity\ImageStyle;
-use Drupal\blazy\Dejavu\BlazyDefault;
+use Drupal\blazy\BlazyDefault;
 
 /**
  * Implements BlazyInterface.

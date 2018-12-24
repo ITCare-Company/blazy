@@ -9,7 +9,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
 use Drupal\blazy\Dejavu\BlazyEntityReferenceBase;
-use Drupal\blazy\Dejavu\BlazyDefault;
+use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterBaseTrait;
 use Drupal\blazy_test\BlazyFormatterTestInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;

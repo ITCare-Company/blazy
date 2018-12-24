@@ -193,7 +193,7 @@ trait BlazyCreationTestTrait {
     }
 
     $data = [];
-    if (!$settings['fields']) {
+    if (!empty($settings['fields'])) {
       foreach ($settings['fields'] as $field_name => $field_type) {
         $data['field_name'] = $field_name;
         $data['field_type'] = $field_type;
@@ -418,7 +418,7 @@ trait BlazyCreationTestTrait {
     $referenced_data['title'] = 'Referenced ' . $this->testPluginId;
 
     // Create dummy fields.
-    $referenced_data['fields'] = $fields + $this->getDefaultFields();
+    $referenced_data['fields'] = array_merge($this->getDefaultFields(), $fields);
 
     // Create referenced entity type.
     $this->setUpContentTypeTest($target_bundle, $referenced_data);

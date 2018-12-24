@@ -9,6 +9,7 @@ use Drupal\Tests\blazy\Traits\BlazyKernelTestTrait;
 /**
  * Tests the Blazy entity reference file formatter.
  *
+ * @todo this test was created May 2017, and things broken now at Drupal 8.6+.
  * @coversDefaultClass \Drupal\blazy_test\Plugin\Field\FieldFormatter\BlazyTestEntityReferenceFormatterTest
  * @group blazy
  */
@@ -60,12 +61,18 @@ class BlazyEntityReferenceFormatterTest extends KernelTestBase {
     $this->setUpKernelInstall();
     $this->setUpKernelManager();
 
-    $this->entityFieldName = 'field_entity_test';
-    $this->entityPluginId  = 'blazy_entity_test';
-    $this->targetBundle    = 'bundle_target_test';
-    $this->targetBundles   = [$this->targetBundle];
-    $this->blazyAdminTest  = $this->container->get('blazy_test.admin');
+    $this->entityFieldName   = 'field_entity_test';
+    $this->entityPluginId    = 'blazy_entity_test';
+    $this->targetBundle      = 'bundle_target_test';
+    $this->targetBundles     = [$this->targetBundle];
+    $this->blazyAdminTest    = $this->container->get('blazy_test.admin');
+    $this->formatterInstance = $this->getFormatterInstance($this->entityPluginId, $this->entityFieldName);
+  }
 
+  /**
+   * Build contents.
+   */
+  private function buildContents() {
     $settings['image_settings'] = [
       'iframe_lazy'  => TRUE,
       'lazy'         => 'blazy',
@@ -76,14 +83,12 @@ class BlazyEntityReferenceFormatterTest extends KernelTestBase {
 
     $settings['entity_field_name'] = $this->entityFieldName;
     $settings['entity_plugin_id']  = $this->entityPluginId;
-
-    $settings['entity_settings'] = [
+    $settings['entity_settings']   = [
       'grid'      => 4,
       'optionset' => '',
     ] + $this->getFormatterSettings();
 
     $this->setUpContentWithEntityReference($settings);
-    $this->formatterInstance = $this->getFormatterInstance($this->entityPluginId, $this->entityFieldName);
   }
 
   /**
@@ -92,11 +97,13 @@ class BlazyEntityReferenceFormatterTest extends KernelTestBase {
    * @todo: Useful assertions.
    */
   public function testFormatterDisplay() {
-    // @todo remove once corrected.
+    // @todo remove once corrected, likely broken since Drupal 8.4+.
     if (!$this->formatterInstance) {
       $this->assertEquals(NULL, $this->formatterInstance);
       return;
     }
+
+    $this->buildContents();
 
     $bundle     = $this->bundle;
     $field_name = $this->entityFieldName;
@@ -187,11 +194,13 @@ class BlazyEntityReferenceFormatterTest extends KernelTestBase {
    * @depends testFormatterDisplay
    */
   public function testBuildPreview(array $settings, $is_entity, $is_item, $expected) {
-    // @todo remove once corrected.
+    // @todo remove once corrected, likely broken since Drupal 8.4+.
     if (!$this->formatterInstance) {
       $this->assertEquals(NULL, $this->formatterInstance);
       return;
     }
+
+    $this->buildContents();
 
     $formatter  = $this->formatterInstance;
     $definition = array_merge($formatter->getScopedFormElements(), $this->getFormatterDefinition());
@@ -256,18 +265,17 @@ class BlazyEntityReferenceFormatterTest extends KernelTestBase {
    * Tests the Blazy formatter settings form.
    */
   public function testFormatterSettingsForm() {
-    // @todo remove once corrected.
+    // @todo remove once corrected, likely broken since Drupal 8.4+.
     if (!$this->formatterInstance) {
       $this->assertEquals(NULL, $this->formatterInstance);
       return;
     }
 
-    $formatter  = $this->formatterInstance;
-    $definition = array_merge($formatter->getScopedFormElements(), $this->getFormatterDefinition());
-
+    $formatter              = $this->formatterInstance;
+    $definition             = array_merge($formatter->getScopedFormElements(), $this->getFormatterDefinition());
     $definition['settings'] = array_merge($definition['settings'], $this->getDefaultFields(TRUE));
 
-    // Check for setttings form.
+    // Check for settings form.
     $form = [];
     $form_state = new FormState();
 
