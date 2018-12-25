@@ -59,6 +59,7 @@ class BlazyJavaScriptTest extends WebDriverTestBase {
 
     // Capture the loading moment.
     $this->createScreenshot($image_path . '/1_blazy_loading.png');
+    $this->assertSession()->elementExists('css', '.b-lazy');
 
     // Wait a moment.
     $session->wait(3000);
@@ -67,9 +68,10 @@ class BlazyJavaScriptTest extends WebDriverTestBase {
     $session->executeScript('window.scrollTo(0, document.body.scrollHeight);');
 
     // Wait for the loaded images, at least one will do dependent on viewport.
-    // @see https://www.drupal.org/project/drupal/issues/2892440
-    $loaded = $this->assertSession()->waitForElementVisible('css', '.b-loaded');
-    $this->assertNotNull($loaded, 'Blazy image is loaded, one or more.');
+    $session->wait(3000);
+
+    // Checks if the image is loaded.
+    $this->assertSession()->elementExists('css', '.b-loaded');
 
     // Wait a moment.
     $session->wait(10000);
