@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 
 /**
@@ -13,27 +12,14 @@ use Drupal\Core\Field\FieldDefinitionInterface;
  *   label = @Translation("Blazy"),
  *   field_types = {
  *     "entity_reference",
+ *     "entity_reference_revisions",
  *   }
  * )
  *
- * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatter
+ * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase
  * @see \Drupal\media\Plugin\Field\FieldFormatter\MediaThumbnailFormatter
  */
-class BlazyMediaFormatter extends BlazyFormatter {
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getEntitiesToView(EntityReferenceFieldItemListInterface $items, $langcode) {
-    $media = parent::getEntitiesToView($items, $langcode);
-    $entities = [];
-    foreach ($media as $media_item) {
-      $entity = $media_item->thumbnail->entity;
-      $entity->_referringItem = $media_item->thumbnail;
-      $entities[] = $entity;
-    }
-    return $entities;
-  }
+class BlazyMediaFormatter extends BlazyMediaFormatterBase {
 
   /**
    * {@inheritdoc}

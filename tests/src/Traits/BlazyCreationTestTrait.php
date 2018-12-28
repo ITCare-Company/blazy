@@ -501,9 +501,26 @@ trait BlazyCreationTestTrait {
    * Returns path to the stored image location.
    */
   protected function getImagePath($is_dir = FALSE) {
+    $path            = \Drupal::root() . '/sites/default/files/simpletest/' . $this->testPluginId;
+    $item            = $this->createDummyImage();
+    $uri             = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+    $this->dummyUri  = $uri;
+    $this->dummyItem = $item;
+    $this->dummyData = [
+      'settings' => $this->getFormatterSettings(),
+      'item'     => $item,
+    ];
+
+    return $is_dir ? $path : $uri;
+  }
+
+  /**
+   * Returns the created image file.
+   */
+  protected function createDummyImage($name = '', $source = '') {
     $path   = \Drupal::root() . '/sites/default/files/simpletest/' . $this->testPluginId;
-    $name   = $this->testPluginId . '.png';
-    $source = \Drupal::root() . '/core/misc/druplicon.png';
+    $name   = empty($name) ? $this->testPluginId . '.png' : $name;
+    $source = empty($source) ? \Drupal::root() . '/core/misc/druplicon.png' : $source;
     $uri    = $path . '/' . $name;
 
     if (!is_file($uri)) {
@@ -514,22 +531,14 @@ trait BlazyCreationTestTrait {
     $uri = 'public://simpletest/' . $this->testPluginId . '/' . $name;
     $item = File::create([
       'uri' => $uri,
-      'uid' => \Drupal::currentUser()->id(),
+      'uid' => 1,
       'status' => FILE_STATUS_PERMANENT,
+      'filename' => $name,
     ]);
 
     $item->save();
-    $uri = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
 
-    $this->dummyUri = $uri;
-    $this->dummyItem = $item;
-
-    $this->dummyData = [
-      'settings' => $this->getFormatterSettings(),
-      'item'     => $item,
-    ];
-
-    return $is_dir ? $path : $uri;
+    return $item;
   }
 
 }

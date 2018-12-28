@@ -65,7 +65,33 @@
         player.removeChild(iframe);
       }
 
+      newIframe.addEventListener('load', makeResponsive);
       player.appendChild(newIframe);
+    }
+
+    /**
+     * Makes the child iframe responsive.
+     *
+     * @todo remove this temp fix once oEmbed has overridable methods.
+     */
+    function makeResponsive(e) {
+      var win = this.contentWindow;
+      var doc = win || this.contentDocument;
+      if (doc && doc.document) {
+        doc = doc.document;
+      }
+
+      if (doc === null) {
+        return;
+      }
+
+      doc.body.style.overflow = 'hidden';
+
+      // We need to do this as the child iframe may be slower to build.
+      var style = doc.createElement('style');
+      style.textContent = 'iframe { max-with: 100%; width: 100% !important; height: 100vh !important;}';
+
+      doc.head.appendChild(style);
     }
 
     /**

@@ -195,7 +195,6 @@ class Blazy implements BlazyInterface {
     }
 
     // Pass iframe attributes to template.
-    $settings['autoplay_url'] = empty($settings['autoplay_url']) ? $settings['embed_url'] : $settings['autoplay_url'];
     $variables['iframe_attributes'] = new Attribute($iframe);
 
     // Iframe is removed on lazyloaded, puts data at non-removable storage.

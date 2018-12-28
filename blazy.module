@@ -73,6 +73,9 @@ function blazy_views_pre_render($view) {
 
 /**
  * Implements hook_field_formatter_info_alter().
+ *
+ * @deprecated will be removed prior to Blazy 8.2.x full release.
+ * @todo remove for core Media.
  */
 function blazy_field_formatter_info_alter(array &$info) {
   // Supports optional Media Entity via VEM/VEF if available.
@@ -85,14 +88,14 @@ function blazy_field_formatter_info_alter(array &$info) {
   if (\Drupal::moduleHandler()->moduleExists('video_embed_media')) {
     $info['blazy_file'] = $common + [
       'id'          => 'blazy_file',
-      'label'       => t('Blazy Image with Media'),
+      'label'       => t('Blazy Image with Media (deprecated for Blazy)'),
       'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter',
       'field_types' => ['entity_reference', 'image'],
     ];
 
     $info['blazy_video'] = $common + [
       'id'          => 'blazy_video',
-      'label'       => t('Blazy Video'),
+      'label'       => t('Blazy Video (deprecated for Blazy)'),
       'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter',
       'field_types' => ['video_embed_field'],
     ];

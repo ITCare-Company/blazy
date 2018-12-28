@@ -9,6 +9,8 @@ use Drupal\blazy\BlazyGrid;
 
 /**
  * A Trait common for blazy image and file ER formatters.
+ *
+ * @todo this is the legacy image support, and likely deprecated.
  */
 trait BlazyFormatterTrait {
 
@@ -86,7 +88,7 @@ trait BlazyFormatterTrait {
       if ($is_media) {
         /** @var Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
         // EntityReferenceItem provides $item->entity Drupal\file\Entity\File.
-        if (!empty($this->getImageItem($item, $delta))) {
+        if (!empty($this->getImageItem($item))) {
           $box['item'] = $this->getImageItem($item)['item'];
           $box['settings'] = array_merge($settings, $this->getImageItem($item)['settings']);
         }

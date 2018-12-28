@@ -76,6 +76,18 @@ function blazy_test_hook_info() {
   return $hooks;
 }
 
+/**
+ * Implements hook_library_info_alter().
+ */
+function blazy_test_library_info_alter(array &$libraries, $extension) {
+  if ($extension !== 'blazy') {
+    return;
+  }
+
+  $libraries['blazy']['js'] = ['https://cdn.jsdelivr.net/blazy/latest/blazy.min.js' => ['type' => 'external', 'weight' => -4]];
+  unset($libraries['blazy']['js']['/libraries/blazy/blazy.min.js']);
+}
+
 if (!function_exists('token_theme')) {
 
   /**

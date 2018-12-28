@@ -242,11 +242,14 @@ class BlazyManager extends BlazyManagerBase {
 
     /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
     $item                    = $build['item'];
-    $uri                     = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
     $settings                = &$build['settings'];
     $settings['delta']       = isset($settings['delta']) ? $settings['delta'] : 0;
     $settings['image_style'] = isset($settings['image_style']) ? $settings['image_style'] : '';
-    $settings['uri']         = empty($settings['uri']) ? $uri : $settings['uri'];
+
+    // The image URI and $item may not always be available.
+    if (empty($settings['uri']) && is_object($item)) {
+      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+    }
 
     // Respects content not handled by theme_blazy(), but passed through.
     if (empty($build['content'])) {

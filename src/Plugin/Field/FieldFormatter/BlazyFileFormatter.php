@@ -7,6 +7,9 @@ use Drupal\blazy\Dejavu\BlazyVideoTrait;
 
 /**
  * Plugin implementation of the 'Blazy File' to get videos within images/files.
+ *
+ * @deprecated for media.
+ * @todo remove prior to Blazy 8.2.x release.
  */
 class BlazyFileFormatter extends BlazyFileFormatterBase {
 
