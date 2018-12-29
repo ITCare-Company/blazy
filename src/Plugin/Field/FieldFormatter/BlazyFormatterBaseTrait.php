@@ -8,6 +8,13 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 trait BlazyFormatterBaseTrait {
 
   /**
+   * An entity manager object.
+   *
+   * @var \Drupal\Core\Entity\EntityManagerInterface
+   */
+  protected $entityManager;
+
+  /**
    * The blazy manager service.
    *
    * @var \Drupal\blazy\BlazyFormatterManager

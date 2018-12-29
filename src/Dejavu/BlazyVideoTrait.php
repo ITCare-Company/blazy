@@ -28,9 +28,51 @@ trait BlazyVideoTrait {
   /**
    * Core Media oEmbed url resolver.
    *
+   * @var \Drupal\media\OEmbed\UrlResolverInterface
+   */
+  protected $mediaUrlResolver;
+
+  /**
+   * Core Media oEmbed resource fetcher.
+   *
+   * @var \Drupal\media\OEmbed\ResourceFetcherInterface
+   */
+  protected $mediaResourceFetcher;
+
+  /**
+   * Core Media oEmbed iframe url helper.
+   *
+   * @var \Drupal\media\IFrameUrlHelper
+   */
+  protected $mediaIframeUrlHelper;
+
+  /**
+   * Core Media oEmbed url resolver.
+   *
    * @var \Drupal\Core\Image\ImageFactory
    */
   protected $imageFactory = NULL;
+
+  /**
+   * Returns the Media oEmbed resource fecther.
+   */
+  public function getMediaResourceFetcher() {
+    return $this->mediaResourceFetcher;
+  }
+
+  /**
+   * Returns the Media oEmbed url resolver fecthers.
+   */
+  public function getMediaUrlResolver() {
+    return $this->mediaUrlResolver;
+  }
+
+  /**
+   * Returns the Media oEmbed url resolver fecthers.
+   */
+  public function getMediaIframeUrlHelper() {
+    return $this->mediaIframeUrlHelper;
+  }
 
   /**
    * Returns the image factory.
@@ -40,6 +82,49 @@ trait BlazyVideoTrait {
       $this->imageFactory = \Drupal::service('image.factory');
     }
     return $this->imageFactory;
+  }
+
+  /**
+   * Builds relevant video embed field settings based on the given media url.
+   *
+   * Need internet, else `Could not retrieve the oEmbed provider database from
+   * //oembed.com/providers.json in Drupal\media\OEmbed\ProviderRepository.
+   *
+   * @param array $settings
+   *   The settings array being modified.
+   * @param string $external_url
+   *   A video url.
+   *
+   * @return Drupal\media\OEmbed\Resource
+   *   The oEmbed resource.
+   */
+  public function buildOembed(array &$settings = [], $external_url = '') {
+    $resource = NULL;
+    try {
+      $resource_url = $this->mediaUrlResolver->getResourceUrl($external_url, 0, 0);
+      $resource = $this->mediaResourceFetcher->fetchResource($resource_url);
+
+      // @todo support other types (link, photo), if reasonable for Blazy.
+      if ($resource->getType() === Resource::TYPE_VIDEO || $resource->getType() === Resource::TYPE_RICH) {
+        $width = empty($settings['width']) ? $resource->getWidth() : $settings['width'];
+        $height = empty($settings['height']) ? $resource->getHeight() : $settings['height'];
+        $url = Url::fromRoute('media.oembed_iframe', [], [
+          'query' => [
+            'url' => $external_url,
+            'max_width' => $width,
+            'max_height' => $height,
+            'hash' => $this->mediaIframeUrlHelper->getHash($external_url, $width, $height),
+          ],
+        ]);
+
+        $this->buildOembedUrl($settings, $url, $resource);
+      }
+    }
+    catch (\Exception $e) {
+      // Silently do nothing, likely local work without internet.
+    }
+
+    return $resource;
   }
 
   /**
@@ -57,6 +142,7 @@ trait BlazyVideoTrait {
       $url->setOption('base_url', $domain);
     }
 
+    // The top level iframe url relative to the current site.
     $settings['embed_url'] = $url->toString();
     $settings['scheme'] = mb_strtolower($resource->getProvider()->getName());
 
@@ -64,25 +150,12 @@ trait BlazyVideoTrait {
       $dom = new \DOMDocument();
       libxml_use_internal_errors(TRUE);
       $dom->loadHTML($resource->getHtml());
-      // Don't try this at home!
-      $settings['oembed_url'] = $dom->getElementsByTagName('iframe')->item(0)->getAttribute('src');
-
       // The oEmbed url may be empty without internet connection.
-      if (!empty($settings['oembed_url'])) {
-        // Adds autoplay for media URL on lightboxes, saving another click.
-        $url = $settings['oembed_url'];
-        if (strpos($url, 'play') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
-          $autoplay = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
-          if ($settings['scheme'] == 'vimeo') {
-            $autoplay = strpos($url, '?') === FALSE ? $url . '?auto_play=1' : $url . '&auto_play=1';
-          }
-          $settings['autoplay_url'] = $autoplay;
-          $dom->getElementsByTagName('iframe')->item(0)->setAttribute('src', $autoplay);
-        }
-      }
+      $settings['oembed_url'] = $dom->getElementsByTagName('iframe')->item(0)->getAttribute('src');
+      $this->getAutoPlayUrl($settings);
     }
 
-    $settings['type'] = 'video';
+    $settings['type'] = $resource->getType();
 
     // Only applies when Image style is empty, no file API, no $item,
     // with unmanaged VEF image without image_style.
@@ -90,6 +163,27 @@ trait BlazyVideoTrait {
     if (empty($settings['image_style']) && !empty($settings['uri'])) {
       if ($data = @getimagesize($settings['uri'])) {
         list($settings['width'], $settings['height']) = $data;
+      }
+    }
+  }
+
+  /**
+   * Provides the autoplay url suitable for lightboxes, or custom video trigger.
+   *
+   * @param array $settings
+   *   The settings array being modified.
+   */
+  public function getAutoPlayUrl(array &$settings = []) {
+    // The oEmbed url may be empty without internet connection.
+    if (!empty($settings['oembed_url'])) {
+      $url = $settings['oembed_url'];
+      // Adds autoplay for media URL on lightboxes, saving another click.
+      if (strpos($url, 'play') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
+        $autoplay = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
+        if ($settings['scheme'] == 'vimeo') {
+          $autoplay = strpos($url, '?') === FALSE ? $url . '?auto_play=1' : $url . '&auto_play=1';
+        }
+        $settings['autoplay_url'] = $autoplay;
       }
     }
   }
@@ -126,13 +220,19 @@ trait BlazyVideoTrait {
 
     // If Media entity has a defined thumbnail, add it to data item.
     if (isset($fields['thumbnail'])) {
-      // @todo cannot use $media->get('thumbnail')->first();, sometimes NULL.
-      $data['item'] = $fields['thumbnail']->get(0);
+      /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+      $data['item'] = $media->get('thumbnail')->first();
       $settings['file_tags'] = ['file:' . $data['item']->target_id];
 
       // Provides thumbnail URI for EB selection with various Media entities.
       if (empty($settings['uri'])) {
-        $settings['uri'] = File::load($data['item']->target_id)->getFileUri();
+        try {
+          // Without internet, this screwed up the site.
+          $settings['uri'] = $media->getSource()->getMetadata($media, 'thumbnail_uri');
+        }
+        catch (\Exception $ignore) {
+          $settings['uri'] = File::load($data['item']->target_id)->getFileUri();
+        }
       }
     }
 
@@ -168,28 +268,6 @@ trait BlazyVideoTrait {
   }
 
   /**
-   * Builds relevant video embed field settings based on the given media url.
-   *
-   * @param array $settings
-   *   An array of settings to be passed into theme_blazy().
-   * @param string $external_url
-   *   A video URL.
-   *
-   * @deprecated for Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase::buildOembed().
-   * @todo remove prior to Blazy 8.2.x full release. This is still kept to
-   * allow changing from video_embed_field into media field without breaking it,
-   * and to allow transition from blazy-related modules to depend on media.
-   */
-  public function buildVideo(array &$settings = [], $external_url = '') {
-    if (method_exists($this, 'buildOembed')) {
-      $this->buildOembed($settings, $external_url);
-    }
-    else {
-      $this->buildOembedDeprecated($settings, $external_url);
-    }
-  }
-
-  /**
    * Gets the faked image item out of file entity, or ER, if applicable.
    *
    * @param object $file
@@ -197,11 +275,6 @@ trait BlazyVideoTrait {
    *
    * @return array
    *   The array of image item and settings if a file image, else empty.
-   *
-   * @deprecated for Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase::buildOembed().
-   * @todo remove prior to Blazy 8.2.x full release. This is still kept to
-   * allow changing from video_embed_field into media field without breaking it,
-   * and to allow transition from blazy-related modules to depend on media.
    */
   public function getImageItem($file) {
     $data = [];
@@ -231,15 +304,42 @@ trait BlazyVideoTrait {
       $settings        = (array) $item;
       $item->entity    = $entity;
 
-      $settings['type'] = 'image';
-
       // Build item and settings.
+      $settings['type'] = 'image';
+      $settings['uri']  = $uri;
       $data['item']     = $item;
       $data['settings'] = $settings;
       unset($item);
     }
 
     return $data;
+  }
+
+  /**
+   * Builds relevant video embed field settings based on the given media url.
+   *
+   * @param array $settings
+   *   An array of settings to be passed into theme_blazy().
+   * @param string $external_url
+   *   A video URL.
+   *
+   * @deprecated for Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase::buildOembed().
+   * @todo remove prior to Blazy 8.2.x full release. This is still kept to
+   * allow changing from video_embed_field into media field without breaking it,
+   * and to allow transition from blazy-related modules to depend on media.
+   */
+  public function buildVideo(array &$settings = [], $external_url = '') {
+    // If this file is imported without DI, allows a fallback to not break it.
+    // This is to allow transition before Blazy plugins migrate to core Media.
+    $resource = NULL;
+    if (is_null($this->mediaResourceFetcher)) {
+      $resource = $this->buildOembedDeprecated($settings, $external_url);
+    }
+    else {
+      $resource = $this->buildOembed($settings, $external_url);
+    }
+
+    return $resource;
   }
 
   /**
@@ -250,12 +350,16 @@ trait BlazyVideoTrait {
    * @param string $external_url
    *   A video URL.
    *
+   * @return Drupal\media\OEmbed\Resource
+   *   The oEmbed resource.
+   *
    * @deprecated for Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase::buildOembed().
    * @todo remove prior to Blazy 8.2.x full release. This is still kept to
    * allow changing from video_embed_field into media field without breaking it,
    * and to allow transition from blazy-related modules to depend on media.
    */
   private function buildOembedDeprecated(array &$settings = [], $external_url = '') {
+    $resource = NULL;
     try {
       $resource_url = \Drupal::service('media.oembed.url_resolver')->getResourceUrl($external_url, 0, 0);
       $resource = \Drupal::service('media.oembed.resource_fetcher')->fetchResource($resource_url);
@@ -279,6 +383,8 @@ trait BlazyVideoTrait {
     catch (\Exception $e) {
       // Silently do nothing, likely local without internet.
     }
+
+    return $resource;
   }
 
 }

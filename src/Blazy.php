@@ -283,7 +283,7 @@ class Blazy implements BlazyInterface {
    */
   public static function buildUrl(array &$settings = [], $item = NULL) {
     // Blazy already sets URI, yet set fallback for direct theme_blazy() call.
-    if (empty($settings['uri']) && $item) {
+    if (empty($settings['uri']) && is_object($item)) {
       $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
     }
 
@@ -434,11 +434,6 @@ class Blazy implements BlazyInterface {
             $mappings['breakpoints']['mapping'][$breakpoint]['mapping'][$item]['label'] = Unicode::ucfirst(str_replace('_', ' ', $item));
           }
         }
-      }
-
-      // @todo: Drop non-UI stuffs.
-      foreach (['dimension', 'display', 'item_id'] as $key) {
-        $mappings[$key]['type'] = 'string';
       }
     }
   }

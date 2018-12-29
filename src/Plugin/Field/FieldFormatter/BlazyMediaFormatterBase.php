@@ -2,13 +2,11 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Url;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\media\IFrameUrlHelper;
-use Drupal\media\OEmbed\Resource;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
 use Drupal\media\OEmbed\UrlResolverInterface;
 use Drupal\blazy\BlazyDefault;
@@ -34,27 +32,6 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityReferenceBase implemen
    * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
    */
   protected $loggerFactory;
-
-  /**
-   * Core Media oEmbed url resolver.
-   *
-   * @var \Drupal\media\OEmbed\UrlResolverInterface
-   */
-  protected $mediaUrlResolver;
-
-  /**
-   * Core Media oEmbed resource fetcher.
-   *
-   * @var \Drupal\media\OEmbed\ResourceFetcherInterface
-   */
-  protected $mediaResourceFetcher;
-
-  /**
-   * Core Media oEmbed iframe url helper.
-   *
-   * @var \Drupal\media\IFrameUrlHelper
-   */
-  protected $mediaIframeUrlHelper;
 
   /**
    * Constructs a BlazyFormatter object.
@@ -119,61 +96,6 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityReferenceBase implemen
    */
   public function manager() {
     return $this->blazyManager;
-  }
-
-  /**
-   * Returns the Media oEmbed resource fecther.
-   */
-  public function getMediaResourceFetcher() {
-    return $this->mediaResourceFetcher;
-  }
-
-  /**
-   * Returns the Media oEmbed url resolver fecthers.
-   */
-  public function getMediaUrlResolver() {
-    return $this->mediaUrlResolver;
-  }
-
-  /**
-   * Returns the Media oEmbed url resolver fecthers.
-   */
-  public function getMediaIframeUrlHelper() {
-    return $this->mediaIframeUrlHelper;
-  }
-
-  /**
-   * Builds relevant video embed field settings based on the given media url.
-   *
-   * @param array $settings
-   *   The settings array being modified.
-   * @param string $external_url
-   *   A video url.
-   */
-  public function buildOembed(array &$settings = [], $external_url = '') {
-    try {
-      $resource_url = $this->mediaUrlResolver->getResourceUrl($external_url, 0, 0);
-      $resource = $this->mediaResourceFetcher->fetchResource($resource_url);
-
-      // @todo support other types (link, photo), if reasonable for Blazy.
-      if ($resource->getType() === Resource::TYPE_VIDEO || $resource->getType() === Resource::TYPE_RICH) {
-        $width = empty($settings['width']) ? $resource->getWidth() : $settings['width'];
-        $height = empty($settings['height']) ? $resource->getHeight() : $settings['height'];
-        $url = Url::fromRoute('media.oembed_iframe', [], [
-          'query' => [
-            'url' => $external_url,
-            'max_width' => $width,
-            'max_height' => $height,
-            'hash' => $this->mediaIframeUrlHelper->getHash($external_url, $width, $height),
-          ],
-        ]);
-
-        $this->buildOembedUrl($settings, $url, $resource);
-      }
-    }
-    catch (\Exception $e) {
-      // Silently do nothing, likely local work without internet.
-    }
   }
 
   /**
@@ -246,6 +168,9 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityReferenceBase implemen
     $settings = $build['settings'];
     $delta = isset($settings['delta']) ? $settings['delta'] : 0;
     $element = $build['items'][$delta];
+
+    // Item ID is to allow contextual grouping relevant to (sub-)modules:
+    // Slick `slide`, GridStack `box`, Blazy 'blazy', etc.
     $item_id = $settings['item_id'] = empty($settings['item_id']) ? 'box' : $settings['item_id'];
 
     // Blazy can just collect items directly without further themeing.

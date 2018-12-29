@@ -28,7 +28,7 @@
     /**
      * Play the media.
      *
-     * @param {jQuery.Event} event
+     * @param {Event} event
      *   The event triggered by a `click` event.
      *
      * @return {bool}|{mixed}
@@ -46,6 +46,7 @@
       var player = target.parentNode;
       var playing = document.querySelector('.is-playing');
       var iframe = player.querySelector('iframe');
+      var autoPlayUrl = url = target.getAttribute('data-autoplay');
 
       url = target.getAttribute('data-url');
 
@@ -58,14 +59,18 @@
       player.className += ' is-playing';
       newIframe = document.createElement('iframe');
       newIframe.className = 'media__iframe media__element';
-      newIframe.setAttribute('src', url);
+      newIframe.setAttribute('src', url.indexOf('oembed') > 0 ? url : autoPlayUrl);
       newIframe.setAttribute('allowfullscreen', true);
 
       if (iframe !== null) {
         player.removeChild(iframe);
       }
 
-      newIframe.addEventListener('load', makeResponsive);
+      // Ensures we don't touch cross-origin object, else SecurityError.
+      if (url.indexOf('oembed') > 0) {
+        newIframe.addEventListener('load', makeResponsive);
+      }
+
       player.appendChild(newIframe);
     }
 
@@ -74,7 +79,7 @@
      *
      * @todo remove this temp fix once oEmbed has overridable methods.
      */
-    function makeResponsive(e) {
+    function makeResponsive() {
       var win = this.contentWindow;
       var doc = win || this.contentDocument;
       if (doc && doc.document) {
@@ -89,15 +94,15 @@
 
       // We need to do this as the child iframe may be slower to build.
       var style = doc.createElement('style');
-      style.textContent = 'iframe { max-with: 100%; width: 100% !important; height: 100vh !important;}';
+      style.textContent = 'iframe {max-with: 100%; width: 100% !important; height: 100vh !important;}';
 
-      doc.head.appendChild(style);
+      doc.body.appendChild(style);
     }
 
     /**
      * Close the media.
      *
-     * @param {jQuery.Event} event
+     * @param {Event} event
      *   The event triggered by a `click` event.
      */
     function stop(event) {
