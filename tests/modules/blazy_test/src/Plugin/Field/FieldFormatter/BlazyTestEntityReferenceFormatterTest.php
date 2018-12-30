@@ -6,11 +6,8 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\blazy\BlazyManagerInterface;
-use Drupal\blazy\Dejavu\BlazyVideoTrait;
-use Drupal\blazy\Dejavu\BlazyEntityReferenceBase;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterBaseTrait;
+use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase;
 use Drupal\blazy_test\BlazyFormatterTestInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -23,26 +20,26 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   field_types = {"entity_reference", "file"}
  * )
  */
-class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase implements ContainerFactoryPluginInterface {
-
-  use BlazyVideoTrait;
-  use BlazyFormatterBaseTrait;
+class BlazyTestEntityReferenceFormatterTest extends BlazyMediaFormatterBase implements ContainerFactoryPluginInterface {
 
   /**
-   * The logger factory.
-   *
-   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
+   * Constructs a BlazyFormatter object.
    */
-  protected $loggerFactory;
-
-  /**
-   * Constructs a SlickMediaFormatter instance.
-   */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, LoggerChannelFactoryInterface $logger_factory, BlazyManagerInterface $blazy_manager, BlazyFormatterTestInterface $formatter) {
-    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
-    $this->loggerFactory = $logger_factory;
-    $this->blazyManager  = $blazy_manager;
-    $this->formatter     = $formatter;
+  public function __construct(
+    $plugin_id,
+    $plugin_definition,
+    FieldDefinitionInterface $field_definition,
+    array $settings,
+    $label,
+    $view_mode,
+    array $third_party_settings,
+    LoggerChannelFactoryInterface $logger_factory,
+    ResourceFetcherInterface $resource_fetcher,
+    UrlResolverInterface $url_resolver,
+    IFrameUrlHelper $iframe_url_helper,
+    BlazyFormatterTestInterface $blazy_manager) {
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings, $logger_factory, $resource_fetcher, $url_resolver, $iframe_url_helper, $blazy_manager);
+    $this->blazyManager = $blazy_manager;
   }
 
   /**
@@ -58,23 +55,11 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase imp
       $configuration['view_mode'],
       $configuration['third_party_settings'],
       $container->get('logger.factory'),
-      $container->get('blazy.manager'),
+      $container->get('media.oembed.resource_fetcher'),
+      $container->get('media.oembed.url_resolver'),
+      $container->get('media.oembed.iframe_url_helper'),
       $container->get('blazy_test.formatter')
     );
-  }
-
-  /**
-   * Returns the blazy formatter.
-   */
-  public function formatter() {
-    return $this->formatter;
-  }
-
-  /**
-   * Returns the blazy admin.
-   */
-  public function manager() {
-    return $this->formatter;
   }
 
   /**
@@ -106,14 +91,14 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase imp
     $settings = $this->buildSettings();
     $build = ['settings' => $settings];
 
-    $this->formatter->buildSettings($build, $items);
+    $this->formatter()->buildSettings($build, $items);
 
     // Build the elements.
     $this->buildElements($build, $entities, $langcode);
 
     // Alternatively use grid: BlazyGrid::build($build['items'], $settings).
     $elements = $build['items'];
-    $elements['#attached'] = $this->formatter->attach($settings);
+    $elements['#attached'] = $this->manager()->attach($settings);
 
     return $elements;
   }

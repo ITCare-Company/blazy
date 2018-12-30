@@ -196,4 +196,18 @@ trait BlazyPropertiesTestTrait {
    */
   protected $skins = [];
 
+  /**
+   * The filter format.
+   *
+   * @var \Drupal\filter\Entity\FilterFormat
+   */
+  protected $filterFormatFull = NULL;
+
+  /**
+   * The filter format.
+   *
+   * @var \Drupal\filter\Entity\FilterFormat
+   */
+  protected $filterFormatRestricted = NULL;
+
 }

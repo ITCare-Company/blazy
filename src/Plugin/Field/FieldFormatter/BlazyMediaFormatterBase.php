@@ -44,17 +44,18 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityReferenceBase implemen
     $label,
     $view_mode,
     array $third_party_settings,
-    BlazyFormatterManager $blazy_manager,
     LoggerChannelFactoryInterface $logger_factory,
     ResourceFetcherInterface $resource_fetcher,
     UrlResolverInterface $url_resolver,
-    IFrameUrlHelper $iframe_url_helper) {
+    IFrameUrlHelper $iframe_url_helper,
+    BlazyFormatterManager $blazy_manager) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
-    $this->blazyManager = $blazy_manager;
+
     $this->loggerFactory = $logger_factory;
     $this->mediaResourceFetcher = $resource_fetcher;
     $this->mediaUrlResolver = $url_resolver;
     $this->mediaIframeUrlHelper = $iframe_url_helper;
+    $this->blazyManager = $blazy_manager;
   }
 
   /**
@@ -69,11 +70,11 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityReferenceBase implemen
       $configuration['label'],
       $configuration['view_mode'],
       $configuration['third_party_settings'],
-      $container->get('blazy.formatter.manager'),
       $container->get('logger.factory'),
       $container->get('media.oembed.resource_fetcher'),
       $container->get('media.oembed.url_resolver'),
-      $container->get('media.oembed.iframe_url_helper')
+      $container->get('media.oembed.iframe_url_helper'),
+      $container->get('blazy.formatter.manager')
     );
   }
 

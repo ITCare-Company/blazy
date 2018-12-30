@@ -9,6 +9,7 @@ use Drupal\views\Views;
  * Test Blazy Views Grid integration.
  *
  * @coversDefaultClass \Drupal\blazy\Plugin\views\style\BlazyViews
+ * @requires module media
  * @requires module views
  * @group blazy
  */

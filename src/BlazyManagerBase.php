@@ -161,7 +161,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     if (!empty($attach['column'])) {
       $attach['grid'] = FALSE;
     }
-    foreach (['column', 'grid', 'media', 'photobox', 'ratio'] as $component) {
+    foreach (['column', 'filter', 'grid', 'media', 'photobox', 'ratio'] as $component) {
       if (!empty($attach[$component])) {
         $load['library'][] = 'blazy/' . $component;
       }

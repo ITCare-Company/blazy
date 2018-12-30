@@ -54,3 +54,17 @@ field.formatter.settings.blazy_video:
 field.formatter.settings.blazy_media:
   type: blazy_base
   label: 'Blazy media display format settings'
+
+filter_settings.blazy_filter:
+  type: filter
+  label: 'Blazy filter'
+  mapping:
+    filter_tags:
+      type: sequence
+      label: 'HTML tags'
+      sequence:
+        - type: string
+          label: tag
+    media_switch:
+      type: string
+      label: 'Media switcher'

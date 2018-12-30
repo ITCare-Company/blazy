@@ -26,6 +26,7 @@ abstract class BlazyKernelTestBase extends FieldKernelTestBase {
     'file',
     'filter',
     'image',
+    'media',
     'breakpoint',
     'responsive_image',
     'node',

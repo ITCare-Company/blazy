@@ -164,6 +164,7 @@ trait BlazyCreationTestTrait {
    */
   protected function setUpContentTypeTest($bundle = '', array $settings = []) {
     $node_type = NodeType::load($bundle);
+    $full_html = $this->blazyManager->entityLoad('full_html', 'filter_format');
     $restricted_html = $this->blazyManager->entityLoad('restricted_html', 'filter_format');
 
     if (empty($node_type)) {
@@ -174,13 +175,27 @@ trait BlazyCreationTestTrait {
       $node_type->save();
     }
 
-    if (!$restricted_html) {
-      FilterFormat::create([
+    if (!$restricted_html && is_null($this->filterFormatRestricted)) {
+      $this->filterFormatRestricted = FilterFormat::create([
         'format'  => 'restricted_html',
         'name'    => 'Basic HML',
         'weight'  => 2,
         'filters' => [],
       ])->save();
+    }
+    else {
+      $this->filterFormatRestricted = $restricted_html;
+    }
+
+    if (!$full_html && is_null($this->filterFormatFull)) {
+      $this->filterFormatFull = FilterFormat::create([
+        'format'  => 'full_html',
+        'name'    => 'Full HML',
+        'weight'  => 3,
+      ])->save();
+    }
+    else {
+      $this->filterFormatFull = $full_html;
     }
 
     node_add_body_field($node_type);
@@ -233,8 +248,11 @@ trait BlazyCreationTestTrait {
     $node->save();
 
     if (isset($node->body)) {
-      $node->body->value  = $this->getRandomGenerator()->paragraphs($this->maxParagraphs);
-      $node->body->format = 'restricted_html';
+      $text = $this->getRandomGenerator()->paragraphs($this->maxParagraphs);
+      if (!empty($settings['extra_text'])) {
+        $text .= $settings['extra_text'];
+      }
+      $node->get('body')->setValue(['value' => $text, 'format' => 'full_html']);
     }
 
     if (!empty($this->testFieldName)) {
@@ -484,6 +502,7 @@ trait BlazyCreationTestTrait {
 
       if ($item instanceof ImageItem) {
         $this->uri = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+        $this->url = file_url_transform_relative(file_create_url($this->uri));
       }
     }
 
@@ -503,15 +522,14 @@ trait BlazyCreationTestTrait {
   protected function getImagePath($is_dir = FALSE) {
     $path            = \Drupal::root() . '/sites/default/files/simpletest/' . $this->testPluginId;
     $item            = $this->createDummyImage();
-    $uri             = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
-    $this->dummyUri  = $uri;
+    $this->dummyUrl  = file_url_transform_relative(file_create_url($this->dummyUri));
     $this->dummyItem = $item;
     $this->dummyData = [
       'settings' => $this->getFormatterSettings(),
       'item'     => $item,
     ];
 
-    return $is_dir ? $path : $uri;
+    return $is_dir ? $path : $this->dummyUri;
   }
 
   /**
@@ -529,6 +547,7 @@ trait BlazyCreationTestTrait {
     }
 
     $uri = 'public://simpletest/' . $this->testPluginId . '/' . $name;
+    $this->dummyUri = $uri;
     $item = File::create([
       'uri' => $uri,
       'uid' => 1,

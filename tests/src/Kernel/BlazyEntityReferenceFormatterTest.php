@@ -11,6 +11,9 @@ use Drupal\Tests\blazy\Traits\BlazyKernelTestTrait;
  *
  * @todo this test was created May 2017, and things broken now at Drupal 8.6+.
  * @coversDefaultClass \Drupal\blazy_test\Plugin\Field\FieldFormatter\BlazyTestEntityReferenceFormatterTest
+ *
+ * @requires module media
+ *
  * @group blazy
  */
 class BlazyEntityReferenceFormatterTest extends KernelTestBase {
@@ -41,6 +44,7 @@ class BlazyEntityReferenceFormatterTest extends KernelTestBase {
     'node',
     'file',
     'image',
+    'media',
     'breakpoint',
     'responsive_image',
     'link',

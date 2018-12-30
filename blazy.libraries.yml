@@ -9,6 +9,11 @@ blazy:
   js:
     /libraries/blazy/blazy.min.js: { weight: -4, minified: true }
 
+filter:
+  css:
+    component:
+      css/components/blazy.filter.css: {}
+
 loading:
   css:
     component:

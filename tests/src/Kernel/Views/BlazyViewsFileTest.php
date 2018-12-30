@@ -10,7 +10,9 @@ use Drupal\blazy\BlazyViews;
  * Test Blazy Views integration.
  *
  * @coversDefaultClass \Drupal\blazy\Dejavu\BlazyStylePluginBase
+ * @requires module media
  * @requires module views
+ *
  * @group blazy
  */
 class BlazyViewsFileTest extends BlazyViewsTestBase {

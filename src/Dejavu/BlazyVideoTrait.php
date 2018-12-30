@@ -331,60 +331,10 @@ trait BlazyVideoTrait {
   public function buildVideo(array &$settings = [], $external_url = '') {
     // If this file is imported without DI, allows a fallback to not break it.
     // This is to allow transition before Blazy plugins migrate to core Media.
-    $resource = NULL;
     if (is_null($this->mediaResourceFetcher)) {
-      $resource = $this->buildOembedDeprecated($settings, $external_url);
+      return NULL;
     }
-    else {
-      $resource = $this->buildOembed($settings, $external_url);
-    }
-
-    return $resource;
-  }
-
-  /**
-   * Returns the oEmbed top level iframe url.
-   *
-   * @param array $settings
-   *   The settings array being modified.
-   * @param string $external_url
-   *   A video URL.
-   *
-   * @return Drupal\media\OEmbed\Resource
-   *   The oEmbed resource.
-   *
-   * @deprecated for Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase::buildOembed().
-   * @todo remove prior to Blazy 8.2.x full release. This is still kept to
-   * allow changing from video_embed_field into media field without breaking it,
-   * and to allow transition from blazy-related modules to depend on media.
-   */
-  private function buildOembedDeprecated(array &$settings = [], $external_url = '') {
-    $resource = NULL;
-    try {
-      $resource_url = \Drupal::service('media.oembed.url_resolver')->getResourceUrl($external_url, 0, 0);
-      $resource = \Drupal::service('media.oembed.resource_fetcher')->fetchResource($resource_url);
-
-      // @todo support other types (link, photo), if reasonable for Blazy.
-      if ($resource->getType() === Resource::TYPE_VIDEO || $resource->getType() === Resource::TYPE_RICH) {
-        $width = empty($settings['width']) ? $resource->getWidth() : $settings['width'];
-        $height = empty($settings['height']) ? $resource->getHeight() : $settings['height'];
-        $url = Url::fromRoute('media.oembed_iframe', [], [
-          'query' => [
-            'url' => $external_url,
-            'max_width' => $width,
-            'max_height' => $height,
-            'hash' => \Drupal::service('media.oembed.iframe_url_helper')->getHash($external_url, $width, $height),
-          ],
-        ]);
-
-        $this->buildOembedUrl($settings, $url, $resource);
-      }
-    }
-    catch (\Exception $e) {
-      // Silently do nothing, likely local without internet.
-    }
-
-    return $resource;
+    return $this->buildOembed($settings, $external_url);
   }
 
 }

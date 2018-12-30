@@ -18,12 +18,42 @@
     var iframe = t.querySelector('iframe');
     var btn = t.querySelector('.media__icon--play');
 
+    // Media player toggler is disabled, just display iframe.
     if (btn === null) {
+      // At least make it responsive now.
+      if (iframe && iframe.getAttribute('data-src') && iframe.getAttribute('data-src').indexOf('oembed') > 0) {
+        iframe.addEventListener('load', makeResponsive);
+      }
       return;
     }
 
     var url = btn.getAttribute('data-url');
     var newIframe;
+
+    /**
+     * Makes the child iframe responsive.
+     *
+     * @todo remove this temp fix once oEmbed has overridable methods.
+     */
+    function makeResponsive() {
+      var win = this.contentWindow;
+      var doc = win || this.contentDocument;
+      if (doc && doc.document) {
+        doc = doc.document;
+      }
+
+      if (doc === null) {
+        return;
+      }
+
+      doc.body.style.overflow = 'hidden';
+
+      // We need to do this as the child iframe may be slower to build.
+      var style = doc.createElement('style');
+      style.textContent = 'iframe {max-with: 100%; width: 100% !important; height: 100vh !important;}';
+
+      doc.head.appendChild(style);
+    }
 
     /**
      * Play the media.
@@ -75,31 +105,6 @@
     }
 
     /**
-     * Makes the child iframe responsive.
-     *
-     * @todo remove this temp fix once oEmbed has overridable methods.
-     */
-    function makeResponsive() {
-      var win = this.contentWindow;
-      var doc = win || this.contentDocument;
-      if (doc && doc.document) {
-        doc = doc.document;
-      }
-
-      if (doc === null) {
-        return;
-      }
-
-      doc.body.style.overflow = 'hidden';
-
-      // We need to do this as the child iframe may be slower to build.
-      var style = doc.createElement('style');
-      style.textContent = 'iframe {max-with: 100%; width: 100% !important; height: 100vh !important;}';
-
-      doc.body.appendChild(style);
-    }
-
-    /**
      * Close the media.
      *
      * @param {Event} event
@@ -143,7 +148,7 @@
    */
   Drupal.behaviors.blazyMedia = {
     attach: function (context) {
-      var players = context.querySelectorAll('.media--switch.media--player:not(.media--player--on)');
+      var players = context.querySelectorAll('.media--player:not(.media--player--on)');
       _db.once(_db.forEach(players, blazyMedia));
     }
   };

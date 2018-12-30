@@ -4,6 +4,7 @@ description: "Provides basic Blazy integration for lazy loading and multi-servin
 core: 8.x
 package: Blazy
 dependencies:
+  - drupal:filter
   - drupal:media (>= 8.6)
 test_dependencies:
   - drupal:views

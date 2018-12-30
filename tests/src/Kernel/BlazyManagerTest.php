@@ -11,6 +11,7 @@ use Drupal\blazy\BlazyDefault;
  * Tests the Blazy manager methods.
  *
  * @coversDefaultClass \Drupal\blazy\BlazyManager
+ * @requires module media
  *
  * @group blazy
  */
