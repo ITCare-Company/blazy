@@ -27,7 +27,7 @@ class BlazyOEmbed {
    *
    * @var \Drupal\media\OEmbed\ResourceFetcherInterface
    */
-  protected $resourceFetcher = NULL;
+  protected $resourceFetcher;
 
   /**
    * Core Media oEmbed iframe url helper.

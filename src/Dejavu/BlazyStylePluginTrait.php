@@ -31,6 +31,7 @@ trait BlazyStylePluginTrait {
     $field_names = $this->displayHandler->getFieldLabels();
     $definition = [];
     $stages = [
+      'blazy_media',
       'block_field',
       'colorbox',
       'entity_reference_entity_view',

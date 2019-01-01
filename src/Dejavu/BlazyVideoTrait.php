@@ -91,7 +91,7 @@ trait BlazyVideoTrait {
    */
   public function getMediaItem(array &$data = [], $media = NULL) {
     if (is_null($this->blazyOembed)) {
-      $this->blazyOembed()->getMediaItem($data, $media);
+      \Drupal::service('blazy.oembed')->getMediaItem($data, $media);
       return;
     }
 
