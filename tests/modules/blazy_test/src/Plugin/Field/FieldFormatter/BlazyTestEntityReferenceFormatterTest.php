@@ -7,6 +7,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\BlazyOEmbed;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase;
 use Drupal\blazy_test\BlazyFormatterTestInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -34,11 +35,9 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyMediaFormatterBase impl
     $view_mode,
     array $third_party_settings,
     LoggerChannelFactoryInterface $logger_factory,
-    ResourceFetcherInterface $resource_fetcher,
-    UrlResolverInterface $url_resolver,
-    IFrameUrlHelper $iframe_url_helper,
+    BlazyOEmbed $blazy_oembed,
     BlazyFormatterTestInterface $blazy_manager) {
-    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings, $logger_factory, $resource_fetcher, $url_resolver, $iframe_url_helper, $blazy_manager);
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings, $logger_factory, $blazy_oembed, $blazy_manager);
     $this->blazyManager = $blazy_manager;
   }
 
@@ -55,9 +54,7 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyMediaFormatterBase impl
       $configuration['view_mode'],
       $configuration['third_party_settings'],
       $container->get('logger.factory'),
-      $container->get('media.oembed.resource_fetcher'),
-      $container->get('media.oembed.url_resolver'),
-      $container->get('media.oembed.iframe_url_helper'),
+      $container->get('blazy.oembed'),
       $container->get('blazy_test.formatter')
     );
   }

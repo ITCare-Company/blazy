@@ -7,6 +7,7 @@ use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManagerInterface;
+use Drupal\blazy\BlazyOEmbed;
 use Drupal\blazy\Dejavu\BlazyEntityTrait;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,6 +21,13 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   use BlazyVideoTrait;
 
   /**
+   * The blazy oembed service.
+   *
+   * @var \Drupal\blazy\BlazyOEmbed
+   */
+  protected $blazyOembed;
+
+  /**
    * The blazy service manager.
    *
    * @var \Drupal\blazy\BlazyManagerInterface
@@ -29,16 +37,17 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * Constructs a BlazyViewsFieldPluginBase object.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, BlazyManagerInterface $blazy_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, BlazyManagerInterface $blazy_manager, BlazyOEmbed $blazy_oembed) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->blazyManager = $blazy_manager;
+    $this->blazyOembed = $blazy_oembed;
   }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($configuration, $plugin_id, $plugin_definition, $container->get('blazy.manager'));
+    return new static($configuration, $plugin_id, $plugin_definition, $container->get('blazy.manager'), $container->get('blazy.oembed'));
   }
 
   /**
@@ -53,6 +62,13 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    */
   public function blazyManager() {
     return $this->blazyManager;
+  }
+
+  /**
+   * Returns the blazy oEmbed service.
+   */
+  public function blazyOembed() {
+    return $this->blazyOembed;
   }
 
   /**

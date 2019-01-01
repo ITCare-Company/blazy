@@ -7,7 +7,6 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Serialization\Json;
 use Drupal\image\Entity\ImageStyle;
-use Drupal\blazy\BlazyDefault;
 
 /**
  * Implements BlazyInterface.
@@ -354,7 +353,7 @@ class Blazy implements BlazyInterface {
    * Overrides variables for responsive-image.html.twig templates.
    */
   public static function preprocessResponsiveImage(&$variables) {
-    $config = self::getConfig();
+    $config = \Drupal::service('blazy.manager')->configLoad();
 
     // Prepare all <picture> [data-srcset] attributes on <source> elements.
     if (!$variables['output_image_tag']) {
@@ -439,14 +438,6 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Return blazy global config.
-   */
-  public static function getConfig($setting_name = '', $settings = 'blazy.settings') {
-    $config = \Drupal::service('config.factory')->get($settings);
-    return empty($setting_name) ? $config->get() : $config->get($setting_name);
-  }
-
-  /**
    * Returns the trusted HTML ID of a single instance.
    */
   public static function getHtmlId($string = 'blazy', $id = '') {
@@ -459,12 +450,12 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Checks if an image style contains crop effect.
+   * Return blazy global config.
    *
-   * @deprecated: Removed for BlazyManager to avoid static method dependency.
+   * @deprecated will be removed for BlazyManager::configLoad().
    */
-  public static function isCrop($style = NULL) {
-    return \Drupal::service('blazy.manager')->isCrop($style);
+  public static function getConfig($setting_name = '', $settings = 'blazy.settings') {
+    return \Drupal::service('blazy.manager')->configLoad($setting_name, $settings);
   }
 
 }

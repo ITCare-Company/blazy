@@ -64,12 +64,6 @@ class BlazyLightbox {
       // Force autoplay for media URL on lightboxes, saving another click.
       $url = empty($settings['autoplay_url']) ? $settings['embed_url'] : $settings['autoplay_url'];
 
-      // Provides custom lightbox media dimension, if so configured.
-      // @todo: Remove for Lightbox media style.
-      if (!empty($settings['dimension'])) {
-        list($json['width'], $json['height']) = array_pad(array_map('trim', explode("x", $settings['dimension'], 2)), 2, NULL);
-      }
-
       // This allows PhotoSwipe with videos still swipable.
       if (!empty($settings['box_media_style'])) {
         $box_media_style = ImageStyle::load($settings['box_media_style']);

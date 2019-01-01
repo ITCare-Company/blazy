@@ -6,12 +6,10 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\media\IFrameUrlHelper;
-use Drupal\media\OEmbed\ResourceFetcherInterface;
-use Drupal\media\OEmbed\UrlResolverInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyFormatterManager;
 use Drupal\blazy\BlazyGrid;
+use Drupal\blazy\BlazyOEmbed;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
 use Drupal\blazy\Dejavu\BlazyEntityReferenceBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -45,16 +43,12 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityReferenceBase implemen
     $view_mode,
     array $third_party_settings,
     LoggerChannelFactoryInterface $logger_factory,
-    ResourceFetcherInterface $resource_fetcher,
-    UrlResolverInterface $url_resolver,
-    IFrameUrlHelper $iframe_url_helper,
+    BlazyOEmbed $blazy_oembed,
     BlazyFormatterManager $blazy_manager) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
 
     $this->loggerFactory = $logger_factory;
-    $this->mediaResourceFetcher = $resource_fetcher;
-    $this->mediaUrlResolver = $url_resolver;
-    $this->mediaIframeUrlHelper = $iframe_url_helper;
+    $this->blazyOembed = $blazy_oembed;
     $this->blazyManager = $blazy_manager;
   }
 
@@ -71,9 +65,7 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityReferenceBase implemen
       $configuration['view_mode'],
       $configuration['third_party_settings'],
       $container->get('logger.factory'),
-      $container->get('media.oembed.resource_fetcher'),
-      $container->get('media.oembed.url_resolver'),
-      $container->get('media.oembed.iframe_url_helper'),
+      $container->get('blazy.oembed'),
       $container->get('blazy.formatter.manager')
     );
   }

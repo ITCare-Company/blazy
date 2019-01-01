@@ -1,4 +1,16 @@
 
+Blazy 8.x-2.0-dev, 2019-01-01
+-----------------------------
+- Added back the BC layer to avoid broken formatters.
+- Added a new dedicated Blazy oEmbed service to declutter a few plugins:
+  BlazyVideoTrait, BlazyFilter, BlazyMediaFormatterBase and other plugins.
+- Happy new year!
+
+Blazy 8.x-2.0-dev, 2018-12-30
+-----------------------------
+- Issue #2928806 by gausarts, tepelena: Integrate with Filter for Inline images
+  and oEmbed/ videos
+
 Blazy 8.x-2.0-dev, 2018-12-28
 -----------------------------
 - Initial commit to support core Media as per 3022743.

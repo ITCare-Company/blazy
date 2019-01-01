@@ -32,6 +32,7 @@ class BlazySettingsFormTest extends KernelTestBase {
     'system',
     'file',
     'image',
+    'media',
     'blazy',
     'blazy_ui',
   ];

@@ -20,8 +20,8 @@
 
     // Media player toggler is disabled, just display iframe.
     if (btn === null) {
-      // At least make it responsive now.
-      if (iframe && iframe.getAttribute('data-src') && iframe.getAttribute('data-src').indexOf('oembed') > 0) {
+      // At least make it responsive now, be sure to not touch cross origin.
+      if (iframe && iframe.getAttribute('data-src') && iframe.getAttribute('data-src').indexOf('/oembed') > 0) {
         iframe.addEventListener('load', makeResponsive);
       }
       return;
@@ -79,6 +79,10 @@
       var autoPlayUrl = url = target.getAttribute('data-autoplay');
 
       url = target.getAttribute('data-url');
+      // @todo remove BC for PhotoSwipe after updating to core oEmbed.
+      if (!autoPlayUrl) {
+        autoPlayUrl = url;
+      }
 
       // First, reset any video to avoid multiple videos from playing.
       if (playing !== null) {
@@ -89,7 +93,7 @@
       player.className += ' is-playing';
       newIframe = document.createElement('iframe');
       newIframe.className = 'media__iframe media__element';
-      newIframe.setAttribute('src', url.indexOf('oembed') > 0 ? url : autoPlayUrl);
+      newIframe.setAttribute('src', url.indexOf('/oembed') > 0 ? url : autoPlayUrl);
       newIframe.setAttribute('allowfullscreen', true);
 
       if (iframe !== null) {
@@ -97,7 +101,9 @@
       }
 
       // Ensures we don't touch cross-origin object, else SecurityError.
-      if (url.indexOf('oembed') > 0) {
+      // The transformed url may also contain `oembed` at `?feature=oembed.
+      // The expected here is the top level iframe with ``/media/oembed` route.
+      if (url.indexOf('/oembed') > 0) {
         newIframe.addEventListener('load', makeResponsive);
       }
 
@@ -128,7 +134,7 @@
 
     // Remove iframe to avoid browser requesting them till clicked.
     // The iframe is there as Blazy supports non-lazyloaded/ non-JS iframes.
-    if (iframe !== null) {
+    if (iframe !== null && iframe.parentNode != null) {
       iframe.parentNode.removeChild(iframe);
     }
 

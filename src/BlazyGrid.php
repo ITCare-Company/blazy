@@ -27,7 +27,7 @@ class BlazyGrid {
     $grids = [];
     foreach ($items as $delta => $item) {
       // @todo: Support non-Blazy which normally uses item_id.
-      $item_settings = isset($item['#build']['settings']) ? $item['#build']['settings'] : $settings;
+      $item_settings = isset($item['#build']) && isset($item['#build']['settings']) ? $item['#build']['settings'] : $settings;
       $item_settings['delta'] = $delta;
 
       // Supports both single formatter field and complex fields such as Views.

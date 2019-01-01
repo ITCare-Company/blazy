@@ -13,6 +13,10 @@ services:
     class: Drupal\blazy\BlazyFormatterManager
     parent: blazy.manager
 
+  blazy.oembed:
+    class: Drupal\blazy\BlazyOEmbed
+    arguments: ['@media.oembed.resource_fetcher', '@media.oembed.url_resolver', '@media.oembed.iframe_url_helper', '@blazy.manager']
+
   blazy:
     class: Drupal\blazy\Blazy
 

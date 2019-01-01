@@ -187,10 +187,10 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityBase {
         }
         // If a VEF with a text, or link field.
         elseif (isset($value[0]['value']) || isset($value[0]['uri'])) {
-          $external_url = $this->getFieldString($entity, $stage, $langcode);
+          $settings['input_url'] = $this->getFieldString($entity, $stage, $langcode);
 
-          if ($external_url) {
-            $this->buildVideo($settings, $external_url);
+          if ($settings['input_url']) {
+            $this->buildVideo($settings);
             $element['item'] = $value;
           }
         }

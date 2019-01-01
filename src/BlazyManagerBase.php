@@ -156,11 +156,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
-    // Only load grid xor column, but not both.
-    $attach['column'] = !empty($attach['style']) && $attach['style'] == 'column';
-    if (!empty($attach['column'])) {
-      $attach['grid'] = FALSE;
+    // Allow both variants of grid or column to co-exist for different fields.
+    if (!empty($attach['style'])) {
+      foreach (['column', 'grid'] as $grid) {
+        $attach[$grid] = $attach['style'];
+      }
     }
+
     foreach (['column', 'filter', 'grid', 'media', 'photobox', 'ratio'] as $component) {
       if (!empty($attach[$component])) {
         $load['library'][] = 'blazy/' . $component;

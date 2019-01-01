@@ -20,10 +20,12 @@
 
 [class*="block-column-"],
 .item-list > [class*="block-column-"] {
+  clear: both;
   display: block;
   list-style: none;
   margin: 0 auto;
   padding: 0;
+  width: 100%;
 }
 
 /** https://developer.mozilla.org/en-US/docs/Web/CSS/break-inside */

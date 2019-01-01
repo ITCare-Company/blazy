@@ -15,6 +15,7 @@
 [class*="block-grid-"],
 .block [class*="block-grid-"],
 .item-list > [class*="block-grid-"] {
+  clear: both;
   display: block;
   list-style: none;
   padding: 0;

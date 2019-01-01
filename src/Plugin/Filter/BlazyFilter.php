@@ -8,16 +8,13 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
-use Drupal\media\IFrameUrlHelper;
-use Drupal\media\OEmbed\ResourceFetcherInterface;
-use Drupal\media\OEmbed\UrlResolverInterface;
-use Drupal\blazy\BlazyManagerInterface;
+use Drupal\blazy\BlazyOEmbed;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterBaseTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a filter to lazyload image or iframe elements.
+ * Provides a filter to lazyload image, or iframe elements.
  *
  * Best after Align images, caption images.
  *
@@ -41,14 +38,12 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityManagerInterface $entity_manager, BlazyManagerInterface $blazy_manager, ResourceFetcherInterface $resource_fetcher, UrlResolverInterface $url_resolver, IFrameUrlHelper $iframe_url_helper) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityManagerInterface $entity_manager, BlazyOEmbed $blazy_oembed) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->entityManager = $entity_manager;
-    $this->blazyManager = $blazy_manager;
-    $this->mediaResourceFetcher = $resource_fetcher;
-    $this->mediaUrlResolver = $url_resolver;
-    $this->mediaIframeUrlHelper = $iframe_url_helper;
+    $this->blazyOembed = $blazy_oembed;
+    $this->blazyManager = $blazy_oembed->blazyManager();
   }
 
   /**
@@ -60,10 +55,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       $plugin_id,
       $plugin_definition,
       $container->get('entity.manager'),
-      $container->get('blazy.manager'),
-      $container->get('media.oembed.resource_fetcher'),
-      $container->get('media.oembed.url_resolver'),
-      $container->get('media.oembed.iframe_url_helper')
+      $container->get('blazy.oembed')
     );
   }
 
@@ -80,6 +72,9 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
 
     $dom = Html::load($text);
     $xpath = new \DOMXPath($dom);
+    $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
+    $settings['column'] = stristr($text, 'data-column') !== FALSE;
+    $settings['media_switch'] = $this->settings['media_switch'];
 
     foreach ($allowed_tags as $allowed_tag) {
       $nodes = $dom->getElementsByTagName($allowed_tag);
@@ -89,8 +84,8 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
             continue;
           }
 
-          // Build Blazy elements with lazyloaded image or iframe.
-          $settings = $this->buildSettings($node);
+          // Build Blazy elements with lazyloaded image, or iframe.
+          $settings = array_merge($settings, $this->buildSettings($node));
           $build = [
             'item' => $this->buildImageItem($node, $settings),
             'settings' => $settings,
@@ -110,14 +105,21 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
             $updated_node = $dom->importNode($updated_node, TRUE);
             $node->parentNode->insertBefore($updated_node, $node);
           }
+
           // Finally, remove the original blazy node.
           $node->parentNode->removeChild($node);
         }
       }
     }
 
-    // Attach Blazy component libraries.
     $all = ['blazy' => TRUE, 'filter' => TRUE, 'media' => TRUE, 'ratio' => TRUE];
+    if ($settings['column'] || $settings['grid']) {
+      $all['grid'] = $settings['grid'];
+      $all['column'] = $settings['column'];
+      $this->buildGrid($dom, $xpath, $settings);
+    }
+
+    // Attach Blazy component libraries.
     $result->setProcessedText(Html::serialize($dom))
       ->addAttachments($this->blazyManager->attach($all));
 
@@ -134,10 +136,59 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
         <ul>
             <li><code>&lt;img data-unblazy /&gt;</code></li>
             <li><code>&lt;iframe data-unblazy /&gt;</code></li>
-        </ul>');
+        </ul>
+        <p>To build a grid of images/ videos, add attribute <code>data-grid</code> or <code>data-column</code> (only to the first item):
+        <ul>
+            <li><code>&lt;img data-grid="1 3 4" /&gt;</code></li>
+            <li><code>&lt;iframe data-column="1 3 4" /&gt;</code></li>
+        </ul>
+        where numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements.</p>');
     }
     else {
       return $this->t('To disable lazyload, add attribute <code>data-unblazy</code> to <code>&lt;img&gt;</code> or <code>&lt;iframe&gt;</code> elements. Examples: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>.');
+    }
+  }
+
+  /**
+   * Build the grid.
+   *
+   * @param \DOMDocument $dom
+   *   The HTML DOM object being modified.
+   * @param \DOMXpath $xpath
+   *   The DOM Xpath object.
+   * @param array $settings
+   *   The settings array.
+   */
+  private function buildGrid(\DOMDocument &$dom, \DOMXpath $xpath, array $settings) {
+    $query = $settings['column'] ? 'column' : 'grid';
+    $nodes = $xpath->evaluate('//*[contains(@class, "grid")]');
+
+    // @todo assign variable. This is weird, variables not working for xpath?
+    if ($query == 'column') {
+      $grid = $xpath->query('//*[@data-column]')->item(0)->getAttribute('data-column');
+    }
+    else {
+      $grid = $xpath->query('//*[@data-grid]')->item(0)->getAttribute('data-grid');
+    }
+
+    $classes = [];
+    if (($first = $nodes[0]) && $grid) {
+      // Create the parent grid container, and put it before the first.
+      $container = $first->parentNode->insertBefore($dom->createElement('div'), $first);
+      $grids = array_map('trim', explode(' ', $grid));
+      $classes[] = 'blazy blazy--filter blazy--' . $query . ' block-' . $query;
+
+      foreach (['small', 'medium', 'large'] as $key => $item) {
+        if (isset($grids[$key])) {
+          $classes[] = $item . '-block-' . $query . '-' . $grids[$key];
+        }
+      }
+
+      // Add the container classes, and merge grid items into container.
+      $container->setAttribute('class', implode(' ', $classes));
+      foreach ($nodes as $node) {
+        $container->appendChild($node);
+      }
     }
   }
 
@@ -152,7 +203,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
    * @return object
    *   The faked image item.
    */
-  private function buildImageItem($node, array &$settings = []) {
+  private function buildImageItem(&$node, array &$settings = []) {
     $item = new \stdClass();
     $item->uri = $settings['uri'];
     $item->entity = NULL;
@@ -181,6 +232,18 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
         else {
           $item->_attributes[$attribute->nodeName] = $attribute->nodeValue;
         }
+
+        if ($settings['column'] || $settings['grid']) {
+          if ($node->parentNode->tagName === 'figure') {
+            $classes = $node->parentNode->getAttribute('class');
+            $classes = (strlen($classes) > 0) ? explode(' ', $classes) : [];
+            $classes[] = 'grid';
+            $node->parentNode->setAttribute('class', implode(' ', array_unique($classes)));
+          }
+          else {
+            $settings['media_attributes']['class'][] = 'grid';
+          }
+        }
       }
     }
 
@@ -197,23 +260,28 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
    *   The settings for the current $node.
    */
   private function buildSettings($node) {
-    $src = $url = $node->getAttribute('src');
+    $src = $node->getAttribute('src');
     $width = $node->getAttribute('width');
     $height = $node->getAttribute('height');
 
     if (!$width && $node->tagName == 'img') {
-      if ($url && $data = @getimagesize(DRUPAL_ROOT . $url)) {
+      if ($src && $data = @getimagesize(DRUPAL_ROOT . $src)) {
         list($width, $height) = $data;
       }
     }
 
-    $settings = ['ratio' => !$width ? '' : 'fluid', 'image_url' => $url];
-    $uri = file_build_uri($url);
+    $settings = [
+      'ratio' => !$width ? '' : 'fluid',
+      'image_url' => $src,
+      'input_url' => $src,
+    ];
 
+    $uri = file_build_uri($src);
     if ($node->tagName == 'iframe') {
-      $resource = $this->buildOembed($settings, $src);
+      $resource = $this->blazyOembed->build($settings);
+
       if ($resource) {
-        $uri = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
+        $uri = $settings['image_url'];
         $width = !$width ? $resource->getWidth() : $width;
         $height = !$height ? $resource->getHeight() : $height;
       }
@@ -228,7 +296,6 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       'uri' => $uri,
       'width' => $width,
       'height' => $height,
-      'media_switch' => $node->tagName == 'iframe' ? $this->settings['media_switch'] : '',
     ] + $settings;
   }
 

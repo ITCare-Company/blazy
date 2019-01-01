@@ -8,7 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
  * A Trait common for supported entities.
  *
  * This file can be imported along with Drupal\blazy\Dejavu\BlazyVideoTrait
- * to optionally support File/Media Entity where available.
+ * to optionally support File/Media where available.
  */
 trait BlazyEntityTrait {
 
@@ -78,7 +78,7 @@ trait BlazyEntityTrait {
       return [];
     }
 
-    // Supports VEM/ME if Drupal\blazy\Dejavu\BlazyVideoTrait is imported.
+    // Supports core Media if Drupal\blazy\Dejavu\BlazyVideoTrait is imported.
     if (method_exists($this, 'getMediaItem')) {
       $this->getMediaItem($data, $entity);
     }
@@ -114,6 +114,8 @@ trait BlazyEntityTrait {
         $load = $this->blazyManager()->attach($settings);
 
         // Enforces loading elements hidden by EB "Show selected" button.
+        // @todo figure out to limit to EB plugins to avoid loadInvisible here,
+        // currently relying on ambiguous `_detached` flag.
         $load['drupalSettings']['blazy']['loadInvisible'] = TRUE;
         $build['#attached'] = $load;
       }

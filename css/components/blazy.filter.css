@@ -24,3 +24,7 @@
 .align-center .media-wrapper--blazy {
   min-width: 320px;
 }
+
+.blazy--filter .media-wrapper--blazy {
+  min-width: 0;
+}

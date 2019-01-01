@@ -5,11 +5,12 @@
  * Provides basic Blazy integration for lazy loading and multi-serving images.
  */
 
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\BlazyViews;
 
 /**
  * Implements hook_theme().
@@ -29,7 +30,7 @@ function template_preprocess_blazy(&$variables) {
  * Overrides variables for responsive-image.html.twig templates.
  */
 function blazy_preprocess_responsive_image(&$variables) {
-  $config = Blazy::getConfig();
+  $config = \Drupal::service('blazy.manager')->configLoad();
 
   // Do not proceed if disabled globally, or not a Blazy formatter.
   if (!$config['responsive_image'] || !isset($variables['attributes']['data-srcset'])) {
@@ -68,14 +69,13 @@ function blazy_views_pre_render($view) {
   if (!isset($view)) {
     return;
   }
-  \Drupal\blazy\BlazyViews::viewsPreRender($view);
+  BlazyViews::viewsPreRender($view);
 }
 
 /**
  * Implements hook_field_formatter_info_alter().
  *
- * @deprecated will be removed prior to Blazy 8.2.x full release.
- * @todo remove for core Media.
+ * @deprecated tbd to be removed for core Media post Blazy 8.2.x full release.
  */
 function blazy_field_formatter_info_alter(array &$info) {
   // Supports optional Media Entity via VEM/VEF if available.
@@ -158,6 +158,21 @@ function blazy_blazy_settings_alter(array &$build, $items) {
  */
 function blazy_alterable_settings(array &$settings) {
   return BlazyDefault::getInstance()->alterableSettings($settings);
+}
+
+/**
+ * The BC for Media settings to not break the tests..
+ *
+ * @param array $settings
+ *   The settings array being modified.
+ *
+ * @return \Drupal\media\OEmbed\Resource
+ *   The oEmbed resource if avalaible.
+ *
+ * @todo remove once blazy-related modules updated to Media prior to 8.2.x.
+ */
+function _blazy_build_oembed(array &$settings = []) {
+  return \Drupal::service('blazy.oembed')->build($settings);
 }
 
 /**
