@@ -158,7 +158,6 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
    */
   public function todoTestBlazyFile() {
     $settings = [
-      'iframe_lazy'  => TRUE,
       'media_switch' => 'media',
       'ratio'        => 'fluid',
       'view_mode'    => 'default',

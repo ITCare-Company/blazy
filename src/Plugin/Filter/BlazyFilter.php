@@ -74,7 +74,8 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $xpath = new \DOMXPath($dom);
     $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
     $settings['column'] = stristr($text, 'data-column') !== FALSE;
-    $settings['media_switch'] = $this->settings['media_switch'];
+    $settings['media_switch'] = $switch = $this->settings['media_switch'];
+    $settings['lightbox'] = ($switch && in_array($switch, $this->blazyManager()->getLightboxes())) ? $switch : FALSE;
 
     foreach ($allowed_tags as $allowed_tag) {
       $nodes = $dom->getElementsByTagName($allowed_tag);
@@ -112,7 +113,8 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       }
     }
 
-    $all = ['blazy' => TRUE, 'filter' => TRUE, 'media' => TRUE, 'ratio' => TRUE];
+    $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE];
+    $all['media_switch'] = $settings['media_switch'];
     if ($settings['column'] || $settings['grid']) {
       $all['grid'] = $settings['grid'];
       $all['column'] = $settings['column'];
@@ -142,7 +144,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
             <li><code>&lt;img data-grid="1 3 4" /&gt;</code></li>
             <li><code>&lt;iframe data-column="1 3 4" /&gt;</code></li>
         </ul>
-        where numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements.</p>');
+        where numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements. This is also required if using <b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe).</p>');
     }
     else {
       return $this->t('To disable lazyload, add attribute <code>data-unblazy</code> to <code>&lt;img&gt;</code> or <code>&lt;iframe&gt;</code> elements. Examples: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>.');
@@ -188,6 +190,13 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
 
       // Add the container classes, and merge grid items into container.
       $container->setAttribute('class', implode(' ', $classes));
+      $container->setAttribute('data-blazy', '');
+
+      if (!empty($settings['media_switch'])) {
+        $switch = str_replace('_', '-', $settings['media_switch']);
+        $container->setAttribute('data-' . $switch . '-gallery', TRUE);
+      }
+
       foreach ($nodes as $node) {
         $container->appendChild($node);
       }
@@ -296,7 +305,6 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     return [
       'blazy' => TRUE,
       'lazy' => 'blazy',
-      'iframe_lazy' => TRUE,
       'uri' => $uri,
       'width' => $width,
       'height' => $height,
@@ -307,6 +315,8 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
+    $lightboxes = \Drupal::service('blazy.admin')->blazyManager()->getLightboxes();
+
     $form['filter_tags'] = [
       '#type' => 'checkboxes',
       '#title' => $this->t('Enable HTML tags'),
@@ -326,8 +336,14 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       ],
       '#empty_option' => $this->t('- None -'),
       '#default_value' => $this->settings['media_switch'],
-      '#description' => $this->t('<b>Image to iframe</b> will hide iframe behind image till toggled.'),
+      '#description' => $this->t('<ul><li><b>Image to iframe</b> will hide iframe behind image till toggled.</li><li><b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) requires a grid. Add <code>data-column="1 3 4"</code> or <code>data-grid="1 3 4"</code> to the first image/ iframe only.</li></ul>'),
     ];
+
+    if (!empty($lightboxes)) {
+      foreach ($lightboxes as $lightbox) {
+        $form['media_switch']['#options'][$lightbox] = $this->t('Image to @lightbox', ['@lightbox' => $lightbox]);
+      }
+    }
 
     return $form;
   }

@@ -180,12 +180,8 @@ class Blazy implements BlazyInterface {
     $variables['image'] = empty($settings['media_switch']) ? [] : $variables['image'];
     $settings['player'] = empty($settings['lightbox']) && $settings['media_switch'] != 'content';
     $iframe['data-src'] = $settings['embed_url'];
-    $iframe['src']      = empty($settings['iframe_lazy']) ? $settings['embed_url'] : 'about:blank';
-
-    // Only lazyload if media switcher is empty, but iframe lazy enabled.
-    if (!empty($settings['iframe_lazy']) && empty($settings['media_switch'])) {
-      $iframe['class'][] = 'b-lazy';
-    }
+    $iframe['src']      = 'about:blank';
+    $iframe['class'][]  = 'b-lazy';
 
     // Prevents broken iframe when aspect ratio is empty.
     if (empty($settings['ratio']) && !empty($settings['width'])) {
@@ -370,6 +366,7 @@ class Blazy implements BlazyInterface {
 
       // Fetches the picture element fallback URI, and empty it later.
       // These address both 8.x-2 and 8.x-3 compatibility.
+      // @todo remove BC as we now require Drupal 8.6+.
       if (isset($variables['img_element']['#srcset'])) {
         $fallback_uri = $variables['img_element']['#srcset'][0]['uri'];
       }
@@ -447,15 +444,6 @@ class Blazy implements BlazyInterface {
 
     // Do not use dynamic Html::getUniqueId, otherwise broken AJAX.
     return empty($id) ? Html::getId($string . '-' . ++static::$blazyId) : strip_tags($id);
-  }
-
-  /**
-   * Return blazy global config.
-   *
-   * @deprecated will be removed for BlazyManager::configLoad().
-   */
-  public static function getConfig($setting_name = '', $settings = 'blazy.settings') {
-    return \Drupal::service('blazy.manager')->configLoad($setting_name, $settings);
   }
 
 }

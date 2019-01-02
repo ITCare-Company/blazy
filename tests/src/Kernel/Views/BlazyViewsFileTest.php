@@ -51,7 +51,6 @@ class BlazyViewsFileTest extends BlazyViewsTestBase {
 
     $bundle = $this->bundle;
     $settings['image_settings'] = [
-      'iframe_lazy'  => TRUE,
       'image_style'  => 'blazy_crop',
       'media_switch' => 'blazy_test',
       'ratio'        => 'fluid',

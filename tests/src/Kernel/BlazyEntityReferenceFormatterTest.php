@@ -78,7 +78,6 @@ class BlazyEntityReferenceFormatterTest extends KernelTestBase {
    */
   private function buildContents() {
     $settings['image_settings'] = [
-      'iframe_lazy'  => TRUE,
       'lazy'         => 'blazy',
       'media_switch' => '',
       'ratio'        => 'fluid',

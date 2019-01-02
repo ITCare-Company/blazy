@@ -510,16 +510,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
     }
 
-    if (!empty($definition['multimedia']) && empty($definition['no_iframe_lazy'])) {
-      $form['iframe_lazy'] = [
-        '#type'        => 'checkbox',
-        '#title'       => $this->t('Lazy iframe'),
-        '#description' => $this->t('Check to make the video/audio iframes truly lazyloaded, and speed up loading time. Depends on JS enabled at client side. <a href=":more" target="_blank">Read more</a> to <a href=":url" target="_blank">decide</a>.', [':more' => '//goo.gl/FQLFQ6', ':url' => '//goo.gl/f78pMl']),
-        '#weight'      => -96,
-        '#states'      => $this->getState(static::STATE_IFRAME_ENABLED, $definition),
-      ];
-    }
-
     // Optional lightbox integration.
     if (!empty($lightboxes) && isset($settings['media_switch'])) {
       $form['box_style'] = $this->baseForm($definition)['box_style'];

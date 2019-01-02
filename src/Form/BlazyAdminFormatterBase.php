@@ -164,10 +164,6 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       $excludes['optionset'] = TRUE;
     }
 
-    if ($media_switch != 'media') {
-      $excludes['iframe_lazy'] = TRUE;
-    }
-
     if (!empty($settings['responsive_image_style'])) {
       foreach (['ratio', 'breakpoints', 'background', 'sizes'] as $key) {
         $excludes[$key] = TRUE;

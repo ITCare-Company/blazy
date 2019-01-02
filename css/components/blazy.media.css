@@ -166,11 +166,3 @@
 .grid .fb_iframe_widget iframe {
   position: relative !important;
 }
-
-/**
- * Temp fix for oEmbed not autoplayed, at least the button not blocking.
- * @todo remove once permanently fixed.
- */
-.media--switch.is-playing .media__icon--close {
-  display: none;
-}

@@ -1,8 +1,11 @@
 
 Blazy 8.x-2.0-dev, 2019-01-02
 -----------------------------
+- Removed deprecated methods, workaround left over, redundant iframe_lazy
+  (the point to use Blazy is to lazy load, especially iframes).
+- Added a simple lightbox support for Blazy Filter.
 - Changed unreliable iframe JS approach to HTML to avoid FOUC.
-- Issue #3023345 by gausarts: Image to iframe doesn'\''t autoplay oEmbed video.
+- Issue #3023345 by gausarts: Image to iframe doesn't autoplay oEmbed video.
 - Issue #3023230 by gausarts: Add a new Blazy Media oEmbed service.
 
 Blazy 8.x-2.0-dev, 2019-01-01

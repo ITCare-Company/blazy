@@ -73,14 +73,11 @@ class BlazyUnitTest extends UnitTestCase {
    * @dataProvider providerTestBuildIframeAttributes
    */
   public function testBuildIframeAttributes(array $data, $expected) {
-    $variables = ['attributes' => [], 'image' => []];
-    $settings  = BlazyDefault::entitySettings();
-
+    $variables             = ['attributes' => [], 'image' => []];
+    $settings              = BlazyDefault::entitySettings();
     $settings['embed_url'] = '//www.youtube.com/watch?v=E03HFA923kw';
     $settings['scheme']    = 'youtube';
     $settings['type']      = 'video';
-
-    $this->assertArrayHasKey('iframe_lazy', $settings);
 
     $variables['settings'] = array_merge($settings, $data);
     Blazy::buildIframeAttributes($variables);
