@@ -276,6 +276,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       'ratio' => !$width ? '' : 'fluid',
       'image_url' => $src,
       'input_url' => $src,
+      'media_switch' => $this->settings['media_switch'],
     ];
 
     $uri = file_build_uri($src);
@@ -284,7 +285,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
 
       if ($resource) {
         // @todo figure out to get local uri, if any, anyway.
-        $uri = $resource->getThumbnailUrl()->getUri();
+        $uri = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
         $width = !$width ? $resource->getWidth() : $width;
         $height = !$height ? $resource->getHeight() : $height;
       }

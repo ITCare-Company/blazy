@@ -52,7 +52,7 @@ class BlazyOEmbed {
   protected $resource;
 
   /**
-   * The Media oEmbed Resource.
+   * The request service.
    *
    * @var \Symfony\Component\HttpFoundation\RequestStack
    */
