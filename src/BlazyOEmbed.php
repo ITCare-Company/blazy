@@ -366,7 +366,7 @@ class BlazyOEmbed {
           // Make responsive iframe with/ without autoplay.
           $iframe->setAttribute('width', '100%');
           $iframe->setAttribute('height', '100%');
-          $iframe->setAttribute('style', 'max-width: 100%; overflow: hidden; width: 100%; height: 100vh;');
+          $iframe->setAttribute('style', 'display: block; max-width: 100%; overflow: hidden; width: 100%; height: 100vh;');
           $variables['media'] = $dom->saveHTML();
         }
       }
