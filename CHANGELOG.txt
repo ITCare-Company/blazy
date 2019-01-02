@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2019-01-02
+-----------------------------
+- Changed unreliable iframe JS approach to HTML to avoid FOUC.
+- Issue #3023345 by gausarts: Image to iframe doesn'\''t autoplay oEmbed video.
+- Issue #3023230 by gausarts: Add a new Blazy Media oEmbed service.
+
 Blazy 8.x-2.0-dev, 2019-01-01
 -----------------------------
 - Added back the BC layer to avoid broken formatters.

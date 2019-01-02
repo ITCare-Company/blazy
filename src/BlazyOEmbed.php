@@ -315,6 +315,7 @@ class BlazyOEmbed {
 
       // Do not proceed if it has type, already managed by theme_blazy().
       // Supports other Media entities: Facebook, Instagram, Twitter, etc.
+      // @todo recheck against core oEmbed.
       $content = [];
       if (empty($settings['type'])) {
         if ($build = BlazyMedia::build($media, $settings)) {
@@ -347,7 +348,7 @@ class BlazyOEmbed {
       $url = $request->query->get('url');
 
       // Only replace url if it is required by Blazy and autoplay == 1.
-      if ($url && $is_blazy && $is_autoplay) {
+      if ($url && $is_blazy) {
         // Load iframe string as a DOMDocument as alternative to regex.
         $dom = Html::load($variables['media']);
         $iframe = $dom->getElementsByTagName('iframe')->item(0);
@@ -357,8 +358,15 @@ class BlazyOEmbed {
         $settings = $this->getAutoPlayUrl($resource);
 
         // Replace old oEmbed url with autoplay support, and save the DOM.
-        if (!empty($settings['autoplay_url'])) {
-          $iframe->setAttribute('src', $settings['autoplay_url']);
+        if ($iframe) {
+          if ($is_autoplay && !empty($settings['autoplay_url'])) {
+            $iframe->setAttribute('src', $settings['autoplay_url']);
+          }
+
+          // Make responsive iframe with/ without autoplay.
+          $iframe->setAttribute('width', '100%');
+          $iframe->setAttribute('height', '100%');
+          $iframe->setAttribute('style', 'max-width: 100%; overflow: hidden; width: 100%; height: 100vh;');
           $variables['media'] = $dom->saveHTML();
         }
       }

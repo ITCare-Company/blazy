@@ -47,12 +47,6 @@
       }
 
       doc.body.style.overflow = 'hidden';
-
-      // We need to do this as the child iframe may be slower to build.
-      var style = doc.createElement('style');
-      style.textContent = 'iframe {max-with: 100%; width: 100% !important; height: 100vh !important;}';
-
-      doc.head.appendChild(style);
     }
 
     /**
