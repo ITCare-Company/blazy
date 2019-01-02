@@ -161,6 +161,13 @@ function blazy_alterable_settings(array &$settings) {
 }
 
 /**
+ * Implements hook_preprocess_media_oembed_iframe().
+ */
+function blazy_preprocess_media_oembed_iframe(array &$variables) {
+  \Drupal::service('blazy.oembed')->preprocessMediaOembedIframe($variables);
+}
+
+/**
  * The BC for Media settings to not break the tests..
  *
  * @param array $settings

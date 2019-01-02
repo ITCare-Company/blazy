@@ -158,6 +158,8 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
    *   The DOM Xpath object.
    * @param array $settings
    *   The settings array.
+   *
+   * @todo use BlazyGrid if you can.
    */
   private function buildGrid(\DOMDocument &$dom, \DOMXpath $xpath, array $settings) {
     $query = $settings['column'] ? 'column' : 'grid';
@@ -281,7 +283,8 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       $resource = $this->blazyOembed->build($settings);
 
       if ($resource) {
-        $uri = $settings['image_url'];
+        // @todo figure out to get local uri, if any, anyway.
+        $uri = $resource->getThumbnailUrl()->getUri();
         $width = !$width ? $resource->getWidth() : $width;
         $height = !$height ? $resource->getHeight() : $height;
       }
@@ -322,7 +325,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       ],
       '#empty_option' => $this->t('- None -'),
       '#default_value' => $this->settings['media_switch'],
-      '#description' => $this->t('<b>Image to iframe</b> will hide iframe behind image till toggled. Autoplay is not working correctly, simply disable. Only enable if you can override <code>hook_preprocess_media_oembed_iframe()</code> to add <code>autoplay</code> or <code>auto_play</code> query params.'),
+      '#description' => $this->t('<b>Image to iframe</b> will hide iframe behind image till toggled.'),
     ];
 
     return $form;

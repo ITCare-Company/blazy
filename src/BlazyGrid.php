@@ -100,8 +100,6 @@ class BlazyGrid {
     if (!empty($settings['media_switch'])) {
       $grid['#wrapper_attributes']['class'][] = 'grid--' . str_replace('_', '-', $settings['media_switch']);
     }
-
-    $grid['#wrapper_attributes']['class'][] = 'grid--' . $settings['delta'];
   }
 
 }

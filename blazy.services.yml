@@ -15,7 +15,7 @@ services:
 
   blazy.oembed:
     class: Drupal\blazy\BlazyOEmbed
-    arguments: ['@media.oembed.resource_fetcher', '@media.oembed.url_resolver', '@media.oembed.iframe_url_helper', '@blazy.manager']
+    arguments: ['@request_stack', '@media.oembed.resource_fetcher', '@media.oembed.url_resolver', '@media.oembed.iframe_url_helper', '@blazy.manager']
 
   blazy:
     class: Drupal\blazy\Blazy
