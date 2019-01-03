@@ -86,16 +86,3 @@ class BlazySettingsFormTest extends KernelTestBase {
   }
 
 }
-
-namespace Drupal\blazy_ui\Form;
-
-if (!function_exists('drupal_set_message')) {
-
-  /**
-   * Dummy function.
-   */
-  function drupal_set_message() {
-    // Empty block to satisfy coder.
-  }
-
-}

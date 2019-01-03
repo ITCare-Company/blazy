@@ -116,7 +116,7 @@ class BlazySettingsForm extends ConfigFormBase {
     // Invalidate the library discovery cache to update the responsive image.
     \Drupal::service('library.discovery')->clearCachedDefinitions();
 
-    drupal_set_message($this->t('Be sure to <a href=":clear_cache">clear the cache</a> if trouble to see the updated settings', [':clear_cache' => Url::fromRoute('system.performance_settings')->toString()]));
+    $this->messenger()->addMessage($this->t('Be sure to <a href=":clear_cache">clear the cache</a> if trouble to see the updated settings', [':clear_cache' => Url::fromRoute('system.performance_settings')->toString()]));
 
     parent::submitForm($form, $form_state);
   }
