@@ -83,6 +83,8 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
     // With pass by reference, we hardly modify base classes, just re-arrange.
     // As opposed to file/ image formatters with direct indices, blazy-formatted
     // entities are stored within `items` with extra usages like thumbnail navs.
+    // If not a grid, pass the items as regular index children to theme_field()
+    // and provide a #blazy to identify Blazy formatters at hook_preprocess().
     if (empty($settings['_grid'])) {
       $build = $build['items'];
       $build['#blazy'] = $settings;

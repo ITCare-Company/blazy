@@ -146,7 +146,7 @@ class BlazyOEmbed {
       $resource = $this->getResource($settings['input_url']);
 
       // @todo support other types (link, photo), if reasonable for Blazy.
-      if ($resource->getType() === Resource::TYPE_VIDEO || $resource->getType() === Resource::TYPE_RICH) {
+      if ($resource && ($resource->getType() === Resource::TYPE_VIDEO || $resource->getType() === Resource::TYPE_RICH)) {
         $width = empty($settings['width']) ? $resource->getWidth() : $settings['width'];
         $height = empty($settings['height']) ? $resource->getHeight() : $settings['height'];
         $url = Url::fromRoute('media.oembed_iframe', [], [
@@ -317,10 +317,8 @@ class BlazyOEmbed {
       // Supports other Media entities: Facebook, Instagram, Twitter, etc.
       // @todo recheck against core oEmbed.
       $content = [];
-      if (empty($settings['type'])) {
-        if ($build = BlazyMedia::build($media, $settings)) {
-          $content[] = $build;
-        }
+      if (empty($settings['type']) && ($build = BlazyMedia::build($media, $settings))) {
+        $content[] = $build;
       }
     }
 
@@ -339,7 +337,7 @@ class BlazyOEmbed {
       return;
     }
 
-    // Only needed to autoplay video with Media switcher 'Image to iframe'.
+    // Only needed to autoplay video, and make responsive iframe.
     try {
       // Blazy formatters with oEmbed provide contextual params to the query.
       $request = $this->request->getCurrentRequest();

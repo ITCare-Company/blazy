@@ -27,7 +27,7 @@ trait BlazyStylePluginTrait {
   /**
    * Returns available fields for select options.
    */
-  public function getDefinedFieldOptions($definitions = []) {
+  public function getDefinedFieldOptions($defined_options = []) {
     $field_names = $this->displayHandler->getFieldLabels();
     $definition = [];
     $stages = [
@@ -126,8 +126,8 @@ trait BlazyStylePluginTrait {
     $definition['settings'] = $this->options;
     $definition['current_view_mode'] = $this->view->current_display;
 
-    // Provides the requested fields.
-    foreach ($definitions as $key) {
+    // Provides the requested fields based on available $options.
+    foreach ($defined_options as $key) {
       $definition[$key] = isset($options[$key]) ? $options[$key] : [];
     }
 
@@ -241,29 +241,25 @@ trait BlazyStylePluginTrait {
    * Returns the rendered caption fields.
    */
   public function getCaption($index, $settings = []) {
-    $items = [];
-    $keys  = array_keys($this->view->field);
+    $items         = [];
+    $keys          = array_keys($this->view->field);
+    $items['data'] = [];
+
     if (!empty($settings['caption'])) {
-      $caption_items = [];
-      foreach ($settings['caption'] as $key => $caption) {
-        $caption_rendered = $this->getField($index, $caption);
-        if (empty($caption_rendered)) {
-          continue;
-        }
-
-        if (in_array($caption, array_values($keys))) {
-          $caption_items[$key]['#markup'] = $caption_rendered;
-        }
+      // Exclude non-caption fields so that theme_views_view_fields() kicks in
+      // and only render expected caption fields. As long as not-hidden, each
+      // caption field should be wrapped with Views markups.
+      $excludes = array_diff_assoc(array_combine($keys, $keys), $settings['caption']);
+      foreach ($excludes as $field) {
+        $this->view->field[$field]->options['exclude'] = TRUE;
       }
-      $items['data'] = $caption_items;
+
+      $items['data'] = $this->view->rowPlugin->render($this->view->result[$index]);
     }
 
-    $items['link']  = empty($settings['link']) ? [] : $this->getFieldRendered($index, $settings['link']);
-    $items['title'] = empty($settings['title']) ? [] : $this->getFieldRendered($index, $settings['title'], TRUE);
-
-    if (!empty($settings['overlay'])) {
-      $items['overlay'] = $this->getFieldRendered($index, $settings['overlay']);
-    }
+    $items['link']    = empty($settings['link']) ? [] : $this->getFieldRendered($index, $settings['link']);
+    $items['title']   = empty($settings['title']) ? [] : $this->getFieldRendered($index, $settings['title'], TRUE);
+    $items['overlay'] = empty($settings['overlay']) ? [] : $this->getFieldRendered($index, $settings['overlay']);
 
     return $items;
   }
