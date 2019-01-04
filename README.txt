@@ -36,18 +36,32 @@ REQUIREMENTS
 
 
 INSTALLATION
-Install the module as usual, more info can be found on:
-https://www.drupal.org/docs/8/extending-drupal-8/installing-drupal-8-modules
+  1. MANUAL:
+  Install the module as usual, more info can be found on:
+  https://www.drupal.org/docs/8/extending-drupal-8/installing-drupal-8-modules
+
+  2 COMPOSER:
+  There are various ways to install third party bower/npm asset libraries. Check
+  out any below suitable to your workflow:
+  https://www.drupal.org/project/blazy/issues/3021902
+  https://www.drupal.org/project/slick/issues/2907371
+  Or jump here:
+  https://www.drupal.org/project/slick/issues/2907371#comment-12882235
+
+  It is up to you to decide which works best. Composer is not designed to manage
+  JS, CSS or HTML framework assets. It is for PHP. Then come Composer plugins,
+  and other workarounds to make Composer workflow easier. As many alternatives,
+  it is not covered here. Please find more info on the above-mentioned issues.
 
 
 USAGES
 Be sure to enable Blazy UI which can be uninstalled at production later.
 o Go to Manage display page, e.g.:
-  admin/structure/types/manage/page/display
+  /admin/structure/types/manage/page/display
 
 o Find "Blazy" formatter under "Manage display".
 
-o Go to "admin/config/media/blazy" to manage few global options, including
+o Go to "/admin/config/media/blazy" to manage few global options, including
   enabling support for lazyloading core Responsive image.
 
 
@@ -101,7 +115,7 @@ Add a min-height CSS to individual element to avoid layout reflow if not using
 Adjust, and override blazy CSS files accordingly.
 
 
-ROADMAP/TODO
+ROADMAP/ TODO
 [x] Adds a basic configuration to load the library, probably an image formatter.
     2/24/2016
 [x] Media entity image/video, and Video embed field lazyloading, if any.
@@ -116,7 +130,7 @@ CURRENT DEVELOPMENT STATUS
 A full release should be reasonable after proper feedbacks from the community,
 some code cleanup, and optimization where needed. Patches are very much welcome.
 
-Alpha and Beta releases are for developers only. Be aware of possible breakage.
+Alpha, Beta, DEV releases are for developers only. Beware of possible breakage.
 
 
 UPDATE SOP:
@@ -158,11 +172,42 @@ o If breakpoints provided with tons of images, using image styles with ANY crop
 SUBMITTING PATCHES OR ISSUES
 When submitting bug reports, please be kind with proper reproduction, and enough
 details. Mentioning library version, module version, active theme, or anything
-which may help us identify issue better would be very helpful. Please consider
-the following to help you explain better and to help us understand better your
-bug reports, or patches as needed:
+which may help us identify issue better would be very helpful. Check out dups.
+
+If unsure, file it a support request. We'll mark a bug a bug even if you file it
+under support requests.
+
+Please consider the following to help you explain better, and to help us
+understand better your bug reports, or patches as needed:
 https://www.drupal.org/issue-summaries
 https://www.drupal.org/node/1326662
+
+If you hate formalism, like me, consider a line, or two in the body text. Do not
+try to explain everything in the title. Use body text for explanation purposes.
+If language is a barrier, use google translate, or alike.
+
+We consider a patch as help, they consider it a sale, so thank you in advanced!
+In order for you to help or buy us successfully, we expect you treat us as
+human. Your mama has taught you to knock the door, and say hi, before dumping
+your stuffs into somebody else's house, ain't she?
+
+That's it, and you are likely welcome!
+
+When submitting patches, consider:
+o communicating and filling out the body text with proper explanations, not in
+  comments. I've seen patches which broke a module, so explanation is a must.
+o providing optional links to the change records, if any.
+o providing links to docs is a must for coding standards issues.
+  This also lets us, you and me, learn from the actual docs, not told by tools!
+  We can just run `drupalcs ...`, but help is welcome, too, in case a miss.
+o providing reproduction steps for bug reports is a must. No repro, no bugs.
+
+You must speak like human to human, and help us respect you, and your time.
+Speak normally like a normal human, and I'll bow and respect you even if you are
+20+ year younger. Speak like a jerk, and I'll be happy to play your mirror, only
+if necessary, to cut off your bad karma for your own highest good, too.
+Dumping patches with empty body text will be disregarded, till the above is met.
+
 
 AUTHOR/MAINTAINER/CREDITS
 gausarts
