@@ -346,7 +346,7 @@ class BlazyOEmbed {
       $url = $request->query->get('url');
 
       // Only replace url if it is required by Blazy and autoplay == 1.
-      if ($url && $is_blazy) {
+      if ($url && $is_blazy == 1) {
         // Load iframe string as a DOMDocument as alternative to regex.
         $dom = Html::load($variables['media']);
         $iframe = $dom->getElementsByTagName('iframe')->item(0);
@@ -357,7 +357,7 @@ class BlazyOEmbed {
 
         // Replace old oEmbed url with autoplay support, and save the DOM.
         if ($iframe) {
-          if ($is_autoplay && !empty($settings['autoplay_url'])) {
+          if ($is_autoplay == 1 && !empty($settings['autoplay_url'])) {
             $iframe->setAttribute('src', $settings['autoplay_url']);
           }
 

@@ -34,7 +34,9 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityBase {
     $element = ['settings' => $settings];
 
     // Built early before stage to allow custom highres video thumbnail later.
-    // Implementor must import: Drupal\blazy\Dejavu\BlazyVideoTrait.
+    // Implementor must import: Drupal\blazy\Dejavu\BlazyVideoTrait, or extends
+    // Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase, or
+    // import the BlazyOEmbed service.
     if (method_exists($this, 'getMediaItem')) {
       $this->getMediaItem($element, $entity);
     }
