@@ -170,43 +170,41 @@ o If breakpoints provided with tons of images, using image styles with ANY crop
   applies.
 
 SUBMITTING PATCHES OR ISSUES
-When submitting bug reports, please be kind with proper reproduction, and enough
-details. Mentioning library version, module version, active theme, or anything
-which may help us identify issue better would be very helpful. Check out dups.
-
-If unsure, file it a support request. We'll mark a bug a bug even if you file it
-under support requests.
-
 Please consider the following to help you explain better, and to help us
 understand better your bug reports, or patches as needed:
 https://www.drupal.org/issue-summaries
 https://www.drupal.org/node/1326662
 
-If you hate formalism, like me, consider a line, or two in the body text. Do not
-try to explain everything in the title. Use body text for explanation purposes.
-If language is a barrier, use google translate, or alike.
+o If you hate formalism, consider a line, or two in the body text.
+o Avoid explaining everything in the title.
+o Use body text for explanation purposes.
+o If language is a barrier, use google translate, or alike.
 
+1. SUBMITTING ISSUES
+When submitting bug reports, please:
+o Be kind with proper reproduction, and enough details.
+o Mentioning library version, module version, active theme, or anything which
+  may help us identify issue better would be very helpful.
+o Check out dups.
+o If unsure, file it a support request. We'll mark a bug a bug even if you
+  file it under support requests.
+
+2. SUBMITTING PATCHES
 We consider a patch as help, they consider it a sale, so thank you in advanced!
-In order for you to help or buy us successfully, we expect you treat us as
-human. Your mama has taught you to knock the door, and say hi, before dumping
-your stuffs into somebody else's house, ain't she?
-
-That's it, and you are likely welcome!
-
-When submitting patches, consider:
+In order for you to help, or buy, us successfully, please consider:
 o communicating and filling out the body text with proper explanations, not in
   comments. I've seen patches which broke a module, so explanation is a must.
-o providing optional links to the change records, if any.
+  If you have no time to write it in the body text, please hold off till later!
+o providing optional links to the change records, or docs, if any.
 o providing links to docs is a must for coding standards issues.
-  This also lets us, you and me, learn from the actual docs, not told by tools!
+  This also let us, you and me, learn from the actual docs, not told by tools!
   We can just run `drupalcs ...`, but help is welcome, too, in case a miss.
 o providing reproduction steps for bug reports is a must. No repro, no bugs.
 
 You must speak like human to human, and help us respect you, and your time.
-Speak normally like a normal human, and I'll bow and respect you even if you are
-20+ year younger. Speak like a jerk, and I'll be happy to play your mirror, only
-if necessary, to cut off your bad karma for your own highest good, too.
 Dumping patches with empty body text will be disregarded, till the above is met.
+
+Thank you for your kind consideration, cooperation, and contribution!
 
 
 AUTHOR/MAINTAINER/CREDITS
