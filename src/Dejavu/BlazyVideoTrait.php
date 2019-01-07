@@ -90,12 +90,13 @@ trait BlazyVideoTrait {
    * @todo remove post Blazy 8.2.x when blazy-plugins use core Media.
    */
   public function getMediaItem(array &$data = [], $media = NULL) {
-    if (is_null($this->blazyOembed)) {
-      \Drupal::service('blazy.oembed')->getMediaItem($data, $media);
+    // If this file is imported without DI, allows a fallback to not break it.
+    if (isset($this->blazyOembed) && !is_null($this->blazyOembed)) {
+      $this->blazyOembed->getMediaItem($data, $media);
       return;
     }
 
-    $this->blazyOembed->getMediaItem($data, $media);
+    \Drupal::service('blazy.oembed')->getMediaItem($data, $media);
   }
 
   /**
@@ -114,11 +115,10 @@ trait BlazyVideoTrait {
   public function buildVideo(array &$settings = [], $external_url = '') {
     // If this file is imported without DI, allows a fallback to not break it.
     $settings['input_url'] = empty($settings['input_url']) ? $external_url : $settings['input_url'];
-    if (is_null($this->blazyOembed)) {
-      return _blazy_build_oembed($settings);
+    if (isset($this->blazyOembed) && !is_null($this->blazyOembed)) {
+      return $this->blazyOembed->build($settings);
     }
-
-    return $this->blazyOembed->build($settings);
+    return _blazy_build_oembed($settings);
   }
 
 }

@@ -204,14 +204,13 @@ function hook_blazy_alter(array &$image, array $settings = []) {
  *
  * In addition to the schema, implement hook_blazy_complete_form_element_alter()
  * to provide the actual extended forms, see far below. And lastly, implement
- * the options at fron-end via hook_preprocess().
+ * the options at front-end via hook_preprocess().
  *
  * @param array $settings
  *   The settings being modified.
  * @param array $context
  *   The array containing class which defines or limit the scope of the options.
  *
- * @todo this breaks test, so this is pending till a better solution.
  * @ingroup blazy_api
  */
 function hook_blazy_base_settings_alter(array &$settings, array $context = []) {

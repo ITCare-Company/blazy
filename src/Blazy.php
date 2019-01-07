@@ -65,7 +65,12 @@ class Blazy implements BlazyInterface {
 
     // Thumbnails.
     // With CSS background, IMG may be empty, add thumbnail to the container.
-    if (!empty($settings['thumbnail_style'])) {
+    // Supports unique thumbnail different from main image, such as logo for
+    // thumbnail and main image for company profile.
+    if (!empty($settings['thumbnail_uri'])) {
+      $attributes['data-thumb'] = file_url_transform_relative(file_create_url($settings['thumbnail_uri']));
+    }
+    elseif (!empty($settings['thumbnail_style'])) {
       $attributes['data-thumb'] = ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
     }
 
@@ -91,9 +96,6 @@ class Blazy implements BlazyInterface {
       $image['#theme'] = 'image';
 
       // Supports either lazy loaded image, or not, which is overriden later.
-      // This allows Blazy to be used for RSS by disabling $settings['lazy']
-      // and $settings['view_mode'] = 'rss' via hook_blazy_settings_alter()
-      // since image_url is not transformed relative.
       $image['#uri'] = empty($settings['image_url']) ? $settings['uri'] : $settings['image_url'];
 
       // Aspect ratio to fix layout reflow with lazyloaded images responsively.
@@ -371,6 +373,7 @@ class Blazy implements BlazyInterface {
         $fallback_uri = $variables['img_element']['#srcset'][0]['uri'];
       }
       else {
+        // This is for Drupal 8.x-3+.
         $fallback_uri = $variables['img_element']['#uri'];
       }
 

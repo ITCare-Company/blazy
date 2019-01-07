@@ -231,12 +231,8 @@ class BlazyOEmbed {
       }
 
       // Adds autoplay for media URL on lightboxes, saving another click.
-      if (strpos($url, 'play') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
-        $autoplay = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
-        if ($data['scheme'] == 'vimeo') {
-          $autoplay = strpos($url, '?') === FALSE ? $url . '?auto_play=1' : $url . '&auto_play=1';
-        }
-        $data['autoplay_url'] = $autoplay;
+      if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
+        $data['autoplay_url'] = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
       }
     }
 
@@ -259,20 +255,15 @@ class BlazyOEmbed {
 
     $item     = NULL;
     $settings = $data['settings'];
-    $bundle   = $media->bundle();
-    $fields   = $media->getFields();
-    $config   = $media->getSource()->getConfiguration();
-    $source   = isset($config['source_url_field']) ? $config['source_url_field'] : '';
 
-    $source_field[$bundle]    = isset($config['source_field']) ? $config['source_field'] : $source;
-    $settings['bundle']       = $bundle;
-    $settings['source_field'] = $source_field[$bundle];
+    $settings['bundle']       = $media->bundle();
+    $settings['source_field'] = $media->getSource()->getConfiguration()['source_field'];
     $settings['media_url']    = $media->url();
     $settings['media_id']     = $media->id();
     $settings['view_mode']    = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
 
-    // If Media entity has a defined thumbnail, add it to data item.
-    if (isset($fields['thumbnail'])) {
+    // If Media has a defined thumbnail, add it to data item, not all has this.
+    if (isset($media->getFields()['thumbnail'])) {
       /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
       $item = $media->get('thumbnail')->first();
       $settings['file_tags'] = ['file:' . $item->target_id];
@@ -293,29 +284,38 @@ class BlazyOEmbed {
       }
     }
 
-    $source = empty($settings['source_field']) ? '' : $settings['source_field'];
-    if ($source && isset($media->{$source})) {
-      $value = $media->{$source}->getValue();
+    if ($settings['source_field'] && isset($media->{$settings['source_field']})) {
+      // @todo support local video/ audio file.
+      switch ($media->getSource()->getPluginId()) {
+        case 'file':
+        case 'audio_file':
+        case 'video_file':
+          // @todo or not @todo. @tobe or not @tobe. @o...bedo...bedo.
+          break;
 
-      // Input URL != embed url. For Youtube, /watch != /embed.
-      // This $media->getSource()->getSourceFieldValue($media); bad for image.
-      $input_url = isset($value[0]['uri']) ? $value[0]['uri'] : (isset($value[0]['value']) ? $value[0]['value'] : '');
-      $input_url = trim(strip_tags($input_url));
-      if ($input_url) {
-        $settings['input_url'] = $input_url;
+        case 'oembed':
+        case 'oembed:video':
+          // Input URL != embed url. For Youtube, /watch != /embed.
+          $input_url = $media->getSource()->getSourceFieldValue($media);
+          $input_url = trim(strip_tags($input_url));
+          if ($input_url) {
+            $settings['input_url'] = $input_url;
 
-        // Soundcloud has different source_field name: source_url_field.
-        if (strpos($input_url, 'soundcloud') === FALSE) {
-          $this->build($settings);
-        }
-      }
-      elseif (isset($value[0]['alt']) || is_null($value[0]['alt'])) {
-        $settings['type'] = 'image';
+            $this->build($settings);
+          }
+          break;
+
+        case 'image':
+          $settings['type'] = 'image';
+          break;
+
+        default:
+          break;
       }
 
       // Do not proceed if it has type, already managed by theme_blazy().
       // Supports other Media entities: Facebook, Instagram, Twitter, etc.
-      // @todo recheck against core oEmbed.
+      // @todo recheck against core Media with Resource::TYPE_RICH.
       $content = [];
       if (empty($settings['type']) && ($build = BlazyMedia::build($media, $settings))) {
         $content[] = $build;
@@ -345,7 +345,7 @@ class BlazyOEmbed {
       $is_autoplay = $request->query->getInt('autoplay', NULL);
       $url = $request->query->get('url');
 
-      // Only replace url if it is required by Blazy and autoplay == 1.
+      // Only replace url if it is required by Blazy.
       if ($url && $is_blazy == 1) {
         // Load iframe string as a DOMDocument as alternative to regex.
         $dom = Html::load($variables['media']);
@@ -357,6 +357,7 @@ class BlazyOEmbed {
 
         // Replace old oEmbed url with autoplay support, and save the DOM.
         if ($iframe) {
+          // Only replace if autoplay == 1 for Image to iframe, or lightboxes.
           if ($is_autoplay == 1 && !empty($settings['autoplay_url'])) {
             $iframe->setAttribute('src', $settings['autoplay_url']);
           }

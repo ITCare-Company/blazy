@@ -12,8 +12,9 @@ o Supports Colorbox/Photobox/ PhotoSwipe, also multimedia lightboxes.
 o Multi-serving images for configurable breakpoints, almost similar to core
   Responsive image, only less complex.
 o CSS background lazyloading, see Mason, GridStack, and Slick carousel.
-o IFRAME urls via custom coded, Blazy Video, Blazy Image with Media entity via
-  Video Embed Media, or see Slick Video, Slick Media.
+o IFRAME urls via custom coded, Blazy Media with core Media and oEmbed.
+o Supports inline images and iframes with lightboxes, and grid or CSS3 masonry
+  via Blazy Filter.
 o Delay loading for below-fold images until 100px (configurable) before they are
   visible at viewport.
 o A simple effortless CSS loading indicator.
@@ -81,7 +82,6 @@ Most duplication efforts from the above modules will be merged into
 
 
 SIMILAR MODULES
-https://www.drupal.org/project/lazyload
 https://www.drupal.org/project/lazyloader
 
 
@@ -175,30 +175,35 @@ understand better your bug reports, or patches as needed:
 https://www.drupal.org/issue-summaries
 https://www.drupal.org/node/1326662
 
-o If you hate formalism, consider a line, or two in the body text.
+o If you hate formalism, consider a crystal clear line, or two in the body text.
 o Avoid explaining everything in the title.
 o Use body text for explanation purposes.
 o If language is a barrier, use google translate, or alike.
 
 1. SUBMITTING ISSUES
 When submitting bug reports, please:
-o Be kind with proper reproduction, and enough details.
-o Mentioning library version, module version, active theme, or anything which
-  may help us identify issue better would be very helpful.
-o Check out dups.
-o If unsure, file it a support request. We'll mark a bug a bug even if you
+o be kind with proper reproduction, and enough details.
+o mention library version, related-module version, if any, active theme, or
+  anything which may help us identify issue better.
+o ensure the library is loaded, not 404.
+o switch to stock Bartik for just in case it is your custom theme.
+o use matching or similar branches or tags for related modules.
+o check out dups.
+o file it a support request, if unsure. We'll mark a bug a bug even if you
   file it under support requests.
 
 2. SUBMITTING PATCHES
 We consider a patch as help, they consider it a sale, so thank you in advanced!
 In order for you to help, or buy, us successfully, please consider:
 o communicating and filling out the body text with proper explanations, not in
-  comments. I've seen patches which broke a module, so explanation is a must.
+  comments (unless for comment patches, of course).
+  I've seen patches which broke a module, so explanation is a must.
   If you have no time to write it in the body text, please hold off till later!
 o providing optional links to the change records, or docs, if any.
 o providing links to docs is a must for coding standards issues.
-  This also let us, you and me, learn from the actual docs, not told by tools!
+  This also lets us, you and me, learn from the actual docs, not told by tools!
   We can just run `drupalcs ...`, but help is welcome, too, in case a miss.
+o checking out the latest dev branch in case already resolved.
 o providing reproduction steps for bug reports is a must. No repro, no bugs.
 
 You must speak like human to human, and help us respect you, and your time.

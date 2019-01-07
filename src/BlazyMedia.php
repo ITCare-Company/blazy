@@ -5,7 +5,9 @@ namespace Drupal\blazy;
 use Drupal\image\Entity\ImageStyle;
 
 /**
- * Provides extra media utilities without dependencies on Media Entity, etc.
+ * Provides extra utilities to work with core Media.
+ *
+ * @todo rework this for core Media.
  */
 class BlazyMedia {
 
@@ -28,7 +30,7 @@ class BlazyMedia {
     if (!empty($settings['input_url'])) {
       // @todo: Remove when ME Facebook alike handles this.
       try {
-        $response = \Drupal::httpClient()->get($settings['input_url']);
+        $response = \Drupal::httpClient()->get($settings['input_url'], ['timeout' => 7]);
       }
       catch (\Exception $e) {
         return FALSE;
