@@ -160,7 +160,24 @@ class BlazyOEmbed {
           ],
         ]);
 
-        $this->buildUrl($settings, $url, $resource);
+        if ($domain = $this->blazyManager->configLoad('iframe_domain', 'media.settings')) {
+          $url->setOption('base_url', $domain);
+        }
+
+        // The top level iframe url relative to the site, or iframe_domain.
+        $settings['embed_url'] = $url->toString();
+
+        // Extracts the actual video url from html, and provides autoplay url.
+        $settings = array_merge($settings, $this->getAutoPlayUrl($resource));
+
+        // Only applies when Image style is empty, no file API, no $item,
+        // with unmanaged VEF/ WYSIWG/ filter image without image_style.
+        // Prevents 404 warning when video thumbnail missing for a reason.
+        if (empty($settings['image_style']) && !empty($settings['uri'])) {
+          if ($data = @getimagesize($settings['uri'])) {
+            list($settings['width'], $settings['height']) = $data;
+          }
+        }
       }
     }
     catch (\Exception $e) {
@@ -168,37 +185,6 @@ class BlazyOEmbed {
     }
 
     return $resource;
-  }
-
-  /**
-   * Returns the oEmbed top level iframe url.
-   *
-   * @param array $settings
-   *   The settings array being modified.
-   * @param Drupal\Core\Url $url
-   *   A video URL.
-   * @param Drupal\media\OEmbed\Resource $resource
-   *   The oEmbed resource.
-   */
-  public function buildUrl(array &$settings, Url $url, Resource $resource) {
-    if ($domain = $this->blazyManager->configLoad('iframe_domain', 'media.settings')) {
-      $url->setOption('base_url', $domain);
-    }
-
-    // The top level iframe url relative to the current site, or iframe_domain.
-    $settings['embed_url'] = $url->toString();
-
-    // Extracts the actual video url from html, and provides autoplay url.
-    $settings = array_merge($settings, $this->getAutoPlayUrl($resource));
-
-    // Only applies when Image style is empty, no file API, no $item,
-    // with unmanaged VEF/ WYSIWG/ filter image without image_style.
-    // Prevents 404 warning when video thumbnail missing for a reason.
-    if (empty($settings['image_style']) && !empty($settings['uri'])) {
-      if ($data = @getimagesize($settings['uri'])) {
-        list($settings['width'], $settings['height']) = $data;
-      }
-    }
   }
 
   /**
@@ -224,12 +210,6 @@ class BlazyOEmbed {
       $data['scheme']     = mb_strtolower($resource->getProvider()->getName());
       $data['type']       = $resource->getType();
 
-      // @todo local uri without file API, such as ckeditor iframe + media.
-      // This points to external youtube thumbnail, not local.
-      if (empty($settings['image_url'])) {
-        $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
-      }
-
       // Adds autoplay for media URL on lightboxes, saving another click.
       if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
         $data['autoplay_url'] = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
@@ -240,7 +220,7 @@ class BlazyOEmbed {
   }
 
   /**
-   * Gets the Media item thumbnail, or re-associate the file entity to ME.
+   * Gets the Media item thumbnail, or re-associate the file entity to Media.
    *
    * @param array $data
    *   The modified array containing settings, and to be video thumbnail item.

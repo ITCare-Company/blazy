@@ -3,14 +3,14 @@
 namespace Drupal\blazy\Plugin\Filter;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
 use Drupal\blazy\BlazyOEmbed;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
-use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterBaseTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -32,16 +32,37 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface {
 
-  use BlazyFormatterBaseTrait;
   use BlazyVideoTrait;
+
+  /**
+   * An entity manager object.
+   *
+   * @var \Drupal\Core\Entity\EntityRepositoryInterface
+   */
+  protected $entityRepository;
+
+  /**
+   * The blazy manager service.
+   *
+   * @var \Drupal\blazy\BlazyManager
+   */
+  protected $blazyManager;
+
+  /**
+   * The blazy oembed service.
+   *
+   * @var \Drupal\blazy\BlazyOEmbed
+   */
+  protected $blazyOembed;
 
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityManagerInterface $entity_manager, BlazyOEmbed $blazy_oembed) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityRepositoryInterface $entity_repository, ImageFactory $image_factory, BlazyOEmbed $blazy_oembed) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
-    $this->entityManager = $entity_manager;
+    $this->entityRepository = $entity_repository;
+    $this->imageFactory = $image_factory;
     $this->blazyOembed = $blazy_oembed;
     $this->blazyManager = $blazy_oembed->blazyManager();
   }
@@ -54,7 +75,8 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity.manager'),
+      $container->get('entity.repository'),
+      $container->get('image.factory'),
       $container->get('blazy.oembed')
     );
   }
@@ -75,7 +97,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
     $settings['column'] = stristr($text, 'data-column') !== FALSE;
     $settings['media_switch'] = $switch = $this->settings['media_switch'];
-    $settings['lightbox'] = ($switch && in_array($switch, $this->blazyManager()->getLightboxes())) ? $switch : FALSE;
+    $settings['lightbox'] = ($switch && in_array($switch, $this->blazyManager->getLightboxes())) ? $switch : FALSE;
 
     foreach ($allowed_tags as $allowed_tag) {
       $nodes = $dom->getElementsByTagName($allowed_tag);
@@ -221,7 +243,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $uuid = $node->hasAttribute('data-entity-uuid') ? $node->getAttribute('data-entity-uuid') : '';
 
     if ($uuid && $node->hasAttribute('src')) {
-      $file = $this->entityManager->loadEntityByUuid('file', $uuid);
+      $file = $this->entityRepository->loadEntityByUuid('file', $uuid);
       if ($file) {
         $data = $this->getImageItem($file);
         $item = $data['item'];
@@ -284,12 +306,12 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $settings = [
       'ratio' => !$width ? '' : 'fluid',
       'image_url' => $src,
-      'input_url' => $src,
       'media_switch' => $this->settings['media_switch'],
     ];
 
     $uri = file_build_uri($src);
     if ($node->tagName == 'iframe') {
+      $settings['input_url'] = $src;
       $resource = $this->blazyOembed->build($settings);
 
       if ($resource) {
@@ -315,7 +337,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    $lightboxes = \Drupal::service('blazy.admin')->blazyManager()->getLightboxes();
+    $lightboxes = $this->blazyManager->getLightboxes();
 
     $form['filter_tags'] = [
       '#type' => 'checkboxes',

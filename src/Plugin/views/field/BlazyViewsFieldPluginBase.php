@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Plugin\views\field;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Image\ImageFactory;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\blazy\BlazyDefault;
@@ -37,8 +38,9 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * Constructs a BlazyViewsFieldPluginBase object.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, BlazyManagerInterface $blazy_manager, BlazyOEmbed $blazy_oembed) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImageFactory $image_factory, BlazyManagerInterface $blazy_manager, BlazyOEmbed $blazy_oembed) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->imageFactory = $image_factory;
     $this->blazyManager = $blazy_manager;
     $this->blazyOembed = $blazy_oembed;
   }
@@ -47,7 +49,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($configuration, $plugin_id, $plugin_definition, $container->get('blazy.manager'), $container->get('blazy.oembed'));
+    return new static($configuration, $plugin_id, $plugin_definition, $container->get('image.factory'), $container->get('blazy.manager'), $container->get('blazy.oembed'));
   }
 
   /**

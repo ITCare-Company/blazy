@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Dejavu;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\blazy\BlazyDefault;
 
 /**
  * Base class for entity reference formatters with field details.
@@ -34,9 +35,10 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityBase {
     $element = ['settings' => $settings];
 
     // Built early before stage to allow custom highres video thumbnail later.
-    // Implementor must import: Drupal\blazy\Dejavu\BlazyVideoTrait, or extends
+    // Implementor must import Drupal\blazy\Dejavu\BlazyVideoTrait, or extend
     // Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase, or
     // import the BlazyOEmbed service.
+    // @todo replace with $this->blazyOembed->getMediaItem($element, $entity);
     if (method_exists($this, 'getMediaItem')) {
       $this->getMediaItem($element, $entity);
     }
@@ -192,6 +194,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityBase {
           $settings['input_url'] = $this->getFieldString($entity, $stage, $langcode);
 
           if ($settings['input_url']) {
+            // @todo replace with $this->blazyOembed->build($settings);
             $this->buildVideo($settings);
             $element['item'] = $value;
           }

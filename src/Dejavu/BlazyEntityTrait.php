@@ -8,7 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
  * A Trait common for supported entities.
  *
  * This file can be imported along with Drupal\blazy\Dejavu\BlazyVideoTrait
- * to optionally support File/Media where available.
+ * to support File/ Media where available.
  */
 trait BlazyEntityTrait {
 
@@ -69,7 +69,7 @@ trait BlazyEntityTrait {
    *   The fallback string to display such as file name or entity label.
    *
    * @return array
-   *   The renderable array of theme_blazy(), or view builder, else empty.
+   *   The renderable array of theme_blazy(), or view builder, else empty array.
    */
   public function buildPreview(array $data, $entity, $fallback = '') {
     $build = [];
@@ -78,7 +78,8 @@ trait BlazyEntityTrait {
       return [];
     }
 
-    // Supports core Media if Drupal\blazy\Dejavu\BlazyVideoTrait is imported.
+    // Supports core Media via Drupal\blazy\BlazyOEmbed::getMediaItem().
+    // @todo replace with $this->blazyOembed->getMediaItem($data, $entity);
     if (method_exists($this, 'getMediaItem')) {
       $this->getMediaItem($data, $entity);
     }

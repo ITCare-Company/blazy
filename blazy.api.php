@@ -56,7 +56,7 @@
  * }
  * @endcode
  * @see \Drupal\blazy\Blazy::buildAttributes()
- * @see \Drupal\blazy\Dejavu\BlazyDefault::imageSettings()
+ * @see \Drupal\blazy\BlazyDefault::imageSettings()
  *
  * A multiple image sample.
  *
@@ -100,7 +100,7 @@
  * @see \Drupal\gridstack\Plugin\Field\FieldFormatter\GridStackFileFormatterBase::buildElements()
  * @see \Drupal\slick\Plugin\Field\FieldFormatter\SlickFileFormatterBase::buildElements()
  * @see \Drupal\blazy\BlazyManager::getImage()
- * @see \Drupal\blazy\Dejavu\BlazyDefault::imageSettings()
+ * @see \Drupal\blazy\BlazyDefault::imageSettings()
  *
  *
  * Pre-render callback sample to modify/ extend Blazy output.
@@ -185,7 +185,7 @@ function hook_blazy_alter(array &$image, array $settings = []) {
  * blazy-related formatters within the designated compact form.
  * While third party settings offer more fine-grained control over a specific
  * formatter, this offers a swap to various blazy-related formatters at one go.
- * Any class extending \Drupal\blazy\Dejavu\BlazyDefault will be capable
+ * Any class extending \Drupal\blazy\BlazyDefault will be capable
  * to modify both form and UI options at one go.
  *
  * This requires 4 things: option definitions (this alter), schema, extended

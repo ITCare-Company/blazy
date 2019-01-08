@@ -9,8 +9,6 @@ use Drupal\blazy\BlazyGrid;
 
 /**
  * A Trait common for blazy image and file ER formatters.
- *
- * @todo this is the legacy image support, and likely deprecated.
  */
 trait BlazyFormatterTrait {
 

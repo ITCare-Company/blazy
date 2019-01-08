@@ -4,6 +4,7 @@ namespace Drupal\blazy\Dejavu;
 
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\blazy\BlazyDefault;
 
 /**
  * Base class for blazy video embed field formatters.

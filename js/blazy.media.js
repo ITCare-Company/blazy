@@ -70,7 +70,7 @@
       var player = target.parentNode;
       var playing = document.querySelector('.is-playing');
       var iframe = player.querySelector('iframe');
-      var autoPlayUrl = url = target.getAttribute('data-autoplay');
+      var autoPlayUrl = target.getAttribute('data-autoplay');
 
       url = target.getAttribute('data-url');
       // @todo remove BC for PhotoSwipe after updating to core oEmbed.

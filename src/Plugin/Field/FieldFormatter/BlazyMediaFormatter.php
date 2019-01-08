@@ -124,8 +124,7 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
    * {@inheritdoc}
    */
   public function getScopedFormElements() {
-    $field = $this->fieldDefinition;
-    $multiple = $field->getFieldStorageDefinition()->isMultiple();
+    $multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
 
     return [
       'fieldable_form' => FALSE,

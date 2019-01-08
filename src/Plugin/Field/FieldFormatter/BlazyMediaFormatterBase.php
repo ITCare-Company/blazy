@@ -45,6 +45,7 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityReferenceBase implemen
     BlazyFormatterManager $blazy_manager) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
 
+    // @todo $this->imageFactory = $image_factory;
     $this->loggerFactory = $logger_factory;
     $this->blazyOembed = $blazy_oembed;
     $this->blazyManager = $blazy_manager;

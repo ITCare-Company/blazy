@@ -61,8 +61,6 @@ class BlazyFormatterManager extends BlazyManager {
 
     unset($entity, $field);
 
-    // @todo: Enable after proper checks.
-    // $settings = array_filter($settings);
     if (!empty($settings['vanilla'])) {
       $settings = array_filter($settings);
       return;

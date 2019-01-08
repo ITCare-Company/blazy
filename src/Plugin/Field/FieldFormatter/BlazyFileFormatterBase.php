@@ -16,7 +16,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Base class for blazy/slick image, and file ER formatters.
  *
- * @todo TBD, this is the legacy image support, and likely deprecated.
  * Defines one base class to extend for both image and file ER formatters as
  * otherwise different base classes: ImageFormatterBase or FileFormatterBase.
  *
