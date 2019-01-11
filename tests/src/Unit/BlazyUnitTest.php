@@ -128,7 +128,6 @@ class BlazyUnitTest extends UnitTestCase {
    * @dataProvider providerBuildAttributes
    */
   public function testBuildAttributes(array $settings, $item, $expected_image, $expected_iframe) {
-    $content   = [];
     $variables = ['attributes' => []];
     $build     = $this->data;
     $settings  = array_merge($build['settings'], $settings);
@@ -161,7 +160,6 @@ class BlazyUnitTest extends UnitTestCase {
    * Provider for ::testBuildAttributes.
    */
   public function providerBuildAttributes() {
-    $breakpoints = $this->getDataBreakpoints();
     $uri = 'public://example.jpg';
 
     $data[] = [

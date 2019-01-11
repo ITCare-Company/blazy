@@ -202,7 +202,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * @dataProvider providerBuildAttributes
    */
   public function testBuildAttributes(array $settings, $uri, $item, $iframe, $expected) {
-    $content   = [];
     $variables = ['attributes' => []];
     $settings  = array_merge($this->getFormatterSettings(), $settings);
 
@@ -233,7 +232,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    */
   public function providerBuildAttributes() {
     $breakpoints = $this->getDataBreakpoints();
-    $breakpoints_cleaned = $this->getDataBreakpoints(TRUE);
 
     $data[] = [
       [

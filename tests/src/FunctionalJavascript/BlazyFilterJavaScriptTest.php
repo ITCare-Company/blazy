@@ -81,7 +81,6 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $this->setUpContentWithItems($this->bundle, $settings);
 
     $session = $this->getSession();
-    $page = $session->getPage();
 
     $this->drupalGet('node/' . $this->entity->id());
 

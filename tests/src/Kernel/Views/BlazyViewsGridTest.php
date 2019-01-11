@@ -52,8 +52,6 @@ class BlazyViewsGridTest extends BlazyViewsTestBase {
     $this->assertInstanceOf('\Drupal\blazy\BlazyManagerInterface', $style_plugin->blazyManager(), 'BlazyManager implements interface.');
     $this->assertInstanceOf('\Drupal\blazy\Form\BlazyAdminInterface', $style_plugin->admin(), 'BlazyAdmin implements interface.');
 
-    $settings = $style_plugin->options;
-
     $form = [];
     $form_state = new FormState();
     $style_plugin->buildOptionsForm($form, $form_state);

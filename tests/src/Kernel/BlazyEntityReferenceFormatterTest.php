@@ -108,7 +108,6 @@ class BlazyEntityReferenceFormatterTest extends KernelTestBase {
 
     $this->buildContents();
 
-    $bundle     = $this->bundle;
     $field_name = $this->entityFieldName;
     $plugin_id  = $this->entityPluginId;
     $formatter  = $this->formatterInstance;
@@ -138,7 +137,6 @@ class BlazyEntityReferenceFormatterTest extends KernelTestBase {
     // Verify the un-accessible item still exists.
     $this->assertEquals($this->referencingEntity->{$field_name}->target_id, $this->referencedEntity->id(), format_string('The un-accessible item still exists after @name formatter was executed.', ['@name' => $plugin_id]));
 
-    $entity_type_id = $this->referencingEntity->getEntityTypeId();
     $component = $this->referencingDisplay->getComponent($this->entityFieldName);
     $this->assertEquals($this->entityPluginId, $component['type']);
 

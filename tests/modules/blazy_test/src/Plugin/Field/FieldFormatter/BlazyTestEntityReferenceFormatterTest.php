@@ -119,7 +119,6 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyMediaFormatterBase impl
   public function getScopedFormElements() {
     $admin       = $this->admin();
     $field       = $this->fieldDefinition;
-    $entity_type = $field->getTargetEntityTypeId();
     $target_type = $this->getFieldSetting('target_type');
     $views_ui    = $this->getFieldSetting('handler') == 'default';
     $bundles     = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];

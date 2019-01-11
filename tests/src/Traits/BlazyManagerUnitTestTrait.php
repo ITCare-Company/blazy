@@ -73,7 +73,7 @@ trait BlazyManagerUnitTestTrait {
     $styles = [];
 
     $dummies = ['blazy_crop', 'large', 'medium', 'small'];
-    foreach ($dummies as $key => $style) {
+    foreach ($dummies as $style) {
       $mock = $this->getMock('Drupal\Core\Config\Entity\ConfigEntityInterface');
       $mock->expects($this->any())
         ->method('getCacheTags')

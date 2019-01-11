@@ -56,7 +56,6 @@ class BlazyJavaScriptTest extends WebDriverTestBase {
     $this->setUpFormatterDisplay($this->bundle, $data);
     $this->setUpContentWithItems($this->bundle);
     $session = $this->getSession();
-    $page = $session->getPage();
     $image_path = $this->getImagePath(TRUE);
 
     $this->drupalGet('node/' . $this->entity->id());

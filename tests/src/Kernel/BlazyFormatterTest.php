@@ -168,9 +168,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
       'plugin_id'  => 'blazy_file',
       'settings'   => $settings + $this->getFormatterSettings(),
     ];
-    $display = $this->setUpFormatterDisplay($this->bundle, $data);
 
-    $formatter = $this->getFormatterInstance('blazy_file');
     $build = $this->display->build($this->entity);
 
     $render = $this->blazyManager->getRenderer()->renderRoot($build);
