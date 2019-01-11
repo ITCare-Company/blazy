@@ -1394,6 +1394,7 @@ td .form__title {
 
   .form--slick.form--half {
     max-width: 960px;
+    min-width: 760px;
   }
 }
 

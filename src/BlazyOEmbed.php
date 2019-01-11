@@ -4,7 +4,6 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Url;
-use Drupal\file\Entity\File;
 use Drupal\media\IFrameUrlHelper;
 use Drupal\media\OEmbed\Resource;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
@@ -181,7 +180,7 @@ class BlazyOEmbed {
       }
     }
     catch (\Exception $e) {
-      // Silently do nothing, likely local work without internet.
+      // Do nothing, likely local work without internet, or the site is down.
     }
 
     return $resource;
@@ -226,6 +225,8 @@ class BlazyOEmbed {
    *   The modified array containing settings, and to be video thumbnail item.
    * @param object $media
    *   The core Media entity.
+   *
+   * @todo move it into BlazyMedia?
    */
   public function getMediaItem(array &$data = [], $media = NULL) {
     // Only proceed if we do have Media.
@@ -238,12 +239,13 @@ class BlazyOEmbed {
 
     $settings['bundle']       = $media->bundle();
     $settings['source_field'] = $media->getSource()->getConfiguration()['source_field'];
-    $settings['media_url']    = $media->url();
+    $settings['media_url']    = $media->toUrl()->toString();
     $settings['media_id']     = $media->id();
+    $settings['media_source'] = $media->getSource()->getPluginId();
     $settings['view_mode']    = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
 
     // If Media has a defined thumbnail, add it to data item, not all has this.
-    if (isset($media->getFields()['thumbnail'])) {
+    if ($media->hasField('thumbnail')) {
       /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
       $item = $media->get('thumbnail')->first();
       $settings['file_tags'] = ['file:' . $item->target_id];
@@ -255,7 +257,7 @@ class BlazyOEmbed {
           $settings['uri'] = $media->getSource()->getMetadata($media, 'thumbnail_uri');
         }
         catch (\Exception $ignore) {
-          $settings['uri'] = File::load($item->target_id)->getFileUri();
+          $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
         }
       }
 
@@ -264,9 +266,9 @@ class BlazyOEmbed {
       }
     }
 
-    if ($settings['source_field'] && isset($media->{$settings['source_field']})) {
+    if ($settings['source_field'] && $media->hasField($settings['source_field'])) {
       // @todo support local video/ audio file.
-      switch ($media->getSource()->getPluginId()) {
+      switch ($settings['media_source']) {
         case 'file':
         case 'audio_file':
         case 'video_file':
@@ -275,7 +277,7 @@ class BlazyOEmbed {
 
         case 'oembed':
         case 'oembed:video':
-          // Input URL != embed url. For Youtube, /watch != /embed.
+          // Input url != embed url. For Youtube, /watch != /embed.
           $input_url = $media->getSource()->getSourceFieldValue($media);
           $input_url = trim(strip_tags($input_url));
           if ($input_url) {
@@ -351,7 +353,7 @@ class BlazyOEmbed {
       }
     }
     catch (\Exception $e) {
-      // Silently do nothing, likely local work without internet.
+      // Do nothing, likely local work without internet, or the site is down.
     }
   }
 
