@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2019-01-14
+-----------------------------
+- Added option to disable custom breakpoints permanently which is normally
+  disabled when using Responsive breakpoints.
+
 Blazy 8.x-2.0-dev, 2019-01-02
 -----------------------------
 - Removed deprecated methods, workaround left over, redundant iframe_lazy

@@ -299,8 +299,6 @@ class BlazyEntityReferenceFormatterTest extends KernelTestBase {
     $default_settings = $formatter::defaultSettings();
     $this->assertArrayHasKey('image_style', $default_settings);
 
-    $data['settings'] = $definition['settings'];
-
     // Tests the Blazy admin formatters.
     $this->assertArrayHasKey('fieldable_form', $definition);
 

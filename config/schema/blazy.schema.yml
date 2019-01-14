@@ -11,6 +11,9 @@ blazy.settings:
     responsive_image:
       type: boolean
       label: 'Support Responsive image'
+    unbreakpoints:
+      type: boolean
+      label: 'Disable custom breakpoints'
     blazy:
       type: mapping
       label: Blazy

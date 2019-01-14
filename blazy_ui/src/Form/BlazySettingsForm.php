@@ -42,7 +42,14 @@ class BlazySettingsForm extends ConfigFormBase {
       '#type'          => 'checkbox',
       '#title'         => $this->t('Support Responsive image'),
       '#default_value' => $config->get('responsive_image'),
-      '#description'   => $this->t('Check to support lazyloading for the core Responsive image module. Be sure to use Blazy formatter to have relevant styling.'),
+      '#description'   => $this->t('Check to support lazyloading for the core Responsive image module. Be sure to use blazy-related formatters.'),
+    ];
+
+    $form['unbreakpoints'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Disable custom breakpoints'),
+      '#default_value' => $config->get('unbreakpoints'),
+      '#description'   => $this->t('Check to permanently disable custom breakpoints which is always disabled when choosing a Responsive image. Only reasonable if consistently using core Responsive image.'),
     ];
 
     $form['one_pixel'] = [
@@ -106,6 +113,7 @@ class BlazySettingsForm extends ConfigFormBase {
     $this->configFactory->getEditable('blazy.settings')
       ->set('admin_css', $form_state->getValue('admin_css'))
       ->set('responsive_image', $form_state->getValue('responsive_image'))
+      ->set('unbreakpoints', $form_state->getValue('unbreakpoints'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))
       ->set('blazy.loadInvisible', $form_state->getValue(['blazy', 'loadInvisible']))
       ->set('blazy.offset', $form_state->getValue(['blazy', 'offset']))
