@@ -65,8 +65,6 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     // Tests ::settingsForm.
     $form = [];
-    $definition = $this->getFormatterDefinition();
-    $definition['_views'] = TRUE;
 
     // Check for setttings form.
     $form_state = new FormState();
@@ -148,31 +146,6 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     // Verify theme_field() is taken over by BlazyGrid::build().
     $this->assertArrayNotHasKey('#blazy', $build[$this->testFieldName]);
-  }
-
-  /**
-   * Tests the Blazy formatter file.
-   *
-   * @todo skip not working, so disabled till figured out.
-   * @requires module video_embed_media
-   */
-  public function todoTestBlazyFile() {
-    $settings = [
-      'media_switch' => 'media',
-      'ratio'        => 'fluid',
-      'view_mode'    => 'default',
-    ];
-
-    $data = [
-      'field_name' => 'field_image',
-      'plugin_id'  => 'blazy_file',
-      'settings'   => $settings + $this->getFormatterSettings(),
-    ];
-
-    $build = $this->display->build($this->entity);
-
-    $render = $this->blazyManager->getRenderer()->renderRoot($build);
-    $this->assertTrue(strpos($render, 'data-blazy') !== FALSE);
   }
 
   /**
