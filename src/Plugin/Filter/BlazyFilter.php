@@ -102,6 +102,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     foreach ($allowed_tags as $allowed_tag) {
       $nodes = $dom->getElementsByTagName($allowed_tag);
       if ($nodes->length > 0) {
+        $settings['count'] = $nodes->length;
         foreach ($nodes as $node) {
           if ($node->hasAttribute('data-unblazy')) {
             continue;
@@ -188,13 +189,19 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   private function buildGrid(\DOMDocument &$dom, \DOMXpath $xpath, array $settings) {
     $query = $settings['column'] ? 'column' : 'grid';
     $nodes = $xpath->evaluate('//*[contains(@class, "grid")]');
+    $grid  = FALSE;
 
-    // @todo assign variable. This is weird, variables not working for xpath?
     if ($query == 'column') {
-      $grid = $xpath->query('//*[@data-column]')->item(0)->getAttribute('data-column');
+      $node = $xpath->query('//*[@data-column]');
+      if ($node->length > 0 && $node->item(0) && $node->item(0)->hasAttribute('data-column')) {
+        $grid = $node->item(0)->getAttribute('data-column');
+      }
     }
     else {
-      $grid = $xpath->query('//*[@data-grid]')->item(0)->getAttribute('data-grid');
+      $node = $xpath->query('//*[@data-grid]');
+      if ($node->length > 0 && $node->item(0) && $node->item(0)->hasAttribute('data-grid')) {
+        $grid = $node->item(0)->getAttribute('data-grid');
+      }
     }
 
     $classes = [];
@@ -265,19 +272,21 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
         else {
           $item->_attributes[$attribute->nodeName] = $attribute->nodeValue;
         }
+      }
 
-        if ($settings['column'] || $settings['grid']) {
-          if ($node->parentNode->tagName === 'figure') {
-            $classes = $node->parentNode->getAttribute('class');
-            $classes = (strlen($classes) > 0) ? explode(' ', $classes) : [];
-            $classes[] = 'grid';
-            $node->parentNode->setAttribute('class', implode(' ', array_unique($classes)));
-          }
-          else {
-            $settings['media_attributes']['class'][] = 'grid';
-          }
+      if ($settings['column'] || $settings['grid']) {
+        if ($node->parentNode->tagName === 'figure') {
+          $classes = $node->parentNode->getAttribute('class');
+          $classes = (strlen($classes) > 0) ? explode(' ', $classes) : [];
+          $classes[] = 'grid';
+          $node->parentNode->setAttribute('class', implode(' ', array_unique($classes)));
+        }
+        else {
+          $settings['media_attributes']['class'][] = 'grid';
         }
       }
+
+      $settings['media_attributes']['class'] = array_unique($settings['media_attributes']['class']);
     }
 
     return $item;

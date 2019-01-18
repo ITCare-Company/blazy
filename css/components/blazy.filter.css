@@ -27,4 +27,5 @@
 
 .blazy--filter .media-wrapper--blazy {
   min-width: 0;
+  overflow: hidden;
 }
