@@ -13,6 +13,20 @@ use Drupal\Core\Entity\EntityInterface;
 class BlazyManager extends BlazyManagerBase {
 
   /**
+   * Checks if image dimensions are set.
+   *
+   * @var array
+   */
+  private $isDimensionSet;
+
+  /**
+   * CHecks if the image style contains crop in the effect name.
+   *
+   * @var array
+   */
+  private $isCrop;
+
+  /**
    * Cleans up empty breakpoints.
    *
    * @param array $settings
@@ -39,13 +53,18 @@ class BlazyManager extends BlazyManagerBase {
    * Checks if an image style contains crop effect.
    */
   public function isCrop($style = NULL) {
-    foreach ($style->getEffects() as $effect) {
-      if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
-        return TRUE;
+    if (!isset($this->isCrop[$style->getName()])) {
+      $this->isCrop[$style->getName()] = FALSE;
+
+      foreach ($style->getEffects() as $effect) {
+        if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
+          $this->isCrop[$style->getName()] = TRUE;
+          break;
+        }
       }
     }
 
-    return FALSE;
+    return $this->isCrop[$style->getName()];
   }
 
   /**
@@ -57,30 +76,33 @@ class BlazyManager extends BlazyManagerBase {
    *   The settings being modified.
    */
   public function setDimensionsOnce(array &$settings = []) {
-    $item                 = isset($settings['item']) ? $settings['item'] : NULL;
-    $dimensions['width']  = $settings['original_width'] = isset($item->width) ? $item->width : NULL;
-    $dimensions['height'] = $settings['original_height'] = isset($item->height) ? $item->height : NULL;
+    if (!isset($this->isDimensionSet[md5($settings['uri'])])) {
+      $item                 = isset($settings['item']) ? $settings['item'] : NULL;
+      $dimensions['width']  = $settings['original_width'] = isset($item->width) ? $item->width : NULL;
+      $dimensions['height'] = $settings['original_height'] = isset($item->height) ? $item->height : NULL;
 
-    // If image style contains crop, sets dimension once, and let all inherit.
-    if (!empty($settings['image_style']) && ($style = $this->entityLoad($settings['image_style']))) {
-      if ($this->isCrop($style)) {
-        $style->transformDimensions($dimensions, $settings['uri']);
+      // If image style contains crop, sets dimension once, and let all inherit.
+      if (!empty($settings['image_style']) && ($style = $this->entityLoad($settings['image_style']))) {
+        if ($this->isCrop($style)) {
+          $style->transformDimensions($dimensions, $settings['uri']);
 
-        $settings['height'] = $dimensions['height'];
-        $settings['width']  = $dimensions['width'];
+          $settings['height'] = $dimensions['height'];
+          $settings['width']  = $dimensions['width'];
 
-        // Informs individual images that dimensions are already set once.
-        $settings['_dimensions'] = TRUE;
+          // Informs individual images that dimensions are already set once.
+          $settings['_dimensions'] = TRUE;
+        }
       }
-    }
 
-    // Also sets breakpoint dimensions once, if cropped.
-    if (!empty($settings['breakpoints'])) {
-      $this->buildDataBlazy($settings, $item);
-    }
+      // Also sets breakpoint dimensions once, if cropped.
+      if (!empty($settings['breakpoints'])) {
+        $this->buildDataBlazy($settings, $item);
+      }
 
-    // Remove these since this method is meant for top-level container.
-    unset($settings['uri'], $settings['item']);
+      $this->isDimensionSet[md5($settings['uri'])] = TRUE;
+      // Remove these since this method is meant for top-level container.
+      unset($settings['uri'], $settings['item']);
+    }
   }
 
   /**

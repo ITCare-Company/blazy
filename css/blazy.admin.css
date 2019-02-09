@@ -7,7 +7,6 @@ body.path-admin .form--slick,
 body.path-admin .form--slick *,
 .form--slick *::before,
 .form--slick *::after {
-  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   font-family: Arial, sans-serif;
 }
@@ -1347,6 +1346,25 @@ td .form__title {
     width: 49.9999%;
   }
 
+  /** Blazy grid at Views UI */
+  .form--blazy.form--views .form-item {
+    width: 33.2666%;
+  }
+
+  .form--blazy.form--views .form-item select {
+    min-width: 64px;
+    width: 64px;
+  }
+
+  .form--blazy.form--views .form-item label {
+    width: auto;
+    min-width: 120px;
+  }
+
+  .form--blazy.form--views .form-item--style select {
+    width: 120px;
+  }
+
   .form__half {
     float: left;
   }
@@ -1400,6 +1418,10 @@ td .form__title {
   .form--slick.form--half {
     max-width: 960px;
     min-width: 760px;
+  }
+
+  .form--blazy.form--views .form-item--style > .description {
+    min-width: 640px;
   }
 }
 

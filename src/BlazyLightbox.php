@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy;
 
+use Drupal\Component\Utility\Xss;
 use Drupal\Component\Serialization\Json;
 use Drupal\image\Entity\ImageStyle;
 
@@ -22,7 +23,6 @@ class BlazyLightbox {
     $type     = empty($settings['type']) ? 'image' : $settings['type'];
     $uri      = $settings['uri'];
     $switch   = $settings['media_switch'];
-    $multiple = !empty($settings['count']) && $settings['count'] > 1;
 
     // Provide relevant URL if it is a lightbox.
     $url_attributes = [];
@@ -30,6 +30,8 @@ class BlazyLightbox {
     $url_attributes['data-' . $switch . '-trigger'] = TRUE;
 
     // If it is a video/audio, otherwise image to image.
+    $gallery_id             = isset($settings['id']) ? $settings['id'] : $type;
+    $settings['gallery_id'] = empty($settings['gallery_id']) ? $gallery_id : $settings['gallery_id'];
     $settings['box_url']    = file_create_url($uri);
     $settings['icon']       = empty($settings['icon']) ? ['#markup' => '<span class="media__icon media__icon--litebox"></span>'] : $settings['icon'];
     $settings['lightbox']   = $switch;
@@ -88,8 +90,11 @@ class BlazyLightbox {
       $url = $settings['box_url'];
     }
 
-    if ($switch == 'colorbox' && $multiple) {
-      $json['rel'] = empty($settings['id']) ? 'blazy_colorbox' : $settings['id'];
+    if ($switch == 'colorbox') {
+      // @todo make Blazy Grid without Blazy Views fields support multiple
+      // fields and entities as a gallery group, likely via a class at Views UI.
+      // Must use consistent key for multiple entities, hence cannot use id.
+      $json['rel'] = 'blazy-colorbox-' . $settings['gallery_id'];
     }
 
     $url_attributes['data-media'] = Json::encode($json);
@@ -160,7 +165,8 @@ class BlazyLightbox {
         break;
     }
 
-    return empty($caption) ? [] : ['#markup' => $caption];
+    $tags = ['a', 'em', 'strong', 'h2', 'p', 'span', 'ul', 'ol', 'li'];
+    return empty($caption) ? [] : ['#markup' => Xss::filter($caption, $tags)];
   }
 
 }

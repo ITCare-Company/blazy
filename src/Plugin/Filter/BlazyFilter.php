@@ -103,12 +103,13 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       $nodes = $dom->getElementsByTagName($allowed_tag);
       if ($nodes->length > 0) {
         $settings['count'] = $nodes->length;
-        foreach ($nodes as $node) {
+        foreach ($nodes as $delta => $node) {
           if ($node->hasAttribute('data-unblazy')) {
             continue;
           }
 
           // Build Blazy elements with lazyloaded image, or iframe.
+          $settings['delta'] = $delta;
           $settings = array_merge($settings, $this->buildSettings($node));
           $build = [
             'item' => $this->buildImageItem($node, $settings),
@@ -157,7 +158,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   public function tips($long = FALSE) {
     if ($long) {
       return $this->t('
-        <p>Image or iframe is lazyloaded. To disable, add attribute <code>data-unblazy</code>:</p>
+        <p><strong>Blazy</strong>: Image or iframe is lazyloaded. To disable, add attribute <code>data-unblazy</code>:</p>
         <ul>
             <li><code>&lt;img data-unblazy /&gt;</code></li>
             <li><code>&lt;iframe data-unblazy /&gt;</code></li>
@@ -167,7 +168,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
             <li><code>&lt;img data-grid="1 3 4" /&gt;</code></li>
             <li><code>&lt;iframe data-column="1 3 4" /&gt;</code></li>
         </ul>
-        where numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements. This is also required if using <b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe).</p>');
+        The numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements, unless those given a <code>data-unblazy</code>. Also reasonable if using <b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe).</p>');
     }
     else {
       return $this->t('To disable lazyload, add attribute <code>data-unblazy</code> to <code>&lt;img&gt;</code> or <code>&lt;iframe&gt;</code> elements. Examples: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>.');

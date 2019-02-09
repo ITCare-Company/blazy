@@ -180,6 +180,8 @@ trait BlazyStylePluginTrait {
         elseif ($theme == 'image_formatter') {
           // Deals with "link to content/image" by formatters.
           $settings['content_url'] = isset($image['rendered']['#url']) ? $image['rendered']['#url'] : '';
+          // Prevent images from having absurd height when being lazyloaded.
+          $settings['ratio'] = 'fluid';
           if (empty($settings['media_switch']) && !empty($settings['content_url'])) {
             $settings['media_switch'] = 'content';
           }
@@ -241,9 +243,8 @@ trait BlazyStylePluginTrait {
    * Returns the rendered caption fields.
    */
   public function getCaption($index, $settings = []) {
-    $items         = [];
-    $keys          = array_keys($this->view->field);
-    $items['data'] = [];
+    $items = [];
+    $keys = array_keys($this->view->field);
 
     if (!empty($settings['caption'])) {
       // Exclude non-caption fields so that theme_views_view_fields() kicks in

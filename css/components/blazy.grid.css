@@ -8,7 +8,6 @@
 
 [class*="block-grid-"],
 [class*="block-grid-"] * {
-  -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
 

@@ -15,7 +15,6 @@
   width: 80px;
   visibility: hidden;
   z-index: 9;
-  -webkit-transition: visibility 0s linear 0.5s, opacity 0.5s linear;
   transition: visibility 0s linear 0.5s, opacity 0.5s linear;
   -ms-transform: translate(-50%, -50%);
   -webkit-transform: translate(-50%, -50%);
@@ -60,7 +59,6 @@
 }
 
 .media:hover .media__icon--litebox {
-  -webkit-transition-delay: 0s;
   transition-delay: 0s;
 }
 

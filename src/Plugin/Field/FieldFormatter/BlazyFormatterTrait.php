@@ -97,13 +97,16 @@ trait BlazyFormatterTrait {
       // Build caption if so configured.
       if (!empty($settings['caption'])) {
         foreach ($settings['caption'] as $caption) {
-          $box['captions'][$caption]['content'] = empty($box['item']->{$caption}) ? [] : ['#markup' => Xss::filterAdmin($box['item']->{$caption})];
-          $box['captions'][$caption]['tag'] = $caption == 'title' ? 'h2' : 'div';
-          if (!isset($box['captions'][$caption]['attributes'])) {
+          $content['content'] = [];
+          if ($caption_content = $box['item']->{$caption}) {
+            $content['content'] = ['#markup' => Xss::filterAdmin($caption_content)];
+            $content['tag'] = $caption == 'title' ? 'h2' : 'div';
             $class = $caption == 'alt' ? 'description' : $caption;
-            $box['captions'][$caption]['attributes'] = new Attribute();
-            $box['captions'][$caption]['attributes']->addClass($item_id . '__' . $class);
+            $content['attributes'] = new Attribute();
+            $content['attributes']->addClass($item_id . '__' . $class);
           }
+
+          $box['captions'][$caption] = $content;
         }
       }
 

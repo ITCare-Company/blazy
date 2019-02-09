@@ -32,7 +32,6 @@
 .b-responsive {
   display: block;
   opacity: 0;
-  -webkit-transition: opacity 500ms ease-in-out;
   transition: opacity 500ms ease-in-out;
 }
 
