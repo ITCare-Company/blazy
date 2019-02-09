@@ -63,6 +63,9 @@ class Blazy implements BlazyInterface {
     $image = &$variables['image'];
     $media = !empty($settings['embed_url']) && in_array($settings['type'], ['audio', 'video']);
 
+    // Get the image type of the file.
+    $image_type = pathinfo($settings['uri'])['extension'];
+
     // Thumbnails.
     // With CSS background, IMG may be empty, add thumbnail to the container.
     // Supports unique thumbnail different from main image, such as logo for
@@ -74,8 +77,8 @@ class Blazy implements BlazyInterface {
       $attributes['data-thumb'] = ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
     }
 
-    // Check whether we have responsive image, or Blazy one.
-    if (!empty($settings['responsive_image_style_id'])) {
+    // Check whether we have responsive image (no svg), or Blazy one.
+    if (!empty($settings['responsive_image_style_id']) && $image_type != 'svg') {
       $image['#type'] = 'responsive_image';
       $image['#responsive_image_style_id'] = $settings['responsive_image_style_id'];
       $image['#uri'] = $settings['uri'];
@@ -107,9 +110,9 @@ class Blazy implements BlazyInterface {
           $settings['_breakpoint_ratio'] = $settings['ratio'];
         }
 
-        // Only output dimensions for non-responsive images.
+        // Only output dimensions for non-responsive images that are not svg.
         // Respects hand-coded image attributes.
-        if (!isset($image_attributes['width'])) {
+        if (!isset($image_attributes['width']) && $image_type != 'svg') {
           $image_attributes['height'] = $settings['height'];
           $image_attributes['width']  = $settings['width'];
         }
