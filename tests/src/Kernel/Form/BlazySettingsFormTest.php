@@ -50,7 +50,8 @@ class BlazySettingsFormTest extends KernelTestBase {
     $this->blazyManager = $this->container->get('blazy.manager');
 
     $this->blazySettingsForm = new BlazySettingsForm(
-      $this->blazyManager->getConfigFactory()
+      $this->blazyManager->getConfigFactory(),
+      $this->container->get('library.discovery')
     );
   }
 

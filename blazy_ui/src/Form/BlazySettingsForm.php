@@ -5,11 +5,40 @@ namespace Drupal\blazy_ui\Form;
 use Drupal\Core\Url;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Asset\LibraryDiscovery;
 
 /**
  * Defines blazy admin settings form.
  */
 class BlazySettingsForm extends ConfigFormBase {
+
+  protected $libraryDiscovery;
+
+  /**
+   * Constructs a \Drupal\system\ConfigFormBase object.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
+   * @param \Drupal\Core\Asset\LibraryDiscovery $library_discovery
+   *   Discovers available asset libraries in Drupal.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, LibraryDiscovery $library_discovery) {
+    parent::__construct($config_factory);
+
+    $this->libraryDiscovery = $library_discovery;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('library.discovery')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -122,7 +151,7 @@ class BlazySettingsForm extends ConfigFormBase {
       ->save();
 
     // Invalidate the library discovery cache to update the responsive image.
-    \Drupal::service('library.discovery')->clearCachedDefinitions();
+    $this->libraryDiscovery->clearCachedDefinitions();
 
     $this->messenger()->addMessage($this->t('Be sure to <a href=":clear_cache">clear the cache</a> if trouble to see the updated settings', [':clear_cache' => Url::fromRoute('system.performance_settings')->toString()]));
 
