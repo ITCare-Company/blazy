@@ -49,7 +49,7 @@ load:
 
 media:
   js:
-    js/blazy.media.min.js: {}
+    js/blazy.media.min.js: { minified: true }
   css:
     component:
       css/components/blazy.media.css: {}
