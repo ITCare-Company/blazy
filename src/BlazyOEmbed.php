@@ -46,7 +46,7 @@ class BlazyOEmbed {
   /**
    * The Media oEmbed Resource.
    *
-   * @var \Drupal\media\OEmbed\Resource
+   * @var \Drupal\media\OEmbed\Resource[]
    */
   protected $resource;
 
@@ -115,16 +115,16 @@ class BlazyOEmbed {
    * @param string $input_url
    *   The video url.
    *
-   * @return Drupal\media\OEmbed\Resource
+   * @return Drupal\media\OEmbed\Resource[]
    *   The oEmbed resource.
    */
   public function getResource($input_url) {
-    if (!isset($this->resource)) {
+    if (!isset($this->resource[hash('md2', $input_url)])) {
       $resource_url = $this->urlResolver->getResourceUrl($input_url, 0, 0);
-      $this->resource = $this->resourceFetcher->fetchResource($resource_url);
+      $this->resource[hash('md2', $input_url)] = $this->resourceFetcher->fetchResource($resource_url);
     }
 
-    return $this->resource;
+    return $this->resource[hash('md2', $input_url)];
   }
 
   /**
