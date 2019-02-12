@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\Unicode;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\blazy\BlazyManagerInterface;
 
@@ -412,7 +413,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       // Optional lightbox integration.
       if (!empty($lightboxes)) {
         foreach ($lightboxes as $lightbox) {
-          $form['media_switch']['#options'][$lightbox] = $this->t('Image to @lightbox', ['@lightbox' => $lightbox]);
+          $name = Unicode::ucwords(str_replace('_', ' ', $lightbox));
+          $form['media_switch']['#options'][$lightbox] = $this->t('Image to @lightbox', ['@lightbox' => $name]);
         }
 
         // Re-use the same image style for both lightboxes.

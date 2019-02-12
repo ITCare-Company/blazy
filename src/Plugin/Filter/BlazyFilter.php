@@ -168,7 +168,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
             <li><code>&lt;img data-grid="1 3 4" /&gt;</code></li>
             <li><code>&lt;iframe data-column="1 3 4" /&gt;</code></li>
         </ul>
-        The numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements, unless those given a <code>data-unblazy</code>. Also reasonable if using <b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe).</p>');
+        The numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements, unless those given a <code>data-unblazy</code>. Also <b>required</b> if using <b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) to build the gallery correctly.</p>');
     }
     else {
       return $this->t('To disable lazyload, add attribute <code>data-unblazy</code> to <code>&lt;img&gt;</code> or <code>&lt;iframe&gt;</code> elements. Examples: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>.');
@@ -368,7 +368,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       ],
       '#empty_option' => $this->t('- None -'),
       '#default_value' => $this->settings['media_switch'],
-      '#description' => $this->t('<ul><li><b>Image to iframe</b> will hide iframe behind image till toggled.</li><li><b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) requires a grid. Add <code>data-column="1 3 4"</code> or <code>data-grid="1 3 4"</code> to the first image/ iframe only.</li></ul>'),
+      '#description' => $this->t('<ul><li><b>Image to iframe</b> will hide iframe behind image till toggled.</li><li><b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) <b>requires</b> a grid to build the gallery correctly. Add <code>data-column="1 3 4"</code> or <code>data-grid="1 3 4"</code> to the first image/ iframe only.</li></ul>'),
     ];
 
     if (!empty($lightboxes)) {

@@ -1,4 +1,13 @@
 
+Blazy 8.x-2.0-dev, 2019-02-12
+-----------------------------
+- Moved heavy lifting (breakpoints, dimensions, URL, etc) to #pre_render.
+- Split Blazy::buildAttributes() to three methods to make readable lines.
+- Cleaned up few fail safes so to reduce dup lines.
+- Renamed Blazy::buildUrl() to Blazy::buildUrlAndDimensions() for clarity.
+- Added docs in Markdown for easy reading at /admin/help.
+- Added an optional BlazyMarkdown utility class for /admin/help.
+
 Blazy 8.x-2.0-dev, 2019-01-14
 -----------------------------
 - Added option to disable custom breakpoints permanently which is normally

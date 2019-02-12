@@ -123,7 +123,7 @@ class BlazyUnitTest extends UnitTestCase {
    *
    * @covers \Drupal\blazy\Blazy::buildAttributes
    * @covers \Drupal\blazy\Blazy::buildBreakpointAttributes
-   * @covers \Drupal\blazy\Blazy::buildUrl
+   * @covers \Drupal\blazy\Blazy::buildUrlAndDimensions
    * @covers \Drupal\blazy\Dejavu\BlazyDefault::entitySettings
    * @dataProvider providerBuildAttributes
    */

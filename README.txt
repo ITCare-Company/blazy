@@ -41,7 +41,7 @@ INSTALLATION
   Install the module as usual, more info can be found on:
   https://www.drupal.org/docs/8/extending-drupal-8/installing-drupal-8-modules
 
-  2 COMPOSER:
+  2. COMPOSER:
   There are various ways to install third party bower/npm asset libraries. Check
   out any below suitable to your workflow:
   https://www.drupal.org/project/blazy/issues/3021902
@@ -225,3 +225,5 @@ See the project page on drupal.org: http://drupal.org/project/blazy.
 See the bLazy docs at:
 o https://github.com/dinbror/blazy
 o http://dinbror.dk/blazy/
+
+@todo remove for /docs files.

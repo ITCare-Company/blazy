@@ -202,7 +202,7 @@ trait BlazyStylePluginTrait {
    */
   public function isImageRenderable($row, $index, $field_image = '') {
     if (!empty($field_image) && $image = $this->getFieldRenderable($row, $index, $field_image)) {
-      if ($item = $this->getImageItem($image)) {
+      if ($this->getImageItem($image)) {
         return $image;
       }
 

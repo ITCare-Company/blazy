@@ -7,10 +7,10 @@
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyViews;
+use Drupal\blazy\Utility\BlazyMarkdown;
 
 /**
  * Implements hook_theme().
@@ -88,14 +88,14 @@ function blazy_field_formatter_info_alter(array &$info) {
   if (\Drupal::moduleHandler()->moduleExists('video_embed_media')) {
     $info['blazy_file'] = $common + [
       'id'          => 'blazy_file',
-      'label'       => t('Blazy Image with Media (deprecated for Blazy)'),
+      'label'       => t('Blazy Image with Media (deprecated)'),
       'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter',
       'field_types' => ['entity_reference', 'image'],
     ];
 
     $info['blazy_video'] = $common + [
       'id'          => 'blazy_video',
-      'label'       => t('Blazy Video (deprecated for Blazy)'),
+      'label'       => t('Blazy Video (deprecated)'),
       'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter',
       'field_types' => ['video_embed_field'],
     ];
@@ -168,7 +168,7 @@ function blazy_preprocess_media_oembed_iframe(array &$variables) {
 }
 
 /**
- * The BC for Media settings to not break the tests..
+ * The BC for Media settings to not break the tests.
  *
  * @param array $settings
  *   The settings array being modified.
@@ -183,11 +183,20 @@ function _blazy_build_oembed(array &$settings = []) {
 }
 
 /**
+ * Provides a shortcut to parse the markdown string, and convert it into HTML.
+ */
+function blazy_parse_markdown($string) {
+  return BlazyMarkdown::isApplicable() ? BlazyMarkdown::parse($string) : FALSE;
+}
+
+/**
  * Implements hook_help().
  */
-function blazy_help($route_name, RouteMatchInterface $route_match) {
-  switch ($route_name) {
-    case 'help.page.blazy':
-      return check_markup(file_get_contents(dirname(__FILE__) . '/README.txt'));
+function blazy_help($route_name) {
+  if ($route_name == 'help.page.blazy') {
+    $output = file_get_contents(dirname(__FILE__) . '/docs/README.md');
+    $output .= file_get_contents(dirname(__FILE__) . '/docs/CONTRIBUTION.md');
+    return blazy_parse_markdown($output) ?: '<pre>' . $output . '</pre>';
   }
+  return '';
 }

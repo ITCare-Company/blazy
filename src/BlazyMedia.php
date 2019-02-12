@@ -30,7 +30,7 @@ class BlazyMedia {
     if (!empty($settings['input_url'])) {
       // @todo: Remove when ME Facebook alike handles this.
       try {
-        $response = \Drupal::httpClient()->get($settings['input_url'], ['timeout' => 7]);
+        \Drupal::httpClient()->get($settings['input_url'], ['timeout' => 7]);
       }
       catch (\Exception $e) {
         return FALSE;

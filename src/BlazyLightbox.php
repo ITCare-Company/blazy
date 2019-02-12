@@ -18,19 +18,20 @@ class BlazyLightbox {
    *   The element being modified.
    */
   public static function build(array &$element = []) {
-    $item     = $element['#item'];
-    $settings = &$element['#settings'];
-    $type     = empty($settings['type']) ? 'image' : $settings['type'];
-    $uri      = $settings['uri'];
-    $switch   = $settings['media_switch'];
+    $item       = $element['#item'];
+    $settings   = &$element['#settings'];
+    $type       = empty($settings['type']) ? 'image' : $settings['type'];
+    $uri        = $settings['uri'];
+    $switch     = $settings['media_switch'];
+    $switch_css = str_replace('_', '-', $switch);
 
     // Provide relevant URL if it is a lightbox.
     $url_attributes = [];
-    $url_attributes['class'] = ['blazy__' . $switch, 'litebox'];
-    $url_attributes['data-' . $switch . '-trigger'] = TRUE;
+    $url_attributes['class'] = ['blazy__' . $switch_css, 'litebox'];
+    $url_attributes['data-' . $switch_css . '-trigger'] = TRUE;
 
     // If it is a video/audio, otherwise image to image.
-    $gallery_id             = isset($settings['id']) ? $settings['id'] : $type;
+    $gallery_id             = empty($settings['view_name']) ? 'blazy-' . $switch_css : ($settings['view_name'] . '-' . $settings['current_view_mode']);
     $settings['gallery_id'] = empty($settings['gallery_id']) ? $gallery_id : $settings['gallery_id'];
     $settings['box_url']    = file_create_url($uri);
     $settings['icon']       = empty($settings['icon']) ? ['#markup' => '<span class="media__icon media__icon--litebox"></span>'] : $settings['icon'];
@@ -94,7 +95,11 @@ class BlazyLightbox {
       // @todo make Blazy Grid without Blazy Views fields support multiple
       // fields and entities as a gallery group, likely via a class at Views UI.
       // Must use consistent key for multiple entities, hence cannot use id.
-      $json['rel'] = 'blazy-colorbox-' . $settings['gallery_id'];
+      // We do not have option for this like colorbox, as it is only limited
+      // to the known Blazy formatters, or Blazy Views style plugins for now.
+      // The hustle is Colorbox uses rel on individual item to group, unlike
+      // other lightbox library which provides a way to just use a container.
+      $json['rel'] = $settings['gallery_id'];
     }
 
     $url_attributes['data-media'] = Json::encode($json);

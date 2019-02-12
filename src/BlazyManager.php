@@ -2,8 +2,10 @@
 
 namespace Drupal\blazy;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\image\Entity\ImageStyle;
 
 /**
  * Implements a public facing blazy manager.
@@ -268,7 +270,7 @@ class BlazyManager extends BlazyManagerBase {
     $settings['delta']       = isset($settings['delta']) ? $settings['delta'] : 0;
     $settings['image_style'] = isset($settings['image_style']) ? $settings['image_style'] : '';
 
-    // The image URI and $item may not always be available.
+    // The image URI may not always be given.
     if (empty($settings['uri']) && is_object($item)) {
       $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
     }
@@ -276,7 +278,7 @@ class BlazyManager extends BlazyManagerBase {
     // Respects content not handled by theme_blazy(), but passed through.
     if (empty($build['content'])) {
       $image = [
-        '#theme'       => empty($settings['theme_hook_image']) ? 'blazy' : $settings['theme_hook_image'],
+        '#theme'       => 'blazy',
         '#delta'       => $settings['delta'],
         '#item'        => isset($settings['entity_type_id']) && $settings['entity_type_id'] == 'user' ? $item : [],
         '#image_style' => $settings['image_style'],
@@ -304,13 +306,16 @@ class BlazyManager extends BlazyManagerBase {
    */
   public function preRenderImage(array $element) {
     $build = $element['#build'];
-    $item  = $build['item'];
+    $item = $build['item'];
     unset($element['#build']);
 
-    $settings = $build['settings'];
     if (empty($item)) {
       return [];
     }
+
+    $attributes = [];
+    $settings = $build['settings'];
+    $settings += BlazyDefault::itemSettings();
 
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
@@ -319,6 +324,14 @@ class BlazyManager extends BlazyManagerBase {
       $item_attributes = $item->_attributes;
       unset($item->_attributes);
     }
+
+    // Gets the file extension, and ensures the image has valid extension.
+    $pathinfo = pathinfo($settings['uri']);
+    $settings['extension'] = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
+    $settings['ratio'] = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
+
+    // Prepare image URL and its dimensions.
+    Blazy::buildUrlAndDimensions($settings, $item);
 
     // Responsive image integration.
     $settings['responsive_image_style_id'] = '';
@@ -335,6 +348,32 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
     else {
+      if ($settings['width'] && !empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
+        $padding_bottom = empty($settings['padding_bottom']) ? round((($settings['height'] / $settings['width']) * 100), 2) : $settings['padding_bottom'];
+        $attributes['style'] = 'padding-bottom: ' . $padding_bottom . '%';
+
+        // Provides hint to breakpoints to work with multi-breakpoint ratio.
+        $settings['_breakpoint_ratio'] = $settings['ratio'];
+      }
+
+      if (!empty($settings['lazy'])) {
+        // Attach data attributes to either IMG tag, or DIV container.
+        if (empty($settings['background']) || empty($settings['blazy'])) {
+          Blazy::buildBreakpointAttributes($item_attributes, $settings);
+        }
+
+        // Supports both Slick and Blazy CSS background lazyloading.
+        if (!empty($settings['background'])) {
+          Blazy::buildBreakpointAttributes($attributes, $settings);
+          $attributes['class'][] = 'media--background';
+        }
+
+        // Multi-breakpoint aspect ratio only applies if lazyloaded.
+        if (!empty($settings['blazy_data']['dimensions'])) {
+          $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
+        }
+      }
+
       if (!isset($settings['_no_cache'])) {
         $file_tags = isset($settings['file_tags']) ? $settings['file_tags'] : [];
         $settings['cache_tags'] = empty($settings['cache_tags']) ? $file_tags : Cache::mergeTags($settings['cache_tags'], $file_tags);
@@ -348,8 +387,20 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
 
-    $element['#item']            = $item;
+    // Thumbnails.
+    // With CSS background, IMG may be empty, add thumbnail to the container.
+    // Supports unique thumbnail different from main image, such as logo for
+    // thumbnail and main image for company profile.
+    if (!empty($settings['thumbnail_uri'])) {
+      $attributes['data-thumb'] = file_url_transform_relative(file_create_url($settings['thumbnail_uri']));
+    }
+    elseif (!empty($settings['thumbnail_style'])) {
+      $attributes['data-thumb'] = ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
+    }
+
+    $element['#attributes']      = $attributes;
     $element['#captions']        = empty($build['captions']) ? [] : ['inline' => $build['captions']];
+    $element['#item']            = $item;
     $element['#item_attributes'] = $item_attributes;
     $element['#settings']        = $settings;
 
@@ -359,7 +410,7 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
 
-    if (!empty($settings['media_switch']) && $settings['media_switch'] != 'media') {
+    if (!empty($settings['media_switch'])) {
       if ($settings['media_switch'] == 'content' && !empty($settings['content_url'])) {
         $element['#url'] = $settings['content_url'];
       }
