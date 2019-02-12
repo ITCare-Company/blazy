@@ -51,6 +51,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $settings['count'] = $this->maxItems;
     $settings['uri']   = $this->uri;
     $build['settings'] = array_merge($build['settings'], $settings);
+    $switch_css        = str_replace('_', '-', $settings['media_switch']);
 
     $element = $this->doPreRenderImage($build);
 
@@ -59,7 +60,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
       $this->assertArrayHasKey('#url', $element);
     }
     else {
-      $this->assertArrayHasKey('data-' . $settings['media_switch'] . '-trigger', $element['#url_attributes']);
+      $this->assertArrayHasKey('data-' . $switch_css . '-trigger', $element['#url_attributes']);
       $this->assertArrayHasKey('#url', $element);
     }
 
@@ -186,7 +187,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    *
    * @param array $settings
    *   The settings being tested.
-   * @param bool $uri
+   * @param bool $use_uri
    *   Whether to provide image URI, or not.
    * @param object $item
    *   Whether to provide image item, or not.
@@ -201,15 +202,16 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * @covers \Drupal\blazy\Dejavu\BlazyDefault::entitySettings
    * @dataProvider providerBuildAttributes
    */
-  public function testBuildAttributes(array $settings, $uri, $item, $iframe, $expected) {
+  public function testBuildAttributes(array $settings, $use_uri, $item, $iframe, $expected) {
     $variables = ['attributes' => []];
-    $settings  = array_merge($this->getFormatterSettings(), $settings);
+    $settings = array_merge($this->getFormatterSettings(), $settings);
+    $settings += BlazyDefault::itemSettings();
 
     $settings['blazy']           = TRUE;
     $settings['lazy']            = 'blazy';
     $settings['image_style']     = 'blazy_crop';
     $settings['thumbnail_style'] = 'thumbnail';
-    $settings['uri']             = $uri ? $this->uri : '';
+    $settings['uri']             = $use_uri ? $this->uri : '';
 
     if (!empty($settings['embed_url'])) {
       $settings = array_merge(BlazyDefault::entitySettings(), $settings);
@@ -220,7 +222,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     Blazy::buildAttributes($variables);
 
-    $image  = $expected == TRUE ? !empty($variables['image']) : empty($variables['image']);
+    $image = $expected == TRUE ? !empty($variables['image']) : empty($variables['image']);
     $iframe = $iframe == TRUE ? !empty($variables['iframe_attributes']) : empty($variables['iframe_attributes']);
 
     $this->assertTrue($image);
@@ -376,9 +378,10 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $this->assertArrayHasKey('blazy', $attachments['drupalSettings']);
 
     // Tests Blazy [data-blazy] attributes.
-    $build    = $this->data;
-    $settings = &$build['settings'];
-    $item     = $build['item'];
+    $build     = $this->data;
+    $settings  = &$build['settings'];
+    $settings += BlazyDefault::itemSettings();
+    $item      = $build['item'];
 
     $settings['item']        = $item;
     $settings['uri']         = $this->uri;

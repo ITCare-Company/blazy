@@ -34,12 +34,25 @@ class Blazy implements BlazyInterface {
       $variables[$key] = isset($element["#$key"]) ? $element["#$key"] : [];
     }
 
+    // Provides optional attributes, except for item_attributes above, taken
+    // care of by theme_image(), or responsive_image as array.
+    foreach (['caption', 'media', 'url', 'wrapper'] as $key) {
+      $attr = $key . '_attributes';
+      $variables[$attr] = empty($element['#' . $attr]) ? [] : new Attribute($element['#' . $attr]);
+    }
+
     // Provides sensible default html settings to shutup notices when lacking.
     $item             = isset($element['#item']) ? $element['#item'] : NULL;
+    $attributes       = &$variables['attributes'];
     $image            = &$variables['image'];
     $image_attributes = &$variables['item_attributes'];
     $settings         = &$variables['settings'];
     $settings        += BlazyDefault::itemSettings();
+
+    // Still provides a failsafe for direct theme call with a valid Image item.
+    if (empty($settings['uri']) && $item) {
+      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+    }
 
     // Do not proceed if no URI is provided.
     // URI is stored within settings, not theme_blazy() property, as it is
@@ -49,7 +62,7 @@ class Blazy implements BlazyInterface {
     }
 
     // URL and dimensions are built out at BlazyManager::preRenderImage().
-    // Here we still provide a fail safe for direct call to this theme.
+    // Still provides a failsafe for direct call to this theme.
     if (empty($settings['image_url']) || empty($settings['_dimensions'])) {
       self::buildUrlAndDimensions($settings, $item);
     }
@@ -78,16 +91,21 @@ class Blazy implements BlazyInterface {
       $image['#attributes'] = $image_attributes;
     }
 
+    // Thumbnails.
+    // With CSS background, IMG may be empty, add thumbnail to the container.
+    // Supports unique thumbnail different from main image, such as logo for
+    // thumbnail and main image for company profile.
+    if (!empty($settings['thumbnail_uri'])) {
+      $attributes['data-thumb'] = file_url_transform_relative(file_create_url($settings['thumbnail_uri']));
+    }
+    elseif (!empty($settings['thumbnail_style'])) {
+      $attributes['data-thumb'] = ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
+    }
+
     // Prepares a media player, and allows a tiny video preview without iframe.
     $media = !empty($settings['embed_url']) && in_array($settings['type'], ['audio', 'video']);
     if ($media && empty($settings['_noiframe'])) {
       self::buildIframeAttributes($variables);
-    }
-
-    // Provides optional attributes.
-    foreach (['caption', 'media', 'url', 'wrapper'] as $key) {
-      $attr = $key . '_attributes';
-      $variables[$attr] = empty($element['#' . $attr]) ? [] : new Attribute($element['#' . $attr]);
     }
   }
 

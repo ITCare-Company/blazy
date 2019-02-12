@@ -5,7 +5,6 @@ namespace Drupal\blazy;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\image\Entity\ImageStyle;
 
 /**
  * Implements a public facing blazy manager.
@@ -385,17 +384,6 @@ class BlazyManager extends BlazyManagerBase {
           }
         }
       }
-    }
-
-    // Thumbnails.
-    // With CSS background, IMG may be empty, add thumbnail to the container.
-    // Supports unique thumbnail different from main image, such as logo for
-    // thumbnail and main image for company profile.
-    if (!empty($settings['thumbnail_uri'])) {
-      $attributes['data-thumb'] = file_url_transform_relative(file_create_url($settings['thumbnail_uri']));
-    }
-    elseif (!empty($settings['thumbnail_style'])) {
-      $attributes['data-thumb'] = ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
     }
 
     $element['#attributes']      = $attributes;

@@ -131,6 +131,7 @@ class BlazyUnitTest extends UnitTestCase {
     $variables = ['attributes' => []];
     $build     = $this->data;
     $settings  = array_merge($build['settings'], $settings);
+    $settings += BlazyDefault::itemSettings();
 
     $settings['breakpoints']     = [];
     $settings['blazy']           = TRUE;
@@ -237,11 +238,13 @@ class BlazyUnitTest extends UnitTestCase {
    */
   public function testPreRenderImageLightbox(array $settings = []) {
     $build                       = $this->data;
+    $settings                   += BlazyDefault::itemSettings();
     $settings['count']           = $this->maxItems;
     $settings['uri']             = $this->uri;
     $settings['box_style']       = '';
     $settings['box_media_style'] = '';
     $build['settings']           = array_merge($build['settings'], $settings);
+    $switch_css                  = str_replace('_', '-', $settings['media_switch']);
 
     foreach (['caption', 'media', 'wrapper'] as $key) {
       $build['settings'][$key . '_attributes']['class'][] = $key . '-test';
@@ -254,7 +257,7 @@ class BlazyUnitTest extends UnitTestCase {
       $this->assertArrayHasKey('#url', $element);
     }
     else {
-      $this->assertArrayHasKey('data-' . $settings['media_switch'] . '-trigger', $element['#url_attributes']);
+      $this->assertArrayHasKey('data-' . $switch_css . '-trigger', $element['#url_attributes']);
       $this->assertArrayHasKey('#url', $element);
     }
   }
