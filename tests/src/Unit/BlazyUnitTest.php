@@ -344,27 +344,3 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
 }
-
-namespace Drupal\blazy;
-
-if (!function_exists('file_create_url')) {
-
-  /**
-   * Dummy function.
-   */
-  function file_create_url() {
-    // Empty block to satisfy coder.
-  }
-
-}
-
-if (!function_exists('file_url_transform_relative')) {
-
-  /**
-   * Dummy function.
-   */
-  function file_url_transform_relative() {
-    // Empty block to satisfy coder.
-  }
-
-}
