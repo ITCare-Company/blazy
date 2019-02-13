@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2019-02-13
+-----------------------------
+- Eslint says no space before COLON. Coder says must HAVE space. Confusing!
+- Updated eslint location.
+- Fixed for lightbox/ photoswipe video size regression from 8.x branch.
+
 Blazy 8.x-2.0-dev, 2019-02-12
 -----------------------------
 - Moved heavy lifting (breakpoints, dimensions, URL, etc) to #pre_render.

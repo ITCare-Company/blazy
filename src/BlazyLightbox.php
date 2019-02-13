@@ -73,8 +73,8 @@ class BlazyLightbox {
         $box_media_style->transformDimensions($dimensions, $uri);
         $settings['box_url'] = $box_media_style->buildUrl($uri);
 
-        // Allows custom work to override this without image style.
-        if (empty($settings['box_width'])) {
+        // Allows custom work to override this video size without image style.
+        if (empty($settings['_box_width'])) {
           $settings['box_width']  = $dimensions['width'];
           $settings['box_height'] = $dimensions['height'];
         }
