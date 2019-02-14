@@ -179,7 +179,7 @@ class Blazy implements BlazyInterface {
     // data- : Gets consistent with colorbox to share JS manipulation.
     $settings           = &$variables['settings'];
     $variables['image'] = empty($settings['media_switch']) ? [] : $variables['image'];
-    $settings['player'] = empty($settings['lightbox']) && $settings['media_switch'] != 'content';
+    $settings['player'] = $settings['player'] ?: (empty($settings['lightbox']) && $settings['media_switch'] != 'content');
     $iframe['data-src'] = $settings['embed_url'];
     $iframe['src']      = 'about:blank';
     $iframe['class'][]  = 'b-lazy';

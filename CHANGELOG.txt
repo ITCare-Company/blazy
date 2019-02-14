@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2019-02-15
+-----------------------------
+- Changed settings.player to be more flexible to support a hybrid of media
+  switcher and quasi-lightbox (lightbox-like but inline) like Zooming.
+
 Blazy 8.x-2.0-dev, 2019-02-13
 -----------------------------
 - Eslint says no space before COLON. Coder says must HAVE space. Confusing!
