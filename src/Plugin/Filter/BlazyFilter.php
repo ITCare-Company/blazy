@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Plugin\Filter;
 
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Image\ImageFactory;
@@ -99,6 +100,15 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $settings['media_switch'] = $switch = $this->settings['media_switch'];
     $settings['lightbox'] = ($switch && in_array($switch, $this->blazyManager->getLightboxes())) ? $switch : FALSE;
 
+    if ($switch) {
+      $settings[$switch] = $switch;
+    }
+
+    // Provides alter like formatters to modify at one go, even clumsy here.
+    $build = ['settings' => $settings];
+    $this->blazyManager->getModuleHandler()->alter('blazy_settings', $build, $this->settings);
+    $settings = array_merge($settings, $build['settings']);
+
     foreach ($allowed_tags as $allowed_tag) {
       $nodes = $dom->getElementsByTagName($allowed_tag);
       if ($nodes->length > 0) {
@@ -110,9 +120,9 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
 
           // Build Blazy elements with lazyloaded image, or iframe.
           $settings['delta'] = $delta;
-          $settings = array_merge($settings, $this->buildSettings($node));
+          $this->buildSettings($settings, $node);
           $build = [
-            'item' => $this->buildImageItem($node, $settings),
+            'item' => $this->buildImageItem($settings, $node),
             'settings' => $settings,
           ];
 
@@ -236,15 +246,15 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   /**
    * Returns the faked image item for the image, uploaded or hard-coded.
    *
-   * @param object $node
-   *   The HTML DOM object.
    * @param array $settings
    *   The settings array being modified.
+   * @param object $node
+   *   The HTML DOM object.
    *
    * @return object
    *   The faked image item.
    */
-  private function buildImageItem(&$node, array &$settings = []) {
+  private function buildImageItem(array &$settings, &$node) {
     $item = new \stdClass();
     $item->uri = $settings['uri'];
     $item->entity = NULL;
@@ -296,13 +306,12 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   /**
    * Returns the settings for the current $node.
    *
+   * @param array $settings
+   *   The settings being modified.
    * @param object $node
    *   The HTML DOM object.
-   *
-   * @return array
-   *   The settings for the current $node.
    */
-  private function buildSettings($node) {
+  private function buildSettings(array &$settings, $node) {
     $src = $node->getAttribute('src');
     $width = $node->getAttribute('width');
     $height = $node->getAttribute('height');
@@ -313,11 +322,9 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       }
     }
 
-    $settings = [
-      'ratio' => !$width ? '' : 'fluid',
-      'image_url' => $src,
-      'media_switch' => $this->settings['media_switch'],
-    ];
+    $settings['ratio'] = !$width ? '' : 'fluid';
+    $settings['image_url'] = $src;
+    $settings['media_switch'] = $this->settings['media_switch'];
 
     $uri = file_build_uri($src);
     if ($node->tagName == 'iframe') {
@@ -334,13 +341,11 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       $settings['ratio'] = !$width ? '16:9' : 'fluid';
     }
 
-    return [
-      'blazy' => TRUE,
-      'lazy' => 'blazy',
-      'uri' => $uri,
-      'width' => $width,
-      'height' => $height,
-    ] + $settings;
+    $settings['blazy'] = TRUE;
+    $settings['lazy'] = 'blazy';
+    $settings['uri'] = $uri;
+    $settings['width'] = $width;
+    $settings['height'] = $height;
   }
 
   /**
@@ -373,7 +378,8 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
 
     if (!empty($lightboxes)) {
       foreach ($lightboxes as $lightbox) {
-        $form['media_switch']['#options'][$lightbox] = $this->t('Image to @lightbox', ['@lightbox' => $lightbox]);
+        $name = Unicode::ucwords(str_replace('_', ' ', $lightbox));
+        $form['media_switch']['#options'][$lightbox] = $this->t('Image to @lightbox', ['@lightbox' => $name]);
       }
     }
 
