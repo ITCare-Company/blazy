@@ -57,6 +57,17 @@ media:
     - core/drupal
     - blazy/ratio
 
+blazybox:
+  js:
+    js/blazy.blazybox.min.js: { minified: true }
+  css:
+    component:
+      css/components/blazy.blazybox.css: {}
+  dependencies:
+    - core/classList
+    - blazy/dblazy
+    - blazy/lightbox
+
 lightbox:
   css:
     component:
