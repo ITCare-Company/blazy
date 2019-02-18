@@ -63,7 +63,7 @@ class Blazy implements BlazyInterface {
 
     // URL and dimensions are built out at BlazyManager::preRenderImage().
     // Still provides a failsafe for direct call to this theme.
-    if (empty($settings['image_url']) || empty($settings['_dimensions'])) {
+    if (empty($settings['_api'])) {
       self::buildUrlAndDimensions($settings, $item);
     }
 
@@ -148,19 +148,21 @@ class Blazy implements BlazyInterface {
     $image['#uri'] = $settings['image_url'];
 
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
-    // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
-    if (!empty($settings['width'])) {
-      // Only output dimensions for non-responsive images that are not svg.
-      // Respects hand-coded image attributes.
-      if (!isset($image_attributes['width']) && $settings['extension'] != 'svg') {
-        $image_attributes['height'] = $settings['height'];
-        $image_attributes['width'] = $settings['width'];
-      }
+    // Only output dimensions for images that are not svg.
+    // Respects hand-coded image attributes.
+    if (!isset($image_attributes['width']) && $settings['extension'] != 'svg') {
+      $image_attributes['height'] = $settings['height'];
+      $image_attributes['width'] = $settings['width'];
     }
 
     // Supports lazyload: blazy, ondemand, progressive, etc. or just TRUE.
     if (!empty($settings['lazy'])) {
       $image['#uri'] = static::PLACEHOLDER;
+
+      // BC for calling this theme directly bypassing the API.
+      if (empty($settings['_api'])) {
+        self::buildLazyAttributes($image_attributes, $settings);
+      }
 
       // Blazy doesn't need IMG to lazyload CSS background. Slick does.
       if (!empty($settings['background']) && !empty($settings['blazy'])) {
@@ -198,6 +200,14 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Defines attributes, builtin, or supported lazyload such as Slick.
+   */
+  private static function buildLazyAttributes(array &$attributes, $settings = []) {
+    $attributes['class'][] = $settings['lazy_class'];
+    $attributes['data-' . $settings['lazy_attribute']] = $settings['image_url'];
+  }
+
+  /**
    * Provides re-usable breakpoint data-attributes.
    *
    * These attributes can be applied to either IMG or DIV as CSS background.
@@ -208,9 +218,7 @@ class Blazy implements BlazyInterface {
    * @see self::buildAttributes()
    */
   public static function buildBreakpointAttributes(array &$attributes = [], array &$settings = []) {
-    // Defines attributes, builtin, or supported lazyload such as Slick.
-    $attributes['class'][] = $settings['lazy_class'];
-    $attributes['data-' . $settings['lazy_attribute']] = $settings['image_url'];
+    self::buildLazyAttributes($attributes, $settings);
 
     // Only provide multi-serving image URLs if breakpoints are provided.
     if (empty($settings['breakpoints'])) {

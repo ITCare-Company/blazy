@@ -2,12 +2,13 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyFormatterManager;
-use Drupal\blazy\BlazyOEmbed;
+use Drupal\blazy\BlazyEntity;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
 use Drupal\blazy\Dejavu\BlazyEntityReferenceBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -41,14 +42,16 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityReferenceBase implemen
     $view_mode,
     array $third_party_settings,
     LoggerChannelFactoryInterface $logger_factory,
-    BlazyOEmbed $blazy_oembed,
-    BlazyFormatterManager $blazy_manager) {
+    ImageFactory $image_factory,
+    BlazyEntity $blazy_entity,
+    BlazyFormatterManager $formatter) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
 
-    // @todo $this->imageFactory = $image_factory;
     $this->loggerFactory = $logger_factory;
-    $this->blazyOembed = $blazy_oembed;
-    $this->blazyManager = $blazy_manager;
+    $this->imageFactory = $image_factory;
+    $this->blazyEntity = $blazy_entity;
+    $this->formatter = $this->blazyManager = $formatter;
+    $this->blazyOembed = $blazy_entity->oembed();
   }
 
   /**
@@ -64,9 +67,17 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityReferenceBase implemen
       $configuration['view_mode'],
       $configuration['third_party_settings'],
       $container->get('logger.factory'),
-      $container->get('blazy.oembed'),
+      $container->get('image.factory'),
+      $container->get('blazy.entity'),
       $container->get('blazy.formatter.manager')
     );
+  }
+
+  /**
+   * Returns the slick service.
+   */
+  public function blazyEntity() {
+    return $this->blazyEntity;
   }
 
   /**

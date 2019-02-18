@@ -141,6 +141,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         ],
         '#weight'             => -112,
         '#wrapper_attributes' => ['class' => ['form-item--style', 'form-item--tooltip-bottom']],
+        '#required'           => !empty($definition['grid_required']),
       ];
     }
 
@@ -303,19 +304,28 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   public function gridForm(array &$form, $definition = []) {
     $range = range(1, 12);
     $grid_options = array_combine($range, $range);
+    $required = !empty($definition['grid_required']);
 
     $header = $this->t('Group individual items as block grid<small>Depends on the <strong>Display style</strong>.</small>');
     $form['grid_header'] = [
       '#type'   => 'item',
       '#markup' => '<h3 class="form__title form__title--grid">' . $header . '</h3>',
+      '#access' => !$required,
     ];
 
+    if ($required) {
+      $description = $this->t('The amount of block grid columns for large monitors 64.063em.');
+    }
+    else {
+      $description = $this->t('Select <strong>- None -</strong> first if trouble with changing form states. The amount of block grid columns for large monitors 64.063em+. <br /><strong>Requires</strong>:<ol><li>Visible items,</li><li>Skin Grid for starter,</li><li>A reasonable amount of contents.</li></ol>Leave empty to DIY, or to not build grids.');
+    }
     $form['grid'] = [
       '#type'        => 'select',
       '#title'       => $this->t('Grid large'),
       '#options'     => $grid_options,
-      '#description' => $this->t('Select <strong>- None -</strong> first if trouble with changing form states. The amount of block grid columns for large monitors 64.063em+. <br /><strong>Requires</strong>:<ol><li>Visible items,</li><li>Skin Grid for starter,</li><li>A reasonable amount of contents.</li></ol>Leave empty to DIY, or to not build grids.'),
+      '#description' => $description,
       '#enforced'    => TRUE,
+      '#required'    => $required,
     ];
 
     $form['grid_medium'] = [
@@ -570,12 +580,16 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $namespace = isset($definition['namespace']) ? $definition['namespace'] : 'slick';
     $settings = isset($definition['settings']) ? $definition['settings'] : [];
     $vanilla = !empty($definition['vanilla']) ? ' form--vanilla' : '';
+    $grid = !empty($definition['grid_required']) ? ' form--grid-required' : '';
+    $plugind_id = !empty($definition['plugin_id']) ? ' form--plugin-' . str_replace('_', '-', $definition['plugin_id']) : '';
     $captions = empty($definition['captions']) ? 0 : count($definition['captions']);
     $wide = $captions > 2 ? ' form--wide form--caption-' . $captions : ' form--caption-' . $captions;
     $fallback = $namespace == 'slick' ? 'form--slick' : 'form--' . $namespace . ' form--slick';
+    $custom = isset($definition['opening_class']) ? ' ' . $definition['opening_class'] : '';
+    // @todo remove form_opening_classes for opening_class.
     $classes = isset($definition['form_opening_classes'])
       ? $definition['form_opening_classes']
-      : $fallback . ' form--half has-tooltip' . $wide . $vanilla;
+      : $fallback . ' form--half has-tooltip' . $wide . $vanilla . $grid . $plugind_id . $custom;
 
     if (!empty($definition['field_type'])) {
       $classes .= ' form--' . str_replace('_', '-', $definition['field_type']);
@@ -591,17 +605,20 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       '#weight' => 120,
     ];
 
+    // @todo: Check if needed: 'button', 'container', 'submit'.
     $admin_css = isset($definition['admin_css']) ? $definition['admin_css'] : '';
     $admin_css = $admin_css ?: $this->blazyManager->configLoad('admin_css', 'blazy.settings');
-
-    // @todo: Check if needed: 'button', 'container', 'submit'.
-    $excludes = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
-    $selects  = ['cache', 'optionset', 'view_mode'];
+    $excludes  = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
+    $selects   = ['cache', 'optionset', 'view_mode'];
 
     foreach (Element::children($form) as $key) {
       if (isset($form[$key]['#type']) && !in_array($form[$key]['#type'], $excludes)) {
         if (!isset($form[$key]['#default_value']) && isset($settings[$key])) {
           $value = is_array($settings[$key]) ? array_values((array) $settings[$key]) : $settings[$key];
+
+          if (!empty($definition['grid_required']) && $key == 'grid' && empty($settings[$key])) {
+            $value = 3;
+          }
           $form[$key]['#default_value'] = $value;
         }
         if (!isset($form[$key]['#attributes']) && isset($form[$key]['#description'])) {
@@ -627,8 +644,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         }
 
         if ($form[$key]['#type'] == 'select' && !in_array($key, $selects)) {
-          if (!isset($form[$key]['#empty_option']) && !isset($form[$key]['#required'])) {
+          if (!isset($form[$key]['#empty_option']) && empty($form[$key]['#required'])) {
             $form[$key]['#empty_option'] = $this->t('- None -');
+          }
+          if (!empty($form[$key]['#required'])) {
+            unset($form[$key]['#empty_option']);
           }
         }
 

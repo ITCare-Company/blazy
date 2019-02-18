@@ -2,12 +2,13 @@
 
 namespace Drupal\blazy_test\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyOEmbed;
+use Drupal\blazy\BlazyEntity;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase;
 use Drupal\blazy_test\BlazyFormatterTestInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -35,10 +36,11 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyMediaFormatterBase impl
     $view_mode,
     array $third_party_settings,
     LoggerChannelFactoryInterface $logger_factory,
-    BlazyOEmbed $blazy_oembed,
-    BlazyFormatterTestInterface $blazy_manager) {
-    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings, $logger_factory, $blazy_oembed, $blazy_manager);
-    $this->blazyManager = $blazy_manager;
+    ImageFactory $image_factory,
+    BlazyEntity $blazy_entity,
+    BlazyFormatterTestInterface $formatter) {
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings, $logger_factory, $image_factory, $blazy_entity, $formatter);
+    $this->formatter = $formatter;
   }
 
   /**
@@ -54,7 +56,8 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyMediaFormatterBase impl
       $configuration['view_mode'],
       $configuration['third_party_settings'],
       $container->get('logger.factory'),
-      $container->get('blazy.oembed'),
+      $container->get('image.factory'),
+      $container->get('blazy.entity'),
       $container->get('blazy_test.formatter')
     );
   }
@@ -95,7 +98,7 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyMediaFormatterBase impl
 
     // Alternatively use grid: BlazyGrid::build($build['items'], $settings).
     $elements = $build['items'];
-    $elements['#attached'] = $this->manager()->attach($settings);
+    $elements['#attached'] = $this->formatter()->attach($settings);
 
     return $elements;
   }

@@ -16,7 +16,6 @@ class BlazyGridUnitTest extends UnitTestCase {
    * Tests \Drupal\blazy\BlazyGrid::build().
    *
    * @covers ::build
-   * @covers ::buildGridItemAttributes
    */
   public function testBuild() {
     $settings['grid']            = 4;

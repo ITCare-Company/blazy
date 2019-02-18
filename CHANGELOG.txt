@@ -1,4 +1,13 @@
 
+Blazy 8.x-2.0-dev, 2019-02-17
+-----------------------------
+- Cleaned up few deprecated.
+- Renamed BlazyFormatter class to BlazyImageFormatter for clarity. Be
+  sure to run the update, clear cache or drush cr.
+- Added a new service BlazyEntity to replace deprecated BlazyEntityTrait. Be
+  sure to run the update, clear cache or drush cr.
+- Added Blazy Grid formatter for texts.
+
 Blazy 8.x-2.0-dev, 2019-02-15
 -----------------------------
 - Added Blazybox for full screen video preview: Intense, Slick Browser.

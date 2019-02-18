@@ -35,6 +35,7 @@ trait BlazyKernelTestTrait {
     $this->fieldTypePluginManager = $this->container->get('plugin.manager.field.field_type');
     $this->formatterPluginManager = $this->container->get('plugin.manager.field.formatter');
     $this->blazyManager           = $this->container->get('blazy.manager');
+    $this->blazyEntity            = $this->container->get('blazy.entity');
     $this->blazyFormatterManager  = $this->container->get('blazy.formatter.manager');
     $this->blazyAdminFormatter    = $this->container->get('blazy.admin.formatter');
     $this->blazyAdmin             = $this->container->get('blazy.admin');

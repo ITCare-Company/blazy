@@ -45,16 +45,9 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   /**
    * The blazy manager service.
    *
-   * @var \Drupal\blazy\BlazyManager
+   * @var \Drupal\blazy\BlazyManagerInterface
    */
   protected $blazyManager;
-
-  /**
-   * The blazy oembed service.
-   *
-   * @var \Drupal\blazy\BlazyOEmbed
-   */
-  protected $blazyOembed;
 
   /**
    * {@inheritdoc}

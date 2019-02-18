@@ -24,17 +24,10 @@ use Drupal\blazy\BlazyGrid;
 class BlazyMediaFormatter extends BlazyMediaFormatterBase {
 
   /**
-   * Returns the overridable blazy manager service.
-   */
-  public function manager() {
-    return $this->blazyManager;
-  }
-
-  /**
    * Returns the overridable blazy field formatter service.
    */
   public function formatter() {
-    return $this->blazyManager;
+    return $this->formatter;
   }
 
   /**
@@ -92,10 +85,9 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
     else {
       // Build grid if provided.
       $build = BlazyGrid::build($build['items'], $settings);
-      unset($build['items']);
     }
 
-    $build['#attached'] = $this->manager()->attach($settings);
+    $build['#attached'] = $this->formatter()->attach($settings);
 
     return $build;
   }
@@ -112,7 +104,7 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
 
     // Item ID is to allow contextual grouping relevant to (sub-)modules:
     // Slick `slide`, GridStack `box`, Blazy 'blazy', etc.
-    $item_id = $settings['item_id'] = empty($settings['item_id']) ? 'box' : $settings['item_id'];
+    $item_id = $settings['item_id'];
 
     // Blazy can just collect items directly without further themeing.
     if (!empty($element[$item_id])) {

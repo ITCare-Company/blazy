@@ -7,6 +7,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\blazy\Dejavu\BlazyVideoBase;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
+use Drupal\blazy\BlazyOEmbed;
 use Drupal\blazy\BlazyFormatterManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -15,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @deprecated for \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter
  * @todo remove prior to full release. This means Slick Video which depends
- * on VEF is deprecated for Slick Media at Blazy 8.2.x with core Media only.
+ * on VEF is deprecated for main Slick at Blazy 8.2.x with core Media only.
  */
 class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPluginInterface {
 
@@ -25,9 +26,10 @@ class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPlug
   /**
    * Constructs a BlazyFormatter object.
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, BlazyFormatterManager $blazy_manager) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, BlazyFormatterManager $formatter, BlazyOEmbed $blazy_oembed) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
-    $this->blazyManager = $blazy_manager;
+    $this->formatter = $this->blazyManager = $formatter;
+    $this->blazyOembed = $blazy_oembed;
   }
 
   /**
@@ -42,7 +44,8 @@ class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPlug
       $configuration['label'],
       $configuration['view_mode'],
       $configuration['third_party_settings'],
-      $container->get('blazy.formatter.manager')
+      $container->get('blazy.formatter.manager'),
+      $container->get('blazy.oembed')
     );
   }
 
@@ -66,10 +69,7 @@ class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPlug
     $build = ['settings' => $settings];
 
     // Modifies settings.
-    $this->blazyManager->buildSettings($build, $items);
-
-    // Fecthes URI from the first item to build dimensions once.
-    $this->buildVideo($build['settings'], $items[0]->value);
+    $this->formatter->buildSettings($build, $items);
 
     // Build the elements.
     $this->buildElements($build, $items);
@@ -79,12 +79,12 @@ class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPlug
     unset($build['settings']);
 
     // Supports Blazy multi-breakpoint images if provided.
-    if (!empty($settings['uri'])) {
-      $this->blazyManager->isBlazy($settings, $build[0]['#build']);
+    if (!empty($settings['uri']) && isset($build[0]['#build'])) {
+      $this->formatter->isBlazy($settings, $build[0]['#build']);
     }
 
     $build['#blazy'] = $settings;
-    $build['#attached'] = $this->blazyManager->attach($settings);
+    $build['#attached'] = $this->formatter->attach($settings);
     return $build;
   }
 
@@ -96,18 +96,17 @@ class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPlug
 
     foreach ($items as $delta => $item) {
       $settings['input_url'] = strip_tags($item->value);
-
       $settings['delta'] = $delta;
       if (empty($settings['input_url'])) {
         continue;
       }
 
-      $this->buildVideo($settings);
+      $this->blazyOembed->build($settings);
 
       $box = ['item' => $item, 'settings' => $settings];
 
       // Image with responsive image, lazyLoad, and lightbox supports.
-      $build[$delta] = $this->blazyManager->getImage($box);
+      $build[$delta] = $this->formatter->getImage($box);
       unset($box);
     }
   }

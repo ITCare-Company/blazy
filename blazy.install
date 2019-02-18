@@ -31,3 +31,10 @@ function blazy_requirements($phase) {
     ],
   ];
 }
+
+/**
+ * Added new services blazy.oembed and blazy.entity.
+ */
+function blazy_update_8201() {
+  // Do nothing to clear cache.
+}

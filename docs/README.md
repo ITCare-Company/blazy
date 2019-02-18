@@ -113,6 +113,12 @@ some code cleanup, and optimization where needed. Patches are very much welcome.
 
 Alpha, Beta, DEV releases are for developers only. Beware of possible breakage.
 
+However if it is broken, unless an update is provided, running `drush cr` during
+DEV releases should fix most issues as we add new services, or change things.
+If you don't drush, before any module update, always open:
+
+[Performance](/admin/config/development/performance)
+And so you are ready to hit **Clear all caches** if any issue.
 
 ## UPDATE SOP:
 Visit any of the following URLs when updating Blazy, or its related modules.
@@ -208,7 +214,7 @@ Adjust, and override blazy CSS files accordingly.
 [x] Makes a solid lazyloading solution for IMG, DIV, IFRAME tags.
     4/9/2017
     Added IFRAME (Blazy Video), apart from existing IMG/ DIV (CSS background).
-[?] Core Media integration
+[?] Core Media integration.
 [?] Optimization and solidification.
 
 

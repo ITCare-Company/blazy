@@ -9,6 +9,7 @@ use Drupal\media\OEmbed\Resource;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
 use Drupal\media\OEmbed\UrlResolverInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides OEmbed integration.
@@ -142,6 +143,7 @@ class BlazyOEmbed {
   public function build(array &$settings = []) {
     $resource = NULL;
     try {
+      $settings['input_url'] = strip_tags($settings['input_url']);
       $resource = $this->getResource($settings['input_url']);
 
       // @todo support other types (link, photo), if reasonable for Blazy.
@@ -202,7 +204,8 @@ class BlazyOEmbed {
     }
 
     $dom = Html::load($resource->getHtml());
-    $url = $dom->getElementsByTagName('iframe')->item(0)->getAttribute('src');
+    $iframe = $dom->getElementsByTagName('iframe');
+    $url = $iframe->length > 0 ? $iframe->item(0)->getAttribute('src') : NULL;
 
     if (!empty($url)) {
       $data['oembed_url'] = $url;
@@ -219,14 +222,12 @@ class BlazyOEmbed {
   }
 
   /**
-   * Gets the Media item thumbnail, or re-associate the file entity to Media.
+   * Gets the Media item thumbnail.
    *
    * @param array $data
    *   The modified array containing settings, and to be video thumbnail item.
    * @param object $media
    *   The core Media entity.
-   *
-   * @todo move it into BlazyMedia?
    */
   public function getMediaItem(array &$data = [], $media = NULL) {
     // Only proceed if we do have Media.
@@ -235,6 +236,7 @@ class BlazyOEmbed {
     }
 
     $item     = NULL;
+    $content  = [];
     $settings = $data['settings'];
 
     $settings['bundle']       = $media->bundle();
@@ -266,42 +268,39 @@ class BlazyOEmbed {
       }
     }
 
-    if ($settings['source_field'] && $media->hasField($settings['source_field'])) {
-      // @todo support local video/ audio file.
-      switch ($settings['media_source']) {
-        case 'file':
-        case 'audio_file':
-        case 'video_file':
-          // @todo or not @todo. @tobe or not @tobe. @o...bedo...bedo.
-          break;
+    // @todo support local video/ audio file, and other media sources.
+    switch ($settings['media_source']) {
+      case 'file':
+      case 'audio_file':
+      case 'video_file':
+        // @todo or not @todo. @tobe or not @tobe. @o...bedo...bedo.
+        break;
 
-        case 'oembed':
-        case 'oembed:video':
-          // Input url != embed url. For Youtube, /watch != /embed.
-          $input_url = $media->getSource()->getSourceFieldValue($media);
-          $input_url = trim(strip_tags($input_url));
-          if ($input_url) {
-            $settings['input_url'] = $input_url;
+      case 'oembed':
+      case 'oembed:video':
+        // Input url != embed url. For Youtube, /watch != /embed.
+        $input_url = $media->getSource()->getSourceFieldValue($media);
+        $input_url = trim(strip_tags($input_url));
+        if ($input_url) {
+          $settings['input_url'] = $input_url;
 
-            $this->build($settings);
-          }
-          break;
+          $this->build($settings);
+        }
+        break;
 
-        case 'image':
-          $settings['type'] = 'image';
-          break;
+      case 'image':
+        $settings['type'] = 'image';
+        break;
 
-        default:
-          break;
-      }
+      default:
+        break;
+    }
 
-      // Do not proceed if it has type, already managed by theme_blazy().
-      // Supports other Media entities: Facebook, Instagram, Twitter, etc.
-      // @todo recheck against core Media with Resource::TYPE_RICH.
-      $content = [];
-      if (empty($settings['type']) && ($build = BlazyMedia::build($media, $settings))) {
-        $content[] = $build;
-      }
+    // Do not proceed if it has type, already managed by theme_blazy().
+    // Supports other Media entities: Facebook, Instagram, Twitter, etc.
+    // @todo recheck against core Media with Resource::TYPE_RICH.
+    if (empty($settings['type']) && ($build = BlazyMedia::build($media, $settings))) {
+      $content[] = $build;
     }
 
     // Collect what's needed for clarity.

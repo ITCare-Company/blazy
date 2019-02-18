@@ -29,6 +29,13 @@ trait BlazyPropertiesTestTrait {
   protected $blazyManager;
 
   /**
+   * The blazy entity service.
+   *
+   * @var \Drupal\blazy\BlazyEntity
+   */
+  protected $blazyEntity;
+
+  /**
    * The entity manager.
    *
    * @var \Drupal\Core\Entity\EntityFieldManagerInterface

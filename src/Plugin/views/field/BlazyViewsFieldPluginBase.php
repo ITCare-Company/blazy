@@ -8,8 +8,7 @@ use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManagerInterface;
-use Drupal\blazy\BlazyOEmbed;
-use Drupal\blazy\Dejavu\BlazyEntityTrait;
+use Drupal\blazy\BlazyEntity;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -18,15 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
 
-  use BlazyEntityTrait;
   use BlazyVideoTrait;
-
-  /**
-   * The blazy oembed service.
-   *
-   * @var \Drupal\blazy\BlazyOEmbed
-   */
-  protected $blazyOembed;
 
   /**
    * The blazy service manager.
@@ -38,18 +29,19 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * Constructs a BlazyViewsFieldPluginBase object.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImageFactory $image_factory, BlazyManagerInterface $blazy_manager, BlazyOEmbed $blazy_oembed) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImageFactory $image_factory, BlazyManagerInterface $blazy_manager, BlazyEntity $blazy_entity) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->imageFactory = $image_factory;
     $this->blazyManager = $blazy_manager;
-    $this->blazyOembed = $blazy_oembed;
+    $this->blazyEntity = $blazy_entity;
+    $this->blazyOembed = $blazy_entity->oembed();
   }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($configuration, $plugin_id, $plugin_definition, $container->get('image.factory'), $container->get('blazy.manager'), $container->get('blazy.oembed'));
+    return new static($configuration, $plugin_id, $plugin_definition, $container->get('image.factory'), $container->get('blazy.manager'), $container->get('blazy.entity'));
   }
 
   /**
@@ -64,13 +56,6 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    */
   public function blazyManager() {
     return $this->blazyManager;
-  }
-
-  /**
-   * Returns the blazy oEmbed service.
-   */
-  public function blazyOembed() {
-    return $this->blazyOembed;
   }
 
   /**

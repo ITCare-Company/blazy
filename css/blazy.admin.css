@@ -1423,6 +1423,25 @@ td .form__title {
   .form--blazy.form--views .form-item--style > .description {
     min-width: 640px;
   }
+
+  /** Blazy grid at Views UI or Fied UI. */
+  .form--blazy.form--grid-required .form-item {
+    width: 33.2666%;
+  }
+
+  .form--blazy.form--grid-required .form-item select {
+    min-width: 64px;
+    width: 64px;
+  }
+
+  .form--blazy.form--grid-required .form-item label {
+    width: auto;
+    min-width: 120px;
+  }
+
+  .form--blazy.form--grid-required .form-item--style select {
+    width: 120px;
+  }
 }
 
 @media screen and (min-width: 1400px) {

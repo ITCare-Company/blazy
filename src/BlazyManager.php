@@ -4,7 +4,6 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Implements a public facing blazy manager.
@@ -315,6 +314,7 @@ class BlazyManager extends BlazyManagerBase {
     $attributes = [];
     $settings = $build['settings'];
     $settings += BlazyDefault::itemSettings();
+    $settings['_api'] = TRUE;
 
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
@@ -411,42 +411,6 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * Returns the entity view, if available.
-   *
-   * @param object $entity
-   *   The entity being rendered.
-   * @param array $settings
-   *   The settings containing view_mode.
-   * @param string $fallback
-   *   The fallback content when all fails, probably just entity label.
-   *
-   * @return array|bool
-   *   The renderable array of the view builder, or false if not applicable.
-   */
-  public function getEntityView($entity = NULL, array $settings = [], $fallback = '') {
-    if ($entity instanceof EntityInterface) {
-      $entity_type_id = $entity->getEntityTypeId();
-      $view_hook      = $entity_type_id . '_view';
-      $view_mode      = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
-      $langcode       = $entity->language()->getId();
-
-      // If module implements own {entity_type}_view.
-      if (function_exists($view_hook)) {
-        return $view_hook($entity, $view_mode, $langcode);
-      }
-      // If entity has view_builder handler.
-      elseif ($this->getEntityTypeManager()->hasHandler($entity_type_id, 'view_builder')) {
-        return $this->getEntityTypeManager()->getViewBuilder($entity_type_id)->view($entity, $view_mode, $langcode);
-      }
-      elseif ($fallback) {
-        return ['#markup' => $fallback];
-      }
-    }
-
-    return FALSE;
-  }
-
-  /**
    * Returns the Responsive image cache tags.
    *
    * @param object $responsive
@@ -468,6 +432,15 @@ class BlazyManager extends BlazyManagerBase {
       $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
     }
     return $cache_tags;
+  }
+
+  /**
+   * Returns the entity view, if available.
+   *
+   * @deprecated to remove for BlazyEntity.
+   */
+  public function getEntityView($entity, array $settings = [], $fallback = '') {
+    return FALSE;
   }
 
 }

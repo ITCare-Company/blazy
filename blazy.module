@@ -168,21 +168,6 @@ function blazy_preprocess_media_oembed_iframe(array &$variables) {
 }
 
 /**
- * The BC for Media settings to not break the tests.
- *
- * @param array $settings
- *   The settings array being modified.
- *
- * @return \Drupal\media\OEmbed\Resource
- *   The oEmbed resource if avalaible.
- *
- * @todo remove once blazy-related modules updated to Media prior to 8.2.x.
- */
-function _blazy_build_oembed(array &$settings = []) {
-  return \Drupal::service('blazy.oembed')->build($settings);
-}
-
-/**
  * Provides a shortcut to parse the markdown string, and convert it into HTML.
  */
 function blazy_parse_markdown($string) {

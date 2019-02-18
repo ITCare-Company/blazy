@@ -8,7 +8,7 @@ use Drupal\blazy\BlazyMedia;
 /**
  * Tests the Blazy image formatter.
  *
- * @coversDefaultClass \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatter
+ * @coversDefaultClass \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyImageFormatter
  * @todo it right with NULL formatterInstance.
  *
  * @group blazy

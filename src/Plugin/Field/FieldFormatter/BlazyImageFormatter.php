@@ -11,7 +11,7 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
  *   field_types = {"image"}
  * )
  */
-class BlazyFormatter extends BlazyFileFormatterBase {
+class BlazyImageFormatter extends BlazyFileFormatterBase {
 
   use BlazyFormatterTrait;
 

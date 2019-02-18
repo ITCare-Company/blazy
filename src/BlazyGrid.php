@@ -25,20 +25,24 @@ class BlazyGrid {
     $settings['style'] = empty($settings['style']) ? 'grid' : $settings['style'];
 
     $grids = [];
-    foreach ($items as $delta => $item) {
+    foreach ($items as $item) {
       // @todo: Support non-Blazy which normally uses item_id.
       $item_settings = isset($item['#build']) && isset($item['#build']['settings']) ? $item['#build']['settings'] : $settings;
-      $item_settings['delta'] = $delta;
 
       // Supports both single formatter field and complex fields such as Views.
-      $grid = [];
       $grid['content'] = [
         '#theme'      => 'container',
         '#children'   => $item,
         '#attributes' => ['class' => ['grid__content']],
       ];
 
-      self::buildGridItemAttributes($grid, $item_settings);
+      $classes = ['grid'];
+      foreach (['grid_item_class', 'type', 'media_switch'] as $key) {
+        if (!empty($item_settings[$key])) {
+          $classes[] = 'grid--' . str_replace('_', '-', $item_settings[$key]);
+        }
+      }
+      $grid['#wrapper_attributes']['class'] = $classes;
 
       $grids[] = $grid;
       unset($grid);
@@ -76,30 +80,6 @@ class BlazyGrid {
     }
 
     return $element;
-  }
-
-  /**
-   * Modifies the grid item wrapper attributes.
-   *
-   * @param array $grid
-   *   The grid item being modified.
-   * @param array $settings
-   *   The given settings.
-   */
-  public static function buildGridItemAttributes(array &$grid = [], array $settings = []) {
-    if (!empty($settings['grid_item_class'])) {
-      $grid['#wrapper_attributes']['class'][] = $settings['grid_item_class'];
-    }
-
-    $grid['#wrapper_attributes']['class'][] = 'grid';
-
-    if (!empty($settings['type'])) {
-      $grid['#wrapper_attributes']['class'][] = 'grid--' . $settings['type'];
-    }
-
-    if (!empty($settings['media_switch'])) {
-      $grid['#wrapper_attributes']['class'][] = 'grid--' . str_replace('_', '-', $settings['media_switch']);
-    }
   }
 
 }

@@ -76,25 +76,21 @@ class BlazyViews extends StylePluginBase {
    */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     $definition = [
-      'namespace' => 'blazy',
-      'grid_form' => TRUE,
-      'settings'  => $this->options,
-      'style'     => TRUE,
-      'form_opening_classes' => 'form--blazy form--slick form--views form--half has-tooltip',
+      'namespace'     => 'blazy',
+      'grid_form'     => TRUE,
+      'grid_required' => TRUE,
+      'settings'      => $this->options,
+      'style'         => TRUE,
+      'opening_class' => 'form--views',
     ];
 
     // Build the form.
     $this->admin()->openingForm($form, $definition);
     $this->admin()->gridForm($form, $definition);
-
-    if (isset($form['grid'])) {
-      $form['grid']['#description'] = $this->t('The amount of block grid columns for large monitors 64.063em.');
-    }
-
     $this->admin()->finalizeForm($form, $definition);
 
     // Blazy doesn't need complex grid with multiple groups.
-    unset($form['layout'], $form['preserve_keys'], $form['grid_header'], $form['visible_items'], $form['style']['#empty_option'], $form['grid']['#empty_option']);
+    unset($form['layout'], $form['preserve_keys'], $form['visible_items']);
   }
 
   /**

@@ -64,6 +64,7 @@ blazybox:
     component:
       css/components/blazy.blazybox.css: {}
   dependencies:
+    - core/drupal
     - core/classList
     - blazy/dblazy
     - blazy/lightbox

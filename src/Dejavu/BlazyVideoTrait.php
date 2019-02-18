@@ -10,18 +10,42 @@ use Drupal\file\Entity\File;
  * @see Drupal\blazy\Plugin\views\field\BlazyViewsFieldPluginBase
  * @see Drupal\slick_browser\SlickBrowser::widgetEntityBrowserFileFormAlter()
  * @see Drupal\slick_browser\Plugin\EntityBrowser\FieldWidgetDisplay\...
+ * @todo move it into BlazyMedia.
  */
 trait BlazyVideoTrait {
+
+  /**
+   * The blazy oembed service.
+   *
+   * @var \Drupal\blazy\BlazyOEmbed
+   * @todo remove default null post Blazy 8.2.x full release.
+   */
+  protected $blazyOembed = NULL;
 
   /**
    * Core Media oEmbed url resolver.
    *
    * @var \Drupal\Core\Image\ImageFactory
+   * @todo remove default null post Blazy 8.2.x full release.
    */
   protected $imageFactory = NULL;
 
   /**
+   * Returns the blazy oEmbed service.
+   *
+   * @todo remove null check post Blazy 8.2.x full release.
+   */
+  public function blazyOembed() {
+    if (is_null($this->blazyOembed)) {
+      $this->blazyOembed = \Drupal::service('blazy.oembed');
+    }
+    return $this->blazyOembed;
+  }
+
+  /**
    * Returns the image factory.
+   *
+   * @todo remove null check post Blazy 8.2.x full release.
    */
   public function imageFactory() {
     if (is_null($this->imageFactory)) {
@@ -90,13 +114,7 @@ trait BlazyVideoTrait {
    * @todo remove post Blazy 8.2.x when blazy-plugins use core Media.
    */
   public function getMediaItem(array &$data = [], $media = NULL) {
-    // If this file is imported without DI, allows a fallback to not break it.
-    if (isset($this->blazyOembed) && !is_null($this->blazyOembed)) {
-      $this->blazyOembed->getMediaItem($data, $media);
-      return;
-    }
-
-    \Drupal::service('blazy.oembed')->getMediaItem($data, $media);
+    $this->blazyOembed()->getMediaItem($data, $media);
   }
 
   /**
@@ -111,14 +129,12 @@ trait BlazyVideoTrait {
    * @todo remove post Blazy 8.2.x full release. This is still kept to
    * allow changing from video_embed_field into media field without breaking it,
    * and to allow transition from blazy-related modules to depend on media.
+   * Currently this is only required by deprecated SlickVideoFormatter.
    */
   public function buildVideo(array &$settings = [], $external_url = '') {
     // If this file is imported without DI, allows a fallback to not break it.
     $settings['input_url'] = empty($settings['input_url']) ? $external_url : $settings['input_url'];
-    if (isset($this->blazyOembed) && !is_null($this->blazyOembed)) {
-      return $this->blazyOembed->build($settings);
-    }
-    return _blazy_build_oembed($settings);
+    return $this->blazyOembed()->build($settings);
   }
 
 }

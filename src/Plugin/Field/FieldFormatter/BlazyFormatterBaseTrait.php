@@ -19,33 +19,27 @@ trait BlazyFormatterBaseTrait {
    *
    * @var \Drupal\blazy\BlazyFormatterManager
    */
-  protected $blazyManager;
+  protected $formatter;
 
   /**
-   * The blazy oembed service.
-   *
-   * @var \Drupal\blazy\BlazyOEmbed
-   * @todo remove default null post Blazy 8.2.x full release.
+   * Returns the blazy formatter manager.
    */
-  protected $blazyOembed = NULL;
+  public function formatter() {
+    return $this->formatter;
+  }
+
+  /**
+   * The blazy manager service.
+   *
+   * @var \Drupal\blazy\BlazyManagerInterface
+   */
+  protected $blazyManager;
 
   /**
    * Returns the blazy manager.
    */
   public function blazyManager() {
     return $this->blazyManager;
-  }
-
-  /**
-   * Returns the blazy oEmbed service.
-   *
-   * @todo remove null check post Blazy 8.2.x full release.
-   */
-  public function blazyOembed() {
-    if (is_null($this->blazyOembed)) {
-      $this->blazyOembed = \Drupal::service('blazy.oembed');
-    }
-    return $this->blazyOembed;
   }
 
   /**

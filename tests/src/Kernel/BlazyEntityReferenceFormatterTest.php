@@ -156,7 +156,7 @@ class BlazyEntityReferenceFormatterTest extends KernelTestBase {
     $render = $this->blazyManager->getRenderer()->renderRoot($build);
     $this->assertNotEmpty($render);
 
-    $string = $formatter->getFieldString($this->referencedEntity, '', NULL);
+    $string = $this->blazyEntity->getFieldString($this->referencedEntity, '', NULL);
     $this->assertEmpty($string);
 
     $data['settings'] = $settings;
@@ -216,7 +216,7 @@ class BlazyEntityReferenceFormatterTest extends KernelTestBase {
       'settings' => $settings,
     ];
 
-    $preview = $formatter->buildPreview($data, $entity, '');
+    $preview = $this->blazyEntity->build($data, $entity, '');
     $result = $is_entity ? !empty($preview) : $preview;
 
     $this->assertEquals($expected, $result);

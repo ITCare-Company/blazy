@@ -29,12 +29,13 @@ trait BlazyFormatterTrait {
     $settings['blazy']     = TRUE;
     $settings['namespace'] = $settings['item_id'] = $settings['lazy'] = 'blazy';
     $settings['_grid']     = !empty($settings['style']) && !empty($settings['grid']);
+    $settings['langcode']  = $langcode;
 
     // Build the settings.
     $build = ['settings' => $settings];
 
     // Modifies settings.
-    $this->blazyManager->buildSettings($build, $items);
+    $this->formatter->buildSettings($build, $items);
 
     // Build the elements.
     $this->buildElements($build, $files);
@@ -44,7 +45,7 @@ trait BlazyFormatterTrait {
     unset($build['settings']);
 
     // Supports Blazy multi-breakpoint images if provided.
-    $this->blazyManager->isBlazy($settings, $build[0]['#build']);
+    $this->formatter->isBlazy($settings, $build[0]['#build']);
 
     // Build grid if provided.
     if (empty($settings['_grid'])) {
@@ -54,7 +55,7 @@ trait BlazyFormatterTrait {
       $build = BlazyGrid::build($build, $settings);
     }
 
-    $build['#attached'] = $this->blazyManager->attach($settings);
+    $build['#attached'] = $this->formatter->attach($settings);
     return $build;
   }
 
@@ -63,8 +64,7 @@ trait BlazyFormatterTrait {
    */
   public function buildElements(array &$build, $files) {
     $settings = $build['settings'];
-    $item_id  = $settings['item_id'];
-    $is_media = method_exists($this, 'getMediaItem');
+    $item_id = $settings['item_id'];
 
     if (!empty($settings['caption'])) {
       $settings['caption_attributes']['class'][] = $item_id . '__caption';
@@ -83,16 +83,7 @@ trait BlazyFormatterTrait {
       $box['settings'] = $settings;
 
       // If imported Drupal\blazy\Dejavu\BlazyVideoTrait.
-      if ($is_media) {
-        /** @var Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
-        // EntityReferenceItem provides $item->entity Drupal\file\Entity\File.
-        if (!empty($this->getImageItem($item))) {
-          $box['item'] = $this->getImageItem($item)['item'];
-          $box['settings'] = array_merge($settings, $this->getImageItem($item)['settings']);
-        }
-
-        $this->getMediaItem($box, $file);
-      }
+      $this->buildElement($box, $file);
 
       // Build caption if so configured.
       if (!empty($settings['caption'])) {
@@ -111,7 +102,7 @@ trait BlazyFormatterTrait {
       }
 
       // Image with grid, responsive image, lazyLoad, and lightbox supports.
-      $build[$delta] = $this->blazyManager->getImage($box);
+      $build[$delta] = $this->formatter->getImage($box);
       unset($box);
     }
   }

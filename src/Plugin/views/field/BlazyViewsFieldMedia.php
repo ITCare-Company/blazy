@@ -22,7 +22,7 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
     $data['settings']['delta'] = $values->index;
 
     // Pass results to \Drupal\blazy\Dejavu\BlazyEntityTrait.
-    return $this->buildPreview($data, $media, $media->label());
+    return $this->blazyEntity->build($data, $media, $media->label());
   }
 
   /**

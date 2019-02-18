@@ -98,14 +98,3 @@ if (!function_exists('token_theme')) {
   }
 
 }
-
-if (!function_exists('video_embed_media_media_bundle_insert')) {
-
-  /**
-   * Dummy function.
-   */
-  function video_embed_media_media_bundle_insert() {
-    // Empty block to satisfy coder.
-  }
-
-}
