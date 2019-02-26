@@ -22,6 +22,14 @@
 
     t[$('.form-checkbox--vanilla', t).prop('checked') ? 'addClass' : 'removeClass']('form--vanilla-on');
 
+    $('.form-checkbox', t).each(function () {
+      var $input = $(this);
+
+      if (!$input.siblings('.field-suffix').length) {
+        $input.after('<span class="field-suffix">&nbsp;</span>');
+      }
+    });
+
     t.on('click', '.form-checkbox', function () {
       var $input = $(this);
       $input[$input.prop('checked') ? 'addClass' : 'removeClass']('on');

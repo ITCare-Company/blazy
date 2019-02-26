@@ -20,6 +20,7 @@ class BlazyViews {
       $load = $blazy->blazyManager()->attach($settings);
 
       // Enforce Blazy to work with hidden element such as with EB selection.
+      // @todo refine this to selectively loadInvisible by request.
       $load['drupalSettings']['blazy']['loadInvisible'] = TRUE;
       $view->element['#attached'] = isset($view->element['#attached']) ? NestedArray::mergeDeep($view->element['#attached'], $load) : $load;
 

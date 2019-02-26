@@ -75,7 +75,12 @@ class BlazyFormatterManager extends BlazyManager {
     $resimage_lazy          = $this->configLoad('responsive_image') && !empty($settings['responsive_image_style']);
     $settings['blazy']      = $resimage_lazy || !empty($settings['blazy']);
 
-    if (!empty($settings['blazy'])) {
+    // Let Blazy handle CSS background as Slick's background is deprecated.
+    if ($settings['background']) {
+      $settings['blazy'] = TRUE;
+    }
+
+    if ($settings['blazy']) {
       $settings['lazy'] = 'blazy';
     }
 

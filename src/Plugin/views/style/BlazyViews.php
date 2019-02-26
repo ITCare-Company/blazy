@@ -115,7 +115,7 @@ class BlazyViews extends StylePluginBase {
       }
 
       // Supports Blazy formatter multi-breakpoint images if available.
-      $item = isset($items[0]) ? $items[0] : NULL;
+      $item = isset($items[0]) ? $items[0] : [];
       $this->blazyManager->isBlazy($settings, $item);
 
       $elements = BlazyGrid::build($items, $settings);

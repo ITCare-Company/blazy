@@ -54,6 +54,7 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
     $this->blazyAdminFormatter = new BlazyAdminFormatter(
       $this->entityDisplayRepository,
       $this->typedConfig,
+      $this->dateFormatter,
       $this->blazyManager
     );
   }

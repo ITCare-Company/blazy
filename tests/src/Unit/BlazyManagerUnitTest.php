@@ -146,7 +146,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
       $build['item']->_attributes['data-blazy-test'] = TRUE;
     }
 
-    $image = $this->blazyManager->getImage($build);
+    $image = $this->blazyManager->getBlazy($build);
 
     $build_image['#build']['settings'] = array_merge($this->getCacheMetaData(), $build['settings']);
     $build_image['#build']['item'] = $build['item'];

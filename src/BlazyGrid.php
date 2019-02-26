@@ -26,8 +26,11 @@ class BlazyGrid {
 
     $grids = [];
     foreach ($items as $item) {
-      // @todo: Support non-Blazy which normally uses item_id.
-      $item_settings = isset($item['#build']) && isset($item['#build']['settings']) ? $item['#build']['settings'] : $settings;
+      // Support non-Blazy which normally uses item_id.
+      $attributes    = isset($item['attributes']) ? $item['attributes'] : [];
+      $item_settings = isset($item['settings']) ? $item['settings'] : $settings;
+      $item_settings = isset($item['#build']) && isset($item['#build']['settings']) ? $item['#build']['settings'] : $item_settings;
+      unset($item['settings'], $item['attributes']);
 
       // Supports both single formatter field and complex fields such as Views.
       $grid['content'] = [
@@ -36,13 +39,15 @@ class BlazyGrid {
         '#attributes' => ['class' => ['grid__content']],
       ];
 
-      $classes = ['grid'];
       foreach (['grid_item_class', 'type', 'media_switch'] as $key) {
         if (!empty($item_settings[$key])) {
-          $classes[] = 'grid--' . str_replace('_', '-', $item_settings[$key]);
+          $attributes['class'][] = 'grid--' . str_replace('_', '-', $item_settings[$key]);
         }
       }
-      $grid['#wrapper_attributes']['class'] = $classes;
+
+      $classes = isset($attributes['class']) ? $attributes['class'] : [];
+      $attributes['class'] = array_merge(['grid'], $classes);
+      $grid['#wrapper_attributes'] = $attributes;
 
       $grids[] = $grid;
       unset($grid);

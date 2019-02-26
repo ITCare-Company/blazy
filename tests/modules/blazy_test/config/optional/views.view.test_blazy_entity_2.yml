@@ -80,6 +80,8 @@ display:
           grid_medium: 3
           grid_small: 2
           image: blazy_file
+          thumbnail: ''
+          overlay: ''
           title: filename
           link: ''
           class: ''

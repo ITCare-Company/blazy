@@ -311,6 +311,8 @@ class BlazyOEmbed {
 
   /**
    * Overrides variables for media-oembed-iframe.html.twig templates.
+   *
+   * @todo recheck this in case core provides a more flexible way post 8.6+.
    */
   public function preprocessMediaOembedIframe(array &$variables) {
     // Without internet, this may be empty, bail out.
@@ -330,23 +332,23 @@ class BlazyOEmbed {
       if ($url && $is_blazy == 1) {
         // Load iframe string as a DOMDocument as alternative to regex.
         $dom = Html::load($variables['media']);
-        $iframe = $dom->getElementsByTagName('iframe')->item(0);
+        $iframe = $dom->getElementsByTagName('iframe');
         $resource = $this->getResource($url);
 
         // Fetches autoplay_url.
         $settings = $this->getAutoPlayUrl($resource);
 
         // Replace old oEmbed url with autoplay support, and save the DOM.
-        if ($iframe) {
+        if ($iframe->length > 0) {
           // Only replace if autoplay == 1 for Image to iframe, or lightboxes.
           if ($is_autoplay == 1 && !empty($settings['autoplay_url'])) {
-            $iframe->setAttribute('src', $settings['autoplay_url']);
+            $iframe->item(0)->setAttribute('src', $settings['autoplay_url']);
           }
 
           // Make responsive iframe with/ without autoplay.
-          $iframe->setAttribute('width', '100%');
-          $iframe->setAttribute('height', '100%');
-          $iframe->setAttribute('style', 'display: block; max-width: 100%; overflow: hidden; width: 100%; height: 100vh;');
+          $iframe->item(0)->setAttribute('width', '100%');
+          $iframe->item(0)->setAttribute('height', '100%');
+          $iframe->item(0)->setAttribute('style', 'display: block; max-width: 100%; overflow: hidden; width: 100%; height: 100vh;');
           $variables['media'] = $dom->saveHTML();
         }
       }

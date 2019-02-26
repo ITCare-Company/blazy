@@ -79,6 +79,8 @@ display:
           grid_medium: null
           grid_small: null
           image: ''
+          thumbnail: ''
+          overlay: ''
           title: title
           link: view_node
           class: ''
@@ -191,6 +193,8 @@ display:
           text: view
           entity_type: node
           plugin_id: entity_link
+          output_url_as_text: false
+          absolute: false
       filters: {  }
       sorts:
         created:

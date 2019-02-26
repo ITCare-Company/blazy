@@ -52,7 +52,7 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Checks if an image style contains crop effect.
    */
-  public function isCrop($style = NULL) {
+  public function isCrop($style) {
     if (!isset($this->isCrop[$style->getName()])) {
       $this->isCrop[$style->getName()] = FALSE;
 
@@ -257,7 +257,7 @@ class BlazyManager extends BlazyManagerBase {
    * @return array
    *   The alterable and renderable array of enforced content, or theme_blazy().
    */
-  public function getImage(array $build = []) {
+  public function getBlazy(array $build = []) {
     if (empty($build['item'])) {
       return [];
     }
@@ -419,7 +419,7 @@ class BlazyManager extends BlazyManagerBase {
    * @return array
    *   The responsive image cache tags, or empty array.
    */
-  public function getResponsiveImageCacheTags($responsive = NULL) {
+  public function getResponsiveImageCacheTags($responsive) {
     $cache_tags = [];
     $image_styles_to_load = [];
     if ($responsive) {
@@ -437,10 +437,24 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Returns the entity view, if available.
    *
-   * @deprecated to remove for BlazyEntity.
+   * @deprecated to remove for BlazyEntity::getEntityView().
    */
   public function getEntityView($entity, array $settings = [], $fallback = '') {
     return FALSE;
+  }
+
+  /**
+   * Returns the enforced content, or image using theme_blazy().
+   *
+   * @deprecated to remove post 2.x for self::getBlazy() for clarity.
+   * FYI, most Blazy codes were originally Slick's, PHP, CSS and JS.
+   * It was poorly named self::getImage() while Blazy may also contain Media
+   * video with iframe element. Probably getMedia() is cool, but let's stick to
+   * self::getBlazy() as Blazy also works without Image nor Media video, such as
+   * with just a DIV element for CSS background.
+   */
+  public function getImage(array $build = []) {
+    return $this->getBlazy($build);
   }
 
 }

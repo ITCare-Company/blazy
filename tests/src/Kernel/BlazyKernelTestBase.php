@@ -13,6 +13,17 @@ abstract class BlazyKernelTestBase extends FieldKernelTestBase {
   use BlazyKernelTestTrait;
 
   /**
+   * Set to TRUE to strict check all configuration saved.
+   *
+   * This is not crucial as this affects responsive_image.., not Blazy stuffs.
+   *
+   * @var bool
+   * @todo remove once fixed for: responsive_image.styles.blazy_picture_test.
+   * @see \Drupal\Core\Config\Development\ConfigSchemaChecker
+   */
+  protected $strictConfigSchema = FALSE;
+
+  /**
    * Modules to enable.
    *
    * @var array

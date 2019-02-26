@@ -4,6 +4,7 @@ namespace Drupal\blazy\Form;
 
 use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Datetime\DateFormatter;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Config\TypedConfigManagerInterface;
@@ -70,6 +71,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   protected $typedConfig;
 
   /**
+   * The date formatter service.
+   *
+   * @var \Drupal\Core\Datetime\DateFormatter
+   */
+  protected $dateFormatter;
+
+  /**
    * The blazy manager service.
    *
    * @var \Drupal\blazy\BlazyManagerInterface
@@ -83,12 +91,15 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    *   The entity display repository.
    * @param \Drupal\Core\Config\TypedConfigManagerInterface $typed_config
    *   The typed config service.
+   * @param \Drupal\Core\Datetime\DateFormatter $date_formatter
+   *   The date formatter service.
    * @param \Drupal\slick\BlazyManagerInterface $blazy_manager
    *   The blazy manager service.
    */
-  public function __construct(EntityDisplayRepositoryInterface $entity_display_repository, TypedConfigManagerInterface $typed_config, BlazyManagerInterface $blazy_manager) {
+  public function __construct(EntityDisplayRepositoryInterface $entity_display_repository, TypedConfigManagerInterface $typed_config, DateFormatter $date_formatter, BlazyManagerInterface $blazy_manager) {
     $this->entityDisplayRepository = $entity_display_repository;
     $this->typedConfig             = $typed_config;
+    $this->dateFormatter           = $date_formatter;
     $this->blazyManager            = $blazy_manager;
   }
 
@@ -96,7 +107,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('entity_display.repository'), $container->get('config.typed'), $container->get('blazy.manager'));
+    return new static($container->get('entity_display.repository'), $container->get('config.typed'), $container->get('date.formatter'), $container->get('blazy.manager'));
   }
 
   /**
@@ -582,8 +593,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $vanilla = !empty($definition['vanilla']) ? ' form--vanilla' : '';
     $grid = !empty($definition['grid_required']) ? ' form--grid-required' : '';
     $plugind_id = !empty($definition['plugin_id']) ? ' form--plugin-' . str_replace('_', '-', $definition['plugin_id']) : '';
-    $captions = empty($definition['captions']) ? 0 : count($definition['captions']);
-    $wide = $captions > 2 ? ' form--wide form--caption-' . $captions : ' form--caption-' . $captions;
+    $count = empty($definition['captions']) ? 0 : count($definition['captions']);
+    $count = empty($definition['captions_count']) ? $count : $definition['captions_count'];
+    $wide = $count > 2 ? ' form--wide form--caption-' . $count : ' form--caption-' . $count;
     $fallback = $namespace == 'slick' ? 'form--slick' : 'form--' . $namespace . ' form--slick';
     $custom = isset($definition['opening_class']) ? ' ' . $definition['opening_class'] : '';
     // @todo remove form_opening_classes for opening_class.
@@ -697,7 +709,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       43200,
       86400,
     ];
-    $period = array_map([\Drupal::service('date.formatter'), 'formatInterval'], array_combine($period, $period));
+    $period = array_map([$this->dateFormatter, 'formatInterval'], array_combine($period, $period));
     $period[0] = '<' . $this->t('No caching') . '>';
     return $period + [Cache::PERMANENT => $this->t('Permanent')];
   }

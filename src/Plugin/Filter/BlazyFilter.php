@@ -119,7 +119,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
             'settings' => $settings,
           ];
 
-          $output = $this->blazyManager->getImage($build);
+          $output = $this->blazyManager->getBlazy($build);
           $altered_html = $this->blazyManager->getRenderer()->render($output);
 
           // Load the altered HTML into a new DOMDocument, retrieve the element.

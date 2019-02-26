@@ -53,7 +53,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityBase {
     }
 
     // Optional image with responsive image, lazyLoad, and lightbox supports.
-    $element[$item_id] = empty($element['item']) ? [] : $this->formatter()->getImage($element);
+    $element[$item_id] = empty($element['item']) ? [] : $this->formatter()->getBlazy($element);
 
     // Captions if so configured.
     $this->getCaption($element, $entity, $langcode);
@@ -253,11 +253,14 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityBase {
       'links'             => $admin->getFieldOptions($bundles, $links, $target_type),
       'media_switch_form' => TRUE,
       'multimedia'        => TRUE,
+      'titles'            => $texts,
+      'vanilla'           => TRUE,
+
+      // @todo remove and move to Slick. Most Blazy codes were originally built
+      // on top of and copied directly from Slick.
       'thumb_captions'    => $texts,
       'thumb_positions'   => TRUE,
       'nav'               => TRUE,
-      'titles'            => $texts,
-      'vanilla'           => TRUE,
     ] + parent::getScopedFormElements();
   }
 

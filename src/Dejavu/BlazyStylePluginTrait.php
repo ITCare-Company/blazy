@@ -110,6 +110,10 @@ trait BlazyStylePluginTrait {
           $options['titles'][$field] = $field_names[$field];
         }
 
+        if (in_array($handler['field'], ['created'])) {
+          $options['classes'][$field] = $field_names[$field];
+        }
+
         $blazies = strpos($handler['field'], 'blazy_') !== FALSE;
         if ($blazies) {
           $options['images'][$field] = $field_names[$field];
@@ -190,7 +194,7 @@ trait BlazyStylePluginTrait {
         // Rebuilds the image for the brand new richer Blazy.
         // With the working Views cache, nothing to worry much.
         $build = ['item' => $item, 'settings' => $settings];
-        $image['rendered'] = $this->blazyManager->getImage($build);
+        $image['rendered'] = $this->blazyManager->getBlazy($build);
       }
     }
 
@@ -303,7 +307,7 @@ trait BlazyStylePluginTrait {
    *
    * @todo re-check this, or if any consistent way to retrieve string values.
    */
-  public function getFieldString($row, $field_name, $index) {
+  public function getFieldString($row, $field_name, $index, $clean = TRUE) {
     $values   = [];
     $renderer = $this->blazyManager->getRenderer();
 
@@ -316,29 +320,38 @@ trait BlazyStylePluginTrait {
         $value = is_object($markup) ? trim(strip_tags($markup->__toString())) : $value;
       }
 
-      // Tags has comma separated value, although can be changed, just too much.
-      if (is_string($value) && strpos($value, ',') !== FALSE) {
-        $tags = explode(',', $value);
-        $rendered_tags = [];
-        foreach ($tags as $tag) {
-          $rendered_tags[] = Html::cleanCssIdentifier(mb_strtolower(trim($tag)));
+      if (is_string($value)) {
+        // Only respects tags with default CSV, just too much to worry about.
+        if (strpos($value, ',') !== FALSE) {
+          $tags = explode(',', $value);
+          $rendered_tags = [];
+          foreach ($tags as $tag) {
+            $tag = trim($tag);
+            $rendered_tags[] = $clean ? Html::cleanCssIdentifier(mb_strtolower($tag)) : $tag;
+          }
+          $values[$index] = implode(' ', $rendered_tags);
         }
-        $values[$index] = implode(' ', $rendered_tags);
+        else {
+          $values[$index] = $clean ? Html::cleanCssIdentifier(mb_strtolower($value)) : $value;
+        }
       }
       else {
-        $value = is_string($value) ? $value : (isset($value[0]['value']) && !empty($value[0]['value']) ? $value[0]['value'] : '');
-        $values[$index] = empty($value) ? '' : Html::cleanCssIdentifier(mb_strtolower($value));
+        $value = isset($value[0]['value']) && !empty($value[0]['value']) ? $value[0]['value'] : '';
+        if ($value) {
+          $values[$index] = $clean ? Html::cleanCssIdentifier(mb_strtolower($value)) : $value;
+        }
       }
     }
 
     // Term reference/ET, either as link or plain text.
+    // @todo remove this as we have provided hints to use key or label.
     if (empty($values)) {
       if ($renderable = $this->getFieldRenderable($row, $index, $field_name, TRUE)) {
         $value = [];
         foreach ($renderable as $key => $render) {
           $class = isset($render['rendered']['#title']) ? $render['rendered']['#title'] : $renderer->render($render['rendered']);
           $class = trim(strip_tags($class));
-          $value[$key] = Html::cleanCssIdentifier(mb_strtolower($class));
+          $value[$key] = $clean ? Html::cleanCssIdentifier(mb_strtolower($class)) : $class;
         }
         $values[$index] = empty($value) ? '' : implode(' ', $value);
       }

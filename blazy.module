@@ -173,15 +173,3 @@ function blazy_preprocess_media_oembed_iframe(array &$variables) {
 function blazy_parse_markdown($string) {
   return BlazyMarkdown::isApplicable() ? BlazyMarkdown::parse($string) : FALSE;
 }
-
-/**
- * Implements hook_help().
- */
-function blazy_help($route_name) {
-  if ($route_name == 'help.page.blazy') {
-    $output = file_get_contents(dirname(__FILE__) . '/docs/README.md');
-    $output .= file_get_contents(dirname(__FILE__) . '/docs/CONTRIBUTION.md');
-    return blazy_parse_markdown($output) ?: '<pre>' . $output . '</pre>';
-  }
-  return '';
-}

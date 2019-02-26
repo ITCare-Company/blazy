@@ -10,21 +10,10 @@ use Drupal\blazy\BlazyViews;
  * Test Blazy Views integration.
  *
  * @coversDefaultClass \Drupal\blazy\Dejavu\BlazyStylePluginBase
- * @requires module media
- * @requires module views
  *
  * @group blazy
  */
 class BlazyViewsFileTest extends BlazyViewsTestBase {
-
-  /**
-   * Set to TRUE to strict check all configuration saved.
-   *
-   * @var bool
-   * @todo remove once schema issue fixed for: view_mode, current_view_mode.
-   * @see \Drupal\Core\Config\Development\ConfigSchemaChecker
-   */
-  protected $strictConfigSchema = FALSE;
 
   /**
    * {@inheritdoc}
@@ -87,7 +76,6 @@ class BlazyViewsFileTest extends BlazyViewsTestBase {
    * Make sure that the HTML list style markup is correct.
    *
    * @todo enable this once corrected, likely broken since Drupal 8.4+.
-   * @requires module video_embed_media
    */
   public function todoTestBlazyViews() {
     $this->buildContents();

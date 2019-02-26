@@ -27,7 +27,7 @@ services:
   blazy.admin.base:
     abstract: true
     class: Drupal\blazy\Form\BlazyAdminBase
-    arguments: ['@entity_display.repository', '@config.typed', '@blazy.manager']
+    arguments: ['@entity_display.repository', '@config.typed', '@date.formatter', '@blazy.manager']
 
   blazy.admin.formatter:
     class: Drupal\blazy\Form\BlazyAdminFormatter

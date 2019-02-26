@@ -1168,6 +1168,7 @@ td .form__title {
 
 .form--optionset #edit-options {
   clear: both;
+  width: 100%;
 }
 
 /* Prevents overlapping Views edit options */

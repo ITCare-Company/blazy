@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\blazy\BlazyGrid;
 
@@ -120,19 +119,12 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
 
     return [
       'fieldable_form' => FALSE,
-      'grid_form' => $multiple,
-      'layouts' => [],
-      'settings' => $this->buildSettings(),
-      'style' => $multiple,
-      'vanilla' => FALSE,
+      'grid_form'      => $multiple,
+      'layouts'        => [],
+      'settings'       => $this->getSettings(),
+      'style'          => $multiple,
+      'vanilla'        => FALSE,
     ] + parent::getScopedFormElements();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function isApplicable(FieldDefinitionInterface $field_definition) {
-    return $field_definition->getFieldStorageDefinition()->getSetting('target_type') == 'media';
   }
 
 }

@@ -106,7 +106,7 @@ class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPlug
       $box = ['item' => $item, 'settings' => $settings];
 
       // Image with responsive image, lazyLoad, and lightbox supports.
-      $build[$delta] = $this->formatter->getImage($box);
+      $build[$delta] = $this->formatter->getBlazy($box);
       unset($box);
     }
   }

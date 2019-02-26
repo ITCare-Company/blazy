@@ -8,7 +8,6 @@ dependencies:
   - drupal:media (>= 8.6)
 test_dependencies:
   - drupal:views
-  - video_embed_field:video_embed_media
 
 # Add a fake version so local drush and Git checkouts do not fail dependencies.
 version: 8.x-2.x

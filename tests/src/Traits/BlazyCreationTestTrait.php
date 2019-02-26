@@ -26,20 +26,6 @@ trait BlazyCreationTestTrait {
   protected $nodeType;
 
   /**
-   * The field storage definition.
-   *
-   * @var \Drupal\field\FieldStorageConfigInterface
-   */
-  protected $fieldStorageDefinition;
-
-  /**
-   * The field definition.
-   *
-   * @var \Drupal\Core\Field\FieldDefinitionInterface
-   */
-  protected $fieldDefinition;
-
-  /**
    * Setup formatter displays, default to image, and update its settings.
    *
    * @param string $bundle
@@ -94,14 +80,9 @@ trait BlazyCreationTestTrait {
    * @see BaseFieldDefinition::createFromFieldStorageDefinition()
    */
   protected function getBlazyFieldDefinition($field_name = '') {
-    if (!$this->fieldDefinition) {
-      $field_name = empty($field_name) ? $this->testFieldName : $field_name;
-      $field_storage_config = $this->getBlazyFieldStorageDefinition($field_name);
-      if ($field_storage_config) {
-        $this->fieldDefinition = BaseFieldDefinition::createFromFieldStorageDefinition($field_storage_config);
-      }
-    }
-    return $this->fieldDefinition;
+    $field_name = empty($field_name) ? $this->testFieldName : $field_name;
+    $field_storage_config = $this->getBlazyFieldStorageDefinition($field_name);
+    return $field_storage_config ? BaseFieldDefinition::createFromFieldStorageDefinition($field_storage_config) : FALSE;
   }
 
   /**
@@ -114,12 +95,9 @@ trait BlazyCreationTestTrait {
    *   The field storage definition.
    */
   protected function getBlazyFieldStorageDefinition($field_name = '') {
-    if (!$this->fieldStorageDefinition) {
-      $field_name = empty($field_name) ? $this->testFieldName : $field_name;
-      $field_storage_definitions = $this->entityFieldManager->getFieldStorageDefinitions($this->entityType);
-      $this->fieldStorageDefinition = isset($field_storage_definitions[$field_name]) ? $field_storage_definitions[$field_name] : NULL;
-    }
-    return $this->fieldStorageDefinition;
+    $field_name = empty($field_name) ? $this->testFieldName : $field_name;
+    $field_storage_definitions = $this->entityFieldManager->getFieldStorageDefinitions($this->entityType);
+    return isset($field_storage_definitions[$field_name]) ? $field_storage_definitions[$field_name] : FALSE;
   }
 
   /**
@@ -305,7 +283,7 @@ trait BlazyCreationTestTrait {
     $multiple   = strpos($field_name, 'mul') !== FALSE;
 
     if (in_array($field_type, ['file', 'image'])) {
-      $config['file_directory']  = $this->testPluginId;
+      $config['file_directory'] = $this->testPluginId;
       $config['file_extensions'] = 'png gif jpg jpeg';
 
       if ($field_type == 'file') {
@@ -382,7 +360,7 @@ trait BlazyCreationTestTrait {
    *   A render array.
    */
   protected function buildEntityReferenceRenderArray(array $referenced_entities, $type = '', array $settings = []) {
-    $type  = empty($type) ? $this->entityPluginId : $type;
+    $type = empty($type) ? $this->entityPluginId : $type;
     $items = $this->referencingEntity->get($this->entityFieldName);
 
     // Assign the referenced entities.
@@ -504,6 +482,11 @@ trait BlazyCreationTestTrait {
         $this->uri = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
         $this->url = file_url_transform_relative(file_create_url($this->uri));
       }
+    }
+
+    if (empty($this->url)) {
+      file_unmanaged_copy(DRUPAL_ROOT . '/core/modules/simpletest/files/image-1.png', 'public://test.png');
+      $this->url = file_create_url('public://test.png');
     }
 
     $this->testItem = $item;

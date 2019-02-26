@@ -9,11 +9,17 @@ use Drupal\blazy\BlazyMedia;
  * Tests the Blazy image formatter.
  *
  * @coversDefaultClass \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyImageFormatter
- * @todo it right with NULL formatterInstance.
  *
  * @group blazy
  */
 class BlazyFormatterTest extends BlazyKernelTestBase {
+
+  /**
+   * The formatter instance.
+   *
+   * @var \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyImageFormatter
+   */
+  protected $formatterInstance;
 
   /**
    * {@inheritdoc}

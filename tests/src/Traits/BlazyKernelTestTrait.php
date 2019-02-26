@@ -23,6 +23,7 @@ trait BlazyKernelTestTrait {
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
     $this->installEntitySchema('file');
+    $this->installEntitySchema('media');
     $this->installEntitySchema('entity_test');
   }
 
@@ -35,6 +36,7 @@ trait BlazyKernelTestTrait {
     $this->fieldTypePluginManager = $this->container->get('plugin.manager.field.field_type');
     $this->formatterPluginManager = $this->container->get('plugin.manager.field.formatter');
     $this->blazyManager           = $this->container->get('blazy.manager');
+    $this->blazyOembed            = $this->container->get('blazy.oembed');
     $this->blazyEntity            = $this->container->get('blazy.entity');
     $this->blazyFormatterManager  = $this->container->get('blazy.formatter.manager');
     $this->blazyAdminFormatter    = $this->container->get('blazy.admin.formatter');

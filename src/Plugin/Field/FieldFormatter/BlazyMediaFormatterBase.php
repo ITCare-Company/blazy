@@ -87,4 +87,11 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityReferenceBase implemen
     return BlazyDefault::extendedSettings() + BlazyDefault::gridSettings();
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+    return $field_definition->getFieldStorageDefinition()->getSetting('target_type') == 'media';
+  }
+
 }

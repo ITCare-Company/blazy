@@ -5,6 +5,9 @@
  * Testing various Blazy hooks, etc.
  */
 
+use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyDefault;
+
 /**
  * Implements hook_theme().
  */
@@ -84,8 +87,19 @@ function blazy_test_library_info_alter(array &$libraries, $extension) {
     return;
   }
 
-  $libraries['blazy']['js'] = ['https://cdn.jsdelivr.net/blazy/latest/blazy.min.js' => ['type' => 'external', 'weight' => -4]];
-  unset($libraries['blazy']['js']['/libraries/blazy/blazy.min.js']);
+  $path = DRUPAL_ROOT . '/libraries/blazy/blazy.min.js';
+  if (!is_file($path)) {
+    $libraries['blazy']['js'] = ['https://cdn.jsdelivr.net/blazy/latest/blazy.min.js' => ['type' => 'external', 'weight' => -4]];
+    unset($libraries['blazy']['js']['/libraries/blazy/blazy.min.js']);
+  }
+}
+
+/**
+ * Implements hook_config_schema_info_alter().
+ */
+function blazy_test_config_schema_info_alter(array &$definitions) {
+  $extra = ['thumbnail' => ''] + BlazyDefault::gridSettings();
+  Blazy::configSchemaInfoAlter($definitions, 'blazy_base', BlazyDefault::extendedSettings() + $extra);
 }
 
 if (!function_exists('token_theme')) {

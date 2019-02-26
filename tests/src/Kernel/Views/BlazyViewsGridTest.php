@@ -9,8 +9,7 @@ use Drupal\views\Views;
  * Test Blazy Views Grid integration.
  *
  * @coversDefaultClass \Drupal\blazy\Plugin\views\style\BlazyViews
- * @requires module media
- * @requires module views
+ *
  * @group blazy
  */
 class BlazyViewsGridTest extends BlazyViewsTestBase {
@@ -66,8 +65,8 @@ class BlazyViewsGridTest extends BlazyViewsTestBase {
     $view->setDisplay('default');
 
     // @todo Render.
-    // $render = $view->getStyle()->render();
-    // $this->assertArrayHasKey('data-blazy', $render['#attributes']);
+    // @todo $render = $view->getStyle()->render();
+    // @todo $this->assertArrayHasKey('data-blazy', $render['#attributes']);
     $output = $view->preview();
     $output = $this->blazyManager->getRenderer()->renderRoot($output);
     $this->assertTrue(strpos($output, 'data-blazy') !== FALSE, 'Blazy attribute is added to DIV.');

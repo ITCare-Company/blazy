@@ -9,7 +9,9 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyEntity;
-use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase;
+use Drupal\blazy\Dejavu\BlazyEntityReferenceBase;
+use Drupal\blazy\Dejavu\BlazyVideoTrait;
+use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterBaseTrait;
 use Drupal\blazy_test\BlazyFormatterTestInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -22,7 +24,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   field_types = {"entity_reference", "file"}
  * )
  */
-class BlazyTestEntityReferenceFormatterTest extends BlazyMediaFormatterBase implements ContainerFactoryPluginInterface {
+class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase implements ContainerFactoryPluginInterface {
+
+  use BlazyFormatterBaseTrait;
+  use BlazyVideoTrait;
 
   /**
    * Constructs a BlazyFormatter object.
@@ -39,8 +44,12 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyMediaFormatterBase impl
     ImageFactory $image_factory,
     BlazyEntity $blazy_entity,
     BlazyFormatterTestInterface $formatter) {
-    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings, $logger_factory, $image_factory, $blazy_entity, $formatter);
-    $this->formatter = $formatter;
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
+    $this->loggerFactory = $logger_factory;
+    $this->imageFactory = $image_factory;
+    $this->blazyEntity = $blazy_entity;
+    $this->formatter = $this->blazyManager = $formatter;
+    $this->blazyOembed = $blazy_entity->oembed();
   }
 
   /**
@@ -67,6 +76,13 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyMediaFormatterBase impl
    */
   public function admin() {
     return \Drupal::service('blazy_test.admin');
+  }
+
+  /**
+   * Returns the slick service.
+   */
+  public function blazyEntity() {
+    return $this->blazyEntity;
   }
 
   /**
@@ -125,7 +141,7 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyMediaFormatterBase impl
     $views_ui    = $this->getFieldSetting('handler') == 'default';
     $bundles     = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
     $node        = $admin->getFieldOptions($bundles, ['entity_reference'], $target_type, 'node');
-    $stages      = $admin->getFieldOptions($bundles, ['image', 'video_embed_field'], $target_type);
+    $stages      = $admin->getFieldOptions($bundles, ['image'], $target_type);
 
     return [
       'namespace'  => 'blazy_test',

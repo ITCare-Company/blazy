@@ -71,9 +71,9 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
 
     // Prevents execessive width with aspect ratio.
     $settings['extra_text'] = '<div style="width: 640px;">';
-    $settings['extra_text'] .= '<img data-unblazy src="' . $this->dummyUrl . '" width="320" height="320" />';
+    $settings['extra_text'] .= '<img data-unblazy src="' . $this->url . '" width="320" height="320" />';
     $settings['extra_text'] .= '<iframe src="https://www.youtube.com/watch?v=uny9kbh4iOEd" width="640" height="360"></iframe>';
-    $settings['extra_text'] .= '<img src="' . $this->dummyUrl . '" width="320" height="320" />';
+    $settings['extra_text'] .= '<img src="' . $this->url . '" width="320" height="320" />';
     $settings['extra_text'] .= '<img src="https://www.drupal.org/files/project-images/slick-carousel-drupal.png" width="215" height="162" />';
     $settings['extra_text'] .= '</div>';
 

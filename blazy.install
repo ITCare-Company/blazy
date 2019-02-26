@@ -38,3 +38,10 @@ function blazy_requirements($phase) {
 function blazy_update_8201() {
   // Do nothing to clear cache.
 }
+
+/**
+ * Added a new argument date.formatter to blazy.admin.base service.
+ */
+function blazy_update_8202() {
+  // Do nothing to clear cache.
+}

@@ -108,7 +108,6 @@ class BlazyDefault {
    */
   public static function imageSettings() {
     return [
-      'iframe_lazy'     => TRUE,
       'icon'            => '',
       'layout'          => '',
       'thumbnail_style' => '',
@@ -152,19 +151,26 @@ class BlazyDefault {
   }
 
   /**
+   * Returns sensible default options common for Views lacking of UI.
+   */
+  public static function lazySettings() {
+    return [
+      'blazy' => TRUE,
+      'lazy'  => 'blazy',
+      'ratio' => 'fluid',
+    ];
+  }
+
+  /**
    * Returns sensible default options common for entities lacking of UI.
    */
   public static function entitySettings() {
     return [
-      'blazy'        => TRUE,
-      'iframe_lazy'  => TRUE,
-      'lazy'         => 'blazy',
       'media_switch' => 'media',
-      'ratio'        => 'fluid',
       'rendered'     => FALSE,
       'view_mode'    => 'default',
       '_detached'    => TRUE,
-    ];
+    ] + self::lazySettings();
   }
 
   /**

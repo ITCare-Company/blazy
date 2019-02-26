@@ -53,6 +53,7 @@ class BlazyAdminExtendedUnitTest extends UnitTestCase {
     $this->blazyAdminExtended = new BlazyAdminExtended(
       $this->entityDisplayRepository,
       $this->typedConfig,
+      $this->dateFormatter,
       $this->blazyManager
     );
   }

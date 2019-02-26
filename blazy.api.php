@@ -64,7 +64,7 @@
  * lightboxes, lazyloaded images, or iframes, including CSS background and
  * aspect ratio, etc.:
  *   o Invoke blazy.manager, and or blazy.formatter.manager, services.
- *   o Use \Drupal\blazy\BlazyManager::getImage() method to work with images and
+ *   o Use \Drupal\blazy\BlazyManager::getBlazy() method to work with images and
  *     pass relevant settings which request for particular Blazy features
  *     accordingly.
  *   o Use \Drupal\blazy\BlazyManager::attach() to load relevant libraries.
@@ -85,7 +85,7 @@
  *
  *   // Build images.
  *   $build = [
- *     // Load images via $manager->getImage().
+ *     // Load images via $manager->getBlazy().
  *     // See below ...Formatter::buildElements() for consistent samples.
  *   ];
  *
@@ -99,7 +99,7 @@
  * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter::buildElements()
  * @see \Drupal\gridstack\Plugin\Field\FieldFormatter\GridStackFileFormatterBase::buildElements()
  * @see \Drupal\slick\Plugin\Field\FieldFormatter\SlickFileFormatterBase::buildElements()
- * @see \Drupal\blazy\BlazyManager::getImage()
+ * @see \Drupal\blazy\BlazyManager::getBlazy()
  * @see \Drupal\blazy\BlazyDefault::imageSettings()
  *
  *

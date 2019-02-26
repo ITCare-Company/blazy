@@ -241,7 +241,7 @@ trait BlazyUnitTestTrait {
    *   The pre_render element.
    */
   protected function doPreRenderImage(array $build = []) {
-    $image = $this->blazyManager->getImage($build);
+    $image = $this->blazyManager->getBlazy($build);
 
     $image['#build']['settings'] = array_merge($this->getCacheMetaData(), $build['settings']);
     $image['#build']['item'] = $build['item'];

@@ -89,7 +89,7 @@ class BlazyEntity {
       }
 
       // Provide Blazy, if required.
-      $build = $this->blazyManager->getImage($data);
+      $build = $this->blazyManager->getBlazy($data);
 
       // Provides a shortcut to get URI.
       $build['#uri'] = $settings['uri'];
@@ -125,8 +125,6 @@ class BlazyEntity {
    *
    * @return array|bool
    *   The renderable array of the view builder, or false if not applicable.
-   *
-   * @todo move int into BlazyEntity.
    */
   public function getEntityView($entity, array $settings = [], $fallback = '') {
     if ($entity instanceof EntityInterface) {
