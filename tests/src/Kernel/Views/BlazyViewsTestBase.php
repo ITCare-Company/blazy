@@ -40,8 +40,6 @@ abstract class BlazyViewsTestBase extends ViewsKernelTestBase {
     'options',
     'entity_test',
     'views',
-    //'views_test_config',
-    //'views_test_data',
     'blazy',
     'blazy_test',
   ];

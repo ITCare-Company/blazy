@@ -3,7 +3,6 @@
 namespace Drupal\blazy;
 
 use Drupal\Core\Template\Attribute;
-use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Serialization\Json;
 use Drupal\image\Entity\ImageStyle;
@@ -444,7 +443,8 @@ class Blazy implements BlazyInterface {
     }
 
     // Do not use dynamic Html::getUniqueId, otherwise broken AJAX.
-    return empty($id) ? Html::getId($string . '-' . ++static::$blazyId) : strip_tags($id);
+    $id = empty($id) ? ($string . '-' . ++static::$blazyId) : $id;
+    return trim(str_replace('_', '-', strip_tags($id)));
   }
 
   /**

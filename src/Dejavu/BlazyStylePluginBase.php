@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Dejavu;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\views\Views;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 use Drupal\blazy\Blazy;
@@ -29,6 +30,13 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
    * {@inheritdoc}
    */
   protected $usesGrouping = FALSE;
+
+  /**
+   * The dynamic html settings.
+   *
+   * @var array
+   */
+  protected $htmlSettings = [];
 
   /**
    * Constructs a GridStackManager object.
@@ -99,7 +107,19 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
     $settings['view_display']      = $view->style_plugin->displayHandler->getPluginId();
     $settings['_views']            = TRUE;
 
+    if (!empty($this->htmlSettings)) {
+      $settings = NestedArray::mergeDeep($settings, $this->htmlSettings);
+    }
+
     return $settings + BlazyDefault::lazySettings();
+  }
+
+  /**
+   * Sets dynamic html settings.
+   */
+  protected function setHtmlSettings(array $settings = []) {
+    $this->htmlSettings = $settings;
+    return $this;
   }
 
   /**
