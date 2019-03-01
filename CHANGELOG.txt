@@ -1,4 +1,13 @@
 
+Blazy 8.x-2.0-dev, 2019-03-01
+-----------------------------
+- Marked core Media integration done.
+- Fixed for Media captions.
+- Split BlazyEntityReferenceBase into BlazyEntityMediaBase for simple needs.
+- Split BlazyStylePluginTrait into re-usable traits: BlazyStyleBaseTrait,
+  BlazyStyleOptionsTrait for all views-related styles.
+- Refactored entity reference formatters.
+
 Blazy 8.x-2.0-dev, 2019-02-27
 -----------------------------
 - Renamed BlazyManager::getImage() into BlazyManager::getBlazy() for clarity.

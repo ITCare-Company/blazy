@@ -10,7 +10,7 @@ use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyFormatterManager;
 use Drupal\blazy\BlazyEntity;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
-use Drupal\blazy\Dejavu\BlazyEntityReferenceBase;
+use Drupal\blazy\Dejavu\BlazyEntityMediaBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @see Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter.
  */
-abstract class BlazyMediaFormatterBase extends BlazyEntityReferenceBase implements ContainerFactoryPluginInterface {
+abstract class BlazyMediaFormatterBase extends BlazyEntityMediaBase implements ContainerFactoryPluginInterface {
 
   use BlazyFormatterBaseTrait;
   use BlazyVideoTrait;
@@ -71,13 +71,6 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityReferenceBase implemen
       $container->get('blazy.entity'),
       $container->get('blazy.formatter.manager')
     );
-  }
-
-  /**
-   * Returns the slick service.
-   */
-  public function blazyEntity() {
-    return $this->blazyEntity;
   }
 
   /**

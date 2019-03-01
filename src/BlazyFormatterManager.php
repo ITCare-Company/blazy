@@ -101,13 +101,17 @@ class BlazyFormatterManager extends BlazyManager {
     if (!empty($settings['image_style']) && !$resimage_lazy) {
       if ($field_type == 'image' && $items[0]) {
         $settings['item'] = $items[0];
-        $settings['uri']  = ($file = $items[0]->entity) && empty($items[0]->uri) ? $file->getFileUri() : $items[0]->uri;
-      }
-
-      if (!empty($settings['uri'])) {
-        $this->setDimensionsOnce($settings);
+        $settings['uri'] = ($file = $items[0]->entity) && empty($items[0]->uri) ? $file->getFileUri() : $items[0]->uri;
       }
     }
+
+    // Sets dimensions once, if any, and let extenders inherit this, as well.
+    if (!empty($settings['item']) && !empty($settings['item'])) {
+      $this->setDimensionsOnce($settings);
+    }
+
+    // Removes item and URI as meant for top level here.
+    unset($settings['item'], $settings['uri']);
 
     // Add the entity to formatter cache tags.
     $settings['cache_tags'][] = $settings['entity_type_id'] . ':' . $settings['entity_id'];

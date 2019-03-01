@@ -299,7 +299,6 @@ class Blazy implements BlazyInterface {
 
     // Image style modifier can be multi-style images such as GridStack.
     if (!empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
-      // Image URLs, as opposed to URIs, are expected by lazyloaded images.
       $settings['image_url'] = file_url_transform_relative($style->buildUrl($settings['uri']));
       $settings['cache_tags'] = $style->getCacheTags();
 
@@ -346,6 +345,8 @@ class Blazy implements BlazyInterface {
 
   /**
    * Overrides variables for responsive-image.html.twig templates.
+   *
+   * @todo move this into BlazyManager::preRenderImage() if you can.
    */
   public static function preprocessResponsiveImage(&$variables) {
     $config = \Drupal::service('blazy.manager')->configLoad();

@@ -3,6 +3,7 @@
 namespace Drupal\blazy;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Template\Attribute;
 use Drupal\Core\Cache\Cache;
 
 /**
@@ -77,7 +78,7 @@ class BlazyManager extends BlazyManagerBase {
    */
   public function setDimensionsOnce(array &$settings = []) {
     if (!isset($this->isDimensionSet[md5($settings['uri'])])) {
-      $item                 = isset($settings['item']) ? $settings['item'] : NULL;
+      $item                 = $settings['item'];
       $dimensions['width']  = $settings['original_width'] = isset($item->width) ? $item->width : NULL;
       $dimensions['height'] = $settings['original_height'] = isset($item->height) ? $item->height : NULL;
 
@@ -100,9 +101,10 @@ class BlazyManager extends BlazyManagerBase {
       }
 
       $this->isDimensionSet[md5($settings['uri'])] = TRUE;
-      // Remove these since this method is meant for top-level container.
-      unset($settings['uri'], $settings['item']);
     }
+
+    // Remove these since this method is meant for top-level container.
+    unset($settings['uri'], $settings['item']);
   }
 
   /**
@@ -161,7 +163,7 @@ class BlazyManager extends BlazyManagerBase {
       $image = isset($item['item']) ? $item['item'] : NULL;
       $this->buildDataBlazy($settings, $image);
     }
-    unset($settings['uri']);
+    unset($settings['uri'], $settings['item']);
   }
 
   /**
@@ -346,7 +348,9 @@ class BlazyManager extends BlazyManagerBase {
         $element['#cache']['tags'] = $this->getResponsiveImageCacheTags($responsive_image_style);
       }
     }
-    else {
+
+    // Regular image with custom responsive breakpoints.
+    if (empty($settings['responsive_image_style_id'])) {
       if ($settings['width'] && !empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
         $padding_bottom = empty($settings['padding_bottom']) ? round((($settings['height'] / $settings['width']) * 100), 2) : $settings['padding_bottom'];
         $attributes['style'] = 'padding-bottom: ' . $padding_bottom . '%';
@@ -357,14 +361,12 @@ class BlazyManager extends BlazyManagerBase {
 
       if (!empty($settings['lazy'])) {
         // Attach data attributes to either IMG tag, or DIV container.
-        if (empty($settings['background']) || empty($settings['blazy'])) {
-          Blazy::buildBreakpointAttributes($item_attributes, $settings);
-        }
-
-        // Supports both Slick and Blazy CSS background lazyloading.
         if (!empty($settings['background'])) {
           Blazy::buildBreakpointAttributes($attributes, $settings);
           $attributes['class'][] = 'media--background';
+        }
+        else {
+          Blazy::buildBreakpointAttributes($item_attributes, $settings);
         }
 
         // Multi-breakpoint aspect ratio only applies if lazyloaded.
@@ -373,7 +375,7 @@ class BlazyManager extends BlazyManagerBase {
         }
       }
 
-      if (!isset($settings['_no_cache'])) {
+      if (empty($settings['_no_cache'])) {
         $file_tags = isset($settings['file_tags']) ? $settings['file_tags'] : [];
         $settings['cache_tags'] = empty($settings['cache_tags']) ? $file_tags : Cache::mergeTags($settings['cache_tags'], $file_tags);
 
@@ -386,13 +388,18 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
 
+    $captions = empty($build['captions']) ? [] : $this->buildCaption($build['captions'], $settings);
+    if ($captions) {
+      $element['#caption_attributes']['class'][] = $settings['item_id'] . '__caption';
+    }
+
     $element['#attributes']      = $attributes;
-    $element['#captions']        = empty($build['captions']) ? [] : ['inline' => $build['captions']];
+    $element['#captions']        = $captions;
     $element['#item']            = $item;
     $element['#item_attributes'] = $item_attributes;
     $element['#settings']        = $settings;
 
-    foreach (['caption', 'media', 'wrapper'] as $key) {
+    foreach (['media', 'wrapper'] as $key) {
       if (!empty($settings[$key . '_attributes'])) {
         $element["#$key" . '_attributes'] = $settings[$key . '_attributes'];
       }
@@ -408,6 +415,24 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     return $element;
+  }
+
+  /**
+   * Build captions for both old image, or media entity.
+   */
+  public function buildCaption(array $captions, array $settings) {
+    $content = [];
+    foreach ($captions as $key => $caption_content) {
+      if ($caption_content) {
+        $content[$key]['content'] = $caption_content;
+        $content[$key]['tag'] = strpos($key, 'title') !== FALSE ? 'h2' : 'div';
+        $class = $key == 'alt' ? 'description' : $key;
+        $content[$key]['attributes'] = new Attribute();
+        $content[$key]['attributes']->addClass($settings['item_id'] . '__caption--' . str_replace('_', '-', $class));
+      }
+    }
+
+    return $content ? ['inline' => $content] : [];
   }
 
   /**

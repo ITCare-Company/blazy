@@ -7,12 +7,15 @@ use Drupal\views\Plugin\views\style\StylePluginBase;
 use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyGrid;
+use Drupal\blazy\Dejavu\BlazyStyleBaseTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Blazy style plugin.
  */
 class BlazyViews extends StylePluginBase {
+
+  use BlazyStyleBaseTrait;
 
   /**
    * {@inheritdoc}
@@ -23,13 +26,6 @@ class BlazyViews extends StylePluginBase {
    * {@inheritdoc}
    */
   protected $usesGrouping = FALSE;
-
-  /**
-   * The blazy manager service.
-   *
-   * @var \Drupal\blazy\BlazyManagerInterface
-   */
-  protected $blazyManager;
 
   /**
    * Constructs a BlazyManager object.
@@ -51,13 +47,6 @@ class BlazyViews extends StylePluginBase {
    */
   public function admin() {
     return \Drupal::service('blazy.admin');
-  }
-
-  /**
-   * Returns the blazy manager.
-   */
-  public function blazyManager() {
-    return $this->blazyManager;
   }
 
   /**
@@ -97,13 +86,9 @@ class BlazyViews extends StylePluginBase {
    * Overrides StylePluginBase::render().
    */
   public function render() {
-    $settings = $this->options;
-
-    $settings['count']             = count($this->view->result);
-    $settings['current_view_mode'] = $this->view->current_display;
-    $settings['item_id']           = 'content';
-    $settings['namespace']         = 'blazy';
-    $settings['view_name']         = $this->view->storage->id();
+    $settings              = $this->buildSettings();
+    $settings['item_id']   = 'content';
+    $settings['namespace'] = 'blazy';
 
     $elements = [];
     foreach ($this->renderGrouping($this->view->result, $settings['grouping']) as $rows) {

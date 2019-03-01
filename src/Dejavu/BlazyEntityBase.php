@@ -24,6 +24,7 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
       }
 
       $build['settings']['delta'] = $delta;
+      $build['settings']['langcode'] = $langcode;
       if ($entity->id()) {
         $this->buildElement($build, $entity, $langcode);
 

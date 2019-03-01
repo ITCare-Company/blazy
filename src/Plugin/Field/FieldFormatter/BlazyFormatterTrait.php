@@ -3,7 +3,6 @@
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Template\Attribute;
 use Drupal\Component\Utility\Xss;
 use Drupal\blazy\BlazyGrid;
 
@@ -64,11 +63,6 @@ trait BlazyFormatterTrait {
    */
   public function buildElements(array &$build, $files) {
     $settings = $build['settings'];
-    $item_id = $settings['item_id'];
-
-    if (!empty($settings['caption'])) {
-      $settings['caption_attributes']['class'][] = $item_id . '__caption';
-    }
 
     foreach ($files as $delta => $file) {
       /* @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
@@ -78,9 +72,8 @@ trait BlazyFormatterTrait {
       $settings['file_tags'] = $file->getCacheTags();
       $settings['type']      = 'image';
       $settings['uri']       = $file->getFileUri();
-
-      $box['item']     = $item;
-      $box['settings'] = $settings;
+      $box['item']           = $item;
+      $box['settings']       = $settings;
 
       // If imported Drupal\blazy\Dejavu\BlazyVideoTrait.
       $this->buildElement($box, $file);
@@ -88,16 +81,9 @@ trait BlazyFormatterTrait {
       // Build caption if so configured.
       if (!empty($settings['caption'])) {
         foreach ($settings['caption'] as $caption) {
-          $content['content'] = [];
           if ($caption_content = $box['item']->{$caption}) {
-            $content['content'] = ['#markup' => Xss::filterAdmin($caption_content)];
-            $content['tag'] = $caption == 'title' ? 'h2' : 'div';
-            $class = $caption == 'alt' ? 'description' : $caption;
-            $content['attributes'] = new Attribute();
-            $content['attributes']->addClass($item_id . '__' . $class);
+            $box['captions'][$caption] = ['#markup' => Xss::filterAdmin($caption_content)];
           }
-
-          $box['captions'][$caption] = $content;
         }
       }
 

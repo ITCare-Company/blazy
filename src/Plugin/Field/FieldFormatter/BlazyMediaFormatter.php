@@ -47,7 +47,6 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
     $settings['_grid']     = !empty($settings['style']) && !empty($settings['grid']);
 
     // Sets dimensions once to reduce method ::transformDimensions() calls.
-    // @todo: A more flexible way to also support paragraphs at one go.
     $media = array_values($media);
     if (!empty($settings['image_style']) && ($media[0]->getEntityTypeId() == 'media')) {
       $fields = $media[0]->getFields();
@@ -72,9 +71,6 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
     $settings = $build['settings'];
     unset($build['settings']);
 
-    // With pass by reference, we hardly modify base classes, just re-arrange.
-    // As opposed to file/ image formatters with direct indices, blazy-formatted
-    // entities are stored within `items` with extra usages like thumbnail navs.
     // If not a grid, pass the items as regular index children to theme_field()
     // and provide a #blazy to identify Blazy formatters at hook_preprocess().
     if (empty($settings['_grid'])) {
@@ -89,26 +85,6 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
     $build['#attached'] = $this->formatter()->attach($settings);
 
     return $build;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function buildElement(array &$build, $entity, $langcode) {
-    parent::buildElement($build, $entity, $langcode);
-
-    $settings = $build['settings'];
-    $delta = isset($settings['delta']) ? $settings['delta'] : 0;
-    $element = $build['items'][$delta];
-
-    // Item ID is to allow contextual grouping relevant to (sub-)modules:
-    // Slick `slide`, GridStack `box`, Blazy 'blazy', etc.
-    $item_id = $settings['item_id'];
-
-    // Blazy can just collect items directly without further themeing.
-    if (!empty($element[$item_id])) {
-      $build['items'][$delta] = $element[$item_id];
-    }
   }
 
   /**

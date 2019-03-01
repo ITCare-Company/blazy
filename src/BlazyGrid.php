@@ -30,7 +30,7 @@ class BlazyGrid {
       $attributes    = isset($item['attributes']) ? $item['attributes'] : [];
       $item_settings = isset($item['settings']) ? $item['settings'] : $settings;
       $item_settings = isset($item['#build']) && isset($item['#build']['settings']) ? $item['#build']['settings'] : $item_settings;
-      unset($item['settings'], $item['attributes']);
+      unset($item['settings'], $item['attributes'], $item['item']);
 
       // Supports both single formatter field and complex fields such as Views.
       $grid['content'] = [

@@ -15,6 +15,11 @@ class BlazyDefault {
   private static $breakpoints = ['xs', 'sm', 'md', 'lg', 'xl'];
 
   /**
+   * Defines constant for the supported text tags.
+   */
+  const TAGS = ['a', 'em', 'strong', 'h2', 'p', 'span', 'ul', 'ol', 'li'];
+
+  /**
    * The current class instance.
    *
    * @var self
