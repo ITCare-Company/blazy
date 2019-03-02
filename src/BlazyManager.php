@@ -426,7 +426,7 @@ class BlazyManager extends BlazyManagerBase {
       if ($caption_content) {
         $content[$key]['content'] = $caption_content;
         $content[$key]['tag'] = strpos($key, 'title') !== FALSE ? 'h2' : 'div';
-        $class = $key == 'alt' ? 'description' : $key;
+        $class = $key == 'alt' ? 'description' : str_replace('field_', '', $key);
         $content[$key]['attributes'] = new Attribute();
         $content[$key]['attributes']->addClass($settings['item_id'] . '__caption--' . str_replace('_', '-', $class));
       }
