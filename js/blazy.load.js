@@ -125,6 +125,8 @@
 
         // Dispatch resizing event.
         _db.trigger(elm, 'resizing', {windowWidth: me.windowWidth});
+
+        me.init.revalidate();
       })();
 
       me.done = true;
