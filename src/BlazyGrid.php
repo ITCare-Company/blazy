@@ -23,6 +23,7 @@ class BlazyGrid {
   public static function build(array $items = [], array $settings = []) {
     $blazy = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
     $settings['style'] = empty($settings['style']) ? 'grid' : $settings['style'];
+    $is_gallery = !empty($settings['lightbox']) && !empty($settings['gallery_id']);
 
     $grids = [];
     foreach ($items as $item) {
@@ -50,7 +51,6 @@ class BlazyGrid {
       $grid['#wrapper_attributes'] = $attributes;
 
       $grids[] = $grid;
-      unset($grid);
     }
 
     $count = empty($settings['count']) ? count($grids) : $settings['count'];
@@ -72,11 +72,18 @@ class BlazyGrid {
       ],
     ];
 
+    // Provides data-attributes to avoid conflict with original implementations.
     if (!empty($settings['media_switch'])) {
       $switch = str_replace('_', '-', $settings['media_switch']);
       $element['#attributes']['data-' . $switch . '-gallery'] = TRUE;
     }
 
+    // Provides gallery ID, although Colorbox works without it, others may not.
+    if ($is_gallery) {
+      $element['#attributes']['id'] = $settings['gallery_id'];
+    }
+
+    // Adds common grid attributes for CSS3 column, Foundation, etc.
     $settings['grid_large'] = $settings['grid'];
     foreach (['small', 'medium', 'large'] as $grid) {
       if (!empty($settings['grid_' . $grid])) {

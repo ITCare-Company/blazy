@@ -160,10 +160,9 @@ class BlazyEntity {
       // If the entity has translation, fetch the translated value.
       return $entity->getTranslation($langcode)->get($field_name)->getValue();
     }
-    else {
-      // Entity doesn't have translation, fetch original value.
-      return $entity->get($field_name)->getValue();
-    }
+
+    // Entity doesn't have translation, fetch original value.
+    return $entity->get($field_name)->getValue();
   }
 
   /**

@@ -226,10 +226,6 @@ class Blazy implements BlazyInterface {
 
     $srcset = $json = [];
     foreach ($settings['breakpoints'] as $key => $breakpoint) {
-      if (empty($breakpoint['image_style']) || empty($breakpoint['width'])) {
-        continue;
-      }
-
       if ($style = ImageStyle::load($breakpoint['image_style'])) {
         $url = file_url_transform_relative($style->buildUrl($settings['uri']));
 
@@ -255,7 +251,7 @@ class Blazy implements BlazyInterface {
         if (!empty($settings['background'])) {
           $attributes['data-src-' . $key] = $url;
         }
-        elseif (!empty($breakpoint['width'])) {
+        else {
           $width = trim($breakpoint['width']);
           $width = is_numeric($width) ? $width . 'w' : $width;
           $srcset[] = $url . ' ' . $width;

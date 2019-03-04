@@ -1,6 +1,10 @@
 
 Blazy 8.x-2.0-dev, 2019-03-03
 -----------------------------
+- Micro optimization with breakpoints.
+
+Blazy 8.x-2.0-dev, 2019-03-03
+-----------------------------
 - #3027842 by gmrossello: Lazy images are not loaded when resizing.
 
 Blazy 8.x-2.0-dev, 2019-03-01

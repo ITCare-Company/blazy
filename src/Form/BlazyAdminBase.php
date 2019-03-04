@@ -218,7 +218,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    */
   public function breakpointsForm(array &$form, $definition = []) {
     $settings = isset($definition['settings']) ? $definition['settings'] : [];
-    $title    = $this->t('Leave Breakpoints empty to disable multi-serving images. <small>If provided, Blazy lazyload applies. Ignored if core Responsive image is provided.<br /> If only two is needed, simply leave the rest empty. At any rate, the last should target the largest monitor. <br />It uses <strong>max-width</strong>, not <strong>min-width</strong>.</small>');
+    $title    = $this->t('Leave Breakpoints empty to disable multi-serving images. <small>If provided, Blazy lazyload applies. Ignored if core Responsive image is provided.<br /> If only two is needed, simply leave the rest empty. At any rate, the last should target the largest monitor. <br>Choose an <b>Aspect ratio</b> and use an image effect with <b>CROP</b> in its name for all styles for best performance. <br>It uses <strong>max-width</strong>, not <strong>min-width</strong>.</small>');
 
     $form['sizes'] = [
       '#type'               => 'textfield',
@@ -444,7 +444,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           '#title'   => $this->t('Lightbox image style'),
           '#options' => $image_styles,
           '#states'  => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
-          '#weight'  => -99,
+          '#weight'  => -97,
         ];
 
         if (!empty($definition['multimedia'])) {
@@ -454,7 +454,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
             '#options'     => $image_styles,
             '#description' => $this->t('Allows different lightbox video dimensions. Or can be used to have a swipable video if Blazy PhotoSwipe installed.'),
             '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
-            '#weight'      => -99,
+            '#weight'      => -96,
           ];
         }
       }
@@ -472,12 +472,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           '#title'        => $this->t('Aspect ratio'),
           '#options'      => array_combine($ratio, $ratio),
           '#empty_option' => $this->t('- None -'),
-          '#description'  => $this->t('Aspect ratio to get consistently responsive images and iframes. And to fix layout reflow and excessive height issues. <a href="@dimensions"   target="_blank">Image styles and video dimensions</a> must <a href="@follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. Choose <strong>fluid</strong> if unsure. Choose <strong>enforced</strong> if you can stick to one aspect ratio and want multi-serving, or Responsive images. <a href="@link" target="_blank">Learn more</a>, or leave empty to DIY, or when working with multi-image-style plugin like GridStack. <br /><strong>Note!</strong> Only compatible with Blazy multi-serving images, but not Responsive image.', [
+          '#description'  => $this->t('Aspect ratio to get consistently responsive images and iframes. And to fix layout reflow and excessive height issues. <a href="@dimensions" target="_blank">Image styles and video dimensions</a> must <a href="@follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. Choose <strong>enforced</strong> if you can stick to one aspect ratio and want multi-serving, or Responsive images. Try <strong>fluid</strong> if unsure. <a href="@link" target="_blank">Learn more</a>, or leave empty to DIY, or when working with multi-image-style plugin like GridStack. <br /><strong>Note!</strong> Only compatible with Blazy multi-serving images, but not Responsive image, except for <b>enforced</b>.', [
             '@dimensions'  => '//size43.com/jqueryVideoTool.html',
             '@follow'      => '//en.wikipedia.org/wiki/Aspect_ratio_%28image%29',
             '@link'        => '//www.smashingmagazine.com/2014/02/27/making-embedded-content-work-in-responsive-design/',
           ]),
-          '#weight'        => -96,
+          '#weight'        => -95,
         ];
 
         if ($is_responsive) {
@@ -492,7 +492,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#options'     => $this->getViewModeOptions($definition['target_type']),
         '#title'       => $this->t('View mode'),
         '#description' => $this->t('Required to grab the fields, or to have custom entity display as fallback display. If it has fields, be sure the selected "View mode" is enabled, and the enabled fields here are not hidden there.'),
-        '#weight'      => -96,
+        '#weight'      => -94,
         '#enforced'    => TRUE,
       ];
 
@@ -556,7 +556,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           '#type'        => 'select',
           '#title'       => $this->t('Lightbox caption'),
           '#options'     => $box_captions,
-          '#weight'      => -99,
+          '#weight'      => -95,
           '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
           '#description' => $this->t('Automatic will search for Alt text first, then Title text. Try selecting <strong>- None -</strong> first when changing if trouble with form states.'),
         ];
@@ -564,7 +564,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         $form['box_caption_custom'] = [
           '#title'       => $this->t('Lightbox custom caption'),
           '#type'        => 'textfield',
-          '#weight'      => -99,
+          '#weight'      => -94,
           '#states'      => $this->getState(static::STATE_LIGHTBOX_CUSTOM, $definition),
           '#description' => $this->t('Multi-value rich text field will be mapped to each image by its delta.'),
         ];
@@ -622,6 +622,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $admin_css = $admin_css ?: $this->blazyManager->configLoad('admin_css', 'blazy.settings');
     $excludes  = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
     $selects   = ['cache', 'optionset', 'view_mode'];
+
+    $this->blazyManager->getModuleHandler()->alter('blazy_form_element', $form, $definition);
 
     foreach (Element::children($form) as $key) {
       if (isset($form[$key]['#type']) && !in_array($form[$key]['#type'], $excludes)) {

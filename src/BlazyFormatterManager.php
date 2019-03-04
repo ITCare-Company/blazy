@@ -30,7 +30,8 @@ class BlazyFormatterManager extends BlazyManager {
     $view_mode      = empty($settings['current_view_mode']) ? '_custom' : $settings['current_view_mode'];
     $namespace      = $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
     $id             = isset($settings['id']) ? $settings['id'] : '';
-    $id             = Blazy::getHtmlId("{$namespace}-{$entity_type_id}-{$entity_id}-{$field_clean}-{$view_mode}", $id);
+    $gallery_id     = "{$namespace}-{$entity_type_id}-{$bundle}-{$field_clean}-{$view_mode}";
+    $id             = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
     $switch         = empty($settings['media_switch']) ? '' : $settings['media_switch'];
     $internal_path  = $absolute_path = NULL;
 
@@ -53,6 +54,7 @@ class BlazyFormatterManager extends BlazyManager {
     $settings['entity_type_id'] = $entity_type_id;
     $settings['field_type']     = $field_type;
     $settings['field_name']     = $field_name;
+    $settings['gallery_id']     = str_replace('_', '-', $gallery_id . '-' . $switch);
     $settings['id']             = $id;
     $settings['internal_path']  = $internal_path;
     $settings['lightbox']       = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
@@ -66,6 +68,7 @@ class BlazyFormatterManager extends BlazyManager {
       return;
     }
 
+    // Don't bother if using Responsive image.
     if (!empty($settings['breakpoints'])) {
       $this->cleanUpBreakpoints($settings);
     }
@@ -100,17 +103,19 @@ class BlazyFormatterManager extends BlazyManager {
     // This is less expensive than re-defining dimensions per image.
     if (!empty($settings['image_style']) && !$resimage_lazy) {
       if ($field_type == 'image' && $items[0]) {
-        $settings['item'] = $items[0];
-        $settings['uri'] = ($file = $items[0]->entity) && empty($items[0]->uri) ? $file->getFileUri() : $items[0]->uri;
+        // @todo remove item uri for first_, for gallery, and avoid leaking.
+        $settings['item'] = $settings['first_item'] = $items[0];
+        $settings['uri'] = $settings['first_uri'] = ($file = $items[0]->entity) && empty($items[0]->uri) ? $file->getFileUri() : $items[0]->uri;
       }
     }
 
     // Sets dimensions once, if any, and let extenders inherit this, as well.
-    if (!empty($settings['item']) && !empty($settings['item'])) {
+    if (!empty($settings['item']) && !empty($settings['uri'])) {
       $this->setDimensionsOnce($settings);
     }
 
     // Removes item and URI as meant for top level here.
+    // @todo remove once sub-modules changed to use first_ things.
     unset($settings['item'], $settings['uri']);
 
     // Add the entity to formatter cache tags.

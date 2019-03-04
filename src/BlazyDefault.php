@@ -27,13 +27,6 @@ class BlazyDefault {
   private static $instance = NULL;
 
   /**
-   * The alterable settings.
-   *
-   * @var array
-   */
-  private static $alterableSettings;
-
-  /**
    * Prevents this object from being constructed.
    */
   private function __construct() {
@@ -63,13 +56,10 @@ class BlazyDefault {
    * Returns alterable plugin settings to pass the tests.
    */
   public function alterableSettings(array &$settings = []) {
-    if (!isset(static::$alterableSettings)) {
-      $context = ['class' => get_called_class()];
-      \Drupal::moduleHandler()->alter('blazy_base_settings', $settings, $context);
-      static::$alterableSettings = $settings;
-    }
+    $context = ['class' => get_called_class()];
+    \Drupal::moduleHandler()->alter('blazy_base_settings', $settings, $context);
 
-    return static::$alterableSettings;
+    return $settings;
   }
 
   /**
