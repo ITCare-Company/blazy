@@ -12,6 +12,7 @@ use Drupal\field\FieldConfigInterface;
 use Drupal\file\Plugin\Field\FieldFormatter\FileFormatterBase;
 use Drupal\blazy\BlazyFormatterManager;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Dejavu\BlazyDependenciesTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -28,6 +29,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 abstract class BlazyFileFormatterBase extends FileFormatterBase implements ContainerFactoryPluginInterface {
 
   use BlazyFormatterBaseTrait;
+  use BlazyDependenciesTrait;
 
   /**
    * Constructs a BlazyFormatter object.

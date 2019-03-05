@@ -10,6 +10,8 @@ use Drupal\blazy\BlazyDefault;
  */
 abstract class BlazyEntityMediaBase extends BlazyEntityBase {
 
+  use BlazyDependenciesTrait;
+
   /**
    * Returns the slick service.
    */

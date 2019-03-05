@@ -297,7 +297,7 @@ class BlazyManager extends BlazyManagerBase {
   public function prepareBuild(array &$build) {
     // If children are stored within items, reset.
     $build = isset($build['items']) ? $build['items'] : $build;
-    $settings = $build['settings'];
+    $settings = isset($build['settings']) ? $build['settings'] : [];
     unset($build['items'], $build['settings']);
 
     // Supports Blazy multi-breakpoint images if provided, updates $settings.
