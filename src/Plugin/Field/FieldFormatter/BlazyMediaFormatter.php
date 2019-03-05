@@ -3,7 +3,6 @@
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\blazy\BlazyGrid;
 
 /**
  * Plugin for blazy media formatter.
@@ -44,17 +43,17 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
     $settings              = $this->buildSettings();
     $settings['blazy']     = TRUE;
     $settings['namespace'] = $settings['item_id'] = $settings['lazy'] = 'blazy';
-    $settings['_grid']     = !empty($settings['style']) && !empty($settings['grid']);
 
     // Sets dimensions once to reduce method ::transformDimensions() calls.
     $media = array_values($media);
     if (!empty($settings['image_style']) && ($media[0]->getEntityTypeId() == 'media')) {
       $fields = $media[0]->getFields();
 
+      // @todo remove item and uri for first_ things.
       if (isset($fields['thumbnail'])) {
         $item             = $fields['thumbnail']->get(0);
-        $settings['item'] = $item;
-        $settings['uri']  = $item->entity->getFileUri();
+        $settings['item'] = $settings['first_item'] = $item;
+        $settings['uri']  = $settings['first_uri'] = $item->entity->getFileUri();
       }
     }
 
@@ -62,29 +61,13 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
     $build = ['settings' => $settings];
 
     // Modifies settings.
-    $this->formatter()->buildSettings($build, $items);
+    $this->formatter->buildSettings($build, $items);
 
     // Build the elements.
     $this->buildElements($build, $media, $langcode);
 
-    // Updates settings.
-    $settings = $build['settings'];
-    unset($build['settings']);
-
-    // If not a grid, pass the items as regular index children to theme_field()
-    // and provide a #blazy to identify Blazy formatters at hook_preprocess().
-    if (empty($settings['_grid'])) {
-      $build = $build['items'];
-      $build['#blazy'] = $settings;
-    }
-    else {
-      // Build grid if provided.
-      $build = BlazyGrid::build($build['items'], $settings);
-    }
-
-    $build['#attached'] = $this->formatter()->attach($settings);
-
-    return $build;
+    // Pass to manager for easy updates to all Blazy formatters.
+    return $this->formatter->build($build);
   }
 
   /**
@@ -94,12 +77,13 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
     $multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
 
     return [
-      'fieldable_form' => FALSE,
-      'grid_form'      => $multiple,
-      'layouts'        => [],
-      'settings'       => $this->getSettings(),
-      'style'          => $multiple,
-      'vanilla'        => FALSE,
+      'fieldable_form'  => FALSE,
+      'grid_form'       => $multiple,
+      'layouts'         => [],
+      'settings'        => $this->getSettings(),
+      'style'           => $multiple,
+      'thumbnail_style' => TRUE,
+      'vanilla'         => FALSE,
     ] + parent::getScopedFormElements();
   }
 

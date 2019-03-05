@@ -109,7 +109,7 @@ class BlazyAdminTest implements BlazyAdminTestInterface {
   /**
    * Returns the opening form elements.
    */
-  public function openingForm(array &$form, $definition = []) {
+  public function openingForm(array &$form, &$definition = []) {
     $this->blazyAdmin->openingForm($form, $definition);
   }
 

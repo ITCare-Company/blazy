@@ -1,4 +1,12 @@
 
+Blazy 8.x-2.0-dev, 2019-03-06
+-----------------------------
+- Changed BlazyAdminBase::openingForm() parameters.
+- Added hook_blazy_build_alter() to modify the entire Blazy outputs.
+- Refactored BlazyGrid to be usable for non-grid, plain list.
+- Moved re-usable methods into BlazyManagerbase, for Views style plugins.
+- Added #pre_render to BlazyGrid for easy overrides before reaching Twig.
+
 Blazy 8.x-2.0-dev, 2019-03-03
 -----------------------------
 - Micro optimization with breakpoints.

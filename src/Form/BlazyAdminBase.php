@@ -134,7 +134,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * Returns shared form elements across field formatter and Views.
    */
-  public function openingForm(array &$form, $definition = []) {
+  public function openingForm(array &$form, &$definition = []) {
     $this->blazyManager->getModuleHandler()->alter('blazy_form_element_definition', $definition);
 
     // Display style: column, plain static grid, slick grid, slick carousel.
@@ -507,7 +507,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#title'       => $this->t('Thumbnail style'),
         '#options'     => function_exists('image_style_options') ? image_style_options(TRUE) : [],
         '#description' => $this->t('Usages: Photobox/PhotoSwipe thumbnail, or custom work with thumbnails. Leave empty to not use thumbnails.'),
-        '#weight'      => -100,
+        '#weight'      => -96,
       ];
     }
 

@@ -6,7 +6,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyGrid;
 use Drupal\blazy\Dejavu\BlazyStyleBaseTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -99,12 +98,8 @@ class BlazyViews extends StylePluginBase {
         $items[$index] = $this->view->rowPlugin->render($row);
       }
 
-      // Supports Blazy formatter multi-breakpoint images if available.
-      $item = isset($items[0]) ? $items[0] : [];
-      $this->blazyManager->isBlazy($settings, $item);
-
-      $elements = BlazyGrid::build($items, $settings);
-      $elements['#attached'] = $this->blazyManager->attach($settings);
+      $build = ['items' => $items, 'settings' => $settings];
+      $elements = $this->blazyManager->build($build);
 
       unset($this->view->row_index, $items);
     }

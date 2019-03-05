@@ -7,7 +7,6 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\blazy\BlazyGrid;
 use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\BlazyDefault;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -74,12 +73,13 @@ class BlazyTextFormatter extends FormatterBase implements ContainerFactoryPlugin
     $settings              = $this->buildSettings();
     $settings['namespace'] = 'blazy';
     $settings['langcode']  = $langcode;
+    $settings['_grid']     = TRUE;
 
     // The ProcessedText element already handles cache context & tag bubbling.
     // @see \Drupal\filter\Element\ProcessedText::preRenderText()
-    $elements = [];
+    $build = ['settings' => $settings];
     foreach ($items as $item) {
-      $elements[] = [
+      $build[] = [
         '#type'     => 'processed_text',
         '#text'     => $item->value,
         '#format'   => $item->format,
@@ -87,10 +87,8 @@ class BlazyTextFormatter extends FormatterBase implements ContainerFactoryPlugin
       ];
     }
 
-    $build = BlazyGrid::build($elements, $settings);
-    $build['#attached'] = $this->formatter->attach($settings);
-
-    return $build;
+    // Pass to manager for easy updates to all Blazy formatters.
+    return $this->formatter->build($build);
   }
 
   /**

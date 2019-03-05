@@ -4,7 +4,6 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Component\Utility\Xss;
-use Drupal\blazy\BlazyGrid;
 
 /**
  * A Trait common for blazy image and file ER formatters.
@@ -39,23 +38,8 @@ trait BlazyFormatterTrait {
     // Build the elements.
     $this->buildElements($build, $files);
 
-    // Updates settings.
-    $settings = $build['settings'];
-    unset($build['settings']);
-
-    // Supports Blazy multi-breakpoint images if provided.
-    $this->formatter->isBlazy($settings, $build[0]['#build']);
-
-    // Build grid if provided.
-    if (empty($settings['_grid'])) {
-      $build['#blazy'] = $settings;
-    }
-    else {
-      $build = BlazyGrid::build($build, $settings);
-    }
-
-    $build['#attached'] = $this->formatter->attach($settings);
-    return $build;
+    // Pass to manager for easy updates to all Blazy formatters.
+    return $this->formatter->build($build);
   }
 
   /**
