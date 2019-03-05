@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2019-03-06
 -----------------------------
+- #3037325 by daften: The config dependencies don'\''t include the used image
+  style.
 - Changed BlazyAdminBase::openingForm() parameters.
 - Added hook_blazy_build_alter() to modify the entire Blazy outputs.
 - Refactored BlazyGrid to be usable for non-grid, plain list.
