@@ -1,6 +1,10 @@
 
 Blazy 8.x-2.0-dev, 2019-03-06
 -----------------------------
+- Fix for Twig inline_template and Views rewrite results striping out style
+  required by aspect ratio.
+- Fixed for regression broken formatters when embedded inside Views Blazy Grid.
+- Re-use first_uri, first_item things for colorbox/zoom-like gallery.
 - #3037325 by daften: The config dependencies don'\''t include the used image
   style.
 - Changed BlazyAdminBase::openingForm() parameters.

@@ -31,15 +31,15 @@ class BlazyManager extends BlazyManagerBase {
    * @todo replace uri with first_uri to be usable for colorbox-like gallery.
    */
   public function setDimensionsOnce(array &$settings = []) {
-    if (!isset($this->isDimensionSet[md5($settings['uri'])])) {
-      $item                 = $settings['item'];
+    if (!isset($this->isDimensionSet[md5($settings['first_uri'])])) {
+      $item                 = $settings['first_item'];
       $dimensions['width']  = $settings['original_width'] = isset($item->width) ? $item->width : NULL;
       $dimensions['height'] = $settings['original_height'] = isset($item->height) ? $item->height : NULL;
 
       // If image style contains crop, sets dimension once, and let all inherit.
       if (!empty($settings['image_style']) && ($style = $this->entityLoad($settings['image_style']))) {
         if ($this->isCrop($style)) {
-          $style->transformDimensions($dimensions, $settings['uri']);
+          $style->transformDimensions($dimensions, $settings['first_uri']);
 
           $settings['height'] = $dimensions['height'];
           $settings['width']  = $dimensions['width'];
@@ -54,11 +54,8 @@ class BlazyManager extends BlazyManagerBase {
         $this->buildDataBlazy($settings, $item);
       }
 
-      $this->isDimensionSet[md5($settings['uri'])] = TRUE;
+      $this->isDimensionSet[md5($settings['first_uri'])] = TRUE;
     }
-
-    // Remove these since this method is meant for top-level container.
-    unset($settings['uri'], $settings['item']);
   }
 
   /**
@@ -83,10 +80,9 @@ class BlazyManager extends BlazyManagerBase {
 
     // The image URI may not always be given.
     // @todo remove if no need for sure.
-    if (empty($settings['uri']) && is_object($item)) {
-      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
-    }
-
+    // @todo if (empty($settings['uri']) && is_object($item)) {
+    // @todo $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+    // @todo }
     // Respects content not handled by theme_blazy(), but passed through.
     if (empty($build['content'])) {
       $image = [
@@ -124,18 +120,19 @@ class BlazyManager extends BlazyManagerBase {
       return [];
     }
 
-    $attributes = [];
     $settings = $build['settings'];
     $settings += BlazyDefault::itemSettings();
     $settings['_api'] = TRUE;
 
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
-    $item_attributes = [];
+    $attributes = isset($build['attributes']) ? $build['attributes'] : [];
+    $item_attributes = isset($build['item_attributes']) ? $build['item_attributes'] : [];
+    $url_attributes = isset($build['url_attributes']) ? $build['url_attributes'] : [];
     if (isset($item->_attributes)) {
-      $item_attributes = $item->_attributes;
-      unset($item->_attributes);
+      $item_attributes += $item->_attributes;
     }
+    unset($item->_attributes, $build['attributes'], $build['item_attributes'], $build['url_attributes']);
 
     // Gets the file extension, and ensures the image has valid extension.
     $pathinfo = pathinfo($settings['uri']);
@@ -163,11 +160,15 @@ class BlazyManager extends BlazyManagerBase {
     // Regular image with custom responsive breakpoints.
     if (empty($settings['responsive_image_style_id'])) {
       if ($settings['width'] && !empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
-        $padding_bottom = empty($settings['padding_bottom']) ? round((($settings['height'] / $settings['width']) * 100), 2) : $settings['padding_bottom'];
-        $attributes['style'] = 'padding-bottom: ' . $padding_bottom . '%';
+        $padding = empty($settings['padding_bottom']) ? round((($settings['height'] / $settings['width']) * 100), 2) : $settings['padding_bottom'];
+        $attributes['style'] = 'padding-bottom: ' . $padding . '%';
 
         // Provides hint to breakpoints to work with multi-breakpoint ratio.
         $settings['_breakpoint_ratio'] = $settings['ratio'];
+
+        // Views rewrite results or Twig inline_template may strip out `style`
+        // attributes, provide hint to JS.
+        $attributes['data-ratio'] = $padding;
       }
 
       if (!empty($settings['lazy'])) {
@@ -208,6 +209,7 @@ class BlazyManager extends BlazyManagerBase {
     $element['#captions']        = $captions;
     $element['#item']            = $item;
     $element['#item_attributes'] = $item_attributes;
+    $element['#url_attributes']  = $url_attributes;
     $element['#settings']        = $settings;
 
     foreach (['media', 'wrapper'] as $key) {
@@ -262,7 +264,7 @@ class BlazyManager extends BlazyManagerBase {
     // If not a grid, pass the items as regular index children to theme_field().
     // @todo #pre_render doesn't work if called from Views results.
     if (empty($settings['_grid'])) {
-      $settings = $this->prepareBuild($build);
+      $settings = $this->prepareBuild($build) + $settings;
       $build['#blazy'] = $settings;
       $build['#attached'] = $this->attach($settings);
     }
@@ -285,7 +287,8 @@ class BlazyManager extends BlazyManagerBase {
     $build = $element['#build'];
     unset($element['#build']);
 
-    $settings = $this->prepareBuild($build);
+    // @todo $settings nullified when having Views field within grid.
+    $settings = $this->prepareBuild($build) + $element['#settings'];
     $element = BlazyGrid::build($build, $settings);
     $element['#attached'] = $this->attach($settings);
     return $element;

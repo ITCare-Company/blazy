@@ -261,12 +261,12 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
             unset($settings['breakpoints'][$key]);
           }
         }
-      }
-    }
 
-    // Identify that Blazy can be activated only by breakpoints.
-    if (empty($settings['blazy'])) {
-      $settings['blazy'] = !empty($settings['breakpoints']);
+        // Identify that Blazy can be activated only by breakpoints.
+        if (empty($settings['blazy'])) {
+          $settings['blazy'] = !empty($settings['breakpoints']);
+        }
+      }
     }
   }
 
@@ -335,7 +335,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $image = isset($item['item']) ? $item['item'] : NULL;
       $this->buildDataBlazy($settings, $image);
     }
-    unset($settings['uri'], $settings['item']);
   }
 
   /**

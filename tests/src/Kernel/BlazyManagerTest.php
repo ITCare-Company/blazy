@@ -308,8 +308,8 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $settings += BlazyDefault::itemSettings();
     $item      = $build['item'];
 
-    $settings['item']        = $item;
-    $settings['uri']         = $this->uri;
+    $settings['first_item']  = $item;
+    $settings['first_uri']   = $this->uri;
     $settings['blazy_data']  = [];
     $settings['background']  = TRUE;
     $settings['breakpoints'] = $this->getDataBreakpoints();

@@ -103,18 +103,17 @@ class BlazyFormatterManager extends BlazyManager {
     // This is less expensive than re-defining dimensions per image.
     if (!empty($settings['image_style']) && !$resimage_lazy) {
       if ($field_type == 'image' && $items[0]) {
-        // @todo remove item uri for first_, for gallery, and avoid leaking.
-        $settings['item'] = $settings['first_item'] = $items[0];
-        $settings['uri'] = $settings['first_uri'] = ($file = $items[0]->entity) && empty($items[0]->uri) ? $file->getFileUri() : $items[0]->uri;
+        // Re-use first item uri for colorbox-like gallery, and avoid leaking.
+        $settings['first_item'] = $items[0];
+        $settings['first_uri'] = ($file = $items[0]->entity) && empty($items[0]->uri) ? $file->getFileUri() : $items[0]->uri;
       }
     }
 
     // Sets dimensions once, if any, and let extenders inherit this, as well.
-    if (!empty($settings['item']) && !empty($settings['uri'])) {
+    if (!empty($settings['first_item']) && !empty($settings['first_uri'])) {
       $this->setDimensionsOnce($settings);
     }
 
-    // Removes item and URI as meant for top level here.
     // @todo remove once sub-modules changed to use first_ things.
     unset($settings['item'], $settings['uri']);
 

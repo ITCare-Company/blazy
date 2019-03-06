@@ -35,6 +35,7 @@ trait BlazyStylePluginTrait {
       // background option, and other options, and still lazyload it.
       $theme = isset($image['rendered']['#theme']) ? $image['rendered']['#theme'] : '';
       if (in_array($theme, ['blazy', 'image_formatter'])) {
+        $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
         $settings['cache_tags'] = isset($image['rendered']['#cache']['tags']) ? $image['rendered']['#cache']['tags'] : [];
 
         if ($theme == 'blazy') {

@@ -15,7 +15,6 @@
   Drupal.blazy = Drupal.blazy || {
     init: null,
     windowWidth: 0,
-    done: false,
     globals: function () {
       var me = this;
       var settings = drupalSettings.blazy || {};
@@ -71,6 +70,8 @@
     var opts = !data ? me.globals() : _db.extend({}, me.globals(), data);
     var ratios = elm.querySelectorAll('[data-dimensions]');
     var loopRatio = ratios.length > 0;
+    var fallbackRatios = elm.querySelectorAll('[data-ratio]');
+    var loopFallbackRatio = fallbackRatios.length > 0;
 
     /**
      * Updates the dynamic multi-breakpoint aspect ratio.
@@ -81,7 +82,7 @@
      * and will use CSS instead.
      *
      * @param {HTMLElement} el
-     *   The .media--ratio HTML element.
+     *   The .media--ratio--fluid|enforced HTML element.
      */
     function updateRatio(el) {
       var dimensions = !el.getAttribute('data-dimensions') ? false : _db.parse(el.getAttribute('data-dimensions'));
@@ -109,28 +110,38 @@
       }
     }
 
+    /**
+     * Fix for Twig inline_template and Views rewrite striping out style.
+     *
+     * @param {HTMLElement} el
+     *   The .media--ratio--fluid|enforced HTML element.
+     */
+    function updateFallbackRatio(el) {
+      // Only rewrites if the style is indeed stripped out by Twig, and not set.
+      if (!el.hasAttribute('style')) {
+        el.style.paddingBottom = el.getAttribute('data-ratio') + '%';
+      }
+    }
+
     // Initializes Blazy instance.
     me.init = new Blazy(opts);
 
-    // Reacts on resizing.
-    if (!me.done) {
+    // Reacts on resizing, and the magic () also does it on page laod.
+    _db.resize(function () {
+      me.windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+      if (loopRatio) {
+        _db.forEach(ratios, updateRatio, elm);
+      }
+      else if (fallbackRatios.length > 0) {
+        _db.forEach(fallbackRatios, updateFallbackRatio, elm);
+      }
+
+      // Dispatch resizing event.
+      _db.trigger(elm, 'resizing', {windowWidth: me.windowWidth});
+
       me.init.revalidate();
-
-      _db.resize(function () {
-        me.windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-
-        if (loopRatio) {
-          _db.forEach(ratios, updateRatio, elm);
-        }
-
-        // Dispatch resizing event.
-        _db.trigger(elm, 'resizing', {windowWidth: me.windowWidth});
-
-        me.init.revalidate();
-      })();
-
-      me.done = true;
-    }
+    })();
 
     elm.className += ' blazy--on';
   }

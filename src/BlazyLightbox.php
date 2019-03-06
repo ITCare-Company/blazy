@@ -26,8 +26,8 @@ class BlazyLightbox {
     $switch_css = str_replace('_', '-', $switch);
 
     // Provide relevant URL if it is a lightbox.
-    $url_attributes = [];
-    $url_attributes['class'] = ['blazy__' . $switch_css, 'litebox'];
+    $url_attributes = &$element['#url_attributes'];
+    $url_attributes['class'][] = 'blazy__' . $switch_css . ' litebox';
     $url_attributes['data-' . $switch_css . '-trigger'] = TRUE;
 
     // If it is a video/audio, otherwise image to image.
@@ -114,7 +114,6 @@ class BlazyLightbox {
     }
 
     $element['#url'] = $url;
-    $element['#url_attributes'] = $url_attributes;
   }
 
   /**

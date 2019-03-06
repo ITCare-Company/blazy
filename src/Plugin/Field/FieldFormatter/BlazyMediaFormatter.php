@@ -51,9 +51,9 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
 
       // @todo remove item and uri for first_ things.
       if (isset($fields['thumbnail'])) {
-        $item             = $fields['thumbnail']->get(0);
-        $settings['item'] = $settings['first_item'] = $item;
-        $settings['uri']  = $settings['first_uri'] = $item->entity->getFileUri();
+        $item = $fields['thumbnail']->get(0);
+        $settings['first_item'] = $item;
+        $settings['first_uri'] = $item->entity->getFileUri();
       }
     }
 
