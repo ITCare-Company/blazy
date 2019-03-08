@@ -7,9 +7,12 @@ use Drupal\blazy\BlazyDefault;
 
 /**
  * Base class for Media entity reference formatters with field details.
+ *
+ * @see \Drupal\blazy\Dejavu\BlazyEntityReferenceBase
  */
 abstract class BlazyEntityMediaBase extends BlazyEntityBase {
 
+  use BlazyVideoTrait;
   use BlazyDependenciesTrait;
 
   /**
@@ -35,13 +38,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     $element = ['settings' => $settings];
 
     // Built early before stage to allow custom highres video thumbnail later.
-    // Implementor must import Drupal\blazy\Dejavu\BlazyVideoTrait, or extend
-    // Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase, or
-    // import the BlazyOEmbed service.
-    // @todo remove check post beta.
-    if (method_exists($this, 'blazyOembed')) {
-      $this->blazyOembed()->getMediaItem($element, $entity);
-    }
+    $this->blazyOembed()->getMediaItem($element, $entity);
 
     // Build the main stage with image options from highres video thumbnail.
     if (!empty($settings['image'])) {

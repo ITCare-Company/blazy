@@ -2,79 +2,61 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Component\Utility\Xss;
-
 /**
- * A Trait common for blazy image and file ER formatters.
+ * A Trait common for all blazy formatters.
  */
 trait BlazyFormatterTrait {
 
   /**
-   * {@inheritdoc}
+   * The blazy manager service.
+   *
+   * @var \Drupal\blazy\BlazyFormatterManager
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
-    $build = [];
-    $files = $this->getEntitiesToView($items, $langcode);
+  protected $formatter;
 
-    // Early opt-out if the field is empty.
-    if (empty($files)) {
-      return $build;
-    }
-
-    // Collects specific settings to this formatter.
-    $settings              = $this->buildSettings();
-    $settings['blazy']     = TRUE;
-    $settings['namespace'] = $settings['item_id'] = $settings['lazy'] = 'blazy';
-    $settings['_grid']     = !empty($settings['style']) && !empty($settings['grid']);
-    $settings['langcode']  = $langcode;
-
-    // Build the settings.
-    $build = ['settings' => $settings];
-
-    // Modifies settings.
-    $this->formatter->buildSettings($build, $items);
-
-    // Build the elements.
-    $this->buildElements($build, $files);
-
-    // Pass to manager for easy updates to all Blazy formatters.
-    return $this->formatter->build($build);
+  /**
+   * Returns the blazy formatter manager.
+   */
+  public function formatter() {
+    return $this->formatter;
   }
 
   /**
-   * Build the Blazy elements.
+   * The blazy manager service.
+   *
+   * @var \Drupal\blazy\BlazyManagerInterface
    */
-  public function buildElements(array &$build, $files) {
-    $settings = $build['settings'];
+  protected $blazyManager;
 
-    foreach ($files as $delta => $file) {
-      /* @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-      $item = $file->_referringItem;
+  /**
+   * Returns the blazy manager.
+   */
+  public function blazyManager() {
+    return $this->blazyManager;
+  }
 
-      $settings['delta']     = $delta;
-      $settings['file_tags'] = $file->getCacheTags();
-      $settings['type']      = 'image';
-      $settings['uri']       = $file->getFileUri();
-      $box['item']           = $item;
-      $box['settings']       = $settings;
+  /**
+   * Builds the settings.
+   */
+  public function buildSettings() {
+    $settings              = $this->getSettings();
+    $settings['plugin_id'] = $this->getPluginId();
 
-      // If imported Drupal\blazy\Dejavu\BlazyVideoTrait.
-      $this->buildElement($box, $file);
+    return $settings;
+  }
 
-      // Build caption if so configured.
-      if (!empty($settings['caption'])) {
-        foreach ($settings['caption'] as $caption) {
-          if ($caption_content = $box['item']->{$caption}) {
-            $box['captions'][$caption] = ['#markup' => Xss::filterAdmin($caption_content)];
-          }
-        }
-      }
+  /**
+   * Returns the blazy admin service.
+   */
+  public function admin() {
+    return \Drupal::service('blazy.admin.formatter');
+  }
 
-      // Image with grid, responsive image, lazyLoad, and lightbox supports.
-      $build[$delta] = $this->formatter->getBlazy($box);
-      unset($box);
-    }
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsSummary() {
+    return $this->admin()->getSettingsSummary($this->getScopedFormElements());
   }
 
 }

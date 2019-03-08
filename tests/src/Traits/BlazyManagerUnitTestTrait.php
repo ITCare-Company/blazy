@@ -14,7 +14,7 @@ trait BlazyManagerUnitTestTrait {
    * Setup the unit manager.
    */
   protected function setUpUnitServices() {
-    $this->entityManager      = $this->getMock('Drupal\Core\Entity\EntityManagerInterface');
+    // @todo remove $this->entityManager = $this->getMock('Drupal\Core\Entity\EntityManagerInterface');
     $this->entityStorage      = $this->getMock('Drupal\Core\Entity\EntityStorageInterface');
     $this->entityViewBuilder  = $this->getMock('Drupal\Core\Entity\EntityViewBuilderInterface');
     $this->entityTypeMock     = $this->getMock('\Drupal\Core\Entity\EntityTypeInterface');
@@ -46,7 +46,7 @@ trait BlazyManagerUnitTestTrait {
    */
   protected function setUpUnitContainer() {
     $container = new ContainerBuilder();
-    $container->set('entity.manager', $this->entityManager);
+    // @todo remove $container->set('entity.manager', $this->entityManager);
     $container->set('entity_field.manager', $this->entityFieldManager);
     $container->set('entity_type.manager', $this->entityTypeManager);
     $container->set('module_handler', $this->moduleHandler);

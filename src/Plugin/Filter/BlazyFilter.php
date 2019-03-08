@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Plugin\Filter;
 
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -10,6 +11,7 @@ use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
+use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyOEmbed;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -87,14 +89,16 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     }
 
     $dom = Html::load($text);
-    $xpath = new \DOMXPath($dom);
     $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
     $settings['column'] = stristr($text, 'data-column') !== FALSE;
     $settings['media_switch'] = $switch = $this->settings['media_switch'];
     $settings['lightbox'] = ($switch && in_array($switch, $this->blazyManager->getLightboxes())) ? $switch : FALSE;
+    $settings['plugin_id'] = 'blazy_filter';
+    $settings['_grid'] = $settings['column'] || $settings['grid'];
 
+    // Allows lightboxes to provide its own optionsets.
     if ($switch) {
-      $settings[$switch] = $switch;
+      $settings[$switch] = empty($settings[$switch]) ? $switch : $settings[$switch];
     }
 
     // Provides alter like formatters to modify at one go, even clumsy here.
@@ -102,50 +106,67 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $this->blazyManager->getModuleHandler()->alter('blazy_settings', $build, $this->settings);
     $settings = array_merge($settings, $build['settings']);
 
+    $elements = [];
     foreach ($allowed_tags as $allowed_tag) {
       $nodes = $dom->getElementsByTagName($allowed_tag);
       if ($nodes->length > 0) {
-        $settings['count'] = $nodes->length;
+        $item_settings = $settings;
+        $item_settings['count'] = $nodes->length;
         foreach ($nodes as $delta => $node) {
           if ($node->hasAttribute('data-unblazy')) {
             continue;
           }
 
           // Build Blazy elements with lazyloaded image, or iframe.
-          $settings['delta'] = $delta;
-          $this->buildSettings($settings, $node);
+          $item_settings['delta'] = $delta;
+          $this->buildSettings($item_settings, $node);
           $build = [
-            'item' => $this->buildImageItem($settings, $node),
-            'settings' => $settings,
+            'item' => $this->buildImageItem($item_settings, $node),
+            'settings' => $item_settings,
           ];
 
-          $output = $this->blazyManager->getBlazy($build);
-          $altered_html = $this->blazyManager->getRenderer()->render($output);
-
-          // Load the altered HTML into a new DOMDocument, retrieve the element.
-          $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')
-            ->item(0)
-            ->childNodes;
-
-          foreach ($updated_nodes as $updated_node) {
-            // Import the updated from the new DOMDocument into the original
-            // one, importing also the child nodes of the updated node.
-            $updated_node = $dom->importNode($updated_node, TRUE);
-            $node->parentNode->insertBefore($updated_node, $node);
+          // Sanitazion was done by Caption filter when arriving here, as
+          // otherwise we cannot see this figure, yet provide fallback.
+          if ($node->parentNode->tagName === 'figure') {
+            $caption = $node->parentNode->getElementsByTagName('figcaption');
+            if ($caption->length > 0 && $caption->item(0) && $text = $caption->item(0)->nodeValue) {
+              $build['captions']['alt'] = ['#markup' => Xss::filter($text, BlazyDefault::TAGS)];
+            }
           }
 
-          // Finally, remove the original blazy node.
-          $node->parentNode->removeChild($node);
+          $output = $this->blazyManager->getBlazy($build);
+          if ($settings['_grid']) {
+            $elements[] = $output;
+          }
+          else {
+            $altered_html = $this->blazyManager->getRenderer()->render($output);
+
+            // Load the altered HTML into a new DOMDocument, retrieve element.
+            $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')
+              ->item(0)
+              ->childNodes;
+
+            foreach ($updated_nodes as $updated_node) {
+              // Import the updated from the new DOMDocument into the original
+              // one, importing also the child nodes of the updated node.
+              $updated_node = $dom->importNode($updated_node, TRUE);
+              $node->parentNode->insertBefore($updated_node, $node);
+            }
+
+            // Finally, remove the original blazy node.
+            $node->parentNode->removeChild($node);
+          }
         }
       }
     }
 
     $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE];
     $all['media_switch'] = $settings['media_switch'];
-    if ($settings['column'] || $settings['grid']) {
+    if ($settings['_grid']) {
       $all['grid'] = $settings['grid'];
       $all['column'] = $settings['column'];
-      $this->buildGrid($dom, $xpath, $settings);
+      $all[$switch] = $settings[$switch];
+      $this->buildGrid($dom, $settings, $elements);
     }
 
     // Attach Blazy component libraries.
@@ -183,56 +204,41 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
    *
    * @param \DOMDocument $dom
    *   The HTML DOM object being modified.
-   * @param \DOMXpath $xpath
-   *   The DOM Xpath object.
    * @param array $settings
    *   The settings array.
-   *
-   * @todo use BlazyGrid if you can.
+   * @param array $elements
+   *   The renderable array of blazy item.
    */
-  private function buildGrid(\DOMDocument &$dom, \DOMXpath $xpath, array $settings) {
-    $query = $settings['column'] ? 'column' : 'grid';
-    $nodes = $xpath->evaluate('//*[contains(@class, "grid")]');
-    $grid  = FALSE;
+  private function buildGrid(\DOMDocument &$dom, array $settings, array $elements = []) {
+    $xpath = new \DOMXPath($dom);
+    $query = $settings['style'] = $settings['column'] ? 'column' : 'grid';
+    $grid = FALSE;
 
-    if ($query == 'column') {
-      $node = $xpath->query('//*[@data-column]');
-      if ($node->length > 0 && $node->item(0) && $node->item(0)->hasAttribute('data-column')) {
-        $grid = $node->item(0)->getAttribute('data-column');
-      }
-    }
-    else {
-      $node = $xpath->query('//*[@data-grid]');
-      if ($node->length > 0 && $node->item(0) && $node->item(0)->hasAttribute('data-grid')) {
-        $grid = $node->item(0)->getAttribute('data-grid');
-      }
+    // This is weird, variables not working for xpath?
+    $node = $query == 'column' ? $xpath->query('//*[@data-column]') : $xpath->query('//*[@data-grid]');
+    if ($node->length > 0 && $node->item(0) && $node->item(0)->hasAttribute('data-' . $query)) {
+      $grid = $node->item(0)->getAttribute('data-' . $query);
     }
 
-    $classes = [];
-    if (($first = $nodes[0]) && $grid) {
-      // Create the parent grid container, and put it before the first.
-      $container = $first->parentNode->insertBefore($dom->createElement('div'), $first);
+    if ($grid && $elements) {
       $grids = array_map('trim', explode(' ', $grid));
-      $classes[] = 'blazy blazy--filter blazy--' . $query . ' block-' . $query;
 
       foreach (['small', 'medium', 'large'] as $key => $item) {
         if (isset($grids[$key])) {
-          $classes[] = $item . '-block-' . $query . '-' . $grids[$key];
+          $settings['grid_' . $item] = $grids[$key];
+          $settings['grid'] = $grids[$key];
         }
       }
 
-      // Add the container classes, and merge grid items into container.
-      $container->setAttribute('class', implode(' ', $classes));
-      $container->setAttribute('data-blazy', '');
+      $build = [
+        'items' => $elements,
+        'settings' => $settings,
+      ];
 
-      if (!empty($settings['media_switch'])) {
-        $switch = str_replace('_', '-', $settings['media_switch']);
-        $container->setAttribute('data-' . $switch . '-gallery', TRUE);
-      }
-
-      foreach ($nodes as $node) {
-        $container->appendChild($node);
-      }
+      $output = $this->blazyManager->build($build);
+      $altered_html = $this->blazyManager->getRenderer()->render($output);
+      $dom->loadHTML($altered_html);
+      $dom->saveHTML();
     }
   }
 
@@ -278,18 +284,6 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
         }
       }
 
-      if ($settings['column'] || $settings['grid']) {
-        if ($node->parentNode->tagName === 'figure') {
-          $classes = $node->parentNode->getAttribute('class');
-          $classes = (strlen($classes) > 0) ? explode(' ', $classes) : [];
-          $classes[] = 'grid';
-          $node->parentNode->setAttribute('class', implode(' ', array_unique($classes)));
-        }
-        else {
-          $settings['media_attributes']['class'][] = 'grid';
-        }
-      }
-
       $settings['media_attributes']['class'] = array_unique($settings['media_attributes']['class']);
     }
 
@@ -319,7 +313,8 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $settings['image_url'] = $src;
     $settings['media_switch'] = $this->settings['media_switch'];
 
-    $uri = file_build_uri($src);
+    // @todo file_build_uri() makes public://sites/default/files/media/Screen...
+    $uri = strpos($src, 'http') === FALSE ? $src : $src;
     if ($node->tagName == 'iframe') {
       $settings['input_url'] = $src;
       $resource = $this->blazyOembed->build($settings);

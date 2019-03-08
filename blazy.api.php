@@ -95,7 +95,7 @@
  *   return $build;
  * }
  * @endcode
- * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait::buildElements()
+ * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterBlazy::buildElements()
  * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter::buildElements()
  * @see \Drupal\gridstack\Plugin\Field\FieldFormatter\GridStackFileFormatterBase::buildElements()
  * @see \Drupal\slick\Plugin\Field\FieldFormatter\SlickFileFormatterBase::buildElements()

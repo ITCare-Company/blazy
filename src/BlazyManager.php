@@ -264,7 +264,7 @@ class BlazyManager extends BlazyManagerBase {
     // If not a grid, pass the items as regular index children to theme_field().
     // @todo #pre_render doesn't work if called from Views results.
     if (empty($settings['_grid'])) {
-      $settings = $this->prepareBuild($build) + $settings;
+      $settings = $this->prepareBuild($build);
       $build['#blazy'] = $settings;
       $build['#attached'] = $this->attach($settings);
     }
@@ -288,7 +288,7 @@ class BlazyManager extends BlazyManagerBase {
     unset($element['#build']);
 
     // @todo $settings nullified when having Views field within grid.
-    $settings = $this->prepareBuild($build) + $element['#settings'];
+    $settings = $this->prepareBuild($build);
     $element = BlazyGrid::build($build, $settings);
     $element['#attached'] = $this->attach($settings);
     return $element;
@@ -299,9 +299,8 @@ class BlazyManager extends BlazyManagerBase {
    */
   public function prepareBuild(array &$build) {
     // If children are stored within items, reset.
-    $build = isset($build['items']) ? $build['items'] : $build;
     $settings = isset($build['settings']) ? $build['settings'] : [];
-    unset($build['items'], $build['settings']);
+    $build = isset($build['items']) ? $build['items'] : $build;
 
     // Supports Blazy multi-breakpoint images if provided, updates $settings.
     // Blazy formatters have #build and Views fields none.
@@ -309,6 +308,8 @@ class BlazyManager extends BlazyManagerBase {
       $item = !empty($build[0]['#build']) ? $build[0]['#build'] : $build[0];
       $this->isBlazy($settings, $item);
     }
+
+    unset($build['items'], $build['settings']);
     return $settings;
   }
 

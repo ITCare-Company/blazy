@@ -132,7 +132,6 @@ trait BlazyVideoTrait {
    * Currently this is only required by deprecated SlickVideoFormatter.
    */
   public function buildVideo(array &$settings = [], $external_url = '') {
-    // If this file is imported without DI, allows a fallback to not break it.
     $settings['input_url'] = empty($settings['input_url']) ? $external_url : $settings['input_url'];
     return $this->blazyOembed()->build($settings);
   }

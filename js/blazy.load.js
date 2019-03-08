@@ -133,7 +133,7 @@
       if (loopRatio) {
         _db.forEach(ratios, updateRatio, elm);
       }
-      else if (fallbackRatios.length > 0) {
+      else if (loopFallbackRatio) {
         _db.forEach(fallbackRatios, updateFallbackRatio, elm);
       }
 

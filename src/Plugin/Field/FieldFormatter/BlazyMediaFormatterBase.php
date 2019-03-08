@@ -9,7 +9,6 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyFormatterManager;
 use Drupal\blazy\BlazyEntity;
-use Drupal\blazy\Dejavu\BlazyVideoTrait;
 use Drupal\blazy\Dejavu\BlazyEntityMediaBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -20,8 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 abstract class BlazyMediaFormatterBase extends BlazyEntityMediaBase implements ContainerFactoryPluginInterface {
 
-  use BlazyFormatterBaseTrait;
-  use BlazyVideoTrait;
+  use BlazyFormatterTrait;
 
   /**
    * The logger factory.

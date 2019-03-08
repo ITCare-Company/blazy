@@ -46,10 +46,7 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
 
     // Sets dimensions once to reduce method ::transformDimensions() calls.
     $media = array_values($media);
-    if (!empty($settings['image_style']) && ($media[0]->getEntityTypeId() == 'media')) {
-      $fields = $media[0]->getFields();
-
-      // @todo remove item and uri for first_ things.
+    if ($media[0]->getEntityTypeId() == 'media' && $fields = $media[0]->getFields()) {
       if (isset($fields['thumbnail'])) {
         $item = $fields['thumbnail']->get(0);
         $settings['first_item'] = $item;

@@ -1,4 +1,13 @@
 
+Blazy 8.x-2.0-dev, 2019-03-08
+-----------------------------
+- Fixed for Caption filter captions.
+- Fixed for BlazyFilter grid TODO to integrate grid with the existing grid.
+- Removed BlazyFormatterBaseTrait.
+- Moved BlazyFormatterBaseTrait contents to BlazyFormatterTrait.
+- Moved BlazyFormatterTrait contents to BlazyFormatterBlazy.
+- Split docs.
+
 Blazy 8.x-2.0-dev, 2019-03-06
 -----------------------------
 - Fix for Twig inline_template and Views rewrite results striping out style

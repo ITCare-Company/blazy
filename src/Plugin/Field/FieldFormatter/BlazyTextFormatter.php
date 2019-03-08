@@ -27,7 +27,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class BlazyTextFormatter extends FormatterBase implements ContainerFactoryPluginInterface {
 
-  use BlazyFormatterBaseTrait;
+  use BlazyFormatterTrait;
 
   /**
    * Constructs a BlazyImageFormatter instance.

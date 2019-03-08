@@ -7,6 +7,8 @@ use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
 
 /**
  * Base class for entity reference formatters without field details.
+ *
+ * @see \Drupal\blazy\Dejavu\BlazyEntityMediaBase
  */
 abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
 

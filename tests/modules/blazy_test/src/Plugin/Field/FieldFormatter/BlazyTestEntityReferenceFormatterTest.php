@@ -11,7 +11,7 @@ use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyEntity;
 use Drupal\blazy\Dejavu\BlazyEntityReferenceBase;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
-use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterBaseTrait;
+use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
 use Drupal\blazy_test\BlazyFormatterTestInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -26,7 +26,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase implements ContainerFactoryPluginInterface {
 
-  use BlazyFormatterBaseTrait;
+  use BlazyFormatterTrait;
   use BlazyVideoTrait;
 
   /**
@@ -112,11 +112,8 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase imp
     // Build the elements.
     $this->buildElements($build, $entities, $langcode);
 
-    // Alternatively use grid: BlazyGrid::build($build['items'], $settings).
-    $elements = $build['items'];
-    $elements['#attached'] = $this->formatter()->attach($settings);
-
-    return $elements;
+    // Pass to manager for easy updates to all Blazy formatters.
+    return $this->formatter->build($build);
   }
 
   /**

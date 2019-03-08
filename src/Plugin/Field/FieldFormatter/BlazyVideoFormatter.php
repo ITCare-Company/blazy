@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPluginInterface {
 
-  use BlazyFormatterBaseTrait;
+  use BlazyFormatterTrait;
   use BlazyVideoTrait;
 
   /**
@@ -74,18 +74,8 @@ class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPlug
     // Build the elements.
     $this->buildElements($build, $items);
 
-    // Updates settings.
-    $settings = $build['settings'];
-    unset($build['settings']);
-
-    // Supports Blazy multi-breakpoint images if provided.
-    if (!empty($settings['uri']) && isset($build[0]['#build'])) {
-      $this->formatter->isBlazy($settings, $build[0]['#build']);
-    }
-
-    $build['#blazy'] = $settings;
-    $build['#attached'] = $this->formatter->attach($settings);
-    return $build;
+    // Pass to manager for easy updates to all Blazy formatters.
+    return $this->formatter->build($build);
   }
 
   /**

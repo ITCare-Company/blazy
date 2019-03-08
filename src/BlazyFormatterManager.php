@@ -99,18 +99,15 @@ class BlazyFormatterManager extends BlazyManager {
 
     $settings['ratio'] = $ratio ? $settings['ratio'] : FALSE;
 
-    // Sets dimensions once, if cropped, to reduce costs with ton of images.
-    // This is less expensive than re-defining dimensions per image.
-    if (!empty($settings['image_style']) && !$resimage_lazy) {
-      if ($field_type == 'image' && $items[0]) {
-        // Re-use first item uri for colorbox-like gallery, and avoid leaking.
-        $settings['first_item'] = $items[0];
-        $settings['first_uri'] = ($file = $items[0]->entity) && empty($items[0]->uri) ? $file->getFileUri() : $items[0]->uri;
-      }
+    // Pass first item to optimize sizes and build colorbox/zoom-like gallery.
+    if (empty($settings['first_item']) && $field_type == 'image' && $items[0]) {
+      $settings['first_item'] = $items[0];
+      $settings['first_uri'] = ($file = $items[0]->entity) && empty($items[0]->uri) ? $file->getFileUri() : $items[0]->uri;
     }
 
-    // Sets dimensions once, if any, and let extenders inherit this, as well.
-    if (!empty($settings['first_item']) && !empty($settings['first_uri'])) {
+    // Sets dimensions once, if cropped, to reduce costs with ton of images.
+    // This is less expensive than re-defining dimensions per image.
+    if (!empty($settings['first_item']) && !empty($settings['image_style']) && !$resimage_lazy) {
       $this->setDimensionsOnce($settings);
     }
 

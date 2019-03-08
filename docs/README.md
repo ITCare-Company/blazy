@@ -9,56 +9,28 @@ data usage if they don't browse the whole page.
    * [Download bLazy](https://github.com/dinbror/blazy)
    * Extract it as is, rename **blazy-master** to **blazy**, so the assets are:
 
-      + **/sites/../libraries/blazy/blazy.min.js**
+      + **/libraries/blazy/blazy.min.js**
 
 ## INSTALLATION
-1. MANUAL:
-Install the module as usual, more info can be found on:
-https://www.drupal.org/docs/8/extending-drupal-8/installing-drupal-8-modules
+1. **MANUAL:**
 
-2. COMPOSER:
-There are various ways to install third party bower/npm asset libraries. Check
-out any below suitable to your workflow:
-https://www.drupal.org/project/blazy/issues/3021902
-https://www.drupal.org/project/slick/issues/2907371
-Or jump here:
-https://www.drupal.org/project/slick/issues/2907371#comment-12882235
+   Install the module as usual, more info can be found on:
+   https://www.drupal.org/docs/8/extending-drupal-8/installing-drupal-8-modules
 
-It is up to you to decide which works best. Composer is not designed to manage
-JS, CSS or HTML framework assets. It is for PHP. Then come Composer plugins,
-and other workarounds to make Composer workflow easier. As many alternatives,
-it is not covered here. Please find more info on the above-mentioned issues.
+2. **COMPOSER:**
 
+   There are various ways to install third party bower/npm asset libraries.
+   Check out any below suitable to your workflow:
 
-## RECOMMENDED
-* [Markdown](http://dgo.to/markdown)
+   * https://www.drupal.org/project/blazy/issues/3021902
+   * https://www.drupal.org/project/slick/issues/2907371
+   * https://www.drupal.org/project/slick/issues/2907371#comment-12882235
 
-  To make reading this README a breeze at [Blazy help](/admin/help/blazy)
-
-
-## FEATURES
-* Supports core Image.
-* Supports Picture.
-* Supports Colorbox/ Photobox/ PhotoSwipe, also multimedia lightboxes.
-* Multi-serving images for configurable breakpoints, almost similar to core
-  Responsive image, only less complex.
-* CSS background lazyloading, see Mason, GridStack, and Slick carousel.
-* IFRAME urls via custom coded, via Media.
-* Supports inline images and iframes with lightboxes, and grid or CSS3 Masonry
-  via Blazy Filter. Enable Blazy filter at **/admin/config/content/formats**,
-  and check out instruction at **/filter/tips**.
-* Blazy Grid formatter for Image, Media and Text with multi-value.  
-* Delay loading for below-fold images until 100px (configurable) before they are
-  visible at viewport.
-* A simple effortless CSS loading indicator.
-* It doesn't take over all images, so it can be enabled as needed via Blazy
-  formatter, or its supporting modules.
-
-
-## OPTIONAL FEATURES
-* Views fields for File Entity and Media integration, see Slick Browser.
-* Views style plugin Blazy Grid for Grid Foundation or CSS3 Masonry.
-* Field formatters: Blazy with Media integration.
+   It is up to you to decide which works best. Composer is not designed to
+   manage JS, CSS or HTML framework assets. It is for PHP. Then come Composer
+   plugins, and other workarounds to make Composer workflow easier. As many
+   alternatives, it is not covered here. Please find more info on the
+   above-mentioned issues.
 
 
 ## USAGES
@@ -70,7 +42,39 @@ Be sure to enable Blazy UI which can be uninstalled at production later.
 * Find **Blazy** formatter under **Manage display**.
 
 * Go to [Blazy UI](/admin/config/media/blazy) to manage few global options,
-  including enabling support to bring Picture into blazy-related formatters.
+  including enabling support to bring core Responsive image into blazy-related
+  formatters.
+
+
+## RECOMMENDED
+* [Markdown](http://dgo.to/markdown)
+
+  To make reading this README a breeze at [Blazy help](/admin/help/blazy_ui)
+
+
+## FEATURES
+* Supports core Image.
+* Supports core Responsive image.
+* Supports Colorbox/ Photobox/ PhotoSwipe, also multimedia lightboxes.
+* Multi-serving images for configurable breakpoints, almost similar to core
+  Responsive image, only less complex.
+* CSS background lazyloading, see Mason, GridStack, and Slick carousel.
+* IFRAME urls via custom coded, via Media.
+* Supports inline images and iframes with lightboxes, and grid or CSS3 Masonry
+  via Blazy Filter. Enable Blazy filter at **/admin/config/content/formats**,
+  and check out instructions at **/filter/tips**.
+* Field formatters: Blazy with Media integration.
+* Blazy Grid formatter for Image, Media and Text with multi-value.
+* Delay loading for below-fold images until 100px (configurable) before they are
+  visible at viewport.
+* A simple effortless CSS loading indicator.
+* It doesn't take over all images, so it can be enabled as needed via Blazy
+  formatter, or its supporting modules.
+
+
+## OPTIONAL FEATURES
+* Views fields for File Entity and Media integration, see Slick Browser.
+* Views style plugin Blazy Grid for Grid Foundation or CSS3 Masonry.
 
 
 ## MODULES THAT INTEGRATE WITH OR REQUIRE BLAZY
@@ -91,15 +95,29 @@ Most duplication efforts from the above modules will be merged into
 \Drupal\blazy\Dejavu or anywhere else namespace.
 
 **What dups?**
+
 The most obvious is the removal of formatters from Intense, Zooming,
-Slick Lightbox, Blazy PhotoSwipe. Any lightbox supported by Blazy can use Blazy,
-or Slick formatters if applicable instead. We do not have separate formatters
-when its prime functionality is embedding a lightbox, or superceded by Blazy.
+Slick Lightbox, Blazy PhotoSwipe, and other (quasi-)lightboxes. Any lightbox
+supported by Blazy can use Blazy, or Slick formatters if applicable instead.
+We do not have separate formatters when its prime functionality is embedding
+a lightbox, or superceded by Blazy.
 
 Blazy provides a versatile and reusable formatter for a few known lightboxes
-with extra advantages: lazyloading, grid, multi-serving images, Picture,
-CSS background, captioning, etc. Including making those lightboxes available for
-free at Views Field for File entity, and Blazy Filter for inline images.
+with extra advantages:
+
+lazyloading, grid, multi-serving images, Responsive image,
+CSS background, captioning, etc.
+
+Including making those lightboxes available for free at Views Field for
+File entity, Media and Blazy Filter for inline images.
+
+If you are developing lightboxes and using Blazy, I would humbly invite you
+to give Blazy a try, and consider joining forces with Blazy, and help improve it
+for the above-mentioned advantages. We are also continuously improving and
+solidifying the API to make advanced usages a lot easier, and DX friendly.
+Currently, of course, not perfect, but have been proven to play nice with at
+least 6 lightboxes, and likely more.
+
 
 ## SIMILAR MODULES
 [Lazyloader](https://www.drupal.org/project/lazyloader)
@@ -118,33 +136,8 @@ DEV releases should fix most issues as we add new services, or change things.
 If you don't drush, before any module update, always open:
 
 [Performance](/admin/config/development/performance)
+
 And so you are ready to hit **Clear all caches** if any issue.
-
-## UPDATE SOP:
-Visit any of the following URLs when updating Blazy, or its related modules.
-Please ignore any documentation if already aware of Drupal site building. This
-is for the sake of completed documentation for those who may need it.
-
-1. [Performance](/admin/config/development/performance)  
-  Unless an update is required, clearing cache should fix most issues.
-  * Hit **Clear all caches** button once the new Blazy in place.
-  * Regenerate CSS and JS as the latest fixes may contain changes to the assets.
-    Ignore below if you are aware, and found no asset changes from commits.
-    Normally clearing cache suffices when no asset changes are found.
-      * Uncheck CSS and JS aggregation options under Bandwidth optimization.
-      * Save.
-      * [Ignorable] See one of Blazy related pages if display is expected.
-      * [Ignorable] Only clear cache if needed.
-      * Check both options again.
-      * Save again.
-      * [Ignorable] Press F5, or CMD/ CTRL + R to refresh browser cache if
-        needed.
-
-2. [Admin status](/admin/reports/status)
-
-  Check for any pending update, and run /update.php from browser address bar.
-
-3. If Twig templates are customized, compare against the latest.
 
 
 ## PROGRAMATICALLY
@@ -157,65 +150,6 @@ See blazy.api.php (WIP) for details.
   The image dimensions will be set once, and inherited by all images as long as
   they contain word crop. If using scaled image styles, regular calculation
   applies.
-
-
-## TROUBLESHOOTING AND KNOWN ISSUES
-Resizing is not supported. Just reload the page.
-
-
-### 1. VIEWS INTEGRATION
-Blazy provides a simple Views field for File Entity, and Media.
-
-When using Blazy formatter within Views, check **Use field template** under
-**Style settings**, if trouble with Blazy Formatter as a stand alone Views
-output.
-
-On the contrary, uncheck **Use field template**, when Blazy formatter
-is embedded inside another module such as Slick so to pass the renderable
-array to work with accordingly.
-
-This is a Views common gotcha with field formatter, so be aware of it.
-If confusing, just toggle **Use field template**, and see the output. You'll
-know which works.
-
-
-### 2. BLAZY GRID WITH SINGLE VALUE FIELD
-This is no issue at D8. Blazy Grid formatter is designed for multi-value fields.
-Unfortunately no handy way to disable formatters for single value at D7. So
-the formatter is available even for single value, but not actually
-functioning. Please ignore it till we can get rid of it at D7, if possible,
-without extra legs.
-
-### 3. MIN-WIDTH
-If the images appear to be shrink within a **floating** container, add
-some expected width or min-width to the parent container via CSS accordingly.
-Non-floating image parent containers aren't affected.
-
-### 4. MIN-HEIGHT
-Add a min-height CSS to individual element to avoid layout reflow if not using
-**Aspect ratio** or when **Aspect ratio** is not supported such as with
-Picture. Picture has its own. Otherwise some collapsed image containers will
-defeat the purpose of lazyloading. When using CSS background, the container
-may also be collapsed.
-
-### 5. SOLUTIONS
-Both layout reflow and lazyloading delay issues are actually taken care of
-if **Aspect ratio** option is enabled in the first place.
-
-Adjust, and override blazy CSS files accordingly.
-
-
-### ROADMAP/ TODO
-[x] Adds a basic configuration to load the library, probably an image formatter.
-    2/24/2016
-[x] Media entity image/video, and Video embed field lazyloading, if any.
-    10/25/2016
-    Added both simple Blazy Media formatter and Views field Media Entity.
-[x] Makes a solid lazyloading solution for IMG, DIV, IFRAME tags.
-    4/9/2017
-    Added IFRAME (Blazy Video), apart from existing IMG/ DIV (CSS background).
-[?] Core Media integration.
-[?] Optimization and solidification.
 
 
 ## AUTHOR/MAINTAINER/CREDITS
