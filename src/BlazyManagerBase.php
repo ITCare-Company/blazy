@@ -294,12 +294,11 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   public function isBlazy(array &$settings, array $item = []) {
     // Retrieves Blazy formatter related settings from within Views style.
     $content = !empty($settings['item_id']) && isset($item[$settings['item_id']]) ? $item[$settings['item_id']] : $item;
+    $image = isset($item['item']) ? $item['item'] : NULL;
 
     // 1. Blazy formatter within Views fields by supported modules.
     if (isset($item['settings'])) {
-      // Prevents edge case with unexpected flattened Views results which is
-      // normally triggered by checking "Use field template" option.
-      $blazy = is_array($content) && isset($content['#build']['settings']) ? $content['#build']['settings'] : [];
+      $blazy = $item['settings'];
 
       // Allows breakpoints overrides such as multi-styled images by GridStack.
       if (empty($settings['breakpoints']) && isset($blazy['breakpoints'])) {
@@ -307,12 +306,11 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
 
       $cherries = [
-        'blazy',
         'box_style',
         'image_style',
-        'lazy',
         'media_switch',
         'ratio',
+        'thumbnail_style',
         'uri',
       ];
 
@@ -320,21 +318,34 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
         $fallback = isset($settings[$key]) ? $settings[$key] : '';
         $settings[$key] = isset($blazy[$key]) && empty($fallback) ? $blazy[$key] : $fallback;
       }
+
+      $settings['first_item'] = $image;
+      $settings['first_uri'] = empty($settings['first_uri']) ? $settings['uri'] : $settings['first_uri'];
+      unset($settings['uri']);
     }
 
     // 2. Blazy Views fields by supported modules.
+    // Prevents edge case with unexpected flattened Views results which is
+    // normally triggered by checking "Use field template" option.
     if (is_array($content) && isset($content['#view']) && ($view = $content['#view'])) {
       if ($blazy_field = BlazyViews::viewsField($view)) {
         $settings = array_merge(array_filter($blazy_field->mergedViewsSettings()), array_filter($settings));
       }
     }
 
+    // Allows lightboxes to provide its own optionsets.
+    $switch = empty($settings['media_switch']) ? FALSE : $settings['media_switch'];
+    if ($switch) {
+      $settings[$switch] = empty($settings[$switch]) ? $switch : $settings[$switch];
+    }
+
     // Provides data for the [data-blazy] attribute at the containing element.
     $this->cleanUpBreakpoints($settings);
     if (!empty($settings['breakpoints'])) {
-      $image = isset($item['item']) ? $item['item'] : NULL;
       $this->buildDataBlazy($settings, $image);
     }
+
+    unset($settings['first_image']);
   }
 
   /**
@@ -378,13 +389,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     // We have all images cropped here.
     foreach ($settings['breakpoints'] as $key => $breakpoint) {
       if ($width = Blazy::widthFromDescriptors($breakpoint['width'])) {
-        // If contains crop, sets dimension once, and let all images inherit.
-        if (!empty($settings['uri']) && !empty($settings['ratio'])) {
+        // Sets dimensions once, and let all images inherit.
+        if (!empty($settings['first_uri']) && !empty($settings['ratio'])) {
           $dimensions['width'] = $settings['original_width'];
           $dimensions['height'] = $settings['original_height'];
 
           if ($style = $styles[$key]) {
-            $style->transformDimensions($dimensions, $settings['uri']);
+            $style->transformDimensions($dimensions, $settings['first_uri']);
             $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
             $json['dimensions'][$width] = $padding;
 

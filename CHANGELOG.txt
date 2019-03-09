@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2019-03-09
+-----------------------------
+- Fixed for Views lightbox gallery embedded within Blazy Grid with `Use field
+  template` being disabled.
+
 Blazy 8.x-2.0-dev, 2019-03-08
 -----------------------------
 - Fixed for Caption filter captions.

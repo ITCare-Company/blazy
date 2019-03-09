@@ -287,7 +287,6 @@ class BlazyManager extends BlazyManagerBase {
     $build = $element['#build'];
     unset($element['#build']);
 
-    // @todo $settings nullified when having Views field within grid.
     $settings = $this->prepareBuild($build);
     $element = BlazyGrid::build($build, $settings);
     $element['#attached'] = $this->attach($settings);
@@ -303,10 +302,16 @@ class BlazyManager extends BlazyManagerBase {
     $build = isset($build['items']) ? $build['items'] : $build;
 
     // Supports Blazy multi-breakpoint images if provided, updates $settings.
-    // Blazy formatters have #build and Views fields none.
-    if (isset($build[0])) {
-      $item = !empty($build[0]['#build']) ? $build[0]['#build'] : $build[0];
-      $this->isBlazy($settings, $item);
+    // Cases: Blazy within Views gallery, or references without direct image.
+    if (!empty($settings['first_image']) && !empty($settings['check_blazy'])) {
+      // Views may flatten out the array, bail out.
+      // What we do here is extract the formatter settings from the first found
+      // image and pass its settings to this container so that Blazy Grid which
+      // lacks of settings may know if it should load/ display a lightbox, etc.
+      // Lightbox should work without `Use field template` checked.
+      if (is_array($settings['first_image'])) {
+        $this->isBlazy($settings, $settings['first_image']);
+      }
     }
 
     unset($build['items'], $build['settings']);

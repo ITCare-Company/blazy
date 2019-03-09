@@ -89,11 +89,6 @@ class BlazyViewsTest extends BlazyStylePluginBase {
     $elements = [];
     foreach ($this->renderGrouping($view->result, $settings['grouping']) as $rows) {
       $items = $this->buildElements($settings, $rows);
-
-      // Supports Blazy formatter multi-breakpoint images if available.
-      $item = isset($items[0]) ? $items[0] : NULL;
-      $this->blazyManager()->isBlazy($settings, $item);
-
       $elements = BlazyGrid::build($items, $settings);
     }
 

@@ -23,11 +23,30 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
   }
 
   /**
+   * Returns media contents.
+   */
+  public function buildElements(array &$build, $entities, $langcode) {
+    parent::buildElements($build, $entities, $langcode);
+    $settings = &$build['settings'];
+    $item_id = $settings['item_id'];
+
+    // Some formatter has a toggle Vanilla.
+    if (empty($settings['vanilla'])) {
+      $settings['check_blazy'] = TRUE;
+
+      // Supports Blazy formatter multi-breakpoint images if available.
+      if (isset($build['items'][0]) && $item = $build['items'][0]) {
+        $settings['first_image'] = isset($item['#build']) ? $item['#build'] : $item[$item_id]['#build'];
+      }
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function buildElement(array &$build, $entity, $langcode) {
     $settings  = &$build['settings'];
-    $item_id   = $settings['item_id'] = empty($settings['item_id']) ? 'box' : $settings['item_id'];
+    $item_id   = $settings['item_id'];
     $view_mode = $settings['view_mode'] = empty($settings['view_mode']) ? 'full' : $settings['view_mode'];
 
     if (!empty($settings['vanilla'])) {

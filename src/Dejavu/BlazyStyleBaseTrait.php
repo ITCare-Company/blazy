@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Dejavu;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 
@@ -10,6 +11,13 @@ use Drupal\blazy\BlazyDefault;
  * A Trait common for optional views style plugins.
  */
 trait BlazyStyleBaseTrait {
+
+  /**
+   * The first Blazy formatter found to get data from for lightbox gallery, etc.
+   *
+   * @var array
+   */
+  protected $firstImage;
 
   /**
    * The dynamic html settings.
@@ -52,11 +60,13 @@ trait BlazyStyleBaseTrait {
     ];
 
     // Prepare needed settings to work with.
+    $settings['check_blazy']       = TRUE;
     $settings['id']                = $id;
     $settings['cache_tags']        = $view->getCacheTags();
     $settings['count']             = $count;
     $settings['current_view_mode'] = $view_mode;
     $settings['instance_id']       = $instance;
+    $settings['multiple']          = TRUE;
     $settings['plugin_id']         = $plugin_id;
     $settings['view_name']         = $view_name;
     $settings['view_display']      = $view->style_plugin->displayHandler->getPluginId();
@@ -75,6 +85,44 @@ trait BlazyStyleBaseTrait {
   protected function setHtmlSettings(array $settings = []) {
     $this->htmlSettings = $settings;
     return $this;
+  }
+
+  /**
+   * Returns the first Blazy formatter found.
+   */
+  public function getFirstImage($row) {
+    if (!isset($this->firstImage)) {
+      $rendered = [];
+      if ($row && isset($row->_entity) && $fields = $row->_entity->getFields(FALSE)) {
+        foreach ($fields as $field) {
+          // @todo support Media.
+          if (!($field->first() instanceof ImageItem)) {
+            continue;
+          }
+
+          $name = $field->getName();
+          break;
+        }
+
+        if (isset($name) && $rendered = $this->getFieldRenderable($row, 0, $name)) {
+          if (is_array($rendered) && isset($rendered['rendered']) && isset($rendered['rendered']['#build'])) {
+            $rendered = $rendered['rendered']['#build'];
+          }
+        }
+      }
+      $this->firstImage = $rendered;
+    }
+    return $this->firstImage;
+  }
+
+  /**
+   * Returns the renderable array of field containing rendered and raw data.
+   */
+  public function getFieldRenderable($row, $index, $field_name = '', $multiple = FALSE) {
+    // Be sure to not check "Use field template" under "Style settings" to have
+    // renderable array to work with, otherwise flattened string!
+    $result = isset($this->view->field[$field_name]) ? $this->view->field[$field_name]->getItems($row) : [];
+    return empty($result) ? [] : ($multiple ? $result : $result[0]);
   }
 
 }

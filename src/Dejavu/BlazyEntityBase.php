@@ -41,11 +41,6 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
 
       $depth = 0;
     }
-
-    // Supports Blazy formatter multi-breakpoint images if available.
-    if (empty($build['settings']['vanilla']) && !empty($build['items'][0])) {
-      $this->formatter()->isBlazy($build['settings'], $build['items'][0]);
-    }
   }
 
   /**

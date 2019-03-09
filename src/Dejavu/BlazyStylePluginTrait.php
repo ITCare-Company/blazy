@@ -154,18 +154,4 @@ trait BlazyStylePluginTrait {
     return [];
   }
 
-  /**
-   * Returns the renderable array of field containing rendered and raw data.
-   */
-  public function getFieldRenderable($row, $index, $field_name = '', $multiple = FALSE) {
-    if (empty($field_name)) {
-      return FALSE;
-    }
-
-    // Be sure to not check "Use field template" under "Style settings" to have
-    // renderable array to work with, otherwise flattened string!
-    $result = isset($this->view->field[$field_name]) ? $this->view->field[$field_name]->getItems($row) : [];
-    return empty($result) ? [] : ($multiple ? $result : $result[0]);
-  }
-
 }

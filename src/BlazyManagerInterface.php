@@ -37,11 +37,19 @@ interface BlazyManagerInterface {
    * Ensures the settings traverse up to the container where Blazy is clueless.
    * The supported plugins can add [data-blazy] attribute into its container
    * containing $settings['blazy_data'] converted into [data-blazy] JSON.
+   * This allows Blazy Grid, or other Views styles, lacking of UI, to have
+   * additional settings extracted from the first Blazy formatter found.
+   * Such as media switch/ lightbox. This way the container can add relevant
+   * attributes to it container, etc. Also applies to entity references where
+   * Blazy is not the main formatter, instead embedded as part of the parent's.
    *
    * @param array $settings
    *   The settings being modified.
    * @param array $item
-   *   The item containing settings or item keys.
+   *   The first item containing settings or item keys.
+   *
+   * @see \Drupal\blazy\BlazyManager::prepareBuild()
+   * @see \Drupal\blazy\Dejavu\BlazyEntityBase::buildElements()
    */
   public function isBlazy(array &$settings, array $item = []);
 
@@ -55,9 +63,8 @@ interface BlazyManagerInterface {
    *
    * @param array $settings
    *   The settings being modified.
-   * @param object|mixed $item
-   *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item, or array when
-   *   dealing with Video Embed Field.
+   * @param object $item
+   *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item.
    */
   public function buildDataBlazy(array &$settings, $item = NULL);
 
