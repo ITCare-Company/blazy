@@ -70,6 +70,7 @@ class BlazyViews extends StylePluginBase {
       'settings'      => $this->options,
       'style'         => TRUE,
       'opening_class' => 'form--views',
+      '_views'        => TRUE,
     ];
 
     // Build the form.

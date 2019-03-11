@@ -45,7 +45,6 @@ class BlazyFormatterManager extends BlazyManager {
       }
     }
 
-    $settings['breakpoints']    = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
     $settings['bundle']         = $bundle;
     $settings['cache_metadata'] = ['keys' => [$id, $count]];
     $settings['content_url']    = $settings['absolute_path'] = $absolute_path;
@@ -69,6 +68,7 @@ class BlazyFormatterManager extends BlazyManager {
     }
 
     // Don't bother if using Responsive image.
+    $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
     if (!empty($settings['breakpoints'])) {
       $this->cleanUpBreakpoints($settings);
     }
@@ -118,6 +118,11 @@ class BlazyFormatterManager extends BlazyManager {
     $settings['cache_tags'][] = $settings['entity_type_id'] . ':' . $settings['entity_id'];
 
     $this->getModuleHandler()->alter('blazy_settings', $build, $items);
+
+    // Done at top level works, prevents leaking to child for few settings.
+    if ($namespace == 'blazy') {
+      unset($settings['first_item']);
+    }
   }
 
 }

@@ -57,7 +57,7 @@ trait BlazyStyleBaseTrait {
       'cache_metadata' => [
         'keys' => [$id, $view_mode, $count],
       ],
-    ];
+    ] + BlazyDefault::lazySettings();
 
     // Prepare needed settings to work with.
     $settings['check_blazy']       = TRUE;
@@ -76,7 +76,8 @@ trait BlazyStyleBaseTrait {
       $settings = NestedArray::mergeDeep($settings, $this->htmlSettings);
     }
 
-    return $settings + BlazyDefault::lazySettings();
+    $this->blazyManager()->getModuleHandler()->alter('blazy_settings_views', $settings, $view);
+    return $settings;
   }
 
   /**
@@ -95,13 +96,14 @@ trait BlazyStyleBaseTrait {
       $rendered = [];
       if ($row && isset($row->_entity) && $fields = $row->_entity->getFields(FALSE)) {
         foreach ($fields as $field) {
-          // @todo support Media.
-          if (!($field->first() instanceof ImageItem)) {
-            continue;
+          if ($field->getFieldDefinition()->getFieldStorageDefinition()->getSetting('target_type') == 'media') {
+            $name = $field->getName();
+            break;
           }
-
-          $name = $field->getName();
-          break;
+          if ($field->first() instanceof ImageItem) {
+            $name = $field->getName();
+            break;
+          }
         }
 
         if (isset($name) && $rendered = $this->getFieldRenderable($row, 0, $name)) {

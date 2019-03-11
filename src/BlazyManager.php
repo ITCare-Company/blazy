@@ -27,8 +27,6 @@ class BlazyManager extends BlazyManagerBase {
    *
    * @param array $settings
    *   The settings being modified.
-   *
-   * @todo replace uri with first_uri to be usable for colorbox-like gallery.
    */
   public function setDimensionsOnce(array &$settings = []) {
     if (!isset($this->isDimensionSet[md5($settings['first_uri'])])) {
@@ -304,6 +302,7 @@ class BlazyManager extends BlazyManagerBase {
     // Supports Blazy multi-breakpoint images if provided, updates $settings.
     // Cases: Blazy within Views gallery, or references without direct image.
     if (!empty($settings['first_image']) && !empty($settings['check_blazy'])) {
+
       // Views may flatten out the array, bail out.
       // What we do here is extract the formatter settings from the first found
       // image and pass its settings to this container so that Blazy Grid which

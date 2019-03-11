@@ -40,7 +40,7 @@ interface BlazyManagerInterface {
    * This allows Blazy Grid, or other Views styles, lacking of UI, to have
    * additional settings extracted from the first Blazy formatter found.
    * Such as media switch/ lightbox. This way the container can add relevant
-   * attributes to it container, etc. Also applies to entity references where
+   * attributes to its container, etc. Also applies to entity references where
    * Blazy is not the main formatter, instead embedded as part of the parent's.
    *
    * @param array $settings

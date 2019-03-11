@@ -1,4 +1,12 @@
 
+Blazy 8.x-2.0-dev, 2019-03-11
+-----------------------------
+- Added supports for lightbox Media gallery embedded within Blazy Grid with
+  'Use field template' disabled. This opens up Views goodness: limit field
+  amount to display, Views markup, etc. without using field template.
+- Added hook_blazy_settings_views_alter() to modify views-related settings.
+- Moved JS checkbox into a function.
+
 Blazy 8.x-2.0-dev, 2019-03-09
 -----------------------------
 - Fixed for Views lightbox gallery embedded within Blazy Grid with `Use field

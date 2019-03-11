@@ -46,6 +46,16 @@ Be sure to enable Blazy UI which can be uninstalled at production later.
   formatters.
 
 
+### USAGES: BLAZY GRID FOR MULTIMEDIA GALLERY
+1. Add a Views style **Blazy Grid** for entities containing Media or Image.
+2. Add a Blazy formatter for the Media or Image field.
+3. Add any lightbox under **Media switcher** option.
+4. Limit the values to 1 under **Multiple field settings** > **Display**.
+5. Be sure to leave **Use field template** under **Style settings** unchecked.
+   If checked, the gallery is locked to a single entity, that is no Views
+   gallery, but gallery per field.
+
+
 ## RECOMMENDED
 * [Markdown](http://dgo.to/markdown)
 
