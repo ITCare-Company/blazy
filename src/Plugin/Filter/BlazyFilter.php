@@ -120,10 +120,9 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
           // Build Blazy elements with lazyloaded image, or iframe.
           $item_settings['delta'] = $delta;
           $this->buildSettings($item_settings, $node);
-          $build = [
-            'item' => $this->buildImageItem($item_settings, $node),
-            'settings' => $item_settings,
-          ];
+
+          $build = ['settings' => $item_settings];
+          $this->buildImageItem($build, $node);
 
           // Sanitazion was done by Caption filter when arriving here, as
           // otherwise we cannot see this figure, yet provide fallback.
@@ -245,15 +244,13 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   /**
    * Returns the faked image item for the image, uploaded or hard-coded.
    *
-   * @param array $settings
-   *   The settings array being modified.
+   * @param array $build
+   *   The content array being modified.
    * @param object $node
    *   The HTML DOM object.
-   *
-   * @return object
-   *   The faked image item.
    */
-  private function buildImageItem(array &$settings, &$node) {
+  private function buildImageItem(array &$build, $node) {
+    $settings = &$build['settings'];
     $item = new \stdClass();
     $item->uri = $settings['uri'];
     $item->entity = NULL;
@@ -270,24 +267,24 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
 
     // Responsive image with aspect ratio requires an extra container to work
     // with Align/ Caption images filters.
-    $settings['media_attributes']['class'] = ['media-wrapper', 'media-wrapper--blazy'];
+    $build['media_attributes']['class'] = ['media-wrapper', 'media-wrapper--blazy'];
     // Copy all attributes of the original node to the $item _attributes.
     if ($node->attributes->length) {
       foreach ($node->attributes as $attribute) {
         // Move classes (align-BLAH,etc) to Blazy container, not image so to
         // work with alignments and aspect ratio.
         if ($attribute->nodeName == 'class') {
-          $settings['media_attributes']['class'][] = $attribute->nodeValue;
+          $build['media_attributes']['class'][] = $attribute->nodeValue;
         }
         else {
           $item->_attributes[$attribute->nodeName] = $attribute->nodeValue;
         }
       }
 
-      $settings['media_attributes']['class'] = array_unique($settings['media_attributes']['class']);
+      $build['media_attributes']['class'] = array_unique($build['media_attributes']['class']);
     }
 
-    return $item;
+    $build['item'] = $item;
   }
 
   /**

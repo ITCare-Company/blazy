@@ -31,6 +31,8 @@
 .b-lazy,
 .b-responsive {
   display: block;
+  height: auto;
+  min-height: 1px;
   opacity: 0;
   transition: opacity 500ms ease-in-out;
 }

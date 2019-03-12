@@ -29,19 +29,18 @@ class Blazy implements BlazyInterface {
    */
   public static function buildAttributes(&$variables) {
     $element = $variables['element'];
-    foreach (['captions', 'item_attributes', 'settings', 'url'] as $key) {
+    foreach (BlazyDefault::themeProperties() as $key) {
       $variables[$key] = isset($element["#$key"]) ? $element["#$key"] : [];
     }
 
-    // Provides optional attributes, except for item_attributes above, taken
-    // care of by theme_image(), or responsive_image as array.
-    foreach (['caption', 'media', 'url', 'wrapper'] as $key) {
-      $attr = $key . '_attributes';
-      $variables[$attr] = empty($element['#' . $attr]) ? [] : new Attribute($element['#' . $attr]);
+    // Provides optional attributes, see BlazyFilter.
+    foreach (BlazyDefault::themeAttributes() as $key) {
+      $key = $key . '_attributes';
+      $variables[$key] = empty($element["#$key"]) ? [] : new Attribute($element["#$key"]);
     }
 
     // Provides sensible default html settings to shutup notices when lacking.
-    $item             = isset($element['#item']) ? $element['#item'] : NULL;
+    $item             = $variables['item'];
     $attributes       = &$variables['attributes'];
     $image            = &$variables['image'];
     $image_attributes = &$variables['item_attributes'];
@@ -77,13 +76,15 @@ class Blazy implements BlazyInterface {
     // Image is optional for Video, and Blazy CSS background images.
     if ($image) {
       // Respects hand-coded image attributes.
-      if (!isset($image_attributes['alt'])) {
-        $image_attributes['alt'] = isset($item->alt) ? $item->alt : NULL;
-      }
+      if ($item) {
+        if (!isset($image_attributes['alt'])) {
+          $image_attributes['alt'] = isset($item->alt) ? $item->alt : NULL;
+        }
 
-      // Do not output an empty 'title' attribute.
-      if (isset($item->title) && (mb_strlen($item->title) != 0)) {
-        $image_attributes['title'] = $item->title;
+        // Do not output an empty 'title' attribute.
+        if (isset($item->title) && (mb_strlen($item->title) != 0)) {
+          $image_attributes['title'] = $item->title;
+        }
       }
 
       $image_attributes['class'][] = 'media__image media__element';
@@ -163,8 +164,8 @@ class Blazy implements BlazyInterface {
         self::buildLazyAttributes($image_attributes, $settings);
       }
 
-      // Blazy doesn't need IMG to lazyload CSS background. Slick does.
-      if (!empty($settings['background']) && !empty($settings['blazy'])) {
+      // Image is optional for Video, and Blazy CSS background images.
+      if (!empty($settings['background'])) {
         $image = [];
       }
     }
@@ -284,8 +285,8 @@ class Blazy implements BlazyInterface {
     // Sets dimensions.
     // VEF without image style, or image style with crop, may already set these.
     if (empty($settings['width'])) {
-      $settings['width'] = isset($item->width) ? $item->width : NULL;
-      $settings['height'] = isset($item->height) ? $item->height : NULL;
+      $settings['width'] = $item && isset($item->width) ? $item->width : NULL;
+      $settings['height'] = $item && isset($item->height) ? $item->height : NULL;
     }
 
     // Lazyloaded elements expect image URL, not URI. And video may set this.

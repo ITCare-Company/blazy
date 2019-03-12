@@ -196,4 +196,25 @@ class BlazyDefault {
     ] + self::imageSettings();
   }
 
+  /**
+   * Returns blazy theme properties.
+   */
+  public static function themeProperties() {
+    return [
+      'attributes',
+      'captions',
+      'image',
+      'item',
+      'settings',
+      'url',
+    ];
+  }
+
+  /**
+   * Returns blazy theme attributes.
+   */
+  public static function themeAttributes() {
+    return ['caption', 'item', 'media', 'url', 'wrapper'];
+  }
+
 }

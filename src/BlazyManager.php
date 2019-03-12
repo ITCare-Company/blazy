@@ -66,14 +66,14 @@ class BlazyManager extends BlazyManagerBase {
    *   The alterable and renderable array of enforced content, or theme_blazy().
    */
   public function getBlazy(array $build = []) {
-    if (empty($build['item'])) {
-      return [];
-    }
-
+    // @todo remove, and make it optional to remove barriers.
+    // @todo if (empty($build['item'])) {
+    // @todo return [];
+    // @todo }
     /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-    $item                    = $build['item'];
-    $settings                = &$build['settings'];
-    $settings['delta']       = isset($settings['delta']) ? $settings['delta'] : 0;
+    $item = $build['item'] = isset($build['item']) ? $build['item'] : NULL;
+    $settings = &$build['settings'];
+    $settings['delta'] = isset($settings['delta']) ? $settings['delta'] : 0;
     $settings['image_style'] = isset($settings['image_style']) ? $settings['image_style'] : '';
 
     // The image URI may not always be given.
@@ -111,26 +111,56 @@ class BlazyManager extends BlazyManagerBase {
    */
   public function preRenderImage(array $element) {
     $build = $element['#build'];
-    $item = $build['item'];
     unset($element['#build']);
 
-    if (empty($item)) {
-      return [];
+    // Prepare the main image.
+    $this->prepareImage($element, $build);
+
+    // Fetch the newly modified settings.
+    $settings = $element['#settings'];
+
+    if (!empty($settings['media_switch'])) {
+      if ($settings['media_switch'] == 'content' && !empty($settings['content_url'])) {
+        $element['#url'] = $settings['content_url'];
+      }
+      elseif (!empty($settings['lightbox'])) {
+        BlazyLightbox::build($element);
+      }
     }
 
+    return $element;
+  }
+
+  /**
+   * Prepares the Blazy image as a structured array ready for ::renderer().
+   *
+   * @param array $element
+   *   The renderable array being modified.
+   * @param array $build
+   *   The array of information containing the required Image or File item
+   *   object, settings, optional container attributes.
+   */
+  protected function prepareImage(array &$element, array $build) {
+    $item = $build['item'];
     $settings = $build['settings'];
     $settings += BlazyDefault::itemSettings();
     $settings['_api'] = TRUE;
 
+    foreach (BlazyDefault::themeAttributes() as $key) {
+      $key = $key . '_attributes';
+      $build[$key] = isset($build[$key]) ? $build[$key] : [];
+    }
+
+    $attributes = isset($build['attributes']) ? $build['attributes'] : [];
+    $item_attributes = $build['item_attributes'];
+    $url_attributes = $build['url_attributes'];
+
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
-    $attributes = isset($build['attributes']) ? $build['attributes'] : [];
-    $item_attributes = isset($build['item_attributes']) ? $build['item_attributes'] : [];
-    $url_attributes = isset($build['url_attributes']) ? $build['url_attributes'] : [];
-    if (isset($item->_attributes)) {
+    if ($item && isset($item->_attributes)) {
       $item_attributes += $item->_attributes;
+      unset($item->_attributes);
     }
-    unset($item->_attributes, $build['attributes'], $build['item_attributes'], $build['url_attributes']);
 
     // Gets the file extension, and ensures the image has valid extension.
     $pathinfo = pathinfo($settings['uri']);
@@ -198,6 +228,13 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
 
+    // Provides extra attributes as needed, excluding url, item, done above.
+    // @todo remove the settings part for the $build ones.
+    foreach (['caption', 'media', 'wrapper'] as $key) {
+      $attribute = isset($settings[$key . '_attributes']) ? $settings[$key . '_attributes'] : $build[$key . '_attributes'];
+      $element["#$key" . '_attributes'] = $attribute;
+    }
+
     $captions = empty($build['captions']) ? [] : $this->buildCaption($build['captions'], $settings);
     if ($captions) {
       $element['#caption_attributes']['class'][] = $settings['item_id'] . '__caption';
@@ -209,23 +246,6 @@ class BlazyManager extends BlazyManagerBase {
     $element['#item_attributes'] = $item_attributes;
     $element['#url_attributes']  = $url_attributes;
     $element['#settings']        = $settings;
-
-    foreach (['media', 'wrapper'] as $key) {
-      if (!empty($settings[$key . '_attributes'])) {
-        $element["#$key" . '_attributes'] = $settings[$key . '_attributes'];
-      }
-    }
-
-    if (!empty($settings['media_switch'])) {
-      if ($settings['media_switch'] == 'content' && !empty($settings['content_url'])) {
-        $element['#url'] = $settings['content_url'];
-      }
-      elseif (!empty($settings['lightbox'])) {
-        BlazyLightbox::build($element);
-      }
-    }
-
-    return $element;
   }
 
   /**
