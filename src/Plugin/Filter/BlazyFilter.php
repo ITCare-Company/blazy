@@ -5,7 +5,6 @@ namespace Drupal\blazy\Plugin\Filter;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\Unicode;
-use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -38,13 +37,6 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   use BlazyVideoTrait;
 
   /**
-   * An entity manager object.
-   *
-   * @var \Drupal\Core\Entity\EntityRepositoryInterface
-   */
-  protected $entityRepository;
-
-  /**
    * The blazy manager service.
    *
    * @var \Drupal\blazy\BlazyManagerInterface
@@ -54,10 +46,9 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityRepositoryInterface $entity_repository, ImageFactory $image_factory, BlazyOEmbed $blazy_oembed) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImageFactory $image_factory, BlazyOEmbed $blazy_oembed) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
-    $this->entityRepository = $entity_repository;
     $this->imageFactory = $image_factory;
     $this->blazyOembed = $blazy_oembed;
     $this->blazyManager = $blazy_oembed->blazyManager();
@@ -71,7 +62,6 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity.repository'),
       $container->get('image.factory'),
       $container->get('blazy.oembed')
     );
@@ -257,7 +247,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $uuid = $node->hasAttribute('data-entity-uuid') ? $node->getAttribute('data-entity-uuid') : '';
 
     if ($uuid && $node->hasAttribute('src')) {
-      $file = $this->entityRepository->loadEntityByUuid('file', $uuid);
+      $file = $this->blazyManager->getEntityRepository()->loadEntityByUuid('file', $uuid);
       if ($file) {
         $data = $this->getImageItem($file);
         $item = $data['item'];

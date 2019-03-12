@@ -2,7 +2,7 @@ services:
   blazy.manager.base:
     abstract: true
     class: Drupal\blazy\BlazyManagerBase
-    arguments: ['@entity_type.manager', '@module_handler', '@renderer', '@config.factory', '@cache.default']
+    arguments: ['@entity.repository', '@entity_type.manager', '@module_handler', '@renderer', '@config.factory', '@cache.default']
 
   blazy.manager:
     abstract: false

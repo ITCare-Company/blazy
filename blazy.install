@@ -45,3 +45,10 @@ function blazy_update_8201() {
 function blazy_update_8202() {
   // Do nothing to clear cache.
 }
+
+/**
+ * Added a new argument @entity.repository to blazy.manager.base service.
+ */
+function blazy_update_8203() {
+  // Do nothing to clear cache.
+}

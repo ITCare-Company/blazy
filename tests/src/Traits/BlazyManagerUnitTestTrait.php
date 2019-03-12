@@ -19,6 +19,7 @@ trait BlazyManagerUnitTestTrait {
     $this->entityViewBuilder  = $this->getMock('Drupal\Core\Entity\EntityViewBuilderInterface');
     $this->entityTypeMock     = $this->getMock('\Drupal\Core\Entity\EntityTypeInterface');
     $this->entityFieldManager = $this->getMock('\Drupal\Core\Entity\EntityFieldManagerInterface');
+    $this->entityRepository   = $this->getMock('\Drupal\Core\Entity\EntityRepositoryInterface');
     $this->entityTypeManager  = $this->getMock('\Drupal\Core\Entity\EntityTypeManagerInterface');
     $this->renderer           = $this->getMock('\Drupal\Core\Render\RendererInterface');
     $this->cache              = $this->getMock('\Drupal\Core\Cache\CacheBackendInterface');
@@ -48,6 +49,7 @@ trait BlazyManagerUnitTestTrait {
     $container = new ContainerBuilder();
     // @todo remove $container->set('entity.manager', $this->entityManager);
     $container->set('entity_field.manager', $this->entityFieldManager);
+    $container->set('entity.repository', $this->entityRepository);
     $container->set('entity_type.manager', $this->entityTypeManager);
     $container->set('module_handler', $this->moduleHandler);
     $container->set('renderer', $this->renderer);
@@ -58,6 +60,7 @@ trait BlazyManagerUnitTestTrait {
     \Drupal::setContainer($container);
 
     $this->blazyManager = new BlazyManager(
+      $this->entityRepository,
       $this->entityTypeManager,
       $this->moduleHandler,
       $this->renderer,

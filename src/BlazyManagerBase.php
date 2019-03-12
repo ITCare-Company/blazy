@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy;
 
+use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Render\RendererInterface;
@@ -15,6 +16,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Implements BlazyManagerInterface.
  */
 abstract class BlazyManagerBase implements BlazyManagerInterface {
+
+  /**
+   * The entity repository service.
+   *
+   * @var \Drupal\Core\Entity\EntityRepositoryInterface
+   */
+  protected $entityRepository;
 
   /**
    * The entity type manager service.
@@ -68,7 +76,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * Constructs a BlazyManager object.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, RendererInterface $renderer, ConfigFactoryInterface $config_factory, CacheBackendInterface $cache) {
+  public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, RendererInterface $renderer, ConfigFactoryInterface $config_factory, CacheBackendInterface $cache) {
+    $this->entityRepository  = $entity_repository;
     $this->entityTypeManager = $entity_type_manager;
     $this->moduleHandler     = $module_handler;
     $this->renderer          = $renderer;
@@ -81,12 +90,20 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('entity.repository'),
       $container->get('entity_type.manager'),
       $container->get('module_handler'),
       $container->get('renderer'),
       $container->get('config.factory'),
       $container->get('cache.default')
     );
+  }
+
+  /**
+   * Returns the entity repository service.
+   */
+  public function getEntityRepository() {
+    return $this->entityRepository;
   }
 
   /**
