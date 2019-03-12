@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2019-03-12
 -----------------------------
+- Updated tests to reflect the new optional image item.
 - Changed image item to be optional to reduce barriers to the API, the only
   required is URI.
 - Fixed for attributes insanity.

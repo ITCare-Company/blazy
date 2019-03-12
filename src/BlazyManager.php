@@ -66,24 +66,15 @@ class BlazyManager extends BlazyManagerBase {
    *   The alterable and renderable array of enforced content, or theme_blazy().
    */
   public function getBlazy(array $build = []) {
-    // @todo remove, and make it optional to remove barriers.
-    // @todo if (empty($build['item'])) {
-    // @todo return [];
-    // @todo }
     /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
     $item = $build['item'] = isset($build['item']) ? $build['item'] : NULL;
     $settings = &$build['settings'];
     $settings['delta'] = isset($settings['delta']) ? $settings['delta'] : 0;
     $settings['image_style'] = isset($settings['image_style']) ? $settings['image_style'] : '';
 
-    // The image URI may not always be given.
-    // @todo remove if no need for sure.
-    // @todo if (empty($settings['uri']) && is_object($item)) {
-    // @todo $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
-    // @todo }
     // Respects content not handled by theme_blazy(), but passed through.
     if (empty($build['content'])) {
-      $image = [
+      $image = empty($settings['uri']) ? [] : [
         '#theme'       => 'blazy',
         '#delta'       => $settings['delta'],
         '#item'        => isset($settings['entity_type_id']) && $settings['entity_type_id'] == 'user' ? $item : [],
@@ -112,6 +103,10 @@ class BlazyManager extends BlazyManagerBase {
   public function preRenderImage(array $element) {
     $build = $element['#build'];
     unset($element['#build']);
+
+    if (empty($build['settings']['uri'])) {
+      return [];
+    }
 
     // Prepare the main image.
     $this->prepareImage($element, $build);

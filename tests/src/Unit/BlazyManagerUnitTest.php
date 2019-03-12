@@ -131,20 +131,17 @@ class BlazyManagerUnitTest extends UnitTestCase {
   /**
    * Tests for \Drupal\blazy\BlazyManager::preRenderImage().
    *
-   * @covers ::getImage
+   * @covers ::getBlazy
    * @covers ::preRenderImage
    * @dataProvider providerTestPreRenderImage
    */
-  public function testPreRenderImage($item, $uri, $content, $expected_image, $expected_render) {
+  public function testPreRenderImage($uri, $content, $expected_image, $expected_render) {
     $build = [];
 
-    $build['item'] = $item ? $this->testItem : [];
+    // @todo $build['item'] = $item ? $this->testItem : NULL;
+    $build['item'] = NULL;
     $build['content'] = $content;
     $build['settings']['uri'] = $uri;
-
-    if ($item) {
-      $build['item']->_attributes['data-blazy-test'] = TRUE;
-    }
 
     $image = $this->blazyManager->getBlazy($build);
 
@@ -168,28 +165,24 @@ class BlazyManagerUnitTest extends UnitTestCase {
    */
   public function providerTestPreRenderImage() {
     $data[] = [
-      FALSE,
       '',
       '',
       FALSE,
       FALSE,
     ];
     $data[] = [
-      TRUE,
       '',
       '',
-      TRUE,
-      TRUE,
+      FALSE,
+      FALSE,
     ];
     $data[] = [
-      TRUE,
       'core/misc/druplicon.png',
       '',
       TRUE,
       TRUE,
     ];
     $data[] = [
-      TRUE,
       'core/misc/druplicon.png',
       '<iframe src="//www.youtube.com/watch?v=E03HFA923kw" class="b-lazy"></iframe>',
       TRUE,
