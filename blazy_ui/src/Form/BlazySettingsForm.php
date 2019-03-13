@@ -44,7 +44,7 @@ class BlazySettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'blazy_settings';
+    return 'blazy_settings_form';
   }
 
   /**
@@ -132,6 +132,15 @@ class BlazySettingsForm extends ConfigFormBase {
       '#size'          => 10,
     ];
 
+    // Allows sub-modules to provide its own settings.
+    $form['extras'] = [
+      '#type'   => 'details',
+      '#open'   => FALSE,
+      '#tree'   => TRUE,
+      '#title'  => $this->t('Extra settings'),
+      '#access' => FALSE,
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -144,6 +153,7 @@ class BlazySettingsForm extends ConfigFormBase {
       ->set('responsive_image', $form_state->getValue('responsive_image'))
       ->set('unbreakpoints', $form_state->getValue('unbreakpoints'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))
+      ->set('extras', $form_state->getValue('extras'))
       ->set('blazy.loadInvisible', $form_state->getValue(['blazy', 'loadInvisible']))
       ->set('blazy.offset', $form_state->getValue(['blazy', 'offset']))
       ->set('blazy.saveViewportOffsetDelay', $form_state->getValue(['blazy', 'saveViewportOffsetDelay']))

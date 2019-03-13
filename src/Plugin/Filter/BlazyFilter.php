@@ -5,6 +5,7 @@ namespace Drupal\blazy\Plugin\Filter;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\Unicode;
+use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -83,6 +84,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $settings['column'] = stristr($text, 'data-column') !== FALSE;
     $settings['media_switch'] = $switch = $this->settings['media_switch'];
     $settings['lightbox'] = ($switch && in_array($switch, $this->blazyManager->getLightboxes())) ? $switch : FALSE;
+    $settings['id'] = $settings['gallery_id'] = 'blazy-filter-' . Crypt::randomBytesBase64(8);
     $settings['plugin_id'] = 'blazy_filter';
     $settings['_grid'] = $settings['column'] || $settings['grid'];
 
@@ -96,7 +98,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $this->blazyManager->getModuleHandler()->alter('blazy_settings', $build, $this->settings);
     $settings = array_merge($settings, $build['settings']);
 
-    $elements = [];
+    $elements = $grid_nodes = [];
     foreach ($allowed_tags as $allowed_tag) {
       $nodes = $dom->getElementsByTagName($allowed_tag);
       if ($nodes->length > 0) {
@@ -126,6 +128,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
           $output = $this->blazyManager->getBlazy($build);
           if ($settings['_grid']) {
             $elements[] = $output;
+            $grid_nodes[] = $node;
           }
           else {
             $altered_html = $this->blazyManager->getRenderer()->render($output);
@@ -151,11 +154,12 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
 
     $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE];
     $all['media_switch'] = $settings['media_switch'];
-    if ($settings['_grid']) {
+    if ($settings['_grid'] && !empty($elements[0])) {
       $all['grid'] = $settings['grid'];
       $all['column'] = $settings['column'];
       $all[$switch] = $settings[$switch];
-      $this->buildGrid($dom, $settings, $elements);
+      $settings['first_uri'] = isset($elements[0]['#build']['settings']['uri']) ? $elements[0]['#build']['settings']['uri'] : '';
+      $this->buildGrid($dom, $settings, $elements, $grid_nodes);
     }
 
     // Attach Blazy component libraries.
@@ -197,8 +201,10 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
    *   The settings array.
    * @param array $elements
    *   The renderable array of blazy item.
+   * @param array $grid_nodes
+   *   The grid nodes.
    */
-  private function buildGrid(\DOMDocument &$dom, array $settings, array $elements = []) {
+  private function buildGrid(\DOMDocument &$dom, array &$settings, array $elements = [], array $grid_nodes = []) {
     $xpath = new \DOMXPath($dom);
     $query = $settings['style'] = $settings['column'] ? 'column' : 'grid';
     $grid = FALSE;
@@ -209,7 +215,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       $grid = $node->item(0)->getAttribute('data-' . $query);
     }
 
-    if ($grid && $elements) {
+    if ($grid) {
       $grids = array_map('trim', explode(' ', $grid));
 
       foreach (['small', 'medium', 'large'] as $key => $item) {
@@ -226,8 +232,29 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
 
       $output = $this->blazyManager->build($build);
       $altered_html = $this->blazyManager->getRenderer()->render($output);
-      $dom->loadHTML($altered_html);
-      $dom->saveHTML();
+
+      if (($first = $grid_nodes[0]) && $grid) {
+        // Create the parent grid container, and put it before the first.
+        $container = $first->parentNode->insertBefore($dom->createElement('div'), $first);
+
+        // @todo $dom->loadHTML($altered_html);
+        // @todo $dom->saveHTML();
+        $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')
+          ->item(0)
+          ->childNodes;
+
+        $container->setAttribute('class', 'blazy-wrapper blazy-wrapper--filter');
+        foreach ($updated_nodes as $updated_node) {
+          // Import the updated from the new DOMDocument into the original
+          // one, importing also the child nodes of the updated node.
+          $updated_node = $dom->importNode($updated_node, TRUE);
+          $container->appendChild($updated_node);
+        }
+
+        foreach ($grid_nodes as $node) {
+          $node->parentNode->removeChild($node);
+        }
+      }
     }
   }
 

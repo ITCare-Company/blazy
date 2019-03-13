@@ -30,6 +30,9 @@ blazy.settings:
         validateDelay:
           type: integer
           label: 'Set validate delay'
+    extras:
+      type: blazy_base
+      label: Extras
 
 blazy_base:
   type: mapping
