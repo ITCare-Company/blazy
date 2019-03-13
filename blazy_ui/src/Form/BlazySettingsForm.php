@@ -3,11 +3,12 @@
 namespace Drupal\blazy_ui\Form;
 
 use Drupal\Core\Url;
+use Drupal\Core\Asset\LibraryDiscovery;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Render\Element;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Asset\LibraryDiscovery;
 
 /**
  * Defines blazy admin settings form.
@@ -148,17 +149,24 @@ class BlazySettingsForm extends ConfigFormBase {
    * Implements \Drupal\Core\Form\FormInterface::submitForm().
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->configFactory->getEditable('blazy.settings')
+    $config = $this->configFactory->getEditable('blazy.settings');
+    $config
       ->set('admin_css', $form_state->getValue('admin_css'))
       ->set('responsive_image', $form_state->getValue('responsive_image'))
       ->set('unbreakpoints', $form_state->getValue('unbreakpoints'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))
-      ->set('extras', $form_state->getValue('extras'))
       ->set('blazy.loadInvisible', $form_state->getValue(['blazy', 'loadInvisible']))
       ->set('blazy.offset', $form_state->getValue(['blazy', 'offset']))
       ->set('blazy.saveViewportOffsetDelay', $form_state->getValue(['blazy', 'saveViewportOffsetDelay']))
-      ->set('blazy.validateDelay', $form_state->getValue(['blazy', 'validateDelay']))
-      ->save();
+      ->set('blazy.validateDelay', $form_state->getValue(['blazy', 'validateDelay']));
+
+    if ($form_state->hasValue('extras')) {
+      foreach ($form_state->getValue('extras') as $key => $value) {
+        $config->set('extras.' . $key, $value);
+      }
+    }
+
+    $config->save();
 
     // Invalidate the library discovery cache to update the responsive image.
     $this->libraryDiscovery->clearCachedDefinitions();
