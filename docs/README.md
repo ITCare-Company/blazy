@@ -66,12 +66,10 @@ Be sure to enable Blazy UI which can be uninstalled at production later.
 * Supports core Image.
 * Supports core Responsive image.
 * Supports Colorbox/ Photobox/ PhotoSwipe, also multimedia lightboxes.
-* Multi-serving images for configurable breakpoints, almost similar to core
-  Responsive image, only less complex.
-* CSS background lazyloading, see Mason, GridStack, and Slick carousel.
-* IFRAME urls via custom coded, via Media.
+* Multi-serving lazyloaded images, including multi-breakpoint CSS backgrounds.
+* Lazyload video iframe urls via custom coded, or core Media.
 * Supports inline images and iframes with lightboxes, and grid or CSS3 Masonry
-  via Blazy Filter. Enable Blazy filter at **/admin/config/content/formats**,
+  via Blazy Filter. Enable Blazy Filter at **/admin/config/content/formats**,
   and check out instructions at **/filter/tips**.
 * Field formatters: Blazy with Media integration.
 * Blazy Grid formatter for Image, Media and Text with multi-value.
@@ -102,7 +100,7 @@ Be sure to enable Blazy UI which can be uninstalled at production later.
 * [Slick Browser](http://dgo.to/slick_browser)
 * [Jumper](http://dgo.to/jumper)
 * [Zooming](http://dgo.to/zooming)
-* [ElevateZoomPlus](http://dgo.to/elevatezoomplus)
+* [ElevateZoom Plus](http://dgo.to/elevatezoomplus)
 
 Most duplication efforts from the above modules will be merged into
 \Drupal\blazy\Dejavu or anywhere else namespace.
@@ -137,8 +135,6 @@ least 6 lightboxes, and likely more.
 
 
 ## CURRENT DEVELOPMENT STATUS
-Please stay optimistic that things are broken till we have a BETA, or RC.
-
 A full release should be reasonable after proper feedbacks from the community,
 some code cleanup, and optimization where needed. Patches are very much welcome.
 
@@ -167,9 +163,8 @@ See blazy.api.php (WIP) for details.
 
 
 ## AUTHOR/MAINTAINER/CREDITS
-gausarts
-
-[Contributors](https://www.drupal.org/node/2663268/committers)
+* [Gaus Surahman](https://www.drupal.org/user/159062)
+* [Contributors](https://www.drupal.org/node/2663268/committers)
 
 
 ## READ MORE
