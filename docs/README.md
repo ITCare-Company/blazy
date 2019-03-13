@@ -102,6 +102,7 @@ Be sure to enable Blazy UI which can be uninstalled at production later.
 * [Slick Browser](http://dgo.to/slick_browser)
 * [Jumper](http://dgo.to/jumper)
 * [Zooming](http://dgo.to/zooming)
+* [ElevateZoomPlus](http://dgo.to/elevatezoomplus)
 
 Most duplication efforts from the above modules will be merged into
 \Drupal\blazy\Dejavu or anywhere else namespace.
@@ -150,6 +151,7 @@ If you don't drush, before any module update, always open:
 [Performance](/admin/config/development/performance)
 
 And so you are ready to hit **Clear all caches** if any issue.
+Only at worst case, know how to run http://dgo.to/registry_rebuild safely.
 
 
 ## PROGRAMATICALLY

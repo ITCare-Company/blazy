@@ -74,7 +74,7 @@ class BlazySettingsFormTest extends KernelTestBase {
     $this->assertTrue($this->blazyManager->getConfigFactory()->get('blazy.settings')->get('admin_css'));
 
     $id = $this->blazySettingsForm->getFormId();
-    $this->assertEquals('blazy_settings', $id);
+    $this->assertEquals('blazy_settings_form', $id);
 
     $method = new \ReflectionMethod(BlazySettingsForm::class, 'getEditableConfigNames');
     $method->setAccessible(TRUE);
