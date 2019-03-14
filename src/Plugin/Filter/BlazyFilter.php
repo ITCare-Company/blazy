@@ -122,6 +122,11 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
             $caption = $node->parentNode->getElementsByTagName('figcaption');
             if ($caption->length > 0 && $caption->item(0) && $text = $caption->item(0)->nodeValue) {
               $build['captions']['alt'] = ['#markup' => Xss::filter($text, BlazyDefault::TAGS)];
+
+              // Marks figures for removal as its contents are moved into grids.
+              if ($settings['_grid']) {
+                $node->parentNode->setAttribute('class', 'blazy-figure-removed');
+              }
             }
           }
 
@@ -251,8 +256,17 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
           $container->appendChild($updated_node);
         }
 
+        // Cleanups old nodes already moved into grids.
         foreach ($grid_nodes as $node) {
           $node->parentNode->removeChild($node);
+        }
+
+        // Cleanups marked figures as its contents were moved into grids.
+        $figures = $xpath->query("//*[contains(@class, 'blazy-figure-removed')]");
+        if ($figures->length > 0) {
+          foreach ($figures as $figure) {
+            $figure->parentNode->removeChild($figure);
+          }
         }
       }
     }

@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2019-03-14
+-----------------------------
+- Fixed for unclean Blazy Filter grid when blazy is embedded in Caption filters.
+
 Blazy 8.x-2.0-dev, 2019-03-13
 -----------------------------
 - Added room for sub-modules to extend blazy settings easily.

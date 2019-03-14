@@ -55,6 +55,7 @@ Be sure to enable Blazy UI which can be uninstalled at production later.
    If checked, the gallery is locked to a single entity, that is no Views
    gallery, but gallery per field.
 
+Check out the relevant sub-module docs for details.
 
 ## RECOMMENDED
 * [Markdown](http://dgo.to/markdown)

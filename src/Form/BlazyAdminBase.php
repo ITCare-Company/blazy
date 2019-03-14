@@ -597,11 +597,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $count = empty($definition['captions_count']) ? $count : $definition['captions_count'];
     $wide = $count > 2 ? ' form--wide form--caption-' . $count : ' form--caption-' . $count;
     $fallback = $namespace == 'slick' ? 'form--slick' : 'form--' . $namespace . ' form--slick';
+    $plugins = ' form--namespace-' . $namespace;
     $custom = isset($definition['opening_class']) ? ' ' . $definition['opening_class'] : '';
     // @todo remove form_opening_classes for opening_class.
     $classes = isset($definition['form_opening_classes'])
       ? $definition['form_opening_classes']
-      : $fallback . ' form--half has-tooltip' . $wide . $vanilla . $grid . $plugind_id . $custom;
+      : $fallback . ' form--half has-tooltip' . $wide . $vanilla . $grid . $plugind_id . $custom . $plugins;
 
     if (!empty($definition['field_type'])) {
       $classes .= ' form--' . str_replace('_', '-', $definition['field_type']);

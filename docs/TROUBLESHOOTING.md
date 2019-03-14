@@ -45,3 +45,10 @@ Both layout reflow and lazyloading delay issues are actually taken care of
 if **Aspect ratio** option is enabled in the first place.
 
 Adjust, and override blazy CSS/ JS files accordingly.
+
+### 6. BLAZY FILTER
+Blazy Filter must run after **Align/ Caption filters** as otherwise the required
+CSS class `b-lazy` will be moved into `<figure>` elements and make Blazy fail
+with JS error due to not finding the required `SRC` and `[data-src]` attributes.
+**Align/ Caption filters** output are respected and moved into Blazy markups
+accordingly when Blazy Filter runs after them.
