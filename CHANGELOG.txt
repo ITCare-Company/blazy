@@ -1,6 +1,9 @@
 
 Blazy 8.x-2.0-dev, 2019-03-15
 -----------------------------
+- Fixed for conflict with Bootstrap CSS .media which makes Blazy collapsed if
+  not using aspect ratio.
+- Fixed for multiple blazybox.
 - Fixed for Blazy Filter URI.
 
 Blazy 8.x-2.0-dev, 2019-03-14

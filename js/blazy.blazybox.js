@@ -69,7 +69,7 @@
    * Attach the blazyBox.
    */
   Drupal.blazyBox.attach = function () {
-    if (this.el === null) {
+    if (document.querySelector('.blazybox') === null) {
       // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
       document.body.insertAdjacentHTML('beforeend', Drupal.theme('blazyBox'));
     }

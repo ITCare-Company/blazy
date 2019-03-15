@@ -298,7 +298,7 @@ class Blazy implements BlazyInterface {
     // 4. File API via field formatters or Views fields/ styles with valid URI.
     // If we have a valid URI, provides the correct image URL.
     // Otherwise leave it as is, likely hotlinking to external/ sister sites.
-    // Hence URI validatidy is not crucial in regards to anything but #4.
+    // Hence URI validity is not crucial in regards to anything but #4.
     // The image will fail silently at any rate given unexpected URI.
     $image_url = file_valid_uri($settings['uri']) ? file_url_transform_relative(file_create_url($settings['uri'])) : $settings['uri'];
     $settings['image_url'] = $settings['image_url'] ?: $image_url;
