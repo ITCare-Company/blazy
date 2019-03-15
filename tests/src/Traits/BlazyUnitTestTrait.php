@@ -372,3 +372,14 @@ if (!function_exists('file_url_transform_relative')) {
   }
 
 }
+
+if (!function_exists('file_valid_uri')) {
+
+  /**
+   * Dummy function.
+   */
+  function file_valid_uri() {
+    // Empty block to satisfy coder.
+  }
+
+}

@@ -452,6 +452,7 @@ class Blazy implements BlazyInterface {
   public static function buildUri($image_url) {
     if (!UrlHelper::isExternal($image_url) && $path = UrlHelper::parse($image_url)['path']) {
       // @todo drupal_get_normal_path($path);
+      // @todo $normal_path = \Drupal::service('path.alias_manager')->getPathByAlias($path);
       $normal_path = $path;
       $public_path = Settings::get('file_public_path');
 
