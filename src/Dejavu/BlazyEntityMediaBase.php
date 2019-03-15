@@ -36,7 +36,8 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
 
       // Supports Blazy formatter multi-breakpoint images if available.
       if (isset($build['items'][0]) && $item = $build['items'][0]) {
-        $settings['first_image'] = isset($item['#build']) ? $item['#build'] : $item[$item_id]['#build'];
+        $fallback = isset($item[$item_id]['#build']) ? $item[$item_id]['#build'] : [];
+        $settings['first_image'] = isset($item['#build']) ? $item['#build'] : $fallback;
       }
     }
   }

@@ -2,15 +2,17 @@
 
 namespace Drupal\blazy\Plugin\Filter;
 
+use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\Unicode;
-use Drupal\Component\Utility\Crypt;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyOEmbed;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
@@ -116,7 +118,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
           $build = ['settings' => $item_settings];
           $this->buildImageItem($build, $node);
 
-          // Sanitazion was done by Caption filter when arriving here, as
+          // Sanitization was done by Caption filter when arriving here, as
           // otherwise we cannot see this figure, yet provide fallback.
           if ($node->parentNode->tagName === 'figure') {
             $caption = $node->parentNode->getElementsByTagName('figcaption');
@@ -242,12 +244,11 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
         // Create the parent grid container, and put it before the first.
         $container = $first->parentNode->insertBefore($dom->createElement('div'), $first);
 
-        // @todo $dom->loadHTML($altered_html);
-        // @todo $dom->saveHTML();
         $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')
           ->item(0)
           ->childNodes;
 
+        // This extra container ensures hook_blazy_build_alter() aint screw up.
         $container->setAttribute('class', 'blazy-wrapper blazy-wrapper--filter');
         foreach ($updated_nodes as $updated_node) {
           // Import the updated from the new DOMDocument into the original
@@ -283,16 +284,23 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   private function buildImageItem(array &$build, $node) {
     $settings = &$build['settings'];
     $item = new \stdClass();
-    $item->uri = $settings['uri'];
     $item->entity = NULL;
     $uuid = $node->hasAttribute('data-entity-uuid') ? $node->getAttribute('data-entity-uuid') : '';
 
+    // Checks if we have a valid file entity, not hard-coded image URL.
     if ($uuid && $node->hasAttribute('src')) {
       $file = $this->blazyManager->getEntityRepository()->loadEntityByUuid('file', $uuid);
       if ($file) {
         $data = $this->getImageItem($file);
         $item = $data['item'];
         $settings = array_merge($settings, $data['settings']);
+      }
+    }
+    else {
+      // Gets the correct URI with hard-coded URL if applicable.
+      if (!empty($settings['image_url']) && $uri = Blazy::buildUri($settings['image_url'])) {
+        $settings['uri'] = $uri;
+        $item->uri = $settings['uri'];
       }
     }
 
@@ -330,6 +338,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $src = $node->getAttribute('src');
     $width = $node->getAttribute('width');
     $height = $node->getAttribute('height');
+    $src = UrlHelper::stripDangerousProtocols($src);
 
     if (!$width && $node->tagName == 'img') {
       if ($src && $data = @getimagesize(DRUPAL_ROOT . $src)) {
@@ -338,28 +347,27 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     }
 
     $settings['ratio'] = !$width ? '' : 'fluid';
-    $settings['image_url'] = $src;
     $settings['media_switch'] = $this->settings['media_switch'];
 
-    // @todo file_build_uri() makes public://sites/default/files/media/Screen...
-    $uri = strpos($src, 'http') === FALSE ? $src : $src;
     if ($node->tagName == 'iframe') {
       $settings['input_url'] = $src;
       $resource = $this->blazyOembed->build($settings);
 
       if ($resource) {
         // @todo figure out to get local uri, if any, anyway.
-        $uri = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
+        $settings['uri'] = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
         $width = !$width ? $resource->getWidth() : $width;
         $height = !$height ? $resource->getHeight() : $height;
       }
 
       $settings['ratio'] = !$width ? '16:9' : 'fluid';
     }
+    elseif ($node->tagName == 'img') {
+      $settings['uri'] = $settings['image_url'] = $src;
+    }
 
     $settings['blazy'] = TRUE;
     $settings['lazy'] = 'blazy';
-    $settings['uri'] = $uri;
     $settings['width'] = $width;
     $settings['height'] = $height;
   }

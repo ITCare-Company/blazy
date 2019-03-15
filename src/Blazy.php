@@ -2,9 +2,11 @@
 
 namespace Drupal\blazy;
 
-use Drupal\Core\Template\Attribute;
-use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\Unicode;
+use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\Site\Settings;
+use Drupal\Core\Template\Attribute;
 use Drupal\image\Entity\ImageStyle;
 
 /**
@@ -289,10 +291,17 @@ class Blazy implements BlazyInterface {
       $settings['height'] = $item && isset($item->height) ? $item->height : NULL;
     }
 
-    // Lazyloaded elements expect image URL, not URI. And video may set this.
-    if (empty($settings['image_url'])) {
-      $settings['image_url'] = file_url_transform_relative(file_create_url($settings['uri']));
-    }
+    // Respects a few scenarios:
+    // 1. Blazy Filter or unmanaged file with/ without valid URI.
+    // 2. Hand-coded image_url with/ without valid URI.
+    // 3. Respects first_uri without image_url such as colorbox/zoom-like.
+    // 4. File API via field formatters or Views fields/ styles with valid URI.
+    // If we have a valid URI, provides the correct image URL.
+    // Otherwise leave it as is, likely hotlinking to external/ sister sites.
+    // Hence URI validatidy is not crucial in regards to anything but #4.
+    // The image will fail silently at any rate given unexpected URI.
+    $image_url = file_valid_uri($settings['uri']) ? file_url_transform_relative(file_create_url($settings['uri'])) : $settings['uri'];
+    $settings['image_url'] = $settings['image_url'] ?: $image_url;
 
     // Image style modifier can be multi-style images such as GridStack.
     if (!empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
@@ -311,6 +320,9 @@ class Blazy implements BlazyInterface {
         $settings['width'] = $dimensions['width'];
       }
     }
+
+    // Just in case, an attempted kidding gets in the way.
+    $settings['image_url'] = UrlHelper::stripDangerousProtocols($settings['image_url']);
   }
 
   /**
@@ -430,6 +442,27 @@ class Blazy implements BlazyInterface {
         }
       }
     }
+  }
+
+  /**
+   * Returns the URI from the given image URL, relevant for unmanaged files.
+   *
+   * @todo recheck if any core method for this aside from file_build_uri().
+   */
+  public static function buildUri($image_url) {
+    if (!UrlHelper::isExternal($image_url) && $path = UrlHelper::parse($image_url)['path']) {
+      // @todo drupal_get_normal_path($path);
+      $normal_path = $path;
+      $public_path = Settings::get('file_public_path');
+
+      // Only concerns for the correct URI, not image URL which is already being
+      // displayed via SRC attribute. Don't bother language prefixes for IMG.
+      if ($public_path && strpos($normal_path, $public_path) !== FALSE) {
+        $rel_path = str_replace($public_path, '', $normal_path);
+        return file_build_uri($rel_path);
+      }
+    }
+    return FALSE;
   }
 
   /**

@@ -165,16 +165,36 @@ function hook_blazy_lightboxes_alter(array &$lightboxes) {
 /**
  * Alters Blazy individual item output to support a custom lightbox.
  *
- * @param array $image
- *   The renderable array of image being modified.
+ * @param array $build
+ *   The renderable array of image/ video iframe being modified.
  * @param array $settings
  *   The available array of settings.
  *
  * @ingroup blazy_api
  */
-function hook_blazy_alter(array &$image, array $settings = []) {
+function hook_blazy_alter(array &$build, array $settings = []) {
   if (!empty($settings['media_switch']) && $settings['media_switch'] == 'photoswipe') {
-    $image['#pre_render'][] = 'my_module_pre_render';
+    $build['#pre_render'][] = 'my_module_pre_render';
+  }
+}
+
+/**
+ * Alters Blazy outputs entirely to support a custom (quasy-)lightbox.
+ *
+ * In a case of ElevateZoom Plus, it adds a prefix large image preview before
+ * the Blazy Grid elements by adding an extra #theme_wrappers via #pre_render
+ * element.
+ *
+ * @param array $build
+ *   The renderable array of the entire Blazy output being modified.
+ * @param array $settings
+ *   The available array of settings.
+ *
+ * @ingroup blazy_api
+ */
+function hook_blazy_build_alter(array &$build, array $settings = []) {
+  if (!empty($settings['elevatezoomplus'])) {
+    $build['#pre_render'][] = 'my_module_pre_render_build';
   }
 }
 
@@ -225,10 +245,38 @@ function hook_blazy_base_settings_alter(array &$settings, array $context = []) {
 /**
  * Alters blazy-related formatter form elements.
  *
+ * This takes advantage of Blazy taking care of a few elements finalizations,
+ * such as adding #empty_option, extras CSS classes, checkboxes, states, etc.
+ * This is run before hook_blazy_complete_form_element_alter().
+ *
  * @param array $form
  *   The $form being modified.
  * @param array $definition
  *   The array defining the scope of form elements.
+ *
+ * @see \Drupal\blazy\Form\BlazyAdminBase::finalizeForm()
+ *
+ * @ingroup blazy_api
+ */
+function hook_blazy_form_element_alter(array &$form, array $definition = []) {
+  // Limit the scope to Slick formatters, blazy, gridstack, etc. Or swap em all.
+  if (isset($definition['namespace']) && $definition['namespace'] == 'slick') {
+    // Extend the formatter form elements as needed.
+  }
+}
+
+/**
+ * Alters blazy-related formatter form elements.
+ *
+ * Modify anything Blazy forms output as you wish.
+ * This is run after hook_blazy_complete_form_element_alter().
+ *
+ * @param array $form
+ *   The $form being modified.
+ * @param array $definition
+ *   The array defining the scope of form elements.
+ *
+ * @see \Drupal\blazy\Form\BlazyAdminBase::finalizeForm()
  *
  * @ingroup blazy_api
  */

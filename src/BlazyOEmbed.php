@@ -3,6 +3,7 @@
 namespace Drupal\blazy;
 
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Url;
 use Drupal\media\IFrameUrlHelper;
 use Drupal\media\OEmbed\Resource;
@@ -143,7 +144,7 @@ class BlazyOEmbed {
   public function build(array &$settings = []) {
     $resource = NULL;
     try {
-      $settings['input_url'] = strip_tags($settings['input_url']);
+      $settings['input_url'] = UrlHelper::stripDangerousProtocols($settings['input_url']);
       $resource = $this->getResource($settings['input_url']);
 
       // @todo support other types (link, photo), if reasonable for Blazy.
@@ -259,12 +260,13 @@ class BlazyOEmbed {
           $settings['uri'] = $media->getSource()->getMetadata($media, 'thumbnail_uri');
         }
         catch (\Exception $ignore) {
+          // Do nothing, no need to be chatty on this.
+        }
+
+        // Provides a fallback for the URI.
+        if (empty($settings['uri'])) {
           $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
         }
-      }
-
-      if (!empty($settings['uri'])) {
-        $settings['image_url'] = file_url_transform_relative(file_create_url($settings['uri']));
       }
     }
 
@@ -355,6 +357,7 @@ class BlazyOEmbed {
     }
     catch (\Exception $e) {
       // Do nothing, likely local work without internet, or the site is down.
+      // No need to be chatty on this.
     }
   }
 
