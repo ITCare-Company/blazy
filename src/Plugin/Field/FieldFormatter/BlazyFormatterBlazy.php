@@ -32,17 +32,11 @@ class BlazyFormatterBlazy extends BlazyFileFormatterBase {
     $settings['_grid']     = !empty($settings['style']) && !empty($settings['grid']);
     $settings['langcode']  = $langcode;
 
-    // Pass first item to optimize sizes and build colorbox/zoom-like gallery.
-    if (method_exists($this, 'getImageItem') && $image = $this->getImageItem($files[0])) {
-      $settings['first_item'] = $image['item'];
-      $settings['first_uri'] = $image['item']->uri;
-    }
-
     // Build the settings.
     $build = ['settings' => $settings];
 
     // Modifies settings before building elements.
-    $this->formatter->preBuildElements($build, $items);
+    $this->formatter->preBuildElements($build, $items, $files);
 
     // Build the elements.
     $this->buildElements($build, $files);

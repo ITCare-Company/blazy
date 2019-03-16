@@ -27,10 +27,11 @@ class BlazyManager extends BlazyManagerBase {
    *
    * @param array $settings
    *   The settings being modified.
+   * @param object $item
+   *   The first image item found.
    */
-  public function setDimensionsOnce(array &$settings = []) {
+  public function setDimensionsOnce(array &$settings = [], $item = NULL) {
     if (!isset($this->isDimensionSet[md5($settings['first_uri'])])) {
-      $item                 = isset($settings['first_item']) ? $settings['first_item'] : NULL;
       $dimensions['width']  = $settings['original_width'] = $item && isset($item->width) ? $item->width : NULL;
       $dimensions['height'] = $settings['original_height'] = $item && isset($item->height) ? $item->height : NULL;
 

@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2019-03-17
+-----------------------------
+- Fixed for dups.
+
 Blazy 8.x-2.0-dev, 2019-03-16
 -----------------------------
 - Reverted broken optimization with attributes insanity.

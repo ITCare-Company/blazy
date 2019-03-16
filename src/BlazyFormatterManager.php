@@ -8,6 +8,13 @@ namespace Drupal\blazy;
 class BlazyFormatterManager extends BlazyManager {
 
   /**
+   * The first image item found.
+   *
+   * @var object
+   */
+  protected $firstItem = NULL;
+
+  /**
    * Modifies the field formatter settings inherited by child elements.
    *
    * @param array $build
@@ -93,6 +100,8 @@ class BlazyFormatterManager extends BlazyManager {
       }
     }
 
+    // Add the entity to formatter cache tags.
+    $settings['cache_tags'][] = $settings['entity_type_id'] . ':' . $settings['entity_id'];
     $settings['ratio'] = $ratio ? $settings['ratio'] : FALSE;
   }
 
@@ -120,19 +129,11 @@ class BlazyFormatterManager extends BlazyManager {
     // This is less expensive than re-defining dimensions per image.
     $this->cleanUpBreakpoints($settings);
     if (!empty($settings['first_uri']) && !$settings['resimage_lazy']) {
-      $this->setDimensionsOnce($settings);
+      $this->setDimensionsOnce($settings, $this->firstItem);
     }
-
-    // Add the entity to formatter cache tags.
-    $settings['cache_tags'][] = $settings['entity_type_id'] . ':' . $settings['entity_id'];
 
     // Allows altering the settings.
     $this->getModuleHandler()->alter('blazy_settings', $build, $items);
-
-    // Done at top level works, prevents leaking to child for few settings.
-    if ($settings['namespace'] == 'blazy') {
-      unset($settings['first_item']);
-    }
   }
 
   /**
@@ -146,13 +147,8 @@ class BlazyFormatterManager extends BlazyManager {
    *   The optional entities array, not available for non-entities: text, image.
    */
   public function postBuildElements(array &$build, $items, array $entities = []) {
-    $settings = &$build['settings'];
-
     // Rebuild the first item to build colorbox/zoom-like gallery.
-    if (isset($items[0]) && $item = $items[0]) {
-      $entity = isset($entities[0]) ? $entities[0] : NULL;
-      $this->extractFirstItem($settings, $item, $entity);
-    }
+    $build['settings']['first_item'] = $this->firstItem;
   }
 
   /**
@@ -167,12 +163,11 @@ class BlazyFormatterManager extends BlazyManager {
    */
   public function extractFirstItem(array &$settings, $item, $entity = NULL) {
     if ($settings['field_type'] == 'image') {
-      $settings['first_item'] = $item;
+      $this->firstItem = $item;
       $settings['first_uri'] = ($file = $item->entity) && empty($item->uri) ? $file->getFileUri() : $item->uri;
     }
-    elseif ($entity && $entity->hasField('thumbnail')) {
-      $image = $entity->get('thumbnail')->first();
-      $settings['first_item'] = $image;
+    elseif ($entity && $entity->hasField('thumbnail') && $image = $entity->get('thumbnail')->first()) {
+      $this->firstItem = $image;
       $settings['first_uri'] = $image->entity->getFileUri();
     }
   }
