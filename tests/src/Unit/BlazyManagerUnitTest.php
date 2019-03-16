@@ -137,8 +137,6 @@ class BlazyManagerUnitTest extends UnitTestCase {
    */
   public function testPreRenderImage($uri, $content, $expected_image, $expected_render) {
     $build = [];
-
-    // @todo $build['item'] = $item ? $this->testItem : NULL;
     $build['item'] = NULL;
     $build['content'] = $content;
     $build['settings']['uri'] = $uri;

@@ -205,6 +205,7 @@ class BlazyDefault {
       'captions',
       'image',
       'item',
+      'item_attributes',
       'settings',
       'url',
     ];
@@ -214,7 +215,7 @@ class BlazyDefault {
    * Returns blazy theme attributes.
    */
   public static function themeAttributes() {
-    return ['caption', 'item', 'media', 'url', 'wrapper'];
+    return ['caption', 'media', 'url', 'wrapper'];
   }
 
 }

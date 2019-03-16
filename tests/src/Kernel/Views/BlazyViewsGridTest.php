@@ -59,12 +59,10 @@ class BlazyViewsGridTest extends BlazyViewsTestBase {
     $style_plugin->submitOptionsForm($form, $form_state);
     $view->destroy();
 
-    // @todo: Fields.
     $view = Views::getView('test_blazy_file');
     $this->executeView($view);
     $view->setDisplay('default');
 
-    // @todo Render.
     // @todo $render = $view->getStyle()->render();
     // @todo $this->assertArrayHasKey('data-blazy', $render['#attributes']);
     $output = $view->preview();

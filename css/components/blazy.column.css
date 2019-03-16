@@ -9,7 +9,6 @@
  * scalable designs that can fit many screen sizes. To set an exact column
  * width, the column gap and the width of the multicol element (assuming
  * horizontal text) must also be specified.
- * @todo: Consider BEM classes at version 2.x, or so.
  */
 
 [class*="block-column-"],

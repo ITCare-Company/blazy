@@ -41,11 +41,14 @@ class BlazyFormatterBlazy extends BlazyFileFormatterBase {
     // Build the settings.
     $build = ['settings' => $settings];
 
-    // Modifies settings.
-    $this->formatter->buildSettings($build, $items);
+    // Modifies settings before building elements.
+    $this->formatter->preBuildElements($build, $items);
 
     // Build the elements.
     $this->buildElements($build, $files);
+
+    // Modifies settings post building elements.
+    $this->formatter->postBuildElements($build, $items, $files);
 
     // Pass to manager for easy updates to all Blazy formatters.
     return $this->formatter->build($build);

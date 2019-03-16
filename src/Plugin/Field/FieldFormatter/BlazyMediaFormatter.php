@@ -32,10 +32,10 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $media = $this->getEntitiesToView($items, $langcode);
+    $entities = $this->getEntitiesToView($items, $langcode);
 
     // Early opt-out if the field is empty.
-    if (empty($media)) {
+    if (empty($entities)) {
       return [];
     }
 
@@ -44,24 +44,18 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
     $settings['blazy']     = TRUE;
     $settings['namespace'] = $settings['item_id'] = $settings['lazy'] = 'blazy';
 
-    // Sets dimensions once to reduce method ::transformDimensions() calls.
-    $media = array_values($media);
-    if ($media[0]->getEntityTypeId() == 'media' && $fields = $media[0]->getFields()) {
-      if (isset($fields['thumbnail'])) {
-        $item = $fields['thumbnail']->get(0);
-        $settings['first_item'] = $item;
-        $settings['first_uri'] = $item->entity->getFileUri();
-      }
-    }
-
     // Build the settings.
     $build = ['settings' => $settings];
 
-    // Modifies settings.
-    $this->formatter->buildSettings($build, $items);
+    // Modifies settings before building elements.
+    $entities = array_values($entities);
+    $this->formatter->preBuildElements($build, $items, $entities);
 
     // Build the elements.
-    $this->buildElements($build, $media, $langcode);
+    $this->buildElements($build, $entities, $langcode);
+
+    // Modifies settings post building elements.
+    $this->formatter->postBuildElements($build, $items, $entities);
 
     // Pass to manager for easy updates to all Blazy formatters.
     return $this->formatter->build($build);

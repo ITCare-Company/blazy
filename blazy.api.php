@@ -269,7 +269,7 @@ function hook_blazy_form_element_alter(array &$form, array $definition = []) {
  * Alters blazy-related formatter form elements.
  *
  * Modify anything Blazy forms output as you wish.
- * This is run after hook_blazy_complete_form_element_alter().
+ * This is run after hook_blazy_form_element_alter().
  *
  * @param array $form
  *   The $form being modified.

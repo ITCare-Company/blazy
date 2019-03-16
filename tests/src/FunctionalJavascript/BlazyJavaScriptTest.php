@@ -37,7 +37,6 @@ class BlazyJavaScriptTest extends WebDriverTestBase {
 
     $this->setUpVariables();
 
-    // @todo remove $this->entityManager = $this->container->get('entity.manager');
     $this->entityFieldManager     = $this->container->get('entity_field.manager');
     $this->formatterPluginManager = $this->container->get('plugin.manager.field.formatter');
     $this->blazyAdmin             = $this->container->get('blazy.admin');

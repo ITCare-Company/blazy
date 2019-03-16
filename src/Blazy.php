@@ -373,16 +373,8 @@ class Blazy implements BlazyInterface {
         }
       }
 
-      // Fetches the picture element fallback URI, and empty it later.
-      // These address both 8.x-2 and 8.x-3 compatibility.
-      // @todo remove BC as we now require Drupal 8.6+.
-      if (isset($variables['img_element']['#srcset'])) {
-        $fallback_uri = $variables['img_element']['#srcset'][0]['uri'];
-      }
-      else {
-        // This is for Drupal 8.x-3+.
-        $fallback_uri = $variables['img_element']['#uri'];
-      }
+      // Fetches the picture element fallback URI, and empty it later, 8.x-3+.
+      $fallback_uri = $variables['img_element']['#uri'];
 
       // Cleans up the no-longer relevant attributes for controlling element.
       unset($variables['attributes']['data-srcset'], $variables['img_element']['#attributes']['data-srcset']);
@@ -450,10 +442,7 @@ class Blazy implements BlazyInterface {
    * @todo recheck if any core method for this aside from file_build_uri().
    */
   public static function buildUri($image_url) {
-    if (!UrlHelper::isExternal($image_url) && $path = UrlHelper::parse($image_url)['path']) {
-      // @todo drupal_get_normal_path($path);
-      // @todo $normal_path = \Drupal::service('path.alias_manager')->getPathByAlias($path);
-      $normal_path = $path;
+    if (!UrlHelper::isExternal($image_url) && $normal_path = UrlHelper::parse($image_url)['path']) {
       $public_path = Settings::get('file_public_path');
 
       // Only concerns for the correct URI, not image URL which is already being

@@ -203,14 +203,12 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    *
    * @param string $responsive_image_style_id
    *   The responsive_image_style_id.
-   * @param bool $old
-   *   Whether to use Drupal core 8.x-2, or later 8.x-3.
    * @param bool $expected
    *   The expected output_image_tag.
    *
    * @dataProvider providerResponsiveImage
    */
-  public function testPreprocessResponsiveImage($responsive_image_style_id, $old, $expected) {
+  public function testPreprocessResponsiveImage($responsive_image_style_id, $expected) {
     $variables = [
       'item' => $this->testItem,
       'uri' => $this->uri,
@@ -219,12 +217,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     template_preprocess_responsive_image($variables);
 
-    if ($old) {
-      $variables['img_element']['#srcset'][0]['uri'] = $this->uri;
-    }
-    else {
-      $variables['img_element']['#uri'] = $this->uri;
-    }
+    $variables['img_element']['#uri'] = $this->uri;
 
     Blazy::preprocessResponsiveImage($variables);
 
@@ -236,19 +229,12 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    */
   public function providerResponsiveImage() {
     return [
-      'Responsive image with picture 8.x-2' => [
-        'blazy_picture_test',
-        TRUE,
-        FALSE,
-      ],
       'Responsive image with picture 8.x-3' => [
         'blazy_picture_test',
-        FALSE,
         FALSE,
       ],
       'Responsive image without picture 8.x-3' => [
         'blazy_responsive_test',
-        FALSE,
         TRUE,
       ],
     ];
@@ -292,8 +278,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * @covers ::setLightboxes
    * @covers ::buildSkins
    * @covers ::getCache
-   *
-   * @todo: Move some to unit tests.
    */
   public function testBlazyManagerMethods() {
     // Tests Blazy attachments.

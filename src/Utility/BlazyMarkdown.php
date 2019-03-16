@@ -8,8 +8,6 @@ use League\CommonMark\CommonMarkConverter;
 
 /**
  * Provides markdown utilities only useful for the help text.
- *
- * @todo refactor this class post Markdown 2.x full release, if any.
  */
 class BlazyMarkdown {
 

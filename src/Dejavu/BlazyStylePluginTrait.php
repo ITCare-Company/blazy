@@ -44,8 +44,7 @@ trait BlazyStylePluginTrait {
           // Yet, ensures the Views style plugin wins over Blazy formatter,
           // such as with GridStack which may have its own breakpoints.
           $item_settings = array_filter($image['rendered']['#build']['settings']);
-          $settings = array_filter($settings);
-          $settings = array_merge($item_settings, $settings);
+          $settings = array_merge($item_settings, array_filter($settings));
         }
         elseif ($theme == 'image_formatter') {
           // Deals with "link to content/image" by formatters.

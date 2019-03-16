@@ -30,9 +30,9 @@ class BlazyManager extends BlazyManagerBase {
    */
   public function setDimensionsOnce(array &$settings = []) {
     if (!isset($this->isDimensionSet[md5($settings['first_uri'])])) {
-      $item                 = $settings['first_item'];
-      $dimensions['width']  = $settings['original_width'] = isset($item->width) ? $item->width : NULL;
-      $dimensions['height'] = $settings['original_height'] = isset($item->height) ? $item->height : NULL;
+      $item                 = isset($settings['first_item']) ? $settings['first_item'] : NULL;
+      $dimensions['width']  = $settings['original_width'] = $item && isset($item->width) ? $item->width : NULL;
+      $dimensions['height'] = $settings['original_height'] = $item && isset($item->height) ? $item->height : NULL;
 
       // If image style contains crop, sets dimension once, and let all inherit.
       if (!empty($settings['image_style']) && ($style = $this->entityLoad($settings['image_style']))) {
@@ -147,7 +147,7 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     $attributes = isset($build['attributes']) ? $build['attributes'] : [];
-    $item_attributes = $build['item_attributes'];
+    $item_attributes = isset($build['item_attributes']) ? $build['item_attributes'] : [];
     $url_attributes = $build['url_attributes'];
 
     // Extract field item attributes for the theme function, and unset them
@@ -224,10 +224,8 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     // Provides extra attributes as needed, excluding url, item, done above.
-    // @todo remove the settings part for the $build ones.
     foreach (['caption', 'media', 'wrapper'] as $key) {
-      $attribute = isset($settings[$key . '_attributes']) ? $settings[$key . '_attributes'] : $build[$key . '_attributes'];
-      $element["#$key" . '_attributes'] = $attribute;
+      $element["#$key" . '_attributes'] = $build[$key . '_attributes'];
     }
 
     $captions = empty($build['captions']) ? [] : $this->buildCaption($build['captions'], $settings);
@@ -275,7 +273,7 @@ class BlazyManager extends BlazyManagerBase {
     $settings['_grid'] = isset($settings['_grid']) ? $settings['_grid'] : (!empty($settings['style']) && !empty($settings['grid']));
 
     // If not a grid, pass the items as regular index children to theme_field().
-    // @todo #pre_render doesn't work if called from Views results.
+    // This #pre_render doesn't work if called from Views results.
     if (empty($settings['_grid'])) {
       $settings = $this->prepareBuild($build);
       $build['#blazy'] = $settings;

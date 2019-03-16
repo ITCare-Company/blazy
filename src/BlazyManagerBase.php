@@ -381,8 +381,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     // This may be set at self::setDimensionsOnce() if using formatters, yet it
     // is not set from non-formatters like views fields, see self::isBlazy().
     if (empty($settings['original_width'])) {
-      $settings['original_width'] = isset($item->width) ? $item->width : NULL;
-      $settings['original_height'] = isset($item->height) ? $item->height : NULL;
+      $settings['original_width'] = $item && isset($item->width) ? $item->width : NULL;
+      $settings['original_height'] = $item && isset($item->height) ? $item->height : NULL;
     }
 
     $json = $sources = $styles = [];

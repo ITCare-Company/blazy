@@ -8,12 +8,12 @@ namespace Drupal\blazy;
 class BlazyFormatterManager extends BlazyManager {
 
   /**
-   * Returns the field formatter settings inherited by child elements.
+   * Modifies the field formatter settings inherited by child elements.
    *
    * @param array $build
    *   The array containing: settings, or potential optionset for extensions.
    * @param object $items
-   *   The items to prepare settings for.
+   *   The Drupal\Core\Field\FieldItemListInterface items.
    */
   public function buildSettings(array &$build, $items) {
     $settings       = &$build['settings'];
@@ -68,15 +68,11 @@ class BlazyFormatterManager extends BlazyManager {
     }
 
     // Don't bother if using Responsive image.
-    $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
-    if (!empty($settings['breakpoints'])) {
-      $this->cleanUpBreakpoints($settings);
-    }
-
-    $settings['caption']    = empty($settings['caption']) ? [] : array_filter($settings['caption']);
-    $settings['background'] = empty($settings['responsive_image_style']) && !empty($settings['background']);
-    $resimage_lazy          = $this->configLoad('responsive_image') && !empty($settings['responsive_image_style']);
-    $settings['blazy']      = $resimage_lazy || !empty($settings['blazy']);
+    $settings['breakpoints']   = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
+    $settings['caption']       = empty($settings['caption']) ? [] : array_filter($settings['caption']);
+    $settings['background']    = empty($settings['responsive_image_style']) && !empty($settings['background']);
+    $settings['resimage_lazy'] = $this->configLoad('responsive_image') && !empty($settings['responsive_image_style']);
+    $settings['blazy']         = $settings['resimage_lazy'] || !empty($settings['blazy']);
 
     // Let Blazy handle CSS background as Slick's background is deprecated.
     if ($settings['background']) {
@@ -98,30 +94,86 @@ class BlazyFormatterManager extends BlazyManager {
     }
 
     $settings['ratio'] = $ratio ? $settings['ratio'] : FALSE;
+  }
 
-    // Pass first item to optimize sizes and build colorbox/zoom-like gallery.
-    if (empty($settings['first_item']) && $field_type == 'image' && $items[0]) {
-      $settings['first_item'] = $items[0];
-      $settings['first_uri'] = ($file = $items[0]->entity) && empty($items[0]->uri) ? $file->getFileUri() : $items[0]->uri;
+  /**
+   * Modifies the field formatter settings inherited by child elements.
+   *
+   * @param array $build
+   *   The array containing: settings, or potential optionset for extensions.
+   * @param object $items
+   *   The Drupal\Core\Field\FieldItemListInterface items.
+   * @param array $entities
+   *   The optional entities array, not available for non-entities: text, image.
+   */
+  public function preBuildElements(array &$build, $items, array $entities = []) {
+    $this->buildSettings($build, $items);
+    $settings = &$build['settings'];
+
+    // Pass first item to optimize sizes this time.
+    if (isset($items[0]) && $item = $items[0]) {
+      $entity = isset($entities[0]) ? $entities[0] : NULL;
+      $this->extractFirstItem($settings, $item, $entity);
     }
 
     // Sets dimensions once, if cropped, to reduce costs with ton of images.
     // This is less expensive than re-defining dimensions per image.
-    if (!empty($settings['first_item']) && !empty($settings['image_style']) && !$resimage_lazy) {
+    $this->cleanUpBreakpoints($settings);
+    if (!empty($settings['first_uri']) && !$settings['resimage_lazy']) {
       $this->setDimensionsOnce($settings);
     }
-
-    // @todo remove once sub-modules changed to use first_ things.
-    unset($settings['item'], $settings['uri']);
 
     // Add the entity to formatter cache tags.
     $settings['cache_tags'][] = $settings['entity_type_id'] . ':' . $settings['entity_id'];
 
+    // Allows altering the settings.
     $this->getModuleHandler()->alter('blazy_settings', $build, $items);
 
     // Done at top level works, prevents leaking to child for few settings.
-    if ($namespace == 'blazy') {
+    if ($settings['namespace'] == 'blazy') {
       unset($settings['first_item']);
+    }
+  }
+
+  /**
+   * Modifies the field formatter settings not inherited by child elements.
+   *
+   * @param array $build
+   *   The array containing: items, settings, or a potential optionset.
+   * @param object $items
+   *   The Drupal\Core\Field\FieldItemListInterface items.
+   * @param array $entities
+   *   The optional entities array, not available for non-entities: text, image.
+   */
+  public function postBuildElements(array &$build, $items, array $entities = []) {
+    $settings = &$build['settings'];
+
+    // Rebuild the first item to build colorbox/zoom-like gallery.
+    if (isset($items[0]) && $item = $items[0]) {
+      $entity = isset($entities[0]) ? $entities[0] : NULL;
+      $this->extractFirstItem($settings, $item, $entity);
+    }
+  }
+
+  /**
+   * Extract the first image item to build colorbox/zoom-like gallery.
+   *
+   * @param array $settings
+   *   The $settings array being modified.
+   * @param object $item
+   *   The Drupal\image\Plugin\Field\FieldType\ImageItem item.
+   * @param object $entity
+   *   The optional media entity.
+   */
+  public function extractFirstItem(array &$settings, $item, $entity = NULL) {
+    if ($settings['field_type'] == 'image') {
+      $settings['first_item'] = $item;
+      $settings['first_uri'] = ($file = $item->entity) && empty($item->uri) ? $file->getFileUri() : $item->uri;
+    }
+    elseif ($entity && $entity->hasField('thumbnail')) {
+      $image = $entity->get('thumbnail')->first();
+      $settings['first_item'] = $image;
+      $settings['first_uri'] = $image->entity->getFileUri();
     }
   }
 

@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2019-03-16
+-----------------------------
+- Reverted broken optimization with attributes insanity.
+- Cleaned ups deprecated, and TODOs.
+
 Blazy 8.x-2.0-dev, 2019-03-15
 -----------------------------
 - Fixed for conflict with Bootstrap CSS .media which makes Blazy collapsed if
