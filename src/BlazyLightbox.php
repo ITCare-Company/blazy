@@ -120,8 +120,7 @@ class BlazyLightbox {
    * Builds lightbox captions.
    *
    * @param object|mixed $item
-   *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item, or array when
-   *   dealing with Video Embed Field.
+   *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item.
    * @param array $settings
    *   The settings to work with.
    *
@@ -174,8 +173,7 @@ class BlazyLightbox {
         break;
     }
 
-    $tags = ['a', 'em', 'strong', 'h2', 'p', 'span', 'ul', 'ol', 'li'];
-    return empty($caption) ? [] : ['#markup' => Xss::filter($caption, $tags)];
+    return empty($caption) ? [] : ['#markup' => Xss::filter($caption, BlazyDefault::TAGS)];
   }
 
 }

@@ -42,6 +42,10 @@ class BlazyGrid {
         '#attributes' => ['class' => ['grid__content']],
       ] : $item;
 
+      if (!empty($item_settings['grid_item_class'])) {
+        $attributes['class'][] = $item_settings['grid_item_class'];
+      }
+
       $classes = isset($attributes['class']) ? $attributes['class'] : [];
       $attributes['class'] = array_merge([$class_item], $classes);
       $content['#wrapper_attributes'] = $attributes;

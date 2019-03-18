@@ -128,7 +128,7 @@ to give Blazy a try, and consider joining forces with Blazy, and help improve it
 for the above-mentioned advantages. We are also continuously improving and
 solidifying the API to make advanced usages a lot easier, and DX friendly.
 Currently, of course, not perfect, but have been proven to play nice with at
-least 6 lightboxes, and likely more.
+least 7 lightboxes, and likely more.
 
 
 ## SIMILAR MODULES
@@ -166,6 +166,7 @@ See blazy.api.php (WIP) for details.
 ## AUTHOR/MAINTAINER/CREDITS
 * [Gaus Surahman](https://www.drupal.org/user/159062)
 * [Contributors](https://www.drupal.org/node/2663268/committers)
+* CHANGELOG.txt for helpful souls with their patches, suggestions and reports.
 
 
 ## READ MORE
