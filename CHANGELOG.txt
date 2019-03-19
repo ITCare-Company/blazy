@@ -1,6 +1,10 @@
 
 Blazy 8.x-2.0-dev, 2019-03-18
 -----------------------------
+- Added Blazy::transformDimensions().
+
+Blazy 8.x-2.0-dev, 2019-03-18
+-----------------------------
 - Updated admin CSS.
 
 Blazy 8.x-2.0-dev, 2019-03-17

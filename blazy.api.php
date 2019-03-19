@@ -12,12 +12,13 @@
  *
  * Modules may implement any of the available hooks to interact with Blazy.
  * Blazy may be configured using the web interface using formatters, or Views.
- * However below is a few sample coded ones as per Blazy RC2+.
+ * However below is a few sample coded ones.
  *
  * A single image sample.
  * @code
  * function my_module_render_blazy() {
  *   $settings = [
+ *     // URI is required to use BlazyManager::getBlazy().
  *     // URI is stored in #settings property so to allow traveling around video
  *     // and lightboxes before being passed into theme_blazy().
  *     'uri' => 'public://logo.jpg',
@@ -26,7 +27,7 @@
  *     // This allows Slick lazyLoad to not load Blazy.
  *     'lazy' => 'blazy',
  *
- *     // Optionally provide an image style:
+ *     // Optionally provide an image style. Valid URI is a must:
  *     'image_style' => 'thumbnail',
  *   ];
  *
@@ -139,11 +140,10 @@ function hook_blazy_attach_alter(array &$load, array $settings = []) {
   if (!empty($settings['photoswipe'])) {
     $load['library'][] = 'my_module/load';
 
-    $manager = \Drupal::service('blazy.manager');
     $template = ['#theme' => 'photoswipe_container'];
     $load['drupalSettings']['photoswipe'] = [
-      'options' => $manager->configLoad('options', 'photoswipe.settings'),
-      'container' => $manager->getRenderer()->renderPlain($template),
+      'options' => blazy()->configLoad('options', 'photoswipe.settings'),
+      'container' => blazy()->getRenderer()->renderPlain($template),
     ];
   }
 }

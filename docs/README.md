@@ -153,7 +153,7 @@ Only at worst case, know how to run http://dgo.to/registry_rebuild safely.
 
 
 ## PROGRAMATICALLY
-See blazy.api.php (WIP) for details.
+See blazy.api.php for details.
 
 
 ## PERFORMANCE TIPS:

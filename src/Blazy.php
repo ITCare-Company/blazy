@@ -236,13 +236,8 @@ class Blazy implements BlazyInterface {
         // Yet, only provide individual dimensions if not already set.
         // @see Drupal\blazy\BlazyManager::setDimensionsOnce().
         if (!empty($settings['_breakpoint_ratio']) && empty($settings['blazy_data']['dimensions'])) {
-          $dimensions = [
-            'width'  => $settings['width'],
-            'height' => $settings['height'],
-          ];
-
-          $style->transformDimensions($dimensions, $settings['uri']);
           if ($width = self::widthFromDescriptors($breakpoint['width'])) {
+            $dimensions = self::transformDimensions($style, $settings, $settings['uri']);
             $json[$width] = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
           }
         }
@@ -278,51 +273,6 @@ class Blazy implements BlazyInterface {
     if ($json) {
       $settings['blazy_data']['dimensions'] = $json;
     }
-  }
-
-  /**
-   * Builds URLs, cache tags, and dimensions for individual image.
-   */
-  public static function buildUrlAndDimensions(array &$settings = [], $item = NULL) {
-    // Sets dimensions.
-    // VEF without image style, or image style with crop, may already set these.
-    if (empty($settings['width'])) {
-      $settings['width'] = $item && isset($item->width) ? $item->width : NULL;
-      $settings['height'] = $item && isset($item->height) ? $item->height : NULL;
-    }
-
-    // Respects a few scenarios:
-    // 1. Blazy Filter or unmanaged file with/ without valid URI.
-    // 2. Hand-coded image_url with/ without valid URI.
-    // 3. Respects first_uri without image_url such as colorbox/zoom-like.
-    // 4. File API via field formatters or Views fields/ styles with valid URI.
-    // If we have a valid URI, provides the correct image URL.
-    // Otherwise leave it as is, likely hotlinking to external/ sister sites.
-    // Hence URI validity is not crucial in regards to anything but #4.
-    // The image will fail silently at any rate given unexpected URI.
-    $image_url = file_valid_uri($settings['uri']) ? file_url_transform_relative(file_create_url($settings['uri'])) : $settings['uri'];
-    $settings['image_url'] = $settings['image_url'] ?: $image_url;
-
-    // Image style modifier can be multi-style images such as GridStack.
-    if (!empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
-      $settings['image_url'] = file_url_transform_relative($style->buildUrl($settings['uri']));
-      $settings['cache_tags'] = $style->getCacheTags();
-
-      // Only re-calculate dimensions if not cropped, nor already set.
-      if (empty($settings['_dimensions'])) {
-        $dimensions = [
-          'width'  => $settings['width'],
-          'height' => $settings['height'],
-        ];
-
-        $style->transformDimensions($dimensions, $settings['uri']);
-        $settings['height'] = $dimensions['height'];
-        $settings['width'] = $dimensions['width'];
-      }
-    }
-
-    // Just in case, an attempted kidding gets in the way.
-    $settings['image_url'] = UrlHelper::stripDangerousProtocols($settings['image_url']);
   }
 
   /**
@@ -453,6 +403,60 @@ class Blazy implements BlazyInterface {
       }
     }
     return FALSE;
+  }
+
+  /**
+   * Builds URLs, cache tags, and dimensions for individual image.
+   */
+  public static function buildUrlAndDimensions(array &$settings = [], $item = NULL) {
+    // Sets dimensions.
+    // VEF without image style, or image style with crop, may already set these.
+    if (empty($settings['width'])) {
+      $settings['width'] = $item && isset($item->width) ? $item->width : NULL;
+      $settings['height'] = $item && isset($item->height) ? $item->height : NULL;
+    }
+
+    // Respects a few scenarios:
+    // 1. Blazy Filter or unmanaged file with/ without valid URI.
+    // 2. Hand-coded image_url with/ without valid URI.
+    // 3. Respects first_uri without image_url such as colorbox/zoom-like.
+    // 4. File API via field formatters or Views fields/ styles with valid URI.
+    // If we have a valid URI, provides the correct image URL.
+    // Otherwise leave it as is, likely hotlinking to external/ sister sites.
+    // Hence URI validity is not crucial in regards to anything but #4.
+    // The image will fail silently at any rate given unexpected URI.
+    $uri = $settings['uri'];
+    $image_url = file_valid_uri($uri) ? file_url_transform_relative(file_create_url($uri)) : $uri;
+    $settings['image_url'] = $settings['image_url'] ?: $image_url;
+
+    // Image style modifier can be multi-style images such as GridStack.
+    if (!empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
+      $settings['image_url'] = file_url_transform_relative($style->buildUrl($uri));
+      $settings['cache_tags'] = $style->getCacheTags();
+
+      // Only re-calculate dimensions if not cropped, nor already set.
+      if (empty($settings['_dimensions'])) {
+        $dimensions = self::transformDimensions($style, $settings, $uri);
+        $settings['height'] = $dimensions['height'];
+        $settings['width'] = $dimensions['width'];
+      }
+    }
+
+    // Just in case, an attempted kidding gets in the way.
+    $settings['image_url'] = UrlHelper::stripDangerousProtocols($settings['image_url']);
+  }
+
+  /**
+   * Transforms dimensions using an image style.
+   */
+  public static function transformDimensions($style, array $settings, $uri) {
+    $dimensions = [
+      'width'  => $settings['width'],
+      'height' => $settings['height'],
+    ];
+
+    $style->transformDimensions($dimensions, $uri);
+    return $dimensions;
   }
 
   /**
