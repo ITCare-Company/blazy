@@ -15,7 +15,8 @@ data usage if they don't browse the whole page.
 1. **MANUAL:**
 
    Install the module as usual, more info can be found on:
-   https://www.drupal.org/docs/8/extending-drupal-8/installing-drupal-8-modules
+
+   [Installing Drupal 8 Modules](https://drupal.org/node/1897420)
 
 2. **COMPOSER:**
 

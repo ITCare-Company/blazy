@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2019-03-18
+-----------------------------
+- Updated admin CSS.
+
 Blazy 8.x-2.0-dev, 2019-03-17
 -----------------------------
 - Fixed for dups.
@@ -23,7 +27,7 @@ Blazy 8.x-2.0-dev, 2019-03-13
 -----------------------------
 - Added room for sub-modules to extend blazy settings easily.
 - Renamed blazy_settings UI to blazy_settings_form to abide by conventions.
-- Fixed for Blazy Filter with Grid of inline iamges taking over the contents.
+- Fixed for Blazy Filter with Grid of inline images taking over the contents.
 
 Blazy 8.x-2.0-dev, 2019-03-12
 -----------------------------

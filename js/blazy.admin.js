@@ -46,6 +46,12 @@
       }
     }).change();
 
+    $('select[name$="[grid]"]', t).on('change', function () {
+      var $select = $(this);
+
+      t[$select.val() === '' ? 'removeClass' : 'addClass']('form--grid-on');
+    }).change();
+
     $('select[name$="[responsive_image_style]"]', t).on('change', function () {
       var $select = $(this);
       t[$select.val() === '' ? 'removeClass' : 'addClass']('form--responsive-image-on');

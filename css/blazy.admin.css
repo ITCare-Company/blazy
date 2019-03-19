@@ -1319,10 +1319,12 @@ td .form__title {
     border: 0;
     height: 42px;
     min-height: 32px;
+    min-width: 330px;
     padding: 0;
     position: absolute;
     right: 0;
     top: -42px;
+    width: auto;
     z-index: 9;
   }
 
@@ -1427,28 +1429,33 @@ td .form__title {
 
   /** Blazy grid at Views UI or Fied UI. */
   .form--blazy.form--grid-required .form-item,
-  .form--style-on.form--namespace-blazy div[class*="grid"] {
+  .form--style-on.form--namespace-blazy div[class*="grid"],
+  .form--grid-on.form--grid-compact div[class*="grid"] {
     width: 33.2666%;
   }
 
-  .form--style-on.form--namespace-blazy .form-item.form-item--grid-header {
+  .form--style-on.form--namespace-blazy .form-item.form-item--grid-header,
+  .form--grid-on.form--grid-compact .form-item.form-item--grid-header {
     width: 100%;
   }
 
   .form--blazy.form--grid-required .form-item select,
-  .form--style-on.form--namespace-blazy div[class*="grid"] select {
+  .form--style-on.form--namespace-blazy div[class*="grid"] select,
+  .form--grid-on.form--grid-compact div[class*="grid"] select {
     min-width: 64px;
     width: 64px;
   }
 
   .form--blazy.form--grid-required .form-item label,
-  .form--style-on.form--namespace-blazy div[class*="grid"] label {
+  .form--style-on.form--namespace-blazy div[class*="grid"] label,
+  .form--grid-on.form--grid-compact div[class*="grid"] label {
     width: auto;
     min-width: 120px;
   }
 
   .form--blazy.form--grid-required .form-item--style select,
-  .form--style-on.form--namespace-blazy .form-item--style select {
+  .form--style-on.form--namespace-blazy .form-item--style select,
+  .form--grid-on.form--grid-compact .form-item--style select {
     width: 120px;
   }
 }
