@@ -225,7 +225,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       '#title'              => $this->t('Sizes'),
       '#description'        => $this->t('E.g.: (min-width: 1290px) 1290px, 100vw. Use sizes to implement different size image (different height, width) on different screen sizes along with the <strong>w (width)</strong> descriptor below. Ignored by Responsive image.'),
       '#weight'             => 114,
-      '#attributes'         => ['class' => ['form-text--sizes', 'js-expandable']],
       '#wrapper_attributes' => ['class' => ['form-item--sizes']],
       '#prefix'             => '<h2 class="form__title form__title--breakpoints">' . $title . '</h2>',
     ];

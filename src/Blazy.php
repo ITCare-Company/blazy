@@ -29,7 +29,7 @@ class Blazy implements BlazyInterface {
   /**
    * Prepares variables for blazy.html.twig templates.
    */
-  public static function buildAttributes(&$variables) {
+  public static function buildAttributes(array &$variables) {
     $element = $variables['element'];
     foreach (BlazyDefault::themeProperties() as $key) {
       $variables[$key] = isset($element["#$key"]) ? $element["#$key"] : [];
@@ -93,17 +93,6 @@ class Blazy implements BlazyInterface {
       $image['#attributes'] = $image_attributes;
     }
 
-    // Thumbnails.
-    // With CSS background, IMG may be empty, add thumbnail to the container.
-    // Supports unique thumbnail different from main image, such as logo for
-    // thumbnail and main image for company profile.
-    if (!empty($settings['thumbnail_uri'])) {
-      $attributes['data-thumb'] = file_url_transform_relative(file_create_url($settings['thumbnail_uri']));
-    }
-    elseif (!empty($settings['thumbnail_style'])) {
-      $attributes['data-thumb'] = ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
-    }
-
     // Prepares a media player, and allows a tiny video preview without iframe.
     $media = !empty($settings['embed_url']) && in_array($settings['type'], ['audio', 'video']);
     if ($media && empty($settings['_noiframe'])) {
@@ -114,7 +103,7 @@ class Blazy implements BlazyInterface {
   /**
    * Modifies variables for responsive image.
    */
-  public static function buildResponsiveImage(&$variables) {
+  public static function buildResponsiveImage(array &$variables) {
     $image = &$variables['image'];
     $settings = &$variables['settings'];
 
@@ -138,7 +127,7 @@ class Blazy implements BlazyInterface {
   /**
    * Modifies variables for blazy (non-)lazyloaded image.
    */
-  public static function buildImage(&$variables) {
+  public static function buildImage(array &$variables) {
     $image = &$variables['image'];
     $settings = &$variables['settings'];
     $image_attributes = &$variables['item_attributes'];
@@ -152,7 +141,7 @@ class Blazy implements BlazyInterface {
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // Only output dimensions for images that are not svg.
     // Respects hand-coded image attributes.
-    if (!isset($image_attributes['width']) && $settings['extension'] != 'svg') {
+    if (empty($settings['_sizes']) && !isset($image_attributes['width']) && $settings['extension'] != 'svg') {
       $image_attributes['height'] = $settings['height'];
       $image_attributes['width'] = $settings['width'];
     }
@@ -174,13 +163,9 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Modifies variables for iframes.
+   * {@inheritdoc}
    */
-  public static function buildIframeAttributes(&$variables) {
-    // Prepares a media player, and allows a tiny video preview without iframe.
-    // image : If iframe switch disabled, fallback to iframe, remove image.
-    // player: If no colorbox/photobox, it is an image to iframe switcher.
-    // data- : Gets consistent with colorbox to share JS manipulation.
+  public static function buildIframeAttributes(array &$variables) {
     $settings           = &$variables['settings'];
     $variables['image'] = empty($settings['media_switch']) ? [] : $variables['image'];
     $settings['player'] = empty($settings['player']) ? (empty($settings['lightbox']) && $settings['media_switch'] != 'content') : $settings['player'];
@@ -202,24 +187,17 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Defines attributes, builtin, or supported lazyload such as Slick.
+   * {@inheritdoc}
    */
-  private static function buildLazyAttributes(array &$attributes, $settings = []) {
+  public static function buildLazyAttributes(array &$attributes, array $settings = []) {
     $attributes['class'][] = $settings['lazy_class'];
     $attributes['data-' . $settings['lazy_attribute']] = $settings['image_url'];
   }
 
   /**
-   * Provides re-usable breakpoint data-attributes.
-   *
-   * These attributes can be applied to either IMG or DIV as CSS background.
-   *
-   * $settings['breakpoints'] must contain: xs, sm, md, lg breakpoints with
-   * the expected keys: width, image_style.
-   *
-   * @see self::buildAttributes()
+   * {@inheritdoc}
    */
-  public static function buildBreakpointAttributes(array &$attributes = [], array &$settings = []) {
+  public static function buildBreakpointAttributes(array &$attributes, array &$settings = []) {
     self::buildLazyAttributes($attributes, $settings);
 
     // Only provide multi-serving image URLs if breakpoints are provided.
@@ -229,31 +207,32 @@ class Blazy implements BlazyInterface {
 
     $srcset = $json = [];
     foreach ($settings['breakpoints'] as $key => $breakpoint) {
-      if ($style = ImageStyle::load($breakpoint['image_style'])) {
-        $url = file_url_transform_relative($style->buildUrl($settings['uri']));
+      if (!($style = ImageStyle::load($breakpoint['image_style']))) {
+        continue;
+      }
 
-        // Supports multi-breakpoint aspect ratio with irregular sizes.
-        // Yet, only provide individual dimensions if not already set.
-        // @see Drupal\blazy\BlazyManager::setDimensionsOnce().
-        if (!empty($settings['_breakpoint_ratio']) && empty($settings['blazy_data']['dimensions'])) {
-          if ($width = self::widthFromDescriptors($breakpoint['width'])) {
-            $dimensions = self::transformDimensions($style, $settings, $settings['uri']);
-            $json[$width] = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
-          }
-        }
+      // Supports multi-breakpoint aspect ratio with irregular sizes.
+      // Yet, only provide individual dimensions if not already set.
+      // @see Drupal\blazy\BlazyManager::setDimensionsOnce().
+      $width = self::widthFromDescriptors($breakpoint['width']);
+      if ($width && !empty($settings['_breakpoint_ratio']) && empty($settings['blazy_data']['dimensions'])) {
+        $dimensions = ['width' => $setting['width'], 'height' => $setting['height']];
+        $style->transformDimensions($dimensions, $settings['uri']);
+        $json[$width] = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
+      }
 
-        $settings['breakpoints'][$key]['url'] = $url;
+      $url = self::transformRelative($settings['uri'], $style);
+      $settings['breakpoints'][$key]['url'] = $url;
 
-        // Recheck library if multi-styled BG is still supported anyway.
-        // Confirmed: still working with GridStack multi-image-style per item.
-        if (!empty($settings['background'])) {
-          $attributes['data-src-' . $key] = $url;
-        }
-        else {
-          $width = trim($breakpoint['width']);
-          $width = is_numeric($width) ? $width . 'w' : $width;
-          $srcset[] = $url . ' ' . $width;
-        }
+      // Recheck library if multi-styled BG is still supported anyway.
+      // Confirmed: still working with GridStack multi-image-style per item.
+      if (!empty($settings['background'])) {
+        $attributes['data-src-' . $key] = $url;
+      }
+      else {
+        $width = trim($breakpoint['width']);
+        $width = is_numeric($width) ? $width . 'w' : $width;
+        $srcset[] = $url . ' ' . $width;
       }
     }
 
@@ -266,6 +245,7 @@ class Blazy implements BlazyInterface {
 
       if (!empty($settings['sizes'])) {
         $attributes['sizes'] = trim($settings['sizes']);
+        $settings['_sizes'] = $settings['sizes'];
         unset($attributes['height'], $attributes['width']);
       }
     }
@@ -307,7 +287,7 @@ class Blazy implements BlazyInterface {
    *
    * @todo move this into BlazyManager::preRenderImage() if you can.
    */
-  public static function preprocessResponsiveImage(&$variables) {
+  public static function preprocessResponsiveImage(array &$variables) {
     $config = \Drupal::service('blazy.manager')->configLoad();
 
     // Prepare all <picture> [data-srcset] attributes on <source> elements.
@@ -359,7 +339,7 @@ class Blazy implements BlazyInterface {
   /**
    * Implements hook_config_schema_info_alter().
    */
-  public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', $settings = []) {
+  public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', array $settings = []) {
     if (isset($definitions[$formatter])) {
       $mappings = &$definitions[$formatter]['mapping'];
       $settings = $settings ?: BlazyDefault::extendedSettings() + BlazyDefault::gridSettings();
@@ -406,9 +386,9 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Builds URLs, cache tags, and dimensions for individual image.
+   * {@inheritdoc}
    */
-  public static function buildUrlAndDimensions(array &$settings = [], $item = NULL) {
+  public static function buildUrlAndDimensions(array &$settings, $item = NULL) {
     // Sets dimensions.
     // VEF without image style, or image style with crop, may already set these.
     if (empty($settings['width'])) {
@@ -416,29 +396,19 @@ class Blazy implements BlazyInterface {
       $settings['height'] = $item && isset($item->height) ? $item->height : NULL;
     }
 
-    // Respects a few scenarios:
-    // 1. Blazy Filter or unmanaged file with/ without valid URI.
-    // 2. Hand-coded image_url with/ without valid URI.
-    // 3. Respects first_uri without image_url such as colorbox/zoom-like.
-    // 4. File API via field formatters or Views fields/ styles with valid URI.
-    // If we have a valid URI, provides the correct image URL.
-    // Otherwise leave it as is, likely hotlinking to external/ sister sites.
-    // Hence URI validity is not crucial in regards to anything but #4.
-    // The image will fail silently at any rate given unexpected URI.
+    // Provides image_url expected by lazyload, not URI.
     $uri = $settings['uri'];
-    $image_url = file_valid_uri($uri) ? file_url_transform_relative(file_create_url($uri)) : $uri;
+    $image_url = file_valid_uri($uri) ? self::transformRelative($uri) : $uri;
     $settings['image_url'] = $settings['image_url'] ?: $image_url;
 
     // Image style modifier can be multi-style images such as GridStack.
     if (!empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
-      $settings['image_url'] = file_url_transform_relative($style->buildUrl($uri));
+      $settings['image_url'] = self::transformRelative($uri, $style);
       $settings['cache_tags'] = $style->getCacheTags();
 
       // Only re-calculate dimensions if not cropped, nor already set.
       if (empty($settings['_dimensions'])) {
-        $dimensions = self::transformDimensions($style, $settings, $uri);
-        $settings['height'] = $dimensions['height'];
-        $settings['width'] = $dimensions['width'];
+        $style->transformDimensions($settings, $uri);
       }
     }
 
@@ -447,16 +417,11 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Transforms dimensions using an image style.
+   * A wrapper for file_url_transform_relative() to pass tests anywhere else.
    */
-  public static function transformDimensions($style, array $settings, $uri) {
-    $dimensions = [
-      'width'  => $settings['width'],
-      'height' => $settings['height'],
-    ];
-
-    $style->transformDimensions($dimensions, $uri);
-    return $dimensions;
+  public static function transformRelative($uri, $style = NULL) {
+    $url = $style ? $style->buildUrl($uri) : file_create_url($uri);
+    return file_url_transform_relative($url);
   }
 
   /**

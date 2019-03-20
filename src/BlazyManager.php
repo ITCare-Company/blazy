@@ -224,6 +224,18 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
 
+    // Thumbnails.
+    // With CSS background, IMG may be empty, add thumbnail to the container.
+    // Supports unique thumbnail different from main image, such as logo for
+    // thumbnail and main image for company profile.
+    if (!empty($settings['thumbnail_uri'])) {
+      $attributes['data-thumb'] = Blazy::transformRelative($settings['thumbnail_uri']);
+    }
+    elseif (!empty($settings['thumbnail_style'])) {
+      $style = $this->entityLoad($settings['thumbnail_style'], 'image_style');
+      $attributes['data-thumb'] = Blazy::transformRelative($settings['uri'], $style);
+    }
+
     // Provides extra attributes as needed, excluding url, item, done above.
     foreach (['caption', 'media', 'wrapper'] as $key) {
       $element["#$key" . '_attributes'] = $build[$key . '_attributes'];

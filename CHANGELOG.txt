@@ -1,4 +1,12 @@
 
+Blazy 8.x-2.0-dev, 2019-03-21
+-----------------------------
+- Moved obvious module features into #pre_render.
+- Moved few doc comments to Interface.
+- Fixed for few doc comments and type hints.
+- Added Blazy::transformRelative() to pass tests for procedural anywhere else.
+- Removed the newly added not-so-useful Blazy::transformDimensions().
+
 Blazy 8.x-2.0-dev, 2019-03-18
 -----------------------------
 - Added Blazy::transformDimensions().

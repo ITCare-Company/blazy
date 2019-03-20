@@ -405,28 +405,28 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
     // We have all images cropped here.
     foreach ($settings['breakpoints'] as $key => $breakpoint) {
-      if ($width = Blazy::widthFromDescriptors($breakpoint['width'])) {
-        // Sets dimensions once, and let all images inherit.
-        if (!empty($settings['first_uri']) && !empty($settings['ratio'])) {
-          $dimensions['width'] = $settings['original_width'];
-          $dimensions['height'] = $settings['original_height'];
+      if (!($width = Blazy::widthFromDescriptors($breakpoint['width']))) {
+        continue;
+      }
 
-          if ($style = $styles[$key]) {
-            $style->transformDimensions($dimensions, $settings['first_uri']);
-            $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
-            $json['dimensions'][$width] = $padding;
+      // Sets dimensions once, and let all images inherit.
+      if (($style = $styles[$key]) && (!empty($settings['first_uri']) && !empty($settings['ratio']))) {
+        $dimensions['width'] = $settings['original_width'];
+        $dimensions['height'] = $settings['original_height'];
 
-            // Only set padding-bottom for the last breakpoint to avoid FOUC.
-            if ($end['width'] == $breakpoint['width']) {
-              $settings['padding_bottom'] = $padding;
-            }
-          }
+        $style->transformDimensions($dimensions, $settings['first_uri']);
+        $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
+        $json['dimensions'][$width] = $padding;
+
+        // Only set padding-bottom for the last breakpoint to avoid FOUC.
+        if ($end['width'] == $breakpoint['width']) {
+          $settings['padding_bottom'] = $padding;
         }
+      }
 
-        // If BG, provide [data-src-BREAKPOINT], regardless uri or ratio.
-        if (!empty($settings['background'])) {
-          $sources[] = ['width' => (int) $width, 'src' => 'data-src-' . $key];
-        }
+      // If BG, provide [data-src-BREAKPOINT], regardless uri or ratio.
+      if (!empty($settings['background'])) {
+        $sources[] = ['width' => (int) $width, 'src' => 'data-src-' . $key];
       }
     }
 

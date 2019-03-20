@@ -981,6 +981,13 @@ html.js .form--slick .collapsed .details-legend .details-legend-prefix::after {
   border: 0;
   min-height: 42px;
   padding: 10px 0;
+  max-width: 100%;
+  min-width: 100%;
+}
+
+.form--slick .form-item.form-item--sizes .form-text {
+  min-width: 80%;
+  max-width: 80%;
 }
 
 td .form__title {
