@@ -32,6 +32,17 @@ interface BlazyManagerInterface {
   public function cleanUpBreakpoints(array &$settings = []);
 
   /**
+   * Checks if an image style contains crop effect.
+   *
+   * @param string $style
+   *   The image style to check for.
+   *
+   * @return object|bool
+   *   Returns the image style instance if it contains crop effect, else FALSE.
+   */
+  public function isCrop($style);
+
+  /**
    * Checks for Blazy formatter such as from within a Views style plugin.
    *
    * Ensures the settings traverse up to the container where Blazy is clueless.

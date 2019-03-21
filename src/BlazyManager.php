@@ -36,16 +36,14 @@ class BlazyManager extends BlazyManagerBase {
       $dimensions['height'] = $settings['original_height'] = $item && isset($item->height) ? $item->height : NULL;
 
       // If image style contains crop, sets dimension once, and let all inherit.
-      if (!empty($settings['image_style']) && ($style = $this->entityLoad($settings['image_style']))) {
-        if ($this->isCrop($style)) {
-          $style->transformDimensions($dimensions, $settings['first_uri']);
+      if (!empty($settings['image_style']) && ($style = $this->isCrop($settings['image_style']))) {
+        $style->transformDimensions($dimensions, $settings['first_uri']);
 
-          $settings['height'] = $dimensions['height'];
-          $settings['width']  = $dimensions['width'];
+        $settings['height'] = $dimensions['height'];
+        $settings['width']  = $dimensions['width'];
 
-          // Informs individual images that dimensions are already set once.
-          $settings['_dimensions'] = TRUE;
-        }
+        // Informs individual images that dimensions are already set once.
+        $settings['_dimensions'] = TRUE;
       }
 
       // Also sets breakpoint dimensions once, if cropped.

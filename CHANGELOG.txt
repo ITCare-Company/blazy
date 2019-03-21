@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2019-03-21
 -----------------------------
+- Micro optimizations with breakpoint and crop style checks.
 - Moved obvious module features into #pre_render.
 - Moved few doc comments to Interface.
 - Fixed for few doc comments and type hints.

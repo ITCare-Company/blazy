@@ -260,8 +260,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         if (!empty($definition['vanilla'])) {
           $form['breakpoints'][$breakpoint][$key]['#states']['enabled'][$vanilla] = ['checked' => FALSE];
         }
+
         $value = isset($settings['breakpoints'][$breakpoint][$key]) ? $settings['breakpoints'][$breakpoint][$key] : '';
-        $form['breakpoints'][$breakpoint][$key]['#default_value'] = $value;
+        if ($key != 'breakpoint') {
+          $form['breakpoints'][$breakpoint][$key]['#default_value'] = $value;
+        }
       }
     }
   }
@@ -272,7 +275,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   public function breakpointElements($definition = []) {
     foreach ($definition['breakpoints'] as $breakpoint) {
       $form[$breakpoint]['breakpoint'] = [
-        '#type'               => 'item',
         '#markup'             => $breakpoint,
         '#weight'             => 1,
         '#wrapper_attributes' => ['class' => ['form-item--right']],
@@ -318,7 +320,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
     $header = $this->t('Group individual items as block grid<small>Depends on the <strong>Display style</strong>.</small>');
     $form['grid_header'] = [
-      '#type'   => 'item',
+      '#type'   => 'markup',
       '#markup' => '<h3 class="form__title form__title--grid">' . $header . '</h3>',
       '#access' => !$required,
     ];

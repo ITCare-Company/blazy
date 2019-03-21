@@ -247,10 +247,9 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * @dataProvider providerIsCrop
    */
   public function testIsCrop($image_style_id, $expected) {
-    $image_style = $this->blazyManager->entityLoad($image_style_id, 'image_style');
-    $is_cropped = $this->blazyManager->isCrop($image_style);
+    $is_cropped = $this->blazyManager->isCrop($image_style_id);
 
-    $this->assertEquals($expected, $is_cropped);
+    $this->assertEquals($expected, !empty($is_cropped));
   }
 
   /**

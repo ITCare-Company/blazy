@@ -986,7 +986,7 @@ html.js .form--slick .collapsed .details-legend .details-legend-prefix::after {
 }
 
 .form--slick .form-item.form-item--sizes .form-text {
-  min-width: 80%;
+  min-width: 72%;
   max-width: 80%;
 }
 
@@ -1080,6 +1080,14 @@ td .form__title {
   bottom: 90% !important;
   max-width: 480px;
   width: 480px;
+}
+
+.form--slick .form__title--grid {
+  display: none;
+}
+
+.form--slick.form--grid-on .form__title--grid {
+  display: block;
 }
 
 /**

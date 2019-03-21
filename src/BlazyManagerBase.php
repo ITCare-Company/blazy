@@ -2,14 +2,14 @@
 
 namespace Drupal\blazy;
 
+use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Cache\Cache;
-use Drupal\Core\Cache\CacheBackendInterface;
-use Drupal\Component\Utility\NestedArray;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -67,11 +67,18 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   protected $lightboxes = [];
 
   /**
-   * CHecks if the image style contains crop in the effect name.
+   * Checks if the image style contains crop in the effect name.
    *
    * @var array
    */
   private $isCrop;
+
+  /**
+   * Returns available styles with crop in the effect name.
+   *
+   * @var array
+   */
+  private $cropStyles;
 
   /**
    * Constructs a BlazyManager object.
@@ -271,38 +278,45 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function cleanUpBreakpoints(array &$settings = []) {
     if (!empty($settings['breakpoints'])) {
-      $settings['breakpoints'] = array_filter(array_map('array_filter', $settings['breakpoints']));
-      if (!empty($settings['breakpoints'])) {
-        foreach ($settings['breakpoints'] as $key => $breakpoint) {
-          if (empty($breakpoint['width']) || empty($breakpoint['image_style'])) {
-            unset($settings['breakpoints'][$key]);
-          }
-        }
+      $breakpoints = array_filter(array_map('array_filter', $settings['breakpoints']));
 
-        // Identify that Blazy can be activated only by breakpoints.
-        if (empty($settings['blazy'])) {
-          $settings['blazy'] = !empty($settings['breakpoints']);
-        }
+      $settings['breakpoints'] = NestedArray::filter($breakpoints, function ($breakpoint) {
+        return !(is_array($breakpoint) && (empty($breakpoint['width']) || empty($breakpoint['image_style'])));
+      });
+
+      // Identify that Blazy can be activated only by breakpoints.
+      if (empty($settings['blazy'])) {
+        $settings['blazy'] = !empty($settings['breakpoints']);
       }
     }
   }
 
   /**
-   * Checks if an image style contains crop effect.
+   * Returns available image styles with crop in the name.
    */
-  public function isCrop($style) {
-    if (!isset($this->isCrop[$style->getName()])) {
-      $this->isCrop[$style->getName()] = FALSE;
-
-      foreach ($style->getEffects() as $effect) {
-        if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
-          $this->isCrop[$style->getName()] = TRUE;
-          break;
+  public function cropStyles() {
+    if (!isset($this->cropStyles)) {
+      $this->cropStyles = [];
+      foreach ($this->entityLoadMultiple('image_style') as $style) {
+        foreach ($style->getEffects() as $effect) {
+          if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
+            $this->cropStyles[$style->getName()] = $style;
+            break;
+          }
         }
       }
     }
+    return $this->cropStyles;
+  }
 
-    return $this->isCrop[$style->getName()];
+  /**
+   * {@inheritdoc}
+   */
+  public function isCrop($style) {
+    if (!isset($this->isCrop[$style])) {
+      $this->isCrop[$style] = $this->cropStyles() && isset($this->cropStyles()[$style]) ? $this->cropStyles()[$style] : FALSE;
+    }
+    return $this->isCrop[$style];
   }
 
   /**
@@ -391,8 +405,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     // Check for cropped images at the 5 given styles before any hard work.
     // Ok as run once at the top container regardless of thousand of images.
     foreach ($settings['breakpoints'] as $key => $breakpoint) {
-      $style = $this->entityLoad($breakpoint['image_style']);
-      if ($style && $this->isCrop($style)) {
+      if ($style = $this->isCrop($breakpoint['image_style'])) {
         $styles[$key] = $style;
       }
     }

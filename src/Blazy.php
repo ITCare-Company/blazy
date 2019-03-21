@@ -43,7 +43,6 @@ class Blazy implements BlazyInterface {
 
     // Provides sensible default html settings to shutup notices when lacking.
     $item             = $variables['item'];
-    $attributes       = &$variables['attributes'];
     $image            = &$variables['image'];
     $image_attributes = &$variables['item_attributes'];
     $settings         = &$variables['settings'];
@@ -206,6 +205,10 @@ class Blazy implements BlazyInterface {
     }
 
     $srcset = $json = [];
+    // https://css-tricks.com/sometimes-sizes-is-quite-important/
+    // For older iOS devices that don't support w descriptors in srcset, the
+    // first source item in the list will be used.
+    $settings['breakpoints'] = array_reverse($settings['breakpoints']);
     foreach ($settings['breakpoints'] as $key => $breakpoint) {
       if (!($style = ImageStyle::load($breakpoint['image_style']))) {
         continue;
@@ -216,7 +219,7 @@ class Blazy implements BlazyInterface {
       // @see Drupal\blazy\BlazyManager::setDimensionsOnce().
       $width = self::widthFromDescriptors($breakpoint['width']);
       if ($width && !empty($settings['_breakpoint_ratio']) && empty($settings['blazy_data']['dimensions'])) {
-        $dimensions = ['width' => $setting['width'], 'height' => $setting['height']];
+        $dimensions = ['width' => $settings['width'], 'height' => $settings['height']];
         $style->transformDimensions($dimensions, $settings['uri']);
         $json[$width] = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
       }
