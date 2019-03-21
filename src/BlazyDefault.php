@@ -169,22 +169,31 @@ class BlazyDefault {
   }
 
   /**
-   * Returns sensible default html settings to shutup notices when lacking.
+   * Returns sensible default container settings to shutup notices when lacking.
+   */
+  public static function htmlSettings() {
+    return [
+      'namesspace' => 'blazy',
+      'blazy_data' => [],
+      'lightbox'   => FALSE,
+      'namespace'  => 'blazy',
+      'id'         => '',
+    ] + self::imageSettings();
+  }
+
+  /**
+   * Returns sensible default item settings to shutup notices when lacking.
    */
   public static function itemSettings() {
     return [
-      'blazy_data'     => [],
       'content_url'    => '',
       'delta'          => 0,
       'embed_url'      => '',
       'extension'      => '',
-      'icon'           => '',
       'image_url'      => '',
       'item_id'        => 'blazy',
       'lazy_attribute' => 'src',
       'lazy_class'     => 'b-lazy',
-      'lightbox'       => FALSE,
-      'namespace'      => 'blazy',
       'player'         => FALSE,
       'scheme'         => '',
       'type'           => 'image',
@@ -193,7 +202,7 @@ class BlazyDefault {
       'use_media'      => FALSE,
       'height'         => NULL,
       'width'          => NULL,
-    ] + self::imageSettings();
+    ] + self::htmlSettings();
   }
 
   /**

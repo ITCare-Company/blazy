@@ -457,6 +457,27 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
+   * Return the cache metadata common for all blazy-related modules.
+   */
+  public function getCacheMetadata(array $build = []) {
+    $settings          = $build['settings'];
+    $max_age           = $this->configLoad('cache.page.max_age', 'system.performance');
+    $max_age           = empty($settings['cache']) ? $max_age : $settings['cache'];
+    $id                = isset($settings['id']) ? $settings['id'] : Blazy::getHtmlId($settings['namespace']);
+    $suffixes[]        = empty($settings['count']) ? count(array_filter($settings)) : $settings['count'];
+    $cache['tags']     = Cache::buildTags($settings['namespace'] . ':' . $id, $suffixes, '.');
+    $cache['contexts'] = ['languages'];
+    $cache['max-age']  = $max_age;
+    $cache['keys']     = isset($settings['cache_metadata']['keys']) ? $settings['cache_metadata']['keys'] : [$id];
+
+    if (!empty($settings['cache_tags'])) {
+      $cache['tags'] = Cache::mergeTags($cache['tags'], $settings['cache_tags']);
+    }
+
+    return $cache;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getResponsiveImageCacheTags($responsive) {

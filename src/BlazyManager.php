@@ -280,6 +280,7 @@ class BlazyManager extends BlazyManagerBase {
    *   The alterable and renderable array of contents.
    */
   public function build(array $build = []) {
+    $build['settings'] += BlazyDefault::htmlSettings();
     $settings = $build['settings'];
     $settings['_grid'] = isset($settings['_grid']) ? $settings['_grid'] : (!empty($settings['style']) && !empty($settings['grid']));
 
@@ -309,9 +310,12 @@ class BlazyManager extends BlazyManagerBase {
     $build = $element['#build'];
     unset($element['#build']);
 
+    $cache = $this->getCacheMetadata($build);
     $settings = $this->prepareBuild($build);
     $element = BlazyGrid::build($build, $settings);
     $element['#attached'] = $this->attach($settings);
+    $element['#cache'] = $cache;
+
     return $element;
   }
 
