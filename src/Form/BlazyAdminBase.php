@@ -275,6 +275,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   public function breakpointElements($definition = []) {
     foreach ($definition['breakpoints'] as $breakpoint) {
       $form[$breakpoint]['breakpoint'] = [
+        '#type'               => 'markup',
         '#markup'             => $breakpoint,
         '#weight'             => 1,
         '#wrapper_attributes' => ['class' => ['form-item--right']],
