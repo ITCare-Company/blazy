@@ -193,6 +193,11 @@ class BlazyManager extends BlazyManagerBase {
         $attributes['data-ratio'] = $padding;
       }
 
+      // Overrides lazy with blazy for explicit call to reduce another param.
+      if (!empty($settings['blazy'])) {
+        $settings['lazy'] = 'blazy';
+      }
+
       if (!empty($settings['lazy'])) {
         // Attach data attributes to either IMG tag, or DIV container.
         if (!empty($settings['background'])) {
@@ -294,7 +299,6 @@ class BlazyManager extends BlazyManagerBase {
     else {
       $build = [
         '#build'      => $build,
-        '#settings'   => $settings,
         '#pre_render' => [[$this, 'preRenderBuild']],
       ];
     }
@@ -310,11 +314,22 @@ class BlazyManager extends BlazyManagerBase {
     $build = $element['#build'];
     unset($element['#build']);
 
+    // Checks if we got some signaled attributes.
+    $attributes = isset($element['#attributes']) ? $element['#attributes'] : [];
     $cache = $this->getCacheMetadata($build);
     $settings = $this->prepareBuild($build);
+
+    // Take over elements for a grid display as this is all we need.
+    // We'll selectively pass $attributes to those who might need it far below.
     $element = BlazyGrid::build($build, $settings);
     $element['#attached'] = $this->attach($settings);
     $element['#cache'] = $cache;
+
+    // Signals other modules if they want to use it.
+    // Cannot merge it into BlazyGrid (wrapper_)attributes, we are done as grid.
+    if ($attributes) {
+      $element['#container_attributes'] = $attributes;
+    }
 
     return $element;
   }
@@ -324,6 +339,7 @@ class BlazyManager extends BlazyManagerBase {
    */
   public function prepareBuild(array &$build) {
     // If children are stored within items, reset.
+    // Blazy comes late to the party after sub-modules decided what they want.
     $settings = isset($build['settings']) ? $build['settings'] : [];
     $build = isset($build['items']) ? $build['items'] : $build;
 

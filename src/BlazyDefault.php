@@ -173,7 +173,6 @@ class BlazyDefault {
    */
   public static function htmlSettings() {
     return [
-      'namesspace' => 'blazy',
       'blazy_data' => [],
       'lightbox'   => FALSE,
       'namespace'  => 'blazy',

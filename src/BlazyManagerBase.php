@@ -201,7 +201,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     // Core Blazy libraries.
-    if (!empty($attach['blazy'])) {
+    if (!empty($attach['blazy']) || (isset($attach['lazy']) && $attach['lazy'] == 'blazy')) {
       $load['library'][] = 'blazy/load';
       $load['drupalSettings']['blazy'] = $this->configLoad()['blazy'];
     }

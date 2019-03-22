@@ -299,7 +299,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#maz_length'         => 32,
         '#size'               => 6,
         '#weight'             => 3,
-        '#attributes'         => ['class' => ['form-text--width', 'js-expandable']],
+        '#attributes'         => ['class' => ['form-text--width']],
         '#wrapper_attributes' => ['class' => ['form-item--width']],
       ];
 
@@ -366,6 +366,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       '#type'        => 'checkbox',
       '#title'       => $this->t('Preserve keys'),
       '#description' => $this->t('If checked, keys will be preserved. Default is FALSE which will reindex the grid chunk numerically.'),
+      '#access'      => FALSE,
     ];
 
     $grids = [
