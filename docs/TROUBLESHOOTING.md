@@ -2,7 +2,20 @@
 ***
 
 ## TROUBLESHOOTING AND KNOWN ISSUES
-Resizing is not supported. Just reload the page.
+* Blazy and its sub-modules -- Slick, GridStack, etc. are tightly coupled.
+  Be sure to have the latest release date or matching versions in the least.
+  DEV for DEV, Beta for Beta, etc. Mismatched versions may lead to errors
+  especially before having RCs. Mismatched branches will surely be errors.
+* Resizing is not supported. Just reload the page.
+* Images are gone, only eternal blue loader is flipping like a drunk butterfly.
+  Solution: ensures that blazy library is loaded. And temporarily switch to
+  stock Bartik themes.
+* Images are collapsed. Solution: choose one of the Aspect ratio.
+* Images or videos aren't responsive. Solution: choose one of the Aspect ratio.
+* Images are distorted. Solution: choose the correct Aspect ratio. If unsure,
+  choose "fluid" to let the module calculate aspect ratio automatically.
+  Check this out:
+  https://cgit.drupalcode.org/blazy/tree/src/Dejavu/ASPECT-RATIO.txt
 
 
 ### 1. VIEWS INTEGRATION

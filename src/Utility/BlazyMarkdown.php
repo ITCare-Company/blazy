@@ -34,8 +34,6 @@ class BlazyMarkdown {
       return $string;
     }
 
-    // Strip HTML tags to bare minimum as it is expecting a Markdown.
-    $string = Xss::filter($string);
     if (class_exists('Michelf\MarkdownExtra')) {
       $string = MarkdownExtra::defaultTransform($string);
     }

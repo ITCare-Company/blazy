@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2019-03-23
+-----------------------------
+- Fixed for double escape markdown for admin/help.
+- Added troubleshooting.
+
 Blazy 8.x-2.0-dev, 2019-03-21
 -----------------------------
 - Added BlazyManagerBase::getCacheMetadata() for Blazy, Slick, GridStack, etc.
