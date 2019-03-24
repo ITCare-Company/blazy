@@ -443,7 +443,7 @@ class Blazy implements BlazyInterface {
   /**
    * Builds URLs, cache tags, and dimensions for individual image.
    *
-   * @deprecated to be removed for self::buildUrlAndDimensions().
+   * @deprecated to be removed for self::buildUrlAndDimensions() for clarity.
    */
   public static function buildUrl(array &$settings = [], $item = NULL) {
     self::buildUrlAndDimensions($settings, $item);

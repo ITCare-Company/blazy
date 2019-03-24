@@ -499,7 +499,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#enforced'    => TRUE,
       ];
 
-      if ($this->blazyManager()->getModuleHandler()->moduleExists('field_ui')) {
+      if ($this->blazyManager->getModuleHandler()->moduleExists('field_ui')) {
         $form['view_mode']['#description'] .= $this->t('Manage view modes on the <a href=":view_modes">View modes page</a>.', [':view_modes' => Url::fromRoute('entity.entity_view_mode.collection')->toString()]);
       }
     }
@@ -525,7 +525,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   public function mediaSwitchForm(array &$form, $definition = []) {
     $settings   = isset($definition['settings']) ? $definition['settings'] : [];
     $lightboxes = $this->blazyManager->getLightboxes();
-    $is_token   = function_exists('token_theme');
+    $is_token   = $this->blazyManager->getModuleHandler()->moduleExists('token');
 
     if (isset($settings['media_switch'])) {
       $form['media_switch'] = $this->baseForm($definition)['media_switch'];

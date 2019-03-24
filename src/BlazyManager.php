@@ -103,10 +103,6 @@ class BlazyManager extends BlazyManagerBase {
     $build = $element['#build'];
     unset($element['#build']);
 
-    if (empty($build['settings']['uri'])) {
-      return [];
-    }
-
     // Prepare the main image.
     $this->prepareImage($element, $build);
 
@@ -364,7 +360,7 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Returns the entity view, if available.
    *
-   * @deprecated to remove for BlazyEntity::getEntityView().
+   * @deprecated to remove for BlazyEntity::getEntityView() before 2.x.
    */
   public function getEntityView($entity, array $settings = [], $fallback = '') {
     return FALSE;

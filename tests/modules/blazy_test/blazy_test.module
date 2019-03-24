@@ -101,14 +101,3 @@ function blazy_test_config_schema_info_alter(array &$definitions) {
   $extra = ['thumbnail' => ''] + BlazyDefault::gridSettings();
   Blazy::configSchemaInfoAlter($definitions, 'blazy_base', BlazyDefault::extendedSettings() + $extra);
 }
-
-if (!function_exists('token_theme')) {
-
-  /**
-   * Dummy function.
-   */
-  function token_theme() {
-    // Empty block to satisfy coder.
-  }
-
-}

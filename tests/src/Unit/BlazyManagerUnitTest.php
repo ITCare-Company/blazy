@@ -129,30 +129,20 @@ class BlazyManagerUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests for \Drupal\blazy\BlazyManager::preRenderImage().
+   * Tests for \Drupal\blazy\BlazyManager::getBlazy().
    *
    * @covers ::getBlazy
-   * @covers ::preRenderImage
-   * @dataProvider providerTestPreRenderImage
+   * @dataProvider providerTestGetBlazy
    */
-  public function testPreRenderImage($uri, $content, $expected_image, $expected_render) {
+  public function testGetBlazy($uri, $content, $expected_image, $expected_render) {
     $build = [];
     $build['item'] = NULL;
     $build['content'] = $content;
     $build['settings']['uri'] = $uri;
 
     $image = $this->blazyManager->getBlazy($build);
-
-    $build_image['#build']['settings'] = array_merge($this->getCacheMetaData(), $build['settings']);
-    $build_image['#build']['item'] = $build['item'];
-
-    $pre_render = $this->blazyManager->preRenderImage($build_image);
-
     $check_image = !$expected_image ? empty($image) : !empty($image);
     $this->assertTrue($check_image);
-
-    $check_pre_render = !$expected_render ? TRUE : !empty($pre_render);
-    $this->assertTrue($check_pre_render);
   }
 
   /**
@@ -161,13 +151,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
    * @return array
    *   An array of tested data.
    */
-  public function providerTestPreRenderImage() {
-    $data[] = [
-      '',
-      '',
-      FALSE,
-      FALSE,
-    ];
+  public function providerTestGetBlazy() {
     $data[] = [
       '',
       '',

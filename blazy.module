@@ -109,11 +109,14 @@ function blazy_library_info_alter(&$libraries, $extension) {
  */
 function blazy_blazy_attach_alter(array &$load, $attach = []) {
   if (!empty($attach['colorbox'])) {
-    $dummy = [];
-    \Drupal::service('colorbox.attachment')->attach($dummy);
-    $load = isset($dummy['#attached']) ? NestedArray::mergeDeep($load, $dummy['#attached']) : $load;
-    $load['library'][] = 'blazy/colorbox';
-    unset($dummy);
+    // Intentionally on the second line to not hit it till required.
+    if (function_exists('colorbox_theme')) {
+      $dummy = [];
+      \Drupal::service('colorbox.attachment')->attach($dummy);
+      $load = isset($dummy['#attached']) ? NestedArray::mergeDeep($load, $dummy['#attached']) : $load;
+      $load['library'][] = 'blazy/colorbox';
+      unset($dummy);
+    }
   }
 }
 
