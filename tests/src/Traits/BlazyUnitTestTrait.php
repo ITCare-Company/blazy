@@ -79,7 +79,7 @@ trait BlazyUnitTestTrait {
       'ratio'           => 'fluid',
       'caption'         => ['alt' => 'alt', 'title' => 'title'],
       'sizes'           => '100w',
-    ] + BlazyDefault::extendedSettings();
+    ] + BlazyDefault::extendedSettings() + BlazyDefault::itemSettings();
 
     return empty($this->formatterSettings) ? $defaults : array_merge($defaults, $this->formatterSettings);
   }
@@ -121,7 +121,7 @@ trait BlazyUnitTestTrait {
    *   The default field formatter settings.
    */
   protected function getDefaultFormatterDefinition() {
-    // @deprecated: Will be replaced by `form` array below.
+    // @todo: Will be replaced by `form` array below.
     $deprecated = [
       'grid_form'         => TRUE,
       'image_style_form'  => TRUE,

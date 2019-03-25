@@ -174,16 +174,6 @@ class BlazyUnitTest extends UnitTestCase {
     ];
     $data[] = [
       [
-        'background' => FALSE,
-        'responsive_image_style_id' => 'blazy_responsive_test',
-        'uri' => $uri,
-      ],
-      TRUE,
-      TRUE,
-      FALSE,
-    ];
-    $data[] = [
-      [
         'background' => TRUE,
         'uri' => $uri,
       ],
@@ -214,6 +204,7 @@ class BlazyUnitTest extends UnitTestCase {
         'scheme' => 'youtube',
         'type' => 'video',
         'uri' => $uri,
+        'use_media' => TRUE,
       ],
       TRUE,
       TRUE,

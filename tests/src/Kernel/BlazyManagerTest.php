@@ -36,16 +36,15 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    *
    * @param array $settings
    *   The settings being tested.
-   * @param string $expected_responsive_image_style_id
-   *   The responsive image style ID.
+   * @param bool $expected_has_responsive_image
+   *   Has the responsive image style ID.
    *
    * @covers ::preRenderImage
-   * @covers ::getResponsiveImageCacheTags
    * @covers \Drupal\blazy\BlazyLightbox::build
    * @covers \Drupal\blazy\BlazyLightbox::buildCaptions
    * @dataProvider providerTestPreRenderImage
    */
-  public function testPreRenderImage(array $settings = [], $expected_responsive_image_style_id = '') {
+  public function testPreRenderImage(array $settings = [], $expected_has_responsive_image = FALSE) {
     $build             = $this->data;
     $settings['count'] = $this->maxItems;
     $settings['uri']   = $this->uri;
@@ -63,7 +62,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
       $this->assertArrayHasKey('#url', $element);
     }
 
-    $this->assertEquals($expected_responsive_image_style_id, $element['#settings']['responsive_image_style_id']);
+    $this->assertEquals($expected_has_responsive_image, !empty($element['#image']['#responsive_image_style_id']));
   }
 
   /**
@@ -78,7 +77,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
         'content_url'  => 'node/1',
         'media_switch' => 'content',
       ],
-      '',
+      FALSE,
     ];
     $data[] = [
       [
@@ -87,7 +86,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
         'resimage'               => TRUE,
         'responsive_image_style' => 'blazy_responsive_test',
       ],
-      'blazy_responsive_test',
+      TRUE,
     ];
     $data[] = [
       [
@@ -101,7 +100,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
         'scheme'             => 'youtube',
         'type'               => 'video',
       ],
-      '',
+      FALSE,
     ];
 
     return $data;

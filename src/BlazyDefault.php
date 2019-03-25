@@ -185,6 +185,7 @@ class BlazyDefault {
    */
   public static function itemSettings() {
     return [
+      '_api'           => FALSE,
       'content_url'    => '',
       'delta'          => 0,
       'embed_url'      => '',

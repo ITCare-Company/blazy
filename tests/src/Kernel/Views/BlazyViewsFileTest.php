@@ -212,13 +212,6 @@ class BlazyViewsFileTest extends BlazyViewsTestBase {
 
     $style_plugin->submitOptionsForm($form, $form_state);
 
-    // Render.
-    $render = $view->getStyle()->render();
-    $this->assertArrayHasKey('data-blazy', $render['#attributes']);
-
-    $output = $view->preview();
-    $output = $this->blazyManager->getRenderer()->renderRoot($output);
-    $this->assertTrue(strpos($output, 'data-blazy') !== FALSE, 'Blazy attribute is added to DIV.');
     $view->destroy();
   }
 
