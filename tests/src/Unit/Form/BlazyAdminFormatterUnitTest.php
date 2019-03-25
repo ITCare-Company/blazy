@@ -36,9 +36,9 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
     $this->setUpUnitServices();
     $this->setUpUnitContainer();
 
-    $this->stringTranslation = $this->getMock('Drupal\Core\StringTranslation\TranslationInterface');
-    $this->entityDisplayRepository = $this->getMock('Drupal\Core\Entity\EntityDisplayRepositoryInterface');
-    $this->typedConfig = $this->getMock('Drupal\Core\Config\TypedConfigManagerInterface');
+    $this->stringTranslation = $this->createMock('Drupal\Core\StringTranslation\TranslationInterface');
+    $this->entityDisplayRepository = $this->createMock('Drupal\Core\Entity\EntityDisplayRepositoryInterface');
+    $this->typedConfig = $this->createMock('Drupal\Core\Config\TypedConfigManagerInterface');
     $this->dateFormatter = $this->getMockBuilder('Drupal\Core\Datetime\DateFormatter')
       ->disableOriginalConstructor()
       ->getMock();

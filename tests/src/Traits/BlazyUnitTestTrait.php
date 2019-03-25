@@ -316,7 +316,7 @@ trait BlazyUnitTestTrait {
    * Setup the unit images.
    */
   protected function setUpMockImage() {
-    $entity = $this->getMock('\Drupal\Core\Entity\ContentEntityInterface');
+    $entity = $this->createMock('\Drupal\Core\Entity\ContentEntityInterface');
     $entity->expects($this->any())
       ->method('label')
       ->willReturn($this->randomMachineName());
@@ -324,7 +324,7 @@ trait BlazyUnitTestTrait {
       ->method('getEntityTypeId')
       ->will($this->returnValue('node'));
 
-    $item = $this->getMock('\Drupal\Core\Field\FieldItemListInterface');
+    $item = $this->createMock('\Drupal\Core\Field\FieldItemListInterface');
     $item->expects($this->any())
       ->method('getEntity')
       ->willReturn($entity);
