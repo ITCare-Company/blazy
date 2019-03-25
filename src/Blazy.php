@@ -53,8 +53,6 @@ class Blazy implements BlazyInterface {
     }
 
     // Do not proceed if no URI is provided.
-    // URI is stored within settings, not theme_blazy() property, as it is
-    // always called for different purposes prior to arriving at theme_blazy().
     if (empty($settings['uri'])) {
       return;
     }
@@ -99,7 +97,7 @@ class Blazy implements BlazyInterface {
       '#height' => $settings['height'],
       '#attributes' => [
         'data-responsive-blazy' => $settings['one_pixel'],
-        'data-placeholder' => empty($settings['placeholder']) ? static::PLACEHOLDER : $settings['placeholder'],
+        'data-placeholder' => $settings['placeholder'],
       ],
     ];
 
@@ -115,10 +113,9 @@ class Blazy implements BlazyInterface {
     $attributes = &$variables['item_attributes'];
 
     // Supports either lazy loaded image, or not.
-    $placeholder = empty($settings['placeholder']) ? static::PLACEHOLDER : $settings['placeholder'];
     $variables['image'] += [
       '#theme' => 'image',
-      '#uri' => empty($settings['lazy']) ? $settings['image_url'] : $placeholder,
+      '#uri' => empty($settings['lazy']) ? $settings['image_url'] : $settings['placeholder'],
     ];
 
     // Only output dimensions for non-svg. Respects hand-coded image attributes.
@@ -134,7 +131,7 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Modifies $variables to provide optional image attributes.
+   * Modifies $variables to provide optional (Responsive) image attributes.
    */
   public static function buildImageAttributes(array &$variables) {
     $item = $variables['item'];
@@ -223,8 +220,7 @@ class Blazy implements BlazyInterface {
       $url = self::transformRelative($settings['uri'], $style);
       $settings['breakpoints'][$key]['url'] = $url;
 
-      // Recheck library if multi-styled BG is still supported anyway.
-      // Confirmed: still working with GridStack multi-image-style per item.
+      // Still working with GridStack multi-image-style per item at 2019.
       if (!empty($settings['background'])) {
         $attributes['data-src-' . $key] = $url;
       }
@@ -275,6 +271,8 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function buildUrlAndDimensions(array &$settings, $item = NULL) {
+    $settings['placeholder'] = empty($settings['placeholder']) ? static::PLACEHOLDER : $settings['placeholder'];
+
     // BlazyFilter, or image style with crop, may already set these.
     if (empty($settings['width'])) {
       $settings['width'] = $item && isset($item->width) ? $item->width : NULL;
@@ -367,7 +365,8 @@ class Blazy implements BlazyInterface {
    */
   public static function preprocessResponsiveImage(array &$variables) {
     $image = &$variables['img_element'];
-    $placeholder = empty($variables['attributes']['data-placeholder']) ? static::PLACEHOLDER : $variables['attributes']['data-placeholder'];
+    $attributes = &$variables['attributes'];
+    $placeholder = empty($attributes['data-placeholder']) ? static::PLACEHOLDER : $attributes['data-placeholder'];
 
     // Prepare all <picture> [data-srcset] attributes on <source> elements.
     if (!$variables['output_image_tag']) {
@@ -386,18 +385,18 @@ class Blazy implements BlazyInterface {
       $fallback_uri = $image['#uri'];
 
       // Cleans up the no-longer relevant attributes for controlling element.
-      unset($variables['attributes']['data-srcset'], $image['#attributes']['data-srcset']);
+      unset($attributes['data-srcset'], $image['#attributes']['data-srcset']);
       $image['#srcset'] = '';
 
       // Prevents invalid IMG tag when one pixel placeholder is disabled.
       $image['#uri'] = $placeholder;
     }
     else {
-      $srcset = $variables['attributes']['srcset'];
+      $srcset = $attributes['srcset'];
       $srcset_values = $srcset->value();
       $fallback_uri = $image['#uri'];
 
-      $variables['attributes']['data-srcset'] = $srcset_values;
+      $attributes['data-srcset'] = $srcset_values;
       $image['#attributes']['data-srcset'] = $srcset_values;
       $image['#attributes']['srcset'] = '';
     }
@@ -408,13 +407,13 @@ class Blazy implements BlazyInterface {
 
     // The [data-responsive-blazy] is a flag indicating 1px placeholder.
     // This prevents double-downloading the fallback image, if enabled.
-    if (!empty($variables['attributes']['data-responsive-blazy'])) {
+    if (!empty($attributes['data-responsive-blazy'])) {
       $image['#uri'] = $placeholder;
     }
 
     // Cleans up the no-longer needed flag:
-    unset($variables['attributes']['data-responsive-blazy'], $image['#attributes']['data-responsive-blazy']);
-    unset($variables['attributes']['data-placeholder'], $image['#attributes']['data-placeholder']);
+    unset($attributes['data-responsive-blazy'], $image['#attributes']['data-responsive-blazy']);
+    unset($attributes['data-placeholder'], $image['#attributes']['data-placeholder']);
   }
 
   /**
