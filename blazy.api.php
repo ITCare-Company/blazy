@@ -243,6 +243,27 @@ function hook_blazy_base_settings_alter(array &$settings, array $context = []) {
 }
 
 /**
+ * Alters blazy settings inherited by all child elements.
+ *
+ * @param array $build
+ *   The array containing: settings, or potential optionset for extensions.
+ * @param object $items
+ *   The Drupal\Core\Field\FieldItemListInterface items.
+ *
+ * @ingroup blazy_api
+ */
+function hook_blazy_settings_alter(array &$build, $items) {
+  $settings = &$build['settings'];
+
+  // Overrides one pixel placeholder on particular pages relevant if using Views
+  // rewrite results which may strip out Data URI.
+  // See https://drupal.org/node/2908861.
+  if (isset($settings['entity_id']) && in_array($settings['entity_id'], [45, 67])) {
+    $settings['placeholder'] = 'https://mysite.com/blank.gif';
+  }
+}
+
+/**
  * Alters blazy-related formatter form elements.
  *
  * This takes advantage of Blazy taking care of a few elements finalizations,

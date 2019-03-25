@@ -83,9 +83,16 @@ class BlazySettingsForm extends ConfigFormBase {
 
     $form['one_pixel'] = [
       '#type'          => 'checkbox',
-      '#title'         => $this->t('One pixel placeholder'),
+      '#title'         => $this->t('Responsive image 1px placeholder'),
       '#default_value' => $config->get('one_pixel'),
-      '#description'   => $this->t('By default a one pixel image is the placeholder for lazyloaded Responsive image. Useful to perform a lot better. Uncheck to disable, and use Drupal-managed smallest/fallback image style instead. Be sure to add proper dimensions or at least min-height/min-width via CSS accordingly to avoid layout reflow since Aspect ratio is not supported with Responsive image yet. Disabling this will result in downloading fallback image as well for non-PICTURE element (double downloads).'),
+      '#description'   => $this->t('By default a 1px Data URI image is the placeholder for lazyloaded Responsive image. Useful to perform a lot better. Uncheck to disable, and use Drupal-managed smallest/fallback image style instead. Be sure to add proper dimensions or at least min-height/min-width via CSS accordingly to avoid layout reflow since Aspect ratio is not supported with Responsive image yet. Disabling this will result in downloading fallback image as well for non-PICTURE element (double downloads).'),
+    ];
+
+    $form['placeholder'] = [
+      '#type'          => 'textfield',
+      '#title'         => $this->t('Placeholder'),
+      '#default_value' => $config->get('placeholder'),
+      '#description'   => $this->t('Overrides global 1px placeholder. Can be URL, e.g.: https://mysite.com/blank.gif. Only useful if continuously using Views rewrite results, see <a href=":url">#2908861</a>. Alternatively use <code>hook_blazy_settings_alter()</code> for more fine-grained control. Leave it to empty to use default Data URI to avoid extra HTTP requests.', [':url' => 'https://drupal.org/node/2908861']),
     ];
 
     $form['blazy'] = [
@@ -154,6 +161,7 @@ class BlazySettingsForm extends ConfigFormBase {
       ->set('responsive_image', $form_state->getValue('responsive_image'))
       ->set('unbreakpoints', $form_state->getValue('unbreakpoints'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))
+      ->set('placeholder', $form_state->getValue('placeholder'))
       ->set('blazy.loadInvisible', $form_state->getValue(['blazy', 'loadInvisible']))
       ->set('blazy.offset', $form_state->getValue(['blazy', 'offset']))
       ->set('blazy.saveViewportOffsetDelay', $form_state->getValue(['blazy', 'saveViewportOffsetDelay']))

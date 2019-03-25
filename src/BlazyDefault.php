@@ -196,6 +196,7 @@ class BlazyDefault {
       'lazy_attribute' => 'src',
       'lazy_class'     => 'b-lazy',
       'one_pixel'      => TRUE,
+      'placeholder'    => '',
       'padding_bottom' => '',
       'player'         => FALSE,
       'resimage'       => FALSE,

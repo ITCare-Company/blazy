@@ -71,6 +71,7 @@ class BlazyFormatterManager extends BlazyManager {
     $settings['id']             = $id;
     $settings['internal_path']  = $internal_path;
     $settings['lightbox']       = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
+    $settings['placeholder']    = $this->configLoad('placeholder', 'blazy.settings');
     $settings['resimage']       = function_exists('responsive_image_get_image_dimensions') && $this->configLoad('responsive_image', 'blazy.settings') && !empty($settings['responsive_image_style']);
     $settings['target_type']    = $target_type;
 

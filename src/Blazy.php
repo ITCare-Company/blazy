@@ -97,7 +97,10 @@ class Blazy implements BlazyInterface {
       '#uri' => $settings['uri'],
       '#width' => $settings['width'],
       '#height' => $settings['height'],
-      '#attributes' => ['data-responsive-blazy' => $settings['one_pixel']],
+      '#attributes' => [
+        'data-responsive-blazy' => $settings['one_pixel'],
+        'data-placeholder' => empty($settings['placeholder']) ? static::PLACEHOLDER : $settings['placeholder'],
+      ],
     ];
 
     // Disable aspect ratio which is not yet supported due to complexity.
@@ -112,9 +115,10 @@ class Blazy implements BlazyInterface {
     $attributes = &$variables['item_attributes'];
 
     // Supports either lazy loaded image, or not.
+    $placeholder = empty($settings['placeholder']) ? static::PLACEHOLDER : $settings['placeholder'];
     $variables['image'] += [
       '#theme' => 'image',
-      '#uri' => empty($settings['lazy']) ? $settings['image_url'] : static::PLACEHOLDER,
+      '#uri' => empty($settings['lazy']) ? $settings['image_url'] : $placeholder,
     ];
 
     // Only output dimensions for non-svg. Respects hand-coded image attributes.
@@ -363,6 +367,7 @@ class Blazy implements BlazyInterface {
    */
   public static function preprocessResponsiveImage(array &$variables) {
     $image = &$variables['img_element'];
+    $placeholder = empty($variables['attributes']['data-placeholder']) ? static::PLACEHOLDER : $variables['attributes']['data-placeholder'];
 
     // Prepare all <picture> [data-srcset] attributes on <source> elements.
     if (!$variables['output_image_tag']) {
@@ -385,7 +390,7 @@ class Blazy implements BlazyInterface {
       $image['#srcset'] = '';
 
       // Prevents invalid IMG tag when one pixel placeholder is disabled.
-      $image['#uri'] = static::PLACEHOLDER;
+      $image['#uri'] = $placeholder;
     }
     else {
       $srcset = $variables['attributes']['srcset'];
@@ -404,11 +409,12 @@ class Blazy implements BlazyInterface {
     // The [data-responsive-blazy] is a flag indicating 1px placeholder.
     // This prevents double-downloading the fallback image, if enabled.
     if (!empty($variables['attributes']['data-responsive-blazy'])) {
-      $image['#uri'] = static::PLACEHOLDER;
+      $image['#uri'] = $placeholder;
     }
 
     // Cleans up the no-longer needed flag:
     unset($variables['attributes']['data-responsive-blazy'], $image['#attributes']['data-responsive-blazy']);
+    unset($variables['attributes']['data-placeholder'], $image['#attributes']['data-placeholder']);
   }
 
   /**

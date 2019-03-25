@@ -8,6 +8,9 @@ blazy.settings:
     one_pixel:
       type: boolean
       label: 'One pixel placeholder'
+    placeholder:
+      type: string
+      label: Placeholder
     responsive_image:
       type: boolean
       label: 'Support Responsive image'
