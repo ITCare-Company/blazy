@@ -477,22 +477,4 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     return $cache;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getResponsiveImageCacheTags($responsive) {
-    $cache_tags = [];
-    $image_styles_to_load = [];
-    if ($responsive) {
-      $cache_tags = Cache::mergeTags($cache_tags, $responsive->getCacheTags());
-      $image_styles_to_load = $responsive->getImageStyleIds();
-    }
-
-    $image_styles = $this->entityLoadMultiple('image_style', $image_styles_to_load);
-    foreach ($image_styles as $image_style) {
-      $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
-    }
-    return $cache_tags;
-  }
-
 }

@@ -4,7 +4,6 @@ namespace Drupal\blazy_test\Plugin\views\style;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyGrid;
 use Drupal\blazy\Dejavu\BlazyStylePluginBase;
 
 /**
@@ -77,19 +76,22 @@ class BlazyViewsTest extends BlazyStylePluginBase {
    * Overrides StylePluginBase::render().
    */
   public function render() {
-    $view     = $this->view;
-    $settings = $this->options + BlazyDefault::entitySettings();
+    $settings = $this->buildSettings() + BlazyDefault::entitySettings();
 
     $settings['item_id']   = 'box';
     $settings['caption']   = array_filter($settings['caption']);
     $settings['namespace'] = 'blazy';
     $settings['ratio']     = '';
-    $settings['_views']    = TRUE;
 
     $elements = [];
-    foreach ($this->renderGrouping($view->result, $settings['grouping']) as $rows) {
+    foreach ($this->renderGrouping($this->view->result, $settings['grouping']) as $rows) {
       $items = $this->buildElements($settings, $rows);
-      $elements = BlazyGrid::build($items, $settings);
+
+      // Supports Blazy multi-breakpoint images if using Blazy formatter.
+      $settings['first_image'] = isset($rows[0]) ? $this->getFirstImage($rows[0]) : [];
+
+      $build = ['items' => $items, 'settings' => $settings];
+      $elements = $this->blazyManager->build($build);
     }
 
     return $elements;

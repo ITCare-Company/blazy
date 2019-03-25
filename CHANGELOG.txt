@@ -1,4 +1,15 @@
 
+Blazy 8.x-2.0-dev, 2019-03-25
+-----------------------------
+- Ported Blazy::buildAspectRatio() and Blazy::buildImageAttributes() for
+  readability.
+- Changed Blazy::buildResponsiveImage() parameters.
+- Removed deprecated Blazy::buildUrl() for Blazy::buildUrlAndDimensions().
+- Moved BlazyManager::setDimensionsOnce() to BlazyFormatterManager.
+- Moved Responsive image building to #pre_render to reduce dup ifities.
+- Optimized Responsive image integration.
+- Added supports to build Blazy multimedia gallery via Views UI CSS class.
+
 Blazy 8.x-2.0-dev, 2019-03-23
 -----------------------------
 - Fixed for double escape markdown for admin/help.

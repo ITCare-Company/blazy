@@ -23,6 +23,8 @@ interface BlazyInterface {
   /**
    * Defines attributes, builtin, or supported lazyload such as Slick.
    *
+   * These attributes can be applied to either IMG or DIV as CSS background.
+   *
    * @param array $attributes
    *   The attributes being modified.
    * @param array $settings
@@ -48,7 +50,7 @@ interface BlazyInterface {
   public static function buildBreakpointAttributes(array &$attributes, array &$settings = []);
 
   /**
-   * Builds URLs, cache tags, and dimensions for individual image.
+   * Builds URLs, cache tags, and dimensions for an individual image.
    *
    * Respects a few scenarios:
    * 1. Blazy Filter or unmanaged file with/ without valid URI.
@@ -58,7 +60,7 @@ interface BlazyInterface {
    * If we have a valid URI, provides the correct image URL.
    * Otherwise leave it as is, likely hotlinking to external/ sister sites.
    * Hence URI validity is not crucial in regards to anything but #4.
-   * The image will fail silently at any rate given unexpected URI.
+   * The image will fail silently at any rate given non-expected URI.
    *
    * @param array $settings
    *   The given settings being modified.

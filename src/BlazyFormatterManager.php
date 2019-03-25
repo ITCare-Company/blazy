@@ -15,6 +15,13 @@ class BlazyFormatterManager extends BlazyManager {
   protected $firstItem = NULL;
 
   /**
+   * Checks if image dimensions are set.
+   *
+   * @var array
+   */
+  private $isDimensionSet;
+
+  /**
    * Modifies the field formatter settings inherited by child elements.
    *
    * @param array $build
@@ -64,7 +71,7 @@ class BlazyFormatterManager extends BlazyManager {
     $settings['id']             = $id;
     $settings['internal_path']  = $internal_path;
     $settings['lightbox']       = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
-    $settings['resimage']       = function_exists('responsive_image_get_image_dimensions');
+    $settings['resimage']       = function_exists('responsive_image_get_image_dimensions') && $this->configLoad('responsive_image', 'blazy.settings') && !empty($settings['responsive_image_style']);
     $settings['target_type']    = $target_type;
 
     unset($entity, $field);
@@ -75,11 +82,11 @@ class BlazyFormatterManager extends BlazyManager {
     }
 
     // Don't bother if using Responsive image.
-    $settings['breakpoints']   = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
-    $settings['caption']       = empty($settings['caption']) ? [] : array_filter($settings['caption']);
-    $settings['background']    = empty($settings['responsive_image_style']) && !empty($settings['background']);
-    $settings['resimage_lazy'] = $this->configLoad('responsive_image') && !empty($settings['responsive_image_style']);
-    $settings['blazy']         = $settings['resimage_lazy'] || !empty($settings['blazy']);
+    $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
+    $settings['caption']     = empty($settings['caption']) ? [] : array_filter($settings['caption']);
+    $settings['background']  = empty($settings['responsive_image_style']) && !empty($settings['background']);
+    $settings['blazy']       = $settings['resimage'] || !empty($settings['blazy']);
+    $settings['one_pixel']   = $this->configLoad('one_pixel', 'blazy.settings');
 
     // Let Blazy handle CSS background as Slick's background is deprecated.
     if ($settings['background']) {
@@ -128,7 +135,7 @@ class BlazyFormatterManager extends BlazyManager {
     // Sets dimensions once, if cropped, to reduce costs with ton of images.
     // This is less expensive than re-defining dimensions per image.
     $this->cleanUpBreakpoints($settings);
-    if (!empty($settings['first_uri']) && !$settings['resimage_lazy']) {
+    if (!empty($settings['first_uri']) && !$settings['resimage']) {
       $this->setDimensionsOnce($settings, $this->firstItem);
     }
 
@@ -169,6 +176,41 @@ class BlazyFormatterManager extends BlazyManager {
     elseif ($entity && $entity->hasField('thumbnail') && $image = $entity->get('thumbnail')->first()) {
       $this->firstItem = $image;
       $settings['first_uri'] = $image->entity->getFileUri();
+    }
+  }
+
+  /**
+   * Sets dimensions once to reduce method calls, if image style contains crop.
+   *
+   * The implementor should only call this if not using Responsive image style.
+   *
+   * @param array $settings
+   *   The settings being modified.
+   * @param object $item
+   *   The first image item found.
+   */
+  public function setDimensionsOnce(array &$settings = [], $item = NULL) {
+    if (!isset($this->isDimensionSet[md5($settings['first_uri'])])) {
+      $dimensions['width']  = $settings['original_width'] = $item && isset($item->width) ? $item->width : NULL;
+      $dimensions['height'] = $settings['original_height'] = $item && isset($item->height) ? $item->height : NULL;
+
+      // If image style contains crop, sets dimension once, and let all inherit.
+      if (!empty($settings['image_style']) && ($style = $this->isCrop($settings['image_style']))) {
+        $style->transformDimensions($dimensions, $settings['first_uri']);
+
+        $settings['height'] = $dimensions['height'];
+        $settings['width']  = $dimensions['width'];
+
+        // Informs individual images that dimensions are already set once.
+        $settings['_dimensions'] = TRUE;
+      }
+
+      // Also sets breakpoint dimensions once, if cropped.
+      if (!empty($settings['breakpoints'])) {
+        $this->buildDataBlazy($settings, $item);
+      }
+
+      $this->isDimensionSet[md5($settings['first_uri'])] = TRUE;
     }
   }
 

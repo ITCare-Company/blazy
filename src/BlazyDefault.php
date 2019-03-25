@@ -188,16 +188,19 @@ class BlazyDefault {
       'content_url'    => '',
       'delta'          => 0,
       'embed_url'      => '',
+      'entity_type_id' => '',
       'extension'      => '',
       'image_url'      => '',
       'item_id'        => 'blazy',
       'lazy_attribute' => 'src',
       'lazy_class'     => 'b-lazy',
+      'one_pixel'      => TRUE,
+      'padding_bottom' => '',
       'player'         => FALSE,
+      'resimage'       => FALSE,
       'scheme'         => '',
       'type'           => 'image',
       'uri'            => '',
-      'use_image'      => FALSE,
       'use_media'      => FALSE,
       'height'         => NULL,
       'width'          => NULL,
@@ -205,7 +208,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns blazy theme properties.
+   * Returns blazy theme properties, its image and container attributes.
    */
   public static function themeProperties() {
     return [
@@ -220,7 +223,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns blazy theme attributes.
+   * Returns additional/ optional blazy theme attributes.
    */
   public static function themeAttributes() {
     return ['caption', 'media', 'url', 'wrapper'];

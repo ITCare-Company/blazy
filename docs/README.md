@@ -47,7 +47,8 @@ Be sure to enable Blazy UI which can be uninstalled at production later.
   formatters.
 
 
-### USAGES: BLAZY GRID FOR MULTIMEDIA GALLERY
+### USAGES: BLAZY FOR MULTIMEDIA GALLERY VIA VIEWS UI
+#### Using **Blazy Grid**
 1. Add a Views style **Blazy Grid** for entities containing Media or Image.
 2. Add a Blazy formatter for the Media or Image field.
 3. Add any lightbox under **Media switcher** option.
@@ -55,6 +56,29 @@ Be sure to enable Blazy UI which can be uninstalled at production later.
 5. Be sure to leave **Use field template** under **Style settings** unchecked.
    If checked, the gallery is locked to a single entity, that is no Views
    gallery, but gallery per field.
+
+#### Without **Blazy Grid**
+If you can't use **Blazy Grid** for a reason, maybe having a table, HTML list,
+etc., try the following:
+
+1. Add a CSS class under **Advanced > CSS class** for any reasonable supported/
+  supportive lightbox in the format **blazy--LIGHTBOX-gallery**, e.g.:
+  + **blazy--colorbox-gallery**
+  + **blazy--intense-gallery**
+  + **blazy--photobox-gallery**
+  + **blazy--photoswipe-gallery**
+  + **blazy--slick-lightbox-gallery**
+  + **blazy--zooming-gallery**
+
+  Note the double dashes BEM modifier "**--**", just to make sure we are on the
+  same page that you are intentionally creating a blazy LIGHTBOX gallery.
+  The View container will then have the following attributes:
+
+  `class="blazy blazy--LIGHTBOX-gallery ..." data-blazy data-LIGHTBOX-gallery`
+
+2. Add a Blazy formatter for the Media or Image field.
+3. Add the relevant lightbox under **Media switcher** option based on the given
+   CSS class at #1.
 
 Check out the relevant sub-module docs for details.
 

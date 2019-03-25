@@ -46,15 +46,10 @@ function template_preprocess_blazy(&$variables) {
  * Overrides variables for responsive-image.html.twig templates.
  */
 function blazy_preprocess_responsive_image(&$variables) {
-  $config = blazy()->configLoad();
-
-  // Do not proceed if disabled globally, or not a Blazy formatter.
-  if (!$config['responsive_image'] || !isset($variables['attributes']['data-srcset'])) {
-    return;
+  // Only proceed if a Blazy formatter, regardless its value.
+  if (isset($variables['attributes']['data-responsive-blazy'])) {
+    Blazy::preprocessResponsiveImage($variables);
   }
-
-  // We are here either using Blazy, or core Responsive image formatters.
-  Blazy::preprocessResponsiveImage($variables);
 }
 
 /**
@@ -79,13 +74,23 @@ function blazy_preprocess_field(array &$variables) {
 }
 
 /**
+ * Implements hook_preprocess_views_view().
+ */
+function blazy_preprocess_views_view(array &$variables) {
+  if (!empty($variables['css_class']) && strpos($variables['css_class'], 'blazy--') !== FALSE) {
+    if ($lightboxes = blazy()->getLightboxes()) {
+      BlazyViews::preprocessViewsView($variables, $lightboxes);
+    }
+  }
+}
+
+/**
  * Implements hook_views_pre_render().
  */
 function blazy_views_pre_render($view) {
-  if (!isset($view)) {
-    return;
+  if (isset($view)) {
+    BlazyViews::viewsPreRender($view);
   }
-  BlazyViews::viewsPreRender($view);
 }
 
 /**

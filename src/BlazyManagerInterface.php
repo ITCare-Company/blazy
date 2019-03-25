@@ -79,15 +79,4 @@ interface BlazyManagerInterface {
    */
   public function buildDataBlazy(array &$settings, $item = NULL);
 
-  /**
-   * Returns the Responsive image cache tags.
-   *
-   * @param object $responsive
-   *   The responsive image style entity.
-   *
-   * @return array
-   *   The responsive image cache tags, or empty array.
-   */
-  public function getResponsiveImageCacheTags($responsive);
-
 }

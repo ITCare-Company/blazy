@@ -14,48 +14,6 @@ use Drupal\Core\Cache\Cache;
 class BlazyManager extends BlazyManagerBase {
 
   /**
-   * Checks if image dimensions are set.
-   *
-   * @var array
-   */
-  private $isDimensionSet;
-
-  /**
-   * Sets dimensions once to reduce method calls, if image style contains crop.
-   *
-   * The implementor should only call this if not using Responsive image style.
-   *
-   * @param array $settings
-   *   The settings being modified.
-   * @param object $item
-   *   The first image item found.
-   */
-  public function setDimensionsOnce(array &$settings = [], $item = NULL) {
-    if (!isset($this->isDimensionSet[md5($settings['first_uri'])])) {
-      $dimensions['width']  = $settings['original_width'] = $item && isset($item->width) ? $item->width : NULL;
-      $dimensions['height'] = $settings['original_height'] = $item && isset($item->height) ? $item->height : NULL;
-
-      // If image style contains crop, sets dimension once, and let all inherit.
-      if (!empty($settings['image_style']) && ($style = $this->isCrop($settings['image_style']))) {
-        $style->transformDimensions($dimensions, $settings['first_uri']);
-
-        $settings['height'] = $dimensions['height'];
-        $settings['width']  = $dimensions['width'];
-
-        // Informs individual images that dimensions are already set once.
-        $settings['_dimensions'] = TRUE;
-      }
-
-      // Also sets breakpoint dimensions once, if cropped.
-      if (!empty($settings['breakpoints'])) {
-        $this->buildDataBlazy($settings, $item);
-      }
-
-      $this->isDimensionSet[md5($settings['first_uri'])] = TRUE;
-    }
-  }
-
-  /**
    * Returns the enforced content, or image using theme_blazy().
    *
    * @param array $build
@@ -68,15 +26,14 @@ class BlazyManager extends BlazyManagerBase {
     /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
     $item = $build['item'] = isset($build['item']) ? $build['item'] : NULL;
     $settings = &$build['settings'];
-    $settings['delta'] = isset($settings['delta']) ? $settings['delta'] : 0;
-    $settings['image_style'] = isset($settings['image_style']) ? $settings['image_style'] : '';
+    $settings += BlazyDefault::itemSettings();
 
     // Respects content not handled by theme_blazy(), but passed through.
     if (empty($build['content'])) {
       $image = empty($settings['uri']) ? [] : [
         '#theme'       => 'blazy',
         '#delta'       => $settings['delta'],
-        '#item'        => isset($settings['entity_type_id']) && $settings['entity_type_id'] == 'user' ? $item : [],
+        '#item'        => $settings['entity_type_id'] == 'user' ? $item : [],
         '#image_style' => $settings['image_style'],
         '#build'       => $build,
         '#pre_render'  => [[$this, 'preRenderImage']],
@@ -132,9 +89,13 @@ class BlazyManager extends BlazyManagerBase {
    */
   protected function prepareImage(array &$element, array $build) {
     $item = $build['item'];
+    $image = [];
     $settings = $build['settings'];
-    $settings += BlazyDefault::itemSettings();
     $settings['_api'] = TRUE;
+    $pathinfo = pathinfo($settings['uri']);
+    $settings['extension'] = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
+    $settings['ratio'] = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
+    $settings['use_media'] = $settings['embed_url'] && in_array($settings['type'], ['audio', 'video']);
 
     foreach (BlazyDefault::themeAttributes() as $key) {
       $key = $key . '_attributes';
@@ -152,46 +113,26 @@ class BlazyManager extends BlazyManagerBase {
       unset($item->_attributes);
     }
 
-    // Gets the file extension, and ensures the image has valid extension.
-    $pathinfo = pathinfo($settings['uri']);
-    $settings['extension'] = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
-    $settings['ratio'] = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
-
     // Prepare image URL and its dimensions.
     Blazy::buildUrlAndDimensions($settings, $item);
 
     // Responsive image integration.
-    $settings['responsive_image_style_id'] = '';
-    if (!empty($settings['resimage']) && !empty($settings['responsive_image_style'])) {
+    if (!empty($settings['resimage']) && $settings['extension'] != 'svg') {
       $responsive_image_style = $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style');
-      $settings['lazy'] = '';
       if (!empty($responsive_image_style)) {
         $settings['responsive_image_style_id'] = $responsive_image_style->id();
-        if ($this->configLoad('responsive_image')) {
-          $item_attributes['data-srcset'] = TRUE;
-          $settings['lazy'] = 'responsive';
-        }
+
+        Blazy::buildResponsiveImage($image, $settings);
         $element['#cache']['tags'] = $this->getResponsiveImageCacheTags($responsive_image_style);
       }
     }
 
     // Regular image with custom responsive breakpoints.
     if (empty($settings['responsive_image_style_id'])) {
-      if ($settings['width'] && !empty($settings['ratio']) && in_array($settings['ratio'], ['enforced', 'fluid'])) {
-        $padding = empty($settings['padding_bottom']) ? round((($settings['height'] / $settings['width']) * 100), 2) : $settings['padding_bottom'];
-        $attributes['style'] = 'padding-bottom: ' . $padding . '%';
-
-        // Provides hint to breakpoints to work with multi-breakpoint ratio.
-        $settings['_breakpoint_ratio'] = $settings['ratio'];
-
-        // Views rewrite results or Twig inline_template may strip out `style`
-        // attributes, provide hint to JS.
-        $attributes['data-ratio'] = $padding;
-      }
-
-      // Overrides lazy with blazy for explicit call to reduce another param.
-      if (!empty($settings['blazy'])) {
-        $settings['lazy'] = 'blazy';
+      // Aspect ratio to fix layout reflow with lazyloaded images responsively.
+      // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
+      if ($settings['ratio']) {
+        Blazy::buildAspectRatio($attributes, $settings);
       }
 
       if (!empty($settings['lazy'])) {
@@ -205,6 +146,7 @@ class BlazyManager extends BlazyManagerBase {
         }
 
         // Multi-breakpoint aspect ratio only applies if lazyloaded.
+        // These may be set once at formatter level, or per breakpoint above.
         if (!empty($settings['blazy_data']['dimensions'])) {
           $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
         }
@@ -223,7 +165,6 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
 
-    // Thumbnails.
     // With CSS background, IMG may be empty, add thumbnail to the container.
     // Supports unique thumbnail different from main image, such as logo for
     // thumbnail and main image for company profile.
@@ -236,21 +177,26 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     // Provides extra attributes as needed, excluding url, item, done above.
+    // Was planned to replace sub-module item markups if similarity is found for
+    // theme_gridstack_box(), theme_slick_slide(), etc. Likely for Blazy 3.x+.
     foreach (['caption', 'media', 'wrapper'] as $key) {
       $element["#$key" . '_attributes'] = $build[$key . '_attributes'];
     }
 
+    // Provides captions, if so configured.
     $captions = empty($build['captions']) ? [] : $this->buildCaption($build['captions'], $settings);
     if ($captions) {
       $element['#caption_attributes']['class'][] = $settings['item_id'] . '__caption';
     }
 
+    // Pass elements to theme_blazy().
     $element['#attributes']      = $attributes;
     $element['#captions']        = $captions;
     $element['#item']            = $item;
     $element['#item_attributes'] = $item_attributes;
     $element['#url_attributes']  = $url_attributes;
     $element['#settings']        = $settings;
+    $element['#image']           = $image;
   }
 
   /**
@@ -355,6 +301,30 @@ class BlazyManager extends BlazyManagerBase {
 
     unset($build['items'], $build['settings']);
     return $settings;
+  }
+
+  /**
+   * Returns the Responsive image cache tags.
+   *
+   * @param object $responsive
+   *   The responsive image style entity.
+   *
+   * @return array
+   *   The responsive image cache tags, or empty array.
+   */
+  public function getResponsiveImageCacheTags($responsive) {
+    $cache_tags = [];
+    $image_styles_to_load = [];
+    if ($responsive) {
+      $cache_tags = Cache::mergeTags($cache_tags, $responsive->getCacheTags());
+      $image_styles_to_load = $responsive->getImageStyleIds();
+    }
+
+    $image_styles = $this->entityLoadMultiple('image_style', $image_styles_to_load);
+    foreach ($image_styles as $image_style) {
+      $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
+    }
+    return $cache_tags;
   }
 
   /**
