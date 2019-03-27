@@ -72,4 +72,5 @@ accordingly when Blazy Filter runs after them.
 * **IntersectionObserver API** is not loading all images, try disabling
   **Disconnect** option at Blazy UI.
 * **IntersectionObserver API** is not working with Slick `slidesToShow > 1`, try
-  disabling Slick `centerMode`.
+  disabling Slick `centerMode`. If still failing, choose one of the 4 lazy
+  load options, except Blazy.

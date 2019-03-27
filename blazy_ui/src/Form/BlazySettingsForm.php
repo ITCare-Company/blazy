@@ -92,7 +92,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#type'          => 'textfield',
       '#title'         => $this->t('Placeholder'),
       '#default_value' => $config->get('placeholder'),
-      '#description'   => $this->t('Overrides global 1px placeholder. Can be URL, e.g.: https://mysite.com/blank.gif. Only useful if continuously using Views rewrite results, see <a href=":url">#2908861</a>. Alternatively use <code>hook_blazy_settings_alter()</code> for more fine-grained control. Leave it to empty to use default Data URI to avoid extra HTTP requests. If you have 100 images on a page, you will save 100 extra HTTP requests by leaving it empty.', [':url' => 'https://drupal.org/node/2908861']),
+      '#description'   => $this->t('Overrides global 1px placeholder. Can be URL, e.g.: https://mysite.com/blank.gif. Only useful if continuously using Views rewrite results, see <a href=":url">#2908861</a>. Alternatively use <code>hook_blazy_settings_alter()</code> for more fine-grained control. Leave it empty to use default Data URI to avoid extra HTTP requests. If you have 100 images on a page, you will save 100 extra HTTP requests by leaving it empty.', [':url' => 'https://drupal.org/node/2908861']),
     ];
 
     $form['blazy'] = [
@@ -100,14 +100,14 @@ class BlazySettingsForm extends ConfigFormBase {
       '#tree'        => TRUE,
       '#open'        => TRUE,
       '#title'       => $this->t('Blazy settings'),
-      '#description' => $this->t('The following are settings related to Blazy library.'),
+      '#description' => $this->t('The following settings are related to Blazy library.'),
     ];
 
     $form['blazy']['loadInvisible'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Load invisible'),
       '#default_value' => $config->get('blazy.loadInvisible'),
-      '#description'   => $this->t('Set to true if you want to load invisible (hidden) elements.'),
+      '#description'   => $this->t('Check if you want to load invisible (hidden) elements.'),
     ];
 
     $form['blazy']['offset'] = [
@@ -145,14 +145,14 @@ class BlazySettingsForm extends ConfigFormBase {
       '#tree'        => TRUE,
       '#open'        => TRUE,
       '#title'       => $this->t('Intersection Observer API settings (<b>Experimental!</b>)'),
-      '#description' => $this->t('The following are settings related to <a href=":url">IntersectionObserver API</a>.', [':url' => 'https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API']),
+      '#description' => $this->t('The following settings are related to <a href=":url">IntersectionObserver API</a>.', [':url' => 'https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API']),
     ];
 
     $form['io']['enabled'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Enable IntersectionObserver API'),
       '#default_value' => $config->get('io.enabled'),
-      '#description'   => $this->t('Set to true if you want to use IntersectionObserver API for modern browsers, and Blazy for oldies.'),
+      '#description'   => $this->t('Check if you want to use IntersectionObserver API for modern browsers, and Blazy for oldies.'),
     ];
 
     $form['io']['rootMargin'] = [
@@ -168,7 +168,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#type'          => 'textfield',
       '#title'         => $this->t('threshold'),
       '#default_value' => $config->get('io.threshold') ?: '0',
-      '#description'   => $this->t("Either a single number or an array of numbers which indicate at what percentage of the target's visibility the observer's callback should be executed. If you only want to detect when visibility passes the 50% mark, you can use a value of 0.5. If you want the callback to run every time visibility passes another 25%, you would specify the array [0, 0.25, 0.5, 0.75, 1] (without brackets). The default is 0 (meaning as soon as even one pixel is visible, the callback will be run). A value of 1.0 means that the threshold isn't considered passed until every pixel is visible."),
+      '#description'   => $this->t("Either a single number or an array of numbers which indicate at what percentage of the target's visibility the observer's callback should be executed. If you only want to detect when visibility passes the 50% mark, you can use a value of 0.5. If you want the callback to run every time visibility passes another 25%, you would specify the array [<code>0, 0.25, 0.5, 0.75, 1</code>] (without brackets). The default is 0 (meaning as soon as even one pixel is visible, the callback will be run). A value of 1.0 means that the threshold isn't considered passed until every pixel is visible."),
       '#maxlength'     => 120,
       '#size'          => 20,
     ];
@@ -177,7 +177,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#type'          => 'checkbox',
       '#title'         => $this->t('Disconnect'),
       '#default_value' => $config->get('io.disconnect'),
-      '#description'   => $this->t('Check if you want to disconnect IO once all images laoded. If you keep seeing eternal blue loader while an image should be already loaded, this means it is not working yet in all cases. Just uncheck this.'),
+      '#description'   => $this->t('Check if you want to disconnect IO once all images loaded. If you keep seeing eternal blue loader while an image should be already loaded, this means it is not working yet in all cases. Just uncheck this.'),
     ];
 
     // Allows sub-modules to provide its own settings.

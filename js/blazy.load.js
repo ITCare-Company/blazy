@@ -34,8 +34,6 @@
     windowWidth: 0,
     count: 0,
     selector: '.b-lazy:not(.b-loaded)',
-    blazySettings: drupalSettings.blazy || {},
-    ioSettings: drupalSettings.blazyIo || {},
     globals: function () {
       var me = this;
       var commons = {
@@ -43,10 +41,10 @@
         error: me.clearing
       };
 
-      return _db.extend(me.blazySettings, commons);
+      return _db.extend(drupalSettings.blazy, commons);
     },
 
-    clearing: function (el) {
+    clearing: function (el, io) {
       var me = Drupal.blazy;
       var ie = el.classList.contains('b-responsive') && el.hasAttribute('data-pfsrc');
 
@@ -75,12 +73,14 @@
       }
 
       // @todo IO specific, use onload event accordingly.
-      el.classList.add('b-loaded');
-      me.count--;
+      if (typeof io !== 'undefined' || io) {
+        el.classList.add('b-loaded');
+        me.count--;
+      }
     },
 
     isIo: function () {
-      return this.ioSettings.enabled && window.IntersectionObserver;
+      return drupalSettings.blazyIo.enabled && 'IntersectionObserver' in window;
     },
 
     isBlazy: function () {
@@ -147,14 +147,14 @@
         }
       }
 
-      me.clearing(el);
+      me.clearing(el, true);
     },
 
     loadAndDisconnect: function (entries, observer, opts) {
       var me = this;
 
       // Disconnect when all of the images are loaded.
-      if (me.count === 0 && me.ioSettings.disconnect) {
+      if (me.count === 0 && drupalSettings.blazyIo.disconnect) {
         observer.disconnect();
         return;
       }
@@ -182,8 +182,8 @@
       var entries = el === null || typeof el === 'undefined' ? document.querySelectorAll(me.selector) : el.querySelectorAll(me.selector);
       var observer;
       var config = {
-        rootMargin: me.ioSettings.rootMargin,
-        threshold: me.ioSettings.threshold
+        rootMargin: drupalSettings.blazyIo.rootMargin,
+        threshold: drupalSettings.blazyIo.threshold
       };
 
       opts = opts || {};
@@ -284,6 +284,7 @@
       if (!el.hasAttribute('style')) {
         el.style.paddingBottom = el.getAttribute('data-ratio') + '%';
       }
+      el.removeAttribute('data-ratio');
     }
 
     // Initializes IntersectionObserver or Blazy instance.
