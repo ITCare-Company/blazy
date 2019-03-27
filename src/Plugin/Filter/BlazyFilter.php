@@ -82,6 +82,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     }
 
     $dom = Html::load($text);
+    $settings = BlazyDefault::lazySettings();
     $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
     $settings['column'] = stristr($text, 'data-column') !== FALSE;
     $settings['media_switch'] = $switch = $this->settings['media_switch'];
@@ -89,6 +90,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $settings['id'] = $settings['gallery_id'] = 'blazy-filter-' . Crypt::randomBytesBase64(8);
     $settings['plugin_id'] = 'blazy_filter';
     $settings['_grid'] = $settings['column'] || $settings['grid'];
+    $settings['placeholder'] = $this->blazyManager->configLoad('placeholder', 'blazy.settings');
 
     // Allows lightboxes to provide its own optionsets.
     if ($switch) {
@@ -164,7 +166,10 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     if ($settings['_grid'] && !empty($elements[0])) {
       $all['grid'] = $settings['grid'];
       $all['column'] = $settings['column'];
-      $all[$switch] = $settings[$switch];
+      if (isset($settings[$switch])) {
+        $all[$switch] = $settings[$switch];
+      }
+
       $settings['first_uri'] = isset($elements[0]['#build']['settings']['uri']) ? $elements[0]['#build']['settings']['uri'] : '';
       $this->buildGrid($dom, $settings, $elements, $grid_nodes);
     }
@@ -284,8 +289,8 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   private function buildImageItem(array &$build, $node) {
     $settings = &$build['settings'];
     $item = new \stdClass();
-    $item->entity = NULL;
     $uuid = $node->hasAttribute('data-entity-uuid') ? $node->getAttribute('data-entity-uuid') : '';
+    $file = FALSE;
 
     // Checks if we have a valid file entity, not hard-coded image URL.
     if ($uuid && $node->hasAttribute('src')) {
@@ -293,6 +298,8 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       if ($file) {
         $data = $this->getImageItem($file);
         $item = $data['item'];
+        $item->alt = $node->hasAttribute('alt') ? $node->getAttribute('alt') : $item->alt;
+        $item->title = $node->hasAttribute('title') ? $node->getAttribute('title') : $item->title;
         $settings = array_merge($settings, $data['settings']);
       }
     }
@@ -310,13 +317,17 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     // Copy all attributes of the original node to the $item _attributes.
     if ($node->attributes->length) {
       foreach ($node->attributes as $attribute) {
+        if ($attribute->nodeName == 'src') {
+          continue;
+        }
+
         // Move classes (align-BLAH,etc) to Blazy container, not image so to
         // work with alignments and aspect ratio.
         if ($attribute->nodeName == 'class') {
           $build['media_attributes']['class'][] = $attribute->nodeValue;
         }
-        else {
-          $item->_attributes[$attribute->nodeName] = $attribute->nodeValue;
+        elseif (!$file) {
+          $build['item_attributes'][$attribute->nodeName] = $attribute->nodeValue;
         }
       }
 

@@ -176,7 +176,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * Returns array of needed assets suitable for #attached property.
    */
   public function attach($attach = []) {
-    $load   = [];
+    $load   = $io = [];
     $switch = empty($attach['media_switch']) ? '' : $attach['media_switch'];
 
     if ($switch && $switch != 'content') {
@@ -203,7 +203,19 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     // Core Blazy libraries.
     if (!empty($attach['blazy']) || (isset($attach['lazy']) && $attach['lazy'] == 'blazy')) {
       $load['library'][] = 'blazy/load';
-      $load['drupalSettings']['blazy'] = $this->configLoad()['blazy'];
+      $config = $this->configLoad();
+      $thold = trim($this->configLoad('io.threshold')) ?: '0';
+      $thold = strpos($thold, ',') !== FALSE ? array_map('trim', explode(',', $thold)) : [(int) $thold];
+
+      // Respects hook_blazy_attach_alter() for more fine-grained control.
+      foreach (['enabled', 'disconnect', 'rootMargin', 'threshold'] as $key) {
+        $default = $key == 'rootMargin' ? '0px' : FALSE;
+        $value = $key == 'threshold' ? $thold : $this->configLoad('io.' . $key);
+        $io[$key] = isset($attach['io.' . $key]) ? $attach['io.' . $key] : ($value ?: $default);
+      }
+
+      $load['drupalSettings']['blazy'] = $config['blazy'];
+      $load['drupalSettings']['blazyIo'] = $io;
     }
 
     $this->moduleHandler->alter('blazy_attach', $load, $attach);

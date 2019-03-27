@@ -33,6 +33,22 @@ blazy.settings:
         validateDelay:
           type: integer
           label: 'Set validate delay'
+    io:
+      type: mapping
+      label: IO
+      mapping:
+        enabled:
+          type: boolean
+          label: 'Enable IO'
+        rootMargin:
+          type: string
+          label: rootMargin
+        threshold:
+          type: string
+          label: threshold
+        disconnect:
+          type: boolean
+          label: Disconnect
     extras:
       type: blazy_base
       label: Extras

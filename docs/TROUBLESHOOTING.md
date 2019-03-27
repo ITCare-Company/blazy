@@ -10,6 +10,8 @@
 * Images are gone, only eternal blue loader is flipping like a drunk butterfly.
   Solution: ensures that blazy library is loaded. And temporarily switch to
   stock Bartik themes.
+* Press F12 at any browser, and see the errors at the browser console. Any JS
+  error will prevent Blazy from working identified by eternal blue loaders.
 * Images are collapsed. Solution: choose one of the Aspect ratio.
 * Images or videos aren't responsive. Solution: choose one of the Aspect ratio.
 * Images are distorted. Solution: choose the correct Aspect ratio. If unsure,
@@ -65,3 +67,9 @@ CSS class `b-lazy` will be moved into `<figure>` elements and make Blazy fail
 with JS error due to not finding the required `SRC` and `[data-src]` attributes.
 **Align/ Caption filters** output are respected and moved into Blazy markups
 accordingly when Blazy Filter runs after them.
+
+### 7. INTERSECTION OBSERVER API
+* **IntersectionObserver API** is not loading all images, try disabling
+  **Disconnect** option at Blazy UI.
+* **IntersectionObserver API** is not working with Slick `slidesToShow > 1`, try
+  disabling Slick `centerMode`.

@@ -92,14 +92,15 @@ class BlazySettingsForm extends ConfigFormBase {
       '#type'          => 'textfield',
       '#title'         => $this->t('Placeholder'),
       '#default_value' => $config->get('placeholder'),
-      '#description'   => $this->t('Overrides global 1px placeholder. Can be URL, e.g.: https://mysite.com/blank.gif. Only useful if continuously using Views rewrite results, see <a href=":url">#2908861</a>. Alternatively use <code>hook_blazy_settings_alter()</code> for more fine-grained control. Leave it to empty to use default Data URI to avoid extra HTTP requests.', [':url' => 'https://drupal.org/node/2908861']),
+      '#description'   => $this->t('Overrides global 1px placeholder. Can be URL, e.g.: https://mysite.com/blank.gif. Only useful if continuously using Views rewrite results, see <a href=":url">#2908861</a>. Alternatively use <code>hook_blazy_settings_alter()</code> for more fine-grained control. Leave it to empty to use default Data URI to avoid extra HTTP requests. If you have 100 images on a page, you will save 100 extra HTTP requests by leaving it empty.', [':url' => 'https://drupal.org/node/2908861']),
     ];
 
     $form['blazy'] = [
-      '#type'        => 'container',
+      '#type'        => 'details',
       '#tree'        => TRUE,
-      '#title'       => $this->t('Blazy JS settings'),
-      '#description' => $this->t('The following are JS related settings.'),
+      '#open'        => TRUE,
+      '#title'       => $this->t('Blazy settings'),
+      '#description' => $this->t('The following are settings related to Blazy library.'),
     ];
 
     $form['blazy']['loadInvisible'] = [
@@ -139,6 +140,46 @@ class BlazySettingsForm extends ConfigFormBase {
       '#size'          => 10,
     ];
 
+    $form['io'] = [
+      '#type'        => 'details',
+      '#tree'        => TRUE,
+      '#open'        => TRUE,
+      '#title'       => $this->t('Intersection Observer API settings (<b>Experimental!</b>)'),
+      '#description' => $this->t('The following are settings related to <a href=":url">IntersectionObserver API</a>.', [':url' => 'https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API']),
+    ];
+
+    $form['io']['enabled'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Enable IntersectionObserver API'),
+      '#default_value' => $config->get('io.enabled'),
+      '#description'   => $this->t('Set to true if you want to use IntersectionObserver API for modern browsers, and Blazy for oldies.'),
+    ];
+
+    $form['io']['rootMargin'] = [
+      '#type'          => 'textfield',
+      '#title'         => $this->t('rootMargin'),
+      '#default_value' => $config->get('io.rootMargin') ?: '0px',
+      '#description'   => $this->t("Margin around the root. Can have values similar to the CSS margin property, e.g. <code>10px 20px 30px 40px</code> (top, right, bottom, left). The values can be percentages. This set of values serves to grow or shrink each side of the root element's bounding box before computing intersections. Defaults to all zeros."),
+      '#maxlength'     => 120,
+      '#size'          => 20,
+    ];
+
+    $form['io']['threshold'] = [
+      '#type'          => 'textfield',
+      '#title'         => $this->t('threshold'),
+      '#default_value' => $config->get('io.threshold') ?: '0',
+      '#description'   => $this->t("Either a single number or an array of numbers which indicate at what percentage of the target's visibility the observer's callback should be executed. If you only want to detect when visibility passes the 50% mark, you can use a value of 0.5. If you want the callback to run every time visibility passes another 25%, you would specify the array [0, 0.25, 0.5, 0.75, 1] (without brackets). The default is 0 (meaning as soon as even one pixel is visible, the callback will be run). A value of 1.0 means that the threshold isn't considered passed until every pixel is visible."),
+      '#maxlength'     => 120,
+      '#size'          => 20,
+    ];
+
+    $form['io']['disconnect'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Disconnect'),
+      '#default_value' => $config->get('io.disconnect'),
+      '#description'   => $this->t('Check if you want to disconnect IO once all images laoded. If you keep seeing eternal blue loader while an image should be already loaded, this means it is not working yet in all cases. Just uncheck this.'),
+    ];
+
     // Allows sub-modules to provide its own settings.
     $form['extras'] = [
       '#type'   => 'details',
@@ -165,7 +206,11 @@ class BlazySettingsForm extends ConfigFormBase {
       ->set('blazy.loadInvisible', $form_state->getValue(['blazy', 'loadInvisible']))
       ->set('blazy.offset', $form_state->getValue(['blazy', 'offset']))
       ->set('blazy.saveViewportOffsetDelay', $form_state->getValue(['blazy', 'saveViewportOffsetDelay']))
-      ->set('blazy.validateDelay', $form_state->getValue(['blazy', 'validateDelay']));
+      ->set('blazy.validateDelay', $form_state->getValue(['blazy', 'validateDelay']))
+      ->set('io.enabled', $form_state->getValue(['io', 'enabled']))
+      ->set('io.rootMargin', $form_state->getValue(['io', 'rootMargin']))
+      ->set('io.threshold', $form_state->getValue(['io', 'threshold']))
+      ->set('io.disconnect', $form_state->getValue(['io', 'disconnect']));
 
     if ($form_state->hasValue('extras')) {
       foreach ($form_state->getValue('extras') as $key => $value) {

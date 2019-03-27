@@ -43,6 +43,7 @@ load:
     js/blazy.load.min.js: { weight: -1, minified: true }
   dependencies:
     - core/drupal
+    - core/classList
     - blazy/blazy
     - blazy/dblazy
     - blazy/loading

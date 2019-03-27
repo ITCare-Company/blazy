@@ -43,6 +43,7 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $this->formatterPluginManager = $this->container->get('plugin.manager.field.formatter');
     $this->blazyAdmin             = $this->container->get('blazy.admin');
     $this->blazyManager           = $this->container->get('blazy.manager');
+    $this->testPluginId           = 'blazy_filter';
 
     // Create a text format.
     $full_html = FilterFormat::create([
