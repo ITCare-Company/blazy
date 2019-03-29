@@ -14,6 +14,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class BlazySettingsForm extends ConfigFormBase {
 
+  /**
+   * The library discovery service.
+   *
+   * @var \Drupal\Core\Asset\LibraryDiscovery
+   */
   protected $libraryDiscovery;
 
   /**
@@ -144,15 +149,22 @@ class BlazySettingsForm extends ConfigFormBase {
       '#type'        => 'details',
       '#tree'        => TRUE,
       '#open'        => TRUE,
-      '#title'       => $this->t('Intersection Observer API settings (<b>Experimental!</b>)'),
+      '#title'       => $this->t('Intersection Observer API (IO) settings (<b>Experimental!</b>)'),
       '#description' => $this->t('The following settings are related to <a href=":url">IntersectionObserver API</a>.', [':url' => 'https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API']),
     ];
 
     $form['io']['enabled'] = [
       '#type'          => 'checkbox',
-      '#title'         => $this->t('Enable IntersectionObserver API'),
+      '#title'         => $this->t('Enable IO API'),
       '#default_value' => $config->get('io.enabled'),
-      '#description'   => $this->t('Check if you want to use IntersectionObserver API for modern browsers, and Blazy for oldies.'),
+      '#description'   => $this->t('Check if you want to use IO API for modern browsers, and Blazy for oldies.'),
+    ];
+
+    $form['io']['unblazy'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Unload bLazy'),
+      '#default_value' => $config->get('io.unblazy'),
+      '#description'   => $this->t("Check if you are happy with IO. This will not load the original bLazy library, no fallback. Watch out for JS errors at old browsers, and uncheck if any, or unsure. Blazy is just ~1KB gzip. Clear caches!"),
     ];
 
     $form['io']['rootMargin'] = [
@@ -208,6 +220,7 @@ class BlazySettingsForm extends ConfigFormBase {
       ->set('blazy.saveViewportOffsetDelay', $form_state->getValue(['blazy', 'saveViewportOffsetDelay']))
       ->set('blazy.validateDelay', $form_state->getValue(['blazy', 'validateDelay']))
       ->set('io.enabled', $form_state->getValue(['io', 'enabled']))
+      ->set('io.unblazy', $form_state->getValue(['io', 'unblazy']))
       ->set('io.rootMargin', $form_state->getValue(['io', 'rootMargin']))
       ->set('io.threshold', $form_state->getValue(['io', 'threshold']))
       ->set('io.disconnect', $form_state->getValue(['io', 'disconnect']));
@@ -223,7 +236,7 @@ class BlazySettingsForm extends ConfigFormBase {
     // Invalidate the library discovery cache to update the responsive image.
     $this->libraryDiscovery->clearCachedDefinitions();
 
-    $this->messenger()->addMessage($this->t('Be sure to <a href=":clear_cache">clear the cache</a> if trouble to see the updated settings', [':clear_cache' => Url::fromRoute('system.performance_settings')->toString()]));
+    $this->messenger()->addMessage($this->t('Be sure to <a href=":clear_cache">clear the cache</a> if trouble to see the updated settings.', [':clear_cache' => Url::fromRoute('system.performance_settings')->toString()]));
 
     parent::submitForm($form, $form_state);
   }

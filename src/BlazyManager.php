@@ -139,7 +139,7 @@ class BlazyManager extends BlazyManagerBase {
         // Attach data attributes to either IMG tag, or DIV container.
         if (!empty($settings['background'])) {
           Blazy::buildBreakpointAttributes($attributes, $settings);
-          $attributes['class'][] = 'media--background';
+          $attributes['class'][] = 'media--background b-bg';
         }
         else {
           Blazy::buildBreakpointAttributes($item_attributes, $settings);
@@ -293,7 +293,7 @@ class BlazyManager extends BlazyManagerBase {
       // What we do here is extract the formatter settings from the first found
       // image and pass its settings to this container so that Blazy Grid which
       // lacks of settings may know if it should load/ display a lightbox, etc.
-      // Lightbox should work without `Use field template` checked.
+      // Lightbox gallery should work without `Use field template` checked.
       if (is_array($settings['first_image'])) {
         $this->isBlazy($settings, $settings['first_image']);
       }

@@ -40,6 +40,9 @@ blazy.settings:
         enabled:
           type: boolean
           label: 'Enable IO'
+        unblazy:
+          type: boolean
+          label: 'Unload bLazy'
         rootMargin:
           type: string
           label: rootMargin

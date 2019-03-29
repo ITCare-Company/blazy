@@ -11,6 +11,7 @@ blazy:
   validateDelay: 25
 io:
   enabled: false
+  unblazy: false
   rootMargin: 0px
   threshold: '0'
   disconnect: false

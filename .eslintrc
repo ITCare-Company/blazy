@@ -4,8 +4,11 @@
   // eslint . -o ../../eslint/blazy.html -f html
   "extends": "../../../core/.eslintrc.legacy.json",
   "globals": {
+    "Promise": true,
     "Blazy": true,
-    "dBlazy": true
+    "dBlazy": true,
+    "Bio": true,
+    "BioMedia": true
   },
   "rules": {
     "consistent-this": [0, "me"],

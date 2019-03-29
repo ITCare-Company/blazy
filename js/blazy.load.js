@@ -1,28 +1,11 @@
 /**
  * @file
  * Provides Intersection Observer API or bLazy loader.
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
- * @see https://developers.google.com/web/updates/2016/04/intersectionobserver
  */
 
 (function (Drupal, drupalSettings, _db, window, document) {
 
   'use strict';
-
-  // PolyFill `isIntersecting` for Microsoft Edge 15 isIntersecting property.
-  // https://github.com/WICG/IntersectionObserver/issues/211#issuecomment-309144669
-  if ('IntersectionObserver' in window &&
-    'IntersectionObserverEntry' in window &&
-    'intersectionRatio' in window.IntersectionObserverEntry.prototype &&
-    !('isIntersecting' in IntersectionObserverEntry.prototype)) {
-
-    Object.defineProperty(window.IntersectionObserverEntry.prototype, 'isIntersecting', {
-      get: function () {
-        return this.intersectionRatio > 0;
-      }
-    });
-  }
 
   /**
    * Blazy public methods.
@@ -32,20 +15,17 @@
   Drupal.blazy = Drupal.blazy || {
     init: null,
     windowWidth: 0,
-    count: 0,
-    selector: '.b-lazy:not(.b-loaded)',
     globals: function () {
       var me = this;
       var commons = {
-        success: me.clearing,
-        error: me.clearing
+        success: me.clearing.bind(me),
+        error: me.clearing.bind(me)
       };
 
-      return _db.extend(drupalSettings.blazy, commons);
+      return _db.extend(drupalSettings[me.isIo() ? 'blazyIo' : 'blazy'], commons);
     },
 
-    clearing: function (el, io) {
-      var me = Drupal.blazy;
+    clearing: function (el) {
       var ie = el.classList.contains('b-responsive') && el.hasAttribute('data-pfsrc');
 
       // The .b-lazy element can be attached to IMG, or DIV as CSS background.
@@ -71,12 +51,6 @@
           elements: [el]
         });
       }
-
-      // @todo IO specific, use onload event accordingly.
-      if (typeof io !== 'undefined' || io) {
-        el.classList.add('b-loaded');
-        me.count--;
-      }
     },
 
     isIo: function () {
@@ -84,140 +58,12 @@
     },
 
     isBlazy: function () {
-      return !this.isIo() && this.init !== null && this.init instanceof Blazy;
+      return !this.isIo() && 'Blazy' in window;
     },
 
-    removeAttributes: function (el, attrs) {
-      _db.forEach(attrs, function (attr) {
-        el.removeAttribute('data-' + attr);
-      });
-    },
-
-    setAttribute: function (el, attr) {
-      if (el.hasAttribute('data-' + attr)) {
-        el.setAttribute(attr, el.getAttribute('data-' + attr));
-        el.removeAttribute('data-' + attr);
-        el.classList.add('b-io');
-      }
-    },
-
-    setBackground: function (el, opts) {
-      var me = this;
-      var sources = [];
-      var src = 'data-src';
-
-      opts = opts || {};
-
-      // DIV elements with multi-serving CSS background images.
-      if (opts.breakpoints) {
-        _db.forEach(opts.breakpoints, function (object) {
-          sources.push(object.src.replace('data-', ''));
-          if (object.width <= me.windowWidth) {
-            src = object.src;
-            return false;
-          }
-        });
-        me.removeAttributes(el, sources);
-      }
-
-      el.style.backgroundImage = 'url("' + el.getAttribute(src) + '")';
-      el.removeAttribute(src);
-      el.classList.add('b-io');
-    },
-
-    load: function (el, opts) {
-      var me = this;
-      var parent = el.parentNode;
-
-      // DIV/ block elements.
-      if (typeof el.src === 'undefined') {
-        me.setBackground(el, opts);
-      }
-      else {
-        // IMG elements.
-        _db.forEach(['srcset', 'src'], function (attr) {
-          me.setAttribute(el, attr);
-        });
-
-        // PICTURE elements.
-        if (parent.nodeName.toLowerCase() === 'picture') {
-          _db.forEach(parent.getElementsByTagName('source'), function (source) {
-            me.setAttribute(source, 'srcset');
-          });
-        }
-      }
-
-      me.clearing(el, true);
-    },
-
-    loadAndDisconnect: function (entries, observer, opts) {
-      var me = this;
-
-      // Disconnect when all of the images are loaded.
-      if (me.count === 0 && drupalSettings.blazyIo.disconnect) {
-        observer.disconnect();
-        return;
-      }
-
-      // Load each on entering viewport, and stop observing it.
-      _db.forEach(entries, function (entry) {
-        if (entry.isIntersecting && !entry.target.classList.contains('b-loaded')) {
-          me.load(entry.target, opts);
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-
-    observeAndValidate: function (el, entries, observer) {
-      _db.forEach(entries, function (entry) {
-        // Only observes if not already loaded.
-        if (!entry.classList.contains('b-loaded')) {
-          observer.observe(entry);
-        }
-      });
-    },
-
-    io: function (el, opts) {
-      var me = this;
-      var entries = el === null || typeof el === 'undefined' ? document.querySelectorAll(me.selector) : el.querySelectorAll(me.selector);
-      var observer;
-      var config = {
-        rootMargin: drupalSettings.blazyIo.rootMargin,
-        threshold: drupalSettings.blazyIo.threshold
-      };
-
-      opts = opts || {};
-
-      // Initialize the IO.
-      observer = new IntersectionObserver(function (targets, watcher) {
-        me.loadAndDisconnect(targets, watcher, opts);
-      }, config);
-
-      // Start observing entries.
-      me.count = entries.length;
-      me.observeAndValidate(el, entries, observer);
-
-      // Revalidate such as on slide changes after being disconnected.
-      var revalidate = function (execute) {
-        // No need to execute unless required by slick slide changes.
-        if (typeof execute === 'undefined' || execute) {
-          entries = document.querySelectorAll(me.selector);
-          me.count = entries.length;
-
-          me.observeAndValidate(el, entries, observer);
-        }
-      };
-
-      // @todo BC for bLazy, make it useful, or leave it.
-      return {
-        options: opts + config,
-        load: me.noop,
-        revalidate: revalidate,
-        observer: observer
-      };
-    },
-
-    noop: function () {}
+    run: function (opts) {
+      return this.isIo() ? new BioMedia(opts) : new Blazy(opts);
+    }
   };
 
   /**
@@ -271,6 +117,8 @@
       if (pad !== 'undefined') {
         el.style.paddingBottom = pad + '%';
       }
+
+      el.removeAttribute('data-ratio');
     }
 
     /**
@@ -288,9 +136,9 @@
     }
 
     // Initializes IntersectionObserver or Blazy instance.
-    me.init = me.isIo() ? me.io(elm, opts) : new Blazy(opts);
+    me.init = me.run(opts);
 
-    // Reacts on resizing, and the magic () also does it on page load.
+    // Reacts on resizing per 200ms, and the magic () also does it on page load.
     _db.resize(function () {
       me.windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || window.screen.width;
 
@@ -302,7 +150,9 @@
       }
 
       // BC with bLazy, IO doesn't need to revalidate, Slick multiple-view does.
-      me.init.revalidate(elm.classList.contains('slick--multiple-view'));
+      if (me.isBlazy() || elm.classList.contains('slick--multiple-view')) {
+        me.init.revalidate();
+      }
     })();
 
     elm.classList.add('blazy--on');
@@ -321,7 +171,7 @@
       // Runs basic Blazy if no [data-blazy] found, probably a single image.
       // Cannot use .contains(), as IE11 doesn't support method 'contains'.
       if (el === null) {
-        me.init = me.isIo() ? me.io() : new Blazy(me.globals());
+        me.init = me.run(me.globals());
         return;
       }
 

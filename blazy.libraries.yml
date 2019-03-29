@@ -36,16 +36,30 @@ column:
 
 dblazy:
   js:
-    js/dblazy.min.js: { weight: -3, minified: true }
+    js/dblazy.min.js: { weight: -4, minified: true }
+  dependencies:
+    - core/classList
+
+bio:
+  js:
+    js/bio.min.js: { weight: -3, minified: true }
+  dependencies:
+    - blazy/dblazy
+
+bio.media:
+  js:
+    js/bio.media.min.js: { weight: -2, minified: true }
+  dependencies:
+    - blazy/bio
 
 load:
   js:
     js/blazy.load.min.js: { weight: -1, minified: true }
   dependencies:
     - core/drupal
-    - core/classList
     - blazy/blazy
     - blazy/dblazy
+    - blazy/bio.media
     - blazy/loading
 
 media:
