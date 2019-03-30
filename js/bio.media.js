@@ -36,6 +36,7 @@
   var _bio = Bio;
   var _src = 'src';
   var _srcSet = 'srcset';
+  var _bgSrc = 'data-src';
   var _dataSrc = 'data-src';
   var _bgSources = [_src];
   var _imgSources = [_srcSet, _src];
@@ -68,7 +69,7 @@
         _db.forEach(me.opts.breakpoints, function (object) {
           _bgSources.push(object.src.replace('data-', ''));
           if (object.width <= me.windowWidth) {
-            _dataSrc = object.src;
+            _bgSrc = object.src;
             return false;
           }
         });
@@ -78,61 +79,57 @@
     };
   })(_proto.prepare);
 
-  _proto.intersecting = (function (_bio) {
+  _proto.lazyLoad = (function (_bio) {
     return function (el) {
-      this.lazyLoad(el);
+      var me = this;
+      var parent = el.parentNode;
+      var isImage = me.equal(el, 'img');
+      var isBg = typeof el.src === 'undefined' && el.classList.contains(me.opts.bgClass);
+      var isPicture = parent && me.equal(parent, 'picture');
+      var isVideo = me.equal(el, 'video');
+
+      // PICTURE elements.
+      if (isPicture) {
+        _db.forEach(parent.getElementsByTagName('source'), function (source) {
+          me.setAttr(source, _srcSet);
+        });
+        // Tiny image inside picture element won't get preloaded.
+        me.loaded(el, me._ok);
+      }
+      // VIDEO elements.
+      else if (isVideo) {
+        _db.forEach(el.getElementsByTagName('source'), function (source) {
+          me.setAttr(source, _src);
+        });
+        el.load();
+        me.loaded(el, me._ok);
+      }
+      else {
+        // IMG or DIV/ block elements.
+        if (isImage || isBg) {
+          me.setImage(el, isBg);
+        }
+        // IFRAME elements, etc.
+        else {
+          if (el.getAttribute(_dataSrc) && el.hasAttribute(_src)) {
+            el.src = el.getAttribute(_dataSrc);
+            me.loaded(el, me._ok);
+          }
+        }
+      }
 
       return _bio.apply(this, arguments);
     };
-  })(_proto.intersecting);
+  })(_proto.lazyLoad);
 
   _proto.loaded = (function (_bio) {
     return function (el, status) {
-      var me = this;
 
-      me.removeAttrs(el, _imgSources);
+      this.removeAttrs(el, _imgSources);
+
       return _bio.apply(this, arguments);
     };
   })(_proto.loaded);
-
-  _proto.lazyLoad = function (el) {
-    var me = this;
-    var parent = el.parentNode;
-    var isImage = me.equal(el, 'img');
-    var isBg = typeof el.src === 'undefined' && el.classList.contains(me.opts.bgClass);
-    var isPicture = parent && me.equal(parent, 'picture');
-    var isVideo = me.equal(el, 'video');
-
-    // PICTURE elements.
-    if (isPicture) {
-      _db.forEach(parent.getElementsByTagName('source'), function (source) {
-        me.setAttr(source, _srcSet);
-      });
-      // Tiny image inside picture element won't get preloaded.
-      me.loaded(el, me._ok);
-    }
-    // VIDEO elemenets.
-    else if (isVideo) {
-      _db.forEach(el.getElementsByTagName('source'), function (source) {
-        me.setAttr(source, _src);
-      });
-      el.load();
-      me.loaded(el, me._ok);
-    }
-    else {
-      // IMG or DIV/ block elements.
-      if (isImage || isBg) {
-        me.setImage(el, isBg);
-      }
-      // IFRAME elements, etc.
-      else {
-        if (el.getAttribute(_dataSrc) && el.hasAttribute(_src)) {
-          el.src = el.getAttribute(_dataSrc);
-          me.loaded(el, me._ok);
-        }
-      }
-    }
-  };
 
   _proto.promise = function (el, isBg) {
     var me = this;
@@ -141,13 +138,15 @@
       var img = new Image();
 
       // Preload `img` to have correct event handlers.
-      me.setAttrs(el, _imgSources, img, _dataSrc);
+      me.setAttrs(el, _imgSources, img, isBg ? _bgSrc : _dataSrc);
 
       // Handle onload event.
       img.onload = function () {
-        me.setAttrs(el, _imgSources);
         if (isBg) {
           me.setBg(el);
+        }
+        else {
+          me.setAttrs(el, _imgSources);
         }
         resolve(me._ok);
       };
@@ -177,8 +176,8 @@
   _proto.setBg = function (el) {
     var me = this;
 
-    if (el.hasAttribute(_dataSrc)) {
-      el.style.backgroundImage = 'url("' + el.getAttribute(_dataSrc) + '")';
+    if (el.hasAttribute(_bgSrc)) {
+      el.style.backgroundImage = 'url("' + el.getAttribute(_bgSrc) + '")';
       me.removeAttrs(el, _bgSources);
       el.removeAttribute(_src);
     }

@@ -150,8 +150,8 @@
       }
 
       // BC with bLazy, IO doesn't need to revalidate, Slick multiple-view does.
-      if (me.isBlazy() || elm.classList.contains('slick--multiple-view')) {
-        me.init.revalidate();
+      if (me.isBlazy() || elm.classList.contains('blazy--revalidate')) {
+        me.init.revalidate(true);
       }
     })();
 

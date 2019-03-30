@@ -36,6 +36,7 @@
   var _doc = document;
   var _db = dBlazy;
   var _bioTick = 0;
+  var _revTick = 0;
 
   // PolyFill `isIntersecting` for Microsoft Edge 15 isIntersecting property.
   // https://github.com/WICG/IntersectionObserver/issues/211#issuecomment-309144669
@@ -94,25 +95,52 @@
   var _proto = Bio.prototype;
   _proto.constructor = Bio;
 
-  // BC noop for interchanging with bLazy, No need to manually load with IO.
-  _proto.load = function (el) {};
+  // BC for interchanging with bLazy with Slick slidesToShow > 1 clones.
+  _proto.load = function (elms) {
+    var me = this;
+
+    if (me.isValid(elms)) {
+      me.intersecting(elms);
+    }
+    else {
+      _db.forEach(elms, function (el) {
+        if (me.isValid(el)) {
+          me.intersecting(el);
+        }
+      });
+    }
+  };
+
+  _proto.isValid = function (el) {
+    return typeof el === 'object' && typeof el.length === 'undefined' && !el.classList.contains(this.opts.successClass);
+  };
+
   _proto.prepare = function () {
     // Do nothing, let extenders do their jobs.
   };
 
-  _proto.revalidate = function (execute) {
+  _proto.revalidate = function (force) {
     var me = this;
+
     // No need to execute unless required such as by Slick slide changes.
-    if ((typeof execute === 'undefined' || execute) && me.count !== me.counted) {
-      me.observe();
+    // Prevents from too many revalidations due to always-rebuilt slick-clones.
+    if (((typeof force === 'undefined' && me.count !== me.counted) || force === true) && (_revTick < me.counted)) {
+      me.observe(true);
+
+      _revTick++;
     }
   };
 
   _proto.intersecting = function (el) {
     var me = this;
 
+    me.lazyLoad(el);
     me.observer.unobserve(el);
     me.counted++;
+  };
+
+  _proto.lazyLoad = function (el) {
+    // Do nothing, let extenders do their own lazy, can be images, AJAX, etc.
   };
 
   _proto.success = function (el) {
@@ -165,13 +193,13 @@
     return el.nodeName.toLowerCase() === str;
   };
 
-  _proto.observe = function () {
+  _proto.observe = function (revalidate) {
     var me = this;
 
     _bioTick = me.elms.length;
     _db.forEach(me.elms, function (entry) {
       // Only observes if not already loaded.
-      if (!entry.classList.contains(me.opts.successClass)) {
+      if (!entry.classList.contains(me.opts.successClass) || revalidate === true) {
         me.instance.observe(entry);
       }
     });
@@ -216,7 +244,7 @@
     }, config);
 
     // Start observing entries.
-    me.observe();
+    me.observe(false);
   }
 
   return Bio;

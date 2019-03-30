@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2019-03-30
 -----------------------------
+- Fixed for background SRC overlap when using multi-serving background images.
 - Converted IO integration into plugin to declutter and re-use.
 
 Blazy 8.x-2.0-dev, 2019-03-27
