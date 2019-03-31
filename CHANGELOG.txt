@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2019-03-31
+-----------------------------
+- Optimized IO integration with multiple instances.
+- Fixed for multi-breakpoint background derailed from original implementation.
+- Fixed for docs.
+
 Blazy 8.x-2.0-dev, 2019-03-30
 -----------------------------
 - Fixed for background SRC overlap when using multi-serving background images.

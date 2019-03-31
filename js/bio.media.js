@@ -66,13 +66,23 @@
 
       // DIV elements with multi-serving CSS background images.
       if (me.opts.breakpoints) {
+        var _bgSrcs = [];
+
         _db.forEach(me.opts.breakpoints, function (object) {
           _bgSources.push(object.src.replace('data-', ''));
-          if (object.width <= me.windowWidth) {
+
+          // We have several values here, the last wins, but not good.
+          if (object.width >= me.windowWidth) {
             _bgSrc = object.src;
+            _bgSrcs.push(_bgSrc);
             return false;
           }
         });
+
+        // Fetches the nearest to window width, not the farthest/ largest.
+        if (_bgSrcs.length > 0) {
+          _bgSrc = _bgSrcs[0];
+        }
       }
 
       return _bio.call(this);

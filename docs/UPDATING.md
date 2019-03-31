@@ -28,11 +28,4 @@ is for the sake of completed documentation for those who may need it.
 
 3. If Twig templates are customized, compare against the latest.
 
-If it is broken, unless an update is provided, running `drush cr` during
-DEV releases should fix most issues as we add new services, or change things.
-If you don't drush, before any module update, always open:
-
-[Performance](/admin/config/development/performance)
-
-And so you are ready to hit **Clear all caches** if any issue.
-Only at worst case, know how to run http://dgo.to/registry_rebuild safely.
+4. Read more the TROUBLESHOOTING section for common trouble solutions.

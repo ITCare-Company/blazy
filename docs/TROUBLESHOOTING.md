@@ -74,3 +74,15 @@ accordingly when Blazy Filter runs after them.
 * **IntersectionObserver API** is not working with Slick `slidesToShow > 1`, try
   disabling Slick `centerMode`. If still failing, choose one of the 4 lazy
   load options, except Blazy.
+
+### 8. BROKEN MODULES
+Alpha, Beta, DEV releases are for developers only. Beware of possible breakage.
+
+However if it is broken, unless an update is provided, running `drush cr` during
+DEV releases should fix most issues as we add new services, or change things.
+If you don't drush, before any module update, always open:
+
+[Performance](/admin/config/development/performance)
+
+And so you are ready to hit **Clear all caches** if any issue.
+Only at worst case, know how to run http://dgo.to/registry_rebuild safely.    

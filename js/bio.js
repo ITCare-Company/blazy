@@ -37,20 +37,8 @@
   var _db = dBlazy;
   var _bioTick = 0;
   var _revTick = 0;
-
-  // PolyFill `isIntersecting` for Microsoft Edge 15 isIntersecting property.
-  // https://github.com/WICG/IntersectionObserver/issues/211#issuecomment-309144669
-  if ('IntersectionObserver' in _win &&
-    'IntersectionObserverEntry' in _win &&
-    'intersectionRatio' in _win.IntersectionObserverEntry.prototype &&
-    !('isIntersecting' in IntersectionObserverEntry.prototype)) {
-
-    Object.defineProperty(_win.IntersectionObserverEntry.prototype, 'isIntersecting', {
-      get: function () {
-        return this.intersectionRatio > 0;
-      }
-    });
-  }
+  var _disconnected = false;
+  var _observed = false;
 
   /**
    * Constructor for Bio, Blazy IntersectionObserver.
@@ -87,7 +75,7 @@
 
     me.prepare();
 
-    // Initialize Blazy IntersectionObserver.
+    // Initializes Blazy IntersectionObserver.
     init(me);
   }
 
@@ -95,10 +83,12 @@
   var _proto = Bio.prototype;
   _proto.constructor = Bio;
 
-  // BC for interchanging with bLazy with Slick slidesToShow > 1 clones.
+  // BC for interchanging with bLazy.
   _proto.load = function (elms) {
     var me = this;
 
+    // Manually load elements regardless of being disconnected, or not, relevant
+    // for Slick slidesToShow > 1 which rebuilds clones of unloaded elements.
     if (me.isValid(elms)) {
       me.intersecting(elms);
     }
@@ -109,10 +99,18 @@
         }
       });
     }
+
+    if (!_disconnected) {
+      me.disconnect();
+    }
+  };
+
+  _proto.isLoaded = function (el) {
+    return el.classList.contains(this.opts.successClass);
   };
 
   _proto.isValid = function (el) {
-    return typeof el === 'object' && typeof el.length === 'undefined' && !el.classList.contains(this.opts.successClass);
+    return typeof el === 'object' && typeof el.length === 'undefined' && !this.isLoaded(el);
   };
 
   _proto.prepare = function () {
@@ -122,10 +120,9 @@
   _proto.revalidate = function (force) {
     var me = this;
 
-    // No need to execute unless required such as by Slick slide changes.
-    // Prevents from too many revalidations due to always-rebuilt slick-clones.
-    if (((typeof force === 'undefined' && me.count !== me.counted) || force === true) && (_revTick < me.counted)) {
-      me.observe(true);
+    // Prevents from too many revalidations unless needed.
+    if ((me.count !== me.counted || force === true) && (_revTick < me.counted)) {
+      me.observe();
 
       _revTick++;
     }
@@ -135,8 +132,11 @@
     var me = this;
 
     me.lazyLoad(el);
-    me.observer.unobserve(el);
     me.counted++;
+
+    if (!_disconnected) {
+      me.observer.unobserve(el);
+    }
   };
 
   _proto.lazyLoad = function (el) {
@@ -193,14 +193,14 @@
     return el.nodeName.toLowerCase() === str;
   };
 
-  _proto.observe = function (revalidate) {
+  _proto.observe = function () {
     var me = this;
 
     _bioTick = me.elms.length;
     _db.forEach(me.elms, function (entry) {
       // Only observes if not already loaded.
-      if (!entry.classList.contains(me.opts.successClass) || revalidate === true) {
-        me.instance.observe(entry);
+      if (!me.isLoaded(entry)) {
+        me.observer.observe(entry);
       }
     });
   };
@@ -209,7 +209,9 @@
     var me = this;
 
     me.entries = entries;
-    me.observer = observer;
+    if (_disconnected) {
+      return;
+    }
 
     // Load each on entering viewport.
     _db.forEach(entries, function (entry) {
@@ -217,8 +219,8 @@
         me.opts.observing(entry, observer, me.opts);
       }
 
-      if (entry.isIntersecting) {
-        if (!entry.target.classList.contains(me.opts.successClass)) {
+      if (entry.intersectionRatio > 0 || entry.isIntersecting) {
+        if (!me.isLoaded(entry.target)) {
           me.intersecting(entry.target);
         }
 
@@ -226,9 +228,16 @@
       }
     });
 
+    me.disconnect();
+  };
+
+  _proto.disconnect = function () {
+    var me = this;
+
     // Disconnect when all entries are loaded, if so configured.
     if ((_bioTick === 0 || me.count === me.counted) && me.opts.disconnect) {
-      observer.disconnect();
+      me.observer.disconnect();
+      _disconnected = true;
     }
   };
 
@@ -238,13 +247,16 @@
       threshold: me.opts.threshold
     };
 
-    // Initialize the IO.
-    me.instance = new IntersectionObserver(function (entries, observer) {
-      me.observing(entries, observer);
-    }, config);
+    // Initializes the IO.
+    me.observer = new IntersectionObserver(me.observing.bind(me), config);
 
-    // Start observing entries.
-    me.observe(false);
+    // Observes once on the page load regardless multiple observer instances.
+    // Possible as we nullify the root option to allow querying the DOM once.
+    if (!_observed) {
+      me.observe();
+
+      _observed = true;
+    }
   }
 
   return Bio;

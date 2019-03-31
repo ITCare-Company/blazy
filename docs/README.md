@@ -1,8 +1,8 @@
 
 # ABOUT BLAZY
-Provides integration with bLazy to lazy load and multi-serve images to save
-bandwidth and server requests. The user will have faster load times and save
-data usage if they don't browse the whole page.
+Provides integration with bLazy and or Intersection Observer API to lazy load
+and multi-serve images to save bandwidth and server requests. The user will have
+faster load times and save data usage if they don't browse the whole page.
 
 ## REQUIREMENTS
 1. bLazy library:
@@ -164,17 +164,6 @@ least 7 lightboxes, and likely more.
 A full release should be reasonable after proper feedbacks from the community,
 some code cleanup, and optimization where needed. Patches are very much welcome.
 
-Alpha, Beta, DEV releases are for developers only. Beware of possible breakage.
-
-However if it is broken, unless an update is provided, running `drush cr` during
-DEV releases should fix most issues as we add new services, or change things.
-If you don't drush, before any module update, always open:
-
-[Performance](/admin/config/development/performance)
-
-And so you are ready to hit **Clear all caches** if any issue.
-Only at worst case, know how to run http://dgo.to/registry_rebuild safely.
-
 
 ## PROGRAMATICALLY
 See blazy.api.php for details.
@@ -197,7 +186,7 @@ See blazy.api.php for details.
 ## READ MORE
 See the project page on drupal.org:
 
-[Blazy module](http://drupal.org/project/blazy)
+* [Blazy module](http://drupal.org/project/blazy)
 
 See the bLazy docs at:
 
