@@ -38,6 +38,7 @@
   var _srcSet = 'srcset';
   var _bgSrc = 'data-src';
   var _dataSrc = 'data-src';
+  var _dataSrcset = 'data-srcset';
   var _bgSources = [_src];
   var _imgSources = [_srcSet, _src];
 
@@ -72,6 +73,8 @@
           _bgSources.push(object.src.replace('data-', ''));
 
           // We have several values here, the last wins, but not good.
+          // The original bLazy uses max-width, stick to it. The custom aspect
+          // ratio works were also already based on this decision.
           if (object.width >= me.windowWidth) {
             _bgSrc = object.src;
             _bgSrcs.push(_bgSrc);
@@ -79,7 +82,10 @@
           }
         });
 
+        // This part is the betterment to the original bLazy.
         // Fetches the nearest to window width, not the farthest/ largest.
+        // Not always available when the window is larger than the last item.
+        // In such cases, this is easily fixed via configuration UI.
         if (_bgSrcs.length > 0) {
           _bgSrc = _bgSrcs[0];
         }
@@ -101,15 +107,16 @@
       // PICTURE elements.
       if (isPicture) {
         _db.forEach(parent.getElementsByTagName('source'), function (source) {
-          me.setAttr(source, _srcSet);
+          me.setAttr(source, _srcSet, true);
         });
-        // Tiny image inside picture element won't get preloaded.
+        // Tiny controller image inside picture element won't get preloaded.
+        me.setAttr(el, _src, true);
         me.loaded(el, me._ok);
       }
       // VIDEO elements.
       else if (isVideo) {
         _db.forEach(el.getElementsByTagName('source'), function (source) {
-          me.setAttr(source, _src);
+          me.setAttr(source, _src, true);
         });
         el.load();
         me.loaded(el, me._ok);
@@ -122,7 +129,7 @@
         // IFRAME elements, etc.
         else {
           if (el.getAttribute(_dataSrc) && el.hasAttribute(_src)) {
-            el.src = el.getAttribute(_dataSrc);
+            me.setAttr(el, _src, true);
             me.loaded(el, me._ok);
           }
         }
@@ -132,15 +139,6 @@
     };
   })(_proto.lazyLoad);
 
-  _proto.loaded = (function (_bio) {
-    return function (el, status) {
-
-      this.removeAttrs(el, _imgSources);
-
-      return _bio.apply(this, arguments);
-    };
-  })(_proto.loaded);
-
   _proto.promise = function (el, isBg) {
     var me = this;
 
@@ -148,7 +146,10 @@
       var img = new Image();
 
       // Preload `img` to have correct event handlers.
-      me.setAttrs(el, _imgSources, img, isBg ? _bgSrc : _dataSrc);
+      img.src = el.getAttribute(isBg ? _bgSrc : _dataSrc);
+      if (el.hasAttribute(_dataSrcset)) {
+        img.srcset = el.getAttribute(_dataSrcset);
+      }
 
       // Handle onload event.
       img.onload = function () {
@@ -179,16 +180,13 @@
         me.loaded(el, status);
       })
       .finally(function () {
-        me.removeAttrs(el, _imgSources);
+        me.removeAttrs(el, isBg ? _bgSources : _imgSources);
       });
   };
 
   _proto.setBg = function (el) {
-    var me = this;
-
     if (el.hasAttribute(_bgSrc)) {
       el.style.backgroundImage = 'url("' + el.getAttribute(_bgSrc) + '")';
-      me.removeAttrs(el, _bgSources);
       el.removeAttribute(_src);
     }
   };

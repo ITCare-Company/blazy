@@ -182,7 +182,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * Returns array of needed assets suitable for #attached property.
    */
-  public function attach($attach = []) {
+  public function attach(array $attach = []) {
     $load   = [];
     $switch = empty($attach['media_switch']) ? '' : $attach['media_switch'];
 
@@ -210,26 +210,33 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     if (!isset($this->isBlazyAttached)) {
       // Core Blazy libraries.
       if (!empty($attach['blazy']) || (isset($attach['lazy']) && $attach['lazy'] == 'blazy')) {
-        $thold = trim($this->configLoad('io.threshold')) ?: '0';
-        $number = strpos($thold, '.') !== FALSE ? (float) $thold : (int) $thold;
-        $thold = strpos($thold, ',') !== FALSE ? array_map('trim', explode(',', $thold)) : [$number];
-
-        // Respects hook_blazy_attach_alter() for more fine-grained control.
-        foreach (['enabled', 'disconnect', 'rootMargin', 'threshold'] as $key) {
-          $default = $key == 'rootMargin' ? '0px' : FALSE;
-          $value = $key == 'threshold' ? $thold : $this->configLoad('io.' . $key);
-          $io[$key] = isset($attach['io.' . $key]) ? $attach['io.' . $key] : ($value ?: $default);
-        }
-
-        $load['drupalSettings']['blazy'] = $this->configLoad()['blazy'];
-        $load['drupalSettings']['blazyIo'] = $io;
         $load['library'][] = 'blazy/load';
+        $load['drupalSettings']['blazy'] = $this->configLoad()['blazy'];
+        $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
       }
       $this->isBlazyAttached = TRUE;
     }
 
     $this->moduleHandler->alter('blazy_attach', $load, $attach);
     return $load;
+  }
+
+  /**
+   * Returns drupalSettings.
+   */
+  public function getIoSettings(array $attach = []) {
+    $thold = trim($this->configLoad('io.threshold')) ?: '0';
+    $number = strpos($thold, '.') !== FALSE ? (float) $thold : (int) $thold;
+    $thold = strpos($thold, ',') !== FALSE ? array_map('trim', explode(',', $thold)) : [$number];
+
+    // Respects hook_blazy_attach_alter() for more fine-grained control.
+    foreach (['enabled', 'disconnect', 'rootMargin', 'threshold'] as $key) {
+      $default = $key == 'rootMargin' ? '0px' : FALSE;
+      $value = $key == 'threshold' ? $thold : $this->configLoad('io.' . $key);
+      $io[$key] = isset($attach['io.' . $key]) ? $attach['io.' . $key] : ($value ?: $default);
+    }
+
+    return $io;
   }
 
   /**

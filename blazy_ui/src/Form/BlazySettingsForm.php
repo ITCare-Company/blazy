@@ -164,7 +164,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#type'          => 'checkbox',
       '#title'         => $this->t('Unload bLazy'),
       '#default_value' => $config->get('io.unblazy'),
-      '#description'   => $this->t("Check if you are happy with IO. This will not load the original bLazy library, no fallback. Watch out for JS errors at old browsers, and uncheck if any, or unsure. Blazy is just ~1KB gzip. Clear caches!"),
+      '#description'   => $this->t("Check if you are happy with IO. This will not load the original bLazy library, no fallback. Watch out for JS errors at browser consoles, and uncheck if any, or unsure. Blazy is just ~1KB gzip. Clear caches!"),
     ];
 
     $form['io']['rootMargin'] = [

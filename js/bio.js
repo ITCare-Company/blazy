@@ -172,19 +172,19 @@
     });
   };
 
-  _proto.setAttrs = function (el, attrs, tag, tagSrc) {
+  _proto.setAttrs = function (el, attrs) {
     var me = this;
 
     _db.forEach(attrs, function (src) {
-      me.setAttr(el, src, tag, tagSrc);
+      me.setAttr(el, src);
     });
   };
 
-  _proto.setAttr = function (el, attr, tag, tagSrc) {
+  _proto.setAttr = function (el, attr, remove) {
     if (el.hasAttribute('data-' + attr)) {
       el.setAttribute(attr, el.getAttribute('data-' + attr));
-      if (typeof tag !== 'undefined') {
-        tag.src = el.getAttribute(tagSrc);
+      if (remove) {
+        el.removeAttribute('data-' + attr);
       }
     }
   };

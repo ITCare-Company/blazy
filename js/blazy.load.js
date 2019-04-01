@@ -17,12 +17,14 @@
     windowWidth: 0,
     globals: function () {
       var me = this;
+      var blazySettings = drupalSettings.blazy || {};
+      var ioSettings = drupalSettings.blazyIo || {};
       var commons = {
         success: me.clearing.bind(me),
         error: me.clearing.bind(me)
       };
 
-      return _db.extend(drupalSettings[me.isIo() ? 'blazyIo' : 'blazy'], commons);
+      return _db.extend(blazySettings, ioSettings, commons);
     },
 
     clearing: function (el) {
@@ -54,7 +56,7 @@
     },
 
     isIo: function () {
-      return drupalSettings.blazyIo.enabled && 'IntersectionObserver' in window;
+      return drupalSettings.blazyIo && drupalSettings.blazyIo.enabled && 'IntersectionObserver' in window;
     },
 
     isBlazy: function () {
