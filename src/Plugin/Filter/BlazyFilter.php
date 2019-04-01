@@ -87,7 +87,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $settings['column'] = stristr($text, 'data-column') !== FALSE;
     $settings['media_switch'] = $switch = $this->settings['media_switch'];
     $settings['lightbox'] = ($switch && in_array($switch, $this->blazyManager->getLightboxes())) ? $switch : FALSE;
-    $settings['id'] = $settings['gallery_id'] = 'blazy-filter-' . Crypt::randomBytesBase64(8);
+    $settings['id'] = $settings['gallery_id'] = Blazy::getHtmlId('blazy-filter-' . Crypt::randomBytesBase64(8));
     $settings['plugin_id'] = 'blazy_filter';
     $settings['_grid'] = $settings['column'] || $settings['grid'];
     $settings['placeholder'] = $this->blazyManager->configLoad('placeholder', 'blazy.settings');

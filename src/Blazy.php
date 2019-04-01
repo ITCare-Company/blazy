@@ -3,6 +3,7 @@
 namespace Drupal\blazy;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\UrlHelper;
@@ -447,6 +448,26 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Returns the sanitized attributes common for user-defined ones.
+   *
+   * When IMG and IFRAME are allowed for untrusted users, trojan horses are
+   * welcome. Hence sanitize attributes relevant for BlazyFilter. The rest
+   * should be taken care of by HTML filters after Blazy.
+   */
+  public static function sanitize(array $attributes = []) {
+    $clean_attributes = [];
+    $tags = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];
+    foreach ($attributes as $key => $value) {
+      // Since Blazy is lazyloading known URLs, sanitize attributes which make
+      // no sense to stick around within IMG or IFRAME tags.
+      $kid = substr($key, 0, 2) === 'on' || in_array($key, $tags);
+      $key = $kid ? 'data-' . $key : $key;
+      $clean_attributes[$key] = $kid ? Html::cleanCssIdentifier($value) : Html::escape($value);
+    }
+    return $clean_attributes;
+  }
+
+  /**
    * Returns the trusted HTML ID of a single instance.
    */
   public static function getHtmlId($string = 'blazy', $id = '') {
@@ -456,7 +477,7 @@ class Blazy implements BlazyInterface {
 
     // Do not use dynamic Html::getUniqueId, otherwise broken AJAX.
     $id = empty($id) ? ($string . '-' . ++static::$blazyId) : $id;
-    return trim(str_replace('_', '-', strip_tags($id)));
+    return Html::getId($id);
   }
 
 }

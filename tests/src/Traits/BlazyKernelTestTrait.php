@@ -24,7 +24,7 @@ trait BlazyKernelTestTrait {
     $this->installEntitySchema('node');
     $this->installEntitySchema('file');
     $this->installEntitySchema('media');
-    $this->installEntitySchema('entity_test');
+    // @todo $this->installEntitySchema('entity_test');
   }
 
   /**

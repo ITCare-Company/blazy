@@ -31,7 +31,7 @@ abstract class BlazyKernelTestBase extends FieldKernelTestBase {
   public static $modules = [
     'system',
     'user',
-    'entity_test',
+    // @todo 'entity_test',
     'field',
     'field_ui',
     'file',

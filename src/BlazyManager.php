@@ -103,8 +103,11 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     $attributes = isset($build['attributes']) ? $build['attributes'] : [];
-    $item_attributes = isset($build['item_attributes']) ? $build['item_attributes'] : [];
     $url_attributes = $build['url_attributes'];
+
+    // Sanitize potential user-defined attributes such as from BlazyFilter.
+    // Skip attributes via $item, or by module, as they are not user-defined.
+    $item_attributes = empty($build['item_attributes']) ? [] : Blazy::sanitize($build['item_attributes']);
 
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.

@@ -175,12 +175,10 @@
     return me.promise(el, isBg)
       .then(function (status) {
         me.loaded(el, status);
+        me.removeAttrs(el, isBg ? _bgSources : _imgSources);
       })
       .catch(function (status) {
         me.loaded(el, status);
-      })
-      .finally(function () {
-        me.removeAttrs(el, isBg ? _bgSources : _imgSources);
       });
   };
 

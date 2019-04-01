@@ -38,7 +38,7 @@ abstract class BlazyViewsTestBase extends ViewsKernelTestBase {
     'node',
     'text',
     'options',
-    'entity_test',
+    // @todo 'entity_test',
     'views',
     'blazy',
     'blazy_test',

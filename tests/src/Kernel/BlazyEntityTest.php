@@ -2,8 +2,6 @@
 
 namespace Drupal\Tests\blazy\Kernel;
 
-use Drupal\entity_test\Entity\EntityTest;
-
 /**
  * Tests the Blazy entity methods.
  *
@@ -45,16 +43,7 @@ class BlazyEntityTest extends BlazyKernelTestBase {
    * @dataProvider providerTestGetEntityView
    */
   public function testGetEntityView($entity, $fallback, $message, $expected) {
-    if ($entity == 'entity') {
-      $entity_test = EntityTest::create([
-        'name' => $this->randomMachineName(),
-      ]);
-
-      $entity_test->save();
-
-      $entity = $entity_test;
-    }
-    elseif ($entity == 'node') {
+    if ($entity == 'node') {
       $entity = empty($this->entity) ? $this->setUpContentWithItems($this->bundle) : $this->entity;
     }
     elseif ($entity == 'responsive_image') {
@@ -76,12 +65,6 @@ class BlazyEntityTest extends BlazyKernelTestBase {
    */
   public function providerTestGetEntityView() {
     return [
-      'Entity test' => [
-        'entity',
-        '',
-        'Entity test has no entity_test_view(), yet it has view builder.',
-        TRUE,
-      ],
       'Node' => [
         'node',
         '',
