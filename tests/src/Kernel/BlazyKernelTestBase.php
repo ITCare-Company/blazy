@@ -42,6 +42,7 @@ abstract class BlazyKernelTestBase extends FieldKernelTestBase {
     'responsive_image',
     'node',
     'text',
+    'views',
     'blazy',
     'blazy_ui',
     'blazy_test',

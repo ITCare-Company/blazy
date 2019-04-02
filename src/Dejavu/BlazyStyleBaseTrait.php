@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Dejavu;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Render\Markup;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
@@ -68,6 +69,7 @@ trait BlazyStyleBaseTrait {
     $settings['instance_id']       = $instance;
     $settings['multiple']          = TRUE;
     $settings['plugin_id']         = $plugin_id;
+    $settings['use_ajax']          = $view->ajaxEnabled();
     $settings['view_name']         = $view_name;
     $settings['view_display']      = $view->style_plugin->displayHandler->getPluginId();
     $settings['_views']            = TRUE;
@@ -107,8 +109,8 @@ trait BlazyStyleBaseTrait {
         }
 
         if (isset($name) && $rendered = $this->getFieldRenderable($row, 0, $name)) {
-          if (is_array($rendered) && isset($rendered['rendered']) && isset($rendered['rendered']['#build'])) {
-            $rendered = $rendered['rendered']['#build'];
+          if (is_array($rendered) && isset($rendered['rendered']) && !($rendered['rendered'] instanceof Markup)) {
+            $rendered = isset($rendered['rendered']['#build']) ? $rendered['rendered']['#build'] : [];
           }
         }
       }

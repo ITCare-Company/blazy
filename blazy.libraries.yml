@@ -54,13 +54,20 @@ bio.media:
 
 load:
   js:
-    js/blazy.load.min.js: { weight: -1, minified: true }
+    js/blazy.load.min.js: { weight: -1.5, minified: true }
   dependencies:
     - core/drupal
     - blazy/blazy
     - blazy/dblazy
     - blazy/bio.media
     - blazy/loading
+
+bio.ajax:
+  js:
+    js/bio.ajax.min.js: { minified: true }
+  dependencies:
+    - core/drupal.ajax
+    - blazy/load
 
 media:
   js:

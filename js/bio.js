@@ -56,6 +56,7 @@
       error: false,
       success: false,
       observing: false,
+      useAjax: false,
       successClass: 'b-loaded',
       selector: '.b-lazy',
       errorClass: 'b-error',
@@ -64,9 +65,9 @@
       threshold: [0]
     };
 
-    me.opts = _db.extend({}, defaults, options || {});
-    me.opts.selector = me.opts.selector + ':not(.' + me.opts.successClass + ')';
-    me.elms = (me.opts.root || _doc).querySelectorAll(me.opts.selector);
+    me.options = _db.extend({}, defaults, options || {});
+    me.options.selector = me.options.selector + ':not(.' + me.options.successClass + ')';
+    me.elms = (me.options.root || _doc).querySelectorAll(me.options.selector);
     me.count = me.elms.length;
     me.counted = 0;
     me._er = -1;
@@ -106,7 +107,7 @@
   };
 
   _proto.isLoaded = function (el) {
-    return el.classList.contains(this.opts.successClass);
+    return el.classList.contains(this.options.successClass);
   };
 
   _proto.isValid = function (el) {
@@ -122,6 +123,8 @@
 
     // Prevents from too many revalidations unless needed.
     if ((me.count !== me.counted || force === true) && (_revTick < me.counted)) {
+      _disconnected = false;
+      me.elms = (me.options.root || _doc).querySelectorAll(me.options.selector);
       me.observe();
 
       _revTick++;
@@ -146,16 +149,16 @@
   _proto.success = function (el) {
     var me = this;
 
-    if (typeof me.opts.success === 'function') {
-      me.opts.success(el, me.opts);
+    if (typeof me.options.success === 'function') {
+      me.options.success(el, me.options);
     }
   };
 
   _proto.error = function (el) {
     var me = this;
 
-    if (typeof me.opts.error === 'function') {
-      me.opts.error(el, me.opts);
+    if (typeof me.options.error === 'function') {
+      me.options.error(el, me.options);
     }
   };
 
@@ -163,7 +166,7 @@
     var me = this;
 
     me[status === me._ok ? 'success' : 'error'](el);
-    el.classList.add(status === me._ok ? me.opts.successClass : me.opts.errorClass);
+    el.classList.add(status === me._ok ? me.options.successClass : me.options.errorClass);
   };
 
   _proto.removeAttrs = function (el, attrs) {
@@ -215,8 +218,8 @@
 
     // Load each on entering viewport.
     _db.forEach(entries, function (entry) {
-      if (typeof me.opts.observing === 'function') {
-        me.opts.observing(entry, observer, me.opts);
+      if (typeof me.options.observing === 'function') {
+        me.options.observing(entry, observer, me.options);
       }
 
       if (entry.intersectionRatio > 0 || entry.isIntersecting) {
@@ -235,7 +238,7 @@
     var me = this;
 
     // Disconnect when all entries are loaded, if so configured.
-    if ((_bioTick === 0 || me.count === me.counted) && me.opts.disconnect) {
+    if ((_bioTick === 0 || me.count === me.counted) && me.options.disconnect) {
       me.observer.disconnect();
       _disconnected = true;
     }
@@ -243,8 +246,8 @@
 
   function init(me) {
     var config = {
-      rootMargin: me.opts.rootMargin,
-      threshold: me.opts.threshold
+      rootMargin: me.options.rootMargin,
+      threshold: me.options.threshold
     };
 
     // Initializes the IO.

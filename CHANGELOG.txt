@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2019-04-02
+-----------------------------
+- Added support for Views Infinite Scroll, alike.
+
 Blazy 8.x-2.0-dev, 2019-04-01
 -----------------------------
 - Added check to drupalSettings before usage.

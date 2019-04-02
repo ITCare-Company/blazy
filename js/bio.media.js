@@ -66,10 +66,10 @@
       var me = this;
 
       // DIV elements with multi-serving CSS background images.
-      if (me.opts.breakpoints) {
+      if (me.options.breakpoints) {
         var _bgSrcs = [];
 
-        _db.forEach(me.opts.breakpoints, function (object) {
+        _db.forEach(me.options.breakpoints, function (object) {
           _bgSources.push(object.src.replace('data-', ''));
 
           // We have several values here, the last wins, but not good.
@@ -100,7 +100,7 @@
       var me = this;
       var parent = el.parentNode;
       var isImage = me.equal(el, 'img');
-      var isBg = typeof el.src === 'undefined' && el.classList.contains(me.opts.bgClass);
+      var isBg = typeof el.src === 'undefined' && el.classList.contains(me.options.bgClass);
       var isPicture = parent && me.equal(parent, 'picture');
       var isVideo = me.equal(el, 'video');
 

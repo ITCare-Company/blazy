@@ -21,7 +21,6 @@ class BlazyGrid {
    *   The modified array of grid items.
    */
   public static function build(array $items = [], array $settings = []) {
-    $blazy      = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
     $style      = empty($settings['style']) ? '' : $settings['style'];
     $is_gallery = !empty($settings['lightbox']) && !empty($settings['gallery_id']);
     $is_grid    = isset($settings['_grid']) ? $settings['_grid'] : (!empty($settings['style']) && !empty($settings['grid']));
@@ -53,6 +52,12 @@ class BlazyGrid {
       $contents[] = $content;
     }
 
+    // Provides hint about AJAX.
+    if (!empty($settings['use_ajax'])) {
+      $settings['blazy_data']['useAjax'] = TRUE;
+    }
+
+    $blazy   = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
     $count   = empty($settings['count']) ? count($contents) : $settings['count'];
     $wrapper = $style ? ['item-list--blazy', 'item-list--blazy-' . $style] : ['item-list--blazy'];
     $element = [
