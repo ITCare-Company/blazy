@@ -458,11 +458,17 @@ class Blazy implements BlazyInterface {
     $clean_attributes = [];
     $tags = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];
     foreach ($attributes as $key => $value) {
-      // Since Blazy is lazyloading known URLs, sanitize attributes which make
-      // no sense to stick around within IMG or IFRAME tags.
-      $kid = substr($key, 0, 2) === 'on' || in_array($key, $tags);
-      $key = $kid ? 'data-' . $key : $key;
-      $clean_attributes[$key] = $kid ? Html::cleanCssIdentifier($value) : Html::escape($value);
+      // Classes are sanitized by Attribute().
+      if (is_array($value)) {
+        $clean_attributes[$key] = $value;
+      }
+      else {
+        // Since Blazy is lazyloading known URLs, sanitize attributes which make
+        // no sense to stick around within IMG or IFRAME tags.
+        $kid = substr($key, 0, 2) === 'on' || in_array($key, $tags);
+        $key = $kid ? 'data-' . $key : $key;
+        $clean_attributes[$key] = $kid ? Html::cleanCssIdentifier($value) : Html::escape($value);
+      }
     }
     return $clean_attributes;
   }

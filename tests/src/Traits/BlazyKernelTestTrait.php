@@ -14,7 +14,14 @@ trait BlazyKernelTestTrait {
    * Setup common Kernel classes.
    */
   protected function setUpKernelInstall() {
-    $this->installConfig(static::$modules);
+    $this->installConfig([
+      'field',
+      'image',
+      'responsive_image',
+      'node',
+      'views',
+      'blazy',
+    ]);
 
     $this->installSchema('user', ['users_data']);
     $this->installSchema('node', ['node_access']);

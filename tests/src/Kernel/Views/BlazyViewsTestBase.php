@@ -33,6 +33,8 @@ abstract class BlazyViewsTestBase extends ViewsKernelTestBase {
     'file',
     'image',
     'media',
+    'breakpoint',
+    'responsive_image',
     'filter',
     'link',
     'node',

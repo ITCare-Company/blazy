@@ -485,6 +485,7 @@ trait BlazyCreationTestTrait {
     }
 
     if (empty($this->url)) {
+      // @todo 8.7+ replace with \Drupal\Core\File\FileSystemInterface::copy()
       file_unmanaged_copy(DRUPAL_ROOT . '/core/modules/simpletest/files/image-1.png', 'public://test.png');
       $this->url = file_create_url('public://test.png');
     }
@@ -525,7 +526,9 @@ trait BlazyCreationTestTrait {
     $uri    = $path . '/' . $name;
 
     if (!is_file($uri)) {
+      // @todo 8.7+ \Drupal\Core\File\FileSystemInterface::prepareDirectory()
       file_prepare_directory($path, FILE_CREATE_DIRECTORY);
+      // @todo 8.7+ replace with \Drupal\Core\File\FileSystemInterface::copy()
       file_unmanaged_copy($source, $uri, FILE_EXISTS_REPLACE);
     }
 

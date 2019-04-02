@@ -1,6 +1,6 @@
 /**
  * @file
- * Provides Nanobar loader.
+ * Provides Intersection Observer API AJAX helper.
  *
  * Blazy IO works fine with AJAX, until using VIS, or alike. Adds a helper.
  */
