@@ -88,6 +88,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   private $isBlazyAttached;
 
   /**
+   * The blazy IO settings.
+   *
+   * @var object
+   */
+  protected $isIoSettings;
+
+  /**
    * Constructs a BlazyManager object.
    */
   public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, RendererInterface $renderer, ConfigFactoryInterface $config_factory, CacheBackendInterface $cache) {
@@ -209,17 +216,15 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
     $io = $this->getIoSettings($attach);
     if (!isset($this->isBlazyAttached)) {
-      // Core Blazy libraries.
-      if (!empty($attach['blazy']) || (isset($attach['lazy']) && $attach['lazy'] == 'blazy')) {
-        $load['library'][] = 'blazy/load';
-        $load['drupalSettings']['blazy'] = $this->configLoad('blazy');
-        $load['drupalSettings']['blazyIo'] = $io;
-      }
+      // Core Blazy libraries, enforced to prevent JS error when optional.
+      $load['library'][] = 'blazy/load';
+      $load['drupalSettings']['blazy'] = $this->configLoad('blazy');
+      $load['drupalSettings']['blazyIo'] = $io;
       $this->isBlazyAttached = TRUE;
     }
 
     // Adds AJAX helper to revalidate IO, if using IO with VIS, or alike.
-    if (!empty($attach['use_ajax']) && !empty($io['enabled'])) {
+    if (!empty($attach['use_ajax']) && $io->enabled) {
       $load['library'][] = 'blazy/bio.ajax';
     }
 
@@ -231,18 +236,22 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * Returns drupalSettings for IO.
    */
   public function getIoSettings(array $attach = []) {
-    $thold = trim($this->configLoad('io.threshold')) ?: '0';
-    $number = strpos($thold, '.') !== FALSE ? (float) $thold : (int) $thold;
-    $thold = strpos($thold, ',') !== FALSE ? array_map('trim', explode(',', $thold)) : [$number];
+    if (!isset($this->isIoSettings)) {
+      $thold = trim($this->configLoad('io.threshold')) ?: '0';
+      $number = strpos($thold, '.') !== FALSE ? (float) $thold : (int) $thold;
+      $thold = strpos($thold, ',') !== FALSE ? array_map('trim', explode(',', $thold)) : [$number];
 
-    // Respects hook_blazy_attach_alter() for more fine-grained control.
-    foreach (['enabled', 'disconnect', 'rootMargin', 'threshold'] as $key) {
-      $default = $key == 'rootMargin' ? '0px' : FALSE;
-      $value = $key == 'threshold' ? $thold : $this->configLoad('io.' . $key);
-      $io[$key] = isset($attach['io.' . $key]) ? $attach['io.' . $key] : ($value ?: $default);
+      // Respects hook_blazy_attach_alter() for more fine-grained control.
+      foreach (['enabled', 'disconnect', 'rootMargin', 'threshold'] as $key) {
+        $default = $key == 'rootMargin' ? '0px' : FALSE;
+        $value = $key == 'threshold' ? $thold : $this->configLoad('io.' . $key);
+        $io[$key] = isset($attach['io.' . $key]) ? $attach['io.' . $key] : ($value ?: $default);
+      }
+
+      $this->isIoSettings = (object) $io;
     }
 
-    return $io;
+    return $this->isIoSettings;
   }
 
   /**

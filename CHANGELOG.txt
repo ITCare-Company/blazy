@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2019-04-03
 -----------------------------
+- Updated tests for D8.7+ depreciation compatibility.
+- Enforced Blazy loader to prevent JS error due to being optional.
 - Fixed for image error handling.
 
 Blazy 8.x-2.0-dev, 2019-04-02

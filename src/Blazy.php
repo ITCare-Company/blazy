@@ -17,11 +17,6 @@ use Drupal\image\Entity\ImageStyle;
 class Blazy implements BlazyInterface {
 
   /**
-   * Defines constant placeholder Data URI image.
-   */
-  const PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-
-  /**
    * The blazy HTML ID.
    *
    * @var int

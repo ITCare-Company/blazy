@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\blazy\Traits;
 
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\node\Entity\NodeType;
@@ -485,9 +486,18 @@ trait BlazyCreationTestTrait {
     }
 
     if (empty($this->url)) {
-      // @todo 8.7+ replace with \Drupal\Core\File\FileSystemInterface::copy()
-      file_unmanaged_copy(DRUPAL_ROOT . '/core/modules/simpletest/files/image-1.png', 'public://test.png');
-      $this->url = file_create_url('public://test.png');
+      $source = DRUPAL_ROOT . '/core/modules/simpletest/files/image-1.png';
+      $uri = 'public://test.png';
+
+      // Compatibility for 8.7+.
+      if (isset($this->fileSystem) && method_exists($this->fileSystem, 'copy')) {
+        $this->fileSystem->copy($source, $uri, FileSystemInterface::EXISTS_REPLACE);
+      }
+      elseif (function_exists('file_unmanaged_copy')) {
+        file_unmanaged_copy($source, $uri, FILE_EXISTS_REPLACE);
+      }
+
+      $this->url = file_create_url($uri);
     }
 
     $this->testItem = $item;
@@ -526,10 +536,21 @@ trait BlazyCreationTestTrait {
     $uri    = $path . '/' . $name;
 
     if (!is_file($uri)) {
-      // @todo 8.7+ \Drupal\Core\File\FileSystemInterface::prepareDirectory()
-      file_prepare_directory($path, FILE_CREATE_DIRECTORY);
-      // @todo 8.7+ replace with \Drupal\Core\File\FileSystemInterface::copy()
-      file_unmanaged_copy($source, $uri, FILE_EXISTS_REPLACE);
+      // Compatibility for 8.7+.
+      if (isset($this->fileSystem) && method_exists($this->fileSystem, 'prepareDirectory')) {
+        $this->fileSystem->prepareDirectory($path, FileSystemInterface::CREATE_DIRECTORY);
+      }
+      elseif (function_exists('file_prepare_directory')) {
+        file_prepare_directory($path, FILE_CREATE_DIRECTORY);
+      }
+
+      // Compatibility for 8.7+.
+      if (isset($this->fileSystem) && method_exists($this->fileSystem, 'saveData')) {
+        $this->fileSystem->saveData($source, $uri, FileSystemInterface::EXISTS_REPLACE);
+      }
+      elseif (function_exists('file_unmanaged_save_data')) {
+        file_unmanaged_save_data($source, $uri, FILE_EXISTS_REPLACE);
+      }
     }
 
     $uri = 'public://simpletest/' . $this->testPluginId . '/' . $name;
