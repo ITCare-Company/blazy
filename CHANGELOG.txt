@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2019-04-03
+-----------------------------
+- Fixed for image error handling.
+
 Blazy 8.x-2.0-dev, 2019-04-02
 -----------------------------
 - Added support for Views Infinite Scroll, alike.

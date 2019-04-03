@@ -15,16 +15,16 @@
   Drupal.blazy = Drupal.blazy || {
     init: null,
     windowWidth: 0,
+    blazySettings: drupalSettings.blazy || {},
+    ioSettings: drupalSettings.blazyIo || {},
     globals: function () {
       var me = this;
-      var blazySettings = drupalSettings.blazy || {};
-      var ioSettings = drupalSettings.blazyIo || {};
       var commons = {
         success: me.clearing.bind(me),
         error: me.clearing.bind(me)
       };
 
-      return _db.extend(blazySettings, ioSettings, commons);
+      return _db.extend(me.blazySettings, me.ioSettings, commons);
     },
 
     clearing: function (el) {
@@ -56,7 +56,7 @@
     },
 
     isIo: function () {
-      return drupalSettings.blazyIo && drupalSettings.blazyIo.enabled && 'IntersectionObserver' in window;
+      return this.ioSettings && this.ioSettings.enabled && 'IntersectionObserver' in window;
     },
 
     isBlazy: function () {

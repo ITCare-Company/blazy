@@ -39,6 +39,7 @@
 
 /* Needed to display preloader with CSS BG image, otherwise hidden. */
 .b-loaded,
+.b-error,
 .media--loading.media--background {
   opacity: 1;
 }

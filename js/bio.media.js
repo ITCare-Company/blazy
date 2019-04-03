@@ -122,7 +122,7 @@
         me.loaded(el, me._ok);
       }
       else {
-        // IMG or DIV/ block elements.
+        // IMG or DIV/ block elements got preloaded for better UX with loading.
         if (isImage || isBg) {
           me.setImage(el, isBg);
         }
@@ -151,19 +151,25 @@
         img.srcset = el.getAttribute(_dataSrcset);
       }
 
-      // Handle onload event.
-      img.onload = function () {
+      // Applies attributes regardless, will re-observe if any error.
+      var applyAttrs = function () {
         if (isBg) {
           me.setBg(el);
         }
         else {
           me.setAttrs(el, _imgSources);
         }
+      };
+
+      // Handle onload event.
+      img.onload = function () {
+        applyAttrs();
         resolve(me._ok);
       };
 
       // Handle onerror event.
       img.onerror = function () {
+        applyAttrs();
         reject(me._er);
       };
     });
