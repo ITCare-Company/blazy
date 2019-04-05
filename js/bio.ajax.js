@@ -10,24 +10,29 @@
   'use strict';
 
   var _blazy = Drupal.blazy || {};
-  var _ajaxSuccess;
+  var _ajax;
+  var _proto
   var _revTimer;
 
   if (_blazy.isIo()) {
-    _ajaxSuccess = Drupal.Ajax.prototype.success;
+    _ajax = Drupal.Ajax;
+    _proto = _ajax.prototype;
 
     // Overrides Drupal.Ajax.prototype.success to re-observe new AJAX contents.
-    Drupal.Ajax.prototype.success = function (response, status) {
-      var me = Drupal.blazy;
+    _proto.success = (function (_ajax) {
+      return function (response, status) {
+        var me = _blazy.init;
 
-      window.clearTimeout(_revTimer);
-      // DOM ready fix. Be sure Views "Use field template" is disabled.
-      _revTimer = window.setTimeout(function () {
-        me.init.revalidate(true);
-      }, 100);
+        window.clearTimeout(_revTimer);
+        // DOM ready fix. Be sure Views "Use field template" is disabled.
+        _revTimer = window.setTimeout(function () {
+          var elms = document.querySelectorAll(me.options.selector);
+          me.load(elms);
+        }, 100);
 
-      _ajaxSuccess.apply(this, arguments);
-    };
+        return _ajax.apply(this, arguments);
+      };
+    })(_proto.success);
 
   }
 
