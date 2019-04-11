@@ -103,11 +103,11 @@ class BlazyManager extends BlazyManagerBase {
       $build[$key] = isset($build[$key]) ? $build[$key] : [];
     }
 
-    $attributes = isset($build['attributes']) ? $build['attributes'] : [];
-    $url_attributes = $build['url_attributes'];
-
+    // Blazy has these 3 attributes, yet provides optional ones far below.
     // Sanitize potential user-defined attributes such as from BlazyFilter.
     // Skip attributes via $item, or by module, as they are not user-defined.
+    $attributes = isset($build['attributes']) ? $build['attributes'] : [];
+    $url_attributes = $build['url_attributes'];
     $item_attributes = empty($build['item_attributes']) ? [] : Blazy::sanitize($build['item_attributes']);
 
     // Extract field item attributes for the theme function, and unset them
@@ -184,7 +184,7 @@ class BlazyManager extends BlazyManagerBase {
     // Was planned to replace sub-module item markups if similarity is found for
     // theme_gridstack_box(), theme_slick_slide(), etc. Likely for Blazy 3.x+.
     foreach (['caption', 'media', 'wrapper'] as $key) {
-      $element["#$key" . '_attributes'] = $build[$key . '_attributes'];
+      $element["#$key" . '_attributes'] = empty($build[$key . '_attributes']) ? [] : Blazy::sanitize($build[$key . '_attributes']);
     }
 
     // Provides captions, if so configured.

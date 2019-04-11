@@ -165,7 +165,7 @@ function blazy_alterable_settings(array &$settings) {
 }
 
 /**
- * Implements hook_preprocess_media_oembed_iframe().
+ * Overrides template_preprocess_media_oembed_iframe().
  */
 function blazy_preprocess_media_oembed_iframe(array &$variables) {
   \Drupal::service('blazy.oembed')->preprocessMediaOembedIframe($variables);

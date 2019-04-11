@@ -21,7 +21,10 @@
       var me = this;
       var commons = {
         success: me.clearing.bind(me),
-        error: me.clearing.bind(me)
+        error: me.clearing.bind(me),
+        selector: '.b-lazy',
+        errorClass: 'b-error',
+        successClass: 'b-loaded'
       };
 
       return _db.extend(me.blazySettings, me.ioSettings, commons);

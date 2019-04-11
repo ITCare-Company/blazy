@@ -245,7 +245,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       $output = $this->blazyManager->build($build);
       $altered_html = $this->blazyManager->getRenderer()->render($output);
 
-      if (($first = $grid_nodes[0]) && $grid) {
+      if ($first = $grid_nodes[0]) {
         // Create the parent grid container, and put it before the first.
         $container = $first->parentNode->insertBefore($dom->createElement('div'), $first);
 
@@ -314,7 +314,7 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     // Responsive image with aspect ratio requires an extra container to work
     // with Align/ Caption images filters.
     $build['media_attributes']['class'] = ['media-wrapper', 'media-wrapper--blazy'];
-    // Copy all attributes of the original node to the $item _attributes.
+    // Copy all attributes of the original node to the item_attributes.
     if ($node->attributes->length) {
       foreach ($node->attributes as $attribute) {
         if ($attribute->nodeName == 'src') {
@@ -322,7 +322,8 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
         }
 
         // Move classes (align-BLAH,etc) to Blazy container, not image so to
-        // work with alignments and aspect ratio.
+        // work with alignments and aspect ratio. Sanitization is performed at
+        // BlazyManager::prepareImage() to avoid double escapes.
         if ($attribute->nodeName == 'class') {
           $build['media_attributes']['class'][] = $attribute->nodeValue;
         }

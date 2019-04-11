@@ -83,9 +83,9 @@ etc., try the following:
 Be sure to leave **Use field template** under **Style settings** unchecked.
 If checked, the gallery is locked to a single entity, that is no Views gallery,
 but gallery per field. The same applies when using Blazy formatter with VIS
-pager, alike, or inside Slick Carousel, GridStack, etc. If confusing, just toggle this
-option, and you'll know which works. Only checked if Blazy formatter is a
-standalone output from Views so to use field template in this case.
+pager, alike, or inside Slick Carousel, GridStack, etc. If confusing, just
+toggle this option, and you'll know which works. Only checked if Blazy formatter
+is a standalone output from Views so to use field template in this case.
 
 Check out the relevant sub-module docs for details.
 

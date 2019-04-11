@@ -223,8 +223,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $this->isBlazyAttached = TRUE;
     }
 
-    // Adds AJAX helper to revalidate IO, if using IO with VIS, or alike.
-    if (!empty($attach['use_ajax']) && $io->enabled) {
+    // Adds AJAX helper to revalidate Blazy/ IO, if using VIS, or alike.
+    if (!empty($attach['use_ajax'])) {
       $load['library'][] = 'blazy/bio.ajax';
     }
 

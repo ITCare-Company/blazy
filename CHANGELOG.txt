@@ -1,4 +1,12 @@
 
+Blazy 8.x-2.0-dev, 2019-04-12
+-----------------------------
+- Added AJAX support for old bLazy as well.
+- Fixed for space delimited CSS classes.
+- Added Bio.prototype.intersecting() to avoid full method overrides.
+- Improved Bio fallback to old Blazy.
+- Improved attributes handling.
+
 Blazy 8.x-2.0-dev, 2019-04-03
 -----------------------------
 - Updated tests for D8.7+ depreciation compatibility.

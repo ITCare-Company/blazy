@@ -50,39 +50,46 @@
    */
   function Bio(options) {
     var me = this;
-    var defaults = {
-      root: null,
-      disconnect: false,
-      error: false,
-      success: false,
-      observing: false,
-      useAjax: false,
-      successClass: 'b-loaded',
-      selector: '.b-lazy',
-      errorClass: 'b-error',
-      bgClass: 'b-bg',
-      rootMargin: '0px',
-      threshold: [0]
-    };
 
-    me.options = _db.extend({}, defaults, options || {});
+    me.options = _db.extend({}, me.defaults, options || {});
     me.options.selector = me.options.selector + ':not(.' + me.options.successClass + ')';
     me.elms = (me.options.root || _doc).querySelectorAll(me.options.selector);
     me.count = me.elms.length;
-    me.counted = 0;
-    me._er = -1;
-    me._ok = 1;
     me.windowWidth = _win.innerWidth || _doc.documentElement.clientWidth || _doc.body.clientWidth || _win.screen.width;
 
     me.prepare();
 
     // Initializes Blazy IntersectionObserver.
+    _disconnected = false;
+    _observed = false;
     init(me);
   }
 
   // Cache our prototype.
   var _proto = Bio.prototype;
   _proto.constructor = Bio;
+
+  // Prepare prototype to interchange with Blazy as fallback.
+  _proto.count = 0;
+  _proto.counted = -1;
+  _proto.erCounted = 0;
+  _proto._er = -1;
+  _proto._ok = 1;
+  _proto.defaults = {
+    root: null,
+    disconnect: false,
+    error: false,
+    success: false,
+    intersecting: false,
+    observing: false,
+    useAjax: false,
+    successClass: 'b-loaded',
+    selector: '.b-lazy',
+    errorClass: 'b-error',
+    bgClass: 'b-bg',
+    rootMargin: '0px',
+    threshold: [0]
+  };
 
   // BC for interchanging with bLazy.
   _proto.load = function (elms) {
@@ -134,6 +141,11 @@
   _proto.intersecting = function (el) {
     var me = this;
 
+    // If not extending/ overriding, at least provide the option.
+    if (typeof me.options.intersecting === 'function') {
+      me.options.intersecting(el, me.options);
+    }
+
     me.lazyLoad(el);
     me.counted++;
 
@@ -152,6 +164,10 @@
     if (typeof me.options.success === 'function') {
       me.options.success(el, me.options);
     }
+
+    if (me.erCounted > 0) {
+      me.erCounted--;
+    }
   };
 
   _proto.error = function (el) {
@@ -160,6 +176,8 @@
     if (typeof me.options.error === 'function') {
       me.options.error(el, me.options);
     }
+
+    me.erCounted++;
   };
 
   _proto.loaded = function (el, status) {
@@ -212,16 +230,19 @@
     var me = this;
 
     me.entries = entries;
+    // Stop watching if already disconnected.
     if (_disconnected) {
       return;
     }
 
     // Load each on entering viewport.
     _db.forEach(entries, function (entry) {
+      // Provides option such as to animate bg or elements regardless position.
       if (typeof me.options.observing === 'function') {
         me.options.observing(entry, observer, me.options);
       }
 
+      // The element is being intersected.
       if (entry.intersectionRatio > 0 || entry.isIntersecting) {
         if (!me.isLoaded(entry.target)) {
           me.intersecting(entry.target);
@@ -231,17 +252,32 @@
       }
     });
 
+    // Disconnect when all is done.
     me.disconnect();
   };
 
-  _proto.disconnect = function () {
+  _proto.disconnect = function (force) {
     var me = this;
 
+    // Do not disconnect if any error found.
+    if (me.erCounted > 0 && !force) {
+      return;
+    }
+
     // Disconnect when all entries are loaded, if so configured.
-    if ((_bioTick === 0 || me.count === me.counted) && me.options.disconnect) {
+    if (((_bioTick === 0 || me.count === me.counted) && me.options.disconnect) || force) {
       me.observer.disconnect();
       _disconnected = true;
     }
+  };
+
+  _proto.disconnected = function () {
+    return _disconnected;
+  };
+
+  _proto.reinit = function () {
+    _disconnected = false;
+    init(this);
   };
 
   function init(me) {
@@ -255,9 +291,9 @@
 
     // Observes once on the page load regardless multiple observer instances.
     // Possible as we nullify the root option to allow querying the DOM once.
+    // Should you need to re-validate, or re-observe, just call ::observe().
     if (!_observed) {
       me.observe();
-
       _observed = true;
     }
   }
