@@ -91,6 +91,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     $settings['plugin_id'] = 'blazy_filter';
     $settings['_grid'] = $settings['column'] || $settings['grid'];
     $settings['placeholder'] = $this->blazyManager->configLoad('placeholder', 'blazy.settings');
+    $settings['is_media_library'] = $this->blazyManager->getModuleHandler()->moduleExists('media_library');
 
     // Allows lightboxes to provide its own optionsets.
     if ($switch) {
@@ -381,7 +382,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
 
     // @todo figure out to not hard-code `field_media_oembed_video`.
     $media = [];
-    if ($this->blazyManager->getModuleHandler()->moduleExists('media_library')) {
+    if (!empty($settings['is_media_library'])) {
       $media = $this->blazyManager->getEntityTypeManager()->getStorage('media')->loadByProperties(['field_media_oembed_video' => $src]);
     }
 
