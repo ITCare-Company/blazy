@@ -35,7 +35,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   weight = 3
  * )
  */
-class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface {
+class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerFactoryPluginInterface {
 
   use BlazyVideoTrait;
 
@@ -102,81 +102,98 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
     $this->blazyManager->getModuleHandler()->alter('blazy_settings', $build, $this->settings);
     $settings = array_merge($settings, $build['settings']);
 
-    $elements = $grid_nodes = [];
+    $valid_nodes = [];
     foreach ($allowed_tags as $allowed_tag) {
       $nodes = $dom->getElementsByTagName($allowed_tag);
       if ($nodes->length > 0) {
-        $item_settings = $settings;
-        $item_settings['count'] = $nodes->length;
-        foreach ($nodes as $delta => $node) {
+        foreach ($nodes as $node) {
           if ($node->hasAttribute('data-unblazy')) {
             continue;
           }
 
-          // Build Blazy elements with lazyloaded image, or iframe.
-          $item_settings['delta'] = $delta;
-          $this->buildSettings($item_settings, $node);
-
-          $build = ['settings' => $item_settings];
-          $this->buildImageItem($build, $node);
-
-          // Sanitization was done by Caption filter when arriving here, as
-          // otherwise we cannot see this figure, yet provide fallback.
-          if ($node->parentNode->tagName === 'figure') {
-            $caption = $node->parentNode->getElementsByTagName('figcaption');
-            if ($caption->length > 0 && $caption->item(0) && $text = $caption->item(0)->nodeValue) {
-              $build['captions']['alt'] = ['#markup' => Xss::filter($text, BlazyDefault::TAGS)];
-
-              // Marks figures for removal as its contents are moved into grids.
-              if ($settings['_grid']) {
-                $node->parentNode->setAttribute('class', 'blazy-figure-removed');
-              }
-            }
-          }
-
-          $output = $this->blazyManager->getBlazy($build);
-          if ($settings['_grid']) {
-            $elements[] = $output;
-            $grid_nodes[] = $node;
-          }
-          else {
-            $altered_html = $this->blazyManager->getRenderer()->render($output);
-
-            // Load the altered HTML into a new DOMDocument, retrieve element.
-            $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')
-              ->item(0)
-              ->childNodes;
-
-            foreach ($updated_nodes as $updated_node) {
-              // Import the updated from the new DOMDocument into the original
-              // one, importing also the child nodes of the updated node.
-              $updated_node = $dom->importNode($updated_node, TRUE);
-              $node->parentNode->insertBefore($updated_node, $node);
-            }
-
-            // Finally, remove the original blazy node.
-            $node->parentNode->removeChild($node);
-          }
+          $valid_nodes[] = $node;
         }
       }
     }
 
-    $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE];
-    $all['media_switch'] = $settings['media_switch'];
-    if ($settings['_grid'] && !empty($elements[0])) {
-      $all['grid'] = $settings['grid'];
-      $all['column'] = $settings['column'];
-      if (isset($settings[$switch])) {
-        $all[$switch] = $settings[$switch];
+    $attachments = [];
+    if (count($valid_nodes) > 0) {
+      $elements = $grid_nodes = [];
+      $item_settings = $settings;
+      $item_settings['count'] = $nodes->length;
+      foreach ($valid_nodes as $delta => $node) {
+        // Build Blazy elements with lazyloaded image, or iframe.
+        $item_settings['uri'] = $item_settings['image_url'] = '';
+        $item_settings['delta'] = $delta;
+        $this->buildSettings($item_settings, $node);
+
+        // Extracts image item from SRC attribute.
+        $build = ['settings' => $item_settings];
+        $this->buildImageItem($build, $node);
+
+        // Extracts image caption if available.
+        $this->buildImageCaption($build, $node);
+
+        // Marks invalid/ unknown IMG or IFRAME for removal.
+        if (empty($build['settings']['uri'])) {
+          $node->setAttribute('class', 'blazy-removed');
+          continue;
+        }
+
+        // Build valid nodes as structured render array.
+        $output = $this->blazyManager->getBlazy($build);
+        if ($settings['_grid']) {
+          $elements[] = $output;
+          $grid_nodes[] = $node;
+        }
+        else {
+          $altered_html = $this->blazyManager->getRenderer()->render($output);
+
+          // Load the altered HTML into a new DOMDocument, retrieve element.
+          $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')
+            ->item(0)
+            ->childNodes;
+
+          foreach ($updated_nodes as $updated_node) {
+            // Import the updated from the new DOMDocument into the original
+            // one, importing also the child nodes of the updated node.
+            $updated_node = $dom->importNode($updated_node, TRUE);
+            $node->parentNode->insertBefore($updated_node, $node);
+          }
+
+          // Finally, remove the original blazy node.
+          if ($node->parentNode) {
+            $node->parentNode->removeChild($node);
+          }
+        }
       }
 
-      $settings['first_uri'] = isset($elements[0]['#build']['settings']['uri']) ? $elements[0]['#build']['settings']['uri'] : '';
-      $this->buildGrid($dom, $settings, $elements, $grid_nodes);
+      // Prepares attachments.
+      $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE];
+      $all['media_switch'] = $settings['media_switch'];
+
+      // Builds the grids if so provided via [data-column], or [data-grid].
+      if ($settings['_grid'] && !empty($elements[0])) {
+        $all['grid'] = $settings['grid'];
+        $all['column'] = $settings['column'];
+        if (isset($settings[$switch])) {
+          $all[$switch] = $settings[$switch];
+        }
+
+        $settings['first_uri'] = isset($elements[0]['#build']['settings']['uri']) ? $elements[0]['#build']['settings']['uri'] : '';
+        $this->buildGrid($dom, $settings, $elements, $grid_nodes);
+      }
+
+      // Adds the attchments.
+      $attachments = $this->blazyManager->attach($all);
+
+      // Cleans up invalid, or moved nodes.
+      $this->cleanupNodes($dom);
     }
 
     // Attach Blazy component libraries.
     $result->setProcessedText(Html::serialize($dom))
-      ->addAttachments($this->blazyManager->attach($all));
+      ->addAttachments($attachments);
 
     return $result;
   }
@@ -184,39 +201,22 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   /**
    * {@inheritdoc}
    */
-  public function tips($long = FALSE) {
-    if ($long) {
-      return $this->t('
-        <p><strong>Blazy</strong>: Image or iframe is lazyloaded. To disable, add attribute <code>data-unblazy</code>:</p>
-        <ul>
-            <li><code>&lt;img data-unblazy /&gt;</code></li>
-            <li><code>&lt;iframe data-unblazy /&gt;</code></li>
-        </ul>
-        <p>To build a grid of images/ videos, add attribute <code>data-grid</code> or <code>data-column</code> (only to the first item):
-        <ul>
-            <li><code>&lt;img data-grid="1 3 4" /&gt;</code></li>
-            <li><code>&lt;iframe data-column="1 3 4" /&gt;</code></li>
-        </ul>
-        The numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements, unless those given a <code>data-unblazy</code>. Also <b>required</b> if using <b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) to build the gallery correctly.</p>');
-    }
-    else {
-      return $this->t('To disable lazyload, add attribute <code>data-unblazy</code> to <code>&lt;img&gt;</code> or <code>&lt;iframe&gt;</code> elements. Examples: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>.');
+  public function cleanupNodes(\DOMDocument &$dom) {
+    $xpath = new \DOMXPath($dom);
+    $nodes = $xpath->query("//*[contains(@class, 'blazy-removed')]");
+    if ($nodes->length > 0) {
+      foreach ($nodes as $node) {
+        if ($node->parentNode) {
+          $node->parentNode->removeChild($node);
+        }
+      }
     }
   }
 
   /**
-   * Build the grid.
-   *
-   * @param \DOMDocument $dom
-   *   The HTML DOM object being modified.
-   * @param array $settings
-   *   The settings array.
-   * @param array $elements
-   *   The renderable array of blazy item.
-   * @param array $grid_nodes
-   *   The grid nodes.
+   * {@inheritdoc}
    */
-  private function buildGrid(\DOMDocument &$dom, array &$settings, array $elements = [], array $grid_nodes = []) {
+  public function buildGrid(\DOMDocument &$dom, array &$settings, array $elements = [], array $grid_nodes = []) {
     $xpath = new \DOMXPath($dom);
     $query = $settings['style'] = $settings['column'] ? 'column' : 'grid';
     $grid = FALSE;
@@ -264,14 +264,8 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
 
         // Cleanups old nodes already moved into grids.
         foreach ($grid_nodes as $node) {
-          $node->parentNode->removeChild($node);
-        }
-
-        // Cleanups marked figures as its contents were moved into grids.
-        $figures = $xpath->query("//*[contains(@class, 'blazy-figure-removed')]");
-        if ($figures->length > 0) {
-          foreach ($figures as $figure) {
-            $figure->parentNode->removeChild($figure);
+          if ($node->parentNode) {
+            $node->parentNode->removeChild($node);
           }
         }
       }
@@ -279,35 +273,25 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   }
 
   /**
-   * Returns the faked image item for the image, uploaded or hard-coded.
-   *
-   * @param array $build
-   *   The content array being modified.
-   * @param object $node
-   *   The HTML DOM object.
+   * {@inheritdoc}
    */
-  private function buildImageItem(array &$build, $node) {
+  public function buildImageItem(array &$build, &$node) {
     $settings = &$build['settings'];
     $item = new \stdClass();
-    $uuid = $node->hasAttribute('data-entity-uuid') ? $node->getAttribute('data-entity-uuid') : '';
-    $file = FALSE;
 
     // Checks if we have a valid file entity, not hard-coded image URL.
-    if ($uuid && $node->hasAttribute('src')) {
-      $file = $this->blazyManager->getEntityRepository()->loadEntityByUuid('file', $uuid);
-      if ($file) {
-        $data = $this->getImageItem($file);
-        $item = $data['item'];
-        $item->alt = $node->hasAttribute('alt') ? $node->getAttribute('alt') : $item->alt;
-        $item->title = $node->hasAttribute('title') ? $node->getAttribute('title') : $item->title;
-        $settings = array_merge($settings, $data['settings']);
+    if ($src = $node->getAttribute('src')) {
+      // If starts with 2 slashes, it is always external.
+      if (strpos($src, '//') === 0) {
+        // We need to query stored SRC, https is enforced.
+        $src = 'https:' . $src;
       }
-    }
-    else {
-      // Gets the correct URI with hard-coded URL if applicable.
-      if (!empty($settings['image_url']) && $uri = Blazy::buildUri($settings['image_url'])) {
-        $settings['uri'] = $uri;
-        $item->uri = $settings['uri'];
+
+      if ($node->tagName == 'img') {
+        $item = $this->getImageItemFromImageSrc($settings, $node, $src);
+      }
+      elseif ($node->tagName == 'iframe') {
+        $item = $this->getImageItemFromIframeSrc($settings, $node, $src);
       }
     }
 
@@ -327,7 +311,9 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
         if ($attribute->nodeName == 'class') {
           $build['media_attributes']['class'][] = $attribute->nodeValue;
         }
-        elseif (!$file) {
+        // Uploaded IMG has target_id in the least, respect hard-coded IMG.
+        // @todo decide to remove as this is being too risky.
+        elseif (!isset($item->target_id)) {
           $build['item_attributes'][$attribute->nodeName] = $attribute->nodeValue;
         }
       }
@@ -339,18 +325,90 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
   }
 
   /**
-   * Returns the settings for the current $node.
-   *
-   * @param array $settings
-   *   The settings being modified.
-   * @param object $node
-   *   The HTML DOM object.
+   * {@inheritdoc}
    */
-  private function buildSettings(array &$settings, $node) {
-    $src = $node->getAttribute('src');
+  public function buildImageCaption(array &$build, &$node) {
+    // Sanitization was done by Caption filter when arriving here, as
+    // otherwise we cannot see this figure, yet provide fallback.
+    if ($node->parentNode && $node->parentNode->tagName === 'figure') {
+      $caption = $node->parentNode->getElementsByTagName('figcaption');
+      if ($caption->length > 0 && $caption->item(0) && $text = $caption->item(0)->nodeValue) {
+        $build['captions']['alt'] = ['#markup' => Xss::filter($text, BlazyDefault::TAGS)];
+
+        // Marks figures for removal as its contents are moved into grids.
+        $node->parentNode->setAttribute('class', 'blazy-removed');
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getImageItemFromImageSrc(array &$settings, $node, $src) {
+    $item = new \stdClass();
+    $uuid = $node->hasAttribute('data-entity-uuid') ? $node->getAttribute('data-entity-uuid') : '';
+
+    // Uploaded image has UUID with file API.
+    if ($uuid && $file = $this->blazyManager->getEntityRepository()->loadEntityByUuid('file', $uuid)) {
+      $data = $this->getImageItem($file);
+      $item = $data['item'];
+      $item->alt = $node->hasAttribute('alt') ? $node->getAttribute('alt') : $item->alt;
+      $item->title = $node->hasAttribute('title') ? $node->getAttribute('title') : $item->title;
+      $settings = array_merge($settings, $data['settings']);
+    }
+    else {
+      // Manually hard-coded image has no UUID, nor file API.
+      $settings['uri'] = $src;
+
+      // Attempts to get the correct URI with hard-coded URL if applicable.
+      if ($uri = Blazy::buildUri($src)) {
+        $settings['uri'] = $item->uri = $uri;
+      }
+    }
+
+    return $item;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getImageItemFromIframeSrc(array &$settings, &$node, $src) {
+    $item = new \stdClass();
+
+    // Iframe with data: alike scheme is a serious kidding, strip it earlier.
+    $src = UrlHelper::stripDangerousProtocols($src);
+    $settings['input_url'] = $src;
+
+    // @todo figure out to not hard-code `field_media_oembed_video`.
+    $media = $this->blazyManager->getEntityTypeManager()->getStorage('media')->loadByProperties(['field_media_oembed_video' => $src]);
+    if (count($media) && $media = reset($media)) {
+      // We have media entity.
+      $data['settings'] = $settings;
+      $this->blazyOembed->getMediaItem($data, $media);
+
+      // Update data with local image.
+      $settings = array_merge($settings, $data['settings']);
+      $item = $data['item'];
+    }
+    // Attempts to build safe embed URL directly from oEmbed resource.
+    elseif ($resource = $this->blazyOembed->build($settings)) {
+      // All we have here is external images.
+      $settings['uri'] = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
+      $settings['width'] = empty($settings['width']) ? $resource->getWidth() : $settings['width'];
+      $settings['height'] = empty($settings['height']) ? $resource->getHeight() : $settings['height'];
+    }
+
+    $settings['ratio'] = empty($settings['width']) ? '16:9' : 'fluid';
+    return $item;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildSettings(array &$settings, $node) {
     $width = $node->getAttribute('width');
     $height = $node->getAttribute('height');
-    $src = UrlHelper::stripDangerousProtocols($src);
+    $src = $node->getAttribute('src');
 
     if (!$width && $node->tagName == 'img') {
       if ($src && $data = @getimagesize(DRUPAL_ROOT . $src)) {
@@ -358,30 +416,33 @@ class BlazyFilter extends FilterBase implements ContainerFactoryPluginInterface 
       }
     }
 
-    $settings['ratio'] = !$width ? '' : 'fluid';
-    $settings['media_switch'] = $this->settings['media_switch'];
-
-    if ($node->tagName == 'iframe') {
-      $settings['input_url'] = $src;
-      $resource = $this->blazyOembed->build($settings);
-
-      if ($resource) {
-        // @todo figure out to get local uri, if any, anyway.
-        $settings['uri'] = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
-        $width = !$width ? $resource->getWidth() : $width;
-        $height = !$height ? $resource->getHeight() : $height;
-      }
-
-      $settings['ratio'] = !$width ? '16:9' : 'fluid';
-    }
-    elseif ($node->tagName == 'img') {
-      $settings['uri'] = $settings['image_url'] = $src;
-    }
-
-    $settings['blazy'] = TRUE;
-    $settings['lazy'] = 'blazy';
     $settings['width'] = $width;
     $settings['height'] = $height;
+    $settings['ratio'] = !$width ? '' : 'fluid';
+    $settings['media_switch'] = $this->settings['media_switch'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function tips($long = FALSE) {
+    if ($long) {
+      return $this->t('
+        <p><strong>Blazy</strong>: Image or iframe is lazyloaded. To disable, add attribute <code>data-unblazy</code>:</p>
+        <ul>
+            <li><code>&lt;img data-unblazy /&gt;</code></li>
+            <li><code>&lt;iframe data-unblazy /&gt;</code></li>
+        </ul>
+        <p>To build a grid of images/ videos, add attribute <code>data-grid</code> or <code>data-column</code> (only to the first item):
+        <ul>
+            <li><code>&lt;img data-grid="1 3 4" /&gt;</code></li>
+            <li><code>&lt;iframe data-column="1 3 4" /&gt;</code></li>
+        </ul>
+        The numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements, unless those given a <code>data-unblazy</code>. Also <b>required</b> if using <b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) to build the gallery correctly.</p>');
+    }
+    else {
+      return $this->t('To disable lazyload, add attribute <code>data-unblazy</code> to <code>&lt;img&gt;</code> or <code>&lt;iframe&gt;</code> elements. Examples: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>.');
+    }
   }
 
   /**
