@@ -380,7 +380,11 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     $settings['input_url'] = $src;
 
     // @todo figure out to not hard-code `field_media_oembed_video`.
-    $media = $this->blazyManager->getEntityTypeManager()->getStorage('media')->loadByProperties(['field_media_oembed_video' => $src]);
+    $media = [];
+    if ($this->blazyManager->getModuleHandler()->moduleExists('media_library')) {
+      $media = $this->blazyManager->getEntityTypeManager()->getStorage('media')->loadByProperties(['field_media_oembed_video' => $src]);
+    }
+
     if (count($media) && $media = reset($media)) {
       // We have media entity.
       $data['settings'] = $settings;
