@@ -297,7 +297,10 @@ class Blazy implements BlazyInterface {
     }
 
     // Just in case, an attempted kidding gets in the way.
-    $settings['image_url'] = UrlHelper::stripDangerousProtocols($settings['image_url']);
+    $use_data_uri = !empty($settings['use_data_uri']) && substr($settings['image_url'], 0, 10) === 'data:image';
+    if (!$use_data_uri) {
+      $settings['image_url'] = UrlHelper::stripDangerousProtocols($settings['image_url']);
+    }
   }
 
   /**

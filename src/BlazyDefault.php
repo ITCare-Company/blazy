@@ -203,6 +203,7 @@ class BlazyDefault {
       'scheme'         => '',
       'type'           => 'image',
       'uri'            => '',
+      'use_data_uri'   => FALSE,
       'use_media'      => FALSE,
       'height'         => NULL,
       'width'          => NULL,

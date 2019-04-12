@@ -92,6 +92,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     $settings['_grid'] = $settings['column'] || $settings['grid'];
     $settings['placeholder'] = $this->blazyManager->configLoad('placeholder', 'blazy.settings');
     $settings['is_media_library'] = $this->blazyManager->getModuleHandler()->moduleExists('media_library');
+    $settings['use_data_uri'] = isset($this->settings['media_switch']) ? $this->settings['media_switch'] : FALSE;
 
     // Allows lightboxes to provide its own optionsets.
     if ($switch) {
@@ -484,6 +485,13 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         $form['media_switch']['#options'][$lightbox] = $this->t('Image to @lightbox', ['@lightbox' => $name]);
       }
     }
+
+    $form['use_data_uri'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Trust data URI'),
+      '#default_value' => isset($this->settings['use_data_uri']) ? $this->settings['use_data_uri'] : FALSE,
+      '#description' => $this->t('Enable to support the use of data URI. Leave it unchecked if unsure, or never use data URI.'),
+    ];
 
     return $form;
   }

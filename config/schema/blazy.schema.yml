@@ -96,3 +96,6 @@ filter_settings.blazy_filter:
     media_switch:
       type: string
       label: 'Media switcher'
+    use_data_uri:
+      type: string
+      label: 'Trust data URI'
