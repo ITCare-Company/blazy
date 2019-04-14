@@ -8,6 +8,17 @@ namespace Drupal\blazy\Plugin\Filter;
 interface BlazyFilterInterface {
 
   /**
+   * Returns the main settings.
+   *
+   * @param string $text
+   *   The provided text.
+   *
+   * @return array
+   *   The main settings for current filter.
+   */
+  public function buildSettings($text);
+
+  /**
    * Cleanups invalid nodes or those of which their contents are moved.
    *
    * @param \DOMDocument $dom
@@ -80,13 +91,13 @@ interface BlazyFilterInterface {
   public function getImageItemFromIframeSrc(array &$settings, &$node, $src);
 
   /**
-   * Returns the settings for the current $node.
+   * Returns the item settings for the current $node.
    *
    * @param array $settings
    *   The settings being modified.
    * @param object $node
    *   The HTML DOM object.
    */
-  public function buildSettings(array &$settings, $node);
+  public function buildItemSettings(array &$settings, $node);
 
 }

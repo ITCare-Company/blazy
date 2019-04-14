@@ -82,7 +82,6 @@
     success: false,
     intersecting: false,
     observing: false,
-    useAjax: false,
     successClass: 'b-loaded',
     selector: '.b-lazy',
     errorClass: 'b-error',
@@ -145,6 +144,9 @@
     if (typeof me.options.intersecting === 'function') {
       me.options.intersecting(el, me.options);
     }
+
+    // Be sure to throttle, or debounce your method when calling this.
+    _db.trigger(el, 'bio.intersecting', {options: me.options});
 
     me.lazyLoad(el);
     me.counted++;
@@ -243,7 +245,7 @@
       }
 
       // The element is being intersected.
-      if (entry.intersectionRatio > 0 || entry.isIntersecting) {
+      if (entry.isIntersecting || entry.intersectionRatio > 0) {
         if (!me.isLoaded(entry.target)) {
           me.intersecting(entry.target);
         }
@@ -267,6 +269,8 @@
     // Disconnect when all entries are loaded, if so configured.
     if (((_bioTick === 0 || me.count === me.counted) && me.options.disconnect) || force) {
       me.observer.disconnect();
+      me.count = 0;
+      me.elms = null;
       _disconnected = true;
     }
   };
@@ -277,6 +281,7 @@
 
   _proto.reinit = function () {
     _disconnected = false;
+    _observed = false;
     init(this);
   };
 

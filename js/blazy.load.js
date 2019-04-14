@@ -17,6 +17,7 @@
     windowWidth: 0,
     blazySettings: drupalSettings.blazy || {},
     ioSettings: drupalSettings.blazyIo || {},
+    options: {},
     globals: function () {
       var me = this;
       var commons = {
@@ -31,6 +32,7 @@
     },
 
     clearing: function (el) {
+      var me = this;
       var ie = el.classList.contains('b-responsive') && el.hasAttribute('data-pfsrc');
 
       // The .b-lazy element can be attached to IMG, or DIV as CSS background.
@@ -56,6 +58,9 @@
           elements: [el]
         });
       }
+
+      // Provides event listeners for easy overrides without full overrides.
+      _db.trigger(el, 'blazy.done', {options: me.options});
     },
 
     isIo: function () {
@@ -80,7 +85,7 @@
   function doBlazy(elm) {
     var me = Drupal.blazy;
     var dataAttr = elm.getAttribute('data-blazy');
-    var data = !dataAttr ? {} : _db.parse(dataAttr);
+    var data = !dataAttr || dataAttr === '1' ? {} : _db.parse(dataAttr);
     var opts = _db.extend({}, me.globals(), data);
     var ratios = elm.querySelectorAll('[data-dimensions]');
     var loopRatio = ratios.length > 0;
@@ -141,6 +146,7 @@
     }
 
     // Initializes IntersectionObserver or Blazy instance.
+    me.options = opts;
     me.init = me.run(opts);
 
     // Reacts on resizing per 200ms, and the magic () also does it on page load.

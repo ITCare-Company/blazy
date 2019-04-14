@@ -53,6 +53,10 @@
   vertical-align: top;
 }
 
+[class*="block-grid-"] .grid__content {
+  position: relative;
+}
+
 @media only screen {
   .small-block-grid-1 > .grid {
     width: 100%;

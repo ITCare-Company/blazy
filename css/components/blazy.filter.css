@@ -15,6 +15,7 @@
 .media-wrapper--blazy {
   max-width: 100%;
   min-width: 50%;
+  position: relative;
 }
 
 /** Blazy is placed after filter Align/ Caption will be collapsed. Adjust it. */

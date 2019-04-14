@@ -40,6 +40,7 @@ dblazy:
   dependencies:
     - core/classList
 
+# @todo adjust weights to use hundredth decimals.
 bio:
   js:
     js/bio.min.js: { weight: -3, minified: true }

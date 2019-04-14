@@ -1,4 +1,13 @@
 
+Blazy 8.x-2.0-dev, 2019-04-14
+-----------------------------
+- Fixed for few glitches.
+
+Blazy 8.x-2.0-dev, 2019-04-13
+-----------------------------
+- Issue #3047067 by gausarts, RajabNatshah: Inline image/png;base64 will have a
+  path  and Failed to load resource: the server responded with a status.
+
 Blazy 8.x-2.0-dev, 2019-04-12
 -----------------------------
 - Added BlazyFilterInterface.php for better doc comments.

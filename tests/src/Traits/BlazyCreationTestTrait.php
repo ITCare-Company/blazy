@@ -536,13 +536,7 @@ trait BlazyCreationTestTrait {
     $uri    = $path . '/' . $name;
 
     if (!is_file($uri)) {
-      // Compatibility for 8.7+.
-      if (isset($this->fileSystem) && method_exists($this->fileSystem, 'prepareDirectory')) {
-        $this->fileSystem->prepareDirectory($path, FileSystemInterface::CREATE_DIRECTORY);
-      }
-      elseif (function_exists('file_prepare_directory')) {
-        file_prepare_directory($path, FILE_CREATE_DIRECTORY);
-      }
+      $this->prepareTestDirectory();
 
       // Compatibility for 8.7+.
       if (isset($this->fileSystem) && method_exists($this->fileSystem, 'saveData')) {
@@ -565,6 +559,20 @@ trait BlazyCreationTestTrait {
     $item->save();
 
     return $item;
+  }
+
+  /**
+   * Prepares test directory to store screenshots, or images.
+   */
+  protected function prepareTestDirectory() {
+    $this->testDirPath = \Drupal::root() . '/sites/default/files/simpletest/' . $this->testPluginId;
+    // Compatibility for 8.7+.
+    if (isset($this->fileSystem) && method_exists($this->fileSystem, 'prepareDirectory')) {
+      $this->fileSystem->prepareDirectory($this->testDirPath, FileSystemInterface::CREATE_DIRECTORY);
+    }
+    elseif (function_exists('file_prepare_directory')) {
+      file_prepare_directory($this->testDirPath, FILE_CREATE_DIRECTORY);
+    }
   }
 
 }

@@ -8,6 +8,7 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\FilterProcessResult;
@@ -40,6 +41,13 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
   use BlazyVideoTrait;
 
   /**
+   * The entity field manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
+
+  /**
    * The blazy manager service.
    *
    * @var \Drupal\blazy\BlazyManagerInterface
@@ -49,10 +57,11 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImageFactory $image_factory, BlazyOEmbed $blazy_oembed) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImageFactory $image_factory, EntityFieldManagerInterface $entity_field_manager, BlazyOEmbed $blazy_oembed) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->imageFactory = $image_factory;
+    $this->entityFieldManager = $entity_field_manager;
     $this->blazyOembed = $blazy_oembed;
     $this->blazyManager = $blazy_oembed->blazyManager();
   }
@@ -66,6 +75,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $plugin_id,
       $plugin_definition,
       $container->get('image.factory'),
+      $container->get('entity_field.manager'),
       $container->get('blazy.oembed')
     );
   }
@@ -82,27 +92,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     }
 
     $dom = Html::load($text);
-    $settings = BlazyDefault::lazySettings();
-    $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
-    $settings['column'] = stristr($text, 'data-column') !== FALSE;
-    $settings['media_switch'] = $switch = $this->settings['media_switch'];
-    $settings['lightbox'] = ($switch && in_array($switch, $this->blazyManager->getLightboxes())) ? $switch : FALSE;
-    $settings['id'] = $settings['gallery_id'] = Blazy::getHtmlId('blazy-filter-' . Crypt::randomBytesBase64(8));
-    $settings['plugin_id'] = 'blazy_filter';
-    $settings['_grid'] = $settings['column'] || $settings['grid'];
-    $settings['placeholder'] = $this->blazyManager->configLoad('placeholder', 'blazy.settings');
-    $settings['is_media_library'] = $this->blazyManager->getModuleHandler()->moduleExists('media_library');
-    $settings['use_data_uri'] = isset($this->settings['media_switch']) ? $this->settings['media_switch'] : FALSE;
-
-    // Allows lightboxes to provide its own optionsets.
-    if ($switch) {
-      $settings[$switch] = empty($settings[$switch]) ? $switch : $settings[$switch];
-    }
-
-    // Provides alter like formatters to modify at one go, even clumsy here.
-    $build = ['settings' => $settings];
-    $this->blazyManager->getModuleHandler()->alter('blazy_settings', $build, $this->settings);
-    $settings = array_merge($settings, $build['settings']);
+    $settings = $this->buildSettings($text);
 
     $valid_nodes = [];
     foreach ($allowed_tags as $allowed_tag) {
@@ -127,7 +117,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         // Build Blazy elements with lazyloaded image, or iframe.
         $item_settings['uri'] = $item_settings['image_url'] = '';
         $item_settings['delta'] = $delta;
-        $this->buildSettings($item_settings, $node);
+        $this->buildItemSettings($item_settings, $node);
 
         // Extracts image item from SRC attribute.
         $build = ['settings' => $item_settings];
@@ -172,7 +162,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
 
       // Prepares attachments.
       $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE];
-      $all['media_switch'] = $settings['media_switch'];
+      $all['media_switch'] = $switch = $settings['media_switch'];
 
       // Builds the grids if so provided via [data-column], or [data-grid].
       if ($settings['_grid'] && !empty($elements[0])) {
@@ -182,7 +172,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
           $all[$switch] = $settings[$switch];
         }
 
-        $settings['first_uri'] = isset($elements[0]['#build']['settings']['uri']) ? $elements[0]['#build']['settings']['uri'] : '';
+        $settings['first_uri'] = isset($elements[0]['#build'], $elements[0]['#build']['settings']['uri']) ? $elements[0]['#build']['settings']['uri'] : '';
         $this->buildGrid($dom, $settings, $elements, $grid_nodes);
       }
 
@@ -198,6 +188,34 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       ->addAttachments($attachments);
 
     return $result;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildSettings($text) {
+    $settings = BlazyDefault::lazySettings();
+    $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
+    $settings['column'] = stristr($text, 'data-column') !== FALSE;
+    $settings['media_switch'] = $switch = $this->settings['media_switch'];
+    $settings['lightbox'] = ($switch && in_array($switch, $this->blazyManager->getLightboxes())) ? $switch : FALSE;
+    $settings['id'] = $settings['gallery_id'] = Blazy::getHtmlId('blazy-filter-' . Crypt::randomBytesBase64(8));
+    $settings['plugin_id'] = 'blazy_filter';
+    $settings['_grid'] = $settings['column'] || $settings['grid'];
+    $settings['placeholder'] = $this->blazyManager->configLoad('placeholder', 'blazy.settings');
+    $settings['use_data_uri'] = isset($this->settings['media_switch']) ? $this->settings['media_switch'] : FALSE;
+    $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
+    $settings['is_media_library'] = $definitions && isset($definitions['field_media_oembed_video']);
+
+    // Allows lightboxes to provide its own optionsets.
+    if ($switch) {
+      $settings[$switch] = empty($settings[$switch]) ? $switch : $settings[$switch];
+    }
+
+    // Provides alter like formatters to modify at one go, even clumsy here.
+    $build = ['settings' => $settings];
+    $this->blazyManager->getModuleHandler()->alter('blazy_settings', $build, $this->settings);
+    return array_merge($settings, $build['settings']);
   }
 
   /**
@@ -248,6 +266,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $altered_html = $this->blazyManager->getRenderer()->render($output);
 
       if ($first = $grid_nodes[0]) {
+
         // Create the parent grid container, and put it before the first.
         $container = $first->parentNode->insertBefore($dom->createElement('div'), $first);
 
@@ -411,7 +430,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
   /**
    * {@inheritdoc}
    */
-  public function buildSettings(array &$settings, $node) {
+  public function buildItemSettings(array &$settings, $node) {
     $width = $node->getAttribute('width');
     $height = $node->getAttribute('height');
     $src = $node->getAttribute('src');

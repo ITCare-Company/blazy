@@ -97,6 +97,14 @@
 
   _proto.lazyLoad = (function (_bio) {
     return function (el) {
+      // Image may take time to load after being hit, and it may be intersected
+      // several times till marked loaded. Ensures it is hit once regardless
+      // of being loaded, or not. No real issue with normal images on the page,
+      // until having VIS alike which may spit out new images on AJAX request.
+      if (el.hasAttribute('data-bio-hit')) {
+        return;
+      }
+
       var me = this;
       var parent = el.parentNode;
       var isImage = me.equal(el, 'img');
@@ -134,6 +142,9 @@
           }
         }
       }
+
+      // Marks it hit/ requested. Not necessarily loaded.
+      el.setAttribute('data-bio-hit', 1);
 
       return _bio.apply(this, arguments);
     };
@@ -185,6 +196,10 @@
       })
       .catch(function (status) {
         me.loaded(el, status);
+      })
+      .finally(function () {
+        // Be sure to throttle, or debounce your method when calling this.
+        _db.trigger(el, 'bio.finally', {options: me.options});
       });
   };
 
