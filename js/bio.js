@@ -52,12 +52,6 @@
     var me = this;
 
     me.options = _db.extend({}, me.defaults, options || {});
-    me.options.selector = me.options.selector + ':not(.' + me.options.successClass + ')';
-    me.elms = (me.options.root || _doc).querySelectorAll(me.options.selector);
-    me.count = me.elms.length;
-    me.windowWidth = _win.innerWidth || _doc.documentElement.clientWidth || _doc.body.clientWidth || _win.screen.width;
-
-    me.prepare();
 
     // Initializes Blazy IntersectionObserver.
     _disconnected = false;
@@ -164,7 +158,7 @@
     var me = this;
 
     if (typeof me.options.success === 'function') {
-      me.options.success(el, me.options);
+      me.options.success(el, me._ok, me.options);
     }
 
     if (me.erCounted > 0) {
@@ -176,7 +170,7 @@
     var me = this;
 
     if (typeof me.options.error === 'function') {
-      me.options.error(el, me.options);
+      me.options.error(el, me._er, me.options);
     }
 
     me.erCounted++;
@@ -185,7 +179,7 @@
   _proto.loaded = function (el, status) {
     var me = this;
 
-    me[status === me._ok ? 'success' : 'error'](el);
+    me[status === me._ok ? 'success' : 'error'](el, status, me.options);
     el.classList.add(status === me._ok ? me.options.successClass : me.options.errorClass);
   };
 
@@ -275,6 +269,12 @@
     }
   };
 
+  _proto.destroy = function (force) {
+    var me = this;
+    me.disconnect(force);
+    me.observer = null;
+  };
+
   _proto.disconnected = function () {
     return _disconnected;
   };
@@ -290,6 +290,13 @@
       rootMargin: me.options.rootMargin,
       threshold: me.options.threshold
     };
+
+    me.options.selector = me.options.selector + ':not(.' + me.options.successClass + ')';
+    me.elms = (me.options.root || _doc).querySelectorAll(me.options.selector);
+    me.count = me.elms.length;
+    me.windowWidth = _win.innerWidth || _doc.documentElement.clientWidth || _doc.body.clientWidth || _win.screen.width;
+
+    me.prepare();
 
     // Initializes the IO.
     me.observer = new IntersectionObserver(me.observing.bind(me), config);

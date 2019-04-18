@@ -235,6 +235,7 @@ class BlazySettingsForm extends ConfigFormBase {
 
     // Invalidate the library discovery cache to update the responsive image.
     $this->libraryDiscovery->clearCachedDefinitions();
+    $this->configFactory->clearStaticCache();
 
     $this->messenger()->addMessage($this->t('Be sure to <a href=":clear_cache">clear the cache</a> if trouble to see the updated settings.', [':clear_cache' => Url::fromRoute('system.performance_settings')->toString()]));
 

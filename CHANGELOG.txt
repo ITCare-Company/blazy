@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2019-04-18
+-----------------------------
+- Updated IO to match the fallback bLazy.
+
 Blazy 8.x-2.0-dev, 2019-04-14
 -----------------------------
 - Fixed for few glitches.
