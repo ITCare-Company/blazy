@@ -3,7 +3,7 @@
 namespace Drupal\blazy_ui\Form;
 
 use Drupal\Core\Url;
-use Drupal\Core\Asset\LibraryDiscovery;
+use Drupal\Core\Asset\LibraryDiscoveryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -17,7 +17,7 @@ class BlazySettingsForm extends ConfigFormBase {
   /**
    * The library discovery service.
    *
-   * @var \Drupal\Core\Asset\LibraryDiscovery
+   * @var \Drupal\Core\Asset\LibraryDiscoveryInterface
    */
   protected $libraryDiscovery;
 
@@ -26,10 +26,10 @@ class BlazySettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
-   * @param \Drupal\Core\Asset\LibraryDiscovery $library_discovery
+   * @param \Drupal\Core\Asset\LibraryDiscoveryInterface $library_discovery
    *   Discovers available asset libraries in Drupal.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, LibraryDiscovery $library_discovery) {
+  public function __construct(ConfigFactoryInterface $config_factory, LibraryDiscoveryInterface $library_discovery) {
     parent::__construct($config_factory);
 
     $this->libraryDiscovery = $library_discovery;
