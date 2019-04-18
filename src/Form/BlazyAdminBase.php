@@ -4,7 +4,7 @@ namespace Drupal\blazy\Form;
 
 use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Datetime\DateFormatter;
+use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Config\TypedConfigManagerInterface;
@@ -73,7 +73,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * The date formatter service.
    *
-   * @var \Drupal\Core\Datetime\DateFormatter
+   * @var \Drupal\Core\Datetime\DateFormatterInterface
    */
   protected $dateFormatter;
 
@@ -91,12 +91,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    *   The entity display repository.
    * @param \Drupal\Core\Config\TypedConfigManagerInterface $typed_config
    *   The typed config service.
-   * @param \Drupal\Core\Datetime\DateFormatter $date_formatter
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
    *   The date formatter service.
    * @param \Drupal\slick\BlazyManagerInterface $blazy_manager
    *   The blazy manager service.
    */
-  public function __construct(EntityDisplayRepositoryInterface $entity_display_repository, TypedConfigManagerInterface $typed_config, DateFormatter $date_formatter, BlazyManagerInterface $blazy_manager) {
+  public function __construct(EntityDisplayRepositoryInterface $entity_display_repository, TypedConfigManagerInterface $typed_config, DateFormatterInterface $date_formatter, BlazyManagerInterface $blazy_manager) {
     $this->entityDisplayRepository = $entity_display_repository;
     $this->typedConfig             = $typed_config;
     $this->dateFormatter           = $date_formatter;
