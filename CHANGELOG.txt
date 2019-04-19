@@ -1,4 +1,12 @@
 
+Blazy 8.x-2.0-dev, 2019-04-19
+-----------------------------
+- Added tests for IO.
+- Updated blazy.html.twig with the new optional use_loading option.
+- Added option use_loading to make it easily overridden.
+- Moved IO media specific methods from bio.js to bio.media.js.
+- Added ISSUE_TEMPLATE.md.
+
 Blazy 8.x-2.0-dev, 2019-04-18
 -----------------------------
 - Issue #3048605 by thalles: Replace LibraryDiscovery by

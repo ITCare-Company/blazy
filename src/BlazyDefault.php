@@ -204,6 +204,7 @@ class BlazyDefault {
       'type'           => 'image',
       'uri'            => '',
       'use_data_uri'   => FALSE,
+      'use_loading'    => TRUE,
       'use_media'      => FALSE,
       'height'         => NULL,
       'width'          => NULL,

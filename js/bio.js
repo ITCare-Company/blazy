@@ -154,11 +154,11 @@
     // Do nothing, let extenders do their own lazy, can be images, AJAX, etc.
   };
 
-  _proto.success = function (el) {
+  _proto.success = function (el, status, parent) {
     var me = this;
 
     if (typeof me.options.success === 'function') {
-      me.options.success(el, me._ok, me.options);
+      me.options.success(el, status, parent, me.options);
     }
 
     if (me.erCounted > 0) {
@@ -166,44 +166,21 @@
     }
   };
 
-  _proto.error = function (el) {
+  _proto.error = function (el, status, parent) {
     var me = this;
 
     if (typeof me.options.error === 'function') {
-      me.options.error(el, me._er, me.options);
+      me.options.error(el, status, parent, me.options);
     }
 
     me.erCounted++;
   };
 
-  _proto.loaded = function (el, status) {
+  _proto.loaded = function (el, status, parent) {
     var me = this;
 
-    me[status === me._ok ? 'success' : 'error'](el, status, me.options);
+    me[status === me._ok ? 'success' : 'error'](el, status, parent);
     el.classList.add(status === me._ok ? me.options.successClass : me.options.errorClass);
-  };
-
-  _proto.removeAttrs = function (el, attrs) {
-    _db.forEach(attrs, function (attr) {
-      el.removeAttribute('data-' + attr);
-    });
-  };
-
-  _proto.setAttrs = function (el, attrs) {
-    var me = this;
-
-    _db.forEach(attrs, function (src) {
-      me.setAttr(el, src);
-    });
-  };
-
-  _proto.setAttr = function (el, attr, remove) {
-    if (el.hasAttribute('data-' + attr)) {
-      el.setAttribute(attr, el.getAttribute('data-' + attr));
-      if (remove) {
-        el.removeAttribute('data-' + attr);
-      }
-    }
   };
 
   _proto.equal = function (el, str) {

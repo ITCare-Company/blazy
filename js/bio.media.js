@@ -61,6 +61,36 @@
   var _proto = BioMedia.prototype = Object.create(Bio.prototype);
   _proto.constructor = BioMedia;
 
+  _proto.removeAttrs = function (el, attrs) {
+    _db.forEach(attrs, function (attr) {
+      el.removeAttribute('data-' + attr);
+    });
+  };
+
+  _proto.setAttrs = function (el, attrs) {
+    var me = this;
+
+    _db.forEach(attrs, function (src) {
+      me.setAttr(el, src);
+    });
+  };
+
+  _proto.setAttr = function (el, attr, remove) {
+    if (el.hasAttribute('data-' + attr)) {
+      var dataAttr = el.getAttribute('data-' + attr);
+      if (attr === _src) {
+        el.src = dataAttr;
+      }
+      else {
+        el.setAttribute(attr, dataAttr);
+      }
+
+      if (remove) {
+        el.removeAttribute('data-' + attr);
+      }
+    }
+  };
+
   _proto.prepare = (function (_bio) {
     return function () {
       var me = this;

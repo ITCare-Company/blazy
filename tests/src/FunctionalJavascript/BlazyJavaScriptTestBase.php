@@ -11,7 +11,7 @@ use Drupal\Tests\blazy\Traits\BlazyCreationTestTrait;
  *
  * @group blazy
  */
-class BlazyJavaScriptTest extends WebDriverTestBase {
+abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
 
   use BlazyUnitTestTrait;
   use BlazyCreationTestTrait;
@@ -42,12 +42,13 @@ class BlazyJavaScriptTest extends WebDriverTestBase {
     $this->formatterPluginManager = $this->container->get('plugin.manager.field.formatter');
     $this->blazyAdmin             = $this->container->get('blazy.admin');
     $this->blazyManager           = $this->container->get('blazy.manager');
+    $this->scriptLoader           = 'blazy';
   }
 
   /**
    * Test the Blazy element from loading to loaded states.
    */
-  public function testFormatterDisplay() {
+  public function doTestFormatterDisplay() {
     $data['settings']['blazy'] = TRUE;
     $data['settings']['ratio'] = '';
     $data['settings']['image_style'] = 'thumbnail';
@@ -64,14 +65,14 @@ class BlazyJavaScriptTest extends WebDriverTestBase {
     $this->assertSession()->elementNotExists('css', '.b-loaded');
 
     // Capture the initial page load moment.
-    $this->createScreenshot($image_path . '/1_blazy_initial.png');
+    $this->createScreenshot($image_path . '/' . $this->scriptLoader . '_1_initial.png');
     $this->assertSession()->elementExists('css', '.b-lazy');
 
     // Trigger Blazy to load images by scrolling down window.
     $session->executeScript('window.scrollTo(0, document.body.scrollHeight);');
 
     // Capture the loading moment after scrolling down the window.
-    $this->createScreenshot($image_path . '/2_blazy_loading.png');
+    $this->createScreenshot($image_path . '/' . $this->scriptLoader . '_2_loading.png');
 
     // Wait a moment.
     $session->wait(3000);
@@ -81,7 +82,7 @@ class BlazyJavaScriptTest extends WebDriverTestBase {
 
     // Capture the loaded moment.
     // The screenshots are at sites/default/files/simpletest/blazy.
-    $this->createScreenshot($image_path . '/3_blazy_loaded.png');
+    $this->createScreenshot($image_path . '/' . $this->scriptLoader . '_3_loaded.png');
   }
 
 }
