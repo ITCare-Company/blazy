@@ -1,6 +1,10 @@
 
 Blazy 8.x-2.0-dev, 2019-04-18
 -----------------------------
+- Issue #3048605 by thalles: Replace LibraryDiscovery by
+  LibraryDiscoveryInterface in Form/BlazySettingsForm.
+- Issue #3048607 by thalles: Replace DateFormatter by DateFormatterInterface
+  in Form/BlazyAdminBase.php.
 - Updated IO to match the fallback bLazy.
 
 Blazy 8.x-2.0-dev, 2019-04-14

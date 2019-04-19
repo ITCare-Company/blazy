@@ -182,6 +182,7 @@
       // Runs basic Blazy if no [data-blazy] found, probably a single image.
       // Cannot use .contains(), as IE11 doesn't support method 'contains'.
       if (el === null) {
+        me.options = me.globals();
         me.init = me.run(me.globals());
         return;
       }

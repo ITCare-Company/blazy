@@ -119,6 +119,8 @@ Check out the relevant sub-module docs for details.
 
 
 ## MODULES THAT INTEGRATE WITH OR REQUIRE BLAZY
+* [Ajaxin](http://dgo.to/ajaxin)
+* [Intersection Observer](http://dgo.to/io)
 * [Blazy PhotoSwipe](http://dgo.to/blazy_photoswipe)
 * [GridStack](http://dgo.to/gridstack)
 * [Outlayer](http://dgo.to/outlayer)
@@ -134,6 +136,7 @@ Check out the relevant sub-module docs for details.
 * [Jumper](http://dgo.to/jumper)
 * [Zooming](http://dgo.to/zooming)
 * [ElevateZoom Plus](http://dgo.to/elevatezoomplus)
+
 
 Most duplication efforts from the above modules will be merged into
 \Drupal\blazy\Dejavu or anywhere else namespace.
