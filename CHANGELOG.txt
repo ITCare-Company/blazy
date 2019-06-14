@@ -1,6 +1,10 @@
 
 Blazy 8.x-2.0-dev, 2019-04-19
 -----------------------------
+- Changed minimum grid from 1 to 2 to allow plain theme_item_list().
+
+Blazy 8.x-2.0-dev, 2019-04-19
+-----------------------------
 - Added tests for IO.
 - Updated blazy.html.twig with the new optional use_loading option.
 - Added option use_loading to make it easily overridden.
