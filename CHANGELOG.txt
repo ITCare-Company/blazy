@@ -1,6 +1,8 @@
 
-Blazy 8.x-2.0-dev, 2019-04-19
+Blazy 8.x-2.0-dev, 2019-06-14
 -----------------------------
+- Issue #3054230 by jigarius: Images added via RTE with caption enabled not
+  displayed.
 - Changed minimum grid from 1 to 2 to allow plain theme_item_list().
 
 Blazy 8.x-2.0-dev, 2019-04-19
