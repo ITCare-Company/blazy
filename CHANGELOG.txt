@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2019-08-23
 -----------------------------
+- Issue #3075938 by recrit: dBlazy library uses incorrect polyfill for
+  CustomEvent
 - Issue #3072137 by ilchovuchkov: Update src/BlazyDefault.php and
   src/BlazyEntity.php
 
