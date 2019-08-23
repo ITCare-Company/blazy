@@ -379,8 +379,8 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     if ($uuid && $file = $this->blazyManager->getEntityRepository()->loadEntityByUuid('file', $uuid)) {
       $data = $this->getImageItem($file);
       $item = $data['item'];
-      $item->alt = $node->hasAttribute('alt') ? $node->getAttribute('alt') : $item->alt;
-      $item->title = $node->hasAttribute('title') ? $node->getAttribute('title') : $item->title;
+      $item->alt = $node->hasAttribute('alt') ? $node->getAttribute('alt') : ($item ? $item->alt : '');
+      $item->title = $node->hasAttribute('title') ? $node->getAttribute('title') : ($item ? $item->title : '');
       $settings = array_merge($settings, $data['settings']);
     }
     else {
