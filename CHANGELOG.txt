@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2019-08-23
 -----------------------------
+- Issue #3057691 by recrit: Un-hidden images not loaded after resizing when
+  using minimal field markup
 - Issue #3059509 by gausarts, tepelena: Lazy load inline images error
 - Issue #3054051 by thalles, gausarts: hook_help return empty without Markdown
   class
