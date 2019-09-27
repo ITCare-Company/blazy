@@ -79,11 +79,11 @@
   /**
    * Initialize the default blazy instance.
    */
-  var initBlazyDefault = _db.once(function () {
+  var initBlazyDefault = function () {
     var me = Drupal.blazy;
     me.options = me.globals();
     me.init = me.run(me.options);
-  });
+  };
 
   /**
    * Setup all blazy elements.
