@@ -88,11 +88,11 @@
   /**
    * Setup all blazy elements.
    */
-  function doBlazyDefault() {
+  function doBlazyDefault(context) {
     var me = Drupal.blazy;
     initBlazyDefault();
     if (typeof me.init.options.selector !== 'undefined' && me.init.options.selector !== null) {
-      var blazies = document.querySelectorAll(me.init.options.selector + ':not(.' + me.init.options.successClass + ')');
+      var blazies = context.querySelectorAll(me.init.options.selector + ':not(.' + me.init.options.successClass + ')');
       if (blazies.length > 0) {
         _db.once(_db.forEach(blazies, doBlazy));
       }
@@ -111,6 +111,13 @@
     var hasDefaultOptions = !dataAttr || dataAttr === '1';
     var data = hasDefaultOptions ? {} : _db.parse(dataAttr);
     var opts = _db.extend({}, me.globals(), data);
+    // Set docroot in case we are in an iframe.
+    // @see Blazy.toArray
+    var documentElement = elm.closest('html')
+    if (!document.documentElement.isSameNode(documentElement)) {
+      opts.root = documentElement;
+      hasDefaultOptions = false;
+    }
     var ratios = elm.querySelectorAll('[data-dimensions]');
     var loopRatio = ratios.length > 0;
     var fallbackRatios = elm.querySelectorAll('[data-ratio]');
@@ -205,18 +212,21 @@
    */
   Drupal.behaviors.blazy = {
     attach: function (context) {
-      var el = document.querySelector('[data-blazy]');
+      // Drupal.attachBehaviors already does this so if this is necessary, someone
+      // does an invalid call. But let's be robust here.
+      context = context || document;
+      var el = context.querySelector('[data-blazy]');
 
       // Runs basic Blazy if no [data-blazy] found, probably a single image or
       // a theme that does not use field attributes.
       // Cannot use .contains(), as IE11 doesn't support method 'contains'.
       if (el === null) {
-        doBlazyDefault();
+        doBlazyDefault(context);
         return;
       }
 
       // Runs Blazy with multi-serving images, and aspect ratio supports.
-      var blazies = document.querySelectorAll('.blazy:not(.blazy--on)');
+      var blazies = context.querySelectorAll('.blazy:not(.blazy--on)');
       _db.once(_db.forEach(blazies, doBlazy));
     }
   };
