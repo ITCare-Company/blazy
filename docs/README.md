@@ -9,7 +9,7 @@ faster load times and save data usage if they don't browse the whole page.
    * [Download bLazy](https://github.com/dinbror/blazy)
    * Extract it as is, rename **blazy-master** to **blazy**, so the assets are:
 
-      + **/libraries/blazy/blazy.min.js**
+      + **/libraries/blazy/blazy.js**
 
 ## INSTALLATION
 1. **MANUAL:**

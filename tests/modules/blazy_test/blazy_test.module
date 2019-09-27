@@ -87,10 +87,10 @@ function blazy_test_library_info_alter(array &$libraries, $extension) {
     return;
   }
 
-  $path = DRUPAL_ROOT . '/libraries/blazy/blazy.min.js';
+  $path = DRUPAL_ROOT . '/libraries/blazy/blazy.js';
   if (!is_file($path)) {
-    $libraries['blazy']['js'] = ['https://cdn.jsdelivr.net/blazy/latest/blazy.min.js' => ['type' => 'external', 'weight' => -4]];
-    unset($libraries['blazy']['js']['/libraries/blazy/blazy.min.js']);
+    $libraries['blazy']['js'] = ['https://cdn.jsdelivr.net/npm/blazy/blazy.js' => ['type' => 'external', 'weight' => -4]];
+    unset($libraries['blazy']['js']['/libraries/blazy/blazy.js']);
   }
 }
 
