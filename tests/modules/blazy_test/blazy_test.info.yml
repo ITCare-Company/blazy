@@ -9,3 +9,4 @@ dependencies:
   - blazy:blazy
   - drupal:responsive_image
   - drupal:views
+  - drupal:media (>= 8.8)
