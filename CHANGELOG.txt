@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2019-12-25
+-----------------------------
+- Issue #3088298 by effulgentsia, chr.fritsch, anavarre, Kristen Pol: [META]
+  Drupal 9 Deprecation Notices for Blazy
+
 Blazy 8.x-2.0-dev, 2019-12-01
 -----------------------------
 - Added fallback to source since Title is NULL from thumbnail, likely core bug.
