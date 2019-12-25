@@ -10,7 +10,6 @@ dependencies:
 test_dependencies:
   - drupal:responsive_image
   - drupal:views
-  - drupal:media (>= 8.8)
 
 # Add a fake version so local drush and Git checkouts do not fail dependencies.
 version: 8.x-2.x

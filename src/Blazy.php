@@ -503,7 +503,8 @@ class Blazy implements BlazyInterface {
    */
   private static function isValidUri($uri) {
     if (version_compare(\Drupal::VERSION, '8.8', '>=')) {
-      return \Drupal::service('stream_wrapper_manager')->isValidUri($uri);
+      // Adds a check to pass the tests due to non-DI.
+      return \Drupal::hasService('stream_wrapper_manager') ? \Drupal::service('stream_wrapper_manager')->isValidUri($uri) : FALSE;
     }
     else {
       // Because this code only runs for older Drupal versions, we do not need

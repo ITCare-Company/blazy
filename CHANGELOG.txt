@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2019-12-25
 -----------------------------
+- Added a check for stream_wrapper_manager to pass the tests due to non-DI.
 - Updated for core removing simpletest files.
 - Fixed for coding standard issues, see #3024461.
 - Issue #3088298 by effulgentsia, chr.fritsch, anavarre, Kristen Pol: [META]
