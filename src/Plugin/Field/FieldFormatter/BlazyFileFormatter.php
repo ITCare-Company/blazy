@@ -12,8 +12,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Plugin implementation of the 'Blazy File' to get VEF/VEM within images/files.
  *
- * @deprecated for media.
- * @todo tbd; to remove post or prior to Blazy 8.2.x release.
+ * @deprecated in blazy:8.2.0 and is removed from blazy:9.0.0.
+ *
+ * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter
  */
 class BlazyFileFormatter extends BlazyFormatterBlazy {
 

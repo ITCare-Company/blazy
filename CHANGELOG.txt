@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2019-12-25
 -----------------------------
+- Updated for core removing simpletest files.
+- Fixed for coding standard issues.
 - Issue #3088298 by effulgentsia, chr.fritsch, anavarre, Kristen Pol: [META]
   Drupal 9 Deprecation Notices for Blazy
 

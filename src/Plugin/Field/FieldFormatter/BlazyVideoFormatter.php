@@ -14,9 +14,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Plugin implementation of the 'Blazy Video' to get VEF videos.
  *
- * @deprecated for \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter
  * @todo remove prior to full release. This means Slick Video which depends
  * on VEF is deprecated for main Slick at Blazy 8.2.x with core Media only.
+ *
+ * @deprecated in blazy:8.2.0 and is removed from blazy:9.0.0.
+ *
+ * @see for \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter
  */
 class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPluginInterface {
 

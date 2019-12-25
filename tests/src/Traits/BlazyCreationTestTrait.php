@@ -486,7 +486,7 @@ trait BlazyCreationTestTrait {
     }
 
     if (empty($this->url)) {
-      $source = DRUPAL_ROOT . '/core/modules/simpletest/files/image-1.png';
+      $source = DRUPAL_ROOT . '/core/misc/druplicon.png';
       $uri = 'public://test.png';
       $this->fileSystem->copy($source, $uri, FileSystemInterface::EXISTS_REPLACE);
       $this->url = file_create_url($uri);
