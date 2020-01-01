@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2020-01-01
+-----------------------------
+- Issue #3103816 by gausarts, W01F: Compatibility with Claro theme.
+
 Blazy 8.x-2.0-dev, 2019-12-25
 -----------------------------
 - Added a check for stream_wrapper_manager to pass the tests due to non-DI.
