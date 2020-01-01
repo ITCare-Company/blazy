@@ -346,8 +346,8 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Returns the entity view, if available.
    *
-   * @deprecated self::getEntityView is deprecated in blazy:8.x-2.0 and will be
-   *   removed from blazy:9.x-1.x. Use BlazyEntity::getEntityView() instead.
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.x. Use
+   *   BlazyEntity::getEntityView() instead.
    * @see https://www.drupal.org/node/3103018
    */
   public function getEntityView($entity, array $settings = [], $fallback = '') {
@@ -363,7 +363,7 @@ class BlazyManager extends BlazyManagerBase {
    * self::getBlazy() as Blazy also works without Image nor Media video, such as
    * with just a DIV element for CSS background.
    *
-   * @deprecated in blazy:8.x-2.0 and will be removed from blazy:9.x-1.x. Use
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.x. Use
    *   self::getBlazy() instead.
    * @see https://www.drupal.org/node/3103018
    */
