@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @todo remove prior to full release. This means Slick Video which depends
  * on VEF is deprecated for main Slick at Blazy 8.2.x with core Media only.
  *
- * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.x. Use
+ * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use
  *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead.
  * @see https://www.drupal.org/node/3103018
  */

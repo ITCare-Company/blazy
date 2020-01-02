@@ -112,7 +112,7 @@ trait BlazyVideoTrait {
    *
    * @todo remove post Blazy 8.2.x when blazy-plugins use core Media.
    *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.x. Use
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use
    *   BlazyOEmbed::getMediaItem() instead.
    * @see https://www.drupal.org/node/3103018
    */
@@ -133,7 +133,7 @@ trait BlazyVideoTrait {
    * and to allow transition from blazy-related modules to depend on media.
    * Currently this is only required by deprecated SlickVideoFormatter.
    *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.x. Use
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use
    *   BlazyOEmbed::build() instead.
    * @see https://www.drupal.org/node/3103018
    */
