@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2020-01-02
+-----------------------------
+- Issue #3061965 by bgreco, gausarts, W01F: Support basic non-field image
+  title/alt for captions
+
 Blazy 8.x-2.0-dev, 2020-01-01
 -----------------------------
 - Issue #3103816 by gausarts, W01F: Compatibility with Claro theme.

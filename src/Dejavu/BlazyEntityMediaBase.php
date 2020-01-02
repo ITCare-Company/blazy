@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Dejavu;
 
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\BlazyDefault;
 
@@ -124,8 +125,15 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     if (!empty($settings['caption'])) {
       $caption_items = $weights = [];
       foreach ($settings['caption'] as $name => $field_caption) {
-        if (!isset($entity->{$field_caption})) {
-          continue;
+        /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+        if ($item = $element['item']) {
+          // Provides basic captions based on image attributes.
+          foreach (['title', 'alt'] as $key => $attribute) {
+            if ($name == $attribute && $caption = trim($item->get($attribute)->getString())) {
+              $caption_items[$name] = ['#markup' => Xss::filter($caption, BlazyDefault::TAGS)];
+              $weights[] = $key;
+            }
+          }
         }
 
         if ($caption = $this->blazyEntity()->getFieldRenderable($entity, $field_caption, $view_mode)) {
@@ -213,12 +221,19 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     $target_type = $this->getFieldSetting('target_type');
     $views_ui    = $this->getFieldSetting('handler') == 'default';
     $bundles     = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
+    $captions    = $this->admin()->getFieldOptions($bundles, [], $target_type);
+
+    // @todo figure out to not hardcode stock bundle image.
+    if (in_array('image', $bundles)) {
+      $captions['title'] = $this->t('Image Title');
+      $captions['alt'] = $this->t('Image Alt');
+    }
 
     return [
       'background'        => TRUE,
       'box_captions'      => TRUE,
       'breakpoints'       => BlazyDefault::getConstantBreakpoints(),
-      'captions'          => $this->admin()->getFieldOptions($bundles, [], $target_type),
+      'captions'          => $captions,
       'fieldable_form'    => TRUE,
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,

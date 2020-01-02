@@ -75,11 +75,14 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase implements BlazyAdminIn
     }
 
     if (isset($definition['titles'])) {
+      if (!empty($definition['images'])) {
+        $definition['titles']['title'] = $this->t('Image Title');
+      }
       $form['title'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Title'),
         '#options'     => is_array($definition['titles']) ? $definition['titles'] : [],
-        '#description' => $this->t('If provided, it will bre wrapped with H2.'),
+        '#description' => $this->t('If provided, it will be wrapped with H2. Also supported the basic non-field Image title'),
       ];
     }
 
