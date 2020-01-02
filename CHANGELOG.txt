@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2020-01-02
 -----------------------------
+- Issue #2838131 by kevineinarsson, JaceRider: Use SVG as placeholder image.
 - Issue #3069280 by gausarts, samasonj: Support local video, such as mp4, etc.
 - Issue #3061965 by bgreco, gausarts, W01F: Support basic non-field image
   title/alt for captions

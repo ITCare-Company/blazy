@@ -266,14 +266,21 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public static function buildUrlAndDimensions(array &$settings, $item = NULL) {
-    $settings['placeholder'] = empty($settings['placeholder']) ? static::PLACEHOLDER : $settings['placeholder'];
+  public static function generatePlaceholder($width, $height): string {
+    return 'data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D\'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg\' viewBox%3D\'0 0 ' . $width . ' ' . $height . '\'%2F%3E';
+  }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function buildUrlAndDimensions(array &$settings, $item = NULL) {
     // BlazyFilter, or image style with crop, may already set these.
     if (empty($settings['width'])) {
       $settings['width'] = $item && isset($item->width) ? $item->width : NULL;
       $settings['height'] = $item && isset($item->height) ? $item->height : NULL;
     }
+
+    $settings['placeholder'] = empty($settings['placeholder']) ? static::generatePlaceholder($settings['width'], $settings['height']) : $settings['placeholder'];
 
     // Overrides lazy with blazy for explicit call to reduce another param.
     if (!empty($settings['blazy'])) {
@@ -365,7 +372,7 @@ class Blazy implements BlazyInterface {
   public static function preprocessResponsiveImage(array &$variables) {
     $image = &$variables['img_element'];
     $attributes = &$variables['attributes'];
-    $placeholder = empty($attributes['data-placeholder']) ? static::PLACEHOLDER : $attributes['data-placeholder'];
+    $placeholder = empty($attributes['data-placeholder']) ? static::generatePlaceholder($variables['width'], $variables['height']) : $attributes['data-placeholder'];
 
     // Prepare all <picture> [data-srcset] attributes on <source> elements.
     if (!$variables['output_image_tag']) {

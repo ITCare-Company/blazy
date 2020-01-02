@@ -8,9 +8,17 @@ namespace Drupal\blazy;
 interface BlazyInterface {
 
   /**
-   * Defines constant placeholder Data URI image.
+   * Generates an SVG Placeholder.
+   *
+   * @param string $width
+   *   The image width.
+   * @param string $height
+   *   The image height.
+   *
+   * @return string
+   *   Returns a string containing an SVG.
    */
-  const PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  public static function generatePlaceholder($width, $height): string;
 
   /**
    * Modifies variables for iframes.
