@@ -416,6 +416,17 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Overrides variables for file-video.html.twig templates.
+   */
+  public static function preprocessFileVideo(array &$variables) {
+    foreach ($variables['files'] as $files) {
+      $source_attributes = &$files['source_attributes'];
+      $source_attributes->setAttribute('data-src', $source_attributes['src']->value());
+      $source_attributes->setAttribute('src', 'about:blank');
+    }
+  }
+
+  /**
    * Implements hook_config_schema_info_alter().
    */
   public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', array $settings = []) {

@@ -38,6 +38,14 @@ class BlazyMedia {
     }
 
     $build = $media->get($settings['source_field'])->view($settings['view_mode']);
+    if (empty($build) && $settings['media_source'] == 'video_file') {
+      // @todo: muted, width, height.
+      $build = $media->get($settings['source_field'])->view([
+        'type' => 'file_video',
+        'view_mode' => $settings['view_mode'],
+      ]);
+    }
+
     $build['#settings'] = $settings;
 
     return isset($build[0]) ? self::wrap($build) : $build;
@@ -74,6 +82,10 @@ class BlazyMedia {
       $attributes['class'][] = 'b-lazy media__iframe media__element';
       $attributes['src'] = 'about:blank';
       $attributes['allowfullscreen'] = TRUE;
+    }
+    // Media with local files: video.
+    else if (isset($item['#files'], $item['#files'][0]['file'])) {
+      $attributes->setAttribute('class', 'b-lazy');
     }
 
     // Wraps the media item to allow consistency for EB/SB.
