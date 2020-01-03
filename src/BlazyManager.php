@@ -124,14 +124,18 @@ class BlazyManager extends BlazyManagerBase {
     Blazy::buildUrlAndDimensions($settings, $item);
 
     // Responsive image integration.
-    if (!empty($settings['resimage']) && $settings['extension'] != 'svg') {
-      if (!empty($settings['resimage_entity'])) {
-        $settings['responsive_image_style_id'] = $settings['resimage_entity']->id();
+    if (!empty($settings['resimage_entity']) && $settings['extension'] != 'svg') {
+      $settings['responsive_image_style_id'] = $settings['resimage_entity']->id();
 
-        Blazy::buildResponsiveImage($image, $settings);
-        $element['#cache']['tags'] = $this->getResponsiveImageStyles($settings['resimage_entity'], FALSE);
-        unset($settings['resimage_entity']);
-      }
+      Blazy::buildResponsiveImage($image, $settings);
+      $element['#cache']['tags'] = $this->getResponsiveImageStyles($settings['resimage_entity'], FALSE);
+      unset($settings['resimage_entity']);
+    }
+
+    // Aspect ratio to fix layout reflow with lazyloaded images responsively.
+    // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
+    if ($settings['ratio']) {
+      Blazy::buildAspectRatio($attributes, $settings);
     }
 
     // Regular image with custom responsive breakpoints.
@@ -158,12 +162,6 @@ class BlazyManager extends BlazyManagerBase {
           }
         }
       }
-    }
-
-    // Aspect ratio to fix layout reflow with lazyloaded images responsively.
-    // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
-    if ($settings['ratio']) {
-      Blazy::buildAspectRatio($attributes, $settings);
     }
 
     // Multi-breakpoint aspect ratio only applies if lazyloaded.
