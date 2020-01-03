@@ -4,19 +4,19 @@
  */
 
 @-webkit-keyframes blazyBlur {
-	0% {
-		-webkit-transform: scale(1.04); opacity: 0;
-	}
-	100% {
-		-webkit-transform: scale(1); opacity: 1;
-	}
+  0% {
+    -webkit-transform: scale(1.04); opacity: 0;
+  }
+  100% {
+    -webkit-transform: scale(1); opacity: 1;
+  }
 }
 
 @keyframes blazyBlur {
-	0% {
+  0% {
     transform: scale(1.04); opacity: 0;
   }
-	100% {
+  100% {
     transform: scale(1); opacity: 1;
   }
 }
@@ -32,7 +32,7 @@ Remove overflow as needed if CSS background is enabled, or on your own.
   filter: blur(6px);
   opacity: 1;
   /* transition: opacity 500ms ease-in-out; */
-	transition: none;
+  transition: none;
   transform: scale(1.04);
 }
 
@@ -40,6 +40,6 @@ Remove overflow as needed if CSS background is enabled, or on your own.
   filter: blur(0);
   transform: scale(1);
   will-change: transform, opacity;
-	-webkit-animation: blazyBlur 1s ease-out;
+  -webkit-animation: blazyBlur 1s ease-out;
   animation: blazyBlur 1s ease-out;
 }

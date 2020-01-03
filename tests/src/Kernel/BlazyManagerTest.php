@@ -214,7 +214,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
       'uri' => $this->uri,
       'responsive_image_style_id' => $responsive_image_style_id,
       'width' => 600,
-      'height' => 480
+      'height' => 480,
     ];
 
     template_preprocess_responsive_image($variables);
