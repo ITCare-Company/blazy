@@ -96,9 +96,6 @@ class Blazy implements BlazyInterface {
         'data-placeholder' => $settings['placeholder'],
       ],
     ];
-
-    // Disable aspect ratio which is not yet supported due to complexity.
-    $settings['ratio'] = FALSE;
   }
 
   /**
@@ -324,7 +321,7 @@ class Blazy implements BlazyInterface {
   public static function buildAspectRatio(array &$attributes, array &$settings) {
     $attributes['class'][] = 'media--ratio media--ratio--' . $settings['ratio'];
 
-    if ($settings['width'] && in_array($settings['ratio'], ['enforced', 'fluid'])) {
+    if ($settings['width'] && $settings['ratio'] == 'fluid') {
       // If "lucky", Blazy/ Slick Views galleries may already set this once.
       // Lucky when you don't flatten out the Views output earlier.
       $padding = $settings['padding_bottom'] ?: round((($settings['height'] / $settings['width']) * 100), 2);
@@ -500,22 +497,9 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Determines whether the URI has a valid scheme for file API operations.
-   *
-   * This is just a wrapper around
-   * Drupal\Core\StreamWrapper\StreamWrapperManager::isValidUri() for Drupal
-   * versions >= 8.8, with a fallback to file_valid_uri() for prior Drupal
-   * versions.
-   *
-   * @param string $uri
-   *   The URI to be tested.
-   *
-   * @return bool
-   *   TRUE if the URI is valid.
-   *
-   * @todo Remove this once Drupal 8.7 is no longer supported.
+   * {@inheritdoc}
    */
-  private static function isValidUri($uri) {
+  public static function isValidUri($uri) {
     if (version_compare(\Drupal::VERSION, '8.8', '>=')) {
       // Adds a check to pass the tests due to non-DI.
       return \Drupal::hasService('stream_wrapper_manager') ? \Drupal::service('stream_wrapper_manager')->isValidUri($uri) : FALSE;

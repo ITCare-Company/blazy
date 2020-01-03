@@ -87,4 +87,22 @@ interface BlazyInterface {
    */
   public static function buildUrlAndDimensions(array &$settings, $item = NULL);
 
+  /**
+   * Determines whether the URI has a valid scheme for file API operations.
+   *
+   * This is just a wrapper around
+   * Drupal\Core\StreamWrapper\StreamWrapperManager::isValidUri() for Drupal
+   * versions >= 8.8, with a fallback to file_valid_uri() for prior Drupal
+   * versions.
+   *
+   * @param string $uri
+   *   The URI to be tested.
+   *
+   * @return bool
+   *   TRUE if the URI is valid.
+   *
+   * @todo Remove this once Drupal 8.7 is no longer supported.
+   */
+  public static function isValidUri($uri);
+
 }

@@ -406,10 +406,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns simple form elements common for Views field, EB widget, formatters.
    */
   public function baseForm($definition = []) {
-    $settings      = isset($definition['settings']) ? $definition['settings'] : [];
-    $lightboxes    = $this->blazyManager->getLightboxes();
-    $image_styles  = function_exists('image_style_options') ? image_style_options(FALSE) : [];
-    $is_responsive = function_exists('responsive_image_get_image_dimensions') && !empty($definition['responsive_image']);
+    $settings     = isset($definition['settings']) ? $definition['settings'] : [];
+    $lightboxes   = $this->blazyManager->getLightboxes();
+    $image_styles = function_exists('image_style_options') ? image_style_options(FALSE) : [];
 
     $form = [];
     if (empty($definition['no_image_style'])) {
@@ -468,24 +467,20 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
 
       // http://en.wikipedia.org/wiki/List_of_common_resolutions
-      $ratio = ['1:1', '3:2', '4:3', '8:5', '16:9', 'fluid', 'enforced'];
+      $ratio = ['1:1', '3:2', '4:3', '8:5', '16:9', 'fluid'];
       if (empty($definition['no_ratio'])) {
         $form['ratio'] = [
           '#type'         => 'select',
           '#title'        => $this->t('Aspect ratio'),
           '#options'      => array_combine($ratio, $ratio),
           '#empty_option' => $this->t('- None -'),
-          '#description'  => $this->t('Aspect ratio to get consistently responsive images and iframes. And to fix layout reflow and excessive height issues. <a href="@dimensions" target="_blank">Image styles and video dimensions</a> must <a href="@follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. Choose <strong>enforced</strong> if you can stick to one aspect ratio and want multi-serving images. Try <strong>fluid</strong> if unsure. <a href="@link" target="_blank">Learn more</a>, or leave empty to DIY, or when working with multi-image-style plugin like GridStack. <br /><strong>Note!</strong> Only compatible with Blazy multi-serving images, but not Responsive image.', [
+          '#description'  => $this->t('Aspect ratio to get consistently responsive images and iframes. And to fix layout reflow and excessive height issues. <a href="@dimensions" target="_blank">Image styles and video dimensions</a> must <a href="@follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. Use fixed ratio (non-fluid) to avoid JS works, or if it fails Responsive image. Fixed ratio means, all images from mobile to desktop use the same aspect ratio. Fluid means dimensions are calculated and JS works are attempted to fix aspect ratio. <a href="@link" target="_blank">Learn more</a>, or leave empty to DIY (such as using CSS mediaquery), or when working with multi-image-style plugin like GridStack.', [
             '@dimensions'  => '//size43.com/jqueryVideoTool.html',
             '@follow'      => '//en.wikipedia.org/wiki/Aspect_ratio_%28image%29',
             '@link'        => '//www.smashingmagazine.com/2014/02/27/making-embedded-content-work-in-responsive-design/',
           ]),
           '#weight'        => -95,
         ];
-
-        if ($is_responsive) {
-          $form['ratio']['#states'] = $this->getState(static::STATE_RESPONSIVE_IMAGE_STYLE_DISABLED, $definition);
-        }
       }
     }
 
@@ -509,7 +504,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'select',
         '#title'       => $this->t('Thumbnail style'),
         '#options'     => function_exists('image_style_options') ? image_style_options(TRUE) : [],
-        '#description' => $this->t('Usages: Photobox/PhotoSwipe thumbnail, or custom work with thumbnails. Leave empty to not use thumbnails.'),
+        '#description' => $this->t('Usages: Placeholder replacement for image effects (blur, etc.), Photobox/PhotoSwipe thumbnail, or custom work with thumbnails. Leave empty to not use thumbnails.'),
         '#weight'      => -96,
       ];
     }

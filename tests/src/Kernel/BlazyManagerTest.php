@@ -45,11 +45,12 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * @dataProvider providerTestPreRenderImage
    */
   public function testPreRenderImage(array $settings = [], $expected_has_responsive_image = FALSE) {
-    $build             = $this->data;
+    $build = $this->data;
     $settings['count'] = $this->maxItems;
-    $settings['uri']   = $this->uri;
+    $settings['uri'] = $this->uri;
+    $settings['resimage_entity'] = $this->blazyManager->entityLoad('blazy_responsive_test', 'responsive_image_style');
     $build['settings'] = array_merge($build['settings'], $settings);
-    $switch_css        = str_replace('_', '-', $settings['media_switch']);
+    $switch_css = str_replace('_', '-', $settings['media_switch']);
 
     $element = $this->doPreRenderImage($build);
 

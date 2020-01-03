@@ -39,7 +39,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
     }
 
     if (isset($form['responsive_image_style'])) {
-      $form['responsive_image_style']['#description'] = $this->t('Not compatible with below breakpoints, aspect ratio, yet. However it can still lazyload by checking <strong>Responsive image</strong> option via Blazy UI. Leave empty to disable.');
+      $form['responsive_image_style']['#description'] = $this->t('Not compatible with below breakpoints, yet. However it can still lazyload by checking <strong>Responsive image</strong> option via Blazy UI. Leave empty to disable.');
 
       if ($this->blazyManager()->getModuleHandler()->moduleExists('blazy_ui')) {
         $form['responsive_image_style']['#description'] .= ' ' . $this->t('<a href=":url" target="_blank">Enable lazyloading Responsive image</a>.', [':url' => Url::fromRoute('blazy.settings')->toString()]);

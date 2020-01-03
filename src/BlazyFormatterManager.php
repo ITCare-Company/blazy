@@ -59,22 +59,23 @@ class BlazyFormatterManager extends BlazyManager {
       }
     }
 
-    $settings['bundle']         = $bundle;
-    $settings['cache_metadata'] = ['keys' => [$id, $count]];
-    $settings['content_url']    = $settings['absolute_path'] = $absolute_path;
-    $settings['count']          = $count;
-    $settings['entity_id']      = $entity_id;
-    $settings['entity_type_id'] = $entity_type_id;
-    $settings['field_type']     = $field_type;
-    $settings['field_name']     = $field_name;
-    $settings['gallery_id']     = str_replace('_', '-', $gallery_id . '-' . $switch);
-    $settings['id']             = $id;
-    $settings['internal_path']  = $internal_path;
-    $settings['lightbox']       = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
-    $settings['placeholder']    = $this->configLoad('placeholder', 'blazy.settings');
-    $settings['resimage']       = function_exists('responsive_image_get_image_dimensions') && $this->configLoad('responsive_image', 'blazy.settings') && !empty($settings['responsive_image_style']);
-    $settings['target_type']    = $target_type;
-    $settings['fx']             = $this->configLoad('fx', 'blazy.settings');
+    $settings['bundle']          = $bundle;
+    $settings['cache_metadata']  = ['keys' => [$id, $count]];
+    $settings['content_url']     = $settings['absolute_path'] = $absolute_path;
+    $settings['count']           = $count;
+    $settings['entity_id']       = $entity_id;
+    $settings['entity_type_id']  = $entity_type_id;
+    $settings['field_type']      = $field_type;
+    $settings['field_name']      = $field_name;
+    $settings['gallery_id']      = str_replace('_', '-', $gallery_id . '-' . $switch);
+    $settings['id']              = $id;
+    $settings['internal_path']   = $internal_path;
+    $settings['lightbox']        = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
+    $settings['placeholder']     = $this->configLoad('placeholder', 'blazy.settings');
+    $settings['resimage']        = function_exists('responsive_image_get_image_dimensions') && $this->configLoad('responsive_image', 'blazy.settings') && !empty($settings['responsive_image_style']);
+    $settings['target_type']     = $target_type;
+    $settings['fx']              = $this->configLoad('fx', 'blazy.settings');
+    $settings['resimage_entity'] = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : NULL;
 
     unset($entity, $field);
 
@@ -99,19 +100,13 @@ class BlazyFormatterManager extends BlazyManager {
       $settings['lazy'] = 'blazy';
     }
 
-    // Aspect ratio isn't working with Responsive image, yet.
-    // However allows custom work to get going with an enforced.
-    $ratio = FALSE;
-    if (!empty($settings['ratio'])) {
-      $ratio = empty($settings['responsive_image_style']);
-      if ($settings['ratio'] == 'enforced' || $settings['background']) {
-        $ratio = TRUE;
-      }
+    // @todo remove enforced (BC), since now works for Responsive image too.
+    if (isset($settings['ratio']) && $settings['ratio'] == 'enforced') {
+      $settings['ratio'] = 'fluid';
     }
 
     // Add the entity to formatter cache tags.
     $settings['cache_tags'][] = $settings['entity_type_id'] . ':' . $settings['entity_id'];
-    $settings['ratio'] = $ratio ? $settings['ratio'] : FALSE;
   }
 
   /**
@@ -130,15 +125,40 @@ class BlazyFormatterManager extends BlazyManager {
 
     // Pass first item to optimize sizes this time.
     if (isset($items[0]) && $item = $items[0]) {
-      $entity = isset($entities[0]) ? $entities[0] : NULL;
-      $this->extractFirstItem($settings, $item, $entity);
+      $this->extractFirstItem($settings, $item, reset($entities));
     }
 
     // Sets dimensions once, if cropped, to reduce costs with ton of images.
     // This is less expensive than re-defining dimensions per image.
     $this->cleanUpBreakpoints($settings);
-    if (!empty($settings['first_uri']) && empty($settings['resimage'])) {
-      $this->setDimensionsOnce($settings, $this->firstItem);
+    if (!empty($settings['first_uri'])) {
+      if (empty($settings['resimage'])) {
+        $this->setDimensionsOnce($settings, $this->firstItem);
+      }
+      elseif (!empty($settings['resimage_entity']) && $settings['ratio'] == 'fluid') {
+        $item = $this->firstItem;
+        $styles = $this->getResponsiveImageStyles($settings['resimage_entity'], TRUE);
+
+        $srcset = [];
+        $width = empty($item) ? NULL : $item->width;
+        $height = empty($item) ? NULL : $item->height;
+        foreach ($styles as $name => $style) {
+          $dimensions = ['width' => $width, 'height' => $height];
+          $style->transformDimensions($dimensions, $settings['first_uri']);
+
+          // Sometimes they are string, cast them integer to reduce JS logic.
+          $dimensions['width'] = intval($dimensions['width']);
+          $dimensions['height'] = intval($dimensions['height']);
+
+          // In order to avoid layout reflows, we get dimensions beforehand.
+          $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
+          $srcset[intval($dimensions['width'])] = $padding;
+        }
+
+        // Sort the srcset from small to large image width or multiplier.
+        ksort($srcset);
+        $settings['blazy_data']['dimensions'] = $srcset;
+      }
     }
 
     // Allows altering the settings.
@@ -200,8 +220,8 @@ class BlazyFormatterManager extends BlazyManager {
       if (!empty($settings['image_style']) && ($style = $this->isCrop($settings['image_style']))) {
         $style->transformDimensions($dimensions, $settings['first_uri']);
 
-        $settings['height'] = $dimensions['height'];
-        $settings['width']  = $dimensions['width'];
+        $settings['height'] = (int) $dimensions['height'];
+        $settings['width']  = (int) $dimensions['width'];
 
         // Informs individual images that dimensions are already set once.
         $settings['_dimensions'] = TRUE;

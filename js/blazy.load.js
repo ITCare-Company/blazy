@@ -7,6 +7,8 @@
 
   'use strict';
 
+  var _ratioTimer;
+
   /**
    * Blazy public methods.
    *
@@ -14,6 +16,7 @@
    */
   Drupal.blazy = Drupal.blazy || {
     init: null,
+    loopRatio: false,
     windowWidth: 0,
     blazySettings: drupalSettings.blazy || {},
     ioSettings: drupalSettings.blazyIo || {},
@@ -59,8 +62,27 @@
         });
       }
 
+      // Correct padding after the image is fully loaded.
+      me.updatePadding(el);
+
       // Provides event listeners for easy overrides without full overrides.
       _db.trigger(el, 'blazy.done', {options: me.options});
+    },
+
+    updatePadding: function (el) {
+      var me = this;
+      var cn = _db.hasClass(el, 'media--ratio--fluid') ? el : _db.closest(el, '.media--ratio--fluid');
+
+      if (me.loopRatio && cn !== null) {
+        window.clearTimeout(_ratioTimer);
+        _ratioTimer = window.setTimeout(function () {
+          var pad = Math.round(((el.naturalHeight / el.naturalWidth) * 100), 2);
+
+          if (pad > 0) {
+            cn.style.paddingBottom = pad + '%';
+          }
+        }, 600);
+      }
     },
 
     isIo: function () {
@@ -119,9 +141,10 @@
       hasDefaultOptions = false;
     }
     var ratios = elm.querySelectorAll('[data-dimensions]');
-    var loopRatio = ratios.length > 0;
     var fallbackRatios = elm.querySelectorAll('[data-ratio]');
     var loopFallbackRatio = fallbackRatios.length > 0;
+
+    me.loopRatio = ratios.length > 0;
 
     /**
      * Updates the dynamic multi-breakpoint aspect ratio.
@@ -189,7 +212,7 @@
     _db.resize(function () {
       me.windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || window.screen.width;
 
-      if (loopRatio) {
+      if (me.loopRatio) {
         _db.forEach(ratios, updateRatio, elm);
       }
       else if (loopFallbackRatio) {

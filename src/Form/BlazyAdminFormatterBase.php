@@ -30,7 +30,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
         '#type'        => 'select',
         '#title'       => $this->t('Responsive image'),
         '#options'     => $this->getResponsiveImageOptions(),
-        '#description' => $this->t('Responsive image style for the main stage image is more reasonable for large images. Works with multi-serving IMG, or PICTURE element. Not compatible with breakpoints and aspect ratio, yet. Leave empty to disable. <a href=":url" target="_blank">Manage responsive image styles</a>.', [':url' => $url]),
+        '#description' => $this->t('Responsive image style for the main stage image is more reasonable for large images. Works with multi-serving IMG, or PICTURE element. Not compatible with breakpoints, yet. Leave empty to disable. <a href=":url" target="_blank">Manage responsive image styles</a>.', [':url' => $url]),
         '#access'      => $this->getResponsiveImageOptions(),
         '#weight'      => -100,
       ];

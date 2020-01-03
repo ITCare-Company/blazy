@@ -125,23 +125,17 @@ class BlazyManager extends BlazyManagerBase {
 
     // Responsive image integration.
     if (!empty($settings['resimage']) && $settings['extension'] != 'svg') {
-      $responsive_image_style = $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style');
-      if (!empty($responsive_image_style)) {
-        $settings['responsive_image_style_id'] = $responsive_image_style->id();
+      if (!empty($settings['resimage_entity'])) {
+        $settings['responsive_image_style_id'] = $settings['resimage_entity']->id();
 
         Blazy::buildResponsiveImage($image, $settings);
-        $element['#cache']['tags'] = $this->getResponsiveImageCacheTags($responsive_image_style);
+        $element['#cache']['tags'] = $this->getResponsiveImageStyles($settings['resimage_entity'], FALSE);
+        unset($settings['resimage_entity']);
       }
     }
 
     // Regular image with custom responsive breakpoints.
     if (empty($settings['responsive_image_style_id'])) {
-      // Aspect ratio to fix layout reflow with lazyloaded images responsively.
-      // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
-      if ($settings['ratio']) {
-        Blazy::buildAspectRatio($attributes, $settings);
-      }
-
       if (!empty($settings['lazy'])) {
         // Attach data attributes to either IMG tag, or DIV container.
         if (!empty($settings['background'])) {
@@ -150,12 +144,6 @@ class BlazyManager extends BlazyManagerBase {
         }
         else {
           Blazy::buildBreakpointAttributes($item_attributes, $settings);
-        }
-
-        // Multi-breakpoint aspect ratio only applies if lazyloaded.
-        // These may be set once at formatter level, or per breakpoint above.
-        if (!empty($settings['blazy_data']['dimensions'])) {
-          $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
         }
       }
 
@@ -170,6 +158,18 @@ class BlazyManager extends BlazyManagerBase {
           }
         }
       }
+    }
+
+    // Aspect ratio to fix layout reflow with lazyloaded images responsively.
+    // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
+    if ($settings['ratio']) {
+      Blazy::buildAspectRatio($attributes, $settings);
+    }
+
+    // Multi-breakpoint aspect ratio only applies if lazyloaded.
+    // These may be set once at formatter level, or per breakpoint above.
+    if (!empty($settings['blazy_data']['dimensions'])) {
+      $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
     }
 
     // Provides extra attributes as needed, excluding url, item, done above.
@@ -214,17 +214,17 @@ class BlazyManager extends BlazyManagerBase {
       $attributes['data-thumb'] = Blazy::transformRelative($path);
     }
 
-    if (isset($style) && ($path && !is_file($path))) {
+    if (isset($style) && ($path && !is_file($path) && Blazy::isValidUri($path))) {
       $style->createDerivative($settings['uri'], $path);
     }
 
     // Provides image effect if so configured.
     if (!empty($settings['fx'])) {
-      if (empty($path) && $style = $this->entityLoad('thumbnail', 'image_style')) {
+      if (empty($path) && ($style = $this->entityLoad('thumbnail', 'image_style')) && Blazy::isValidUri($settings['uri'])) {
         $path = $style->buildUri($settings['uri']);
       }
 
-      if ($path) {
+      if ($path && Blazy::isValidUri($path)) {
         // Ensures the thumbnail exists before creating a dataURI.
         if (!is_file($path) && isset($style)) {
           $style->createDerivative($settings['uri'], $path);
@@ -355,23 +355,29 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * Returns the Responsive image cache tags.
+   * Returns the Responsive image styles.
    *
    * @param object $responsive
    *   The responsive image style entity.
+   * @param bool $load
+   *   Whether to load the image style entity.
    *
-   * @return array
-   *   The responsive image cache tags, or empty array.
+   * @return array|mixed
+   *   The responsive image styles or its cache tags, else empty array.
    */
-  public function getResponsiveImageCacheTags($responsive) {
-    $cache_tags = [];
-    $image_styles_to_load = [];
+  public function getResponsiveImageStyles($responsive, $load = TRUE) {
+    $image_styles = $cache_tags = $image_styles_to_load = [];
     if ($responsive) {
       $cache_tags = Cache::mergeTags($cache_tags, $responsive->getCacheTags());
       $image_styles_to_load = $responsive->getImageStyleIds();
     }
 
     $image_styles = $this->entityLoadMultiple('image_style', $image_styles_to_load);
+
+    if ($load) {
+      return $image_styles;
+    }
+
     foreach ($image_styles as $image_style) {
       $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
     }
@@ -404,6 +410,17 @@ class BlazyManager extends BlazyManagerBase {
    */
   public function getImage(array $build = []) {
     return $this->getBlazy($build);
+  }
+
+  /**
+   * Returns the Responsive image cache tags.
+   *
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use
+   *   self::getResponsiveImageStyles() with relevant params instead.
+   * @see https://www.drupal.org/node/3103018
+   */
+  public function getResponsiveImageCacheTags($responsive) {
+    return $this->getResponsiveImageStyles($responsive, FALSE);
   }
 
 }
