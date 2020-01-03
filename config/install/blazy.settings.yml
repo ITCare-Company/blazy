@@ -1,4 +1,5 @@
 admin_css: true
+fx: ''
 responsive_image: false
 unbreakpoints: false
 one_pixel: true

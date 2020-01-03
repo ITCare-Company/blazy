@@ -84,7 +84,7 @@ class BlazyMedia {
       $attributes['allowfullscreen'] = TRUE;
     }
     // Media with local files: video.
-    else if (isset($item['#files'], $item['#files'][0]['file'])) {
+    elseif (isset($item['#files'], $item['#files'][0]['file'])) {
       $attributes->setAttribute('class', 'b-lazy');
     }
 

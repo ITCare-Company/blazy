@@ -24,6 +24,14 @@ interface BlazyManagerInterface {
   public function setLightboxes($lightbox);
 
   /**
+   * Gets the supported image effects.
+   *
+   * @return array
+   *   The supported image effects.
+   */
+  public function getImageEffects();
+
+  /**
    * Cleans up empty, or not so empty, breakpoints.
    *
    * @param array $settings

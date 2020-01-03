@@ -206,6 +206,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     $settings['use_data_uri'] = isset($this->settings['media_switch']) ? $this->settings['media_switch'] : FALSE;
     $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
     $settings['is_media_library'] = $definitions && isset($definitions['field_media_oembed_video']);
+    $settings['fx'] = $this->blazyManager->configLoad('fx', 'blazy.settings');
 
     // Allows lightboxes to provide its own optionsets.
     if ($switch) {

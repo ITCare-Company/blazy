@@ -7,6 +7,7 @@ use Drupal\Core\Asset\LibraryDiscoveryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\blazy\BlazyManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -22,17 +23,27 @@ class BlazySettingsForm extends ConfigFormBase {
   protected $libraryDiscovery;
 
   /**
+   * The blazy manager service.
+   *
+   * @var \Drupal\blazy\BlazyManagerInterface
+   */
+  protected $manager;
+
+  /**
    * Constructs a \Drupal\system\ConfigFormBase object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
    * @param \Drupal\Core\Asset\LibraryDiscoveryInterface $library_discovery
    *   Discovers available asset libraries in Drupal.
+   * @param \Drupal\blazy\BlazyManagerInterface $manager
+   *   Discovers available blazy manager service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, LibraryDiscoveryInterface $library_discovery) {
+  public function __construct(ConfigFactoryInterface $config_factory, LibraryDiscoveryInterface $library_discovery, BlazyManagerInterface $manager) {
     parent::__construct($config_factory);
 
     $this->libraryDiscovery = $library_discovery;
+    $this->manager = $manager;
   }
 
   /**
@@ -41,7 +52,8 @@ class BlazySettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('library.discovery')
+      $container->get('library.discovery'),
+      $container->get('blazy.manager')
     );
   }
 
@@ -98,6 +110,15 @@ class BlazySettingsForm extends ConfigFormBase {
       '#title'         => $this->t('Placeholder'),
       '#default_value' => $config->get('placeholder'),
       '#description'   => $this->t('Overrides global 1px placeholder. Can be URL, e.g.: https://mysite.com/blank.gif. Only useful if continuously using Views rewrite results, see <a href=":url">#2908861</a>. Alternatively use <code>hook_blazy_settings_alter()</code> for more fine-grained control. Leave it empty to use default Data URI to avoid extra HTTP requests. If you have 100 images on a page, you will save 100 extra HTTP requests by leaving it empty.', [':url' => 'https://drupal.org/node/2908861']),
+    ];
+
+    $form['fx'] = [
+      '#type'          => 'select',
+      '#title'         => $this->t('Image effect'),
+      '#empty_option'  => '- None -',
+      '#options'       => $this->manager->getImageEffects(),
+      '#default_value' => $config->get('fx'),
+      '#description'   => $this->t('Choose the image effect. Note! This will override Placeholder option. Will use Thumbnail style option at Blazy formatters for the placeholder with fallback to core Thumbnail style. For best results: use similar aspect ratio for both Thumbnail and Image styles; adjust Offset and or threshold; the smaller the better. Use <code>hook_blazy_image_effects_alter()</code> to add more effects -- curtain, fractal, slice, whatever.'),
     ];
 
     $form['blazy'] = [
@@ -211,6 +232,7 @@ class BlazySettingsForm extends ConfigFormBase {
     $config = $this->configFactory->getEditable('blazy.settings');
     $config
       ->set('admin_css', $form_state->getValue('admin_css'))
+      ->set('fx', $form_state->getValue('fx'))
       ->set('responsive_image', $form_state->getValue('responsive_image'))
       ->set('unbreakpoints', $form_state->getValue('unbreakpoints'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))

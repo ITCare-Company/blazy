@@ -74,6 +74,7 @@ class BlazyFormatterManager extends BlazyManager {
     $settings['placeholder']    = $this->configLoad('placeholder', 'blazy.settings');
     $settings['resimage']       = function_exists('responsive_image_get_image_dimensions') && $this->configLoad('responsive_image', 'blazy.settings') && !empty($settings['responsive_image_style']);
     $settings['target_type']    = $target_type;
+    $settings['fx']             = $this->configLoad('fx', 'blazy.settings');
 
     unset($entity, $field);
 

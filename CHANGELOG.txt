@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2020-01-03
+-----------------------------
+- Issue #3077839 by gausarts, renguer0, anruether: Add image effects during
+  loading such as blur, etc.
+
 Blazy 8.x-2.0-dev, 2020-01-02
 -----------------------------
 - Issue #2838131 by kevineinarsson, JaceRider: Use SVG as placeholder image.

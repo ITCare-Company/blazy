@@ -201,6 +201,10 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
+    if (!empty($attach['fx']) && $attach['fx'] == 'blur') {
+      $load['library'][] = 'blazy/fx.blur';
+    }
+
     foreach (['column', 'filter', 'grid', 'media', 'photobox', 'ratio'] as $component) {
       if (!empty($attach[$component])) {
         $load['library'][] = 'blazy/' . $component;
@@ -306,6 +310,17 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function setLightboxes($lightbox) {
     $this->lightboxes[] = $lightbox;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getImageEffects() {
+    $effects[] = 'blur';
+
+    $this->moduleHandler->alter('blazy_image_effects', $effects);
+    $effects = array_unique($effects);
+    return array_combine($effects, $effects);
   }
 
   /**

@@ -372,17 +372,15 @@ class Blazy implements BlazyInterface {
   public static function preprocessResponsiveImage(array &$variables) {
     $image = &$variables['img_element'];
     $attributes = &$variables['attributes'];
-    $placeholder = empty($attributes['data-placeholder']) ? static::generatePlaceholder($variables['width'], $variables['height']) : $attributes['data-placeholder'];
+    $placeholder = isset($variables['width']) ? static::generatePlaceholder($variables['width'], $variables['height']) : static::PLACEHOLDER;
+    $placeholder = empty($attributes['data-placeholder']) ? $placeholder : $attributes['data-placeholder'];
 
     // Prepare all <picture> [data-srcset] attributes on <source> elements.
     if (!$variables['output_image_tag']) {
       /** @var \Drupal\Core\Template\Attribute $source */
       if (isset($variables['sources']) && is_array($variables['sources'])) {
         foreach ($variables['sources'] as &$source) {
-          $srcset = $source['srcset'];
-          $srcset_values = $srcset->value();
-
-          $source->setAttribute('data-srcset', $srcset_values);
+          $source->setAttribute('data-srcset', $source['srcset']->value());
           $source->removeAttribute('srcset');
         }
       }
@@ -398,12 +396,10 @@ class Blazy implements BlazyInterface {
       $image['#uri'] = $placeholder;
     }
     else {
-      $srcset = $attributes['srcset'];
-      $srcset_values = $srcset->value();
       $fallback_uri = $image['#uri'];
 
-      $attributes['data-srcset'] = $srcset_values;
-      $image['#attributes']['data-srcset'] = $srcset_values;
+      $attributes['data-srcset'] = $attributes['srcset']->value();
+      $image['#attributes']['data-srcset'] = $attributes['srcset']->value();
       $image['#attributes']['srcset'] = '';
     }
 

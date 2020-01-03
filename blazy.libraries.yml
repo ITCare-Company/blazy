@@ -19,6 +19,13 @@ loading:
     component:
       css/components/blazy.loading.css: {}
 
+fx.blur:
+  css:
+    component:
+      css/components/blazy.fx.blur.css: {}
+  dependencies:
+    - blazy/loading
+
 ratio:
   css:
     component:

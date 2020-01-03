@@ -117,6 +117,9 @@ class BlazyManager extends BlazyManagerBase {
       unset($item->_attributes);
     }
 
+    // Build thumbnail and optional placeholder based on thumbnail.
+    $this->buildThumbnailAndPlaceholder($settings, $attributes);
+
     // Prepare image URL and its dimensions.
     Blazy::buildUrlAndDimensions($settings, $item);
 
@@ -169,17 +172,6 @@ class BlazyManager extends BlazyManagerBase {
       }
     }
 
-    // With CSS background, IMG may be empty, add thumbnail to the container.
-    // Supports unique thumbnail different from main image, such as logo for
-    // thumbnail and main image for company profile.
-    if (!empty($settings['thumbnail_uri'])) {
-      $attributes['data-thumb'] = Blazy::transformRelative($settings['thumbnail_uri']);
-    }
-    elseif (!empty($settings['thumbnail_style'])) {
-      $style = $this->entityLoad($settings['thumbnail_style'], 'image_style');
-      $attributes['data-thumb'] = Blazy::transformRelative($settings['uri'], $style);
-    }
-
     // Provides extra attributes as needed, excluding url, item, done above.
     // Was planned to replace sub-module item markups if similarity is found for
     // theme_gridstack_box(), theme_slick_slide(), etc. Likely for Blazy 3.x+.
@@ -201,6 +193,49 @@ class BlazyManager extends BlazyManagerBase {
     $element['#url_attributes']  = $url_attributes;
     $element['#settings']        = $settings;
     $element['#image']           = $image;
+  }
+
+  /**
+   * Build thumbnails, also to provide placeholder for blur effect.
+   */
+  public function buildThumbnailAndPlaceholder(array &$settings, array &$attributes) {
+    $path = '';
+    // With CSS background, IMG may be empty, add thumbnail to the container.
+    if (!empty($settings['thumbnail_style'])) {
+      $style = $this->entityLoad($settings['thumbnail_style'], 'image_style');
+      $path = $style->buildUri($settings['uri']);
+      $attributes['data-thumb'] = Blazy::transformRelative($settings['uri'], $style);
+    }
+
+    // Supports unique thumbnail different from main image, such as logo for
+    // thumbnail and main image for company profile.
+    if (!empty($settings['thumbnail_uri'])) {
+      $path = $settings['thumbnail_uri'];
+      $attributes['data-thumb'] = Blazy::transformRelative($path);
+    }
+
+    if (isset($style) && ($path && !is_file($path))) {
+      $style->createDerivative($settings['uri'], $path);
+    }
+
+    // Provides image effect if so configured.
+    if (!empty($settings['fx'])) {
+      if (empty($path) && $style = $this->entityLoad('thumbnail', 'image_style')) {
+        $path = $style->buildUri($settings['uri']);
+      }
+
+      if ($path) {
+        // Ensures the thumbnail exists before creating a dataURI.
+        if (!is_file($path) && isset($style)) {
+          $style->createDerivative($settings['uri'], $path);
+        }
+
+        // Overrides placeholder with data URI based on configured thumbnail.
+        if (is_file($path)) {
+          $settings['placeholder'] = 'data:image/' . pathinfo($path, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($path));
+        }
+      }
+    }
   }
 
   /**

@@ -5,6 +5,9 @@ blazy.settings:
     admin_css:
       type: boolean
       label: 'Admin CSS'
+    fx:
+      type: string
+      label: 'Image effect'
     one_pixel:
       type: boolean
       label: 'One pixel placeholder'
