@@ -5,7 +5,6 @@ namespace Drupal\Tests\blazy\Unit;
 use Drupal\Tests\UnitTestCase;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;
-use Drupal\blazy\BlazyBreakpoint;
 
 /**
  * @coversDefaultClass \Drupal\blazy\BlazyManager

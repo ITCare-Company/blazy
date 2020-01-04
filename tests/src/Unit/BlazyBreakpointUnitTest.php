@@ -2,6 +2,9 @@
 
 namespace Drupal\Tests\blazy\Unit;
 
+use Drupal\Tests\UnitTestCase;
+use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
+use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;
 use Drupal\blazy\BlazyBreakpoint;
 
 /**
@@ -9,7 +12,22 @@ use Drupal\blazy\BlazyBreakpoint;
  *
  * @group blazy
  */
-class BlazyBreakpointUnitTest extends BlazyUnitTest {
+class BlazyBreakpointUnitTest extends UnitTestCase {
+
+  use BlazyUnitTestTrait;
+  use BlazyManagerUnitTestTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
+    parent::setUp();
+
+    $this->setUpVariables();
+    $this->setUpUnitServices();
+    $this->setUpUnitContainer();
+    $this->setUpMockImage();
+  }
 
   /**
    * Test \Drupal\blazy\BlazyBreakpoint::widthFromDescriptors.
