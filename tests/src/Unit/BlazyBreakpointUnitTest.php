@@ -60,34 +60,6 @@ class BlazyBreakpointUnitTest extends UnitTestCase {
   }
 
   /**
-   * Test \Drupal\blazy\BlazyBreakpoint::isCrop().
-   *
-   * @covers ::isCrop
-   * @dataProvider providerIsCrop
-   */
-  public function testIsCrop($image_style_id, $expected) {
-    $is_cropped = BlazyBreakpoint::isCrop($image_style_id);
-
-    $this->assertEquals($expected, !empty($is_cropped));
-  }
-
-  /**
-   * Provider for ::testIsCrop.
-   */
-  public function providerIsCrop() {
-    return [
-      'Cropped image style' => [
-        'blazy_crop',
-        TRUE,
-      ],
-      'Non-cropped image style' => [
-        'large',
-        FALSE,
-      ],
-    ];
-  }
-
-  /**
    * Test \Drupal\blazy\BlazyBreakpoint::cleanUpBreakpoints().
    *
    * @covers ::cleanUpBreakpoints

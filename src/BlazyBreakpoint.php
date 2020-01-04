@@ -30,10 +30,6 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
   public static function cropStyles() {
     if (!isset(static::$cropStyles)) {
       static::$cropStyles = [];
-      // Just to pass the tests due to non-DI.
-      if (!\Drupal::hasService('blazy.manager')) {
-        return static::$cropStyles;
-      }
       foreach (\Drupal::service('blazy.manager')->entityLoadMultiple('image_style') as $style) {
         foreach ($style->getEffects() as $effect) {
           if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
