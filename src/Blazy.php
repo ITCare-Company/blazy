@@ -193,9 +193,9 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function iframeAttributes(array $settings) {
-    $attributes['data-src']       = $settings['embed_url'];
-    $attributes['src']            = 'about:blank';
-    $attributes['class'][]        = 'b-lazy';
+    $attributes['data-src']        = $settings['embed_url'];
+    $attributes['src']             = 'about:blank';
+    $attributes['class'][]         = 'b-lazy';
     $attributes['allowfullscreen'] = TRUE;
 
     // Prevents broken iframe when aspect ratio is empty.

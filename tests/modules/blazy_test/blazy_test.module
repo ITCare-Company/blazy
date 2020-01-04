@@ -5,7 +5,6 @@
  * Testing various Blazy hooks, etc.
  */
 
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyAlter;
 

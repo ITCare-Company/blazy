@@ -72,6 +72,7 @@ class BlazyMedia {
     $iframe     = isset($item['#tag']) && $item['#tag'] == 'iframe';
     $attributes = [];
     $use_ratio  = FALSE;
+    $settings  += BlazyDefault::itemSettings();
 
     if (isset($item['#attributes'])) {
       $attributes = &$item['#attributes'];

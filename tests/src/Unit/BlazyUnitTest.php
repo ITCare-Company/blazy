@@ -32,36 +32,6 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Test \Drupal\blazy\BlazyBreakpoint\widthFromDescriptors.
-   *
-   * @param string $data
-   *   The input data which can be string, or integer.
-   * @param mixed|bool|int $expected
-   *   The expected output.
-   *
-   * @covers ::widthFromDescriptors
-   * @dataProvider providerTestWidthFromDescriptors
-   */
-  public function testWidthFromDescriptors($data, $expected) {
-    $result = BlazyBreakpoint::widthFromDescriptors($data);
-    $this->assertSame($result, $expected);
-  }
-
-  /**
-   * Provide test cases for ::testWidthFromDescriptors().
-   */
-  public function providerTestWidthFromDescriptors() {
-    return [
-      [1024, 1024],
-      ['1024', 1024],
-      ['769w', 769],
-      ['640w 2x', 640],
-      ['2x 640w', 640],
-      ['xYz123', FALSE],
-    ];
-  }
-
-  /**
    * Tests \Drupal\blazy\Blazy\buildIframeAttributes.
    *
    * @param array $data
