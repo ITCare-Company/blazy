@@ -7,7 +7,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\blazy\BlazyManagerInterface;
+use Drupal\blazy\BlazyFormatterInterface;
 use Drupal\blazy\BlazyDefault;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -32,7 +32,7 @@ class BlazyTextFormatter extends FormatterBase implements ContainerFactoryPlugin
   /**
    * Constructs a BlazyImageFormatter instance.
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, BlazyManagerInterface $formatter) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, BlazyFormatterInterface $formatter) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
     $this->formatter = $formatter;
   }
@@ -49,7 +49,7 @@ class BlazyTextFormatter extends FormatterBase implements ContainerFactoryPlugin
       $configuration['label'],
       $configuration['view_mode'],
       $configuration['third_party_settings'],
-      $container->get('blazy.formatter.manager')
+      $container->get('blazy.formatter')
     );
   }
 

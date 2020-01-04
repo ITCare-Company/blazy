@@ -10,14 +10,14 @@ use Drupal\file\Entity\File;
  * @see Drupal\blazy\Plugin\views\field\BlazyViewsFieldPluginBase
  * @see Drupal\slick_browser\SlickBrowser::widgetEntityBrowserFileFormAlter()
  * @see Drupal\slick_browser\Plugin\EntityBrowser\FieldWidgetDisplay\...
- * @todo move it into BlazyMedia.
+ * @todo move it into BlazyMedia?
  */
 trait BlazyVideoTrait {
 
   /**
    * The blazy oembed service.
    *
-   * @var \Drupal\blazy\BlazyOEmbed
+   * @var \Drupal\blazy\BlazyOEmbedInterface
    * @todo remove default null post Blazy 8.2.x full release.
    */
   protected $blazyOembed = NULL;
@@ -112,7 +112,7 @@ trait BlazyVideoTrait {
    *
    * @todo remove post Blazy 8.2.x when blazy-plugins use core Media.
    *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
    *   BlazyOEmbed::getMediaItem() instead.
    * @see https://www.drupal.org/node/3103018
    */
@@ -133,7 +133,7 @@ trait BlazyVideoTrait {
    * and to allow transition from blazy-related modules to depend on media.
    * Currently this is only required by deprecated SlickVideoFormatter.
    *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
    *   BlazyOEmbed::build() instead.
    * @see https://www.drupal.org/node/3103018
    */

@@ -26,7 +26,34 @@ interface BlazyInterface {
   public static function generatePlaceholder($width, $height): string;
 
   /**
-   * Modifies variables for iframes.
+   * Modifies variables for responsive image.
+   *
+   * Responsive images with height and width save a lot of calls to
+   * image.factory service for every image and breakpoint in
+   * _responsive_image_build_source_attributes(). Very necessary for
+   * external file system like Amazon S3.
+   *
+   * @param array $settings
+   *   The settings being modified.
+   *
+   * @return array
+   *   The responsive_image render elements.
+   */
+  public static function buildResponsiveImage(array &$settings);
+
+  /**
+   * Returns common iframe attributes, including those not handled by blazy.
+   *
+   * @param array $settings
+   *   The given settings.
+   *
+   * @return array
+   *   The iframe attributes.
+   */
+  public static function iframeAttributes(array $settings);
+
+  /**
+   * Modifies variables for iframes, those only handled by theme_blazy().
    *
    * Prepares a media player, and allows a tiny video preview without iframe.
    * image : If iframe switch disabled, fallback to iframe, remove image.
@@ -48,24 +75,7 @@ interface BlazyInterface {
    * @param array $settings
    *   The given settings.
    */
-  public static function buildLazyAttributes(array &$attributes, array $settings = []);
-
-  /**
-   * Provides re-usable breakpoint data-attributes.
-   *
-   * These attributes can be applied to either IMG or DIV as CSS background.
-   *
-   * $settings['breakpoints'] must contain: xs, sm, md, lg breakpoints with
-   * the expected keys: width, image_style.
-   *
-   * @param array $attributes
-   *   The attributes being modified.
-   * @param array $settings
-   *   The given settings being modified.
-   *
-   * @see self::buildAttributes()
-   */
-  public static function buildBreakpointAttributes(array &$attributes, array &$settings = []);
+  public static function lazyAttributes(array &$attributes, array $settings = []);
 
   /**
    * Builds URLs, cache tags, and dimensions for an individual image.
@@ -85,7 +95,22 @@ interface BlazyInterface {
    * @param object $item
    *   The image item.
    */
-  public static function buildUrlAndDimensions(array &$settings, $item = NULL);
+  public static function urlAndDimensions(array &$settings, $item = NULL);
+
+  /**
+   * Returns the sanitized attributes common for user-defined ones.
+   *
+   * When IMG and IFRAME are allowed for untrusted users, trojan horses are
+   * welcome. Hence sanitize attributes relevant for BlazyFilter. The rest
+   * should be taken care of by HTML filters after Blazy.
+   *
+   * @param array $attributes
+   *   The given attributes to sanitize.
+   *
+   * @return array
+   *   The sanitized $attributes suitable for UGC, such as Blazy filter.
+   */
+  public static function sanitize(array $attributes = []);
 
   /**
    * Determines whether the URI has a valid scheme for file API operations.

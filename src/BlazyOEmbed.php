@@ -13,9 +13,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides OEmbed integration.
+ * Implements BlazyOEmbedInterface.
  */
-class BlazyOEmbed {
+class BlazyOEmbed implements BlazyOEmbedInterface {
 
   /**
    * Core Media oEmbed url resolver.
@@ -112,13 +112,7 @@ class BlazyOEmbed {
   }
 
   /**
-   * Returns the oEmbed Resource.
-   *
-   * @param string $input_url
-   *   The video url.
-   *
-   * @return Drupal\media\OEmbed\Resource[]
-   *   The oEmbed resource.
+   * {@inheritdoc}
    */
   public function getResource($input_url) {
     if (!isset($this->resource[hash('md2', $input_url)])) {
@@ -130,16 +124,7 @@ class BlazyOEmbed {
   }
 
   /**
-   * Builds media-related settings based on the given media url.
-   *
-   * Need internet, else `Could not retrieve the oEmbed provider database from
-   * //oembed.com/providers.json in Drupal\media\OEmbed\ProviderRepository.
-   *
-   * @param array $settings
-   *   The settings array being modified.
-   *
-   * @return Drupal\media\OEmbed\Resource
-   *   The oEmbed resource.
+   * {@inheritdoc}
    */
   public function build(array &$settings = []) {
     $resource = NULL;
@@ -190,13 +175,7 @@ class BlazyOEmbed {
   }
 
   /**
-   * Provides the autoplay url suitable for lightboxes, or custom video trigger.
-   *
-   * @param Drupal\media\OEmbed\Resource $resource
-   *   The oEmbed resource.
-   *
-   * @return array
-   *   The settings array.
+   * {@inheritdoc}
    */
   public function getAutoPlayUrl(Resource $resource) {
     $data = [];
@@ -223,12 +202,7 @@ class BlazyOEmbed {
   }
 
   /**
-   * Gets the Media item thumbnail.
-   *
-   * @param array $data
-   *   The modified array containing settings, and to be video thumbnail item.
-   * @param object $media
-   *   The core Media entity.
+   * {@inheritdoc}
    */
   public function getMediaItem(array &$data = [], $media = NULL) {
     // Only proceed if we do have Media.

@@ -107,7 +107,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     try {
       $settings['vanilla'] = TRUE;
-      $this->blazyFormatterManager->buildSettings($format, $this->testItems);
+      $this->BlazyFormatter->buildSettings($format, $this->testItems);
     }
     catch (\PHPUnit_Framework_Exception $e) {
     }
@@ -115,7 +115,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $this->assertEquals($this->testFieldName, $settings['field_name']);
 
     $settings['vanilla'] = FALSE;
-    $this->blazyFormatterManager->buildSettings($format, $this->testItems);
+    $this->BlazyFormatter->buildSettings($format, $this->testItems);
 
     $this->assertEquals($this->testFieldName, $settings['field_name']);
     $this->assertArrayHasKey('#blazy', $build[$this->testFieldName]);

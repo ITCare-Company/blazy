@@ -8,6 +8,28 @@ namespace Drupal\blazy;
 interface BlazyManagerInterface {
 
   /**
+   * Returns array of needed assets suitable for #attached property.
+   *
+   * @param array $attach
+   *   The settings which determine what library to attach.
+   *
+   * @return array
+   *   The supported libraries.
+   */
+  public function attach(array $attach = []);
+
+  /**
+   * Returns drupalSettings for IO.
+   *
+   * @param array $attach
+   *   The settings which determine what library to attach.
+   *
+   * @return array
+   *   The supported IO drupalSettings.
+   */
+  public function getIoSettings(array $attach = []);
+
+  /**
    * Gets the supported lightboxes.
    *
    * @return array
@@ -24,31 +46,12 @@ interface BlazyManagerInterface {
   public function setLightboxes($lightbox);
 
   /**
-   * Gets the supported image effects.
+   * Returns the supported image effects.
    *
    * @return array
    *   The supported image effects.
    */
   public function getImageEffects();
-
-  /**
-   * Cleans up empty, or not so empty, breakpoints.
-   *
-   * @param array $settings
-   *   The settings being modified.
-   */
-  public function cleanUpBreakpoints(array &$settings = []);
-
-  /**
-   * Checks if an image style contains crop effect.
-   *
-   * @param string $style
-   *   The image style to check for.
-   *
-   * @return object|bool
-   *   Returns the image style instance if it contains crop effect, else FALSE.
-   */
-  public function isCrop($style);
 
   /**
    * Checks for Blazy formatter such as from within a Views style plugin.
@@ -73,18 +76,17 @@ interface BlazyManagerInterface {
   public function isBlazy(array &$settings, array $item = []);
 
   /**
-   * Builds breakpoints suitable for top-level [data-blazy] wrapper attributes.
+   * Returns the contents using theme_field(), or theme_item_list().
    *
-   * The hustle is because we need to define dimensions once, if applicable, and
-   * let all images inherit. Each breakpoint image may be cropped, or scaled
-   * without a crop. To set dimensions once requires all breakpoint images
-   * uniformly cropped. But that is not always the case.
+   * Blazy outputs can be formatted using either flat list via theme_field(), or
+   * a grid of Field items or Views rows via theme_item_list().
    *
-   * @param array $settings
-   *   The settings being modified.
-   * @param object $item
-   *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item.
+   * @param array $build
+   *   The array containing: settings, children elements, or optional items.
+   *
+   * @return array
+   *   The alterable and renderable array of contents.
    */
-  public function buildDataBlazy(array &$settings, $item = NULL);
+  public function build(array $build = []);
 
 }

@@ -4,15 +4,15 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\blazy\BlazyOEmbed;
-use Drupal\blazy\BlazyFormatterManager;
+use Drupal\blazy\BlazyOEmbedInterface;
+use Drupal\blazy\BlazyFormatterInterface;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the 'Blazy File' to get VEF/VEM within images/files.
  *
- * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use
+ * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
  *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead.
  * @see https://www.drupal.org/node/3103018
  */
@@ -23,7 +23,7 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
   /**
    * Constructs a BlazyFormatter object.
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, ImageFactory $image_factory, BlazyFormatterManager $formatter, BlazyOEmbed $oembed) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, ImageFactory $image_factory, BlazyFormatterInterface $formatter, BlazyOEmbedInterface $oembed) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings, $image_factory, $formatter);
     $this->blazyOembed = $oembed;
   }
@@ -41,7 +41,7 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
       $configuration['view_mode'],
       $configuration['third_party_settings'],
       $container->get('image.factory'),
-      $container->get('blazy.formatter.manager'),
+      $container->get('blazy.formatter'),
       $container->get('blazy.oembed')
     );
   }

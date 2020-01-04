@@ -15,7 +15,7 @@ use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyOEmbed;
+use Drupal\blazy\BlazyOEmbedInterface;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -57,7 +57,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImageFactory $image_factory, EntityFieldManagerInterface $entity_field_manager, BlazyOEmbed $blazy_oembed) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImageFactory $image_factory, EntityFieldManagerInterface $entity_field_manager, BlazyOEmbedInterface $blazy_oembed) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->imageFactory = $image_factory;
@@ -329,7 +329,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
 
         // Move classes (align-BLAH,etc) to Blazy container, not image so to
         // work with alignments and aspect ratio. Sanitization is performed at
-        // BlazyManager::prepareImage() to avoid double escapes.
+        // BlazyManager::prepareBlazy() to avoid double escapes.
         if ($attribute->nodeName == 'class') {
           $build['media_attributes']['class'][] = $attribute->nodeValue;
         }
@@ -491,7 +491,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         'iframe' => $this->t('Video iframe'),
       ],
       '#default_value' => empty($this->settings['filter_tags']) ? [] : array_values((array) $this->settings['filter_tags']),
-      '#description' => $this->t('Recommended placement after Align / Caption images. To disable for individual items, add attribute <code>data-unblazy</code>.'),
+      '#description' => $this->t('Recommended placement after Align / Caption images. To disable Blazy per individual item, add attribute <code>data-unblazy</code>.'),
     ];
 
     $form['media_switch'] = [

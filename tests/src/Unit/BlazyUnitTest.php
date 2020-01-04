@@ -4,6 +4,7 @@ namespace Drupal\Tests\blazy\Unit;
 
 use Drupal\Tests\UnitTestCase;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyBreakpoint;
 use Drupal\blazy\BlazyDefault;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;
@@ -31,7 +32,7 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Test \Drupal\blazy\Blazy\widthFromDescriptors.
+   * Test \Drupal\blazy\BlazyBreakpoint\widthFromDescriptors.
    *
    * @param string $data
    *   The input data which can be string, or integer.
@@ -42,7 +43,7 @@ class BlazyUnitTest extends UnitTestCase {
    * @dataProvider providerTestWidthFromDescriptors
    */
   public function testWidthFromDescriptors($data, $expected) {
-    $result = Blazy::widthFromDescriptors($data);
+    $result = BlazyBreakpoint::widthFromDescriptors($data);
     $this->assertSame($result, $expected);
   }
 
@@ -121,9 +122,8 @@ class BlazyUnitTest extends UnitTestCase {
    * @param bool $expected_iframe
    *   Whether to expect an iframe, or not.
    *
-   * @covers \Drupal\blazy\Blazy::buildAttributes
-   * @covers \Drupal\blazy\Blazy::buildBreakpointAttributes
-   * @covers \Drupal\blazy\Blazy::buildUrlAndDimensions
+   * @covers \Drupal\blazy\Blazy::preprocessBlazy
+   * @covers \Drupal\blazy\Blazy::urlAndDimensions
    * @covers \Drupal\blazy\Dejavu\BlazyDefault::entitySettings
    * @dataProvider providerBuildAttributes
    */
@@ -146,7 +146,7 @@ class BlazyUnitTest extends UnitTestCase {
     $variables['element']['#item'] = $item == TRUE ? $this->testItem : NULL;
     $variables['element']['#settings'] = $settings;
 
-    Blazy::buildAttributes($variables);
+    Blazy::preprocessBlazy($variables);
 
     $image = $expected_image == TRUE ? !empty($variables['image']) : empty($variables['image']);
     $iframe = $expected_iframe == TRUE ? !empty($variables['iframe_attributes']) : empty($variables['iframe_attributes']);
@@ -222,7 +222,7 @@ class BlazyUnitTest extends UnitTestCase {
    * @param array $settings
    *   The settings being tested.
    *
-   * @covers \Drupal\blazy\BlazyManager::preRenderImage
+   * @covers \Drupal\blazy\BlazyManager::preRenderBlazy
    * @covers \Drupal\blazy\BlazyLightbox::build
    * @covers \Drupal\blazy\BlazyLightbox::buildCaptions
    * @dataProvider providerTestPreRenderImageLightbox

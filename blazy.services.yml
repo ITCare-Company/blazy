@@ -9,9 +9,14 @@ services:
     class: Drupal\blazy\BlazyManager
     parent: blazy.manager.base
 
+  blazy.formatter:
+    class: Drupal\blazy\BlazyFormatter
+    parent: blazy.manager
+
+  # @todo deprecate and remove this for blazy.formatter at blazy: 8.3.
   blazy.formatter.manager:
     class: Drupal\blazy\BlazyFormatterManager
-    parent: blazy.manager
+    parent: blazy.formatter
 
   blazy.oembed:
     class: Drupal\blazy\BlazyOEmbed

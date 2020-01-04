@@ -5,6 +5,7 @@ namespace Drupal\Tests\blazy\Unit;
 use Drupal\Tests\UnitTestCase;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;
+use Drupal\blazy\BlazyBreakpoint;
 
 /**
  * @coversDefaultClass \Drupal\blazy\BlazyManager
@@ -80,7 +81,35 @@ class BlazyManagerUnitTest extends UnitTestCase {
   }
 
   /**
-   * Test \Drupal\blazy\BlazyManager::cleanUpBreakpoints().
+   * Test \Drupal\blazy\BlazyBreakpoint::isCrop().
+   *
+   * @covers ::isCrop
+   * @dataProvider providerIsCrop
+   */
+  public function testIsCrop($image_style_id, $expected) {
+    $is_cropped = BlazyBreakpoint::isCrop($image_style_id);
+
+    $this->assertEquals($expected, !empty($is_cropped));
+  }
+
+  /**
+   * Provider for ::testIsCrop.
+   */
+  public function providerIsCrop() {
+    return [
+      'Cropped image style' => [
+        'blazy_crop',
+        TRUE,
+      ],
+      'Non-cropped image style' => [
+        'large',
+        FALSE,
+      ],
+    ];
+  }
+
+  /**
+   * Test \Drupal\blazy\BlazyBreakpoint::cleanUpBreakpoints().
    *
    * @covers ::cleanUpBreakpoints
    * @dataProvider providerTestCleanUpBreakpoints
@@ -89,7 +118,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
     $settings['blazy'] = $blazy;
     $settings['breakpoints'] = $breakpoints;
 
-    $this->blazyManager->cleanUpBreakpoints($settings);
+    BlazyBreakpoint::cleanUpBreakpoints($settings);
     $this->assertEquals($expected_breakpoints, $settings['breakpoints']);
 
     // Verify that Blazy is activated by breakpoints.

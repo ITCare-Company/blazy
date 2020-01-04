@@ -8,7 +8,7 @@ use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManagerInterface;
-use Drupal\blazy\BlazyEntity;
+use Drupal\blazy\BlazyEntityInterface;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -29,7 +29,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * Constructs a BlazyViewsFieldPluginBase object.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImageFactory $image_factory, BlazyManagerInterface $blazy_manager, BlazyEntity $blazy_entity) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImageFactory $image_factory, BlazyManagerInterface $blazy_manager, BlazyEntityInterface $blazy_entity) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->imageFactory = $image_factory;
     $this->blazyManager = $blazy_manager;

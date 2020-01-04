@@ -7,8 +7,8 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyFormatterManager;
-use Drupal\blazy\BlazyEntity;
+use Drupal\blazy\BlazyFormatterInterface;
+use Drupal\blazy\BlazyEntityInterface;
 use Drupal\blazy\Dejavu\BlazyEntityMediaBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -41,8 +41,8 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityMediaBase implements C
     array $third_party_settings,
     LoggerChannelFactoryInterface $logger_factory,
     ImageFactory $image_factory,
-    BlazyEntity $blazy_entity,
-    BlazyFormatterManager $formatter) {
+    BlazyEntityInterface $blazy_entity,
+    BlazyFormatterInterface $formatter) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
 
     $this->loggerFactory = $logger_factory;
@@ -67,7 +67,7 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityMediaBase implements C
       $container->get('logger.factory'),
       $container->get('image.factory'),
       $container->get('blazy.entity'),
-      $container->get('blazy.formatter.manager')
+      $container->get('blazy.formatter')
     );
   }
 

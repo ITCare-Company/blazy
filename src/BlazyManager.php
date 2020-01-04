@@ -37,7 +37,7 @@ class BlazyManager extends BlazyManagerBase {
         '#item'        => $settings['entity_type_id'] == 'user' ? $item : [],
         '#image_style' => $settings['image_style'],
         '#build'       => $build,
-        '#pre_render'  => [[$this, 'preRenderImage']],
+        '#pre_render'  => [[$this, 'preRenderBlazy']],
       ];
     }
     else {
@@ -57,12 +57,12 @@ class BlazyManager extends BlazyManagerBase {
    * @return array
    *   The renderable array of pre-rendered element.
    */
-  public function preRenderImage(array $element) {
+  public function preRenderBlazy(array $element) {
     $build = $element['#build'];
     unset($element['#build']);
 
     // Prepare the main image.
-    $this->prepareImage($element, $build);
+    $this->prepareBlazy($element, $build);
 
     // Fetch the newly modified settings.
     $settings = $element['#settings'];
@@ -80,7 +80,7 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * Prepares the Blazy image as a structured array ready for ::renderer().
+   * Prepares the Blazy output as a structured array ready for ::renderer().
    *
    * @param array $element
    *   The renderable array being modified.
@@ -88,14 +88,13 @@ class BlazyManager extends BlazyManagerBase {
    *   The array of information containing the required Image or File item
    *   object, settings, optional container attributes.
    */
-  protected function prepareImage(array &$element, array $build) {
-    $item = $build['item'];
+  protected function prepareBlazy(array &$element, array $build) {
     $image = [];
+    $item = $build['item'];
     $settings = $build['settings'];
     $settings['_api'] = TRUE;
     $pathinfo = pathinfo($settings['uri']);
     $settings['extension'] = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
-    $settings['ratio'] = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
     $settings['use_media'] = $settings['embed_url'] && in_array($settings['type'], ['audio', 'video']);
 
     foreach (BlazyDefault::themeAttributes() as $key) {
@@ -121,13 +120,13 @@ class BlazyManager extends BlazyManagerBase {
     $this->buildThumbnailAndPlaceholder($settings, $attributes);
 
     // Prepare image URL and its dimensions.
-    Blazy::buildUrlAndDimensions($settings, $item);
+    Blazy::urlAndDimensions($settings, $item);
 
     // Responsive image integration.
     if (!empty($settings['resimage_entity']) && $settings['extension'] != 'svg') {
       $settings['responsive_image_style_id'] = $settings['resimage_entity']->id();
 
-      Blazy::buildResponsiveImage($image, $settings);
+      $image = Blazy::buildResponsiveImage($settings);
       $element['#cache']['tags'] = $this->getResponsiveImageStyles($settings['resimage_entity'], FALSE);
       unset($settings['resimage_entity']);
     }
@@ -135,7 +134,7 @@ class BlazyManager extends BlazyManagerBase {
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
     if ($settings['ratio']) {
-      Blazy::buildAspectRatio($attributes, $settings);
+      Blazy::aspectRatioAttributes($attributes, $settings);
     }
 
     // Regular image with custom responsive breakpoints.
@@ -143,11 +142,11 @@ class BlazyManager extends BlazyManagerBase {
       if (!empty($settings['lazy'])) {
         // Attach data attributes to either IMG tag, or DIV container.
         if (!empty($settings['background'])) {
-          Blazy::buildBreakpointAttributes($attributes, $settings);
+          BlazyBreakpoint::buildBreakpointAttributes($attributes, $settings);
           $attributes['class'][] = 'media--background b-bg';
         }
         else {
-          Blazy::buildBreakpointAttributes($item_attributes, $settings);
+          BlazyBreakpoint::buildBreakpointAttributes($item_attributes, $settings);
         }
       }
 
@@ -196,7 +195,7 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Build thumbnails, also to provide placeholder for blur effect.
    */
-  public function buildThumbnailAndPlaceholder(array &$settings, array &$attributes) {
+  protected function buildThumbnailAndPlaceholder(array &$settings, array &$attributes) {
     $path = '';
     // With CSS background, IMG may be empty, add thumbnail to the container.
     if (!empty($settings['thumbnail_style'])) {
@@ -255,13 +254,7 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * Returns the contents using theme_field(), or theme_item_list().
-   *
-   * @param array $build
-   *   The array containing: settings, children elements, or optional items.
-   *
-   * @return array
-   *   The alterable and renderable array of contents.
+   * {@inheritdoc}
    */
   public function build(array $build = []) {
     $build['settings'] += BlazyDefault::htmlSettings();
@@ -278,6 +271,7 @@ class BlazyManager extends BlazyManagerBase {
       $build['#attached'] = $this->attach($settings);
     }
     else {
+      // Take over build with a grid display, if so configured.
       $build = [
         '#build'      => $build,
         '#pre_render' => [[$this, 'preRenderBuild']],
@@ -328,7 +322,7 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Prepares Blazy outputs, extract items, and return updated $settings.
    */
-  public function prepareBuild(array &$build) {
+  protected function prepareBuild(array &$build) {
     // If children are stored within items, reset.
     // Blazy comes late to the party after sub-modules decided what they want.
     $settings = isset($build['settings']) ? $build['settings'] : [];
@@ -383,9 +377,9 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * Returns the entity view, if available.
+   * Deprecated method.
    *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
    *   BlazyEntity::getEntityView() instead.
    * @see https://www.drupal.org/node/3103018
    */
@@ -394,15 +388,9 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * Returns the enforced content, or image using theme_blazy().
+   * Deprecated method.
    *
-   * FYI, most Blazy codes were originally Slick's, PHP, CSS and JS.
-   * It was poorly named self::getImage() while Blazy may also contain Media
-   * video with iframe element. Probably getMedia() is cool, but let's stick to
-   * self::getBlazy() as Blazy also works without Image nor Media video, such as
-   * with just a DIV element for CSS background.
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
    *   self::getBlazy() instead.
    * @see https://www.drupal.org/node/3103018
    */
@@ -411,9 +399,9 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * Returns the Responsive image cache tags.
+   * Deprecated method.
    *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
    *   self::getResponsiveImageStyles() with relevant params instead.
    * @see https://www.drupal.org/node/3103018
    */

@@ -1,4 +1,24 @@
 
+Blazy 8.x-2.0-dev, 2020-01-04
+-----------------------------
+- Deprecated Blazy::buildUrlAndDimensions for ::urlAndDimensions.
+- Deprecated Blazy::buildLazyAttributes for ::lazyAttributes.
+- Deprecated Blazy::buildImageAttributes for ::imageAttributes.
+- Deprecated Blazy::buildAspectRatio for ::aspectRatioAttributes.
+- Deprecated Blazy::configSchemaInfoAlter for BlazyAlter::configSchemaInfoAlter.
+- Deprecated Blazy::buildAttributes for ::preprocessBlazy.
+- Deprecated BlazyManager::getResponsiveImageCacheTags for
+  ::getResponsiveImageStyles.
+- Renamed BlazyManager::prepareImage to ::prepareBlazy.
+- Renamed BlazyManager::preRenderImage to ::preRenderBlazy.
+- Changed Blazy::buildResponsiveImage signature for clarity.
+- Added a new class BlazyAlter to reduce complexity at Blazy.
+- Added a new class BlazyBreakpoint to centralize all custom breakpoints.
+- Added BlazyOEmbedInterface, BlazyEntityInterface, BlazyFormatterInterface.
+- Added a new service blazy.formatter to replace blazy.formatter.manager.
+- Changed deprecation removal from blazy:9.x-1.0 to blazy:8.x-3.0.
+- Added micro optimizations, or organizations.
+
 Blazy 8.x-2.0-dev, 2020-01-03
 -----------------------------
 - Issue #3097685 by gausarts, jwilson3: Support aspect ratio for Responsive
@@ -125,7 +145,7 @@ Blazy 8.x-2.0-dev, 2019-03-25
 - Ported Blazy::buildAspectRatio() and Blazy::buildImageAttributes() for
   readability.
 - Changed Blazy::buildResponsiveImage() parameters.
-- Removed deprecated Blazy::buildUrl() for Blazy::buildUrlAndDimensions().
+- Removed deprecated Blazy::buildUrl() for Blazy::urlAndDimensions().
 - Moved BlazyManager::setDimensionsOnce() to BlazyFormatterManager.
 - Moved Responsive image building to #pre_render to reduce dup ifities.
 - Optimized Responsive image integration.
@@ -275,7 +295,7 @@ Blazy 8.x-2.0-dev, 2019-02-12
 - Moved heavy lifting (breakpoints, dimensions, URL, etc) to #pre_render.
 - Split Blazy::buildAttributes() to three methods to make readable lines.
 - Cleaned up few fail safes so to reduce dup lines.
-- Renamed Blazy::buildUrl() to Blazy::buildUrlAndDimensions() for clarity.
+- Renamed Blazy::buildUrl() to Blazy::urlAndDimensions() for clarity.
 - Added docs in Markdown for easy reading at /admin/help.
 - Added an optional BlazyMarkdown utility class for /admin/help.
 

@@ -5,6 +5,7 @@ namespace Drupal\Tests\blazy\Kernel;
 use Drupal\Core\Cache\Cache;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\BlazyBreakpoint;
 
 /**
  * Tests the Blazy manager methods.
@@ -39,7 +40,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * @param bool $expected_has_responsive_image
    *   Has the responsive image style ID.
    *
-   * @covers ::preRenderImage
+   * @covers ::preRenderBlazy
    * @covers \Drupal\blazy\BlazyLightbox::build
    * @covers \Drupal\blazy\BlazyLightbox::buildCaptions
    * @dataProvider providerTestPreRenderImage
@@ -48,7 +49,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $build = $this->data;
     $settings['count'] = $this->maxItems;
     $settings['uri'] = $this->uri;
-    $settings['resimage_entity'] = $this->blazyManager->entityLoad('blazy_responsive_test', 'responsive_image_style');
+    $settings['resimage_entity'] = $expected_has_responsive_image ? $this->blazyManager->entityLoad('blazy_responsive_test', 'responsive_image_style') : NULL;
     $build['settings'] = array_merge($build['settings'], $settings);
     $switch_css = str_replace('_', '-', $settings['media_switch']);
 
@@ -121,9 +122,8 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * @param mixed|bool|int $expected
    *   The expected output.
    *
-   * @covers \Drupal\blazy\Blazy::buildAttributes
-   * @covers \Drupal\blazy\Blazy::buildBreakpointAttributes
-   * @covers \Drupal\blazy\Blazy::buildUrlAndDimensions
+   * @covers \Drupal\blazy\Blazy::preprocessBlazy
+   * @covers \Drupal\blazy\Blazy::urlAndDimensions
    * @covers \Drupal\blazy\Dejavu\BlazyDefault::entitySettings
    * @dataProvider providerBuildAttributes
    */
@@ -145,7 +145,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $variables['element']['#item'] = $item ? $this->testItem : NULL;
     $variables['element']['#settings'] = $settings;
 
-    Blazy::buildAttributes($variables);
+    Blazy::preprocessBlazy($variables);
 
     $image = $expected == TRUE ? !empty($variables['image']) : empty($variables['image']);
     $iframe = $iframe == TRUE ? !empty($variables['iframe_attributes']) : empty($variables['iframe_attributes']);
@@ -243,34 +243,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
   }
 
   /**
-   * Tests isCrop.
-   *
-   * @covers ::isCrop
-   * @dataProvider providerIsCrop
-   */
-  public function testIsCrop($image_style_id, $expected) {
-    $is_cropped = $this->blazyManager->isCrop($image_style_id);
-
-    $this->assertEquals($expected, !empty($is_cropped));
-  }
-
-  /**
-   * Provider for ::testIsCrop.
-   */
-  public function providerIsCrop() {
-    return [
-      'Cropped image style' => [
-        'blazy_crop',
-        TRUE,
-      ],
-      'Non-cropped image style' => [
-        'large',
-        FALSE,
-      ],
-    ];
-  }
-
-  /**
    * Tests cases for various methods.
    *
    * @covers ::attach
@@ -300,7 +272,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $settings['breakpoints'] = $this->getDataBreakpoints();
 
     // Ensure Blazy can be activated by breakpoints.
-    $this->blazyManager->buildDataBlazy($settings, $build);
+    BlazyBreakpoint::buildDataBlazy($settings, $build);
     $this->assertNotEmpty($settings['blazy']);
 
     // Tests Blazy lightboxes.

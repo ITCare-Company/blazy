@@ -56,7 +56,7 @@
  *   return $build;
  * }
  * @endcode
- * @see \Drupal\blazy\Blazy::buildAttributes()
+ * @see \Drupal\blazy\Blazy::preprocessBlazy()
  * @see \Drupal\blazy\BlazyDefault::imageSettings()
  *
  * A multiple image sample.
@@ -217,7 +217,7 @@ function hook_blazy_build_alter(array &$build, array $settings = []) {
  * @code
  * function hook_config_schema_info_alter(array &$definitions) {
  *   $settings = ['color' => '', 'arrowpos' => '', 'dotpos' => ''];
- *   Blazy::configSchemaInfoAlter($definitions,
+ *   BlazyAlter::configSchemaInfoAlter($definitions,
  *     'slick_base', SlickDefault::extendedSettings() + $settings);
  * }
  * @endcode

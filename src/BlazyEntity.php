@@ -8,12 +8,9 @@ use Drupal\Core\Render\Element;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides common entity utilities to work with field details.
- *
- * @see Drupal\blazy\Dejavu\BlazyEntityReferenceBase
- * @see Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase
+ * Implements BlazyEntityInterface.
  */
-class BlazyEntity {
+class BlazyEntity implements BlazyEntityInterface {
 
   /**
    * The blazy oembed service.
@@ -32,7 +29,7 @@ class BlazyEntity {
   /**
    * Constructs a BlazyFormatter instance.
    */
-  public function __construct(BlazyOEmbed $oembed) {
+  public function __construct(BlazyOEmbedInterface $oembed) {
     $this->oembed = $oembed;
     $this->blazyManager = $oembed->blazyManager();
   }
@@ -54,20 +51,7 @@ class BlazyEntity {
   }
 
   /**
-   * Build image/video preview either using theme_blazy(), or view builder.
-   *
-   * This is alternative to Drupal\blazy\BlazyFormatterManager used outside
-   * field managers, such as Views field, or Entity Browser displays, etc.
-   *
-   * @param array $data
-   *   An array of data containing settings, and image item.
-   * @param object $entity
-   *   The media entity, else file entity to be associated to media if any.
-   * @param string $fallback
-   *   The fallback string to display such as file name or entity label.
-   *
-   * @return array
-   *   The renderable array of theme_blazy(), or view builder, else empty array.
+   * {@inheritdoc}
    */
   public function build(array $data, $entity, $fallback = '') {
     $build = [];
@@ -116,17 +100,7 @@ class BlazyEntity {
   }
 
   /**
-   * Returns the entity view, if available.
-   *
-   * @param object $entity
-   *   The entity being rendered.
-   * @param array $settings
-   *   The settings containing view_mode.
-   * @param string $fallback
-   *   The fallback content when all fails, probably just entity label.
-   *
-   * @return array|bool
-   *   The renderable array of the view builder, or false if not applicable.
+   * {@inheritdoc}
    */
   public function getEntityView($entity, array $settings = [], $fallback = '') {
     if ($entity instanceof EntityInterface) {

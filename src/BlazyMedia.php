@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\image\Entity\ImageStyle;
 
 /**
@@ -66,11 +67,11 @@ class BlazyMedia {
    *   The new renderable array of the media item wrapped by theme_container().
    */
   public static function wrap(array $field = []) {
-    // Media entity is a single being, reasonable to work with multi-value?
     $item       = $field[0];
     $settings   = isset($field['#settings']) ? $field['#settings'] : [];
     $iframe     = isset($item['#tag']) && $item['#tag'] == 'iframe';
     $attributes = [];
+    $use_ratio  = FALSE;
 
     if (isset($item['#attributes'])) {
       $attributes = &$item['#attributes'];
@@ -78,14 +79,26 @@ class BlazyMedia {
 
     // Converts iframes into lazyloaded ones.
     if ($iframe && !empty($attributes['src'])) {
-      $attributes['data-src'] = $attributes['src'];
-      $attributes['class'][] = 'b-lazy media__iframe media__element';
-      $attributes['src'] = 'about:blank';
-      $attributes['allowfullscreen'] = TRUE;
+      $settings['embed_url'] = $attributes['src'];
+
+      if (!empty($attributes['width']) && !empty($attributes['height'])) {
+        $settings['width'] = $attributes['width'];
+        $settings['height'] = $attributes['height'];
+      }
+
+      $attributes = NestedArray::mergeDeep($attributes, Blazy::iframeAttributes($settings));
+      $attributes['class'][] = 'media__iframe media__element';
+
+      // Enforces aspect ratio for responsiveness.
+      $use_ratio = TRUE;
     }
     // Media with local files: video.
     elseif (isset($item['#files'], $item['#files'][0]['file'])) {
       $attributes->setAttribute('class', 'b-lazy');
+      if ($settings['ratio']) {
+        $attributes->setAttribute('class', 'media__element');
+        $use_ratio = TRUE;
+      }
     }
 
     // Wraps the media item to allow consistency for EB/SB.
@@ -106,16 +119,12 @@ class BlazyMedia {
     }
 
     // See comment above for known media entities using iframe.
-    if ($iframe) {
-      $build['#attributes']['class'][] = 'media--ratio';
-
-      if (!empty($attributes['width']) && !empty($attributes['height'])) {
-        $padding_bottom = round((($attributes['height'] / $attributes['width']) * 100), 2);
-        $build['#attributes']['style'] = 'padding-bottom: ' . $padding_bottom . '%';
-      }
-    }
-    else {
+    if (!$iframe) {
       $build['#attributes']['class'][] = 'media--rendered';
+    }
+
+    if ($use_ratio) {
+      Blazy::aspectRatioAttributes($build['#attributes'], $settings);
     }
 
     // Clone relevant keys as field wrapper is no longer in use.

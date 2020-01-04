@@ -131,7 +131,7 @@ class BlazyLightbox {
    * @return array
    *   The renderable array of caption, or empty array.
    */
-  public static function buildCaptions($item, array $settings = []) {
+  private static function buildCaptions($item, array $settings = []) {
     $title   = empty($item->title) ? '' : $item->title;
     $alt     = empty($item->alt) ? '' : $item->alt;
     $delta   = empty($settings['delta']) ? 0 : $settings['delta'];

@@ -7,8 +7,8 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\blazy\Dejavu\BlazyVideoBase;
 use Drupal\blazy\Dejavu\BlazyVideoTrait;
-use Drupal\blazy\BlazyOEmbed;
-use Drupal\blazy\BlazyFormatterManager;
+use Drupal\blazy\BlazyOEmbedInterface;
+use Drupal\blazy\BlazyFormatterInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @todo remove prior to full release. This means Slick Video which depends
  * on VEF is deprecated for main Slick at Blazy 8.2.x with core Media only.
  *
- * @deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use
+ * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
  *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead.
  * @see https://www.drupal.org/node/3103018
  */
@@ -29,7 +29,7 @@ class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPlug
   /**
    * Constructs a BlazyFormatter object.
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, BlazyFormatterManager $formatter, BlazyOEmbed $blazy_oembed) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, BlazyFormatterInterface $formatter, BlazyOEmbedInterface $blazy_oembed) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
     $this->formatter = $this->blazyManager = $formatter;
     $this->blazyOembed = $blazy_oembed;
@@ -47,7 +47,7 @@ class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPlug
       $configuration['label'],
       $configuration['view_mode'],
       $configuration['third_party_settings'],
-      $container->get('blazy.formatter.manager'),
+      $container->get('blazy.formatter'),
       $container->get('blazy.oembed')
     );
   }

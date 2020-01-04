@@ -39,7 +39,7 @@ Remove overflow as needed if CSS background is enabled, or on your own.
 .b-loaded {
   filter: blur(0);
   transform: scale(1);
-  will-change: transform, opacity;
+  /** will-change: transform, opacity; */
   -webkit-animation: blazyBlur 1s ease-out;
   animation: blazyBlur 1s ease-out;
 }

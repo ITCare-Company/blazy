@@ -10,7 +10,7 @@ use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\field\FieldConfigInterface;
 use Drupal\file\Plugin\Field\FieldFormatter\FileFormatterBase;
-use Drupal\blazy\BlazyFormatterManager;
+use Drupal\blazy\BlazyFormatterInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Dejavu\BlazyDependenciesTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -34,7 +34,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase implements Conta
   /**
    * Constructs a BlazyFormatter object.
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, ImageFactory $image_factory, BlazyFormatterManager $formatter) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, ImageFactory $image_factory, BlazyFormatterInterface $formatter) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
     $this->imageFactory = $image_factory;
     $this->formatter = $this->blazyManager = $formatter;
@@ -53,7 +53,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase implements Conta
       $configuration['view_mode'],
       $configuration['third_party_settings'],
       $container->get('image.factory'),
-      $container->get('blazy.formatter.manager')
+      $container->get('blazy.formatter')
     );
   }
 

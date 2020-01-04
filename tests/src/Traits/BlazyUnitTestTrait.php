@@ -245,7 +245,7 @@ trait BlazyUnitTestTrait {
 
     $image['#build']['settings'] = array_merge($this->getCacheMetaData(), $build['settings']);
     $image['#build']['item'] = $build['item'];
-    return $this->blazyManager->preRenderImage($image);
+    return $this->blazyManager->preRenderBlazy($image);
   }
 
   /**
