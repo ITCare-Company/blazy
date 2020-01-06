@@ -11,7 +11,7 @@ use Drupal\blazy\BlazyOEmbedInterface;
 use Drupal\blazy\BlazyFormatterInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-@trigger_error('The ' . __NAMESPACE__ . '\BlazyVideoFormatter is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead. See http://drupal.org/node/3103018', E_USER_DEPRECATED);
+@trigger_error('The ' . __NAMESPACE__ . '\BlazyVideoFormatter is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
 
 /**
  * Plugin implementation of the 'Blazy Video' to get VEF videos.

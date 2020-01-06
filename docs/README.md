@@ -196,7 +196,7 @@ See blazy.api.php for details.
 ## READ MORE
 See the project page on drupal.org:
 
-* [Blazy module](http://drupal.org/project/blazy)
+* [Blazy module](https://www.drupal.org/project/blazy)
 
 See the bLazy docs at:
 
