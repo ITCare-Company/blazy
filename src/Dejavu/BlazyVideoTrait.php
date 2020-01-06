@@ -117,6 +117,7 @@ trait BlazyVideoTrait {
    * @see https://www.drupal.org/node/3103018
    */
   public function getMediaItem(array &$data = [], $media = NULL) {
+    @trigger_error('getMediaItem() is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyOEmbed::getMediaItem() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     $this->blazyOembed()->getMediaItem($data, $media);
   }
 
@@ -138,6 +139,7 @@ trait BlazyVideoTrait {
    * @see https://www.drupal.org/node/3103018
    */
   public function buildVideo(array &$settings = [], $external_url = '') {
+    @trigger_error('buildVideo() is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyOEmbed::build() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     $settings['input_url'] = empty($settings['input_url']) ? $external_url : $settings['input_url'];
     return $this->blazyOembed()->build($settings);
   }

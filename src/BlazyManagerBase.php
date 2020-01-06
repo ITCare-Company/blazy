@@ -398,6 +398,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * @see https://www.drupal.org/node/3103018
    */
   public function cleanUpBreakpoints(array &$settings = []) {
+    @trigger_error('cleanUpBreakpoints() is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyBreakpoint::cleanUpBreakpoints() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     BlazyBreakpoint::cleanUpBreakpoints($settings);
   }
 
@@ -409,6 +410,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * @see https://www.drupal.org/node/3103018
    */
   public function buildDataBlazy(array &$settings, $item = NULL) {
+    @trigger_error('buildDataBlazy() is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyBreakpoint::buildDataBlazy() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     BlazyBreakpoint::buildDataBlazy($settings, $item);
   }
 

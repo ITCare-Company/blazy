@@ -426,6 +426,7 @@ class Blazy implements BlazyInterface {
    * @see https://www.drupal.org/node/3103018
    */
   public static function buildImageAttributes(array &$variables) {
+    @trigger_error('buildImageAttributes() is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Blazy::imageAttributes() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     self::imageAttributes($variables);
   }
 
@@ -437,6 +438,7 @@ class Blazy implements BlazyInterface {
    * @see https://www.drupal.org/node/3103018
    */
   public static function buildLazyAttributes(array &$attributes, array $settings = []) {
+    @trigger_error('buildLazyAttributes() is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Blazy::lazyAttributes() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     self::lazyAttributes($attributes, $settings);
   }
 
@@ -448,6 +450,7 @@ class Blazy implements BlazyInterface {
    * @see https://www.drupal.org/node/3103018
    */
   public static function buildAspectRatio(array &$attributes, array $settings = []) {
+    @trigger_error('buildAspectRatio() is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Blazy::aspectRatioAttributes() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     self::aspectRatioAttributes($attributes, $settings);
   }
 
@@ -459,6 +462,7 @@ class Blazy implements BlazyInterface {
    * @see https://www.drupal.org/node/3103018
    */
   public static function buildUrlAndDimensions(array &$attributes, array $settings = []) {
+    @trigger_error('buildUrlAndDimensions() is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Blazy::urlAndDimensions() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     self::urlAndDimensions($attributes, $settings);
   }
 
@@ -470,6 +474,7 @@ class Blazy implements BlazyInterface {
    * @see https://www.drupal.org/node/3103018
    */
   public static function buildAttributes(array &$variables) {
+    @trigger_error('buildAttributes() is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Blazy::preprocessBlazy() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     self::preprocessBlazy($variables);
   }
 
