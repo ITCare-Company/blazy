@@ -384,7 +384,7 @@ class BlazyManager extends BlazyManagerBase {
    * @see https://www.drupal.org/node/3103018
    */
   public function getEntityView($entity, array $settings = [], $fallback = '') {
-    @trigger_error('getEntityView() is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyEntity::getEntityView() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+    @trigger_error('getEntityView is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyEntity::getEntityView() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     return FALSE;
   }
 
@@ -396,7 +396,7 @@ class BlazyManager extends BlazyManagerBase {
    * @see https://www.drupal.org/node/3103018
    */
   public function getImage(array $build = []) {
-    @trigger_error('getImage() is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyManager::getBlazy() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+    @trigger_error('getImage is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyManager::getBlazy() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     return $this->getBlazy($build);
   }
 
@@ -408,7 +408,7 @@ class BlazyManager extends BlazyManagerBase {
    * @see https://www.drupal.org/node/3103018
    */
   public function getResponsiveImageCacheTags($responsive) {
-    @trigger_error('getResponsiveImageCacheTags() is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyManager::getResponsiveImageStyles() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+    @trigger_error('getResponsiveImageCacheTags is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyManager::getResponsiveImageStyles() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     return $this->getResponsiveImageStyles($responsive, FALSE);
   }
 

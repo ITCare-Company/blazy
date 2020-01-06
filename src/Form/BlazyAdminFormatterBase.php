@@ -256,10 +256,11 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    * @see https://www.drupal.org/node/3103018
    */
   public function settingsSummary($plugin, $definition = []) {
-    @trigger_error('settingsSummary() is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyAdminFormatterBase::getSettingsSummary() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+    @trigger_error('settingsSummary is deprecated blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyAdminFormatterBase::getSettingsSummary() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     $definition = isset($definition) ? $definition : $plugin->getScopedFormElements();
     $definition['settings'] = isset($definition['settings']) ? $definition['settings'] : $plugin->getSettings();
 
     return $this->getSettingsSummary($definition);
   }
+
 }
