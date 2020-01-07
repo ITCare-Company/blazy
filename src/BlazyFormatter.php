@@ -54,6 +54,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
     }
 
+    $settings                   += $this->getCommonSettings();
     $settings['bundle']          = $bundle;
     $settings['cache_metadata']  = ['keys' => [$id, $count]];
     $settings['content_url']     = $settings['absolute_path'] = $absolute_path;
@@ -66,10 +67,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['id']              = $id;
     $settings['internal_path']   = $internal_path;
     $settings['lightbox']        = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
-    $settings['placeholder']     = $this->configLoad('placeholder', 'blazy.settings');
-    $settings['resimage']        = function_exists('responsive_image_get_image_dimensions') && $this->configLoad('responsive_image', 'blazy.settings') && !empty($settings['responsive_image_style']);
+    $settings['resimage']        = function_exists('responsive_image_get_image_dimensions') && !empty($settings['responsive_image']) && !empty($settings['responsive_image_style']);
     $settings['target_type']     = $target_type;
-    $settings['fx']              = $this->configLoad('fx', 'blazy.settings');
     $settings['resimage_entity'] = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : NULL;
 
     unset($entity, $field);
@@ -84,7 +83,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['caption']     = empty($settings['caption']) ? [] : array_filter($settings['caption']);
     $settings['background']  = empty($settings['responsive_image_style']) && !empty($settings['background']);
     $settings['blazy']       = $settings['resimage'] || !empty($settings['blazy']);
-    $settings['one_pixel']   = $this->configLoad('one_pixel', 'blazy.settings');
 
     // Let Blazy handle CSS background as Slick's background is deprecated.
     if ($settings['background']) {

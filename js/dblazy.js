@@ -80,6 +80,23 @@
   };
 
   /**
+   * Check if the HTML tag matches a specified string.
+   *
+   * @name dBlazy.closest
+   *
+   * @param {Element} el
+   *   The element to compare.
+   * @param {String} str
+   *   HTML tag to match against.
+   *
+   * @return {Boolean}
+   *   Returns true if matches, else false.
+   */
+  dBlazy.equal = function (el, str) {
+    return el.nodeName.toLowerCase() === str;
+  };
+
+  /**
    * Get the closest matching element up the DOM tree.
    *
    * Inspired by Chris Ferdinandi, http://github.com/cferdinandi/smooth-scroll.
@@ -190,6 +207,97 @@
     else {
       return el.className.indexOf(name) !== -1;
     }
+  };
+
+  /**
+   * A simple attributes wrapper.
+   *
+   * @name dBlazy.setAttr
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} attr
+   *   The attr name.
+   * @param {Boolean} remove
+   *   True if should remove.
+   */
+  dBlazy.setAttr = function (el, attr, remove) {
+    if (el.hasAttribute('data-' + attr)) {
+      var dataAttr = el.getAttribute('data-' + attr);
+      if (attr === 'src') {
+        el.src = dataAttr;
+      }
+      else {
+        el.setAttribute(attr, dataAttr);
+      }
+
+      if (remove) {
+        el.removeAttribute('data-' + attr);
+      }
+    }
+  };
+
+  /**
+   * A simple attributes wrapper looping based on the given attributes.
+   *
+   * @name dBlazy.setAttrs
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {Array} attrs
+   *   The attr names.
+   * @param {Boolean} remove
+   *   True if should remove.
+   */
+  dBlazy.setAttrs = function (el, attrs, remove) {
+    var me = this;
+
+    me.forEach(attrs, function (src) {
+      me.setAttr(el, src, remove);
+    });
+  };
+
+  /**
+   * A simple attributes wrapper, looping based on sources (picture/ video).
+   *
+   * @name dBlazy.setAttrsWithSources
+   *
+   * @param {Element} el
+   *   The starting HTML element.
+   * @param {String} attr
+   *   The attr name, can be SRC or SRCSET.
+   * @param {Boolean} remove
+   *   True if should remove.
+   */
+  dBlazy.setAttrsWithSources = function (el, attr, remove) {
+    var me = this;
+    var parent = el.parentNode || null;
+    var isPicture = parent && me.equal(parent, 'picture');
+    var targets = isPicture ? parent.getElementsByTagName('source') : el.getElementsByTagName('source');
+
+    attr = attr || (isPicture ? 'srcset' : 'src');
+
+    if (targets.length) {
+      me.forEach(targets, function (source) {
+        me.setAttr(source, attr, remove);
+      });
+    }
+  };
+
+  /**
+   * A simple removeAttribute wrapper.
+   *
+   * @name dBlazy.removeAttrs
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {Array} attrs
+   *   The attr names.
+   */
+  dBlazy.removeAttrs = function (el, attrs) {
+    _db.forEach(attrs, function (attr) {
+      el.removeAttribute('data-' + attr);
+    });
   };
 
   /**

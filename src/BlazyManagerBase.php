@@ -236,6 +236,17 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
+   * Returns the common settings inherited down to each item.
+   */
+  public function getCommonSettings() {
+    $settings = [];
+    foreach (['fx', 'native', 'one_pixel', 'placeholder', 'responsive_image'] as $key) {
+      $settings[$key] = $this->configLoad($key, 'blazy.settings');
+    }
+    return $settings;
+  }
+
+  /**
    * Collects defined skins as registered via hook_MODULE_NAME_skins_info().
    */
   public function buildSkins($namespace, $skin_class, $methods = []) {

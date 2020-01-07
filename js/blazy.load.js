@@ -85,6 +85,23 @@
       }
     },
 
+    doNativeLazy: function (el) {
+      var me = this;
+      // Reset attributes, and let supportive browsers lazy load them natively.
+      _db.setAttrs(el, ['srcset', 'src'], true);
+
+      // Also supports PICTURE or (future) VIDEO element which contains SOURCEs.
+      _db.setAttrsWithSources(el, false, true);
+
+      // Mark it loaded to prevent Blazy/IO to do any further work.
+      el.classList.add(me.options.successClass);
+      me.clearing(el);
+    },
+
+    isNativeLazy: function () {
+      return 'loading' in HTMLImageElement.prototype;
+    },
+
     isIo: function () {
       return this.ioSettings && this.ioSettings.enabled && 'IntersectionObserver' in window;
     },
@@ -96,53 +113,60 @@
     run: function (opts) {
       return this.isIo() ? new BioMedia(opts) : new Blazy(opts);
     }
+
   };
 
   /**
-   * Initialize the default blazy instance.
+   * Initialize the blazy instance, either basic, advanced, or native.
+   *
+   * The initialization may take once for basic (not using module fomatters),
+   * or per .blazy/[data-blazy] formatter when they are many on a page.
+   *
+   * @param {HTMLElement} context
+   *   This can be document, or .blazy container w/o [data-blazy].
+   * @param {Object} opts
+   *   The options might be empty for basic blazy, not using formatters.
    */
-  var initBlazyDefault = function () {
+  var initBlazy = function (context, opts) {
     var me = Drupal.blazy;
-    me.options = me.globals();
-    me.init = me.run(me.options);
-  };
+    me.options = opts || me.globals();
 
-  /**
-   * Setup all blazy elements.
-   */
-  function doBlazyDefault(context) {
-    var me = Drupal.blazy;
-    initBlazyDefault();
-    if (typeof me.init.options.selector !== 'undefined' && me.init.options.selector !== null) {
-      var blazies = context.querySelectorAll(me.init.options.selector + ':not(.' + me.init.options.successClass + ')');
-      if (blazies.length > 0) {
-        _db.once(_db.forEach(blazies, doBlazy));
+    // Swap lazy attributes to let supportive browsers lazy load them.
+    // This means Blazy and even IO should not lazy-load them any more.
+    // Ensures to not touch lazy-loaded AJAX, or likely non-supported elements:
+    // Video, DIV, etc. Only IMG and IFRAME are supported for now.
+    if (me.isNativeLazy()) {
+      var elms = context.querySelectorAll('.b-lazy[loading]:not(.' + me.options.successClass + ')');
+      if (elms.length > 0) {
+        _db.forEach(elms, me.doNativeLazy.bind(me));
       }
     }
-  }
+
+    // Put the blazy/IO instance into a public object for references/ overrides.
+    me.init = me.run(me.options);
+  };
 
   /**
    * Blazy utility functions.
    *
    * @param {HTMLElement} elm
-   *   The Blazy HTML element.
+   *   The .blazy/[data-blazy] container, not the lazyloaded .b-lazy element.
    */
   function doBlazy(elm) {
     var me = Drupal.blazy;
     var dataAttr = elm.getAttribute('data-blazy');
-    var hasDefaultOptions = !dataAttr || dataAttr === '1';
-    var data = hasDefaultOptions ? {} : _db.parse(dataAttr);
+    var data = (!dataAttr || dataAttr === '1') ? {} : _db.parse(dataAttr);
     var opts = _db.extend({}, me.globals(), data);
+    var ratios = elm.querySelectorAll('[data-dimensions]');
+    var fallbackRatios = elm.querySelectorAll('[data-ratio]');
+    var loopFallbackRatio = fallbackRatios.length > 0;
+
     // Set docroot in case we are in an iframe.
     // @see Blazy.toArray
     var documentElement = _db.closest(elm, 'html');
     if (!document.documentElement.isSameNode(documentElement)) {
       opts.root = documentElement;
-      hasDefaultOptions = false;
     }
-    var ratios = elm.querySelectorAll('[data-dimensions]');
-    var fallbackRatios = elm.querySelectorAll('[data-ratio]');
-    var loopFallbackRatio = fallbackRatios.length > 0;
 
     me.loopRatio = ratios.length > 0;
 
@@ -155,7 +179,7 @@
      * and will use CSS instead.
      *
      * @param {HTMLElement} el
-     *   The .media--ratio--fluid|enforced HTML element.
+     *   The .media--ratio--fluid HTML element.
      */
     function updateRatio(el) {
       var dimensions = !el.getAttribute('data-dimensions') ? false : _db.parse(el.getAttribute('data-dimensions'));
@@ -189,24 +213,17 @@
      * Fix for Twig inline_template and Views rewrite striping out style.
      *
      * @param {HTMLElement} el
-     *   The .media--ratio--fluid|enforced HTML element.
+     *   The .media--ratio--fluid HTML element.
      */
     function updateFallbackRatio(el) {
       // Only rewrites if the style is indeed stripped out by Twig, and not set.
-      if (!el.hasAttribute('style')) {
+      if (!el.hasAttribute('style') && el.getAttribute('data-ratio')) {
         el.style.paddingBottom = el.getAttribute('data-ratio') + '%';
       }
-      el.removeAttribute('data-ratio');
     }
 
-    // Initializes IntersectionObserver or Blazy instance.
-    if (hasDefaultOptions) {
-      initBlazyDefault();
-    }
-    else {
-      me.options = opts;
-      me.init = me.run(opts);
-    }
+    // Initializes native, IntersectionObserver, or Blazy instance.
+    initBlazy(elm, opts);
 
     // Reacts on resizing per 200ms, and the magic () also does it on page load.
     _db.resize(function () {
@@ -219,8 +236,10 @@
         _db.forEach(fallbackRatios, updateFallbackRatio, elm);
       }
 
-      // BC with bLazy, IO doesn't need to revalidate, Slick multiple-view does.
-      if (me.isBlazy() || elm.classList.contains('blazy--revalidate')) {
+      // BC with bLazy, native/IO doesn't need to revalidate, bLazy does.
+      // Scenarios: long horizontal containers, Slick carousel slidesToShow > 3.
+      // If any issue, add a class `blazy--revalidate` manually to .blazy.
+      if (!me.isNativeLazy() && (me.isBlazy() || elm.classList.contains('blazy--revalidate'))) {
         me.init.revalidate(true);
       }
     })();
@@ -229,28 +248,37 @@
   }
 
   /**
-   * Attaches blazy behavior to HTML element identified by [data-blazy].
+   * Attaches blazy behavior to HTML element identified by .blazy/[data-blazy].
+   *
+   * The .blazy/[data-blazy] is the .b-lazy container, might be .field, etc.
+   * The .b-lazy is the individual IMG, IFRAME, PICTURE, VIDEO, DIV, BODY, etc.
+   * The lazy-loaded element is .b-lazy, not its container. Note the hypen (b-)!
    *
    * @type {Drupal~behavior}
    */
   Drupal.behaviors.blazy = {
     attach: function (context) {
-      // Drupal.attachBehaviors already does this so if this is necessary, someone
-      // does an invalid call. But let's be robust here.
+      // Drupal.attachBehaviors already does this so if this is necessary,
+      // someone does an invalid call. But let's be robust here.
       context = context || document;
       var el = context.querySelector('[data-blazy]');
 
       // Runs basic Blazy if no [data-blazy] found, probably a single image or
       // a theme that does not use field attributes.
+      // The [data-blazy] is set by the module for formatters, or Views gallery.
       // Cannot use .contains(), as IE11 doesn't support method 'contains'.
       if (el === null) {
-        doBlazyDefault(context);
-        return;
+        initBlazy(context);
       }
 
       // Runs Blazy with multi-serving images, and aspect ratio supports.
+      // W/o [data-blazy] to address various scenarios like custom simple works,
+      // or within Views UI which is not easy to set [data-blazy] via UI.
+      // See https://www.drupal.org/node/3057691#comment-13146878
       var blazies = context.querySelectorAll('.blazy:not(.blazy--on)');
-      _db.once(_db.forEach(blazies, doBlazy));
+      if (blazies.length > 0) {
+        _db.once(_db.forEach(blazies, doBlazy));
+      }
     }
   };
 

@@ -84,6 +84,13 @@ class BlazySettingsForm extends ConfigFormBase {
       '#description'   => $this->t('Uncheck to disable blazy related admin compact form styling, only if not compatible with your admin theme.'),
     ];
 
+    $form['native'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Native lazy loading'),
+      '#default_value' => $config->get('native'),
+      '#description'   => $this->t('Native lazy loading is supported by Chrome 76+ as of 01/2019. If enabled, Blazy or IO will be used as fallback for other browsers instead. Currently the offset/ threshold before loading is hardcoded to <a href=":url1">800px at Chrome</a>, so it might only be good for super tall pages for now, be aware. <a href=":url2">Read more</a>', [':url1' => 'https://cs.chromium.org/chromium/src/third_party/blink/renderer/core/frame/settings.json5?l=971-1003&rcl=e8f3cf0bbe085fee0d1b468e84395aad3ebb2cad', ':url2' => 'https://web.dev/native-lazy-loading/']),
+    ];
+
     $form['responsive_image'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Support Responsive image'),
@@ -102,7 +109,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#type'          => 'checkbox',
       '#title'         => $this->t('Responsive image 1px placeholder'),
       '#default_value' => $config->get('one_pixel'),
-      '#description'   => $this->t('By default a 1px Data URI image is the placeholder for lazyloaded Responsive image. Useful to perform a lot better. Uncheck to disable, and use Drupal-managed smallest/fallback image style instead. Be sure to add proper dimensions or at least min-height/min-width via CSS accordingly to avoid layout reflow since Aspect ratio is not supported with Responsive image yet. Disabling this will result in downloading fallback image as well for non-PICTURE element (double downloads).'),
+      '#description'   => $this->t('By default a 1px Data URI image is the placeholder for lazyloaded Responsive image. Useful to perform a lot better. Uncheck to disable, and use Drupal-managed smallest/fallback image style instead. Be sure to add proper dimensions or at least min-height/min-width via CSS accordingly to avoid layout reflow, or choose an Aspect ratio via Blazy formatters. Disabling this will result in downloading fallback image as well for non-PICTURE element (double downloads).'),
     ];
 
     $form['placeholder'] = [
@@ -233,6 +240,7 @@ class BlazySettingsForm extends ConfigFormBase {
     $config
       ->set('admin_css', $form_state->getValue('admin_css'))
       ->set('fx', $form_state->getValue('fx'))
+      ->set('native', $form_state->getValue('native'))
       ->set('responsive_image', $form_state->getValue('responsive_image'))
       ->set('unbreakpoints', $form_state->getValue('unbreakpoints'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))

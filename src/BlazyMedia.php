@@ -95,11 +95,14 @@ class BlazyMedia {
     }
     // Media with local files: video.
     elseif (isset($item['#files'], $item['#files'][0]['file'])) {
-      $attributes->setAttribute('class', 'b-lazy');
+      $class = 'b-lazy';
       if ($settings['ratio']) {
-        $attributes->setAttribute('class', 'media__element');
+        // For some reason, the setAttribute nullifies the previously set value.
+        // Hence why we make it a concatenated string to put them all for now.
+        $class .= ' media__element';
         $use_ratio = TRUE;
       }
+      $attributes->setAttribute('class', $class);
     }
 
     // Wraps the media item to allow consistency for EB/SB.

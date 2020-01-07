@@ -194,7 +194,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
    * {@inheritdoc}
    */
   public function buildSettings($text) {
-    $settings = BlazyDefault::lazySettings();
+    $settings = $this->blazyManager->getCommonSettings() + BlazyDefault::lazySettings();
     $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
     $settings['column'] = stristr($text, 'data-column') !== FALSE;
     $settings['media_switch'] = $switch = $this->settings['media_switch'];
@@ -202,11 +202,9 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     $settings['id'] = $settings['gallery_id'] = Blazy::getHtmlId('blazy-filter-' . Crypt::randomBytesBase64(8));
     $settings['plugin_id'] = 'blazy_filter';
     $settings['_grid'] = $settings['column'] || $settings['grid'];
-    $settings['placeholder'] = $this->blazyManager->configLoad('placeholder', 'blazy.settings');
     $settings['use_data_uri'] = isset($this->settings['media_switch']) ? $this->settings['media_switch'] : FALSE;
     $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
     $settings['is_media_library'] = $definitions && isset($definitions['field_media_oembed_video']);
-    $settings['fx'] = $this->blazyManager->configLoad('fx', 'blazy.settings');
 
     // Allows lightboxes to provide its own optionsets.
     if ($switch) {

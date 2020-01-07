@@ -8,6 +8,9 @@ blazy.settings:
     fx:
       type: string
       label: 'Image effect'
+    native:
+      type: boolean
+      label: 'Native lazy load'
     one_pixel:
       type: boolean
       label: 'One pixel placeholder'

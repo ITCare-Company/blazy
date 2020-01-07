@@ -183,10 +183,6 @@
     el.classList.add(status === me._ok ? me.options.successClass : me.options.errorClass);
   };
 
-  _proto.equal = function (el, str) {
-    return el.nodeName.toLowerCase() === str;
-  };
-
   _proto.observe = function () {
     var me = this;
 

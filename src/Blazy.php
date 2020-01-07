@@ -136,6 +136,7 @@ class Blazy implements BlazyInterface {
       '#attributes' => [
         'data-responsive-blazy' => $settings['one_pixel'],
         'data-placeholder' => $settings['placeholder'],
+        'data-native' => $settings['native'],
       ],
     ];
   }
@@ -204,6 +205,12 @@ class Blazy implements BlazyInterface {
       $attributes['height'] = $settings['height'];
     }
 
+    // Support browser native lazy loading as per 8/2019, Chrome 76+.
+    // See https://web.dev/native-lazy-loading/
+    if (!empty($settings['native'])) {
+      $attributes['loading'] = 'lazy';
+    }
+
     return $attributes;
   }
 
@@ -228,6 +235,11 @@ class Blazy implements BlazyInterface {
   public static function lazyAttributes(array &$attributes, array $settings = []) {
     $attributes['class'][] = $settings['lazy_class'];
     $attributes['data-' . $settings['lazy_attribute']] = $settings['image_url'];
+    // Support browser native lazy loading as per 8/2019 specific to Chrome 76+.
+    // See https://web.dev/native-lazy-loading/
+    if (!empty($settings['native'])) {
+      $attributes['loading'] = 'lazy';
+    }
   }
 
   /**
@@ -290,6 +302,12 @@ class Blazy implements BlazyInterface {
       $image['#attributes']['srcset'] = '';
     }
 
+    // Support browser native lazy loading as per 8/2019, Chrome 76+.
+    // See https://web.dev/native-lazy-loading/
+    if (!empty($attributes['data-native'])) {
+      $image['#attributes']['loading'] = 'lazy';
+    }
+
     // Blazy needs controlling element to have fallback [data-src], else error.
     $image['#attributes']['data-src'] = $fallback_uri;
     $image['#attributes']['class'][] = 'b-lazy b-responsive';
@@ -301,8 +319,9 @@ class Blazy implements BlazyInterface {
     }
 
     // Cleans up the no-longer needed flag:
-    unset($attributes['data-responsive-blazy'], $image['#attributes']['data-responsive-blazy']);
-    unset($attributes['data-placeholder'], $image['#attributes']['data-placeholder']);
+    foreach (['native', 'placeholder', 'responsive-blazy'] as $key) {
+      unset($attributes['data-' . $key], $image['#attributes']['data-' . $key]);
+    }
   }
 
   /**
