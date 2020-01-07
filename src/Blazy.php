@@ -331,7 +331,7 @@ class Blazy implements BlazyInterface {
     foreach ($variables['files'] as $files) {
       $source_attributes = &$files['source_attributes'];
       $source_attributes->setAttribute('data-src', $source_attributes['src']->value());
-      $source_attributes->setAttribute('src', 'about:blank');
+      $source_attributes->setAttribute('src', '');
     }
   }
 
