@@ -56,8 +56,8 @@ function blazy_preprocess_responsive_image(&$variables) {
  * Overrides variables for file-video.html.twig templates.
  */
 function blazy_preprocess_file_video(&$variables) {
-  $class = $variables['attributes']->getClass()->__toString();
-  if (strpos($class, 'b-lazy') !== FALSE) {
+  $class = $variables['attributes']->getClass() ? $variables['attributes']->getClass()->__toString() : '';
+  if ($class && strpos($class, 'b-lazy') !== FALSE) {
     Blazy::preprocessFileVideo($variables);
   }
 }

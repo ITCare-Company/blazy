@@ -119,8 +119,8 @@
   /**
    * Initialize the blazy instance, either basic, advanced, or native.
    *
-   * The initialization may take once for basic (not using module fomatters),
-   * or per .blazy/[data-blazy] formatter when they are many on a page.
+   * The initialization may take once for basic (not using module formatters),
+   * or per .blazy/[data-blazy] formatter when they are one or many on a page.
    *
    * @param {HTMLElement} context
    *   This can be document, or .blazy container w/o [data-blazy].
