@@ -29,6 +29,11 @@
 
     var url = btn.getAttribute('data-url');
     var newIframe;
+    var allow;
+
+    if (iframe !== null && iframe.hasAttribute('allow')) {
+      allow = iframe.getAttribute('allow');
+    }
 
     /**
      * Makes the child iframe responsive.
@@ -89,6 +94,10 @@
       newIframe.className = 'media__iframe media__element';
       newIframe.setAttribute('src', url.indexOf('/oembed') > 0 ? url : autoPlayUrl);
       newIframe.setAttribute('allowfullscreen', true);
+
+      if (allow) {
+        newIframe.setAttribute('allow', allow);
+      }
 
       if (iframe !== null) {
         player.removeChild(iframe);

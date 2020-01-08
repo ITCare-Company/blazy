@@ -211,6 +211,11 @@ class Blazy implements BlazyInterface {
       $attributes['loading'] = 'lazy';
     }
 
+    // Adds specific Youtube attributes, related to mobile apps.
+    if (strpos($settings['embed_url'], 'youtu') !== FALSE) {
+      $attributes['allow'] = 'accelerometer; encrypted-media; gyroscope; picture-in-picture';
+    }
+
     return $attributes;
   }
 
