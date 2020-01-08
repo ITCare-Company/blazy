@@ -33,11 +33,14 @@
   display: block;
   height: 100%;
   left: 0;
-  object-fit: cover; /** Temporary fix till a better solution. */
   position: absolute;
   top: 0;
   width: 100%;
   z-index: 0;
+}
+
+.media--ratio--fluid .media__element {
+  object-fit: cover; /** Temporary fix till a better solution. */
 }
 
 /* 1:1 ratio */

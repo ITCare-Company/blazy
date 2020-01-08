@@ -1,7 +1,7 @@
 ***
 ***
 
-## TROUBLESHOOTING AND KNOWN ISSUES
+## TROUBLESHOOTING
 * Blazy and its sub-modules -- Slick, GridStack, etc. are tightly coupled.
   Be sure to have the latest release date or matching versions in the least.
   DEV for DEV, Beta for Beta, etc. Mismatched versions may lead to errors
@@ -85,4 +85,5 @@ If you don't drush, before any module update, always open:
 [Performance](/admin/config/development/performance)
 
 And so you are ready to hit **Clear all caches** if any issue.
-Only at worst case, know how to run http://dgo.to/registry_rebuild safely.    
+Only at worst case, know how to run
+https://www.drupal.org/project/registry_rebuild safely.    

@@ -1,8 +1,9 @@
 
-# ABOUT BLAZY
-Provides integration with bLazy and or Intersection Observer API to lazy load
-and multi-serve images to save bandwidth and server requests. The user will have
-faster load times and save data usage if they don't browse the whole page.
+# INTRODUCTION
+Provides integration with bLazy and or Intersection Observer API, or browser
+native lazy loading to lazy load and multi-serve images to save bandwidth and
+server requests. The user will have faster load times and save data usage if
+they don't browse the whole page.
 
 ## REQUIREMENTS
 1. bLazy library:
@@ -90,7 +91,7 @@ is a standalone output from Views so to use field template in this case.
 Check out the relevant sub-module docs for details.
 
 ## RECOMMENDED
-* [Markdown](http://dgo.to/markdown)
+* [Markdown](https://www.drupal.org/project/markdown)
 
   To make reading this README a breeze at [Blazy help](/admin/help/blazy_ui)
 
@@ -119,27 +120,28 @@ Check out the relevant sub-module docs for details.
 
 
 ## MODULES THAT INTEGRATE WITH OR REQUIRE BLAZY
-* [Ajaxin](http://dgo.to/ajaxin)
-* [Intersection Observer](http://dgo.to/io)
-* [Blazy PhotoSwipe](http://dgo.to/blazy_photoswipe)
-* [GridStack](http://dgo.to/gridstack)
-* [Outlayer](http://dgo.to/outlayer)
-* [Intense](http://dgo.to/intense)
-* [Mason](http://dgo.to/mason)
-* [Slick](http://dgo.to/slick)
-* [Slick Lightbox](http://dgo.to/slick_lightbox)
-* [Slick Views](http://dgo.to/slick_views)
-* [Slick Media](http://dgo.to/slick_media)
-* [Slick Paragraphs](http://dgo.to/slick_paragraphs)
-* [Slick Video](http://dgo.to/slick_video)
-* [Slick Browser](http://dgo.to/slick_browser)
-* [Jumper](http://dgo.to/jumper)
-* [Zooming](http://dgo.to/zooming)
-* [ElevateZoom Plus](http://dgo.to/elevatezoomplus)
+* [Ajaxin](https://www.drupal.org/project/ajaxin)
+* [Intersection Observer](https://www.drupal.org/project/io)
+* [Blazy PhotoSwipe](https://www.drupal.org/project/blazy_photoswipe)
+* [GridStack](https://www.drupal.org/project/gridstack)
+* [Outlayer](https://www.drupal.org/project/outlayer)
+* [Intense](https://www.drupal.org/project/intense)
+* [Mason](https://www.drupal.org/project/mason)
+* [Slick](https://www.drupal.org/project/slick)
+* [Slick Lightbox](https://www.drupal.org/project/slick_lightbox)
+* [Slick Views](https://www.drupal.org/project/slick_views)
+* [Slick Media](https://www.drupal.org/project/slick_media)
+* [Slick Paragraphs](https://www.drupal.org/project/slick_paragraphs)
+* [Slick Video](https://www.drupal.org/project/slick_video)
+* [Slick Browser](https://www.drupal.org/project/slick_browser)
+* [Jumper](https://www.drupal.org/project/jumper)
+* [Zooming](https://www.drupal.org/project/zooming)
+* [ElevateZoom Plus](https://www.drupal.org/project/elevatezoomplus)
 
 
 Most duplication efforts from the above modules will be merged into
-\Drupal\blazy\Dejavu or anywhere else namespace.
+`\Drupal\blazy\Dejavu`, or anywhere else namespace.
+
 
 **What dups?**
 
@@ -187,7 +189,7 @@ See blazy.api.php for details.
   applies.
 
 
-## AUTHOR/MAINTAINER/CREDITS
+## MAINTAINERS
 * [Gaus Surahman](https://www.drupal.org/user/159062)
 * [Contributors](https://www.drupal.org/node/2663268/committers)
 * CHANGELOG.txt for helpful souls with their patches, suggestions and reports.
