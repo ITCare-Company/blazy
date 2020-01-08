@@ -33,7 +33,7 @@ interface BlazyBreakpointInterface {
    *
    * @see self::preprocessBlazy()
    */
-  public static function buildBreakpointAttributes(array &$attributes, array &$settings = []);
+  public static function attributes(array &$attributes, array &$settings);
 
   /**
    * Cleans up empty, or not so empty, breakpoints.

@@ -22,6 +22,13 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   private $isDimensionSet;
 
   /**
+   * Checks if Responsive image dimensions are set.
+   *
+   * @var array
+   */
+  private $isResponsiveImageDimensionSet;
+
+  /**
    * {@inheritdoc}
    */
   public function buildSettings(array &$build, $items) {
@@ -122,28 +129,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
         $this->setDimensionsOnce($settings, $this->firstItem);
       }
       elseif (!empty($settings['resimage_entity']) && $settings['ratio'] == 'fluid') {
-        $item = $this->firstItem;
-        $styles = $this->getResponsiveImageStyles($settings['resimage_entity'], TRUE);
-
-        $srcset = [];
-        $width = empty($item) ? NULL : $item->width;
-        $height = empty($item) ? NULL : $item->height;
-        foreach ($styles as $name => $style) {
-          $dimensions = ['width' => $width, 'height' => $height];
-          $style->transformDimensions($dimensions, $settings['first_uri']);
-
-          // Sometimes they are string, cast them integer to reduce JS logic.
-          $dimensions['width'] = intval($dimensions['width']);
-          $dimensions['height'] = intval($dimensions['height']);
-
-          // In order to avoid layout reflows, we get dimensions beforehand.
-          $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
-          $srcset[intval($dimensions['width'])] = $padding;
-        }
-
-        // Sort the srcset from small to large image width or multiplier.
-        ksort($srcset);
-        $settings['blazy_data']['dimensions'] = $srcset;
+        $this->setResponsiveImageDimensions($settings);
       }
     }
 
@@ -198,6 +184,38 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
 
       $this->isDimensionSet[md5($settings['first_uri'])] = TRUE;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setResponsiveImageDimensions(array &$settings = []) {
+    if (!isset($this->isResponsiveImageDimensionSet[md5($settings['first_uri'])])) {
+      $item = $this->firstItem;
+      $styles = $this->getResponsiveImageStyles($settings['resimage_entity'], TRUE);
+
+      $srcset = [];
+      $width = empty($item) ? NULL : $item->width;
+      $height = empty($item) ? NULL : $item->height;
+      foreach ($styles as $name => $style) {
+        $dimensions = ['width' => $width, 'height' => $height];
+        $style->transformDimensions($dimensions, $settings['first_uri']);
+
+        // Sometimes they are string, cast them integer to reduce JS logic.
+        $dimensions['width'] = intval($dimensions['width']);
+        $dimensions['height'] = intval($dimensions['height']);
+
+        // In order to avoid layout reflows, we get dimensions beforehand.
+        $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
+        $srcset[intval($dimensions['width'])] = $padding;
+      }
+
+      // Sort the srcset from small to large image width or multiplier.
+      ksort($srcset);
+      $settings['blazy_data']['dimensions'] = $srcset;
+
+      $this->isResponsiveImageDimensionSet[md5($settings['first_uri'])] = TRUE;
     }
   }
 

@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2020-01-07
 -----------------------------
+- Renamed the new BlazyBreakpoint::buildBeakpointAttributes to ::attributes.
 - Issue #3104542 by gausarts: Adopt hybrid lazy loading, native with fallback.
 
 Blazy 8.x-2.0-dev, 2020-01-04

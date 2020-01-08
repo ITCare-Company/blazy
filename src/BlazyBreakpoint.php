@@ -55,7 +55,7 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
   /**
    * {@inheritdoc}
    */
-  public static function buildBreakpointAttributes(array &$attributes, array &$settings = []) {
+  public static function attributes(array &$attributes, array &$settings) {
     Blazy::lazyAttributes($attributes, $settings);
 
     // Only provide multi-serving image URLs if breakpoints are provided.

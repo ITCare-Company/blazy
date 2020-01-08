@@ -202,7 +202,6 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     $settings['id'] = $settings['gallery_id'] = Blazy::getHtmlId('blazy-filter-' . Crypt::randomBytesBase64(8));
     $settings['plugin_id'] = 'blazy_filter';
     $settings['_grid'] = $settings['column'] || $settings['grid'];
-    $settings['use_data_uri'] = isset($this->settings['media_switch']) ? $this->settings['media_switch'] : FALSE;
     $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
     $settings['is_media_library'] = $definitions && isset($definitions['field_media_oembed_video']);
 

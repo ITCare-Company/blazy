@@ -65,4 +65,14 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
    */
   public function setDimensionsOnce(array &$settings = [], $item = NULL);
 
+  /**
+   * Sets dimensions once to reduce method calls for Responsive image.
+   *
+   * The implementor should only call this if using Responsive image style.
+   *
+   * @param array $settings
+   *   The settings being modified.
+   */
+  public function setResponsiveImageDimensions(array &$settings = []);
+
 }

@@ -480,9 +480,9 @@ class Blazy implements BlazyInterface {
    *   self::urlAndDimensions() instead.
    * @see https://www.drupal.org/node/3103018
    */
-  public static function buildUrlAndDimensions(array &$attributes, array $settings = []) {
+  public static function buildUrlAndDimensions(array &$settings, $item = NULL) {
     @trigger_error('buildUrlAndDimensions is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Blazy::urlAndDimensions() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    self::urlAndDimensions($attributes, $settings);
+    self::urlAndDimensions($settings, $item);
   }
 
   /**

@@ -117,7 +117,7 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     // Build thumbnail and optional placeholder based on thumbnail.
-    $this->buildThumbnailAndPlaceholder($settings, $attributes);
+    $this->thumbnailAndPlaceholder($settings, $attributes);
 
     // Prepare image URL and its dimensions.
     Blazy::urlAndDimensions($settings, $item);
@@ -142,11 +142,11 @@ class BlazyManager extends BlazyManagerBase {
       if (!empty($settings['lazy'])) {
         // Attach data attributes to either IMG tag, or DIV container.
         if (!empty($settings['background'])) {
-          BlazyBreakpoint::buildBreakpointAttributes($attributes, $settings);
+          BlazyBreakpoint::attributes($attributes, $settings);
           $attributes['class'][] = 'media--background b-bg';
         }
         else {
-          BlazyBreakpoint::buildBreakpointAttributes($item_attributes, $settings);
+          BlazyBreakpoint::attributes($item_attributes, $settings);
         }
       }
 
@@ -195,7 +195,7 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Build thumbnails, also to provide placeholder for blur effect.
    */
-  protected function buildThumbnailAndPlaceholder(array &$settings, array &$attributes) {
+  protected function thumbnailAndPlaceholder(array &$settings, array &$attributes) {
     $path = '';
     // With CSS background, IMG may be empty, add thumbnail to the container.
     if (!empty($settings['thumbnail_style'])) {
