@@ -6,7 +6,7 @@
  * @see https://developers.google.com/web/updates/2016/04/intersectionobserver
  */
 
-/* global window, document, define, module */
+/* global define, module */
 (function (root, factory) {
 
   'use strict';

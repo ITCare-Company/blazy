@@ -246,7 +246,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * Tests cases for various methods.
    *
    * @covers ::attach
-   * @covers ::buildDataBlazy
    * @covers ::getLightboxes
    * @covers ::setLightboxes
    * @covers ::buildSkins

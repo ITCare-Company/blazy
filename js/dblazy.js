@@ -5,7 +5,7 @@
  * @todo: Use Cash or Underscore when jQuery is dropped by supported plugins.
  */
 
-/* global window, document, define, module */
+/* global define, module */
 (function (root, factory) {
 
   'use strict';
@@ -295,7 +295,7 @@
    *   The attr names.
    */
   dBlazy.removeAttrs = function (el, attrs) {
-    _db.forEach(attrs, function (attr) {
+    this.forEach(attrs, function (attr) {
       el.removeAttribute('data-' + attr);
     });
   };
