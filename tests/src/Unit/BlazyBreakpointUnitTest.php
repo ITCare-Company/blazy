@@ -71,9 +71,6 @@ class BlazyBreakpointUnitTest extends UnitTestCase {
 
     BlazyBreakpoint::cleanUpBreakpoints($settings);
     $this->assertEquals($expected_breakpoints, $settings['breakpoints']);
-
-    // Verify that Blazy is activated by breakpoints.
-    $this->assertEquals($expected_blazy, $settings['blazy']);
   }
 
   /**
