@@ -85,11 +85,21 @@
 
       // First, reset any video to avoid multiple videos from playing.
       if (playing !== null) {
+        var played = document.querySelector('.is-playing .media__iframe');
+        // Remove the previous iframe.
+        if (played !== null) {
+          playing.removeChild(played);
+        }
         playing.className = playing.className.replace(/(\S+)playing/, '');
       }
 
       // Appends the iframe.
       player.className += ' is-playing';
+
+      // Remove the existing iframe on the current clicked iframe.
+      if (iframe !== null) {
+        player.removeChild(iframe);
+      }
 
       // Cache iframe for the potential repeating clicks.
       if (!newIframe) {
@@ -100,10 +110,6 @@
 
         if (allow) {
           newIframe.setAttribute('allow', allow);
-        }
-
-        if (iframe !== null) {
-          player.removeChild(iframe);
         }
 
         // Ensures we don't touch cross-origin object, else SecurityError.

@@ -337,17 +337,9 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
         $settings['breakpoints'] = $blazy['breakpoints'];
       }
 
-      $cherries = [
-        'box_style',
-        'image_style',
-        'media_switch',
-        'ratio',
-        'thumbnail_style',
-        'uri',
-      ];
-
-      foreach ($cherries as $key) {
-        $fallback = isset($settings[$key]) ? $settings[$key] : '';
+      $cherries = BlazyDefault::cherrySettings() + ['uri' => ''];
+      foreach ($cherries as $key => $value) {
+        $fallback = isset($settings[$key]) ? $settings[$key] : $value;
         $settings[$key] = isset($blazy[$key]) && empty($fallback) ? $blazy[$key] : $fallback;
       }
 

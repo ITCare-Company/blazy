@@ -90,9 +90,11 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
     $settings['caption']     = empty($settings['caption']) ? [] : array_filter($settings['caption']);
     $settings['background']  = empty($settings['responsive_image_style']) && !empty($settings['background']);
-    $settings['blazy']       = $settings['background'] || !empty($settings['resimage']) || !empty($settings['blazy']);
+
+    BlazyBreakpoint::cleanUpBreakpoints($settings);
 
     // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
+    $settings['blazy'] = !empty($settings['blazy']) || $settings['background'] || !empty($settings['resimage']) || !empty($settings['breakpoints']);
     if ($settings['blazy']) {
       $settings['lazy'] = 'blazy';
     }
@@ -117,7 +119,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     // Sets dimensions once, if cropped, to reduce costs with ton of images.
     // This is less expensive than re-defining dimensions per image.
-    BlazyBreakpoint::cleanUpBreakpoints($settings);
     if (!empty($settings['first_uri'])) {
       if (empty($settings['resimage'])) {
         $this->setImageDimensions($settings);
@@ -153,9 +154,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     }
 
     // The first image dimensions to differ from individual item dimensions.
-    $item = $this->firstItem;
-    $settings['_width'] = $item && isset($item->width) ? $item->width : NULL;
-    $settings['_height'] = $item && isset($item->height) ? $item->height : NULL;
+    Blazy::firstImageDimensions($settings, $this->firstItem);
   }
 
   /**

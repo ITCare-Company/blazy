@@ -376,6 +376,16 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public static function firstImageDimensions(array &$settings, $item = NULL) {
+    if (empty($settings['_width'])) {
+      $settings['_width'] = $item && isset($item->width) ? $item->width : NULL;
+      $settings['_height'] = $item && isset($item->height) ? $item->height : NULL;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function sanitize(array $attributes = []) {
     $clean_attributes = [];
     $tags = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];

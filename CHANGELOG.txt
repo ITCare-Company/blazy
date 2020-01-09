@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2020-01-09
 -----------------------------
+- Fixed for regression with multiple video playing at once.
 - Added more micro optimizations as planned in the ROADMAP.
 - Changed blazy.html.twig.
 - Ported method Blazy::transformDimensions().

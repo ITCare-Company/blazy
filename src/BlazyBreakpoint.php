@@ -153,11 +153,6 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
       $settings['breakpoints'] = NestedArray::filter($breakpoints, function ($breakpoint) {
         return !(is_array($breakpoint) && (empty($breakpoint['width']) || empty($breakpoint['image_style'])));
       });
-
-      // Identify that Blazy can be activated only by breakpoints.
-      if (empty($settings['blazy'])) {
-        $settings['blazy'] = !empty($settings['breakpoints']);
-      }
     }
   }
 
@@ -176,10 +171,7 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
 
     // May be set at BlazyFormatter::setImageDimensions() if using formatters,
     // yet not set from non-formatters like views fields, see self::isBlazy().
-    if (empty($settings['_width'])) {
-      $settings['_width'] = $item && isset($item->width) ? $item->width : NULL;
-      $settings['_height'] = $item && isset($item->height) ? $item->height : NULL;
-    }
+    Blazy::firstImageDimensions($settings, $item);
 
     $sources = $styles = [];
     $end = end($settings['breakpoints']);

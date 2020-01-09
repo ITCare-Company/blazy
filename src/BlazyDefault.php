@@ -72,6 +72,19 @@ class BlazyDefault {
   }
 
   /**
+   * Returns cherry-picked settings for field formatters and Views fields.
+   */
+  public static function cherrySettings() {
+    return [
+      'box_style'       => '',
+      'image_style'     => '',
+      'media_switch'    => '',
+      'ratio'           => '',
+      'thumbnail_style' => '',
+    ];
+  }
+
+  /**
    * Returns image-related field formatter and Views settings.
    */
   public static function baseImageSettings() {
@@ -79,16 +92,12 @@ class BlazyDefault {
       'background'             => FALSE,
       'box_caption'            => '',
       'box_caption_custom'     => '',
-      'box_style'              => '',
       'box_media_style'        => '',
       'breakpoints'            => [],
       'caption'                => [],
-      'image_style'            => '',
-      'media_switch'           => '',
-      'ratio'                  => '',
       'responsive_image_style' => '',
       'sizes'                  => '',
-    ];
+    ] + self::cherrySettings();
   }
 
   /**
@@ -96,10 +105,9 @@ class BlazyDefault {
    */
   public static function imageSettings() {
     return [
-      'icon'            => '',
-      'layout'          => '',
-      'thumbnail_style' => '',
-      'view_mode'       => '',
+      'icon'      => '',
+      'layout'    => '',
+      'view_mode' => '',
     ] + self::baseSettings() + self::baseImageSettings();
   }
 
