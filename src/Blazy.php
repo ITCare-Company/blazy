@@ -88,11 +88,7 @@ class Blazy implements BlazyInterface {
    */
   public static function urlAndDimensions(array &$settings, $item = NULL) {
     // BlazyFilter, or image style with crop, may already set these.
-    if (empty($settings['width'])) {
-      $settings['width'] = $item && isset($item->width) ? $item->width : NULL;
-      $settings['height'] = $item && isset($item->height) ? $item->height : NULL;
-    }
-
+    Blazy::imageDimensions($settings, $item);
     $settings['placeholder'] = empty($settings['placeholder']) ? static::generatePlaceholder($settings['width'], $settings['height']) : $settings['placeholder'];
 
     // Overrides lazy with blazy for explicit call to reduce another param.
@@ -358,14 +354,10 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function transformDimensions($style, $data, $initial = FALSE) {
-    if ($initial) {
-      $uri = $data['first_uri'];
-      $dim = ['width' => $data['_width'], 'height' => $data['_height']];
-    }
-    else {
-      $uri = $data['uri'];
-      $dim = ['width' => $data['width'], 'height' => $data['height']];
-    }
+    $width  = $initial ? '_width' : 'width';
+    $height = $initial ? '_height' : 'height';
+    $uri    = $initial ? 'first_uri' : 'uri';
+    $dim    = ['width' => $data[$width], 'height' => $data[$height]];
 
     $style->transformDimensions($dim, $uri);
 
@@ -376,10 +368,13 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public static function firstImageDimensions(array &$settings, $item = NULL) {
-    if (empty($settings['_width'])) {
-      $settings['_width'] = $item && isset($item->width) ? $item->width : NULL;
-      $settings['_height'] = $item && isset($item->height) ? $item->height : NULL;
+  public static function imageDimensions(array &$settings, $item = NULL, $initial = FALSE) {
+    $width = $initial ? '_width' : 'width';
+    $height = $initial ? '_height' : 'height';
+
+    if (empty($settings[$width])) {
+      $settings[$width] = $item && isset($item->width) ? $item->width : NULL;
+      $settings[$height] = $item && isset($item->height) ? $item->height : NULL;
     }
   }
 

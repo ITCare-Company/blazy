@@ -171,7 +171,7 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
 
     // May be set at BlazyFormatter::setImageDimensions() if using formatters,
     // yet not set from non-formatters like views fields, see self::isBlazy().
-    Blazy::firstImageDimensions($settings, $item);
+    Blazy::imageDimensions($settings, $item, TRUE);
 
     $sources = $styles = [];
     $end = end($settings['breakpoints']);

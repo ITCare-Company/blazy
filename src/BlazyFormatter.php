@@ -154,7 +154,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     }
 
     // The first image dimensions to differ from individual item dimensions.
-    Blazy::firstImageDimensions($settings, $this->firstItem);
+    Blazy::imageDimensions($settings, $this->firstItem, TRUE);
   }
 
   /**
