@@ -53,26 +53,4 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
    */
   public function extractFirstItem(array &$settings, $item, $entity = NULL);
 
-  /**
-   * Sets dimensions once to reduce method calls, if image style contains crop.
-   *
-   * The implementor should only call this if not using Responsive image style.
-   *
-   * @param array $settings
-   *   The settings being modified.
-   * @param object $item
-   *   The first image item found.
-   */
-  public function setDimensionsOnce(array &$settings = [], $item = NULL);
-
-  /**
-   * Sets dimensions once to reduce method calls for Responsive image.
-   *
-   * The implementor should only call this if using Responsive image style.
-   *
-   * @param array $settings
-   *   The settings being modified.
-   */
-  public function setResponsiveImageDimensions(array &$settings = []);
-
 }

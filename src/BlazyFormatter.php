@@ -19,7 +19,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    *
    * @var array
    */
-  private $isDimensionSet;
+  private $isImageDimensionSet;
 
   /**
    * Checks if Responsive image dimensions are set.
@@ -61,22 +61,23 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
     }
 
-    $settings                   += $this->getCommonSettings();
-    $settings['bundle']          = $bundle;
-    $settings['cache_metadata']  = ['keys' => [$id, $count]];
-    $settings['content_url']     = $settings['absolute_path'] = $absolute_path;
-    $settings['count']           = $count;
-    $settings['entity_id']       = $entity_id;
-    $settings['entity_type_id']  = $entity_type_id;
-    $settings['field_type']      = $field_type;
-    $settings['field_name']      = $field_name;
-    $settings['gallery_id']      = str_replace('_', '-', $gallery_id . '-' . $switch);
-    $settings['id']              = $id;
-    $settings['internal_path']   = $internal_path;
-    $settings['lightbox']        = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
-    $settings['resimage']        = function_exists('responsive_image_get_image_dimensions') && !empty($settings['responsive_image']) && !empty($settings['responsive_image_style']);
-    $settings['target_type']     = $target_type;
-    $settings['resimage_entity'] = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : NULL;
+    $settings                  += $this->getCommonSettings();
+    $settings['bundle']         = $bundle;
+    $settings['cache_metadata'] = ['keys' => [$id, $count]];
+    $settings['content_url']    = $settings['absolute_path'] = $absolute_path;
+    $settings['count']          = $count;
+    $settings['entity_id']      = $entity_id;
+    $settings['entity_type_id'] = $entity_type_id;
+    $settings['field_type']     = $field_type;
+    $settings['field_name']     = $field_name;
+    $settings['gallery_id']     = str_replace('_', '-', $gallery_id . '-' . $switch);
+    $settings['id']             = $id;
+    $settings['internal_path']  = $internal_path;
+    $settings['target_type']    = $target_type;
+    $settings['lightbox']       = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
+    $settings['resimage']       = function_exists('responsive_image_get_image_dimensions') && !empty($settings['responsive_image']) && !empty($settings['responsive_image_style']);
+    $settings['resimage']       = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
+    $settings['cache_tags'][]   = $settings['entity_type_id'] . ':' . $settings['entity_id'];
 
     unset($entity, $field);
 
@@ -89,13 +90,9 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
     $settings['caption']     = empty($settings['caption']) ? [] : array_filter($settings['caption']);
     $settings['background']  = empty($settings['responsive_image_style']) && !empty($settings['background']);
-    $settings['blazy']       = $settings['resimage'] || !empty($settings['blazy']);
+    $settings['blazy']       = $settings['background'] || !empty($settings['resimage']) || !empty($settings['blazy']);
 
-    // Let Blazy handle CSS background as Slick's background is deprecated.
-    if ($settings['background']) {
-      $settings['blazy'] = TRUE;
-    }
-
+    // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
     if ($settings['blazy']) {
       $settings['lazy'] = 'blazy';
     }
@@ -104,9 +101,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     if (isset($settings['ratio']) && $settings['ratio'] == 'enforced') {
       $settings['ratio'] = 'fluid';
     }
-
-    // Add the entity to formatter cache tags.
-    $settings['cache_tags'][] = $settings['entity_type_id'] . ':' . $settings['entity_id'];
   }
 
   /**
@@ -126,9 +120,9 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     BlazyBreakpoint::cleanUpBreakpoints($settings);
     if (!empty($settings['first_uri'])) {
       if (empty($settings['resimage'])) {
-        $this->setDimensionsOnce($settings, $this->firstItem);
+        $this->setImageDimensions($settings);
       }
-      elseif (!empty($settings['resimage_entity']) && $settings['ratio'] == 'fluid') {
+      elseif (!empty($settings['resimage']) && $settings['ratio'] == 'fluid') {
         $this->setResponsiveImageDimensions($settings);
       }
     }
@@ -157,22 +151,24 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       $this->firstItem = $image;
       $settings['first_uri'] = $image->entity->getFileUri();
     }
+
+    // The first image dimensions to differ from individual item dimensions.
+    $item = $this->firstItem;
+    $settings['_width'] = $item && isset($item->width) ? $item->width : NULL;
+    $settings['_height'] = $item && isset($item->height) ? $item->height : NULL;
   }
 
   /**
-   * {@inheritdoc}
+   * Sets dimensions once to reduce method calls, if image style contains crop.
+   *
+   * @param array $settings
+   *   The settings being modified.
    */
-  public function setDimensionsOnce(array &$settings = [], $item = NULL) {
-    if (!isset($this->isDimensionSet[md5($settings['first_uri'])])) {
-      $dimensions['width']  = $settings['original_width'] = $item && isset($item->width) ? $item->width : NULL;
-      $dimensions['height'] = $settings['original_height'] = $item && isset($item->height) ? $item->height : NULL;
-
+  protected function setImageDimensions(array &$settings = []) {
+    if (!isset($this->isImageDimensionSet[md5($settings['first_uri'])])) {
       // If image style contains crop, sets dimension once, and let all inherit.
       if (!empty($settings['image_style']) && ($style = BlazyBreakpoint::isCrop($settings['image_style']))) {
-        $style->transformDimensions($dimensions, $settings['first_uri']);
-
-        $settings['height'] = (int) $dimensions['height'];
-        $settings['width']  = (int) $dimensions['width'];
+        $settings = array_merge($settings, Blazy::transformDimensions($style, $settings, TRUE));
 
         // Informs individual images that dimensions are already set once.
         $settings['_dimensions'] = TRUE;
@@ -180,35 +176,27 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
       // Also sets breakpoint dimensions once, if cropped.
       if (!empty($settings['breakpoints'])) {
-        BlazyBreakpoint::buildDataBlazy($settings, $item);
+        BlazyBreakpoint::buildDataBlazy($settings, $this->firstItem);
       }
 
-      $this->isDimensionSet[md5($settings['first_uri'])] = TRUE;
+      $this->isImageDimensionSet[md5($settings['first_uri'])] = TRUE;
     }
   }
 
   /**
-   * {@inheritdoc}
+   * Sets dimensions once to reduce method calls for Responsive image.
+   *
+   * @param array $settings
+   *   The settings being modified.
    */
-  public function setResponsiveImageDimensions(array &$settings = []) {
+  protected function setResponsiveImageDimensions(array &$settings = []) {
     if (!isset($this->isResponsiveImageDimensionSet[md5($settings['first_uri'])])) {
-      $item = $this->firstItem;
-      $styles = $this->getResponsiveImageStyles($settings['resimage_entity'], TRUE);
-
       $srcset = [];
-      $width = empty($item) ? NULL : $item->width;
-      $height = empty($item) ? NULL : $item->height;
-      foreach ($styles as $name => $style) {
-        $dimensions = ['width' => $width, 'height' => $height];
-        $style->transformDimensions($dimensions, $settings['first_uri']);
+      foreach ($this->getResponsiveImageStyles($settings['resimage'], TRUE) as $name => $style) {
+        $settings = array_merge($settings, Blazy::transformDimensions($style, $settings, TRUE));
 
-        // Sometimes they are string, cast them integer to reduce JS logic.
-        $dimensions['width'] = intval($dimensions['width']);
-        $dimensions['height'] = intval($dimensions['height']);
-
-        // In order to avoid layout reflows, we get dimensions beforehand.
-        $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
-        $srcset[intval($dimensions['width'])] = $padding;
+        // In order to avoid layout reflow, we get dimensions beforehand.
+        $srcset[intval($settings['width'])] = round((($settings['height'] / $settings['width']) * 100), 2);
       }
 
       // Sort the srcset from small to large image width or multiplier.
@@ -217,6 +205,18 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
       $this->isResponsiveImageDimensionSet[md5($settings['first_uri'])] = TRUE;
     }
+  }
+
+  /**
+   * Deprecated method.
+   *
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
+   *   self::setImageDimensions() instead.
+   * @see https://www.drupal.org/node/3103018
+   */
+  public function setDimensionsOnce(array &$settings = []) {
+    @trigger_error('setDimensionsOnce is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyFormatter::setImageDimensions() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+    $this->setImageDimensions($settings);
   }
 
 }

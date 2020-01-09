@@ -36,12 +36,6 @@
     settings.classes ? settings.classes|join(' ')|clean_class,
   ]
 %}
-{%
-  set iframe_classes = [
-    'media__iframe',
-    settings.ratio ? 'media__element'
-  ]
-%}
 
 {% set player %}
   {% if settings.player %}

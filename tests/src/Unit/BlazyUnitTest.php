@@ -31,18 +31,18 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests \Drupal\blazy\Blazy\buildIframeAttributes.
+   * Tests \Drupal\blazy\Blazy::buildIframe.
    *
    * @param array $data
    *   The input data which can be string, or integer.
    * @param mixed|bool|int $expected
    *   The expected output.
    *
-   * @covers ::buildIframeAttributes
+   * @covers ::buildIframe
    * @covers \Drupal\blazy\Dejavu\BlazyDefault::entitySettings
-   * @dataProvider providerTestBuildIframeAttributes
+   * @dataProvider providerTestBuildIframe
    */
-  public function testBuildIframeAttributes(array $data, $expected) {
+  public function testBuildIframe(array $data, $expected) {
     $variables             = ['attributes' => [], 'image' => []];
     $settings              = BlazyDefault::entitySettings();
     $settings['embed_url'] = '//www.youtube.com/watch?v=E03HFA923kw';
@@ -50,15 +50,15 @@ class BlazyUnitTest extends UnitTestCase {
     $settings['type']      = 'video';
 
     $variables['settings'] = array_merge($settings, $data);
-    Blazy::buildIframeAttributes($variables);
+    Blazy::buildIframe($variables);
 
     $this->assertNotEmpty($variables[$expected]);
   }
 
   /**
-   * Provide test cases for ::testBuildIframeAttributes().
+   * Provide test cases for ::testBuildIframe().
    */
-  public function providerTestBuildIframeAttributes() {
+  public function providerTestBuildIframe() {
     return [
       [
         [
@@ -80,7 +80,7 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests building Blazy attributes.
+   * Tests \Drupal\blazy\Blazy::preprocessBlazy.
    *
    * @param array $settings
    *   The settings being tested.
@@ -94,9 +94,9 @@ class BlazyUnitTest extends UnitTestCase {
    * @covers \Drupal\blazy\Blazy::preprocessBlazy
    * @covers \Drupal\blazy\Blazy::urlAndDimensions
    * @covers \Drupal\blazy\Dejavu\BlazyDefault::entitySettings
-   * @dataProvider providerBuildAttributes
+   * @dataProvider providerPreprocessBlazy
    */
-  public function testBuildAttributes(array $settings, $item, $expected_image, $expected_iframe) {
+  public function testPreprocessBlazy(array $settings, $item, $expected_image, $expected_iframe) {
     $variables = ['attributes' => []];
     $build     = $this->data;
     $settings  = array_merge($build['settings'], $settings);
@@ -127,9 +127,9 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Provider for ::testBuildAttributes.
+   * Provider for ::testPreprocessBlazy.
    */
-  public function providerBuildAttributes() {
+  public function providerPreprocessBlazy() {
     $uri = 'public://example.jpg';
 
     $data[] = [

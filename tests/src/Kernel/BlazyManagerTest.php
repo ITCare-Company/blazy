@@ -49,7 +49,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $build = $this->data;
     $settings['count'] = $this->maxItems;
     $settings['uri'] = $this->uri;
-    $settings['resimage_entity'] = $expected_has_responsive_image ? $this->blazyManager->entityLoad('blazy_responsive_test', 'responsive_image_style') : NULL;
+    $settings['resimage'] = $expected_has_responsive_image ? $this->blazyManager->entityLoad('blazy_responsive_test', 'responsive_image_style') : NULL;
     $build['settings'] = array_merge($build['settings'], $settings);
     $switch_css = str_replace('_', '-', $settings['media_switch']);
 

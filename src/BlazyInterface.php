@@ -63,7 +63,7 @@ interface BlazyInterface {
    * @param array $variables
    *   The variables being modified.
    */
-  public static function buildIframeAttributes(array &$variables);
+  public static function buildIframe(array &$variables);
 
   /**
    * Defines attributes, builtin, or supported lazyload such as Slick.
@@ -111,6 +111,18 @@ interface BlazyInterface {
    *   The sanitized $attributes suitable for UGC, such as Blazy filter.
    */
   public static function sanitize(array $attributes = []);
+
+  /**
+   * A wrapper for ImageStyle::transformDimensions().
+   *
+   * @param object $style
+   *   The given image style.
+   * @param array $data
+   *   The data settings: _width, _height, first_uri, width, height, and uri.
+   * @param bool $initial
+   *   Whether particularly transforms once for all, or individually.
+   */
+  public static function transformDimensions($style, $data, $initial = FALSE);
 
   /**
    * Determines whether the URI has a valid scheme for file API operations.

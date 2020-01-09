@@ -78,31 +78,24 @@ class BlazyMedia {
       $attributes = &$item['#attributes'];
     }
 
+    // Update iframe/video dimensions based on configurable image style, even
+    // if Instagram, or local video, has no image to associated with.
+    foreach (['width', 'height'] as $key) {
+      if (!empty($settings[$key])) {
+        $attributes[$key] = $settings[$key];
+      }
+    }
+
     // Converts iframes into lazyloaded ones.
     if ($iframe && !empty($attributes['src'])) {
       $settings['embed_url'] = $attributes['src'];
-
-      if (!empty($attributes['width']) && !empty($attributes['height'])) {
-        $settings['width'] = $attributes['width'];
-        $settings['height'] = $attributes['height'];
-      }
-
       $attributes = NestedArray::mergeDeep($attributes, Blazy::iframeAttributes($settings));
-      $attributes['class'][] = 'media__iframe media__element';
-
-      // Enforces aspect ratio for responsiveness.
-      $use_ratio = TRUE;
     }
     // Media with local files: video.
     elseif (isset($item['#files'], $item['#files'][0]['file'])) {
-      $class = 'b-lazy';
-      if ($settings['ratio']) {
-        // For some reason, the setAttribute nullifies the previously set value.
-        // Hence why we make it a concatenated string to put them all for now.
-        $class .= ' media__element';
-        $use_ratio = TRUE;
-      }
-      $attributes->setAttribute('class', $class);
+      // For some reason, the setAttribute nullifies the previously set value.
+      // Hence why we make it a concatenated string to put them all for now.
+      $attributes->setAttribute('class', 'b-lazy media__element');
     }
 
     // Wraps the media item to allow consistency for EB/SB.
@@ -127,7 +120,7 @@ class BlazyMedia {
       $build['#attributes']['class'][] = 'media--rendered';
     }
 
-    if ($use_ratio) {
+    if ($settings['ratio']) {
       Blazy::aspectRatioAttributes($build['#attributes'], $settings);
     }
 

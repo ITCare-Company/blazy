@@ -416,7 +416,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'select',
         '#title'       => $this->t('Image style'),
         '#options'     => $image_styles,
-        '#description' => $this->t('The content image style. This will be treated as the fallback image, which is normally smaller, if Breakpoints are provided. Otherwise this is the only image displayed.'),
+        '#description' => $this->t('The content image style. This will be treated as the fallback image, which is normally smaller, if Breakpoints or Responsive image are provided. Otherwise this is the only image displayed. This image style is also used to provide dimensions not only for image/iframe but also any media entity like local video, where no images are even associated with, to have the designated dimensions in tandem with aspect ratio as otherwise no UI to customize for.'),
         '#weight'      => -100,
       ];
     }
@@ -474,7 +474,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           '#title'        => $this->t('Aspect ratio'),
           '#options'      => array_combine($ratio, $ratio),
           '#empty_option' => $this->t('- None -'),
-          '#description'  => $this->t('Aspect ratio to get consistently responsive images and iframes. And to fix layout reflow and excessive height issues. <a href="@dimensions" target="_blank">Image styles and video dimensions</a> must <a href="@follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. Use fixed ratio (non-fluid) to avoid JS works, or if it fails Responsive image. Fixed ratio means, all images from mobile to desktop use the same aspect ratio. Fluid means dimensions are calculated and JS works are attempted to fix aspect ratio. <a href="@link" target="_blank">Learn more</a>, or leave empty to DIY (such as using CSS mediaquery), or when working with multi-image-style plugin like GridStack.', [
+          '#description'  => $this->t('Aspect ratio to get consistently responsive images and iframes. Coupled with Image style. And to fix layout reflow and excessive height issues. <a href="@dimensions" target="_blank">Image styles and video dimensions</a> must <a href="@follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. Use fixed ratio (non-fluid) to avoid JS works, or if it fails Responsive image. Fixed ratio means, all images from mobile to desktop use the same aspect ratio. Fluid means dimensions are calculated and JS works are attempted to fix aspect ratio. <a href="@link" target="_blank">Learn more</a>, or leave empty to DIY (such as using CSS mediaquery), or when working with multi-image-style plugin like GridStack.', [
             '@dimensions'  => '//size43.com/jqueryVideoTool.html',
             '@follow'      => '//en.wikipedia.org/wiki/Aspect_ratio_%28image%29',
             '@link'        => '//www.smashingmagazine.com/2014/02/27/making-embedded-content-work-in-responsive-design/',

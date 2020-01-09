@@ -106,7 +106,6 @@ class BlazyManager extends BlazyManagerBase {
     // Sanitize potential user-defined attributes such as from BlazyFilter.
     // Skip attributes via $item, or by module, as they are not user-defined.
     $attributes = isset($build['attributes']) ? $build['attributes'] : [];
-    $url_attributes = $build['url_attributes'];
     $item_attributes = empty($build['item_attributes']) ? [] : Blazy::sanitize($build['item_attributes']);
 
     // Extract field item attributes for the theme function, and unset them
@@ -123,12 +122,12 @@ class BlazyManager extends BlazyManagerBase {
     Blazy::urlAndDimensions($settings, $item);
 
     // Responsive image integration.
-    if (!empty($settings['resimage_entity']) && $settings['extension'] != 'svg') {
-      $settings['responsive_image_style_id'] = $settings['resimage_entity']->id();
+    if (!empty($settings['resimage']) && $settings['extension'] != 'svg') {
+      $settings['responsive_image_style_id'] = $settings['resimage']->id();
 
       $image = Blazy::buildResponsiveImage($settings);
-      $element['#cache']['tags'] = $this->getResponsiveImageStyles($settings['resimage_entity'], FALSE);
-      unset($settings['resimage_entity']);
+      $element['#cache']['tags'] = $this->getResponsiveImageStyles($settings['resimage'], FALSE);
+      unset($settings['resimage']);
     }
 
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
@@ -187,7 +186,7 @@ class BlazyManager extends BlazyManagerBase {
     $element['#captions']        = $captions;
     $element['#item']            = $item;
     $element['#item_attributes'] = $item_attributes;
-    $element['#url_attributes']  = $url_attributes;
+    $element['#url_attributes']  = $build['url_attributes'];
     $element['#settings']        = $settings;
     $element['#image']           = $image;
   }

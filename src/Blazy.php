@@ -74,7 +74,7 @@ class Blazy implements BlazyInterface {
 
     // Prepare a media player, and allow a tiny video preview without iframe.
     if ($settings['use_media'] && empty($settings['_noiframe'])) {
-      self::buildIframeAttributes($variables);
+      self::buildIframe($variables);
     }
 
     // (Responsive) image is optional for Video, or image as CSS background.
@@ -112,7 +112,7 @@ class Blazy implements BlazyInterface {
 
       // Only re-calculate dimensions if not cropped, nor already set.
       if (empty($settings['_dimensions'])) {
-        $style->transformDimensions($settings, $uri);
+        $settings = array_merge($settings, self::transformDimensions($style, $settings));
       }
     }
 
@@ -161,6 +161,7 @@ class Blazy implements BlazyInterface {
     }
 
     // BC for calling this theme directly bypassing the API.
+    // This was set via BlazyManager > BlazyBreakpoint::attributes().
     if (!empty($settings['lazy']) && empty($settings['_api'])) {
       self::lazyAttributes($attributes, $settings);
     }
@@ -186,7 +187,8 @@ class Blazy implements BlazyInterface {
       }
     }
 
-    $attributes['class'][] = 'media__image media__element';
+    $attributes['class'][] = 'media__image';
+    self::commonAttributes($attributes, $variables['settings']);
     $image['#attributes'] = empty($image['#attributes']) ? $attributes : NestedArray::mergeDeep($image['#attributes'], $attributes);
   }
 
@@ -196,20 +198,10 @@ class Blazy implements BlazyInterface {
   public static function iframeAttributes(array $settings) {
     $attributes['data-src']        = $settings['embed_url'];
     $attributes['src']             = 'about:blank';
-    $attributes['class'][]         = 'b-lazy';
+    $attributes['class'][]         = 'b-lazy media__iframe';
     $attributes['allowfullscreen'] = TRUE;
 
-    // Prevents broken iframe when aspect ratio is empty.
-    if (empty($settings['ratio']) && !empty($settings['width'])) {
-      $attributes['width']  = $settings['width'];
-      $attributes['height'] = $settings['height'];
-    }
-
-    // Support browser native lazy loading as per 8/2019, Chrome 76+.
-    // See https://web.dev/native-lazy-loading/
-    if (!empty($settings['native'])) {
-      $attributes['loading'] = 'lazy';
-    }
+    self::commonAttributes($attributes, $settings);
 
     // Adds specific Youtube attributes, related to mobile apps.
     if (strpos($settings['embed_url'], 'youtu') !== FALSE) {
@@ -222,7 +214,7 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public static function buildIframeAttributes(array &$variables) {
+  public static function buildIframe(array &$variables) {
     $settings           = &$variables['settings'];
     $variables['image'] = empty($settings['media_switch']) ? [] : $variables['image'];
     $settings['player'] = empty($settings['player']) ? (empty($settings['lightbox']) && $settings['media_switch'] != 'content') : $settings['player'];
@@ -238,8 +230,17 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function lazyAttributes(array &$attributes, array $settings = []) {
+    // Slick has its own class and methods: ondemand, anticipative, progressive.
     $attributes['class'][] = $settings['lazy_class'];
     $attributes['data-' . $settings['lazy_attribute']] = $settings['image_url'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function commonAttributes(array &$attributes, array $settings = []) {
+    $attributes['class'][] = 'media__element';
+
     // Support browser native lazy loading as per 8/2019 specific to Chrome 76+.
     // See https://web.dev/native-lazy-loading/
     if (!empty($settings['native'])) {
@@ -248,7 +249,7 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Modifies container attributes with aspect ratio.
+   * Modifies container attributes with aspect ratio for iframe, image, etc.
    */
   public static function aspectRatioAttributes(array &$attributes, array &$settings) {
     $settings['ratio'] = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
@@ -288,34 +289,22 @@ class Blazy implements BlazyInterface {
         }
       }
 
-      // Fetches the picture element fallback URI, and empty it later, 8.x-3+.
-      $fallback_uri = $image['#uri'];
-
-      // Cleans up the no-longer relevant attributes for controlling element.
-      unset($attributes['data-srcset'], $image['#attributes']['data-srcset']);
-      $image['#srcset'] = '';
+      // Blazy needs <img> element to have fallback [data-src], else error.
+      $image['#attributes']['data-src'] = $image['#uri'];
 
       // Prevents invalid IMG tag when one pixel placeholder is disabled.
       $image['#uri'] = $placeholder;
+      $image['#srcset'] = '';
+
+      // Cleans up the no-longer relevant attributes for controlling element.
+      unset($attributes['data-srcset'], $image['#attributes']['data-srcset']);
     }
     else {
       // Modifies <img> element attributes.
-      $fallback_uri = $image['#uri'];
-
-      $attributes['data-srcset'] = $attributes['srcset']->value();
+      $image['#attributes']['data-src'] = $image['#uri'];
       $image['#attributes']['data-srcset'] = $attributes['srcset']->value();
       $image['#attributes']['srcset'] = '';
     }
-
-    // Support browser native lazy loading as per 8/2019, Chrome 76+.
-    // See https://web.dev/native-lazy-loading/
-    if (!empty($attributes['data-native'])) {
-      $image['#attributes']['loading'] = 'lazy';
-    }
-
-    // Blazy needs controlling element to have fallback [data-src], else error.
-    $image['#attributes']['data-src'] = $fallback_uri;
-    $image['#attributes']['class'][] = 'b-lazy b-responsive';
 
     // The [data-responsive-blazy] is a flag indicating 1px placeholder.
     // This prevents double-downloading the fallback image, if enabled.
@@ -323,7 +312,10 @@ class Blazy implements BlazyInterface {
       $image['#uri'] = $placeholder;
     }
 
-    // Cleans up the no-longer needed flag:
+    // More shared-with-image attributes are set at self::imageAttributes().
+    $image['#attributes']['class'][] = 'b-lazy b-responsive';
+
+    // Cleans up the no-longer needed flags:
     foreach (['native', 'placeholder', 'responsive-blazy'] as $key) {
       unset($attributes['data-' . $key], $image['#attributes']['data-' . $key]);
     }
@@ -360,6 +352,25 @@ class Blazy implements BlazyInterface {
   public static function transformRelative($uri, $style = NULL) {
     $url = $style ? $style->buildUrl($uri) : file_create_url($uri);
     return file_url_transform_relative($url);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function transformDimensions($style, $data, $initial = FALSE) {
+    if ($initial) {
+      $uri = $data['first_uri'];
+      $dim = ['width' => $data['_width'], 'height' => $data['_height']];
+    }
+    else {
+      $uri = $data['uri'];
+      $dim = ['width' => $data['width'], 'height' => $data['height']];
+    }
+
+    $style->transformDimensions($dim, $uri);
+
+    // Sometimes they are string, cast them integer to reduce JS logic.
+    return ['width' => (int) $dim['width'], 'height' => (int) $dim['height']];
   }
 
   /**
@@ -452,6 +463,17 @@ class Blazy implements BlazyInterface {
   public static function buildImageAttributes(array &$variables) {
     @trigger_error('buildImageAttributes is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Blazy::imageAttributes() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     self::imageAttributes($variables);
+  }
+
+  /**
+   * Deprecated method.
+   *
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
+   *   self::buildIframe() instead.
+   * @see https://www.drupal.org/node/3103018
+   */
+  public static function buildIframeAttributes(array &$variables) {
+    self::buildIframe($variables);
   }
 
   /**

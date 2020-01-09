@@ -90,24 +90,28 @@
 
       // Appends the iframe.
       player.className += ' is-playing';
-      newIframe = document.createElement('iframe');
-      newIframe.className = 'media__iframe media__element';
-      newIframe.setAttribute('src', url.indexOf('/oembed') > 0 ? url : autoPlayUrl);
-      newIframe.setAttribute('allowfullscreen', true);
 
-      if (allow) {
-        newIframe.setAttribute('allow', allow);
-      }
+      // Cache iframe for the potential repeating clicks.
+      if (!newIframe) {
+        newIframe = document.createElement('iframe');
+        newIframe.className = 'media__iframe media__element';
+        newIframe.setAttribute('src', url.indexOf('/oembed') > 0 ? url : autoPlayUrl);
+        newIframe.setAttribute('allowfullscreen', true);
 
-      if (iframe !== null) {
-        player.removeChild(iframe);
-      }
+        if (allow) {
+          newIframe.setAttribute('allow', allow);
+        }
 
-      // Ensures we don't touch cross-origin object, else SecurityError.
-      // The transformed url may also contain `oembed` at `?feature=oembed.
-      // The expected here is the top level iframe with ``/media/oembed` route.
-      if (url.indexOf('/oembed') > 0) {
-        newIframe.addEventListener('load', makeResponsive);
+        if (iframe !== null) {
+          player.removeChild(iframe);
+        }
+
+        // Ensures we don't touch cross-origin object, else SecurityError.
+        // The transformed url may also contain `oembed` at `?feature=oembed.
+        // The expected here is the top level iframe with ``/media/oembed` route.
+        if (url.indexOf('/oembed') > 0) {
+          newIframe.addEventListener('load', makeResponsive);
+        }
       }
 
       player.appendChild(newIframe);

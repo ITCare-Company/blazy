@@ -75,11 +75,11 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
 
       // Supports multi-breakpoint aspect ratio with irregular sizes.
       // Yet, only provide individual dimensions if not already set.
-      // @see Drupal\blazy\BlazyFormatterManager::setDimensionsOnce().
+      // See Drupal\blazy\BlazyFormatter::setImageDimensions().
       $width = self::widthFromDescriptors($breakpoint['width']);
       if ($width && !empty($settings['_breakpoint_ratio']) && empty($settings['blazy_data']['dimensions'])) {
-        $dimensions = ['width' => $settings['width'], 'height' => $settings['height']];
-        $style->transformDimensions($dimensions, $settings['uri']);
+        $dimensions = Blazy::transformDimensions($style, $settings);
+
         $json[$width] = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
       }
 
@@ -168,17 +168,17 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
     // Identify that Blazy can be activated by breakpoints, regardless results.
     $settings['blazy'] = TRUE;
 
-    // Bail out if blazy_data has been defined at self::setDimensionsOnce().
+    // Bail out if blazy_data defined at BlazyFormatter::setImageDimensions().
     // Blazy doesn't always deal with image formatters, see self::isBlazy().
     if (!empty($settings['blazy_data'])) {
       return;
     }
 
-    // This may be set at self::setDimensionsOnce() if using formatters, yet it
-    // is not set from non-formatters like views fields, see self::isBlazy().
-    if (empty($settings['original_width'])) {
-      $settings['original_width'] = $item && isset($item->width) ? $item->width : NULL;
-      $settings['original_height'] = $item && isset($item->height) ? $item->height : NULL;
+    // May be set at BlazyFormatter::setImageDimensions() if using formatters,
+    // yet not set from non-formatters like views fields, see self::isBlazy().
+    if (empty($settings['_width'])) {
+      $settings['_width'] = $item && isset($item->width) ? $item->width : NULL;
+      $settings['_height'] = $item && isset($item->height) ? $item->height : NULL;
     }
 
     $sources = $styles = [];
@@ -206,10 +206,8 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
 
       // Sets dimensions once, and let all images inherit.
       if (($style = $styles[$key]) && (!empty($settings['first_uri']) && !empty($settings['ratio']))) {
-        $dimensions['width'] = $settings['original_width'];
-        $dimensions['height'] = $settings['original_height'];
+        $dimensions = Blazy::transformDimensions($style, $settings, TRUE);
 
-        $style->transformDimensions($dimensions, $settings['first_uri']);
         $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
         $settings['blazy_data']['dimensions'][$width] = $padding;
 

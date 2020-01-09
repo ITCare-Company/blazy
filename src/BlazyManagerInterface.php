@@ -65,6 +65,13 @@ interface BlazyManagerInterface {
    * attributes to its container, etc. Also applies to entity references where
    * Blazy is not the main formatter, instead embedded as part of the parent's.
    *
+   * This fairly complex logic is intended to reduce similarly complex logic at
+   * individual item. But rather than at individual item, it is executed once
+   * at the container level. If you have 100 images, this method is executed
+   * once, not 100x, as long as you have all image styles cropped, not scaled.
+   *
+   * This still needs improvements and a little more simplified version.
+   *
    * @param array $settings
    *   The settings being modified.
    * @param array $item

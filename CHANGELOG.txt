@@ -1,4 +1,16 @@
 
+Blazy 8.x-2.0-dev, 2020-01-09
+-----------------------------
+- Added more micro optimizations as planned in the ROADMAP.
+- Changed blazy.html.twig.
+- Ported method Blazy::transformDimensions().
+- Renamed variable original_width to _width, original_height to _height.
+- Deprecated Blazy::buildIframeAttributes for ::buildIframe.
+- Deprecated BlazyFormatter::setDimensionsOnce for :: setImageDimensions.
+- Removed Aspect ratio enforced since Responsive image now works with fluid.
+- Removed fallback or baby sitting codes since the relevant options (aspect
+  ratio, image style, etc.) including doc warnings are provided.
+
 Blazy 8.x-2.0-dev, 2020-01-07
 -----------------------------
 - Renamed the new BlazyBreakpoint::buildBeakpointAttributes to ::attributes.
