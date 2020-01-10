@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2020-01-10
+-----------------------------
+- Added BlazyDeprecatedTrait for easy removal deprecated methods and declutter.
+- Reverted BlazyManager::isCrop since still usable without custom breakpoints.
+
 Blazy 8.x-2.0-dev, 2020-01-09
 -----------------------------
 - Fixed for regression with multiple video playing at once.

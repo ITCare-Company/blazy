@@ -166,7 +166,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   protected function setImageDimensions(array &$settings = []) {
     if (!isset($this->isImageDimensionSet[md5($settings['first_uri'])])) {
       // If image style contains crop, sets dimension once, and let all inherit.
-      if (!empty($settings['image_style']) && ($style = BlazyBreakpoint::isCrop($settings['image_style']))) {
+      if (!empty($settings['image_style']) && ($style = $this->isCrop($settings['image_style']))) {
         $settings = array_merge($settings, Blazy::transformDimensions($style, $settings, TRUE));
 
         // Informs individual images that dimensions are already set once.

@@ -8,17 +8,6 @@ namespace Drupal\blazy;
 interface BlazyBreakpointInterface {
 
   /**
-   * Checks if an image style contains crop effect.
-   *
-   * @param string $style
-   *   The image style to check for.
-   *
-   * @return object|bool
-   *   Returns the image style instance if it contains crop effect, else FALSE.
-   */
-  public static function isCrop($style);
-
-  /**
    * Provides re-usable breakpoint data-attributes.
    *
    * These attributes can be applied to either IMG or DIV as CSS background.

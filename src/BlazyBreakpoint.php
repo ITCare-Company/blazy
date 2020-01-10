@@ -11,53 +11,9 @@ use Drupal\image\Entity\ImageStyle;
 class BlazyBreakpoint implements BlazyBreakpointInterface {
 
   /**
-   * Checks if the image style contains crop in the effect name.
-   *
-   * @var array
-   */
-  private static $isCrop;
-
-  /**
-   * Returns available styles with crop in the effect name.
-   *
-   * @var array
-   */
-  private static $cropStyles;
-
-  /**
-   * Returns available image styles with crop in the name.
-   */
-  public static function cropStyles() {
-    if (!isset(static::$cropStyles)) {
-      static::$cropStyles = [];
-      foreach (\Drupal::service('blazy.manager')->entityLoadMultiple('image_style') as $style) {
-        foreach ($style->getEffects() as $effect) {
-          if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
-            static::$cropStyles[$style->getName()] = $style;
-            break;
-          }
-        }
-      }
-    }
-    return static::$cropStyles;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function isCrop($style) {
-    if (!isset(static::$isCrop[$style])) {
-      static::$isCrop[$style] = self::cropStyles() && isset(self::cropStyles()[$style]) ? self::cropStyles()[$style] : FALSE;
-    }
-    return static::$isCrop[$style];
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function attributes(array &$attributes, array &$settings) {
-    Blazy::lazyAttributes($attributes, $settings);
-
     // Only provide multi-serving image URLs if breakpoints are provided.
     if (empty($settings['breakpoints'])) {
       return;
@@ -179,7 +135,7 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
     // Check for cropped images at the 5 given styles before any hard work.
     // Ok as run once at the top container regardless of thousand of images.
     foreach ($settings['breakpoints'] as $key => $breakpoint) {
-      if ($style = self::isCrop($breakpoint['image_style'])) {
+      if ($style = \Drupal::service('blazy.manager')->isCrop($breakpoint['image_style'])) {
         $styles[$key] = $style;
       }
     }

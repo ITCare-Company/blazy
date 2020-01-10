@@ -141,10 +141,12 @@ class BlazyManager extends BlazyManagerBase {
       if (!empty($settings['lazy'])) {
         // Attach data attributes to either IMG tag, or DIV container.
         if (!empty($settings['background'])) {
+          Blazy::lazyAttributes($attributes, $settings);
           BlazyBreakpoint::attributes($attributes, $settings);
           $attributes['class'][] = 'media--background b-bg';
         }
         else {
+          Blazy::lazyAttributes($item_attributes, $settings);
           BlazyBreakpoint::attributes($item_attributes, $settings);
         }
       }

@@ -4,7 +4,6 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Unicode;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Provides hook_alter() methods for Blazy.
@@ -80,38 +79,6 @@ class BlazyAlter {
     if (function_exists('views_get_current_view') && $view = views_get_current_view()) {
       $settings['view_name'] = $view->storage->id();
       $settings['current_view_mode'] = $view->current_display;
-    }
-  }
-
-  /**
-   * Implements hook_field_formatter_info_alter().
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
-   *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public static function fieldFormatterInfoAlter(array &$info) {
-    // Supports optional Media Entity via VEM/VEF if available.
-    $common = [
-      'description' => new TranslatableMarkup('Displays lazyloaded images, or iframes, for VEF/ ME.'),
-      'quickedit'   => ['editor' => 'disabled'],
-      'provider'    => 'blazy',
-    ];
-
-    if (\Drupal::service('module_handler')->moduleExists('video_embed_media')) {
-      $info['blazy_file'] = $common + [
-        'id'          => 'blazy_file',
-        'label'       => new TranslatableMarkup('Blazy Image with VEF (deprecated)'),
-        'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter',
-        'field_types' => ['entity_reference', 'image'],
-      ];
-
-      $info['blazy_video'] = $common + [
-        'id'          => 'blazy_video',
-        'label'       => new TranslatableMarkup('Blazy Video (deprecated)'),
-        'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter',
-        'field_types' => ['video_embed_field'],
-      ];
     }
   }
 

@@ -15,6 +15,9 @@ use Drupal\image\Entity\ImageStyle;
  */
 class Blazy implements BlazyInterface {
 
+  // @todo remove at blazy:8.x-3.0.
+  use BlazyDeprecatedTrait;
+
   /**
    * The blazy HTML ID.
    *
@@ -232,7 +235,7 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Provide common attributes for IMG, IFRAME, VIDEO, DIV, etc. elements.
    */
   public static function commonAttributes(array &$attributes, array $settings = []) {
     $attributes['class'][] = 'media__element';
@@ -452,81 +455,10 @@ class Blazy implements BlazyInterface {
   /**
    * Implements hook_config_schema_info_alter().
    *
-   * @todo deprecate this for BlazyAlter::configSchemaInfoAlter at blazy:8.3.
+   * @todo deprecate it for BlazyAlter::configSchemaInfoAlter at blazy:8.x-3.0.
    */
   public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', array $settings = []) {
     BlazyAlter::configSchemaInfoAlter($definitions, $formatter, $settings);
-  }
-
-  /**
-   * Deprecated method.
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
-   *   self::imageAttributes() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public static function buildImageAttributes(array &$variables) {
-    @trigger_error('buildImageAttributes is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Blazy::imageAttributes() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    self::imageAttributes($variables);
-  }
-
-  /**
-   * Deprecated method.
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
-   *   self::buildIframe() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public static function buildIframeAttributes(array &$variables) {
-    self::buildIframe($variables);
-  }
-
-  /**
-   * Deprecated method.
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
-   *   self::lazyAttributes() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public static function buildLazyAttributes(array &$attributes, array $settings = []) {
-    @trigger_error('buildLazyAttributes is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Blazy::lazyAttributes() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    self::lazyAttributes($attributes, $settings);
-  }
-
-  /**
-   * Deprecated method.
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
-   *   self::aspectRatioAttributes() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public static function buildAspectRatio(array &$attributes, array $settings = []) {
-    @trigger_error('buildAspectRatio is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Blazy::aspectRatioAttributes() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    self::aspectRatioAttributes($attributes, $settings);
-  }
-
-  /**
-   * Deprecated method.
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
-   *   self::urlAndDimensions() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public static function buildUrlAndDimensions(array &$settings, $item = NULL) {
-    @trigger_error('buildUrlAndDimensions is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Blazy::urlAndDimensions() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    self::urlAndDimensions($settings, $item);
-  }
-
-  /**
-   * Deprecated method.
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
-   *   self::preprocessBlazy() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public static function buildAttributes(array &$variables) {
-    @trigger_error('buildAttributes is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Blazy::preprocessBlazy() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    self::preprocessBlazy($variables);
   }
 
 }

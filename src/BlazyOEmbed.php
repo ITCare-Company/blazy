@@ -253,12 +253,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
     // @todo support local video/ audio file, and other media sources.
     switch ($settings['media_source']) {
-      case 'file':
-      case 'audio_file':
-      case 'video_file':
-        // @todo or not @todo. @tobe or not @tobe. @o...bedo...bedo.
-        break;
-
       case 'oembed':
       case 'oembed:video':
         // Input url != embed url. For Youtube, /watch != /embed.
@@ -295,7 +289,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * Overrides variables for media-oembed-iframe.html.twig templates.
    *
-   * @todo recheck this in case core provides a more flexible way post 8.6+.
+   * @todo recheck this in case core provides a more flexible way post 8.8+.
    */
   public function preprocessMediaOembedIframe(array &$variables) {
     // Without internet, this may be empty, bail out.

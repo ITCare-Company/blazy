@@ -155,7 +155,9 @@ function blazy_parse_markdown($string) {
 
 /**
  * Implements hook_field_formatter_info_alter().
+ *
+ * @todo remove from blazy:8.x-3.0.
  */
 function blazy_field_formatter_info_alter(array &$info) {
-  BlazyAlter::fieldFormatterInfoAlter($info);
+  Blazy::fieldFormatterInfoAlter($info);
 }

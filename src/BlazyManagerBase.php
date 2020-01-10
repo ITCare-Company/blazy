@@ -74,6 +74,20 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   protected $isIoSettings;
 
   /**
+   * Checks if the image style contains crop in the effect name.
+   *
+   * @var array
+   */
+  private $isCrop;
+
+  /**
+   * Returns available styles with crop in the effect name.
+   *
+   * @var array
+   */
+  private $cropStyles;
+
+  /**
    * Constructs a BlazyManager object.
    */
   public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, RendererInterface $renderer, ConfigFactoryInterface $config_factory, CacheBackendInterface $cache) {
@@ -391,6 +405,40 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     return $cache;
+  }
+
+  /**
+   * Returns available image styles with crop in the name.
+   */
+  public function cropStyles() {
+    if (!isset($this->cropStyles)) {
+      $this->cropStyles = [];
+      foreach ($this->entityLoadMultiple('image_style') as $style) {
+        foreach ($style->getEffects() as $effect) {
+          if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
+            $this->cropStyles[$style->getName()] = $style;
+            break;
+          }
+        }
+      }
+    }
+    return $this->cropStyles;
+  }
+
+  /**
+   * Checks if an image style contains crop effect.
+   *
+   * @param string $style
+   *   The image style to check for.
+   *
+   * @return object|bool
+   *   Returns the image style instance if it contains crop effect, else FALSE.
+   */
+  public function isCrop($style) {
+    if (!isset($this->isCrop[$style])) {
+      $this->isCrop[$style] = $this->cropStyles() && isset($this->cropStyles()[$style]) ? $this->cropStyles()[$style] : FALSE;
+    }
+    return $this->isCrop[$style];
   }
 
   /**
