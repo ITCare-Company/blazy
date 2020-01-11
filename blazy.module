@@ -5,7 +5,6 @@
  * Provides basic Blazy integration for lazy loading and multi-serving images.
  */
 
-use Drupal\Component\Utility\NestedArray;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyAlter;
 use Drupal\blazy\BlazyDefault;
@@ -156,7 +155,7 @@ function blazy_parse_markdown($string) {
 /**
  * Implements hook_field_formatter_info_alter().
  *
- * @todo remove from blazy:8.x-3.0.
+ * @todo remove VEF from blazy:8.x-3.0 for core Media inetgration.
  */
 function blazy_field_formatter_info_alter(array &$info) {
   Blazy::fieldFormatterInfoAlter($info);

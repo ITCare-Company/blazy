@@ -62,7 +62,6 @@ class BlazyDefault {
     $settings = [
       'cache'             => 0,
       'current_view_mode' => '',
-      'optionset'         => 'default',
       'skin'              => '',
       'style'             => '',
     ];

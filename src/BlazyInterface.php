@@ -122,7 +122,7 @@ interface BlazyInterface {
    * @param bool $initial
    *   Whether particularly transforms once for all, or individually.
    */
-  public static function transformDimensions($style, $data, $initial = FALSE);
+  public static function transformDimensions($style, array $data, $initial = FALSE);
 
   /**
    * Determines whether the URI has a valid scheme for file API operations.

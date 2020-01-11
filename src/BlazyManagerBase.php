@@ -261,45 +261,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
-   * Collects defined skins as registered via hook_MODULE_NAME_skins_info().
-   */
-  public function buildSkins($namespace, $skin_class, $methods = []) {
-    $cid = $namespace . ':skins';
-
-    if ($cache = $this->cache->get($cid)) {
-      return $cache->data;
-    }
-
-    $classes = $this->moduleHandler->invokeAll($namespace . '_skins_info');
-    $classes = array_merge([$skin_class], $classes);
-    $items   = $skins = [];
-    foreach ($classes as $class) {
-      if (class_exists($class)) {
-        $reflection = new \ReflectionClass($class);
-        if ($reflection->implementsInterface($skin_class . 'Interface')) {
-          $skin = new $class();
-          if (empty($methods) && method_exists($skin, 'skins')) {
-            $items = $skin->skins();
-          }
-          else {
-            foreach ($methods as $method) {
-              $items[$method] = method_exists($skin, $method) ? $skin->{$method}() : [];
-            }
-          }
-        }
-      }
-      $skins = NestedArray::mergeDeep($skins, $items);
-    }
-
-    $count = isset($items['skins']) ? count($items['skins']) : count($items);
-    $tags  = Cache::buildTags($cid, ['count:' . $count]);
-
-    $this->cache->set($cid, $skins, Cache::PERMANENT, $tags);
-
-    return $skins;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function getLightboxes() {
@@ -439,6 +400,49 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $this->isCrop[$style] = $this->cropStyles() && isset($this->cropStyles()[$style]) ? $this->cropStyles()[$style] : FALSE;
     }
     return $this->isCrop[$style];
+  }
+
+  /**
+   * Collects defined skins as registered via hook_MODULE_NAME_skins_info().
+   *
+   * @todo deprecate for sub-modules own plugins at blazy:8.x-3.0.
+   * @see https://www.drupal.org/node/2233261
+   * @see https://www.drupal.org/node/3105670
+   */
+  public function buildSkins($namespace, $skin_class, $methods = []) {
+    $cid = $namespace . ':skins';
+
+    if ($cache = $this->cache->get($cid)) {
+      return $cache->data;
+    }
+
+    $classes = $this->moduleHandler->invokeAll($namespace . '_skins_info');
+    $classes = array_merge([$skin_class], $classes);
+    $items   = $skins = [];
+    foreach ($classes as $class) {
+      if (class_exists($class)) {
+        $reflection = new \ReflectionClass($class);
+        if ($reflection->implementsInterface($skin_class . 'Interface')) {
+          $skin = new $class();
+          if (empty($methods) && method_exists($skin, 'skins')) {
+            $items = $skin->skins();
+          }
+          else {
+            foreach ($methods as $method) {
+              $items[$method] = method_exists($skin, $method) ? $skin->{$method}() : [];
+            }
+          }
+        }
+      }
+      $skins = NestedArray::mergeDeep($skins, $items);
+    }
+
+    $count = isset($items['skins']) ? count($items['skins']) : count($items);
+    $tags  = Cache::buildTags($cid, ['count:' . $count]);
+
+    $this->cache->set($cid, $skins, Cache::PERMANENT, $tags);
+
+    return $skins;
   }
 
   /**

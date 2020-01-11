@@ -202,9 +202,9 @@ class Blazy implements BlazyInterface {
 
     self::commonAttributes($attributes, $settings);
 
-    // Adds specific Youtube attributes, related to mobile apps.
+    // Adds specific Youtube attributes, related to mobile apps, etc.
     if (strpos($settings['embed_url'], 'youtu') !== FALSE) {
-      $attributes['allow'] = 'accelerometer; encrypted-media; gyroscope; picture-in-picture';
+      $attributes['allow'] = 'autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture';
     }
 
     return $attributes;
@@ -356,7 +356,7 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public static function transformDimensions($style, $data, $initial = FALSE) {
+  public static function transformDimensions($style, array $data, $initial = FALSE) {
     $width  = $initial ? '_width' : 'width';
     $height = $initial ? '_height' : 'height';
     $uri    = $initial ? 'first_uri' : 'uri';
