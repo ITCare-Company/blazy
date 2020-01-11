@@ -255,7 +255,16 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the contents using theme_field(), or theme_item_list().
+   *
+   * Blazy outputs can be formatted using either flat list via theme_field(), or
+   * a grid of Field items or Views rows via theme_item_list().
+   *
+   * @param array $build
+   *   The array containing: settings, children elements, or optional items.
+   *
+   * @return array
+   *   The alterable and renderable array of contents.
    */
   public function build(array $build = []) {
     $build['settings'] += BlazyDefault::htmlSettings();
