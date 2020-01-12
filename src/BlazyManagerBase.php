@@ -387,13 +387,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
-   * Checks if an image style contains crop effect.
-   *
-   * @param string $style
-   *   The image style to check for.
-   *
-   * @return object|bool
-   *   Returns the image style instance if it contains crop effect, else FALSE.
+   * {@inheritdoc}
    */
   public function isCrop($style) {
     if (!isset($this->isCrop[$style])) {
