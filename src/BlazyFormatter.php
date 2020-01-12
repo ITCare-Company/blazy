@@ -191,7 +191,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   protected function setResponsiveImageDimensions(array &$settings = []) {
     if (!isset($this->isResponsiveImageDimensionSet[md5($settings['first_uri'])])) {
       $srcset = [];
-      foreach ($this->getResponsiveImageStyles($settings['resimage'], TRUE) as $name => $style) {
+      foreach ($this->getResponsiveImageStyles($settings['resimage'], TRUE) as $style) {
         $settings = array_merge($settings, Blazy::transformDimensions($style, $settings, TRUE));
 
         // In order to avoid layout reflow, we get dimensions beforehand.
