@@ -86,8 +86,8 @@ trait BlazyDeprecatedTrait {
   /**
    * Implements hook_field_formatter_info_alter().
    *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
-   *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead.
+   * @todo remove from blazy:8.x-3.0 for
+   *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter.
    * @see https://www.drupal.org/node/3103018
    */
   public static function fieldFormatterInfoAlter(array &$info) {

@@ -44,8 +44,8 @@ class BlazyAlter {
    * Implements hook_library_info_alter().
    */
   public static function libraryInfoAlter(&$libraries, $extension) {
-    if (function_exists('libraries_get_path')) {
-      $libraries['blazy']['js'] = ['/' . libraries_get_path('blazy') . '/blazy.js' => ['weight' => -4]];
+    if (blazy_libraries_get_path('blazy')) {
+      $libraries['blazy']['js'] = ['/' . blazy_libraries_get_path('blazy') . '/blazy.js' => ['weight' => -4]];
     }
 
     $blazy = \Drupal::service('blazy.manager');

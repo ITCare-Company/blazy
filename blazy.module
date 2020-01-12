@@ -153,9 +153,17 @@ function blazy_parse_markdown($string) {
 }
 
 /**
+ * Provides a wrapper to replace deprecated libraries_get_path() at ease.
+ */
+function blazy_libraries_get_path($name, $base_path = FALSE) {
+  $function = 'libraries_get_path';
+  return is_callable($function, TRUE) ? $function($name, $base_path) : FALSE;
+}
+
+/**
  * Implements hook_field_formatter_info_alter().
  *
- * @todo remove VEF from blazy:8.x-3.0 for core Media inetgration.
+ * @todo remove VEF from blazy:8.x-3.0 for core Media integration.
  */
 function blazy_field_formatter_info_alter(array &$info) {
   Blazy::fieldFormatterInfoAlter($info);

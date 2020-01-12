@@ -13,10 +13,6 @@ use Drupal\blazy\BlazyDefault;
  *
  * This means Slick Video which depends on VEF is deprecated for Slick Media
  * at Blazy 8.2.x with core Media only.
- *
- * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
- *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase instead.
- * @see https://www.drupal.org/node/3103018
  */
 abstract class BlazyVideoBase extends FormatterBase {
 
