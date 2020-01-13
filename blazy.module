@@ -157,7 +157,7 @@ function blazy_parse_markdown($string) {
  */
 function blazy_libraries_get_path($name, $base_path = FALSE) {
   $function = 'libraries_get_path';
-  return is_callable($function, TRUE) ? $function($name, $base_path) : FALSE;
+  return is_callable($function) ? $function($name, $base_path) : FALSE;
 }
 
 /**
