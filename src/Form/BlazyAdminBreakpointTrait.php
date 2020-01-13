@@ -5,7 +5,7 @@ namespace Drupal\blazy\Form;
 /**
  * A Trait common for breakpoint methods.
  *
- * @todo TBD; for keeping or removal at blazy:2.x-1.0.
+ * @todo TBD; for keeping or removal at blazy:8.x-2.0.
  * @see https://www.drupal.org/node/3105243
  */
 trait BlazyAdminBreakpointTrait {

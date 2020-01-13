@@ -15,7 +15,7 @@ use Drupal\image\Entity\ImageStyle;
  */
 class Blazy implements BlazyInterface {
 
-  // @todo remove at blazy:8.x-3.0.
+  // @todo remove at blazy:8.x-3.0 or sooner.
   use BlazyDeprecatedTrait;
 
   /**
@@ -455,7 +455,7 @@ class Blazy implements BlazyInterface {
   /**
    * Implements hook_config_schema_info_alter().
    *
-   * @todo deprecate it for BlazyAlter::configSchemaInfoAlter at blazy:8.x-3.0.
+   * @todo deprecate it for BlazyAlter::configSchemaInfoAlter at blazy:8.x-2.0.
    */
   public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', array $settings = []) {
     BlazyAlter::configSchemaInfoAlter($definitions, $formatter, $settings);

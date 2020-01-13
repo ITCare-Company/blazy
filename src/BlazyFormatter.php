@@ -90,7 +90,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['background'] = empty($settings['responsive_image_style']) && !empty($settings['background']);
 
     // Don't bother if using Responsive image.
-    // @todo TBD; for keeping or removal at blazy:2.x-1.0.
+    // @todo TBD; for keeping or removal at blazy:8.x-2.0.
     $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
     BlazyBreakpoint::cleanUpBreakpoints($settings);
 
@@ -175,7 +175,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
 
       // Also sets breakpoint dimensions once, if cropped.
-      // @todo TBD; for keeping or removal at blazy:2.x-1.0.
+      // @todo TBD; for keeping or removal at blazy:8.x-2.0.
       if (!empty($settings['breakpoints'])) {
         BlazyBreakpoint::buildDataBlazy($settings, $this->firstItem);
       }

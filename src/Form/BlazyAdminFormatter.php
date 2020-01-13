@@ -34,7 +34,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
       }
     }
 
-    // @todo TBD; for keeping or removal at blazy:2.x-1.0.
+    // @todo TBD; for keeping or removal at blazy:8.x-2.0.
     if (!empty($definition['breakpoints']) && !$this->blazyManager()->configLoad('unbreakpoints', 'blazy.settings')) {
       $this->breakpointsForm($form, $definition);
     }

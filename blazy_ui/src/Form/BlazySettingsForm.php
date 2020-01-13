@@ -98,7 +98,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#description'   => $this->t('Check to support lazyloading for the core Responsive image module. Be sure to use blazy-related formatters.'),
     ];
 
-    // @todo TBD; for keeping or removal at blazy:2.x-1.0.
+    // @todo TBD; for keeping or removal at blazy:8.x-2.0.
     $form['unbreakpoints'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Disable custom breakpoints'),
@@ -243,7 +243,7 @@ class BlazySettingsForm extends ConfigFormBase {
       ->set('fx', $form_state->getValue('fx'))
       ->set('native', $form_state->getValue('native'))
       ->set('responsive_image', $form_state->getValue('responsive_image'))
-      // @todo TBD; for keeping or removal at blazy:2.x-1.0.
+      // @todo TBD; for keeping or removal at blazy:8.x-2.0.
       ->set('unbreakpoints', $form_state->getValue('unbreakpoints'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))
       ->set('placeholder', $form_state->getValue('placeholder'))

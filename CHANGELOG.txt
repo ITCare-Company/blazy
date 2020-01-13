@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2020-01-13
+-----------------------------
+- Prepared custom breakpoint removal as per #3105243.
+
 Blazy 8.x-2.0-dev, 2020-01-10
 -----------------------------
 - Added BlazyDeprecatedTrait for easy removal deprecated methods and declutter.
