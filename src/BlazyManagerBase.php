@@ -344,6 +344,10 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       BlazyBreakpoint::buildDataBlazy($settings, $image);
     }
 
+    if (!empty($settings['use_ajax'])) {
+      $settings['blazy_data']['useAjax'] = TRUE;
+    }
+
     unset($settings['first_image']);
   }
 

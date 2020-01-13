@@ -78,6 +78,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['resimage']       = function_exists('responsive_image_get_image_dimensions') && !empty($settings['responsive_image']) && !empty($settings['responsive_image_style']);
     $settings['resimage']       = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
     $settings['cache_tags'][]   = $settings['entity_type_id'] . ':' . $settings['entity_id'];
+    $settings['caption']        = empty($settings['caption']) ? [] : array_filter($settings['caption']);
 
     unset($entity, $field);
 
@@ -86,11 +87,11 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       return;
     }
 
-    // Don't bother if using Responsive image.
-    $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
-    $settings['caption']     = empty($settings['caption']) ? [] : array_filter($settings['caption']);
-    $settings['background']  = empty($settings['responsive_image_style']) && !empty($settings['background']);
+    $settings['background'] = empty($settings['responsive_image_style']) && !empty($settings['background']);
 
+    // Don't bother if using Responsive image.
+    // @todo TBD; for keeping or removal at blazy:2.x-1.0.
+    $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
     BlazyBreakpoint::cleanUpBreakpoints($settings);
 
     // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
@@ -174,8 +175,13 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
 
       // Also sets breakpoint dimensions once, if cropped.
+      // @todo TBD; for keeping or removal at blazy:2.x-1.0.
       if (!empty($settings['breakpoints'])) {
         BlazyBreakpoint::buildDataBlazy($settings, $this->firstItem);
+      }
+
+      if (!empty($settings['use_ajax'])) {
+        $settings['blazy_data']['useAjax'] = TRUE;
       }
 
       $this->isImageDimensionSet[md5($settings['first_uri'])] = TRUE;

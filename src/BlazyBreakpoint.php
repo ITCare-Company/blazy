@@ -7,6 +7,9 @@ use Drupal\image\Entity\ImageStyle;
 
 /**
  * Implements BlazyBreakpointInterface.
+ *
+ * @todo TBD; for keeping or removal at blazy:2.x-1.0.
+ * @see https://www.drupal.org/node/3105243
  */
 class BlazyBreakpoint implements BlazyBreakpointInterface {
 
@@ -177,10 +180,6 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
     // As of Blazy v1.6.0 applied to BG only.
     if ($sources) {
       $settings['blazy_data']['breakpoints'] = $sources;
-    }
-
-    if (!empty($settings['use_ajax'])) {
-      $settings['blazy_data']['useAjax'] = TRUE;
     }
   }
 
