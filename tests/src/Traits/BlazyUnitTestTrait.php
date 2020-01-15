@@ -287,7 +287,7 @@ trait BlazyUnitTestTrait {
     $this->testFieldType = 'image';
     $this->testPluginId  = 'blazy';
     $this->maxItems      = 3;
-    $this->maxParagraphs = 20;
+    $this->maxParagraphs = 30;
   }
 
   /**

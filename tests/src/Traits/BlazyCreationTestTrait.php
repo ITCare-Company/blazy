@@ -227,7 +227,7 @@ trait BlazyCreationTestTrait {
     $node->save();
 
     if (isset($node->body)) {
-      $text = $this->getRandomGenerator()->paragraphs($this->maxParagraphs);
+      $text = $this->getRandomGenerator()->sentences($this->maxParagraphs + 100);
       if (!empty($settings['extra_text'])) {
         $text .= $settings['extra_text'];
       }
