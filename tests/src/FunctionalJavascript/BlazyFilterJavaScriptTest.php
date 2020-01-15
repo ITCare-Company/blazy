@@ -45,6 +45,7 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $this->blazyAdmin             = $this->container->get('blazy.admin');
     $this->blazyManager           = $this->container->get('blazy.manager');
     $this->testPluginId           = 'blazy_filter';
+    $this->maxParagraphs          = 180;
 
     // Create a text format.
     $full_html = FilterFormat::create([

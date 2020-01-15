@@ -43,7 +43,7 @@ abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
     $this->blazyAdmin             = $this->container->get('blazy.admin');
     $this->blazyManager           = $this->container->get('blazy.manager');
     $this->scriptLoader           = 'blazy';
-    $this->maxParagraphs          = 40;
+    $this->maxParagraphs          = 180;
   }
 
   /**

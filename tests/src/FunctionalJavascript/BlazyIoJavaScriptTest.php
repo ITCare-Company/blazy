@@ -26,7 +26,15 @@ class BlazyIoJavaScriptTest extends BlazyJavaScriptTestBase {
    * Test the Blazy element from loading to loaded states.
    */
   public function testFormatterDisplay() {
-    $this->prepareJsTestPage();
+    $data['settings']['blazy'] = TRUE;
+    $data['settings']['ratio'] = '';
+    $data['settings']['image_style'] = 'thumbnail';
+
+    $this->setUpContentTypeTest($this->bundle);
+    $this->setUpFormatterDisplay($this->bundle, $data);
+    $this->setUpContentWithItems($this->bundle);
+
+    $this->drupalGet('node/' . $this->entity->id());
 
     // Ensures Blazy is not loaded on page load.
     // @todo recheck since this appears to be randomly failing since D8.7.
