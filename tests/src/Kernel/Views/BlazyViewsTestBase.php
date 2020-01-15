@@ -21,7 +21,7 @@ abstract class BlazyViewsTestBase extends ViewsKernelTestBase {
    * @todo remove once fixed for: views.view.test_blazy_entity.
    * @see \Drupal\Core\Config\Development\ConfigSchemaChecker
    */
-  protected $strictConfigSchema = FALSE;
+  protected $strictConfigSchema = TRUE;
 
   /**
    * {@inheritdoc}
