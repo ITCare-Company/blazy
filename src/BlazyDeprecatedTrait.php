@@ -98,21 +98,19 @@ trait BlazyDeprecatedTrait {
       'provider'    => 'blazy',
     ];
 
-    if (\Drupal::service('module_handler')->moduleExists('video_embed_media')) {
-      $info['blazy_file'] = $common + [
-        'id'          => 'blazy_file',
-        'label'       => new TranslatableMarkup('Blazy Image with VEF (deprecated)'),
-        'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter',
-        'field_types' => ['entity_reference', 'image'],
-      ];
+    $info['blazy_file'] = $common + [
+      'id'          => 'blazy_file',
+      'label'       => new TranslatableMarkup('Blazy Image with VEF (deprecated)'),
+      'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter',
+      'field_types' => ['entity_reference', 'image'],
+    ];
 
-      $info['blazy_video'] = $common + [
-        'id'          => 'blazy_video',
-        'label'       => new TranslatableMarkup('Blazy Video (deprecated)'),
-        'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter',
-        'field_types' => ['video_embed_field'],
-      ];
-    }
+    $info['blazy_video'] = $common + [
+      'id'          => 'blazy_video',
+      'label'       => new TranslatableMarkup('Blazy Video (deprecated)'),
+      'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter',
+      'field_types' => ['video_embed_field'],
+    ];
   }
 
 }
