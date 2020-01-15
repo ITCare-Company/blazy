@@ -256,7 +256,7 @@ trait BlazyCreationTestTrait {
         $max = $multiple ? $this->maxItems : 2;
         if (isset($node->{$field_name})) {
           // @see \Drupal\Core\Field\FieldItemListInterface::generateSampleItems
-          $node->{$field_name}->generateSampleItems($max);
+          $node->get($field_name)->generateSampleItems($max);
         }
       }
     }
