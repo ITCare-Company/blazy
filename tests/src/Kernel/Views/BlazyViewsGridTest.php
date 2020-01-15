@@ -17,7 +17,7 @@ class BlazyViewsGridTest extends BlazyViewsTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $testViews = ['test_blazy_file'];
+  public static $testViews = ['test_blazy_entity'];
 
   /**
    * {@inheritdoc}
@@ -38,7 +38,7 @@ class BlazyViewsGridTest extends BlazyViewsTestBase {
    * Make sure that the HTML list style markup is correct.
    */
   public function testBlazyViews() {
-    $view = Views::getView('test_blazy_file');
+    $view = Views::getView('test_blazy_entity');
     $this->executeView($view);
     $view->setDisplay('default');
 
@@ -59,7 +59,7 @@ class BlazyViewsGridTest extends BlazyViewsTestBase {
     $style_plugin->submitOptionsForm($form, $form_state);
     $view->destroy();
 
-    $view = Views::getView('test_blazy_file');
+    $view = Views::getView('test_blazy_entity');
     $this->executeView($view);
     $view->setDisplay('default');
 
