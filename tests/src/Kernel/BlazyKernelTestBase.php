@@ -19,10 +19,9 @@ abstract class BlazyKernelTestBase extends FieldKernelTestBase {
    * responsive_image.styles.blazy_picture_test.
    *
    * @var bool
-   * @todo revert again till we figure out solutions.
    * @see \Drupal\Core\Config\Development\ConfigSchemaChecker
    */
-  protected $strictConfigSchema = FALSE;
+  protected $strictConfigSchema = TRUE;
 
   /**
    * Modules to enable.
