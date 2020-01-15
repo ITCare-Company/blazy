@@ -3,7 +3,8 @@ Blazy 8.x-2.0-dev, 2020-01-15
 -----------------------------
 - Fixed for Blazy::generatePlaceholder not considering image style dimensions.
 - Fixed for the uniqueness of multiple fields such as Views galleries mixed with
-  formatters local to the current page.
+  formatters local to the current page, and similar images present at the same
+  page which is uncommon, but possible.
 - Merged common shared attributes for both Responsive and Image.
 
 Blazy 8.x-2.0-dev, 2020-01-13

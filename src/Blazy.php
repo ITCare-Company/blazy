@@ -144,7 +144,6 @@ class Blazy implements BlazyInterface {
    */
   public static function buildImage(array &$variables) {
     $settings = $variables['settings'];
-    $attributes = &$variables['item_attributes'];
 
     // Supports either lazy loaded image, or not.
     $variables['image'] += [
@@ -275,8 +274,7 @@ class Blazy implements BlazyInterface {
   public static function preprocessResponsiveImage(array &$variables) {
     $image = &$variables['img_element'];
     $attributes = &$variables['attributes'];
-    $placeholder = isset($variables['width']) ? static::generatePlaceholder($variables['width'], $variables['height']) : static::PLACEHOLDER;
-    $placeholder = empty($attributes['data-placeholder']) ? $placeholder : $attributes['data-placeholder'];
+    $placeholder = empty($attributes['data-placeholder']) ? static::PLACEHOLDER : $attributes['data-placeholder'];
 
     // Modifies <picture> [data-srcset] attributes on <source> elements.
     if (!$variables['output_image_tag']) {

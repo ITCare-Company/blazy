@@ -1,6 +1,8 @@
+<br>
 ***
-
-## SUBMITTING PATCHES OR ISSUES
+***
+<br>
+# <a name="contribution"></a>SUBMITTING PATCHES OR ISSUES
 Please consider the following to help you explain better, and to help us
 understand better your bug reports, or patches as needed:
 
@@ -14,7 +16,7 @@ understand better your bug reports, or patches as needed:
 * If language is a barrier, use any available/ online translation tool.
 
 
-### 1. SUBMITTING ISSUES
+## 1. SUBMITTING ISSUES
 When submitting bug reports, please:
 
 * be kind with proper reproduction, and enough details.
@@ -30,7 +32,7 @@ When submitting bug reports, please:
   file it under support requests.
 
 
-### 2. SUBMITTING PATCHES
+## 2. SUBMITTING PATCHES
 We consider a patch as help, they consider it a sale, so thank you in advanced!
 In order for you to help, or buy, us successfully, please consider:
 
@@ -49,3 +51,4 @@ You must speak like human to human, and help us respect you, and your time.
 Dumping patches with empty body text will be disregarded, till the above is met.
 
 Thank you for your kind consideration, cooperation, and contribution!
+<br>

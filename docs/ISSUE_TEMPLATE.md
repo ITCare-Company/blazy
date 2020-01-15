@@ -1,7 +1,8 @@
+<br>
 ***
 ***
-
-# ISSUE TEMPLATE
+<br>
+# <a name="issue-template"></a>ISSUE TEMPLATE
 
 ## Please describe the issue in crystal-clear sentences:
 (Steps to reproduce, if it is a bug/ support report.)
