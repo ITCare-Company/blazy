@@ -92,7 +92,6 @@ class Blazy implements BlazyInterface {
   public static function urlAndDimensions(array &$settings, $item = NULL) {
     // BlazyFilter, or image style with crop, may already set these.
     Blazy::imageDimensions($settings, $item);
-    $settings['placeholder'] = empty($settings['placeholder']) ? static::generatePlaceholder($settings['width'], $settings['height']) : $settings['placeholder'];
 
     // Overrides lazy with blazy for explicit call to reduce another param.
     if (!empty($settings['blazy'])) {
@@ -114,6 +113,9 @@ class Blazy implements BlazyInterface {
         $settings = array_merge($settings, self::transformDimensions($style, $settings));
       }
     }
+
+    // The SVG placeholder should accept either original, or styled image.
+    $settings['placeholder'] = empty($settings['placeholder']) ? static::generatePlaceholder($settings['width'], $settings['height']) : $settings['placeholder'];
 
     // Just in case, an attempted kidding gets in the way, relevant for UGC.
     $use_data_uri = !empty($settings['use_data_uri']) && substr($settings['image_url'], 0, 10) === 'data:image';
