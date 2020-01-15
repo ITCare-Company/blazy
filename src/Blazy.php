@@ -130,12 +130,9 @@ class Blazy implements BlazyInterface {
       '#type' => 'responsive_image',
       '#responsive_image_style_id' => $settings['responsive_image_style_id'],
       '#uri' => $settings['uri'],
-      '#width' => $settings['width'],
-      '#height' => $settings['height'],
       '#attributes' => [
-        'data-responsive-blazy' => $settings['one_pixel'],
+        'data-b-lazy' => $settings['one_pixel'],
         'data-placeholder' => $settings['placeholder'],
-        'data-native' => $settings['native'],
       ],
     ];
   }
@@ -152,18 +149,6 @@ class Blazy implements BlazyInterface {
       '#theme' => 'image',
       '#uri' => empty($settings['lazy']) ? $settings['image_url'] : $settings['placeholder'],
     ];
-
-    // Only output dimensions for non-svg. Respects hand-coded image attributes.
-    if (empty($settings['_sizes']) && !isset($attributes['width']) && $settings['extension'] != 'svg') {
-      $attributes['height'] = $settings['height'];
-      $attributes['width'] = $settings['width'];
-    }
-
-    // BC for calling this theme directly bypassing the API.
-    // This was set via BlazyManager > BlazyBreakpoint::attributes().
-    if (!empty($settings['lazy']) && empty($settings['_api'])) {
-      self::lazyAttributes($attributes, $settings);
-    }
   }
 
   /**
@@ -171,6 +156,7 @@ class Blazy implements BlazyInterface {
    */
   public static function imageAttributes(array &$variables) {
     $item = $variables['item'];
+    $settings = $variables['settings'];
     $image = &$variables['image'];
     $attributes = &$variables['item_attributes'];
 
@@ -184,6 +170,18 @@ class Blazy implements BlazyInterface {
       if (isset($item->title) && (mb_strlen($item->title) != 0)) {
         $attributes['title'] = $item->title;
       }
+    }
+
+    // Only output dimensions for non-svg. Respects hand-coded image attributes.
+    // Do not pass it to $attributes to also respect both (Responsive) image.
+    if (empty($settings['_sizes']) && !isset($attributes['width']) && $settings['extension'] != 'svg') {
+      $image['#height'] = $settings['height'];
+      $image['#width'] = $settings['width'];
+    }
+
+    // Provides [data-(src|lazy)] attributes for (Responsive) image.
+    if (!empty($settings['lazy'])) {
+      self::lazyAttributes($attributes, $settings);
     }
 
     $attributes['class'][] = 'media__image';
@@ -288,9 +286,6 @@ class Blazy implements BlazyInterface {
         }
       }
 
-      // Blazy needs <img> element to have fallback [data-src], else error.
-      $image['#attributes']['data-src'] = $image['#uri'];
-
       // Prevents invalid IMG tag when one pixel placeholder is disabled.
       $image['#uri'] = $placeholder;
       $image['#srcset'] = '';
@@ -300,22 +295,21 @@ class Blazy implements BlazyInterface {
     }
     else {
       // Modifies <img> element attributes.
-      $image['#attributes']['data-src'] = $image['#uri'];
       $image['#attributes']['data-srcset'] = $attributes['srcset']->value();
       $image['#attributes']['srcset'] = '';
     }
 
-    // The [data-responsive-blazy] is a flag indicating 1px placeholder.
+    // The [data-b-lazy] is a flag indicating 1px placeholder.
     // This prevents double-downloading the fallback image, if enabled.
-    if (!empty($attributes['data-responsive-blazy'])) {
+    if (!empty($attributes['data-b-lazy'])) {
       $image['#uri'] = $placeholder;
     }
 
     // More shared-with-image attributes are set at self::imageAttributes().
-    $image['#attributes']['class'][] = 'b-lazy b-responsive';
+    $image['#attributes']['class'][] = 'b-responsive';
 
     // Cleans up the no-longer needed flags:
-    foreach (['native', 'placeholder', 'responsive-blazy'] as $key) {
+    foreach (['placeholder', 'b-lazy'] as $key) {
       unset($attributes['data-' . $key], $image['#attributes']['data-' . $key]);
     }
   }

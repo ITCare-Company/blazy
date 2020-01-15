@@ -25,6 +25,7 @@ use Drupal\blazy\BlazyManagerInterface;
 abstract class BlazyAdminBase implements BlazyAdminInterface {
 
   use StringTranslationTrait;
+  // @todo TBD; remove once decided to remove.
   use BlazyAdminBreakpointTrait;
 
   /**
@@ -692,6 +693,16 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ],
     ];
     return $states[$state];
+  }
+
+  /**
+   * TBD; enable once decided to remove.
+   *
+   * @todo change to breakpointsForm.
+   * @see https://www.drupal.org/node/3105243
+   */
+  public function todoBreakpointsForm(array &$form, $definition = []) {
+    return [];
   }
 
 }

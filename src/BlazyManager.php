@@ -146,7 +146,7 @@ class BlazyManager extends BlazyManagerBase {
           $attributes['class'][] = 'media--background b-bg';
         }
         else {
-          Blazy::lazyAttributes($item_attributes, $settings);
+          // @todo remove Blazy::lazyAttributes($item_attributes, $settings);
           BlazyBreakpoint::attributes($item_attributes, $settings);
         }
       }

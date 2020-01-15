@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2020-01-15
+-----------------------------
+- Fixed for the uniqueness of multiple fields such as Views galleries mixed with
+  formatters local to the current page.
+- Merged common shared attributes for both Responsive and Image.
+
 Blazy 8.x-2.0-dev, 2020-01-13
 -----------------------------
 - Prepared custom breakpoint removal as per #3105243.

@@ -69,6 +69,8 @@ interface BlazyInterface {
    * Defines attributes, builtin, or supported lazyload such as Slick.
    *
    * These attributes can be applied to either IMG or DIV as CSS background.
+   * The [data-(src|lazy)] attributes are applivable for (Responsive) image.
+   * While [data-src] is reserved by Blazy, [data-lazy] by Slick.
    *
    * @param array $attributes
    *   The attributes being modified.

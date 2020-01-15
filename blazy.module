@@ -46,7 +46,7 @@ function template_preprocess_blazy(&$variables) {
  */
 function blazy_preprocess_responsive_image(&$variables) {
   // Only proceed if a Blazy formatter, regardless its value.
-  if (isset($variables['attributes']['data-responsive-blazy'])) {
+  if (isset($variables['attributes']['data-b-lazy'])) {
     Blazy::preprocessResponsiveImage($variables);
   }
 }

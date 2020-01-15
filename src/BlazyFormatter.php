@@ -129,6 +129,10 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
     }
 
+    if (!empty($settings['use_ajax'])) {
+      $settings['blazy_data']['useAjax'] = TRUE;
+    }
+
     // Allows altering the settings.
     $this->getModuleHandler()->alter('blazy_settings', $build, $items);
   }
@@ -165,7 +169,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    *   The settings being modified.
    */
   protected function setImageDimensions(array &$settings = []) {
-    if (!isset($this->isImageDimensionSet[md5($settings['first_uri'])])) {
+    if (!isset($this->isImageDimensionSet[md5($settings['id'])])) {
       // If image style contains crop, sets dimension once, and let all inherit.
       if (!empty($settings['image_style']) && ($style = $this->isCrop($settings['image_style']))) {
         $settings = array_merge($settings, Blazy::transformDimensions($style, $settings, TRUE));
@@ -180,11 +184,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
         BlazyBreakpoint::buildDataBlazy($settings, $this->firstItem);
       }
 
-      if (!empty($settings['use_ajax'])) {
-        $settings['blazy_data']['useAjax'] = TRUE;
-      }
-
-      $this->isImageDimensionSet[md5($settings['first_uri'])] = TRUE;
+      $this->isImageDimensionSet[md5($settings['id'])] = TRUE;
     }
   }
 
@@ -195,7 +195,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    *   The settings being modified.
    */
   protected function setResponsiveImageDimensions(array &$settings = []) {
-    if (!isset($this->isResponsiveImageDimensionSet[md5($settings['first_uri'])])) {
+    if (!isset($this->isResponsiveImageDimensionSet[md5($settings['id'])])) {
       $srcset = [];
       foreach ($this->getResponsiveImageStyles($settings['resimage'], TRUE) as $style) {
         $settings = array_merge($settings, Blazy::transformDimensions($style, $settings, TRUE));
@@ -208,7 +208,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       ksort($srcset);
       $settings['blazy_data']['dimensions'] = $srcset;
 
-      $this->isResponsiveImageDimensionSet[md5($settings['first_uri'])] = TRUE;
+      $this->isResponsiveImageDimensionSet[md5($settings['id'])] = TRUE;
     }
   }
 
