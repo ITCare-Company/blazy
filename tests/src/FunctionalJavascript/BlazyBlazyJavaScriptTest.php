@@ -24,9 +24,6 @@ class BlazyBlazyJavaScriptTest extends BlazyJavaScriptTestBase {
     $this->drupalGet('node/' . $this->entity->id());
 
     // Ensures Blazy is not loaded on page load.
-    // @todo recheck since this appears to be randomly failing since D8.7.
-    // Likely the images are not having enough vertical space to be below the
-    // fold. This appears to be no issues with BlazyFilter.
     $this->assertSession()->elementNotExists('css', '.b-loaded');
 
     $this->doTestFormatterDisplay();
