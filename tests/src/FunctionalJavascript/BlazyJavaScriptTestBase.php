@@ -47,21 +47,6 @@ abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
   }
 
   /**
-   * Prepare the page to be tested.
-   */
-  protected function prepareJsTestPage() {
-    $data['settings']['blazy'] = TRUE;
-    $data['settings']['ratio'] = '';
-    $data['settings']['image_style'] = 'thumbnail';
-
-    $this->setUpContentTypeTest($this->bundle);
-    $this->setUpFormatterDisplay($this->bundle, $data);
-    $this->setUpContentWithItems($this->bundle);
-
-    $this->drupalGet('node/' . $this->entity->id());
-  }
-
-  /**
    * Test the Blazy element from loading to loaded states.
    */
   public function doTestFormatterDisplay() {
