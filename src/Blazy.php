@@ -128,14 +128,15 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function buildResponsiveImage(array &$settings) {
+    $attributes = empty($settings['is_preview']) ? [
+      'data-b-lazy' => $settings['one_pixel'],
+      'data-placeholder' => $settings['placeholder'],
+    ] : [];
     return [
       '#type' => 'responsive_image',
       '#responsive_image_style_id' => $settings['responsive_image_style_id'],
       '#uri' => $settings['uri'],
-      '#attributes' => [
-        'data-b-lazy' => $settings['one_pixel'],
-        'data-placeholder' => $settings['placeholder'],
-      ],
+      '#attributes' => $attributes,
     ];
   }
 
@@ -148,7 +149,7 @@ class Blazy implements BlazyInterface {
     // Supports either lazy loaded image, or not.
     $variables['image'] += [
       '#theme' => 'image',
-      '#uri' => empty($settings['lazy']) ? $settings['image_url'] : $settings['placeholder'],
+      '#uri' => !empty($settings['is_preview']) || empty($settings['lazy']) ? $settings['image_url'] : $settings['placeholder'],
     ];
   }
 
@@ -157,7 +158,7 @@ class Blazy implements BlazyInterface {
    */
   public static function imageAttributes(array &$variables) {
     $item = $variables['item'];
-    $settings = $variables['settings'];
+    $settings = &$variables['settings'];
     $image = &$variables['image'];
     $attributes = &$variables['item_attributes'];
 
@@ -194,9 +195,15 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function iframeAttributes(array $settings) {
-    $attributes['data-src']        = $settings['embed_url'];
-    $attributes['src']             = 'about:blank';
-    $attributes['class'][]         = 'b-lazy media__iframe';
+    if (empty($settings['is_preview'])) {
+      $attributes['data-src'] = $settings['embed_url'];
+      $attributes['src'] = 'about:blank';
+      $attributes['class'][]  = 'b-lazy media__iframe';
+    }
+    else {
+      $attributes['src'] = $settings['embed_url'];
+    }
+
     $attributes['allowfullscreen'] = TRUE;
 
     self::commonAttributes($attributes, $settings);
@@ -229,8 +236,11 @@ class Blazy implements BlazyInterface {
    */
   public static function lazyAttributes(array &$attributes, array $settings = []) {
     // Slick has its own class and methods: ondemand, anticipative, progressive.
-    $attributes['class'][] = $settings['lazy_class'];
-    $attributes['data-' . $settings['lazy_attribute']] = $settings['image_url'];
+    // @todo remove this condition once sub-modules have been aware of preview.
+    if (empty($settings['is_preview'])) {
+      $attributes['class'][] = $settings['lazy_class'];
+      $attributes['data-' . $settings['lazy_attribute']] = $settings['image_url'];
+    }
   }
 
   /**

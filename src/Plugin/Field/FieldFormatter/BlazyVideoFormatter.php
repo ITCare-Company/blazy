@@ -18,6 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @todo remove prior to full release. This means Slick Video which depends
  * on VEF is deprecated for main Slick at Blazy 8.2.x with core Media only.
+ * @todo make is useful for local video instead?
  */
 class BlazyVideoFormatter extends BlazyVideoBase implements ContainerFactoryPluginInterface {
 

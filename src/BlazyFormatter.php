@@ -79,6 +79,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['resimage']       = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
     $settings['cache_tags'][]   = $settings['entity_type_id'] . ':' . $settings['entity_id'];
     $settings['caption']        = empty($settings['caption']) ? [] : array_filter($settings['caption']);
+    $settings['route_name']     = \Drupal::routeMatch()->getRouteName();
+    $settings['is_preview']     = in_array($settings['route_name'], ['entity_embed.preview', 'media.filter.preview']);
 
     unset($entity, $field);
 
@@ -96,9 +98,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
     $settings['blazy'] = !empty($settings['blazy']) || $settings['background'] || !empty($settings['resimage']) || !empty($settings['breakpoints']);
-    if ($settings['blazy']) {
-      $settings['lazy'] = 'blazy';
-    }
+    $settings['lazy']  = $settings['blazy'] ? 'blazy' : (isset($settings['lazy']) ? $settings['lazy'] : '');
+    $settings['lazy']  = empty($settings['is_preview']) ? $settings['lazy'] : '';
 
     // @todo remove enforced (BC), since now works for Responsive image too.
     if (isset($settings['ratio']) && $settings['ratio'] == 'enforced') {

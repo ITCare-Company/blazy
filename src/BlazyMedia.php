@@ -94,7 +94,7 @@ class BlazyMedia {
     elseif (isset($item['#files'], $item['#files'][0]['file'])) {
       // For some reason, the setAttribute nullifies the previously set value.
       // Hence why we make it a concatenated string to put them all for now.
-      $attributes->setAttribute('class', 'b-lazy media__element');
+      $attributes->setAttribute('class', empty($settings['is_preview']) ? 'b-lazy media__element' : 'media__element');
     }
 
     // Wraps the media item to allow consistency for EB/SB.

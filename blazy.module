@@ -114,6 +114,14 @@ function blazy_library_info_alter(&$libraries, $extension) {
 }
 
 /**
+ * Implements ckeditor_css_alter().
+ */
+function blazy_ckeditor_css_alter(array &$css) {
+  $path = base_path() . drupal_get_path('module', 'blazy');
+  $css[] = $path . '/css/components/blazy.ratio.css';
+}
+
+/**
  * Implements hook_blazy_attach_alter().
  */
 function blazy_blazy_attach_alter(array &$load, $attach = []) {

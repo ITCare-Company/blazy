@@ -7,6 +7,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\Component\Plugin\FallbackPluginManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Image\ImageFactory;
@@ -57,9 +58,10 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImageFactory $image_factory, EntityFieldManagerInterface $entity_field_manager, BlazyOEmbedInterface $blazy_oembed) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, FallbackPluginManagerInterface $filter_plugin_manager, ImageFactory $image_factory, EntityFieldManagerInterface $entity_field_manager, BlazyOEmbedInterface $blazy_oembed) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
+    $this->filterPluginManager = $filter_plugin_manager;
     $this->imageFactory = $image_factory;
     $this->entityFieldManager = $entity_field_manager;
     $this->blazyOembed = $blazy_oembed;
@@ -74,6 +76,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $configuration,
       $plugin_id,
       $plugin_definition,
+      $container->get('plugin.manager.filter'),
       $container->get('image.factory'),
       $container->get('entity_field.manager'),
       $container->get('blazy.oembed')
@@ -188,6 +191,18 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       ->addAttachments($attachments);
 
     return $result;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isApplicable() {
+    foreach (['entity_embed', 'media_embed'] as $plugin_id) {
+      if ($this->filterPluginManager->hasDefinition($plugin_id)) {
+        return FALSE;
+      }
+    }
+    return TRUE;
   }
 
   /**
@@ -455,6 +470,9 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
    * {@inheritdoc}
    */
   public function tips($long = FALSE) {
+    if (!$this->isApplicable()) {
+      return $this->t('Blazy Filter is useless and broken if Entity/Media Embed presents. You can disable Blazy Filter, and use the relevant Blazy formatters instead.');
+    }
     if ($long) {
       return $this->t('
         <p><strong>Blazy</strong>: Image or iframe is lazyloaded. To disable, add attribute <code>data-unblazy</code>:</p>
@@ -490,6 +508,10 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       '#default_value' => empty($this->settings['filter_tags']) ? [] : array_values((array) $this->settings['filter_tags']),
       '#description' => $this->t('Recommended placement after Align / Caption images. To disable Blazy per individual item, add attribute <code>data-unblazy</code>.'),
     ];
+
+    if (!$this->isApplicable()) {
+      $form['filter_tags']['#prefix'] = '<p>' . $this->t('<b>Warning!</b> Blazy Filter is useless and broken when you have <b>Media embed</b> or <b>Display embedded entities</b>. You can disable Blazy Filter in favor of Blazy formatter embedded inside <b>Media embed</b> or <b>Display embedded entities</b> instead.') . '</p>';
+    }
 
     $form['media_switch'] = [
       '#type' => 'select',

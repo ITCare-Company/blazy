@@ -96,6 +96,7 @@ class BlazyManager extends BlazyManagerBase {
     $pathinfo = pathinfo($settings['uri']);
     $settings['extension'] = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
     $settings['use_media'] = $settings['embed_url'] && in_array($settings['type'], ['audio', 'video']);
+    $settings['use_loading'] = empty($settings['is_preview']) ? $settings['use_loading'] : FALSE;
 
     foreach (BlazyDefault::themeAttributes() as $key) {
       $key = $key . '_attributes';

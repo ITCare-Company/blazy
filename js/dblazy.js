@@ -71,7 +71,7 @@
         };
     }
 
-    // Check if matches.
+    // Check if matches, excluding HTMLDocument, see ::closest().
     if (elem.matches(selector)) {
       return true;
     }
@@ -116,7 +116,8 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
    */
   dBlazy.closest = function (elem, selector) {
-    for (; elem && elem !== document; elem = elem.parentNode) {
+    // Don't use document to support traversal within iframe.
+    for (; elem && !(elem instanceof HTMLDocument); elem = elem.parentNode) {
       if (dBlazy.matches(elem, selector)) {
         return elem;
       }
@@ -147,7 +148,7 @@
       }
 
       for (var key in arguments[i]) {
-        if (arguments[i].hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(arguments[i], key)) {
           out[key] = arguments[i][key];
         }
       }
@@ -199,6 +200,8 @@
    *
    * @return {bool}
    *   True if of of the method is supported.
+   *
+   * @todo remove for el.classList.contains() alone.
    */
   dBlazy.hasClass = function (el, name) {
     if (el.classList) {
@@ -390,7 +393,7 @@
    * @param {Int} minDelay
    *   The execution delay in milliseconds.
    * @param {Object} scope
-   *   The the scope of the function to apply to, normally this.
+   *   The scope of the function to apply to, normally this.
    *
    * @return {Function}
    *   The function executed at the specified minDelay.

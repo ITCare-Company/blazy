@@ -20,6 +20,7 @@
     windowWidth: 0,
     blazySettings: drupalSettings.blazy || {},
     ioSettings: drupalSettings.blazyIo || {},
+    isForced: false,
     options: {},
     globals: function () {
       var me = this;
@@ -66,12 +67,14 @@
       me.updatePadding(el);
 
       // Provides event listeners for easy overrides without full overrides.
-      _db.trigger(el, 'blazy.done', {options: me.options});
+      _db.trigger(el, 'blazy.done', {
+        options: me.options
+      });
     },
 
     updatePadding: function (el) {
       var me = this;
-      var cn = _db.hasClass(el, 'media--ratio--fluid') ? el : _db.closest(el, '.media--ratio--fluid');
+      var cn = el.classList.contains(el, 'media--ratio--fluid') ? el : _db.closest(el, '.media--ratio--fluid');
 
       if (me.loopRatio && cn !== null) {
         window.clearTimeout(_ratioTimer);
@@ -110,6 +113,13 @@
       return !this.isIo() && 'Blazy' in window;
     },
 
+    forEach: function (context) {
+      var blazies = context.querySelectorAll('.blazy:not(.blazy--on)');
+      if (blazies.length > 0) {
+        _db.forEach(blazies, doBlazy, context);
+      }
+    },
+
     run: function (opts) {
       return this.isIo() ? new BioMedia(opts) : new Blazy(opts);
     }
@@ -129,13 +139,22 @@
    */
   var initBlazy = function (context, opts) {
     var me = Drupal.blazy;
-    me.options = opts || me.globals();
+    me.options = _db.extend({}, me.globals(), opts || {});
+
+    // Set docroot in case we are in an iframe.
+    // @see Blazy.toArray
+    var documentElement = context instanceof HTMLDocument ? context : _db.closest(context, 'html');
+    if (!document.documentElement.isSameNode(documentElement)) {
+      me.options.root = documentElement;
+    }
 
     // Swap lazy attributes to let supportive browsers lazy load them.
     // This means Blazy and even IO should not lazy-load them any more.
     // Ensures to not touch lazy-loaded AJAX, or likely non-supported elements:
     // Video, DIV, etc. Only IMG and IFRAME are supported for now.
-    if (me.isNativeLazy()) {
+    // Enforced such as with entity embed iframe where lazyload is less useful
+    // due to smaller window estate. Be sure to enable `Native lazy loading`.
+    if (me.isNativeLazy() || me.isForced) {
       var elms = context.querySelectorAll('.b-lazy[loading]:not(.' + me.options.successClass + ')');
       if (elms.length > 0) {
         _db.forEach(elms, me.doNativeLazy.bind(me));
@@ -155,20 +174,11 @@
   function doBlazy(elm) {
     var me = Drupal.blazy;
     var dataAttr = elm.getAttribute('data-blazy');
-    var data = (!dataAttr || dataAttr === '1') ? {} : _db.parse(dataAttr);
-    var opts = _db.extend({}, me.globals(), data);
-    var ratios = elm.querySelectorAll('[data-dimensions]');
-    var fallbackRatios = elm.querySelectorAll('[data-ratio]');
-    var loopFallbackRatio = fallbackRatios.length > 0;
+    var opts = (!dataAttr || dataAttr === '1') ? {} : (_db.parse(dataAttr) || {});
+    var ratioElms = elm.querySelector('[data-dimensions]') === null ? [] : elm.querySelectorAll('[data-dimensions]');
+    var fallbackRatioElms = elm.querySelector('[data-ratio]') === null ? [] : elm.querySelectorAll('[data-ratio]');
 
-    // Set docroot in case we are in an iframe.
-    // @see Blazy.toArray
-    var documentElement = _db.closest(elm, 'html');
-    if (!document.documentElement.isSameNode(documentElement)) {
-      opts.root = documentElement;
-    }
-
-    me.loopRatio = ratios.length > 0;
+    me.loopRatio = ratioElms.length > 0;
 
     /**
      * Updates the dynamic multi-breakpoint aspect ratio.
@@ -182,7 +192,7 @@
      *   The .media--ratio--fluid HTML element.
      */
     function updateRatio(el) {
-      var dimensions = !el.getAttribute('data-dimensions') ? false : _db.parse(el.getAttribute('data-dimensions'));
+      var dimensions = _db.parse(el.getAttribute('data-dimensions'));
 
       if (!dimensions) {
         return;
@@ -230,10 +240,10 @@
       me.windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || window.screen.width;
 
       if (me.loopRatio) {
-        _db.forEach(ratios, updateRatio, elm);
+        _db.forEach(ratioElms, updateRatio, elm);
       }
-      else if (loopFallbackRatio) {
-        _db.forEach(fallbackRatios, updateFallbackRatio, elm);
+      else if (fallbackRatioElms.length > 0) {
+        _db.forEach(fallbackRatioElms, updateFallbackRatio, elm);
       }
 
       // BC with bLazy, native/IO doesn't need to revalidate, bLazy does.
@@ -260,6 +270,7 @@
     attach: function (context) {
       // Drupal.attachBehaviors already does this so if this is necessary,
       // someone does an invalid call. But let's be robust here.
+      // Note: context can be unexpected <script> element with Media library.
       context = context || document;
       var el = context.querySelector('[data-blazy]');
 
@@ -267,6 +278,7 @@
       // a theme that does not use field attributes.
       // The [data-blazy] is set by the module for formatters, or Views gallery.
       // Cannot use .contains(), as IE11 doesn't support method 'contains'.
+      // See https://developer.mozilla.org/en-US/docs/Web/API/Node/contains.
       if (el === null) {
         initBlazy(context);
       }
@@ -275,10 +287,7 @@
       // W/o [data-blazy] to address various scenarios like custom simple works,
       // or within Views UI which is not easy to set [data-blazy] via UI.
       // See https://www.drupal.org/node/3057691#comment-13146878
-      var blazies = context.querySelectorAll('.blazy:not(.blazy--on)');
-      if (blazies.length > 0) {
-        _db.once(_db.forEach(blazies, doBlazy));
-      }
+      _db.once(Drupal.blazy.forEach(context));
     }
   };
 
