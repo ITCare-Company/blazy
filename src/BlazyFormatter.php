@@ -89,17 +89,16 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       return;
     }
 
-    $settings['background'] = empty($settings['responsive_image_style']) && !empty($settings['background']);
-
     // Don't bother if using Responsive image.
     // @todo TBD; for keeping or removal at blazy:8.x-2.0.
     $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
     BlazyBreakpoint::cleanUpBreakpoints($settings);
 
     // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
-    $settings['blazy'] = !empty($settings['blazy']) || $settings['background'] || !empty($settings['resimage']) || !empty($settings['breakpoints']);
-    $settings['lazy']  = $settings['blazy'] ? 'blazy' : (isset($settings['lazy']) ? $settings['lazy'] : '');
-    $settings['lazy']  = empty($settings['is_preview']) ? $settings['lazy'] : '';
+    $settings['background'] = empty($settings['responsive_image_style']) && !empty($settings['background']);
+    $settings['blazy']      = !empty($settings['blazy']) || $settings['background'] || !empty($settings['resimage']) || !empty($settings['breakpoints']);
+    $settings['lazy']       = $settings['blazy'] ? 'blazy' : (isset($settings['lazy']) ? $settings['lazy'] : '');
+    $settings['lazy']       = empty($settings['is_preview']) ? $settings['lazy'] : '';
 
     // @todo remove enforced (BC), since now works for Responsive image too.
     if (isset($settings['ratio']) && $settings['ratio'] == 'enforced') {

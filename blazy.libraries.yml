@@ -67,7 +67,6 @@ load:
     - core/drupal
     - blazy/blazy
     - blazy/dblazy
-    - blazy/bio.media
     - blazy/loading
 
 bio.ajax:

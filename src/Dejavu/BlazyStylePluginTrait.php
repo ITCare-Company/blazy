@@ -50,7 +50,8 @@ trait BlazyStylePluginTrait {
           // Deals with "link to content/image" by formatters.
           $settings['content_url'] = isset($image['rendered']['#url']) ? $image['rendered']['#url'] : '';
           // Prevent images from having absurd height when being lazyloaded.
-          $settings['ratio'] = 'fluid';
+          // Allows to disables it by _noratio such as enforced CSS background.
+          $settings['ratio'] = empty($settings['_noratio']) ? 'fluid' : '';
           if (empty($settings['media_switch']) && !empty($settings['content_url'])) {
             $settings['media_switch'] = 'content';
           }

@@ -196,9 +196,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
     // Allow both variants of grid or column to co-exist for different fields.
     if (!empty($attach['style'])) {
-      foreach (['column', 'grid'] as $grid) {
-        $attach[$grid] = $attach['style'];
-      }
+      $attach[$attach['style']] = $attach['style'];
     }
 
     if (!empty($attach['fx']) && $attach['fx'] == 'blur') {
@@ -211,12 +209,12 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
-    $io = $this->getIoSettings($attach);
-
-    // Core Blazy libraries, enforced to prevent JS error when optional.
-    $load['library'][] = 'blazy/load';
-    $load['drupalSettings']['blazy'] = $this->configLoad('blazy');
-    $load['drupalSettings']['blazyIo'] = $io;
+    // Allows Blazy libraries to be disabled by a special flag _unblazy.
+    if (empty($settings['_unblazy'])) {
+      $load['library'][] = 'blazy/load';
+      $load['drupalSettings']['blazy'] = $this->configLoad('blazy');
+      $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
+    }
 
     // Adds AJAX helper to revalidate Blazy/ IO, if using VIS, or alike.
     if (!empty($attach['use_ajax'])) {

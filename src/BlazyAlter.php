@@ -49,9 +49,14 @@ class BlazyAlter {
     }
 
     $blazy = \Drupal::service('blazy.manager');
-    if ($blazy->configLoad('io.enabled') && $blazy->configLoad('io.unblazy')) {
-      $dependencies = ['core/drupal', 'blazy/bio.media', 'blazy/loading'];
-      $libraries['load']['dependencies'] = $dependencies;
+    if ($blazy->configLoad('io.enabled')) {
+      if ($blazy->configLoad('io.unblazy')) {
+        $dependencies = ['core/drupal', 'blazy/bio.media', 'blazy/loading'];
+        $libraries['load']['dependencies'] = $dependencies;
+      }
+      else {
+        $libraries['load']['dependencies'][] = 'blazy/bio.media';
+      }
     }
   }
 

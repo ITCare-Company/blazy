@@ -7,7 +7,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\blazy\BlazyFormatterInterface;
+use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\BlazyDefault;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -32,7 +32,7 @@ class BlazyTextFormatter extends FormatterBase implements ContainerFactoryPlugin
   /**
    * Constructs a BlazyImageFormatter instance.
    */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, BlazyFormatterInterface $formatter) {
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, BlazyManagerInterface $formatter) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
     $this->formatter = $formatter;
   }
@@ -49,7 +49,7 @@ class BlazyTextFormatter extends FormatterBase implements ContainerFactoryPlugin
       $configuration['label'],
       $configuration['view_mode'],
       $configuration['third_party_settings'],
-      $container->get('blazy.formatter')
+      $container->get('blazy.manager')
     );
   }
 
@@ -72,8 +72,9 @@ class BlazyTextFormatter extends FormatterBase implements ContainerFactoryPlugin
     // Build the settings.
     $settings               = $this->buildSettings();
     $settings['namespace']  = 'blazy';
+    $settings['lazy']       = FALSE;
     $settings['langcode']   = $langcode;
-    $settings['_grid']      = TRUE;
+    $settings['_grid']      = $settings['_unblazy'] = TRUE;
     $settings['field_name'] = $items->getFieldDefinition()->getName();
 
     // The ProcessedText element already handles cache context & tag bubbling.

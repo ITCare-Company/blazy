@@ -1,4 +1,11 @@
 
+Blazy 8.x-2.0-dev, 2020-01-19
+-----------------------------
+- Disabled IO integration by default till required due to being optional.
+- Added micro optimizations for Blazy Grid texts.
+- Issue #3054032 by geek-merlin, wombatbuddy, gausarts, anruether, jim22: Blazy
+  breaks in ckeditor.
+
 Blazy 8.x-2.0-dev, 2020-01-15
 -----------------------------
 - Fixed for Blazy::generatePlaceholder not considering image style dimensions.
