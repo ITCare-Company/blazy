@@ -354,7 +354,10 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
             '#type'        => 'select',
             '#title'       => $this->t('Lightbox video style'),
             '#options'     => $image_styles,
-            '#description' => $this->t('Allows different lightbox video dimensions. Or can be used to have a swipable video if Blazy PhotoSwipe installed.'),
+            '#description' => $this->t('Allows different lightbox video dimensions. Or can be used to have a swipable video if <a href=":url1">Blazy PhotoSwipe</a> or <a href=":url2">Slick Lightbox</a> installed.', [
+              ':url1' => 'https:drupal.org/project/blazy_photoswipe',
+              ':url2' => 'https:drupal.org/project/slick_lightbox',
+            ]),
             '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
             '#weight'      => -96,
           ];

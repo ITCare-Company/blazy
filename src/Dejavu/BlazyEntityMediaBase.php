@@ -224,7 +224,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     $captions    = $this->admin()->getFieldOptions($bundles, [], $target_type);
 
     // @todo figure out to not hardcode stock bundle image.
-    if (in_array('image', $bundles)) {
+    if ($bundles && in_array('image', $bundles)) {
       $captions['title'] = $this->t('Image Title');
       $captions['alt'] = $this->t('Image Alt');
     }

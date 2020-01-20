@@ -210,7 +210,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     // Allows Blazy libraries to be disabled by a special flag _unblazy.
-    if (empty($settings['_unblazy'])) {
+    if (empty($attach['_unblazy'])) {
       $load['library'][] = 'blazy/load';
       $load['drupalSettings']['blazy'] = $this->configLoad('blazy');
       $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);

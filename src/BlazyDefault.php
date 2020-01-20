@@ -92,10 +92,8 @@ class BlazyDefault {
       'box_caption'            => '',
       'box_caption_custom'     => '',
       'box_media_style'        => '',
-      'breakpoints'            => [],
       'caption'                => [],
       'responsive_image_style' => '',
-      'sizes'                  => '',
     ] + self::cherrySettings();
   }
 
@@ -104,9 +102,11 @@ class BlazyDefault {
    */
   public static function imageSettings() {
     return [
-      'icon'      => '',
-      'layout'    => '',
-      'view_mode' => '',
+      'breakpoints' => [],
+      'icon'        => '',
+      'layout'      => '',
+      'sizes'       => '',
+      'view_mode'   => '',
     ] + self::baseSettings() + self::baseImageSettings();
   }
 

@@ -51,6 +51,13 @@ class BlazyEntity implements BlazyEntityInterface {
   }
 
   /**
+   * Returns the blazy manager service.
+   */
+  public function blazyManager() {
+    return $this->blazyManager;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function build(array $data, $entity, $fallback = '') {

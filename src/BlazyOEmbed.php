@@ -253,6 +253,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
     // @todo support local video/ audio file, and other media sources.
     switch ($settings['media_source']) {
+      // @todo check for Resource::TYPE_PHOTO, Resource::TYPE_RICH, etc.
       case 'oembed':
       case 'oembed:video':
         // Input url != embed url. For Youtube, /watch != /embed.
@@ -269,13 +270,14 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         $settings['type'] = 'image';
         break;
 
+      // No special handling for local file video, pass through.
       default:
         break;
     }
 
     // Do not proceed if it has type, already managed by theme_blazy().
-    // Supports other Media entities: Facebook, Instagram, Twitter, etc.
-    // @todo recheck against core Media with Resource::TYPE_RICH.
+    // Supports other Media entities: Facebook, Instagram, Twitter, local video,
+    // etc.
     if (empty($settings['type']) && ($build = BlazyMedia::build($media, $settings))) {
       $content[] = $build;
     }

@@ -106,6 +106,7 @@ class BlazyTextFormatter extends FormatterBase implements ContainerFactoryPlugin
    * Defines the scope for the form elements.
    */
   public function getScopedFormElements() {
+    $field = $this->fieldDefinition;
     return [
       'current_view_mode' => $this->viewMode,
       'grid_form'         => TRUE,
@@ -114,6 +115,8 @@ class BlazyTextFormatter extends FormatterBase implements ContainerFactoryPlugin
       'no_layouts'        => TRUE,
       'responsive_image'  => FALSE,
       'style'             => TRUE,
+      'field_name'        => $field->getName(),
+      'field_type'        => $field->getType(),
       'plugin_id'         => $this->getPluginId(),
       'settings'          => $this->getSettings(),
     ];
