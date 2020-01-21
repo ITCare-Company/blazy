@@ -1,7 +1,7 @@
-<br>
+
 ***
 ***
-<br>
+
 # <a name="updating"></a>UPDATE SOP
 Visit any of the following URLs when updating Blazy, or its related modules.
 Please ignore any documentation if already aware of Drupal site building. This

@@ -14,20 +14,20 @@
  * [Contribution](#contribution)
  * [Maintainers](#maintainers)
 
-<br>
+
 ***
 ***
-<br>
+
 # <a name="introduction"></a>INTRODUCTION
 Provides integration with bLazy and or Intersection Observer API, or browser
 native lazy loading to lazy load and multi-serve images to save bandwidth and
 server requests. The user will have faster load times and save data usage if
 they don't browse the whole page.
 
-<br>
+
 ***
 ***
-<br>
+
 # <a name="requirements"> </a>REQUIREMENTS
 1. bLazy library:
    * [Download bLazy](https://github.com/dinbror/blazy)
@@ -35,12 +35,12 @@ they don't browse the whole page.
 
       + **/libraries/blazy/blazy.js**
 
-2. Media and Filter module in core. 
+2. Media and Filter module in core.
 
-<br>
+
 ***
 ***
-<br>
+
 # <a name="recommended-modules"> </a>RECOMMENDED MODULES
 * [Markdown](https://www.drupal.org/project/markdown)
 
@@ -100,10 +100,10 @@ least 7 lightboxes, and likely more.
 [Lazyloader](https://www.drupal.org/project/lazyloader)
 
 
-<br>
+
 ***
 ***
-<br>
+
 # <a name="installation"> </a>INSTALLATION
 1. **MANUAL:**
 
@@ -127,10 +127,10 @@ least 7 lightboxes, and likely more.
    above-mentioned issues.
 
 
-<br>
+
 ***
 ***
-<br>
+
 # <a name="configuration"> </a>CONFIGURATION
 Visit the following to configure and make use of Blazy:
 
@@ -199,10 +199,10 @@ is a standalone output from Views so to use field template in this case.
 Check out the relevant sub-module docs for details.
 
 
-<br>
+
 ***
 ***
-<br>
+
 # <a name="features"> </a>FEATURES
 * Supports core Image.
 * Supports core Responsive image.
@@ -226,10 +226,10 @@ Check out the relevant sub-module docs for details.
 * Views style plugin Blazy Grid for Grid Foundation or CSS3 Masonry.
 
 
-<br>
+
 ***
 ***
-<br>
+
 # <a name="maintainers"> </a>MAINTAINERS/CREDITS
 * [Gaus Surahman](https://www.drupal.org/user/159062)
 * [geek-merlin](https://www.drupal.org/u/geek-merlin)
@@ -246,5 +246,3 @@ See the bLazy docs at:
 
 * [Blazy library](https://github.com/dinbror/blazy)
 * [Blazy website](http://dinbror.dk/blazy/)
-
-<br>

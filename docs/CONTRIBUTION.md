@@ -1,7 +1,7 @@
-<br>
+
 ***
 ***
-<br>
+
 # <a name="contribution"></a>SUBMITTING PATCHES OR ISSUES
 Please consider the following to help you explain better, and to help us
 understand better your bug reports, or patches as needed:
@@ -51,4 +51,4 @@ You must speak like human to human, and help us respect you, and your time.
 Dumping patches with empty body text will be disregarded, till the above is met.
 
 Thank you for your kind consideration, cooperation, and contribution!
-<br>
+

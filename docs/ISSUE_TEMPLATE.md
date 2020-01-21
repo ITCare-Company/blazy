@@ -1,7 +1,7 @@
-<br>
+
 ***
 ***
-<br>
+
 # <a name="issue-template"></a>ISSUE TEMPLATE
 
 ## Please describe the issue in crystal-clear sentences:

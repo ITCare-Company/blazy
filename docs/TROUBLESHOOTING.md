@@ -1,7 +1,7 @@
-<br>
+
 ***
 ***
-<br>
+
 # <a name="troubleshooting"></a>TROUBLESHOOTING
 * Blazy and its sub-modules -- Slick, GridStack, etc. are tightly coupled.
   Be sure to have the latest release date or matching versions in the least.
@@ -90,4 +90,4 @@ Only at worst case, know how to run
 https://www.drupal.org/project/registry_rebuild safely.
 
 Check out [Update SOP](#updating) for the non-drush users.
-<br>
+

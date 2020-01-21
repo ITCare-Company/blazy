@@ -1,7 +1,7 @@
-<br>
+
 ***
 ***
-<br>
+
 # <a name="faq"></a>FAQ
 
 ## CURRENT DEVELOPMENT STATUS
@@ -19,4 +19,4 @@ some code cleanup, and optimization where needed. Patches are very much welcome.
   The image dimensions will be set once, and inherited by all images as long as
   they contain word crop. If using scaled image styles, regular calculation
   applies.
-<br>
+

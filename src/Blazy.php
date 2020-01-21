@@ -101,10 +101,9 @@ class Blazy implements BlazyInterface {
     Blazy::imageDimensions($settings, $item);
 
     // Overrides lazy with blazy for explicit call to reduce another param.
-    if (!empty($settings['blazy'])) {
-      $settings['lazy'] = 'blazy';
-    }
-
+    // @todo reenable if any issue if (!empty($settings['blazy'])) {
+    // @todo reenable if any issue   $settings['lazy'] = 'blazy';
+    // @todo reenable if any issue }
     // Provides image_url, not URI, expected by lazyload.
     $uri = $settings['uri'];
     $image_url = self::isValidUri($uri) ? self::transformRelative($uri) : $uri;
