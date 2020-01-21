@@ -8,7 +8,12 @@ use Drupal\image\Entity\ImageStyle;
 /**
  * Provides extra utilities to work with core Media.
  *
- * @todo rework this for core Media, and figure out to merge it to Blazy.
+ * @todo rework this for core Media, figure out to merge it to theme_blazy().
+ * This approach is alternative to regular prerprocess overrides, still saner
+ * than iterating over unknown like template_preprocess_media_entity_BLAH, etc.
+ * Yet potentially merged into theme_blazy() if found similarity, or consitent
+ * fed data. The current problem is data supplied by various variables: Twitter,
+ * Facebook, Instagram, and many other Media entities have their own variables.
  */
 class BlazyMedia {
 

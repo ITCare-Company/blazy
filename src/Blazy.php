@@ -354,22 +354,20 @@ class Blazy implements BlazyInterface {
   public static function preprocessField(array &$variables) {
     $element = $variables['element'];
     $settings = isset($element['#blazy']) ? $element['#blazy'] : [];
-    $is_preview = self::isPreview();
     $variables['attributes']['class'][] = 'blazy';
+    $variables['attributes']['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
 
     // 1. Hence Blazy is the formatter, has its settings.
-    if (isset($element['#blazy'])) {
-      $variables['attributes']['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
-      if (!empty($settings['media_switch'])) {
-        $switch = str_replace('_', '-', $settings['media_switch']);
-        $variables['attributes']['data-' . $switch . '-gallery'] = TRUE;
-      }
+    if (isset($element['#blazy']) && !empty($settings['media_switch'])) {
+      $switch = str_replace('_', '-', $settings['media_switch']);
+      $variables['attributes']['data-' . $switch . '-gallery'] = TRUE;
     }
 
     // 2. Hence Blazy is not the formatter, lack of settings.
     if (!empty($element['#third_party_settings']['blazy']['blazy'])) {
+      $is_preview = self::isPreview();
       foreach ($variables['items'] as &$item) {
-        if (!isset($item['content'])) {
+        if (empty($item['content'])) {
           continue;
         }
 

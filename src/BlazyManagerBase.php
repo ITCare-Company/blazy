@@ -191,6 +191,10 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
       if (in_array($switch, $this->getLightboxes())) {
         $load['library'][] = 'blazy/lightbox';
+
+        if (!empty($attach['colorbox'])) {
+          BlazyAlter::blazyAttachAlter($load, $attach);
+        }
       }
     }
 

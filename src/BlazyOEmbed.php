@@ -60,6 +60,30 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   protected $request;
 
   /**
+   * Constructs a BlazyManager object.
+   */
+  public function __construct(RequestStack $request, ResourceFetcherInterface $resource_fetcher, UrlResolverInterface $url_resolver, IFrameUrlHelper $iframe_url_helper, BlazyManagerInterface $blazy_manager) {
+    $this->request = $request;
+    $this->resourceFetcher = $resource_fetcher;
+    $this->urlResolver = $url_resolver;
+    $this->iframeUrlHelper = $iframe_url_helper;
+    $this->blazyManager = $blazy_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('request_stack'),
+      $container->get('media.oembed.resource_fetcher'),
+      $container->get('media.oembed.url_resolver'),
+      $container->get('media.oembed.iframe_url_helper'),
+      $container->get('blazy.manager')
+    );
+  }
+
+  /**
    * Returns the Media oEmbed resource fecther.
    */
   public function getResourceFetcher() {
@@ -85,30 +109,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   public function blazyManager() {
     return $this->blazyManager;
-  }
-
-  /**
-   * Constructs a BlazyManager object.
-   */
-  public function __construct(RequestStack $request, ResourceFetcherInterface $resource_fetcher, UrlResolverInterface $url_resolver, IFrameUrlHelper $iframe_url_helper, BlazyManagerInterface $blazy_manager) {
-    $this->request = $request;
-    $this->resourceFetcher = $resource_fetcher;
-    $this->urlResolver = $url_resolver;
-    $this->iframeUrlHelper = $iframe_url_helper;
-    $this->blazyManager = $blazy_manager;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('request_stack'),
-      $container->get('media.oembed.resource_fetcher'),
-      $container->get('media.oembed.url_resolver'),
-      $container->get('media.oembed.iframe_url_helper'),
-      $container->get('blazy.manager')
-    );
   }
 
   /**

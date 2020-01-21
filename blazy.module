@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Field\FormatterInterface;
+use Drupal\editor\Entity\Editor;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyAlter;
 use Drupal\blazy\BlazyDefault;
@@ -113,29 +114,31 @@ function blazy_library_info_alter(&$libraries, $extension) {
 }
 
 /**
- * Implements hook_ckeditor_css_alter().
- */
-function blazy_ckeditor_css_alter(array &$css) {
-  $path = base_path() . drupal_get_path('module', 'blazy');
-  $css[] = $path . '/css/components/blazy.media.css';
-  $css[] = $path . '/css/components/blazy.preview.css';
-  $css[] = $path . '/css/components/blazy.ratio.css';
-}
-
-/**
- * Implements hook_blazy_attach_alter().
- */
-function blazy_blazy_attach_alter(array &$load, $attach = []) {
-  if (!empty($attach['colorbox'])) {
-    BlazyAlter::blazyAttachAlter($load, $attach);
-  }
-}
-
-/**
  * Implements hook_blazy_settings_alter().
  */
 function blazy_blazy_settings_alter(array &$build, $items) {
   BlazyAlter::blazySettingsAlter($build, $items);
+}
+
+/**
+ * Implements hook_field_formatter_third_party_settings_form().
+ */
+function blazy_field_formatter_third_party_settings_form(FormatterInterface $plugin) {
+  return BlazyAlter::fieldFormatterThirdPartySettingsForm($plugin);
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary_alter().
+ */
+function blazy_field_formatter_settings_summary_alter(&$summary, $context) {
+  BlazyAlter::fieldFormatterSettingsSummaryAlter($summary, $context);
+}
+
+/**
+ * Implements hook_ckeditor_css_alter().
+ */
+function blazy_ckeditor_css_alter(array &$css, Editor $editor) {
+  BlazyAlter::ckeditorCssAlter($css, $editor);
 }
 
 /**
@@ -158,20 +161,6 @@ function blazy_parse_markdown($string) {
 function blazy_libraries_get_path($name, $base_path = FALSE) {
   $function = 'libraries_get_path';
   return is_callable($function) ? $function($name, $base_path) : FALSE;
-}
-
-/**
- * Implements hook_field_formatter_third_party_settings_form().
- */
-function blazy_field_formatter_third_party_settings_form(FormatterInterface $plugin) {
-  return BlazyAlter::fieldFormatterThirdPartySettingsForm($plugin);
-}
-
-/**
- * Implements hook_field_formatter_settings_summary_alter().
- */
-function blazy_field_formatter_settings_summary_alter(&$summary, $context) {
-  BlazyAlter::fieldFormatterSettingsSummaryAlter($summary, $context);
 }
 
 /**

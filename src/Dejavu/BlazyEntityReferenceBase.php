@@ -8,6 +8,8 @@ use Drupal\blazy\BlazyDefault;
 
 /**
  * Base class for all entity reference formatters with field details.
+ *
+ * @see \Drupal\slick\Plugin\Field\FieldFormatter\SlickEntityReferenceFormatterBase
  */
 abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
 

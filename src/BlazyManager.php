@@ -41,6 +41,7 @@ class BlazyManager extends BlazyManagerBase {
       ];
     }
     else {
+      // @todo use reset($build['content']) at blazy:3.x if no other usages.
       $image = $build['content'];
     }
 

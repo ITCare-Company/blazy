@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2020-01-21
 -----------------------------
+- Fixed for hook_ckeditor_css_alter() to only load Blazy CSS if applicable.
+- Added few more micro optimizations.
 - Added minor fixes.
 - Added blazy.preview.css to disable interactive elements such as (remote| file)
   video within CKEditor iframe.

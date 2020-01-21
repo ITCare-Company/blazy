@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Field\FormatterInterface;
+use Drupal\editor\Entity\Editor;
 
 /**
  * Provides hook_alter() methods for Blazy.
@@ -84,6 +85,30 @@ class BlazyAlter {
     if (function_exists('views_get_current_view') && $view = views_get_current_view()) {
       $settings['view_name'] = $view->storage->id();
       $settings['current_view_mode'] = $view->current_display;
+    }
+  }
+
+  /**
+   * Checks if Entity/Media Embed is enabled.
+   */
+  public static function isCkeditorApplicable(Editor $editor) {
+    foreach (['entity_embed', 'media_embed'] as $filter) {
+      if ($editor->getFilterFormat()->filters()->has($filter) && $editor->getFilterFormat()->filters($filter)->getConfiguration()['status']) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * Implements hook_ckeditor_css_alter().
+   */
+  public static function ckeditorCssAlter(array &$css, Editor $editor) {
+    if (self::isCkeditorApplicable($editor)) {
+      $path = base_path() . drupal_get_path('module', 'blazy');
+      $css[] = $path . '/css/components/blazy.media.css';
+      $css[] = $path . '/css/components/blazy.preview.css';
+      $css[] = $path . '/css/components/blazy.ratio.css';
     }
   }
 

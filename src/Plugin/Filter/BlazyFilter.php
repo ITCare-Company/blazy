@@ -470,9 +470,6 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
    * {@inheritdoc}
    */
   public function tips($long = FALSE) {
-    if (!$this->isApplicable()) {
-      return $this->t('Blazy Filter is useless and broken if Entity/Media Embed presents. You can disable Blazy Filter, and use the relevant Blazy formatters instead.');
-    }
     if ($long) {
       return $this->t('
         <p><strong>Blazy</strong>: Image or iframe is lazyloaded. To disable, add attribute <code>data-unblazy</code>:</p>
@@ -510,7 +507,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     ];
 
     if (!$this->isApplicable()) {
-      $form['filter_tags']['#prefix'] = '<p>' . $this->t('<b>Warning!</b> Blazy Filter is useless and broken when you have <b>Media embed</b> or <b>Display embedded entities</b>. You can disable Blazy Filter in favor of Blazy formatter embedded inside <b>Media embed</b> or <b>Display embedded entities</b> instead.') . '</p>';
+      $form['filter_tags']['#prefix'] = '<p>' . $this->t('<b>Warning!</b> Blazy Filter is useless and broken when you enable <b>Media embed</b> or <b>Display embedded entities</b>. You can disable Blazy Filter in favor of Blazy formatter embedded inside <b>Media embed</b> or <b>Display embedded entities</b> instead. However it might be useful for User Generated Contents (UGC) where Entity/Media Embed are likely more for previliged users, editors, admins, alike. Or when Entity/Media Embed is disabled.') . '</p>';
     }
 
     $form['media_switch'] = [
