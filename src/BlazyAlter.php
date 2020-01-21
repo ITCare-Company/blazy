@@ -30,6 +30,7 @@ class BlazyAlter {
         }
       }
 
+      // @todo remove or keep at 3.x if so decided as per #3105243.
       if (isset($mappings['breakpoints'])) {
         foreach (BlazyDefault::getConstantBreakpoints() as $breakpoint) {
           $mappings['breakpoints']['mapping'][$breakpoint]['type'] = 'mapping';
@@ -46,8 +47,8 @@ class BlazyAlter {
    * Implements hook_library_info_alter().
    */
   public static function libraryInfoAlter(&$libraries, $extension) {
-    if (blazy_libraries_get_path('blazy')) {
-      $libraries['blazy']['js'] = ['/' . blazy_libraries_get_path('blazy') . '/blazy.js' => ['weight' => -4]];
+    if ($path = blazy_libraries_get_path('blazy')) {
+      $libraries['blazy']['js'] = ['/' . $path . '/blazy.js' => ['weight' => -4]];
     }
 
     if (blazy()->configLoad('io.enabled')) {
@@ -58,20 +59,6 @@ class BlazyAlter {
       else {
         $libraries['load']['dependencies'][] = 'blazy/bio.media';
       }
-    }
-  }
-
-  /**
-   * Implements hook_blazy_attach_alter().
-   */
-  public static function blazyAttachAlter(array &$load, $attach = []) {
-    // Intentionally on the second line to not hit it till required.
-    if (function_exists('colorbox_theme')) {
-      $dummy = [];
-      \Drupal::service('colorbox.attachment')->attach($dummy);
-      $load = isset($dummy['#attached']) ? NestedArray::mergeDeep($load, $dummy['#attached']) : $load;
-      $load['library'][] = 'blazy/colorbox';
-      unset($dummy);
     }
   }
 
@@ -144,6 +131,20 @@ class BlazyAlter {
     $on = $context['formatter']->getThirdPartySetting('blazy', 'blazy', FALSE);
     if ($on && in_array($context['formatter']->getPluginId(), self::thirdPartyFormatters())) {
       $summary[] = 'Blazy';
+    }
+  }
+
+  /**
+   * Attaches Colorbox if so configured.
+   */
+  public static function attachColorbox(array &$load, $attach = []) {
+    // Intentionally on the second line to not hit it till required.
+    if (function_exists('colorbox_theme')) {
+      $dummy = [];
+      \Drupal::service('colorbox.attachment')->attach($dummy);
+      $load = isset($dummy['#attached']) ? NestedArray::mergeDeep($load, $dummy['#attached']) : $load;
+      $load['library'][] = 'blazy/colorbox';
+      unset($dummy);
     }
   }
 

@@ -358,7 +358,7 @@ class Blazy implements BlazyInterface {
     $variables['attributes']['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
 
     // 1. Hence Blazy is the formatter, has its settings.
-    if (isset($element['#blazy']) && !empty($settings['media_switch'])) {
+    if (!empty($settings['media_switch'])) {
       $switch = str_replace('_', '-', $settings['media_switch']);
       $variables['attributes']['data-' . $switch . '-gallery'] = TRUE;
     }
