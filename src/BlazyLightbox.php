@@ -40,11 +40,10 @@ class BlazyLightbox {
     $settings['box_url']    = file_create_url($uri);
     $settings['icon']       = empty($settings['icon']) ? ['#markup' => '<span class="media__icon media__icon--litebox"></span>'] : $settings['icon'];
     $settings['lightbox']   = $switch;
-    $settings['box_width']  = $settings['width'];
-    $settings['box_height'] = $settings['height'];
+    $settings['box_width']  = isset($item->width) ? $item->width : (empty($settings['width']) ? NULL : $settings['width']);
+    $settings['box_height'] = isset($item->height) ? $item->height : (empty($settings['height']) ? NULL : $settings['height']);
 
-    // The $dimensions might be with/o image style.
-    $dimensions = ['width' => $settings['width'], 'height' => $settings['height']];
+    $dimensions = ['width' => $settings['box_width'], 'height' => $settings['box_height']];
     if (!empty($settings['box_style'])) {
       $box_style = ImageStyle::load($settings['box_style']);
       $box_style->transformDimensions($dimensions, $uri);
@@ -58,20 +57,29 @@ class BlazyLightbox {
       $settings['box_height'] = $dimensions['height'];
     }
 
-    // Fallback to non-video dimensions.
     $json = [
       'type'   => $type,
       'width'  => $settings['box_width'],
       'height' => $settings['box_height'],
     ];
 
-    // If we have video.
+    // This allows PhotoSwipe with videos still swipable.
+    if (!empty($settings['box_media_style'])) {
+      $box_media_style = ImageStyle::load($settings['box_media_style']);
+      $box_media_style->transformDimensions($dimensions, $uri);
+      $settings['box_media_url'] = $box_media_style->buildUrl($uri);
+    }
+
     if (!empty($settings['embed_url'])) {
+      $json['scheme'] = $settings['scheme'];
+      $json['width']  = 640;
+      $json['height'] = 360;
+
+      // Force autoplay for media URL on lightboxes, saving another click.
+      $url = empty($settings['autoplay_url']) ? $settings['embed_url'] : $settings['autoplay_url'];
+
       // This allows PhotoSwipe with videos still swipable.
       if (!empty($settings['box_media_style'])) {
-        $box_media_style = ImageStyle::load($settings['box_media_style']);
-        $box_media_style->transformDimensions($dimensions, $uri);
-        $settings['box_media_url'] = $box_media_style->buildUrl($uri);
         $settings['box_url'] = $settings['box_media_url'];
 
         // Allows custom work to override this video size without image style.
@@ -79,14 +87,11 @@ class BlazyLightbox {
           $settings['box_width']  = $dimensions['width'];
           $settings['box_height'] = $dimensions['height'];
         }
+
+        $json['width']  = $settings['box_width'];
+        $json['height'] = $settings['box_height'];
       }
 
-      $json['scheme'] = $settings['scheme'];
-      $json['width']  = $settings['box_width'] ?: 640;
-      $json['height'] = $settings['box_height'] ?: 360;
-
-      // Force autoplay for media URL on lightboxes, saving another click.
-      $url = empty($settings['autoplay_url']) ? $settings['embed_url'] : $settings['autoplay_url'];
       if ($switch == 'photobox') {
         $url_attributes['rel'] = 'video';
       }
