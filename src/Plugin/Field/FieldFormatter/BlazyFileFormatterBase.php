@@ -99,30 +99,20 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase implements Conta
    * Defines the scope for the form elements.
    */
   public function getScopedFormElements() {
-    $field       = $this->fieldDefinition;
-    $entity_type = $field->getTargetEntityTypeId();
-    $target_type = $this->getFieldSetting('target_type');
-    $multiple    = $field->getFieldStorageDefinition()->isMultiple();
+    $multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
 
     return [
       'background'        => TRUE,
       'box_captions'      => TRUE,
       'breakpoints'       => BlazyDefault::getConstantBreakpoints(),
       'captions'          => ['title' => $this->t('Title'), 'alt' => $this->t('Alt')],
-      'current_view_mode' => $this->viewMode,
-      'entity_type'       => $entity_type,
-      'field_name'        => $field->getName(),
-      'field_type'        => $field->getType(),
       'grid_form'         => $multiple,
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,
       'namespace'         => 'blazy',
-      'plugin_id'         => $this->getPluginId(),
-      'settings'          => $this->getSettings(),
       'style'             => $multiple,
-      'target_type'       => $target_type,
       'thumbnail_style'   => TRUE,
-    ];
+    ] + $this->getCommonScopedFormElements();
   }
 
   /**

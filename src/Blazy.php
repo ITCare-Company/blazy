@@ -33,6 +33,13 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Checks if Blazy is in preview mode.
+   */
+  public static function isPreview() {
+    return in_array(\Drupal::routeMatch()->getRouteName(), ['entity_embed.preview', 'media.filter.preview']);
+  }
+
+  /**
    * Prepares variables for blazy.html.twig templates.
    */
   public static function preprocessBlazy(array &$variables) {
@@ -198,21 +205,21 @@ class Blazy implements BlazyInterface {
     if (empty($settings['is_preview'])) {
       $attributes['data-src'] = $settings['embed_url'];
       $attributes['src'] = 'about:blank';
-      $attributes['class'][]  = 'b-lazy media__iframe';
+      $attributes['class'][] = 'b-lazy';
+      $attributes['allowfullscreen'] = TRUE;
+
+      // Adds specific Youtube attributes, related to mobile apps, etc.
+      if (strpos($settings['embed_url'], 'youtu') !== FALSE) {
+        $attributes['allow'] = 'autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture';
+      }
     }
     else {
       $attributes['src'] = $settings['embed_url'];
+      $attributes['sandbox'] = TRUE;
     }
 
-    $attributes['allowfullscreen'] = TRUE;
-
+    $attributes['class'][] = 'media__iframe';
     self::commonAttributes($attributes, $settings);
-
-    // Adds specific Youtube attributes, related to mobile apps, etc.
-    if (strpos($settings['embed_url'], 'youtu') !== FALSE) {
-      $attributes['allow'] = 'autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture';
-    }
-
     return $attributes;
   }
 
@@ -328,24 +335,50 @@ class Blazy implements BlazyInterface {
    * Overrides variables for file-video.html.twig templates.
    */
   public static function preprocessFileVideo(array &$variables) {
-    foreach ($variables['files'] as $files) {
-      $source_attributes = &$files['source_attributes'];
-      $source_attributes->setAttribute('data-src', $source_attributes['src']->value());
-      $source_attributes->setAttribute('src', '');
+    if (empty($variables['attributes']['data-b-preview'])) {
+      $variables['attributes']->addClass(['b-lazy']);
+      foreach ($variables['files'] as $files) {
+        $source_attributes = &$files['source_attributes'];
+        $source_attributes->setAttribute('data-src', $source_attributes['src']->value());
+        $source_attributes->setAttribute('src', '');
+      }
     }
+
+    $variables['attributes']->addClass(['media__element']);
+    $variables['attributes']->removeAttribute(['data-b-lazy', 'data-b-preview']);
   }
 
   /**
    * Overrides variables for field.html.twig templates.
    */
   public static function preprocessField(array &$variables) {
-    // Defines [data-blazy] attribute as required by the Blazy loader.
-    $settings = $variables['element']['#blazy'];
+    $element = $variables['element'];
+    $settings = isset($element['#blazy']) ? $element['#blazy'] : [];
+    $is_preview = self::isPreview();
     $variables['attributes']['class'][] = 'blazy';
-    $variables['attributes']['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
-    if (!empty($settings['media_switch'])) {
-      $switch = str_replace('_', '-', $settings['media_switch']);
-      $variables['attributes']['data-' . $switch . '-gallery'] = TRUE;
+
+    // 1. Hence Blazy is the formatter, has its settings.
+    if (isset($element['#blazy'])) {
+      $variables['attributes']['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
+      if (!empty($settings['media_switch'])) {
+        $switch = str_replace('_', '-', $settings['media_switch']);
+        $variables['attributes']['data-' . $switch . '-gallery'] = TRUE;
+      }
+    }
+
+    // 2. Hence Blazy is not the formatter, lack of settings.
+    if (!empty($element['#third_party_settings']['blazy']['blazy'])) {
+      foreach ($variables['items'] as &$item) {
+        if (!isset($item['content'])) {
+          continue;
+        }
+
+        $item_attributes = &$item['content'][isset($item['content']['#attributes']) ? '#attributes' : '#item_attributes'];
+        $item_attributes['data-b-lazy'] = TRUE;
+        if ($is_preview) {
+          $item_attributes['data-b-preview'] = TRUE;
+        }
+      }
     }
   }
 

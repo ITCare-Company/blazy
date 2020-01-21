@@ -22,13 +22,6 @@ use Drupal\Core\Field\FieldItemListInterface;
 class BlazyMediaFormatter extends BlazyMediaFormatterBase {
 
   /**
-   * Returns the overridable blazy field formatter service.
-   */
-  public function formatter() {
-    return $this->formatter;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
@@ -71,11 +64,10 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
       'fieldable_form'  => FALSE,
       'grid_form'       => $multiple,
       'layouts'         => [],
-      'settings'        => $this->getSettings(),
       'style'           => $multiple,
       'thumbnail_style' => TRUE,
       'vanilla'         => FALSE,
-    ] + parent::getScopedFormElements();
+    ] + $this->getCommonScopedFormElements() + parent::getScopedFormElements();
   }
 
 }

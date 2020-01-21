@@ -76,6 +76,7 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
     $views_ui    = $this->getFieldSetting('handler') == 'default';
     $bundles     = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
 
+    // @todo move common/ reusable properties somewhere.
     return [
       'current_view_mode' => $this->viewMode,
       'entity_type'       => $entity_type,

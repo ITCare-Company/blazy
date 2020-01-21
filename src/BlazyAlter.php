@@ -4,6 +4,7 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Unicode;
+use Drupal\Core\Field\FormatterInterface;
 
 /**
  * Provides hook_alter() methods for Blazy.
@@ -48,9 +49,8 @@ class BlazyAlter {
       $libraries['blazy']['js'] = ['/' . blazy_libraries_get_path('blazy') . '/blazy.js' => ['weight' => -4]];
     }
 
-    $blazy = \Drupal::service('blazy.manager');
-    if ($blazy->configLoad('io.enabled')) {
-      if ($blazy->configLoad('io.unblazy')) {
+    if (blazy()->configLoad('io.enabled')) {
+      if (blazy()->configLoad('io.unblazy')) {
         $dependencies = ['core/drupal', 'blazy/bio.media', 'blazy/loading'];
         $libraries['load']['dependencies'] = $dependencies;
       }
@@ -84,6 +84,41 @@ class BlazyAlter {
     if (function_exists('views_get_current_view') && $view = views_get_current_view()) {
       $settings['view_name'] = $view->storage->id();
       $settings['current_view_mode'] = $view->current_display;
+    }
+  }
+
+  /**
+   * Provides the third party formatters where full blown Blazy is not worthy.
+   */
+  public static function thirdPartyFormatters() {
+    $formatters = ['file_video'];
+    blazy()->getModuleHandler()->alter('blazy_third_party_formatters', $formatters);
+    return array_unique($formatters);
+  }
+
+  /**
+   * Implements hook_field_formatter_third_party_settings_form().
+   */
+  public static function fieldFormatterThirdPartySettingsForm(FormatterInterface $plugin) {
+    if (in_array($plugin->getPluginId(), self::thirdPartyFormatters())) {
+      return [
+        'blazy' => [
+          '#type' => 'checkbox',
+          '#title' => 'Blazy',
+          '#default_value' => $plugin->getThirdPartySetting('blazy', 'blazy', FALSE),
+        ],
+      ];
+    }
+    return [];
+  }
+
+  /**
+   * Implements hook_field_formatter_settings_summary_alter().
+   */
+  public static function fieldFormatterSettingsSummaryAlter(&$summary, $context) {
+    $on = $context['formatter']->getThirdPartySetting('blazy', 'blazy', FALSE);
+    if ($on && in_array($context['formatter']->getPluginId(), self::thirdPartyFormatters())) {
+      $summary[] = 'Blazy';
     }
   }
 

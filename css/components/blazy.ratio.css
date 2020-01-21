@@ -3,8 +3,8 @@
  * The CSS and class names below are based on Slick media for easy migration.
  */
 
-[data-blazy],
-[data-blazy] * {
+.blazy,
+.blazy * {
   box-sizing: border-box;
 }
 
@@ -38,10 +38,8 @@
   top: 0;
   width: 100%;
   z-index: 0;
-}
-
-.media--ratio--fluid .media__element {
-  object-fit: cover; /** Temporary fix till a better solution. */
+  /** Also to fix the VIDEO element to max width, not only IMG. */
+  object-fit: cover;
 }
 
 /* 1:1 ratio */

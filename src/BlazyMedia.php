@@ -8,7 +8,7 @@ use Drupal\image\Entity\ImageStyle;
 /**
  * Provides extra utilities to work with core Media.
  *
- * @todo rework this for core Media.
+ * @todo rework this for core Media, and figure out to merge it to Blazy.
  */
 class BlazyMedia {
 
@@ -92,9 +92,10 @@ class BlazyMedia {
     }
     // Media with local files: video.
     elseif (isset($item['#files'], $item['#files'][0]['file'])) {
-      // For some reason, the setAttribute nullifies the previously set value.
-      // Hence why we make it a concatenated string to put them all for now.
-      $attributes->setAttribute('class', empty($settings['is_preview']) ? 'b-lazy media__element' : 'media__element');
+      $attributes->setAttribute('data-b-lazy', TRUE);
+      if (!empty($settings['is_preview'])) {
+        $attributes->setAttribute('data-b-preview', TRUE);
+      }
     }
 
     // Wraps the media item to allow consistency for EB/SB.

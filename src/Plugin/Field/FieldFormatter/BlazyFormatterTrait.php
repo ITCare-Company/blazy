@@ -59,4 +59,20 @@ trait BlazyFormatterTrait {
     return $this->admin()->getSettingsSummary($this->getScopedFormElements());
   }
 
+  /**
+   * Defines the common scope for the form elements.
+   */
+  public function getCommonScopedFormElements() {
+    $field = $this->fieldDefinition;
+    return [
+      'current_view_mode' => $this->viewMode,
+      'field_name'        => $field->getName(),
+      'field_type'        => $field->getType(),
+      'entity_type'       => $field->getTargetEntityTypeId(),
+      'plugin_id'         => $this->getPluginId(),
+      'settings'          => $this->getSettings(),
+      'target_type'       => $this->getFieldSetting('target_type'),
+    ];
+  }
+
 }

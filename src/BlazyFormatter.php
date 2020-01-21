@@ -79,8 +79,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['resimage']       = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
     $settings['cache_tags'][]   = $settings['entity_type_id'] . ':' . $settings['entity_id'];
     $settings['caption']        = empty($settings['caption']) ? [] : array_filter($settings['caption']);
-    $settings['route_name']     = \Drupal::routeMatch()->getRouteName();
-    $settings['is_preview']     = in_array($settings['route_name'], ['entity_embed.preview', 'media.filter.preview']);
+    $settings['is_preview']     = Blazy::isPreview();
 
     unset($entity, $field);
 

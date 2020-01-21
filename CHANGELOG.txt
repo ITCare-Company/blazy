@@ -1,4 +1,13 @@
 
+Blazy 8.x-2.0-dev, 2020-01-21
+-----------------------------
+- Added minor fixes.
+- Added blazy.preview.css to disable interactive elements such as (remote| file)
+  video within CKEditor iframe.
+- Added third party formatter settings for simple overrides such as file video.
+- Issue #3048454 by gausarts, Mohammed J. Razem: Add Blazy to be a formatter for
+  core'\''s oEmbed URL widget.
+
 Blazy 8.x-2.0-dev, 2020-01-19
 -----------------------------
 - Disabled IO integration by default till required due to being optional.

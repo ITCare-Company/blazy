@@ -26,6 +26,11 @@ fx.blur:
   dependencies:
     - blazy/loading
 
+preview:
+  css:
+    component:
+      css/components/blazy.preview.css: {}    
+
 ratio:
   css:
     component:
