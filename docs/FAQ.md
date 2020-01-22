@@ -13,10 +13,36 @@ some code cleanup, and optimization where needed. Patches are very much welcome.
 [blazy.api.php](https://git.drupalcode.org/project/blazy/blob/8.x-2.x/blazy.api.php)
 
 
+## BLAZY VS. B-LAZY
+`blazy` is the module namespace. `b-lazy` is the default CSS class to lazy load.
+
+* The `blazy` class is applied to the **top level container**, e,g.. `.field`,
+  `.view`, `.item-list`, etc., those which normally contain item collection.
+  In this container, you can feed any `bLazy` script options into `[data-blazy]`
+  attribute to override existing behaviors per particular page, only if needed.
+* The `b-lazy` class is applied to the **target item** to lazy load, normally
+  the children of `.blazy`, but not always. This can be IMG, VIDEO, DIV, etc.
+
+## WHAT `BLAZY` CSS CLASS IS FOR?
+Aside from the fact that a module must reserve its namespace including for CSS
+classes, the `blazy` is actually used to limit the scope to scan document.
+Rather than scanning the entire DOM, you limit your work to a particular
+`.blazy` container, and these can be many, no problem. This also allows each
+`.blazy` container to have unique features, such as ones with multi-breakpoint
+images, others with regular images; ones with a lightbox, others with
+image to iframe; ones with CSS background, others with regular images; etc.
+right on the same page. This is only possible and efficient within the `.blazy`
+scope.
+
+## WHY NOT `BLAZY__LAZY` FOR `B-LAZY`?
+`b-lazy` is the default CSS class reserved by JS script. Rather than recreating
+a new one, respecting the defaults is better. Following BEM standard is not
+crucial for most JS generated CSS classes. Uniqueness matters.
+
+
 ## PERFORMANCE TIPS:
 * If breakpoints provided with tons of images, using image styles with ANY crop
   is recommended to avoid image dimension calculation with individual images.
   The image dimensions will be set once, and inherited by all images as long as
   they contain word crop. If using scaled image styles, regular calculation
   applies.
-

@@ -352,7 +352,7 @@ class Blazy implements BlazyInterface {
    */
   public static function preprocessField(array &$variables) {
     $element = $variables['element'];
-    $settings = isset($element['#blazy']) ? $element['#blazy'] : [];
+    $settings = empty($element['#blazy']) ? [] : $element['#blazy'];
     $variables['attributes']['class'][] = 'blazy';
     $variables['attributes']['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
 
@@ -376,6 +376,10 @@ class Blazy implements BlazyInterface {
           $item_attributes['data-b-preview'] = TRUE;
         }
       }
+
+      // Attaches Blazy libraries since Blazy is not the formatter.
+      $attachments = blazy()->attach($settings);
+      $variables['#attached'] = empty($variables['#attached']) ? $attachments : NestedArray::mergeDeep($variables['#attached'], $attachments);
     }
   }
 

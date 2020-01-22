@@ -61,19 +61,20 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
     }
 
+    // @todo cleanup few already defined in formatters post sub-module updates.
     $settings                  += $this->getCommonSettings();
     $settings['bundle']         = $bundle;
+    $settings['field_type']     = $field_type;
+    $settings['field_name']     = $field_name;
+    $settings['target_type']    = $target_type;
+    $settings['entity_id']      = $entity_id;
+    $settings['entity_type_id'] = $entity_type_id;
     $settings['cache_metadata'] = ['keys' => [$id, $count]];
     $settings['content_url']    = $settings['absolute_path'] = $absolute_path;
     $settings['count']          = $count;
-    $settings['entity_id']      = $entity_id;
-    $settings['entity_type_id'] = $entity_type_id;
-    $settings['field_type']     = $field_type;
-    $settings['field_name']     = $field_name;
     $settings['gallery_id']     = str_replace('_', '-', $gallery_id . '-' . $switch);
     $settings['id']             = $id;
     $settings['internal_path']  = $internal_path;
-    $settings['target_type']    = $target_type;
     $settings['lightbox']       = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
     $settings['resimage']       = function_exists('responsive_image_get_image_dimensions') && !empty($settings['responsive_image']) && !empty($settings['responsive_image_style']);
     $settings['resimage']       = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;

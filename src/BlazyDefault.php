@@ -178,7 +178,6 @@ class BlazyDefault {
       'namespace'  => 'blazy',
       'id'         => '',
       'is_preview' => FALSE,
-      'route_name' => '',
     ] + self::imageSettings();
   }
 

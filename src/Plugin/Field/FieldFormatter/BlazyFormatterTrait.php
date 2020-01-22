@@ -39,10 +39,7 @@ trait BlazyFormatterTrait {
    * Builds the settings.
    */
   public function buildSettings() {
-    $settings              = $this->getSettings();
-    $settings['plugin_id'] = $this->getPluginId();
-
-    return $settings;
+    return array_merge($this->getCommonFieldDefinition(), $this->getSettings());
   }
 
   /**
@@ -60,9 +57,9 @@ trait BlazyFormatterTrait {
   }
 
   /**
-   * Defines the common scope for the form elements.
+   * Defines the common scope for both front and admin.
    */
-  public function getCommonScopedFormElements() {
+  public function getCommonFieldDefinition() {
     $field = $this->fieldDefinition;
     return [
       'current_view_mode' => $this->viewMode,
@@ -70,9 +67,15 @@ trait BlazyFormatterTrait {
       'field_type'        => $field->getType(),
       'entity_type'       => $field->getTargetEntityTypeId(),
       'plugin_id'         => $this->getPluginId(),
-      'settings'          => $this->getSettings(),
       'target_type'       => $this->getFieldSetting('target_type'),
     ];
+  }
+
+  /**
+   * Defines the common scope for the form elements.
+   */
+  public function getCommonScopedFormElements() {
+    return ['settings' => $this->getSettings()] + $this->getCommonFieldDefinition();
   }
 
 }

@@ -101,6 +101,23 @@ class BlazyAlter {
 
   /**
    * Provides the third party formatters where full blown Blazy is not worthy.
+   *
+   * Note the module doesn't automatically convert the relevant theme to use
+   * Blazy, however two attributes are provided: `data-b-lazy` and
+   * `data-b-preview` which can be used to override a particular theme to use
+   * Blazy. The reasons: Blazy already has specialized theme_blazy() for most
+   * use cases, image, video, etc. This method is only provided to facilitate
+   * and ease up custom needs with your custom works, it is all yours.
+   *
+   * The `data-b-lazy`is a flag indicating Blazy is available for further work.
+   * The `data-b-preview` is a flag indicating Blazy in CKEditor preview mode
+   * via Entity/Media Embed which normally means you want to disable Blazy lazy
+   * load due to CKEditor not supporting JS assets.
+   *
+   * @see \Drupal\blazy\Blazy::preprocessBlazy()
+   * @see \Drupal\blazy\Blazy::preprocessField()
+   * @see \Drupal\blazy\Blazy::preprocessFileVideo()
+   * @see blazy_preprocess_file_video()
    */
   public static function thirdPartyFormatters() {
     $formatters = ['file_video'];

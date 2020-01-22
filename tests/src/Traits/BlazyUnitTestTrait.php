@@ -383,3 +383,15 @@ if (!function_exists('file_valid_uri')) {
   }
 
 }
+
+
+if (!function_exists('blazy')) {
+
+  /**
+   * Dummy function.
+   */
+  function blazy() {
+    // Empty block to satisfy coder.
+  }
+
+}

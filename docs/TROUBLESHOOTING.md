@@ -90,4 +90,3 @@ Only at worst case, know how to run
 https://www.drupal.org/project/registry_rebuild safely.
 
 Check out [Update SOP](#updating) for the non-drush users.
-

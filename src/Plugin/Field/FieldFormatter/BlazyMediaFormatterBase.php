@@ -20,6 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 abstract class BlazyMediaFormatterBase extends BlazyEntityMediaBase implements ContainerFactoryPluginInterface {
 
   use BlazyFormatterTrait;
+  use BlazyFormatterViewTrait;
 
   /**
    * The logger factory.

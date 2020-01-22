@@ -29,6 +29,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 abstract class BlazyFileFormatterBase extends FileFormatterBase implements ContainerFactoryPluginInterface {
 
   use BlazyFormatterTrait;
+  use BlazyFormatterViewTrait;
   use BlazyDependenciesTrait;
 
   /**

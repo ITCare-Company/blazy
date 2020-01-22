@@ -32,26 +32,7 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
       return [];
     }
 
-    // Collects specific settings to this formatter.
-    $settings              = $this->buildSettings();
-    $settings['blazy']     = TRUE;
-    $settings['namespace'] = $settings['item_id'] = $settings['lazy'] = 'blazy';
-
-    // Build the settings.
-    $build = ['settings' => $settings];
-
-    // Modifies settings before building elements.
-    $entities = array_values($entities);
-    $this->formatter->preBuildElements($build, $items, $entities);
-
-    // Build the elements.
-    $this->buildElements($build, $entities, $langcode);
-
-    // Modifies settings post building elements.
-    $this->formatter->postBuildElements($build, $items, $entities);
-
-    // Pass to manager for easy updates to all Blazy formatters.
-    return $this->formatter->build($build);
+    return $this->commonViewElements($items, $langcode, $entities);
   }
 
   /**

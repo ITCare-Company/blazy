@@ -162,6 +162,7 @@
     }
 
     // Put the blazy/IO instance into a public object for references/ overrides.
+    // If native lazy load is supported, the following will skip internally.
     me.init = me.run(me.options);
   };
 
