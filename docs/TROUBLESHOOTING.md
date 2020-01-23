@@ -1,7 +1,7 @@
-
+.
 ***
 ***
-
+.
 # <a name="troubleshooting"></a>TROUBLESHOOTING
 * Blazy and its sub-modules -- Slick, GridStack, etc. are tightly coupled.
   Be sure to have the latest release date or matching versions in the least.

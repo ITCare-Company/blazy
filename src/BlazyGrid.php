@@ -77,8 +77,10 @@ class BlazyGrid {
       $element['#attributes']['data-' . $switch . '-gallery'] = TRUE;
     }
 
-    if (!empty($settings['field_name'])) {
-      $element['#attributes']['class'][] = 'blazy--field blazy--' . str_replace('_', '-', $settings['field_name']);
+    foreach (['field', 'view'] as $key) {
+      if (!empty($settings[$key . '_name'])) {
+        $element['#attributes']['class'][] = 'blazy--' . $key . ' blazy--' . $key . '--' . str_replace('_', '-', $settings[$key . '_name']);
+      }
     }
 
     // Provides gallery ID, although Colorbox works without it, others may not.

@@ -15,9 +15,10 @@
  * [Maintainers](#maintainers)
 
 
+.
 ***
 ***
-
+.
 # <a name="introduction"></a>INTRODUCTION
 Provides integration with bLazy and or Intersection Observer API, or browser
 native lazy loading to lazy load and multi-serve images to save bandwidth and
@@ -25,9 +26,10 @@ server requests. The user will have faster load times and save data usage if
 they don't browse the whole page.
 
 
+.
 ***
 ***
-
+.
 # <a name="requirements"> </a>REQUIREMENTS
 1. bLazy library:
    * [Download bLazy](https://github.com/dinbror/blazy)
@@ -38,9 +40,10 @@ they don't browse the whole page.
 2. Media and Filter module in core.
 
 
+.
 ***
 ***
-
+.
 # <a name="recommended-modules"> </a>RECOMMENDED MODULES
 * [Markdown](https://www.drupal.org/project/markdown)
 
@@ -100,10 +103,10 @@ least 7 lightboxes, and likely more.
 [Lazyloader](https://www.drupal.org/project/lazyloader)
 
 
-
+.
 ***
 ***
-
+.
 # <a name="installation"> </a>INSTALLATION
 1. **MANUAL:**
 
@@ -127,10 +130,10 @@ least 7 lightboxes, and likely more.
    above-mentioned issues.
 
 
-
+.
 ***
 ***
-
+.
 # <a name="configuration"> </a>CONFIGURATION
 Visit the following to configure and make use of Blazy:
 
@@ -200,9 +203,10 @@ Check out the relevant sub-module docs for details.
 
 
 
+.
 ***
 ***
-
+.
 # <a name="features"> </a>FEATURES
 * Supports core Image.
 * Supports core Responsive image.
@@ -227,9 +231,10 @@ Check out the relevant sub-module docs for details.
 
 
 
+.
 ***
 ***
-
+.
 # <a name="maintainers"> </a>MAINTAINERS/CREDITS
 * [Gaus Surahman](https://www.drupal.org/user/159062)
 * [geek-merlin](https://www.drupal.org/u/geek-merlin)
