@@ -169,7 +169,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns common Blazy UI settings which modifies HTML.
+   * Returns shared global form settings which should be consumed at formatters.
    */
   public static function uiSettings() {
     return [

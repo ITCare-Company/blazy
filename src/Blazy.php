@@ -91,10 +91,6 @@ class Blazy implements BlazyInterface {
     // BlazyFilter, or image style with crop, may already set these.
     BlazyUtil::imageDimensions($settings, $item);
 
-    // Overrides lazy with blazy for explicit call to reduce another param.
-    // @todo reenable if any issue if (!empty($settings['blazy'])) {
-    // @todo reenable if any issue   $settings['lazy'] = 'blazy';
-    // @todo reenable if any issue }
     // Provides image_url, not URI, expected by lazyload.
     $uri = $settings['uri'];
     $image_url = BlazyUtil::isValidUri($uri) ? BlazyUtil::transformRelative($uri) : $uri;

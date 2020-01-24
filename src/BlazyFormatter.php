@@ -50,8 +50,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $switch         = empty($settings['media_switch']) ? '' : $settings['media_switch'];
     $internal_path  = $absolute_path = NULL;
 
-    // @todo remove $field_type     = $field->getType();
-    // @todo remove $target_type    = $field->getFieldStorageDefinition()->getSetting('target_type');
     // Deals with UndefinedLinkTemplateException such as paragraphs type.
     // @see #2596385, or fetch the host entity.
     if (!$entity->isNew() && method_exists($entity, 'hasLinkTemplate')) {
@@ -62,11 +60,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
     }
 
-    // @todo cleanup few already defined in formatters post sub-module updates.
-    // To remove: field_type, field_name, target_type.
-    // @todo remove $settings['field_type']     = $field_type;
-    // @todo remove $settings['field_name']     = $field_name;
-    // @todo remove $settings['target_type']    = $target_type;
     $settings['bundle']         = $bundle;
     $settings['cache_metadata'] = ['keys' => [$id, $count]];
     $settings['content_url']    = $settings['absolute_path'] = $absolute_path;
@@ -83,6 +76,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['caption']        = empty($settings['caption']) ? [] : array_filter($settings['caption']);
     $settings['is_preview']     = BlazyUtil::isPreview();
 
+    // Bail out if Vanilla mode is requested.
     if (!empty($settings['vanilla'])) {
       $settings = array_filter($settings);
       return;

@@ -63,12 +63,13 @@ trait BlazyVideoTrait {
    * @return array
    *   The array of image item and settings if a file image, else empty.
    *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
+   * @todo enable post RC before release release.
+   * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
    *   BlazyOEmbed::getImageItem() instead.
    * @see https://www.drupal.org/node/3103018
    */
   public function getImageItem($file) {
-    @trigger_error('getImageItem is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyOEmbed::getImageItem() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+    // @todo enable post release @trigger_error('getImageItem is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyOEmbed::getImageItem() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     return $this->blazyOembed()->getImageItem($file);
   }
 
