@@ -170,6 +170,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $settings = [
       'input_url'       => $input_url,
       'source_field'    => $this->testFieldName,
+      'media_source'    => 'remove_video',
       'view_mode'       => 'default',
       'bundle'          => $this->bundle,
       'thumbnail_style' => 'thumbnail',
