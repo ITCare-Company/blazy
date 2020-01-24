@@ -6,7 +6,6 @@ use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\blazy\BlazyOEmbedInterface;
 use Drupal\blazy\BlazyFormatterInterface;
-use Drupal\blazy\Dejavu\BlazyVideoTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 @trigger_error('The ' . __NAMESPACE__ . '\BlazyFileFormatter is deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
@@ -19,8 +18,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @see https://www.drupal.org/node/3103018
  */
 class BlazyFileFormatter extends BlazyFormatterBlazy {
-
-  use BlazyVideoTrait;
 
   /**
    * Constructs a BlazyFormatter object.
@@ -55,7 +52,7 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
     $settings = $build['settings'];
     /** @var Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
     // EntityReferenceItem provides $item->entity Drupal\file\Entity\File.
-    if ($item = $this->getImageItem($entity)) {
+    if ($item = $this->blazyOembed->getImageItem($entity)) {
       $build['item'] = $item['item'];
       $build['settings'] = array_merge($settings, $item['settings']);
     }

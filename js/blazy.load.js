@@ -273,6 +273,13 @@
       // someone does an invalid call. But let's be robust here.
       // Note: context can be unexpected <script> element with Media library.
       context = context || document;
+
+      // Originally identified at D7, yet might happen at D8 with AJAX.
+      // Prevents jQuery AJAX messes up where context might be an array.
+      if ('length' in context) {
+        context = context[0];
+      }
+
       var el = context.querySelector('[data-blazy]');
 
       // Runs basic Blazy if no [data-blazy] found, probably a single image or

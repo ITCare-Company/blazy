@@ -11,10 +11,22 @@ use Drupal\image\Entity\ImageStyle;
  * @todo TBD; for keeping or removal at blazy:8.x-2.0.
  * @see https://www.drupal.org/node/3105243
  */
-class BlazyBreakpoint implements BlazyBreakpointInterface {
+class BlazyBreakpoint {
 
   /**
-   * {@inheritdoc}
+   * Provides re-usable breakpoint data-attributes.
+   *
+   * These attributes can be applied to either IMG or DIV as CSS background.
+   *
+   * $settings['breakpoints'] must contain: xs, sm, md, lg breakpoints with
+   * the expected keys: width, image_style.
+   *
+   * @param array $attributes
+   *   The attributes being modified.
+   * @param array $settings
+   *   The given settings being modified.
+   *
+   * @see self::preprocessBlazy()
    */
   public static function attributes(array &$attributes, array &$settings) {
     // Only provide multi-serving image URLs if breakpoints are provided.
@@ -37,12 +49,12 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
       // See Drupal\blazy\BlazyFormatter::setImageDimensions().
       $width = self::widthFromDescriptors($breakpoint['width']);
       if ($width && !empty($settings['_breakpoint_ratio']) && empty($settings['blazy_data']['dimensions'])) {
-        $dimensions = Blazy::transformDimensions($style, $settings);
+        $dimensions = BlazyUtil::transformDimensions($style, $settings);
 
         $json[$width] = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
       }
 
-      $url = Blazy::transformRelative($settings['uri'], $style);
+      $url = BlazyUtil::transformRelative($settings['uri'], $style);
       $settings['breakpoints'][$key]['url'] = $url;
 
       // Still working with GridStack multi-image-style per grid box at 2019.
@@ -103,7 +115,10 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Cleans up empty, or not so empty, breakpoints.
+   *
+   * @param array $settings
+   *   The settings being modified.
    */
   public static function cleanUpBreakpoints(array &$settings = []) {
     if (!empty($settings['breakpoints'])) {
@@ -116,7 +131,17 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Builds breakpoints suitable for top-level [data-blazy] wrapper attributes.
+   *
+   * The hustle is because we need to define dimensions once, if applicable, and
+   * let all images inherit. Each breakpoint image may be cropped, or scaled
+   * without a crop. To set dimensions once requires all breakpoint images
+   * uniformly cropped. But that is not always the case.
+   *
+   * @param array $settings
+   *   The settings being modified.
+   * @param object $item
+   *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item.
    */
   public static function buildDataBlazy(array &$settings, $item = NULL) {
     // Identify that Blazy can be activated by breakpoints, regardless results.
@@ -130,7 +155,7 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
 
     // May be set at BlazyFormatter::setImageDimensions() if using formatters,
     // yet not set from non-formatters like views fields, see self::isBlazy().
-    Blazy::imageDimensions($settings, $item, TRUE);
+    BlazyUtil::imageDimensions($settings, $item, TRUE);
 
     $sources = $styles = [];
     $end = end($settings['breakpoints']);
@@ -157,7 +182,7 @@ class BlazyBreakpoint implements BlazyBreakpointInterface {
 
       // Sets dimensions once, and let all images inherit.
       if (($style = $styles[$key]) && (!empty($settings['first_uri']) && !empty($settings['ratio']))) {
-        $dimensions = Blazy::transformDimensions($style, $settings, TRUE);
+        $dimensions = BlazyUtil::transformDimensions($style, $settings, TRUE);
 
         $padding = round((($dimensions['height'] / $dimensions['width']) * 100), 2);
         $settings['blazy_data']['dimensions'][$width] = $padding;

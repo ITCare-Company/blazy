@@ -46,3 +46,10 @@ function blazy_update_8202() {
 function blazy_update_8203() {
   // Do nothing to clear cache.
 }
+
+/**
+ * Added new classes: BlazyUtil, BlazyBreakpoint to declutter Blazy.
+ */
+function blazy_update_8204() {
+  // Do nothing to clear cache.
+}

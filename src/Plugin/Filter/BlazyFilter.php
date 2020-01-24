@@ -10,14 +10,13 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Plugin\FallbackPluginManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
-use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyOEmbedInterface;
-use Drupal\blazy\Dejavu\BlazyVideoTrait;
+use Drupal\blazy\BlazyUtil;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -39,8 +38,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerFactoryPluginInterface {
 
-  use BlazyVideoTrait;
-
   /**
    * The entity field manager service.
    *
@@ -58,11 +55,10 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, FallbackPluginManagerInterface $filter_plugin_manager, ImageFactory $image_factory, EntityFieldManagerInterface $entity_field_manager, BlazyOEmbedInterface $blazy_oembed) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, FallbackPluginManagerInterface $filter_plugin_manager, EntityFieldManagerInterface $entity_field_manager, BlazyOEmbedInterface $blazy_oembed) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
     $this->filterPluginManager = $filter_plugin_manager;
-    $this->imageFactory = $image_factory;
     $this->entityFieldManager = $entity_field_manager;
     $this->blazyOembed = $blazy_oembed;
     $this->blazyManager = $blazy_oembed->blazyManager();
@@ -77,7 +73,6 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $plugin_id,
       $plugin_definition,
       $container->get('plugin.manager.filter'),
-      $container->get('image.factory'),
       $container->get('entity_field.manager'),
       $container->get('blazy.oembed')
     );
@@ -390,7 +385,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
 
     // Uploaded image has UUID with file API.
     if ($uuid && $file = $this->blazyManager->getEntityRepository()->loadEntityByUuid('file', $uuid)) {
-      $data = $this->getImageItem($file);
+      $data = $this->blazyOembed->getImageItem($file);
       $item = $data['item'];
       $item->alt = $node->hasAttribute('alt') ? $node->getAttribute('alt') : ($item ? $item->alt : '');
       $item->title = $node->hasAttribute('title') ? $node->getAttribute('title') : ($item ? $item->title : '');
@@ -401,7 +396,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $settings['uri'] = $src;
 
       // Attempts to get the correct URI with hard-coded URL if applicable.
-      if ($uri = Blazy::buildUri($src)) {
+      if ($uri = BlazyUtil::buildUri($src)) {
         $settings['uri'] = $item->uri = $uri;
       }
     }

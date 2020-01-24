@@ -31,7 +31,7 @@ class BlazyManager extends BlazyManagerBase {
 
     // Respects content not handled by theme_blazy(), but passed through.
     if (empty($build['content'])) {
-      $image = empty($settings['uri']) ? [] : [
+      $content = empty($settings['uri']) ? [] : [
         '#theme'       => 'blazy',
         '#delta'       => $settings['delta'],
         '#item'        => $settings['entity_type_id'] == 'user' ? $item : [],
@@ -42,11 +42,12 @@ class BlazyManager extends BlazyManagerBase {
     }
     else {
       // @todo use reset($build['content']) at blazy:3.x if no other usages.
-      $image = $build['content'];
+      // And move it to theme_blazy() if you can to reduce dup lines.
+      $content = $build['content'];
     }
 
-    $this->moduleHandler->alter('blazy', $image, $settings);
-    return $image;
+    $this->moduleHandler->alter('blazy', $content, $settings);
+    return $content;
   }
 
   /**
@@ -108,7 +109,7 @@ class BlazyManager extends BlazyManagerBase {
     // Sanitize potential user-defined attributes such as from BlazyFilter.
     // Skip attributes via $item, or by module, as they are not user-defined.
     $attributes = isset($build['attributes']) ? $build['attributes'] : [];
-    $item_attributes = empty($build['item_attributes']) ? [] : Blazy::sanitize($build['item_attributes']);
+    $item_attributes = empty($build['item_attributes']) ? [] : BlazyUtil::sanitize($build['item_attributes']);
 
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
@@ -130,12 +131,6 @@ class BlazyManager extends BlazyManagerBase {
       $image = Blazy::buildResponsiveImage($settings);
       $element['#cache']['tags'] = $this->getResponsiveImageStyles($settings['resimage'], FALSE);
       unset($settings['resimage']);
-    }
-
-    // Aspect ratio to fix layout reflow with lazyloaded images responsively.
-    // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
-    if ($settings['ratio']) {
-      Blazy::aspectRatioAttributes($attributes, $settings);
     }
 
     // Regular image with custom responsive breakpoints.
@@ -176,7 +171,7 @@ class BlazyManager extends BlazyManagerBase {
     // Was planned to replace sub-module item markups if similarity is found for
     // theme_gridstack_box(), theme_slick_slide(), etc. Likely for Blazy 3.x+.
     foreach (['caption', 'media', 'wrapper'] as $key) {
-      $element["#$key" . '_attributes'] = empty($build[$key . '_attributes']) ? [] : Blazy::sanitize($build[$key . '_attributes']);
+      $element["#$key" . '_attributes'] = empty($build[$key . '_attributes']) ? [] : BlazyUtil::sanitize($build[$key . '_attributes']);
     }
 
     // Provides captions, if so configured.
@@ -204,27 +199,27 @@ class BlazyManager extends BlazyManagerBase {
     if (!empty($settings['thumbnail_style'])) {
       $style = $this->entityLoad($settings['thumbnail_style'], 'image_style');
       $path = $style->buildUri($settings['uri']);
-      $attributes['data-thumb'] = Blazy::transformRelative($settings['uri'], $style);
+      $attributes['data-thumb'] = BlazyUtil::transformRelative($settings['uri'], $style);
     }
 
     // Supports unique thumbnail different from main image, such as logo for
     // thumbnail and main image for company profile.
     if (!empty($settings['thumbnail_uri'])) {
       $path = $settings['thumbnail_uri'];
-      $attributes['data-thumb'] = Blazy::transformRelative($path);
+      $attributes['data-thumb'] = BlazyUtil::transformRelative($path);
     }
 
-    if (isset($style) && ($path && !is_file($path) && Blazy::isValidUri($path))) {
+    if (isset($style) && ($path && !is_file($path) && BlazyUtil::isValidUri($path))) {
       $style->createDerivative($settings['uri'], $path);
     }
 
     // Provides image effect if so configured.
     if (!empty($settings['fx'])) {
-      if (empty($path) && ($style = $this->entityLoad('thumbnail', 'image_style')) && Blazy::isValidUri($settings['uri'])) {
+      if (empty($path) && ($style = $this->entityLoad('thumbnail', 'image_style')) && BlazyUtil::isValidUri($settings['uri'])) {
         $path = $style->buildUri($settings['uri']);
       }
 
-      if ($path && Blazy::isValidUri($path)) {
+      if ($path && BlazyUtil::isValidUri($path)) {
         // Ensures the thumbnail exists before creating a dataURI.
         if (!is_file($path) && isset($style)) {
           $style->createDerivative($settings['uri'], $path);

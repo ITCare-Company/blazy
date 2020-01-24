@@ -21,7 +21,7 @@ class BlazyViewsFieldFile extends BlazyViewsFieldPluginBase {
 
     $settings['delta'] = $values->index;
 
-    $data = $this->getImageItem($entity);
+    $data = $this->blazyEntity->oembed()->getImageItem($entity);
     $data['settings'] = isset($data['settings']) ? array_merge($settings, $data['settings']) : $settings;
 
     // Pass results to \Drupal\blazy\BlazyEntity.

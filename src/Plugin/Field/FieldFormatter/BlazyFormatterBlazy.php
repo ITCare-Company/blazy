@@ -44,7 +44,7 @@ class BlazyFormatterBlazy extends BlazyFileFormatterBase {
       $box['item']           = $item;
       $box['settings']       = $settings;
 
-      // If imported Drupal\blazy\Dejavu\BlazyVideoTrait.
+      // Build individual element.
       $this->buildElement($box, $file);
 
       // Build caption if so configured.

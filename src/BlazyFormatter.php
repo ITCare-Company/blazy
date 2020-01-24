@@ -33,6 +33,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    */
   public function buildSettings(array &$build, $items) {
     $settings       = &$build['settings'];
+    $settings      += $this->getCommonSettings();
     $count          = $items->count();
     $field          = $items->getFieldDefinition();
     $entity         = $items->getEntity();
@@ -40,9 +41,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $entity_id      = $entity->id();
     $bundle         = $entity->bundle();
     $field_name     = $field->getName();
-    $field_type     = $field->getType();
     $field_clean    = str_replace("field_", '', $field_name);
-    $target_type    = $field->getFieldStorageDefinition()->getSetting('target_type');
     $view_mode      = empty($settings['current_view_mode']) ? '_custom' : $settings['current_view_mode'];
     $namespace      = $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
     $id             = isset($settings['id']) ? $settings['id'] : '';
@@ -51,6 +50,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $switch         = empty($settings['media_switch']) ? '' : $settings['media_switch'];
     $internal_path  = $absolute_path = NULL;
 
+    // @todo remove $field_type     = $field->getType();
+    // @todo remove $target_type    = $field->getFieldStorageDefinition()->getSetting('target_type');
     // Deals with UndefinedLinkTemplateException such as paragraphs type.
     // @see #2596385, or fetch the host entity.
     if (!$entity->isNew() && method_exists($entity, 'hasLinkTemplate')) {
@@ -62,16 +63,16 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     }
 
     // @todo cleanup few already defined in formatters post sub-module updates.
-    $settings                  += $this->getCommonSettings();
+    // To remove: field_type, field_name, target_type.
+    // @todo remove $settings['field_type']     = $field_type;
+    // @todo remove $settings['field_name']     = $field_name;
+    // @todo remove $settings['target_type']    = $target_type;
     $settings['bundle']         = $bundle;
-    $settings['field_type']     = $field_type;
-    $settings['field_name']     = $field_name;
-    $settings['target_type']    = $target_type;
-    $settings['entity_id']      = $entity_id;
-    $settings['entity_type_id'] = $entity_type_id;
     $settings['cache_metadata'] = ['keys' => [$id, $count]];
     $settings['content_url']    = $settings['absolute_path'] = $absolute_path;
     $settings['count']          = $count;
+    $settings['entity_id']      = $entity_id;
+    $settings['entity_type_id'] = $entity_type_id;
     $settings['gallery_id']     = str_replace('_', '-', $gallery_id . '-' . $switch);
     $settings['id']             = $id;
     $settings['internal_path']  = $internal_path;
@@ -80,9 +81,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['resimage']       = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
     $settings['cache_tags'][]   = $settings['entity_type_id'] . ':' . $settings['entity_id'];
     $settings['caption']        = empty($settings['caption']) ? [] : array_filter($settings['caption']);
-    $settings['is_preview']     = Blazy::isPreview();
-
-    unset($entity, $field);
+    $settings['is_preview']     = BlazyUtil::isPreview();
 
     if (!empty($settings['vanilla'])) {
       $settings = array_filter($settings);
@@ -159,7 +158,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     }
 
     // The first image dimensions to differ from individual item dimensions.
-    Blazy::imageDimensions($settings, $this->firstItem, TRUE);
+    BlazyUtil::imageDimensions($settings, $this->firstItem, TRUE);
   }
 
   /**
@@ -172,7 +171,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     if (!isset($this->isImageDimensionSet[md5($settings['id'])])) {
       // If image style contains crop, sets dimension once, and let all inherit.
       if (!empty($settings['image_style']) && ($style = $this->isCrop($settings['image_style']))) {
-        $settings = array_merge($settings, Blazy::transformDimensions($style, $settings, TRUE));
+        $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, TRUE));
 
         // Informs individual images that dimensions are already set once.
         $settings['_dimensions'] = TRUE;
@@ -198,7 +197,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     if (!isset($this->isResponsiveImageDimensionSet[md5($settings['id'])])) {
       $srcset = [];
       foreach ($this->getResponsiveImageStyles($settings['resimage'], TRUE) as $style) {
-        $settings = array_merge($settings, Blazy::transformDimensions($style, $settings, TRUE));
+        $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, TRUE));
 
         // In order to avoid layout reflow, we get dimensions beforehand.
         $srcset[intval($settings['width'])] = round((($settings['height'] / $settings['width']) * 100), 2);

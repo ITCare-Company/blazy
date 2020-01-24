@@ -5,6 +5,8 @@ namespace Drupal\blazy;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Url;
+use Drupal\Core\Image\ImageFactory;
+use Drupal\file\Entity\File;
 use Drupal\media\IFrameUrlHelper;
 use Drupal\media\OEmbed\Resource;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
@@ -60,13 +62,21 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   protected $request;
 
   /**
+   * The image factory service.
+   *
+   * @var \Drupal\Core\Image\ImageFactory
+   */
+  protected $imageFactory;
+
+  /**
    * Constructs a BlazyManager object.
    */
-  public function __construct(RequestStack $request, ResourceFetcherInterface $resource_fetcher, UrlResolverInterface $url_resolver, IFrameUrlHelper $iframe_url_helper, BlazyManagerInterface $blazy_manager) {
+  public function __construct(RequestStack $request, ResourceFetcherInterface $resource_fetcher, UrlResolverInterface $url_resolver, IFrameUrlHelper $iframe_url_helper, ImageFactory $image_factory, BlazyManagerInterface $blazy_manager) {
     $this->request = $request;
     $this->resourceFetcher = $resource_fetcher;
     $this->urlResolver = $url_resolver;
     $this->iframeUrlHelper = $iframe_url_helper;
+    $this->imageFactory = $image_factory;
     $this->blazyManager = $blazy_manager;
   }
 
@@ -79,6 +89,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       $container->get('media.oembed.resource_fetcher'),
       $container->get('media.oembed.url_resolver'),
       $container->get('media.oembed.iframe_url_helper'),
+      $container->get('image.factory'),
       $container->get('blazy.manager')
     );
   }
@@ -102,6 +113,13 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   public function getIframeUrlHelper() {
     return $this->iframeUrlHelper;
+  }
+
+  /**
+   * Returns the image factory.
+   */
+  public function imageFactory() {
+    return $this->imageFactory;
   }
 
   /**
@@ -254,6 +272,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     // @todo support local video/ audio file, and other media sources.
     switch ($settings['media_source']) {
       // @todo check for Resource::TYPE_PHOTO, Resource::TYPE_RICH, etc.
+      case 'video_file':
+        break;
+
       case 'oembed':
       case 'oembed:video':
         // Input url != embed url. For Youtube, /watch != /embed.
@@ -270,7 +291,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         $settings['type'] = 'image';
         break;
 
-      // No special handling for local file video, pass through.
+      // No special handling for anything else pass through.
       default:
         break;
     }
@@ -286,6 +307,54 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $data['item'] = $item;
     $data['settings'] = $settings;
     $data['content'] = $content;
+  }
+
+  /**
+   * Gets the faked image item out of file entity, or ER, if applicable.
+   *
+   * @param object $file
+   *   The expected file entity, or ER, to get image item from.
+   *
+   * @return array
+   *   The array of image item and settings if a file image, else empty.
+   */
+  public function getImageItem($file) {
+    $data = [];
+    $entity = $file;
+
+    /** @var Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $file */
+    if (isset($file->entity) && !isset($file->alt)) {
+      $entity = $file->entity;
+    }
+
+    if (!$entity instanceof File) {
+      return $data;
+    }
+
+    /** @var \Drupal\file\Entity\File $entity */
+    list($type,) = explode('/', $entity->getMimeType(), 2);
+    $uri = $entity->getFileUri();
+
+    if ($type == 'image' && ($image = $this->imageFactory->get($uri)) && $image->isValid()) {
+      $item            = new \stdClass();
+      $item->target_id = $entity->id();
+      $item->width     = $image->getWidth();
+      $item->height    = $image->getHeight();
+      $item->uri       = $uri;
+      $settings        = (array) $item;
+      $item->alt       = $entity->getFilename();
+      $item->title     = $entity->getFilename();
+      $item->entity    = $entity;
+
+      // Build item and settings.
+      $settings['type'] = 'image';
+      $settings['uri']  = $uri;
+      $data['item']     = $item;
+      $data['settings'] = $settings;
+      unset($item);
+    }
+
+    return $data;
   }
 
   /**

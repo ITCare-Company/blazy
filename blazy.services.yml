@@ -20,7 +20,7 @@ services:
 
   blazy.oembed:
     class: Drupal\blazy\BlazyOEmbed
-    arguments: ['@request_stack', '@media.oembed.resource_fetcher', '@media.oembed.url_resolver', '@media.oembed.iframe_url_helper', '@blazy.manager']
+    arguments: ['@request_stack', '@media.oembed.resource_fetcher', '@media.oembed.url_resolver', '@media.oembed.iframe_url_helper', '@image.factory', '@blazy.manager']
 
   blazy.entity:
     class: Drupal\blazy\BlazyEntity

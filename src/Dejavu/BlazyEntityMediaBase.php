@@ -13,7 +13,6 @@ use Drupal\blazy\BlazyDefault;
  */
 abstract class BlazyEntityMediaBase extends BlazyEntityBase {
 
-  use BlazyVideoTrait;
   use BlazyDependenciesTrait;
 
   /**
@@ -21,6 +20,13 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
    */
   public function blazyEntity() {
     return $this->blazyEntity;
+  }
+
+  /**
+   * Returns the slick service.
+   */
+  public function blazyOembed() {
+    return $this->blazyOembed;
   }
 
   /**
@@ -208,7 +214,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     }
 
     if (isset($element['image']['#description'])) {
-      $element['image']['#description'] .= ' ' . $this->t('For video, this allows separate highres image, be sure the same field used for Image to have a mix of videos and images. Leave empty to fallback to the video provider thumbnails. The formatter/renderer is managed by <strong>@namespace</strong> formatter. Meaning original formatter ignored. If you want original formatters, check <strong>Vanilla</strong> option. Alternatively choose <strong>Media switcher &gt; Image rendered </strong>, other image-related settings here will be ignored. <strong>Supported fields</strong>: Image, Video Embed Field.', ['@namespace' => $this->getPluginId()]);
+      $element['image']['#description'] .= ' ' . $this->t('For video, this allows separate highres image, be sure the same field used for Image to have a mix of videos and images. Leave empty to fallback to the video provider thumbnails. The formatter/renderer is managed by <strong>@namespace</strong> formatter. Meaning original formatter ignored. If you want original formatters, check <strong>Vanilla</strong> option. Alternatively choose <strong>Media switcher &gt; Image rendered </strong>, other image-related settings here will be ignored. <strong>Supported fields</strong>: Image.', ['@namespace' => $this->getPluginId()]);
     }
 
     return $element;

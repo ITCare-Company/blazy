@@ -169,6 +169,19 @@ class BlazyDefault {
   }
 
   /**
+   * Returns common Blazy UI settings which modifies HTML.
+   */
+  public static function uiSettings() {
+    return [
+      'fx'               => '',
+      'one_pixel'        => TRUE,
+      'native'           => FALSE,
+      'placeholder'      => '',
+      'responsive_image' => FALSE,
+    ];
+  }
+
+  /**
    * Returns sensible default container settings to shutup notices when lacking.
    */
   public static function htmlSettings() {
@@ -178,7 +191,7 @@ class BlazyDefault {
       'namespace'  => 'blazy',
       'id'         => '',
       'is_preview' => FALSE,
-    ] + self::imageSettings();
+    ] + self::imageSettings() + self::uiSettings();
   }
 
   /**
@@ -187,6 +200,7 @@ class BlazyDefault {
   public static function itemSettings() {
     return [
       '_api'           => FALSE,
+      'bundle'         => '',
       'content_url'    => '',
       'delta'          => 0,
       'embed_url'      => '',
@@ -196,9 +210,6 @@ class BlazyDefault {
       'item_id'        => 'blazy',
       'lazy_attribute' => 'src',
       'lazy_class'     => 'b-lazy',
-      'one_pixel'      => TRUE,
-      'native'         => FALSE,
-      'placeholder'    => '',
       'padding_bottom' => '',
       'player'         => FALSE,
       'resimage'       => FALSE,

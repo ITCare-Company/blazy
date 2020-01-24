@@ -25,6 +25,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @see Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter.
  * @see Drupal\slick\Plugin\Field\FieldFormatter\SlickImageFormatter.
  * @see Drupal\slick\Plugin\Field\FieldFormatter\SlickFileFormatter.
+ * @todo remove no longer in use: ImageFactory at blazy:3.x.
  */
 abstract class BlazyFileFormatterBase extends FileFormatterBase implements ContainerFactoryPluginInterface {
 
@@ -37,6 +38,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase implements Conta
    */
   public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, ImageFactory $image_factory, BlazyFormatterInterface $formatter) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
+    // @todo remove no longer in use: ImageFactory at blazy:3.x.
     $this->imageFactory = $image_factory;
     $this->formatter = $this->blazyManager = $formatter;
   }

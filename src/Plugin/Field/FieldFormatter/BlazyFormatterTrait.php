@@ -15,13 +15,6 @@ trait BlazyFormatterTrait {
   protected $formatter;
 
   /**
-   * Returns the blazy formatter manager.
-   */
-  public function formatter() {
-    return $this->formatter;
-  }
-
-  /**
    * The blazy manager service.
    *
    * @var \Drupal\blazy\BlazyManagerInterface
@@ -29,17 +22,17 @@ trait BlazyFormatterTrait {
   protected $blazyManager;
 
   /**
+   * Returns the blazy formatter manager.
+   */
+  public function formatter() {
+    return $this->formatter;
+  }
+
+  /**
    * Returns the blazy manager.
    */
   public function blazyManager() {
     return $this->blazyManager;
-  }
-
-  /**
-   * Builds the settings.
-   */
-  public function buildSettings() {
-    return array_merge($this->getCommonFieldDefinition(), $this->getSettings());
   }
 
   /**
@@ -54,6 +47,13 @@ trait BlazyFormatterTrait {
    */
   public function settingsSummary() {
     return $this->admin()->getSettingsSummary($this->getScopedFormElements());
+  }
+
+  /**
+   * Builds the settings.
+   */
+  public function buildSettings() {
+    return array_merge($this->getCommonFieldDefinition(), $this->getSettings());
   }
 
   /**

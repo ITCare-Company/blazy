@@ -15,7 +15,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Base class for blazy/slick media ER formatters.
  *
- * @see Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter.
+ * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter
+ * @see \Drupal\gridstack\Plugin\Field\FieldFormatter\GridStackMediaFormatter
  */
 abstract class BlazyMediaFormatterBase extends BlazyEntityMediaBase implements ContainerFactoryPluginInterface {
 
@@ -47,6 +48,7 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityMediaBase implements C
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
 
     $this->loggerFactory = $logger_factory;
+    // @todo remove no longer in use: ImageFactory at blazy:3.x, see GridStack.
     $this->imageFactory = $image_factory;
     $this->blazyEntity = $blazy_entity;
     $this->formatter = $this->blazyManager = $formatter;

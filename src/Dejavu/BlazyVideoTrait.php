@@ -2,15 +2,15 @@
 
 namespace Drupal\blazy\Dejavu;
 
-use Drupal\file\Entity\File;
-
 /**
  * A Trait common for Media integration.
  *
  * @see Drupal\blazy\Plugin\views\field\BlazyViewsFieldPluginBase
  * @see Drupal\slick_browser\SlickBrowser::widgetEntityBrowserFileFormAlter()
  * @see Drupal\slick_browser\Plugin\EntityBrowser\FieldWidgetDisplay\...
- * @todo move it into BlazyMedia?
+ * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
+ *   Drupal\blazy\BlazyOEmbed instead.
+ * @see https://www.drupal.org/node/3103018
  */
 trait BlazyVideoTrait {
 
@@ -62,44 +62,14 @@ trait BlazyVideoTrait {
    *
    * @return array
    *   The array of image item and settings if a file image, else empty.
+   *
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
+   *   BlazyOEmbed::getImageItem() instead.
+   * @see https://www.drupal.org/node/3103018
    */
   public function getImageItem($file) {
-    $data = [];
-    $entity = $file;
-
-    /** @var Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $file */
-    if (isset($file->entity) && !isset($file->alt)) {
-      $entity = $file->entity;
-    }
-
-    if (!$entity instanceof File) {
-      return $data;
-    }
-
-    /** @var \Drupal\file\Entity\File $entity */
-    list($type,) = explode('/', $entity->getMimeType(), 2);
-    $uri = $entity->getFileUri();
-
-    if ($type == 'image' && ($image = $this->imageFactory()->get($uri)) && $image->isValid()) {
-      $item            = new \stdClass();
-      $item->target_id = $entity->id();
-      $item->width     = $image->getWidth();
-      $item->height    = $image->getHeight();
-      $item->alt       = $entity->getFilename();
-      $item->title     = $entity->getFilename();
-      $item->uri       = $uri;
-      $settings        = (array) $item;
-      $item->entity    = $entity;
-
-      // Build item and settings.
-      $settings['type'] = 'image';
-      $settings['uri']  = $uri;
-      $data['item']     = $item;
-      $data['settings'] = $settings;
-      unset($item);
-    }
-
-    return $data;
+    @trigger_error('getImageItem is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyOEmbed::getImageItem() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+    return $this->blazyOembed()->getImageItem($file);
   }
 
   /**

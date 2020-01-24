@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy_test\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -10,7 +9,6 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyEntity;
 use Drupal\blazy\Dejavu\BlazyEntityReferenceBase;
-use Drupal\blazy\Dejavu\BlazyVideoTrait;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
 use Drupal\blazy_test\BlazyFormatterTestInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -27,7 +25,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase implements ContainerFactoryPluginInterface {
 
   use BlazyFormatterTrait;
-  use BlazyVideoTrait;
 
   /**
    * Constructs a BlazyFormatter object.
@@ -41,12 +38,10 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase imp
     $view_mode,
     array $third_party_settings,
     LoggerChannelFactoryInterface $logger_factory,
-    ImageFactory $image_factory,
     BlazyEntity $blazy_entity,
     BlazyFormatterTestInterface $formatter) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
     $this->loggerFactory = $logger_factory;
-    $this->imageFactory = $image_factory;
     $this->blazyEntity = $blazy_entity;
     $this->formatter = $this->blazyManager = $formatter;
     $this->blazyOembed = $blazy_entity->oembed();
@@ -65,7 +60,6 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase imp
       $configuration['view_mode'],
       $configuration['third_party_settings'],
       $container->get('logger.factory'),
-      $container->get('image.factory'),
       $container->get('blazy.entity'),
       $container->get('blazy_test.formatter')
     );

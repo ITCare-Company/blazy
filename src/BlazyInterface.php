@@ -13,19 +13,6 @@ interface BlazyInterface {
   const PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
   /**
-   * Generates an SVG Placeholder.
-   *
-   * @param string $width
-   *   The image width.
-   * @param string $height
-   *   The image height.
-   *
-   * @return string
-   *   Returns a string containing an SVG.
-   */
-  public static function generatePlaceholder($width, $height): string;
-
-  /**
    * Modifies variables for responsive image.
    *
    * Responsive images with height and width save a lot of calls to
@@ -98,50 +85,5 @@ interface BlazyInterface {
    *   The image item.
    */
   public static function urlAndDimensions(array &$settings, $item = NULL);
-
-  /**
-   * Returns the sanitized attributes common for user-defined ones.
-   *
-   * When IMG and IFRAME are allowed for untrusted users, trojan horses are
-   * welcome. Hence sanitize attributes relevant for BlazyFilter. The rest
-   * should be taken care of by HTML filters after Blazy.
-   *
-   * @param array $attributes
-   *   The given attributes to sanitize.
-   *
-   * @return array
-   *   The sanitized $attributes suitable for UGC, such as Blazy filter.
-   */
-  public static function sanitize(array $attributes = []);
-
-  /**
-   * A wrapper for ImageStyle::transformDimensions().
-   *
-   * @param object $style
-   *   The given image style.
-   * @param array $data
-   *   The data settings: _width, _height, first_uri, width, height, and uri.
-   * @param bool $initial
-   *   Whether particularly transforms once for all, or individually.
-   */
-  public static function transformDimensions($style, array $data, $initial = FALSE);
-
-  /**
-   * Determines whether the URI has a valid scheme for file API operations.
-   *
-   * This is just a wrapper around
-   * Drupal\Core\StreamWrapper\StreamWrapperManager::isValidUri() for Drupal
-   * versions >= 8.8, with a fallback to file_valid_uri() for prior Drupal
-   * versions.
-   *
-   * @param string $uri
-   *   The URI to be tested.
-   *
-   * @return bool
-   *   TRUE if the URI is valid.
-   *
-   * @todo Remove this once Drupal 8.7 is no longer supported.
-   */
-  public static function isValidUri($uri);
 
 }

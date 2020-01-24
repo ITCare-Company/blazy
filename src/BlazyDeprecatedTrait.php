@@ -7,7 +7,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 /**
  * A Trait common for deprecated methods for easy removal and declutter.
  *
- * @todo remove at blazy:8.x-3.0.
+ * @todo remove at blazy:8.x-3.0, or earlier.
  * @see https://www.drupal.org/node/3103018
  */
 trait BlazyDeprecatedTrait {

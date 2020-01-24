@@ -1,4 +1,12 @@
 
+Blazy 8.x-2.0-dev, 2020-01-24
+-----------------------------
+- Removed @image.factory references wherever BlazyVideoTrait is removed.
+- Removed BlazyVideoTrait references wherever BlazyOEmbed is in use.
+- Added @image.factory service to BlazyOEmbed to completely deprecate
+  BlazyVideoTrait which was coupled to deprecated VEF/VEM.
+- Moved utility methods from Blazy into BlazyUtil, mostly new methods post RC5.
+
 Blazy 8.x-2.0-dev, 2020-01-22
 -----------------------------
 - Added micro optimizations, similarity found -> code reuse, etc.

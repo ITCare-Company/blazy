@@ -412,6 +412,17 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
     }
 
+    // @todo this can also be used for local video poster image option.
+    if (isset($definition['images'])) {
+      $form['image'] = [
+        '#type'        => 'select',
+        '#title'       => $this->t('Main stage'),
+        '#options'     => is_array($definition['images']) ? $definition['images'] : [],
+        '#description' => $this->t('Main background/stage image field.'),
+        '#prefix'      => '<h3 class="form__title form__title--fields">' . $this->t('Fields') . '</h3>',
+      ];
+    }
+
     $this->blazyManager->getModuleHandler()->alter('blazy_base_form_element', $form, $definition);
 
     return $form;

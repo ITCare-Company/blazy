@@ -6,7 +6,6 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\Core\Site\Settings;
 use Drupal\Core\Template\Attribute;
 use Drupal\image\Entity\ImageStyle;
 
@@ -24,20 +23,6 @@ class Blazy implements BlazyInterface {
    * @var int
    */
   private static $blazyId;
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function generatePlaceholder($width, $height): string {
-    return 'data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D\'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg\' viewBox%3D\'0 0 ' . $width . ' ' . $height . '\'%2F%3E';
-  }
-
-  /**
-   * Checks if Blazy is in preview mode.
-   */
-  public static function isPreview() {
-    return in_array(\Drupal::routeMatch()->getRouteName(), ['entity_embed.preview', 'media.filter.preview']);
-  }
 
   /**
    * Prepares variables for blazy.html.twig templates.
@@ -91,6 +76,12 @@ class Blazy implements BlazyInterface {
     if ($variables['image']) {
       self::imageAttributes($variables);
     }
+
+    // Aspect ratio to fix layout reflow with lazyloaded images responsively.
+    // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
+    if ($settings['ratio']) {
+      self::aspectRatioAttributes($variables['attributes'], $settings);
+    }
   }
 
   /**
@@ -98,7 +89,7 @@ class Blazy implements BlazyInterface {
    */
   public static function urlAndDimensions(array &$settings, $item = NULL) {
     // BlazyFilter, or image style with crop, may already set these.
-    Blazy::imageDimensions($settings, $item);
+    BlazyUtil::imageDimensions($settings, $item);
 
     // Overrides lazy with blazy for explicit call to reduce another param.
     // @todo reenable if any issue if (!empty($settings['blazy'])) {
@@ -106,22 +97,22 @@ class Blazy implements BlazyInterface {
     // @todo reenable if any issue }
     // Provides image_url, not URI, expected by lazyload.
     $uri = $settings['uri'];
-    $image_url = self::isValidUri($uri) ? self::transformRelative($uri) : $uri;
+    $image_url = BlazyUtil::isValidUri($uri) ? BlazyUtil::transformRelative($uri) : $uri;
     $settings['image_url'] = $settings['image_url'] ?: $image_url;
 
     // Image style modifier can be multi-style images such as GridStack.
     if (!empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
-      $settings['image_url'] = self::transformRelative($uri, $style);
+      $settings['image_url'] = BlazyUtil::transformRelative($uri, $style);
       $settings['cache_tags'] = $style->getCacheTags();
 
       // Only re-calculate dimensions if not cropped, nor already set.
       if (empty($settings['_dimensions'])) {
-        $settings = array_merge($settings, self::transformDimensions($style, $settings));
+        $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings));
       }
     }
 
     // The SVG placeholder should accept either original, or styled image.
-    $settings['placeholder'] = empty($settings['placeholder']) ? static::generatePlaceholder($settings['width'], $settings['height']) : $settings['placeholder'];
+    $settings['placeholder'] = empty($settings['placeholder']) ? BlazyUtil::generatePlaceholder($settings['width'], $settings['height']) : $settings['placeholder'];
 
     // Just in case, an attempted kidding gets in the way, relevant for UGC.
     $use_data_uri = !empty($settings['use_data_uri']) && substr($settings['image_url'], 0, 10) === 'data:image';
@@ -235,6 +226,7 @@ class Blazy implements BlazyInterface {
 
     // Iframe is removed on lazyloaded, puts data at non-removable storage.
     $variables['attributes']['data-media'] = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
+    $settings['classes'][] = 'media--' . str_replace('_', '-', $settings['bundle']);
   }
 
   /**
@@ -267,7 +259,6 @@ class Blazy implements BlazyInterface {
    */
   public static function aspectRatioAttributes(array &$attributes, array &$settings) {
     $settings['ratio'] = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
-    $attributes['class'][] = 'media--ratio media--ratio--' . $settings['ratio'];
 
     if ($settings['width'] && $settings['ratio'] == 'fluid') {
       // If "lucky", Blazy/ Slick Views galleries may already set this once.
@@ -364,7 +355,7 @@ class Blazy implements BlazyInterface {
 
     // 2. Hence Blazy is not the formatter, lack of settings.
     if (!empty($element['#third_party_settings']['blazy']['blazy'])) {
-      $is_preview = self::isPreview();
+      $is_preview = BlazyUtil::isPreview();
       foreach ($variables['items'] as &$item) {
         if (empty($item['content'])) {
           continue;
@@ -384,65 +375,6 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * A wrapper for file_url_transform_relative() to pass tests anywhere else.
-   */
-  public static function transformRelative($uri, $style = NULL) {
-    $url = $style ? $style->buildUrl($uri) : file_create_url($uri);
-    return file_url_transform_relative($url);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function transformDimensions($style, array $data, $initial = FALSE) {
-    $width  = $initial ? '_width' : 'width';
-    $height = $initial ? '_height' : 'height';
-    $uri    = $initial ? 'first_uri' : 'uri';
-    $dim    = ['width' => $data[$width], 'height' => $data[$height]];
-
-    $style->transformDimensions($dim, $uri);
-
-    // Sometimes they are string, cast them integer to reduce JS logic.
-    return ['width' => (int) $dim['width'], 'height' => (int) $dim['height']];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function imageDimensions(array &$settings, $item = NULL, $initial = FALSE) {
-    $width = $initial ? '_width' : 'width';
-    $height = $initial ? '_height' : 'height';
-
-    if (empty($settings[$width])) {
-      $settings[$width] = $item && isset($item->width) ? $item->width : NULL;
-      $settings[$height] = $item && isset($item->height) ? $item->height : NULL;
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function sanitize(array $attributes = []) {
-    $clean_attributes = [];
-    $tags = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];
-    foreach ($attributes as $key => $value) {
-      if (is_array($value)) {
-        // Respects array item containing space delimited classes: aaa bbb ccc.
-        $value = implode(' ', $value);
-        $clean_attributes[$key] = array_map('\Drupal\Component\Utility\Html::cleanCssIdentifier', explode(' ', $value));
-      }
-      else {
-        // Since Blazy is lazyloading known URLs, sanitize attributes which
-        // make no sense to stick around within IMG or IFRAME tags.
-        $kid = substr($key, 0, 2) === 'on' || in_array($key, $tags);
-        $key = $kid ? 'data-' . $key : $key;
-        $clean_attributes[$key] = $kid ? Html::cleanCssIdentifier($value) : Html::escape($value);
-      }
-    }
-    return $clean_attributes;
-  }
-
-  /**
    * Returns the trusted HTML ID of a single instance.
    */
   public static function getHtmlId($string = 'blazy', $id = '') {
@@ -453,41 +385,6 @@ class Blazy implements BlazyInterface {
     // Do not use dynamic Html::getUniqueId, otherwise broken AJAX.
     $id = empty($id) ? ($string . '-' . ++static::$blazyId) : $id;
     return Html::getId($id);
-  }
-
-  /**
-   * Returns the URI from the given image URL, relevant for unmanaged files.
-   */
-  public static function buildUri($image_url) {
-    if (!UrlHelper::isExternal($image_url) && $normal_path = UrlHelper::parse($image_url)['path']) {
-      $public_path = Settings::get('file_public_path');
-
-      // Only concerns for the correct URI, not image URL which is already being
-      // displayed via SRC attribute. Don't bother language prefixes for IMG.
-      if ($public_path && strpos($normal_path, $public_path) !== FALSE) {
-        $rel_path = str_replace($public_path, '', $normal_path);
-        return file_build_uri($rel_path);
-      }
-    }
-    return FALSE;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function isValidUri($uri) {
-    if (version_compare(\Drupal::VERSION, '8.8', '>=')) {
-      // Adds a check to pass the tests due to non-DI.
-      return \Drupal::hasService('stream_wrapper_manager') ? \Drupal::service('stream_wrapper_manager')->isValidUri($uri) : FALSE;
-    }
-    else {
-      // Because this code only runs for older Drupal versions, we do not need
-      // or want IDEs or the Upgrade Status module warning people about this
-      // deprecated code usage. Setting the function name dynamically
-      // circumvents those warnings.
-      $function = 'file_valid_uri';
-      return $function($uri);
-    }
   }
 
   /**

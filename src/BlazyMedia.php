@@ -8,6 +8,9 @@ use Drupal\image\Entity\ImageStyle;
 /**
  * Provides extra utilities to work with core Media.
  *
+ * This class makes it possible to have a mixed display of all media entities
+ * with consistent markups which cannot be handled directly by theme_blazy().
+ *
  * @todo rework this for core Media, figure out to merge it to theme_blazy().
  * This approach is alternative to regular prerprocess overrides, still saner
  * than iterating over unknown like template_preprocess_media_entity_BLAH, etc.
@@ -43,15 +46,15 @@ class BlazyMedia {
       }
     }
 
-    $build = $media->get($settings['source_field'])->view($settings['view_mode']);
-    if (empty($build) && $settings['media_source'] == 'video_file') {
-      // @todo: muted, width, height.
-      $build = $media->get($settings['source_field'])->view([
+    $options = $settings['view_mode'];
+    if ($settings['media_source'] == 'video_file') {
+      $options = [
         'type' => 'file_video',
         'view_mode' => $settings['view_mode'],
-      ]);
+      ];
     }
 
+    $build = $media->get($settings['source_field'])->view($options);
     $build['#settings'] = $settings;
 
     return isset($build[0]) ? self::wrap($build) : $build;
@@ -78,6 +81,7 @@ class BlazyMedia {
     $attributes = [];
     $settings  += BlazyDefault::itemSettings();
 
+    // @todo separate it into self::attributes() for reuse.
     if (isset($item['#attributes'])) {
       $attributes = &$item['#attributes'];
     }
@@ -104,16 +108,32 @@ class BlazyMedia {
     }
 
     // Wraps the media item to allow consistency for EB/SB.
+    // @todo use blazy->getBlazy().
+    $build = self::container($item, $settings);
+
+    // Clone relevant keys as field wrapper is no longer in use.
+    foreach (['attached', 'cache'] as $key) {
+      if (isset($field["#$key"])) {
+        $build["#$key"] = $field["#$key"];
+      }
+    }
+
+    return $build;
+  }
+
+  /**
+   * Returns a media container to be wrapped by theme_container().
+   *
+   * @todo replace with theme_blazy() if doable.
+   */
+  public static function container($item, array $settings = []) {
+    $iframe = isset($item['#tag']) && $item['#tag'] == 'iframe';
     $build = [
       '#theme'      => 'container',
       '#children'   => $item,
       '#attributes' => ['class' => ['media']],
       '#settings'   => $settings,
     ];
-
-    if (!empty($settings['bundle'])) {
-      $build['#attributes']['class'][] = 'media--' . str_replace('_', '-', $settings['bundle']);
-    }
 
     // Adds helper for Entity Browser small thumbnail selection.
     if (!empty($settings['thumbnail_style']) && !empty($settings['uri'])) {
@@ -125,15 +145,13 @@ class BlazyMedia {
       $build['#attributes']['class'][] = 'media--rendered';
     }
 
-    if ($settings['ratio']) {
-      Blazy::aspectRatioAttributes($build['#attributes'], $settings);
+    if (!empty($settings['bundle'])) {
+      $build['#attributes']['class'][] = 'media--' . str_replace('_', '-', $settings['bundle']);
     }
 
-    // Clone relevant keys as field wrapper is no longer in use.
-    foreach (['attached', 'cache'] as $key) {
-      if (isset($field["#$key"])) {
-        $build["#$key"] = $field["#$key"];
-      }
+    if (!empty($settings['ratio'])) {
+      Blazy::aspectRatioAttributes($build['#attributes'], $settings);
+      $build['#attributes']['class'][] = 'media--ratio media--ratio--' . $settings['ratio'];
     }
 
     return $build;
