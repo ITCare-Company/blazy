@@ -167,15 +167,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
       ],
       FALSE,
       FALSE,
-      FALSE,
-    ];
-    $data[] = [
-      [
-        'background' => FALSE,
-        'breakpoints' => [],
-      ],
-      FALSE,
-      FALSE,
       TRUE,
     ];
     $data[] = [
