@@ -43,6 +43,7 @@ class BlazyManager extends BlazyManagerBase {
     else {
       // @todo use reset($build['content']) at blazy:3.x if no other usages.
       // And move it to theme_blazy() if you can to reduce dup lines.
+      // Cuirrent usages; Blazyoembed, BlazyEntityMediaBase.
       $content = $build['content'];
     }
 

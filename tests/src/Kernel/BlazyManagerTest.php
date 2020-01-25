@@ -115,8 +115,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    *   The settings being tested.
    * @param bool $use_uri
    *   Whether to provide image URI, or not.
-   * @param object $item
-   *   Whether to provide image item, or not.
    * @param bool $iframe
    *   Whether to expect an iframe, or not.
    * @param mixed|bool|int $expected
@@ -166,6 +164,15 @@ class BlazyManagerTest extends BlazyKernelTestBase {
         'breakpoints' => [],
       ],
       FALSE,
+      FALSE,
+      FALSE,
+    ];
+    $data[] = [
+      [
+        'background' => FALSE,
+        'breakpoints' => [],
+      ],
+      TRUE,
       FALSE,
       TRUE,
     ];
