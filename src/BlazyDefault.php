@@ -176,6 +176,7 @@ class BlazyDefault {
       'fx'               => '',
       'one_pixel'        => TRUE,
       'native'           => FALSE,
+      'noscript'         => FALSE,
       'placeholder'      => '',
       'responsive_image' => FALSE,
     ];
@@ -234,6 +235,7 @@ class BlazyDefault {
       'image',
       'item',
       'item_attributes',
+      'noscript',
       'settings',
       'url',
     ];

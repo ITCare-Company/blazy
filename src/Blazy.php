@@ -45,10 +45,10 @@ class Blazy implements BlazyInterface {
     $settings += BlazyDefault::itemSettings();
 
     // Still provides a failsafe for direct theme call with a valid Image item.
-    if (empty($settings['uri']) && $item) {
-      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
-    }
-
+    // @todo remove this anytime since already required in blazy.api.php.
+    // @todo remove if (empty($settings['uri']) && $item) {
+    // @todo remove   $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+    // @todo remove }
     // Do not proceed if no URI is provided.
     if (empty($settings['uri'])) {
       return;
@@ -174,14 +174,19 @@ class Blazy implements BlazyInterface {
       $image['#width'] = $settings['width'];
     }
 
-    // Provides [data-(src|lazy)] attributes for (Responsive) image.
-    if (!empty($settings['lazy'])) {
-      self::lazyAttributes($attributes, $settings);
-    }
-
     $attributes['class'][] = 'media__image';
     self::commonAttributes($attributes, $variables['settings']);
     $image['#attributes'] = empty($image['#attributes']) ? $attributes : NestedArray::mergeDeep($image['#attributes'], $attributes);
+
+    // Provides a noscript if so configured, before any lazy defined.
+    if (!empty($settings['noscript']) && empty($settings['is_preview'])) {
+      self::buildNoscriptImage($variables);
+    }
+
+    // Provides [data-(src|lazy)] for (Responsive) image, after noscript.
+    if (!empty($settings['lazy'])) {
+      self::lazyAttributes($image['#attributes'], $settings);
+    }
   }
 
   /**
@@ -223,6 +228,26 @@ class Blazy implements BlazyInterface {
     // Iframe is removed on lazyloaded, puts data at non-removable storage.
     $variables['attributes']['data-media'] = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
     $settings['classes'][] = 'media--' . str_replace('_', '-', $settings['bundle']);
+  }
+
+  /**
+   * Provides (Responsive) image noscript if so configured.
+   */
+  public static function buildNoscriptImage(array &$variables) {
+    $settings = $variables['settings'];
+    $noscript = $variables['image'];
+    $noscript['#uri'] = empty($settings['responsive_image_style_id']) ? $settings['image_url'] : $settings['uri'];
+    $noscript['#attributes']['data-b-noscript'] = TRUE;
+
+    $variables['noscript'] = [
+      '#type' => 'inline_template',
+      '#template' => '{{ prefix | raw }}{{ noscript }}{{ suffix | raw }}',
+      '#context' => [
+        'noscript' => $noscript,
+        'prefix' => '<noscript>',
+        'suffix' => '</noscript>',
+      ],
+    ];
   }
 
   /**
@@ -279,40 +304,43 @@ class Blazy implements BlazyInterface {
     $attributes = &$variables['attributes'];
     $placeholder = empty($attributes['data-placeholder']) ? static::PLACEHOLDER : $attributes['data-placeholder'];
 
-    // Modifies <picture> [data-srcset] attributes on <source> elements.
-    if (!$variables['output_image_tag']) {
-      /** @var \Drupal\Core\Template\Attribute $source */
-      if (isset($variables['sources']) && is_array($variables['sources'])) {
-        foreach ($variables['sources'] as &$source) {
-          $source->setAttribute('data-srcset', $source['srcset']->value());
-          $source->removeAttribute('srcset');
+    // Bail out if a noscript is requested.
+    if (!isset($attributes['data-b-noscript'])) {
+      // Modifies <picture> [data-srcset] attributes on <source> elements.
+      if (!$variables['output_image_tag']) {
+        /** @var \Drupal\Core\Template\Attribute $source */
+        if (isset($variables['sources']) && is_array($variables['sources'])) {
+          foreach ($variables['sources'] as &$source) {
+            $source->setAttribute('data-srcset', $source['srcset']->value());
+            $source->removeAttribute('srcset');
+          }
         }
+
+        // Prevents invalid IMG tag when one pixel placeholder is disabled.
+        $image['#uri'] = $placeholder;
+        $image['#srcset'] = '';
+
+        // Cleans up the no-longer relevant attributes for controlling element.
+        unset($attributes['data-srcset'], $image['#attributes']['data-srcset']);
+      }
+      else {
+        // Modifies <img> element attributes.
+        $image['#attributes']['data-srcset'] = $attributes['srcset']->value();
+        $image['#attributes']['srcset'] = '';
       }
 
-      // Prevents invalid IMG tag when one pixel placeholder is disabled.
-      $image['#uri'] = $placeholder;
-      $image['#srcset'] = '';
+      // The [data-b-lazy] is a flag indicating 1px placeholder.
+      // This prevents double-downloading the fallback image, if enabled.
+      if (!empty($attributes['data-b-lazy'])) {
+        $image['#uri'] = $placeholder;
+      }
 
-      // Cleans up the no-longer relevant attributes for controlling element.
-      unset($attributes['data-srcset'], $image['#attributes']['data-srcset']);
+      // More shared-with-image attributes are set at self::imageAttributes().
+      $image['#attributes']['class'][] = 'b-responsive';
     }
-    else {
-      // Modifies <img> element attributes.
-      $image['#attributes']['data-srcset'] = $attributes['srcset']->value();
-      $image['#attributes']['srcset'] = '';
-    }
-
-    // The [data-b-lazy] is a flag indicating 1px placeholder.
-    // This prevents double-downloading the fallback image, if enabled.
-    if (!empty($attributes['data-b-lazy'])) {
-      $image['#uri'] = $placeholder;
-    }
-
-    // More shared-with-image attributes are set at self::imageAttributes().
-    $image['#attributes']['class'][] = 'b-responsive';
 
     // Cleans up the no-longer needed flags:
-    foreach (['placeholder', 'b-lazy'] as $key) {
+    foreach (['placeholder', 'b-lazy', 'b-noscript'] as $key) {
       unset($attributes['data-' . $key], $image['#attributes']['data-' . $key]);
     }
   }

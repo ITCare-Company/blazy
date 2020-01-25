@@ -52,6 +52,7 @@
 {% set media %}
   {% block blazy_media %}
     <div{{ attributes.addClass(classes) }}>
+      {{ noscript }}
       {{ image }}
       {{ player }}
       {{ settings.icon }}

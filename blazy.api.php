@@ -64,7 +64,7 @@
  * For advanced usages with multiple images, and a few Blazy features such as
  * lightboxes, lazyloaded images, or iframes, including CSS background and
  * aspect ratio, etc.:
- *   o Invoke blazy.manager, and or blazy.formatter.manager, services.
+ *   o Invoke blazy.manager, and or blazy.formatter, services.
  *   o Use \Drupal\blazy\BlazyManager::getBlazy() method to work with images and
  *     pass relevant settings which request for particular Blazy features
  *     accordingly.
@@ -97,7 +97,6 @@
  * }
  * @endcode
  * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterBlazy::buildElements()
- * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter::buildElements()
  * @see \Drupal\gridstack\Plugin\Field\FieldFormatter\GridStackFileFormatterBase::buildElements()
  * @see \Drupal\slick\Plugin\Field\FieldFormatter\SlickFileFormatterBase::buildElements()
  * @see \Drupal\blazy\BlazyManager::getBlazy()

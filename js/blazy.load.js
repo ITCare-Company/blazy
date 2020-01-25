@@ -179,6 +179,7 @@
     var ratioElms = elm.querySelector('[data-dimensions]') === null ? [] : elm.querySelectorAll('[data-dimensions]');
     var fallbackRatioElms = elm.querySelector('[data-ratio]') === null ? [] : elm.querySelectorAll('[data-ratio]');
 
+    elm.classList.add('blazy--on');
     me.loopRatio = ratioElms.length > 0;
 
     /**
@@ -254,8 +255,6 @@
         me.init.revalidate(true);
       }
     })();
-
-    elm.classList.add('blazy--on');
   }
 
   /**
