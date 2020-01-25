@@ -44,11 +44,6 @@ class Blazy implements BlazyInterface {
     $settings  = &$variables['settings'];
     $settings += BlazyDefault::itemSettings();
 
-    // Still provides a failsafe for direct theme call with a valid Image item.
-    // @todo remove this anytime since already required in blazy.api.php.
-    // @todo remove if (empty($settings['uri']) && $item) {
-    // @todo remove   $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
-    // @todo remove }
     // Do not proceed if no URI is provided.
     if (empty($settings['uri'])) {
       return;

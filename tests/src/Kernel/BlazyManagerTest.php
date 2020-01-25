@@ -125,9 +125,9 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * @covers \Drupal\blazy\Blazy::preprocessBlazy
    * @covers \Drupal\blazy\Blazy::urlAndDimensions
    * @covers \Drupal\blazy\Dejavu\BlazyDefault::entitySettings
-   * @dataProvider providerBuildAttributes
+   * @dataProvider providerPreprocessBlazy
    */
-  public function testBuildAttributes(array $settings, $use_uri, $item, $iframe, $expected) {
+  public function testPreprocessBlazy(array $settings, $use_uri, $iframe, $expected) {
     $variables = ['attributes' => []];
     $settings = array_merge($this->getFormatterSettings(), $settings);
     $settings += BlazyDefault::itemSettings();
@@ -142,7 +142,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
       $settings = array_merge(BlazyDefault::entitySettings(), $settings);
     }
 
-    $variables['element']['#item'] = $item ? $this->testItem : NULL;
+    $variables['element']['#item'] = $this->testItem;
     $variables['element']['#settings'] = $settings;
 
     Blazy::preprocessBlazy($variables);
@@ -155,9 +155,9 @@ class BlazyManagerTest extends BlazyKernelTestBase {
   }
 
   /**
-   * Provider for ::testBuildAttributes.
+   * Provider for ::testPreprocessBlazy.
    */
-  public function providerBuildAttributes() {
+  public function providerPreprocessBlazy() {
     $breakpoints = $this->getDataBreakpoints();
 
     $data[] = [
@@ -166,7 +166,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
         'breakpoints' => [],
       ],
       FALSE,
-      NULL,
       FALSE,
       FALSE,
     ];
@@ -176,7 +175,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
         'breakpoints' => [],
       ],
       FALSE,
-      TRUE,
       FALSE,
       TRUE,
     ];
@@ -189,7 +187,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
         'width' => 640,
         'height' => 360,
       ],
-      TRUE,
       TRUE,
       FALSE,
       FALSE,
