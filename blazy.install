@@ -13,7 +13,7 @@ function blazy_requirements($phase) {
     return [];
   }
 
-  $path = blazy_libraries_get_path('blazy') ?: DRUPAL_ROOT . '/libraries/blazy';
+  $path = blazy_libraries_get_path('blazy') ?: \Drupal::root() . '/libraries/blazy';
   $exists = is_file($path . '/blazy.js');
 
   return [

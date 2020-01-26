@@ -39,6 +39,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerFactoryPluginInterface {
 
   /**
+   * The app root.
+   *
+   * @var string
+   */
+  protected $root;
+
+  /**
    * The entity field manager service.
    *
    * @var \Drupal\Core\Entity\EntityFieldManagerInterface
@@ -55,9 +62,9 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, FallbackPluginManagerInterface $filter_plugin_manager, EntityFieldManagerInterface $entity_field_manager, BlazyOEmbedInterface $blazy_oembed) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, $root, FallbackPluginManagerInterface $filter_plugin_manager, EntityFieldManagerInterface $entity_field_manager, BlazyOEmbedInterface $blazy_oembed) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-
+    $this->root = $root;
     $this->filterPluginManager = $filter_plugin_manager;
     $this->entityFieldManager = $entity_field_manager;
     $this->blazyOembed = $blazy_oembed;
@@ -72,6 +79,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $configuration,
       $plugin_id,
       $plugin_definition,
+      $container->get('app.root'),
       $container->get('plugin.manager.filter'),
       $container->get('entity_field.manager'),
       $container->get('blazy.oembed')
@@ -450,7 +458,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     $src = $node->getAttribute('src');
 
     if (!$width && $node->tagName == 'img') {
-      if ($src && $data = @getimagesize(DRUPAL_ROOT . $src)) {
+      if ($src && $data = @getimagesize($this->root . $src)) {
         list($width, $height) = $data;
       }
     }

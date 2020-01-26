@@ -271,7 +271,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
-    // @todo figure out a replacement for DRUPAL_ROOT.
+    // Cannot use app.root for now since adding more params troublesome.
     if (defined('DRUPAL_ROOT') && is_file(DRUPAL_ROOT . '/libraries/photobox/photobox/jquery.photobox.js')) {
       $lightboxes[] = 'photobox';
     }

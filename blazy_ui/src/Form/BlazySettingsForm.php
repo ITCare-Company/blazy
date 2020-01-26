@@ -133,7 +133,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#empty_option'  => '- None -',
       '#options'       => $this->manager->getImageEffects(),
       '#default_value' => $config->get('fx'),
-      '#description'   => $this->t('Choose the image effect. Note! This will override Placeholder option. Will use Thumbnail style option at Blazy formatters for the placeholder with fallback to core Thumbnail style. For best results: use similar aspect ratio for both Thumbnail and Image styles; adjust Offset and or threshold; the smaller the better. Use <code>hook_blazy_image_effects_alter()</code> to add more effects -- curtain, fractal, slice, whatever.'),
+      '#description'   => $this->t('Choose the image effect. Note! This will override Placeholder option. Will use Thumbnail style option at Blazy formatters for the placeholder with fallback to core Thumbnail style. For best results: use similar aspect ratio for both Thumbnail and Image styles; adjust Offset and or threshold; the smaller the better. Use <code>hook_blazy_image_effects_alter()</code> to add more effects -- curtain, fractal, slice, whatever. <b>Limitations</b>: currently only works with a proper Aspect ratio as otherwise collapsed image. Be sure to add one, or add regular CSS <code>width: 100%</code> to the blurred image if doable with your design.'),
     ];
 
     $form['blazy'] = [
