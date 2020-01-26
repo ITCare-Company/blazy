@@ -3,7 +3,7 @@ fx: ''
 native: false
 noscript: false
 responsive_image: false
-unbreakpoints: false
+unbreakpoints: true
 one_pixel: true
 placeholder: ''
 extras: {}

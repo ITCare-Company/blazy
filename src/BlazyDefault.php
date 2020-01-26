@@ -196,6 +196,7 @@ class BlazyDefault {
       'noscript'         => FALSE,
       'placeholder'      => '',
       'responsive_image' => FALSE,
+      'unbreakpoints'    => TRUE,
     ];
   }
 

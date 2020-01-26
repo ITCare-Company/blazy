@@ -84,7 +84,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     // Don't bother if using Responsive image.
     // @todo TBD; for keeping or removal at blazy:8.x-2.0.
-    $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
+    $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['unbreakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
     BlazyBreakpoint::cleanUpBreakpoints($settings);
 
     // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
