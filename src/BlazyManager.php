@@ -15,7 +15,7 @@ use Drupal\Core\Cache\Cache;
 class BlazyManager extends BlazyManagerBase {
 
   /**
-   * Returns the enforced content, or image using theme_blazy().
+   * Returns the enforced rich media content, or media using theme_blazy().
    *
    * @param array $build
    *   The array containing: item, content, settings, or optional captions.
@@ -24,28 +24,23 @@ class BlazyManager extends BlazyManagerBase {
    *   The alterable and renderable array of enforced content, or theme_blazy().
    */
   public function getBlazy(array $build = []) {
-    /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-    $item = $build['item'] = isset($build['item']) ? $build['item'] : NULL;
+    foreach (BlazyDefault::themeProperties() as $key) {
+      $build[$key] = isset($build[$key]) ? $build[$key] : [];
+    }
+
     $settings = &$build['settings'];
     $settings += BlazyDefault::itemSettings();
 
     // Respects content not handled by theme_blazy(), but passed through.
-    if (empty($build['content'])) {
-      $content = empty($settings['uri']) ? [] : [
-        '#theme'       => 'blazy',
-        '#delta'       => $settings['delta'],
-        '#item'        => $settings['entity_type_id'] == 'user' ? $item : [],
-        '#image_style' => $settings['image_style'],
-        '#build'       => $build,
-        '#pre_render'  => [[$this, 'preRenderBlazy']],
-      ];
-    }
-    else {
-      // @todo use reset($build['content']) at blazy:3.x if no other usages.
-      // And move it to theme_blazy() if you can to reduce dup lines.
-      // Cuirrent usages; Blazyoembed, BlazyEntityMediaBase.
-      $content = $build['content'];
-    }
+    // Yet allows rich contents which might still be processed by theme_blazy().
+    $content = empty($settings['uri']) ? $build['content'] : [
+      '#theme'       => 'blazy',
+      '#delta'       => $settings['delta'],
+      '#item'        => $settings['entity_type_id'] == 'user' ? $build['item'] : [],
+      '#image_style' => $settings['image_style'],
+      '#build'       => $build,
+      '#pre_render'  => [[$this, 'preRenderBlazy']],
+    ];
 
     $this->moduleHandler->alter('blazy', $content, $settings);
     return $content;
@@ -92,7 +87,6 @@ class BlazyManager extends BlazyManagerBase {
    *   object, settings, optional container attributes.
    */
   protected function prepareBlazy(array &$element, array $build) {
-    $image = [];
     $item = $build['item'];
     $settings = $build['settings'];
     $settings['_api'] = TRUE;
@@ -109,63 +103,46 @@ class BlazyManager extends BlazyManagerBase {
     // Blazy has these 3 attributes, yet provides optional ones far below.
     // Sanitize potential user-defined attributes such as from BlazyFilter.
     // Skip attributes via $item, or by module, as they are not user-defined.
-    $attributes = isset($build['attributes']) ? $build['attributes'] : [];
-    $item_attributes = empty($build['item_attributes']) ? [] : BlazyUtil::sanitize($build['item_attributes']);
-
-    // Extract field item attributes for the theme function, and unset them
-    // from the $item so that the field template does not re-render them.
-    if ($item && isset($item->_attributes)) {
-      $item_attributes += $item->_attributes;
-      unset($item->_attributes);
-    }
+    $attributes = $build['attributes'];
 
     // Build thumbnail and optional placeholder based on thumbnail.
+    // This must be set before Blazy::urlAndDimensions to provide placeholder.
     $this->thumbnailAndPlaceholder($settings, $attributes);
 
-    // Prepare image URL and its dimensions.
+    // Prepare image URL and its dimensions, including for rich-media content,
+    // such as for local video poster image if a poster URI is provided.
     Blazy::urlAndDimensions($settings, $item);
 
-    // Responsive image integration.
-    if (!empty($settings['resimage']) && $settings['extension'] != 'svg') {
-      $settings['responsive_image_style_id'] = $settings['resimage']->id();
+    // Only process (Responsive) image/ video if no rich-media are provided.
+    if (empty($build['content'])) {
+      // (Responsive) image with item attributes, might be RDF.
+      $item_attributes = empty($build['item_attributes']) ? [] : BlazyUtil::sanitize($build['item_attributes']);
 
-      $image = Blazy::buildResponsiveImage($settings);
-      $element['#cache']['tags'] = $this->getResponsiveImageStyles($settings['resimage'], FALSE);
-      unset($settings['resimage']);
-    }
-
-    // Regular image with custom responsive breakpoints.
-    if (empty($settings['responsive_image_style_id'])) {
-      if (!empty($settings['lazy'])) {
-        // Attach data attributes to either IMG tag, or DIV container.
-        if (!empty($settings['background'])) {
-          Blazy::lazyAttributes($attributes, $settings);
-          BlazyBreakpoint::attributes($attributes, $settings);
-          $attributes['class'][] = 'media--background b-bg';
-        }
-        else {
-          // @todo remove Blazy::lazyAttributes($item_attributes, $settings);
-          BlazyBreakpoint::attributes($item_attributes, $settings);
-        }
+      // Extract field item attributes for the theme function, and unset them
+      // from the $item so that the field template does not re-render them.
+      if ($item && isset($item->_attributes)) {
+        $item_attributes += $item->_attributes;
+        unset($item->_attributes);
       }
 
-      if (empty($settings['_no_cache'])) {
-        $file_tags = isset($settings['file_tags']) ? $settings['file_tags'] : [];
-        $settings['cache_tags'] = empty($settings['cache_tags']) ? $file_tags : Cache::mergeTags($settings['cache_tags'], $file_tags);
-
-        $element['#cache']['max-age'] = -1;
-        foreach (['contexts', 'keys', 'tags'] as $key) {
-          if (!empty($settings['cache_' . $key])) {
-            $element['#cache'][$key] = $settings['cache_' . $key];
-          }
-        }
+      // Responsive image integration.
+      if (!empty($settings['resimage']) && $settings['extension'] != 'svg') {
+        $this->buildResponsiveImage($element, $settings);
       }
-    }
 
-    // Multi-breakpoint aspect ratio only applies if lazyloaded.
-    // These may be set once at formatter level, or per breakpoint above.
-    if (!empty($settings['blazy_data']['dimensions'])) {
-      $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
+      // Regular image with CSS background.
+      if (empty($settings['responsive_image_style_id'])) {
+        $this->buildImage($element, $settings, $attributes, $item_attributes);
+      }
+
+      // Multi-breakpoint aspect ratio only applies if lazyloaded.
+      // These may be set once at formatter level, or per breakpoint above.
+      if (!empty($settings['blazy_data']['dimensions'])) {
+        $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
+      }
+
+      // Pass non-rich-media elements to theme_blazy().
+      $element['#item_attributes'] = $item_attributes;
     }
 
     // Provides extra attributes as needed, excluding url, item, done above.
@@ -176,59 +153,55 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     // Provides captions, if so configured.
-    $captions = empty($build['captions']) ? [] : $this->buildCaption($build['captions'], $settings);
-    if ($captions) {
+    if ($build['captions'] && ($captions = $this->buildCaption($build['captions'], $settings))) {
+      $element['#captions'] = $captions;
       $element['#caption_attributes']['class'][] = $settings['item_id'] . '__caption';
     }
 
-    // Pass elements to theme_blazy().
-    $element['#attributes']      = $attributes;
-    $element['#captions']        = $captions;
-    $element['#item']            = $item;
-    $element['#item_attributes'] = $item_attributes;
-    $element['#url_attributes']  = $build['url_attributes'];
-    $element['#settings']        = $settings;
-    $element['#image']           = $image;
+    // Pass common elements to theme_blazy().
+    $element['#attributes']     = $attributes;
+    $element['#content']        = $build['content'];
+    $element['#item']           = $item;
+    $element['#settings']       = $settings;
+    $element['#url_attributes'] = $build['url_attributes'];
   }
 
   /**
-   * Build thumbnails, also to provide placeholder for blur effect.
+   * Build out Responsive image.
    */
-  protected function thumbnailAndPlaceholder(array &$settings, array &$attributes) {
-    $path = '';
-    // With CSS background, IMG may be empty, add thumbnail to the container.
-    if (!empty($settings['thumbnail_style'])) {
-      $style = $this->entityLoad($settings['thumbnail_style'], 'image_style');
-      $path = $style->buildUri($settings['uri']);
-      $attributes['data-thumb'] = BlazyUtil::transformRelative($settings['uri'], $style);
-    }
+  private function buildResponsiveImage(array &$element, array &$settings) {
+    $settings['responsive_image_style_id'] = $settings['resimage']->id();
 
-    // Supports unique thumbnail different from main image, such as logo for
-    // thumbnail and main image for company profile.
-    if (!empty($settings['thumbnail_uri'])) {
-      $path = $settings['thumbnail_uri'];
-      $attributes['data-thumb'] = BlazyUtil::transformRelative($path);
-    }
+    $element['#image'] = Blazy::buildResponsiveImage($settings);
+    $element['#cache']['tags'] = $this->getResponsiveImageStyles($settings['resimage'], FALSE);
+    unset($settings['resimage']);
+  }
 
-    if (isset($style) && ($path && !is_file($path) && BlazyUtil::isValidUri($path))) {
-      $style->createDerivative($settings['uri'], $path);
-    }
-
-    // Provides image effect if so configured.
-    if (!empty($settings['fx'])) {
-      if (empty($path) && ($style = $this->entityLoad('thumbnail', 'image_style')) && BlazyUtil::isValidUri($settings['uri'])) {
-        $path = $style->buildUri($settings['uri']);
+  /**
+   * Build out image, or anything related, including cache, CSS background, etc.
+   */
+  private function buildImage(array &$element, array &$settings, array &$attributes, array &$item_attributes) {
+    if (!empty($settings['lazy'])) {
+      // Attach data attributes to either IMG tag, or DIV container.
+      if (!empty($settings['background'])) {
+        Blazy::lazyAttributes($attributes, $settings);
+        BlazyBreakpoint::attributes($attributes, $settings);
+        $attributes['class'][] = 'media--background b-bg';
       }
+      else {
+        // @todo remove Blazy::lazyAttributes($item_attributes, $settings);
+        BlazyBreakpoint::attributes($item_attributes, $settings);
+      }
+    }
 
-      if ($path && BlazyUtil::isValidUri($path)) {
-        // Ensures the thumbnail exists before creating a dataURI.
-        if (!is_file($path) && isset($style)) {
-          $style->createDerivative($settings['uri'], $path);
-        }
+    if (empty($settings['_no_cache'])) {
+      $file_tags = isset($settings['file_tags']) ? $settings['file_tags'] : [];
+      $settings['cache_tags'] = empty($settings['cache_tags']) ? $file_tags : Cache::mergeTags($settings['cache_tags'], $file_tags);
 
-        // Overrides placeholder with data URI based on configured thumbnail.
-        if (is_file($path)) {
-          $settings['placeholder'] = 'data:image/' . pathinfo($path, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($path));
+      $element['#cache']['max-age'] = -1;
+      foreach (['contexts', 'keys', 'tags'] as $key) {
+        if (!empty($settings['cache_' . $key])) {
+          $element['#cache'][$key] = $settings['cache_' . $key];
         }
       }
     }
@@ -250,6 +223,56 @@ class BlazyManager extends BlazyManagerBase {
     }
 
     return $content ? ['inline' => $content] : [];
+  }
+
+  /**
+   * Build thumbnails, also to provide placeholder for blur effect.
+   */
+  protected function thumbnailAndPlaceholder(array &$settings, array &$attributes) {
+    $path = $style = '';
+    // With CSS background, IMG may be empty, add thumbnail to the container.
+    if (!empty($settings['thumbnail_style'])) {
+      $style = $this->entityLoad($settings['thumbnail_style'], 'image_style');
+      $path = $style->buildUri($settings['uri']);
+      $attributes['data-thumb'] = BlazyUtil::transformRelative($settings['uri'], $style);
+
+      if (!is_file($path) && BlazyUtil::isValidUri($path)) {
+        $style->createDerivative($settings['uri'], $path);
+      }
+    }
+
+    // Supports unique thumbnail different from main image, such as logo for
+    // thumbnail and main image for company profile.
+    if (!empty($settings['thumbnail_uri'])) {
+      $path = $settings['thumbnail_uri'];
+      $attributes['data-thumb'] = BlazyUtil::transformRelative($path);
+    }
+
+    // Provides image effect if so configured.
+    if (!empty($settings['fx'])) {
+      $this->createPlaceholder($settings, $style, $path);
+    }
+  }
+
+  /**
+   * Build thumbnails, also to provide placeholder for blur effect.
+   */
+  protected function createPlaceholder(array &$settings, $style = NULL, $path = '') {
+    if (empty($path) && ($style = $this->entityLoad('thumbnail', 'image_style')) && BlazyUtil::isValidUri($settings['uri'])) {
+      $path = $style->buildUri($settings['uri']);
+    }
+
+    if ($path && BlazyUtil::isValidUri($path)) {
+      // Ensures the thumbnail exists before creating a dataURI.
+      if (!is_file($path) && $style) {
+        $style->createDerivative($settings['uri'], $path);
+      }
+
+      // Overrides placeholder with data URI based on configured thumbnail.
+      if (is_file($path)) {
+        $settings['placeholder'] = 'data:image/' . pathinfo($path, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($path));
+      }
+    }
   }
 
   /**

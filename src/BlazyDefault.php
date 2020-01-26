@@ -169,6 +169,23 @@ class BlazyDefault {
   }
 
   /**
+   * Returns default options common for rich Media entities: Facebook, etc.
+   */
+  public static function richSettings() {
+    return [
+      'background'   => FALSE,
+      'fx'           => '',
+      'lazy'         => '',
+      'lightbox'     => FALSE,
+      'media_switch' => '',
+      'placeholder'  => '',
+      'resimage'     => FALSE,
+      'use_loading'  => FALSE,
+      'type'         => 'rich',
+    ];
+  }
+
+  /**
    * Returns shared global form settings which should be consumed at formatters.
    */
   public static function uiSettings() {
@@ -227,11 +244,15 @@ class BlazyDefault {
 
   /**
    * Returns blazy theme properties, its image and container attributes.
+   *
+   * The reserved attributes mentioned here might be instantiated as an
+   * instanceof \Drupal\Core\Template\Attribute before entering Blazy.
    */
   public static function themeProperties() {
     return [
       'attributes',
       'captions',
+      'content',
       'image',
       'item',
       'item_attributes',
@@ -243,6 +264,9 @@ class BlazyDefault {
 
   /**
    * Returns additional/ optional blazy theme attributes.
+   *
+   * The attributes mentioned here are only instantiated at theme_blazy() and
+   * might be an empty array, not instanceof \Drupal\Core\Template\Attribute.
    */
   public static function themeAttributes() {
     return ['caption', 'media', 'url', 'wrapper'];

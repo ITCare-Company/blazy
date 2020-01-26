@@ -55,25 +55,30 @@ class Blazy implements BlazyInterface {
       self::urlAndDimensions($settings, $item);
     }
 
-    // Build regular image if not using responsive image.
-    // (Responsive) image is optional for Video, or image as CSS background.
-    // The Responsive image itself is built out at BlazyManager::build().
-    if (empty($settings['responsive_image_style_id']) && empty($settings['background'])) {
-      self::buildImage($variables);
-    }
+    // Allows rich Media entities stored within `content` to take over.
+    // @todo allows at least image, if lightbox works for content, such as
+    // probably file video with a pre-configured poster image.
+    if (empty($variables['content'])) {
+      // Build regular image if not using responsive image.
+      // (Responsive) image is optional for Video, or image as CSS background.
+      // The Responsive image itself is built out at BlazyManager::build().
+      if (empty($settings['responsive_image_style_id']) && empty($settings['background'])) {
+        self::buildImage($variables);
+      }
 
-    // Prepare a media player, and allow a tiny video preview without iframe.
-    if ($settings['use_media'] && empty($settings['_noiframe'])) {
-      self::buildIframe($variables);
-    }
+      // Prepare a media player, and allow a tiny video preview without iframe.
+      if ($settings['use_media'] && empty($settings['_noiframe'])) {
+        self::buildIframe($variables);
+      }
 
-    // (Responsive) image is optional for Video, or image as CSS background.
-    if ($variables['image']) {
-      self::imageAttributes($variables);
+      // (Responsive) image is optional for Video, or image as CSS background.
+      if ($variables['image']) {
+        self::imageAttributes($variables);
+      }
     }
 
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
-    // This is outside 'lazy' to allow non-lazyloaded iframes use this too.
+    // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
     if ($settings['ratio']) {
       self::aspectRatioAttributes($variables['attributes'], $settings);
     }
@@ -366,13 +371,7 @@ class Blazy implements BlazyInterface {
     $variables['attributes']['class'][] = 'blazy';
     $variables['attributes']['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
 
-    // 1. Hence Blazy is the formatter, has its settings.
-    if (!empty($settings['media_switch'])) {
-      $switch = str_replace('_', '-', $settings['media_switch']);
-      $variables['attributes']['data-' . $switch . '-gallery'] = TRUE;
-    }
-
-    // 2. Hence Blazy is not the formatter, lack of settings.
+    // 1. Hence Blazy is not the formatter, lack of settings.
     if (!empty($element['#third_party_settings']['blazy']['blazy'])) {
       $is_preview = BlazyUtil::isPreview();
       foreach ($variables['items'] as &$item) {
@@ -387,9 +386,15 @@ class Blazy implements BlazyInterface {
         }
       }
 
-      // Attaches Blazy libraries since Blazy is not the formatter.
+      // Attaches Blazy libraries here since Blazy is not the formatter.
       $attachments = blazy()->attach($settings);
       $variables['#attached'] = empty($variables['#attached']) ? $attachments : NestedArray::mergeDeep($variables['#attached'], $attachments);
+    }
+
+    // 2. Hence Blazy is the formatter, has its settings.
+    if (!empty($settings['media_switch'])) {
+      $switch = str_replace('_', '-', $settings['media_switch']);
+      $variables['attributes']['data-' . $switch . '-gallery'] = TRUE;
     }
   }
 

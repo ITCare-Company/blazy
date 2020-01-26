@@ -185,6 +185,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
       $this->assertNotEmpty($render);
 
       $field[0] = $render;
+      $field['#settings'] = $settings;
       $wrap = BlazyMedia::wrap($field, $settings);
       $this->assertNotEmpty($wrap);
 

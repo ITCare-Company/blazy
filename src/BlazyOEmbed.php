@@ -297,9 +297,12 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     }
 
     // Do not proceed if it has type, already managed by theme_blazy().
-    // Supports other Media entities: Facebook, Instagram, Twitter, local video,
-    // etc.
+    // Supports other Media entities: Facebook, Instagram, local video, etc.
     if (empty($settings['type']) && ($build = BlazyMedia::build($media, $settings))) {
+      // Prevents complication for now, such as lightbox for Facebook, etc.
+      // Either makes no sense, or not currently supported without extra legs.
+      // Original formatter settings can still be accessed via content variable.
+      $settings = array_merge($settings, BlazyDefault::richSettings());
       $content[] = $build;
     }
 

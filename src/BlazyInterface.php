@@ -13,6 +13,39 @@ interface BlazyInterface {
   const PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
   /**
+   * Prepares variables for blazy.html.twig templates.
+   *
+   * Most heavy liftings are performed at BlazyManager::preRender().
+   *
+   * @param array $variables
+   *   An associative array containing:
+   *   - captions: An optional renderable array of inline or lightbox captions.
+   *   - item: The image item containing alt, title, etc.
+   *   - image: An optional renderable array of (Responsive) image element.
+   *       Image is optional for CSS background, or iframe only displays.
+   *   - settings: HTML related settings containing at least a required uri.
+   *   - url: An optional URL the image can be linked to, can be any of
+   *       audio/video, or entity URLs, when using Colorbox/Photobox, or Link to
+   *       content options.
+   *   - attributes: The container attributes (media, media--ratio etc.).
+   *   - item_attributes: The image attributes (width, height, src, etc.).
+   *   - url_attributes: An array of URL attributes, lightbox or content links.
+   *   - noscript: The fallback image for non-js users.
+   *   - content: Various Media entities like Facebook, Instagram, local Video,
+   *       etc. Basically content is the replacement for (Responsive) image
+   *       and oEmbed video. This makes it possible to have a mix of Media
+   *       entities, image and videos on a Blazy Grid, Slick, GridStack, etc.
+   *       Regular Blazy features are still disabled by default at
+   *       \Drupal\blazy\BlazyDefault::richSettings() to avoid complication.
+   *       However you can override them accordingly as needed, such as lightbox
+   *       for local Video with/o a pre-configured poster image. The #settings
+   *       and media #object are provided under content variables for more work.
+   *       Originally content is a theme_field() output, trimmed down to bare
+   *       minimum.
+   */
+  public static function preprocessBlazy(array &$variables);
+
+  /**
    * Modifies variables for responsive image.
    *
    * Responsive images with height and width save a lot of calls to

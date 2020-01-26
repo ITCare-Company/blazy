@@ -3,27 +3,21 @@
 namespace Drupal\blazy;
 
 use Drupal\Component\Utility\NestedArray;
-use Drupal\image\Entity\ImageStyle;
 
 /**
  * Provides extra utilities to work with core Media.
  *
- * This class makes it possible to have a mixed display of all media entities
- * with consistent markups which cannot be handled directly by theme_blazy().
- *
- * @todo rework this for core Media, figure out to merge it to theme_blazy().
- * This approach is alternative to regular prerprocess overrides, still saner
+ * This class makes it possible to have a mixed display of all media entities,
+ * useful for Blazy Grid, Slick Carousel, GridStack contents as mixed media.
+ * This approach is alternative to regular preprocess overrides, still saner
  * than iterating over unknown like template_preprocess_media_entity_BLAH, etc.
- * Yet potentially merged into theme_blazy() if found similarity, or consitent
- * fed data. The current problem is data supplied by various variables: Twitter,
- * Facebook, Instagram, and many other Media entities have their own variables.
+ *
+ * @todo rework this for core Media, and refine for theme_blazy().
  */
 class BlazyMedia {
 
   /**
-   * Builds the media field which cannot be displayed using theme_blazy().
-   *
-   * Some use URLs from inputs, some local files.
+   * Builds the media field which is not understood by theme_blazy().
    *
    * @param object $media
    *   The media being rendered.
@@ -37,7 +31,6 @@ class BlazyMedia {
     // Prevents fatal error with disconnected internet when having ME Facebook,
     // ME SlideShare, resorted to static thumbnails to avoid broken displays.
     if (!empty($settings['input_url'])) {
-      // @todo: Remove when ME Facebook alike handles this.
       try {
         \Drupal::httpClient()->get($settings['input_url'], ['timeout' => 7]);
       }
@@ -46,12 +39,10 @@ class BlazyMedia {
       }
     }
 
+    $settings['type'] = 'rich';
     $options = $settings['view_mode'];
     if ($settings['media_source'] == 'video_file') {
-      $options = [
-        'type' => 'file_video',
-        'view_mode' => $settings['view_mode'],
-      ];
+      $options = ['type' => 'file_video', 'view_mode' => $settings['view_mode']];
     }
 
     $build = $media->get($settings['source_field'])->view($options);
@@ -61,33 +52,25 @@ class BlazyMedia {
   }
 
   /**
-   * Returns a field to be wrapped by theme_container().
-   *
-   * Currently Instagram, and SlideShare are known to use iframe, and thus can
-   * be converted into a responsive Blazy with fluid ratio. The rest are
-   * returned as is, only wrapped by .media wrapper for consistency with complex
-   * interaction like EB.
+   * Returns a field item/ content to be wrapped by theme_blazy().
    *
    * @param array $field
    *   The source renderable array $field.
    *
    * @return array
-   *   The new renderable array of the media item wrapped by theme_container().
+   *   The renderable array of the media item to be wrapped by theme_blazy().
    */
   public static function wrap(array $field = []) {
     $item       = $field[0];
-    $settings   = isset($field['#settings']) ? $field['#settings'] : [];
+    $settings   = $field['#settings'];
     $iframe     = isset($item['#tag']) && $item['#tag'] == 'iframe';
     $attributes = [];
-    $settings  += BlazyDefault::itemSettings();
 
-    // @todo separate it into self::attributes() for reuse.
     if (isset($item['#attributes'])) {
       $attributes = &$item['#attributes'];
     }
 
-    // Update iframe/video dimensions based on configurable image style, even
-    // if Instagram, or local video, has no image to associated with.
+    // Update iframe/video dimensions based on configurable image style, if any.
     foreach (['width', 'height'] as $key) {
       if (!empty($settings[$key])) {
         $attributes[$key] = $settings[$key];
@@ -95,6 +78,7 @@ class BlazyMedia {
     }
 
     // Converts iframes into lazyloaded ones.
+    // Iframes: Googledocs, SlideShare. Hardcoded: Soundcloud, Spotify.
     if ($iframe && !empty($attributes['src'])) {
       $settings['embed_url'] = $attributes['src'];
       $attributes = NestedArray::mergeDeep($attributes, Blazy::iframeAttributes($settings));
@@ -107,54 +91,15 @@ class BlazyMedia {
       }
     }
 
-    // Wraps the media item to allow consistency for EB/SB.
-    // @todo use blazy->getBlazy().
-    $build = self::container($item, $settings);
-
-    // Clone relevant keys as field wrapper is no longer in use.
-    foreach (['attached', 'cache'] as $key) {
-      if (isset($field["#$key"])) {
-        $build["#$key"] = $field["#$key"];
+    // Clone relevant keys since field wrapper is no longer in use.
+    foreach (['attached', 'cache', 'object', 'third_party_settings'] as $key) {
+      if (!empty($field["#$key"])) {
+        $item["#$key"] = isset($item["#$key"]) ? NestedArray::mergeDeep($field["#$key"], $item["#$key"]) : $field["#$key"];
       }
     }
-
-    return $build;
-  }
-
-  /**
-   * Returns a media container to be wrapped by theme_container().
-   *
-   * @todo replace with theme_blazy() if doable.
-   */
-  public static function container($item, array $settings = []) {
-    $iframe = isset($item['#tag']) && $item['#tag'] == 'iframe';
-    $build = [
-      '#theme'      => 'container',
-      '#children'   => $item,
-      '#attributes' => ['class' => ['media']],
-      '#settings'   => $settings,
-    ];
-
-    // Adds helper for Entity Browser small thumbnail selection.
-    if (!empty($settings['thumbnail_style']) && !empty($settings['uri'])) {
-      $build['#attributes']['data-thumb'] = ImageStyle::load($settings['thumbnail_style'])->buildUrl($settings['uri']);
-    }
-
-    // See comment above for known media entities using iframe.
-    if (!$iframe) {
-      $build['#attributes']['class'][] = 'media--rendered';
-    }
-
-    if (!empty($settings['bundle'])) {
-      $build['#attributes']['class'][] = 'media--' . str_replace('_', '-', $settings['bundle']);
-    }
-
-    if (!empty($settings['ratio'])) {
-      Blazy::aspectRatioAttributes($build['#attributes'], $settings);
-      $build['#attributes']['class'][] = 'media--ratio media--ratio--' . $settings['ratio'];
-    }
-
-    return $build;
+    // Keep original formatter configurations intact here for custom works.
+    $item['#settings'] = array_filter(isset($item['#settings']) ? array_merge($settings, $item['#settings']) : $settings);
+    return $item;
   }
 
 }

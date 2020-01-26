@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2020-01-26
+-----------------------------
+- Issue #3108755 by gausarts: Make rich media to be part of theme_blazy() if
+  applicable.
+
 Blazy 8.x-2.0-dev, 2020-01-24
 -----------------------------
 - Removed @image.factory references wherever BlazyVideoTrait is removed.
