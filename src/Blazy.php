@@ -40,7 +40,6 @@ class Blazy implements BlazyInterface {
     }
 
     // Provides sensible default html settings to shutup notices when lacking.
-    $item      = $variables['item'];
     $settings  = &$variables['settings'];
     $settings += BlazyDefault::itemSettings();
 
@@ -52,7 +51,7 @@ class Blazy implements BlazyInterface {
     // URL and dimensions are built out at BlazyManager::preRenderBlazy().
     // Still provides a failsafe for direct call to theme_blazy().
     if (empty($settings['_api'])) {
-      self::urlAndDimensions($settings, $item);
+      self::urlAndDimensions($settings, $variables['item']);
     }
 
     // Allows rich Media entities stored within `content` to take over.
@@ -227,7 +226,6 @@ class Blazy implements BlazyInterface {
 
     // Iframe is removed on lazyloaded, puts data at non-removable storage.
     $variables['attributes']['data-media'] = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
-    $settings['classes'][] = 'media--' . str_replace('_', '-', $settings['bundle']);
   }
 
   /**

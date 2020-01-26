@@ -1,6 +1,9 @@
 
 Blazy 8.x-2.0-dev, 2020-01-26
 -----------------------------
+- Changed media--BUNDLE CSS class to media--bundle--BUNDLE to avoid conflict
+  with media--TYPE where TYPE has been hard-coded since 1.x to very limited
+  video, audio, image. We had no Media nor Media bundles in core at 1.x.
 - Issue #3108755 by gausarts: Make rich media to be part of theme_blazy() if
   applicable.
 

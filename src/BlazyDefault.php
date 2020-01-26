@@ -220,6 +220,7 @@ class BlazyDefault {
     return [
       '_api'           => FALSE,
       'bundle'         => '',
+      'classes'        => [],
       'content_url'    => '',
       'delta'          => 0,
       'embed_url'      => '',

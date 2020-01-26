@@ -40,7 +40,7 @@
   set classes = [
     'media',
     content ? 'media--rendered',
-    content and settings.bundle ? 'media--bundle--' ~ settings.bundle|clean_class,
+    settings.bundle ? 'media--bundle--' ~ settings.bundle|clean_class,
     settings.namespace ? 'media--' ~ settings.namespace,
     settings.lazy and settings.use_loading ? 'media--loading',
     settings.media_switch ? 'media--switch media--switch--' ~ settings.media_switch|clean_class,
