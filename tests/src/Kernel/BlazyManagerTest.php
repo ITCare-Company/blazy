@@ -62,7 +62,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
       $this->assertArrayHasKey('#url', $element);
     }
 
-    $this->assertEquals($expected_has_responsive_image, !empty($element['#image']['#responsive_image_style_id']));
+    $this->assertEquals($expected_has_responsive_image, !empty($element['#settings']['responsive_image_style_id']));
   }
 
   /**
@@ -83,7 +83,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
       [
         'lightbox'               => TRUE,
         'media_switch'           => 'photobox',
-        'resimage'               => TRUE,
         'responsive_image_style' => 'blazy_responsive_test',
       ],
       TRUE,
