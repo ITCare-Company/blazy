@@ -72,6 +72,7 @@ class BlazyEntity implements BlazyEntityInterface {
 
     $settings = &$data['settings'];
 
+    /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
     if (!empty($data['item'])) {
       if (!empty($settings['media_switch'])) {
         $is_lightbox = $this->blazyManager->getLightboxes() && in_array($settings['media_switch'], $this->blazyManager->getLightboxes());

@@ -60,13 +60,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   protected $cache;
 
   /**
-   * The supported lightboxes.
-   *
-   * @var array
-   */
-  protected $lightboxes = [];
-
-  /**
    * The blazy IO settings.
    *
    * @var object
@@ -262,29 +255,20 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * {@inheritdoc}
    */
   public function getLightboxes() {
-    $boxes = $this->lightboxes + ['colorbox', 'photobox'];
-
     $lightboxes = [];
-    foreach (array_unique($boxes) as $lightbox) {
+    foreach (['colorbox', 'photobox'] as $lightbox) {
       if (function_exists($lightbox . '_theme')) {
         $lightboxes[] = $lightbox;
       }
     }
 
-    // Cannot use app.root for now since adding more params troublesome.
+    // Cannot use app.root for now since adding more params is troublesome.
     if (defined('DRUPAL_ROOT') && is_file(DRUPAL_ROOT . '/libraries/photobox/photobox/jquery.photobox.js')) {
       $lightboxes[] = 'photobox';
     }
 
     $this->moduleHandler->alter('blazy_lightboxes', $lightboxes);
     return array_unique($lightboxes);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setLightboxes($lightbox) {
-    $this->lightboxes[] = $lightbox;
   }
 
   /**
@@ -406,7 +390,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * Collects defined skins as registered via hook_MODULE_NAME_skins_info().
    *
-   * @todo deprecate for sub-modules own plugins at blazy:8.x-3.0.
+   * @todo deprecate for sub-modules own skins as plugins at blazy:8.x-3.0.
    * @see https://www.drupal.org/node/2233261
    * @see https://www.drupal.org/node/3105670
    */

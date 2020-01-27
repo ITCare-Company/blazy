@@ -1,6 +1,9 @@
 /**
  * @file
- * Blur effect
+ * Blur effect.
+ *
+ * While blurring animation impresses smoother transition, it is likely slow.
+ * You can override this file, and change animation to just transition instead.
  */
 
 @-webkit-keyframes blazyBlur {

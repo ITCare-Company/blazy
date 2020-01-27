@@ -25,8 +25,6 @@ class BlazyManagerUnitTest extends UnitTestCase {
     $this->setUpUnitServices();
     $this->setUpUnitContainer();
     $this->setUpUnitImages();
-
-    $this->blazyManager->setLightboxes('blazy_test');
   }
 
   /**
@@ -154,7 +152,6 @@ class BlazyManagerUnitTest extends UnitTestCase {
    * Tests cases for lightboxes.
    *
    * @covers ::getLightboxes
-   * @covers ::setLightboxes
    */
   public function testGetLightboxes() {
     $lightboxes = $this->blazyManager->getLightboxes();

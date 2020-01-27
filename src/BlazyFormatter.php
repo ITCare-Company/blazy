@@ -62,6 +62,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     $settings['bundle']         = $bundle;
     $settings['cache_metadata'] = ['keys' => [$id, $count]];
+    $settings['cache_tags'][]   = $entity_id . ':' . $entity_id;
+    $settings['caption']        = empty($settings['caption']) ? [] : array_filter($settings['caption']);
     $settings['content_url']    = $settings['absolute_path'] = $absolute_path;
     $settings['count']          = $count;
     $settings['entity_id']      = $entity_id;
@@ -69,12 +71,11 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['gallery_id']     = str_replace('_', '-', $gallery_id . '-' . $switch);
     $settings['id']             = $id;
     $settings['internal_path']  = $internal_path;
+    $settings['is_preview']     = BlazyUtil::isPreview();
     $settings['lightbox']       = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
     $settings['resimage']       = function_exists('responsive_image_get_image_dimensions') && !empty($settings['responsive_image']) && !empty($settings['responsive_image_style']);
     $settings['resimage']       = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
-    $settings['cache_tags'][]   = $settings['entity_type_id'] . ':' . $settings['entity_id'];
-    $settings['caption']        = empty($settings['caption']) ? [] : array_filter($settings['caption']);
-    $settings['is_preview']     = BlazyUtil::isPreview();
+    $settings['use_field']      = isset($settings['third_party'], $settings['third_party']['linked_field']) && !empty($settings['third_party']['linked_field']['linked']);
 
     // Bail out if Vanilla mode is requested.
     if (!empty($settings['vanilla'])) {

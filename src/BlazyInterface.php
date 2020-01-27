@@ -46,6 +46,14 @@ interface BlazyInterface {
   public static function preprocessBlazy(array &$variables);
 
   /**
+   * Modifies variables for image and iframe.
+   *
+   * @param array $variables
+   *   The variables being modified.
+   */
+  public static function buildMedia(array &$variables);
+
+  /**
    * Modifies variables for responsive image.
    *
    * Responsive images with height and width save a lot of calls to
@@ -53,13 +61,10 @@ interface BlazyInterface {
    * _responsive_image_build_source_attributes(). Very necessary for
    * external file system like Amazon S3.
    *
-   * @param array $settings
-   *   The settings being modified.
-   *
-   * @return array
-   *   The responsive_image render elements.
+   * @param array $variables
+   *   The variables being modified.
    */
-  public static function buildResponsiveImage(array &$settings);
+  public static function buildResponsiveImage(array &$variables);
 
   /**
    * Returns common iframe attributes, including those not handled by blazy.

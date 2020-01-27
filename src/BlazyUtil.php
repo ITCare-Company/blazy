@@ -27,14 +27,14 @@ class BlazyUtil {
   }
 
   /**
-   * Checks if Blazy is in preview mode.
+   * Checks if Blazy is in CKEditor preview mode where no JS aasets are loaded.
    */
   public static function isPreview() {
     return in_array(\Drupal::routeMatch()->getRouteName(), ['entity_embed.preview', 'media.filter.preview']);
   }
 
   /**
-   * Returns the sanitized attributes common for user-defined ones.
+   * Returns the sanitized attributes for user-defined (UGC Blazy Filter).
    *
    * When IMG and IFRAME are allowed for untrusted users, trojan horses are
    * welcome. Hence sanitize attributes relevant for BlazyFilter. The rest

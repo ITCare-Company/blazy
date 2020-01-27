@@ -53,7 +53,9 @@ trait BlazyFormatterTrait {
    * Builds the settings.
    */
   public function buildSettings() {
-    return array_merge($this->getCommonFieldDefinition(), $this->getSettings());
+    $settings = array_merge($this->getCommonFieldDefinition(), $this->getSettings());
+    $settings['third_party'] = $this->getThirdPartySettings();
+    return $settings;
   }
 
   /**

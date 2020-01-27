@@ -201,8 +201,6 @@ is a standalone output from Views so to use field template in this case.
 
 Check out the relevant sub-module docs for details.
 
-
-
 .
 ***
 ***

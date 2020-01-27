@@ -22,7 +22,8 @@
 
 
 ## 1. VIEWS INTEGRATION
-Blazy provides a simple Views field for File Entity, and Media.
+Blazy provides a simple Views field for File Entity, and Media. Also a Blazy
+Grid views style plugin.
 
 When using Blazy formatter within Views, check **Use field template** under
 **Style settings**, if trouble with Blazy Formatter as a stand alone Views
@@ -56,27 +57,93 @@ Responsive image. Otherwise some collapsed image containers will defeat the
 purpose of lazyloading. When using CSS background, the container may also be
 collapsed.
 
-## 5. SOLUTIONS
+### SOLUTIONS
 Both layout reflow and lazyloading delay issues are actually taken care of
 if **Aspect ratio** option is enabled in the first place.
 
 Adjust, and override blazy CSS/ JS files accordingly.
 
-## 6. BLAZY FILTER
+## 5. BLAZY FILTER
 Blazy Filter must run after **Align/ Caption filters** as otherwise the required
 CSS class `b-lazy` will be moved into `<figure>` elements and make Blazy fail
 with JS error due to not finding the required `SRC` and `[data-src]` attributes.
 **Align/ Caption filters** output are respected and moved into Blazy markups
 accordingly when Blazy Filter runs after them.
 
-## 7. INTERSECTION OBSERVER API
+Blazy Filter is useless and broken when you enable **Media embed** or
+**Display embedded entities**. You can disable Blazy Filter in favor of Blazy
+formatter embedded inside **Media embed** or **Display embedded entities**
+instead. However it might be useful for User Generated Contents (UGC) where
+Entity/Media Embed are likely more for privileged users, editors, admins, alike.
+Or when Entity/Media Embed is disabled.
+
+## 6. INTERSECTION OBSERVER API
 * **IntersectionObserver API** is not loading all images, try disabling
   **Disconnect** option at Blazy UI.
 * **IntersectionObserver API** is not working with Slick `slidesToShow > 1`, try
   disabling Slick `centerMode`. If still failing, choose one of the 4 lazy
   load options, except Blazy.
 
-## 8. BROKEN MODULES
+## 7. BLUR IMAGE EFFECT
+`/admin/config/media/blazy`
+
+The Blur image effect will override Placeholder option.
+ Will use `Thumbnail style` option at Blazy formatters for the placeholder with
+ fallback to core `Thumbnail` image style.
+
+**For best results:**
+
+* Choose `Aspect ratio` option, non-fluid is better;
+* Use similar aspect ratio for both `Thumbnail style` and `Image style`;
+* Adjust `Offset` and or `threshold`;
+* The smaller the better.
+
+Use `hook_blazy_image_effects_alter()` to add more effects -- curtain, fractal,
+slice, whatever.
+
+**Limitations**:  
+Currently only works with a proper `Aspect ratio` as otherwise collapsed image.
+Be sure to add one. If not, add regular CSS `width: 100%` to the blurred
+image if doable with your design.
+
+## 8. ASPECT RATIO
+Aspect ratio was never supported for Responsive image till Blazy RC7+, not
+fully though. One remaining issue is to make Aspect ratio `Fluid` work for:
+CSS background + Picture element.
+
+Any **fixed** Aspect ratio (`4:3, 16:9`, etc) should immediately work as long as
+you understand what it means.
+
+Aspect ratio `Fluid` works with [**custom breakpoints**](https://www.drupal.org/node/3105243)
+(to-be-deprecated), not Responsive image, yet. If you want Aspect ratio for
+Responsive image, choose anything but `Fluid`.
+
+Any **fixed** Aspect ratio (`4:3, 16:9`, etc), but `Fluid`, wants consistent
+aspect ratio down to mobile, which means it won't work with art direction
+technique, or Picture element.
+
+Temporary workaround is to add regular CSS `width: 100%` to the controlling
+image if doable with your design. And a `min-height` per breakpoint via CSS
+mediaqueries.
+
+Aspect ratio fixes many issues with lazyloaded element -- collapsed, distorted,
+excessive height, layout reflow, etc., including making iframe fully responsive.
+However it doesn't fix everything. Please bear with it.
+
+**If you have display issues, the correct Aspect ratio is your first best bet.**
+
+Depending on your particular issue, enable or disable, either way, is your
+potential solution.
+
+## 9. LINKED FIELD INTEGRATION
+Under `Media switcher` option, only `Image to iFrame` makes sense. The rest like
+`Image to lightboxes`, or `Image linked to content` will obviously be ignored
+since these will output A tag just like what Linked Field does.
+Alternatively leave `Media switcher` empty, if no videos are mixed with images.
+With `Image to iFrame`, the good thing is video will be still playable, and the
+image be linked as required. Best of Both Worlds for real.
+
+## 10. BROKEN MODULES
 Alpha, Beta, DEV releases are for developers only. Beware of possible breakage.
 
 However if it is broken, unless an update is provided, running `drush cr` during

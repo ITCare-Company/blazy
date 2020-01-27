@@ -2,10 +2,8 @@
 
 namespace Drupal\Tests\blazy\Kernel;
 
-use Drupal\Core\Cache\Cache;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyBreakpoint;
 
 /**
  * Tests the Blazy manager methods.
@@ -241,10 +239,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * Tests cases for various methods.
    *
    * @covers ::attach
-   * @covers ::getLightboxes
-   * @covers ::setLightboxes
-   * @covers ::buildSkins
-   * @covers ::getCache
    */
   public function testBlazyManagerMethods() {
     // Tests Blazy attachments.
@@ -252,51 +246,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     $attachments = $this->blazyManager->attach($attach);
     $this->assertArrayHasKey('blazy', $attachments['drupalSettings']);
-
-    // Tests Blazy [data-blazy] attributes.
-    $build     = $this->data;
-    $settings  = &$build['settings'];
-    $settings += BlazyDefault::itemSettings();
-    $item      = $build['item'];
-
-    $settings['first_item']  = $item;
-    $settings['first_uri']   = $this->uri;
-    $settings['blazy_data']  = [];
-    $settings['background']  = TRUE;
-    $settings['breakpoints'] = $this->getDataBreakpoints();
-
-    // Ensure Blazy can be activated by breakpoints.
-    BlazyBreakpoint::buildDataBlazy($settings, $build);
-    $this->assertNotEmpty($settings['blazy']);
-
-    // Tests Blazy lightboxes.
-    $this->blazyManager->setLightboxes('blazy_test');
-    $lightboxes = $this->blazyManager->getLightboxes();
-
-    $this->assertFalse(in_array('nixbox', $lightboxes));
-    $this->assertTrue(in_array('blazy_test', $lightboxes));
-
-    // Tests for skins.
-    // Tests skins with a single expected method BlazySkinTest::skins().
-    $skins = $this->blazyManager->buildSkins('blazy_test', '\Drupal\blazy_test\BlazySkinTest');
-
-    // Verify we have cached skins.
-    $cid = 'blazy_test:skins';
-    $cached_skins = $this->blazyManager->getCache()->get($cid);
-    $this->assertEquals($cid, $cached_skins->cid);
-    $this->assertEquals($skins, $cached_skins->data);
-
-    // Verify multiple skin methods are respected.
-    Cache::invalidateTags([$cid]);
-    drupal_flush_all_caches();
-    $this->assertFalse($this->blazyManager->getCache()->get($cid));
-
-    $skins = $this->blazyManager->buildSkins('blazy_test', '\Drupal\blazy_test\BlazySkinTest', ['skins', 'features']);
-
-    $this->assertArrayHasKey('features', $skins);
-
-    $cached_skins = $this->blazyManager->getCache()->get($cid);
-    $this->assertEquals($skins, $cached_skins->data);
   }
 
 }

@@ -210,6 +210,7 @@ class BlazyDefault {
       'namespace'  => 'blazy',
       'id'         => '',
       'is_preview' => FALSE,
+      'use_field'  => FALSE,
     ] + self::imageSettings() + self::uiSettings();
   }
 

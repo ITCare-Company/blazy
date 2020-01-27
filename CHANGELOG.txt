@@ -1,4 +1,11 @@
 
+Blazy 8.x-2.0-dev, 2020-01-27
+-----------------------------
+- Cleaned up few useless or deprecated classes and methods.
+- Added supports for linked_field.module for Blazy Grid display.
+- Reverted Blazy::buildResponsiveImage() to RC6, and change parameters to get
+  consistent with the rest.
+
 Blazy 8.x-2.0-dev, 2020-01-26
 -----------------------------
 - Changed media--BUNDLE CSS class to media--bundle--BUNDLE to avoid conflict

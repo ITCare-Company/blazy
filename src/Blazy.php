@@ -55,31 +55,40 @@ class Blazy implements BlazyInterface {
     }
 
     // Allows rich Media entities stored within `content` to take over.
-    // @todo allows at least image, if lightbox works for content, such as
-    // probably file video with a pre-configured poster image.
-    if (empty($variables['content'])) {
-      // Build regular image if not using responsive image.
-      // (Responsive) image is optional for Video, or image as CSS background.
-      // The Responsive image itself is built out at BlazyManager::build().
-      if (empty($settings['responsive_image_style_id']) && empty($settings['background'])) {
-        self::buildImage($variables);
-      }
-
-      // Prepare a media player, and allow a tiny video preview without iframe.
-      if ($settings['use_media'] && empty($settings['_noiframe'])) {
-        self::buildIframe($variables);
-      }
-
-      // (Responsive) image is optional for Video, or image as CSS background.
-      if ($variables['image']) {
-        self::imageAttributes($variables);
-      }
+    // Yet allows to use both in tandem for custom work with lightboxes, etc.
+    if (empty($variables['content']) || !empty($settings['use_image'])) {
+      self::buildMedia($variables);
     }
 
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
     if ($settings['ratio']) {
       self::aspectRatioAttributes($variables['attributes'], $settings);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function buildMedia(array &$variables) {
+    $settings = $variables['settings'];
+
+    // (Responsive) image is optional for Video, or image as CSS background.
+    if (!empty($settings['responsive_image_style_id'])) {
+      self::buildResponsiveImage($variables);
+    }
+    elseif (empty($settings['background'])) {
+      self::buildImage($variables);
+    }
+
+    // Prepare a media player, and allow a tiny video preview without iframe.
+    if ($settings['use_media'] && empty($settings['_noiframe'])) {
+      self::buildIframe($variables);
+    }
+
+    // (Responsive) image is optional for Video, or image as CSS background.
+    if ($variables['image']) {
+      self::imageAttributes($variables);
     }
   }
 
@@ -119,12 +128,13 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public static function buildResponsiveImage(array &$settings) {
+  public static function buildResponsiveImage(array &$variables) {
+    $settings = $variables['settings'];
     $attributes = empty($settings['is_preview']) ? [
       'data-b-lazy' => $settings['one_pixel'],
       'data-placeholder' => $settings['placeholder'],
     ] : [];
-    return [
+    $variables['image'] += [
       '#type' => 'responsive_image',
       '#responsive_image_style_id' => $settings['responsive_image_style_id'],
       '#uri' => $settings['uri'],

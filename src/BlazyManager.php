@@ -88,7 +88,7 @@ class BlazyManager extends BlazyManagerBase {
    */
   protected function prepareBlazy(array &$element, array $build) {
     $item = $build['item'];
-    $settings = $build['settings'];
+    $settings = &$build['settings'];
     $settings['_api'] = TRUE;
     $pathinfo = pathinfo($settings['uri']);
     $settings['extension'] = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
@@ -103,7 +103,7 @@ class BlazyManager extends BlazyManagerBase {
     // Blazy has these 3 attributes, yet provides optional ones far below.
     // Sanitize potential user-defined attributes such as from BlazyFilter.
     // Skip attributes via $item, or by module, as they are not user-defined.
-    $attributes = $build['attributes'];
+    $attributes = &$build['attributes'];
 
     // Build thumbnail and optional placeholder based on thumbnail.
     // This must be set before Blazy::urlAndDimensions to provide placeholder.
@@ -114,35 +114,9 @@ class BlazyManager extends BlazyManagerBase {
     Blazy::urlAndDimensions($settings, $item);
 
     // Only process (Responsive) image/ video if no rich-media are provided.
-    if (empty($build['content'])) {
-      // (Responsive) image with item attributes, might be RDF.
-      $item_attributes = empty($build['item_attributes']) ? [] : BlazyUtil::sanitize($build['item_attributes']);
-
-      // Extract field item attributes for the theme function, and unset them
-      // from the $item so that the field template does not re-render them.
-      if ($item && isset($item->_attributes)) {
-        $item_attributes += $item->_attributes;
-        unset($item->_attributes);
-      }
-
-      // Responsive image integration.
-      if (!empty($settings['resimage']) && $settings['extension'] != 'svg') {
-        $this->buildResponsiveImage($element, $settings);
-      }
-
-      // Regular image with CSS background.
-      if (empty($settings['responsive_image_style_id'])) {
-        $this->buildImage($element, $settings, $attributes, $item_attributes);
-      }
-
-      // Multi-breakpoint aspect ratio only applies if lazyloaded.
-      // These may be set once at formatter level, or per breakpoint above.
-      if (!empty($settings['blazy_data']['dimensions'])) {
-        $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
-      }
-
-      // Pass non-rich-media elements to theme_blazy().
-      $element['#item_attributes'] = $item_attributes;
+    // Yet allows to use both in tandem for custom work with lightboxes, etc.
+    if (empty($build['content']) || !empty($settings['use_image'])) {
+      $this->buildMedia($element, $build);
     }
 
     // Provides extra attributes as needed, excluding url, item, done above.
@@ -167,12 +141,48 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
+   * Build out (Responsive) image.
+   */
+  private function buildMedia(array &$element, array $build) {
+    $item = $build['item'];
+    $settings = &$build['settings'];
+    $attributes = &$build['attributes'];
+
+    // (Responsive) image with item attributes, might be RDF.
+    $item_attributes = empty($build['item_attributes']) ? [] : BlazyUtil::sanitize($build['item_attributes']);
+
+    // Extract field item attributes for the theme function, and unset them
+    // from the $item so that the field template does not re-render them.
+    if ($item && isset($item->_attributes)) {
+      $item_attributes += $item->_attributes;
+      unset($item->_attributes);
+    }
+
+    // Responsive image integration.
+    if (!empty($settings['resimage']) && $settings['extension'] != 'svg') {
+      $this->buildResponsiveImage($element, $settings);
+    }
+
+    // Regular image with CSS background.
+    if (empty($settings['responsive_image_style_id'])) {
+      $this->buildImage($element, $settings, $attributes, $item_attributes);
+    }
+
+    // Multi-breakpoint aspect ratio only applies if lazyloaded.
+    // These may be set once at formatter level, or per breakpoint above.
+    if (!empty($settings['blazy_data']['dimensions'])) {
+      $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
+    }
+
+    // Pass non-rich-media elements to theme_blazy().
+    $element['#item_attributes'] = $item_attributes;
+  }
+
+  /**
    * Build out Responsive image.
    */
   private function buildResponsiveImage(array &$element, array &$settings) {
     $settings['responsive_image_style_id'] = $settings['resimage']->id();
-
-    $element['#image'] = Blazy::buildResponsiveImage($settings);
     $element['#cache']['tags'] = $this->getResponsiveImageStyles($settings['resimage'], FALSE);
     unset($settings['resimage']);
   }
@@ -303,10 +313,12 @@ class BlazyManager extends BlazyManagerBase {
     }
     else {
       // Take over build with a grid display, if so configured.
-      $build = [
+      $content = [
         '#build'      => $build,
         '#pre_render' => [[$this, 'preRenderBuild']],
       ];
+      // Uses field template is so required.
+      $build = empty($settings['use_field']) ? $content : [$content];
     }
 
     $this->moduleHandler->alter('blazy_build', $build, $settings);

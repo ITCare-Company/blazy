@@ -72,14 +72,6 @@ function blazy_test_pre_render($image) {
 }
 
 /**
- * Implements hook_hook_info().
- */
-function blazy_test_hook_info() {
-  $hooks['blazy_test_skins_info'] = ['group' => 'blazy_test'];
-  return $hooks;
-}
-
-/**
  * Implements hook_library_info_alter().
  */
 function blazy_test_library_info_alter(array &$libraries, $extension) {

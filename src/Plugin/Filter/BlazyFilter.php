@@ -510,7 +510,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     ];
 
     if (!$this->isApplicable()) {
-      $form['filter_tags']['#prefix'] = '<p>' . $this->t('<b>Warning!</b> Blazy Filter is useless and broken when you enable <b>Media embed</b> or <b>Display embedded entities</b>. You can disable Blazy Filter in favor of Blazy formatter embedded inside <b>Media embed</b> or <b>Display embedded entities</b> instead. However it might be useful for User Generated Contents (UGC) where Entity/Media Embed are likely more for previliged users, editors, admins, alike. Or when Entity/Media Embed is disabled.') . '</p>';
+      $form['filter_tags']['#prefix'] = '<p>' . $this->t('<b>Warning!</b> Blazy Filter is useless and broken when you enable <b>Media embed</b> or <b>Display embedded entities</b>. You can disable Blazy Filter in favor of Blazy formatter embedded inside <b>Media embed</b> or <b>Display embedded entities</b> instead. However it might be useful for User Generated Contents (UGC) where Entity/Media Embed are likely more for privileged users, editors, admins, alike. Or when Entity/Media Embed is disabled.') . '</p>';
     }
 
     $form['media_switch'] = [

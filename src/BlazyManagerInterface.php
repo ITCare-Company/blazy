@@ -38,14 +38,6 @@ interface BlazyManagerInterface {
   public function getLightboxes();
 
   /**
-   * Sets the lightboxes.
-   *
-   * @param string $lightbox
-   *   The lightbox name, expected to be the module name.
-   */
-  public function setLightboxes($lightbox);
-
-  /**
    * Returns the supported image effects.
    *
    * @return array
