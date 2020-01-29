@@ -102,7 +102,7 @@ class BlazyMedia {
       }
     }
     // Keep original formatter configurations intact here for custom works.
-    $item['#blazy'] = new BlazySettings(array_filter($settings));
+    $item['#settings'] = new BlazySettings(array_filter($settings));
     return $item;
   }
 
