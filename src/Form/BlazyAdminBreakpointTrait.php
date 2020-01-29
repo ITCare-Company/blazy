@@ -5,7 +5,8 @@ namespace Drupal\blazy\Form;
 /**
  * A Trait common for breakpoint methods.
  *
- * @todo TBD; for keeping or removal at blazy:8.x-2.0.
+ * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Don't
+ *   use it instead.
  * @see https://www.drupal.org/node/3105243
  */
 trait BlazyAdminBreakpointTrait {
@@ -19,7 +20,7 @@ trait BlazyAdminBreakpointTrait {
    */
   public function breakpointsForm(array &$form, $definition = []) {
     $settings = isset($definition['settings']) ? $definition['settings'] : [];
-    $title = $this->t('Breakpoints (<a href=":url">TBD; for Removal</a>). <small>If provided, Blazy lazyload applies. Ignored if core Responsive image is provided.<br /> If only two is needed, simply leave the rest empty. At any rate, the last should target the largest monitor. <br>Choose an <b>Aspect ratio</b> and use an image effect with <b>CROP</b> in its name for all styles for best performance. <br>It uses <strong>max-width</strong>, not <strong>min-width</strong>.</small>', [':url' => 'https://drupal.org/node/3105243']);
+    $title = $this->t('Breakpoints (<a href=":url">deprecated</a>). <small>If provided, Blazy lazyload applies. Ignored if core Responsive image is provided.<br /> If only two is needed, simply leave the rest empty. At any rate, the last should target the largest monitor. <br>Choose an <b>Aspect ratio</b> and use an image effect with <b>CROP</b> in its name for all styles for best performance. <br>It uses <strong>max-width</strong>, not <strong>min-width</strong>.</small>', [':url' => 'https://drupal.org/node/3105243']);
 
     $form['sizes'] = [
       '#type'               => 'textfield',

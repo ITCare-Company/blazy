@@ -108,9 +108,9 @@ class BlazySettingsForm extends ConfigFormBase {
     // @todo TBD; for keeping or removal at blazy:8.x-2.0.
     $form['unbreakpoints'] = [
       '#type'          => 'checkbox',
-      '#title'         => $this->t('Disable custom breakpoints'),
+      '#title'         => $this->t('Disable custom breakpoints (deprecated)'),
       '#default_value' => $config->get('unbreakpoints'),
-      '#description'   => $this->t('Check to permanently disable custom breakpoints which is always disabled when choosing a Responsive image. Only reasonable if consistently using core Responsive image. Note: multi-breakpoint CSS background image will then be disabled, as well.'),
+      '#description'   => $this->t('Check to permanently disable custom breakpoints which is always disabled when choosing a Responsive image. Note: multi-breakpoint CSS background image will then be disabled, as well. This feature will be removed at 3.x, please keep it checked.'),
     ];
 
     $form['one_pixel'] = [
