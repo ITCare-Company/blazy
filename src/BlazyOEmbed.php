@@ -320,6 +320,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    *
    * @return array
    *   The array of image item and settings if a file image, else empty.
+   *
+   * @todo this is likely to be removed for anything Media, still kept for
+   * BlazyFilter and few lagacy file entity integrations such as Views file.
    */
   public function getImageItem($file) {
     $data = [];

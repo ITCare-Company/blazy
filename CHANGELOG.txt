@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2020-01-29
 -----------------------------
+- Added TODO depreciation for BlazyViewsFieldFile, anything File for Media.
 - Added TODO for file entity (non-media) for future removal if file entity
   integration should be totally removed for pure Media.
 - Cleaned up Caption fields option to declutter.
