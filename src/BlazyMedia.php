@@ -85,7 +85,7 @@ class BlazyMedia {
     }
     // Media with local files: video.
     elseif (isset($item['#files'], $item['#files'][0]['file'])) {
-      // Do this as $item['#blazy'] is not available as file_video variables.
+      // Do this as $item['#settings'] is not available as file_video variables.
       foreach ($item['#files'] as &$file) {
         $file['blazy'] = new BlazySettings($settings);
       }

@@ -73,7 +73,9 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
       if (!empty($settings['media_switch']) && $settings['media_switch'] == 'rendered') {
         $element['content'][] = $this->blazyEntity()->getFieldRenderable($entity, $settings['image'], $view_mode);
       }
-      else {
+      // @todo recheck against file entity (non-media), if still needed.
+      // @todo remove if no longer file entity is needed for pure Media.
+      elseif (empty($element['item']) && empty($settings['uri'])) {
         $this->buildStage($element, $entity, $langcode);
       }
     }
@@ -171,6 +173,8 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
    *
    * Main image can be separate image item from video thumbnail for highres.
    * Fallback to default thumbnail if any, which has no file API.
+   *
+   * @todo check if still needed for non-media post BlazyOEmbed::getMediaItem().
    */
   public function buildStage(array &$element, $entity, $langcode) {
     $settings = &$element['settings'];
