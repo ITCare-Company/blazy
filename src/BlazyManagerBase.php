@@ -248,7 +248,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * Returns the common settings inherited down to each item.
    */
   public function getCommonSettings() {
-    return array_intersect_key($this->configLoad('', 'blazy.settings'), BlazyDefault::uiSettings());
+    return array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
   }
 
   /**
@@ -390,7 +390,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * Collects defined skins as registered via hook_MODULE_NAME_skins_info().
    *
-   * @todo deprecate for sub-modules own skins as plugins at blazy:8.x-3.0.
+   * @todo deprecate for sub-modules own skins as plugins at blazy:8.x-2+.
    * @see https://www.drupal.org/node/2233261
    * @see https://www.drupal.org/node/3105670
    */

@@ -305,19 +305,22 @@ class BlazyManager extends BlazyManagerBase {
     $this->moduleHandler->alter('blazy_build_settings', $build['settings']);
 
     // If not a grid, pass the items as regular index children to theme_field().
-    // This #pre_render doesn't work if called from Views results.
+    // This #pre_render doesn't work if called from Views results, hence the
+    // output is split either as theme_field() or theme_item_list().
     if (empty($settings['_grid'])) {
       $settings = $this->prepareBuild($build);
       $build['#blazy'] = $settings;
       $build['#attached'] = $this->attach($settings);
     }
     else {
-      // Take over build with a grid display, if so configured.
+      // Take over theme_field() with a theme_item_list(), if so configured.
+      // The reason: this is not only fed by field items, but also Views rows.
       $content = [
         '#build'      => $build,
         '#pre_render' => [[$this, 'preRenderBuild']],
       ];
-      // Uses field template is so required.
+
+      // Yet allows theme_field(), if so required, such as for linked_field.
       $build = empty($settings['use_field']) ? $content : [$content];
     }
 
@@ -367,7 +370,9 @@ class BlazyManager extends BlazyManagerBase {
    */
   protected function prepareBuild(array &$build) {
     // If children are stored within items, reset.
-    // Blazy comes late to the party after sub-modules decided what they want.
+    // Blazy comes late to the party after sub-modules decided what they want
+    // where items maybe stored as direct indices, or put into items variable.
+    // @todo simplify this.
     $settings = isset($build['settings']) ? $build['settings'] : [];
     $build = isset($build['items']) ? $build['items'] : $build;
 

@@ -48,6 +48,7 @@
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   position: relative;
+  min-height: 30px;
 }
 
 .media--loading::before {

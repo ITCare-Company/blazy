@@ -102,17 +102,14 @@ class BlazyAlter {
   /**
    * Provides the third party formatters where full blown Blazy is not worthy.
    *
-   * Note the module doesn't automatically convert the relevant theme to use
-   * Blazy, however two attributes are provided: `data-b-lazy` and
-   * `data-b-preview` which can be used to override a particular theme to use
-   * Blazy. The reasons: Blazy already has specialized theme_blazy() for most
-   * use cases, image, video, etc. This method is only provided to facilitate
-   * and ease up custom needs with your custom works, it is all yours.
+   * The module doesn't automatically convert the relevant theme to use Blazy,
+   * however two attributes are provided: `data-b-lazy` and `data-b-preview`
+   * which can be used to override a particular theme to use Blazy.
    *
-   * The `data-b-lazy`is a flag indicating Blazy is available for further work.
+   * The `data-b-lazy`is a flag indicating Blazy is enabled.
    * The `data-b-preview` is a flag indicating Blazy in CKEditor preview mode
-   * via Entity/Media Embed which normally means you want to disable Blazy lazy
-   * load due to CKEditor not supporting JS assets.
+   * via Entity/Media Embed which normally means Blazy should be disabled
+   * due to CKEditor not supporting JS assets.
    *
    * @see \Drupal\blazy\Blazy::preprocessBlazy()
    * @see \Drupal\blazy\Blazy::preprocessField()
@@ -123,6 +120,32 @@ class BlazyAlter {
     $formatters = ['file_video'];
     blazy()->getModuleHandler()->alter('blazy_third_party_formatters', $formatters);
     return array_unique($formatters);
+  }
+
+  /**
+   * Overrides variables for field.html.twig templates.
+   */
+  public static function thirdPartyPreprocessField(array &$variables) {
+    $element = $variables['element'];
+    $settings = empty($element['#blazy']) ? [] : $element['#blazy'];
+    $settings['third_party'] = $element['#third_party_settings'];
+    $is_preview = BlazyUtil::isPreview();
+
+    foreach ($variables['items'] as &$item) {
+      if (empty($item['content'])) {
+        continue;
+      }
+
+      $item_attributes = &$item['content'][isset($item['content']['#attributes']) ? '#attributes' : '#item_attributes'];
+      $item_attributes['data-b-lazy'] = TRUE;
+      if ($is_preview) {
+        $item_attributes['data-b-preview'] = TRUE;
+      }
+    }
+
+    // Attaches Blazy libraries here since Blazy is not the formatter.
+    $attachments = blazy()->attach($settings);
+    $variables['#attached'] = empty($variables['#attached']) ? $attachments : NestedArray::mergeDeep($variables['#attached'], $attachments);
   }
 
   /**

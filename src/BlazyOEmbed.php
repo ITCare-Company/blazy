@@ -240,32 +240,32 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $settings['media_source'] = $media->getSource()->getPluginId();
     $settings['view_mode']    = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
 
+    // Prioritize custom high-res or poster image such as (remote|file) video.
+    if (!empty($settings['image'])) {
+      $item = $media->get($settings['image'])->first();
+    }
+
     // If Media has a defined thumbnail, add it to data item, not all has this.
-    if ($media->hasField('thumbnail')) {
+    if (!$item && $media->hasField('thumbnail')) {
       /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-      $item = $media->get('thumbnail')->first();
+      // Title is NULL from thumbnail, likely core bug, so use source.
+      $item = $media->get($settings['media_source'] == 'image' ? $settings['source_field'] : 'thumbnail')->first();
+    }
 
-      // Title is NULL from thumbnail, likely core bug, so fallback to source.
-      if ($settings['media_source'] == 'image') {
-        $item = $media->get($settings['source_field'])->get(0);
-      }
-
+    // Checks if Image item is available.
+    if ($item) {
       $settings['file_tags'] = ['file:' . $item->target_id];
+      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+    }
 
-      // Provides thumbnail URI for EB selection with various Media entities.
-      if (empty($settings['uri'])) {
-        try {
-          // Without internet, this screwed up the site.
-          $settings['uri'] = $media->getSource()->getMetadata($media, 'thumbnail_uri');
-        }
-        catch (\Exception $ignore) {
-          // Do nothing, no need to be chatty on this.
-        }
-
-        // Provides a fallback for the URI.
-        if (empty($settings['uri'])) {
-          $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
-        }
+    // If the expected fails, at least check for metadata, likely unknown media.
+    if (empty($settings['uri'])) {
+      try {
+        // Without internet, this screwed up the site.
+        $settings['uri'] = $media->getSource()->getMetadata($media, 'thumbnail_uri');
+      }
+      catch (\Exception $ignore) {
+        // Do nothing, no need to be chatty on this.
       }
     }
 

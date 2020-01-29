@@ -32,6 +32,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   settings = {
  *     "filter_tags" = {"img" = "img", "iframe" = "iframe"},
  *     "media_switch" = "",
+ *     "use_data_uri" = false,
  *   },
  *   weight = 3
  * )
@@ -213,6 +214,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
    */
   public function buildSettings($text) {
     $settings = $this->blazyManager->getCommonSettings() + BlazyDefault::lazySettings();
+    $settings['_check_protocol'] = TRUE;
     $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
     $settings['column'] = stristr($text, 'data-column') !== FALSE;
     $settings['media_switch'] = $switch = $this->settings['media_switch'];

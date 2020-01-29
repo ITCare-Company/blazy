@@ -85,6 +85,10 @@ class BlazyMedia {
     }
     // Media with local files: video.
     elseif (isset($item['#files'], $item['#files'][0]['file'])) {
+      // Do this as $item['#blazy'] is not available as file_video variables.
+      foreach ($item['#files'] as &$file) {
+        $file['blazy'] = new BlazySettings($settings);
+      }
       $attributes->setAttribute('data-b-lazy', TRUE);
       if (!empty($settings['is_preview'])) {
         $attributes->setAttribute('data-b-preview', TRUE);
@@ -98,7 +102,7 @@ class BlazyMedia {
       }
     }
     // Keep original formatter configurations intact here for custom works.
-    $item['#settings'] = array_filter(isset($item['#settings']) ? array_merge($settings, $item['#settings']) : $settings);
+    $item['#blazy'] = new BlazySettings(array_filter($settings));
     return $item;
   }
 

@@ -214,7 +214,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     }
 
     if (isset($element['image']['#description'])) {
-      $element['image']['#description'] .= ' ' . $this->t('For video, this allows separate highres image, be sure the same field used for Image to have a mix of videos and images. Leave empty to fallback to the video provider thumbnails. The formatter/renderer is managed by <strong>@namespace</strong> formatter. Meaning original formatter ignored. If you want original formatters, check <strong>Vanilla</strong> option. Alternatively choose <strong>Media switcher &gt; Image rendered </strong>, other image-related settings here will be ignored. <strong>Supported fields</strong>: Image.', ['@namespace' => $this->getPluginId()]);
+      $element['image']['#description'] .= ' ' . $this->t('For (remote|local) video, this allows separate high-res or poster image, be sure this exact same field is also used for bundle <b>Image</b> to have a mix of videos and images. Leaving it empty will fallback to the video provider thumbnails, or no poster for local video. The formatter/renderer is managed by <strong>@plugin_id</strong> formatter. Meaning original formatter ignored.', ['@plugin_id' => $this->getPluginId()]);
     }
 
     return $element;
@@ -228,12 +228,22 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     $views_ui    = $this->getFieldSetting('handler') == 'default';
     $bundles     = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
     $captions    = $this->admin()->getFieldOptions($bundles, [], $target_type);
+    $images      = [];
 
-    // @todo figure out to not hardcode stock bundle image.
-    if ($bundles && in_array('image', $bundles)) {
-      $captions['title'] = $this->t('Image Title');
-      $captions['alt'] = $this->t('Image Alt');
+    if ($bundles) {
+      // @todo figure out to not hardcode stock bundle image.
+      if (in_array('image', $bundles)) {
+        $captions['title'] = $this->t('Image Title');
+        $captions['alt'] = $this->t('Image Alt');
+      }
+      $media = ['audio', 'remote_video', 'video', 'instagram', 'soundcloud'];
+      if (count(array_intersect($bundles, $media)) > 0) {
+        $images['images'] = $this->admin()->getFieldOptions($bundles, ['image'], $target_type);
+      }
     }
+
+    // @todo better way than hard-coding field name.
+    unset($captions['field_image'], $captions['field_media_image']);
 
     return [
       'background'        => TRUE,
@@ -244,7 +254,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,
       'multimedia'        => TRUE,
-    ] + parent::getScopedFormElements();
+    ] + parent::getScopedFormElements() + $images;
   }
 
 }

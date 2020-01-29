@@ -2,8 +2,6 @@
 
 namespace Drupal\blazy;
 
-use Drupal\Component\Serialization\Json;
-
 /**
  * Provides grid utilities.
  */
@@ -55,33 +53,18 @@ class BlazyGrid {
       $contents[] = $content;
     }
 
-    // Provides hint about AJAX.
-    if (!empty($settings['use_ajax'])) {
-      $settings['blazy_data']['useAjax'] = TRUE;
-    }
-
-    $blazy   = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
     $count   = empty($settings['count']) ? count($contents) : $settings['count'];
     $wrapper = $style ? ['item-list--blazy', 'item-list--blazy-' . $style] : ['item-list--blazy'];
     $element = [
       '#theme'              => 'item_list',
       '#items'              => $contents,
       '#context'            => ['settings' => $settings],
-      '#attributes'         => ['class' => ['blazy'], 'data-blazy' => $blazy],
+      '#attributes'         => [],
       '#wrapper_attributes' => ['class' => array_merge(['item-list'], $wrapper)],
     ];
 
     // Provides data-attributes to avoid conflict with original implementations.
-    if (!empty($settings['media_switch'])) {
-      $switch = str_replace('_', '-', $settings['media_switch']);
-      $element['#attributes']['data-' . $switch . '-gallery'] = TRUE;
-    }
-
-    foreach (['field', 'view'] as $key) {
-      if (!empty($settings[$key . '_name'])) {
-        $element['#attributes']['class'][] = 'blazy--' . $key . ' blazy--' . $key . '--' . str_replace('_', '-', $settings[$key . '_name']);
-      }
-    }
+    Blazy::containerAttributes($element['#attributes'], $settings);
 
     // Provides gallery ID, although Colorbox works without it, others may not.
     // Uniqueness is not crucial as a gallery needs to work across entities.

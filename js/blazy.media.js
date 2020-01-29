@@ -198,7 +198,9 @@
   Drupal.behaviors.blazyMedia = {
     attach: function (context) {
       var players = context.querySelectorAll('.media--player:not(.media--player--on)');
-      _db.once(_db.forEach(players, blazyMedia));
+      if (players.length > 0) {
+        _db.once(_db.forEach(players, blazyMedia));
+      }
     }
   };
 

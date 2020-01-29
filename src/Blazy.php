@@ -5,9 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Template\Attribute;
-use Drupal\image\Entity\ImageStyle;
 
 /**
  * Implements BlazyInterface.
@@ -99,30 +97,11 @@ class Blazy implements BlazyInterface {
     // BlazyFilter, or image style with crop, may already set these.
     BlazyUtil::imageDimensions($settings, $item);
 
-    // Provides image_url, not URI, expected by lazyload.
-    $uri = $settings['uri'];
-    $image_url = BlazyUtil::isValidUri($uri) ? BlazyUtil::transformRelative($uri) : $uri;
-    $settings['image_url'] = $settings['image_url'] ?: $image_url;
-
-    // Image style modifier can be multi-style images such as GridStack.
-    if (!empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
-      $settings['image_url'] = BlazyUtil::transformRelative($uri, $style);
-      $settings['cache_tags'] = $style->getCacheTags();
-
-      // Only re-calculate dimensions if not cropped, nor already set.
-      if (empty($settings['_dimensions'])) {
-        $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings));
-      }
-    }
+    // Provides image url based on the given settings.
+    BlazyUtil::imageUrl($settings);
 
     // The SVG placeholder should accept either original, or styled image.
     $settings['placeholder'] = empty($settings['placeholder']) ? BlazyUtil::generatePlaceholder($settings['width'], $settings['height']) : $settings['placeholder'];
-
-    // Just in case, an attempted kidding gets in the way, relevant for UGC.
-    $use_data_uri = !empty($settings['use_data_uri']) && substr($settings['image_url'], 0, 10) === 'data:image';
-    if (!$use_data_uri) {
-      $settings['image_url'] = UrlHelper::stripDangerousProtocols($settings['image_url']);
-    }
   }
 
   /**
@@ -305,6 +284,37 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Provides container attributes for .blazy container: .field, .view, etc.
+   */
+  public static function containerAttributes(array &$attributes, array $settings = []) {
+    // Provides hint about AJAX.
+    if (!empty($settings['use_ajax'])) {
+      $settings['blazy_data']['useAjax'] = TRUE;
+    }
+
+    // Provides the main container attributes.
+    $classes = empty($attributes['class']) ? [] : $attributes['class'];
+    $attributes['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
+
+    // Provides data-LIGHTBOX-gallery to not conflict with original modules.
+    if (!empty($settings['media_switch'])) {
+      $switch = str_replace('_', '-', $settings['media_switch']);
+      $attributes['data-' . $switch . '-gallery'] = TRUE;
+    }
+
+    // Provides contextual classes relevant to the container: .field, or .view.
+    if (isset($settings['namespace']) && $settings['namespace'] == 'blazy') {
+      foreach (['field', 'view'] as $key) {
+        if (!empty($settings[$key . '_name'])) {
+          $classes[] = 'blazy--' . $key . ' blazy--' . str_replace('_', '-', $settings[$key . '_name']);
+        }
+      }
+    }
+
+    $attributes['class'] = array_merge(['blazy'], $classes);
+  }
+
+  /**
    * Overrides variables for responsive-image.html.twig templates.
    */
   public static function preprocessResponsiveImage(array &$variables) {
@@ -357,52 +367,48 @@ class Blazy implements BlazyInterface {
    * Overrides variables for file-video.html.twig templates.
    */
   public static function preprocessFileVideo(array &$variables) {
-    if (empty($variables['attributes']['data-b-preview'])) {
-      $variables['attributes']->addClass(['b-lazy']);
-      foreach ($variables['files'] as $files) {
-        $source_attributes = &$files['source_attributes'];
-        $source_attributes->setAttribute('data-src', $source_attributes['src']->value());
-        $source_attributes->setAttribute('src', '');
+    if ($files = $variables['files']) {
+      if (empty($variables['attributes']['data-b-preview'])) {
+        $variables['attributes']->addClass(['b-lazy']);
+        foreach ($files as $file) {
+          $source_attributes = &$file['source_attributes'];
+          $source_attributes->setAttribute('data-src', $source_attributes['src']->value());
+          $source_attributes->setAttribute('src', '');
+        }
       }
-    }
 
-    $variables['attributes']->addClass(['media__element']);
-    $variables['attributes']->removeAttribute(['data-b-lazy', 'data-b-preview']);
+      // Adds a poster image if so configured.
+      if (isset($files[0], $files[0]['blazy']) && $blazy = $files[0]['blazy']) {
+        if ($blazy->get('image') && $blazy->get('uri')) {
+          $settings = $blazy->storage();
+          $settings['_dimensions'] = TRUE;
+          BlazyUtil::imageUrl($settings);
+          if (!empty($settings['image_url'])) {
+            $variables['attributes']->setAttribute('poster', $settings['image_url']);
+          }
+        }
+      }
+
+      $variables['attributes']->addClass(['media__element']);
+      $variables['attributes']->removeAttribute(['data-b-lazy', 'data-b-preview']);
+    }
   }
 
   /**
    * Overrides variables for field.html.twig templates.
    */
   public static function preprocessField(array &$variables) {
-    $element = $variables['element'];
+    $element = &$variables['element'];
     $settings = empty($element['#blazy']) ? [] : $element['#blazy'];
-    $variables['attributes']['class'][] = 'blazy';
-    $variables['attributes']['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
 
     // 1. Hence Blazy is not the formatter, lack of settings.
     if (!empty($element['#third_party_settings']['blazy']['blazy'])) {
-      $is_preview = BlazyUtil::isPreview();
-      foreach ($variables['items'] as &$item) {
-        if (empty($item['content'])) {
-          continue;
-        }
-
-        $item_attributes = &$item['content'][isset($item['content']['#attributes']) ? '#attributes' : '#item_attributes'];
-        $item_attributes['data-b-lazy'] = TRUE;
-        if ($is_preview) {
-          $item_attributes['data-b-preview'] = TRUE;
-        }
-      }
-
-      // Attaches Blazy libraries here since Blazy is not the formatter.
-      $attachments = blazy()->attach($settings);
-      $variables['#attached'] = empty($variables['#attached']) ? $attachments : NestedArray::mergeDeep($variables['#attached'], $attachments);
+      BlazyAlter::thirdPartyPreprocessField($variables);
     }
 
     // 2. Hence Blazy is the formatter, has its settings.
-    if (!empty($settings['media_switch'])) {
-      $switch = str_replace('_', '-', $settings['media_switch']);
-      $variables['attributes']['data-' . $switch . '-gallery'] = TRUE;
+    if (empty($settings['_grid'])) {
+      self::containerAttributes($variables['attributes'], $settings);
     }
   }
 

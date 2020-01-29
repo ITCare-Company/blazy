@@ -87,9 +87,9 @@ Or when Entity/Media Embed is disabled.
 ## 7. BLUR IMAGE EFFECT
 `/admin/config/media/blazy`
 
-The Blur image effect will override Placeholder option.
- Will use `Thumbnail style` option at Blazy formatters for the placeholder with
- fallback to core `Thumbnail` image style.
+The `Image effect` Blur will override `Placeholder` option.
+Will use `Thumbnail style` option at Blazy formatters for the placeholder with
+fallback to core `Thumbnail` image style.
 
 **For best results:**
 

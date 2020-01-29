@@ -1,4 +1,13 @@
 
+Blazy 8.x-2.0-dev, 2020-01-29
+-----------------------------
+- Cleaned up Caption fields option to declutter.
+- Added BlazySetting class for the new features.
+- Added a new option Image to have custom high-res video poster or poster-like
+  image for rich media.
+- Fixed for the new third party file video formatter schema.
+- Added Blazy::containerAttributes() to replace individual efforts.
+
 Blazy 8.x-2.0-dev, 2020-01-27
 -----------------------------
 - Cleaned up few useless or deprecated classes and methods.

@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Site\Settings;
+use Drupal\image\Entity\ImageStyle;
 
 /**
  * Provides Blazy utilities.
@@ -128,6 +129,33 @@ class BlazyUtil {
   }
 
   /**
+   * Provides image url based on the given settings.
+   */
+  public static function imageUrl(array &$settings) {
+    // Provides image_url, not URI, expected by lazyload.
+    $uri = $settings['uri'];
+    $image_url = self::isValidUri($uri) ? self::transformRelative($uri) : $uri;
+    $settings['image_url'] = empty($settings['image_url']) ? $image_url : $settings['image_url'];
+
+    // Image style modifier can be multi-style images such as GridStack.
+    if (!empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
+      $settings['image_url'] = self::transformRelative($uri, $style);
+      $settings['cache_tags'] = $style->getCacheTags();
+
+      // Only re-calculate dimensions if not cropped, nor already set.
+      if (empty($settings['_dimensions'])) {
+        $settings = array_merge($settings, self::transformDimensions($style, $settings));
+      }
+    }
+
+    // Just in case, an attempted kidding gets in the way, relevant for UGC.
+    if (!empty($settings['_check_protocol'])) {
+      $data_uri = !empty($settings['use_data_uri']) && substr($settings['image_url'], 0, 10) === 'data:image';
+      $settings['image_url'] = !$data_uri ? UrlHelper::stripDangerousProtocols($settings['image_url']) : $settings['image_url'];
+    }
+  }
+
+  /**
    * A wrapper for ImageStyle::transformDimensions().
    *
    * @param object $style
@@ -141,7 +169,9 @@ class BlazyUtil {
     $width  = $initial ? '_width' : 'width';
     $height = $initial ? '_height' : 'height';
     $uri    = $initial ? 'first_uri' : 'uri';
-    $dim    = ['width' => $data[$width], 'height' => $data[$height]];
+    $width  = isset($data[$width]) ? $data[$width] : NULL;
+    $height = isset($data[$height]) ? $data[$height] : NULL;
+    $dim    = ['width' => $width, 'height' => $height];
 
     $style->transformDimensions($dim, $uri);
 

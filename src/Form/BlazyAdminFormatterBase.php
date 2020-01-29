@@ -11,6 +11,30 @@ use Drupal\Component\Utility\Unicode;
 abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
 
   /**
+   * Defines re-usable basic form elements.
+   */
+  public function basicImageForm(array &$form, $definition = []) {
+    $this->imageStyleForm($form, $definition);
+
+    if (!empty($definition['media_switch_form']) && !isset($form['media_switch'])) {
+      $this->mediaSwitchForm($form, $definition);
+    }
+
+    if (isset($definition['images'])) {
+      $form['image'] = $this->baseForm($definition)['image'];
+      $form['image']['#prefix'] = '';
+    }
+
+    if (isset($form['responsive_image_style'])) {
+      $form['responsive_image_style']['#description'] = $this->t('Be sure to enable <strong>Responsive image</strong> option via Blazy UI. Leave empty to disable.');
+
+      if ($this->blazyManager()->getModuleHandler()->moduleExists('blazy_ui')) {
+        $form['responsive_image_style']['#description'] .= ' ' . $this->t('<a href=":url" target="_blank">Enable lazyloading Responsive image</a>.', [':url' => Url::fromRoute('blazy.settings')->toString()]);
+      }
+    }
+  }
+
+  /**
    * Returns re-usable image formatter form elements.
    */
   public function imageStyleForm(array &$form, $definition = []) {
@@ -219,12 +243,18 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
   }
 
   /**
-   * Declutters options from less relevant options.
+   * Declutters options from less relevant options, specific to captions.
    */
   public function getExcludedFieldOptions() {
-    $excludes = 'field_document_size field_id field_media_in_library field_mime_type field_source field_tweet_author field_tweet_id field_tweet_url field_media_video_embed_field field_instagram_shortcode field_instagram_url';
-    $excludes = explode(' ', $excludes);
-    $excludes = array_combine($excludes, $excludes);
+    // @todo figure out a more efficient way than blacklisting.
+    // Do not exclude field_media_image  as needed for Main stage.
+    $fields = 'document_size media_file id media_in_library mime_type source tweet_author tweet_id tweet_url media_video_embed_field instagram_shortcode instagram_url media_soundcloud media_oembed_video media_audio_file media_video_file media_facebook media_flickr file_url external_thumbnail local_thumbnail local_thumbnail_uri media_unsplash';
+    $fields = explode(' ', $fields);
+
+    $excludes = [];
+    foreach ($fields as $exclude) {
+      $excludes['field_' . $exclude] = 'field_' . $exclude;
+    }
 
     $this->blazyManager->getModuleHandler()->alter('blazy_excluded_field_options', $excludes);
     return $excludes;
