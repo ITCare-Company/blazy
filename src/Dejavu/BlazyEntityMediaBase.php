@@ -74,7 +74,8 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
         $element['content'][] = $this->blazyEntity()->getFieldRenderable($entity, $settings['image'], $view_mode);
       }
       // @todo recheck against file entity (non-media), if still needed.
-      // @todo remove if no longer file entity is needed for pure Media.
+      // @todo remove if no longer file entity is needed for pure Media, likely
+      // post blazy:8.3+ since BlazyFileFormatter is already deprecated.
       elseif (empty($element['item']) && empty($settings['uri'])) {
         $this->buildStage($element, $entity, $langcode);
       }
@@ -174,7 +175,10 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
    * Main image can be separate image item from video thumbnail for highres.
    * Fallback to default thumbnail if any, which has no file API.
    *
-   * @todo check if still needed for non-media post BlazyOEmbed::getMediaItem().
+   * @todo check if still needed for non-media post BlazyOEmbed::getMediaItem()
+   *   since BlazyFileFormatter is already deprecated.
+   * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
+   *   \Drupal\blazy\BlazyOEmbed::getMediaItem() instead.
    */
   public function buildStage(array &$element, $entity, $langcode) {
     $settings = &$element['settings'];
@@ -184,7 +188,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     // This fetches the highres image if provided and available.
     // With a mix of image and video, image is not always there.
     /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $file */
-    if ($stage && isset($entity->{$stage}) && $file = $entity->get($stage)) {
+    if (isset($entity->{$stage}) && $file = $entity->get($stage)) {
       $value = $file->getValue();
 
       // Do not proceed if it is a Media entity video.
