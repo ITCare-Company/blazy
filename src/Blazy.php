@@ -53,8 +53,7 @@ class Blazy implements BlazyInterface {
     }
 
     // Allows rich Media entities stored within `content` to take over.
-    // Yet allows to use both in tandem for custom work with lightboxes, etc.
-    if (empty($variables['content']) || !empty($settings['use_image'])) {
+    if (empty($variables['content'])) {
       self::buildMedia($variables);
     }
 
@@ -102,6 +101,8 @@ class Blazy implements BlazyInterface {
 
     // The SVG placeholder should accept either original, or styled image.
     $settings['placeholder'] = empty($settings['placeholder']) ? BlazyUtil::generatePlaceholder($settings['width'], $settings['height']) : $settings['placeholder'];
+    $settings['use_media'] = $settings['embed_url'] && in_array($settings['type'], ['audio', 'video']);
+    $settings['use_loading'] = empty($settings['is_preview']) ? $settings['use_loading'] : FALSE;
   }
 
   /**

@@ -492,7 +492,7 @@ trait BlazyCreationTestTrait {
       $this->url = file_create_url($uri);
     }
 
-    $this->testItem = $item;
+    $this->testItem = $this->image = $item;
 
     $this->data = [
       'settings' => $this->getFormatterSettings(),

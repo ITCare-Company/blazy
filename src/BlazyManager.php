@@ -92,8 +92,6 @@ class BlazyManager extends BlazyManagerBase {
     $settings['_api'] = TRUE;
     $pathinfo = pathinfo($settings['uri']);
     $settings['extension'] = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
-    $settings['use_media'] = $settings['embed_url'] && in_array($settings['type'], ['audio', 'video']);
-    $settings['use_loading'] = empty($settings['is_preview']) ? $settings['use_loading'] : FALSE;
 
     foreach (BlazyDefault::themeAttributes() as $key) {
       $key = $key . '_attributes';
@@ -114,8 +112,7 @@ class BlazyManager extends BlazyManagerBase {
     Blazy::urlAndDimensions($settings, $item);
 
     // Only process (Responsive) image/ video if no rich-media are provided.
-    // Yet allows to use both in tandem for custom work with lightboxes, etc.
-    if (empty($build['content']) || !empty($settings['use_image'])) {
+    if (empty($build['content'])) {
       $this->buildMedia($element, $build);
     }
 

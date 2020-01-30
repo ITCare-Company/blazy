@@ -59,6 +59,7 @@ class BlazyViews {
 
     // Given blazy--photoswipe-gallery, adds the [data-photoswipe-gallery], etc.
     if ($lightbox && in_array($lightbox, $lightboxes)) {
+      $settings['namespace'] = 'blazy';
       $settings['media_switch'] = $matches[1];
       // @todo remove conditions when confident, kept to avoid the unexpected.
       $variables['attributes'] = empty($variables['attributes']) ? [] : $variables['attributes'];

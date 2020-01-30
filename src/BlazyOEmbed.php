@@ -223,7 +223,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * {@inheritdoc}
    */
-  public function getMediaItem(array &$data = [], $media = NULL) {
+  public function getMediaItem(array &$data, $media) {
     // Only proceed if we do have Media.
     if ($media->getEntityTypeId() != 'media') {
       return;
@@ -243,6 +243,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     // Prioritize custom high-res or poster image such as (remote|file) video.
     if (!empty($settings['image'])) {
       $item = $media->get($settings['image'])->first();
+      $settings['_hires'] = !empty($item);
     }
 
     // If Media has a defined thumbnail, add it to data item, not all has this.

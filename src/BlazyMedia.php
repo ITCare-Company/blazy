@@ -96,7 +96,7 @@ class BlazyMedia {
     }
 
     // Clone relevant keys since field wrapper is no longer in use.
-    foreach (['attached', 'cache', 'object', 'third_party_settings'] as $key) {
+    foreach (['attached', 'cache', 'third_party_settings'] as $key) {
       if (!empty($field["#$key"])) {
         $item["#$key"] = isset($item["#$key"]) ? NestedArray::mergeDeep($field["#$key"], $item["#$key"]) : $field["#$key"];
       }

@@ -53,6 +53,6 @@ interface BlazyOEmbedInterface {
    * @param object $media
    *   The core Media entity.
    */
-  public function getMediaItem(array &$data = [], $media = NULL);
+  public function getMediaItem(array &$data, $media);
 
 }

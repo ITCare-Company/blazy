@@ -75,13 +75,8 @@
       var player = target.parentNode;
       var playing = document.querySelector('.is-playing');
       var iframe = player.querySelector('iframe');
-      var autoPlayUrl = target.getAttribute('data-autoplay');
 
       url = target.getAttribute('data-url');
-      // @todo remove BC for PhotoSwipe after updating to core oEmbed.
-      if (!autoPlayUrl) {
-        autoPlayUrl = url;
-      }
 
       // First, reset any video to avoid multiple videos from playing.
       if (playing !== null) {
@@ -105,7 +100,7 @@
       if (!newIframe) {
         newIframe = document.createElement('iframe');
         newIframe.className = 'media__iframe media__element';
-        newIframe.setAttribute('src', url.indexOf('/oembed') > 0 ? url : autoPlayUrl);
+        newIframe.setAttribute('src', url);
         newIframe.setAttribute('allowfullscreen', true);
 
         if (allow) {
@@ -114,7 +109,7 @@
 
         // Ensures we don't touch cross-origin object, else SecurityError.
         // The transformed url may also contain `oembed` at `?feature=oembed.
-        // The expected here is the top level iframe with ``/media/oembed` route.
+        // The expected is the top level iframe with ``/media/oembed` route.
         if (url.indexOf('/oembed') > 0) {
           newIframe.addEventListener('load', makeResponsive);
         }
@@ -177,14 +172,15 @@
     var alt = img !== null ? img.getAttribute('alt') : 'Video preview';
     var pad = media ? Math.round(((media.height / media.width) * 100), 2) : 100;
     var boxUrl = elm.getAttribute('data-box-url');
-    var embedUrl = elm.getAttribute('href');
+    var href = elm.getAttribute('href');
+    var oembedUrl = elm.hasAttribute('data-oembed-url') ? elm.getAttribute('data-oembed-url') : href;
     var html;
 
     html = '<div class="media-wrapper media-wrapper--inline" style="width:' + media.width + 'px">';
     html += '<div class="media media--switch media--player media--ratio media--ratio--fluid" style="padding-bottom: ' + pad + '%">';
     html += '<img src="' + boxUrl + '" class="media__image media__element" alt="' + Drupal.t(alt) + '"/>';
     html += '<span class="media__icon media__icon--close"></span>';
-    html += '<span class="media__icon media__icon--play" data-url="' + embedUrl + '" data-autoplay="' + embedUrl + '"></span>';
+    html += '<span class="media__icon media__icon--play" data-url="' + oembedUrl + '"></span>';
     html += '</div></div>';
 
     return html;

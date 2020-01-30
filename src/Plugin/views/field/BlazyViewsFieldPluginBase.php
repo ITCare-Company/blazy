@@ -131,6 +131,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
     $settings['count'] = count($this->view->result);
     $settings['current_view_mode'] = $this->view->current_display;
     $settings['view_name'] = $this->view->storage->id();
+    $settings['namespace'] = 'blazy';
 
     return array_merge(BlazyDefault::entitySettings(), $settings);
   }
