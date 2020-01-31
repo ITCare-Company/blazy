@@ -1,4 +1,11 @@
 
+Blazy 8.x-2.0-dev, 2020-01-31
+-----------------------------
+- Removed deprecated tests: BlazyBreakpointUnitTest.
+- Removed deprecated methods known used internally, though public:
+  BlazyManager::getEntityView, BlazyManager::getResponsiveImageCacheTags,
+  Blazy::buildAttributes.
+
 Blazy 8.x-2.0-dev, 2020-01-29
 -----------------------------
 - Deprecated custom breakpoints for removal as per #3105243.

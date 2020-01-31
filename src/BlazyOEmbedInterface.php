@@ -55,4 +55,18 @@ interface BlazyOEmbedInterface {
    */
   public function getMediaItem(array &$data, $media);
 
+  /**
+   * Gets the faked image item out of file entity, or ER, if applicable.
+   *
+   * @param object $file
+   *   The expected file entity, or ER, to get image item from.
+   *
+   * @return array
+   *   The array of image item and settings if a file image, else empty.
+   *
+   * @todo this is likely to be removed for anything Media, still kept for
+   * BlazyFilter and few legacy file entity integrations such as Views file.
+   */
+  public function getImageItem($file);
+
 }

@@ -73,7 +73,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['internal_path']  = $internal_path;
     $settings['is_preview']     = BlazyUtil::isPreview();
     $settings['lightbox']       = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
-    $settings['resimage']       = function_exists('responsive_image_get_image_dimensions') && !empty($settings['responsive_image']) && !empty($settings['responsive_image_style']);
+    $settings['resimage']       = !empty($settings['responsive_image']) && !empty($settings['responsive_image_style']);
     $settings['resimage']       = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
     $settings['use_field']      = !$settings['lightbox'] && isset($settings['third_party'], $settings['third_party']['linked_field']) && !empty($settings['third_party']['linked_field']['linked']);
 
@@ -90,7 +90,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
     $settings['background'] = empty($settings['responsive_image_style']) && !empty($settings['background']);
-    $settings['blazy']      = !empty($settings['blazy']) || $settings['background'] || !empty($settings['resimage']) || !empty($settings['breakpoints']);
+    $settings['blazy']      = !empty($settings['blazy']) || $settings['background'] || $settings['resimage'] || $settings['breakpoints'];
     $settings['lazy']       = $settings['blazy'] ? 'blazy' : (isset($settings['lazy']) ? $settings['lazy'] : '');
     $settings['lazy']       = empty($settings['is_preview']) ? $settings['lazy'] : '';
 
@@ -173,7 +173,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
 
       // Also sets breakpoint dimensions once, if cropped.
-      // @todo TBD; for keeping or removal at blazy:8.x-2.0.
+      // @todo remove custom breakpoints anytime before 3.x.
       if (!empty($settings['breakpoints'])) {
         BlazyBreakpoint::buildDataBlazy($settings, $this->firstItem);
       }

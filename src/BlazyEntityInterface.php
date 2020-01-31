@@ -13,7 +13,7 @@ interface BlazyEntityInterface {
   /**
    * Build image/video preview either using theme_blazy(), or view builder.
    *
-   * This is alternative to Drupal\blazy\BlazyFormatterManager used outside
+   * This is alternative to Drupal\blazy\BlazyFormatter used outside
    * field managers, such as Views field, or Entity Browser displays, etc.
    *
    * @param array $data

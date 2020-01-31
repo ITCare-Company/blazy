@@ -54,6 +54,9 @@ trait BlazyFormatterTrait {
    */
   public function buildSettings() {
     $settings = array_merge($this->getCommonFieldDefinition(), $this->getSettings());
+    $settings['blazy'] = TRUE;
+    $settings['item_id'] = $settings['lazy'] = 'blazy';
+    $settings['_grid'] = !empty($settings['style']) && !empty($settings['grid']);
     $settings['third_party'] = $this->getThirdPartySettings();
     return $settings;
   }
@@ -64,6 +67,7 @@ trait BlazyFormatterTrait {
   public function getCommonFieldDefinition() {
     $field = $this->fieldDefinition;
     return [
+      'namespace'        => 'blazy',
       'current_view_mode' => $this->viewMode,
       'field_name'        => $field->getName(),
       'field_type'        => $field->getType(),

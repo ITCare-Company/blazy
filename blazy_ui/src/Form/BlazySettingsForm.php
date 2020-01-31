@@ -103,6 +103,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#title'         => $this->t('Support Responsive image'),
       '#default_value' => $config->get('responsive_image'),
       '#description'   => $this->t('Check to support lazyloading for the core Responsive image module. Be sure to use blazy-related formatters.'),
+      '#disabled'      => !function_exists('responsive_image_get_image_dimensions'),
     ];
 
     // @todo TBD; for keeping or removal at blazy:8.x-2.0.

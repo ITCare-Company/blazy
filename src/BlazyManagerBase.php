@@ -326,11 +326,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     // Provides data for the [data-blazy] attribute at the containing element.
+    // @todo remove custom breakpoints anytime before 3.x.
     BlazyBreakpoint::cleanUpBreakpoints($settings);
     if (!empty($settings['breakpoints'])) {
       BlazyBreakpoint::buildDataBlazy($settings, $image);
     }
 
+    // @todo remove when Blazy::containerAttributes() is used by sub-modules.
     if (!empty($settings['use_ajax'])) {
       $settings['blazy_data']['useAjax'] = TRUE;
     }
@@ -433,25 +435,23 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * Cleans up breakpoints.
    *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
-   *   BlazyBreakpoint::cleanUpBreakpoints() instead.
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.0. Do not
+   *   use it instead.
    * @see https://www.drupal.org/node/3103018
    */
   public function cleanUpBreakpoints(array &$settings = []) {
-    @trigger_error('cleanUpBreakpoints is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyBreakpoint::cleanUpBreakpoints() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    BlazyBreakpoint::cleanUpBreakpoints($settings);
+    @trigger_error('cleanUpBreakpoints is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.0. Do not use it instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
   }
 
   /**
    * Builds breakpoints suitable for top-level [data-blazy] wrapper attributes.
    *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
-   *   BlazyBreakpoint::buildDataBlazy() instead.
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.0. Do not
+   *   use it instead.
    * @see https://www.drupal.org/node/3103018
    */
   public function buildDataBlazy(array &$settings, $item = NULL) {
-    @trigger_error('buildDataBlazy is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyBreakpoint::buildDataBlazy() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    BlazyBreakpoint::buildDataBlazy($settings, $item);
+    @trigger_error('buildDataBlazy is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.0. Do not use it instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
   }
 
 }

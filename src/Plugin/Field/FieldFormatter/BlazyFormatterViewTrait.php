@@ -19,11 +19,8 @@ trait BlazyFormatterViewTrait {
     }
 
     // Collects specific settings to this formatter.
-    $settings              = array_merge($this->buildSettings(), $settings);
-    $settings['blazy']     = TRUE;
-    $settings['namespace'] = $settings['item_id'] = $settings['lazy'] = 'blazy';
-    $settings['langcode']  = $langcode;
-    $settings['_grid']     = !empty($settings['style']) && !empty($settings['grid']);
+    $settings = array_merge($this->buildSettings(), $settings);
+    $settings['langcode'] = $langcode;
 
     // Build the settings.
     $build = ['settings' => $settings];
