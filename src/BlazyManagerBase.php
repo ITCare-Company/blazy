@@ -10,12 +10,18 @@ use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Implements BlazyManagerInterface.
  */
 abstract class BlazyManagerBase implements BlazyManagerInterface {
+
+  // @todo remove or keep temp fix for EB AJAX issue: #2893029
+  use DependencySerializationTrait;
+  use StringTranslationTrait;
 
   /**
    * The entity repository service.
@@ -71,14 +77,14 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    *
    * @var array
    */
-  private $isCrop;
+  protected $isCrop;
 
   /**
    * Returns available styles with crop in the effect name.
    *
    * @var array
    */
-  private $cropStyles;
+  protected $cropStyles;
 
   /**
    * Constructs a BlazyManager object.
@@ -262,7 +268,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
-    // Cannot use app.root for now since adding more params is troublesome.
+    // @todo use DI at 3.x, cannot use app.root for now.
     if (defined('DRUPAL_ROOT') && is_file(DRUPAL_ROOT . '/libraries/photobox/photobox/jquery.photobox.js')) {
       $lightboxes[] = 'photobox';
     }

@@ -26,7 +26,7 @@ interface BlazyEntityInterface {
    * @return array
    *   The renderable array of theme_blazy(), or view builder, else empty array.
    */
-  public function build(array $data, $entity, $fallback = '');
+  public function build(array &$data, $entity, $fallback = '');
 
   /**
    * Returns the entity view, if available.

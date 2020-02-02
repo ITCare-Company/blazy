@@ -209,12 +209,12 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   /**
    * Deprecated method.
    *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
+   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.0. Use
    *   self::setImageDimensions() instead.
    * @see https://www.drupal.org/node/3103018
    */
   public function setDimensionsOnce(array &$settings = []) {
-    @trigger_error('setDimensionsOnce is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyFormatter::setImageDimensions() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+    @trigger_error('setDimensionsOnce is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.0. Use \Drupal\blazy\BlazyFormatter::setImageDimensions() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     $this->setImageDimensions($settings);
   }
 

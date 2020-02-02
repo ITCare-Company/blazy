@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Render\Element;
@@ -60,7 +61,7 @@ class BlazyEntity implements BlazyEntityInterface {
   /**
    * {@inheritdoc}
    */
-  public function build(array $data, $entity, $fallback = '') {
+  public function build(array &$data, $entity, $fallback = '') {
     $build = [];
 
     if (!$entity instanceof EntityInterface) {
@@ -71,37 +72,32 @@ class BlazyEntity implements BlazyEntityInterface {
     $this->oembed->getMediaItem($data, $entity);
 
     $settings = &$data['settings'];
+    $settings['is_preview'] = BlazyUtil::isPreview();
+    if (!empty($settings['media_switch'])) {
+      $is_lightbox = $this->blazyManager->getLightboxes() && in_array($settings['media_switch'], $this->blazyManager->getLightboxes());
+      $settings['lightbox'] = $is_lightbox ? $settings['media_switch'] : FALSE;
+    }
 
     /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-    if (!empty($data['item'])) {
-      if (!empty($settings['media_switch'])) {
-        $is_lightbox = $this->blazyManager->getLightboxes() && in_array($settings['media_switch'], $this->blazyManager->getLightboxes());
-        $settings['lightbox'] = $is_lightbox ? $settings['media_switch'] : FALSE;
-      }
-      if (empty($settings['uri'])) {
-        $settings['uri'] = ($file = $data['item']->entity) && empty($data['item']->uri) ? $file->getFileUri() : $data['item']->uri;
-      }
-
+    if (!empty($data['item']) && empty($settings['_unblazy'])) {
       // Provide Blazy, if required.
       $build = $this->blazyManager->getBlazy($data);
-
-      // Provides a shortcut to get URI.
       $build['#uri'] = $settings['uri'];
-
-      // Allows top level elements to load Blazy once rather than per field.
-      // This is still here for non-supported Views style plugins, etc.
-      if (empty($settings['_detached'])) {
-        $load = $this->blazyManager->attach($settings);
-
-        // Enforces loading elements hidden by EB "Show selected" button.
-        // @todo figure out to limit to EB plugins to avoid loadInvisible here,
-        // currently relying on ambiguous `_detached` flag.
-        $load['drupalSettings']['blazy']['loadInvisible'] = TRUE;
-        $build['#attached'] = $load;
-      }
     }
     else {
       $build = $this->getEntityView($entity, $settings, $fallback);
+    }
+
+    // Allows top level elements to load Blazy once rather than per field.
+    // This is still here for non-supported Views style plugins, etc.
+    if (empty($settings['_detached']) || $settings['is_preview']) {
+      $load = $this->blazyManager->attach($settings);
+
+      // Enforces loading elements hidden by EB "Show selected" button.
+      // @todo figure out to limit to EB plugins to avoid loadInvisible here,
+      // currently relying on ambiguous `_detached` flag.
+      $load['drupalSettings']['blazy']['loadInvisible'] = TRUE;
+      $build['#attached'] = empty($build['#attached']) ? $load : NestedArray::mergeDeep($build['#attached'], $load);
     }
 
     return $build;

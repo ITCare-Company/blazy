@@ -105,7 +105,7 @@ class BlazyManager extends BlazyManagerBase {
 
     // Build thumbnail and optional placeholder based on thumbnail.
     // This must be set before Blazy::urlAndDimensions to provide placeholder.
-    $this->thumbnailAndPlaceholder($settings, $attributes);
+    $this->thumbnailAndPlaceholder($attributes, $settings);
 
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
@@ -140,7 +140,7 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Build out (Responsive) image.
    */
-  private function buildMedia(array &$element, array $build) {
+  private function buildMedia(array &$element, array &$build) {
     $item = $build['item'];
     $settings = &$build['settings'];
     $attributes = &$build['attributes'];
@@ -162,7 +162,7 @@ class BlazyManager extends BlazyManagerBase {
 
     // Regular image with CSS background.
     if (empty($settings['responsive_image_style_id'])) {
-      $this->buildImage($element, $settings, $attributes, $item_attributes);
+      $this->buildImage($element, $attributes, $item_attributes, $settings);
     }
 
     // Multi-breakpoint aspect ratio only applies if lazyloaded.
@@ -187,7 +187,7 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Build out image, or anything related, including cache, CSS background, etc.
    */
-  private function buildImage(array &$element, array &$settings, array &$attributes, array &$item_attributes) {
+  private function buildImage(array &$element, array &$attributes, array &$item_attributes, array &$settings) {
     if (!empty($settings['lazy'])) {
       // Attach data attributes to either IMG tag, or DIV container.
       if (!empty($settings['background'])) {
@@ -235,7 +235,7 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Build thumbnails, also to provide placeholder for blur effect.
    */
-  protected function thumbnailAndPlaceholder(array &$settings, array &$attributes) {
+  protected function thumbnailAndPlaceholder(array &$attributes, array &$settings) {
     $path = $style = '';
     // With CSS background, IMG may be empty, add thumbnail to the container.
     if (!empty($settings['thumbnail_style'])) {

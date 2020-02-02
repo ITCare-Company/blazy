@@ -31,6 +31,9 @@ interface BlazyInterface {
    *   - item_attributes: The image attributes (width, height, src, etc.).
    *   - url_attributes: An array of URL attributes, lightbox or content links.
    *   - noscript: The fallback image for non-js users.
+   *   - postscript: Any extra content to put into blazy goes here. Use keyed or
+   *       indexed array to not conflict with or nullify other providers, e.g.:
+   *       postscript.cta, or postscript.widget. Avoid postscript = cta.
    *   - content: Various Media entities like Facebook, Instagram, local Video,
    *       etc. Basically content is the replacement for (Responsive) image
    *       and oEmbed video. This makes it possible to have a mix of Media

@@ -1,4 +1,11 @@
 
+Blazy 8.x-2.0-dev, 2020-02-03
+-----------------------------
+- Added postscript: Any extra content to put into blazy goes here. Use keyed or
+  indexed array to not conflict with or nullify other providers, e.g.:
+  postscript.cta, or postscript.widget. Avoid postscript = cta.
+- Fixed for Entity Browser AJAX integration such as for Slick Browser widgets.
+
 Blazy 8.x-2.0-dev, 2020-01-31
 -----------------------------
 - Removed deprecated tests: BlazyBreakpointUnitTest.

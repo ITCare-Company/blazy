@@ -260,6 +260,7 @@ class BlazyDefault {
       'item',
       'item_attributes',
       'noscript',
+      'postscript',
       'settings',
       'url',
     ];

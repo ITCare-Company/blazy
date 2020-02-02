@@ -164,7 +164,7 @@ class BlazyBreakpoint {
     // Check for cropped images at the 5 given styles before any hard work.
     // Ok as run once at the top container regardless of thousand of images.
     foreach ($settings['breakpoints'] as $key => $breakpoint) {
-      if ($style = \Drupal::service('blazy.manager')->isCrop($breakpoint['image_style'])) {
+      if ($style = blazy()->isCrop($breakpoint['image_style'])) {
         $styles[$key] = $style;
       }
     }
