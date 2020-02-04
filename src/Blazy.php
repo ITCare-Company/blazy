@@ -427,14 +427,14 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Returns a wrapper for DI where adding params is troublesome.
+   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
    *
    * @internal
    *   Do not use this.
    * @todo remove and integrate into DI at 3.x, or so, instead.
    */
   public static function root() {
-    return \Drupal::root();
+    return \Drupal::hasService('app.root') ? \Drupal::root() : NULL;
   }
 
   /**
