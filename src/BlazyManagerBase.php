@@ -268,8 +268,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
-    // @todo use DI at 3.x, cannot use app.root for now.
-    if (defined('DRUPAL_ROOT') && is_file(DRUPAL_ROOT . '/libraries/photobox/photobox/jquery.photobox.js')) {
+    // @todo use DI at 3.x, cannot use app.root now without sub-modules sync.
+    if (is_file(Blazy::root() . '/libraries/photobox/photobox/jquery.photobox.js')) {
       $lightboxes[] = 'photobox';
     }
 
@@ -295,14 +295,23 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     // Retrieves Blazy formatter related settings from within Views style.
     $content = !empty($settings['item_id']) && isset($item[$settings['item_id']]) ? $item[$settings['item_id']] : $item;
     $image = isset($item['item']) ? $item['item'] : NULL;
+    // @todo replace first_item with _item for consistency with _width, _height.
+    $settings['first_item'] = $image;
 
     // 1. Blazy formatter within Views fields by supported modules.
     if (isset($item['settings'])) {
       $blazy = $item['settings'];
 
       // Allows breakpoints overrides such as multi-styled images by GridStack.
+      // @todo remove deprecated cutom breakpoints.
       if (empty($settings['breakpoints']) && isset($blazy['breakpoints'])) {
         $settings['breakpoints'] = $blazy['breakpoints'];
+      }
+
+      // Merge the first found (Responsive) image data.
+      if (!empty($blazy['blazy_data'])) {
+        $settings['blazy_data'] = empty($settings['blazy_data']) ? $blazy['blazy_data'] : array_merge($settings['blazy_data'], $blazy['blazy_data']);
+        $settings['_dimensions'] = !empty($settings['blazy_data']['dimensions']);
       }
 
       $cherries = BlazyDefault::cherrySettings() + ['uri' => ''];
@@ -311,7 +320,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
         $settings[$key] = isset($blazy[$key]) && empty($fallback) ? $blazy[$key] : $fallback;
       }
 
-      $settings['first_item'] = $image;
+      // @todo replace first_uri with _uri for consistency with _width, _height.
       $settings['first_uri'] = empty($settings['first_uri']) ? $settings['uri'] : $settings['first_uri'];
       unset($settings['uri']);
     }

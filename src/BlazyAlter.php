@@ -9,6 +9,10 @@ use Drupal\editor\Entity\Editor;
 
 /**
  * Provides hook_alter() methods for Blazy.
+ *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
  */
 class BlazyAlter {
 
@@ -130,7 +134,7 @@ class BlazyAlter {
     $element = $variables['element'];
     $settings = empty($element['#blazy']) ? [] : $element['#blazy'];
     $settings['third_party'] = $element['#third_party_settings'];
-    $is_preview = BlazyUtil::isPreview();
+    $is_preview = Blazy::isPreview();
 
     foreach ($variables['items'] as &$item) {
       if (empty($item['content'])) {

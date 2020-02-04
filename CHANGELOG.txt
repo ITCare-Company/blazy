@@ -1,4 +1,16 @@
 
+Blazy 8.x-2.0-dev, 2020-02-04
+-----------------------------
+- Added temp fix for Picture vs. Responsive image insanity with Fluid aspect
+  ratio.
+- Fixed for RC3 regression with BlazyGrid when a grid is given value 1.
+- Fixed for Blazy when embedded in non-related-blazy (Views style) plugins.
+- Added a new service @blazy.media to existing class BlazyMedia to accommodate
+  and finalize core Media integration.
+- Moved BlazyEntityMediaBase::buildStage to BlazyMedia::imageItem for reuse or
+  easy removal due to deprecated File for Media integration.
+- Reverted BlazyUtil::isPreview back to Blazy::isPreview for global usages.
+
 Blazy 8.x-2.0-dev, 2020-02-03
 -----------------------------
 - Added postscript: Any extra content to put into blazy goes here. Use keyed or

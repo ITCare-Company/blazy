@@ -67,8 +67,10 @@ trait BlazyStyleBaseTrait {
     $settings['count']             = $count;
     $settings['current_view_mode'] = $view_mode;
     $settings['instance_id']       = $instance;
+    $settings['is_preview']        = Blazy::isPreview();
     $settings['multiple']          = TRUE;
     $settings['plugin_id']         = $plugin_id;
+    $settings['route_name']        = Blazy::routeMatch() ? Blazy::routeMatch()->getRouteName() : '';
     $settings['use_ajax']          = $view->ajaxEnabled();
     $settings['view_name']         = $view_name;
     $settings['view_display']      = $view->style_plugin->displayHandler->getPluginId();
@@ -91,7 +93,11 @@ trait BlazyStyleBaseTrait {
   }
 
   /**
-   * Returns the first Blazy formatter found.
+   * Returns the first Blazy formatter found, to save image dimensions once.
+   *
+   * Given 100 images on a page, Blazy will call
+   * ImageStyle::transformDimensions() once rather than 100 times and let the
+   * 100 images inherit it as long as the image style has CROP in the name.
    */
   public function getFirstImage($row) {
     if (!isset($this->firstImage)) {

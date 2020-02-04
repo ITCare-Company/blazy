@@ -91,8 +91,7 @@ class BlazyGrid {
       // Adds common grid attributes for CSS3 column, Foundation, etc.
       if ($settings['grid_large'] = $settings['grid']) {
         foreach (['small', 'medium', 'large'] as $grid) {
-          // Only makes sense if grid is larger than 1.
-          if (!empty($settings['grid_' . $grid]) && $settings['grid_' . $grid] > 1) {
+          if (!empty($settings['grid_' . $grid])) {
             $attributes['class'][] = $grid . '-block-' . $style . '-' . $settings['grid_' . $grid];
           }
         }

@@ -5,6 +5,7 @@ namespace Drupal\blazy\Dejavu;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\BlazyMedia;
 
 /**
  * Base class for Media entity reference formatters with field details.
@@ -57,10 +58,12 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     $item_id   = $settings['item_id'];
     $view_mode = $settings['view_mode'] = empty($settings['view_mode']) ? 'full' : $settings['view_mode'];
 
+    // Bail out if vanilla (rendered entity) is required.
     if (!empty($settings['vanilla'])) {
       return parent::buildElement($build, $entity, $langcode);
     }
 
+    // Otherwise hard work which is meant to reduce custom code at theme level.
     $delta = $settings['delta'];
     $element = ['settings' => $settings];
 
@@ -77,16 +80,16 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
       // @todo remove if no longer file entity is needed for pure Media, likely
       // post blazy:8.3+ since BlazyFileFormatter is already deprecated.
       elseif (empty($element['item']) && empty($settings['uri'])) {
-        $this->buildStage($element, $entity, $langcode);
+        BlazyMedia::imageItem($element, $entity);
       }
     }
 
     // Captions if so configured, including Blazy formatters.
     $this->getCaption($element, $entity, $langcode);
 
-    // @todo refactor to avoid this condition in the first place.
     // Optional image with responsive image, lazyLoad, and lightbox supports.
-    $blazy = empty($element['item']) ? [] : $this->formatter()->getBlazy($element);
+    // Including potential rich Media contents: local video, Facebook, etc.
+    $blazy = $this->formatter()->getBlazy($element);
 
     // If the caller is Blazy, provides simple index elements.
     if ($settings['namespace'] == 'blazy') {
@@ -170,43 +173,6 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
   }
 
   /**
-   * Build the main background/stage, image or video.
-   *
-   * Main image can be separate image item from video thumbnail for highres.
-   * Fallback to default thumbnail if any, which has no file API.
-   *
-   * @todo check if still needed for non-media post BlazyOEmbed::getMediaItem()
-   *   since BlazyFileFormatter is already deprecated.
-   * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
-   *   \Drupal\blazy\BlazyOEmbed::getMediaItem() instead.
-   */
-  public function buildStage(array &$element, $entity, $langcode) {
-    $settings = &$element['settings'];
-    $stage = $settings['image'];
-
-    // The actual video thumbnail has already been downloaded earlier.
-    // This fetches the highres image if provided and available.
-    // With a mix of image and video, image is not always there.
-    /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $file */
-    if (isset($entity->{$stage}) && $file = $entity->get($stage)) {
-      $value = $file->getValue();
-
-      // Do not proceed if it is a Media entity video.
-      if (isset($value[0]) && !empty($value[0]['target_id'])) {
-        // If image, even if multi-value, we can only have one stage per slide.
-        if (method_exists($file, 'referencedEntities') && isset($file->referencedEntities()[0])) {
-          /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-          $element['item'] = $file->get(0);
-
-          // Collects cache tags to be added for each item in the field.
-          $settings['file_tags'] = $file->referencedEntities()[0]->getCacheTags();
-          $settings['uri'] = $file->referencedEntities()[0]->getFileUri();
-        }
-      }
-    }
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
@@ -239,11 +205,12 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     $images      = [];
 
     if ($bundles) {
-      // @todo figure out to not hardcode stock bundle image.
+      // @todo figure out to not hard-code stock bundle image.
       if (in_array('image', $bundles)) {
         $captions['title'] = $this->t('Image Title');
         $captions['alt'] = $this->t('Image Alt');
       }
+      // Only provides poster if media contains rich media.
       $media = ['audio', 'remote_video', 'video', 'instagram', 'soundcloud'];
       if (count(array_intersect($bundles, $media)) > 0) {
         $images['images'] = $this->admin()->getFieldOptions($bundles, ['image'], $target_type);

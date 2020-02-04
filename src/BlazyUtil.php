@@ -28,13 +28,6 @@ class BlazyUtil {
   }
 
   /**
-   * Checks if Blazy is in CKEditor preview mode where no JS aasets are loaded.
-   */
-  public static function isPreview() {
-    return in_array(\Drupal::routeMatch()->getRouteName(), ['entity_embed.preview', 'media.filter.preview']);
-  }
-
-  /**
    * Returns the sanitized attributes for user-defined (UGC Blazy Filter).
    *
    * When IMG and IFRAME are allowed for untrusted users, trojan horses are
@@ -103,7 +96,7 @@ class BlazyUtil {
   public static function isValidUri($uri) {
     if (version_compare(\Drupal::VERSION, '8.8', '>=')) {
       // Adds a check to pass the tests due to non-DI.
-      return \Drupal::hasService('stream_wrapper_manager') ? \Drupal::service('stream_wrapper_manager')->isValidUri($uri) : FALSE;
+      return Blazy::streamWrapperManager() ? Blazy::streamWrapperManager()->isValidUri($uri) : FALSE;
     }
     else {
       // Because this code only runs for older Drupal versions, we do not need
@@ -112,19 +105,6 @@ class BlazyUtil {
       // circumvents those warnings.
       $function = 'file_valid_uri';
       return $function($uri);
-    }
-  }
-
-  /**
-   * Provides image dimensions based on the given image item.
-   */
-  public static function imageDimensions(array &$settings, $item = NULL, $initial = FALSE) {
-    $width = $initial ? '_width' : 'width';
-    $height = $initial ? '_height' : 'height';
-
-    if (empty($settings[$width])) {
-      $settings[$width] = $item && isset($item->width) ? $item->width : NULL;
-      $settings[$height] = $item && isset($item->height) ? $item->height : NULL;
     }
   }
 
@@ -152,6 +132,19 @@ class BlazyUtil {
     $data_uri = !empty($settings['use_data_uri']) && substr($settings['image_url'], 0, 10) === 'data:image';
     if (!empty($settings['_check_protocol']) && !$data_uri) {
       $settings['image_url'] = UrlHelper::stripDangerousProtocols($settings['image_url']);
+    }
+  }
+
+  /**
+   * Provides image dimensions based on the given image item.
+   */
+  public static function imageDimensions(array &$settings, $item = NULL, $initial = FALSE) {
+    $width = $initial ? '_width' : 'width';
+    $height = $initial ? '_height' : 'height';
+
+    if (empty($settings[$width])) {
+      $settings[$width] = $item && isset($item->width) ? $item->width : NULL;
+      $settings[$height] = $item && isset($item->height) ? $item->height : NULL;
     }
   }
 

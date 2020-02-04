@@ -5,27 +5,12 @@ namespace Drupal\blazy;
 use Drupal\Component\Utility\NestedArray;
 
 /**
- * Provides extra utilities to work with core Media.
- *
- * This class makes it possible to have a mixed display of all media entities,
- * useful for Blazy Grid, Slick Carousel, GridStack contents as mixed media.
- * This approach is alternative to regular preprocess overrides, still saner
- * than iterating over unknown like template_preprocess_media_entity_BLAH, etc.
- *
- * @todo rework this for core Media, and refine for theme_blazy().
+ * Impelements BlazyMediaInterface.
  */
-class BlazyMedia {
+class BlazyMedia implements BlazyMediaInterface {
 
   /**
-   * Builds the media field which is not understood by theme_blazy().
-   *
-   * @param object $media
-   *   The media being rendered.
-   * @param array $settings
-   *   The contextual settings array.
-   *
-   * @return array|bool
-   *   The renderable array of the media field, or false if not applicable.
+   * {@inheritdoc}
    */
   public static function build($media, array $settings = []) {
     // Prevents fatal error with disconnected internet when having ME Facebook,
@@ -52,13 +37,7 @@ class BlazyMedia {
   }
 
   /**
-   * Returns a field item/ content to be wrapped by theme_blazy().
-   *
-   * @param array $field
-   *   The source renderable array $field.
-   *
-   * @return array
-   *   The renderable array of the media item to be wrapped by theme_blazy().
+   * {@inheritdoc}
    */
   public static function wrap(array $field = []) {
     $item       = $field[0];
@@ -104,6 +83,85 @@ class BlazyMedia {
     // Keep original formatter configurations intact here for custom works.
     $item['#settings'] = new BlazySettings(array_filter($settings));
     return $item;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function mediaItem(array &$data, $media) {
+    $item     = NULL;
+    $settings = &$data['settings'];
+
+    $settings['bundle']       = $media->bundle();
+    $settings['source_field'] = $media->getSource()->getConfiguration()['source_field'];
+    $settings['media_url']    = $media->toUrl()->toString();
+    $settings['media_id']     = $media->id();
+    $settings['media_source'] = $media->getSource()->getPluginId();
+    $settings['view_mode']    = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
+
+    // Prioritize custom high-res or poster image such as (remote|file) video.
+    if (!empty($settings['image'])) {
+      $item = $media->get($settings['image'])->first();
+      $settings['_hires'] = !empty($item);
+    }
+
+    // If Media has a defined thumbnail, add it to data item, not all has this.
+    if (!$item && $media->hasField('thumbnail')) {
+      /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+      // Title is NULL from thumbnail, likely core bug, so use source.
+      $item = $media->get($settings['media_source'] == 'image' ? $settings['source_field'] : 'thumbnail')->first();
+    }
+
+    // Checks if Image item is available.
+    if ($item) {
+      $settings['file_tags'] = ['file:' . $item->target_id];
+      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+    }
+
+    // If the expected fails, at least check for metadata, likely unknown media.
+    if (empty($settings['uri'])) {
+      try {
+        // Without internet, this screwed up the site.
+        $settings['uri'] = $media->getSource()->getMetadata($media, 'thumbnail_uri');
+      }
+      catch (\Exception $ignore) {
+        // Do nothing, no need to be chatty on this.
+      }
+    }
+
+    // Pass through image item.
+    $data['item'] = $item;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @todo compare and merge with BlazyOEmbed::getImageItem().
+   */
+  public static function imageItem(array &$data, $entity) {
+    $settings = &$data['settings'];
+    $stage = $settings['image'];
+
+    // The actual video thumbnail has already been downloaded earlier.
+    // This fetches the highres image if provided and available.
+    // With a mix of image and video, image is not always there.
+    /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $file */
+    if (isset($entity->{$stage}) && $file = $entity->get($stage)) {
+      $value = $file->getValue();
+
+      // Do not proceed if it is a Media entity video.
+      if (isset($value[0]) && !empty($value[0]['target_id'])) {
+        // If image, even if multi-value, we can only have one stage per slide.
+        if (method_exists($file, 'referencedEntities') && isset($file->referencedEntities()[0])) {
+          /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+          $data['item'] = $file->get(0);
+
+          // Collects cache tags to be added for each item in the field.
+          $settings['file_tags'] = $file->referencedEntities()[0]->getCacheTags();
+          $settings['uri'] = $file->referencedEntities()[0]->getFileUri();
+        }
+      }
+    }
   }
 
 }

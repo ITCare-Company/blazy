@@ -402,7 +402,7 @@ class Blazy implements BlazyInterface {
     $element = &$variables['element'];
     $settings = empty($element['#blazy']) ? [] : $element['#blazy'];
 
-    // 1. Hence Blazy is not the formatter, lack of settings.
+    // 1. Hence Blazy is not the formatter, lacks of settings.
     if (!empty($element['#third_party_settings']['blazy']['blazy'])) {
       BlazyAlter::thirdPartyPreprocessField($variables);
     }
@@ -427,9 +427,39 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Implements hook_config_schema_info_alter().
+   * Returns a wrapper for DI where adding params is troublesome.
    *
-   * @todo deprecate it for BlazyAlter::configSchemaInfoAlter at blazy:8.x-2.0.
+   * @internal
+   *   Do not use this.
+   * @todo remove and integrate into DI at 3.x, or so, instead.
+   */
+  public static function root() {
+    return \Drupal::root();
+  }
+
+  /**
+   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
+   */
+  public static function streamWrapperManager() {
+    return \Drupal::hasService('stream_wrapper_manager') ? \Drupal::service('stream_wrapper_manager') : NULL;
+  }
+
+  /**
+   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
+   */
+  public static function routeMatch() {
+    return \Drupal::routeMatch();
+  }
+
+  /**
+   * Checks if Blazy is in CKEditor preview mode where no JS aasets are loaded.
+   */
+  public static function isPreview() {
+    return in_array(self::routeMatch()->getRouteName(), ['entity_embed.preview', 'media.filter.preview']);
+  }
+
+  /**
+   * Implements hook_config_schema_info_alter().
    */
   public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', array $settings = []) {
     BlazyAlter::configSchemaInfoAlter($definitions, $formatter, $settings);

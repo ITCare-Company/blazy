@@ -72,7 +72,7 @@ class BlazyEntity implements BlazyEntityInterface {
     $this->oembed->getMediaItem($data, $entity);
 
     $settings = &$data['settings'];
-    $settings['is_preview'] = BlazyUtil::isPreview();
+    $settings['is_preview'] = Blazy::isPreview();
     if (!empty($settings['media_switch'])) {
       $is_lightbox = $this->blazyManager->getLightboxes() && in_array($settings['media_switch'], $this->blazyManager->getLightboxes());
       $settings['lightbox'] = $is_lightbox ? $settings['media_switch'] : FALSE;

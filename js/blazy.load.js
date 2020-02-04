@@ -1,13 +1,11 @@
 /**
  * @file
- * Provides Intersection Observer API or bLazy loader.
+ * Provides Intersection Observer API, or bLazy loader.
  */
 
 (function (Drupal, drupalSettings, _db, window, document) {
 
   'use strict';
-
-  var _ratioTimer;
 
   /**
    * Blazy public methods.
@@ -16,11 +14,11 @@
    */
   Drupal.blazy = Drupal.blazy || {
     init: null,
-    loopRatio: false,
     windowWidth: 0,
     blazySettings: drupalSettings.blazy || {},
     ioSettings: drupalSettings.blazyIo || {},
     isForced: false,
+    revalidate: false,
     options: {},
     globals: function () {
       var me = this;
@@ -63,28 +61,73 @@
         });
       }
 
-      // Correct padding after the image is fully loaded.
-      me.updatePadding(el);
-
       // Provides event listeners for easy overrides without full overrides.
       _db.trigger(el, 'blazy.done', {
         options: me.options
       });
     },
 
-    updatePadding: function (el) {
+    pixelRatio: function () {
+      return window.devicePixelRatio || 1;
+    },
+
+    /**
+     * Updates the dynamic multi-breakpoint aspect ratio, picture or image.
+     *
+     * This only applies to multi-serving images with aspect ratio fluid if
+     * each element contains [data-dimensions] attribute.
+     * Static single aspect ratio, e.g. `media--ratio--169`, will be ignored,
+     * and will use CSS instead.
+     *
+     * @param {HTMLElement} el
+     *   The .media--ratio--fluid HTML element.
+     */
+    updateRatio: function (el) {
       var me = this;
-      var cn = el.classList.contains(el, 'media--ratio--fluid') ? el : _db.closest(el, '.media--ratio--fluid');
 
-      if (me.loopRatio && cn !== null) {
-        window.clearTimeout(_ratioTimer);
-        _ratioTimer = window.setTimeout(function () {
-          var pad = Math.round(((el.naturalHeight / el.naturalWidth) * 100), 2);
+      // Blazy used within blazy-related plugins has [data-blazy] defined.
+      var dimensions = me.options && 'dimensions' in me.options ? me.options.dimensions : _db.parse(el.getAttribute('data-dimensions'));
+      var isPicture = el.querySelector('picture') !== null;
 
-          if (pad > 0) {
-            cn.style.paddingBottom = pad + '%';
-          }
-        }, 600);
+      if (!dimensions) {
+        return;
+      }
+
+      var keys = Object.keys(dimensions);
+      var xs = keys[0];
+      var xl = keys[keys.length - 1];
+      var mw = function (w) {
+        // @todo picture wants <=, non-picture wants >=, wtf.
+        // @todo recheck devicePixelRatio for Picture, sizes, mediaqueries, etc.
+        var pr = (me.windowWidth * me.pixelRatio());
+        return isPicture ? w <= me.windowWidth : w >= pr;
+      };
+
+      var pad = keys.filter(mw).map(function (v) {
+        return dimensions[v];
+      })[isPicture ? 'pop' : 'shift']();
+
+      if (pad === 'undefined') {
+        pad = dimensions[me.windowWidth >= xl ? xl : xs];
+      }
+
+      if (pad !== 'undefined') {
+        el.style.paddingBottom = pad + '%';
+      }
+
+      el.removeAttribute('data-ratio');
+    },
+
+    /**
+     * Fix for Twig inline_template and Views rewrite striping out style.
+     *
+     * @param {HTMLElement} el
+     *   The .media--ratio--fluid HTML element.
+     */
+    updateFallbackRatio: function (el) {
+      // Only rewrites if the style is indeed stripped out by Twig, and not set.
+      if (!el.hasAttribute('style') && el.hasAttribute('data-ratio')) {
+        el.style.paddingBottom = el.getAttribute('data-ratio') + '%';
       }
     },
 
@@ -122,6 +165,30 @@
 
     run: function (opts) {
       return this.isIo() ? new BioMedia(opts) : new Blazy(opts);
+    },
+
+    afterInit: function (context) {
+      var me = this;
+      var ratioElms = context.querySelector('[data-dimensions]') === null ? [] : context.querySelectorAll('[data-dimensions]');
+      var fallbackRatioElms = context.querySelector('[data-ratio]') === null ? [] : context.querySelectorAll('[data-ratio]');
+
+      // Reacts on resizing/200ms, and the magic () does it on page load, too.
+      _db.resize(function () {
+        me.windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || window.screen.width;
+        if (ratioElms.length > 0) {
+          _db.forEach(ratioElms, me.updateRatio.bind(me), context);
+        }
+        else if (fallbackRatioElms.length > 0) {
+          _db.forEach(fallbackRatioElms, me.updateFallbackRatio.bind(me), context);
+        }
+
+        // BC with bLazy, native/IO doesn't need to revalidate, bLazy does.
+        // Scenarios: long horizontal containers, Slick carousel slidesToShow >
+        // 3. If any issue, add a class `blazy--revalidate` manually to .blazy.
+        if (!me.isNativeLazy() && (me.isBlazy() || me.revalidate)) {
+          me.init.revalidate(true);
+        }
+      })();
     }
 
   };
@@ -155,7 +222,7 @@
     // Enforced such as with entity embed iframe where lazyload is less useful
     // due to smaller window estate. Be sure to enable `Native lazy loading`.
     if (me.isNativeLazy() || me.isForced) {
-      var elms = context.querySelectorAll('.b-lazy[loading]:not(.' + me.options.successClass + ')');
+      var elms = context.querySelectorAll(me.options.selector + '[loading]:not(.' + me.options.successClass + ')');
       if (elms.length > 0) {
         _db.forEach(elms, me.doNativeLazy.bind(me));
       }
@@ -164,6 +231,9 @@
     // Put the blazy/IO instance into a public object for references/ overrides.
     // If native lazy load is supported, the following will skip internally.
     me.init = me.run(me.options);
+
+    // Reacts on resizing per 200ms, and the magic () also does it on page load.
+    me.afterInit(context);
   };
 
   /**
@@ -176,85 +246,12 @@
     var me = Drupal.blazy;
     var dataAttr = elm.getAttribute('data-blazy');
     var opts = (!dataAttr || dataAttr === '1') ? {} : (_db.parse(dataAttr) || {});
-    var ratioElms = elm.querySelector('[data-dimensions]') === null ? [] : elm.querySelectorAll('[data-dimensions]');
-    var fallbackRatioElms = elm.querySelector('[data-ratio]') === null ? [] : elm.querySelectorAll('[data-ratio]');
 
+    me.revalidate = me.revalidate || elm.classList.contains('blazy--revalidate');
     elm.classList.add('blazy--on');
-    me.loopRatio = ratioElms.length > 0;
-
-    /**
-     * Updates the dynamic multi-breakpoint aspect ratio.
-     *
-     * This only applies to multi-serving images with aspect ratio fluid if
-     * each element contains [data-dimensions] attribute.
-     * Static single aspect ratio, e.g. `media--ratio--169`, will be ignored,
-     * and will use CSS instead.
-     *
-     * @param {HTMLElement} el
-     *   The .media--ratio--fluid HTML element.
-     */
-    function updateRatio(el) {
-      var dimensions = _db.parse(el.getAttribute('data-dimensions'));
-
-      if (!dimensions) {
-        return;
-      }
-
-      var keys = Object.keys(dimensions);
-      var xs = keys[0];
-      var xl = keys[keys.length - 1];
-      var mw = function (w) {
-        return w >= me.windowWidth;
-      };
-      var pad = keys.filter(mw).map(function (v) {
-        return dimensions[v];
-      }).shift();
-
-      if (pad === 'undefined') {
-        pad = dimensions[me.windowWidth >= xl ? xl : xs];
-      }
-
-      if (pad !== 'undefined') {
-        el.style.paddingBottom = pad + '%';
-      }
-
-      el.removeAttribute('data-ratio');
-    }
-
-    /**
-     * Fix for Twig inline_template and Views rewrite striping out style.
-     *
-     * @param {HTMLElement} el
-     *   The .media--ratio--fluid HTML element.
-     */
-    function updateFallbackRatio(el) {
-      // Only rewrites if the style is indeed stripped out by Twig, and not set.
-      if (!el.hasAttribute('style') && el.getAttribute('data-ratio')) {
-        el.style.paddingBottom = el.getAttribute('data-ratio') + '%';
-      }
-    }
 
     // Initializes native, IntersectionObserver, or Blazy instance.
     initBlazy(elm, opts);
-
-    // Reacts on resizing per 200ms, and the magic () also does it on page load.
-    _db.resize(function () {
-      me.windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || window.screen.width;
-
-      if (me.loopRatio) {
-        _db.forEach(ratioElms, updateRatio, elm);
-      }
-      else if (fallbackRatioElms.length > 0) {
-        _db.forEach(fallbackRatioElms, updateFallbackRatio, elm);
-      }
-
-      // BC with bLazy, native/IO doesn't need to revalidate, bLazy does.
-      // Scenarios: long horizontal containers, Slick carousel slidesToShow > 3.
-      // If any issue, add a class `blazy--revalidate` manually to .blazy.
-      if (!me.isNativeLazy() && (me.isBlazy() || elm.classList.contains('blazy--revalidate'))) {
-        me.init.revalidate(true);
-      }
-    })();
   }
 
   /**
@@ -279,6 +276,7 @@
         context = context[0];
       }
 
+      // This data attribute identifies blazy-related plugins.
       var el = context.querySelector('[data-blazy]');
 
       // Runs basic Blazy if no [data-blazy] found, probably a single image or

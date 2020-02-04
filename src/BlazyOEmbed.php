@@ -229,46 +229,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       return;
     }
 
-    $item     = NULL;
-    $content  = [];
+    BlazyMedia::mediaItem($data, $media);
     $settings = $data['settings'];
-
-    $settings['bundle']       = $media->bundle();
-    $settings['source_field'] = $media->getSource()->getConfiguration()['source_field'];
-    $settings['media_url']    = $media->toUrl()->toString();
-    $settings['media_id']     = $media->id();
-    $settings['media_source'] = $media->getSource()->getPluginId();
-    $settings['view_mode']    = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
-
-    // Prioritize custom high-res or poster image such as (remote|file) video.
-    if (!empty($settings['image'])) {
-      $item = $media->get($settings['image'])->first();
-      $settings['_hires'] = !empty($item);
-    }
-
-    // If Media has a defined thumbnail, add it to data item, not all has this.
-    if (!$item && $media->hasField('thumbnail')) {
-      /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-      // Title is NULL from thumbnail, likely core bug, so use source.
-      $item = $media->get($settings['media_source'] == 'image' ? $settings['source_field'] : 'thumbnail')->first();
-    }
-
-    // Checks if Image item is available.
-    if ($item) {
-      $settings['file_tags'] = ['file:' . $item->target_id];
-      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
-    }
-
-    // If the expected fails, at least check for metadata, likely unknown media.
-    if (empty($settings['uri'])) {
-      try {
-        // Without internet, this screwed up the site.
-        $settings['uri'] = $media->getSource()->getMetadata($media, 'thumbnail_uri');
-      }
-      catch (\Exception $ignore) {
-        // Do nothing, no need to be chatty on this.
-      }
-    }
 
     // @todo support local video/ audio file, and other media sources.
     switch ($settings['media_source']) {
@@ -304,17 +266,17 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       // Either makes no sense, or not currently supported without extra legs.
       // Original formatter settings can still be accessed via content variable.
       $settings = array_merge($settings, BlazyDefault::richSettings());
-      $content[] = $build;
+      $data['content'][] = $build;
     }
 
     // Collect what's needed for clarity.
-    $data['item'] = $item;
     $data['settings'] = $settings;
-    $data['content'] = $content;
   }
 
   /**
    * {@inheritdoc}
+   *
+   * @todo compare and merge with BlazyMedia::imageItem().
    */
   public function getImageItem($file) {
     $data = [];
