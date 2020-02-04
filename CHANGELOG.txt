@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2020-02-05
+-----------------------------
+- Reached 99% integration with Responsive image, including CSS background and
+  the notorious aspect ratio Fluid. The remaining 1% is unknown glicthes.
+
 Blazy 8.x-2.0-dev, 2020-02-04
 -----------------------------
 - Added temp fix for Picture vs. Responsive image insanity with Fluid aspect

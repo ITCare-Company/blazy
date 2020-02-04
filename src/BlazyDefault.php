@@ -80,6 +80,7 @@ class BlazyDefault {
       'media_switch'    => '',
       'ratio'           => '',
       'thumbnail_style' => '',
+      '_uri'            => '',
     ];
   }
 
@@ -170,6 +171,8 @@ class BlazyDefault {
 
   /**
    * Returns default options common for rich Media entities: Facebook, etc.
+   *
+   * This basically disables few Blazy features for rendered-entity-like.
    */
   public static function richSettings() {
     return [

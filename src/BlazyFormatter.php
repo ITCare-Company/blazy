@@ -85,15 +85,14 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     }
 
     // Don't bother if using Responsive image.
-    // @todo TBD; for keeping or removal at blazy:8.x-2.0.
+    // @todo remove custom breakpoints anytime before 3.x.
     $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['unbreakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
     BlazyBreakpoint::cleanUpBreakpoints($settings);
 
     // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
-    $settings['background'] = empty($settings['responsive_image_style']) && !empty($settings['background']);
-    $settings['blazy']      = !empty($settings['blazy']) || $settings['background'] || $settings['resimage'] || $settings['breakpoints'];
-    $settings['lazy']       = $settings['blazy'] ? 'blazy' : (isset($settings['lazy']) ? $settings['lazy'] : '');
-    $settings['lazy']       = empty($settings['is_preview']) ? $settings['lazy'] : '';
+    $settings['blazy'] = !empty($settings['blazy']) || !empty($settings['background']) || $settings['resimage'] || $settings['breakpoints'];
+    $settings['lazy']  = $settings['blazy'] ? 'blazy' : (isset($settings['lazy']) ? $settings['lazy'] : '');
+    $settings['lazy']  = empty($settings['is_preview']) ? $settings['lazy'] : '';
 
     // @todo remove enforced (BC), since now works for Responsive image too.
     if (isset($settings['ratio']) && $settings['ratio'] == 'enforced') {
@@ -115,7 +114,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     // Sets dimensions once, if cropped, to reduce costs with ton of images.
     // This is less expensive than re-defining dimensions per image.
-    if (!empty($settings['first_uri'])) {
+    // @todo remove first_uri for _uri for consistency.
+    if (!empty($settings['_uri']) || !empty($settings['first_uri'])) {
       if (empty($settings['resimage'])) {
         $this->setImageDimensions($settings);
       }
@@ -124,6 +124,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
     }
 
+    // @todo remove if nobody uses this like everything else.
     if (!empty($settings['use_ajax'])) {
       $settings['blazy_data']['useAjax'] = TRUE;
     }
@@ -142,15 +143,17 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo remove first_uri for _uri for consistency.
    */
   public function extractFirstItem(array &$settings, $item, $entity = NULL) {
     if ($settings['field_type'] == 'image') {
       $this->firstItem = $item;
-      $settings['first_uri'] = ($file = $item->entity) && empty($item->uri) ? $file->getFileUri() : $item->uri;
+      $settings['_uri'] = $settings['first_uri'] = ($file = $item->entity) && empty($item->uri) ? $file->getFileUri() : $item->uri;
     }
     elseif ($entity && $entity->hasField('thumbnail') && $image = $entity->get('thumbnail')->first()) {
       $this->firstItem = $image;
-      $settings['first_uri'] = $image->entity->getFileUri();
+      $settings['_uri'] = $settings['first_uri'] = $image->entity->getFileUri();
     }
 
     // The first image dimensions to differ from individual item dimensions.
@@ -192,18 +195,18 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   protected function setResponsiveImageDimensions(array &$settings = []) {
     if (!isset($this->isResponsiveImageDimensionSet[md5($settings['id'])])) {
       $srcset = [];
-      foreach ($this->getResponsiveImageStyles($settings['resimage'], TRUE) as $style) {
+      foreach ($this->getResponsiveImageStyles($settings['resimage'])['styles'] as $style) {
         $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, TRUE));
 
         // In order to avoid layout reflow, we get dimensions beforehand.
-        $srcset[intval($settings['width'])] = round((($settings['height'] / $settings['width']) * 100), 2);
+        $srcset[$settings['width']] = round((($settings['height'] / $settings['width']) * 100), 2);
       }
 
       // Sort the srcset from small to large image width or multiplier.
       ksort($srcset);
 
-      $settings['blazy_data']['dimensions'] = $srcset;
       // Informs individual images that dimensions are already set once.
+      $settings['blazy_data']['dimensions'] = $srcset;
       $settings['_dimensions'] = TRUE;
 
       $this->isResponsiveImageDimensionSet[md5($settings['id'])] = TRUE;

@@ -157,7 +157,7 @@ class BlazyManager extends BlazyManagerBase {
 
     // Responsive image integration.
     if (!empty($settings['resimage']) && $settings['extension'] != 'svg') {
-      $this->buildResponsiveImage($element, $settings);
+      $this->buildResponsiveImage($element, $attributes, $settings);
     }
 
     // Regular image with CSS background.
@@ -171,6 +171,12 @@ class BlazyManager extends BlazyManagerBase {
       $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
     }
 
+    // The settings.urls is output specific for CSS background purposes with BC.
+    if (!empty($settings['urls'])) {
+      $attributes['data-backgrounds'] = Json::encode($settings['urls']);
+      $attributes['class'][] = 'media--background b-bg';
+    }
+
     // Pass non-rich-media elements to theme_blazy().
     $element['#item_attributes'] = $item_attributes;
   }
@@ -178,9 +184,26 @@ class BlazyManager extends BlazyManagerBase {
   /**
    * Build out Responsive image.
    */
-  private function buildResponsiveImage(array &$element, array &$settings) {
+  private function buildResponsiveImage(array &$element, array &$attributes, array &$settings) {
     $settings['responsive_image_style_id'] = $settings['resimage']->id();
-    $element['#cache']['tags'] = $this->getResponsiveImageStyles($settings['resimage'], FALSE);
+    $responsive_image = $this->getResponsiveImageStyles($settings['resimage']);
+    $element['#cache']['tags'] = $responsive_image['caches'];
+
+    // Initial attempt to make Responsive image work as CSS background.
+    if (!empty($settings['background'])) {
+      $srcset = [];
+      foreach ($responsive_image['styles'] as $style) {
+        $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, FALSE));
+
+        // Sort image URLs based on width.
+        $srcset[$settings['width']] = $this->backgroundImage($settings, $style);
+      }
+
+      // Sort the srcset from small to large image width or multiplier.
+      ksort($srcset);
+      $settings['urls'] = $srcset;
+      Blazy::lazyAttributes($attributes, $settings);
+    }
     unset($settings['resimage']);
   }
 
@@ -191,12 +214,14 @@ class BlazyManager extends BlazyManagerBase {
     if (!empty($settings['lazy'])) {
       // Attach data attributes to either IMG tag, or DIV container.
       if (!empty($settings['background'])) {
+        $settings['urls'][$settings['width']] = $this->backgroundImage($settings);
         Blazy::lazyAttributes($attributes, $settings);
+
+        // @todo deprecated and remove post 2.x.
         BlazyBreakpoint::attributes($attributes, $settings);
-        $attributes['class'][] = 'media--background b-bg';
       }
       else {
-        // @todo remove Blazy::lazyAttributes($item_attributes, $settings);
+        // @todo deprecated and remove post 2.x.
         BlazyBreakpoint::attributes($item_attributes, $settings);
       }
     }
@@ -212,6 +237,16 @@ class BlazyManager extends BlazyManagerBase {
         }
       }
     }
+  }
+
+  /**
+   * Prepares CSS background image.
+   */
+  private function backgroundImage(array $settings, $style = NULL) {
+    return [
+      'src' => $style ? BlazyUtil::transformRelative($settings['uri'], $style) : $settings['image_url'],
+      'ratio' => round((($settings['height'] / $settings['width']) * 100), 2),
+    ];
   }
 
   /**
@@ -396,29 +431,19 @@ class BlazyManager extends BlazyManagerBase {
    *
    * @param object $responsive
    *   The responsive image style entity.
-   * @param bool $load
-   *   Whether to load the image style entity.
    *
    * @return array|mixed
-   *   The responsive image styles or its cache tags, else empty array.
+   *   The responsive image styles and its cache tags.
    */
-  public function getResponsiveImageStyles($responsive, $load = TRUE) {
-    $image_styles = $cache_tags = $image_styles_to_load = [];
-    if ($responsive) {
-      $cache_tags = Cache::mergeTags($cache_tags, $responsive->getCacheTags());
-      $image_styles_to_load = $responsive->getImageStyleIds();
-    }
+  public function getResponsiveImageStyles($responsive) {
+    $cache_tags = [];
+    $cache_tags = Cache::mergeTags($cache_tags, $responsive->getCacheTags());
 
-    $image_styles = $this->entityLoadMultiple('image_style', $image_styles_to_load);
-
-    if ($load) {
-      return $image_styles;
-    }
-
+    $image_styles = $this->entityLoadMultiple('image_style', $responsive->getImageStyleIds());
     foreach ($image_styles as $image_style) {
       $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
     }
-    return $cache_tags;
+    return ['caches' => $cache_tags, 'styles' => $image_styles];
   }
 
   /**

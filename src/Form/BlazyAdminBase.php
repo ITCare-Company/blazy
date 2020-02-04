@@ -173,7 +173,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['background'] = [
         '#type'        => 'checkbox',
         '#title'       => $this->t('Use CSS background'),
-        '#description' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires a consistent Aspect ratio, otherwise collapsed containers. Unless a min-height is added manually to <strong>.media--background</strong> selector. Not compatible with Responsive image.'),
+        '#description' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires a consistent Aspect ratio, otherwise collapsed containers. Unless a min-height is added manually to <strong>.media--background</strong> selector.'),
         '#weight'      => -98,
       ];
     }

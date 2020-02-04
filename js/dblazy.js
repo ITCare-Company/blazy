@@ -80,6 +80,26 @@
   };
 
   /**
+   * Returns device pixel ratio.
+   *
+   * @return {Integer}
+   *   Returns the device pixel ratio.
+   */
+  dBlazy.pixelRatio = function () {
+    return window.devicePixelRatio || 1;
+  };
+
+  /**
+   * Returns cross-browser window width.
+   *
+   * @return {Integer}
+   *   Returns the window width.
+   */
+  dBlazy.windowWidth = function () {
+    return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || window.screen.width;
+  };
+
+  /**
    * Check if the HTML tag matches a specified string.
    *
    * @name dBlazy.closest

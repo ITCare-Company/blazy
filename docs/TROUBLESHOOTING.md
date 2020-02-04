@@ -107,16 +107,21 @@ Be sure to add one. If not, add regular CSS `width: 100%` to the blurred
 image if doable with your design.
 
 ## 8. ASPECT RATIO
-Aspect ratio was never supported for Responsive image till Blazy RC7+, not
+**UPDATE**:   
+Blazy RC7+ is 99% integrated with Responsive image, including
+CSS background and the notorious aspect ratio **Fluid**. The remaining 1% is
+some unknown glicthes.
+
+Aspect ratio was never supported for Responsive image till Blazy RC7+, <s>not
 fully though. One remaining issue is to make Aspect ratio `Fluid` work for:
-CSS background + Picture element.
+CSS background + Picture element.</s>
 
 Any **fixed** Aspect ratio (`4:3, 16:9`, etc) should immediately work as long as
 you understand what it means.
 
 Aspect ratio `Fluid` works with [**custom breakpoints**](https://www.drupal.org/node/3105243)
-(to-be-deprecated), not Responsive image, yet. If you want Aspect ratio for
-Responsive image, choose anything but `Fluid`.
+(to-be-deprecated), <s>not Responsive image, yet. If you want Aspect ratio
+for Responsive image, choose anything but `Fluid`.</s>
 
 Any **fixed** Aspect ratio (`4:3, 16:9`, etc), but `Fluid`, wants consistent
 aspect ratio down to mobile, which means it won't work with art direction

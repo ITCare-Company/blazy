@@ -348,6 +348,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     // @todo remove when Blazy::containerAttributes() is used by sub-modules.
+    // @todo remove if nobody uses this like everything else.
     if (!empty($settings['use_ajax'])) {
       $settings['blazy_data']['useAjax'] = TRUE;
     }

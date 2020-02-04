@@ -67,10 +67,6 @@
       });
     },
 
-    pixelRatio: function () {
-      return window.devicePixelRatio || 1;
-    },
-
     /**
      * Updates the dynamic multi-breakpoint aspect ratio, picture or image.
      *
@@ -84,8 +80,6 @@
      */
     updateRatio: function (el) {
       var me = this;
-
-      // Blazy used within blazy-related plugins has [data-blazy] defined.
       var dimensions = me.options && 'dimensions' in me.options ? me.options.dimensions : _db.parse(el.getAttribute('data-dimensions'));
       var isPicture = el.querySelector('picture') !== null;
 
@@ -99,7 +93,7 @@
       var mw = function (w) {
         // @todo picture wants <=, non-picture wants >=, wtf.
         // @todo recheck devicePixelRatio for Picture, sizes, mediaqueries, etc.
-        var pr = (me.windowWidth * me.pixelRatio());
+        var pr = (me.windowWidth * _db.pixelRatio());
         return isPicture ? w <= me.windowWidth : w >= pr;
       };
 
@@ -116,6 +110,7 @@
       }
 
       el.removeAttribute('data-ratio');
+      el.removeAttribute('data-dimensions');
     },
 
     /**
@@ -174,7 +169,7 @@
 
       // Reacts on resizing/200ms, and the magic () does it on page load, too.
       _db.resize(function () {
-        me.windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || window.screen.width;
+        me.windowWidth = _db.windowWidth();
         if (ratioElms.length > 0) {
           _db.forEach(ratioElms, me.updateRatio.bind(me), context);
         }

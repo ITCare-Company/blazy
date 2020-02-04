@@ -71,11 +71,13 @@ class Blazy implements BlazyInterface {
     $settings = $variables['settings'];
 
     // (Responsive) image is optional for Video, or image as CSS background.
-    if (!empty($settings['responsive_image_style_id'])) {
-      self::buildResponsiveImage($variables);
-    }
-    elseif (empty($settings['background'])) {
-      self::buildImage($variables);
+    if (empty($settings['background'])) {
+      if (!empty($settings['responsive_image_style_id'])) {
+        self::buildResponsiveImage($variables);
+      }
+      else {
+        self::buildImage($variables);
+      }
     }
 
     // Prepare a media player, and allow a tiny video preview without iframe.
@@ -207,7 +209,7 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function buildIframe(array &$variables) {
-    $settings           = &$variables['settings'];
+    $settings = &$variables['settings'];
     $variables['image'] = empty($settings['media_switch']) ? [] : $variables['image'];
     $settings['player'] = empty($settings['player']) ? (empty($settings['lightbox']) && $settings['media_switch'] != 'content') : $settings['player'];
 
@@ -289,6 +291,7 @@ class Blazy implements BlazyInterface {
    */
   public static function containerAttributes(array &$attributes, array $settings = []) {
     // Provides hint about AJAX.
+    // @todo remove if nobody uses this like everything else.
     if (!empty($settings['use_ajax'])) {
       $settings['blazy_data']['useAjax'] = TRUE;
     }

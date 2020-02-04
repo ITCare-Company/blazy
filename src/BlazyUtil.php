@@ -157,16 +157,19 @@ class BlazyUtil {
    *   The data settings: _width, _height, first_uri, width, height, and uri.
    * @param bool $initial
    *   Whether particularly transforms once for all, or individually.
+   *
+   * @todo remove first_uri for _uri for consistency.
    */
   public static function transformDimensions($style, array $data, $initial = FALSE) {
     $width  = $initial ? '_width' : 'width';
     $height = $initial ? '_height' : 'height';
-    $uri    = $initial ? 'first_uri' : 'uri';
+    $uri    = $initial ? (isset($data['_uri']) ? '_uri' : 'first_uri') : 'uri';
     $width  = isset($data[$width]) ? $data[$width] : NULL;
     $height = isset($data[$height]) ? $data[$height] : NULL;
     $dim    = ['width' => $width, 'height' => $height];
 
-    $style->transformDimensions($dim, $uri);
+    // Funnily $uri is ignored at all core image effects.
+    $style->transformDimensions($dim, $data[$uri]);
 
     // Sometimes they are string, cast them integer to reduce JS logic.
     return ['width' => (int) $dim['width'], 'height' => (int) $dim['height']];

@@ -179,7 +179,8 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
           $all[$switch] = $settings[$switch];
         }
 
-        $settings['first_uri'] = isset($elements[0]['#build'], $elements[0]['#build']['settings']['uri']) ? $elements[0]['#build']['settings']['uri'] : '';
+        // @todo remove first_uri for _uri for consistency.
+        $settings['_uri'] = $settings['first_uri'] = isset($elements[0]['#build'], $elements[0]['#build']['settings']['uri']) ? $elements[0]['#build']['settings']['uri'] : '';
         $this->buildGrid($dom, $settings, $elements, $grid_nodes);
       }
 

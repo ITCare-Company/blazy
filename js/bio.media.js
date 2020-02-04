@@ -66,6 +66,7 @@
       var me = this;
 
       // DIV elements with multi-serving CSS background images.
+      // @todo remove custom breakpoints anytime before 3.x.
       if (me.options.breakpoints) {
         var _bgSrcs = [];
 
@@ -203,7 +204,34 @@
   };
 
   _proto.setBg = function (el) {
-    if (el.hasAttribute(_bgSrc)) {
+    if (el.hasAttribute('data-backgrounds')) {
+      var backgrounds = _db.parse(el.getAttribute('data-backgrounds'));
+      if (backgrounds) {
+        var keys = Object.keys(backgrounds);
+        var xs = keys[0];
+        var xl = keys[keys.length - 1];
+        var mw = function (w) {
+          // @todo return w >= (_db.windowWidth() * _db.pixelRatio());
+          return w <= _db.windowWidth();
+        };
+
+        var bg = keys.filter(mw).map(function (v) {
+          return backgrounds[v];
+        }).pop();
+
+        if (bg === 'undefined') {
+          bg = backgrounds[_db.windowWidth() >= xl ? xl : xs];
+        }
+
+        if (bg !== 'undefined' && bg.src) {
+          el.style.backgroundImage = 'url("' + bg.src + '")';
+          el.style.paddingBottom = bg.ratio + '%';
+        }
+
+        el.removeAttribute('data-backgrounds');
+      }
+    }
+    else if (el.hasAttribute(_bgSrc)) {
       el.style.backgroundImage = 'url("' + el.getAttribute(_bgSrc) + '")';
       el.removeAttribute(_src);
     }
