@@ -223,12 +223,11 @@
           bg = backgrounds[_db.windowWidth() >= xl ? xl : xs];
         }
 
-        if (bg !== 'undefined' && bg.src) {
+        if (bg !== 'undefined') {
           el.style.backgroundImage = 'url("' + bg.src + '")';
           el.style.paddingBottom = bg.ratio + '%';
+          el.removeAttribute('data-backgrounds');
         }
-
-        el.removeAttribute('data-backgrounds');
       }
     }
     else if (el.hasAttribute(_bgSrc)) {

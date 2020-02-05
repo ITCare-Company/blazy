@@ -32,7 +32,6 @@
   /**
    * Private variables.
    */
-  var _win = window;
   var _doc = document;
   var _db = dBlazy;
   var _bioTick = 0;
@@ -122,7 +121,7 @@
     var me = this;
 
     // Prevents from too many revalidations unless needed.
-    if ((me.count !== me.counted || force === true) && (_revTick < me.counted)) {
+    if ((force === true || me.count !== me.counted) && (_revTick < me.counted)) {
       _disconnected = false;
       me.elms = (me.options.root || _doc).querySelectorAll(me.options.selector);
       me.observe();
@@ -264,10 +263,9 @@
       threshold: me.options.threshold
     };
 
-    me.options.selector = me.options.selector + ':not(.' + me.options.successClass + ')';
-    me.elms = (me.options.root || _doc).querySelectorAll(me.options.selector);
+    me.elms = (me.options.root || _doc).querySelectorAll(me.options.selector + ':not(.' + me.options.successClass + ')');
     me.count = me.elms.length;
-    me.windowWidth = _win.innerWidth || _doc.documentElement.clientWidth || _doc.body.clientWidth || _win.screen.width;
+    me.windowWidth = _db.windowWidth();
 
     me.prepare();
 

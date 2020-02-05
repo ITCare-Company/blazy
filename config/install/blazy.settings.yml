@@ -1,6 +1,6 @@
 admin_css: true
 fx: ''
-native: false
+native: true
 noscript: false
 responsive_image: false
 unbreakpoints: true

@@ -29,7 +29,7 @@ fx.blur:
 preview:
   css:
     component:
-      css/components/blazy.preview.css: {}    
+      css/components/blazy.preview.css: {}
 
 ratio:
   css:
@@ -49,8 +49,6 @@ column:
 dblazy:
   js:
     js/dblazy.js: { weight: -4 }
-  dependencies:
-    - core/classList
 
 # @todo adjust weights to use hundredth decimals.
 bio:
@@ -99,7 +97,6 @@ blazybox:
       css/components/blazy.blazybox.css: {}
   dependencies:
     - core/drupal
-    - core/classList
     - blazy/dblazy
     - blazy/lightbox
 

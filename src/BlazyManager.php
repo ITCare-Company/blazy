@@ -189,7 +189,7 @@ class BlazyManager extends BlazyManagerBase {
     $responsive_image = $this->getResponsiveImageStyles($settings['resimage']);
     $element['#cache']['tags'] = $responsive_image['caches'];
 
-    // Initial attempt to make Responsive image work as CSS background.
+    // Makes Responsive image usable as CSS background.
     if (!empty($settings['background'])) {
       $srcset = [];
       foreach ($responsive_image['styles'] as $style) {
@@ -427,19 +427,18 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
-   * Returns the Responsive image styles.
+   * Returns the Responsive image styles and caches tags.
    *
    * @param object $responsive
    *   The responsive image style entity.
    *
    * @return array|mixed
-   *   The responsive image styles and its cache tags.
+   *   The responsive image styles and cache tags.
    */
   public function getResponsiveImageStyles($responsive) {
-    $cache_tags = [];
-    $cache_tags = Cache::mergeTags($cache_tags, $responsive->getCacheTags());
-
+    $cache_tags = $responsive->getCacheTags();
     $image_styles = $this->entityLoadMultiple('image_style', $responsive->getImageStyleIds());
+
     foreach ($image_styles as $image_style) {
       $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
     }

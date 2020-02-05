@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2020-02-05
 -----------------------------
+- Removed deprecated core/classList library for IE9 below.
+- Added minor cleansup and adjustments.
 - Reached 99% integration with Responsive image, including CSS background and
   the notorious aspect ratio Fluid. The remaining 1% is unknown glicthes.
 

@@ -42,9 +42,8 @@ interface BlazyInterface {
    *       \Drupal\blazy\BlazyDefault::richSettings() to avoid complication.
    *       However you can override them accordingly as needed, such as lightbox
    *       for local Video with/o a pre-configured poster image. The #settings
-   *       and media #object are provided under content variables for more work.
-   *       Originally content is a theme_field() output, trimmed down to bare
-   *       minimum.
+   *       are provided under content variables for more work. Originally
+   *       content is a theme_field() output, trimmed down to bare minimum.
    */
   public static function preprocessBlazy(array &$variables);
 

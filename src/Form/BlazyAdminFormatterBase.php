@@ -74,10 +74,8 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    * Return the field formatter settings summary.
    */
   public function getSettingsSummary($definition = []) {
-    $summary = [];
-
     if (empty($definition['settings'])) {
-      return $summary;
+      return [];
     }
 
     $this->getExcludedSettingsSummary($definition);
@@ -93,14 +91,18 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       'vanilla',
     ];
 
-    $enforced    = isset($definition['enforced']) ? $definition['enforced'] : $enforced;
-    $settings    = array_filter($definition['settings']);
+    $summary  = [];
+    $enforced = isset($definition['enforced']) ? $definition['enforced'] : $enforced;
+    $settings = array_filter($definition['settings']);
+
+    // @todo deprecated and remove post 2.x.
     $breakpoints = isset($settings['breakpoints']) && is_array($settings['breakpoints']) ? array_filter($settings['breakpoints']) : [];
 
     foreach ($definition['settings'] as $key => $setting) {
       $title   = Unicode::ucfirst(str_replace('_', ' ', $key));
       $vanilla = !empty($settings['vanilla']);
 
+      // @todo deprecated and remove post 2.x.
       if ($key == 'breakpoints') {
         $widths = [];
         if ($breakpoints) {
@@ -160,9 +162,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     $excludes     = empty($definition['excludes']) ? [] : $definition['excludes'];
     $plugin_id    = isset($definition['plugin_id']) ? $definition['plugin_id'] : '';
     $blazy        = $plugin_id && strpos($plugin_id, 'blazy') !== FALSE;
-    $image_styles = function_exists('image_style_options') ? image_style_options(TRUE) : [];
-
-    unset($image_styles['']);
+    $image_styles = $this->getEntityAsOptions('image_style');
 
     $excludes['current_view_mode'] = TRUE;
 
@@ -257,32 +257,14 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
   }
 
   /**
-   * Returns Responsive image for select options.
-   */
-  public function getResponsiveImageOptions() {
-    $options = [];
-    if ($this->blazyManager()->getModuleHandler()->moduleExists('responsive_image')) {
-      $image_styles = $this->blazyManager()->entityLoadMultiple('responsive_image_style');
-      if (!empty($image_styles)) {
-        foreach ($image_styles as $name => $image_style) {
-          if ($image_style->hasImageStyleMappings()) {
-            $options[$name] = strip_tags($image_style->label());
-          }
-        }
-      }
-    }
-    return $options;
-  }
-
-  /**
    * Return the field formatter settings summary.
    *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
+   * @deprecated in blazy:8.x-1.0 and is removed from blazy:8.x-2.0. Use
    *   self::getSettingsSummary() instead.
    * @see https://www.drupal.org/node/3103018
    */
   public function settingsSummary($plugin, $definition = []) {
-    @trigger_error('settingsSummary is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyAdminFormatterBase::getSettingsSummary() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+    @trigger_error('settingsSummary is deprecated in blazy:8.x-1.0 and is removed from blazy:8.x-2.0. Use \Drupal\blazy\BlazyAdminFormatterBase::getSettingsSummary() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     $definition = isset($definition) ? $definition : $plugin->getScopedFormElements();
     $definition['settings'] = isset($definition['settings']) ? $definition['settings'] : $plugin->getSettings();
 

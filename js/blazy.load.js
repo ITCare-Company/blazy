@@ -23,6 +23,7 @@
     globals: function () {
       var me = this;
       var commons = {
+        isBlazyPlugin: false,
         success: me.clearing.bind(me),
         error: me.clearing.bind(me),
         selector: '.b-lazy',
@@ -109,8 +110,11 @@
         el.style.paddingBottom = pad + '%';
       }
 
-      el.removeAttribute('data-ratio');
-      el.removeAttribute('data-dimensions');
+      // If Blazy plugin/ formatter, cleansup, else keep it to support resize.
+      if (me.options.isBlazyPlugin) {
+        el.removeAttribute('data-ratio');
+        el.removeAttribute('data-dimensions');
+      }
     },
 
     /**
@@ -164,8 +168,9 @@
 
     afterInit: function (context) {
       var me = this;
-      var ratioElms = context.querySelector('[data-dimensions]') === null ? [] : context.querySelectorAll('[data-dimensions]');
-      var fallbackRatioElms = context.querySelector('[data-ratio]') === null ? [] : context.querySelectorAll('[data-ratio]');
+      var elems = context.querySelectorAll('.media--ratio');
+      var ratioElms = context.querySelector('[data-dimensions]') === null ? [] : elems;
+      var fallbackRatioElms = context.querySelector('[data-ratio]') === null ? [] : elems;
 
       // Reacts on resizing/200ms, and the magic () does it on page load, too.
       _db.resize(function () {
@@ -242,6 +247,7 @@
     var dataAttr = elm.getAttribute('data-blazy');
     var opts = (!dataAttr || dataAttr === '1') ? {} : (_db.parse(dataAttr) || {});
 
+    opts.isBlazyPlugin = true;
     me.revalidate = me.revalidate || elm.classList.contains('blazy--revalidate');
     elm.classList.add('blazy--on');
 

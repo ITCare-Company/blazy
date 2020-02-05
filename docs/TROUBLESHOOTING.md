@@ -17,8 +17,9 @@
 * Images or videos aren't responsive. Solution: choose one of the Aspect ratio.
 * Images are distorted. Solution: choose the correct Aspect ratio. If unsure,
   choose "fluid" to let the module calculate aspect ratio automatically.
-  Check this out:
-  https://cgit.drupalcode.org/blazy/tree/src/Dejavu/ASPECT-RATIO.txt
+
+  [Check out few aspect ratio samples](https://cgit.drupalcode.org/blazy/tree/docs/ASPECT_RATIO.md)
+
 
 
 ## 1. VIEWS INTEGRATION
@@ -125,7 +126,7 @@ for Responsive image, choose anything but `Fluid`.</s>
 
 Any **fixed** Aspect ratio (`4:3, 16:9`, etc), but `Fluid`, wants consistent
 aspect ratio down to mobile, which means it won't work with art direction
-technique, or Picture element.
+technique, or Picture element. [Check out few aspect ratio samples](https://cgit.drupalcode.org/blazy/tree/docs/ASPECT_RATIO.md)
 
 Temporary workaround is to add regular CSS `width: 100%` to the controlling
 image if doable with your design. And a `min-height` per breakpoint via CSS

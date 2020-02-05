@@ -251,7 +251,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
-   * Returns the common settings inherited down to each item.
+   * Returns the common UI settings inherited down to each item.
    */
   public function getCommonSettings() {
     return array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
@@ -321,7 +321,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
 
       // @todo replace first_uri with _uri for consistency with _width, _height.
-      $settings['first_uri'] = empty($settings['first_uri']) ? $settings['uri'] : $settings['first_uri'];
+      $uri = empty($settings['first_uri']) ? $settings['uri'] : $settings['first_uri'];
+      $settings['_uri'] = $settings['first_uri'] = empty($settings['_uri']) ? $uri : $settings['_uri'];
       unset($settings['uri']);
     }
 

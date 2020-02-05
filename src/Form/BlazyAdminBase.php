@@ -25,7 +25,7 @@ use Drupal\blazy\BlazyManagerInterface;
 abstract class BlazyAdminBase implements BlazyAdminInterface {
 
   use StringTranslationTrait;
-  // @todo TBD; remove once decided to remove.
+  // @todo deprecated and remove post 2.x.
   use BlazyAdminBreakpointTrait;
 
   /**
@@ -173,7 +173,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['background'] = [
         '#type'        => 'checkbox',
         '#title'       => $this->t('Use CSS background'),
-        '#description' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires a consistent Aspect ratio, otherwise collapsed containers. Unless a min-height is added manually to <strong>.media--background</strong> selector.'),
+        '#description' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires IO option enabled to support Responsive image, a consistent Aspect ratio, otherwise collapsed containers. Unless a min-height is added manually to <strong>.media--background</strong> selector.'),
         '#weight'      => -98,
       ];
     }
@@ -306,17 +306,16 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns simple form elements common for Views field, EB widget, formatters.
    */
   public function baseForm($definition = []) {
-    $settings     = isset($definition['settings']) ? $definition['settings'] : [];
-    $lightboxes   = $this->blazyManager->getLightboxes();
-    $image_styles = function_exists('image_style_options') ? image_style_options(FALSE) : [];
+    $settings   = isset($definition['settings']) ? $definition['settings'] : [];
+    $lightboxes = $this->blazyManager->getLightboxes();
+    $form       = [];
 
-    $form = [];
     if (empty($definition['no_image_style'])) {
       $form['image_style'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Image style'),
-        '#options'     => $image_styles,
-        '#description' => $this->t('The content image style. This will be treated as the fallback image, which is normally smaller, if Breakpoints or Responsive image are provided. Otherwise this is the only image displayed. This image style is also used to provide dimensions not only for image/iframe but also any media entity like local video, where no images are even associated with, to have the designated dimensions in tandem with aspect ratio as otherwise no UI to customize for.'),
+        '#options'     => $this->getEntityAsOptions('image_style'),
+        '#description' => $this->t('The content image style. This will be treated as the fallback image, which is normally smaller, if Responsive image are provided. Otherwise this is the only image displayed. This image style is also used to provide dimensions not only for image/iframe but also any media entity like local video, where no images are even associated with, to have the designated dimensions in tandem with aspect ratio as otherwise no UI to customize for.'),
         '#weight'      => -100,
       ];
     }
@@ -344,7 +343,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         $form['box_style'] = [
           '#type'    => 'select',
           '#title'   => $this->t('Lightbox image style'),
-          '#options' => $image_styles,
+          '#options' => $this->getEntityAsOptions('image_style'),
           '#states'  => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
           '#weight'  => -97,
         ];
@@ -353,7 +352,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           $form['box_media_style'] = [
             '#type'        => 'select',
             '#title'       => $this->t('Lightbox video style'),
-            '#options'     => $image_styles,
+            '#options'     => $this->getEntityAsOptions('image_style'),
             '#description' => $this->t('Allows different lightbox video dimensions. Or can be used to have a swipable video if <a href=":url1">Blazy PhotoSwipe</a> or <a href=":url2">Slick Lightbox</a> installed.', [
               ':url1' => 'https:drupal.org/project/blazy_photoswipe',
               ':url2' => 'https:drupal.org/project/slick_lightbox',
@@ -398,7 +397,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
 
       if ($this->blazyManager->getModuleHandler()->moduleExists('field_ui')) {
-        $form['view_mode']['#description'] .= $this->t('Manage view modes on the <a href=":view_modes">View modes page</a>.', [':view_modes' => Url::fromRoute('entity.entity_view_mode.collection')->toString()]);
+        $form['view_mode']['#description'] .= ' ' . $this->t('Manage view modes on the <a href=":view_modes">View modes page</a>.', [':view_modes' => Url::fromRoute('entity.entity_view_mode.collection')->toString()]);
       }
     }
 
@@ -406,7 +405,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['thumbnail_style'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Thumbnail style'),
-        '#options'     => function_exists('image_style_options') ? image_style_options(TRUE) : [],
+        '#options'     => $this->getEntityAsOptions('image_style'),
         '#description' => $this->t('Usages: Placeholder replacement for image effects (blur, etc.), Photobox/PhotoSwipe thumbnail, or custom work with thumbnails. Leave empty to not use thumbnails.'),
         '#weight'      => -96,
       ];
@@ -630,20 +629,24 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
+   * Returns available entities for select options.
+   */
+  public function getEntityAsOptions($entity_type = '') {
+    $options = [];
+    if ($entities = $this->blazyManager->entityLoadMultiple($entity_type)) {
+      foreach ($entities as $entity) {
+        $options[$entity->id()] = Html::escape($entity->label());
+      }
+      ksort($options);
+    }
+    return $options;
+  }
+
+  /**
    * Returns available optionsets for select options.
    */
   public function getOptionsetOptions($entity_type = '') {
-    $optionsets = [];
-    if (empty($entity_type)) {
-      return $optionsets;
-    }
-
-    $entities = $this->blazyManager->entityLoadMultiple($entity_type);
-    foreach ((array) $entities as $entity) {
-      $optionsets[$entity->id()] = Html::escape($entity->label());
-    }
-    asort($optionsets);
-    return $optionsets;
+    return $this->getEntityAsOptions($entity_type);
   }
 
   /**
@@ -651,6 +654,24 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    */
   public function getViewModeOptions($target_type) {
     return $this->entityDisplayRepository->getViewModeOptions($target_type);
+  }
+
+  /**
+   * Returns Responsive image for select options.
+   */
+  public function getResponsiveImageOptions() {
+    $options = [];
+    if ($this->blazyManager()->getModuleHandler()->moduleExists('responsive_image')) {
+      $image_styles = $this->blazyManager()->entityLoadMultiple('responsive_image_style');
+      if (!empty($image_styles)) {
+        foreach ($image_styles as $name => $image_style) {
+          if ($image_style->hasImageStyleMappings()) {
+            $options[$name] = Html::escape($image_style->label());
+          }
+        }
+      }
+    }
+    return $options;
   }
 
   /**

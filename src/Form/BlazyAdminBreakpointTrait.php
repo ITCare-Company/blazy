@@ -87,7 +87,7 @@ trait BlazyAdminBreakpointTrait {
         '#type'               => 'select',
         '#title'              => $this->t('Image style'),
         '#title_display'      => 'invisible',
-        '#options'            => function_exists('image_style_options') ? image_style_options(FALSE) : [],
+        '#options'            => $this->getEntityAsOptions('image_style'),
         '#empty_option'       => $this->t('- None -'),
         '#weight'             => 2,
         '#wrapper_attributes' => ['class' => ['form-item--left']],

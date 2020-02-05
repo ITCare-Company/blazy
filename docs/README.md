@@ -11,6 +11,7 @@
  * [Troubleshooting](#troubleshooting)
  * [Roadmap](#roadmap)
  * [FAQ](#faq)
+ * [Aspect ratio template](#aspect-ratio-template)
  * [Contribution](#contribution)
  * [Maintainers](#maintainers)
 
@@ -224,8 +225,9 @@ Check out the relevant sub-module docs for details.
 
 
 ## OPTIONAL FEATURES
-* Views fields for File Entity and Media integration, see Slick Browser.
-* Views style plugin Blazy Grid for Grid Foundation or CSS3 Masonry.
+* Views fields for File Entity and Media integration, see
+  [Slick Browser](https://www.drupal.org/project/slick_browser).
+* Views style plugin `Blazy Grid` for Grid Foundation or pure CSS3 Masonry.
 
 
 

@@ -25,12 +25,12 @@ is for the sake of completed documentation for those who may need it.
 
 2. [Admin status](/admin/reports/status)
 
-  Check for any pending update, and run /update.php from browser address bar.
+   Check for any pending update, and run `/update.php` from browser address bar.
 
 3. If Twig templates are customized, compare against the latest.
 
-4. Always test updates at DEV or STAGING environments so nothing breaks your
-   PRODUCTION site till everything is thoroughly reviewed.
+4. Always test updates at DEV or STAGING environments like a pro so nothing
+   breaks your PRODUCTION site till everything is thoroughly reviewed.
 
 5. Read more the [TROUBLESHOOTING](#troubleshooting) section for common trouble
    solutions.
@@ -41,10 +41,15 @@ Alpha, Beta, DEV releases are for developers only. Beware of possible breakage.
 
 However if it is broken, unless an update is provided, running `drush cr` during
 DEV releases should fix most issues as we add new services, or change things.
-If you don't drush, before any module update, always open a separate tab:
+If you don't drush, before any module update:
 
-[Performance](/admin/config/development/performance)
+1. Always open a separate tab:
 
-And so you are ready to hit **Clear all caches** if any issue.
-Only at worst case, know how to run
-https://www.drupal.org/project/registry_rebuild safely.    
+   [Performance](/admin/config/development/performance)
+2. And so you are ready to hit **Clear all caches** button if any issue. Do not
+   reload this page.
+3. Instead view other browser tabs, and simply hit the button if any
+   issue.
+4. Run `/update.php` as required.
+5. Only at worst case, know how to run
+   [Registry Rebuild](https://www.drupal.org/project/registry_rebuild) safely.
