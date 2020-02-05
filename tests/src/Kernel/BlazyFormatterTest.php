@@ -120,17 +120,8 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $this->assertEquals($this->testFieldName, $settings['field_name']);
     $this->assertArrayHasKey('#blazy', $build[$this->testFieldName]);
 
-    // Tests options.
-    // Verify no optionsets without a defined function paramater.
-    try {
-      $options_1a = $this->blazyAdminFormatter->getOptionsetOptions();
-    }
-    catch (\PHPUnit_Framework_Exception $e) {
-    }
-    $this->assertEmpty($options_1a);
-
-    $options_1b = $this->blazyAdminFormatter->getOptionsetOptions('image_style');
-    $this->assertArrayHasKey('large', $options_1b);
+    $options = $this->blazyAdminFormatter->getOptionsetOptions('image_style');
+    $this->assertArrayHasKey('large', $options);
 
     // Tests grid.
     $new_settings = $this->getFormatterSettings();
