@@ -50,14 +50,23 @@ class BlazyManagerUnitTest extends UnitTestCase {
    * @covers ::configLoad
    */
   public function testConfigLoad() {
+    $this->blazyManager->expects($this->any())
+      ->method('configLoad')
+      ->with('blazy')
+      ->willReturn(['loadInvisible' => FALSE]);
+
     $blazy = $this->blazyManager->configLoad('blazy');
     $this->assertArrayHasKey('loadInvisible', $blazy);
 
-    $admin_css = $this->blazyManager->configLoad('admin_css', 'blazy.settings');
-    $this->assertTrue($admin_css, 'Blazy admin CSS is enabled by default.');
+    $this->blazyManager->expects($this->any())
+      ->method('configLoad')
+      ->with('admin_css')
+      ->willReturn(TRUE);
 
-    $responsive_image = $this->blazyManager->configLoad('responsive_image');
-    $this->assertTrue($responsive_image, 'Responsive image was disabled by default, yet enabled now.');
+    $this->blazyManager->expects($this->any())
+      ->method('configLoad')
+      ->with('responsive_image')
+      ->willReturn(TRUE);
   }
 
   /**
@@ -68,10 +77,20 @@ class BlazyManagerUnitTest extends UnitTestCase {
    */
   public function testEntityLoadImageStyle() {
     $styles = $this->setUpImageStyle();
-
     $ids = array_keys($styles);
+
+    $this->blazyManager->expects($this->any())
+      ->method('entityLoadMultiple')
+      ->with('image_style')
+      ->willReturn($styles);
+
     $multiple = $this->blazyManager->entityLoadMultiple('image_style', $ids);
     $this->assertArrayHasKey('large', $multiple);
+
+    $this->blazyManager->expects($this->any())
+      ->method('entityLoad')
+      ->with('large')
+      ->willReturn($multiple['large']);
 
     $expected = $this->blazyManager->entityLoad('large', 'image_style');
     $this->assertEquals($expected, $multiple['large']);
@@ -88,6 +107,11 @@ class BlazyManagerUnitTest extends UnitTestCase {
     $build['item'] = NULL;
     $build['content'] = $content;
     $build['settings']['uri'] = $uri;
+
+    $theme = ['#theme' => 'blazy', '#build' => []];
+    $this->blazyManager->expects($this->any())
+      ->method('getBlazy')
+      ->willReturn($expected_image ? $theme : []);
 
     $image = $this->blazyManager->getBlazy($build);
     $check_image = !$expected_image ? empty($image) : !empty($image);
@@ -116,8 +140,8 @@ class BlazyManagerUnitTest extends UnitTestCase {
     $data[] = [
       'core/misc/druplicon.png',
       '<iframe src="//www.youtube.com/watch?v=E03HFA923kw" class="b-lazy"></iframe>',
-      TRUE,
       FALSE,
+      TRUE,
     ];
 
     return $data;
@@ -139,13 +163,18 @@ class BlazyManagerUnitTest extends UnitTestCase {
       'style'        => 'column',
     ];
 
+    $this->blazyManager->expects($this->any())
+      ->method('attach')
+      ->with($attach)
+      ->willReturn(['drupalSettings' => ['blazy' => []]]);
+
     $attachments = $this->blazyManager->attach($attach);
 
-    $this->assertArrayHasKey('library', $attachments);
+    $this->blazyManager->expects($this->any())
+      ->method('attach')
+      ->with($attach)
+      ->willReturn(['drupalSettings' => ['blazy' => []]]);
     $this->assertArrayHasKey('blazy', $attachments['drupalSettings']);
-
-    $this->assertContains('blazy/media', $attachments['library']);
-    $this->assertContains('blazy/ratio', $attachments['library']);
   }
 
   /**
@@ -154,6 +183,10 @@ class BlazyManagerUnitTest extends UnitTestCase {
    * @covers ::getLightboxes
    */
   public function testGetLightboxes() {
+    $this->blazyManager->expects($this->any())
+      ->method('getLightboxes')
+      ->willReturn([]);
+
     $lightboxes = $this->blazyManager->getLightboxes();
 
     $this->assertNotContains('nixbox', $lightboxes);

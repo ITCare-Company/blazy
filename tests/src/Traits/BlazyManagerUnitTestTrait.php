@@ -38,6 +38,30 @@ trait BlazyManagerUnitTestTrait {
         'blazy' => ['loadInvisible' => FALSE, 'offset' => 100],
       ],
     ]);
+
+    $this->blazyManager = $this->getMockBuilder('\Drupal\blazy\BlazyManager')
+      ->disableOriginalConstructor()
+      ->getMock();
+
+    $this->blazyManager->expects($this->any())
+      ->method('getModuleHandler')
+      ->willReturn($this->moduleHandler);
+
+    $this->blazyManager->expects($this->any())
+      ->method('getEntityTypeManager')
+      ->willReturn($this->entityTypeManager);
+
+    $this->blazyManager->expects($this->any())
+      ->method('getRenderer')
+      ->willReturn($this->renderer);
+
+    $this->blazyManager->expects($this->any())
+      ->method('getConfigFactory')
+      ->willReturn($this->configFactory);
+
+    $this->blazyManager->expects($this->any())
+      ->method('getCache')
+      ->willReturn($this->cache);
   }
 
   /**
@@ -56,14 +80,6 @@ trait BlazyManagerUnitTestTrait {
     $container->set('blazy.manager', $this->blazyManager);
 
     \Drupal::setContainer($container);
-
-    $this->blazyManager = $this->getMockBuilder('\Drupal\blazy\BlazyManager')
-      ->disableOriginalConstructor()
-      ->getMock();
-
-    $this->blazyManager->expects($this->any())
-      ->method('getModuleHandler')
-      ->willReturn($this->moduleHandler);
   }
 
   /**
