@@ -110,8 +110,6 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $session->wait(3000);
 
     // Verifies that one of the images is there once loaded.
-    $this->assertNotEmpty($this->assertSession()->waitForElement('css', '.b-loaded'));
-
     $loaded = $this->assertSession()->waitForElementVisible('css', '.b-loaded');
     $this->assertNotEmpty($loaded);
 
