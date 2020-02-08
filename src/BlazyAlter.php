@@ -34,7 +34,7 @@ class BlazyAlter {
         }
       }
 
-      // @todo remove or keep at 3.x if so decided as per #3105243.
+      // @todo remove custom breakpoints anytime before 2.x as per #3105243.
       if (isset($mappings['breakpoints'])) {
         foreach (BlazyDefault::getConstantBreakpoints() as $breakpoint) {
           $mappings['breakpoints']['mapping'][$breakpoint]['type'] = 'mapping';
@@ -183,8 +183,7 @@ class BlazyAlter {
    * Attaches Colorbox if so configured.
    */
   public static function attachColorbox(array &$load, $attach = []) {
-    // Intentionally on the second line to not hit it till required.
-    if (function_exists('colorbox_theme')) {
+    if (\Drupal::hasService('colorbox.attachment')) {
       $dummy = [];
       \Drupal::service('colorbox.attachment')->attach($dummy);
       $load = isset($dummy['#attached']) ? NestedArray::mergeDeep($load, $dummy['#attached']) : $load;

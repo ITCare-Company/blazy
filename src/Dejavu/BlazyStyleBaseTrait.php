@@ -42,6 +42,13 @@ trait BlazyStyleBaseTrait {
   }
 
   /**
+   * Prepares commons settings for the style plugins.
+   */
+  protected function prepareSettings(array &$settings = []) {
+    // Do nothing to let extenders modify.
+  }
+
+  /**
    * Provides commons settings for the style plugins.
    */
   protected function buildSettings() {
@@ -60,6 +67,8 @@ trait BlazyStyleBaseTrait {
       ],
     ] + BlazyDefault::lazySettings();
 
+    $this->prepareSettings($settings);
+
     // Prepare needed settings to work with.
     $settings['check_blazy']       = TRUE;
     $settings['id']                = $id;
@@ -67,10 +76,8 @@ trait BlazyStyleBaseTrait {
     $settings['count']             = $count;
     $settings['current_view_mode'] = $view_mode;
     $settings['instance_id']       = $instance;
-    $settings['is_preview']        = Blazy::isPreview();
     $settings['multiple']          = TRUE;
     $settings['plugin_id']         = $plugin_id;
-    $settings['route_name']        = Blazy::routeMatch() ? Blazy::routeMatch()->getRouteName() : '';
     $settings['use_ajax']          = $view->ajaxEnabled();
     $settings['view_name']         = $view_name;
     $settings['view_display']      = $view->style_plugin->displayHandler->getPluginId();
@@ -79,6 +86,8 @@ trait BlazyStyleBaseTrait {
     if (!empty($this->htmlSettings)) {
       $settings = NestedArray::mergeDeep($settings, $this->htmlSettings);
     }
+
+    $this->blazyManager()->getCommonSettings($settings);
 
     $this->blazyManager()->getModuleHandler()->alter('blazy_settings_views', $settings, $view);
     return $settings;

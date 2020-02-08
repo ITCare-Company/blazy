@@ -113,7 +113,7 @@
    *   Returns true if matches, else false.
    */
   dBlazy.equal = function (el, str) {
-    return el.nodeName.toLowerCase() === str;
+    return el !== null && el.nodeName.toLowerCase() === str;
   };
 
   /**
@@ -201,7 +201,7 @@
         }
       }
     }
-    else {
+    else if (collection) {
       for (var i = 0, len = collection.length; i < len; i++) {
         callback.call(scope, collection[i], i, collection);
       }
@@ -308,6 +308,42 @@
   };
 
   /**
+   * Updates CSS background with multi-breakpoint images.
+   *
+   * @name dBlazy.setAttrsWithSources
+   *
+   * @param {Element} el
+   *   The container HTML element.
+   * @param {Boolean} mobileFirst
+   *   Whether to use min-width or max-width.
+   */
+  dBlazy.updateBg = function (el, mobileFirst) {
+    var me = this;
+    var backgrounds = me.parse(el.getAttribute('data-backgrounds'));
+
+    if (backgrounds) {
+      var keys = Object.keys(backgrounds);
+      var xs = keys[0];
+      var xl = keys[keys.length - 1];
+      var mw = function (w) {
+        var pr = (me.windowWidth() * me.pixelRatio());
+        return mobileFirst ? w <= me.windowWidth() : w >= pr;
+        // @todo return mobileFirst ? w <= me.windowWidth() : w >= me.windowWidth();
+      };
+
+      var bg = keys.filter(mw).map(function (v) {
+        return backgrounds[v];
+      })[mobileFirst ? 'pop' : 'shift']();
+
+      bg = bg === 'undefined' ? backgrounds[me.windowWidth() >= xl ? xl : xs] : bg;
+      if (bg && bg !== 'undefined') {
+        el.style.backgroundImage = 'url("' + bg.src + '")';
+        el.style.paddingBottom = bg.ratio + '%';
+      }
+    }
+  };
+
+  /**
    * A simple removeAttribute wrapper.
    *
    * @name dBlazy.removeAttrs
@@ -399,6 +435,45 @@
     catch (e) {
       return false;
     }
+  };
+
+  /**
+   * A simple wrapper to animate anything using animate.css.
+   *
+   * @name dBlazy.animate
+   *
+   * @param {Element} el
+   *   The animated HTML element.
+   */
+  dBlazy.animate = function (el) {
+    var me = this;
+    var animation = el.dataset.animation;
+    var props = [
+      'animation',
+      'animation-duration',
+      'animation-delay',
+      'animation-iteration-count'
+    ];
+
+    el.classList.add('animated', animation);
+    me.forEach(['Duration', 'Delay', 'IterationCount'], function (key) {
+      if ('animation' + key in el.dataset) {
+        el.style['animation' + key] = el.dataset['animation' + key];
+      }
+    });
+
+    me.removeAttrs(el, props);
+
+    function animationEnd() {
+      el.classList.remove('animated', animation);
+      el.removeEventListener('animationend', animationEnd);
+
+      me.forEach(props, function (key) {
+        el.style.removeProperty(key);
+      });
+    }
+
+    el.addEventListener('animationend', animationEnd);
   };
 
   /**

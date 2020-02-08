@@ -115,7 +115,7 @@ class BlazyMedia implements BlazyMediaInterface {
     // Checks if Image item is available.
     if ($item) {
       $settings['file_tags'] = ['file:' . $item->target_id];
-      $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+      $settings['uri'] = Blazy::uri($item);
     }
 
     // If the expected fails, at least check for metadata, likely unknown media.
@@ -158,7 +158,7 @@ class BlazyMedia implements BlazyMediaInterface {
 
           // Collects cache tags to be added for each item in the field.
           $settings['file_tags'] = $file->referencedEntities()[0]->getCacheTags();
-          $settings['uri'] = $file->referencedEntities()[0]->getFileUri();
+          $settings['uri'] = Blazy::uri($data['item']);
         }
       }
     }

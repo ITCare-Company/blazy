@@ -35,7 +35,7 @@ Remove overflow as needed if CSS background is enabled, or on your own.
 }
 */
 
-.b-lazy {
+.media--fx--blur .b-lazy {
   filter: blur(6px);
   opacity: 1;
   /* transition: opacity 500ms ease-in-out; */
@@ -43,7 +43,7 @@ Remove overflow as needed if CSS background is enabled, or on your own.
   transform: scale(1.04);
 }
 
-.b-loaded {
+.media--fx--blur .b-loaded {
   filter: blur(0);
   transform: scale(1);
   /** will-change: transform, opacity; */

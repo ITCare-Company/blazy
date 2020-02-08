@@ -1,4 +1,13 @@
 
+Blazy 8.x-2.0-dev, 2020-02-08
+-----------------------------
+- Fixed for Picture glicthes with Fluid aspect ratio.
+- Added supports for multi-breakpoint CSS background via Responsive image.
+- Added supports for animate.css for the cool people.
+- Added supports for different image effects on a page via .media--fx--EFFECT.
+- Fixed for CKEditor collapsed container due to parent display: flex, or
+  inline-block.
+
 Blazy 8.x-2.0-dev, 2020-02-05
 -----------------------------
 - Removed deprecated core/classList library for IE9 below.

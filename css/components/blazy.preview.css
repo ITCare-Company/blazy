@@ -27,15 +27,20 @@
 
 /** Fixed for file video. */
 .cke_widget_element .blazy .media__element {
+  object-fit: cover;
   width: 100%;
 }
 
-/** Fixed for potential collapsed container. */
-.cke_widget_element .media--switch--media {
+/** Fixed for shrink media due to parent display: flex or inline-block. */
+.cke_widget_element .media {
   min-width: 100%;
 }
 
 @media screen and (min-width: 768px) {
+  .cke_widget_element .media {
+    min-width: 50%;
+  }
+
   .cke_widget_element .media--switch--media {
     min-width: 640px;
   }

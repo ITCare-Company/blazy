@@ -32,8 +32,9 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    * {@inheritdoc}
    */
   public function buildSettings(array &$build, $items) {
-    $settings       = &$build['settings'];
-    $settings      += $this->getCommonSettings();
+    $settings = &$build['settings'];
+    $this->getCommonSettings($settings);
+
     $count          = $items->count();
     $field          = $items->getFieldDefinition();
     $entity         = $items->getEntity();
@@ -43,11 +44,10 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $field_name     = $field->getName();
     $field_clean    = str_replace("field_", '', $field_name);
     $view_mode      = empty($settings['current_view_mode']) ? '_custom' : $settings['current_view_mode'];
-    $namespace      = $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
+    $namespace      = $settings['namespace'];
     $id             = isset($settings['id']) ? $settings['id'] : '';
     $gallery_id     = "{$namespace}-{$entity_type_id}-{$bundle}-{$field_clean}-{$view_mode}";
     $id             = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
-    $switch         = empty($settings['media_switch']) ? '' : $settings['media_switch'];
     $internal_path  = $absolute_path = NULL;
 
     // Deals with UndefinedLinkTemplateException such as paragraphs type.
@@ -68,14 +68,11 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['count']          = $count;
     $settings['entity_id']      = $entity_id;
     $settings['entity_type_id'] = $entity_type_id;
-    $settings['gallery_id']     = str_replace('_', '-', $gallery_id . '-' . $switch);
+    $settings['gallery_id']     = str_replace('_', '-', $gallery_id . '-' . $settings['media_switch']);
     $settings['id']             = $id;
     $settings['internal_path']  = $internal_path;
-    $settings['is_preview']     = Blazy::isPreview();
-    $settings['lightbox']       = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
     $settings['resimage']       = !empty($settings['responsive_image']) && !empty($settings['responsive_image_style']);
     $settings['resimage']       = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
-    $settings['route_name']     = Blazy::routeMatch() ? Blazy::routeMatch()->getRouteName() : '';
     $settings['use_field']      = !$settings['lightbox'] && isset($settings['third_party'], $settings['third_party']['linked_field']) && !empty($settings['third_party']['linked_field']['linked']);
 
     // Bail out if Vanilla mode is requested.
@@ -85,7 +82,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     }
 
     // Don't bother if using Responsive image.
-    // @todo remove custom breakpoints anytime before 3.x.
+    // @todo remove custom breakpoints anytime before 2.x.
     $settings['breakpoints'] = isset($settings['breakpoints']) && empty($settings['unbreakpoints']) && empty($settings['responsive_image_style']) ? $settings['breakpoints'] : [];
     BlazyBreakpoint::cleanUpBreakpoints($settings);
 
@@ -177,7 +174,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
 
       // Also sets breakpoint dimensions once, if cropped.
-      // @todo remove custom breakpoints anytime before 3.x.
+      // @todo remove custom breakpoints anytime before 2.x.
       if (!empty($settings['breakpoints'])) {
         BlazyBreakpoint::buildDataBlazy($settings, $this->firstItem);
       }

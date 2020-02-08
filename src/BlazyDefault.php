@@ -56,6 +56,13 @@ class BlazyDefault {
   }
 
   /**
+   * Returns settings provided by various UI.
+   */
+  public static function anywhereSettings() {
+    return ['fx' => '', 'style' => ''];
+  }
+
+  /**
    * Returns basic plugin settings.
    */
   public static function baseSettings() {
@@ -63,8 +70,7 @@ class BlazyDefault {
       'cache'             => 0,
       'current_view_mode' => '',
       'skin'              => '',
-      'style'             => '',
-    ];
+    ] + self::anywhereSettings();
 
     blazy_alterable_settings($settings);
     return $settings;
@@ -103,6 +109,7 @@ class BlazyDefault {
    */
   public static function imageSettings() {
     return [
+      // @todo remove custom breakpoints anytime before 2.x.
       'breakpoints' => [],
       'icon'        => '',
       'layout'      => '',
@@ -142,8 +149,7 @@ class BlazyDefault {
       'grid_header' => '',
       'grid_medium' => 0,
       'grid_small'  => 0,
-      'style'       => '',
-    ];
+    ] + self::anywhereSettings();
   }
 
   /**
@@ -177,7 +183,6 @@ class BlazyDefault {
   public static function richSettings() {
     return [
       'background'   => FALSE,
-      'fx'           => '',
       'lazy'         => '',
       'lightbox'     => FALSE,
       'media_switch' => '',
@@ -185,7 +190,7 @@ class BlazyDefault {
       'resimage'     => FALSE,
       'use_loading'  => FALSE,
       'type'         => 'rich',
-    ];
+    ] + self::anywhereSettings();
   }
 
   /**
@@ -193,14 +198,13 @@ class BlazyDefault {
    */
   public static function uiSettings() {
     return [
-      'fx'               => '',
       'one_pixel'        => TRUE,
       'native'           => FALSE,
       'noscript'         => FALSE,
       'placeholder'      => '',
       'responsive_image' => FALSE,
       'unbreakpoints'    => TRUE,
-    ];
+    ] + self::anywhereSettings();
   }
 
   /**

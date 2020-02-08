@@ -5,7 +5,7 @@ namespace Drupal\blazy\Form;
 /**
  * A Trait common for breakpoint methods.
  *
- * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Don't
+ * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.0. Don't
  *   use it instead.
  * @see https://www.drupal.org/node/3105243
  */

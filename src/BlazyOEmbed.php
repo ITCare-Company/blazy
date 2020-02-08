@@ -147,7 +147,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   public function build(array &$settings = []) {
     $resource = NULL;
     try {
-      $settings += $this->blazyManager->getCommonSettings();
+      $this->blazyManager->getCommonSettings($settings);
       $settings['input_url'] = UrlHelper::stripDangerousProtocols($settings['input_url']);
       $resource = $this->getResource($settings['input_url']);
 

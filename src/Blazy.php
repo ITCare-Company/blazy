@@ -160,6 +160,7 @@ class Blazy implements BlazyInterface {
 
     // Only output dimensions for non-svg. Respects hand-coded image attributes.
     // Do not pass it to $attributes to also respect both (Responsive) image.
+    // @todo remove custom breakpoints anytime before 2.x.
     if (empty($settings['_sizes']) && !isset($attributes['width']) && $settings['extension'] != 'svg') {
       $image['#height'] = $settings['height'];
       $image['#width'] = $settings['width'];
@@ -275,9 +276,10 @@ class Blazy implements BlazyInterface {
       // If "lucky", Blazy/ Slick Views galleries may already set this once.
       // Lucky when you don't flatten out the Views output earlier.
       $padding = $settings['padding_bottom'] ?: round((($settings['height'] / $settings['width']) * 100), 2);
-      $attributes['style'] = 'padding-bottom: ' . $padding . '%';
+      self::inlineStyle($attributes, 'padding-bottom: ' . $padding . '%;');
 
       // Provides hint to breakpoints to work with multi-breakpoint ratio.
+      // @todo remove custom breakpoints anytime before 2.x.
       $settings['_breakpoint_ratio'] = $settings['ratio'];
 
       // Views rewrite results or Twig inline_template may strip out `style`
@@ -304,6 +306,7 @@ class Blazy implements BlazyInterface {
     if (!empty($settings['media_switch'])) {
       $switch = str_replace('_', '-', $settings['media_switch']);
       $attributes['data-' . $switch . '-gallery'] = TRUE;
+      $classes[] = 'blazy--' . $switch;
     }
 
     // Provides contextual classes relevant to the container: .field, or .view.
@@ -427,6 +430,20 @@ class Blazy implements BlazyInterface {
     // Do not use dynamic Html::getUniqueId, otherwise broken AJAX.
     $id = empty($id) ? ($string . '-' . ++static::$blazyId) : $id;
     return Html::getId($id);
+  }
+
+  /**
+   * Modifies inline style to not nullify others.
+   */
+  public static function inlineStyle(array &$attributes, $css) {
+    $attributes['style'] = (isset($attributes['style']) ? $attributes['style'] : '') . $css;
+  }
+
+  /**
+   * Returns URI from image item.
+   */
+  public static function uri($item) {
+    return empty($item) ? '' : (($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri);
   }
 
   /**

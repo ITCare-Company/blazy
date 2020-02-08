@@ -23,7 +23,6 @@
     globals: function () {
       var me = this;
       var commons = {
-        isBlazyPlugin: false,
         success: me.clearing.bind(me),
         error: me.clearing.bind(me),
         selector: '.b-lazy',
@@ -37,20 +36,19 @@
     clearing: function (el) {
       var me = this;
       var ie = el.classList.contains('b-responsive') && el.hasAttribute('data-pfsrc');
+      var cn = _db.closest(el, '.media');
 
       // The .b-lazy element can be attached to IMG, or DIV as CSS background.
-      el.className = el.className.replace(/(\S+)loading/, '');
-
-      // The .is-loading can be .grid, .slide__content, .box__content, etc.
+      // The .(*)loading can be .media, .grid, .slide__content, .box, etc.
       var loaders = [
+        el,
         _db.closest(el, '.is-loading'),
         _db.closest(el, '[class*="loading"]')
       ];
 
-      // Also cleans up closest containers containing loading class.
-      _db.forEach(loaders, function (wrapEl) {
-        if (wrapEl !== null) {
-          wrapEl.className = wrapEl.className.replace(/(\S+)loading/, '');
+      _db.forEach(loaders, function (loader) {
+        if (loader !== null) {
+          loader.className = loader.className.replace(/(\S+)loading/, '');
         }
       });
 
@@ -62,38 +60,63 @@
         });
       }
 
+      me.updateContainer(el, cn);
+      // Supports various scenario: CSS background, picture, image, media.
+      if (me.isLoaded(el) && cn.hasAttribute('data-animation')) {
+        _db.animate(cn);
+      }
+
       // Provides event listeners for easy overrides without full overrides.
-      _db.trigger(el, 'blazy.done', {
-        options: me.options
-      });
+      _db.trigger(el, 'blazy.done', {options: me.options});
+    },
+
+    isLoaded: function (el) {
+      return el !== null && el.classList.contains(this.options.successClass);
+    },
+
+    updateContainer: function (el, cn) {
+      var me = this;
+
+      if (me.isLoaded(el)) {
+        if (_db.equal(el.parentNode, 'picture') && cn.classList.contains('media--ratio--fluid')) {
+          me.updatePicture(el, cn);
+        }
+
+        if (el.hasAttribute('data-backgrounds')) {
+          _db.updateBg(el, me.options.mobileFirst);
+        }
+      }
+    },
+
+    updatePicture: function (el, cn) {
+      cn.style.paddingBottom = Math.round(((el.naturalHeight / el.naturalWidth) * 100), 2) + '%';
+      cn.removeAttribute('data-dimensions');
     },
 
     /**
      * Updates the dynamic multi-breakpoint aspect ratio, picture or image.
      *
-     * This only applies to multi-serving images with aspect ratio fluid if
-     * each element contains [data-dimensions] attribute.
-     * Static single aspect ratio, e.g. `media--ratio--169`, will be ignored,
-     * and will use CSS instead.
+     * This only applies to Responsive images with aspect ratio fluid.
+     * Static ratio (media--ratio--169, etc.) is ignored and uses CSS instead.
      *
-     * @param {HTMLElement} el
-     *   The .media--ratio--fluid HTML element.
+     * @param {HTMLElement} cn
+     *   The .media--ratio--fluid container HTML element.
      */
-    updateRatio: function (el) {
+    updateRatio: function (cn) {
       var me = this;
-      var dimensions = me.options && 'dimensions' in me.options ? me.options.dimensions : _db.parse(el.getAttribute('data-dimensions'));
-      var isPicture = el.querySelector('picture') !== null;
+      var dimensions = _db.parse(cn.getAttribute('data-dimensions')) || ('dimensions' in me.options ? me.options.dimensions : false);
 
       if (!dimensions) {
         return;
       }
 
+      var picture = cn.querySelector('picture');
+      var isPicture = picture !== null;
       var keys = Object.keys(dimensions);
       var xs = keys[0];
       var xl = keys[keys.length - 1];
       var mw = function (w) {
-        // @todo picture wants <=, non-picture wants >=, wtf.
-        // @todo recheck devicePixelRatio for Picture, sizes, mediaqueries, etc.
+        // The picture wants <= (approximate), non-picture wants >=, wtf.
         var pr = (me.windowWidth * _db.pixelRatio());
         return isPicture ? w <= me.windowWidth : w >= pr;
       };
@@ -102,31 +125,22 @@
         return dimensions[v];
       })[isPicture ? 'pop' : 'shift']();
 
-      if (pad === 'undefined') {
-        pad = dimensions[me.windowWidth >= xl ? xl : xs];
-      }
-
+      // For picture, this is more a dummy space till the image is downloaded.
+      pad = pad === 'undefined' ? dimensions[me.windowWidth >= xl ? xl : xs] : pad;
       if (pad !== 'undefined') {
-        el.style.paddingBottom = pad + '%';
+        cn.style.paddingBottom = pad + '%';
       }
 
-      // If Blazy plugin/ formatter, cleansup, else keep it to support resize.
-      if (me.options.isBlazyPlugin) {
-        el.removeAttribute('data-ratio');
-        el.removeAttribute('data-dimensions');
+      // Fix for picture or bg element with resizing.
+      if (isPicture || cn.hasAttribute('data-backgrounds')) {
+        me.updateContainer((isPicture ? cn.querySelector('img') : cn), cn);
       }
     },
 
-    /**
-     * Fix for Twig inline_template and Views rewrite striping out style.
-     *
-     * @param {HTMLElement} el
-     *   The .media--ratio--fluid HTML element.
-     */
-    updateFallbackRatio: function (el) {
+    updateFallbackRatio: function (cn) {
       // Only rewrites if the style is indeed stripped out by Twig, and not set.
-      if (!el.hasAttribute('style') && el.hasAttribute('data-ratio')) {
-        el.style.paddingBottom = el.getAttribute('data-ratio') + '%';
+      if (!cn.hasAttribute('style') && cn.hasAttribute('data-ratio')) {
+        cn.style.paddingBottom = cn.getAttribute('data-ratio') + '%';
       }
     },
 
@@ -168,12 +182,11 @@
 
     afterInit: function (context) {
       var me = this;
-      var elems = context.querySelectorAll('.media--ratio');
-      var ratioElms = context.querySelector('[data-dimensions]') === null ? [] : elems;
-      var fallbackRatioElms = context.querySelector('[data-ratio]') === null ? [] : elems;
+      var elms = context.querySelectorAll('.media--ratio');
+      var ratioElms = context.querySelector('[data-dimensions]') === null ? [] : elms;
+      var fallbackRatioElms = context.querySelector('[data-ratio]') === null ? [] : elms;
 
-      // Reacts on resizing/200ms, and the magic () does it on page load, too.
-      _db.resize(function () {
+      var checkRatio = function () {
         me.windowWidth = _db.windowWidth();
         if (ratioElms.length > 0) {
           _db.forEach(ratioElms, me.updateRatio.bind(me), context);
@@ -188,7 +201,11 @@
         if (!me.isNativeLazy() && (me.isBlazy() || me.revalidate)) {
           me.init.revalidate(true);
         }
-      })();
+      };
+
+      // Checks for aspect ratio.
+      checkRatio();
+      window.addEventListener('resize', _db.throttle(checkRatio, 200, me), false);
     }
 
   };
@@ -206,6 +223,8 @@
    */
   var initBlazy = function (context, opts) {
     var me = Drupal.blazy;
+
+    opts.mobileFirst = opts.mobileFirst || false;
     me.options = _db.extend({}, me.globals(), opts || {});
 
     // Set docroot in case we are in an iframe.
@@ -219,8 +238,7 @@
     // This means Blazy and even IO should not lazy-load them any more.
     // Ensures to not touch lazy-loaded AJAX, or likely non-supported elements:
     // Video, DIV, etc. Only IMG and IFRAME are supported for now.
-    // Enforced such as with entity embed iframe where lazyload is less useful
-    // due to smaller window estate. Be sure to enable `Native lazy loading`.
+    // Enforced if required. Be sure to enable `Native lazy loading`.
     if (me.isNativeLazy() || me.isForced) {
       var elms = context.querySelectorAll(me.options.selector + '[loading]:not(.' + me.options.successClass + ')');
       if (elms.length > 0) {
@@ -247,7 +265,6 @@
     var dataAttr = elm.getAttribute('data-blazy');
     var opts = (!dataAttr || dataAttr === '1') ? {} : (_db.parse(dataAttr) || {});
 
-    opts.isBlazyPlugin = true;
     me.revalidate = me.revalidate || elm.classList.contains('blazy--revalidate');
     elm.classList.add('blazy--on');
 
@@ -277,14 +294,12 @@
         context = context[0];
       }
 
-      // This data attribute identifies blazy-related plugins.
+      // The [data-blazy] is set by the module for formatters, or Views gallery.
+      var me = Drupal.blazy;
       var el = context.querySelector('[data-blazy]');
 
       // Runs basic Blazy if no [data-blazy] found, probably a single image or
       // a theme that does not use field attributes.
-      // The [data-blazy] is set by the module for formatters, or Views gallery.
-      // Cannot use .contains(), as IE11 doesn't support method 'contains'.
-      // See https://developer.mozilla.org/en-US/docs/Web/API/Node/contains.
       if (el === null) {
         initBlazy(context);
       }
@@ -292,8 +307,7 @@
       // Runs Blazy with multi-serving images, and aspect ratio supports.
       // W/o [data-blazy] to address various scenarios like custom simple works,
       // or within Views UI which is not easy to set [data-blazy] via UI.
-      // See https://www.drupal.org/node/3057691#comment-13146878
-      _db.once(Drupal.blazy.forEach(context));
+      _db.once(me.forEach(context));
     }
   };
 

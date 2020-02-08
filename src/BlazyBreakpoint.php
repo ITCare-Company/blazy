@@ -8,7 +8,7 @@ use Drupal\image\Entity\ImageStyle;
 /**
  * Implements BlazyBreakpointInterface.
  *
- * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.1. Do not
+ * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-2.0. Do not
  *   use it instead.
  * @see https://www.drupal.org/node/3105243
  */

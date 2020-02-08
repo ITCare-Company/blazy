@@ -253,8 +253,18 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * Returns the common UI settings inherited down to each item.
    */
-  public function getCommonSettings() {
-    return array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
+  public function getCommonSettings(array &$settings) {
+    $settings += array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
+    $switch = $settings['media_switch'] = empty($settings['media_switch']) ? '' : $settings['media_switch'];
+    $settings['is_preview'] = Blazy::isPreview();
+    $settings['lightbox'] = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
+    $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
+    $settings['route_name'] = Blazy::routeMatch() ? Blazy::routeMatch()->getRouteName() : '';
+
+    if ($switch) {
+      // Allows lightboxes to provide its own optionsets.
+      $settings[$switch] = empty($settings[$switch]) ? $switch : $settings[$switch];
+    }
   }
 
   /**
@@ -342,7 +352,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     // Provides data for the [data-blazy] attribute at the containing element.
-    // @todo remove custom breakpoints anytime before 3.x.
+    // @todo remove custom breakpoints anytime before 2.x.
     BlazyBreakpoint::cleanUpBreakpoints($settings);
     if (!empty($settings['breakpoints'])) {
       BlazyBreakpoint::buildDataBlazy($settings, $image);

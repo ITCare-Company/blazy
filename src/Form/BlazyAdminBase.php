@@ -25,7 +25,7 @@ use Drupal\blazy\BlazyManagerInterface;
 abstract class BlazyAdminBase implements BlazyAdminInterface {
 
   use StringTranslationTrait;
-  // @todo deprecated and remove post 2.x.
+  // @todo deprecated and remove at 2.0.
   use BlazyAdminBreakpointTrait;
 
   /**
@@ -173,7 +173,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['background'] = [
         '#type'        => 'checkbox',
         '#title'       => $this->t('Use CSS background'),
-        '#description' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires IO option enabled to support Responsive image, a consistent Aspect ratio, otherwise collapsed containers. Unless a min-height is added manually to <strong>.media--background</strong> selector.'),
+        '#description' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires an Aspect ratio, otherwise collapsed containers. Unless a min-height is added manually to <strong>.media--background</strong> selector.'),
         '#weight'      => -98,
       ];
     }

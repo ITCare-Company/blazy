@@ -39,6 +39,34 @@ scope.
 a new one, respecting the defaults is better. Following BEM standard is not
 crucial for most JS generated CSS classes. Uniqueness matters.
 
+## ANIMATE.CSS INTEGRATION
+Blazy container (`.media`) can be animated using
+[animate.css](https://github.com/daneden/animate.css). The container is chosen
+to be the animated element so to support various use cases:
+CSS background, picture, image, or rich media contents.
+
+### Requirements:
+
+* The `animate.css` library included in your theme, or via `animate_css` module.
+* Data attributes: `data-animation`, with optional: `data-animation-duration`,
+  `data-animation-delay` and `data-animation-iteration-count`, as seen below.
+
+```
+function MYTHEME_preprocess_blazy(&$variables) {
+  $settings = &$variables['settings'];
+  $attributes = &$variables['attributes'];
+
+  // Be sure to limit the scope, only animate for particular conditions.
+  if ($settings['entity_id'] == 123
+    && $settings['field_name'] == 'field_media_animated')  {
+    $attributes['data-animation'] = 'wobble';
+    $attributes['data-animation-duration'] = '3s';
+    $attributes['data-animation-delay'] = '.3s';
+    // Iteration can be any number, or infinite.
+    $attributes['data-animation-iteration-count'] = 'infinite';
+  }
+}
+```
 
 ## PERFORMANCE TIPS:
 * If breakpoints provided with tons of images, using image styles with ANY crop

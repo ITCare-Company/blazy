@@ -62,8 +62,6 @@ class BlazyEntity implements BlazyEntityInterface {
    * {@inheritdoc}
    */
   public function build(array &$data, $entity, $fallback = '') {
-    $build = [];
-
     if (!$entity instanceof EntityInterface) {
       return [];
     }
@@ -72,17 +70,13 @@ class BlazyEntity implements BlazyEntityInterface {
     $this->oembed->getMediaItem($data, $entity);
 
     $settings = &$data['settings'];
-    $settings['is_preview'] = Blazy::isPreview();
-    if (!empty($settings['media_switch'])) {
-      $is_lightbox = $this->blazyManager->getLightboxes() && in_array($settings['media_switch'], $this->blazyManager->getLightboxes());
-      $settings['lightbox'] = $is_lightbox ? $settings['media_switch'] : FALSE;
-    }
+    $this->blazyManager->getCommonSettings($settings);
 
     /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
     if (!empty($data['item']) && empty($settings['_unblazy'])) {
       // Provide Blazy, if required.
       $build = $this->blazyManager->getBlazy($data);
-      $build['#uri'] = $settings['uri'];
+      $build['#uri'] = empty($settings['uri']) ? Blazy::uri($data['item']) : $settings['uri'];
     }
     else {
       $build = $this->getEntityView($entity, $settings, $fallback);

@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Dejavu;
 
 use Drupal\Component\Utility\Xss;
+use Drupal\blazy\Blazy;
 
 /**
  * A Trait common for optional views style plugins.
@@ -35,7 +36,7 @@ trait BlazyStylePluginTrait {
       // background option, and other options, and still lazyload it.
       $theme = isset($image['rendered']['#theme']) ? $image['rendered']['#theme'] : '';
       if (in_array($theme, ['blazy', 'image_formatter'])) {
-        $settings['uri'] = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
+        $settings['uri'] = Blazy::uri($item);
         $settings['cache_tags'] = isset($image['rendered']['#cache']['tags']) ? $image['rendered']['#cache']['tags'] : [];
 
         if ($theme == 'blazy') {

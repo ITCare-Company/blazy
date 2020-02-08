@@ -30,13 +30,14 @@ class BlazyManager extends BlazyManagerBase {
 
     $settings = &$build['settings'];
     $settings += BlazyDefault::itemSettings();
+    $settings['uri'] = $settings['uri'] ?: Blazy::uri($build['item']);
 
     // Respects content not handled by theme_blazy(), but passed through.
     // Yet allows rich contents which might still be processed by theme_blazy().
     $content = empty($settings['uri']) ? $build['content'] : [
       '#theme'       => 'blazy',
       '#delta'       => $settings['delta'],
-      '#item'        => $settings['entity_type_id'] == 'user' ? $build['item'] : [],
+      '#item'        => $build['item'],
       '#image_style' => $settings['image_style'],
       '#build'       => $build,
       '#pre_render'  => [[$this, 'preRenderBlazy']],
@@ -116,6 +117,12 @@ class BlazyManager extends BlazyManagerBase {
       $this->buildMedia($element, $build);
     }
 
+    // Multi-breakpoint aspect ratio only applies if lazyloaded.
+    // These may be set once at formatter level, or per breakpoint above.
+    if (!empty($settings['blazy_data']['dimensions'])) {
+      $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
+    }
+
     // Provides extra attributes as needed, excluding url, item, done above.
     // Was planned to replace sub-module item markups if similarity is found for
     // theme_gridstack_box(), theme_slick_slide(), etc. Likely for Blazy 3.x+.
@@ -132,7 +139,6 @@ class BlazyManager extends BlazyManagerBase {
     // Pass common elements to theme_blazy().
     $element['#attributes']     = $attributes;
     $element['#content']        = $build['content'];
-    $element['#item']           = $item;
     $element['#settings']       = $settings;
     $element['#url_attributes'] = $build['url_attributes'];
   }
@@ -165,16 +171,14 @@ class BlazyManager extends BlazyManagerBase {
       $this->buildImage($element, $attributes, $item_attributes, $settings);
     }
 
-    // Multi-breakpoint aspect ratio only applies if lazyloaded.
-    // These may be set once at formatter level, or per breakpoint above.
-    if (!empty($settings['blazy_data']['dimensions'])) {
-      $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
-    }
-
     // The settings.urls is output specific for CSS background purposes with BC.
     if (!empty($settings['urls'])) {
+      $attributes['class'][] = 'b-bg media--background';
       $attributes['data-backgrounds'] = Json::encode($settings['urls']);
-      $attributes['class'][] = 'media--background b-bg';
+
+      if (!empty($settings['is_preview'])) {
+        Blazy::inlineStyle($attributes, 'background-image: url(' . $settings['image_url'] . ');');
+      }
     }
 
     // Pass non-rich-media elements to theme_blazy().
@@ -191,17 +195,21 @@ class BlazyManager extends BlazyManagerBase {
 
     // Makes Responsive image usable as CSS background.
     if (!empty($settings['background'])) {
-      $srcset = [];
+      $srcset = $dimensions = [];
       foreach ($responsive_image['styles'] as $style) {
         $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, FALSE));
 
         // Sort image URLs based on width.
-        $srcset[$settings['width']] = $this->backgroundImage($settings, $style);
+        $data = $this->backgroundImage($settings, $style);
+        $srcset[$settings['width']] = $data;
+        $dimensions[$settings['width']] = $data['ratio'];
       }
 
       // Sort the srcset from small to large image width or multiplier.
       ksort($srcset);
+      ksort($dimensions);
       $settings['urls'] = $srcset;
+      $settings['blazy_data']['dimensions'] = $dimensions;
       Blazy::lazyAttributes($attributes, $settings);
     }
     unset($settings['resimage']);
@@ -217,11 +225,11 @@ class BlazyManager extends BlazyManagerBase {
         $settings['urls'][$settings['width']] = $this->backgroundImage($settings);
         Blazy::lazyAttributes($attributes, $settings);
 
-        // @todo deprecated and remove post 2.x.
+        // @todo remove custom breakpoints anytime before 2.x.
         BlazyBreakpoint::attributes($attributes, $settings);
       }
       else {
-        // @todo deprecated and remove post 2.x.
+        // @todo remove custom breakpoints anytime before 2.x.
         BlazyBreakpoint::attributes($item_attributes, $settings);
       }
     }
@@ -293,6 +301,7 @@ class BlazyManager extends BlazyManagerBase {
     // Provides image effect if so configured.
     if (!empty($settings['fx'])) {
       $this->createPlaceholder($settings, $style, $path);
+      $attributes['class'][] = 'media--fx--' . str_replace('_', '-', $settings['fx']);
     }
   }
 
