@@ -224,8 +224,9 @@
   var initBlazy = function (context, opts) {
     var me = Drupal.blazy;
 
+    opts = opts || {};
     opts.mobileFirst = opts.mobileFirst || false;
-    me.options = _db.extend({}, me.globals(), opts || {});
+    me.options = _db.extend({}, me.globals(), opts);
 
     // Set docroot in case we are in an iframe.
     // @see Blazy.toArray

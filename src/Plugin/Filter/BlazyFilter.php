@@ -214,7 +214,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
    * {@inheritdoc}
    */
   public function buildSettings($text) {
-    $settings = BlazyDefault::lazySettings();
+    $settings = $this->settings + BlazyDefault::lazySettings();
     $settings['_check_protocol'] = TRUE;
     $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
     $settings['column'] = stristr($text, 'data-column') !== FALSE;
