@@ -100,6 +100,37 @@
   };
 
   /**
+   * Returns data from the current active window.
+   *
+   * @name dBlazy.activeWidth
+   *
+   * @param {Object} dataset
+   *   The dataset object must be keyed by window width.
+   * @param {Boolean} mobileFirst
+   *   Whether to use min-width, or max-width.
+   *
+   * @return {mixed}
+   *   Returns data from the current active window.
+   */
+  dBlazy.activeWidth = function (dataset, mobileFirst) {
+    var me = this;
+    var keys = Object.keys(dataset);
+    var xs = keys[0];
+    var xl = keys[keys.length - 1];
+    var mw = function (w) {
+      // The picture wants <= (approximate), non-picture wants >=, wtf.
+      var pr = (me.windowWidth() * me.pixelRatio());
+      return mobileFirst ? w <= me.windowWidth() : w >= pr;
+    };
+
+    var data = keys.filter(mw).map(function (v) {
+      return dataset[v];
+    })[mobileFirst ? 'pop' : 'shift']();
+
+    return data === 'undefined' ? dataset[me.windowWidth() >= xl ? xl : xs] : data;
+  };
+
+  /**
    * Check if the HTML tag matches a specified string.
    *
    * @name dBlazy.closest
@@ -310,7 +341,7 @@
   /**
    * Updates CSS background with multi-breakpoint images.
    *
-   * @name dBlazy.setAttrsWithSources
+   * @name dBlazy.updateBg
    *
    * @param {Element} el
    *   The container HTML element.
@@ -322,20 +353,7 @@
     var backgrounds = me.parse(el.getAttribute('data-backgrounds'));
 
     if (backgrounds) {
-      var keys = Object.keys(backgrounds);
-      var xs = keys[0];
-      var xl = keys[keys.length - 1];
-      var mw = function (w) {
-        var pr = (me.windowWidth() * me.pixelRatio());
-        return mobileFirst ? w <= me.windowWidth() : w >= pr;
-        // @todo return mobileFirst ? w <= me.windowWidth() : w >= me.windowWidth();
-      };
-
-      var bg = keys.filter(mw).map(function (v) {
-        return backgrounds[v];
-      })[mobileFirst ? 'pop' : 'shift']();
-
-      bg = bg === 'undefined' ? backgrounds[me.windowWidth() >= xl ? xl : xs] : bg;
+      var bg = me.activeWidth(backgrounds, mobileFirst);
       if (bg && bg !== 'undefined') {
         el.style.backgroundImage = 'url("' + bg.src + '")';
         el.style.paddingBottom = bg.ratio + '%';

@@ -90,11 +90,10 @@
 
     updatePicture: function (el, cn) {
       cn.style.paddingBottom = Math.round(((el.naturalHeight / el.naturalWidth) * 100), 2) + '%';
-      cn.removeAttribute('data-dimensions');
     },
 
     /**
-     * Updates the dynamic multi-breakpoint aspect ratio, picture or image.
+     * Updates the dynamic multi-breakpoint aspect ratio: bg, picture or image.
      *
      * This only applies to Responsive images with aspect ratio fluid.
      * Static ratio (media--ratio--169, etc.) is ignored and uses CSS instead.
@@ -107,26 +106,13 @@
       var dimensions = _db.parse(cn.getAttribute('data-dimensions')) || ('dimensions' in me.options ? me.options.dimensions : false);
 
       if (!dimensions) {
+        me.updateFallbackRatio(cn);
         return;
       }
 
-      var picture = cn.querySelector('picture');
-      var isPicture = picture !== null;
-      var keys = Object.keys(dimensions);
-      var xs = keys[0];
-      var xl = keys[keys.length - 1];
-      var mw = function (w) {
-        // The picture wants <= (approximate), non-picture wants >=, wtf.
-        var pr = (me.windowWidth * _db.pixelRatio());
-        return isPicture ? w <= me.windowWidth : w >= pr;
-      };
-
-      var pad = keys.filter(mw).map(function (v) {
-        return dimensions[v];
-      })[isPicture ? 'pop' : 'shift']();
-
       // For picture, this is more a dummy space till the image is downloaded.
-      pad = pad === 'undefined' ? dimensions[me.windowWidth >= xl ? xl : xs] : pad;
+      var isPicture = cn.querySelector('picture') !== null;
+      var pad = _db.activeWidth(dimensions, isPicture);
       if (pad !== 'undefined') {
         cn.style.paddingBottom = pad + '%';
       }
@@ -170,9 +156,19 @@
     },
 
     forEach: function (context) {
+      var el = context.querySelector('[data-blazy]');
       var blazies = context.querySelectorAll('.blazy:not(.blazy--on)');
+
+      // Various use cases: w/o formaters, custom, or basic, and mixed.
+      // The [data-blazy] is set by the module for formatters, or Views gallery.
       if (blazies.length > 0) {
         _db.forEach(blazies, doBlazy, context);
+      }
+
+      // Runs basic Blazy if no [data-blazy] found, probably a single image or
+      // a theme that does not use field attributes.
+      if (el === null) {
+        initBlazy(context);
       }
     },
 
@@ -182,17 +178,13 @@
 
     afterInit: function (context) {
       var me = this;
-      var elms = context.querySelectorAll('.media--ratio');
-      var ratioElms = context.querySelector('[data-dimensions]') === null ? [] : elms;
-      var fallbackRatioElms = context.querySelector('[data-ratio]') === null ? [] : elms;
+      var elms = context.querySelector('.media--ratio') === null ? [] : context.querySelectorAll('.media--ratio');
 
       var checkRatio = function () {
         me.windowWidth = _db.windowWidth();
-        if (ratioElms.length > 0) {
-          _db.forEach(ratioElms, me.updateRatio.bind(me), context);
-        }
-        else if (fallbackRatioElms.length > 0) {
-          _db.forEach(fallbackRatioElms, me.updateFallbackRatio.bind(me), context);
+
+        if (elms.length > 0) {
+          _db.forEach(elms, me.updateRatio.bind(me), context);
         }
 
         // BC with bLazy, native/IO doesn't need to revalidate, bLazy does.
@@ -223,17 +215,16 @@
    */
   var initBlazy = function (context, opts) {
     var me = Drupal.blazy;
+    // Set docroot in case we are in an iframe.
+    var documentElement = context instanceof HTMLDocument ? context : _db.closest(context, 'html');
 
     opts = opts || {};
     opts.mobileFirst = opts.mobileFirst || false;
-    me.options = _db.extend({}, me.globals(), opts);
-
-    // Set docroot in case we are in an iframe.
-    // @see Blazy.toArray
-    var documentElement = context instanceof HTMLDocument ? context : _db.closest(context, 'html');
     if (!document.documentElement.isSameNode(documentElement)) {
-      me.options.root = documentElement;
+      opts.root = documentElement;
     }
+
+    me.options = _db.extend({}, me.globals(), opts);
 
     // Swap lazy attributes to let supportive browsers lazy load them.
     // This means Blazy and even IO should not lazy-load them any more.
@@ -251,7 +242,7 @@
     // If native lazy load is supported, the following will skip internally.
     me.init = me.run(me.options);
 
-    // Reacts on resizing per 200ms, and the magic () also does it on page load.
+    // Reacts on resizing per 200ms.
     me.afterInit(context);
   };
 
@@ -295,20 +286,10 @@
         context = context[0];
       }
 
-      // The [data-blazy] is set by the module for formatters, or Views gallery.
-      var me = Drupal.blazy;
-      var el = context.querySelector('[data-blazy]');
-
-      // Runs basic Blazy if no [data-blazy] found, probably a single image or
-      // a theme that does not use field attributes.
-      if (el === null) {
-        initBlazy(context);
-      }
-
       // Runs Blazy with multi-serving images, and aspect ratio supports.
       // W/o [data-blazy] to address various scenarios like custom simple works,
       // or within Views UI which is not easy to set [data-blazy] via UI.
-      _db.once(me.forEach(context));
+      _db.once(Drupal.blazy.forEach(context));
     }
   };
 
