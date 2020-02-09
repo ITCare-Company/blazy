@@ -101,7 +101,7 @@ class BlazyMedia implements BlazyMediaInterface {
 
     // Prioritize custom high-res or poster image such as (remote|file) video.
     if (!empty($settings['image'])) {
-      $item = $media->get($settings['image'])->first();
+      $item = $media->hasField($settings['image']) ? $media->get($settings['image'])->first() : NULL;
       $settings['_hires'] = !empty($item);
     }
 
