@@ -25,11 +25,7 @@ class BlazyMedia implements BlazyMediaInterface {
     }
 
     $settings['type'] = 'rich';
-    $options = $settings['view_mode'];
-    if ($settings['media_source'] == 'video_file') {
-      $options = ['type' => 'file_video', 'view_mode' => $settings['view_mode']];
-    }
-
+    $options = $settings['media_source'] == 'video_file' ? ['type' => 'file_video'] : $settings['view_mode'];
     $build = $media->get($settings['source_field'])->view($options);
     $build['#settings'] = $settings;
 
@@ -64,14 +60,7 @@ class BlazyMedia implements BlazyMediaInterface {
     }
     // Media with local files: video.
     elseif (isset($item['#files'], $item['#files'][0]['file'])) {
-      // Do this as $item['#settings'] is not available as file_video variables.
-      foreach ($item['#files'] as &$file) {
-        $file['blazy'] = new BlazySettings($settings);
-      }
-      $attributes->setAttribute('data-b-lazy', TRUE);
-      if (!empty($settings['is_preview'])) {
-        $attributes->setAttribute('data-b-preview', TRUE);
-      }
+      self::videoItem($item, $settings);
     }
 
     // Clone relevant keys since field wrapper is no longer in use.
@@ -116,9 +105,13 @@ class BlazyMedia implements BlazyMediaInterface {
     if ($item) {
       $settings['file_tags'] = ['file:' . $item->target_id];
       $settings['uri'] = Blazy::uri($item);
+
+      // Pass through image item including poster image overrides.
+      $data['item'] = $item;
     }
 
     // If the expected fails, at least check for metadata, likely unknown media.
+    // @todo remove if we know Media better.
     if (empty($settings['uri'])) {
       try {
         // Without internet, this screwed up the site.
@@ -128,15 +121,24 @@ class BlazyMedia implements BlazyMediaInterface {
         // Do nothing, no need to be chatty on this.
       }
     }
-
-    // Pass through image item.
-    $data['item'] = $item;
   }
 
   /**
    * {@inheritdoc}
-   *
-   * @todo compare and merge with BlazyOEmbed::getImageItem().
+   */
+  public static function videoItem(array &$item, array $settings) {
+    // Do this as $item['#settings'] is not available as file_video variables.
+    foreach ($item['#files'] as &$file) {
+      $file['blazy'] = new BlazySettings($settings);
+    }
+    $item['#attributes']->setAttribute('data-b-lazy', TRUE);
+    if (!empty($settings['is_preview'])) {
+      $item['#attributes']->setAttribute('data-b-preview', TRUE);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public static function imageItem(array &$data, $entity) {
     $settings = &$data['settings'];

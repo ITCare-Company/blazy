@@ -51,18 +51,24 @@ class BlazyAlter {
    * Implements hook_library_info_alter().
    */
   public static function libraryInfoAlter(&$libraries, $extension) {
-    if ($path = blazy_libraries_get_path('blazy')) {
-      $libraries['blazy']['js'] = ['/' . $path . '/blazy.js' => ['weight' => -4]];
+    if ($extension === 'blazy') {
+      if ($path = blazy_libraries_get_path('blazy')) {
+        $libraries['blazy']['js'] = ['/' . $path . '/blazy.js' => ['weight' => -4]];
+      }
+
+      if (blazy()->configLoad('io.enabled')) {
+        if (blazy()->configLoad('io.unblazy')) {
+          $dependencies = ['core/drupal', 'blazy/bio.media', 'blazy/loading'];
+          $libraries['load']['dependencies'] = $dependencies;
+        }
+        else {
+          $libraries['load']['dependencies'][] = 'blazy/bio.media';
+        }
+      }
     }
 
-    if (blazy()->configLoad('io.enabled')) {
-      if (blazy()->configLoad('io.unblazy')) {
-        $dependencies = ['core/drupal', 'blazy/bio.media', 'blazy/loading'];
-        $libraries['load']['dependencies'] = $dependencies;
-      }
-      else {
-        $libraries['load']['dependencies'][] = 'blazy/bio.media';
-      }
+    if ($extension === 'media' && isset($libraries['oembed.frame'])) {
+      $libraries['oembed.frame']['dependencies'][] = 'blazy/oembed';
     }
   }
 

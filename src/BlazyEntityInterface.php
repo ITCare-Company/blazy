@@ -5,6 +5,9 @@ namespace Drupal\blazy;
 /**
  * Provides common entity utilities to work with field details.
  *
+ * This is alternative to Drupal\blazy\BlazyFormatter used outside
+ * field managers, such as Views field, or Slick/Entity Browser displays, etc.
+ *
  * @see Drupal\blazy\Dejavu\BlazyEntityReferenceBase
  * @see Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase
  */
@@ -12,9 +15,6 @@ interface BlazyEntityInterface {
 
   /**
    * Build image/video preview either using theme_blazy(), or view builder.
-   *
-   * This is alternative to Drupal\blazy\BlazyFormatter used outside
-   * field managers, such as Views field, or Entity Browser displays, etc.
    *
    * @param array $data
    *   An array of data containing settings, and image item.

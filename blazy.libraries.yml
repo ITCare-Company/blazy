@@ -26,6 +26,11 @@ fx.blur:
   dependencies:
     - blazy/loading
 
+oembed:
+  css:
+    component:
+      css/components/blazy.oembed.css: {}
+
 preview:
   css:
     component:

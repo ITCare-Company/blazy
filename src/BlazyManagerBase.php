@@ -371,7 +371,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * Return the cache metadata common for all blazy-related modules.
    */
   public function getCacheMetadata(array $build = []) {
-    $settings          = $build['settings'];
+    $settings          = isset($build['settings']) ? $build['settings'] : $build;
     $max_age           = $this->configLoad('cache.page.max_age', 'system.performance');
     $max_age           = empty($settings['cache']) ? $max_age : $settings['cache'];
     $id                = isset($settings['id']) ? $settings['id'] : Blazy::getHtmlId($settings['namespace']);

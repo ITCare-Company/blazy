@@ -23,6 +23,13 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   protected $blazyManager;
 
   /**
+   * The blazy merged settings.
+   *
+   * @var array
+   */
+  protected $mergedSettings = [];
+
+  /**
    * Constructs a BlazyViewsFieldPluginBase object.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, BlazyManagerInterface $blazy_manager, BlazyEntityInterface $blazy_entity) {
@@ -121,7 +128,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    * Merges the settings.
    */
   public function mergedViewsSettings() {
-    $settings = [];
+    $settings = $this->mergedSettings;
 
     // Only fetch what we already asked for.
     foreach ($this->getDefaultValues() as $key => $default) {

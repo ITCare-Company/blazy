@@ -39,11 +39,13 @@ interface BlazyOEmbedInterface {
    *
    * @param Drupal\media\OEmbed\Resource $resource
    *   The oEmbed resource.
+   * @param \DOMDocument $dom
+   *   The HTML DOM object being modified.
    *
    * @return array
-   *   The settings array.
+   *   The settings array containing autoplay URL.
    */
-  public function getAutoPlayUrl(Resource $resource);
+  public function getAutoPlayUrl(Resource $resource, \DOMDocument $dom = NULL);
 
   /**
    * Gets the Media item thumbnail.

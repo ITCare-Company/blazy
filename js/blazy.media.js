@@ -1,6 +1,8 @@
 /**
  * @file
  * Provides Media module integration.
+ *
+ * @todo use classList anytime.
  */
 
 (function (Drupal, _db) {
@@ -20,10 +22,6 @@
 
     // Media player toggler is disabled, just display iframe.
     if (btn === null) {
-      // At least make it responsive now, be sure to not touch cross origin.
-      if (iframe && iframe.getAttribute('data-src') && iframe.getAttribute('data-src').indexOf('/oembed') > 0) {
-        iframe.addEventListener('load', makeResponsive);
-      }
       return;
     }
 
@@ -33,25 +31,6 @@
 
     if (iframe !== null && iframe.hasAttribute('allow')) {
       allow = iframe.getAttribute('allow');
-    }
-
-    /**
-     * Makes the child iframe responsive.
-     *
-     * @todo remove this temp fix once oEmbed has overridable methods.
-     */
-    function makeResponsive() {
-      var win = this.contentWindow;
-      var doc = win || this.contentDocument;
-      if (doc && doc.document) {
-        doc = doc.document;
-      }
-
-      if (doc === null) {
-        return;
-      }
-
-      doc.body.style.overflow = 'hidden';
     }
 
     /**
@@ -105,13 +84,6 @@
 
         if (allow) {
           newIframe.setAttribute('allow', allow);
-        }
-
-        // Ensures we don't touch cross-origin object, else SecurityError.
-        // The transformed url may also contain `oembed` at `?feature=oembed.
-        // The expected is the top level iframe with ``/media/oembed` route.
-        if (url.indexOf('/oembed') > 0) {
-          newIframe.addEventListener('load', makeResponsive);
         }
       }
 

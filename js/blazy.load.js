@@ -166,7 +166,7 @@
       }
 
       // Runs basic Blazy if no [data-blazy] found, probably a single image or
-      // a theme that does not use field attributes.
+      // a theme that does not use field attributes, or (non-grid) BlazyFilter.
       if (el === null) {
         initBlazy(context);
       }
@@ -230,7 +230,7 @@
     // This means Blazy and even IO should not lazy-load them any more.
     // Ensures to not touch lazy-loaded AJAX, or likely non-supported elements:
     // Video, DIV, etc. Only IMG and IFRAME are supported for now.
-    // Enforced if required. Be sure to enable `Native lazy loading`.
+    // Enforced if required. Native lazy loading` must be enabled for now.
     if (me.isNativeLazy() || me.isForced) {
       var elms = context.querySelectorAll(me.options.selector + '[loading]:not(.' + me.options.successClass + ')');
       if (elms.length > 0) {

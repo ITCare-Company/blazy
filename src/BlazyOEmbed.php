@@ -196,27 +196,24 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * {@inheritdoc}
    */
-  public function getAutoPlayUrl(Resource $resource) {
+  public function getAutoPlayUrl(Resource $resource, \DOMDocument $dom = NULL) {
     $data = [];
-    if (empty($resource->getHtml())) {
-      return $data;
-    }
+    if ($dom || $resource->getHtml()) {
+      $dom = $dom ?: Html::load($resource->getHtml());
+      $iframe = $dom->getElementsByTagName('iframe');
+      $url = $iframe->length > 0 ? $iframe->item(0)->getAttribute('src') : NULL;
 
-    $dom = Html::load($resource->getHtml());
-    $iframe = $dom->getElementsByTagName('iframe');
-    $url = $iframe->length > 0 ? $iframe->item(0)->getAttribute('src') : NULL;
+      if (!empty($url)) {
+        $data['oembed_url'] = $url;
+        $data['scheme']     = mb_strtolower($resource->getProvider()->getName());
+        $data['type']       = $resource->getType();
 
-    if (!empty($url)) {
-      $data['oembed_url'] = $url;
-      $data['scheme']     = mb_strtolower($resource->getProvider()->getName());
-      $data['type']       = $resource->getType();
-
-      // Adds autoplay for media URL on lightboxes, saving another click.
-      if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
-        $data['autoplay_url'] = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
+        // Adds autoplay for media URL on lightboxes, saving another click.
+        if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
+          $data['autoplay_url'] = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
+        }
       }
     }
-
     return $data;
   }
 
@@ -233,11 +230,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $settings = $data['settings'];
 
     // @todo support local video/ audio file, and other media sources.
+    // @todo check for Resource::TYPE_PHOTO, Resource::TYPE_RICH, etc.
     switch ($settings['media_source']) {
-      // @todo check for Resource::TYPE_PHOTO, Resource::TYPE_RICH, etc.
-      case 'video_file':
-        break;
-
       case 'oembed':
       case 'oembed:video':
         // Input url != embed url. For Youtube, /watch != /embed.
@@ -254,7 +248,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         $settings['type'] = 'image';
         break;
 
-      // No special handling for anything else pass through.
+      // No special handling for anything else for now, pass through.
       default:
         break;
     }
@@ -262,10 +256,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     // Do not proceed if it has type, already managed by theme_blazy().
     // Supports other Media entities: Facebook, Instagram, local video, etc.
     if (empty($settings['type']) && ($build = BlazyMedia::build($media, $settings))) {
-      // Prevents complication for now, such as lightbox for Facebook, etc.
-      // Either makes no sense, or not currently supported without extra legs.
-      // Original formatter settings can still be accessed via content variable.
-      $settings = array_merge($settings, BlazyDefault::richSettings());
       $data['content'][] = $build;
     }
 
@@ -344,7 +334,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         $resource = $this->getResource($url);
 
         // Fetches autoplay_url.
-        $settings = $this->getAutoPlayUrl($resource);
+        $settings = $this->getAutoPlayUrl($resource, $dom);
 
         // Replace old oEmbed url with autoplay support, and save the DOM.
         if ($iframe->length > 0) {
@@ -354,14 +344,12 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
           }
 
           // Make responsive iframe with/ without autoplay.
-          $iframe->item(0)->setAttribute('width', '100%');
-          $iframe->item(0)->setAttribute('height', '100%');
-          $iframe->item(0)->setAttribute('style', 'display: block; max-width: 100%; overflow: hidden; width: 100%; height: 100vh;');
+          $dom->getElementsByTagName('body')->item(0)->setAttribute('class', 'is-b-oembed');
           $variables['media'] = $dom->saveHTML();
         }
       }
     }
-    catch (\Exception $e) {
+    catch (\Exception $ignore) {
       // Do nothing, likely local work without internet, or the site is down.
       // No need to be chatty on this.
     }

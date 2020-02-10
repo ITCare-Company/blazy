@@ -72,28 +72,33 @@ class BlazyEntity implements BlazyEntityInterface {
     $settings = &$data['settings'];
     $this->blazyManager->getCommonSettings($settings);
 
-    /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-    if (!empty($data['item']) && empty($settings['_unblazy'])) {
-      // Provide Blazy, if required.
+    // Only pass to Blazy for known entities related to File or Media.
+    if (in_array($entity->getEntityTypeId(), ['file', 'media'])) {
+      /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+      if (empty($data['item'])) {
+        $data['content'][] = $this->getEntityView($entity, $settings, $fallback);
+      }
+
+      // Pass it to Blazy for consistent markups.
       $build = $this->blazyManager->getBlazy($data);
-      $build['#uri'] = empty($settings['uri']) ? Blazy::uri($data['item']) : $settings['uri'];
+
+      // Allows top level elements to load Blazy once rather than per field.
+      // This is still here for non-supported Views style plugins, etc.
+      if (empty($settings['_detached'])) {
+        $load = $this->blazyManager->attach($settings);
+
+        // Enforces loading elements hidden by EB "Show selected" button.
+        // @todo figure out to limit to EB plugins to avoid loadInvisible here,
+        // currently relying on ambiguous `_detached` flag.
+        $load['drupalSettings']['blazy']['loadInvisible'] = TRUE;
+        $build['#attached'] = empty($build['#attached']) ? $load : NestedArray::mergeDeep($build['#attached'], $load);
+      }
     }
     else {
       $build = $this->getEntityView($entity, $settings, $fallback);
     }
 
-    // Allows top level elements to load Blazy once rather than per field.
-    // This is still here for non-supported Views style plugins, etc.
-    if (empty($settings['_detached']) || $settings['is_preview']) {
-      $load = $this->blazyManager->attach($settings);
-
-      // Enforces loading elements hidden by EB "Show selected" button.
-      // @todo figure out to limit to EB plugins to avoid loadInvisible here,
-      // currently relying on ambiguous `_detached` flag.
-      $load['drupalSettings']['blazy']['loadInvisible'] = TRUE;
-      $build['#attached'] = empty($build['#attached']) ? $load : NestedArray::mergeDeep($build['#attached'], $load);
-    }
-
+    $this->blazyManager->getModuleHandler()->alter('blazy_build_entity', $build, $entity, $settings);
     return $build;
   }
 
@@ -103,24 +108,57 @@ class BlazyEntity implements BlazyEntityInterface {
   public function getEntityView($entity, array $settings = [], $fallback = '') {
     if ($entity instanceof EntityInterface) {
       $entity_type_id = $entity->getEntityTypeId();
-      $view_hook      = $entity_type_id . '_view';
       $view_mode      = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
       $langcode       = $entity->language()->getId();
+      $fallback       = $fallback && is_string($fallback) ? ['#markup' => '<div class="is-fallback">' . $fallback . '</div>'] : $fallback;
 
-      // If module implements own {entity_type}_view.
-      if (function_exists($view_hook)) {
-        return $view_hook($entity, $view_mode, $langcode);
-      }
       // If entity has view_builder handler.
-      elseif ($this->blazyManager->getEntityTypeManager()->hasHandler($entity_type_id, 'view_builder')) {
-        return $this->blazyManager->getEntityTypeManager()->getViewBuilder($entity_type_id)->view($entity, $view_mode, $langcode);
+      if ($this->blazyManager->getEntityTypeManager()->hasHandler($entity_type_id, 'view_builder')) {
+        $build = $this->blazyManager->getEntityTypeManager()->getViewBuilder($entity_type_id)->view($entity, $view_mode, $langcode);
+
+        // @todo figure out why video_file empty, this is blatant assumption.
+        if ($entity_type_id == 'file') {
+          try {
+            // As long as you are not being too creative by renaming or changing
+            // fields provided by core, this should be your good friend.
+            $settings['source_field'] = 'field_media_video_file';
+            $build = $this->getFileOrMedia($entity, $settings) ?: $build;
+          }
+          catch (\Exception $ignore) {
+            // Do nothing, no need to be chatty in mischievous deeds.
+          }
+        }
+        return $build ?: $fallback;
       }
-      elseif ($fallback) {
-        return ['#markup' => $fallback];
+      else {
+        // If module implements own {entity_type}_view.
+        // @todo remove due to being deprecated at D8.7.
+        // See https://www.drupal.org/node/3033656
+        $view_hook = $entity_type_id . '_view';
+        if (is_callable($view_hook)) {
+          return $view_hook($entity, $view_mode, $langcode);
+        }
       }
     }
+    return $fallback;
+  }
 
-    return FALSE;
+  /**
+   * Returns file view or media due to being empty returned by view builder.
+   *
+   * @todo make it usable for other file-related entities.
+   */
+  public function getFileOrMedia($file, array $settings, $use_file = TRUE) {
+    list($type,) = explode('/', $file->getMimeType(), 2);
+    if ($type == 'video') {
+      $settings['media_source'] = 'video_file';
+
+      if ($media = $this->blazyManager->getEntityTypeManager()->getStorage('media')->loadByProperties([$settings['source_field'] => ['fid' => $file->id()]])) {
+        $media = reset($media);
+        return $use_file ? BlazyMedia::build($media, $settings) : $media;
+      }
+    }
+    return [];
   }
 
   /**
@@ -200,7 +238,6 @@ class BlazyEntity implements BlazyEntityInterface {
       // (h2 > p), save for few reasonable tags acceptable within H2 tag.
       return is_string($text) ? ['#markup' => strip_tags($text, '<a><strong><em><span><small>')] : $text;
     }
-
     return [];
   }
 

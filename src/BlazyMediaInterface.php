@@ -59,6 +59,8 @@ interface BlazyMediaInterface {
    *
    * @todo check if still needed for non-media post BlazyOEmbed::getMediaItem()
    *   since BlazyFileFormatter is already deprecated.
+   * @todo compare and merge with BlazyOEmbed::getImageItem(). This used to
+   *   be for non-media Entity Reference at 1.x, things changed since then.
    * @todo make it non-static method.
    */
   public static function imageItem(array &$element, $entity);

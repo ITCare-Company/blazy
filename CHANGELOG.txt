@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2020-02-10
+-----------------------------
+- Removed few CSS DOM and JS hacks for OEmbed for CSS solutions thanks to D8.8+.
+
 Blazy 8.x-2.0-dev, 2020-02-08
 -----------------------------
 - Fixed for Picture glicthes with Fluid aspect ratio.

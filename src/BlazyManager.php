@@ -116,6 +116,12 @@ class BlazyManager extends BlazyManagerBase {
     if (empty($build['content'])) {
       $this->buildMedia($element, $build);
     }
+    else {
+      // Prevents complication for now, such as lightbox for Facebook, etc.
+      // Either makes no sense, or not currently supported without extra legs.
+      // Original formatter settings can still be accessed via content variable.
+      $settings = array_merge($settings, BlazyDefault::richSettings());
+    }
 
     // Multi-breakpoint aspect ratio only applies if lazyloaded.
     // These may be set once at formatter level, or per breakpoint above.
@@ -161,12 +167,12 @@ class BlazyManager extends BlazyManagerBase {
       unset($item->_attributes);
     }
 
-    // Responsive image integration.
+    // Responsive image integration, with/o CSS background so to work with.
     if (!empty($settings['resimage']) && $settings['extension'] != 'svg') {
       $this->buildResponsiveImage($element, $attributes, $settings);
     }
 
-    // Regular image with CSS background.
+    // Regular image, with/o CSS background so to work with.
     if (empty($settings['responsive_image_style_id'])) {
       $this->buildImage($element, $attributes, $item_attributes, $settings);
     }
@@ -193,7 +199,7 @@ class BlazyManager extends BlazyManagerBase {
     $responsive_image = $this->getResponsiveImageStyles($settings['resimage']);
     $element['#cache']['tags'] = $responsive_image['caches'];
 
-    // Makes Responsive image usable as CSS background.
+    // Makes Responsive image usable as CSS background image sources.
     if (!empty($settings['background'])) {
       $srcset = $dimensions = [];
       foreach ($responsive_image['styles'] as $style) {
@@ -339,11 +345,8 @@ class BlazyManager extends BlazyManagerBase {
    *   The alterable and renderable array of contents.
    */
   public function build(array $build = []) {
-    $build['settings'] += BlazyDefault::htmlSettings();
-    $settings = $build['settings'];
+    $settings = &$build['settings'];
     $settings['_grid'] = isset($settings['_grid']) ? $settings['_grid'] : (!empty($settings['style']) && !empty($settings['grid']));
-
-    $this->moduleHandler->alter('blazy_build_settings', $build['settings']);
 
     // If not a grid, pass the items as regular index children to theme_field().
     // This #pre_render doesn't work if called from Views results, hence the
@@ -351,7 +354,7 @@ class BlazyManager extends BlazyManagerBase {
     if (empty($settings['_grid'])) {
       $settings = $this->prepareBuild($build);
       $build['#blazy'] = $settings;
-      $build['#attached'] = $this->attach($settings);
+      $this->setAttachments($build, $settings);
     }
     else {
       // Take over theme_field() with a theme_item_list(), if so configured.
@@ -380,15 +383,13 @@ class BlazyManager extends BlazyManagerBase {
     $commerce = isset($element['#ajax_replace_class']);
     $attributes = isset($element['#attributes']) ? $element['#attributes'] : [];
     $attributes = isset($element['#theme_wrappers'], $element['#theme_wrappers']['container']['#attributes']) ? $element['#theme_wrappers']['container']['#attributes'] : $attributes;
-    $cache = $this->getCacheMetadata($build);
     $settings = $this->prepareBuild($build);
 
     // Take over elements for a grid display as this is all we need, learned
     // from the issues such as: #2945524, or product variations.
     // We'll selectively pass or work out $attributes far below.
     $element = BlazyGrid::build($build, $settings);
-    $element['#attached'] = $this->attach($settings);
-    $element['#cache'] = $cache;
+    $this->setAttachments($element, $settings);
 
     if ($attributes) {
       // Signals other modules if they want to use it.
@@ -407,6 +408,15 @@ class BlazyManager extends BlazyManagerBase {
   }
 
   /**
+   * Provides attachment and cache for both theme_field() and theme_item_list().
+   */
+  private function setAttachments(array &$element, array $settings) {
+    $attachments = $this->attach($settings);
+    $element['#attached'] = empty($element['#attached']) ? $attachments : NestedArray::mergeDeep($element['#attached'], $attachments);
+    $element['#cache'] = $this->getCacheMetadata($settings);
+  }
+
+  /**
    * Prepares Blazy outputs, extract items, and return updated $settings.
    */
   protected function prepareBuild(array &$build) {
@@ -415,17 +425,17 @@ class BlazyManager extends BlazyManagerBase {
     // where items maybe stored as direct indices, or put into items variable.
     // @todo simplify this.
     $settings = isset($build['settings']) ? $build['settings'] : [];
+    $settings += BlazyDefault::htmlSettings();
     $build = isset($build['items']) ? $build['items'] : $build;
 
     // Supports Blazy multi-breakpoint images if provided, updates $settings.
     // Cases: Blazy within Views gallery, or references without direct image.
     if (!empty($settings['first_image']) && !empty($settings['check_blazy'])) {
-
       // Views may flatten out the array, bail out.
       // What we do here is extract the formatter settings from the first found
       // image and pass its settings to this container so that Blazy Grid which
       // lacks of settings may know if it should load/ display a lightbox, etc.
-      // Lightbox gallery should work without `Use field template` checked.
+      // Lightbox should work without `Use field template` checked.
       if (is_array($settings['first_image'])) {
         $this->isBlazy($settings, $settings['first_image']);
       }
