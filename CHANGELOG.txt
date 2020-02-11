@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2020-02-11
+-----------------------------
+- Issue #3112354 by chr.fritsch: Integrate the new
+  libraries_directory_file_finder service.
+
 Blazy 8.x-2.0-dev, 2020-02-10
 -----------------------------
 - Removed few CSS DOM and JS hacks for OEmbed for CSS solutions thanks to D8.8+.
