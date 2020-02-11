@@ -30,31 +30,16 @@ class BlazySettingsForm extends ConfigFormBase {
   protected $manager;
 
   /**
-   * Constructs a \Drupal\system\ConfigFormBase object.
-   *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The factory for configuration objects.
-   * @param \Drupal\Core\Asset\LibraryDiscoveryInterface $library_discovery
-   *   Discovers available asset libraries in Drupal.
-   * @param \Drupal\blazy\BlazyManagerInterface $manager
-   *   Discovers available blazy manager service.
-   */
-  public function __construct(ConfigFactoryInterface $config_factory, LibraryDiscoveryInterface $library_discovery, BlazyManagerInterface $manager) {
-    parent::__construct($config_factory);
-
-    $this->libraryDiscovery = $library_discovery;
-    $this->manager = $manager;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('config.factory'),
-      $container->get('library.discovery'),
-      $container->get('blazy.manager')
-    );
+    /**
+     * @var \Drupal\blazy_ui\Form\BlazySettingsForm
+     */
+    $instance = parent::create($container);
+    $instance->libraryDiscovery = $container->get('library.discovery');
+    $instance->manager = $container->get('blazy.manager');
+    return $instance;
   }
 
   /**
