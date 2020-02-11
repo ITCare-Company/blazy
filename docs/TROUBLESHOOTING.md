@@ -141,7 +141,24 @@ However it doesn't fix everything. Please bear with it.
 Depending on your particular issue, enable or disable, either way, is your
 potential solution.
 
-## 9. LINKED FIELD INTEGRATION
+## 9. BLAZY WITHIN SCROLLING CONTAINER DOES NOT LOAD
+`/admin/config/media/blazy`
+
+**Note**: `IO` does not need it, old `bLazy` does.
+
+If you put Blazy within a scrolling container, provide valid comma separated CSS
+selectors, except `#drupal-modal`, e.g.: `#my-scrolling-container,
+.another-scrolling-container`.
+
+A known scrolling container is `#drupal-modal` like seen at **Media library**.
+A scrolling modal with an iframe like **Entity Browser** has no issue since the
+scrolling container is the entire DOM. Must know `.blazy` parent container which
+has CSS rules containing `overflow` with values anything but `hidden` such as
+`auto` or `scroll`. Press `F12` at any browser to inspect elements.
+
+Default to known `#drupal-modal`.
+
+## 10. LINKED FIELD INTEGRATION
 Under `Media switcher` option, only `Image to iFrame` makes sense. The rest like
 `Image to lightboxes`, or `Image linked to content` will obviously be ignored
 since these will output A tag just like what Linked Field does.
@@ -149,7 +166,7 @@ Alternatively leave `Media switcher` empty, if no videos are mixed with images.
 With `Image to iFrame`, the good thing is video will be still playable, and the
 image be linked as required. Best of Both Worlds for real.
 
-## 10. BROKEN MODULES
+## 11. BROKEN MODULES
 Alpha, Beta, DEV releases are for developers only. Beware of possible breakage.
 
 However if it is broken, unless an update is provided, running `drush cr` during

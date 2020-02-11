@@ -185,8 +185,8 @@ class BlazySettingsForm extends ConfigFormBase {
     $form['blazy']['container'] = [
       '#type'          => 'textfield',
       '#title'         => $this->t('Scrolling container'),
-      '#default_value' => $config->get('container'),
-      '#description'   => $this->t('If you put Blazy within a scrolling container, provide valid comma separated CSS selectors, except <code>#drupal-modal</code>, e.g.: <code>#my-scrolling-container, .another-scrolling-container</code>. A known scrolling container is <code>#drupal-modal</code> like seen at Media library. A scrolling modal with an iframe like Entity Browser has no issue since the scrolling container is the entire DOM. Must know <code>.blazy</code> parent container which has CSS rules containing <code>overflow</code> with values anything but <code>hidden</code> such as <code>auto or scroll</code>. IO does not need it, old bLazy does. Default to known <code>#drupal-modal</code>.'),
+      '#default_value' => $config->get('blazy.container'),
+      '#description'   => $this->t('If you put Blazy within a scrolling container, provide valid comma separated CSS selectors, except <code>#drupal-modal</code>, e.g.: <code>#my-scrolling-container, .another-scrolling-container</code>. A known scrolling container is <code>#drupal-modal</code> like seen at Media library. A scrolling modal with an iframe like Entity Browser has no issue since the scrolling container is the entire DOM. Must know <code>.blazy</code> parent container which has CSS rules containing <code>overflow</code> with values anything but <code>hidden</code> such as <code>auto or scroll</code>. Press <code>F12</code> at any browser to inspect elements. IO does not need it, old bLazy does. Default to known <code>#drupal-modal</code>.'),
     ];
 
     $form['io'] = [

@@ -5,7 +5,7 @@
 # <a name="faq"></a>FAQ
 
 ## CURRENT DEVELOPMENT STATUS
-A full release should be reasonable after proper feedbacks from the community,
+A full release should be reasonable after proper feedback from the community,
 some code cleanup, and optimization where needed. Patches are very much welcome.
 
 
