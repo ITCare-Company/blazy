@@ -19,6 +19,11 @@ abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'field',
     'filter',

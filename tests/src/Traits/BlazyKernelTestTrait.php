@@ -11,6 +11,11 @@ trait BlazyKernelTestTrait {
   use BlazyCreationTestTrait;
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * Setup common Kernel classes.
    */
   protected function setUpKernelInstall() {

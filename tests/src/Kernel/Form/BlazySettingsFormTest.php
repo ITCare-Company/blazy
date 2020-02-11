@@ -17,6 +17,11 @@ use Drupal\blazy_ui\Form\BlazySettingsForm;
 class BlazySettingsFormTest extends KernelTestBase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * The Blazy form object under test.
    *
    * @var \Drupal\blazy_ui\Form\BlazySettingsForm
