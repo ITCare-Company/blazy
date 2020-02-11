@@ -226,6 +226,15 @@
 
     me.options = _db.extend({}, me.globals(), opts);
 
+    // Old bLazy, not IO, might need scrolling CSS selector like Modal library.
+    // A scrolling modal with an iframe like Entity Browser has no issue since
+    // the scrolling container is the entire DOM.
+    var scrollElms = '#drupal-modal';
+    if (me.options.container) {
+      scrollElms += ', ' + me.options.container.trim();
+    }
+    me.options.container = scrollElms;
+
     // Swap lazy attributes to let supportive browsers lazy load them.
     // This means Blazy and even IO should not lazy-load them any more.
     // Ensures to not touch lazy-loaded AJAX, or likely non-supported elements:

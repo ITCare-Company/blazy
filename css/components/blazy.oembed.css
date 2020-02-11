@@ -3,6 +3,7 @@
  * Makes oembed iframe responsive, leaving the rest to media/oembed.iframe.
  */
 
+/** This class ensures Blazy does not interfere non-blazy oembed iframes. */
 .is-b-oembed {
   overflow: hidden;
 }

@@ -182,6 +182,13 @@ class BlazySettingsForm extends ConfigFormBase {
       '#size'          => 10,
     ];
 
+    $form['blazy']['container'] = [
+      '#type'          => 'textfield',
+      '#title'         => $this->t('Scrolling container'),
+      '#default_value' => $config->get('container'),
+      '#description'   => $this->t('If you put Blazy within a scrolling container, provide valid comma separated CSS selectors, except <code>#drupal-modal</code>, e.g.: <code>#my-scrolling-container, .another-scrolling-container</code>. A known scrolling container is <code>#drupal-modal</code> like seen at Media library. A scrolling modal with an iframe like Entity Browser has no issue since the scrolling container is the entire DOM. Must know <code>.blazy</code> parent container which has CSS rules containing <code>overflow</code> with values anything but <code>hidden</code> such as <code>auto or scroll</code>. IO does not need it, old bLazy does. Default to known <code>#drupal-modal</code>.'),
+    ];
+
     $form['io'] = [
       '#type'        => 'details',
       '#tree'        => TRUE,
@@ -260,6 +267,7 @@ class BlazySettingsForm extends ConfigFormBase {
       ->set('blazy.offset', $form_state->getValue(['blazy', 'offset']))
       ->set('blazy.saveViewportOffsetDelay', $form_state->getValue(['blazy', 'saveViewportOffsetDelay']))
       ->set('blazy.validateDelay', $form_state->getValue(['blazy', 'validateDelay']))
+      ->set('blazy.container', $form_state->getValue(['blazy', 'container']))
       ->set('io.enabled', $form_state->getValue(['io', 'enabled']))
       ->set('io.unblazy', $form_state->getValue(['io', 'unblazy']))
       ->set('io.rootMargin', $form_state->getValue(['io', 'rootMargin']))

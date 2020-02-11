@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2020-02-11
 -----------------------------
+- Added a new option container to support old bLazy (IO does not need it) within
+  scrolling containers such as Drupal modal like Media library.
 - Issue #3112354 by chr.fritsch: Integrate the new
   libraries_directory_file_finder service.
 

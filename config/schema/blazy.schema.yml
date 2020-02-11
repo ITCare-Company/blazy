@@ -42,6 +42,9 @@ blazy.settings:
         validateDelay:
           type: integer
           label: 'Set validate delay'
+        container:
+          type: string
+          label: 'Scrolling container'
     io:
       type: mapping
       label: IO

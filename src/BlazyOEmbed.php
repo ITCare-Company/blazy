@@ -344,6 +344,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
           }
 
           // Make responsive iframe with/ without autoplay.
+          // The following ensures iframe does not shrink due to its attributes.
+          $iframe->item(0)->setAttribute('height', '100%');
+          $iframe->item(0)->setAttribute('width', '100%');
           $dom->getElementsByTagName('body')->item(0)->setAttribute('class', 'is-b-oembed');
           $variables['media'] = $dom->saveHTML();
         }
