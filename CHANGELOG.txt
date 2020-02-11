@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2020-02-12
+-----------------------------
+- Issue #3112881 by thalles: Fix subclassing and stop overriding constructors
+in blazy_ui\Form\BlazySettingsForm.
+
 Blazy 8.x-2.0-dev, 2020-02-11
 -----------------------------
 - Added a new option container to support old bLazy (IO does not need it) within

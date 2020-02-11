@@ -3,11 +3,8 @@
 namespace Drupal\blazy_ui\Form;
 
 use Drupal\Core\Url;
-use Drupal\Core\Asset\LibraryDiscoveryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\blazy\BlazyManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
