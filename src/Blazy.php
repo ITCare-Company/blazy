@@ -261,9 +261,7 @@ class Blazy implements BlazyInterface {
 
     // Support browser native lazy loading as per 8/2019 specific to Chrome 76+.
     // See https://web.dev/native-lazy-loading/
-    if (!empty($settings['native'])) {
-      $attributes['loading'] = 'lazy';
-    }
+    $attributes['loading'] = 'lazy';
   }
 
   /**
@@ -292,12 +290,6 @@ class Blazy implements BlazyInterface {
    * Provides container attributes for .blazy container: .field, .view, etc.
    */
   public static function containerAttributes(array &$attributes, array $settings = []) {
-    // Provides hint about AJAX.
-    // @todo remove if nobody uses this like everything else.
-    if (!empty($settings['use_ajax'])) {
-      $settings['blazy_data']['useAjax'] = TRUE;
-    }
-
     // Provides the main container attributes.
     $classes = empty($attributes['class']) ? [] : $attributes['class'];
     $attributes['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
@@ -444,17 +436,6 @@ class Blazy implements BlazyInterface {
    */
   public static function uri($item) {
     return empty($item) ? '' : (($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri);
-  }
-
-  /**
-   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
-   *
-   * @internal
-   *   Do not use this.
-   * @todo remove and integrate into DI at 3.x, or so, instead.
-   */
-  public static function root() {
-    return \Drupal::hasService('app.root') ? \Drupal::root() : NULL;
   }
 
   /**

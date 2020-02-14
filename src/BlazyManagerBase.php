@@ -24,6 +24,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   use StringTranslationTrait;
 
   /**
+   * The app root.
+   *
+   * @var \SplString
+   */
+  protected $root;
+
+  /**
    * The entity repository service.
    *
    * @var \Drupal\Core\Entity\EntityRepositoryInterface
@@ -70,7 +77,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    *
    * @var object
    */
-  protected $isIoSettings;
+  protected $ioSettings;
 
   /**
    * Checks if the image style contains crop in the effect name.
@@ -102,7 +109,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static(
+    $instance = new static(
       $container->get('entity.repository'),
       $container->get('entity_type.manager'),
       $container->get('module_handler'),
@@ -110,6 +117,27 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $container->get('config.factory'),
       $container->get('cache.default')
     );
+
+    // @todo remove and use DI at 2.x+ post sub-classes updates.
+    $instance->setRoot($container->get('app.root'));
+    return $instance;
+  }
+
+  /**
+   * Returns the app root.
+   */
+  public function root() {
+    return $this->root;
+  }
+
+  /**
+   * Sets app root service.
+   *
+   * @todo remove and use DI at 2.x+ post sub-classes updates.
+   */
+  public function setRoot($root) {
+    $this->root = $root;
+    return $this;
   }
 
   /**
@@ -232,7 +260,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * {@inheritdoc}
    */
   public function getIoSettings(array $attach = []) {
-    if (!isset($this->isIoSettings)) {
+    if (!isset($this->ioSettings)) {
       $thold = trim($this->configLoad('io.threshold')) ?: '0';
       $number = strpos($thold, '.') !== FALSE ? (float) $thold : (int) $thold;
       $thold = strpos($thold, ',') !== FALSE ? array_map('trim', explode(',', $thold)) : [$number];
@@ -244,10 +272,10 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
         $io[$key] = isset($attach['io.' . $key]) ? $attach['io.' . $key] : ($value ?: $default);
       }
 
-      $this->isIoSettings = (object) $io;
+      $this->ioSettings = (object) $io;
     }
 
-    return $this->isIoSettings;
+    return $this->ioSettings;
   }
 
   /**
@@ -278,8 +306,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
-    // @todo use DI at 3.x, cannot use app.root now without sub-modules sync.
-    if (is_file(Blazy::root() . '/libraries/photobox/photobox/jquery.photobox.js')) {
+    if (is_file($this->root . '/libraries/photobox/photobox/jquery.photobox.js')) {
       $lightboxes[] = 'photobox';
     }
 
@@ -313,7 +340,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $blazy = $item['settings'];
 
       // Allows breakpoints overrides such as multi-styled images by GridStack.
-      // @todo remove deprecated cutom breakpoints.
+      // @todo remove custom breakpoints anytime before 2.x, recheck GridStack.
       if (empty($settings['breakpoints']) && isset($blazy['breakpoints'])) {
         $settings['breakpoints'] = $blazy['breakpoints'];
       }
@@ -356,12 +383,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     BlazyBreakpoint::cleanUpBreakpoints($settings);
     if (!empty($settings['breakpoints'])) {
       BlazyBreakpoint::buildDataBlazy($settings, $image);
-    }
-
-    // @todo remove when Blazy::containerAttributes() is used by sub-modules.
-    // @todo remove if nobody uses this like everything else.
-    if (!empty($settings['use_ajax'])) {
-      $settings['blazy_data']['useAjax'] = TRUE;
     }
 
     unset($settings['first_image']);

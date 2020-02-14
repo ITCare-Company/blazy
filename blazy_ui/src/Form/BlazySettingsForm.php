@@ -66,13 +66,6 @@ class BlazySettingsForm extends ConfigFormBase {
       '#description'   => $this->t('Uncheck to disable blazy related admin compact form styling, only if not compatible with your admin theme.'),
     ];
 
-    $form['native'] = [
-      '#type'          => 'checkbox',
-      '#title'         => $this->t('Native lazy loading'),
-      '#default_value' => $config->get('native'),
-      '#description'   => $this->t('Native lazy loading is supported by Chrome 76+ as of 01/2019. If enabled, Blazy or IO will be used as fallback for other browsers instead. Currently the offset/ threshold before loading is hardcoded to <a href=":url1">800px at Chrome</a>, so it might only be good for super tall pages for now, be aware. <a href=":url2">Read more</a>', [':url1' => 'https://cs.chromium.org/chromium/src/third_party/blink/renderer/core/frame/settings.json5?l=971-1003&rcl=e8f3cf0bbe085fee0d1b468e84395aad3ebb2cad', ':url2' => 'https://web.dev/native-lazy-loading/']),
-    ];
-
     $form['noscript'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Add noscript'),
@@ -238,7 +231,6 @@ class BlazySettingsForm extends ConfigFormBase {
     $config
       ->set('admin_css', $form_state->getValue('admin_css'))
       ->set('fx', $form_state->getValue('fx'))
-      ->set('native', $form_state->getValue('native'))
       ->set('noscript', $form_state->getValue('noscript'))
       ->set('responsive_image', $form_state->getValue('responsive_image'))
       // @todo TBD; for keeping or removal at blazy:8.x-2.0.

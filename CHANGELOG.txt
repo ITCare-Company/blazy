@@ -1,8 +1,12 @@
 
+Blazy 8.x-2.0-dev, 2020-02-14
+-----------------------------.
+- Removed not-so-useful option Native lazy loading, and enabled by default.
+
 Blazy 8.x-2.0-dev, 2020-02-12
 -----------------------------
 - Issue #3112881 by thalles: Fix subclassing and stop overriding constructors
-in blazy_ui\Form\BlazySettingsForm.
+  in blazy_ui\Form\BlazySettingsForm.
 
 Blazy 8.x-2.0-dev, 2020-02-11
 -----------------------------

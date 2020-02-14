@@ -3,6 +3,9 @@ services:
     abstract: true
     class: Drupal\blazy\BlazyManagerBase
     arguments: ['@entity.repository', '@entity_type.manager', '@module_handler', '@renderer', '@config.factory', '@cache.default']
+    calls:
+      # @todo remove and use DI instead after sub-module updates.
+      - [setRoot, ['@app.root']]
 
   blazy.manager:
     abstract: false

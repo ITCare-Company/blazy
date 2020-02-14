@@ -8,6 +8,7 @@ blazy.settings:
     fx:
       type: string
       label: 'Image effect'
+    # @todo remove.
     native:
       type: boolean
       label: 'Native lazy load'

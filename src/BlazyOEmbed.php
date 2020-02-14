@@ -277,31 +277,10 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       $entity = $file->entity;
     }
 
-    if (!$entity instanceof File) {
-      return $data;
-    }
-
-    /** @var \Drupal\file\Entity\File $entity */
-    list($type,) = explode('/', $entity->getMimeType(), 2);
-    $uri = $entity->getFileUri();
-
-    if ($type == 'image' && ($image = $this->imageFactory->get($uri)) && $image->isValid()) {
-      $item            = new \stdClass();
-      $item->target_id = $entity->id();
-      $item->width     = $image->getWidth();
-      $item->height    = $image->getHeight();
-      $item->uri       = $uri;
-      $settings        = (array) $item;
-      $item->alt       = $entity->getFilename();
-      $item->title     = $entity->getFilename();
-      $item->entity    = $entity;
-
-      // Build item and settings.
-      $settings['type'] = 'image';
-      $settings['uri']  = $uri;
-      $data['item']     = $item;
-      $data['settings'] = $settings;
-      unset($item);
+    if ($entity instanceof File) {
+      if ($image = $this->imageFactory->get($entity->getFileUri())) {
+        BlazyMedia::fakeImageItem($data, $entity, $image);
+      }
     }
 
     return $data;

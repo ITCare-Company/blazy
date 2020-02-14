@@ -11,6 +11,7 @@ class BlazyDefault {
    * The supported $breakpoints.
    *
    * @var array
+   * @todo remove custom breakpoints anytime before blazy:2.x.
    */
   private static $breakpoints = ['xs', 'sm', 'md', 'lg', 'xl'];
 
@@ -199,7 +200,6 @@ class BlazyDefault {
   public static function uiSettings() {
     return [
       'one_pixel'        => TRUE,
-      'native'           => FALSE,
       'noscript'         => FALSE,
       'placeholder'      => '',
       'responsive_image' => FALSE,
@@ -217,7 +217,9 @@ class BlazyDefault {
       'namespace'  => 'blazy',
       'id'         => '',
       'is_preview' => FALSE,
+      'route_name' => '',
       'use_field'  => FALSE,
+      'view_name'  => '',
     ] + self::imageSettings() + self::uiSettings();
   }
 

@@ -108,7 +108,7 @@ class BlazyEntity implements BlazyEntityInterface {
   public function getEntityView($entity, array $settings = [], $fallback = '') {
     if ($entity instanceof EntityInterface) {
       $entity_type_id = $entity->getEntityTypeId();
-      $view_mode      = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
+      $view_mode      = $settings['view_mode'] = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
       $langcode       = $entity->language()->getId();
       $fallback       = $fallback && is_string($fallback) ? ['#markup' => '<div class="is-fallback">' . $fallback . '</div>'] : $fallback;
 
@@ -119,9 +119,6 @@ class BlazyEntity implements BlazyEntityInterface {
         // @todo figure out why video_file empty, this is blatant assumption.
         if ($entity_type_id == 'file') {
           try {
-            // As long as you are not being too creative by renaming or changing
-            // fields provided by core, this should be your good friend.
-            $settings['source_field'] = 'field_media_video_file';
             $build = $this->getFileOrMedia($entity, $settings) ?: $build;
           }
           catch (\Exception $ignore) {
@@ -151,12 +148,15 @@ class BlazyEntity implements BlazyEntityInterface {
   public function getFileOrMedia($file, array $settings, $use_file = TRUE) {
     list($type,) = explode('/', $file->getMimeType(), 2);
     if ($type == 'video') {
+      // As long as you are not being too creative by renaming or changing
+      // fields provided by core, this should be your good friend.
       $settings['media_source'] = 'video_file';
-
-      if ($media = $this->blazyManager->getEntityTypeManager()->getStorage('media')->loadByProperties([$settings['source_field'] => ['fid' => $file->id()]])) {
-        $media = reset($media);
-        return $use_file ? BlazyMedia::build($media, $settings) : $media;
-      }
+      $settings['source_field'] = 'field_media_video_file';
+    }
+    if (isset($settings['source_field'], $settings['media_source'])
+      && $media = $this->blazyManager->getEntityTypeManager()->getStorage('media')->loadByProperties([$settings['source_field'] => ['fid' => $file->id()]])) {
+      $media = reset($media);
+      return $use_file ? BlazyMedia::build($media, $settings) : $media;
     }
     return [];
   }
