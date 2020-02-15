@@ -165,27 +165,32 @@ class BlazyEntity implements BlazyEntityInterface {
    * Returns the string value of the fields: link, or text.
    */
   public function getFieldValue($entity, $field_name, $langcode) {
-    if ($entity->hasTranslation($langcode)) {
-      // If the entity has translation, fetch the translated value.
-      return $entity->getTranslation($langcode)->get($field_name)->getValue();
-    }
+    if ($entity->hasField($field_name)) {
+      if ($entity->hasTranslation($langcode)) {
+        // If the entity has translation, fetch the translated value.
+        return $entity->getTranslation($langcode)->get($field_name)->getValue();
+      }
 
-    // Entity doesn't have translation, fetch original value.
-    return $entity->get($field_name)->getValue();
+      // Entity doesn't have translation, fetch original value.
+      return $entity->get($field_name)->getValue();
+    }
+    return NULL;
   }
 
   /**
    * Returns the string value of the fields: link, or text.
    */
   public function getFieldString($entity, $field_name, $langcode, $clean = TRUE) {
-    $values = $this->getFieldValue($entity, $field_name, $langcode);
+    if ($entity->hasField($field_name)) {
+      $values = $this->getFieldValue($entity, $field_name, $langcode);
 
-    // Can be text, or link field.
-    $string = isset($values[0]['uri']) ? $values[0]['uri'] : (isset($values[0]['value']) ? $values[0]['value'] : '');
+      // Can be text, or link field.
+      $string = isset($values[0]['uri']) ? $values[0]['uri'] : (isset($values[0]['value']) ? $values[0]['value'] : '');
 
-    if ($string && is_string($string)) {
-      $string = $clean ? strip_tags($string, '<a><strong><em><span><small>') : Xss::filter($string, BlazyDefault::TAGS);
-      return trim($string);
+      if ($string && is_string($string)) {
+        $string = $clean ? strip_tags($string, '<a><strong><em><span><small>') : Xss::filter($string, BlazyDefault::TAGS);
+        return trim($string);
+      }
     }
     return '';
   }
@@ -194,7 +199,7 @@ class BlazyEntity implements BlazyEntityInterface {
    * Returns the formatted renderable array of the field.
    */
   public function getFieldRenderable($entity, $field_name, $view_mode, $multiple = TRUE) {
-    if (isset($entity->{$field_name}) && !empty($entity->{$field_name}->view($view_mode)[0])) {
+    if ($entity->hasField($field_name) && !empty($entity->{$field_name}->view($view_mode)[0])) {
       $view = $entity->get($field_name)->view($view_mode);
 
       // Prevents quickedit to operate here as otherwise JS error.
@@ -216,6 +221,7 @@ class BlazyEntity implements BlazyEntityInterface {
       }
       return $view[0];
     }
+
     return [];
   }
 
@@ -223,20 +229,22 @@ class BlazyEntity implements BlazyEntityInterface {
    * Returns the text or link value of the fields: link, or text.
    */
   public function getFieldTextOrLink($entity, $field_name, $settings, $multiple = TRUE) {
-    $langcode = $settings['langcode'];
-    if ($text = $this->getFieldValue($entity, $field_name, $langcode)) {
-      if (!empty($text[0]['value']) && !isset($text[0]['uri'])) {
-        // Prevents HTML-filter-enabled text from having bad markups (h2 > p),
-        // except for a few reasonable tags acceptable within H2 tag.
-        $text = $this->getFieldString($entity, $field_name, $langcode, FALSE);
-      }
-      elseif (isset($text[0]['uri']) && !empty($text[0]['title'])) {
-        $text = $this->getFieldRenderable($entity, $field_name, $settings['view_mode'], $multiple);
-      }
+    if ($entity->hasField($field_name)) {
+      $langcode = $settings['langcode'];
+      if ($text = $this->getFieldValue($entity, $field_name, $langcode)) {
+        if (!empty($text[0]['value']) && !isset($text[0]['uri'])) {
+          // Prevents HTML-filter-enabled text from having bad markups (h2 > p),
+          // except for a few reasonable tags acceptable within H2 tag.
+          $text = $this->getFieldString($entity, $field_name, $langcode, FALSE);
+        }
+        elseif (isset($text[0]['uri']) && !empty($text[0]['title'])) {
+          $text = $this->getFieldRenderable($entity, $field_name, $settings['view_mode'], $multiple);
+        }
 
-      // Prevents HTML-filter-enabled text from having bad markups
-      // (h2 > p), save for few reasonable tags acceptable within H2 tag.
-      return is_string($text) ? ['#markup' => strip_tags($text, '<a><strong><em><span><small>')] : $text;
+        // Prevents HTML-filter-enabled text from having bad markups
+        // (h2 > p), save for few reasonable tags acceptable within H2 tag.
+        return is_string($text) ? ['#markup' => strip_tags($text, '<a><strong><em><span><small>')] : $text;
+      }
     }
     return [];
   }
