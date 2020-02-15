@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2020-02-15
 -----------------------------
+- Issue #3113094 by thalles: Fix subclassing and stop overriding constructors
+  in blazy\Plugin\Field\FieldFormatter\BlazyTestEntityReferenceFormatterTest.
 - Issue #3113074 by thalles, gausarts: Fix subclassing and stop overriding
   constructors in blazy\Plugin\Field\FieldFormatter\BlazyFileFormatterBase.
 - Issue #3113092 by thalles: Fix subclassing and stop overriding constructors
