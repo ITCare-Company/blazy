@@ -2,10 +2,7 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\blazy\BlazyOEmbedInterface;
-use Drupal\blazy\BlazyFormatterInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 @trigger_error('The ' . __NAMESPACE__ . '\BlazyFileFormatter is deprecated in blazy:8.x-2.0 and is removed from blazy:9.x-1.0. Use \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
@@ -20,29 +17,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class BlazyFileFormatter extends BlazyFormatterBlazy {
 
   /**
-   * Constructs a BlazyFormatter object.
-   */
-  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, ImageFactory $image_factory, BlazyFormatterInterface $formatter, BlazyOEmbedInterface $oembed) {
-    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings, $image_factory, $formatter);
-    $this->blazyOembed = $oembed;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $plugin_id,
-      $plugin_definition,
-      $configuration['field_definition'],
-      $configuration['settings'],
-      $configuration['label'],
-      $configuration['view_mode'],
-      $configuration['third_party_settings'],
-      $container->get('image.factory'),
-      $container->get('blazy.formatter'),
-      $container->get('blazy.oembed')
-    );
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    return self::injectServices($instance, $container, 'entity');
   }
 
   /**
