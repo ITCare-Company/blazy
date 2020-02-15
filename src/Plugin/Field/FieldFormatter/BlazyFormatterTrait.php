@@ -2,6 +2,8 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 /**
  * A Trait common for all blazy formatters.
  */
@@ -40,6 +42,25 @@ trait BlazyFormatterTrait {
    */
   public function admin() {
     return \Drupal::service('blazy.admin.formatter');
+  }
+
+  /**
+   * Injects DI services.
+   */
+  protected static function injectServices($instance, ContainerInterface $container, $type = '') {
+    $instance->formatter = $instance->blazyManager = $container->get('blazy.formatter');
+
+    // Provides optional services.
+    if ($type == 'image' || $type == 'entity') {
+      $instance->imageFactory = isset($instance->imageFactory) ? $instance->imageFactory : $container->get('image.factory');
+      if ($type == 'entity') {
+        $instance->loggerFactory = isset($instance->loggerFactory) ? $instance->loggerFactory : $container->get('logger.factory');
+        $instance->blazyEntity = isset($instance->blazyEntity) ? $instance->blazyEntity : $container->get('blazy.entity');
+        $instance->blazyOembed = isset($instance->blazyOembed) ? $instance->blazyOembed : $instance->blazyEntity->oembed();
+      }
+    }
+
+    return $instance;
   }
 
   /**
