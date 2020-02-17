@@ -80,6 +80,9 @@ blazy_base:
       sequence:
         - type: string
           label: Caption
+    optionset:
+      type: string
+      label: Optionset
 
 field.formatter.settings.blazy:
   type: blazy_base
