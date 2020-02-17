@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2020-02-17
+-----------------------------
+- Fixed for the new formatter schemas: blazy_oembed and blazy_text.
+- Removed no longer useful BlazyFormatterOEmbedTrait.
+- Removed and cleaned up deprecated custom breakpoints, wish me luck.
+
 Blazy 8.x-2.0-dev, 2020-02-15
 -----------------------------
 - Issue #3113094 by thalles: Fix subclassing and stop overriding constructors
@@ -184,7 +190,7 @@ Blazy 8.x-2.0-dev, 2020-01-04
 - Added a new class BlazyBreakpoint to centralize all custom breakpoints.
 - Added BlazyOEmbedInterface, BlazyEntityInterface, BlazyFormatterInterface.
 - Added a new service blazy.formatter to replace blazy.formatter.manager.
-- Changed deprecation removal from blazy:9.x-1.0 to blazy:8.x-3.0.
+- Changed deprecation removal from blazy:8.x-3.0 to blazy:8.x-3.0.
 - Added micro optimizations, or organizations.
 
 Blazy 8.x-2.0-dev, 2020-01-03

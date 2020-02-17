@@ -160,8 +160,7 @@ class Blazy implements BlazyInterface {
 
     // Only output dimensions for non-svg. Respects hand-coded image attributes.
     // Do not pass it to $attributes to also respect both (Responsive) image.
-    // @todo remove custom breakpoints anytime before 2.x.
-    if (empty($settings['_sizes']) && !isset($attributes['width']) && $settings['extension'] != 'svg') {
+    if (!isset($attributes['width']) && $settings['extension'] != 'svg') {
       $image['#height'] = $settings['height'];
       $image['#width'] = $settings['width'];
     }
@@ -275,10 +274,6 @@ class Blazy implements BlazyInterface {
       // Lucky when you don't flatten out the Views output earlier.
       $padding = $settings['padding_bottom'] ?: round((($settings['height'] / $settings['width']) * 100), 2);
       self::inlineStyle($attributes, 'padding-bottom: ' . $padding . '%;');
-
-      // Provides hint to breakpoints to work with multi-breakpoint ratio.
-      // @todo remove custom breakpoints anytime before 2.x.
-      $settings['_breakpoint_ratio'] = $settings['ratio'];
 
       // Views rewrite results or Twig inline_template may strip out `style`
       // attributes, provide hint to JS.

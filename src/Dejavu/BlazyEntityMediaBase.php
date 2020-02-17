@@ -223,7 +223,6 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     return [
       'background'        => TRUE,
       'box_captions'      => TRUE,
-      'breakpoints'       => BlazyDefault::getConstantBreakpoints(),
       'captions'          => $captions,
       'fieldable_form'    => TRUE,
       'image_style_form'  => TRUE,

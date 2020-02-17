@@ -103,7 +103,6 @@ class BlazyUnitTest extends UnitTestCase {
     $settings  = array_merge($build['settings'], $settings);
     $settings += BlazyDefault::itemSettings();
 
-    $settings['breakpoints']     = [];
     $settings['blazy']           = TRUE;
     $settings['lazy']            = 'blazy';
     $settings['image_style']     = '';

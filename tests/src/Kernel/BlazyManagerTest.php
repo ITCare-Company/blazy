@@ -153,12 +153,9 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * Provider for ::testPreprocessBlazy.
    */
   public function providerPreprocessBlazy() {
-    $breakpoints = $this->getDataBreakpoints();
-
     $data[] = [
       [
         'background' => FALSE,
-        'breakpoints' => [],
       ],
       FALSE,
       FALSE,
@@ -167,7 +164,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $data[] = [
       [
         'background' => FALSE,
-        'breakpoints' => [],
       ],
       TRUE,
       FALSE,
@@ -176,7 +172,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $data[] = [
       [
         'background' => TRUE,
-        'breakpoints' => $breakpoints,
         'ratio' => 'fluid',
         'sizes' => '100w',
         'width' => 640,

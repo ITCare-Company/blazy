@@ -54,18 +54,20 @@ trait BlazyAdminBreakpointTrait {
       $vanilla = ':input[name="options[settings][vanilla]"]';
     }
 
-    $breakpoints = $this->breakpointElements($definition);
-    foreach ($breakpoints as $breakpoint => $elements) {
-      foreach ($elements as $key => $element) {
-        $form['breakpoints'][$breakpoint][$key] = $element;
+    if (!empty($definition['breakpoints'])) {
+      $breakpoints = $this->breakpointElements($definition);
+      foreach ($breakpoints as $breakpoint => $elements) {
+        foreach ($elements as $key => $element) {
+          $form['breakpoints'][$breakpoint][$key] = $element;
 
-        if (!empty($definition['vanilla'])) {
-          $form['breakpoints'][$breakpoint][$key]['#states']['enabled'][$vanilla] = ['checked' => FALSE];
-        }
+          if (!empty($definition['vanilla'])) {
+            $form['breakpoints'][$breakpoint][$key]['#states']['enabled'][$vanilla] = ['checked' => FALSE];
+          }
 
-        $value = isset($settings['breakpoints'][$breakpoint][$key]) ? $settings['breakpoints'][$breakpoint][$key] : '';
-        if ($key != 'breakpoint') {
-          $form['breakpoints'][$breakpoint][$key]['#default_value'] = $value;
+          $value = isset($settings['breakpoints'][$breakpoint][$key]) ? $settings['breakpoints'][$breakpoint][$key] : '';
+          if ($key != 'breakpoint') {
+            $form['breakpoints'][$breakpoint][$key]['#default_value'] = $value;
+          }
         }
       }
     }

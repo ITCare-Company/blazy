@@ -11,6 +11,7 @@ use Drupal\media\Entity\MediaType;
 use Drupal\media\Plugin\media\Source\OEmbedInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Dejavu\BlazyDependenciesTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin for blazy oembed formatter.
@@ -27,13 +28,22 @@ use Drupal\blazy\Dejavu\BlazyDependenciesTrait;
  *
  * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase
  * @see \Drupal\media\Plugin\Field\FieldFormatter\OEmbedFormatter
+ *
+ * @todo remove ContainerFactoryPluginInterface since D8.8 has it by default.
  */
 class BlazyOEmbedFormatter extends FormatterBase implements ContainerFactoryPluginInterface {
 
   use BlazyDependenciesTrait;
   use BlazyFormatterTrait;
   use BlazyFormatterViewTrait;
-  use BlazyFormatterOEmbedTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    return self::injectServices($instance, $container, 'entity');
+  }
 
   /**
    * {@inheritdoc}

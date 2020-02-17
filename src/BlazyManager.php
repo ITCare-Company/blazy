@@ -145,6 +145,7 @@ class BlazyManager extends BlazyManagerBase {
     // Pass common elements to theme_blazy().
     $element['#attributes']     = $attributes;
     $element['#content']        = $build['content'];
+    $element['#postscript']     = $build['postscript'];
     $element['#settings']       = $settings;
     $element['#url_attributes'] = $build['url_attributes'];
   }
@@ -225,19 +226,10 @@ class BlazyManager extends BlazyManagerBase {
    * Build out image, or anything related, including cache, CSS background, etc.
    */
   private function buildImage(array &$element, array &$attributes, array &$item_attributes, array &$settings) {
-    if (!empty($settings['lazy'])) {
+    if (!empty($settings['lazy']) && !empty($settings['background'])) {
       // Attach data attributes to either IMG tag, or DIV container.
-      if (!empty($settings['background'])) {
-        $settings['urls'][$settings['width']] = $this->backgroundImage($settings);
-        Blazy::lazyAttributes($attributes, $settings);
-
-        // @todo remove custom breakpoints anytime before 2.x.
-        BlazyBreakpoint::attributes($attributes, $settings);
-      }
-      else {
-        // @todo remove custom breakpoints anytime before 2.x.
-        BlazyBreakpoint::attributes($item_attributes, $settings);
-      }
+      $settings['urls'][$settings['width']] = $this->backgroundImage($settings);
+      Blazy::lazyAttributes($attributes, $settings);
     }
 
     if (empty($settings['_no_cache'])) {

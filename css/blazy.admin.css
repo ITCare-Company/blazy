@@ -1080,8 +1080,7 @@ td .form__title {
   padding-left: 0 !important;
 }
 
-.form--slick .form__header .form-item-skin label,
-.form--slick .form__header .form-item-breakpoints label {
+.form--slick .form__header .form-item-skin label {
   width: auto;
 }
 
@@ -1256,10 +1255,6 @@ td .form__title {
 
 .form--slick .form-item--center {
   text-align: center;
-}
-
-.form--slick .form-wrapper--table-breakpoints .tabledrag-handle {
-  display: none;
 }
 
 .form--slick .fieldset__description {
@@ -1573,16 +1568,10 @@ td .form__title {
 /** Declutter form when Vanilla is enabled coz table form states are broken. */
 .form--vanilla-on .form__title--media-switch,
 .form--vanilla-on .form__title--fields,
-.form--vanilla-on .form__title--breakpoints,
 .form--vanilla-on .tableresponsive-toggle-columns,
-.form--vanilla-on .form-wrapper--table-breakpoints,
-.form--responsive-image-on .form__title--breakpoints,
 .form--responsive-image-on .tableresponsive-toggle-columns,
-.form--responsive-image-on .form-wrapper--table-breakpoints,
 .form--responsive-image-on .form-item--sizes,
-.form--media-switch-rendered .form__title--breakpoints,
 .form--media-switch-rendered .tableresponsive-toggle-columns,
-.form--media-switch-rendered .form-wrapper--table-breakpoints,
 .form--media-switch-rendered .form-item--background,
 .form--media-switch-rendered .form-item--image-style,
 .form--media-switch-rendered .form-item--ratio {
