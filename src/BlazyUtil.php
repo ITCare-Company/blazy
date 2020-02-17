@@ -80,32 +80,15 @@ class BlazyUtil {
   /**
    * Determines whether the URI has a valid scheme for file API operations.
    *
-   * This is just a wrapper around
-   * Drupal\Core\StreamWrapper\StreamWrapperManager::isValidUri() for Drupal
-   * versions >= 8.8, with a fallback to file_valid_uri() for prior Drupal
-   * versions.
-   *
    * @param string $uri
    *   The URI to be tested.
    *
    * @return bool
    *   TRUE if the URI is valid.
-   *
-   * @todo Remove this once Drupal 8.7 is no longer supported.
    */
   public static function isValidUri($uri) {
-    if (version_compare(\Drupal::VERSION, '8.8', '>=')) {
-      // Adds a check to pass the tests due to non-DI.
-      return Blazy::streamWrapperManager() ? Blazy::streamWrapperManager()->isValidUri($uri) : FALSE;
-    }
-    else {
-      // Because this code only runs for older Drupal versions, we do not need
-      // or want IDEs or the Upgrade Status module warning people about this
-      // deprecated code usage. Setting the function name dynamically
-      // circumvents those warnings.
-      $function = 'file_valid_uri';
-      return $function($uri);
-    }
+    // Adds a check to pass the tests due to non-DI.
+    return Blazy::streamWrapperManager() ? Blazy::streamWrapperManager()->isValidUri($uri) : FALSE;
   }
 
   /**

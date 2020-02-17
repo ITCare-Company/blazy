@@ -4,6 +4,7 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Cache\Cache;
 
@@ -12,7 +13,14 @@ use Drupal\Core\Cache\Cache;
  *
  * A few modules re-use this: GridStack, Mason, Slick...
  */
-class BlazyManager extends BlazyManagerBase {
+class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks() {
+    return ['preRenderBlazy', 'preRenderBuild'];
+  }
 
   /**
    * Returns the enforced rich media content, or media using theme_blazy().

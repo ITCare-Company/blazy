@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2020-02-17
 -----------------------------
+- Issue #3079167 by gausarts, nashkrammer, Kristen Pol, Berdir: Implement
+  TrustedCallbackInterface to fix deprecation notices.
 - Issue #3114035 by chr.fritsch: Missing schema for optionset.
 - Fixed for the new formatter schemas: blazy_oembed and blazy_text.
 - Removed no longer useful BlazyFormatterOEmbedTrait.
