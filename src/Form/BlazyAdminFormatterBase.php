@@ -163,7 +163,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       }
     }
 
-    if (!empty($settings['media_switch']) && !in_array($settings['media_switch'], $lightboxes)) {
+    if ($lightboxes && !empty($settings['media_switch']) && !in_array($settings['media_switch'], $lightboxes)) {
       foreach (['box_style', 'box_media_style', 'box_caption'] as $key) {
         $excludes[$key] = TRUE;
       }
