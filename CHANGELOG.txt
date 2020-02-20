@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2020-02-20
+-----------------------------
+- Issue #3114486 by gausarts, hunterbuchanan: Default image no longer shows up
+in image field using Blazy 8.x-2.0-rc7,
+
 Blazy 8.x-2.0-dev, 2020-02-17
 -----------------------------
 - Issue #3079167 by gausarts, nashkrammer, Kristen Pol, Berdir: Implement
