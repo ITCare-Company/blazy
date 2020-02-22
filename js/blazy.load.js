@@ -60,10 +60,12 @@
         });
       }
 
-      me.updateContainer(el, cn);
-      // Supports various scenario: CSS background, picture, image, media.
-      if (me.isLoaded(el) && cn.hasAttribute('data-animation')) {
-        _db.animate(cn);
+      if (cn !== null) {
+        me.updateContainer(el, cn);
+        // Supports various scenario: CSS background, picture, image, media.
+        if (me.isLoaded(el) && cn.hasAttribute('data-animation')) {
+          _db.animate(cn);
+        }
       }
 
       // Provides event listeners for easy overrides without full overrides.
