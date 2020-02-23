@@ -143,7 +143,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     Blazy::preprocessBlazy($variables);
 
     $image = $expected == TRUE ? !empty($variables['image']) : empty($variables['image']);
-    $iframe = $iframe == TRUE ? !empty($variables['iframe_attributes']) : empty($variables['iframe_attributes']);
+    $iframe = $iframe == TRUE ? !empty($variables['iframe']) : empty($variables['iframe']);
 
     $this->assertTrue($image);
     $this->assertTrue($iframe);

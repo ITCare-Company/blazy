@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2020-02-23
 -----------------------------
+- Updated tests to use Selenium.
 - Added micro optimization for OEmbed.
 - Simplified BlazyOEmbed::getAutoPlayUrl.
 - Removed no longer relevant autoplay_url check which is now done within iframe.

@@ -317,17 +317,28 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
 
     // Checks if we have a valid file entity, not hard-coded image URL.
     if ($src = $node->getAttribute('src')) {
-      // If starts with 2 slashes, it is always external.
-      if (strpos($src, '//') === 0) {
-        // We need to query stored SRC, https is enforced.
-        $src = 'https:' . $src;
-      }
+      // Prevents data URI from screwing up.
+      $data_uri = substr($src, 0, 10) === 'data:image';
+      if (!$data_uri) {
+        // If starts with 2 slashes, it is always external.
+        if (strpos($src, '//') === 0) {
+          // We need to query stored SRC, https is enforced.
+          $src = 'https:' . $src;
+        }
 
-      if ($node->tagName == 'img') {
-        $item = $this->getImageItemFromImageSrc($settings, $node, $src);
-      }
-      elseif ($node->tagName == 'iframe') {
-        $item = $this->getImageItemFromIframeSrc($settings, $node, $src);
+        if ($node->tagName == 'img') {
+          $item = $this->getImageItemFromImageSrc($settings, $node, $src);
+        }
+        elseif ($node->tagName == 'iframe') {
+          try {
+            // Prevents invalid video URL (404, etc.) from screwing up.
+            $item = $this->getImageItemFromIframeSrc($settings, $node, $src);
+          }
+          catch (\Exception $ignore) {
+            // Do nothing, likely local work without internet, or the site is
+            // down. No need to be chatty on this.
+          }
+        }
       }
     }
 

@@ -46,7 +46,6 @@ class BlazyUnitTest extends UnitTestCase {
     $variables             = ['attributes' => [], 'image' => []];
     $settings              = BlazyDefault::entitySettings();
     $settings['embed_url'] = '//www.youtube.com/watch?v=E03HFA923kw';
-    $settings['scheme']    = 'youtube';
     $settings['type']      = 'video';
     $settings['bundle']    = 'remote_video';
 
@@ -66,7 +65,7 @@ class BlazyUnitTest extends UnitTestCase {
           'media_switch' => 'media',
           'ratio' => 'fluid',
         ],
-        'iframe_attributes',
+        'iframe',
       ],
       [
         [
@@ -75,7 +74,7 @@ class BlazyUnitTest extends UnitTestCase {
           'width' => 640,
           'height' => 360,
         ],
-        'iframe_attributes',
+        'iframe',
       ],
     ];
   }
@@ -118,7 +117,7 @@ class BlazyUnitTest extends UnitTestCase {
     Blazy::preprocessBlazy($variables);
 
     $image = $expected_image == TRUE ? !empty($variables['image']) : empty($variables['image']);
-    $iframe = $expected_iframe == TRUE ? !empty($variables['iframe_attributes']) : empty($variables['iframe_attributes']);
+    $iframe = $expected_iframe == TRUE ? !empty($variables['iframe']) : empty($variables['iframe']);
 
     $this->assertTrue($image);
     $this->assertTrue($iframe);
