@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 abstract class BlazyManagerBase implements BlazyManagerInterface {
 
-  // @todo remove or keep temp fix for EB AJAX issue: #2893029
+  // Fixed for EB AJAX issue: #2893029.
   use DependencySerializationTrait;
   use StringTranslationTrait;
 
@@ -364,12 +364,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       if ($blazy_field = BlazyViews::viewsField($view)) {
         $settings = array_merge(array_filter($blazy_field->mergedViewsSettings()), array_filter($settings));
       }
-    }
-
-    // Allows lightboxes to provide its own optionsets.
-    $switch = empty($settings['media_switch']) ? FALSE : $settings['media_switch'];
-    if ($switch) {
-      $settings[$switch] = empty($settings[$switch]) ? $switch : $settings[$switch];
     }
 
     unset($settings['first_image']);

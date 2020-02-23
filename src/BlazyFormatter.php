@@ -116,11 +116,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
     }
 
-    // @todo remove if nobody uses this like everything else.
-    if (!empty($settings['use_ajax'])) {
-      $settings['blazy_data']['useAjax'] = TRUE;
-    }
-
     // Allows altering the settings.
     $this->getModuleHandler()->alter('blazy_settings', $build, $items);
   }

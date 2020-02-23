@@ -172,7 +172,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     // Only applies when Image style is empty, no file API, no $item,
     // with unmanaged VEF/ WYSIWG/ filter image without image_style.
     // Prevents 404 warning when video thumbnail missing for a reason.
-    if (empty($settings['image_style']) && !empty($settings['uri'])) {
+    if (empty($settings['image_style']) && empty($settings['width']) && !empty($settings['uri'])) {
       if ($data = @getimagesize($settings['uri'])) {
         list($settings['width'], $settings['height']) = $data;
       }
