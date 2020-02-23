@@ -437,11 +437,14 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $item = $data['item'];
     }
     // Attempts to build safe embed URL directly from oEmbed resource.
-    elseif ($resource = $this->blazyOembed->build($settings)) {
-      // All we have here is external images.
-      $settings['uri'] = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
-      $settings['width'] = empty($settings['width']) ? $resource->getWidth() : $settings['width'];
-      $settings['height'] = empty($settings['height']) ? $resource->getHeight() : $settings['height'];
+    else {
+      $this->blazyOembed->build($settings);
+      if ($resource = $this->blazyOembed->getResource($settings['input_url'])) {
+        // All we have here is external images.
+        $settings['uri'] = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
+        $settings['width'] = empty($settings['width']) ? $resource->getWidth() : $settings['width'];
+        $settings['height'] = empty($settings['height']) ? $resource->getHeight() : $settings['height'];
+      }
     }
 
     $settings['ratio'] = empty($settings['width']) ? '16:9' : 'fluid';

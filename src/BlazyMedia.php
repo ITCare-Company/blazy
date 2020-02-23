@@ -17,7 +17,7 @@ class BlazyMedia implements BlazyMediaInterface {
     // ME SlideShare, resorted to static thumbnails to avoid broken displays.
     if (!empty($settings['input_url'])) {
       try {
-        \Drupal::httpClient()->get($settings['input_url'], ['timeout' => 7]);
+        \Drupal::httpClient()->get($settings['input_url'], ['timeout' => 3]);
       }
       catch (\Exception $e) {
         return FALSE;
@@ -108,18 +108,6 @@ class BlazyMedia implements BlazyMediaInterface {
 
       // Pass through image item including poster image overrides.
       $data['item'] = $item;
-    }
-
-    // If the expected fails, at least check for metadata, likely unknown media.
-    // @todo remove if we know Media better.
-    if (empty($settings['uri'])) {
-      try {
-        // Without internet, this screwed up the site.
-        $settings['uri'] = $media->getSource()->getMetadata($media, 'thumbnail_uri');
-      }
-      catch (\Exception $ignore) {
-        // Do nothing, no need to be chatty on this.
-      }
     }
   }
 

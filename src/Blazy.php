@@ -183,12 +183,14 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public static function iframeAttributes(array $settings) {
+  public static function iframeAttributes(array &$settings) {
+    $settings['player'] = empty($settings['player']) ? (empty($settings['lightbox']) && $settings['media_switch'] == 'media') : $settings['player'];
     if (empty($settings['is_preview'])) {
       $attributes['data-src'] = $settings['embed_url'];
       $attributes['src'] = 'about:blank';
-      $attributes['class'][] = 'b-lazy';
       $attributes['allowfullscreen'] = TRUE;
+      // No need to lazyload if already using Image to iframe option.
+      $attributes['class'][] = $settings['player'] ? 'b-player' : 'b-lazy';
 
       // Adds specific Youtube attributes, related to mobile apps, etc.
       if (strpos($settings['embed_url'], 'youtu') !== FALSE) {
@@ -211,13 +213,16 @@ class Blazy implements BlazyInterface {
   public static function buildIframe(array &$variables) {
     $settings = &$variables['settings'];
     $variables['image'] = empty($settings['media_switch']) ? [] : $variables['image'];
-    $settings['player'] = empty($settings['player']) ? (empty($settings['lightbox']) && $settings['media_switch'] != 'content') : $settings['player'];
 
     // Pass iframe attributes to template.
-    $variables['iframe_attributes'] = new Attribute(self::iframeAttributes($settings));
+    $variables['iframe'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'iframe',
+      '#attributes' => self::iframeAttributes($settings),
+    ];
 
     // Iframe is removed on lazyloaded, puts data at non-removable storage.
-    $variables['attributes']['data-media'] = Json::encode(['type' => $settings['type'], 'scheme' => $settings['scheme']]);
+    $variables['attributes']['data-media'] = Json::encode(['type' => $settings['type']]);
   }
 
   /**

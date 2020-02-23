@@ -1,4 +1,11 @@
 
+Blazy 8.x-2.0-dev, 2020-02-23
+-----------------------------
+- Added micro optimization for OEmbed.
+- Simplified BlazyOEmbed::getAutoPlayUrl.
+- Removed no longer relevant autoplay_url check which is now done within iframe.
+- Updated hard-coded iframe so that can be cleanly removed via variables.
+
 Blazy 8.x-2.0-dev, 2020-02-20
 -----------------------------
 - Issue #3114838 by gausarts, lexsoft: Add a NULL check, else cannot read

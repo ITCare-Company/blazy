@@ -412,8 +412,9 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    */
   private function setAttachments(array &$element, array $settings) {
     $attachments = $this->attach($settings);
+    $cache = $this->getCacheMetadata($settings);
     $element['#attached'] = empty($element['#attached']) ? $attachments : NestedArray::mergeDeep($element['#attached'], $attachments);
-    $element['#cache'] = $this->getCacheMetadata($settings);
+    $element['#cache'] = empty($element['#cache']) ? $cache : NestedArray::mergeDeep($element['#cache'], $cache);
   }
 
   /**

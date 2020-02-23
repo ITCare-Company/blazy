@@ -59,7 +59,7 @@
 
       // First, reset any video to avoid multiple videos from playing.
       if (playing !== null) {
-        var played = document.querySelector('.is-playing .media__iframe');
+        var played = document.querySelector('.is-playing iframe');
         // Remove the previous iframe.
         if (played !== null) {
           playing.removeChild(played);
@@ -101,7 +101,7 @@
 
       var target = this;
       var player = target.parentNode;
-      var iframe = player.querySelector('iframe.media__element');
+      var iframe = player.querySelector('iframe');
 
       if (player.className.match('is-playing')) {
         player.className = player.className.replace(/(\S+)playing/, '');

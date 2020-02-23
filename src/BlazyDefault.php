@@ -268,6 +268,7 @@ class BlazyDefault {
       'attributes',
       'captions',
       'content',
+      'iframe',
       'image',
       'item',
       'item_attributes',
