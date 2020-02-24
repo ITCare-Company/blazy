@@ -39,7 +39,7 @@ class BlazyUnitTest extends UnitTestCase {
    *   The expected output.
    *
    * @covers ::buildIframe
-   * @covers \Drupal\blazy\Dejavu\BlazyDefault::entitySettings
+   * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @dataProvider providerTestBuildIframe
    */
   public function testBuildIframe(array $data, $expected) {
@@ -93,7 +93,7 @@ class BlazyUnitTest extends UnitTestCase {
    *
    * @covers \Drupal\blazy\Blazy::preprocessBlazy
    * @covers \Drupal\blazy\Blazy::urlAndDimensions
-   * @covers \Drupal\blazy\Dejavu\BlazyDefault::entitySettings
+   * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @dataProvider providerPreprocessBlazy
    */
   public function testPreprocessBlazy(array $settings, $item, $expected_image, $expected_iframe) {

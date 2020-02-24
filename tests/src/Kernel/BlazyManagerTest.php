@@ -119,7 +119,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    *
    * @covers \Drupal\blazy\Blazy::preprocessBlazy
    * @covers \Drupal\blazy\Blazy::urlAndDimensions
-   * @covers \Drupal\blazy\Dejavu\BlazyDefault::entitySettings
+   * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @dataProvider providerPreprocessBlazy
    */
   public function testPreprocessBlazy(array $settings, $use_uri, $iframe, $expected) {

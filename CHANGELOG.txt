@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2020-02-24
+-----------------------------
+- Removed few deprecated classes and methods:
+  Drupal\blazy\BlazyBreakpoint, Drupal\blazy\Dejavu\BlazyDefault.
+  Deprecated formatters are still kept till 3.x, or sooner.
+
 Blazy 8.x-2.0-dev, 2020-02-23
 -----------------------------
 - Updated tests to use Selenium.
