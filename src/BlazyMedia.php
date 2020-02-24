@@ -131,21 +131,20 @@ class BlazyMedia implements BlazyMediaInterface {
   public static function fakeImageItem(array &$data, $entity, $image) {
     /** @var \Drupal\file\Entity\File $entity */
     list($type,) = explode('/', $entity->getMimeType(), 2);
-    $uri = $entity->getFileUri();
-
     if ($type == 'image' && $image->isValid()) {
-      $item            = new \stdClass();
-      $item->target_id = $entity->id();
-      $item->width     = $image->getWidth();
-      $item->height    = $image->getHeight();
-      $item->uri       = $uri;
-      $settings        = (array) $item;
-      $item->alt       = $entity->getFilename();
-      $item->title     = $entity->getFilename();
-      $item->entity    = $entity;
+      $settings = [
+        'uri'       => $entity->getFileUri(),
+        'target_id' => $entity->id(),
+        'width'     => $image->getWidth(),
+        'height'    => $image->getHeight(),
+        'alt'       => $entity->getFilename(),
+        'title'     => $entity->getFilename(),
+        'type'      => 'image',
+      ];
 
       // Build item and settings.
-      $settings['type'] = 'image';
+      $item             = Blazy::image($settings);
+      $item->entity     = $entity;
       $data['item']     = $item;
       $data['settings'] = $settings;
       unset($item);

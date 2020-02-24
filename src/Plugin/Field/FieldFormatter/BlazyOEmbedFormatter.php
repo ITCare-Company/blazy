@@ -75,17 +75,17 @@ class BlazyOEmbedFormatter extends FormatterBase implements ContainerFactoryPlug
 
       $settings['delta'] = $delta;
       $settings['input_url'] = $value;
-      $image_item = new \stdClass();
+      $image_item = NULL;
 
       // Attempts to fetch media entity.
       $media = $this->formatter->getEntityTypeManager()->getStorage('media')->loadByProperties([$settings['field_name'] => $value]);
-      if (count($media) && $media = reset($media)) {
+      if ($media = reset($media)) {
         $data['settings'] = $settings;
         $this->blazyOembed->getMediaItem($data, $media);
 
         // Update data with local image.
         $settings = array_merge($settings, $data['settings']);
-        $image_item = $data['item'];
+        $image_item = isset($data['item']) ? $data['item'] : NULL;
       }
 
       $box = ['item' => $image_item, 'settings' => $settings];

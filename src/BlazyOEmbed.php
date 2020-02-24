@@ -144,8 +144,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * {@inheritdoc}
    */
   public function build(array &$settings = []) {
-    $this->blazyManager->getCommonSettings($settings);
-    $settings['input_url'] = UrlHelper::stripDangerousProtocols(trim($settings['input_url']));
+    if (empty($settings['_input_url'])) {
+      $this->checkInputUrl($settings);
+    }
 
     // @todo revisit if any issue with other resource types.
     $url = Url::fromRoute('media.oembed_iframe', [], [
@@ -168,15 +169,21 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     if (isset($settings['media_source'])) {
       $settings['type'] = $settings['media_source'] == 'oembed:video' ? 'video' : $settings['media_source'];
     }
+  }
 
-    // Only applies when Image style is empty, no file API, no $item,
-    // with unmanaged VEF/ WYSIWG/ filter image without image_style.
-    // Prevents 404 warning when video thumbnail missing for a reason.
-    if (empty($settings['image_style']) && empty($settings['width']) && !empty($settings['uri'])) {
-      if ($data = @getimagesize($settings['uri'])) {
-        list($settings['width'], $settings['height']) = $data;
-      }
+  /**
+   * Checks the given input URL.
+   */
+  public function checkInputUrl(array &$settings = []) {
+    $settings['input_url'] = UrlHelper::stripDangerousProtocols(trim($settings['input_url']));
+
+    // OEmbed Resource doesn't accept `/embed`, provides a conversion helper.
+    if (strpos($settings['input_url'], 'youtube.com/embed') !== FALSE) {
+      $search = '/youtube\.com\/embed\/([a-zA-Z0-9]+)/smi';
+      $replace = "youtube.com/watch?v=$1";
+      $settings['input_url'] = preg_replace($search, $replace, $settings['input_url']);
     }
+    $settings['_input_url'] = TRUE;
   }
 
   /**
@@ -236,6 +243,25 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
     // Collect what's needed for clarity.
     $data['settings'] = $settings;
+  }
+
+  /**
+   * Returns external image item from resource.
+   */
+  public function getExternalImageItem(array &$settings) {
+    // Iframe URL may be valid, but not stored as a Media entity.
+    if (($resource = $this->getResource($settings['input_url'])) && $resource->getThumbnailUrl()) {
+      // All we have here is external images. URI validity is not crucial.
+      $settings['uri'] = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
+      $settings['type'] = $resource->getType();
+      // Respect hard-coded width and height since no UI for all these here.
+      if (empty($settings['width'])) {
+        $settings['width'] = $resource->getThumbnailWidth() ?: $resource->getWidth();
+        $settings['height'] = $resource->getThumbnailHeight() ?: $resource->getHeight();
+      }
+      return Blazy::image($settings);
+    }
+    return NULL;
   }
 
   /**

@@ -8,10 +8,6 @@ blazy.settings:
     fx:
       type: string
       label: 'Image effect'
-    # @todo remove with a hook_update().
-    native:
-      type: boolean
-      label: 'Native lazy load'
     noscript:
       type: boolean
       label: 'Add noscript'
@@ -24,10 +20,6 @@ blazy.settings:
     responsive_image:
       type: boolean
       label: 'Support Responsive image'
-    # @todo remove with a hook_update().
-    unbreakpoints:
-      type: boolean
-      label: 'Disable custom breakpoints'
     blazy:
       type: mapping
       label: Blazy

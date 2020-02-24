@@ -14,7 +14,8 @@ namespace Drupal\blazy;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module. Media integration is being reworked.
  *
- * @todo rework this for core Media, and refine for theme_blazy().
+ * @todo rework this for core Media, and refine for theme_blazy(). One big TODO
+ * for the next releases is to replace ImageItem references into just $settings.
  */
 interface BlazyMediaInterface {
 

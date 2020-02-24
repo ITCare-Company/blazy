@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2020-02-25
+-----------------------------
+- Cleaned up no longer relevant settings due to deprecation.
+- Added supports for youtube/embed which is ignored by OEmbed Resource.
+- Added micro optimization for BlazyFilter.
+
 Blazy 8.x-2.0-dev, 2020-02-24
 -----------------------------
 - Added a hook_update() to remove unused settings and cache clearing.

@@ -65,7 +65,7 @@ class BlazyUtil {
    */
   public static function buildUri($image_url) {
     if (!UrlHelper::isExternal($image_url) && $normal_path = UrlHelper::parse($image_url)['path']) {
-      $public_path = Settings::get('file_public_path');
+      $public_path = Settings::get('file_public_path', 'sites/default/files');
 
       // Only concerns for the correct URI, not image URL which is already being
       // displayed via SRC attribute. Don't bother language prefixes for IMG.
@@ -97,11 +97,10 @@ class BlazyUtil {
   public static function imageUrl(array &$settings) {
     // Provides image_url, not URI, expected by lazyload.
     $uri = $settings['uri'];
-    $image_url = self::isValidUri($uri) ? self::transformRelative($uri) : $uri;
-    $settings['image_url'] = empty($settings['image_url']) ? $image_url : $settings['image_url'];
+    $valid = self::isValidUri($uri);
 
     // Image style modifier can be multi-style images such as GridStack.
-    if (!empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
+    if ($valid && !empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
       $settings['image_url'] = self::transformRelative($uri, $style);
       $settings['cache_tags'] = $style->getCacheTags();
 
@@ -109,6 +108,10 @@ class BlazyUtil {
       if (empty($settings['_dimensions'])) {
         $settings = array_merge($settings, self::transformDimensions($style, $settings));
       }
+    }
+    else {
+      $image_url = $valid ? self::transformRelative($uri) : $uri;
+      $settings['image_url'] = empty($settings['image_url']) ? $image_url : $settings['image_url'];
     }
 
     // Just in case, an attempted kidding gets in the way, relevant for UGC.
@@ -124,10 +127,20 @@ class BlazyUtil {
   public static function imageDimensions(array &$settings, $item = NULL, $initial = FALSE) {
     $width = $initial ? '_width' : 'width';
     $height = $initial ? '_height' : 'height';
+    $uri = $initial ? '_uri' : 'uri';
 
     if (empty($settings[$width])) {
       $settings[$width] = $item && isset($item->width) ? $item->width : NULL;
       $settings[$height] = $item && isset($item->height) ? $item->height : NULL;
+    }
+    // Only applies when Image style is empty, no file API, no $item,
+    // with unmanaged VEF/ WYSIWG/ filter image without image_style.
+    // Prevents 404 warning when video thumbnail missing for a reason.
+    if (empty($settings['image_style']) && empty($settings[$width]) && !empty($settings[$uri])) {
+      $abs = empty($settings['uri_root']) ? $settings[$uri] : $settings['uri_root'];
+      if ($data = @getimagesize($abs)) {
+        list($settings[$width], $settings[$height]) = $data;
+      }
     }
   }
 

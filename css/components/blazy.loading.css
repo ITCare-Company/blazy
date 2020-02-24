@@ -88,11 +88,11 @@
   display: block;
 }
 
-/** Hide JS stuffs when being disabled. Ensures to not mess up JS users. */
+/** Hide JS stuffs when being disabled. Ensures to not mess up JS users.
+.media--loading.media--player > span ~ .media__icon, */
 .media--loading > span + .b-lazy,
 .media--loading > span + picture,
 .media--loading > span + a,
-.media--loading.media--player > span ~ .b-lazy,
-.media--loading.media--player > span ~ .media__icon {
+.media--loading.media--player > span ~ .b-lazy {
   display: none;
 }

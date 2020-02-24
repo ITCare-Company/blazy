@@ -42,6 +42,7 @@ class Blazy implements BlazyInterface {
     $settings += BlazyDefault::itemSettings();
 
     // Do not proceed if no URI is provided.
+    // @todo support iframe only without image like the good old days?
     if (empty($settings['uri'])) {
       return;
     }
@@ -184,7 +185,7 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function iframeAttributes(array &$settings) {
-    $settings['player'] = empty($settings['player']) ? (empty($settings['lightbox']) && $settings['media_switch'] == 'media') : $settings['player'];
+    $settings['player'] = empty($settings['lightbox']) && $settings['media_switch'] == 'media';
     if (empty($settings['is_preview'])) {
       $attributes['data-src'] = $settings['embed_url'];
       $attributes['src'] = 'about:blank';
@@ -435,7 +436,21 @@ class Blazy implements BlazyInterface {
    * Returns URI from image item.
    */
   public static function uri($item) {
-    return empty($item) ? '' : (($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri);
+    $fallback = isset($item->uri) ? $item->uri : '';
+    return empty($item) ? '' : (($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $fallback);
+  }
+
+  /**
+   * Returns fake image item based on the given $attributes.
+   */
+  public static function image(array $attributes = []) {
+    $item = new \stdClass();
+    foreach (['uri', 'width', 'height', 'target_id', 'alt', 'title'] as $key) {
+      if (isset($attributes[$key])) {
+        $item->{$key} = $attributes[$key];
+      }
+    }
+    return $item;
   }
 
   /**
