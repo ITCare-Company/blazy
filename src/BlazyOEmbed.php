@@ -160,8 +160,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       ],
     ]);
 
-    if ($domain = $this->blazyManager->configLoad('iframe_domain', 'media.settings')) {
-      $url->setOption('base_url', $domain);
+    if (!empty($settings['iframe_domain'])) {
+      $url->setOption('base_url', $settings['iframe_domain']);
     }
 
     // The top level iframe url relative to the site, or iframe_domain.

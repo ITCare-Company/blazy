@@ -283,14 +283,15 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function getCommonSettings(array &$settings) {
     $settings += array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
-    $switch = $settings['media_switch'] = empty($settings['media_switch']) ? '' : $settings['media_switch'];
+    $settings['media_switch'] = $switch = empty($settings['media_switch']) ? '' : $settings['media_switch'];
+    $settings['iframe_domain'] = $this->configLoad('iframe_domain', 'media.settings');
     $settings['is_preview'] = Blazy::isPreview();
     $settings['lightbox'] = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
     $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
     $settings['route_name'] = Blazy::routeMatch() ? Blazy::routeMatch()->getRouteName() : '';
 
     if ($switch) {
-      // Allows lightboxes to provide its own optionsets.
+      // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
       $settings[$switch] = empty($settings[$switch]) ? $switch : $settings[$switch];
     }
   }

@@ -8,7 +8,7 @@ namespace Drupal\blazy;
 interface BlazyOEmbedInterface {
 
   /**
-   * Returns the oEmbed Resource.
+   * Returns the oEmbed Resource based on the given media input url.
    *
    * @param string $input_url
    *   The video url.
@@ -19,10 +19,7 @@ interface BlazyOEmbedInterface {
   public function getResource($input_url);
 
   /**
-   * Builds media-related settings based on the given media url.
-   *
-   * Need internet, else `Could not retrieve the oEmbed provider database from
-   * //oembed.com/providers.json in Drupal\media\OEmbed\ProviderRepository.
+   * Builds media-related settings based on the given media input url.
    *
    * @param array $settings
    *   The settings array being modified.

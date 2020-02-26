@@ -446,7 +446,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     else {
       $data['item'] = $this->blazyOembed->getExternalImageItem($settings);
 
-      // Runs after width and height set, if any, to not recheck them.
+      // Runs after type, width and height set, if any, to not recheck them.
       $this->blazyOembed->build($settings);
     }
     return $data['item'];
@@ -499,7 +499,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       ],
       '#default_value' => empty($this->settings['filter_tags']) ? [] : array_values((array) $this->settings['filter_tags']),
       '#description' => $this->t('Recommended placement after Align / Caption images. To disable Blazy per individual item, add attribute <code>data-unblazy</code>.'),
-      '#prefix' => '<p>' . $this->t('<b>Warning!</b> Blazy Filter is useless and broken when you enable <b>Media embed</b> or <b>Display embedded entities</b>. You can disable Blazy Filter in favor of Blazy formatter embedded inside <b>Media embed</b> or <b>Display embedded entities</b> instead. However it might be useful for User Generated Contents (UGC) where Entity/Media Embed are likely more for privileged users, authors, editors, admins, alike. Or when Entity/Media Embed is disabled.') . '</p>',
+      '#prefix' => '<p>' . $this->t('<b>Warning!</b> Blazy Filter is useless and broken when you enable <b>Media embed</b> or <b>Display embedded entities</b>. You can disable Blazy Filter in favor of Blazy formatter embedded inside <b>Media embed</b> or <b>Display embedded entities</b> instead. However it might be useful for User Generated Contents (UGC) where Entity/Media Embed are likely more for privileged users, authors, editors, admins, alike. Or when Entity/Media Embed is disabled. Or when editors prefer pasting embed codes from video providers rather than creating media entities.') . '</p>',
     ];
 
     $form['media_switch'] = [

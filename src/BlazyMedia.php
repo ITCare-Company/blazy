@@ -146,7 +146,7 @@ class BlazyMedia implements BlazyMediaInterface {
       $item             = Blazy::image($settings);
       $item->entity     = $entity;
       $data['item']     = $item;
-      $data['settings'] = $settings;
+      $data['settings'] = empty($data['settings']) ? $settings : array_merge($data['settings'], $settings);
       unset($item);
     }
   }
@@ -165,7 +165,7 @@ class BlazyMedia implements BlazyMediaInterface {
     if (isset($entity->{$stage}) && $file = $entity->get($stage)) {
       $value = $file->getValue();
 
-      // Do not proceed if it is a Media entity video.
+      // Do not proceed if it is a Media entity video. This means File here.
       if (isset($value[0]) && !empty($value[0]['target_id'])) {
         // If image, even if multi-value, we can only have one stage per slide.
         if (method_exists($file, 'referencedEntities') && isset($file->referencedEntities()[0])) {
