@@ -189,14 +189,8 @@ class Blazy implements BlazyInterface {
     if (empty($settings['is_preview'])) {
       $attributes['data-src'] = $settings['embed_url'];
       $attributes['src'] = 'about:blank';
+      $attributes['class'][] = 'b-lazy';
       $attributes['allowfullscreen'] = TRUE;
-      // No need to lazyload if already using Image to iframe option.
-      $attributes['class'][] = $settings['player'] ? 'b-player' : 'b-lazy';
-
-      // Adds specific Youtube attributes, related to mobile apps, etc.
-      if (strpos($settings['embed_url'], 'youtu') !== FALSE) {
-        $attributes['allow'] = 'autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture';
-      }
     }
     else {
       $attributes['src'] = $settings['embed_url'];

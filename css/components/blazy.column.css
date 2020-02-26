@@ -12,11 +12,6 @@
  */
 
 [class*="block-column-"],
-[class*="block-column-"] * {
-  box-sizing: border-box;
-}
-
-[class*="block-column-"],
 .item-list > [class*="block-column-"] {
   clear: both;
   display: block;

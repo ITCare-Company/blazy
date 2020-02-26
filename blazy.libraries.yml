@@ -54,6 +54,9 @@ column:
 dblazy:
   js:
     js/dblazy.js: { weight: -4 }
+  css:
+    component:
+      css/blazy.css: {}
 
 # @todo adjust weights to use hundredth decimals.
 bio:

@@ -27,11 +27,6 @@
 
     var url = btn.getAttribute('data-url');
     var newIframe;
-    var allow;
-
-    if (iframe !== null && iframe.hasAttribute('allow')) {
-      allow = iframe.getAttribute('allow');
-    }
 
     /**
      * Play the media.
@@ -81,10 +76,6 @@
         newIframe.className = 'media__iframe media__element';
         newIframe.setAttribute('src', url);
         newIframe.setAttribute('allowfullscreen', true);
-
-        if (allow) {
-          newIframe.setAttribute('allow', allow);
-        }
       }
 
       player.appendChild(newIframe);

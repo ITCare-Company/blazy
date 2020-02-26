@@ -3,14 +3,6 @@
  * Provides media integration with pure CSS fluid video wrapper.
  */
 
-.litebox,
-.media__iframe,
-[data-blazy] iframe {
-  border: 0 none;
-  display: block;
-  max-width: 100%;
-}
-
 /** Ensures not affecting iframe only without media switcher */
 .media--switch iframe {
   opacity: 0;

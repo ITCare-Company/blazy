@@ -55,13 +55,14 @@
 %}
 
 {% set player %}
-  {% if settings.player %}
-    {% block blazy_player %}
-      {{ iframe }}
+  {% block blazy_player %}
+    {% if settings.player %}
       <span class="media__icon media__icon--close"></span>
       <span class="media__icon media__icon--play" data-url="{{ settings.embed_url }}"></span>
-    {% endblock %}
-  {% endif %}
+    {% else %}
+      {{ iframe }}
+    {% endif %}
+  {% endblock %}
 {% endset %}
 
 {% set media %}

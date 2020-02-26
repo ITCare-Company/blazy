@@ -27,23 +27,6 @@
   }
 }
 
-/* The lazyloaded element: IMG, IFRAME, DIV. */
-.b-lazy,
-.b-responsive {
-  display: block;
-  height: auto;
-  min-height: 1px;
-  opacity: 0;
-  transition: opacity 500ms ease-in-out;
-}
-
-/* Needed to display preloader with CSS BG image, otherwise hidden. */
-.b-loaded,
-.b-error,
-.media--loading.media--background {
-  opacity: 1;
-}
-
 .media--loading {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
@@ -67,17 +50,6 @@
   z-index: 22;
   -webkit-animation: rotateplane 1.2s infinite ease-in-out;
   animation: rotateplane 1.2s infinite ease-in-out;
-}
-
-.media--background {
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-}
-
-/** Fix for conflict with Bootstrap CSS if not using aspect ratio. */
-.blazy .media {
-  display: block;
 }
 
 /**
