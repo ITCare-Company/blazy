@@ -3,7 +3,7 @@
  * Provides colorbox integration.
  *
  * @requires coder shutup
- * Colorbox has no classes, just IDs, so shutup chatty coder.
+ * phpcs:ignoreFile -- Colorbox has no classes, just IDs, with inline styles.
  */
 
 .colorbox-on--media #colorbox,

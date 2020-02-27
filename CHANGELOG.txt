@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2020-02-27
+-----------------------------
+- Added another compatibility for Claro.
+- Renamed CSS class hint to b-hint to avoid potential conflicts.
+- Cleaned up few deprecated CSS stuffs related to custom breakpoints removal.
+
 Blazy 8.x-2.0-dev, 2020-02-26
 -----------------------------
 - Added blazy.css to reduce dups and for basic blazy module features.

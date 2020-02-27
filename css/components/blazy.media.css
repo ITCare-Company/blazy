@@ -42,12 +42,6 @@
   pointer-events: none;
 }
 
-/*
-.media--loading .media__icon--play::before {
-  display: none;
-}
-*/
-
 .media__icon--close::before,
 .media__icon--close::after {
   background: white;
@@ -124,20 +118,6 @@
 .media--switch.is-playing iframe {
   z-index: 3;
 }
-
-/**
- * Fallback non-JS.
-.no-js .media--player .media__image,
-.no-js .media--player .media__icon {
-  opacity: 0;
-  visibility: hidden;
-}
-
-.no-js .media--player .media__iframe {
-  opacity: 1;
-  visibility: visible;
-}
- */
 
 /** @requires coder shutup, front-end complication with inline styles. */
 /** Prevents Twitter iframe from breaking grid, even if unholy. */
