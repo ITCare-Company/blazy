@@ -374,6 +374,7 @@ html.js .form--slick .collapsed .details-legend .details-legend-prefix::after {
 }
 
 .form--slick > div[id^="field-"] fieldset {
+  box-sizing: border-box; /* dups due to csslint ignoring inheritance */
   border-left: 0;
   border-right: 0;
   float: none;
@@ -575,6 +576,7 @@ html.js .form--slick .collapsed .details-legend .details-legend-prefix::after {
  * Form items
  */
 .form--slick .form-item {
+  box-sizing: border-box; /* dups due to csslint ignoring inheritance */
   background: none;
   border-bottom: 1px solid #dadada;
   border-top: 1px solid white;
