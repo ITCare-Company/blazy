@@ -122,8 +122,8 @@
 /** @requires coder shutup, front-end complication with inline styles. */
 /** Prevents Twitter iframe from breaking grid, even if unholy. */
 .grid .twitter-tweet-rendered {
-  margin: 0 !important;
-  min-width: 1px !important;
+  margin: 0 !important; /* csslint allow: known-properties, important */
+  min-width: 1px !important; /* csslint allow: known-properties, important */
 }
 
 /** Fix for overflowing Facebook/ Twitter iframes. */
@@ -133,9 +133,9 @@
 }
 
 .grid .fb_iframe_widget span {
-  width: 100% !important;
+  width: 100% !important; /* csslint allow: known-properties, important */
 }
 
 .grid .fb_iframe_widget iframe {
-  position: relative !important;
+  position: relative !important; /* csslint allow: known-properties, important */
 }

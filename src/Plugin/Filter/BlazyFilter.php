@@ -309,10 +309,10 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     // Checks if we have a valid file entity, not hard-coded image URL.
     if ($src = $node->getAttribute('src')) {
       // Prevents data URI from screwing up.
-      $data_uri = substr($src, 0, 10) === 'data:image';
+      $data_uri = mb_substr($src, 0, 10) === 'data:image';
       if (!$data_uri) {
         // If starts with 2 slashes, it is always external.
-        if (substr($src, 0, 2) === '//') {
+        if (mb_substr($src, 0, 2) === '//') {
           // We need to query stored SRC, https is enforced.
           $src = 'https:' . $src;
         }
@@ -413,7 +413,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       }
       else {
         // At least provide root URI to figure out image dimensions.
-        $settings['uri_root'] = substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
+        $settings['uri_root'] = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
       }
     }
     return $data['item'];

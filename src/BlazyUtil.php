@@ -52,7 +52,7 @@ class BlazyUtil {
       else {
         // Since Blazy is lazyloading known URLs, sanitize attributes which
         // make no sense to stick around within IMG or IFRAME tags.
-        $kid = substr($key, 0, 2) === 'on' || in_array($key, $tags);
+        $kid = mb_substr($key, 0, 2) === 'on' || in_array($key, $tags);
         $key = $kid ? 'data-' . $key : $key;
         $clean_attributes[$key] = $kid ? Html::cleanCssIdentifier($value) : Html::escape($value);
       }
@@ -115,7 +115,7 @@ class BlazyUtil {
     }
 
     // Just in case, an attempted kidding gets in the way, relevant for UGC.
-    $data_uri = !empty($settings['use_data_uri']) && substr($settings['image_url'], 0, 10) === 'data:image';
+    $data_uri = !empty($settings['use_data_uri']) && mb_substr($settings['image_url'], 0, 10) === 'data:image';
     if (!empty($settings['_check_protocol']) && !$data_uri) {
       $settings['image_url'] = UrlHelper::stripDangerousProtocols($settings['image_url']);
     }
