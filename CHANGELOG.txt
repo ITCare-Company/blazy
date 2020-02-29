@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2020-02-29
+-----------------------------
+- Fixed for the newly supported CSS background for Responsive image regression
+  with multi-breakpoint CSS background. Doh.
+- Added generic container classes to apply to sub-modules as well.
+
 Blazy 8.x-2.0-dev, 2020-02-27
 -----------------------------
 - Added another compatibility for Claro.

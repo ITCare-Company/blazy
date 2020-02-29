@@ -42,7 +42,6 @@ class Blazy implements BlazyInterface {
     $settings += BlazyDefault::itemSettings();
 
     // Do not proceed if no URI is provided.
-    // @todo support iframe only without image like the good old days?
     if (empty($settings['uri'])) {
       return;
     }
@@ -290,18 +289,22 @@ class Blazy implements BlazyInterface {
     $attributes['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
 
     // Provides data-LIGHTBOX-gallery to not conflict with original modules.
-    if (!empty($settings['media_switch'])) {
+    if (!empty($settings['media_switch']) && $settings['media_switch'] != 'content') {
       $switch = str_replace('_', '-', $settings['media_switch']);
       $attributes['data-' . $switch . '-gallery'] = TRUE;
       $classes[] = 'blazy--' . $switch;
     }
 
     // Provides contextual classes relevant to the container: .field, or .view.
-    if (isset($settings['namespace']) && $settings['namespace'] == 'blazy') {
-      foreach (['field', 'view'] as $key) {
-        if (!empty($settings[$key . '_name'])) {
-          $classes[] = 'blazy--' . $key . ' blazy--' . str_replace('_', '-', $settings[$key . '_name']);
-        }
+    // Sniffs for Views to allow block__no_wrapper, views__no_wrapper, etc.
+    $view_mode = str_replace('_', '-', $settings['current_view_mode']);
+    foreach (['field', 'view'] as $key) {
+      if (!empty($settings[$key . '_name'])) {
+        $name = str_replace('_', '-', $settings[$key . '_name']);
+        $name = $key == 'view' ? 'view--' . $name : $name;
+        $classes[] = $settings['namespace'] . '--' . $key;
+        $classes[] = $settings['namespace'] . '--' . $name;
+        $classes[] = $settings['namespace'] . '--' . $name . '--' . $view_mode;
       }
     }
 
