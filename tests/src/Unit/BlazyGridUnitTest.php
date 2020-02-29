@@ -13,6 +13,8 @@ use Drupal\blazy\BlazyGrid;
  */
 class BlazyGridUnitTest extends UnitTestCase {
 
+  use BlazyUnitTestTrait;
+
   /**
    * Tests \Drupal\blazy\BlazyGrid::build().
    *
