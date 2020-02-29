@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2020-02-29
 -----------------------------
+- Added library blazy/base as failsafe when blazy JS library might not be loaded
+  or even disabled such as with Blazy text for CSS grid only.
 - Fixed for the newly supported CSS background for Responsive image regression
   with multi-breakpoint CSS background. Doh.
 - Added generic container classes to apply to sub-modules as well.

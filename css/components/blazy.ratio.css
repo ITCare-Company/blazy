@@ -3,6 +3,7 @@
  * The CSS and class names below are based on Slick media for easy migration.
  */
 
+/* Touch me not! Or boom when outside .blazy such as within lightboxes. */
 .media {
   position: relative;
 }

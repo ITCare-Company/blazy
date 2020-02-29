@@ -297,14 +297,16 @@ class Blazy implements BlazyInterface {
 
     // Provides contextual classes relevant to the container: .field, or .view.
     // Sniffs for Views to allow block__no_wrapper, views__no_wrapper, etc.
-    $view_mode = str_replace('_', '-', $settings['current_view_mode']);
     foreach (['field', 'view'] as $key) {
       if (!empty($settings[$key . '_name'])) {
         $name = str_replace('_', '-', $settings[$key . '_name']);
         $name = $key == 'view' ? 'view--' . $name : $name;
         $classes[] = $settings['namespace'] . '--' . $key;
         $classes[] = $settings['namespace'] . '--' . $name;
-        $classes[] = $settings['namespace'] . '--' . $name . '--' . $view_mode;
+        if (!empty($settings['current_view_mode'])) {
+          $view_mode = str_replace('_', '-', $settings['current_view_mode']);
+          $classes[] = $settings['namespace'] . '--' . $name . '--' . $view_mode;
+        }
       }
     }
 
