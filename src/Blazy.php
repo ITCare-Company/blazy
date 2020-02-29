@@ -284,7 +284,7 @@ class Blazy implements BlazyInterface {
    * Provides container attributes for .blazy container: .field, .view, etc.
    */
   public static function containerAttributes(array &$attributes, array $settings = []) {
-    // Provides the main container attributes.
+    $settings += ['namespace' => 'blazy'];
     $classes = empty($attributes['class']) ? [] : $attributes['class'];
     $attributes['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
 
@@ -322,6 +322,7 @@ class Blazy implements BlazyInterface {
     $placeholder = empty($attributes['data-placeholder']) ? static::PLACEHOLDER : $attributes['data-placeholder'];
 
     // Bail out if a noscript is requested.
+    // @todo figure out to not even enter this method, yet not break ratio, etc.
     if (!isset($attributes['data-b-noscript'])) {
       // Modifies <picture> [data-srcset] attributes on <source> elements.
       if (!$variables['output_image_tag']) {
