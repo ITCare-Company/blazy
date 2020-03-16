@@ -168,7 +168,13 @@ class BlazyUtil {
     $style->transformDimensions($dim, $data[$uri]);
 
     // Sometimes they are string, cast them integer to reduce JS logic.
-    return ['width' => (int) $dim['width'], 'height' => (int) $dim['height']];
+    if ($dim['width'] != NULL) {
+      $dim['width'] = (int) $dim['width'];
+    }
+    if ($dim['height'] != NULL) {
+      $dim['height'] = (int) $dim['height'];
+    }
+    return ['width' => $dim['width'], 'height' => $dim['height']];
   }
 
   /**

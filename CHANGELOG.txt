@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2020-03-16
+-----------------------------
+- Issue #3118739 by wells: Using an image style in a render array without 
+  setting a specific width.
+
 Blazy 8.x-2.0-dev, 2020-02-29
 -----------------------------
 - Added library blazy/base as failsafe when blazy JS library might not be loaded
