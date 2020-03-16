@@ -77,7 +77,7 @@ trait BlazyStyleBaseTrait {
     $settings['current_view_mode'] = $view_mode;
     $settings['instance_id']       = $instance;
     $settings['multiple']          = TRUE;
-    $settings['plugin_id']         = $plugin_id;
+    $settings['plugin_id']         = $settings['view_plugin_id'] = $plugin_id;
     $settings['use_ajax']          = $view->ajaxEnabled();
     $settings['view_name']         = $view_name;
     $settings['view_display']      = $view->style_plugin->displayHandler->getPluginId();
