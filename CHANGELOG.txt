@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2020-03-16
 -----------------------------
+- Issue #3118712 by prudloff: Images are not centered correctly.
 - Issue #3119739 by gausarts, DD 85: Do not apply aspect ratio with empty width.
 - Issue #3117132 by pivica: Media position relative rule is too general.
 - Issue #3118739 by wells: Using an image style in a render array without

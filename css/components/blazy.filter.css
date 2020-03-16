@@ -30,3 +30,9 @@
   min-width: 0;
   overflow: hidden;
 }
+
+.media-wrapper--blazy.align-center img {
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+}
