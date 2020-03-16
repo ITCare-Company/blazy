@@ -59,6 +59,7 @@ class Blazy implements BlazyInterface {
 
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
+    $settings['ratio'] = empty($settings['width']) ? '' : $settings['ratio'];
     if ($settings['ratio']) {
       self::aspectRatioAttributes($variables['attributes'], $settings);
     }
@@ -268,7 +269,7 @@ class Blazy implements BlazyInterface {
   public static function aspectRatioAttributes(array &$attributes, array &$settings) {
     $settings['ratio'] = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
 
-    if ($settings['width'] && $settings['ratio'] == 'fluid') {
+    if ($settings['height'] && $settings['ratio'] == 'fluid') {
       // If "lucky", Blazy/ Slick Views galleries may already set this once.
       // Lucky when you don't flatten out the Views output earlier.
       $padding = $settings['padding_bottom'] ?: round((($settings['height'] / $settings['width']) * 100), 2);
