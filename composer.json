@@ -19,7 +19,7 @@
   ],
   "support": {
     "issues": "https://drupal.org/project/issues/blazy",
-    "source": "http://cgit.drupalcode.org/blazy"
+    "source": "https://git.drupalcode.org/project/blazy"
   },
   "require": { }
 }

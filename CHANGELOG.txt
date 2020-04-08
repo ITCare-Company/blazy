@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2020-04-08
 -----------------------------
+- Issue #3120654 by thalles: Replace old "source" property value by new.
 - Fixed for regression with lightboxes and iframes.
 - Added micro-optimization for BlazyStyleBaseTrait::getFirstImage.
 - Opened supports for Responsive image for GridStack since the removal of custom
