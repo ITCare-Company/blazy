@@ -352,7 +352,10 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // This #pre_render doesn't work if called from Views results, hence the
     // output is split either as theme_field() or theme_item_list().
     if (empty($settings['_grid'])) {
-      $settings = $this->prepareBuild($build);
+      $settings = $this->getSettings($build);
+
+      // Runs after ::getSettings.
+      $this->prepareBuild($build);
       $build['#blazy'] = $settings;
       $this->setAttachments($build, $settings);
     }
@@ -380,14 +383,16 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     unset($element['#build']);
 
     // Checks if we got some signaled attributes.
-    $commerce = isset($element['#ajax_replace_class']);
     $attributes = isset($element['#attributes']) ? $element['#attributes'] : [];
     $attributes = isset($element['#theme_wrappers'], $element['#theme_wrappers']['container']['#attributes']) ? $element['#theme_wrappers']['container']['#attributes'] : $attributes;
-    $settings = $this->prepareBuild($build);
+    $settings   = $this->getSettings($build);
+
+    // Runs after ::getSettings.
+    $this->prepareBuild($build);
 
     // Take over elements for a grid display as this is all we need, learned
     // from the issues such as: #2945524, or product variations.
-    // We'll selectively pass or work out $attributes far below.
+    // We'll selectively pass or work out $attributes not so far below.
     $element = BlazyGrid::build($build, $settings);
     $this->setAttachments($element, $settings);
 
@@ -395,11 +400,12 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       // Signals other modules if they want to use it.
       // Cannot merge it into BlazyGrid (wrapper_)attributes, done as grid.
       // Use case: Product variations, best served by ElevateZoom Plus.
-      if ($commerce) {
+      if (isset($element['#ajax_replace_class'])) {
         $element['#container_attributes'] = $attributes;
       }
       else {
         // Use case: VIS, can be blended with UL element safely down here.
+        // The $attributes is merged with BlazyGrid::build ones here.
         $element['#attributes'] = NestedArray::mergeDeep($element['#attributes'], $attributes);
       }
     }
@@ -408,26 +414,11 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
   }
 
   /**
-   * Provides attachment and cache for both theme_field() and theme_item_list().
+   * Prepares Blazy settings.
    */
-  private function setAttachments(array &$element, array $settings) {
-    $attachments = $this->attach($settings);
-    $cache = $this->getCacheMetadata($settings);
-    $element['#attached'] = empty($element['#attached']) ? $attachments : NestedArray::mergeDeep($element['#attached'], $attachments);
-    $element['#cache'] = empty($element['#cache']) ? $cache : NestedArray::mergeDeep($element['#cache'], $cache);
-  }
-
-  /**
-   * Prepares Blazy outputs, extract items, and return updated $settings.
-   */
-  protected function prepareBuild(array &$build) {
-    // If children are stored within items, reset.
-    // Blazy comes late to the party after sub-modules decided what they want
-    // where items maybe stored as direct indices, or put into items variable.
-    // @todo simplify this.
+  protected function getSettings(array &$build) {
     $settings = isset($build['settings']) ? $build['settings'] : [];
     $settings += BlazyDefault::htmlSettings();
-    $build = isset($build['items']) ? $build['items'] : $build;
 
     // Supports Blazy multi-breakpoint images if provided, updates $settings.
     // Cases: Blazy within Views gallery, or references without direct image.
@@ -442,8 +433,18 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       }
     }
 
-    unset($build['items'], $build['settings']);
     return $settings;
+  }
+
+  /**
+   * Prepares Blazy outputs, extract items as indices.
+   */
+  protected function prepareBuild(array &$build) {
+    // If children are stored within items, reset.
+    // Blazy comes late to the party after sub-modules decided what they want
+    // where items may be stored as direct indices, or put into items variable.
+    $build = isset($build['items']) ? $build['items'] : $build;
+    unset($build['items'], $build['settings']);
   }
 
   /**

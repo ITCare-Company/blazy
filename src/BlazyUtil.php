@@ -150,16 +150,14 @@ class BlazyUtil {
    * @param object $style
    *   The given image style.
    * @param array $data
-   *   The data settings: _width, _height, first_uri, width, height, and uri.
+   *   The data settings: _width, _height, _uri, width, height, and uri.
    * @param bool $initial
    *   Whether particularly transforms once for all, or individually.
-   *
-   * @todo remove first_uri for _uri for consistency.
    */
   public static function transformDimensions($style, array $data, $initial = FALSE) {
     $width  = $initial ? '_width' : 'width';
     $height = $initial ? '_height' : 'height';
-    $uri    = $initial ? (isset($data['_uri']) ? '_uri' : 'first_uri') : 'uri';
+    $uri    = $initial ? '_uri' : 'uri';
     $width  = isset($data[$width]) ? $data[$width] : NULL;
     $height = isset($data[$height]) ? $data[$height] : NULL;
     $dim    = ['width' => $width, 'height' => $height];

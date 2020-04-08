@@ -185,7 +185,6 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function iframeAttributes(array &$settings) {
-    $settings['player'] = empty($settings['lightbox']) && $settings['media_switch'] == 'media';
     if (empty($settings['is_preview'])) {
       $attributes['data-src'] = $settings['embed_url'];
       $attributes['src'] = 'about:blank';
@@ -207,17 +206,21 @@ class Blazy implements BlazyInterface {
    */
   public static function buildIframe(array &$variables) {
     $settings = &$variables['settings'];
-    $variables['image'] = empty($settings['media_switch']) ? [] : $variables['image'];
+    $settings['player'] = empty($settings['lightbox']) && $settings['media_switch'] == 'media';
 
-    // Pass iframe attributes to template.
-    $variables['iframe'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'iframe',
-      '#attributes' => self::iframeAttributes($settings),
-    ];
+    if (empty($variables['url'])) {
+      $variables['image'] = empty($settings['media_switch']) ? [] : $variables['image'];
 
-    // Iframe is removed on lazyloaded, puts data at non-removable storage.
-    $variables['attributes']['data-media'] = Json::encode(['type' => $settings['type']]);
+      // Pass iframe attributes to template.
+      $variables['iframe'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'iframe',
+        '#attributes' => self::iframeAttributes($settings),
+      ];
+
+      // Iframe is removed on lazyloaded, puts data at non-removable storage.
+      $variables['attributes']['data-media'] = Json::encode(['type' => $settings['type']]);
+    }
   }
 
   /**
@@ -469,7 +472,7 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Checks if Blazy is in CKEditor preview mode where no JS aasets are loaded.
+   * Checks if Blazy is in CKEditor preview mode where no JS assets are loaded.
    */
   public static function isPreview() {
     return in_array(self::routeMatch()->getRouteName(), ['entity_embed.preview', 'media.filter.preview']);

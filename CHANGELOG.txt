@@ -1,4 +1,18 @@
 
+Blazy 8.x-2.0-dev, 2020-04-08
+-----------------------------
+- Fixed for regression with lightboxes and iframes.
+- Added micro-optimization for BlazyStyleBaseTrait::getFirstImage.
+- Opened supports for Responsive image for GridStack since the removal of custom
+  breakpoints at blazy:2.0.
+- Cleaned up few more TODOs.
+- Removed no longer relevant D8.7 traces.
+- Disabled BlazymanagerBase::buildSkins for sub-module own skin implementations.
+- Moved Blazymanager::setAttachments into BlazymanagerBase::setAttachments to
+  re-use for sub-modules.
+- Moved BlazymanagerBase::isCrop into BlazyFormatter::isCrop due to being usable
+  only at formatter level, not Views, etc.
+
 Blazy 8.x-2.0-dev, 2020-03-16
 -----------------------------
 - Issue #3118712 by prudloff: Images are not centered correctly.

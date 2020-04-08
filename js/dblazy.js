@@ -35,6 +35,11 @@
    */
   var dBlazy = {};
 
+  // See https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
+  if (!Element.prototype.matches) {
+    Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+  }
+
   /**
    * Check if the given element matches the selector.
    *
@@ -52,25 +57,6 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
    */
   dBlazy.matches = function (elem, selector) {
-    // Element.matches() polyfill.
-    var p = Element.prototype;
-    if (!p.matches) {
-      p.matches =
-        p.matchesSelector ||
-        p.mozMatchesSelector ||
-        p.msMatchesSelector ||
-        p.oMatchesSelector ||
-        p.webkitMatchesSelector ||
-        function (s) {
-          var matches = (window.document || window.ownerDocument).querySelectorAll(s);
-          var i = matches.length;
-          while (--i >= 0 && matches.item(i) !== this) {
-            // Empty block to satisfy coder and eslint.
-          }
-          return i > -1;
-        };
-    }
-
     // Check if matches, excluding HTMLDocument, see ::closest().
     if (elem.matches(selector)) {
       return true;
@@ -133,7 +119,7 @@
   /**
    * Check if the HTML tag matches a specified string.
    *
-   * @name dBlazy.closest
+   * @name dBlazy.equal
    *
    * @param {Element} el
    *   The element to compare.
@@ -154,7 +140,7 @@
    *
    * @name dBlazy.closest
    *
-   * @param {Element} elem
+   * @param {Element} el
    *   Starting element.
    * @param {String} selector
    *   Selector to match against (class, ID, data attribute, or tag).
@@ -166,12 +152,14 @@
    * @see http://caniuse.com/#feat=matchesselector
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
    */
-  dBlazy.closest = function (elem, selector) {
-    // Don't use document to support traversal within iframe.
-    for (; elem && !(elem instanceof HTMLDocument); elem = elem.parentNode) {
-      if (dBlazy.matches(elem, selector)) {
-        return elem;
+  dBlazy.closest = function (el, selector) {
+    var parent;
+    while (el) {
+      parent = el.parentElement;
+      if (parent && parent.matches(selector)) {
+        return parent;
       }
+      el = parent;
     }
 
     return null;
@@ -356,7 +344,12 @@
       var bg = me.activeWidth(backgrounds, mobileFirst);
       if (bg && bg !== 'undefined') {
         el.style.backgroundImage = 'url("' + bg.src + '")';
-        el.style.paddingBottom = bg.ratio + '%';
+
+        // Allows to disable Aspect ratio if it has known/ fixed heights such as
+        // gridstack multi-size boxes.
+        if (bg.ratio && !el.classList.contains('b-noratio')) {
+          el.style.paddingBottom = bg.ratio + '%';
+        }
       }
     }
   };
@@ -405,6 +398,52 @@
       }
     });
   };
+
+  /**
+   * A simple wrapper for addEventListener.
+   *
+   * Made public from original bLazy library.
+   *
+   * @name dBlazy.bindEvent
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} type
+   *   The event name to add.
+   * @param {Function} fn
+   *   The callback function.
+   */
+  dBlazy.bindEvent = function (el, type, fn) {
+    if (el.attachEvent) {
+      el.attachEvent && el.attachEvent('on' + type, fn);
+    }
+    else {
+      el.addEventListener(type, fn, {capture: false, passive: true});
+    }
+  }
+
+  /**
+   * A simple wrapper for removeEventListener.
+   *
+   * Made public from original bLazy library.
+   *
+   * @name dBlazy.unbindEvent
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} type
+   *   The event name to remove.
+   * @param {Function} fn
+   *   The callback function.
+   */
+  dBlazy.unbindEvent = function (el, type, fn) {
+    if (el.detachEvent) {
+      el.detachEvent && el.detachEvent('on' + type, fn);
+    }
+    else {
+      el.removeEventListener(type, fn, {capture: false, passive: true});
+    }
+  }
 
   /**
    * Executes a function once.
@@ -557,17 +596,22 @@
    *   The event name to trigger.
    * @param {Object} custom
    *   The optional object passed into a custom event.
+   * @param {Object} param
+   *   The optional param passed into a custom event.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events
    * @todo: See if any consistent way for both custom and native events.
    */
-  dBlazy.trigger = function (elm, eventName, custom) {
+  dBlazy.trigger = function (elm, eventName, custom, param) {
     var event;
     var data = {
-      detail: custom || {},
-      bubbles: true,
-      cancelable: true
+      detail: custom || {}
     };
+
+    if (typeof param === 'undefined') {
+      data.bubbles = true;
+      data.cancelable = true;
+    }
 
     // Native.
     // IE >= 9 compat, else SCRIPT445: Object doesn't support this action.
