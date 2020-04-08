@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2020-04-08
 -----------------------------
+- Issue #3124204 by slbrassard: Incorrect entity cache tag causes blazy
+  formatted fields not to be updated.
 - Issue #3120654 by thalles: Replace old "source" property value by new.
 - Fixed for regression with lightboxes and iframes.
 - Added micro-optimization for BlazyStyleBaseTrait::getFirstImage.

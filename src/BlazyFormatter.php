@@ -76,7 +76,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     $settings['bundle']         = $bundle;
     $settings['cache_metadata'] = ['keys' => [$id, $count]];
-    $settings['cache_tags'][]   = $entity_id . ':' . $entity_id;
+    $settings['cache_tags'][]   = $entity_type_id . ':' . $entity_id;
     $settings['caption']        = empty($settings['caption']) ? [] : array_filter($settings['caption']);
     $settings['content_url']    = $settings['absolute_path'] = $absolute_path;
     $settings['count']          = $count;
