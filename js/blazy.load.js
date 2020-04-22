@@ -240,7 +240,7 @@
 
         // Provides event listeners for easy overrides without full overrides.
         // Checks for weird contexts, in case spit out during AJAX, etc.
-        if (context.classList.contains(_firstBlazy)) {
+        if (context.classList && context.classList.contains(_firstBlazy)) {
           _db.trigger(context, 'blazy.afterInit', {
             items: me.items || elms,
             windowWidth: me.windowWidth

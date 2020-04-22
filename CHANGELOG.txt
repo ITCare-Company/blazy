@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2020-04-22
 -----------------------------
+- Issue #3125240 by Mykola Veryha: Notice : Undefined variable: content.
 - Changed blur effect approach to be replaceable by animate.css easily with just
   hook_blazy_image_effects_alter.
 - Made Responsive image utilities available outside formatters such as for
