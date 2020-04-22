@@ -138,7 +138,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
       $caption_items = $weights = [];
       foreach ($settings['caption'] as $name => $field_caption) {
         /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-        if ($item = $element['item']) {
+        if (isset($element['item']) && $item = $element['item']) {
           // Provides basic captions based on image attributes (Alt, Title).
           foreach (['title', 'alt'] as $key => $attribute) {
             if ($name == $attribute && $caption = trim($item->get($attribute)->getString())) {
