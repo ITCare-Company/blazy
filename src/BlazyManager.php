@@ -152,10 +152,13 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Pass common elements to theme_blazy().
     $element['#attributes']     = $attributes;
-    $element['#content']        = $build['content'];
-    $element['#postscript']     = $build['postscript'];
     $element['#settings']       = $settings;
     $element['#url_attributes'] = $build['url_attributes'];
+
+    // Preparing Blazy to replace other blazy-related content/ item markups.
+    foreach (['content', 'icon', 'overlay', 'preface', 'postscript'] as $key) {
+      $element["#$key"] = empty($element["#$key"]) ? $build[$key] : NestedArray::mergeDeep($element["#$key"], $build[$key]);
+    }
   }
 
   /**
@@ -225,6 +228,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       ksort($dimensions);
       $settings['urls'] = $srcset;
       $settings['blazy_data']['dimensions'] = $dimensions;
+
       Blazy::lazyAttributes($attributes, $settings);
     }
     unset($settings['resimage']);
@@ -237,6 +241,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     if (!empty($settings['lazy']) && !empty($settings['background'])) {
       // Attach data attributes to either IMG tag, or DIV container.
       $settings['urls'][$settings['width']] = $this->backgroundImage($settings);
+
       Blazy::lazyAttributes($attributes, $settings);
     }
 
@@ -307,7 +312,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // Provides image effect if so configured.
     if (!empty($settings['fx'])) {
       $this->createPlaceholder($settings, $style, $path);
-      $attributes['class'][] = 'media--fx--' . str_replace('_', '-', $settings['fx']);
+      $attributes['data-animation'] = str_replace('_', '-', $settings['fx']);
     }
   }
 
@@ -440,30 +445,13 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    * Prepares Blazy outputs, extract items as indices.
    */
   protected function prepareBuild(array &$build) {
-    // If children are stored within items, reset.
+    // If children are grouped within items property, reset to indexed keys.
     // Blazy comes late to the party after sub-modules decided what they want
-    // where items may be stored as direct indices, or put into items variable.
+    // where items may be stored as direct indices, or put into items property.
+    // Actually the same issue happens at core where contents may be indexed or
+    // grouped. Meaning not a problem at all, only a problem for consistency.
     $build = isset($build['items']) ? $build['items'] : $build;
     unset($build['items'], $build['settings']);
-  }
-
-  /**
-   * Returns the Responsive image styles and caches tags.
-   *
-   * @param object $responsive
-   *   The responsive image style entity.
-   *
-   * @return array|mixed
-   *   The responsive image styles and cache tags.
-   */
-  public function getResponsiveImageStyles($responsive) {
-    $cache_tags = $responsive->getCacheTags();
-    $image_styles = $this->entityLoadMultiple('image_style', $responsive->getImageStyleIds());
-
-    foreach ($image_styles as $image_style) {
-      $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
-    }
-    return ['caches' => $cache_tags, 'styles' => $image_styles];
   }
 
   /**

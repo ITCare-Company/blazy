@@ -1,4 +1,14 @@
 
+Blazy 8.x-2.0-dev, 2020-04-22
+-----------------------------
+- Changed blur effect approach to be replaceable by animate.css easily with just
+  hook_blazy_image_effects_alter.
+- Made Responsive image utilities available outside formatters such as for
+  BlazyEntity or the new GridStack for Layout Builder with Media Library
+  and Responsive image integration.
+- Added preface and overlay variable for any extra content prefacing and
+  overlaying the image/ video.
+
 Blazy 8.x-2.0-dev, 2020-04-08
 -----------------------------
 - Issue #3124204 by slbrassard: Incorrect entity cache tag causes blazy

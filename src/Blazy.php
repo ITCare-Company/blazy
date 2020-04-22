@@ -63,6 +63,11 @@ class Blazy implements BlazyInterface {
     if ($settings['ratio']) {
       self::aspectRatioAttributes($variables['attributes'], $settings);
     }
+
+    // Makes a little order here due to twig ignoring the preset priority.
+    $attributes = &$variables['attributes'];
+    $classes = empty($attributes['class']) ? [] : $attributes['class'];
+    $attributes['class'] = array_merge(['media'], $classes);
   }
 
   /**

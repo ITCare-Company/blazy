@@ -390,6 +390,7 @@
   dBlazy.on = function (elm, eventName, childEl, callback) {
     elm.addEventListener(eventName, function (event) {
       var t = event.target;
+      event.delegateTarget = elm;
       while (t && t !== this) {
         if (dBlazy.matches(t, childEl)) {
           callback.call(t, event);
@@ -415,12 +416,12 @@
    */
   dBlazy.bindEvent = function (el, type, fn) {
     if (el.attachEvent) {
-      el.attachEvent && el.attachEvent('on' + type, fn);
+      el.attachEvent('on' + type, fn);
     }
     else {
       el.addEventListener(type, fn, {capture: false, passive: true});
     }
-  }
+  };
 
   /**
    * A simple wrapper for removeEventListener.
@@ -438,12 +439,12 @@
    */
   dBlazy.unbindEvent = function (el, type, fn) {
     if (el.detachEvent) {
-      el.detachEvent && el.detachEvent('on' + type, fn);
+      el.detachEvent('on' + type, fn);
     }
     else {
       el.removeEventListener(type, fn, {capture: false, passive: true});
     }
-  }
+  };
 
   /**
    * Executes a function once.
@@ -519,18 +520,19 @@
       }
     });
 
-    me.removeAttrs(el, props);
-
     function animationEnd() {
+      me.removeAttrs(el, props);
+
+      el.classList.add('b-animated');
       el.classList.remove('animated', animation);
-      el.removeEventListener('animationend', animationEnd);
+      me.unbindEvent(el, 'animationend', animationEnd);
 
       me.forEach(props, function (key) {
         el.style.removeProperty(key);
       });
     }
 
-    el.addEventListener('animationend', animationEnd);
+    me.bindEvent(el, 'animationend', animationEnd);
   };
 
   /**

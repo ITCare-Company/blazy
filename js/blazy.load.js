@@ -43,9 +43,28 @@
 
     clearing: function (el) {
       var me = this;
-      var ie = el.classList.contains('b-responsive') && el.hasAttribute('data-pfsrc');
       var cn = _db.closest(el, '.media');
+      var an = _db.closest(el, '[' + _dataAnimation + ']');
 
+      // Clear loading classes.
+      me.clearLoading(el);
+
+      // Reevaluate the element.
+      me.reevaluate(el);
+
+      // Container might be the el itself for BG, do not NULL check here.
+      me.updateContainer(el, cn);
+
+      // Supports animate.css for CSS background, picture, image, media.
+      if (me.isLoaded(el) && (me.has(an, _dataAnimation) || me.has(el, _dataAnimation))) {
+        _db.animate(me.has(an, _dataAnimation) ? an : el);
+      }
+
+      // Provides event listeners for easy overrides without full overrides.
+      _db.trigger(el, 'blazy.done', {options: me.options});
+    },
+
+    clearLoading: function (el) {
       // The .b-lazy element can be attached to IMG, or DIV as CSS background.
       // The .(*)loading can be .media, .grid, .slide__content, .box, etc.
       var loaders = [
@@ -59,6 +78,25 @@
           loader.className = loader.className.replace(/(\S+)loading/, '');
         }
       });
+    },
+
+    isLoaded: function (el) {
+      return el !== null && el.classList.contains(this.options.successClass);
+    },
+
+    reevaluate: function (el) {
+      var me = this;
+      var ie = el.classList.contains('b-responsive') && el.hasAttribute('data-pfsrc');
+
+      // In case an error, try forcing it.
+      if (me.init !== null && _db.hasClass(el, me.options.errorClass)) {
+        el.classList.remove(me.options.errorClass);
+
+        // This is a rare case, hardly called, just nice to have for errors.
+        window.setTimeout(function () {
+          me.init.load(el);
+        }, 10);
+      }
 
       // @see http://scottjehl.github.io/picturefill/
       if (window.picturefill && ie) {
@@ -67,24 +105,14 @@
           elements: [el]
         });
       }
-
-      // Container might be the el itself for BG, do not NULL check here.
-      me.updateContainer(el, cn);
-      // Supports animate.css for CSS background, picture, image, media.
-      if (me.isLoaded(el) && (me.has(cn, _dataAnimation) || me.has(el, _dataAnimation))) {
-        _db.animate(me.has(cn, _dataAnimation) ? cn : el);
-      }
-
-      // Provides event listeners for easy overrides without full overrides.
-      _db.trigger(el, 'blazy.done', {options: me.options});
-    },
-
-    isLoaded: function (el) {
-      return el !== null && el.classList.contains(this.options.successClass);
     },
 
     has: function (el, attribute) {
       return el !== null && el.hasAttribute(attribute);
+    },
+
+    contains: function (el, name) {
+      return el !== null && el.classList.contains(name);
     },
 
     updateContainer: function (el, cn) {
@@ -98,6 +126,9 @@
         if (me.has(el, _dataBg)) {
           _db.updateBg(el, me.options.mobileFirst);
         }
+
+        // Adds context for effetcs: blur, etc. considering BG, or just media.
+        (me.contains(cn, 'media') ? cn : el).classList.add('is-loaded');
       }
     },
 
@@ -208,15 +239,17 @@
         }
 
         // Provides event listeners for easy overrides without full overrides.
+        // Checks for weird contexts, in case spit out during AJAX, etc.
         if (context.classList.contains(_firstBlazy)) {
           _db.trigger(context, 'blazy.afterInit', {
-            items: elms,
+            items: me.items || elms,
             windowWidth: me.windowWidth
           });
         }
       };
 
       // Checks for aspect ratio.
+      // @todo use Drupal.debounce if it makes any difference.
       _db.forEach(['load', 'resize'], function (type) {
         _db.bindEvent(window, type, _db.throttle(checkRatio, 200, me));
       });
@@ -266,10 +299,10 @@
     // might be removed if no further usage.
     // @todo figure out to delay till a threshold hit without scroll setback.
     // Might be added into me.clearing, need to split the class clearing.
+    me.items = me.context.querySelectorAll(me.options.selector + '[loading]:not(.' + me.options.successClass + ')');
     if (me.isNativeLazy() || me.isForced) {
-      var elms = me.context.querySelectorAll(me.options.selector + '[loading]:not(.' + me.options.successClass + ')');
-      if (elms.length > 0) {
-        _db.forEach(elms, me.doNativeLazy.bind(me));
+      if (me.items.length > 0) {
+        _db.forEach(me.items, me.doNativeLazy.bind(me));
       }
     }
 

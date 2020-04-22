@@ -28,6 +28,7 @@ class BlazyLightbox {
     $url_attributes = &$element['#url_attributes'];
     $url_attributes['class'][] = 'blazy__' . $switch_css . ' litebox';
     $url_attributes['data-' . $switch_css . '-trigger'] = TRUE;
+    $element['#icon']['litebox']['#markup'] = '<span class="media__icon media__icon--litebox"></span>';
 
     // If it is a video/audio, otherwise image to image.
     $gallery_enabled = !empty($settings['view_name']);
@@ -37,7 +38,6 @@ class BlazyLightbox {
     $gallery_id             = !$gallery_enabled ? NULL : (empty($settings['view_name']) ? 'blazy-' . $switch_css : ($settings['view_name'] . '-' . $settings['current_view_mode']));
     $settings['gallery_id'] = !$gallery_enabled ? NULL : (empty($settings['gallery_id']) ? $gallery_id : $settings['gallery_id']);
     $settings['box_url']    = file_create_url($uri);
-    $settings['icon']       = empty($settings['icon']) ? ['#markup' => '<span class="media__icon media__icon--litebox"></span>'] : $settings['icon'];
     $settings['box_width']  = isset($item->width) ? $item->width : (empty($settings['width']) ? NULL : $settings['width']);
     $settings['box_height'] = isset($item->height) ? $item->height : (empty($settings['height']) ? NULL : $settings['height']);
 

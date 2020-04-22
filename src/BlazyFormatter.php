@@ -22,13 +22,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   private $isImageDimensionSet;
 
   /**
-   * Checks if Responsive image dimensions are set.
-   *
-   * @var array
-   */
-  private $isResponsiveImageDimensionSet;
-
-  /**
    * Returns available styles with crop in the effect name.
    *
    * @var array
@@ -85,8 +78,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['gallery_id']     = str_replace('_', '-', $gallery_id . '-' . $settings['media_switch']);
     $settings['id']             = $id;
     $settings['internal_path']  = $internal_path;
-    $settings['resimage']       = !empty($settings['responsive_image']) && !empty($settings['responsive_image_style']);
-    $settings['resimage']       = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
     $settings['use_field']      = !$settings['lightbox'] && isset($settings['third_party'], $settings['third_party']['linked_field']) && !empty($settings['third_party']['linked_field']['linked']);
 
     // Bail out if Vanilla mode is requested.
@@ -169,33 +160,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
 
       $this->isImageDimensionSet[md5($settings['id'])] = TRUE;
-    }
-  }
-
-  /**
-   * Sets dimensions once to reduce method calls for Responsive image.
-   *
-   * @param array $settings
-   *   The settings being modified.
-   */
-  protected function setResponsiveImageDimensions(array &$settings = []) {
-    if (!isset($this->isResponsiveImageDimensionSet[md5($settings['id'])])) {
-      $srcset = [];
-      foreach ($this->getResponsiveImageStyles($settings['resimage'])['styles'] as $style) {
-        $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, TRUE));
-
-        // In order to avoid layout reflow, we get dimensions beforehand.
-        $srcset[$settings['width']] = round((($settings['height'] / $settings['width']) * 100), 2);
-      }
-
-      // Sort the srcset from small to large image width or multiplier.
-      ksort($srcset);
-
-      // Informs individual images that dimensions are already set once.
-      $settings['blazy_data']['dimensions'] = $srcset;
-      $settings['_dimensions'] = TRUE;
-
-      $this->isResponsiveImageDimensionSet[md5($settings['id'])] = TRUE;
     }
   }
 

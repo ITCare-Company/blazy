@@ -268,13 +268,18 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * Returns the common UI settings inherited down to each item.
    */
   public function getCommonSettings(array &$settings) {
-    $settings                 += array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
+    $config                    = $this->configLoad('', 'blazy.settings');
+    $effect                    = empty($settings['fx']) ? $config['fx'] : $settings['fx'];
+    $settings                  = array_merge($settings, $config);
+    $settings['fx']            = $effect;
     $settings['media_switch']  = $switch = empty($settings['media_switch']) ? '' : $settings['media_switch'];
     $settings['iframe_domain'] = $this->configLoad('iframe_domain', 'media.settings');
     $settings['is_preview']    = Blazy::isPreview();
     $settings['lightbox']      = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
     $settings['namespace']     = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
     $settings['route_name']    = Blazy::routeMatch() ? Blazy::routeMatch()->getRouteName() : '';
+    $settings['resimage']      = !empty($settings['responsive_image_style']);
+    $settings['resimage']      = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
 
     if ($switch) {
       // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
@@ -392,6 +397,45 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $attachments          = empty($attachments) ? $attached : NestedArray::mergeDeep($attached, $attachments);
     $element['#attached'] = empty($element['#attached']) ? $attachments : NestedArray::mergeDeep($element['#attached'], $attachments);
     $element['#cache']    = empty($element['#cache']) ? $cache : NestedArray::mergeDeep($element['#cache'], $cache);
+  }
+
+  /**
+   * Sets dimensions once to reduce method calls for Responsive image.
+   */
+  public function setResponsiveImageDimensions(array &$settings = [], $initial = TRUE) {
+    $srcset = [];
+    foreach ($this->getResponsiveImageStyles($settings['resimage'])['styles'] as $style) {
+      $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, $initial));
+
+      // In order to avoid layout reflow, we get dimensions beforehand.
+      $srcset[$settings['width']] = round((($settings['height'] / $settings['width']) * 100), 2);
+    }
+
+    // Sort the srcset from small to large image width or multiplier.
+    ksort($srcset);
+
+    // Informs individual images that dimensions are already set once.
+    $settings['blazy_data']['dimensions'] = $srcset;
+    $settings['_dimensions'] = TRUE;
+  }
+
+  /**
+   * Returns the Responsive image styles and caches tags.
+   *
+   * @param object $responsive
+   *   The responsive image style entity.
+   *
+   * @return array|mixed
+   *   The responsive image styles and cache tags.
+   */
+  public function getResponsiveImageStyles($responsive) {
+    $cache_tags = $responsive->getCacheTags();
+    $image_styles = $this->entityLoadMultiple('image_style', $responsive->getImageStyleIds());
+
+    foreach ($image_styles as $image_style) {
+      $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
+    }
+    return ['caches' => $cache_tags, 'styles' => $image_styles];
   }
 
   /**
