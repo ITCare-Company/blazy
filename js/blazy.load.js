@@ -118,18 +118,21 @@
     updateContainer: function (el, cn) {
       var me = this;
 
-      if (me.isLoaded(el)) {
-        if (_db.equal(el.parentNode, 'picture') && me.has(cn, _dataDimensions)) {
-          me.updatePicture(el, cn);
-        }
+      // Fixed for effect Blur messes up Aspect ratio Fluid calculation.
+      window.setTimeout(function () {
+        if (me.isLoaded(el)) {
+          if (_db.equal(el.parentNode, 'picture') && me.has(cn, _dataDimensions)) {
+            me.updatePicture(el, cn);
+          }
 
-        if (me.has(el, _dataBg)) {
-          _db.updateBg(el, me.options.mobileFirst);
-        }
+          if (me.has(el, _dataBg)) {
+            _db.updateBg(el, me.options.mobileFirst);
+          }
 
-        // Adds context for effetcs: blur, etc. considering BG, or just media.
-        (me.contains(cn, 'media') ? cn : el).classList.add('is-loaded');
-      }
+          // Adds context for effetcs: blur, etc. considering BG, or just media.
+          (me.contains(cn, 'media') ? cn : el).classList.add('is-loaded');
+        }
+      });
     },
 
     updatePicture: function (el, cn) {
