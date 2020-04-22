@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2020-04-22
 -----------------------------
+- Issue #3119527 by mortona2k: Responsive image fallback uses original image.
 - Issue #3126146 by electrokate: Undefined Item error.
 - Issue #3127586 by YahyaAlHamad: Blur effect messes up Responsive image with
   fluid ratio.

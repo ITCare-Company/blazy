@@ -229,6 +229,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       $settings['urls'] = $srcset;
       $settings['blazy_data']['dimensions'] = $dimensions;
 
+      $settings['image_url'] = empty($settings['is_preview']) ? $settings['placeholder'] : $settings['image_url'];
       Blazy::lazyAttributes($attributes, $settings);
     }
     unset($settings['resimage']);
@@ -241,7 +242,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     if (!empty($settings['lazy']) && !empty($settings['background'])) {
       // Attach data attributes to either IMG tag, or DIV container.
       $settings['urls'][$settings['width']] = $this->backgroundImage($settings);
-
+      $settings['image_url'] = empty($settings['is_preview']) ? $settings['placeholder'] : $settings['image_url'];
       Blazy::lazyAttributes($attributes, $settings);
     }
 
@@ -313,6 +314,17 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     if (!empty($settings['fx'])) {
       $this->createPlaceholder($settings, $style, $path);
       $attributes['data-animation'] = str_replace('_', '-', $settings['fx']);
+    }
+
+    // Mimicks private _responsive_image_image_style_url, #3119527.
+    if (empty($settings['image_style']) && !empty($settings['resimage'])) {
+      $fallback = $settings['resimage']->getFallbackImageStyle();
+      if ($fallback == '_empty image_') {
+        $settings['image_url'] = empty($settings['placeholder']) ? BlazyInterface::PLACEHOLDER : $settings['placeholder'];
+      }
+      else {
+        $settings['image_style'] = $fallback;
+      }
     }
   }
 
