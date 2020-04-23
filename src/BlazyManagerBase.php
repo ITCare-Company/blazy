@@ -266,12 +266,15 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
   /**
    * Returns the common UI settings inherited down to each item.
+   *
+   * The `fx` sequence: hook_alter > formatters (not implemented yet) > UI.
+   * The `_fx` is a special flag such as to temporarily disable till needed.
    */
   public function getCommonSettings(array &$settings) {
-    $config                    = $this->configLoad('', 'blazy.settings');
-    $effect                    = empty($settings['fx']) ? $config['fx'] : $settings['fx'];
+    $config                    = array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
+    $config['fx']              = empty($settings['fx']) ? $config['fx'] : $settings['fx'];
     $settings                  = array_merge($settings, $config);
-    $settings['fx']            = $effect;
+    $settings['fx']            = isset($settings['_fx']) ? $settings['_fx'] : $settings['fx'];
     $settings['media_switch']  = $switch = empty($settings['media_switch']) ? '' : $settings['media_switch'];
     $settings['iframe_domain'] = $this->configLoad('iframe_domain', 'media.settings');
     $settings['is_preview']    = Blazy::isPreview();

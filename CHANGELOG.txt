@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2020-04-24
+-----------------------------
+- Issue #3120696 by gausarts, jwilson3, Corn696, bkosborne: Delay native lazy 
+  loading till one is hit
+
 Blazy 8.x-2.0-dev, 2020-04-22
 -----------------------------
 - Issue #3119527 by mortona2k: Responsive image fallback uses original image.

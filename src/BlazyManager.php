@@ -191,6 +191,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // The settings.urls is output specific for CSS background purposes with BC.
     if (!empty($settings['urls'])) {
+      // @todo remove .media--background for .b-bg as more relevant for BG.
       $attributes['class'][] = 'b-bg media--background';
       $attributes['data-backgrounds'] = Json::encode($settings['urls']);
 
@@ -313,7 +314,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // Provides image effect if so configured.
     if (!empty($settings['fx'])) {
       $this->createPlaceholder($settings, $style, $path);
-      $attributes['data-animation'] = str_replace('_', '-', $settings['fx']);
+      $attributes['data-animation'] = $settings['fx'];
     }
 
     // Mimicks private _responsive_image_image_style_url, #3119527.

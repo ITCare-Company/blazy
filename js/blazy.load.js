@@ -12,6 +12,7 @@
   var _dataBg = 'data-backgrounds';
   var _dataRatio = 'data-ratio';
   var _firstBlazy = 'blazy--first';
+  var _isNativeExecuted = false;
 
   /**
    * Blazy public methods.
@@ -25,7 +26,6 @@
     windowWidth: 0,
     blazySettings: drupalSettings.blazy || {},
     ioSettings: drupalSettings.blazyIo || {},
-    isForced: false,
     revalidate: false,
     options: {},
     globals: function () {
@@ -62,6 +62,13 @@
 
       // Provides event listeners for easy overrides without full overrides.
       _db.trigger(el, 'blazy.done', {options: me.options});
+
+      // Initializes the native lazy loading once the first found is loaded.
+      if (!_isNativeExecuted) {
+        _db.trigger(me.context, 'blazy.native', {options: me.options});
+
+        _isNativeExecuted = true;
+      }
     },
 
     clearLoading: function (el) {
@@ -130,7 +137,7 @@
           }
 
           // Adds context for effetcs: blur, etc. considering BG, or just media.
-          (me.contains(cn, 'media') ? cn : el).classList.add('is-loaded');
+          (me.contains(cn, 'media') ? cn : el).classList.add('is-b-loaded');
         }
       });
     },
@@ -177,17 +184,25 @@
       }
     },
 
-    doNativeLazy: function (el) {
+    doNativeLazy: function () {
       var me = this;
-      // Reset attributes, and let supportive browsers lazy load them natively.
-      _db.setAttrs(el, ['srcset', 'src'], true);
+      var doNative = function (el) {
+        // Reset attributes, and let supportive browsers lazy load natively.
+        _db.setAttrs(el, ['srcset', 'src'], true);
 
-      // Also supports PICTURE or (future) VIDEO element which contains SOURCEs.
-      _db.setAttrsWithSources(el, false, true);
+        // Also supports PICTURE or (future) VIDEO which contains SOURCEs.
+        _db.setAttrsWithSources(el, false, true);
 
-      // Mark it loaded to prevent Blazy/IO to do any further work.
-      el.classList.add(me.options.successClass);
-      me.clearing(el);
+        // Mark it loaded to prevent Blazy/IO to do any further work.
+        el.classList.add(me.options.successClass);
+        me.clearing(el);
+      };
+
+      var onNative = function () {
+        _db.forEach(me.items, doNative);
+      };
+
+      _db.bindEvent(me.context, 'blazy.native', onNative, {once: true});
     },
 
     isNativeLazy: function () {
@@ -287,8 +302,8 @@
 
     // Old bLazy, not IO, might need scrolling CSS selector like Modal library.
     // A scrolling modal with an iframe like Entity Browser has no issue since
-    // the scrolling container is the entire DOM.
-    var scrollElms = '#drupal-modal';
+    // the scrolling container is the entire DOM. Another use case is parallax.
+    var scrollElms = '#drupal-modal, .is-b-scroll';
     if (me.options.container) {
       scrollElms += ', ' + me.options.container.trim();
     }
@@ -298,14 +313,12 @@
     // This means Blazy and even IO should not lazy-load them any more.
     // Ensures to not touch lazy-loaded AJAX, or likely non-supported elements:
     // Video, DIV, etc. Only IMG and IFRAME are supported for now.
-    // The isForced was originally for CKEditor, but cancelled for a better way,
-    // might be removed if no further usage.
-    // @todo figure out to delay till a threshold hit without scroll setback.
-    // Might be added into me.clearing, need to split the class clearing.
-    me.items = me.context.querySelectorAll(me.options.selector + '[loading]:not(.' + me.options.successClass + ')');
-    if (me.isNativeLazy() || me.isForced) {
+    var nativeSelector = me.options.selector + '[loading]:not(.' + me.options.successClass + ')';
+    me.items = documentElement.querySelector(nativeSelector) === null ? [] : documentElement.querySelectorAll(nativeSelector);
+    if (me.isNativeLazy()) {
+      // Intentionally on the second line to not hit it till verified.
       if (me.items.length > 0) {
-        _db.forEach(me.items, me.doNativeLazy.bind(me));
+        me.doNativeLazy();
       }
     }
 

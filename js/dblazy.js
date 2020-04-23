@@ -113,7 +113,7 @@
       return dataset[v];
     })[mobileFirst ? 'pop' : 'shift']();
 
-    return data === 'undefined' ? dataset[me.windowWidth() >= xl ? xl : xs] : data;
+    return typeof data === 'undefined' ? dataset[me.windowWidth() >= xl ? xl : xs] : data;
   };
 
   /**
@@ -386,6 +386,8 @@
    *   Child selector to match against (class, ID, data attribute, or tag).
    * @param {Function} callback
    *   The callback function.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
    */
   dBlazy.on = function (elm, eventName, childEl, callback) {
     elm.addEventListener(eventName, function (event) {
@@ -413,13 +415,20 @@
    *   The event name to add.
    * @param {Function} fn
    *   The callback function.
+   * @param {Object} params
+   *   The optional param passed into a custom event.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+   * @todo remove old IE references after another check.
    */
-  dBlazy.bindEvent = function (el, type, fn) {
+  dBlazy.bindEvent = function (el, type, fn, params) {
+    var defaults = {capture: false, passive: true};
+    var extraParams = params ? this.extend(defaults, params) : defaults;
     if (el.attachEvent) {
-      el.attachEvent('on' + type, fn);
+      el.attachEvent('on' + type, fn, extraParams);
     }
     else {
-      el.addEventListener(type, fn, {capture: false, passive: true});
+      el.addEventListener(type, fn, extraParams);
     }
   };
 
@@ -436,13 +445,20 @@
    *   The event name to remove.
    * @param {Function} fn
    *   The callback function.
+   * @param {Object} params
+   *   The optional param passed into a custom event.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
+   * @todo remove old IE references after another check.
    */
-  dBlazy.unbindEvent = function (el, type, fn) {
+  dBlazy.unbindEvent = function (el, type, fn, params) {
+    var defaults = {capture: false, passive: true};
+    var extraParams = params ? this.extend(defaults, params) : defaults;
     if (el.detachEvent) {
-      el.detachEvent('on' + type, fn);
+      el.detachEvent('on' + type, fn, extraParams);
     }
     else {
-      el.removeEventListener(type, fn, {capture: false, passive: true});
+      el.removeEventListener(type, fn, extraParams);
     }
   };
 
@@ -523,7 +539,7 @@
     function animationEnd() {
       me.removeAttrs(el, props);
 
-      el.classList.add('b-animated');
+      el.classList.add('is-b-animated');
       el.classList.remove('animated', animation);
       me.unbindEvent(el, 'animationend', animationEnd);
 

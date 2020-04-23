@@ -52,6 +52,11 @@ Blazy container (`.media`) can be animated using
 to be the animated element so to support various use cases:
 CSS background, picture, image, or rich media contents.
 
+To replace **Blur** effect with `animate.css` thingies, implements two things:
+1. **Globally**: `hook_blazy_image_effects_alter` and add `animate.css` classes.
+2. **Fine grained**: `hook_blazy_settings_alter`, and replace a setting named
+   `fx` with one of `animate.css` CSS classes, adjust conditions based settings.
+
 ### Requirements:
 
 * The `animate.css` library included in your theme, or via `animate_css` module.

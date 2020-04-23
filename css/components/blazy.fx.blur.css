@@ -44,7 +44,7 @@ scaling. Adjust this.
   filter: blur(6px);
 }
 
-/* Js dynamic classes during animation. */
+/* Js dynamic classes during animation to match animate.css convention. */
 .animated.blur {
   /* opacity: 1; */
   /* transition: opacity 500ms ease-in-out; */
