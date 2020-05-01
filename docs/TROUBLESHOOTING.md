@@ -7,7 +7,10 @@
   Be sure to have the latest release date or matching versions in the least.
   DEV for DEV, Beta for Beta, etc. Mismatched versions may lead to errors
   especially before having RCs. Mismatched branches will surely be errors.
-* Resizing is not supported. Just reload the page.
+* Resizing is not supported. Just reload the page. **The main reason**:
+  When being resized, the browser gave no data about pixel ratio from desktop
+  to mobile, not vice versa. Unless delayed for 4s+, not less, which is of
+  course unacceptable.
 * Images are gone, only eternal blue loader is flipping like a drunk butterfly.
   Solution: ensures that blazy library is loaded. And temporarily switch to
   stock Bartik themes.
@@ -121,7 +124,7 @@ Any **fixed** Aspect ratio (`4:3, 16:9`, etc) should immediately work as long as
 you understand what it means.
 
 Aspect ratio `Fluid` works with [**custom breakpoints**](https://www.drupal.org/node/3105243)
-(to-be-deprecated), <s>not Responsive image, yet. If you want Aspect ratio
+(deprecated), <s>not Responsive image, yet. If you want Aspect ratio
 for Responsive image, choose anything but `Fluid`.</s>
 
 Any **fixed** Aspect ratio (`4:3, 16:9`, etc), but `Fluid`, wants consistent
@@ -139,7 +142,10 @@ However it doesn't fix everything. Please bear with it.
 **If you have display issues, the correct Aspect ratio is your first best bet.**
 
 Depending on your particular issue, enable or disable, either way, is your
-potential solution.
+potential solution. One good sample when Aspect ratio makes no sense is
+GridStack gapless grids. Image sizes, hence Aspect ratio, cannot be applied
+to gapless grids. Aspect ratio is based on image sizes, not grid sizes.
+
 
 ## 9. BLAZY WITHIN SCROLLING CONTAINER DOES NOT LOAD
 `/admin/config/media/blazy`
@@ -147,7 +153,7 @@ potential solution.
 **Note**: `IO` does not need it, old `bLazy` does.
 
 If you put Blazy within a scrolling container, provide valid comma separated CSS
-selectors, except `#drupal-modal`, e.g.: `#my-scrolling-container,
+selectors, except `#drupal-modal, .is-b-scroll`, e.g.: `#my-scrolling-container,
 .another-scrolling-container`.
 
 A known scrolling container is `#drupal-modal` like seen at **Media library**.
@@ -156,7 +162,8 @@ scrolling container is the entire DOM. Must know `.blazy` parent container which
 has CSS rules containing `overflow` with values anything but `hidden` such as
 `auto` or `scroll`. Press `F12` at any browser to inspect elements.
 
-Default to known `#drupal-modal`.
+Default to known `#drupal-modal, .is-b-scroll`.
+The `.is-b-scroll` can be used when Blazy UI is unreachable without extra legs.
 
 ## 10. LINKED FIELD INTEGRATION
 Under `Media switcher` option, only `Image to iFrame` makes sense. The rest like

@@ -229,6 +229,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       ksort($dimensions);
       $settings['urls'] = $srcset;
       $settings['blazy_data']['dimensions'] = $dimensions;
+      $settings['padding_bottom'] = end($dimensions);
 
       $settings['image_url'] = empty($settings['is_preview']) ? $settings['placeholder'] : $settings['image_url'];
       Blazy::lazyAttributes($attributes, $settings);
@@ -314,7 +315,12 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // Provides image effect if so configured.
     if (!empty($settings['fx'])) {
       $this->createPlaceholder($settings, $style, $path);
-      $attributes['data-animation'] = $settings['fx'];
+
+      // Slick has its own lazy method which makes this useless for Slick.
+      // @todo remove check once Slick supports this, at least by flagging _fx.
+      if ((isset($settings['lazy']) && $settings['lazy'] == 'blazy') || !empty($settings['_fx'])) {
+        $attributes['data-animation'] = $settings['fx'];
+      }
     }
 
     // Mimicks private _responsive_image_image_style_url, #3119527.

@@ -167,6 +167,7 @@
       // For picture, this is more a dummy space till the image is downloaded.
       var isPicture = cn.querySelector('picture') !== null;
       var pad = _db.activeWidth(dimensions, isPicture);
+
       if (pad !== 'undefined') {
         cn.style.paddingBottom = pad + '%';
       }
@@ -266,11 +267,10 @@
         }
       };
 
-      // Checks for aspect ratio.
+      // Checks for aspect ratio, onload event is a bit later.
       // @todo use Drupal.debounce if it makes any difference.
-      _db.forEach(['load', 'resize'], function (type) {
-        _db.bindEvent(window, type, _db.throttle(checkRatio, 200, me));
-      });
+      checkRatio();
+      _db.bindEvent(window, 'resize', _db.throttle(checkRatio, 200, me));
     }
 
   };

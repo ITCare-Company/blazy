@@ -88,6 +88,10 @@
   /**
    * Returns data from the current active window.
    *
+   * When being resized, the browser gave no data about pixel ratio from desktop
+   * to mobile, not vice versa. Unless delayed for 4s+, not less, which is of
+   * course unacceptable.
+   *
    * @name dBlazy.activeWidth
    *
    * @param {Object} dataset
