@@ -399,7 +399,9 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     // Uploaded image has UUID with file API.
     if ($uuid && $file = $this->blazyManager->getEntityRepository()->loadEntityByUuid('file', $uuid)) {
       $data = $this->blazyOembed->getImageItem($file);
-      $settings = array_merge($settings, $data['settings']);
+      if (isset($data['settings'])) {
+        $settings = array_merge($settings, $data['settings']);
+      }
     }
     else {
       // Manually hard-coded image has no UUID, nor file API.
@@ -415,7 +417,12 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         $settings['uri_root'] = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
       }
     }
-    return $data['item'];
+
+    if (isset($data['item'])) {
+      return $data['item'];
+    }
+
+    return NULL;
   }
 
   /**
