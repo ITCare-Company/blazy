@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2020-05-04
+-----------------------------
+- Reduced picture abrupt ratio changes for the rest after the first loaded.
+
 Blazy 8.x-2.0-dev, 2020-05-01
 -----------------------------
 - Issue #3132545 by prudloff: Undefined index notices when image file is not

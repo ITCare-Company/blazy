@@ -107,17 +107,18 @@
     var keys = Object.keys(dataset);
     var xs = keys[0];
     var xl = keys[keys.length - 1];
+    var pr = (me.windowWidth() * me.pixelRatio());
+    var ww = mobileFirst ? me.windowWidth() : pr;
     var mw = function (w) {
       // The picture wants <= (approximate), non-picture wants >=, wtf.
-      var pr = (me.windowWidth() * me.pixelRatio());
-      return mobileFirst ? w <= me.windowWidth() : w >= pr;
+      return mobileFirst ? parseInt(w) <= ww : parseInt(w) >= ww;
     };
 
     var data = keys.filter(mw).map(function (v) {
       return dataset[v];
     })[mobileFirst ? 'pop' : 'shift']();
 
-    return typeof data === 'undefined' ? dataset[me.windowWidth() >= xl ? xl : xs] : data;
+    return typeof data === 'undefined' ? dataset[ww >= xl ? xl : xs] : data;
   };
 
   /**

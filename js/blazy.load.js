@@ -13,6 +13,8 @@
   var _dataRatio = 'data-ratio';
   var _firstBlazy = 'blazy--first';
   var _isNativeExecuted = false;
+  var _isPictureExecuted = false;
+  var _resizeTick = 0;
 
   /**
    * Blazy public methods.
@@ -23,6 +25,7 @@
     context: null,
     init: null,
     items: [],
+    ratioItems: [],
     windowWidth: 0,
     blazySettings: drupalSettings.blazy || {},
     ioSettings: drupalSettings.blazyIo || {},
@@ -31,6 +34,7 @@
     globals: function () {
       var me = this;
       var commons = {
+        isUniform: false,
         success: me.clearing.bind(me),
         error: me.clearing.bind(me),
         selector: '.b-lazy',
@@ -56,8 +60,8 @@
       me.updateContainer(el, cn);
 
       // Supports animate.css for CSS background, picture, image, media.
-      if (me.isLoaded(el) && (me.has(an, _dataAnimation) || me.has(el, _dataAnimation))) {
-        _db.animate(me.has(an, _dataAnimation) ? an : el);
+      if (me.isLoaded(el) && (an !== null || me.has(el, _dataAnimation))) {
+        _db.animate(an !== null ? an : el);
       }
 
       // Provides event listeners for easy overrides without full overrides.
@@ -124,11 +128,12 @@
 
     updateContainer: function (el, cn) {
       var me = this;
+      var isPicture = _db.equal(el.parentNode, 'picture') && me.has(cn, _dataDimensions);
 
       // Fixed for effect Blur messes up Aspect ratio Fluid calculation.
       window.setTimeout(function () {
         if (me.isLoaded(el)) {
-          if (_db.equal(el.parentNode, 'picture') && me.has(cn, _dataDimensions)) {
+          if (isPicture) {
             me.updatePicture(el, cn);
           }
 
@@ -143,7 +148,16 @@
     },
 
     updatePicture: function (el, cn) {
-      cn.style.paddingBottom = Math.round(((el.naturalHeight / el.naturalWidth) * 100), 2) + '%';
+      var me = this;
+      var pad = Math.round(((el.naturalHeight / el.naturalWidth) * 100), 2);
+
+      cn.style.paddingBottom = pad + '%';
+
+      // Swap all aspect ratio once to reduce abrupt ratio changes for the rest.
+      if (!_isPictureExecuted) {
+        _db.trigger(me.context, 'blazy.uniform', {pad: pad});
+        _isPictureExecuted = true;
+      }
     },
 
     /**
@@ -165,7 +179,7 @@
       }
 
       // For picture, this is more a dummy space till the image is downloaded.
-      var isPicture = cn.querySelector('picture') !== null;
+      var isPicture = cn.querySelector('picture') !== null && _resizeTick > 0;
       var pad = _db.activeWidth(dimensions, isPicture);
 
       if (pad !== 'undefined') {
@@ -173,7 +187,7 @@
       }
 
       // Fix for picture or bg element with resizing.
-      if (isPicture || me.has(cn, _dataBg)) {
+      if (_resizeTick > 0 && (isPicture || me.has(cn, _dataBg))) {
         me.updateContainer((isPicture ? cn.querySelector('img') : cn), cn);
       }
     },
@@ -241,13 +255,24 @@
 
     afterInit: function (context) {
       var me = this;
-      var elms = context.querySelector('.media--ratio') === null ? [] : context.querySelectorAll('.media--ratio');
+      me.ratioItems = context.querySelector('.media--ratio') === null ? [] : context.querySelectorAll('.media--ratio');
+      var shouldLoop = me.ratioItems.length > 0;
+
+      var swapRatio = function (e) {
+        var pad = e.detail.pad;
+
+        if (pad > 10) {
+          _db.forEach(me.ratioItems, function (cn) {
+            cn.style.paddingBottom = pad + '%';
+          }, context);
+        }
+      };
 
       var checkRatio = function () {
         me.windowWidth = _db.windowWidth();
 
-        if (elms.length > 0) {
-          _db.forEach(elms, me.updateRatio.bind(me), context);
+        if (shouldLoop) {
+          _db.forEach(me.ratioItems, me.updateRatio.bind(me), context);
         }
 
         // BC with bLazy, native/IO doesn't need to revalidate, bLazy does.
@@ -261,16 +286,22 @@
         // Checks for weird contexts, in case spit out during AJAX, etc.
         if (context.classList && context.classList.contains(_firstBlazy)) {
           _db.trigger(context, 'blazy.afterInit', {
-            items: me.items || elms,
+            items: me.items || me.ratioItems,
             windowWidth: me.windowWidth
           });
         }
+        _resizeTick++;
       };
 
       // Checks for aspect ratio, onload event is a bit later.
       // @todo use Drupal.debounce if it makes any difference.
       checkRatio();
-      _db.bindEvent(window, 'resize', _db.throttle(checkRatio, 200, me));
+      _db.bindEvent(window, 'resize', Drupal.debounce(checkRatio, 200, true));
+
+      // Reduces abrupt ratio changes for the rest after the first loaded.
+      if (me.options.isUniform && shouldLoop) {
+        _db.bindEvent(me.context, 'blazy.uniform', swapRatio, {once: true});
+      }
     }
 
   };
@@ -345,9 +376,10 @@
     elm.classList.add('blazy--on');
 
     // Initializes native, IntersectionObserver, or Blazy instance.
-    // @todo attempts to optimize nested blazies, remove if any issue.
+    // @todo attempts to optimize nested blazies, remove check if any issue.
     if (_db.closest(elm, '.blazy') === null) {
       elm.classList.add(_firstBlazy);
+      opts.isUniform = me.contains(elm, 'blazy--field') || me.contains(elm, 'blazy--grid') || me.contains(elm, 'blazy--uniform');
       initBlazy(elm, opts);
     }
   }
