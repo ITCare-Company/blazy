@@ -133,6 +133,9 @@
       // Fixed for effect Blur messes up Aspect ratio Fluid calculation.
       window.setTimeout(function () {
         if (me.isLoaded(el)) {
+          // Adds context for effetcs: blur, etc. considering BG, or just media.
+          (me.contains(cn, 'media') ? cn : el).classList.add('is-b-loaded');
+
           if (isPicture) {
             me.updatePicture(el, cn);
           }
@@ -140,9 +143,6 @@
           if (me.has(el, _dataBg)) {
             _db.updateBg(el, me.options.mobileFirst);
           }
-
-          // Adds context for effetcs: blur, etc. considering BG, or just media.
-          (me.contains(cn, 'media') ? cn : el).classList.add('is-b-loaded');
         }
       });
     },

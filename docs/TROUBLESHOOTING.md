@@ -111,21 +111,22 @@ Be sure to add one. If not, add regular CSS `width: 100%` to the blurred
 image if doable with your design.
 
 ## 8. ASPECT RATIO
-**UPDATE**:   
+**UPDATE 05/02/2020**:   
 Blazy RC7+ is 99% integrated with Responsive image, including
 CSS background and the notorious aspect ratio **Fluid**. The remaining 1% is
 some unknown glicthes.
 
-Aspect ratio was never supported for Responsive image till Blazy RC7+, <s>not
+Aspect ratio was never supported for Responsive image till Blazy 2.rc7+, <s>not
 fully though. One remaining issue is to make Aspect ratio `Fluid` work for:
 CSS background + Picture element.</s>
 
 Any **fixed** Aspect ratio (`4:3, 16:9`, etc) should immediately work as long as
 you understand what it means.
 
-Aspect ratio `Fluid` works with [**custom breakpoints**](https://www.drupal.org/node/3105243)
-(deprecated), <s>not Responsive image, yet. If you want Aspect ratio
-for Responsive image, choose anything but `Fluid`.</s>
+Aspect ratio `Fluid` worked with
+[**custom breakpoints**](https://www.drupal.org/node/3105243) (deprecated),
+<s>not Responsive image, yet. If you want Aspect ratio for Responsive image,
+choose anything but `Fluid`.</s>
 
 Any **fixed** Aspect ratio (`4:3, 16:9`, etc), but `Fluid`, wants consistent
 aspect ratio down to mobile, which means it won't work with art direction
@@ -141,7 +142,7 @@ However it doesn't fix everything. Please bear with it.
 
 **If you have display issues, the correct Aspect ratio is your first best bet.**
 
-Depending on your particular issue, enable or disable, either way, is your
+Depending on your particular issue, **enable or disable**, either way, is your
 potential solution. One good sample when Aspect ratio makes no sense is
 GridStack gapless grids. Image sizes, hence Aspect ratio, cannot be applied
 to gapless grids. Aspect ratio is based on image sizes, not grid sizes.
