@@ -50,12 +50,6 @@ scaling. Adjust this to the closest ancestor if not already: .grid, .slide, etc.
   width: 100%;
 }
 
-/* The latter allows loading indicator to still be visible, not blurred.
-.b-bg[data-animation="blur"],
-[data-animation="blur"] img {
-  filter: blur(6px);
-} */
-
 /* Remove not-so-useful loading indicator for BG only.
 .b-bg.media--loading[data-animation="blur"]::before {
   display: none;

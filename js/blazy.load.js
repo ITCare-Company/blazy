@@ -59,8 +59,8 @@
       // Container might be the el itself for BG, do not NULL check here.
       me.updateContainer(el, cn);
 
-      // Supports animate.css for CSS background, picture, image, media.
-      if (me.isLoaded(el) && (an !== null || me.has(el, _dataAnimation))) {
+      // Supports blur, animate.css for CSS background, picture, image, media.
+      if (an !== null || me.has(el, _dataAnimation)) {
         _db.animate(an !== null ? an : el);
       }
 
@@ -300,7 +300,7 @@
 
       // Reduces abrupt ratio changes for the rest after the first loaded.
       if (me.options.isUniform && shouldLoop) {
-        _db.bindEvent(me.context, 'blazy.uniform', swapRatio, {once: true});
+        _db.bindEvent(context, 'blazy.uniform', swapRatio, {once: true});
       }
     }
 

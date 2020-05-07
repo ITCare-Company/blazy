@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2020-05-07
+-----------------------------
+- Fixed for artifacts during loading with different animation than blur.
+
 Blazy 8.x-2.0-dev, 2020-05-04
 -----------------------------
 - Reduced picture abrupt ratio changes for the rest after the first loaded.

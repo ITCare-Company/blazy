@@ -523,10 +523,11 @@
    *
    * @param {Element} el
    *   The animated HTML element.
+   * @param {String} animation
+   *   Any custom animation name, fallbacks to [data-animation].
    */
-  dBlazy.animate = function (el) {
+  dBlazy.animate = function (el, animation) {
     var me = this;
-    var animation = el.dataset.animation;
     var props = [
       'animation',
       'animation-duration',
@@ -534,6 +535,7 @@
       'animation-iteration-count'
     ];
 
+    animation = animation || el.dataset.animation;
     el.classList.add('animated', animation);
     me.forEach(['Duration', 'Delay', 'IterationCount'], function (key) {
       if ('animation' + key in el.dataset) {
@@ -546,11 +548,12 @@
 
       el.classList.add('is-b-animated');
       el.classList.remove('animated', animation);
-      me.unbindEvent(el, 'animationend', animationEnd);
 
       me.forEach(props, function (key) {
         el.style.removeProperty(key);
       });
+
+      me.unbindEvent(el, 'animationend', animationEnd);
     }
 
     me.bindEvent(el, 'animationend', animationEnd);
