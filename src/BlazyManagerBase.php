@@ -272,6 +272,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function getCommonSettings(array &$settings) {
     $config                    = array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
+    $config['fx']              = isset($config['fx']) ? $config['fx'] : '';
     $config['fx']              = empty($settings['fx']) ? $config['fx'] : $settings['fx'];
     $settings                  = array_merge($settings, $config);
     $settings['fx']            = isset($settings['_fx']) ? $settings['_fx'] : $settings['fx'];
