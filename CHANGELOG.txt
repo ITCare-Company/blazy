@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2020-05-07
 -----------------------------
+- Issue #3133891 by prudloff: Error when adding a new text format.
 - Fixed for artifacts during loading with different animation than blur.
 
 Blazy 8.x-2.0-dev, 2020-05-04
