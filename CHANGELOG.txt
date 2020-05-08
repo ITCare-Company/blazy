@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2020-05-09
+-----------------------------
+- Fixed for rare cases with similar colorbox galleries on a page.
+- Fixed for weird null document after closing colorbox.
+
 Blazy 8.x-2.0-dev, 2020-05-08
 -----------------------------
 - Issue #3123435 by sasanikolic, Berdir: Uncaught TypeError: Cannot read

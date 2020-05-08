@@ -324,6 +324,7 @@
 
     opts = opts || {};
     opts.mobileFirst = opts.mobileFirst || false;
+    documentElement = documentElement || document;
     if (!document.documentElement.isSameNode(documentElement)) {
       opts.root = documentElement;
     }
