@@ -1,7 +1,12 @@
 
+Blazy 8.x-2.0-dev, 2020-05-08
+-----------------------------
+- Issue #3123435 by sasanikolic, Berdir: Uncaught TypeError: Cannot read
+  property '\''mobiledetect'\'' of undefined.
+
 Blazy 8.x-2.0-dev, 2020-05-07
 -----------------------------
-- Issue #3134323 by timlie: Undefined index: fx in 
+- Issue #3134323 by timlie: Undefined index: fx in
   Drupal\blazy\BlazyManagerBase->getCommonSettings().
 - Issue #3133891 by prudloff: Error when adding a new text format.
 - Fixed for artifacts during loading with different animation than blur.
