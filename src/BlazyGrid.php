@@ -63,6 +63,11 @@ class BlazyGrid {
       '#wrapper_attributes' => ['class' => array_merge(['item-list'], $wrapper)],
     ];
 
+    // Supports field label via Field UI, unless use_field takes place.
+    if (empty($settings['use_field']) && isset($settings['label'], $settings['label_display']) && $settings['label_display'] != 'hidden') {
+      $element['#title'] = $settings['label'];
+    }
+
     self::attributes($element['#attributes'], $settings);
 
     return $element;

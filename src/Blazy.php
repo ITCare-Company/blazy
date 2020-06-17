@@ -155,12 +155,12 @@ class Blazy implements BlazyInterface {
     // Respects hand-coded image attributes.
     if ($item) {
       if (!isset($attributes['alt'])) {
-        $attributes['alt'] = isset($item->alt) ? $item->alt : NULL;
+        $attributes['alt'] = empty($item->alt) ? NULL : trim($item->alt);
       }
 
       // Do not output an empty 'title' attribute.
       if (isset($item->title) && (mb_strlen($item->title) != 0)) {
-        $attributes['title'] = $item->title;
+        $attributes['title'] = trim($item->title);
       }
     }
 

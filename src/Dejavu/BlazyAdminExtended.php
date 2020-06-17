@@ -69,7 +69,8 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase implements BlazyAdminIn
     }
 
     if (isset($definition['titles'])) {
-      if (!empty($definition['images'])) {
+      // Ensures to not override Views content/ entity title, just formatters.
+      if (!empty($definition['images']) && empty($definition['_views'])) {
         $definition['titles']['title'] = $this->t('Image Title');
       }
       $form['title'] = [

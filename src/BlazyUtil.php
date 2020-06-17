@@ -115,7 +115,7 @@ class BlazyUtil {
     }
 
     // Just in case, an attempted kidding gets in the way, relevant for UGC.
-    $data_uri = !empty($settings['use_data_uri']) && mb_substr($settings['image_url'], 0, 10) === 'data:image';
+    $data_uri = mb_substr($settings['image_url'], 0, 10) === 'data:image';
     if (!empty($settings['_check_protocol']) && !$data_uri) {
       $settings['image_url'] = UrlHelper::stripDangerousProtocols($settings['image_url']);
     }

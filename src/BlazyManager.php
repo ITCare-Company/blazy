@@ -234,7 +234,6 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       $settings['image_url'] = empty($settings['is_preview']) ? $settings['placeholder'] : $settings['image_url'];
       Blazy::lazyAttributes($attributes, $settings);
     }
-    unset($settings['resimage']);
   }
 
   /**
@@ -316,7 +315,12 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Provides image effect if so configured.
     if (!empty($settings['fx'])) {
-      $this->createPlaceholder($settings, $style, $path);
+      // Ensures at least a hook_alter is always respected. This still allows
+      // Blur and hook_alter for Views rewrite issues, unless global UI is set
+      // which was already warned about anyway.
+      if (empty($settings['placeholder'])) {
+        $this->createPlaceholder($settings, $style, $path);
+      }
 
       // Slick has its own lazy method which makes this useless for Slick.
       // @todo remove check once Slick supports this, at least by flagging _fx.

@@ -1,6 +1,11 @@
 
 Blazy 8.x-2.0-dev, 2020-06-17
 -----------------------------
+- Added supports for field label via Field UI for grid displays.
+- Fixed for Views content/ entity title option being overriden by Image Title.
+- Fixed for placeholder hook_alter not being respected.
+- Fixed for Title label being overridden by Image Title at Views options.
+- Simplified few checks.
 - Issue #3136504 by gausarts, hammerslammer: Endless loading of image which is
   not found (status 404).
 - Issue #3143794 by gausarts, julianrozor, jrochate: Layout Builder: Error: Call
