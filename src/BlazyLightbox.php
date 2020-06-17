@@ -50,8 +50,10 @@ class BlazyLightbox {
     $dimensions = ['width' => $settings['box_width'], 'height' => $settings['box_height']];
     if (!empty($settings['box_style'])) {
       $box_style = ImageStyle::load($settings['box_style']);
-      $box_style->transformDimensions($dimensions, $uri);
-      $settings['box_url'] = $box_style->buildUrl($uri);
+      if ($box_style) {
+        $box_style->transformDimensions($dimensions, $uri);
+        $settings['box_url'] = $box_style->buildUrl($uri);
+      }
     }
 
     // Allows custom work to override this without image style, such as
@@ -71,8 +73,10 @@ class BlazyLightbox {
     // This allows PhotoSwipe with videos still swipable.
     if (!empty($settings['box_media_style'])) {
       $box_media_style = ImageStyle::load($settings['box_media_style']);
-      $box_media_style->transformDimensions($dimensions, $uri);
-      $settings['box_media_url'] = $box_media_style->buildUrl($uri);
+      if ($box_media_style) {
+        $box_media_style->transformDimensions($dimensions, $uri);
+        $settings['box_media_url'] = $box_media_style->buildUrl($uri);
+      }
     }
 
     if (!empty($settings['embed_url'])) {

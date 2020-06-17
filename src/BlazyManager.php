@@ -297,11 +297,13 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // With CSS background, IMG may be empty, add thumbnail to the container.
     if (!empty($settings['thumbnail_style'])) {
       $style = $this->entityLoad($settings['thumbnail_style'], 'image_style');
-      $path = $style->buildUri($settings['uri']);
-      $attributes['data-thumb'] = BlazyUtil::transformRelative($settings['uri'], $style);
+      if ($style) {
+        $path = $style->buildUri($settings['uri']);
+        $attributes['data-thumb'] = BlazyUtil::transformRelative($settings['uri'], $style);
 
-      if (!is_file($path) && BlazyUtil::isValidUri($path)) {
-        $style->createDerivative($settings['uri'], $path);
+        if (!is_file($path) && BlazyUtil::isValidUri($path)) {
+          $style->createDerivative($settings['uri'], $path);
+        }
       }
     }
 
