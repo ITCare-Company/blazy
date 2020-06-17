@@ -135,8 +135,10 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       $settings['_uri'] = ($file = $item->entity) && empty($item->uri) ? $file->getFileUri() : $item->uri;
     }
     elseif ($entity && $entity->hasField('thumbnail') && $image = $entity->get('thumbnail')->first()) {
-      $this->firstItem = $image;
-      $settings['_uri'] = $image->entity->getFileUri();
+      if (isset($image->entity) && $file = $image->entity) {
+        $this->firstItem = $image;
+        $settings['_uri'] = $file->getFileUri();
+      }
     }
 
     // The first image dimensions to differ from individual item dimensions.
