@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2020-06-17
 -----------------------------
+- Issue #3136504 by gausarts, hammerslammer: Endless loading of image which is
+  not found (status 404).
 - Issue #3143794 by gausarts, julianrozor, jrochate: Layout Builder: Error: Call
   to a member function getFileUri() on null.
 - Issue #3138996 by FiNeX: Check if image style exists to avoid Error.

@@ -100,13 +100,18 @@
       var ie = el.classList.contains('b-responsive') && el.hasAttribute('data-pfsrc');
 
       // In case an error, try forcing it.
-      if (me.init !== null && _db.hasClass(el, me.options.errorClass)) {
-        el.classList.remove(me.options.errorClass);
+      if (me.init !== null && _db.hasClass(el, me.options.errorClass) && !_db.hasClass(el, 'b-checked')) {
+        el.classList.add('b-checked');
 
         // This is a rare case, hardly called, just nice to have for errors.
         window.setTimeout(function () {
-          me.init.load(el);
-        }, 10);
+          if (me.has(el, _dataBg)) {
+            _db.updateBg(el, me.options.mobileFirst);
+          }
+          else {
+            me.init.load(el);
+          }
+        }, 100);
       }
 
       // @see http://scottjehl.github.io/picturefill/
