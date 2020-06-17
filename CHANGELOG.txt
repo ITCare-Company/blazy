@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2020-06-17
+-----------------------------
+- Issue #3135220 by Grimreaper, jhmnieuwenhuis, lindsay.wils: Wrong srcset in
+  responsive image.
+
 Blazy 8.x-2.0-dev, 2020-05-09
 -----------------------------
 - Fixed for rare cases with similar colorbox galleries on a page.

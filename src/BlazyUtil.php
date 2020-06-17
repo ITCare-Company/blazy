@@ -105,7 +105,7 @@ class BlazyUtil {
       $settings['cache_tags'] = $style->getCacheTags();
 
       // Only re-calculate dimensions if not cropped, nor already set.
-      if (empty($settings['_dimensions'])) {
+      if (empty($settings['_dimensions']) && empty($settings['responsive_image_style'])) {
         $settings = array_merge($settings, self::transformDimensions($style, $settings));
       }
     }
