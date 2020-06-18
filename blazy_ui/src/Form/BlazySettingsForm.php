@@ -66,6 +66,13 @@ class BlazySettingsForm extends ConfigFormBase {
       '#description'   => $this->t('Uncheck to disable blazy related admin compact form styling, only if not compatible with your admin theme.'),
     ];
 
+    $form['native'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Native browser lazy load'),
+      '#default_value' => $config->get('native'),
+      '#description'   => $this->t('Native lazy loading is supported by Chrome 76+ as of 01/2019, and Firefox 76+ 5/2020. Blazy or IO will be used as fallback for other browsers instead. If enabled, Blur effect, preloader animation, image transition, and other animations, or other fancy features which depend on visibility delays, may no longer work for the below-fold contents till we have a nicer integration. This also may trick us to think lazy load not work, check out Blazy docs or project issues for better explanations.'),
+    ];
+
     $form['noscript'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Add noscript'),
@@ -223,6 +230,7 @@ class BlazySettingsForm extends ConfigFormBase {
     $config
       ->set('admin_css', $form_state->getValue('admin_css'))
       ->set('fx', $form_state->getValue('fx'))
+      ->set('native', $form_state->getValue('native'))
       ->set('noscript', $form_state->getValue('noscript'))
       ->set('responsive_image', $form_state->getValue('responsive_image'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))

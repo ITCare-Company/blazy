@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2020-06-18
+-----------------------------
+- Issue #3142503 by gausarts: Add option for native browser lazy load.
+
 Blazy 8.x-2.0-dev, 2020-06-17
 -----------------------------
 - Added supports for field label via Field UI for grid displays.

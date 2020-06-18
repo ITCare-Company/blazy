@@ -204,6 +204,7 @@ class BlazyDefault {
   public static function uiSettings() {
     return [
       'one_pixel'        => TRUE,
+      'native'           => FALSE,
       'noscript'         => FALSE,
       'placeholder'      => '',
       'responsive_image' => FALSE,

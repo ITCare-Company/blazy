@@ -268,7 +268,9 @@ class Blazy implements BlazyInterface {
 
     // Support browser native lazy loading as per 8/2019 specific to Chrome 76+.
     // See https://web.dev/native-lazy-loading/
-    $attributes['loading'] = 'lazy';
+    if (!empty($settings['native'])) {
+      $attributes['loading'] = 'lazy';
+    }
   }
 
   /**
