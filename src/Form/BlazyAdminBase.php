@@ -421,7 +421,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'select',
         '#title'       => $this->t('Main stage'),
         '#options'     => is_array($definition['images']) ? $definition['images'] : [],
-        '#description' => $this->t('Main background/stage/poster image field. You may want to add a new Image field to this entity.'),
+        '#description' => $this->t('Main background/stage/poster image field with the only supported field types: <b>Image</b> or <b>Media</b> containing Image field. You may want to add a new Image field to this entity.'),
         '#prefix'      => '<h3 class="form__title form__title--fields">' . $this->t('Fields') . '</h3>',
       ];
     }

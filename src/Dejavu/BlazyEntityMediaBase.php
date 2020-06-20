@@ -76,9 +76,8 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
       if (!empty($settings['media_switch']) && $settings['media_switch'] == 'rendered') {
         $element['content'][] = $this->blazyEntity()->getFieldRenderable($entity, $settings['image'], $view_mode);
       }
-      // @todo recheck against file entity (non-media), if still needed.
-      // @todo remove if no longer file entity is needed for pure Media, likely
-      // post blazy:8.3+ since BlazyFileFormatter is already deprecated.
+      // This used to be for File entity (non-media), repurposed.
+      // Extracts image item from other entities than Media, such as Paragraphs.
       elseif (empty($element['item']) && empty($settings['uri'])) {
         BlazyMedia::imageItem($element, $entity);
       }
@@ -188,7 +187,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     }
 
     if (isset($element['image']['#description'])) {
-      $element['image']['#description'] .= ' ' . $this->t('For (remote|local) video, this allows separate high-res or poster image,. Be sure this exact same field is also used for bundle <b>Image</b> to have a mix of videos and images. Leaving it empty will fallback to the video provider thumbnails, or no poster for local video. The formatter/renderer is managed by <strong>@plugin_id</strong> formatter. Meaning original formatter ignored.', ['@plugin_id' => $this->getPluginId()]);
+      $element['image']['#description'] .= ' ' . $this->t('For (remote|local) video, this allows separate high-res or poster image. Be sure this exact same field is also used for bundle <b>Image</b> to have a mix of videos and images if this entity is Media. Leaving it empty will fallback to the video provider thumbnails, or no poster for local video. The formatter/renderer is managed by <strong>@plugin_id</strong> formatter. Meaning original formatter ignored.', ['@plugin_id' => $this->getPluginId()]);
     }
 
     return $element;
