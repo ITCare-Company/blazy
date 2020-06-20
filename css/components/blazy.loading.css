@@ -37,7 +37,8 @@
   min-height: 30px;
 }
 
-.media--loading::before {
+/* Prevents costly double animations when Blur is enabled. */
+.media--loading:not([data-animation])::before {
   content: '';
   display: none;
   width: 30px;
@@ -59,7 +60,7 @@
  * With JS being disabled, the NOSCRIPT tag is replaced by SPAN.
  * No worries about video iframes, they are broken without JS anyway.
  */
-.blazy--on .media--loading::before {
+.blazy--on .media--loading:not([data-animation])::before {
   display: block;
 }
 
@@ -70,10 +71,4 @@
 .media--loading > span + a,
 .media--loading.media--player > span ~ .b-lazy {
   display: none;
-}
-
-/* Must blur to avoid artifacts from showing regardless animation name.
-.b-bg.media--loading[data-animation], */
-.media--loading[data-animation] img {
-  filter: blur(6px);
 }

@@ -245,6 +245,8 @@ class BlazyDefault {
       'lazy_attribute' => 'src',
       'lazy_class'     => 'b-lazy',
       'padding_bottom' => '',
+      'placeholder_fx' => '',
+      'placeholder_ui' => '',
       'player'         => FALSE,
       'resimage'       => FALSE,
       'scheme'         => '',

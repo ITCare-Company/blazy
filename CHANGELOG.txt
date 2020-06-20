@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2020-06-20
+-----------------------------
+- Issue #3137757 by gausarts: Blur effect causes extra slow page load after
+  update from 8.x-2.0 to 8.x-2.1.
+
 Blazy 8.x-2.0-dev, 2020-06-18
 -----------------------------
 - Issue #3142503 by gausarts: Add option for native browser lazy load.

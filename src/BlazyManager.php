@@ -189,6 +189,9 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       $this->buildImage($element, $attributes, $item_attributes, $settings);
     }
 
+    // Pass non-rich-media elements to theme_blazy().
+    $element['#item_attributes'] = $item_attributes;
+
     // The settings.urls is output specific for CSS background purposes with BC.
     if (!empty($settings['urls'])) {
       // @todo remove .media--background for .b-bg as more relevant for BG.
@@ -200,8 +203,25 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       }
     }
 
-    // Pass non-rich-media elements to theme_blazy().
-    $element['#item_attributes'] = $item_attributes;
+    if (!empty($settings['fx'])) {
+      $blur = [
+        '#theme' => 'image',
+        '#uri' => $settings['placeholder_ui'],
+        '#attributes' => [
+          'class' => ['b-lazy', 'b-blur', 'b-blur--tmp'],
+          'data-src' => $settings['placeholder_fx'],
+          'loading' => 'lazy',
+        ],
+      ];
+
+      // Reset as already stored.
+      unset($settings['placeholder_fx']);
+      $element['#preface']['blur'] = $blur;
+
+      if (isset($settings['width']) && $settings['width'] > 980) {
+        $attributes['class'][] = 'media--fx-lg';
+      }
+    }
   }
 
   /**
@@ -292,6 +312,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    * Build thumbnails, also to provide placeholder for blur effect.
    */
   protected function thumbnailAndPlaceholder(array &$attributes, array &$settings) {
+    $settings['placeholder_fx'] = $settings['placeholder_ui'] = $settings['placeholder'];
     $path = $style = '';
     // With CSS background, IMG may be empty, add thumbnail to the container.
     if (!empty($settings['thumbnail_style'])) {
@@ -315,10 +336,12 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Provides image effect if so configured.
     if (!empty($settings['fx'])) {
+      $attributes['class'][] = 'media--fx';
+
       // Ensures at least a hook_alter is always respected. This still allows
       // Blur and hook_alter for Views rewrite issues, unless global UI is set
       // which was already warned about anyway.
-      if (empty($settings['placeholder'])) {
+      if (!empty($settings['placeholder_fx'])) {
         $this->createPlaceholder($settings, $style, $path);
       }
 
@@ -333,7 +356,8 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     if (empty($settings['image_style']) && !empty($settings['resimage'])) {
       $fallback = $settings['resimage']->getFallbackImageStyle();
       if ($fallback == '_empty image_') {
-        $settings['image_url'] = empty($settings['placeholder']) ? BlazyInterface::PLACEHOLDER : $settings['placeholder'];
+        $placeholder = empty($settings['width']) ? BlazyInterface::PLACEHOLDER : BlazyUtil::generatePlaceholder($settings['width'], $settings['height']);
+        $settings['image_url'] = empty($settings['placeholder']) ? $placeholder : $settings['placeholder'];
       }
       else {
         $settings['image_style'] = $fallback;
@@ -357,7 +381,9 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
       // Overrides placeholder with data URI based on configured thumbnail.
       if (is_file($path)) {
-        $settings['placeholder'] = 'data:image/' . pathinfo($path, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($path));
+        $settings['placeholder_fx'] = 'data:image/' . pathinfo($path, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($path));
+        // Prevents double animations.
+        $settings['use_loading'] = FALSE;
       }
     }
   }

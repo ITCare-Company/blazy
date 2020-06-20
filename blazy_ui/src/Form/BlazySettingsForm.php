@@ -99,7 +99,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#type'          => 'textfield',
       '#title'         => $this->t('Placeholder'),
       '#default_value' => $config->get('placeholder'),
-      '#description'   => $this->t('Overrides global 1px placeholder. Can be URL, e.g.: https://mysite.com/blank.gif. Only useful if continuously using Views rewrite results, see <a href=":url">#2908861</a>. Alternatively use <code>hook_blazy_settings_alter()</code> for more fine-grained control. Leave it empty to use default Data URI to avoid extra HTTP requests. If you have 100 images on a page, you will save 100 extra HTTP requests by leaving it empty.', [':url' => 'https://drupal.org/node/2908861']),
+      '#description'   => $this->t('Overrides global 1px placeholder. Can be URL, e.g.: /blank.gif or /blank.svg. Be warned: unlike .svg, browser has display issues with 1px .gif, see <a href=":url1">#2795415</a>. Only useful if continuously using Views rewrite results, see <a href=":url2">#2908861</a>. Alternatively use <code>hook_blazy_settings_alter()</code> for more fine-grained control. Leave it empty to use default Data URI to avoid extra HTTP requests. If you have 100 images on a page, you will save 100 extra HTTP requests by leaving it empty.', [':url1' => 'https://drupal.org/node/2795415', ':url2' => 'https://drupal.org/node/2908861']),
     ];
 
     $form['fx'] = [
@@ -108,7 +108,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#empty_option'  => '- None -',
       '#options'       => $this->manager->getImageEffects(),
       '#default_value' => $config->get('fx'),
-      '#description'   => $this->t('Choose the image effect. Note! This will override Placeholder option. Will use Thumbnail style option at Blazy formatters for the placeholder with fallback to core Thumbnail style. For best results: use similar aspect ratio for both Thumbnail and Image styles; adjust Offset and or threshold; the smaller the better. Use <code>hook_blazy_image_effects_alter()</code> to add more effects -- curtain, fractal, slice, whatever. <b>Limitations</b>: Currently only works with a proper Aspect ratio as otherwise collapsed image. Be sure to add one. If not, add regular CSS <code>width: 100%</code> to the blurred image if doable with your design.'),
+      '#description'   => $this->t('Choose the image effect. Will use Thumbnail style option at Blazy formatters for the placeholder with fallback to core Thumbnail style. For best results: use similar aspect ratio for both Thumbnail and Image styles; adjust Offset and or threshold; the smaller the better. Use <code>hook_blazy_image_effects_alter()</code> to add more effects -- curtain, fractal, slice, whatever. <b>Limitations</b>: Best with a proper Aspect ratio option as otherwise collapsed image. Be sure to add one. If not, add regular CSS <code>min-height</code> for each mediaquery. The Placeholder option is still respected.'),
     ];
 
     $form['blazy'] = [

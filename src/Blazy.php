@@ -67,7 +67,7 @@ class Blazy implements BlazyInterface {
     // Makes a little order here due to twig ignoring the preset priority.
     $attributes = &$variables['attributes'];
     $classes = empty($attributes['class']) ? [] : $attributes['class'];
-    $attributes['class'] = array_merge(['media'], $classes);
+    $attributes['class'] = array_merge(['media', 'media--blazy'], $classes);
   }
 
   /**

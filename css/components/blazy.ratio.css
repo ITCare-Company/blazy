@@ -21,20 +21,6 @@
   transition: padding-bottom .2s;
 }
 
-/* Aspect ratio element: IMG, IFRAME, DIV. */
-.media--ratio .media__element {
-  display: block;
-  height: 100%;
-  left: 0;
-  min-height: 1px;
-  position: absolute;
-  top: 0;
-  width: 100%;
-  z-index: 0;
-  /** Temp fix, also to fix the VIDEO element to max width, not only IMG. */
-  object-fit: cover;
-}
-
 /* 1:1 ratio */
 .media--ratio--11 {
   padding-bottom: 100%;
