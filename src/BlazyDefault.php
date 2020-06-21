@@ -203,11 +203,12 @@ class BlazyDefault {
    */
   public static function uiSettings() {
     return [
-      'one_pixel'        => TRUE,
-      'native'           => FALSE,
-      'noscript'         => FALSE,
-      'placeholder'      => '',
-      'responsive_image' => FALSE,
+      'one_pixel'           => TRUE,
+      'native'              => FALSE,
+      'noscript'            => FALSE,
+      'placeholder'         => '',
+      'responsive_image'    => FALSE,
+      'unstyled_extensions' => '',
     ] + self::anywhereSettings();
   }
 
@@ -223,6 +224,7 @@ class BlazyDefault {
       'is_preview' => FALSE,
       'route_name' => '',
       'use_field'  => FALSE,
+      'unstyled'   => FALSE,
       'view_name'  => '',
     ] + self::imageSettings() + self::uiSettings();
   }

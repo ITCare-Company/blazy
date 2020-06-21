@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2020-06-21
+-----------------------------
+- Issue #3149843 by Guido_S, gausarts: Support SVG Images.
+
 Blazy 8.x-2.0-dev, 2020-06-20
 -----------------------------
 - Issue #3137757 by gausarts: Blur effect causes extra slow page load after

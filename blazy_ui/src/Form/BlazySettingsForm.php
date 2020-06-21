@@ -102,6 +102,13 @@ class BlazySettingsForm extends ConfigFormBase {
       '#description'   => $this->t('Overrides global 1px placeholder. Can be URL, e.g.: /blank.gif or /blank.svg. Be warned: unlike .svg, browser has display issues with 1px .gif, see <a href=":url1">#2795415</a>. Only useful if continuously using Views rewrite results, see <a href=":url2">#2908861</a>. Alternatively use <code>hook_blazy_settings_alter()</code> for more fine-grained control. Leave it empty to use default Data URI to avoid extra HTTP requests. If you have 100 images on a page, you will save 100 extra HTTP requests by leaving it empty.', [':url1' => 'https://drupal.org/node/2795415', ':url2' => 'https://drupal.org/node/2908861']),
     ];
 
+    $form['unstyled_extensions'] = [
+      '#type'          => 'textfield',
+      '#title'         => $this->t('Extensions without image styles'),
+      '#default_value' => $config->get('unstyled_extensions'),
+      '#description'   => $this->t('Extensions that should not use (Responsive) image style, space delimited without dot, e.g.: gif apng. Normally animated images. No way to distinguish animated from static gif, it is all or nothing. This means no thumbnail, no blur, nor features which makes use image style. Default to svg.'),
+    ];
+
     $form['fx'] = [
       '#type'          => 'select',
       '#title'         => $this->t('Image effect'),
@@ -235,6 +242,7 @@ class BlazySettingsForm extends ConfigFormBase {
       ->set('responsive_image', $form_state->getValue('responsive_image'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))
       ->set('placeholder', $form_state->getValue('placeholder'))
+      ->set('unstyled_extensions', $form_state->getValue('unstyled_extensions'))
       ->set('blazy.loadInvisible', $form_state->getValue(['blazy', 'loadInvisible']))
       ->set('blazy.offset', $form_state->getValue(['blazy', 'offset']))
       ->set('blazy.saveViewportOffsetDelay', $form_state->getValue(['blazy', 'saveViewportOffsetDelay']))

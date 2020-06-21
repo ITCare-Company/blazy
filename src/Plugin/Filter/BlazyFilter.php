@@ -417,12 +417,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         $settings['uri_root'] = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
       }
     }
-
-    if (isset($data['item'])) {
-      return $data['item'];
-    }
-
-    return NULL;
+    return $data['item'];
   }
 
   /**
@@ -478,15 +473,15 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
             <li><code>&lt;img data-unblazy /&gt;</code></li>
             <li><code>&lt;iframe data-unblazy /&gt;</code></li>
         </ul>
-        <p>To build a grid of images/ videos, add attribute <code>data-grid</code> or <code>data-column</code> (only to the first item):
+        <p>To build a grid of images/ videos, add attribute <code>data-grid</code> or <code>data-column</code> (only to the first item):</p>
         <ul>
             <li><code>&lt;img data-grid="1 3 4" /&gt;</code></li>
             <li><code>&lt;iframe data-column="1 3 4" /&gt;</code></li>
         </ul>
-        The numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements, unless those given a <code>data-unblazy</code>. Also <b>required</b> if using <b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) to build the gallery correctly.</p>');
+        <p>The numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements, unless those given a <code>data-unblazy</code>. Also <b>required</b> if using <b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) to build the gallery correctly. Manually add width and height for SVG, and other images without image styles.</p>');
     }
     else {
-      return $this->t('To disable lazyload, add attribute <code>data-unblazy</code> to <code>&lt;img&gt;</code> or <code>&lt;iframe&gt;</code> elements. Examples: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>.');
+      return $this->t('To disable lazyload, add attribute <code>data-unblazy</code> to <code>&lt;img&gt;</code> or <code>&lt;iframe&gt;</code> elements. Examples: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>. Manually add width and height for SVG, and other images without image styles.');
     }
   }
 

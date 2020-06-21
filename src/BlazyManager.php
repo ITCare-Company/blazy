@@ -101,6 +101,14 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $settings['_api'] = TRUE;
     $pathinfo = pathinfo($settings['uri']);
     $settings['extension'] = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
+    $settings['unstyled'] = BlazyUtil::unstyled($settings);
+
+    // Disable image style if so configured.
+    if ($settings['unstyled']) {
+      foreach (['box', 'box_media', 'image', 'thumbnail', 'responsive_image'] as $mage) {
+        $settings[$mage . '_style'] = '';
+      }
+    }
 
     foreach (BlazyDefault::themeAttributes() as $key) {
       $key = $key . '_attributes';
@@ -180,7 +188,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     }
 
     // Responsive image integration, with/o CSS background so to work with.
-    if (!empty($settings['resimage']) && $settings['extension'] != 'svg') {
+    if (!empty($settings['resimage']) && empty($settings['unstyled'])) {
       $this->buildResponsiveImage($element, $attributes, $settings);
     }
 
@@ -203,10 +211,10 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       }
     }
 
-    if (!empty($settings['fx'])) {
+    if (!empty($settings['fx']) && empty($settings['unstyled'])) {
       $blur = [
         '#theme' => 'image',
-        '#uri' => $settings['placeholder_ui'],
+        '#uri' => $settings['placeholder_ui'] ?: $settings['placeholder'],
         '#attributes' => [
           'class' => ['b-lazy', 'b-blur', 'b-blur--tmp'],
           'data-src' => $settings['placeholder_fx'],
@@ -312,7 +320,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    * Build thumbnails, also to provide placeholder for blur effect.
    */
   protected function thumbnailAndPlaceholder(array &$attributes, array &$settings) {
-    $settings['placeholder_fx'] = $settings['placeholder_ui'] = $settings['placeholder'];
+    $settings['placeholder_ui'] = $settings['placeholder'];
     $path = $style = '';
     // With CSS background, IMG may be empty, add thumbnail to the container.
     if (!empty($settings['thumbnail_style'])) {
@@ -341,7 +349,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       // Ensures at least a hook_alter is always respected. This still allows
       // Blur and hook_alter for Views rewrite issues, unless global UI is set
       // which was already warned about anyway.
-      if (!empty($settings['placeholder_fx'])) {
+      if (empty($settings['placeholder_fx']) && empty($settings['unstyled'])) {
         $this->createPlaceholder($settings, $style, $path);
       }
 

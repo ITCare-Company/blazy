@@ -192,12 +192,12 @@
     fixMissingDataUri: function () {
       var me = this;
       var doc = me.context;
-      var sel = '.media--blazy ' + me.options.selector + '[src^="image/"]:not(.' + me.options.successClass + ')';
+      var sel = me.options.selector + '[src^="image"]:not(.' + me.options.successClass + ')';
       var els = doc.querySelector(sel) === null ? [] : doc.querySelectorAll(sel);
 
       var fixDataUri = function (img) {
         var src = img.getAttribute('src');
-        if (src.substring(0, 5) === 'image' && src.indexOf('base64') !== -1) {
+        if (src.indexOf('base64') !== -1 || src.indexOf('svg+xml') !== -1) {
           img.setAttribute('src', src.replace('image', 'data:image'));
         }
       };

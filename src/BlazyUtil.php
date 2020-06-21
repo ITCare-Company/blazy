@@ -98,10 +98,11 @@ class BlazyUtil {
     // Provides image_url, not URI, expected by lazyload.
     $uri = $settings['uri'];
     $valid = self::isValidUri($uri);
+    $styled = $valid && empty($settings['unstyled']);
 
     // Image style modifier can be multi-style images such as GridStack.
     if ($valid && !empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
-      $settings['image_url'] = self::transformRelative($uri, $style);
+      $settings['image_url'] = self::transformRelative($uri, ($styled ? $style : NULL));
       $settings['cache_tags'] = $style->getCacheTags();
 
       // Only re-calculate dimensions if not cropped, nor already set.
@@ -181,6 +182,18 @@ class BlazyUtil {
   public static function transformRelative($uri, $style = NULL) {
     $url = $style ? $style->buildUrl($uri) : file_create_url($uri);
     return file_url_transform_relative($url);
+  }
+
+  /**
+   * Checks if extension should not use image style: apng svg gif, etc.
+   */
+  public static function unstyled(array $settings) {
+    $extensions = ['svg'];
+    if (isset($settings['unstyled_extensions']) && $unstyled = $settings['unstyled_extensions']) {
+      $extensions = array_merge($extensions, array_map('trim', explode(' ', mb_strtolower($unstyled))));
+      $extensions = array_unique($extensions);
+    }
+    return isset($settings['extension']) && in_array($settings['extension'], $extensions);
   }
 
 }

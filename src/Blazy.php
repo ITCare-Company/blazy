@@ -166,7 +166,7 @@ class Blazy implements BlazyInterface {
 
     // Only output dimensions for non-svg. Respects hand-coded image attributes.
     // Do not pass it to $attributes to also respect both (Responsive) image.
-    if (!isset($attributes['width']) && $settings['extension'] != 'svg') {
+    if (!isset($attributes['width']) && empty($settings['unstyled'])) {
       $image['#height'] = $settings['height'];
       $image['#width'] = $settings['width'];
     }
