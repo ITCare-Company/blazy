@@ -373,7 +373,7 @@
       };
 
       var checkRatio = function () {
-        return me.isRo ? new ResizeObserver(loopRatio) : loopRatio(ratioItems);
+        return me.isRo() ? new ResizeObserver(loopRatio) : loopRatio(ratioItems);
       };
 
       // Checks for aspect ratio, onload event is a bit later.
