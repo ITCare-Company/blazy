@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2020-06-30
 -----------------------------
+- Issue #3154185 by Corn696: SVG placeholder html validation error space is not
+  allowed.
 - Added supports for reduce motion for vestibular people.
 - Fixed for potential non-integer lightbox dimensions.
 - Added partial supports for rich media lightbox contents.
