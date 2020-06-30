@@ -1,4 +1,11 @@
 
+Blazy 8.x-2.0-dev, 2020-06-30
+-----------------------------
+- Added supports for reduce motion for vestibular people.
+- Fixed for potential non-integer lightbox dimensions.
+- Added partial supports for rich media lightbox contents.
+- Deprecated .media--loading for .is-b-loading to reuse at non-media.
+
 Blazy 8.x-2.0-dev, 2020-06-21
 -----------------------------
 - Issue #3149843 by Guido_S, gausarts: Support SVG Images.

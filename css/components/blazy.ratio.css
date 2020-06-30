@@ -10,6 +10,8 @@
 .media.media--ratio {
   display: block;
   height: 0;
+  /* Fixed for overflowing video with hard-coded width like lightboxes. */
+  max-width: 100%;
   min-height: 1px;
   overflow: hidden;
   position: relative;

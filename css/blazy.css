@@ -22,7 +22,9 @@
 /* Needed to display preloader with CSS BG image, otherwise hidden. */
 .b-loaded,
 .b-error,
-.b-bg.media--loading {
+/* @todo deprecated and removed media--loading for is-b-loading to make sense outside media. */
+.b-bg.media--loading,
+.b-bg.is-b-loading {
   opacity: 1;
 }
 
@@ -37,8 +39,12 @@
 .litebox,
 .blazy iframe,
 .media iframe {
-  border: 0 none;
+  border: 0;
   display: block;
+  max-width: 100%;
+}
+
+.media-wrapper--inline {
   max-width: 100%;
 }
 
@@ -62,9 +68,9 @@
 .media--fx img {
   /* Prevents unwanted alt text from showing. */
   color: transparent;
+  display: block;
   /* Prevents blinking. */
   opacity: 1;
-  transition: none;
   /* Prevents collapsing thumbnail image if Aspect ratio is disabled. */
   width: 100%;
 }
@@ -72,11 +78,12 @@
 /* Aspect ratio element: IMG, IFRAME, DIV. */
 .media--ratio .media__element,
 .media--fx .b-blur {
-  display: block;
+  bottom: 0;
   height: 100%;
   left: 0;
   min-height: 1px;
   position: absolute;
+  right: 0;
   top: 0;
   width: 100%;
   z-index: 0;
@@ -93,11 +100,10 @@
   color: transparent;
   /* < 980: The less the more artifacts. The more the slower. */
   filter: blur(3px);
-  opacity: 1;
+  opacity: .9;
   /* Longer than animation timing to let the actual image surface better. */
-  transition: visibility 1.2s;
-  visibility: visible;
-  /* If overlayed, this causes unwanted dark shadow and more artifacts. */
+  transition: opacity 1.2s;
+  /* Avoid overlaying, this causes unwanted dark shadow and more artifacts. */
   /* z-index: 1; */
 }
 
@@ -105,12 +111,11 @@
   /* > 980: The less the more artifacts. The more the slower. */
   filter: blur(6px);
   /* Reduces artifacts due to being large. */
-  opacity: .9;
+  opacity: .8;
 }
 
-/* JS class element. */
-.is-b-animated .b-blur {
-  visibility: hidden;
+.animated img {
+  opacity: 1;
 }
 
 /* Be sure to add width to the container accordingly, otherwise collapsed. */

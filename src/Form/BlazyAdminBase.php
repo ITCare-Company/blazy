@@ -410,7 +410,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'select',
         '#title'       => $this->t('Thumbnail style'),
         '#options'     => $this->getEntityAsOptions('image_style'),
-        '#description' => $this->t('Usages: Placeholder replacement for image effects (blur, etc.), Photobox/PhotoSwipe thumbnail, or custom work with thumbnails. Leave empty to not use thumbnails.'),
+        '#description' => $this->t('Usages: Placeholder replacement for image effects (blur, etc.), Photobox/PhotoSwipe thumbnail, or custom work with thumbnails. Be sure to have similar aspect ratio for the best blur effect. Leave empty to not use thumbnails.'),
         '#weight'      => -96,
       ];
     }

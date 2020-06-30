@@ -454,7 +454,7 @@
     var me = Drupal.blazy;
     var dataAttr = elm.getAttribute('data-blazy');
     var opts = (!dataAttr || dataAttr === '1') ? {} : (_db.parse(dataAttr) || {});
-    var isUniform = me.contains(elm, 'blazy--field') || me.contains(elm, 'blazy--grid') || me.contains(elm, 'blazy--uniform');
+    var isUniform = me.contains(elm, 'blazy--field') || me.contains(elm, 'block-grid') || me.contains(elm, 'blazy--uniform');
     var instance = (Math.random() * 10000).toFixed(0);
     var eventId = 'blazy.uniform.' + instance;
     var localItems = elm.querySelector('.media--ratio') === null ? [] : elm.querySelectorAll('.media--ratio');

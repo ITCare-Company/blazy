@@ -102,11 +102,12 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $pathinfo = pathinfo($settings['uri']);
     $settings['extension'] = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
     $settings['unstyled'] = BlazyUtil::unstyled($settings);
+    $settings['_richbox'] = !empty($settings['colorbox']) || !empty($settings['_richbox']);
 
     // Disable image style if so configured.
     if ($settings['unstyled']) {
-      foreach (['box', 'box_media', 'image', 'thumbnail', 'responsive_image'] as $mage) {
-        $settings[$mage . '_style'] = '';
+      foreach (['box', 'box_media', 'image', 'thumbnail', 'responsive_image'] as $image) {
+        $settings[$image . '_style'] = '';
       }
     }
 
@@ -129,14 +130,9 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     Blazy::urlAndDimensions($settings, $item);
 
     // Only process (Responsive) image/ video if no rich-media are provided.
+    $this->buildContent($element, $build);
     if (empty($build['content'])) {
       $this->buildMedia($element, $build);
-    }
-    else {
-      // Prevents complication for now, such as lightbox for Facebook, etc.
-      // Either makes no sense, or not currently supported without extra legs.
-      // Original formatter settings can still be accessed via content variable.
-      $settings = array_merge($settings, BlazyDefault::richSettings());
     }
 
     // Multi-breakpoint aspect ratio only applies if lazyloaded.
@@ -166,6 +162,34 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // Preparing Blazy to replace other blazy-related content/ item markups.
     foreach (['content', 'icon', 'overlay', 'preface', 'postscript'] as $key) {
       $element["#$key"] = empty($element["#$key"]) ? $build[$key] : NestedArray::mergeDeep($element["#$key"], $build[$key]);
+    }
+  }
+
+  /**
+   * Build out (rich media) content.
+   */
+  protected function buildContent(array &$element, array &$build) {
+    $settings = &$build['settings'];
+    if (empty($build['content'])) {
+      return;
+    }
+
+    // Prevents complication for now, such as lightbox for Facebook, etc.
+    // Either makes no sense, or not currently supported without extra legs.
+    // Original formatter settings can still be accessed via content variable.
+    $settings = array_merge($settings, BlazyDefault::richSettings());
+
+    // Supports HTML content for lightboxes as long as having image trigger.
+    // Type rich to not conflict with Image rendered by its formatter option.
+    $rich = $settings['type'] == 'rich' && !empty($settings['_richbox']);
+    if ($rich && isset($build['content'][0]['#settings']) && $blazy = $build['content'][0]['#settings']) {
+      if (!empty($settings['_hires']) && $blazy->get('lightbox')) {
+        // Overrides the overriden settings with original formatter settings.
+        $settings = array_merge($settings, $blazy->storage());
+
+        $element['#lightbox_html'] = $build['content'];
+        $build['content'] = [];
+      }
     }
   }
 
@@ -353,11 +377,8 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
         $this->createPlaceholder($settings, $style, $path);
       }
 
-      // Slick has its own lazy method which makes this useless for Slick.
-      // @todo remove check once Slick supports this, at least by flagging _fx.
-      if ((isset($settings['lazy']) && $settings['lazy'] == 'blazy') || !empty($settings['_fx'])) {
-        $attributes['data-animation'] = $settings['fx'];
-      }
+      // Being a separated .b-blur with .b-lazy, this should work for any lazy.
+      $attributes['data-animation'] = $settings['fx'];
     }
 
     // Mimicks private _responsive_image_image_style_url, #3119527.

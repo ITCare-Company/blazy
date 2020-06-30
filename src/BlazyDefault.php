@@ -222,6 +222,7 @@ class BlazyDefault {
       'namespace'  => 'blazy',
       'id'         => '',
       'is_preview' => FALSE,
+      '_richbox'   => FALSE,
       'route_name' => '',
       'use_field'  => FALSE,
       'unstyled'   => FALSE,

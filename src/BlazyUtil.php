@@ -123,7 +123,7 @@ class BlazyUtil {
   }
 
   /**
-   * Provides image dimensions based on the given image item.
+   * Provides original unstyled image dimensions based on the given image item.
    */
   public static function imageDimensions(array &$settings, $item = NULL, $initial = FALSE) {
     $width = $initial ? '_width' : 'width';
@@ -143,6 +143,10 @@ class BlazyUtil {
         list($settings[$width], $settings[$height]) = $data;
       }
     }
+
+    // Sometimes they are string, cast them integer to reduce JS logic.
+    $settings[$width] = empty($settings[$width]) ? NULL : (int) $settings[$width];
+    $settings[$height] = empty($settings[$height]) ? NULL : (int) $settings[$height];
   }
 
   /**
