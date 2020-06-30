@@ -88,7 +88,7 @@ class BlazyLightbox {
     }
 
     $url = $settings['box_url'];
-    if (in_array($json['bundle'], ['remote_video', 'video'])) {
+    if (isset($json['bundle']) && in_array($json['bundle'], ['remote_video', 'video'])) {
       $json['width']  = 640;
       $json['height'] = 360;
 
