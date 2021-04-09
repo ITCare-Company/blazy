@@ -84,7 +84,7 @@
 
       _db.forEach(loaders, function (loader) {
         if (loader !== null) {
-          loader.className = loader.className.replace(/(\S+)loading/, '');
+          loader.className = loader.className.replace(/(\S+)loading.*/, '');
         }
       });
     },

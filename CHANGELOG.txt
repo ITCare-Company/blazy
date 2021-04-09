@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2021-04-09
+-----------------------------
+- Issue #3185885 by adevms, Shenron_segamag, FiNeX, NigelCunningham: Rotating
+  blue square doesn'\''t go away
+
 Blazy 8.x-2.0-dev, 2020-06-30
 -----------------------------
 - Issue #3154185 by Corn696: SVG placeholder html validation error space is not
