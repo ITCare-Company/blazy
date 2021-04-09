@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2021-04-09
 -----------------------------
+- Issue #3118078 by GaëlG, wells: Compatibility with image styles inside
+  CKEditor
 - Issue #3160061 by gena.io: Replace assertions involving calls to strpos() with
   more accurate string assertions
 - Issue #3204070 by recrit: Services cache IO settings based on first called

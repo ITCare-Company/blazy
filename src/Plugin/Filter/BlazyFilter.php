@@ -105,6 +105,25 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         $item_settings = $settings;
         $item_settings['uri'] = $item_settings['image_url'] = '';
         $item_settings['delta'] = $delta;
+
+        // Set an image style based on node data properties, yet respects
+        // blazy_settings_alter which might set this earlier at buildSettings.
+        // See https://www.drupal.org/project/drupal/issues/2061377,
+        // https://www.drupal.org/project/drupal/issues/2822389, and
+        // https://www.drupal.org/project/inline_responsive_images.
+        if (empty($item_settings['image_style'])) {
+          $item_settings['image_style'] = $node->getAttribute('data-image-style');
+        }
+        if (empty($item_settings['responsive_image_style'])) {
+          $item_settings['responsive_image_style'] = $node->getAttribute('data-responsive-image-style');
+        }
+        if (!empty($item_settings['responsive_image_style'])) {
+          $item_settings['resimage'] = $this->blazyManager->entityLoad(
+            $item_settings['responsive_image_style'],
+            'responsive_image_style'
+          );
+        }
+
         $this->buildItemSettings($item_settings, $node);
 
         // Extracts image item from SRC attribute.
