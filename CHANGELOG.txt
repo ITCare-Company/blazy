@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2021-04-09
 -----------------------------
+- Issue #3173562 by csedax90: Rendered media in Oembed from Paragraph is not
+  translated
 - Issue #3185885 by adevms, Shenron_segamag, FiNeX, NigelCunningham: Rotating
   blue square doesn'\''t go away
 
