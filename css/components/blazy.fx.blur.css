@@ -41,12 +41,12 @@
 /* Supports reduced motion. */
 @media (print), (prefers-reduced-motion: reduce) {
   .animated.blur img:not(.b-blur) {
-    -webkit-animation-duration: 1ms !important;
-    animation-duration: 1ms !important;
-    -webkit-transition-duration: 1ms !important;
-    transition-duration: 1ms !important;
-    -webkit-animation-iteration-count: 1 !important;
-    animation-iteration-count: 1 !important;
+    -webkit-animation-duration: 1ms !important; /* csslint allow: known-properties, important */
+    animation-duration: 1ms !important; /* csslint allow: known-properties, important */
+    -webkit-transition-duration: 1ms !important; /* csslint allow: known-properties, important */
+    transition-duration: 1ms !important; /* csslint allow: known-properties, important */
+    -webkit-animation-iteration-count: 1 !important; /* csslint allow: known-properties, important */
+    animation-iteration-count: 1 !important; /* csslint allow: known-properties, important */
   }
 
   .media--fx-lg .b-blur {
