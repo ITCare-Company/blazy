@@ -1,6 +1,10 @@
 
 Blazy 8.x-2.0-dev, 2021-04-09
 -----------------------------
+- Issue #3174661 by qusai taha, RajabNatshah, markdc, ericdsd, FiNeX: Fix
+  notice: undefined index ratio by check the value if not empty
+- Issue #3167100 by rembrandx, jastraat, Dennis Cohn, gausarts: Element “source”
+  is missing required attribute “srcset”
 - Issue #3173562 by csedax90: Rendered media in Oembed from Paragraph is not
   translated
 - Issue #3185885 by adevms, Shenron_segamag, FiNeX, NigelCunningham: Rotating

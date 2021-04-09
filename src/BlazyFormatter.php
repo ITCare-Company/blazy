@@ -110,7 +110,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       if (empty($settings['resimage'])) {
         $this->setImageDimensions($settings);
       }
-      elseif (!empty($settings['resimage']) && $settings['ratio'] == 'fluid') {
+      elseif (!empty($settings['resimage']) && !empty($settings['ratio']) && $settings['ratio'] == 'fluid') {
         $this->setResponsiveImageDimensions($settings);
       }
     }
