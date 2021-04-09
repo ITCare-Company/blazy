@@ -8,13 +8,6 @@ namespace Drupal\blazy;
 class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
   /**
-   * The first image item found.
-   *
-   * @var object
-   */
-  protected $firstItem = NULL;
-
-  /**
    * Checks if image dimensions are set.
    *
    * @var array
@@ -123,7 +116,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    * {@inheritdoc}
    */
   public function postBuildElements(array &$build, $items, array $entities = []) {
-    $build['settings']['_item'] = $this->firstItem;
+    // Do nothing.
   }
 
   /**
@@ -131,18 +124,20 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    */
   public function extractFirstItem(array &$settings, $item, $entity = NULL) {
     if ($settings['field_type'] == 'image') {
-      $this->firstItem = $item;
+      $settings['_item'] = $item;
       $settings['_uri'] = ($file = $item->entity) && empty($item->uri) ? $file->getFileUri() : $item->uri;
     }
     elseif ($entity && $entity->hasField('thumbnail') && $image = $entity->get('thumbnail')->first()) {
       if (isset($image->entity) && $file = $image->entity) {
-        $this->firstItem = $image;
+        $settings['_item'] = $image;
         $settings['_uri'] = $file->getFileUri();
       }
     }
 
     // The first image dimensions to differ from individual item dimensions.
-    BlazyUtil::imageDimensions($settings, $this->firstItem, TRUE);
+    if (!empty($settings['_item'])) {
+      BlazyUtil::imageDimensions($settings, $settings['_item'], TRUE);
+    }
   }
 
   /**
