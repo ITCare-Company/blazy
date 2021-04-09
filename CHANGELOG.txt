@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2021-04-09
 -----------------------------
+- Issue #3204070 by recrit: Services cache IO settings based on first called
+  attach array
 - Issue #3203933 by recrit: The blazy.formatter service erroneously caches the
   first item object of the last built field formatter
 - Issue #3174661 by qusai taha, RajabNatshah, markdc, ericdsd, FiNeX: Fix
