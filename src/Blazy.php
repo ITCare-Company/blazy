@@ -341,7 +341,7 @@ class Blazy implements BlazyInterface {
         if (isset($variables['sources']) && is_array($variables['sources'])) {
           foreach ($variables['sources'] as &$source) {
             $source->setAttribute('data-srcset', $source['srcset']->value());
-            $source->removeAttribute('srcset');
+            $source->setAttribute('srcset', '');
           }
         }
 
