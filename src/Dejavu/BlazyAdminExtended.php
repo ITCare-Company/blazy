@@ -24,7 +24,10 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase implements BlazyAdminIn
         '#weight'      => -109,
         '#enforced'    => TRUE,
         '#attributes'  => ['class' => ['form-checkbox--vanilla']],
-        '#wrapper_attributes' => ['class' => ['form-item--full', 'form-item--tooltip-bottom']],
+        '#wrapper_attributes' => ['class' => [
+          'form-item--full',
+          'form-item--tooltip-bottom',
+        ]],
       ];
     }
 

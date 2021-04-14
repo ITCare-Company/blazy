@@ -33,13 +33,13 @@ class BlazyGrid {
       unset($item['settings'], $item['attributes'], $item['item']);
 
       // Good for Bootstrap .well/ .card class, must cast or BS will reset.
-      $content_classes = empty($item_settings['grid_content_class']) ? [] : (array) $item_settings['grid_content_class'];
+      $classes = empty($item_settings['grid_content_class']) ? [] : (array) $item_settings['grid_content_class'];
 
       // Supports both single formatter field and complex fields such as Views.
       $content['content'] = $is_grid ? [
         '#theme'      => 'container',
         '#children'   => $item,
-        '#attributes' => ['class' => array_merge(['grid__content'], $content_classes)],
+        '#attributes' => ['class' => array_merge(['grid__content'], $classes)],
       ] : $item;
 
       if (!empty($item_settings['grid_item_class'])) {

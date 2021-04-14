@@ -142,18 +142,21 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     // https://drafts.csswg.org/css-multicol
     if (!empty($definition['style'])) {
       $form['style'] = [
-        '#type'          => 'select',
-        '#title'         => $this->t('Display style'),
-        '#description'   => $this->t('Either <strong>CSS3 Columns</strong> (experimental pure CSS Masonry) or <strong>Grid Foundation</strong> requires <strong>Grid</strong>. Difference: <strong>Columns</strong> is best with irregular image sizes (scale width, empty height), affects the natural order of grid items. <strong>Grid</strong> with regular cropped ones. Unless required, leave empty to use default formatter, or style.'),
-        '#enforced'      => TRUE,
-        '#empty_option'  => '- None -',
-        '#options'       => [
+        '#type'         => 'select',
+        '#title'        => $this->t('Display style'),
+        '#description'  => $this->t('Either <strong>CSS3 Columns</strong> (experimental pure CSS Masonry) or <strong>Grid Foundation</strong> requires <strong>Grid</strong>. Difference: <strong>Columns</strong> is best with irregular image sizes (scale width, empty height), affects the natural order of grid items. <strong>Grid</strong> with regular cropped ones. Unless required, leave empty to use default formatter, or style.'),
+        '#enforced'     => TRUE,
+        '#empty_option' => '- None -',
+        '#options'      => [
           'column' => $this->t('CSS3 Columns'),
           'grid'   => $this->t('Grid Foundation'),
         ],
-        '#weight'             => -112,
-        '#wrapper_attributes' => ['class' => ['form-item--style', 'form-item--tooltip-bottom']],
-        '#required'           => !empty($definition['grid_required']),
+        '#required' => !empty($definition['grid_required']),
+        '#weight'   => -112,
+        '#wrapper_attributes' => ['class' => [
+          'form-item--style',
+          'form-item--tooltip-bottom',
+        ]],
       ];
     }
 
@@ -631,7 +634,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       43200,
       86400,
     ];
-    $period = array_map([$this->dateFormatter, 'formatInterval'], array_combine($period, $period));
+
+    $period = array_map([$this->dateFormatter, 'formatInterval'],
+      array_combine($period, $period));
     $period[0] = '<' . $this->t('No caching') . '>';
     return $period + [Cache::PERMANENT => $this->t('Permanent')];
   }

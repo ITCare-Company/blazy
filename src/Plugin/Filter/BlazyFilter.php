@@ -358,7 +358,10 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
 
     // Responsive image with aspect ratio requires an extra container to work
     // with Align/ Caption images filters.
-    $build['media_attributes']['class'] = ['media-wrapper', 'media-wrapper--blazy'];
+    $build['media_attributes']['class'] = [
+      'media-wrapper',
+      'media-wrapper--blazy',
+    ];
     // Copy all attributes of the original node to the item_attributes.
     if ($node->attributes->length) {
       foreach ($node->attributes as $attribute) {
@@ -394,7 +397,8 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     if ($node->parentNode && $node->parentNode->tagName === 'figure') {
       $caption = $node->parentNode->getElementsByTagName('figcaption');
       if ($caption->length > 0 && $caption->item(0) && $text = $caption->item(0)->nodeValue) {
-        $build['captions']['alt'] = ['#markup' => Xss::filter($text, BlazyDefault::TAGS)];
+        $markup = Xss::filter($text, BlazyDefault::TAGS);
+        $build['captions']['alt'] = ['#markup' => $markup];
 
         // Mark the FIGCAPTION for deletion because the caption will be
         // rendered in the Blazy way.
