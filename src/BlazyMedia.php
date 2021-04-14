@@ -7,7 +7,7 @@ use Drupal\media\Entity\Media;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 
 /**
- * Impelements BlazyMediaInterface.
+ * Provides extra utilities to work with core Media.
  */
 class BlazyMedia implements BlazyMediaInterface {
 

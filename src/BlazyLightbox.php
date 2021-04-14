@@ -88,7 +88,8 @@ class BlazyLightbox {
     }
 
     $url = $settings['box_url'];
-    if (isset($json['bundle']) && in_array($json['bundle'], ['remote_video', 'video'])) {
+    $videos = ['remote_video', 'video'];
+    if (isset($json['bundle']) && in_array($json['bundle'], $videos)) {
       $json['width']  = 640;
       $json['height'] = 360;
 
@@ -194,7 +195,10 @@ class BlazyLightbox {
         $caption = '';
         if (!empty($settings['box_caption_custom']) && ($entity = $item->getEntity())) {
           $options = ['clear' => TRUE];
-          $caption = \Drupal::token()->replace($settings['box_caption_custom'], [$entity->getEntityTypeId() => $entity, 'file' => $item], $options);
+          $caption = \Drupal::token()->replace($settings['box_caption_custom'], [
+            $entity->getEntityTypeId() => $entity,
+            'file' => $item
+          ], $options);
 
           // Checks for multi-value text fields, and maps its delta to image.
           if (!empty($caption) && strpos($caption, ", <p>") !== FALSE) {

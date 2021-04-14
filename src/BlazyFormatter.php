@@ -3,7 +3,7 @@
 namespace Drupal\blazy;
 
 /**
- * Implements BlazyFormatterInterface.
+ * Provides common field formatter-related methods: Blazy, Slick.
  */
 class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 

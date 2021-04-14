@@ -9,7 +9,7 @@ use Drupal\Core\Render\Element;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Implements BlazyEntityInterface.
+ * Provides common entity utilities to work with field details.
  */
 class BlazyEntity implements BlazyEntityInterface {
 
@@ -206,7 +206,7 @@ class BlazyEntity implements BlazyEntityInterface {
       // Prevents quickedit to operate here as otherwise JS error.
       // @see 2314185, 2284917, 2160321.
       // @see quickedit_preprocess_field().
-      // @todo: Remove when it respects plugin annotation.
+      // @todo Remove when it respects plugin annotation.
       $view['#view_mode'] = '_custom';
       $weight = isset($view['#weight']) ? $view['#weight'] : 0;
 

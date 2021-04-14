@@ -8,7 +8,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Template\Attribute;
 
 /**
- * Implements BlazyInterface.
+ * Provides common blazy utility static methods.
  */
 class Blazy implements BlazyInterface {
 
@@ -108,8 +108,9 @@ class Blazy implements BlazyInterface {
     BlazyUtil::imageUrl($settings);
 
     // The SVG placeholder should accept either original, or styled image.
+    $is_media = in_array($settings['type'], ['audio', 'video']);
     $settings['placeholder'] = empty($settings['placeholder']) ? BlazyUtil::generatePlaceholder($settings['width'], $settings['height']) : $settings['placeholder'];
-    $settings['use_media'] = $settings['embed_url'] && in_array($settings['type'], ['audio', 'video']);
+    $settings['use_media'] = $settings['embed_url'] && $is_media;
     $settings['use_loading'] = empty($settings['is_preview']) ? $settings['use_loading'] : FALSE;
   }
 
@@ -400,8 +401,9 @@ class Blazy implements BlazyInterface {
         }
       }
 
+      $attrs = ['data-b-lazy', 'data-b-preview'];
       $variables['attributes']->addClass(['media__element']);
-      $variables['attributes']->removeAttribute(['data-b-lazy', 'data-b-preview']);
+      $variables['attributes']->removeAttribute($attrs);
     }
   }
 
@@ -482,7 +484,10 @@ class Blazy implements BlazyInterface {
    * Checks if Blazy is in CKEditor preview mode where no JS assets are loaded.
    */
   public static function isPreview() {
-    return in_array(self::routeMatch()->getRouteName(), ['entity_embed.preview', 'media.filter.preview']);
+    return in_array(self::routeMatch()->getRouteName(), [
+      'entity_embed.preview',
+      'media.filter.preview'
+    ]);
   }
 
   /**
