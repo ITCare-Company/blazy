@@ -153,10 +153,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         ],
         '#required' => !empty($definition['grid_required']),
         '#weight'   => -112,
-        '#wrapper_attributes' => ['class' => [
-          'form-item--style',
-          'form-item--tooltip-bottom',
-        ]],
+        '#wrapper_attributes' => [
+          'class' => [
+            'form-item--style',
+            'form-item--tooltip-bottom',
+          ]
+        ],
       ];
     }
 
