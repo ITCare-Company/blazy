@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2021-04-14
+-----------------------------
+- Issue #3208686 by Firass Ziedan: Call to a member function getPluginId() on
+  null on taxonomy term pages.
+
 Blazy 8.x-2.0-dev, 2021-04-09
 -----------------------------
 - Issue #3166057 by xavier.masson: Partial clear loading classes after success /
