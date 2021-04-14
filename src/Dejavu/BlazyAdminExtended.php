@@ -108,7 +108,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase implements BlazyAdminIn
         '#maxlength'    => 255,
         '#field_prefix' => '#',
         '#enforced'     => TRUE,
-        '#description'  => $this->t("Manually define the container ID. <em>This ID is used for the cache identifier, so be sure it is unique</em>. Leave empty to have a guaranteed unique ID managed by the module."),
+        '#description'  => $this->t("<b>(Deprecated)</b>. Do not use this! Leave it empty, this option will be removed at future versions. It brings trouble than useful. <br>Old description: Manually define the container ID. <em>This ID is used for the cache identifier, so be sure it is unique</em>. Leave empty to have a guaranteed unique ID managed by the module, or if you see similar views while should be different."),
         '#weight'       => 94,
       ];
     }

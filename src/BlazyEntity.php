@@ -244,7 +244,9 @@ class BlazyEntity implements BlazyEntityInterface {
 
         // Prevents HTML-filter-enabled text from having bad markups
         // (h2 > p), save for few reasonable tags acceptable within H2 tag.
-        return is_string($text) ? ['#markup' => strip_tags($text, '<a><strong><em><span><small>')] : $text;
+        return is_string($text)
+          ? ['#markup' => strip_tags($text, '<a><strong><em><span><small>')]
+          : $text;
       }
     }
     return [];

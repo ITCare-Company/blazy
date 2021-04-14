@@ -486,7 +486,7 @@ class Blazy implements BlazyInterface {
   public static function isPreview() {
     return in_array(self::routeMatch()->getRouteName(), [
       'entity_embed.preview',
-      'media.filter.preview'
+      'media.filter.preview',
     ]);
   }
 

@@ -101,7 +101,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('placeholder'),
       '#description'   => $this->t("Overrides global 1px placeholder. Can be URL, e.g.: /blank.gif or /blank.svg. Be warned: unlike .svg, browsers have display issues with 1px .gif, see <a href=':url1'>#2795415</a>. Only useful if continuously using Views rewrite results, see <a href=':url2'>#2908861</a>. Alternatively use <code>hook_blazy_settings_alter()</code> for more fine-grained control. Leave it empty to use default inline SVG or Data URI to avoid extra HTTP requests. If you have 100 images on a page, you will save 100 extra HTTP requests by leaving it empty. The <b>blank.svg</b> content sample if not using blank.gif: <br><code>&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'/&gt;</code>", [
         ':url1' => 'https://drupal.org/node/2795415',
-        ':url2' => 'https://drupal.org/node/2908861'
+        ':url2' => 'https://drupal.org/node/2908861',
       ]),
     ];
 
@@ -248,16 +248,16 @@ class BlazySettingsForm extends ConfigFormBase {
       ->set('unstyled_extensions', $form_state->getValue('unstyled_extensions'))
       ->set('blazy.loadInvisible', $form_state->getValue([
         'blazy',
-        'loadInvisible'
+        'loadInvisible',
       ]))
       ->set('blazy.offset', $form_state->getValue(['blazy', 'offset']))
       ->set('blazy.saveViewportOffsetDelay', $form_state->getValue([
         'blazy',
-        'saveViewportOffsetDelay'
+        'saveViewportOffsetDelay',
       ]))
       ->set('blazy.validateDelay', $form_state->getValue([
         'blazy',
-        'validateDelay'
+        'validateDelay',
       ]))
       ->set('blazy.container', $form_state->getValue(['blazy', 'container']))
       ->set('io.enabled', $form_state->getValue(['io', 'enabled']))

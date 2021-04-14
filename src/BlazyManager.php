@@ -106,7 +106,8 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Disable image style if so configured.
     if ($settings['unstyled']) {
-      foreach (['box', 'box_media', 'image', 'thumbnail', 'responsive_image'] as $image) {
+      $images = ['box', 'box_media', 'image', 'thumbnail', 'responsive_image'];
+      foreach ($images as $image) {
         $settings[$image . '_style'] = '';
       }
     }

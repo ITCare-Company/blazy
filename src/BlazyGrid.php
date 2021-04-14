@@ -54,13 +54,15 @@ class BlazyGrid {
     }
 
     $settings['count'] = empty($settings['count']) ? count($contents) : $settings['count'];
-    $wrapper = $style ? ['item-list--blazy', 'item-list--blazy-' . $style] : ['item-list--blazy'];
+    $wrapper = ['item-list--blazy', 'item-list--blazy-' . $style];
+    $wrapper = $style ? $wrapper : ['item-list--blazy'];
+    $wrapper = array_merge(['item-list'], $wrapper);
     $element = [
       '#theme'              => 'item_list',
       '#items'              => $contents,
       '#context'            => ['settings' => $settings],
       '#attributes'         => [],
-      '#wrapper_attributes' => ['class' => array_merge(['item-list'], $wrapper)],
+      '#wrapper_attributes' => ['class' => $wrapper],
     ];
 
     // Supports field label via Field UI, unless use_field takes place.

@@ -257,7 +257,8 @@ function hook_blazy_settings_alter(array &$build, $items) {
   // Overrides one pixel placeholder on particular pages relevant if using Views
   // rewrite results which may strip out Data URI.
   // See https://drupal.org/node/2908861.
-  if (isset($settings['entity_id']) && in_array($settings['entity_id'], [45, 67])) {
+  if (isset($settings['entity_id'])
+    && in_array($settings['entity_id'], [45, 67])) {
     $settings['placeholder'] = '/blank.gif';
   }
 

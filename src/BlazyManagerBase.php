@@ -213,7 +213,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $load['library'][] = 'blazy/fx.blur';
     }
 
-    foreach (['column', 'filter', 'grid', 'media', 'photobox', 'ratio'] as $component) {
+    $components = ['column', 'filter', 'grid', 'media', 'photobox', 'ratio'];
+    foreach ($components as $component) {
       if (!empty($attach[$component])) {
         $load['library'][] = 'blazy/' . $component;
       }

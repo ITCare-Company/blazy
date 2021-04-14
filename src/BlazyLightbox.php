@@ -197,7 +197,7 @@ class BlazyLightbox {
           $options = ['clear' => TRUE];
           $caption = \Drupal::token()->replace($settings['box_caption_custom'], [
             $entity->getEntityTypeId() => $entity,
-            'file' => $item
+            'file' => $item,
           ], $options);
 
           // Checks for multi-value text fields, and maps its delta to image.
@@ -210,7 +210,9 @@ class BlazyLightbox {
         break;
     }
 
-    return empty($caption) ? [] : ['#markup' => Xss::filter($caption, BlazyDefault::TAGS)];
+    return empty($caption)
+      ? []
+      : ['#markup' => Xss::filter($caption, BlazyDefault::TAGS)];
   }
 
 }
