@@ -72,7 +72,7 @@ function blazy_test_library_info_alter(array &$libraries, $extension) {
       'https://cdn.jsdelivr.net/npm/blazy/blazy.js' => [
         'type' => 'external',
         'weight' => -4,
-      ]
+      ],
     ];
     unset($libraries['blazy']['js']['/libraries/blazy/blazy.js']);
   }

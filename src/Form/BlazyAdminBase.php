@@ -157,7 +157,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           'class' => [
             'form-item--style',
             'form-item--tooltip-bottom',
-          ]
+          ],
         ],
       ];
     }

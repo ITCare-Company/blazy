@@ -28,7 +28,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase implements BlazyAdminIn
           'class' => [
             'form-item--full',
             'form-item--tooltip-bottom',
-          ]
+          ],
         ],
       ];
     }
