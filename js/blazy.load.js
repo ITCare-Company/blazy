@@ -231,7 +231,7 @@
       var pad = _db.activeWidth(dimensions, isPicture);
 
       // Provides marker for grouping between multiple instances.
-      cn.blazyInstance = 'blazyInstance' in el ? el.blazyInstance : null;
+      cn.blazyInstance = el !== null && 'blazyInstance' in el ? el.blazyInstance : null;
       if (pad !== 'undefined') {
         cn.style.paddingBottom = pad + '%';
       }

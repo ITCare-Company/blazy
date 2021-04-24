@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2021-04-24
+-----------------------------
+- Issue #3158152 by manarak, renguer0: Uncaught TypeError: Cannot use '\''in'\''
+
 Blazy 8.x-2.0-dev, 2021-04-14
 -----------------------------
 - Issue #3208686 by Firass Ziedan: Call to a member function getPluginId() on
