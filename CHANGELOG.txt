@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2021-04-26
+-----------------------------
+- Issue #3210636 by grathbone: Solution to supporting image-to-iframe embeds for
+  non oembed videos (Video Embed Field)
+
 Blazy 8.x-2.0-dev, 2021-04-24
 -----------------------------
 - Issue #3158152 by manarak, renguer0: Uncaught TypeError: Cannot use '\''in'\''
