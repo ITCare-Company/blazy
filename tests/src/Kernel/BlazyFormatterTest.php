@@ -161,6 +161,10 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     // which checks the DRUPAL_TEST_IN_CHILD_SITE constant, that is not defined
     // in Kernel tests.
     try {
+      if (!defined('DRUPAL_TEST_IN_CHILD_SITE')) {
+        define('DRUPAL_TEST_IN_CHILD_SITE', FALSE);
+      }
+
       $entity = $this->entity;
 
       $settings = [
