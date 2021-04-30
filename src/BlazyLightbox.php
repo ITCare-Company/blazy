@@ -45,8 +45,8 @@ class BlazyLightbox {
     $gallery_id             = empty($settings['gallery_id']) ? $gallery_default : $settings['gallery_id'] . '-' . $gallery_default;
     $settings['gallery_id'] = !$gallery_enabled ? NULL : str_replace('_', '-', $gallery_id);
     $settings['box_url']    = $valid ? BlazyUtil::transformRelative($uri) : $uri;
-    $settings['box_width']  = empty($settings['width']) ? NULL : $settings['width'];
-    $settings['box_height'] = empty($settings['height']) ? NULL : $settings['height'];
+    $settings['box_width']  = isset($item->width) ? $item->width : (empty($settings['width']) ? NULL : $settings['width']);
+    $settings['box_height'] = isset($item->height) ? $item->height : (empty($settings['height']) ? NULL : $settings['height']);
 
     $dimensions = [
       'width' => $settings['box_width'],

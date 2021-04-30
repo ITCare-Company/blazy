@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2021-04-30
 -----------------------------
+- Issue #3211636 by gausarts, timlie, jacklee0410: Regressions with lightbox
+  dimensions.
 - Issue #3210344 by gausarts, manarak: Broken CSS background and responsive
   image styles with aspect ratio Fluid.
 
