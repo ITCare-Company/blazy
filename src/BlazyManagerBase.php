@@ -400,10 +400,10 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   public function setResponsiveImageDimensions(array &$settings = [], $initial = TRUE) {
     $srcset = [];
     foreach ($this->getResponsiveImageStyles($settings['resimage'])['styles'] as $style) {
-      $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, $initial));
+      $styled = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, $initial));
 
       // In order to avoid layout reflow, we get dimensions beforehand.
-      $srcset[$settings['width']] = round((($settings['height'] / $settings['width']) * 100), 2);
+      $srcset[$styled['width']] = round((($styled['height'] / $styled['width']) * 100), 2);
     }
 
     // Sort the srcset from small to large image width or multiplier.

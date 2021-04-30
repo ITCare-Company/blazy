@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2021-04-30
+-----------------------------
+- Issue #3210344 by gausarts, manarak: Broken CSS background and responsive
+  image styles with aspect ratio Fluid.
+
 Blazy 8.x-2.0-dev, 2021-04-26
 -----------------------------
 - Issue #3210636 by grathbone: Solution to supporting image-to-iframe embeds for

@@ -13,6 +13,14 @@ use Drupal\image\Entity\ImageStyle;
 class BlazyUtil {
 
   /**
+   * The image style ID.
+   *
+   * @var array
+   */
+  private static $styleId;
+
+
+  /**
    * Generates an SVG Placeholder.
    *
    * @param string $width
@@ -160,24 +168,30 @@ class BlazyUtil {
    *   Whether particularly transforms once for all, or individually.
    */
   public static function transformDimensions($style, array $data, $initial = FALSE) {
-    $width  = $initial ? '_width' : 'width';
-    $height = $initial ? '_height' : 'height';
-    $uri    = $initial ? '_uri' : 'uri';
-    $width  = isset($data[$width]) ? $data[$width] : NULL;
-    $height = isset($data[$height]) ? $data[$height] : NULL;
-    $dim    = ['width' => $width, 'height' => $height];
+    $uri = $initial ? '_uri' : 'uri';
+    $key = hash('md2', $style->id());
 
-    // Funnily $uri is ignored at all core image effects.
-    $style->transformDimensions($dim, $data[$uri]);
+    if (!isset(static::$styleId[$key])) {
+      $width  = $initial ? '_width' : 'width';
+      $height = $initial ? '_height' : 'height';
 
-    // Sometimes they are string, cast them integer to reduce JS logic.
-    if ($dim['width'] != NULL) {
-      $dim['width'] = (int) $dim['width'];
+      $width  = isset($data[$width]) ? $data[$width] : NULL;
+      $height = isset($data[$height]) ? $data[$height] : NULL;
+      $dim    = ['width' => $width, 'height' => $height];
+
+      // Funnily $uri is ignored at all core image effects.
+      $style->transformDimensions($dim, $data[$uri]);
+
+      // Sometimes they are string, cast them integer to reduce JS logic.
+      if ($dim['width'] != NULL) {
+        $dim['width'] = (int) $dim['width'];
+      }
+      if ($dim['height'] != NULL) {
+        $dim['height'] = (int) $dim['height'];
+      }
+      static::$styleId[$key] = ['width' => $dim['width'], 'height' => $dim['height']];
     }
-    if ($dim['height'] != NULL) {
-      $dim['height'] = (int) $dim['height'];
-    }
-    return ['width' => $dim['width'], 'height' => $dim['height']];
+    return static::$styleId[$key];
   }
 
   /**

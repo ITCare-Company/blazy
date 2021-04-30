@@ -269,12 +269,12 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     if (!empty($settings['background'])) {
       $srcset = $dimensions = [];
       foreach ($responsive_image['styles'] as $style) {
-        $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, FALSE));
+        $styled = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, FALSE));
 
         // Sort image URLs based on width.
-        $data = $this->backgroundImage($settings, $style);
-        $srcset[$settings['width']] = $data;
-        $dimensions[$settings['width']] = $data['ratio'];
+        $data = $this->backgroundImage($styled, $style);
+        $srcset[$styled['width']] = $data;
+        $dimensions[$styled['width']] = $data['ratio'];
       }
 
       // Sort the srcset from small to large image width or multiplier.
