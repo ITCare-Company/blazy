@@ -171,13 +171,14 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE];
       $all['media_switch'] = $switch = $settings['media_switch'];
 
+      if (!empty($settings[$switch])) {
+        $all[$switch] = $settings[$switch];
+      }
+
       // Builds the grids if so provided via [data-column], or [data-grid].
       if ($settings['_grid'] && !empty($elements[0])) {
         $all['grid'] = $settings['grid'];
         $all['column'] = $settings['column'];
-        if (isset($settings[$switch])) {
-          $all[$switch] = $settings[$switch];
-        }
 
         $settings['_uri'] = isset($elements[0]['#build'], $elements[0]['#build']['settings']['uri']) ? $elements[0]['#build']['settings']['uri'] : '';
         $this->buildGrid($dom, $settings, $elements, $grid_nodes);
@@ -295,9 +296,15 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $altered_html = $this->blazyManager->getRenderer()->render($output);
 
       if ($first = $grid_nodes[0]) {
+        // Checks if the IMG is managed by caption filter identified by figure.
+        if ($first->parentNode && $first->parentNode->tagName == 'figure') {
+          $first = $first->parentNode;
+        }
+
         // Create the parent grid container, and put it before the first.
         // This extra container ensures hook_blazy_build_alter() aint screw up.
-        $container = $first->parentNode->insertBefore($dom->createElement('div'), $first);
+        $parent = $first->parentNode ? $first->parentNode : $first;
+        $container = $parent->insertBefore($dom->createElement('div'), $first);
         $container->setAttribute('class', 'blazy-wrapper blazy-wrapper--filter');
 
         $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')
@@ -396,13 +403,15 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     // otherwise we cannot see this figure, yet provide fallback.
     if ($node->parentNode && $node->parentNode->tagName === 'figure') {
       $caption = $node->parentNode->getElementsByTagName('figcaption');
-      if ($caption->length > 0 && $caption->item(0) && $text = $caption->item(0)->nodeValue) {
+      $item = ($caption->length > 0 && $caption->item(0)) ? $caption->item(0) : NULL;
+      if ($item && $text = $item->ownerDocument->saveXML($item)) {
         $markup = Xss::filter($text, BlazyDefault::TAGS);
         $build['captions']['alt'] = ['#markup' => $markup];
+        $build['settings']['box_caption'] = $markup;
 
         // Mark the FIGCAPTION for deletion because the caption will be
         // rendered in the Blazy way.
-        $caption->item(0)->setAttribute('class', 'blazy-removed');
+        $item->setAttribute('class', 'blazy-removed');
 
         // Marks figures for removal as its contents are moved into grids.
         if ($build['settings']['_grid']) {
@@ -501,7 +510,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
             <li><code>&lt;img data-grid="1 3 4" /&gt;</code></li>
             <li><code>&lt;iframe data-column="1 3 4" /&gt;</code></li>
         </ul>
-        <p>The numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements, unless those given a <code>data-unblazy</code>. Also <b>required</b> if using <b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) to build the gallery correctly. Manually add width and height for SVG, and other images without image styles.</p>');
+        <p>The numbers represent the amount of grids/ columns for small, medium and large devices respectively, space delimited. Be aware! All media items will be grouped regardless of their placements, unless those given a <code>data-unblazy</code>. Manually add width and height for SVG, and other images without image styles.</p>');
     }
     else {
       return $this->t('To disable lazyload, add attribute <code>data-unblazy</code> to <code>&lt;img&gt;</code> or <code>&lt;iframe&gt;</code> elements. Examples: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>. Manually add width and height for SVG, and other images without image styles.');
@@ -534,7 +543,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       ],
       '#empty_option' => $this->t('- None -'),
       '#default_value' => $this->settings['media_switch'],
-      '#description' => $this->t('<ul><li><b>Image to iframe</b> will hide iframe behind image till toggled.</li><li><b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe) <b>requires</b> a grid to build the gallery correctly. Add <code>data-column="1 3 4"</code> or <code>data-grid="1 3 4"</code> to the first image/ iframe only.</li></ul>'),
+      '#description' => $this->t('<ul><li><b>Image to iframe</b> will play video when toggled.</li><li><b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe, Slick Lightbox, Zooming, Intense, etc.) will display media in lightbox,</li></ul>Both can stand alone or grouped as a gallery. To build a gallery, add <code>data-column="1 3 4"</code> or <code>data-grid="1 3 4"</code> to the first image/ iframe only.'),
     ];
 
     if (!empty($lightboxes)) {

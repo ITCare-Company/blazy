@@ -12,6 +12,13 @@ use League\CommonMark\CommonMarkConverter;
 class BlazyMarkdown {
 
   /**
+   * The blazy filter ID identified by field_name.
+   *
+   * @var array
+   */
+  private static $filterId = [];
+
+  /**
    * Checks if we have the needed classes.
    */
   public static function isApplicable() {
@@ -44,6 +51,32 @@ class BlazyMarkdown {
 
     // We do not pass it to FilterProcessResult, as this is meant simple.
     return $sanitize ? Xss::filterAdmin($string) : $string;
+  }
+
+  /**
+   * Checks if Blazy filter is enabled, and pass it settings to field template.
+   */
+  public static function isBlazyFilter(array &$variables) {
+    $key = $variables['field_name'];
+
+    if (!isset(static::$filterId[$key])) {
+      if ($item = $variables['items'][0]) {
+        $text = isset($item['content'], $item['content']['#text']) ? $item['content']['#text'] : NULL;
+        $format = isset($item['content'], $item['content']['#format']) ? $item['content']['#format'] : NULL;
+        if ($text && $format) {
+          if (stripos($text, 'img ') !== FALSE || stripos($text, 'iframe ') !== FALSE) {
+            $account = isset($variables['user']) ? $variables['user'] : NULL;
+            $formats = \filter_formats($account);
+            if ($formats && isset($formats[$format], $formats[$format]->filters()->getConfiguration()['blazy_filter'])) {
+              $settings = $formats[$format]->filters()->getConfiguration()['blazy_filter']['settings'];
+              $variables['element']['#blazy'] = $settings;
+            }
+          }
+        }
+      }
+
+      static::$filterId[$key] = TRUE;
+    }
   }
 
 }

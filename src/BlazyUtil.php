@@ -19,7 +19,6 @@ class BlazyUtil {
    */
   private static $styleId;
 
-
   /**
    * Generates an SVG Placeholder.
    *
@@ -168,10 +167,10 @@ class BlazyUtil {
    *   Whether particularly transforms once for all, or individually.
    */
   public static function transformDimensions($style, array $data, $initial = FALSE) {
-    $uri = $initial ? '_uri' : 'uri';
     $key = hash('md2', $style->id());
 
     if (!isset(static::$styleId[$key])) {
+      $uri    = $initial ? '_uri' : 'uri';
       $width  = $initial ? '_width' : 'width';
       $height = $initial ? '_height' : 'height';
 
@@ -189,7 +188,11 @@ class BlazyUtil {
       if ($dim['height'] != NULL) {
         $dim['height'] = (int) $dim['height'];
       }
-      static::$styleId[$key] = ['width' => $dim['width'], 'height' => $dim['height']];
+
+      static::$styleId[$key] = [
+        'width' => $dim['width'],
+        'height' => $dim['height'],
+      ];
     }
     return static::$styleId[$key];
   }

@@ -208,6 +208,9 @@ class BlazyLightbox {
           }
         }
         break;
+
+      default:
+        $caption = $settings['box_caption'];
     }
 
     return empty($caption)
