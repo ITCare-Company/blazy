@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2021-05-04
+-----------------------------
+- Changed video_embed_media to video_embed_field to support manual or drush.
+
 Blazy 8.x-2.0-dev, 2021-05-01
 -----------------------------
 - Issue #3190087 by gausarts, playful: Blazy Filter HTML caption added via text
