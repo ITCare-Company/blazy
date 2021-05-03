@@ -167,10 +167,10 @@ class BlazyUtil {
    *   Whether particularly transforms once for all, or individually.
    */
   public static function transformDimensions($style, array $data, $initial = FALSE) {
-    $key = hash('md2', $style->id());
+    $uri = $initial ? '_uri' : 'uri';
+    $key = hash('md2', ($style->id() . $data[$uri]));
 
     if (!isset(static::$styleId[$key])) {
-      $uri    = $initial ? '_uri' : 'uri';
       $width  = $initial ? '_width' : 'width';
       $height = $initial ? '_height' : 'height';
 
