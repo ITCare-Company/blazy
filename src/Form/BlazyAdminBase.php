@@ -324,7 +324,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'select',
         '#title'       => $this->t('Image style'),
         '#options'     => $this->getEntityAsOptions('image_style'),
-        '#description' => $this->t('The content image style. This will be treated as the fallback image to override the global option <a href=":url">Responsive image 1px placeholder</a>, which is normally smaller, if Responsive image are provided. Otherwise this is the only image displayed. This image style is also used to provide dimensions not only for image/iframe but also any media entity like local video, where no images are even associated with, to have the designated dimensions in tandem with aspect ratio as otherwise no UI to customize for.', [':url' => $ui_url]),
+        '#description' => $this->t('The content image style. This will be treated as the fallback image to override the global option <a href=":url">Responsive image 1px placeholder</a>, which is normally smaller, if Responsive image are provided. Shortly, leave it empty to make Responsive image fallback respected. Otherwise this is the only image displayed. This image style is also used to provide dimensions not only for image/iframe but also any media entity like local video, where no images are even associated with, to have the designated dimensions in tandem with aspect ratio as otherwise no UI to customize for.', [':url' => $ui_url]),
         '#weight'      => -100,
       ];
     }

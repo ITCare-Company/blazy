@@ -68,6 +68,7 @@ class BlazyLightbox {
     }
 
     $json = [
+      'id'     => $switch_css,
       'width'  => $settings['box_width'],
       'height' => $settings['box_height'],
     ];
