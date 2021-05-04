@@ -350,11 +350,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
         // Re-use the same image style for both lightboxes.
         $form['box_style'] = [
-          '#type'    => 'select',
-          '#title'   => $this->t('Lightbox image style'),
-          '#options' => $this->getEntityAsOptions('image_style'),
-          '#states'  => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
-          '#weight'  => -97,
+          '#type'        => 'select',
+          '#title'       => $this->t('Lightbox image style'),
+          '#options'     => $this->getResponsiveImageOptions() + $this->getEntityAsOptions('image_style'),
+          '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
+          '#weight'      => -97,
+          '#description' => $this->t('Supports both Responsive and regular images.'),
         ];
 
         if (!empty($definition['multimedia'])) {

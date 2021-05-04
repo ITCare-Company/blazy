@@ -410,7 +410,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     ksort($srcset);
 
     // Informs individual images that dimensions are already set once.
-    // @todo revert $settings['blazy_data']['dimensions'] = $srcset;
+    // @todo revert
+    $settings['blazy_data']['dimensions'] = $srcset;
     $settings['padding_bottom'] = end($srcset);
     $settings['_dimensions'] = TRUE;
   }

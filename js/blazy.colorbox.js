@@ -73,6 +73,14 @@
           var $container = $('#cboxLoadedContent');
           var $iframe = $('.cboxIframe', $container);
           var $media = $('.media--ratio', $container);
+          var isResimage = $('img[srcset]', $container).length;
+
+          if (isResimage) {
+            o = {
+              width: drupalSettings.colorbox.maxWidth || media.width,
+              height: drupalSettings.colorbox.maxHeight || media.height
+            };
+          }
 
           if (!$iframe.length && $media.length) {
             Drupal.attachBehaviors($media[0]);
@@ -85,18 +93,19 @@
               $iframe.attr('width', o.width).attr('height', o.height).addClass('media__element');
               $container.css({paddingBottom: (o.height / o.width) * 100 + '%', height: 0});
             }
-
-            $.colorbox.resize({
-              innerWidth: o.width,
-              innerHeight: o.height
-            });
           }
           else {
             $container.removeClass('media media--ratio');
             $container.css({paddingBottom: '', height: o.height}).removeClass('media__element');
           }
+
+          $.colorbox.resize({
+            innerWidth: o.width,
+            innerHeight: o.height
+          });
+          $.colorbox.reload();
         }
-      }, 10);
+      }, 100);
     }
 
     $box.colorbox($.extend({}, drupalSettings.colorbox, runtimeOptions));

@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2021-05-05
+-----------------------------
+- Issue #3212194 by gausarts: Supports Responsive image for lightboxes.
+- Reverted the forgotten $settings['blazy_data']['dimensions'] = $srcset;
+
 Blazy 8.x-2.0-dev, 2021-05-04
 -----------------------------
 - Changed video_embed_media to video_embed_field to support manual or drush.

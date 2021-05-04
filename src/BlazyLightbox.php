@@ -53,8 +53,30 @@ class BlazyLightbox {
       'height' => $settings['box_height'],
       'uri' => $uri,
     ];
+
+    // Might not be present from BlazyFilter.
+    $json = ['id' => $switch_css];
+    foreach (['bundle', 'type'] as $key) {
+      if (!empty($settings[$key])) {
+        $json[$key] = $settings[$key];
+      }
+    }
+
+    $videos = ['remote_video', 'video'];
+    $is_videos = isset($json['bundle']) && in_array($json['bundle'], $videos);
     if (!empty($settings['box_style']) && $valid) {
-      if ($box_style = ImageStyle::load($settings['box_style'])) {
+      if ($box_style = \blazy()->entityLoad($settings['box_style'], 'responsive_image_style')) {
+        if (!$is_videos && empty($element['#lightbox_html'])) {
+          $is_resimage = TRUE;
+          $json['type'] = 'rich';
+          $element['#lightbox_html'] = [
+            '#theme' => 'responsive_image',
+            '#responsive_image_style_id' => $box_style->id(),
+            '#uri' => $uri,
+          ];
+        }
+      }
+      elseif ($box_style = ImageStyle::load($settings['box_style'])) {
         $dimensions = array_merge($dimensions, BlazyUtil::transformDimensions($box_style, $dimensions));
         $settings['box_url'] = BlazyUtil::transformRelative($uri, $box_style);
       }
@@ -67,18 +89,8 @@ class BlazyLightbox {
       $settings['box_height'] = $dimensions['height'];
     }
 
-    $json = [
-      'id'     => $switch_css,
-      'width'  => $settings['box_width'],
-      'height' => $settings['box_height'],
-    ];
-
-    // Might not be present from BlazyFilter.
-    foreach (['bundle', 'type'] as $key) {
-      if (!empty($settings[$key])) {
-        $json[$key] = $settings[$key];
-      }
-    }
+    $json['width'] = $settings['box_width'];
+    $json['height'] = $settings['box_height'];
 
     // This allows PhotoSwipe with videos still swipable.
     if (!empty($settings['box_media_style']) && $valid) {
@@ -89,8 +101,7 @@ class BlazyLightbox {
     }
 
     $url = $settings['box_url'];
-    $videos = ['remote_video', 'video'];
-    if (isset($json['bundle']) && in_array($json['bundle'], $videos)) {
+    if ($is_videos) {
       $json['width']  = 640;
       $json['height'] = 360;
 
@@ -116,7 +127,7 @@ class BlazyLightbox {
       }
     }
 
-    if ($switch == 'colorbox') {
+    if ($switch == 'colorbox' && !empty($settings['gallery_id'])) {
       // @todo make Blazy Grid without Blazy Views fields support multiple
       // fields and entities as a gallery group, likely via a class at Views UI.
       // Must use consistent key for multiple entities, hence cannot use id.
@@ -130,7 +141,7 @@ class BlazyLightbox {
     // @todo make is flexible for regular non-media HTML.
     if (!empty($element['#lightbox_html'])) {
       $pad = round((($json['height'] / $json['width']) * 100), 2);
-      $content = [
+      $content = isset($is_resimage) ? $element['#lightbox_html'] : [
         '#theme' => 'container',
         '#children' => $element['#lightbox_html'],
         '#attributes' => [
@@ -138,6 +149,7 @@ class BlazyLightbox {
           'style' => 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;',
         ],
       ];
+
       $json['html'] = \blazy()->getRenderer()->renderPlain($content);
       unset($element['#lightbox_html']);
     }
