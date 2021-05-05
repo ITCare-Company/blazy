@@ -119,12 +119,6 @@
     return new Promise(function (resolve, reject) {
       var img = new Image();
 
-      // Preload `img` to have correct event handlers.
-      img.src = el.getAttribute(isBg ? _bgSrc : _dataSrc);
-      if (el.hasAttribute(_dataSrcset)) {
-        img.srcset = el.getAttribute(_dataSrcset);
-      }
-
       // Applies attributes regardless, will re-observe if any error.
       var applyAttrs = function () {
         if (isBg) {
@@ -146,6 +140,12 @@
         applyAttrs();
         reject(me._er);
       };
+
+      // Preload `img` to have correct event handlers.
+      img.src = el.getAttribute(isBg ? _bgSrc : _dataSrc);
+      if (el.hasAttribute(_dataSrcset)) {
+        img.srcset = el.getAttribute(_dataSrcset);
+      }
     });
   };
 

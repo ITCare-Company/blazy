@@ -15,6 +15,7 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyOEmbedInterface;
 use Drupal\blazy\BlazyUtil;
+use Drupal\blazy\Form\BlazyAdminInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -30,6 +31,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   settings = {
  *     "filter_tags" = {"img" = "img", "iframe" = "iframe"},
  *     "media_switch" = "",
+ *     "box_style" = "",
  *     "use_data_uri" = "0",
  *   },
  *   weight = 3
@@ -52,6 +54,20 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
   protected $entityFieldManager;
 
   /**
+   * The blazy admin service.
+   *
+   * @var \Drupal\blazy\Form\BlazyAdminInterface
+   */
+  protected $blazyAdmin;
+
+  /**
+   * The blazy oembed service.
+   *
+   * @var \Drupal\blazy\BlazyOEmbedInterface
+   */
+  protected $blazyOembed;
+
+  /**
    * The blazy manager service.
    *
    * @var \Drupal\blazy\BlazyManagerInterface
@@ -61,10 +77,11 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, $root, EntityFieldManagerInterface $entity_field_manager, BlazyOEmbedInterface $blazy_oembed) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, $root, EntityFieldManagerInterface $entity_field_manager, BlazyAdminInterface $blazy_admin, BlazyOEmbedInterface $blazy_oembed) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->root = $root;
     $this->entityFieldManager = $entity_field_manager;
+    $this->blazyAdmin = $blazy_admin;
     $this->blazyOembed = $blazy_oembed;
     $this->blazyManager = $blazy_oembed->blazyManager();
   }
@@ -79,6 +96,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $plugin_definition,
       $container->get('app.root'),
       $container->get('entity_field.manager'),
+      $container->get('blazy.admin'),
       $container->get('blazy.oembed')
     );
   }
@@ -184,7 +202,7 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         $this->buildGrid($dom, $settings, $elements, $grid_nodes);
       }
 
-      // Adds the attchments.
+      // Adds the attachments.
       $attachments = $this->blazyManager->attach($all);
 
       // Cleans up invalid, or moved nodes.
@@ -206,7 +224,6 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     $settings['_check_protocol'] = TRUE;
     $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
     $settings['column'] = stristr($text, 'data-column') !== FALSE;
-    $settings['media_switch'] = $this->settings['media_switch'];
     $settings['id'] = $settings['gallery_id'] = Blazy::getHtmlId('blazy-filter-' . Crypt::randomBytesBase64(8));
     $settings['plugin_id'] = 'blazy_filter';
     $settings['_grid'] = $settings['column'] || $settings['grid'];
@@ -219,37 +236,6 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     $build = ['settings' => $settings];
     $this->blazyManager->getModuleHandler()->alter('blazy_settings', $build, $this->settings);
     return array_merge($settings, $build['settings']);
-  }
-
-  /**
-   * Return valid nodes based on the allowed tags.
-   */
-  private function validNodes(\DOMDocument $dom, array $allowed_tags = []) {
-    $valid_nodes = [];
-    foreach ($allowed_tags as $allowed_tag) {
-      $nodes = $dom->getElementsByTagName($allowed_tag);
-      if ($nodes->length > 0) {
-        foreach ($nodes as $node) {
-          if ($node->hasAttribute('data-unblazy')) {
-            continue;
-          }
-
-          $valid_nodes[] = $node;
-        }
-      }
-    }
-    return $valid_nodes;
-  }
-
-  /**
-   * Removes nodes.
-   */
-  private function removeNodes($nodes) {
-    foreach ($nodes as $node) {
-      if ($node->parentNode) {
-        $node->parentNode->removeChild($node);
-      }
-    }
   }
 
   /**
@@ -542,8 +528,8 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         'media' => $this->t('Image to iframe'),
       ],
       '#empty_option' => $this->t('- None -'),
-      '#default_value' => $this->settings['media_switch'],
-      '#description' => $this->t('<ul><li><b>Image to iframe</b> will play video when toggled.</li><li><b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe, Slick Lightbox, Zooming, Intense, etc.) will display media in lightbox,</li></ul>Both can stand alone or grouped as a gallery. To build a gallery, add <code>data-column="1 3 4"</code> or <code>data-grid="1 3 4"</code> to the first image/ iframe only.'),
+      '#default_value' => isset($this->settings['media_switch']) ? $this->settings['media_switch'] : '',
+      '#description' => $this->t('<ul><li><b>Image to iframe</b> will play video when toggled.</li><li><b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe, Slick Lightbox, Zooming, Intense, etc.) will display media in lightbox.</li></ul>Both can stand alone or grouped as a gallery. To build a gallery, add <code>data-column="1 3 4"</code> or <code>data-grid="1 3 4"</code> to the first image/ iframe only.'),
     ];
 
     if (!empty($lightboxes)) {
@@ -552,6 +538,15 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         $form['media_switch']['#options'][$lightbox] = $this->t('Image to @lightbox', ['@lightbox' => $name]);
       }
     }
+
+    $form['box_style'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Lightbox image style'),
+      '#options' => $this->blazyAdmin->getResponsiveImageOptions() + $this->blazyAdmin->getEntityAsOptions('image_style'),
+      '#empty_option' => $this->t('- None -'),
+      '#default_value' => isset($this->settings['box_style']) ? $this->settings['box_style'] : '',
+      '#description' => $this->t('Supports both Responsive and regular images. Only works for uploaded images, not hand-coded ones.'),
+    ];
 
     $form['use_data_uri'] = [
       '#type' => 'checkbox',
@@ -562,5 +557,37 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
 
     return $form;
   }
+
+  /**
+   * Removes nodes.
+   */
+  protected function removeNodes($nodes) {
+    foreach ($nodes as $node) {
+      if ($node->parentNode) {
+        $node->parentNode->removeChild($node);
+      }
+    }
+  }
+
+  /**
+   * Return valid nodes based on the allowed tags.
+   */
+  private function validNodes(\DOMDocument $dom, array $allowed_tags = []) {
+    $valid_nodes = [];
+    foreach ($allowed_tags as $allowed_tag) {
+      $nodes = $dom->getElementsByTagName($allowed_tag);
+      if ($nodes->length > 0) {
+        foreach ($nodes as $node) {
+          if ($node->hasAttribute('data-unblazy')) {
+            continue;
+          }
+
+          $valid_nodes[] = $node;
+        }
+      }
+    }
+    return $valid_nodes;
+  }
+
 
 }

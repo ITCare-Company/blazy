@@ -1,6 +1,9 @@
 
+
 Blazy 8.x-2.0-dev, 2021-05-05
 -----------------------------
+- Added Lightbox image style option with Responsive image to Blazy Filter.
+- Fixed for Responsive image overflow sizes within Colorbox.
 - Issue #3212194 by gausarts: Supports Responsive image for lightboxes.
 - Reverted the forgotten $settings['blazy_data']['dimensions'] = $srcset;
 
