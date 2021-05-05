@@ -64,8 +64,9 @@
       var t = $(this);
       var w = t.width();
       var h = t.height();
-      var pw = t.parent().width();
-      var ph = t.parent().height();
+      var p = t.closest('#cboxLoadedContent');
+      var pw = p.width();
+      var ph = p.height();
 
       if (h > ph) {
         t.css('top', -(h - ph) / 2);
