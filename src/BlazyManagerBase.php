@@ -273,7 +273,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $settings['lightbox']      = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
     $settings['namespace']     = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
     $settings['route_name']    = Blazy::routeMatch() ? Blazy::routeMatch()->getRouteName() : '';
-    $settings['resimage']      = !empty($settings['responsive_image_style']);
+    $settings['_resimage']     = $this->moduleHandler->moduleExists('responsive_image');
+    $settings['resimage']      = $settings['_resimage'] && !empty($settings['responsive_image_style']);
     $settings['resimage']      = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
 
     if ($switch) {
@@ -410,7 +411,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     ksort($srcset);
 
     // Informs individual images that dimensions are already set once.
-    // @todo revert
     $settings['blazy_data']['dimensions'] = $srcset;
     $settings['padding_bottom'] = end($srcset);
     $settings['_dimensions'] = TRUE;

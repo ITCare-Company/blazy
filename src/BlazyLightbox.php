@@ -63,9 +63,11 @@ class BlazyLightbox {
     }
 
     $videos = ['remote_video', 'video'];
-    $is_videos = isset($json['bundle']) && in_array($json['bundle'], $videos);
+    $is_video = isset($json['type']) && $json['type'] == 'video';
+    $is_videos = (isset($json['bundle']) && in_array($json['bundle'], $videos)) || $is_video;
     if (!empty($settings['box_style']) && $valid) {
-      if ($box_style = \blazy()->entityLoad($settings['box_style'], 'responsive_image_style')) {
+      if (!empty($settings['_resimage'])
+        && $box_style = \blazy()->entityLoad($settings['box_style'], 'responsive_image_style')) {
         if (!$is_videos && empty($element['#lightbox_html'])) {
           $is_resimage = TRUE;
           $json['type'] = 'rich';
