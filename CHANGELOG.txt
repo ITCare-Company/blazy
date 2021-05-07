@@ -1,5 +1,9 @@
 
 
+Blazy 8.x-2.0-dev, 2021-05-08
+-----------------------------
+- Added (Responsive) image style as fallbacks to Blazy Filter.
+
 Blazy 8.x-2.0-dev, 2021-05-05
 -----------------------------
 - Added Lightbox image style option with Responsive image to Blazy Filter.

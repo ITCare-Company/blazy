@@ -32,6 +32,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *     "filter_tags" = {"img" = "img", "iframe" = "iframe"},
  *     "media_switch" = "",
  *     "box_style" = "",
+ *     "hybrid_style" = "",
  *     "use_data_uri" = "0",
  *   },
  *   weight = 3
@@ -124,18 +125,19 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         $item_settings['uri'] = $item_settings['image_url'] = '';
         $item_settings['delta'] = $delta;
 
-        // Set an image style based on node data properties, yet respects
-        // blazy_settings_alter which might set this earlier at buildSettings.
+        // Set an image style based on node data properties.
         // See https://www.drupal.org/project/drupal/issues/2061377,
         // https://www.drupal.org/project/drupal/issues/2822389, and
         // https://www.drupal.org/project/inline_responsive_images.
-        if (empty($item_settings['image_style'])) {
-          $item_settings['image_style'] = $node->getAttribute('data-image-style');
+        if ($image_style = $node->getAttribute('data-image-style')) {
+          $item_settings['image_style'] = $image_style;
         }
-        if (empty($item_settings['responsive_image_style'])) {
-          $item_settings['responsive_image_style'] = $node->getAttribute('data-responsive-image-style');
+
+        if ($responsive_image_style = $node->getAttribute('data-responsive-image-style')) {
+          $item_settings['responsive_image_style'] = $responsive_image_style;
         }
-        if (!empty($item_settings['responsive_image_style'])) {
+
+        if (!empty($settings['_resimage']) && !empty($item_settings['responsive_image_style'])) {
           $item_settings['resimage'] = $this->blazyManager->entityLoad(
             $item_settings['responsive_image_style'],
             'responsive_image_style'
@@ -229,6 +231,17 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     $settings['_grid'] = $settings['column'] || $settings['grid'];
     $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
     $settings['is_media_library'] = $definitions && isset($definitions['field_media_oembed_video']);
+    $settings['_resimage'] = $this->blazyManager->getModuleHandler()->moduleExists('responsive_image');
+
+    if (isset($settings['hybrid_style']) && $style = $settings['hybrid_style']) {
+      if ($settings['_resimage']
+        && $box_style = $this->blazyManager->entityLoad($style, 'responsive_image_style')) {
+        $settings['responsive_image_style'] = $style;
+      }
+      else {
+        $settings['image_style'] = $style;
+      }
+    }
 
     $this->blazyManager->getCommonSettings($settings);
 
@@ -391,16 +404,20 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       $caption = $node->parentNode->getElementsByTagName('figcaption');
       $item = ($caption->length > 0 && $caption->item(0)) ? $caption->item(0) : NULL;
       if ($item && $text = $item->ownerDocument->saveXML($item)) {
+        $settings = &$build['settings'];
         $markup = Xss::filter($text, BlazyDefault::TAGS);
         $build['captions']['alt'] = ['#markup' => $markup];
-        $build['settings']['box_caption'] = $markup;
+
+        if (isset($settings['box_caption']) && $settings['box_caption'] == 'inline') {
+          $settings['box_caption'] = $markup;
+        }
 
         // Mark the FIGCAPTION for deletion because the caption will be
         // rendered in the Blazy way.
         $item->setAttribute('class', 'blazy-removed');
 
         // Marks figures for removal as its contents are moved into grids.
-        if ($build['settings']['_grid']) {
+        if ($settings['_grid']) {
           $node->parentNode->setAttribute('class', 'blazy-removed');
         }
       }
@@ -539,13 +556,33 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
       }
     }
 
+    $styles = $this->blazyAdmin->getResponsiveImageOptions() + $this->blazyAdmin->getEntityAsOptions('image_style');
+    $form['hybrid_style'] = [
+      '#type' => 'select',
+      '#title' => $this->t('(Responsive) image style'),
+      '#options' => $styles,
+      '#empty_option' => $this->t('- None -'),
+      '#default_value' => isset($this->settings['hybrid_style']) ? $this->settings['hybrid_style'] : '',
+      '#description' => $this->t('Fallback (Responsive) image style when <code>[data-image-style]</code> or <code>[data-responsive-image-style]</code> attributes are not present, see https://drupal.org/node/2061377.'),
+    ];
+
     $form['box_style'] = [
       '#type' => 'select',
-      '#title' => $this->t('Lightbox image style'),
-      '#options' => $this->blazyAdmin->getResponsiveImageOptions() + $this->blazyAdmin->getEntityAsOptions('image_style'),
+      '#title' => $this->t('Lightbox (Responsive) image style'),
+      '#options' => $styles,
       '#empty_option' => $this->t('- None -'),
       '#default_value' => isset($this->settings['box_style']) ? $this->settings['box_style'] : '',
-      '#description' => $this->t('Supports both Responsive and regular images. Only works for uploaded images, not hand-coded ones.'),
+    ];
+
+    $captions = $this->blazyAdmin->getLightboxCaptionOptions();
+    unset($captions['entity_title'], $captions['custom']);
+    $form['box_caption'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Lightbox caption'),
+      '#options' => $captions + ['inline' => $this->t('Caption filter')],
+      '#empty_option' => $this->t('- None -'),
+      '#default_value' => isset($this->settings['box_caption']) ? $this->settings['box_caption'] : '',
+      '#description' => $this->t('Automatic will search for Alt text first, then Title text. <br>Image styles only work for uploaded images, not hand-coded ones.'),
     ];
 
     $form['use_data_uri'] = [

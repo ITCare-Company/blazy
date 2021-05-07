@@ -462,21 +462,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         $form['box_media_style'] = $this->baseForm($definition)['box_media_style'];
       }
 
-      $box_captions = [
-        'auto'         => $this->t('Automatic'),
-        'alt'          => $this->t('Alt text'),
-        'title'        => $this->t('Title text'),
-        'alt_title'    => $this->t('Alt and Title'),
-        'title_alt'    => $this->t('Title and Alt'),
-        'entity_title' => $this->t('Content title'),
-        'custom'       => $this->t('Custom'),
-      ];
-
       if (!empty($definition['box_captions'])) {
         $form['box_caption'] = [
           '#type'        => 'select',
           '#title'       => $this->t('Lightbox caption'),
-          '#options'     => $box_captions,
+          '#options'     => $this->getLightboxCaptionOptions(),
           '#weight'      => -95,
           '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
           '#description' => $this->t('Automatic will search for Alt text first, then Title text. Try selecting <strong>- None -</strong> first when changing if trouble with form states.'),
@@ -642,6 +632,21 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       array_combine($period, $period));
     $period[0] = '<' . $this->t('No caching') . '>';
     return $period + [Cache::PERMANENT => $this->t('Permanent')];
+  }
+
+  /**
+   * Returns available lightbox captions for select options.
+   */
+  public function getLightboxCaptionOptions() {
+    return [
+      'auto'         => $this->t('Automatic'),
+      'alt'          => $this->t('Alt text'),
+      'title'        => $this->t('Title text'),
+      'alt_title'    => $this->t('Alt and Title'),
+      'title_alt'    => $this->t('Title and Alt'),
+      'entity_title' => $this->t('Content title'),
+      'custom'       => $this->t('Custom'),
+    ];
   }
 
   /**
