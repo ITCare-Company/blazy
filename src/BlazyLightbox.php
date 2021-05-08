@@ -62,13 +62,10 @@ class BlazyLightbox {
       }
     }
 
-    $videos = ['remote_video', 'video'];
-    $is_video = isset($json['type']) && $json['type'] == 'video';
-    $is_videos = (isset($json['bundle']) && in_array($json['bundle'], $videos)) || $is_video;
     if (!empty($settings['box_style']) && $valid) {
       if (!empty($settings['_resimage'])
         && $box_style = \blazy()->entityLoad($settings['box_style'], 'responsive_image_style')) {
-        if (!$is_videos && empty($element['#lightbox_html'])) {
+        if (empty($settings['embed_url']) && empty($element['#lightbox_html'])) {
           $is_resimage = TRUE;
           $json['type'] = 'rich';
           $element['#lightbox_html'] = [
@@ -103,23 +100,27 @@ class BlazyLightbox {
     }
 
     $url = $settings['box_url'];
-    if ($is_videos) {
+    if (!empty($settings['embed_url'])) {
       $json['width']  = 640;
       $json['height'] = 360;
 
       // Force autoplay for media URL on lightboxes, saving another click.
-      if (!empty($settings['embed_url'])) {
-        $url = $settings['embed_url'];
-        $url_attributes['data-oembed-url'] = $settings['embed_url'];
+      $url = $settings['embed_url'];
 
-        // This allows PhotoSwipe with remote videos still swipable.
-        if (!empty($settings['box_media_url'])) {
-          $settings['box_url'] = $settings['box_media_url'];
-        }
+      // BC for non-oembed such as Video Embed Field without Media migration.
+      if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
+        $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
+      }
 
-        if ($switch == 'photobox') {
-          $url_attributes['rel'] = 'video';
-        }
+      $url_attributes['data-oembed-url'] = $url;
+
+      // This allows PhotoSwipe with remote videos still swipable.
+      if (!empty($settings['box_media_url'])) {
+        $settings['box_url'] = $settings['box_media_url'];
+      }
+
+      if ($switch == 'photobox') {
+        $url_attributes['rel'] = 'video';
       }
 
       // Remote or local videos.
