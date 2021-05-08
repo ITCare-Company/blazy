@@ -72,7 +72,7 @@
         t.css('top', -(h - ph) / 2);
       }
       else if (h < ph) {
-        t.css({'height': ph, 'width': 'auto'});
+        t.css({height: ph, width: 'auto'});
         t.css('left', -(t.width() - pw) / 2);
       }
       else if (pw > w) {

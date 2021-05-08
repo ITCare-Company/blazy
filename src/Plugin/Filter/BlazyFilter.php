@@ -626,5 +626,4 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     return $valid_nodes;
   }
 
-
 }
