@@ -67,7 +67,10 @@ class BlazyLightbox {
     $videos = ['remote_video', 'video'];
     $is_video = isset($json['type']) && $json['type'] == 'video';
     $is_video = (isset($json['bundle']) && in_array($json['bundle'], $videos)) || $is_video;
-    if (!empty($settings['box_style']) && $valid) {
+
+    // The _responsive_image_build_source_attributes is fatal if missing.
+    // @todo Remove _missing check once verified pre_render not being by-passed.
+    if (!empty($settings['box_style']) && $valid && empty($settings['_missing'])) {
       if (!empty($settings['_resimage'])
         && $box_style = \blazy()->entityLoad($settings['box_style'], 'responsive_image_style')) {
         if (!$is_video && empty($element['#lightbox_html'])) {
@@ -150,16 +153,20 @@ class BlazyLightbox {
 
     // @todo make is flexible for regular non-media HTML.
     if (!empty($element['#lightbox_html'])) {
-      $pad = round((($json['height'] / $json['width']) * 100), 2);
-      $content = isset($is_resimage) ? $element['#lightbox_html'] : [
+      $html = [
         '#theme' => 'container',
         '#children' => $element['#lightbox_html'],
         '#attributes' => [
           'class' => ['media', 'media--ratio'],
-          'style' => 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;',
         ],
       ];
 
+      if (!empty($json['height']) && !empty($json['width'])) {
+        $pad = round((($json['height'] / $json['width']) * 100), 2);
+        $html['#attributes']['style'] = 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;';
+      }
+
+      $content = isset($is_resimage) ? $element['#lightbox_html'] : $html;
       $json['html'] = \blazy()->getRenderer()->renderPlain($content);
       unset($element['#lightbox_html']);
     }

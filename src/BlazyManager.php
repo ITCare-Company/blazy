@@ -38,11 +38,19 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     $settings = &$build['settings'];
     $settings += BlazyDefault::itemSettings();
-    $settings['uri'] = $settings['uri'] ?: Blazy::uri($build['item']);
+    $settings['uri'] = $uri = $settings['uri'] ?: Blazy::uri($build['item']);
+
+    // Prevents _responsive_image_build_source_attributes from fatal if missing.
+    // External images are invalid URI, but can still be lazyloaded.
+    // The is_file seems fine against weird characters like czech ů at php 7.4,
+    // recheck russian characters in general, and lower PHP. No worries if
+    // transliterated, though.
+    $settings['_valid'] = BlazyUtil::isValidUri($uri);
+    $settings['_missing'] = $settings['_valid'] && !is_file($uri);
 
     // Respects content not handled by theme_blazy(), but passed through.
     // Yet allows rich contents which might still be processed by theme_blazy().
-    $content = empty($settings['uri']) ? $build['content'] : [
+    $content = (empty($uri) || $settings['_missing']) ? $build['content'] : [
       '#theme'       => 'blazy',
       '#delta'       => $settings['delta'],
       '#item'        => $build['item'],

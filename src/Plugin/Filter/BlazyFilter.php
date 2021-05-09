@@ -153,8 +153,11 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
         // Extracts image caption if available.
         $this->buildImageCaption($build, $node);
 
-        // Marks invalid/ unknown IMG or IFRAME for removal.
-        if (empty($build['settings']['uri'])) {
+        // Marks invalid, unknown, missing IMG or IFRAME for removal.
+        // Be sure to not affect external images, only strip missing local URI.
+        $uri = $build['settings']['uri'];
+        $missing = BlazyUtil::isValidUri($uri) && !is_file($uri);
+        if (empty($uri) || $missing) {
           $node->setAttribute('class', 'blazy-removed');
           continue;
         }
@@ -360,6 +363,13 @@ class BlazyFilter extends FilterBase implements BlazyFilterInterface, ContainerF
     if ($item) {
       $item->alt = $node->getAttribute('alt') ?: (isset($item->alt) ? $item->alt : '');
       $item->title = $node->getAttribute('title') ?: (isset($item->title) ? $item->title : '');
+
+      // Supports hard-coded image url without file API.
+      if (!empty($item->uri) && empty($item->width)) {
+        if ($data = @getimagesize($item->uri)) {
+          list($item->width, $item->height) = $data;
+        }
+      }
     }
 
     // Responsive image with aspect ratio requires an extra container to work

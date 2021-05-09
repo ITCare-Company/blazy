@@ -95,7 +95,7 @@ class BlazyUtil {
    */
   public static function isValidUri($uri) {
     // Adds a check to pass the tests due to non-DI.
-    return Blazy::streamWrapperManager() ? Blazy::streamWrapperManager()->isValidUri($uri) : FALSE;
+    return !empty($uri) && Blazy::streamWrapperManager() ? Blazy::streamWrapperManager()->isValidUri($uri) : FALSE;
   }
 
   /**
