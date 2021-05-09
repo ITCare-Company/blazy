@@ -398,6 +398,9 @@ class Blazy implements BlazyInterface {
           if (!empty($settings['image_url'])) {
             $variables['attributes']->setAttribute('poster', $settings['image_url']);
           }
+          if (!empty($settings['lightbox'])) {
+            $variables['attributes']->setAttribute('autoplay', TRUE);
+          }
         }
       }
 

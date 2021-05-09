@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2021-05-09
 -----------------------------
+- Added autoplay for local video within lightbox to save another click.
 - Fixed for fatal _responsive_image_build_source_attributes if file is missing.
 - Fixed for Blazy Filter hard-coded image url without dimensions and file API.
 - Reverted the revert as per https://drupal.org/node/3210636#comment-14097266.
