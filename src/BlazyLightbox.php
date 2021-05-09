@@ -62,10 +62,15 @@ class BlazyLightbox {
       }
     }
 
+    // Supports local and remote videos, also legacy VEF which has no bundles.
+    // See https://drupal.org/node/3210636#comment-14097266.
+    $videos = ['remote_video', 'video'];
+    $is_video = isset($json['type']) && $json['type'] == 'video';
+    $is_video = (isset($json['bundle']) && in_array($json['bundle'], $videos)) || $is_video;
     if (!empty($settings['box_style']) && $valid) {
       if (!empty($settings['_resimage'])
         && $box_style = \blazy()->entityLoad($settings['box_style'], 'responsive_image_style')) {
-        if (empty($settings['embed_url']) && empty($element['#lightbox_html'])) {
+        if (!$is_video && empty($element['#lightbox_html'])) {
           $is_resimage = TRUE;
           $json['type'] = 'rich';
           $element['#lightbox_html'] = [
@@ -100,19 +105,21 @@ class BlazyLightbox {
     }
 
     $url = $settings['box_url'];
-    if (!empty($settings['embed_url'])) {
+    if ($is_video) {
       $json['width']  = 640;
       $json['height'] = 360;
 
-      // Force autoplay for media URL on lightboxes, saving another click.
-      $url = $settings['embed_url'];
+      if (!empty($settings['embed_url'])) {
+        // Force autoplay for media URL on lightboxes, saving another click.
+        $url = $settings['embed_url'];
 
-      // BC for non-oembed such as Video Embed Field without Media migration.
-      if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
-        $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
+        // BC for non-oembed such as Video Embed Field without Media migration.
+        if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
+          $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
+        }
+
+        $url_attributes['data-oembed-url'] = $url;
       }
-
-      $url_attributes['data-oembed-url'] = $url;
 
       // This allows PhotoSwipe with remote videos still swipable.
       if (!empty($settings['box_media_url'])) {
