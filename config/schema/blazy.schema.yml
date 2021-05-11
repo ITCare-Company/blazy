@@ -5,6 +5,9 @@ blazy.settings:
     admin_css:
       type: boolean
       label: 'Admin CSS'
+    decode:
+      type: boolean
+      label: 'Use decoding'
     fx:
       type: string
       label: 'Image effect'

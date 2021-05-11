@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2021-05-11
+-----------------------------
+- Issue #3213260 by gausarts: Leverage asynchronous "decoding" HTML attribute
+  for improved performance.
+
 Blazy 8.x-2.0-dev, 2021-05-09
 -----------------------------
 - Added autoplay for local video within lightbox to save another click.

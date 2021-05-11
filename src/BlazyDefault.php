@@ -203,6 +203,7 @@ class BlazyDefault {
    */
   public static function uiSettings() {
     return [
+      'decode'              => FALSE,
       'one_pixel'           => TRUE,
       'native'              => FALSE,
       'noscript'            => FALSE,

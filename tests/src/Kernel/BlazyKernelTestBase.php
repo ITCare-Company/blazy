@@ -28,7 +28,7 @@ abstract class BlazyKernelTestBase extends FieldKernelTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'system',
     'user',
     // @todo 'entity_test',
@@ -51,7 +51,7 @@ abstract class BlazyKernelTestBase extends FieldKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->setUpVariables();

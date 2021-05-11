@@ -33,7 +33,7 @@ class BlazySettingsFormTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'system',
     'file',
     'image',
@@ -47,7 +47,7 @@ class BlazySettingsFormTest extends KernelTestBase {
    *
    * @covers ::__construct
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->installConfig(static::$modules);

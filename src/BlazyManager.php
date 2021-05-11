@@ -255,6 +255,10 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
         ],
       ];
 
+      if (!empty($settings['decode'])) {
+        $blur['#attributes']['decoding'] = 'async';
+      }
+
       // Reset as already stored.
       unset($settings['placeholder_fx']);
       $element['#preface']['blur'] = $blur;

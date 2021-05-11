@@ -243,7 +243,7 @@
    *   The class name.
    *
    * @return {bool}
-   *   True if of of the method is supported.
+   *   True if the method is supported.
    *
    * @todo remove for el.classList.contains() alone.
    */
@@ -329,6 +329,55 @@
         me.setAttr(source, attr, remove);
       });
     }
+  };
+
+  /**
+   * Checks if image is decoded/ completely loaded.
+   *
+   * @name dBlazy.isDecoded
+   *
+   * @param {Image} img
+   *   The Image object.
+   *
+   * @return {bool}
+   *   True if the image is loaded.
+   */
+  dBlazy.isDecoded = function (img) {
+    if ('decoded' in img) {
+      return img.decoded;
+    }
+
+    return img.complete;
+  };
+
+  /**
+   * Decodes the image.
+   *
+   * @name dBlazy.decode
+   *
+   * @param {Image} img
+   *   The Image object.
+   *
+   * @return {Promise}
+   *   The Promise object.
+   */
+  dBlazy.decode = function (img) {
+    var me = this;
+
+    if (me.isDecoded(img)) {
+      return Promise.resolve(img);
+    }
+
+    if ('decode' in img) {
+      return img.decode();
+    }
+
+    return new Promise(function (resolve, reject) {
+      img.onload = function () {
+        resolve(img);
+      };
+      img.onerror = reject();
+    });
   };
 
   /**

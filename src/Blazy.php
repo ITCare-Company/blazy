@@ -173,6 +173,11 @@ class Blazy implements BlazyInterface {
     }
 
     $attributes['class'][] = 'media__image';
+    // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode.
+    if (!empty($settings['decode'])) {
+      $attributes['decoding'] = 'async';
+    }
+
     self::commonAttributes($attributes, $variables['settings']);
     $image['#attributes'] = empty($image['#attributes']) ? $attributes : NestedArray::mergeDeep($image['#attributes'], $attributes);
 
@@ -269,6 +274,7 @@ class Blazy implements BlazyInterface {
 
     // Support browser native lazy loading as per 8/2019 specific to Chrome 76+.
     // See https://web.dev/native-lazy-loading/
+    // @todo Remove, core already enforces this.
     if (!empty($settings['native'])) {
       $attributes['loading'] = 'lazy';
     }
