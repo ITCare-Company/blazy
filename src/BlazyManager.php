@@ -364,7 +364,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       $style = $this->entityLoad($settings['thumbnail_style'], 'image_style');
       if ($style) {
         $path = $style->buildUri($settings['uri']);
-        $attributes['data-thumb'] = BlazyUtil::transformRelative($settings['uri'], $style);
+        $attributes['data-thumb'] = $settings['thumbnail_url'] = BlazyUtil::transformRelative($settings['uri'], $style);
 
         if (!is_file($path) && BlazyUtil::isValidUri($path)) {
           $style->createDerivative($settings['uri'], $path);
@@ -376,7 +376,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // thumbnail and main image for company profile.
     if (!empty($settings['thumbnail_uri'])) {
       $path = $settings['thumbnail_uri'];
-      $attributes['data-thumb'] = BlazyUtil::transformRelative($path);
+      $attributes['data-thumb'] = $settings['thumbnail_url'] = BlazyUtil::transformRelative($path);
     }
 
     // Provides image effect if so configured.
