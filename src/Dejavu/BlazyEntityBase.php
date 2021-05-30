@@ -83,6 +83,7 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
    */
   public function getCommonFieldDefinition() {
     $field = $this->fieldDefinition;
+
     return [
       'current_view_mode' => $this->viewMode,
       'field_name'        => $field->getName(),

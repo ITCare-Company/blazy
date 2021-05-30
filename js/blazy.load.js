@@ -48,7 +48,7 @@
       var an = _db.closest(el, '[' + _dataAnimation + ']');
 
       // Clear loading classes.
-      me.clearLoading(el);
+      _db.clearLoading(el);
 
       // Reevaluate the element.
       me.reevaluate(el);
@@ -71,22 +71,6 @@
 
         _isNativeExecuted = true;
       }
-    },
-
-    clearLoading: function (el) {
-      // The .b-lazy element can be attached to IMG, or DIV as CSS background.
-      // The .(*)loading can be .media, .grid, .slide__content, .box, etc.
-      var loaders = [
-        el,
-        _db.closest(el, '.is-loading'),
-        _db.closest(el, '[class*="loading"]')
-      ];
-
-      _db.forEach(loaders, function (loader) {
-        if (loader !== null) {
-          loader.className = loader.className.replace(/(\S+)loading/g, '');
-        }
-      });
     },
 
     isLoaded: function (el) {

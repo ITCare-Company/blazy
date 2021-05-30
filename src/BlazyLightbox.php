@@ -113,14 +113,7 @@ class BlazyLightbox {
       $json['height'] = 360;
 
       if (!empty($settings['embed_url'])) {
-        // Force autoplay for media URL on lightboxes, saving another click.
         $url = $settings['embed_url'];
-
-        // BC for non-oembed such as Video Embed Field without Media migration.
-        if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
-          $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
-        }
-
         $url_attributes['data-oembed-url'] = $url;
       }
 
@@ -167,7 +160,8 @@ class BlazyLightbox {
       }
 
       $content = isset($is_resimage) ? $element['#lightbox_html'] : $html;
-      $json['html'] = \blazy()->getRenderer()->renderPlain($content);
+      $content = \blazy()->getRenderer()->renderPlain($content);
+      $json['html'] = trim($content);
       unset($element['#lightbox_html']);
     }
 
