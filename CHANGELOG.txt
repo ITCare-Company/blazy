@@ -1,6 +1,10 @@
 
 Blazy 8.x-2.0-dev, 2021-05-31
 -----------------------------
+- Added a common config entity to DRY for Slick, Splide, ElevateZoomPLus,
+  GridStack, etc.
+- Issue #3214001 by Vinay15: Label is displayed for a newly created Paragraph
+  entity instead of its preview in layout builder
 - Added rendered_entity field to support navigation with Vanilla option for the
   new Splide module.
 
