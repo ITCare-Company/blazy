@@ -170,6 +170,7 @@ admin:
   css:
     theme:
       css/blazy.admin.css: {}
+      css/blazy.admin--fixes.css: {}
   dependencies:
     - core/jquery
     - core/jquery.once

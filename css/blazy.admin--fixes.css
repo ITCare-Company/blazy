@@ -1,0 +1,9 @@
+/**
+ * @file
+ *
+ * Temporary fixes till further extensive updates.
+ */
+
+.form--optionset .vertical-tabs__panes .form-item label {
+  width: 160px;
+}

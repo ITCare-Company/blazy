@@ -114,6 +114,12 @@ class BlazyLightbox {
 
       if (!empty($settings['embed_url'])) {
         $url = $settings['embed_url'];
+
+        // Force autoplay for media URL on lightboxes, saving another click.
+        // BC for non-oembed such as Video Embed Field without Media migration.
+        if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
+          $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
+        }
         $url_attributes['data-oembed-url'] = $url;
       }
 

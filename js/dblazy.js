@@ -86,6 +86,19 @@
   };
 
   /**
+   * Returns cross-browser window width and height.
+   *
+   * @return {Object}
+   *   Returns the window width and height.
+   */
+  dBlazy.windowSize = function () {
+    return {
+      width: this.windowWidth,
+      height: window.innerHeight
+    };
+  };
+
+  /**
    * Returns data from the current active window.
    *
    * When being resized, the browser gave no data about pixel ratio from desktop
@@ -468,7 +481,13 @@
   dBlazy.binding = function (which, el, eventName, fn, params) {
     if (typeof fn === 'function') {
       var defaults = {capture: false, passive: true};
-      var extras = params ? this.extend(defaults, params) : defaults;
+      var extras;
+      if (typeof params === 'boolean') {
+        extras = params;
+      }
+      else {
+        extras = params ? this.extend(defaults, params) : defaults;
+      }
       var bind = function (e) {
         if (el.attachEvent) {
           el[(which === 'bind' ? 'attach' : 'detach') + 'Event']('on' + e, fn, extras);
