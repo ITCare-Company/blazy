@@ -89,3 +89,10 @@ function blazy_update_8206() {
     return t('Blazy has installed core "Media" module.');
   }
 }
+
+/**
+ * Added the language manager service as per #3214002.
+ */
+function blazy_update_8207() {
+  // Do nothing to clear cache.
+}
