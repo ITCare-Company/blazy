@@ -72,6 +72,13 @@ class BlazyUtil {
    */
   public static function buildUri($image_url) {
     if (!UrlHelper::isExternal($image_url) && $normal_path = UrlHelper::parse($image_url)['path']) {
+      // If the request has a base path, remove it from the beginning of the
+      // normal path as it should not be included in the URI.
+      $base_path = \Drupal::request()->getBasePath();
+      if ($base_path && strpos($normal_path, $base_path) === 0) {
+        $normal_path = str_replace($base_path, '', $normal_path);
+      }
+
       $public_path = Settings::get('file_public_path', 'sites/default/files');
 
       // Only concerns for the correct URI, not image URL which is already being
