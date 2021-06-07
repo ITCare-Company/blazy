@@ -302,7 +302,7 @@
    *   True if should remove.
    */
   dBlazy.setAttr = function (el, attr, remove) {
-    if (el.hasAttribute('data-' + attr)) {
+    if (el && el.hasAttribute('data-' + attr)) {
       var dataAttr = el.getAttribute('data-' + attr);
       if (attr === 'src') {
         el.src = dataAttr;
@@ -472,14 +472,14 @@
    *   The event name to add.
    * @param {Function} fn
    *   The callback function.
-   * @param {Object} params
+   * @param {Object|Boolean} params
    *   The optional param passed into a custom event.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
    * @todo remove old IE references after another check.
    */
   dBlazy.binding = function (which, el, eventName, fn, params) {
-    if (typeof fn === 'function') {
+    if (el && typeof fn === 'function') {
       var defaults = {capture: false, passive: true};
       var extras;
       if (typeof params === 'boolean') {
@@ -524,11 +524,13 @@
    *   Child selector to match against (class, ID, data attribute, or tag).
    * @param {Function} callback
    *   The callback function.
+   * @param {Object|Boolean} params
+   *   The optional param passed into a custom event.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
    */
-  dBlazy.onoff = function (which, elm, eventName, childEl, callback) {
-    var params = {capture: true, passive: false};
+  dBlazy.onoff = function (which, elm, eventName, childEl, callback, params) {
+    params = params || {capture: true, passive: false};
     var bind = function (e) {
       var t = e.target;
       e.delegateTarget = elm;
@@ -540,7 +542,6 @@
       }
     };
 
-    // elm[which === 'on' ? 'addEventListener' : 'removeEventListener'](eventName, bind);
     this.binding(which === 'on' ? 'bind' : 'unbind', elm, eventName, bind, params);
   };
 
@@ -557,9 +558,11 @@
    *   Child selector to match against (class, ID, data attribute, or tag).
    * @param {Function} callback
    *   The callback function.
+   * @param {Object|Boolean} params
+   *   The optional param passed into a custom event.
    */
-  dBlazy.on = function (elm, eventName, childEl, callback) {
-    this.onoff('on', elm, eventName, childEl, callback);
+  dBlazy.on = function (elm, eventName, childEl, callback, params) {
+    this.onoff('on', elm, eventName, childEl, callback, params);
   };
 
   /**
@@ -575,9 +578,11 @@
    *   Child selector to match against (class, ID, data attribute, or tag).
    * @param {Function} callback
    *   The callback function.
+   * @param {Object|Boolean} params
+   *   The optional param passed into a custom event.
    */
-  dBlazy.off = function (elm, eventName, childEl, callback) {
-    this.onoff('off', elm, eventName, childEl, callback);
+  dBlazy.off = function (elm, eventName, childEl, callback, params) {
+    this.onoff('off', elm, eventName, childEl, callback, params);
   };
 
   /**
@@ -591,7 +596,7 @@
    *   The event name to remove.
    * @param {Function} fn
    *   The callback function.
-   * @param {Object} params
+   * @param {Object|Boolean} params
    *   The optional param passed into a custom event.
    */
   dBlazy.bindEvent = function (el, eventName, fn, params) {
