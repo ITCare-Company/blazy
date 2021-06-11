@@ -1,6 +1,8 @@
 /**
  * @file
  * Provides native, Intersection Observer API, or bLazy lazy loader.
+ *
+ * @todo Decouple Native, Aspect ratio, Picture post 2.3+, or 3+.
  */
 
 (function (Drupal, drupalSettings, _db, window, document) {
@@ -171,7 +173,7 @@
      * which means too late to the party. Yet not bad for 404s below the fold.
      * This must be run before any lazy (native, bLazy or IO) kicks in.
      *
-     * @todo remove if a permanent non-client available other than Placeholder.
+     * @todo Remove if a permanent non-client available other than Placeholder.
      */
     fixMissingDataUri: function () {
       var me = this;
