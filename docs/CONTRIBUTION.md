@@ -77,23 +77,33 @@ Shortly, you should kindly help the maintainers with detailed info to help you.
 Thanks.
 
 ## CONSTRUCTIVE VS. DESTRUCTIVE PROJECT ISSUES
-1. We appreciate regular constructive project issues:  
+1. We appreciate constructive, or at least normal, project issues:  
    + `Support/ Feature` requests,
    + `Bug` reports,
    + `Meta`, `Task` or `Plan`.  
-   It is perfectly fine to be negative as long as backed by data, or info. In
-   fact, your name will be credited where credit's due with gratitude and
-   respect at CHANGELOG.txt or
-   [here](https://www.drupal.org/node/2663268/committers). If we forgot yours,
-   do not hesitate to remind us.
-2. Starting from 2021, officially, we no longer appreciate destructive issues:  
+2. Starting from 2021, officially, we cannot spoil non-constructive issues:  
    + strikes identified by a dictate, slap, intimidation, attack, plain insult.
-   + wrong negativity or gossips identified by 100% negative yet lacking of
+   + wrong negativity or gossips identified by 100%-negative yet lacking of
      backed data, or at least a homework like `I have read docs (RTFM), but...`.
    + dumping patches without explanations.  
 
+It is perfectly fine to be negative as long as backed by data, or info. In
+fact, your name will be credited where credit's due with gratitude and
+respect at CHANGELOG.txt or
+[here](https://www.drupal.org/node/2663268/committers).
+
+We believe constructive criticism, positive suggestions, corrections, patches,
+even inspirational `Feature` or `Support` requests, will surely help us better.
+
+If your issue were closed without a word (due to time constraints we cannot
+always give you flowers, or towels), and redirected to this page, feel free
+to re-open it under two conditions:  
+1. You prove we identified it incorrectly, and in such as case we are sorry.
+2. You have redacted it, or provide the required data in the least.
+
 We want to keep this project useful and friendly to all, we would truly
 appreciate if you could kindly consider the above before submitting an issue.
-Be sure to read the project home for the latest info, or directions.
 
-Thank you for your kind consideration, cooperation, and contribution!
+Be sure to read the project home for more updated info, or directions.
+
+Thank you for your positive consideration, cooperation, and kind contribution!
