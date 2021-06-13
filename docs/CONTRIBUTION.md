@@ -51,17 +51,17 @@ You must speak like human to human, and help us respect you, and your time.
 Dumping patches with empty body text will be disregarded, till the above is met.
 
 ## BUG REPORTS OR SUPPORT REQUESTS
-A basic knowledge of Drupal site building is required. If you get stuck:
+A basic knowledge of Drupal site building is required. If you get stuck, please:
 
-   * consult the provided READMEs via **/admin/help**,
-   * consult descriptions on each form item,
-   * consult the relevant guidelines from the supported modules,
-   * consider the project issue queues, your problem may be already addressed,
+   * consult the provided READMEs via **/admin/help**.
+   * consult descriptions on each form item.
+   * consult the relevant guidelines from the supported modules.
+   * search the project issue queues, your problem may be already addressed.
 
-If you do have bug reports, we love bugs, please:
+If you do have bug reports, we respect bugs, please:
 
    * provide steps to reproduce it, valid bugs must have consistent
-     reproduction,
+     reproduction.
    * provide detailed info, a screenshot of the output and Blazy form, or words
      to identify it any better, library version, module version, active theme.
    * make sure that the bug is caused by the module.
@@ -74,7 +74,6 @@ You can create a fiddle to isolate the bug if reproduceable outside the module:
 
 For the support requests, a screenshot of the output and Blazy form are helpful.
 Shortly, you should kindly help the maintainers with detailed info to help you.
-Thanks.
 
 ## CONSTRUCTIVE VS. DESTRUCTIVE PROJECT ISSUES
 1. We appreciate constructive, or at least normal, project issues:  
@@ -83,12 +82,17 @@ Thanks.
    + `Meta`, `Task` or `Plan`.  
 2. Starting from 2021, officially, we cannot spoil non-constructive issues:  
    + strikes identified by a dictate, slap, intimidation, attack, plain insult.
-   + wrong negativity or gossips identified by 100%-negative yet lacking of
-     backed data, or at least a homework like `I have read docs (RTFM), but...`.
+   + wrong negativity or gossips identified by 100%-negative yet minus backing
+     or balancing data, or a homework like `I have read docs (RTFM), but...`.
    + dumping patches without explanations.  
 
-It is perfectly fine to be negative as long as backed by data, or info. In
-fact, your name will be credited where credit's due with gratitude and
+To measure both is simple, please ask this very question yourself beforehand:  
+_Do you want **this project** to be improved, or crushed?_  
+Before expecting our answer, replace `this project` with `yourself`.
+You'll get what you asked for. You can smell the genuine yourself a mile away.
+
+Rest assured, it is perfectly fine to be negative as long as backed by data, or
+info. In fact, your name will be credited where credit's due with gratitude and
 respect at CHANGELOG.txt or
 [here](https://www.drupal.org/node/2663268/committers).
 
@@ -98,8 +102,8 @@ even inspirational `Feature` or `Support` requests, will surely help us better.
 If your issue were closed without a word (due to time constraints we cannot
 always give you flowers, or towels), and redirected to this page, feel free
 to re-open it under two conditions:  
-1. You prove we identified it incorrectly, and in such as case we are sorry.
-2. You have redacted it, or provide the required data in the least.
+1. You prove we identified it incorrectly, and in such a case we are sorry.
+2. You have redacted it accordingly, or provide the required data in the least.
 
 We want to keep this project useful and friendly to all, we would truly
 appreciate if you could kindly consider the above before submitting an issue.
