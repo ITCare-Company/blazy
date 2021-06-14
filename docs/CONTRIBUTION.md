@@ -70,13 +70,14 @@ You can create a fiddle to isolate the bug if reproduceable outside the module:
 For the support requests, a screenshot of the output and Blazy form are helpful.
 Shortly, you should kindly help the maintainers with detailed info to help you.
 
-## CONSTRUCTIVE VS. DESTRUCTIVE PROJECT ISSUES
-1. We appreciate constructive, or at least normal, project issues:  
+## CONSTRUCTIVE VS. NON-CONSTRUCTIVE PROJECT ISSUES
+1. We appreciate constructive, or at least normal/ minor, project issues:  
    + `Support/ Feature` requests,
    + `Bug` reports,
    + `Meta`, `Task` or `Plan`.  
-2. We cannot nourish nor spoil non-constructive issues:
-   + Any issues with quality lower than `normal` will be closed without a word.
+2. If your issue were directed to this page, feel free to re-open it after:  
+   + You prove we identified it incorrectly, and in such a case we are sorry.
+   + You have redacted it accordingly, and or provide the required data.
 
 It is perfectly fine to be negative as long as backed by data, or
 info. In fact, your name will be credited where credit's due with gratitude and
@@ -86,12 +87,6 @@ respect at CHANGELOG.txt or
 We are well aware, defects, bugs, flaws etc. are there as proven by bug fixes.
 We believe constructive criticism, positive suggestions, corrections, patches,
 even inspirational `Feature` or `Support` requests, will surely help us better.
-
-If your issue were closed without a word (due to time constraints we cannot
-always give you flowers, or towels), and redirected to this page, feel free
-to re-open it under two conditions:  
-1. You prove we identified it incorrectly, and in such a case we are sorry.
-2. You have redacted it accordingly, or provide the required data in the least.
 
 We want to keep this project useful and friendly to all, we would truly
 appreciate if you could kindly consider the above before submitting an issue.
