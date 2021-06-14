@@ -80,22 +80,26 @@ Shortly, you should kindly help the maintainers with detailed info to help you.
    + `Support/ Feature` requests,
    + `Bug` reports,
    + `Meta`, `Task` or `Plan`.  
-2. Starting from 2021, officially, we cannot spoil non-constructive issues:  
-   + strikes identified by a dictate, slap, intimidation, attack, plain insult.
-   + wrong negativity or gossips identified by 100%-negative yet minus backing
-     or balancing data, or a homework like `I have read docs (RTFM), but...`.
-   + dumping patches without explanations.  
+2. We cannot nourish nor spoil non-constructive issues:  
+   + Strikes identified by a dictate, slap, intimidation, attack, plain insult.  
+     _Cures_: No cure for superiority. I chose to stand up. Far too many
+     incidents even seen at github open-source projects. Ironically, no
+     remarkable contributions found on these superior profiles.
+   + Wrong negativity or gossips identified by 100%-negative yet minus backing
+     or balancing data, or a homework like `I have read docs (RTFM), but...`.  
+     _Cures_: Put data on the table, or RTFM. Sadly, pure UI consumers
+     (Field/ Views UIs, etc.) who speak like pure coders, double standards.
+   + Dumping patches without explanations.  
+     _Cures_: Even respected coders still care to explain. Non-native,
+     speech-impaired, too-busy, does not justify. Humans must _type hi before
+     dumping s*** on somebody else' house. Grrrly, most patches break.
 
-To measure both is simple, please ask this very question yourself beforehand:  
-_Do you want **this project** to be improved, or crushed?_  
-Before expecting our answer, replace `this project` with `yourself`.
-You'll get what you asked for. You can smell the genuine yourself a mile away.
-
-Rest assured, it is perfectly fine to be negative as long as backed by data, or
+It is perfectly fine to be negative as long as backed by data, or
 info. In fact, your name will be credited where credit's due with gratitude and
 respect at CHANGELOG.txt or
 [here](https://www.drupal.org/node/2663268/committers).
 
+We are well aware, defects, bugs, flaws etc. are there as proven by bug fixes.
 We believe constructive criticism, positive suggestions, corrections, patches,
 even inspirational `Feature` or `Support` requests, will surely help us better.
 
