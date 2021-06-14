@@ -3,14 +3,9 @@
 ***
 .
 # <a name="contribution"></a>SUBMITTING PATCHES OR ISSUES
-Please consider the following to help you explain better, and to help us
-understand better your bug reports, or patches as needed:
+Please use the provided issue template to help you explain better, and to help
+us understand better your bug reports, or patches as needed.
 
-1. [Issue summaries](https://www.drupal.org/issue-summaries)
-
-2. [Issue template](https://www.drupal.org/node/1326662)
-
-* If you hate formalism, consider a crystal clear line, or two in the body text.
 * Avoid explaining everything in the title.
 * Use body text for explanation purposes.
 * If language is a barrier, use any available/ online translation tool.
@@ -80,19 +75,8 @@ Shortly, you should kindly help the maintainers with detailed info to help you.
    + `Support/ Feature` requests,
    + `Bug` reports,
    + `Meta`, `Task` or `Plan`.  
-2. We cannot nourish nor spoil non-constructive issues:  
-   + Strikes identified by a dictate, slap, intimidation, attack, plain insult.  
-     _Cures_: No cure for superiority. I chose to stand up. Far too many
-     incidents even seen at github open-source projects. Ironically, no
-     remarkable contributions found on these superior profiles.
-   + Wrong negativity or gossips identified by 100%-negative yet minus backing
-     or balancing data, or a homework like `I have read docs (RTFM), but...`.  
-     _Cures_: Put data on the table, or RTFM. Sadly, pure UI consumers
-     (Field/ Views UIs, etc.) who speak like pure coders, double standards.
-   + Dumping patches without explanations.  
-     _Cures_: Even respected coders still care to explain. Non-native,
-     speech-impaired, too-busy, does not justify. Humans must _type hi before
-     dumping s*** on somebody else' house. Grrrly, most patches break.
+2. We cannot nourish nor spoil non-constructive issues:
+   + Any issues with quality lower than `normal` will be closed without a word.
 
 It is perfectly fine to be negative as long as backed by data, or
 info. In fact, your name will be credited where credit's due with gratitude and
