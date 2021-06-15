@@ -56,7 +56,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       if ($entity->hasLinkTemplate('canonical')) {
 
         // Check if multilingual is enabled (@see #3214002).
-        if ($this->languageManager->isMultilingual()) {
+        if ($entity->hasTranslation($settings['current_language'])) {
           // Load the translated url.
           $url = $entity->getTranslation($settings['current_language'])->toUrl();
         }

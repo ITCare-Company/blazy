@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2021-06-15
+-----------------------------
+- Issue #3214002 by Anybody, gausarts, FiNeX: Media switcher output doesn'\''t
+  work with i18n.
+
 Blazy 8.x-2.0-dev, 2021-06-07
 -----------------------------
 - Issue #3214002 by gausarts, FiNeX: Media switcher output doesn'\''t work with
