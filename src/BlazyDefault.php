@@ -205,7 +205,6 @@ class BlazyDefault {
     return [
       'decode'              => FALSE,
       'one_pixel'           => TRUE,
-      'native'              => FALSE,
       'noscript'            => FALSE,
       'placeholder'         => '',
       'responsive_image'    => FALSE,

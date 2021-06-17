@@ -201,6 +201,7 @@ class Blazy implements BlazyInterface {
       $attributes['src'] = 'about:blank';
       $attributes['class'][] = 'b-lazy';
       $attributes['allowfullscreen'] = TRUE;
+      $attributes['loading'] = 'lazy';
     }
     else {
       $attributes['src'] = $settings['embed_url'];
@@ -271,13 +272,6 @@ class Blazy implements BlazyInterface {
    */
   public static function commonAttributes(array &$attributes, array $settings = []) {
     $attributes['class'][] = 'media__element';
-
-    // Support browser native lazy loading as per 8/2019 specific to Chrome 76+.
-    // See https://web.dev/native-lazy-loading/
-    // @todo Remove, core already enforces this.
-    if (!empty($settings['native'])) {
-      $attributes['loading'] = 'lazy';
-    }
   }
 
   /**

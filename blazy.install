@@ -96,3 +96,12 @@ function blazy_update_8206() {
 function blazy_update_8207() {
   // Do nothing to clear cache.
 }
+
+/**
+ * Removed deprecated native settings as per #3213258.
+ */
+function blazy_update_8208() {
+  $config = \Drupal::configFactory()->getEditable('blazy.settings');
+  $config->clear('native');
+  $config->save(TRUE);
+}
