@@ -25,7 +25,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp(): void {
+  protected function setUp() {
     parent::setUp();
 
     $data['fields'] = [

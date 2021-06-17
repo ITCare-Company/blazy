@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2021-06-17
+-----------------------------
+- Reverted tests ::setup method due to causing failing tests at sub-modules.
+- Issue #3218962 by gausarts, wrd: Problem with optionset checkboxes in "Gin"
+  admin theme.
+
 Blazy 8.x-2.0-dev, 2021-06-15
 -----------------------------
 - Issue #3214002 by Anybody, gausarts, FiNeX: Media switcher output doesn'\''t

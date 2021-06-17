@@ -18,7 +18,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp(): void {
+  protected function setUp() {
     parent::setUp();
 
     $bundle = $this->bundle;
