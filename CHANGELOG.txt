@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2021-07-06
+-----------------------------
+- Issue #3220632 by gausarts, bgreco: WSOD when the responsive_image module is
+  not enabled
+
 Blazy 8.x-2.0-dev, 2021-06-17
 -----------------------------
 - Issue #3213258 by gausarts: Remove obsolete "Native browser lazy load.
