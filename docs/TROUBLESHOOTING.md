@@ -11,9 +11,6 @@
   When being resized, the browser gave no data about pixel ratio from desktop
   to mobile, not vice versa. Unless delayed for 4s+, not less, which is of
   course unacceptable.
-* Images are gone, only eternal blue loader is flipping like a drunk butterfly.
-  Solution: ensures that blazy library is loaded. And temporarily switch to
-  stock Bartik themes.
 * Press F12 at any browser, and see the errors at the browser console. Any JS
   error will prevent Blazy from working identified by eternal blue loaders.
 * Images are collapsed. Solution: choose one of the Aspect ratio.
@@ -24,22 +21,20 @@
   [Check out few aspect ratio samples](https://cgit.drupalcode.org/blazy/tree/docs/ASPECT_RATIO.md)
 
 
+## 1. JavaScript Errors
+**Symptons**: Blazy is not defined. Images are gone, only eternal blue loader is
+flipping like a drunk butterfly.
+**Solution**: ensures that blazy library is loaded, and no extras errors. Steps:
+* Verify [requirements](https://www.drupal.org/project/blazy#blazy-requirements).
+* Visit <em>/admin/reports/status</em>, ensure Blazy library is installed.
+* Switch to core Bartik for a moment in case your theme is the culprit. Any
+  theme JS errors might break Blazy. Press F12 at browsers to fix them one by
+  one.
+* Be sure you can see the library file contents at browsers:
+  `https://mysite.com/libraries/blazy/blazy.js`
 
-## 1. VIEWS GOTCHAS
-Blazy provides a simple Views field for File Entity, and Media. Also a Blazy
-Grid views style plugin.
-
-When using Blazy formatter within Views, check **Use field template** under
-**Style settings**, if trouble with Blazy Formatter as a stand alone Views
-output.
-
-On the contrary, uncheck **Use field template**, when Blazy formatter
-is embedded inside another module such as Slick so to pass the renderable
-array to work with accordingly.
-
-This is a Views common gotcha with field formatter, so be aware of it.
-If confusing, just toggle **Use field template**, and see the output. You'll
-know which works.
+  or any path supported by core library finder when using distros, etc.
+  Normally 404 (wrong placement), or 403 (folder permission) is the culprit.
 
 
 ## 2. BLAZY GRID WITH SINGLE VALUE FIELD (D7 ONLY)
@@ -105,13 +100,13 @@ fallback to core `Thumbnail` image style.
 Use `hook_blazy_image_effects_alter()` to add more effects -- curtain, fractal,
 slice, whatever.
 
-**Limitations**:  
+**Limitations**:
 Currently only works with a proper `Aspect ratio` as otherwise collapsed image.
 Be sure to add one. If not, add regular CSS `width: 100%` to the blurred
 image if doable with your design.
 
 ## 8. ASPECT RATIO
-**UPDATE 05/02/2020**:   
+**UPDATE 05/02/2020**:
 Blazy RC7+ is 99% integrated with Responsive image, including
 CSS background and the notorious aspect ratio **Fluid**. The remaining 1% is
 some unknown glicthes.
@@ -174,7 +169,23 @@ Alternatively leave `Media switcher` empty, if no videos are mixed with images.
 With `Image to iFrame`, the good thing is video will be still playable, and the
 image be linked as required. Best of Both Worlds for real.
 
-## 11. BROKEN MODULES
+## 11. VIEWS GOTCHAS
+Blazy provides a simple Views field for File Entity, and Media. Also a Blazy
+Grid views style plugin.
+
+When using Blazy formatter within Views, check **Use field template** under
+**Style settings**, if trouble with Blazy Formatter as a stand alone Views
+output.
+
+On the contrary, uncheck **Use field template**, when Blazy formatter
+is embedded inside another module such as Slick so to pass the renderable
+array to work with accordingly.
+
+This is a Views common gotcha with field formatter, so be aware of it.
+If confusing, just toggle **Use field template**, and see the output. You'll
+know which works.
+
+## 12. BROKEN MODULES
 Alpha, Beta, DEV releases are for developers only. Beware of possible breakage.
 
 However if it is broken, unless an update is provided, running `drush cr` during
