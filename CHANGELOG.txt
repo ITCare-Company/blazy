@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2021-09-15
+-----------------------------
+- Issue #3225859 by Fernly, gausarts, alexrayu, nbanderson: Blazy 2.3+ breaks in
+  use with stage_file_proxy and or CDN.
+
 Blazy 8.x-2.0-dev, 2021-07-06
 -----------------------------
 - Issue #3220632 by gausarts, bgreco: WSOD when the responsive_image module is
