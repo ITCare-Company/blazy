@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2021-09-17
+-----------------------------
+- Issue #3233555 by gausarts: Adopt modern grids: Flexbox and or Native Grid.
+
 Blazy 8.x-2.0-dev, 2021-09-15
 -----------------------------
 - Issue #3225859 by Fernly, gausarts, alexrayu, nbanderson: Blazy 2.3+ breaks in

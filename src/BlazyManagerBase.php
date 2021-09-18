@@ -229,7 +229,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
-    // Allow both variants of grid or column to co-exist for different fields.
+    // Allow variants of grid, columns, flexbox, native grid to co-exist.
     if (!empty($attach['style'])) {
       $attach[$attach['style']] = $attach['style'];
     }
@@ -238,8 +238,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $load['library'][] = 'blazy/fx.blur';
     }
 
-    $components = ['column', 'filter', 'grid', 'media', 'photobox', 'ratio'];
-    foreach ($components as $component) {
+    foreach (BlazyDefault::components() as $component) {
       if (!empty($attach[$component])) {
         $load['library'][] = 'blazy/' . $component;
       }
@@ -306,6 +305,10 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     if ($switch) {
       // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
       $settings[$switch] = empty($settings[$switch]) ? $switch : $settings[$switch];
+    }
+
+    if (!empty($settings['style'])) {
+      BlazyGrid::toNativeGrid($settings);
     }
   }
 
