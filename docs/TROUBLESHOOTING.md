@@ -1,7 +1,5 @@
-.
+
 ***
-***
-.
 # <a name="troubleshooting"></a>TROUBLESHOOTING
 * Blazy and its sub-modules -- Slick, GridStack, etc. are tightly coupled.
   Be sure to have the latest release date or matching versions in the least.
@@ -13,6 +11,7 @@
   course unacceptable.
 * Press F12 at any browser, and see the errors at the browser console. Any JS
   error will prevent Blazy from working identified by eternal blue loaders.
+* Be sure to view browser console as anonymous, not only as admin users.
 * Images are collapsed. Solution: choose one of the Aspect ratio.
 * Images or videos aren't responsive. Solution: choose one of the Aspect ratio.
 * Images are distorted. Solution: choose the correct Aspect ratio. If unsure,
@@ -22,17 +21,20 @@
 
 
 ## 1. JavaScript Errors
-**Symptons**: Blazy is not defined. Images are gone, only eternal blue loader is
+**Symptons**:  
+Blazy is not defined. Images are gone, only eternal blue loader is
 flipping like a drunk butterfly.
-**Solution**: ensures that blazy library is loaded, and no extras errors. Steps:
+
+**Solution**:  
+Ensure that blazy library is loaded, and no extras errors. Steps:  
+
 * Verify [requirements](https://www.drupal.org/project/blazy#blazy-requirements).
-* Visit <em>/admin/reports/status</em>, ensure Blazy library is installed.
+* Visit `/admin/reports/status` ensure Blazy library is installed.
 * Switch to core Bartik for a moment in case your theme is the culprit. Any
   theme JS errors might break Blazy. Press F12 at browsers to fix them one by
   one.
-* Be sure you can see the library file contents at browsers:
-  `https://mysite.com/libraries/blazy/blazy.js`
-
+* Be sure you can see the library file contents at browsers:  
+  `https://mysite.com/libraries/blazy/blazy.js`  
   or any path supported by core library finder when using distros, etc.
   Normally 404 (wrong placement), or 403 (folder permission) is the culprit.
 

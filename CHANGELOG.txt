@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2021-09-22
+-----------------------------
+- Fixed for Native Grid given various known contents.
+- Added a separate Composer section.
+- Fixed for Eslint with ES5.
+
 Blazy 8.x-2.0-dev, 2021-09-17
 -----------------------------
 - Issue #3233555 by gausarts: Adopt modern grids: Flexbox and or Native Grid.

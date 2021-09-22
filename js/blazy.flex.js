@@ -48,7 +48,7 @@
       // If the item has an item above it, then move it to fill the gap.
       if (id - columnWidth >= 0) {
         var nh = id - columnWidth + 1;
-        var itemAbove = elm.querySelector(_box + ':nth-of-type(' + nh +')');
+        var itemAbove = elm.querySelector(_box + ':nth-of-type(' + nh + ')');
         var prevBottom = itemAbove.getBoundingClientRect().bottom;
         var currentTop = cr.top - parseFloat(style.marginBottom);
 
@@ -59,7 +59,7 @@
     function init() {
       _db.forEach(items, doFlexItem);
 
-      var max = Math.max(...Object.values(heights));
+      var max = Math.max.apply(null, Object.values(heights));
       elm.style.height = max + 'px';
     }
 

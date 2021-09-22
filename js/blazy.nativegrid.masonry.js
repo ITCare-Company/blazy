@@ -21,9 +21,9 @@
    */
   Drupal.blazy.nativeGrid = {
     gap: 15,
+    height: 15,
     rows: 10
   };
-
 
   /**
    * Applies the correct span to each grid item.
@@ -34,9 +34,17 @@
   function doNativeGridItem(el) {
     var me = Drupal.blazy.nativeGrid;
     var box = 'target' in el ? _db.closest(el.target, '.grid') : el;
+
+    if (box === null) {
+      return;
+    }
+
     var cn = box.querySelector('.grid__content');
 
     if (cn !== null) {
+      if (me.gap === 0) {
+        me.gap = 0.0001;
+      }
       _win.setTimeout(function () {
         var rect = cn.getBoundingClientRect();
         var span = Math.ceil((rect.height + me.gap) / (me.height + me.gap));
@@ -45,6 +53,10 @@
         box.style.gridRowEnd = 'span ' + span;
         box.classList.add('is-b-grid');
       }, 600);
+    }
+
+    if (el.target && (el.type && el.type === 'blazy.done')) {
+      _db.unbindEvent(el.target, 'blazy.done', doNativeGridItem, false);
     }
   }
 
@@ -68,20 +80,22 @@
     }
 
     // The is-b-grid is flag to not re-do with VIS, views infinite scroll/ IO.
-    var checkNativeGrid = function () {
-      var items = el.querySelectorAll('.grid:not(.is-b-grid)');
+    var items = el.querySelectorAll('.grid:not(.is-b-grid)');
+    if (items.length) {
+      _db.forEach(items, doNativeGridItem, el);
+    }
 
-      if (items.length) {
-        _db.forEach(items, doNativeGridItem, el);
-      }
-    };
-
-    _db.resize(checkNativeGrid)();
+    var resizeObserver = Drupal.blazy.isRo() ? new ResizeObserver(function (entries) {
+      _db.forEach(entries, doNativeGridItem);
+    }) : false;
 
     var blazies = el.getElementsByClassName('b-lazy');
     if (blazies.length) {
       _db.forEach(blazies, function (item) {
         _db.bindEvent(item, 'blazy.done', doNativeGridItem, false);
+        if (resizeObserver) {
+          resizeObserver.observe(item);
+        }
       });
     }
   }

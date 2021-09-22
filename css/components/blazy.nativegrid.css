@@ -16,6 +16,8 @@
 /* The gap 15px is to match CSS grid convention such as Bootstrap, adjust it. */
 :root {
   --bnColGap: 15px;
+  --bnRowHeightMasonry: 15px;
+  --bnRowHeightNative: 80px;
 }
 
 .block-nativegrid,
@@ -49,9 +51,13 @@
   .block-nativegrid {
     gap: var(--bnColGap);
     grid-template-columns: auto;
-    grid-auto-rows: 20px;
+    grid-auto-rows: var(--bnRowHeightNative);
     /* align-content: start;
     justify-content: start;  */
+  }
+
+  .block-nativegrid.is-b-masonry {
+    grid-auto-rows: var(--bnRowHeightMasonry);
   }
 
   .block-nativegrid,
@@ -82,19 +88,29 @@
   .block-nativegrid.is-b-native .grid__content {
     height: 100%;
     overflow: hidden;
-    width: 100%;
   }
 
-  /* Add more relevant selectors accordingly to make gapless grids.*/
+  /* Enable to make it gapless for Masonry. */
+  .block-nativegrid .is-b-grid .grid__content {
+    height: 100%;
+  }
+
+  /* Add more relevant selectors accordingly to make gapless grids.
+  Remove .is-b-native to make it fit height-width for Masonry. */
   .block-nativegrid.is-b-native .grid .litebox,
   .block-nativegrid.is-b-native .grid .b-bg,
   .block-nativegrid.is-b-native .grid iframe,
+  .block-nativegrid.is-b-native .grid picture,
   .block-nativegrid.is-b-native .grid video,
+  .block-nativegrid.is-b-native .grid .media,
+  .block-nativegrid.is-b-native .grid .media__image,
   .block-nativegrid.is-b-native .grid .slide__media {
     height: inherit;
     /* Aspect ratio is irrelevant for gapless grid.*/
     padding: 0 !important; /* csslint allow: known-properties, important */
     position: static; /* To keep lightbox/ video icon centered. */
+    object-fit: cover;
+    width: 100%;
   }
 
   /* To avoid initial confusion due to being hidden, adjust it. */
