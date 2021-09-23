@@ -313,6 +313,43 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
+   * Returns the common settings extracted from the given entity.
+   */
+  public function getEntitySettings(array &$settings, $entity) {
+    $internal_path = $absolute_path = NULL;
+
+    // Deals with UndefinedLinkTemplateException such as paragraphs type.
+    // @see #2596385, or fetch the host entity.
+    if (!$entity->isNew()) {
+      try {
+        // Check if multilingual is enabled (@see #3214002).
+        if ($entity->hasTranslation($settings['current_language'])) {
+          // Load the translated url.
+          $url = $entity->getTranslation($settings['current_language'])->toUrl();
+        }
+        else {
+          // Otherwise keep the standard url.
+          $url = $entity->toUrl();
+        }
+
+        $internal_path = $url->getInternalPath();
+        $absolute_path = $url->setAbsolute()->toString();
+      }
+      catch (\Exception $ignore) {
+        // Do nothing.
+      }
+    }
+
+    // @todo Remove checks after another check, in case already set somewhere.
+    $settings['current_view_mode'] = empty($settings['current_view_mode']) ? '_custom' : $settings['current_view_mode'];
+    $settings['entity_id'] = empty($settings['entity_id']) ? $entity->id() : $settings['entity_id'];
+    $settings['entity_type_id'] = empty($settings['entity_type_id']) ? $entity->getEntityTypeId() : $settings['entity_type_id'];
+    $settings['bundle'] = empty($settings['bundle']) ? $entity->bundle() : $settings['bundle'];
+    $settings['content_url'] = $settings['absolute_path'] = $absolute_path;
+    $settings['internal_path'] = $internal_path;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getLightboxes() {
