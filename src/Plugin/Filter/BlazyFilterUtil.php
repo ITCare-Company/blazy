@@ -4,6 +4,7 @@ namespace Drupal\blazy\Plugin\Filter;
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyUtil;
 
 /**
  * Provides shared filter utilities.
@@ -65,24 +66,24 @@ class BlazyFilterUtil {
   /**
    * Remove HTML tags from a string.
    */
-  public static function unwrap($string, $delimiter = 'splide', $item = 'slide') {
-    $closing = ["/\[\/$delimiter\]/smi"];
-    $pattern = "/\[$delimiter(.*?)\]/";
+  public static function unwrap($string, $container = 'splide', $item = 'slide') {
+    $closing = ["/\[\/$container\]/smi"];
+    $pattern = "/\[$container(.*?)\]/";
 
-    if (mb_strpos($string, "$delimiter]</p>") !== FALSE) {
-      $closing = ["/<p\>\[\/$delimiter\]<\/p>/smi"];
-      $pattern = "/<p>\[$delimiter(.*?)\]<\/p>/";
+    if (mb_strpos($string, "$container]</p>") !== FALSE) {
+      $closing = ["/<p\>\[\/$container\]<\/p>/smi"];
+      $pattern = "/<p>\[$container(.*?)\]<\/p>/";
     }
 
     if (mb_strpos($string, "[$item") !== FALSE) {
-      $slides = ["/\[\/$item\]/smi", "/\[$item(.*?)\]/"];
+      $items = ["/\[\/$item\]/smi", "/\[$item(.*?)\]/"];
       $replace = ["</$item>", "<$item$1>"];
 
       if (mb_strpos($string, "$item]</p>") !== FALSE) {
-        $slides = ["/<p\>\[\/$item\]<\/p>/smi", "/<p\>\[$item(.*?)\]<\/p>/"];
+        $items = ["/<p\>\[\/$item\]<\/p>/smi", "/<p\>\[$item(.*?)\]<\/p>/"];
       }
 
-      $string = preg_replace($slides, $replace, $string);
+      $string = preg_replace($items, $replace, $string);
     }
 
     preg_match_all($pattern, $string, $matches);
@@ -97,7 +98,7 @@ class BlazyFilterUtil {
       }
     }
 
-    return preg_replace($closing, ["</$delimiter>"], $string);
+    return preg_replace($closing, ["</$container>"], $string);
   }
 
   /**
@@ -129,6 +130,24 @@ class BlazyFilterUtil {
       }
     }
     return $valid_nodes;
+  }
+
+  /**
+   * Returns attributes extracted from a DOMElement if any.
+   */
+  public static function getAttribute($node, array $excludes = []) {
+    $attributes = [];
+    if ($node && $node->attributes->length) {
+      foreach ($node->attributes as $attribute) {
+        $name = $attribute->nodeName;
+        $value = $attribute->nodeValue;
+        if ($excludes && in_array($name, $excludes)) {
+          continue;
+        }
+        $attributes[$name] = ($name == 'class') ? [$value] : $value;
+      }
+    }
+    return $attributes ? BlazyUtil::sanitize($attributes) : [];
   }
 
 }

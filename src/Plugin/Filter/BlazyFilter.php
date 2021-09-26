@@ -285,7 +285,7 @@ class BlazyFilter extends BlazyFilterBase {
         }
         // Uploaded IMG has target_id in the least, respect hard-coded IMG.
         // @todo decide to remove as this is being too risky.
-        elseif (!isset($item->target_id)) {
+        elseif ($item && !isset($item->target_id)) {
           $build['item_attributes'][$name] = $value;
         }
       }
