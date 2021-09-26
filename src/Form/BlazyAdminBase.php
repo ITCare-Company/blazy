@@ -352,7 +352,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           '#type'        => 'select',
           '#title'       => $this->t('Lightbox image style'),
           '#options'     => $this->getResponsiveImageOptions() + $this->getEntityAsOptions('image_style'),
-          '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
           '#weight'      => -97,
           '#description' => $this->t('Supports both Responsive and regular images.'),
         ];
@@ -366,9 +365,16 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
               ':url1' => 'https:drupal.org/project/blazy_photoswipe',
               ':url2' => 'https:drupal.org/project/slick_lightbox',
             ]),
-            '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
             '#weight'      => -96,
           ];
+        }
+
+        if (empty($definition['box_stateless'])) {
+          foreach (['box_style', 'box_media_style'] as $key) {
+            if (isset($form[$key])) {
+              $form[$key]['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition);
+            }
+          }
         }
       }
 
@@ -467,9 +473,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           '#title'       => $this->t('Lightbox caption'),
           '#options'     => $this->getLightboxCaptionOptions(),
           '#weight'      => -95,
-          '#states'      => $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition),
           '#description' => $this->t('Automatic will search for Alt text first, then Title text. Try selecting <strong>- None -</strong> first when changing if trouble with form states.'),
         ];
+
+        if (empty($definition['box_stateless'])) {
+          $form['box_caption']['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition);
+        }
 
         $form['box_caption_custom'] = [
           '#title'       => $this->t('Lightbox custom caption'),
@@ -482,11 +491,14 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         if ($is_token) {
           $types = isset($definition['entity_type']) ? [$definition['entity_type']] : [];
           $types = isset($definition['target_type']) ? array_merge($types, [$definition['target_type']]) : $types;
-          $form['box_caption_custom']['#field_suffix'] = [
-            '#theme'       => 'token_tree_link',
-            '#text'        => $this->t('Tokens'),
-            '#token_types' => $types,
-          ];
+
+          if ($types) {
+            $form['box_caption_custom']['#field_suffix'] = [
+              '#theme'       => 'token_tree_link',
+              '#text'        => $this->t('Tokens'),
+              '#token_types' => $types,
+            ];
+          }
         }
       }
     }

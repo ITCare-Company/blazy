@@ -3,6 +3,7 @@
 namespace Drupal\blazy;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -12,6 +13,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -499,6 +501,23 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
     }
     return ['caches' => $cache_tags, 'styles' => $image_styles];
+  }
+
+  /**
+   * Returns the thumbnail image using theme_image(), or theme_image_style().
+   */
+  public function getThumbnail(array $settings = [], $item = NULL) {
+    if (!empty($settings['uri'])) {
+      $external = UrlHelper::isExternal($settings['uri']);
+      return [
+        '#theme'      => $external ? 'image' : 'image_style',
+        '#style_name' => empty($settings['thumbnail_style']) ? 'thumbnail' : $settings['thumbnail_style'],
+        '#uri'        => $settings['uri'],
+        '#item'       => $item,
+        '#alt'        => $item && $item instanceof ImageItem ? $item->getValue()['alt'] : '',
+      ];
+    }
+    return [];
   }
 
   /**

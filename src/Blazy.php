@@ -178,6 +178,11 @@ class Blazy implements BlazyInterface {
       $attributes['decoding'] = 'async';
     }
 
+    // Reserves UUID for sub-module lookups, relevant for BlazyFilter.
+    if (!empty($settings['entity_uuid'])) {
+      $attributes['data-entity-uuid'] = $settings['entity_uuid'];
+    }
+
     self::commonAttributes($attributes, $variables['settings']);
     $image['#attributes'] = empty($image['#attributes']) ? $attributes : NestedArray::mergeDeep($image['#attributes'], $attributes);
 

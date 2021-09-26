@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2021-09-26
+-----------------------------
+- Made Blazy filter extensible to support sub-modules builtin shortcodes.
+
 Blazy 8.x-2.0-dev, 2021-09-23
 -----------------------------
 - Issue #3238403 by gausarts, VasiliyRepin: Blazy does not output link to

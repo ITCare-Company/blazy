@@ -59,12 +59,15 @@
 
     $('select[name$="[media_switch]"]', t).on('change', function () {
       var $select = $(this);
+      var value = $select.val();
 
       t.removeClass(function (index, css) {
         return (css.match(/(^|\s)form--media-switch-\S+/g) || []).join(' ');
       });
 
-      t[$select.val() === '' ? 'removeClass' : 'addClass']('form--media-switch-' + $select.val());
+      t[value === '' ? 'removeClass' : 'addClass']('form--media-switch-' + value);
+      var nobox = (value === '' || value === 'content' || value === 'media' || value === 'rendered');
+      t[nobox ? 'removeClass' : 'addClass']('form--media-switch-lightbox');
     }).change();
 
     t.on('mouseenter touchstart', '.b-hint', function () {
