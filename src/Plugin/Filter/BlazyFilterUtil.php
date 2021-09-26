@@ -65,17 +65,29 @@ class BlazyFilterUtil {
   /**
    * Remove HTML tags from a string.
    */
-  public static function unwrap($string, $delimiter = 'splide') {
-    $find = ["/\[\/$delimiter\]/si"];
+  public static function unwrap($string, $delimiter = 'splide', $item = 'slide') {
+    $closing = ["/\[\/$delimiter\]/smi"];
     $pattern = "/\[$delimiter(.*?)\]/";
 
     if (mb_strpos($string, "$delimiter]</p>") !== FALSE) {
-      $find = ["/<p\>\[\/$delimiter\]<\/p>/si"];
+      $closing = ["/<p\>\[\/$delimiter\]<\/p>/smi"];
       $pattern = "/<p>\[$delimiter(.*?)\]<\/p>/";
+    }
+
+    if (mb_strpos($string, "[$item") !== FALSE) {
+      $slides = ["/\[\/$item\]/smi", "/\[$item(.*?)\]/"];
+      $replace = ["</$item>", "<$item$1>"];
+
+      if (mb_strpos($string, "$item]</p>") !== FALSE) {
+        $slides = ["/<p\>\[\/$item\]<\/p>/smi", "/<p\>\[$item(.*?)\]<\/p>/"];
+      }
+
+      $string = preg_replace($slides, $replace, $string);
     }
 
     preg_match_all($pattern, $string, $matches);
 
+    // Temporarily converts to HTML tags for easy DOMXPath queries.
     if ($matches) {
       foreach ($matches[0] as $match) {
         $value = strip_tags($match);
@@ -85,7 +97,7 @@ class BlazyFilterUtil {
       }
     }
 
-    return preg_replace($find, ["</$delimiter>"], $string);
+    return preg_replace($closing, ["</$delimiter>"], $string);
   }
 
   /**
