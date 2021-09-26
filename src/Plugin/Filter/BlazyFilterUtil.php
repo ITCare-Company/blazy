@@ -14,7 +14,7 @@ class BlazyFilterUtil {
    * Returns a randomized id.
    */
   public static function getId($id = 'blazy-filter') {
-    return Blazy::getHtmlId($id . '-' . Crypt::randomBytesBase64(8));
+    return Blazy::getHtmlId(str_replace('_', '-', $id) . '-' . Crypt::randomBytesBase64(8));
   }
 
   /**

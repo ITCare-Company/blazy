@@ -4,6 +4,7 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Cache\Cache;
@@ -103,6 +104,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $settings['extension'] = isset($pathinfo['extension']) ? $pathinfo['extension'] : '';
     $settings['unstyled'] = BlazyUtil::unstyled($settings);
     $settings['_richbox'] = !empty($settings['colorbox']) || !empty($settings['_richbox']);
+    $settings['is_external'] = UrlHelper::isExternal($settings['uri']);
 
     // Disable image style if so configured.
     if ($settings['unstyled']) {
@@ -362,7 +364,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $settings['placeholder_ui'] = $settings['placeholder'];
     $path = $style = '';
     // With CSS background, IMG may be empty, add thumbnail to the container.
-    if (!empty($settings['thumbnail_style'])) {
+    if (empty($settings['is_external']) && !empty($settings['thumbnail_style'])) {
       $style = $this->entityLoad($settings['thumbnail_style'], 'image_style');
       if ($style) {
         $path = $style->buildUri($settings['uri']);

@@ -132,8 +132,8 @@ class BlazyFilter extends BlazyFilterBase {
 
     $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
     $settings['column'] = stristr($text, 'data-column') !== FALSE;
-    $settings['id'] = $settings['gallery_id'] = BlazyFilterUtil::getId('blazy-filter');
-    $settings['plugin_id'] = 'blazy_filter';
+    $settings['plugin_id'] = $plugin_id = $this->getPluginId();
+    $settings['id'] = $settings['gallery_id'] = BlazyFilterUtil::getId($plugin_id);
     $settings['_grid'] = $settings['column'] || $settings['grid'];
 
     // Provides alter like formatters to modify at one go, even clumsy here.
