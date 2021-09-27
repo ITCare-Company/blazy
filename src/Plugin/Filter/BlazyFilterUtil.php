@@ -53,7 +53,7 @@ class BlazyFilterUtil {
    *
    * See http://www.php.net/manual/en/class.domelement.php#101243
    */
-  public static function getHtml($node) {
+  public static function getHtml(\DOMElement $node) {
     $text = '';
     foreach ($node->childNodes as $child) {
       if ($child instanceof \DOMElement) {
@@ -133,9 +133,18 @@ class BlazyFilterUtil {
   }
 
   /**
+   * Returns DOMElement nodes expected to be grid, or slide items.
+   */
+  public static function getNodes(\DOMDocument $dom, $tag = '//grid') {
+    $xpath = new \DOMXPath($dom);
+
+    return $xpath->query($tag);
+  }
+
+  /**
    * Returns attributes extracted from a DOMElement if any.
    */
-  public static function getAttribute($node, array $excludes = []) {
+  public static function getAttribute(\DOMElement $node, array $excludes = []) {
     $attributes = [];
     if ($node && $node->attributes->length) {
       foreach ($node->attributes as $attribute) {
@@ -148,6 +157,25 @@ class BlazyFilterUtil {
       }
     }
     return $attributes ? BlazyUtil::sanitize($attributes) : [];
+  }
+
+  /**
+   * Extract grids from the node attribute.
+   */
+  public static function toGrid(\DOMElement $node, array &$settings) {
+    if ($check = $node->getAttribute('grid')) {
+      list($settings['style'], $grid) = array_pad(array_map('trim', explode(":", $check, 2)), 2, NULL);
+
+      if ($grid) {
+        list(
+          $settings['grid_small'],
+          $settings['grid_medium'],
+          $settings['grid']
+        ) = array_pad(array_map('trim', explode("-", $grid, 3)), 3, NULL);
+
+        $settings['_grid'] = !empty($settings['style']) && !empty($settings['grid']);
+      }
+    }
   }
 
 }

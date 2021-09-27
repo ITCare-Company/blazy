@@ -249,7 +249,7 @@ class BlazyLightbox {
         break;
 
       default:
-        $caption = $settings['box_caption'];
+        $caption = $settings['box_caption'] == 'inline' ? '' : $settings['box_caption'];
     }
 
     return empty($caption)

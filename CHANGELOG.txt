@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2021-09-27
+-----------------------------
+- Issue #3239351 by gausarts: Provides shortcodes for Blazy Filter.
+
 Blazy 8.x-2.0-dev, 2021-09-26
 -----------------------------
 - Made Blazy filter extensible to support sub-modules builtin shortcodes.

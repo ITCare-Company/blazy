@@ -2,10 +2,12 @@
 
 namespace Drupal\blazy\Plugin\Filter;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\Plugin\FilterBase;
+use Drupal\filter\Render\FilteredMarkup;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyUtil;
@@ -31,6 +33,13 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
   protected $entityFieldManager;
 
   /**
+   * Filter manager.
+   *
+   * @var \Drupal\filter\FilterPluginManager
+   */
+  protected $filterManager;
+
+  /**
    * The blazy admin service.
    *
    * @var \Drupal\blazy\Form\BlazyAdminInterface
@@ -52,6 +61,27 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
   protected $blazyManager;
 
   /**
+   * The filter HTML plugin.
+   *
+   * @var \Drupal\filter\Plugin\Filter\FilterHtml
+   */
+  protected $htmlFilter;
+
+  /**
+   * The langcode.
+   *
+   * @var string
+   */
+  protected $langcode;
+
+  /**
+   * The result.
+   *
+   * @var \Drupal\filter\FilterProcessResult
+   */
+  protected $result;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -59,6 +89,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
 
     $instance->root = isset($instance->root) ? $instance->root : $container->get('app.root');
     $instance->entityFieldManager = isset($instance->entityFieldManager) ? $instance->entityFieldManager : $container->get('entity_field.manager');
+    $instance->filterManager = isset($instance->filterManager) ? $instance->filterManager : $container->get('plugin.manager.filter');
     $instance->blazyAdmin = isset($instance->blazyAdmin) ? $instance->blazyAdmin : $container->get('blazy.admin');
     $instance->blazyOembed = isset($instance->blazyOembed) ? $instance->blazyOembed : $container->get('blazy.oembed');
     $instance->blazyManager = $instance->blazyOembed->blazyManager();
@@ -133,7 +164,11 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       if ($text = $item->ownerDocument->saveXML($item)) {
         $settings = &$build['settings'];
         $markup = Xss::filter(trim($text), BlazyDefault::TAGS);
-        $build['captions']['alt'] = ['#markup' => $markup];
+
+        // Supports other caption source if not using Filter caption.
+        if (empty($build['captions'])) {
+          $build['captions']['alt'] = ['#markup' => $markup];
+        }
 
         if (isset($settings['box_caption']) && $settings['box_caption'] == 'inline') {
           $settings['box_caption'] = $markup;
@@ -249,6 +284,15 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       }
     }
 
+    if (!isset($this->htmlFilter)) {
+      $this->htmlFilter = $this->filterManager->createInstance('filter_html', [
+        'settings' => [
+          'allowed_html' => '<a href hreflang target rel> <em> <strong> <b> <i> <cite> <code> <br>',
+          'filter_html_help' => FALSE,
+          'filter_html_nofollow' => FALSE,
+        ],
+      ]);
+    }
     $this->blazyManager->getCommonSettings($settings);
     return $settings;
   }
@@ -279,7 +323,26 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
   }
 
   /**
-   * {@inheritdoc}
+   * Return sanitized caption, stolen from Filter caption.
+   */
+  protected function filterHtml($text) {
+    // Read the data-caption attribute's value, then delete it.
+    $caption = Html::escape($text);
+
+    // Sanitize caption: decode HTML encoding, limit allowed HTML tags; only
+    // allow inline tags that are allowed by default, plus <br>.
+    $caption = Html::decodeEntities($caption);
+    $filtered_caption = $this->htmlFilter->process($caption, $this->langcode);
+
+    if (isset($this->result)) {
+      $this->result->addCacheableDependency($filtered_caption);
+    }
+
+    return FilteredMarkup::create($filtered_caption->getProcessedText());
+  }
+
+  /**
+   * Provides media switch form.
    */
   protected function mediaSwitchForm(array &$form) {
     $lightboxes = $this->blazyManager->getLightboxes();

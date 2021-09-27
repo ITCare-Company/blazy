@@ -19,10 +19,11 @@ class BlazyGrid {
    *   The modified array of grid items.
    */
   public static function build(array $items = [], array $settings = []) {
-    $settings  += BlazyDefault::htmlSettings();
-    $style      = empty($settings['style']) ? '' : $settings['style'];
-    $is_grid    = isset($settings['_grid']) ? $settings['_grid'] : (!empty($settings['style']) && !empty($settings['grid']));
+    $settings += BlazyDefault::htmlSettings();
+    $style = empty($settings['style']) ? '' : $settings['style'];
+    $is_grid = isset($settings['_grid']) ? $settings['_grid'] : (!empty($settings['style']) && !empty($settings['grid']));
     $class_item = $is_grid ? 'grid' : 'blazy__item';
+    $settings['count'] = empty($settings['count']) ? count($items) : $settings['count'];
 
     $contents = [];
     foreach ($items as $key => $item) {
@@ -58,7 +59,6 @@ class BlazyGrid {
       $contents[] = $content;
     }
 
-    $settings['count'] = empty($settings['count']) ? count($contents) : $settings['count'];
     $wrapper = ['item-list--blazy', 'item-list--blazy-' . $style];
     $wrapper = $style ? $wrapper : ['item-list--blazy'];
     $wrapper = array_merge(['item-list'], $wrapper);
@@ -137,6 +137,17 @@ class BlazyGrid {
         $attributes['data-b-w'] = $dim[$key]['width'];
         if (!empty($dim[$key]['height'])) {
           $attributes['data-b-h'] = $dim[$key]['height'];
+        }
+      }
+      else {
+        // Supports a grid repeat for the lazy.
+        $count = empty($settings['count']) ? 0 : $settings['count'];
+        $height = $dim[0]['height'];
+        if ($count > count($dim)) {
+          $attributes['data-b-w'] = $dim[0]['width'];
+          if (!empty($height)) {
+            $attributes['data-b-h'] = $height;
+          }
         }
       }
     }
