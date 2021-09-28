@@ -89,7 +89,7 @@ class BlazyFilterUtil {
       // <p>[TAG settings="BLAH"]</p>.
       // <p>[/TAG]</p>.
       "~(<p\>)\[(/)?$item(.*?)\](<\/p>)~",
-      // Abnormal non-WYSIWYG editor outputs:<p>[/TAG]<br />.
+      // Abnormal non-WYSIWYG editor outputs: <p>[/TAG]<br />.
       "~(<p\>)\[(/)?$item(.*?)\](<br \/>)~",
       // Abnormal non-WYSIWYG editor outputs, letfovers: [TAG]</p>.
       "~\[(/)?$item(.*?)\](<\/p>)~",
@@ -168,7 +168,7 @@ class BlazyFilterUtil {
    */
   public static function toGrid(\DOMElement $node, array &$settings) {
     if ($check = $node->getAttribute('grid')) {
-      list($settings['style'], $grid) = array_pad(array_map('trim', explode(":", $check, 2)), 2, NULL);
+      list($settings['style'], $grid, $settings['visible_items']) = array_pad(array_map('trim', explode(":", $check, 3)), 3, NULL);
 
       if ($grid) {
         list(
