@@ -66,39 +66,43 @@ class BlazyFilterUtil {
   /**
    * Remove HTML tags from a string.
    */
-  public static function unwrap($string, $container = 'splide', $item = 'slide') {
-    $closing = ["/\[\/$container\]/smi"];
-    $pattern = "/\[$container(.*?)\]/";
-
-    if (mb_strpos($string, "$container]</p>") !== FALSE) {
-      $closing = ["/<p\>\[\/$container\]<\/p>/smi"];
-      $pattern = "/<p>\[$container(.*?)\]<\/p>/";
-    }
-
+  public static function unwrap($string, $container = 'blazy', $item = 'item') {
+    // Might not be available with self-closing [TAG data="BLAH" /].
     if (mb_strpos($string, "[$item") !== FALSE) {
-      $items = ["/\[\/$item\]/smi", "/\[$item(.*?)\]/"];
-      $replace = ["</$item>", "<$item$1>"];
-
-      if (mb_strpos($string, "$item]</p>") !== FALSE) {
-        $items = ["/<p\>\[\/$item\]<\/p>/smi", "/<p\>\[$item(.*?)\]<\/p>/"];
-      }
-
-      $string = preg_replace($items, $replace, $string);
+      $string = self::unwrapItem($string, $item);
     }
 
-    preg_match_all($pattern, $string, $matches);
+    return self::unwrapItem($string, $container);
+  }
 
-    // Temporarily converts to HTML tags for easy DOMXPath queries.
-    if ($matches) {
-      foreach ($matches[0] as $match) {
-        $value = strip_tags($match);
-        $value = str_replace("[", "<", $value);
-        $value = str_replace("]", ">", $value);
-        $string = str_replace($match, $value, $string);
-      }
-    }
+  /**
+   * Unwrap the enclosing tags.
+   *
+   * @todo recheck any reliable regex.
+   */
+  public static function unwrapItem($string, $item) {
+    $patterns = [
+      // Not supported, but for completion [TAG data="BLAH"]A.B.C[/TAG].
+      "~(<p\>)\[$item?(.*?)\](.*?)\[/$item\](<\/p>)~",
+      // Normal WYSIWYG editor outputs with HTML correction filter enabled:
+      // <p>[TAG data="BLAH" /]</p>.
+      // <p>[TAG settings="BLAH"]</p>.
+      // <p>[/TAG]</p>.
+      "~(<p\>)\[(/)?$item(.*?)\](<\/p>)~",
+      // Abnormal non-WYSIWYG editor outputs:<p>[/TAG]<br />.
+      "~(<p\>)\[(/)?$item(.*?)\](<br \/>)~",
+      // Abnormal non-WYSIWYG editor outputs, letfovers: [TAG]</p>.
+      "~\[(/)?$item(.*?)\](<\/p>)~",
+    ];
 
-    return preg_replace($closing, ["</$container>"], $string);
+    $replacements = [
+      "<$item$2>$3</$item>",
+      "<$2$item$3>",
+      "<$2$item$3>",
+      "<$1$item$2>",
+    ];
+
+    return preg_replace($patterns, $replacements, $string);
   }
 
   /**

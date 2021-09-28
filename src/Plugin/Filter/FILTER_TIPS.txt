@@ -1,7 +1,8 @@
 <h3>Blazy</h3>
 <p>Image or iframe is lazyloaded automatically unless
 disabled, no shortcodes required. Usages for shortcodes: grid, customizing
-settings, embedding a known entity.</p>
+settings, embedding a known entity. Pay attention to attributes,
+slashes, single and double quotes:</p>
 <ol>
   <li><b>Basic</b>, with inline HTML: <br><code>[blazy]...[item]...[/item]...
   [/blazy]</code> <br>where <code>[blazy]</code> is like field container,
@@ -24,11 +25,15 @@ settings, embedding a known entity.</p>
   forms:<br>
      <code>[blazy settings="{'style': 'column', 'grid': 4}" /]</code>
   </li>
-  <li><code>[item]</code> can have sensible attributes, e.g.: <br>
-  <code>[item class="grid--card card" caption="If not using Filter caption" /]
-  </code>. The classes will be moved into grid__content to make it usable such
-  as for Bootstrap well/ card. The caption into regular blazy__caption.</li>
-  <li><b>Grid format</b>, a convenient shortcut for settings, hypenated:
+  <li>The <code>[item]</code> can have class and caption attributes, e.g.: <br>
+  <code>[item class="grid--card card"
+  caption='Read <a href="https://mysite.com">more</a>']</code>. <br>
+  The classes will be moved into grid__content to make it usable such
+  as for Bootstrap well/ card. The caption into regular blazy__caption.
+  <br>Use <b>single</b> quotes for HTML caption, else broken. The link is
+  normally converted automatically when using WYSIWYG. This will replace Filter
+  caption if they both exist.</li>
+  <li><b>Grid format</b>, a convenient shortcut for settings, hyphenated:
   <code>STYLE:SMALL-MEDIUM-LARGE</code>. <br>
     <code>STYLE</code> is one of space-delimited values: <code>column grid
     flexbox nativegrid nativegrid.masonry</code>.<br>
@@ -47,6 +52,9 @@ settings, embedding a known entity.</p>
     <code>[blazy settings="{'style': 'nativegrid',
     'grid': '4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2', 'grid_small': 2,
     'grid_medium': 4}" /]</code><br>
+    <code>4x4</code> defines <code>WIDTHxHEIGHT</code> based on
+    <code>grid-row</code> CSS property, see and  override
+    <code>blazy/css/blazy.nativegrid.css</code>.
   </li>
   <li>To disable lazyload, add attribute <code>data-unblazy</code>:
     <ul>

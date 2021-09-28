@@ -221,7 +221,50 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * Build the blazy.
+   * Render the output.
+   */
+  protected function render(\DOMElement $node, array $output) {
+    $dom = $node->ownerDocument;
+    $altered_html = $this->blazyManager->getRenderer()->render($output);
+
+    // Load the altered HTML into a new DOMDocument, retrieve element.
+    $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')
+      ->item(0)
+      ->childNodes;
+
+    foreach ($updated_nodes as $updated_node) {
+      // Import the updated from the new DOMDocument into the original
+      // one, importing also the child nodes of the updated node.
+      $updated_node = $dom->importNode($updated_node, TRUE);
+      $node->parentNode->insertBefore($updated_node, $node);
+    }
+
+    // Finally, remove the original blazy node.
+    if ($node->parentNode) {
+      $node->parentNode->removeChild($node);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @todo deprecate and remove for shortcodes at Blazy 3.x.
+   */
+  protected function cleanupImageCaption(array &$build, &$node, &$item) {
+    $settings = &$build['settings'];
+    if (empty($settings['_blazy_tag'])) {
+      // Mark the FIGCAPTION for deletion because the caption moved into Blazy.
+      $item->setAttribute('class', 'blazy-removed');
+
+      // Marks figures for removal as its contents are moved into grids.
+      if ($settings['_grid']) {
+        $node->parentNode->setAttribute('class', 'blazy-removed');
+      }
+    }
+  }
+
+  /**
+   * Build the blazy, the node might be grid, or direct img/ iframe.
    */
   private function build(\DOMElement $node, array &$settings) {
     if ($node->tagName == 'blazy') {
@@ -324,38 +367,86 @@ class BlazyFilter extends BlazyFilterBase {
       $sets['delta'] = $delta;
       $sets['thumbnail_uri'] = $node->getAttribute('data-thumb');
 
-      $output = ['attributes' => []];
-      $element = ['item' => NULL];
-      if ($attributes = BlazyFilterUtil::getAttribute($node)) {
-        // Move it to .grid__content for better displays like .well/ .card.
-        if (!empty($attributes['class'])) {
-          $sets['grid_content_class'] = $attributes['class'];
-          unset($attributes['class']);
-        }
-        $output['attributes'] = $attributes;
-      }
+      $element = ['attributes' => [], 'item' => NULL, 'settings' => $sets];
+      $content = $this->buildItem($element, $node) ?: ['#markup' => $dom->saveHtml($node)];
 
-      $output['settings'] = $element['settings'] = $sets;
-      $item_text = BlazyFilterUtil::getHtml($node);
+      $element['content'] = $content;
+      unset($element['captions']);
 
-      if (!empty($item_text)) {
-        $item_dom = Html::load($item_text);
-        $items = BlazyFilterUtil::getNodes($item_dom, '//iframe | //img');
-        if ($items->length > 0 && $child = $items->item(0)) {
-          $output['content'][] = $this->buildItem($element, $child, $node);
-        }
-      }
-
-      if (empty($output['content'])) {
-        $html = $dom->saveHtml($node);
-        $output['content'][] = ['#markup' => $html];
-      }
-
-      unset($output['attributes']['caption']);
-      $build[$delta] = $output;
+      $build[$delta] = $element;
     }
 
     return $this->blazyManager->build($build);
+  }
+
+  /**
+   * Build the individual item.
+   */
+  private function buildItem(array &$build, $node) {
+    $media = NULL;
+
+    // If using grid, node is grid item, else img or iframe.
+    if ($node->tagName == 'item') {
+      $this->buildItemAttributes($build, $node);
+      $text = BlazyFilterUtil::getHtml($node);
+
+      if (!empty($text)) {
+        $dom = Html::load($text);
+        $items = BlazyFilterUtil::getNodes($dom, '//iframe | //img');
+        if ($items->length > 0) {
+          $media = $items->item(0);
+        }
+      }
+    }
+    else {
+      $media = $node;
+    }
+
+    if ($media == NULL) {
+      return [];
+    }
+
+    // Provides individual item settings.
+    $this->buildItemSettings($build, $media);
+
+    // Extracts image item from SRC attribute.
+    $this->buildImageItem($build, $media);
+
+    // Extracts image caption if available.
+    $this->buildImageCaption($build, $media);
+
+    // Marks invalid, unknown, missing IMG or IFRAME for removal.
+    // Be sure to not affect external images, only strip missing local URI.
+    $uri = $build['settings']['uri'];
+    $missing = !empty($uri) && (BlazyUtil::isValidUri($uri) && !is_file($uri));
+    if (empty($uri) || $missing) {
+      $media->setAttribute('class', 'blazy-removed');
+      return [];
+    }
+
+    return $this->blazyManager->getBlazy($build);
+  }
+
+  /**
+   * Provides the grid item attributes, and caption, if any.
+   */
+  private function buildItemAttributes(array &$build, $node) {
+    $sets = &$build['settings'];
+    $sets['_blazy_tag'] = TRUE;
+
+    if ($caption = $node->getAttribute('caption')) {
+      $build['captions']['alt'] = ['#markup' => $this->filterHtml($caption)];
+      $node->removeAttribute('caption');
+    }
+
+    if ($attributes = BlazyFilterUtil::getAttribute($node)) {
+      // Move it to .grid__content for better displays like .well/ .card.
+      if (!empty($attributes['class'])) {
+        $sets['grid_content_class'] = $attributes['class'];
+        unset($attributes['class']);
+      }
+      $build['attributes'] = $attributes;
+    }
   }
 
   /**
@@ -374,42 +465,6 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * Build the individual item.
-   */
-  private function buildItem(array &$build, $node, $parent = NULL) {
-    $settings = &$build['settings'];
-
-    // Supports custom caption attribute if not using Filter caption.
-    if ($parent && $parent->tagName == 'item') {
-      $settings['_blazy_tag'] = TRUE;
-
-      if ($caption = $parent->getAttribute('caption')) {
-        $build['captions']['alt'] = ['#markup' => $this->filterHtml($caption)];
-      }
-    }
-
-    // Provides individual item settings.
-    $this->buildItemSettings($build, $node);
-
-    // Extracts image item from SRC attribute.
-    $this->buildImageItem($build, $node);
-
-    // Extracts image caption if available.
-    $this->buildImageCaption($build, $node);
-
-    // Marks invalid, unknown, missing IMG or IFRAME for removal.
-    // Be sure to not affect external images, only strip missing local URI.
-    $uri = $build['settings']['uri'];
-    $missing = !empty($uri) && (BlazyUtil::isValidUri($uri) && !is_file($uri));
-    if (empty($uri) || $missing) {
-      $node->setAttribute('class', 'blazy-removed');
-      return [];
-    }
-
-    return $this->blazyManager->getBlazy($build);
-  }
-
-  /**
    * Cleanups invalid nodes or those of which their contents are moved.
    *
    * @param \DOMDocument $dom
@@ -420,49 +475,6 @@ class BlazyFilter extends BlazyFilterBase {
     $nodes = $xpath->query("//*[contains(@class, 'blazy-removed')]");
     if ($nodes->length > 0) {
       BlazyFilterUtil::removeNodes($nodes);
-    }
-  }
-
-  /**
-   * Render the output.
-   */
-  private function render($node, array $output) {
-    $dom = $node->ownerDocument;
-    $altered_html = $this->blazyManager->getRenderer()->render($output);
-
-    // Load the altered HTML into a new DOMDocument, retrieve element.
-    $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')
-      ->item(0)
-      ->childNodes;
-
-    foreach ($updated_nodes as $updated_node) {
-      // Import the updated from the new DOMDocument into the original
-      // one, importing also the child nodes of the updated node.
-      $updated_node = $dom->importNode($updated_node, TRUE);
-      $node->parentNode->insertBefore($updated_node, $node);
-    }
-
-    // Finally, remove the original blazy node.
-    if ($node->parentNode) {
-      $node->parentNode->removeChild($node);
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @todo deprecate and remove for shortcodes at Blazy 3.x.
-   */
-  protected function cleanupImageCaption(array &$build, &$node, &$item) {
-    $settings = &$build['settings'];
-    if (empty($settings['_blazy_tag'])) {
-      // Mark the FIGCAPTION for deletion because the caption moved into Blazy.
-      $item->setAttribute('class', 'blazy-removed');
-
-      // Marks figures for removal as its contents are moved into grids.
-      if ($settings['_grid']) {
-        $node->parentNode->setAttribute('class', 'blazy-removed');
-      }
     }
   }
 
