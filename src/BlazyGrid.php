@@ -21,7 +21,7 @@ class BlazyGrid {
   public static function build(array $items = [], array $settings = []) {
     $settings += BlazyDefault::htmlSettings() + BlazyDefault::gridSettings();
     $style = $settings['style'];
-    $is_grid = isset($settings['_grid']) ? $settings['_grid'] : ($style && $settings['grid']);
+    $settings['_grid'] = $is_grid = isset($settings['_grid']) ? $settings['_grid'] : ($style && $settings['grid']);
     $item_class = $is_grid ? 'grid' : 'blazy__item';
     $settings['count'] = empty($settings['count']) ? count($items) : $settings['count'];
 
