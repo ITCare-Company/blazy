@@ -2,9 +2,10 @@
 
 namespace Drupal\blazy\Plugin\Filter;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\Unicode;
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\Plugin\FilterBase;
 use Drupal\filter\Render\FilteredMarkup;
@@ -106,11 +107,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
 
     // Checks if we have a valid file entity, not hard-coded image URL.
     // Prioritize data-src for sub-module filters after Blazy.
-    $src = $node->getAttribute('data-src');
-    if (empty($src)) {
-      $src = $node->getAttribute('src');
-    }
-
+    $src = $node->getAttribute('data-src') ?: $node->getAttribute('src');
     if ($src) {
       // Prevents data URI from screwing up.
       $data_uri = mb_substr($src, 0, 10) === 'data:image';
@@ -178,6 +175,46 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       }
     }
     return $item;
+  }
+
+  /**
+   * Prepares the blazy.
+   */
+  protected function prepareSettings(\DOMElement $node, array &$settings) {
+    if ($check = $node->getAttribute('settings')) {
+      $check = str_replace("'", '"', $check);
+      $check = Json::decode($check);
+      if ($check) {
+        $settings = array_merge($settings, $check);
+      }
+    }
+
+    BlazyFilterUtil::toGrid($node, $settings);
+  }
+
+  /**
+   * Render the output.
+   */
+  protected function render(\DOMElement $node, array $output) {
+    $dom = $node->ownerDocument;
+    $altered_html = $this->blazyManager->getRenderer()->render($output);
+
+    // Load the altered HTML into a new DOMDocument, retrieve element.
+    $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')
+      ->item(0)
+      ->childNodes;
+
+    foreach ($updated_nodes as $updated_node) {
+      // Import the updated from the new DOMDocument into the original
+      // one, importing also the child nodes of the updated node.
+      $updated_node = $dom->importNode($updated_node, TRUE);
+      $node->parentNode->insertBefore($updated_node, $node);
+    }
+
+    // Finally, remove the original blazy node.
+    if ($node->parentNode) {
+      $node->parentNode->removeChild($node);
+    }
   }
 
   /**
@@ -271,12 +308,14 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
     $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
 
     $settings['_check_protocol'] = TRUE;
+    $settings['plugin_id'] = $plugin_id = $this->getPluginId();
+    $settings['id'] = $settings['gallery_id'] = BlazyFilterUtil::getId($plugin_id);
     $settings['is_media_library'] = $definitions && isset($definitions['field_media_oembed_video']);
     $settings['_resimage'] = $this->blazyManager->getModuleHandler()->moduleExists('responsive_image');
 
     if (isset($settings['hybrid_style']) && $style = $settings['hybrid_style']) {
-      $settings['resimage'] = $this->blazyManager->entityLoad($style, 'responsive_image_style');
-      if ($settings['_resimage'] && $settings['resimage']) {
+      if ($settings['_resimage']
+        && $settings['resimage'] = $this->blazyManager->entityLoad($style, 'responsive_image_style')) {
         $settings['responsive_image_style'] = $style;
       }
       else {
@@ -295,6 +334,28 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
     }
     $this->blazyManager->getCommonSettings($settings);
     return $settings;
+  }
+
+  /**
+   * Provides the grid item attributes, and caption, if any.
+   */
+  protected function buildItemAttributes(array &$build, $node) {
+    $sets = &$build['settings'];
+    $sets['_blazy_tag'] = TRUE;
+
+    if ($caption = $node->getAttribute('caption')) {
+      $build['captions']['alt'] = ['#markup' => $this->filterHtml($caption)];
+      $node->removeAttribute('caption');
+    }
+
+    if ($attributes = BlazyFilterUtil::getAttribute($node)) {
+      // Move it to .grid__content for better displays like .well/ .card.
+      if (!empty($attributes['class'])) {
+        $sets['grid_content_class'] = $attributes['class'];
+        unset($attributes['class']);
+      }
+      $build['attributes'] = $attributes;
+    }
   }
 
   /**

@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy\Plugin\Filter;
 
-use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\filter\FilterProcessResult;
@@ -84,7 +83,7 @@ class BlazyFilter extends BlazyFilterBase {
     }
 
     // Builds the grids if so provided via [data-column], or [data-grid].
-    // @todo deprecate for grid shortcode.
+    // @todo deprecated for grid shortcode.
     $this->buildGrid($settings, $grid_nodes, $grid_items);
 
     // Adds the attachments.
@@ -158,8 +157,6 @@ class BlazyFilter extends BlazyFilterBase {
     // The data-grid and data-column are deprecated for [blazy] shortcode.
     $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
     $settings['column'] = stristr($text, 'data-column') !== FALSE;
-    $settings['plugin_id'] = $plugin_id = $this->getPluginId();
-    $settings['id'] = $settings['gallery_id'] = BlazyFilterUtil::getId($plugin_id);
     $settings['_grid'] = $settings['column'] || $settings['grid'];
 
     // Provides alter like formatters to modify at one go, even clumsy here.
@@ -217,31 +214,6 @@ class BlazyFilter extends BlazyFilterBase {
 
     if (!empty($settings['type'])) {
       $build['media_attributes']['class'][] = 'media-wrapper--' . $settings['type'];
-    }
-  }
-
-  /**
-   * Render the output.
-   */
-  protected function render(\DOMElement $node, array $output) {
-    $dom = $node->ownerDocument;
-    $altered_html = $this->blazyManager->getRenderer()->render($output);
-
-    // Load the altered HTML into a new DOMDocument, retrieve element.
-    $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')
-      ->item(0)
-      ->childNodes;
-
-    foreach ($updated_nodes as $updated_node) {
-      // Import the updated from the new DOMDocument into the original
-      // one, importing also the child nodes of the updated node.
-      $updated_node = $dom->importNode($updated_node, TRUE);
-      $node->parentNode->insertBefore($updated_node, $node);
-    }
-
-    // Finally, remove the original blazy node.
-    if ($node->parentNode) {
-      $node->parentNode->removeChild($node);
     }
   }
 
@@ -425,43 +397,6 @@ class BlazyFilter extends BlazyFilterBase {
     }
 
     return $this->blazyManager->getBlazy($build);
-  }
-
-  /**
-   * Provides the grid item attributes, and caption, if any.
-   */
-  private function buildItemAttributes(array &$build, $node) {
-    $sets = &$build['settings'];
-    $sets['_blazy_tag'] = TRUE;
-
-    if ($caption = $node->getAttribute('caption')) {
-      $build['captions']['alt'] = ['#markup' => $this->filterHtml($caption)];
-      $node->removeAttribute('caption');
-    }
-
-    if ($attributes = BlazyFilterUtil::getAttribute($node)) {
-      // Move it to .grid__content for better displays like .well/ .card.
-      if (!empty($attributes['class'])) {
-        $sets['grid_content_class'] = $attributes['class'];
-        unset($attributes['class']);
-      }
-      $build['attributes'] = $attributes;
-    }
-  }
-
-  /**
-   * Prepares the blazy.
-   */
-  private function prepareSettings(\DOMElement $node, array &$settings) {
-    if ($check = $node->getAttribute('settings')) {
-      $check = str_replace("'", '"', $check);
-      $check = Json::decode($check);
-      if ($check) {
-        $settings = array_merge($settings, $check);
-      }
-    }
-
-    BlazyFilterUtil::toGrid($node, $settings);
   }
 
   /**

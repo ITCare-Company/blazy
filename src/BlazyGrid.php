@@ -31,7 +31,11 @@ class BlazyGrid {
       $attributes    = isset($item['attributes']) ? $item['attributes'] : [];
       $item_settings = isset($item['settings']) ? $item['settings'] : $settings;
       $item_settings = isset($item['#build']) && isset($item['#build']['settings']) ? $item['#build']['settings'] : $item_settings;
-      unset($item['settings'], $item['attributes'], $item['item']);
+
+      unset($item['settings'], $item['attributes']);
+      if (isset($item['item']) && is_object($item['item'])) {
+        unset($item['item']);
+      }
 
       // Good for Bootstrap .well/ .card class, must cast or BS will reset.
       $classes = empty($item_settings['grid_content_class']) ? [] : (array) $item_settings['grid_content_class'];
@@ -76,7 +80,6 @@ class BlazyGrid {
     }
 
     self::attributes($element['#attributes'], $settings);
-
     return $element;
   }
 
