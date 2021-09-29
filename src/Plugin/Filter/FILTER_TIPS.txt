@@ -36,7 +36,7 @@ slashes, single and double quotes:</p>
   <li><b>Grid format</b>, a convenient shortcut for settings, hyphenated:
   <code>STYLE:SMALL-MEDIUM-LARGE</code>. <br>
     <code>STYLE</code> is one of space-delimited values: <code>column grid
-    flexbox nativegrid nativegrid.masonry</code>.<br>
+    flexbox nativegrid</code>.<br>
     The rest refers to device sizes. Only <code>LARGE</code> with
     <code>nativegrid</code>, no others, can be numeric, or string. The rest must
     be numbers due to using no JS and or their contracts. The minimum is 1,
@@ -44,8 +44,8 @@ slashes, single and double quotes:</p>
     <code>[blazy grid="column:2-3-4" /]</code><br>
     <code>[blazy grid="grid:2-3-4" /]</code><br>
     <code>[blazy grid="flexbox:2-3-4" /]</code><br>
-    <code>[blazy grid="nativegrid.masonry:2-3-4" /]</code><br>
-    <code>[blazy grid="nativegrid:2-3-4" /]</code><br>
+    <code>[blazy grid="nativegrid:2-3-4" /]</code><br>, will be masonry
+    <code>[blazy grid="nativegrid:2-3-4x4" /]</code><br>
     <code>[blazy grid="nativegrid:2-3-4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2" /]
     </code>
     <br>is a shortcut for:<br>

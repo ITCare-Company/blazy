@@ -33,16 +33,20 @@
 
     $('select[name$="[style]"]', t).on('change', function () {
       var $select = $(this);
+      var value = $select.val();
 
       t.removeClass(function (index, css) {
         return (css.match(/(^|\s)form--style-\S+/g) || []).join(' ');
       });
 
-      if ($select.val() === '') {
-        t.addClass('form--style-off');
+      if (value === '') {
+        t.addClass('form--style-off form--style-is-grid');
       }
       else {
-        t.addClass('form--style-on form--style-' + $select.val());
+        t.addClass('form--style-on form--style-' + value);
+        if (value === 'column' || value === 'grid' || value === 'flex' || value === 'nativegrid') {
+          t.addClass('form--style-is-grid');
+        }
       }
     }).change();
 

@@ -19,68 +19,69 @@ class BlazyGrid {
    *   The modified array of grid items.
    */
   public static function build(array $items = [], array $settings = []) {
-    $settings += BlazyDefault::htmlSettings();
-    $style = empty($settings['style']) ? '' : $settings['style'];
-    $is_grid = isset($settings['_grid']) ? $settings['_grid'] : (!empty($settings['style']) && !empty($settings['grid']));
-    $class_item = $is_grid ? 'grid' : 'blazy__item';
+    $settings += BlazyDefault::htmlSettings() + BlazyDefault::gridSettings();
+    $style = $settings['style'];
+    $is_grid = isset($settings['_grid']) ? $settings['_grid'] : ($style && $settings['grid']);
+    $item_class = $is_grid ? 'grid' : 'blazy__item';
     $settings['count'] = empty($settings['count']) ? count($items) : $settings['count'];
 
     $contents = [];
     foreach ($items as $key => $item) {
       // Support non-Blazy which normally uses item_id.
-      $attributes    = isset($item['attributes']) ? $item['attributes'] : [];
-      $item_settings = isset($item['settings']) ? $item['settings'] : $settings;
-      $item_settings = isset($item['#build']) && isset($item['#build']['settings']) ? $item['#build']['settings'] : $item_settings;
+      $wrapper_attrs = isset($item['attributes']) ? $item['attributes'] : [];
+      $content_attrs = isset($item['content_attributes']) ? $item['content_attributes'] : [];
+      $sets = isset($item['settings']) ? array_merge($settings, $item['settings']) : $settings;
+      $sets = isset($item['#build']) && isset($item['#build']['settings']) ? array_merge($sets, $item['#build']['settings']) : $sets;
+      $sets['delta'] = $key;
 
-      unset($item['settings'], $item['attributes']);
+      // Supports both single formatter field and complex fields such as Views.
+      $classes = isset($wrapper_attrs['class']) ? $wrapper_attrs['class'] : [];
+      $wrapper_attrs['class'] = array_merge([$item_class], $classes);
+      self::gridItemAttributes($wrapper_attrs, $sets);
+
+      // Good for Bootstrap .well/ .card class, must cast or BS will reset.
+      $classes = empty($content_attrs['class']) ? [] : $content_attrs['class'];
+      $content_attrs['class'] = array_merge(['grid__content'], $classes);
+
+      // Remove known unused array.
+      unset($item['settings'], $item['attributes'], $item['content_attributes']);
       if (isset($item['item']) && is_object($item['item'])) {
         unset($item['item']);
       }
 
-      // Good for Bootstrap .well/ .card class, must cast or BS will reset.
-      $classes = empty($item_settings['grid_content_class']) ? [] : (array) $item_settings['grid_content_class'];
-      $item_settings['delta'] = $key;
-
-      // Supports both single formatter field and complex fields such as Views.
       $content['content'] = $is_grid ? [
         '#theme'      => 'container',
         '#children'   => $item,
-        '#attributes' => ['class' => array_merge(['grid__content'], $classes)],
+        '#attributes' => $content_attrs,
       ] : $item;
 
-      if (!empty($item_settings['grid_item_class'])) {
-        $attributes['class'][] = $item_settings['grid_item_class'];
-      }
-
-      $classes = isset($attributes['class']) ? $attributes['class'] : [];
-      $attributes['class'] = array_merge([$class_item], $classes);
-
-      // Provides grid item attributes.
-      self::gridItemAttributes($attributes, $item_settings);
-
-      $content['#wrapper_attributes'] = $attributes;
-
+      $content['#wrapper_attributes'] = $wrapper_attrs;
       $contents[] = $content;
     }
+
+    // Supports field label via Field UI, unless use_field takes place.
+    $title = '';
+    if (empty($settings['use_field'])
+      && isset($settings['label'], $settings['label_display'])
+      && $settings['label_display'] != 'hidden') {
+      $title = $settings['label'];
+    }
+
+    $attrs = [];
+    self::attributes($attrs, $settings);
 
     $wrapper = ['item-list--blazy', 'item-list--blazy-' . $style];
     $wrapper = $style ? $wrapper : ['item-list--blazy'];
     $wrapper = array_merge(['item-list'], $wrapper);
-    $element = [
+
+    return [
       '#theme'              => 'item_list',
       '#items'              => $contents,
       '#context'            => ['settings' => $settings],
-      '#attributes'         => [],
+      '#attributes'         => $attrs,
       '#wrapper_attributes' => ['class' => $wrapper],
+      '#title'              => $title,
     ];
-
-    // Supports field label via Field UI, unless use_field takes place.
-    if (empty($settings['use_field']) && isset($settings['label'], $settings['label_display']) && $settings['label_display'] != 'hidden') {
-      $element['#title'] = $settings['label'];
-    }
-
-    self::attributes($element['#attributes'], $settings);
-    return $element;
   }
 
   /**
@@ -106,10 +107,9 @@ class BlazyGrid {
    * Limit to grid only, so to be usable for plain list.
    */
   public static function gridContainerAttributes(array &$attributes, array $settings = []) {
-    $style = empty($settings['style']) ? '' : $settings['style'];
-    $is_grid = isset($settings['_grid']) ? $settings['_grid'] : ($style && !empty($settings['grid']));
+    $style = $settings['style'];
 
-    if ($is_grid) {
+    if (!empty($settings['_grid'])) {
       $attributes['class'][] = 'blazy--grid block-' . $style . ' block-count-' . $settings['count'];
 
       // If Native Grid style with numeric grid, assumed non-two-dimensional.
@@ -146,8 +146,9 @@ class BlazyGrid {
         // Supports a grid repeat for the lazy.
         $count = empty($settings['count']) ? 0 : $settings['count'];
         $height = $dim[0]['height'];
-        if ($count > count($dim)) {
-          $attributes['data-b-w'] = $dim[0]['width'];
+        $width = $dim[0]['width'];
+        if ($count > count($dim) && !empty($width)) {
+          $attributes['data-b-w'] = $width;
           if (!empty($height)) {
             $attributes['data-b-h'] = $height;
           }
@@ -167,13 +168,12 @@ class BlazyGrid {
    * Checks if a grid uses a native grid, but expecting a masonry.
    */
   public static function isNativeGridAsMasonry(array $settings = []) {
-    $style = empty($settings['style']) ? '' : $settings['style'];
-    $grid = empty($settings['grid']) ? NULL : $settings['grid'];
-    return $grid && is_numeric($grid) && $style == 'nativegrid';
+    $grid = $settings['grid'];
+    return !self::isNativeGrid($grid) && $settings['style'] == 'nativegrid';
   }
 
   /**
-   * Extracts grid like: 4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2.
+   * Extracts grid like: 4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2, or single 4x4.
    */
   public static function toDimensions($grid) {
     $dimensions = [];
@@ -182,7 +182,7 @@ class BlazyGrid {
       foreach ($values as $value) {
         $width = $value;
         $height = 0;
-        if (strpos($value, 'x') !== FALSE) {
+        if (mb_strpos($value, 'x') !== FALSE) {
           list($width, $height) = array_pad(array_map('trim', explode("x", $value, 2)), 2, NULL);
         }
 
@@ -197,12 +197,16 @@ class BlazyGrid {
    * Passes grid like: 4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2 to settings.
    */
   public static function toNativeGrid(array &$settings = []) {
+    if (empty($settings['grid'])) {
+      return;
+    }
+
     if ($settings['grid_large'] = $settings['grid']) {
-      // If Native Grid style with numeric grid, assumed non-two-dimensional.
       if (self::isNativeGridAsMasonry($settings)) {
         $settings['nativegrid.masonry'] = TRUE;
       }
 
+      // If Native Grid style with numeric grid, assumed non-two-dimensional.
       foreach (['small', 'medium', 'large'] as $key) {
         $value = empty($settings['grid_' . $key]) ? NULL : $settings['grid_' . $key];
         if ($dimensions = self::toDimensions($value)) {

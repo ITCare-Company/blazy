@@ -4,6 +4,7 @@ namespace Drupal\blazy\Plugin\Filter;
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyGrid;
 use Drupal\blazy\BlazyUtil;
 
 /**
@@ -178,6 +179,10 @@ class BlazyFilterUtil {
         ) = array_pad(array_map('trim', explode("-", $grid, 3)), 3, NULL);
 
         $settings['_grid'] = !empty($settings['style']) && !empty($settings['grid']);
+
+        if (!empty($settings['style'])) {
+          BlazyGrid::toNativeGrid($settings);
+        }
       }
     }
   }

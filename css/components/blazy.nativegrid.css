@@ -78,9 +78,10 @@
     justify-content: start;
   }
 
+  /** Adjust the minimum accordingly like everything else. */
   .block-nativegrid.is-b-native > .grid {
-    -ms-grid-row-span: 4;
-    grid-row: span 4;
+    -ms-grid-row-span: 2;
+    grid-row: span 2;
     -ms-grid-column: auto;
     grid-column: auto;
   }

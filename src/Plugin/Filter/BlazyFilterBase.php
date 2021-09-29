@@ -351,7 +351,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
     if ($attributes = BlazyFilterUtil::getAttribute($node)) {
       // Move it to .grid__content for better displays like .well/ .card.
       if (!empty($attributes['class'])) {
-        $sets['grid_content_class'] = $attributes['class'];
+        $build['content_attributes']['class'] = $attributes['class'];
         unset($attributes['class']);
       }
       $build['attributes'] = $attributes;

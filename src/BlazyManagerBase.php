@@ -309,6 +309,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $settings[$switch] = empty($settings[$switch]) ? $switch : $settings[$switch];
     }
 
+    // Formatters, Views style, not Filters.
     if (!empty($settings['style'])) {
       BlazyGrid::toNativeGrid($settings);
     }
@@ -518,6 +519,20 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       ];
     }
     return [];
+  }
+
+  /**
+   * Provides alterable display styles.
+   */
+  public function getStyles() {
+    $styles = [
+      'column' => 'CSS3 Columns',
+      'grid' => 'Grid Foundation',
+      'flex' => 'Flexbox Masonry',
+      'nativegrid' => 'Native Grid',
+    ];
+    $this->moduleHandler->alter('blazy_style', $styles);
+    return $styles;
   }
 
   /**
