@@ -172,6 +172,20 @@ class Blazy implements BlazyInterface {
       $image['#width'] = $settings['width'];
     }
 
+    // Overrides title if to be used as a placeholder for lazyloaded video.
+    if (!empty($settings['embed_url']) && !empty($settings['accessible_title'])) {
+      $translation_replacements = ['@label' => $settings['accessible_title']];
+      $attributes['title'] = t('Preview image for the video "@label".', $translation_replacements);
+
+      if (!empty($attributes['alt'])) {
+        $translation_replacements['@alt'] = $attributes['alt'];
+        $attributes['alt'] = t('Preview image for the video "@label" - @alt.', $translation_replacements);
+      }
+      else {
+        $attributes['alt'] = $attributes['title'];
+      }
+    }
+
     $attributes['class'][] = 'media__image';
     // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode.
     if (!empty($settings['decode'])) {

@@ -235,6 +235,7 @@ class BlazyDefault {
       'use_field'  => FALSE,
       'unstyled'   => FALSE,
       'view_name'  => '',
+      'accessible_title' => '',
     ] + self::imageSettings() + self::uiSettings();
   }
 

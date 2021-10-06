@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2021-10-06
+-----------------------------
+- Issue #3210635 by grathbone, jastraat, Bwolf: Lazyloaded image-to-iframes /
+  videos are not accessible.
+
 Blazy 8.x-2.0-dev, 2021-09-27
 -----------------------------
 - Issue #3239351 by gausarts: Provides shortcodes for Blazy Filter.
