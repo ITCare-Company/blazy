@@ -146,13 +146,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#title'        => $this->t('Display style'),
         '#description'  => $this->t('Unless otherwise specified, the styles require <strong>Grid</strong>. Difference: <ul><li><strong>Columns</strong> is best with irregular image sizes (scale width, empty height), affects the natural order of grid items, top-bottom, not left-right.</li><li><strong>Foundation</strong> with regular cropped ones, left-right.</li><li><strong>Flex Masonry</strong> uses Flexbox, supports (ir)-regular, left-right flow.</li><li><strong>Native Grid</strong> supports both one and two dimensional grid.</li></ul> Unless required, leave empty to use default formatter, or style. Save for <b>Grid Foundation</b>, the rest are experimental!'),
         '#enforced'     => TRUE,
-        '#empty_option' => '- None -',
-        '#options'      => [
-          'column'     => $this->t('CSS3 Columns'),
-          'grid'       => $this->t('Grid Foundation'),
-          'flex'       => $this->t('Flex Masonry'),
-          'nativegrid' => $this->t('Native Grid'),
-        ],
+        '#empty_option' => $this->t('- None -'),
+        '#options'      => $this->blazyManager->getStyles(),
         '#required' => !empty($definition['grid_required']),
         '#weight'   => -112,
         '#wrapper_attributes' => [
@@ -234,10 +229,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $description = $this->t('The amount of block grid columns (1 - 12, or empty) for large monitors 64.063em (1025px) up.');
     }
     else {
-      $description = $this->t('Select <strong>- None -</strong> first if trouble with changing form states. The amount of block grid columns (1 - 12, or empty) for large monitors 64.063em  (1025px) up. <br /><strong>Requires</strong>:<ol><li>Visible items,</li><li>Skin Grid for starter,</li><li>A reasonable amount of contents.</li></ol>');
+      $description = $this->t('Empty the value first if trouble with changing form states. The amount of block grid columns (1 - 12, or empty) for large monitors 64.063em  (1025px) up. <br /><strong>Requires</strong>:<ol><li>Any grid-related Display style,</li><li>Visible items,</li><li>Skin Grid for starter,</li><li>A reasonable amount of contents.</li></ol>');
     }
 
-    $description .= $this->nativeGridDescription();
     $form['grid'] = [
       '#type'        => 'textfield',
       '#title'       => $this->t('Grid large'),
@@ -284,7 +278,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form[$key]['#enforced'] = TRUE;
       $form[$key]['#states'] = [
         'visible' => [
-          'select[name$="[grid]"]' => ['!value' => ''],
+          'input[name$="[grid]"]' => ['!value' => ''],
         ],
       ];
     }
@@ -530,6 +524,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $classes .= ' form--' . str_replace('_', '-', $definition['field_type']);
     }
 
+    if (isset($form['grid'], $form['grid']['#description'])) {
+      $description = $form['grid']['#description'];
+      $form['grid']['#description'] = $description . $this->nativeGridDescription();
+    }
+
     $form['opening'] = [
       '#markup' => '<div class="' . $classes . '">',
       '#weight' => -120,
@@ -710,7 +709,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns native grid description.
    */
   protected function nativeGridDescription() {
-    return $this->t('<br>Specific for <b>Native Grid</b>, two recipes: <ol><li><b>One-dimensional</b>: Input a single numeric column grid, acting as Masonry. Best with: scaled pictures.</li><li><b>Two-dimensional</b>: Input a space separated value with WIDTHxHEIGHT pair based on the amount of columns/ rows, at max 12, e.g.: <code>4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2</code> <br>This will resemble GridStack optionset <b>Tagore</b>. Use a little math with the exact item amount to have gapless grids. Best with: <b>Use CSS background</b> ON, exact item amount, disabled image aspect ratio to use grid ratio instead, more designated grids than lacking.</li></ol>Unless required, leave empty to DIY, or to not build grids.');
+    return $this->t('<br>Specific for <b>Native Grid</b>, two recipes: <ol><li><b>One-dimensional</b>: Input a single numeric column grid, acting as Masonry. <em>Best with</em>: scaled pictures.</li><li><b>Two-dimensional</b>: Input a space separated value with <code>WIDTHxHEIGHT</code> pair based on the amount of columns/ rows, at max 12, e.g.: <br><code>4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2</code> <br>This will resemble GridStack optionset <b>Tagore</b>. Any single value e.g.: <code>4x4</code> will repeat uniformly like one-dimesional. <br><em>Best with</em>: <ul><li><b>Use CSS background</b> ON.</li><li>Exact item amount or better more designated grids than lacking. Use a little math with the exact item amount to have gapless grids.</li><li>Disabled image aspect ratio to use grid ratio instead.</li></ul></li></ol>This requires any grid-related <b>Display style</b>. Unless required, leave empty to DIY, or to not build grids.');
   }
 
   /**

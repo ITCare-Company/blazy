@@ -181,6 +181,10 @@ class BlazyFilterUtil {
         $settings['_grid'] = !empty($settings['style']) && !empty($settings['grid']);
 
         if (!empty($settings['style'])) {
+          // Babysits typo due to hardcoding. The expected is flex, not flexbox.
+          if ($settings['style'] == 'flexbox') {
+            $settings['style'] = 'flex';
+          }
           BlazyGrid::toNativeGrid($settings);
         }
       }
