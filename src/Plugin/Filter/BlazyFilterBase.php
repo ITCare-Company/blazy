@@ -416,7 +416,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       ],
       '#empty_option' => $this->t('- None -'),
       '#default_value' => isset($this->settings['media_switch']) ? $this->settings['media_switch'] : '',
-      '#description' => $this->t('<ul><li><b>Image to iframe</b> will play video when toggled.</li><li><b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe, Slick Lightbox, Zooming, Intense, etc.) will display media in lightbox.</li></ul>Both can stand alone or grouped as a gallery. To build a gallery, add <code>data-column="1 3 4"</code> or <code>data-grid="1 3 4"</code> to the first image/ iframe only.'),
+      '#description' => $this->t('<ul><li><b>Image to iframe</b> will play video when toggled.</li><li><b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe, Slick Lightbox, Zooming, Intense, etc.) will display media in lightbox.</li></ul>Both can stand alone or grouped as a gallery. To build a gallery, use the grid shortcodes.'),
     ];
 
     if (!empty($lightboxes)) {
@@ -452,7 +452,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       '#options' => $captions + ['inline' => $this->t('Caption filter')],
       '#empty_option' => $this->t('- None -'),
       '#default_value' => isset($this->settings['box_caption']) ? $this->settings['box_caption'] : '',
-      '#description' => $this->t('Automatic will search for Alt text first, then Title text. <br>Image styles only work for uploaded images, not hand-coded ones.'),
+      '#description' => $this->t('Automatic will search for Alt text first, then Title text. <br>Image styles only work for uploaded images, not hand-coded ones. Caption filter will use <code>data-caption</code> normally managed by Caption filter.'),
     ];
   }
 
