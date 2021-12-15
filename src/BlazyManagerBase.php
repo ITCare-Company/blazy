@@ -546,4 +546,12 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     return [];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getRouteName() {
+    $route_match = Blazy::routeMatch();
+    return isset($route_match) ? Blazy::routeMatch()->getRouteName() : '';
+  }
+
 }
