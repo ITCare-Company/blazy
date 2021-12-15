@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2021-12-15
 -----------------------------
+- Issue #3254222 by Jingting, wells: ARIA dialog and alertdialog nodes should
+  have an accessible name.
 - Issue #3241415 by nanobyt3, codesmith: Respect the image title from a Media
   Image for captions.
 

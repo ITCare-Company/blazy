@@ -22,6 +22,7 @@
     var media = $box.data('media') || {};
     var isMedia = media.type === 'video';
     var isHtml = media.type === 'rich' && 'html' in media;
+    $('#colorbox').attr('aria-label', 'color box');
     var runtimeOptions = {
       html: isHtml ? media.html : null,
       rel: media.rel || null,
