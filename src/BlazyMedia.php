@@ -108,7 +108,9 @@ class BlazyMedia implements BlazyMediaInterface {
     if ($item) {
       $settings['file_tags'] = ['file:' . $item->target_id];
       $settings['uri'] = Blazy::uri($item);
-      $item->title = $media->label();
+      if (trim($item->title) == '') {
+        $item->title = $media->label();
+      }
 
       // Pass through image item including poster image overrides.
       $data['item'] = $item;
