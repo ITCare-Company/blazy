@@ -59,7 +59,10 @@ class Blazy implements BlazyInterface {
 
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
-    $settings['ratio'] = empty($settings['width']) ? '' : $settings['ratio'];
+    // Prevents double padding hacks with AMP which also uses similar technique.
+    $stack = self::requestStack();
+    $amp = $stack && $stack->getCurrentRequest()->query->get('amp');
+    $settings['ratio'] = empty($settings['width']) || $amp ? '' : $settings['ratio'];
     if ($settings['ratio']) {
       self::aspectRatioAttributes($variables['attributes'], $settings);
     }
@@ -503,13 +506,21 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
+   */
+  public static function requestStack() {
+    return \Drupal::hasService('request_stack') ? \Drupal::requestStack() : NULL;
+  }
+
+  /**
    * Checks if Blazy is in CKEditor preview mode where no JS assets are loaded.
    */
   public static function isPreview() {
+    $stack = self::requestStack();
     return in_array(self::routeMatch()->getRouteName(), [
       'entity_embed.preview',
       'media.filter.preview',
-    ]);
+    ]) || ($stack && $stack->getCurrentRequest()->query->get('amp'));
   }
 
   /**

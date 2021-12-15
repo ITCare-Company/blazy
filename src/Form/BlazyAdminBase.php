@@ -540,10 +540,10 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     ];
 
     // @todo Check if needed: 'button', 'container', 'submit'.
-    $admin_css          = isset($definition['admin_css']) ? $definition['admin_css'] : '';
-    $admin_css          = $admin_css ?: $this->blazyManager->configLoad('admin_css', 'blazy.settings');
-    $excludes           = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
-    $selects            = ['cache', 'optionset', 'view_mode'];
+    $admin_css = isset($definition['admin_css']) ? $definition['admin_css'] : '';
+    $admin_css = $admin_css ?: $this->blazyManager->configLoad('admin_css', 'blazy.settings');
+    $excludes = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
+    $selects = ['cache', 'optionset', 'view_mode'];
     $current_route_name = $this->blazyManager->getRouteName();
 
     // Disable the admin css in the layout builder, to
