@@ -1,6 +1,7 @@
 
 ***
 # <a name="troubleshooting"></a>TROUBLESHOOTING
+* Switch to core Bartik for a mo, in case your custom theme is the culprit.
 * Blazy and its sub-modules -- Slick, GridStack, etc. are tightly coupled.
   Be sure to have the latest release date or matching versions in the least.
   DEV for DEV, Beta for Beta, etc. Mismatched versions may lead to errors

@@ -24,6 +24,9 @@ native lazy loading to lazy load and multi-serve images to save bandwidth and
 server requests. The user will have faster load times and save data usage if
 they don't browse the whole page.
 
+Check out [project home](https://www.drupal.org/project/blazy) for most updated
+info.
+
 
 ***
 # <a name="requirements"> </a>REQUIREMENTS
