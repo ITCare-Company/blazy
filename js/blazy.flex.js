@@ -5,7 +5,7 @@
  * Credit: https://fjolt.com/article/css-grid-masonry
  */
 
-(function (Drupal, _db, _win) {
+(function (Drupal, once, _db, _win) {
 
   'use strict';
 
@@ -82,11 +82,8 @@
         context = context[0];
       }
 
-      var elms = context.querySelectorAll('.block-flex');
-      if (elms.length) {
-        _db.once(_db.forEach(elms, doFlex, context));
-      }
+      once('blazy-flex', '.block-flex', context).forEach(doFlex);
     }
   };
 
-}(Drupal, dBlazy, this));
+}(Drupal, once, dBlazy, this));

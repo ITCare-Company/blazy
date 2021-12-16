@@ -2,7 +2,7 @@
  * @file
  */
 
-(function ($, Drupal, drupalSettings, window) {
+(function ($, Drupal, once, drupalSettings, window) {
 
   'use strict';
 
@@ -12,12 +12,12 @@
   /**
    * Blazy Colorbox utility functions.
    *
-   * @param {int} i
-   *   The index of the current element.
    * @param {HTMLElement} box
    *   The colorbox HTML element.
+   * @param {int} i
+   *   The index of the current element.
    */
-  function blazyColorbox(i, box) {
+  function blazyColorbox(box, i) {
     var $box = $(box);
     var media = $box.data('media') || {};
     var isMedia = media.type === 'video';
@@ -173,8 +173,12 @@
         }
       }
 
-      $('[data-colorbox-trigger]', context).once('blazy-colorbox').each(blazyColorbox);
+      if ('length' in context) {
+        context = context[0];
+      }
+
+      once('blazy-colorbox', '[data-colorbox-trigger]', context).forEach(blazyColorbox);
     }
   };
 
-})(jQuery, Drupal, drupalSettings, this);
+})(jQuery, Drupal, once, drupalSettings, this);

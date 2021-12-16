@@ -3,19 +3,19 @@
  * Provides admin utilities.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, once) {
 
   'use strict';
 
   /**
    * Blazy admin utility functions.
    *
-   * @param {int} i
-   *   The index of the current element.
    * @param {HTMLElement} form
    *   The Blazy form wrapper HTML element.
+   * @param {int} i
+   *   The index of the current element.
    */
-  function blazyForm(i, form) {
+  function blazyForm(form, i) {
     var t = $(form);
 
     $('.details-legend-prefix', t).removeClass('element-invisible');
@@ -103,12 +103,12 @@
   /**
    * Blazy admin tooltip function.
    *
-   * @param {int} i
-   *   The index of the current element.
    * @param {HTMLElement} elm
    *   The Blazy form item description HTML element.
+   * @param {int} i
+   *   The index of the current element.
    */
-  function blazyTooltip(i, elm) {
+  function blazyTooltip(elm, i) {
     var $tip = $(elm);
 
     // Claro removed description for BEM form-item__description.
@@ -124,12 +124,12 @@
   /**
    * Blazy admin checkbox function.
    *
-   * @param {int} i
-   *   The index of the current element.
    * @param {HTMLElement} elm
    *   The Blazy form item checkbox HTML element.
+   * @param {int} i
+   *   The index of the current element.
    */
-  function blazyCheckbox(i, elm) {
+  function blazyCheckbox(elm, i) {
     var $elm = $(elm);
     if (!$elm.next('.field-suffix').length) {
       $elm.after('<span class="field-suffix"></span>');
@@ -143,13 +143,14 @@
    */
   Drupal.behaviors.blazyAdmin = {
     attach: function (context) {
-      var $form = $('.form--slick', context);
+      if ('length' in context) {
+        context = context[0];
+      }
 
-      $('.description, .form-item__description', context).once('blazy-tooltip').each(blazyTooltip);
-      $('.form-checkbox', $form).once('blazy-checkbox').each(blazyCheckbox);
-
-      $form.once('blazy-admin').each(blazyForm);
+      once('blazy-tooltip', '.description, .form-item__description', context).forEach(blazyTooltip);
+      once('blazy-checkbox', '.form-checkbox', context).forEach(blazyCheckbox);
+      once('blazy-admin', '.form--slick', context).forEach(blazyForm);
     }
   };
 
-})(jQuery, Drupal);
+})(jQuery, Drupal, once);

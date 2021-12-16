@@ -5,7 +5,7 @@
  * @todo Decouple Native, Aspect ratio, Picture post 2.3+, or 3+.
  */
 
-(function (Drupal, drupalSettings, _db, window, document) {
+(function (Drupal, drupalSettings, once, _db, window, document) {
 
   'use strict';
 
@@ -313,20 +313,6 @@
       return !this.isIo() && 'Blazy' in window;
     },
 
-    forEach: function (context) {
-      var blazies = context.querySelectorAll('.blazy:not(.blazy--on)');
-
-      // Various use cases: w/o formaters, custom, or basic, and mixed.
-      // The [data-blazy] is set by the module for formatters, or Views gallery.
-      if (blazies.length > 0) {
-        _db.forEach(blazies, doBlazy, context);
-      }
-
-      // Initializes blazy, we'll decouple features from lazy load scripts.
-      // We'll revert to 2.1 if any issue with this.
-      initBlazy(context);
-    },
-
     run: function (opts) {
       return this.isIo() ? new BioMedia(opts) : new Blazy(opts);
     },
@@ -382,25 +368,20 @@
    * Initialize the blazy instance, either basic, advanced, or native.
    *
    * @param {HTMLElement} context
-   *   This can be document, or anything weird.
+   *   The documentElement.
    */
   var initBlazy = function (context) {
     var me = Drupal.blazy;
-    var documentElement = context instanceof HTMLDocument ? context : _db.closest(context, 'html');
     var opts = {};
 
     opts.mobileFirst = opts.mobileFirst || false;
 
-    // Weirdo: documentElement is null after colorbox cbox_close event.
-    documentElement = documentElement || document;
-
     // Set docroot in case we are in an iframe.
-    if (!document.documentElement.isSameNode(documentElement)) {
-      opts.root = documentElement;
+    if (!document.documentElement.isSameNode(context)) {
+      opts.root = context;
     }
 
     me.options = _db.extend({}, me.globals(), opts);
-    me.context = documentElement;
 
     // Old bLazy, not IO, might need scrolling CSS selector like Modal library.
     // A scrolling modal with an iframe like Entity Browser has no issue since
@@ -484,22 +465,29 @@
    */
   Drupal.behaviors.blazy = {
     attach: function (context) {
-      // Drupal.attachBehaviors already does this so if this is necessary,
-      // someone does an invalid call. But let's be robust here.
-      // Note: context can be unexpected <script> element with Media library.
-      context = context || document;
-
       // Originally identified at D7, yet might happen at D8 with AJAX.
       // Prevents jQuery AJAX messes up where context might be an array.
+
       if ('length' in context) {
         context = context[0];
       }
 
-      // Runs Blazy with multi-serving images, and aspect ratio supports.
-      // W/o [data-blazy] to address various scenarios like custom simple works,
-      // or within Views UI which is not easy to set [data-blazy] via UI.
-      _db.once(Drupal.blazy.forEach(context));
+      // The context might also be non-expected <script> element, etc.
+      // Weirdo: doc is null after colorbox cbox_close event.
+      var doc = (context instanceof HTMLDocument ? context : _db.closest(context, 'html')) || document;
+
+      Drupal.blazy.context = doc;
+
+      // Processes .blazy, if available, without initialization.
+      // Initialization is not per container to also support IO with root.
+      var el = doc.querySelector('.blazy');
+      if (el !== null) {
+        once('blazy', '.blazy', doc).forEach(doBlazy);
+      }
+
+      // Initializes blazy.
+      once('blazy-global', 'html', doc).forEach(initBlazy);
     }
   };
 
-}(Drupal, drupalSettings, dBlazy, this, this.document));
+}(Drupal, drupalSettings, once, dBlazy, this, this.document));

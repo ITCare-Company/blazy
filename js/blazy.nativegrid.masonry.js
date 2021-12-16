@@ -8,7 +8,7 @@
  * Below is the cheap version of GridStack.
  */
 
-(function (Drupal, _db, _win) {
+(function (Drupal, once, _db, _win) {
 
   'use strict';
 
@@ -111,11 +111,8 @@
         context = context[0];
       }
 
-      var elms = context.querySelectorAll('.block-nativegrid.is-b-masonry');
-      if (elms.length) {
-        _db.once(_db.forEach(elms, doNativeGrid, context));
-      }
+      once('blazy-nativegrid', '.block-nativegrid.is-b-masonry', context).forEach(doNativeGrid);
     }
   };
 
-}(Drupal, dBlazy, this));
+}(Drupal, once, dBlazy, this));

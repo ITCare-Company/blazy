@@ -3,7 +3,7 @@
  * Provides Photobox integration for Image and Media fields.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, once) {
 
   'use strict';
 
@@ -11,8 +11,8 @@
 
   Drupal.behaviors.blazyPhotobox = {
     attach: function (context) {
-      $('[data-photobox-gallery]', context).once('blazy-photobox').each(function () {
-        $(this).photobox('a[data-photobox-trigger]', {thumb: '> [data-thumb]', thumbAttr: 'data-thumb'}, Drupal.blazy.photobox);
+      once('blazy-photobox', '[data-photobox-gallery]', context).forEach(function (item) {
+        $(item).photobox('a[data-photobox-trigger]', {thumb: '> [data-thumb]', thumbAttr: 'data-thumb'}, Drupal.blazy.photobox);
       });
     }
   };
@@ -29,4 +29,4 @@
     }
   };
 
-}(jQuery, Drupal));
+}(jQuery, Drupal, once));

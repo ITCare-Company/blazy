@@ -634,6 +634,9 @@
    *
    * @return {Object}
    *   The function result.
+   *
+   * @deprecated in Blazy 2.5 and will be removed in Blazy 3.0.0. Use the
+   * core/once library instead. See https://www.drupal.org/node/3254668.
    */
   dBlazy.once = function (fn) {
     var result;

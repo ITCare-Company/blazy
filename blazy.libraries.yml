@@ -13,6 +13,8 @@ base:
   css:
     component:
       css/blazy.css: {}
+  dependencies:
+    - core/once
 
 filter:
   js:
@@ -21,6 +23,7 @@ filter:
     component:
       css/components/blazy.filter.css: {}
   dependencies:
+    - core/drupal
     - blazy/dblazy
 
 loading:
@@ -84,6 +87,8 @@ nativegrid.masonry:
   js:
     js/blazy.nativegrid.masonry.js: {}
   dependencies:
+    - core/drupal
+    - blazy/dblazy
     - blazy/nativegrid
 
 dblazy:
@@ -109,6 +114,7 @@ load:
   js:
     js/blazy.load.js: { weight: -1.5 }
   dependencies:
+    - core/drupal
     - core/drupal.debounce
     - blazy/blazy
     - blazy/dblazy
@@ -129,6 +135,7 @@ media:
       css/components/blazy.media.css: {}
   dependencies:
     - core/drupal
+    - blazy/dblazy
     - blazy/ratio
 
 blazybox:
@@ -158,11 +165,11 @@ colorbox:
   js:
     js/blazy.colorbox.js: {}
   dependencies:
-    - core/drupal
     - blazy/load
     - blazy/ratio
     - blazy/colorbox.skin
 
+# @todo deprecated, unmaintained.
 photobox:
   remote: https://github.com/yairEO/photobox/
   version: 1.x
@@ -178,8 +185,6 @@ photobox:
       /libraries/photobox/photobox/photobox.css: {}
   dependencies:
     - core/jquery
-    - core/jquery.once
-    - core/drupal
     - blazy/load
     # use photobox when available instead.
     # - photobox/photobox
@@ -193,5 +198,5 @@ admin:
       css/blazy.admin--fixes.css: {}
   dependencies:
     - core/jquery
-    - core/jquery.once
+    - core/once
     - core/drupal

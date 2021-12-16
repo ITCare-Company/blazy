@@ -1,7 +1,7 @@
 name: Blazy
 type: module
 description: "Provides basic Blazy integration for lazy loading and multi-serving images."
-core_version_requirement: ^8.8 || ^9
+core_version_requirement: ^9.2
 package: Blazy
 dependencies:
   - drupal:filter

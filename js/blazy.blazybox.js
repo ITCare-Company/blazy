@@ -3,7 +3,7 @@
  * Provides a fullscreen video view for Intense, Slick Browser, etc.
  */
 
-(function (Drupal, _db, window, document) {
+(function (Drupal, once, _db, window, document) {
 
   'use strict';
 
@@ -111,11 +111,12 @@
    */
   Drupal.behaviors.blazyBox = {
     attach: function (context) {
-      var boxes = context.querySelectorAll('.blazybox:not(.blazybox--on)');
-      if (boxes.length > 0) {
-        _db.once(_db.forEach(boxes, doBlazyBox, context));
+      if ('length' in context) {
+        context = context[0];
       }
+
+      once('blazy-box', '.blazybox', context).forEach(doBlazyBox);
     }
   };
 
-})(Drupal, dBlazy, this, this.document);
+})(Drupal, once, dBlazy, this, this.document);

@@ -3,7 +3,7 @@
  * Provides Filter module integration.
  */
 
-(function (Drupal, _db) {
+(function (Drupal, once, _db) {
 
   'use strict';
 
@@ -45,11 +45,12 @@
    */
   Drupal.behaviors.blazyFilter = {
     attach: function (context) {
-      var items = context.querySelectorAll('.media-wrapper--blazy:not(.grid .media-wrapper--blazy)');
-      if (items.length > 0) {
-        _db.once(_db.forEach(items, blazyFilter));
+      if ('length' in context) {
+        context = context[0];
       }
+
+      once('blazy-filter', '.media-wrapper--blazy:not(.grid .media-wrapper--blazy)', context).forEach(blazyFilter);
     }
   };
 
-})(Drupal, dBlazy);
+})(Drupal, once, dBlazy);

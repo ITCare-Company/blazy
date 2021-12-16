@@ -40,13 +40,13 @@ function blazy_post_update_schema_formatter_grid_int_to_string(array &$sandbox =
       }
 
       // Removed old deprecated/ unused formatter settings.
-      foreach (['breakpoints', 'sizes', 'grid_header'] as $key) {
-        if (isset($config[$key]) && empty($config[$key])) {
-          unset($component['settings'][$key]);
-          $needs_save = TRUE;
-        }
-      }
-
+      // @todo Postponed till 3.x.
+      // foreach (['breakpoints', 'sizes', 'grid_header'] as $key) {
+      // if (isset($config[$key]) && empty($config[$key])) {
+      // unset($component['settings'][$key]);
+      // $needs_save = TRUE;
+      // }
+      // }
       if ($needs_save) {
         $display->setComponent($field_name, $component);
       }
@@ -106,4 +106,11 @@ function blazy_post_update_schema_view_grid_int_to_string(array &$sandbox = []) 
   };
 
   $config_entity_updater->update($sandbox, 'view', $callback);
+}
+
+/**
+ * Clear cache to re-generate assets.
+ */
+function blazy_post_update_vanilla_once() {
+  // Empty hook to clear caches.
 }

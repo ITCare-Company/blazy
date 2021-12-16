@@ -5,7 +5,7 @@
  * @todo use classList anytime.
  */
 
-(function (Drupal, _db) {
+(function (Drupal, once, _db) {
 
   'use strict';
 
@@ -180,14 +180,8 @@
         context = context[0];
       }
 
-      var _player = '.media--player';
-      var check = context.querySelector(_player);
-      var items = check === null ? [] : context.querySelectorAll(_player + ':not(.media--player--on)');
-      if (items.length) {
-        _db.once(_db.forEach(items, blazyMedia));
-      }
-
+      once('blazy-media', '.media--player', context).forEach(blazyMedia);
     }
   };
 
-})(Drupal, dBlazy);
+})(Drupal, once, dBlazy);
