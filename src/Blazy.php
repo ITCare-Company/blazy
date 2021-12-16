@@ -513,6 +513,22 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
+   */
+  public static function pathResolver() {
+    return \Drupal::hasService('extension.path.resolver') ? \Drupal::service('extension.path.resolver') : NULL;
+  }
+
+  /**
+   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
+   *
+   * @see https://www.drupal.org/node/2940031
+   */
+  public static function fileUrlGenerator() {
+    return \Drupal::hasService('file_url_generator') ? \Drupal::service('file_url_generator') : NULL;
+  }
+
+  /**
    * Checks if Blazy is in CKEditor preview mode where no JS assets are loaded.
    */
   public static function isPreview() {

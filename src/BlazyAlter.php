@@ -108,7 +108,7 @@ class BlazyAlter {
    */
   public static function ckeditorCssAlter(array &$css, Editor $editor) {
     if (self::isCkeditorApplicable($editor)) {
-      $path = base_path() . drupal_get_path('module', 'blazy');
+      $path = base_path() . Blazy::pathResolver()->getPath('module', 'blazy');
       $css[] = $path . '/css/components/blazy.media.css';
       $css[] = $path . '/css/components/blazy.preview.css';
       $css[] = $path . '/css/components/blazy.ratio.css';

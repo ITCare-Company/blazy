@@ -88,7 +88,7 @@ class BlazyUtil {
       // displayed via SRC attribute. Don't bother language prefixes for IMG.
       if ($public_path && strpos($normal_path, $public_path) !== FALSE) {
         $rel_path = str_replace($public_path, '', $normal_path);
-        return file_build_uri($rel_path);
+        return Blazy::streamWrapperManager()->normalizeUri($rel_path);
       }
     }
     return FALSE;
@@ -208,11 +208,13 @@ class BlazyUtil {
   }
 
   /**
-   * A wrapper for file_url_transform_relative() to pass tests anywhere else.
+   * A wrapper for ::transformRelative() to pass tests anywhere else.
    */
   public static function transformRelative($uri, $style = NULL) {
-    $url = $style ? $style->buildUrl($uri) : file_create_url($uri);
-    return file_url_transform_relative($url);
+    $gen = Blazy::fileUrlGenerator();
+    $url = $gen ? $gen->generateAbsoluteString($uri) : NULL;
+    $url = $style ? $style->buildUrl($uri) : $url;
+    return $gen ? $gen->transformRelative($url) : $url;
   }
 
   /**
