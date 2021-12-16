@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2021-12-15
 -----------------------------
+- Issue #3253012 by gausarts: Added Drupal ^10 to track potential disruption.
 - Issue #3254668 by gausarts: Replace builtin once with core once.
 - Issue #3101810 by gausarts, mittoD: Play nice with AMP.
 - Issue #3243817 by lolgm: Added CSS Admin disable option in Layout Builder.
