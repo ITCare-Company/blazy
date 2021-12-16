@@ -107,7 +107,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     );
 
     // @todo remove and use DI at 2.x+ post sub-classes updates.
-    $instance->setRoot($container->get('app.root'));
+    $instance->setRoot($container->getParameter('app.root'));
     $instance->setLanguageManager($container->get('language_manager'));
     return $instance;
   }
@@ -125,7 +125,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * @todo remove and use DI at 3.x+ post sub-classes updates.
    */
   public function setRoot($root) {
-    $this->root = $root;
+    $this->root = (string) $root;
     return $this;
   }
 
