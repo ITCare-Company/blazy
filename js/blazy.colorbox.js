@@ -8,6 +8,8 @@
 
   var cboxTimer;
   var $body = $('body');
+  var _idOnce = 'blazy-colorbox';
+  var _element = '[data-colorbox-trigger]';
 
   /**
    * Blazy Colorbox utility functions.
@@ -175,11 +177,11 @@
 
       context = _db.context(context);
 
-      once('blazy-colorbox', '[data-colorbox-trigger]', context).forEach(blazyColorbox);
+      once(_idOnce, _element, context).forEach(blazyColorbox);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        once.filter('blazy-colorbox').remove();
+        once.remove(_idOnce, _element, context);
       }
     }
   };

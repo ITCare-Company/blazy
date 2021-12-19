@@ -9,6 +9,9 @@
 
   'use strict';
 
+  var _idOnce = 'blazy-media';
+  var _element = '.media--player';
+
   /**
    * Blazy media utility functions.
    *
@@ -176,11 +179,11 @@
 
       context = _db.context(context);
 
-      once('blazy-media', '.media--player', context).forEach(blazyMedia);
+      once(_idOnce, _element, context).forEach(blazyMedia);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        once.filter('blazy-media').remove();
+        once.remove(_idOnce, _element, context);
       }
     }
   };

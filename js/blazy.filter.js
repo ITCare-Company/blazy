@@ -7,6 +7,9 @@
 
   'use strict';
 
+  var _idOnce = 'blazy-filter';
+  var _element = '.media-wrapper--blazy:not(.grid .media-wrapper--blazy)';
+
   /**
    * Adds blazy container attributes required for grouping, or by lightboxes.
    *
@@ -48,11 +51,11 @@
 
       context = _db.context(context);
 
-      once('blazy-filter', '.media-wrapper--blazy:not(.grid .media-wrapper--blazy)', context).forEach(blazyFilter);
+      once(_idOnce, _element, context).forEach(blazyFilter);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        once.filter('blazy-filter').remove();
+        once.remove(_idOnce, _element, context);
       }
     }
   };

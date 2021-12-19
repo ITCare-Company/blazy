@@ -7,6 +7,13 @@
 
   'use strict';
 
+  var _idTooltip = 'blazy-tooltip';
+  var _idCheckbox = 'blazy-checkbox';
+  var _idAdmin = 'blazy-admin';
+  var _elTootip = '.description, .form-item__description';
+  var _elCheckbox = '.form-checkbox';
+  var _elForm = '.form--slick';
+
   /**
    * Blazy admin utility functions.
    *
@@ -140,15 +147,15 @@
 
       context = _db.context(context);
 
-      once('blazy-tooltip', '.description, .form-item__description', context).forEach(blazyTooltip);
-      once('blazy-checkbox', '.form-checkbox', context).forEach(blazyCheckbox);
-      once('blazy-admin', '.form--slick', context).forEach(blazyForm);
+      once(_idTooltip, _elTootip, context).forEach(blazyTooltip);
+      once(_idCheckbox, _elCheckbox, context).forEach(blazyCheckbox);
+      once(_idAdmin, _elForm, context).forEach(blazyForm);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        once.filter('blazy-tooltip').remove();
-        once.filter('blazy-checkbox').remove();
-        once.filter('blazy-admin').remove();
+        once.remove(_idTooltip, _elTootip, context);
+        once.remove(_idCheckbox, _elCheckbox, context);
+        once.remove(_idAdmin, _elForm, context);
       }
     }
   };

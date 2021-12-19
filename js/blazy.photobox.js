@@ -7,6 +7,9 @@
 
   'use strict';
 
+  var _idOnce = 'blazy-photobox';
+  var _element = '[data-photobox-gallery]';
+
   Drupal.blazy = Drupal.blazy || {};
 
   Drupal.behaviors.blazyPhotobox = {
@@ -14,13 +17,13 @@
 
       context = _db.context(context);
 
-      once('blazy-photobox', '[data-photobox-gallery]', context).forEach(function (item) {
+      once(_idOnce, _element, context).forEach(function (item) {
         $(item).photobox('a[data-photobox-trigger]', {thumb: '> [data-thumb]', thumbAttr: 'data-thumb'}, Drupal.blazy.photobox);
       });
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        once.filter('blazy-photobox').remove();
+        once.remove(_idOnce, _element, context);
       }
     }
   };

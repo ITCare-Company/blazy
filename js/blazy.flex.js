@@ -9,6 +9,9 @@
 
   'use strict';
 
+  var _idOnce = 'blazy-flex';
+  var _element = '.block-flex';
+
   /**
    * Applies height adjustments to each item.
    *
@@ -81,11 +84,11 @@
 
       context = _db.context(context);
 
-      once('blazy-flex', '.block-flex', context).forEach(doFlex);
+      once(_idOnce, _element, context).forEach(doFlex);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        once.filter('blazy-flex').remove();
+        once.remove(_idOnce, _element, context);
       }
     }
   };
