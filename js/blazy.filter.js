@@ -45,11 +45,15 @@
    */
   Drupal.behaviors.blazyFilter = {
     attach: function (context) {
-      if ('length' in context) {
-        context = context[0];
-      }
+
+      context = _db.context(context);
 
       once('blazy-filter', '.media-wrapper--blazy:not(.grid .media-wrapper--blazy)', context).forEach(blazyFilter);
+    },
+    detach: function (context, setting, trigger) {
+      if (trigger === 'unload') {
+        once.filter('blazy-filter').remove();
+      }
     }
   };
 

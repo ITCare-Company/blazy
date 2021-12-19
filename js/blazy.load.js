@@ -465,17 +465,8 @@
    */
   Drupal.behaviors.blazy = {
     attach: function (context) {
-      // Originally identified at D7, yet might happen at D8 with AJAX.
-      // Prevents jQuery AJAX messes up where context might be an array.
 
-      if ('length' in context) {
-        context = context[0];
-      }
-
-      // The context might also be non-expected <script> element, etc.
-      // Weirdo: doc is null after colorbox cbox_close event.
-      var doc = (context instanceof HTMLDocument ? context : _db.closest(context, 'html')) || document;
-
+      var doc = _db.context(context);
       Drupal.blazy.context = doc;
 
       // Processes .blazy, if available, without initialization.
@@ -487,6 +478,12 @@
 
       // Initializes blazy.
       once('blazy-global', 'html', doc).forEach(initBlazy);
+    },
+    detach: function (context, setting, trigger) {
+      if (trigger === 'unload') {
+        once.filter('blazy').remove();
+        once.filter('blazy-global').remove();
+      }
     }
   };
 

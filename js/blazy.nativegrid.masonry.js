@@ -107,11 +107,15 @@
    */
   Drupal.behaviors.blazyNativeGrid = {
     attach: function (context) {
-      if ('length' in context) {
-        context = context[0];
-      }
+
+      context = _db.context(context);
 
       once('blazy-nativegrid', '.block-nativegrid.is-b-masonry', context).forEach(doNativeGrid);
+    },
+    detach: function (context, setting, trigger) {
+      if (trigger === 'unload') {
+        once.filter('blazy-nativegrid').remove();
+      }
     }
   };
 

@@ -3,7 +3,7 @@
  * Provides admin utilities.
  */
 
-(function ($, Drupal, once) {
+(function ($, Drupal, once, _db) {
 
   'use strict';
 
@@ -12,10 +12,8 @@
    *
    * @param {HTMLElement} form
    *   The Blazy form wrapper HTML element.
-   * @param {int} i
-   *   The index of the current element.
    */
-  function blazyForm(form, i) {
+  function blazyForm(form) {
     var t = $(form);
 
     $('.details-legend-prefix', t).removeClass('element-invisible');
@@ -105,10 +103,8 @@
    *
    * @param {HTMLElement} elm
    *   The Blazy form item description HTML element.
-   * @param {int} i
-   *   The index of the current element.
    */
-  function blazyTooltip(elm, i) {
+  function blazyTooltip(elm) {
     var $tip = $(elm);
 
     // Claro removed description for BEM form-item__description.
@@ -126,10 +122,8 @@
    *
    * @param {HTMLElement} elm
    *   The Blazy form item checkbox HTML element.
-   * @param {int} i
-   *   The index of the current element.
    */
-  function blazyCheckbox(elm, i) {
+  function blazyCheckbox(elm) {
     var $elm = $(elm);
     if (!$elm.next('.field-suffix').length) {
       $elm.after('<span class="field-suffix"></span>');
@@ -143,14 +137,20 @@
    */
   Drupal.behaviors.blazyAdmin = {
     attach: function (context) {
-      if ('length' in context) {
-        context = context[0];
-      }
+
+      context = _db.context(context);
 
       once('blazy-tooltip', '.description, .form-item__description', context).forEach(blazyTooltip);
       once('blazy-checkbox', '.form-checkbox', context).forEach(blazyCheckbox);
       once('blazy-admin', '.form--slick', context).forEach(blazyForm);
+    },
+    detach: function (context, setting, trigger) {
+      if (trigger === 'unload') {
+        once.filter('blazy-tooltip').remove();
+        once.filter('blazy-checkbox').remove();
+        once.filter('blazy-admin').remove();
+      }
     }
   };
 
-})(jQuery, Drupal, once);
+})(jQuery, Drupal, once, dBlazy);

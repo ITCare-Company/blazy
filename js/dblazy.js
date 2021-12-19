@@ -840,6 +840,29 @@
     elm.dispatchEvent(event);
   };
 
+  /**
+   * A simple wrapper for context insanity.
+   *
+   * Context is unreliable with AJAX contents like product variations, etc.
+   * This can null like after Colorbox close, or absurd <script> element, etc.
+   *
+   * @name dBlazy.context
+   *
+   * @param {HTMLDocument|Element} context
+   *   Any element, including weird script element.
+   *
+   * @return {HTMLDocument|Document}
+   *   The HTMLDocument or Document so to avoid failing querySelector, etc.
+   */
+  dBlazy.context = function (context) {
+    // Weirdo: context may be null after Colorbox close.
+    context = context || document;
+
+    // jQuery may pass its array as non-expected context identified by length.
+    context = 'length' in context ? context[0] : context;
+    return context instanceof HTMLDocument ? context : document;
+  };
+
   return dBlazy;
 
 });

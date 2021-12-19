@@ -78,11 +78,15 @@
    */
   Drupal.behaviors.blazyFlex = {
     attach: function (context) {
-      if ('length' in context) {
-        context = context[0];
-      }
+
+      context = _db.context(context);
 
       once('blazy-flex', '.block-flex', context).forEach(doFlex);
+    },
+    detach: function (context, setting, trigger) {
+      if (trigger === 'unload') {
+        once.filter('blazy-flex').remove();
+      }
     }
   };
 

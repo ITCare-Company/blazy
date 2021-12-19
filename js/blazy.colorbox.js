@@ -2,7 +2,7 @@
  * @file
  */
 
-(function ($, Drupal, once, drupalSettings, window) {
+(function ($, Drupal, once, drupalSettings, _db, window) {
 
   'use strict';
 
@@ -173,12 +173,15 @@
         }
       }
 
-      if ('length' in context) {
-        context = context[0];
-      }
+      context = _db.context(context);
 
       once('blazy-colorbox', '[data-colorbox-trigger]', context).forEach(blazyColorbox);
+    },
+    detach: function (context, setting, trigger) {
+      if (trigger === 'unload') {
+        once.filter('blazy-colorbox').remove();
+      }
     }
   };
 
-})(jQuery, Drupal, once, drupalSettings, this);
+})(jQuery, Drupal, once, drupalSettings, dBlazy, this);

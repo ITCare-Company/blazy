@@ -200,3 +200,4 @@ admin:
     - core/jquery
     - core/once
     - core/drupal
+    - blazy/dblazy

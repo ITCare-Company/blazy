@@ -174,13 +174,14 @@
   Drupal.behaviors.blazyMedia = {
     attach: function (context) {
 
-      // Originally identified at D7, yet might happen at D8 with AJAX.
-      // Prevents jQuery AJAX messes up where context might be an array.
-      if ('length' in context) {
-        context = context[0];
-      }
+      context = _db.context(context);
 
       once('blazy-media', '.media--player', context).forEach(blazyMedia);
+    },
+    detach: function (context, setting, trigger) {
+      if (trigger === 'unload') {
+        once.filter('blazy-media').remove();
+      }
     }
   };
 

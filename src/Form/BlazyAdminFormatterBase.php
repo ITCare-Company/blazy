@@ -73,7 +73,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
   /**
    * Return the field formatter settings summary.
    */
-  public function getSettingsSummary($definition = []) {
+  public function getSettingsSummary($definition = []): array {
     if (empty($definition['settings'])) {
       return [];
     }
