@@ -7,7 +7,7 @@
 
   'use strict';
 
-  var _idOnce = 'blazy-box';
+  var _id = 'blazy-box';
   var _element = '.blazybox';
 
   Drupal.blazyBox = Drupal.blazyBox || {};
@@ -117,11 +117,13 @@
 
       context = _db.context(context);
 
-      once(_idOnce, _element, context).forEach(doBlazyBox);
+      once(_id, _element, context).forEach(doBlazyBox);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        once.remove(_idOnce, _element, context);
+        if (once.find(_id, context).length) {
+          once.remove(_id, _element, context);
+        }
       }
     }
   };

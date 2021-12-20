@@ -12,7 +12,7 @@
 
   'use strict';
 
-  var _idOnce = 'blazy-nativegrid';
+  var _id = 'blazy-nativegrid';
   var _element = '.block-nativegrid.is-b-masonry';
 
   Drupal.blazy = Drupal.blazy || {};
@@ -113,11 +113,13 @@
 
       context = _db.context(context);
 
-      once(_idOnce, _element, context).forEach(doNativeGrid);
+      once(_id, _element, context).forEach(doNativeGrid);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        once.remove(_idOnce, _element, context);
+        if (once.find(_id, context).length) {
+          once.remove(_id, _element, context);
+        }
       }
     }
   };

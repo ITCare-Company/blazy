@@ -7,7 +7,7 @@
 
   'use strict';
 
-  var _idOnce = 'blazy-filter';
+  var _id = 'blazy-filter';
   var _element = '.media-wrapper--blazy:not(.grid .media-wrapper--blazy)';
 
   /**
@@ -51,11 +51,13 @@
 
       context = _db.context(context);
 
-      once(_idOnce, _element, context).forEach(blazyFilter);
+      once(_id, _element, context).forEach(blazyFilter);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        once.remove(_idOnce, _element, context);
+        if (once.find(_id, context).length) {
+          once.remove(_id, _element, context);
+        }
       }
     }
   };

@@ -8,7 +8,7 @@
 
   var cboxTimer;
   var $body = $('body');
-  var _idOnce = 'blazy-colorbox';
+  var _id = 'blazy-colorbox';
   var _element = '[data-colorbox-trigger]';
 
   /**
@@ -177,11 +177,13 @@
 
       context = _db.context(context);
 
-      once(_idOnce, _element, context).forEach(blazyColorbox);
+      once(_id, _element, context).forEach(blazyColorbox);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        once.remove(_idOnce, _element, context);
+        if (once.find(_id, context).length) {
+          once.remove(_id, _element, context);
+        }
       }
     }
   };

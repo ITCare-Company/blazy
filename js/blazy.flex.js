@@ -9,7 +9,7 @@
 
   'use strict';
 
-  var _idOnce = 'blazy-flex';
+  var _id = 'blazy-flex';
   var _element = '.block-flex';
 
   /**
@@ -84,11 +84,13 @@
 
       context = _db.context(context);
 
-      once(_idOnce, _element, context).forEach(doFlex);
+      once(_id, _element, context).forEach(doFlex);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        once.remove(_idOnce, _element, context);
+        if (once.find(_id, context).length) {
+          once.remove(_id, _element, context);
+        }
       }
     }
   };

@@ -24,7 +24,7 @@
         // DOM ready fix. Be sure Views "Use field template" is disabled.
         _revTimer = window.setTimeout(function () {
           var elms = document.querySelectorAll(me.options.selector);
-          if (elms !== null) {
+          if (elms.length) {
             // ::load() means forcing them to load at once, great for small
             // amount of items, bad for large amount.
             // ::revalidate() means re-observe newly loaded AJAX contents without

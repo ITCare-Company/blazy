@@ -15,9 +15,9 @@
   var _dataRatio = 'data-ratio';
   var _isNativeExecuted = false;
   var _resizeTick = 0;
-  var _idOnce = 'blazy';
+  var _id = 'blazy';
   var _element = '.blazy';
-  var _idOnceGlobal = 'blazy-global';
+  var _idGlobal = 'blazy-global';
   var _elementGlobal = 'html';
 
   /**
@@ -475,18 +475,19 @@
 
       // Processes .blazy, if available, without initialization.
       // Initialization is not per container to also support IO with root.
-      var el = doc.querySelector('.blazy');
-      if (el !== null) {
-        once(_idOnce, _element, doc).forEach(doBlazy);
-      }
+      once(_id, _element, doc).forEach(doBlazy);
 
       // Initializes blazy.
-      once(_idOnceGlobal, _elementGlobal, doc).forEach(initBlazy);
+      once(_idGlobal, _elementGlobal, doc).forEach(initBlazy);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        once.remove(_idOnce, _element, context);
-        once.remove(_idOnceGlobal, _elementGlobal, context);
+        if (once.find(_id, context).length) {
+          once.remove(_id, _element, context);
+        }
+        if (once.find(_idGlobal, context).length) {
+          once.remove(_idGlobal, _elementGlobal, context);
+        }
       }
     }
   };

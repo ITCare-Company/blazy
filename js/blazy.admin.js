@@ -153,9 +153,15 @@
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        once.remove(_idTooltip, _elTootip, context);
-        once.remove(_idCheckbox, _elCheckbox, context);
-        once.remove(_idAdmin, _elForm, context);
+        if (once.find(_idTooltip, context).length) {
+          once.remove(_idTooltip, _elTootip, context);
+        }
+        if (once.find(_idCheckbox, context).length) {
+          once.remove(_idCheckbox, _elCheckbox, context);
+        }
+        if (once.find(_idAdmin, context).length) {
+          once.remove(_idAdmin, _elForm, context);
+        }
       }
     }
   };
