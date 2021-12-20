@@ -533,7 +533,16 @@ class Blazy implements BlazyInterface {
    */
   public static function isPreview() {
     $stack = self::requestStack();
-    return in_array(self::routeMatch()->getRouteName(), [
+    $route = self::routeMatch()->getRouteName();
+
+    // @todo remove after regression fixes, or keep it due to thumbnail sizes.
+    $edits = ['entity_browser.', 'edit_form', 'add_form'];
+    foreach ($edits as $key) {
+      if (mb_strpos($route, $key) !== FALSE) {
+        return TRUE;
+      }
+    }
+    return in_array($route, [
       'entity_embed.preview',
       'media.filter.preview',
     ]) || ($stack && $stack->getCurrentRequest()->query->get('amp'));
