@@ -23,6 +23,13 @@ class Blazy implements BlazyInterface {
   private static $blazyId;
 
   /**
+   * The preview mode to disable Blazy where JS is not available, or useless.
+   *
+   * @var boolean
+   */
+  private static $isPreview;
+
+  /**
    * Prepares variables for blazy.html.twig templates.
    */
   public static function preprocessBlazy(array &$variables) {
@@ -532,20 +539,23 @@ class Blazy implements BlazyInterface {
    * Checks if Blazy is in CKEditor preview mode where no JS assets are loaded.
    */
   public static function isPreview() {
-    $stack = self::requestStack();
-    $route = self::routeMatch()->getRouteName();
+    if (!isset(static::$isPreview)) {
+      $stack = self::requestStack();
+      $route = self::routeMatch()->getRouteName();
+      $check = $stack && $stack->getCurrentRequest()->query->get('amp');
 
-    // @todo remove after regression fixes, or keep it due to thumbnail sizes.
-    $edits = ['entity_browser.', 'edit_form', 'add_form'];
-    foreach ($edits as $key) {
-      if (mb_strpos($route, $key) !== FALSE) {
-        return TRUE;
+      // @todo remove after regression fixes, or keep it due to thumbnail sizes.
+      $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
+      foreach ($edits as $key) {
+        if (mb_strpos($route, $key) !== FALSE) {
+          $check = TRUE;
+          break;
+        }
       }
+      static::$isPreview = $check;
     }
-    return in_array($route, [
-      'entity_embed.preview',
-      'media.filter.preview',
-    ]) || ($stack && $stack->getCurrentRequest()->query->get('amp'));
+
+    return static::$isPreview;
   }
 
   /**
