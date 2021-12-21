@@ -108,7 +108,7 @@ class BlazyAlter {
    */
   public static function ckeditorCssAlter(array &$css, Editor $editor) {
     if (self::isCkeditorApplicable($editor)) {
-      $path = base_path() . Blazy::pathResolver()->getPath('module', 'blazy');
+      $path = Blazy::getPath('module', 'blazy', TRUE);
       $css[] = $path . '/css/components/blazy.media.css';
       $css[] = $path . '/css/components/blazy.preview.css';
       $css[] = $path . '/css/components/blazy.ratio.css';
@@ -127,41 +127,15 @@ class BlazyAlter {
    * via Entity/Media Embed which normally means Blazy should be disabled
    * due to CKEditor not supporting JS assets.
    *
-   * @see \Drupal\blazy\Blazy::preprocessBlazy()
-   * @see \Drupal\blazy\Blazy::preprocessField()
-   * @see \Drupal\blazy\Blazy::preprocessFileVideo()
+   * @see \Drupal\blazy\BlazyTheme::blazy()
+   * @see \Drupal\blazy\BlazyTheme::field()
+   * @see \Drupal\blazy\BlazyTheme::fileVideo()
    * @see blazy_preprocess_file_video()
    */
   public static function thirdPartyFormatters() {
     $formatters = ['file_video'];
-    blazy()->getModuleHandler()->alter('blazy_third_party_formatters', $formatters);
+    \blazy()->getModuleHandler()->alter('blazy_third_party_formatters', $formatters);
     return array_unique($formatters);
-  }
-
-  /**
-   * Overrides variables for field.html.twig templates.
-   */
-  public static function thirdPartyPreprocessField(array &$variables) {
-    $element = $variables['element'];
-    $settings = empty($element['#blazy']) ? [] : $element['#blazy'];
-    $settings['third_party'] = $element['#third_party_settings'];
-    $is_preview = Blazy::isPreview();
-
-    foreach ($variables['items'] as &$item) {
-      if (empty($item['content'])) {
-        continue;
-      }
-
-      $item_attributes = &$item['content'][isset($item['content']['#attributes']) ? '#attributes' : '#item_attributes'];
-      $item_attributes['data-b-lazy'] = TRUE;
-      if ($is_preview) {
-        $item_attributes['data-b-preview'] = TRUE;
-      }
-    }
-
-    // Attaches Blazy libraries here since Blazy is not the formatter.
-    $attachments = blazy()->attach($settings);
-    $variables['#attached'] = empty($variables['#attached']) ? $attachments : NestedArray::mergeDeep($variables['#attached'], $attachments);
   }
 
   /**

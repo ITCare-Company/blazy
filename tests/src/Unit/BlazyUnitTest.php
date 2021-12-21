@@ -5,6 +5,7 @@ namespace Drupal\Tests\blazy\Unit;
 use Drupal\Tests\UnitTestCase;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\BlazyTheme;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;
 
@@ -80,7 +81,7 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests \Drupal\blazy\Blazy::preprocessBlazy.
+   * Tests \Drupal\blazy\BlazyTheme::blazy.
    *
    * @param array $settings
    *   The settings being tested.
@@ -91,7 +92,7 @@ class BlazyUnitTest extends UnitTestCase {
    * @param bool $expected_iframe
    *   Whether to expect an iframe, or not.
    *
-   * @covers \Drupal\blazy\Blazy::preprocessBlazy
+   * @covers \Drupal\blazy\BlazyTheme::blazy
    * @covers \Drupal\blazy\Blazy::urlAndDimensions
    * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @dataProvider providerPreprocessBlazy
@@ -114,7 +115,7 @@ class BlazyUnitTest extends UnitTestCase {
     $variables['element']['#item'] = $item == TRUE ? $this->testItem : NULL;
     $variables['element']['#settings'] = $settings;
 
-    Blazy::preprocessBlazy($variables);
+    BlazyTheme::blazy($variables);
 
     $image = $expected_image == TRUE ? !empty($variables['image']) : empty($variables['image']);
     $iframe = $expected_iframe == TRUE ? !empty($variables['iframe']) : empty($variables['iframe']);

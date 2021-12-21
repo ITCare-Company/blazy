@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2021-12-21
+-----------------------------
+- Issue #3255370 by gausarts: Move Blazy theme-related alias methods to a
+  dedicated BlazyTheme.
+
 Blazy 8.x-2.0-dev, 2021-12-15
 -----------------------------
 - Issue #3254692 by gausarts: Drupal 10, identify deprecation, etc.

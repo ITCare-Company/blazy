@@ -38,13 +38,15 @@ class BlazyMedia implements BlazyMediaInterface {
    * {@inheritdoc}
    */
   public static function wrap(array $field = []) {
-    $item       = $field[0];
-    $settings   = $field['#settings'];
-    $iframe     = isset($item['#tag']) && $item['#tag'] == 'iframe';
-    $attributes = [];
+    $item     = $field[0];
+    $settings = $field['#settings'];
+    $iframe   = isset($item['#tag']) && $item['#tag'] == 'iframe';
 
     if (isset($item['#attributes'])) {
       $attributes = &$item['#attributes'];
+    }
+    else {
+      $attributes = [];
     }
 
     // Update iframe/video dimensions based on configurable image style, if any.

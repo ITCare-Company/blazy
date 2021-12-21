@@ -5,7 +5,6 @@ namespace Drupal\blazy;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Template\Attribute;
 
 /**
  * Provides common blazy utility static methods.
@@ -25,60 +24,9 @@ class Blazy implements BlazyInterface {
   /**
    * The preview mode to disable Blazy where JS is not available, or useless.
    *
-   * @var boolean
+   * @var bool
    */
   private static $isPreview;
-
-  /**
-   * Prepares variables for blazy.html.twig templates.
-   */
-  public static function preprocessBlazy(array &$variables) {
-    $element = $variables['element'];
-    foreach (BlazyDefault::themeProperties() as $key) {
-      $variables[$key] = isset($element["#$key"]) ? $element["#$key"] : [];
-    }
-
-    // Provides optional attributes, see BlazyFilter.
-    foreach (BlazyDefault::themeAttributes() as $key) {
-      $key = $key . '_attributes';
-      $variables[$key] = empty($element["#$key"]) ? [] : new Attribute($element["#$key"]);
-    }
-
-    // Provides sensible default html settings to shutup notices when lacking.
-    $settings  = &$variables['settings'];
-    $settings += BlazyDefault::itemSettings();
-
-    // Do not proceed if no URI is provided.
-    if (empty($settings['uri'])) {
-      return;
-    }
-
-    // URL and dimensions are built out at BlazyManager::preRenderBlazy().
-    // Still provides a failsafe for direct call to theme_blazy().
-    if (empty($settings['_api'])) {
-      self::urlAndDimensions($settings, $variables['item']);
-    }
-
-    // Allows rich Media entities stored within `content` to take over.
-    if (empty($variables['content'])) {
-      self::buildMedia($variables);
-    }
-
-    // Aspect ratio to fix layout reflow with lazyloaded images responsively.
-    // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
-    // Prevents double padding hacks with AMP which also uses similar technique.
-    $stack = self::requestStack();
-    $amp = $stack && $stack->getCurrentRequest()->query->get('amp');
-    $settings['ratio'] = empty($settings['width']) || $amp ? '' : $settings['ratio'];
-    if ($settings['ratio']) {
-      self::aspectRatioAttributes($variables['attributes'], $settings);
-    }
-
-    // Makes a little order here due to twig ignoring the preset priority.
-    $attributes = &$variables['attributes'];
-    $classes = empty($attributes['class']) ? [] : $attributes['class'];
-    $attributes['class'] = array_merge(['media', 'media--blazy'], $classes);
-  }
 
   /**
    * {@inheritdoc}
@@ -355,109 +303,6 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Overrides variables for responsive-image.html.twig templates.
-   */
-  public static function preprocessResponsiveImage(array &$variables) {
-    $image = &$variables['img_element'];
-    $attributes = &$variables['attributes'];
-    $placeholder = empty($attributes['data-placeholder']) ? static::PLACEHOLDER : $attributes['data-placeholder'];
-
-    // Bail out if a noscript is requested.
-    // @todo figure out to not even enter this method, yet not break ratio, etc.
-    if (!isset($attributes['data-b-noscript'])) {
-      // Modifies <picture> [data-srcset] attributes on <source> elements.
-      if (!$variables['output_image_tag']) {
-        /** @var \Drupal\Core\Template\Attribute $source */
-        if (isset($variables['sources']) && is_array($variables['sources'])) {
-          foreach ($variables['sources'] as &$source) {
-            $source->setAttribute('data-srcset', $source['srcset']->value());
-            $source->setAttribute('srcset', '');
-          }
-        }
-
-        // Prevents invalid IMG tag when one pixel placeholder is disabled.
-        $image['#uri'] = $placeholder;
-        $image['#srcset'] = '';
-
-        // Cleans up the no-longer relevant attributes for controlling element.
-        unset($attributes['data-srcset'], $image['#attributes']['data-srcset']);
-      }
-      else {
-        // Modifies <img> element attributes.
-        $image['#attributes']['data-srcset'] = $attributes['srcset']->value();
-        $image['#attributes']['srcset'] = '';
-      }
-
-      // The [data-b-lazy] is a flag indicating 1px placeholder.
-      // This prevents double-downloading the fallback image, if enabled.
-      if (!empty($attributes['data-b-lazy'])) {
-        $image['#uri'] = $placeholder;
-      }
-
-      // More shared-with-image attributes are set at self::imageAttributes().
-      $image['#attributes']['class'][] = 'b-responsive';
-    }
-
-    // Cleans up the no-longer needed flags:
-    foreach (['placeholder', 'b-lazy', 'b-noscript'] as $key) {
-      unset($attributes['data-' . $key], $image['#attributes']['data-' . $key]);
-    }
-  }
-
-  /**
-   * Overrides variables for file-video.html.twig templates.
-   */
-  public static function preprocessFileVideo(array &$variables) {
-    if ($files = $variables['files']) {
-      if (empty($variables['attributes']['data-b-preview'])) {
-        $variables['attributes']->addClass(['b-lazy']);
-        foreach ($files as $file) {
-          $source_attributes = &$file['source_attributes'];
-          $source_attributes->setAttribute('data-src', $source_attributes['src']->value());
-          $source_attributes->setAttribute('src', '');
-        }
-      }
-
-      // Adds a poster image if so configured.
-      if (isset($files[0], $files[0]['blazy']) && $blazy = $files[0]['blazy']) {
-        if ($blazy->get('image') && $blazy->get('uri')) {
-          $settings = $blazy->storage();
-          $settings['_dimensions'] = TRUE;
-          BlazyUtil::imageUrl($settings);
-          if (!empty($settings['image_url'])) {
-            $variables['attributes']->setAttribute('poster', $settings['image_url']);
-          }
-          if (!empty($settings['lightbox'])) {
-            $variables['attributes']->setAttribute('autoplay', TRUE);
-          }
-        }
-      }
-
-      $attrs = ['data-b-lazy', 'data-b-preview'];
-      $variables['attributes']->addClass(['media__element']);
-      $variables['attributes']->removeAttribute($attrs);
-    }
-  }
-
-  /**
-   * Overrides variables for field.html.twig templates.
-   */
-  public static function preprocessField(array &$variables) {
-    $element = &$variables['element'];
-    $settings = empty($element['#blazy']) ? [] : $element['#blazy'];
-
-    // 1. Hence Blazy is not the formatter, lacks of settings.
-    if (!empty($element['#third_party_settings']['blazy']['blazy'])) {
-      BlazyAlter::thirdPartyPreprocessField($variables);
-    }
-
-    // 2. Hence Blazy is the formatter, has its settings.
-    if (empty($settings['_grid'])) {
-      self::containerAttributes($variables['attributes'], $settings);
-    }
-  }
-
-  /**
    * Returns the trusted HTML ID of a single instance.
    */
   public static function getHtmlId($string = 'blazy', $id = '') {
@@ -536,9 +381,21 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Returns the commonly used path, or just the base path.
+   */
+  public static function getPath($type, $name, $absolute = FALSE): string {
+    // We know 100% the service does exist, but here to satisfy linter and test.
+    if ($resolver = self::pathResolver()) {
+      $path = $resolver->getPath($type, $name);
+      return $absolute ? \base_path() . $path : $path;
+    }
+    return \base_path();
+  }
+
+  /**
    * Checks if Blazy is in CKEditor preview mode where no JS assets are loaded.
    */
-  public static function isPreview() {
+  public static function isPreview(): bool {
     if (!isset(static::$isPreview)) {
       $stack = self::requestStack();
       $route = self::routeMatch()->getRouteName();
@@ -561,7 +418,7 @@ class Blazy implements BlazyInterface {
   /**
    * Implements hook_config_schema_info_alter().
    */
-  public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', array $settings = []) {
+  public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', array $settings = []): void {
     BlazyAlter::configSchemaInfoAlter($definitions, $formatter, $settings);
   }
 

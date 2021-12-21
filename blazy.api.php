@@ -56,7 +56,7 @@
  *   return $build;
  * }
  * @endcode
- * @see \Drupal\blazy\Blazy::preprocessBlazy()
+ * @see \Drupal\blazy\BlazyTheme::blazy()
  * @see \Drupal\blazy\BlazyDefault::imageSettings()
  *
  * A multiple image sample.
