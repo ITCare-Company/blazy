@@ -204,7 +204,7 @@ class BlazyTheme {
   /**
    * Overrides variables for media-oembed-iframe.html.twig templates.
    */
-  public function mediaOembedIframe(array &$variables): void {
+  public static function mediaOembedIframe(array &$variables): void {
     $request = Blazy::requestStack()->getCurrentRequest();
     // Without internet, this may be empty, bail out.
     if (empty($variables['media']) || !$request) {
