@@ -61,8 +61,8 @@
       if (playing !== null) {
         var played = document.querySelector('.is-playing iframe');
         // Remove the previous iframe.
-        if (played !== null) {
-          playing.removeChild(played);
+        if (played !== null && played.parentNode !== null) {
+          played.parentNode.removeChild(played);
         }
         playing.className = playing.className.replace(/(\S+)playing/, '');
       }
@@ -71,8 +71,8 @@
       player.className += ' is-playing';
 
       // Remove the existing iframe on the current clicked iframe.
-      if (iframe !== null) {
-        player.removeChild(iframe);
+      if (iframe !== null && iframe.parentNode !== null) {
+        iframe.parentNode.removeChild(iframe);
       }
 
       // Cache iframe for the potential repeating clicks.
