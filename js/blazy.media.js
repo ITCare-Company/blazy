@@ -139,9 +139,9 @@
     var elm = settings.el || settings.element;
     var data = _db.attr(elm, 'data-media');
     data = data ? _db.parse(data) : {};
-    var alt = _db.attr(elm, 'alt', 'Video preview');
-    var width = data.width ? parseInt(data.width) : 0;
-    var height = data.height ? parseInt(data.height) : 0;
+    var alt = Drupal.t(_db.attr(elm, 'alt', 'Video preview'));
+    var width = data.width ? parseInt(data.width) : 640;
+    var height = data.height ? parseInt(data.height) : 360;
     var pad = data ? ((height / width) * 100).toFixed(2) : 100;
     var imgUrl = _db.attr(elm, 'data-box-url');
     var href = _db.attr(elm, 'href');
@@ -149,24 +149,37 @@
     var imgClass = settings.imgClass ? ' ' + settings.imgClass : '';
     var idClass = data.id ? ' media--' + data.id : '';
     var player = data.type === 'video' ? ' media--player' : '';
+    var div = 'div';
+    var span = 'span';
     var html;
 
-    html = '<div class="media' + idClass + ' media--switch' + player + ' media--ratio media--ratio--fluid" style="padding-bottom: ' + pad + '%">';
+    html = '<$div class="media $idClass media--switch $player media--ratio media--ratio--fluid" style="padding-bottom: $pad%">';
 
-    html += '<img src="' + imgUrl + '" class="media__image media__element' + imgClass + '" alt="' + Drupal.t(alt) + '" loading="lazy" decoding="async"/>';
+    html += '<img src="$imgUrl" class="media__image media__element $imgClass" alt="$alt" loading="lazy" decoding="async"/>';
 
     if (player) {
-      html += '<span class="media__icon media__icon--close"></span>';
-      html += '<span class="media__icon media__icon--play" data-url="' + oembedUrl + '"></span>';
+      html += '<$span class="media__icon media__icon--close"></$span>';
+      html += '<$span class="media__icon media__icon--play" data-url="$oembedUrl"></$span>';
     }
 
-    html += '</div>';
+    html += '</$div>';
 
     if (!settings.unwrap) {
-      html = '<div class="media-wrapper media-wrapper--inline" style="width:' + width + 'px">' + html + '</div>';
+      html = '<$div class="media-wrapper media-wrapper--inline" style="width: $widthpx">' + html + '</$div>';
     }
 
-    return html;
+    return _db.template(html, {
+      div: div,
+      span: span,
+      idClass: idClass,
+      player: player,
+      pad: pad,
+      imgUrl: imgUrl,
+      imgClass: imgClass,
+      alt: alt,
+      oembedUrl: oembedUrl,
+      width: width
+    });
   };
 
   /**

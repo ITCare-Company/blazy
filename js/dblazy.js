@@ -34,6 +34,7 @@
    * @namespace
    */
   var dBlazy = {};
+  var _oProto = Object.prototype;
 
   // See https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
   if (!Element.prototype.matches) {
@@ -205,7 +206,7 @@
       }
 
       for (var key in arguments[i]) {
-        if (Object.prototype.hasOwnProperty.call(arguments[i], key)) {
+        if (_oProto.hasOwnProperty.call(arguments[i], key)) {
           out[key] = arguments[i][key];
         }
       }
@@ -230,10 +231,9 @@
    *   Object/NodeList/Array that forEach is iterating over (aka `this`).
    */
   dBlazy.forEach = function (collection, callback, scope) {
-    var proto = Object.prototype;
-    if (proto.toString.call(collection) === '[object Object]') {
+    if (_oProto.toString.call(collection) === '[object Object]') {
       for (var prop in collection) {
-        if (proto.hasOwnProperty.call(collection, prop)) {
+        if (_oProto.hasOwnProperty.call(collection, prop)) {
           callback.call(scope, collection[prop], prop, collection);
         }
       }
@@ -635,7 +635,7 @@
    * @return {Object}
    *   The function result.
    *
-   * @deprecated in Blazy 2.5 and will be removed in Blazy 3.0.0. Use the
+   * @tbd deprecated in Blazy 2.5 and will be removed in Blazy 3.0.0. Use the
    * core/once library instead. See https://www.drupal.org/node/3254668.
    */
   dBlazy.once = function (fn) {
@@ -838,6 +838,68 @@
     }
 
     elm.dispatchEvent(event);
+  };
+
+  /**
+   * Replaces string occurances to simplify string templating.
+   *
+   * @name dBlazy.template
+   *
+   * @link https://stackoverflow.com/questions/1144783
+   *
+   * @param {String} string
+   *   The original source string.
+   * @param {Object} map
+   *   The mapping object.
+   *
+   * @return {String}
+   *   The modified string.
+   *
+   * @todo use template string or replaceAll for D10, or D11 at the latest.
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll
+   * @see https://caniuse.com/mdn-javascript_builtins_string_replaceall
+   */
+  dBlazy.template = function (string, map) {
+    for (var key in map) {
+      if (_oProto.hasOwnProperty.call(map, key)) {
+        string = string.replace(new RegExp(this.escapeRegex('$' + key), 'g'), map[key]);
+      }
+    }
+    return this.trimSpaces(string);
+  };
+
+  /**
+   * Escapes special (meta) characters.
+   *
+   * @name dBlazy.escapeRegex
+   *
+   * @link https://stackoverflow.com/questions/1144783
+   *
+   * @param {String} string
+   *   The original source string.
+   *
+   * @return {String}
+   *   The modified string.
+   */
+  dBlazy.escapeRegex = function (string) {
+    // $& means the whole matched string.
+    return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
+  };
+
+  /**
+   * Removes extra spaces so to keep readable template.
+   *
+   * @name dBlazy.trimSpaces
+   *
+   * @param {String} string
+   *   The original source string.
+   *
+   * @return {String}
+   *   The modified string.
+   */
+  dBlazy.trimSpaces = function (string) {
+    return string.replace(/\\s+/g, ' ').trim();
   };
 
   /**
