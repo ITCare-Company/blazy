@@ -482,11 +482,11 @@
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        if (once.find(_id, context).length) {
-          once.remove(_id, _element, context);
-        }
         if (once.find(_idGlobal, context).length) {
           once.remove(_idGlobal, _elementGlobal, context);
+        }
+        if (once.find(_id, context).length) {
+          once.remove(_id, _element, context);
         }
       }
     }
