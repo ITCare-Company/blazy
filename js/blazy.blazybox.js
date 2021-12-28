@@ -7,12 +7,66 @@
 
   'use strict';
 
-  var _id = 'blazy-box';
-  var _element = '.blazybox';
+  var _id = 'blazybox';
+  var _element = '.' + _id;
+  var _elContent = _element + '__content';
+  var _mounted = _id + '--on';
+  var _open = 'is-' + _id + '--open';
+  var _hidden = 'visually-hidden';
+  var _ariaHidden = 'aria-hidden';
 
-  Drupal.blazyBox = Drupal.blazyBox || {};
+  /**
+   * Blazybox public methods.
+   *
+   * @namespace
+   */
+  Drupal.blazyBox = {
+    el: _db.find(_doc, _element),
 
-  Drupal.blazyBox.el = _db.find(_doc, '.blazybox');
+    /**
+     * Open the blazyBox.
+     *
+     * @param {string} embedUrl
+     *   The video embed url.
+     */
+    open: function (embedUrl) {
+      var me = this;
+      var mediaEl = Drupal.theme('blazyBoxMedia', {embedUrl: embedUrl});
+
+      Drupal.attachBehaviors(me.el);
+      _db.find(me.el, _elContent).innerHTML = mediaEl;
+
+      me.el.classList.remove(_hidden);
+      _db.attr(me.el, _ariaHidden, false);
+      _doc.body.classList.add(_open);
+    },
+
+    /**
+     * Attach the blazyBox.
+     */
+    attach: function () {
+      if (_db.find(_doc, _element) === null) {
+        // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
+        _doc.body.insertAdjacentHTML('beforeend', Drupal.theme('blazyBox'));
+      }
+    },
+
+    /**
+     * Close the blazyBox.
+     *
+     * @param {Event} e
+     *   The mouse event triggering the close.
+     */
+    close: function (e) {
+      var el = Drupal.blazyBox.el;
+      e.preventDefault();
+
+      el.classList.add(_hidden);
+      _db.attr(el, _ariaHidden, true);
+      _db.find(el, _elContent).innerHTML = '';
+      _doc.body.classList.remove(_open);
+    }
+  };
 
   /**
    * Theme function for a fullscreen lightbox video container.
@@ -23,12 +77,15 @@
   Drupal.theme.blazyBox = function () {
     var html;
 
-    html = '<div id="blazybox" class="blazybox visually-hidden" tabindex="-1" role="dialog" aria-hidden="true">';
-    html += '<div class="blazybox__content">' + Drupal.t('Dynamic video content.') + '</div>';
-    html += '<button class="blazybox__close" data-role="none">&times;</button>';
+    html = '<div id="$id" class="$id visually-hidden" tabindex="-1" role="dialog" aria-hidden="true">';
+    html += '<div class="$id__content">$placeholder</div>';
+    html += '<button class="$id__close" data-role="none">&times;</button>';
     html += '</div>';
 
-    return html;
+    return _db.template(html, {
+      id: _id,
+      placeholder: Drupal.t('Dynamic video content.')
+    });
   };
 
   /**
@@ -51,50 +108,6 @@
   };
 
   /**
-   * Open the blazyBox.
-   *
-   * @param {string} embedUrl
-   *   The video embed url.
-   */
-  Drupal.blazyBox.open = function (embedUrl) {
-    var me = this;
-    var mediaEl = Drupal.theme('blazyBoxMedia', {embedUrl: embedUrl});
-
-    Drupal.attachBehaviors(me.el);
-    _db.find(me.el, '.blazybox__content').innerHTML = mediaEl;
-
-    me.el.classList.remove('visually-hidden');
-    _db.attr(me.el, 'aria-hidden', false);
-    _doc.body.classList.add('is-blazybox--open');
-  };
-
-  /**
-   * Attach the blazyBox.
-   */
-  Drupal.blazyBox.attach = function () {
-    if (_db.find(_doc, '.blazybox') === null) {
-      // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
-      _doc.body.insertAdjacentHTML('beforeend', Drupal.theme('blazyBox'));
-    }
-  };
-
-  /**
-   * Close the blazyBox.
-   *
-   * @param {Event} e
-   *   The mouse event triggering the close.
-   */
-  Drupal.blazyBox.close = function (e) {
-    var el = Drupal.blazyBox.el;
-    e.preventDefault();
-
-    el.classList.add('visually-hidden');
-    _db.attr(el, 'aria-hidden', true);
-    _db.find(el, '.blazybox__content').innerHTML = '';
-    _doc.body.classList.remove('is-blazybox--open');
-  };
-
-  /**
    * BlazyBox utility functions.
    *
    * @param {HTMLElement} box
@@ -102,10 +115,11 @@
    */
   function doBlazyBox(box) {
     var me = Drupal.blazyBox;
-    box.classList.add('blazybox--on');
+
+    box.classList.add(_mounted);
     me.el = box;
 
-    _db.on(me.el, 'click', '.blazybox__close', me.close);
+    _db.on(me.el, 'click', _element + '__close', me.close);
   }
 
   /**

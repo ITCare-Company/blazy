@@ -8,9 +8,15 @@
 
   var _md = 'media';
   var _id = 'blazy-' + _md;
-  var _element = '.' + _md + '--player';
+  var _player = _md + '--player';
+  var _element = '.' + _player;
+  var _icon = _md + '__icon';
+  var _elIconPlay = '.' + _icon + '--play';
+  var _elIconClose = '.' + _icon + '--close';
   var _iFrame = 'iframe';
   var _isPlaying = 'is-playing';
+  var _dataIFrameTitle = 'data-iframe-title';
+  var _dataUrl = 'data-url';
 
   /**
    * Blazy media utility functions.
@@ -20,15 +26,15 @@
    */
   function blazyMedia(el) {
     var iframe = _db.find(el, _iFrame);
-    var btn = _db.find(el, '.' + _md + '__icon--play');
+    var btn = _db.find(el, _elIconPlay);
 
     // Media player toggler is disabled, just display iframe.
     if (_db.isNull(btn)) {
       return;
     }
 
-    var url = _db.attr(btn, 'data-url');
-    var title = _db.attr(btn, 'data-iframe-title');
+    var url = _db.attr(btn, _dataUrl);
+    var title = _db.attr(btn, _dataIFrameTitle);
     var newIframe;
 
     /**
@@ -37,7 +43,7 @@
      * @param {Event} e
      *   The event triggered by a `click` event.
      *
-     * @return {bool}|{mixed}
+     * @return {bool|mixed}
      *   Return false if url is not available.
      */
     function play(e) {
@@ -54,8 +60,8 @@
       var iframe = _db.find(player, _iFrame);
       var video = _db.find(_doc, 'video');
 
-      url = _db.attr(target, 'data-url');
-      title = _db.attr(target, 'data-iframe-title');
+      url = _db.attr(target, _dataUrl);
+      title = _db.attr(target, _dataIFrameTitle);
 
       // First, reset any (local) video to avoid multiple videos from playing.
       if (!_db.isNull(video) && !video.paused) {
@@ -114,12 +120,12 @@
     _db.remove(iframe);
 
     // Plays the media player.
-    _db.on(el, 'click.' + _id, '.' + _md + '__icon--play', play);
+    _db.on(el, 'click.' + _id, _elIconPlay, play);
 
     // Closes the video.
-    _db.on(el, 'click.' + _id, '.' + _md + '__icon--close', stop);
+    _db.on(el, 'click.' + _id, _elIconClose, stop);
 
-    el.classList.add(_md + '--player--on');
+    el.classList.add(_player + '--on');
   }
 
   /**
@@ -136,8 +142,7 @@
     // PhotoSwipe5 has element, PhotoSwipe4 el, etc.
     var elm = settings.el || settings.element;
     var img = _db.find(elm, 'img');
-    var data = _db.attr(elm, 'data-' + _md);
-    data = data ? _db.parse(data) : {};
+    var data = _db.parse(_db.attr(elm, 'data-' + _md));
     var alt = Drupal.checkPlain(_db.attr(img, 'alt', 'Video preview', true));
     var width = data.width ? parseInt(data.width, 10) : 640;
     var height = data.height ? parseInt(data.height, 10) : 360;
@@ -150,36 +155,29 @@
       defClass + ' ' + settings.imgClass :
       defClass;
     var idClass = data.id ? ' ' + _md + '--' + data.id : '';
-    var player = data.type === 'video' ? ' ' + _md + '--player' : '';
-    var div = 'div';
-    var span = 'span';
+    var player = data.type === 'video' ? ' ' + _player : '';
     var html;
 
-    html =
-      '<$div class="$md $idClass $md--switch $player $md--ratio $md--ratio--fluid" style="padding-bottom: $pad%">';
+    html = '<div class="$md $idClass $md--switch $player $md--ratio $md--ratio--fluid" style="padding-bottom: $pad%">';
 
-    html +=
-      '<img src="$imgUrl" class="$imgClass" alt="$alt" loading="lazy" decoding="async" />';
+    html += '<img src="$imgUrl" class="$imgClass" alt="$alt" loading="lazy" decoding="async" />';
 
     if (player) {
-      html += '<$span class="$md__icon $md__icon--close"></$span>';
-      html +=
-        '<$span class="$md__icon $md__icon--play" data-url="$oembedUrl" data-iframe-title="$alt"></$span>';
+      html += '<span class="$icon $icon--close"></span>';
+      html += '<span class="$icon $icon--play" data-url="$oembedUrl" data-iframe-title="$alt"></span>';
     }
 
-    html += '</$div>';
+    html += '</div>';
 
     if (!settings.unwrap) {
-      html =
-        '<$div class="$md-wrapper $md-wrapper--inline" style="width: $widthpx">' +
+      html = '<div class="$wrapper $wrapper--inline" style="width: $widthpx">' +
         html +
-        '</$div>';
+        '</div>';
     }
 
     return _db.template(html, {
-      div: div,
-      span: span,
       md: _md,
+      icon: _icon,
       idClass: idClass,
       player: player,
       pad: pad,
@@ -187,7 +185,8 @@
       imgClass: imgClass,
       alt: alt,
       oembedUrl: oembedUrl,
-      width: width
+      width: width,
+      wrapper: _md + '-wrapper'
     });
   };
 

@@ -93,13 +93,12 @@ nativegrid.masonry:
   dependencies:
     - core/drupal
     - blazy/dblazy
+    - blazy/base
     - blazy/nativegrid
 
 dblazy:
   js:
     js/dblazy.js: { weight: -4 }
-  dependencies:
-    - blazy/base
 
 # @todo adjust weights to use hundredth decimals.
 bio:
@@ -171,6 +170,19 @@ colorbox:
     - blazy/ratio
     - blazy/colorbox.skin
 
+admin:
+  js:
+    js/blazy.admin.js: {}
+  css:
+    theme:
+      css/blazy.admin.css: {}
+      css/blazy.admin--fixes.css: {}
+  dependencies:
+    - core/jquery
+    - core/once
+    - core/drupal
+    - blazy/dblazy
+
 # @todo deprecated, unmaintained.
 photobox:
   remote: https://github.com/yairEO/photobox/
@@ -190,16 +202,3 @@ photobox:
     - blazy/load
     # use photobox when available instead.
     # - photobox/photobox
-
-admin:
-  js:
-    js/blazy.admin.js: {}
-  css:
-    theme:
-      css/blazy.admin.css: {}
-      css/blazy.admin--fixes.css: {}
-  dependencies:
-    - core/jquery
-    - core/once
-    - core/drupal
-    - blazy/dblazy
