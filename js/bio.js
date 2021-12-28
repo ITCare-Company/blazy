@@ -111,7 +111,7 @@
   };
 
   _proto.isValid = function (el) {
-    return typeof el === 'object' && typeof el.length === 'undefined' && !this.isLoaded(el);
+    return _db.isObject(el) && _db.isUndefined(el.length) && !this.isLoaded(el);
   };
 
   _proto.prepare = function () {
@@ -124,7 +124,7 @@
     // Prevents from too many revalidations unless needed.
     if ((force === true || me.count !== me.counted) && (_revTick < me.counted)) {
       _disconnected = false;
-      me.elms = (me.options.root || _doc).querySelectorAll(me.options.selector);
+      me.elms = _db.findAll(me.options.root || _doc, me.options.selector);
       me.observe();
 
       _revTick++;
@@ -135,12 +135,14 @@
     var me = this;
 
     // If not extending/ overriding, at least provide the option.
-    if (typeof me.options.intersecting === 'function') {
+    if (_db.isFunction(me.options.intersecting)) {
       me.options.intersecting(el, me.options);
     }
 
     // Be sure to throttle, or debounce your method when calling this.
-    _db.trigger(el, 'bio.intersecting', {options: me.options});
+    _db.trigger(el, 'bio.intersecting', {
+      options: me.options
+    });
 
     me.lazyLoad(el);
     me.counted++;
@@ -157,7 +159,7 @@
   _proto.success = function (el, status, parent) {
     var me = this;
 
-    if (typeof me.options.success === 'function') {
+    if (_db.isFunction(me.options.success)) {
       me.options.success(el, status, parent, me.options);
     }
 
@@ -169,7 +171,7 @@
   _proto.error = function (el, status, parent) {
     var me = this;
 
-    if (typeof me.options.error === 'function') {
+    if (_db.isFunction(me.options.error)) {
       me.options.error(el, status, parent, me.options);
     }
 
@@ -207,7 +209,7 @@
     // Load each on entering viewport.
     _db.forEach(entries, function (entry) {
       // Provides option such as to animate bg or elements regardless position.
-      if (typeof me.options.observing === 'function') {
+      if (_db.isFunction(me.options.observing)) {
         me.options.observing(entry, observer, me.options);
       }
 
@@ -237,7 +239,7 @@
     if (((_bioTick === 0 || me.count === me.counted) && me.options.disconnect) || force) {
       me.observer.disconnect();
       me.count = 0;
-      me.elms = null;
+      me.elms = [];
       _disconnected = true;
     }
   };
@@ -264,7 +266,7 @@
       threshold: me.options.threshold
     };
 
-    me.elms = (me.options.root || _doc).querySelectorAll(me.options.selector + ':not(.' + me.options.successClass + ')');
+    me.elms = _db.findAll(me.options.root || _doc, me.options.selector + ':not(.' + me.options.successClass + ')');
     me.count = me.elms.length;
     me.windowWidth = _db.windowWidth();
 

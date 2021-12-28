@@ -13,8 +13,12 @@ base:
   css:
     component:
       css/blazy.css: {}
+  js:
+    js/blazy.base.js: { weight: -1.6 }
   dependencies:
     - core/once
+    - core/drupal
+    - core/drupal.debounce
 
 filter:
   js:
@@ -114,8 +118,6 @@ load:
   js:
     js/blazy.load.js: { weight: -1.5 }
   dependencies:
-    - core/drupal
-    - core/drupal.debounce
     - blazy/blazy
     - blazy/dblazy
     - blazy/loading

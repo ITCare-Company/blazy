@@ -74,7 +74,7 @@
       var me = this;
       var parent = el.parentNode;
       var isImage = _db.equal(el, 'img');
-      var isBg = typeof el.src === 'undefined' && el.classList.contains(me.options.bgClass);
+      var isBg = _db.isUndefined(el.src) && el.classList.contains(me.options.bgClass);
       var isPicture = parent && _db.equal(parent, 'picture');
       var isVideo = _db.equal(el, 'video');
 
@@ -124,7 +124,7 @@
         me.setBg(el);
       }
       else {
-        _db.setAttrs(el, _imgSources, false);
+        _db.setAttr(el, _imgSources, false);
       }
     };
 
@@ -152,7 +152,9 @@
       })
       .finally(function () {
         // Be sure to throttle, or debounce your method when calling this.
-        _db.trigger(el, 'bio.finally', {options: me.options});
+        _db.trigger(el, 'bio.finally', {
+          options: me.options
+        });
       });
 
     // Preload `img` to have correct event handlers.

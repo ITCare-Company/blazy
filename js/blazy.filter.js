@@ -30,9 +30,9 @@
     cn.setAttribute('data-blazy', '');
 
     // Not using elm is fine since this should be executed once.
-    var box = cn.querySelector('.litebox');
-    if (box !== null) {
-      var media = box.getAttribute('data-media') ? _db.parse(box.getAttribute('data-media')) : {};
+    var box = _db.find(cn, '.litebox');
+    if (!_db.isNull(box)) {
+      var media = _db.parse(box.getAttribute('data-media'));
       if ('id' in media) {
         var id = media.id;
         cn.classList.add('blazy--' + id);

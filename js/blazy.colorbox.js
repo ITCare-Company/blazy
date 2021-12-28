@@ -163,7 +163,7 @@
    */
   Drupal.behaviors.blazyColorbox = {
     attach: function (context) {
-      if (typeof drupalSettings.colorbox === 'undefined') {
+      if (_db.isUndefined(drupalSettings.colorbox)) {
         return;
       }
 

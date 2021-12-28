@@ -9,6 +9,8 @@
   var _md = 'media';
   var _id = 'blazy-' + _md;
   var _element = '.' + _md + '--player';
+  var _iFrame = 'iframe';
+  var _isPlaying = 'is-playing';
 
   /**
    * Blazy media utility functions.
@@ -17,11 +19,11 @@
    *   The media player HTML element.
    */
   function blazyMedia(el) {
-    var iframe = el.querySelector('iframe');
-    var btn = el.querySelector('.' + _md + '__icon--play');
+    var iframe = _db.find(el, _iFrame);
+    var btn = _db.find(el, '.' + _md + '__icon--play');
 
     // Media player toggler is disabled, just display iframe.
-    if (btn === null) {
+    if (_db.isNull(btn)) {
       return;
     }
 
@@ -48,32 +50,36 @@
 
       var target = this;
       var player = target.parentNode;
-      var playing = _doc.querySelector('.is-playing');
-      var iframe = player.querySelector('iframe');
+      var playing = _db.find(_doc, '.' + _isPlaying);
+      var iframe = _db.find(player, _iFrame);
+      var video = _db.find(_doc, 'video');
 
       url = _db.attr(target, 'data-url');
       title = _db.attr(target, 'data-iframe-title');
 
-      // First, reset any video to avoid multiple videos from playing.
-      if (playing !== null) {
-        var played = _doc.querySelector('.is-playing iframe');
+      // First, reset any (local) video to avoid multiple videos from playing.
+      if (!_db.isNull(video) && !video.paused) {
+        video.pause();
+      }
+      if (!_db.isNull(playing)) {
+        var played = _db.find(_doc, '.' + _isPlaying + ' ' + _iFrame);
         // Remove the previous iframe.
         _db.remove(played);
         playing.className = playing.className.replace(/(\S+)playing/, '');
       }
 
       // Appends the iframe.
-      player.classList.add('is-playing');
+      player.classList.add(_isPlaying);
 
       // Remove the existing iframe on the current clicked iframe.
       _db.remove(iframe);
 
       // Cache iframe for the potential repeating clicks.
       if (!newIframe) {
-        newIframe = _doc.createElement('iframe');
+        newIframe = _doc.createElement(_iFrame);
         newIframe.className = _md + '__iframe ' + _md + '__element';
 
-        _db.setAttrs(newIframe, {
+        _db.attr(newIframe, {
           src: url,
           allowfullscreen: true,
           title: title
@@ -94,9 +100,9 @@
 
       var target = this;
       var player = target.parentNode;
-      var iframe = player.querySelector('iframe');
+      var iframe = _db.find(player, _iFrame);
 
-      if (player.className.match('is-playing')) {
+      if (player.className.match(_isPlaying)) {
         player.className = player.className.replace(/(\S+)playing/, '');
       }
 
@@ -108,10 +114,10 @@
     _db.remove(iframe);
 
     // Plays the media player.
-    _db.on(el, 'click', '.' + _md + '__icon--play', play);
+    _db.on(el, 'click.' + _id, '.' + _md + '__icon--play', play);
 
     // Closes the video.
-    _db.on(el, 'click', '.' + _md + '__icon--close', stop);
+    _db.on(el, 'click.' + _id, '.' + _md + '__icon--close', stop);
 
     el.classList.add(_md + '--player--on');
   }
@@ -129,20 +135,20 @@
   Drupal.theme.blazyMedia = function (settings) {
     // PhotoSwipe5 has element, PhotoSwipe4 el, etc.
     var elm = settings.el || settings.element;
-    var img = elm.querySelector('img');
+    var img = _db.find(elm, 'img');
     var data = _db.attr(elm, 'data-' + _md);
     data = data ? _db.parse(data) : {};
-    var alt = Drupal.checkPlain(_db.attr(img, 'alt', 'Video preview'));
-    var width = data.width ? parseInt(data.width) : 640;
-    var height = data.height ? parseInt(data.height) : 360;
+    var alt = Drupal.checkPlain(_db.attr(img, 'alt', 'Video preview', true));
+    var width = data.width ? parseInt(data.width, 10) : 640;
+    var height = data.height ? parseInt(data.height, 10) : 360;
     var pad = data ? ((height / width) * 100).toFixed(2) : 100;
     var imgUrl = _db.attr(elm, 'data-box-url');
     var href = _db.attr(elm, 'href');
-    var oembedUrl = _db.attr(elm, 'data-oembed-url', href);
+    var oembedUrl = _db.attr(elm, 'data-oembed-url', href, true);
     var defClass = _md + '__image ' + _md + '__element';
-    var imgClass = settings.imgClass
-      ? defClass + ' ' + settings.imgClass
-      : defClass;
+    var imgClass = settings.imgClass ?
+      defClass + ' ' + settings.imgClass :
+      defClass;
     var idClass = data.id ? ' ' + _md + '--' + data.id : '';
     var player = data.type === 'video' ? ' ' + _md + '--player' : '';
     var div = 'div';

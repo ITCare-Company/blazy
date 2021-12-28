@@ -114,6 +114,11 @@
     width: 100%;
   }
 
+  /* For some reason, unlike video, etc., iframe refuses to show when static. */
+  .block-nativegrid.is-b-native .grid iframe {
+    position: absolute;
+  }
+
   /* To avoid initial confusion due to being hidden, adjust it. */
   .block-nativegrid.is-b-native .blazy__caption,
   .block-nativegrid.is-b-native .slide__caption {

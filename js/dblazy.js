@@ -41,12 +41,15 @@
     Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
   }
 
+  // The namespaced event holders.
+  dBlazy._events = dBlazy._events || {};
+
   /**
    * Check if the given element matches the selector.
    *
    * @name dBlazy.matches
    *
-   * @param {Element} elem
+   * @param {Element} el
    *   The current element.
    * @param {String} selector
    *   Selector to match against (class, ID, data attribute, or tag).
@@ -57,13 +60,8 @@
    * @see http://caniuse.com/#feat=matchesselector
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
    */
-  dBlazy.matches = function (elem, selector) {
-    // Check if matches, excluding HTMLDocument, see ::closest().
-    if (elem.matches(selector)) {
-      return true;
-    }
-
-    return false;
+  dBlazy.matches = function (el, selector) {
+    return el && el.matches(selector);
   };
 
   /**
@@ -132,7 +130,7 @@
       return dataset[v];
     })[mobileFirst ? 'pop' : 'shift']();
 
-    return typeof data === 'undefined' ? dataset[ww >= xl ? xl : xs] : data;
+    return me.isUndefined(data) ? dataset[ww >= xl ? xl : xs] : data;
   };
 
   /**
@@ -149,7 +147,7 @@
    *   Returns true if matches, else false.
    */
   dBlazy.equal = function (el, str) {
-    return el !== null && el.nodeName.toLowerCase() === str;
+    return el && el.nodeName.toLowerCase() === str;
   };
 
   /**
@@ -164,7 +162,7 @@
    * @param {String} selector
    *   Selector to match against (class, ID, data attribute, or tag).
    *
-   * @return {Boolean|Element}
+   * @return {Element|Null}
    *   Returns null if not match found.
    *
    * @see http://caniuse.com/#feat=element-closest
@@ -172,16 +170,52 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
    */
   dBlazy.closest = function (el, selector) {
+    var me = this;
     var parent;
-    while (el) {
+    while (el && !me.isNull(el)) {
       parent = el.parentElement;
-      if (parent && parent.matches(selector)) {
+      if (me.matches(parent, selector)) {
         return parent;
       }
       el = parent;
     }
 
     return null;
+  };
+
+  /**
+   * A simple querySelector wrapper.
+   *
+   * @name dBlazy.find
+   *
+   * @param {Element} el
+   *   The parent HTML element.
+   * @param {String} selector
+   *   The CSS selector or HTML tag to query.
+   *
+   * @return {Element|null}
+   *   Null if orphan or not found, else the expected element.
+   */
+  dBlazy.find = function (el, selector) {
+    return this.isNull(el) ? null : el.querySelector(selector);
+  };
+
+  /**
+   * A simple querySelectorAll wrapper.
+   *
+   * @name dBlazy.find
+   *
+   * @param {Element} el
+   *   The parent HTML element.
+   * @param {String} selector
+   *   The CSS selector or HTML tag to query.
+   *
+   * @return {Array}
+   *   Empty array if orphan or not found, else the expected element array.
+   */
+  dBlazy.findAll = function (el, selector) {
+    var me = this;
+    return me.isNull(me.find(el, selector)) ? [] : el.querySelectorAll(selector);
   };
 
   /**
@@ -257,16 +291,9 @@
    *
    * @return {bool}
    *   True if the method is supported.
-   *
-   * @todo remove for el.classList.contains() alone.
    */
   dBlazy.hasClass = function (el, name) {
-    if (el.classList) {
-      return el.classList.contains(name);
-    }
-    else {
-      return el.className.indexOf(name) !== -1;
-    }
+    return el && el.classList.contains(name);
   };
 
   /**
@@ -280,89 +307,89 @@
    *   The attr name.
    * @param {String} defValue
    *   The default value.
-   * @param {Boolean} set
-   *   True if should set.
+   * @param {Boolean} withDefault
+   *   True if should get with defValue.
    *
-   * @return {String|Void}
-   *   The attribute value, or fallback, or void if a set.
+   * @return {String}
+   *   The attribute value, or fallback, or empty.
    */
-  dBlazy.attr = function (el, attr, defValue, set) {
-    if (el && set) {
-      el.setAttribute(attr, defValue);
+  dBlazy.attr = function (el, attr, defValue, withDefault) {
+    var me = this;
+    if (me.isNull(el)) {
+      return '';
+    }
+
+    // Since an attribute value must be a string, a null means nullify.
+    if (me.isNull(defValue)) {
+      el.removeAttribute(attr);
+    }
+    // Passing a key-value pair object means setting multiple attributes once.
+    else if (me.isObject(attr)) {
+      me.forEach(attr, function (value, key) {
+        el.setAttribute(key, value);
+      });
     }
     else {
-      defValue = defValue || '';
-      return el !== null && el.hasAttribute(attr) ? el.getAttribute(attr) : defValue;
+      // No defValue defined, or withDefault set, means a getter.
+      if (me.isUndefined(defValue) || typeof withDefault === 'boolean') {
+        defValue = defValue || '';
+        return el.hasAttribute(attr) ? el.getAttribute(attr) : defValue;
+      }
+
+      // Else a setter.
+      el.setAttribute(attr, defValue);
     }
+
+    // For consistency, even if useless.
+    return '';
   };
 
   /**
-   * A simple attributes wrapper with values based on data attributes or object.
+   * A simple attributes wrapper with values based on data attributes.
    *
    * @name dBlazy.setAttr
    *
    * @param {Element} el
    *   The HTML element.
-   * @param {String|Object} attr
-   *   The attr name, or key value pair.
+   * @param {String|Array} attr
+   *   The attr name, or string array.
    * @param {Boolean} remove
-   *   True if should remove.
+   *   True if should remove the original/ temporary holder.
+   *
+   * @return {dBlazy}
+   *   The dBlazy object.
+   *
+   * @todo refactor, or move it out for being too specific with data attributes.
    */
   dBlazy.setAttr = function (el, attr, remove) {
     var me = this;
-    if (el === null) {
-      return;
+    if (me.isNull(el)) {
+      return me;
     }
 
-    // To accommodate ::setAttrs at ease.
-    if (typeof attr === 'string') {
-      var srcAttr = 'data-' + attr;
-      if (el.hasAttribute(srcAttr)) {
-        var dataAttr = el.getAttribute(srcAttr);
-        if (attr === 'src') {
-          el.src = dataAttr;
-        }
-        else {
-          el.setAttribute(attr, dataAttr);
-        }
-
-        if (remove) {
-          el.removeAttribute(srcAttr);
-        }
-      }
-    }
-    else {
-      me.forEach(attr, function (value, key) {
-        el.setAttribute(key, value);
+    // To accommodate multiple attributes at ease.
+    if (me.isArray(attr)) {
+      me.forEach(attr, function (value) {
+        me.setAttr(el, value, remove);
       });
+      return me;
     }
-  };
 
-  /**
-   * A simple attributes wrapper looping based on the given attributes.
-   *
-   * @name dBlazy.setAttrs
-   *
-   * @param {Element} el
-   *   The HTML element.
-   * @param {Array} attrs
-   *   The attr names.
-   * @param {Boolean} remove
-   *   True if should remove.
-   */
-  dBlazy.setAttrs = function (el, attrs, remove) {
-    var me = this;
-
-    me.forEach(attrs, function (value, key) {
-      // If not a string array, assumed a key-value pair object.
-      if (typeof key !== 'number') {
-        var obj = {};
-        obj[key] = value;
-        value = obj;
+    var dataAttr = 'data-' + attr;
+    if (el.hasAttribute(dataAttr)) {
+      var value = el.getAttribute(dataAttr);
+      if (attr === 'src') {
+        el.src = value;
+      }
+      else {
+        el.setAttribute(attr, value);
       }
 
-      me.setAttr(el, value, remove);
-    });
+      if (remove) {
+        el.removeAttribute(dataAttr);
+      }
+    }
+    return me;
   };
 
   /**
@@ -380,7 +407,7 @@
   dBlazy.setAttrsWithSources = function (el, attr, remove) {
     var me = this;
     var parent = el.parentNode || null;
-    var isPicture = parent && me.equal(parent, 'picture');
+    var isPicture = me.equal(parent, 'picture');
     var targets = isPicture ? parent.getElementsByTagName('source') : el.getElementsByTagName('source');
 
     attr = attr || (isPicture ? 'srcset' : 'src');
@@ -390,6 +417,28 @@
         me.setAttr(source, attr, remove);
       });
     }
+  };
+
+  /**
+   * A simple removeAttribute wrapper based on ptional data attributes.
+   *
+   * @name dBlazy.removeAttrs
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {Array} attrs
+   *   The attr names.
+   * @param {String} prefix
+   *   The optional prefix.
+   */
+  dBlazy.removeAttrs = function (el, attrs, prefix) {
+    var me = this;
+    if (me.isUndefined(prefix)) {
+      prefix = 'data-';
+    }
+    me.forEach(attrs, function (attr) {
+      el.removeAttribute(prefix + attr);
+    });
   };
 
   /**
@@ -470,22 +519,6 @@
   };
 
   /**
-   * A simple removeAttribute wrapper.
-   *
-   * @name dBlazy.removeAttrs
-   *
-   * @param {Element} el
-   *   The HTML element.
-   * @param {Array} attrs
-   *   The attr names.
-   */
-  dBlazy.removeAttrs = function (el, attrs) {
-    this.forEach(attrs, function (attr) {
-      el.removeAttribute('data-' + attr);
-    });
-  };
-
-  /**
    * A simple removeChild wrapper.
    *
    * @name dBlazy.remove
@@ -494,7 +527,7 @@
    *   The HTML element to remove.
    */
   dBlazy.remove = function (el) {
-    if (el !== null && el.parentNode !== null) {
+    if (el && !this.isNull(el.parentNode)) {
       el.parentNode.removeChild(el);
     }
   };
@@ -514,9 +547,11 @@
    *   The callback function.
    * @param {Object|Boolean} params
    *   The optional param passed into a custom event.
+   * @param {Boolean} isCustom
+   *   True, if a custom event.
    */
-  dBlazy.on = function (elm, eventName, childEl, callback, params) {
-    onoff.call(this, 'on', elm, eventName, childEl, callback, params);
+  dBlazy.on = function (elm, eventName, childEl, callback, params, isCustom) {
+    onoff.call(this, 'add', elm, eventName, childEl, callback, params, isCustom);
   };
 
   /**
@@ -534,9 +569,11 @@
    *   The callback function.
    * @param {Object|Boolean} params
    *   The optional param passed into a custom event.
+   * @param {Boolean} isCustom
+   *   True, if a custom event.
    */
-  dBlazy.off = function (elm, eventName, childEl, callback, params) {
-    onoff.call(this, 'off', elm, eventName, childEl, callback, params);
+  dBlazy.off = function (elm, eventName, childEl, callback, params, isCustom) {
+    onoff.call(this, 'remove', elm, eventName, childEl, callback, params, isCustom);
   };
 
   /**
@@ -552,9 +589,11 @@
    *   The callback function.
    * @param {Object|Boolean} params
    *   The optional param passed into a custom event.
+   * @param {Boolean} isCustom
+   *   True, if a custom event.
    */
-  dBlazy.bindEvent = function (el, eventName, fn, params) {
-    binding.call(this, 'bind', el, eventName, fn, params);
+  dBlazy.bindEvent = function (el, eventName, fn, params, isCustom) {
+    addRemoveEvent.call(this, 'add', el, eventName, fn, params, isCustom);
   };
 
   /**
@@ -570,9 +609,11 @@
    *   The callback function.
    * @param {Object} params
    *   The optional param passed into a custom event.
+   * @param {Boolean} isCustom
+   *   True, if a custom event.
    */
-  dBlazy.unbindEvent = function (el, eventName, fn, params) {
-    binding.call(this, 'unbind', el, eventName, fn, params);
+  dBlazy.unbindEvent = function (el, eventName, fn, params, isCustom) {
+    addRemoveEvent.call(this, 'remove', el, eventName, fn, params, isCustom);
   };
 
   /**
@@ -615,15 +656,15 @@
    * @param {String} str
    *   The string to convert into JSON object.
    *
-   * @return {Object|Boolean}
-   *   The JSON object, or false in case invalid.
+   * @return {Object}
+   *   The JSON object, or empty in case invalid.
    */
   dBlazy.parse = function (str) {
     try {
       return JSON.parse(str);
     }
     catch (e) {
-      return false;
+      return {};
     }
   };
 
@@ -656,8 +697,8 @@
 
     // Supports both BG and regular image.
     var cn = me.closest(el, '.media');
-    cn = cn === null ? el : cn;
-    var blur = cn.querySelector('.b-blur--tmp');
+    cn = me.isNull(cn) ? el : cn;
+    var blur = me.find(cn, '.b-blur--tmp');
 
     function animationEnd() {
       me.removeAttrs(el, props);
@@ -669,9 +710,7 @@
         el.style.removeProperty(key);
       });
 
-      if (blur !== null && blur.parentNode !== null) {
-        blur.parentNode.removeChild(blur);
-      }
+      me.remove(blur);
 
       me.unbindEvent(el, 'animationend', animationEnd);
     }
@@ -694,7 +733,7 @@
     var loaders = [el, me.closest(el, '[class*="loading"]')];
 
     this.forEach(loaders, function (loader) {
-      if (loader !== null) {
+      if (!me.isNull(loader)) {
         loader.className = loader.className.replace(/(\S+)loading/g, '');
       }
     });
@@ -750,48 +789,6 @@
       t = window.setTimeout(c, 200);
     };
     return c;
-  };
-
-  /**
-   * A simple wrapper for triggering event like jQuery.trigger().
-   *
-   * @name dBlazy.trigger
-   *
-   * @param {Element} elm
-   *   The HTML element.
-   * @param {String} eventName
-   *   The event name to trigger.
-   * @param {Object} custom
-   *   The optional object passed into a custom event.
-   * @param {Object} param
-   *   The optional param passed into a custom event.
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events
-   * @todo: See if any consistent way for both custom and native events.
-   */
-  dBlazy.trigger = function (elm, eventName, custom, param) {
-    var event;
-    var data = {
-      detail: custom || {}
-    };
-
-    if (typeof param === 'undefined') {
-      data.bubbles = true;
-      data.cancelable = true;
-    }
-
-    // Native.
-    // IE >= 9 compat, else SCRIPT445: Object doesn't support this action.
-    // https://msdn.microsoft.com/library/ff975299(v=vs.85).aspx
-    if (typeof window.CustomEvent === 'function') {
-      event = new CustomEvent(eventName, data);
-    }
-    else {
-      event = document.createEvent('CustomEvent');
-      event.initCustomEvent(eventName, true, true, data);
-    }
-
-    elm.dispatchEvent(event);
   };
 
   /**
@@ -860,7 +857,8 @@
    * A simple wrapper for context insanity.
    *
    * Context is unreliable with AJAX contents like product variations, etc.
-   * This can null like after Colorbox close, or absurd <script> element, etc.
+   * This can be null after Colorbox close, or absurd <script> element, likely
+   * arbitrary, etc.
    *
    * @name dBlazy.context
    *
@@ -880,50 +878,203 @@
   };
 
   /**
-   * A simple wrapper for [add|remove]EventListener.
+   * A not simple wrapper for triggering event like jQuery.trigger().
    *
-   * @name binding
+   * @name dBlazy.trigger
    *
-   * @param {String} which
-   *   Whether bind or unbind.
+   * @param {Element} elm
+   *   The HTML element.
+   * @param {String} eventName
+   *   The event name to trigger.
+   * @param {Object} details
+   *   The optional detail object passed into a custom event detail property.
+   * @param {Object} param
+   *   The optional param passed into a custom event.
+   *
+   * @return {CustomEvent|Event}
+   *   The CustomEvent or Event object to dispatch.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent
+   * @todo namespaced event name.
+   */
+  dBlazy.trigger = function (elm, eventName, details, param) {
+    var me = this;
+    var event;
+
+    if (me.isUndefined(details)) {
+      event = new Event(eventName);
+    }
+    else {
+      // Bubbles to be caught by ancestors. Cancelable to preventDefault.
+      var data = {
+        bubbles: true,
+        cancelable: true,
+        detail: details || {}
+      };
+
+      if (me.isObject(param)) {
+        data = me.extend(data, param);
+      }
+
+      // IE >= 9 compat, else SCRIPT445: Object doesn't support this action.
+      // https://msdn.microsoft.com/library/ff975299(v=vs.85).aspx
+      if (me.isFunction(CustomEvent)) {
+        event = new CustomEvent(eventName, data);
+      }
+      else {
+        event = document.createEvent('CustomEvent');
+        event.initCustomEvent(eventName, true, true, data);
+      }
+    }
+
+    elm.dispatchEvent(event);
+    return event;
+  };
+
+  /**
+   * Returns true if the subject is a null.
+   *
+   * @param {Misc} subject
+   *   The subject to check for its value.
+   *
+   * @return {Bool}
+   *   True if null.
+   */
+  dBlazy.isNull = function (subject) {
+    return subject === null;
+  };
+
+  /**
+   * Returns true if the subject is an array.
+   *
+   * One of the weird behavior in JavaScript is the typeof Array is Object.
+   *
+   * @param {Misc} subject
+   *   The subject to check for its value.
+   *
+   * @return {Bool}
+   *   True if subject is an instanceof Array.
+   */
+  dBlazy.isArray = function (subject) {
+    return !this.isNull(subject) && Array.isArray(subject);
+  };
+
+  /**
+   * Returns true if the subject is a function.
+   *
+   * @param {Misc} subject
+   *   The subject to check for its value.
+   *
+   * @return {Bool}
+   *   True if subject is an instanceof Function.
+   */
+  dBlazy.isFunction = function (subject) {
+    return typeof subject === 'function';
+  };
+
+  /**
+   * Returns true if the subject is an object.
+   *
+   * @param {Misc} subject
+   *   The subject to check for its value.
+   *
+   * @return {Bool}
+   *   True if subject is an instanceof Object.
+   */
+  dBlazy.isObject = function (subject) {
+    return !this.isNull(subject) && typeof subject === 'object';
+  };
+
+  /**
+   * Returns true if the subject is object.
+   *
+   * @param {Misc} subject
+   *   The subject to check for its value.
+   *
+   * @return {Bool}
+   *   True if subject is undefined.
+   */
+  dBlazy.isUndefined = function (subject) {
+    return typeof subject === 'undefined';
+  };
+
+  /**
+   * A simple attributes wrapper looping based on the given attributes.
+   *
+   * @name dBlazy.setAttrs
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {Array} attrs
+   *   The attr names.
+   * @param {Boolean} remove
+   *   True if should remove.
+   *
+   * @deprecated at 2.5. Use ::setAttr with parameter as array instead.
+   */
+  dBlazy.setAttrs = function (el, attrs, remove) {
+    var me = this;
+
+    me.forEach(attrs, function (value) {
+      me.setAttr(el, value, remove);
+    });
+  };
+
+
+  /**
+   * A simple wrapper for the namespaced [add|remove]EventListener.
+   *
+   * @param {String} op
+   *   Whether to add or remove the event.
    * @param {Element} el
    *   The HTML element.
    * @param {String} eventName
-   *   The event name to add.
+   *   The event name, optionally namespaced, to add or remove.
    * @param {Function} fn
    *   The callback function.
    * @param {Object|Boolean} params
    *   The optional param passed into a custom event.
+   * @param {Boolean} isCustom
+   *   True, if a custom event.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
-   * @todo remove old IE references after another check.
    */
-  function binding(which, el, eventName, fn, params) {
-    if (el && typeof fn === 'function') {
-      var defaults = {capture: false, passive: true};
-      var extras;
-      if (typeof params === 'boolean') {
-        extras = params;
-      }
-      else {
-        extras = params ? this.extend(defaults, params) : defaults;
-      }
-      var bind = function (e) {
-        if (el.attachEvent) {
-          el[(which === 'bind' ? 'attach' : 'detach') + 'Event']('on' + e.trim(), fn, extras);
-        }
-        else {
-          el[(which === 'bind' ? 'add' : 'remove') + 'EventListener'](e.trim(), fn, extras);
-        }
-      };
-
-      if (eventName.indexOf(' ') > 0) {
-        this.forEach(eventName.split(' '), bind);
-      }
-      else {
-        bind(eventName);
-      }
+  function addRemoveEvent(op, el, eventName, fn, params, isCustom) {
+    var me = this;
+    if (el === null) {
+      return;
     }
+
+    var defaults = {
+      capture: false,
+      passive: true
+    };
+
+    var options = params || false;
+    if (me.isObject(params)) {
+      options = me.extend(defaults, params);
+    }
+
+    var onEvent = function (e) {
+      isCustom = isCustom || e.indexOf('blazy.') === 0 || e.indexOf('bio.') === 0;
+      var add = op === 'add';
+      var ev = isCustom ? e : e.split('.')[0];
+      fn = fn || me._events[e];
+
+      if (me.isFunction(fn)) {
+        el[op + 'EventListener'](ev.trim(), fn, options);
+      }
+
+      if (add) {
+        me._events[e] = fn;
+      }
+      else {
+        delete me._events[e];
+      }
+    };
+
+    me.forEach(eventName.split(' '), onEvent);
   }
 
   /**
@@ -932,38 +1083,40 @@
    * Inspired by http://stackoverflow.com/questions/30880757/
    * javascript-equivalent-to-on.
    *
-   * @name onoff
-   *
-   * @param {String} which
-   *   Whether on or off.
+   * @param {String} op
+   *   Whether to add or remove the event.
    * @param {Element} elm
    *   The parent HTML element.
    * @param {String} eventName
-   *   The event name to trigger.
+   *   The optionally namespaced event name to trigger.
    * @param {String} childEl
    *   Child selector to match against (class, ID, data attribute, or tag).
    * @param {Function} callback
    *   The callback function.
    * @param {Object|Boolean} params
    *   The optional param passed into a custom event.
+   * @param {Boolean} isCustom
+   *   True, if a custom event.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+   * @fixme failed for future elements.
    */
-  function onoff(which, elm, eventName, childEl, callback, params) {
-    var me = this;
+  function onoff(op, elm, eventName, childEl, callback, params, isCustom) {
     params = params || {capture: true, passive: false};
-    var bind = function (e) {
+
+    var me = this;
+    var onEvent = function (e) {
       var t = e.target;
-      e.delegateTarget = elm;
       while (t && t !== this) {
         if (me.matches(t, childEl)) {
           callback.call(t, e);
+          return;
         }
-        t = t.parentNode;
+        t = t.parentElement;
       }
     };
 
-    binding.call(me, which === 'on' ? 'bind' : 'unbind', elm, eventName, bind, params);
+    addRemoveEvent.call(me, op, elm, eventName, onEvent, params, isCustom);
   }
 
   return dBlazy;

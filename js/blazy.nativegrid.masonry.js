@@ -42,7 +42,7 @@
       return;
     }
 
-    var cn = box.querySelector('.grid__content');
+    var cn = _db.find(box, '.grid__content');
 
     if (cn !== null) {
       if (me.gap === 0) {
@@ -76,14 +76,14 @@
     var rows = style.getPropertyValue('grid-auto-rows');
 
     if (gap) {
-      me.gap = parseInt(gap);
+      me.gap = parseInt(gap, 10);
     }
     if (rows) {
-      me.height = parseInt(rows);
+      me.height = parseInt(rows, 10);
     }
 
     // The is-b-grid is flag to not re-do with VIS, views infinite scroll/ IO.
-    var items = el.querySelectorAll('.grid:not(.is-b-grid)');
+    var items = _db.findAll(el, '.grid:not(.is-b-grid)');
     if (items.length) {
       _db.forEach(items, doNativeGridItem, el);
     }

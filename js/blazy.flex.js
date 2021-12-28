@@ -21,9 +21,9 @@
   function doFlex(elm) {
     var _box = '.grid';
     var heights = {};
-    var box = elm.querySelector(_box);
+    var box = _db.find(elm, _box);
 
-    if (box === null) {
+    if (_db.isNull(box)) {
       return;
     }
 
@@ -32,16 +32,16 @@
     var style = _win.getComputedStyle(box);
     var itemWith = boxWith + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
     var columnWidth = Math.round((1 / (itemWith / parentWith)));
-    var items = elm.querySelectorAll(_box);
+    var items = _db.findAll(elm, _box);
 
     function doFlexItem(item, id) {
-      var cn = item.querySelector(_box + '__content');
+      var cn = _db.find(item, _box + '__content');
       var cr = cn.getBoundingClientRect();
       var ch = cr.height;
       var curColumn = id % columnWidth;
       var style = _win.getComputedStyle(item);
 
-      if (typeof heights[curColumn] === 'undefined') {
+      if (_db.isUndefined(heights[curColumn])) {
         heights[curColumn] = 0;
       }
 
@@ -51,7 +51,7 @@
       // If the item has an item above it, then move it to fill the gap.
       if (id - columnWidth >= 0) {
         var nh = id - columnWidth + 1;
-        var itemAbove = elm.querySelector(_box + ':nth-of-type(' + nh + ')');
+        var itemAbove = _db.find(elm, _box + ':nth-of-type(' + nh + ')');
         var prevBottom = itemAbove.getBoundingClientRect().bottom;
         var currentTop = cr.top - parseFloat(style.marginBottom);
 

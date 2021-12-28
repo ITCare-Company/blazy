@@ -3,7 +3,7 @@
  * Provides a fullscreen video view for Intense, Slick Browser, etc.
  */
 
-(function (Drupal, once, _db, window, document) {
+(function (Drupal, once, _db, _doc) {
 
   'use strict';
 
@@ -12,7 +12,7 @@
 
   Drupal.blazyBox = Drupal.blazyBox || {};
 
-  Drupal.blazyBox.el = document.querySelector('.blazybox');
+  Drupal.blazyBox.el = _db.find(_doc, '.blazybox');
 
   /**
    * Theme function for a fullscreen lightbox video container.
@@ -61,20 +61,20 @@
     var mediaEl = Drupal.theme('blazyBoxMedia', {embedUrl: embedUrl});
 
     Drupal.attachBehaviors(me.el);
-    me.el.querySelector('.blazybox__content').innerHTML = mediaEl;
+    _db.find(me.el, '.blazybox__content').innerHTML = mediaEl;
 
     me.el.classList.remove('visually-hidden');
-    me.el.setAttribute('aria-hidden', false);
-    document.body.classList.add('is-blazybox--open');
+    _db.attr(me.el, 'aria-hidden', false);
+    _doc.body.classList.add('is-blazybox--open');
   };
 
   /**
    * Attach the blazyBox.
    */
   Drupal.blazyBox.attach = function () {
-    if (document.querySelector('.blazybox') === null) {
+    if (_db.find(_doc, '.blazybox') === null) {
       // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
-      document.body.insertAdjacentHTML('beforeend', Drupal.theme('blazyBox'));
+      _doc.body.insertAdjacentHTML('beforeend', Drupal.theme('blazyBox'));
     }
   };
 
@@ -89,9 +89,9 @@
     e.preventDefault();
 
     el.classList.add('visually-hidden');
-    el.setAttribute('aria-hidden', true);
-    el.querySelector('.blazybox__content').innerHTML = '';
-    document.body.classList.remove('is-blazybox--open');
+    _db.attr(el, 'aria-hidden', true);
+    _db.find(el, '.blazybox__content').innerHTML = '';
+    _doc.body.classList.remove('is-blazybox--open');
   };
 
   /**
@@ -101,10 +101,11 @@
    *   The blazybox HTML element.
    */
   function doBlazyBox(box) {
+    var me = Drupal.blazyBox;
     box.classList.add('blazybox--on');
-    Drupal.blazyBox.el = box;
+    me.el = box;
 
-    _db.on(Drupal.blazyBox.el, 'click', '.blazybox__close', Drupal.blazyBox.close);
+    _db.on(me.el, 'click', '.blazybox__close', me.close);
   }
 
   /**
@@ -128,4 +129,4 @@
     }
   };
 
-})(Drupal, once, dBlazy, this, this.document);
+})(Drupal, once, dBlazy, this.document);
