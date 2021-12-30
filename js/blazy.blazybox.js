@@ -3,14 +3,14 @@
  * Provides a fullscreen video view for Intense, Slick Browser, etc.
  */
 
-(function (Drupal, once, _db, _doc) {
+(function (Drupal, _d, _doc) {
 
   'use strict';
 
   var _id = 'blazybox';
-  var _element = '.' + _id;
-  var _elContent = _element + '__content';
   var _mounted = _id + '--on';
+  var _element = '.' + _id + ':not(.' + _mounted + ')';
+  var _elContent = _element + '__content';
   var _open = 'is-' + _id + '--open';
   var _hidden = 'visually-hidden';
   var _ariaHidden = 'aria-hidden';
@@ -21,7 +21,7 @@
    * @namespace
    */
   Drupal.blazyBox = {
-    el: _db.find(_doc, _element),
+    el: _d.find(_doc, _element),
 
     /**
      * Open the blazyBox.
@@ -34,18 +34,18 @@
       var mediaEl = Drupal.theme('blazyBoxMedia', {embedUrl: embedUrl});
 
       Drupal.attachBehaviors(me.el);
-      _db.find(me.el, _elContent).innerHTML = mediaEl;
+      _d.find(me.el, _elContent).innerHTML = mediaEl;
 
-      me.el.classList.remove(_hidden);
-      _db.attr(me.el, _ariaHidden, false);
-      _doc.body.classList.add(_open);
+      _d.removeClass(me.el, _hidden);
+      _d.attr(me.el, _ariaHidden, false);
+      _d.addClass(_doc.body, _open);
     },
 
     /**
      * Attach the blazyBox.
      */
     attach: function () {
-      if (_db.find(_doc, _element) === null) {
+      if (_d.find(_doc, _element) === null) {
         // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
         _doc.body.insertAdjacentHTML('beforeend', Drupal.theme('blazyBox'));
       }
@@ -61,10 +61,10 @@
       var el = Drupal.blazyBox.el;
       e.preventDefault();
 
-      el.classList.add(_hidden);
-      _db.attr(el, _ariaHidden, true);
-      _db.find(el, _elContent).innerHTML = '';
-      _doc.body.classList.remove(_open);
+      _d.addClass(el, _hidden);
+      _d.attr(el, _ariaHidden, true);
+      _d.find(el, _elContent).innerHTML = '';
+      _d.removeClass(_doc.body, _open);
     }
   };
 
@@ -82,7 +82,7 @@
     html += '<button class="$id__close" data-role="none">&times;</button>';
     html += '</div>';
 
-    return _db.template(html, {
+    return _d.template(html, {
       id: _id,
       placeholder: Drupal.t('Dynamic video content.')
     });
@@ -116,10 +116,10 @@
   function doBlazyBox(box) {
     var me = Drupal.blazyBox;
 
-    box.classList.add(_mounted);
+    _d.addClass(box, _mounted);
     me.el = box;
 
-    _db.on(me.el, 'click', _element + '__close', me.close);
+    _d.on(me.el, 'click', _element + '__close', me.close);
   }
 
   /**
@@ -130,17 +130,10 @@
   Drupal.behaviors.blazyBox = {
     attach: function (context) {
 
-      context = _db.context(context);
+      context = _d.context(context);
 
-      once(_id, _element, context).forEach(doBlazyBox);
-    },
-    detach: function (context, setting, trigger) {
-      if (trigger === 'unload') {
-        if (once.find(_id, context).length) {
-          once.remove(_id, _element, context);
-        }
-      }
+      _d.once(doBlazyBox, _element, context);
     }
   };
 
-})(Drupal, once, dBlazy, this.document);
+})(Drupal, dBlazy, this.document);

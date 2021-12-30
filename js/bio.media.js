@@ -32,8 +32,8 @@
   /**
    * Private variables.
    */
-  var _db = dBlazy;
-  var _bio = Bio;
+  var _d = dBlazy;
+  var _b = Bio;
   var _src = 'src';
   var _srcSet = 'srcset';
   var _bgSrc = 'data-src';
@@ -54,7 +54,7 @@
    * @namespace
    */
   function BioMedia(options) {
-    return _bio.apply(this, arguments);
+    return _b.apply(this, arguments);
   }
 
   // Inherits Bio prototype.
@@ -67,28 +67,28 @@
       // several times till marked loaded. Ensures it is hit once regardless
       // of being loaded, or not. No real issue with normal images on the page,
       // until having VIS alike which may spit out new images on AJAX request.
-      if (el.hasAttribute('data-bio-hit')) {
+      if (_d.hasAttr(el, 'data-bio-hit')) {
         return;
       }
 
       var me = this;
       var parent = el.parentNode;
-      var isImage = _db.equal(el, 'img');
-      var isBg = _db.isUndefined(el.src) && el.classList.contains(me.options.bgClass);
-      var isPicture = parent && _db.equal(parent, 'picture');
-      var isVideo = _db.equal(el, 'video');
+      var isImage = _d.equal(el, 'img');
+      var isBg = _d.isUndefined(el.src) && _d.hasClass(el, me.options.bgClass);
+      var isPicture = parent && _d.equal(parent, 'picture');
+      var isVideo = _d.equal(el, 'video');
 
       // PICTURE elements.
       if (isPicture) {
-        _db.setAttrsWithSources(el, _srcSet, true);
+        _d.setAttrsWithSources(el, _srcSet, true);
 
         // Tiny controller image inside picture element won't get preloaded.
-        _db.setAttr(el, _src, true);
+        _d.setAttr(el, _src, true);
         me.loaded(el, me._ok);
       }
       // VIDEO elements.
       else if (isVideo) {
-        _db.setAttrsWithSources(el, _src, true);
+        _d.setAttrsWithSources(el, _src, true);
         el.load();
         me.loaded(el, me._ok);
       }
@@ -99,24 +99,24 @@
         }
         // IFRAME elements, etc.
         else {
-          if (el.getAttribute(_dataSrc) && el.hasAttribute(_src)) {
-            _db.setAttr(el, _src, true);
+          if (_d.attr(el, _dataSrc) && _d.hasAttr(el, _src)) {
+            _d.setAttr(el, _src, true);
             me.loaded(el, me._ok);
           }
         }
       }
 
       // Marks it hit/ requested. Not necessarily loaded.
-      el.setAttribute('data-bio-hit', 1);
+      _d.attr(el, 'data-bio-hit', 1);
 
-      return _bio.apply(this, arguments);
+      return _b.apply(this, arguments);
     };
   })(_proto.lazyLoad);
 
   _proto.setImage = function (el, isBg) {
     var me = this;
     var img = new Image();
-    var isResimage = el.hasAttribute(_dataSrcset);
+    var isResimage = _d.hasAttr(el, _dataSrcset);
 
     // Applies attributes regardless, will re-observe if any error.
     var applyAttrs = function () {
@@ -124,7 +124,7 @@
         me.setBg(el);
       }
       else {
-        _db.setAttr(el, _imgSources, false);
+        _d.setAttr(el, _imgSources, false);
       }
     };
 
@@ -134,11 +134,11 @@
       // Image decode fails with Responsive image, assumes ok, no side effects.
       me.loaded(el, ok ? me._ok : me._er);
       if (ok) {
-        _db.removeAttrs(el, isBg ? _bgSources : _imgSources);
+        _d.removeAttrs(el, isBg ? _bgSources : _imgSources);
       }
     };
 
-    _db.decode(img)
+    _d.decode(img)
       .then(function () {
         load(true);
       })
@@ -147,12 +147,12 @@
 
         // Allows to re-observe.
         if (!isResimage) {
-          el.removeAttribute('data-bio-hit');
+          _d.attr(el, 'data-bio-hit', null);
         }
       })
       .finally(function () {
         // Be sure to throttle, or debounce your method when calling this.
-        _db.trigger(el, 'bio.finally', {
+        _d.trigger(el, 'bio.finally', {
           options: me.options
         });
       });
@@ -161,17 +161,17 @@
     if ('decode' in img) {
       img.decoding = 'async';
     }
-    img.src = el.getAttribute(isBg ? _bgSrc : _dataSrc);
+    img.src = _d.attr(el, isBg ? _bgSrc : _dataSrc);
     if (isResimage) {
-      img.srcset = el.getAttribute(_dataSrcset);
+      img.srcset = _d.attr(el, _dataSrcset);
     }
 
   };
 
   _proto.setBg = function (el) {
-    if (el.hasAttribute(_bgSrc)) {
-      el.style.backgroundImage = 'url("' + el.getAttribute(_bgSrc) + '")';
-      el.removeAttribute(_src);
+    if (_d.hasAttr(el, _bgSrc)) {
+      el.style.backgroundImage = 'url("' + _d.attr(el, _bgSrc) + '")';
+      _d.attr(el, _src, null);
     }
   };
 

@@ -34,11 +34,14 @@
    * @namespace
    */
   var dBlazy = {};
+  var _win = this;
+  var _doc = _win.document;
   var _oProto = Object.prototype;
+  var _eProto = Element.prototype;
 
   // See https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
-  if (!Element.prototype.matches) {
-    Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+  if (!_eProto.matches) {
+    _eProto.matches = _eProto.msMatchesSelector || _eProto.webkitMatchesSelector;
   }
 
   // The namespaced event holders.
@@ -71,7 +74,7 @@
    *   Returns the device pixel ratio.
    */
   dBlazy.pixelRatio = function () {
-    return window.devicePixelRatio || 1;
+    return _win.devicePixelRatio || 1;
   };
 
   /**
@@ -81,7 +84,7 @@
    *   Returns the window width.
    */
   dBlazy.windowWidth = function () {
-    return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || window.screen.width;
+    return _win.innerWidth || _doc.documentElement.clientWidth || _doc.body.clientWidth || _win.screen.width;
   };
 
   /**
@@ -93,7 +96,7 @@
   dBlazy.windowSize = function () {
     return {
       width: this.windowWidth,
-      height: window.innerHeight
+      height: _win.innerHeight
     };
   };
 
@@ -123,7 +126,7 @@
     var ww = mobileFirst ? me.windowWidth() : pr;
     var mw = function (w) {
       // The picture wants <= (approximate), non-picture wants >=, wtf.
-      return mobileFirst ? parseInt(w) <= ww : parseInt(w) >= ww;
+      return mobileFirst ? parseInt(w, 10) <= ww : parseInt(w, 10) >= ww;
     };
 
     var data = keys.filter(mw).map(function (v) {
@@ -197,7 +200,7 @@
    *   Null if orphan or not found, else the expected element.
    */
   dBlazy.find = function (el, selector) {
-    return this.isNull(el) ? null : el.querySelector(selector);
+    return (el || _doc).querySelector(selector);
   };
 
   /**
@@ -214,8 +217,7 @@
    *   Empty array if orphan or not found, else the expected element array.
    */
   dBlazy.findAll = function (el, selector) {
-    var me = this;
-    return me.isNull(me.find(el, selector)) ? [] : el.querySelectorAll(selector);
+    return this.isNull(el) ? [] : el.querySelectorAll(selector);
   };
 
   /**
@@ -250,68 +252,142 @@
   };
 
   /**
-   * A simple forEach() implementation for Arrays, Objects and NodeLists.
+   * Checks if a string contains substring(s) (ES6 ::includes), only for oldies.
    *
-   * @name dBlazy.forEach
+   * Cannot use [].every() since it not about all or nothing.
    *
-   * @author Todd Motto
-   * @link https://github.com/toddmotto/foreach
+   * @name dBlazy.contains
    *
-   * @param {Array|Object|NodeList} collection
-   *   Collection of items to iterate.
-   * @param {Function} callback
-   *   Callback function for each iteration.
-   * @param {Array|Object|NodeList} scope
-   *   Object/NodeList/Array that forEach is iterating over (aka `this`).
+   * @param {String} str
+   *   The source string to test for.
+   * @param {String} substr
+   *   The target sub-string to check for, can be a string array.
+   *
+   * @return {bool}
+   *   True if it has the needle.
    */
-  dBlazy.forEach = function (collection, callback, scope) {
-    if (_oProto.toString.call(collection) === '[object Object]') {
-      for (var prop in collection) {
-        if (_oProto.hasOwnProperty.call(collection, prop)) {
-          callback.call(scope, collection[prop], prop, collection);
-        }
-      }
+  dBlazy.contains = function (str, substr) {
+    var me = this;
+    if (str.length === 0) {
+      return false;
     }
-    else if (collection) {
-      for (var i = 0, len = collection.length; i < len; i++) {
-        callback.call(scope, collection[i], i, collection);
+    var checks = me.isArray(substr) ? substr : [substr];
+    var found = 0;
+    me.forEach(checks, function (item) {
+      if (str.indexOf(item) !== -1) {
+        found++;
       }
-    }
+    });
+    return found > 0;
   };
 
   /**
-   * A simple hasClass wrapper.
+   * Checks if the element has attribute.
+   *
+   * @name dBlazy.hasAttr
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} attribute
+   *   The attribute name.
+   *
+   * @return {bool}
+   *   True if it has the attribute.
+   */
+  dBlazy.hasAttr = function (el, attribute) {
+    return el && el.hasAttribute(attribute);
+  };
+
+  /**
+   * Checks if the element has a class name.
    *
    * @name dBlazy.hasClass
    *
    * @param {Element} el
    *   The HTML element.
    * @param {String} name
-   *   The class name.
+   *   The class name, can be space-delimited for multiple names.
    *
    * @return {bool}
-   *   True if the method is supported.
+   *   True if it has the class name.
    */
   dBlazy.hasClass = function (el, name) {
-    return el && el.classList.contains(name);
+    var me = this;
+    if (me.isNull(el)) {
+      return false;
+    }
+
+    var found = 0;
+    me.forEach(name.split(' '), function (item) {
+      if (el.classList.contains(item)) {
+        found++;
+      }
+    });
+    return found > 0;
   };
 
   /**
-   * A forgiving attribute wrapper with fallback.
+   * Adds a class, or space-delimited class names to an element.
+   *
+   * @name dBlazy.addClass
+   *
+   * @param {Element} els
+   *   The HTML element, can be many.
+   * @param {String} name
+   *   The class name, or space-delimited class names.
+   */
+  dBlazy.addClass = function (els, name) {
+    addRemoveClass.call(this, 'add', els, name);
+  };
+
+  /**
+   * Removes a class, or multiple from an element.
+   *
+   * @name dBlazy.removeClass
+   *
+   * @param {Element} els
+   *   The HTML element, can be many.
+   * @param {String} name
+   *   The class name, or space-delimited class names.
+   */
+  dBlazy.removeClass = function (els, name) {
+    addRemoveClass.call(this, 'remove', els, name);
+  };
+
+  /**
+   * Toggles a class, or multiple from an element.
+   *
+   * @name dBlazy.toggleClass
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} name
+   *   The class name, or space-delimited class names.
+   */
+  dBlazy.toggleClass = function (el, name) {
+    if (el) {
+      name.split(' ').map(function (value) {
+        el.classList.toggle(value);
+      });
+    }
+  };
+
+  /**
+   * A forgiving attribute wrapper with fallback mimicking jQuery.attr method.
    *
    * @name dBlazy.attr
    *
    * @param {Element} el
    *   The HTML element.
-   * @param {String} attr
-   *   The attr name.
+   * @param {String|Object} attr
+   *   The attr name, can be a string or object.
    * @param {String} defValue
-   *   The default value.
+   *   The default value, can be null or undefined for different intentions.
    * @param {Boolean} withDefault
    *   True if should get with defValue.
    *
    * @return {String}
-   *   The attribute value, or fallback, or empty.
+   *   The attribute value, or fallback, for getters, or empty for setters.
    */
   dBlazy.attr = function (el, attr, defValue, withDefault) {
     var me = this;
@@ -319,15 +395,15 @@
       return '';
     }
 
-    // Since an attribute value must be a string, a null means nullify.
-    if (me.isNull(defValue)) {
-      el.removeAttribute(attr);
-    }
     // Passing a key-value pair object means setting multiple attributes once.
-    else if (me.isObject(attr)) {
+    if (me.isObject(attr)) {
       me.forEach(attr, function (value, key) {
         el.setAttribute(key, value);
       });
+    }
+    // Since an attribute value must be a string, a null means nullify.
+    else if (me.isNull(defValue)) {
+      el.removeAttribute(attr);
     }
     else {
       // No defValue defined, or withDefault set, means a getter.
@@ -358,8 +434,6 @@
    *
    * @return {dBlazy}
    *   The dBlazy object.
-   *
-   * @todo refactor, or move it out for being too specific with data attributes.
    */
   dBlazy.setAttr = function (el, attr, remove) {
     var me = this;
@@ -437,7 +511,7 @@
       prefix = 'data-';
     }
     me.forEach(attrs, function (attr) {
-      el.removeAttribute(prefix + attr);
+      me.attr(el, prefix + attr, null);
     });
   };
 
@@ -502,7 +576,7 @@
    */
   dBlazy.updateBg = function (el, mobileFirst) {
     var me = this;
-    var backgrounds = me.parse(el.getAttribute('data-backgrounds'));
+    var backgrounds = me.parse(me.attr(el, 'data-backgrounds'));
 
     if (backgrounds) {
       var bg = me.activeWidth(backgrounds, mobileFirst);
@@ -511,7 +585,7 @@
 
         // Allows to disable Aspect ratio if it has known/ fixed heights such as
         // gridstack multi-size boxes.
-        if (bg.ratio && !el.classList.contains('b-noratio')) {
+        if (bg.ratio && !me.hasClass(el, 'b-noratio')) {
           el.style.paddingBottom = bg.ratio + '%';
         }
       }
@@ -527,7 +601,7 @@
    *   The HTML element to remove.
    */
   dBlazy.remove = function (el) {
-    if (el && !this.isNull(el.parentNode)) {
+    if (el && el.parentNode) {
       el.parentNode.removeChild(el);
     }
   };
@@ -619,6 +693,9 @@
   /**
    * Executes a function once.
    *
+   * To make easy conversion till D9.2 is a minimum at sub-modules, one
+   * core/once method are adapted.
+   *
    * @name dBlazy.once
    *
    * @author Daniel Lamb <dlamb.open.source@gmail.com>
@@ -626,26 +703,34 @@
    *
    * @param {Function} fn
    *   The executed function.
+   * @param {NodeList|Array.<Element>|Element|string} selector
+   *   A NodeList, array of elements, single Element, or a string.
+   * @param {Document|Element} [context=document]
+   *   An element to use as context for querySelectorAll.
    *
-   * @return {Object}
-   *   The function result.
+   * @return {Array.<Element>}
+   *   An array of elements to process, or empty for old behavior.
    *
-   * @tbd deprecated in Blazy 2.5 and will be removed in Blazy 3.0.0. Use the
+   * @tbd deprecated in Blazy 2.5 and will be removed in Blazy 3.+. Use the
    * core/once library instead. See https://www.drupal.org/node/3254668.
    */
-  dBlazy.once = function (fn) {
-    var result;
-    var ran = false;
-    return function proxy() {
-      if (ran) {
-        return result;
+  dBlazy.once = function (fn, selector, context) {
+    var me = this;
+    var elms = [];
+
+    // Original once.
+    if (me.isUndefined(selector)) {
+      _once(fn);
+    }
+    else {
+      // If extra arguments are provided, assumes regular loop over elements.
+      elms = getElements.call(this, selector, context);
+      if (elms.length) {
+        _once(me.forEach(elms, fn));
       }
-      ran = true;
-      result = fn.apply(this, arguments);
-      // For garbage collection.
-      fn = null;
-      return result;
-    };
+    }
+
+    return elms;
   };
 
   /**
@@ -661,7 +746,7 @@
    */
   dBlazy.parse = function (str) {
     try {
-      return JSON.parse(str);
+      return str.length === 0 || str === '1' ? {} : JSON.parse(str);
     }
     catch (e) {
       return {};
@@ -688,7 +773,7 @@
     ];
 
     animation = animation || el.dataset.animation;
-    el.classList.add('animated', animation);
+    me.addClass(el, 'animated ' + animation);
     me.forEach(['Duration', 'Delay', 'IterationCount'], function (key) {
       if ('animation' + key in el.dataset) {
         el.style['animation' + key] = el.dataset['animation' + key];
@@ -703,8 +788,8 @@
     function animationEnd() {
       me.removeAttrs(el, props);
 
-      el.classList.add('is-b-animated');
-      el.classList.remove('animated', animation);
+      me.addClass(el, 'is-b-animated');
+      me.removeClass(el, 'animated ' + animation);
 
       me.forEach(props, function (key) {
         el.style.removeProperty(key);
@@ -732,9 +817,12 @@
     // The .(*)loading can be .media, .grid, .slide__content, .box, etc.
     var loaders = [el, me.closest(el, '[class*="loading"]')];
 
-    this.forEach(loaders, function (loader) {
-      if (!me.isNull(loader)) {
-        loader.className = loader.className.replace(/(\S+)loading/g, '');
+    me.forEach(loaders, function (loader) {
+      if (loader) {
+        var name = loader.className;
+        if (me.contains(name, 'loading')) {
+          loader.className = name.replace(/(\S+)loading/g, '');
+        }
       }
     });
   };
@@ -784,9 +872,9 @@
    *   The callback function.
    */
   dBlazy.resize = function (c, t) {
-    window.onresize = function () {
-      window.clearTimeout(t);
-      t = window.setTimeout(c, 200);
+    _win.onresize = function () {
+      _win.clearTimeout(t);
+      t = _win.setTimeout(c, 200);
     };
     return c;
   };
@@ -923,7 +1011,7 @@
         event = new CustomEvent(eventName, data);
       }
       else {
-        event = document.createEvent('CustomEvent');
+        event = _doc.createEvent('CustomEvent');
         event.initCustomEvent(eventName, true, true, data);
       }
     }
@@ -936,7 +1024,7 @@
    * Returns true if the subject is a null.
    *
    * @param {Misc} subject
-   *   The subject to check for its value.
+   *   The subject to check for its truthy.
    *
    * @return {Bool}
    *   True if null.
@@ -951,7 +1039,7 @@
    * One of the weird behavior in JavaScript is the typeof Array is Object.
    *
    * @param {Misc} subject
-   *   The subject to check for its value.
+   *   The subject to check for its truthy.
    *
    * @return {Bool}
    *   True if subject is an instanceof Array.
@@ -961,10 +1049,23 @@
   };
 
   /**
+   * Returns true if the subject is an Element.
+   *
+   * @param {Misc} subject
+   *   The subject to check for its truthy.
+   *
+   * @return {Bool}
+   *   True if subject is an instanceof Element.
+   */
+  dBlazy.isElement = function (subject) {
+    return subject instanceof Element;
+  };
+
+  /**
    * Returns true if the subject is a function.
    *
    * @param {Misc} subject
-   *   The subject to check for its value.
+   *   The subject to check for its truthy.
    *
    * @return {Bool}
    *   True if subject is an instanceof Function.
@@ -977,7 +1078,7 @@
    * Returns true if the subject is an object.
    *
    * @param {Misc} subject
-   *   The subject to check for its value.
+   *   The subject to check for its truthy.
    *
    * @return {Bool}
    *   True if subject is an instanceof Object.
@@ -990,13 +1091,45 @@
    * Returns true if the subject is object.
    *
    * @param {Misc} subject
-   *   The subject to check for its value.
+   *   The subject to check for its truthy.
    *
    * @return {Bool}
    *   True if subject is undefined.
    */
   dBlazy.isUndefined = function (subject) {
     return typeof subject === 'undefined';
+  };
+
+  /**
+   * A simple forEach() implementation for Arrays, Objects and NodeLists.
+   *
+   * @name dBlazy.forEach
+   *
+   * @author Todd Motto
+   * @link https://github.com/toddmotto/foreach
+   *
+   * @param {Array|Object|NodeList} collection
+   *   Collection of items to iterate.
+   * @param {Function} callback
+   *   Callback function for each iteration.
+   * @param {Array|Object|NodeList} scope
+   *   Object/NodeList/Array that forEach is iterating over (aka `this`).
+   *
+   * @todo drop for native [].forEach post D10+ when IE gone from planet earth.
+   */
+  dBlazy.forEach = function (collection, callback, scope) {
+    if (_oProto.toString.call(collection) === '[object Object]') {
+      for (var prop in collection) {
+        if (_oProto.hasOwnProperty.call(collection, prop)) {
+          callback.call(scope, collection[prop], prop, collection);
+        }
+      }
+    }
+    else if (collection) {
+      for (var i = 0, len = collection.length; i < len; i++) {
+        callback.call(scope, collection[i], i, collection);
+      }
+    }
   };
 
   /**
@@ -1011,7 +1144,7 @@
    * @param {Boolean} remove
    *   True if should remove.
    *
-   * @deprecated at 2.5. Use ::setAttr with parameter as array instead.
+   * @deprecated at 2.5, and remove from 3.x. Use ::setAttr with array instead.
    */
   dBlazy.setAttrs = function (el, attrs, remove) {
     var me = this;
@@ -1021,9 +1154,95 @@
     });
   };
 
+  /**
+   * Process arguments, query the DOM if necessary.
+   *
+   * @private
+   *
+   * @param {Function} fn
+   *   The executed function.
+   *
+   * @return {Object}
+   *   The function result.
+   */
+  function _once(fn) {
+    var result;
+    var ran = false;
+    return function proxy() {
+      if (ran) {
+        return result;
+      }
+      ran = true;
+      result = fn.apply(this, arguments);
+      // For garbage collection.
+      fn = null;
+      return result;
+    };
+  }
+
+  /**
+   * Process arguments, query the DOM if necessary. Adapted from core/once.
+   *
+   * @private
+   *
+   * @param {NodeList|Array.<Element>|Element|string} selector
+   *   A NodeList or array of elements.
+   * @param {Document|Element} [context=document]
+   *   An optional element to use as context for querySelectorAll.
+   *
+   * @return {Array.<Element>}
+   *   An array of elements to process.
+   */
+  function getElements(selector, context) {
+    context = context || _doc;
+
+    var me = this;
+    // Assume selector is an array-like value.
+    var elements = selector;
+
+    if (typeof selector === 'string') {
+      elements = me.findAll(context, selector);
+    }
+    // This is a single element.
+    else if (me.isElement(selector)) {
+      elements = [selector];
+    }
+
+    // Ensures an array is returned and not a NodeList or an Array-like object.
+    return Array.prototype.slice.call(elements);
+  }
+
+  /**
+   * A wrapper for the classList to mimick the familiar jQuery like methods.
+   *
+   * @private
+   *
+   * @param {String} op
+   *   Whether to add or remove the class.
+   * @param {Element} els
+   *   The HTML element, can be many.
+   * @param {String} name
+   *   The class name, or space-delimited class names.
+   */
+  function addRemoveClass(op, els, name) {
+    var me = this;
+    var classes = name.split(' ');
+    if (els) {
+      if (els.length) {
+        me.forEach(els, function (el) {
+          el.classList[op].apply(el.classList, classes);
+        });
+      }
+      else if (els.classList) {
+        els.classList[op].apply(els.classList, classes);
+      }
+    }
+  }
 
   /**
    * A simple wrapper for the namespaced [add|remove]EventListener.
+   *
+   * @private
    *
    * @param {String} op
    *   Whether to add or remove the event.
@@ -1057,7 +1276,7 @@
     }
 
     var onEvent = function (e) {
-      isCustom = isCustom || e.indexOf('blazy.') === 0 || e.indexOf('bio.') === 0;
+      isCustom = isCustom || me.contains(e, ['blazy.', 'bio.']);
       var add = op === 'add';
       var ev = isCustom ? e : e.split('.')[0];
       fn = fn || me._events[e];
@@ -1079,6 +1298,8 @@
 
   /**
    * A simple wrapper for event delegation like jQuery.on().
+   *
+   * @private
    *
    * Inspired by http://stackoverflow.com/questions/30880757/
    * javascript-equivalent-to-on.

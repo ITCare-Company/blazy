@@ -33,7 +33,7 @@
    * Private variables.
    */
   var _doc = document;
-  var _db = dBlazy;
+  var _d = dBlazy;
   var _bioTick = 0;
   var _revTick = 0;
   var _disconnected = false;
@@ -45,17 +45,24 @@
    * @param {object} options
    *   The Bio options.
    *
+   * @return {Bio}
+   *   The Bio instance.
+   *
    * @namespace
    */
   function Bio(options) {
     var me = this;
 
-    me.options = _db.extend({}, me.defaults, options || {});
+    if (arguments.length && 'selector' in arguments[0]) {
+      me.options = _d.extend({}, me.defaults, arguments[0] || {});
 
-    // Initializes Blazy IntersectionObserver.
-    _disconnected = false;
-    _observed = false;
-    init(me);
+      // Initializes Blazy IntersectionObserver.
+      _disconnected = false;
+      _observed = false;
+      return init(me);
+    }
+
+    return me;
   }
 
   // Cache our prototype.
@@ -94,7 +101,7 @@
       me.intersecting(elms);
     }
     else {
-      _db.forEach(elms, function (el) {
+      _d.forEach(elms, function (el) {
         if (me.isValid(el)) {
           me.intersecting(el);
         }
@@ -106,12 +113,18 @@
     }
   };
 
+  _proto.selector = function (suffix) {
+    suffix = suffix || '';
+    var opts = this.options;
+    return opts.selector + suffix + ':not(.' + opts.successClass + ')';
+  };
+
   _proto.isLoaded = function (el) {
-    return el.classList.contains(this.options.successClass);
+    return _d.hasClass(el, this.options.successClass);
   };
 
   _proto.isValid = function (el) {
-    return _db.isObject(el) && _db.isUndefined(el.length) && !this.isLoaded(el);
+    return _d.isObject(el) && _d.isUndefined(el.length) && !this.isLoaded(el);
   };
 
   _proto.prepare = function () {
@@ -124,10 +137,12 @@
     // Prevents from too many revalidations unless needed.
     if ((force === true || me.count !== me.counted) && (_revTick < me.counted)) {
       _disconnected = false;
-      me.elms = _db.findAll(me.options.root || _doc, me.options.selector);
-      me.observe();
+      me.elms = _d.findAll(me.options.root || _doc, me.selector());
+      if (me.elms.length) {
+        me.observe();
 
-      _revTick++;
+        _revTick++;
+      }
     }
   };
 
@@ -135,12 +150,12 @@
     var me = this;
 
     // If not extending/ overriding, at least provide the option.
-    if (_db.isFunction(me.options.intersecting)) {
+    if (_d.isFunction(me.options.intersecting)) {
       me.options.intersecting(el, me.options);
     }
 
     // Be sure to throttle, or debounce your method when calling this.
-    _db.trigger(el, 'bio.intersecting', {
+    _d.trigger(el, 'bio.intersecting', {
       options: me.options
     });
 
@@ -159,7 +174,7 @@
   _proto.success = function (el, status, parent) {
     var me = this;
 
-    if (_db.isFunction(me.options.success)) {
+    if (_d.isFunction(me.options.success)) {
       me.options.success(el, status, parent, me.options);
     }
 
@@ -171,7 +186,7 @@
   _proto.error = function (el, status, parent) {
     var me = this;
 
-    if (_db.isFunction(me.options.error)) {
+    if (_d.isFunction(me.options.error)) {
       me.options.error(el, status, parent, me.options);
     }
 
@@ -181,7 +196,7 @@
   _proto.loaded = function (el, status, parent) {
     var me = this;
 
-    el.classList.add(status === me._ok ? me.options.successClass : me.options.errorClass);
+    _d.addClass(el, status === me._ok ? me.options.successClass : me.options.errorClass);
     me[status === me._ok ? 'success' : 'error'](el, status, parent);
   };
 
@@ -189,7 +204,7 @@
     var me = this;
 
     _bioTick = me.elms.length;
-    _db.forEach(me.elms, function (entry) {
+    _d.forEach(me.elms, function (entry) {
       // Only observes if not already loaded.
       if (!me.isLoaded(entry)) {
         me.observer.observe(entry);
@@ -207,9 +222,9 @@
     }
 
     // Load each on entering viewport.
-    _db.forEach(entries, function (entry) {
+    _d.forEach(entries, function (entry) {
       // Provides option such as to animate bg or elements regardless position.
-      if (_db.isFunction(me.options.observing)) {
+      if (_d.isFunction(me.options.observing)) {
         me.options.observing(entry, observer, me.options);
       }
 
@@ -266,9 +281,9 @@
       threshold: me.options.threshold
     };
 
-    me.elms = _db.findAll(me.options.root || _doc, me.options.selector + ':not(.' + me.options.successClass + ')');
+    me.elms = _d.findAll(me.options.root || _doc, me.selector());
     me.count = me.elms.length;
-    me.windowWidth = _db.windowWidth();
+    me.windowWidth = _d.windowWidth();
 
     me.prepare();
 
@@ -282,6 +297,7 @@
       me.observe();
       _observed = true;
     }
+    return me;
   }
 
   return Bio;

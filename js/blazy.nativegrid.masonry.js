@@ -8,12 +8,14 @@
  * Below is the cheap version of GridStack.
  */
 
-(function (Drupal, once, _db, _win) {
+(function (Drupal, _d, _win) {
 
   'use strict';
 
-  var _id = 'blazy-nativegrid';
-  var _element = '.block-nativegrid.is-b-masonry';
+  var _id = 'block-nativegrid';
+  var _masonry = 'is-b-masonry';
+  var _mounted = _masonry + '--on';
+  var _element = '.' + _id + '.' + _masonry + ':not(.' + _mounted + ')';
 
   Drupal.blazy = Drupal.blazy || {};
 
@@ -36,15 +38,15 @@
    */
   function doNativeGridItem(el) {
     var me = Drupal.blazy.nativeGrid;
-    var box = 'target' in el ? _db.closest(el.target, '.grid') : el;
+    var box = 'target' in el ? _d.closest(el.target, '.grid') : el;
 
-    if (box === null) {
+    if (_d.isNull(box)) {
       return;
     }
 
-    var cn = _db.find(box, '.grid__content');
+    var cn = _d.find(box, '.grid__content');
 
-    if (cn !== null) {
+    if (!_d.isNull(cn)) {
       if (me.gap === 0) {
         me.gap = 0.0001;
       }
@@ -54,12 +56,12 @@
 
         // Sets the grid row span based on content and gap height.
         box.style.gridRowEnd = 'span ' + span;
-        box.classList.add('is-b-grid');
+        _d.addClass(box, 'is-b-grid');
       }, 600);
     }
 
     if (el.target && (el.type && el.type === 'blazy.done')) {
-      _db.unbindEvent(el.target, 'blazy.done', doNativeGridItem, false);
+      _d.unbindEvent(el.target, 'blazy.done', doNativeGridItem, false);
     }
   }
 
@@ -83,24 +85,25 @@
     }
 
     // The is-b-grid is flag to not re-do with VIS, views infinite scroll/ IO.
-    var items = _db.findAll(el, '.grid:not(.is-b-grid)');
+    var items = _d.findAll(el, '.grid:not(.is-b-grid)');
     if (items.length) {
-      _db.forEach(items, doNativeGridItem, el);
+      _d.forEach(items, doNativeGridItem);
     }
 
     var resizeObserver = Drupal.blazy.isRo() ? new ResizeObserver(function (entries) {
-      _db.forEach(entries, doNativeGridItem);
+      _d.forEach(entries, doNativeGridItem);
     }) : false;
 
     var blazies = el.getElementsByClassName('b-lazy');
     if (blazies.length) {
-      _db.forEach(blazies, function (item) {
-        _db.bindEvent(item, 'blazy.done', doNativeGridItem, false);
+      _d.forEach(blazies, function (item) {
+        _d.bindEvent(item, 'blazy.done', doNativeGridItem, false);
         if (resizeObserver) {
           resizeObserver.observe(item);
         }
       });
     }
+    _d.addClass(el, _mounted);
   }
 
   /**
@@ -111,17 +114,10 @@
   Drupal.behaviors.blazyNativeGrid = {
     attach: function (context) {
 
-      context = _db.context(context);
+      context = _d.context(context);
 
-      once(_id, _element, context).forEach(doNativeGrid);
-    },
-    detach: function (context, setting, trigger) {
-      if (trigger === 'unload') {
-        if (once.find(_id, context).length) {
-          once.remove(_id, _element, context);
-        }
-      }
+      _d.once(doNativeGrid, _element, context);
     }
   };
 
-}(Drupal, once, dBlazy, this));
+}(Drupal, dBlazy, this));

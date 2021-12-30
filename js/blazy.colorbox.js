@@ -2,24 +2,22 @@
  * @file
  */
 
-(function ($, Drupal, once, drupalSettings, _db, window) {
+(function ($, Drupal, drupalSettings, _d, _win) {
 
   'use strict';
 
   var cboxTimer;
   var $body = $('body');
-  var _id = 'blazy-colorbox';
-  var _element = '[data-colorbox-trigger]';
+  var _mounted = 'litebox--on';
+  var _element = '[data-colorbox-trigger]:not(.' + _mounted + ')';
 
   /**
    * Blazy Colorbox utility functions.
    *
    * @param {HTMLElement} box
    *   The colorbox HTML element.
-   * @param {int} i
-   *   The index of the current element.
    */
-  function blazyColorbox(box, i) {
+  function blazyColorbox(box) {
     var $box = $(box);
     var media = $box.data('media') || {};
     var isMedia = media.type === 'video';
@@ -90,7 +88,7 @@
      * Resize the colorbox.
      */
     function resizeBox() {
-      window.clearTimeout(cboxTimer);
+      _win.clearTimeout(cboxTimer);
 
       var mw = drupalSettings.colorbox.maxWidth;
       var mh = drupalSettings.colorbox.maxHeight;
@@ -100,7 +98,7 @@
         height: media.height || mh
       };
 
-      cboxTimer = window.setTimeout(function () {
+      cboxTimer = _win.setTimeout(function () {
         if ($('#cboxOverlay').is(':visible')) {
           var $container = $('#cboxLoadedContent');
           var $iframe = $('.cboxIframe', $container);
@@ -111,7 +109,7 @@
 
           if (isResimage) {
             var $img = $picture.length ? $picture : $resimage;
-            window.setTimeout(function () {
+            _win.setTimeout(function () {
               $img.each(function () {
                 if (this.complete) {
                   resizeImage.call(this);
@@ -154,6 +152,7 @@
     }
 
     $box.colorbox($.extend({}, drupalSettings.colorbox, runtimeOptions));
+    $box.addClass(_mounted);
   }
 
   /**
@@ -163,29 +162,22 @@
    */
   Drupal.behaviors.blazyColorbox = {
     attach: function (context) {
-      if (_db.isUndefined(drupalSettings.colorbox)) {
+      if (_d.isUndefined(drupalSettings.colorbox)) {
         return;
       }
 
-      if (drupalSettings.colorbox.mobiledetect && window.matchMedia) {
+      if (drupalSettings.colorbox.mobiledetect && _win.matchMedia) {
         // Disable Colorbox for small screens.
-        var mq = window.matchMedia('(max-device-width: ' + drupalSettings.colorbox.mobiledevicewidth + ')');
+        var mq = _win.matchMedia('(max-device-width: ' + drupalSettings.colorbox.mobiledevicewidth + ')');
         if (mq.matches) {
           return;
         }
       }
 
-      context = _db.context(context);
+      context = _d.context(context);
 
-      once(_id, _element, context).forEach(blazyColorbox);
-    },
-    detach: function (context, setting, trigger) {
-      if (trigger === 'unload') {
-        if (once.find(_id, context).length) {
-          once.remove(_id, _element, context);
-        }
-      }
+      _d.once(blazyColorbox, _element, context);
     }
   };
 
-})(jQuery, Drupal, once, drupalSettings, dBlazy, this);
+})(jQuery, Drupal, drupalSettings, dBlazy, this);

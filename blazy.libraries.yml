@@ -16,7 +16,7 @@ base:
   js:
     js/blazy.base.js: { weight: -1.6 }
   dependencies:
-    - core/once
+    # @todo when min D9.2 - core/once
     - core/drupal
     - core/drupal.debounce
 
@@ -98,7 +98,7 @@ nativegrid.masonry:
 
 dblazy:
   js:
-    js/dblazy.js: { weight: -4 }
+    js/dblazy.min.js: { minified: true, weight: -4 }
 
 # @todo adjust weights to use hundredth decimals.
 bio:

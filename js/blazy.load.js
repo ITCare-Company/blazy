@@ -3,13 +3,13 @@
  * Provides native, Intersection Observer API, or bLazy lazy loader.
  */
 
-(function (Drupal, drupalSettings, once, _db, _doc) {
+(function (Drupal, drupalSettings, _d, _doc) {
 
   'use strict';
 
   var _id = 'blazy';
-  var _element = '.blazy';
-  var _idGlobal = 'blazy-global';
+  var _mounted = _id + '--on';
+  var _element = '.' + _id + ':not(.' + _mounted + ')';
   var _elementGlobal = 'html';
 
   Drupal.blazy = Drupal.blazy || {};
@@ -22,25 +22,23 @@
    */
   var initBlazy = function (context) {
     var me = Drupal.blazy;
-    var opts = {};
-
-    opts.mobileFirst = opts.mobileFirst || false;
+    var opts = {mobileFirst: false};
 
     // Set docroot in case we are in an iframe.
     if (!_doc.documentElement.isSameNode(context)) {
       opts.root = context;
     }
 
-    me.options = _db.extend({}, me.globals(), opts);
-
     // Old bLazy, not IO, might need scrolling CSS selector like Modal library.
     // A scrolling modal with an iframe like Entity Browser has no issue since
     // the scrolling container is the entire DOM. Another use case is parallax.
     var scrollElms = '#drupal-modal, .is-b-scroll';
-    if (me.options.container) {
-      scrollElms += ', ' + me.options.container.trim();
+    if (opts.container) {
+      scrollElms += ', ' + opts.container.trim();
     }
-    me.options.container = scrollElms;
+
+    opts.container = scrollElms;
+    me.options = _d.extend({}, me.globals(), opts);
 
     // Attempts to fix for Views rewrite stripping out data URI causing 404.
     me.fixMissingDataUri();
@@ -61,24 +59,19 @@
    *
    * @param {HTMLElement} elm
    *   The .blazy/[data-blazy] container, not the lazyloaded .b-lazy element.
-   *
-   * @todo reenable initBlazy here if any issue with the following:
-   *   Each [data-blazy] may or may not:
-   *     - be ajaxified, be lightboxed, have uniform or different sizes, and
-   *       have few more unique features per instance, etc.
    */
   function doBlazy(elm) {
     var me = Drupal.blazy;
-    var dataAttr = _db.attr(elm, 'data-blazy');
-    var opts = (!dataAttr || dataAttr === '1') ? {} : (_db.parse(dataAttr) || {});
-    var isUniform = me.contains(elm, 'blazy--field') || me.contains(elm, 'block-grid') || me.contains(elm, 'blazy--uniform');
+    var opts = _d.parse(_d.attr(elm, 'data-blazy'));
+    var isUniform = _d.hasClass(elm, 'blazy--field block-grid blazy--uniform');
     var instance = (Math.random() * 10000).toFixed(0);
     var eventId = 'blazy.uniform.' + instance;
-    var localItems = _db.findAll(elm, '.media--ratio');
+    var localItems = _d.findAll(elm, '.media--ratio');
 
-    me.options = _db.extend(me.options, opts);
-    me.revalidate = me.revalidate || elm.classList.contains('blazy--revalidate');
-    elm.classList.add('blazy--on');
+    me.options = _d.extend(me.options, opts);
+    me.revalidate = me.revalidate || _d.hasClass(elm, 'blazy--revalidate');
+
+    _d.addClass(elm, _mounted);
     elm.blazyInstance = instance;
 
     if (isUniform) {
@@ -91,7 +84,7 @@
       var pad = e.detail.pad || 0;
 
       if (pad > 10) {
-        _db.forEach(localItems, function (cn) {
+        _d.forEach(localItems, function (cn) {
           cn.style.paddingBottom = pad + '%';
         }, elm);
       }
@@ -100,7 +93,7 @@
     // Reduces abrupt ratio changes for the rest after the first loaded.
     // To support resizing, use debounce. To disable use {once: true}.
     if (isUniform && localItems.length > 0) {
-      _db.bindEvent(elm, eventId, swapRatio);
+      _d.bindEvent(elm, eventId, swapRatio);
     }
   }
 
@@ -116,26 +109,17 @@
   Drupal.behaviors.blazy = {
     attach: function (context) {
 
-      var doc = _db.context(context);
+      var doc = _d.context(context);
       Drupal.blazy.context = doc;
 
       // Processes .blazy, if available, without initialization.
       // Initialization is not per container to also support IO with root.
-      once(_id, _element, doc).forEach(doBlazy);
+      // @todo replace with core/once when min D9.2, and or after sub-modules.
+      _d.once(doBlazy, _element, doc);
 
-      // Initializes blazy.
-      once(_idGlobal, _elementGlobal, doc).forEach(initBlazy);
-    },
-    detach: function (context, setting, trigger) {
-      if (trigger === 'unload') {
-        if (once.find(_idGlobal, context).length) {
-          once.remove(_idGlobal, _elementGlobal, context);
-        }
-        if (once.find(_id, context).length) {
-          once.remove(_id, _element, context);
-        }
-      }
+      // Initializes blazy once as a global observer, not per container.
+      _d.once(initBlazy, _elementGlobal, doc);
     }
   };
 
-}(Drupal, drupalSettings, once, dBlazy, this.document));
+}(Drupal, drupalSettings, dBlazy, this.document));

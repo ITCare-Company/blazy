@@ -1,11 +1,9 @@
 /**
  * @file
  * Provides native, Intersection Observer API, or bLazy lazy loader.
- *
- * @todo Decouple Native, Aspect ratio, Picture post 2.3+, or 3+.
  */
 
-(function (Drupal, drupalSettings, _db, _win, _doc) {
+(function (Drupal, drupalSettings, _d, _win, _doc) {
 
   'use strict';
 
@@ -41,16 +39,22 @@
         successClass: 'b-loaded'
       };
 
-      return _db.extend(me.blazySettings, me.ioSettings, commons);
+      return _d.extend(me.blazySettings, me.ioSettings, commons);
+    },
+
+    selector: function (suffix) {
+      suffix = suffix || '';
+      var opts = this.options;
+      return opts.selector + suffix + ':not(.' + opts.successClass + ')';
     },
 
     clearing: function (el) {
       var me = this;
-      var cn = _db.closest(el, '.media');
-      var an = _db.closest(el, '[' + _dataAnimation + ']');
+      var cn = _d.closest(el, '.media');
+      var an = _d.closest(el, '[' + _dataAnimation + ']');
 
       // Clear loading classes.
-      _db.clearLoading(el);
+      _d.clearLoading(el);
 
       // Reevaluate the element for errors, or IE.
       me.reevaluate(el);
@@ -59,19 +63,19 @@
       me.updateContainer(el, cn);
 
       // Supports blur, animate.css for CSS background, picture, image, media.
-      if (an !== null || me.has(el, _dataAnimation)) {
-        _db.animate(an !== null ? an : el);
+      if (an || _d.hasAttr(el, _dataAnimation)) {
+        _d.animate(an === null ? el : an);
       }
 
       // Provides event listeners for easy overrides without full overrides.
       // Runs before native to allow native use this on its own onload event.
-      _db.trigger(el, 'blazy.done', {
+      _d.trigger(el, 'blazy.done', {
         options: me.options
       });
 
       // Initializes the native lazy loading once the first found is loaded.
       if (!_isNativeExecuted) {
-        _db.trigger(me.context, 'blazy.native', {
+        _d.trigger(me.context, 'blazy.native', {
           options: me.options
         });
 
@@ -80,44 +84,58 @@
     },
 
     isLoaded: function (el) {
-      return el !== null && el.classList.contains(this.options.successClass);
+      return _d.hasClass(el, this.options.successClass);
     },
 
     load: function (cn) {
       var me = this;
-      var elms = _db.findAll(cn || _doc, '.' + me.options.selector + ':not(.' + me.options.successClass + ')');
 
-      if (elms.length) {
-        _db.forEach(elms, function (el) {
-          me.update(el);
-        });
-      }
+      // DOM ready fix.
+      _win.setTimeout(function () {
+        var elms = _d.findAll(cn || _doc, me.selector());
+
+        if (elms.length) {
+          _d.forEach(elms, function (el) {
+            me.update(el, false);
+          });
+        }
+      }, 100);
     },
 
-    update: function (el) {
+    update: function (el, delayed) {
       var me = this;
-      _win.setTimeout(function () {
-        if (me.has(el, _dataBg)) {
-          _db.updateBg(el, me.options.mobileFirst);
+      var _update = function () {
+        if (_d.hasAttr(el, _dataBg)) {
+          _d.updateBg(el, me.options.mobileFirst);
         }
         else {
           if (me.init) {
             me.init.load(el);
           }
         }
-      }, 100);
+      };
+
+      if (delayed) {
+        // DOM ready fix.
+        _win.setTimeout(function () {
+          _update();
+        }, 100);
+      }
+      else {
+        _update();
+      }
     },
 
     reevaluate: function (el) {
       var me = this;
-      var ie = _db.hasClass(el, 'b-responsive') && el.hasAttribute('data-pfsrc');
+      var ie = _d.hasClass(el, 'b-responsive') && _d.hasAttr(el, 'data-pfsrc');
 
       // In case an error, try forcing it, once.
-      if (_db.hasClass(el, me.options.errorClass) && !_db.hasClass(el, 'b-checked')) {
-        el.classList.add('b-checked');
+      if (_d.hasClass(el, me.options.errorClass) && !_d.hasClass(el, 'b-checked')) {
+        _d.addClass(el, 'b-checked');
 
         // This is a rare case, hardly called, just nice to have for errors.
-        me.update(el);
+        me.update(el, true);
       }
 
       // @see http://scottjehl.github.io/picturefill/
@@ -129,23 +147,15 @@
       }
     },
 
-    has: function (el, attribute) {
-      return el !== null && el.hasAttribute(attribute);
-    },
-
-    contains: function (el, name) {
-      return el !== null && _db.hasClass(el, name);
-    },
-
     updateContainer: function (el, cn) {
       var me = this;
-      var isPicture = _db.equal(el.parentNode, 'picture') && me.has(cn, _dataDimensions);
+      var isPicture = _d.equal(el.parentNode, 'picture') && _d.hasAttr(cn, _dataDimensions);
 
       // Fixed for effect Blur messes up Aspect ratio Fluid calculation.
       _win.setTimeout(function () {
         if (me.isLoaded(el)) {
           // Adds context for effetcs: blur, etc. considering BG, or just media.
-          (me.contains(cn, 'media') ? cn : el).classList.add('is-b-loaded');
+          _d.addClass(_d.hasClass(cn, 'media') ? cn : el, 'is-b-loaded');
 
           // Only applies to ratio fluid.
           if (isPicture) {
@@ -153,8 +163,8 @@
           }
 
           // Basically makes multi-breakpoint BG work for IO or old bLazy once.
-          if (me.has(el, _dataBg)) {
-            _db.updateBg(el, me.options.mobileFirst);
+          if (_d.hasAttr(el, _dataBg)) {
+            _d.updateBg(el, me.options.mobileFirst);
           }
         }
       });
@@ -174,7 +184,7 @@
           }
 
           if ((elm.blazyInstance === cn.blazyInstance) && (_resizeTick > 1 || !('isBlazyPicture' in elm))) {
-            _db.trigger(elm, 'blazy.uniform.' + elm.blazyInstance, {
+            _d.trigger(elm, 'blazy.uniform.' + elm.blazyInstance, {
               pad: pad
             });
             elm.isBlazyPicture = true;
@@ -182,7 +192,7 @@
         };
 
         // Uniform sizes must apply to each instance, not globally.
-        _db.forEach(me.instances, function (elm) {
+        _d.forEach(me.instances, function (elm) {
           Drupal.debounce(picture(elm), 201, true);
         }, me.context);
       }
@@ -201,19 +211,17 @@
      */
     fixMissingDataUri: function () {
       var me = this;
-      var doc = me.context;
-      var sel = me.options.selector + '[src^="image"]:not(.' + me.options.successClass + ')';
-      var els = _db.find(doc, sel) === null ? [] : _db.findAll(doc, sel);
+      var els = _d.findAll(me.context, me.selector('[src^="image"]'));
 
       var fixDataUri = function (img) {
-        var src = img.getAttribute('src');
-        if (src.indexOf('base64') !== -1 || src.indexOf('svg+xml') !== -1) {
-          img.setAttribute('src', src.replace('image', 'data:image'));
+        var src = _d.attr(img, 'src');
+        if (_d.contains(src, ['base64', 'svg+xml'])) {
+          _d.attr(img, 'src', src.replace('image', 'data:image'));
         }
       };
 
       if (els.length > 0) {
-        _db.forEach(els, fixDataUri);
+        _d.forEach(els, fixDataUri);
       }
     },
 
@@ -228,8 +236,8 @@
      */
     updateRatio: function (cn) {
       var me = this;
-      var el = _db.closest(cn, '.blazy');
-      var dimensions = _db.parse(cn.getAttribute(_dataDimensions));
+      var el = _d.closest(cn, '.blazy');
+      var dimensions = _d.parse(_d.attr(cn, _dataDimensions));
 
       if (!dimensions) {
         me.updateFallbackRatio(cn);
@@ -237,25 +245,25 @@
       }
 
       // For picture, this is more a dummy space till the image is downloaded.
-      var isPicture = _db.find(cn, 'picture') !== null && _resizeTick > 0;
-      var pad = _db.activeWidth(dimensions, isPicture);
+      var isPicture = _d.find(cn, 'picture') !== null && _resizeTick > 0;
+      var pad = _d.activeWidth(dimensions, isPicture);
 
       // Provides marker for grouping between multiple instances.
       cn.blazyInstance = el !== null && 'blazyInstance' in el ? el.blazyInstance : null;
-      if (!_db.isUndefined(pad)) {
+      if (!_d.isUndefined(pad)) {
         cn.style.paddingBottom = pad + '%';
       }
 
       // Fix for picture or bg element with resizing.
-      if (_resizeTick > 0 && (isPicture || me.has(cn, _dataBg))) {
-        me.updateContainer((isPicture ? _db.find(cn, 'img') : cn), cn);
+      if (_resizeTick > 0 && (isPicture || _d.hasAttr(cn, _dataBg))) {
+        me.updateContainer((isPicture ? _d.find(cn, 'img') : cn), cn);
       }
     },
 
     updateFallbackRatio: function (cn) {
       // Only rewrites if the style is indeed stripped out by Twig, and not set.
-      if (!cn.hasAttribute('style') && cn.hasAttribute(_dataRatio)) {
-        cn.style.paddingBottom = cn.getAttribute(_dataRatio) + '%';
+      if (!_d.hasAttr(cn, 'style') && _d.hasAttr(cn, _dataRatio)) {
+        cn.style.paddingBottom = _d.attr(cn, _dataRatio) + '%';
       }
     },
 
@@ -275,9 +283,8 @@
       }
 
       var doc = me.context;
-      var sel = me.options.selector + '[loading]:not(.' + me.options.successClass + ')';
 
-      me.items = _db.findAll(doc, sel);
+      me.items = _d.findAll(doc, me.selector('[loading]'));
       if (me.items.length === 0) {
         return;
       }
@@ -287,38 +294,38 @@
         var er = e.type === 'error';
 
         // Refines based on actual result, runs clearing, animation, etc.
-        el.classList.add(me.options[er ? 'errorClass' : 'successClass']);
+        _d.addClass(el, me.options[er ? 'errorClass' : 'successClass']);
         me.clearing(el);
 
-        _db.unbindEvent(el, e.type, onNativeEvent);
+        _d.unbindEvent(el, e.type, onNativeEvent);
       };
 
       var doNative = function (el) {
         // Reset attributes, and let supportive browsers lazy load natively.
-        _db.setAttr(el, ['srcset', 'src'], true);
+        _d.setAttr(el, ['srcset', 'src'], true);
 
         // Also supports PICTURE or (future) VIDEO which contains SOURCEs.
-        _db.setAttrsWithSources(el, false, true);
+        _d.setAttrsWithSources(el, false, true);
 
         // Blur thumbnail is just making use of the swap due to being small.
-        if (me.contains(el, 'b-blur')) {
-          el.removeAttribute('loading');
+        if (_d.hasClass(el, 'b-blur')) {
+          _d.attr(el, 'loading', null);
         }
         else {
           // Mark it loaded to prevent bLazy/ IO to do any further work.
-          el.classList.add(me.options.successClass);
+          _d.addClass(el, me.options.successClass);
 
           // Attempts to make nice with the harsh native, defer clearing, etc.
-          _db.bindEvent(el, 'load', onNativeEvent);
-          _db.bindEvent(el, 'error', onNativeEvent);
+          _d.bindEvent(el, 'load', onNativeEvent);
+          _d.bindEvent(el, 'error', onNativeEvent);
         }
       };
 
       var onNative = function () {
-        _db.forEach(me.items, doNative);
+        _d.forEach(me.items, doNative);
       };
 
-      _db.bindEvent(me.context, 'blazy.native', onNative, {
+      _d.bindEvent(doc, 'blazy.native', onNative, {
         once: true
       });
     },
@@ -347,11 +354,11 @@
       var me = this;
       var doc = me.context;
       var rObserver = false;
-      var ratioItems = _db.findAll(doc, '.media--ratio');
+      var ratioItems = _d.findAll(doc, '.media--ratio');
       var shouldLoop = ratioItems.length > 0;
 
       var loopRatio = function (entries) {
-        me.windowWidth = _db.windowWidth();
+        me.windowWidth = _d.windowWidth();
 
         // BC with bLazy, native/IO doesn't need to revalidate, bLazy does.
         // Scenarios: long horizontal containers, Slick carousel slidesToShow >
@@ -361,7 +368,7 @@
         }
 
         if (shouldLoop) {
-          _db.forEach(entries, function (entry) {
+          _d.forEach(entries, function (entry) {
             me.updateRatio('target' in entry ? entry.target : entry);
           }, doc);
         }
@@ -379,13 +386,13 @@
       rObserver = checkRatio();
       if (rObserver) {
         if (shouldLoop) {
-          _db.forEach(ratioItems, function (entry) {
+          _d.forEach(ratioItems, function (entry) {
             rObserver.observe(entry);
           }, doc);
         }
       }
       else {
-        _db.bindEvent(_win, 'resize', Drupal.debounce(checkRatio, 200, true));
+        _d.bindEvent(_win, 'resize', Drupal.debounce(checkRatio, 200, true));
       }
     }
 

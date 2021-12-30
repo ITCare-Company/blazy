@@ -3,12 +3,12 @@
  * Provides Filter module integration.
  */
 
-(function (Drupal, once, _db) {
+(function (Drupal, _d) {
 
   'use strict';
 
-  var _id = 'blazy-filter';
-  var _element = '.media-wrapper--blazy:not(.grid .media-wrapper--blazy)';
+  var _wrapper = 'media-wrapper--blazy';
+  var _element = '.' + _wrapper + ':not(.grid .' + _wrapper + ')';
 
   /**
    * Adds blazy container attributes required for grouping, or by lightboxes.
@@ -17,26 +17,26 @@
    *   The .media-wrapper--blazy HTML element.
    */
   function blazyFilter(elm) {
-    var cn = _db.closest(elm, '.text-formatted');
+    var cn = _d.closest(elm, '.text-formatted');
     if (cn === null) {
-      cn = _db.closest(elm, '.field');
+      cn = _d.closest(elm, '.field');
     }
 
-    if (cn === null || cn.classList.contains('blazy')) {
+    if (cn === null || _d.hasClass(cn, 'blazy')) {
       return;
     }
 
-    cn.classList.add('blazy');
-    cn.setAttribute('data-blazy', '');
+    _d.addClass(cn, 'blazy');
+    _d.attr(cn, 'data-blazy', '');
 
     // Not using elm is fine since this should be executed once.
-    var box = _db.find(cn, '.litebox');
-    if (!_db.isNull(box)) {
-      var media = _db.parse(box.getAttribute('data-media'));
+    var box = _d.find(cn, '.litebox');
+    if (!_d.isNull(box)) {
+      var media = _d.parse(_d.attr(box, 'data-media'));
       if ('id' in media) {
         var id = media.id;
-        cn.classList.add('blazy--' + id);
-        cn.setAttribute('data-' + id + '-gallery', '');
+        _d.addClass(cn, 'blazy--' + id);
+        _d.attr(cn, 'data-' + id + '-gallery', '');
       }
     }
   }
@@ -49,17 +49,10 @@
   Drupal.behaviors.blazyFilter = {
     attach: function (context) {
 
-      context = _db.context(context);
+      context = _d.context(context);
 
-      once(_id, _element, context).forEach(blazyFilter);
-    },
-    detach: function (context, setting, trigger) {
-      if (trigger === 'unload') {
-        if (once.find(_id, context).length) {
-          once.remove(_id, _element, context);
-        }
-      }
+      _d.once(blazyFilter, _element, context);
     }
   };
 
-})(Drupal, once, dBlazy);
+})(Drupal, dBlazy);

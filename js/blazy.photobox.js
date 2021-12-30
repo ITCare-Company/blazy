@@ -3,32 +3,14 @@
  * Provides Photobox integration for Image and Media fields.
  */
 
-(function ($, Drupal, once, _db) {
+(function ($, Drupal, _d) {
 
   'use strict';
 
-  var _id = 'blazy-photobox';
-  var _element = '[data-photobox-gallery]';
+  var _mounted = 'litebox--on';
+  var _element = '[data-photobox-gallery]:not(.' + _mounted + ')';
 
   Drupal.blazy = Drupal.blazy || {};
-
-  Drupal.behaviors.blazyPhotobox = {
-    attach: function (context) {
-
-      context = _db.context(context);
-
-      once(_id, _element, context).forEach(function (item) {
-        $(item).photobox('a[data-photobox-trigger]', {thumb: '> [data-thumb]', thumbAttr: 'data-thumb'}, Drupal.blazy.photobox);
-      });
-    },
-    detach: function (context, setting, trigger) {
-      if (trigger === 'unload') {
-        if (once.find(_id, context).length) {
-          once.remove(_id, _element, context);
-        }
-      }
-    }
-  };
 
   /**
    * Callback for custom captions.
@@ -42,4 +24,24 @@
     }
   };
 
-}(jQuery, Drupal, once, dBlazy));
+  Drupal.behaviors.blazyPhotobox = {
+    attach: function (context) {
+
+      context = _d.context(context);
+
+      var doPhotobox = function (item) {
+        var $box = $(item);
+
+        $box.photobox('a[data-photobox-trigger]', {
+          thumb: '> [data-thumb]',
+          thumbAttr: 'data-thumb'
+        }, Drupal.blazy.photobox);
+
+        $box.addClass(_mounted);
+      };
+
+      _d.once(doPhotobox, _element, context);
+    }
+  };
+
+}(jQuery, Drupal, dBlazy));

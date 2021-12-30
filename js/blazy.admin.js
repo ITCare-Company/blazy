@@ -3,16 +3,23 @@
  * Provides admin utilities.
  */
 
-(function ($, Drupal, once, _db) {
+(function ($, Drupal, _d) {
 
   'use strict';
 
-  var _idTooltip = 'blazy-tooltip';
-  var _idCheckbox = 'blazy-checkbox';
-  var _idAdmin = 'blazy-admin';
-  var _elTootip = '.description, .form-item__description';
-  var _elCheckbox = '.form-checkbox';
-  var _elForm = '.form--slick';
+  var _desc = 'description';
+  var _descMounted = _desc + '--on';
+  var _elTootip = '.' + _desc + ':not(.' + _descMounted + '), .form-item__' + _desc + ':not(.' + _descMounted + ')';
+  var _checkbox = 'form-checkbox';
+  var _checkboxMounted = _checkbox + '--on';
+  var _elCheckbox = '.' + _checkbox + ':not(.' + _checkboxMounted + ')';
+  var _form = 'form--slick';
+  var _formMounted = _form + '--on';
+  var _elForm = '.' + _form + ':not(.' + _formMounted + ')';
+  var _elFormItem = '.form-item';
+  var _isFocused = 'is-focused';
+  var _isHovered = 'is-hovered';
+  var _isSelected = 'is-selected';
 
   /**
    * Blazy admin utility functions.
@@ -25,13 +32,13 @@
 
     $('.details-legend-prefix', t).removeClass('element-invisible');
 
-    t[$('.form-checkbox--vanilla', t).prop('checked') ? 'addClass' : 'removeClass']('form--vanilla-on');
+    t[$('.' + _checkbox + '--vanilla', t).prop('checked') ? 'addClass' : 'removeClass']('form--vanilla-on');
 
-    t.on('click', '.form-checkbox', function () {
+    t.on('click', '.' + _checkbox, function () {
       var $input = $(this);
       $input[$input.prop('checked') ? 'addClass' : 'removeClass']('on');
 
-      if ($input.hasClass('form-checkbox--vanilla')) {
+      if ($input.hasClass(_checkbox + '--vanilla')) {
         t[$input.prop('checked') ? 'addClass' : 'removeClass']('form--vanilla-on');
       }
     });
@@ -80,29 +87,31 @@
     }).change();
 
     t.on('mouseenter touchstart', '.b-hint', function () {
-      $(this).closest('.form-item').addClass('is-hovered');
+      $(this).closest(_elFormItem).addClass(_isHovered);
     });
 
     t.on('mouseleave touchend', '.b-hint', function () {
-      $(this).closest('.form-item').removeClass('is-hovered');
+      $(this).closest(_elFormItem).removeClass(_isHovered);
     });
 
     t.on('click', '.b-hint', function () {
-      $('.form-item.is-selected', t).removeClass('is-selected');
-      $(this).parent().toggleClass('is-selected');
+      $('.form-item.' + _isSelected, t).removeClass(_isSelected);
+      $(this).parent().toggleClass(_isSelected);
     });
 
     t.on('click', '.description, .form-item__description', function () {
-      $(this).closest('.is-selected').removeClass('is-selected');
+      $(this).closest('.' + _isSelected).removeClass(_isSelected);
     });
 
     t.on('focus', '.js-expandable', function () {
-      $(this).parent().addClass('is-focused');
+      $(this).parent().addClass(_isFocused);
     });
 
     t.on('blur', '.js-expandable', function () {
-      $(this).parent().removeClass('is-focused');
+      $(this).parent().removeClass(_isFocused);
     });
+
+    t.addClass(_formMounted);
   }
 
   /**
@@ -115,13 +124,15 @@
     var $tip = $(elm);
 
     // Claro removed description for BEM form-item__description.
-    if (!$tip.hasClass('description')) {
-      $tip.addClass('description');
+    if (!$tip.hasClass(_desc)) {
+      $tip.addClass(_desc);
     }
 
     if (!$tip.siblings('.b-hint').length) {
-      $tip.closest('.form-item').append('<span class="b-hint">?</span>');
+      $tip.closest(_elFormItem).append('<span class="b-hint">?</span>');
     }
+
+    $tip.addClass(_descMounted);
   }
 
   /**
@@ -135,6 +146,7 @@
     if (!$elm.next('.field-suffix').length) {
       $elm.after('<span class="field-suffix"></span>');
     }
+    $elm.addClass(_checkboxMounted);
   }
 
   /**
@@ -145,25 +157,12 @@
   Drupal.behaviors.blazyAdmin = {
     attach: function (context) {
 
-      context = _db.context(context);
+      context = _d.context(context);
 
-      once(_idTooltip, _elTootip, context).forEach(blazyTooltip);
-      once(_idCheckbox, _elCheckbox, context).forEach(blazyCheckbox);
-      once(_idAdmin, _elForm, context).forEach(blazyForm);
-    },
-    detach: function (context, setting, trigger) {
-      if (trigger === 'unload') {
-        if (once.find(_idTooltip, context).length) {
-          once.remove(_idTooltip, _elTootip, context);
-        }
-        if (once.find(_idCheckbox, context).length) {
-          once.remove(_idCheckbox, _elCheckbox, context);
-        }
-        if (once.find(_idAdmin, context).length) {
-          once.remove(_idAdmin, _elForm, context);
-        }
-      }
+      _d.once(blazyTooltip, _elTootip, context);
+      _d.once(blazyCheckbox, _elCheckbox, context);
+      _d.once(blazyForm, _elForm, context);
     }
   };
 
-})(jQuery, Drupal, once, dBlazy);
+})(jQuery, Drupal, dBlazy);

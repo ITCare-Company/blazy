@@ -5,11 +5,10 @@
  * Credit: https://fjolt.com/article/css-grid-masonry
  */
 
-(function (Drupal, once, _db, _win) {
+(function (Drupal, _d, _win) {
 
   'use strict';
 
-  var _id = 'blazy-flex';
   var _element = '.block-flex';
 
   /**
@@ -21,9 +20,9 @@
   function doFlex(elm) {
     var _box = '.grid';
     var heights = {};
-    var box = _db.find(elm, _box);
+    var box = _d.find(elm, _box);
 
-    if (_db.isNull(box)) {
+    if (_d.isNull(box)) {
       return;
     }
 
@@ -32,16 +31,16 @@
     var style = _win.getComputedStyle(box);
     var itemWith = boxWith + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
     var columnWidth = Math.round((1 / (itemWith / parentWith)));
-    var items = _db.findAll(elm, _box);
+    var items = _d.findAll(elm, _box);
 
     function doFlexItem(item, id) {
-      var cn = _db.find(item, _box + '__content');
+      var cn = _d.find(item, _box + '__content');
       var cr = cn.getBoundingClientRect();
       var ch = cr.height;
       var curColumn = id % columnWidth;
       var style = _win.getComputedStyle(item);
 
-      if (_db.isUndefined(heights[curColumn])) {
+      if (_d.isUndefined(heights[curColumn])) {
         heights[curColumn] = 0;
       }
 
@@ -51,7 +50,7 @@
       // If the item has an item above it, then move it to fill the gap.
       if (id - columnWidth >= 0) {
         var nh = id - columnWidth + 1;
-        var itemAbove = _db.find(elm, _box + ':nth-of-type(' + nh + ')');
+        var itemAbove = _d.find(elm, _box + ':nth-of-type(' + nh + ')');
         var prevBottom = itemAbove.getBoundingClientRect().bottom;
         var currentTop = cr.top - parseFloat(style.marginBottom);
 
@@ -60,17 +59,17 @@
     }
 
     function init() {
-      _db.forEach(items, doFlexItem);
+      _d.forEach(items, doFlexItem);
 
       var max = Math.max.apply(null, Object.values(heights));
       elm.style.height = max + 'px';
     }
 
-    _db.bindEvent(_win, 'load resize', Drupal.debounce(init, 200, true));
+    _d.bindEvent(_win, 'load resize', Drupal.debounce(init, 200, true));
 
-    elm.classList.add('is-b-loading');
+    _d.addClass(elm, 'is-b-loading');
     _win.setTimeout(function () {
-      elm.classList.remove('is-b-loading');
+      _d.removeClass(elm, 'is-b-loading');
     }, 600);
   }
 
@@ -82,17 +81,10 @@
   Drupal.behaviors.blazyFlex = {
     attach: function (context) {
 
-      context = _db.context(context);
+      context = _d.context(context);
 
-      once(_id, _element, context).forEach(doFlex);
-    },
-    detach: function (context, setting, trigger) {
-      if (trigger === 'unload') {
-        if (once.find(_id, context).length) {
-          once.remove(_id, _element, context);
-        }
-      }
+      _d.once(doFlex, _element, context);
     }
   };
 
-}(Drupal, once, dBlazy, this));
+}(Drupal, dBlazy, this));

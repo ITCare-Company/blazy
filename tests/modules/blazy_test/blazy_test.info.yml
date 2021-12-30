@@ -3,7 +3,7 @@ description: 'Testing a few Blazy hooks, etc.'
 type: module
 hidden: true
 package: Testing
-core_version_requirement: ^9.2 || ^10
+core_version_requirement: ^8.8 || ^9 || ^10
 dependencies:
   - blazy:blazy
   - drupal:responsive_image
