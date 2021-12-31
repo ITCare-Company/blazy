@@ -45,8 +45,8 @@ class BlazyLightbox {
     $gallery_id             = empty($settings['gallery_id']) ? $gallery_default : $settings['gallery_id'] . '-' . $gallery_default;
     $settings['gallery_id'] = !$gallery_enabled ? NULL : str_replace('_', '-', $gallery_id);
     $settings['box_url']    = $valid ? BlazyFile::transformRelative($uri) : $uri;
-    $settings['box_width']  = isset($item->width) ? $item->width : (empty($settings['width']) ? NULL : $settings['width']);
-    $settings['box_height'] = isset($item->height) ? $item->height : (empty($settings['height']) ? NULL : $settings['height']);
+    $settings['box_width']  = $item->width ?? $settings['width'] ?? NULL;
+    $settings['box_height'] = $item->height ?? $settings['height'] ?? NULL;
 
     $dimensions = [
       'width' => $settings['box_width'],
@@ -65,7 +65,7 @@ class BlazyLightbox {
     // Supports local and remote videos, also legacy VEF which has no bundles.
     // See https://drupal.org/node/3210636#comment-14097266.
     $videos = ['remote_video', 'video'];
-    $is_video = isset($json['type']) && $json['type'] == 'video';
+    $is_video = ($json['type'] ?? FALSE) == 'video';
     $is_video = (isset($json['bundle']) && in_array($json['bundle'], $videos)) || $is_video;
 
     if (!empty($settings['box_style']) && $valid) {
@@ -201,9 +201,9 @@ class BlazyLightbox {
    *   The renderable array of caption, or empty array.
    */
   private static function buildCaptions($item, array $settings = []): array {
-    $title   = empty($item->title) ? '' : $item->title;
-    $alt     = empty($item->alt) ? '' : $item->alt;
-    $delta   = empty($settings['delta']) ? 0 : $settings['delta'];
+    $title   = $item->title ?? '';
+    $alt     = $item->alt ?? '';
+    $delta   = $settings['delta'] ?? 0;
     $caption = '';
 
     switch ($settings['box_caption']) {
@@ -243,7 +243,7 @@ class BlazyLightbox {
           if (!empty($caption) && strpos($caption, ", <p>") !== FALSE) {
             $caption = str_replace(", <p>", '| <p>', $caption);
             $captions = explode("|", $caption);
-            $caption = isset($captions[$delta]) ? $captions[$delta] : '';
+            $caption = $captions[$delta] ?? '';
           }
         }
         break;

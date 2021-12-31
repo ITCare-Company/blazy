@@ -19,33 +19,34 @@ class BlazyGrid {
    *   The modified array of grid items.
    */
   public static function build(array $items = [], array $settings = []): array {
-    $settings += BlazyDefault::htmlSettings() + BlazyDefault::gridSettings();
+    $settings += BlazyDefault::htmlSettings();
     $style = $settings['style'];
-    $settings['_grid'] = $is_grid = isset($settings['_grid']) ? $settings['_grid'] : ($style && $settings['grid']);
+    $settings['_grid'] = $is_grid = $settings['_grid'] ?? ($style && $settings['grid']);
     $item_class = $is_grid ? 'grid' : 'blazy__item';
     $settings['count'] = empty($settings['count']) ? count($items) : $settings['count'];
 
     $contents = [];
     foreach ($items as $key => $item) {
       // Support non-Blazy which normally uses item_id.
-      $wrapper_attrs = isset($item['attributes']) ? $item['attributes'] : [];
-      $content_attrs = isset($item['content_attributes']) ? $item['content_attributes'] : [];
-      $sets = isset($item['settings']) ? array_merge($settings, $item['settings']) : $settings;
-      $sets = isset($item['#build']) && isset($item['#build']['settings']) ? array_merge($sets, $item['#build']['settings']) : $sets;
+      $wrapper_attrs = $item['attributes'] ?? [];
+      $content_attrs = $item['content_attributes'] ?? [];
+      $sets = array_merge($settings, $item['settings'] ?? []);
+      $sets = array_merge($sets, $item['#build']['settings'] ?? []);
       $sets['delta'] = $key;
 
       // Supports both single formatter field and complex fields such as Views.
-      $classes = isset($wrapper_attrs['class']) ? $wrapper_attrs['class'] : [];
+      $classes = $wrapper_attrs['class'] ?? [];
       $wrapper_attrs['class'] = array_merge([$item_class], $classes);
+
       self::gridItemAttributes($wrapper_attrs, $sets);
 
       // Good for Bootstrap .well/ .card class, must cast or BS will reset.
-      $classes = empty($content_attrs['class']) ? [] : $content_attrs['class'];
+      $classes = (array) ($content_attrs['class'] ?? []);
       $content_attrs['class'] = array_merge(['grid__content'], $classes);
 
       // Remove known unused array.
       unset($item['settings'], $item['attributes'], $item['content_attributes']);
-      if (isset($item['item']) && is_object($item['item'])) {
+      if (is_object($item['item'] ?? NULL)) {
         unset($item['item']);
       }
 
@@ -121,7 +122,7 @@ class BlazyGrid {
       // Only if using the plain grid column numbers (1 - 12).
       if ($settings['grid_large'] = $settings['grid']) {
         foreach (['small', 'medium', 'large'] as $key) {
-          $value = empty($settings['grid_' . $key]) ? NULL : $settings['grid_' . $key];
+          $value = $settings['grid_' . $key] ?? NULL;
           if ($value && is_numeric($value)) {
             $attributes['class'][] = $key . '-block-' . $style . '-' . $value;
           }
@@ -183,7 +184,7 @@ class BlazyGrid {
         $width = $value;
         $height = 0;
         if (mb_strpos($value, 'x') !== FALSE) {
-          list($width, $height) = array_pad(array_map('trim', explode("x", $value, 2)), 2, NULL);
+          [$width, $height] = array_pad(array_map('trim', explode("x", $value, 2)), 2, NULL);
         }
 
         $dimensions[] = ['width' => $width, 'height' => $height];

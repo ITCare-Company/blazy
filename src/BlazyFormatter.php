@@ -47,7 +47,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $bundle         = $settings['bundle'];
     $view_mode      = $settings['current_view_mode'];
     $namespace      = $settings['namespace'];
-    $id             = isset($settings['id']) ? $settings['id'] : '';
+    $id             = $settings['id'] ?? '';
     $gallery_id     = "{$namespace}-{$entity_type_id}-{$bundle}-{$field_clean}-{$view_mode}";
     $id             = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
 
@@ -58,7 +58,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings['count']          = $count;
     $settings['gallery_id']     = str_replace('_', '-', $gallery_id . '-' . $settings['media_switch']);
     $settings['id']             = $id;
-    $settings['use_field']      = !$settings['lightbox'] && isset($settings['third_party'], $settings['third_party']['linked_field']) && !empty($settings['third_party']['linked_field']['linked']);
+    $settings['use_field']      = !$settings['lightbox'] && ($settings['third_party']['linked_field']['linked'] ?? FALSE);
 
     // Bail out if Vanilla mode is requested.
     if (!empty($settings['vanilla'])) {
@@ -68,7 +68,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
     $settings['blazy'] = !empty($settings['blazy']) || !empty($settings['background']) || $settings['resimage'];
-    $settings['lazy']  = $settings['blazy'] ? 'blazy' : (isset($settings['lazy']) ? $settings['lazy'] : '');
+    $settings['lazy']  = $settings['blazy'] ? 'blazy' : ($settings['lazy'] ?? '');
     $settings['lazy']  = empty($settings['is_preview']) ? $settings['lazy'] : '';
   }
 
@@ -80,7 +80,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings = &$build['settings'];
 
     // Pass first item to optimize sizes this time.
-    if (isset($items[0]) && $item = $items[0]) {
+    if ($item = ($items[0] ?? NULL)) {
       $this->extractFirstItem($settings, $item, reset($entities));
     }
 
@@ -115,7 +115,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       $settings['_uri'] = ($file = $item->entity) && empty($item->uri) ? $file->getFileUri() : $item->uri;
     }
     elseif ($entity && $entity->hasField('thumbnail') && $image = $entity->get('thumbnail')->first()) {
-      if (isset($image->entity) && $file = $image->entity) {
+      if ($file = ($image->entity ?? NULL)) {
         $settings['_item'] = $image;
         $settings['_uri'] = $file->getFileUri();
       }
@@ -170,7 +170,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    */
   public function isCrop($style) {
     if (!isset($this->isCrop[$style])) {
-      $this->isCrop[$style] = $this->cropStyles() && isset($this->cropStyles()[$style]) ? $this->cropStyles()[$style] : FALSE;
+      $this->isCrop[$style] = $this->cropStyles()[$style] ?? FALSE;
     }
     return $this->isCrop[$style];
   }

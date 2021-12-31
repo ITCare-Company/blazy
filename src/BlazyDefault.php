@@ -54,7 +54,7 @@ class BlazyDefault {
    * Returns settings provided by various UI.
    */
   public static function anywhereSettings() {
-    return ['fx' => '', 'style' => ''];
+    return ['fx' => '', 'lazy' => '', 'style' => ''];
   }
 
   /**
@@ -196,7 +196,6 @@ class BlazyDefault {
   public static function richSettings() {
     return [
       'background'   => FALSE,
-      'lazy'         => '',
       'lightbox'     => FALSE,
       'media_switch' => '',
       'placeholder'  => '',
@@ -225,18 +224,21 @@ class BlazyDefault {
    */
   public static function htmlSettings() {
     return [
-      'blazy_data' => [],
-      'lightbox'   => FALSE,
-      'namespace'  => 'blazy',
-      'id'         => '',
-      'is_preview' => FALSE,
-      '_richbox'   => FALSE,
-      'route_name' => '',
-      'use_field'  => FALSE,
-      'unstyled'   => FALSE,
-      'view_name'  => '',
+      'blazy_data'       => [],
+      'check_blazy'      => FALSE,
+      'lightbox'         => FALSE,
+      'namespace'        => 'blazy',
+      'id'               => '',
+      'is_preview'       => FALSE,
+      '_richbox'         => FALSE,
+      'resimage'         => FALSE,
+      'route_name'       => '',
+      'use_field'        => FALSE,
+      'unstyled'         => FALSE,
+      'view_name'        => '',
+      'first_image'      => NULL,
       'accessible_title' => '',
-    ] + self::imageSettings() + self::uiSettings();
+    ] + self::imageSettings() + self::uiSettings() + self::gridSettings();
   }
 
   /**
@@ -260,7 +262,6 @@ class BlazyDefault {
       'placeholder_fx' => '',
       'placeholder_ui' => '',
       'player'         => FALSE,
-      'resimage'       => FALSE,
       'scheme'         => '',
       'type'           => 'image',
       'uri'            => '',

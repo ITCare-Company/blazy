@@ -140,7 +140,7 @@ class BlazyFilter extends BlazyFilterBase {
     $form['use_data_uri'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Trust data URI'),
-      '#default_value' => isset($this->settings['use_data_uri']) ? $this->settings['use_data_uri'] : FALSE,
+      '#default_value' => $this->settings['use_data_uri'] ?? FALSE,
       '#description' => $this->t('Enable to support the use of data URI. Leave it unchecked if unsure, or never use data URI. It has security implications given to untrusted users.'),
       '#suffix' => '<p>' . $this->t('Recommended placement after Align / Caption images. Not tested against, nor dependent on, Shortcode module. Be sure to place Blazy filter before any other Shortcode if installed.') . '</p>',
     ];
@@ -261,7 +261,7 @@ class BlazyFilter extends BlazyFilterBase {
    * Build the blazy using the node ID and field_name.
    */
   private function byEntity(\DOMElement $object, array $settings, $attribute) {
-    list($entity_type, $id, $field_name, $field_image) = array_pad(array_map('trim', explode(":", $attribute, 4)), 4, NULL);
+    [$entity_type, $id, $field_name, $field_image] = array_pad(array_map('trim', explode(":", $attribute, 4)), 4, NULL);
     if (empty($field_name)) {
       return [];
     }
@@ -280,7 +280,7 @@ class BlazyFilter extends BlazyFilterBase {
         $definition = $list->getFieldDefinition();
         $field_type = $settings['field_type'] = $definition->get('field_type');
         $field_settings = $definition->get('settings');
-        $handler = isset($field_settings['handler']) ? $field_settings['handler'] : NULL;
+        $handler = $field_settings['handler'] ?? NULL;
         $strings = ['link', 'string', 'string_long'];
         $texts = ['text', 'text_long', 'text_with_summary'];
 
@@ -430,7 +430,7 @@ class BlazyFilter extends BlazyFilterBase {
       return;
     }
 
-    $settings['_uri'] = isset($grid_items[0]['#build'], $grid_items[0]['#build']['settings']['uri']) ? $grid_items[0]['#build']['settings']['uri'] : '';
+    $settings['_uri'] = $grid_items[0]['#build']['settings']['uri'] ?? '';
 
     $first = $grid_nodes[0];
     $dom = $first->ownerDocument;

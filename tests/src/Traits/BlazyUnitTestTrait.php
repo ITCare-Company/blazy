@@ -79,7 +79,7 @@ trait BlazyUnitTestTrait {
    */
   protected function getDefaultFieldDefinition() {
     return [
-      'bundle'            => isset($this->bundle) ? $this->bundle : 'bundle_test',
+      'bundle'            => $this->bundle ?? 'bundle_test',
       'current_view_mode' => 'default',
       'entity_type'       => $this->entityType,
       'field_name'        => $this->testFieldName,

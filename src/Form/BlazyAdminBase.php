@@ -291,7 +291,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     if (isset($definition['current_view_mode'])) {
       $form['current_view_mode'] = [
         '#type'          => 'hidden',
-        '#default_value' => isset($definition['current_view_mode']) ? $definition['current_view_mode'] : '_custom',
+        '#default_value' => $definition['current_view_mode'] ?? '_custom',
         '#weight'        => 120,
       ];
     }
@@ -303,7 +303,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns simple form elements common for Views field, EB widget, formatters.
    */
   public function baseForm($definition = []) {
-    $settings   = isset($definition['settings']) ? $definition['settings'] : [];
+    $settings   = $definition['settings'] ?? [];
     $lightboxes = $this->blazyManager->getLightboxes();
     $form       = [];
     $ui_url     = '/admin/config/media/blazy';
@@ -440,7 +440,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns re-usable media switch form elements.
    */
   public function mediaSwitchForm(array &$form, $definition = []) {
-    $settings   = isset($definition['settings']) ? $definition['settings'] : [];
+    $settings   = $definition['settings'] ?? [];
     $lightboxes = $this->blazyManager->getLightboxes();
     $is_token   = $this->blazyManager->getModuleHandler()->moduleExists('token');
 
@@ -504,8 +504,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns re-usable logic, styling and assets across fields and Views.
    */
   public function finalizeForm(array &$form, $definition = []) {
-    $namespace = isset($definition['namespace']) ? $definition['namespace'] : 'slick';
-    $settings = isset($definition['settings']) ? $definition['settings'] : [];
+    $namespace = $definition['namespace'] ?? 'slick';
+    $settings = $definition['settings'] ?? [];
     $vanilla = !empty($definition['vanilla']) ? ' form--vanilla' : '';
     $grid = !empty($definition['grid_required']) ? ' form--grid-required' : '';
     $plugind_id = !empty($definition['plugin_id']) ? ' form--plugin-' . str_replace('_', '-', $definition['plugin_id']) : '';
@@ -514,11 +514,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $wide = $count > 2 ? ' form--wide form--caption-' . $count : ' form--caption-' . $count;
     $fallback = $namespace == 'slick' ? 'form--slick' : 'form--' . $namespace . ' form--slick';
     $plugins = ' form--namespace-' . $namespace;
-    $custom = isset($definition['opening_class']) ? ' ' . $definition['opening_class'] : '';
+    $custom = $definition['opening_class'] ?? '';
     // @todo remove form_opening_classes for opening_class.
-    $classes = isset($definition['form_opening_classes'])
-      ? $definition['form_opening_classes']
-      : $fallback . ' form--half has-tooltip' . $wide . $vanilla . $grid . $plugind_id . $custom . $plugins;
+    $classes = $definition['form_opening_classes'] ?? ($fallback . ' form--half has-tooltip' . $wide . $vanilla . $grid . $plugind_id . ' ' . $custom . $plugins);
 
     if (!empty($definition['field_type'])) {
       $classes .= ' form--' . str_replace('_', '-', $definition['field_type']);

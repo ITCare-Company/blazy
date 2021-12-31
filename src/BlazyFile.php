@@ -108,7 +108,7 @@ class BlazyFile {
     $uri = $settings['uri'];
     $valid = self::isValidUri($uri);
     $styled = $valid && empty($settings['unstyled']);
-    $url = isset($settings['image_url']) ? $settings['image_url'] : '';
+    $url = $settings['image_url'] ?? '';
 
     // Image style modifier can be multi-style images such as GridStack.
     if ($valid && !empty($settings['image_style']) && ($style = ImageStyle::load($settings['image_style']))) {
@@ -143,17 +143,18 @@ class BlazyFile {
     $height = $initial ? '_height' : 'height';
     $uri = $initial ? '_uri' : 'uri';
 
-    if (empty($settings[$width])) {
-      $settings[$width] = $item && isset($item->width) ? $item->width : NULL;
-      $settings[$height] = $item && isset($item->height) ? $item->height : NULL;
+    if (empty($settings[$width]) && $item) {
+      $settings[$width] = $item->width ?? NULL;
+      $settings[$height] = $item->height ?? NULL;
     }
+
     // Only applies when Image style is empty, no file API, no $item,
     // with unmanaged VEF/ WYSIWG/ filter image without image_style.
     // Prevents 404 warning when video thumbnail missing for a reason.
     if (empty($settings['image_style']) && empty($settings[$width]) && !empty($settings[$uri])) {
       $abs = empty($settings['uri_root']) ? $settings[$uri] : $settings['uri_root'];
       if ($data = @getimagesize($abs)) {
-        list($settings[$width], $settings[$height]) = $data;
+        [$settings[$width], $settings[$height]] = $data;
       }
     }
 
@@ -180,8 +181,8 @@ class BlazyFile {
       $width  = $initial ? '_width' : 'width';
       $height = $initial ? '_height' : 'height';
 
-      $width  = isset($data[$width]) ? $data[$width] : NULL;
-      $height = isset($data[$height]) ? $data[$height] : NULL;
+      $width  = $data[$width] ?? NULL;
+      $height = $data[$height] ?? NULL;
       $dim    = ['width' => $width, 'height' => $height];
 
       // Funnily $uri is ignored at all core image effects.

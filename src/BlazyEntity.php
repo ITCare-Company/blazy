@@ -149,7 +149,7 @@ class BlazyEntity implements BlazyEntityInterface {
    * @todo make it usable for other file-related entities.
    */
   public function getFileOrMedia($file, array $settings, $use_file = TRUE) {
-    list($type,) = explode('/', $file->getMimeType(), 2);
+    [$type] = explode('/', $file->getMimeType(), 2);
     if ($type == 'video') {
       // As long as you are not being too creative by renaming or changing
       // fields provided by core, this should be your good friend.
@@ -189,7 +189,7 @@ class BlazyEntity implements BlazyEntityInterface {
       $values = $this->getFieldValue($entity, $field_name, $langcode);
 
       // Can be text, or link field.
-      $string = isset($values[0]['uri']) ? $values[0]['uri'] : (isset($values[0]['value']) ? $values[0]['value'] : '');
+      $string = $values[0]['uri'] ?? ($values[0]['value'] ?? '');
 
       if ($string && is_string($string)) {
         $string = $clean ? strip_tags($string, '<a><strong><em><span><small>') : Xss::filter($string, BlazyDefault::TAGS);
@@ -211,7 +211,7 @@ class BlazyEntity implements BlazyEntityInterface {
       // @see quickedit_preprocess_field().
       // @todo Remove when it respects plugin annotation.
       $view['#view_mode'] = '_custom';
-      $weight = isset($view['#weight']) ? $view['#weight'] : 0;
+      $weight = $view['#weight'] ?? 0;
 
       // Intentionally clean markups as this is not meant for vanilla.
       if ($multiple) {

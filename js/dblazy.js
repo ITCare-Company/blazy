@@ -267,6 +267,8 @@
    *
    * @return {bool}
    *   True if it has the needle.
+   *
+   * @todo use polyfill core/drupal.string.includes when min D9.3.
    */
   dBlazy.contains = function (str, substr) {
     var me = this;
@@ -367,7 +369,7 @@
    *   The class name, or space-delimited class names.
    */
   dBlazy.toggleClass = function (el, name) {
-    if (el) {
+    if (el && el.classList) {
       name.split(' ').map(function (value) {
         el.classList.toggle(value);
       });
@@ -496,7 +498,7 @@
   };
 
   /**
-   * A simple removeAttribute wrapper based on ptional data attributes.
+   * A simple removeAttribute wrapper based on optional data attributes.
    *
    * @name dBlazy.removeAttrs
    *
@@ -783,8 +785,7 @@
     });
 
     // Supports both BG and regular image.
-    var cn = me.closest(el, '.media');
-    cn = me.isNull(cn) ? el : cn;
+    var cn = me.closest(el, '.media') || el;
     var blur = me.find(cn, '.b-blur--tmp');
 
     function animationEnd() {

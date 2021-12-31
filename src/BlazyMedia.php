@@ -140,7 +140,8 @@ class BlazyMedia implements BlazyMediaInterface {
    */
   public static function fakeImageItem(array &$data, $entity, $image): void {
     /** @var \Drupal\file\Entity\File $entity */
-    list($type,) = explode('/', $entity->getMimeType(), 2);
+    [$type] = explode('/', $entity->getMimeType(), 2);
+
     if ($type == 'image' && $image->isValid()) {
       $settings = [
         'uri'       => $entity->getFileUri(),

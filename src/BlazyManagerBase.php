@@ -217,7 +217,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function attach(array $attach = []) {
     $load   = [];
-    $switch = empty($attach['media_switch']) ? '' : $attach['media_switch'];
+    $switch = $attach['media_switch'] ?? '';
 
     if ($switch && $switch != 'content') {
       $attach[$switch] = $switch;
@@ -275,7 +275,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     foreach (['enabled', 'disconnect', 'rootMargin', 'threshold'] as $key) {
       $default = $key == 'rootMargin' ? '0px' : FALSE;
       $value = $key == 'threshold' ? $thold : $this->configLoad('io.' . $key);
-      $io[$key] = isset($attach['io.' . $key]) ? $attach['io.' . $key] : ($value ?: $default);
+      $io[$key] = $attach['io.' . $key] ?? ($value ?: $default);
     }
 
     return (object) $io;
@@ -289,16 +289,16 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function getCommonSettings(array &$settings) {
     $config = array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
-    $config['fx'] = isset($config['fx']) ? $config['fx'] : '';
+    $config['fx'] = $config['fx'] ?? '';
     $config['fx'] = empty($settings['fx']) ? $config['fx'] : $settings['fx'];
     $settings = array_merge($settings, $config);
-    $settings['fx'] = isset($settings['_fx']) ? $settings['_fx'] : $settings['fx'];
-    $settings['media_switch'] = $switch = empty($settings['media_switch']) ? '' : $settings['media_switch'];
+    $settings['fx'] = $settings['_fx'] ?? $settings['fx'];
+    $settings['media_switch'] = $switch = $settings['media_switch'] ?? '';
     $settings['iframe_domain'] = $this->configLoad('iframe_domain', 'media.settings');
     $settings['is_preview'] = Blazy::isPreview();
     $settings['lightbox'] = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
     $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
-    $settings['route_name'] = Blazy::routeMatch() ? Blazy::routeMatch()->getRouteName() : '';
+    $settings['route_name'] = $this->getRouteName();
     $settings['_resimage'] = $this->moduleHandler->moduleExists('responsive_image');
     $settings['resimage'] = $settings['_resimage'] && !empty($settings['responsive_image_style']);
     $settings['resimage'] = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
@@ -387,9 +387,9 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function isBlazy(array &$settings, array $item = []) {
     // Retrieves Blazy formatter related settings from within Views style.
-    $item_id = isset($settings['item_id']) ? $settings['item_id'] : 'x';
-    $content = isset($item[$item_id]) ? $item[$item_id] : $item;
-    $image   = isset($item['item']) ? $item['item'] : NULL;
+    $item_id = $settings['item_id'] ?? 'x';
+    $content = $item[$item_id] ?? $item;
+    $image   = $item['item'] ?? NULL;
 
     // 1. Blazy formatter within Views fields by supported modules.
     $settings['_item'] = $image;
@@ -400,7 +400,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     // 2. Blazy Views fields by supported modules.
     // Prevents edge case with unexpected flattened Views results which is
     // normally triggered by checking "Use field template" option.
-    if (is_array($content) && isset($content['#view']) && ($view = $content['#view'])) {
+    if (is_array($content) && ($view = ($content['#view'] ?? NULL))) {
       if ($blazy_field = BlazyViews::viewsField($view)) {
         $settings = array_merge(array_filter($blazy_field->mergedViewsSettings()), array_filter($settings));
       }
@@ -417,13 +417,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
     // Merge the first found (Responsive) image data.
     if (!empty($blazy['blazy_data'])) {
-      $settings['blazy_data'] = empty($settings['blazy_data']) ? $blazy['blazy_data'] : array_merge($settings['blazy_data'], $blazy['blazy_data']);
+      $settings['blazy_data'] = array_merge((array) ($settings['blazy_data'] ?? []), $blazy['blazy_data']);
       $settings['_dimensions'] = !empty($settings['blazy_data']['dimensions']);
     }
 
     $cherries = BlazyDefault::cherrySettings() + ['uri' => ''];
     foreach ($cherries as $key => $value) {
-      $fallback = isset($settings[$key]) ? $settings[$key] : $value;
+      $fallback = $settings[$key] ?? $value;
       $settings[$key] = isset($blazy[$key]) && empty($fallback) ? $blazy[$key] : $fallback;
     }
 
@@ -435,16 +435,16 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * Return the cache metadata common for all blazy-related modules.
    */
   public function getCacheMetadata(array $build = []) {
-    $settings          = isset($build['settings']) ? $build['settings'] : $build;
-    $namespace         = isset($settings['namespace']) ? $settings['namespace'] : 'blazy';
+    $settings          = $build['settings'] ?? $build;
+    $namespace         = $settings['namespace'] ?? 'blazy';
     $max_age           = $this->configLoad('cache.page.max_age', 'system.performance');
     $max_age           = empty($settings['cache']) ? $max_age : $settings['cache'];
-    $id                = isset($settings['id']) ? $settings['id'] : Blazy::getHtmlId($namespace);
+    $id                = $settings['id'] ?? Blazy::getHtmlId($namespace);
     $suffixes[]        = empty($settings['count']) ? count(array_filter($settings)) : $settings['count'];
     $cache['tags']     = Cache::buildTags($namespace . ':' . $id, $suffixes, '.');
     $cache['contexts'] = ['languages'];
     $cache['max-age']  = $max_age;
-    $cache['keys']     = isset($settings['cache_metadata']['keys']) ? $settings['cache_metadata']['keys'] : [$id];
+    $cache['keys']     = $settings['cache_metadata']['keys'] ?? [$id];
 
     if (!empty($settings['cache_tags'])) {
       $cache['tags'] = Cache::mergeTags($cache['tags'], $settings['cache_tags']);
@@ -536,6 +536,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getRouteName() {
+    return Blazy::routeMatch()->getRouteName();
+  }
+
+  /**
    * Collects defined skins as registered via hook_MODULE_NAME_skins_info().
    *
    * @todo remove for sub-modules own skins as plugins at blazy:8.x-2.1+.
@@ -544,14 +551,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function buildSkins($namespace, $skin_class, $methods = []) {
     return [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getRouteName() {
-    $route_match = Blazy::routeMatch();
-    return isset($route_match) ? Blazy::routeMatch()->getRouteName() : '';
   }
 
 }

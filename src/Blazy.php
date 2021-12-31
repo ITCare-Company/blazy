@@ -319,14 +319,14 @@ class Blazy implements BlazyInterface {
    * Modifies inline style to not nullify others.
    */
   public static function inlineStyle(array &$attributes, $css): void {
-    $attributes['style'] = (isset($attributes['style']) ? $attributes['style'] : '') . $css;
+    $attributes['style'] = ($attributes['style'] ?? '') . $css;
   }
 
   /**
    * Returns URI from image item.
    */
   public static function uri($item): string {
-    $fallback = isset($item->uri) ? $item->uri : '';
+    $fallback = $item->uri ?? '';
     return empty($item) ? '' : (($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $fallback);
   }
 

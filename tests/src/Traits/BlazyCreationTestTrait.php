@@ -99,7 +99,7 @@ trait BlazyCreationTestTrait {
   protected function getBlazyFieldStorageDefinition($field_name = '') {
     $field_name = empty($field_name) ? $this->testFieldName : $field_name;
     $field_storage_definitions = $this->entityFieldManager->getFieldStorageDefinitions($this->entityType);
-    return isset($field_storage_definitions[$field_name]) ? $field_storage_definitions[$field_name] : FALSE;
+    return $field_storage_definitions[$field_name] ?? FALSE;
   }
 
   /**
@@ -304,7 +304,7 @@ trait BlazyCreationTestTrait {
 
     $storage_settings = [];
     if ($field_type == 'entity_reference') {
-      $storage_settings['target_type'] = isset($this->targetType) ? $this->targetType : $this->entityType;
+      $storage_settings['target_type'] = $this->targetType ?? $this->entityType;
       $bundle = $this->bundle;
       $multiple = FALSE;
     }

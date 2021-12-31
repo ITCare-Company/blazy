@@ -88,11 +88,11 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = new static($configuration, $plugin_id, $plugin_definition);
 
-    $instance->root = isset($instance->root) ? $instance->root : $container->getParameter('app.root');
-    $instance->entityFieldManager = isset($instance->entityFieldManager) ? $instance->entityFieldManager : $container->get('entity_field.manager');
-    $instance->filterManager = isset($instance->filterManager) ? $instance->filterManager : $container->get('plugin.manager.filter');
-    $instance->blazyAdmin = isset($instance->blazyAdmin) ? $instance->blazyAdmin : $container->get('blazy.admin');
-    $instance->blazyOembed = isset($instance->blazyOembed) ? $instance->blazyOembed : $container->get('blazy.oembed');
+    $instance->root = $instance->root ?? $container->getParameter('app.root');
+    $instance->entityFieldManager = $instance->entityFieldManager ?? $container->get('entity_field.manager');
+    $instance->filterManager = $instance->filterManager ?? $container->get('plugin.manager.filter');
+    $instance->blazyAdmin = $instance->blazyAdmin ?? $container->get('blazy.admin');
+    $instance->blazyOembed = $instance->blazyOembed ?? $container->get('blazy.oembed');
     $instance->blazyManager = $instance->blazyOembed->blazyManager();
 
     return $instance;
@@ -135,13 +135,13 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
     }
 
     if ($item) {
-      $item->alt = $node->getAttribute('alt') ?: (isset($item->alt) ? $item->alt : '');
-      $item->title = $node->getAttribute('title') ?: (isset($item->title) ? $item->title : '');
+      $item->alt = $node->getAttribute('alt') ?: ($item->alt ?? '');
+      $item->title = $node->getAttribute('title') ?: ($item->title ?? '');
 
       // Supports hard-coded image url without file API.
       if (!empty($item->uri) && empty($item->width)) {
         if ($data = @getimagesize($item->uri)) {
-          list($item->width, $item->height) = $data;
+          [$item->width, $item->height] = $data;
         }
       }
     }
@@ -415,7 +415,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
         'media' => $this->t('Image to iframe'),
       ],
       '#empty_option' => $this->t('- None -'),
-      '#default_value' => isset($this->settings['media_switch']) ? $this->settings['media_switch'] : '',
+      '#default_value' => $this->settings['media_switch'] ?? '',
       '#description' => $this->t('<ul><li><b>Image to iframe</b> will play video when toggled.</li><li><b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe, Slick Lightbox, Zooming, Intense, etc.) will display media in lightbox.</li></ul>Both can stand alone or grouped as a gallery. To build a gallery, use the grid shortcodes.'),
     ];
 
@@ -432,7 +432,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       '#title' => $this->t('(Responsive) image style'),
       '#options' => $styles,
       '#empty_option' => $this->t('- None -'),
-      '#default_value' => isset($this->settings['hybrid_style']) ? $this->settings['hybrid_style'] : '',
+      '#default_value' => $this->settings['hybrid_style'] ?? '',
       '#description' => $this->t('Fallback (Responsive) image style when <code>[data-image-style]</code> or <code>[data-responsive-image-style]</code> attributes are not present, see https://drupal.org/node/2061377.'),
     ];
 
@@ -441,7 +441,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       '#title' => $this->t('Lightbox (Responsive) image style'),
       '#options' => $styles,
       '#empty_option' => $this->t('- None -'),
-      '#default_value' => isset($this->settings['box_style']) ? $this->settings['box_style'] : '',
+      '#default_value' => $this->settings['box_style'] ?? '',
     ];
 
     $captions = $this->blazyAdmin->getLightboxCaptionOptions();
@@ -451,7 +451,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       '#title' => $this->t('Lightbox caption'),
       '#options' => $captions + ['inline' => $this->t('Caption filter')],
       '#empty_option' => $this->t('- None -'),
-      '#default_value' => isset($this->settings['box_caption']) ? $this->settings['box_caption'] : '',
+      '#default_value' => $this->settings['box_caption'] ?? '',
       '#description' => $this->t('Automatic will search for Alt text first, then Title text. <br>Image styles only work for uploaded images, not hand-coded ones. Caption filter will use <code>data-caption</code> normally managed by Caption filter.'),
     ];
   }

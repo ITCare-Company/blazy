@@ -43,7 +43,7 @@ class BlazySettings implements \Countable {
    *   A mixed value (array, string, bool, null, etc.).
    */
   public function get($id) {
-    return isset($this->storage[$id]) ? $this->storage[$id] : NULL;
+    return $this->storage[$id] ?? NULL;
   }
 
   /**
