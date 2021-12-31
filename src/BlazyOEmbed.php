@@ -278,7 +278,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    *
    * @todo deprecated and removed for BlazyTheme::getAutoPlayUrl().
    */
-  public function getAutoPlayUrl($url = '') {
+  public function getAutoPlayUrl(?string $url) {
     return BlazyTheme::getAutoPlayUrl($url);
   }
 

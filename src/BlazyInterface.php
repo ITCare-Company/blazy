@@ -18,7 +18,7 @@ interface BlazyInterface {
    * @param array $variables
    *   The variables being modified.
    */
-  public static function buildMedia(array &$variables);
+  public static function buildMedia(array &$variables): void;
 
   /**
    * Modifies variables for responsive image.
@@ -31,7 +31,7 @@ interface BlazyInterface {
    * @param array $variables
    *   The variables being modified.
    */
-  public static function buildResponsiveImage(array &$variables);
+  public static function buildResponsiveImage(array &$variables): void;
 
   /**
    * Returns common iframe attributes, including those not handled by blazy.
@@ -42,7 +42,7 @@ interface BlazyInterface {
    * @return array
    *   The iframe attributes.
    */
-  public static function iframeAttributes(array &$settings);
+  public static function iframeAttributes(array &$settings): array;
 
   /**
    * Modifies variables for iframes, those only handled by theme_blazy().
@@ -55,7 +55,7 @@ interface BlazyInterface {
    * @param array $variables
    *   The variables being modified.
    */
-  public static function buildIframe(array &$variables);
+  public static function buildIframe(array &$variables): void;
 
   /**
    * Defines attributes, builtin, or supported lazyload such as Slick.
@@ -69,7 +69,7 @@ interface BlazyInterface {
    * @param array $settings
    *   The given settings.
    */
-  public static function lazyAttributes(array &$attributes, array $settings = []);
+  public static function lazyAttributes(array &$attributes, array $settings = []): void;
 
   /**
    * Builds URLs, cache tags, and dimensions for an individual image.
@@ -89,6 +89,6 @@ interface BlazyInterface {
    * @param object $item
    *   The image item.
    */
-  public static function urlAndDimensions(array &$settings, $item = NULL);
+  public static function urlAndDimensions(array &$settings, $item = NULL): void;
 
 }

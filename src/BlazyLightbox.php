@@ -17,7 +17,7 @@ class BlazyLightbox {
    * @param array $element
    *   The element being modified.
    */
-  public static function build(array &$element = []) {
+  public static function build(array &$element = []): void {
     $item       = $element['#item'];
     $settings   = &$element['#settings'];
     $uri        = $settings['uri'];
@@ -200,7 +200,7 @@ class BlazyLightbox {
    * @return array
    *   The renderable array of caption, or empty array.
    */
-  private static function buildCaptions($item, array $settings = []) {
+  private static function buildCaptions($item, array $settings = []): array {
     $title   = empty($item->title) ? '' : $item->title;
     $alt     = empty($item->alt) ? '' : $item->alt;
     $delta   = empty($settings['delta']) ? 0 : $settings['delta'];

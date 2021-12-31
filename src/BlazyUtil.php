@@ -25,6 +25,8 @@ class BlazyUtil {
    *   Returns a string containing an SVG.
    */
   public static function generatePlaceholder($width, $height): string {
+    $width = $width ?: 100;
+    $height = $height ?: 100;
     return 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D\'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg\'%20viewBox%3D\'0%200%20' . $width . '%20' . $height . '\'%2F%3E';
   }
 
@@ -43,7 +45,7 @@ class BlazyUtil {
    * @return array
    *   The sanitized $attributes suitable for UGC, such as Blazy filter.
    */
-  public static function sanitize(array $attributes = [], $escaped = TRUE) {
+  public static function sanitize(array $attributes = [], $escaped = TRUE): array {
     $clean_attributes = [];
     $tags = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];
     foreach ($attributes as $key => $value) {
@@ -67,7 +69,7 @@ class BlazyUtil {
   /**
    * Checks if extension should not use image style: apng svg gif, etc.
    */
-  public static function unstyled(array $settings) {
+  public static function unstyled(array $settings): bool {
     $extensions = ['svg'];
     if (isset($settings['unstyled_extensions']) && $unstyled = $settings['unstyled_extensions']) {
       $extensions = array_merge($extensions, array_map('trim', explode(' ', mb_strtolower($unstyled))));
@@ -79,7 +81,8 @@ class BlazyUtil {
   /**
    * Provides original unstyled image dimensions based on the given image item.
    *
-   * @todo deprecate and remove at 3.+. Use BlazyFile::imageDimensions().
+   * @todo deprecate and removed at 3.+. Use BlazyFile::imageDimensions()
+   * instead.
    */
   public static function imageDimensions(array &$settings, $item = NULL, $initial = FALSE) {
     BlazyFile::imageDimensions($settings, $item, $initial);
@@ -88,7 +91,8 @@ class BlazyUtil {
   /**
    * A wrapper for ImageStyle::transformDimensions().
    *
-   * @todo deprecate and remove at 3.+. Use BlazyFile::transformDimensions().
+   * @todo deprecate and removed at 3.+. Use BlazyFile::transformDimensions()
+   * instead.
    */
   public static function transformDimensions($style, array $data, $initial = FALSE) {
     return BlazyFile::transformDimensions($style, $data, $initial);
@@ -97,7 +101,8 @@ class BlazyUtil {
   /**
    * A wrapper for ::transformRelative() to pass tests anywhere else.
    *
-   * @todo deprecate and remove at 3.+. Use BlazyFile::transformRelative().
+   * @todo deprecate at 2.5 and removed at 3.+. Use
+   * BlazyFile::transformRelative() instead.
    */
   public static function transformRelative($uri, $style = NULL) {
     return BlazyFile::transformRelative($uri, $style);
@@ -106,7 +111,8 @@ class BlazyUtil {
   /**
    * Returns the URI from the given image URL, relevant for unmanaged files.
    *
-   * @todo deprecate and remove at 3.+. Use BlazyFile::buildUri() instead.
+   * @todo deprecate at 2.5 and removed at 3.+. Use BlazyFile::buildUri()
+   * instead.
    */
   public static function buildUri($image_url) {
     return BlazyFile::buildUri($image_url);
@@ -115,7 +121,8 @@ class BlazyUtil {
   /**
    * Determines whether the URI has a valid scheme for file API operations.
    *
-   * @todo deprecate and remove at 3.+. Use BlazyFile::isValidUri() instead.
+   * @todo deprecate at 2.5 and removed at 3.+. Use BlazyFile::isValidUri()
+   * instead.
    */
   public static function isValidUri($uri) {
     return BlazyFile::isValidUri($uri);
@@ -124,7 +131,8 @@ class BlazyUtil {
   /**
    * Provides image url based on the given settings.
    *
-   * @todo deprecate and remove at 3.+. Use BlazyFile::imageUrl() instead.
+   * @todo deprecate at 2.5 and removed at 3.+. Use BlazyFile::imageUrl()
+   * instead.
    */
   public static function imageUrl(array &$settings) {
     BlazyFile::imageUrl($settings);

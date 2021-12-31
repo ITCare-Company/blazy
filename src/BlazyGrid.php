@@ -18,7 +18,7 @@ class BlazyGrid {
    * @return array
    *   The modified array of grid items.
    */
-  public static function build(array $items = [], array $settings = []) {
+  public static function build(array $items = [], array $settings = []): array {
     $settings += BlazyDefault::htmlSettings() + BlazyDefault::gridSettings();
     $style = $settings['style'];
     $settings['_grid'] = $is_grid = isset($settings['_grid']) ? $settings['_grid'] : ($style && $settings['grid']);
@@ -87,7 +87,7 @@ class BlazyGrid {
   /**
    * Provides reusable container attributes.
    */
-  public static function attributes(array &$attributes, array $settings = []) {
+  public static function attributes(array &$attributes, array $settings = []): void {
     $is_gallery = !empty($settings['lightbox']) && !empty($settings['gallery_id']);
 
     // Provides data-attributes to avoid conflict with original implementations.
@@ -106,7 +106,7 @@ class BlazyGrid {
   /**
    * Limit to grid only, so to be usable for plain list.
    */
-  public static function gridContainerAttributes(array &$attributes, array $settings = []) {
+  public static function gridContainerAttributes(array &$attributes, array $settings = []): void {
     $style = $settings['style'];
 
     if (!empty($settings['_grid'])) {
@@ -133,7 +133,7 @@ class BlazyGrid {
   /**
    * LProvides grid item attributes, relevant for Native Grid.
    */
-  public static function gridItemAttributes(array &$attributes, array $settings = []) {
+  public static function gridItemAttributes(array &$attributes, array $settings = []): void {
     if (isset($settings['grid_large_dimensions']) && $dim = $settings['grid_large_dimensions']) {
       $key = $settings['delta'];
       if (isset($dim[$key])) {
@@ -160,14 +160,14 @@ class BlazyGrid {
   /**
    * Checks if a grid expects a two-dimensional grid.
    */
-  public static function isNativeGrid($grid) {
+  public static function isNativeGrid($grid): bool {
     return !empty($grid) && !is_numeric($grid);
   }
 
   /**
    * Checks if a grid uses a native grid, but expecting a masonry.
    */
-  public static function isNativeGridAsMasonry(array $settings = []) {
+  public static function isNativeGridAsMasonry(array $settings = []): bool {
     $grid = $settings['grid'];
     return !self::isNativeGrid($grid) && $settings['style'] == 'nativegrid';
   }
@@ -175,7 +175,7 @@ class BlazyGrid {
   /**
    * Extracts grid like: 4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2, or single 4x4.
    */
-  public static function toDimensions($grid) {
+  public static function toDimensions($grid): array {
     $dimensions = [];
     if (self::isNativeGrid($grid)) {
       $values = array_map('trim', explode(" ", $grid));
@@ -196,7 +196,7 @@ class BlazyGrid {
   /**
    * Passes grid like: 4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2 to settings.
    */
-  public static function toNativeGrid(array &$settings = []) {
+  public static function toNativeGrid(array &$settings = []): void {
     if (empty($settings['grid'])) {
       return;
     }

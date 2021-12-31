@@ -135,7 +135,9 @@ class BlazyTheme {
         if ($blazy->get('image') && $blazy->get('uri')) {
           $settings = $blazy->storage();
           $settings['_dimensions'] = TRUE;
+
           BlazyFile::imageUrl($settings);
+
           if (!empty($settings['image_url'])) {
             $variables['attributes']->setAttribute('poster', $settings['image_url']);
           }
@@ -253,13 +255,16 @@ class BlazyTheme {
   /**
    * Provides the autoplay url suitable for lightboxes, or custom video trigger.
    *
+   * As per 21/12/31, coder doesn't recognize nullable typehints, and err.
+   * https://www.php.net/manual/en/migration71.new-features.php
+   *
    * @param string $url
    *   The embed URL, not input URL.
    *
    * @return array
-   *   The settings array containing autoplay URL.
+   *   The settings array containing autoplay and oembed URL.
    */
-  public static function getAutoPlayUrl($url = '') {
+  public static function getAutoPlayUrl(?string $url): array {
     $data = [];
     if (!empty($url)) {
       $data['oembed_url'] = $url;
@@ -274,7 +279,7 @@ class BlazyTheme {
   /**
    * Overrides variables for field.html.twig templates.
    */
-  private static function thirdPartyField(array &$variables) {
+  private static function thirdPartyField(array &$variables): void {
     $element = $variables['element'];
     $settings = empty($element['#blazy']) ? [] : $element['#blazy'];
     $settings['third_party'] = $element['#third_party_settings'];

@@ -31,7 +31,7 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public static function buildMedia(array &$variables) {
+  public static function buildMedia(array &$variables): void {
     $settings = $variables['settings'];
 
     // (Responsive) image is optional for Video, or image as CSS background.
@@ -58,7 +58,7 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public static function urlAndDimensions(array &$settings, $item = NULL) {
+  public static function urlAndDimensions(array &$settings, $item = NULL): void {
     // BlazyFilter, or image style with crop, may already set these.
     BlazyFile::imageDimensions($settings, $item);
 
@@ -75,7 +75,7 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public static function buildResponsiveImage(array &$variables) {
+  public static function buildResponsiveImage(array &$variables): void {
     $settings = $variables['settings'];
     $attributes = empty($settings['is_preview']) ? [
       'data-b-lazy' => $settings['one_pixel'],
@@ -92,7 +92,7 @@ class Blazy implements BlazyInterface {
   /**
    * Modifies variables for blazy (non-)lazyloaded image.
    */
-  public static function buildImage(array &$variables) {
+  public static function buildImage(array &$variables): void {
     $settings = $variables['settings'];
 
     // Supports either lazy loaded image, or not.
@@ -105,7 +105,7 @@ class Blazy implements BlazyInterface {
   /**
    * Modifies $variables to provide optional (Responsive) image attributes.
    */
-  public static function imageAttributes(array &$variables) {
+  public static function imageAttributes(array &$variables): void {
     $item = $variables['item'];
     $settings = &$variables['settings'];
     $image = &$variables['image'];
@@ -172,7 +172,7 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public static function iframeAttributes(array &$settings) {
+  public static function iframeAttributes(array &$settings): array {
     if (empty($settings['is_preview'])) {
       $attributes['data-src'] = $settings['embed_url'];
       $attributes['src'] = 'about:blank';
@@ -193,7 +193,7 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public static function buildIframe(array &$variables) {
+  public static function buildIframe(array &$variables): void {
     $settings = &$variables['settings'];
     $settings['player'] = empty($settings['lightbox']) && $settings['media_switch'] == 'media';
 
@@ -215,7 +215,7 @@ class Blazy implements BlazyInterface {
   /**
    * Provides (Responsive) image noscript if so configured.
    */
-  public static function buildNoscriptImage(array &$variables) {
+  public static function buildNoscriptImage(array &$variables): void {
     $settings = $variables['settings'];
     $noscript = $variables['image'];
     $noscript['#uri'] = empty($settings['responsive_image_style_id']) ? $settings['image_url'] : $settings['uri'];
@@ -235,7 +235,7 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public static function lazyAttributes(array &$attributes, array $settings = []) {
+  public static function lazyAttributes(array &$attributes, array $settings = []): void {
     // Slick has its own class and methods: ondemand, anticipative, progressive.
     // @todo remove this condition once sub-modules have been aware of preview.
     if (empty($settings['is_preview'])) {
@@ -247,14 +247,14 @@ class Blazy implements BlazyInterface {
   /**
    * Provide common attributes for IMG, IFRAME, VIDEO, DIV, etc. elements.
    */
-  public static function commonAttributes(array &$attributes, array $settings = []) {
+  public static function commonAttributes(array &$attributes, array $settings = []): void {
     $attributes['class'][] = 'media__element';
   }
 
   /**
    * Modifies container attributes with aspect ratio for iframe, image, etc.
    */
-  public static function aspectRatioAttributes(array &$attributes, array &$settings) {
+  public static function aspectRatioAttributes(array &$attributes, array &$settings): void {
     $settings['ratio'] = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
 
     if ($settings['height'] && $settings['ratio'] == 'fluid') {
@@ -272,7 +272,7 @@ class Blazy implements BlazyInterface {
   /**
    * Provides container attributes for .blazy container: .field, .view, etc.
    */
-  public static function containerAttributes(array &$attributes, array $settings = []) {
+  public static function containerAttributes(array &$attributes, array $settings = []): void {
     $settings += ['namespace' => 'blazy'];
     $classes = empty($attributes['class']) ? [] : $attributes['class'];
     $attributes['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
@@ -305,7 +305,7 @@ class Blazy implements BlazyInterface {
   /**
    * Returns the trusted HTML ID of a single instance.
    */
-  public static function getHtmlId($string = 'blazy', $id = '') {
+  public static function getHtmlId($string = 'blazy', $id = ''): string {
     if (!isset(static::$blazyId)) {
       static::$blazyId = 0;
     }
@@ -318,14 +318,14 @@ class Blazy implements BlazyInterface {
   /**
    * Modifies inline style to not nullify others.
    */
-  public static function inlineStyle(array &$attributes, $css) {
+  public static function inlineStyle(array &$attributes, $css): void {
     $attributes['style'] = (isset($attributes['style']) ? $attributes['style'] : '') . $css;
   }
 
   /**
    * Returns URI from image item.
    */
-  public static function uri($item) {
+  public static function uri($item): string {
     $fallback = isset($item->uri) ? $item->uri : '';
     return empty($item) ? '' : (($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $fallback);
   }

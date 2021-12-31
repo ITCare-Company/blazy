@@ -19,7 +19,7 @@ class BlazyAlter {
   /**
    * Implements hook_config_schema_info_alter().
    */
-  public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', array $settings = []) {
+  public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', array $settings = []): void {
     if (isset($definitions[$formatter])) {
       $mappings = &$definitions[$formatter]['mapping'];
       $settings = $settings ?: BlazyDefault::extendedSettings() + BlazyDefault::gridSettings();
@@ -50,7 +50,7 @@ class BlazyAlter {
   /**
    * Implements hook_library_info_alter().
    */
-  public static function libraryInfoAlter(&$libraries, $extension) {
+  public static function libraryInfoAlter(&$libraries, $extension): void {
     if ($extension === 'blazy') {
       if ($path = blazy_libraries_get_path('blazy')) {
         $libraries['blazy']['js'] = ['/' . $path . '/blazy.js' => ['weight' => -4]];
@@ -75,7 +75,7 @@ class BlazyAlter {
   /**
    * Implements hook_blazy_settings_alter().
    */
-  public static function blazySettingsAlter(array &$build, $items) {
+  public static function blazySettingsAlter(array &$build, $items): void {
     $settings = &$build['settings'];
 
     // Sniffs for Views to allow block__no_wrapper, views_no_wrapper, etc.
@@ -90,7 +90,7 @@ class BlazyAlter {
   /**
    * Checks if Entity/Media Embed is enabled.
    */
-  public static function isCkeditorApplicable(Editor $editor) {
+  public static function isCkeditorApplicable(Editor $editor): bool {
     foreach (['entity_embed', 'media_embed'] as $filter) {
       if (!$editor->isNew()
         && $editor->getFilterFormat()->filters()->has($filter)
@@ -106,7 +106,7 @@ class BlazyAlter {
   /**
    * Implements hook_ckeditor_css_alter().
    */
-  public static function ckeditorCssAlter(array &$css, Editor $editor) {
+  public static function ckeditorCssAlter(array &$css, Editor $editor): void {
     if (self::isCkeditorApplicable($editor)) {
       $path = Blazy::getPath('module', 'blazy', TRUE);
       $css[] = $path . '/css/components/blazy.media.css';
@@ -132,7 +132,7 @@ class BlazyAlter {
    * @see \Drupal\blazy\BlazyTheme::fileVideo()
    * @see blazy_preprocess_file_video()
    */
-  public static function thirdPartyFormatters() {
+  public static function thirdPartyFormatters(): array {
     $formatters = ['file_video'];
     \blazy()->getModuleHandler()->alter('blazy_third_party_formatters', $formatters);
     return array_unique($formatters);
@@ -141,7 +141,7 @@ class BlazyAlter {
   /**
    * Implements hook_field_formatter_third_party_settings_form().
    */
-  public static function fieldFormatterThirdPartySettingsForm(FormatterInterface $plugin) {
+  public static function fieldFormatterThirdPartySettingsForm(FormatterInterface $plugin): array {
     if (in_array($plugin->getPluginId(), self::thirdPartyFormatters())) {
       return [
         'blazy' => [
@@ -157,7 +157,7 @@ class BlazyAlter {
   /**
    * Implements hook_field_formatter_settings_summary_alter().
    */
-  public static function fieldFormatterSettingsSummaryAlter(&$summary, $context) {
+  public static function fieldFormatterSettingsSummaryAlter(&$summary, $context): void {
     $on = $context['formatter']->getThirdPartySetting('blazy', 'blazy', FALSE);
     if ($on && in_array($context['formatter']->getPluginId(), self::thirdPartyFormatters())) {
       $summary[] = 'Blazy';
@@ -167,7 +167,7 @@ class BlazyAlter {
   /**
    * Attaches Colorbox if so configured.
    */
-  public static function attachColorbox(array &$load, $attach = []) {
+  public static function attachColorbox(array &$load, $attach = []): void {
     if (\Drupal::hasService('colorbox.attachment')) {
       $dummy = [];
       \Drupal::service('colorbox.attachment')->attach($dummy);

@@ -59,7 +59,7 @@ class BlazyFile {
    *
    * @param string $uri
    *   The file uri.
-   * @param \Drupal\image\Entity\ImageStyle $style
+   * @param object $style
    *   The optional image style instance.
    *
    * @return string
@@ -79,7 +79,7 @@ class BlazyFile {
   /**
    * Returns the URI from the given image URL, relevant for unmanaged files.
    */
-  public static function buildUri($url) {
+  public static function buildUri($url): ?string {
     if (!UrlHelper::isExternal($url) && $normal_path = UrlHelper::parse($url)['path']) {
       // If the request has a base path, remove it from the beginning of the
       // normal path as it should not be included in the URI.
@@ -138,7 +138,7 @@ class BlazyFile {
   /**
    * Provides original unstyled image dimensions based on the given image item.
    */
-  public static function imageDimensions(array &$settings, $item = NULL, $initial = FALSE) {
+  public static function imageDimensions(array &$settings, $item = NULL, $initial = FALSE): void {
     $width = $initial ? '_width' : 'width';
     $height = $initial ? '_height' : 'height';
     $uri = $initial ? '_uri' : 'uri';
@@ -172,7 +172,7 @@ class BlazyFile {
    * @param bool $initial
    *   Whether particularly transforms once for all, or individually.
    */
-  public static function transformDimensions($style, array $data, $initial = FALSE) {
+  public static function transformDimensions($style, array $data, $initial = FALSE): array {
     $uri = $initial ? '_uri' : 'uri';
     $key = hash('md2', ($style->id() . $data[$uri]));
 

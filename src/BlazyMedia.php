@@ -14,7 +14,7 @@ class BlazyMedia implements BlazyMediaInterface {
   /**
    * {@inheritdoc}
    */
-  public static function build($media, array $settings = []) {
+  public static function build($media, array $settings = []): array {
     // Prevents fatal error with disconnected internet when having ME Facebook,
     // ME SlideShare, resorted to static thumbnails to avoid broken displays.
     if (!empty($settings['input_url'])) {
@@ -22,7 +22,7 @@ class BlazyMedia implements BlazyMediaInterface {
         \Drupal::httpClient()->get($settings['input_url'], ['timeout' => 3]);
       }
       catch (\Exception $e) {
-        return FALSE;
+        return [];
       }
     }
 
@@ -37,7 +37,7 @@ class BlazyMedia implements BlazyMediaInterface {
   /**
    * {@inheritdoc}
    */
-  public static function wrap(array $field = []) {
+  public static function wrap(array $field = []): array {
     $item     = $field[0];
     $settings = $field['#settings'];
     $iframe   = isset($item['#tag']) && $item['#tag'] == 'iframe';
@@ -79,9 +79,9 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Modifies media item data to provide image item.
    */
-  public static function mediaItem(array &$data, $media) {
+  public static function mediaItem(array &$data, $media): void {
     $item     = NULL;
     $settings = &$data['settings'];
 
@@ -110,6 +110,7 @@ class BlazyMedia implements BlazyMediaInterface {
     if ($item) {
       $settings['file_tags'] = ['file:' . $item->target_id];
       $settings['uri'] = Blazy::uri($item);
+
       if (trim($item->title) == '') {
         $item->title = $media->label();
       }
@@ -120,13 +121,14 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Modifies item attributes for local video item.
    */
-  public static function videoItem(array &$item, array $settings) {
+  public static function videoItem(array &$item, array $settings): void {
     // Do this as $item['#settings'] is not available as file_video variables.
     foreach ($item['#files'] as &$file) {
       $file['blazy'] = new BlazySettings($settings);
     }
+
     $item['#attributes']->setAttribute('data-b-lazy', TRUE);
     if (!empty($settings['is_preview'])) {
       $item['#attributes']->setAttribute('data-b-preview', TRUE);
@@ -134,9 +136,9 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Modifies data to provide fake image item.
    */
-  public static function fakeImageItem(array &$data, $entity, $image) {
+  public static function fakeImageItem(array &$data, $entity, $image): void {
     /** @var \Drupal\file\Entity\File $entity */
     list($type,) = explode('/', $entity->getMimeType(), 2);
     if ($type == 'image' && $image->isValid()) {
@@ -162,7 +164,7 @@ class BlazyMedia implements BlazyMediaInterface {
   /**
    * {@inheritdoc}
    */
-  public static function imageItem(array &$data, $entity) {
+  public static function imageItem(array &$data, $entity): void {
     $settings = &$data['settings'];
     $stage = $settings['image'];
 
