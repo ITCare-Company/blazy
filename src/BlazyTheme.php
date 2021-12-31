@@ -256,7 +256,7 @@ class BlazyTheme {
    * Provides the autoplay url suitable for lightboxes, or custom video trigger.
    *
    * As per 21/12/31, coder doesn't recognize nullable typehints, and err.
-   * https://www.php.net/manual/en/migration71.new-features.php
+   * https://www.php.net/manual/en/migration71.new-features.php.
    *
    * @param string $url
    *   The embed URL, not input URL.

@@ -3,12 +3,12 @@
  * Provides CSS3 flex based on Flexbox layout.
  */
 
+/* csslint ignore:start */
 :root {
   /* The gap 15px is to match CSS grid convention such as Bootstrap. Adjust it. */
   --bfColGap: 15px;
 }
 
-/* csslint ignore:start */
 .block-flex,
 .blazy.block-flex,
 .item-list > .block-flex {

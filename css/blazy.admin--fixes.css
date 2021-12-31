@@ -32,6 +32,7 @@
 }
 
 /* Off-canvas. */
+/* csslint ignore:start */
 #drupal-off-canvas .form--slick.form--half,
 #drupal-off-canvas .form--slick .form-item { /* csslint allow: ids */
   height: auto;
@@ -120,6 +121,7 @@
   float: left;
   margin-top: 10px;
 }
+/* csslint ignore:end */
 
 /* Views UI. */
 .ui-dialog-content .form--slick .form-item {
@@ -223,6 +225,7 @@
     top: 0;
   }
 
+  /* csslint ignore:start */
   #drupal-off-canvas .form--vanilla div[class*="-vanilla"] { /* csslint allow: ids */
     top: 0;
   }
@@ -242,5 +245,6 @@
     top: 0;
     width: 48.999%;
   }
+  /* csslint ignore:end */
 
 }

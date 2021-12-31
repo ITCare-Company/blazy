@@ -193,7 +193,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
         $this->assertStringContainsString('data-blazy', $render);
       }
       else {
-        $this->assertFalse($render);
+        $this->assertEmpty($render);
       }
     }
     catch (GuzzleException $e) {
