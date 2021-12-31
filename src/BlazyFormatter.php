@@ -123,7 +123,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     // The first image dimensions to differ from individual item dimensions.
     if (!empty($settings['_item'])) {
-      BlazyUtil::imageDimensions($settings, $settings['_item'], TRUE);
+      BlazyFile::imageDimensions($settings, $settings['_item'], TRUE);
     }
   }
 
@@ -137,7 +137,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     if (!isset($this->isImageDimensionSet[md5($settings['id'])])) {
       // If image style contains crop, sets dimension once, and let all inherit.
       if (!empty($settings['image_style']) && ($style = $this->isCrop($settings['image_style']))) {
-        $settings = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, TRUE));
+        $settings = array_merge($settings, BlazyFile::transformDimensions($style, $settings, TRUE));
 
         // Informs individual images that dimensions are already set once.
         $settings['_dimensions'] = TRUE;

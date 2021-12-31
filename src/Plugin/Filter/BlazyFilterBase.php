@@ -11,7 +11,7 @@ use Drupal\filter\Plugin\FilterBase;
 use Drupal\filter\Render\FilteredMarkup;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyUtil;
+use Drupal\blazy\BlazyFile;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -255,7 +255,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       $settings['uri'] = $src;
 
       // Attempts to get the correct URI with hard-coded URL if applicable.
-      if ($uri = BlazyUtil::buildUri($src)) {
+      if ($uri = BlazyFile::buildUri($src)) {
         $settings['uri'] = $uri;
         $data['item'] = Blazy::image($settings);
       }

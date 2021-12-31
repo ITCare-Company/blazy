@@ -186,7 +186,7 @@ class BlazyUnitTest extends UnitTestCase {
   /**
    * Tests BlazyManager image with lightbox support.
    *
-   * This is here as we need Blazy::fileUrlGenerator()->generateString() for
+   * This is here as we need BlazyFile::transformRelative() for
    * both Blazy and its lightbox.
    *
    * @param array $settings

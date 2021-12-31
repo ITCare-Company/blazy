@@ -60,10 +60,10 @@ class Blazy implements BlazyInterface {
    */
   public static function urlAndDimensions(array &$settings, $item = NULL) {
     // BlazyFilter, or image style with crop, may already set these.
-    BlazyUtil::imageDimensions($settings, $item);
+    BlazyFile::imageDimensions($settings, $item);
 
     // Provides image url based on the given settings.
-    BlazyUtil::imageUrl($settings);
+    BlazyFile::imageUrl($settings);
 
     // The SVG placeholder should accept either original, or styled image.
     $is_media = in_array($settings['type'], ['audio', 'video']);

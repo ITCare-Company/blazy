@@ -23,7 +23,7 @@ class BlazyLightbox {
     $uri        = $settings['uri'];
     $switch     = $settings['media_switch'];
     $switch_css = str_replace('_', '-', $switch);
-    $valid      = BlazyUtil::isValidUri($uri);
+    $valid      = BlazyFile::isValidUri($uri);
 
     // Provide relevant URL if it is a lightbox.
     $url_attributes = &$element['#url_attributes'];
@@ -44,7 +44,7 @@ class BlazyLightbox {
     // The formatter might be duplicated on a page, although rare at production.
     $gallery_id             = empty($settings['gallery_id']) ? $gallery_default : $settings['gallery_id'] . '-' . $gallery_default;
     $settings['gallery_id'] = !$gallery_enabled ? NULL : str_replace('_', '-', $gallery_id);
-    $settings['box_url']    = $valid ? BlazyUtil::transformRelative($uri) : $uri;
+    $settings['box_url']    = $valid ? BlazyFile::transformRelative($uri) : $uri;
     $settings['box_width']  = isset($item->width) ? $item->width : (empty($settings['width']) ? NULL : $settings['width']);
     $settings['box_height'] = isset($item->height) ? $item->height : (empty($settings['height']) ? NULL : $settings['height']);
 
@@ -91,8 +91,8 @@ class BlazyLightbox {
       // Use non-responsive images if not-so-configured.
       if (!isset($is_resimage)) {
         if ($box_style = ImageStyle::load($settings['box_style'])) {
-          $dimensions = array_merge($dimensions, BlazyUtil::transformDimensions($box_style, $dimensions));
-          $settings['box_url'] = BlazyUtil::transformRelative($uri, $box_style);
+          $dimensions = array_merge($dimensions, BlazyFile::transformDimensions($box_style, $dimensions));
+          $settings['box_url'] = BlazyFile::transformRelative($uri, $box_style);
         }
       }
     }
@@ -110,8 +110,8 @@ class BlazyLightbox {
     // This allows PhotoSwipe with videos still swipable.
     if (!empty($settings['box_media_style']) && $valid) {
       if ($box_media_style = ImageStyle::load($settings['box_media_style'])) {
-        $dimensions = array_merge($dimensions, BlazyUtil::transformDimensions($box_media_style, $dimensions));
-        $settings['box_media_url'] = BlazyUtil::transformRelative($uri, $box_media_style);
+        $dimensions = array_merge($dimensions, BlazyFile::transformDimensions($box_media_style, $dimensions));
+        $settings['box_media_url'] = BlazyFile::transformRelative($uri, $box_media_style);
       }
     }
 

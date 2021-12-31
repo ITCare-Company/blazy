@@ -285,7 +285,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     if (!empty($settings['background'])) {
       $srcset = $dimensions = [];
       foreach ($responsive_image['styles'] as $style) {
-        $styled = array_merge($settings, BlazyUtil::transformDimensions($style, $settings, FALSE));
+        $styled = array_merge($settings, BlazyFile::transformDimensions($style, $settings, FALSE));
 
         // Sort image URLs based on width.
         $data = $this->backgroundImage($styled, $style);
@@ -334,7 +334,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    */
   private function backgroundImage(array $settings, $style = NULL) {
     return [
-      'src' => $style ? BlazyUtil::transformRelative($settings['uri'], $style) : $settings['image_url'],
+      'src' => $style ? BlazyFile::transformRelative($settings['uri'], $style) : $settings['image_url'],
       'ratio' => round((($settings['height'] / $settings['width']) * 100), 2),
     ];
   }
@@ -368,9 +368,9 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       $style = $this->entityLoad($settings['thumbnail_style'], 'image_style');
       if ($style) {
         $path = $style->buildUri($settings['uri']);
-        $attributes['data-thumb'] = $settings['thumbnail_url'] = BlazyUtil::transformRelative($settings['uri'], $style);
+        $attributes['data-thumb'] = $settings['thumbnail_url'] = BlazyFile::transformRelative($settings['uri'], $style);
 
-        if (!is_file($path) && BlazyUtil::isValidUri($path)) {
+        if (!is_file($path) && BlazyFile::isValidUri($path)) {
           $style->createDerivative($settings['uri'], $path);
         }
       }
@@ -380,7 +380,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // thumbnail and main image for company profile.
     if (!empty($settings['thumbnail_uri'])) {
       $path = $settings['thumbnail_uri'];
-      $attributes['data-thumb'] = $settings['thumbnail_url'] = BlazyUtil::transformRelative($path);
+      $attributes['data-thumb'] = $settings['thumbnail_url'] = BlazyFile::transformRelative($path);
     }
 
     // Provides image effect if so configured.
@@ -415,11 +415,11 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    * Build thumbnails, also to provide placeholder for blur effect.
    */
   protected function createPlaceholder(array &$settings, $style = NULL, $path = '') {
-    if (empty($path) && ($style = $this->entityLoad('thumbnail', 'image_style')) && BlazyUtil::isValidUri($settings['uri'])) {
+    if (empty($path) && ($style = $this->entityLoad('thumbnail', 'image_style')) && BlazyFile::isValidUri($settings['uri'])) {
       $path = $style->buildUri($settings['uri']);
     }
 
-    if ($path && BlazyUtil::isValidUri($path)) {
+    if ($path && BlazyFile::isValidUri($path)) {
       // Ensures the thumbnail exists before creating a dataURI.
       if (!is_file($path) && $style) {
         $style->createDerivative($settings['uri'], $path);

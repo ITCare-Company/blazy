@@ -189,6 +189,8 @@
   /**
    * A simple querySelector wrapper.
    *
+   * Cannot use _doc as fallback to avoid complication with a particular child.
+   *
    * @name dBlazy.find
    *
    * @param {Element} el
@@ -200,7 +202,7 @@
    *   Null if orphan or not found, else the expected element.
    */
   dBlazy.find = function (el, selector) {
-    return (el || _doc).querySelector(selector);
+    return this.isNull(el) ? null : el.querySelector(selector);
   };
 
   /**
@@ -1036,7 +1038,7 @@
   /**
    * Returns true if the subject is an array.
    *
-   * One of the weird behavior in JavaScript is the typeof Array is Object.
+   * One of the weird behaviors in JavaScript is the typeof Array is Object.
    *
    * @param {Misc} subject
    *   The subject to check for its truthy.
@@ -1155,7 +1157,7 @@
   };
 
   /**
-   * Process arguments, query the DOM if necessary.
+   * Executes the function once.
    *
    * @private
    *
@@ -1201,7 +1203,8 @@
     var elements = selector;
 
     if (typeof selector === 'string') {
-      elements = me.findAll(context, selector);
+      // Safe to use the fallback, since mostly designed for once globally.
+      elements = me.findAll(context || _doc, selector);
     }
     // This is a single element.
     else if (me.isElement(selector)) {
@@ -1320,7 +1323,7 @@
    *   True, if a custom event.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
-   * @fixme failed for future elements.
+   * @fixme failed for future elements, some weird times.
    */
   function onoff(op, elm, eventName, childEl, callback, params, isCustom) {
     params = params || {capture: true, passive: false};

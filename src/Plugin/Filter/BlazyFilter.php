@@ -5,7 +5,7 @@ namespace Drupal\blazy\Plugin\Filter;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\filter\FilterProcessResult;
-use Drupal\blazy\BlazyUtil;
+use Drupal\blazy\BlazyFile;
 
 /**
  * Provides a filter to lazyload image, or iframe elements.
@@ -390,7 +390,7 @@ class BlazyFilter extends BlazyFilterBase {
     // Marks invalid, unknown, missing IMG or IFRAME for removal.
     // Be sure to not affect external images, only strip missing local URI.
     $uri = $build['settings']['uri'];
-    $missing = !empty($uri) && (BlazyUtil::isValidUri($uri) && !is_file($uri));
+    $missing = !empty($uri) && (BlazyFile::isValidUri($uri) && !is_file($uri));
     if (empty($uri) || $missing) {
       $media->setAttribute('class', 'blazy-removed');
       return [];

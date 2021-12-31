@@ -135,7 +135,7 @@ class BlazyTheme {
         if ($blazy->get('image') && $blazy->get('uri')) {
           $settings = $blazy->storage();
           $settings['_dimensions'] = TRUE;
-          BlazyUtil::imageUrl($settings);
+          BlazyFile::imageUrl($settings);
           if (!empty($settings['image_url'])) {
             $variables['attributes']->setAttribute('poster', $settings['image_url']);
           }
