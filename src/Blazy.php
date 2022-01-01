@@ -67,9 +67,9 @@ class Blazy implements BlazyInterface {
 
     // The SVG placeholder should accept either original, or styled image.
     $is_media = in_array($settings['type'], ['audio', 'video']);
-    $settings['placeholder'] = empty($settings['placeholder']) ? BlazyUtil::generatePlaceholder($settings['width'], $settings['height']) : $settings['placeholder'];
+    $settings['placeholder'] = $settings['placeholder'] ?: BlazyUtil::generatePlaceholder($settings['width'], $settings['height']);
     $settings['use_media'] = $settings['embed_url'] && $is_media;
-    $settings['use_loading'] = empty($settings['is_preview']) ? $settings['use_loading'] : FALSE;
+    $settings['use_loading'] = $settings['is_preview'] ? FALSE : $settings['use_loading'];
   }
 
   /**
@@ -77,10 +77,10 @@ class Blazy implements BlazyInterface {
    */
   public static function buildResponsiveImage(array &$variables): void {
     $settings = $variables['settings'];
-    $attributes = empty($settings['is_preview']) ? [
+    $attributes = $settings['is_preview'] ? [] : [
       'data-b-lazy' => $settings['one_pixel'],
       'data-placeholder' => $settings['placeholder'],
-    ] : [];
+    ];
     $variables['image'] += [
       '#type' => 'responsive_image',
       '#responsive_image_style_id' => $settings['responsive_image_style_id'],

@@ -3,7 +3,7 @@
  * Provides native, Intersection Observer API, or bLazy lazy loader.
  */
 
-(function (Drupal, drupalSettings, _d, _doc) {
+(function ($, Drupal, drupalSettings, _doc) {
 
   'use strict';
 
@@ -38,7 +38,7 @@
     }
 
     opts.container = scrollElms;
-    me.options = _d.extend({}, me.globals(), opts);
+    me.options = $.extend({}, me.globals(), opts);
 
     // Attempts to fix for Views rewrite stripping out data URI causing 404.
     me.fixMissingDataUri();
@@ -62,16 +62,16 @@
    */
   function doBlazy(elm) {
     var me = Drupal.blazy;
-    var opts = _d.parse(_d.attr(elm, 'data-blazy'));
-    var isUniform = _d.hasClass(elm, 'blazy--field block-grid blazy--uniform');
+    var opts = $.parse($.attr(elm, 'data-blazy'));
+    var isUniform = $.hasClass(elm, 'blazy--field block-grid blazy--uniform');
     var instance = (Math.random() * 10000).toFixed(0);
     var eventId = 'blazy.uniform.' + instance;
-    var localItems = _d.findAll(elm, '.media--ratio');
+    var localItems = $.findAll(elm, '.media--ratio');
 
-    me.options = _d.extend(me.options, opts);
-    me.revalidate = me.revalidate || _d.hasClass(elm, 'blazy--revalidate');
+    me.options = $.extend(me.options, opts);
+    me.revalidate = me.revalidate || $.hasClass(elm, 'blazy--revalidate');
 
-    _d.addClass(elm, _mounted);
+    $.addClass(elm, _mounted);
     elm.blazyInstance = instance;
 
     if (isUniform) {
@@ -84,7 +84,7 @@
       var pad = e.detail.pad || 0;
 
       if (pad > 10) {
-        _d.forEach(localItems, function (cn) {
+        $.forEach(localItems, function (cn) {
           cn.style.paddingBottom = pad + '%';
         }, elm);
       }
@@ -93,7 +93,7 @@
     // Reduces abrupt ratio changes for the rest after the first loaded.
     // To support resizing, use debounce. To disable use {once: true}.
     if (isUniform && localItems.length > 0) {
-      _d.bindEvent(elm, eventId, swapRatio);
+      $.bindEvent(elm, eventId, swapRatio);
     }
   }
 
@@ -109,17 +109,17 @@
   Drupal.behaviors.blazy = {
     attach: function (context) {
 
-      var doc = _d.context(context);
+      var doc = $.context(context);
       Drupal.blazy.context = doc;
 
       // Processes .blazy, if available, without initialization.
       // Initialization is not per container to also support IO with root.
       // @todo replace with core/once when min D9.2, and or after sub-modules.
-      _d.once(doBlazy, _element, doc);
+      $.once(doBlazy, _element, doc);
 
       // Initializes blazy once as a global observer, not per container.
-      _d.once(initBlazy, _elementGlobal, doc);
+      $.once(initBlazy, _elementGlobal, doc);
     }
   };
 
-}(Drupal, drupalSettings, dBlazy, this.document));
+}(dBlazy, Drupal, drupalSettings, this.document));

@@ -33,7 +33,7 @@
    * Private variables.
    */
   var _doc = document;
-  var _d = dBlazy;
+  var $ = dBlazy;
   var _bioTick = 0;
   var _revTick = 0;
   var _disconnected = false;
@@ -54,7 +54,7 @@
     var me = this;
 
     if (arguments.length && 'selector' in arguments[0]) {
-      me.options = _d.extend({}, me.defaults, arguments[0] || {});
+      me.options = $.extend({}, me.defaults, arguments[0] || {});
 
       // Initializes Blazy IntersectionObserver.
       _disconnected = false;
@@ -101,7 +101,7 @@
       me.intersecting(elms);
     }
     else {
-      _d.forEach(elms, function (el) {
+      $.forEach(elms, function (el) {
         if (me.isValid(el)) {
           me.intersecting(el);
         }
@@ -120,11 +120,11 @@
   };
 
   _proto.isLoaded = function (el) {
-    return _d.hasClass(el, this.options.successClass);
+    return $.hasClass(el, this.options.successClass);
   };
 
   _proto.isValid = function (el) {
-    return _d.isObject(el) && _d.isUndefined(el.length) && !this.isLoaded(el);
+    return $.isObject(el) && $.isUndefined(el.length) && !this.isLoaded(el);
   };
 
   _proto.prepare = function () {
@@ -137,7 +137,7 @@
     // Prevents from too many revalidations unless needed.
     if ((force === true || me.count !== me.counted) && (_revTick < me.counted)) {
       _disconnected = false;
-      me.elms = _d.findAll(me.options.root || _doc, me.selector());
+      me.elms = $.findAll(me.options.root || _doc, me.selector());
       if (me.elms.length) {
         me.observe();
 
@@ -150,12 +150,12 @@
     var me = this;
 
     // If not extending/ overriding, at least provide the option.
-    if (_d.isFunction(me.options.intersecting)) {
+    if ($.isFunction(me.options.intersecting)) {
       me.options.intersecting(el, me.options);
     }
 
     // Be sure to throttle, or debounce your method when calling this.
-    _d.trigger(el, 'bio.intersecting', {
+    $.trigger(el, 'bio.intersecting', {
       options: me.options
     });
 
@@ -174,7 +174,7 @@
   _proto.success = function (el, status, parent) {
     var me = this;
 
-    if (_d.isFunction(me.options.success)) {
+    if ($.isFunction(me.options.success)) {
       me.options.success(el, status, parent, me.options);
     }
 
@@ -186,7 +186,7 @@
   _proto.error = function (el, status, parent) {
     var me = this;
 
-    if (_d.isFunction(me.options.error)) {
+    if ($.isFunction(me.options.error)) {
       me.options.error(el, status, parent, me.options);
     }
 
@@ -196,7 +196,7 @@
   _proto.loaded = function (el, status, parent) {
     var me = this;
 
-    _d.addClass(el, status === me._ok ? me.options.successClass : me.options.errorClass);
+    $.addClass(el, status === me._ok ? me.options.successClass : me.options.errorClass);
     me[status === me._ok ? 'success' : 'error'](el, status, parent);
   };
 
@@ -204,7 +204,7 @@
     var me = this;
 
     _bioTick = me.elms.length;
-    _d.forEach(me.elms, function (entry) {
+    $.forEach(me.elms, function (entry) {
       // Only observes if not already loaded.
       if (!me.isLoaded(entry)) {
         me.observer.observe(entry);
@@ -222,9 +222,9 @@
     }
 
     // Load each on entering viewport.
-    _d.forEach(entries, function (entry) {
+    $.forEach(entries, function (entry) {
       // Provides option such as to animate bg or elements regardless position.
-      if (_d.isFunction(me.options.observing)) {
+      if ($.isFunction(me.options.observing)) {
         me.options.observing(entry, observer, me.options);
       }
 
@@ -281,9 +281,9 @@
       threshold: me.options.threshold
     };
 
-    me.elms = _d.findAll(me.options.root || _doc, me.selector());
+    me.elms = $.findAll(me.options.root || _doc, me.selector());
     me.count = me.elms.length;
-    me.windowWidth = _d.windowWidth();
+    me.windowWidth = $.windowWidth();
 
     me.prepare();
 

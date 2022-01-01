@@ -1,6 +1,9 @@
 /**
  * @file
  * Provides Photobox integration for Image and Media fields.
+ *
+ * @tbd deprecated at 2.5 and and removed at 3.+, this library is unmaintained,
+ * and has good replacements like PhotoSwipe, Splidebox, Slick Lightbox, etc.
  */
 
 (function ($, Drupal, _d) {

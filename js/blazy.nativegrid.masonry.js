@@ -8,7 +8,7 @@
  * Below is the cheap version of GridStack.
  */
 
-(function (Drupal, _d, _win) {
+(function ($, Drupal, _win) {
 
   'use strict';
 
@@ -38,15 +38,15 @@
    */
   function doNativeGridItem(el) {
     var me = Drupal.blazy.nativeGrid;
-    var box = 'target' in el ? _d.closest(el.target, '.grid') : el;
+    var box = 'target' in el ? $.closest(el.target, '.grid') : el;
 
-    if (_d.isNull(box)) {
+    if ($.isNull(box)) {
       return;
     }
 
-    var cn = _d.find(box, '.grid__content');
+    var cn = $.find(box, '.grid__content');
 
-    if (!_d.isNull(cn)) {
+    if (!$.isNull(cn)) {
       if (me.gap === 0) {
         me.gap = 0.0001;
       }
@@ -56,12 +56,12 @@
 
         // Sets the grid row span based on content and gap height.
         box.style.gridRowEnd = 'span ' + span;
-        _d.addClass(box, 'is-b-grid');
+        $.addClass(box, 'is-b-grid');
       }, 600);
     }
 
     if (el.target && (el.type && el.type === 'blazy.done')) {
-      _d.unbindEvent(el.target, 'blazy.done', doNativeGridItem, false);
+      $.unbindEvent(el.target, 'blazy.done', doNativeGridItem, false);
     }
   }
 
@@ -85,25 +85,25 @@
     }
 
     // The is-b-grid is flag to not re-do with VIS, views infinite scroll/ IO.
-    var items = _d.findAll(el, '.grid:not(.is-b-grid)');
+    var items = $.findAll(el, '.grid:not(.is-b-grid)');
     if (items.length) {
-      _d.forEach(items, doNativeGridItem);
+      $.forEach(items, doNativeGridItem);
     }
 
     var resizeObserver = Drupal.blazy.isRo() ? new ResizeObserver(function (entries) {
-      _d.forEach(entries, doNativeGridItem);
+      $.forEach(entries, doNativeGridItem);
     }) : false;
 
     var blazies = el.getElementsByClassName('b-lazy');
     if (blazies.length) {
-      _d.forEach(blazies, function (item) {
-        _d.bindEvent(item, 'blazy.done', doNativeGridItem, false);
+      $.forEach(blazies, function (item) {
+        $.bindEvent(item, 'blazy.done', doNativeGridItem, false);
         if (resizeObserver) {
           resizeObserver.observe(item);
         }
       });
     }
-    _d.addClass(el, _mounted);
+    $.addClass(el, _mounted);
   }
 
   /**
@@ -114,10 +114,10 @@
   Drupal.behaviors.blazyNativeGrid = {
     attach: function (context) {
 
-      context = _d.context(context);
+      context = $.context(context);
 
-      _d.once(doNativeGrid, _element, context);
+      $.once(doNativeGrid, _element, context);
     }
   };
 
-}(Drupal, dBlazy, this));
+}(dBlazy, Drupal, this));

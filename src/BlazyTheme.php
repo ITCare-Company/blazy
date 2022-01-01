@@ -53,7 +53,7 @@ class BlazyTheme {
   public static function blazy(array &$variables): void {
     $element = $variables['element'];
     foreach (BlazyDefault::themeProperties() as $key) {
-      $variables[$key] = isset($element["#$key"]) ? $element["#$key"] : [];
+      $variables[$key] = $element["#$key"] ?? [];
     }
 
     // Provides optional attributes, see BlazyFilter.
@@ -94,7 +94,7 @@ class BlazyTheme {
 
     // Makes a little BEM order here due to Twig ignoring the preset priority.
     $attributes = &$variables['attributes'];
-    $classes = empty($attributes['class']) ? [] : $attributes['class'];
+    $classes = (array) ($attributes['class'] ?? []);
     $attributes['class'] = array_merge(['media', 'media--blazy'], $classes);
   }
 
@@ -131,7 +131,7 @@ class BlazyTheme {
       }
 
       // Adds a poster image if so configured.
-      if (isset($files[0], $files[0]['blazy']) && $blazy = $files[0]['blazy']) {
+      if ($blazy = ($files[0]['blazy'] ?? FALSE)) {
         if ($blazy->get('image') && $blazy->get('uri')) {
           $settings = $blazy->storage();
           $settings['_dimensions'] = TRUE;
@@ -167,8 +167,8 @@ class BlazyTheme {
       // Modifies <picture> [data-srcset] attributes on <source> elements.
       if (!$variables['output_image_tag']) {
         /** @var \Drupal\Core\Template\Attribute $source */
-        if (isset($variables['sources']) && is_array($variables['sources'])) {
-          foreach ($variables['sources'] as &$source) {
+        if ($sources = ($variables['sources'] ?? [])) {
+          foreach ((array) $sources as &$source) {
             $source->setAttribute('data-srcset', $source['srcset']->value());
             $source->setAttribute('srcset', '');
           }
@@ -281,7 +281,7 @@ class BlazyTheme {
    */
   private static function thirdPartyField(array &$variables): void {
     $element = $variables['element'];
-    $settings = empty($element['#blazy']) ? [] : $element['#blazy'];
+    $settings = $element['#blazy'] ?? [];
     $settings['third_party'] = $element['#third_party_settings'];
     $is_preview = Blazy::isPreview();
 

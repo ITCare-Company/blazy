@@ -32,7 +32,7 @@
   /**
    * Private variables.
    */
-  var _d = dBlazy;
+  var $ = dBlazy;
   var _b = Bio;
   var _src = 'src';
   var _srcSet = 'srcset';
@@ -67,28 +67,28 @@
       // several times till marked loaded. Ensures it is hit once regardless
       // of being loaded, or not. No real issue with normal images on the page,
       // until having VIS alike which may spit out new images on AJAX request.
-      if (_d.hasAttr(el, 'data-bio-hit')) {
+      if ($.hasAttr(el, 'data-bio-hit')) {
         return;
       }
 
       var me = this;
       var parent = el.parentNode;
-      var isImage = _d.equal(el, 'img');
-      var isBg = _d.isUndefined(el.src) && _d.hasClass(el, me.options.bgClass);
-      var isPicture = parent && _d.equal(parent, 'picture');
-      var isVideo = _d.equal(el, 'video');
+      var isImage = $.equal(el, 'img');
+      var isBg = $.isUndefined(el.src) && $.hasClass(el, me.options.bgClass);
+      var isPicture = parent && $.equal(parent, 'picture');
+      var isVideo = $.equal(el, 'video');
 
       // PICTURE elements.
       if (isPicture) {
-        _d.setAttrsWithSources(el, _srcSet, true);
+        $.setAttrsWithSources(el, _srcSet, true);
 
         // Tiny controller image inside picture element won't get preloaded.
-        _d.setAttr(el, _src, true);
+        $.setAttr(el, _src, true);
         me.loaded(el, me._ok);
       }
       // VIDEO elements.
       else if (isVideo) {
-        _d.setAttrsWithSources(el, _src, true);
+        $.setAttrsWithSources(el, _src, true);
         el.load();
         me.loaded(el, me._ok);
       }
@@ -99,15 +99,15 @@
         }
         // IFRAME elements, etc.
         else {
-          if (_d.attr(el, _dataSrc) && _d.hasAttr(el, _src)) {
-            _d.setAttr(el, _src, true);
+          if ($.attr(el, _dataSrc) && $.hasAttr(el, _src)) {
+            $.setAttr(el, _src, true);
             me.loaded(el, me._ok);
           }
         }
       }
 
       // Marks it hit/ requested. Not necessarily loaded.
-      _d.attr(el, 'data-bio-hit', 1);
+      $.attr(el, 'data-bio-hit', 1);
 
       return _b.apply(this, arguments);
     };
@@ -116,7 +116,7 @@
   _proto.setImage = function (el, isBg) {
     var me = this;
     var img = new Image();
-    var isResimage = _d.hasAttr(el, _dataSrcset);
+    var isResimage = $.hasAttr(el, _dataSrcset);
 
     // Applies attributes regardless, will re-observe if any error.
     var applyAttrs = function () {
@@ -124,7 +124,7 @@
         me.setBg(el);
       }
       else {
-        _d.setAttr(el, _imgSources, false);
+        $.setAttr(el, _imgSources, false);
       }
     };
 
@@ -134,11 +134,11 @@
       // Image decode fails with Responsive image, assumes ok, no side effects.
       me.loaded(el, ok ? me._ok : me._er);
       if (ok) {
-        _d.removeAttrs(el, isBg ? _bgSources : _imgSources);
+        $.removeAttrs(el, isBg ? _bgSources : _imgSources);
       }
     };
 
-    _d.decode(img)
+    $.decode(img)
       .then(function () {
         load(true);
       })
@@ -147,12 +147,12 @@
 
         // Allows to re-observe.
         if (!isResimage) {
-          _d.attr(el, 'data-bio-hit', null);
+          $.attr(el, 'data-bio-hit', null);
         }
       })
       .finally(function () {
         // Be sure to throttle, or debounce your method when calling this.
-        _d.trigger(el, 'bio.finally', {
+        $.trigger(el, 'bio.finally', {
           options: me.options
         });
       });
@@ -161,17 +161,17 @@
     if ('decode' in img) {
       img.decoding = 'async';
     }
-    img.src = _d.attr(el, isBg ? _bgSrc : _dataSrc);
+    img.src = $.attr(el, isBg ? _bgSrc : _dataSrc);
     if (isResimage) {
-      img.srcset = _d.attr(el, _dataSrcset);
+      img.srcset = $.attr(el, _dataSrcset);
     }
 
   };
 
   _proto.setBg = function (el) {
-    if (_d.hasAttr(el, _bgSrc)) {
-      el.style.backgroundImage = 'url("' + _d.attr(el, _bgSrc) + '")';
-      _d.attr(el, _src, null);
+    if ($.hasAttr(el, _bgSrc)) {
+      el.style.backgroundImage = 'url("' + $.attr(el, _bgSrc) + '")';
+      $.attr(el, _src, null);
     }
   };
 

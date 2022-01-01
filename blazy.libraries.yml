@@ -183,7 +183,7 @@ admin:
     - core/drupal
     - blazy/dblazy
 
-# @todo deprecated, unmaintained.
+# deprecated at 2.5 and removed at 3.0.0, unmaintained. Use PhotoSwipe, etc.
 photobox:
   remote: https://github.com/yairEO/photobox/
   version: 1.x

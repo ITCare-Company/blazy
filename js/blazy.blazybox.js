@@ -1,18 +1,18 @@
 /**
  * @file
- * Provides a fullscreen video view for Intense, Slick Browser, etc.
+ * Provides a fullscreen video view for Intense, ElevateZoomPlus, etc.
  */
 
-(function (Drupal, _d, _doc) {
+(function ($, Drupal, _win, _doc) {
 
   'use strict';
 
   var _id = 'blazybox';
   var _mounted = _id + '--on';
-  var _element = '.' + _id + ':not(.' + _mounted + ')';
+  var _element = '.' + _id;
   var _elContent = _element + '__content';
-  var _open = 'is-' + _id + '--open';
-  var _hidden = 'visually-hidden';
+  var _isOpened = 'is-' + _id + '--open';
+  var _visualyHidden = 'visually-hidden';
   var _ariaHidden = 'aria-hidden';
 
   /**
@@ -21,31 +21,40 @@
    * @namespace
    */
   Drupal.blazyBox = {
-    el: _d.find(_doc, _element),
+    el: $.find(_doc, _element),
+    options: {
+      hideCloseBtn: false
+    },
 
     /**
      * Open the blazyBox.
      *
-     * @param {string} embedUrl
-     *   The video embed url.
+     * @param {HTMLElement|string} settings
+     *   The link HTMLElement to extract video/ media data, or video embed url.
      */
-    open: function (embedUrl) {
-      var me = this;
-      var mediaEl = Drupal.theme('blazyBoxMedia', {embedUrl: embedUrl});
+    open: function (settings) {
+      var me = Drupal.blazyBox;
+      var el = me.el;
+      var content = Drupal.theme('blazyBoxMedia', {
+        data: settings
+      });
 
-      Drupal.attachBehaviors(me.el);
-      _d.find(me.el, _elContent).innerHTML = mediaEl;
+      Drupal.attachBehaviors(el);
 
-      _d.removeClass(me.el, _hidden);
-      _d.attr(me.el, _ariaHidden, false);
-      _d.addClass(_doc.body, _open);
+      $.find(el, _elContent).innerHTML = content;
+
+      $.removeClass(el, _visualyHidden);
+      $.attr(el, _ariaHidden, false);
+      $.addClass(_doc.body, _isOpened);
+
+      me.check();
     },
 
     /**
      * Attach the blazyBox.
      */
     attach: function () {
-      if (_d.find(_doc, _element) === null) {
+      if ($.find(_doc, _element) === null) {
         // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
         _doc.body.insertAdjacentHTML('beforeend', Drupal.theme('blazyBox'));
       }
@@ -59,32 +68,52 @@
      */
     close: function (e) {
       var el = Drupal.blazyBox.el;
-      e.preventDefault();
 
-      _d.addClass(el, _hidden);
-      _d.attr(el, _ariaHidden, true);
-      _d.find(el, _elContent).innerHTML = '';
-      _d.removeClass(_doc.body, _open);
+      // Allows calling this directly.
+      if (!$.isUndefined(e)) {
+        e.preventDefault();
+      }
+
+      $.addClass(el, _visualyHidden);
+      $.attr(el, _ariaHidden, true);
+      $.find(el, _elContent).innerHTML = '';
+      $.removeClass(_doc.body, _isOpened);
+    },
+
+    check: function () {
+      var me = this;
+      var btn = _element + '__close';
+
+      if (me.options.hideCloseBtn) {
+        var close = $.find(me.el, btn);
+        if (close) {
+          $.addClass(close, _visualyHidden);
+        }
+      }
+    },
+
+    isOpened: function () {
+      var el = Drupal.blazyBox.el;
+      return !$.hasClass(el, _visualyHidden);
     }
   };
 
   /**
    * Theme function for a fullscreen lightbox video container.
    *
-   * @return {HTMLElement}
-   *   Returns a HTMLElement object.
+   * @return {String}
+   *   Returns a html string.
    */
   Drupal.theme.blazyBox = function () {
     var html;
 
-    html = '<div id="$id" class="$id visually-hidden" tabindex="-1" role="dialog" aria-hidden="true">';
-    html += '<div class="$id__content">$placeholder</div>';
+    html = '<div id="$id" class="$id visually-hidden" tabindex="-1" role="dialog" aria-hidden="true" aria-label="$id">';
+    html += '<div class="$id__content"></div>';
     html += '<button class="$id__close" data-role="none">&times;</button>';
     html += '</div>';
 
-    return _d.template(html, {
-      id: _id,
-      placeholder: Drupal.t('Dynamic video content.')
+    return $.template(html, {
+      id: _id
     });
   };
 
@@ -92,16 +121,28 @@
    * Theme function for a standalone fullscreen video.
    *
    * @param {Object} settings
-   *   An object containing the embed url.
+   *   An object containing the embed url, or media object.
    *
-   * @return {HTMLElement}
-   *   Returns a HTMLElement object.
+   * @return {String}
+   *   Returns a html string.
    */
   Drupal.theme.blazyBoxMedia = function (settings) {
-    var html;
+    var data = settings.data;
+    var oembedUrl = data;
+    var html = '';
 
     html = '<div class="media media--fullscreen">';
-    html += '<iframe src="' + settings.embedUrl + '" width="100%" height="100%" allowfullscreen></iframe>';
+
+    if ($.isObject(data)) {
+      var elm = data.el || data.element;
+      var href = $.attr(elm, 'href');
+      oembedUrl = $.attr(elm, 'data-oembed-url', href, true);
+    }
+
+    if (oembedUrl) {
+      html += '<iframe src="' + oembedUrl + '" width="100%" height="100%" allowfullscreen></iframe>';
+    }
+
     html += '</div>';
 
     return html;
@@ -115,11 +156,12 @@
    */
   function doBlazyBox(box) {
     var me = Drupal.blazyBox;
+    var btn = _element + '__close';
 
-    _d.addClass(box, _mounted);
     me.el = box;
 
-    _d.on(me.el, 'click', _element + '__close', me.close);
+    $.on(box, 'click.' + _id, btn, me.close, true);
+    $.addClass(box, _mounted);
   }
 
   /**
@@ -130,10 +172,11 @@
   Drupal.behaviors.blazyBox = {
     attach: function (context) {
 
-      context = _d.context(context);
+      context = $.context(context);
 
-      _d.once(doBlazyBox, _element, context);
+      Drupal.blazyBox.attach();
+      $.once(doBlazyBox, _element + ':not(.' + _mounted + ')', context);
     }
   };
 
-})(Drupal, dBlazy, this.document);
+})(dBlazy, Drupal, this, this.document);

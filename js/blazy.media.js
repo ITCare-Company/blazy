@@ -3,7 +3,7 @@
  * Provides Media module integration.
  */
 
-(function (Drupal, _d, _doc) {
+(function ($, Drupal, _doc) {
   'use strict';
 
   var _md = 'media';
@@ -26,16 +26,16 @@
    *   The media player HTML element.
    */
   function blazyMedia(el) {
-    var iframe = _d.find(el, _iFrame);
-    var btn = _d.find(el, _elIconPlay);
+    var iframe = $.find(el, _iFrame);
+    var btn = $.find(el, _elIconPlay);
 
     // Media player toggler is disabled, just display iframe.
-    if (_d.isNull(btn)) {
+    if ($.isNull(btn)) {
       return;
     }
 
-    var url = _d.attr(btn, _dataUrl);
-    var title = _d.attr(btn, _dataIFrameTitle);
+    var url = $.attr(btn, _dataUrl);
+    var title = $.attr(btn, _dataIFrameTitle);
     var newIframe;
 
     /**
@@ -57,36 +57,36 @@
 
       var target = this;
       var player = target.parentNode;
-      var playing = _d.find(_doc, '.' + _isPlaying);
-      var iframe = _d.find(player, _iFrame);
-      var video = _d.find(_doc, 'video');
+      var playing = $.find(_doc, '.' + _isPlaying);
+      var iframe = $.find(player, _iFrame);
+      var video = $.find(_doc, 'video');
 
-      url = _d.attr(target, _dataUrl);
-      title = _d.attr(target, _dataIFrameTitle);
+      url = $.attr(target, _dataUrl);
+      title = $.attr(target, _dataIFrameTitle);
 
       // First, reset any (local) video to avoid multiple videos from playing.
-      if (!_d.isNull(video) && !video.paused) {
+      if (!$.isNull(video) && !video.paused) {
         video.pause();
       }
-      if (!_d.isNull(playing)) {
-        var played = _d.find(_doc, '.' + _isPlaying + ' ' + _iFrame);
+      if (!$.isNull(playing)) {
+        var played = $.find(_doc, '.' + _isPlaying + ' ' + _iFrame);
         // Remove the previous iframe.
-        _d.remove(played);
+        $.remove(played);
         playing.className = playing.className.replace(/(\S+)playing/, '');
       }
 
       // Appends the iframe.
-      _d.addClass(player, _isPlaying);
+      $.addClass(player, _isPlaying);
 
       // Remove the existing iframe on the current clicked iframe.
-      _d.remove(iframe);
+      $.remove(iframe);
 
       // Cache iframe for the potential repeating clicks.
       if (!newIframe) {
         newIframe = _doc.createElement(_iFrame);
         newIframe.className = _md + '__iframe ' + _md + '__element';
 
-        _d.attr(newIframe, {
+        $.attr(newIframe, {
           src: url,
           allowfullscreen: true,
           title: title
@@ -107,26 +107,26 @@
 
       var target = this;
       var player = target.parentNode;
-      var iframe = _d.find(player, _iFrame);
+      var iframe = $.find(player, _iFrame);
 
       if (player.className.match(_isPlaying)) {
         player.className = player.className.replace(/(\S+)playing/, '');
       }
 
-      _d.remove(iframe);
+      $.remove(iframe);
     }
 
     // Remove iframe to avoid browser requesting them till clicked.
     // The iframe is there as Blazy supports non-lazyloaded/ non-JS iframes.
-    _d.remove(iframe);
+    $.remove(iframe);
 
     // Plays the media player.
-    _d.on(el, 'click.' + _id, _elIconPlay, play);
+    $.on(el, 'click.' + _id, _elIconPlay, play);
 
     // Closes the video.
-    _d.on(el, 'click.' + _id, _elIconClose, stop);
+    $.on(el, 'click.' + _id, _elIconClose, stop);
 
-    _d.addClass(el, _mounted);
+    $.addClass(el, _mounted);
   }
 
   /**
@@ -142,33 +142,33 @@
   Drupal.theme.blazyMedia = function (settings) {
     // PhotoSwipe5 has element, PhotoSwipe4 el, etc.
     var elm = settings.el || settings.element;
-    var img = _d.find(elm, 'img');
-    var data = _d.parse(_d.attr(elm, 'data-' + _md));
-    var alt = Drupal.checkPlain(_d.attr(img, 'alt', 'Video preview', true));
+    var img = $.find(elm, 'img');
+    var data = $.parse($.attr(elm, 'data-' + _md));
+    var alt = Drupal.checkPlain($.attr(img, 'alt', 'Video preview', true));
     var width = data.width ? parseInt(data.width, 10) : 640;
     var height = data.height ? parseInt(data.height, 10) : 360;
     var pad = data ? ((height / width) * 100).toFixed(2) : 100;
-    var imgUrl = _d.attr(elm, 'data-box-url');
-    var href = _d.attr(elm, 'href');
-    var oembedUrl = _d.attr(elm, 'data-oembed-url', href, true);
+    var imgUrl = $.attr(elm, 'data-box-url');
+    var href = $.attr(elm, 'href');
+    var oembedUrl = $.attr(elm, 'data-oembed-url', href, true);
     var defClass = _md + '__image ' + _md + '__element';
     var imgClass = settings.imgClass ?
       defClass + ' ' + settings.imgClass :
       defClass;
     var idClass = data.id ? ' ' + _md + '--' + data.id : '';
     var player = data.type === 'video' ? ' ' + _player : '';
-    var html;
+    var html = '';
 
-    html = '<div class="$md $idClass $md--switch $player $md--ratio $md--ratio--fluid" style="padding-bottom: $pad%">';
-
-    html += '<img src="$imgUrl" class="$imgClass" alt="$alt" loading="lazy" decoding="async" />';
+    if (imgUrl) {
+      html += '<img src="$imgUrl" class="$imgClass" alt="$alt" loading="lazy" decoding="async" />';
+    }
 
     if (player) {
       html += '<span class="$icon $icon--close"></span>';
       html += '<span class="$icon $icon--play" data-url="$oembedUrl" data-iframe-title="$alt"></span>';
     }
 
-    html += '</div>';
+    html = '<div class="$md $idClass $md--switch $player $md--ratio $md--ratio--fluid" style="padding-bottom: $pad%">' + html + '</div>';
 
     if (!settings.unwrap) {
       html = '<div class="$wrapper $wrapper--inline" style="width: $widthpx">' +
@@ -176,7 +176,7 @@
         '</div>';
     }
 
-    return _d.template(html, {
+    return $.template(html, {
       md: _md,
       icon: _icon,
       idClass: idClass,
@@ -198,9 +198,9 @@
    */
   Drupal.behaviors.blazyMedia = {
     attach: function (context) {
-      context = _d.context(context);
+      context = $.context(context);
 
-      _d.once(blazyMedia, _element, context);
+      $.once(blazyMedia, _element, context);
     }
   };
-})(Drupal, dBlazy, this.document);
+})(dBlazy, Drupal, this.document);

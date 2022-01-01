@@ -1,5 +1,7 @@
 /**
  * @file
+ *
+ * A launcher for responsive (remote|local) videos, Responsive|Picture images.
  */
 
 (function ($, Drupal, drupalSettings, _d, _win) {
@@ -18,11 +20,11 @@
    *   The colorbox HTML element.
    */
   function blazyColorbox(box) {
+    var _cbox = drupalSettings.colorbox || {};
     var $box = $(box);
     var media = $box.data('media') || {};
     var isMedia = media.type === 'video';
     var isHtml = media.type === 'rich' && 'html' in media;
-    $('#colorbox').attr('aria-label', 'color box');
     var runtimeOptions = {
       html: isHtml ? media.html : null,
       rel: media.rel || null,
@@ -59,7 +61,7 @@
     }
 
     /**
-     * Resize the responsive image.
+     * Resize the responsive|picture image since the library doesn't get it.
      */
     function resizeImage() {
       var t = $(this);
@@ -85,19 +87,20 @@
     }
 
     /**
-     * Resize the colorbox.
+     * Resize the colorbox if any of media types (video, picture, etc.) kick in.
      */
     function resizeBox() {
       _win.clearTimeout(cboxTimer);
 
-      var mw = drupalSettings.colorbox.maxWidth;
-      var mh = drupalSettings.colorbox.maxHeight;
+      var mw = _cbox.maxWidth;
+      var mh = _cbox.maxHeight;
 
       var o = {
         width: media.width || mw,
         height: media.height || mh
       };
 
+      // DOM ready fix.
       cboxTimer = _win.setTimeout(function () {
         if ($('#cboxOverlay').is(':visible')) {
           var $container = $('#cboxLoadedContent');
@@ -151,7 +154,7 @@
       }, 10);
     }
 
-    $box.colorbox($.extend({}, drupalSettings.colorbox, runtimeOptions));
+    $box.colorbox($.extend({}, _cbox, runtimeOptions));
     $box.addClass(_mounted);
   }
 
@@ -162,13 +165,14 @@
    */
   Drupal.behaviors.blazyColorbox = {
     attach: function (context) {
-      if (_d.isUndefined(drupalSettings.colorbox)) {
+      var _cbox = drupalSettings.colorbox;
+      if (_d.isUndefined(_cbox)) {
         return;
       }
 
-      if (drupalSettings.colorbox.mobiledetect && _win.matchMedia) {
+      if (_cbox.mobiledetect && _win.matchMedia) {
         // Disable Colorbox for small screens.
-        var mq = _win.matchMedia('(max-device-width: ' + drupalSettings.colorbox.mobiledevicewidth + ')');
+        var mq = _win.matchMedia('(max-device-width: ' + _cbox.mobiledevicewidth + ')');
         if (mq.matches) {
           return;
         }
@@ -176,7 +180,10 @@
 
       context = _d.context(context);
 
-      _d.once(blazyColorbox, _element, context);
+      var elms = _d.once(blazyColorbox, _element, context);
+      if (elms.length) {
+        $('#colorbox').attr('aria-label', 'color box');
+      }
     }
   };
 

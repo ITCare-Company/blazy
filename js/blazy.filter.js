@@ -3,7 +3,7 @@
  * Provides Filter module integration.
  */
 
-(function (Drupal, _d) {
+(function ($, Drupal) {
 
   'use strict';
 
@@ -17,26 +17,26 @@
    *   The .media-wrapper--blazy HTML element.
    */
   function blazyFilter(elm) {
-    var cn = _d.closest(elm, '.text-formatted');
+    var cn = $.closest(elm, '.text-formatted');
     if (cn === null) {
-      cn = _d.closest(elm, '.field');
+      cn = $.closest(elm, '.field');
     }
 
-    if (cn === null || _d.hasClass(cn, 'blazy')) {
+    if (cn === null || $.hasClass(cn, 'blazy')) {
       return;
     }
 
-    _d.addClass(cn, 'blazy');
-    _d.attr(cn, 'data-blazy', '');
+    $.addClass(cn, 'blazy');
+    $.attr(cn, 'data-blazy', '');
 
     // Not using elm is fine since this should be executed once.
-    var box = _d.find(cn, '.litebox');
-    if (!_d.isNull(box)) {
-      var media = _d.parse(_d.attr(box, 'data-media'));
+    var box = $.find(cn, '.litebox');
+    if (!$.isNull(box)) {
+      var media = $.parse($.attr(box, 'data-media'));
       if ('id' in media) {
         var id = media.id;
-        _d.addClass(cn, 'blazy--' + id);
-        _d.attr(cn, 'data-' + id + '-gallery', '');
+        $.addClass(cn, 'blazy--' + id);
+        $.attr(cn, 'data-' + id + '-gallery', '');
       }
     }
   }
@@ -49,10 +49,10 @@
   Drupal.behaviors.blazyFilter = {
     attach: function (context) {
 
-      context = _d.context(context);
+      context = $.context(context);
 
-      _d.once(blazyFilter, _element, context);
+      $.once(blazyFilter, _element, context);
     }
   };
 
-})(Drupal, dBlazy);
+})(dBlazy, Drupal);

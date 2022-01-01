@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-01-01
+-----------------------------
+- When jQuery is not at home, dBlazy is the honorable host for $ sign.
+- Deprecated Photobox due to being unmaintained.
+
 Blazy 8.x-2.0-dev, 2021-12-21
 -----------------------------
 - Issue #3255370 by gausarts: Move Blazy theme-related alias methods to a

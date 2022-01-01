@@ -338,6 +338,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       if (!empty($lightboxes)) {
         foreach ($lightboxes as $lightbox) {
           $name = Unicode::ucwords(str_replace('_', ' ', $lightbox));
+          if ($lightbox == 'photobox') {
+            $name .= ' (Deprecated)';
+          }
           $form['media_switch']['#options'][$lightbox] = $this->t('Image to @lightbox', ['@lightbox' => $name]);
         }
 
@@ -538,7 +541,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     ];
 
     // @todo Check if needed: 'button', 'container', 'submit'.
-    $admin_css = isset($definition['admin_css']) ? $definition['admin_css'] : '';
+    $admin_css = $definition['admin_css'] ?? FALSE;
     $admin_css = $admin_css ?: $this->blazyManager->configLoad('admin_css', 'blazy.settings');
     $excludes = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
     $selects = ['cache', 'optionset', 'view_mode'];

@@ -2,7 +2,14 @@
  * @file
  * Cherries by @toddmotto, @cferdinandi, @adamfschwartz, @daniellmb.
  *
- * @todo: Use Cash or Underscore when jQuery is dropped by supported plugins.
+ * Some dup wrappers are meant to DRY with null checks aka poorman null safety.
+ *
+ * @todo use Cash or Underscore when jQuery is dropped by supported plugins.
+ * @todo remove a few when min D9.2+ since they are included as core polyfills
+ * and can be required as libraries deprendencies instead.
+ * @see https://www.drupal.org/node/3159731
+ * @see https://www.drupal.org/node/3211146
+ * @see https://www.drupal.org/node/3079238
  */
 
 /* global define, module */
@@ -40,6 +47,7 @@
   var _eProto = Element.prototype;
 
   // See https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
+  // @todo remove when min D9.2 for drupal.element.closest|matches.
   if (!_eProto.matches) {
     _eProto.matches = _eProto.msMatchesSelector || _eProto.webkitMatchesSelector;
   }
@@ -150,40 +158,7 @@
    *   Returns true if matches, else false.
    */
   dBlazy.equal = function (el, str) {
-    return el && el.nodeName.toLowerCase() === str;
-  };
-
-  /**
-   * Get the closest matching element up the DOM tree.
-   *
-   * Inspired by Chris Ferdinandi, http://github.com/cferdinandi/smooth-scroll.
-   *
-   * @name dBlazy.closest
-   *
-   * @param {Element} el
-   *   Starting element.
-   * @param {String} selector
-   *   Selector to match against (class, ID, data attribute, or tag).
-   *
-   * @return {Element|Null}
-   *   Returns null if not match found.
-   *
-   * @see http://caniuse.com/#feat=element-closest
-   * @see http://caniuse.com/#feat=matchesselector
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
-   */
-  dBlazy.closest = function (el, selector) {
-    var me = this;
-    var parent;
-    while (el && !me.isNull(el)) {
-      parent = el.parentElement;
-      if (me.matches(parent, selector)) {
-        return parent;
-      }
-      el = parent;
-    }
-
-    return null;
+    return el && el.nodeName.toLowerCase() === str.toLowerCase();
   };
 
   /**
@@ -220,37 +195,6 @@
    */
   dBlazy.findAll = function (el, selector) {
     return this.isNull(el) ? [] : el.querySelectorAll(selector);
-  };
-
-  /**
-   * Returns a new object after merging two, or more objects.
-   *
-   * Inspired by @adamfschwartz, @zackbloom, http://youmightnotneedjquery.com.
-   *
-   * @name dBlazy.extend
-   *
-   * @param {Object} out
-   *   The objects to merge together.
-   *
-   * @return {Object}
-   *   Merged values of defaults and options.
-   */
-  dBlazy.extend = Object.assign || function (out) {
-    out = out || {};
-
-    for (var i = 1, len = arguments.length; i < len; i++) {
-      if (!arguments[i]) {
-        continue;
-      }
-
-      for (var key in arguments[i]) {
-        if (_oProto.hasOwnProperty.call(arguments[i], key)) {
-          out[key] = arguments[i][key];
-        }
-      }
-    }
-
-    return out;
   };
 
   /**
@@ -405,14 +349,16 @@
         el.setAttribute(key, value);
       });
     }
-    // Since an attribute value must be a string, a null means nullify.
+    // Since an attribute value null makes no sense, assumes nullify.
     else if (me.isNull(defValue)) {
       el.removeAttribute(attr);
     }
     else {
       // No defValue defined, or withDefault set, means a getter.
       if (me.isUndefined(defValue) || typeof withDefault === 'boolean') {
-        defValue = defValue || '';
+        if (me.isUndefined(defValue)) {
+          defValue = '';
+        }
         return el.hasAttribute(attr) ? el.getAttribute(attr) : defValue;
       }
 
@@ -1104,6 +1050,77 @@
   };
 
   /**
+   * Returns a new object after merging two, or more objects.
+   *
+   * Inspired by @adamfschwartz, @zackbloom, http://youmightnotneedjquery.com.
+   *
+   * @name dBlazy.extend
+   *
+   * @param {Object} out
+   *   The objects to merge together.
+   *
+   * @return {Object}
+   *   Merged values of defaults and options.
+   *
+   * @todo refactor or remove when min D9.0 for core/drupal.object.assign.
+   * @see https://www.drupal.org/node/3113447
+   */
+  dBlazy.extend = Object.assign || function (out) {
+    out = out || {};
+
+    for (var i = 1, len = arguments.length; i < len; i++) {
+      if (!arguments[i]) {
+        continue;
+      }
+
+      for (var key in arguments[i]) {
+        if (_oProto.hasOwnProperty.call(arguments[i], key)) {
+          out[key] = arguments[i][key];
+        }
+      }
+    }
+
+    return out;
+  };
+
+  /**
+   * Get the closest matching element up the DOM tree.
+   *
+   * Inspired by Chris Ferdinandi, http://github.com/cferdinandi/smooth-scroll.
+   *
+   * @name dBlazy.closest
+   *
+   * @param {Element} el
+   *   Starting element.
+   * @param {String} selector
+   *   Selector to match against (class, ID, data attribute, or tag).
+   *
+   * @return {Element|Null}
+   *   Returns null if not match found.
+   *
+   * @todo remove when min D9.2 for drupal.element.closest|matches.
+   * @see https://www.drupal.org/node/3159731
+   * @see https://www.drupal.org/node/3211146
+   * @see http://caniuse.com/#feat=element-closest
+   * @see http://caniuse.com/#feat=matchesselector
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
+   */
+  dBlazy.closest = function (el, selector) {
+    var me = this;
+    var parent;
+    while (el && el.nodeType === 1) {
+      parent = el.parentElement;
+      if (me.matches(parent, selector)) {
+        return parent;
+      }
+      el = parent;
+    }
+
+    return null;
+  };
+
+  /**
    * A simple forEach() implementation for Arrays, Objects and NodeLists.
    *
    * @name dBlazy.forEach
@@ -1327,17 +1344,26 @@
    * @fixme failed for future elements, some weird times.
    */
   function onoff(op, elm, eventName, childEl, callback, params, isCustom) {
-    params = params || {capture: true, passive: false};
-
     var me = this;
+
+    if (me.isUndefined(params)) {
+      params = {capture: true, passive: false};
+    }
+
     var onEvent = function (e) {
       var t = e.target;
-      while (t && t !== this) {
-        if (me.matches(t, childEl)) {
-          callback.call(t, e);
-          return;
+
+      if (me.matches(t, childEl)) {
+        callback.call(t, e);
+      }
+      else {
+        while (t && t !== this) {
+          if (me.matches(t, childEl)) {
+            callback.call(t, e);
+            return;
+          }
+          t = t.parentElement || t.parentNode;
         }
-        t = t.parentElement;
       }
     };
 
