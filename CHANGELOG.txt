@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-01-02
+-----------------------------
+- Micro optimization: Refactored selfish methods, too much me, saving 0.6KB.
+- Moved polyfills out of dBlazy for easy removal.
+
 Blazy 8.x-2.0-dev, 2022-01-01
 -----------------------------
 - When jQuery is not at home, dBlazy is the honorable host for $ sign.
