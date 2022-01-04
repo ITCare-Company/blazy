@@ -14,16 +14,16 @@
   // Inspired by https://github.com/addyosmani/memoize.js/blob/master/memoize.js
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define([window.dBlazy], factory);
+    define([root.dBlazy], factory);
   }
   else if (typeof exports === 'object') {
     // Node. Does not work with strict CommonJS, but only CommonJS-like
     // environments that support module.exports, like Node.
-    module.exports = factory(window.dBlazy);
+    module.exports = factory(root.dBlazy);
   }
   else {
     // Browser globals (root is window).
-    root.Bio = factory(window.dBlazy);
+    root.Bio = factory(root.dBlazy);
   }
 })(this, function (dBlazy) {
 
@@ -36,6 +36,8 @@
   var $ = dBlazy;
   var _bioTick = 0;
   var _revTick = 0;
+  var _counted = 0;
+  var _erCounted = 0;
   var _disconnected = false;
   var _observed = false;
 
@@ -71,8 +73,6 @@
 
   // Prepare prototype to interchange with Blazy as fallback.
   _proto.count = 0;
-  _proto.counted = -1;
-  _proto.erCounted = 0;
   _proto._er = -1;
   _proto._ok = 1;
   _proto.defaults = {
@@ -101,7 +101,7 @@
       me.intersecting(elms);
     }
     else {
-      $.forEach(elms, function (el) {
+      $(elms).each(function (el) {
         if (me.isValid(el)) {
           me.intersecting(el);
         }
@@ -120,11 +120,11 @@
   };
 
   _proto.isLoaded = function (el) {
-    return $.hasClass(el, this.options.successClass);
+    return $(el).hasClass(this.options.successClass);
   };
 
   _proto.isValid = function (el) {
-    return $.isObject(el) && $.isUndefined(el.length) && !this.isLoaded(el);
+    return $.isElm(el) && $.isUnd(el.length) && !this.isLoaded(el);
   };
 
   _proto.prepare = function () {
@@ -135,9 +135,9 @@
     var me = this;
 
     // Prevents from too many revalidations unless needed.
-    if ((force === true || me.count !== me.counted) && (_revTick < me.counted)) {
+    if ((force === true || me.count !== _counted) && (_revTick < _counted)) {
       _disconnected = false;
-      me.elms = $.findAll(me.options.root || _doc, me.selector());
+      me.elms = $(me.options.root || _doc).findAll(me.selector());
       if (me.elms.length) {
         me.observe();
 
@@ -148,19 +148,20 @@
 
   _proto.intersecting = function (el) {
     var me = this;
+    var opts = me.options;
 
     // If not extending/ overriding, at least provide the option.
-    if ($.isFunction(me.options.intersecting)) {
-      me.options.intersecting(el, me.options);
+    if ($.isFun(opts.intersecting)) {
+      opts.intersecting(el, opts);
     }
 
     // Be sure to throttle, or debounce your method when calling this.
-    $.trigger(el, 'bio.intersecting', {
-      options: me.options
+    $(el).trigger('bio.intersecting', {
+      options: opts
     });
 
     me.lazyLoad(el);
-    me.counted++;
+    _counted++;
 
     if (!_disconnected) {
       me.observer.unobserve(el);
@@ -173,30 +174,33 @@
 
   _proto.success = function (el, status, parent) {
     var me = this;
+    var opts = me.options;
 
-    if ($.isFunction(me.options.success)) {
-      me.options.success(el, status, parent, me.options);
+    if ($.isFun(opts.success)) {
+      opts.success(el, status, parent, opts);
     }
 
-    if (me.erCounted > 0) {
-      me.erCounted--;
+    if (_erCounted > 0) {
+      _erCounted--;
     }
   };
 
   _proto.error = function (el, status, parent) {
     var me = this;
+    var opts = me.options;
 
-    if ($.isFunction(me.options.error)) {
-      me.options.error(el, status, parent, me.options);
+    if ($.isFun(opts.error)) {
+      opts.error(el, status, parent, opts);
     }
 
-    me.erCounted++;
+    _erCounted++;
   };
 
   _proto.loaded = function (el, status, parent) {
     var me = this;
+    var opts = me.options;
 
-    $.addClass(el, status === me._ok ? me.options.successClass : me.options.errorClass);
+    $(el).addClass(status === me._ok ? opts.successClass : opts.errorClass);
     me[status === me._ok ? 'success' : 'error'](el, status, parent);
   };
 
@@ -204,7 +208,7 @@
     var me = this;
 
     _bioTick = me.elms.length;
-    $.forEach(me.elms, function (entry) {
+    $(me.elms).each(function (entry) {
       // Only observes if not already loaded.
       if (!me.isLoaded(entry)) {
         me.observer.observe(entry);
@@ -214,6 +218,7 @@
 
   _proto.observing = function (entries, observer) {
     var me = this;
+    var opts = me.options;
 
     me.entries = entries;
     // Stop watching if already disconnected.
@@ -222,10 +227,10 @@
     }
 
     // Load each on entering viewport.
-    $.forEach(entries, function (entry) {
+    $(entries).each(function (entry) {
       // Provides option such as to animate bg or elements regardless position.
-      if ($.isFunction(me.options.observing)) {
-        me.options.observing(entry, observer, me.options);
+      if ($.isFun(opts.observing)) {
+        opts.observing(entry, observer, opts);
       }
 
       // The element is being intersected.
@@ -246,12 +251,12 @@
     var me = this;
 
     // Do not disconnect if any error found.
-    if (me.erCounted > 0 && !force) {
+    if (_erCounted > 0 && !force) {
       return;
     }
 
     // Disconnect when all entries are loaded, if so configured.
-    if (((_bioTick === 0 || me.count === me.counted) && me.options.disconnect) || force) {
+    if (((_bioTick === 0 || me.count === _counted) && me.options.disconnect) || force) {
       me.observer.disconnect();
       me.count = 0;
       me.elms = [];
@@ -276,12 +281,13 @@
   };
 
   function init(me) {
+    var opts = me.options;
     var config = {
-      rootMargin: me.options.rootMargin,
-      threshold: me.options.threshold
+      rootMargin: opts.rootMargin,
+      threshold: opts.threshold
     };
 
-    me.elms = $.findAll(me.options.root || _doc, me.selector());
+    me.elms = $(opts.root || _doc).findAll(me.selector());
     me.count = me.elms.length;
     me.windowWidth = $.windowWidth();
 

@@ -9,6 +9,7 @@
 
   var _desc = 'description';
   var _descMounted = _desc + '--on';
+  var _vanillaOn = 'form--vanilla-on';
   var _elTootip = '.' + _desc + ':not(.' + _descMounted + '), .form-item__' + _desc + ':not(.' + _descMounted + ')';
   var _checkbox = 'form-checkbox';
   var _checkboxMounted = _checkbox + '--on';
@@ -17,9 +18,16 @@
   var _formMounted = _form + '--on';
   var _elForm = '.' + _form + ':not(.' + _formMounted + ')';
   var _elFormItem = '.form-item';
+  var _elExpandable = '.js-expandable';
+  var _elHint = '.b-hint';
   var _isFocused = 'is-focused';
   var _isHovered = 'is-hovered';
   var _isSelected = 'is-selected';
+  var _addClass = 'addClass';
+  var _removeClass = 'removeClass';
+  var _checked = 'checked';
+  var _change = 'change';
+  var _click = 'click';
 
   /**
    * Blazy admin utility functions.
@@ -32,18 +40,18 @@
 
     $('.details-legend-prefix', t).removeClass('element-invisible');
 
-    t[$('.' + _checkbox + '--vanilla', t).prop('checked') ? 'addClass' : 'removeClass']('form--vanilla-on');
+    t[$('.' + _checkbox + '--vanilla', t).prop(_checked) ? _addClass : _removeClass](_vanillaOn);
 
-    t.on('click', '.' + _checkbox, function () {
+    t.on(_click, '.' + _checkbox, function () {
       var $input = $(this);
-      $input[$input.prop('checked') ? 'addClass' : 'removeClass']('on');
+      $input[$input.prop(_checked) ? _addClass : _removeClass]('on');
 
       if ($input.hasClass(_checkbox + '--vanilla')) {
-        t[$input.prop('checked') ? 'addClass' : 'removeClass']('form--vanilla-on');
+        t[$input.prop(_checked) ? _addClass : _removeClass](_vanillaOn);
       }
     });
 
-    $('select[name$="[style]"]', t).on('change', function () {
+    $('select[name$="[style]"]', t).on(_change, function () {
       var $select = $(this);
       var value = $select.val();
 
@@ -62,18 +70,18 @@
       }
     }).change();
 
-    $('select[name$="[grid]"]', t).on('change', function () {
+    $('select[name$="[grid]"]', t).on(_change, function () {
       var $select = $(this);
 
-      t[$select.val() === '' ? 'removeClass' : 'addClass']('form--grid-on');
+      t[$select.val() === '' ? _removeClass : _addClass]('form--grid-on');
     }).change();
 
-    $('select[name$="[responsive_image_style]"]', t).on('change', function () {
+    $('select[name$="[responsive_image_style]"]', t).on(_change, function () {
       var $select = $(this);
-      t[$select.val() === '' ? 'removeClass' : 'addClass']('form--responsive-image-on');
+      t[$select.val() === '' ? _removeClass : _addClass]('form--responsive-image-on');
     }).change();
 
-    $('select[name$="[media_switch]"]', t).on('change', function () {
+    $('select[name$="[media_switch]"]', t).on(_change, function () {
       var $select = $(this);
       var value = $select.val();
 
@@ -81,33 +89,33 @@
         return (css.match(/(^|\s)form--media-switch-\S+/g) || []).join(' ');
       });
 
-      t[value === '' ? 'removeClass' : 'addClass']('form--media-switch-' + value);
+      t[value === '' ? _removeClass : _addClass]('form--media-switch-' + value);
       var nobox = (value === '' || value === 'content' || value === 'media' || value === 'rendered');
-      t[nobox ? 'removeClass' : 'addClass']('form--media-switch-lightbox');
+      t[nobox ? _removeClass : _addClass]('form--media-switch-lightbox');
     }).change();
 
-    t.on('mouseenter touchstart', '.b-hint', function () {
+    t.on('mouseenter touchstart', _elHint, function () {
       $(this).closest(_elFormItem).addClass(_isHovered);
     });
 
-    t.on('mouseleave touchend', '.b-hint', function () {
+    t.on('mouseleave touchend', _elHint, function () {
       $(this).closest(_elFormItem).removeClass(_isHovered);
     });
 
-    t.on('click', '.b-hint', function () {
+    t.on(_click, _elHint, function () {
       $('.form-item.' + _isSelected, t).removeClass(_isSelected);
       $(this).parent().toggleClass(_isSelected);
     });
 
-    t.on('click', '.description, .form-item__description', function () {
+    t.on(_click, '.description, .form-item__description', function () {
       $(this).closest('.' + _isSelected).removeClass(_isSelected);
     });
 
-    t.on('focus', '.js-expandable', function () {
+    t.on('focus', _elExpandable, function () {
       $(this).parent().addClass(_isFocused);
     });
 
-    t.on('blur', '.js-expandable', function () {
+    t.on('blur', _elExpandable, function () {
       $(this).parent().removeClass(_isFocused);
     });
 
@@ -128,7 +136,7 @@
       $tip.addClass(_desc);
     }
 
-    if (!$tip.siblings('.b-hint').length) {
+    if (!$tip.siblings(_elHint).length) {
       $tip.closest(_elFormItem).append('<span class="b-hint">?</span>');
     }
 

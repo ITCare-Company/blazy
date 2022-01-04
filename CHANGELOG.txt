@@ -1,4 +1,11 @@
 
+Blazy 8.x-2.0-dev, 2022-01-04
+-----------------------------
+- Issue #3255370 by gausarts: Organized assets for sanity.
+- Minified back all JS files to avoid expensive server/ on-the-fly minification.
+- Made dBlazy DOM methods chainable.
+- Made dBlazy pluginized/ extensible to reduce complexity.
+
 Blazy 8.x-2.0-dev, 2022-01-02
 -----------------------------
 - Micro optimization: Refactored selfish methods, too much me, saving 0.6KB.

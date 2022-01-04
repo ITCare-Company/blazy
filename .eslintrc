@@ -9,7 +9,8 @@
     "Blazy": true,
     "dBlazy": true,
     "Bio": true,
-    "BioMedia": true
+    "BioMedia": true,
+    "Symbol": true
   },
   "rules": {
     "consistent-this": [0, "me"],

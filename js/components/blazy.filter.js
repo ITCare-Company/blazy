@@ -7,8 +7,10 @@
 
   'use strict';
 
-  var _wrapper = 'media-wrapper--blazy';
+  var _id = 'blazy';
+  var _wrapper = 'media-wrapper--' + _id;
   var _element = '.' + _wrapper + ':not(.grid .' + _wrapper + ')';
+  var _data = 'data-';
 
   /**
    * Adds blazy container attributes required for grouping, or by lightboxes.
@@ -16,27 +18,24 @@
    * @param {HTMLElement} elm
    *   The .media-wrapper--blazy HTML element.
    */
-  function blazyFilter(elm) {
-    var cn = $.closest(elm, '.text-formatted');
-    if (cn === null) {
-      cn = $.closest(elm, '.field');
-    }
-
-    if (cn === null || $.hasClass(cn, 'blazy')) {
+  function process(elm) {
+    var cn = $.closest(elm, '.text-formatted') || $.closest(elm, '.field');
+    var $cn = $(cn);
+    if (!$.isElm(cn) || $cn.hasClass(_id)) {
       return;
     }
 
-    $.addClass(cn, 'blazy');
-    $.attr(cn, 'data-blazy', '');
+    $cn.addClass(_id)
+      .attr(_data + _id, '');
 
     // Not using elm is fine since this should be executed once.
-    var box = $.find(cn, '.litebox');
-    if (!$.isNull(box)) {
-      var media = $.parse($.attr(box, 'data-media'));
+    var box = $cn.find('.litebox');
+    if ($.isElm(box)) {
+      var media = $.parse($(box).attr(_data + 'media'));
       if ('id' in media) {
-        var id = media.id;
-        $.addClass(cn, 'blazy--' + id);
-        $.attr(cn, 'data-' + id + '-gallery', '');
+        var mid = media.id;
+        $cn.addClass(_id + '--' + mid)
+          .attr(_data + mid + '-gallery', '');
       }
     }
   }
@@ -51,7 +50,7 @@
 
       context = $.context(context);
 
-      $.once(blazyFilter, _element, context);
+      $.once(process, _element, context);
     }
   };
 

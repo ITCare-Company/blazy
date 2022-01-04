@@ -57,12 +57,11 @@ class BlazyAlter {
       }
 
       if (blazy()->configLoad('io.enabled')) {
+        $libraries['load']['dependencies'][] = 'blazy/bio.media';
         if (blazy()->configLoad('io.unblazy')) {
-          $dependencies = ['blazy/bio.media', 'blazy/loading'];
-          $libraries['load']['dependencies'] = $dependencies;
-        }
-        else {
-          $libraries['load']['dependencies'][] = 'blazy/bio.media';
+          $deps = $libraries['load']['dependencies'];
+          $deps = array_diff($deps, ['blazy/blazy']);
+          $libraries['load']['dependencies'] = $deps;
         }
       }
     }

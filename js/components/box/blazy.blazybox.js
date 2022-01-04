@@ -21,7 +21,9 @@
    * @namespace
    */
   Drupal.blazyBox = {
-    el: $.find(_doc, _element),
+    $body: $(_doc.body),
+    $el: null,
+    el: null,
     options: {
       hideCloseBtn: false
     },
@@ -34,18 +36,18 @@
      */
     open: function (settings) {
       var me = Drupal.blazyBox;
-      var el = me.el;
+      var $el = me.$el;
       var content = Drupal.theme('blazyBoxMedia', {
         data: settings
       });
 
-      Drupal.attachBehaviors(el);
+      Drupal.attachBehaviors($el[0]);
 
-      $.find(el, _elContent).innerHTML = content;
+      $el.removeClass(_visualyHidden)
+        .attr(_ariaHidden, false)
+        .find(_elContent).innerHTML = content;
 
-      $.removeClass(el, _visualyHidden);
-      $.attr(el, _ariaHidden, false);
-      $.addClass(_doc.body, _isOpened);
+      me.$body.addClass(_isOpened);
 
       me.check();
     },
@@ -54,7 +56,7 @@
      * Attach the blazyBox.
      */
     attach: function () {
-      if ($.find(_doc, _element) === null) {
+      if (!this.$body.find(_element)) {
         // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
         _doc.body.insertAdjacentHTML('beforeend', Drupal.theme('blazyBox'));
       }
@@ -67,34 +69,34 @@
      *   The mouse event triggering the close.
      */
     close: function (e) {
-      var el = Drupal.blazyBox.el;
+      var me = Drupal.blazyBox;
 
       // Allows calling this directly.
-      if (!$.isUndefined(e)) {
+      if (!$.isUnd(e)) {
         e.preventDefault();
       }
 
-      $.addClass(el, _visualyHidden);
-      $.attr(el, _ariaHidden, true);
-      $.find(el, _elContent).innerHTML = '';
-      $.removeClass(_doc.body, _isOpened);
+      me.$el.addClass(_visualyHidden)
+        .attr(_ariaHidden, true)
+        .find(_elContent).innerHTML = '';
+
+      me.$body.removeClass(_isOpened);
     },
 
     check: function () {
       var me = this;
-      var btn = _element + '__close';
 
       if (me.options.hideCloseBtn) {
-        var close = $.find(me.el, btn);
+        var close = me.$el.find(_element + '__close');
         if (close) {
-          $.addClass(close, _visualyHidden);
+          $(close).addClass(_visualyHidden);
         }
       }
     },
 
     isOpened: function () {
-      var el = Drupal.blazyBox.el;
-      return !$.hasClass(el, _visualyHidden);
+      var me = Drupal.blazyBox;
+      return !me.$el.hasClass(_visualyHidden);
     }
   };
 
@@ -133,10 +135,12 @@
 
     html = '<div class="media media--fullscreen">';
 
-    if ($.isObject(data)) {
+    // For future betterment, allows more complex data object than just url.
+    if ($.isObj(data)) {
       var elm = data.el || data.element;
-      var href = $.attr(elm, 'href');
-      oembedUrl = $.attr(elm, 'data-oembed-url', href, true);
+      var $el = $(elm);
+      var href = $el.attr('href');
+      oembedUrl = $el.attr('data-oembed-url', href, true);
     }
 
     if (oembedUrl) {
@@ -154,14 +158,16 @@
    * @param {HTMLElement} box
    *   The blazybox HTML element.
    */
-  function doBlazyBox(box) {
+  function process(box) {
     var me = Drupal.blazyBox;
-    var btn = _element + '__close';
+    var $el = $(box);
 
+    // @todo remove after another check for $el.
     me.el = box;
+    me.$el = $el;
 
-    $.on(box, 'click.' + _id, btn, me.close, true);
-    $.addClass(box, _mounted);
+    $el.on('click.' + _id, _element + '__close', me.close, true)
+      .addClass(_mounted);
   }
 
   /**
@@ -175,7 +181,7 @@
       context = $.context(context);
 
       Drupal.blazyBox.attach();
-      $.once(doBlazyBox, _element + ':not(.' + _mounted + ')', context);
+      $.once(process, _element + ':not(.' + _mounted + ')', context);
     }
   };
 

@@ -19,7 +19,7 @@
    * @param {HTMLElement} box
    *   The colorbox HTML element.
    */
-  function blazyColorbox(box) {
+  function process(box) {
     var _cbox = drupalSettings.colorbox || {};
     var $box = $(box);
     var media = $box.data('media') || {};
@@ -166,7 +166,7 @@
   Drupal.behaviors.blazyColorbox = {
     attach: function (context) {
       var _cbox = drupalSettings.colorbox;
-      if (_d.isUndefined(_cbox)) {
+      if (_d.isUnd(_cbox)) {
         return;
       }
 
@@ -180,7 +180,7 @@
 
       context = _d.context(context);
 
-      var elms = _d.once(blazyColorbox, _element, context);
+      var elms = _d.once(process, _element, context);
       if (elms.length) {
         $('#colorbox').attr('aria-label', 'color box');
       }

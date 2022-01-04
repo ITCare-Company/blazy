@@ -1,558 +1,316 @@
 /**
  * @file
- * Cherries by @toddmotto, @cferdinandi, @adamfschwartz, @daniellmb.
+ * Cherries by @toddmotto, @cferdinandi, @adamfschwartz, @daniellmb, Cash.
  *
  * Some dup wrappers are meant to DRY with null checks aka poorman null safety.
+ * The rest are convenient to avoid object instantiation and to preserve
+ * old behaviors pre Blazy 2.6 till all codebase are migrated as needed.
+ * A few are still valid for single vs. chained element loop or queries.
  *
- * @todo use Cash or Underscore when jQuery is dropped by supported plugins.
+ * @todo use Cash for better DOM queries, or any core libraries when available.
+ * @todo remove unneeded dup methods once all codebase migrated.
  */
 
-/**
- * Provides a few disposable polyfills till IE is gone from planet earth.
- *
- * @todo remove a few when min D9.2+ since they are included as core polyfills
- * and can be made dependencies instead. Unless by then, IE is already gone, and
- * core deprecates them like classList.
- * @todo remove for core/drupal.customevent when min D9.3.
- * @todo remove for core/drupal.element.closest|matches when min D9.2.
- * @see https://www.drupal.org/node/3243406
- * @see https://www.drupal.org/node/3159731
- * @see https://www.drupal.org/node/3211146
- * @see https://www.drupal.org/node/3079238
- *
- */
-(function (_win) {
+/* global module */
+(function (_win, _doc) {
 
   'use strict';
 
-  var _eProto = Element.prototype;
-  var _sProto = String.prototype;
-
-  // See https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
-  if (!_eProto.matches) {
-    _eProto.matches = _eProto.msMatchesSelector || _eProto.webkitMatchesSelector;
-  }
-
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
-  if (!_sProto.startsWith) {
-    Object.defineProperty(_sProto, 'startsWith', {
-      value: function (search, rawPos) {
-        var pos = rawPos > 0 ? rawPos | 0 : 0;
-        return this.substring(pos, pos + search.length) === search;
-      }
-    });
-  }
-
-  // IE >= 9 compat, else SCRIPT445: Object doesn't support this action.
-  // @see https://msdn.microsoft.com/library/ff975299(v=vs.85).aspx.
-  if (typeof _win.CustomEvent === 'function') {
-    return false;
-  }
-
-  function CustomEvent(event, params) {
-    params = params || {
-      bubbles: false,
-      cancelable: false,
-      detail: null
-    };
-    var evt = document.createEvent('CustomEvent');
-    evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-    return evt;
-  }
-
-  CustomEvent.prototype = _win.Event.prototype;
-  _win.CustomEvent = CustomEvent;
-
-})(this);
-
-/* global define, module */
-(function (root, factory) {
-
-  'use strict';
-
-  // Inspired by https://github.com/addyosmani/memoize.js/blob/master/memoize.js
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define([], factory);
-  }
-  else if (typeof exports === 'object') {
-    // Node. Does not work with strict CommonJS, but only CommonJS-like
-    // environments that support module.exports, like Node.
-    module.exports = factory();
-  }
-  else {
-    // Browser globals (root is window).
-    root.dBlazy = factory();
-  }
-})(this, function () {
-
-  'use strict';
+  var _aProto = Array.prototype;
+  var _oProto = Object.prototype;
+  var _splice = _aProto.splice;
+  var _some = _aProto.some;
+  var _symbol = Symbol;
+  var _add = 'add';
+  var _remove = 'remove';
+  var _iterator = 'iterator';
+  var _events = {};
 
   /**
    * Object for public APIs where dBlazy stands for drupalBlazy.
    *
    * @namespace
+   *
+   * @return {dBlazy}
+   *   Returns this instance.
    */
-  var dBlazy = {};
-  var _win = this;
-  var _doc = _win.document;
-  var _oProto = Object.prototype;
-  var _src = 'src';
-  var _add = 'add';
-  var _remove = 'remove';
+  var dBlazy = function () {
+    function dBlazy(selector, context) {
+      var me = this;
 
-  // The namespaced event holders.
-  var _events = {};
+      if (!selector) {
+        return;
+      }
 
-  /**
-   * A forgiving attribute wrapper with fallback mimicking jQuery.attr method.
-   *
-   * @private
-   *
-   * @param {Element} el
-   *   The HTML element.
-   * @param {String|Object} attr
-   *   The attr name, can be a string or object.
-   * @param {String} defValue
-   *   The default value, can be null or undefined for different intentions.
-   * @param {Boolean} withDefault
-   *   True if should get with defValue.
-   *
-   * @return {String}
-   *   The attribute value, or fallback, for getters, or empty for setters.
-   */
-  function _attr(el, attr, defValue, withDefault) {
-    if (isNull(el)) {
-      return '';
-    }
+      if (isMe(selector)) {
+        return selector;
+      }
 
-    // Passing a key-value pair object means setting multiple attributes once.
-    if (isObject(attr)) {
-      forEach(attr, function (value, key) {
-        el.setAttribute(key, value);
-      });
-    }
-    // Since an attribute value null makes no sense, assumes nullify.
-    else if (isNull(defValue)) {
-      el.removeAttribute(attr);
-    }
-    else {
-      // No defValue defined, or withDefault set, means a getter.
-      var _undefined = isUndefined(defValue);
-      if (_undefined || typeof withDefault === 'boolean') {
-        if (_undefined) {
-          defValue = '';
+      var els = selector;
+      if (isStr(selector)) {
+        var ctx = (isMe(context) ? context[0] : context) || _doc;
+        els = find(ctx, selector, 1);
+        if (isEmpty(els)) {
+          return;
         }
-        return hasAttr(el, attr) ? el.getAttribute(attr) : defValue;
+      }
+      else if (isFun(selector)) {
+        return me.ready(selector);
       }
 
-      // Else a setter.
-      if (attr === _src) {
-        // To minimize unnecessary mutations.
-        el.src = defValue;
+      if (els.nodeType || els === _win) {
+        els = [els];
       }
-      else {
-        el.setAttribute(attr, defValue);
+
+      me.length = els.length;
+
+      for (var i = 0, l = this.length; i < l; i++) {
+        me[i] = els[i];
       }
     }
 
-    // For consistency, even if useless.
-    return '';
+    dBlazy.prototype.init = function (selector, context) {
+      return new dBlazy(selector, context);
+    };
+
+    return dBlazy;
+  }();
+
+  // Cache our prototype.
+  var fn = dBlazy.prototype;
+  // Alias instantiation for a shortcut.
+  var db = fn.init;
+  db.fn = db.prototype = fn;
+
+  fn.length = 0;
+  // Ensuring a db collection gets printed as array-like in Chrome's devtools.
+  fn.splice = _splice;
+
+  if (isFun(_symbol)) {
+    // Ensuring a db collection is iterable.
+    fn[_symbol[_iterator]] = _aProto[_symbol[_iterator]];
   }
 
   /**
-   * Checks if the element has attribute.
+   * Returns true if the x is a dBlazy.
    *
    * @private
    *
-   * @param {Element} el
-   *   The HTML element.
-   * @param {String} attribute
-   *   The attribute name.
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
    *
-   * @return {bool}
-   *   True if it has the attribute.
+   * @return {Bool}
+   *   True if x is an instanceof dBlazy.
    */
-  function hasAttr(el, attribute) {
-    return el && el.hasAttribute(attribute);
+  function isMe(x) {
+    return x instanceof dBlazy;
   }
 
   /**
-   * A simple attributes wrapper with values based on data attributes.
+   * Returns true if the x is an array.
    *
    * @private
    *
-   * @param {Element} el
-   *   The HTML element.
-   * @param {String|Array} attr
-   *   The attr name, or string array.
-   * @param {Boolean} remove
-   *   True if should remove the original/ temporary holder.
+   * One of the weird behaviors in JavaScript is the typeof Array is Object.
+   *
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
+   *
+   * @return {Bool}
+   *   True if x is an instanceof Array.
    */
-  function setAttr(el, attr, remove) {
-    if (isNull(el)) {
-      return;
+  function isArr(x) {
+    return !isEmpty(x) && Array.isArray(x);
+  }
+
+  /**
+   * Returns true if the x is a boolean.
+   *
+   * @private
+   *
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
+   *
+   * @return {Bool}
+   *   True if x is an instanceof Boolean.
+   */
+  function isBool(x) {
+    return typeof x === 'boolean';
+  }
+
+  /**
+   * Returns true if the x is an Element.
+   *
+   * @private
+   *
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
+   *
+   * @return {Bool}
+   *   True if x is an instanceof Element.
+   */
+  function isElm(x) {
+    return x instanceof Element;
+  }
+
+  /**
+   * Returns true if the x is a function.
+   *
+   * @private
+   *
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
+   *
+   * @return {Bool}
+   *   True if x is an instanceof Function.
+   */
+  function isFun(x) {
+    return typeof x === 'function';
+  }
+
+  /**
+   * Returns true if the x is anything falsy.
+   *
+   * @private
+   *
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
+   *
+   * @return {Bool}
+   *   True if null or empty array.
+   */
+  function isEmpty(x) {
+    return isNull(x) || isUnd(x) || x === false || (x.length && x.length === 0);
+  }
+
+  /**
+   * Returns true if the x is a null.
+   *
+   * @private
+   *
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
+   *
+   * @return {Bool}
+   *   True if null.
+   */
+  function isNull(x) {
+    return x === null;
+  }
+
+  /**
+   * Returns true if the x is a number.
+   *
+   * @private
+   *
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
+   *
+   * @return {Bool}
+   *   True if number.
+   */
+  function isNum(x) {
+    return !isNaN(parseFloat(x)) && isFinite(x);
+  }
+
+  /**
+   * Returns true if the x is an object.
+   *
+   * @private
+   *
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
+   *
+   * @return {Bool}
+   *   True if x is an instanceof Object.
+   */
+  function isObj(x) {
+    if (typeof x !== 'object' || isEmpty(x)) {
+      return false;
     }
-
-    // To accommodate multiple attributes at ease.
-    if (isArray(attr)) {
-      forEach(attr, function (value) {
-        setAttr(el, value, remove);
-      });
-      return;
-    }
-
-    var dataAttr = 'data-' + attr;
-    if (hasAttr(el, dataAttr)) {
-      var value = _attr(el, dataAttr);
-      _attr(el, attr, value);
-
-      if (remove) {
-        _attr(el, dataAttr, null);
-      }
-    }
+    var proto = Object.getPrototypeOf(x);
+    return isNull(proto) || proto === _oProto;
   }
 
   /**
-   * A simple attributes wrapper, looping based on sources (picture/ video).
+   * Returns true if the x is a string.
    *
    * @private
    *
-   * @param {Element} el
-   *   The starting HTML element.
-   * @param {String} attr
-   *   The attr name, can be SRC or SRCSET.
-   * @param {Boolean} remove
-   *   True if should remove.
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
+   *
+   * @return {Bool}
+   *   True if x is a string.
    */
-  function setAttrsWithSources(el, attr, remove) {
-    var parent = el.parentNode;
-    var _source = 'source';
-    var isPicture = equal(parent, 'picture');
-    var targets = (isPicture ? parent : el).getElementsByTagName(_source);
-
-    attr = attr || (isPicture ? 'srcset' : _src);
-
-    if (targets.length) {
-      forEach(targets, function (source) {
-        setAttr(source, attr, remove);
-      });
-    }
+  function isStr(x) {
+    return typeof x === 'string' && x.length;
   }
 
   /**
-   * A simple removeAttribute wrapper based on optional data attributes.
+   * Returns true if the x is undefined.
    *
    * @private
    *
-   * @param {Element} el
-   *   The HTML element.
-   * @param {Array} attrs
-   *   The attr names.
-   * @param {String} prefix
-   *   The optional prefix.
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
+   *
+   * @return {Bool}
+   *   True if x is undefined.
    */
-  function removeAttrs(el, attrs, prefix) {
-    if (isUndefined(prefix)) {
-      prefix = 'data-';
-    }
-    forEach(attrs, function (attr) {
-      _attr(el, prefix + attr, null);
-    });
+  function isUnd(x) {
+    return typeof x === 'undefined';
   }
 
   /**
-   * Checks if the element has a class name.
+   * Returns true if the x is window.
    *
    * @private
    *
-   * @param {Element} el
-   *   The HTML element.
-   * @param {String} name
-   *   The class name, can be space-delimited for multiple names.
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
    *
-   * @return {bool}
-   *   True if it has the class name.
+   * @return {Bool}
+   *   True if x is window.
    */
-  function hasClass(el, name) {
-    var found = 0;
-    var _list = el.classList;
-
-    if (el && _list) {
-      forEach(name.split(' '), function (item) {
-        if (_list.contains(item)) {
-          found++;
-        }
-      });
-    }
-
-    return found > 0;
+  function isWin(x) {
+    return !!x && x === x.window;
   }
 
   /**
-   * Adds a class, or space-delimited class names to an element.
+   * Returns true if the x is valid for querySelector.
    *
    * @private
    *
-   * @param {Element} els
-   *   The HTML element, can be many.
-   * @param {String} name
-   *   The class name, or space-delimited class names.
-   */
-  function addClass(els, name) {
-    addRemoveClass(_add, els, name);
-  }
-
-  /**
-   * Removes a class, or multiple from an element.
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
    *
-   * @private
+   * @return {Bool}
+   *   True if x is valid for querySelector.
    *
-   * @param {Element} els
-   *   The HTML element, can be many.
-   * @param {String} name
-   *   The class name, or space-delimited class names.
-   */
-  function removeClass(els, name) {
-    addRemoveClass(_remove, els, name);
-  }
-
-  /**
-   * Toggles a class, or multiple from an element.
-   *
-   * @private
-   *
-   * @param {Element} el
-   *   The HTML element.
-   * @param {String} name
-   *   The class name, or space-delimited class names.
-   */
-  function toggleClass(el, name) {
-    var _list = el.classList;
-    if (el && _list) {
-      name.split(' ').map(function (value) {
-        _list.toggle(value);
-      });
-    }
-  }
-
-  /**
-   * Checks if a string contains substring(s) (ES6 ::includes), only for oldies.
-   *
-   * @private
-   *
-   * Cannot use [].every() since it not about all or nothing.
-   *
-   * @param {String} str
-   *   The source string to test for.
-   * @param {String} substr
-   *   The target sub-string to check for, can be a string array.
-   *
-   * @return {bool}
-   *   True if it has the needle.
-   *
-   * @todo use polyfill core/drupal.string.includes when min D9.3.
-   */
-  function contains(str, substr) {
-    var found = 0;
-
-    if (str.length) {
-      forEach(toArray(substr), function (value) {
-        if (str.indexOf(value) !== -1) {
-          found++;
-        }
-      });
-    }
-
-    return found > 0;
-  }
-
-  /**
-   * Escapes special (meta) characters.
-   *
-   * @private
-   *
-   * @link https://stackoverflow.com/questions/1144783
-   *
-   * @param {String} string
-   *   The original source string.
-   *
-   * @return {String}
-   *   The modified string.
-   */
-  function escapeRegex(string) {
-    // $& means the whole matched string.
-    return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
-  }
-
-  /**
-   * Check if the given element matches the selector.
-   *
-   * @private
-   *
-   * @param {Element} el
-   *   The current element.
-   * @param {String} selector
-   *   Selector to match against (class, ID, data attribute, or tag).
-   *
-   * @return {Boolean}
-   *   Returns true if found, else false.
-   *
-   * @see http://caniuse.com/#feat=matchesselector
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
-   */
-  function matches(el, selector) {
-    return el && el.matches(selector);
-  }
-
-  /**
-   * Checks whether or not a string begins with another string, case-sensitive.
-   *
-   * @private
-   *
-   * @param {String} str
-   *   The source string to test for.
-   * @param {String} substr
-   *   The target sub-string to check for, can be a string array.
-   *
-   * @return {bool}
-   *   True if it starts with the needle.
-   */
-  function startsWith(str, substr) {
-    var found = 0;
-
-    if (str.length) {
-      forEach(toArray(substr), function (value) {
-        if (str.startsWith(value)) {
-          found++;
-        }
-      });
-    }
-
-    return found > 0;
-  }
-
-  /**
-   * Removes extra spaces so to keep readable template.
-   *
-   * @private
-   *
-   * @param {String} string
-   *   The original source string.
-   *
-   * @return {String}
-   *   The modified string.
-   */
-  function trimSpaces(string) {
-    return string.replace(/\\s+/g, ' ').trim();
-  }
-
-  /**
-   * Get the closest matching element up the DOM tree.
-   *
-   * @private
-   *
-   * Inspired by Chris Ferdinandi, http://github.com/cferdinandi/smooth-scroll.
-   *
-   * @param {Element} el
-   *   Starting element.
-   * @param {String} selector
-   *   Selector to match against (class, ID, data attribute, or tag).
-   *
-   * @return {Element|Null}
-   *   Returns null if not match found.
-   *
-   * @todo remove when min D9.2 for drupal.element.closest|matches.
-   * @see https://www.drupal.org/node/3159731
-   * @see https://www.drupal.org/node/3211146
-   * @see http://caniuse.com/#feat=element-closest
-   * @see http://caniuse.com/#feat=matchesselector
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
+   * 1: Node.ELEMENT_NODE
+   * 9: Node.DOCUMENT_NODE
+   * 11: Node.DOCUMENT_FRAGMENT_NODE
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
    */
-  function closest(el, selector) {
-    var parent;
-    while (el && el.nodeType === 1) {
-      parent = el.parentElement;
-      if (matches(parent, selector)) {
-        return parent;
-      }
-      el = parent;
-    }
-
-    return null;
+  function isQuery(x) {
+    var type = !!x && x.nodeType ? x.nodeType : false;
+    return type && (type === 1 || type === 9 || type === 11);
   }
 
   /**
-   * Check if the HTML tag matches a specified string.
+   * Returns true if the x is valid for event listener.
    *
    * @private
    *
-   * @param {Element} el
-   *   The element to compare.
-   * @param {String} str
-   *   HTML tag to match against.
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
    *
-   * @return {Boolean}
-   *   Returns true if matches, else false.
+   * @return {Bool}
+   *   True if x is valid for event listener.
    */
-  function equal(el, str) {
-    return el && el.nodeName.toLowerCase() === str.toLowerCase();
-  }
-
-  /**
-   * A simple querySelector wrapper.
-   *
-   * @private
-   *
-   * Cannot use _doc as fallback to avoid complication with a particular child.
-   *
-   * @param {Element} el
-   *   The parent HTML element.
-   * @param {String} selector
-   *   The CSS selector or HTML tag to query.
-   *
-   * @return {Element|null}
-   *   Null if orphan or not found, else the expected element.
-   *
-   * @todo decide if to return array instead like jQuery for consistency.
-   */
-  function find(el, selector) {
-    return !selector || isNull(el) ? null : el.querySelector(selector);
-  }
-
-  /**
-   * A simple querySelectorAll wrapper.
-   *
-   * @private
-   *
-   * @param {Element} el
-   *   The parent HTML element.
-   * @param {String} selector
-   *   The CSS selector or HTML tag to query.
-   *
-   * @return {Array.<Element>}
-   *   Empty array if orphan or not found, else the expected element array.
-   *
-   * @todo remove if ::find() returns an array.
-   */
-  function findAll(el, selector) {
-    return !selector || isNull(el) ? [] : getElements(selector, el);
-  }
-
-  /**
-   * A simple removeChild wrapper.
-   *
-   * @private
-   *
-   * @param {Element} el
-   *   The HTML element to remove.
-   */
-  function remove(el) {
-    var parent = el.parentNode;
-    if (el && parent) {
-      parent.removeChild(el);
-    }
+  function isEvt(x) {
+    return isQuery(x) || isWin(x);
   }
 
   /**
@@ -599,26 +357,35 @@
    *
    * @param {Array|Object|NodeList} collection
    *   Collection of items to iterate.
-   * @param {Function} callback
+   * @param {Function} cb
    *   Callback function for each iteration.
    * @param {Array|Object|NodeList} scope
    *   Object/NodeList/Array that forEach is iterating over (aka `this`).
    *
+   * @return {Array}
+   *   Returns this collection.
+   *
    * @todo drop for native [].forEach post D10+ when IE gone from planet earth.
    */
-  function forEach(collection, callback, scope) {
+  function each(collection, cb, scope) {
+    var isInstance = isMe(collection);
     if (_oProto.toString.call(collection) === '[object Object]') {
       for (var prop in collection) {
         if (_oProto.hasOwnProperty.call(collection, prop)) {
-          callback.call(scope, collection[prop], prop, collection);
+          if (isInstance && isNum(collection[prop])) {
+            continue;
+          }
+          cb.call(scope, collection[prop], prop, collection);
         }
       }
     }
     else if (collection) {
       for (var i = 0, len = collection.length; i < len; i++) {
-        callback.call(scope, collection[i], i, collection);
+        cb.call(scope, collection[i], i, collection);
       }
     }
+
+    return collection;
   }
 
   /**
@@ -646,106 +413,425 @@
    *
    * @private
    *
-   * @param {Element|String} subject
+   * @param {Element|String} x
    *   The object to make array.
    *
    * @return {Array}
    *   The fresulting array.
    */
-  function toArray(subject) {
-    return isArray(subject) ? subject : [subject];
+  function toArray(x) {
+    return isArr(x) ? x : [x];
   }
 
   /**
-   * Returns true if the subject is a null.
+   * A forgiving attribute wrapper with fallback mimicking jQuery.attr method.
    *
    * @private
    *
-   * @param {mixed} subject
-   *   The subject to check for its truthy.
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String|Object} attr
+   *   The attr name, can be a string or object.
+   * @param {String} defValue
+   *   The default value, can be null or undefined for different intentions.
+   * @param {String|Bool} withDefault
+   *   True if should get with defValue. Or a prefix such as data- for removal.
    *
-   * @return {Bool}
-   *   True if null.
+   * @return {dBlazy|String}
+   *   The attribute value, or fallback, for getters, or this for setters.
    */
-  function isNull(subject) {
-    return subject === null;
+  function _attr(el, attr, defValue, withDefault) {
+    var _undefined = isUnd(defValue);
+    var _getter = _undefined || isBool(withDefault);
+
+    if (!isQuery(el)) {
+      return _getter ? '' : this;
+    }
+
+    // Passing a key-value pair object means setting multiple attributes once.
+    var prefix = isStr(withDefault) ? withDefault : '';
+    if (isObj(attr)) {
+      each(attr, function (value, key) {
+        el.setAttribute(prefix + key, value);
+      });
+    }
+    // Since an attribute value null makes no sense, assumes nullify.
+    else if (isNull(defValue)) {
+      each(toArray(attr), function (value) {
+        el.removeAttribute(prefix + value);
+      });
+    }
+    else {
+      // No defValue defined, or withDefault set, means a getter.
+      if (_getter) {
+        if (_undefined) {
+          defValue = '';
+        }
+        return hasAttr(el, attr) ? el.getAttribute(attr) : defValue;
+      }
+
+      // Else a setter.
+      if (attr === 'src') {
+        // To minimize unnecessary mutations.
+        el.src = defValue;
+      }
+      else {
+        el.setAttribute(attr, defValue);
+      }
+    }
+
+    // For chaining.
+    return this;
   }
 
   /**
-   * Returns true if the subject is an array.
+   * Checks if the element has attribute.
    *
    * @private
    *
-   * One of the weird behaviors in JavaScript is the typeof Array is Object.
-   *
-   * @param {Misc} subject
-   *   The subject to check for its truthy.
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} name
+   *   The attribute name.
    *
    * @return {Bool}
-   *   True if subject is an instanceof Array.
+   *   True if it has the attribute.
    */
-  function isArray(subject) {
-    return !isNull(subject) && Array.isArray(subject);
+  function hasAttr(el, name) {
+    return isQuery(el) && el.hasAttribute(name);
   }
 
   /**
-   * Returns true if the subject is an Element.
+   * A removeAttribute wrapper.
    *
    * @private
    *
-   * @param {Misc} subject
-   *   The subject to check for its truthy.
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String|Array} attr
+   *   The attr name, or string array.
+   * @param {String} prefix
+   *   The attribute prefix if any, normally `data-`.
    *
-   * @return {Bool}
-   *   True if subject is an instanceof Element.
+   * @return {dBlazy}
+   *   Returns this instance.
    */
-  function isElement(subject) {
-    return subject instanceof Element;
+  function removeAttr(el, attr, prefix) {
+    return _attr.call(this, el, attr, null, prefix || '');
   }
 
   /**
-   * Returns true if the subject is a function.
+   * Checks if the element has a class name.
    *
    * @private
    *
-   * @param {Misc} subject
-   *   The subject to check for its truthy.
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} name
+   *   The class name, can be space-delimited for multiple names.
    *
    * @return {Bool}
-   *   True if subject is an instanceof Function.
+   *   True if it has the class name.
    */
-  function isFunction(subject) {
-    return typeof subject === 'function';
+  function hasClass(el, name) {
+    var found = 0;
+
+    if (isQuery(el) && name) {
+      var _list = el.classList;
+
+      each(name.split(' '), function (item) {
+        if (_list && _list.contains(item)) {
+          found++;
+        }
+      });
+    }
+    return found > 0;
   }
 
   /**
-   * Returns true if the subject is an object.
+   * A wrapper for the classList to mimick the familiar jQuery like methods.
    *
    * @private
    *
-   * @param {Misc} subject
-   *   The subject to check for its truthy.
+   * @param {String} op
+   *   Whether to add or remove the class.
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} name
+   *   The class name, or space-delimited class names.
    *
-   * @return {Bool}
-   *   True if subject is an instanceof Object.
+   * @return {dBlazy}
+   *   Returns this instance.
    */
-  function isObject(subject) {
-    return !isNull(subject) && typeof subject === 'object';
+  function toClass(op, el, name) {
+    if (isQuery(el) && name) {
+      var names = name.split(' ');
+      var list = el.classList;
+      if (list) {
+        list[op].apply(list, names);
+      }
+    }
+    return this;
   }
 
   /**
-   * Returns true if the subject is undefined.
+   * Adds a class, or space-delimited class names to an element.
    *
    * @private
    *
-   * @param {Misc} subject
-   *   The subject to check for its truthy.
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} name
+   *   The class name, or space-delimited class names.
+   *
+   * @return {dBlazy}
+   *   Returns this instance.
+   */
+  function addClass(el, name) {
+    return toClass.call(this, _add, el, name);
+  }
+
+  /**
+   * Removes a class, or multiple from an element.
+   *
+   * @private
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} name
+   *   The class name, or space-delimited class names.
+   *
+   * @return {dBlazy}
+   *   Returns this instance.
+   */
+  function removeClass(el, name) {
+    return toClass.call(this, _remove, el, name);
+  }
+
+  /**
+   * Toggles a class, or multiple from an element.
+   *
+   * @private
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} name
+   *   The class name, or space-delimited class names.
+   *
+   * @return {dBlazy}
+   *   Returns this instance.
+   */
+  function toggleClass(el, name) {
+    if (isQuery(el) && name) {
+      var _list = el.classList;
+      if (el && _list) {
+        name.split(' ').map(function (value) {
+          _list.toggle(value);
+        });
+      }
+    }
+    return this;
+  }
+
+  /**
+   * Checks if a string contains substring(s) (ES6 ::includes), only for oldies.
+   *
+   * @private
+   *
+   * Cannot use [].every() since it not about all or nothing.
+   *
+   * @param {String} str
+   *   The source string to test for.
+   * @param {String} substr
+   *   The target sub-string to check for, can be a string array.
    *
    * @return {Bool}
-   *   True if subject is undefined.
+   *   True if it has the needle.
+   *
+   * @todo use polyfill core/drupal.string.includes when min D9.3.
    */
-  function isUndefined(subject) {
-    return typeof subject === 'undefined';
+  function contains(str, substr) {
+    var found = 0;
+
+    if (isStr(str)) {
+      each(toArray(substr), function (value) {
+        if (str.indexOf(value) !== -1) {
+          found++;
+        }
+      });
+    }
+    return found > 0;
+  }
+
+  /**
+   * Escapes special (meta) characters.
+   *
+   * @private
+   *
+   * @link https://stackoverflow.com/questions/1144783
+   *
+   * @param {String} string
+   *   The original source string.
+   *
+   * @return {String}
+   *   The modified string.
+   */
+  function escape(string) {
+    // $& means the whole matched string.
+    return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  /**
+   * Checks whether or not a string begins with another string, case-sensitive.
+   *
+   * @private
+   *
+   * @param {String} str
+   *   The source string to test for.
+   * @param {String} substr
+   *   The target sub-string to check for, can be a string array.
+   *
+   * @return {Bool}
+   *   True if it starts with the needle.
+   */
+  function startsWith(str, substr) {
+    var found = 0;
+
+    if (isStr(str)) {
+      each(toArray(substr), function (value) {
+        if (str.startsWith(value)) {
+          found++;
+        }
+      });
+    }
+    return found > 0;
+  }
+
+  /**
+   * Removes extra spaces so to keep readable template.
+   *
+   * @private
+   *
+   * @param {String} string
+   *   The original source string.
+   *
+   * @return {String}
+   *   The modified string.
+   */
+  function trimSpaces(string) {
+    return string.replace(/\\s+/g, ' ').trim();
+  }
+
+  /**
+   * A forgiving closest for the lazy.
+   *
+   * @private
+   *
+   * @param {Element} el
+   *   Starting element.
+   * @param {String} selector
+   *   Selector to match against (class, ID, data attribute, or tag).
+   *
+   * @return {Element|Null}
+   *   Returns null if no match found.
+   */
+  function closest(el, selector) {
+    return (isElm(el) && isStr(selector)) ? el.closest(selector) : null;
+  }
+
+  /**
+   * A forgiving matches for the lazy.
+   *
+   * @private
+   *
+   * @param {Element} el
+   *   The current element.
+   * @param {String} selector
+   *   Selector to match against (class, ID, data attribute, or tag).
+   *
+   * @return {Bool}
+   *   Returns true if found, else false.
+   *
+   * @see http://caniuse.com/#feat=matchesselector
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
+   */
+  function matches(el, selector) {
+    return isQuery(el) && isStr(selector) && el.matches(selector);
+  }
+
+  /**
+   * Check if the HTML tag matches a specified string.
+   *
+   * @private
+   *
+   * @param {Element} el
+   *   The element to compare.
+   * @param {String} str
+   *   HTML tag to match against.
+   *
+   * @return {Bool}
+   *   Returns true if matches, else false.
+   */
+  function equal(el, str) {
+    return isQuery(el) && (el.nodeName.toLowerCase() === str.toLowerCase());
+  }
+
+  /**
+   * A simple querySelector wrapper.
+   *
+   * @private
+   *
+   * Cannot use _doc as fallback to avoid complication with a particular child.
+   * The only different from jQuery is if a single element found, it returns
+   * the object so to avoid ugly repeats like elms[0], also to preserve
+   * common vanilla practice which normally operates on the object directly.
+   * If you expect to operate on array, consider $(elms).each(loop) rather than
+   * $.each(elms, loop) or other plain for loop to avoid checking null or array.
+   * Alternatively flag the asArray to any value if an array is expected, or
+   * use the shortcut ::findAll() to be clear.
+   *
+   * @param {Element} el
+   *   The parent HTML element.
+   * @param {String} selector
+   *   The CSS selector or HTML tag to query.
+   * @param {Boolean|Mixed} asArray
+   *   Force returning an array if expected to operate on.
+   *
+   * @return {Array}
+   *   Empty array if not found, else the expected element(s).
+   */
+  function find(el, selector, asArray) {
+    var elms = selector && isQuery(el) ? toElms(selector, el) : [];
+    return elms.length === 1 && isUnd(asArray) ? elms[0] : elms;
+  }
+
+  /**
+   * A simple removeChild wrapper.
+   *
+   * @private
+   *
+   * @param {Element} el
+   *   The HTML element to remove.
+   */
+  function remove(el) {
+    if (isElm(el)) {
+      var parent = el.parentNode;
+      if (parent) {
+        parent.removeChild(el);
+      }
+    }
+  }
+
+  /**
+   * Returns true if an IE browser.
+   *
+   * @private
+   *
+   * @return {Bool}
+   *   True if an IE browser.
+   */
+  function ie() {
+    return !isUnd(_doc.documentMode);
   }
 
   /**
@@ -798,10 +884,10 @@
    *
    * @param {Object} dataset
    *   The dataset object must be keyed by window width.
-   * @param {Boolean} mobileFirst
+   * @param {Bool} mobileFirst
    *   Whether to use min-width, or max-width.
    *
-   * @return {mixed}
+   * @return {Mixed}
    *   Returns data from the current active window.
    */
   function activeWidth(dataset, mobileFirst) {
@@ -819,7 +905,7 @@
       return dataset[v];
     })[mobileFirst ? 'pop' : 'shift']();
 
-    return isUndefined(data) ? dataset[ww >= xl ? xl : xs] : data;
+    return isUnd(data) ? dataset[ww >= xl ? xl : xs] : data;
   }
 
   /**
@@ -827,21 +913,24 @@
    *
    * @private
    *
-   * @param {Element} elm
+   * @param {Element} el
    *   The parent HTML element.
    * @param {String} eventName
    *   The event name to trigger.
    * @param {String} selector
    *   Child selector to match against (class, ID, data attribute, or tag).
-   * @param {Function} callback
+   * @param {Function} cb
    *   The callback function.
-   * @param {Object|Boolean} params
+   * @param {Object|Bool} params
    *   The optional param passed into a custom event.
-   * @param {Boolean} isCustom
+   * @param {Bool} isCustom
    *   True, if a custom event.
+   *
+   * @return {dBlazy}
+   *   Returns this instance.
    */
-  function on(elm, eventName, selector, callback, params, isCustom) {
-    onoff(_add, elm, eventName, selector, callback, params, isCustom);
+  function on(el, eventName, selector, cb, params, isCustom) {
+    return onoff.call(this, _add, el, eventName, selector, cb, params, isCustom);
   }
 
   /**
@@ -849,21 +938,24 @@
    *
    * @private
    *
-   * @param {Element} elm
+   * @param {Element} el
    *   The parent HTML element.
    * @param {String} eventName
    *   The event name to trigger.
    * @param {String} selector
    *   Child selector to match against (class, ID, data attribute, or tag).
-   * @param {Function} callback
+   * @param {Function} cb
    *   The callback function.
-   * @param {Object|Boolean} params
+   * @param {Object|Bool} params
    *   The optional param passed into a custom event.
-   * @param {Boolean} isCustom
+   * @param {Bool} isCustom
    *   True, if a custom event.
+   *
+   * @return {dBlazy}
+   *   Returns this instance.
    */
-  function off(elm, eventName, selector, callback, params, isCustom) {
-    onoff(_remove, elm, eventName, selector, callback, params, isCustom);
+  function off(el, eventName, selector, cb, params, isCustom) {
+    return onoff.call(this, _remove, el, eventName, selector, cb, params, isCustom);
   }
 
   /**
@@ -875,15 +967,18 @@
    *   The HTML element.
    * @param {String} eventName
    *   The event name to remove.
-   * @param {Function} fn
+   * @param {Function} cb
    *   The callback function.
-   * @param {Object|Boolean} params
+   * @param {Object|Bool} params
    *   The optional param passed into a custom event.
-   * @param {Boolean} isCustom
+   * @param {Bool} isCustom
    *   True, if a custom event.
+   *
+   * @return {dBlazy}
+   *   Returns this instance.
    */
-  function bindEvent(el, eventName, fn, params, isCustom) {
-    addRemoveEvent(_add, el, eventName, fn, params, isCustom);
+  function bindEvent(el, eventName, cb, params, isCustom) {
+    return toEvent.call(this, _add, el, eventName, cb, params, isCustom);
   }
 
   /**
@@ -895,15 +990,41 @@
    *   The HTML element.
    * @param {String} eventName
    *   The event name to remove.
-   * @param {Function} fn
+   * @param {Function} cb
    *   The callback function.
    * @param {Object} params
    *   The optional param passed into a custom event.
-   * @param {Boolean} isCustom
+   * @param {Bool} isCustom
    *   True, if a custom event.
+   *
+   * @return {dBlazy}
+   *   Returns this instance.
    */
-  function unbindEvent(el, eventName, fn, params, isCustom) {
-    addRemoveEvent(_remove, el, eventName, fn, params, isCustom);
+  function unbindEvent(el, eventName, cb, params, isCustom) {
+    return toEvent.call(this, _remove, el, eventName, cb, params, isCustom);
+  }
+
+  /**
+   * A simple wrapper for addEventListener once.
+   *
+   * @private
+   *
+   * @param {Element} el
+   *   The HTML element.
+   * @param {String} eventName
+   *   The event name to remove.
+   * @param {Function} cb
+   *   The callback function.
+   * @param {Bool} isCustom
+   *   True, if a custom event.
+   *
+   * @return {dBlazy}
+   *   Returns this instance.
+   */
+  function one(el, eventName, cb, isCustom) {
+    return bindEvent.call(this, el, eventName, cb, {
+      once: true
+    }, isCustom);
   }
 
   /**
@@ -914,15 +1035,11 @@
    * @param {Image} img
    *   The Image object.
    *
-   * @return {bool}
+   * @return {Bool}
    *   True if the image is loaded.
    */
   function isDecoded(img) {
-    if ('decoded' in img) {
-      return img.decoded;
-    }
-
-    return img.complete;
+    return img.decoded || img.complete;
   }
 
   /**
@@ -930,13 +1047,13 @@
    *
    * @private
    *
-   * @param {Function} fn
+   * @param {Function} cb
    *   The executed function.
    *
    * @return {Object}
    *   The function result.
    */
-  function _once(fn) {
+  function _once(cb) {
     var result;
     var ran = false;
     return function proxy() {
@@ -944,9 +1061,9 @@
         return result;
       }
       ran = true;
-      result = fn.apply(this, arguments);
+      result = cb.apply(this, arguments);
       // For garbage collection.
-      fn = null;
+      cb = null;
       return result;
     };
   }
@@ -964,43 +1081,13 @@
    * @return {Array.<Element>}
    *   An array of elements to process.
    */
-  function getElements(selector, context) {
-    // Assume selector is an array-like element.
-    var elements = toArray(selector);
-
-    if (typeof selector === 'string') {
-      elements = context.querySelectorAll(selector);
-    }
+  function toElms(selector, context) {
+    // Assume selector is an array-like element if not a string.
+    var elements = isStr(selector) ? context.querySelectorAll(selector) : toArray(selector);
 
     // Ensures an array is returned and not a NodeList or an Array-like object.
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
-    return Array.prototype.slice.call(elements);
-  }
-
-  /**
-   * A wrapper for the classList to mimick the familiar jQuery like methods.
-   *
-   * @private
-   *
-   * @param {String} op
-   *   Whether to add or remove the class.
-   * @param {Element} els
-   *   The HTML element, can be many.
-   * @param {String} name
-   *   The class name, or space-delimited class names.
-   */
-  function addRemoveClass(op, els, name) {
-    var names = name.split(' ');
-    var _apply = function (elm) {
-      var list = elm.classList;
-      if (list) {
-        list[op].apply(list, names);
-      }
-    };
-
-    if (els) {
-      forEach(toArray(els), _apply);
-    }
+    return _aProto.slice.call(elements);
   }
 
   /**
@@ -1014,18 +1101,22 @@
    *   The HTML element.
    * @param {String} eventName
    *   The event name, optionally namespaced, to add or remove.
-   * @param {Function} fn
+   * @param {Function} cb
    *   The callback function.
-   * @param {Object|Boolean} params
+   * @param {Object|Bool} params
    *   The optional param passed into a custom event.
-   * @param {Boolean} isCustom
+   * @param {Bool} isCustom
    *   Like namespaced, but not to be namespaced since LHS is not any event.
    *
+   * @return {dBlazy}
+   *   Returns this instance.
+   *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+   * @see https://caniuse.com/once-event-listener
    */
-  function addRemoveEvent(op, el, eventName, fn, params, isCustom) {
-    if (el === null) {
-      return;
+  function toEvent(op, el, eventName, cb, params, isCustom) {
+    if (!isEvt(el) || !cb) {
+      return this;
     }
 
     var defaults = {
@@ -1033,30 +1124,44 @@
       passive: true
     };
 
+    var _one = false;
     var options = params || false;
-    if (isObject(params)) {
+    if (isObj(params)) {
       options = extend(defaults, params);
+      _one = options.once || false;
     }
 
     var onEvent = function (e) {
       isCustom = isCustom || startsWith(e, ['blazy.', 'bio.']);
       var add = op === _add;
-      var ev = isCustom ? e : e.split('.')[0];
-      fn = fn || _events[e];
+      var type = (isCustom ? e : e.split('.')[0]).trim();
+      cb = cb || _events[e];
 
-      if (isFunction(fn)) {
-        el[op + 'EventListener'](ev.trim(), fn, options);
+      var _cb = cb;
+      if (isFun(cb)) {
+        // See https://caniuse.com/once-event-listener.
+        if (_one && add && ie()) {
+          var cbone = function cbone(evt) {
+            el.removeEventListener(type, cbone, options);
+            _cb.apply(this, arguments);
+          };
+          cb = cbone;
+          add = false;
+        }
+
+        el[op + 'EventListener'](type, cb, options);
       }
 
       if (add) {
-        _events[e] = fn;
+        _events[e] = cb;
       }
       else {
         delete _events[e];
       }
     };
 
-    forEach(eventName.split(' '), onEvent);
+    each(eventName.split(' '), onEvent);
+    return this;
   }
 
   /**
@@ -1069,23 +1174,30 @@
    *
    * @param {String} op
    *   Whether to add or remove the event.
-   * @param {Element} elm
+   * @param {Element} el
    *   The parent HTML element.
    * @param {String} eventName
    *   The optionally namespaced event name to trigger.
    * @param {String} selector
    *   Child selector to match against (class, ID, data attribute, or tag).
-   * @param {Function} callback
+   * @param {Function} cb
    *   The callback function.
-   * @param {Object|Boolean} params
+   * @param {Object|Bool} params
    *   The optional param passed into a custom event.
-   * @param {Boolean} isCustom
+   * @param {Bool} isCustom
    *   True, if a custom event.
+   *
+   * @return {dBlazy}
+   *   Returns this instance.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
    */
-  function onoff(op, elm, eventName, selector, callback, params, isCustom) {
-    if (isUndefined(params)) {
+  function onoff(op, el, eventName, selector, cb, params, isCustom) {
+    if (!isEvt(el) || !cb) {
+      return this;
+    }
+
+    if (isUnd(params)) {
       params = {
         capture: true,
         passive: false
@@ -1096,12 +1208,12 @@
       var t = e.target;
 
       if (matches(t, selector)) {
-        callback.call(t, e);
+        cb.call(t, e);
       }
       else {
         while (t && t !== this) {
           if (matches(t, selector)) {
-            callback.call(t, e);
+            cb.call(t, e);
             return;
           }
           t = t.parentElement || t.parentNode;
@@ -1109,62 +1221,182 @@
       }
     };
 
-    addRemoveEvent(op, elm, eventName, onEvent, params, isCustom);
+    return toEvent.call(this, op, el, eventName, onEvent, params, isCustom);
   }
 
-  // Attribute methods.
-  dBlazy.attr = _attr;
-  dBlazy.hasAttr = hasAttr;
-  dBlazy.setAttr = setAttr;
-  dBlazy.setAttrsWithSources = setAttrsWithSources;
-  dBlazy.removeAttrs = removeAttrs;
-  dBlazy.hasClass = hasClass;
-  dBlazy.addClass = addClass;
-  dBlazy.removeClass = removeClass;
-  dBlazy.toggleClass = toggleClass;
-
-  // String methods.
-  dBlazy.contains = contains;
-  dBlazy.escapeRegex = escapeRegex;
-  dBlazy.matches = matches;
-  dBlazy.startsWith = startsWith;
-  dBlazy.trimSpaces = trimSpaces;
-
-  // DOM query methods.
-  dBlazy.closest = closest;
-  dBlazy.equal = equal;
-  dBlazy.find = find;
-  dBlazy.findAll = findAll;
-  dBlazy.remove = remove;
+  // Type methods.
+  db.isArr = isArr;
+  db.isBool = isBool;
+  db.isElm = isElm;
+  db.isFun = isFun;
+  db.isEmpty = isEmpty;
+  db.isNull = isNull;
+  db.isNum = isNum;
+  db.isObj = isObj;
+  db.isStr = isStr;
+  db.isUnd = isUnd;
+  db.isEvt = isEvt;
+  db.isQuery = isQuery;
 
   // Collection methods.
-  dBlazy.extend = extend;
-  dBlazy.forEach = forEach;
-  dBlazy.parse = parse;
-  dBlazy.toArray = toArray;
+  db.extend = extend;
+  fn.extend = function (plugins) {
+    return extend(fn, plugins);
+  };
 
-  // Type checker methods.
-  dBlazy.isNull = isNull;
-  dBlazy.isArray = isArray;
-  dBlazy.isElement = isElement;
-  dBlazy.isFunction = isFunction;
-  dBlazy.isObject = isObject;
-  dBlazy.isUndefined = isUndefined;
+  // @deprecated for db.each for consistency and save bytes.
+  db.forEach = each;
+  db.each = each;
+  fn.each = function (cb) {
+    return each(this, cb);
+  };
+
+  db.parse = parse;
+  db.toArray = toArray;
+
+  // Attribute methods.
+  db.attr = _attr.bind(db);
+  fn.attr = function (attr, defValue, withDefault) {
+    return _attr.call(this, this[0], attr, defValue, withDefault);
+  };
+
+  db.hasAttr = hasAttr.bind(db);
+  fn.hasAttr = function (name) {
+    return _some.call(this, function (el) {
+      return hasAttr(el, name);
+    });
+  };
+
+  db.removeAttr = removeAttr.bind(db);
+  fn.removeAttr = function (attr, prefix) {
+    return db(this.each(function (el) {
+      removeAttr.call(this, el, attr, prefix);
+    }));
+  };
+
+  // Class name methods.
+  db.hasClass = hasClass.bind(db);
+  fn.hasClass = function (name) {
+    return _some.call(this, function (el) {
+      return hasClass(el, name);
+    });
+  };
+
+  db.addClass = addClass.bind(db);
+  fn.addClass = function (name) {
+    return db(this.each(function (el) {
+      addClass.call(this, el, name);
+    }));
+  };
+
+  db.removeClass = removeClass.bind(db);
+  fn.removeClass = function (name) {
+    return db(this.each(function (el) {
+      removeClass.call(this, el, name);
+    }));
+  };
+
+  db.toggleClass = toggleClass.bind(db);
+  fn.toggleClass = function (name) {
+    return db(this.each(function (el) {
+      toggleClass.call(this, el, name);
+    }));
+  };
+
+  // String methods.
+  db.contains = contains;
+  db.escape = escape;
+  db.startsWith = startsWith;
+  db.trimSpaces = trimSpaces;
+
+  // DOM query methods.
+  db.closest = closest;
+  db.matches = matches;
+
+  db.equal = equal;
+  fn.equal = function (selector) {
+    return equal(this[0], selector);
+  };
+
+  db.find = find;
+  fn.find = function (selector, asArray) {
+    return find(this[0], selector, asArray);
+  };
+
+  fn.findAll = function (selector) {
+    return find(this[0], selector, 1);
+    // @todo multiple sources for multiple targets.
+    // return this.each(function (el) {
+    // els.push(find(el, selector, 1));
+    // });
+  };
+
+  db.remove = remove;
+  fn.remove = function () {
+    this.each(remove);
+  };
 
   // Window methods.
-  dBlazy.pixelRatio = pixelRatio;
-  dBlazy.windowWidth = windowWidth;
-  dBlazy.windowSize = windowSize;
-  dBlazy.activeWidth = activeWidth;
+  db.ie = ie;
+  db.pixelRatio = pixelRatio;
+  db.windowWidth = windowWidth;
+  db.windowSize = windowSize;
+  db.activeWidth = activeWidth;
 
   // Event methods.
-  dBlazy.on = on;
-  dBlazy.off = off;
-  dBlazy.bindEvent = bindEvent;
-  dBlazy.unbindEvent = unbindEvent;
+  db.on = on.bind(db);
+  fn.on = function (eventName, selector, cb, params, isCustom) {
+    return db(this.each(function (el) {
+      on.call(this, el, eventName, selector, cb, params, isCustom);
+    }));
+  };
+
+  db.off = off.bind(db);
+  fn.off = function (eventName, selector, cb, params, isCustom) {
+    return db(this.each(function (el) {
+      off.call(this, el, eventName, selector, cb, params, isCustom);
+    }));
+  };
+
+  db.bindEvent = bindEvent.bind(db);
+  fn.bindEvent = function (eventName, cb, params, isCustom) {
+    return db(this.each(function (el) {
+      bindEvent.call(this, el, eventName, cb, params, isCustom);
+    }));
+  };
+
+  db.unbindEvent = unbindEvent.bind(db);
+  fn.unbindEvent = function (eventName, cb, params, isCustom) {
+    return db(this.each(function (el) {
+      unbindEvent.call(this, el, eventName, cb, params, isCustom);
+    }));
+  };
+
+  db.one = one.bind(db);
+  fn.one = function (eventName, cb, isCustom) {
+    return db(this.each(function (el) {
+      one.call(this, el, eventName, cb, isCustom);
+    }));
+  };
 
   // Image methods.
-  dBlazy.isDecoded = isDecoded;
+  db.isDecoded = isDecoded;
+
+  // Similar to core domReady, only public and generic.
+  fn.ready = function (callback) {
+    var cb = function () {
+      return setTimeout(callback, 0, db);
+    };
+
+    if (_doc.readyState !== 'loading') {
+      cb();
+    }
+    else {
+      _doc.addEventListener('DOMContentLoaded', cb);
+    }
+
+    return this;
+  };
 
   /**
    * Decodes the image.
@@ -1177,7 +1409,7 @@
    * @return {Promise}
    *   The Promise object.
    */
-  dBlazy.decode = function (img) {
+  db.decode = function (img) {
     if (isDecoded(img)) {
       return Promise.resolve(img);
     }
@@ -1195,45 +1427,35 @@
   };
 
   /**
-   * Updates CSS background with multi-breakpoint images.
-   *
-   * @name dBlazy.updateBg
-   *
-   * @param {Element} el
-   *   The container HTML element.
-   * @param {Boolean} mobileFirst
-   *   Whether to use min-width or max-width.
-   */
-  dBlazy.updateBg = function (el, mobileFirst) {
-    var backgrounds = parse(_attr(el, 'data-backgrounds'));
-
-    if (backgrounds) {
-      var bg = activeWidth(backgrounds, mobileFirst);
-      if (bg && bg !== 'undefined') {
-        el.style.backgroundImage = 'url("' + bg.src + '")';
-
-        // Allows to disable Aspect ratio if it has known/ fixed heights such as
-        // gridstack multi-size boxes.
-        if (bg.ratio && !hasClass(el, 'b-noratio')) {
-          el.style.paddingBottom = bg.ratio + '%';
-        }
-      }
-    }
-  };
-
-  /**
    * A simple wrapper to animate anything using animate.css.
-   *
-   * @name dBlazy.animate
    *
    * @param {Element} el
    *   The animated HTML element.
    * @param {String} animation
    *   Any custom animation name, fallbacks to [data-animation].
+   *
+   * @return {dBlazy}
+   *   Returns this instance.
    */
-  dBlazy.animate = function (el, animation) {
-    var _ani = 'animation';
+  function animate(el, animation) {
+    if (!isElm(el)) {
+      return this;
+    }
+
     var _set = el.dataset;
+
+    animation = animation || _set.animation;
+
+    var $el = db(el);
+    var _ani = 'animation';
+    var _animated = 'animated';
+    var _aniEnd = _ani + 'end.' + animation;
+    var _transEnd = 'transitionend.' + animation;
+    var _style = el.style;
+    var _blur = 'blur';
+    var _tmp = '.b-' + _blur + '--tmp';
+    var _bloaded = 'b-loaded';
+    var classes = _animated + ' ' + animation;
     var props = [
       _ani,
       _ani + '-duration',
@@ -1241,61 +1463,47 @@
       _ani + '-iteration-count'
     ];
 
-    animation = animation || _set.animation;
-    var classes = 'animated ' + animation;
+    $el.addClass(classes);
 
-    addClass(el, classes);
-    forEach(['Duration', 'Delay', 'IterationCount'], function (key) {
-
-      if (_set && _ani + key in _set) {
-        el.style[_ani + key] = _set[_ani + key];
+    each(['Duration', 'Delay', 'IterationCount'], function (key) {
+      var _aniKey = _ani + key;
+      if (_set && _aniKey in _set) {
+        _style[_aniKey] = _set[_aniKey];
       }
     });
 
     // Supports both BG and regular image.
     var cn = closest(el, '.media') || el;
-    var blur = find(cn, '.b-blur--tmp');
+    var bg = $el.hasClass('b-bg');
+    var blur = find(cn, _tmp);
+    var isBlur = animation === _blur;
+    var $an = $el;
 
-    function animationEnd() {
-      removeAttrs(el, props);
+    // The animated blur is image not this container.
+    if (isBlur && !bg) {
+      $an = db('.' + _bloaded + ':not(' + _tmp + ')', cn) || $an;
+    }
 
-      addClass(el, 'is-b-animated');
-      removeClass(el, classes);
+    function ended() {
+      $el.addClass('is-b-' + _animated)
+        .removeClass(classes)
+        .removeAttr(props, 'data-');
 
-      forEach(props, function (key) {
-        el.style.removeProperty(key);
+      each(props, function (key) {
+        _style.removeProperty(key);
       });
 
       remove(blur);
-
-      unbindEvent(el, _ani + 'end', animationEnd);
     }
 
-    bindEvent(el, _ani + 'end', animationEnd);
-  };
+    $an.one(bg && isBlur ? _transEnd : _aniEnd, ended);
+    return this;
+  }
 
-  /**
-   * Removes common loading indicator classes.
-   *
-   * @name dBlazy.clearLoading
-   *
-   * @param {Element} el
-   *   The loading HTML element.
-   */
-  dBlazy.clearLoading = function (el) {
-    var _loading = 'loading';
-    // The .b-lazy element can be attached to IMG, or DIV as CSS background.
-    // The .(*)loading can be .media, .grid, .slide__content, .box, etc.
-    var loaders = [el, closest(el, '[class*="' + _loading + '"]')];
-
-    forEach(loaders, function (loader) {
-      if (loader) {
-        var name = loader.className;
-        if (contains(name, _loading)) {
-          loader.className = name.replace(/(\S+)loading/g, '');
-        }
-      }
-    });
+  fn.animate = function (animation) {
+    return db(this.each(function (el) {
+      animate.call(this, el, animation);
+    }));
   };
 
   /**
@@ -1309,7 +1517,7 @@
    * @author Daniel Lamb <dlamb.open.source@gmail.com>
    * @link https://github.com/daniellmb/once.js
    *
-   * @param {Function} fn
+   * @param {Function} cb
    *   The executed function.
    * @param {NodeList|Array.<Element>|Element|string} selector
    *   A NodeList, array of elements, single Element, or a string.
@@ -1322,23 +1530,22 @@
    * @tbd deprecated in Blazy 2.5 and will be removed in Blazy 3.+. Use the
    * core/once library instead. See https://www.drupal.org/node/3254668.
    */
-  dBlazy.once = function (fn, selector, context) {
-    var elms = [];
+  db.once = function (cb, selector, context) {
+    var els = [];
 
     // Original once.
-    if (isUndefined(selector)) {
-      _once(fn);
+    if (isUnd(selector)) {
+      _once(cb);
     }
     else {
       // If extra arguments are provided, assumes regular loop over elements.
-      context = context || _doc;
-      elms = findAll(context, selector);
-      if (elms.length) {
-        _once(forEach(elms, fn));
+      els = find(context || _doc, selector, 1);
+      if (els.length) {
+        _once(each(els, cb));
       }
     }
 
-    return elms;
+    return els;
   };
 
   /**
@@ -1348,7 +1555,7 @@
    *
    * @name dBlazy.throttle
    *
-   * @param {Function} fn
+   * @param {Function} cb
    *   The callback function.
    * @param {Int} minDelay
    *   The execution delay in milliseconds.
@@ -1358,7 +1565,7 @@
    * @return {Function}
    *   The function executed at the specified minDelay.
    */
-  dBlazy.throttle = function (fn, minDelay, scope) {
+  db.throttle = function (cb, minDelay, scope) {
     var lastCall = 0;
     return function () {
       var now = +new Date();
@@ -1366,7 +1573,7 @@
         return;
       }
       lastCall = now;
-      fn.apply(scope, arguments);
+      cb.apply(scope, arguments);
     };
   };
 
@@ -1377,7 +1584,7 @@
    *
    * @link https://github.com/louisremi/jquery-smartresize
    *
-   * @param {Function} c
+   * @param {Function} cb
    *   The callback function.
    * @param {Int} t
    *   The timeout.
@@ -1385,12 +1592,12 @@
    * @return {Function}
    *   The callback function.
    */
-  dBlazy.resize = function (c, t) {
+  db.resize = function (cb, t) {
     _win.onresize = function () {
-      _win.clearTimeout(t);
-      t = _win.setTimeout(c, 200);
+      clearTimeout(t);
+      t = setTimeout(cb, 200);
     };
-    return c;
+    return cb;
   };
 
   /**
@@ -1413,10 +1620,10 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll
    * @see https://caniuse.com/mdn-javascript_builtins_string_replaceall
    */
-  dBlazy.template = function (string, map) {
+  db.template = function (string, map) {
     for (var key in map) {
       if (_oProto.hasOwnProperty.call(map, key)) {
-        string = string.replace(new RegExp(escapeRegex('$' + key), 'g'), map[key]);
+        string = string.replace(new RegExp(escape('$' + key), 'g'), map[key]);
       }
     }
     return trimSpaces(string);
@@ -1437,12 +1644,12 @@
    * @return {HTMLDocument|Document}
    *   The HTMLDocument or Document so to avoid failing querySelector, etc.
    */
-  dBlazy.context = function (context) {
+  db.context = function (context) {
     // Weirdo: context may be null after Colorbox close.
     context = context || _doc;
 
     // jQuery may pass its array as non-expected context identified by length.
-    context = 'length' in context ? context[0] : context;
+    context = context.length ? context[0] : context;
     return context instanceof HTMLDocument ? context : _doc;
   };
 
@@ -1451,7 +1658,7 @@
    *
    * @name dBlazy.trigger
    *
-   * @param {Element} elm
+   * @param {Element} el
    *   The HTML element.
    * @param {String} eventName
    *   The event name to trigger.
@@ -1460,34 +1667,55 @@
    * @param {Object} param
    *   The optional param passed into a custom event.
    *
-   * @return {CustomEvent|Event}
+   * @return {CustomEvent|Event|undefined}
    *   The CustomEvent or Event object to dispatch.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent
    * @todo namespaced event name.
    */
-  dBlazy.trigger = function (elm, eventName, details, param) {
+  function trigger(el, eventName, details, param) {
     var event;
+    if (!isEvt(el)) {
+      return event;
+    }
 
-    if (isUndefined(details)) {
+    if (isUnd(details)) {
       event = new Event(eventName);
     }
     else {
       // Bubbles to be caught by ancestors. Cancelable to preventDefault.
-      var data = extend({
+      var data = {
         bubbles: true,
         cancelable: true,
         detail: details || {}
-      }, param || {});
+      };
+
+      if (isObj(param)) {
+        data = extend(data, param);
+      }
 
       event = new CustomEvent(eventName, data);
     }
 
-    elm.dispatchEvent(event);
+    el.dispatchEvent(event);
     return event;
+  }
+
+  db.trigger = trigger.bind(db);
+  fn.trigger = function (eventName, details, param) {
+    return db(this.each(function (el) {
+      trigger.call(this, el, eventName, details, param);
+    }));
   };
 
-  return dBlazy;
+  if (typeof exports !== 'undefined') {
+    // Node.js.
+    module.exports = db;
+  }
+  else {
+    // Browser.
+    _win.dBlazy = db;
+  }
 
-});
+})(this, this.document);

@@ -241,7 +241,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     if (!empty($settings['urls'])) {
       // @todo remove .media--background for .b-bg as more relevant for BG.
       $attributes['class'][] = 'b-bg media--background';
-      $attributes['data-backgrounds'] = Json::encode($settings['urls']);
+      $attributes['data-b-bg'] = Json::encode($settings['urls']);
 
       if ($settings['is_preview']) {
         Blazy::inlineStyle($attributes, 'background-image: url(' . $settings['image_url'] . ');');

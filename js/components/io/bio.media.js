@@ -14,16 +14,16 @@
   // Inspired by https://github.com/addyosmani/memoize.js/blob/master/memoize.js
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define([window.dBlazy, window.Bio], factory);
+    define([root.dBlazy, root.Bio], factory);
   }
   else if (typeof exports === 'object') {
     // Node. Does not work with strict CommonJS, but only CommonJS-like
     // environments that support module.exports, like Node.
-    module.exports = factory(window.dBlazy, window.Bio);
+    module.exports = factory(root.dBlazy, root.Bio);
   }
   else {
     // Browser globals (root is window).
-    root.BioMedia = factory(window.dBlazy, window.Bio);
+    root.BioMedia = factory(root.dBlazy, root.Bio);
   }
 })(this, function (dBlazy, Bio) {
 
@@ -63,32 +63,33 @@
 
   _proto.lazyLoad = (function (_bio) {
     return function (el) {
+      var $el = $(el);
       // Image may take time to load after being hit, and it may be intersected
       // several times till marked loaded. Ensures it is hit once regardless
       // of being loaded, or not. No real issue with normal images on the page,
       // until having VIS alike which may spit out new images on AJAX request.
-      if ($.hasAttr(el, 'data-bio-hit')) {
+      if ($el.hasAttr('data-bio-hit')) {
         return;
       }
 
       var me = this;
-      var parent = el.parentNode;
-      var isImage = $.equal(el, 'img');
-      var isBg = $.isUndefined(el.src) && $.hasClass(el, me.options.bgClass);
-      var isPicture = parent && $.equal(parent, 'picture');
-      var isVideo = $.equal(el, 'video');
+      var $parent = $(el.parentNode);
+      var isImage = $el.equal('img');
+      var isBg = $.isUnd(el.src) && $el.hasClass(me.options.bgClass);
+      var isPicture = $parent.length && $parent.equal('picture');
+      var isVideo = $el.equal('video');
 
       // PICTURE elements.
       if (isPicture) {
-        $.setAttrsWithSources(el, _srcSet, true);
+        $el.mapSource(_srcSet, true);
 
         // Tiny controller image inside picture element won't get preloaded.
-        $.setAttr(el, _src, true);
+        $el.mapAttr(_src, true);
         me.loaded(el, me._ok);
       }
       // VIDEO elements.
       else if (isVideo) {
-        $.setAttrsWithSources(el, _src, true);
+        $el.mapSource(_src, true);
         el.load();
         me.loaded(el, me._ok);
       }
@@ -99,15 +100,15 @@
         }
         // IFRAME elements, etc.
         else {
-          if ($.attr(el, _dataSrc) && $.hasAttr(el, _src)) {
-            $.setAttr(el, _src, true);
+          if ($el.attr(_dataSrc) && $el.hasAttr(_src)) {
+            $el.mapAttr(_src, true);
             me.loaded(el, me._ok);
           }
         }
       }
 
       // Marks it hit/ requested. Not necessarily loaded.
-      $.attr(el, 'data-bio-hit', 1);
+      $el.attr('data-bio-hit', 1);
 
       return _b.apply(this, arguments);
     };
@@ -115,16 +116,17 @@
 
   _proto.setImage = function (el, isBg) {
     var me = this;
+    var $el = $(el);
     var img = new Image();
-    var isResimage = $.hasAttr(el, _dataSrcset);
+    var isResimage = $el.hasAttr(_dataSrcset);
 
     // Applies attributes regardless, will re-observe if any error.
     var applyAttrs = function () {
       if (isBg) {
-        me.setBg(el);
+        me.bg(el);
       }
       else {
-        $.setAttr(el, _imgSources, false);
+        $el.mapAttr(_imgSources, false);
       }
     };
 
@@ -134,7 +136,7 @@
       // Image decode fails with Responsive image, assumes ok, no side effects.
       me.loaded(el, ok ? me._ok : me._er);
       if (ok) {
-        $.removeAttrs(el, isBg ? _bgSources : _imgSources);
+        $el.removeAttr(isBg ? _bgSources : _imgSources, 'data-');
       }
     };
 
@@ -147,12 +149,12 @@
 
         // Allows to re-observe.
         if (!isResimage) {
-          $.attr(el, 'data-bio-hit', null);
+          $el.attr('data-bio-hit', null);
         }
       })
       .finally(function () {
         // Be sure to throttle, or debounce your method when calling this.
-        $.trigger(el, 'bio.finally', {
+        $el.trigger('bio.finally', {
           options: me.options
         });
       });
@@ -161,17 +163,19 @@
     if ('decode' in img) {
       img.decoding = 'async';
     }
-    img.src = $.attr(el, isBg ? _bgSrc : _dataSrc);
+
+    img.src = $el.attr(isBg ? _bgSrc : _dataSrc);
     if (isResimage) {
-      img.srcset = $.attr(el, _dataSrcset);
+      img.srcset = $el.attr(_dataSrcset);
     }
 
   };
 
-  _proto.setBg = function (el) {
-    if ($.hasAttr(el, _bgSrc)) {
-      el.style.backgroundImage = 'url("' + $.attr(el, _bgSrc) + '")';
-      $.attr(el, _src, null);
+  _proto.bg = function (el) {
+    var $el = $(el);
+    if ($el.hasAttr(_bgSrc)) {
+      el.style.backgroundImage = 'url("' + $el.attr(_bgSrc) + '")';
+      $el.attr(_src, null);
     }
   };
 

@@ -16,6 +16,8 @@
   var _masonry = 'is-b-masonry';
   var _mounted = _masonry + '--on';
   var _element = '.' + _id + '.' + _masonry + ':not(.' + _mounted + ')';
+  var _blazy = 'blazy';
+  var _done = _blazy + '.done';
 
   Drupal.blazy = Drupal.blazy || {};
 
@@ -36,17 +38,20 @@
    * @param {HTMLElement|Event} el
    *   The item HTML element, or event object on blazy.done.
    */
-  function doNativeGridItem(el) {
+  function processItem(el) {
     var me = Drupal.blazy.nativeGrid;
-    var box = 'target' in el ? $.closest(el.target, '.grid') : el;
+    var target = el.target;
+    var $target = $(target);
+    var box = 'target' in el ? $.closest(target, '.grid') : el;
 
-    if ($.isNull(box)) {
+    if (!$.isElm(box)) {
       return;
     }
 
-    var cn = $.find(box, '.grid__content');
+    var $box = $(box);
+    var cn = $box.find('.grid__content');
 
-    if (!$.isNull(cn)) {
+    if ($.isElm(cn)) {
       if (me.gap === 0) {
         me.gap = 0.0001;
       }
@@ -56,12 +61,12 @@
 
         // Sets the grid row span based on content and gap height.
         box.style.gridRowEnd = 'span ' + span;
-        $.addClass(box, 'is-b-grid');
+        $box.addClass('is-b-grid');
       }, 600);
     }
 
-    if (el.target && (el.type && el.type === 'blazy.done')) {
-      $.unbindEvent(el.target, 'blazy.done', doNativeGridItem, false);
+    if (target && (el.type && el.type === _done)) {
+      $target.unbindEvent(_done, processItem, false);
     }
   }
 
@@ -71,8 +76,9 @@
    * @param {HTMLElement} el
    *   The container HTML element.
    */
-  function doNativeGrid(el) {
+  function process(el) {
     var me = Drupal.blazy.nativeGrid;
+    var $el = $(el);
     var style = _win.getComputedStyle(el);
     var gap = style.getPropertyValue('grid-row-gap');
     var rows = style.getPropertyValue('grid-auto-rows');
@@ -85,25 +91,25 @@
     }
 
     // The is-b-grid is flag to not re-do with VIS, views infinite scroll/ IO.
-    var items = $.findAll(el, '.grid:not(.is-b-grid)');
+    var items = $el.findAll('.grid:not(.is-b-grid)');
     if (items.length) {
-      $.forEach(items, doNativeGridItem);
+      $(items).each(processItem);
     }
 
     var resizeObserver = Drupal.blazy.isRo() ? new ResizeObserver(function (entries) {
-      $.forEach(entries, doNativeGridItem);
+      $(entries).each(processItem);
     }) : false;
 
     var blazies = el.getElementsByClassName('b-lazy');
     if (blazies.length) {
-      $.forEach(blazies, function (item) {
-        $.bindEvent(item, 'blazy.done', doNativeGridItem, false);
+      $(blazies).each(function (item) {
+        $(item).bindEvent(_done, processItem, false);
         if (resizeObserver) {
           resizeObserver.observe(item);
         }
       });
     }
-    $.addClass(el, _mounted);
+    $el.addClass(_mounted);
   }
 
   /**
@@ -116,7 +122,7 @@
 
       context = $.context(context);
 
-      $.once(doNativeGrid, _element, context);
+      $.once(process, _element, context);
     }
   };
 
