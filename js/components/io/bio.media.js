@@ -63,33 +63,32 @@
 
   _proto.lazyLoad = (function (_bio) {
     return function (el) {
-      var $el = $(el);
       // Image may take time to load after being hit, and it may be intersected
       // several times till marked loaded. Ensures it is hit once regardless
       // of being loaded, or not. No real issue with normal images on the page,
       // until having VIS alike which may spit out new images on AJAX request.
-      if ($el.hasAttr('data-bio-hit')) {
+      if ($.hasAttr(el, 'data-bio-hit')) {
         return;
       }
 
       var me = this;
-      var $parent = $(el.parentNode);
-      var isImage = $el.equal('img');
-      var isBg = $.isUnd(el.src) && $el.hasClass(me.options.bgClass);
-      var isPicture = $parent.length && $parent.equal('picture');
-      var isVideo = $el.equal('video');
+      var parent = el.parentNode;
+      var isImage = $.equal(el, 'img');
+      var isBg = $.isUnd(el.src) && $.hasClass(el, me.options.bgClass);
+      var isPicture = $.equal(parent, 'picture');
+      var isVideo = $.equal(el, 'video');
 
       // PICTURE elements.
       if (isPicture) {
-        $el.mapSource(_srcSet, true);
+        $.mapSource(el, _srcSet, true);
 
         // Tiny controller image inside picture element won't get preloaded.
-        $el.mapAttr(_src, true);
+        $.mapAttr(el, _src, true);
         me.loaded(el, me._ok);
       }
       // VIDEO elements.
       else if (isVideo) {
-        $el.mapSource(_src, true);
+        $.mapSource(el, _src, true);
         el.load();
         me.loaded(el, me._ok);
       }
@@ -100,15 +99,15 @@
         }
         // IFRAME elements, etc.
         else {
-          if ($el.attr(_dataSrc) && $el.hasAttr(_src)) {
-            $el.mapAttr(_src, true);
+          if ($.attr(el, _dataSrc) && $.hasAttr(el, _src)) {
+            $.mapAttr(el, _src, true);
             me.loaded(el, me._ok);
           }
         }
       }
 
       // Marks it hit/ requested. Not necessarily loaded.
-      $el.attr('data-bio-hit', 1);
+      $.attr(el, 'data-bio-hit', 1);
 
       return _b.apply(this, arguments);
     };
@@ -116,9 +115,8 @@
 
   _proto.setImage = function (el, isBg) {
     var me = this;
-    var $el = $(el);
     var img = new Image();
-    var isResimage = $el.hasAttr(_dataSrcset);
+    var isResimage = $.hasAttr(el, _dataSrcset);
 
     // Applies attributes regardless, will re-observe if any error.
     var applyAttrs = function () {
@@ -126,7 +124,7 @@
         me.bg(el);
       }
       else {
-        $el.mapAttr(_imgSources, false);
+        $.mapAttr(el, _imgSources, false);
       }
     };
 
@@ -136,7 +134,7 @@
       // Image decode fails with Responsive image, assumes ok, no side effects.
       me.loaded(el, ok ? me._ok : me._er);
       if (ok) {
-        $el.removeAttr(isBg ? _bgSources : _imgSources, 'data-');
+        $.removeAttr(el, isBg ? _bgSources : _imgSources, 'data-');
       }
     };
 
@@ -149,12 +147,12 @@
 
         // Allows to re-observe.
         if (!isResimage) {
-          $el.attr('data-bio-hit', null);
+          $.attr(el, 'data-bio-hit', null);
         }
       })
       .finally(function () {
         // Be sure to throttle, or debounce your method when calling this.
-        $el.trigger('bio.finally', {
+        $.trigger(el, 'bio.finally', {
           options: me.options
         });
       });
@@ -164,18 +162,17 @@
       img.decoding = 'async';
     }
 
-    img.src = $el.attr(isBg ? _bgSrc : _dataSrc);
+    img.src = $.attr(el, isBg ? _bgSrc : _dataSrc);
     if (isResimage) {
-      img.srcset = $el.attr(_dataSrcset);
+      img.srcset = $.attr(el, _dataSrcset);
     }
 
   };
 
   _proto.bg = function (el) {
-    var $el = $(el);
-    if ($el.hasAttr(_bgSrc)) {
-      el.style.backgroundImage = 'url("' + $el.attr(_bgSrc) + '")';
-      $el.attr(_src, null);
+    if ($.hasAttr(el, _bgSrc)) {
+      el.style.backgroundImage = 'url("' + $.attr(el, _bgSrc) + '")';
+      $.attr(el, _src, null);
     }
   };
 

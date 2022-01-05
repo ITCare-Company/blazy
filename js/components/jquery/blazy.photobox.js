@@ -27,7 +27,7 @@
       if ($.isElm(el)) {
         var caption = el.nextElementSibling;
         if (caption) {
-          var title = $(_context).find('#pbCaption .title');
+          var title = $.find(_context, '#pbCaption .title');
           if (title) {
             title.innerHTML = caption.innerHTML;
           }
@@ -40,7 +40,7 @@
       thumbAttr: 'data-thumb'
     }, callback);
 
-    $box.addClass(_mounted);
+    $.addClass(box, _mounted);
   }
 
   /**
@@ -55,15 +55,15 @@
 
       // Converts jQuery.photobox into dBlazy.photobox to demonstrate the new
       // dBlazy plugin system post Blazy 2.6.
-      if ($.isFun(jQuery.fn.photobox)) {
+      if ($.isFun(jQuery.fn.photobox) && !$.isFun($.fn.photobox)) {
         var _pb = jQuery.fn.photobox;
 
         $.fn.photobox = function (target, settings, callback) {
           return $(_pb.apply(this, arguments));
         };
-
-        $.once(process, _element, _context);
       }
+
+      $.once(process, _element, _context);
     }
   };
 

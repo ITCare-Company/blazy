@@ -14,15 +14,10 @@
   /**
    * Updates CSS background with multi-breakpoint images.
    *
-   * @name dBlazy.bg
-   *
    * @param {Element} el
    *   The container HTML element.
    * @param {Bool} mobileFirst
    *   Whether to use min-width or max-width.
-   *
-   * @return {dBlazy}
-   *   Returns this instance.
    */
   function bg(el, mobileFirst) {
     var data = $.parse($.attr(el, 'data-b-bg'));
@@ -41,25 +36,21 @@
         }
       }
     }
-    return this;
   }
 
+  $.bg = bg;
   $.fn.bg = function (mobileFirst) {
-    return $(this.each(function (el) {
-      bg.call(this, el, mobileFirst);
-    }));
+    var me = this;
+    return $.chain(function (el) {
+      bg($.isUnd(el) ? me[0] : el, mobileFirst);
+    });
   };
 
   /**
    * Removes common loading indicator classes.
    *
-   * @name dBlazy.unloading
-   *
    * @param {Element} el
    *   The loading HTML element.
-   *
-   * @return {dBlazy}
-   *   Returns this instance.
    */
   function unloading(el) {
     var _loading = 'loading';
@@ -75,64 +66,84 @@
         }
       }
     });
-    return this;
   }
 
+  $.unloading = unloading;
   $.fn.unloading = function () {
-    return this.each(function (el) {
-      return unloading.call(this, el);
+    var me = this;
+    return $.chain(function (el) {
+      unloading($.isUnd(el) ? me[0] : el);
     });
   };
 
   /**
    * Map attributes from data-BLAH to BLAH, and remove data-BLAH if so required.
    *
+   * @param {Element} el
+   *   The element.
    * @param {String|Array} attr
    *   The attr name, or string array.
    * @param {Bool} remove
    *   True if should remove the original/ temporary holder.
    */
-  $.fn.mapAttr = function (attr, remove) {
-    this.each(function (el) {
-      var _mapAttr = function (name) {
-        var dataAttr = 'data-' + name;
+  function mapAttr(el, attr, remove) {
+    var _mapAttr = function (name) {
+      var dataAttr = 'data-' + name;
 
-        if ($.hasAttr(el, dataAttr)) {
-          var value = $.attr(el, dataAttr);
-          $.attr(el, name, value);
+      if ($.hasAttr(el, dataAttr)) {
+        var value = $.attr(el, dataAttr);
+        $.attr(el, name, value);
 
-          if (remove) {
-            $.removeAttr(el, dataAttr);
-          }
+        if (remove) {
+          $.removeAttr(el, dataAttr);
         }
-      };
+      }
+    };
 
-      if ($.isArr(attr)) {
-        $.each(attr, _mapAttr);
-      }
-      else {
-        _mapAttr(attr);
-      }
+    if ($.isArr(attr)) {
+      $.each(attr, _mapAttr);
+    }
+    else {
+      _mapAttr(attr);
+    }
+  }
+
+  $.mapAttr = mapAttr;
+  $.fn.mapAttr = function (attr, remove) {
+    var me = this;
+    return $.chain(function (el) {
+      mapAttr($.isUnd(el) ? me[0] : el, attr, remove);
     });
   };
 
   /**
    * A simple attributes wrapper, looping based on sources (picture/ video).
    *
+   * @param {Element} el
+   *   The element.
    * @param {String} attr
    *   The attr name, can be SRC or SRCSET.
    * @param {Bool} remove
    *   True if should remove.
    */
-  $.fn.mapSource = function (attr, remove) {
-    this.each(function (el) {
+  function mapSource(el, attr, remove) {
+    if ($.isElm(el)) {
       var parent = el.parentNode;
       var isPicture = $.equal(parent, 'picture');
       var elms = (isPicture ? parent : el).getElementsByTagName('source');
 
       attr = attr || (isPicture ? 'srcset' : 'src');
+      if (elms.length) {
+        $(elms).mapAttr(attr, remove);
+      }
+    }
+  }
 
-      $(elms).mapAttr(attr, remove);
+  $.mapSource = mapSource;
+  $.fn.mapSource = function (attr, remove) {
+    var me = this;
+    return $.chain(function (el) {
+      mapSource($.isUnd(el) ? me[0] : el, attr, remove);
     });
   };
 

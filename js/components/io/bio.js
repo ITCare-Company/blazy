@@ -120,7 +120,7 @@
   };
 
   _proto.isLoaded = function (el) {
-    return $(el).hasClass(this.options.successClass);
+    return $.hasClass(el, this.options.successClass);
   };
 
   _proto.isValid = function (el) {
@@ -156,7 +156,7 @@
     }
 
     // Be sure to throttle, or debounce your method when calling this.
-    $(el).trigger('bio.intersecting', {
+    $.trigger(el, 'bio.intersecting', {
       options: opts
     });
 
@@ -200,7 +200,7 @@
     var me = this;
     var opts = me.options;
 
-    $(el).addClass(status === me._ok ? opts.successClass : opts.errorClass);
+    $.addClass(el, status === me._ok ? opts.successClass : opts.errorClass);
     me[status === me._ok ? 'success' : 'error'](el, status, parent);
   };
 
@@ -208,7 +208,7 @@
     var me = this;
 
     _bioTick = me.elms.length;
-    $(me.elms).each(function (entry) {
+    $.each(me.elms, function (entry) {
       // Only observes if not already loaded.
       if (!me.isLoaded(entry)) {
         me.observer.observe(entry);
@@ -220,6 +220,8 @@
     var me = this;
     var opts = me.options;
 
+    me.check();
+
     me.entries = entries;
     // Stop watching if already disconnected.
     if (_disconnected) {
@@ -227,7 +229,7 @@
     }
 
     // Load each on entering viewport.
-    $(entries).each(function (entry) {
+    $.each(entries, function (entry) {
       // Provides option such as to animate bg or elements regardless position.
       if ($.isFun(opts.observing)) {
         opts.observing(entry, observer, opts);
@@ -264,6 +266,17 @@
     }
   };
 
+  _proto.check = function () {
+    var me = this;
+
+    if (!_disconnected) {
+      var check = $.find(me.options.root || _doc, me.selector());
+      if ($.isNull(check) || check.length === 0) {
+        me.destroy(true);
+      }
+    }
+  };
+
   _proto.destroy = function (force) {
     var me = this;
     me.disconnect(force);
@@ -287,7 +300,7 @@
       threshold: opts.threshold
     };
 
-    me.elms = $(opts.root || _doc).findAll(me.selector());
+    me.elms = $.findAll(opts.root || _doc, me.selector());
     me.count = me.elms.length;
     me.windowWidth = $.windowWidth();
 

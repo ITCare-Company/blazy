@@ -20,21 +20,20 @@
    */
   function process(elm) {
     var cn = $.closest(elm, '.text-formatted') || $.closest(elm, '.field');
-    var $cn = $(cn);
-    if (!$.isElm(cn) || $cn.hasClass(_id)) {
+    if (!$.isElm(cn) || $.hasClass(cn, _id)) {
       return;
     }
 
-    $cn.addClass(_id)
+    $.addClass(cn, _id)
       .attr(_data + _id, '');
 
     // Not using elm is fine since this should be executed once.
-    var box = $cn.find('.litebox');
+    var box = $.find(cn, '.litebox');
     if ($.isElm(box)) {
-      var media = $.parse($(box).attr(_data + 'media'));
+      var media = $.parse($.attr(box, _data + 'media'));
       if ('id' in media) {
         var mid = media.id;
-        $cn.addClass(_id + '--' + mid)
+        $.addClass(cn, _id + '--' + mid)
           .attr(_data + mid + '-gallery', '');
       }
     }

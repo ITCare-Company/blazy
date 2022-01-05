@@ -32,7 +32,6 @@
    */
   Drupal.blazy = {
     context: null,
-    $context: null,
     init: null,
     instances: [],
     items: [],
@@ -62,33 +61,32 @@
 
     clearing: function (el) {
       var me = this;
-      var $el = $(el);
       var cn = $.closest(el, '.' + _media);
       var an = $.closest(el, '[' + _dataAnimation + ']');
 
       // Clear loading classes.
-      $el.unloading();
+      $.unloading(el);
 
       // Reevaluate the element for errors, or IE.
-      me.reevaluate($el);
+      me.reevaluate(el);
 
       // Container might be the el itself for BG, do not NULL check here.
       updateContainer.call(me, el, cn);
 
       // Supports blur, animate.css for CSS background, picture, image, media.
-      if (an || $el.hasAttr(_dataAnimation)) {
-        $(an || el).animate();
+      if (an || $.hasAttr(el, _dataAnimation)) {
+        $.animate(an || el);
       }
 
       // Provides event listeners for easy overrides without full overrides.
       // Runs before native to allow native use this on its own onload event.
-      $el.trigger(_id + '.done', {
+      $.trigger(el, _id + '.done', {
         options: me.options
       });
 
       // Initializes the native lazy loading once the first found is loaded.
       if (!_isNativeExecuted) {
-        me.$context.trigger(_id + '.native', {
+        $.trigger(me.context, _id + '.native', {
           options: me.options
         });
 
@@ -96,8 +94,8 @@
       }
     },
 
-    isLoaded: function ($el) {
-      return $el.hasClass(this.options[_successClass]);
+    isLoaded: function (el) {
+      return $.hasClass(el, this.options[_successClass]);
     },
 
     // Only do this to fix errors, revalidation.
@@ -106,20 +104,19 @@
 
       // DOM ready fix.
       _win.setTimeout(function () {
-        var elms = $(cn || _doc).findAll(me.selector());
+        var elms = $.findAll(cn || _doc, me.selector());
 
         if (elms.length) {
-          $(elms).each(me.update.bind(me));
+          $.each(elms, me.update.bind(me));
         }
       }, 100);
     },
 
     update: function (el, delayed) {
       var me = this;
-      var $el = $(el);
       var _update = function () {
-        if ($el.hasAttr(_dataBg)) {
-          $el.bg(me.options.mobileFirst);
+        if ($.hasAttr(el, _dataBg)) {
+          $.bg(el, me.options.mobileFirst);
         }
         else {
           if (me.init) {
@@ -138,14 +135,13 @@
       }
     },
 
-    reevaluate: function ($el) {
+    reevaluate: function (el) {
       var me = this;
-      var el = $el[0];
-      var ie = $el.hasClass('b-responsive') && $el.hasAttr(_data + '-pfsrc');
+      var ie = $.hasClass(el, 'b-responsive') && $.hasAttr(el, _data + '-pfsrc');
 
       // In case an error, try forcing it, once.
-      if ($el.hasClass(me.options[_errorClass]) && !$el.hasClass(_checked)) {
-        $el.addClass(_checked);
+      if ($.hasClass(el, me.options[_errorClass]) && !$.hasClass(el, _checked)) {
+        $.addClass(el, _checked);
 
         // This is a rare case, hardly called, just nice to have for errors.
         me.update(el, true);
@@ -173,18 +169,17 @@
      */
     fixDataUri: function () {
       var me = this;
-      var els = me.$context.findAll(me.selector('[src^="' + _image + '"]'));
+      var els = $.findAll(me.context, me.selector('[src^="' + _image + '"]'));
 
       var _fix = function (img) {
-        var $img = $(img);
-        var src = $img.attr(_src);
+        var src = $.attr(img, _src);
         if ($.contains(src, ['base64', 'svg+xml'])) {
-          $img.attr(_src, src.replace(_image, _data + ':' + _image));
+          $.attr(img, _src, src.replace(_image, _data + ':' + _image));
         }
       };
 
       if (els.length) {
-        $(els).each(_fix);
+        $.each(els, _fix);
       }
     },
 
@@ -204,9 +199,9 @@
         return;
       }
 
-      var $doc = me.$context;
+      var doc = me.context;
 
-      me.items = $doc.findAll(me.selector('[' + _loading + ']'));
+      me.items = $.findAll(doc, me.selector('[' + _loading + ']'));
       if ($.isEmpty(me.items)) {
         return;
       }
@@ -214,41 +209,39 @@
       var onNativeEvent = function (e) {
         var el = e.target;
         var er = e.type === 'error';
-        var $el = $(el);
 
         // Refines based on actual result, runs clearing, animation, etc.
-        $el.addClass(opts[er ? _errorClass : _successClass]);
+        $.addClass(el, opts[er ? _errorClass : _successClass]);
         me.clearing(el);
 
-        $el.unbindEvent(e.type, onNativeEvent);
+        $.unbindEvent(el, e.type, onNativeEvent);
       };
 
       var doNative = function (el) {
-        var $el = $(el);
         // Reset attributes, and let supportive browsers lazy load natively.
-        $el.mapAttr(['srcset', _src], true);
+        $.mapAttr(el, ['srcset', _src], true);
 
         // Also supports PICTURE or (future) VIDEO which contains SOURCEs.
-        $el.mapSource(false, true);
+        $.mapSource(el, false, true);
 
         // Blur thumbnail is just making use of the swap due to being small.
-        if ($el.hasClass('b-blur')) {
-          $el.attr(_loading, null);
+        if ($.hasClass(el, 'b-blur')) {
+          $.attr(el, _loading, null);
         }
         else {
           // Mark it loaded to prevent bLazy/ IO to do any further work.
-          $el.addClass(opts[_successClass]);
+          $.addClass(el, opts[_successClass]);
 
           // Attempts to make nice with the harsh native, defer clearing, etc.
-          $el.bindEvent('load error', onNativeEvent);
+          $.bindEvent(el, 'load error', onNativeEvent);
         }
       };
 
       var onNative = function () {
-        $(me.items).each(doNative);
+        $.each(me.items, doNative);
       };
 
-      $doc.one(_id + '.native', onNative);
+      $.one(doc, _id + '.native', onNative);
     },
 
     isNative: function () {
@@ -273,10 +266,9 @@
 
     afterInit: function () {
       var me = this;
-      var $doc = me.$context;
-      var doc = $doc[0];
+      var doc = me.context;
       var rObserver = false;
-      var ratioItems = $doc.find('.' + _media + '--ratio', true);
+      var ratioItems = $.find(doc, '.' + _media + '--ratio', true);
       var shouldLoop = ratioItems.length > 0;
 
       var loopRatio = function (entries) {
@@ -290,7 +282,7 @@
         }
 
         if (shouldLoop) {
-          $(entries).each(function (entry) {
+          $.each(entries, function (entry) {
             updateRatio.call(me, entry.target || entry);
           }, doc);
         }
@@ -308,7 +300,7 @@
       rObserver = checkRatio();
       if (rObserver) {
         if (shouldLoop) {
-          $(ratioItems).each(function (entry) {
+          $.each(ratioItems, function (entry) {
             rObserver.observe(entry);
           }, doc);
         }
@@ -331,11 +323,9 @@
     // Swap all aspect ratio once to reduce abrupt ratio changes for the rest.
     if (elms.length) {
       var picture = function (elm) {
-        var $elm = $(elm);
-
         if ((_dblazy in elm) && ('dbuniform' in elm)) {
           if ((elm.dblazy === cn.dblazy) && (_resizeTick > 1 || !('dbpicture' in elm))) {
-            $elm.trigger(_id + '.uniform.' + elm.dblazy, {
+            $.trigger(elm, _id + '.uniform.' + elm.dblazy, {
               pad: pad
             });
             elm.dbpicture = true;
@@ -344,7 +334,7 @@
       };
 
       // Uniform sizes must apply to each instance, not globally.
-      $(elms).each(function (elm) {
+      $.each(elms, function (elm) {
         Drupal.debounce(picture(elm), 201, true);
       }, me);
     }
@@ -367,8 +357,7 @@
     var me = this;
     // Blazy container (via formatter or Views style) is not always there.
     var el = $.closest(cn, '.' + _id);
-    var $cn = $(cn);
-    var dimensions = $.parse($cn.attr(_dataDimensions));
+    var dimensions = $.parse($.attr(cn, _dataDimensions));
 
     if (!dimensions) {
       fallbackRatio(cn);
@@ -376,7 +365,7 @@
     }
 
     // For picture, this is more a dummy space till the image is downloaded.
-    var isPicture = $cn.find(_picture) && _resizeTick > 0;
+    var isPicture = $.find(cn, _picture) && _resizeTick > 0;
     var pad = $.activeWidth(dimensions, isPicture);
 
     // Provides marker for grouping between multiple instances.
@@ -386,31 +375,28 @@
     }
 
     // Fix for picture or bg element with resizing.
-    if (_resizeTick > 0 && (isPicture || $cn.hasAttr(_dataBg))) {
-      updateContainer.call(me, (isPicture ? $cn.find('img') : cn), cn);
+    if (_resizeTick > 0 && (isPicture || $.hasAttr(cn, _dataBg))) {
+      updateContainer.call(me, (isPicture ? $.find(cn, 'img') : cn), cn);
     }
   }
 
   function fallbackRatio(cn) {
-    var $cn = $(cn);
-    var value = $cn.attr(_dataRatio);
+    var value = $.attr(cn, _dataRatio);
     // Only rewrites if the style is indeed stripped out by Twig, and not set.
-    if (!$cn.hasAttr('style') && value) {
+    if (!$.hasAttr(cn, 'style') && value) {
       cn.style.paddingBottom = value + '%';
     }
   }
 
   function updateContainer(el, cn) {
     var me = this;
-    var $el = $(el);
-    var $cn = $(cn);
-    var isPicture = $(el.parentNode).equal(_picture) && $cn.hasAttr(_dataDimensions);
+    var isPicture = $.equal(el.parentNode, _picture) && $.hasAttr(cn, _dataDimensions);
 
     // Fixed for effect Blur messes up Aspect ratio Fluid calculation.
     _win.setTimeout(function () {
-      if (me.isLoaded($el)) {
+      if (me.isLoaded(el)) {
         // Adds context for effetcs: blur, etc. considering BG, or just media.
-        $($cn.hasClass(_media) ? cn : el).addClass('is-b-loaded');
+        $.addClass($.hasClass(cn, _media) ? cn : el, 'is-b-loaded');
 
         // Only applies to ratio fluid.
         if (isPicture) {
@@ -418,8 +404,8 @@
         }
 
         // Basically makes multi-breakpoint BG work for IO or old bLazy once.
-        if ($el.hasAttr(_dataBg)) {
-          $el.bg(me.options.mobileFirst);
+        if ($.hasAttr(el, _dataBg)) {
+          $.bg(el, me.options.mobileFirst);
         }
       }
     });

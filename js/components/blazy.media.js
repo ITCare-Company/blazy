@@ -27,19 +27,16 @@
    *   The media player HTML element.
    */
   function process(el) {
-    var $el = $(el);
-    var $doc = $(_doc);
-    var iframe = $el.find(_iFrame);
-    var btn = $el.find(_elIconPlay);
+    var iframe = $.find(el, _iFrame);
+    var btn = $.find(el, _elIconPlay);
 
     // Media player toggler is disabled, just display iframe.
     if (!$.isElm(btn)) {
       return;
     }
 
-    var $btn = $(btn);
-    var url = $btn.attr(_dataUrl);
-    var title = $btn.attr(_dataIFrameTitle);
+    var url = $.attr(btn, _dataUrl);
+    var title = $.attr(btn, _dataIFrameTitle);
     var newIframe;
 
     /**
@@ -61,14 +58,12 @@
 
       var target = this;
       var player = target.parentNode;
-      var $player = $(player);
-      var playing = $doc.find('.' + _isPlaying);
-      var iframe = $player.find(_iFrame);
-      var video = $doc.find('video');
-      var $target = $(target);
+      var playing = $.find(_doc, '.' + _isPlaying);
+      var iframe = $.find(player, _iFrame);
+      var video = $.find(_doc, 'video');
 
-      url = $target.attr(_dataUrl);
-      title = $target.attr(_dataIFrameTitle);
+      url = $.attr(target, _dataUrl);
+      title = $.attr(target, _dataIFrameTitle);
 
       // First, reset any (local) video to avoid multiple videos from playing.
       if ($.isElm(video) && !video.paused) {
@@ -76,14 +71,14 @@
       }
 
       if ($.isElm(playing)) {
-        var played = $doc.find('.' + _isPlaying + ' ' + _iFrame);
+        var played = $.find(_doc, '.' + _isPlaying + ' ' + _iFrame);
         // Remove the previous iframe.
         $.remove(played);
         playing.className = playing.className.replace(/(\S+)playing/, '');
       }
 
       // Appends the iframe.
-      $player.addClass(_isPlaying);
+      $.addClass(player, _isPlaying);
 
       // Remove the existing iframe on the current clicked iframe.
       $.remove(iframe);
@@ -114,8 +109,7 @@
 
       var target = this;
       var player = target.parentNode;
-      var $player = $(player);
-      var iframe = $player.find(_iFrame);
+      var iframe = $.find(player, _iFrame);
 
       if (player.className.match(_isPlaying)) {
         player.className = player.className.replace(/(\S+)playing/, '');
@@ -129,12 +123,12 @@
     $.remove(iframe);
 
     // Plays the media player.
-    $el.on('click.' + _id, _elIconPlay, play);
+    $.on(el, 'click.' + _id, _elIconPlay, play);
 
     // Closes the video.
-    $el.on('click.' + _id, _elIconClose, stop);
+    $.on(el, 'click.' + _id, _elIconClose, stop);
 
-    $el.addClass(_mounted);
+    $.addClass(el, _mounted);
   }
 
   /**
@@ -149,18 +143,16 @@
    */
   Drupal.theme.blazyMedia = function (settings) {
     // PhotoSwipe5 has element, PhotoSwipe4 el, etc.
-    var elm = settings.el || settings.element;
-    var $el = $(elm);
-    var img = $.find(elm, 'img');
-    var $img = $(img);
-    var data = $.parse($el.attr('data-' + _md));
-    var alt = $.isElm(img) ? Drupal.checkPlain($img.attr('alt', 'Video preview', true)) : '';
+    var el = settings.el || settings.element;
+    var img = $.find(el, 'img');
+    var data = $.parse($.attr(el, 'data-' + _md));
+    var alt = $.isElm(img) ? Drupal.checkPlain($.attr(img, 'alt', 'Video preview', true)) : '';
     var width = data.width ? parseInt(data.width, 10) : 640;
     var height = data.height ? parseInt(data.height, 10) : 360;
     var pad = data ? ((height / width) * 100).toFixed(2) : 100;
-    var imgUrl = $el.attr('data-box-url');
-    var href = $el.attr('href');
-    var oembedUrl = $el.attr('data-oembed-url', href, true);
+    var imgUrl = $.attr(el, 'data-box-url');
+    var href = $.attr(el, 'href');
+    var oembedUrl = $.attr(el, 'data-oembed-url', href, true);
     var defClass = _md + '__image ' + _md + '__element';
     var imgClass = settings.imgClass ?
       defClass + ' ' + settings.imgClass :

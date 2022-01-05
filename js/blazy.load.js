@@ -20,7 +20,7 @@
    * @param {HTMLElement} context
    *   The documentElement.
    */
-  var initBlazy = function (context) {
+  var init = function (context) {
     var me = Drupal.blazy;
     var opts = {mobileFirst: false};
 
@@ -64,17 +64,16 @@
    */
   function process(elm) {
     var me = Drupal.blazy;
-    var $el = $(elm);
-    var opts = $.parse($el.attr('data-' + _id));
-    var isUniform = $el.hasClass(_id + '--field block-grid ' + _id + '--uniform');
+    var opts = $.parse($.attr(elm, 'data-' + _id));
+    var isUniform = $.hasClass(elm, _id + '--field block-grid ' + _id + '--uniform');
     var instance = (Math.random() * 10000).toFixed(0);
     var eventId = _id + '.uniform.' + instance;
-    var localItems = $el.findAll('.media--ratio');
+    var localItems = $.findAll(elm, '.media--ratio');
 
     me.options = $.extend(me.options, opts);
-    me.revalidate = me.revalidate || $el.hasClass(_id + '--revalidate');
+    me.revalidate = me.revalidate || $.hasClass(elm, _id + '--revalidate');
 
-    $el.addClass(_mounted);
+    $.addClass(elm, _mounted);
 
     elm.dblazy = instance;
 
@@ -88,7 +87,7 @@
       var pad = e.detail.pad || 0;
 
       if (pad > 10) {
-        $(localItems).each(function (cn) {
+        $.each(localItems, function (cn) {
           cn.style.paddingBottom = pad + '%';
         });
       }
@@ -97,7 +96,7 @@
     // Reduces abrupt ratio changes for the rest after the first loaded.
     // To support resizing, use debounce. To disable use {once: true}.
     if (isUniform && localItems.length) {
-      $el.bindEvent(eventId, swapRatio);
+      $.bindEvent(elm, eventId, swapRatio);
     }
   }
 
@@ -116,9 +115,7 @@
       var me = Drupal.blazy;
       var doc = $.context(context);
 
-      // @todo remove me.context for me.$context after another check.
       me.context = doc;
-      me.$context = $(doc);
 
       // Processes .blazy, if available, without initialization.
       // Initialization is not per container to also support IO with root.
@@ -126,7 +123,7 @@
       $.once(process, _element, doc);
 
       // Initializes blazy once as a global observer, not per container.
-      $.once(initBlazy, _elementGlobal, doc);
+      $.once(init, _elementGlobal, doc);
     }
   };
 

@@ -62,9 +62,8 @@
         els = [els];
       }
 
-      me.length = els.length;
-
-      for (var i = 0, l = this.length; i < l; i++) {
+      var len = me.length = els.length;
+      for (var i = 0; i < len; i++) {
         me[i] = els[i];
       }
     }
@@ -89,6 +88,30 @@
   if (isFun(_symbol)) {
     // Ensuring a db collection is iterable.
     fn[_symbol[_iterator]] = _aProto[_symbol[_iterator]];
+  }
+
+  /**
+   * Excecutes caback whether to chain or not.
+   *
+   * @private
+   *
+   * @param {Function} cb
+   *   The calback function.
+   * @param {Boolean} chained
+   *   If should chain, default true.
+   *
+   * @return {dBlazy|Mixed}
+   *   The dBlazy instance if hooked, else the callback result.
+   */
+  function chain(cb, chained) {
+    var me = this;
+    var len = me.length;
+
+    chained = isUnd(chained);
+    if (!len || len === 1) {
+      return chained ? db(cb) : cb();
+    }
+    return chained ? db(each(me, cb)) : each(me, cb);
   }
 
   /**
@@ -369,10 +392,11 @@
    */
   function each(collection, cb, scope) {
     var isInstance = isMe(collection);
+
     if (_oProto.toString.call(collection) === '[object Object]') {
       for (var prop in collection) {
         if (_oProto.hasOwnProperty.call(collection, prop)) {
-          if (isInstance && isNum(collection[prop])) {
+          if (isInstance && prop === 'length') {
             continue;
           }
           cb.call(scope, collection[prop], prop, collection);
@@ -380,7 +404,8 @@
       }
     }
     else if (collection) {
-      for (var i = 0, len = collection.length; i < len; i++) {
+      var len = collection.length;
+      for (var i = 0; i < len; i++) {
         cb.call(scope, collection[i], i, collection);
       }
     }
@@ -803,6 +828,23 @@
   function find(el, selector, asArray) {
     var elms = selector && isQuery(el) ? toElms(selector, el) : [];
     return elms.length === 1 && isUnd(asArray) ? elms[0] : elms;
+  }
+
+  /**
+   * A simple querySelectorAll wrapper.
+   *
+   * @private
+   *
+   * @param {Element} el
+   *   The parent HTML element.
+   * @param {String} selector
+   *   The CSS selector or HTML tag to query.
+   *
+   * @return {Array}
+   *   Empty array if not found, else the expected elements.
+   */
+  function findAll(el, selector) {
+    return find(el, selector, 1);
   }
 
   /**
@@ -1239,6 +1281,7 @@
   db.isQuery = isQuery;
 
   // Collection methods.
+  db.chain = chain.bind(db);
   db.extend = extend;
   fn.extend = function (plugins) {
     return extend(fn, plugins);
@@ -1269,9 +1312,10 @@
 
   db.removeAttr = removeAttr.bind(db);
   fn.removeAttr = function (attr, prefix) {
-    return db(this.each(function (el) {
-      removeAttr.call(this, el, attr, prefix);
-    }));
+    var me = this;
+    return db.chain(function (el) {
+      removeAttr(isUnd(el) ? me[0] : el, attr, prefix);
+    });
   };
 
   // Class name methods.
@@ -1284,23 +1328,26 @@
 
   db.addClass = addClass.bind(db);
   fn.addClass = function (name) {
-    return db(this.each(function (el) {
-      addClass.call(this, el, name);
-    }));
+    var me = this;
+    return db.chain(function (el) {
+      addClass(isUnd(el) ? me[0] : el, name);
+    });
   };
 
   db.removeClass = removeClass.bind(db);
   fn.removeClass = function (name) {
-    return db(this.each(function (el) {
-      removeClass.call(this, el, name);
-    }));
+    var me = this;
+    return db.chain(function (el) {
+      removeClass(isUnd(el) ? me[0] : el, name);
+    });
   };
 
   db.toggleClass = toggleClass.bind(db);
   fn.toggleClass = function (name) {
-    return db(this.each(function (el) {
-      toggleClass.call(this, el, name);
-    }));
+    var me = this;
+    return db.chain(function (el) {
+      toggleClass(isUnd(el) ? me[0] : el, name);
+    });
   };
 
   // String methods.
@@ -1323,8 +1370,9 @@
     return find(this[0], selector, asArray);
   };
 
+  db.findAll = findAll;
   fn.findAll = function (selector) {
-    return find(this[0], selector, 1);
+    return findAll(this[0], selector);
     // @todo multiple sources for multiple targets.
     // return this.each(function (el) {
     // els.push(find(el, selector, 1));
@@ -1346,37 +1394,42 @@
   // Event methods.
   db.on = on.bind(db);
   fn.on = function (eventName, selector, cb, params, isCustom) {
-    return db(this.each(function (el) {
-      on.call(this, el, eventName, selector, cb, params, isCustom);
-    }));
+    var me = this;
+    return db.chain(function (el) {
+      on.call(me, isUnd(el) ? me[0] : el, eventName, selector, cb, params, isCustom);
+    });
   };
 
   db.off = off.bind(db);
   fn.off = function (eventName, selector, cb, params, isCustom) {
-    return db(this.each(function (el) {
-      off.call(this, el, eventName, selector, cb, params, isCustom);
-    }));
+    var me = this;
+    return db.chain(function (el) {
+      off.call(me, isUnd(el) ? me[0] : el, eventName, selector, cb, params, isCustom);
+    });
   };
 
   db.bindEvent = bindEvent.bind(db);
   fn.bindEvent = function (eventName, cb, params, isCustom) {
-    return db(this.each(function (el) {
-      bindEvent.call(this, el, eventName, cb, params, isCustom);
-    }));
+    var me = this;
+    return db.chain(function (el) {
+      bindEvent.call(me, isUnd(el) ? me[0] : el, eventName, cb, params, isCustom);
+    });
   };
 
   db.unbindEvent = unbindEvent.bind(db);
   fn.unbindEvent = function (eventName, cb, params, isCustom) {
-    return db(this.each(function (el) {
-      unbindEvent.call(this, el, eventName, cb, params, isCustom);
-    }));
+    var me = this;
+    return db.chain(function (el) {
+      unbindEvent.call(me, isUnd(el) ? me[0] : el, eventName, cb, params, isCustom);
+    });
   };
 
   db.one = one.bind(db);
   fn.one = function (eventName, cb, isCustom) {
-    return db(this.each(function (el) {
-      one.call(this, el, eventName, cb, isCustom);
-    }));
+    var me = this;
+    return db.chain(function (el) {
+      one.call(me, isUnd(el) ? me[0] : el, eventName, cb, isCustom);
+    });
   };
 
   // Image methods.
@@ -1438,15 +1491,15 @@
    *   Returns this instance.
    */
   function animate(el, animation) {
+    var me = this;
     if (!isElm(el)) {
-      return this;
+      return me;
     }
 
     var _set = el.dataset;
 
     animation = animation || _set.animation;
 
-    var $el = db(el);
     var _ani = 'animation';
     var _animated = 'animated';
     var _aniEnd = _ani + 'end.' + animation;
@@ -1463,7 +1516,7 @@
       _ani + '-iteration-count'
     ];
 
-    $el.addClass(classes);
+    addClass(el, classes);
 
     each(['Duration', 'Delay', 'IterationCount'], function (key) {
       var _aniKey = _ani + key;
@@ -1474,20 +1527,20 @@
 
     // Supports both BG and regular image.
     var cn = closest(el, '.media') || el;
-    var bg = $el.hasClass('b-bg');
+    var bg = hasClass(el, 'b-bg');
     var blur = find(cn, _tmp);
     var isBlur = animation === _blur;
-    var $an = $el;
+    var an = el;
 
     // The animated blur is image not this container.
     if (isBlur && !bg) {
-      $an = db('.' + _bloaded + ':not(' + _tmp + ')', cn) || $an;
+      an = find(cn, '.' + _bloaded + ':not(' + _tmp + ')') || an;
     }
 
     function ended() {
-      $el.addClass('is-b-' + _animated)
-        .removeClass(classes)
-        .removeAttr(props, 'data-');
+      me.addClass(el, 'is-b-' + _animated)
+        .removeClass(el, classes)
+        .removeAttr(el, props, 'data-');
 
       each(props, function (key) {
         _style.removeProperty(key);
@@ -1496,14 +1549,16 @@
       remove(blur);
     }
 
-    $an.one(bg && isBlur ? _transEnd : _aniEnd, ended);
+    one(an, bg && isBlur ? _transEnd : _aniEnd, ended);
     return this;
   }
 
+  db.animate = animate.bind(db);
   fn.animate = function (animation) {
-    return db(this.each(function (el) {
-      animate.call(this, el, animation);
-    }));
+    var me = this;
+    return db.chain(function (el) {
+      animate.call(me, isUnd(el) ? me[0] : el, animation);
+    });
   };
 
   /**
@@ -1704,9 +1759,10 @@
 
   db.trigger = trigger.bind(db);
   fn.trigger = function (eventName, details, param) {
-    return db(this.each(function (el) {
-      trigger.call(this, el, eventName, details, param);
-    }));
+    var me = this;
+    return db.chain(function (el) {
+      trigger.call(me, isUnd(el) ? me[0] : el, eventName, details, param);
+    });
   };
 
   if (typeof exports !== 'undefined') {

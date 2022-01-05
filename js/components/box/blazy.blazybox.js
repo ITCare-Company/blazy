@@ -21,8 +21,6 @@
    * @namespace
    */
   Drupal.blazyBox = {
-    $body: $(_doc.body),
-    $el: null,
     el: null,
     options: {
       hideCloseBtn: false
@@ -36,18 +34,18 @@
      */
     open: function (settings) {
       var me = Drupal.blazyBox;
-      var $el = me.$el;
+      var el = me.el;
       var content = Drupal.theme('blazyBoxMedia', {
         data: settings
       });
 
-      Drupal.attachBehaviors($el[0]);
+      Drupal.attachBehaviors(el);
 
-      $el.removeClass(_visualyHidden)
+      $.removeClass(el, _visualyHidden)
         .attr(_ariaHidden, false)
         .find(_elContent).innerHTML = content;
 
-      me.$body.addClass(_isOpened);
+      $.addClass(_doc.body, _isOpened);
 
       me.check();
     },
@@ -56,7 +54,7 @@
      * Attach the blazyBox.
      */
     attach: function () {
-      if (!this.$body.find(_element)) {
+      if (!$.find(_doc.body, _element)) {
         // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
         _doc.body.insertAdjacentHTML('beforeend', Drupal.theme('blazyBox'));
       }
@@ -76,27 +74,27 @@
         e.preventDefault();
       }
 
-      me.$el.addClass(_visualyHidden)
+      $.addClass(me.el, _visualyHidden)
         .attr(_ariaHidden, true)
         .find(_elContent).innerHTML = '';
 
-      me.$body.removeClass(_isOpened);
+      $.removeClass(_doc.body, _isOpened);
     },
 
     check: function () {
       var me = this;
 
       if (me.options.hideCloseBtn) {
-        var close = me.$el.find(_element + '__close');
+        var close = $.find(me.el, _element + '__close');
         if (close) {
-          $(close).addClass(_visualyHidden);
+          $.addClass(close, _visualyHidden);
         }
       }
     },
 
     isOpened: function () {
       var me = Drupal.blazyBox;
-      return !me.$el.hasClass(_visualyHidden);
+      return !$.hasClass(me.el, _visualyHidden);
     }
   };
 
@@ -138,9 +136,8 @@
     // For future betterment, allows more complex data object than just url.
     if ($.isObj(data)) {
       var elm = data.el || data.element;
-      var $el = $(elm);
-      var href = $el.attr('href');
-      oembedUrl = $el.attr('data-oembed-url', href, true);
+      var href = $.attr(elm, 'href');
+      oembedUrl = $.attr(elm, 'data-oembed-url', href, true);
     }
 
     if (oembedUrl) {
@@ -160,13 +157,10 @@
    */
   function process(box) {
     var me = Drupal.blazyBox;
-    var $el = $(box);
 
-    // @todo remove after another check for $el.
     me.el = box;
-    me.$el = $el;
 
-    $el.on('click.' + _id, _element + '__close', me.close, true)
+    $.on(box, 'click.' + _id, _element + '__close', me.close, true)
       .addClass(_mounted);
   }
 

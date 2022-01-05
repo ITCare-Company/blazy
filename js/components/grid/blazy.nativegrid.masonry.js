@@ -41,32 +41,31 @@
   function processItem(el) {
     var me = Drupal.blazy.nativeGrid;
     var target = el.target;
-    var $target = $(target);
     var box = 'target' in el ? $.closest(target, '.grid') : el;
 
     if (!$.isElm(box)) {
       return;
     }
 
-    var $box = $(box);
-    var cn = $box.find('.grid__content');
+    var cn = $.find(box, '.grid__content');
 
     if ($.isElm(cn)) {
       if (me.gap === 0) {
         me.gap = 0.0001;
       }
+
       _win.setTimeout(function () {
         var rect = cn.getBoundingClientRect();
         var span = Math.ceil((rect.height + me.gap) / (me.height + me.gap));
 
         // Sets the grid row span based on content and gap height.
         box.style.gridRowEnd = 'span ' + span;
-        $box.addClass('is-b-grid');
+        $.addClass(box, 'is-b-grid');
       }, 600);
     }
 
     if (target && (el.type && el.type === _done)) {
-      $target.unbindEvent(_done, processItem, false);
+      $.unbindEvent(target, _done, processItem, false);
     }
   }
 
@@ -78,7 +77,6 @@
    */
   function process(el) {
     var me = Drupal.blazy.nativeGrid;
-    var $el = $(el);
     var style = _win.getComputedStyle(el);
     var gap = style.getPropertyValue('grid-row-gap');
     var rows = style.getPropertyValue('grid-auto-rows');
@@ -91,25 +89,25 @@
     }
 
     // The is-b-grid is flag to not re-do with VIS, views infinite scroll/ IO.
-    var items = $el.findAll('.grid:not(.is-b-grid)');
+    var items = $.findAll(el, '.grid:not(.is-b-grid)');
     if (items.length) {
-      $(items).each(processItem);
+      $.each(items, processItem);
     }
 
     var resizeObserver = Drupal.blazy.isRo() ? new ResizeObserver(function (entries) {
-      $(entries).each(processItem);
+      $.each(entries, processItem);
     }) : false;
 
     var blazies = el.getElementsByClassName('b-lazy');
     if (blazies.length) {
-      $(blazies).each(function (item) {
-        $(item).bindEvent(_done, processItem, false);
+      $.each(blazies, function (item) {
+        $.bindEvent(item, _done, processItem, false);
         if (resizeObserver) {
           resizeObserver.observe(item);
         }
       });
     }
-    $el.addClass(_mounted);
+    $.addClass(el, _mounted);
   }
 
   /**
