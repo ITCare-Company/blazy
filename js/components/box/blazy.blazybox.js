@@ -22,6 +22,7 @@
    */
   Drupal.blazyBox = {
     el: null,
+    $el: null,
     options: {
       hideCloseBtn: false
     },
@@ -34,30 +35,20 @@
      */
     open: function (settings) {
       var me = Drupal.blazyBox;
-      var el = me.el;
+      var $el = me.$el;
       var content = Drupal.theme('blazyBoxMedia', {
         data: settings
       });
 
-      Drupal.attachBehaviors(el);
+      Drupal.attachBehaviors($el[0]);
 
-      $.removeClass(el, _visualyHidden)
+      $el.removeClass(_visualyHidden)
         .attr(_ariaHidden, false)
         .find(_elContent).innerHTML = content;
 
       $.addClass(_doc.body, _isOpened);
 
       me.check();
-    },
-
-    /**
-     * Attach the blazyBox.
-     */
-    attach: function () {
-      if (!$.find(_doc.body, _element)) {
-        // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
-        _doc.body.insertAdjacentHTML('beforeend', Drupal.theme('blazyBox'));
-      }
     },
 
     /**
@@ -68,33 +59,46 @@
      */
     close: function (e) {
       var me = Drupal.blazyBox;
+      var $el = me.$el;
 
       // Allows calling this directly.
       if (!$.isUnd(e)) {
         e.preventDefault();
       }
 
-      $.addClass(me.el, _visualyHidden)
+      $el.addClass(_visualyHidden)
         .attr(_ariaHidden, true)
         .find(_elContent).innerHTML = '';
 
       $.removeClass(_doc.body, _isOpened);
+
+      Drupal.detachBehaviors($el[0]);
     },
 
     check: function () {
       var me = this;
 
       if (me.options.hideCloseBtn) {
-        var close = $.find(me.el, _element + '__close');
-        if (close) {
+        var close = me.$el.find(_element + '__close');
+        if ($.isElm(close)) {
           $.addClass(close, _visualyHidden);
         }
       }
     },
 
+    /**
+     * Attach the blazyBox.
+     */
+    attach: function () {
+      if (!$.isElm($.find(_doc.body, _element))) {
+        // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
+        _doc.body.insertAdjacentHTML('beforeend', Drupal.theme('blazyBox'));
+      }
+    },
+
     isOpened: function () {
       var me = Drupal.blazyBox;
-      return !$.hasClass(me.el, _visualyHidden);
+      return !me.$el.hasClass(_visualyHidden);
     }
   };
 
@@ -140,7 +144,7 @@
       oembedUrl = $.attr(elm, 'data-oembed-url', href, true);
     }
 
-    if (oembedUrl) {
+    if ($.isStr(oembedUrl)) {
       html += '<iframe src="' + oembedUrl + '" width="100%" height="100%" allowfullscreen></iframe>';
     }
 
@@ -152,15 +156,18 @@
   /**
    * BlazyBox utility functions.
    *
-   * @param {HTMLElement} box
+   * @param {HTMLElement} el
    *   The blazybox HTML element.
    */
-  function process(box) {
+  function process(el) {
     var me = Drupal.blazyBox;
+    var $el = $(el);
 
-    me.el = box;
+    // @todo remove for me.$el after sub-modules update.
+    me.el = el;
+    me.$el = $el;
 
-    $.on(box, 'click.' + _id, _element + '__close', me.close, true)
+    $el.on('click.' + _id, _element + '__close', me.close, true)
       .addClass(_mounted);
   }
 

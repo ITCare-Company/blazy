@@ -268,7 +268,7 @@
       var me = this;
       var doc = me.context;
       var rObserver = false;
-      var ratioItems = $.find(doc, '.' + _media + '--ratio', true);
+      var ratioItems = $.findAll(doc, '.' + _media + '--ratio');
       var shouldLoop = ratioItems.length > 0;
 
       var loopRatio = function (entries) {
@@ -365,7 +365,7 @@
     }
 
     // For picture, this is more a dummy space till the image is downloaded.
-    var isPicture = $.find(cn, _picture) && _resizeTick > 0;
+    var isPicture = $.find(cn, _picture).length && _resizeTick > 0;
     var pad = $.activeWidth(dimensions, isPicture);
 
     // Provides marker for grouping between multiple instances.

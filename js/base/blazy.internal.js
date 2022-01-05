@@ -18,6 +18,9 @@
    *   The container HTML element.
    * @param {Bool} mobileFirst
    *   Whether to use min-width or max-width.
+   *
+   * @return {Object}
+   *   This dBlazy object.
    */
   function bg(el, mobileFirst) {
     var data = $.parse($.attr(el, 'data-b-bg'));
@@ -36,13 +39,14 @@
         }
       }
     }
+    return this;
   }
 
   $.bg = bg;
   $.fn.bg = function (mobileFirst) {
     var me = this;
-    return $.chain(function (el) {
-      bg($.isUnd(el) ? me[0] : el, mobileFirst);
+    return me.chain(function (el) {
+      return bg.call(me, el, mobileFirst);
     });
   };
 
@@ -51,6 +55,9 @@
    *
    * @param {Element} el
    *   The loading HTML element.
+   *
+   * @return {Object}
+   *   This dBlazy object.
    */
   function unloading(el) {
     var _loading = 'loading';
@@ -66,14 +73,12 @@
         }
       }
     });
+    return this;
   }
 
   $.unloading = unloading;
   $.fn.unloading = function () {
-    var me = this;
-    return $.chain(function (el) {
-      unloading($.isUnd(el) ? me[0] : el);
-    });
+    return this.chain(unloading.bind(this));
   };
 
   /**
@@ -85,6 +90,9 @@
    *   The attr name, or string array.
    * @param {Bool} remove
    *   True if should remove the original/ temporary holder.
+   *
+   * @return {Object}
+   *   This dBlazy object.
    */
   function mapAttr(el, attr, remove) {
     var _mapAttr = function (name) {
@@ -106,13 +114,14 @@
     else {
       _mapAttr(attr);
     }
+    return this;
   }
 
   $.mapAttr = mapAttr;
   $.fn.mapAttr = function (attr, remove) {
     var me = this;
-    return $.chain(function (el) {
-      mapAttr($.isUnd(el) ? me[0] : el, attr, remove);
+    return me.chain(function (el) {
+      return mapAttr.call(me, el, attr, remove);
     });
   };
 
@@ -125,6 +134,9 @@
    *   The attr name, can be SRC or SRCSET.
    * @param {Bool} remove
    *   True if should remove.
+   *
+   * @return {Object}
+   *   This dBlazy object.
    */
   function mapSource(el, attr, remove) {
     if ($.isElm(el)) {
@@ -137,13 +149,14 @@
         $(elms).mapAttr(attr, remove);
       }
     }
+    return this;
   }
 
   $.mapSource = mapSource;
   $.fn.mapSource = function (attr, remove) {
     var me = this;
-    return $.chain(function (el) {
-      mapSource($.isUnd(el) ? me[0] : el, attr, remove);
+    return me.chain(function (el) {
+      return mapSource.call(me, el, attr, remove);
     });
   };
 
