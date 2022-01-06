@@ -69,15 +69,16 @@
     }
 
     dBlazy.prototype.init = function (selector, context) {
+      var instance = new dBlazy(selector, context);
       if (isElm(selector)) {
         if (!selector.idblazy) {
-          selector.idblazy = new dBlazy(selector, context);
+          selector.idblazy = instance;
         }
 
         return selector.idblazy;
       }
 
-      return new dBlazy(selector, context);
+      return instance;
     };
 
     return dBlazy;
@@ -113,7 +114,9 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining
    */
   function chain(cb) {
-    var me = isMe(this) ? this : db(this);
+    var me = this;
+    // Ok, this is insanely me.
+    me = isMe(me) ? me : db(me);
     var ln = me.length;
 
     if (!ln || ln === 1) {
@@ -223,6 +226,11 @@
   /**
    * Returns true if the x is a null.
    *
+   * To those curious why this very simple comparasion has a method, check
+   * out the minified one. It is called 7 times here, but called once at the
+   * minifid one to just 1 character + 7 (`=== null`) = 14, saving many byte
+   * codes. Otherwise `=== null` x 7 chracters = 49.
+   *
    * @private
    *
    * @param {Mixed} x
@@ -331,8 +339,7 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
    */
   function isQuery(x) {
-    var type = !!x && x.nodeType ? x.nodeType : false;
-    return type && (type === 1 || type === 9 || type === 11);
+    return [1, 9, 11].indexOf(!!x && x.nodeType) !== -1;
   }
 
   /**
@@ -480,6 +487,7 @@
    *   The attribute value, or fallback, for getters, or this for setters.
    */
   function _attr(els, attr, defValue, withDefault) {
+    var me = this;
     var _undefined = isUnd(defValue);
     var _getter = _undefined || isBool(withDefault);
     var prefix = isStr(withDefault) ? withDefault : '';
@@ -496,8 +504,9 @@
 
     var chainCallback = function (el) {
       if (!isQuery(el)) {
-        return _getter ? '' : this;
+        return _getter ? '' : me;
       }
+
       // Passing a key-value pair object means setting multiple attributes once.
       if (isObj(attr)) {
         each(attr, function (value, key) {
@@ -512,12 +521,14 @@
       }
       else {
         // Else a setter.
-        if (attr === 'src') {
-          // To minimize unnecessary mutations.
-          el.src = defValue;
-        }
-        else {
-          el.setAttribute(attr, defValue);
+        if (isStr(attr)) {
+          if (attr === 'src') {
+            // To minimize unnecessary mutations.
+            el.src = defValue;
+          }
+          else {
+            el.setAttribute(attr, defValue);
+          }
         }
       }
     };
@@ -921,7 +932,8 @@
    *
    * When being resized, the browser gave no data about pixel ratio from desktop
    * to mobile, not vice versa. Unless delayed for 4s+, not less, which is of
-   * course unacceptable.
+   * course unacceptable. Hence why Blazy never claims to support resizing. The
+   * best efforts were provided using ResizeObserver since 2.2. including this.
    *
    * @param {Object} dataset
    *   The dataset object must be keyed by window width.
@@ -938,7 +950,7 @@
     var xl = keys[keys.length - 1];
     var ww = winData.ww || windowWidth();
     var pr = (ww * pixelRatio());
-    var rw = mobileFirst ? windowWidth() : pr;
+    var rw = mobileFirst ? ww : pr;
     var mw = function (w) {
       // The picture wants <= (approximate), non-picture wants >=, wtf.
       return mobileFirst ? parseInt(w, 10) <= rw : parseInt(w, 10) >= rw;
@@ -1445,7 +1457,7 @@
     return findAll(this[0], selector);
     // @todo multiple sources for multiple targets.
     // return this.each(function (el) {
-    // els.push(find(el, selector, 1));
+    // els.push(findAll(el, selector));
     // });
   };
 
@@ -1668,7 +1680,7 @@
     }
     else {
       // If extra arguments are provided, assumes regular loop over elements.
-      els = find(context || _doc, selector, 1);
+      els = findAll(context || _doc, selector);
       if (els.length) {
         _once(each(els, cb));
       }
