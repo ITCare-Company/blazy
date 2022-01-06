@@ -25,7 +25,6 @@
   var _remove = 'remove';
   var _iterator = 'iterator';
   var _events = {};
-  var _noop = function () {};
 
   /**
    * Object for public APIs where dBlazy stands for drupalBlazy.
@@ -50,7 +49,7 @@
       var els = selector;
       if (isStr(selector)) {
         var ctx = (isMe(context) ? context[0] : context) || _doc;
-        els = find(ctx, selector, 1);
+        els = findAll(ctx, selector);
         if (isEmpty(els)) {
           return;
         }
@@ -70,6 +69,14 @@
     }
 
     dBlazy.prototype.init = function (selector, context) {
+      if (isElm(selector)) {
+        if (!selector.idblazy) {
+          selector.idblazy = new dBlazy(selector, context);
+        }
+
+        return selector.idblazy;
+      }
+
       return new dBlazy(selector, context);
     };
 
@@ -78,11 +85,12 @@
 
   // Cache our prototype.
   var fn = dBlazy.prototype;
-  // Alias instantiation for a shortcut.
+  // Alias instantiation for a shortcut like jQuery $(selector, context).
   var db = fn.init;
   db.fn = db.prototype = fn;
 
   fn.length = 0;
+
   // Ensuring a db collection gets printed as array-like in Chrome's devtools.
   fn.splice = _splice;
 
@@ -99,17 +107,23 @@
    * @param {Function} cb
    *   The calback function.
    *
-   * @return {Function|Array|Mixed}
-   *   The callback result.
+   * @return {Object}
+   *   The current dBlazy collection object.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining
    */
   function chain(cb) {
-    var me = this;
-    var len = me.length;
+    var me = isMe(this) ? this : db(this);
+    var ln = me.length;
 
-    if (!len || len === 1) {
-      return len ? cb.call(me, me[0]) : _noop;
+    if (!ln || ln === 1) {
+      cb(me[0]);
     }
-    return me.each(cb);
+    else {
+      me.each(cb);
+    }
+
+    return me;
   }
 
   /**
@@ -199,6 +213,8 @@
    *
    * @return {Bool}
    *   True if null or empty array.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
    */
   function isEmpty(x) {
     return isNull(x) || isUnd(x) || x === false || (x.length && x.length === 0);
@@ -451,8 +467,8 @@
    *
    * @private
    *
-   * @param {Element} el
-   *   The HTML element.
+   * @param {Element} els
+   *   The HTML element(s).
    * @param {String|Object} attr
    *   The attr name, can be a string or object.
    * @param {String} defValue
@@ -463,48 +479,50 @@
    * @return {Object|String}
    *   The attribute value, or fallback, for getters, or this for setters.
    */
-  function _attr(el, attr, defValue, withDefault) {
+  function _attr(els, attr, defValue, withDefault) {
     var _undefined = isUnd(defValue);
     var _getter = _undefined || isBool(withDefault);
-
-    if (!isQuery(el)) {
-      return _getter ? '' : this;
-    }
-
-    // Passing a key-value pair object means setting multiple attributes once.
     var prefix = isStr(withDefault) ? withDefault : '';
-    if (isObj(attr)) {
-      each(attr, function (value, key) {
-        el.setAttribute(prefix + key, value);
-      });
-    }
-    // Since an attribute value null makes no sense, assumes nullify.
-    else if (isNull(defValue)) {
-      each(toArray(attr), function (value) {
-        el.removeAttribute(prefix + value);
-      });
-    }
-    else {
-      // No defValue defined, or withDefault set, means a getter.
-      if (_getter) {
-        if (_undefined) {
-          defValue = '';
-        }
-        return hasAttr(el, attr) ? el.getAttribute(attr) : defValue;
-      }
 
-      // Else a setter.
-      if (attr === 'src') {
-        // To minimize unnecessary mutations.
-        el.src = defValue;
+    // No defValue defined, or withDefault set, means a getter.
+    if (_getter) {
+      // @todo figure out multi-element getters. Ok for now, as hardly multiple.
+      var el = els.length ? els[0] : els;
+      if (_undefined) {
+        defValue = '';
+      }
+      return hasAttr(el, attr) ? el.getAttribute(attr) : defValue;
+    }
+
+    var chainCallback = function (el) {
+      if (!isQuery(el)) {
+        return _getter ? '' : this;
+      }
+      // Passing a key-value pair object means setting multiple attributes once.
+      if (isObj(attr)) {
+        each(attr, function (value, key) {
+          el.setAttribute(prefix + key, value);
+        });
+      }
+      // Since an attribute value null makes no sense, assumes nullify.
+      else if (isNull(defValue)) {
+        each(toArray(attr), function (value) {
+          el.removeAttribute(prefix + value);
+        });
       }
       else {
-        el.setAttribute(attr, defValue);
+        // Else a setter.
+        if (attr === 'src') {
+          // To minimize unnecessary mutations.
+          el.src = defValue;
+        }
+        else {
+          el.setAttribute(attr, defValue);
+        }
       }
-    }
+    };
 
-    // For chaining.
-    return this;
+    return chain.call(els, chainCallback);
   }
 
   /**
@@ -529,8 +547,8 @@
    *
    * @private
    *
-   * @param {Element} el
-   *   The HTML element.
+   * @param {Element} els
+   *   The HTML element(s).
    * @param {String|Array} attr
    *   The attr name, or string array.
    * @param {String} prefix
@@ -539,8 +557,8 @@
    * @return {Object}
    *   This dBlazy object.
    */
-  function removeAttr(el, attr, prefix) {
-    return _attr.call(this, el, attr, null, prefix || '');
+  function removeAttr(els, attr, prefix) {
+    return _attr(els, attr, null, prefix || '');
   }
 
   /**
@@ -576,8 +594,8 @@
    *
    * @private
    *
-   * @param {Element} el
-   *   The HTML element.
+   * @param {Element} els
+   *   The HTML element(s).
    * @param {String} name
    *   The class name, or space-delimited class names.
    * @param {String} op
@@ -586,22 +604,24 @@
    * @return {Object}
    *   This dBlazy object.
    */
-  function toggleClass(el, name, op) {
-    if (isQuery(el) && isStr(name)) {
-      var _list = el.classList;
-      var names = name.split(' ');
-      if (el && _list) {
-        if (isUnd(op)) {
-          names.map(function (value) {
-            _list.toggle(value);
-          });
-        }
-        else {
-          _list[op].apply(_list, names);
+  function toggleClass(els, name, op) {
+    var chainCallback = function (el) {
+      if (isQuery(el) && isStr(name)) {
+        var _list = el.classList;
+        var names = name.split(' ');
+        if (el && _list) {
+          if (isUnd(op)) {
+            names.map(function (value) {
+              _list.toggle(value);
+            });
+          }
+          else {
+            _list[op].apply(_list, names);
+          }
         }
       }
-    }
-    return this;
+    };
+    return chain.call(els, chainCallback);
   }
 
   /**
@@ -609,16 +629,16 @@
    *
    * @private
    *
-   * @param {Element} el
-   *   The HTML element.
+   * @param {Element} els
+   *   The HTML element(s).
    * @param {String} name
    *   The class name, or space-delimited class names.
    *
    * @return {Object}
    *   This dBlazy object.
    */
-  function addClass(el, name) {
-    return toggleClass.call(this, el, name, _add);
+  function addClass(els, name) {
+    return toggleClass(els, name, _add);
   }
 
   /**
@@ -626,16 +646,16 @@
    *
    * @private
    *
-   * @param {Element} el
-   *   The HTML element.
+   * @param {Element} els
+   *   The HTML element(s).
    * @param {String} name
    *   The class name, or space-delimited class names.
    *
    * @return {Object}
    *   This dBlazy object.
    */
-  function removeClass(el, name) {
-    return toggleClass.call(this, el, name, _remove);
+  function removeClass(els, name) {
+    return toggleClass(els, name, _remove);
   }
 
   /**
@@ -803,8 +823,10 @@
    *   Empty array if not found, else the expected element(s).
    */
   function find(el, selector, asArray) {
-    var elms = isStr(selector) && isQuery(el) ? toElms(selector, el) : [];
-    return elms.length === 1 && isUnd(asArray) ? elms[0] : elms;
+    if (isStr(selector) && isQuery(el)) {
+      return isUnd(asArray) ? (el.querySelector(selector) || []) : toElms(selector, el);
+    }
+    return [];
   }
 
   /**
@@ -903,28 +925,30 @@
    *
    * @param {Object} dataset
    *   The dataset object must be keyed by window width.
-   * @param {Bool} mobileFirst
-   *   Whether to use min-width, or max-width.
+   * @param {Object} winData
+   *   Containing ww: windowWidth, and up: to use min-width or max-width.
    *
    * @return {Mixed}
    *   Returns data from the current active window.
    */
-  function activeWidth(dataset, mobileFirst) {
+  function activeWidth(dataset, winData) {
+    var mobileFirst = winData.up || false;
     var keys = Object.keys(dataset);
     var xs = keys[0];
     var xl = keys[keys.length - 1];
-    var pr = (windowWidth() * pixelRatio());
-    var ww = mobileFirst ? windowWidth() : pr;
+    var ww = winData.ww || windowWidth();
+    var pr = (ww * pixelRatio());
+    var rw = mobileFirst ? windowWidth() : pr;
     var mw = function (w) {
       // The picture wants <= (approximate), non-picture wants >=, wtf.
-      return mobileFirst ? parseInt(w, 10) <= ww : parseInt(w, 10) >= ww;
+      return mobileFirst ? parseInt(w, 10) <= rw : parseInt(w, 10) >= rw;
     };
 
     var data = keys.filter(mw).map(function (v) {
       return dataset[v];
     })[mobileFirst ? 'pop' : 'shift']();
 
-    return isUnd(data) ? dataset[ww >= xl ? xl : xs] : data;
+    return isUnd(data) ? dataset[rw >= xl ? xl : xs] : data;
   }
 
   /**
@@ -932,7 +956,7 @@
    *
    * @private
    *
-   * @param {Element} el
+   * @param {Element} els
    *   The parent HTML element.
    * @param {String} eventName
    *   The event name to trigger.
@@ -948,8 +972,8 @@
    * @return {Object}
    *   This dBlazy object.
    */
-  function on(el, eventName, selector, cb, params, isCustom) {
-    return onoff.call(this, _add, el, eventName, selector, cb, params, isCustom);
+  function on(els, eventName, selector, cb, params, isCustom) {
+    return onoff(els, eventName, selector, cb, params, isCustom, _add);
   }
 
   /**
@@ -957,8 +981,8 @@
    *
    * @private
    *
-   * @param {Element} el
-   *   The parent HTML element.
+   * @param {Element} els
+   *   The parent HTML element(s).
    * @param {String} eventName
    *   The event name to trigger.
    * @param {String} selector
@@ -973,8 +997,8 @@
    * @return {Object}
    *   This dBlazy object.
    */
-  function off(el, eventName, selector, cb, params, isCustom) {
-    return onoff.call(this, _remove, el, eventName, selector, cb, params, isCustom);
+  function off(els, eventName, selector, cb, params, isCustom) {
+    return onoff(els, eventName, selector, cb, params, isCustom, _remove);
   }
 
   /**
@@ -982,8 +1006,8 @@
    *
    * @private
    *
-   * @param {Element} el
-   *   The HTML element.
+   * @param {Element} els
+   *   The HTML element(s).
    * @param {String} eventName
    *   The event name to remove.
    * @param {Function} cb
@@ -996,8 +1020,8 @@
    * @return {Object}
    *   This dBlazy object.
    */
-  function bindEvent(el, eventName, cb, params, isCustom) {
-    return toEvent.call(this, _add, el, eventName, cb, params, isCustom);
+  function bindEvent(els, eventName, cb, params, isCustom) {
+    return toEvent(els, eventName, cb, params, isCustom, _add);
   }
 
   /**
@@ -1005,8 +1029,8 @@
    *
    * @private
    *
-   * @param {Element} el
-   *   The HTML element.
+   * @param {Element} els
+   *   The HTML element(s).
    * @param {String} eventName
    *   The event name to remove.
    * @param {Function} cb
@@ -1019,8 +1043,8 @@
    * @return {Object}
    *   This dBlazy object.
    */
-  function unbindEvent(el, eventName, cb, params, isCustom) {
-    return toEvent.call(this, _remove, el, eventName, cb, params, isCustom);
+  function unbindEvent(els, eventName, cb, params, isCustom) {
+    return toEvent(els, eventName, cb, params, isCustom, _remove);
   }
 
   /**
@@ -1028,7 +1052,7 @@
    *
    * @private
    *
-   * @param {Element} el
+   * @param {Element} els
    *   The HTML element.
    * @param {String} eventName
    *   The event name to remove.
@@ -1040,8 +1064,8 @@
    * @return {Object}
    *   This dBlazy object.
    */
-  function one(el, eventName, cb, isCustom) {
-    return bindEvent.call(this, el, eventName, cb, {
+  function one(els, eventName, cb, isCustom) {
+    return bindEvent(els, eventName, cb, {
       once: true
     }, isCustom);
   }
@@ -1056,6 +1080,8 @@
    *
    * @return {Bool}
    *   True if the image is loaded.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
    */
   function isDecoded(img) {
     return img.decoded || img.complete;
@@ -1110,14 +1136,12 @@
   }
 
   /**
-   * A simple wrapper for the namespaced [add|remove]EventListener.
+   * A not wrapper for the namespaced [add|remove]EventListener.
    *
    * @private
    *
-   * @param {String} op
-   *   Whether to add or remove the event.
-   * @param {Element} el
-   *   The HTML element.
+   * @param {Element} els
+   *   The HTML element(s).
    * @param {String} eventName
    *   The event name, optionally namespaced, to add or remove.
    * @param {Function} cb
@@ -1126,6 +1150,8 @@
    *   The optional param passed into a custom event.
    * @param {Bool} isCustom
    *   Like namespaced, but not to be namespaced since LHS is not any event.
+   * @param {String} op
+   *   Whether to add or remove the event.
    *
    * @return {Object}
    *   This dBlazy object.
@@ -1133,54 +1159,57 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
    * @see https://caniuse.com/once-event-listener
    */
-  function toEvent(op, el, eventName, cb, params, isCustom) {
-    if (!isEvt(el) || !cb) {
-      return this;
-    }
+  function toEvent(els, eventName, cb, params, isCustom, op) {
+    var chainCallback = function (el) {
+      if (!isEvt(el)) {
+        return;
+      }
 
-    var defaults = {
-      capture: false,
-      passive: true
-    };
+      var defaults = {
+        capture: false,
+        passive: true
+      };
 
-    var _one = false;
-    var options = params || false;
-    if (isObj(params)) {
-      options = extend(defaults, params);
-      _one = options.once || false;
-    }
+      var _one = false;
+      var options = params || false;
+      if (isObj(params)) {
+        options = extend(defaults, params);
+        _one = options.once || false;
+      }
 
-    var process = function (e) {
-      isCustom = isCustom || startsWith(e, ['blazy.', 'bio.']);
-      var add = op === _add;
-      var type = (isCustom ? e : e.split('.')[0]).trim();
-      cb = cb || _events[e];
+      var process = function (e) {
+        isCustom = isCustom || startsWith(e, ['blazy.', 'bio.']);
+        var add = op === _add;
+        var type = (isCustom ? e : e.split('.')[0]).trim();
+        cb = cb || _events[e];
 
-      var _cb = cb;
-      if (isFun(cb)) {
-        // See https://caniuse.com/once-event-listener.
-        if (_one && add && ie()) {
-          var cbone = function cbone(evt) {
-            el.removeEventListener(type, cbone, options);
-            _cb.apply(this, arguments);
-          };
-          cb = cbone;
-          add = false;
+        var _cb = cb;
+        if (isFun(cb)) {
+          // See https://caniuse.com/once-event-listener.
+          if (_one && add && ie()) {
+            var cbone = function cbone(evt) {
+              el.removeEventListener(type, cbone, options);
+              _cb.apply(this, arguments);
+            };
+            cb = cbone;
+            add = false;
+          }
+
+          el[op + 'EventListener'](type, cb, options);
         }
 
-        el[op + 'EventListener'](type, cb, options);
-      }
+        if (add) {
+          _events[e] = cb;
+        }
+        else {
+          delete _events[e];
+        }
+      };
 
-      if (add) {
-        _events[e] = cb;
-      }
-      else {
-        delete _events[e];
-      }
+      each(eventName.split(' '), process);
     };
 
-    each(eventName.split(' '), process);
-    return this;
+    return chain.call(els, chainCallback);
   }
 
   /**
@@ -1191,10 +1220,8 @@
    * Inspired by http://stackoverflow.com/questions/30880757/
    * javascript-equivalent-to-on.
    *
-   * @param {String} op
-   *   Whether to add or remove the event.
-   * @param {Element} el
-   *   The parent HTML element.
+   * @param {Element} els
+   *   The parent HTML element(s).
    * @param {String} eventName
    *   The optionally namespaced event name to trigger.
    * @param {String} selector
@@ -1205,17 +1232,15 @@
    *   The optional param passed into a custom event.
    * @param {Bool} isCustom
    *   True, if a custom event.
+   * @param {String} op
+   *   Whether to add or remove the event.
    *
    * @return {Object}
    *   This dBlazy object.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
    */
-  function onoff(op, el, eventName, selector, cb, params, isCustom) {
-    if (!isEvt(el) || !cb) {
-      return this;
-    }
-
+  function onoff(els, eventName, selector, cb, params, isCustom, op) {
     if (isUnd(params)) {
       params = {
         capture: true,
@@ -1240,8 +1265,66 @@
       }
     };
 
-    return toEvent.call(this, op, el, eventName, onEvent, params, isCustom);
+    return toEvent(els, eventName, onEvent, params, isCustom, op);
   }
+
+  /**
+   * A not simple wrapper for triggering event like jQuery.trigger().
+   *
+   * @name dBlazy.trigger
+   *
+   * @param {Element} els
+   *   The HTML element(s).
+   * @param {String} eventName
+   *   The event name to trigger.
+   * @param {Object} details
+   *   The optional detail object passed into a custom event detail property.
+   * @param {Object} param
+   *   The optional param passed into a custom event.
+   *
+   * @return {CustomEvent|Event|undefined}
+   *   The CustomEvent or Event object to dispatch.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent
+   * @todo namespaced event name.
+   */
+  function trigger(els, eventName, details, param) {
+    var chainCallback = function (el) {
+      var event;
+      if (!isEvt(el)) {
+        return event;
+      }
+
+      if (isUnd(details)) {
+        event = new Event(eventName);
+      }
+      else {
+        // Bubbles to be caught by ancestors. Cancelable to preventDefault.
+        var data = {
+          bubbles: true,
+          cancelable: true,
+          detail: details || {}
+        };
+
+        if (isObj(param)) {
+          data = extend(data, param);
+        }
+
+        event = new CustomEvent(eventName, data);
+      }
+
+      el.dispatchEvent(event);
+      return event;
+    };
+
+    return chain.call(els, chainCallback);
+  }
+
+  db.trigger = trigger.bind(db);
+  fn.trigger = function (eventName, details, param) {
+    return trigger(this, eventName, details, param);
+  };
 
   // Type methods.
   // Wonder why ES6 has alt lambda `=>` for `function`? Compact, to save bytes.
@@ -1262,13 +1345,12 @@
   db.isQuery = isQuery;
 
   // Collection methods.
-  fn.chain = function (cb) {
-    return db(chain.call(this, cb));
+  db.chain = function (els, cb) {
+    return chain.call(els, cb);
   };
 
-  db.extend = extend;
-  fn.extend = function (plugins) {
-    return extend(fn, plugins);
+  fn.chain = function (cb) {
+    return chain.call(this, cb);
   };
 
   // @deprecated for db.each for consistency and save bytes.
@@ -1276,6 +1358,11 @@
   db.each = each;
   fn.each = function (cb) {
     return each(this, cb);
+  };
+
+  db.extend = extend;
+  fn.extend = function (plugins) {
+    return extend(fn, plugins);
   };
 
   db.parse = parse;
@@ -1296,15 +1383,12 @@
     if (isNull(defValue)) {
       return me.removeAttr(attr, withDefault);
     }
-    return _attr.call(me, this[0], attr, defValue, withDefault);
+    return _attr(me, attr, defValue, withDefault);
   };
 
   db.removeAttr = removeAttr.bind(db);
   fn.removeAttr = function (attr, prefix) {
-    var me = this;
-    return db(me.each(function (el) {
-      removeAttr.call(me, el, attr, prefix);
-    }));
+    return removeAttr(this, attr, prefix);
   };
 
   // Class name methods.
@@ -1318,10 +1402,7 @@
 
   db.toggleClass = toggleClass.bind(db);
   fn.toggleClass = function (name, op) {
-    var me = this;
-    return me.chain(function (el) {
-      return toggleClass.call(me, el, name, op);
-    });
+    return toggleClass(this, name, op);
   };
 
   db.addClass = addClass.bind(db);
@@ -1385,46 +1466,37 @@
   db.activeWidth = activeWidth;
 
   // Event methods.
-  fn.onoff = function (op, eventName, selector, cb, params, isCustom) {
-    var me = this;
-    return me.chain(function (el) {
-      return onoff.call(me, op, el, eventName, selector, cb, params, isCustom);
-    });
+  fn.toEvent = function (eventName, cb, params, isCustom, op) {
+    return toEvent(this, eventName, cb, params, isCustom, op);
+  };
+
+  fn.onoff = function (eventName, selector, cb, params, isCustom, op) {
+    return onoff(this, eventName, selector, cb, params, isCustom, op);
   };
 
   db.on = on.bind(db);
   fn.on = function (eventName, selector, cb, params, isCustom) {
-    return this.onoff(_add, eventName, selector, cb, params, isCustom);
+    return this.onoff(eventName, selector, cb, params, isCustom, _add);
   };
 
   db.off = off.bind(db);
   fn.off = function (eventName, selector, cb, params, isCustom) {
-    return this.onoff(_remove, eventName, selector, cb, params, isCustom);
-  };
-
-  fn.toEvent = function (op, eventName, cb, params, isCustom) {
-    var me = this;
-    return me.chain(function (el) {
-      return toEvent.call(me, op, el, eventName, cb, params, isCustom);
-    });
+    return this.onoff(eventName, selector, cb, params, isCustom, _remove);
   };
 
   db.bindEvent = bindEvent.bind(db);
   fn.bindEvent = function (eventName, cb, params, isCustom) {
-    return this.toEvent(_add, eventName, cb, params, isCustom);
+    return this.toEvent(eventName, cb, params, isCustom, _add);
   };
 
   db.unbindEvent = unbindEvent.bind(db);
   fn.unbindEvent = function (eventName, cb, params, isCustom) {
-    return this.toEvent(_remove, eventName, cb, params, isCustom);
+    return this.toEvent(eventName, cb, params, isCustom, _remove);
   };
 
   db.one = one.bind(db);
   fn.one = function (eventName, cb, isCustom) {
-    var me = this;
-    return me.chain(function (el) {
-      return one.call(me, el, eventName, cb, isCustom);
-    });
+    return one(this, eventName, cb, isCustom);
   };
 
   // Image methods.
@@ -1477,84 +1549,87 @@
   /**
    * A simple wrapper to animate anything using animate.css.
    *
-   * @param {Element} el
-   *   The animated HTML element.
+   * @param {Element} els
+   *   The animated HTML element(s).
    * @param {String} animation
    *   Any custom animation name, fallbacks to [data-animation].
    *
    * @return {Object}
    *   This dBlazy object.
    */
-  function animate(el, animation) {
+  function animate(els, animation) {
     var me = this;
-    if (!isElm(el)) {
-      return me;
-    }
 
-    var $el = db(el);
-    var _set = el.dataset;
-
-    animation = animation || _set.animation;
-
-    var _ani = 'animation';
-    var _animated = 'animated';
-    var _aniEnd = _ani + 'end.' + animation;
-    var _transEnd = 'transitionend.' + animation;
-    var _style = el.style;
-    var _blur = 'blur';
-    var _tmp = '.b-' + _blur + '--tmp';
-    var _bloaded = 'b-loaded';
-    var classes = _animated + ' ' + animation;
-    var props = [
-      _ani,
-      _ani + '-duration',
-      _ani + '-delay',
-      _ani + '-iteration-count'
-    ];
-
-    $el.addClass(classes);
-
-    each(['Duration', 'Delay', 'IterationCount'], function (key) {
-      var _aniKey = _ani + key;
-      if (_set && _aniKey in _set) {
-        _style[_aniKey] = _set[_aniKey];
+    var chainCallback = function (el) {
+      if (!isElm(el)) {
+        return me;
       }
-    });
 
-    // Supports both BG and regular image.
-    var cn = closest(el, '.media') || el;
-    var bg = $el.hasClass('b-bg');
-    var blur = find(cn, _tmp);
-    var isBlur = animation === _blur;
-    var an = el;
+      var $el = db(el);
+      var _set = el.dataset;
 
-    // The animated blur is image not this container.
-    if (isBlur && !bg) {
-      an = find(cn, '.' + _bloaded + ':not(' + _tmp + ')') || an;
-    }
+      animation = animation || _set.animation;
 
-    function ended() {
-      $el.addClass('is-b-' + _animated)
-        .removeClass(classes)
-        .removeAttr(props, 'data-');
+      var _ani = 'animation';
+      var _animated = 'animated';
+      var _aniEnd = _ani + 'end.' + animation;
+      var _transEnd = 'transitionend.' + animation;
+      var _style = el.style;
+      var _blur = 'blur';
+      var _bblur = 'b-' + _blur;
+      var _tmp = _bblur + '--tmp';
+      var _elTmp = '.' + _tmp;
+      var _bloaded = 'b-loaded';
+      var classes = _animated + ' ' + animation;
+      var props = [
+        _ani,
+        _ani + '-duration',
+        _ani + '-delay',
+        _ani + '-iteration-count'
+      ];
 
-      each(props, function (key) {
-        _style.removeProperty(key);
+      $el.addClass(classes);
+
+      each(['Duration', 'Delay', 'IterationCount'], function (key) {
+        var _aniKey = _ani + key;
+        if (_set && _aniKey in _set) {
+          _style[_aniKey] = _set[_aniKey];
+        }
       });
 
-      remove(blur);
-    }
+      // Supports both BG and regular image.
+      var cn = closest(el, '.media') || el;
+      var bg = $el.hasClass('b-bg');
+      var blur = find(cn, _elTmp);
+      var isBlur = animation === _blur;
+      var an = el;
 
-    one(an, bg && isBlur ? _transEnd : _aniEnd, ended);
-    return this;
+      // The animated blur is image not this container.
+      if (isBlur && !bg) {
+        an = find(cn, '.' + _bloaded + ':not(' + _elTmp + ')') || an;
+      }
+
+      function ended() {
+        $el.addClass('is-b-' + _animated)
+          .removeClass(classes)
+          .removeAttr(props, 'data-');
+
+        each(props, function (key) {
+          _style.removeProperty(key);
+        });
+
+        removeClass(blur, _bblur);
+      }
+
+      return one(an, bg && isBlur ? _transEnd : _aniEnd, ended);
+    };
+
+    return chain.call(els, chainCallback);
   }
 
   db.animate = animate.bind(db);
   fn.animate = function (animation) {
-    var me = this;
-    return me.chain(function (el) {
-      return animate.call(me, el, animation);
-    });
+    return animate(this, animation);
   };
 
   /**
@@ -1580,6 +1655,9 @@
    *
    * @tbd deprecated in Blazy 2.5 and will be removed in Blazy 3.+. Use the
    * core/once library instead. See https://www.drupal.org/node/3254668.
+   *
+   * @todo until D9.2 is a minimum, adapt core/once for better once at the next
+   * optimization sessions.
    */
   db.once = function (cb, selector, context) {
     var els = [];
@@ -1702,63 +1780,6 @@
     // jQuery may pass its array as non-expected context identified by length.
     context = context.length ? context[0] : context;
     return context instanceof HTMLDocument ? context : _doc;
-  };
-
-  /**
-   * A not simple wrapper for triggering event like jQuery.trigger().
-   *
-   * @name dBlazy.trigger
-   *
-   * @param {Element} el
-   *   The HTML element.
-   * @param {String} eventName
-   *   The event name to trigger.
-   * @param {Object} details
-   *   The optional detail object passed into a custom event detail property.
-   * @param {Object} param
-   *   The optional param passed into a custom event.
-   *
-   * @return {CustomEvent|Event|undefined}
-   *   The CustomEvent or Event object to dispatch.
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent
-   * @todo namespaced event name.
-   */
-  function trigger(el, eventName, details, param) {
-    var event;
-    if (!isEvt(el)) {
-      return event;
-    }
-
-    if (isUnd(details)) {
-      event = new Event(eventName);
-    }
-    else {
-      // Bubbles to be caught by ancestors. Cancelable to preventDefault.
-      var data = {
-        bubbles: true,
-        cancelable: true,
-        detail: details || {}
-      };
-
-      if (isObj(param)) {
-        data = extend(data, param);
-      }
-
-      event = new CustomEvent(eventName, data);
-    }
-
-    el.dispatchEvent(event);
-    return event;
-  }
-
-  db.trigger = trigger.bind(db);
-  fn.trigger = function (eventName, details, param) {
-    var me = this;
-    return me.chain(function (el) {
-      return trigger.call(me, el, eventName, details, param);
-    });
   };
 
   if (typeof exports !== 'undefined') {

@@ -1,6 +1,8 @@
 /**
  * @file
  * Provides native, Intersection Observer API, or bLazy lazy loader.
+ *
+ * @todo convert to dBlazy object where chaining is need or appropriate.
  */
 
 (function ($, Drupal, drupalSettings, _doc) {

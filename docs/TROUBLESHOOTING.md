@@ -188,7 +188,28 @@ This is a Views common gotcha with field formatter, so be aware of it.
 If confusing, just toggle **Use field template**, and see the output. You'll
 know which works.
 
-## 12. BROKEN MODULES
+## 12. NATIVE GRID MASONRY
+Q: The native grid masonry (_Display style_: native Grid, _Grid large_: any
+   single number) doesn't have correct bottom gaps?  
+A: It does. Your eyes are likely being tricked. **Solutions**:  
+   * Try adding background color to `.grid__content`. Notice even gaps. The
+     problem is inner divities do not have 100%. Read more below.
+   * If image and applicable, enable `CSS background` using Blazy formatter.
+     If using Views, remove extra useless DIVs under `Style settings` by setting
+     them all to `None` and keep them with caution. And uncheck
+     `Provide default field wrapper elements` under ` Show: Fields Settings`.
+     So that Blazy `CSS background` fills in the gaps. Try `Aspect ratio: Fluid`
+     to minimize reflow in case useful here.
+   * If not or still an issue, manually adjust the image and the inner DIVs of
+     `.grid__content` heights to 100%.
+   * For text contents, having light background color is enough.
+   * Add enough min-height per breakpoint to the grid root container. See
+     and override `blazy.nativegrid.css` to better suit your site needs.
+   * If you don't want all these headaches, consider a more robust GridStack. It
+     may take care these type of issues for you.
+
+
+## 13. BROKEN MODULES
 Alpha, Beta, DEV releases are for developers only. Beware of possible breakage.
 
 However if it is broken, unless an update is provided, running `drush cr` during

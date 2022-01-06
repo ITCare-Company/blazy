@@ -77,36 +77,42 @@
    */
   function process(el) {
     var me = Drupal.blazy.nativeGrid;
-    var style = _win.getComputedStyle(el);
-    var gap = style.getPropertyValue('grid-row-gap');
-    var rows = style.getPropertyValue('grid-auto-rows');
 
-    if (gap) {
-      me.gap = parseInt(gap, 10);
-    }
-    if (rows) {
-      me.height = parseInt(rows, 10);
-    }
+    var init = function () {
+      var style = _win.getComputedStyle(el);
+      var gap = style.getPropertyValue('grid-row-gap');
+      var rows = style.getPropertyValue('grid-auto-rows');
 
-    // The is-b-grid is flag to not re-do with VIS, views infinite scroll/ IO.
-    var items = $.findAll(el, '.grid:not(.is-b-grid)');
-    if (items.length) {
-      $.each(items, processItem);
-    }
+      if (gap) {
+        me.gap = parseInt(gap, 10);
+      }
+      if (rows) {
+        me.height = parseInt(rows, 10);
+      }
 
-    var resizeObserver = Drupal.blazy.isRo() ? new ResizeObserver(function (entries) {
-      $.each(entries, processItem);
-    }) : false;
+      // The is-b-grid is flag to not re-do with VIS, views infinite scroll/ IO.
+      var items = $.findAll(el, '.grid:not(.is-b-grid)');
+      if (items.length) {
+        $.each(items, processItem, 200, true);
+      }
 
-    var blazies = el.getElementsByClassName('b-lazy');
-    if (blazies.length) {
-      $.each(blazies, function (item) {
-        $.bindEvent(item, _done, processItem, false);
-        if (resizeObserver) {
-          resizeObserver.observe(item);
-        }
-      });
-    }
+      var resizeObserver = Drupal.blazy.isRo() ? new ResizeObserver(function (entries) {
+        $.each(entries, processItem, 200, true);
+      }) : false;
+
+      var blazies = el.getElementsByClassName('b-lazy');
+      if (blazies.length) {
+        $.each(blazies, function (item) {
+          $.bindEvent(item, _done, Drupal.debounce(processItem, 200, true), false);
+          if (resizeObserver) {
+            resizeObserver.observe(item);
+          }
+        });
+      }
+    };
+
+    init();
+
     $.addClass(el, _mounted);
   }
 

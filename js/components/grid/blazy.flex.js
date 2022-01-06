@@ -9,8 +9,12 @@
 
   'use strict';
 
-  var _element = '.block-flex';
+  var _masonry = 'is-b-flex';
+  var _mounted = _masonry + '--on';
+  var _element = '.block-flex:not(.' + _mounted + ')';
   var _loading = 'is-b-loading';
+  var _blazy = 'blazy';
+  var _done = _blazy + '.done';
 
   /**
    * Applies height adjustments to each item.
@@ -32,10 +36,18 @@
     var style = _win.getComputedStyle(box);
     var itemWith = boxWith + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
     var columnWidth = Math.round((1 / (itemWith / parentWith)));
-    var items = $.find(elm, _box, false);
+    var items = $.findAll(elm, _box);
 
     function processItem(item, id) {
+      var target = item.target;
+      item = 'target' in item ? $.closest(target, '.grid') : item;
+      id = $.isUnd(id) ? items.indexOf(item) : id;
+
       var cn = $.find(item, _box + '__content');
+      if (!$.isElm(cn)) {
+        return;
+      }
+
       var cr = cn.getBoundingClientRect();
       var ch = cr.height;
       var curColumn = id % columnWidth;
@@ -64,16 +76,32 @@
     function init() {
       $.each(items, processItem);
 
+      var resizeObserver = Drupal.blazy.isRo() ? new ResizeObserver(function (entries) {
+        $.each(entries, processItem, 200, true);
+      }) : false;
+
+      var blazies = $.findAll('.b-lazy');
+      if (blazies.length) {
+        $.each(blazies, function (item) {
+          $.bindEvent(item, _done, Drupal.debounce(processItem, 200, true), false);
+          if (resizeObserver) {
+            resizeObserver.observe(item);
+          }
+        });
+      }
+
       var max = Math.max.apply(null, Object.values(heights));
       elm.style.height = max + 'px';
     }
 
-    $.bindEvent(_win, 'load resize', Drupal.debounce(init, 200, true));
+    init();
 
     $.addClass(elm, _loading);
     _win.setTimeout(function () {
       $.removeClass(elm, _loading);
     }, 600);
+
+    $.addClass(elm, _mounted);
   }
 
   /**

@@ -15,8 +15,17 @@
   display: block;
   height: auto;
   min-height: 1px;
-  opacity: 0;
+}
+
+/* Required by .b-bg for blur transition due to not using blur animation.
+Not required by .b-lazy, and useless, when using blur animation. */
+.b-bg {
   transition: opacity 500ms ease-in;
+}
+
+.b-bg,
+.media--fx.is-b-loaded .b-blur {
+  opacity: 0;
 }
 
 /* Needed to display preloader with CSS BG image, otherwise hidden. */
@@ -24,6 +33,10 @@
 .b-error,
 .b-bg.is-b-loading {
   opacity: 1;
+}
+
+.media--fx.is-b-animated .b-blur--tmp {
+  display: none;
 }
 
 .b-bg {

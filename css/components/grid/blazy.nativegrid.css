@@ -119,6 +119,14 @@
     position: absolute;
   }
 
+  /** To make even bottom gaps when using CSS background Blazy formmater.
+  See Troubleshooting for more details on this.
+  Only if using images, add more inner divs to fill in the gaps here. */
+  .block-nativegrid.is-b-masonry .grid .litebox,
+  .block-nativegrid.is-b-masonry .grid .media {
+    height: 100%;
+  }
+
   /* To avoid initial confusion due to being hidden, adjust it. */
   .block-nativegrid.is-b-native .blazy__caption,
   .block-nativegrid.is-b-native .slide__caption {

@@ -238,6 +238,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       '#description' => $description,
       '#enforced'    => TRUE,
       '#required'    => $required,
+      '#wrapper_attributes' => [
+        'class' => [
+          'form-item--full',
+          'form-item--tooltip-bottom',
+        ],
+      ],
     ];
 
     $form['grid_medium'] = [
@@ -518,8 +524,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $fallback = $namespace == 'slick' ? 'form--slick' : 'form--' . $namespace . ' form--slick';
     $plugins = ' form--namespace-' . $namespace;
     $custom = $definition['opening_class'] ?? '';
-    // @todo remove form_opening_classes for opening_class.
-    $classes = $definition['form_opening_classes'] ?? ($fallback . ' form--half has-tooltip' . $wide . $vanilla . $grid . $plugind_id . ' ' . $custom . $plugins);
+    $classes = ($fallback . ' form--half has-tooltip' . $wide . $vanilla . $grid . $plugind_id . ' ' . $custom . $plugins);
 
     if (!empty($definition['field_type'])) {
       $classes .= ' form--' . str_replace('_', '-', $definition['field_type']);

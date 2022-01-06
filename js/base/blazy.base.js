@@ -1,6 +1,8 @@
 /**
  * @file
  * Provides native, Intersection Observer API, or bLazy lazy loader.
+ *
+ * @todo convert to dBlazy object where chaining is need or appropriate.
  */
 
 (function ($, Drupal, drupalSettings, _win, _doc) {
@@ -24,6 +26,7 @@
   var _image = 'image';
   var _media = 'media';
   var _src = 'src';
+  var _eventNative = _id + '.native';
 
   /**
    * Blazy public methods.
@@ -51,6 +54,11 @@
       };
 
       return $.extend(me.blazySettings, me.ioSettings, commons);
+    },
+
+    winData: function () {
+      var me = this;
+      return {w: me.windowWidth, up: me.options.mobileFirst};
     },
 
     selector: function (suffix) {
@@ -86,7 +94,7 @@
 
       // Initializes the native lazy loading once the first found is loaded.
       if (!_isNativeExecuted) {
-        $.trigger(me.context, _id + '.native', {
+        $.trigger(me.context, _eventNative, {
           options: me.options
         });
 
@@ -116,7 +124,7 @@
       var me = this;
       var _update = function () {
         if ($.hasAttr(el, _dataBg)) {
-          $.bg(el, me.options.mobileFirst);
+          $.bg(el, me.winData());
         }
         else {
           if (me.init) {
@@ -241,7 +249,7 @@
         $.each(me.items, doNative);
       };
 
-      $.one(doc, _id + '.native', onNative);
+      $.one(doc, _eventNative, onNative);
     },
 
     isNative: function () {
@@ -365,8 +373,9 @@
     }
 
     // For picture, this is more a dummy space till the image is downloaded.
-    var isPicture = $.find(cn, _picture).length && _resizeTick > 0;
-    var pad = $.activeWidth(dimensions, isPicture);
+    var isPicture = $.isElm($.find(cn, _picture)) && _resizeTick > 0;
+    var data = $.extend(me.winData(), {up: isPicture});
+    var pad = $.activeWidth(dimensions, data);
 
     // Provides marker for grouping between multiple instances.
     cn.dblazy = $.isElm(el) && _dblazy in el ? el.dblazy : null;
@@ -400,12 +409,12 @@
 
         // Only applies to ratio fluid.
         if (isPicture) {
-          updatePicture.call(this, el, cn);
+          updatePicture.call(me, el, cn);
         }
 
         // Basically makes multi-breakpoint BG work for IO or old bLazy once.
         if ($.hasAttr(el, _dataBg)) {
-          $.bg(el, me.options.mobileFirst);
+          $.bg(el, me.winData());
         }
       }
     });
