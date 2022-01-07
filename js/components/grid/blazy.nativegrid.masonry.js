@@ -16,8 +16,6 @@
   var _masonry = 'is-b-masonry';
   var _mounted = _masonry + '--on';
   var _element = '.' + _id + '.' + _masonry + ':not(.' + _mounted + ')';
-  var _blazy = 'blazy';
-  var _done = _blazy + '.done';
 
   Drupal.blazy = Drupal.blazy || {};
 
@@ -63,23 +61,20 @@
         $.addClass(box, 'is-b-grid');
       }, 600);
     }
-
-    if (target && (el.type && el.type === _done)) {
-      $.unbindEvent(target, _done, processItem, false);
-    }
   }
 
   /**
    * Applies grid row end to each grid item.
    *
-   * @param {HTMLElement} el
+   * @param {HTMLElement} elm
    *   The container HTML element.
    */
-  function process(el) {
+  function process(elm) {
     var me = Drupal.blazy.nativeGrid;
+    var selector = '.grid:not(.is-b-grid)';
 
     var init = function () {
-      var style = _win.getComputedStyle(el);
+      var style = _win.getComputedStyle(elm);
       var gap = style.getPropertyValue('grid-row-gap');
       var rows = style.getPropertyValue('grid-auto-rows');
 
@@ -91,29 +86,24 @@
       }
 
       // The is-b-grid is flag to not re-do with VIS, views infinite scroll/ IO.
-      var items = $.findAll(el, '.grid:not(.is-b-grid)');
+      var items = $.findAll(elm, selector);
+
       if (items.length) {
-        $.each(items, processItem, 200, true);
-      }
+        // Process on page load.
+        $.each(items, processItem);
 
-      var resizeObserver = Drupal.blazy.isRo() ? new ResizeObserver(function (entries) {
-        $.each(entries, processItem, 200, true);
-      }) : false;
+        // Process on resize.
+        var cb = function (entries) {
+          $.each(entries, processItem);
+        };
 
-      var blazies = el.getElementsByClassName('b-lazy');
-      if (blazies.length) {
-        $.each(blazies, function (item) {
-          $.bindEvent(item, _done, Drupal.debounce(processItem, 200, true), false);
-          if (resizeObserver) {
-            resizeObserver.observe(item);
-          }
-        });
+        Drupal.blazy.checkResize(items, cb, elm, processItem);
       }
     };
 
     init();
 
-    $.addClass(el, _mounted);
+    $.addClass(elm, _mounted);
   }
 
   /**

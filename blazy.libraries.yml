@@ -20,25 +20,34 @@ dblazy:
     js/base/blazy.polyfills.min.js: { minified: true, weight: -5 }
     js/dblazy.min.js: { minified: true, weight: -4 }
 
-# Not currently used.
+# Extension for dBlazy, not currently used.
 css:
   js:
-    js/base/blazy.css.min.js: { minified: true, weight: -3 }
+    js/plugin/blazy.css.min.js: { minified: true, weight: -3 }
   dependencies:
     - blazy/dblazy
 
+# Extension for dBlazy, non-reusable internal: BG, IO, attributes.
+internal:
+  js:
+    js/plugin/blazy.internal.min.js: { minified: true, weight: -3 }
+  dependencies:
+    - blazy/dblazy
+
+# Drupal-related base.
 base:
   css:
     component:
       css/blazy.css: {}
   js:
-    js/base/blazy.internal.min.js: { minified: true, weight: -1.7 }
     js/base/blazy.base.min.js: { minified: true, weight: -1.6 }
   dependencies:
     # @todo when min D9.2 - core/once
     - core/drupal
     - core/drupal.debounce
+    - blazy/internal
 
+# The bLazy, IO, Native loader aka initializer.
 load:
   js:
     js/blazy.load.min.js: { minified: true, weight: -1.5 }
@@ -46,6 +55,27 @@ load:
     - blazy/blazy
     - blazy/dblazy
     - blazy/loading
+
+# Intersection observer.
+bio:
+  js:
+    js/components/io/bio.min.js: { minified: true, weight: -3 }
+  dependencies:
+    - blazy/dblazy
+    - blazy/internal
+
+bio.media:
+  js:
+    js/components/io/bio.media.min.js: { minified: true, weight: -2 }
+  dependencies:
+    - blazy/bio
+
+bio.ajax:
+  js:
+    js/components/io/bio.ajax.min.js: { minified: true }
+  dependencies:
+    - core/drupal.ajax
+    - blazy/load
 
 # Optional components.
 loading:
@@ -135,26 +165,6 @@ nativegrid.masonry:
     - blazy/dblazy
     - blazy/base
     - blazy/nativegrid
-
-# Intersection observer..
-bio:
-  js:
-    js/components/io/bio.min.js: { minified: true, weight: -3 }
-  dependencies:
-    - blazy/dblazy
-
-bio.media:
-  js:
-    js/components/io/bio.media.min.js: { minified: true, weight: -2 }
-  dependencies:
-    - blazy/bio
-
-bio.ajax:
-  js:
-    js/components/io/bio.ajax.min.js: { minified: true }
-  dependencies:
-    - core/drupal.ajax
-    - blazy/load
 
 # Lightboxes.
 lightbox:

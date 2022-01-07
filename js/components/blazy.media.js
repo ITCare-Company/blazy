@@ -27,8 +27,10 @@
    *   The media player HTML element.
    */
   function process(el) {
-    var iframe = $.find(el, _iFrame);
-    var btn = $.find(el, _elIconPlay);
+    var $el = $(el);
+    var iframe = $el.find(_iFrame);
+    var btn = $el.find(_elIconPlay);
+    var $doc = $(_doc);
 
     // Media player toggler is disabled, just display iframe.
     if (!$.isElm(btn)) {
@@ -58,9 +60,9 @@
 
       var target = this;
       var player = target.parentNode;
-      var playing = $.find(_doc, '.' + _isPlaying);
+      var playing = $doc.find('.' + _isPlaying);
       var iframe = $.find(player, _iFrame);
-      var video = $.find(_doc, 'video');
+      var video = $doc.find('video');
 
       url = $.attr(target, _dataUrl);
       title = $.attr(target, _dataIFrameTitle);
@@ -70,8 +72,9 @@
         video.pause();
       }
 
+      // Remove other playing video.
       if ($.isElm(playing)) {
-        var played = $.find(_doc, '.' + _isPlaying + ' ' + _iFrame);
+        var played = $doc.find('.' + _isPlaying + ' ' + _iFrame);
         // Remove the previous iframe.
         $.remove(played);
         playing.className = playing.className.replace(/(\S+)playing/, '');
@@ -123,12 +126,11 @@
     $.remove(iframe);
 
     // Plays the media player.
-    $.on(el, 'click.' + _id, _elIconPlay, play);
+    $el.on('click.' + _id, _elIconPlay, play);
 
     // Closes the video.
-    $.on(el, 'click.' + _id, _elIconClose, stop);
-
-    $.addClass(el, _mounted);
+    $el.on('click.' + _id, _elIconClose, stop)
+      .addClass(_mounted);
   }
 
   /**
@@ -144,15 +146,16 @@
   Drupal.theme.blazyMedia = function (settings) {
     // PhotoSwipe5 has element, PhotoSwipe4 el, etc.
     var el = settings.el || settings.element;
-    var img = $.find(el, 'img');
-    var data = $.parse($.attr(el, 'data-' + _md));
+    var $el = $(el);
+    var img = $el.find('img');
+    var data = $.parse($el.attr('data-' + _md));
     var alt = $.isElm(img) ? Drupal.checkPlain($.attr(img, 'alt', 'Video preview', true)) : '';
     var width = data.width ? parseInt(data.width, 10) : 640;
     var height = data.height ? parseInt(data.height, 10) : 360;
     var pad = data ? ((height / width) * 100).toFixed(2) : 100;
-    var imgUrl = $.attr(el, 'data-box-url');
-    var href = $.attr(el, 'href');
-    var oembedUrl = $.attr(el, 'data-oembed-url', href, true);
+    var imgUrl = $el.attr('data-box-url');
+    var href = $el.attr('href');
+    var oembedUrl = $el.attr('data-oembed-url', href, true);
     var defClass = _md + '__image ' + _md + '__element';
     var imgClass = settings.imgClass ?
       defClass + ' ' + settings.imgClass :

@@ -119,7 +119,7 @@
     position: absolute;
   }
 
-  /** To make even bottom gaps when using CSS background Blazy formmater.
+  /* To make even bottom gaps when using CSS background Blazy formmater.
   See Troubleshooting for more details on this.
   Only if using images, add more inner divs to fill in the gaps here. */
   .block-nativegrid.is-b-masonry .grid .litebox,

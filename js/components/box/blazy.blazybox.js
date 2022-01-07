@@ -139,9 +139,9 @@
 
     // For future betterment, allows more complex data object than just url.
     if ($.isObj(data)) {
-      var elm = data.el || data.element;
-      var href = $.attr(elm, 'href');
-      oembedUrl = $.attr(elm, 'data-oembed-url', href, true);
+      var $el = $(data.el || data.element);
+      var href = $el.attr('href');
+      oembedUrl = $el.attr('data-oembed-url', href, true);
     }
 
     if ($.isStr(oembedUrl)) {

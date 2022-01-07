@@ -55,7 +55,7 @@
 
       // Converts jQuery.photobox into dBlazy.photobox to demonstrate the new
       // dBlazy plugin system post Blazy 2.6.
-      if ($.isFun(jQuery.fn.photobox) && !$.isFun($.fn.photobox)) {
+      if (jQuery && $.isFun(jQuery.fn.photobox) && !$.isFun($.fn.photobox)) {
         var _pb = jQuery.fn.photobox;
 
         $.fn.photobox = function (target, settings, callback) {

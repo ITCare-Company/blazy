@@ -266,11 +266,13 @@
     }
   };
 
-  _proto.check = function () {
+  _proto.check = function (force) {
     var me = this;
 
-    if (!_disconnected) {
+    // Infinite pager like IO wants to keep monitoring infinite contents.
+    if (!_disconnected && (force || $.isUnd(Drupal.io))) {
       var check = $.find(me.options.root || _doc, me.selector());
+
       if ($.isNull(check) || check.length === 0) {
         me.destroy(true);
       }

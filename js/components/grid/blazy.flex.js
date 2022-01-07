@@ -13,8 +13,8 @@
   var _mounted = _masonry + '--on';
   var _element = '.block-flex:not(.' + _mounted + ')';
   var _loading = 'is-b-loading';
-  var _blazy = 'blazy';
-  var _done = _blazy + '.done';
+
+  Drupal.blazy = Drupal.blazy || {};
 
   /**
    * Applies height adjustments to each item.
@@ -23,6 +23,7 @@
    *   The container HTML element.
    */
   function process(elm) {
+    var me = Drupal.blazy;
     var _box = '.grid';
     var heights = {};
     var box = $.find(elm, _box);
@@ -31,16 +32,16 @@
       return;
     }
 
-    var parentWith = elm.getBoundingClientRect().width;
-    var boxWith = box.getBoundingClientRect().width;
+    var items = $.findAll(elm, _box);
+    var parentWith = rect(elm).width;
+    var boxWith = rect(box).width;
     var style = _win.getComputedStyle(box);
     var itemWith = boxWith + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
     var columnWidth = Math.round((1 / (itemWith / parentWith)));
-    var items = $.findAll(elm, _box);
 
     function processItem(item, id) {
       var target = item.target;
-      item = 'target' in item ? $.closest(target, '.grid') : item;
+      item = target ? $.closest(target, _box) : item;
       id = $.isUnd(id) ? items.indexOf(item) : id;
 
       var cn = $.find(item, _box + '__content');
@@ -48,7 +49,11 @@
         return;
       }
 
-      var cr = cn.getBoundingClientRect();
+      if (item.bflex) {
+        return;
+      }
+
+      var cr = rect(cn);
       var ch = cr.height;
       var curColumn = id % columnWidth;
       var style = _win.getComputedStyle(item);
@@ -64,8 +69,8 @@
       if (id - columnWidth >= 0) {
         var nh = id - columnWidth + 1;
         var itemAbove = $.find(elm, _box + ':nth-of-type(' + nh + ')');
-        if (itemAbove) {
-          var prevBottom = itemAbove.getBoundingClientRect().bottom;
+        if ($.isElm(itemAbove)) {
+          var prevBottom = rect(itemAbove).bottom;
           var currentTop = cr.top - parseFloat(style.marginBottom);
 
           item.style.top = '-' + (currentTop - prevBottom) + 'px';
@@ -73,26 +78,29 @@
       }
     }
 
-    function init() {
-      $.each(items, processItem);
-
-      var resizeObserver = Drupal.blazy.isRo() ? new ResizeObserver(function (entries) {
-        $.each(entries, processItem, 200, true);
-      }) : false;
-
-      var blazies = $.findAll('.b-lazy');
-      if (blazies.length) {
-        $.each(blazies, function (item) {
-          $.bindEvent(item, _done, Drupal.debounce(processItem, 200, true), false);
-          if (resizeObserver) {
-            resizeObserver.observe(item);
-          }
-        });
-      }
-
+    function checkHeight() {
       var max = Math.max.apply(null, Object.values(heights));
       elm.style.height = max + 'px';
     }
+
+    function init() {
+      // Process on page load.
+      $.each(items, processItem);
+
+      checkHeight();
+    }
+
+    /* eslint-disable no-unused-vars */
+    // @todo this breaks initial bricks.
+    var checkResize = function () {
+      // Process on resize.
+      var cb = function (entries) {
+        $.each(entries, processItem);
+      };
+
+      me.checkResize(items, cb, elm);
+    };
+    /* eslint-disable no-unused-vars */
 
     init();
 
@@ -102,6 +110,10 @@
     }, 600);
 
     $.addClass(elm, _mounted);
+  }
+
+  function rect(el) {
+    return el.getBoundingClientRect();
   }
 
   /**

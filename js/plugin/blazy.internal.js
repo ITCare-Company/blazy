@@ -4,7 +4,8 @@
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
- *   blazy-related code in Blazy module.
+ *   blazy-related code in Blazy sub-modules.
+ *   It is extending dBlazy as a separate plugin.
  */
 
 (function ($) {
@@ -16,8 +17,8 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The container HTML element(s).
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The container HTML element(s), or dBlazy instance.
    * @param {Object} winData
    *   Containing ww: windowWidth, and up: to use min-width or max-width.
    *
@@ -59,8 +60,8 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The loading HTML element(s).
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The loading HTML element(s), or dBlazy instance.
    *
    * @return {Object}
    *   This dBlazy object.
@@ -95,8 +96,8 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The element(s).
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The element(s), or dBlazy instance.
    * @param {String|Array} attr
    *   The attr name, or string array.
    * @param {Bool} remove
@@ -143,8 +144,8 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The element(s).
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The element(s), or dBlazy instance.
    * @param {String} attr
    *   The attr name, can be SRC or SRCSET.
    * @param {Bool} remove

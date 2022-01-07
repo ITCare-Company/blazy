@@ -1,6 +1,11 @@
 
 Blazy 8.x-2.0-dev, 2022-01-04
 -----------------------------
+- Issue #3255370 by gausarts: Fixed for DRY with ResizeObserver, folder
+  organization, doc comments, etc.
+
+Blazy 8.x-2.0-dev, 2022-01-04
+-----------------------------
 - Issue #3255370 by gausarts: Organized assets for sanity.
 - Minified back all JS files to avoid expensive server/ on-the-fly minification.
 - Made dBlazy DOM methods chainable.

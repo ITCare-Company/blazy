@@ -2,7 +2,7 @@
  * @file
  * Provides native, Intersection Observer API, or bLazy lazy loader.
  *
- * @todo convert to dBlazy object where chaining is need or appropriate.
+ * @todo convert to dBlazy object where chaining is needed, or appropriate.
  */
 
 (function ($, Drupal, drupalSettings, _win, _doc) {
@@ -21,12 +21,14 @@
   var _picture = 'picture';
   var _loading = 'loading';
   var _checked = 'b-checked';
+  var _elBlur = '.b-blur';
   var _successClass = 'successClass';
   var _errorClass = 'errorClass';
   var _image = 'image';
   var _media = 'media';
   var _src = 'src';
   var _eventNative = _id + '.native';
+  var _eventDone = _id + '.done';
 
   /**
    * Blazy public methods.
@@ -88,7 +90,7 @@
 
       // Provides event listeners for easy overrides without full overrides.
       // Runs before native to allow native use this on its own onload event.
-      $.trigger(el, _id + '.done', {
+      $.trigger(el, _eventDone, {
         options: me.options
       });
 
@@ -191,6 +193,62 @@
       }
     },
 
+    onLoaded: function (root, cb, observer) {
+      var me = this;
+      var elms = $.findAll(root, me.options.selector + ':not(' + _elBlur + ')');
+      var isMe = elms.length;
+
+      if (!isMe) {
+        elms = $.findAll(root, 'img:not(' + _elBlur + ')');
+      }
+
+      if (elms.length) {
+        $.each(elms, function (el) {
+          var type = isMe ? _eventDone : 'load';
+          $.one(el, type, cb, isMe);
+
+          if (observer) {
+            observer.observe(el);
+          }
+        });
+      }
+    },
+
+    checkResize: function (items, cb, root, onDone) {
+      var me = this;
+      var observer = false;
+      var processor = function (entries) {
+        me.windowWidth = $.windowWidth();
+
+        _resizeTick++;
+        return cb(entries);
+      };
+
+      var observe = function () {
+        return me.isRo() ? new ResizeObserver(processor) : processor(items);
+      };
+
+      // Checks for aspect ratio, onload event is a bit later.
+      // Uses ResizeObserver for modern browsers, else degrades.
+      observer = observe();
+      if (items.length) {
+        if (observer) {
+          $.each(items, function (item) {
+            observer.observe(item);
+          });
+        }
+        else {
+          $.bindEvent(_win, 'resize', Drupal.debounce(observe, 200, true));
+        }
+      }
+
+      // When images are loaded, Flexbox or Native Grid as Masonry might need
+      // info about the loaded image dimensions to calculate gaps or positions.
+      if (onDone && $.isFun(onDone)) {
+        me.onLoaded(root, onDone, observer);
+      }
+    },
+
     /**
      * Swap lazy attributes to let supportive browsers lazy load them.
      *
@@ -221,8 +279,6 @@
         // Refines based on actual result, runs clearing, animation, etc.
         $.addClass(el, opts[er ? _errorClass : _successClass]);
         me.clearing(el);
-
-        $.unbindEvent(el, e.type, onNativeEvent);
       };
 
       var doNative = function (el) {
@@ -234,14 +290,14 @@
 
         // Blur thumbnail is just making use of the swap due to being small.
         if ($.hasClass(el, 'b-blur')) {
-          $.attr(el, _loading, null);
+          $.removeAttr(el, _loading);
         }
         else {
           // Mark it loaded to prevent bLazy/ IO to do any further work.
           $.addClass(el, opts[_successClass]);
 
           // Attempts to make nice with the harsh native, defer clearing, etc.
-          $.bindEvent(el, 'load error', onNativeEvent);
+          $.one(el, 'load error', onNativeEvent);
         }
       };
 
@@ -275,13 +331,10 @@
     afterInit: function () {
       var me = this;
       var doc = me.context;
-      var rObserver = false;
       var ratioItems = $.findAll(doc, '.' + _media + '--ratio');
       var shouldLoop = ratioItems.length > 0;
 
       var loopRatio = function (entries) {
-        me.windowWidth = $.windowWidth();
-
         // BC with bLazy, native/IO doesn't need to revalidate, bLazy does.
         // Scenarios: long horizontal containers, Slick carousel slidesToShow >
         // 3. If any issue, add a class `blazy--revalidate` manually to .blazy.
@@ -292,30 +345,12 @@
         if (shouldLoop) {
           $.each(entries, function (entry) {
             updateRatio.call(me, entry.target || entry);
-          }, doc);
+          });
         }
-
-        _resizeTick++;
         return false;
       };
 
-      var checkRatio = function () {
-        return me.isRo() ? new ResizeObserver(loopRatio) : loopRatio(ratioItems);
-      };
-
-      // Checks for aspect ratio, onload event is a bit later.
-      // Uses ResizeObserver for modern browsers, else degrades.
-      rObserver = checkRatio();
-      if (rObserver) {
-        if (shouldLoop) {
-          $.each(ratioItems, function (entry) {
-            rObserver.observe(entry);
-          }, doc);
-        }
-      }
-      else {
-        $.bindEvent(_win, 'resize', Drupal.debounce(checkRatio, 200, true));
-      }
+      me.checkResize(ratioItems, loopRatio, doc);
     }
 
   };

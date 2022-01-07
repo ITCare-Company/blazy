@@ -101,11 +101,11 @@
   }
 
   /**
-   * Excecutes callback to avoid unnecessary loop unless required.
+   * Excecutes chainable callback to avoid unnecessary loop unless required.
    *
    * @private
    *
-   * @param {Function} cb
+   * @param {!Function} cb
    *   The calback function.
    *
    * @return {Object}
@@ -137,7 +137,7 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if x is an instanceof dBlazy.
    */
   function isMe(x) {
@@ -154,7 +154,7 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if x is an instanceof Array.
    */
   function isArr(x) {
@@ -169,8 +169,8 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
-   *   True if x is an instanceof Boolean.
+   * @return {bool}
+   *   True if x is an instanceof bool.
    */
   function isBool(x) {
     return typeof x === 'boolean';
@@ -184,7 +184,7 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if x is an instanceof Element.
    */
   function isElm(x) {
@@ -199,7 +199,7 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if x is an instanceof Function.
    */
   function isFun(x) {
@@ -214,7 +214,7 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if null or empty array.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
@@ -236,7 +236,7 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if null.
    */
   function isNull(x) {
@@ -251,7 +251,7 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if number.
    */
   function isNum(x) {
@@ -266,7 +266,7 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if x is an instanceof Object.
    */
   function isObj(x) {
@@ -285,7 +285,7 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if x is a string.
    */
   function isStr(x) {
@@ -300,7 +300,7 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if x is undefined.
    */
   function isUnd(x) {
@@ -315,7 +315,7 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if x is window.
    */
   function isWin(x) {
@@ -330,7 +330,7 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if x is valid for querySelector.
    *
    * 1: Node.ELEMENT_NODE
@@ -350,7 +350,7 @@
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if x is valid for event listener.
    */
   function isEvt(x) {
@@ -370,8 +370,8 @@
    * @return {Object}
    *   Merged values of defaults and options.
    *
-   * @todo refactor or remove when min D9.0 for core/drupal.object.assign.
    * @see https://www.drupal.org/node/3113447
+   * @todo refactor or remove when min D9.0 for core/drupal.object.assign.
    */
   var extend = Object.assign || function (out) {
     out = out || {};
@@ -439,7 +439,7 @@
    *
    * @private
    *
-   * @param {String} str
+   * @param {string} str
    *   The string to convert into JSON object.
    *
    * @return {Object}
@@ -459,7 +459,7 @@
    *
    * @private
    *
-   * @param {Element|String} x
+   * @param {Element|string} x
    *   The object to make array.
    *
    * @return {Array}
@@ -474,16 +474,16 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The HTML element(s).
-   * @param {String|Object} attr
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string|Object} attr
    *   The attr name, can be a string or object.
-   * @param {String} defValue
+   * @param {string} defValue
    *   The default value, can be null or undefined for different intentions.
-   * @param {String|Bool} withDefault
+   * @param {string|bool} withDefault
    *   True if should get with defValue. Or a prefix such as data- for removal.
    *
-   * @return {Object|String}
+   * @return {Object|string}
    *   The attribute value, or fallback, for getters, or this for setters.
    */
   function _attr(els, attr, defValue, withDefault) {
@@ -521,14 +521,12 @@
       }
       else {
         // Else a setter.
-        if (isStr(attr)) {
-          if (attr === 'src') {
-            // To minimize unnecessary mutations.
-            el.src = defValue;
-          }
-          else {
-            el.setAttribute(attr, defValue);
-          }
+        if (attr === 'src') {
+          // To minimize unnecessary mutations.
+          el.src = defValue;
+        }
+        else {
+          el.setAttribute(attr, defValue);
         }
       }
     };
@@ -543,10 +541,10 @@
    *
    * @param {Element} el
    *   The HTML element.
-   * @param {String} name
+   * @param {string} name
    *   The attribute name.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if it has the attribute.
    */
   function hasAttr(el, name) {
@@ -558,11 +556,11 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The HTML element(s).
-   * @param {String|Array} attr
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string|Array} attr
    *   The attr name, or string array.
-   * @param {String} prefix
+   * @param {string} prefix
    *   The attribute prefix if any, normally `data-`.
    *
    * @return {Object}
@@ -579,10 +577,10 @@
    *
    * @param {Element} el
    *   The HTML element.
-   * @param {String} name
+   * @param {string} name
    *   The class name, can be space-delimited for multiple names.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if it has the class name.
    */
   function hasClass(el, name) {
@@ -605,11 +603,11 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The HTML element(s).
-   * @param {String} name
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string} name
    *   The class name, or space-delimited class names.
-   * @param {String} op
+   * @param {string} op
    *   Whether to add or remove the class.
    *
    * @return {Object}
@@ -640,9 +638,9 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The HTML element(s).
-   * @param {String} name
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string} name
    *   The class name, or space-delimited class names.
    *
    * @return {Object}
@@ -657,9 +655,9 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The HTML element(s).
-   * @param {String} name
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string} name
    *   The class name, or space-delimited class names.
    *
    * @return {Object}
@@ -676,12 +674,12 @@
    *
    * Cannot use [].every() since it not about all or nothing.
    *
-   * @param {String} str
+   * @param {string} str
    *   The source string to test for.
-   * @param {String} substr
+   * @param {Array.<string>} substr
    *   The target sub-string to check for, can be a string array.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if it has the needle.
    *
    * @todo use polyfill core/drupal.string.includes when min D9.3.
@@ -706,10 +704,10 @@
    *
    * @link https://stackoverflow.com/questions/1144783
    *
-   * @param {String} string
+   * @param {string} string
    *   The original source string.
    *
-   * @return {String}
+   * @return {string}
    *   The modified string.
    */
   function escape(string) {
@@ -722,12 +720,12 @@
    *
    * @private
    *
-   * @param {String} str
+   * @param {string} str
    *   The source string to test for.
-   * @param {String} substr
+   * @param {Array.<string>} substr
    *   The target sub-string to check for, can be a string array.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if it starts with the needle.
    */
   function startsWith(str, substr) {
@@ -748,10 +746,10 @@
    *
    * @private
    *
-   * @param {String} string
+   * @param {string} string
    *   The original source string.
    *
-   * @return {String}
+   * @return {string}
    *   The modified string.
    */
   function trimSpaces(string) {
@@ -765,11 +763,11 @@
    *
    * @param {Element} el
    *   Starting element.
-   * @param {String} selector
+   * @param {string} selector
    *   Selector to match against (class, ID, data attribute, or tag).
    *
    * @return {Element|Null}
-   *   Returns null if no match found.
+   *   Returns null if no match found, else the element.
    */
   function closest(el, selector) {
     return (isElm(el) && isStr(selector)) ? el.closest(selector) : null;
@@ -782,10 +780,10 @@
    *
    * @param {Element} el
    *   The current element.
-   * @param {String} selector
+   * @param {string} selector
    *   Selector to match against (class, ID, data attribute, or tag).
    *
-   * @return {Bool}
+   * @return {bool}
    *   Returns true if found, else false.
    *
    * @see http://caniuse.com/#feat=matchesselector
@@ -802,10 +800,10 @@
    *
    * @param {Element} el
    *   The element to compare.
-   * @param {String} str
+   * @param {string} str
    *   HTML tag to match against.
    *
-   * @return {Bool}
+   * @return {bool}
    *   Returns true if matches, else false.
    */
   function equal(el, str) {
@@ -825,12 +823,12 @@
    *
    * @param {Element} el
    *   The parent HTML element.
-   * @param {String} selector
+   * @param {string} selector
    *   The CSS selector or HTML tag to query.
-   * @param {Boolean|Mixed} asArray
+   * @param {bool|int} asArray
    *   Force returning an array if expected to operate on.
    *
-   * @return {Array}
+   * @return {?Array.<Element>}
    *   Empty array if not found, else the expected element(s).
    */
   function find(el, selector, asArray) {
@@ -847,10 +845,10 @@
    *
    * @param {Element} el
    *   The parent HTML element.
-   * @param {String} selector
+   * @param {string} selector
    *   The CSS selector or HTML tag to query.
    *
-   * @return {Array}
+   * @return {?Array.<Element>}
    *   Empty array if not found, else the expected elements.
    */
   function findAll(el, selector) {
@@ -879,7 +877,7 @@
    *
    * @private
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if an IE browser.
    */
   function ie() {
@@ -891,7 +889,7 @@
    *
    * @private
    *
-   * @return {Integer}
+   * @return {number}
    *   Returns the device pixel ratio.
    */
   function pixelRatio() {
@@ -903,7 +901,7 @@
    *
    * @private
    *
-   * @return {Integer}
+   * @return {number}
    *   Returns the window width.
    */
   function windowWidth() {
@@ -935,10 +933,10 @@
    * course unacceptable. Hence why Blazy never claims to support resizing. The
    * best efforts were provided using ResizeObserver since 2.2. including this.
    *
-   * @param {Object} dataset
+   * @param {Object.<int, Object>} dataset
    *   The dataset object must be keyed by window width.
-   * @param {Object} winData
-   *   Containing ww: windowWidth, and up: to use min-width or max-width.
+   * @param {Object.<string, int|bool>} winData
+   *   Containing ww: windowWidth, and up: to determine min-width or max-width.
    *
    * @return {Mixed}
    *   Returns data from the current active window.
@@ -968,18 +966,19 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The parent HTML element.
-   * @param {String} eventName
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string} eventName
    *   The event name to trigger.
-   * @param {String} selector
+   * @param {string} selector
    *   Child selector to match against (class, ID, data attribute, or tag).
    * @param {Function} cb
    *   The callback function.
-   * @param {Object|Bool} params
+   * @param {Object|bool} params
    *   The optional param passed into a custom event.
-   * @param {Bool} isCustom
-   *   True, if a custom event.
+   * @param {bool} isCustom
+   *   True, if a custom event, a namespaced like (blazy.done), but considered
+   *   a as a whole since there is no event name `blazy`.
    *
    * @return {Object}
    *   This dBlazy object.
@@ -993,17 +992,17 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The parent HTML element(s).
-   * @param {String} eventName
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string} eventName
    *   The event name to trigger.
-   * @param {String} selector
+   * @param {string} selector
    *   Child selector to match against (class, ID, data attribute, or tag).
    * @param {Function} cb
    *   The callback function.
-   * @param {Object|Bool} params
+   * @param {Object|bool} params
    *   The optional param passed into a custom event.
-   * @param {Bool} isCustom
+   * @param {bool} isCustom
    *   True, if a custom event.
    *
    * @return {Object}
@@ -1018,15 +1017,15 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The HTML element(s).
-   * @param {String} eventName
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string} eventName
    *   The event name to remove.
    * @param {Function} cb
    *   The callback function.
-   * @param {Object|Bool} params
+   * @param {Object|bool} params
    *   The optional param passed into a custom event.
-   * @param {Bool} isCustom
+   * @param {bool} isCustom
    *   True, if a custom event.
    *
    * @return {Object}
@@ -1041,15 +1040,15 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The HTML element(s).
-   * @param {String} eventName
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string} eventName
    *   The event name to remove.
    * @param {Function} cb
    *   The callback function.
    * @param {Object} params
    *   The optional param passed into a custom event.
-   * @param {Bool} isCustom
+   * @param {bool} isCustom
    *   True, if a custom event.
    *
    * @return {Object}
@@ -1064,13 +1063,13 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The HTML element.
-   * @param {String} eventName
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string} eventName
    *   The event name to remove.
    * @param {Function} cb
    *   The callback function.
-   * @param {Bool} isCustom
+   * @param {bool} isCustom
    *   True, if a custom event.
    *
    * @return {Object}
@@ -1090,7 +1089,7 @@
    * @param {Image} img
    *   The Image object.
    *
-   * @return {Bool}
+   * @return {bool}
    *   True if the image is loaded.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
@@ -1152,17 +1151,17 @@
    *
    * @private
    *
-   * @param {Element} els
-   *   The HTML element(s).
-   * @param {String} eventName
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string} eventName
    *   The event name, optionally namespaced, to add or remove.
    * @param {Function} cb
    *   The callback function.
-   * @param {Object|Bool} params
+   * @param {Object|bool} params
    *   The optional param passed into a custom event.
-   * @param {Bool} isCustom
+   * @param {bool} isCustom
    *   Like namespaced, but not to be namespaced since LHS is not any event.
-   * @param {String} op
+   * @param {string} op
    *   Whether to add or remove the event.
    *
    * @return {Object}
@@ -1232,19 +1231,19 @@
    * Inspired by http://stackoverflow.com/questions/30880757/
    * javascript-equivalent-to-on.
    *
-   * @param {Element} els
-   *   The parent HTML element(s).
-   * @param {String} eventName
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string} eventName
    *   The optionally namespaced event name to trigger.
-   * @param {String} selector
+   * @param {string} selector
    *   Child selector to match against (class, ID, data attribute, or tag).
    * @param {Function} cb
    *   The callback function.
-   * @param {Object|Bool} params
+   * @param {Object|bool} params
    *   The optional param passed into a custom event.
-   * @param {Bool} isCustom
+   * @param {bool} isCustom
    *   True, if a custom event.
-   * @param {String} op
+   * @param {string} op
    *   Whether to add or remove the event.
    *
    * @return {Object}
@@ -1283,11 +1282,9 @@
   /**
    * A not simple wrapper for triggering event like jQuery.trigger().
    *
-   * @name dBlazy.trigger
-   *
-   * @param {Element} els
-   *   The HTML element(s).
-   * @param {String} eventName
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string} eventName
    *   The event name to trigger.
    * @param {Object} details
    *   The optional detail object passed into a custom event detail property.
@@ -1533,8 +1530,6 @@
   /**
    * Decodes the image.
    *
-   * @name dBlazy.decode
-   *
    * @param {Image} img
    *   The Image object.
    *
@@ -1561,9 +1556,9 @@
   /**
    * A simple wrapper to animate anything using animate.css.
    *
-   * @param {Element} els
-   *   The animated HTML element(s).
-   * @param {String} animation
+   * @param {dBlazy|Array.<Element>|Element} els
+   *   The HTML element(s), or dBlazy instance.
+   * @param {string} animation
    *   Any custom animation name, fallbacks to [data-animation].
    *
    * @return {Object}
@@ -1650,8 +1645,6 @@
    * To make easy conversion till D9.2 is a minimum at sub-modules, one
    * core/once method are adapted.
    *
-   * @name dBlazy.once
-   *
    * @author Daniel Lamb <dlamb.open.source@gmail.com>
    * @link https://github.com/daniellmb/once.js
    *
@@ -1694,11 +1687,9 @@
    *
    * Alternative to core Drupal.debounce for D7 compatibility, and easy port.
    *
-   * @name dBlazy.throttle
-   *
    * @param {Function} cb
    *   The callback function.
-   * @param {Int} minDelay
+   * @param {number} minDelay
    *   The execution delay in milliseconds.
    * @param {Object} scope
    *   The scope of the function to apply to, normally this.
@@ -1721,13 +1712,11 @@
   /**
    * A simple wrapper to delay callback function on window resize.
    *
-   * @name dBlazy.resize
-   *
    * @link https://github.com/louisremi/jquery-smartresize
    *
    * @param {Function} cb
    *   The callback function.
-   * @param {Int} t
+   * @param {number} t
    *   The timeout.
    *
    * @return {Function}
@@ -1744,22 +1733,19 @@
   /**
    * Replaces string occurances to simplify string templating.
    *
-   * @name dBlazy.template
-   *
-   * @link https://stackoverflow.com/questions/1144783
-   *
-   * @param {String} string
+   * @param {string} string
    *   The original source string.
-   * @param {Object} map
+   * @param {Object.<string, string>} map
    *   The mapping object.
    *
-   * @return {String}
+   * @return {string}
    *   The modified string.
    *
-   * @todo use template string or replaceAll for D10, or D11 at the latest.
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll
    * @see https://caniuse.com/mdn-javascript_builtins_string_replaceall
+   * @see https://stackoverflow.com/questions/1144783
+   * @todo use template string or replaceAll for D10, or D11 at the latest.
    */
   db.template = function (string, map) {
     for (var key in map) {
@@ -1776,8 +1762,6 @@
    * Context is unreliable with AJAX contents like product variations, etc.
    * This can be null after Colorbox close, or absurd <script> element, likely
    * arbitrary, etc.
-   *
-   * @name dBlazy.context
    *
    * @param {HTMLDocument|Element} context
    *   Any element, including weird script element.

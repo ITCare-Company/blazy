@@ -24,16 +24,20 @@
       return;
     }
 
-    $.addClass(cn, _id)
+    var $cn = $(cn);
+    $cn.addClass(_id)
       .attr(_data + _id, '');
 
     // Not using elm is fine since this should be executed once.
-    var box = $.find(cn, '.litebox');
+    // Basicallly this makes the lightbox gallery available at inline images
+    // by taking the first found `data-media` to determine the lightbox id.
+    // Originally using PHP loop over filters, but more efficient with client.
+    var box = $cn.find('.litebox');
     if ($.isElm(box)) {
       var media = $.parse($.attr(box, _data + 'media'));
       if ('id' in media) {
         var mid = media.id;
-        $.addClass(cn, _id + '--' + mid)
+        $cn.addClass(_id + '--' + mid)
           .attr(_data + mid + '-gallery', '');
       }
     }

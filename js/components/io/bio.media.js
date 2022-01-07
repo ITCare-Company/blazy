@@ -147,7 +147,7 @@
 
         // Allows to re-observe.
         if (!isResimage) {
-          $.attr(el, 'data-bio-hit', null);
+          $.removeAttr(el, 'data-bio-hit');
         }
       })
       .finally(function () {
@@ -172,7 +172,7 @@
   _proto.bg = function (el) {
     if ($.hasAttr(el, _bgSrc)) {
       el.style.backgroundImage = 'url("' + $.attr(el, _bgSrc) + '")';
-      $.attr(el, _src, null);
+      $.removeAttr(el, _src);
     }
   };
 

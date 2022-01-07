@@ -1,4 +1,3 @@
 js/*.min.js
-js/base/*.min.js
-js/components/*.min.js
-js/components/*/*.min.js
+js/*/*.min.js
+js/*/*/*.min.js
