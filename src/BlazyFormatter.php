@@ -52,13 +52,16 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $id             = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
 
     // Provides formatter settings.
-    $settings['cache_metadata'] = ['keys' => [$id, $count]];
-    $settings['cache_tags'][]   = $entity_type_id . ':' . $entity_id;
-    $settings['caption']        = empty($settings['caption']) ? [] : array_filter($settings['caption']);
-    $settings['count']          = $count;
-    $settings['gallery_id']     = str_replace('_', '-', $gallery_id . '-' . $settings['media_switch']);
-    $settings['id']             = $id;
-    $settings['use_field']      = !$settings['lightbox'] && ($settings['third_party']['linked_field']['linked'] ?? FALSE);
+    $settings['cache_metadata']['keys'][] = $id;
+    $settings['cache_metadata']['keys'][] = $count;
+
+    // When alignment is mismatched, split them to satisfy linter.
+    $settings['cache_tags'][] = $entity_type_id . ':' . $entity_id;
+    $settings['caption']      = empty($settings['caption']) ? [] : array_filter($settings['caption']);
+    $settings['count']        = $count;
+    $settings['gallery_id']   = str_replace('_', '-', $gallery_id . '-' . $settings['media_switch']);
+    $settings['id']           = $id;
+    $settings['use_field']    = !$settings['lightbox'] && ($settings['third_party']['linked_field']['linked'] ?? FALSE);
 
     // Bail out if Vanilla mode is requested.
     if (!empty($settings['vanilla'])) {

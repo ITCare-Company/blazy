@@ -350,6 +350,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $settings['bundle'] = empty($settings['bundle']) ? $entity->bundle() : $settings['bundle'];
     $settings['content_url'] = $settings['absolute_path'] = $absolute_path;
     $settings['internal_path'] = $internal_path;
+    $settings['cache_metadata']['keys'][] = $settings['entity_id'];
+    $settings['cache_metadata']['keys'][] = $entity->getRevisionID();
   }
 
   /**
