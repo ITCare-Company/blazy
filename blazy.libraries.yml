@@ -45,7 +45,6 @@ base:
     # @todo when min D9.2 - core/once
     - core/drupal
     - core/drupal.debounce
-    - blazy/internal
 
 # The bLazy, IO, Native loader aka initializer.
 load:
@@ -54,6 +53,7 @@ load:
   dependencies:
     - blazy/blazy
     - blazy/dblazy
+    - blazy/internal
     - blazy/loading
 
 # Intersection observer.
@@ -94,6 +94,7 @@ filter:
   dependencies:
     - core/drupal
     - blazy/dblazy
+    - blazy/base
 
 fx.blur:
   css:
@@ -127,6 +128,8 @@ ratio:
   css:
     component:
       css/components/blazy.ratio.css: {}
+  dependencies:
+    - blazy/base
 
 # CSS grids.
 column:
@@ -143,7 +146,7 @@ flex:
   js:
     js/components/grid/blazy.flex.min.js: { minified: true }
   dependencies:
-    - blazy/load
+    - blazy/base
 
 grid:
   css:
@@ -156,6 +159,8 @@ nativegrid:
   css:
     component:
       css/components/grid/blazy.nativegrid.css: {}
+  dependencies:
+    - blazy/base
 
 nativegrid.masonry:
   js:
@@ -171,6 +176,8 @@ lightbox:
   css:
     component:
       css/components/box/blazy.lightbox.css: {}
+  dependencies:
+    - blazy/base
 
 blazybox:
   js:
@@ -190,7 +197,7 @@ colorbox:
   js:
     js/components/jquery/blazy.colorbox.min.js: { minified: true }
   dependencies:
-    - blazy/load
+    - blazy/dblazy
     - blazy/ratio
     - colorbox/colorbox
 
@@ -222,7 +229,7 @@ photobox:
       /libraries/photobox/photobox/photobox.css: {}
   dependencies:
     - core/jquery
-    - blazy/load
+    - blazy/dblazy
     # use photobox when available instead.
     # - photobox/photobox
 

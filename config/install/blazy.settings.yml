@@ -1,4 +1,5 @@
 admin_css: true
+nojs: ''
 fx: ''
 decode: false
 noscript: false

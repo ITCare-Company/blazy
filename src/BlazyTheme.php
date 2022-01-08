@@ -88,6 +88,7 @@ class BlazyTheme {
     $stack = Blazy::requestStack();
     $amp = $stack && $stack->getCurrentRequest()->query->get('amp');
     $settings['ratio'] = empty($settings['width']) || $amp ? '' : $settings['ratio'];
+
     if ($settings['ratio']) {
       Blazy::aspectRatioAttributes($variables['attributes'], $settings);
     }

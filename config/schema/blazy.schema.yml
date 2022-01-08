@@ -5,6 +5,9 @@ blazy.settings:
     admin_css:
       type: boolean
       label: 'Admin CSS'
+    nojs:
+      type: string
+      label: 'No JavaScript'
     decode:
       type: boolean
       label: 'Use decoding'

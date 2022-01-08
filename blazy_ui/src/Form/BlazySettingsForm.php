@@ -66,6 +66,17 @@ class BlazySettingsForm extends ConfigFormBase {
       '#description'   => $this->t('Uncheck to disable blazy related admin compact form styling, only if not compatible with your admin theme.'),
     ];
 
+    // Intentionally not using checkbox for future refinement as needed.
+    $nojs = ['lazy'];
+    $form['nojs'] = [
+      '#type'          => 'select',
+      '#title'         => $this->t('No JavaScript'),
+      '#empty_option'  => '- None -',
+      '#options'       => array_combine($nojs, $nojs),
+      '#default_value' => $config->get('nojs'),
+      '#description'   => $this->t('<ul><li><b>Lazy</b>: only for lazy-load section leaving those which still requires JavaScript intact. <b>Consequencies</b>: JS-dependent stuffs like blur animation, delay loading, Fluid aspect ratio (excluding fixed ones), dynamic multi-breakpoint (Responsive|Picture based) CSS background (excluding static ones), and other fancy stuffs are gone.</li></ul>Other JavaScript (Media Player, Lightbox, Non-css Masonry (Flexbox or Nativegrid), etc.) can already be disabled via Formatters since 1.x. <a href=":url">Read more</a>.', [':url' => 'https://drupal.org/node/3257512']),
+    ];
+
     $form['decode'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Use decoding'),
@@ -239,6 +250,7 @@ class BlazySettingsForm extends ConfigFormBase {
     $config = $this->configFactory->getEditable('blazy.settings');
     $config
       ->set('admin_css', $form_state->getValue('admin_css'))
+      ->set('nojs', $form_state->getValue('nojs'))
       ->set('decode', $form_state->getValue('decode'))
       ->set('fx', $form_state->getValue('fx'))
       ->set('noscript', $form_state->getValue('noscript'))

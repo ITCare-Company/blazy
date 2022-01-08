@@ -5,7 +5,7 @@
  * Some dup wrappers are meant to DRY with null checks aka poorman null safety.
  * The rest are convenient to avoid object instantiation ($()) and to preserve
  * old behaviors pre Blazy 2.6 till all codebase are migrated as needed.
- * A few are still valid for single vs. chained element loop or queries.
+ * A few dups are still valid for single vs. chained element loop or queries.
  *
  * @todo use Cash for better DOM queries, or any core libraries when available.
  * @todo remove unneeded dup methods once all codebase migrated.
@@ -978,7 +978,7 @@
    *   The optional param passed into a custom event.
    * @param {bool} isCustom
    *   True, if a custom event, a namespaced like (blazy.done), but considered
-   *   a as a whole since there is no event name `blazy`.
+   *   as a whole since there is no event name `blazy`.
    *
    * @return {Object}
    *   This dBlazy object.
@@ -1147,7 +1147,7 @@
   }
 
   /**
-   * A not wrapper for the namespaced [add|remove]EventListener.
+   * A not simple wrapper for the namespaced [add|remove]EventListener.
    *
    * @private
    *

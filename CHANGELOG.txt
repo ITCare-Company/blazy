@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-01-08
+-----------------------------
+- Issue #3257512 by gausarts: Decouple lazyload JavaScript. Leaving Blazy as DRY
+  buster for sub-modules.
+
 Blazy 8.x-2.0-dev, 2022-01-07
 -----------------------------
 - Issue #3256703 by ronchica: Blazy formatted images not rendering correctly in

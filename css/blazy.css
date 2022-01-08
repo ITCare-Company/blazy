@@ -31,7 +31,8 @@ Not required by .b-lazy, and useless, when using blur animation. */
 /* Needed to display preloader with CSS BG image, otherwise hidden. */
 .b-loaded,
 .b-error,
-.b-bg.is-b-loading {
+.b-bg.is-b-loading,
+.blazy--nojs .b-bg {
   opacity: 1;
 }
 

@@ -54,7 +54,7 @@ class BlazyDefault {
    * Returns settings provided by various UI.
    */
   public static function anywhereSettings() {
-    return ['fx' => '', 'lazy' => '', 'style' => ''];
+    return ['fx' => '', 'lazy' => '', 'nojs' => '', 'style' => ''];
   }
 
   /**

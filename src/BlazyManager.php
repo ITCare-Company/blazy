@@ -140,7 +140,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Multi-breakpoint aspect ratio only applies if lazyloaded.
     // These may be set once at formatter level, or per breakpoint above.
-    if (!empty($settings['blazy_data']['dimensions'])) {
+    if (!empty($settings['blazy_data']['dimensions']) && empty($settings['nojs'])) {
       $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
     }
 
@@ -241,13 +241,24 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     if (!empty($settings['urls'])) {
       // @todo remove .media--background for .b-bg as more relevant for BG.
       $attributes['class'][] = 'b-bg media--background';
-      $attributes['data-b-bg'] = Json::encode($settings['urls']);
 
       if ($settings['is_preview']) {
         Blazy::inlineStyle($attributes, 'background-image: url(' . $settings['image_url'] . ');');
       }
+      else {
+        $attributes['data-b-bg'] = Json::encode($settings['urls']);
+      }
     }
 
+    if (empty($settings['nojs'])) {
+      $this->blur($element, $attributes, $settings);
+    }
+  }
+
+  /**
+   * Build out the blur image.
+   */
+  private function blur(array &$element, array &$attributes, array &$settings) {
     if ($settings['fx'] && !$settings['unstyled']) {
       $blur = [
         '#theme' => 'image',
@@ -297,8 +308,13 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       ksort($srcset);
       ksort($dimensions);
       $settings['urls'] = $srcset;
-      $settings['blazy_data']['dimensions'] = $dimensions;
-      $settings['padding_bottom'] = end($dimensions);
+
+      // Dynamic aspect ratio is useless without JS.
+      // @todo reove check when aspect ratio is decoupled from lazyload script.
+      if (empty($settings['nojs'])) {
+        $settings['blazy_data']['dimensions'] = $dimensions;
+        $settings['padding_bottom'] = end($dimensions);
+      }
 
       $settings['image_url'] = $settings['is_preview'] ? $settings['image_url'] : $settings['placeholder'];
       Blazy::lazyAttributes($attributes, $settings);
@@ -309,7 +325,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    * Build out image, or anything related, including cache, CSS background, etc.
    */
   private function buildImage(array &$element, array &$attributes, array &$item_attributes, array &$settings) {
-    if ($settings['lazy'] && $settings['background']) {
+    if ($settings['background']) {
       // Attach data attributes to either IMG tag, or DIV container.
       $settings['urls'][$settings['width']] = $this->backgroundImage($settings);
       $settings['image_url'] = $settings['is_preview'] ? $settings['image_url'] : $settings['placeholder'];
@@ -384,7 +400,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     }
 
     // Provides image effect if so configured.
-    if ($settings['fx']) {
+    if (!$settings['is_preview'] && $settings['fx']) {
       $attributes['class'][] = 'media--fx';
 
       // Ensures at least a hook_alter is always respected. This still allows

@@ -77,7 +77,7 @@ class Blazy implements BlazyInterface {
    */
   public static function buildResponsiveImage(array &$variables): void {
     $settings = $variables['settings'];
-    $attributes = $settings['is_preview'] ? [] : [
+    $attributes = $settings['is_preview'] ? ['loading' => 'lazy'] : [
       'data-b-lazy' => $settings['one_pixel'],
       'data-placeholder' => $settings['placeholder'],
     ];
@@ -284,6 +284,11 @@ class Blazy implements BlazyInterface {
       $classes[] = 'blazy--' . $switch;
     }
 
+    // For CSS fixes.
+    if (!empty($settings['nojs'])) {
+      $classes[] = 'blazy--nojs';
+    }
+
     // Provides contextual classes relevant to the container: .field, or .view.
     // Sniffs for Views to allow block__no_wrapper, views__no_wrapper, etc.
     foreach (['field', 'view'] as $key) {
@@ -401,18 +406,22 @@ class Blazy implements BlazyInterface {
    */
   public static function isPreview(): bool {
     if (!isset(static::$isPreview)) {
+      $sets  = \blazy()->configLoad() + BlazyDefault::uiSettings();
       $stack = self::requestStack();
       $route = self::routeMatch()->getRouteName();
-      $check = $stack && $stack->getCurrentRequest()->query->get('amp');
+      $check = !empty($sets['nojs']) || ($stack && $stack->getCurrentRequest()->query->get('amp'));
 
       // @todo remove after regression fixes, or keep it due to thumbnail sizes.
-      $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
-      foreach ($edits as $key) {
-        if (mb_strpos($route, $key) !== FALSE) {
-          $check = TRUE;
-          break;
+      if (!$check) {
+        $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
+        foreach ($edits as $key) {
+          if (mb_strpos($route, $key) !== FALSE) {
+            $check = TRUE;
+            break;
+          }
         }
       }
+
       static::$isPreview = $check;
     }
 

@@ -236,14 +236,26 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $attach[$attach['style']] = $attach['style'];
     }
 
-    if (!empty($attach['fx']) && $attach['fx'] == 'blur') {
-      $load['library'][] = 'blazy/fx.blur';
-    }
-
     foreach (BlazyDefault::components() as $component) {
       if (!empty($attach[$component])) {
         $load['library'][] = 'blazy/' . $component;
       }
+    }
+
+    if (empty($attach['nojs'])) {
+      $this->attachJs($load, $attach);
+    }
+
+    $this->moduleHandler->alter('blazy_attach', $load, $attach);
+    return $load;
+  }
+
+  /**
+   * Attaches JavaScript assets.
+   */
+  private function attachJs(array &$load, array $attach = []): void {
+    if (!empty($attach['fx']) && $attach['fx'] == 'blur') {
+      $load['library'][] = 'blazy/fx.blur';
     }
 
     // Allows Blazy libraries to be disabled by a special flag _unblazy.
@@ -257,9 +269,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     if (!empty($attach['use_ajax'])) {
       $load['library'][] = 'blazy/bio.ajax';
     }
-
-    $this->moduleHandler->alter('blazy_attach', $load, $attach);
-    return $load;
   }
 
   /**
@@ -482,9 +491,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     ksort($srcset);
 
     // Informs individual images that dimensions are already set once.
-    $settings['blazy_data']['dimensions'] = $srcset;
-    $settings['padding_bottom'] = end($srcset);
-    $settings['_dimensions'] = TRUE;
+    // Dynamic aspect ratio is useless without JS.
+    // @todo reove check when aspect ratio is decoupled from lazyload script.
+    if (empty($settings['nojs'])) {
+      $settings['blazy_data']['dimensions'] = $srcset;
+      $settings['padding_bottom'] = end($srcset);
+      $settings['_dimensions'] = TRUE;
+    }
   }
 
   /**
