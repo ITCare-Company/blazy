@@ -34,7 +34,8 @@ info.
    * [Download bLazy](https://github.com/dinbror/blazy)
    * Extract it as is, rename **blazy-master** to **blazy**, so the assets are:
 
-      + **/libraries/blazy/blazy.js**
+      + **/libraries/blazy/blazy.js**, <= blazy 2.5
+      + **/libraries/blazy/blazy.min.js**, >= blazy 2.6, see [#3257511](https://drupal.org/node/3257511)
 
 2. Media and Filter module in core.
 

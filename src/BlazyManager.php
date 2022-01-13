@@ -140,7 +140,8 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Multi-breakpoint aspect ratio only applies if lazyloaded.
     // These may be set once at formatter level, or per breakpoint above.
-    if (!empty($settings['blazy_data']['dimensions']) && empty($settings['nojs'])) {
+    // @todo remove  && empty($settings['nojs'])
+    if (!empty($settings['blazy_data']['dimensions'])) {
       $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
     }
 
@@ -241,18 +242,14 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     if (!empty($settings['urls'])) {
       // @todo remove .media--background for .b-bg as more relevant for BG.
       $attributes['class'][] = 'b-bg media--background';
+      $attributes['data-b-bg'] = Json::encode($settings['urls']);
 
-      if ($settings['is_preview']) {
+      if ($settings['is_sandboxed'] || $settings['is_amp']) {
         Blazy::inlineStyle($attributes, 'background-image: url(' . $settings['image_url'] . ');');
       }
-      else {
-        $attributes['data-b-bg'] = Json::encode($settings['urls']);
-      }
     }
 
-    if (empty($settings['nojs'])) {
-      $this->blur($element, $attributes, $settings);
-    }
+    $this->blur($element, $attributes, $settings);
   }
 
   /**
@@ -310,11 +307,8 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       $settings['urls'] = $srcset;
 
       // Dynamic aspect ratio is useless without JS.
-      // @todo reove check when aspect ratio is decoupled from lazyload script.
-      if (empty($settings['nojs'])) {
-        $settings['blazy_data']['dimensions'] = $dimensions;
-        $settings['padding_bottom'] = end($dimensions);
-      }
+      $settings['blazy_data']['dimensions'] = $dimensions;
+      $settings['padding_bottom'] = end($dimensions);
 
       $settings['image_url'] = $settings['is_preview'] ? $settings['image_url'] : $settings['placeholder'];
       Blazy::lazyAttributes($attributes, $settings);
@@ -399,8 +393,8 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       $attributes['data-thumb'] = $settings['thumbnail_url'] = BlazyFile::transformRelative($path);
     }
 
-    // Provides image effect if so configured.
-    if (!$settings['is_preview'] && $settings['fx']) {
+    // Provides image effect if so configured unless being sandboxed.
+    if (!$settings['is_sandboxed'] && $settings['fx']) {
       $attributes['class'][] = 'media--fx';
 
       // Ensures at least a hook_alter is always respected. This still allows

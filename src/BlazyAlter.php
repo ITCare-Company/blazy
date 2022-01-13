@@ -53,7 +53,7 @@ class BlazyAlter {
   public static function libraryInfoAlter(&$libraries, $extension): void {
     if ($extension === 'blazy') {
       if ($path = blazy_libraries_get_path('blazy')) {
-        $libraries['blazy']['js'] = ['/' . $path . '/blazy.js' => ['weight' => -4]];
+        $libraries['blazy']['js'] = ['/' . $path . '/blazy.min.js' => ['weight' => -4]];
       }
 
       if (blazy()->configLoad('io.enabled')) {

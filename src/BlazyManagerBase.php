@@ -216,7 +216,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * {@inheritdoc}
    */
   public function attach(array $attach = []) {
-    $load   = [];
+    $this->getCommonSettings($attach);
+    $load = [];
     $switch = $attach['media_switch'] ?? '';
 
     if ($switch && $switch != 'content') {
@@ -232,7 +233,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     // Allow variants of grid, columns, flexbox, native grid to co-exist.
-    if (!empty($attach['style'])) {
+    if ($attach['style']) {
       $attach[$attach['style']] = $attach['style'];
     }
 
@@ -242,33 +243,24 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
+    // Only if using old Blazy loader when `No JavaScript` option is disabled.
     if (empty($attach['nojs'])) {
-      $this->attachJs($load, $attach);
+      $load['library'][] = 'blazy/load';
+    }
+
+    // Always keep Drupal UI config to support dynamic compat features.
+    $config = $this->configLoad('blazy');
+    $config['loader'] = empty($attach['nojs']);
+    $load['drupalSettings']['blazy'] = $config;
+    $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
+
+    // Adds AJAX helper to revalidate Blazy/ IO, if using VIS, or alike.
+    if ($attach['use_ajax']) {
+      $load['library'][] = 'blazy/bio.ajax';
     }
 
     $this->moduleHandler->alter('blazy_attach', $load, $attach);
     return $load;
-  }
-
-  /**
-   * Attaches JavaScript assets.
-   */
-  private function attachJs(array &$load, array $attach = []): void {
-    if (!empty($attach['fx']) && $attach['fx'] == 'blur') {
-      $load['library'][] = 'blazy/fx.blur';
-    }
-
-    // Allows Blazy libraries to be disabled by a special flag _unblazy.
-    if (empty($attach['_unblazy'])) {
-      $load['library'][] = 'blazy/load';
-      $load['drupalSettings']['blazy'] = $this->configLoad('blazy');
-      $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
-    }
-
-    // Adds AJAX helper to revalidate Blazy/ IO, if using VIS, or alike.
-    if (!empty($attach['use_ajax'])) {
-      $load['library'][] = 'blazy/bio.ajax';
-    }
   }
 
   /**
@@ -296,25 +288,31 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * The `fx` sequence: hook_alter > formatters (not implemented yet) > UI.
    * The `_fx` is a special flag such as to temporarily disable till needed.
    */
-  public function getCommonSettings(array &$settings) {
+  public function getCommonSettings(array &$settings = []) {
     $config = array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
     $config['fx'] = $config['fx'] ?? '';
     $config['fx'] = empty($settings['fx']) ? $config['fx'] : $settings['fx'];
     $settings = array_merge($settings, $config);
+    $settings += BlazyDefault::htmlSettings();
+    $switch = $settings['media_switch'];
+    $style = $settings['responsive_image_style'];
     $settings['fx'] = $settings['_fx'] ?? $settings['fx'];
-    $settings['media_switch'] = $switch = $settings['media_switch'] ?? '';
+    $settings['blur'] = $settings['fx'] == 'blur';
     $settings['iframe_domain'] = $this->configLoad('iframe_domain', 'media.settings');
+    $settings['is_amp'] = Blazy::isAmp();
     $settings['is_preview'] = Blazy::isPreview();
+    $settings['is_sandboxed'] = Blazy::isSandboxed();
     $settings['lightbox'] = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
-    $settings['namespace'] = empty($settings['namespace']) ? 'blazy' : $settings['namespace'];
     $settings['route_name'] = $this->getRouteName();
     $settings['_resimage'] = $this->moduleHandler->moduleExists('responsive_image');
-    $settings['resimage'] = $settings['_resimage'] && !empty($settings['responsive_image_style']);
-    $settings['resimage'] = $settings['resimage'] ? $this->entityLoad($settings['responsive_image_style'], 'responsive_image_style') : FALSE;
+    $settings['resimage'] = $settings['_resimage'] && $style;
+    $settings['resimage'] = $settings['resimage'] ? $this->entityLoad($style, 'responsive_image_style') : FALSE;
+    $settings['fluid'] = $settings['ratio'] == 'fluid';
+    $settings['observer'] = $settings['fx'] || $settings['fluid'] || $settings['background'] || $settings['observer'];
     $settings['current_language'] = $this->languageManager->getCurrentLanguage()->getId();
 
+    // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
     if ($switch) {
-      // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
       $settings[$switch] = empty($settings[$switch]) ? $switch : $settings[$switch];
     }
 
@@ -492,12 +490,9 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
     // Informs individual images that dimensions are already set once.
     // Dynamic aspect ratio is useless without JS.
-    // @todo reove check when aspect ratio is decoupled from lazyload script.
-    if (empty($settings['nojs'])) {
-      $settings['blazy_data']['dimensions'] = $srcset;
-      $settings['padding_bottom'] = end($srcset);
-      $settings['_dimensions'] = TRUE;
-    }
+    $settings['blazy_data']['dimensions'] = $srcset;
+    $settings['padding_bottom'] = end($srcset);
+    $settings['_dimensions'] = TRUE;
   }
 
   /**

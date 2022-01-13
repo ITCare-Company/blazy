@@ -47,6 +47,8 @@ trait BlazyCreationTestTrait {
     $storage    = $this->blazyManager->getEntityTypeManager()->getStorage('entity_view_display');
     $display    = $storage->load($display_id);
 
+    $this->blazyManager->getCommonSettings($settings);
+
     if (!$display) {
       $values = [
         'targetEntityType' => $this->entityType,

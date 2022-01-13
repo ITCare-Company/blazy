@@ -4,6 +4,8 @@
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
  * @see https://developers.google.com/web/updates/2016/04/intersectionobserver
+ * @todo refactor to fallback to native right here, not on the loaders, to avoid
+ * all or nothing, and degrades gracefully.
  */
 
 /* global define, module */

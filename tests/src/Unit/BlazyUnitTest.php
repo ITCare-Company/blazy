@@ -45,7 +45,7 @@ class BlazyUnitTest extends UnitTestCase {
    */
   public function testBuildIframe(array $data, $expected) {
     $variables             = ['attributes' => [], 'image' => []];
-    $settings              = BlazyDefault::entitySettings();
+    $settings              = BlazyDefault::htmlSettings();
     $settings['embed_url'] = '//www.youtube.com/watch?v=E03HFA923kw';
     $settings['type']      = 'video';
     $settings['bundle']    = 'remote_video';

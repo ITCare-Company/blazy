@@ -495,7 +495,7 @@
     // No defValue defined, or withDefault set, means a getter.
     if (_getter) {
       // @todo figure out multi-element getters. Ok for now, as hardly multiple.
-      var el = els.length ? els[0] : els;
+      var el = els && els.length ? els[0] : els;
       if (_undefined) {
         defValue = '';
       }
@@ -800,14 +800,16 @@
    *
    * @param {Element} el
    *   The element to compare.
-   * @param {string} str
-   *   HTML tag to match against.
+   * @param {string|Array.<string>} tags
+   *   HTML tag(s) to match against.
    *
    * @return {bool}
    *   Returns true if matches, else false.
    */
-  function equal(el, str) {
-    return isQuery(el) && (el.nodeName.toLowerCase() === str.toLowerCase());
+  function equal(el, tags) {
+    return _some.call(toArray(tags), function (tag) {
+      return isQuery(el) && (el.nodeName.toLowerCase() === tag.toLowerCase());
+    });
   }
 
   /**
@@ -919,8 +921,49 @@
   function windowSize() {
     return {
       width: windowWidth(),
-      height: _win.innerHeight
+      height: _win.innerHeight || _doc.documentElement.clientHeight
     };
+  }
+
+  /**
+   * Returns viewport info.
+   *
+   * @private
+   *
+   * @param {Element} offset
+   *   The offset defined via UI normally related to header fixed position.
+   *
+   * @return {Object}
+   *   Returns the window viewport info.
+   */
+  function viewport(offset) {
+    offset = offset || 0;
+    var size = windowSize();
+    return {
+      top: 0 - offset,
+      left: 0 - offset,
+      bottom: size.height + offset,
+      right: size.width + offset
+    };
+  }
+
+  /**
+   * Returns element visibility.
+   *
+   * @private
+   *
+   * @param {Element} el
+   *   The HTML element to test.
+   * @param {Object} vp
+   *   The window viewport.
+   *
+   * @return {bool}
+   *   Returns true if visible.
+   */
+  function isVisible(el, vp) {
+    var rect = el.getBoundingClientRect();
+
+    return ((rect.top > vp.top || rect.bottom > 0) && rect.top < vp.bottom);
   }
 
   /**
@@ -1095,7 +1138,31 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
    */
   function isDecoded(img) {
-    return img.decoded || img.complete;
+    return (img.decoded || img.complete) && img.naturalHeight !== 0;
+  }
+
+  /**
+   * Checks if image is decoded/ completely loaded.
+   *
+   * @private
+   *
+   * @param {Image|Iframe} el
+   *   The Image or Iframe element.
+   *
+   * @return {bool}
+   *   True if the image or iframe is loaded.
+   */
+  function isLoaded(el) {
+    if (isElm(el)) {
+      if (equal(el, 'img')) {
+        return isDecoded(el);
+      }
+      if (equal(el, 'iframe')) {
+        var doc = el.contentDocument || el.contentWindow.document;
+        return doc.readyState === 'complete';
+      }
+    }
+    return false;
   }
 
   /**
@@ -1139,7 +1206,11 @@
    */
   function toElms(selector, context) {
     // Assume selector is an array-like element if not a string.
-    var elements = isStr(selector) ? context.querySelectorAll(selector) : toArray(selector);
+    var elements = toArray(selector);
+    if (isStr(selector)) {
+      var check = context.querySelector(selector);
+      elements = isNull(check) ? [] : context.querySelectorAll(selector);
+    }
 
     // Ensures an array is returned and not a NodeList or an Array-like object.
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
@@ -1473,6 +1544,8 @@
   db.windowWidth = windowWidth;
   db.windowSize = windowSize;
   db.activeWidth = activeWidth;
+  db.viewport = viewport;
+  db.isVisible = isVisible;
 
   // Event methods.
   fn.toEvent = function (eventName, cb, params, isCustom, op) {
@@ -1510,6 +1583,7 @@
 
   // Image methods.
   db.isDecoded = isDecoded;
+  db.isLoaded = isLoaded;
 
   // Similar to core domReady, only public and generic.
   fn.ready = function (callback) {
@@ -1558,13 +1632,13 @@
    *
    * @param {dBlazy|Array.<Element>|Element} els
    *   The HTML element(s), or dBlazy instance.
-   * @param {string} animation
-   *   Any custom animation name, fallbacks to [data-animation].
+   * @param {string|Function} cb
+   *   Any custom animation name, fallbacks to [data-animation], or a callback.
    *
    * @return {Object}
    *   This dBlazy object.
    */
-  function animate(els, animation) {
+  function animate(els, cb) {
     var me = this;
 
     var chainCallback = function (el) {
@@ -1574,19 +1648,18 @@
 
       var $el = db(el);
       var _set = el.dataset;
+      var animation = _set.animation;
 
-      animation = animation || _set.animation;
+      if (isStr(cb)) {
+        animation = cb;
+      }
 
       var _ani = 'animation';
       var _animated = 'animated';
       var _aniEnd = _ani + 'end.' + animation;
-      var _transEnd = 'transitionend.' + animation;
       var _style = el.style;
       var _blur = 'blur';
       var _bblur = 'b-' + _blur;
-      var _tmp = _bblur + '--tmp';
-      var _elTmp = '.' + _tmp;
-      var _bloaded = 'b-loaded';
       var classes = _animated + ' ' + animation;
       var props = [
         _ani,
@@ -1607,16 +1680,15 @@
       // Supports both BG and regular image.
       var cn = closest(el, '.media') || el;
       var bg = $el.hasClass('b-bg');
-      var blur = find(cn, _elTmp);
       var isBlur = animation === _blur;
       var an = el;
 
-      // The animated blur is image not this container.
+      // The animated blur is image not this container, except a background.
       if (isBlur && !bg) {
-        an = find(cn, '.' + _bloaded + ':not(' + _elTmp + ')') || an;
+        an = find(cn, 'img:not(.' + _bblur + ')') || an;
       }
 
-      function ended() {
+      function ended(e) {
         $el.addClass('is-b-' + _animated)
           .removeClass(classes)
           .removeAttr(props, 'data-');
@@ -1625,10 +1697,12 @@
           _style.removeProperty(key);
         });
 
-        removeClass(blur, _bblur);
+        if (isFun(cb)) {
+          cb(e);
+        }
       }
 
-      return one(an, bg && isBlur ? _transEnd : _aniEnd, ended);
+      return one(an, _aniEnd, ended, false);
     };
 
     return chain.call(els, chainCallback);
@@ -1698,6 +1772,7 @@
    *   The function executed at the specified minDelay.
    */
   db.throttle = function (cb, minDelay, scope) {
+    minDelay = minDelay || 50;
     var lastCall = 0;
     return function () {
       var now = +new Date();

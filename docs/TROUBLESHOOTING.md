@@ -35,7 +35,7 @@ Ensure that blazy library is loaded, and no extras errors. Steps:
   theme JS errors might break Blazy. Press F12 at browsers to fix them one by
   one.
 * Be sure you can see the library file contents at browsers:  
-  `https://mysite.com/libraries/blazy/blazy.js`  
+  `https://mysite.com/libraries/blazy/blazy.min.js`  
   or any path supported by core library finder when using distros, etc.
   Normally 404 (wrong placement), or 403 (folder permission) is the culprit.
 

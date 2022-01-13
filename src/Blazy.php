@@ -22,11 +22,25 @@ class Blazy implements BlazyInterface {
   private static $blazyId;
 
   /**
+   * The AMP page.
+   *
+   * @var bool
+   */
+  private static $isAmp;
+
+  /**
    * The preview mode to disable Blazy where JS is not available, or useless.
    *
    * @var bool
    */
   private static $isPreview;
+
+  /**
+   * The preview mode to disable interactive elements.
+   *
+   * @var bool
+   */
+  private static $isSandboxed;
 
   /**
    * {@inheritdoc}
@@ -77,10 +91,14 @@ class Blazy implements BlazyInterface {
    */
   public static function buildResponsiveImage(array &$variables): void {
     $settings = $variables['settings'];
-    $attributes = $settings['is_preview'] ? ['loading' => 'lazy'] : [
+    $natives = ['decoding' => 'async'];
+
+    // @todo at 2022/1 core has no loading Responsive, remove when it lands.
+    $attributes = ($settings['is_preview'] ? $natives : [
       'data-b-lazy' => $settings['one_pixel'],
       'data-placeholder' => $settings['placeholder'],
-    ];
+    ]) + ['loading' => 'lazy'];
+
     $variables['image'] += [
       '#type' => 'responsive_image',
       '#responsive_image_style_id' => $settings['responsive_image_style_id'],
@@ -159,12 +177,13 @@ class Blazy implements BlazyInterface {
     $image['#attributes'] = empty($image['#attributes']) ? $attributes : NestedArray::mergeDeep($image['#attributes'], $attributes);
 
     // Provides a noscript if so configured, before any lazy defined.
+    // Not needed at preview mode, or when native lazyload takes over.
     if (!empty($settings['noscript']) && empty($settings['is_preview'])) {
       self::buildNoscriptImage($variables);
     }
 
     // Provides [data-(src|lazy)] for (Responsive) image, after noscript.
-    if (!empty($settings['lazy'])) {
+    if (!empty($settings['lazy']) || !empty($settings['observer'])) {
       self::lazyAttributes($image['#attributes'], $settings);
     }
   }
@@ -173,16 +192,24 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function iframeAttributes(array &$settings): array {
-    if (empty($settings['is_preview'])) {
+    $attributes['class'][] = 'b-lazy';
+    $attributes['loading'] = 'lazy';
+    $attributes['allowfullscreen'] = TRUE;
+
+    // Inside CKEditor must disable interactive elements.
+    if ($settings['is_sandboxed']) {
+      $attributes['sandbox'] = TRUE;
+      $attributes['src'] = $settings['embed_url'];
+    }
+    // Native lazyload just loads the URL directly.
+    // @todo rec-check, with many videos like carousels on the page may chaos.
+    elseif ($settings['is_preview']) {
+      $attributes['src'] = $settings['embed_url'];
+    }
+    // Non-native lazyload for oldies to avoid loading src, the most efficient.
+    else {
       $attributes['data-src'] = $settings['embed_url'];
       $attributes['src'] = 'about:blank';
-      $attributes['class'][] = 'b-lazy';
-      $attributes['allowfullscreen'] = TRUE;
-      $attributes['loading'] = 'lazy';
-    }
-    else {
-      $attributes['src'] = $settings['embed_url'];
-      $attributes['sandbox'] = TRUE;
     }
 
     $attributes['class'][] = 'media__iframe';
@@ -236,10 +263,12 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function lazyAttributes(array &$attributes, array $settings = []): void {
+    // For consistent CSS fix, and w/o Native.
+    $attributes['class'][] = $settings['lazy_class'];
+
     // Slick has its own class and methods: ondemand, anticipative, progressive.
     // @todo remove this condition once sub-modules have been aware of preview.
     if (empty($settings['is_preview'])) {
-      $attributes['class'][] = $settings['lazy_class'];
       $attributes['data-' . $settings['lazy_attribute']] = $settings['image_url'];
     }
   }
@@ -406,26 +435,42 @@ class Blazy implements BlazyInterface {
    */
   public static function isPreview(): bool {
     if (!isset(static::$isPreview)) {
-      $sets  = \blazy()->configLoad() + BlazyDefault::uiSettings();
+      $sets = \blazy()->configLoad() + BlazyDefault::uiSettings();
+      static::$isPreview = !empty($sets['nojs']) || self::isAmp() || self::isSandboxed();
+    }
+    return static::$isPreview;
+  }
+
+  /**
+   * Checks if Blazy is in AMP pages.
+   */
+  public static function isAmp(): bool {
+    if (!isset(static::$isAmp)) {
       $stack = self::requestStack();
+      static::$isAmp = $stack && $stack->getCurrentRequest()->query->get('amp');
+    }
+    return static::$isAmp;
+  }
+
+  /**
+   * In CKEditor without JS assets, interactive elements must be sandboxed.
+   */
+  public static function isSandboxed(): bool {
+    if (!isset(static::$isSandboxed)) {
       $route = self::routeMatch()->getRouteName();
-      $check = !empty($sets['nojs']) || ($stack && $stack->getCurrentRequest()->query->get('amp'));
+      $check = FALSE;
 
       // @todo remove after regression fixes, or keep it due to thumbnail sizes.
-      if (!$check) {
-        $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
-        foreach ($edits as $key) {
-          if (mb_strpos($route, $key) !== FALSE) {
-            $check = TRUE;
-            break;
-          }
+      $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
+      foreach ($edits as $key) {
+        if (mb_strpos($route, $key) !== FALSE) {
+          $check = TRUE;
+          break;
         }
       }
-
-      static::$isPreview = $check;
+      static::$isSandboxed = $check;
     }
-
-    return static::$isPreview;
+    return static::$isSandboxed;
   }
 
   /**

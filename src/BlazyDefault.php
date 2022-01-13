@@ -225,14 +225,20 @@ class BlazyDefault {
   public static function htmlSettings() {
     return [
       'blazy_data'       => [],
+      'blur'             => FALSE,
       'check_blazy'      => FALSE,
+      'fluid'            => FALSE,
+      'observer'         => FALSE,
       'lightbox'         => FALSE,
       'namespace'        => 'blazy',
       'id'               => '',
+      'is_amp'           => FALSE,
       'is_preview'       => FALSE,
+      'is_sandboxed'     => FALSE,
       '_richbox'         => FALSE,
       'resimage'         => FALSE,
       'route_name'       => '',
+      'use_ajax'         => FALSE,
       'use_field'        => FALSE,
       'unstyled'         => FALSE,
       'view_name'        => '',
@@ -313,6 +319,7 @@ class BlazyDefault {
    */
   public static function components() {
     return [
+      'blur',
       'column',
       'filter',
       'flex',
@@ -320,6 +327,7 @@ class BlazyDefault {
       'nativegrid',
       'nativegrid.masonry',
       'media',
+      'observer',
       'photobox',
       'ratio',
     ];

@@ -1,8 +1,8 @@
-# @todo adjust weights to use hundredth decimals.
 # This library appears to be unmaintained, yet it is great and stable for 2KB.
 # @todo consider forking it as a module asset to expose private function/methods
 # and minimize dup ones to likely 1KB gzip at 3.+. Unless the author modernizes
-# it with IO by then.
+# it with IO, etc. by then.
+# @todo adjust weights to use hundredth decimals.
 blazy:
   header: true
   remote: https://github.com/dinbror/blazy
@@ -39,43 +39,63 @@ base:
   css:
     component:
       css/blazy.css: {}
+
+# Shared drupal-related methods normally driven by Drupal UI options.
+drupal:
   js:
-    js/base/blazy.base.min.js: { minified: true, weight: -1.6 }
+    js/base/blazy.drupal.min.js: { minified: true, weight: -1.6 }
   dependencies:
     # @todo when min D9.2 - core/once
     - core/drupal
     - core/drupal.debounce
+    - blazy/dblazy
+    - blazy/base
 
-# The bLazy, IO, Native loader aka initializer.
+# Compat methods between Native and lazyload script when being ditched.
+compat:
+  js:
+    js/blazy.compat.min.js: { minified: true, weight: -1.6 }
+  dependencies:
+    - blazy/internal
+    - blazy/drupal
+
+# The blazy/compat implementations with [Intersection|Mutation|Resize]Observer.
+# Not loaded if blur OFF, fluid ratio OFF, CSS BG OFF, and plain images.
+# @todo refactor when the first @todo above is in.
+observer:
+  js:
+    js/plugin/blazy.io.min.js: { minified: true, weight: -1.5 }
+    js/plugin/blazy.ro.min.js: { minified: true, weight: -1.5 }
+  dependencies:
+    - blazy/compat
+
+# The bLazy, IO, Native loader aka initializer for IE9+ and modern browsers.
+# Not loaded when `No JavaScript` is enabled.
 load:
   js:
     js/blazy.load.min.js: { minified: true, weight: -1.5 }
   dependencies:
     - blazy/blazy
-    - blazy/dblazy
-    - blazy/internal
+    - blazy/compat
     - blazy/loading
 
-# Intersection observer.
+# Alt bLazy with Intersection observer, implemented by bio.media, or IO.module.
+# Not loaded when `No JavaScript` is enabled.
+# @todo merge it with localized/ forked bLazy to degrade/ avoid all or nothing.
 bio:
   js:
     js/components/io/bio.min.js: { minified: true, weight: -3 }
   dependencies:
-    - blazy/dblazy
     - blazy/internal
 
+# Intersection observer media as a bLazy alternative for modern browsers only.
+# Not loaded when `No JavaScript` is enabled.
+# @todo merge it with localized/ forked bLazy to degrade/ avoid all or nothing
 bio.media:
   js:
     js/components/io/bio.media.min.js: { minified: true, weight: -2 }
   dependencies:
     - blazy/bio
-
-bio.ajax:
-  js:
-    js/components/io/bio.ajax.min.js: { minified: true }
-  dependencies:
-    - core/drupal.ajax
-    - blazy/load
 
 # Optional components.
 loading:
@@ -92,16 +112,16 @@ filter:
     component:
       css/components/blazy.filter.css: {}
   dependencies:
-    - core/drupal
-    - blazy/dblazy
-    - blazy/base
+    - blazy/drupal
 
-fx.blur:
+blur:
+  js:
+    js/plugin/blazy.blur.min.js: { minified: true }
   css:
     component:
-      css/components/blazy.fx.blur.css: {}
+      css/components/blazy.blur.css: {}
   dependencies:
-    - blazy/loading
+    - blazy/observer
 
 media:
   js:
@@ -110,8 +130,7 @@ media:
     component:
       css/components/blazy.media.css: {}
   dependencies:
-    - core/drupal
-    - blazy/dblazy
+    - blazy/drupal
     - blazy/ratio
 
 oembed:
@@ -146,7 +165,7 @@ flex:
   js:
     js/components/grid/blazy.flex.min.js: { minified: true }
   dependencies:
-    - blazy/base
+    - blazy/observer
 
 grid:
   css:
@@ -166,9 +185,7 @@ nativegrid.masonry:
   js:
     js/components/grid/blazy.nativegrid.masonry.min.js: { minified: true }
   dependencies:
-    - core/drupal
-    - blazy/dblazy
-    - blazy/base
+    - blazy/observer
     - blazy/nativegrid
 
 # Lightboxes.
@@ -186,8 +203,7 @@ blazybox:
     component:
       css/components/box/blazy.blazybox.css: {}
   dependencies:
-    - core/drupal
-    - blazy/dblazy
+    - blazy/drupal
     - blazy/lightbox
 
 colorbox:
@@ -197,7 +213,7 @@ colorbox:
   js:
     js/components/jquery/blazy.colorbox.min.js: { minified: true }
   dependencies:
-    - blazy/dblazy
+    - blazy/drupal
     - blazy/ratio
     - colorbox/colorbox
 
@@ -210,7 +226,7 @@ admin:
       css/components/admin/blazy.admin--fixes.css: {}
   dependencies:
     - core/jquery
-    - core/drupal
+    - blazy/drupal
     - blazy/dblazy
 
 # deprecated at 2.5 and removed at 3.+, unmaintained. Use PhotoSwipe, etc.
@@ -229,9 +245,20 @@ photobox:
       /libraries/photobox/photobox/photobox.css: {}
   dependencies:
     - core/jquery
+    - blazy/drupal
     - blazy/dblazy
     # use photobox when available instead.
     # - photobox/photobox
+
+# Ajax helper for VIS, alike.
+# @todo re-check and deprecate it if IO.module, etc. no longer needs it.
+bio.ajax:
+  js:
+    js/components/io/bio.ajax.min.js: { minified: true }
+  dependencies:
+    - core/drupal.ajax
+    # @todo revert if any issues: - blazy/load
+    - blazy/drupal
 
 # deprecated at 2.5 and removed before 3.0.0, included in blazy/colorbox.
 colorbox.skin:
@@ -240,3 +267,11 @@ colorbox.skin:
       css/components/box/blazy.colorbox.css: {}
   dependencies:
     - colorbox/colorbox
+
+# deprecated at 2.5 and removed before 3.0.0, included in blazy/blur.
+fx.blur:
+  css:
+    component:
+      css/components/blazy.blur.css: {}
+  dependencies:
+    - blazy/blur
