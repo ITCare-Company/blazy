@@ -76,7 +76,7 @@ load:
     js/blazy.load.min.js: { minified: true, weight: -1.5 }
   dependencies:
     - blazy/blazy
-    - blazy/compat
+    - blazy/observer
     - blazy/loading
 
 # Alt bLazy with Intersection observer, implemented by bio.media, or IO.module.
