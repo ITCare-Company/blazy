@@ -1138,12 +1138,7 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
    */
   function isDecoded(img) {
-    // @todo revert return (img.decoded || img.complete) && img.naturalHeight !== 0;
-    if ('decoded' in img) {
-      return img.decoded;
-    }
-
-    return img.complete;
+    return img.decoded || img.complete;
   }
 
   /**

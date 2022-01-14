@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-01-14
+-----------------------------
+- Issue #3257916 by gausarts: Consider native API like ResizeObserver,
+  IntersectionObserver, MutationObserver.
+
 Blazy 8.x-2.0-dev, 2022-01-08
 -----------------------------
 - Issue #3257512 by gausarts: Decouple lazyload JavaScript. Leaving Blazy as DRY
