@@ -2,94 +2,18 @@
  * @file
  * Provides non-reusable methods due to being too specific for Blazy.
  *
+ * Required only by old data-[SRC|SCRSET] approach, bio.media and blazy.load.
+ * Not required by pure Native without data-[SRC|SCRSET].
+ *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy sub-modules.
  *   It is extending dBlazy as a separate plugin.
  */
 
-(function ($) {
+(function ($, Drupal) {
 
   'use strict';
-
-  /**
-   * Updates CSS background with multi-breakpoint images.
-   *
-   * @private
-   *
-   * @param {dBlazy|Array.<Element>|Element} els
-   *   The container HTML element(s), or dBlazy instance.
-   * @param {Object} winData
-   *   Containing ww: windowWidth, and up: to use min-width or max-width.
-   *
-   * @return {Object}
-   *   This dBlazy object.
-   */
-  function bg(els, winData) {
-    var chainCallback = function (el) {
-      if ($.isElm(el)) {
-        var data = $.parse($.attr(el, 'data-b-bg'));
-
-        if (data) {
-          var _bg = $.activeWidth(data, winData);
-          var _style = el.style;
-          if (_bg && _bg !== 'undefined') {
-            var _ratio = _bg.ratio;
-            _style.backgroundImage = 'url("' + _bg.src + '")';
-
-            // Allows to disable Aspect ratio if it has known/ fixed heights such as
-            // gridstack multi-size boxes.
-            if (_ratio && !$.hasClass(el, 'b-noratio')) {
-              _style.paddingBottom = _ratio + '%';
-            }
-          }
-        }
-      }
-    };
-
-    return $.chain(els, chainCallback);
-  }
-
-  $.bg = bg;
-  $.fn.bg = function (winData) {
-    return bg(this, winData);
-  };
-
-  /**
-   * Removes common loading indicator classes.
-   *
-   * @private
-   *
-   * @param {dBlazy|Array.<Element>|Element} els
-   *   The loading HTML element(s), or dBlazy instance.
-   *
-   * @return {Object}
-   *   This dBlazy object.
-   */
-  function unloading(els) {
-    var chainCallback = function (el) {
-      var _loading = 'loading';
-      // The .b-lazy element can be attached to IMG, or DIV as CSS background.
-      // The .(*)loading can be .media, .grid, .slide__content, .box, etc.
-      var loaders = [el, $.closest(el, '[class*="' + _loading + '"]')];
-
-      $.each(loaders, function (loader) {
-        if ($.isElm(loader)) {
-          var name = loader.className;
-          if ($.contains(name, _loading)) {
-            loader.className = name.replace(/(\S+)loading/g, '');
-          }
-        }
-      });
-    };
-
-    return $.chain(els, chainCallback);
-  }
-
-  $.unloading = unloading;
-  $.fn.unloading = function () {
-    return unloading(this);
-  };
 
   /**
    * Map attributes from data-BLAH to BLAH, and remove data-BLAH if so required.
@@ -176,4 +100,21 @@
     return mapSource(this, attr, remove);
   };
 
-})(dBlazy);
+  /**
+   * Blazy public data attribute methods.
+   *
+   * @namespace
+   */
+  Drupal.blazy = $.extend(Drupal.blazy || {}, {
+    mapAttr: function (els) {
+      // Mark it loaded to prevent bLazy/ IO to do any further work.
+      $(els).addClass(this.options.successClass)
+        // Reset attributes, and let supportive browsers lazy load natively.
+        .mapAttr(['srcset', 'src'], true)
+
+        // Also supports PICTURE or (future) VIDEO which contains SOURCEs.
+        .mapSource(false, true);
+    }
+  });
+
+})(dBlazy, Drupal);

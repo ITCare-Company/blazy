@@ -54,7 +54,12 @@ class BlazyDefault {
    * Returns settings provided by various UI.
    */
   public static function anywhereSettings() {
-    return ['fx' => '', 'lazy' => '', 'nojs' => '', 'style' => ''];
+    return [
+      'fx'    => '',
+      'lazy'  => '',
+      'nojs'  => [],
+      'style' => '',
+    ];
   }
 
   /**
@@ -319,6 +324,7 @@ class BlazyDefault {
    */
   public static function components() {
     return [
+      'background',
       'blur',
       'column',
       'filter',
@@ -328,8 +334,23 @@ class BlazyDefault {
       'nativegrid.masonry',
       'media',
       'observer',
+      'polyfill',
+      'raf',
+      'promise',
       'photobox',
       'ratio',
+    ];
+  }
+
+  /**
+   * Returns available nojs components.
+   */
+  public static function nojs() {
+    return [
+      'lazy',
+      'polyfill',
+      'raf',
+      'promise',
     ];
   }
 

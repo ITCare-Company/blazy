@@ -1,4 +1,13 @@
 
+Blazy 8.x-2.0-dev, 2022-01-16
+-----------------------------
+- Added more massive optimization.
+- Decoupled more components: Polyfills, Background, Blur, Loading, Dataset, etc.
+- Added more No JavaScript polyfill options: raf, promise, and few basic ones.
+- Added IO fallback for old browsers to avoid all or nothing.
+- Renamed and merged library blazy/colorbox.skin for blazy/colorbox.
+- Renamed and merged library blazy/fx.blur for blazy/blur.
+
 Blazy 8.x-2.0-dev, 2022-01-14
 -----------------------------
 - Issue #3257916 by gausarts: Consider native API like ResizeObserver,

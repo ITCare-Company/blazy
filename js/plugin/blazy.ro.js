@@ -1,6 +1,6 @@
 /**
  * @file
- * Provides IntersectionObserver with fallback extension for Drupal.blazy.
+ * Provides ResizeObserver with fallback extension for Drupal.blazy.
  */
 
 (function ($, Drupal, _win) {

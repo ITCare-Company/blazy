@@ -140,7 +140,6 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Multi-breakpoint aspect ratio only applies if lazyloaded.
     // These may be set once at formatter level, or per breakpoint above.
-    // @todo remove  && empty($settings['nojs'])
     if (!empty($settings['blazy_data']['dimensions'])) {
       $attributes['data-dimensions'] = Json::encode($settings['blazy_data']['dimensions']);
     }

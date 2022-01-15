@@ -1,6 +1,8 @@
 /**
  * @file
  * Provides IntersectionObserver with fallback extension for Drupal.blazy.
+ *
+ * @bigtodo merge with [Bio]Media to minimize dups, and more reliable events.
  */
 
 (function ($, Drupal, _win) {
@@ -27,6 +29,7 @@
   var ioRaf = false;
   var ioQueue = [];
 
+  // @todo re-use and move it into bio.js instead, unreliable with large images.
   function onIntersecting(el, cn) {
     var me = this;
     var done = false;
@@ -42,7 +45,7 @@
     // Native doesn't support lazyloading DIV as of this writing (22/1).
     // The load/error events are applicable to IMG, IFRAME, VIDEO, not DIV.
     // The minimal of the library IO/bLazy without preloading, decoding, etc.
-    if ($.hasAttr(cn, _dataBg)) {
+    if ($.hasAttr(cn, _dataBg) && $.isFun($.bg)) {
       $.bg(cn, me.winData());
       onLoaded(cn);
       done = true;
@@ -76,6 +79,8 @@
    *
    * @param {Element|Event} e
    *   The .b-bg element (DIV), or event (IMG) if onload|onerror triggered.
+   *
+   * @todo re-use and move it into bio.js instead, unreliable with large images.
    */
   function onLoaded(e) {
     var target = e.target;
@@ -92,6 +97,8 @@
    *
    * @param {Element} el
    *   The DIV or image element.
+   *
+   * @todo re-use and move it into bio.js instead, unreliable with large images.
    */
   function onVisible(el) {
     // Blur, animate.css, for CSS background, picture, image, media.
@@ -155,6 +162,8 @@
    *
    * @return {bool}
    *   Returns false to identify IO is not supported by default.
+   *
+   * @todo re-use and move it into bio.js instead, unreliable with large images.
    */
   function intersect(entries) {
     var me = this;
@@ -191,6 +200,8 @@
    *
    * @return {Object}
    *   Returns public methods.
+   *
+   * @todo re-use and move it into bio.js instead, unreliable with large images.
    */
   function io() {
     var me = this;
@@ -198,7 +209,6 @@
 
     function _intersect(entries) {
       if (!ioQueue.length) {
-        // To support <= IE10, include its polyfill at your theme globally.
         ioRaf = requestAnimationFrame(_enqueue);
       }
 
@@ -214,7 +224,7 @@
     // IE11 not supported, we'll provide a fallback.
     // @see https://caniuse.com/IntersectionObserver
     _ioObserve = function () {
-      return me._isIo ? new IntersectionObserver(_intersect) : _intersect(items);
+      return $.isIo ? new IntersectionObserver(_intersect) : _intersect(items);
     };
 
     // Uses IntersectionObserver for modern browsers, else degrades.
@@ -231,6 +241,9 @@
       else {
         $.bindEvent(_win, _scrollEvent, $.debounce(_ioObserve));
       }
+
+      // @todo hook into Bio to DRY.
+      // me.init = me.run(me.options);
     }
 
     return {
@@ -239,7 +252,6 @@
           $.unbindEvent(_win, _scrollEvent, _ioObserve);
         }
         if (ioRaf) {
-          // To support <= IE10, include its polyfill at your theme globally.
           cancelAnimationFrame(ioRaf);
         }
       }

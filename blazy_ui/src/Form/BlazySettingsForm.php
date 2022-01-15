@@ -66,15 +66,22 @@ class BlazySettingsForm extends ConfigFormBase {
       '#description'   => $this->t('Uncheck to disable blazy related admin compact form styling, only if not compatible with your admin theme.'),
     ];
 
-    // Intentionally not using checkbox for future refinement as needed.
-    $nojs = ['lazy'];
+    $nojs = $config->get('nojs');
     $form['nojs'] = [
-      '#type'          => 'select',
+      '#type'          => 'checkboxes',
       '#title'         => $this->t('No JavaScript'),
       '#empty_option'  => '- None -',
-      '#options'       => array_combine($nojs, $nojs),
-      '#default_value' => $config->get('nojs'),
-      '#description'   => $this->t('<ul><li><b>Lazy</b>: remove lazyload libraries and loader/ initializer scripts (<code>blazy.js, blazy.load.js, bio.js, bio.media.js</code>. their <code>.min</code> ones) for non-js Native lazy. <br><b>Note!</b> While the above is always valid, a <code>blazy/compat</code> or <code>blazy/dblazy</code> in the least is conditionally loaded as required if any js-dependent options are enabled: <ul><li>Image effect animation or Blur.</li><li>Dynamic multi-breakpoint aka Fluid aspect ratio (excluding fixed ones).</li><li>Dynamic multi-breakpoint (Responsive|Picture based), or static CSS background.</li><li>Local video.</li><li>Extra features: sub-module requirements. Slick, Splide, Ultimenu, Jumper, etc. might require <code>blazy/dblazy</code>, not a lazyload script, just common jQuery replacement methods for vanilla ones.</li></ul></li></ul>As of 2022/1, Native only supports IMG and IFRAME, the exceptions above cover DIV, VIDEO, etc. Other JavaScript (Media Player, Lightbox, Non-css Masonry (Flexbox or Nativegrid), etc.) can already be disabled via Formatters since 1.x. <a href=":url">Read more</a>.', [':url' => 'https://drupal.org/node/3257512']),
+      '#options' => [
+        'lazy' => $this->t('Lazyload'),
+        'polyfill' => $this->t('Basic polyfills'),
+        'promise' => $this->t('Promise polyfill (ie11)'),
+        'raf' => $this->t('requestAnimationFrame polyfill (ie9)'),
+      ],
+      '#default_value' => !empty($nojs) ? array_values((array) $nojs) : [],
+      '#description'   => $this->t("Enable to not load them if you don't support IEs, or have polyfills at your theme globally. File sizes approximately in minified gzip. For illustration, Colorbox which is called very light has size 4.8KB + jQuery (31KB) = 35.8KB. Blazy never loads all its JavaScript at once, instead conditionally and carefully load ones as required. Mostly based on your options including these ones. <ul><li><b>Lazyload</b>: remove libraries and loader/ initializer scripts (<code>blazy.js (2.2KB), blazy.load.js (1.2KB), bio.media.js (1.7KB, including bio.js)</code>.) for non-js Native lazy. <br><b>Note!</b> While the above is always valid, a <code>blazy/compat (2.6KB)</code> or <code>blazy/dblazy (3.7KB)</code> in the least is conditionally loaded as required if any js-dependent options are enabled: <ul><li>Image effect animation or Blur.</li><li>Dynamic multi-breakpoint aka Fluid aspect ratio (excluding fixed ones).</li><li>Dynamic multi-breakpoint (Responsive|Picture based), or static CSS background.</li><li>Local video.</li><li>Sub-module requirements. Slick, Splide, Ultimenu, Jumper, etc. might require <code>blazy/dblazy</code>, not a lazyload script, just common jQuery replacement methods for vanilla ones.</li></ul></li><li><b>Polyfills</b>: Only loaded (total 2.2KB) if the above conditions meet, and left unchecked. Basic polyfills: <code>closest, matches, startsWith, CustomEvent</code>. For other polyfills, due to questionabe licenses, include them into your theme as needed such as <a href=':io'>IntersectionObserver</a>, etc. </li></ul>As of 2022/1, Native only supports IMG and IFRAME, the exceptions above cover DIV, VIDEO, etc. Other JavaScript (Media Player, Lightbox, Non-css Masonry (Flexbox or Nativegrid), etc.) can already be disabled via Formatters since 1.x. jQuery (31KB) is only loaded for Colorbox (4.8KB) + blazy.colorbox.js (1.2KB) and admin UIs. Details in blazy/js directory. <a href=':url'>Read more</a>.", [
+        ':url' => 'https://drupal.org/node/3257512',
+        ':io' => 'https://github.com/w3c/IntersectionObserver',
+      ]),
     ];
 
     $form['decode'] = [
@@ -189,7 +196,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#tree'        => TRUE,
       '#open'        => TRUE,
       '#title'       => $this->t('Intersection Observer API (IO) settings (<b>Experimental!</b>)'),
-      '#description' => $this->t('The following settings are related to <a href=":url">IntersectionObserver API</a>.', [':url' => 'https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API']),
+      '#description' => $this->t('Will fallback gracefully to old bLazy-like with Native support for old browsers to avoid all or nothing. The best deal to support both modern and old browsers. <br>The following settings are related to <a href=":url">IntersectionObserver API</a>.', [':url' => 'https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API']),
     ];
 
     $form['io']['enabled'] = [
@@ -203,7 +210,7 @@ class BlazySettingsForm extends ConfigFormBase {
       '#type'          => 'checkbox',
       '#title'         => $this->t('Unload bLazy'),
       '#default_value' => $config->get('io.unblazy'),
-      '#description'   => $this->t("Check if you are happy with IO. This will not load the original bLazy library, no fallback. Watch out for JS errors at browser consoles, and uncheck if any, or unsure. Blazy is just ~1KB gzip. Clear caches!"),
+      '#description'   => $this->t("Check if you are happy with IO. This will not load the original bLazy library, no fallback. Watch out for JS errors at browser consoles, and uncheck if any, or unsure. Blazy is just ~2KB gzip. Clear caches!"),
     ];
 
     $form['io']['rootMargin'] = [

@@ -6,8 +6,11 @@ blazy.settings:
       type: boolean
       label: 'Admin CSS'
     nojs:
-      type: string
+      type: sequence
       label: 'No JavaScript'
+      sequence:
+        - type: string
+          label: nojs
     decode:
       type: boolean
       label: 'Use decoding'

@@ -243,14 +243,19 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
-    // Only if using old Blazy loader when `No JavaScript` option is disabled.
-    if (empty($attach['nojs'])) {
-      $load['library'][] = 'blazy/load';
+    // Only if `No JavaScript` option is disabled, or has observer.
+    if (empty($attach['nojs']['lazy']) || $attach['observer']) {
+      foreach (BlazyDefault::nojs() as $key) {
+        if (empty($attach['nojs'][$key])) {
+          $lib = $key == 'lazy' ? 'load' : $key;
+          $load['library'][] = 'blazy/' . $lib;
+        }
+      }
     }
 
     // Always keep Drupal UI config to support dynamic compat features.
     $config = $this->configLoad('blazy');
-    $config['loader'] = empty($attach['nojs']);
+    $config['loader'] = empty($attach['nojs']['lazy']);
     $load['drupalSettings']['blazy'] = $config;
     $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
 
@@ -268,7 +273,14 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function getIoSettings(array $attach = []) {
     $io = [];
-    $thold = trim($this->configLoad('io.threshold')) ?: '0';
+    $thold = trim($this->configLoad('io.threshold'));
+    $thold = str_replace(['[', ']'], '', $thold ?: '0');
+
+    // @todo re-check, looks like the default 0 is broken sometimes.
+    if ($thold == '0') {
+      $thold = '0, 0.25, 0.5, 0.75, 1';
+    }
+
     $number = strpos($thold, '.') !== FALSE ? (float) $thold : (int) $thold;
     $thold = strpos($thold, ',') !== FALSE ? array_map('trim', explode(',', $thold)) : [$number];
 

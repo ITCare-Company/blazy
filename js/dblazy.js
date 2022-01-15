@@ -1,5 +1,7 @@
 /**
  * @file
+ * This file contains common jQuery replacement methods for vanilla ones to DRY.
+ *
  * Cherries by @toddmotto, @cferdinandi, @adamfschwartz, @daniellmb, Cash.
  *
  * Some dup wrappers are meant to DRY with null checks aka poorman null safety.
@@ -435,6 +437,30 @@
   }
 
   /**
+   * Map source object property into the target.
+   *
+   * @private
+   *
+   * @param {Object} source
+   *   Object to map its properties.
+   * @param {Object} target
+   *   Object to have source properties.
+   *
+   * @return {Object}
+   *   Returns target object containing source properties.
+   */
+  function map(source, target) {
+    var key;
+
+    for (key in source) {
+      if (source.hasOwnProperty(key)) {
+        target[key] = source[key];
+      }
+    }
+    return target;
+  }
+
+  /**
    * A simple wrapper for JSON.parse() for string within data-* attributes.
    *
    * @private
@@ -463,7 +489,7 @@
    *   The object to make array.
    *
    * @return {Array}
-   *   The fresulting array.
+   *   The resulting array.
    */
   function toArray(x) {
     return isArr(x) ? x : [x];
@@ -516,7 +542,10 @@
       // Since an attribute value null makes no sense, assumes nullify.
       else if (isNull(defValue)) {
         each(toArray(attr), function (value) {
-          el.removeAttribute(prefix + value);
+          var name = prefix + value;
+          if (el.hasAttribute(name)) {
+            el.removeAttribute(name);
+          }
         });
       }
       else {
@@ -618,7 +647,7 @@
       if (isQuery(el) && isStr(name)) {
         var _list = el.classList;
         var names = name.split(' ');
-        if (el && _list) {
+        if (_list) {
           if (isUnd(op)) {
             names.map(function (value) {
               _list.toggle(value);
@@ -794,7 +823,7 @@
   }
 
   /**
-   * Check if the HTML tag matches a specified string.
+   * Check if an element matches the specified HTML tag.
    *
    * @private
    *
@@ -1134,8 +1163,6 @@
    *
    * @return {bool}
    *   True if the image is loaded.
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
    */
   function isDecoded(img) {
     return img.decoded || img.complete;
@@ -1205,7 +1232,7 @@
    *   An array of elements to process.
    */
   function toElms(selector, context) {
-    // Assume selector is an array-like element if not a string.
+    // Assume selector is an array-like element unless a string.
     var elements = toArray(selector);
     if (isStr(selector)) {
       var check = context.querySelector(selector);
@@ -1423,6 +1450,13 @@
   db.isUnd = isUnd;
   db.isEvt = isEvt;
   db.isQuery = isQuery;
+  db.isIo = 'IntersectionObserver' in _win;
+  db.isMo = 'MutationObserver' in _win;
+  db.isRo = 'ResizeObserver' in _win;
+  db.isNative = 'loading' in HTMLImageElement.prototype;
+  db.isAmd = typeof define === 'function' && define.amd;
+  db._er = -1;
+  db._ok = 1;
 
   // Collection methods.
   db.chain = function (els, cb) {
@@ -1444,6 +1478,8 @@
   fn.extend = function (plugins) {
     return extend(fn, plugins);
   };
+
+  db.map = map;
 
   db.parse = parse;
   db.toArray = toArray;
@@ -1585,6 +1621,12 @@
   db.isDecoded = isDecoded;
   db.isLoaded = isLoaded;
 
+  // Enqueue operations.
+  db.enqueue = function (queue, cb, scope) {
+    each(queue, cb.bind(scope));
+    queue.length = 0;
+  };
+
   // Similar to core domReady, only public and generic.
   fn.ready = function (callback) {
     var cb = function () {
@@ -1609,6 +1651,10 @@
    *
    * @return {Promise}
    *   The Promise object.
+   *
+   * @see https://caniuse.com/promises
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+   * @see https://github.com/taylorhakes/promise-polyfill
    */
   db.decode = function (img) {
     if (isDecoded(img)) {
@@ -1616,6 +1662,7 @@
     }
 
     if ('decode' in img) {
+      img.decoding = 'async';
       return img.decode();
     }
 
@@ -1747,6 +1794,7 @@
     }
     else {
       // If extra arguments are provided, assumes regular loop over elements.
+      // Safe to use fallback _doc since it is normally executed once onready.
       els = findAll(context || _doc, selector);
       if (els.length) {
         _once(each(els, cb));
@@ -1796,6 +1844,8 @@
    *
    * @return {Function}
    *   The callback function.
+   *
+   * @todo merge it with ResizeObserver.
    */
   db.resize = function (cb, t) {
     _win.onresize = function () {

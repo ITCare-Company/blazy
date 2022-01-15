@@ -2,7 +2,9 @@
  * @file
  * Provides compat methods between Native and lazyload script.
  *
- * This is to fix for lost module features due to lazyload script being ditched:
+ * This file is not loaded if all below are not enabled.
+ *
+ * Mostly to fix for lost module features due to lazyload script being ditched:
  *   - Blur or animation in general with animate.css.
  *   - Multiple-breakpoint CSS background (DIV).
  *   - Multiple-breakpoint dynamic, or named Fluid, aspect ratio.
@@ -29,6 +31,24 @@
    */
   Drupal.blazy = $.extend(Drupal.blazy || {}, {
 
+    // Be sure to debounce/ throttle if not using IO.
+    checkViewport: function () {
+      var me = this;
+      $.debounce(function () {
+        me.viewport = $.viewport(me.options.offset);
+        me.windowWidth = me.viewport.right;
+      });
+    },
+
+    winData: function () {
+      var me = this;
+      return {
+        vp: me.viewport || {},
+        ww: me.windowWidth || 0,
+        up: me.options.mobileFirst
+      };
+    },
+
     checkResize: function (items, cb, root, onDone) {
       var me = this;
       var resizer = function (entries) {
@@ -41,7 +61,7 @@
       // IE11 not supported, we'll provide a fallback.
       // @see https://caniuse.com/resizeobserver
       _roObserve = function () {
-        return me._isRo ? new ResizeObserver(resizer) : resizer(items);
+        return $.isRo ? new ResizeObserver(resizer) : resizer(items);
       };
 
       // Checks for aspect ratio, onload event is a bit later.
@@ -96,7 +116,7 @@
    *
    * @type {Drupal~behavior}
    */
-  Drupal.behaviors.blazyObserver = {
+  Drupal.behaviors.blazyCompat = {
     attach: function (context) {
 
       var me = Drupal.blazy;

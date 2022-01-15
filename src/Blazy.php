@@ -314,7 +314,7 @@ class Blazy implements BlazyInterface {
     }
 
     // For CSS fixes.
-    if (!empty($settings['nojs'])) {
+    if (!empty($settings['nojs']['lazy'])) {
       $classes[] = 'blazy--nojs';
     }
 
@@ -436,7 +436,7 @@ class Blazy implements BlazyInterface {
   public static function isPreview(): bool {
     if (!isset(static::$isPreview)) {
       $sets = \blazy()->configLoad() + BlazyDefault::uiSettings();
-      static::$isPreview = !empty($sets['nojs']) || self::isAmp() || self::isSandboxed();
+      static::$isPreview = !empty($sets['nojs']['lazy']) || self::isAmp() || self::isSandboxed();
     }
     return static::$isPreview;
   }

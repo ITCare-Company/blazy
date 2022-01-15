@@ -23,10 +23,6 @@
    * @namespace
    */
   Drupal.blazy = {
-    _isIo: 'IntersectionObserver' in _win,
-    _isMo: 'MutationObserver' in _win,
-    _isRo: 'ResizeObserver' in _win,
-    _isNative: _loading in HTMLImageElement.prototype,
     context: _doc,
     init: null,
     instances: [],
@@ -40,8 +36,10 @@
     options: {},
     clearing: _noop,
     checkResize: _noop,
+    mapAttr: _noop,
     onIntersecting: _noop,
     updateRatio: _noop,
+    winData: _noop,
     extend: function (plugins) {
       _extensions = $.extend({}, _extensions, plugins);
     },
@@ -56,6 +54,16 @@
       };
 
       return $.extend(me.blazySettings, me.ioSettings, commons);
+    },
+
+    run: function (opts) {
+      // If `No JavaScript` enabled, at least hook into basic IO to DRY.
+      if (!opts.loader) {
+        return new Bio(opts);
+      }
+
+      // Else regular lazyloader scripts with data-[SRC|SRCSET] to support IEs.
+      return this.isIo() ? new BioMedia(opts) : new Blazy(opts);
     },
 
     mount: function (exe) {
@@ -74,21 +82,6 @@
       }
 
       return $.extend(me, _extensions);
-    },
-
-    // Be sure to debounce/ throttle if not using IO.
-    checkViewport: function () {
-      var me = this;
-      me.viewport = $.viewport(me.options.offset);
-      me.windowWidth = me.viewport.right;
-    },
-
-    winData: function () {
-      var me = this;
-      return {
-        w: me.windowWidth,
-        up: me.options.mobileFirst
-      };
     },
 
     selector: function (suffix) {
@@ -114,7 +107,7 @@
     update: function (el, delayed) {
       var me = this;
       var _update = function () {
-        if ($.hasAttr(el, _dataBg)) {
+        if ($.hasAttr(el, _dataBg) && $.isFun($.bg)) {
           $.bg(el, me.winData());
         }
         else {
@@ -174,19 +167,10 @@
       }
     },
 
-    mapAttr: function (els) {
-      // Mark it loaded to prevent bLazy/ IO to do any further work.
-      $(els).addClass(this.options[_successClass])
-        // Reset attributes, and let supportive browsers lazy load natively.
-        .mapAttr(['srcset', 'src'], true)
-
-        // Also supports PICTURE or (future) VIDEO which contains SOURCEs.
-        .mapSource(false, true);
-    },
-
     isIo: function () {
       var me = this;
-      return me.ioSettings && me.ioSettings.enabled && me._isIo;
+      // Will degrade gracefully to old bLazy at Bio initialization.
+      return me.ioSettings && me.ioSettings.enabled;
     },
 
     isBlazy: function () {
@@ -199,12 +183,6 @@
     Drupal.debounce(cb.bind(scope), 201, true);
   }
 
-  function enqueue(queue, cb, scope) {
-    $.each(queue, cb.bind(scope));
-    queue.length = 0;
-  }
-
   $.debounce = _debounce;
-  $.enqueue = enqueue;
 
 }(dBlazy, Drupal, drupalSettings, this, this.document));

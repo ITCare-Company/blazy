@@ -7,7 +7,7 @@
  * library supports IE7+, but the module only tested it at IE9+ years ago.
  * There might new IE issues due to latest devs, but could be fixed as needed.
  *
- * @todo convert to dBlazy object where chaining is need or appropriate.
+ * @todo convert to dBlazy object where chaining is needed or appropriate.
  * @todo move out some part which might be relevant for both native and script.
  */
 
@@ -37,10 +37,6 @@
    * @namespace
    */
   Drupal.blazy = $.extend(Drupal.blazy || {}, {
-
-    run: function (opts) {
-      return this.isIo() ? new BioMedia(opts) : new Blazy(opts);
-    },
 
     clearing: function (el) {
       var me = this;
@@ -135,7 +131,7 @@
       var me = this;
       var opts = me.options;
 
-      if (!me._isNative) {
+      if (!$.isNative) {
         return;
       }
 

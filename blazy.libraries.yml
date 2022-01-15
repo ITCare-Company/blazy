@@ -14,10 +14,22 @@ blazy:
   js:
     /libraries/blazy/blazy.min.js: { minified: true, weight: -5 }
 
+# Optional polyfills for IEs, and oldies.
+polyfill:
+  js:
+    js/polyfill/blazy.polyfills.min.js: { minified: true, weight: -6 }
+
+promise:
+  js:
+    js/polyfill/blazy.promise.min.js: { minified: true, weight: -6 }
+
+raf:
+  js:
+    js/polyfill/blazy.raf.min.js: { minified: true, weight: -6 }
+
 # Re-usable library, even for Ultimenu, or any module wish to have vanilla.
 dblazy:
   js:
-    js/base/blazy.polyfills.min.js: { minified: true, weight: -5 }
     js/dblazy.min.js: { minified: true, weight: -4 }
 
 # Extension for dBlazy, not currently used.
@@ -27,10 +39,12 @@ css:
   dependencies:
     - blazy/dblazy
 
-# Extension for dBlazy, non-reusable internal: BG, IO, attributes.
-internal:
+# An IntersectionObserver with fallback to old bLazy-like with Native support,
+# implemented by blazy.compat, bio.media, or IO.module to DRY.
+# @todo merge it with localized/ forked bLazy to degrade/ avoid all or nothing.
+bio:
   js:
-    js/plugin/blazy.internal.min.js: { minified: true, weight: -3 }
+    js/base/io/bio.min.js: { minified: true, weight: -3 }
   dependencies:
     - blazy/dblazy
 
@@ -51,17 +65,24 @@ drupal:
     - blazy/dblazy
     - blazy/base
 
+# Extension for dBlazy when using data-[SRC|SRCSET]: BG, IO, VIDEO, attributes.
+dataset:
+  js:
+    js/plugin/blazy.dataset.min.js: { minified: true, weight: -3 }
+  dependencies:
+    - blazy/dblazy
+
 # Compat methods between Native and lazyload script when being ditched.
 compat:
   js:
     js/blazy.compat.min.js: { minified: true, weight: -1.6 }
   dependencies:
-    - blazy/internal
+    - blazy/bio
     - blazy/drupal
 
 # The blazy/compat implementations with [Intersection|Mutation|Resize]Observer.
 # Not loaded if blur OFF, fluid ratio OFF, CSS BG OFF, and plain images.
-# @todo refactor when the first @todo above is in.
+# @todo refactor when the first @todo above is in. This has dups.
 observer:
   js:
     js/plugin/blazy.io.min.js: { minified: true, weight: -1.5 }
@@ -76,59 +97,61 @@ load:
     js/blazy.load.min.js: { minified: true, weight: -1.5 }
   dependencies:
     - blazy/blazy
-    - blazy/observer
+    - blazy/compat
+    - blazy/dataset
     - blazy/loading
 
-# Alt bLazy with Intersection observer, implemented by bio.media, or IO.module.
-# Not loaded when `No JavaScript` is enabled.
-# @todo merge it with localized/ forked bLazy to degrade/ avoid all or nothing.
-bio:
-  js:
-    js/components/io/bio.min.js: { minified: true, weight: -3 }
-  dependencies:
-    - blazy/internal
-
-# Intersection observer media as a bLazy alternative for modern browsers only.
+# IO media as a bLazy alternative for modern browsers with fallback.
 # Not loaded when `No JavaScript` is enabled.
 # @todo merge it with localized/ forked bLazy to degrade/ avoid all or nothing
 bio.media:
   js:
-    js/components/io/bio.media.min.js: { minified: true, weight: -2 }
+    js/base/io/bio.media.min.js: { minified: true, weight: -2 }
   dependencies:
     - blazy/bio
+    - blazy/dataset
 
 # Optional components.
 loading:
   css:
     component:
       css/components/blazy.loading.css: {}
+  js:
+    js/plugin/blazy.loading.min.js: { minified: true }
   dependencies:
     - blazy/base
 
 filter:
-  js:
-    js/components/blazy.filter.min.js: { minified: true, weight: -1.6 }
   css:
     component:
       css/components/blazy.filter.css: {}
+  js:
+    js/components/blazy.filter.min.js: { minified: true, weight: -1.6 }
   dependencies:
     - blazy/drupal
 
-blur:
+background:
   js:
-    js/plugin/blazy.blur.min.js: { minified: true }
-  css:
-    component:
-      css/components/blazy.blur.css: {}
+    js/plugin/blazy.background.min.js: { minified: true }
   dependencies:
     - blazy/observer
 
-media:
+blur:
+  css:
+    component:
+      css/components/blazy.blur.css: {}
   js:
-    js/components/blazy.media.min.js: { minified: true }
+    js/plugin/blazy.blur.min.js: { minified: true }
+  dependencies:
+    - blazy/dataset
+    - blazy/observer
+
+media:
   css:
     component:
       css/components/blazy.media.css: {}
+  js:
+    js/components/blazy.media.min.js: { minified: true }
   dependencies:
     - blazy/drupal
     - blazy/ratio
@@ -197,11 +220,11 @@ lightbox:
     - blazy/base
 
 blazybox:
-  js:
-    js/components/box/blazy.blazybox.min.js: { minified: true }
   css:
     component:
       css/components/box/blazy.blazybox.css: {}
+  js:
+    js/components/box/blazy.blazybox.min.js: { minified: true }
   dependencies:
     - blazy/drupal
     - blazy/lightbox
@@ -218,12 +241,12 @@ colorbox:
     - colorbox/colorbox
 
 admin:
-  js:
-    js/components/jquery/blazy.admin.min.js: { minified: true }
   css:
     theme:
       css/components/admin/blazy.admin.css: {}
       css/components/admin/blazy.admin--fixes.css: {}
+  js:
+    js/components/jquery/blazy.admin.min.js: { minified: true }
   dependencies:
     - core/jquery
     - blazy/drupal
@@ -237,12 +260,12 @@ photobox:
     name: MIT
     url: https://github.com/yairEO/photobox/issues/17
     gpl-compatible: true
-  js:
-    /libraries/photobox/photobox/jquery.photobox.js: {}
-    js/components/jquery/blazy.photobox.min.js: { minified: true }
   css:
     base:
       /libraries/photobox/photobox/photobox.css: {}
+  js:
+    /libraries/photobox/photobox/jquery.photobox.js: {}
+    js/components/jquery/blazy.photobox.min.js: { minified: true }
   dependencies:
     - core/jquery
     - blazy/drupal
@@ -254,24 +277,8 @@ photobox:
 # @todo re-check and deprecate it if IO.module, etc. no longer needs it.
 bio.ajax:
   js:
-    js/components/io/bio.ajax.min.js: { minified: true }
+    js/base/io/bio.ajax.min.js: { minified: true }
   dependencies:
     - core/drupal.ajax
     # @todo revert if any issues: - blazy/load
     - blazy/drupal
-
-# deprecated at 2.5 and removed before 3.0.0, included in blazy/colorbox.
-colorbox.skin:
-  css:
-    component:
-      css/components/box/blazy.colorbox.css: {}
-  dependencies:
-    - colorbox/colorbox
-
-# deprecated at 2.5 and removed before 3.0.0, included in blazy/blur.
-fx.blur:
-  css:
-    component:
-      css/components/blazy.blur.css: {}
-  dependencies:
-    - blazy/blur
