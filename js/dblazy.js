@@ -13,11 +13,12 @@
  * @todo remove unneeded dup methods once all codebase migrated.
  */
 
-/* global module */
+/* global define, module */
 (function (_win, _doc) {
 
   'use strict';
 
+  var extend = Object.assign;
   var _aProto = Array.prototype;
   var _oProto = Object.prototype;
   var _splice = _aProto.splice;
@@ -360,40 +361,6 @@
   }
 
   /**
-   * Returns a new object after merging two, or more objects.
-   *
-   * @private
-   *
-   * Inspired by @adamfschwartz, @zackbloom, http://youmightnotneedjquery.com.
-   *
-   * @param {Object} out
-   *   The objects to merge together.
-   *
-   * @return {Object}
-   *   Merged values of defaults and options.
-   *
-   * @see https://www.drupal.org/node/3113447
-   * @todo refactor or remove when min D9.0 for core/drupal.object.assign.
-   */
-  var extend = Object.assign || function (out) {
-    out = out || {};
-
-    for (var i = 1, len = arguments.length; i < len; i++) {
-      if (!arguments[i]) {
-        continue;
-      }
-
-      for (var key in arguments[i]) {
-        if (_oProto.hasOwnProperty.call(arguments[i], key)) {
-          out[key] = arguments[i][key];
-        }
-      }
-    }
-
-    return out;
-  };
-
-  /**
    * A simple forEach() implementation for Arrays, Objects and NodeLists.
    *
    * @private
@@ -414,12 +381,10 @@
    * @todo drop for native [].forEach post D10+ when IE gone from planet earth.
    */
   function each(collection, cb, scope) {
-    var isInstance = isMe(collection);
-
     if (_oProto.toString.call(collection) === '[object Object]') {
       for (var prop in collection) {
         if (_oProto.hasOwnProperty.call(collection, prop)) {
-          if (isInstance && prop === 'length') {
+          if (prop === 'length') {
             continue;
           }
           cb.call(scope, collection[prop], prop, collection);
@@ -434,30 +399,6 @@
     }
 
     return collection;
-  }
-
-  /**
-   * Map source object property into the target.
-   *
-   * @private
-   *
-   * @param {Object} source
-   *   Object to map its properties.
-   * @param {Object} target
-   *   Object to have source properties.
-   *
-   * @return {Object}
-   *   Returns target object containing source properties.
-   */
-  function map(source, target) {
-    var key;
-
-    for (key in source) {
-      if (source.hasOwnProperty(key)) {
-        target[key] = source[key];
-      }
-    }
-    return target;
   }
 
   /**
@@ -1450,6 +1391,7 @@
   db.isUnd = isUnd;
   db.isEvt = isEvt;
   db.isQuery = isQuery;
+  db.isVisible = isVisible;
   db.isIo = 'IntersectionObserver' in _win;
   db.isMo = 'MutationObserver' in _win;
   db.isRo = 'ResizeObserver' in _win;
@@ -1478,8 +1420,6 @@
   fn.extend = function (plugins) {
     return extend(fn, plugins);
   };
-
-  db.map = map;
 
   db.parse = parse;
   db.toArray = toArray;
@@ -1581,7 +1521,23 @@
   db.windowSize = windowSize;
   db.activeWidth = activeWidth;
   db.viewport = viewport;
-  db.isVisible = isVisible;
+  db.ww = 0;
+  db.vp = {};
+
+  db.checkViewport = function (offset) {
+    var me = this;
+    me.vp = viewport(offset || 100);
+    me.ww = me.vp.right;
+  };
+
+  db.winData = function (mobileFirst) {
+    var me = this;
+    return {
+      vp: me.vp || {},
+      ww: me.ww || 0,
+      up: mobileFirst || false
+    };
+  };
 
   // Event methods.
   fn.toEvent = function (eventName, cb, params, isCustom, op) {
@@ -1819,7 +1775,7 @@
    * @return {Function}
    *   The function executed at the specified minDelay.
    */
-  db.throttle = function (cb, minDelay, scope) {
+  function throttle(cb, minDelay, scope) {
     minDelay = minDelay || 50;
     var lastCall = 0;
     return function () {
@@ -1830,7 +1786,9 @@
       lastCall = now;
       cb.apply(scope, arguments);
     };
-  };
+  }
+
+  db.throttle = throttle;
 
   /**
    * A simple wrapper to delay callback function on window resize.

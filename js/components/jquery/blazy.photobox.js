@@ -28,7 +28,7 @@
         var caption = el.nextElementSibling;
         if (caption) {
           var title = $.find(_context, '#pbCaption .title');
-          if (title) {
+          if ($.isElm(title)) {
             title.innerHTML = caption.innerHTML;
           }
         }

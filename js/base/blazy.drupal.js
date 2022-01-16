@@ -10,7 +10,7 @@
   var _id = 'blazy';
   var _data = 'data';
   var _dataBg = _data + '-b-bg';
-  var _loading = 'loading';
+  var _dataDimensions = _data + '-dimensions';
   var _elBlur = '.b-blur';
   var _successClass = 'successClass';
   var _eventDone = _id + '.done';
@@ -28,14 +28,13 @@
     instances: [],
     items: [],
     resizeTick: 0,
-    windowWidth: 0,
-    viewport: {},
     blazySettings: drupalSettings.blazy || {},
     ioSettings: drupalSettings.blazyIo || {},
-    revalidate: false,
     options: {},
-    clearing: _noop,
+    clearCompat: _noop,
+    clearScript: _noop,
     checkResize: _noop,
+    revalidate: _noop,
     mapAttr: _noop,
     onIntersecting: _noop,
     updateRatio: _noop,
@@ -56,8 +55,37 @@
       return $.extend(me.blazySettings, me.ioSettings, commons);
     },
 
+    clearing: function (el) {
+      var me = this;
+      var ie = $.hasClass(el, 'b-responsive') && $.hasAttr(el, _data + '-pfsrc');
+
+      // Clear loading classes. Also supports future delayed Native loading.
+      if ($.isFun($.unloading)) {
+        $.unloading(el);
+      }
+
+      // Provides event listeners for easy overrides without full overrides.
+      // Runs before native to allow native use this on its own onload event.
+      $.trigger(el, _eventDone, {
+        options: me.options
+      });
+
+      // With `No JavaScript` on, facilitate both parties: native vs. script.
+      // This is to use the same clearing approach for all parties.
+      me.clearCompat(el);
+      me.clearScript(el);
+
+      // @see http://scottjehl.github.io/picturefill/
+      if (_win.picturefill && ie) {
+        _win.picturefill({
+          reevaluate: true,
+          elements: [el]
+        });
+      }
+    },
+
     run: function (opts) {
-      // If `No JavaScript` enabled, at least hook into basic IO to DRY.
+      // If `No JavaScript` enabled, at least hook into core IO to DRY.
       if (!opts.loader) {
         return new Bio(opts);
       }
@@ -96,6 +124,7 @@
 
       // DOM ready fix.
       _win.setTimeout(function () {
+        // @todo filterout the failing ones.
         var elms = $.findAll(cn || _doc, me.selector());
 
         if (elms.length) {
@@ -104,15 +133,18 @@
       }, 100);
     },
 
-    update: function (el, delayed) {
+    update: function (el, delayed, winData) {
       var me = this;
       var _update = function () {
         if ($.hasAttr(el, _dataBg) && $.isFun($.bg)) {
-          $.bg(el, me.winData());
+          $.bg(el, winData || me.winData());
         }
         else {
           if (me.init) {
-            me.init.load(el);
+            if ($.hasClass(el, 'media')) {
+              el = $.find(el, '.b-lazy') || el;
+            }
+            me.init.load(el, true);
           }
         }
       };
@@ -127,26 +159,8 @@
       }
     },
 
-    isLoaded: function (el) {
-      var me = this;
-      var opts = me.options;
-
-      // This is only valid when using library where IMG, DIV, etc. onload are
-      // taken care properly, not when using Native if `No JavaScript` enabled.
-      var success = $.hasClass(el, opts[_successClass]);
-
-      // Refines check for Native, only image/ iframe for now.
-      // This was normally taken care of by libraries, until being ditched.
-      // @todo iframe may take extremely longer time to load which is not a real
-      // issue if using the media player via Media switcher `Image to iframe`.
-      if ($.equal(el, ['img', 'iframe']) && !opts.loader) {
-        success = $.isLoaded(el) || success;
-      }
-      return success;
-    },
-
     // Useful to re-calculate image dimensions such as for Masonry.
-    onLoaded: function (root, cb, observer) {
+    rebind: function (root, cb, observer) {
       var me = this;
       var elms = $.findAll(root, me.options.selector + ':not(' + _elBlur + ')');
       var isMe = elms.length;
@@ -167,9 +181,16 @@
       }
     },
 
+    isFluid: function (el, cn) {
+      return $.equal(el.parentNode, 'picture') && $.hasAttr(cn, _dataDimensions);
+    },
+
+    isLoaded: function (el) {
+      return $.hasClass(el, this.options[_successClass]);
+    },
+
     isIo: function () {
       var me = this;
-      // Will degrade gracefully to old bLazy at Bio initialization.
       return me.ioSettings && me.ioSettings.enabled;
     },
 

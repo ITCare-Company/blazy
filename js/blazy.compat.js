@@ -20,6 +20,13 @@
   var ns = 'bcompat';
   var _elItem = '.b-lazy:not(.b-blur)';
   var _resizeEvent = 'resize.' + ns;
+  var _data = 'data-';
+  var _dataAnimation = _data + 'animation';
+  var _isAnimated = 'is-b-animated';
+  var _media = 'media';
+  var _elMedia = '.' + _media;
+  var _opts = {};
+  var _winData = {};
   var _roObserve = false;
   var roObserver = false;
   var roRaf = false;
@@ -31,28 +38,32 @@
    */
   Drupal.blazy = $.extend(Drupal.blazy || {}, {
 
-    // Be sure to debounce/ throttle if not using IO.
-    checkViewport: function () {
+    clearCompat: function (el) {
       var me = this;
-      $.debounce(function () {
-        me.viewport = $.viewport(me.options.offset);
-        me.windowWidth = me.viewport.right;
-      });
+      var cn = $.closest(el, _elMedia) || el;
+
+      var check = function () {
+        // Only applies to aspect ratio fluid.
+        if (me.isFluid(el, cn)) {
+          updatePicture.call(me, el, cn);
+        }
+
+        animate(el);
+      };
+
+      // Fixed for effect Blur messes up Aspect ratio Fluid calculation.
+      setTimeout(check);
     },
 
     winData: function () {
-      var me = this;
-      return {
-        vp: me.viewport || {},
-        ww: me.windowWidth || 0,
-        up: me.options.mobileFirst
-      };
+      return $.winData(_opts.mobileFirst);
     },
 
     checkResize: function (items, cb, root, onDone) {
       var me = this;
       var resizer = function (entries) {
-        me.checkViewport();
+        $.checkViewport(_opts.offset || 100);
+        _winData = me.winData();
 
         me.resizeTick++;
         return cb(entries);
@@ -85,8 +96,9 @@
       // When images are loaded, Flexbox or Native Grid as Masonry might need
       // info about the loaded image dimensions to calculate gaps or positions.
       if (onDone && $.isFun(onDone)) {
-        me.onLoaded(root, onDone, roObserver);
+        me.rebind(root, onDone, roObserver);
       }
+      return _winData;
     },
 
     unresize: function () {
@@ -99,6 +111,34 @@
     }
   });
 
+  // Private non-reusable functions.
+  function updatePicture(el, cn) {
+    var pad = Math.round(((el.naturalHeight / el.naturalWidth) * 100), 2);
+
+    cn.style.paddingBottom = pad + '%';
+  }
+
+  /**
+   * Callback function to animate blur, or any animated, element, if any.
+   *
+   * @param {Element} el
+   *   The DIV or image element.
+   */
+  function animate(el) {
+    // Blur, animate.css, for CSS background, picture, image, media.
+    var an = $.closest(el, '[' + _dataAnimation + ']');
+    if ($.hasAttr(el, _dataAnimation) && !$.isElm(an)) {
+      an = el;
+    }
+
+    // Animate if any.
+    if ($.isElm(an) && !$.hasClass(an, _isAnimated)) {
+      setTimeout(function () {
+        $.animate(an);
+      }, 200);
+    }
+  }
+
   /**
    * Processes DOM observations.
    */
@@ -109,6 +149,12 @@
 
     // Mount extensions.
     me.mount(true);
+    _opts = me.options;
+
+    // @todo figure out potential conflict of interests, harmless, just useless.
+    if (!_opts.loader || _opts.compat) {
+      me.init = me.run(_opts);
+    }
   }
 
   /**
@@ -128,12 +174,8 @@
     detach: function (context, settings, trigger) {
       if (trigger === 'unload') {
         var me = Drupal.blazy;
-        var io = 'io' in me ? me.io() : false;
         var ro = 'ro' in me ? me.ro() : false;
 
-        if (io) {
-          io.unload();
-        }
         if (ro) {
           ro.unload();
         }

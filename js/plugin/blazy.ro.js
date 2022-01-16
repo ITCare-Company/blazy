@@ -1,6 +1,8 @@
 /**
  * @file
  * Provides ResizeObserver with fallback extension for Drupal.blazy.
+ *
+ * @todo refine and merge with blazy.compat if needed.
  */
 
 (function ($, Drupal, _win) {
@@ -16,6 +18,7 @@
   var _picture = 'picture';
   var _elMedia = '.' + _media;
   var _elRatio = _elMedia + '--ratio';
+  var _winData = {};
 
   /**
    * Updates the dynamic multi-breakpoint aspect ratio: bg, picture or image.
@@ -26,7 +29,7 @@
    * Static ratio (media--ratio--169, etc.) is ignored and uses CSS instead.
    *
    * @param {Element} cn
-   *   The .media--ratio--fluid container HTML element.
+   *   The .media--ratio[--fluid] container HTML element.
    */
   function updateRatio(cn) {
     cn = cn.target || cn;
@@ -38,17 +41,17 @@
     // Blazy container (via formatter or Views style) is not always there.
     var root = $.closest(cn, '.' + _id);
     var dimensions = $.parse($.attr(cn, _dataDimensions));
-    var isResized = me.resizeTick > 0;
+    var isResized = me.resizeTick > 1;
 
     // Bail out if a static/ non-fluid aspect ratio.
-    if (!dimensions.length) {
+    if (!dimensions) {
       fallbackRatio(cn);
       return;
     }
 
     // For picture, this is more a dummy space till the image is downloaded.
     var isPicture = $.isElm($.find(cn, _picture)) && isResized;
-    var data = $.extend(me.winData(), {
+    var data = $.extend(_winData, {
       up: isPicture
     });
     var pad = $.activeWidth(dimensions, data);
@@ -57,6 +60,12 @@
     cn.dblazy = $.isElm(root) && root.dblazy;
     if (!$.isUnd(pad)) {
       cn.style.paddingBottom = pad + '%';
+    }
+
+    // Update multi-breakpoint CSS background.
+    // @todo move it out of ratio. ATM, requires ratio to update multi-BG.
+    if (isResized) {
+      me.update(cn, false, _winData);
     }
 
     // @todo refactor or remove into IO.
@@ -87,6 +96,8 @@
     var doc = me.context;
     var els = $.findAll(doc, _elRatio);
     var loop = function (entries) {
+      _winData = me.winData();
+
       $.each(entries, updateRatio.bind(me));
       return false;
     };

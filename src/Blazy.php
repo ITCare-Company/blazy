@@ -183,7 +183,7 @@ class Blazy implements BlazyInterface {
     }
 
     // Provides [data-(src|lazy)] for (Responsive) image, after noscript.
-    if (!empty($settings['lazy']) || !empty($settings['observer'])) {
+    if (!empty($settings['lazy']) || !empty($settings['compat'])) {
       self::lazyAttributes($image['#attributes'], $settings);
     }
   }

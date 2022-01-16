@@ -19,6 +19,8 @@
   var _mounted = _id + '--on';
   var _element = '.' + _id + ':not(.' + _mounted + ')';
   var _elementGlobal = 'html';
+  var _media = 'media';
+  var _elMedia = '.' + _media;
   var _data = 'data';
   var _isNativeExecuted = false;
   var _loading = 'loading';
@@ -29,7 +31,6 @@
   var _src = 'src';
   var _events = 'load.bload error.bload';
   var _eventNative = _id + '.native';
-  var _eventDone = _id + '.done';
 
   /**
    * Blazy public methods.
@@ -38,21 +39,11 @@
    */
   Drupal.blazy = $.extend(Drupal.blazy || {}, {
 
-    clearing: function (el) {
+    clearScript: function (el) {
       var me = this;
-
-      // Clear loading classes.
-      // @todo move it into MutationObserver to support both native + loader.
-      $.unloading(el);
 
       // Reevaluate the element for errors, or IE.
       me.reevaluate(el);
-
-      // Provides event listeners for easy overrides without full overrides.
-      // Runs before native to allow native use this on its own onload event.
-      $.trigger(el, _eventDone, {
-        options: me.options
-      });
 
       // Initializes the native lazy loading once the first found is loaded.
       // This is a delayed loading due to native lazy early load.
@@ -63,6 +54,30 @@
 
         _isNativeExecuted = true;
       }
+    },
+
+    // @todo re-check if `No JavaScript` version needs help, likely IE one.
+    reevaluate: function (el) {
+      var me = this;
+      var cn = $.closest(el, _elMedia) || el;
+
+      // In case an error, try forcing it, once.
+      if ($.hasClass(el, me.options[_errorClass]) && !$.hasClass(el, _checked)) {
+        $.addClass(el, _checked);
+
+        // This is a rare case, hardly called, just nice to have for errors.
+        me.update(el, true);
+      }
+
+      var check = function () {
+        // Only applies to aspect ratio fluid.
+        if (me.isFluid(el, cn)) {
+          updatePicture.call(me, el, cn);
+        }
+      };
+
+      // Fixed for effect Blur messes up Aspect ratio Fluid calculation.
+      setTimeout(check);
     },
 
     /**
@@ -82,7 +97,7 @@
     fixDataUri: function () {
       var me = this;
       var els = $.findAll(me.context, me.selector('[src^="' + _image + '"]'));
-      var _fix = function (img) {
+      var fix = function (img) {
         var src = $.attr(img, _src);
         if ($.contains(src, ['base64', 'svg+xml'])) {
           $.attr(img, _src, src.replace(_image, _data + ':' + _image));
@@ -90,30 +105,7 @@
       };
 
       if (els.length) {
-        $.each(els, _fix);
-      }
-    },
-
-    // @todo re-check if `No JavaScript` version needs help, likely IE one.
-    reevaluate: function (el) {
-      var me = this;
-      var ie = $.hasClass(el, 'b-responsive') && $.hasAttr(el, _data + '-pfsrc');
-
-      // In case an error, try forcing it, once.
-      if ($.hasClass(el, me.options[_errorClass]) && !$.hasClass(el, _checked)) {
-        $.addClass(el, _checked);
-
-        // This is a rare case, hardly called, just nice to have for errors.
-        me.update(el, true);
-      }
-
-      // @see http://scottjehl.github.io/picturefill/
-      // @todo move it into blazy.compat.js to help failing native at IE.
-      if (_win.picturefill && ie) {
-        _win.picturefill({
-          reevaluate: true,
-          elements: [el]
-        });
+        $.each(els, fix);
       }
     },
 
@@ -153,19 +145,51 @@
       };
 
       var onNative = function () {
-        me.mapAttr(els);
+        // Mark it loaded to prevent bLazy/ IO to do any further work.
+        $(els).addClass(opts.successClass)
+          // Reset attributes, and let supportive browsers lazy load natively.
+          .mapAttr(['srcset', 'src'], true)
 
-        $.each(els, function (el) {
+          // Also supports PICTURE or (future) VIDEO which contains SOURCEs.
+          .mapSource(false, true)
+
           // Attempts to make nice with the harsh native, defer clearing, etc.
-          $.one(el, _events, onNativeEvent);
-        });
+          .one(_events, onNativeEvent);
       };
 
       // This is delayed, triggered after the first row loaded once.
       $.one(doc, _eventNative, onNative);
     }
-
   });
+
+  function updatePicture(el, cn) {
+    var me = this;
+    var pad = Math.round(((el.naturalHeight / el.naturalWidth) * 100), 2);
+    var isResized = me.resizeTick > 1;
+    var elms = me.instances;
+
+    // cn.style.paddingBottom = pad + '%';
+    // Swap all aspect ratio once to reduce abrupt ratio changes for the rest.
+    // This triggers a one time event to apply fixes at each .blazy container
+    // once after the first resizeTick is emitted.
+    if (elms.length && isResized) {
+      var picture = function (root) {
+        if (root.dblazy && root.dbuniform) {
+          if ((root.dblazy === cn.dblazy) && !root.dbpicture) {
+            $.trigger(root, _id + '.uniform.' + root.dblazy, {
+              pad: pad
+            });
+            root.dbpicture = true;
+          }
+        }
+      };
+
+      // Uniform sizes must apply to each instance, not globally.
+      $.each(elms, function (elm) {
+        $.debounce(picture(elm));
+      }, me);
+    }
+  }
 
   /**
    * Initialize the blazy instance, either basic, advanced, or native.
@@ -176,7 +200,7 @@
    *   The documentElement.
    */
   var init = function (context) {
-    var me = Drupal.blazy;
+    var me = this;
     var opts = {
       mobileFirst: false
     };
@@ -217,14 +241,14 @@
    *   The .blazy/[data-blazy] container, not the lazyloaded .b-lazy element.
    */
   function process(elm) {
-    var me = Drupal.blazy;
+    var me = this;
     var opts = $.parse($.attr(elm, 'data-' + _id));
     var isUniform = $.hasClass(elm, _id + '--field block-grid ' + _id + '--uniform');
     var instance = (Math.random() * 10000).toFixed(0);
     var eventId = _id + '.uniform.' + instance;
     var localItems = $.findAll(elm, '.media--ratio');
 
-    me.options = $.extend(me.options, opts);
+    me.options = $.extend({}, me.globals(), me.options, opts);
     me.revalidate = me.revalidate || $.hasClass(elm, _id + '--revalidate');
 
     $.addClass(elm, _mounted);
@@ -282,10 +306,10 @@
       // Processes .blazy, if available, without initialization.
       // Initialization is not per container to also support IO with root.
       // @todo replace with core/once when min D9.2, and or after sub-modules.
-      $.once(process, _element, doc);
+      $.once(process.bind(me), _element, doc);
 
       // Initializes blazy once as a global observer, not per container.
-      $.once(init, _elementGlobal, doc);
+      $.once(init.bind(me), _elementGlobal, doc);
     }
   };
 

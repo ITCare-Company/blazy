@@ -35,7 +35,20 @@ dblazy:
 # Extension for dBlazy, not currently used.
 css:
   js:
-    js/plugin/blazy.css.min.js: { minified: true, weight: -3 }
+    js/plugin/blazy.css.min.js: { minified: true, weight: -3.5 }
+  dependencies:
+    - blazy/dblazy
+
+# Extension for dBlazy when using data-[SRC|SRCSET]: BG, IO, VIDEO, attributes.
+dataset:
+  js:
+    js/plugin/blazy.dataset.min.js: { minified: true, weight: -3.5 }
+  dependencies:
+    - blazy/dblazy
+
+background:
+  js:
+    js/plugin/blazy.background.min.js: { minified: true, weight: -3.5 }
   dependencies:
     - blazy/dblazy
 
@@ -47,6 +60,7 @@ bio:
     js/base/io/bio.min.js: { minified: true, weight: -3 }
   dependencies:
     - blazy/dblazy
+    - blazy/dataset
 
 # Drupal-related base.
 base:
@@ -65,30 +79,14 @@ drupal:
     - blazy/dblazy
     - blazy/base
 
-# Extension for dBlazy when using data-[SRC|SRCSET]: BG, IO, VIDEO, attributes.
-dataset:
-  js:
-    js/plugin/blazy.dataset.min.js: { minified: true, weight: -3 }
-  dependencies:
-    - blazy/dblazy
-
 # Compat methods between Native and lazyload script when being ditched.
 compat:
   js:
     js/blazy.compat.min.js: { minified: true, weight: -1.6 }
+    js/plugin/blazy.ro.min.js: { minified: true, weight: -1.5 }
   dependencies:
     - blazy/bio
     - blazy/drupal
-
-# The blazy/compat implementations with [Intersection|Mutation|Resize]Observer.
-# Not loaded if blur OFF, fluid ratio OFF, CSS BG OFF, and plain images.
-# @todo refactor when the first @todo above is in. This has dups.
-observer:
-  js:
-    js/plugin/blazy.io.min.js: { minified: true, weight: -1.5 }
-    js/plugin/blazy.ro.min.js: { minified: true, weight: -1.5 }
-  dependencies:
-    - blazy/compat
 
 # The bLazy, IO, Native loader aka initializer for IE9+ and modern browsers.
 # Not loaded when `No JavaScript` is enabled.
@@ -97,7 +95,8 @@ load:
     js/blazy.load.min.js: { minified: true, weight: -1.5 }
   dependencies:
     - blazy/blazy
-    - blazy/compat
+    # - blazy/compat
+    - blazy/drupal
     - blazy/dataset
     - blazy/loading
 
@@ -109,7 +108,6 @@ bio.media:
     js/base/io/bio.media.min.js: { minified: true, weight: -2 }
   dependencies:
     - blazy/bio
-    - blazy/dataset
 
 # Optional components.
 loading:
@@ -130,12 +128,6 @@ filter:
   dependencies:
     - blazy/drupal
 
-background:
-  js:
-    js/plugin/blazy.background.min.js: { minified: true }
-  dependencies:
-    - blazy/observer
-
 blur:
   css:
     component:
@@ -144,7 +136,7 @@ blur:
     js/plugin/blazy.blur.min.js: { minified: true }
   dependencies:
     - blazy/dataset
-    - blazy/observer
+    - blazy/compat
 
 media:
   css:
@@ -188,7 +180,7 @@ flex:
   js:
     js/components/grid/blazy.flex.min.js: { minified: true }
   dependencies:
-    - blazy/observer
+    - blazy/compat
 
 grid:
   css:
@@ -208,7 +200,7 @@ nativegrid.masonry:
   js:
     js/components/grid/blazy.nativegrid.masonry.min.js: { minified: true }
   dependencies:
-    - blazy/observer
+    - blazy/compat
     - blazy/nativegrid
 
 # Lightboxes.

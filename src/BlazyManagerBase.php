@@ -243,8 +243,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
-    // Only if `No JavaScript` option is disabled, or has observer.
-    if (empty($attach['nojs']['lazy']) || $attach['observer']) {
+    // Only if `No JavaScript` option is disabled, or has compat.
+    if (empty($attach['nojs']['lazy']) || $attach['compat']) {
       foreach (BlazyDefault::nojs() as $key) {
         if (empty($attach['nojs'][$key])) {
           $lib = $key == 'lazy' ? 'load' : $key;
@@ -256,6 +256,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     // Always keep Drupal UI config to support dynamic compat features.
     $config = $this->configLoad('blazy');
     $config['loader'] = empty($attach['nojs']['lazy']);
+    $config['compat'] = $attach['compat'];
     $load['drupalSettings']['blazy'] = $config;
     $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
 
@@ -320,7 +321,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $settings['resimage'] = $settings['_resimage'] && $style;
     $settings['resimage'] = $settings['resimage'] ? $this->entityLoad($style, 'responsive_image_style') : FALSE;
     $settings['fluid'] = $settings['ratio'] == 'fluid';
-    $settings['observer'] = $settings['fx'] || $settings['fluid'] || $settings['background'] || $settings['observer'];
+    $settings['compat'] = $settings['fx'] || $settings['fluid'] || $settings['background'] || $settings['compat'];
     $settings['current_language'] = $this->languageManager->getCurrentLanguage()->getId();
 
     // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.

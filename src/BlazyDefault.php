@@ -233,7 +233,7 @@ class BlazyDefault {
       'blur'             => FALSE,
       'check_blazy'      => FALSE,
       'fluid'            => FALSE,
-      'observer'         => FALSE,
+      'compat'           => FALSE,
       'lightbox'         => FALSE,
       'namespace'        => 'blazy',
       'id'               => '',
@@ -327,17 +327,17 @@ class BlazyDefault {
       'background',
       'blur',
       'column',
+      'compat',
       'filter',
       'flex',
       'grid',
+      'media',
       'nativegrid',
       'nativegrid.masonry',
-      'media',
-      'observer',
       'polyfill',
-      'raf',
       'promise',
       'photobox',
+      'raf',
       'ratio',
     ];
   }
@@ -349,8 +349,8 @@ class BlazyDefault {
     return [
       'lazy',
       'polyfill',
-      'raf',
       'promise',
+      'raf',
     ];
   }
 

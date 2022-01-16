@@ -46,12 +46,7 @@
           }
         };
 
-        if ($.isArr(attr)) {
-          $.each(attr, _mapAttr);
-        }
-        else {
-          _mapAttr(attr);
-        }
+        $.each($.toArray(attr), _mapAttr);
       }
     };
 
