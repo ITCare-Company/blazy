@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2022-01-18
+-----------------------------
+- Issue #3258851 by gausarts: Make old bLazy as fallback for IO, not competing.
+
 Blazy 8.x-2.0-dev, 2022-01-16
 -----------------------------
 - Added more massive optimization.

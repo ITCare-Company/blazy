@@ -72,7 +72,7 @@ class BlazySettingsFormTest extends KernelTestBase {
     $form_state = (new FormState())->setValues([
       'admin_css' => TRUE,
       'responsive_image' => FALSE,
-      'nojs' => array_combine($nojs $nojs),
+      'nojs' => array_combine($nojs, $nojs),
     ]);
 
     $this->assertInstanceOf(FormInterface::class, $this->blazySettingsForm);
