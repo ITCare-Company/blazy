@@ -83,7 +83,7 @@ class Blazy implements BlazyInterface {
     $is_media = in_array($settings['type'], ['audio', 'video']);
     $settings['placeholder'] = $settings['placeholder'] ?: BlazyUtil::generatePlaceholder($settings['width'], $settings['height']);
     $settings['use_media'] = $settings['embed_url'] && $is_media;
-    $settings['use_loading'] = $settings['is_preview'] ? FALSE : $settings['use_loading'];
+    $settings['use_loading'] = $settings['is_nojs'] ? FALSE : $settings['use_loading'];
   }
 
   /**
@@ -94,7 +94,7 @@ class Blazy implements BlazyInterface {
     $natives = ['decoding' => 'async'];
 
     // @todo at 2022/1 core has no loading Responsive, remove when it lands.
-    $attributes = ($settings['is_preview'] ? $natives : [
+    $attributes = ($settings['is_nojs'] ? $natives : [
       'data-b-lazy' => $settings['one_pixel'],
       'data-placeholder' => $settings['placeholder'],
     ]) + ['loading' => 'lazy'];
@@ -116,7 +116,7 @@ class Blazy implements BlazyInterface {
     // Supports either lazy loaded image, or not.
     $variables['image'] += [
       '#theme' => 'image',
-      '#uri' => !empty($settings['is_preview']) || empty($settings['lazy']) ? $settings['image_url'] : $settings['placeholder'],
+      '#uri' => !empty($settings['is_nojs']) || empty($settings['lazy']) ? $settings['image_url'] : $settings['placeholder'],
     ];
   }
 
@@ -178,7 +178,7 @@ class Blazy implements BlazyInterface {
 
     // Provides a noscript if so configured, before any lazy defined.
     // Not needed at preview mode, or when native lazyload takes over.
-    if (!empty($settings['noscript']) && empty($settings['is_preview'])) {
+    if (!empty($settings['noscript']) && empty($settings['is_nojs'])) {
       self::buildNoscriptImage($variables);
     }
 
@@ -203,7 +203,7 @@ class Blazy implements BlazyInterface {
     }
     // Native lazyload just loads the URL directly.
     // @todo rec-check, with many videos like carousels on the page may chaos.
-    elseif ($settings['is_preview']) {
+    elseif ($settings['is_nojs']) {
       $attributes['src'] = $settings['embed_url'];
     }
     // Non-native lazyload for oldies to avoid loading src, the most efficient.
@@ -268,7 +268,7 @@ class Blazy implements BlazyInterface {
 
     // Slick has its own class and methods: ondemand, anticipative, progressive.
     // @todo remove this condition once sub-modules have been aware of preview.
-    if (empty($settings['is_preview'])) {
+    if (empty($settings['is_nojs'])) {
       $attributes['data-' . $settings['lazy_attribute']] = $settings['image_url'];
     }
   }
@@ -435,8 +435,7 @@ class Blazy implements BlazyInterface {
    */
   public static function isPreview(): bool {
     if (!isset(static::$isPreview)) {
-      $sets = \blazy()->configLoad() + BlazyDefault::uiSettings();
-      static::$isPreview = !empty($sets['nojs']['lazy']) || self::isAmp() || self::isSandboxed();
+      static::$isPreview = self::isAmp() || self::isSandboxed();
     }
     return static::$isPreview;
   }

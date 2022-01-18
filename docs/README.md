@@ -42,9 +42,11 @@ info.
 
 ***
 # <a name="recommended-modules"> </a>RECOMMENDED MODULES
-* [Markdown](https://www.drupal.org/project/markdown)
+For better admin help page, either way will do:  
+* [Markdown](https://www.drupal.org/project/markdown)  
+* `composer require league/commonmark`  
 
-  To make reading this README a breeze at [Blazy help](/admin/help/blazy_ui)
+To make reading this README a breeze at [Blazy help](/admin/help/blazy_ui)
 
 
 ## MODULES THAT INTEGRATE WITH OR REQUIRE BLAZY
@@ -135,7 +137,7 @@ Visit the following to configure and make use of Blazy:
 
 3. `/admin/structure/views`
 
-   Use Blazy Grid as standalone blocks, or pages.
+   Use `Blazy Grid` as standalone blocks, or pages.
 
 
 ### USAGES: BLAZY FOR MULTIMEDIA GALLERY VIA VIEWS UI
@@ -172,7 +174,7 @@ etc., try the following:
 
 **Important!**
 
-Be sure to leave **Use field template** under **Style settings** unchecked.
+Be sure to leave `Use field template` under `Style settings` unchecked.
 If checked, the gallery is locked to a single entity, that is no Views gallery,
 but gallery per field. The same applies when using Blazy formatter with VIS
 pager, alike, or inside Slick Carousel, GridStack, etc. If confusing, just
@@ -184,6 +186,7 @@ Check out the relevant sub-module docs for details.
 
 ***
 # <a name="features"> </a>FEATURES
+* Works without JavaScript with/without JavaScript browsers.
 * Supports core Image.
 * Supports core Responsive image.
 * Supports Colorbox/ Photobox/ PhotoSwipe, also multimedia lightboxes.
@@ -213,6 +216,8 @@ Check out the relevant sub-module docs for details.
 # <a name="maintainers"> </a>MAINTAINERS/CREDITS
 * [Gaus Surahman](https://www.drupal.org/user/159062)
 * [geek-merlin](https://www.drupal.org/u/geek-merlin)
+* [sun](https://www.drupal.org/u/sun)
+* [gambry](https://www.drupal.org/u/gambry)
 * [Contributors](https://www.drupal.org/node/2663268/committers)
 * CHANGELOG.txt for helpful souls with their patches, suggestions and reports.
 

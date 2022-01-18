@@ -208,8 +208,15 @@ A: It does. Your eyes are likely being tricked. **Solutions**:
    * If you don't want all these headaches, consider a more robust GridStack. It
      may take care these type of issues for you.
 
+## 13. BLAZY IMAGES DO NOT LOAD
+Images does not load within hidden tabs, or other hidden containers:  
+* `/admin/config/media/blazy`  
+* Enable `Load invisible` option.  
 
-## 13. BROKEN MODULES
+Only an issue with old bLazy, not IO, AFAIK. Other than that, be sure to read
+back the topmost troubleshooting section.
+
+## 14. BROKEN MODULES
 Alpha, Beta, DEV releases are for developers only. Beware of possible breakage.
 
 However if it is broken, unless an update is provided, running `drush cr` during

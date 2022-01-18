@@ -122,7 +122,7 @@ class BlazyTheme {
    */
   public static function fileVideo(array &$variables): void {
     if ($files = $variables['files']) {
-      if (empty($variables['attributes']['data-b-preview'])) {
+      if (empty($variables['attributes']['data-b-nojs'])) {
         $variables['attributes']->addClass(['b-lazy']);
         foreach ($files as $file) {
           $source_attributes = &$file['source_attributes'];
@@ -148,7 +148,7 @@ class BlazyTheme {
         }
       }
 
-      $attrs = ['data-b-lazy', 'data-b-preview'];
+      $attrs = ['data-b-lazy', 'data-b-nojs'];
       $variables['attributes']->addClass(['media__element']);
       $variables['attributes']->removeAttribute($attrs);
     }
@@ -284,7 +284,7 @@ class BlazyTheme {
     $element = $variables['element'];
     $settings = $element['#blazy'] ?? [];
     $settings['third_party'] = $element['#third_party_settings'];
-    $is_preview = Blazy::isPreview();
+    $is_nojs = !empty($settings['is_nojs']);
 
     foreach ($variables['items'] as &$item) {
       if (empty($item['content'])) {
@@ -293,8 +293,8 @@ class BlazyTheme {
 
       $item_attributes = &$item['content'][isset($item['content']['#attributes']) ? '#attributes' : '#item_attributes'];
       $item_attributes['data-b-lazy'] = TRUE;
-      if ($is_preview) {
-        $item_attributes['data-b-preview'] = TRUE;
+      if ($is_nojs) {
+        $item_attributes['data-b-nojs'] = TRUE;
       }
     }
 

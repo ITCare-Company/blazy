@@ -238,6 +238,7 @@ class BlazyDefault {
       'namespace'        => 'blazy',
       'id'               => '',
       'is_amp'           => FALSE,
+      'is_nojs'          => FALSE,
       'is_preview'       => FALSE,
       'is_sandboxed'     => FALSE,
       '_richbox'         => FALSE,

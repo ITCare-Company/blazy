@@ -312,7 +312,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       // To make compatible with old bLazy which expects no placeholder, provide
       // a real smallest image. Bio will map it to the current breakpoint later.
       $bg = reset($settings['urls']);
-      $settings['image_url'] = $settings['is_preview'] ? $settings['image_url'] : $bg['src'];
+      $settings['image_url'] = $settings['is_nojs'] ? $settings['image_url'] : $bg['src'];
       Blazy::lazyAttributes($attributes, $settings);
     }
   }
@@ -324,7 +324,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     if ($settings['background']) {
       // Attach data attributes to either IMG tag, or DIV container.
       $settings['urls'][$settings['width']] = $this->backgroundImage($settings);
-      $settings['image_url'] = $settings['is_preview'] ? $settings['image_url'] : $settings['placeholder'];
+      $settings['image_url'] = $settings['is_nojs'] ? $settings['image_url'] : $settings['placeholder'];
       Blazy::lazyAttributes($attributes, $settings);
     }
 

@@ -317,6 +317,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $settings['is_amp'] = Blazy::isAmp();
     $settings['is_preview'] = Blazy::isPreview();
     $settings['is_sandboxed'] = Blazy::isSandboxed();
+    $settings['is_nojs'] = !empty($settings['nojs']['lazy']) || $settings['is_preview'] || $settings['is_amp'];
     $settings['lightbox'] = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
     $settings['route_name'] = $this->getRouteName();
     $settings['_resimage'] = $this->moduleHandler->moduleExists('responsive_image');

@@ -130,8 +130,8 @@ class BlazyMedia implements BlazyMediaInterface {
     }
 
     $item['#attributes']->setAttribute('data-b-lazy', TRUE);
-    if (!empty($settings['is_preview'])) {
-      $item['#attributes']->setAttribute('data-b-preview', TRUE);
+    if (!empty($settings['is_nojs'])) {
+      $item['#attributes']->setAttribute('data-b-nojs', TRUE);
     }
   }
 

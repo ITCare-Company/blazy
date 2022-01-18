@@ -65,7 +65,7 @@
 /* To minimize mutations we do not remove it from DOM, instead hide it.
 Ugly, but nobody except devs pressing F12 at browsers. */
 .media.is-b-animated .b-blur {
-  position: absolute !important;
+  position: absolute !important; /* csslint allow: known-properties, important */
   overflow: hidden;
   clip: rect(1px, 1px, 1px, 1px);
   width: 1px;

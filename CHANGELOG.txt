@@ -25,7 +25,7 @@ Blazy 8.x-2.0-dev, 2022-01-08
 Blazy 8.x-2.0-dev, 2022-01-07
 -----------------------------
 - Issue #3256703 by ronchica: Blazy formatted images not rendering correctly in
-revisions
+  revisions.
 - Issue #3255370 by gausarts: Fixed for DRY with ResizeObserver, folder
   organization, doc comments, etc.
 

@@ -72,7 +72,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
     $settings['blazy'] = !empty($settings['blazy']) || !empty($settings['background']) || $settings['resimage'];
     $settings['lazy']  = $settings['blazy'] ? 'blazy' : ($settings['lazy'] ?? '');
-    $settings['lazy']  = empty($settings['is_preview']) ? $settings['lazy'] : '';
+    $settings['lazy']  = empty($settings['is_nojs']) ? $settings['lazy'] : '';
   }
 
   /**
