@@ -44,11 +44,11 @@
   /**
    * Private variables.
    */
-  var _isBioMedia = 'BioMedia' in root;
   var _doc = document;
   var _root = _doc;
   var _winData = {};
   var _bioTick = 0;
+  var _ww = 0;
   var _revTick = 0;
   var _counted = 0;
   var _erCounted = 0;
@@ -57,7 +57,6 @@
   var _noop = function () {};
   var _opts = {};
   var _elms = [];
-  var _observer = null;
   var _successClass = 'b-loaded';
   var _errorClass = 'b-error';
   var _bgClass = 'b-bg';
@@ -65,7 +64,7 @@
   var _isLoaded = 'is-' + _successClass;
   var _isError = 'is-' + _errorClass;
   var _media = 'media';
-  var _elMedia = '.' + _media;
+  var _parent = '.' + _media;
   var _data = 'data-';
   var _src = 'src';
   var _srcSet = 'srcset';
@@ -73,10 +72,11 @@
   var _dataSrcset = _data + _srcSet;
   var _bgSources = [_src];
   var _imgSources = [_srcSet, _src];
-  var _scrollEvent = 'scroll.' + ns;
-  var _ioObserve = false;
-  var ioRaf = false;
-  var ioQueue = [];
+  var _resizing = false;
+  var _validateDelay = 25;
+  var _ioObserver = null;
+  var _raf = false;
+  var _queue = [];
   var _defaults = {
     root: null,
     decode: false,
@@ -85,12 +85,16 @@
     success: false,
     intersecting: false,
     observing: false,
+    resizing: false,
     mobileFirst: false,
     bgClass: _bgClass,
     successClass: _successClass,
     errorClass: _errorClass,
     selector: '.b-lazy',
+    parent: _parent,
     offset: 100,
+    validateDelay: _validateDelay,
+    unblazy: false,
     rootMargin: '0px',
     threshold: [0]
   };
@@ -119,64 +123,74 @@
     _bgClass = _opts.bgClass || _bgClass;
     _successClass = _opts.successClass || _successClass;
     _errorClass = _opts.errorClass || _errorClass;
+    _parent = _opts.parent || _parent;
+    _validateDelay = _opts.validateDelay || _validateDelay;
     _root = _opts.root || _root;
 
-    return me.reinit();
+    // DOM ready fix.
+    setTimeout(function () {
+      me.reinit();
+    });
+
+    return me;
   }
 
   // Prepare prototype to interchange with Blazy as fallback.
+  fn.prepare = _noop;
   fn.count = 0;
-
+  fn.resizeTick = 0;
   fn.winData = function () {
-    return $.winData(_opts.mobileFirst);
+    return $.checkWindow(_opts.offset);
   };
 
-  fn.prepare = _noop;
-
-  // @todo minimize dups by BioMedia.
-  fn.lazyLoad = function (el, revalidate) {
+  fn.lazyLoad = function (el) {
     var me = this;
+    var parent = el.parentNode;
+    var isBg = me.isBg(el);
+    var isPicture = $.equal(parent, 'picture');
+    var isImage = $.equal(el, 'img') && !isPicture;
+    var isVideo = $.equal(el, 'video');
+    var isDataset = $.hasAttr(el, _dataSrc);
 
-    // If we are here, it means `No JavaScript` lazy is enabled, no BioMedia.
-    if (_isBioMedia) {
-      return;
-    }
+    // PICTURE elements.
+    if (isPicture) {
+      if (isDataset) {
+        $.mapSource(el, _srcSet, true);
 
-    if (!el.biohit || revalidate) {
-      var isImage = $.equal(el, 'img');
-      var isBg = $.isUnd(el.src) && $.hasClass(el, _bgClass);
-      var isVideo = $.equal(el, 'video');
-
-      if (isVideo) {
-        me.video(el, true);
+        // Tiny controller image inside picture element won't get preloaded.
+        $.mapAttr(el, _src, true);
       }
+
+      me.status(el, true);
+    }
+    // VIDEO elements.
+    else if (isVideo) {
+      me.video(el, true);
+    }
+    else {
+      // IMG or DIV/ block elements got preloaded for better UX with loading.
+      // Native doesn't support DIV, fix it.
+      if (isImage || isBg) {
+        me.setImage(el, isBg);
+      }
+      // IFRAME elements, etc.
       else {
-        // Native doesn't support DIV. Without BioMedia, we have to fix it.
-        if (isImage || isBg) {
-          me.setImage(el, isBg);
-        }
-        else {
-          // Iframe, Picture are supported by Native.
-          // @todo re-check if anything else todo here.
+        if ($.hasAttr(el, _src)) {
+          if ($.attr(el, _dataSrc)) {
+            $.mapAttr(el, _src, true);
+          }
+
           me.status(el, true);
         }
       }
-
-      el.biohit = true;
-      revalidate = false;
     }
   };
 
   fn.video = function (el, ok) {
-    // Native doesn't support video. Without BioMedia, we have to fix it.
+    // Native doesn't support video, fix it.
     $.mapSource(el, _src, true);
     el.load();
     this.status(el, ok);
-  };
-
-  fn.status = function (el, ok) {
-    // Image decode fails with Responsive image, assumes ok, no side effects.
-    this.loaded(el, ok ? $._ok : $._er);
   };
 
   // Compatibility between Native and old data-[SRC|SRSET] approaches.
@@ -227,7 +241,7 @@
 
         // Allows to re-observe.
         if (!isResimage) {
-          el.biohit = false;
+          el.bhit = false;
         }
       });
   };
@@ -239,26 +253,19 @@
     // Manually load elements regardless of being disconnected, or not, relevant
     // for Slick slidesToShow > 1 which rebuilds clones of unloaded elements.
     $.each($.toArray(elms), function (el) {
-      if (me.isValid(el) || revalidate) {
+      if (me.isValid(el) || ($.isElm(el) && revalidate)) {
         intersecting.call(me, el, revalidate);
       }
     });
-
-    me.check();
-  };
-
-  fn.unload = function () {
-    if (!_ioObserve) {
-      $.unbindEvent(root, _scrollEvent, _ioObserve);
-    }
-    if (ioRaf) {
-      cancelAnimationFrame(ioRaf);
-    }
   };
 
   fn.selector = function (suffix) {
     suffix = suffix || '';
     return _opts.selector + suffix + ':not(.' + _successClass + ')';
+  };
+
+  fn.isBg = function (el) {
+    return $.isUnd(el.src) && $.hasClass(el, _bgClass);
   };
 
   fn.isLoaded = function (el) {
@@ -302,11 +309,17 @@
     }
   };
 
+  fn.status = function (el, ok) {
+    // Image decode fails with Responsive image, assumes ok, no side effects.
+    this.loaded(el, ok ? $._ok : $._er);
+  };
+
   fn.loaded = function (el, status, parent) {
     var me = this;
-    var cn = $.closest(el, _elMedia) || el;
+    var cn = $.closest(el, _parent) || el;
     var ok = status === $._ok;
 
+    parent = parent || cn;
     $.addClass(el, ok ? _successClass : _errorClass);
     me[ok ? 'success' : 'error'](el, status, parent);
 
@@ -314,49 +327,35 @@
     $.addClass(cn, ok ? _isLoaded : _isError);
     $.removeClass(cn, _isVisible);
 
+    // @todo remove, not compat with old bLazy which provides no events.
     $.trigger(el, 'bio.loaded', {
       status: status
     });
   };
 
-  fn.observe = function () {
-    _bioTick = _elms.length;
-
-    if (_observer) {
-      $.each(_elms, function (entry) {
-        _observer.observe(entry);
-      });
-    }
-  };
-
-  fn.check = function (force) {
+  fn.destroyQuietly = function (force) {
     var me = this;
 
     // Infinite pager like IO wants to keep monitoring infinite contents.
+    // Multi-breakpoint BG/ ratio may want to update during resizing.
     if (!_disconnected && (force || $.isUnd(Drupal.io))) {
-      var check = $.find(_root, me.selector());
+      var el = $.find(_root, me.selector());
 
-      if (!$.isElm(check)) {
-        me.destroy(true);
+      if (!$.isElm(el)) {
+        me.destroy(force);
       }
     }
   };
 
-  fn.destroy = function (force) {
+  fn.observe = function () {
     var me = this;
-    disconnect.call(me, force);
-    me.unload();
-    me.observer = _observer = null;
+
+    _bioTick = _elms.length;
+
+    $.observe(me, _elms, true, _opts.unblazy);
   };
 
-  fn.reinit = function () {
-    _disconnected = false;
-    _observed = false;
-
-    return init(this);
-  };
-
-  function disconnect(force) {
+  fn.destroy = function (force) {
     var me = this;
 
     // Do not disconnect if any error found.
@@ -367,138 +366,154 @@
     // Disconnect when all entries are loaded, if so configured.
     var done = ((_bioTick === 0 || me.count === _counted) && _opts.disconnect);
     if (done || force) {
-      if (_observer) {
-        _observer.disconnect();
+      if (_ioObserver) {
+        _ioObserver.disconnect();
       }
 
+      $.unload(me);
       me.count = 0;
       me.elms = _elms = [];
+      me.ioObserver = _ioObserver = null;
+      me.roObserver = null;
       _disconnected = true;
     }
-  }
+  };
+
+  fn.reinit = function () {
+    _disconnected = false;
+    _observed = false;
+
+    init(this);
+  };
 
   function intersecting(el, revalidate) {
     var me = this;
 
-    // Makes sure to have media loaded beforehand.
-    me.lazyLoad(el, revalidate);
-
-    // If not extending/ overriding, at least provide the option.
-    if ($.isFun(_opts.intersecting)) {
-      _opts.intersecting(el, _opts);
+    // Unlike ResizeObserver, IntersectionObserver is done.
+    if (_ioObserver && me.isLoaded(el) && !el.bloaded) {
+      _ioObserver.unobserve(el);
+      el.bloaded = true;
+      _bioTick--;
     }
 
-    // If not extending/ overriding, also allows to listen to.
-    $.trigger(el, 'bio.intersecting', {
-      options: me.options
-    });
+    // Image may take time to load after being hit, and it may be intersected
+    // several times till marked loaded. Ensures it is hit once regardless
+    // of being loaded, or not. No real issue with normal images on the page,
+    // until having VIS alike which may spit out new images on AJAX request.
+    if (!el.bhit || revalidate) {
+      // Makes sure to have media loaded beforehand.
+      me.lazyLoad(el);
 
-    if (_observer) {
-      _observer.unobserve(el);
+      // If not extending/ overriding, at least provide the option.
+      if ($.isFun(_opts.intersecting)) {
+        _opts.intersecting(el, _opts);
+      }
+
+      // If not extending/ overriding, also allows to listen to.
+      $.trigger(el, 'bio.intersecting', {
+        options: _opts
+      });
+
+      _counted++;
+
+      // Marks it hit/ requested. Not necessarily loaded.
+      el.bhit = true;
+      revalidate = false;
     }
-
-    _counted++;
   }
 
-  function observing(entries) {
+  function interact(entries) {
     var me = this;
+    var vp = $.vp;
+    var ww = $.ww;
+    var update = false;
 
-    me.check();
+    if (_resizing) {
+      _winData = $.checkWindow(_opts.offset);
+      ww = _winData.ww;
+    }
 
-    // Stop watching if already disconnected.
-    if (_disconnected) {
-      return;
+    // Disconnect if necessary.
+    if (!_resizing) {
+      me.destroyQuietly(_opts.disconnect);
+
+      // Stop watching if already disconnected.
+      if (_disconnected) {
+        return;
+      }
     }
 
     // Load each on entering viewport.
-    var viewport = $.vp;
-    $.each(entries, function (entry) {
-      var target = entry.target;
-      var el = target || entry;
-      var cn = $.closest(el, _elMedia) || el;
-      var visible = target ? (entry.isIntersecting || entry.intersectionRatio > 0) : $.isVisible(el, viewport);
+    $.each(entries, function (e) {
+      var target = e.target;
+      var el = target || e;
+      var resized = $.isResized(me, e);
+      var visible = $.isVisible(e, vp);
+      var cn = $.closest(el, _parent) || el;
       var loaded = me.isLoaded(el);
 
       // To make efficient blur filter via CSS, etc. Blur filter is expensive.
       $[visible && !loaded ? 'addClass' : 'removeClass'](cn, _isVisible);
 
-      // Provides option such as to animate bg or elements regardless position.
-      if ($.isFun(_opts.observing)) {
-        _opts.observing(el, visible, _observer, _opts);
-      }
-
       // The element is being intersected.
       if (visible) {
-        if (!loaded) {
-          intersecting.call(me, el);
-        }
+        intersecting.call(me, el);
+      }
 
-        _bioTick--;
+      // The element is being resized.
+      _resizing = resized && _ww > 0;
+      if (_resizing) {
+        if (_ww !== ww) {
+          update = true;
+          intersecting.call(me, el, resized);
+        }
+        me.resizeTick++;
+      }
+
+      // Provides option such as to animate bg or elements regardless position.
+      if ($.isFun(_opts.observing)) {
+        _opts.observing(el, visible, _opts);
       }
     });
+
+    // Resizing may happen after disconnection.
+    if (update) {
+      if ($.isFun(_opts.resizing)) {
+        _opts.resizing(entries, _winData, _opts);
+      }
+
+      // If not extending/ overriding, also allows to listen to.
+      $.trigger(root, 'bio.resizing', {
+        entries: entries,
+        old: _ww,
+        new: ww,
+        winData: _winData
+      });
+    }
+
+    _ww = ww;
   }
 
+  // Initializes the IO.
   function init(me) {
-    var config = {
-      rootMargin: _opts.rootMargin,
-      threshold: _opts.threshold
-    };
-
     me.elms = _elms = $.findAll(_root, me.selector());
     me.count = _elms.length;
-
-    // @todo hook into ResizeObserver.
-    $.checkViewport(_opts.offset);
-    _winData = me.winData();
+    me._raf = _raf;
+    me._queue = _queue;
 
     me.prepare();
 
-    // Initializes the IO.
-    function _intersect(entries) {
-      if (!ioQueue.length) {
-        ioRaf = requestAnimationFrame(_enqueue);
-      }
-
-      ioQueue.push(entries);
-
-      // Default to old browsers.
-      return false;
-    }
-
-    function _enqueue() {
-      $.enqueue(ioQueue, observing, me);
-    }
-
-    // IE11 not supported, we'll provide a fallback.
-    // @see https://caniuse.com/IntersectionObserver
-    _ioObserve = function () {
-      return $.isIo ? new IntersectionObserver(_intersect, config) : _intersect(_elms);
-    };
-
-    // Uses IntersectionObserver for modern browsers, else degrades.
-    me.observer = _observer = _ioObserve();
+    $.interact(me, interact, _elms, true);
+    _ioObserver = me.ioObserver;
 
     // Observes once on the page load regardless multiple observer instances.
     // Possible as we nullify the root option to allow querying the DOM once.
     // Should you need to re-validate, or re-observe, just call ::observe().
     if (_elms.length && !_observed) {
-      if (_observer) {
-        me.observe();
-      }
-      else {
-        // @todo re-check this.
-        $.bindEvent(root, _scrollEvent, $.debounce(_ioObserve));
-      }
-
+      me.observe();
       _observed = true;
     }
-
-    return me;
   }
-
-  root.bio = function (options) {
-    return new Bio(options);
-  };
 
   return Bio;
 

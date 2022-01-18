@@ -114,3 +114,13 @@ function blazy_post_update_schema_view_grid_int_to_string(array &$sandbox = []) 
 function blazy_post_update_vanilla_once() {
   // Empty hook to clear caches.
 }
+
+/**
+ * Removed io.enabled settings as per #3258851.
+ */
+function blazy_post_update_remove_io_enabled_key2() {
+  $config = \Drupal::configFactory()->getEditable('blazy.settings');
+  $config->clear('io.enabled');
+  $config->clear('polyfills');
+  $config->save(TRUE);
+}

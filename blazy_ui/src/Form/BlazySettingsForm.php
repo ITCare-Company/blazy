@@ -78,7 +78,7 @@ class BlazySettingsForm extends ConfigFormBase {
         'raf' => $this->t('requestAnimationFrame polyfill (ie9)'),
       ],
       '#default_value' => !empty($nojs) ? array_values((array) $nojs) : [],
-      '#description'   => $this->t("Enable to not load them if you don't support IEs, or have polyfills at your theme globally. File sizes approximately in minified gzip. For illustration, Colorbox which is called very lightweight is 4.8KB + jQuery (31KB) = 35.8KB. Blazy never loads all its JavaScript at once, instead conditionally and carefully loads ones as required. Mostly based on your options including these ones. <ul><li><b>Lazyload</b>: remove libraries and loader/ initializer scripts (<code>blazy.js (2.2KB), blazy.load.js (1.2KB), bio.media.js (2.2KB, including bio.js)</code>.) for non-js Native lazy. <br><b>Note!</b> While the above is always valid, a <code>blazy/compat (1KB + bio.js (1.9KB))</code> and or <code>blazy/dblazy (3.8KB)</code> in the least is conditionally loaded as required if any js-dependent options are enabled: <ul><li>Image effect animation or Blur.</li><li>Dynamic multi-breakpoint aka Fluid aspect ratio (excluding fixed ones).</li><li>Dynamic multi-breakpoint (Responsive|Picture based), or static CSS background.</li><li>Local video.</li><li>Sub-module requirements. Slick, Splide, Ultimenu, Jumper, etc. might require <code>blazy/dblazy</code>, not a lazyload script, just common jQuery replacement methods for vanilla ones.</li></ul></li><li><b>Polyfills</b>: Only loaded (total 2.4KB) if the above conditions meet, and left unchecked. Basic polyfills: <code>Object.assign, closest, matches, startsWith, CustomEvent</code>. For other polyfills, due to questionabe licenses, include them into your theme as needed such as <a href=':io'>IntersectionObserver</a>, etc. </li></ul>As of 2022/1, Native only supports IMG and IFRAME, the exceptions above cover DIV, VIDEO, etc. Other JavaScript (Media Player, Lightbox, Non-css Masonry (Flexbox or Nativegrid), etc.) can already be disabled via Formatters since 1.x. jQuery (31KB) is only loaded for Colorbox (4.8KB) + blazy.colorbox.js (1.2KB) and admin UIs. Details in blazy/js directory. <a href=':url'>Read more</a>.", [
+      '#description'   => $this->t("Enable to not load them if you don't support IEs and other oldies, or have polyfills at your theme globally. File sizes approximately in minified gzip. The plus (+) sign refers to dependencies like <code>dblazy.js (3.6KB)</code>, etc. A few can be removed via this form. For illustration, Colorbox which is called very lightweight is 4.8KB + jQuery (31KB) = 35.8KB. Blazy never loads all its JavaScript at once, instead conditionally and carefully loads ones as required. Mostly based on your options including these ones. <ul><li><b>Lazyload</b>: remove libraries and loader/ initializer scripts (<code>blazy.js (2.2KB), blazy.load.js (1KB+), bio.js (2KB+)</code>.) for non-js Native lazy. <br><b>Note!</b> While the above is always valid, a <code>blazy/compat (0.8KB + bio.js (2KB+))</code> and or <code>blazy/dblazy (3.6KB)</code> in the least is conditionally loaded as required if any js-dependent options are enabled: <ul><li>Image effect animation or Blur.</li><li>Dynamic multi-breakpoint aka Fluid aspect ratio (excluding fixed ones).</li><li>Dynamic multi-breakpoint (Responsive|Picture based), or static CSS background.</li><li>Local video.</li><li>Sub-module requirements. Slick, Splide, Ultimenu, Jumper, etc. might require <code>blazy/dblazy</code>, not a lazyload script, just common jQuery replacement methods for vanilla ones.</li></ul></li><li><b>Polyfills</b>: Only loaded (total 2.4KB) if the above conditions meet, and left unchecked. Basic polyfills: <code>Object.assign, closest, matches, startsWith, CustomEvent</code>. For other polyfills, due to questionabe licenses, include them into your theme as needed such as <a href=':io'>IntersectionObserver</a>, etc. </li></ul>As of 2022/1, Native only supports IMG and IFRAME, the exceptions above cover DIV, VIDEO, etc. Other JavaScript (Media Player, Lightbox, Non-css Masonry (Flexbox or Nativegrid), etc.) can already be disabled via Formatters since 1.x. jQuery (31KB) is only loaded for Colorbox (4.8KB) + blazy.colorbox.js (1.2KB+) and admin UIs. Details in blazy/js directory. <a href=':url'>Read more</a>.", [
         ':url' => 'https://drupal.org/node/3257512',
         ':io' => 'https://github.com/w3c/IntersectionObserver',
       ]),
@@ -199,18 +199,11 @@ class BlazySettingsForm extends ConfigFormBase {
       '#description' => $this->t('Will fallback gracefully to old bLazy-like with Native support for old browsers to avoid all or nothing. The best deal to support both modern and old browsers. <br>The following settings are related to <a href=":url">IntersectionObserver API</a>.', [':url' => 'https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API']),
     ];
 
-    $form['io']['enabled'] = [
-      '#type'          => 'checkbox',
-      '#title'         => $this->t('Enable IO API'),
-      '#default_value' => $config->get('io.enabled'),
-      '#description'   => $this->t('Check if you want to use IO API for modern browsers, and Blazy for oldies.'),
-    ];
-
     $form['io']['unblazy'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Unload bLazy'),
       '#default_value' => $config->get('io.unblazy'),
-      '#description'   => $this->t("Check if you are happy with IO. This will not load the original bLazy library, no fallback. Watch out for JS errors at browser consoles, and uncheck if any, or unsure. Blazy is just ~2KB gzip. Clear caches!"),
+      '#description'   => $this->t("Check if you are happy with IO. This will not load the original bLazy library, and use IO internal fallback instead. Watch out for JS errors at browser consoles, and uncheck if any, or unsure. Blazy is just ~2KB gzip. Clear caches!"),
     ];
 
     $form['io']['rootMargin'] = [
@@ -279,7 +272,6 @@ class BlazySettingsForm extends ConfigFormBase {
         'validateDelay',
       ]))
       ->set('blazy.container', $form_state->getValue(['blazy', 'container']))
-      ->set('io.enabled', $form_state->getValue(['io', 'enabled']))
       ->set('io.unblazy', $form_state->getValue(['io', 'unblazy']))
       ->set('io.rootMargin', $form_state->getValue(['io', 'rootMargin']))
       ->set('io.threshold', $form_state->getValue(['io', 'threshold']))

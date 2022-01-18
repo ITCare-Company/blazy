@@ -19,8 +19,6 @@
   var _mounted = _id + '--on';
   var _element = '.' + _id + ':not(.' + _mounted + ')';
   var _elementGlobal = 'html';
-  var _media = 'media';
-  var _elMedia = '.' + _media;
   var _data = 'data';
   var _isNativeExecuted = false;
   var _loading = 'loading';
@@ -31,6 +29,7 @@
   var _src = 'src';
   var _events = 'load.bload error.bload';
   var _eventNative = _id + '.native';
+  var _opts = {};
 
   /**
    * Blazy public methods.
@@ -42,42 +41,26 @@
     clearScript: function (el) {
       var me = this;
 
-      // Reevaluate the element for errors, or IE.
-      me.reevaluate(el);
-
-      // Initializes the native lazy loading once the first found is loaded.
-      // This is a delayed loading due to native lazy early load.
-      if (!_isNativeExecuted) {
-        $.trigger(me.context, _eventNative, {
-          options: me.options
-        });
-
-        _isNativeExecuted = true;
-      }
-    },
-
-    // @todo re-check if `No JavaScript` version needs help, likely IE one.
-    reevaluate: function (el) {
-      var me = this;
-      var cn = $.closest(el, _elMedia) || el;
-
       // In case an error, try forcing it, once.
-      if ($.hasClass(el, me.options[_errorClass]) && !$.hasClass(el, _checked)) {
+      if ($.hasClass(el, _opts[_errorClass]) && !$.hasClass(el, _checked)) {
         $.addClass(el, _checked);
 
         // This is a rare case, hardly called, just nice to have for errors.
         me.update(el, true);
       }
 
-      var check = function () {
-        // Only applies to aspect ratio fluid.
-        if (me.isFluid(el, cn)) {
-          updatePicture.call(me, el, cn);
-        }
-      };
+      // Update picture aspect ratio on being resized.
+      me.pad(el, updatePicture);
 
-      // Fixed for effect Blur messes up Aspect ratio Fluid calculation.
-      setTimeout(check);
+      // Initializes the native lazy loading once the first found is loaded.
+      // This is a delayed loading due to native lazy early load.
+      if (!_isNativeExecuted) {
+        $.trigger(me.context, _eventNative, {
+          options: _opts
+        });
+
+        _isNativeExecuted = true;
+      }
     },
 
     /**
@@ -121,7 +104,6 @@
      */
     nativeLazy: function () {
       var me = this;
-      var opts = me.options;
 
       if (!$.isNative) {
         return;
@@ -139,14 +121,14 @@
         var er = e.type === 'error';
 
         // Refines based on actual result, runs clearing, animation, etc.
-        $.addClass(el, opts[er ? _errorClass : _successClass]);
+        $.addClass(el, _opts[er ? _errorClass : _successClass]);
 
         me.clearing(el);
       };
 
       var onNative = function () {
         // Mark it loaded to prevent bLazy/ IO to do any further work.
-        $(els).addClass(opts.successClass)
+        $(els).addClass(_opts.successClass)
           // Reset attributes, and let supportive browsers lazy load natively.
           .mapAttr(['srcset', 'src'], true)
 
@@ -162,13 +144,11 @@
     }
   });
 
-  function updatePicture(el, cn) {
+  function updatePicture(el, cn, pad) {
     var me = this;
-    var pad = Math.round(((el.naturalHeight / el.naturalWidth) * 100), 2);
     var isResized = me.resizeTick > 1;
     var elms = me.instances;
 
-    // cn.style.paddingBottom = pad + '%';
     // Swap all aspect ratio once to reduce abrupt ratio changes for the rest.
     // This triggers a one time event to apply fixes at each .blazy container
     // once after the first resizeTick is emitted.
@@ -186,7 +166,7 @@
 
       // Uniform sizes must apply to each instance, not globally.
       $.each(elms, function (elm) {
-        $.debounce(picture(elm));
+        $.debounce(picture, elm, me);
       }, me);
     }
   }
@@ -210,7 +190,7 @@
       opts.root = context;
     }
 
-    opts = $.extend({}, me.globals(), me.options, opts);
+    opts = me.merge(opts);
 
     // Old bLazy, not IO, might need scrolling CSS selector like Modal library.
     // A scrolling modal with an iframe like Entity Browser has no issue since
@@ -221,7 +201,7 @@
     }
 
     opts.container = scrollElms;
-    me.options = opts;
+    _opts = me.merge(opts);
 
     // Attempts to fix for Views rewrite stripping out data URI causing 404.
     me.fixDataUri();
@@ -248,7 +228,7 @@
     var eventId = _id + '.uniform.' + instance;
     var localItems = $.findAll(elm, '.media--ratio');
 
-    me.options = $.extend({}, me.globals(), me.options, opts);
+    _opts = me.merge(opts);
     me.revalidate = me.revalidate || $.hasClass(elm, _id + '--revalidate');
 
     $.addClass(elm, _mounted);
@@ -278,7 +258,6 @@
     // Basically setting up the fixed frame specific for dynamic Picture as
     // otherwise they apperar collapsed due to slow loaded images.
     // To support resizing, use debounce. To disable use $.one().
-    // @see Drupal.blazy.updatePicture() at blazy.observer.js.
     // @todo remove to not support resizing to minimize complication.
     // @todo move it into ResizeObserver if doable otherwise.
     if (isUniform && localItems.length) {

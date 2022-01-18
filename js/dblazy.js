@@ -18,6 +18,7 @@
 
   'use strict';
 
+  var ns = 'dblazy';
   var extend = Object.assign;
   var _aProto = Array.prototype;
   var _oProto = Object.prototype;
@@ -40,6 +41,7 @@
   var dBlazy = function () {
     function dBlazy(selector, context) {
       var me = this;
+      me.name = ns;
 
       if (!selector) {
         return;
@@ -212,15 +214,19 @@
   /**
    * Returns true if the x is anything falsy.
    *
+   * All values are truthy unless they are defined as falsy (i.e., except for
+   * false, 0, -0, 0n, "", null, undefined, and NaN).
+   *
    * @private
    *
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
    * @return {bool}
-   *   True if null or empty array.
+   *   True if null, undefined, false or empty string or array.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_NOT
    */
   function isEmpty(x) {
     return isNull(x) || isUnd(x) || x === false || (x.length && x.length === 0);
@@ -918,25 +924,6 @@
   }
 
   /**
-   * Returns element visibility.
-   *
-   * @private
-   *
-   * @param {Element} el
-   *   The HTML element to test.
-   * @param {Object} vp
-   *   The window viewport.
-   *
-   * @return {bool}
-   *   Returns true if visible.
-   */
-  function isVisible(el, vp) {
-    var rect = el.getBoundingClientRect();
-
-    return ((rect.top > vp.top || rect.bottom > 0) && rect.top < vp.bottom);
-  }
-
-  /**
    * Returns data from the current active window.
    *
    * @private
@@ -1391,7 +1378,6 @@
   db.isUnd = isUnd;
   db.isEvt = isEvt;
   db.isQuery = isQuery;
-  db.isVisible = isVisible;
   db.isIo = 'IntersectionObserver' in _win;
   db.isMo = 'MutationObserver' in _win;
   db.isRo = 'ResizeObserver' in _win;
@@ -1521,23 +1507,6 @@
   db.windowSize = windowSize;
   db.activeWidth = activeWidth;
   db.viewport = viewport;
-  db.ww = 0;
-  db.vp = {};
-
-  db.checkViewport = function (offset) {
-    var me = this;
-    me.vp = viewport(offset || 100);
-    me.ww = me.vp.right;
-  };
-
-  db.winData = function (mobileFirst) {
-    var me = this;
-    return {
-      vp: me.vp || {},
-      ww: me.ww || 0,
-      up: mobileFirst || false
-    };
-  };
 
   // Event methods.
   fn.toEvent = function (eventName, cb, params, isCustom, op) {
@@ -1775,7 +1744,7 @@
    * @return {Function}
    *   The function executed at the specified minDelay.
    */
-  function throttle(cb, minDelay, scope) {
+  db.throttle = function (cb, minDelay, scope) {
     minDelay = minDelay || 50;
     var lastCall = 0;
     return function () {
@@ -1786,9 +1755,7 @@
       lastCall = now;
       cb.apply(scope, arguments);
     };
-  }
-
-  db.throttle = throttle;
+  };
 
   /**
    * A simple wrapper to delay callback function on window resize.
@@ -1800,15 +1767,17 @@
    * @param {number} t
    *   The timeout.
    *
-   * @return {Function}
-   *   The callback function.
-   *
-   * @todo merge it with ResizeObserver.
+   * @return {ResizeObserver|Function}
+   *   The ResizeObserver instance, or callback function.
    */
   db.resize = function (cb, t) {
-    _win.onresize = function () {
+    // @todo enable later when old projects are updated: lory, extended, etc.
+    // if (this.isRo) {
+    // return new ResizeObserver(cb);
+    // }
+    _win.onresize = function (e) {
       clearTimeout(t);
-      t = setTimeout(cb, 200);
+      t = setTimeout(cb.bind(e), 200);
     };
     return cb;
   };

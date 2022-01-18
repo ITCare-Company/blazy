@@ -53,16 +53,11 @@ class BlazyAlter {
   public static function libraryInfoAlter(&$libraries, $extension): void {
     if ($extension === 'blazy') {
       if ($path = blazy_libraries_get_path('blazy')) {
-        $libraries['blazy']['js'] = ['/' . $path . '/blazy.min.js' => ['weight' => -4]];
+        $libraries['blazy']['js'] = ['/' . $path . '/blazy.min.js' => ['weight' => -5]];
       }
 
-      if (blazy()->configLoad('io.enabled')) {
-        $libraries['load']['dependencies'][] = 'blazy/bio.media';
-        if (blazy()->configLoad('io.unblazy')) {
-          $deps = $libraries['load']['dependencies'];
-          $deps = array_diff($deps, ['blazy/blazy']);
-          $libraries['load']['dependencies'] = $deps;
-        }
+      if (!blazy()->configLoad('io.unblazy')) {
+        $libraries['load']['dependencies'][] = 'blazy/blazy';
       }
     }
 

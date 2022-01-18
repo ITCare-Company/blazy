@@ -309,7 +309,10 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       $settings['blazy_data']['dimensions'] = $dimensions;
       $settings['padding_bottom'] = end($dimensions);
 
-      $settings['image_url'] = $settings['is_preview'] ? $settings['image_url'] : $settings['placeholder'];
+      // To make compatible with old bLazy which expects no placeholder, provide
+      // a real smallest image. Bio will map it to the current breakpoint later.
+      $bg = reset($settings['urls']);
+      $settings['image_url'] = $settings['is_preview'] ? $settings['image_url'] : $bg['src'];
       Blazy::lazyAttributes($attributes, $settings);
     }
   }

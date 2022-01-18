@@ -1,9 +1,9 @@
 admin_css: true
-nojs: ''
+nojs:
   lazy: '0'
   polyfill: '0'
-  raf: '0'
   promise: '0'
+  raf: '0'
 fx: ''
 decode: false
 noscript: false

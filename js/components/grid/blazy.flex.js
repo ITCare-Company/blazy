@@ -94,11 +94,7 @@
     // @todo this breaks initial bricks.
     var checkResize = function () {
       // Process on resize.
-      var cb = function (entries) {
-        $.each(entries, processItem);
-      };
-
-      me.checkResize(items, cb, elm);
+      me.checkResize(items, processItem, elm);
     };
     /* eslint-disable no-unused-vars */
 

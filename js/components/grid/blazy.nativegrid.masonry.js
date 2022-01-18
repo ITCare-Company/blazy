@@ -93,11 +93,7 @@
         $.each(items, processItem);
 
         // Process on resize.
-        var cb = function (entries) {
-          $.each(entries, processItem);
-        };
-
-        Drupal.blazy.checkResize(items, cb, elm, processItem);
+        Drupal.blazy.checkResize(items, processItem, elm, processItem);
       }
     };
 

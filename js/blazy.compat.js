@@ -17,19 +17,19 @@
 
   'use strict';
 
-  var ns = 'bcompat';
+  var _id = 'blazy';
   var _elItem = '.b-lazy:not(.b-blur)';
-  var _resizeEvent = 'resize.' + ns;
   var _data = 'data-';
   var _dataAnimation = _data + 'animation';
-  var _isAnimated = 'is-b-animated';
+  var _dataDimensions = _data + 'dimensions';
+  var _dataRatio = _data + 'ratio';
   var _media = 'media';
+  var _picture = 'picture';
   var _elMedia = '.' + _media;
-  var _opts = {};
+  var _elRatio = _elMedia + '--ratio';
+  var _isAnimated = 'is-b-animated';
   var _winData = {};
-  var _roObserve = false;
-  var roObserver = false;
-  var roRaf = false;
+  var _opts = {};
 
   /**
    * Blazy public compat methods.
@@ -40,84 +40,51 @@
 
     clearCompat: function (el) {
       var me = this;
-      var cn = $.closest(el, _elMedia) || el;
+      var bio = me.init;
 
-      var check = function () {
-        // Only applies to aspect ratio fluid.
-        if (me.isFluid(el, cn)) {
-          updatePicture.call(me, el, cn);
-        }
+      me.pad(el, animate);
 
-        animate(el);
-      };
-
-      // Fixed for effect Blur messes up Aspect ratio Fluid calculation.
-      setTimeout(check);
+      // Compatibility with old bLazy.
+      if (me.isBlazy() && bio.isBg(el)) {
+        bio.setImage(el, true);
+      }
     },
 
     winData: function () {
-      return $.winData(_opts.mobileFirst);
+      return this.init.winData() || {};
     },
 
     checkResize: function (items, cb, root, onDone) {
       var me = this;
-      var resizer = function (entries) {
-        $.checkViewport(_opts.offset || 100);
+      var interact = function (entries) {
+        me.resizeTick = me.init.resizeTick || 0;
         _winData = me.winData();
 
-        me.resizeTick++;
-        return cb(entries);
+        $.each(entries, function (entry) {
+          var el = entry.target || entry;
+          $.debounce(cb, el, me);
+        }, me);
+        return _winData;
       };
 
-      // IE11 not supported, we'll provide a fallback.
-      // @see https://caniuse.com/resizeobserver
-      _roObserve = function () {
-        return $.isRo ? new ResizeObserver(resizer) : resizer(items);
-      };
-
-      // Checks for aspect ratio, onload event is a bit later.
-      // Uses ResizeObserver for modern browsers, else degrades.
-      roObserver = _roObserve();
-      if (items.length) {
-        if (roObserver) {
-          $.each(items, function (item) {
-            roObserver.observe(item);
-          });
-        }
-        else {
-          $.bindEvent(_win, _resizeEvent, $.debounce(_roObserve));
-        }
-      }
-      else {
-        // At least provides viewport for other observers to detect visibility.
-        $.debounce(resizer);
-      }
+      _winData = $.interact(me, interact, items, false);
+      $.observe(me, items, false, true);
 
       // When images are loaded, Flexbox or Native Grid as Masonry might need
       // info about the loaded image dimensions to calculate gaps or positions.
       if (onDone && $.isFun(onDone)) {
-        me.rebind(root, onDone, roObserver);
+        me.rebind(root, onDone, me.roObserver);
       }
+
       return _winData;
     },
 
     unresize: function () {
-      if (!_roObserve) {
-        $.unbindEvent(_win, _resizeEvent, _roObserve);
-      }
-      if (roRaf) {
-        cancelAnimationFrame(roRaf);
-      }
+      $.unload(this);
     }
   });
 
   // Private non-reusable functions.
-  function updatePicture(el, cn) {
-    var pad = Math.round(((el.naturalHeight / el.naturalWidth) * 100), 2);
-
-    cn.style.paddingBottom = pad + '%';
-  }
-
   /**
    * Callback function to animate blur, or any animated, element, if any.
    *
@@ -135,7 +102,89 @@
     if ($.isElm(an) && !$.hasClass(an, _isAnimated)) {
       setTimeout(function () {
         $.animate(an);
-      }, 200);
+      }, 100);
+    }
+  }
+
+  /**
+   * Updates the dynamic multi-breakpoint aspect ratio: bg, picture or image.
+   *
+   * Even Native needs help since browsers do not auto-update dynamic ratio.
+   *
+   * This only applies to Responsive images with aspect ratio fluid.
+   * Static ratio (media--ratio--169, etc.) is ignored and uses CSS instead.
+   *
+   * @param {Element} cn
+   *   The .media--ratio[--fluid] container HTML element.
+   *
+   * @todo this should be at bio.js, but bLazy has no support which prevents it.
+   * Unless made generic for a ping-pong.
+   */
+  function updateRatio(cn) {
+    cn = cn.target || cn;
+    if (!$.isElm(cn)) {
+      return;
+    }
+
+    var me = this;
+    // Blazy container (via formatter or Views style) is not always there.
+    var root = $.closest(cn, '.' + _id);
+    var dimensions = $.parse($.attr(cn, _dataDimensions));
+    var isResized = me.resizeTick > 0;
+
+    // Bail out if a static/ non-fluid aspect ratio.
+    if (!dimensions) {
+      fallbackRatio(cn);
+      return;
+    }
+
+    // For picture, this is more a dummy space till the image is downloaded.
+    var isPicture = $.isElm($.find(cn, _picture)) && isResized;
+    var data = $.extend(_winData, {
+      up: isPicture
+    });
+    var pad = $.activeWidth(dimensions, data);
+
+    // Provides marker for grouping between multiple instances.
+    cn.dblazy = $.isElm(root) && root.dblazy;
+    if (!$.isUnd(pad)) {
+      cn.style.paddingBottom = pad + '%';
+    }
+
+    // Update multi-breakpoint CSS background.
+    // @todo move it out of ratio. ATM, requires ratio to update multi-BG.
+    if (isResized) {
+      me.update(cn, false, _winData);
+    }
+
+    // @todo refactor or remove into IO.
+    // Fix for picture or bg element with resizing.
+    // if (isResized && (isPicture || $.hasAttr(cn, _dataBg))) {
+    // me.onIntersecting((isPicture ? $.find(cn, 'img') : cn), cn);
+    // }
+  }
+
+  // Only rewrites if the style is indeed stripped out, and not set.
+  // View rewrite result stripped out style attribute required by fluid ratio.
+  function fallbackRatio(cn) {
+    var value = $.attr(cn, _dataRatio);
+
+    if (!$.hasAttr(cn, 'style') && value) {
+      cn.style.paddingBottom = value + '%';
+    }
+  }
+
+  /**
+   * Resize Fluid aspect ratio.
+   */
+  function resize() {
+    var me = this;
+    var doc = me.context;
+    var els = $.findAll(doc, _elRatio);
+
+    // Update multi-breakpoint fluid aspect ratio, if any.
+    if (els.length) {
+      me.checkResize(els, updateRatio, doc);
     }
   }
 
@@ -151,10 +200,9 @@
     me.mount(true);
     _opts = me.options;
 
-    // @todo figure out potential conflict of interests, harmless, just useless.
-    if (!_opts.loader || _opts.compat) {
-      me.init = me.run(_opts);
-    }
+    // ::init will/not be overridden by blazy.load, no problem since 2.6.
+    me.init = me.run(_opts);
+    resize.call(me);
   }
 
   /**
@@ -174,11 +222,7 @@
     detach: function (context, settings, trigger) {
       if (trigger === 'unload') {
         var me = Drupal.blazy;
-        var ro = 'ro' in me ? me.ro() : false;
-
-        if (ro) {
-          ro.unload();
-        }
+        me.unresize();
       }
     }
   };

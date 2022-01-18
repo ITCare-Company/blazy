@@ -1,6 +1,10 @@
 /**
  * @file
  * Provides shared drupal-related methods normally driven by Drupal UI options.
+ *
+ * @todo make bLazy as IO fallback, and use IO by default to reduce complexity
+ * and cross-compat better between Native and old approach (data-[SRC|SRCSET]).
+ * The reason old bLazy was not designed to cope with Native, Bio is.
  */
 
 (function ($, Drupal, drupalSettings, _win, _doc) {
@@ -9,25 +13,35 @@
 
   var _id = 'blazy';
   var _data = 'data';
-  var _dataBg = _data + '-b-bg';
+  var _bbg = 'b-bg';
+  var _dataBg = _data + '-' + _bbg;
   var _dataDimensions = _data + '-dimensions';
   var _elBlur = '.b-blur';
+  var _media = 'media';
+  var _elMedia = '.' + _media;
   var _successClass = 'successClass';
   var _eventDone = _id + '.done';
   var _noop = function () {};
   var _extensions = {};
 
   /**
-   * Blazy public methods.
+   * Blazy public properties and methods.
    *
    * @namespace
    */
   Drupal.blazy = {
+    _queue: [],
+    _raf: false,
     context: _doc,
+    name: _id,
+    bio: null,
     init: null,
+    ioObserver: null,
+    roObserver: null,
     instances: [],
     items: [],
     resizeTick: 0,
+    resizeTrigger: false,
     blazySettings: drupalSettings.blazy || {},
     ioSettings: drupalSettings.blazyIo || {},
     options: {},
@@ -39,15 +53,31 @@
     onIntersecting: _noop,
     updateRatio: _noop,
     winData: _noop,
-    extend: function (plugins) {
-      _extensions = $.extend({}, _extensions, plugins);
+
+    // Enforced since IO (bio.js) makes bLazy a fallback internally since 2.6.
+    isIo: function () {
+      return true;
     },
+
+    isBlazy: function () {
+      return !$.isIo && 'Blazy' in _win;
+    },
+
+    isFluid: function (el, cn) {
+      return $.equal(el.parentNode, 'picture') && $.hasAttr(cn, _dataDimensions);
+    },
+
+    isLoaded: function (el) {
+      return $.hasClass(el, this.options[_successClass]);
+    },
+
     globals: function () {
       var me = this;
       var commons = {
         success: me.clearing.bind(me),
         error: me.clearing.bind(me),
         selector: '.b-lazy',
+        parent: _elMedia,
         errorClass: 'b-error',
         successClass: 'b-loaded'
       };
@@ -55,7 +85,53 @@
       return $.extend(me.blazySettings, me.ioSettings, commons);
     },
 
+    extend: function (plugins) {
+      _extensions = $.extend({}, _extensions, plugins);
+    },
+
+    merge: function (opts) {
+      var me = this;
+      me.options = $.extend({}, me.globals(), me.options, opts || {});
+      return me.options;
+    },
+
+    run: function (opts) {
+      // @see https://www.drupal.org/project/blazy/issues/3258851
+      var els = $.findAll(_doc, '.media--ratio--fluid, .' + _bbg);
+      opts.disconnect = opts.disconnect || !els.length;
+      return new Bio(opts);
+    },
+
+    mount: function (exe) {
+      var me = this;
+
+      // This may be set by lazyload script, but not when `No JavaScript` off.
+      me.merge();
+
+      // Executes all extensions.
+      if (exe) {
+        $.each(_extensions, function (fn) {
+          if ($.isFun(fn)) {
+            fn.call(me);
+          }
+        });
+      }
+
+      return $.extend(me, _extensions);
+    },
+
+    selector: function (suffix) {
+      suffix = suffix || '';
+      var opts = this.options;
+      return opts.selector + suffix + ':not(.' + opts[_successClass] + ')';
+    },
+
     clearing: function (el) {
+      // While IO has a mechanism to unobserve, bLazy not.
+      if (el.bclearing) {
+        return;
+      }
+
       var me = this;
       var ie = $.hasClass(el, 'b-responsive') && $.hasAttr(el, _data + '-pfsrc');
 
@@ -82,40 +158,8 @@
           elements: [el]
         });
       }
-    },
 
-    run: function (opts) {
-      // If `No JavaScript` enabled, at least hook into core IO to DRY.
-      if (!opts.loader) {
-        return new Bio(opts);
-      }
-
-      // Else regular lazyloader scripts with data-[SRC|SRCSET] to support IEs.
-      return this.isIo() ? new BioMedia(opts) : new Blazy(opts);
-    },
-
-    mount: function (exe) {
-      var me = this;
-
-      // This may be set by lazyload script, but not when `No JavaScript` off.
-      me.options = $.extend(me.globals(), me.options);
-
-      // Executes all extensions.
-      if (exe) {
-        $.each(_extensions, function (fn) {
-          if ($.isFun(fn)) {
-            fn.call(me);
-          }
-        });
-      }
-
-      return $.extend(me, _extensions);
-    },
-
-    selector: function (suffix) {
-      suffix = suffix || '';
-      var opts = this.options;
-      return opts.selector + suffix + ':not(.' + opts[_successClass] + ')';
+      el.bclearing = true;
     },
 
     // Only do this to fix errors, revalidation.
@@ -124,7 +168,7 @@
 
       // DOM ready fix.
       _win.setTimeout(function () {
-        // @todo filterout the failing ones.
+        // Filterout the failing ones.
         var elms = $.findAll(cn || _doc, me.selector());
 
         if (elms.length) {
@@ -135,14 +179,15 @@
 
     update: function (el, delayed, winData) {
       var me = this;
+      var sel = me.options.selector;
       var _update = function () {
         if ($.hasAttr(el, _dataBg) && $.isFun($.bg)) {
           $.bg(el, winData || me.winData());
         }
         else {
           if (me.init) {
-            if ($.hasClass(el, 'media')) {
-              el = $.find(el, '.b-lazy') || el;
+            if (!$.hasClass(el, sel.substring(1))) {
+              el = $.find(el, sel) || el;
             }
             me.init.load(el, true);
           }
@@ -159,7 +204,11 @@
       }
     },
 
-    // Useful to re-calculate image dimensions such as for Masonry.
+    // Re-calculate image dimensions which may vary per breakpoint such as for
+    // Masonry during resizing. When images are loaded, Flexbox or Native Grid
+    // as Masonry might need info about the loaded image dimensions to calculate
+    // gaps or positions. Hooking into onload event ensures dimensions correct.
+    // @todo move it out to grid-related which requires this.
     rebind: function (root, cb, observer) {
       var me = this;
       var elms = $.findAll(root, me.options.selector + ':not(' + _elBlur + ')');
@@ -181,29 +230,29 @@
       }
     },
 
-    isFluid: function (el, cn) {
-      return $.equal(el.parentNode, 'picture') && $.hasAttr(cn, _dataDimensions);
-    },
-
-    isLoaded: function (el) {
-      return $.hasClass(el, this.options[_successClass]);
-    },
-
-    isIo: function () {
+    pad: function (el, cb) {
       var me = this;
-      return me.ioSettings && me.ioSettings.enabled;
-    },
+      var cn = $.closest(el, _elMedia) || el;
 
-    isBlazy: function () {
-      return !this.isIo() && 'Blazy' in _win;
+      // Only applies to aspect ratio fluid.
+      if (!me.isFluid(el, cn)) {
+        return;
+      }
+
+      var check = function () {
+        var pad = Math.round(((el.naturalHeight / el.naturalWidth) * 100), 2);
+
+        cn.style.paddingBottom = pad + '%';
+
+        if (cb) {
+          cb.call(me, el, cn, pad);
+        }
+      };
+
+      // Fixed for effect Blur messes up Aspect ratio Fluid calculation.
+      setTimeout(check);
     }
 
   };
-
-  function _debounce(cb, scope) {
-    Drupal.debounce(cb.bind(scope), 201, true);
-  }
-
-  $.debounce = _debounce;
 
 }(dBlazy, Drupal, drupalSettings, this, this.document));

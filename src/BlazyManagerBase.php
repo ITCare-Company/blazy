@@ -257,6 +257,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $config = $this->configLoad('blazy');
     $config['loader'] = empty($attach['nojs']['lazy']);
     $config['compat'] = $attach['compat'];
+    $config['unblazy'] = $this->configLoad('io.unblazy');
+
     $load['drupalSettings']['blazy'] = $config;
     $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
 
@@ -286,7 +288,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $thold = strpos($thold, ',') !== FALSE ? array_map('trim', explode(',', $thold)) : [$number];
 
     // Respects hook_blazy_attach_alter() for more fine-grained control.
-    foreach (['enabled', 'disconnect', 'rootMargin', 'threshold'] as $key) {
+    foreach (['disconnect', 'rootMargin', 'threshold'] as $key) {
       $default = $key == 'rootMargin' ? '0px' : FALSE;
       $value = $key == 'threshold' ? $thold : $this->configLoad('io.' . $key);
       $io[$key] = $attach['io.' . $key] ?? ($value ?: $default);

@@ -39,6 +39,28 @@ css:
   dependencies:
     - blazy/dblazy
 
+observer:
+  js:
+    js/plugin/blazy.observer.min.js: { minified: true, weight: -3.5 }
+  dependencies:
+    - blazy/dblazy
+
+# Drupal-related base.
+# Will not be loaded when `No JavaScript` enabled, unless exceptions met.
+base:
+  css:
+    component:
+      css/blazy.css: {}
+
+script:
+  js:
+    js/base/blazy.base.min.js: { minified: true, weight: -3.5 }
+  dependencies:
+    - core/drupal
+    - core/drupal.debounce
+    - blazy/dblazy
+    - blazy/base
+
 # Extension for dBlazy when using data-[SRC|SRCSET]: BG, IO, VIDEO, attributes.
 dataset:
   js:
@@ -59,14 +81,9 @@ bio:
   js:
     js/base/io/bio.min.js: { minified: true, weight: -3 }
   dependencies:
-    - blazy/dblazy
+    - blazy/script
     - blazy/dataset
-
-# Drupal-related base.
-base:
-  css:
-    component:
-      css/blazy.css: {}
+    - blazy/observer
 
 # Shared drupal-related methods normally driven by Drupal UI options.
 drupal:
@@ -74,16 +91,13 @@ drupal:
     js/base/blazy.drupal.min.js: { minified: true, weight: -1.6 }
   dependencies:
     # @todo when min D9.2 - core/once
-    - core/drupal
-    - core/drupal.debounce
-    - blazy/dblazy
-    - blazy/base
+    - blazy/script
+    - blazy/observer
 
 # Compat methods between Native and lazyload script when being ditched.
 compat:
   js:
     js/blazy.compat.min.js: { minified: true, weight: -1.6 }
-    js/plugin/blazy.ro.min.js: { minified: true, weight: -1.5 }
   dependencies:
     - blazy/bio
     - blazy/drupal
@@ -94,20 +108,9 @@ load:
   js:
     js/blazy.load.min.js: { minified: true, weight: -1.5 }
   dependencies:
-    - blazy/blazy
-    # - blazy/compat
-    - blazy/drupal
-    - blazy/dataset
-    - blazy/loading
-
-# IO media as a bLazy alternative for modern browsers with fallback.
-# Not loaded when `No JavaScript` is enabled.
-# @todo merge it with localized/ forked bLazy to degrade/ avoid all or nothing
-bio.media:
-  js:
-    js/base/io/bio.media.min.js: { minified: true, weight: -2 }
-  dependencies:
     - blazy/bio
+    - blazy/drupal
+    - blazy/loading
 
 # Optional components.
 loading:
@@ -118,6 +121,7 @@ loading:
     js/plugin/blazy.loading.min.js: { minified: true }
   dependencies:
     - blazy/base
+    - blazy/dblazy
 
 filter:
   css:
