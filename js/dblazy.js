@@ -462,7 +462,8 @@
   function _attr(els, attr, defValue, withDefault) {
     var me = this;
     var _undefined = isUnd(defValue);
-    var _getter = _undefined || isBool(withDefault);
+    var _obj = isObj(attr);
+    var _getter = !_obj && (_undefined || isBool(withDefault));
     var prefix = isStr(withDefault) ? withDefault : '';
 
     // No defValue defined, or withDefault set, means a getter.
