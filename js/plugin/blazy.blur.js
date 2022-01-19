@@ -19,7 +19,8 @@
     if (!me.options.loader) {
       var els = $.findAll(me.context, me.selector('.b-blur'));
       if (els.length) {
-        me.mapAttr(els);
+        // Reset attributes, and let supportive browsers lazy load natively.
+        $(els).mapAttr(['srcset', 'src'], true);
       }
     }
   }

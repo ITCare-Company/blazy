@@ -2,7 +2,7 @@
  * @file
  * Provides non-reusable methods due to being too specific for Blazy.
  *
- * Required only by old data-[SRC|SCRSET] approach, bio.media and blazy.load.
+ * Required only by old data-[SRC|SCRSET] approach, bio and blazy.load.
  * Not required by pure Native without data-[SRC|SCRSET].
  *
  * @internal
@@ -11,7 +11,7 @@
  *   It is extending dBlazy as a separate plugin.
  */
 
-(function ($, Drupal) {
+(function ($) {
 
   'use strict';
 
@@ -113,21 +113,4 @@
     return mapSource(this, attr, remove, withVideo);
   };
 
-  /**
-   * Blazy public data attribute methods.
-   *
-   * @namespace
-   */
-  Drupal.blazy = $.extend(Drupal.blazy || {}, {
-    mapAttr: function (els) {
-      // Mark it loaded to prevent bLazy/ IO to do any further work.
-      $(els).addClass(this.options.successClass)
-        // Reset attributes, and let supportive browsers lazy load natively.
-        .mapAttr(['srcset', 'src'], true)
-
-        // Also supports PICTURE or (future) VIDEO which contains SOURCEs.
-        .mapSource(false, true);
-    }
-  });
-
-})(dBlazy, Drupal);
+})(dBlazy);

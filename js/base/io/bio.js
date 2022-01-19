@@ -344,19 +344,16 @@
       return;
     }
 
+    // ::findAll is already optimized with a single null check, no extra checks.
     var dataset = me.selector('[data-src][loading]:not(.b-blur)');
-    var check = $.find(_root, dataset);
-
-    if (!$.isElm(check)) {
-      return;
-    }
-
     var els = $.findAll(_root, dataset);
 
-    // Reset attributes, and let supportive browsers lazy load natively.
-    $(els).mapAttr(['srcset', 'src'], true)
-      // Also supports PICTURE or (future) VIDEO which contains SOURCEs.
-      .mapSource(false, true);
+    if (els.length) {
+      // Reset attributes, and let supportive browsers lazy load natively.
+      $(els).mapAttr(['srcset', 'src'], true)
+        // Also supports PICTURE which contains SOURCEs. Excluding VIDEO.
+        .mapSource(false, true, false);
+    }
   };
 
   fn.destroyQuietly = function (force) {
@@ -458,9 +455,8 @@
       _winData = $.checkWindow(_opts.offset);
       ww = _winData.ww;
     }
-
-    // Disconnect if necessary.
-    if (!_resizing) {
+    else {
+      // Disconnect if necessary.
       me.destroyQuietly(_opts.disconnect);
 
       // Stop watching if already disconnected.
@@ -489,6 +485,7 @@
       // The element is being resized.
       _resizing = resized && _ww > 0;
       if (_resizing) {
+        // Ensures only before settled, or if any different from previous size.
         if (_ww !== ww) {
           update = true;
           intersecting.call(me, el, resized);

@@ -15,6 +15,7 @@
  * [Aspect ratio template](#aspect-ratio-template)
  * [Contribution](#contribution)
  * [Maintainers](#maintainers)
+ * [Notable changes](#changes) 
 
 
 ***
@@ -186,7 +187,7 @@ Check out the relevant sub-module docs for details.
 
 ***
 # <a name="features"> </a>FEATURES
-* Works without JavaScript with/without JavaScript browsers.
+* Works without JavaScript within/without JavaScript browsers.
 * Supports core Image.
 * Supports core Responsive image.
 * Supports Colorbox/ Photobox/ PhotoSwipe, also multimedia lightboxes.
@@ -210,7 +211,6 @@ Check out the relevant sub-module docs for details.
   [Slick Browser](https://www.drupal.org/project/slick_browser).
 * Views style plugin `Blazy Grid` for CSS3 Columns, Grid Foundation, Flexbox,
   and Native Grid.
-
 
 ***
 # <a name="maintainers"> </a>MAINTAINERS/CREDITS

@@ -223,6 +223,7 @@
       var me = Drupal.blazy;
       me.context = $.context(context);
 
+      // No bind without extra arguments, call me.
       $.once(process.call(me));
 
     },
