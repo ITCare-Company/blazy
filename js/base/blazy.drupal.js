@@ -52,7 +52,6 @@
     mapAttr: _noop,
     onIntersecting: _noop,
     updateRatio: _noop,
-    winData: _noop,
 
     // Enforced since IO (bio.js) makes bLazy a fallback internally since 2.6.
     isIo: function () {
@@ -162,6 +161,10 @@
       el.bclearing = true;
     },
 
+    winData: function () {
+      return this.init ? this.init.winData() : {};
+    },
+
     // Only do this to fix errors, revalidation.
     load: function (cn) {
       var me = this;
@@ -234,17 +237,16 @@
       var me = this;
       var cn = $.closest(el, _elMedia) || el;
 
-      // Only applies to aspect ratio fluid.
-      if (!me.isFluid(el, cn)) {
-        return;
-      }
-
       var check = function () {
         var pad = Math.round(((el.naturalHeight / el.naturalWidth) * 100), 2);
 
-        cn.style.paddingBottom = pad + '%';
+        // Only applies to aspect ratio fluid.
+        if (me.isFluid(el, cn)) {
+          cn.style.paddingBottom = pad + '%';
+        }
 
-        if (cb) {
+        // Any functions which require dimensions setup: blur, bg, ratio, etc.
+        if ($.isFun(cb)) {
           cb.call(me, el, cn, pad);
         }
       };

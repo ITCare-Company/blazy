@@ -1,6 +1,6 @@
 /**
  * @file
- * Provides base methods used by drupal-related codes.
+ * Provides base methods to bridge drupal-related codes with generic ones.
  */
 
 (function ($, Drupal) {
@@ -15,5 +15,9 @@
   }
 
   $.debounce = _debounce;
+
+  $.isBg = function (el) {
+    return $.hasClass(el, 'b-bg');
+  };
 
 })(dBlazy, Drupal);

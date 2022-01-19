@@ -137,7 +137,8 @@ blur:
     component:
       css/components/blazy.blur.css: {}
   js:
-    js/plugin/blazy.blur.min.js: { minified: true }
+    # @todo must be run before bio.js, or move it there, coupled by option.
+    js/plugin/blazy.blur.min.js: { minified: true, weight: -1.6 }
   dependencies:
     - blazy/dataset
     - blazy/compat

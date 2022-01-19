@@ -146,7 +146,7 @@
   fn.lazyLoad = function (el) {
     var me = this;
     var parent = el.parentNode;
-    var isBg = me.isBg(el);
+    var isBg = $.isBg(el);
     var isPicture = $.equal(parent, 'picture');
     var isImage = $.equal(el, 'img') && !isPicture;
     var isVideo = $.equal(el, 'video');
@@ -262,10 +262,6 @@
   fn.selector = function (suffix) {
     suffix = suffix || '';
     return _opts.selector + suffix + ':not(.' + _successClass + ')';
-  };
-
-  fn.isBg = function (el) {
-    return $.isUnd(el.src) && $.hasClass(el, _bgClass);
   };
 
   fn.isLoaded = function (el) {

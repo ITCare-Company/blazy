@@ -42,16 +42,12 @@
       var me = this;
       var bio = me.init;
 
-      me.pad(el, animate);
-
       // Compatibility with old bLazy.
-      if (me.isBlazy() && bio.isBg(el)) {
+      if (bio && me.isBlazy() && $.isBg(el)) {
         bio.setImage(el, true);
       }
-    },
 
-    winData: function () {
-      return this.init.winData() || {};
+      me.pad(el, animate);
     },
 
     checkResize: function (items, cb, root, onDone) {
