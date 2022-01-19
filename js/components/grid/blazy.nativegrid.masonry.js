@@ -19,12 +19,7 @@
 
   Drupal.blazy = Drupal.blazy || {};
 
-  /**
-   * Blazy nativeGrid public methods.
-   *
-   * @namespace
-   */
-  Drupal.blazy.nativeGrid = {
+  var _opts = {
     gap: 15,
     height: 15,
     rows: 10
@@ -35,9 +30,10 @@
    *
    * @param {HTMLElement|Event} el
    *   The item HTML element, or event object on blazy.done.
+   * @param {in|undefiued} i
+   *   The element index, or undefined for a resize event.
    */
-  function processItem(el) {
-    var me = Drupal.blazy.nativeGrid;
+  function processItem(el, i) {
     var target = el.target;
     var box = 'target' in el ? $.closest(target, '.grid') : el;
 
@@ -48,18 +44,27 @@
     var cn = $.find(box, '.grid__content');
 
     if ($.isElm(cn)) {
-      if (me.gap === 0) {
-        me.gap = 0.0001;
+      if (_opts.gap === 0) {
+        _opts.gap = 0.0001;
       }
 
-      _win.setTimeout(function () {
+      // Once setup, we rely on CSS to make it responsive.
+      var layout = function () {
         var rect = cn.getBoundingClientRect();
-        var span = Math.ceil((rect.height + me.gap) / (me.height + me.gap));
+        var span = Math.ceil((rect.height + _opts.gap) / (_opts.height + _opts.gap));
 
         // Sets the grid row span based on content and gap height.
         box.style.gridRowEnd = 'span ' + span;
+
         $.addClass(box, 'is-b-grid');
-      }, 600);
+      };
+
+      if ($.isUnd(i)) {
+        _win.setTimeout(layout, 200);
+      }
+      else {
+        layout();
+      }
     }
   }
 
@@ -70,8 +75,9 @@
    *   The container HTML element.
    */
   function process(elm) {
-    var me = Drupal.blazy.nativeGrid;
     var selector = '.grid:not(.is-b-grid)';
+    // The is-b-grid is flag to not re-do with VIS, views infinite scroll/ IO.
+    var items = $.findAll(elm, selector);
 
     var init = function () {
       var style = _win.getComputedStyle(elm);
@@ -79,14 +85,11 @@
       var rows = style.getPropertyValue('grid-auto-rows');
 
       if (gap) {
-        me.gap = parseInt(gap, 10);
+        _opts.gap = parseInt(gap, 10);
       }
       if (rows) {
-        me.height = parseInt(rows, 10);
+        _opts.height = parseInt(rows, 10);
       }
-
-      // The is-b-grid is flag to not re-do with VIS, views infinite scroll/ IO.
-      var items = $.findAll(elm, selector);
 
       if (items.length) {
         // Process on page load.
@@ -97,8 +100,7 @@
       }
     };
 
-    init();
-
+    _win.setTimeout(init, 100);
     $.addClass(elm, _mounted);
   }
 

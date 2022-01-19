@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2022-01-18
 -----------------------------
+- No more fights under a single source of truth.
 - Issue #3258851 by gausarts: Make old bLazy as fallback for IO, not competing.
 
 Blazy 8.x-2.0-dev, 2022-01-16

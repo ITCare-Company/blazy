@@ -69,20 +69,38 @@
    *   The attr name, can be SRC or SRCSET.
    * @param {Bool} remove
    *   True if should remove.
+   * @param {Bool} withVideo
+   *   Native lazy doesn't support VIDEO as per 2022/1, exclude till required.
    *
    * @return {Object}
    *   This dBlazy object.
    */
-  function mapSource(els, attr, remove) {
+  function mapSource(els, attr, remove, withVideo) {
+    if ($.isUnd(withVideo)) {
+      withVideo = true;
+    }
     var chainCallback = function (el) {
       if ($.isElm(el)) {
         var parent = el.parentNode;
         var isPicture = $.equal(parent, 'picture');
-        var elms = (isPicture ? parent : el).getElementsByTagName('source');
+        var cn = null;
 
-        attr = attr || (isPicture ? 'srcset' : 'src');
-        if (elms.length) {
-          $(elms).mapAttr(attr, remove);
+        if (withVideo) {
+          cn = isPicture ? parent : el;
+        }
+        else {
+          if (isPicture) {
+            cn = parent;
+          }
+        }
+
+        if ($.isElm(cn)) {
+          var elms = cn.getElementsByTagName('source');
+
+          attr = attr || (isPicture ? 'srcset' : 'src');
+          if (elms.length) {
+            $(elms).mapAttr(attr, remove);
+          }
         }
       }
     };
@@ -91,8 +109,8 @@
   }
 
   $.mapSource = mapSource;
-  $.fn.mapSource = function (attr, remove) {
-    return mapSource(this, attr, remove);
+  $.fn.mapSource = function (attr, remove, withVideo) {
+    return mapSource(this, attr, remove, withVideo);
   };
 
   /**

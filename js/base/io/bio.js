@@ -333,6 +333,32 @@
     });
   };
 
+  // Since bLazy, which has no supports for Native, is a fallback, it is easier
+  // now to work with Native. No more need to hook into load event seperately,
+  // no deferred invocation till one loaded, no hijacking.
+  // No more fights under a single source of truth. It is a total swap.
+  fn.natively = function () {
+    var me = this;
+
+    if (!$.isNative) {
+      return;
+    }
+
+    var dataset = me.selector('[data-src][loading]:not(.b-blur)');
+    var check = $.find(_root, dataset);
+
+    if (!$.isElm(check)) {
+      return;
+    }
+
+    var els = $.findAll(_root, dataset);
+
+    // Reset attributes, and let supportive browsers lazy load natively.
+    $(els).mapAttr(['srcset', 'src'], true)
+      // Also supports PICTURE or (future) VIDEO which contains SOURCEs.
+      .mapSource(false, true);
+  };
+
   fn.destroyQuietly = function (force) {
     var me = this;
 
@@ -496,6 +522,8 @@
 
   // Initializes the IO.
   function init(me) {
+    me.natively();
+
     me.elms = _elms = $.findAll(_root, me.selector());
     me.count = _elms.length;
     me._raf = _raf;

@@ -1721,7 +1721,7 @@
     else {
       // If extra arguments are provided, assumes regular loop over elements.
       // Safe to use fallback _doc since it is normally executed once onready.
-      els = findAll(context || _doc, selector);
+      els = isStr(selector) ? findAll(context || _doc, selector) : toArray(selector);
       if (els.length) {
         _once(each(els, cb));
       }

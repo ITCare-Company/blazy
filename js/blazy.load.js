@@ -20,15 +20,10 @@
   var _element = '.' + _id + ':not(.' + _mounted + ')';
   var _elementGlobal = 'html';
   var _data = 'data';
-  var _isNativeExecuted = false;
-  var _loading = 'loading';
   var _checked = 'b-checked';
-  var _successClass = 'successClass';
   var _errorClass = 'errorClass';
   var _image = 'image';
   var _src = 'src';
-  var _events = 'load.bload error.bload';
-  var _eventNative = _id + '.native';
   var _opts = {};
 
   /**
@@ -51,16 +46,6 @@
 
       // Update picture aspect ratio on being resized.
       me.pad(el, updatePicture);
-
-      // Initializes the native lazy loading once the first found is loaded.
-      // This is a delayed loading due to native lazy early load.
-      if (!_isNativeExecuted) {
-        $.trigger(me.context, _eventNative, {
-          options: _opts
-        });
-
-        _isNativeExecuted = true;
-      }
     },
 
     /**
@@ -90,57 +75,6 @@
       if (els.length) {
         $.each(els, fix);
       }
-    },
-
-    /**
-     * Swap lazy attributes to let supportive browsers lazy load them.
-     *
-     * This is not needed by `No JavaScript` version due to no placeholders.
-     *
-     * This means Blazy and even IO should not lazy-load them any more.
-     * Ensures to not touch lazy-loaded AJAX, or likely non-supported elements:
-     * Video, DIV, etc. Only IMG and IFRAME are supported for now.
-     * Due to native init is deferred, the first row is still using IO/ bLazy.
-     */
-    nativeLazy: function () {
-      var me = this;
-
-      if (!$.isNative) {
-        return;
-      }
-
-      var doc = me.context;
-
-      var els = $.findAll(doc, me.selector('[' + _loading + ']:not(.b-blur)'));
-      if ($.isEmpty(els)) {
-        return;
-      }
-
-      var onNativeEvent = function (e) {
-        var el = e.target;
-        var er = e.type === 'error';
-
-        // Refines based on actual result, runs clearing, animation, etc.
-        $.addClass(el, _opts[er ? _errorClass : _successClass]);
-
-        me.clearing(el);
-      };
-
-      var onNative = function () {
-        // Mark it loaded to prevent bLazy/ IO to do any further work.
-        $(els).addClass(_opts.successClass)
-          // Reset attributes, and let supportive browsers lazy load natively.
-          .mapAttr(['srcset', 'src'], true)
-
-          // Also supports PICTURE or (future) VIDEO which contains SOURCEs.
-          .mapSource(false, true)
-
-          // Attempts to make nice with the harsh native, defer clearing, etc.
-          .one(_events, onNativeEvent);
-      };
-
-      // This is delayed, triggered after the first row loaded once.
-      $.one(doc, _eventNative, onNative);
     }
   });
 
@@ -205,9 +139,6 @@
 
     // Attempts to fix for Views rewrite stripping out data URI causing 404.
     me.fixDataUri();
-
-    // Swap lazy attributes to let supportive browsers lazy load them.
-    me.nativeLazy();
 
     // Put the blazy/IO instance into a public object for references/ overrides.
     // If native lazy load is supported, the following will skip internally.

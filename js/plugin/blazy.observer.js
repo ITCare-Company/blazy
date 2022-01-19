@@ -71,6 +71,8 @@
       threshold: opts.threshold || 0
     };
 
+    elms = $.toArray(elms);
+
     function _cb(entries) {
       if (!queue.length) {
         scope._raf = requestAnimationFrame(_enqueue);

@@ -56,14 +56,19 @@
 
     checkResize: function (items, cb, root, onDone) {
       var me = this;
+
+      // Already throttled for oldies, or RO/RAF for modern browsers.
       var interact = function (entries) {
         me.resizeTick = me.init.resizeTick || 0;
         _winData = me.winData();
 
-        $.each(entries, function (entry) {
-          var el = entry.target || entry;
-          $.debounce(cb, el, me);
-        }, me);
+        if ($.isFun(cb)) {
+          $.each(entries, function (entry) {
+            var el = entry.target || entry;
+
+            return cb.call(me, el);
+          });
+        }
         return _winData;
       };
 
@@ -176,6 +181,8 @@
 
   /**
    * Resize Fluid aspect ratio.
+   *
+   * @todo this should be at bio.js, but bLazy has no support which prevents it.
    */
   function resize() {
     var me = this;
