@@ -28,7 +28,7 @@
    *   Returns true if visible.
    */
   function isVisible(el, vp) {
-    var rect = el.getBoundingClientRect();
+    var rect = $.rect(el);
 
     return ((rect.top > vp.top || rect.bottom > 0) && rect.top < vp.bottom);
   }

@@ -17,8 +17,6 @@
 
   var _oProto = Object.prototype;
   var div = _win.createElement('div');
-  var dashAlphaRe = /-([a-z])/g;
-  var cssVariableRe = /^--/;
   var prefixedProps = {};
   var style = div.style;
   var vendorsPrefixes = ['webkit', 'moz', 'ms'];
@@ -66,33 +64,15 @@
     usemap: 'useMap'
   };
 
-  function camelCase(str) {
-    return str.replace(dashAlphaRe, function (match, letter) {
-      return letter.toUpperCase();
-    });
-  }
-
-  function computeStyle(el, prop, isVariable) {
-    if (!$.isElm(el)) {
-      return;
-    }
-    var style = _win.getComputedStyle(el, null);
-    return isVariable ? style.getPropertyValue(prop) || null : style[prop] || el.style[prop];
-  }
-
   /* eslint-disable no-unused-vars */
   function computeStyleInt(el, prop) {
-    return parseInt(computeStyle(el, prop), 10) || 0;
+    return parseInt($.computeStyle(el, prop), 10) || 0;
   }
   /* eslint-disable no-unused-vars */
-
-  function isVar(prop) {
-    return cssVariableRe.test(prop);
-  }
 
   function getPrefixedProp(prop, isVariable) {
     if (isVariable === void 0) {
-      isVariable = isVar(prop);
+      isVariable = $.isVar(prop);
     }
 
     if (isVariable) {
@@ -100,7 +80,7 @@
     }
 
     if (!prefixedProps[prop]) {
-      var propCC = camelCase(prop);
+      var propCC = $.camelCase(prop);
       var propUC = '' + propCC[0].toUpperCase() + propCC.slice(1);
       var props = (propCC + ' ' + vendorsPrefixes.join(propUC + ' ') + propUC).split(' ');
 
@@ -117,7 +97,7 @@
 
   function getSuffixedValue(prop, value, isVariable) {
     if (isVariable === void 0) {
-      isVariable = isVar(prop);
+      isVariable = $.isVar(prop);
     }
 
     return !isVariable && !numericProps[prop] && $.isNum(value) ? value + 'px' : value;
@@ -125,11 +105,11 @@
 
   function css(prop, value) {
     if ($.isStr(prop)) {
-      var isVariable_1 = isVar(prop);
+      var isVariable_1 = $.isVar(prop);
       prop = getPrefixedProp(prop, isVariable_1);
 
       if (arguments.length < 2) {
-        return this[0] && computeStyle(this[0], prop, isVariable_1);
+        return this[0] && $.computeStyle(this[0], prop, isVariable_1);
       }
       if (!prop) {
         return this;

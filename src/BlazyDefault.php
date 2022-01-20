@@ -335,16 +335,13 @@ class BlazyDefault {
       'media',
       'nativegrid',
       'nativegrid.masonry',
-      'polyfill',
-      'promise',
       'photobox',
-      'raf',
       'ratio',
     ];
   }
 
   /**
-   * Returns available nojs components.
+   * Returns available nojs components related to core Blazy functionality.
    */
   public static function nojs() {
     return [
@@ -352,6 +349,15 @@ class BlazyDefault {
       'polyfill',
       'promise',
       'raf',
+    ];
+  }
+
+  /**
+   * Returns optional polyfills, not loaded till enabled and a feature meets.
+   */
+  public static function ondemandPolyfills() {
+    return [
+      'fullscreen',
     ];
   }
 

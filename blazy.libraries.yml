@@ -27,6 +27,11 @@ raf:
   js:
     js/polyfill/blazy.raf.min.js: { minified: true, weight: -6 }
 
+# @todo optional for blazybox.js, Splide, Splidebox, Intense, etc.
+fullscreen:
+  js:
+    js/polyfill/blazy.fullscreen.min.js: { minified: true, weight: -6 }
+
 # Re-usable library, even for Ultimenu, or any module wish to have vanilla.
 dblazy:
   js:
@@ -136,12 +141,6 @@ blur:
   css:
     component:
       css/components/blazy.blur.css: {}
-  js:
-    # @todo must be run before bio.js, or move it there, coupled by option.
-    js/plugin/blazy.blur.min.js: { minified: true, weight: -1.6 }
-  dependencies:
-    - blazy/dataset
-    - blazy/compat
 
 media:
   css:

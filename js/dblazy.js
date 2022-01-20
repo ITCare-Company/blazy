@@ -27,7 +27,16 @@
   var _symbol = Symbol;
   var _add = 'add';
   var _remove = 'remove';
+  var _width = 'width';
+  var _height = 'height';
+  var _after = 'after';
+  var _before = 'before';
+  var _begin = 'begin';
+  var _end = 'end';
   var _iterator = 'iterator';
+  var _observer = 'Observer';
+  var _dashAlphaRe = /-([a-z])/g;
+  var _cssVariableRe = /^--/;
   var _events = {};
 
   /**
@@ -384,12 +393,14 @@
    * @return {Array}
    *   Returns this collection.
    *
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/NodeList/forEach
    * @todo drop for native [].forEach post D10+ when IE gone from planet earth.
    */
   function each(collection, cb, scope) {
     if (_oProto.toString.call(collection) === '[object Object]') {
       for (var prop in collection) {
-        if (_oProto.hasOwnProperty.call(collection, prop)) {
+        if (has(collection, prop)) {
           if (prop === 'length') {
             continue;
           }
@@ -398,13 +409,35 @@
       }
     }
     else if (collection) {
-      var len = collection.length;
-      for (var i = 0; i < len; i++) {
-        cb.call(scope, collection[i], i, collection);
+      if (collection.length === 1) {
+        cb.call(scope, collection[0], 0, collection);
+      }
+      else {
+        collection.forEach(cb, scope);
       }
     }
 
     return collection;
+  }
+
+  /**
+   * A hasOwnProperty wrapper.
+   *
+   * @private
+   *
+   * @author Todd Motto
+   * @link https://github.com/toddmotto/foreach
+   *
+   * @param {Array|Object|NodeList} collection
+   *   Collection of items to iterate.
+   * @param {string} prop
+   *   The property nane.
+   *
+   * @return {bool}
+   *   Returns true if the property found.
+   */
+  function has(collection, prop) {
+    return _oProto.hasOwnProperty.call(collection, prop);
   }
 
   /**
@@ -645,24 +678,27 @@
   }
 
   /**
-   * Checks if a string contains substring(s) (ES6 ::includes), only for oldies.
+   * Checks if a string or element contains substring(s) or children.
    *
    * @private
    *
+   * Similar to ES6 ::includes, only for oldies.
    * Cannot use [].every() since it not about all or nothing.
    *
-   * @param {string} str
+   * @param {Element|string} str
    *   The source string to test for.
-   * @param {Array.<string>} substr
-   *   The target sub-string to check for, can be a string array.
+   * @param {Array.<Element>|Array.<string>} substr
+   *   The target element(s) or sub-string to check for, can be a string array.
    *
    * @return {bool}
    *   True if it has the needle.
-   *
-   * @todo use polyfill core/drupal.string.includes when min D9.3.
    */
   function contains(str, substr) {
     var found = 0;
+
+    if (isElm(str) && isElm(substr)) {
+      return str !== substr && str.contains(substr);
+    }
 
     if (isStr(str)) {
       each(toArray(substr), function (value) {
@@ -751,7 +787,7 @@
   }
 
   /**
-   * A forgiving matches for the lazy.
+   * A forgiving matches for the lazy ala jQuery.
    *
    * @private
    *
@@ -766,8 +802,14 @@
    * @see http://caniuse.com/#feat=matchesselector
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
    */
-  function matches(el, selector) {
-    return isQuery(el) && isStr(selector) && el.matches(selector);
+  function is(el, selector) {
+    if (isQuery(el)) {
+      if (isStr(selector)) {
+        return el.matches(selector);
+      }
+      return isElm(selector) && el === selector;
+    }
+    return false;
   }
 
   /**
@@ -1289,12 +1331,12 @@
     var onEvent = function (e) {
       var t = e.target;
 
-      if (matches(t, selector)) {
+      if (is(t, selector)) {
         cb.call(t, e);
       }
       else {
         while (t && t !== this) {
-          if (matches(t, selector)) {
+          if (is(t, selector)) {
             cb.call(t, e);
             return;
           }
@@ -1323,6 +1365,7 @@
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Document/createEvent
    * @todo namespaced event name.
    */
   function trigger(els, eventName, details, param) {
@@ -1379,10 +1422,10 @@
   db.isUnd = isUnd;
   db.isEvt = isEvt;
   db.isQuery = isQuery;
-  db.isIo = 'IntersectionObserver' in _win;
-  db.isMo = 'MutationObserver' in _win;
-  db.isRo = 'ResizeObserver' in _win;
-  db.isNative = 'loading' in HTMLImageElement.prototype;
+  db.isIo = 'Intersection' + _observer in _win;
+  db.isMo = 'Mutation' + _observer in _win;
+  db.isRo = 'Resize' + _observer in _win;
+  db.isNativeLazy = 'loading' in HTMLImageElement.prototype;
   db.isAmd = typeof define === 'function' && define.amd;
   db._er = -1;
   db._ok = 1;
@@ -1396,8 +1439,6 @@
     return chain.call(this, cb);
   };
 
-  // @deprecated for db.each for consistency and save bytes.
-  db.forEach = each;
   db.each = each;
   fn.each = function (cb) {
     return each(this, cb);
@@ -1407,6 +1448,8 @@
   fn.extend = function (plugins) {
     return extend(fn, plugins);
   };
+
+  db.has = has;
 
   db.parse = parse;
   db.toArray = toArray;
@@ -1471,8 +1514,9 @@
     return closest(this[0], selector);
   };
 
-  db.matches = matches;
+  db.is = is;
 
+  // @todo merge with ::is().
   db.equal = equal;
   fn.equal = function (selector) {
     return equal(this[0], selector);
@@ -1629,7 +1673,7 @@
 
       var _ani = 'animation';
       var _animated = 'animated';
-      var _aniEnd = _ani + 'end.' + animation;
+      var _aniEnd = _ani + _end + '.' + animation;
       var _style = el.style;
       var _blur = 'blur';
       var _bblur = 'b-' + _blur;
@@ -1802,7 +1846,7 @@
    */
   db.template = function (string, map) {
     for (var key in map) {
-      if (_oProto.hasOwnProperty.call(map, key)) {
+      if (has(map, key)) {
         string = string.replace(new RegExp(escape('$' + key), 'g'), map[key]);
       }
     }
@@ -1830,6 +1874,209 @@
     context = context.length ? context[0] : context;
     return context instanceof HTMLDocument ? context : _doc;
   };
+
+  // Minimum common DOM methods taken and modified from cash.
+  // @todo refactor or remove dups when everyone uses cash, or vanilla alike.
+  function camelCase(str) {
+    return str.replace(_dashAlphaRe, function (match, letter) {
+      return letter.toUpperCase();
+    });
+  }
+
+  db.camelCase = camelCase;
+
+  function isVar(prop) {
+    return _cssVariableRe.test(prop);
+  }
+
+  db.isVar = isVar;
+
+  // @see https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle
+  function computeStyle(el, prop, isVariable) {
+    if (!isElm(el)) {
+      return;
+    }
+
+    var _style = getComputedStyle(el, null);
+    if (isUnd(prop)) {
+      return _style;
+    }
+
+    if (isVariable || isVar(prop)) {
+      return _style.getPropertyValue(prop) || null;
+    }
+
+    return _style[prop] || el.style[prop];
+  }
+
+  function css(el, prop, val) {
+    if (isElm(el)) {
+      // Getter.
+      if (isUnd(val)) {
+        // @todo re-check common integer.
+        var arr = [_width, _height, 'top', 'right', 'bottom', 'left'];
+        var result = computeStyle(el, prop);
+        return arr.indexOf(prop) === -1 ? result : parseInt(result, 10);
+      }
+
+      // Setter.
+      if (isFun(val)) {
+        val = val();
+      }
+
+      if (contains(prop, '-')) {
+        prop = camelCase(prop);
+      }
+
+      el.style[prop] = isStr(val) ? val : val + 'px';
+    }
+    // @todo chain.
+    return -1;
+  }
+
+  db.computeStyle = computeStyle;
+
+  fn.computeStyle = function (prop) {
+    return computeStyle(this[0], prop);
+  };
+
+  db.css = css;
+
+  fn.css = function (prop, val) {
+    return css(this[0], prop, val);
+  };
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+  function rect(el) {
+    return isElm(el) ? el.getBoundingClientRect() : {};
+  }
+
+  db.rect = rect;
+
+  function offset(el) {
+    var rect = rect(el);
+
+    return {
+      top: (rect.top || 0) + _doc.body.scrollTop,
+      left: (rect.left || 0) + _doc.body.scrollLeft
+    };
+  }
+
+  db.offset = offset;
+
+  db.width = function (el, val) {
+    return css(el, _width, val);
+  };
+
+  db.height = function (el, val) {
+    return css(el, _height, val);
+  };
+
+  function outerDim(el, withMargin, prop) {
+    var result = 0;
+
+    if (isElm(el)) {
+      result = el['offset' + prop];
+      if (withMargin) {
+        var style = computeStyle(el);
+        if (prop === 'Height') {
+          result += parseInt(style.marginTop, 10) + parseInt(style.marginBottom, 10);
+        }
+        else {
+          result += parseInt(style.marginLeft, 10) + parseInt(style.marginRight, 10);
+        }
+      }
+    }
+    return result;
+  }
+
+  db.outerWidth = function (el, withMargin) {
+    return outerDim(el, withMargin, 'Width');
+  };
+
+  db.outerHeight = function (el, withMargin) {
+    return outerDim(el, withMargin, 'Height');
+  };
+
+  /**
+   * Insert Element or string into a position relative to a target element.
+   *
+   * To minimize confusions with native insertAdjacent[Element|HTML].
+   *
+   * <!-- beforebegin -->
+   * <p>
+   *   <!-- afterbegin -->
+   *   foo
+   *   <!-- beforeend -->
+   * </p>
+   * <!-- afterend -->
+   *
+   * @param {Element} target
+   *   The target Element.
+   * @param {Element|string} el
+   *   The element or string to insert.
+   * @param {string} position
+   *   The position or placement.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
+   */
+  function insert(target, el, position) {
+    if (isElm(target)) {
+      var suffix = isElm(el) ? 'Element' : 'HTML';
+      target['insertAdjacent' + suffix](position, el);
+    }
+  }
+
+  db.after = function (target, el) {
+    insert(target, el, _after + _end);
+  };
+
+  // Node.insertBefore() (similar to beforebegin, with different arguments)
+  db.before = function (target, el) {
+    insert(target, el, _before + _begin);
+  };
+
+  // Node.appendChild() (same effect as beforeend)
+  db.append = function (target, el) {
+    // if (isElm(target) && isElm(el)) {
+    // target.appendChild(el);
+    // }
+    insert(target, el, _before + _end);
+  };
+
+  db.prepend = function (target, el) {
+    // if (isElm(target) && isElm(el)) {
+    // target.insertBefore(el, target.firstChild);
+    // }
+    insert(target, el, _after + _begin);
+  };
+
+  function prev(el) {
+    return isElm(el) && el.previousElementSibling;
+  }
+
+  db.prev = prev;
+
+  db.next = function (el) {
+    return isElm(el) && el.nextElementSibling;
+  };
+
+  db.index = function (el) {
+    var i = 0;
+    if (isElm(el)) {
+      while (!isNull(el = prev(el))) {
+        i++;
+      }
+    }
+    return i;
+  };
+
+  // @deprecated for shorter ::is(). Hardly used, except lory.
+  db.matches = is;
+
+  // @tbd deprecated for db.each to save bytes. Used by many sub-modules.
+  db.forEach = each;
 
   if (typeof exports !== 'undefined') {
     // Node.js.

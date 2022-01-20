@@ -50,7 +50,7 @@
 
       // Once setup, we rely on CSS to make it responsive.
       var layout = function () {
-        var rect = cn.getBoundingClientRect();
+        var rect = $.rect(cn);
         var span = Math.ceil((rect.height + _opts.gap) / (_opts.height + _opts.gap));
 
         // Sets the grid row span based on content and gap height.
@@ -80,7 +80,7 @@
     var items = $.findAll(elm, selector);
 
     var init = function () {
-      var style = _win.getComputedStyle(elm);
+      var style = $.computeStyle(elm);
       var gap = style.getPropertyValue('grid-row-gap');
       var rows = style.getPropertyValue('grid-auto-rows');
 

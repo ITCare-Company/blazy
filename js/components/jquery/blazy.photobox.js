@@ -25,7 +25,7 @@
 
     function callback(el) {
       if ($.isElm(el)) {
-        var caption = el.nextElementSibling;
+        var caption = $.next(el);
         if (caption) {
           var title = $.find(_context, '#pbCaption .title');
           if ($.isElm(title)) {

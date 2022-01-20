@@ -35,9 +35,9 @@
     var items = $.findAll(elm, _box);
 
     function init() {
-      var parentWith = rect(elm).width;
-      var boxWith = rect(box).width;
-      var style = _win.getComputedStyle(box);
+      var parentWith = $.rect(elm).width;
+      var boxWith = $.rect(box).width;
+      var style = $.computeStyle(box);
       var itemWith = boxWith + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
       var columnWidth = Math.round((1 / (itemWith / parentWith)));
 
@@ -54,11 +54,11 @@
             return;
           }
 
-          var cr = rect(cn);
+          var cr = $.rect(cn);
           var ch = cr.height;
 
           if (ch < 60) {
-            cr = rect(item);
+            cr = $.rect(item);
             ch = cr.height;
           }
 
@@ -67,7 +67,7 @@
           }
 
           var curColumn = id % columnWidth;
-          var style = _win.getComputedStyle(item);
+          var style = $.computeStyle(item);
 
           if ($.isUnd(heights[curColumn])) {
             heights[curColumn] = 0;
@@ -81,7 +81,7 @@
             var nh = id - columnWidth + 1;
             var itemAbove = $.find(elm, _box + ':nth-of-type(' + nh + ')');
             if ($.isElm(itemAbove)) {
-              var prevBottom = rect(itemAbove).bottom;
+              var prevBottom = $.rect(itemAbove).bottom;
               var currentTop = cr.top - parseFloat(style.marginBottom);
 
               item.style.top = '-' + (currentTop - prevBottom) + 'px';
@@ -126,10 +126,6 @@
     }, 600);
 
     $.addClass(elm, _mounted);
-  }
-
-  function rect(el) {
-    return $.isElm(el) && el.getBoundingClientRect();
   }
 
   /**

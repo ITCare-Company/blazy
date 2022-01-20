@@ -1,6 +1,8 @@
 /**
  * @file
  * Provides a fullscreen video view for Intense, ElevateZoomPlus, etc.
+ *
+ * @todo provide Native Fullscreen API toggler with an optional polyfill.
  */
 
 (function ($, Drupal, _win, _doc) {
@@ -91,8 +93,7 @@
      */
     attach: function () {
       if (!$.isElm($.find(_doc.body, _element))) {
-        // https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
-        _doc.body.insertAdjacentHTML('beforeend', Drupal.theme('blazyBox'));
+        $.append(_doc.body, Drupal.theme('blazyBox'));
       }
     },
 

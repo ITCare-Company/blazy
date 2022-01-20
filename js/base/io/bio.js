@@ -336,7 +336,7 @@
   fn.natively = function () {
     var me = this;
 
-    if (!$.isNative) {
+    if (!$.isNativeLazy) {
       return;
     }
 

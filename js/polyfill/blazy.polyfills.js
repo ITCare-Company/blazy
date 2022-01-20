@@ -17,6 +17,7 @@
   'use strict';
 
   var _eProto = Element.prototype;
+  var _nProto = NodeList.prototype;
   var _sProto = String.prototype;
 
   // See https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
@@ -43,6 +44,11 @@
       } while (el !== null && el.nodeType === 1);
       return null;
     };
+  }
+
+  // @see https://developer.mozilla.org/en-US/docs/Web/API/NodeList/forEach#Polyfill
+  if (_win.NodeList && !_nProto.forEach) {
+    _nProto.forEach = Array.prototype.forEach;
   }
 
   // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill
