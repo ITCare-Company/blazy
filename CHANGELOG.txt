@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2022-01-21
+-----------------------------
+- Fixed for basic IE9 functionality.
+- Fixed for without JavaScript within/without JavaScript browsers.
+- Decoupled animate from dblazy.js for being optional like background, etc.
+
 Blazy 8.x-2.0-dev, 2022-01-18
 -----------------------------
 - No more fights under a single source of truth.

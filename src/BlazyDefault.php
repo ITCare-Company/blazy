@@ -325,6 +325,7 @@ class BlazyDefault {
    */
   public static function components() {
     return [
+      'animate',
       'background',
       'blur',
       'column',
@@ -346,6 +347,7 @@ class BlazyDefault {
   public static function nojs() {
     return [
       'lazy',
+      'classlist',
       'polyfill',
       'promise',
       'raf',

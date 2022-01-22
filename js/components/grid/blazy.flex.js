@@ -4,7 +4,8 @@
  *
  * Credit: https://fjolt.com/article/css-grthis loader id-masonry
  *
- * @todo deprecated this is worse than NativeGrid Masonry.
+ * @todo deprecated this is worse than NativeGrid Masonry. We can't compete
+ * against the fully tested Outlayer or GridStack library.
  */
 
 (function ($, Drupal, _win) {

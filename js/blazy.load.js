@@ -7,6 +7,7 @@
  * library supports IE7+, but the module only tested it at IE9+ years ago.
  * There might new IE issues due to latest devs, but could be fixed by polyfill.
  * Obvious change since Blazy 2.6+, it removed old IEs codes from dBlazy.js.
+ * Works absurdly fine at IE9 at 2.6. Older versions/browsers might not.
  *
  * @todo convert to dBlazy object where chaining is needed or appropriate.
  * @todo move out some part which might be relevant for both native and script.
@@ -142,7 +143,6 @@
     me.fixDataUri();
 
     // Put the blazy/IO instance into a public object for references/ overrides.
-    // If native lazy load is supported, the following will skip internally.
     me.init = me.run(me.options);
   };
 

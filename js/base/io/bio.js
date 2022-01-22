@@ -8,6 +8,8 @@
  * all or nothing, and degrades gracefully. Or use polyfill.
  * @see https://www.npmjs.com/package/intersection-observer
  * @see https://github.com/w3c/IntersectionObserver
+ * @todo https://developer.mozilla.org/en-US/docs/Web/API/Visual_Viewport_API
+ * @see https://caniuse.com/?search=visualViewport
  */
 
 /* global define, module */
@@ -33,12 +35,12 @@
     root[ns] = factory(ns, db, root);
   }
 
-}((this || module || {}), function (ns, $, root) {
+}((this || module || {}), function (ns, $, _win) {
 
   'use strict';
 
   if ($.isAmd) {
-    root = window;
+    _win = window;
   }
 
   /**
@@ -54,7 +56,6 @@
   var _erCounted = 0;
   var _disconnected = false;
   var _observed = false;
-  var _noop = function () {};
   var _opts = {};
   var _elms = [];
   var _successClass = 'b-loaded';
@@ -75,8 +76,6 @@
   var _resizing = false;
   var _validateDelay = 25;
   var _ioObserver = null;
-  var _raf = false;
-  var _queue = [];
   var _defaults = {
     root: null,
     decode: false,
@@ -136,7 +135,6 @@
   }
 
   // Prepare prototype to interchange with Blazy as fallback.
-  fn.prepare = _noop;
   fn.count = 0;
   fn.resizeTick = 0;
   fn.winData = function () {
@@ -204,7 +202,10 @@
 
     var applyAttrs = function () {
       if (isBg && $.isFun($.bgUrl)) {
-        img.src = $.bgUrl(el, _winData);
+        var url = img.src = $.bgUrl(el, _winData);
+        if (!$.isIo) {
+          el.style.backgroundImage = url;
+        }
       }
       else {
         img.src = $.attr(el, currSrc);
@@ -333,6 +334,22 @@
   // now to work with Native. No more need to hook into load event seperately,
   // no deferred invocation till one loaded, no hijacking.
   // No more fights under a single source of truth. It is a total swap.
+  // As mentioned in the doc, Native at least Chrome starts loading images
+  // 8000px, hardcoded, before they are entering the viewport. Meaning harsh,
+  // makes fancy stuffs like blur useless. And bad because blur filter
+  // is very expensive, and when they are triggered before visible, will block.
+  // @see /admin/help/blazy_ui# NATIVE LAZY LOADING
+  // With bIO as the main loader, the game changed, quoted from:
+  // https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Author_fast-loading_HTML_pages
+  // "Note that lazily-loaded images may not be available when the load event is
+  // fired. You can determine if a given image is loaded by checking to see if
+  // the value of its Boolean complete property is true."
+  // Old bLazy relies on onload, meaning too early loaded decision for Native,
+  // the reason for our previous deferred invocation, not decoding like what bIO
+  // did which is more precise as suggested by the quote.
+  // Assumed, untested, fine with combo IO + decoding checks before blur spits.
+  // Shortly we are in the right direction to cope with Native vs. data-[SRC].
+  // @todo recheck IF wrong so to put back https://drupal.org/node/3120696.
   fn.natively = function () {
     var me = this;
 
@@ -502,7 +519,7 @@
       }
 
       // If not extending/ overriding, also allows to listen to.
-      $.trigger(root, 'bio.resizing', {
+      $.trigger(_win, 'bio.resizing', {
         entries: entries,
         old: _ww,
         new: ww,
@@ -519,10 +536,8 @@
 
     me.elms = _elms = $.findAll(_root, me.selector());
     me.count = _elms.length;
-    me._raf = _raf;
-    me._queue = _queue;
-
-    me.prepare();
+    me._raf = [];
+    me._queue = [];
 
     $.interact(me, interact, _elms, true);
     _ioObserver = me.ioObserver;

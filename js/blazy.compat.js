@@ -41,13 +41,15 @@
     clearCompat: function (el) {
       var me = this;
       var bio = me.init;
+      var old = bio && $.isBg(el) && (me.isBlazy() || $.ie);
 
       // Compatibility with old bLazy.
-      if (bio && me.isBlazy() && $.isBg(el)) {
+      if (old) {
         bio.setImage(el, true);
       }
 
-      me.pad(el, animate);
+      // Only animate when the image is fully loaded, else nonsense.
+      me.pad(el, animate, old ? 50 : 0);
     },
 
     checkResize: function (items, cb, root, onDone) {
@@ -203,7 +205,7 @@
     me.mount(true);
     _opts = me.options;
 
-    // ::init will/not be overridden by blazy.load, no problem since 2.6.
+    // ::init will/not be overridden by blazy/load, no problem since 2.6.
     me.init = me.run(_opts);
     resize.call(me);
   }

@@ -36,11 +36,17 @@
   $.isVisible = function (e, vp) {
     var target = e.target;
     var el = target || e;
-    return target ? (e.isIntersecting || e.intersectionRatio > 0) : isVisible(el, vp);
+    return $.isIo ? (e.isIntersecting || e.intersectionRatio > 0) : isVisible(el, vp);
   };
 
   $.isResized = function (scope, e) {
     return (!!e.contentRect || !!scope.resizeTrigger || false);
+  };
+
+  // Enqueue operations.
+  $.enqueue = function (queue, cb, scope) {
+    $.each(queue, cb.bind(scope));
+    queue.length = 0;
   };
 
   $.winData = function (mobileFirst) {
@@ -75,7 +81,8 @@
 
     function _cb(entries) {
       if (!queue.length) {
-        scope._raf = requestAnimationFrame(_enqueue);
+        var raf = requestAnimationFrame(_enqueue);
+        scope._raf.push(raf);
       }
 
       queue.push(entries);
@@ -130,7 +137,7 @@
       }
     };
 
-    if (ioObserver || roObserver) {
+    if ($.isIo && (ioObserver || roObserver)) {
       // Allows observing resize only.
       if (withIo) {
         observe(ioObserver);
@@ -145,10 +152,13 @@
       }
       else {
         // The best thing we can do other than harsh ::load().
+        // Works beautifully at IE9 nevertheless.
         var bind = function (evt, cb) {
-          $.bindEvent(_win, evt, function (e) {
-            $.throttle(cb.call(e), delay, scope);
-          });
+          if ($.isFun(cb)) {
+            $.bindEvent(_win, evt, function (e) {
+              $.throttle(cb.call(e), delay, scope);
+            });
+          }
         };
         bind('resize.' + ns, roObserver);
         bind('scroll.' + ns, ioObserver);
@@ -159,13 +169,17 @@
 
   $.unload = function (scope) {
     var ns = scope.name || this.name;
-    if (!$.isIo) {
+    if ($.isIo) {
+      var rafs = scope._raf;
+      if (rafs && rafs.length) {
+        $.each(rafs, function (raf) {
+          cancelAnimationFrame(raf);
+        });
+      }
+    }
+    else {
       $.unbindEvent(_win, 'scroll.' + ns, scope.ioObserver);
     }
-    if (scope._raf) {
-      cancelAnimationFrame(scope._raf);
-    }
   };
-
 
 })(dBlazy, this);

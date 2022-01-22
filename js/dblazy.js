@@ -24,7 +24,7 @@
   var _oProto = Object.prototype;
   var _splice = _aProto.splice;
   var _some = _aProto.some;
-  var _symbol = Symbol;
+  var _symbol = typeof Symbol !== 'undefined' && Symbol;
   var _add = 'add';
   var _remove = 'remove';
   var _width = 'width';
@@ -109,8 +109,10 @@
   // Ensuring a db collection gets printed as array-like in Chrome's devtools.
   fn.splice = _splice;
 
-  if (isFun(_symbol)) {
+  // IE9 knows not this.
+  if (_symbol) {
     // Ensuring a db collection is iterable.
+    // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/iterator
     fn[_symbol[_iterator]] = _aProto[_symbol[_iterator]];
   }
 
@@ -1591,12 +1593,6 @@
   db.isDecoded = isDecoded;
   db.isLoaded = isLoaded;
 
-  // Enqueue operations.
-  db.enqueue = function (queue, cb, scope) {
-    each(queue, cb.bind(scope));
-    queue.length = 0;
-  };
-
   // Similar to core domReady, only public and generic.
   fn.ready = function (callback) {
     var cb = function () {
@@ -1642,92 +1638,6 @@
       };
       img.onerror = reject();
     });
-  };
-
-  /**
-   * A simple wrapper to animate anything using animate.css.
-   *
-   * @param {dBlazy|Array.<Element>|Element} els
-   *   The HTML element(s), or dBlazy instance.
-   * @param {string|Function} cb
-   *   Any custom animation name, fallbacks to [data-animation], or a callback.
-   *
-   * @return {Object}
-   *   This dBlazy object.
-   */
-  function animate(els, cb) {
-    var me = this;
-
-    var chainCallback = function (el) {
-      if (!isElm(el)) {
-        return me;
-      }
-
-      var $el = db(el);
-      var _set = el.dataset;
-      var animation = _set.animation;
-
-      if (isStr(cb)) {
-        animation = cb;
-      }
-
-      var _ani = 'animation';
-      var _animated = 'animated';
-      var _aniEnd = _ani + _end + '.' + animation;
-      var _style = el.style;
-      var _blur = 'blur';
-      var _bblur = 'b-' + _blur;
-      var classes = _animated + ' ' + animation;
-      var props = [
-        _ani,
-        _ani + '-duration',
-        _ani + '-delay',
-        _ani + '-iteration-count'
-      ];
-
-      $el.addClass(classes);
-
-      each(['Duration', 'Delay', 'IterationCount'], function (key) {
-        var _aniKey = _ani + key;
-        if (_set && _aniKey in _set) {
-          _style[_aniKey] = _set[_aniKey];
-        }
-      });
-
-      // Supports both BG and regular image.
-      var cn = closest(el, '.media') || el;
-      var bg = $el.hasClass('b-bg');
-      var isBlur = animation === _blur;
-      var an = el;
-
-      // The animated blur is image not this container, except a background.
-      if (isBlur && !bg) {
-        an = find(cn, 'img:not(.' + _bblur + ')') || an;
-      }
-
-      function ended(e) {
-        $el.addClass('is-b-' + _animated)
-          .removeClass(classes)
-          .removeAttr(props, 'data-');
-
-        each(props, function (key) {
-          _style.removeProperty(key);
-        });
-
-        if (isFun(cb)) {
-          cb(e);
-        }
-      }
-
-      return one(an, _aniEnd, ended, false);
-    };
-
-    return chain.call(els, chainCallback);
-  }
-
-  db.animate = animate.bind(db);
-  fn.animate = function (animation) {
-    return animate(this, animation);
   };
 
   /**
@@ -1863,8 +1773,8 @@
    * @param {HTMLDocument|Element} context
    *   Any element, including weird script element.
    *
-   * @return {HTMLDocument|Document}
-   *   The HTMLDocument or Document so to avoid failing querySelector, etc.
+   * @return {Element|Document|DocumentFragment}
+   *   The Element|Document|DocumentFragment to not fail querySelector, etc.
    */
   db.context = function (context) {
     // Weirdo: context may be null after Colorbox close.
@@ -1872,7 +1782,9 @@
 
     // jQuery may pass its array as non-expected context identified by length.
     context = context.length ? context[0] : context;
-    return context instanceof HTMLDocument ? context : _doc;
+
+    // IE9 knows not HTMLDocument, IE8 does.
+    return context && isQuery(context) ? context : _doc;
   };
 
   // Minimum common DOM methods taken and modified from cash.
@@ -1909,29 +1821,61 @@
     return _style[prop] || el.style[prop];
   }
 
-  function css(el, prop, val) {
-    if (isElm(el)) {
-      // Getter.
-      if (isUnd(val)) {
-        // @todo re-check common integer.
-        var arr = [_width, _height, 'top', 'right', 'bottom', 'left'];
-        var result = computeStyle(el, prop);
-        return arr.indexOf(prop) === -1 ? result : parseInt(result, 10);
-      }
+  function css(els, props, vals) {
+    var me = this;
+    var _undefined = isUnd(vals);
+    var _obj = isObj(props);
+    var _getter = !_obj && _undefined;
 
-      // Setter.
-      if (isFun(val)) {
-        val = val();
-      }
-
-      if (contains(prop, '-')) {
-        prop = camelCase(prop);
-      }
-
-      el.style[prop] = isStr(val) ? val : val + 'px';
+    // Getter.
+    if (_getter && isStr(props)) {
+      // @todo figure out multi-element getters. Ok for now, as hardly multiple.
+      var el = els && els.length ? els[0] : els;
+      // @todo re-check common integer.
+      var arr = [_width, _height, 'top', 'right', 'bottom', 'left'];
+      var result = computeStyle(el, props);
+      return arr.indexOf(props) === -1 ? result : parseInt(result, 10);
     }
-    // @todo chain.
-    return -1;
+
+    var chainCallback = function (el) {
+      if (!isElm(el)) {
+        return _getter ? '' : me;
+      }
+
+      var setVal = function (prop, val) {
+        // Setter.
+        if (isFun(val)) {
+          val = val();
+        }
+
+        if (contains(prop, '-') || isVar(prop)) {
+          prop = camelCase(prop);
+        }
+
+        el.style[prop] = isStr(val) ? val : val + 'px';
+      };
+
+      // Passing a key-value pair object means setting multiple attributes once.
+      if (_obj) {
+        each(props, function (val, prop) {
+          setVal(prop, val);
+        });
+      }
+      // Since a css value null makes no sense, assumes nullify.
+      else if (isNull(vals)) {
+        each(toArray(props), function (prop) {
+          el.style.removeProperty(prop);
+        });
+      }
+      else {
+        // Else a setter.
+        if (isStr(props)) {
+          setVal(props, vals);
+        }
+      }
+    };
+
+    return chain.call(els, chainCallback);
   }
 
   db.computeStyle = computeStyle;
@@ -1942,8 +1886,9 @@
 
   db.css = css;
 
+  // @tdo multiple css values once.
   fn.css = function (prop, val) {
-    return css(this[0], prop, val);
+    return css(this, prop, val);
   };
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
@@ -1979,11 +1924,14 @@
       result = el['offset' + prop];
       if (withMargin) {
         var style = computeStyle(el);
+        var margin = function (pos) {
+          return parseInt(style['margin' + pos], 10);
+        };
         if (prop === 'Height') {
-          result += parseInt(style.marginTop, 10) + parseInt(style.marginBottom, 10);
+          result += margin('Top') + margin('Bottom');
         }
         else {
-          result += parseInt(style.marginLeft, 10) + parseInt(style.marginRight, 10);
+          result += margin('Left') + margin('Right');
         }
       }
     }
@@ -2032,23 +1980,17 @@
     insert(target, el, _after + _end);
   };
 
-  // Node.insertBefore() (similar to beforebegin, with different arguments)
+  // Node.insertBefore(), similar to beforebegin, with different arguments.
   db.before = function (target, el) {
     insert(target, el, _before + _begin);
   };
 
-  // Node.appendChild() (same effect as beforeend)
+  // Node.appendChild(), same effect as beforeend.
   db.append = function (target, el) {
-    // if (isElm(target) && isElm(el)) {
-    // target.appendChild(el);
-    // }
     insert(target, el, _before + _end);
   };
 
   db.prepend = function (target, el) {
-    // if (isElm(target) && isElm(el)) {
-    // target.insertBefore(el, target.firstChild);
-    // }
     insert(target, el, _after + _begin);
   };
 

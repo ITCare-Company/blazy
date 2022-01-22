@@ -15,7 +15,7 @@
  * [Aspect ratio template](#aspect-ratio-template)
  * [Contribution](#contribution)
  * [Maintainers](#maintainers)
- * [Notable changes](#changes) 
+ * [Notable changes](#changes)
 
 
 ***
@@ -187,18 +187,18 @@ Check out the relevant sub-module docs for details.
 
 ***
 # <a name="features"> </a>FEATURES
+* Works absurdly fine at IE9 at 2.6.
 * Works without JavaScript within/without JavaScript browsers.
-* Supports core Image.
-* Supports core Responsive image.
-* Supports Colorbox/ Photobox/ PhotoSwipe, also multimedia lightboxes.
+* Supports Image, Responsive image, (local|remote|iframe) videos, DIV either
+  inline, fields, views, or within lightboxes.
+* Lightboxes: Colorbox, Splidebox, PhotoSwipe, etc. with multimedia lightboxes.
 * Multi-serving lazyloaded images, including multi-breakpoint CSS backgrounds.
-* Lazyload video iframe urls via custom coded, or core Media.
-* Supports inline images and iframes with lightboxes, and grid or CSS3 Masonry
-  via Blazy Filter. Enable Blazy Filter at **/admin/config/content/formats**,
-  and check out instructions at **/filter/tips**.
 * Field formatters: Blazy with Media integration.
 * Blazy Grid formatter for Image, Media and Text with multi-value:
   CSS3 Columns, Grid Foundation, Flexbox, Native Grid.
+* Supports inline galleries, and grid or CSS3 Masonry via Blazy Filter.
+  Enable Blazy Filter at **/admin/config/content/formats**.
+* Simple shortcodes for inline galleries, check out **/filter/tips**.
 * Delay loading for below-fold images until 100px (configurable) before they are
   visible at viewport.
 * A simple effortless CSS loading indicator.

@@ -2,6 +2,8 @@
 ***
 # <a name="changes"></a>NOTABLE CHANGES
 * _Blazy 2.6_:
+   + Works absurdly fine at IE9 for core lazy functionality. Not fancy features
+     like Blur or Animation, etc. Unless you include some polyfills on your own.
    + [Drupal 10 ready](https://drupal.org/node/3254692).
    + `dBlazy.js` removed many old IEs fallback. Some were moved into polyfill
      which can be ditched via Blazy UI to abandon IE supports. Should you need

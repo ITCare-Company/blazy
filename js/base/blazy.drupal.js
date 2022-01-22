@@ -2,7 +2,7 @@
  * @file
  * Provides shared drupal-related methods normally driven by Drupal UI options.
  *
- * @todo make bLazy as IO fallback, and use IO by default to reduce complexity
+ * Old bLazy is now IO fallback to reduce competition and complexity
  * and cross-compat better between Native and old approach (data-[SRC|SRCSET]).
  * The reason old bLazy was not designed to cope with Native, Bio is.
  */
@@ -31,10 +31,9 @@
    */
   Drupal.blazy = {
     _queue: [],
-    _raf: false,
+    _raf: [],
     context: _doc,
     name: _id,
-    bio: null,
     init: null,
     ioObserver: null,
     roObserver: null,
@@ -49,9 +48,6 @@
     clearScript: _noop,
     checkResize: _noop,
     revalidate: _noop,
-    mapAttr: _noop,
-    onIntersecting: _noop,
-    updateRatio: _noop,
 
     // Enforced since IO (bio.js) makes bLazy a fallback internally since 2.6.
     isIo: function () {
@@ -233,7 +229,7 @@
       }
     },
 
-    pad: function (el, cb) {
+    pad: function (el, cb, delay) {
       var me = this;
       var cn = $.closest(el, _elMedia) || el;
 
@@ -252,7 +248,7 @@
       };
 
       // Fixed for effect Blur messes up Aspect ratio Fluid calculation.
-      setTimeout(check);
+      setTimeout(check, delay || 0);
     }
 
   };

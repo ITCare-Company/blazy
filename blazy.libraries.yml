@@ -15,17 +15,22 @@ blazy:
     /libraries/blazy/blazy.min.js: { minified: true, weight: -5 }
 
 # Optional polyfills for IEs, and oldies.
+# @todo remove when IEs gone from planet earth (EOL, 2022/Jun) + 1 timeout year.
 polyfill:
   js:
-    js/polyfill/blazy.polyfills.min.js: { minified: true, weight: -6 }
+    js/polyfill/blazy.polyfills.min.js: { minified: true, weight: -32 }
+
+classlist:
+  js:
+    js/polyfill/blazy.classlist.min.js: { minified: true, weight: -31 }
 
 promise:
   js:
-    js/polyfill/blazy.promise.min.js: { minified: true, weight: -6 }
+    js/polyfill/blazy.promise.min.js: { minified: true, weight: -31 }
 
 raf:
   js:
-    js/polyfill/blazy.raf.min.js: { minified: true, weight: -6 }
+    js/polyfill/blazy.raf.min.js: { browsers: { IE: 'lte IE 9', '!IE': false }, minified: true, weight: -31 }
 
 # @todo optional for blazybox.js, Splide, Splidebox, Intense, etc.
 fullscreen:
@@ -44,6 +49,7 @@ css:
   dependencies:
     - blazy/dblazy
 
+# Extension for dBlazy [Intersection|Resize]Observer.
 observer:
   js:
     js/plugin/blazy.observer.min.js: { minified: true, weight: -3.5 }
@@ -66,6 +72,13 @@ script:
     - blazy/dblazy
     - blazy/base
 
+# Extension for dBlazy when using blur or animate.css.
+animate:
+  js:
+    js/plugin/blazy.animate.min.js: { minified: true, weight: -3.5 }
+  dependencies:
+    - blazy/dblazy
+
 # Extension for dBlazy when using data-[SRC|SRCSET]: BG, IO, VIDEO, attributes.
 dataset:
   js:
@@ -80,7 +93,7 @@ background:
     - blazy/dblazy
 
 # An IntersectionObserver with fallback to old bLazy-like with Native support,
-# implemented by blazy.compat, bio.media, or IO.module to DRY.
+# implemented by blazy/compat, blazy/load, or IO.module to DRY.
 # @todo merge it with localized/ forked bLazy to degrade/ avoid all or nothing.
 bio:
   js:
@@ -141,6 +154,8 @@ blur:
   css:
     component:
       css/components/blazy.blur.css: {}
+  dependencies:
+    - blazy/base
 
 media:
   css:

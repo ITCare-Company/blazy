@@ -311,7 +311,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $settings += BlazyDefault::htmlSettings();
     $switch = $settings['media_switch'];
     $style = $settings['responsive_image_style'];
-    $settings['fx'] = $settings['_fx'] ?? $settings['fx'];
+    $settings['fx'] = $settings['animate'] = $settings['_fx'] ?? $settings['fx'];
     $settings['blur'] = $settings['fx'] == 'blur';
     $settings['iframe_domain'] = $this->configLoad('iframe_domain', 'media.settings');
     $settings['is_amp'] = Blazy::isAmp();

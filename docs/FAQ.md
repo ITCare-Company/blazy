@@ -40,7 +40,7 @@ crucial for most JS generated CSS classes. Uniqueness matters.
 ## NATIVE LAZY LOADING
 Native lazy loading is supported by Chrome 76+ as of 01/2019. Blazy or IO will
 be used as fallback for other browsers instead. Currently the offset/ threshold
-before loading is hard-coded to [800px at Chrome](https://cs.chromium.org/chromium/src/third_party/blink/renderer/core/frame/settings.json5?l=971-1003&rcl=e8f3cf0bbe085fee0d1b468e84395aad3ebb2cad),
+before loading is hard-coded to [8000px at Chrome](https://cs.chromium.org/chromium/src/third_party/blink/renderer/core/frame/settings.json5?l=971-1003&rcl=e8f3cf0bbe085fee0d1b468e84395aad3ebb2cad),
 so it might only be good for super tall pages for now, be aware.
 [Read more](https://web.dev/native-lazy-loading/)
 

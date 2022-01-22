@@ -4,6 +4,8 @@
  *
  * While blurring animation impresses smoother transition, it is likely slow.
  * You can override this file, and change animation to just transition instead.
+ *
+ * @todo use SVG and Image Effect module with Imagick for better blur.
  */
 
 /* Without transform, this is more of formality hooking into animation event.*/
@@ -43,6 +45,7 @@
  * The blur image, to support various usages: native, BG and regular IMG.
  * The native lazy load swaps placeholders for real images, makes it impossible
  * to have blur effect, that is why we put it into another IMG.
+ * Blur filter is an expensive effect, use it wisely, selectively by hook alter.
  */
 .media--fx.is-b-visible:not(.is-b-animated) .b-blur {
   color: transparent;
