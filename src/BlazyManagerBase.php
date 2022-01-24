@@ -289,13 +289,16 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $thold = '0, 0.25, 0.5, 0.75, 1';
     }
 
-    $number = strpos($thold, '.') !== FALSE ? (float) $thold : (int) $thold;
-    $thold = strpos($thold, ',') !== FALSE ? array_map('trim', explode(',', $thold)) : [$number];
+    $thold = strpos($thold, ',') !== FALSE ? array_map('trim', explode(',', $thold)) : [$thold];
+    $formatted = [];
+    foreach ($thold as $value) {
+      $formatted[] = strpos($value, '.') !== FALSE ? (float) $value : (int) $value;
+    }
 
     // Respects hook_blazy_attach_alter() for more fine-grained control.
     foreach (['disconnect', 'rootMargin', 'threshold'] as $key) {
       $default = $key == 'rootMargin' ? '0px' : FALSE;
-      $value = $key == 'threshold' ? $thold : $this->configLoad('io.' . $key);
+      $value = $key == 'threshold' ? $formatted : $this->configLoad('io.' . $key);
       $io[$key] = $attach['io.' . $key] ?? ($value ?: $default);
     }
 
