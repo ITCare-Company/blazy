@@ -243,8 +243,22 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
+    // Always keep Drupal UI config to support dynamic compat features.
+    $config = $this->configLoad('blazy');
+    $config['loader'] = empty($attach['nojs']['lazy']);
+    $config['compat'] = $attach['compat'];
+    $config['unblazy'] = $this->configLoad('io.unblazy');
+
+    $load['drupalSettings']['blazy'] = $config;
+    $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
+
     // Only if `No JavaScript` option is disabled, or has compat.
     if (empty($attach['nojs']['lazy']) || $attach['compat']) {
+      // Modern sites may want to forget oldies, respect.
+      if (!$config['unblazy']) {
+        $load['library'][] = 'blazy/blazy';
+      }
+
       foreach (BlazyDefault::nojs() as $key) {
         if (empty($attach['nojs'][$key])) {
           $lib = $key == 'lazy' ? 'load' : $key;
@@ -252,20 +266,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
         }
       }
     }
-
-    // Always keep Drupal UI config to support dynamic compat features.
-    $config = $this->configLoad('blazy');
-    $config['loader'] = empty($attach['nojs']['lazy']);
-    $config['compat'] = $attach['compat'];
-    $config['unblazy'] = $this->configLoad('io.unblazy');
-
-    // Modern sites may want to forget oldies, respect.
-    if (!$config['unblazy']) {
-      $load['library'][] = 'blazy/blazy';
-    }
-
-    $load['drupalSettings']['blazy'] = $config;
-    $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
 
     // Adds AJAX helper to revalidate Blazy/ IO, if using VIS, or alike.
     if ($attach['use_ajax']) {
