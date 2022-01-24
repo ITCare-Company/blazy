@@ -59,26 +59,6 @@ function blazy_test_blazy_alter(array &$image, array $settings = []) {
 }
 
 /**
- * Implements hook_library_info_alter().
- */
-function blazy_test_library_info_alter(array &$libraries, $extension) {
-  if ($extension !== 'blazy') {
-    return;
-  }
-
-  $path = \Drupal::root() . '/libraries/blazy/blazy.min.js';
-  if (!is_file($path)) {
-    unset($libraries['blazy']['js']['/libraries/blazy/blazy.min.js']);
-    $libraries['blazy']['js'] = [
-      'https://cdn.jsdelivr.net/npm/blazy/blazy.min.js' => [
-        'type' => 'external',
-        'weight' => -4,
-      ],
-    ];
-  }
-}
-
-/**
  * Implements hook_config_schema_info_alter().
  */
 function blazy_test_config_schema_info_alter(array &$definitions) {
