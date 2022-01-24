@@ -226,7 +226,7 @@
   fn.selector = function (suffix) {
     suffix = suffix || '';
     // @todo recheck, troubled for onresize: + ':not(.' + _successClass + ')'.
-    return _opts.selector + suffix;
+    return _opts.selector + suffix + ':not(.' + _successClass + ')';
   };
 
   fn.isLoaded = function (el) {
@@ -490,7 +490,7 @@
 
     // Observe elements. Old blazy as fallback is also initialized here.
     // IO will unobserve, or disconnect. Old bLazy will self destroy.
-    me.observe();
+    me.observe(true);
   }
 
   return Bio;

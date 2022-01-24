@@ -20,7 +20,6 @@ blazy:
     js/base/blazy.min.js: { minified: true, weight: -5.02 }
   dependencies:
     - blazy/dataset
-    - blazy/bio
 
 # An IntersectionObserver with fallback to old bLazy-like with Native support,
 # implemented by blazy/compat, blazy/load, or IO.module to DRY.
@@ -46,7 +45,7 @@ drupal:
     js/base/blazy.drupal.min.js: { minified: true, weight: -1.7 }
   dependencies:
     - core/drupal
-    # Watch out for core change namespace change.
+    # @todo watch out for core namespace change.
     - core/drupal.debounce
     # @todo when min D9.2 - core/once
     - blazy/dblazy

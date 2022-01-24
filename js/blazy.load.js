@@ -2,15 +2,18 @@
  * @file
  * Provides native, Intersection Observer API, or bLazy lazy loader.
  *
- * This file is not loaded when `No JavaScript` lazy loader is enabled. It is
- * for those who still wants to support IE9+, and similar oldies. The bLazy
+ * This file is not loaded when `No JavaScript` lazy loader is enabled.
+ * It uses data-[SRC|SCRSET] containing fixes for this particular approach:
+ *  - Views rewrite stripping out data URI causing 404.
+ *  - Reduce abrupt ratio changes specific for Picture when Fluid is ON.
+ *  - Scrolling CSS selector like Modal library, parallax, etc.
+ *  - Revalidation for the failing ones.
+ *
+ * It is for those who still support IE9+, and similar oldies. The bLazy
  * library supports IE7+, but the module only tested it at IE9+ years ago.
  * There might new IE issues due to latest devs, but could be fixed by polyfill.
- * Obvious change since Blazy 2.6+, it removed old IEs codes from dBlazy.js.
+ * Obvious change since Blazy 2.6+, it removed old IE7s codes from dBlazy.js.
  * Works absurdly fine at IE9 at 2.6. Older versions/browsers might not.
- *
- * @todo convert to dBlazy object where chaining is needed or appropriate.
- * @todo move out some part which might be relevant for both native and script.
  */
 
 (function ($, Drupal, drupalSettings, _win, _doc) {
@@ -174,7 +177,7 @@
     me.instances.push(elm);
 
     // @todo re-check if `No JavaScript` version needs help with reflows.
-    // @todo move it to blazy.ro.js if also needed there.
+    // @todo move it to bio.js if also needed there.
     var swapRatio = function (e) {
       var pad = e.detail.pad || 0;
 
