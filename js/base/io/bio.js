@@ -365,7 +365,6 @@
     // if (_bioTick === count - 1) {
     // me.destroyQuietly();
     // }
-
     // Unlike ResizeObserver, IntersectionObserver is done.
     if (_ioObserver && me.isLoaded(el) && !el.bloaded) {
       _ioObserver.unobserve(el);
@@ -442,7 +441,6 @@
     // return;
     // }
     // }
-
     // Load each on entering viewport.
     $.each(entries, function (e) {
       var target = e.target;
@@ -482,6 +480,7 @@
   // Initializes the IO with fallback to old bLazy.
   function init(me) {
     // Swap data-[SRC|SRCSET] for non-js version once, if not choosing Native.
+    // Native lazy markup is triggered by Enabling `No JavaScript` lazy option.
     me.natively();
 
     me.elms = _elms = $.findAll(_root, me.selector());

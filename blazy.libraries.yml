@@ -20,6 +20,7 @@ blazy:
     js/base/blazy.min.js: { minified: true, weight: -5.02 }
   dependencies:
     - blazy/dataset
+    - blazy/bio
 
 # An IntersectionObserver with fallback to old bLazy-like with Native support,
 # implemented by blazy/compat, blazy/load, or IO.module to DRY.

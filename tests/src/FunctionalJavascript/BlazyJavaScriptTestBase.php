@@ -86,9 +86,12 @@ abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
     $this->getSession()->executeScript('window.scrollTo(0, document.body.scrollHeight);');
 
     // Wait a moment.
-    $this->getSession()->wait(3000);
+    $this->getSession()->wait(6000);
 
     $this->createScreenshot($image_path . '/' . $this->scriptLoader . '_3_loaded.png');
+
+    // Wait a moment.
+    $this->getSession()->wait(8000);
 
     // Verifies that one of the images is there once loaded.
     $this->assertNotEmpty($this->assertSession()->waitForElement('css', '.b-loaded'));
