@@ -364,6 +364,26 @@
    * 11: Node.DOCUMENT_FRAGMENT_NODE
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
    */
+  function isDoc(x) {
+    return [9, 11].indexOf(!!x && x.nodeType) !== -1;
+  }
+
+  /**
+   * Returns true if the x is valid for querySelector.
+   *
+   * @private
+   *
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
+   *
+   * @return {bool}
+   *   True if x is valid for querySelector.
+   *
+   * 1: Node.ELEMENT_NODE
+   * 9: Node.DOCUMENT_NODE
+   * 11: Node.DOCUMENT_FRAGMENT_NODE
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
+   */
   function isQuery(x) {
     return [1, 9, 11].indexOf(!!x && x.nodeType) !== -1;
   }
@@ -1666,7 +1686,7 @@
     context = context.length ? context[0] : context;
 
     // IE9 knows not HTMLDocument, IE8 does.
-    return context && isQuery(context) ? context : _doc;
+    return context && isDoc(context) ? context : _doc;
   };
 
   // Minimum common DOM methods taken and modified from cash.
