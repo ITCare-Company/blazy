@@ -5,43 +5,13 @@
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module, or its sub-modules.
+ *
+ * @todo remove fallback for bLazy fork.
  */
 
 (function ($, _win) {
 
   'use strict';
-
-  $.ww = 0;
-  $.vp = {};
-
-  /**
-   * Returns element visibility.
-   *
-   * @private
-   *
-   * @param {Element} el
-   *   The HTML element to test.
-   * @param {Object} vp
-   *   The window viewport.
-   *
-   * @return {bool}
-   *   Returns true if visible.
-   */
-  function isVisible(el, vp) {
-    var rect = $.rect(el);
-
-    return ((rect.top > vp.top || rect.bottom > 0) && rect.top < vp.bottom);
-  }
-
-  $.isVisible = function (e, vp) {
-    var target = e.target;
-    var el = target || e;
-    return $.isIo ? (e.isIntersecting || e.intersectionRatio > 0) : isVisible(el, vp);
-  };
-
-  $.isResized = function (scope, e) {
-    return (!!e.contentRect || !!scope.resizeTrigger || false);
-  };
 
   // Enqueue operations.
   $.enqueue = function (queue, cb, scope) {
@@ -49,30 +19,14 @@
     queue.length = 0;
   };
 
-  $.winData = function (mobileFirst) {
-    var me = this;
-    return {
-      vp: me.vp,
-      ww: me.ww,
-      up: mobileFirst || false
-    };
-  };
-
-  $.checkWindow = function (offset, mobileFirst) {
-    var me = this;
-    me.vp = $.viewport(offset || 100);
-    me.ww = me.vp.right - offset;
-    return me.winData(mobileFirst);
-  };
-
-  $.interact = function (scope, cb, elms, withIo) {
-    var me = this;
+  // @todo remove fallback for direct bLazy.
+  $.initObserver = function (scope, cb, elms, withIo) {
     var opts = scope.options || {};
     var queue = scope._queue || [];
     var resizeTrigger;
-    var data = {};
-
+    var data = 'windowData' in scope ? scope.windowData() : {};
     var config = {
+      root: document,
       rootMargin: opts.rootMargin || '0px',
       threshold: opts.threshold || 0
     };
@@ -112,7 +66,7 @@
       resizeTrigger = this;
 
       // Called once during page load, not called during resizing.
-      data = me.checkWindow(opts.offset || 100, opts.mobileFirst);
+      data = $.isUnd(data.ww) ? $.windowData(opts, true) : scope.windowData();
       return $.isRo ? new ResizeObserver(_cb) : cb.call(scope, elms);
     };
 
@@ -123,19 +77,19 @@
   };
 
   $.observe = function (scope, elms, withIo, unblazy) {
-    var ns = scope.name || this.name;
     var opts = scope.options || {};
-    var ioObserver = scope.ioObserver;
-    var roObserver = scope.roObserver;
-    var delay = opts.validateDelay || 200;
-
+    var ioObserver;
+    var roObserver;
     var observe = function (observer) {
-      if (observer) {
+      if (observer && elms.length) {
         $.each(elms, function (entry) {
           observer.observe(entry);
         });
       }
     };
+
+    ioObserver = scope.ioObserver;
+    roObserver = scope.roObserver;
 
     if ($.isIo && (ioObserver || roObserver)) {
       // Allows observing resize only.
@@ -147,21 +101,8 @@
     }
     else {
       // Blazy was not designed with Native lazy, can be removed via Blazy UI.
-      if ('Blazy' in _win && !unblazy) {
+      if ('Blazy' in _win) {
         new Blazy(opts);
-      }
-      else {
-        // The best thing we can do other than harsh ::load().
-        // Works beautifully at IE9 nevertheless.
-        var bind = function (evt, cb) {
-          if ($.isFun(cb)) {
-            $.bindEvent(_win, evt, function (e) {
-              $.throttle(cb.call(e), delay, scope);
-            });
-          }
-        };
-        bind('resize.' + ns, roObserver);
-        bind('scroll.' + ns, ioObserver);
       }
     }
     return scope;
@@ -178,7 +119,8 @@
       }
     }
     else {
-      $.unbindEvent(_win, 'scroll.' + ns, scope.ioObserver);
+      // @todo remove for bLazy.
+      $.off(_win, 'scroll.' + ns, scope.ioObserver);
     }
   };
 

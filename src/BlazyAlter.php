@@ -17,6 +17,13 @@ use Drupal\editor\Entity\Editor;
 class BlazyAlter {
 
   /**
+   * The blazy library info.
+   *
+   * @var array
+   */
+  private static $libraryInfoBuild;
+
+  /**
    * Implements hook_config_schema_info_alter().
    */
   public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', array $settings = []): void {
@@ -51,19 +58,56 @@ class BlazyAlter {
    * Implements hook_library_info_alter().
    */
   public static function libraryInfoAlter(&$libraries, $extension): void {
-    if ($extension === 'blazy') {
-      if ($path = blazy_libraries_get_path('blazy')) {
-        $libraries['blazy']['js'] = ['/' . $path . '/blazy.min.js' => ['weight' => -5]];
-      }
-
-      if (!blazy()->configLoad('io.unblazy')) {
-        $libraries['load']['dependencies'][] = 'blazy/blazy';
-      }
+    // @todo remove if core changed, right below core/drupal for being generic,
+    // and dependency-free and a dependency for many other generic ones.
+    $debounce = 'drupal.debounce';
+    $is_debounce = $extension === 'core' && isset($libraries[$debounce]);
+    if ($is_debounce) {
+      $libraries[$debounce]['js']['misc/debounce.js'] = ['weight' => -16];
     }
-
     if ($extension === 'media' && isset($libraries['oembed.frame'])) {
       $libraries['oembed.frame']['dependencies'][] = 'blazy/oembed';
     }
+  }
+
+  /**
+   * Implements hook_library_info_build().
+   */
+  public static function libraryInfoBuild() {
+    if (!isset(static::$libraryInfoBuild)) {
+      // Optional polyfills for IEs, and oldies.
+      $polyfills = array_merge(BlazyDefault::polyfills(), BlazyDefault::ondemandPolyfills());
+      foreach ($polyfills as $id) {
+        // Matches common core polyfills' weight.
+        $weight = $id == 'polyfill' ? -21 : -20;
+        $common = ['minified' => TRUE, 'weight' => $weight];
+        $libraries[$id] = [
+          'js' => [
+            'js/polyfill/blazy.' . $id . '.min.js' => $common,
+          ],
+        ];
+      }
+
+      // Plugins extending dBlazy.
+      foreach (BlazyDefault::plugins() as $id) {
+        $base = $id == 'viewport' || $id == 'css';
+        $deps = $base ? ['blazy/dblazy', 'blazy/base'] : ['blazy/xlazy'];
+        if ($id == 'xlazy') {
+          $deps = ['blazy/viewport'];
+        }
+        $weight = $base ? -5.6 : -5.5;
+        $common = ['minified' => TRUE, 'weight' => $weight];
+        $libraries[$id] = [
+          'js' => [
+            'js/plugin/blazy.' . $id . '.min.js' => $common,
+          ],
+          'dependencies' => $deps,
+        ];
+      }
+
+      static::$libraryInfoBuild = $libraries;
+    }
+    return static::$libraryInfoBuild;
   }
 
   /**

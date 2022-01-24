@@ -342,16 +342,37 @@ class BlazyDefault {
   }
 
   /**
+   * Returns available plugins.
+   */
+  public static function plugins() {
+    return  [
+      'viewport',
+      'xlazy',
+      'css',
+      'animate',
+      'dataset',
+      'background',
+      'observer',
+    ];
+  }
+
+  /**
    * Returns available nojs components related to core Blazy functionality.
    */
-  public static function nojs() {
+  public static function polyfills() {
     return [
-      'lazy',
-      'classlist',
       'polyfill',
+      'classlist',
       'promise',
       'raf',
     ];
+  }
+
+  /**
+   * Returns available nojs components related to core Blazy functionality.
+   */
+  public static function nojs() {
+    return array_merge(['lazy'], self::polyfills());
   }
 
   /**

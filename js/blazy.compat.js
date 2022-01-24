@@ -40,13 +40,12 @@
 
     clearCompat: function (el) {
       var me = this;
-      var bio = me.init;
-      var old = bio && $.isBg(el) && (me.isBlazy() || $.ie);
+      var old = $.isBg(el) && (me.isBlazy() || $.ie);
 
-      // Compatibility with old bLazy.
-      if (old) {
-        bio.setImage(el, true);
-      }
+      // Compatibility with old bLazy. Moved into fork bLazy.
+      // if (old) {
+      // bio.setImage(el, true);
+      // }
 
       // Only animate when the image is fully loaded, else nonsense.
       me.pad(el, animate, old ? 50 : 0);
@@ -54,24 +53,22 @@
 
     checkResize: function (items, cb, root, onDone) {
       var me = this;
+      var bio = me.init;
 
       // Already throttled for oldies, or RO/RAF for modern browsers.
-      var interact = function (entries) {
-        me.resizeTick = me.init.resizeTick || 0;
-        _winData = me.winData();
+      $.on(_win, _id + '.resizing', function (e) {
+        var details = e.detail || {};
+        me.resizeTick = bio && bio.resizeTick || 0;
+        _winData = details.winData || me.windowData();
 
         if ($.isFun(cb)) {
-          $.each(entries, function (entry) {
+          $.each(items, function (entry) {
             var el = entry.target || entry;
 
             return cb.call(me, el);
           });
         }
-        return _winData;
-      };
-
-      _winData = $.interact(me, interact, items, false);
-      $.observe(me, items, false, true);
+      });
 
       // When images are loaded, Flexbox or Native Grid as Masonry might need
       // info about the loaded image dimensions to calculate gaps or positions.
@@ -79,6 +76,7 @@
         me.rebind(root, onDone, me.roObserver);
       }
 
+      me.destroyed = false;
       return _winData;
     },
 
@@ -207,6 +205,7 @@
 
     // ::init will/not be overridden by blazy/load, no problem since 2.6.
     me.init = me.run(_opts);
+
     resize.call(me);
   }
 

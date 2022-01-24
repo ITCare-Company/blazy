@@ -193,7 +193,7 @@
     // @todo remove to not support resizing to minimize complication.
     // @todo move it into ResizeObserver if doable otherwise.
     if (isUniform && localItems.length) {
-      $.bindEvent(elm, eventId, swapRatio);
+      $.on(elm, eventId, swapRatio);
     }
   }
 

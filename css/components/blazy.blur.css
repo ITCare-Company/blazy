@@ -67,7 +67,9 @@
 
 /* To minimize mutations we do not remove it from DOM, instead hide it.
 Ugly, but nobody except devs pressing F12 at browsers. */
-.media.is-b-animated .b-blur {
+.media.is-b-animated .b-blur,
+/* Blur animation needs extra works for IEs, not supported, disabled. */
+.media.is-b-loaded .b-blur.is-b-ie {
   display: none;
 }
 

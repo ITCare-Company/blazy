@@ -1,4 +1,12 @@
 
+Blazy 8.x-2.0-dev, 2022-01-24
+-----------------------------
+- Issue #3258851 by gausarts: Forked old bLazy to minimize workarounds and
+  complexity due to lacking of Native lazy supports. Native lazy was born 2019,
+  3 years after bLazy ceased 2016. But gotta move forward.
+- Fixed for IE9 and other oldies multi-breakpoint BG and aspect ratio.
+- Merged dBlazy.[un]bindEvent() into dBlazy[on|off]() to save bytes.
+
 Blazy 8.x-2.0-dev, 2022-01-21
 -----------------------------
 - Fixed for basic IE9 functionality.

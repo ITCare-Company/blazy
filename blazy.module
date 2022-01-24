@@ -109,9 +109,17 @@ function blazy_config_schema_info_alter(array &$definitions) {
  * Implements hook_library_info_alter().
  */
 function blazy_library_info_alter(&$libraries, $extension) {
-  if ($extension === 'blazy' || $extension === 'media') {
+  $debounce = $extension === 'core' && isset($libraries['drupal.debounce']);
+  if ($extension === 'blazy' || $extension === 'media'  || $debounce) {
     BlazyAlter::libraryInfoAlter($libraries, $extension);
   }
+}
+
+/**
+ * Implements hook_library_info_build().
+ */
+function blazy_library_info_build() {
+  return BlazyAlter::libraryInfoBuild();
 }
 
 /**

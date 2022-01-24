@@ -1,60 +1,35 @@
+# Re-usable library, even for Ultimenu, or any module wish to have vanilla.
+# All dBlazy plugins should weight ~ -5.5 to be usable by blazy/drupal, etc.
+dblazy:
+  js:
+    js/dblazy.min.js: { minified: true, weight: -6 }
+
 # This library appears to be unmaintained, yet it is great and stable for 2KB.
-# @todo consider forking it as a module asset to expose private function/methods
-# and minimize dup ones to likely 1KB gzip at 3.+. Unless the author modernizes
-# it with IO, etc. by then.
-# @todo adjust weights to use hundredth decimals.
+# Forked it as a module asset to expose private function/methods and minimize
+# dups, and more integrated with module features.
 blazy:
-  header: true
-  remote: https://github.com/dinbror/blazy
+  # header: true
+  # remote: https://github.com/dinbror/blazy
   version: 1.x
   license:
     name: MIT
     url: https://github.com/dinbror/blazy/blob/master/LICENSE
     gpl-compatible: true
   js:
-    /libraries/blazy/blazy.min.js: { minified: true, weight: -5 }
-
-# Optional polyfills for IEs, and oldies.
-# @todo remove when IEs gone from planet earth (EOL, 2022/Jun) + 1 timeout year.
-polyfill:
-  js:
-    js/polyfill/blazy.polyfills.min.js: { minified: true, weight: -32 }
-
-classlist:
-  js:
-    js/polyfill/blazy.classlist.min.js: { minified: true, weight: -31 }
-
-promise:
-  js:
-    js/polyfill/blazy.promise.min.js: { minified: true, weight: -31 }
-
-raf:
-  js:
-    js/polyfill/blazy.raf.min.js: { browsers: { IE: 'lte IE 9', '!IE': false }, minified: true, weight: -31 }
-
-# @todo optional for blazybox.js, Splide, Splidebox, Intense, etc.
-fullscreen:
-  js:
-    js/polyfill/blazy.fullscreen.min.js: { minified: true, weight: -6 }
-
-# Re-usable library, even for Ultimenu, or any module wish to have vanilla.
-dblazy:
-  js:
-    js/dblazy.min.js: { minified: true, weight: -4 }
-
-# Extension for dBlazy, not currently used.
-css:
-  js:
-    js/plugin/blazy.css.min.js: { minified: true, weight: -3.5 }
+    # /libraries/blazy/blazy.min.js: { minified: true, weight: -5 }
+    js/base/blazy.min.js: { minified: true, weight: -5.02 }
   dependencies:
-    - blazy/dblazy
+    - blazy/dataset
 
-# Extension for dBlazy [Intersection|Resize]Observer.
-observer:
+# An IntersectionObserver with fallback to old bLazy-like with Native support,
+# implemented by blazy/compat, blazy/load, or IO.module to DRY.
+# @todo merge it with localized/ forked bLazy to degrade/ avoid all or nothing.
+bio:
   js:
-    js/plugin/blazy.observer.min.js: { minified: true, weight: -3.5 }
+    js/base/io/bio.min.js: { minified: true, weight: -5.01 }
   dependencies:
-    - blazy/dblazy
+    - blazy/dataset
+    - blazy/observer
 
 # Drupal-related base.
 # Will not be loaded when `No JavaScript` enabled, unless exceptions met.
@@ -63,59 +38,23 @@ base:
     component:
       css/blazy.css: {}
 
-script:
-  js:
-    js/base/blazy.base.min.js: { minified: true, weight: -3.5 }
-  dependencies:
-    - core/drupal
-    - core/drupal.debounce
-    - blazy/dblazy
-    - blazy/base
-
-# Extension for dBlazy when using blur or animate.css.
-animate:
-  js:
-    js/plugin/blazy.animate.min.js: { minified: true, weight: -3.5 }
-  dependencies:
-    - blazy/dblazy
-
-# Extension for dBlazy when using data-[SRC|SRCSET]: BG, IO, VIDEO, attributes.
-dataset:
-  js:
-    js/plugin/blazy.dataset.min.js: { minified: true, weight: -3.5 }
-  dependencies:
-    - blazy/dblazy
-
-background:
-  js:
-    js/plugin/blazy.background.min.js: { minified: true, weight: -3.5 }
-  dependencies:
-    - blazy/dblazy
-
-# An IntersectionObserver with fallback to old bLazy-like with Native support,
-# implemented by blazy/compat, blazy/load, or IO.module to DRY.
-# @todo merge it with localized/ forked bLazy to degrade/ avoid all or nothing.
-bio:
-  js:
-    js/base/io/bio.min.js: { minified: true, weight: -3 }
-  dependencies:
-    - blazy/script
-    - blazy/dataset
-    - blazy/observer
-
 # Shared drupal-related methods normally driven by Drupal UI options.
 drupal:
   js:
-    js/base/blazy.drupal.min.js: { minified: true, weight: -1.6 }
+    js/base/blazy.base.min.js: { minified: true, weight: -5.4 }
+    js/base/blazy.drupal.min.js: { minified: true, weight: -1.7 }
   dependencies:
+    - core/drupal
+    # Watch out for core change namespace change.
+    - core/drupal.debounce
     # @todo when min D9.2 - core/once
-    - blazy/script
-    - blazy/observer
+    - blazy/dblazy
+    - blazy/base
 
 # Compat methods between Native and lazyload script when being ditched.
 compat:
   js:
-    js/blazy.compat.min.js: { minified: true, weight: -1.6 }
+    js/blazy.compat.min.js: { minified: true }
   dependencies:
     - blazy/bio
     - blazy/drupal
@@ -124,7 +63,7 @@ compat:
 # Not loaded when `No JavaScript` is enabled.
 load:
   js:
-    js/blazy.load.min.js: { minified: true, weight: -1.5 }
+    js/blazy.load.min.js: { minified: true }
   dependencies:
     - blazy/bio
     - blazy/drupal
@@ -136,7 +75,7 @@ loading:
     component:
       css/components/blazy.loading.css: {}
   js:
-    js/plugin/blazy.loading.min.js: { minified: true }
+    js/plugin/blazy.loading.min.js: { minified: true, weight: -5.5 }
   dependencies:
     - blazy/base
     - blazy/dblazy
@@ -148,7 +87,8 @@ filter:
   js:
     js/components/blazy.filter.min.js: { minified: true, weight: -1.6 }
   dependencies:
-    - blazy/drupal
+    - core/drupal
+    - blazy/dblazy
 
 blur:
   css:
@@ -280,7 +220,6 @@ photobox:
   dependencies:
     - core/jquery
     - blazy/drupal
-    - blazy/dblazy
     # use photobox when available instead.
     # - photobox/photobox
 

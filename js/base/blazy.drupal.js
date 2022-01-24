@@ -5,6 +5,7 @@
  * Old bLazy is now IO fallback to reduce competition and complexity
  * and cross-compat better between Native and old approach (data-[SRC|SRCSET]).
  * The reason old bLazy was not designed to cope with Native, Bio is.
+ * Native lazy was born (2016) after bLazy ceased 3 years before (2016).
  */
 
 (function ($, Drupal, drupalSettings, _win, _doc) {
@@ -47,6 +48,7 @@
     clearCompat: _noop,
     clearScript: _noop,
     checkResize: _noop,
+    resizing: _noop,
     revalidate: _noop,
 
     // Enforced since IO (bio.js) makes bLazy a fallback internally since 2.6.
@@ -71,6 +73,7 @@
       var commons = {
         success: me.clearing.bind(me),
         error: me.clearing.bind(me),
+        resizing: me.resizing.bind(me),
         selector: '.b-lazy',
         parent: _elMedia,
         errorClass: 'b-error',
@@ -157,8 +160,8 @@
       el.bclearing = true;
     },
 
-    winData: function () {
-      return this.init ? this.init.winData() : {};
+    windowData: function () {
+      return this.init ? this.init.windowData() : {};
     },
 
     // Only do this to fix errors, revalidation.
@@ -181,7 +184,7 @@
       var sel = me.options.selector;
       var _update = function () {
         if ($.hasAttr(el, _dataBg) && $.isFun($.bg)) {
-          $.bg(el, winData || me.winData());
+          $.bg(el, winData || me.windowData());
         }
         else {
           if (me.init) {

@@ -17,7 +17,9 @@
   min-height: 1px;
 }
 
-.b-bg {
+.b-bg,
+/* Tricking IE and other oldies to fix aspect ratio. */
+.media--ratio .is-b-ie {
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;

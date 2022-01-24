@@ -259,6 +259,11 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $config['compat'] = $attach['compat'];
     $config['unblazy'] = $this->configLoad('io.unblazy');
 
+    // Modern sites may want to forget oldies, respect.
+    if (!$config['unblazy']) {
+      $load['library'][] = 'blazy/blazy';
+    }
+
     $load['drupalSettings']['blazy'] = $config;
     $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
 

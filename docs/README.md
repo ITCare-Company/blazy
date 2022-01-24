@@ -187,7 +187,7 @@ Check out the relevant sub-module docs for details.
 
 ***
 # <a name="features"> </a>FEATURES
-* Works absurdly fine at IE9 at 2.6.
+* Works absurdly fine at IE9 for Blazy 2.6.
 * Works without JavaScript within/without JavaScript browsers.
 * Supports Image, Responsive image, (local|remote|iframe) videos, DIV either
   inline, fields, views, or within lightboxes.

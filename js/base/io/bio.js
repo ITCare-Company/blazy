@@ -4,12 +4,11 @@
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
  * @see https://developers.google.com/web/updates/2016/04/intersectionobserver
- * @todo refactor to fallback to native right here, not on the loaders, to avoid
- * all or nothing, and degrades gracefully. Or use polyfill.
  * @see https://www.npmjs.com/package/intersection-observer
  * @see https://github.com/w3c/IntersectionObserver
- * @todo https://developer.mozilla.org/en-US/docs/Web/API/Visual_Viewport_API
  * @see https://caniuse.com/?search=visualViewport
+ * @todo https://developer.mozilla.org/en-US/docs/Web/API/Visual_Viewport_API
+ * @todo remove traces of fallback to be taken care care of by old bLazy fork.
  */
 
 /* global define, module */
@@ -54,16 +53,12 @@
   var _revTick = 0;
   var _counted = 0;
   var _erCounted = 0;
-  var _disconnected = false;
-  var _observed = false;
   var _opts = {};
   var _elms = [];
   var _successClass = 'b-loaded';
   var _errorClass = 'b-error';
   var _bgClass = 'b-bg';
   var _isVisible = 'is-b-visible';
-  var _isLoaded = 'is-' + _successClass;
-  var _isError = 'is-' + _errorClass;
   var _media = 'media';
   var _parent = '.' + _media;
   var _data = 'data-';
@@ -71,32 +66,13 @@
   var _srcSet = 'srcset';
   var _dataSrc = _data + _src;
   var _dataSrcset = _data + _srcSet;
-  var _bgSources = [_src];
   var _imgSources = [_srcSet, _src];
+  var _destroyed = false;
+  var _initialized = false;
   var _resizing = false;
   var _validateDelay = 25;
   var _ioObserver = null;
-  var _defaults = {
-    root: null,
-    decode: false,
-    disconnect: false,
-    error: false,
-    success: false,
-    intersecting: false,
-    observing: false,
-    resizing: false,
-    mobileFirst: false,
-    bgClass: _bgClass,
-    successClass: _successClass,
-    errorClass: _errorClass,
-    selector: '.b-lazy',
-    parent: _parent,
-    offset: 100,
-    validateDelay: _validateDelay,
-    unblazy: false,
-    rootMargin: '0px',
-    threshold: [0]
-  };
+  var _isNativeChecked = null;
 
   // Cache our prototype.
   var fn = Bio.prototype;
@@ -117,7 +93,7 @@
     var me = $.extend(fn, this);
 
     me.name = ns;
-    me.options = _opts = $.extend({}, _defaults, options || {});
+    me.options = _opts = $.extend($._defaults, options || {});
 
     _bgClass = _opts.bgClass || _bgClass;
     _successClass = _opts.successClass || _successClass;
@@ -137,8 +113,8 @@
   // Prepare prototype to interchange with Blazy as fallback.
   fn.count = 0;
   fn.resizeTick = 0;
-  fn.winData = function () {
-    return $.checkWindow(_opts.offset);
+  fn.windowData = function () {
+    return $.isUnd(_winData.vp) ? $.windowData(_opts, true) : _winData;
   };
 
   fn.lazyLoad = function (el) {
@@ -159,17 +135,17 @@
         $.mapAttr(el, _src, true);
       }
 
-      me.status(el, true);
+      _erCounted = me.status(el, true);
     }
     // VIDEO elements.
     else if (isVideo) {
-      me.video(el, true);
+      _erCounted = $.loadVideo(el, true, _opts);
     }
     else {
       // IMG or DIV/ block elements got preloaded for better UX with loading.
       // Native doesn't support DIV, fix it.
       if (isImage || isBg) {
-        me.setImage(el, isBg);
+        me.loadImage(el, isBg);
       }
       // IFRAME elements, etc.
       else {
@@ -178,22 +154,14 @@
             $.mapAttr(el, _src, true);
           }
 
-          me.status(el, true);
+          _erCounted = me.status(el, true);
         }
       }
     }
   };
 
-  fn.video = function (el, ok) {
-    // Native doesn't support video, fix it.
-    $.mapSource(el, _src, true);
-    el.load();
-    this.status(el, ok);
-  };
-
   // Compatibility between Native and old data-[SRC|SRSET] approaches.
-  fn.setImage = function (el, isBg) {
-    var me = this;
+  fn.loadImage = function (el, isBg) {
     var img = new Image();
     var isResimage = $.hasAttr(el, _srcSet);
     var isDataset = $.hasAttr(el, _dataSrc);
@@ -202,10 +170,7 @@
 
     var applyAttrs = function () {
       if (isBg && $.isFun($.bgUrl)) {
-        var url = img.src = $.bgUrl(el, _winData);
-        if (!$.isIo) {
-          el.style.backgroundImage = url;
-        }
+        img.src = $.bgUrl(el, _winData);
       }
       else {
         img.src = $.attr(el, currSrc);
@@ -224,10 +189,7 @@
         $.bg(el, _winData);
       }
 
-      me.status(el, ok);
-      if (ok) {
-        $.removeAttr(el, isBg ? _bgSources : _imgSources, _data);
-      }
+      _erCounted = $.status(el, ok, _opts);
     };
 
     applyAttrs();
@@ -248,6 +210,7 @@
   };
 
   // BC for interchanging with bLazy.
+  // @todo merge wiuth bLazy::load.
   fn.load = function (elms, revalidate) {
     var me = this;
 
@@ -262,7 +225,8 @@
 
   fn.selector = function (suffix) {
     suffix = suffix || '';
-    return _opts.selector + suffix + ':not(.' + _successClass + ')';
+    // @todo recheck, troubled for onresize: + ':not(.' + _successClass + ')'.
+    return _opts.selector + suffix;
   };
 
   fn.isLoaded = function (el) {
@@ -273,61 +237,19 @@
     return $.isElm(el) && !this.isLoaded(el);
   };
 
-  fn.success = function (el, status, parent) {
-    if ($.isFun(_opts.success)) {
-      _opts.success(el, status, parent, _opts);
-    }
-
-    if (_erCounted > 0) {
-      _erCounted--;
-    }
-  };
-
-  fn.error = function (el, status, parent) {
-    if ($.isFun(_opts.error)) {
-      _opts.error(el, status, parent, _opts);
-    }
-
-    _erCounted++;
-  };
-
   fn.revalidate = function (force) {
     var me = this;
 
     // Prevents from too many revalidations unless needed.
     if ((force === true || me.count !== _counted) && (_revTick < _counted)) {
-      _disconnected = false;
       me.elms = _elms = $.findAll(_root, me.selector());
+
       if (_elms.length) {
-        me.observe();
+        me.observe(true);
 
         _revTick++;
       }
     }
-  };
-
-  fn.status = function (el, ok) {
-    // Image decode fails with Responsive image, assumes ok, no side effects.
-    this.loaded(el, ok ? $._ok : $._er);
-  };
-
-  fn.loaded = function (el, status, parent) {
-    var me = this;
-    var cn = $.closest(el, _parent) || el;
-    var ok = status === $._ok;
-
-    parent = parent || cn;
-    $.addClass(el, ok ? _successClass : _errorClass);
-    me[ok ? 'success' : 'error'](el, status, parent);
-
-    // Adds context for effetcs: blur, etc. considering BG, or just media.
-    $.addClass(cn, ok ? _isLoaded : _isError);
-    $.removeClass(cn, _isVisible);
-
-    // @todo remove, not compat with old bLazy which provides no events.
-    $.trigger(el, 'bio.loaded', {
-      status: status
-    });
   };
 
   // Since bLazy, which has no supports for Native, is a fallback, it is easier
@@ -353,7 +275,7 @@
   fn.natively = function () {
     var me = this;
 
-    if (!$.isNativeLazy) {
+    if (!$.isNativeLazy || _isNativeChecked) {
       return;
     }
 
@@ -367,6 +289,8 @@
         // Also supports PICTURE which contains SOURCEs. Excluding VIDEO.
         .mapSource(false, true, false);
     }
+
+    _isNativeChecked = true;
   };
 
   fn.destroyQuietly = function (force) {
@@ -374,7 +298,7 @@
 
     // Infinite pager like IO wants to keep monitoring infinite contents.
     // Multi-breakpoint BG/ ratio may want to update during resizing.
-    if (!_disconnected && (force || $.isUnd(Drupal.io))) {
+    if (!_destroyed && (force || $.isUnd(Drupal.io))) {
       var el = $.find(_root, me.selector());
 
       if (!$.isElm(el)) {
@@ -383,24 +307,16 @@
     }
   };
 
-  fn.observe = function () {
-    var me = this;
-
-    _bioTick = _elms.length;
-
-    $.observe(me, _elms, true, _opts.unblazy);
-  };
-
   fn.destroy = function (force) {
     var me = this;
 
     // Do not disconnect if any error found.
-    if (_erCounted > 0 && !force) {
+    if (_destroyed || (_erCounted > 0 && !force)) {
       return;
     }
 
     // Disconnect when all entries are loaded, if so configured.
-    var done = ((_bioTick === 0 || me.count === _counted) && _opts.disconnect);
+    var done = (_bioTick === me.count - 1) && _opts.disconnect;
     if (done || force) {
       if (_ioObserver) {
         _ioObserver.disconnect();
@@ -410,26 +326,51 @@
       me.count = 0;
       me.elms = _elms = [];
       me.ioObserver = _ioObserver = null;
-      me.roObserver = null;
-      _disconnected = true;
+      me.destroyed = _destroyed = true;
+    }
+  };
+
+  fn.observe = function (reobserve) {
+    var me = this;
+
+    // Only initialize the observer if destroyed, and IO.
+    if ($.isIo && (me.destroyed || reobserve)) {
+      _destroyed = false;
+      _winData = $.initObserver(me, interact, _elms, true);
+      _ioObserver = me.ioObserver;
+
+      me.destroyed = false;
+    }
+
+    // Observe as IO, or initialize old bLazy as fallback.
+    if (!_initialized || reobserve) {
+      $.observe(me, _elms, true);
+
+      _initialized = true;
     }
   };
 
   fn.reinit = function () {
-    _disconnected = false;
-    _observed = false;
+    var me = this;
+    me.destroyed = true;
 
-    init(this);
+    init(me);
   };
 
   function intersecting(el, revalidate) {
     var me = this;
+    var count = me.count;
+
+    if (_bioTick === count - 1) {
+      me.destroyQuietly();
+    }
 
     // Unlike ResizeObserver, IntersectionObserver is done.
     if (_ioObserver && me.isLoaded(el) && !el.bloaded) {
       _ioObserver.unobserve(el);
       el.bloaded = true;
-      _bioTick--;
+
+      _bioTick++;
     }
 
     // Image may take time to load after being hit, and it may be intersected
@@ -458,22 +399,44 @@
     }
   }
 
+  function resizing(el) {
+    var me = this;
+    var isBg = $.hasClass(el, _bgClass);
+
+    // Fix dynamic multi-breakpoint background to avoid loaders workarounds.
+    if (isBg) {
+      me.loadImage(el, isBg);
+    }
+  }
+
+  // This function is called by two observers: IO and RO.
   function interact(entries) {
     var me = this;
     var vp = $.vp;
     var ww = $.ww;
-    var update = false;
+    var entry = entries[0];
+    var isBlur = $.isBlur(entry);
+    var isResizing = $.isResized(me, entry);
 
-    if (_resizing) {
-      _winData = $.checkWindow(_opts.offset);
-      ww = _winData.ww;
+    // RO is another abserver.
+    if (isResizing) {
+      _winData = $.updateViewport(_opts);
+
+      // Provides a way to fix dynamic aspect ratio, etc.
+      if ($.isFun(_opts.resizing)) {
+        _opts.resizing(me, entries, _winData);
+      }
+
+      // If not extending/ overriding, also allows to listen to.
+      $.trigger(_win, 'blazy.resizing', {
+        winData: _winData,
+        entries: entries,
+        old: _ww
+      });
     }
     else {
-      // Disconnect if necessary.
-      me.destroyQuietly(_opts.disconnect);
-
-      // Stop watching if already disconnected.
-      if (_disconnected) {
+      // Stop IO watching if already disconnected.
+      if (_destroyed) {
         return;
       }
     }
@@ -497,11 +460,10 @@
 
       // The element is being resized.
       _resizing = resized && _ww > 0;
-      if (_resizing) {
+      if (_resizing && !isBlur) {
         // Ensures only before settled, or if any different from previous size.
         if (_ww !== ww) {
-          update = true;
-          intersecting.call(me, el, resized);
+          resizing.call(me, el);
         }
         me.resizeTick++;
       }
@@ -512,26 +474,12 @@
       }
     });
 
-    // Resizing may happen after disconnection.
-    if (update) {
-      if ($.isFun(_opts.resizing)) {
-        _opts.resizing(entries, _winData, _opts);
-      }
-
-      // If not extending/ overriding, also allows to listen to.
-      $.trigger(_win, 'bio.resizing', {
-        entries: entries,
-        old: _ww,
-        new: ww,
-        winData: _winData
-      });
-    }
-
     _ww = ww;
   }
 
-  // Initializes the IO.
+  // Initializes the IO with fallback to old bLazy.
   function init(me) {
+    // Swap data-[SRC|SRCSET] for non-js version once, if not choosing Native.
     me.natively();
 
     me.elms = _elms = $.findAll(_root, me.selector());
@@ -539,16 +487,9 @@
     me._raf = [];
     me._queue = [];
 
-    $.interact(me, interact, _elms, true);
-    _ioObserver = me.ioObserver;
-
-    // Observes once on the page load regardless multiple observer instances.
-    // Possible as we nullify the root option to allow querying the DOM once.
-    // Should you need to re-validate, or re-observe, just call ::observe().
-    if (_elms.length && !_observed) {
-      me.observe();
-      _observed = true;
-    }
+    // Observe elements. Old blazy as fallback is also initialized here.
+    // IO will unobserve, or disconnect. Old bLazy will self destroy.
+    me.observe();
   }
 
   return Bio;

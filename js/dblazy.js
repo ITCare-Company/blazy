@@ -33,6 +33,12 @@
   var _before = 'before';
   var _begin = 'begin';
   var _end = 'end';
+  var _uTop = 'Top';
+  var _uLeft = 'Left';
+  var _uHeight = 'Height';
+  var _uWidth = 'Width';
+  var _clientWidth = 'client' + _uWidth;
+  var _scroll = 'scroll';
   var _iterator = 'iterator';
   var _observer = 'Observer';
   var _dashAlphaRe = /-([a-z])/g;
@@ -888,7 +894,7 @@
    */
   function remove(el) {
     if (isElm(el)) {
-      var parent = el.parentNode;
+      var parent = parent(el);
       if (parent) {
         parent.removeChild(el);
       }
@@ -900,11 +906,14 @@
    *
    * @private
    *
+   * @param {Element} el
+   *   The element to check for more contextual property/ feature detection.
+   *
    * @return {bool}
    *   True if an IE browser.
    */
-  function ie() {
-    return !isUnd(_doc.documentMode);
+  function ie(el) {
+    return (isElm(el) && el.currentStyle) || !isUnd(_doc.documentMode);
   }
 
   /**
@@ -928,7 +937,7 @@
    *   Returns the window width.
    */
   function windowWidth() {
-    return _win.innerWidth || _doc.documentElement.clientWidth || _doc.body.clientWidth || _win.screen.width;
+    return _win.innerWidth || _doc.documentElement[_clientWidth] || _doc.body[_clientWidth] || _win.screen[_width];
   }
 
   /**
@@ -943,28 +952,6 @@
     return {
       width: windowWidth(),
       height: _win.innerHeight || _doc.documentElement.clientHeight
-    };
-  }
-
-  /**
-   * Returns viewport info.
-   *
-   * @private
-   *
-   * @param {Element} offset
-   *   The offset defined via UI normally related to header fixed position.
-   *
-   * @return {Object}
-   *   Returns the window viewport info.
-   */
-  function viewport(offset) {
-    offset = offset || 0;
-    var size = windowSize();
-    return {
-      top: 0 - offset,
-      left: 0 - offset,
-      bottom: size.height + offset,
-      right: size.width + offset
     };
   }
 
@@ -1029,7 +1016,7 @@
    *   This dBlazy object.
    */
   function on(els, eventName, selector, cb, params, isCustom) {
-    return onoff(els, eventName, selector, cb, params, isCustom, _add);
+    return toEvent(els, eventName, selector, cb, params, isCustom, _add);
   }
 
   /**
@@ -1054,53 +1041,7 @@
    *   This dBlazy object.
    */
   function off(els, eventName, selector, cb, params, isCustom) {
-    return onoff(els, eventName, selector, cb, params, isCustom, _remove);
-  }
-
-  /**
-   * A simple wrapper for addEventListener.
-   *
-   * @private
-   *
-   * @param {dBlazy|Array.<Element>|Element} els
-   *   The HTML element(s), or dBlazy instance.
-   * @param {string} eventName
-   *   The event name to remove.
-   * @param {Function} cb
-   *   The callback function.
-   * @param {Object|bool} params
-   *   The optional param passed into a custom event.
-   * @param {bool} isCustom
-   *   True, if a custom event.
-   *
-   * @return {Object}
-   *   This dBlazy object.
-   */
-  function bindEvent(els, eventName, cb, params, isCustom) {
-    return toEvent(els, eventName, cb, params, isCustom, _add);
-  }
-
-  /**
-   * A simple wrapper for removeEventListener.
-   *
-   * @private
-   *
-   * @param {dBlazy|Array.<Element>|Element} els
-   *   The HTML element(s), or dBlazy instance.
-   * @param {string} eventName
-   *   The event name to remove.
-   * @param {Function} cb
-   *   The callback function.
-   * @param {Object} params
-   *   The optional param passed into a custom event.
-   * @param {bool} isCustom
-   *   True, if a custom event.
-   *
-   * @return {Object}
-   *   This dBlazy object.
-   */
-  function unbindEvent(els, eventName, cb, params, isCustom) {
-    return toEvent(els, eventName, cb, params, isCustom, _remove);
+    return toEvent(els, eventName, selector, cb, params, isCustom, _remove);
   }
 
   /**
@@ -1121,7 +1062,7 @@
    *   This dBlazy object.
    */
   function one(els, eventName, cb, isCustom) {
-    return bindEvent(els, eventName, cb, {
+    return on(els, eventName, cb, {
       once: true
     }, isCustom);
   }
@@ -1139,30 +1080,6 @@
    */
   function isDecoded(img) {
     return img.decoded || img.complete;
-  }
-
-  /**
-   * Checks if image or iframe is decoded/ completely loaded.
-   *
-   * @private
-   *
-   * @param {Image|Iframe} el
-   *   The Image or Iframe element.
-   *
-   * @return {bool}
-   *   True if the image or iframe is loaded.
-   */
-  function isLoaded(el) {
-    if (isElm(el)) {
-      if (equal(el, 'img')) {
-        return isDecoded(el);
-      }
-      if (equal(el, 'iframe')) {
-        var doc = el.contentDocument || el.contentWindow.document;
-        return doc.readyState === 'complete';
-      }
-    }
-    return false;
   }
 
   /**
@@ -1226,14 +1143,16 @@
    *   The HTML element(s), or dBlazy instance.
    * @param {string} eventName
    *   The event name, optionally namespaced, to add or remove.
-   * @param {Function} cb
-   *   The callback function.
+   * @param {string|Function} selector
+   *   Child selector to delegate (valid CSS selector). Or a callback.
+   * @param {Function|Object|bool} cb
+   *   The callback function. Or params passed into on/off like.
    * @param {Object|bool} params
-   *   The optional param passed into a custom event.
-   * @param {bool} isCustom
-   *   Like namespaced, but not to be namespaced since LHS is not any event.
-   * @param {string} op
-   *   Whether to add or remove the event.
+   *   The optional param passed into a custom event. Or isCustom for on/off.
+   * @param {bool|string} isCustom
+   *   Like namespaced, but not, LHS is not native event. Or add/remove op.
+   * @param {string|undefined} op
+   *   Whether to add or remove the event. Or undefined foe on/off like.
    *
    * @return {Object}
    *   This dBlazy object.
@@ -1241,7 +1160,42 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
    * @see https://caniuse.com/once-event-listener
    */
-  function toEvent(els, eventName, cb, params, isCustom, op) {
+  function toEvent(els, eventName, selector, cb, params, isCustom, op) {
+    // Event delegation like on/off.
+    if (isStr(selector)) {
+      if (isUnd(params)) {
+        params = {
+          capture: true,
+          passive: false
+        };
+      }
+
+      var onEvent = function (e) {
+        var t = e.target;
+
+        if (is(t, selector)) {
+          cb.call(t, e);
+        }
+        else {
+          while (t && t !== this) {
+            if (is(t, selector)) {
+              cb.call(t, e);
+              return;
+            }
+            t = parent(t);
+          }
+        }
+      };
+
+      cb = onEvent;
+    }
+    else {
+      // Shift one param if selector is expected as a function.
+      isCustom = params;
+      params = cb;
+      cb = selector;
+    }
+
     var chainCallback = function (el) {
       if (!isEvt(el)) {
         return;
@@ -1292,62 +1246,6 @@
     };
 
     return chain.call(els, chainCallback);
-  }
-
-  /**
-   * A simple wrapper for event delegation like jQuery.on().
-   *
-   * @private
-   *
-   * Inspired by http://stackoverflow.com/questions/30880757/
-   * javascript-equivalent-to-on.
-   *
-   * @param {dBlazy|Array.<Element>|Element} els
-   *   The HTML element(s), or dBlazy instance.
-   * @param {string} eventName
-   *   The optionally namespaced event name to trigger.
-   * @param {string} selector
-   *   Child selector to match against (class, ID, data attribute, or tag).
-   * @param {Function} cb
-   *   The callback function.
-   * @param {Object|bool} params
-   *   The optional param passed into a custom event.
-   * @param {bool} isCustom
-   *   True, if a custom event.
-   * @param {string} op
-   *   Whether to add or remove the event.
-   *
-   * @return {Object}
-   *   This dBlazy object.
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
-   */
-  function onoff(els, eventName, selector, cb, params, isCustom, op) {
-    if (isUnd(params)) {
-      params = {
-        capture: true,
-        passive: false
-      };
-    }
-
-    var onEvent = function (e) {
-      var t = e.target;
-
-      if (is(t, selector)) {
-        cb.call(t, e);
-      }
-      else {
-        while (t && t !== this) {
-          if (is(t, selector)) {
-            cb.call(t, e);
-            return;
-          }
-          t = t.parentElement || t.parentNode;
-        }
-      }
-    };
-
-    return toEvent(els, eventName, onEvent, params, isCustom, op);
   }
 
   /**
@@ -1553,35 +1451,20 @@
   db.windowWidth = windowWidth;
   db.windowSize = windowSize;
   db.activeWidth = activeWidth;
-  db.viewport = viewport;
 
   // Event methods.
-  fn.toEvent = function (eventName, cb, params, isCustom, op) {
-    return toEvent(this, eventName, cb, params, isCustom, op);
-  };
-
-  fn.onoff = function (eventName, selector, cb, params, isCustom, op) {
-    return onoff(this, eventName, selector, cb, params, isCustom, op);
+  fn.toEvent = function (eventName, selector, cb, params, isCustom, op) {
+    return toEvent(this, eventName, selector, cb, params, isCustom, op);
   };
 
   db.on = on.bind(db);
   fn.on = function (eventName, selector, cb, params, isCustom) {
-    return this.onoff(eventName, selector, cb, params, isCustom, _add);
+    return this.toEvent(eventName, selector, cb, params, isCustom, _add);
   };
 
   db.off = off.bind(db);
   fn.off = function (eventName, selector, cb, params, isCustom) {
-    return this.onoff(eventName, selector, cb, params, isCustom, _remove);
-  };
-
-  db.bindEvent = bindEvent.bind(db);
-  fn.bindEvent = function (eventName, cb, params, isCustom) {
-    return this.toEvent(eventName, cb, params, isCustom, _add);
-  };
-
-  db.unbindEvent = unbindEvent.bind(db);
-  fn.unbindEvent = function (eventName, cb, params, isCustom) {
-    return this.toEvent(eventName, cb, params, isCustom, _remove);
+    return this.toEvent(eventName, selector, cb, params, isCustom, _remove);
   };
 
   db.one = one.bind(db);
@@ -1591,7 +1474,6 @@
 
   // Image methods.
   db.isDecoded = isDecoded;
-  db.isLoaded = isLoaded;
 
   // Similar to core domReady, only public and generic.
   fn.ready = function (callback) {
@@ -1902,8 +1784,8 @@
     var rect = rect(el);
 
     return {
-      top: (rect.top || 0) + _doc.body.scrollTop,
-      left: (rect.left || 0) + _doc.body.scrollLeft
+      top: (rect.top || 0) + _doc.body[_scroll + _uTop],
+      left: (rect.left || 0) + _doc.body[_scroll + _uLeft]
     };
   }
 
@@ -1927,11 +1809,11 @@
         var margin = function (pos) {
           return parseInt(style['margin' + pos], 10);
         };
-        if (prop === 'Height') {
-          result += margin('Top') + margin('Bottom');
+        if (prop === _uHeight) {
+          result += margin(_uTop) + margin('Bottom');
         }
         else {
-          result += margin('Left') + margin('Right');
+          result += margin(_uLeft) + margin('Right');
         }
       }
     }
@@ -1939,11 +1821,11 @@
   }
 
   db.outerWidth = function (el, withMargin) {
-    return outerDim(el, withMargin, 'Width');
+    return outerDim(el, withMargin, _uWidth);
   };
 
   db.outerHeight = function (el, withMargin) {
-    return outerDim(el, withMargin, 'Height');
+    return outerDim(el, withMargin, _uHeight);
   };
 
   /**
@@ -1994,6 +1876,12 @@
     insert(target, el, _after + _begin);
   };
 
+  function parent(el) {
+    return isElm(el) && (el.parentElement || el.parentNode);
+  }
+
+  db.parent = parent;
+
   function prev(el) {
     return isElm(el) && el.previousElementSibling;
   }
@@ -2019,6 +1907,11 @@
 
   // @tbd deprecated for db.each to save bytes. Used by many sub-modules.
   db.forEach = each;
+
+  // @tbd deprecated for on/off with shifted arguments. Use on/ off instead.
+  db.bindEvent = on.bind(db);
+
+  db.unbindEvent = off.bind(db);
 
   if (typeof exports !== 'undefined') {
     // Node.js.

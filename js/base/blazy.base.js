@@ -1,6 +1,8 @@
 /**
  * @file
  * Provides base methods to bridge drupal-related codes with generic ones.
+ *
+ * @todo watch out for Drupal namespace removal, likely becomes under window.
  */
 
 (function ($, Drupal) {
@@ -15,9 +17,5 @@
   }
 
   $.debounce = _debounce;
-
-  $.isBg = function (el) {
-    return $.hasClass(el, 'b-bg');
-  };
 
 })(dBlazy, Drupal);

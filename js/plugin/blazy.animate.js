@@ -27,12 +27,13 @@
     var me = this;
 
     var chainCallback = function (el) {
-      if (!$.isElm(el)) {
+      var _set = el.dataset;
+
+      if (!$.isElm(el) || !_set) {
         return me;
       }
 
       var $el = $(el);
-      var _set = el.dataset;
       var animation = _set.animation;
 
       if ($.isStr(cb)) {
