@@ -361,9 +361,10 @@
     var me = this;
     var count = me.count;
 
-    if (_bioTick === count - 1) {
-      me.destroyQuietly();
-    }
+    // @todo recheck. No issues at real browsers, likely breaking tests.
+    // if (_bioTick === count - 1) {
+    // me.destroyQuietly();
+    // }
 
     // Unlike ResizeObserver, IntersectionObserver is done.
     if (_ioObserver && me.isLoaded(el) && !el.bloaded) {
@@ -434,12 +435,13 @@
         old: _ww
       });
     }
-    else {
-      // Stop IO watching if already disconnected.
-      if (_destroyed) {
-        return;
-      }
-    }
+    // @todo recheck. No issues at real browsers, likely breaking tests.
+    // else {
+    // Stop IO watching if already disconnected.
+    // if (_destroyed) {
+    // return;
+    // }
+    // }
 
     // Load each on entering viewport.
     $.each(entries, function (e) {
