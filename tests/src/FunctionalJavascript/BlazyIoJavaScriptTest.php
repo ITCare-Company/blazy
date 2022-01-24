@@ -18,7 +18,6 @@ class BlazyIoJavaScriptTest extends BlazyJavaScriptTestBase {
     $this->scriptLoader = 'io';
 
     // Enable IO support.
-    $this->container->get('config.factory')->getEditable('blazy.settings')->set('io.enabled', TRUE)->save();
     $this->container->get('config.factory')->getEditable('blazy.settings')->set('decode', TRUE)->save();
     $this->container->get('config.factory')->clearStaticCache();
   }
@@ -28,7 +27,7 @@ class BlazyIoJavaScriptTest extends BlazyJavaScriptTestBase {
    */
   public function testFormatterDisplay() {
     $data['settings']['blazy'] = TRUE;
-    $data['settings']['ratio'] = '';
+    $data['settings']['ratio'] = 'fluid';
     $data['settings']['image_style'] = 'thumbnail';
 
     $this->setUpContentTypeTest($this->bundle);
