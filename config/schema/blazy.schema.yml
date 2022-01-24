@@ -11,9 +11,6 @@ blazy.settings:
       sequence:
         - type: string
           label: nojs
-    decode:
-      type: boolean
-      label: 'Use decoding'
     fx:
       type: string
       label: 'Image effect'
@@ -55,9 +52,6 @@ blazy.settings:
       type: mapping
       label: IO
       mapping:
-        enabled:
-          type: boolean
-          label: 'Enable IO'
         unblazy:
           type: boolean
           label: 'Unload bLazy'

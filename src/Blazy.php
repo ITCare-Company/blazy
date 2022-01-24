@@ -164,9 +164,7 @@ class Blazy implements BlazyInterface {
 
     $attributes['class'][] = 'media__image';
     // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode.
-    if (!empty($settings['decode'])) {
-      $attributes['decoding'] = 'async';
-    }
+    $attributes['decoding'] = 'async';
 
     // Reserves UUID for sub-module lookups, relevant for BlazyFilter.
     if (!empty($settings['entity_uuid'])) {

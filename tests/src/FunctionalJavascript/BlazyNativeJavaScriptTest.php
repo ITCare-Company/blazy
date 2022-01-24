@@ -17,8 +17,7 @@ class BlazyNativeJavaScriptTest extends BlazyJavaScriptTestBase {
 
     $this->scriptLoader = 'native';
 
-    // Enable IO support.
-    $this->container->get('config.factory')->getEditable('blazy.settings')->set('decode', TRUE)->save();
+    // Enable `No JavaScript` lazy option to enact Native markup.
     $this->container->get('config.factory')->getEditable('blazy.settings')->set('nojs.lazy', 'lazy')->save();
     $this->container->get('config.factory')->clearStaticCache();
   }

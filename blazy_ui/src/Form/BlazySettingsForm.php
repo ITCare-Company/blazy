@@ -85,13 +85,6 @@ class BlazySettingsForm extends ConfigFormBase {
       ]),
     ];
 
-    $form['decode'] = [
-      '#type'          => 'checkbox',
-      '#title'         => $this->t('Use decoding'),
-      '#default_value' => $config->get('decode'),
-      '#description'   => $this->t("Check to enable image decoding for improved performance. Uncheck if any issue. Known troubled browsers are Safari, IE as usual. <a href=':url'>Read more</a>", [':url' => 'https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode']),
-    ];
-
     $form['noscript'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Add noscript'),
@@ -252,7 +245,6 @@ class BlazySettingsForm extends ConfigFormBase {
     $config
       ->set('admin_css', $form_state->getValue('admin_css'))
       ->set('nojs', $form_state->getValue('nojs'))
-      ->set('decode', $form_state->getValue('decode'))
       ->set('fx', $form_state->getValue('fx'))
       ->set('noscript', $form_state->getValue('noscript'))
       ->set('responsive_image', $form_state->getValue('responsive_image'))

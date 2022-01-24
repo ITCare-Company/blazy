@@ -61,8 +61,6 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $this->testPluginId           = 'blazy_filter';
     $this->maxParagraphs          = 280;
 
-    $this->container->get('config.factory')->getEditable('blazy.settings')->set('decode', TRUE)->save();
-
     // Create a text format.
     $full_html = FilterFormat::create([
       'format' => 'full_html',

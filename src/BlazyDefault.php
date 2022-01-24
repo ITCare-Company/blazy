@@ -215,7 +215,6 @@ class BlazyDefault {
   public static function uiSettings() {
     return [
       'nojs'                => [],
-      'decode'              => FALSE,
       'one_pixel'           => TRUE,
       'noscript'            => FALSE,
       'placeholder'         => '',

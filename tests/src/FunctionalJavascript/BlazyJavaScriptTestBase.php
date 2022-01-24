@@ -6,6 +6,7 @@ use Drupal\FunctionalJavascriptTests\DrupalSelenium2Driver;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyCreationTestTrait;
+use Drupal\blazy\BlazyDefault;
 
 /**
  * Tests the Blazy JavaScript using PhantomJS, or Chromedriver.
@@ -56,6 +57,15 @@ abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
     $this->blazyManager           = $this->container->get('blazy.manager');
     $this->scriptLoader           = 'blazy';
     $this->maxParagraphs          = 180;
+
+    // Disable `No JavaScript` options by default till required.
+    $config = $this->container->get('config.factory');
+    $settings = $config->getEditable('blazy.settings');
+    foreach (BlazyDefault::nojs() as $key) {
+      $settings->set('nojs.' . $key, '0');
+    }
+    $settings->save(TRUE);
+    $config->clearStaticCache();
   }
 
   /**

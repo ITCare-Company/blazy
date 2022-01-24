@@ -16,10 +16,6 @@ class BlazyIoJavaScriptTest extends BlazyJavaScriptTestBase {
     parent::setUp();
 
     $this->scriptLoader = 'io';
-
-    // Enable IO support.
-    $this->container->get('config.factory')->getEditable('blazy.settings')->set('decode', TRUE)->save();
-    $this->container->get('config.factory')->clearStaticCache();
   }
 
   /**

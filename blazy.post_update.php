@@ -120,6 +120,7 @@ function blazy_post_update_vanilla_once() {
  */
 function blazy_post_update_remove_io_enabled_key() {
   $config = \Drupal::configFactory()->getEditable('blazy.settings');
+  $config->clear('decode');
   $config->clear('io.enabled');
   $config->save(TRUE);
 }

@@ -210,7 +210,7 @@
   };
 
   // BC for interchanging with bLazy.
-  // @todo merge wiuth bLazy::load.
+  // @todo merge with bLazy::load.
   fn.load = function (elms, revalidate) {
     var me = this;
 
