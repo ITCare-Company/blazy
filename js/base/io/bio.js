@@ -102,7 +102,7 @@
     _validateDelay = _opts.validateDelay || _validateDelay;
     _root = _opts.root || _root;
 
-    // DOM ready fix.
+    // DOM ready fix. Ain't a culprit.
     setTimeout(function () {
       me.reinit();
     });
@@ -340,21 +340,21 @@
 
     // Only initialize the observer if destroyed, and IO.
     // @todo reenable. Checking the test culprit.
-    // if ($.isIo && (me.destroyed || reobserve)) {
-    _destroyed = false;
-    _winData = $.initObserver(me, interact, _elms, true);
-    _ioObserver = me.ioObserver;
+    if ($.isIo && (me.destroyed || reobserve)) {
+      _destroyed = false;
+      _winData = $.initObserver(me, interact, _elms, true);
+      _ioObserver = me.ioObserver;
 
-    me.destroyed = false;
-    // }
+      me.destroyed = false;
+    }
 
     // Observe as IO, or initialize old bLazy as fallback.
     // @todo reenable. Checking the test culprit.
-    // if (!_initialized || reobserve) {
-    $.observe(me, _elms, true);
+    if (!_initialized || reobserve) {
+      $.observe(me, _elms, true);
 
-    // _initialized = true;
-    // }
+      _initialized = true;
+    }
   };
 
   fn.reinit = function () {
