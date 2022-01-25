@@ -203,8 +203,6 @@
     $.decode(img)
       .then(function () {
         load(el, true);
-        // @todo remove for the failing test check.
-        $.addClass(el, 'is-then');
       })
       .catch(function () {
         load(el, isResimage);
@@ -213,12 +211,6 @@
         if (!isResimage) {
           el.bhit = false;
         }
-        // @todo remove for the failing test check.
-        $.addClass(el, 'is-catch');
-      })
-      .finally(function () {
-        // @todo remove for the failing test check.
-        $.addClass(el, 'is-finally');
       });
   };
 
@@ -508,17 +500,7 @@
 
     // Observe elements. Old blazy as fallback is also initialized here.
     // IO will unobserve, or disconnect. Old bLazy will self destroy.
-    // @todo remove check.
-    if (!_initialized) {
-      me.observe(true);
-      _initialized = true;
-    }
-
-    // @todo remove checking the failing tests.
-    var check = $.find(_doc, '.blazy');
-    if (check) {
-      $.addClass(check, 'is-bio');
-    }
+    me.observe(true);
   }
 
   return Bio;

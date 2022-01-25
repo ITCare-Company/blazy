@@ -1099,6 +1099,7 @@
    *   True if the image is loaded.
    */
   function isDecoded(img) {
+    // This is working fine, not a culprit.
     return img.decoded || img.complete;
   }
 
