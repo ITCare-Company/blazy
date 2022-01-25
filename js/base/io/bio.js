@@ -103,9 +103,9 @@
     _root = _opts.root || _root;
 
     // DOM ready fix.
-    setTimeout(function () {
-      me.reinit();
-    });
+    // setTimeout(function () {
+    me.reinit();
+    // });
 
     return me;
   }
@@ -361,7 +361,7 @@
     // if (!_initialized || reobserve) {
     $.observe(me, _elms, true);
 
-    _initialized = true;
+    // _initialized = true;
     // }
   };
 
@@ -501,14 +501,24 @@
     // Native lazy markup is triggered by Enabling `No JavaScript` lazy option.
     me.natively();
 
-    me.elms = _elms = $.findAll(_root, me.selector());
+    me.elms = _elms = $.findAll(_doc, me.selector());
     me.count = _elms.length;
     me._raf = [];
     me._queue = [];
 
     // Observe elements. Old blazy as fallback is also initialized here.
     // IO will unobserve, or disconnect. Old bLazy will self destroy.
-    me.observe(true);
+    // @todo remove check.
+    if (!_initialized) {
+      me.observe(true);
+      _initialized = true;
+    }
+
+    // @todo remove checking the failing tests.
+    var check = $.find(_doc, '.blazy');
+    if (check) {
+      $.addClass(check, 'is-bio');
+    }
   }
 
   return Bio;

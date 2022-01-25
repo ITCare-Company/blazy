@@ -26,7 +26,7 @@
     var resizeTrigger;
     var data = 'windowData' in scope ? scope.windowData() : {};
     var config = {
-      root: document,
+      // @todo reenable root: document,
       rootMargin: opts.rootMargin || '0px',
       threshold: opts.threshold || 0
     };
@@ -76,7 +76,7 @@
     return data;
   };
 
-  $.observe = function (scope, elms, withIo, unblazy) {
+  $.observe = function (scope, elms, withIo) {
     var opts = scope.options || {};
     var ioObserver;
     var roObserver;
