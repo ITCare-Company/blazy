@@ -103,9 +103,9 @@
     _root = _opts.root || _root;
 
     // DOM ready fix.
-    // setTimeout(function () {
-    me.reinit();
-    // });
+    setTimeout(function () {
+      me.reinit();
+    });
 
     return me;
   }
