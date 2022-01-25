@@ -51,23 +51,24 @@ drupal:
     - blazy/dblazy
     - blazy/base
 
-# Compat methods between Native and lazyload script when being ditched.
-compat:
-  js:
-    js/blazy.compat.min.js: { minified: true }
-  dependencies:
-    - blazy/bio
-    - blazy/drupal
-
 # The bLazy, IO, Native loader aka initializer for IE9+ and modern browsers.
 # Not loaded when `No JavaScript` is enabled.
 load:
   js:
-    js/blazy.load.min.js: { minified: true }
+    js/blazy.load.min.js: { minified: true, weight: -0.0003 }
   dependencies:
     - blazy/bio
     - blazy/drupal
     - blazy/loading
+
+# Compat methods between Native and lazyload script when being ditched.
+compat:
+  js:
+    js/blazy.compat.min.js: { minified: true, weight: -0.0002 }
+  dependencies:
+    - blazy/bio
+    - blazy/drupal
+
 
 # Optional components.
 loading:

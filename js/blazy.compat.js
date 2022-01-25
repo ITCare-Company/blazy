@@ -204,7 +204,9 @@
     _opts = me.options;
 
     // ::init will/not be overridden by blazy/load, no problem since 2.6.
-    me.init = me.run(_opts);
+    if ($.isNull(me.init)) {
+      me.init = me.run(_opts);
+    }
 
     resize.call(me);
   }

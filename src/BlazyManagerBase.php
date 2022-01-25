@@ -237,12 +237,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $attach[$attach['style']] = $attach['style'];
     }
 
-    foreach (BlazyDefault::components() as $component) {
-      if (!empty($attach[$component])) {
-        $load['library'][] = 'blazy/' . $component;
-      }
-    }
-
     // Always keep Drupal UI config to support dynamic compat features.
     $config = $this->configLoad('blazy');
     $config['loader'] = empty($attach['nojs']['lazy']);
@@ -253,6 +247,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
 
     // Only if `No JavaScript` option is disabled, or has compat.
+    // Compat is a loader for Blur, BG, Video which Native doesn't support.
     if (empty($attach['nojs']['lazy']) || $attach['compat']) {
       // Modern sites may want to forget oldies, respect.
       if (!$config['unblazy']) {
@@ -264,6 +259,12 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
           $lib = $key == 'lazy' ? 'load' : $key;
           $load['library'][] = 'blazy/' . $lib;
         }
+      }
+    }
+
+    foreach (BlazyDefault::components() as $component) {
+      if (!empty($attach[$component])) {
+        $load['library'][] = 'blazy/' . $component;
       }
     }
 
