@@ -169,14 +169,19 @@
     var currSrcset = isDataset ? _dataSrcset : _srcSet;
 
     var applyAttrs = function () {
+      if ('decode' in img) {
+        img.decoding = 'async';
+      }
+
       if (isBg && $.isFun($.bgUrl)) {
         img.src = $.bgUrl(el, _winData);
       }
       else {
-        img.src = $.attr(el, currSrc);
         if (isDataset) {
           $.mapAttr(el, _imgSources, false);
         }
+
+        img.src = $.attr(el, currSrc);
       }
 
       if (isResimage) {
@@ -198,6 +203,8 @@
     $.decode(img)
       .then(function () {
         load(el, true);
+        // @todo remove for the failing test check.
+        $.addClass(el, 'is-then');
       })
       .catch(function () {
         load(el, isResimage);
@@ -206,6 +213,12 @@
         if (!isResimage) {
           el.bhit = false;
         }
+        // @todo remove for the failing test check.
+        $.addClass(el, 'is-catch');
+      })
+      .finally(function () {
+        // @todo remove for the failing test check.
+        $.addClass(el, 'is-finally');
       });
   };
 
@@ -281,7 +294,7 @@
 
     // ::findAll is already optimized with a single null check, no extra checks.
     var dataset = me.selector('[data-src][loading]:not(.b-blur)');
-    var els = $.findAll(_root, dataset);
+    var els = $.findAll(_doc, dataset);
 
     if (els.length) {
       // Reset attributes, and let supportive browsers lazy load natively.
@@ -299,7 +312,7 @@
     // Infinite pager like IO wants to keep monitoring infinite contents.
     // Multi-breakpoint BG/ ratio may want to update during resizing.
     if (!_destroyed && (force || $.isUnd(Drupal.io))) {
-      var el = $.find(_root, me.selector());
+      var el = $.find(_doc, _opts.selector + ':not(.' + _successClass + ')');
 
       if (!$.isElm(el)) {
         me.destroy(force);
@@ -334,20 +347,22 @@
     var me = this;
 
     // Only initialize the observer if destroyed, and IO.
-    if ($.isIo && (me.destroyed || reobserve)) {
-      _destroyed = false;
-      _winData = $.initObserver(me, interact, _elms, true);
-      _ioObserver = me.ioObserver;
+    // @todo reenable. Checking the test culprit.
+    // if ($.isIo && (me.destroyed || reobserve)) {
+    _destroyed = false;
+    _winData = $.initObserver(me, interact, _elms, true);
+    _ioObserver = me.ioObserver;
 
-      me.destroyed = false;
-    }
+    me.destroyed = false;
+    // }
 
     // Observe as IO, or initialize old bLazy as fallback.
-    if (!_initialized || reobserve) {
-      $.observe(me, _elms, true);
+    // @todo reenable. Checking the test culprit.
+    // if (!_initialized || reobserve) {
+    $.observe(me, _elms, true);
 
-      _initialized = true;
-    }
+    _initialized = true;
+    // }
   };
 
   fn.reinit = function () {
@@ -377,26 +392,29 @@
     // several times till marked loaded. Ensures it is hit once regardless
     // of being loaded, or not. No real issue with normal images on the page,
     // until having VIS alike which may spit out new images on AJAX request.
-    if (!el.bhit || revalidate) {
-      // Makes sure to have media loaded beforehand.
+    // @todo reenable, and remove isLoaded. Checking the test culprit.
+    // if (!el.bhit || revalidate) {
+    // Makes sure to have media loaded beforehand.
+    if (!me.isLoaded(el)) {
       me.lazyLoad(el);
-
-      // If not extending/ overriding, at least provide the option.
-      if ($.isFun(_opts.intersecting)) {
-        _opts.intersecting(el, _opts);
-      }
-
-      // If not extending/ overriding, also allows to listen to.
-      $.trigger(el, 'bio.intersecting', {
-        options: _opts
-      });
-
-      _counted++;
-
-      // Marks it hit/ requested. Not necessarily loaded.
-      el.bhit = true;
-      revalidate = false;
     }
+
+    // If not extending/ overriding, at least provide the option.
+    if ($.isFun(_opts.intersecting)) {
+      _opts.intersecting(el, _opts);
+    }
+
+    // If not extending/ overriding, also allows to listen to.
+    $.trigger(el, 'bio.intersecting', {
+      options: _opts
+    });
+
+    _counted++;
+
+    // Marks it hit/ requested. Not necessarily loaded.
+    // el.bhit = true;
+    // revalidate = false;
+    // }
   }
 
   function resizing(el) {
