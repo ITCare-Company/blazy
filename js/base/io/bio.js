@@ -231,7 +231,7 @@
   fn.selector = function (suffix) {
     suffix = suffix || '';
     // @todo recheck, troubled for onresize: + ':not(.' + _successClass + ')'.
-    return _opts.selector + suffix + ':not(.' + _successClass + ')';
+    return _opts.selector + suffix;
   };
 
   fn.isLoaded = function (el) {
@@ -367,10 +367,10 @@
     var me = this;
     var count = me.count;
 
-    // @todo recheck. No issues at real browsers, likely breaking tests.
-    // if (_bioTick === count - 1) {
-    // me.destroyQuietly();
-    // }
+    if (_bioTick === count - 1) {
+      me.destroyQuietly();
+    }
+
     // Unlike ResizeObserver, IntersectionObserver is done.
     if (_ioObserver && me.isLoaded(el) && !el.bloaded) {
       _ioObserver.unobserve(el);
@@ -383,29 +383,26 @@
     // several times till marked loaded. Ensures it is hit once regardless
     // of being loaded, or not. No real issue with normal images on the page,
     // until having VIS alike which may spit out new images on AJAX request.
-    // @todo reenable, and remove isLoaded. Checking the test culprit.
-    // if (!el.bhit || revalidate) {
-    // Makes sure to have media loaded beforehand.
-    if (!me.isLoaded(el)) {
+    if (!el.bhit || revalidate) {
+      // Makes sure to have media loaded beforehand.
       me.lazyLoad(el);
+
+      // If not extending/ overriding, at least provide the option.
+      if ($.isFun(_opts.intersecting)) {
+        _opts.intersecting(el, _opts);
+      }
+
+      // If not extending/ overriding, also allows to listen to.
+      $.trigger(el, 'bio.intersecting', {
+        options: _opts
+      });
+
+      _counted++;
+
+      // Marks it hit/ requested. Not necessarily loaded.
+      el.bhit = true;
+      revalidate = false;
     }
-
-    // If not extending/ overriding, at least provide the option.
-    if ($.isFun(_opts.intersecting)) {
-      _opts.intersecting(el, _opts);
-    }
-
-    // If not extending/ overriding, also allows to listen to.
-    $.trigger(el, 'bio.intersecting', {
-      options: _opts
-    });
-
-    _counted++;
-
-    // Marks it hit/ requested. Not necessarily loaded.
-    // el.bhit = true;
-    // revalidate = false;
-    // }
   }
 
   function resizing(el) {
@@ -443,13 +440,13 @@
         old: _ww
       });
     }
-    // @todo recheck. No issues at real browsers, likely breaking tests.
-    // else {
-    // Stop IO watching if already disconnected.
-    // if (_destroyed) {
-    // return;
-    // }
-    // }
+    else {
+      // Stop IO watching if already disconnected.
+      if (_destroyed) {
+        return;
+      }
+    }
+
     // Load each on entering viewport.
     $.each(entries, function (e) {
       var target = e.target;

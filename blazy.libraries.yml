@@ -6,17 +6,14 @@ dblazy:
 
 # This library appears to be unmaintained, yet it is great and stable for 2KB.
 # Forked it as a module asset to expose private function/methods and minimize
-# dups, and more integrated with module features.
+# dups, and more integrated with Native lazy and module features.
 blazy:
-  # header: true
-  # remote: https://github.com/dinbror/blazy
   version: 1.x
   license:
     name: MIT
     url: https://github.com/dinbror/blazy/blob/master/LICENSE
     gpl-compatible: true
   js:
-    # /libraries/blazy/blazy.min.js: { minified: true, weight: -5 }
     js/base/blazy.min.js: { minified: true, weight: -5.02 }
   dependencies:
     - blazy/dataset
@@ -55,22 +52,20 @@ drupal:
 # Not loaded when `No JavaScript` is enabled.
 load:
   js:
-    # Was fine w/o weight -1.5.
-    js/blazy.load.min.js: { minified: true }
+    js/blazy.load.min.js: { minified: true, weight: -1.5 }
   dependencies:
     - blazy/bio
     - blazy/drupal
     - blazy/loading
 
-# Compat methods between Native and lazyload script when being ditched.
+# Compat methods between Native and lazyload script when being ditched to enact
+# lost module features: Blur, VIDEO, multi-breakpoint BG and aspect ratio.
 compat:
   js:
-    # Was fine w/o weight -1.4.
-    js/blazy.compat.min.js: { minified: true }
+    js/blazy.compat.min.js: { minified: true, weight: -1.4 }
   dependencies:
     - blazy/bio
     - blazy/drupal
-
 
 # Optional components.
 loading:

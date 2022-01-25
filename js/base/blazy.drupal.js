@@ -90,9 +90,8 @@
 
     run: function (opts) {
       // @see https://www.drupal.org/project/blazy/issues/3258851
-      // @todo re-enable. Checking for failing test culprit.
-      // var els = $.findAll(_doc, '.media--ratio--fluid, .' + _bbg);
-      // opts.disconnect = opts.disconnect || !els.length;
+      var els = $.findAll(_doc, '.media--ratio--fluid, .' + _bbg);
+      opts.disconnect = opts.disconnect || !els.length;
       return new Bio(opts);
     },
 
@@ -122,10 +121,10 @@
 
     clearing: function (el) {
       // While IO has a mechanism to unobserve, bLazy not.
-      // @todo re-enable. Checking for failing test culprit.
-      // if (el.bclearing) {
-      // return;
-      // }
+      if (el.bclearing) {
+        return;
+      }
+
       var me = this;
       var ie = $.hasClass(el, 'b-responsive') && $.hasAttr(el, _data + '-pfsrc');
 
@@ -153,8 +152,7 @@
         });
       }
 
-      // @todo re-enable. Checking for failing test culprit.
-      // el.bclearing = true;
+      el.bclearing = true;
     },
 
     windowData: function () {

@@ -1173,7 +1173,7 @@
    * @param {bool|string} isCustom
    *   Like namespaced, but not, LHS is not native event. Or add/remove op.
    * @param {string|undefined} op
-   *   Whether to add or remove the event. Or undefined foe on/off like.
+   *   Whether to add or remove the event. Or undefined for on/off like.
    *
    * @return {Object}
    *   This dBlazy object.
@@ -1211,7 +1211,7 @@
       cb = onEvent;
     }
     else {
-      // Shift one param if selector is expected as a function.
+      // Shift one argument if selector is expected as a callback function.
       isCustom = params;
       params = cb;
       cb = selector;
@@ -1287,7 +1287,7 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Document/createEvent
-   * @todo namespaced event name.
+   * @todo namespaced event name, and more refined native event.
    */
   function trigger(els, eventName, details, param) {
     var chainCallback = function (el) {
@@ -1874,6 +1874,7 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
    */
   function insert(target, el, position) {
+    // @todo recheck DocumentFragment if needed.
     if (isElm(target)) {
       var suffix = isElm(el) ? 'Element' : 'HTML';
       target['insertAdjacent' + suffix](position, el);
