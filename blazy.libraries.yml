@@ -55,7 +55,8 @@ drupal:
 # Not loaded when `No JavaScript` is enabled.
 load:
   js:
-    js/blazy.load.min.js: { minified: true, weight: -1.5 }
+    # Was fine with weight -1.5. If it breaks without weight, the culprit found.
+    js/blazy.load.min.js: { minified: true }
   dependencies:
     - blazy/bio
     - blazy/drupal
@@ -64,7 +65,8 @@ load:
 # Compat methods between Native and lazyload script when being ditched.
 compat:
   js:
-    js/blazy.compat.min.js: { minified: true, weight: -1.4 }
+    # Was fine with weight -1.4. If it breaks without weight, the culprit found.
+    js/blazy.compat.min.js: { minified: true }
   dependencies:
     - blazy/bio
     - blazy/drupal

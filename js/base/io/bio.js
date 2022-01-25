@@ -500,6 +500,7 @@
 
     // Observe elements. Old blazy as fallback is also initialized here.
     // IO will unobserve, or disconnect. Old bLazy will self destroy.
+    // This is working fine, not a culprit.
     me.observe(true);
   }
 
