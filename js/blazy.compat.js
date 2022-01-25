@@ -18,7 +18,6 @@
   'use strict';
 
   var _id = 'blazy';
-  var _elItem = '.b-lazy:not(.b-blur)';
   var _data = 'data-';
   var _dataAnimation = _data + 'animation';
   var _dataDimensions = _data + 'dimensions';
@@ -196,8 +195,6 @@
    */
   function process() {
     var me = this;
-
-    me.items = $.findAll(me.context, _elItem);
 
     // Mount extensions.
     me.mount(true);

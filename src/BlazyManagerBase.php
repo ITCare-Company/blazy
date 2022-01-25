@@ -240,8 +240,12 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     // Always keep Drupal UI config to support dynamic compat features.
     $config = $this->configLoad('blazy');
     $config['loader'] = empty($attach['nojs']['lazy']);
-    $config['compat'] = $attach['compat'];
     $config['unblazy'] = $this->configLoad('io.unblazy');
+
+    // One is enough due to various formatters with different features.
+    if ($attach['compat']) {
+      $config['compat'] = $attach['compat'];
+    }
 
     $load['drupalSettings']['blazy'] = $config;
     $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);

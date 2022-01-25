@@ -31,15 +31,10 @@
    * @namespace
    */
   Drupal.blazy = {
-    _queue: [],
-    _raf: [],
     context: _doc,
-    name: _id,
+    name: 'Drupal.' + _id,
     init: null,
-    ioObserver: null,
-    roObserver: null,
     instances: [],
-    items: [],
     resizeTick: 0,
     resizeTrigger: false,
     blazySettings: drupalSettings.blazy || {},
@@ -95,8 +90,9 @@
 
     run: function (opts) {
       // @see https://www.drupal.org/project/blazy/issues/3258851
-      var els = $.findAll(_doc, '.media--ratio--fluid, .' + _bbg);
-      opts.disconnect = opts.disconnect || !els.length;
+      // @todo re-enable. Checking for failing test culprit.
+      // var els = $.findAll(_doc, '.media--ratio--fluid, .' + _bbg);
+      // opts.disconnect = opts.disconnect || !els.length;
       return new Bio(opts);
     },
 
@@ -126,10 +122,10 @@
 
     clearing: function (el) {
       // While IO has a mechanism to unobserve, bLazy not.
-      if (el.bclearing) {
-        return;
-      }
-
+      // @todo re-enable. Checking for failing test culprit.
+      // if (el.bclearing) {
+      // return;
+      // }
       var me = this;
       var ie = $.hasClass(el, 'b-responsive') && $.hasAttr(el, _data + '-pfsrc');
 
@@ -157,7 +153,8 @@
         });
       }
 
-      el.bclearing = true;
+      // @todo re-enable. Checking for failing test culprit.
+      // el.bclearing = true;
     },
 
     windowData: function () {

@@ -1578,8 +1578,9 @@
       // If extra arguments are provided, assumes regular loop over elements.
       // Safe to use fallback _doc since it is normally executed once onready.
       els = isStr(selector) ? findAll(context || _doc, selector) : toArray(selector);
-      if (els.length) {
-        _once(each(els, cb));
+      var len = els.length;
+      if (len) {
+        _once(len === 1 ? cb(els[0]) : each(els, cb));
       }
     }
 

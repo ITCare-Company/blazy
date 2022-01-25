@@ -29,7 +29,6 @@
     container: false,
     containerClass: false,
     errorClass: 'b-error',
-    breakpoints: false,
     loadInvisible: false,
     successClass: 'b-loaded',
     validateDelay: 25,
@@ -42,7 +41,6 @@
     // IO specifics.
     bgClass: 'b-bg',
     parent: '.media',
-    decode: false,
     disconnect: false,
     intersecting: false,
     observing: false,
