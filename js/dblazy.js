@@ -1099,7 +1099,7 @@
    *   True if the image is loaded.
    */
   function isDecoded(img) {
-    return img.complete; // @todo reenable for failing tests img.decoded || img.complete;
+    return img.decoded || img.complete;
   }
 
   /**

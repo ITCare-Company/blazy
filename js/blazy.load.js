@@ -147,12 +147,6 @@
 
     // Put the blazy/IO instance into a public object for references/ overrides.
     me.init = me.run(me.options);
-
-    // @todo remove checking the failing tests.
-    var check = $.find(_doc, _element);
-    if (check) {
-      $.addClass(check, 'is-inited');
-    }
   };
 
   /**
