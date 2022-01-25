@@ -492,7 +492,7 @@
     // Native lazy markup is triggered by Enabling `No JavaScript` lazy option.
     me.natively();
 
-    // This _root is the last suspected culprit.
+    // Let's see if the culprit was there.
     me.elms = _elms = $.findAll(_root, me.selector());
     me.count = _elms.length;
     me._raf = [];

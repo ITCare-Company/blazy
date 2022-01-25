@@ -25,9 +25,9 @@
     var queue = scope._queue || [];
     var resizeTrigger;
     var data = 'windowData' in scope ? scope.windowData() : {};
-    // This _root is the last suspected culprit.
+    // We got em? It was fine leaving root empty for years till filled in.
     var config = {
-      root: document,
+      // @todo reenable root: document,
       rootMargin: opts.rootMargin || '0px',
       threshold: opts.threshold || 0
     };
