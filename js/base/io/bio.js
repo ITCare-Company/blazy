@@ -339,7 +339,7 @@
     var me = this;
 
     // Only initialize the observer if destroyed, and IO.
-    // @todo reenable. Checking the test culprit.
+    // Ain;t the culprit.
     if ($.isIo && (me.destroyed || reobserve)) {
       _destroyed = false;
       _winData = $.initObserver(me, interact, _elms, true);
@@ -349,7 +349,6 @@
     }
 
     // Observe as IO, or initialize old bLazy as fallback.
-    // @todo reenable. Checking the test culprit.
     if (!_initialized || reobserve) {
       $.observe(me, _elms, true);
 
@@ -493,7 +492,8 @@
     // Native lazy markup is triggered by Enabling `No JavaScript` lazy option.
     me.natively();
 
-    me.elms = _elms = $.findAll(_doc, me.selector());
+    // This _root is the last suspected culprit.
+    me.elms = _elms = $.findAll(_root, me.selector());
     me.count = _elms.length;
     me._raf = [];
     me._queue = [];

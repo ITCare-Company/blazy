@@ -25,8 +25,9 @@
     var queue = scope._queue || [];
     var resizeTrigger;
     var data = 'windowData' in scope ? scope.windowData() : {};
+    // This _root is the last suspected culprit.
     var config = {
-      // @todo reenable root: document,
+      root: document,
       rootMargin: opts.rootMargin || '0px',
       threshold: opts.threshold || 0
     };
