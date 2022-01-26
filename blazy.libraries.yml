@@ -1,3 +1,5 @@
+# Everything is optional since 2.6. Nothing will be loaded when `No JavaScript`
+# lazy option is enabled, unless exceptions met.
 # Re-usable library, even for Ultimenu, or any module wish to have vanilla.
 # All dBlazy plugins should weight ~ -5.5 to be usable by blazy/drupal, etc.
 dblazy:
@@ -8,7 +10,6 @@ dblazy:
 # Forked it as a module asset to expose private function/methods and minimize
 # dups, and more integrated with Native lazy and module features.
 blazy:
-  version: 1.x
   license:
     name: MIT
     url: https://github.com/dinbror/blazy/blob/master/LICENSE
@@ -18,9 +19,8 @@ blazy:
   dependencies:
     - blazy/dataset
 
-# An IntersectionObserver with fallback to old bLazy-like with Native support,
+# An IntersectionObserver with fallback to old bLazy with Native support,
 # implemented by blazy/compat, blazy/load, or IO.module to DRY.
-# @todo merge it with localized/ forked bLazy to degrade/ avoid all or nothing.
 bio:
   js:
     js/base/io/bio.min.js: { minified: true, weight: -5.01 }
@@ -29,7 +29,6 @@ bio:
     - blazy/observer
 
 # Drupal-related base.
-# Will not be loaded when `No JavaScript` enabled, unless exceptions met.
 base:
   css:
     component:
@@ -49,7 +48,6 @@ drupal:
     - blazy/base
 
 # The bLazy, IO, Native loader aka initializer for IE9+ and modern browsers.
-# Not loaded when `No JavaScript` is enabled.
 load:
   js:
     js/blazy.load.min.js: { minified: true, weight: -1.5 }
@@ -67,7 +65,7 @@ compat:
     - blazy/bio
     - blazy/drupal
 
-# Optional components.
+# Cosmetic components.
 loading:
   css:
     component:

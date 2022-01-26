@@ -322,7 +322,7 @@ class BlazyDefault {
   /**
    * Returns available components.
    */
-  public static function components() {
+  public static function components(): array {
     return [
       'animate',
       'background',
@@ -343,8 +343,8 @@ class BlazyDefault {
   /**
    * Returns available plugins.
    */
-  public static function plugins() {
-    return  [
+  public static function plugins(): array {
+    return [
       'viewport',
       'xlazy',
       'css',
@@ -358,7 +358,7 @@ class BlazyDefault {
   /**
    * Returns available nojs components related to core Blazy functionality.
    */
-  public static function polyfills() {
+  public static function polyfills(): array {
     return [
       'polyfill',
       'classlist',
@@ -370,14 +370,14 @@ class BlazyDefault {
   /**
    * Returns available nojs components related to core Blazy functionality.
    */
-  public static function nojs() {
+  public static function nojs(): array {
     return array_merge(['lazy'], self::polyfills());
   }
 
   /**
    * Returns optional polyfills, not loaded till enabled and a feature meets.
    */
-  public static function ondemandPolyfills() {
+  public static function ondemandPolyfills(): array {
     return [
       'fullscreen',
     ];

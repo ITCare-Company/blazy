@@ -59,7 +59,7 @@ Normally unwanted trailing commas.
 4. Then require any libraries as usual only prefixed with `npm-asset`, or
    `bower-asset` (deprecated). The versions must be re-checked, just samples:
    + Install [Blazy](https://www.drupal.org/project/blazy):
-     `composer require npm-asset/blazy:^1.8.2`
+     `composer require npm-asset/blazy:^1.8.2` <= not required at Blazy 2.6.
    + If using [Slick](https://www.drupal.org/project/slick), the namespace is
      `slick-carousel`, not `slick`. The supported versions are `1.6.0 - 1.8.0`,
      not `1.8.1` up, use exact numbers:

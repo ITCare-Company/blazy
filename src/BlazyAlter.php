@@ -60,6 +60,7 @@ class BlazyAlter {
   public static function libraryInfoAlter(&$libraries, $extension): void {
     // @todo remove if core changed, right below core/drupal for being generic,
     // and dependency-free and a dependency for many other generic ones.
+    // @todo watch out for core @todo to remove drupal namespace for debounce.
     $debounce = 'drupal.debounce';
     $is_debounce = $extension === 'core' && isset($libraries[$debounce]);
     if ($is_debounce) {

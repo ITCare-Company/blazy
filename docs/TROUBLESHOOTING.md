@@ -1,6 +1,9 @@
 
 ***
 # <a name="troubleshooting"></a>TROUBLESHOOTING
+* Any javascript-related issues might no longer be valid when
+  `No JavaScript lazy` enabled. Unless the exceptions are met or for those who
+  still support old IEs, and cannot ditch lazyloader script, yet.
 * Switch to core Bartik for a mo, in case your custom theme is the culprit.
 * Blazy and its sub-modules -- Slick, GridStack, etc. are tightly coupled.
   Be sure to have the latest release date or matching versions in the least.
@@ -22,6 +25,7 @@
 
 
 ## 1. JavaScript Errors
+Any references to bLazy library is no longer required for forked version at 2.6.  HTTrack
 **Symptons**:  
 Blazy is not defined. Images are gone, only eternal blue loader is
 flipping like a drunk butterfly.
@@ -80,6 +84,7 @@ Entity/Media Embed are likely more for privileged users, editors, admins, alike.
 Or when Entity/Media Embed is disabled.
 
 ## 6. INTERSECTION OBSERVER API
+This API will not be used if `No JavaScript lazy` option enabled.
 * **IntersectionObserver API** is not loading all images, try disabling
   **Disconnect** option at Blazy UI.
 * **IntersectionObserver API** is not working with Slick `slidesToShow > 1`, try

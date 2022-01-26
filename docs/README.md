@@ -31,15 +31,19 @@ info.
 
 ***
 # <a name="requirements"> </a>REQUIREMENTS
-1. bLazy library:
-   * [Download bLazy](https://github.com/dinbror/blazy)
-   * Extract it as is, rename **blazy-master** to **blazy**, so the assets are:
+Core modules:  
+1. Media  
+2. Filter
 
-      + **/libraries/blazy/blazy.js**, <= blazy 2.5
-      + **/libraries/blazy/blazy.min.js**, >= blazy 2.6, see [#3257511](https://drupal.org/node/3257511)
+## Applicable for Blazy module <= 2.5:
+The bLazy library is forked at Blazy 2.6, and no longer required from now on,
+see [#3257511](https://drupal.org/node/3257511).
+Any references to bLazy library is no longer relevant for forked version at 2.6.  
+* [Download bLazy](https://github.com/dinbror/blazy)  
+* Extract it as is, rename **blazy-master** to **blazy**, so the assets are:
 
-2. Media and Filter module in core.
-
+  + **/libraries/blazy/blazy.js**
+  + **/libraries/blazy/blazy.min.js**
 
 ***
 # <a name="recommended-modules"> </a>RECOMMENDED MODULES
@@ -189,6 +193,7 @@ Check out the relevant sub-module docs for details.
 # <a name="features"> </a>FEATURES
 * Works absurdly fine at IE9 for Blazy 2.6.
 * Works without JavaScript within/without JavaScript browsers.
+* Works with AMP, or static/ archived sites, e.g.: Tome, HTTrack, etc.
 * Supports Image, Responsive image, (local|remote|iframe) videos, DIV either
   inline, fields, views, or within lightboxes.
 * Lightboxes: Colorbox, Splidebox, PhotoSwipe, etc. with multimedia lightboxes.
