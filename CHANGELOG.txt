@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-01-26
+-----------------------------
+- Issue #3260089 by akalam: EntityMalformedException when using blazy in layout
+  builder in a entity view display.
+
 Blazy 8.x-2.0-dev, 2022-01-24
 -----------------------------
 - Issue #3258851 by gausarts: Forked old bLazy to minimize workarounds and

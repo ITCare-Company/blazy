@@ -87,7 +87,7 @@ class BlazyMedia implements BlazyMediaInterface {
 
     $settings['bundle']           = $media->bundle();
     $settings['source_field']     = $media->getSource()->getConfiguration()['source_field'];
-    $settings['media_url']        = $media->toUrl()->toString();
+    $settings['media_url']        = $media->isNew() ? '' : $media->toUrl()->toString();
     $settings['media_id']         = $media->id();
     $settings['media_source']     = $media->getSource()->getPluginId();
     $settings['view_mode']        = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
