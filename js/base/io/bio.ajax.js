@@ -4,6 +4,10 @@
  *
  * Blazy IO works fine with AJAX, until using VIS, or alike. Adds a helper.
  * Required to fix for what Native lazy doesn't support Blur, Video, BG.
+ * Similar to core responsive_image/ajax fix, only different approach.
+ *
+ * @todo remove once bio.js plays nice for media, VIS, blocks, or if core/once
+ * fixes this type of issue when min D9.2.
  */
 
 (function ($, Drupal) {
@@ -21,7 +25,6 @@
       var me = _blazy.init;
       var opts;
 
-      // Fixed for what Native lazy doesn't support Blur, Video, BG.
       if (me) {
         opts = _blazy.options;
 
@@ -32,10 +35,11 @@
           if (elms.length) {
             // ::load() means forcing them to load at once, great for small
             // amount of items, bad for large amount.
-            // ::revalidate() means re-observe newly loaded AJAX contents without
-            // forcing all images to load at once, great for large, bad for small.
+            // ::revalidate() means re-observe newly loaded AJAX contents
+            // without forcing all images to load at once, great for large, bad
+            // for small.
             // Unfortunately revalidate() not always work, likely layout reflow.
-            me.load(elms);
+            me.load(elms, true, opts);
           }
         }, 100);
       }

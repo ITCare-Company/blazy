@@ -28,6 +28,13 @@ bio:
     - blazy/dataset
     - blazy/observer
 
+# Separate IO for Media from IO for ajaxified blocks and infinite pager.
+bio.media:
+  js:
+    js/base/io/bio.media.min.js: { minified: true, weight: -2 }
+  dependencies:
+    - blazy/bio
+
 # Drupal-related base.
 base:
   css:
@@ -52,7 +59,7 @@ load:
   js:
     js/blazy.load.min.js: { minified: true, weight: -1.5 }
   dependencies:
-    - blazy/bio
+    - blazy/bio.media
     - blazy/drupal
     - blazy/loading
 
@@ -62,7 +69,7 @@ compat:
   js:
     js/blazy.compat.min.js: { minified: true, weight: -1.4 }
   dependencies:
-    - blazy/bio
+    - blazy/bio.media
     - blazy/drupal
 
 # Ajax helper for VIS, alike.

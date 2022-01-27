@@ -66,6 +66,7 @@ class BlazyAlter {
     if ($is_debounce) {
       $libraries[$debounce]['js']['misc/debounce.js'] = ['weight' => -16];
     }
+
     if ($extension === 'media' && isset($libraries['oembed.frame'])) {
       $libraries['oembed.frame']['dependencies'][] = 'blazy/oembed';
     }

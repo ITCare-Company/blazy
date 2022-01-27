@@ -33,6 +33,7 @@
     errorClass: 'b-error',
     loadInvisible: false,
     successClass: 'b-loaded',
+    visibleClass: false,
     validateDelay: 25,
     saveViewportOffsetDelay: 50,
 

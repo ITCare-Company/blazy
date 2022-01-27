@@ -13,6 +13,7 @@
   'use strict';
 
   var _id = 'blazy';
+  var _ns = 'Drupal.' + _id;
   var _data = 'data';
   var _bbg = 'b-bg';
   var _dataBg = _data + '-' + _bbg;
@@ -32,7 +33,7 @@
    */
   Drupal.blazy = {
     context: _doc,
-    name: 'Drupal.' + _id,
+    name: _ns,
     init: null,
     instances: [],
     resizeTick: 0,
@@ -93,7 +94,7 @@
       // @see https://www.drupal.org/project/blazy/issues/3258851
       // var els = $.findAll(_doc, '.media--ratio--fluid, .' + _bbg);
       // opts.disconnect = opts.disconnect || (!els.length && $.isUnd(Drupal.io));
-      return new Bio(opts);
+      return new BioMedia(opts);
     },
 
     mount: function (exe) {
@@ -177,7 +178,8 @@
 
     update: function (el, delayed, winData) {
       var me = this;
-      var sel = me.options.selector;
+      var opts = me.options;
+      var sel = opts.selector;
       var _update = function () {
         if ($.hasAttr(el, _dataBg) && $.isFun($.bg)) {
           $.bg(el, winData || me.windowData());
@@ -187,7 +189,7 @@
             if (!$.hasClass(el, sel.substring(1))) {
               el = $.find(el, sel) || el;
             }
-            me.init.load(el, true);
+            me.init.load(el, true, opts);
           }
         }
       };

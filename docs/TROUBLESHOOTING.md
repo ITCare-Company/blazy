@@ -2,8 +2,9 @@
 ***
 # <a name="troubleshooting"></a>TROUBLESHOOTING
 * Any javascript-related issues might no longer be valid when
-  `No JavaScript lazy` enabled. Unless the exceptions are met or for those who
-  still support old IEs, and cannot ditch lazyloader script, yet.
+  `No JavaScript lazy` enabled. Unless the exceptions, things that Native
+  doesn't support (Blur, BG, Video, etc.) are met, or for those who still
+  support old IEs, and cannot ditch lazyloader script, yet.
 * Switch to core Bartik for a mo, in case your custom theme is the culprit.
 * Blazy and its sub-modules -- Slick, GridStack, etc. are tightly coupled.
   Be sure to have the latest release date or matching versions in the least.
@@ -25,23 +26,18 @@
 
 
 ## 1. JavaScript Errors
-Any references to bLazy library is no longer required for forked version at 2.6.  HTTrack
+Any references to bLazy library is no longer required for forked version at 2.6.  
 **Symptons**:  
 Blazy is not defined. Images are gone, only eternal blue loader is
 flipping like a drunk butterfly.
 
 **Solution**:  
-Ensure that blazy library is loaded, and no extras errors. Steps:  
+Ensure that no extras errors. Steps:  
 
-* Verify [requirements](https://www.drupal.org/project/blazy#blazy-requirements).
-* Visit `/admin/reports/status` ensure Blazy library is installed.
 * Switch to core Bartik for a moment in case your theme is the culprit. Any
   theme JS errors might break Blazy. Press F12 at browsers to fix them one by
   one.
-* Be sure you can see the library file contents at browsers:  
-  `https://mysite.com/libraries/blazy/blazy.min.js`  
-  or any path supported by core library finder when using distros, etc.
-  Normally 404 (wrong placement), or 403 (folder permission) is the culprit.
+* Try disabling `Disconnect` option under IO.  
 
 
 ## 2. BLAZY GRID WITH SINGLE VALUE FIELD (D7 ONLY)
@@ -84,12 +80,16 @@ Entity/Media Embed are likely more for privileged users, editors, admins, alike.
 Or when Entity/Media Embed is disabled.
 
 ## 6. INTERSECTION OBSERVER API
-This API will not be used if `No JavaScript lazy` option enabled.
+This API will not be used if `No JavaScript lazy` option enabled unless the
+exceptions, things that Native doesn't support (Blur, BG, Video, etc.) are met.
 * **IntersectionObserver API** is not loading all images, try disabling
   **Disconnect** option at Blazy UI.
 * **IntersectionObserver API** is not working with Slick `slidesToShow > 1`, try
   disabling Slick `centerMode`. If still failing, choose one of the 4 lazy
   load options, except Blazy.
+
+**FYI:**
+IO is also used for infinite pager and lazyloaded blocks like seen at IO.module.
 
 ## 7. BLUR IMAGE EFFECT
 `/admin/config/media/blazy`

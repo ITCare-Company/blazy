@@ -6,10 +6,11 @@
   "globals": {
     "once": true,
     "Promise": true,
+    "Symbol": true,
     "Blazy": true,
     "dBlazy": true,
     "Bio": true,
-    "Symbol": true
+    "BioMedia": true
   },
   "rules": {
     "consistent-this": [0, "me"],

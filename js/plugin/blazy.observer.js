@@ -82,11 +82,9 @@
     var ioObserver;
     var roObserver;
     var observe = function (observer) {
-      if (observer) {
-        $.each($.toArray(elms), function (entry) {
-          if (!$.isUnd(entry)) {
-            observer.observe(entry);
-          }
+      if (observer && elms.length) {
+        $.each(elms, function (entry) {
+          observer.observe(entry);
         });
       }
     };
@@ -105,25 +103,18 @@
     else {
       // Blazy was not designed with Native lazy, can be removed via Blazy UI.
       if ('Blazy' in _win) {
-        new Blazy(opts);
+        scope.bLazy = new Blazy(opts);
       }
     }
     return scope;
   };
 
   $.unload = function (scope) {
-    var ns = scope.name || this.name;
-    if ($.isIo) {
-      var rafs = scope._raf;
-      if (rafs && rafs.length) {
-        $.each(rafs, function (raf) {
-          cancelAnimationFrame(raf);
-        });
-      }
-    }
-    else {
-      // @todo remove for bLazy.
-      $.off(_win, 'scroll.' + ns, scope.ioObserver);
+    var rafs = scope._raf;
+    if (rafs && rafs.length) {
+      $.each(rafs, function (raf) {
+        cancelAnimationFrame(raf);
+      });
     }
   };
 
