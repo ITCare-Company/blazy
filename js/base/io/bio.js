@@ -54,9 +54,6 @@
   var _counted = 0;
   var _erCounted = 0;
   var _opts = {};
-  var _elms = [];
-  var _successClass = 'b-loaded';
-  var _errorClass = 'b-error';
   var _bgClass = 'b-bg';
   var _isVisible = 'is-b-visible';
   var _media = 'media';
@@ -96,10 +93,8 @@
     me.options = _opts = $.extend($._defaults, options || {});
 
     _bgClass = _opts.bgClass || _bgClass;
-    _successClass = _opts.successClass || _successClass;
-    _errorClass = _opts.errorClass || _errorClass;
-    _parent = _opts.parent || _parent;
     _validateDelay = _opts.validateDelay || _validateDelay;
+    _parent = _opts.parent || _parent;
     _root = _opts.root || _root;
 
     // DOM ready fix. Ain't a culprit.
@@ -114,11 +109,18 @@
   fn.count = 0;
   fn.resizeTick = 0;
   fn.windowData = function () {
-    return $.isUnd(_winData.vp) ? $.windowData(_opts, true) : _winData;
+    return $.isUnd(_winData.vp) ? $.windowData(this.options, true) : _winData;
   };
 
   fn.lazyLoad = function (el) {
     var me = this;
+    var opts = me.options;
+
+    // Preserves old behaviors when media is separated from AJAX block or pager.
+    if (!opts.isMedia) {
+      return;
+    }
+
     var parent = el.parentNode;
     var isBg = $.isBg(el);
     var isPicture = $.equal(parent, 'picture');
@@ -135,11 +137,11 @@
         $.mapAttr(el, _src, true);
       }
 
-      _erCounted = me.status(el, true);
+      _erCounted = $.status(el, true);
     }
     // VIDEO elements.
     else if (isVideo) {
-      _erCounted = $.loadVideo(el, true, _opts);
+      _erCounted = $.loadVideo(el, true, opts);
     }
     else {
       // IMG or DIV/ block elements got preloaded for better UX with loading.
@@ -154,7 +156,7 @@
             $.mapAttr(el, _src, true);
           }
 
-          _erCounted = me.status(el, true);
+          _erCounted = $.status(el, true);
         }
       }
     }
@@ -162,13 +164,15 @@
 
   // Compatibility between Native and old data-[SRC|SRSET] approaches.
   fn.loadImage = function (el, isBg) {
+    var me = this;
+    var opts = me.options;
     var img = new Image();
     var isResimage = $.hasAttr(el, _srcSet);
     var isDataset = $.hasAttr(el, _dataSrc);
     var currSrc = isDataset ? _dataSrc : _src;
     var currSrcset = isDataset ? _dataSrcset : _srcSet;
 
-    var applyAttrs = function () {
+    var preload = function () {
       if ('decode' in img) {
         img.decoding = 'async';
       }
@@ -194,10 +198,10 @@
         $.bg(el, _winData);
       }
 
-      _erCounted = $.status(el, ok, _opts);
+      _erCounted = $.status(el, ok, opts);
     };
 
-    applyAttrs();
+    preload();
 
     // Preload `img` to have correct event handlers.
     $.decode(img)
@@ -219,23 +223,21 @@
   fn.load = function (elms, revalidate) {
     var me = this;
 
+    elms = elms && $.toArray(elms);
+
     // Manually load elements regardless of being disconnected, or not, relevant
     // for Slick slidesToShow > 1 which rebuilds clones of unloaded elements.
-    $.each($.toArray(elms), function (el) {
-      if (me.isValid(el) || ($.isElm(el) && revalidate)) {
-        intersecting.call(me, el, revalidate);
-      }
-    });
-  };
-
-  fn.selector = function (suffix) {
-    suffix = suffix || '';
-    // @todo recheck, troubled for onresize: + ':not(.' + _successClass + ')'.
-    return _opts.selector + suffix;
+    if (elms.length) {
+      $.each(elms, function (el) {
+        if (me.isValid(el) || ($.isElm(el) && revalidate)) {
+          intersecting.call(me, el, revalidate);
+        }
+      });
+    }
   };
 
   fn.isLoaded = function (el) {
-    return $.hasClass(el, _successClass);
+    return $.hasClass(el, this.options.successClass);
   };
 
   fn.isValid = function (el) {
@@ -247,9 +249,9 @@
 
     // Prevents from too many revalidations unless needed.
     if ((force === true || me.count !== _counted) && (_revTick < _counted)) {
-      me.elms = _elms = $.findAll(_root, me.selector());
+      var elms = me.elms = $.findAll(_root, $.selector(me.options));
 
-      if (_elms.length) {
+      if (elms.length) {
         me.observe(true);
 
         _revTick++;
@@ -279,13 +281,14 @@
   // @todo recheck IF wrong so to put back https://drupal.org/node/3120696.
   fn.natively = function () {
     var me = this;
+    var opts = me.options;
 
     if (!$.isNativeLazy || _isNativeChecked) {
       return;
     }
 
     // ::findAll is already optimized with a single null check, no extra checks.
-    var dataset = me.selector('[data-src][loading]:not(.b-blur)');
+    var dataset = $.selector(opts, '[data-src][loading]:not(.b-blur)');
     var els = $.findAll(_doc, dataset);
 
     if (els.length) {
@@ -300,11 +303,12 @@
 
   fn.destroyQuietly = function (force) {
     var me = this;
+    var opts = me.options;
 
     // Infinite pager like IO wants to keep monitoring infinite contents.
     // Multi-breakpoint BG/ ratio may want to update during resizing.
-    if (!_destroyed && (force || $.isUnd(Drupal.io))) {
-      var el = $.find(_doc, _opts.selector + ':not(.' + _successClass + ')');
+    if (!me.destroyed && (force || $.isUnd(Drupal.io))) {
+      var el = $.find(_doc, $.selector(opts, ':not(.' + opts.successClass + ')'));
 
       if (!$.isElm(el)) {
         me.destroy(force);
@@ -314,14 +318,15 @@
 
   fn.destroy = function (force) {
     var me = this;
+    var opts = me.options;
 
     // Do not disconnect if any error found.
-    if (_destroyed || (_erCounted > 0 && !force)) {
+    if (me.destroyed || (_erCounted > 0 && !force)) {
       return;
     }
 
     // Disconnect when all entries are loaded, if so configured.
-    var done = (_bioTick === me.count - 1) && _opts.disconnect;
+    var done = (_bioTick === me.count - 1) && opts.disconnect;
     if (done || force) {
       if (_ioObserver) {
         _ioObserver.disconnect();
@@ -329,7 +334,7 @@
 
       $.unload(me);
       me.count = 0;
-      me.elms = _elms = [];
+      me.elms = [];
       me.ioObserver = _ioObserver = null;
       me.destroyed = _destroyed = true;
     }
@@ -337,12 +342,15 @@
 
   fn.observe = function (reobserve) {
     var me = this;
+    var elms = me.elms;
+
+    reobserve = reobserve || !$.isUnd(Drupal.io);
 
     // Only initialize the observer if destroyed, and IO.
     // Ain;t the culprit.
     if ($.isIo && (me.destroyed || reobserve)) {
       _destroyed = false;
-      _winData = $.initObserver(me, interact, _elms, true);
+      _winData = $.initObserver(me, interact, elms, true);
       _ioObserver = me.ioObserver;
 
       me.destroyed = false;
@@ -350,7 +358,7 @@
 
     // Observe as IO, or initialize old bLazy as fallback.
     if (!_initialized || reobserve) {
-      $.observe(me, _elms, true);
+      $.observe(me, elms, true);
 
       _initialized = true;
     }
@@ -365,6 +373,7 @@
 
   function intersecting(el, revalidate) {
     var me = this;
+    var opts = me.options;
     var count = me.count;
 
     if (_bioTick === count - 1) {
@@ -388,13 +397,13 @@
       me.lazyLoad(el);
 
       // If not extending/ overriding, at least provide the option.
-      if ($.isFun(_opts.intersecting)) {
-        _opts.intersecting(el, _opts);
+      if ($.isFun(opts.intersecting)) {
+        opts.intersecting(el, opts);
       }
 
       // If not extending/ overriding, also allows to listen to.
       $.trigger(el, 'bio.intersecting', {
-        options: _opts
+        options: opts
       });
 
       _counted++;
@@ -418,6 +427,7 @@
   // This function is called by two observers: IO and RO.
   function interact(entries) {
     var me = this;
+    var opts = me.options;
     var vp = $.vp;
     var ww = $.ww;
     var entry = entries[0];
@@ -426,22 +436,13 @@
 
     // RO is another abserver.
     if (isResizing) {
-      _winData = $.updateViewport(_opts);
+      _winData = $.updateViewport(opts);
 
-      // Provides a way to fix dynamic aspect ratio, etc.
-      if ($.isFun(_opts.resizing)) {
-        _opts.resizing(me, entries, _winData);
-      }
-
-      // If not extending/ overriding, also allows to listen to.
-      $.trigger(_win, 'blazy.resizing', {
-        winData: _winData,
-        entries: entries,
-        old: _ww
-      });
+      $.onresizing(me, _winData);
     }
     else {
       // Stop IO watching if already disconnected.
+      // @todo option to continue: animation or BG color on being visible.
       if (_destroyed) {
         return;
       }
@@ -475,8 +476,8 @@
       }
 
       // Provides option such as to animate bg or elements regardless position.
-      if ($.isFun(_opts.observing)) {
-        _opts.observing(el, visible, _opts);
+      if ($.isFun(opts.observing)) {
+        opts.observing(el, visible, opts);
       }
     });
 
@@ -490,8 +491,8 @@
     me.natively();
 
     // Let's see if the culprit was there.
-    me.elms = _elms = $.findAll(_root, me.selector());
-    me.count = _elms.length;
+    var elms = me.elms = $.findAll(_root, $.selector(me.options));
+    me.count = elms.length;
     me._raf = [];
     me._queue = [];
 

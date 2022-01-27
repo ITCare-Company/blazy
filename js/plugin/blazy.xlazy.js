@@ -12,12 +12,14 @@
 
   'use strict';
 
+  var _id = 'blazy';
   var _erCounted = 0;
   var _isVisibleClass = 'is-b-visible';
   var _data = 'data-';
   var _src = 'src';
   var _srcSet = 'srcset';
   var _imgSources = [_srcSet, _src];
+  var _bgClass = 'b-bg';
 
   $._defaults = {
     error: false,
@@ -37,9 +39,10 @@
     // @todo recheck IO.module. Slick has data-lazy, and irrelevant for Blazy.
     srcset: 'data-srcset',
     src: 'data-src',
+    bgClass: _bgClass,
 
     // IO specifics.
-    bgClass: 'b-bg',
+    isMedia: false,
     parent: '.media',
     disconnect: false,
     intersecting: false,
@@ -61,7 +64,7 @@
    * @return {bool}
    *   True if the image or iframe is loaded.
    */
-  $.isLoaded = function (el) {
+  $.isCompleted = function (el) {
     if ($.isElm(el)) {
       if ($.equal(el, 'img')) {
         return $.isDecoded(el);
@@ -80,11 +83,22 @@
   }
 
   $.isBg = function (el, opts) {
-    return is(el, opts && opts.bgClass || 'b-bg');
+    return is(el, opts && opts.bgClass || _bgClass);
   };
 
   $.isBlur = function (el) {
     return is(el, 'b-blur');
+  };
+
+  $.selector = function (opts, suffix) {
+    var selector = opts.selector;
+    // @todo recheck, troubled for onresize: + ':not(.' + opts.successClass + ')'.
+    if (suffix && $.isBool(suffix)) {
+      suffix = ':not(.' + opts.successClass + ')';
+    }
+
+    suffix = suffix || '';
+    return selector + suffix;
   };
 
   $.success = function (el, status, parent, opts) {
@@ -109,13 +123,13 @@
 
   $.status = function (el, ok, opts) {
     // Image decode fails with Responsive image, assumes ok, no side effects.
-    return this.loaded(el, ok ? $._ok : $._er, null, opts);
+    return this.loaded(el, ok, null, opts);
   };
 
   $.loaded = function (el, status, parent, opts) {
     var me = this;
     var cn = $.closest(el, opts.parent) || el;
-    var ok = status === $._ok;
+    var ok = status === $._ok || status === true;
     var successClass = opts.successClass;
     var errorClass = opts.errorClass;
     var isLoaded = 'is-' + successClass;
@@ -129,12 +143,12 @@
     $.removeClass(cn, _isVisibleClass);
 
     _erCounted = me[ok ? 'success' : 'error'](el, status, parent, opts);
+
     if (ok) {
       $.removeAttr(el, _imgSources, _data);
     }
 
-    // @todo remove, not compat with old bLazy which provides no events.
-    $.trigger(el, 'bio.loaded', {
+    $.trigger(el, _id + '.loaded', {
       status: status
     });
 
@@ -146,6 +160,21 @@
     $.mapSource(el, _src, true);
     el.load();
     return $.status(el, ok, opts);
+  };
+
+  $.onresizing = function (scope, winData) {
+    var elms = scope.elms;
+    var opts = scope.options;
+    // Provides a way to fix dynamic aspect ratio, etc.
+    if ($.isFun(opts.resizing)) {
+      opts.resizing(scope, scope.elms, winData);
+    }
+
+    // If not extending/ overriding, also allows to listen to.
+    $.trigger(_win, _id + '.resizing', {
+      winData: winData,
+      entries: elms
+    });
   };
 
 })(dBlazy, window, this.document);

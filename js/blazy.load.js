@@ -29,6 +29,7 @@
   var _errorClass = 'errorClass';
   var _image = 'image';
   var _src = 'src';
+  var _scrollElms = '#drupal-modal, .is-b-scroll';
   var _opts = {};
 
   /**
@@ -134,12 +135,12 @@
     // Old bLazy, not IO, might need scrolling CSS selector like Modal library.
     // A scrolling modal with an iframe like Entity Browser has no issue since
     // the scrolling container is the entire DOM. Another use case is parallax.
-    var scrollElms = '#drupal-modal, .is-b-scroll';
-    if (opts.container) {
-      scrollElms += ', ' + opts.container.trim();
+    var container = opts.container;
+    if (container && !$.contains(_scrollElms, container)) {
+      _scrollElms += ', ' + container.trim();
     }
 
-    opts.container = scrollElms;
+    opts.container = _scrollElms;
     _opts = me.merge(opts);
 
     // Attempts to fix for Views rewrite stripping out data URI causing 404.

@@ -82,9 +82,11 @@
     var ioObserver;
     var roObserver;
     var observe = function (observer) {
-      if (observer && elms.length) {
-        $.each(elms, function (entry) {
-          observer.observe(entry);
+      if (observer) {
+        $.each($.toArray(elms), function (entry) {
+          if (!$.isUnd(entry)) {
+            observer.observe(entry);
+          }
         });
       }
     };

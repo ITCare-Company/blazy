@@ -48,7 +48,6 @@
   var _isRetina;
   var _attrSrc = 'src';
   var _attrSrcset = 'srcset';
-  var _elms = [];
   var _opts = {};
   var _viewport = {};
   var _winData = {};
@@ -88,14 +87,15 @@
       init(me);
     };
 
-    // @todo merge wiuth Bio::load.
+    // @todo merge with Bio::load.
     me.load = function (elements, force) {
+      var opts = me.options;
       if (elements && $.isUnd(elements.length)) {
-        loadElement(elements, force, _opts);
+        loadElement(elements, force, opts);
       }
       else {
         $.each(elements, function (element) {
-          loadElement(element, force, _opts);
+          loadElement(element, force, opts);
         });
       }
     };
@@ -125,16 +125,7 @@
     util.saveViewportOffsetT = $.throttle(function () {
       saveViewportOffset(_opts);
 
-      // Provides a way to fix dynamic aspect ratio, etc.
-      if ($.isFun(_opts.resizing)) {
-        _opts.resizing(me, _elms, _winData);
-      }
-
-      // If not extending/ overriding, also allows to listen to.
-      $.trigger(_win, 'blazy.resizing', {
-        winData: _winData,
-        entries: _elms
-      });
+      $.onresizing(me, _winData);
     }, _opts.saveViewportOffsetDelay, me);
 
     saveViewportOffset(_opts);
@@ -152,7 +143,7 @@
     var util = me._util;
 
     // First we create an array of elements to lazy load.
-    me.elms = _elms = $.findAll(_opts.root || _doc, _opts.selector);
+    me.elms = $.findAll(_opts.root || _doc, $.selector(_opts));
     me.count = me.elms.length;
 
     // Then we bind resize and scroll events if not already binded.
@@ -237,12 +228,12 @@
         var dataSrcSplitted = dataSrc.split(options.separator);
         var src = dataSrcSplitted[_isRetina && dataSrcSplitted.length > 1 ? 1 : 0];
         var srcset = $.attr(ele, options.srcset);
-        var isBg = $.hasClass(options.bgClass) || $.isUnd(ele.src);
+        var isBg = $.isBg(ele, options);
         var isImage = $.equal(ele, 'img');
         var parent = ele.parentNode;
         var isPicture = $.equal(parent, 'picture');
         var ie = $.ie(ele);
-        var fixRatio = false;
+        var fixRatio = ie && ele.currentStyle['object-fit'];
 
         // Image or background image.
         if (isImage || isBg) {
@@ -251,12 +242,11 @@
           // due to bug introduced in chrome v50.
           // @see https://productforums.google.com/forum/#!topic/chrome/p51Lk7vnP2o
           var onErrorHandler = function () {
-            $.status(ele, $._er, options);
+            $.status(ele, false, options);
           };
           var onLoadHandler = function () {
             // Is element an image
             if (isImage) {
-              fixRatio = ie && ele.currentStyle['object-fit'];
               if (!isPicture) {
                 handleSources(ele, src, srcset, fixRatio);
 
@@ -323,9 +313,8 @@
     }
   }
 
-  // @todo merge with Bio.js.
   function itemLoaded(ele, options) {
-    $.status(ele, $._ok, options);
+    $.status(ele, true, options);
   }
 
   // @todo merge with Bio.js.

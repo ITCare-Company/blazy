@@ -66,6 +66,7 @@
     globals: function () {
       var me = this;
       var commons = {
+        isMedia: true,
         success: me.clearing.bind(me),
         error: me.clearing.bind(me),
         resizing: me.resizing.bind(me),
@@ -90,8 +91,8 @@
 
     run: function (opts) {
       // @see https://www.drupal.org/project/blazy/issues/3258851
-      var els = $.findAll(_doc, '.media--ratio--fluid, .' + _bbg);
-      opts.disconnect = opts.disconnect || !els.length;
+      // var els = $.findAll(_doc, '.media--ratio--fluid, .' + _bbg);
+      // opts.disconnect = opts.disconnect || (!els.length && $.isUnd(Drupal.io));
       return new Bio(opts);
     },
 

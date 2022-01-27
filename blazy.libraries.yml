@@ -65,6 +65,14 @@ compat:
     - blazy/bio
     - blazy/drupal
 
+# Ajax helper for VIS, alike.
+bio.ajax:
+  js:
+    js/base/io/bio.ajax.min.js: { minified: true }
+  dependencies:
+    - core/drupal.ajax
+    - blazy/compat
+
 # Cosmetic components.
 loading:
   css:
@@ -218,13 +226,3 @@ photobox:
     - blazy/drupal
     # use photobox when available instead.
     # - photobox/photobox
-
-# Ajax helper for VIS, alike.
-# @todo re-check and deprecate it if IO.module, etc. no longer needs it.
-bio.ajax:
-  js:
-    js/base/io/bio.ajax.min.js: { minified: true }
-  dependencies:
-    - core/drupal.ajax
-    # @todo revert if any issues: - blazy/load
-    - blazy/drupal
