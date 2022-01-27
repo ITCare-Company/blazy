@@ -168,7 +168,7 @@
     var opts = scope.options;
     // Provides a way to fix dynamic aspect ratio, etc.
     if ($.isFun(opts.resizing)) {
-      opts.resizing(scope, scope.elms, winData);
+      opts.resizing(scope, elms, winData);
     }
 
     // If not extending/ overriding, also allows to listen to.

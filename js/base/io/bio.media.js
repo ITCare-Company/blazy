@@ -90,7 +90,7 @@
         $.mapAttr(el, _src, true);
       }
 
-      _erCounted = $.status(el, true);
+      _erCounted = $.status(el, true, opts);
     }
     // VIDEO elements.
     else if (isVideo) {
@@ -109,7 +109,7 @@
             $.mapAttr(el, _src, true);
           }
 
-          _erCounted = $.status(el, true);
+          _erCounted = $.status(el, true, opts);
         }
       }
     }
