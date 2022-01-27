@@ -210,7 +210,7 @@
    *   True if x is an instanceof Element.
    */
   function isElm(x) {
-    return x instanceof Element;
+    return x && x instanceof Element;
   }
 
   /**
@@ -831,7 +831,7 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
    */
   function is(el, selector) {
-    if (isQuery(el)) {
+    if (isElm(el)) {
       if (isStr(selector)) {
         return el.matches(selector);
       }
@@ -914,9 +914,9 @@
    */
   function remove(el) {
     if (isElm(el)) {
-      var parent = parent(el);
-      if (parent) {
-        parent.removeChild(el);
+      var cn = parent(el);
+      if (cn) {
+        cn.removeChild(el);
       }
     }
   }
@@ -1180,8 +1180,10 @@
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
    * @see https://caniuse.com/once-event-listener
+   * @todo automatically handled by its return value.
    */
   function toEvent(els, eventName, selector, cb, params, isCustom, op) {
+    var _cbt = cb;
     // Event delegation like on/off.
     if (isStr(selector)) {
       if (isUnd(params)) {
@@ -1192,18 +1194,21 @@
       }
 
       var onEvent = function (e) {
+        // @todo handle automatically by its return value.
+        // e.preventDefault();
+        // e.stopPropagation();
         var t = e.target;
 
         if (is(t, selector)) {
-          cb.call(t, e);
+          _cbt.call(t, e);
         }
         else {
           while (t && t !== this) {
             if (is(t, selector)) {
-              cb.call(t, e);
+              _cbt.call(t, e);
               return;
             }
-            t = parent(t);
+            t = t.parentElement;
           }
         }
       };
@@ -1213,7 +1218,7 @@
     else {
       // Shift one argument if selector is expected as a callback function.
       isCustom = params;
-      params = cb;
+      params = _cbt;
       cb = selector;
     }
 
@@ -1900,7 +1905,7 @@
   };
 
   function parent(el) {
-    return isElm(el) && (el.parentElement || el.parentNode);
+    return isElm(el) && el.parentElement;
   }
 
   db.parent = parent;
