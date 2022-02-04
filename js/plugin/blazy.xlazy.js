@@ -178,4 +178,4 @@
     });
   };
 
-})(dBlazy, window, this.document);
+})(dBlazy, this, this.document);

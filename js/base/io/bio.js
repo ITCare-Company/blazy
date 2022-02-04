@@ -2,13 +2,15 @@
  * @file
  * Provides Intersection Observer API loader.
  *
+ * This file is not loaded when `No JavaScript` enabled, unless exceptions met.
+ *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
  * @see https://developers.google.com/web/updates/2016/04/intersectionobserver
  * @see https://www.npmjs.com/package/intersection-observer
  * @see https://github.com/w3c/IntersectionObserver
  * @see https://caniuse.com/?search=visualViewport
  * @todo https://developer.mozilla.org/en-US/docs/Web/API/Visual_Viewport_API
- * @todo remove traces of fallback to be taken care care of by old bLazy fork.
+ * @todo remove traces of fallback to be taken care of by old bLazy fork.
  */
 
 /* global define, module */
@@ -57,6 +59,8 @@
   var _isVisible = 'is-b-visible';
   var _media = 'media';
   var _parent = '.' + _media;
+  var _addClass = 'addClass';
+  var _removeClass = 'removeClass';
   var _initialized = false;
   var _resizing = false;
   var _validateDelay = 25;
@@ -301,12 +305,12 @@
       var loaded = me.isLoaded(el);
 
       // To make efficient blur filter via CSS, etc. Blur filter is expensive.
-      $[visible && !loaded ? 'addClass' : 'removeClass'](cn, _isVisible);
+      $[visible && !loaded ? _addClass : _removeClass](cn, _isVisible);
 
       // For different toggle purposes regardless being loaded, or not.
       // Avoid using the reserved `is-b-visible`, use `is-b-inview`, etc.
       if (visibleClass && $.isStr(visibleClass)) {
-        $[visible ? 'addClass' : 'removeClass'](cn, visibleClass);
+        $[visible ? _addClass : _removeClass](cn, visibleClass);
       }
 
       // The element is being intersected.
@@ -325,8 +329,9 @@
       }
 
       // Provides option such as to animate bg or elements regardless position.
+      // See gridstack.parallax.js.
       if ($.isFun(opts.observing)) {
-        opts.observing(el, visible, opts);
+        opts.observing(e, visible, opts);
       }
     });
 
@@ -336,7 +341,7 @@
   // Initializes the IO with fallback to old bLazy.
   function init(me) {
     // Swap data-[SRC|SRCSET] for non-js version once, if not choosing Native.
-    // Native lazy markup is triggered by Enabling `No JavaScript` lazy option.
+    // Native lazy markup is triggered by enabling `No JavaScript` lazy option.
     me.natively();
 
     var elms = me.elms = $.findAll(_root, $.selector(me.options));

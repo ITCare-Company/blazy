@@ -1,6 +1,6 @@
 /**
  * @file
- * Provides reusable methods across lazyloadere: Bio and bLazy.
+ * Provides reusable methods across lazyloaders: Bio and bLazy.
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
@@ -115,4 +115,4 @@
     return me.windowData(opts);
   };
 
-})(dBlazy, window, this.document);
+})(dBlazy, this, this.document);

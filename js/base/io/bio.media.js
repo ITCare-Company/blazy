@@ -214,6 +214,7 @@
     var dataset = $.selector(opts, '[data-src][loading]:not(.b-blur)');
     var els = $.findAll(_doc, dataset);
 
+    // We are here if `No JavaScript` is being disabled.
     if (els.length) {
       // Reset attributes, and let supportive browsers lazy load natively.
       $(els).mapAttr(['srcset', 'src'], true)

@@ -25,6 +25,7 @@
   var _splice = _aProto.splice;
   var _some = _aProto.some;
   var _symbol = typeof Symbol !== 'undefined' && Symbol;
+  var _class = 'class';
   var _add = 'add';
   var _remove = 'remove';
   var _width = 'width';
@@ -384,7 +385,7 @@
    * 11: Node.DOCUMENT_FRAGMENT_NODE
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
    */
-  function isQuery(x) {
+  function isQsa(x) {
     return [1, 9, 11].indexOf(!!x && x.nodeType) !== -1;
   }
 
@@ -400,7 +401,7 @@
    *   True if x is valid for event listener.
    */
   function isEvt(x) {
-    return isQuery(x) || isWin(x);
+    return isQsa(x) || isWin(x);
   }
 
   /**
@@ -538,7 +539,7 @@
     }
 
     var chainCallback = function (el) {
-      if (!isQuery(el)) {
+      if (!isQsa(el)) {
         return _getter ? '' : me;
       }
 
@@ -586,7 +587,7 @@
    *   True if it has the attribute.
    */
   function hasAttr(el, name) {
-    return isQuery(el) && el.hasAttribute(name);
+    return isQsa(el) && el.hasAttribute(name);
   }
 
   /**
@@ -615,21 +616,29 @@
    *
    * @param {Element} el
    *   The HTML element.
-   * @param {string} name
+   * @param {string} names
    *   The class name, can be space-delimited for multiple names.
    *
    * @return {bool}
    *   True if it has the class name.
    */
-  function hasClass(el, name) {
+  function hasClass(el, names) {
     var found = 0;
 
-    if (isQuery(el) && isStr(name)) {
+    if (isQsa(el) && isStr(names)) {
       var _list = el.classList;
 
-      each(name.split(' '), function (item) {
-        if (_list && _list.contains(item)) {
-          found++;
+      each(names.split(' '), function (name) {
+        if (_list) {
+          if (_list.contains(name)) {
+            found++;
+          }
+        }
+        else {
+          var check = _attr(el, _class);
+          if (check && check.match(name)) {
+            found++;
+          }
         }
       });
     }
@@ -653,7 +662,7 @@
    */
   function toggleClass(els, name, op) {
     var chainCallback = function (el) {
-      if (isQuery(el) && isStr(name)) {
+      if (isQsa(el) && isStr(name)) {
         var _list = el.classList;
         var names = name.split(' ');
         if (_list) {
@@ -855,7 +864,7 @@
    */
   function equal(el, tags) {
     return _some.call(toArray(tags), function (tag) {
-      return isQuery(el) && (el.nodeName.toLowerCase() === tag.toLowerCase());
+      return isQsa(el) && (el.nodeName.toLowerCase() === tag.toLowerCase());
     });
   }
 
@@ -881,7 +890,7 @@
    *   Empty array if not found, else the expected element(s).
    */
   function find(el, selector, asArray) {
-    if (isStr(selector) && isQuery(el)) {
+    if (isStr(selector) && isQsa(el)) {
       return isUnd(asArray) ? (el.querySelector(selector) || []) : toElms(selector, el);
     }
     return [];
@@ -1180,16 +1189,18 @@
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
    * @see https://caniuse.com/once-event-listener
+   * @see https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md
    * @todo automatically handled by its return value.
    */
   function toEvent(els, eventName, selector, cb, params, isCustom, op) {
     var _cbt = cb;
     // Event delegation like on/off.
     if (isStr(selector)) {
+      var shouldPassive = contains(eventName, 'touchstart') || contains(eventName, _scroll);
       if (isUnd(params)) {
         params = {
-          capture: true,
-          passive: false
+          capture: !shouldPassive,
+          passive: shouldPassive
         };
       }
 
@@ -1347,7 +1358,7 @@
   db.isStr = isStr;
   db.isUnd = isUnd;
   db.isEvt = isEvt;
-  db.isQuery = isQuery;
+  db.isQsa = isQsa;
   db.isIo = 'Intersection' + _observer in _win;
   db.isMo = 'Mutation' + _observer in _win;
   db.isRo = 'Resize' + _observer in _win;
@@ -1425,7 +1436,7 @@
   db.removeClass = removeClass.bind(db);
   fn.removeClass = function (name) {
     var me = this;
-    return arguments.length ? me.toggleClass(name, _remove) : me.attr('class', '');
+    return arguments.length ? me.toggleClass(name, _remove) : me.attr(_class, '');
   };
 
   // String methods.

@@ -66,7 +66,8 @@ class BlazyTheme {
     $settings  = &$variables['settings'];
     $settings += BlazyDefault::itemSettings();
 
-    // Do not proceed if no URI is provided.
+    // Do not proceed if no URI is provided. URI is not Blazy theme property.
+    // Blazy is a wrapper for theme_[(responsive_)image], etc. who wants URI.
     if (empty($settings['uri'])) {
       return;
     }
@@ -78,6 +79,7 @@ class BlazyTheme {
     }
 
     // Allows rich Media entities stored within `content` to take over.
+    // Rich media are things Blazy don't understand: Instagram, Facebook, etc.
     if (empty($variables['content'])) {
       Blazy::buildMedia($variables);
     }

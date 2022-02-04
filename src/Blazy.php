@@ -190,7 +190,7 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function iframeAttributes(array &$settings): array {
-    $attributes['class'][] = 'b-lazy';
+    $attributes['class'] = ['b-lazy', 'media__iframe'];
     $attributes['loading'] = 'lazy';
     $attributes['allowfullscreen'] = TRUE;
 
@@ -200,7 +200,8 @@ class Blazy implements BlazyInterface {
       $attributes['src'] = $settings['embed_url'];
     }
     // Native lazyload just loads the URL directly.
-    // @todo rec-check, with many videos like carousels on the page may chaos.
+    // With many videos like carousels on the page may chaos, but we provide a
+    // solution: use `Image to Iframe` for GDPR, swipe and best performance.
     elseif ($settings['is_nojs']) {
       $attributes['src'] = $settings['embed_url'];
     }
@@ -210,7 +211,6 @@ class Blazy implements BlazyInterface {
       $attributes['src'] = 'about:blank';
     }
 
-    $attributes['class'][] = 'media__iframe';
     self::commonAttributes($attributes, $settings);
     return $attributes;
   }
@@ -222,6 +222,7 @@ class Blazy implements BlazyInterface {
     $settings = &$variables['settings'];
     $settings['player'] = empty($settings['lightbox']) && $settings['media_switch'] == 'media';
 
+    // Only provide iframe if not for lightboxes, identified by URL.
     if (empty($variables['url'])) {
       $variables['image'] = empty($settings['media_switch']) ? [] : $variables['image'];
 
@@ -282,8 +283,9 @@ class Blazy implements BlazyInterface {
    * Modifies container attributes with aspect ratio for iframe, image, etc.
    */
   public static function aspectRatioAttributes(array &$attributes, array &$settings): void {
-    $settings['ratio'] = empty($settings['ratio']) ? '' : str_replace(':', '', $settings['ratio']);
+    $settings['ratio'] = str_replace(':', '', $settings['ratio']);
 
+    // Fixed aspect ration is taken care of by pure CSS. Fluid means dynamic.
     if ($settings['height'] && $settings['ratio'] == 'fluid') {
       // If "lucky", Blazy/ Slick Views galleries may already set this once.
       // Lucky when you don't flatten out the Views output earlier.
