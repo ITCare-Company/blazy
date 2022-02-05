@@ -722,7 +722,7 @@
    * Similar to ES6 ::includes, only for oldies.
    * Cannot use [].every() since it not about all or nothing.
    *
-   * @param {Element|string} str
+   * @param {Array|Element|string} str
    *   The source string to test for.
    * @param {Array.<Element>|Array.<string>} substr
    *   The target element(s) or sub-string to check for, can be a string array.
@@ -737,6 +737,10 @@
       return str !== substr && str.contains(substr);
     }
 
+    if (isArr(str)) {
+      return str.indexOf(substr) !== -1;
+    }
+
     if (isStr(str)) {
       each(toArray(substr), function (value) {
         if (str.indexOf(value) !== -1) {
@@ -744,6 +748,7 @@
         }
       });
     }
+
     return found > 0;
   }
 
@@ -1194,11 +1199,12 @@
    */
   function toEvent(els, eventName, selector, cb, params, isCustom, op) {
     var _cbt = cb;
+    var _ie = ie();
     // Event delegation like on/off.
     if (isStr(selector)) {
-      var shouldPassive = contains(eventName, 'touchstart') || contains(eventName, _scroll);
+      var shouldPassive = contains(eventName, ['touchstart', _scroll, 'wheel']);
       if (isUnd(params)) {
-        params = {
+        params = _ie ? false : {
           capture: !shouldPassive,
           passive: shouldPassive
         };
@@ -1259,7 +1265,7 @@
         var _cb = cb;
         if (isFun(cb)) {
           // See https://caniuse.com/once-event-listener.
-          if (_one && add && ie()) {
+          if (_one && add && _ie) {
             var cbone = function cbone(evt) {
               el.removeEventListener(type, cbone, options);
               _cb.apply(this, arguments);
