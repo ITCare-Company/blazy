@@ -330,14 +330,14 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $settings['is_amp'] = Blazy::isAmp();
     $settings['is_preview'] = Blazy::isPreview();
     $settings['is_sandboxed'] = Blazy::isSandboxed();
-    $settings['is_nojs'] = !empty($settings['nojs']['lazy']) || $settings['is_preview'] || $settings['is_amp'];
+    $settings['is_nojs'] = !empty($settings['nojs']['lazy']) || $settings['is_preview'] || $settings['is_amp'] || $settings['loading'] == 'unlazy';
     $settings['lightbox'] = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
     $settings['route_name'] = $this->getRouteName();
     $settings['_resimage'] = $this->moduleHandler->moduleExists('responsive_image');
     $settings['resimage'] = $settings['_resimage'] && $style;
     $settings['resimage'] = $settings['resimage'] ? $this->entityLoad($style, 'responsive_image_style') : FALSE;
     $settings['fluid'] = $settings['ratio'] == 'fluid';
-    $settings['compat'] = $settings['fx'] || $settings['fluid'] || $settings['background'] || $settings['compat'];
+    $settings['compat'] = $settings['fx'] || $settings['fluid'] || $settings['background'] || $settings['bundle'] == 'video' || $settings['compat'];
     $settings['current_language'] = $this->languageManager->getCurrentLanguage()->getId();
 
     // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
@@ -380,6 +380,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     // @todo Remove checks after another check, in case already set somewhere.
+    // The `current_view_mode` (entity|views display) is not `view_mode` option.
     $settings['current_view_mode'] = empty($settings['current_view_mode']) ? '_custom' : $settings['current_view_mode'];
     $settings['entity_id'] = empty($settings['entity_id']) ? $entity->id() : $settings['entity_id'];
     $settings['entity_type_id'] = empty($settings['entity_type_id']) ? $entity->getEntityTypeId() : $settings['entity_type_id'];

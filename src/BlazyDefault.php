@@ -55,9 +55,10 @@ class BlazyDefault {
    */
   public static function anywhereSettings() {
     return [
-      'fx'    => '',
-      'lazy'  => '',
-      'style' => '',
+      'fx'      => '',
+      'lazy'    => '',
+      'loading' => 'lazy',
+      'style'   => '',
     ];
   }
 
@@ -230,9 +231,10 @@ class BlazyDefault {
     return [
       'blazy_data'       => [],
       'blur'             => FALSE,
+      'bundle'           => '',
       'check_blazy'      => FALSE,
-      'fluid'            => FALSE,
       'compat'           => FALSE,
+      'fluid'            => FALSE,
       'lightbox'         => FALSE,
       'namespace'        => 'blazy',
       'id'               => '',
@@ -258,7 +260,6 @@ class BlazyDefault {
   public static function itemSettings() {
     return [
       '_api'           => FALSE,
-      'bundle'         => '',
       'classes'        => [],
       'content_url'    => '',
       'delta'          => 0,

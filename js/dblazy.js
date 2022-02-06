@@ -1546,6 +1546,8 @@
    * @see https://caniuse.com/promises
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
    * @see https://github.com/taylorhakes/promise-polyfill
+   * @see https://chromestatus.com/feature/5637156160667648
+   * @see https://html.spec.whatwg.org/multipage/embedded-content.html#dom-img-decode
    */
   db.decode = function (img) {
     if (isDecoded(img)) {

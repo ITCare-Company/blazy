@@ -53,11 +53,10 @@
     checkResize: function (items, cb, root, onDone) {
       var me = this;
       var bio = me.init;
-
-      // Already throttled for oldies, or RO/RAF for modern browsers.
-      $.on(_win, _id + '.resizing', function (e) {
-        var details = e.detail || {};
+      var check = function (e) {
+        var details = e && e.detail ? e.detail : {};
         me.resizeTick = bio && bio.resizeTick || 0;
+
         _winData = details.winData || me.windowData();
 
         if ($.isFun(cb)) {
@@ -67,7 +66,10 @@
             return cb.call(me, el);
           });
         }
-      });
+      };
+
+      // Already throttled for oldies, or RO/RAF for modern browsers.
+      $.on(_win, _id + '.resizing', check);
 
       // When images are loaded, Flexbox or Native Grid as Masonry might need
       // info about the loaded image dimensions to calculate gaps or positions.
@@ -122,6 +124,7 @@
    */
   function updateRatio(cn) {
     cn = cn.target || cn;
+
     if (!$.isElm(cn)) {
       return;
     }

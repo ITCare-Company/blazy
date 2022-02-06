@@ -93,11 +93,15 @@ class Blazy implements BlazyInterface {
     $settings = $variables['settings'];
     $natives = ['decoding' => 'async'];
 
-    // @todo at 2022/1 core has no loading Responsive, remove when it lands.
     $attributes = ($settings['is_nojs'] ? $natives : [
       'data-b-lazy' => $settings['one_pixel'],
       'data-placeholder' => $settings['placeholder'],
-    ]) + ['loading' => 'lazy'];
+    ]);
+
+    // @todo at 2022/2 core has no loading Responsive.
+    if (!empty($settings['width'])) {
+      $attributes['loading'] = $settings['loading'];
+    }
 
     $variables['image'] += [
       '#type' => 'responsive_image',
@@ -184,6 +188,10 @@ class Blazy implements BlazyInterface {
     if (!empty($settings['lazy']) || !empty($settings['compat'])) {
       self::lazyAttributes($image['#attributes'], $settings);
     }
+
+    if ($settings['loading'] == 'unlazy') {
+      unset($image['#attributes']['loading']);
+    }
   }
 
   /**
@@ -191,7 +199,6 @@ class Blazy implements BlazyInterface {
    */
   public static function iframeAttributes(array &$settings): array {
     $attributes['class'] = ['b-lazy', 'media__iframe'];
-    $attributes['loading'] = 'lazy';
     $attributes['allowfullscreen'] = TRUE;
 
     // Inside CKEditor must disable interactive elements.
@@ -277,6 +284,9 @@ class Blazy implements BlazyInterface {
    */
   public static function commonAttributes(array &$attributes, array $settings = []): void {
     $attributes['class'][] = 'media__element';
+    if ($settings['loading'] != 'unlazy') {
+      $attributes['loading'] = $settings['loading'];
+    }
   }
 
   /**

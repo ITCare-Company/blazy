@@ -42,6 +42,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
 
     if (empty($definition['no_image_style'])) {
       $form['image_style'] = $this->baseForm($definition)['image_style'];
+      $form['loading'] = $this->baseForm($definition)['loading'];
     }
 
     if (!empty($definition['thumbnail_style'])) {

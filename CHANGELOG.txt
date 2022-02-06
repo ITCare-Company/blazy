@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-02-06
+-----------------------------
+- Issue #3262724 by gausarts: Add option for (un-)loading attribute, a buffer
+  for anti-pattern.
+
 Blazy 8.x-2.0-dev, 2022-01-26
 -----------------------------
 - Issue #3260089 by akalam: EntityMalformedException when using blazy in layout

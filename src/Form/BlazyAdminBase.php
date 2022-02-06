@@ -319,12 +319,36 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
 
     if (empty($definition['no_image_style'])) {
+      $loadings = ['auto', 'eager', 'unlazy'];
+      $form['loading'] = [
+        '#type'         => 'select',
+        '#title'        => $this->t('Loading priority'),
+        '#options'      => array_combine($loadings, $loadings),
+        '#empty_option' => $this->t('lazy'),
+        '#weight'       => -101,
+        '#description'  => $this->t("Decide the `loading` attribute affected by the above fold aka onscreen critical contents. <ul><li>`lazy`, the default: defers loading below fold or offscreen images and iframes until users scroll near them.</li><li>`auto`: browser determines whether or not to lazily load. Only if uncertain about the above fold boundaries given different devices. </li><li>`eager`: loads right away. Similar effect like without `loading`, included for completeness. Good for above fold.</li><li>`unlazy`: explicitly removes loading attribute enforced by core. Also removes old `data-[SRC|SRCSET|LAZY]` if `No JavaScript` is disabled. Best for the above fold.</li></ul><b>Note</b>: lazy loading images/ iframes for the above fold is anti-pattern, avoid, <a href=':url' target='_blank'>read more</a>.", [
+          ':url' => 'https://www.drupal.org/node/3262724',
+        ]),
+        '#wrapper_attributes' => [
+          'class' => [
+            'form-item--loading',
+            'form-item--tooltip-bottom',
+          ],
+        ],
+      ];
+
       $form['image_style'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Image style'),
         '#options'     => $this->getEntityAsOptions('image_style'),
-        '#description' => $this->t('The content image style. This will be treated as the fallback image to override the global option <a href=":url">Responsive image 1px placeholder</a>, which is normally smaller, if Responsive image are provided. Shortly, leave it empty to make Responsive image fallback respected. Otherwise this is the only image displayed. This image style is also used to provide dimensions not only for image/iframe but also any media entity like local video, where no images are even associated with, to have the designated dimensions in tandem with aspect ratio as otherwise no UI to customize for.', [':url' => $ui_url]),
         '#weight'      => -100,
+        '#description' => $this->t('The content image style. This will be treated as the fallback image to override the global option <a href=":url">Responsive image 1px placeholder</a>, which is normally smaller, if Responsive image are provided. Shortly, leave it empty to make Responsive image fallback respected. Otherwise this is the only image displayed. This image style is also used to provide dimensions not only for image/iframe but also any media entity like local video, where no images are even associated with, to have the designated dimensions in tandem with aspect ratio as otherwise no UI to customize for.', [':url' => $ui_url]),
+        '#wrapper_attributes' => [
+          'class' => [
+            'form-item--image-style',
+            'form-item--tooltip-bottom',
+          ],
+        ],
       ];
     }
 
