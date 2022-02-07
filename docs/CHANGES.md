@@ -2,6 +2,8 @@
 ***
 # <a name="changes"></a>NOTABLE CHANGES
 * _Blazy 2.6_:
+   + [Preloading](https://drupal.org/node/3262804).
+   + [Anti-pattern buffer](https://drupal.org/node/3262724).
    + Works absurdly fine at IE9 for core lazy functionality. Not fancy features
      like Blur or Animation, etc. Unless you include some polyfills on your own.
    + [Drupal 10 ready](https://drupal.org/node/3254692).

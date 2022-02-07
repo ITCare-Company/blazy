@@ -322,10 +322,16 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['preload'] = [
         '#type'        => 'checkbox',
         '#title'       => $this->t('Preload'),
-        '#weight'      => -102,
-        '#description' => $this->t("Preload to optimize the loading of late-discovered resources. Normally large or hero images below the fold. This will put link tags into the HEAD with rel `preload` so that browsers can prioritize resources to discover before Native lazy or lazyloader JavaScript kicks in, or starts its own preload or decoding. Just a friendly heads up: do not overuse this option, because not everything are critical, <a href=':url'>read more</a>.", [
+        '#weight'      => -111,
+        '#description' => $this->t("Preload to optimize the loading of late-discovered resources. Normally large or hero images below the fold. By preloading a resource, you tell the browser to fetch it sooner than the browser would otherwise discover it before Native lazy or lazyloader JavaScript kicks in, or starts its own preload or decoding. The browser caches preloaded resources so they are available immediately when needed. Nothing is loaded or executed at preloading stage. <br>Just a friendly heads up: do not overuse this option, because not everything are critical, <a href=':url'>read more</a>.", [
           ':url' => 'https://www.drupal.org/node/3262804',
         ]),
+        '#wrapper_attributes' => [
+          'class' => [
+            'form-item--preload',
+            'form-item--tooltip-bottom',
+          ],
+        ],
       ];
 
       $loadings = ['auto', 'eager', 'unlazy'];
@@ -334,7 +340,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#title'        => $this->t('Loading priority'),
         '#options'      => array_combine($loadings, $loadings),
         '#empty_option' => $this->t('lazy'),
-        '#weight'       => -101,
+        '#weight'       => -111,
         '#description'  => $this->t("Decide the `loading` attribute affected by the above fold aka onscreen critical contents. <ul><li>`lazy`, the default: defers loading below fold or offscreen images and iframes until users scroll near them.</li><li>`auto`: browser determines whether or not to lazily load. Only if uncertain about the above fold boundaries given different devices. </li><li>`eager`: loads right away. Similar effect like without `loading`, included for completeness. Good for above fold.</li><li>`unlazy`: explicitly removes loading attribute enforced by core. Also removes old `data-[SRC|SRCSET|LAZY]` if `No JavaScript` is disabled. Best for the above fold.</li></ul><b>Note</b>: lazy loading images/ iframes for the above fold is anti-pattern, avoid, <a href=':url' target='_blank'>read more</a>.", [
           ':url' => 'https://www.drupal.org/node/3262724',
         ]),
