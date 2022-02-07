@@ -58,6 +58,7 @@ class BlazyDefault {
       'fx'      => '',
       'lazy'    => '',
       'loading' => 'lazy',
+      'preload' => FALSE,
       'style'   => '',
     ];
   }

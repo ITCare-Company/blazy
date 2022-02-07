@@ -41,8 +41,10 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     $is_responsive = function_exists('responsive_image_get_image_dimensions');
 
     if (empty($definition['no_image_style'])) {
-      $form['image_style'] = $this->baseForm($definition)['image_style'];
-      $form['loading'] = $this->baseForm($definition)['loading'];
+      $base = $this->baseForm($definition);
+      foreach (['preload', 'loading', 'image_style'] as $key) {
+        $form[$key] = $base[$key];
+      }
     }
 
     if (!empty($definition['thumbnail_style'])) {

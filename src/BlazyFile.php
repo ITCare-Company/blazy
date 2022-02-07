@@ -105,7 +105,7 @@ class BlazyFile {
    */
   public static function imageUrl(array &$settings): string {
     // Provides image_url, not URI, expected by lazyload.
-    $uri = $settings['uri'];
+    $uri = $settings['uri'] ?? $settings['_uri'];
     $valid = self::isValidUri($uri);
     $styled = $valid && empty($settings['unstyled']);
     $url = $settings['image_url'] ?? '';
@@ -202,6 +202,158 @@ class BlazyFile {
       ];
     }
     return static::$styleId[$key];
+  }
+
+  /**
+   * Prepares CSS background image.
+   */
+  public static function backgroundImage(array $settings, $style = NULL) {
+    return [
+      'src' => $style ? self::transformRelative($settings['uri'], $style) : $settings['image_url'],
+      'ratio' => round((($settings['height'] / $settings['width']) * 100), 2),
+    ];
+  }
+
+  /**
+   * Build thumbnails, also to provide placeholder for blur effect.
+   */
+  public static function placeholder(array &$settings, $style = NULL, $path = '') {
+    if (empty($path) && ($style = \blazy()->entityLoad('thumbnail', 'image_style')) && self::isValidUri($settings['uri'])) {
+      $path = $style->buildUri($settings['uri']);
+    }
+
+    if ($path && self::isValidUri($path)) {
+      // Ensures the thumbnail exists before creating a dataURI.
+      if (!is_file($path) && $style) {
+        $style->createDerivative($settings['uri'], $path);
+      }
+
+      // Overrides placeholder with data URI based on configured thumbnail.
+      if (is_file($path)) {
+        $settings['placeholder_fx'] = 'data:image/' . pathinfo($path, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($path));
+        // Prevents double animations.
+        $settings['use_loading'] = FALSE;
+      }
+    }
+  }
+
+  /**
+   * Build thumbnails, also to provide placeholder for blur effect.
+   */
+  public static function thumbnailAndPlaceholder(array &$attributes, array &$settings) {
+    $settings['placeholder_ui'] = $settings['placeholder'];
+    $path = $style = '';
+    // With CSS background, IMG may be empty, add thumbnail to the container.
+    if (!$settings['is_external'] && $settings['thumbnail_style']) {
+      $style = \blazy()->entityLoad($settings['thumbnail_style'], 'image_style');
+      if ($style) {
+        $path = $style->buildUri($settings['uri']);
+        $attributes['data-thumb'] = $settings['thumbnail_url'] = self::transformRelative($settings['uri'], $style);
+
+        if (!is_file($path) && self::isValidUri($path)) {
+          $style->createDerivative($settings['uri'], $path);
+        }
+      }
+    }
+
+    // Supports unique thumbnail different from main image, such as logo for
+    // thumbnail and main image for company profile.
+    if (!empty($settings['thumbnail_uri'])) {
+      $path = $settings['thumbnail_uri'];
+      $attributes['data-thumb'] = $settings['thumbnail_url'] = self::transformRelative($path);
+    }
+
+    // Provides image effect if so configured unless being sandboxed.
+    if (!$settings['is_sandboxed'] && $settings['fx']) {
+      $attributes['class'][] = 'media--fx';
+
+      // Ensures at least a hook_alter is always respected. This still allows
+      // Blur and hook_alter for Views rewrite issues, unless global UI is set
+      // which was already warned about anyway.
+      if (empty($settings['placeholder_fx']) && !$settings['unstyled']) {
+        self::placeholder($settings, $style, $path);
+      }
+
+      // Being a separated .b-blur with .b-lazy, this should work for any lazy.
+      $attributes['data-animation'] = $settings['fx'];
+    }
+
+    // Mimicks private _responsive_image_image_style_url, #3119527.
+    if (empty($settings['image_style']) && $settings['resimage']) {
+      $fallback = $settings['resimage']->getFallbackImageStyle();
+      if ($fallback == '_empty image_') {
+        $placeholder = BlazyUtil::generatePlaceholder($settings['width'], $settings['height']);
+        $settings['image_url'] = $settings['placeholder'] ?: $placeholder;
+      }
+      else {
+        $settings['image_style'] = $fallback;
+      }
+    }
+  }
+
+  /**
+   * Preload late-discovered resources for better performance.
+   *
+   * @see https://web.dev/preload-critical-assets/
+   * @see https://caniuse.com/?search=preload
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preload
+   * @see https://developer.chrome.com/blog/new-in-chrome-73/#more
+   */
+  public static function preload(array &$load, array $settings = []) {
+    if (empty($settings['_uri'])) {
+      return;
+    }
+
+    $mime = mime_content_type($settings['_uri']);
+    [$type] = array_map('trim', explode('/', $mime, 2));
+
+    $links = [];
+    $sources = $settings['sources'] ?? [];
+    if ($sources && $url = $sources['fallback']) {
+      foreach ($sources['items'] as $key => $item) {
+        if (!empty($item['srcset'])) {
+          $mime = $item['type']->value() ?? $mime;
+          [$type] = array_map('trim', explode('/', $mime, 2));
+          $key = hash('md2', $url);
+          $links[] = [
+            [
+              '#tag' => 'link',
+              '#attributes' => [
+                'rel' => 'preload',
+                'as' => $type,
+                'href' => $url,
+                'type' => $mime,
+                'imagesrcset' => $item['srcset']->value(),
+                'imagesizes' => $item['sizes']->value(),
+              ],
+            ],
+            'blazy_responsive_' . $type . $key,
+          ];
+        }
+      }
+    }
+    else {
+      $url = self::imageUrl($settings);
+      $key = hash('md2', $url);
+      $links[] = [
+        [
+          '#tag' => 'link',
+          '#attributes' => [
+            'rel' => 'preload',
+            'as' => $type,
+            'href' => $url,
+            'type' => $mime,
+          ],
+        ],
+        'blazy_' . $type . $key,
+      ];
+    }
+
+    if ($links) {
+      foreach ($links as $key => $value) {
+        $load['html_head'][$key] = $value;
+      }
+    }
   }
 
 }

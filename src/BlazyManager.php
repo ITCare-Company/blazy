@@ -126,7 +126,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Build thumbnail and optional placeholder based on thumbnail.
     // This must be set before Blazy::urlAndDimensions to provide placeholder.
-    $this->thumbnailAndPlaceholder($attributes, $settings);
+    BlazyFile::thumbnailAndPlaceholder($attributes, $settings);
 
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
@@ -282,7 +282,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    */
   private function buildResponsiveImage(array &$element, array &$attributes, array &$settings) {
     $settings['responsive_image_style_id'] = $settings['resimage']->id();
-    $responsive_image = $this->getResponsiveImageStyles($settings['resimage']);
+    $responsive_image = BlazyResponsiveImage::getStyles($settings['resimage']);
     $element['#cache']['tags'] = $responsive_image['caches'];
 
     // Makes Responsive image usable as CSS background image sources.
@@ -292,7 +292,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
         $styled = array_merge($settings, BlazyFile::transformDimensions($style, $settings, FALSE));
 
         // Sort image URLs based on width.
-        $data = $this->backgroundImage($styled, $style);
+        $data = BlazyFile::backgroundImage($styled, $style);
         $srcset[$styled['width']] = $data;
         $dimensions[$styled['width']] = $data['ratio'];
       }
@@ -320,7 +320,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
   private function buildImage(array &$element, array &$attributes, array &$item_attributes, array &$settings) {
     if ($settings['background']) {
       // Attach data attributes to either IMG tag, or DIV container.
-      $settings['urls'][$settings['width']] = $this->backgroundImage($settings);
+      $settings['urls'][$settings['width']] = BlazyFile::backgroundImage($settings);
       $settings['image_url'] = $settings['is_nojs'] ? $settings['image_url'] : $settings['placeholder'];
       Blazy::lazyAttributes($attributes, $settings);
     }
@@ -339,16 +339,6 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
   }
 
   /**
-   * Prepares CSS background image.
-   */
-  private function backgroundImage(array $settings, $style = NULL) {
-    return [
-      'src' => $style ? BlazyFile::transformRelative($settings['uri'], $style) : $settings['image_url'],
-      'ratio' => round((($settings['height'] / $settings['width']) * 100), 2),
-    ];
-  }
-
-  /**
    * Build captions for both old image, or media entity.
    */
   public function buildCaption(array $captions, array $settings) {
@@ -364,83 +354,6 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     }
 
     return $content ? ['inline' => $content] : [];
-  }
-
-  /**
-   * Build thumbnails, also to provide placeholder for blur effect.
-   */
-  protected function thumbnailAndPlaceholder(array &$attributes, array &$settings) {
-    $settings['placeholder_ui'] = $settings['placeholder'];
-    $path = $style = '';
-    // With CSS background, IMG may be empty, add thumbnail to the container.
-    if (!$settings['is_external'] && $settings['thumbnail_style']) {
-      $style = $this->entityLoad($settings['thumbnail_style'], 'image_style');
-      if ($style) {
-        $path = $style->buildUri($settings['uri']);
-        $attributes['data-thumb'] = $settings['thumbnail_url'] = BlazyFile::transformRelative($settings['uri'], $style);
-
-        if (!is_file($path) && BlazyFile::isValidUri($path)) {
-          $style->createDerivative($settings['uri'], $path);
-        }
-      }
-    }
-
-    // Supports unique thumbnail different from main image, such as logo for
-    // thumbnail and main image for company profile.
-    if (!empty($settings['thumbnail_uri'])) {
-      $path = $settings['thumbnail_uri'];
-      $attributes['data-thumb'] = $settings['thumbnail_url'] = BlazyFile::transformRelative($path);
-    }
-
-    // Provides image effect if so configured unless being sandboxed.
-    if (!$settings['is_sandboxed'] && $settings['fx']) {
-      $attributes['class'][] = 'media--fx';
-
-      // Ensures at least a hook_alter is always respected. This still allows
-      // Blur and hook_alter for Views rewrite issues, unless global UI is set
-      // which was already warned about anyway.
-      if (empty($settings['placeholder_fx']) && !$settings['unstyled']) {
-        $this->createPlaceholder($settings, $style, $path);
-      }
-
-      // Being a separated .b-blur with .b-lazy, this should work for any lazy.
-      $attributes['data-animation'] = $settings['fx'];
-    }
-
-    // Mimicks private _responsive_image_image_style_url, #3119527.
-    if (empty($settings['image_style']) && $settings['resimage']) {
-      $fallback = $settings['resimage']->getFallbackImageStyle();
-      if ($fallback == '_empty image_') {
-        $placeholder = BlazyUtil::generatePlaceholder($settings['width'], $settings['height']);
-        $settings['image_url'] = $settings['placeholder'] ?: $placeholder;
-      }
-      else {
-        $settings['image_style'] = $fallback;
-      }
-    }
-  }
-
-  /**
-   * Build thumbnails, also to provide placeholder for blur effect.
-   */
-  protected function createPlaceholder(array &$settings, $style = NULL, $path = '') {
-    if (empty($path) && ($style = $this->entityLoad('thumbnail', 'image_style')) && BlazyFile::isValidUri($settings['uri'])) {
-      $path = $style->buildUri($settings['uri']);
-    }
-
-    if ($path && BlazyFile::isValidUri($path)) {
-      // Ensures the thumbnail exists before creating a dataURI.
-      if (!is_file($path) && $style) {
-        $style->createDerivative($settings['uri'], $path);
-      }
-
-      // Overrides placeholder with data URI based on configured thumbnail.
-      if (is_file($path)) {
-        $settings['placeholder_fx'] = 'data:image/' . pathinfo($path, PATHINFO_EXTENSION) . ';base64,' . base64_encode(file_get_contents($path));
-        // Prevents double animations.
-        $settings['use_loading'] = FALSE;
-      }
-    }
   }
 
   /**

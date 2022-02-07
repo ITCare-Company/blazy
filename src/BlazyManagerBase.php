@@ -277,6 +277,11 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $load['library'][] = 'blazy/bio.ajax';
     }
 
+    // Preload.
+    if (!empty($attach['preload'])) {
+      BlazyFile::preload($load, $attach);
+    }
+
     $this->moduleHandler->alter('blazy_attach', $load, $attach);
     return $load;
   }
@@ -504,47 +509,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
-   * Sets dimensions once to reduce method calls for Responsive image.
-   */
-  public function setResponsiveImageDimensions(array &$settings = [], $initial = TRUE) {
-    $srcset = [];
-    foreach ($this->getResponsiveImageStyles($settings['resimage'])['styles'] as $style) {
-      $styled = array_merge($settings, BlazyFile::transformDimensions($style, $settings, $initial));
-
-      // In order to avoid layout reflow, we get dimensions beforehand.
-      $srcset[$styled['width']] = round((($styled['height'] / $styled['width']) * 100), 2);
-    }
-
-    // Sort the srcset from small to large image width or multiplier.
-    ksort($srcset);
-
-    // Informs individual images that dimensions are already set once.
-    // Dynamic aspect ratio is useless without JS.
-    $settings['blazy_data']['dimensions'] = $srcset;
-    $settings['padding_bottom'] = end($srcset);
-    $settings['_dimensions'] = TRUE;
-  }
-
-  /**
-   * Returns the Responsive image styles and caches tags.
-   *
-   * @param object $responsive
-   *   The responsive image style entity.
-   *
-   * @return array|mixed
-   *   The responsive image styles and cache tags.
-   */
-  public function getResponsiveImageStyles($responsive) {
-    $cache_tags = $responsive->getCacheTags();
-    $image_styles = $this->entityLoadMultiple('image_style', $responsive->getImageStyleIds());
-
-    foreach ($image_styles as $image_style) {
-      $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
-    }
-    return ['caches' => $cache_tags, 'styles' => $image_styles];
-  }
-
-  /**
    * Returns the thumbnail image using theme_image(), or theme_image_style().
    */
   public function getThumbnail(array $settings = [], $item = NULL) {
@@ -591,6 +555,28 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function buildSkins($namespace, $skin_class, $methods = []) {
     return [];
+  }
+
+  /**
+   * Deprecated method.
+   *
+   * @deprecated in blazy:8.x-2.5 and is removed from blazy:3.0.0. Use
+   *   BlazyResponsiveImage::dimensions() instead.
+   * @see https://www.drupal.org/node/3103018
+   */
+  public function setResponsiveImageDimensions(array &$settings = [], $initial = TRUE) {
+    BlazyResponsiveImage::dimensions($settings, $initial);
+  }
+
+  /**
+   * Deprecated method.
+   *
+   * @deprecated in blazy:8.x-2.5 and is removed from blazy:3.0.0. Use
+   *   BlazyResponsiveImage::getStyles() instead.
+   * @see https://www.drupal.org/node/3103018
+   */
+  public function getResponsiveImageStyles($responsive) {
+    return BlazyResponsiveImage::getStyles($responsive);
   }
 
 }

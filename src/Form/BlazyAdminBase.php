@@ -319,6 +319,15 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
 
     if (empty($definition['no_image_style'])) {
+      $form['preload'] = [
+        '#type'        => 'checkbox',
+        '#title'       => $this->t('Preload'),
+        '#weight'      => -102,
+        '#description' => $this->t("Preload to optimize the loading of late-discovered resources. Normally large or hero images below the fold. This will put link tags into the HEAD with rel `preload` so that browsers can prioritize resources to discover before Native lazy or lazyloader JavaScript kicks in, or starts its own preload or decoding. Just a friendly heads up: do not overuse this option, because not everything are critical, <a href=':url'>read more</a>.", [
+          ':url' => 'https://www.drupal.org/node/3262804',
+        ]),
+      ];
+
       $loadings = ['auto', 'eager', 'unlazy'];
       $form['loading'] = [
         '#type'         => 'select',

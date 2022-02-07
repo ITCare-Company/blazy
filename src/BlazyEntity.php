@@ -76,8 +76,13 @@ class BlazyEntity implements BlazyEntityInterface {
     $settings = &$data['settings'];
 
     // Made Responsive image also available outside formatters here.
-    if (!empty($settings['resimage']) && $settings['ratio'] == 'fluid') {
-      $this->blazyManager->setResponsiveImageDimensions($settings, FALSE);
+    if (!empty($settings['resimage'])) {
+      if (!empty($settings['preload'])) {
+        BlazyResponsiveImage::sources($settings);
+      }
+      if ($settings['ratio'] == 'fluid') {
+        BlazyResponsiveImage::dimensions($settings, FALSE);
+      }
     }
 
     // Only pass to Blazy for known entities related to File or Media.

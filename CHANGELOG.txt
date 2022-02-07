@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2022-02-06
 -----------------------------
+- Issue #3262804 by gausarts: Add preload option to help boost actual and
+  perceived performance.
 - Issue #3262724 by gausarts: Add option for (un-)loading attribute, a buffer
   for anti-pattern.
 

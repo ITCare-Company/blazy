@@ -391,7 +391,7 @@ class Blazy implements BlazyInterface {
    * Returns a wrapper to pass tests, or DI where adding params is troublesome.
    */
   public static function streamWrapperManager() {
-    return \Drupal::hasService('stream_wrapper_manager') ? \Drupal::service('stream_wrapper_manager') : NULL;
+    return self::service('stream_wrapper_manager');
   }
 
   /**
@@ -405,14 +405,14 @@ class Blazy implements BlazyInterface {
    * Returns a wrapper to pass tests, or DI where adding params is troublesome.
    */
   public static function requestStack() {
-    return \Drupal::hasService('request_stack') ? \Drupal::requestStack() : NULL;
+    return self::service('request_stack');
   }
 
   /**
    * Returns a wrapper to pass tests, or DI where adding params is troublesome.
    */
   public static function pathResolver() {
-    return \Drupal::hasService('extension.path.resolver') ? \Drupal::service('extension.path.resolver') : NULL;
+    return self::service('extension.path.resolver');
   }
 
   /**
@@ -421,7 +421,14 @@ class Blazy implements BlazyInterface {
    * @see https://www.drupal.org/node/2940031
    */
   public static function fileUrlGenerator() {
-    return \Drupal::hasService('file_url_generator') ? \Drupal::service('file_url_generator') : NULL;
+    return self::service('file_url_generator');
+  }
+
+  /**
+   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
+   */
+  public static function breakpointManager() {
+    return self::service('breakpoint.manager');
   }
 
   /**
@@ -487,6 +494,13 @@ class Blazy implements BlazyInterface {
    */
   public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', array $settings = []): void {
     BlazyAlter::configSchemaInfoAlter($definitions, $formatter, $settings);
+  }
+
+  /**
+   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
+   */
+  private static function service($service) {
+    return \Drupal::hasService($service) ? \Drupal::service($service) : NULL;
   }
 
 }
