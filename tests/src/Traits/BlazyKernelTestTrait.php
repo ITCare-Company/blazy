@@ -43,7 +43,7 @@ trait BlazyKernelTestTrait {
    * Setup common Kernel manager classes.
    */
   protected function setUpKernelManager() {
-    $this->root                   = $this->container->get('app.root');
+    $this->root                   = $this->container->getParameter('app.root');
     $this->fileSystem             = $this->container->get('file_system');
     $this->entityFieldManager     = $this->container->get('entity_field.manager');
     $this->fieldTypePluginManager = $this->container->get('plugin.manager.field.field_type');
