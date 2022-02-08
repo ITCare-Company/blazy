@@ -167,6 +167,9 @@ nativegrid:
     - blazy/base
 
 nativegrid.masonry:
+  css:
+    component:
+      css/components/grid/blazy.nativegrid.masonry.css: {}
   js:
     js/components/grid/blazy.nativegrid.masonry.min.js: { minified: true }
   dependencies:

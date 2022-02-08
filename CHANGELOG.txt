@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2022-02-08
 -----------------------------
+- Fixed for NativeGrid Masonry with AJAX loaded contents like IO infinite pager.
 - Fixed for Bio.js immutable object regressions.
 
 Blazy 8.x-2.0-dev, 2022-02-06

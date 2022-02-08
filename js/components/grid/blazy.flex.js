@@ -8,15 +8,19 @@
  * against the fully tested Outlayer or GridStack library.
  */
 
-(function ($, Drupal, _win) {
+(function ($, Drupal) {
 
   'use strict';
 
-  var _masonry = 'is-b-flex';
-  var _mounted = _masonry + '--on';
-  var _element = '.block-flex:not(.' + _mounted + ')';
-  var _loading = 'is-b-loading';
+  var _isMasonry = 'is-b-flex';
+  var _isMounted = _isMasonry + '--on';
+  var _isLoading = 'is-b-loading';
+  var _element = '.block-flex:not(.' + _isMounted + ')';
   var _max = 0;
+  var _unload = false;
+  var _opts = {
+    $el: null
+  };
 
   /**
    * Applies height adjustments to each item.
@@ -90,8 +94,13 @@
           }
         };
 
-        if (isResized) {
-          setTimeout(layout, 600);
+        if (isResized || _unload) {
+          if (_unload) {
+            item.style.height = '';
+            item.style.top = '';
+          }
+
+          setTimeout(layout, _unload ? 100 : 600);
         }
         else {
           layout();
@@ -107,9 +116,17 @@
           max = _max;
         }
 
-        elm.style.height = max + 'px';
+        if (_unload) {
+          // Prepare space to avoid jumping jack flash.
+          elm.style.height = _max + 360 + 'px';
+        }
+        else {
+          elm.style.height = max + 'px';
+        }
+
         _max = max;
       }
+
       checkHeight();
 
       // @todo this breaks initial bricks.
@@ -119,14 +136,18 @@
       // };
     }
 
-    _win.setTimeout(init, 200);
+    setTimeout(init, _unload ? 1200 : 200);
 
-    $.addClass(elm, _loading);
-    _win.setTimeout(function () {
-      $.removeClass(elm, _loading);
-    }, 600);
+    if (!_unload) {
+      $.addClass(elm, _isLoading);
+      setTimeout(function () {
+        $.removeClass(elm, _isLoading);
+      }, 600);
+    }
 
-    $.addClass(elm, _mounted);
+    $.addClass(elm, _isMounted);
+    _opts.$el = elm;
+    _unload = false;
   }
 
   /**
@@ -137,10 +158,22 @@
   Drupal.behaviors.blazyFlex = {
     attach: function (context) {
 
+      if ($.matchMedia('29.9999em')) {
+        return;
+      }
+
       context = $.context(context);
 
       $.once(process, _element, context);
+    },
+    detach: function (context, setting, trigger) {
+      if (trigger === 'unload') {
+        if (_opts.$el) {
+          _unload = true;
+          $.removeClass(_opts.$el, _isMounted);
+        }
+      }
     }
   };
 
-}(dBlazy, Drupal, this));
+}(dBlazy, Drupal));

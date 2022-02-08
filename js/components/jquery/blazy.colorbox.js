@@ -75,7 +75,10 @@
         t.css('top', -(h - ph) / 2);
       }
       else if (h < ph) {
-        t.css({height: ph, width: 'auto'});
+        t.css({
+          height: ph,
+          width: 'auto'
+        });
         t.css('left', -(t.width() - pw) / 2);
       }
       else if (pw > w) {
@@ -138,12 +141,18 @@
             if ($iframe.length) {
               $container.addClass('media media--ratio');
               $iframe.attr('width', o.width).attr('height', o.height).addClass('media__element');
-              $container.css({paddingBottom: (o.height / o.width) * 100 + '%', height: 0});
+              $container.css({
+                paddingBottom: (o.height / o.width) * 100 + '%',
+                height: 0
+              });
             }
           }
           else {
             $container.removeClass('media media--ratio');
-            $container.css({paddingBottom: '', height: o.height}).removeClass('media__element');
+            $container.css({
+              paddingBottom: '',
+              height: o.height
+            }).removeClass('media__element');
           }
 
           $.colorbox.resize({
@@ -165,17 +174,12 @@
    */
   Drupal.behaviors.blazyColorbox = {
     attach: function (context) {
-      var _cbox = drupalSettings.colorbox;
-      if (_d.isUnd(_cbox)) {
-        return;
-      }
 
-      if (_cbox.mobiledetect && _win.matchMedia) {
-        // Disable Colorbox for small screens.
-        var mq = _win.matchMedia('(max-device-width: ' + _cbox.mobiledevicewidth + ')');
-        if (mq.matches) {
-          return;
-        }
+      var _cbox = drupalSettings.colorbox;
+
+      // Disable Colorbox for small screens.
+      if (_d.isUnd(_cbox) || _cbox.mobiledetect && _d.matchMedia(_cbox.mobiledevicewidth)) {
+        return;
       }
 
       context = _d.context(context);
