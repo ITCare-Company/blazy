@@ -499,7 +499,7 @@ class Blazy implements BlazyInterface {
   /**
    * Returns a wrapper to pass tests, or DI where adding params is troublesome.
    */
-  private static function service($service) {
+  public static function service($service) {
     return \Drupal::hasService($service) ? \Drupal::service($service) : NULL;
   }
 
