@@ -81,7 +81,7 @@
    * @namespace
    */
   function Bio(options) {
-    var me = $.extend(fn, this);
+    var me = $.extend({}, fn, this);
 
     me.name = ns;
     me.options = _opts = $.extend({}, $._defaults, options || {});
@@ -103,6 +103,8 @@
   fn.count = 0;
   fn.erCount = 0;
   fn.resizeTick = 0;
+  fn.destroyed = false;
+  fn.options = {};
   fn.lazyLoad = function (el, winData) {};
   fn.loadImage = function (el, isBg, winData) {};
   fn.resizing = function (el, winData) {};
@@ -120,7 +122,7 @@
 
     // @todo remove once infinite pager regression fixed properly like before.
     if (!$.isUnd(opts)) {
-      me.options = $.extend(me.options, opts || {});
+      me.options = $.extend({}, me.options, opts || {});
     }
 
     // Manually load elements regardless of being disconnected, or not, relevant

@@ -63,7 +63,7 @@
    * @namespace
    */
   function BioMedia(options) {
-    var me = _bio.apply($.extend(_super, $.extend(fn, this)), arguments);
+    var me = _bio.apply($.extend({}, _super, $.extend({}, fn, this)), arguments);
 
     me.name = ns;
 
