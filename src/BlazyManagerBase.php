@@ -398,8 +398,15 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
-    if (is_file($this->root . '/libraries/photobox/photobox/jquery.photobox.js')) {
-      $lightboxes[] = 'photobox';
+    $paths = [
+      'photobox' => 'photobox/photobox/jquery.photobox.js',
+      'mfp' => 'magnific-popup/dist/jquery.magnific-popup.min.js',
+    ];
+
+    foreach ($paths as $key => $path) {
+      if (is_file($this->root . '/libraries/' . $path)) {
+        $lightboxes[] = $key;
+      }
     }
 
     $this->moduleHandler->alter('blazy_lightboxes', $lightboxes);

@@ -103,7 +103,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $pathinfo = pathinfo($settings['uri']);
     $settings['extension'] = $pathinfo['extension'] ?? '';
     $settings['unstyled'] = BlazyUtil::unstyled($settings);
-    $settings['_richbox'] = !empty($settings['colorbox']) || !empty($settings['_richbox']);
+    $settings['_richbox'] = !empty($settings['colorbox']) || !empty($settings['mfp']) || !empty($settings['_richbox']);
     $settings['is_external'] = UrlHelper::isExternal($settings['uri']);
 
     // Disable image style if so configured.

@@ -7,6 +7,7 @@
  * [Installation](#installation)
  * [Installing libraries via Composer](#composer)
  * [Configuration](#configuration)
+ * [Lightboxes](#lightboxes)
  * [Features](#features)
  * [Updating](#updating)
  * [Troubleshooting](#troubleshooting)
@@ -160,6 +161,7 @@ etc., try the following:
   supportive lightbox in the format **blazy--LIGHTBOX-gallery**, e.g.:
   + **blazy--colorbox-gallery**
   + **blazy--intense-gallery**
+  + **blazy--mfp-gallery**
   + **blazy--photobox-gallery**
   + **blazy--photoswipe-gallery**
   + **blazy--slick-lightbox-gallery**
@@ -188,6 +190,24 @@ is a standalone output from Views so to use field template in this case.
 
 Check out the relevant sub-module docs for details.
 
+***
+# <a name="lightboxes"> </a>LIGHTBOXES
+All lightbox integrations are optional. Meaning if the relevant modules and or
+libraries are not present, nothing will show up under `Media switch` option.  
+
+Most lightboxes, not all, supports (responsive) image, (local|remote) video.
+Magnific Popup supports picture.
+Splidebox supports AJAX contents.
+
+* Colorbox, PhotoSwipe, etc. requires both modules and their libraries present.
+* Photobox, Magnific Popup, requires only libraries to be present:  
+  + `/libraries/photobox/photobox/jquery.photobox.js`
+  + `/libraries/magnific-popup/dist/jquery.magnific-popup.min.js`  
+  The reason for no modules are being required because no special settings, nor
+  re-usable options to bother provided by them. Aside from the fact, Blazy has
+  its own loader aka initializer for advanced features like multimedia (remote
+  |local video), or (responsive|picture) image, fieldable captions, etc. which
+  are not supported by these modules.
 
 ***
 # <a name="features"> </a>FEATURES
@@ -196,7 +216,8 @@ Check out the relevant sub-module docs for details.
 * Works with AMP, or static/ archived sites, e.g.: Tome, HTTrack, etc.
 * Supports Image, Responsive image, (local|remote|iframe) videos, DIV either
   inline, fields, views, or within lightboxes.
-* Lightboxes: Colorbox, Splidebox, PhotoSwipe, etc. with multimedia lightboxes.
+* Lightboxes: Colorbox, Magnific Popup, Splidebox, PhotoSwipe, etc. with
+  multimedia lightboxes.
 * Multi-serving lazyloaded images, including multi-breakpoint CSS backgrounds.
 * Field formatters: Blazy with Media integration.
 * Blazy Grid formatter for Image, Media and Text with multi-value:

@@ -1,6 +1,9 @@
 
 ***
 # <a name="changes"></a>NOTABLE CHANGES
+* _Blazy 2.7_:
+   + Added Magnific Popup as decent replacement for Colorbox and Photobox.
+   + [Hot fix](https://drupal.org/node/3263027) for D8 `app.root` compat.
 * _Blazy 2.6_:
    + [Preloading](https://drupal.org/node/3262804).
    + [Anti-pattern buffer](https://drupal.org/node/3262724).

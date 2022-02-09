@@ -106,6 +106,7 @@ class BlazyLightbox {
 
     $json['width'] = $settings['box_width'];
     $json['height'] = $settings['box_height'];
+    $json['boxType'] = 'image';
 
     // This allows PhotoSwipe with videos still swipable.
     if (!empty($settings['box_media_style']) && $valid) {
@@ -129,6 +130,7 @@ class BlazyLightbox {
           $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
         }
         $url_attributes['data-oembed-url'] = $url;
+        $json['boxType'] = 'iframe';
       }
 
       // This allows PhotoSwipe with remote videos still swipable.
@@ -145,6 +147,10 @@ class BlazyLightbox {
         $json['width'] = $settings['box_width']  = $dimensions['width'];
         $json['height'] = $settings['box_height'] = $dimensions['height'];
       }
+
+      if ($settings['box_url']) {
+        $url_attributes['data-box-url'] = $settings['box_url'];
+      }
     }
 
     if ($switch == 'colorbox' && !empty($settings['gallery_id'])) {
@@ -158,6 +164,12 @@ class BlazyLightbox {
       $json['rel'] = $settings['gallery_id'];
     }
 
+    $has_dim = !empty($json['height']) && !empty($json['width']);
+    if ($has_dim) {
+      $json['height'] = (int) $json['height'];
+      $json['width'] = (int) $json['width'];
+    }
+
     // @todo make is flexible for regular non-media HTML.
     if (!empty($element['#lightbox_html'])) {
       $html = [
@@ -168,7 +180,7 @@ class BlazyLightbox {
         ],
       ];
 
-      if (!empty($json['height']) && !empty($json['width'])) {
+      if ($has_dim) {
         $pad = round((($json['height'] / $json['width']) * 100), 2);
         $html['#attributes']['style'] = 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;';
       }
@@ -177,6 +189,15 @@ class BlazyLightbox {
       $content = isset($is_resimage) ? $element['#lightbox_html'] : $html;
       $content = \blazy()->getRenderer()->renderPlain($content);
       $json['html'] = trim($content);
+      if (isset($is_resimage)) {
+        $json['boxType'] = strpos($content, '<picture') !== FALSE ? 'picture' : 'responsive-image';
+      }
+      else {
+        if (strpos($content, '<video') !== FALSE) {
+          $json['boxType'] = 'video';
+        }
+      }
+
       unset($element['#lightbox_html']);
     }
 

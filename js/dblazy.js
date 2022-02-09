@@ -1939,9 +1939,19 @@
     return isElm(el) && el.nextElementSibling;
   };
 
-  db.index = function (el) {
+  db.index = function (el, parents) {
     var i = 0;
     if (isElm(el)) {
+      if (!isUnd(parents)) {
+        each(toArray(parents), function (sel) {
+          var check = closest(el, sel);
+          if (isElm(check)) {
+            el = check;
+            return false;
+          }
+        });
+      }
+
       while (!isNull(el = prev(el))) {
         i++;
       }

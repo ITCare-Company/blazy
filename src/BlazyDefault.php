@@ -335,6 +335,7 @@ class BlazyDefault {
       'flex',
       'grid',
       'media',
+      'mfp',
       'nativegrid',
       'nativegrid.masonry',
       'photobox',

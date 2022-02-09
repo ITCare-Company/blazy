@@ -386,6 +386,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           if ($lightbox == 'photobox') {
             $name .= ' (Deprecated)';
           }
+          if ($lightbox == 'mfp') {
+            $name = 'Magnific Popup';
+          }
           $form['media_switch']['#options'][$lightbox] = $this->t('Image to @lightbox', ['@lightbox' => $name]);
         }
 
