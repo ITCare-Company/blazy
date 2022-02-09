@@ -84,7 +84,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * Constructs a BlazyManager object.
    */
-  public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, RendererInterface $renderer, ConfigFactoryInterface $config_factory, CacheBackendInterface $cache) {
+  public function __construct($root, EntityRepositoryInterface $entity_repository, EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, RendererInterface $renderer, ConfigFactoryInterface $config_factory, CacheBackendInterface $cache) {
+    $this->root              = $root;
     $this->entityRepository  = $entity_repository;
     $this->entityTypeManager = $entity_type_manager;
     $this->moduleHandler     = $module_handler;
@@ -98,6 +99,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public static function create(ContainerInterface $container) {
     $instance = new static(
+      Blazy::root($container),
       $container->get('entity.repository'),
       $container->get('entity_type.manager'),
       $container->get('module_handler'),
@@ -107,7 +109,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     );
 
     // @todo remove and use DI at 2.x+ post sub-classes updates.
-    $instance->setRoot($container->getParameter('app.root'));
     $instance->setLanguageManager($container->get('language_manager'));
     return $instance;
   }
@@ -117,16 +118,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function root() {
     return $this->root;
-  }
-
-  /**
-   * Sets app root service.
-   *
-   * @todo remove and use DI at 3.x+ post sub-classes updates.
-   */
-  public function setRoot($root) {
-    $this->root = (string) $root;
-    return $this;
   }
 
   /**

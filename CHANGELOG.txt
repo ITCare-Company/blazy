@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-02-09
+-----------------------------
+Issue #3263027 by gausarts, kobusvw, mably, bogdog400: Incompatible with Drupal
+  8, release 2.6 - app.root error.
+
 Blazy 8.x-2.0-dev, 2022-02-08
 -----------------------------
 - Fixed for NativeGrid Masonry with AJAX loaded contents like IO infinite pager.

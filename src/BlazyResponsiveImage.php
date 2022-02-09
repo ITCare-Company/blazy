@@ -45,7 +45,7 @@ class BlazyResponsiveImage {
     $style = $settings['resimage'];
 
     foreach (['uri', 'width', 'height'] as $key) {
-      $variables[$key] = $settings['_' . $key] ?? NULL;
+      $variables[$key] = $settings['_' . $key] ?? $settings[$key] ?? NULL;
     }
 
     if (!empty($variables['uri'])) {

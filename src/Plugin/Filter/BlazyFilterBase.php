@@ -88,7 +88,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = new static($configuration, $plugin_id, $plugin_definition);
 
-    $instance->root = $instance->root ?? $container->getParameter('app.root');
+    $instance->root = $instance->root ?? Blazy::root($container);
     $instance->entityFieldManager = $instance->entityFieldManager ?? $container->get('entity_field.manager');
     $instance->filterManager = $instance->filterManager ?? $container->get('plugin.manager.filter');
     $instance->blazyAdmin = $instance->blazyAdmin ?? $container->get('blazy.admin');

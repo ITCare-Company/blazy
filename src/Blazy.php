@@ -497,6 +497,13 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Returns the cross-compat D8 ~ D10 app root.
+   */
+  public static function root($container) {
+    return version_compare(\Drupal::VERSION, '9.0', '<') ? $container->get('app.root') : $container->getParameter('app.root');
+  }
+
+  /**
    * Returns a wrapper to pass tests, or DI where adding params is troublesome.
    */
   public static function service($service) {
