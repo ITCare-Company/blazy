@@ -11,6 +11,7 @@
  *
  * @todo use Cash for better DOM queries, or any core libraries when available.
  * @todo remove unneeded dup methods once all codebase migrated.
+ * @todo move more DOM methods into blazy.dom.js to make it ditchable for Cash.
  */
 
 /* global define, module */
@@ -25,18 +26,11 @@
   var _splice = _aProto.splice;
   var _some = _aProto.some;
   var _symbol = typeof Symbol !== 'undefined' && Symbol;
+  // @todo var _cash = 'cash' in _win;
   var _class = 'class';
   var _add = 'add';
   var _remove = 'remove';
   var _width = 'width';
-  var _height = 'height';
-  var _after = 'after';
-  var _before = 'before';
-  var _begin = 'begin';
-  var _end = 'end';
-  var _uTop = 'Top';
-  var _uLeft = 'Left';
-  var _uHeight = 'Height';
   var _uWidth = 'Width';
   var _clientWidth = 'client' + _uWidth;
   var _scroll = 'scroll';
@@ -142,11 +136,13 @@
     me = isMe(me) ? me : db(me);
     var ln = me.length;
 
-    if (!ln || ln === 1) {
-      cb(me[0]);
-    }
-    else {
-      me.each(cb);
+    if (isFun(cb)) {
+      if (!ln || ln === 1) {
+        cb(me[0]);
+      }
+      else {
+        me.each(cb);
+      }
     }
 
     return me;
@@ -429,7 +425,7 @@
   function each(collection, cb, scope) {
     if (_oProto.toString.call(collection) === '[object Object]') {
       for (var prop in collection) {
-        if (has(collection, prop)) {
+        if (hasProp(collection, prop)) {
           if (prop === 'length') {
             continue;
           }
@@ -465,7 +461,7 @@
    * @return {bool}
    *   Returns true if the property found.
    */
-  function has(collection, prop) {
+  function hasProp(collection, prop) {
     return _oProto.hasOwnProperty.call(collection, prop);
   }
 
@@ -1392,7 +1388,7 @@
     return extend(fn, plugins);
   };
 
-  db.has = has;
+  db.hasProp = hasProp;
 
   db.parse = parse;
   db.toArray = toArray;
@@ -1684,7 +1680,7 @@
    */
   db.template = function (string, map) {
     for (var key in map) {
-      if (has(map, key)) {
+      if (hasProp(map, key)) {
         string = string.replace(new RegExp(escape('$' + key), 'g'), map[key]);
       }
     }
@@ -1749,74 +1745,10 @@
     return _style[prop] || el.style[prop];
   }
 
-  function css(els, props, vals) {
-    var me = this;
-    var _undefined = isUnd(vals);
-    var _obj = isObj(props);
-    var _getter = !_obj && _undefined;
-
-    // Getter.
-    if (_getter && isStr(props)) {
-      // @todo figure out multi-element getters. Ok for now, as hardly multiple.
-      var el = els && els.length ? els[0] : els;
-      // @todo re-check common integer.
-      var arr = [_width, _height, 'top', 'right', 'bottom', 'left'];
-      var result = computeStyle(el, props);
-      return arr.indexOf(props) === -1 ? result : parseInt(result, 10);
-    }
-
-    var chainCallback = function (el) {
-      if (!isElm(el)) {
-        return _getter ? '' : me;
-      }
-
-      var setVal = function (prop, val) {
-        // Setter.
-        if (isFun(val)) {
-          val = val();
-        }
-
-        if (contains(prop, '-') || isVar(prop)) {
-          prop = camelCase(prop);
-        }
-
-        el.style[prop] = isStr(val) ? val : val + 'px';
-      };
-
-      // Passing a key-value pair object means setting multiple attributes once.
-      if (_obj) {
-        each(props, function (val, prop) {
-          setVal(prop, val);
-        });
-      }
-      // Since a css value null makes no sense, assumes nullify.
-      else if (isNull(vals)) {
-        each(toArray(props), function (prop) {
-          el.style.removeProperty(prop);
-        });
-      }
-      else {
-        // Else a setter.
-        if (isStr(props)) {
-          setVal(props, vals);
-        }
-      }
-    };
-
-    return chain.call(els, chainCallback);
-  }
-
   db.computeStyle = computeStyle;
 
   fn.computeStyle = function (prop) {
     return computeStyle(this[0], prop);
-  };
-
-  db.css = css;
-
-  // @tdo multiple css values once.
-  fn.css = function (prop, val) {
-    return css(this, prop, val);
   };
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
@@ -1826,117 +1758,30 @@
 
   db.rect = rect;
 
-  function offset(el) {
-    var rect = rect(el);
-
-    return {
-      top: (rect.top || 0) + _doc.body[_scroll + _uTop],
-      left: (rect.left || 0) + _doc.body[_scroll + _uLeft]
-    };
-  }
-
-  db.offset = offset;
-
-  db.width = function (el, val) {
-    return css(el, _width, val);
-  };
-
-  db.height = function (el, val) {
-    return css(el, _height, val);
-  };
-
-  function outerDim(el, withMargin, prop) {
-    var result = 0;
-
-    if (isElm(el)) {
-      result = el['offset' + prop];
-      if (withMargin) {
-        var style = computeStyle(el);
-        var margin = function (pos) {
-          return parseInt(style['margin' + pos], 10);
-        };
-        if (prop === _uHeight) {
-          result += margin(_uTop) + margin('Bottom');
-        }
-        else {
-          result += margin(_uLeft) + margin('Right');
-        }
-      }
-    }
-    return result;
-  }
-
-  db.outerWidth = function (el, withMargin) {
-    return outerDim(el, withMargin, _uWidth);
-  };
-
-  db.outerHeight = function (el, withMargin) {
-    return outerDim(el, withMargin, _uHeight);
-  };
-
-  /**
-   * Insert Element or string into a position relative to a target element.
-   *
-   * To minimize confusions with native insertAdjacent[Element|HTML].
-   *
-   * <!-- beforebegin -->
-   * <p>
-   *   <!-- afterbegin -->
-   *   foo
-   *   <!-- beforeend -->
-   * </p>
-   * <!-- afterend -->
-   *
-   * @param {Element} target
-   *   The target Element.
-   * @param {Element|string} el
-   *   The element or string to insert.
-   * @param {string} position
-   *   The position or placement.
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentHTML
-   */
-  function insert(target, el, position) {
-    // @todo recheck DocumentFragment if needed.
-    if (isElm(target)) {
-      var suffix = isElm(el) ? 'Element' : 'HTML';
-      target['insertAdjacent' + suffix](position, el);
-    }
-  }
-
-  db.after = function (target, el) {
-    insert(target, el, _after + _end);
-  };
-
-  // Node.insertBefore(), similar to beforebegin, with different arguments.
-  db.before = function (target, el) {
-    insert(target, el, _before + _begin);
-  };
-
-  // Node.appendChild(), same effect as beforeend.
-  db.append = function (target, el) {
-    insert(target, el, _before + _end);
-  };
-
-  db.prepend = function (target, el) {
-    insert(target, el, _after + _begin);
-  };
-
   function parent(el) {
     return isElm(el) && el.parentElement;
   }
 
   db.parent = parent;
+  fn.parent = function () {
+    return db.parent(this[0]);
+  };
 
   function prev(el) {
     return isElm(el) && el.previousElementSibling;
   }
 
   db.prev = prev;
+  fn.prev = function () {
+    return db.prev(this[0]);
+  };
 
   db.next = function (el) {
     return isElm(el) && el.nextElementSibling;
+  };
+
+  fn.next = function () {
+    return db.next(this[0]);
   };
 
   db.index = function (el, parents) {

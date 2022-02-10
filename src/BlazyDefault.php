@@ -351,6 +351,7 @@ class BlazyDefault {
       'viewport',
       'xlazy',
       'css',
+      'dom',
       'animate',
       'dataset',
       'background',

@@ -1,16 +1,22 @@
 /**
  * @file
  * Provides MagnificPopup integration for Image and Media fields.
+ *
+ * Zoom only works for plain old image, not responsive ones.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, _doc) {
 
   'use strict';
 
+  var _jq = jQuery;
   var _mounted = 'is-mfp-on';
   var _gallery = '[data-mfp-gallery]:not(.' + _mounted + ')';
   var _trigger = '[data-mfp-trigger]';
   var _blazy = Drupal.blazy || {};
+  var _canZoom = true;
+  var _elClicked;
+  var _index = 0;
   var _mp;
 
   /**
@@ -29,12 +35,14 @@
   function build(elms) {
     var items = [];
     var total = elms.length;
+
     $.each(elms, function (el, i) {
       var media = $.parse($.attr(el, 'data-media'));
-      var type = media.type;
       var caption = el.nextElementSibling;
       var url = $.attr(el, 'href');
-      var item = {el: el};
+      var item = {
+        el: _jq(el)
+      };
       var boxType = item.boxType = media.boxType;
       var src;
       var style = '';
@@ -43,21 +51,21 @@
 
       if (boxType === 'image') {
         src = url;
-        item.type = item.boxType = 'image';
+        item.type = 'image';
       }
       else {
+        // (Responsive|Picture) image, local video.
         if ('html' in media) {
           useWidth = boxType === 'video';
           src = media.html;
           item.type = 'inline';
         }
-        else if (type === 'video') {
+        else if (boxType === 'iframe') {
           useWidth = true;
           src = Drupal.theme('blazyMedia', {
             el: el
           });
           item.type = 'inline';
-          item.boxType = 'video';
         }
 
         if (src) {
@@ -108,22 +116,40 @@
             }
           },
           change: function () {
-            var content = this.content;
-            if (content && content.length) {
-              var el = content[0];
-              if ($.hasClass(el, 'media media-wrapper mfp-html')) {
-                attach(el, true);
-              }
-            }
+            checkImage(this, true);
           },
           open: function () {
             var $wrap = this.wrap;
             if ($wrap && $wrap.length) {
+
               // FOUC fix.
               setTimeout(function () {
                 $.addClass($wrap[0], 'mfp-on');
               }, 100);
             }
+          }
+        },
+
+        // This class is for CSS animation below.
+        mainClass: 'mfp-with-zoom',
+
+        // Zoom requires anything which has image: (local|remote) video, etc.
+        // @todo figure out to disable zoom when having plain HTML or AJAX.
+        zoom: {
+          enabled: _canZoom,
+          duration: 300,
+          easing: 'ease-in-out',
+
+          // The "opener" function should return the element from which popup
+          // will be zoomed in and to which popup will be scaled down
+          // By default it looks for an image tag:
+          opener: function (openerElement) {
+            checkImage(this);
+            // openerElement is the element on which popup was initialized, in
+            // this case its <a> tag you don't need to add "opener" option if
+            // this code matches your needs, it's default one.
+            // @fixme only works at first launch, not when zom-close repeated.
+            return _jq(_elClicked || openerElement.data.el);
           }
         }
       });
@@ -132,24 +158,62 @@
     prepare();
 
     $.on(box, 'click', _trigger, function (e) {
-      var el = e.target;
+      var el = _elClicked = e.target;
 
       // Supports Blazy Grid, Splide/ Slick, GridStack/Mason galleries.
       // @todo add options to avoid guessing.
-      var index = $.index(el, ['.box', '.grid', '.field__item', 'li', '.slide']);
+      _index = $.index(el, ['.box', '.grid', '.field__item', 'li', '.slide']);
 
       setTimeout(function () {
         _mp = $.magnificPopup.instance;
 
         if (_mp) {
-          _mp.goTo(index);
+          _mp.goTo(_index);
         }
       });
-    });
+    }, false);
   }
 
   function counter(text) {
     return '<div class="mfp-counter">' + text + '</div>';
+  }
+
+  // Required by zoom.
+  function checkImage(mp, add) {
+    var $img;
+    var content = mp.content;
+
+    if (content && content.length) {
+      var el = content[0];
+      var img = $.find(el, 'img');
+      var exists = $.isElm(img);
+
+      if (!exists) {
+        var vid = $.find(el, 'video');
+        if ($.isElm(vid)) {
+          var poster = $.attr(vid, 'poster');
+          if (poster) {
+            img = _doc.createElement('img');
+            img.decoding = 'async';
+            img.src = poster;
+          }
+        }
+      }
+
+      exists = $.isElm(img);
+      if (exists) {
+        $img = mp.currItem.img = _jq(img);
+        // mp.currItem.type = 'image';
+        mp.currItem.hasSize = exists;
+      }
+
+      if (add) {
+        if ($.hasClass(el, 'media media-wrapper mfp-html')) {
+          attach(el, true);
+        }
+      }
+    }
+    return $img;
   }
 
   function attach(el, op) {
@@ -180,14 +244,14 @@
       context = $.context(context);
 
       // Converts jQuery.magnificPopup into dBlazy for consistent vanilla JS.
-      if (jQuery && $.isFun(jQuery.fn.magnificPopup) && !$.isFun($.fn.magnificPopup)) {
-        var _mfp = jQuery.fn.magnificPopup;
+      if (_jq && $.isFun(_jq.fn.magnificPopup) && !$.isFun($.fn.magnificPopup)) {
+        var _mfp = _jq.fn.magnificPopup;
 
         $.fn.magnificPopup = function (options) {
           var me = $(_mfp.apply(this, arguments));
 
           if ($.isUnd($.magnificPopup)) {
-            $.magnificPopup = jQuery.magnificPopup;
+            $.magnificPopup = _jq.magnificPopup;
           }
 
           return me;
@@ -198,4 +262,4 @@
     }
   };
 
-}(dBlazy, Drupal));
+}(dBlazy, Drupal, this.document));

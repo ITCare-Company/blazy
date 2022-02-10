@@ -92,10 +92,10 @@ class BlazyAlter {
 
       // Plugins extending dBlazy.
       foreach (BlazyDefault::plugins() as $id) {
-        $base = $id == 'viewport' || $id == 'dataset' || $id == 'css';
+        $base = in_array($id, ['viewport', 'dataset', 'css', 'dom']);
         $deps = $base ? ['blazy/dblazy', 'blazy/base'] : ['blazy/xlazy'];
         if ($id == 'xlazy') {
-          $deps = ['blazy/viewport', 'blazy/dataset'];
+          $deps = ['blazy/viewport', 'blazy/dataset', 'blazy/dom'];
         }
         $weight = $base ? -5.6 : -5.5;
         $common = ['minified' => TRUE, 'weight' => $weight];
