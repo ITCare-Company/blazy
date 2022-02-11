@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\blazy;
+namespace Drupal\blazy\Media;
 
 /**
  * Provides extra utilities to work with core Media.

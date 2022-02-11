@@ -131,3 +131,10 @@ function blazy_post_update_remove_io_enabled_key() {
 function blazy_post_update_app_root() {
   // Empty hook to clear caches.
 }
+
+/**
+ * Moved media-related classes and services into \Drupal\blazy\Media namespace.
+ */
+function blazy_post_update_move_media_services_classes() {
+  // Empty hook to clear caches.
+}

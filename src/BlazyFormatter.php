@@ -2,6 +2,9 @@
 
 namespace Drupal\blazy;
 
+use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\BlazyResponsiveImage;
+
 /**
  * Provides common field formatter-related methods: Blazy, Slick.
  */

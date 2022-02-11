@@ -8,6 +8,8 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Cache\Cache;
+use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\BlazyResponsiveImage;
 
 /**
  * Implements a public facing blazy manager.

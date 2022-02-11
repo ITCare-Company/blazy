@@ -6,6 +6,9 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Render\Element;
+use Drupal\blazy\Media\BlazyResponsiveImage;
+use Drupal\blazy\Media\BlazyMedia;
+use Drupal\blazy\Media\BlazyOEmbedInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -66,7 +69,7 @@ class BlazyEntity implements BlazyEntityInterface {
       return [];
     }
 
-    // Supports core Media via Drupal\blazy\BlazyOEmbed::getMediaItem().
+    // Supports core Media via Drupal\blazy\Media\BlazyOEmbed::getMediaItem().
     $data['settings'] = empty($data['settings']) ? [] : $data['settings'];
 
     $this->blazyManager->getCommonSettings($data['settings']);

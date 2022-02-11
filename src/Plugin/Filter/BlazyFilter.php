@@ -5,7 +5,7 @@ namespace Drupal\blazy\Plugin\Filter;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\filter\FilterProcessResult;
-use Drupal\blazy\BlazyFile;
+use Drupal\blazy\Media\BlazyFile;
 
 /**
  * Provides a filter to lazyload image, or iframe elements.

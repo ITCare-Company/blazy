@@ -14,6 +14,8 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
+use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\BlazyResponsiveImage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

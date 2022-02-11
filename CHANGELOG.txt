@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-02-11
+-----------------------------
+- Moved media-related classes and serives into \Drupal\blazy\Media namespace.
+- Added hook_uninstall().
+
 Blazy 8.x-2.0-dev, 2022-02-09
 -----------------------------
 - Added Magnific Popup as decent replacement for Colorbox and Photobox.

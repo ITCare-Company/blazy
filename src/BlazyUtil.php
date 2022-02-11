@@ -3,6 +3,7 @@
 namespace Drupal\blazy;
 
 use Drupal\Component\Utility\Html;
+use Drupal\blazy\Media\BlazyFile;
 
 /**
  * Provides internal Blazy utilities, hardly re-usable outside blazy.module.

@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Serialization\Json;
 use Drupal\image\Entity\ImageStyle;
+use Drupal\blazy\Media\BlazyFile;
 
 /**
  * Provides lightbox utilities.

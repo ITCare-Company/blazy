@@ -11,7 +11,7 @@ use Drupal\filter\Plugin\FilterBase;
 use Drupal\filter\Render\FilteredMarkup;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyFile;
+use Drupal\blazy\Media\BlazyFile;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -50,7 +50,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
   /**
    * The blazy oembed service.
    *
-   * @var \Drupal\blazy\BlazyOEmbedInterface
+   * @var \Drupal\blazy\Media\BlazyOEmbedInterface
    */
   protected $blazyOembed;
 

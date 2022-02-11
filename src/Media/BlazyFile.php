@@ -1,10 +1,12 @@
 <?php
 
-namespace Drupal\blazy;
+namespace Drupal\blazy\Media;
 
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Site\Settings;
 use Drupal\image\Entity\ImageStyle;
+use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyUtil;
 
 /**
  * Provides file_BLAH BC for D8 - D10+ till D11 rules.

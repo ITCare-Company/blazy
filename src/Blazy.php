@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\blazy\Media\BlazyFile;
 
 /**
  * Provides common blazy utility static methods.

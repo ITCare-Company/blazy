@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Template\Attribute;
+use Drupal\blazy\Media\BlazyFile;
 
 /**
  * Provides theme-related alias methods to de-clutter Blazy.

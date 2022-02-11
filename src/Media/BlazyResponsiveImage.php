@@ -1,8 +1,9 @@
 <?php
 
-namespace Drupal\blazy;
+namespace Drupal\blazy\Media;
 
 use Drupal\Core\Cache\Cache;
+use Drupal\blazy\Blazy;
 
 /**
  * Provides responsive image utilities.
