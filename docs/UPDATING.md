@@ -1,6 +1,6 @@
 
 ***
-# <a name="updating"></a>UPDATE SOP
+## <a name="updating"></a>UPDATE SOP
 Check [this](https://drupal.org/node/3263027#comment-14402693) out for hints
 on testing updates against Blazy ecosystem.
 
