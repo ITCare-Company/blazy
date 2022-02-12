@@ -93,7 +93,7 @@ class BlazyUnitTest extends UnitTestCase {
    *   Whether to expect an iframe, or not.
    *
    * @covers \Drupal\blazy\BlazyTheme::blazy
-   * @covers \Drupal\blazy\Blazy::urlAndDimensions
+   * @covers \Drupal\blazy\Media\BlazyFile::urlAndDimensions
    * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @dataProvider providerPreprocessBlazy
    */

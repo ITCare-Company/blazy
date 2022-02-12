@@ -80,6 +80,54 @@ class BlazyUtil {
   }
 
   /**
+   * Build out the blur image.
+   */
+  public static function blur(array &$element, array &$attributes, array &$settings) {
+    if (!$settings['unstyled']) {
+      $blur = [
+        '#theme' => 'image',
+        '#uri' => $settings['placeholder_ui'] ?: $settings['placeholder'],
+        '#attributes' => [
+          'class' => ['b-lazy', 'b-blur', 'b-blur--tmp'],
+          'data-src' => $settings['placeholder_fx'],
+          'loading' => 'lazy',
+          'decoding' => 'async',
+        ],
+      ];
+
+      // Reset as already stored.
+      unset($settings['placeholder_fx']);
+      $element['#preface']['blur'] = $blur;
+
+      if (($settings['width'] ?? 0) > 980) {
+        $attributes['class'][] = 'media--fx-lg';
+      }
+    }
+  }
+
+  /**
+   * Collects the first found Blazy formatter settings within Views fields.
+   */
+  public static function isBlazyFormatter(array &$settings, array $item = []) {
+    $blazy = $item['settings'];
+
+    // Merge the first found (Responsive) image data.
+    if (!empty($blazy['blazy_data'])) {
+      $settings['blazy_data'] = array_merge((array) ($settings['blazy_data'] ?? []), $blazy['blazy_data']);
+      $settings['_dimensions'] = !empty($settings['blazy_data']['dimensions']);
+    }
+
+    $cherries = BlazyDefault::cherrySettings() + ['uri' => ''];
+    foreach ($cherries as $key => $value) {
+      $fallback = $settings[$key] ?? $value;
+      $settings[$key] = isset($blazy[$key]) && empty($fallback) ? $blazy[$key] : $fallback;
+    }
+
+    $settings['_uri'] = empty($settings['_uri']) ? $settings['uri'] : $settings['_uri'];
+    unset($settings['uri']);
+  }
+
+  /**
    * Provides original unstyled image dimensions based on the given image item.
    *
    * @todo deprecate and removed at 3.+. Use BlazyFile::imageDimensions()

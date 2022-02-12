@@ -76,7 +76,7 @@ class BlazyTheme {
     // URL and dimensions are built out at BlazyManager::preRenderBlazy().
     // Still provides a failsafe for direct call to theme_blazy().
     if (empty($settings['_api'])) {
-      Blazy::urlAndDimensions($settings, $variables['item']);
+      BlazyFile::urlAndDimensions($settings, $variables['item']);
     }
 
     // Allows rich Media entities stored within `content` to take over.
@@ -88,9 +88,11 @@ class BlazyTheme {
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
     // Prevents double padding hacks with AMP which also uses similar technique.
-    $stack = Blazy::requestStack();
-    $amp = $stack && $stack->getCurrentRequest()->query->get('amp');
-    $settings['ratio'] = empty($settings['width']) || $amp ? '' : $settings['ratio'];
+    if ($stack = Blazy::requestStack()) {
+      $amp = $stack->getCurrentRequest()->query->get('amp');
+    }
+
+    $settings['ratio'] = empty($settings['width']) || isset($amp) ? '' : $settings['ratio'];
 
     if ($settings['ratio']) {
       Blazy::aspectRatioAttributes($variables['attributes'], $settings);

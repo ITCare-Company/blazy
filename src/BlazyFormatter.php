@@ -159,6 +159,16 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function isCrop($style) {
+    if (!isset($this->isCrop[$style])) {
+      $this->isCrop[$style] = $this->cropStyles()[$style] ?? FALSE;
+    }
+    return $this->isCrop[$style];
+  }
+
+  /**
    * Returns available image styles with crop in the name.
    */
   private function cropStyles() {
@@ -174,16 +184,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
     }
     return $this->cropStyles;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isCrop($style) {
-    if (!isset($this->isCrop[$style])) {
-      $this->isCrop[$style] = $this->cropStyles()[$style] ?? FALSE;
-    }
-    return $this->isCrop[$style];
   }
 
 }

@@ -73,23 +73,6 @@ class Blazy implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public static function urlAndDimensions(array &$settings, $item = NULL): void {
-    // BlazyFilter, or image style with crop, may already set these.
-    BlazyFile::imageDimensions($settings, $item);
-
-    // Provides image url based on the given settings.
-    BlazyFile::imageUrl($settings);
-
-    // The SVG placeholder should accept either original, or styled image.
-    $is_media = in_array($settings['type'], ['audio', 'video']);
-    $settings['placeholder'] = $settings['placeholder'] ?: BlazyUtil::generatePlaceholder($settings['width'], $settings['height']);
-    $settings['use_media'] = $settings['embed_url'] && $is_media;
-    $settings['use_loading'] = $settings['is_nojs'] ? FALSE : $settings['use_loading'];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public static function buildResponsiveImage(array &$variables): void {
     $settings = $variables['settings'];
     $natives = ['decoding' => 'async'];

@@ -438,7 +438,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     // 1. Blazy formatter within Views fields by supported modules.
     $settings['_item'] = $image;
     if (isset($item['settings'])) {
-      $this->isBlazyFormatter($settings, $item);
+      BlazyUtil::isBlazyFormatter($settings, $item);
     }
 
     // 2. Blazy Views fields by supported modules.
@@ -451,28 +451,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     unset($settings['first_image']);
-  }
-
-  /**
-   * Collects the first found Blazy formatter settings within Views fields.
-   */
-  protected function isBlazyFormatter(array &$settings, array $item = []) {
-    $blazy = $item['settings'];
-
-    // Merge the first found (Responsive) image data.
-    if (!empty($blazy['blazy_data'])) {
-      $settings['blazy_data'] = array_merge((array) ($settings['blazy_data'] ?? []), $blazy['blazy_data']);
-      $settings['_dimensions'] = !empty($settings['blazy_data']['dimensions']);
-    }
-
-    $cherries = BlazyDefault::cherrySettings() + ['uri' => ''];
-    foreach ($cherries as $key => $value) {
-      $fallback = $settings[$key] ?? $value;
-      $settings[$key] = isset($blazy[$key]) && empty($fallback) ? $blazy[$key] : $fallback;
-    }
-
-    $settings['_uri'] = empty($settings['_uri']) ? $settings['uri'] : $settings['_uri'];
-    unset($settings['uri']);
   }
 
   /**
@@ -495,17 +473,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     return $cache;
-  }
-
-  /**
-   * Provides attachments and cache common for all blazy-related modules.
-   */
-  protected function setAttachments(array &$element, array $settings, array $attachments = []) {
-    $cache                = $this->getCacheMetadata($settings);
-    $attached             = $this->attach($settings);
-    $attachments          = empty($attachments) ? $attached : NestedArray::mergeDeep($attached, $attachments);
-    $element['#attached'] = empty($element['#attached']) ? $attachments : NestedArray::mergeDeep($element['#attached'], $attachments);
-    $element['#cache']    = empty($element['#cache']) ? $cache : NestedArray::mergeDeep($element['#cache'], $cache);
   }
 
   /**
@@ -544,6 +511,17 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function getRouteName() {
     return Blazy::routeMatch()->getRouteName();
+  }
+
+  /**
+   * Provides attachments and cache common for all blazy-related modules.
+   */
+  protected function setAttachments(array &$element, array $settings, array $attachments = []) {
+    $cache                = $this->getCacheMetadata($settings);
+    $attached             = $this->attach($settings);
+    $attachments          = empty($attachments) ? $attached : NestedArray::mergeDeep($attached, $attachments);
+    $element['#attached'] = empty($element['#attached']) ? $attachments : NestedArray::mergeDeep($element['#attached'], $attachments);
+    $element['#cache']    = empty($element['#cache']) ? $cache : NestedArray::mergeDeep($element['#cache'], $cache);
   }
 
   /**

@@ -166,6 +166,38 @@ class BlazyFile {
   }
 
   /**
+   * Builds URLs, cache tags, and dimensions for an individual image.
+   *
+   * Respects a few scenarios:
+   * 1. Blazy Filter or unmanaged file with/ without valid URI.
+   * 2. Hand-coded image_url with/ without valid URI.
+   * 3. Respects first_uri without image_url such as colorbox/zoom-like.
+   * 4. File API via field formatters or Views fields/ styles with valid URI.
+   * If we have a valid URI, provides the correct image URL.
+   * Otherwise leave it as is, likely hotlinking to external/ sister sites.
+   * Hence URI validity is not crucial in regards to anything but #4.
+   * The image will fail silently at any rate given non-expected URI.
+   *
+   * @param array $settings
+   *   The given settings being modified.
+   * @param object $item
+   *   The image item.
+   */
+  public static function urlAndDimensions(array &$settings, $item = NULL): void {
+    // BlazyFilter, or image style with crop, may already set these.
+    self::imageDimensions($settings, $item);
+
+    // Provides image url based on the given settings.
+    self::imageUrl($settings);
+
+    // The SVG placeholder should accept either original, or styled image.
+    $is_media = in_array($settings['type'], ['audio', 'video']);
+    $settings['placeholder'] = $settings['placeholder'] ?: BlazyUtil::generatePlaceholder($settings['width'], $settings['height']);
+    $settings['use_media'] = $settings['embed_url'] && $is_media;
+    $settings['use_loading'] = $settings['is_nojs'] ? FALSE : $settings['use_loading'];
+  }
+
+  /**
    * A wrapper for ImageStyle::transformDimensions().
    *
    * @param object $style

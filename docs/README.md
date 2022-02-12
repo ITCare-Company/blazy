@@ -2,6 +2,7 @@
 ## <a name="top"> </a>CONTENTS OF THIS FILE
 
  * [Introduction](#introduction)
+ * [Upgrading from 1.x](https://www.drupal.org/project/blazy#blazy-upgrade)
  * [Requirements](#requirements)
  * [Recommended modules](#recommended-modules)
  * [Installation](#installation)
@@ -29,7 +30,6 @@ they don't browse the whole page.
 Check out [project home](https://www.drupal.org/project/blazy) for most updated
 info.
 
-
 ***
 ## <a name="requirements"> </a>REQUIREMENTS
 Core modules:  
@@ -40,8 +40,9 @@ Core modules:
 The bLazy library is forked at Blazy 2.6, and no longer required from now on,
 see [#3257511](https://drupal.org/node/3257511).
 Any references to bLazy library is no longer relevant for forked version at 2.6.  
+
 * [Download bLazy](https://github.com/dinbror/blazy)  
-* Extract it as is, rename **blazy-master** to **blazy**, so the assets are:
+* Extract it as is, rename **blazy-master** to **blazy**, so the assets are:  
 
   + **/libraries/blazy/blazy.js**
   + **/libraries/blazy/blazy.min.js**
@@ -49,6 +50,7 @@ Any references to bLazy library is no longer relevant for forked version at 2.6.
 ***
 ## <a name="recommended-modules"> </a>RECOMMENDED MODULES
 For better admin help page, either way will do:  
+
 * [Markdown](https://www.drupal.org/project/markdown)  
 * `composer require league/commonmark`  
 
@@ -161,7 +163,7 @@ etc., try the following:
   supportive lightbox in the format **blazy--LIGHTBOX-gallery**, e.g.:
   + **blazy--colorbox-gallery**
   + **blazy--intense-gallery**
-  + **blazy--mfp-gallery**
+  + **blazy--mfp-gallery** (Magnific Popup)
   + **blazy--photobox-gallery**
   + **blazy--photoswipe-gallery**
   + **blazy--slick-lightbox-gallery**
