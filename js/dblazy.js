@@ -435,7 +435,9 @@
     }
     else if (collection) {
       if (collection.length === 1) {
-        cb.call(scope, collection[0], 0, collection);
+        if (collection[0]) {
+          cb.call(scope, collection[0], 0, collection);
+        }
       }
       else {
         collection.forEach(cb, scope);
