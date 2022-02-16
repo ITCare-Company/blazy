@@ -4,6 +4,7 @@ namespace Drupal\blazy\Media;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazySettings;
 
 /**
  * Provides responsive image utilities.
@@ -11,45 +12,76 @@ use Drupal\blazy\Blazy;
 class BlazyResponsiveImage {
 
   /**
+   * The Responsive image styles.
+   *
+   * @var array
+   */
+  private static $styles;
+
+  /**
    * Sets dimensions once to reduce method calls for Responsive image.
    */
-  public static function dimensions(array &$settings = [], $initial = TRUE) {
-    $srcset = [];
+  public static function dimensions(array &$settings = [], $initial = TRUE): BlazySettings {
+    $blazies = &$settings['blazies'];
+    $dimensions = $blazies->get('dimensions', []);
+    if ($dimensions) {
+      return $blazies;
+    }
 
-    foreach (self::getStyles($settings['resimage'])['styles'] as $style) {
-      $styled = array_merge($settings, BlazyFile::transformDimensions($style, $settings, $initial));
+    $ratios = [];
+    $resimage = $blazies->get('resimage.style');
+    foreach (self::getStyles($resimage)['styles'] as $style) {
+      $styled = BlazyFile::transformDimensions($style, $settings, $initial);
 
       // In order to avoid layout reflow, we get dimensions beforehand.
-      $srcset[$styled['width']] = round((($styled['height'] / $styled['width']) * 100), 2);
+      $width = $styled['width'];
+      $height = $styled['height'];
+
+      // @todo merge ratios into dimensions elsewhere.
+      $ratios[$width] = $ratio = empty($width) ? 100 : round((($height / $width) * 100), 2);
+      $dimensions[$width] = [
+        'width' => $width,
+        'height' => $height,
+        'ratio' => $ratio,
+      ];
     }
 
     // Sort the srcset from small to large image width or multiplier.
-    ksort($srcset);
+    ksort($dimensions);
+    ksort($ratios);
 
     // Informs individual images that dimensions are already set once.
     // Dynamic aspect ratio is useless without JS.
-    $settings['blazy_data']['dimensions'] = $srcset;
-    $settings['padding_bottom'] = end($srcset);
+    $blazies->set('dimensions', $dimensions)
+      ->set('ratios', $ratios)
+      ->set('item.padding_bottom', end($ratios));
+
     $settings['_dimensions'] = TRUE;
+
+    return $blazies;
   }
 
   /**
    * Provides Responsive image sources relevant for link preload.
    */
-  public static function sources(array &$settings = []) {
+  public static function sources(array &$settings = []): array {
     if (!($manager = Blazy::breakpointManager())) {
       return [];
     }
 
-    $fallback = NULL;
-    $sources = $variables = [];
-    $style = $settings['resimage'];
+    $blazies = &$settings['blazies'];
+    $func = function ($uri) use ($manager, $settings, $blazies) {
+      $fallback = NULL;
+      $sources = $variables = [];
+      $style = $blazies->get('resimage.style');
+      $dimensions = $blazies->get('dimensions', []);
+      $end = end($dimensions);
 
-    foreach (['uri', 'width', 'height'] as $key) {
-      $variables[$key] = $settings['_' . $key] ?? $settings[$key] ?? NULL;
-    }
+      $variables['uri'] = $uri;
+      foreach (['width', 'height'] as $key) {
+        $variables[$key] = $end[$key] ?? $settings[$key] ?? NULL;
+      }
 
-    if (!empty($variables['uri'])) {
       $breakpoints = array_reverse($manager->getBreakpointsByGroup($style->getBreakpointGroup()));
       $function = '_responsive_image_build_source_attributes';
       if (is_callable($function)) {
@@ -60,12 +92,39 @@ class BlazyResponsiveImage {
           }
         }
       }
+
+      return empty($sources) ? [] : [
+        'items' => $sources,
+        'fallback' => $fallback,
+      ];
+    };
+
+    $output = [];
+    if ($uris = $blazies->get('uris')) {
+      // Preserves indices even if empty to have correct mixed media elsewhere.
+      foreach ($uris as $uri) {
+        $output[] = empty($uri) ? [] : $func($uri);
+      }
     }
 
-    $settings['sources'] = empty($sources) ? [] : [
-      'items' => $sources,
-      'fallback' => $fallback,
-    ];
+    $blazies->set('resimage.sources', $output);
+
+    return $output;
+  }
+
+  /**
+   * Modifies dimensions and sources.
+   */
+  public static function dimensionsAndSources(array &$settings = [], $initial = TRUE): void {
+    $blazies = &$settings['blazies'];
+    $preload = !empty($settings['preload']);
+    // @todo merge background here.
+    if ($preload || $blazies->get('is.fluid')) {
+      BlazyResponsiveImage::dimensions($settings, $initial);
+    }
+    if ($preload) {
+      BlazyResponsiveImage::sources($settings);
+    }
   }
 
   /**
@@ -78,13 +137,22 @@ class BlazyResponsiveImage {
    *   The responsive image styles and cache tags.
    */
   public static function getStyles($responsive) {
-    $cache_tags = $responsive->getCacheTags();
-    $image_styles = \blazy()->entityLoadMultiple('image_style', $responsive->getImageStyleIds());
+    $id = $responsive->id();
 
-    foreach ($image_styles as $image_style) {
-      $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
+    if (!isset(static::$styles[$id])) {
+      $cache_tags = $responsive->getCacheTags();
+      $image_styles = \blazy()->entityLoadMultiple('image_style', $responsive->getImageStyleIds());
+
+      foreach ($image_styles as $image_style) {
+        $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
+      }
+
+      static::$styles[$id] = [
+        'caches' => $cache_tags,
+        'styles' => $image_styles,
+      ];
     }
-    return ['caches' => $cache_tags, 'styles' => $image_styles];
+    return static::$styles[$id];
   }
 
 }

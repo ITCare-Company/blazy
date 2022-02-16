@@ -87,6 +87,7 @@ class BlazyDefault {
       'media_switch'    => '',
       'ratio'           => '',
       'thumbnail_style' => '',
+      '_item'           => '',
       '_uri'            => '',
     ];
   }
@@ -113,6 +114,7 @@ class BlazyDefault {
   public static function deprecatedSettings() {
     return [
       'breakpoints' => [],
+      'icon'        => '',
       'sizes'       => '',
       'grid_header' => '',
     ];
@@ -123,10 +125,10 @@ class BlazyDefault {
    */
   public static function imageSettings() {
     return [
-      'icon'      => '',
       'layout'    => '',
       'view_mode' => '',
-    ] + self::baseSettings() + self::baseImageSettings() + self::deprecatedSettings();
+      // @todo remove + self::deprecatedSettings()
+    ] + self::baseSettings() + self::baseImageSettings();
   }
 
   /**
@@ -226,33 +228,56 @@ class BlazyDefault {
   }
 
   /**
+   * Grouping for sanity till all settings converted into BlazySettings.
+   */
+  public static function blazies() {
+    return [
+      '_api' => FALSE,
+      'bgs' => [],
+      'initial' => 0,
+      'is' => [],
+      'libs' => ['animate' => FALSE, 'blur' => FALSE, 'compat' => FALSE],
+      'ui' => self::uiSettings(),
+      'uris' => [],
+      'urls' => [],
+      'use' => ['ajax' => FALSE, 'dataset' => FALSE, 'field' => FALSE],
+      'image' => ['style' => NULL],
+      'item' => ['delta' => 0],
+      'resimage' => ['sources' => [], 'style' => NULL],
+    ];
+  }
+
+  /**
    * Returns sensible default container settings to shutup notices when lacking.
+   *
+   * @todo remove blazy_data for blazies due to problematic with picture where
+   * we can't have uniform sizes or aspect ratios.
+   * @todo move safe settings into blazies: new or not used by sub-modules.
    */
   public static function htmlSettings() {
     return [
+      'blazies'          => new BlazySettings(self::blazies()),
       'blazy_data'       => [],
-      'blur'             => FALSE,
       'bundle'           => '',
       'check_blazy'      => FALSE,
-      'compat'           => FALSE,
-      'fluid'            => FALSE,
       'lightbox'         => FALSE,
       'namespace'        => 'blazy',
       'id'               => '',
-      'is_amp'           => FALSE,
-      'is_nojs'          => FALSE,
-      'is_preview'       => FALSE,
-      'is_sandboxed'     => FALSE,
       '_richbox'         => FALSE,
-      'resimage'         => FALSE,
       'route_name'       => '',
-      'use_ajax'         => FALSE,
-      'use_field'        => FALSE,
-      'unstyled'         => FALSE,
       'view_name'        => '',
       'first_image'      => NULL,
       'accessible_title' => '',
-    ] + self::imageSettings() + self::uiSettings() + self::gridSettings();
+      'unlazy'           => FALSE,
+
+      // @todo deprecated for blazies after sub-module updates:
+      // 'unstyled'         => FALSE,
+      'compat'           => FALSE,
+      'is_preview'       => FALSE,
+      'resimage'         => FALSE,
+      '_resimage'        => FALSE,
+      // @todo revert  + self::uiSettings()
+    ] + self::imageSettings() + self::gridSettings();
   }
 
   /**
@@ -260,7 +285,6 @@ class BlazyDefault {
    */
   public static function itemSettings() {
     return [
-      '_api'           => FALSE,
       'classes'        => [],
       'content_url'    => '',
       'delta'          => 0,
@@ -268,21 +292,22 @@ class BlazyDefault {
       'entity_type_id' => '',
       'extension'      => '',
       'image_url'      => '',
-      'item_id'        => 'blazy',
-      'lazy_attribute' => 'src',
-      'lazy_class'     => 'b-lazy',
-      'padding_bottom' => '',
       'placeholder_fx' => '',
       'placeholder_ui' => '',
       'player'         => FALSE,
       'scheme'         => '',
       'type'           => 'image',
       'uri'            => '',
+      'height'         => NULL,
+      'width'          => NULL,
+
+      // @todo move into and deprecated for BlazySettings under blazies:
       'use_data_uri'   => FALSE,
       'use_loading'    => TRUE,
       'use_media'      => FALSE,
-      'height'         => NULL,
-      'width'          => NULL,
+      'item_id'        => 'blazy',
+      'lazy_attribute' => 'src',
+      'lazy_class'     => 'b-lazy',
     ] + self::htmlSettings();
   }
 

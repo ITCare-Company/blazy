@@ -71,8 +71,9 @@ class BlazyUtil {
    * Checks if extension should not use image style: apng svg gif, etc.
    */
   public static function unstyled(array $settings): bool {
+    $blazies = $settings['blazies'];
     $extensions = ['svg'];
-    if (isset($settings['unstyled_extensions']) && $unstyled = $settings['unstyled_extensions']) {
+    if ($unstyled = $blazies->get('ui.unstyled_extensions')) {
       $extensions = array_merge($extensions, array_map('trim', explode(' ', mb_strtolower($unstyled))));
       $extensions = array_unique($extensions);
     }
@@ -83,10 +84,11 @@ class BlazyUtil {
    * Build out the blur image.
    */
   public static function blur(array &$element, array &$attributes, array &$settings) {
-    if (!$settings['unstyled']) {
+    $blazies = $settings['blazies'];
+    if (!$blazies->get('is.unstyled')) {
       $blur = [
         '#theme' => 'image',
-        '#uri' => $settings['placeholder_ui'] ?: $settings['placeholder'],
+        '#uri' => $settings['placeholder_ui'] ?: $blazies->get('ui.placeholder'),
         '#attributes' => [
           'class' => ['b-lazy', 'b-blur', 'b-blur--tmp'],
           'data-src' => $settings['placeholder_fx'],
@@ -110,11 +112,17 @@ class BlazyUtil {
    */
   public static function isBlazyFormatter(array &$settings, array $item = []) {
     $blazy = $item['settings'];
+    if (!isset($settings['blazies'])) {
+      $settings += BlazyDefault::htmlSettings();
+    }
 
     // Merge the first found (Responsive) image data.
-    if (!empty($blazy['blazy_data'])) {
-      $settings['blazy_data'] = array_merge((array) ($settings['blazy_data'] ?? []), $blazy['blazy_data']);
-      $settings['_dimensions'] = !empty($settings['blazy_data']['dimensions']);
+    $formatter_blazies = $blazy['blazies'] ?? NULL;
+    if ($formatter_blazies && $formatter_blazies instanceof BlazySettings) {
+      $blazies = $settings['blazies'];
+
+      $settings['blazies'] = $blazies->merge($formatter_blazies->storage());
+      $settings['_dimensions'] = !empty($blazies->get('ratios'));
     }
 
     $cherries = BlazyDefault::cherrySettings() + ['uri' => ''];

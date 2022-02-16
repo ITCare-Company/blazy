@@ -58,7 +58,7 @@
     settings.media_switch ? 'media--switch media--switch--' ~ settings.media_switch|clean_class,
     settings.player ? 'media--player',
     settings.ratio ? 'media--ratio media--ratio--' ~ settings.ratio,
-    settings.responsive_image_style_id ? 'media--responsive',
+    settings.blazies.resimage.id ? 'media--responsive',
     settings.type ? 'media--' ~ settings.type,
     settings.classes ? settings.classes|join(' ')|clean_class,
   ]

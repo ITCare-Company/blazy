@@ -381,6 +381,9 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
     $settings['width'] = $node->getAttribute('width');
     $settings['height'] = $node->getAttribute('height');
     $settings['media_switch'] = empty($settings['media_switch']) ? $this->settings['media_switch'] : $settings['media_switch'];
+
+    // Checks for [Responsive] image styles at individual items.
+    BlazyFile::imageStyles($settings, TRUE);
   }
 
   /**

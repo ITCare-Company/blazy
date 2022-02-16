@@ -17,7 +17,7 @@
   var _data = 'data';
   var _bbg = 'b-bg';
   var _dataBg = _data + '-' + _bbg;
-  var _dataDimensions = _data + '-dimensions';
+  var _dataRatios = _data + '-ratios';
   var _elBlur = '.b-blur';
   var _media = 'media';
   var _elMedia = '.' + _media;
@@ -57,7 +57,7 @@
     },
 
     isFluid: function (el, cn) {
-      return $.equal(el.parentNode, 'picture') && $.hasAttr(cn, _dataDimensions);
+      return $.equal(el.parentNode, 'picture') && $.hasAttr(cn, _dataRatios);
     },
 
     isLoaded: function (el) {

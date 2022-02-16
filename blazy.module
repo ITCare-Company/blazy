@@ -45,6 +45,18 @@ function template_preprocess_blazy(&$variables) {
 }
 
 /**
+ * Overrides variables for image.html.twig templates.
+ *
+ * @todo remove when core makes `loading` attribute optional.
+ */
+function blazy_preprocess_image(&$variables) {
+  $attributes = &$variables['attributes'];
+  if (isset($attributes['data-b-unloading'])) {
+    unset($attributes['loading'], $attributes['data-b-unloading']);
+  }
+}
+
+/**
  * Overrides variables for responsive-image.html.twig templates.
  */
 function blazy_preprocess_responsive_image(&$variables) {

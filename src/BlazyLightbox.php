@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Serialization\Json;
 use Drupal\image\Entity\ImageStyle;
@@ -11,6 +12,35 @@ use Drupal\blazy\Media\BlazyFile;
  * Provides lightbox utilities.
  */
 class BlazyLightbox {
+
+  /**
+   * Provides lightbox libraries.
+   */
+  public static function attach(array &$load, array $attach = []): void {
+    $blazies = $attach['blazies'];
+    $switch = $attach['media_switch'] ?? '';
+
+    if ($switch && in_array($switch, $blazies->get('lightboxes', []))) {
+      $load['library'][] = 'blazy/lightbox';
+
+      if ($blazies->get('colorbox')) {
+        self::attachColorbox($load, $attach);
+      }
+    }
+  }
+
+  /**
+   * Attaches Colorbox if so configured.
+   */
+  public static function attachColorbox(array &$load, $attach = []): void {
+    if ($service = Blazy::service('colorbox.attachment')) {
+      $dummy = [];
+      $service->attach($dummy);
+      $load = isset($dummy['#attached']) ? NestedArray::mergeDeep($load, $dummy['#attached']) : $load;
+      $load['library'][] = 'blazy/colorbox';
+      unset($dummy);
+    }
+  }
 
   /**
    * Gets media switch elements: all lightboxes, not content, nor iframe.

@@ -145,6 +145,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * {@inheritdoc}
    */
   public function build(array &$settings = []) {
+    $blazies = $settings['blazies'] ?? NULL;
     if (empty($settings['_input_url'])) {
       $this->checkInputUrl($settings);
     }
@@ -161,8 +162,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       ],
     ]);
 
-    if (!empty($settings['iframe_domain'])) {
-      $url->setOption('base_url', $settings['iframe_domain']);
+    if ($blazies && $iframe_domain = $blazies->get('iframe_domain')) {
+      $url->setOption('base_url', $iframe_domain);
     }
 
     // The top level iframe url relative to the site, or iframe_domain.

@@ -65,6 +65,7 @@ load:
 
 # Compat methods between Native and lazyload script when being ditched to enact
 # lost module features: Blur, VIDEO, multi-breakpoint BG and aspect ratio.
+# @todo refine to not depend on bio.media.
 compat:
   js:
     js/blazy.compat.min.js: { minified: true, weight: -1.4 }
@@ -230,7 +231,7 @@ mfp:
     js/components/jquery/blazy.mfp.min.js: { minified: true }
   dependencies:
     - blazy/magnific_popup
-    - blazy/compat
+    # @todo revert if not enough: - blazy/compat
     - blazy/lightbox
     - blazy/media
 

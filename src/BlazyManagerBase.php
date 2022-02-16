@@ -210,19 +210,16 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function attach(array $attach = []) {
     $this->getCommonSettings($attach);
-    $load = [];
+    $blazies = $attach['blazies'];
+    $unblazy = $blazies->get('is.unblazy', FALSE);
+    $unload = $blazies->get('ui.nojs.lazy', FALSE);
     $switch = $attach['media_switch'] ?? '';
+    $load = [];
 
     if ($switch && $switch != 'content') {
       $attach[$switch] = $switch;
 
-      if (in_array($switch, $this->getLightboxes())) {
-        $load['library'][] = 'blazy/lightbox';
-
-        if (!empty($attach['colorbox'])) {
-          BlazyAlter::attachColorbox($load, $attach);
-        }
-      }
+      BlazyLightbox::attach($load, $attach);
     }
 
     // Allow variants of grid, columns, flexbox, native grid to co-exist.
@@ -232,41 +229,42 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
     // Always keep Drupal UI config to support dynamic compat features.
     $config = $this->configLoad('blazy');
-    $config['loader'] = empty($attach['nojs']['lazy']);
-    $config['unblazy'] = $this->configLoad('io.unblazy');
+    $config['loader'] = !$unload;
+    $config['unblazy'] = $unblazy;
 
-    // One is enough due to various formatters with different features.
-    if ($attach['compat']) {
-      $config['compat'] = $attach['compat'];
-    }
+    // One is enough due to various formatters negating each others.
+    $compat = $blazies->get('libs.compat');
+    if ($compat || !$unload) {
+      if ($compat) {
+        $config['compat'] = $compat;
+      }
 
-    $load['drupalSettings']['blazy'] = $config;
-    $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
-
-    // Only if `No JavaScript` option is disabled, or has compat.
-    // Compat is a loader for Blur, BG, Video which Native doesn't support.
-    if (empty($attach['nojs']['lazy']) || $attach['compat']) {
+      // Only if `No JavaScript` option is disabled, or has compat.
+      // Compat is a loader for Blur, BG, Video which Native doesn't support.
       // Modern sites may want to forget oldies, respect.
-      if (!$config['unblazy']) {
+      if (!$unblazy) {
         $load['library'][] = 'blazy/blazy';
       }
 
       foreach (BlazyDefault::nojs() as $key) {
-        if (empty($attach['nojs'][$key])) {
+        if (empty($blazies->get('ui.nojs.' . $key))) {
           $lib = $key == 'lazy' ? 'load' : $key;
           $load['library'][] = 'blazy/' . $lib;
         }
       }
     }
 
+    $load['drupalSettings']['blazy'] = $config;
+    $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
+
     foreach (BlazyDefault::components() as $component) {
-      if (!empty($attach[$component])) {
+      if ($blazies->get('libs.' . $component, FALSE) || !empty($attach[$component])) {
         $load['library'][] = 'blazy/' . $component;
       }
     }
 
     // Adds AJAX helper to revalidate Blazy/ IO, if using VIS, or alike.
-    if ($attach['use_ajax']) {
+    if ($blazies->get('use.ajax', FALSE)) {
       $load['library'][] = 'blazy/bio.ajax';
     }
 
@@ -313,56 +311,117 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    *
    * The `fx` sequence: hook_alter > formatters (not implemented yet) > UI.
    * The `_fx` is a special flag such as to temporarily disable till needed.
+   * Called by field formatters, views [styles|fields via BlazyEntity],
+   * [blazy|splide|slick] filters.
    */
   public function getCommonSettings(array &$settings = []) {
     $config = array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
     $config['fx'] = $config['fx'] ?? '';
     $config['fx'] = empty($settings['fx']) ? $config['fx'] : $settings['fx'];
-    $settings = array_merge($settings, $config);
+
+    // @todo remove merge once migrated to BlazySettings instance.
+    // @todo revert $settings = array_merge($settings, $config);
     $settings += BlazyDefault::htmlSettings();
+    $blazies = &$settings['blazies'];
     $switch = $settings['media_switch'];
-    $style = $settings['responsive_image_style'];
-    $settings['fx'] = $settings['animate'] = $settings['_fx'] ?? $settings['fx'];
-    $settings['blur'] = $settings['fx'] == 'blur';
-    $settings['iframe_domain'] = $this->configLoad('iframe_domain', 'media.settings');
-    $settings['is_amp'] = Blazy::isAmp();
-    $settings['is_preview'] = Blazy::isPreview();
-    $settings['is_sandboxed'] = Blazy::isSandboxed();
-    $settings['is_nojs'] = !empty($settings['nojs']['lazy']) || $settings['is_preview'] || $settings['is_amp'] || $settings['loading'] == 'unlazy';
-    $settings['lightbox'] = ($switch && in_array($switch, $this->getLightboxes())) ? $switch : FALSE;
-    $settings['route_name'] = $this->getRouteName();
-    $settings['_resimage'] = $this->moduleHandler->moduleExists('responsive_image');
-    $settings['resimage'] = $settings['_resimage'] && $style;
-    $settings['resimage'] = $settings['resimage'] ? $this->entityLoad($style, 'responsive_image_style') : FALSE;
-    $settings['fluid'] = $settings['ratio'] == 'fluid';
-    $settings['compat'] = $settings['fx'] || $settings['fluid'] || $settings['background'] || $settings['bundle'] == 'video' || $settings['compat'];
-    $settings['current_language'] = $this->languageManager->getCurrentLanguage()->getId();
+    $iframe_domain = $this->configLoad('iframe_domain', 'media.settings');
+    $lightboxes = $this->getLightboxes();
+
+    // @todo remove some settings for `blazies` after sub-module updates.
+    // @todo some plugin requires setting name by its name: blur, compat, etc.
+    $settings['fx'] = $fx = $settings['_fx'] ?? $settings['fx'];
+    $is_blur = $settings['fx'] == 'blur';
+    $settings['lightbox'] = $lightbox = ($switch && in_array($switch, $lightboxes)) ? $switch : $settings['lightbox'];
+    $settings['loading'] = $settings['loading'] ?: 'lazy';
+    $settings['route_name'] = $route_name = $this->getRouteName();
+
+    $current_language = $this->languageManager->getCurrentLanguage()->getId();
+    $is_preview = $settings['is_preview'] = Blazy::isPreview();
+    $is_amp = Blazy::isAmp();
+    $is_bg = !empty($settings['background']);
+    $is_unload = !empty($config['nojs']['lazy']);
+    $is_unloading = $settings['loading'] == 'unlazy';
+    $is_slider = $settings['loading'] == 'slider';
+    $is_fluid = $settings['ratio'] == 'fluid';
+    $is_static = $is_preview || $is_amp;
+    $is_undata = $is_static || $is_unloading;
+    $is_nojs = $is_unload || $is_undata;
+    $is_video = $settings['bundle'] == 'video' || in_array('video', $settings['bundles'] ?? []);
+
+    $is_compat = $settings['fx']
+      || $is_fluid
+      || $is_video
+      || $is_bg
+      || $blazies->get('libs.compat');
+
+    // Some should be refined per item against potential mixed media items.
+    $blazies->set('ui', $config)
+      ->set('is.amp', $is_amp)
+      ->set('is.fluid', $is_fluid)
+      ->set('is.nojs', $is_nojs)
+      ->set('is.preview', $is_preview)
+      ->set('is.sandboxed', Blazy::isSandboxed())
+      ->set('is.slider', $is_slider)
+      ->set('is.static', $is_static)
+      ->set('is.unblazy', $this->configLoad('io.unblazy'))
+      ->set('is.undata', $is_undata)
+      ->set('is.unload', $is_unload)
+      ->set('is.unloading', $is_unloading)
+      ->set('libs.animate', $fx)
+      ->set('libs.blur', $is_blur)
+      ->set('libs.compat', $is_compat)
+      ->set('current_language', $current_language)
+      ->set('fx', $fx)
+      ->set('iframe_domain', $iframe_domain)
+      ->set('lightbox', $lightbox)
+      ->set('lightboxes', $lightboxes)
+      ->set('route_name', $route_name)
+      ->set('use.dataset', $is_bg);
 
     // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
     if ($switch) {
-      $settings[$switch] = empty($settings[$switch]) ? $switch : $settings[$switch];
+      $settings[$switch] = $lightbox = empty($settings[$switch]) ? $switch : $settings[$switch];
+      $blazies->set($lightbox, $lightbox);
     }
+
+    // Checks for [Responsive] image styles.
+    BlazyFile::imageStyles($settings);
 
     // Formatters, Views style, not Filters.
     if (!empty($settings['style'])) {
       BlazyGrid::toNativeGrid($settings);
     }
+
+    // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
+    $settings['blazy'] = !empty($settings['blazy']) || $is_bg || $blazies->get('resimage.style');
+    $lazy = $settings['blazy'] ? 'blazy' : ($settings['lazy'] ?? '');
+    $settings['lazy'] = $is_nojs ? '' : $lazy;
+
+    // @todo re-check after sub-modules which were only aware of `is_preview`.
+    // Basically tricking overrides by the reversed name due to sub-modules are
+    // not updated to the new options `No JavaScript` + `Loading priority`, yet.
+    // As known, Splide/ Slick has their own lazy, but might break till further
+    // updates. Choosing Blazy as their lazyload method is the solution to be
+    // compatible with the mentioned options. Better than sacrificing Native.
+    $settings['unlazy'] = empty($settings['lazy']);
   }
 
   /**
    * Returns the common settings extracted from the given entity.
    */
   public function getEntitySettings(array &$settings, $entity) {
+    $blazies = &$settings['blazies'];
     $internal_path = $absolute_path = NULL;
 
     // Deals with UndefinedLinkTemplateException such as paragraphs type.
     // @see #2596385, or fetch the host entity.
     if (!$entity->isNew()) {
       try {
+        $lang = $blazies->get('current_language');
         // Check if multilingual is enabled (@see #3214002).
-        if ($entity->hasTranslation($settings['current_language'])) {
+        if ($entity->hasTranslation($lang)) {
           // Load the translated url.
-          $url = $entity->getTranslation($settings['current_language'])->toUrl();
+          $url = $entity->getTranslation($lang)->toUrl();
         }
         else {
           // Otherwise keep the standard url.
@@ -377,6 +436,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       }
     }
 
+    // @todo group some non-ui settings into `blazies`.
     // @todo Remove checks after another check, in case already set somewhere.
     // The `current_view_mode` (entity|views display) is not `view_mode` option.
     $settings['current_view_mode'] = empty($settings['current_view_mode']) ? '_custom' : $settings['current_view_mode'];
@@ -391,6 +451,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo move checks into BlazyAdmin, or cache this.
    */
   public function getLightboxes() {
     $lightboxes = [];
@@ -412,7 +474,9 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     $this->moduleHandler->alter('blazy_lightboxes', $lightboxes);
-    return array_unique($lightboxes);
+    $lightboxes = array_unique($lightboxes);
+    sort($lightboxes);
+    return $lightboxes;
   }
 
   /**
@@ -479,12 +543,14 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * Returns the thumbnail image using theme_image(), or theme_image_style().
    */
   public function getThumbnail(array $settings = [], $item = NULL) {
-    if (!empty($settings['uri'])) {
-      $external = UrlHelper::isExternal($settings['uri']);
+    if ($uri = ($settings['uri'] ?? NULL)) {
+      $external = UrlHelper::isExternal($uri);
+      $style = $settings['thumbnail_style'] ?? NULL;
+
       return [
         '#theme'      => $external ? 'image' : 'image_style',
-        '#style_name' => empty($settings['thumbnail_style']) ? 'thumbnail' : $settings['thumbnail_style'],
-        '#uri'        => $settings['uri'],
+        '#style_name' => $style ?: 'thumbnail',
+        '#uri'        => $uri,
         '#item'       => $item,
         '#alt'        => $item && $item instanceof ImageItem ? $item->getValue()['alt'] : '',
       ];

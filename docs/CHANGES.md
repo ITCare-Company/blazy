@@ -2,6 +2,8 @@
 ***
 ## <a name="changes"></a>NOTABLE CHANGES
 * _Blazy 2.7_:
+  + Added `settings.blazies` grouping for sanity and to avoid conflict with
+    sub-modules till all settings converted into BlazySettings at 3+.
   + Moved media-related classes/ services into `Drupal\blazy\Media` namespace.
   + Added Magnific Popup as decent replacement for Colorbox and Photobox.
   + [Hot fix](https://drupal.org/node/3263027) for D8 `app.root` compat.

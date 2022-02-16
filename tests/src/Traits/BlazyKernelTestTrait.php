@@ -58,7 +58,7 @@ trait BlazyKernelTestTrait {
     $this->blazyAdmin             = $this->container->get('blazy.admin');
     $this->blazyAdminExtended     = $this->container->get('blazy.admin.extended');
 
-    // Enable Responsive image support.
+    // @todo remove at 3.x.
     $this->blazyManager->getConfigFactory()->getEditable('blazy.settings')->set('responsive_image', TRUE)->save();
   }
 

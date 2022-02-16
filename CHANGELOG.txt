@@ -1,4 +1,11 @@
 
+Blazy 8.x-2.0-dev, 2022-02-15
+-----------------------------
+- Added `settings.blazies` grouping for sanity and to avoid conflict with
+  sub-modules till all settings converted into BlazySettings at 3+.
+- Issue #3264039 by xamount, gausarts: WSOD when using preload with a responsive
+  image style with no sizes attribute.
+
 Blazy 8.x-2.0-dev, 2022-02-11
 -----------------------------
 - Moved media-related classes and services into \Drupal\blazy\Media namespace.

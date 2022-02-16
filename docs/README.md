@@ -216,6 +216,9 @@ Splidebox supports AJAX contents.
 * Works absurdly fine at IE9 for Blazy 2.6.
 * Works without JavaScript within/without JavaScript browsers.
 * Works with AMP, or static/ archived sites, e.g.: Tome, HTTrack, etc.
+* Supports modern Native lazyload since [incubation](https://drupal.org/node/3104542)
+  before Firefox or core had it, or old `data-[src|srcset]` since eons. Must be
+  noted very clearly due to some thought Blazy was retarded from core.
 * Supports Image, Responsive image, (local|remote|iframe) videos, DIV either
   inline, fields, views, or within lightboxes.
 * Lightboxes: Colorbox, Magnific Popup, Splidebox, PhotoSwipe, etc. with

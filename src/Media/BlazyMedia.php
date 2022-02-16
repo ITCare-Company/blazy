@@ -132,8 +132,10 @@ class BlazyMedia implements BlazyMediaInterface {
     }
 
     $item['#attributes']->setAttribute('data-b-lazy', TRUE);
-    if (!empty($settings['is_nojs'])) {
-      $item['#attributes']->setAttribute('data-b-nojs', TRUE);
+    if ($blazies = ($settings['blazies'] ?? NULL)) {
+      if ($blazies->get('is.undata')) {
+        $item['#attributes']->setAttribute('data-b-undata', TRUE);
+      }
     }
   }
 

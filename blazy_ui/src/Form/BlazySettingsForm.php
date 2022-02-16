@@ -93,6 +93,8 @@ class BlazySettingsForm extends ConfigFormBase {
       '#description'   => $this->t('Enable noscript if you want to support <a href=":url">non-javascript users</a>.', [':url' => 'https://stackoverflow.com/questions/9478737']),
     ];
 
+    // @todo remove users's consent at 3.x, should be enough with manual check.
+    // It was an option due to not being fully integrated till likely 2.4+.
     $form['responsive_image'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Support Responsive image'),

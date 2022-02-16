@@ -20,7 +20,7 @@
   var _id = 'blazy';
   var _data = 'data-';
   var _dataAnimation = _data + 'animation';
-  var _dataDimensions = _data + 'dimensions';
+  var _dataRatios = _data + 'ratios';
   var _dataRatio = _data + 'ratio';
   var _media = 'media';
   var _picture = 'picture';
@@ -132,11 +132,11 @@
     var me = this;
     // Blazy container (via formatter or Views style) is not always there.
     var root = $.closest(cn, '.' + _id);
-    var dimensions = $.parse($.attr(cn, _dataDimensions));
+    var ratios = $.parse($.attr(cn, _dataRatios));
     var isResized = me.resizeTick > 0;
 
     // Bail out if a static/ non-fluid aspect ratio.
-    if (!dimensions) {
+    if (!ratios) {
       fallbackRatio(cn);
       return;
     }
@@ -146,7 +146,7 @@
     var data = $.extend(_winData, {
       up: isPicture
     });
-    var pad = $.activeWidth(dimensions, data);
+    var pad = $.activeWidth(ratios, data);
 
     // Provides marker for grouping between multiple instances.
     cn.dblazy = $.isElm(root) && root.dblazy;

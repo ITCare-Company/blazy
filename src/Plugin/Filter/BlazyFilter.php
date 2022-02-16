@@ -31,6 +31,8 @@ class BlazyFilter extends BlazyFilterBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo to support preload, split into two phases: collect uris and render.
    */
   public function process($text, $langcode) {
     $this->result = $result = new FilterProcessResult($text);
@@ -423,7 +425,8 @@ class BlazyFilter extends BlazyFilterBase {
    * @param array $grid_items
    *   The renderable array of blazy item.
    *
-   * @todo deprecate and remove for shortcodes at Blazy 3.x.
+   * @todo deprecate and remove for shortcodes at Blazy 3.x due to being
+   * too catch-all, not selective like field formatters.
    */
   private function buildGrid(array &$settings, array $grid_nodes, array $grid_items = []) {
     if (empty($settings['_grid']) || empty($grid_items[0])) {
