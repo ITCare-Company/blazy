@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2022-02-17
 -----------------------------
+- Issue #3264754 by Qusai Taha: Fix Undefined index: ratio in
+  Drupal\blazy\BlazyFormatter->preBuildElements().
 - Fixed for local video autoplay which be on lightboxes, not inline.
 - Added core/once as soft dependencies, etc.
 

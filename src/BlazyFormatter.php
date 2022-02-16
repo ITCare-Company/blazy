@@ -70,11 +70,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $use_field = !$blazies->get('lightbox') && ($settings['third_party']['linked_field']['linked'] ?? FALSE);
 
     $blazies->set('use.field', $use_field);
-
-    // Bail out if Vanilla mode is requested.
-    if (!empty($settings['vanilla'])) {
-      $settings = array_filter($settings);
-    }
   }
 
   /**
