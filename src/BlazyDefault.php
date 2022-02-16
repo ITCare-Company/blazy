@@ -229,6 +229,9 @@ class BlazyDefault {
 
   /**
    * Grouping for sanity till all settings converted into BlazySettings.
+   *
+   * It was a pre-release RC7 @todo, partially implemented since 2.7.
+   * The hustle is sub-modules are not aware, yet. Yet better started before 3.
    */
   public static function blazies() {
     return [
@@ -260,7 +263,6 @@ class BlazyDefault {
       'blazy_data'       => [],
       'bundle'           => '',
       'check_blazy'      => FALSE,
-      'lightbox'         => FALSE,
       'namespace'        => 'blazy',
       'id'               => '',
       '_richbox'         => FALSE,
@@ -274,6 +276,7 @@ class BlazyDefault {
       // 'unstyled'         => FALSE,
       'compat'           => FALSE,
       'is_preview'       => FALSE,
+      'lightbox'         => FALSE,
       'resimage'         => FALSE,
       '_resimage'        => FALSE,
       // @todo revert  + self::uiSettings()

@@ -68,19 +68,6 @@ class BlazyUtil {
   }
 
   /**
-   * Checks if extension should not use image style: apng svg gif, etc.
-   */
-  public static function unstyled(array $settings): bool {
-    $blazies = $settings['blazies'];
-    $extensions = ['svg'];
-    if ($unstyled = $blazies->get('ui.unstyled_extensions')) {
-      $extensions = array_merge($extensions, array_map('trim', explode(' ', mb_strtolower($unstyled))));
-      $extensions = array_unique($extensions);
-    }
-    return isset($settings['extension']) && in_array($settings['extension'], $extensions);
-  }
-
-  /**
    * Build out the blur image.
    */
   public static function blur(array &$element, array &$attributes, array &$settings) {

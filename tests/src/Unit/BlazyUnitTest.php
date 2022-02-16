@@ -173,7 +173,6 @@ class BlazyUnitTest extends UnitTestCase {
         'scheme' => 'youtube',
         'type' => 'video',
         'uri' => $uri,
-        'use_media' => TRUE,
       ],
       TRUE,
       TRUE,

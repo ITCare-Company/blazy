@@ -39,6 +39,7 @@
   var _dashAlphaRe = /-([a-z])/g;
   var _cssVariableRe = /^--/;
   var _events = {};
+  var _onceSet = false;
 
   /**
    * Object for public APIs where dBlazy stands for drupalBlazy.
@@ -882,6 +883,9 @@
    * Alternatively flag the asArray to any value if an array is expected, or
    * use the shortcut ::findAll() to be clear.
    *
+   * To check if the expected element is found:
+   *   - use $.isElm(el) which returns a bool.
+   *
    * @param {Element} el
    *   The parent HTML element.
    * @param {string} selector
@@ -901,6 +905,9 @@
 
   /**
    * A simple querySelectorAll wrapper.
+   *
+   * To check if the expected elements are found:
+   *   - use regular `els.length`. The length 0 means not found.
    *
    * @private
    *
@@ -1590,7 +1597,7 @@
    * @todo until D9.2 is a minimum, adapt core/once for better once at the next
    * optimization sessions.
    */
-  db.once = function (cb, selector, context) {
+  function __once(cb, selector, context) {
     var els = [];
 
     // Original once.
@@ -1603,12 +1610,30 @@
       els = isStr(selector) ? findAll(context || _doc, selector) : toArray(selector);
       var len = els.length;
       if (len) {
-        _once(len === 1 ? cb(els[0]) : each(els, cb));
+        var id = isStr(selector) ? selector.split(':')[0] : '';
+        var _cb = function () {
+          return len === 1 ? cb(els[0]) : each(els, cb);
+        };
+
+        // Hooks into core/once if available at min D9.2 for better once.
+        if (id && isOnce()) {
+          // https://eslint.org/docs/rules/no-useless-escape
+          id = id.replace(/[.#[\]]/g, '');
+
+          once(id, els, context);
+          _cb();
+        }
+        else {
+          // Else poor old _once with minimal functionality.
+          _once(_cb);
+        }
       }
     }
 
     return els;
-  };
+  }
+
+  db.once = __once;
 
   /**
    * A simple wrapper to delay callback function, taken out of blazy library.
@@ -1805,6 +1830,22 @@
     }
     return i;
   };
+
+  // @todo remove when min D9.2, and IE is dropped or gone.
+  function isOnce() {
+    return 'once' in _win && !ie();
+  }
+
+  db.isOnce = isOnce;
+
+  // @todo add fallback for < D9.2.
+  if (!_onceSet) {
+    if (isOnce()) {
+      db.once = extend(db.once, once);
+    }
+
+    _onceSet = true;
+  }
 
   // @deprecated for shorter ::is(). Hardly used, except lory.
   db.matches = is;

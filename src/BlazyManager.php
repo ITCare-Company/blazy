@@ -4,7 +4,6 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Cache\Cache;
@@ -105,21 +104,8 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     $blazies->set('_api', TRUE);
 
-    $pathinfo = pathinfo($settings['uri']);
-    $settings['extension'] = $pathinfo['extension'] ?? '';
-    $unstyled = BlazyUtil::unstyled($settings);
-    $settings['_richbox'] = !empty($settings['colorbox']) || !empty($settings['mfp']) || !empty($settings['_richbox']);
-
-    $blazies->set('is.unstyled', $unstyled);
-    $blazies->set('is.external', UrlHelper::isExternal($settings['uri']));
-
-    // Disable image style if so configured.
-    if ($unstyled) {
-      $images = ['box', 'box_media', 'image', 'thumbnail', 'responsive_image'];
-      foreach ($images as $image) {
-        $settings[$image . '_style'] = '';
-      }
-    }
+    // Prepares URI, extension, image styles, lightboxes.
+    BlazyFile::prepare($settings);
 
     foreach (BlazyDefault::themeAttributes() as $key) {
       $key = $key . '_attributes';

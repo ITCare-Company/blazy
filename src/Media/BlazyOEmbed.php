@@ -168,9 +168,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
     // The top level iframe url relative to the site, or iframe_domain.
     $settings['embed_url'] = $url->toString();
-    if (isset($settings['media_source'])) {
-      $settings['type'] = $settings['media_source'] == 'oembed:video' ? 'video' : $settings['media_source'];
-      $settings['type'] = $settings['media_source'] == 'video_embed_field' ? 'video' : $settings['type'];
+    if ($source = ($settings['media_source'] ?? NULL)) {
+      $videos = in_array($source, ['oembed:video', 'video_embed_field']);
+      $settings['type'] = $videos ? 'video' : $source;
     }
   }
 
@@ -178,15 +178,19 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * Checks the given input URL.
    */
   public function checkInputUrl(array &$settings = []) {
-    $settings['input_url'] = UrlHelper::stripDangerousProtocols(trim($settings['input_url']));
+    if ($input = trim($settings['input_url'] ?? '')) {
+      $input = UrlHelper::stripDangerousProtocols($input);
 
-    // OEmbed Resource doesn't accept `/embed`, provides a conversion helper.
-    if (strpos($settings['input_url'], 'youtube.com/embed') !== FALSE) {
-      $search = '/youtube\.com\/embed\/([a-zA-Z0-9]+)/smi';
-      $replace = "youtube.com/watch?v=$1";
-      $settings['input_url'] = preg_replace($search, $replace, $settings['input_url']);
+      // OEmbed Resource doesn't accept `/embed`, provides a conversion helper.
+      if (strpos($input, 'youtube.com/embed') !== FALSE) {
+        $search = '/youtube\.com\/embed\/([a-zA-Z0-9]+)/smi';
+        $replace = "youtube.com/watch?v=$1";
+        $input = preg_replace($search, $replace, $input);
+      }
+
+      $settings['input_url'] = $input;
+      $settings['_input_url'] = TRUE;
     }
-    $settings['_input_url'] = TRUE;
   }
 
   /**

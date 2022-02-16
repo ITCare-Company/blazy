@@ -19,7 +19,7 @@ use Drupal\blazy\Media\BlazyResponsiveImage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Implements BlazyManagerInterface.
+ * Provides common shared methods across Blazy ecosystem to DRY.
  */
 abstract class BlazyManagerBase implements BlazyManagerInterface {
 
@@ -82,6 +82,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * @var \Drupal\Core\Language\LanguageManager
    */
   protected $languageManager;
+
+  /**
+   * Static cache for the lightboxes.
+   *
+   * @var array
+   */
+  protected $lightboxes;
 
   /**
    * Constructs a BlazyManager object.
@@ -234,13 +241,14 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
     // One is enough due to various formatters negating each others.
     $compat = $blazies->get('libs.compat');
+
+    // Only if `No JavaScript` option is disabled, or has compat.
+    // Compat is a loader for Blur, BG, Video which Native doesn't support.
     if ($compat || !$unload) {
       if ($compat) {
         $config['compat'] = $compat;
       }
 
-      // Only if `No JavaScript` option is disabled, or has compat.
-      // Compat is a loader for Blur, BG, Video which Native doesn't support.
       // Modern sites may want to forget oldies, respect.
       if (!$unblazy) {
         $load['library'][] = 'blazy/blazy';
@@ -348,10 +356,10 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $is_nojs = $is_unload || $is_undata;
     $is_video = $settings['bundle'] == 'video' || in_array('video', $settings['bundles'] ?? []);
 
-    $is_compat = $settings['fx']
+    $is_compat = $fx
+      || $is_bg
       || $is_fluid
       || $is_video
-      || $is_bg
       || $blazies->get('libs.compat');
 
     // Some should be refined per item against potential mixed media items.
@@ -368,6 +376,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       ->set('is.unload', $is_unload)
       ->set('is.unloading', $is_unloading)
       ->set('libs.animate', $fx)
+      ->set('libs.background', $is_bg)
       ->set('libs.blur', $is_blur)
       ->set('libs.compat', $is_compat)
       ->set('current_language', $current_language)
@@ -380,8 +389,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
     // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
     if ($switch) {
-      $settings[$switch] = $lightbox = empty($settings[$switch]) ? $switch : $settings[$switch];
-      $blazies->set($lightbox, $lightbox);
+      $settings[$switch] = $feature = empty($settings[$switch]) ? $switch : $settings[$switch];
+      $blazies->set($feature, $feature);
     }
 
     // Checks for [Responsive] image styles.
@@ -400,7 +409,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     // @todo re-check after sub-modules which were only aware of `is_preview`.
     // Basically tricking overrides by the reversed name due to sub-modules are
     // not updated to the new options `No JavaScript` + `Loading priority`, yet.
-    // As known, Splide/ Slick has their own lazy, but might break till further
+    // As known, Splide/ Slick have their own lazy, but might break till further
     // updates. Choosing Blazy as their lazyload method is the solution to be
     // compatible with the mentioned options. Better than sacrificing Native.
     $settings['unlazy'] = empty($settings['lazy']);
@@ -451,32 +460,45 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
   /**
    * {@inheritdoc}
-   *
-   * @todo move checks into BlazyAdmin, or cache this.
    */
   public function getLightboxes() {
-    $lightboxes = [];
-    foreach (['colorbox', 'photobox'] as $lightbox) {
-      if (function_exists($lightbox . '_theme')) {
-        $lightboxes[] = $lightbox;
+    if (!isset($this->lightboxes)) {
+      $cid = 'blazy_lightboxes';
+
+      if ($cache = $this->cache->get($cid)) {
+        $this->lightboxes = $cache->data;
+      }
+      else {
+        $lightboxes = [];
+        foreach (['colorbox', 'photobox'] as $lightbox) {
+          if (function_exists($lightbox . '_theme')) {
+            $lightboxes[] = $lightbox;
+          }
+        }
+
+        $paths = [
+          'photobox' => 'photobox/photobox/jquery.photobox.js',
+          'mfp' => 'magnific-popup/dist/jquery.magnific-popup.min.js',
+        ];
+
+        foreach ($paths as $key => $path) {
+          if (is_file($this->root . '/libraries/' . $path)) {
+            $lightboxes[] = $key;
+          }
+        }
+
+        $this->moduleHandler->alter('blazy_lightboxes', $lightboxes);
+        $lightboxes = array_unique($lightboxes);
+        sort($lightboxes);
+
+        $count = count($lightboxes);
+        $tags = Cache::buildTags($cid, ['count:' . $count]);
+        $this->cache->set($cid, $lightboxes, Cache::PERMANENT, $tags);
+
+        $this->lightboxes = $lightboxes;
       }
     }
-
-    $paths = [
-      'photobox' => 'photobox/photobox/jquery.photobox.js',
-      'mfp' => 'magnific-popup/dist/jquery.magnific-popup.min.js',
-    ];
-
-    foreach ($paths as $key => $path) {
-      if (is_file($this->root . '/libraries/' . $path)) {
-        $lightboxes[] = $key;
-      }
-    }
-
-    $this->moduleHandler->alter('blazy_lightboxes', $lightboxes);
-    $lightboxes = array_unique($lightboxes);
-    sort($lightboxes);
-    return $lightboxes;
+    return $this->lightboxes;
   }
 
   /**

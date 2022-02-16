@@ -78,6 +78,8 @@ class BlazyTheme {
     // URL and dimensions are built out at BlazyManager::preRenderBlazy().
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$blazies->get('_api')) {
+      // Prepares URI, extension, image styles, lightboxes.
+      BlazyFile::prepare($settings);
       BlazyFile::urlAndDimensions($settings, $variables['item']);
     }
 
@@ -90,11 +92,7 @@ class BlazyTheme {
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
     // Prevents double padding hacks with AMP which also uses similar technique.
-    if ($stack = Blazy::requestStack()) {
-      $amp = $stack->getCurrentRequest()->query->get('amp');
-    }
-
-    $settings['ratio'] = empty($settings['width']) || isset($amp) ? '' : $settings['ratio'];
+    $settings['ratio'] = empty($settings['width']) || $blazies->get('is.amp') ? '' : $settings['ratio'];
     if ($settings['ratio']) {
       Blazy::aspectRatioAttributes($attributes, $settings);
     }
@@ -148,7 +146,7 @@ class BlazyTheme {
           if (!empty($settings['image_url'])) {
             $variables['attributes']->setAttribute('poster', $settings['image_url']);
           }
-          if ($blazies->get('lightbox')) {
+          if ($blazies->get('lightbox') && !empty($settings['_richbox'])) {
             $variables['attributes']->setAttribute('autoplay', TRUE);
           }
         }

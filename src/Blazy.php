@@ -60,7 +60,7 @@ class Blazy implements BlazyInterface {
     }
 
     // Prepare a media player, and allow a tiny video preview without iframe.
-    if ($settings['use_media'] && empty($settings['_noiframe'])) {
+    if ($blazies->get('use.media') && empty($settings['_noiframe'])) {
       self::buildIframe($variables);
     }
 
@@ -376,7 +376,7 @@ class Blazy implements BlazyInterface {
    */
   public static function uri($item): string {
     $fallback = $item->uri ?? '';
-    return empty($item) ? '' : (($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $fallback);
+    return empty($item) ? '' : (($file = $item->entity) && empty($item->uri) ? $file->getFileUri() : $fallback);
   }
 
   /**

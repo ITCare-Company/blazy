@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-02-17
+-----------------------------
+- Fixed for local video autoplay which be on lightboxes, not inline.
+- Added core/once as soft dependencies, etc.
+
 Blazy 8.x-2.0-dev, 2022-02-15
 -----------------------------
 - Added `settings.blazies` grouping for sanity and to avoid conflict with

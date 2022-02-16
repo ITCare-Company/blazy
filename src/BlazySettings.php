@@ -66,7 +66,7 @@ class BlazySettings implements \Countable {
    * Sets values for a key.
    */
   public function set($key, $value = NULL): self {
-    if (is_array($key) && empty($value)) {
+    if (is_array($key) && !isset($value)) {
       foreach ($key as $k => $v) {
         $this->storage[$k] = $v;
       }

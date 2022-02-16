@@ -5,6 +5,7 @@ namespace Drupal\blazy\Media;
 use Drupal\Core\Cache\Cache;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazySettings;
+use Drupal\blazy\BlazyUtil;
 
 /**
  * Provides responsive image utilities.
@@ -124,6 +125,25 @@ class BlazyResponsiveImage {
     }
     if ($preload) {
       BlazyResponsiveImage::sources($settings);
+    }
+  }
+
+  /**
+   * Modifies fallback image style.
+   */
+  public static function fallback(array &$settings): void {
+    $blazies = &$settings['blazies'];
+
+    // Mimicks private _responsive_image_image_style_url, #3119527.
+    if (empty($settings['image_style']) && $resimage = $blazies->get('resimage.style')) {
+      $fallback = $resimage->getFallbackImageStyle();
+      if ($fallback == '_empty image_') {
+        $placeholder = BlazyUtil::generatePlaceholder($settings['width'], $settings['height']);
+        $settings['image_url'] = $blazies->get('ui.placeholder') ?: $placeholder;
+      }
+      else {
+        $settings['image_style'] = $fallback;
+      }
     }
   }
 

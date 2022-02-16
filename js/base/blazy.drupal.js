@@ -5,7 +5,7 @@
  * Old bLazy is now IO fallback to reduce competition and complexity
  * and cross-compat better between Native and old approach (data-[SRC|SRCSET]).
  * The reason old bLazy was not designed to cope with Native, Bio is.
- * Native lazy was born (2016) after bLazy ceased 3 years before (2016).
+ * Native lazy was born (2019) after bLazy ceased 3 years before (2016).
  */
 
 (function ($, Drupal, drupalSettings, _win, _doc) {

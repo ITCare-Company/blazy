@@ -197,6 +197,8 @@ Check out the relevant sub-module docs for details.
 All lightbox integrations are optional. Meaning if the relevant modules and or
 libraries are not present, nothing will show up under `Media switch` option.  
 
+Clear cache if they do not appear as options due to being permanently cached.
+
 Most lightboxes, not all, supports (responsive) image, (local|remote) video.
 Magnific Popup supports picture.
 Splidebox supports AJAX contents.

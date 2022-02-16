@@ -149,7 +149,7 @@ flex:
     component:
       css/components/grid/blazy.flex.css: {}
   js:
-    js/components/grid/blazy.flex.min.js: { minified: true }
+    js/components/grid/blazy.flex.min.js: { minified: true, weight: -0.04 }
   dependencies:
     - blazy/compat
 
@@ -172,7 +172,7 @@ nativegrid.masonry:
     component:
       css/components/grid/blazy.nativegrid.masonry.css: {}
   js:
-    js/components/grid/blazy.nativegrid.masonry.min.js: { minified: true }
+    js/components/grid/blazy.nativegrid.masonry.min.js: { minified: true, weight: -0.04 }
   dependencies:
     - blazy/compat
     - blazy/nativegrid
