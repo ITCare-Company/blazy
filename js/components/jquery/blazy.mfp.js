@@ -10,14 +10,17 @@
   'use strict';
 
   var _jq = jQuery;
-  var _mounted = 'is-mfp-on';
-  var _gallery = '[data-mfp-gallery]:not(.' + _mounted + ')';
-  var _trigger = '[data-mfp-trigger]';
+  var _id = 'mfp';
+  var _idOnce = 'b-' + _id;
+  var _dataId = 'data-' + _id;
+  var _element = '[' + _dataId + '-gallery]';
+  var _trigger = '[' + _dataId + '-trigger]';
   var _blazy = Drupal.blazy || {};
   var _canZoom = true;
   var _elClicked;
   var _index = 0;
   var _mp;
+  var _context = _doc;
 
   /**
    * Blazy MagnificPopup utility functions.
@@ -29,7 +32,7 @@
 
     init(box);
 
-    $.addClass(box, _mounted);
+    // $.addClass(box, _mounted);
   }
 
   function build(elms) {
@@ -241,7 +244,7 @@
   Drupal.behaviors.blazyMagnificPopup = {
     attach: function (context) {
 
-      context = $.context(context);
+      _context = $.context(context);
 
       // Converts jQuery.magnificPopup into dBlazy for consistent vanilla JS.
       if (_jq && $.isFun(_jq.fn.magnificPopup) && !$.isFun($.fn.magnificPopup)) {
@@ -258,8 +261,15 @@
         };
       }
 
-      $.once(process, _gallery, context);
+      $.once(process, _idOnce, _element, _context);
+
+    },
+    detach: function (context, setting, trigger) {
+      if (trigger === 'unload') {
+        $.once.removeSafely(_idOnce, _element, _context);
+      }
     }
+
   };
 
 }(dBlazy, Drupal, this.document));

@@ -30,6 +30,9 @@
   var _class = 'class';
   var _add = 'add';
   var _remove = 'remove';
+  var _has = 'has';
+  var _get = 'get';
+  var _set = 'set';
   var _width = 'width';
   var _uWidth = 'Width';
   var _clientWidth = 'client' + _uWidth;
@@ -38,8 +41,9 @@
   var _observer = 'Observer';
   var _dashAlphaRe = /-([a-z])/g;
   var _cssVariableRe = /^--/;
+  var _wsRe = /[\11\12\14\15\40]+/;
+  var _dataOnce = 'data-once';
   var _events = {};
-  var _onceSet = false;
 
   /**
    * Object for public APIs where dBlazy stands for drupalBlazy.
@@ -50,8 +54,9 @@
    *   Returns this instance.
    */
   var dBlazy = function () {
-    function dBlazy(selector, context) {
+    function dBlazy(selector, ctx) {
       var me = this;
+
       me.name = ns;
 
       if (!selector) {
@@ -64,8 +69,7 @@
 
       var els = selector;
       if (isStr(selector)) {
-        var ctx = (isMe(context) ? context[0] : context) || _doc;
-        els = findAll(ctx, selector);
+        els = findAll(context(ctx), selector);
         if (isEmpty(els)) {
           return;
         }
@@ -84,8 +88,8 @@
       }
     }
 
-    dBlazy.prototype.init = function (selector, context) {
-      var instance = new dBlazy(selector, context);
+    dBlazy.prototype.init = function (selector, ctx) {
+      var instance = new dBlazy(selector, ctx);
       if (isElm(selector)) {
         if (!selector.idblazy) {
           selector.idblazy = instance;
@@ -534,7 +538,7 @@
       if (_undefined) {
         defValue = '';
       }
-      return hasAttr(el, attr) ? el.getAttribute(attr) : defValue;
+      return hasAttr(el, attr) ? _op(el, _get, attr) : defValue;
     }
 
     var chainCallback = function (el) {
@@ -545,15 +549,15 @@
       // Passing a key-value pair object means setting multiple attributes once.
       if (isObj(attr)) {
         each(attr, function (value, key) {
-          el.setAttribute(prefix + key, value);
+          _op(el, _set, prefix + key, value);
         });
       }
       // Since an attribute value null makes no sense, assumes nullify.
       else if (isNull(defValue)) {
         each(toArray(attr), function (value) {
           var name = prefix + value;
-          if (el.hasAttribute(name)) {
-            el.removeAttribute(name);
+          if (hasAttr(el, name)) {
+            _op(el, _remove, name);
           }
         });
       }
@@ -564,12 +568,16 @@
           el.src = defValue;
         }
         else {
-          el.setAttribute(attr, defValue);
+          _op(el, _set, attr, defValue);
         }
       }
     };
 
     return chain.call(els, chainCallback);
+  }
+
+  function _op(el, op, name, value) {
+    return el[op + 'Attribute'](name, value);
   }
 
   /**
@@ -586,7 +594,7 @@
    *   True if it has the attribute.
    */
   function hasAttr(el, name) {
-    return isQsa(el) && el.hasAttribute(name);
+    return isQsa(el) && _op(el, _has, name);
   }
 
   /**
@@ -897,8 +905,8 @@
    *   Empty array if not found, else the expected element(s).
    */
   function find(el, selector, asArray) {
-    if (isStr(selector) && isQsa(el)) {
-      return isUnd(asArray) ? (el.querySelector(selector) || []) : toElms(selector, el);
+    if (isQsa(el)) {
+      return isUnd(asArray) && isStr(selector) ? (el.querySelector(selector) || []) : toElms(selector, el);
     }
     return [];
   }
@@ -976,7 +984,7 @@
    *   Returns the window width.
    */
   function windowWidth() {
-    return _win.innerWidth || _doc.documentElement[_clientWidth] || _doc.body[_clientWidth] || _win.screen[_width];
+    return _win.innerWidth || _doc.documentElement[_clientWidth] || _win.screen[_width];
   }
 
   /**
@@ -1155,18 +1163,18 @@
    *
    * @param {NodeList|Array.<Element>|Element|string} selector
    *   A NodeList, array of elements, or string.
-   * @param {Document|Element} [context=document]
+   * @param {Document|Element} ctx
    *   An element to use as context for querySelectorAll.
    *
    * @return {Array.<Element>}
    *   An array of elements to process.
    */
-  function toElms(selector, context) {
+  function toElms(selector, ctx) {
     // Assume selector is an array-like element unless a string.
     var elements = toArray(selector);
     if (isStr(selector)) {
-      var check = context.querySelector(selector);
-      elements = isNull(check) ? [] : context.querySelectorAll(selector);
+      var check = ctx.querySelector(selector);
+      elements = isNull(check) ? [] : ctx.querySelectorAll(selector);
     }
 
     // Ensures an array is returned and not a NodeList or an Array-like object.
@@ -1583,9 +1591,11 @@
    *
    * @param {Function} cb
    *   The executed function.
+   * @param {string} id
+   *   The id of the once call.
    * @param {NodeList|Array.<Element>|Element|string} selector
    *   A NodeList, array of elements, single Element, or a string.
-   * @param {Document|Element} [context=document]
+   * @param {Document|Element} ctx
    *   An element to use as context for querySelectorAll.
    *
    * @return {Array.<Element>}
@@ -1597,7 +1607,7 @@
    * @todo until D9.2 is a minimum, adapt core/once for better once at the next
    * optimization sessions.
    */
-  function __once(cb, selector, context) {
+  function onceCompat(cb, id, selector, ctx) {
     var els = [];
 
     // Original once.
@@ -1607,33 +1617,21 @@
     else {
       // If extra arguments are provided, assumes regular loop over elements.
       // Safe to use fallback _doc since it is normally executed once onready.
-      els = isStr(selector) ? findAll(context || _doc, selector) : toArray(selector);
+      // Hooks into core/once compat.
+      els = initOnce(id, selector, ctx);
       var len = els.length;
       if (len) {
-        var id = isStr(selector) ? selector.split(':')[0] : '';
         var _cb = function () {
           return len === 1 ? cb(els[0]) : each(els, cb);
         };
-
-        // Hooks into core/once if available at min D9.2 for better once.
-        if (id && isOnce()) {
-          // https://eslint.org/docs/rules/no-useless-escape
-          id = id.replace(/[.#[\]]/g, '');
-
-          once(id, els, context);
-          _cb();
-        }
-        else {
-          // Else poor old _once with minimal functionality.
-          _once(_cb);
-        }
+        _cb();
       }
     }
 
     return els;
   }
 
-  db.once = __once;
+  db.once = onceCompat;
 
   /**
    * A simple wrapper to delay callback function, taken out of blazy library.
@@ -1721,22 +1719,24 @@
    * This can be null after Colorbox close, or absurd <script> element, likely
    * arbitrary, etc.
    *
-   * @param {HTMLDocument|Element} context
+   * @param {HTMLDocument|Element} ctx
    *   Any element, including weird script element.
    *
    * @return {Element|Document|DocumentFragment}
    *   The Element|Document|DocumentFragment to not fail querySelector, etc.
+   *
+   * @todo refine core/once expects Element only, or patch it for [1,9,11].
    */
-  db.context = function (context) {
+  function context(ctx) {
     // Weirdo: context may be null after Colorbox close.
-    context = context || _doc;
-
     // jQuery may pass its array as non-expected context identified by length.
-    context = context.length ? context[0] : context;
+    ctx = ctx && ctx.length ? ctx[0] : ctx;
 
     // IE9 knows not HTMLDocument, IE8 does.
-    return context && isDoc(context) ? context : _doc;
-  };
+    return ctx && isDoc(ctx) ? ctx : _doc.documentElement;
+  }
+
+  db.context = context;
 
   // Minimum common DOM methods taken and modified from cash.
   // @todo refactor or remove dups when everyone uses cash, or vanilla alike.
@@ -1831,22 +1831,6 @@
     return i;
   };
 
-  // @todo remove when min D9.2, and IE is dropped or gone.
-  function isOnce() {
-    return 'once' in _win && !ie();
-  }
-
-  db.isOnce = isOnce;
-
-  // @todo add fallback for < D9.2.
-  if (!_onceSet) {
-    if (isOnce()) {
-      db.once = extend(db.once, once);
-    }
-
-    _onceSet = true;
-  }
-
   // @deprecated for shorter ::is(). Hardly used, except lory.
   db.matches = is;
 
@@ -1857,6 +1841,92 @@
   db.bindEvent = on.bind(db);
 
   db.unbindEvent = off.bind(db);
+
+  // @todo remove all these when min D9.2, or take the least minimum for BC.
+  // Be sure to make context Element, or patch it to work with [1,9,11] types
+  // which distinguish this from core/once as per 2022/2.
+  // When removed and context issue is fixed, it will be just:
+  // `db.once = extend(db.once, once);` + `db.once.removeSafely()`.
+  function _filter(selector, elements, apply) {
+    return elements.filter(function (el) {
+      var selected = is(el, selector);
+      if (selected && apply) {
+        apply(el);
+      }
+      return selected;
+    });
+  }
+
+  db.filter = _filter;
+
+  function elsOnce(selector, ctx) {
+    return findAll(context(ctx), selector);
+  }
+
+  function selOnce(id) {
+    return '[' + _dataOnce + '~="' + id + '"]';
+  }
+
+  function updateOnce(el, opts) {
+    var add = opts.add;
+    var remove = opts.remove;
+    var result = [];
+    var unique = function (id) {
+      return !~result.indexOf(id);
+    };
+
+    if (hasAttr(el, _dataOnce)) {
+      var ids = _attr(el, _dataOnce).trim().split(_wsRe);
+      each(ids, function (id) {
+        if (unique(id) && id !== remove) {
+          result.push(id);
+        }
+      });
+    }
+    if (add && unique(add)) {
+      result.push(add);
+    }
+    var value = result.join(' ');
+    _op(el, value === '' ? _remove : _set, _dataOnce, value);
+  }
+
+  function initOnce(id, selector, ctx) {
+    return _filter(':not(' + selOnce(id) + ')', elsOnce(selector, ctx), function (el) {
+      updateOnce(el, {
+        add: id
+      });
+    });
+  }
+
+  if (!db.once.find) {
+    var objs = {
+      find: function (id, ctx) {
+        return elsOnce(!id ? '[' + _dataOnce + ']' : selOnce(id), ctx);
+      },
+      filter: function (id, selector, ctx) {
+        return _filter(selOnce(id), elsOnce(selector, ctx));
+      },
+      remove: function (id, selector, ctx) {
+        return _filter(
+          selOnce(id),
+          elsOnce(selector, ctx),
+          function (el) {
+            updateOnce(el, {
+              remove: id
+            });
+          }
+        );
+      },
+      removeSafely: function (id, selector, ctx) {
+        var me = this;
+        if (me.find(id, ctx).length) {
+          me.remove(id, selector, ctx);
+        }
+      }
+    };
+
+    db.once = extend(db.once, objs);
+  }
 
   if (typeof exports !== 'undefined') {
     // Node.js.

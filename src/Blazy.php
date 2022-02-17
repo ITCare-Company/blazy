@@ -47,9 +47,10 @@ class Blazy implements BlazyInterface {
    */
   public static function buildMedia(array &$variables): void {
     $settings = $variables['settings'];
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
 
     // (Responsive) image is optional for Video, or image as CSS background.
+    // Background image is built out at BlazyManager pre_render, not preprocess.
     if (empty($settings['background'])) {
       if ($blazies->get('resimage.id')) {
         self::buildResponsiveImage($variables);
@@ -75,7 +76,7 @@ class Blazy implements BlazyInterface {
    */
   public static function buildResponsiveImage(array &$variables): void {
     $settings = $variables['settings'];
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
     $natives = ['decoding' => 'async'];
 
     $attributes = ($settings['unlazy'] ? $natives : [
@@ -96,7 +97,7 @@ class Blazy implements BlazyInterface {
    */
   public static function buildImage(array &$variables): void {
     $settings = $variables['settings'];
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
 
     // Supports either lazy loaded image, or not.
     $variables['image'] += [
@@ -113,7 +114,7 @@ class Blazy implements BlazyInterface {
     $settings = &$variables['settings'];
     $image = &$variables['image'];
     $attributes = &$variables['item_attributes'];
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
 
     // Respects hand-coded image attributes.
     if ($item) {
@@ -176,7 +177,7 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function iframeAttributes(array &$settings): array {
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
     $attributes['class'] = ['b-lazy', 'media__iframe'];
     $attributes['allowfullscreen'] = TRUE;
 
@@ -206,7 +207,7 @@ class Blazy implements BlazyInterface {
    */
   public static function buildIframe(array &$variables): void {
     $settings = &$variables['settings'];
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
     $settings['player'] = !$blazies->get('lightbox') && $settings['media_switch'] == 'media';
 
     // Only provide iframe if not for lightboxes, identified by URL.
@@ -230,7 +231,7 @@ class Blazy implements BlazyInterface {
    */
   public static function buildNoscriptImage(array &$variables): void {
     $settings = $variables['settings'];
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
     $noscript = $variables['image'];
     $noscript['#uri'] = $blazies->get('resimage.id') ? $settings['uri'] : $settings['image_url'];
     $noscript['#attributes']['data-b-noscript'] = TRUE;
@@ -250,13 +251,12 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function lazyAttributes(array &$attributes, array $settings = []): void {
-    $blazies = $settings['blazies'];
     // For consistent CSS fix, and w/o Native.
     $attributes['class'][] = $settings['lazy_class'];
 
     // Slick has its own class and methods: ondemand, anticipative, progressive.
     // The data-[SRC|SCRSET|LAZY] is if `nojs` disabled, background, or video.
-    if (!$settings['unlazy'] || $blazies->get('use.dataset')) {
+    if (!$settings['unlazy']) {
       $attributes['data-' . $settings['lazy_attribute']] = $settings['image_url'];
     }
   }
@@ -291,7 +291,7 @@ class Blazy implements BlazyInterface {
    * Modifies container attributes with aspect ratio for iframe, image, etc.
    */
   public static function aspectRatioAttributes(array &$attributes, array &$settings): void {
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
     $settings['ratio'] = str_replace(':', '', $settings['ratio']);
 
     // Fixed aspect ration is taken care of by pure CSS. Fluid means dynamic.

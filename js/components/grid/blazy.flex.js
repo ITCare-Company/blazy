@@ -8,14 +8,15 @@
  * against the fully tested Outlayer or GridStack library.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, _doc) {
 
   'use strict';
 
-  var _isMasonry = 'is-b-flex';
-  var _isMounted = _isMasonry + '--on';
+  var _context = _doc;
+  var _id = 'block-flex';
+  var _idOnce = 'b-flex';
   var _isLoading = 'is-b-loading';
-  var _element = '.block-flex:not(.' + _isMounted + ')';
+  var _element = '.' + _id;
   var _max = 0;
   var _unload = false;
   var _opts = {
@@ -145,7 +146,6 @@
       }, 600);
     }
 
-    $.addClass(elm, _isMounted);
     _opts.$el = elm;
     _unload = false;
   }
@@ -162,18 +162,15 @@
         return;
       }
 
-      context = $.context(context);
+      _context = $.context(context);
 
-      $.once(process, _element, context);
+      $.once(process, _idOnce, _element, _context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        if (_opts.$el) {
-          _unload = true;
-          $.removeClass(_opts.$el, _isMounted);
-        }
+        $.once.removeSafely(_idOnce, _element, _context);
       }
     }
   };
 
-}(dBlazy, Drupal));
+}(dBlazy, Drupal, this.document));

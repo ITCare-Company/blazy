@@ -79,7 +79,7 @@ class BlazyEntity implements BlazyEntityInterface {
     $settings = &$data['settings'];
 
     // Made Responsive image also available outside formatters here.
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
     if (!empty($blazies->get('resimage.style'))) {
       BlazyResponsiveImage::dimensionsAndSources($settings, FALSE);
     }

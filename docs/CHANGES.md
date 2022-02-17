@@ -2,6 +2,7 @@
 ***
 ## <a name="changes"></a>NOTABLE CHANGES
 * _Blazy 2.7_:
+  + Added `core/once` compat to save headaches and easy migration when min D9.2.
   + Added `settings.blazies` grouping for sanity and to avoid conflict with
     sub-modules till all settings converted into BlazySettings at 3+.
   + Moved media-related classes/ services into `Drupal\blazy\Media` namespace.
@@ -14,7 +15,7 @@
     like Blur or Animation, etc. Unless you include some polyfills on your own.
   + [Drupal 10 ready](https://drupal.org/node/3254692).
   + `dBlazy.js` is pluginized, has minimal jQuery replacement methods to DRY.
-   Check out `js/components/jquery/blazy.photobox.js` for a sample.
+    Check out `js/components/jquery/blazy.photobox.js` for a sample.
   + `dBlazy.js` removed many old IEs fallback. Some were moved into polyfill
     which can be ditched via Blazy UI to abandon IE supports. Should you need
     to support more, please find and include polyfill into your theme globally.

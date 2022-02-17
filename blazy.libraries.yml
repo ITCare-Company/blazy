@@ -246,6 +246,7 @@ admin:
     - core/jquery
     - blazy/drupal
     - blazy/dblazy
+    - blazy/dom
 
 # deprecated at 2.5 and removed at 3.+, unmaintained. Use PhotoSwipe, etc.
 photobox:

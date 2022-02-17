@@ -49,7 +49,6 @@
  * @ingroup themeable
  */
 #}
-{% set blazies = settings.blazies %}
 {%
   set classes = [
     content ? 'media--rendered',
@@ -60,7 +59,7 @@
     settings.ratio ? 'media--ratio media--ratio--' ~ settings.ratio,
     settings.type ? 'media--' ~ settings.type,
     blazies.resimage.id ? 'media--responsive',
-    blazies.use.loader ? 'is-b-loading',
+    settings.use_loading or blazies.use.loader ? 'is-b-loading',
     settings.classes ? settings.classes|join(' ')|clean_class,
   ]
 %}

@@ -67,7 +67,7 @@ class BlazyTheme {
     $attributes = &$variables['attributes'];
     $settings = &$variables['settings'];
     $settings += BlazyDefault::itemSettings();
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
 
     // Do not proceed if no URI is provided. URI is not Blazy theme property.
     // Blazy is a wrapper for theme_[(responsive_)image], etc. who wants URI.
@@ -81,6 +81,7 @@ class BlazyTheme {
       // Prepares URI, extension, image styles, lightboxes.
       BlazyFile::prepare($settings);
       BlazyFile::urlAndDimensions($settings, $variables['item']);
+      BlazyFile::lazyOrNot($settings);
     }
 
     // Allows rich Media entities stored within `content` to take over.
@@ -100,6 +101,7 @@ class BlazyTheme {
     // Makes a little BEM order here due to Twig ignoring the preset priority.
     $classes = (array) ($attributes['class'] ?? []);
     $attributes['class'] = array_merge(['media', 'media--blazy'], $classes);
+    $variables['blazies'] = $settings['blazies'];
   }
 
   /**
@@ -125,7 +127,8 @@ class BlazyTheme {
    */
   public static function fileVideo(array &$variables): void {
     if ($files = $variables['files']) {
-      if (empty($variables['attributes']['data-b-undata'])) {
+      $use_dataset = empty($variables['attributes']['data-b-undata']);
+      if ($use_dataset) {
         $variables['attributes']->addClass(['b-lazy']);
         foreach ($files as $file) {
           $source_attributes = &$file['source_attributes'];
@@ -143,6 +146,9 @@ class BlazyTheme {
 
           BlazyFile::imageUrl($settings);
 
+          if (!$blazies->get('use.loader') && $use_dataset) {
+            $blazies->set('use.loader', TRUE);
+          }
           if (!empty($settings['image_url'])) {
             $variables['attributes']->setAttribute('poster', $settings['image_url']);
           }
@@ -293,7 +299,7 @@ class BlazyTheme {
     }
 
     $settings['third_party'] = $element['#third_party_settings'];
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
     // @todo re-check at CKEditor.
     $is_undata = $blazies->get('is.undata');
 

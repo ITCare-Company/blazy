@@ -71,7 +71,7 @@ class BlazyUtil {
    * Build out the blur image.
    */
   public static function blur(array &$element, array &$attributes, array &$settings) {
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
     if (!$blazies->get('is.unstyled')) {
       $blur = [
         '#theme' => 'image',
@@ -106,7 +106,7 @@ class BlazyUtil {
     // Merge the first found (Responsive) image data.
     $formatter_blazies = $blazy['blazies'] ?? NULL;
     if ($formatter_blazies && $formatter_blazies instanceof BlazySettings) {
-      $blazies = $settings['blazies'];
+      $blazies = &$settings['blazies'];
 
       $settings['blazies'] = $blazies->merge($formatter_blazies->storage());
       $settings['_dimensions'] = !empty($blazies->get('ratios'));

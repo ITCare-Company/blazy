@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2022-02-17
 -----------------------------
+- Added core/once compat to save headaches and easy migration when min D9.2.
 - Issue #3264754 by Qusai Taha: Fix Undefined index: ratio in
   Drupal\blazy\BlazyFormatter->preBuildElements().
 - Fixed for local video autoplay which be on lightboxes, not inline.

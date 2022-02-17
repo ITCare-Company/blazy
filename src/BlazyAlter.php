@@ -67,11 +67,6 @@ class BlazyAlter {
       $libraries[$debounce]['js']['misc/debounce.js'] = ['weight' => -16];
     }
 
-    // Added soft dependencies till min D9.2.
-    if ($extension === 'blazy' && version_compare(\Drupal::VERSION, '9.2', '>=')) {
-      $libraries['dblazy']['dependencies'][] = 'core/once';
-    }
-
     if ($extension === 'media' && isset($libraries['oembed.frame'])) {
       $libraries['oembed.frame']['dependencies'][] = 'blazy/oembed';
     }

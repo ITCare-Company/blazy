@@ -303,7 +303,7 @@ class BlazyFile {
    * @todo merge URL into self::transformRelative.
    */
   public static function imageUrlAndStyle($uri, array $settings, $style = NULL): array {
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
     // Provides image_url, not URI, expected by lazyload.
     $valid = self::isValidUri($uri);
     $styled = $valid && !$blazies->get('is.unstyled');
@@ -384,34 +384,42 @@ class BlazyFile {
    *   The image item.
    */
   public static function urlAndDimensions(array &$settings, $item = NULL): void {
-    $blazies = &$settings['blazies'];
-
-    // The SVG placeholder should accept either original, or styled image.
-    $is_media = in_array($settings['type'], ['audio', 'video']);
-
-    // Lazy load insanity given various features/ media types + loading option.
-    // @todo re-check if any misses.
-    $lazy = $settings['background'];
-    $unlazy = $blazies->get('is.slider') && $settings['delta'] == $blazies->get('initial');
-    $unlazy = $unlazy ? TRUE : $settings['unlazy'];
-    $settings['unlazy'] = $lazy ? FALSE : $unlazy;
 
     // BlazyFilter, or image style with crop, may already set these.
     self::imageDimensions($settings, $item);
 
     // Provides image url based on the given settings.
     self::imageUrl($settings);
+  }
+
+  /**
+   * Checks lazy insanity given various features/ media types + loading option.
+   *
+   * @todo re-check if any misses, or regressions here.
+   */
+  public static function lazyOrNot(array &$settings): void {
+    $blazies = &$settings['blazies'];
+
+    // The SVG placeholder should accept either original, or styled image.
+    $is_media = in_array($settings['type'], ['audio', 'video']);
+
+    // Loading `slider` or `unlazy` is more a quasi-loading to vary logic.
+    $unlazy = $blazies->get('is.slider') && $settings['delta'] == $blazies->get('initial');
+    $settings['unlazy'] = $unlazy ? TRUE : $settings['unlazy'];
 
     // @todo remove settings.placeholder|use_media checks after sub-modules.
     $settings['placeholder'] = $placeholder = $blazies->get('ui.placeholder') ?: BlazyUtil::generatePlaceholder($settings['width'], $settings['height']);
     $use_media = ($settings['embed_url'] && $is_media) || ($settings['use_media'] ?? FALSE);
 
     // @todo remove use_loading after sub-module updates.
-    $use_loader = $settings['unlazy'] ? FALSE : $settings['use_loading'];
+    $lazy = $settings['loading'] == 'lazy';
+    $lazy = $settings['blazy'] && ($blazies->get('libs.compat') || $lazy);
+    $use_loader = $settings['unlazy'] && !$lazy ? FALSE : $settings['use_loading'];
+    $settings['use_loading'] = $use_loader;
 
-    $blazies->set('ui.placeholder', $placeholder);
     $blazies->set('use.loader', $use_loader);
     $blazies->set('use.media', $use_media);
+    $blazies->set('ui.placeholder', $placeholder);
   }
 
   /**
@@ -544,7 +552,7 @@ class BlazyFile {
    * @todo support multiple hero images like carousels.
    */
   public static function preload(array &$load, array $settings = []): void {
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
     $uris = $blazies->get('uris', []);
     if (empty($uris)) {
       return;

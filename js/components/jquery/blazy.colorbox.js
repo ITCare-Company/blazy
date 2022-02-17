@@ -4,14 +4,16 @@
  * A launcher for responsive (remote|local) videos, Responsive|Picture images.
  */
 
-(function ($, Drupal, drupalSettings, _d, _win) {
+(function ($, _d, Drupal, drupalSettings, _win, _doc) {
 
   'use strict';
 
-  var cboxTimer;
+  var _context = _doc;
+  var _id = 'colorbox';
+  var _idOnce = 'b-' + _id;
   var $body = $('body');
-  var _mounted = 'litebox--on';
-  var _element = '[data-colorbox-trigger]:not(.' + _mounted + ')';
+  var _element = '[data-' + _id + '-trigger]';
+  var cboxTimer;
 
   /**
    * Blazy Colorbox utility functions.
@@ -164,7 +166,6 @@
     }
 
     $box.colorbox($.extend({}, _cbox, runtimeOptions));
-    $box.addClass(_mounted);
   }
 
   /**
@@ -182,13 +183,18 @@
         return;
       }
 
-      context = _d.context(context);
+      _context = _d.context(context);
 
-      var elms = _d.once(process, _element, context);
+      var elms = _d.once(process, _idOnce, _element, _context);
       if (elms.length) {
         $('#colorbox').attr('aria-label', 'color box');
+      }
+    },
+    detach: function (context, setting, trigger) {
+      if (trigger === 'unload') {
+        _d.once.removeSafely(_idOnce, _element, _context);
       }
     }
   };
 
-})(jQuery, Drupal, drupalSettings, dBlazy, this);
+})(jQuery, dBlazy, Drupal, drupalSettings, this, this.document);

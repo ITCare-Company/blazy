@@ -8,15 +8,16 @@
  * Below is the cheap version of GridStack.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, _doc) {
 
   'use strict';
 
+  var _context = _doc;
   var _id = 'block-nativegrid';
-  var _isMasonry = 'is-b-masonry';
+  var _idOnce = 'b-masonry';
+  var _isMasonry = 'is-' + _idOnce;
   var _isUnload = 'is-b-unload';
-  var _isMounted = _isMasonry + '--on';
-  var _element = '.' + _id + '.' + _isMasonry + ':not(.' + _isMounted + ')';
+  var _element = '.' + _id + '.' + _isMasonry;
   var _unload = false;
 
   Drupal.blazy = Drupal.blazy || {};
@@ -125,7 +126,7 @@
     setTimeout(init, _unload ? 110 : 0);
     _opts.$el = elm;
 
-    $.addClass(elm, _isMounted);
+    // $.addClass(elm, _isMounted);
     if (_unload) {
       $.addClass(elm, _isUnload);
     }
@@ -144,19 +145,17 @@
         return;
       }
 
-      context = $.context(context);
+      _context = $.context(context);
 
-      $.once(process, _element, context);
+      $.once(process, _idOnce, _element, _context);
+
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        if (_opts.$el) {
-          _unload = true;
-          $.removeClass(_opts.$el, _isMounted);
-        }
+        $.once.removeSafely(_idOnce, _element, _context);
       }
     }
 
   };
 
-}(dBlazy, Drupal));
+}(dBlazy, Drupal, this.document));

@@ -67,7 +67,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
       $settings += BlazyDefault::htmlSettings();
     }
 
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
     $lang = $blazies->get('current_language');
 
     foreach ($items as $delta => $item) {

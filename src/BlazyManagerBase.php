@@ -346,12 +346,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $current_language = $this->languageManager->getCurrentLanguage()->getId();
     $is_preview = $settings['is_preview'] = Blazy::isPreview();
     $is_amp = Blazy::isAmp();
+    $is_sandboxed = Blazy::isSandboxed();
     $is_bg = !empty($settings['background']);
     $is_unload = !empty($config['nojs']['lazy']);
-    $is_unloading = $settings['loading'] == 'unlazy';
     $is_slider = $settings['loading'] == 'slider';
+    $is_unloading = $settings['loading'] == 'unlazy';
     $is_fluid = $settings['ratio'] == 'fluid';
-    $is_static = $is_preview || $is_amp;
+    $is_static = $is_preview || $is_amp || $is_sandboxed;
     $is_undata = $is_static || $is_unloading;
     $is_nojs = $is_unload || $is_undata;
     $is_video = $settings['bundle'] == 'video' || in_array('video', $settings['bundles'] ?? []);
@@ -368,7 +369,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       ->set('is.fluid', $is_fluid)
       ->set('is.nojs', $is_nojs)
       ->set('is.preview', $is_preview)
-      ->set('is.sandboxed', Blazy::isSandboxed())
+      ->set('is.sandboxed', $is_sandboxed)
       ->set('is.slider', $is_slider)
       ->set('is.static', $is_static)
       ->set('is.unblazy', $this->configLoad('io.unblazy'))

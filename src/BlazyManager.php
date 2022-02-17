@@ -74,7 +74,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Fetch the newly modified settings.
     $settings = $element['#settings'];
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
 
     if ($settings['media_switch']) {
       if ($settings['media_switch'] == 'content' && !empty($settings['content_url'])) {
@@ -131,9 +131,12 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       $this->buildMedia($element, $build);
     }
 
+    // Must listen to BG `unlazy`.
+    BlazyFile::lazyOrNot($settings);
+
     // Multi-breakpoint aspect ratio only applies if lazyloaded.
     // These may be set once at formatter level, or per breakpoint above.
-    if (!$blazies->get('is.nojs') && $ratios = $blazies->get('ratios', [])) {
+    if (!$blazies->get('is.undata') && $ratios = $blazies->get('ratios', [])) {
       $attributes['data-ratios'] = Json::encode($ratios);
     }
 
@@ -197,7 +200,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
   public function build(array $build = []) {
     $settings = &$build['settings'];
     $settings += BlazyDefault::htmlSettings();
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
     $settings['_grid'] = $settings['_grid'] ?? ($settings['style'] && $settings['grid']);
 
     // If not a grid, pass the items as regular index children to theme_field().
@@ -334,7 +337,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $item = $build['item'];
     $settings = &$build['settings'];
     $attributes = &$build['attributes'];
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
 
     // (Responsive) image with item attributes, might be RDF.
     $item_attributes = empty($build['item_attributes']) ? [] : BlazyUtil::sanitize($build['item_attributes']);
@@ -372,7 +375,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       $attributes['class'][] = 'b-bg media--background';
       $attributes['data-b-bg'] = Json::encode($bgs);
 
-      if ($blazies->get('is.sandboxed') || $blazies->get('is.amp')) {
+      if ($blazies->get('is.static')) {
         Blazy::inlineStyle($attributes, 'background-image: url(' . $settings['image_url'] . ');');
       }
     }
@@ -414,7 +417,8 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       // To make compatible with old bLazy which expects no placeholder, provide
       // a real smallest image. Bio will map it to the current breakpoint later.
       $bg = reset($srcset);
-      $settings['image_url'] = $blazies->get('is.nojs') ? $settings['image_url'] : $bg['src'];
+      $unlazy = $settings['unlazy'] = $blazies->get('is.undata');
+      $settings['image_url'] = $unlazy ? $settings['image_url'] : $bg['src'];
       Blazy::lazyAttributes($attributes, $settings);
     }
   }
@@ -429,8 +433,8 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
       // Attach data attributes to either IMG tag, or DIV container.
       $blazies->set('bgs.' . $settings['width'], BlazyFile::backgroundImage($settings));
-
-      $settings['image_url'] = $blazies->get('is.nojs') ? $settings['image_url'] : $blazies->get('ui.placeholder');
+      $unlazy = $settings['unlazy'] = $blazies->get('is.undata');
+      $settings['image_url'] = $unlazy ? $settings['image_url'] : $blazies->get('ui.placeholder');
       Blazy::lazyAttributes($attributes, $settings);
     }
 
