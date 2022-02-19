@@ -36,10 +36,12 @@
    *
    * @param {HTMLElement|Event} el
    *   The item HTML element, or event object on blazy.done.
-   * @param {in|undefiued} i
-   *   The element index, or undefined for a resize event.
+   * @param {int} i
+   *   The element index.
+   * @param {bool} isResized
+   *   If the resize event is triggered.
    */
-  function processItem(el, i) {
+  function processItem(el, i, isResized) {
     var target = el.target;
     var box = 'target' in el ? $.closest(target, '.grid') : el;
 
@@ -70,7 +72,7 @@
         }, _unload ? 600 : 200);
       };
 
-      if ($.isUnd(i) || _unload) {
+      if (isResized || _unload) {
         setTimeout(layout, _unload ? 300 : 200);
       }
       else {
@@ -141,17 +143,14 @@
   Drupal.behaviors.blazyNativeGrid = {
     attach: function (context) {
 
-      if ($.matchMedia('29.9999em')) {
-        return;
-      }
-
       _context = $.context(context);
 
       $.once(process, _idOnce, _element, _context);
 
     },
     detach: function (context, setting, trigger) {
-      if (trigger === 'unload') {
+      _unload = trigger === 'unload';
+      if (_unload) {
         $.once.removeSafely(_idOnce, _element, _context);
       }
     }

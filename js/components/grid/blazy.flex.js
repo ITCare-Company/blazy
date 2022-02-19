@@ -158,16 +158,13 @@
   Drupal.behaviors.blazyFlex = {
     attach: function (context) {
 
-      if ($.matchMedia('29.9999em')) {
-        return;
-      }
-
       _context = $.context(context);
 
       $.once(process, _idOnce, _element, _context);
     },
     detach: function (context, setting, trigger) {
-      if (trigger === 'unload') {
+      _unload = trigger === 'unload';
+      if (_unload) {
         $.once.removeSafely(_idOnce, _element, _context);
       }
     }

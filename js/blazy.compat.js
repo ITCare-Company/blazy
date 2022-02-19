@@ -29,6 +29,7 @@
   var _isAnimated = 'is-b-animated';
   var _winData = {};
   var _opts = {};
+  var _ww = 0;
 
   /**
    * Blazy public compat methods.
@@ -55,17 +56,23 @@
       var bio = me.init;
       var check = function (e) {
         var details = e && e.detail ? e.detail : {};
-        me.resizeTick = bio && bio.resizeTick || 0;
 
         _winData = details.winData || me.windowData();
 
-        if ($.isFun(cb)) {
-          $.each(items, function (entry) {
-            var el = entry.target || entry;
+        var isResized = _ww > 0 && _ww !== _winData.ww;
+        if (isResized) {
+          me.resizeTick = bio && bio.resizeTick || 0;
 
-            return cb.call(me, el);
-          });
+          if ($.isFun(cb)) {
+            $.each(items, function (entry, i) {
+              var el = entry.target || entry;
+
+              return cb.call(me, el, i, isResized);
+            });
+          }
         }
+
+        _ww = _winData.ww;
       };
 
       // Already throttled for oldies, or RO/RAF for modern browsers.
@@ -118,11 +125,15 @@
    *
    * @param {Element} cn
    *   The .media--ratio[--fluid] container HTML element.
+   * @param {int} i
+   *   The element index.
+   * @param {bool} isResized
+   *   If the resize event is triggered.
    *
    * @todo this should be at bio.js, but bLazy has no support which prevents it.
    * Unless made generic for a ping-pong.
    */
-  function updateRatio(cn) {
+  function updateRatio(cn, i, isResized) {
     cn = cn.target || cn;
 
     if (!$.isElm(cn)) {
@@ -133,7 +144,6 @@
     // Blazy container (via formatter or Views style) is not always there.
     var root = $.closest(cn, '.' + _id);
     var ratios = $.parse($.attr(cn, _dataRatios));
-    var isResized = me.resizeTick > 0;
 
     // Bail out if a static/ non-fluid aspect ratio.
     if (!ratios) {
