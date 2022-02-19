@@ -69,7 +69,8 @@
 
       var els = selector;
       if (isStr(selector)) {
-        els = findAll(context(ctx), selector);
+        ctx = (isMe(ctx) ? ctx[0] : ctx) || context(ctx);
+        els = findAll(ctx, selector);
         if (isEmpty(els)) {
           return;
         }
