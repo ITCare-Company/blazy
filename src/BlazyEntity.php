@@ -72,6 +72,7 @@ class BlazyEntity implements BlazyEntityInterface {
     // Supports core Media via Drupal\blazy\Media\BlazyOEmbed::getMediaItem().
     $data['settings'] = empty($data['settings']) ? [] : $data['settings'];
 
+    $this->blazyManager->prepareData($data, $entity);
     $this->blazyManager->getCommonSettings($data['settings']);
     $this->blazyManager->getEntitySettings($data['settings'], $entity);
     $this->oembed->getMediaItem($data, $entity);

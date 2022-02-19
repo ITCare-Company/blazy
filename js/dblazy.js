@@ -90,11 +90,11 @@
 
     dBlazy.prototype.init = function (selector, ctx) {
       var instance = new dBlazy(selector, ctx);
+
       if (isElm(selector)) {
         if (!selector.idblazy) {
           selector.idblazy = instance;
         }
-
         return selector.idblazy;
       }
 
@@ -642,6 +642,7 @@
           }
         }
         else {
+          // SVG may fail classList here.
           var check = _attr(el, _class);
           if (check && check.match(name)) {
             found++;
@@ -1135,6 +1136,9 @@
    *
    * @private
    *
+   * @author Daniel Lamb <dlamb.open.source@gmail.com>
+   * @link https://github.com/daniellmb/once.js
+   *
    * @param {Function} cb
    *   The executed function.
    *
@@ -1581,13 +1585,7 @@
   };
 
   /**
-   * Executes a function once.
-   *
-   * To make easy conversion till D9.2 is a minimum at sub-modules, one
-   * core/once method are adapted.
-   *
-   * @author Daniel Lamb <dlamb.open.source@gmail.com>
-   * @link https://github.com/daniellmb/once.js
+   * A wrapper for core/once until D9.2 is a minimum.
    *
    * @param {Function} cb
    *   The executed function.
@@ -1600,12 +1598,6 @@
    *
    * @return {Array.<Element>}
    *   An array of elements to process, or empty for old behavior.
-   *
-   * @tbd deprecated in Blazy 2.5 and will be removed in Blazy 3.+. Use the
-   * core/once library instead. See https://www.drupal.org/node/3254668.
-   *
-   * @todo until D9.2 is a minimum, adapt core/once for better once at the next
-   * optimization sessions.
    */
   function onceCompat(cb, id, selector, ctx) {
     var els = [];
@@ -1616,15 +1608,10 @@
     }
     else {
       // If extra arguments are provided, assumes regular loop over elements.
-      // Safe to use fallback _doc since it is normally executed once onready.
-      // Hooks into core/once compat.
       els = initOnce(id, selector, ctx);
-      var len = els.length;
-      if (len) {
-        var _cb = function () {
-          return len === 1 ? cb(els[0]) : each(els, cb);
-        };
-        _cb();
+      if (els.length) {
+        // Already avoids loop for a single item.
+        each(els, cb);
       }
     }
 
@@ -1733,7 +1720,7 @@
     ctx = ctx && ctx.length ? ctx[0] : ctx;
 
     // IE9 knows not HTMLDocument, IE8 does.
-    return ctx && isDoc(ctx) ? ctx : _doc.documentElement;
+    return ctx && isDoc(ctx) ? ctx : _doc;
   }
 
   db.context = context;
@@ -1899,33 +1886,29 @@
   }
 
   if (!db.once.find) {
-    var objs = {
-      find: function (id, ctx) {
-        return elsOnce(!id ? '[' + _dataOnce + ']' : selOnce(id), ctx);
-      },
-      filter: function (id, selector, ctx) {
-        return _filter(selOnce(id), elsOnce(selector, ctx));
-      },
-      remove: function (id, selector, ctx) {
-        return _filter(
-          selOnce(id),
-          elsOnce(selector, ctx),
-          function (el) {
-            updateOnce(el, {
-              remove: id
-            });
-          }
-        );
-      },
-      removeSafely: function (id, selector, ctx) {
-        var me = this;
-        if (me.find(id, ctx).length) {
-          me.remove(id, selector, ctx);
+    db.once.find = function (id, ctx) {
+      return elsOnce(!id ? '[' + _dataOnce + ']' : selOnce(id), ctx);
+    };
+    db.once.filter = function (id, selector, ctx) {
+      return _filter(selOnce(id), elsOnce(selector, ctx));
+    };
+    db.once.remove = function (id, selector, ctx) {
+      return _filter(
+        selOnce(id),
+        elsOnce(selector, ctx),
+        function (el) {
+          updateOnce(el, {
+            remove: id
+          });
         }
+      );
+    };
+    db.once.removeSafely = function (id, selector, ctx) {
+      var me = this;
+      if (me.find(id, ctx).length) {
+        me.remove(id, selector, ctx);
       }
     };
-
-    db.once = extend(db.once, objs);
   }
 
   if (typeof exports !== 'undefined') {

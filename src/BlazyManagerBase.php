@@ -315,6 +315,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function prepareData(array &$build, $entity = NULL): void {
+    // Do nothing, let extenders share data at ease as needed.
+  }
+
+  /**
    * Returns the common UI settings inherited down to each item.
    *
    * The `fx` sequence: hook_alter > formatters (not implemented yet) > UI.

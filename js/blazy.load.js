@@ -24,8 +24,8 @@
   var _id = 'blazy';
   var _idOnce = _id;
   var _element = '.' + _id;
-  var _elementGlobal = 'html';
-  var _idOnceGlobal = 'is-b-' + _elementGlobal;
+  var _elementGlobal = 'body';
+  var _idOnceGlobal = 'b-root';
   var _data = 'data';
   var _checked = 'b-checked';
   var _errorClass = 'errorClass';

@@ -8,6 +8,18 @@ namespace Drupal\blazy;
 interface BlazyManagerInterface {
 
   /**
+   * Prepares shared data common between field formatter and views field.
+   *
+   * This is to overcome the limitation of self::getCommonSettings().
+   *
+   * @param array $build
+   *   The build data containing settings, etc.
+   * @param array $entity
+   *   The entity related to the formatter, or views field.
+   */
+  public function prepareData(array &$build, $entity = NULL): void;
+
+  /**
    * Returns array of needed assets suitable for #attached property.
    *
    * @param array $attach

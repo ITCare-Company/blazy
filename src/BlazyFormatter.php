@@ -38,6 +38,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings = &$build['settings'];
     $entity   = $items->getEntity();
 
+    $this->prepareData($build, $entity);
     $this->getCommonSettings($settings);
     $this->getEntitySettings($settings, $entity);
 
@@ -141,7 +142,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    *
    * @todo move it into BlazyManagerBase if usable outside formatters.
    */
-  public function uris(array &$settings, $items, array $entities = []) {
+  protected function uris(array &$settings, $items, array $entities = []) {
     if ($output = BlazyFile::urisFromField($settings, $items, $entities)) {
       $settings['_uri'] = reset($output);
     }
