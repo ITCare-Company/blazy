@@ -69,9 +69,10 @@
 
       var els = selector;
       if (isStr(selector)) {
-        ctx = (isMe(ctx) ? ctx[0] : ctx) || context(ctx);
+        ctx = isMe(ctx) ? ctx[0] : ctx;
+        ctx = ctx && isQsa(ctx) ? ctx : context(ctx);
         els = findAll(ctx, selector);
-        if (isEmpty(els)) {
+        if (!els.length) {
           return;
         }
       }

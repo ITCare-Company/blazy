@@ -412,9 +412,10 @@ class BlazyFile {
     $use_media = ($settings['embed_url'] && $is_media) || ($settings['use_media'] ?? FALSE);
 
     // @todo remove use_loading after sub-module updates.
-    $lazy = $settings['loading'] == 'lazy';
-    $lazy = $settings['blazy'] && ($blazies->get('libs.compat') || $lazy);
-    $use_loader = $settings['unlazy'] && !$lazy ? FALSE : $settings['use_loading'];
+    // @todo better logic to support loader as required, must decouple loader.
+    // @todo $lazy = $settings['loading'] == 'lazy';
+    // @todo $lazy = !empty($settings['blazy']) && ($blazies->get('libs.compat') || $lazy);
+    $use_loader = $settings['unlazy'] ? FALSE : $settings['use_loading'];
     $settings['use_loading'] = $use_loader;
 
     $blazies->set('use.loader', $use_loader);
