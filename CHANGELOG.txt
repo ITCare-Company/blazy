@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-02-20
+-----------------------------
+- Added core D9.2 webp client-side fallback for those who want to support old
+  browsers and want modern ones have cleaner native image markups.
+
 Blazy 8.x-2.0-dev, 2022-02-17
 -----------------------------
 - Added core/once compat to save headaches and easy migration when min D9.2.

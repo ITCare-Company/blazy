@@ -108,7 +108,7 @@
   fn.lazyLoad = function (el, winData) {};
   fn.loadImage = function (el, isBg, winData) {};
   fn.resizing = function (el, winData) {};
-  fn.natively = function () {};
+  fn.prepare = function () {};
   fn.windowData = function () {
     return $.isUnd(_winData.vp) ? $.windowData(this.options, true) : _winData;
   };
@@ -344,7 +344,7 @@
   function init(me) {
     // Swap data-[SRC|SRCSET] for non-js version once, if not choosing Native.
     // Native lazy markup is triggered by enabling `No JavaScript` lazy option.
-    me.natively();
+    me.prepare();
 
     var elms = me.elms = $.findAll(_root, $.selector(me.options));
     me.count = elms.length;

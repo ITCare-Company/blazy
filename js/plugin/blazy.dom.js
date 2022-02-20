@@ -11,6 +11,10 @@
  *   similar vanilla alternative is available at core. The rule is don't load
  *   anything unless required by the page. Another reason for components.
  *   It is extending dBlazy as a separate plugin to mimick jQuery CSS method.
+ *
+ * @todo https://caniuse.com/dom-manip-convenience
+ * Includes: ChildNode.before, ChildNode.after, ChildNode.replaceWith,
+ * ParentNode.prepend, and ParentNode.append.
  */
 
 (function ($, _win, _doc) {

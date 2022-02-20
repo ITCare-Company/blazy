@@ -82,12 +82,17 @@ class BlazyAlter {
       foreach ($polyfills as $id) {
         // Matches common core polyfills' weight.
         $weight = $id == 'polyfill' ? -21 : -20;
+        $weight = $id == 'webp' ? -5.5 : $weight;
         $common = ['minified' => TRUE, 'weight' => $weight];
         $libraries[$id] = [
           'js' => [
             'js/polyfill/blazy.' . $id . '.min.js' => $common,
           ],
         ];
+
+        if ($id == 'webp') {
+          $libraries[$id]['dependencies'][] = 'blazy/dblazy';
+        }
       }
 
       // Plugins extending dBlazy.

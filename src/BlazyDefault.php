@@ -396,6 +396,7 @@ class BlazyDefault {
       'classlist',
       'promise',
       'raf',
+      'webp',
     ];
   }
 

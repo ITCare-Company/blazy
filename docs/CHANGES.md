@@ -2,6 +2,16 @@
 ***
 ## <a name="changes"></a>NOTABLE CHANGES
 * _Blazy 2.7_:
+  + If you found these optimization-period releases still have oversight bugs,
+    please lock it at Blazy 2.5 till the next hot fix releases. Kindly report
+    any uncovered regressions, or issues for quick fixes. It is still a
+    need-feedback release. Rest assured, we'll continue breaking this module
+    innocently with a hiatus of used-up free-time and less buggier one, till
+    this issue [Massive optimization](https://drupal.org/node/3257511) is marked
+    as postponed or fixed.
+    Thanks for understanding + good spirit for betterment :)
+  + Added core D9.2 webp client-side fallback for those who want to support old
+    browsers and want modern ones have cleaner native image markups.
   + Added `core/once` compat to save headaches and easy migration when min D9.2.
   + Added `settings.blazies` grouping for sanity and to avoid conflict with
     sub-modules till all settings converted into BlazySettings at 3+.

@@ -12,6 +12,7 @@
  * @todo use Cash for better DOM queries, or any core libraries when available.
  * @todo remove unneeded dup methods once all codebase migrated.
  * @todo move more DOM methods into blazy.dom.js to make it ditchable for Cash.
+ * @todo https://caniuse.com/dom-manip-convenience
  */
 
 /* global define, module */
@@ -43,6 +44,7 @@
   var _cssVariableRe = /^--/;
   var _wsRe = /[\11\12\14\15\40]+/;
   var _dataOnce = 'data-once';
+  var _storage = _win.localStorage;
   var _events = {};
 
   /**
@@ -1818,6 +1820,34 @@
       }
     }
     return i;
+  };
+
+  db.create = function (tagName, className, html) {
+    var el = _doc.createElement(tagName);
+
+    if (className) {
+      el.className = className;
+    }
+
+    if (html) {
+      el.innerHTML = html.trim();
+      if (tagName === 'template') {
+        el = el.content.firstChild;
+      }
+    }
+
+    return el;
+  };
+
+  // See https://caniuse.com/?search=localstorage
+  db.storage = function (key, value, defValue) {
+    if (_storage) {
+      if (isUnd(value)) {
+        return _storage.getItem(key);
+      }
+      _storage.setItem(key, value);
+    }
+    return defValue || false;
   };
 
   // @deprecated for shorter ::is(). Hardly used, except lory.

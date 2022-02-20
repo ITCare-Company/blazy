@@ -14,7 +14,7 @@ interface BlazyManagerInterface {
    *
    * @param array $build
    *   The build data containing settings, etc.
-   * @param array $entity
+   * @param object $entity
    *   The entity related to the formatter, or views field.
    */
   public function prepareData(array &$build, $entity = NULL): void;
