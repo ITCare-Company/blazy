@@ -252,6 +252,9 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_NOT
    */
   function isEmpty(x) {
+    if (isObj(x)) {
+      return !Object.keys(x).length;
+    }
     return isNull(x) || isUnd(x) || x === false || (x.length && x.length === 0);
   }
 
@@ -302,7 +305,7 @@
    *   True if x is an instanceof Object.
    */
   function isObj(x) {
-    if (typeof x !== 'object' || isEmpty(x)) {
+    if (!x || typeof x !== 'object') {
       return false;
     }
     var proto = Object.getPrototypeOf(x);
@@ -1720,11 +1723,18 @@
    */
   function context(ctx) {
     // Weirdo: context may be null after Colorbox close.
+    ctx = ctx || _doc;
+
     // jQuery may pass its array as non-expected context identified by length.
-    ctx = ctx && ctx.length ? ctx[0] : ctx;
+    ctx = ctx.length ? ctx[0] : ctx;
+
+    // Absurd <script> elements which have no children may be spit on AJAX.
+    if (isQsa(ctx) && ctx.children && ctx.children.length) {
+      return ctx;
+    }
 
     // IE9 knows not HTMLDocument, IE8 does.
-    return ctx && isDoc(ctx) ? ctx : _doc;
+    return isDoc(ctx) ? ctx : _doc;
   }
 
   db.context = context;
@@ -1861,11 +1871,6 @@
 
   db.unbindEvent = off.bind(db);
 
-  // @todo remove all these when min D9.2, or take the least minimum for BC.
-  // Be sure to make context Element, or patch it to work with [1,9,11] types
-  // which distinguish this from core/once as per 2022/2.
-  // When removed and context issue is fixed, it will be just:
-  // `db.once = extend(db.once, once);` + `db.once.removeSafely()`.
   function _filter(selector, elements, apply) {
     return elements.filter(function (el) {
       var selected = is(el, selector);
@@ -1878,6 +1883,11 @@
 
   db.filter = _filter;
 
+  // @todo remove all these when min D9.2, or take the least minimum for BC.
+  // Be sure to make context Element, or patch it to work with [1,9,11] types
+  // which distinguish this from core/once as per 2022/2.
+  // When removed and context issue is fixed, it will be just:
+  // `db.once = extend(db.once, once);` + `db.once.removeSafely()`.
   function elsOnce(selector, ctx) {
     return findAll(context(ctx), selector);
   }
@@ -1937,8 +1947,15 @@
     };
     db.once.removeSafely = function (id, selector, ctx) {
       var me = this;
+      var jq = jQuery;
+
       if (me.find(id, ctx).length) {
         me.remove(id, selector, ctx);
+      }
+
+      // @todo remove BC for pre core/once when min D9.2:
+      if (jq && jq.fn && isFun(jq.fn.removeOnce)) {
+        jq(selector, context(ctx)).removeOnce(id);
       }
     };
   }

@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-02-26
+-----------------------------
+- Issue #3266482 by gausarts, demon326: After update to 2.7 images in views
+  load more (VIS) are not loaded.
+
 Blazy 8.x-2.0-dev, 2022-02-23
 -----------------------------
 - Issue #3265909 by fgm: Warning with PHP 8.1: Deprecated function: trim().
