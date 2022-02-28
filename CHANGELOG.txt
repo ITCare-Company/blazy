@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2022-02-28
+-----------------------------
+- Issue #3266748 by gausarts, xamount: padding-bottom not calculated correctly.
+
 Blazy 8.x-2.0-dev, 2022-02-26
 -----------------------------
 - Issue #3266482 by gausarts, demon326: After update to 2.7 images in views

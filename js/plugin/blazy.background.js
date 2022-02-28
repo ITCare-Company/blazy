@@ -7,6 +7,8 @@
 
   'use strict';
 
+  var _dataSrc = 'data-src';
+
   /**
    * Updates CSS background with multi-breakpoint images.
    *
@@ -27,6 +29,9 @@
 
         if (url) {
           el.style.backgroundImage = 'url("' + url + '")';
+          if ($.hasAttr(el, _dataSrc)) {
+            $.removeAttr(el, _dataSrc);
+          }
         }
       }
     };

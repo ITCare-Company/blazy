@@ -2,7 +2,8 @@
  * @file
  * This file contains common jQuery replacement methods for vanilla ones to DRY.
  *
- * Cherries by @toddmotto, @cferdinandi, @adamfschwartz, @daniellmb, Cash.
+ * Cherries by @toddmotto, @cferdinandi, @adamfschwartz, @daniellmb, Cash,
+ * underscore.
  *
  * Some dup wrappers are meant to DRY with null checks aka poorman null safety.
  * The rest are convenient to avoid object instantiation ($()) and to preserve
@@ -24,9 +25,11 @@
   var extend = Object.assign;
   var _aProto = Array.prototype;
   var _oProto = Object.prototype;
+  var _toString = _oProto.toString;
   var _splice = _aProto.splice;
   var _some = _aProto.some;
   var _symbol = typeof Symbol !== 'undefined' && Symbol;
+  var _isJq = 'jQuery' in _win;
   // @todo var _cash = 'cash' in _win;
   var _class = 'class';
   var _add = 'add';
@@ -71,9 +74,7 @@
 
       var els = selector;
       if (isStr(selector)) {
-        ctx = isMe(ctx) ? ctx[0] : ctx;
-        ctx = ctx && isQsa(ctx) ? ctx : context(ctx);
-        els = findAll(ctx, selector);
+        els = findAll(context(ctx), selector);
         if (!els.length) {
           return;
         }
@@ -147,7 +148,7 @@
 
     if (isFun(cb)) {
       if (!ln || ln === 1) {
-        cb(me[0]);
+        cb(me[0], 0);
       }
       else {
         me.each(cb);
@@ -155,6 +156,58 @@
     }
 
     return me;
+  }
+
+  /**
+   * Returns a `toString`-based type tester, based on underscore.js.
+   *
+   * @private
+   *
+   * @param {string} name
+   *   The name to test for its type.
+   *
+   * @return {bool}
+   *   True if name matches the _toString result.
+   */
+  function isTag(name) {
+    var tag = '[object ' + name + ']';
+    return function (obj) {
+      return _toString.call(obj) === tag;
+    };
+  }
+
+  /**
+   * Generate a function to obtain property `key` from `obj`.
+   *
+   * @private
+   *
+   * @param {string} key
+   *   The key to test in an object.
+   *
+   * @return {mixed}
+   *   String, object, undefined.
+   */
+  function shallowProperty(key) {
+    return function (obj) {
+      return isNull(obj) ? void 0 : obj[key];
+    };
+  }
+
+  /**
+   * Retrieve the names of an object's own properties.
+   *
+   * Delegates to ECMAScript 5's native `Object.keys`.
+   *
+   * @private
+   *
+   * @param {mixed} x
+   *   The x to test for its properties.
+   *
+   * @return {array}
+   *   The object keys, or empty array.
+   */
+  function keys(x) {
+    return !isObj(x) ? [] : Object.keys(x);
   }
 
   /**
@@ -173,21 +226,19 @@
   }
 
   /**
-   * Returns true if the x is an array.
+   * True if the supplied argument is an array.
    *
    * @private
    *
    * One of the weird behaviors in JavaScript is the typeof Array is Object.
    *
-   * @param {Mixed} x
-   *   The x to check for its type truthy.
-   *
    * @return {bool}
-   *   True if x is an instanceof Array.
+   *   True if the argument is an instanceof Array.
    */
-  function isArr(x) {
-    return !isEmpty(x) && Array.isArray(x);
-  }
+  var isArr = Array.isArray || isTag('Array');
+
+  // Internal helper to obtain the `length` property of an object.
+  var getLength = shallowProperty('length');
 
   /**
    * Returns true if the x is a boolean.
@@ -201,7 +252,7 @@
    *   True if x is an instanceof bool.
    */
   function isBool(x) {
-    return typeof x === 'boolean';
+    return x === true || x === false || _toString.call(x) === '[object Boolean]';
   }
 
   /**
@@ -220,19 +271,14 @@
   }
 
   /**
-   * Returns true if the x is a function.
+   * Returns true if the argument is a function.
    *
    * @private
    *
-   * @param {Mixed} x
-   *   The x to check for its type truthy.
-   *
    * @return {bool}
-   *   True if x is an instanceof Function.
+   *   True if argument is an instanceof Function.
    */
-  function isFun(x) {
-    return typeof x === 'function';
-  }
+  var isFun = isTag('Function');
 
   /**
    * Returns true if the x is anything falsy.
@@ -252,10 +298,17 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_NOT
    */
   function isEmpty(x) {
-    if (isObj(x)) {
-      return !Object.keys(x).length;
+    if (isNull(x) || isUnd(x) || x === false) {
+      return true;
     }
-    return isNull(x) || isUnd(x) || x === false || (x.length && x.length === 0);
+
+    // Skip expensive `toString`-based checks if `obj` has no `.length`.
+    var length = getLength(x);
+    if (typeof length === 'number' && (isArr(x) || isStr(x))) {
+      return length === 0;
+    }
+
+    return getLength(keys(x)) === 0;
   }
 
   /**
@@ -305,27 +358,24 @@
    *   True if x is an instanceof Object.
    */
   function isObj(x) {
-    if (!x || typeof x !== 'object') {
-      return false;
-    }
-    var proto = Object.getPrototypeOf(x);
-    return isNull(proto) || proto === _oProto;
+    // if (!x || typeof x !== 'object') {
+    // return false;
+    // }
+    // var proto = Object.getPrototypeOf(x);
+    // return isNull(proto) || proto === _oProto;
+    var type = typeof x;
+    return type === 'function' || type === 'object' && !!x;
   }
 
   /**
-   * Returns true if the x is a string.
+   * Returns true if the argument is a string.
    *
    * @private
    *
-   * @param {Mixed} x
-   *   The x to check for its type truthy.
-   *
    * @return {bool}
-   *   True if x is a string.
+   *   True if argument is a string.
    */
-  function isStr(x) {
-    return typeof x === 'string';
-  }
+  var isStr = isTag('String');
 
   /**
    * Returns true if the x is undefined.
@@ -413,14 +463,11 @@
   }
 
   /**
-   * A simple forEach() implementation for Arrays, Objects and NodeLists.
+   * A not simple forEach() implementation for Arrays, Objects and NodeLists.
    *
    * @private
    *
-   * @author Todd Motto
-   * @link https://github.com/toddmotto/foreach
-   *
-   * @param {Array|Object|NodeList} collection
+   * @param {Array|Object|NodeList} obj
    *   Collection of items to iterate.
    * @param {Function} cb
    *   Callback function for each iteration.
@@ -433,30 +480,37 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
    * @see https://developer.mozilla.org/en-US/docs/Web/API/NodeList/forEach
    * @todo drop for native [].forEach post D10+ when IE gone from planet earth.
+   * @todo refactor, unreliable given unexpected properties.
    */
-  function each(collection, cb, scope) {
-    if (_oProto.toString.call(collection) === '[object Object]') {
-      for (var prop in collection) {
-        if (hasProp(collection, prop)) {
+  function each(obj, cb, scope) {
+    if (isFun(obj) || isStr(obj) || isBool(obj) || isNum(obj)) {
+      return [];
+    }
+
+    if (_toString.call(obj) === '[object Object]') {
+      for (var prop in obj) {
+        if (hasProp(obj, prop)) {
           if (prop === 'length') {
             continue;
           }
-          cb.call(scope, collection[prop], prop, collection);
+          if (cb.call(scope, obj[prop], prop, obj) === false) {
+            break;
+          }
         }
       }
     }
-    else if (collection) {
-      if (collection.length === 1) {
-        if (collection[0]) {
-          cb.call(scope, collection[0], 0, collection);
+    else if (isArr(obj)) {
+      if (obj.length === 1) {
+        if (!isUnd(obj[0])) {
+          cb.call(scope, obj[0], 0, obj);
         }
       }
       else {
-        collection.forEach(cb, scope);
+        obj.forEach(cb, scope);
       }
     }
 
-    return collection;
+    return obj;
   }
 
   /**
@@ -464,10 +518,7 @@
    *
    * @private
    *
-   * @author Todd Motto
-   * @link https://github.com/toddmotto/foreach
-   *
-   * @param {Array|Object|NodeList} collection
+   * @param {Array|Object|NodeList} obj
    *   Collection of items to iterate.
    * @param {string} prop
    *   The property nane.
@@ -475,8 +526,8 @@
    * @return {bool}
    *   Returns true if the property found.
    */
-  function hasProp(collection, prop) {
-    return _oProto.hasOwnProperty.call(collection, prop);
+  function hasProp(obj, prop) {
+    return _oProto.hasOwnProperty.call(obj, prop);
   }
 
   /**
@@ -676,11 +727,16 @@
    *   This dBlazy object.
    */
   function toggleClass(els, name, op) {
-    var chainCallback = function (el) {
-      if (isQsa(el) && isStr(name)) {
+    var chainCallback = function (el, i) {
+      if (isQsa(el)) {
         var _list = el.classList;
-        var names = name.split(' ');
-        if (_list) {
+
+        if (isFun(name)) {
+          name = name(_op(el, _get, 'class'), i);
+        }
+
+        if (_list && isStr(name)) {
+          var names = name.split(' ');
           if (isUnd(op)) {
             names.map(function (value) {
               _list.toggle(value);
@@ -735,7 +791,7 @@
    * @private
    *
    * Similar to ES6 ::includes, only for oldies.
-   * Cannot use [].every() since it not about all or nothing.
+   * Cannot use [].every() since it is not about all or nothing.
    *
    * @param {Array|Element|string} str
    *   The source string to test for.
@@ -1030,9 +1086,9 @@
    */
   function activeWidth(dataset, winData) {
     var mobileFirst = winData.up || false;
-    var keys = Object.keys(dataset);
-    var xs = keys[0];
-    var xl = keys[keys.length - 1];
+    var _k = keys(dataset);
+    var xs = _k[0];
+    var xl = _k[_k.length - 1];
     var ww = winData.ww || windowWidth();
     var pr = (ww * pixelRatio());
     var rw = mobileFirst ? ww : pr;
@@ -1041,7 +1097,7 @@
       return mobileFirst ? parseInt(w, 10) <= rw : parseInt(w, 10) >= rw;
     };
 
-    var data = keys.filter(mw).map(function (v) {
+    var data = _k.filter(mw).map(function (v) {
       return dataset[v];
     })[mobileFirst ? 'pop' : 'shift']();
 
@@ -1377,6 +1433,7 @@
   // Kotlin has useless `fun` due to being compiled back to `function`. But ES6
   // lambda is true savings unless being transpiled. So these stupid abbr are.
   // The contract here is no rigid minds, fun, less bytes. Hail to Linux.
+  db.isTag = isTag;
   db.isArr = isArr;
   db.isBool = isBool;
   db.isElm = isElm;
@@ -1449,7 +1506,7 @@
   fn.hasClass = function (name) {
     var me = this;
     return _some.call(me, function (el) {
-      return hasClass.call(me, el, name);
+      return hasClass(el, name);
     });
   };
 
@@ -1543,7 +1600,7 @@
   db.isDecoded = isDecoded;
 
   // Similar to core domReady, only public and generic.
-  fn.ready = function (callback) {
+  function ready(callback) {
     var cb = function () {
       return setTimeout(callback, 0, db);
     };
@@ -1556,6 +1613,11 @@
     }
 
     return this;
+  }
+
+  db.ready = ready.bind(db);
+  fn.ready = function (callback) {
+    return ready.call(this, callback);
   };
 
   /**
@@ -1726,7 +1788,7 @@
     ctx = ctx || _doc;
 
     // jQuery may pass its array as non-expected context identified by length.
-    ctx = ctx.length ? ctx[0] : ctx;
+    ctx = toElm(ctx);
 
     // Absurd <script> elements which have no children may be spit on AJAX.
     if (isQsa(ctx) && ctx.children && ctx.children.length) {
@@ -1738,6 +1800,14 @@
   }
 
   db.context = context;
+
+  // Valid elements for querySelector with length: form, select, etc.
+  function toElm(el) {
+    var isJq = _isJq && el instanceof jQuery;
+    return el && (isMe(el) || isJq) ? el[0] : el;
+  }
+
+  db.toElm = toElm;
 
   // Minimum common DOM methods taken and modified from cash.
   // @todo refactor or remove dups when everyone uses cash, or vanilla alike.
@@ -1786,30 +1856,52 @@
 
   db.rect = rect;
 
-  function parent(el) {
-    return isElm(el) && el.parentElement;
+  function traverse(el, selector, relative) {
+    if (isUnd(selector)) {
+      return isElm(el) && el[relative];
+    }
+
+    var nel = null;
+    while (el) {
+      if (is(el, selector)) {
+        nel = el;
+        return;
+      }
+      el = el[relative];
+    }
+    return nel;
+  }
+
+  function parent(el, selector) {
+    return traverse(el, selector, 'parentElement');
   }
 
   db.parent = parent;
-  fn.parent = function () {
-    return db.parent(this[0]);
+  fn.parent = function (selector) {
+    return parent(this[0], selector);
   };
 
-  function prev(el) {
-    return isElm(el) && el.previousElementSibling;
+  function prevnext(el, selector, prefix) {
+    var sibling = 'ElementSibling';
+    return traverse(el, selector, prefix + sibling);
   }
 
+  function prev(el, selector) {
+    return prevnext(el, selector, 'previous');
+  }
+
+  function next(el, selector) {
+    return prevnext(el, selector, 'next');
+  }
+
+  db.next = next;
+  fn.next = function (selector) {
+    return next(this[0], selector);
+  };
+
   db.prev = prev;
-  fn.prev = function () {
-    return db.prev(this[0]);
-  };
-
-  db.next = function (el) {
-    return isElm(el) && el.nextElementSibling;
-  };
-
-  fn.next = function () {
-    return db.next(this[0]);
+  fn.prev = function (selector) {
+    return prev(this[0], selector);
   };
 
   db.index = function (el, parents) {
@@ -1840,7 +1932,17 @@
     }
 
     if (html) {
-      el.innerHTML = html.trim();
+      html = html.trim();
+
+      if ('DOMParser' in _win) {
+        var parser = new DOMParser();
+        var content = parser.parseFromString(html, 'text/html');
+        el.appendChild(content[0]);
+      }
+      else {
+        el.innerHTML = html;
+      }
+
       if (tagName === 'template') {
         el = el.content.firstChild;
       }
@@ -1954,7 +2056,7 @@
       }
 
       // @todo remove BC for pre core/once when min D9.2:
-      if (jq && jq.fn && isFun(jq.fn.removeOnce)) {
+      if (_isJq && jq && jq.fn && isFun(jq.fn.removeOnce)) {
         jq(selector, context(ctx)).removeOnce(id);
       }
     };
