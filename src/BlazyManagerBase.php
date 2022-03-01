@@ -358,16 +358,24 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $is_unload = !empty($config['nojs']['lazy']);
     $is_slider = $settings['loading'] == 'slider';
     $is_unloading = $settings['loading'] == 'unlazy';
+    $is_defer = $settings['loading'] == 'defer';
     $is_fluid = $settings['ratio'] == 'fluid';
     $is_static = $is_preview || $is_amp || $is_sandboxed;
     $is_undata = $is_static || $is_unloading;
     $is_nojs = $is_unload || $is_undata;
     $is_video = $settings['bundle'] == 'video' || in_array('video', $settings['bundles'] ?? []);
 
+    // When `defer` is chosen, overrides global `No JavaScript: lazy`, ensures
+    // to not affect AMP, CKEditor, or other preview pages where nojs is a must.
+    if ($is_nojs && $is_defer) {
+      $is_nojs = $is_undata;
+    }
+
     $is_compat = $fx
       || $is_bg
       || $is_fluid
       || $is_video
+      || $is_defer
       || $blazies->get('libs.compat');
 
     // Some should be refined per item against potential mixed media items.

@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2022-03-01
+-----------------------------
+- Added `defer` loading as per [#3120696](https://drupal.org/node/3120696).
+
 Blazy 8.x-2.0-dev, 2022-02-28
 -----------------------------
 - Issue #3266748 by gausarts, xamount: padding-bottom not calculated correctly.

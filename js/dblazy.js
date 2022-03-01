@@ -1882,8 +1882,7 @@
   };
 
   function prevnext(el, selector, prefix) {
-    var sibling = 'ElementSibling';
-    return traverse(el, selector, prefix + sibling);
+    return traverse(el, selector, prefix + 'ElementSibling');
   }
 
   function prev(el, selector) {
