@@ -49,6 +49,8 @@
   var _dataOnce = 'data-once';
   var _storage = _win.localStorage;
   var _events = {};
+  // The largest integer that can be represented exactly.
+  var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
 
   /**
    * Object for public APIs where dBlazy stands for drupalBlazy.
@@ -194,6 +196,37 @@
   }
 
   /**
+   * Returns true if the checked property is number.
+   *
+   * @private
+   *
+   * @param {function} cb
+   *   The callback to test length property.
+   *
+   * @return {bool}
+   *   True if argument is property is number.
+   */
+  function checkLength(cb) {
+    return function (collection) {
+      var size = cb(collection);
+      return typeof size === 'number' && size >= 0 && size <= MAX_ARRAY_INDEX;
+    };
+  }
+
+  // Internal helper to obtain the `length` property of an object.
+  var getLength = shallowProperty('length');
+
+  /**
+   * Returns true if the argument is an array-like object, NodeList, etc.
+   *
+   * @private
+   *
+   * @return {bool}
+   *   True if argument is an array-like object.
+   */
+  var isArrayLike = checkLength(getLength);
+
+  /**
    * Retrieve the names of an object's own properties.
    *
    * Delegates to ECMAScript 5's native `Object.keys`.
@@ -216,7 +249,7 @@
    * @private
    *
    * @param {Mixed} x
-   *   The x to check for its type truthy.
+   *   The x to check for its type.
    *
    * @return {bool}
    *   True if x is an instanceof dBlazy.
@@ -232,13 +265,17 @@
    *
    * One of the weird behaviors in JavaScript is the typeof Array is Object.
    *
+   * @param {Mixed} x
+   *   The x to check for its type.
+   *
    * @return {bool}
    *   True if the argument is an instanceof Array.
+   *
+   * @todo refine, like everything else.
    */
-  var isArr = Array.isArray || isTag('Array');
-
-  // Internal helper to obtain the `length` property of an object.
-  var getLength = shallowProperty('length');
+  function isArr(x) {
+    return x && (typeof x === Array.isArray || isArrayLike(x));
+  }
 
   /**
    * Returns true if the x is a boolean.
@@ -499,13 +536,15 @@
         }
       }
     }
-    else if (isArr(obj)) {
-      if (obj.length === 1) {
+    else if (obj) {
+      var len = obj.length;
+      if (len && len === 1) {
         if (!isUnd(obj[0])) {
           cb.call(scope, obj[0], 0, obj);
         }
       }
       else {
+        // Assumes array, at least non-expected objs were blacklisted above.
         obj.forEach(cb, scope);
       }
     }
@@ -563,6 +602,10 @@
    */
   function toArray(x) {
     return isArr(x) ? x : [x];
+  }
+
+  function _op(el, op, name, value) {
+    return el[op + 'Attribute'](name, value);
   }
 
   /**
@@ -632,10 +675,6 @@
     };
 
     return chain.call(els, chainCallback);
-  }
-
-  function _op(el, op, name, value) {
-    return el[op + 'Attribute'](name, value);
   }
 
   /**
@@ -1436,6 +1475,7 @@
   db.isTag = isTag;
   db.isArr = isArr;
   db.isBool = isBool;
+  db.isDoc = isDoc;
   db.isElm = isElm;
   db.isFun = isFun;
   db.isEmpty = isEmpty;
@@ -1451,6 +1491,7 @@
   db.isRo = 'Resize' + _observer in _win;
   db.isNativeLazy = 'loading' in HTMLImageElement.prototype;
   db.isAmd = typeof define === 'function' && define.amd;
+  db.isWin = isWin;
   db._er = -1;
   db._ok = 1;
 
@@ -1933,15 +1974,7 @@
     if (html) {
       html = html.trim();
 
-      if ('DOMParser' in _win) {
-        var parser = new DOMParser();
-        var content = parser.parseFromString(html, 'text/html');
-        el.appendChild(content[0]);
-      }
-      else {
-        el.innerHTML = html;
-      }
-
+      el.innerHTML = html;
       if (tagName === 'template') {
         el = el.content.firstChild;
       }
