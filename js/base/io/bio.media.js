@@ -45,7 +45,6 @@
   var _imgSources = [_srcSet, _src];
   var _erCounted = 0;
   var _isDeferChecked = false;
-  var _isNativeChecked = false;
 
   // Inherits Bio prototype.
   var _super = Bio.prototype;
@@ -78,7 +77,7 @@
     var parent = el.parentNode;
     var isBg = $.isBg(el);
     var isPicture = $.equal(parent, 'picture');
-    var isImage = $.equal(el, 'img') && !isPicture;
+    var isImage = $.equal(el, 'img');
     var isVideo = $.equal(el, 'video');
     var isDataset = $.hasAttr(el, _dataSrc);
 
@@ -271,10 +270,8 @@
   fn.prepare = function () {
     var me = this;
 
-    if (!_isNativeChecked) {
-      natively(me);
-      _isNativeChecked = true;
-    }
+    // @todo lock it back once AJAX-loaded contents fixed.
+    natively(me);
 
     // Runs after native set to minimize works.
     if ($.webp) {

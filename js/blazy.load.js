@@ -72,7 +72,7 @@
      */
     fixDataUri: function () {
       var me = this;
-      var els = $.findAll(me.context, me.selector('[src^="' + _image + '"]'));
+      var els = $.findAll(_doc, me.selector('[src^="' + _image + '"]'));
       var fix = function (img) {
         var src = $.attr(img, _src);
         if ($.contains(src, ['base64', 'svg+xml'])) {
@@ -224,12 +224,12 @@
       $.once(process.bind(me), _idOnce, _element, _context);
 
       // Initializes blazy once as a global observer, not per container.
-      $.once(init.bind(me), _idOnceGlobal, _elementGlobal, _context);
+      $.once(init.bind(me), _idOnceGlobal, _elementGlobal, _doc);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
         $.once.removeSafely(_idOnce, _element, _context);
-        $.once.removeSafely(_idOnceGlobal, _elementGlobal, _context);
+        $.once.removeSafely(_idOnceGlobal, _elementGlobal, _doc);
       }
     }
   };

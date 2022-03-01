@@ -274,7 +274,11 @@
    * @todo refine, like everything else.
    */
   function isArr(x) {
-    return x && (typeof x === Array.isArray || isArrayLike(x));
+    // String has length.
+    if (isStr(x)) {
+      return false;
+    }
+    return x && (Array.isArray(x) || isArrayLike(x));
   }
 
   /**
@@ -538,10 +542,8 @@
     }
     else if (obj) {
       var len = obj.length;
-      if (len && len === 1) {
-        if (!isUnd(obj[0])) {
-          cb.call(scope, obj[0], 0, obj);
-        }
+      if (len && len === 1 && !isUnd(obj[0])) {
+        cb.call(scope, obj[0], 0, obj);
       }
       else {
         // Assumes array, at least non-expected objs were blacklisted above.
@@ -978,8 +980,12 @@
    *   Returns true if matches, else false.
    */
   function equal(el, tags) {
+    if (!isQsa(el)) {
+      return false;
+    }
+
     return _some.call(toArray(tags), function (tag) {
-      return isQsa(el) && (el.nodeName.toLowerCase() === tag.toLowerCase());
+      return el.nodeName.toLowerCase() === tag.toLowerCase();
     });
   }
 
@@ -1396,6 +1402,7 @@
           el[op + 'EventListener'](type, cb, options);
         }
 
+        // @todo store as namespace to allow easy removal by namespaces.
         if (add) {
           _events[e] = cb;
         }
@@ -1462,11 +1469,6 @@
     return chain.call(els, chainCallback);
   }
 
-  db.trigger = trigger.bind(db);
-  fn.trigger = function (eventName, details, param) {
-    return trigger(this, eventName, details, param);
-  };
-
   // Type methods.
   // Wonder why ES6 has alt lambda `=>` for `function`? Compact, to save bytes.
   // Kotlin has useless `fun` due to being compiled back to `function`. But ES6
@@ -1500,18 +1502,12 @@
     return chain.call(els, cb);
   };
 
-  fn.chain = function (cb) {
-    return chain.call(this, cb);
-  };
-
   db.each = each;
-  fn.each = function (cb) {
-    return each(this, cb);
-  };
 
   db.extend = extend;
-  fn.extend = function (plugins) {
-    return extend(fn, plugins);
+  fn.extend = function (plugins, reverse) {
+    reverse = reverse || false;
+    return reverse ? extend(plugins, fn) : extend(fn, plugins);
   };
 
   db.hasProp = hasProp;
@@ -1520,52 +1516,15 @@
   db.toArray = toArray;
 
   // Attribute methods.
-  db.hasAttr = hasAttr.bind(db);
-  fn.hasAttr = function (name) {
-    var me = this;
-    return _some.call(me, function (el) {
-      return hasAttr.call(me, el, name);
-    });
-  };
-
+  db.hasAttr = hasAttr;
   db.attr = _attr.bind(db);
-  fn.attr = function (attr, defValue, withDefault) {
-    var me = this;
-    if (isNull(defValue)) {
-      return me.removeAttr(attr, withDefault);
-    }
-    return _attr(me, attr, defValue, withDefault);
-  };
-
   db.removeAttr = removeAttr.bind(db);
-  fn.removeAttr = function (attr, prefix) {
-    return removeAttr(this, attr, prefix);
-  };
 
   // Class name methods.
-  db.hasClass = hasClass.bind(db);
-  fn.hasClass = function (name) {
-    var me = this;
-    return _some.call(me, function (el) {
-      return hasClass(el, name);
-    });
-  };
-
-  db.toggleClass = toggleClass.bind(db);
-  fn.toggleClass = function (name, op) {
-    return toggleClass(this, name, op);
-  };
-
-  db.addClass = addClass.bind(db);
-  fn.addClass = function (name) {
-    return this.toggleClass(name, _add);
-  };
-
-  db.removeClass = removeClass.bind(db);
-  fn.removeClass = function (name) {
-    var me = this;
-    return arguments.length ? me.toggleClass(name, _remove) : me.attr(_class, '');
-  };
+  db.hasClass = hasClass;
+  db.toggleClass = toggleClass;
+  db.addClass = addClass;
+  db.removeClass = removeClass;
 
   // String methods.
   db.contains = contains;
@@ -1575,40 +1534,13 @@
 
   // DOM query methods.
   db.closest = closest;
-  fn.closest = function (selector) {
-    return closest(this[0], selector);
-  };
-
   db.is = is;
 
   // @todo merge with ::is().
   db.equal = equal;
-  fn.equal = function (selector) {
-    return equal(this[0], selector);
-  };
-
   db.find = find;
-  fn.find = function (selector, asArray) {
-    return find(this[0], selector, asArray);
-  };
-
   db.findAll = findAll;
-  fn.findAll = function (selector) {
-    return findAll(this[0], selector);
-    // @todo multiple sources for multiple targets.
-    // return this.each(function (el) {
-    // els.push(findAll(el, selector));
-    // });
-  };
-
-  fn.first = function (el) {
-    return isUnd(el) ? this[0] : el;
-  };
-
   db.remove = remove;
-  fn.remove = function () {
-    this.each(remove);
-  };
 
   // Window methods.
   db.ie = ie;
@@ -1618,24 +1550,11 @@
   db.activeWidth = activeWidth;
 
   // Event methods.
-  fn.toEvent = function (eventName, selector, cb, params, isCustom, op) {
-    return toEvent(this, eventName, selector, cb, params, isCustom, op);
-  };
-
-  db.on = on.bind(db);
-  fn.on = function (eventName, selector, cb, params, isCustom) {
-    return this.toEvent(eventName, selector, cb, params, isCustom, _add);
-  };
-
-  db.off = off.bind(db);
-  fn.off = function (eventName, selector, cb, params, isCustom) {
-    return this.toEvent(eventName, selector, cb, params, isCustom, _remove);
-  };
-
-  db.one = one.bind(db);
-  fn.one = function (eventName, cb, isCustom) {
-    return one(this, eventName, cb, isCustom);
-  };
+  db.toEvent = toEvent;
+  db.on = on;
+  db.off = off;
+  db.one = one;
+  db.trigger = trigger;
 
   // Image methods.
   db.isDecoded = isDecoded;
@@ -1657,9 +1576,6 @@
   }
 
   db.ready = ready.bind(db);
-  fn.ready = function (callback) {
-    return ready.call(this, callback);
-  };
 
   /**
    * Decodes the image.
@@ -1886,10 +1802,6 @@
 
   db.computeStyle = computeStyle;
 
-  fn.computeStyle = function (prop) {
-    return computeStyle(this[0], prop);
-  };
-
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
   function rect(el) {
     return isElm(el) ? el.getBoundingClientRect() : {};
@@ -1918,9 +1830,6 @@
   }
 
   db.parent = parent;
-  fn.parent = function (selector) {
-    return parent(this[0], selector);
-  };
 
   function prevnext(el, selector, prefix) {
     return traverse(el, selector, prefix + 'ElementSibling');
@@ -1934,17 +1843,7 @@
     return prevnext(el, selector, 'next');
   }
 
-  db.next = next;
-  fn.next = function (selector) {
-    return next(this[0], selector);
-  };
-
-  db.prev = prev;
-  fn.prev = function (selector) {
-    return prev(this[0], selector);
-  };
-
-  db.index = function (el, parents) {
+  function index(el, parents) {
     var i = 0;
     if (isElm(el)) {
       if (!isUnd(parents)) {
@@ -1962,7 +1861,11 @@
       }
     }
     return i;
-  };
+  }
+
+  db.next = next;
+  db.prev = prev;
+  db.index = index;
 
   db.create = function (tagName, className, html) {
     var el = _doc.createElement(tagName);
@@ -1993,6 +1896,26 @@
     }
     return defValue || false;
   };
+
+  // @todo merge with cash if available.
+  // if ('cash' in _win) {
+  // fn.extend(cash.fn, true);
+  // }
+  // Collects base prototypes for clarity.
+  var objs = {
+    chain: function (cb) {
+      return chain.call(this, cb);
+    },
+    each: function (cb) {
+      return each(this, cb);
+    },
+    ready: function (callback) {
+      return ready.call(this, callback);
+    }
+  };
+
+  // Merge base prototypes.
+  fn.extend(objs);
 
   // @deprecated for shorter ::is(). Hardly used, except lory.
   db.matches = is;
