@@ -113,7 +113,7 @@ class BlazyMedia implements BlazyMediaInterface {
       $settings['file_tags'] = ['file:' . $item->target_id];
       $settings['uri'] = Blazy::uri($item);
 
-      if (trim($item->title) == '') {
+      if (trim($item->title ?? '') == '') {
         $item->title = $media->label();
       }
 
