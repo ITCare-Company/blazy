@@ -528,10 +528,19 @@
       return [];
     }
 
+    // @todo re-check and remove if it has bad consequencies.
+    if (isArrayLike(obj)) {
+      obj = toArray(obj);
+      if (obj.length === 1 && obj[0] === ' ') {
+        return [];
+      }
+    }
+
+    // @todo re-check if to remove after isArrayLike.
     if (_toString.call(obj) === '[object Object]') {
       for (var prop in obj) {
         if (hasProp(obj, prop)) {
-          if (prop === 'length') {
+          if (prop === 'length' || prop === 'name') {
             continue;
           }
           if (cb.call(scope, obj[prop], prop, obj) === false) {
@@ -603,7 +612,9 @@
    *   The resulting array.
    */
   function toArray(x) {
-    return isArr(x) ? x : [x];
+    // @todo revert if any issues.
+    var check = isArrayLike(x) ? _aProto.slice.call(x) : x;
+    return isArr(x) ? check : [x];
   }
 
   function _op(el, op, name, value) {
@@ -732,9 +743,10 @@
     var found = 0;
 
     if (isQsa(el) && isStr(names)) {
+      names = names.trim();
       var _list = el.classList;
 
-      each(names.split(' '), function (name) {
+      var verify = function (name) {
         if (_list) {
           if (_list.contains(name)) {
             found++;
@@ -747,7 +759,14 @@
             found++;
           }
         }
-      });
+      };
+
+      if (contains(names, ' ')) {
+        each(names.trim().split(' '), verify);
+      }
+      else {
+        verify(names);
+      }
     }
     return found > 0;
   }
@@ -777,7 +796,7 @@
         }
 
         if (_list && isStr(name)) {
-          var names = name.split(' ');
+          var names = name.trim().split(' ');
           if (isUnd(op)) {
             names.map(function (value) {
               _list.toggle(value);
@@ -1411,7 +1430,7 @@
         }
       };
 
-      each(eventName.split(' '), process);
+      each(eventName.trim().split(' '), process);
     };
 
     return chain.call(els, chainCallback);
@@ -1756,15 +1775,11 @@
     return isDoc(ctx) ? ctx : _doc;
   }
 
-  db.context = context;
-
   // Valid elements for querySelector with length: form, select, etc.
   function toElm(el) {
     var isJq = _isJq && el instanceof jQuery;
     return el && (isMe(el) || isJq) ? el[0] : el;
   }
-
-  db.toElm = toElm;
 
   // Minimum common DOM methods taken and modified from cash.
   // @todo refactor or remove dups when everyone uses cash, or vanilla alike.
@@ -1774,13 +1789,9 @@
     });
   }
 
-  db.camelCase = camelCase;
-
   function isVar(prop) {
     return _cssVariableRe.test(prop);
   }
-
-  db.isVar = isVar;
 
   // @see https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle
   function computeStyle(el, prop, isVariable) {
@@ -1800,14 +1811,10 @@
     return _style[prop] || el.style[prop];
   }
 
-  db.computeStyle = computeStyle;
-
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
   function rect(el) {
     return isElm(el) ? el.getBoundingClientRect() : {};
   }
-
-  db.rect = rect;
 
   function traverse(el, selector, relative) {
     if (isUnd(selector)) {
@@ -1828,8 +1835,6 @@
   function parent(el, selector) {
     return traverse(el, selector, 'parentElement');
   }
-
-  db.parent = parent;
 
   function prevnext(el, selector, prefix) {
     return traverse(el, selector, prefix + 'ElementSibling');
@@ -1863,6 +1868,13 @@
     return i;
   }
 
+  db.context = context;
+  db.toElm = toElm;
+  db.camelCase = camelCase;
+  db.isVar = isVar;
+  db.computeStyle = computeStyle;
+  db.rect = rect;
+  db.parent = parent;
   db.next = next;
   db.prev = prev;
   db.index = index;

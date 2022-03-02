@@ -163,7 +163,7 @@
     var html = '';
 
     if (imgUrl) {
-      html += '<img src="$img" class="$imgClass" alt="$alt" loading="lazy" decoding="async" />';
+      html += '<img src="$imgUrl" class="$imgClass" alt="$alt" loading="lazy" decoding="async" />';
     }
 
     if (player) {
@@ -185,7 +185,7 @@
       idClass: idClass,
       player: player,
       pad: pad,
-      img: imgUrl,
+      imgUrl: imgUrl,
       imgClass: imgClass,
       alt: alt,
       oembed: oembedUrl,
