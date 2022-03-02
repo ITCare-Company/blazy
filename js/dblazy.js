@@ -528,15 +528,14 @@
       return [];
     }
 
-    // @todo re-check and remove if it has bad consequencies.
-    if (isArrayLike(obj)) {
-      obj = toArray(obj);
-      if (obj.length === 1 && obj[0] === ' ') {
+    // Filter out useless empty array.
+    if (isArr(obj) && !isUnd(obj.length)) {
+      var length = obj.length;
+      if (!length || (length === 1 && obj[0] === ' ')) {
         return [];
       }
     }
 
-    // @todo re-check if to remove after isArrayLike.
     if (_toString.call(obj) === '[object Object]') {
       for (var prop in obj) {
         if (hasProp(obj, prop)) {
@@ -612,9 +611,7 @@
    *   The resulting array.
    */
   function toArray(x) {
-    // @todo revert if any issues.
-    var check = isArrayLike(x) ? _aProto.slice.call(x) : x;
-    return isArr(x) ? check : [x];
+    return isArr(x) ? x : [x];
   }
 
   function _op(el, op, name, value) {
