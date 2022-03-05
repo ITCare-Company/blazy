@@ -42,7 +42,7 @@
   $.bgUrl = function (el, winData) {
     var data = $.parse($.attr(el, 'data-b-bg'));
 
-    if (data) {
+    if (!$.isEmpty(data)) {
       var _bg = $.activeWidth(data, winData);
       if (_bg && _bg !== 'undefined') {
         var _ratio = _bg.ratio;
@@ -55,7 +55,7 @@
         return _bg.src;
       }
     }
-    return '';
+    return $.attr(el, _dataSrc);
   };
 
   $.bg = bg;

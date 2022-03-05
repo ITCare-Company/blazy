@@ -98,7 +98,7 @@
       var picture = function (root) {
         if (root.dblazy && root.dbuniform) {
           if ((root.dblazy === cn.dblazy) && !root.dbpicture) {
-            $.trigger(root, _id + '.uniform.' + root.dblazy, {
+            $.trigger(root, _id + '.uniform' + root.dblazy, {
               pad: pad
             });
             root.dbpicture = true;
@@ -163,7 +163,7 @@
     var opts = $.parse($.attr(elm, 'data-' + _id));
     var isUniform = $.hasClass(elm, _id + '--field block-grid ' + _id + '--uniform');
     var instance = (Math.random() * 10000).toFixed(0);
-    var eventId = _id + '.uniform.' + instance;
+    var eventId = _id + '.uniform' + instance;
     var localItems = $.findAll(elm, '.media--ratio');
 
     _opts = me.merge(opts);

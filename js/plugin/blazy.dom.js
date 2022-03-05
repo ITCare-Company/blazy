@@ -233,6 +233,9 @@
       var me = this;
       return arguments.length ? me.toggleClass(name, _remove) : me.attr(_class, '');
     },
+    empty: function () {
+      return $.empty(this);
+    },
     first: function (el) {
       return $.isUnd(el) ? this[0] : el;
     },

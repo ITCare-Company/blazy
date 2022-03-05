@@ -1,6 +1,11 @@
 
 Blazy 8.x-2.0-dev, 2022-03-01
 -----------------------------
+- Issue #3267769 by gausarts, ramirojoaquin, apaderno: CSS background, data-src
+  removed and style tag not created.
+
+Blazy 8.x-2.0-dev, 2022-03-01
+-----------------------------
 - Added `defer` loading as per [#3120696](https://drupal.org/node/3120696).
 
 Blazy 8.x-2.0-dev, 2022-02-28

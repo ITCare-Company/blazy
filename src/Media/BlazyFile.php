@@ -39,17 +39,20 @@ class BlazyFile {
   }
 
   /**
-   * Creates an absolute web-accessible URL string.
+   * Creates an relative or absolute web-accessible URL string.
    *
    * @param string $uri
    *   The file uri.
+   * @param bool $relative
+   *   Whether to return an relative or absolute URL.
    *
    * @return string
    *   Returns an absolute web-accessible URL string.
    */
-  public static function createUrl($uri): string {
+  public static function createUrl($uri, $relative = FALSE): string {
     if ($gen = Blazy::fileUrlGenerator()) {
-      return $gen->generateAbsoluteString($uri);
+      // @todo recheck ::generateAbsoluteString doesn't return web-accessible protocol as expected.
+      return $relative ? $gen->generateString($uri) : $gen->generateAbsoluteString($uri);
     }
 
     $function = 'file_create_url';
@@ -77,7 +80,7 @@ class BlazyFile {
    * @todo make it more robust.
    */
   public static function transformRelative($uri, $style = NULL, array $options = []): string {
-    $url = $options['url'] ?? '';
+    $url = $trusted_url = $options['url'] ?? '';
     $sanitize = $options['sanitize'] ?? FALSE;
 
     if (empty($uri)) {
@@ -88,7 +91,7 @@ class BlazyFile {
     if (UrlHelper::isExternal($uri)) {
       $url = $uri;
     }
-    elseif (self::isValidUri($uri)) {
+    elseif (empty($trusted_url) && self::isValidUri($uri)) {
       $url = $style ? $style->buildUrl($uri) : self::createUrl($uri);
 
       if ($gen = Blazy::fileUrlGenerator()) {
@@ -315,8 +318,9 @@ class BlazyFile {
     $sanitize = !empty($settings['_check_protocol']);
     $options = ['url' => $url, 'sanitize' => $sanitize];
     $url = self::transformRelative($uri, ($styled ? $style : NULL), $options);
+    $no_dims = empty($settings['height']) || empty($settings['width']);
 
-    $ratio = empty($settings['width']) ? 100 : round((($settings['height'] / $settings['width']) * 100), 2);
+    $ratio = $no_dims ? 100 : round((($settings['height'] / $settings['width']) * 100), 2);
 
     return [
       'url' => $url,
@@ -331,9 +335,10 @@ class BlazyFile {
    * @todo remove and merge it with imageUrlAndStyle.
    */
   public static function backgroundImage(array $settings, $style = NULL) {
+    $no_dims = empty($settings['height']) || empty($settings['width']);
     return [
       'src' => $style ? self::transformRelative($settings['uri'], $style) : $settings['image_url'],
-      'ratio' => round((($settings['height'] / $settings['width']) * 100), 2),
+      'ratio' => $no_dims ? 100 : round((($settings['height'] / $settings['width']) * 100), 2),
     ];
   }
 
@@ -352,9 +357,16 @@ class BlazyFile {
 
     // Only applies when Image style is empty, no file API, no $item,
     // with unmanaged VEF/ WYSIWG/ filter image without image_style.
-    // Prevents 404 warning when video thumbnail missing for a reason.
-    if (empty($settings['image_style']) && empty($settings[$width]) && !empty($settings[$uri])) {
+    if (empty($settings['image_style']) && empty($settings[$height]) && !empty($settings[$uri])) {
       $abs = empty($settings['uri_root']) ? $settings[$uri] : $settings['uri_root'];
+      // Must be valid URI, or web-accessible url, not: /modules|themes/...
+      if (!BlazyFile::isValidUri($abs) && mb_substr($abs, 0, 1) == '/') {
+        if ($request = Blazy::requestStack()) {
+          $abs = $request->getCurrentRequest()->getSchemeAndHttpHost() . $abs;
+        }
+      }
+
+      // Prevents 404 warning when video thumbnail missing for a reason.
       if ($data = @getimagesize($abs)) {
         [$settings[$width], $settings[$height]] = $data;
       }

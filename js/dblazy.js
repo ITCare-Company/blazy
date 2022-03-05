@@ -30,7 +30,7 @@
   var _some = _aProto.some;
   var _symbol = typeof Symbol !== 'undefined' && Symbol;
   var _isJq = 'jQuery' in _win;
-  // @todo var _cash = 'cash' in _win;
+  var _isCash = 'cash' in _win;
   var _class = 'class';
   var _add = 'add';
   var _remove = 'remove';
@@ -413,10 +413,15 @@
    *
    * @private
    *
+   * @param {Mixed} x
+   *   The x to check for its type string.
+   *
    * @return {bool}
    *   True if argument is a string.
    */
-  var isStr = isTag('String');
+  function isStr(x) {
+    return x && typeof x === 'string';
+  }
 
   /**
    * Returns true if the x is undefined.
@@ -749,7 +754,7 @@
             found++;
           }
         }
-        else {
+        if (found === 0) {
           // SVG may fail classList here.
           var check = _attr(el, _class);
           if (check && check.match(name)) {
@@ -758,12 +763,7 @@
         }
       };
 
-      if (contains(names, ' ')) {
-        each(names.trim().split(' '), verify);
-      }
-      else {
-        verify(names);
-      }
+      each(names.trim().split(' '), verify);
     }
     return found > 0;
   }
@@ -996,7 +996,7 @@
    *   Returns true if matches, else false.
    */
   function equal(el, tags) {
-    if (!isQsa(el)) {
+    if (!el || !el.nodeName) {
       return false;
     }
 
@@ -1031,6 +1031,13 @@
    */
   function find(el, selector, asArray) {
     if (isQsa(el)) {
+      // Direct descendant.
+      var scope = ':scope';
+      if (isStr(selector) && startsWith(selector, '>')) {
+        if (!contains(selector, scope)) {
+          selector = scope + ' ' + selector;
+        }
+      }
       return isUnd(asArray) && isStr(selector) ? (el.querySelector(selector) || []) : toElms(selector, el);
     }
     return [];
@@ -1301,6 +1308,7 @@
     // Assume selector is an array-like element unless a string.
     var elements = toArray(selector);
     if (isStr(selector)) {
+      ctx = context(ctx);
       var check = ctx.querySelector(selector);
       elements = isNull(check) ? [] : ctx.querySelectorAll(selector);
     }
@@ -1364,7 +1372,7 @@
           while (t && t !== this) {
             if (is(t, selector)) {
               _cbt.call(t, e);
-              return;
+              break;
             }
             t = t.parentElement;
           }
@@ -1407,7 +1415,7 @@
         if (isFun(cb)) {
           // See https://caniuse.com/once-event-listener.
           if (_one && add && _ie) {
-            var cbone = function cbone(evt) {
+            var cbone = function cbone() {
               el.removeEventListener(type, cbone, options);
               _cb.apply(this, arguments);
             };
@@ -1748,7 +1756,7 @@
    * This can be null after Colorbox close, or absurd <script> element, likely
    * arbitrary, etc.
    *
-   * @param {HTMLDocument|Element} ctx
+   * @param {Document|Element} ctx
    *   Any element, including weird script element.
    *
    * @return {Element|Document|DocumentFragment}
@@ -1768,14 +1776,15 @@
       return ctx;
     }
 
-    // IE9 knows not HTMLDocument, IE8 does.
+    // IE9 knows not deprecated HTMLDocument, IE8 does.
     return isDoc(ctx) ? ctx : _doc;
   }
 
   // Valid elements for querySelector with length: form, select, etc.
   function toElm(el) {
-    var isJq = _isJq && el instanceof jQuery;
-    return el && (isMe(el) || isJq) ? el[0] : el;
+    var isJq = _isJq && el instanceof _win.jQuery;
+    var isCash = _isCash && el instanceof _win.cash;
+    return el && (isMe(el) || isJq || isCash) ? el[0] : el;
   }
 
   // Minimum common DOM methods taken and modified from cash.
@@ -1814,19 +1823,21 @@
   }
 
   function traverse(el, selector, relative) {
-    if (isUnd(selector)) {
-      return isElm(el) && el[relative];
-    }
+    if (isElm(el)) {
+      var target = el[relative];
 
-    var nel = null;
-    while (el) {
-      if (is(el, selector)) {
-        nel = el;
-        return;
+      if (isUnd(selector)) {
+        return target;
       }
-      el = el[relative];
+
+      while (target) {
+        if (is(target, selector) || equal(target, selector)) {
+          return target;
+        }
+        target = target[relative];
+      }
     }
-    return nel;
+    return null;
   }
 
   function parent(el, selector) {
@@ -1843,6 +1854,18 @@
 
   function next(el, selector) {
     return prevnext(el, selector, 'next');
+  }
+
+  function empty(els) {
+    var chainCallback = function (el) {
+      if (isElm(el)) {
+        while (el.firstChild) {
+          el.removeChild(el.firstChild);
+        }
+      }
+    };
+
+    return chain.call(els, chainCallback);
   }
 
   function index(el, parents) {
@@ -1871,16 +1894,22 @@
   db.isVar = isVar;
   db.computeStyle = computeStyle;
   db.rect = rect;
+  db.empty = empty;
   db.parent = parent;
   db.next = next;
   db.prev = prev;
   db.index = index;
 
-  db.create = function (tagName, className, html) {
+  db.create = function (tagName, attrs, html) {
     var el = _doc.createElement(tagName);
 
-    if (className) {
-      el.className = className;
+    if (isStr(attrs) || isObj(attrs)) {
+      if (isStr(attrs)) {
+        el.className = attrs;
+      }
+      else {
+        _attr(el, attrs);
+      }
     }
 
     if (html) {
@@ -1888,7 +1917,7 @@
 
       el.innerHTML = html;
       if (tagName === 'template') {
-        el = el.content.firstChild;
+        el = el.content.firstChild || el;
       }
     }
 
@@ -1907,7 +1936,7 @@
   };
 
   // @todo merge with cash if available.
-  // if ('cash' in _win) {
+  // if (_isCash) {
   // fn.extend(cash.fn, true);
   // }
   // Collects base prototypes for clarity.
@@ -1966,19 +1995,16 @@
     var add = opts.add;
     var remove = opts.remove;
     var result = [];
-    var unique = function (id) {
-      return !~result.indexOf(id);
-    };
 
     if (hasAttr(el, _dataOnce)) {
       var ids = _attr(el, _dataOnce).trim().split(_wsRe);
       each(ids, function (id) {
-        if (unique(id) && id !== remove) {
+        if (!contains(result, id) && id !== remove) {
           result.push(id);
         }
       });
     }
-    if (add && unique(add)) {
+    if (add && !contains(result, add)) {
       result.push(add);
     }
     var value = result.join(' ');
@@ -2013,7 +2039,7 @@
     };
     db.once.removeSafely = function (id, selector, ctx) {
       var me = this;
-      var jq = jQuery;
+      var jq = _win.jQuery;
 
       if (me.find(id, ctx).length) {
         me.remove(id, selector, ctx);

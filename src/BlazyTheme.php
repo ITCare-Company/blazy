@@ -3,7 +3,6 @@
 namespace Drupal\blazy;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Media\BlazyFile;
 
@@ -102,6 +101,11 @@ class BlazyTheme {
     $classes = (array) ($attributes['class'] ?? []);
     $attributes['class'] = array_merge(['media', 'media--blazy'], $classes);
     $variables['blazies'] = $settings['blazies'];
+
+    // Still provides a failsafe for direct call to theme_blazy().
+    if (!$blazies->get('_api')) {
+      Blazy::attach($variables, $settings);
+    }
   }
 
   /**
@@ -317,8 +321,7 @@ class BlazyTheme {
     }
 
     // Attaches Blazy libraries here since Blazy is not the formatter.
-    $attachments = \blazy()->attach($settings);
-    $variables['#attached'] = empty($variables['#attached']) ? $attachments : NestedArray::mergeDeep($variables['#attached'], $attachments);
+    Blazy::attach($variables, $settings);
   }
 
 }

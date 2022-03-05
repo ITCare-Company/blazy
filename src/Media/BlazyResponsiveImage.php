@@ -129,6 +129,43 @@ class BlazyResponsiveImage {
   }
 
   /**
+   * Build out Responsive image.
+   */
+  public static function toBackground(array &$attributes, array &$settings) {
+    $blazies = &$settings['blazies'];
+
+    // Makes Responsive image usable as CSS background image sources.
+    // @todo merge it with BlazyFormatter + BlazyFilter.
+    if ($settings['background']) {
+      $srcset = $ratios = [];
+      $responsive_image = $blazies->get('resimage');
+      foreach ($responsive_image['styles'] as $style) {
+        $styled = array_merge($settings, BlazyFile::transformDimensions($style, $settings, FALSE));
+
+        // Sort image URLs based on width.
+        $data = BlazyFile::backgroundImage($styled, $style);
+        $srcset[$styled['width']] = $data;
+        $ratios[$styled['width']] = $data['ratio'];
+      }
+
+      // Sort the srcset from small to large image width or multiplier.
+      ksort($srcset);
+      ksort($ratios);
+
+      $blazies->set('bgs', $srcset)
+        ->set('ratios', $ratios)
+        ->set('item.padding_bottom', end($ratios));
+
+      // To make compatible with old bLazy which expects no placeholder, provide
+      // a real smallest image. Bio will map it to the current breakpoint later.
+      $bg = reset($srcset);
+      $unlazy = $settings['unlazy'] = $blazies->get('is.undata');
+      $settings['image_url'] = $unlazy ? $settings['image_url'] : $bg['src'];
+      Blazy::lazyAttributes($attributes, $settings);
+    }
+  }
+
+  /**
    * Modifies fallback image style.
    */
   public static function fallback(array &$settings): void {
