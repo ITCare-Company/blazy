@@ -257,7 +257,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       // Attempts to get the correct URI with hard-coded URL if applicable.
       if ($uri = BlazyFile::buildUri($src)) {
         $settings['uri'] = $uri;
-        $data['item'] = Blazy::image($settings);
+        $data['item'] = BlazyFille::image($settings);
       }
       else {
         // At least provide root URI to figure out image dimensions.

@@ -1,9 +1,10 @@
 
 ***
 ## <a name="changes"></a>NOTABLE CHANGES
-* _Blazy 2.8_, 2022/03/04:
+* _Blazy 2.8_, 2022/03/06:
   + Added `defer` loading as per [#3120696](https://drupal.org/node/3120696).
-  + Regression fixes:  
+  + Regression fixes:
+    * blur, BG.
     * [#3266748](https://drupal.org/node/3266748)
     * [#3266482](https://drupal.org/node/3266482)
 * _Blazy 2.7_, 2022/02/20:

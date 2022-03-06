@@ -8,6 +8,7 @@ use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Cache\Cache;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\Placeholder;
 
 /**
  * Implements a public facing blazy manager.
@@ -39,7 +40,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     $settings = &$build['settings'];
     $settings += BlazyDefault::itemSettings();
-    $settings['uri'] = $uri = $settings['uri'] ?: Blazy::uri($build['item']);
+    $settings['uri'] = $uri = $settings['uri'] ?: BlazyFile::uri($build['item']);
 
     // Respects content not handled by theme_blazy(), but passed through.
     // Yet allows rich contents which might still be processed by theme_blazy().
@@ -119,7 +120,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Build thumbnail and optional placeholder based on thumbnail.
     // This must be set before Blazy::urlAndDimensions to provide placeholder.
-    BlazyFile::thumbnailAndPlaceholder($attributes, $settings);
+    Placeholder::thumbnail($attributes, $settings);
 
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
@@ -370,7 +371,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $element['#item_attributes'] = $item_attributes;
 
     if ($blazies->get('libs.blur')) {
-      BlazyUtil::blur($element, $attributes, $settings);
+      Placeholder::blur($element, $attributes, $settings);
     }
   }
 

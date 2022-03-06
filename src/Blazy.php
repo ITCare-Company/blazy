@@ -412,27 +412,6 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Returns URI from image item.
-   */
-  public static function uri($item): string {
-    $fallback = $item->uri ?? '';
-    return empty($item) ? '' : (($file = $item->entity) && empty($item->uri) ? $file->getFileUri() : $fallback);
-  }
-
-  /**
-   * Returns fake image item based on the given $attributes.
-   */
-  public static function image(array $attributes = []) {
-    $item = new \stdClass();
-    foreach (['uri', 'width', 'height', 'target_id', 'alt', 'title'] as $key) {
-      if (isset($attributes[$key])) {
-        $item->{$key} = $attributes[$key];
-      }
-    }
-    return $item;
-  }
-
-  /**
    * Returns a wrapper to pass tests, or DI where adding params is troublesome.
    */
   public static function streamWrapperManager() {
@@ -553,6 +532,24 @@ class Blazy implements BlazyInterface {
    */
   public static function service($service) {
     return \Drupal::hasService($service) ? \Drupal::service($service) : NULL;
+  }
+
+  /**
+   * Returns URI from image item.
+   *
+   * @todo deprecated and removed for BlazyFile::uri().
+   */
+  public static function uri($item): string {
+    return BlazyFile::uri($item);
+  }
+
+  /**
+   * Returns fake image item based on the given $attributes.
+   *
+   * @todo deprecated and removed for BlazyFile::image().
+   */
+  public static function image(array $attributes = []) {
+    return BlazyFile::image($attributes);
   }
 
 }

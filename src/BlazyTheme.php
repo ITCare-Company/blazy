@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\Placeholder;
 
 /**
  * Provides theme-related alias methods to de-clutter Blazy.
@@ -174,7 +175,7 @@ class BlazyTheme {
   public static function responsiveImage(array &$variables): void {
     $image = &$variables['img_element'];
     $attributes = &$variables['attributes'];
-    $placeholder = empty($attributes['data-placeholder']) ? BlazyInterface::PLACEHOLDER : $attributes['data-placeholder'];
+    $placeholder = empty($attributes['data-placeholder']) ? Placeholder::DATA : $attributes['data-placeholder'];
 
     // Bail out if a noscript is requested.
     // @todo figure out to not even enter this method, yet not break ratio, etc.

@@ -5,7 +5,6 @@ namespace Drupal\blazy\Media;
 use Drupal\Core\Cache\Cache;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazySettings;
-use Drupal\blazy\BlazyUtil;
 
 /**
  * Provides responsive image utilities.
@@ -136,10 +135,10 @@ class BlazyResponsiveImage {
 
     // Makes Responsive image usable as CSS background image sources.
     // @todo merge it with BlazyFormatter + BlazyFilter.
-    if ($settings['background']) {
+    if ($settings['background'] && $resimage = $blazies->get('resimage')) {
       $srcset = $ratios = [];
-      $responsive_image = $blazies->get('resimage');
-      foreach ($responsive_image['styles'] as $style) {
+
+      foreach ($resimage['styles'] as $style) {
         $styled = array_merge($settings, BlazyFile::transformDimensions($style, $settings, FALSE));
 
         // Sort image URLs based on width.
@@ -175,7 +174,7 @@ class BlazyResponsiveImage {
     if (empty($settings['image_style']) && $resimage = $blazies->get('resimage.style')) {
       $fallback = $resimage->getFallbackImageStyle();
       if ($fallback == '_empty image_') {
-        $placeholder = BlazyUtil::generatePlaceholder($settings['width'], $settings['height']);
+        $placeholder = Placeholder::generate($settings['width'], $settings['height']);
         $settings['image_url'] = $blazies->get('ui.placeholder') ?: $placeholder;
       }
       else {

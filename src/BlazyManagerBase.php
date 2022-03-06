@@ -344,11 +344,12 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
     // @todo remove some settings for `blazies` after sub-module updates.
     // @todo some plugin requires setting name by its name: blur, compat, etc.
-    $settings['fx'] = $fx = $settings['_fx'] ?? $settings['fx'];
-    $is_blur = $settings['fx'] == 'blur';
+    $settings['fx'] = $fx = $settings['_fx'] ?? $config['fx'];
+    $is_blur = $fx == 'blur';
     $settings['lightbox'] = $lightbox = ($switch && in_array($switch, $lightboxes)) ? $switch : $settings['lightbox'];
     $settings['loading'] = $settings['loading'] ?: 'lazy';
     $settings['route_name'] = $route_name = $this->getRouteName();
+    $settings['_resimage'] = $settings['_resimage'] ?: $this->moduleHandler->moduleExists('responsive_image');
 
     $current_language = $this->languageManager->getCurrentLanguage()->getId();
     $is_preview = $settings['is_preview'] = Blazy::isPreview();
@@ -371,6 +372,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $is_nojs = $is_undata;
     }
 
+    // Compat is anything that Native lazy doesn't support.
     $is_compat = $fx
       || $is_bg
       || $is_fluid
