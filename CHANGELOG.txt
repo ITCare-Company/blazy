@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-03-07
+-----------------------------
+- Issue #3268089 by gausarts, victoria-marina, hammerslammer, marciaibanez: Typo
+  in BlazyMedia.php
+
 Blazy 8.x-2.0-dev, 2022-03-01
 -----------------------------
 - Issue #3267769 by gausarts, ramirojoaquin, apaderno: CSS background, data-src

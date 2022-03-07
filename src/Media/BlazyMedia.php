@@ -158,7 +158,7 @@ class BlazyMedia implements BlazyMediaInterface {
       ];
 
       // Build item and settings.
-      $item             = BlazyFille::image($settings);
+      $item             = BlazyFile::image($settings);
       $item->entity     = $entity;
       $data['item']     = $item;
       $data['settings'] = empty($data['settings']) ? $settings : array_merge($data['settings'], $settings);
