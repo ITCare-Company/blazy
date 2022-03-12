@@ -39,24 +39,31 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    *   Has the responsive image style ID.
    *
    * @covers ::preRenderBlazy
-   * @covers ::getCommonSettings
+   * @covers ::postSettings
    * @covers \Drupal\blazy\BlazyLightbox::build
    * @covers \Drupal\blazy\BlazyLightbox::buildCaptions
    * @dataProvider providerTestPreRenderImage
    */
   public function testPreRenderImage(array $settings = [], $expected_has_responsive_image = FALSE) {
     $build = $this->data;
-    $this->blazyManager->getCommonSettings($settings);
+    $this->blazyManager->postSettings($settings);
+
+    $blazies = $settings['blazies'];
+    $blazies->set('entity.url', $settings['content_url'] ?? '');
+    $blazies->set('media.embed_url', $settings['embed_url'] ?? '');
+    $blazies->set('media.type', $settings['type'] ?? '');
+
     $settings['count'] = $this->maxItems;
     $settings['uri'] = $this->uri;
-    // @todo remove $settings['resimage'] = $expected_has_responsive_image ? $this->blazyManager->entityLoad('blazy_responsive_test', 'responsive_image_style') : NULL;
+
     $build['settings'] = array_merge($build['settings'], $settings);
     $switch_css = str_replace('_', '-', $settings['media_switch']);
 
     $element = $this->doPreRenderImage($build);
 
+    $blazies = $build['settings']['blazies'];
     if ($settings['media_switch'] == 'content') {
-      $this->assertEquals($settings['content_url'], $element['#url']);
+      $this->assertEquals($blazies->get('entity.url'), $element['#url']);
       $this->assertArrayHasKey('#url', $element);
     }
     else {
@@ -121,7 +128,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    *   The expected output.
    *
    * @covers \Drupal\blazy\BlazyTheme::blazy
-   * @covers \Drupal\blazy\Media\BlazyFile::urlAndDimensions
+   * @covers \Drupal\blazy\Media\BlazyImage::urlAndDimensions
    * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @dataProvider providerPreprocessBlazy
    */

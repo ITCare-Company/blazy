@@ -93,7 +93,7 @@ class BlazyUnitTest extends UnitTestCase {
    *   Whether to expect an iframe, or not.
    *
    * @covers \Drupal\blazy\BlazyTheme::blazy
-   * @covers \Drupal\blazy\Media\BlazyFile::urlAndDimensions
+   * @covers \Drupal\blazy\Media\BlazyImage::urlAndDimensions
    * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @dataProvider providerPreprocessBlazy
    */
@@ -102,11 +102,16 @@ class BlazyUnitTest extends UnitTestCase {
     $build     = $this->data;
     $settings  = array_merge($build['settings'], $settings);
     $settings += BlazyDefault::itemSettings();
+    $blazies   = &$settings['blazies'];
 
     $settings['blazy']           = TRUE;
     $settings['lazy']            = 'blazy';
     $settings['image_style']     = '';
     $settings['thumbnail_style'] = '';
+
+    $blazies->set('entity.url', $settings['content_url'] ?? '');
+    $blazies->set('media.embed_url', $settings['embed_url'] ?? '');
+    $blazies->set('media.type', $settings['type'] ?? '');
 
     if (!empty($settings['embed_url'])) {
       $settings = array_merge(BlazyDefault::entitySettings(), $settings);
@@ -199,12 +204,18 @@ class BlazyUnitTest extends UnitTestCase {
   public function todoTestPreRenderImageLightbox(array $settings = []) {
     $build                       = $this->data;
     $settings                   += BlazyDefault::itemSettings();
+    $blazies                     = &$settings['blazies'];
     $settings['count']           = $this->maxItems;
     $settings['uri']             = $this->uri;
     $settings['box_style']       = '';
     $settings['box_media_style'] = '';
-    $build['settings']           = array_merge($build['settings'], $settings);
-    $switch_css                  = str_replace('_', '-', $settings['media_switch']);
+
+    $blazies->set('entity.url', $settings['content_url'] ?? '');
+    $blazies->set('media.embed_url', $settings['embed_url'] ?? '');
+    $blazies->set('media.type', $settings['type'] ?? '');
+
+    $build['settings'] = array_merge($build['settings'], $settings);
+    $switch_css = str_replace('_', '-', $settings['media_switch']);
 
     foreach (['caption', 'media', 'wrapper'] as $key) {
       $build['settings'][$key . '_attributes']['class'][] = $key . '-test';
@@ -212,8 +223,9 @@ class BlazyUnitTest extends UnitTestCase {
 
     $element = $this->doPreRenderImage($build);
 
+    $blazies = $build['settings']['blazies'];
     if ($settings['media_switch'] == 'content') {
-      $this->assertEquals($settings['content_url'], $element['#url']);
+      $this->assertEquals($blazies->get('entity.url'), $element['#url']);
       $this->assertArrayHasKey('#url', $element);
     }
     else {

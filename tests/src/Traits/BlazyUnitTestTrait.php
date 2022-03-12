@@ -4,6 +4,7 @@ namespace Drupal\Tests\blazy\Traits;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\BlazyEntity;
 
 /**
  * A Trait common for Blazy Unit tests.
@@ -37,6 +38,8 @@ trait BlazyUnitTestTrait {
       'caption'         => ['alt' => 'alt', 'title' => 'title'],
       'sizes'           => '100w',
     ] + BlazyDefault::extendedSettings() + BlazyDefault::itemSettings() + $this->getDefaultFieldDefinition();
+
+    BlazyEntity::settings($defaults, $this->entity);
 
     return empty($this->formatterSettings) ? $defaults : array_merge($defaults, $this->formatterSettings);
   }

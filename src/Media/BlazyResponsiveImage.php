@@ -19,10 +19,47 @@ class BlazyResponsiveImage {
   private static $styles;
 
   /**
+   * Build out Responsive image.
+   */
+  public static function background(array &$attributes, array &$settings) {
+    $blazies = $settings['blazies'];
+
+    // Makes Responsive image usable as CSS background image sources.
+    // @todo merge it with BlazyFormatter + BlazyFilter.
+    if ($settings['background'] && $resimage = $blazies->get('resimage')) {
+      $srcset = $ratios = [];
+
+      foreach ($resimage['styles'] as $style) {
+        $styled = array_merge($settings, BlazyImage::transformDimensions($style, $settings, FALSE));
+
+        // Sort image URLs based on width.
+        $data = BlazyImage::background($styled, $style);
+        $srcset[$styled['width']] = $data;
+        $ratios[$styled['width']] = $data['ratio'];
+      }
+
+      // Sort the srcset from small to large image width or multiplier.
+      ksort($srcset);
+      ksort($ratios);
+
+      $blazies->set('bgs', $srcset)
+        ->set('ratios', $ratios)
+        ->set('item.padding_bottom', end($ratios));
+
+      // To make compatible with old bLazy which expects no placeholder, provide
+      // a real smallest image. Bio will map it to the current breakpoint later.
+      $bg = reset($srcset);
+      $unlazy = $settings['unlazy'] = $blazies->get('is.undata');
+      $settings['image_url'] = $unlazy ? $settings['image_url'] : $bg['src'];
+      Blazy::lazyAttributes($attributes, $settings);
+    }
+  }
+
+  /**
    * Sets dimensions once to reduce method calls for Responsive image.
    */
   public static function dimensions(array &$settings = [], $initial = TRUE): BlazySettings {
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     $dimensions = $blazies->get('dimensions', []);
     if ($dimensions) {
       return $blazies;
@@ -30,8 +67,8 @@ class BlazyResponsiveImage {
 
     $ratios = [];
     $resimage = $blazies->get('resimage.style');
-    foreach (self::getStyles($resimage)['styles'] as $style) {
-      $styled = BlazyFile::transformDimensions($style, $settings, $initial);
+    foreach (self::styles($resimage)['styles'] as $style) {
+      $styled = BlazyImage::transformDimensions($style, $settings, $initial);
 
       // In order to avoid layout reflow, we get dimensions beforehand.
       $width = $styled['width'];
@@ -53,10 +90,9 @@ class BlazyResponsiveImage {
     // Informs individual images that dimensions are already set once.
     // Dynamic aspect ratio is useless without JS.
     $blazies->set('dimensions', $dimensions)
-      ->set('ratios', $ratios)
-      ->set('item.padding_bottom', end($ratios));
-
-    $settings['_dimensions'] = TRUE;
+      ->set('is.dimensions', TRUE)
+      ->set('item.padding_bottom', end($ratios))
+      ->set('ratios', $ratios);
 
     return $blazies;
   }
@@ -69,7 +105,7 @@ class BlazyResponsiveImage {
       return [];
     }
 
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     $func = function ($uri) use ($manager, $settings, $blazies) {
       $fallback = NULL;
       $sources = $variables = [];
@@ -116,7 +152,7 @@ class BlazyResponsiveImage {
    * Modifies dimensions and sources.
    */
   public static function dimensionsAndSources(array &$settings = [], $initial = TRUE): void {
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     $preload = !empty($settings['preload']);
     // @todo merge background here.
     if ($preload || $blazies->get('is.fluid')) {
@@ -128,47 +164,10 @@ class BlazyResponsiveImage {
   }
 
   /**
-   * Build out Responsive image.
-   */
-  public static function toBackground(array &$attributes, array &$settings) {
-    $blazies = &$settings['blazies'];
-
-    // Makes Responsive image usable as CSS background image sources.
-    // @todo merge it with BlazyFormatter + BlazyFilter.
-    if ($settings['background'] && $resimage = $blazies->get('resimage')) {
-      $srcset = $ratios = [];
-
-      foreach ($resimage['styles'] as $style) {
-        $styled = array_merge($settings, BlazyFile::transformDimensions($style, $settings, FALSE));
-
-        // Sort image URLs based on width.
-        $data = BlazyFile::backgroundImage($styled, $style);
-        $srcset[$styled['width']] = $data;
-        $ratios[$styled['width']] = $data['ratio'];
-      }
-
-      // Sort the srcset from small to large image width or multiplier.
-      ksort($srcset);
-      ksort($ratios);
-
-      $blazies->set('bgs', $srcset)
-        ->set('ratios', $ratios)
-        ->set('item.padding_bottom', end($ratios));
-
-      // To make compatible with old bLazy which expects no placeholder, provide
-      // a real smallest image. Bio will map it to the current breakpoint later.
-      $bg = reset($srcset);
-      $unlazy = $settings['unlazy'] = $blazies->get('is.undata');
-      $settings['image_url'] = $unlazy ? $settings['image_url'] : $bg['src'];
-      Blazy::lazyAttributes($attributes, $settings);
-    }
-  }
-
-  /**
    * Modifies fallback image style.
    */
   public static function fallback(array &$settings): void {
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
 
     // Mimicks private _responsive_image_image_style_url, #3119527.
     if (empty($settings['image_style']) && $resimage = $blazies->get('resimage.style')) {
@@ -184,20 +183,32 @@ class BlazyResponsiveImage {
   }
 
   /**
+   * Defines the Responsive image id, styles and caches tags.
+   */
+  public static function define(&$blazies, $resimage) {
+    $id = $resimage->id();
+    $styles = BlazyResponsiveImage::styles($resimage);
+
+    $blazies->set('resimage.id', $id)
+      ->set('resimage.caches', $styles['caches'])
+      ->set('resimage.styles', $styles['styles']);
+  }
+
+  /**
    * Returns the Responsive image styles and caches tags.
    *
-   * @param object $responsive
+   * @param object $resimage
    *   The responsive image style entity.
    *
    * @return array|mixed
    *   The responsive image styles and cache tags.
    */
-  public static function getStyles($responsive) {
-    $id = $responsive->id();
+  public static function styles($resimage): array {
+    $id = $resimage->id();
 
     if (!isset(static::$styles[$id])) {
-      $cache_tags = $responsive->getCacheTags();
-      $image_styles = \blazy()->entityLoadMultiple('image_style', $responsive->getImageStyleIds());
+      $cache_tags = $resimage->getCacheTags();
+      $image_styles = \blazy()->entityLoadMultiple('image_style', $resimage->getImageStyleIds());
 
       foreach ($image_styles as $image_style) {
         $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());

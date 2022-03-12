@@ -2,11 +2,12 @@
 
 namespace Drupal\blazy\Media;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Url;
 use Drupal\Core\Image\ImageFactory;
-use Drupal\file\Entity\File;
 use Drupal\media\IFrameUrlHelper;
+use Drupal\media\MediaInterface;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
 use Drupal\media\OEmbed\UrlResolverInterface;
 use Drupal\blazy\BlazyTheme;
@@ -70,6 +71,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
   /**
    * Constructs a BlazyManager object.
+   *
+   * @todo remove ::imageFactory (was for UGC), not used anywhere since 2.6.
    */
   public function __construct(RequestStack $request, ResourceFetcherInterface $resource_fetcher, UrlResolverInterface $url_resolver, IFrameUrlHelper $iframe_url_helper, ImageFactory $image_factory, BlazyManagerInterface $blazy_manager) {
     $this->request = $request;
@@ -117,6 +120,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
   /**
    * Returns the image factory.
+   *
+   * @todo remove ::imageFactory (was for UGC), not used anywhere since 2.6.
    */
   public function imageFactory() {
     return $this->imageFactory;
@@ -144,41 +149,25 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * {@inheritdoc}
    */
-  public function build(array &$settings = []) {
-    $blazies = $settings['blazies'] ?? NULL;
-    if (empty($settings['_input_url'])) {
-      $this->checkInputUrl($settings);
+  public function build(array &$build, $entity = NULL): void {
+    // @todo remove old approach after another check.
+    if (!isset($build['settings'])) {
+      $this->toEmbed($build);
+      return;
     }
 
-    // @todo revisit if any issue with other resource types.
-    $url = Url::fromRoute('media.oembed_iframe', [], [
-      'query' => [
-        'url' => $settings['input_url'],
-        'max_width' => 0,
-        'max_height' => 0,
-        'hash' => $this->iframeUrlHelper->getHash($settings['input_url'], 0, 0),
-        'blazy' => 1,
-        'autoplay' => empty($settings['media_switch']) ? 0 : 1,
-      ],
-    ]);
-
-    if ($blazies && $iframe_domain = $blazies->get('iframe_domain')) {
-      $url->setOption('base_url', $iframe_domain);
-    }
-
-    // The top level iframe url relative to the site, or iframe_domain.
-    $settings['embed_url'] = $url->toString();
-    if ($source = ($settings['media_source'] ?? NULL)) {
-      $videos = in_array($source, ['oembed:video', 'video_embed_field']);
-      $settings['type'] = $videos ? 'video' : $source;
-    }
+    // Extracts image item from Media, File entity, ER, FieldItemList, etc.
+    $this->fromMediaOrAny($build, $entity);
   }
 
   /**
    * Checks the given input URL.
    */
-  public function checkInputUrl(array &$settings = []) {
-    if ($input = trim($settings['input_url'] ?? '')) {
+  public function checkInputUrl(array &$settings = []): void {
+    $blazies = $settings['blazies'];
+    $default = trim($settings['input_url'] ?? '');
+
+    if ($input = $blazies->get('media.input_url', $default)) {
       $input = UrlHelper::stripDangerousProtocols($input);
 
       // OEmbed Resource doesn't accept `/embed`, provides a conversion helper.
@@ -189,101 +178,214 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       }
 
       $settings['input_url'] = $input;
-      $settings['_input_url'] = TRUE;
+      $blazies->set('media.input_url', $input);
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getMediaItem(array &$data, $media) {
-    // Only proceed if we do have Media.
-    if ($media->getEntityTypeId() != 'media') {
-      return;
-    }
-
-    BlazyMedia::mediaItem($data, $media);
-    $settings = $data['settings'];
-
-    // @todo support local video/ audio file, and other media sources.
-    // @todo check for Resource::TYPE_PHOTO, Resource::TYPE_RICH, etc.
-    switch ($settings['media_source']) {
-      case 'oembed':
-      case 'oembed:video':
-      case 'video_embed_field':
-        // Input url != embed url. For Youtube, /watch != /embed.
-        if ($input_url = $media->getSource()->getSourceFieldValue($media)) {
-          $settings['input_url'] = $input_url;
-
-          $this->build($settings);
-        }
-        break;
-
-      case 'image':
-        $settings['type'] = 'image';
-        break;
-
-      // No special handling for anything else for now, pass through.
-      default:
-        break;
-    }
-
-    // Do not proceed if it has type, already managed by theme_blazy().
-    // Supports other Media entities: Facebook, Instagram, local video, etc.
-    if (empty($settings['type']) && ($build = BlazyMedia::build($media, $settings))) {
-      $data['content'][] = $build;
-    }
-
-    // Collect what's needed for clarity.
-    $data['settings'] = $settings;
   }
 
   /**
    * Returns external image item from resource relevant to BlazyFilter.
    */
-  public function getExternalImageItem(array &$settings) {
+  private function getExternalImageItem(array &$settings): ?object {
+    $blazies = $settings['blazies'];
+    $default = trim($settings['input_url'] ?? '');
+    $input = $blazies->get('media.input_url', $default);
+
     // Iframe URL may be valid, but not stored as a Media entity.
-    if (($resource = $this->getResource($settings['input_url'])) && $resource->getThumbnailUrl()) {
-      // All we have here is external images. URI validity is not crucial.
-      $settings['uri'] = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
+    if ($input && ($resource = $this->getResource($input)) && $resource->getThumbnailUrl()) {
+
+      // Might be needed by deprecated VEF, or other unmanaged files.
+      if (!BlazyFile::isValidUri($settings['uri'])) {
+        // All we have here is external images. URI validity is not crucial.
+        $settings['uri'] = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
+      }
+
       $settings['type'] = $resource->getType();
       // Respect hard-coded width and height since no UI for all these here.
       if (empty($settings['width'])) {
         $settings['width'] = $resource->getThumbnailWidth() ?: $resource->getWidth();
         $settings['height'] = $resource->getThumbnailHeight() ?: $resource->getHeight();
       }
-      return BlazyFile::image($settings);
+      return BlazyImage::fake($settings);
     }
     return NULL;
   }
 
   /**
-   * {@inheritdoc}
+   * Temporary method to be compatible with old approach pre 2.10.
    *
+   * @todo move it directly into ::build() after sub-modules.
+   */
+  private function fromMediaOrAny(array &$build, $entity = NULL): void {
+    /** @var \Drupal\media\Entity\Media $entity */
+    if ($entity instanceof MediaInterface) {
+      $this->fromMedia($build, $entity);
+    }
+
+    /** @var Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $entity */
+    if (!BlazyImage::isValidItem($build)
+      && $data = BlazyImage::fromAny($entity, $build['settings'])) {
+      $build = NestedArray::mergeDeep($build, $data);
+    }
+
+    // Attempts to get image data directly from oEmbed resource.
+    $settings = $build['settings'];
+    $blazies = $settings['blazies'];
+    $input = $settings['input_url'] ?? '';
+    $embed = $settings['embed_url'] ?? '';
+
+    // This used to be for File entity (non-media), re-purposed.
+    // Extracts image item from non-media, such as Paragraphs, ER, Node, etc.
+    // @todo remove when the above ::fromAny() is done right.
+    // if (!BlazyImage::isValidItem($build)
+    // && $stage = ($settings['image'] ?? FALSE)) {
+    // BlazyImage::fromField($build, $entity, $stage);
+    // }
+    // Attempts to get image data directly from oEmbed resource.
+    // Caled by BlkazyFilter or deprecated VEF, run after data populated.
+    if ($blazies->get('media.input_url', $input)
+      && (!$entity || !$blazies->get('media.embed_url', $embed))) {
+      $this->toEmbed($settings);
+    }
+
+    // Marks a hires if valid and so configured.
+    if (BlazyImage::isValidItem($build)) {
+      $blazies->set('is.hires', !empty($settings['image']));
+    }
+    else {
+      // Failsafe, BlazyFilter/ VEF without file upload [data-entity-uuid].
+      $build['item'] = $this->getExternalImageItem($settings);
+    }
+  }
+
+  /**
+   * Modifies data to provide Media item thumbnail, embed URL, or rich content.
+   *
+   * @param array $build
+   *   The modified array containing: settings, and candidate video thumbnail.
+   * @param \Drupal\media\MediaInterface $media
+   *   The core Media entity.
+   */
+  private function fromMedia(array &$build, MediaInterface &$media): void {
+    // Prepare Media needed settings, and extract Media thumbnail.
+    BlazyMedia::prepare($build, $media);
+    $settings = $build['settings'];
+    $blazies = $settings['blazies'];
+
+    // @todo support local video/ audio file, and other media sources.
+    // @todo check for Resource::TYPE_PHOTO, Resource::TYPE_RICH, etc.
+    switch ($blazies->get('media.source')) {
+      case 'oembed':
+      case 'oembed:video':
+      case 'video_embed_field':
+        // Input url != embed url. For Youtube, /watch != /embed.
+        if ($input = $media->getSource()->getSourceFieldValue($media)) {
+          $settings['input_url'] = $input;
+          $blazies->set('media.input_url', $input);
+
+          $this->toEmbed($settings);
+        }
+        break;
+
+      case 'image':
+        $settings['type'] = 'image';
+        $blazies->set('media.type', 'image');
+        break;
+
+      // No special handling for anything else for now, pass through.
+      default:
+        $blazies->set('media.embed_url', '');
+        $blazies->set('media.input_url', '');
+        break;
+    }
+
+    // Do not proceed if it has type, already managed by theme_blazy().
+    // Supports other Media entities: Facebook, Instagram, local video, etc.
+    if (!$blazies->get('media.type')
+      && ($result = BlazyMedia::build($media, $settings))) {
+      $build['content'][] = $result;
+    }
+
+    // Collect what's needed for clarity.
+    $build['settings'] = $settings;
+  }
+
+  /**
+   * Converts input URL into embed URL, run after ::prepare() populated.
+   *
+   * @param array $settings
+   *   The settings array being modified.
+   */
+  private function toEmbed(array &$settings = []): void {
+    $blazies = $settings['blazies'];
+    $default = $settings['input_url'] ?? FALSE;
+
+    if (!($input = $blazies->get('media.input_url', $default))) {
+      return;
+    }
+
+    $this->checkInputUrl($settings);
+
+    // @todo revisit if any issue with other resource types.
+    $url = Url::fromRoute('media.oembed_iframe', [], [
+      'query' => [
+        'url' => $input,
+        'max_width' => 0,
+        'max_height' => 0,
+        'hash' => $this->iframeUrlHelper->getHash($input, 0, 0),
+        'blazy' => 1,
+        'autoplay' => empty($settings['media_switch']) ? 0 : 1,
+      ],
+    ]);
+
+    if ($iframe_domain = $blazies->get('iframe_domain')) {
+      $url->setOption('base_url', $iframe_domain);
+    }
+
+    // The top level iframe url relative to the site, or iframe_domain.
+    $settings['embed_url'] = $embed_url = $url->toString();
+    $blazies->set('media.embed_url', $embed_url);
+    if ($source = $blazies->get('media.source')) {
+      $videos = in_array($source, ['oembed:video', 'video_embed_field']);
+      $settings['type'] = $type = $videos ? 'video' : $source;
+      $blazies->set('media.type', $type);
+    }
+  }
+
+  /**
+   * Gets the faked image item out of file entity, or ER, if applicable.
+   *
+   * This method is called by slick_browser.
+   *
+   * @param object $file
+   *   The expected file entity, or ER, to get image item from.
+   *
+   * @return array
+   *   The array of image item and settings if a file image, else empty.
+   *
+   * @todo this is likely to be removed for anything Media, still kept for
+   * BlazyFilter and few legacy file entity integrations such as Views file.
    * @todo compare and merge with BlazyMedia::imageItem().
+   * @todo remove after sub-modules remove this for just ::build().
    */
   public function getImageItem($file) {
-    $data = [];
-    $entity = $file;
+    return BlazyImage::fromAny($file);
+  }
 
-    /** @var Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $file */
-    if (isset($file->entity) && !isset($file->alt)) {
-      $entity = $file->entity;
-    }
-
-    if ($entity instanceof File) {
-      if ($image = $this->imageFactory->get($entity->getFileUri())) {
-        BlazyMedia::fakeImageItem($data, $entity, $image);
-      }
-    }
-
-    return $data;
+  /**
+   * Gets the Media item thumbnail.
+   *
+   * @todo deprecated at 2.9 and removed at 3.x. Use ::build() instead.
+   */
+  public function getMediaItem(array &$build, $media = NULL) {
+    // To preserve old behaviors till sub-modules updated to ::build() at 2.9.
+    // The arguments are made similar to ::build() with the new arguments.
+    $this->fromMediaOrAny($build, $media);
   }
 
   /**
    * Returns the autoplay url, no-longer currently in use.
    *
-   * @todo deprecated and removed for BlazyTheme::getAutoPlayUrl().
+   * @todo deprecated and removed for BlazyTheme::getAutoPlayUrl() at 3.x.
    */
   public function getAutoPlayUrl(?string $url) {
     return BlazyTheme::getAutoPlayUrl($url);

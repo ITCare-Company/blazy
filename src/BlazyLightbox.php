@@ -6,6 +6,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Xss;
 use Drupal\Component\Serialization\Json;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\BlazyImage;
 
 /**
  * Provides lightbox utilities.
@@ -17,27 +18,13 @@ class BlazyLightbox {
    */
   public static function attach(array &$load, array $attach = []): void {
     $blazies = $attach['blazies'];
-    $switch = $attach['media_switch'] ?? '';
 
-    if ($switch && in_array($switch, $blazies->get('lightboxes', []))) {
+    if ($blazies->get('lightbox')) {
       $load['library'][] = 'blazy/lightbox';
 
       if ($blazies->get('colorbox')) {
         self::attachColorbox($load, $attach);
       }
-    }
-  }
-
-  /**
-   * Attaches Colorbox if so configured.
-   */
-  public static function attachColorbox(array &$load, $attach = []): void {
-    if ($service = Blazy::service('colorbox.attachment')) {
-      $dummy = [];
-      $service->attach($dummy);
-      $load = isset($dummy['#attached']) ? NestedArray::mergeDeep($load, $dummy['#attached']) : $load;
-      $load['library'][] = 'blazy/colorbox';
-      unset($dummy);
     }
   }
 
@@ -48,19 +35,22 @@ class BlazyLightbox {
    *   The element being modified.
    */
   public static function build(array &$element = []): void {
+    $manager    = Blazy::service('blazy.manager');
     $item       = $element['#item'];
     $settings   = &$element['#settings'];
-    $blazies    = &$settings['blazies'];
+    $blazies    = $settings['blazies'];
     $uri        = $settings['uri'];
     $switch     = $settings['media_switch'];
     $switch_css = str_replace('_', '-', $switch);
     $valid      = BlazyFile::isValidUri($uri);
     $box_style  = $blazies->get('box.style');
+    $box_url    = $url = BlazyFile::transformRelative($uri);
 
     // Provide relevant URL if it is a lightbox.
     $url_attributes = &$element['#url_attributes'];
     $url_attributes['class'][] = 'blazy__' . $switch_css . ' litebox';
     $url_attributes['data-' . $switch_css . '-trigger'] = TRUE;
+
     $element['#icon']['litebox']['#markup'] = '<span class="media__icon media__icon--litebox"></span>';
 
     // Gallery is determined by a view, or overriden by colorbox settings.
@@ -68,29 +58,32 @@ class BlazyLightbox {
     $gallery_default = $gallery_enabled ? $settings['view_name'] . '-' . $settings['current_view_mode'] : 'blazy-' . $switch_css;
 
     // Respects colorbox settings unless for an explicit view gallery.
-    if (!$gallery_enabled && $switch === 'colorbox' && function_exists('colorbox_theme')) {
-      $gallery_enabled = (bool) \Drupal::config('colorbox.settings')->get('custom.slideshow.slideshow');
+    if (!$gallery_enabled
+      && $blazies->get('colorbox')
+      && function_exists('colorbox_theme')) {
+      $gallery_enabled = (bool) $manager->configLoad('custom.slideshow.slideshow', 'colorbox.settings');
     }
 
     // The gallery_id might be a formatter inside a view, not aware of its view.
     // The formatter might be duplicated on a page, although rare at production.
-    $gallery_id             = empty($settings['gallery_id']) ? $gallery_default : $settings['gallery_id'] . '-' . $gallery_default;
-    $settings['gallery_id'] = !$gallery_enabled ? NULL : str_replace('_', '-', $gallery_id);
-    $settings['box_url']    = BlazyFile::transformRelative($uri);
-    $settings['box_width']  = $item->width ?? $settings['width'] ?? NULL;
-    $settings['box_height'] = $item->height ?? $settings['height'] ?? NULL;
+    $gallery_id = $blazies->get('box.id', $settings['gallery_id'] ?? '');
+    $gallery_id = empty($gallery_id) ? $gallery_default : $gallery_id . '-' . $gallery_default;
+    $gallery_id = !$gallery_enabled ? NULL : str_replace('_', '-', $gallery_id);
+    $box_width  = $item->width ?? $settings['width'] ?? NULL;
+    $box_height = $item->height ?? $settings['height'] ?? NULL;
 
     $dimensions = [
-      'width' => $settings['box_width'],
-      'height' => $settings['box_height'],
+      'width' => $box_width,
+      'height' => $box_height,
       'uri' => $uri,
     ];
 
     // Might not be present from BlazyFilter.
     $json = ['id' => $switch_css];
     foreach (['bundle', 'type'] as $key) {
-      if (!empty($settings[$key])) {
-        $json[$key] = $settings[$key];
+      $default = $settings[$key] ?? '';
+      if ($value = $blazies->get('media.' . $key, $default)) {
+        $json[$key] = $value;
       }
     }
 
@@ -121,66 +114,71 @@ class BlazyLightbox {
 
       // Use non-responsive images if not-so-configured.
       if (!isset($is_resimage) && $box_style) {
-        $dimensions = array_merge($dimensions, BlazyFile::transformDimensions($box_style, $dimensions));
-        $settings['box_url'] = BlazyFile::transformRelative($uri, $box_style);
+        $dimensions = array_merge($dimensions, BlazyImage::transformDimensions($box_style, $dimensions));
+        $box_url = BlazyFile::transformRelative($uri, $box_style);
       }
     }
 
     // Allows custom work to override this without image style, such as
     // a combo of image, video, Instagram, Facebook, etc.
     if (empty($settings['_box_width'])) {
-      $settings['box_width'] = $dimensions['width'];
-      $settings['box_height'] = $dimensions['height'];
+      $box_width = $dimensions['width'];
+      $box_height = $dimensions['height'];
     }
 
-    $json['width'] = $settings['box_width'];
-    $json['height'] = $settings['box_height'];
+    $json['width'] = $box_width;
+    $json['height'] = $box_height;
     $json['boxType'] = 'image';
 
     // This allows PhotoSwipe with videos still swipable.
+    $box_media_url = NULL;
     if ($valid && $box_media_style = $blazies->get('box_media.style')) {
-      $dimensions = array_merge($dimensions, BlazyFile::transformDimensions($box_media_style, $dimensions));
-      $settings['box_media_url'] = BlazyFile::transformRelative($uri, $box_media_style);
+      $dimensions = array_merge($dimensions, BlazyImage::transformDimensions($box_media_style, $dimensions));
+      $box_media_url = BlazyFile::transformRelative($uri, $box_media_style);
     }
 
-    $url = $settings['box_url'];
     if ($is_video) {
       $json['width']  = 640;
       $json['height'] = 360;
 
-      if (!empty($settings['embed_url'])) {
-        $url = $settings['embed_url'];
+      if ($embed = $blazies->get('media.embed_url')) {
+        $url = $embed;
 
         // Force autoplay for media URL on lightboxes, saving another click.
         // BC for non-oembed such as Video Embed Field without Media migration.
-        if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
+        if (strpos($url, 'autoplay') === FALSE
+          || strpos($url, 'autoplay=0') !== FALSE) {
           $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
         }
         $url_attributes['data-oembed-url'] = $url;
         $json['boxType'] = 'iframe';
       }
 
-      // This allows PhotoSwipe with remote videos still swipable.
-      if (!empty($settings['box_media_url'])) {
-        $settings['box_url'] = $settings['box_media_url'];
+      // Remote or local videos.
+      if ($box_media_url) {
+        // This allows PhotoSwipe with remote videos still swipable.
+        $box_url = $box_media_url;
+        $json['width'] = $box_width = $dimensions['width'];
+        $json['height'] = $box_height = $dimensions['height'];
       }
 
-      if ($switch == 'photobox') {
+      if ($blazies->get('photobox')) {
         $url_attributes['rel'] = 'video';
       }
 
-      // Remote or local videos.
-      if (!empty($settings['box_media_url'])) {
-        $json['width'] = $settings['box_width']  = $dimensions['width'];
-        $json['height'] = $settings['box_height'] = $dimensions['height'];
-      }
-
-      if ($settings['box_url']) {
-        $url_attributes['data-box-url'] = $settings['box_url'];
+      if ($box_url) {
+        $url_attributes['data-box-url'] = $box_url;
       }
     }
 
-    if ($switch == 'colorbox' && !empty($settings['gallery_id'])) {
+    $settings['box_url'] = $box_url;
+    $blazies->set('box.id', $gallery_id)
+      ->set('box.url', $box_url)
+      ->set('box.width', $box_width)
+      ->set('box.height', $box_height)
+      ->set('box.media_url', $box_media_url);
+
+    if ($switch == 'colorbox' && $gallery_id) {
       // @todo make Blazy Grid without Blazy Views fields support multiple
       // fields and entities as a gallery group, likely via a class at Views UI.
       // Must use consistent key for multiple entities, hence cannot use id.
@@ -188,7 +186,7 @@ class BlazyLightbox {
       // to the known Blazy formatters, or Blazy Views style plugins for now.
       // The hustle is Colorbox wants rel on individual item to group, unlike
       // other lightbox library which provides a way to just use a container.
-      $json['rel'] = $settings['gallery_id'];
+      $json['rel'] = $gallery_id;
     }
 
     $has_dim = !empty($json['height']) && !empty($json['width']);
@@ -214,7 +212,7 @@ class BlazyLightbox {
 
       // Responsive image is unwrapped. Local videos wrapped.
       $content = isset($is_resimage) ? $element['#lightbox_html'] : $html;
-      $content = \blazy()->getRenderer()->renderPlain($content);
+      $content = $manager->getRenderer()->renderPlain($content);
       $json['html'] = trim($content);
       if (isset($is_resimage)) {
         $json['boxType'] = strpos($content, '<picture') !== FALSE ? 'picture' : 'responsive-image';
@@ -235,6 +233,19 @@ class BlazyLightbox {
     }
 
     $element['#url'] = $url;
+  }
+
+  /**
+   * Attaches Colorbox if so configured.
+   */
+  private static function attachColorbox(array &$load, $attach = []): void {
+    if ($service = Blazy::service('colorbox.attachment')) {
+      $dummy = [];
+      $service->attach($dummy);
+      $load = isset($dummy['#attached']) ? NestedArray::mergeDeep($load, $dummy['#attached']) : $load;
+      $load['library'][] = 'blazy/colorbox';
+      unset($dummy);
+    }
   }
 
   /**

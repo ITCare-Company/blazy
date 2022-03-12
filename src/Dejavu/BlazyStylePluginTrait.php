@@ -4,6 +4,7 @@ namespace Drupal\blazy\Dejavu;
 
 use Drupal\Component\Utility\Xss;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\BlazyDefault;
 
 /**
  * A Trait common for optional views style plugins.
@@ -14,6 +15,12 @@ trait BlazyStylePluginTrait {
    * Returns the modified renderable image_formatter to support lazyload.
    */
   public function getImageRenderable(array &$settings, $row, $index) {
+    // @todo remove after another check.
+    if (!isset($settings['blazies'])) {
+      $settings += BlazyDefault::htmlSettings();
+    }
+
+    $blazies = $settings['blazies'];
     $image = $this->isImageRenderable($row, $index, $settings['image']);
 
     /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
@@ -37,7 +44,10 @@ trait BlazyStylePluginTrait {
       $theme = $image['rendered']['#theme'] ?? '';
       if (in_array($theme, ['blazy', 'image_formatter'])) {
         $settings['uri'] = BlazyFile::uri($item);
-        $settings['cache_tags'] = $image['rendered']['#cache']['tags'] ?? [];
+
+        if ($cache_tags = $image['rendered']['#cache']['tags'] ?? []) {
+          $blazies->set('cache.tags', $cache_tags, TRUE);
+        }
 
         if ($theme == 'blazy') {
           // Pass Blazy field formatter settings into Views style plugin.
@@ -49,11 +59,13 @@ trait BlazyStylePluginTrait {
         }
         elseif ($theme == 'image_formatter') {
           // Deals with "link to content/image" by formatters.
-          $settings['content_url'] = $image['rendered']['#url'] ?? '';
+          $url = $image['rendered']['#url'] ?? '';
+          $blazies->set('entity.url', $url);
+
           // Prevent images from having absurd height when being lazyloaded.
           // Allows to disables it by _noratio such as enforced CSS background.
           $settings['ratio'] = empty($settings['_noratio']) ? 'fluid' : '';
-          if (empty($settings['media_switch']) && !empty($settings['content_url'])) {
+          if (empty($settings['media_switch']) && $url) {
             $settings['media_switch'] = 'content';
           }
         }
@@ -104,10 +116,7 @@ trait BlazyStylePluginTrait {
     }
 
     // Don't know other reasonable formatters to work with.
-    if (!is_object($item)) {
-      return [];
-    }
-    return $item;
+    return is_object($item) ? $item : [];
   }
 
   /**

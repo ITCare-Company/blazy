@@ -16,6 +16,11 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
    * Returns media contents.
    */
   public function buildElements(array &$build, $entities, $langcode) {
+    $settings = $build['settings'];
+    $blazies = $settings['blazies'];
+
+    $blazies->set('langcode', $langcode);
+
     foreach ($entities as $delta => $entity) {
       // Protect ourselves from recursive rendering.
       static $depth = 0;
@@ -28,10 +33,13 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
         return $build;
       }
 
+      // @todo remove.
       $build['settings']['delta'] = $delta;
       $build['settings']['langcode'] = $langcode;
+
+      $blazies->set('delta', $delta);
       if ($bundle = $entity->bundle()) {
-        $build['settings']['bundles'][$bundle] = $bundle;
+        $blazies->set('bundles.' . $bundle, $bundle);
       }
 
       $this->buildElement($build, $entity, $langcode);

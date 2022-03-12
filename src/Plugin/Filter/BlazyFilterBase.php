@@ -4,14 +4,17 @@ namespace Drupal\blazy\Plugin\Filter;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\file\FileInterface;
 use Drupal\filter\Plugin\FilterBase;
 use Drupal\filter\Render\FilteredMarkup;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\BlazyImage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -102,9 +105,6 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
    * {@inheritdoc}
    */
   public function buildImageItem(array &$build, &$node) {
-    $settings = &$build['settings'];
-    $item = NULL;
-
     // Checks if we have a valid file entity, not hard-coded image URL.
     // Prioritize data-src for sub-module filters after Blazy.
     $src = $node->getAttribute('data-src') ?: $node->getAttribute('src');
@@ -119,12 +119,12 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
         }
 
         if ($node->tagName == 'img') {
-          $item = $this->getImageItemFromImageSrc($settings, $node, $src);
+          $this->getImageItemFromImageSrc($build, $node, $src);
         }
         elseif ($node->tagName == 'iframe') {
           try {
             // Prevents invalid video URL (404, etc.) from screwing up.
-            $item = $this->getImageItemFromIframeSrc($settings, $node, $src);
+            $this->getImageItemFromIframeSrc($build, $node, $src);
           }
           catch (\Exception $ignore) {
             // Do nothing, likely local work without internet, or the site is
@@ -134,6 +134,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       }
     }
 
+    $item = $build['item'] ?? NULL;
     if ($item) {
       $item->alt = $node->getAttribute('alt') ?: ($item->alt ?? '');
       $item->title = $node->getAttribute('title') ?: ($item->title ?? '');
@@ -238,85 +239,82 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
   /**
    * {@inheritdoc}
    */
-  public function getImageItemFromImageSrc(array &$settings, $node, $src) {
-    $data['item'] = NULL;
-    $uuid = $node->hasAttribute('data-entity-uuid') ? $node->getAttribute('data-entity-uuid') : '';
+  public function getImageItemFromImageSrc(array &$build, $node, $src) {
+    $settings = &$build['settings'];
+    // Attempts to get the correct URI with hard-coded URL if applicable.
+    $uri = $settings['uri'] = BlazyFile::buildUri($src);
+    $uuid = $settings['entity_uuid'] = $node->getAttribute('data-entity-uuid');
+    $file = BlazyFile::item(NULL, $settings);
 
     // Uploaded image has UUID with file API.
-    if ($uuid && $file = $this->blazyManager->getEntityRepository()->loadEntityByUuid('file', $uuid)) {
-      $data = $this->blazyOembed->getImageItem($file);
-      if (isset($data['settings'])) {
-        $settings = array_merge($settings, $data['settings']);
+    if ($file instanceof FileInterface) {
+      $uuid = $uuid ?: $file->uuid();
+
+      if ($data = BlazyImage::fromAny($file, $settings)) {
         $settings['entity_uuid'] = $uuid;
+        $build = NestedArray::mergeDeep($build, $data);
       }
     }
     else {
       // Manually hard-coded image has no UUID, nor file API.
-      $settings['uri'] = $src;
+      // URI validity is not crucial, URL is the bare minimum for Blazy to work.
+      $settings['uri'] = $uri ?: $src;
 
-      // Attempts to get the correct URI with hard-coded URL if applicable.
-      if ($uri = BlazyFile::buildUri($src)) {
-        $settings['uri'] = $uri;
-        $data['item'] = BlazyFile::image($settings);
+      if ($uri) {
+        $build['item'] = BlazyImage::fake($settings);
       }
       else {
         // At least provide root URI to figure out image dimensions.
         $settings['uri_root'] = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
       }
     }
-    return $data['item'] ?? NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getImageItemFromIframeSrc(array &$settings, &$node, $src) {
+  public function getImageItemFromIframeSrc(array &$build, &$node, $src) {
+    $settings = &$build['settings'];
+    $blazies = $settings['blazies'];
+
     // Iframe with data: alike scheme is a serious kidding, strip it earlier.
-    $settings['input_url'] = $src;
+    $blazies->set('media.input_url', $src);
     $this->blazyOembed->checkInputUrl($settings);
-    $data['item'] = NULL;
 
     // @todo figure out to not hard-code `field_media_oembed_video`.
+    $media = NULL;
     if (!empty($settings['is_media_library'])) {
-      $media = $this->blazyManager->getEntityTypeManager()->getStorage('media')->loadByProperties(['field_media_oembed_video' => $settings['input_url']]);
+      $media = $this->blazyManager->loadByProperties([
+        'field_media_oembed_video' => $blazies->get('media.input_url'),
+      ], 'media');
       $media = reset($media);
     }
 
-    // We have media entity.
-    if (isset($media) && $media) {
-      $data['settings'] = $settings;
-      $this->blazyOembed->getMediaItem($data, $media);
-
-      // Update data with local image.
-      $settings = array_merge($settings, $data['settings']);
-    }
-    // Attempts to build safe embed URL directly from oEmbed resource.
-    else {
-      $data['item'] = $this->blazyOembed->getExternalImageItem($settings);
-
-      // Runs after type, width and height set, if any, to not recheck them.
-      $this->blazyOembed->build($settings);
-    }
-    return $data['item'] ?? NULL;
+    // Runs after type, width and height set, if any, to not recheck them.
+    $this->blazyOembed->build($build, $media);
   }
 
   /**
    * {@inheritdoc}
    */
   public function buildSettings($text) {
-    $settings = $this->settings + BlazyDefault::lazySettings();
+    $settings = &$this->settings;
+    $settings += BlazyDefault::lazySettings();
     $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
 
     $settings['_check_protocol'] = TRUE;
     $settings['plugin_id'] = $plugin_id = $this->getPluginId();
-    $settings['id'] = $settings['gallery_id'] = BlazyFilterUtil::getId($plugin_id);
+    $settings['id'] = $id = BlazyFilterUtil::getId($plugin_id);
     $settings['is_media_library'] = $definitions && isset($definitions['field_media_oembed_video']);
-    $settings['_resimage'] = $this->blazyManager->getModuleHandler()->moduleExists('responsive_image');
 
-    if (isset($settings['hybrid_style']) && $style = $settings['hybrid_style']) {
-      if ($settings['_resimage']
-        && $settings['resimage'] = $this->blazyManager->entityLoad($style, 'responsive_image_style')) {
+    $this->blazyManager->preSettings($settings);
+    $blazies = $settings['blazies'];
+    $exist = $blazies->get('is.resimage');
+
+    if ($style = ($settings['hybrid_style'] ?? FALSE)) {
+      if ($exist && $resimage = $this->blazyManager->entityLoad($style, 'responsive_image_style')) {
         $settings['responsive_image_style'] = $style;
+        $blazies->set('resimage.style', $resimage);
       }
       else {
         $settings['image_style'] = $style;
@@ -332,7 +330,10 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
         ],
       ]);
     }
-    $this->blazyManager->getCommonSettings($settings);
+
+    $this->blazyManager->postSettings($settings);
+    $blazies->set('box.id', $id);
+
     return $settings;
   }
 
@@ -363,27 +364,32 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
    */
   public function buildItemSettings(array &$build, $node) {
     $settings = &$build['settings'];
+    $blazies = $settings['blazies'];
     // Set an image style based on node data properties.
     // See https://www.drupal.org/project/drupal/issues/2061377,
     // https://www.drupal.org/project/drupal/issues/2822389, and
     // https://www.drupal.org/project/inline_responsive_images.
     $settings['uri'] = $settings['image_url'] = '';
-    if ($image_style = $node->getAttribute('data-image-style')) {
-      $settings['image_style'] = $image_style;
+    $update = FALSE;
+    if ($style = $node->getAttribute('data-image-style')) {
+      $update = TRUE;
+      $settings['image_style'] = $style;
     }
 
-    if (!empty($settings['_resimage'])
-      && $resimage_style = $node->getAttribute('data-responsive-image-style')) {
-      $settings['responsive_image_style'] = $resimage_style;
-      $settings['resimage'] = $this->blazyManager->entityLoad($resimage_style, 'responsive_image_style');
+    if ($blazies->get('is.resimage')
+      && $style = $node->getAttribute('data-responsive-image-style')) {
+      $settings['responsive_image_style'] = $style;
+      $update = TRUE;
+    }
+
+    if ($update) {
+      // Checks for [Responsive] image styles at individual items.
+      BlazyImage::styles($settings, TRUE);
     }
 
     $settings['width'] = $node->getAttribute('width');
     $settings['height'] = $node->getAttribute('height');
     $settings['media_switch'] = empty($settings['media_switch']) ? $this->settings['media_switch'] : $settings['media_switch'];
-
-    // Checks for [Responsive] image styles at individual items.
-    BlazyFile::imageStyles($settings, TRUE);
   }
 
   /**

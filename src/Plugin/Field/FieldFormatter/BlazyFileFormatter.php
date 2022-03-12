@@ -28,15 +28,7 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
    * {@inheritdoc}
    */
   public function buildElement(array &$build, $entity) {
-    $settings = $build['settings'];
-    /** @var Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
-    // EntityReferenceItem provides $item->entity Drupal\file\Entity\File.
-    if ($item = $this->blazyOembed->getImageItem($entity)) {
-      $build['item'] = $item['item'];
-      $build['settings'] = array_merge($settings, $item['settings']);
-    }
-
-    $this->blazyOembed->getMediaItem($build, $entity);
+    $this->blazyOembed->build($build, $entity);
   }
 
   /**

@@ -52,7 +52,6 @@ trait BlazyFormatterTrait {
 
     // Provides optional services.
     if ($type == 'image' || $type == 'entity') {
-      $instance->imageFactory = $instance->imageFactory ?? $container->get('image.factory');
       if ($type == 'entity') {
         $instance->loggerFactory = $instance->loggerFactory ?? $container->get('logger.factory');
         $instance->blazyEntity = $instance->blazyEntity ?? $container->get('blazy.entity');

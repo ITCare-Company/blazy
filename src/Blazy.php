@@ -6,14 +6,16 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\BlazyResponsiveImage;
+use Drupal\blazy\Media\Placeholder;
 
 /**
  * Provides common blazy utility static methods.
  */
 class Blazy implements BlazyInterface {
 
-  // @todo remove at blazy:8.x-3.0 or sooner.
+  // @todo remove at blazy:3.0.
   use BlazyDeprecatedTrait;
 
   /**
@@ -60,7 +62,7 @@ class Blazy implements BlazyInterface {
   public static function buildMedia(array &$variables): void {
     $attributes = &$variables['attributes'];
     $settings = &$variables['settings'];
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     $resimage = $blazies->get('resimage.id');
 
     // (Responsive) image is optional for Video, or image as CSS background.
@@ -98,7 +100,7 @@ class Blazy implements BlazyInterface {
    */
   public static function buildResponsiveImage(array &$variables): void {
     $settings = &$variables['settings'];
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
 
     if (empty($settings['background'])) {
       $natives = ['decoding' => 'async'];
@@ -118,7 +120,7 @@ class Blazy implements BlazyInterface {
     else {
       // Attach BG data attributes to a DIV container.
       $attributes = &$variables['attributes'];
-      BlazyResponsiveImage::toBackground($attributes, $settings);
+      BlazyResponsiveImage::background($attributes, $settings);
     }
   }
 
@@ -128,7 +130,7 @@ class Blazy implements BlazyInterface {
   public static function buildImage(array &$variables): void {
     $attributes = &$variables['attributes'];
     $settings = &$variables['settings'];
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
 
     // Supports either lazy loaded image, or not.
     if (empty($settings['background'])) {
@@ -139,7 +141,7 @@ class Blazy implements BlazyInterface {
     }
     else {
       // Attach BG data attributes to a DIV container.
-      $blazies->set('bgs.' . $settings['width'], BlazyFile::backgroundImage($settings));
+      $blazies->set('bgs.' . $settings['width'], BlazyImage::background($settings));
       $unlazy = $settings['unlazy'] = $blazies->get('is.undata');
       $settings['image_url'] = $unlazy ? $settings['image_url'] : $blazies->get('ui.placeholder');
       self::lazyAttributes($attributes, $settings);
@@ -154,7 +156,8 @@ class Blazy implements BlazyInterface {
     $settings = &$variables['settings'];
     $image = &$variables['image'];
     $attributes = &$variables['item_attributes'];
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
+    $embed_url = $blazies->get('media.embed_url');
 
     // Respects hand-coded image attributes.
     if ($item) {
@@ -176,8 +179,8 @@ class Blazy implements BlazyInterface {
     }
 
     // Overrides title if to be used as a placeholder for lazyloaded video.
-    if (!empty($settings['embed_url']) && !empty($settings['accessible_title'])) {
-      $translation_replacements = ['@label' => $settings['accessible_title']];
+    if ($embed_url && $title = $blazies->get('media.label')) {
+      $translation_replacements = ['@label' => $title];
       $attributes['title'] = t('Preview image for the video "@label".', $translation_replacements);
 
       if (!empty($attributes['alt'])) {
@@ -217,24 +220,25 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function iframeAttributes(array &$settings): array {
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     $attributes['class'] = ['b-lazy', 'media__iframe'];
     $attributes['allowfullscreen'] = TRUE;
+    $embed_url = $blazies->get('media.embed_url');
 
     // Inside CKEditor must disable interactive elements.
     if ($blazies->get('is.sandboxed')) {
       $attributes['sandbox'] = TRUE;
-      $attributes['src'] = $settings['embed_url'];
+      $attributes['src'] = $embed_url;
     }
     // Native lazyload just loads the URL directly.
     // With many videos like carousels on the page may chaos, but we provide a
     // solution: use `Image to Iframe` for GDPR, swipe and best performance.
     elseif ($settings['unlazy']) {
-      $attributes['src'] = $settings['embed_url'];
+      $attributes['src'] = $embed_url;
     }
     // Non-native lazyload for oldies to avoid loading src, the most efficient.
     else {
-      $attributes['data-src'] = $settings['embed_url'];
+      $attributes['data-src'] = $embed_url;
       $attributes['src'] = 'about:blank';
     }
 
@@ -247,7 +251,7 @@ class Blazy implements BlazyInterface {
    */
   public static function buildIframe(array &$variables): void {
     $settings = &$variables['settings'];
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     $settings['player'] = !$blazies->get('lightbox') && $settings['media_switch'] == 'media';
 
     // Only provide iframe if not for lightboxes, identified by URL.
@@ -261,6 +265,11 @@ class Blazy implements BlazyInterface {
         '#attributes' => self::iframeAttributes($settings),
       ];
 
+      // If not media player, iframe only, without image, disable blur.
+      if (empty($variables['image']) && isset($variables['preface']['blur'])) {
+        $variables['preface']['blur'] = [];
+      }
+
       // Iframe is removed on lazyloaded, puts data at non-removable storage.
       $variables['attributes']['data-media'] = Json::encode(['type' => $settings['type']]);
     }
@@ -271,7 +280,7 @@ class Blazy implements BlazyInterface {
    */
   public static function buildNoscriptImage(array &$variables): void {
     $settings = $variables['settings'];
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     $noscript = $variables['image'];
     $noscript['#uri'] = $blazies->get('resimage.id') ? $settings['uri'] : $settings['image_url'];
     $noscript['#attributes']['data-b-noscript'] = TRUE;
@@ -291,21 +300,61 @@ class Blazy implements BlazyInterface {
    * {@inheritdoc}
    */
   public static function lazyAttributes(array &$attributes, array $settings = []): void {
+
+    $blazies = $settings['blazies'];
+
     // For consistent CSS fix, and w/o Native.
-    $attributes['class'][] = $settings['lazy_class'];
+    $class = $blazies->get('lazy.class', $settings['lazy_class'] ?? 'b-lazy');
+    $attributes['class'][] = $class;
 
     // Slick has its own class and methods: ondemand, anticipative, progressive.
     // The data-[SRC|SCRSET|LAZY] is if `nojs` disabled, background, or video.
+    $attribute = $blazies->get('lazy.attribute', $settings['lazy_attribute'] ?? 'src');
     if (!$settings['unlazy']) {
-      $attributes['data-' . $settings['lazy_attribute']] = $settings['image_url'];
+      $attributes['data-' . $attribute] = $settings['image_url'];
     }
+  }
+
+  /**
+   * Checks lazy insanity given various features/ media types + loading option.
+   *
+   * @todo re-check if any misses, or regressions here.
+   */
+  public static function lazyOrNot(array &$settings): void {
+    $blazies = $settings['blazies'];
+
+    // The SVG placeholder should accept either original, or styled image.
+    $is_media = $blazies->get('is.multimedia');
+    $embed_url = $blazies->get('media.embed_url');
+
+    // Loading `slider` or `unlazy` is more a quasi-loading to vary logic.
+    $unlazy = $blazies->get('is.slider') && $settings['delta'] == $blazies->get('initial');
+    $settings['unlazy'] = $unlazy ? TRUE : $settings['unlazy'];
+
+    // @todo remove settings.placeholder|use_media checks after sub-modules.
+    $default = Placeholder::generate($settings['width'], $settings['height']);
+    $settings['placeholder'] = $placeholder = $blazies->get('ui.placeholder') ?: $default;
+    $use_media = ($embed_url && $is_media) || ($settings['use_media'] ?? FALSE);
+
+    // @todo remove use_loading after sub-module updates.
+    // @todo better logic to support loader as required, must decouple loader.
+    // @todo $lazy = $settings['loading'] == 'lazy';
+    // @todo $lazy = !empty($settings['blazy']) && ($blazies->get('libs.compat') || $lazy);
+    $use_loader = $settings['use_loading'] ?? '';
+    $use_loader = $settings['unlazy'] ? FALSE : $use_loader;
+
+    $settings['use_loading'] = $use_loader;
+
+    $blazies->set('use.loader', $use_loader);
+    $blazies->set('use.media', $use_media);
+    $blazies->set('ui.placeholder', $placeholder);
   }
 
   /**
    * Removes loading attributes if so configured.
    */
   public static function unloading(array &$attributes, array &$settings): void {
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     $flag = $blazies->get('is.unloading');
     $flag = $flag || $blazies->get('is.slider') && $settings['delta'] == $blazies->get('initial');
 
@@ -331,7 +380,7 @@ class Blazy implements BlazyInterface {
    * Modifies container attributes with aspect ratio for iframe, image, etc.
    */
   public static function aspectRatioAttributes(array &$attributes, array &$settings): void {
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     $settings['ratio'] = str_replace(':', '', $settings['ratio']);
 
     // Fixed aspect ration is taken care of by pure CSS. Fluid means dynamic.
@@ -353,11 +402,7 @@ class Blazy implements BlazyInterface {
    * Provides container attributes for .blazy container: .field, .view, etc.
    */
   public static function containerAttributes(array &$attributes, array $settings = []): void {
-    $settings += ['namespace' => 'blazy'];
-    if (!isset($settings['blazies'])) {
-      $settings += BlazyDefault::htmlSettings();
-    }
-
+    $settings += BlazyDefault::htmlSettings();
     $classes = empty($attributes['class']) ? [] : $attributes['class'];
     $attributes['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
 
@@ -409,50 +454,6 @@ class Blazy implements BlazyInterface {
    */
   public static function inlineStyle(array &$attributes, $css): void {
     $attributes['style'] = ($attributes['style'] ?? '') . $css;
-  }
-
-  /**
-   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
-   */
-  public static function streamWrapperManager() {
-    return self::service('stream_wrapper_manager');
-  }
-
-  /**
-   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
-   */
-  public static function routeMatch() {
-    return \Drupal::routeMatch();
-  }
-
-  /**
-   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
-   */
-  public static function requestStack() {
-    return self::service('request_stack');
-  }
-
-  /**
-   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
-   */
-  public static function pathResolver() {
-    return self::service('extension.path.resolver');
-  }
-
-  /**
-   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
-   *
-   * @see https://www.drupal.org/node/2940031
-   */
-  public static function fileUrlGenerator() {
-    return self::service('file_url_generator');
-  }
-
-  /**
-   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
-   */
-  public static function breakpointManager() {
-    return self::service('breakpoint.manager');
   }
 
   /**
@@ -528,6 +529,91 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Modifies the common settings extracted from the given entity.
+   */
+  public static function translated($entity, $langcode): object {
+    if ($langcode && $entity->hasTranslation($langcode)) {
+      return $entity->getTranslation($langcode);
+    }
+    return $entity;
+  }
+
+  /**
+   * Extracts setting from the $build.
+   */
+  public static function toSettings(array &$build): array {
+    $settings = $build;
+    if (isset($settings['settings'])) {
+      $settings = &$settings['settings'];
+    }
+
+    $settings += BlazyDefault::htmlSettings();
+    return $settings;
+  }
+
+  /**
+   * Retrieves the stream wrapper manager service.
+   *
+   * @return \Drupal\Core\StreamWrapper\StreamWrapperManager
+   *   The stream wrapper manager.
+   */
+  public static function streamWrapperManager() {
+    return self::service('stream_wrapper_manager');
+  }
+
+  /**
+   * Retrieves the currently active route match object.
+   *
+   * @return \Drupal\Core\Routing\RouteMatchInterface
+   *   The currently active route match object.
+   */
+  public static function routeMatch() {
+    return \Drupal::routeMatch();
+  }
+
+  /**
+   * Retrieves the request stack.
+   *
+   * @return \Symfony\Component\HttpFoundation\RequestStack
+   *   The request stack.
+   */
+  public static function requestStack() {
+    return self::service('request_stack');
+  }
+
+  /**
+   * Retrieves the path resolver.
+   *
+   * @return \Drupal\Core\Extension\ExtensionPathResolver
+   *   The path resolver.
+   */
+  public static function pathResolver() {
+    return self::service('extension.path.resolver');
+  }
+
+  /**
+   * Retrieves the file url generator service.
+   *
+   * @return \Drupal\Core\Extension\ExtensionPathResolver
+   *   The file url generator.
+   *
+   * @see https://www.drupal.org/node/2940031
+   */
+  public static function fileUrlGenerator() {
+    return self::service('file_url_generator');
+  }
+
+  /**
+   * Retrieves the breakpoint manager.
+   *
+   * @return \Drupal\breakpoint\BreakpointManager
+   *   The breakpoint manager.
+   */
+  public static function breakpointManager() {
+    return self::service('breakpoint.manager');
+  }
+
+  /**
    * Returns a wrapper to pass tests, or DI where adding params is troublesome.
    */
   public static function service($service) {
@@ -546,10 +632,10 @@ class Blazy implements BlazyInterface {
   /**
    * Returns fake image item based on the given $attributes.
    *
-   * @todo deprecated and removed for BlazyFile::image().
+   * @todo deprecated and removed for BlazyImage::fake().
    */
   public static function image(array $attributes = []) {
-    return BlazyFile::image($attributes);
+    return BlazyImage::fake($attributes);
   }
 
 }

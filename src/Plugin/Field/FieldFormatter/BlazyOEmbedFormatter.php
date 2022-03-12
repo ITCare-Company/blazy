@@ -60,15 +60,15 @@ class BlazyOEmbedFormatter extends FormatterBase {
    * Build the blazy elements.
    */
   public function buildElements(array &$build, $items) {
-    $settings = $build['settings'];
+    $settings = &$build['settings'];
 
     // @todo remove check after another check.
     if (!isset($settings['blazies'])) {
       $settings += BlazyDefault::htmlSettings();
     }
 
-    $blazies = &$settings['blazies'];
-    $lang = $blazies->get('current_language');
+    $blazies = $settings['blazies'];
+    $field_name = $blazies->get('field.name');
 
     foreach ($items as $delta => $item) {
       $main_property = $item->getFieldDefinition()->getFieldStorageDefinition()->getMainPropertyName();
@@ -80,28 +80,18 @@ class BlazyOEmbedFormatter extends FormatterBase {
 
       $settings['delta'] = $delta;
       $settings['input_url'] = $value;
-      $image_item = NULL;
+      $blazies->set('media.input_url', $value);
+
+      $data = ['item' => NULL, 'settings' => $settings];
 
       // Attempts to fetch media entity.
-      $media = $this->formatter->getEntityTypeManager()->getStorage('media')->loadByProperties([$settings['field_name'] => $value]);
+      $media = $this->formatter->loadByProperties([$field_name => $value], 'media');
       if ($media = reset($media)) {
-        if ($media->hasTranslation($lang)) {
-          $media = $media->getTranslation($lang);
-        }
-
-        $data['settings'] = $settings;
-        $this->blazyOembed->getMediaItem($data, $media);
-
-        // Update data with local image.
-        $settings = array_merge($settings, $data['settings']);
-        $image_item = $data['item'] ?? NULL;
+        $this->blazyOembed->build($data, $media);
       }
 
-      $box = ['item' => $image_item, 'settings' => $settings];
-
       // Media OEmbed with lazyLoad and lightbox supports.
-      $build[$delta] = $this->formatter->getBlazy($box);
-      unset($box);
+      $build[$delta] = $this->formatter->getBlazy($data);
     }
   }
 

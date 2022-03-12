@@ -1,4 +1,11 @@
 
+Blazy 8.x-2.0-dev, 2022-03-12
+-----------------------------
+- Issue #3269222 by gausarts: Move more settings into BlazySettings for sanity.
+- Fixed for blur attributes regressions.
+- Changed BlazyOEmbed::build() arguments to DRY at sub-modules.
+- Moved basic image-related methods into BlazyImage.php for sanity.
+
 Blazy 8.x-2.0-dev, 2022-03-07
 -----------------------------
 - Issue #3268089 by gausarts, victoria-marina, hammerslammer, marciaibanez: Typo
@@ -347,7 +354,7 @@ Blazy 8.x-2.0-dev, 2020-05-08
 Blazy 8.x-2.0-dev, 2020-05-07
 -----------------------------
 - Issue #3134323 by timlie: Undefined index: fx in
-  Drupal\blazy\BlazyManagerBase->getCommonSettings().
+  Drupal\blazy\BlazyManagerBase->postSettings().
 - Issue #3133891 by prudloff: Error when adding a new text format.
 - Fixed for artifacts during loading with different animation than blur.
 

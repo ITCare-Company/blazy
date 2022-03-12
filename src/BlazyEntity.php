@@ -69,19 +69,26 @@ class BlazyEntity implements BlazyEntityInterface {
       return [];
     }
 
-    // Supports core Media via Drupal\blazy\Media\BlazyOEmbed::getMediaItem().
-    $data['settings'] = empty($data['settings']) ? [] : $data['settings'];
-
-    $this->blazyManager->prepareData($data, $entity);
-    $this->blazyManager->getCommonSettings($data['settings']);
-    $this->blazyManager->getEntitySettings($data['settings'], $entity);
-    $this->oembed->getMediaItem($data, $entity);
-
+    // Supports core Media via Drupal\blazy\Media\BlazyOEmbed::build().
+    $manager = $this->blazyManager;
     $settings = &$data['settings'];
 
+    // Common settings.
+    $manager->preSettings($settings);
+    $manager->prepareData($data, $entity);
+    $manager->postSettings($settings);
+
+    // Entity settings.
+    self::settings($settings, $entity);
+
+    // Build the Media item.
+    $this->oembed->build($data, $entity);
+
+    $settings = &$data['settings'];
+    $blazies = $settings['blazies'];
+
     // Made Responsive image also available outside formatters here.
-    $blazies = &$settings['blazies'];
-    if (!empty($blazies->get('resimage.style'))) {
+    if ($blazies->get('resimage.style')) {
       BlazyResponsiveImage::dimensionsAndSources($settings, FALSE);
     }
 
@@ -93,12 +100,12 @@ class BlazyEntity implements BlazyEntityInterface {
       }
 
       // Pass it to Blazy for consistent markups.
-      $build = $this->blazyManager->getBlazy($data);
+      $build = $manager->getBlazy($data);
 
       // Allows top level elements to load Blazy once rather than per field.
       // This is still here for non-supported Views style plugins, etc.
       if (empty($settings['_detached'])) {
-        $load = $this->blazyManager->attach($settings);
+        $load = $manager->attach($settings);
         $build['#attached'] = empty($build['#attached']) ? $load : NestedArray::mergeDeep($build['#attached'], $load);
       }
     }
@@ -106,7 +113,7 @@ class BlazyEntity implements BlazyEntityInterface {
       $build = $this->getEntityView($entity, $settings, $fallback);
     }
 
-    $this->blazyManager->getModuleHandler()->alter('blazy_build_entity', $build, $entity, $settings);
+    $manager->getModuleHandler()->alter('blazy_build_entity', $build, $entity, $settings);
     return $build;
   }
 
@@ -115,14 +122,15 @@ class BlazyEntity implements BlazyEntityInterface {
    */
   public function getEntityView($entity, array $settings = [], $fallback = '') {
     if ($entity instanceof EntityInterface) {
+      $manager        = $this->blazyManager;
       $entity_type_id = $entity->getEntityTypeId();
       $view_mode      = $settings['view_mode'] = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
       $langcode       = $entity->language()->getId();
       $fallback       = $fallback && is_string($fallback) ? ['#markup' => '<div class="is-fallback">' . $fallback . '</div>'] : $fallback;
 
       // If entity has view_builder handler.
-      if ($this->blazyManager->getEntityTypeManager()->hasHandler($entity_type_id, 'view_builder')) {
-        $build = $this->blazyManager->getEntityTypeManager()->getViewBuilder($entity_type_id)->view($entity, $view_mode, $langcode);
+      if ($manager->getEntityTypeManager()->hasHandler($entity_type_id, 'view_builder')) {
+        $build = $manager->getEntityTypeManager()->getViewBuilder($entity_type_id)->view($entity, $view_mode, $langcode);
 
         // @todo figure out why video_file empty, this is blatant assumption.
         if ($entity_type_id == 'file') {
@@ -153,18 +161,25 @@ class BlazyEntity implements BlazyEntityInterface {
    *
    * @todo make it usable for other file-related entities.
    */
-  public function getFileOrMedia($file, array $settings, $use_file = TRUE) {
+  public function getFileOrMedia($file, array $settings, $rendered = TRUE) {
+    $blazies = $settings['blazies'];
     [$type] = explode('/', $file->getMimeType(), 2);
+
     if ($type == 'video') {
       // As long as you are not being too creative by renaming or changing
       // fields provided by core, this should be your good friend.
-      $settings['media_source'] = 'video_file';
-      $settings['source_field'] = 'field_media_video_file';
+      $blazies->set('media.source', 'video_file');
+      $blazies->set('media.source_field', 'field_media_video_file');
     }
-    if (!empty($settings['source_field']) && isset($settings['media_source'])
-      && $media = $this->blazyManager->getEntityTypeManager()->getStorage('media')->loadByProperties([$settings['source_field'] => ['fid' => $file->id()]])) {
+
+    $source_field = $blazies->get('media.source_field');
+    if ($blazies->get('media.source')
+      && $source_field
+      && $media = $this->blazyManager->loadByProperties([
+        $source_field => ['fid' => $file->id()],
+      ], 'media')) {
       if ($media = reset($media)) {
-        return $use_file ? BlazyMedia::build($media, $settings) : $media;
+        return $rendered ? BlazyMedia::build($media, $settings) : $media;
       }
     }
     return [];
@@ -175,10 +190,7 @@ class BlazyEntity implements BlazyEntityInterface {
    */
   public function getFieldValue($entity, $field_name, $langcode) {
     if ($entity->hasField($field_name)) {
-      if ($entity->hasTranslation($langcode)) {
-        // If the entity has translation, fetch the translated value.
-        return $entity->getTranslation($langcode)->get($field_name)->getValue();
-      }
+      $entity = Blazy::translated($entity, $langcode);
 
       // Entity doesn't have translation, fetch original value.
       return $entity->get($field_name)->getValue();
@@ -208,8 +220,12 @@ class BlazyEntity implements BlazyEntityInterface {
    * Returns the formatted renderable array of the field.
    */
   public function getFieldRenderable($entity, $field_name, $view_mode, $multiple = TRUE) {
-    if ($entity->hasField($field_name) && !empty($entity->{$field_name}->view($view_mode)[0])) {
+    if ($entity->hasField($field_name)) {
       $view = $entity->get($field_name)->view($view_mode);
+
+      if (empty($view[0])) {
+        return [];
+      }
 
       // Prevents quickedit to operate here as otherwise JS error.
       // @see 2314185, 2284917, 2160321.
@@ -222,7 +238,7 @@ class BlazyEntity implements BlazyEntityInterface {
       if ($multiple) {
         $items = [];
         foreach (Element::children($view) as $key) {
-          $items[$key] = $entity->get($field_name)->view($view_mode)[$key];
+          $items[$key] = $view[$key];
         }
 
         $items['#weight'] = $weight;
@@ -239,7 +255,10 @@ class BlazyEntity implements BlazyEntityInterface {
    */
   public function getFieldTextOrLink($entity, $field_name, $settings, $multiple = TRUE) {
     if ($entity->hasField($field_name)) {
-      $langcode = $settings['langcode'];
+      $blazies  = $settings['blazies'] ?? NULL;
+      $langcode = $settings['langcode'] ?? '';
+      $langcode = $blazies ? $blazies->get('current_language') : $langcode;
+
       if ($text = $this->getFieldValue($entity, $field_name, $langcode)) {
         if (!empty($text[0]['value']) && !isset($text[0]['uri'])) {
           // Prevents HTML-filter-enabled text from having bad markups (h2 > p),
@@ -258,6 +277,61 @@ class BlazyEntity implements BlazyEntityInterface {
       }
     }
     return [];
+  }
+
+  /**
+   * Modifies the common settings extracted from the given entity.
+   */
+  public static function settings(array &$settings, $entity) {
+    $blazies = $settings['blazies'];
+    $internal_path = $absolute_path = NULL;
+    $langcode = $blazies->get('current_language');
+
+    // @todo remove after test updates.
+    if (!$entity) {
+      return;
+    }
+
+    // Deals with UndefinedLinkTemplateException such as paragraphs type.
+    // @see #2596385, or fetch the host entity.
+    if (!$entity->isNew()) {
+      try {
+        // Provides translated $entity, if any.
+        $entity = Blazy::translated($entity, $langcode);
+        $url = $entity->toUrl();
+
+        $internal_path = $url->getInternalPath();
+        $absolute_path = $url->setAbsolute()->toString();
+      }
+      catch (\Exception $ignore) {
+        // Do nothing.
+      }
+    }
+
+    $id = $entity->id();
+    $rid = $entity->getRevisionID();
+    $blazies->set('cache.keys', [$id, $rid], TRUE);
+
+    $info = [
+      'bundle' => $entity->bundle(),
+      'id' => $id,
+      'type_id' => $entity->getEntityTypeId(),
+      'url' => $absolute_path,
+      'path' => $internal_path,
+    ];
+
+    $blazies->set('entity', $info);
+
+    // The `current_view_mode` (entity|views display) is not `view_mode` option.
+    $settings['current_view_mode'] = $settings['current_view_mode'] ?: '_custom';
+    $settings['bundle'] = $entity->bundle();
+
+    // @todo remove after migration and sub-modules.
+    // foreach ($info as $key => $value) {
+    // $key = $key == 'url' ? 'content_' . $key : $key;
+    // $key = in_array($key, ['id', 'type_id']) ? 'entity_' . $key : $key;
+    // $settings[$key] = $value;
+    // }
   }
 
 }

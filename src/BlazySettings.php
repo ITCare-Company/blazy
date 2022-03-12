@@ -50,22 +50,21 @@ class BlazySettings implements \Countable {
     if (empty($key)) {
       return $this->storage;
     }
+
+    $parts = array_map('trim', explode('.', $key));
+    if (count($parts) == 1) {
+      return $this->storage[$key] ?? $default_value;
+    }
     else {
-      $parts = array_map('trim', explode('.', $key));
-      if (count($parts) == 1) {
-        return $this->storage[$key] ?? $default_value;
-      }
-      else {
-        $value = NestedArray::getValue($this->storage, $parts, $key_exists);
-        return $key_exists ? $value : $default_value;
-      }
+      $value = NestedArray::getValue($this->storage, $parts, $key_exists);
+      return $key_exists ? $value : $default_value;
     }
   }
 
   /**
    * Sets values for a key.
    */
-  public function set($key, $value = NULL): self {
+  public function set($key, $value = NULL, $merge = FALSE): self {
     if (is_array($key) && !isset($value)) {
       foreach ($key as $k => $v) {
         $this->storage[$k] = $v;
@@ -74,6 +73,11 @@ class BlazySettings implements \Countable {
     }
 
     $parts = array_map('trim', explode('.', $key));
+
+    if (is_array($value) && $merge) {
+      $value = array_merge($this->get($key, []), $value);
+    }
+
     if (count($parts) == 1) {
       $this->storage[$key] = $value;
     }

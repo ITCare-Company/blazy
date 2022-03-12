@@ -77,6 +77,7 @@ class BlazyViewsTest extends BlazyStylePluginBase {
    */
   public function render() {
     $settings = $this->buildSettings() + BlazyDefault::entitySettings();
+    $blazies = $settings['blazies'];
 
     $settings['item_id']   = 'box';
     $settings['caption']   = array_filter($settings['caption']);
@@ -88,8 +89,9 @@ class BlazyViewsTest extends BlazyStylePluginBase {
       $items = $this->buildElements($settings, $rows);
 
       // Supports Blazy multi-breakpoint images if using Blazy formatter.
-      $settings['first_image'] = isset($rows[0]) ? $this->getFirstImage($rows[0]) : [];
-
+      if ($image = $this->getFirstImage($rows[0] ?? NULL)) {
+        $blazies->set('first.image', $image);
+      }
       $build = ['items' => $items, 'settings' => $settings];
       $elements = $this->blazyManager->build($build);
     }

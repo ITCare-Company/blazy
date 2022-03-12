@@ -82,12 +82,12 @@ class BlazyDefault {
    */
   public static function cherrySettings() {
     return [
+      // '_item'           => '',
       'box_style'       => '',
       'image_style'     => '',
       'media_switch'    => '',
       'ratio'           => '',
       'thumbnail_style' => '',
-      '_item'           => '',
       '_uri'            => '',
     ];
   }
@@ -232,6 +232,8 @@ class BlazyDefault {
    *
    * It was a pre-release RC7 @todo, partially implemented since 2.7.
    * The hustle is sub-modules are not aware, yet. Yet better started before 3.
+   * While some configurable settings are intact, blazies are more for grouping
+   * dynamic, non-configurable settings. But it can also store blazy-specific.
    */
   public static function blazies() {
     return [
@@ -241,12 +243,14 @@ class BlazyDefault {
       'bgs' => [],
       'initial' => 0,
       'is' => [],
+      'lazy' => ['attribute' => 'src', 'class' => 'b-lazy'],
       'libs' => ['animate' => FALSE, 'blur' => FALSE, 'compat' => FALSE],
       'ui' => self::uiSettings(),
       'uris' => [],
       'urls' => [],
       'use' => ['ajax' => FALSE, 'dataset' => FALSE, 'field' => FALSE],
       'image' => ['style' => NULL],
+      'media' => [],
       'item' => ['delta' => 0],
       'resimage' => ['sources' => [], 'style' => NULL],
       'thumbnail' => [],
@@ -262,23 +266,23 @@ class BlazyDefault {
    */
   public static function htmlSettings() {
     return [
-      'blazies'          => new BlazySettings(self::blazies()),
-      'blazy_data'       => [],
-      'bundle'           => '',
-      'check_blazy'      => FALSE,
-      'namespace'        => 'blazy',
-      'id'               => '',
-      '_image_url'       => '',
-      '_richbox'         => FALSE,
-      'route_name'       => '',
-      'view_name'        => '',
-      'first_image'      => NULL,
-      'accessible_title' => '',
-      'unlazy'           => FALSE,
-      '_resimage'        => FALSE,
+      'blazies'     => new BlazySettings(self::blazies()),
+      'blazy_data'  => [],
+      'bundle'      => '',
+      'namespace'   => 'blazy',
+      'id'          => '',
+      'route_name'  => '',
+      'view_name'   => '',
+      'unlazy'      => FALSE,
 
       // @todo deprecated for blazies after sub-module updates:
+      // 'label' => '',
       // 'unstyled'         => FALSE,
+      // '_resimage'        => FALSE,
+      // '_image_url'  => '',
+      // 'check_blazy' => FALSE,
+      // 'first_image' => NULL,
+      // '_richbox'    => FALSE,
       'compat'           => FALSE,
       'is_preview'       => FALSE,
       'lightbox'         => FALSE,
@@ -293,10 +297,8 @@ class BlazyDefault {
   public static function itemSettings() {
     return [
       'classes'        => [],
-      'content_url'    => '',
       'delta'          => 0,
       'embed_url'      => '',
-      'entity_type_id' => '',
       'extension'      => '',
       'image_url'      => '',
       'placeholder_fx' => '',
@@ -309,12 +311,14 @@ class BlazyDefault {
       'width'          => NULL,
 
       // @todo move into and deprecated for BlazySettings under blazies:
+      'content_url'    => '',
       'use_data_uri'   => FALSE,
       'use_loading'    => TRUE,
       'use_media'      => FALSE,
       'item_id'        => 'blazy',
       'lazy_attribute' => 'src',
       'lazy_class'     => 'b-lazy',
+      // 'entity_type_id' => '',
     ] + self::htmlSettings();
   }
 

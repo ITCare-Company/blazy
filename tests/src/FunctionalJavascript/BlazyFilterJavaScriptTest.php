@@ -139,7 +139,7 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     // Check external image item from resource relevant to BlazyFilter.
     // Too risky when the video is removed causing false positive.
     // $settings['input_url'] = 'https://www.youtube.com/watch?v=uny9kbh4iOEd';
-    // $item = $this->blazyOembed->getExternalImageItem($settings);
+    // $item = $this->blazyOembed->build($settings);
     // $this->assertNotEmpty($item);
   }
 

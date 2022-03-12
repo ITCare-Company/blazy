@@ -173,7 +173,7 @@ class BlazyFilter extends BlazyFilterBase {
   public function buildImageItem(array &$build, &$node) {
     parent::buildImageItem($build, $node);
 
-    $item = $build['item'];
+    $item = $build['item'] ?? NULL;
     $settings = $build['settings'];
 
     if (!empty($settings['_grid']) || !empty($settings['no_item_container'])) {
@@ -241,10 +241,12 @@ class BlazyFilter extends BlazyFilterBase {
    * Build the blazy, the node might be grid, or direct img/ iframe.
    */
   private function build(\DOMElement $node, array &$settings) {
+    $blazies = $settings['blazies'];
     if ($node->tagName == 'blazy') {
       $attribute = $node->getAttribute('data');
 
-      $settings['id'] = $settings['gallery_id'] = BlazyFilterUtil::getId($settings['plugin_id']);
+      $settings['id'] = $id = BlazyFilterUtil::getId($settings['plugin_id']);
+      $blazies->set('box.id', $id);
       $settings['_blazy_tag'] = TRUE;
       $this->prepareSettings($node, $settings);
 
@@ -255,28 +257,32 @@ class BlazyFilter extends BlazyFilterBase {
       return $this->byDom($node, $settings);
     }
 
-    $build = ['settings' => $settings];
+    $build = ['settings' => $settings, 'item' => NULL];
     return $this->buildItem($build, $node);
   }
 
   /**
    * Build the blazy using the node ID and field_name.
    */
-  private function byEntity(\DOMElement $object, array $settings, $attribute) {
+  private function byEntity(\DOMElement $object, array &$settings, $attribute) {
     [$entity_type, $id, $field_name, $field_image] = array_pad(array_map('trim', explode(":", $attribute, 4)), 4, NULL);
     if (empty($field_name)) {
       return [];
     }
 
     $entity = $this->blazyManager->entityLoad($id, $entity_type);
-    $settings['entity_type_id'] = $entity_type;
-    $settings['entity_id'] = $id;
-    $settings['field_name'] = $field_name;
+    $blazies = $settings['blazies'];
+    $blazies->set('entity.id', $id)
+      ->set('entity.type_id', $entity_type)
+      ->set('field.name', $field_name);
+
     $settings['image'] = $field_image;
 
     if ($entity && $entity->hasField($field_name)) {
-      $settings['bundle'] = $entity->bundle();
+      $settings['bundle'] = $bundle = $entity->bundle();
       $list = $entity->get($field_name);
+
+      $blazies->set('entity.bundle', $bundle);
 
       if ($list) {
         $definition = $list->getFieldDefinition();
@@ -285,6 +291,8 @@ class BlazyFilter extends BlazyFilterBase {
         $handler = $field_settings['handler'] ?? NULL;
         $strings = ['link', 'string', 'string_long'];
         $texts = ['text', 'text_long', 'text_with_summary'];
+
+        $blazies->set('field.type', $field_type);
 
         $formatter = NULL;
         // @todo refine for main stage, etc.

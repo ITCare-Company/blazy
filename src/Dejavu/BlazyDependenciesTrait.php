@@ -59,7 +59,7 @@ trait BlazyDependenciesTrait {
     foreach ($style_ids as $name => $style_id) {
       if ($style_id && $style = $this->formatter->entityLoad($style_id, 'image_style')) {
         if (!empty($dependencies[$style->getConfigDependencyKey()][$style->getConfigDependencyName()])) {
-          $replacement_id = $this->formatter->getEntityTypeManager()->getStorage('image_style')->getReplacementId($style_id);
+          $replacement_id = $this->formatter->getStorage('image_style')->getReplacementId($style_id);
           // If a valid replacement has been provided in the storage, replace
           // the image style with the replacement and signal that the formatter
           // plugin settings were updated.

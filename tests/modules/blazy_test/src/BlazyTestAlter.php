@@ -16,11 +16,17 @@ class BlazyTestAlter implements RenderCallbackInterface {
    * The #pre_render callback: Sets lightbox image URL.
    */
   public static function preRender($image) {
-    $settings = $image['#settings'] ?? [];
+    $settings = $image['#settings'];
+    $blazies  = $settings['blazies'];
+
+    // @todo remove settings.
+    $embed   = $settings['embed_url'] ?? '';
+    $box_url = $settings['box_url'] ?? '';
+    $box_url = $blazies->get('box.url', $box_url);
 
     // Video's HREF points to external site, adds URL to local image.
-    if (!empty($settings['box_url']) && !empty($settings['embed_url'])) {
-      $image['#url_attributes']['data-box-url'] = $settings['box_url'];
+    if ($box_url && $blazies->get('media.embed_url', $embed)) {
+      $image['#url_attributes']['data-box-url'] = $box_url;
     }
 
     return $image;

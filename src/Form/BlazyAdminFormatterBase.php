@@ -201,7 +201,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    */
   public function getFieldOptions($target_bundles = [], $allowed_field_types = [], $entity_type = 'media', $target_type = '') {
     $options = [];
-    $storage = $this->blazyManager()->getEntityTypeManager()->getStorage('field_config');
+    $storage = $this->blazyManager()->getStorage('field_config');
 
     // Fix for Views UI not recognizing Media bundles, unlike Formatters.
     if (empty($target_bundles)) {

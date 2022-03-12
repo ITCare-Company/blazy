@@ -4,6 +4,7 @@ namespace Drupal\Tests\blazy\Kernel;
 
 use Drupal\Core\Form\FormState;
 use Drupal\blazy\Media\BlazyMedia;
+use Drupal\blazy\BlazyDefault;
 use GuzzleHttp\Exception\GuzzleException;
 
 /**
@@ -95,6 +96,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $format['settings'] = $this->getFormatterSettings();
 
     $settings = &$format['settings'];
+    $blazies = $settings['blazies'];
 
     $settings['bundle']          = $this->bundle;
     $settings['blazy']           = TRUE;
@@ -112,12 +114,12 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     catch (\PHPUnit_Framework_Exception $e) {
     }
 
-    $this->assertEquals($this->testFieldName, $settings['field_name']);
+    $this->assertEquals($this->testFieldName, $blazies->get('field.name'));
 
     $settings['vanilla'] = FALSE;
     $this->BlazyFormatter->buildSettings($format, $this->testItems);
 
-    $this->assertEquals($this->testFieldName, $settings['field_name']);
+    $this->assertEquals($this->testFieldName, $blazies->get('field.name'));
     $this->assertArrayHasKey('#blazy', $build[$this->testFieldName]);
 
     $options = $this->blazyAdminFormatter->getOptionsetOptions('image_style');
@@ -169,13 +171,23 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
       $settings = [
         'input_url'       => $input_url,
-        'source_field'    => $this->testFieldName,
-        'media_source'    => 'remote_video',
-        'view_mode'       => 'default',
+        // 'source_field'    => $this->testFieldName,
+        // 'media_source'    => 'remote_video',
+        // 'view_mode'       => 'default',
         'bundle'          => $this->bundle,
         'thumbnail_style' => 'thumbnail',
         'uri'             => $this->uri,
+      ] + BlazyDefault::htmlSettings();
+
+      $blazies = &$settings['blazies'];
+      $info = [
+        'input_url'    => $input_url,
+        'source_field' => $this->testFieldName,
+        'source'       => 'remote_video',
+        'view_mode'    => 'default',
       ];
+
+      $blazies->set('media', $info);
 
       $build = $this->display->build($entity);
 

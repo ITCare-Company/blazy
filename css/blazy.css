@@ -42,6 +42,12 @@
   max-width: 100%;
 }
 
+.media--blazy iframe {
+  position: relative;
+  width: 100%;
+  z-index: 1;
+}
+
 .media-wrapper--inline {
   margin: auto;
   max-width: 100%;

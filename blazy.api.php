@@ -105,21 +105,6 @@
  * @see \Drupal\slick\Plugin\Field\FieldFormatter\SlickFileFormatterBase::buildElements()
  * @see \Drupal\blazy\BlazyManager::getBlazy()
  * @see \Drupal\blazy\BlazyDefault::imageSettings()
- *
- *
- * Pre-render callback sample to modify/ extend Blazy output.
- * @code
- * function my_module_pre_render(array $image) {
- *   $settings = $image['#settings'] ?? [];
- *
- *   // Video's HREF points to external site, adds URL to local image.
- *   if (!empty($settings['box_url']) && !empty($settings['embed_url'])) {
- *     $image['#url_attributes']['data-box-url'] = $settings['box_url'];
- *   }
- *
- *   return $image;
- * }
- * @endcode
  * @see hook_blazy_alter()
  * @}
  */
@@ -257,21 +242,14 @@ function hook_blazy_base_settings_alter(array &$settings, array $context = []) {
  */
 function hook_blazy_settings_alter(array &$build, $items) {
   $settings = &$build['settings'];
+  $blazies = &$settings['blazies'];
 
   // Overrides one pixel placeholder on particular pages relevant if using Views
   // rewrite results which may strip out Data URI.
   // See https://drupal.org/node/2908861.
-  if (isset($settings['entity_id'])
-    && in_array($settings['entity_id'], [45, 67])) {
-    // After blazy:2.7+.
-    if (isset($settings['blazies'])) {
-      $blazies = &$settings['blazies'];
-      $blazies->set('ui.placeholder', '/blank.gif');
-    }
-    else {
-      // Before blazy:2.7.
-      $settings['placeholder'] = '/blank.gif';
-    }
+  $id = $blazies->get('entity.id');
+  if ($id && in_array($id, [45, 67])) {
+    $blazies->set('ui.placeholder', '/blank.gif');
   }
 
   // Alternatively override views blocks identified by `current_view_mode` with
@@ -282,15 +260,7 @@ function hook_blazy_settings_alter(array &$build, $items) {
   $blazy = isset($settings['plugin_id']) && $settings['plugin_id'] == 'blazy_media';
   $rewriten = ['block_categories', 'block_popular', 'block_related'];
   if ($blazy && isset($settings['current_view_mode']) && in_array($settings['current_view_mode'], $rewriten)) {
-    // After blazy:2.7+.
-    if (isset($settings['blazies'])) {
-      $blazies = &$settings['blazies'];
-      $blazies->set('ui.placeholder', '/blank.svg');
-    }
-    else {
-      // Before blazy:2.7.
-      $settings['placeholder'] = '/blank.svg';
-    }
+    $blazies->set('ui.placeholder', '/blank.svg');
   }
 }
 

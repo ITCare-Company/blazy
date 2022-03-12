@@ -4,6 +4,7 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Utility\Html;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\BlazyImage;
 
 /**
  * Provides internal Blazy utilities, hardly re-usable outside blazy.module.
@@ -61,11 +62,11 @@ class BlazyUtil {
 
     // Merge the first found (Responsive) image data.
     $formatter_blazies = $blazy['blazies'] ?? NULL;
-    if ($formatter_blazies && $formatter_blazies instanceof BlazySettings) {
-      $blazies = &$settings['blazies'];
+    if ($formatter_blazies instanceof BlazySettings) {
+      $blazies = $settings['blazies'];
 
-      $settings['blazies'] = $blazies->merge($formatter_blazies->storage());
-      $settings['_dimensions'] = !empty($blazies->get('ratios'));
+      $blazies = $blazies->merge($formatter_blazies->storage());
+      $blazies->set('is.dimensions', !empty($blazies->get('ratios')));
     }
 
     $cherries = BlazyDefault::cherrySettings() + ['uri' => ''];
@@ -81,27 +82,26 @@ class BlazyUtil {
   /**
    * Provides original unstyled image dimensions based on the given image item.
    *
-   * @todo deprecate and removed at 3.+. Use BlazyFile::imageDimensions()
-   * instead.
+   * @todo deprecated and removed < 3.x. Use BlazyImage::dimensions() instead.
    */
   public static function imageDimensions(array &$settings, $item = NULL, $initial = FALSE) {
-    BlazyFile::imageDimensions($settings, $item, $initial);
+    BlazyImage::dimensions($settings, $item, $initial);
   }
 
   /**
    * A wrapper for ImageStyle::transformDimensions().
    *
-   * @todo deprecate and removed at 3.+. Use BlazyFile::transformDimensions()
+   * @todo deprecate and removed < 3.x. Use BlazyImage::transformDimensions()
    * instead.
    */
   public static function transformDimensions($style, array $data, $initial = FALSE) {
-    return BlazyFile::transformDimensions($style, $data, $initial);
+    return BlazyImage::transformDimensions($style, $data, $initial);
   }
 
   /**
    * A wrapper for ::transformRelative() to pass tests anywhere else.
    *
-   * @todo deprecate at 2.5 and removed at 3.+. Use
+   * @todo deprecate at 2.5 and removed < 3.x. Use
    * BlazyFile::transformRelative() instead.
    */
   public static function transformRelative($uri, $style = NULL) {
@@ -111,7 +111,7 @@ class BlazyUtil {
   /**
    * Returns the URI from the given image URL, relevant for unmanaged files.
    *
-   * @todo deprecate at 2.5 and removed at 3.+. Use BlazyFile::buildUri()
+   * @todo deprecate at 2.5 and removed < 3.x. Use BlazyFile::buildUri()
    * instead.
    */
   public static function buildUri($image_url) {
@@ -121,7 +121,7 @@ class BlazyUtil {
   /**
    * Determines whether the URI has a valid scheme for file API operations.
    *
-   * @todo deprecate at 2.5 and removed at 3.+. Use BlazyFile::isValidUri()
+   * @todo deprecate at 2.5 and removed < 3.x. Use BlazyFile::isValidUri()
    * instead.
    */
   public static function isValidUri($uri) {
@@ -131,17 +131,17 @@ class BlazyUtil {
   /**
    * Provides image url based on the given settings.
    *
-   * @todo deprecate at 2.5 and removed at 3.+. Use BlazyFile::imageUrl()
+   * @todo deprecate at 2.5 and removed < 3.x. Use BlazyImage::url()
    * instead.
    */
   public static function imageUrl(array &$settings) {
-    BlazyFile::imageUrl($settings);
+    BlazyImage::url($settings);
   }
 
   /**
    * Generates an SVG Placeholder.
    *
-   * @todo deprecate at 2.7 and removed at 3.+. Use Placeholder::DATA anytime.
+   * @todo deprecate at 2.7 and removed < 3.x. Use Placeholder::generate().
    */
   public static function generatePlaceholder($width, $height): string {
     $width = $width ?: 100;

@@ -33,8 +33,8 @@ interface BlazyFilterInterface {
   /**
    * Returns the faked image item from SRC.
    *
-   * @param array $settings
-   *   The content array being modified.
+   * @param array $build
+   *   The content array being modified: item, settings.
    * @param object $node
    *   The HTML DOM object.
    * @param string $src
@@ -43,13 +43,13 @@ interface BlazyFilterInterface {
    * @return object
    *   The faked or file entity image item.
    */
-  public function getImageItemFromImageSrc(array &$settings, $node, $src);
+  public function getImageItemFromImageSrc(array &$build, $node, $src);
 
   /**
    * Returns the faked image item from SRC.
    *
-   * @param array $settings
-   *   The content array being modified.
+   * @param array $build
+   *   The content array being modified: item, settings.
    * @param object $node
    *   The HTML DOM object.
    * @param string $src
@@ -58,7 +58,7 @@ interface BlazyFilterInterface {
    * @return object
    *   The faked or file entity image item.
    */
-  public function getImageItemFromIframeSrc(array &$settings, &$node, $src);
+  public function getImageItemFromIframeSrc(array &$build, &$node, $src);
 
   /**
    * Returns the main settings.

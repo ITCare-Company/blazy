@@ -220,7 +220,7 @@ function blazy_filter_cleanup($module = 'blazy') {
     drupal_static_reset('filter_formats');
   }
 
-  \Drupal::entityTypeManager()->getStorage('filter_format')->resetCache();
+  blazy()->getStorage('filter_format')->resetCache();
 
   // Clear plugin manager caches.
   \Drupal::getContainer()->get('plugin.cache_clearer')->clearCachedDefinitions();

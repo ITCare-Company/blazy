@@ -45,10 +45,10 @@ trait BlazyCreationTestTrait {
     $field_name = empty($data['field_name']) ? $this->testFieldName : $data['field_name'];
     $settings   = empty($data['settings']) ? [] : $data['settings'];
     $display_id = $this->entityType . '.' . $bundle . '.' . $view_mode;
-    $storage    = $this->blazyManager->getEntityTypeManager()->getStorage('entity_view_display');
+    $storage    = $this->blazyManager->getStorage('entity_view_display');
     $display    = $storage->load($display_id);
 
-    $this->blazyManager->getCommonSettings($settings);
+    $this->blazyManager->postSettings($settings);
 
     if (!$display) {
       $values = [
@@ -502,8 +502,6 @@ trait BlazyCreationTestTrait {
       'settings' => $this->getFormatterSettings(),
       'item'     => $item,
     ];
-
-    $this->imageFactory = $this->container->get('image.factory');
   }
 
   /**

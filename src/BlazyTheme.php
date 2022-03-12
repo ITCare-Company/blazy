@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Placeholder;
 
 /**
@@ -67,7 +68,7 @@ class BlazyTheme {
     $attributes = &$variables['attributes'];
     $settings = &$variables['settings'];
     $settings += BlazyDefault::itemSettings();
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
 
     // Do not proceed if no URI is provided. URI is not Blazy theme property.
     // Blazy is a wrapper for theme_[(responsive_)image], etc. who wants URI.
@@ -79,9 +80,9 @@ class BlazyTheme {
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$blazies->get('_api')) {
       // Prepares URI, extension, image styles, lightboxes.
-      BlazyFile::prepare($settings);
-      BlazyFile::urlAndDimensions($settings, $variables['item']);
-      BlazyFile::lazyOrNot($settings);
+      BlazyFile::prepare($settings, $variables['item']);
+      BlazyImage::urlAndDimensions($settings, $variables['item']);
+      Blazy::lazyOrNot($settings);
     }
 
     // Allows rich Media entities stored within `content` to take over.
@@ -101,7 +102,7 @@ class BlazyTheme {
     // Makes a little BEM order here due to Twig ignoring the preset priority.
     $classes = (array) ($attributes['class'] ?? []);
     $attributes['class'] = array_merge(['media', 'media--blazy'], $classes);
-    $variables['blazies'] = $settings['blazies'];
+    $variables['blazies'] = $settings['blazies']->storage();
 
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$blazies->get('_api')) {
@@ -146,10 +147,11 @@ class BlazyTheme {
       if ($blazy = ($files[0]['blazy'] ?? FALSE)) {
         if ($blazy->get('image') && $blazy->get('uri')) {
           $settings = $blazy->storage();
-          $settings['_dimensions'] = TRUE;
-          $blazies = &$settings['blazies'];
+          $blazies = $settings['blazies'];
 
-          BlazyFile::imageUrl($settings);
+          $blazies->set('is.dimensions', TRUE);
+
+          BlazyImage::url($settings);
 
           if (!$blazies->get('use.loader') && $use_dataset) {
             $blazies->set('use.loader', TRUE);
@@ -157,7 +159,7 @@ class BlazyTheme {
           if (!empty($settings['image_url'])) {
             $variables['attributes']->setAttribute('poster', $settings['image_url']);
           }
-          if ($blazies->get('lightbox') && !empty($settings['_richbox'])) {
+          if ($blazies->get('lightbox') && $blazies->get('is.richbox')) {
             $variables['attributes']->setAttribute('autoplay', TRUE);
           }
         }
@@ -304,7 +306,7 @@ class BlazyTheme {
     }
 
     $settings['third_party'] = $element['#third_party_settings'];
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     // @todo re-check at CKEditor.
     $is_undata = $blazies->get('is.undata');
 

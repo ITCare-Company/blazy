@@ -5,7 +5,6 @@ namespace Drupal\blazy\Dejavu;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Media\BlazyMedia;
 
 /**
  * Base class for Media entity reference formatters with field details.
@@ -36,16 +35,18 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
   public function buildElements(array &$build, $entities, $langcode) {
     parent::buildElements($build, $entities, $langcode);
     $settings = &$build['settings'];
+    $blazies = $settings['blazies'] ?? NULL;
     $item_id = $settings['item_id'];
 
     // Some formatter has a toggle Vanilla.
     if (empty($settings['vanilla'])) {
-      $settings['check_blazy'] = TRUE;
-
       // Supports Blazy formatter multi-breakpoint images if available.
-      if (isset($build['items'][0]) && $item = $build['items'][0]) {
+      if ($blazies && $item = ($build['items'][0] ?? NULL)) {
         $fallback = $item[$item_id]['#build'] ?? [];
-        $settings['first_image'] = $item['#build'] ?? $fallback;
+        $image = $item['#build'] ?? $fallback;
+        if ($image) {
+          $blazies->set('first.image', $image);
+        }
       }
     }
   }
@@ -65,22 +66,23 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
 
     // Otherwise hard work which is meant to reduce custom code at theme level.
     $delta = $settings['delta'];
-    $element = ['settings' => $settings];
+    $element = ['item' => NULL, 'settings' => $settings];
 
-    // Built media item including custom highres video thumbnail.
-    $this->blazyOembed()->getMediaItem($element, $entity);
+    // Build media item including custom highres video thumbnail.
+    $this->blazyOembed()->build($element, $entity);
 
     // Build the main stage with image options from highres video thumbnail.
     if (!empty($settings['image'])) {
       // If Image rendered is picked, render image as is.
-      if (!empty($settings['media_switch']) && $settings['media_switch'] == 'rendered') {
+      if (($settings['media_switch'] ?? NULL) == 'rendered') {
         $element['content'][] = $this->blazyEntity()->getFieldRenderable($entity, $settings['image'], $view_mode);
       }
-      // This used to be for File entity (non-media), repurposed.
+      // This used to be for File entity (non-media), re-purposed.
       // Extracts image item from other entities than Media, such as Paragraphs.
-      elseif (empty($element['item']) && empty($settings['uri'])) {
-        BlazyMedia::imageItem($element, $entity);
-      }
+      // @todo remove, already taken care of by the new ::build().
+      // elseif (empty($element['item']) && empty($settings['uri'])) {
+      // BlazyMedia::imageItem($element, $entity);
+      // }
     }
 
     // Captions if so configured, including Blazy formatters.
@@ -133,41 +135,44 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     $view_mode = $settings['view_mode'];
 
     // The caption fields common to all entity formatters, if so configured.
-    if (!empty($settings['caption'])) {
-      $caption_items = $weights = [];
-      foreach ($settings['caption'] as $name => $field_caption) {
-        /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-        if (isset($element['item']) && $item = $element['item']) {
-          // Provides basic captions based on image attributes (Alt, Title).
-          foreach (['title', 'alt'] as $key => $attribute) {
-            if ($name == $attribute && $caption = trim($item->get($attribute)->getString() ?: '')) {
-              $markup = Xss::filter($caption, BlazyDefault::TAGS);
-              $caption_items[$name] = ['#markup' => $markup];
-              $weights[] = $key;
-            }
-          }
-        }
+    if (empty($settings['caption'])) {
+      return;
+    }
 
-        if ($caption = $this->blazyEntity()->getFieldRenderable($entity, $field_caption, $view_mode)) {
-          if (isset($caption['#weight'])) {
-            $weights[] = $caption['#weight'];
+    $caption_items = $weights = [];
+    foreach ($settings['caption'] as $name => $field_caption) {
+      /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+      if ($item = ($element['item'] ?? NULL)) {
+        // Provides basic captions based on image attributes (Alt, Title).
+        foreach (['title', 'alt'] as $key => $attribute) {
+          if ($name == $attribute && $caption = trim($item->get($attribute)->getString() ?: '')) {
+            $markup = Xss::filter($caption, BlazyDefault::TAGS);
+            $caption_items[$name] = ['#markup' => $markup];
+            $weights[] = $key;
           }
-
-          $caption_items[$name] = $caption;
         }
       }
 
-      if ($caption_items) {
-        if ($weights) {
-          array_multisort($weights, SORT_ASC, $caption_items);
+      // Provides fieldable captions.
+      if ($caption = $this->blazyEntity()->getFieldRenderable($entity, $field_caption, $view_mode)) {
+        if (isset($caption['#weight'])) {
+          $weights[] = $caption['#weight'];
         }
-        // Differenciate Blazy from Slick, GridStack, etc. to avoid collisions.
-        if ($settings['namespace'] == 'blazy') {
-          $element['captions'] = $caption_items;
-        }
-        else {
-          $element['caption']['data'] = $caption_items;
-        }
+
+        $caption_items[$name] = $caption;
+      }
+    }
+
+    if ($caption_items) {
+      if ($weights) {
+        array_multisort($weights, SORT_ASC, $caption_items);
+      }
+      // Differenciate Blazy from Slick, GridStack, etc. to avoid collisions.
+      if ($settings['namespace'] == 'blazy') {
+        $element['captions'] = $caption_items;
+      }
+      else {
+        $element['caption']['data'] = $caption_items;
       }
     }
   }

@@ -12,6 +12,12 @@ use Drupal\blazy\BlazyDefault;
 /**
  * Base class for blazy video embed field formatters.
  *
+ * This file is no longer used nor needed, and will be removed at 3.x.
+ * VEF will continue working via BlazyOEmbed instead.
+ *
+ * BVEF can take over this file to be compat with Blazy 3.x rather than keeping
+ * 1.x debris. Also to adopt core OEmbed security features at ease.
+ *
  * This means Slick Video which depends on VEF is deprecated for Slick Media
  * at Blazy 8.2.x with core Media only.
  */

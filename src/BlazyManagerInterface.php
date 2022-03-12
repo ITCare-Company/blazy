@@ -10,7 +10,7 @@ interface BlazyManagerInterface {
   /**
    * Prepares shared data common between field formatter and views field.
    *
-   * This is to overcome the limitation of self::getCommonSettings().
+   * This is to overcome the limitation of self::postSettings().
    *
    * @param array $build
    *   The build data containing settings, etc.

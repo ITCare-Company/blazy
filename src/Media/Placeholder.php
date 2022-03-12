@@ -16,7 +16,7 @@ class Placeholder {
    * Build out the blur image.
    */
   public static function blur(array &$element, array &$attributes, array &$settings) {
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     if (!$blazies->get('is.unstyled')) {
       $blur = [
         '#theme' => 'image',
@@ -60,7 +60,7 @@ class Placeholder {
    * Build thumbnails, also to provide placeholder for blur effect.
    */
   public static function thumbnail(array &$attributes, array &$settings) {
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     $settings['placeholder_ui'] = $blazies->get('ui.placeholder');
     $path = $style = $thumbnail_url = '';
 
@@ -89,7 +89,7 @@ class Placeholder {
     }
 
     // Provides image effect if so configured unless being sandboxed.
-    if (!$blazies->get('is.sandboxed') && $fx = $blazies->get('fx')) {
+    if (!$blazies->get('is.unblur') && $fx = $blazies->get('fx')) {
       $attributes['class'][] = 'media--fx';
 
       // Ensures at least a hook_alter is always respected. This still allows
@@ -113,7 +113,7 @@ class Placeholder {
   private static function dataImage(array &$settings, $style = NULL, $path = ''): string {
     $blur = '';
     $uri = $settings['uri'];
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
 
     // Provides default path, in case required by global, but not provided.
     $style = $style ?: \blazy()->entityLoad('thumbnail', 'image_style');

@@ -60,18 +60,13 @@ trait BlazyStyleBaseTrait {
     $instance  = str_replace('_', '-', "{$view_name}-{$view_mode}");
     $id        = empty($settings['id']) ? '' : $settings['id'];
     $id        = Blazy::getHtmlId("{$plugin_id}-views-{$instance}", $id);
-    $settings += [
-      'cache_metadata' => [
-        'keys' => [$id, $view_mode, $count],
-      ],
-    ] + BlazyDefault::lazySettings();
+    $settings += BlazyDefault::lazySettings();
 
     $this->prepareSettings($settings);
 
     // Prepare needed settings to work with.
-    $settings['check_blazy']       = TRUE;
+    // @todo convert some to blazies.
     $settings['id']                = $id;
-    $settings['cache_tags']        = $view->getCacheTags();
     $settings['count']             = $count;
     $settings['current_view_mode'] = $view_mode;
     $settings['instance_id']       = $instance;
@@ -85,9 +80,11 @@ trait BlazyStyleBaseTrait {
       $settings = NestedArray::mergeDeep($settings, $this->htmlSettings);
     }
 
-    $this->blazyManager()->getCommonSettings($settings);
-    $blazies = &$settings['blazies'];
+    $this->blazyManager()->postSettings($settings);
+    $blazies = $settings['blazies'];
     $blazies->set('use.ajax', $view->ajaxEnabled());
+    $blazies->set('cache.keys', [$id, $view_mode, $count]);
+    $blazies->set('cache.tags', $view->getCacheTags() ?: []);
 
     $this->blazyManager()->getModuleHandler()->alter('blazy_settings_views', $settings, $view);
     return $settings;

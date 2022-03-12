@@ -392,6 +392,8 @@
    *
    * @private
    *
+   * One of the weird behaviors in JavaScript is the typeof Array is Object.
+   *
    * @param {Mixed} x
    *   The x to check for its type truthy.
    *
@@ -399,13 +401,13 @@
    *   True if x is an instanceof Object.
    */
   function isObj(x) {
-    // if (!x || typeof x !== 'object') {
-    // return false;
-    // }
-    // var proto = Object.getPrototypeOf(x);
-    // return isNull(proto) || proto === _oProto;
-    var type = typeof x;
-    return type === 'function' || type === 'object' && !!x;
+    if (!x || typeof x !== 'object') {
+      return false;
+    }
+    // var type = typeof x;
+    // return type === 'function' || type === 'object' && !!x;
+    var proto = Object.getPrototypeOf(x);
+    return isNull(proto) || proto === _oProto;
   }
 
   /**

@@ -19,11 +19,9 @@ class BlazyGrid {
    *   The modified array of grid items.
    */
   public static function build(array $items = [], array $settings = []): array {
-    if (!isset($settings['blazies'])) {
-      $settings += BlazyDefault::htmlSettings();
-    }
-
-    $blazies = &$settings['blazies'];
+    // @todo remove after another check.
+    $settings += BlazyDefault::htmlSettings();
+    $blazies = $settings['blazies'];
     $style = $settings['style'];
     $settings['_grid'] = $is_grid = $settings['_grid'] ?? ($style && $settings['grid']);
     $item_class = $is_grid ? 'grid' : 'blazy__item';
@@ -93,8 +91,9 @@ class BlazyGrid {
    * Provides reusable container attributes.
    */
   public static function attributes(array &$attributes, array $settings = []): void {
-    $blazies = &$settings['blazies'];
-    $is_gallery = $blazies->get('lightbox') && !empty($settings['gallery_id']);
+    $blazies = $settings['blazies'];
+    $gallery_id = $blazies->get('box.id', $settings['gallery_id'] ?? '');
+    $is_gallery = $blazies->get('lightbox') && $gallery_id;
 
     // Provides data-attributes to avoid conflict with original implementations.
     Blazy::containerAttributes($attributes, $settings);
@@ -102,7 +101,7 @@ class BlazyGrid {
     // Provides gallery ID, although Colorbox works without it, others may not.
     // Uniqueness is not crucial as a gallery needs to work across entities.
     if (!empty($settings['id'])) {
-      $attributes['id'] = $is_gallery ? $settings['gallery_id'] : $settings['id'];
+      $attributes['id'] = $is_gallery ? $gallery_id : $settings['id'];
     }
 
     // Provides grid container attributes.
