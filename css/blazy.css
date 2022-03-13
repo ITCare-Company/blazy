@@ -17,6 +17,11 @@
   min-height: 1px;
 }
 
+/* Ensure that without js (or in print or emails) our lazy-loader stubs don't interfere. */
+html:not(.js) .b-lazy[data-src] {
+  display: none;
+}
+
 .b-bg,
 /* Tricking IE and other oldies to fix aspect ratio. */
 .media--ratio .is-b-ie {
