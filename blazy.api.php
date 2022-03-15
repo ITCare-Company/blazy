@@ -60,7 +60,7 @@
  *   return $build;
  * }
  * @endcode
- * @see \Drupal\blazy\BlazyTheme::blazy()
+ * @see \Drupal\blazy\Theme\BlazyTheme::blazy()
  * @see \Drupal\blazy\BlazyDefault::imageSettings()
  *
  * A multiple image sample.
@@ -125,7 +125,11 @@
  * @ingroup blazy_api
  */
 function hook_blazy_attach_alter(array &$load, array $settings = []) {
-  if (!empty($settings['photoswipe'])) {
+  // Non configurable settings are mostly grouped under `blazies` BlazySettings.
+  $blazies = $settings['blazies'];
+
+  // Attach additional libraries or drupalSettings if meeting a condition:
+  if ($blazies->get('photoswipe')) {
     $load['library'][] = 'my_module/load';
 
     $template = ['#theme' => 'photoswipe_container'];
@@ -181,7 +185,13 @@ function hook_blazy_alter(array &$build, array $settings = []) {
  * @ingroup blazy_api
  */
 function hook_blazy_build_alter(array &$build, array $settings = []) {
-  if (!empty($settings['elevatezoomplus'])) {
+  // Non configurable settings are mostly grouped under `blazies` BlazySettings.
+  $blazies = $settings['blazies'];
+
+  // All (quasi-)lightboxes are put directly under $blazies for being unique.
+  // This also allows a quasi-lightbox like ElevateZoomPlus inject its optionset
+  // as its value: elevatezoomplus: responsive, etc.
+  if ($blazies->get('colorbox') || $blazies->get('zooming')) {
     $build['#pre_render'][] = 'my_module_pre_render_build';
   }
 }
@@ -241,8 +251,10 @@ function hook_blazy_base_settings_alter(array &$settings, array $context = []) {
  * @ingroup blazy_api
  */
 function hook_blazy_settings_alter(array &$build, $items) {
+  // Most configurable settings are put as direct key-value pairs.
   $settings = &$build['settings'];
-  $blazies = &$settings['blazies'];
+  // Non configurable settings are mostly grouped under `blazies` BlazySettings.
+  $blazies = $settings['blazies'];
 
   // Overrides one pixel placeholder on particular pages relevant if using Views
   // rewrite results which may strip out Data URI.
@@ -252,15 +264,26 @@ function hook_blazy_settings_alter(array &$build, $items) {
     $blazies->set('ui.placeholder', '/blank.gif');
   }
 
-  // Alternatively override views blocks identified by `current_view_mode` with
+  // Alternatively override views blocks identified by `view.view_mode` with
   // a blank SVG since 1px gif has issues with non-square sizes, see #2908861:
   // <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'/>
-  // Adjust plugin ID since Blazy has few formatters, not Views style:
-  // blazy for plain old Image, blazy_media for Media, blazy_oembed for oEmbed.
-  $blazy = isset($settings['plugin_id']) && $settings['plugin_id'] == 'blazy_media';
-  $rewriten = ['block_categories', 'block_popular', 'block_related'];
-  if ($blazy && isset($settings['current_view_mode']) && in_array($settings['current_view_mode'], $rewriten)) {
-    $blazies->set('ui.placeholder', '/blank.svg');
+  // Adjust plugin ID since Blazy has a few formatters.
+  // Field formatters are grouped under $blazies->get('field.plugin_id'):
+  // - `blazy` for plain old Image.
+  // - `blazy_media` for Media.
+  // - `blazy_oembed` for oEmbed, etc.
+  // View fields and styles are grouped under $blazies->get('view.plugin_id'):
+  // - `blazy` for BlazyGrid Views style.
+  // - `blazy_file` for Views field File like plain image galleries.
+  // - `blazy_media` for Views field Media like mixed Media libraries.
+  $plugin_id = $blazies->get('view.plugin_id') == 'blazy';
+  // Only concern with blocks having `Rewrite view resuts` to fix 404 due to
+  // `data:image` placeholder is stripped out by Views sanitization procedure:
+  $rewriten_blocks = ['block_categories', 'block_popular', 'block_related'];
+  if ($plugin_id && $view_mode = $blazies->get('view.view_mode')) {
+    if (in_array($view_mode, $rewriten_blocks)) {
+      $blazies->set('ui.placeholder', '/blank.svg');
+    }
   }
 }
 
@@ -281,8 +304,8 @@ function hook_blazy_settings_alter(array &$build, $items) {
  * @ingroup blazy_api
  */
 function hook_blazy_form_element_alter(array &$form, array $definition = []) {
-  // Limit the scope to Slick formatters, blazy, gridstack, etc. Or swap em all.
-  if (($definition['namespace'] ?? FALSE) == 'slick') {
+  // Scope to splide formatters, blazy, gridstack, slick, etc. Or swap em all.
+  if (($definition['namespace'] ?? FALSE) == 'splide') {
     // Extend the formatter form elements as needed.
   }
 }
@@ -303,8 +326,8 @@ function hook_blazy_form_element_alter(array &$form, array $definition = []) {
  * @ingroup blazy_api
  */
 function hook_blazy_complete_form_element_alter(array &$form, array $definition = []) {
-  // Limit the scope to Slick formatters, blazy, gridstack, etc. Or swap em all.
-  if (isset($definition['namespace']) && $definition['namespace'] == 'slick') {
+  // Scope to splide formatters, blazy, gridstack, slick, etc. Or swap em all.
+  if (isset($definition['namespace']) && $definition['namespace'] == 'splide') {
     // Extend the formatter form elements as needed.
   }
 }

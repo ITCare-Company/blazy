@@ -3,7 +3,6 @@
 namespace Drupal\blazy;
 
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -13,10 +12,11 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\BlazyResponsiveImage;
+use Drupal\blazy\Theme\BlazyLightbox;
+use Drupal\blazy\Theme\BlazyViews;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -239,11 +239,12 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function attach(array $attach = []) {
     $this->postSettings($attach);
+
     $blazies = $attach['blazies'];
-    $unblazy = $blazies->get('is.unblazy', FALSE);
-    $unload = $blazies->get('ui.nojs.lazy', FALSE);
-    $switch = $attach['media_switch'] ?? '';
-    $load = [];
+    $unblazy = $blazies->is('unblazy', FALSE);
+    $unload  = $blazies->get('ui.nojs.lazy', FALSE);
+    $switch  = $attach['media_switch'] ?? '';
+    $load    = [];
 
     if ($switch && $switch != 'content') {
       $attach[$switch] = $switch;
@@ -252,6 +253,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     }
 
     // Allow variants of grid, columns, flexbox, native grid to co-exist.
+    // @todo remove once moved to blazies.libs, too catch-all.
     if ($attach['style']) {
       $attach[$attach['style']] = $attach['style'];
     }
@@ -288,6 +290,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $load['drupalSettings']['blazyIo'] = $this->getIoSettings($attach);
 
     foreach (BlazyDefault::components() as $component) {
+      // @todo remove the second condition, too catch-all.
       if ($blazies->get('libs.' . $component, FALSE) || !empty($attach[$component])) {
         $load['library'][] = 'blazy/' . $component;
       }
@@ -349,38 +352,40 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * @todo remove some settings after migration and sub-modules
    */
   public function preSettings(array &$settings = []): void {
-    if (!empty($settings['_presettings'])) {
+    if (!isset($settings['blazies'])) {
+      $settings += BlazyDefault::htmlSettings();
+    }
+
+    $blazies = $settings['blazies'];
+    if ($blazies->is('presettings')) {
       return;
     }
 
-    $settings += BlazyDefault::htmlSettings();
-    $blazies = $settings['blazies'];
-
-    $config = array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
-    $config['fx'] = $config['fx'] ?? '';
-    $config['fx'] = empty($settings['fx']) ? $config['fx'] : $settings['fx'];
-
+    $ui = array_intersect_key($this->configLoad(), BlazyDefault::uiSettings());
     $switch = $settings['media_switch'];
     $iframe_domain = $this->configLoad('iframe_domain', 'media.settings');
     $lightboxes = $this->getLightboxes();
     $lightbox = $blazies->get('lightbox', $settings['lightbox'] ?? FALSE);
     $lightbox = ($switch && in_array($switch, $lightboxes)) ? $switch : $lightbox;
+    $namespace = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
+    $item_id = $blazies->get('item.id', $settings['item_id'] ?? 'blazy');
 
-    $settings['fx'] = $fx = $settings['_fx'] ?? $config['fx'];
+    $ui['fx'] = $ui['fx'] ?? '';
+    $ui['fx'] = empty($settings['fx']) ? $ui['fx'] : $settings['fx'];
+    $settings['fx'] = $fx = $settings['_fx'] ?? $ui['fx'];
     $settings['lightbox'] = $lightbox;
     $settings['loading'] = $settings['loading'] ?: 'lazy';
     $settings['route_name'] = $route_name = $this->getRouteName();
 
     $language = $this->languageManager->getCurrentLanguage()->getId();
     $bundle = $blazies->get('media.bundle', $settings['bundle'] ?? '');
-
     $is_blur = $fx == 'blur';
     $is_resimage = $this->moduleHandler->moduleExists('responsive_image');
     $is_preview = $settings['is_preview'] = Blazy::isPreview();
     $is_amp = Blazy::isAmp();
     $is_sandboxed = Blazy::isSandboxed();
     $is_bg = !empty($settings['background']);
-    $is_unload = !empty($config['nojs']['lazy']);
+    $is_unload = !empty($ui['nojs']['lazy']);
     $is_slider = $settings['loading'] == 'slider';
     $is_unloading = $settings['loading'] == 'unlazy';
     $is_defer = $settings['loading'] == 'defer';
@@ -388,7 +393,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $is_static = $is_preview || $is_amp || $is_sandboxed;
     $is_undata = $is_static || $is_unloading;
     $is_nojs = $is_unload || $is_undata;
-    // $is_media = in_array($bundle, ['audio', 'remote_video', 'video']);
     $is_local_video = $bundle == 'video'
       || in_array('video', $blazies->get('bundles', []));
 
@@ -406,9 +410,26 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       || $is_defer
       || $blazies->get('libs.compat');
 
+    // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
+    $is_blazy = $blazies->is('blazy', !empty($settings['blazy']));
+    $is_blazy = $is_blazy || $is_bg || $blazies->get('resimage.style');
+    $lazy = $is_blazy ? 'blazy' : ($settings['lazy'] ?? '');
+    $settings['blazy'] = $is_blazy;
+    $settings['lazy'] = $is_lazy = $is_nojs ? '' : $lazy;
+
+    // @todo re-check after sub-modules which were only aware of `is_preview`.
+    // Basically tricking overrides by the reversed name due to sub-modules are
+    // not updated to the new options `No JavaScript` + `Loading priority`, yet.
+    // As known, Splide/ Slick have their own lazy, but might break till further
+    // updates. Choosing Blazy as their lazyload method is the solution to be
+    // compatible with the mentioned options. Better than sacrificing Native.
+    $settings['unlazy'] = $is_unlazy = empty($is_lazy);
+
     // Some should be refined per item against potential mixed media items.
     $blazies->set('is.amp', $is_amp)
+      ->set('is.blazy', $is_blazy)
       ->set('is.fluid', $is_fluid)
+      ->set('is.lazy', $is_lazy)
       ->set('is.nojs', $is_nojs)
       ->set('is.preview', $is_preview)
       ->set('is.sandboxed', $is_sandboxed)
@@ -419,6 +440,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       ->set('is.unload', $is_unload)
       ->set('is.unloading', $is_unloading)
       ->set('is.resimage', $is_resimage)
+      ->set('is.unlazy', $is_unlazy)
+      ->set('item.id', $item_id)
       ->set('libs.animate', $fx)
       ->set('libs.background', $is_bg)
       ->set('libs.blur', $is_blur)
@@ -428,8 +451,9 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       ->set('iframe_domain', $iframe_domain)
       ->set('lightbox', $lightbox)
       ->set('lightboxes', $lightboxes)
+      ->set('namespace', $namespace)
       ->set('route_name', $route_name)
-      ->set('ui', $config)
+      ->set('ui', $ui)
       ->set('use.dataset', $is_bg);
 
     // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
@@ -437,25 +461,15 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $settings[$switch] = $feature = empty($settings[$switch]) ? $switch : $settings[$switch];
       if ($lightbox) {
         $blazies->set($feature, $feature);
+        $blazies->set('first.lightbox', $feature);
       }
       else {
-        $blazies->set('switch', $feature);
+        // Non-lightboxes: media player, link to content, image rendered, etc.
+        $blazies->set('media.switch', $feature);
       }
     }
 
-    // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
-    $settings['blazy'] = !empty($settings['blazy']) || $is_bg || $blazies->get('resimage.style');
-    $lazy = $settings['blazy'] ? 'blazy' : ($settings['lazy'] ?? '');
-    $settings['lazy'] = $is_nojs ? '' : $lazy;
-
-    // @todo re-check after sub-modules which were only aware of `is_preview`.
-    // Basically tricking overrides by the reversed name due to sub-modules are
-    // not updated to the new options `No JavaScript` + `Loading priority`, yet.
-    // As known, Splide/ Slick have their own lazy, but might break till further
-    // updates. Choosing Blazy as their lazyload method is the solution to be
-    // compatible with the mentioned options. Better than sacrificing Native.
-    $settings['unlazy'] = empty($settings['lazy']);
-    $settings['_presettings'] = TRUE;
+    $blazies->set('presettings', TRUE);
   }
 
   /**
@@ -468,12 +482,24 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function postSettings(array &$settings = []) {
     // Might be called directly at ::attach().
-    if (empty($settings['_presettings'])) {
+    if (!isset($settings['blazies'])) {
+      $settings += BlazyDefault::htmlSettings();
+    }
+
+    $blazies = $settings['blazies'];
+    if (!$blazies->is('presettings')) {
       $this->preSettings($settings);
     }
 
-    $settings += BlazyDefault::htmlSettings();
-    if (empty($settings['_postsettings'])) {
+    if (!$blazies->is('postsettings')) {
+      // @tod remove settings after sub-modules.
+      $has_grid = !empty($settings['grid']);
+      $is_grid = $has_grid && !empty($settings['visible_items']);
+      $is_grid = $is_grid ?: (!empty($settings['style']) && $has_grid);
+      $is_grid = $blazies->is('grid', $settings['_grid'] ?? $is_grid);
+
+      $blazies->set('is.grid', $is_grid);
+
       // Checks for [Responsive] image styles.
       BlazyImage::styles($settings);
 
@@ -482,7 +508,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
         BlazyGrid::toNativeGrid($settings);
       }
 
-      $settings['_postsettings'] = TRUE;
+      $blazies->set('postsettings', TRUE);
     }
   }
 
@@ -543,44 +569,55 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function isBlazy(array &$settings, array $item = []) {
+  public function isBlazy(array &$settings, array $data = []) {
     // Retrieves Blazy formatter related settings from within Views style.
-    $item_id = $settings['item_id'] ?? 'x';
-    $content = $item[$item_id] ?? $item;
-    $image   = $item['item'] ?? NULL;
-    $blazies = $settings['blazies'] ?? NULL;
+    if (!$blazies = $settings['blazies'] ?? NULL) {
+      return;
+    }
 
-    // 1. Blazy formatter within Views fields by supported modules.
-    if ($blazies) {
-      $blazies->set('first.item', $image);
-    }
-    if (isset($item['settings'])) {
-      BlazyUtil::isBlazyFormatter($settings, $item);
-    }
+    // 1. Blazy formatter within Views styles by supported modules.
+    $blazy   = $data['settings'] ?? [];
+    $item_id = $blazies->get('item.id', $settings['item_id'] ?? 'x');
+    $content = $data[$item_id] ?? $data;
 
     // 2. Blazy Views fields by supported modules.
     // Prevents edge case with unexpected flattened Views results which is
     // normally triggered by checking "Use field template" option.
     if (is_array($content) && ($view = ($content['#view'] ?? NULL))) {
       if ($blazy_field = BlazyViews::viewsField($view)) {
-        $settings = array_merge(array_filter($blazy_field->mergedViewsSettings()), array_filter($settings));
+        $blazy = $blazy_field->mergedViewsSettings();
+        $settings = array_merge(array_filter($blazy), array_filter($settings));
       }
     }
 
-    $blazies->set('first.image', NULL);
+    // Makes this container aware of Blazy formatter it might contain.
+    if ($blazy) {
+      Blazy::preserve($settings, $blazy);
+    }
+
+    $blazies->unset('first.data');
   }
 
   /**
    * Return the cache metadata common for all blazy-related modules.
    */
   public function getCacheMetadata(array $build = []) {
-    $settings          = Blazy::toSettings($build);
+    $settings = $build['settings'] ?? $build;
+
+    // @todo remnove after sub-modules, including some fallback settings.
+    if (!isset($settings['blazies'])) {
+      $settings += BlazyDefault::htmlSettings();
+    }
+
     $blazies           = $settings['blazies'];
-    $namespace         = $settings['namespace'] ?? 'blazy';
+    $namespace         = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
     $max_age           = $this->configLoad('cache.page.max_age', 'system.performance');
     $max_age           = empty($settings['cache']) ? $max_age : $settings['cache'];
     $id                = $settings['id'] ?? Blazy::getHtmlId($namespace);
-    $suffixes[]        = empty($settings['count']) ? count(array_filter($settings)) : $settings['count'];
+    $id                = $blazies->get('css.id', $id);
+    $count             = $settings['count'] ?? count($settings);
+    $count             = $blazies->get('count', $count);
+    $suffixes[]        = $count;
     $cache['tags']     = Cache::buildTags($namespace . ':' . $id, $suffixes, '.');
     $cache['contexts'] = ['languages'];
     $cache['max-age']  = $max_age;
@@ -597,19 +634,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * Returns the thumbnail image using theme_image(), or theme_image_style().
    */
   public function getThumbnail(array $settings = [], $item = NULL) {
-    if ($uri = ($settings['uri'] ?? NULL)) {
-      $external = UrlHelper::isExternal($uri);
-      $style = $settings['thumbnail_style'] ?? NULL;
-
-      return [
-        '#theme'      => $external ? 'image' : 'image_style',
-        '#style_name' => $style ?: 'thumbnail',
-        '#uri'        => $uri,
-        '#item'       => $item,
-        '#alt'        => $item && $item instanceof ImageItem ? $item->getValue()['alt'] : '',
-      ];
-    }
-    return [];
+    return BlazyImage::thumbnail($settings, $item);
   }
 
   /**

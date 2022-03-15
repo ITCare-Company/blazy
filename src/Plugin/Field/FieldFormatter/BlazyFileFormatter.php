@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
  *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead.
+ * @todo re-check if to keep it as this can be useful for SickBrowser EB.
  * @see https://www.drupal.org/node/3103018
  */
 class BlazyFileFormatter extends BlazyFormatterBlazy {
@@ -27,8 +28,8 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
   /**
    * {@inheritdoc}
    */
-  public function buildElement(array &$build, $entity) {
-    $this->blazyOembed->build($build, $entity);
+  public function buildElement(array &$element, $entity) {
+    $this->blazyOembed->build($element, $entity);
   }
 
   /**

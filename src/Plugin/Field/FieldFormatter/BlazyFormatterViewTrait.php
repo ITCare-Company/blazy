@@ -14,8 +14,11 @@ trait BlazyFormatterViewTrait {
    */
   public function commonViewElements(FieldItemListInterface $items, $langcode, array $entities = [], array $settings = []) {
     // Collects specific settings to this formatter.
-    $settings = array_merge($this->buildSettings(), $settings);
+    $defaults = $this->buildSettings();
+    $settings = $settings ? array_merge($defaults, $settings) : $defaults;
     $settings['langcode'] = $langcode;
+
+    $this->preSettings($settings);
 
     // Build the settings.
     $build = ['settings' => $settings];
@@ -33,6 +36,18 @@ trait BlazyFormatterViewTrait {
 
     // Pass to manager for easy updates to all Blazy formatters.
     return $this->formatter->build($build);
+  }
+
+  /**
+   * Prepare the settings, allows sub-modules to re-use and override.
+   */
+  protected function preSettings(array &$settings) {
+    $blazies = $settings['blazies'];
+
+    // Marks this formatter as blazy specific.
+    if ($blazies->get('namespace') == 'blazy') {
+      $this->blazySettings($settings);
+    }
   }
 
 }

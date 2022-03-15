@@ -89,8 +89,9 @@ class BlazyViews extends StylePluginBase {
     $settings = $this->buildSettings();
     $blazies = $settings['blazies'];
 
-    $blazies->set('namespace', 'blazy');
-    $blazies->set('item.id', 'content');
+    $blazies->set('namespace', 'blazy')
+      ->set('item.id', 'content')
+      ->set('is.grid', TRUE);
 
     // @todo remove.
     $settings['item_id'] = 'content';
@@ -106,8 +107,8 @@ class BlazyViews extends StylePluginBase {
       }
 
       // Supports Blazy multi-breakpoint images if using Blazy formatter.
-      if ($image = $this->getFirstImage($rows[0] ?? NULL)) {
-        $blazies->set('first.image', $image);
+      if ($data = $this->getFirstImage($rows[0] ?? NULL)) {
+        $blazies->set('first.data', $data);
       }
 
       $build = ['items' => $items, 'settings' => $settings];

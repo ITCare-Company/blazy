@@ -18,8 +18,10 @@ class BlazyViewsFieldFile extends BlazyViewsFieldPluginBase {
     /** @var \Drupal\file\Entity\File $entity */
     $entity = $values->_entity;
     $settings = $this->mergedViewsSettings();
-    $settings['delta'] = $values->index;
+    $blazies = $settings['blazies'];
+    $settings['delta'] = $delta = $values->index;
 
+    $blazies->set('delta', $delta);
     $data['settings'] = $this->mergedSettings = $settings;
 
     // Pass results to \Drupal\blazy\BlazyEntity.

@@ -61,12 +61,6 @@ class BlazyOEmbedFormatter extends FormatterBase {
    */
   public function buildElements(array &$build, $items) {
     $settings = &$build['settings'];
-
-    // @todo remove check after another check.
-    if (!isset($settings['blazies'])) {
-      $settings += BlazyDefault::htmlSettings();
-    }
-
     $blazies = $settings['blazies'];
     $field_name = $blazies->get('field.name');
 
@@ -78,10 +72,11 @@ class BlazyOEmbedFormatter extends FormatterBase {
         continue;
       }
 
-      $settings['delta'] = $delta;
-      $settings['input_url'] = $value;
-      $blazies->set('media.input_url', $value);
+      // @todo remove $settings after being migrated into $blazies.
+      $blazies->set('delta', $delta)
+        ->set('media.input_url', $value);
 
+      $settings['blazies'] = $blazies;
       $data = ['item' => NULL, 'settings' => $settings];
 
       // Attempts to fetch media entity.

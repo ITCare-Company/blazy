@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\blazy;
+namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Utility\NestedArray;
 
@@ -36,7 +36,7 @@ class BlazyViews {
       // Prevents dup [data-LIGHTBOX-gallery] if the Views style supports Grid.
       if (!$grid) {
         $view->element['#attributes'] = empty($view->element['#attributes']) ? [] : $view->element['#attributes'];
-        Blazy::containerAttributes($view->element['#attributes'], $settings);
+        BlazyAttribute::container($view->element['#attributes'], $settings);
       }
     }
 
@@ -69,7 +69,7 @@ class BlazyViews {
       $settings['namespace'] = 'blazy';
       $settings['media_switch'] = $matches[1];
       $variables['attributes'] = empty($variables['attributes']) ? [] : $variables['attributes'];
-      Blazy::containerAttributes($variables['attributes'], $settings);
+      BlazyAttribute::container($variables['attributes'], $settings);
     }
   }
 

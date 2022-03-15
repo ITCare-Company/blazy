@@ -5,6 +5,7 @@ namespace Drupal\blazy\Media;
 use Drupal\Core\Cache\Cache;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazySettings;
+use Drupal\blazy\Theme\BlazyAttribute;
 
 /**
  * Provides responsive image utilities.
@@ -49,9 +50,9 @@ class BlazyResponsiveImage {
       // To make compatible with old bLazy which expects no placeholder, provide
       // a real smallest image. Bio will map it to the current breakpoint later.
       $bg = reset($srcset);
-      $unlazy = $settings['unlazy'] = $blazies->get('is.undata');
+      $unlazy = $settings['unlazy'] = $blazies->is('undata');
       $settings['image_url'] = $unlazy ? $settings['image_url'] : $bg['src'];
-      Blazy::lazyAttributes($attributes, $settings);
+      BlazyAttribute::lazy($attributes, $settings);
     }
   }
 
@@ -155,7 +156,7 @@ class BlazyResponsiveImage {
     $blazies = $settings['blazies'];
     $preload = !empty($settings['preload']);
     // @todo merge background here.
-    if ($preload || $blazies->get('is.fluid')) {
+    if ($preload || $blazies->is('fluid')) {
       BlazyResponsiveImage::dimensions($settings, $initial);
     }
     if ($preload) {

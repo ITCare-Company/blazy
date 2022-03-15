@@ -3,7 +3,7 @@
 namespace Drupal\Tests\blazy\Kernel;
 
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyTheme;
+use Drupal\blazy\Theme\BlazyTheme;
 
 /**
  * Tests the Blazy manager methods.
@@ -40,8 +40,9 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    *
    * @covers ::preRenderBlazy
    * @covers ::postSettings
-   * @covers \Drupal\blazy\BlazyLightbox::build
-   * @covers \Drupal\blazy\BlazyLightbox::buildCaptions
+   * @covers \Drupal\blazy\Theme\BlazyLightbox::build
+   * @covers \Drupal\blazy\Theme\BlazyLightbox::buildCaptions
+   * @covers \Drupal\blazy\BlazyManager::postSettings
    * @dataProvider providerTestPreRenderImage
    */
   public function testPreRenderImage(array $settings = [], $expected_has_responsive_image = FALSE) {
@@ -122,17 +123,22 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    *   The settings being tested.
    * @param bool $use_uri
    *   Whether to provide image URI, or not.
+   * @param bool $use_item
+   *   Whether to provide image item, or not.
    * @param bool $iframe
    *   Whether to expect an iframe, or not.
-   * @param mixed|bool|int $expected
-   *   The expected output.
+   * @param bool $expected
+   *   Whether the expected output is an image.
    *
-   * @covers \Drupal\blazy\BlazyTheme::blazy
+   * @covers \Drupal\blazy\Theme\BlazyTheme::blazy
    * @covers \Drupal\blazy\Media\BlazyImage::urlAndDimensions
    * @covers \Drupal\blazy\BlazyDefault::entitySettings
+   * @covers \Drupal\blazy\BlazyManager::postSettings
+   * @covers \Drupal\blazy\Media\BlazyOEmbed::build
+   * @covers \Drupal\blazy\Media\BlazyOEmbed::checkInputUrl
    * @dataProvider providerPreprocessBlazy
    */
-  public function testPreprocessBlazy(array $settings, $use_uri, $iframe, $expected) {
+  public function testPreprocessBlazy(array $settings, $use_uri, $use_item, $iframe, $expected) {
     $variables = ['attributes' => []];
     $settings = array_merge($this->getFormatterSettings(), $settings);
     $settings += BlazyDefault::itemSettings();
@@ -143,11 +149,23 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $settings['thumbnail_style'] = 'thumbnail';
     $settings['uri']             = $use_uri ? $this->uri : '';
 
-    if (!empty($settings['embed_url'])) {
+    if (!empty($settings['input_url'])) {
       $settings = array_merge(BlazyDefault::entitySettings(), $settings);
     }
 
-    $variables['element']['#item'] = $this->testItem;
+    $this->blazyManager->postSettings($settings);
+    $blazies = $settings['blazies']->reset($settings);
+    $item = $use_item ? $this->testItem : NULL;
+
+    if (!empty($settings['input_url'])) {
+      $blazies->set('media.source', 'oembed:video');
+      $data = ['item' => $item, 'settings' => $settings];
+
+      $this->blazyOembed->build($data);
+      $settings = $data['settings'];
+    }
+
+    $variables['element']['#item'] = $item;
     $variables['element']['#settings'] = $settings;
 
     BlazyTheme::blazy($variables);
@@ -163,10 +181,12 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * Provider for ::testPreprocessBlazy.
    */
   public function providerPreprocessBlazy() {
+    // $use_uri, $use_item, $iframe, $expected.
     $data[] = [
       [
         'background' => FALSE,
       ],
+      FALSE,
       FALSE,
       FALSE,
       FALSE,
@@ -176,20 +196,35 @@ class BlazyManagerTest extends BlazyKernelTestBase {
         'background' => FALSE,
       ],
       TRUE,
+      FALSE,
       FALSE,
       TRUE,
     ];
     $data[] = [
       [
         'background' => TRUE,
+      ],
+      FALSE,
+      TRUE,
+      FALSE,
+      FALSE,
+    ];
+    $data[] = [
+      [
+        'background' => FALSE,
+        'input_url' => 'https://www.youtube.com/watch?v=uny9kbh4iOEd',
+        'media_switch' => 'media',
         'ratio' => 'fluid',
         'sizes' => '100w',
         'width' => 640,
         'height' => 360,
+        'bundle' => 'remote_video',
+        'type' => 'video',
       ],
+      FALSE,
       TRUE,
       FALSE,
-      FALSE,
+      TRUE,
     ];
 
     return $data;

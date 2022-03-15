@@ -65,8 +65,19 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     // Tests cache tags matching entity ::getCacheTags().
     $item = $entity->{$this->testFieldName};
-    $this->assertEquals($item[0]->entity->getCacheTags(), $build[$this->testFieldName][0]['#build']['settings']['file_tags'], 'First image cache tags is as expected');
-    $this->assertEquals($item[1]->entity->getCacheTags(), $build[$this->testFieldName][1]['#build']['settings']['file_tags'], 'Second image cache tags is as expected');
+    $field = $build[$this->testFieldName];
+    $settings0 = $field[0]['#build']['settings'];
+    $settings1 = $field[1]['#build']['settings'];
+    $blazies0 = $settings0['blazies'];
+    $blazies1 = $settings1['blazies'];
+    $file0 = $item[0]->entity;
+    $file1 = $item[1]->entity;
+
+    $tag0 = [$blazies0->get('cache.file.tags')[0]];
+    $tag1 = [$blazies1->get('cache.file.tags')[0]];
+
+    $this->assertEquals($file0->getCacheTags(), $tag0, 'First image cache tags is as expected');
+    $this->assertEquals($file1->getCacheTags(), $tag1, 'Second image cache tags is as expected');
 
     $render = $this->blazyManager->getRenderer()->renderRoot($build);
     $this->assertNotEmpty($render);
@@ -93,7 +104,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $this->assertEquals($this->testPluginId, $component['type']);
     $this->assertEquals($this->testPluginId, $build[$this->testFieldName]['#formatter']);
 
-    $format['settings'] = $this->getFormatterSettings();
+    $format['settings'] = array_merge($this->getFormatterSettings(), $formatter_settings);
 
     $settings = &$format['settings'];
     $blazies = $settings['blazies'];
@@ -109,7 +120,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     try {
       $settings['vanilla'] = TRUE;
-      $this->BlazyFormatter->buildSettings($format, $this->testItems);
+      $this->blazyFormatter->buildSettings($format, $this->testItems);
     }
     catch (\PHPUnit_Framework_Exception $e) {
     }
@@ -117,7 +128,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $this->assertEquals($this->testFieldName, $blazies->get('field.name'));
 
     $settings['vanilla'] = FALSE;
-    $this->BlazyFormatter->buildSettings($format, $this->testItems);
+    $this->blazyFormatter->buildSettings($format, $this->testItems);
 
     $this->assertEquals($this->testFieldName, $blazies->get('field.name'));
     $this->assertArrayHasKey('#blazy', $build[$this->testFieldName]);

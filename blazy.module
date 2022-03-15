@@ -10,8 +10,8 @@ use Drupal\editor\Entity\Editor;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyAlter;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyTheme;
-use Drupal\blazy\BlazyViews;
+use Drupal\blazy\Theme\BlazyTheme;
+use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Utility\BlazyMarkdown;
 
 /**

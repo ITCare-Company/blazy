@@ -57,10 +57,22 @@ class BlazyTextFormatter extends FormatterBase {
     }
 
     // Build the settings.
-    $settings             = $this->buildSettings();
+    $settings = $this->buildSettings();
+
+    // @todo remove $settings after being migrated into $blazies.
     $settings['lazy']     = FALSE;
     $settings['langcode'] = $langcode;
-    $settings['_grid']    = $settings['_unblazy'] = TRUE;
+
+    // Marks this formatter as blazy specific.
+    $this->blazySettings($settings);
+
+    // Update the settings.
+    $blazies = $settings['blazies'];
+    $blazies->set('is.grid', TRUE)
+      ->set('is.lazy', FALSE)
+      ->set('is.unblazy', TRUE)
+      ->set('is.text', TRUE)
+      ->set('langcode', $langcode);
 
     // The ProcessedText element already handles cache context & tag bubbling.
     // @see \Drupal\filter\Element\ProcessedText::preRenderText()

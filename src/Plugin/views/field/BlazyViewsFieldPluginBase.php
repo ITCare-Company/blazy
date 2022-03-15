@@ -5,6 +5,7 @@ namespace Drupal\blazy\Plugin\views\field;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\BlazyEntityInterface;
@@ -128,20 +129,47 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    * Merges the settings.
    */
   public function mergedViewsSettings() {
-    $settings = $this->mergedSettings;
+    $settings  = $this->mergedSettings + BlazyDefault::entitySettings();
+    $view      = $this->view;
+    $view_name = $view->storage->id();
+    $view_mode = $view->current_display;
+    $plugin_id = $view->style_plugin->getPluginId();
+    $display   = $view->style_plugin->displayHandler->getPluginId();
+    $instance  = str_replace('_', '-', "{$view_name}-{$display}-{$view_mode}");
+    $id        = Blazy::getHtmlId("{$plugin_id}-views-field-{$instance}");
+    $count     = count($view->result);
 
     // Only fetch what we already asked for.
     foreach ($this->getDefaultValues() as $key => $default) {
       $settings[$key] = $this->options[$key] ?? $default;
     }
 
-    $settings['count'] = count($this->view->result);
-    $settings['current_view_mode'] = $this->view->current_display;
-    $settings['view_name'] = $this->view->storage->id();
-    $settings['view_plugin_id'] = $this->view->style_plugin->getPluginId();
+    // @todo convert some to blazies, and remove tese settings.
+    $settings['count'] = $count;
+    $settings['current_view_mode'] = $view_mode;
+    $settings['view_name'] = $view_name;
+    $settings['view_plugin_id'] = $plugin_id;
     $settings['namespace'] = 'blazy';
 
-    return array_merge(BlazyDefault::entitySettings(), $settings);
+    $this->blazyManager->preSettings($settings);
+    $blazies = $settings['blazies'];
+
+    $view_info = [
+      'display'        => $display,
+      'instance_id'    => $instance,
+      'name'           => $view_name,
+      'plugin_id'      => $plugin_id,
+      'view_mode'      => $view_mode,
+      'is_view'        => TRUE,
+      'is_views_field' => TRUE,
+    ];
+
+    $blazies->set('count', $count)
+      ->set('css.id', $id)
+      ->set('namespace', 'blazy')
+      ->set('view', $view_info, TRUE);
+
+    return $settings;
   }
 
   /**

@@ -62,6 +62,21 @@ class BlazySettings implements \Countable {
   }
 
   /**
+   * Returns values from a key.
+   *
+   * @param string $key
+   *   The storage key.
+   * @param string $default_value
+   *   The storage default_value.
+   *
+   * @return mixed
+   *   A mixed value (array, string, bool, null, etc.).
+   */
+  public function is($key, $default_value = NULL) {
+    return $this->get('is.' . $key, $default_value);
+  }
+
+  /**
    * Sets values for a key.
    */
   public function set($key, $value = NULL, $merge = FALSE): self {
@@ -114,6 +129,69 @@ class BlazySettings implements \Countable {
   public function setData(array $data) {
     $this->storage = $data;
     return $this;
+  }
+
+  /**
+   * Removes item from this.
+   *
+   * @param string $key
+   *   The key to unset.
+   *
+   * @return $this
+   *   The configuration object.
+   */
+  public function unset($key) {
+    $parts = array_map('trim', explode('.', $key));
+    if (count($parts) == 1) {
+      unset($this->storage[$key]);
+    }
+    else {
+      NestedArray::unsetValue($this->storage, $parts);
+    }
+    return $this;
+  }
+
+  /**
+   * Check if a config by its key exists.
+   *
+   * @param string $key
+   *   The key to check.
+   * @param object $group
+   *   The BlazySettings as sub-key to check for.
+   *
+   * @return bool
+   *   True if found.
+   */
+  public function isset($key, $group = NULL) {
+    $found = FALSE;
+    $parts = array_map('trim', explode('.', $key));
+    if (count($parts) == 1) {
+      if ($group) {
+        $found = isset($group->storage()[$key]);
+      }
+      else {
+        $found = isset($this->storage[$key]);
+      }
+    }
+    else {
+      $found = NestedArray::keyExists($parts, $this->storage);
+    }
+    return $found;
+  }
+
+  /**
+   * Reset or renew the BlazySettings object.
+   *
+   * @param array $settings
+   *   The settings to reset/ renew the instance.
+   *
+   * @return \Drupal\blazy\BlazySettings
+   *   The new BlazySettings instance.
+   */
+  public function reset(array &$settings): BlazySettings {
+    $instance = new BlazySettings($this->storage);
+    $settings['blazies'] = $instance;
+    return $instance;
   }
 
   /**

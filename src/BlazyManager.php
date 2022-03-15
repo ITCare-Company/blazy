@@ -4,11 +4,13 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Placeholder;
+use Drupal\blazy\Theme\BlazyLightbox;
 
 /**
  * Implements a public facing blazy manager.
@@ -40,14 +42,18 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     $settings = &$build['settings'];
     $settings += BlazyDefault::itemSettings();
-    $settings['uri'] = $uri = $settings['uri'] ?: BlazyFile::uri($build['item']);
+    $blazies = $settings['blazies'];
+    $item = $build['item'];
+
+    // Prepares the minimum settings to start.
+    Blazy::prepare($settings, $item);
 
     // Respects content not handled by theme_blazy(), but passed through.
     // Yet allows rich contents which might still be processed by theme_blazy().
-    $content = empty($uri) ? $build['content'] : [
+    $content = !$blazies->get('uri') ? $build['content'] : [
       '#theme'       => 'blazy',
-      '#delta'       => $settings['delta'],
-      '#item'        => $build['item'],
+      '#delta'       => $blazies->get('delta'),
+      '#item'        => $item,
       '#image_style' => $settings['image_style'],
       '#build'       => $build,
       '#pre_render'  => [[$this, 'preRenderBlazy']],
@@ -77,8 +83,8 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $settings = $element['#settings'];
     $blazies = $settings['blazies'];
 
-    if ($settings['media_switch']) {
-      if ($settings['media_switch'] == 'content'
+    if ($switch = $settings['media_switch']) {
+      if ($switch == 'content'
         && $url = $blazies->get('entity.url')) {
         $element['#url'] = $url;
       }
@@ -138,7 +144,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Multi-breakpoint aspect ratio only applies if lazyloaded.
     // These may be set once at formatter level, or per breakpoint above.
-    if (!$blazies->get('is.undata') && $ratios = $blazies->get('ratios', [])) {
+    if (!$blazies->is('undata') && $ratios = $blazies->get('ratios', [])) {
       $attributes['data-ratios'] = Json::encode($ratios);
     }
 
@@ -150,7 +156,8 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     }
 
     // Provides captions, if so configured.
-    if ($build['captions'] && ($captions = $this->buildCaption($build['captions'], $settings))) {
+    if ($build['captions']
+      && ($captions = $this->buildCaption($build['captions'], $settings))) {
       $element['#captions'] = $captions;
       $element['#caption_attributes']['class'][] = $settings['item_id'] . '__caption';
     }
@@ -173,14 +180,16 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    * Build captions for both old image, or media entity.
    */
   public function buildCaption(array $captions, array $settings) {
+    $blazies = $settings['blazies'];
     $content = [];
+    $id = $blazies->get('item.id');
     foreach ($captions as $key => $caption_content) {
       if ($caption_content) {
         $content[$key]['content'] = $caption_content;
         $content[$key]['tag'] = strpos($key, 'title') !== FALSE ? 'h2' : 'div';
         $class = $key == 'alt' ? 'description' : str_replace('field_', '', $key);
         $content[$key]['attributes'] = new Attribute();
-        $content[$key]['attributes']->addClass($settings['item_id'] . '__caption--' . str_replace('_', '-', $class));
+        $content[$key]['attributes']->addClass($id . '__caption--' . str_replace('_', '-', $class));
       }
     }
 
@@ -201,22 +210,14 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    */
   public function build(array $build = []) {
     $settings = &$build['settings'];
+
     $settings += BlazyDefault::htmlSettings();
     $blazies = $settings['blazies'];
-    $settings['_grid'] = $settings['_grid'] ?? ($settings['style'] && $settings['grid']);
+    $is_grid = $blazies->is('grid');
 
-    // If not a grid, pass the items as regular index children to theme_field().
     // This #pre_render doesn't work if called from Views results, hence the
     // output is split either as theme_field() or theme_item_list().
-    if (empty($settings['_grid'])) {
-      $settings = $this->getSettings($build);
-
-      // Runs after ::getSettings.
-      $this->prepareBuild($build);
-      $build['#blazy'] = $settings;
-      $this->setAttachments($build, $settings);
-    }
-    else {
+    if ($is_grid) {
       // Take over theme_field() with a theme_item_list(), if so configured.
       // The reason: this is not only fed by field items, but also Views rows.
       $content = [
@@ -226,6 +227,15 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
       // Yet allows theme_field(), if so required, such as for linked_field.
       $build = $blazies->get('use.field') ? [$content] : $content;
+    }
+    else {
+      // If not a grid, pass items as regular index children to theme_field().
+      $settings = $this->getSettings($build);
+
+      // Runs after ::getSettings.
+      $this->prepareBuild($build);
+      $build['#blazy'] = $settings;
+      $this->setAttachments($build, $settings);
     }
 
     $this->moduleHandler->alter('blazy_build', $build, $settings);
@@ -283,9 +293,9 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // image and pass its settings to this container so that Blazy Grid which
     // lacks of settings may know if it should load/ display a lightbox, etc.
     // Lightbox should work without `Use field template` checked.
-    if ($blazies && $image = $blazies->get('first.image')) {
-      if (is_array($image)) {
-        $this->isBlazy($settings, $image);
+    if ($blazies && $data = $blazies->get('first.data')) {
+      if (is_array($data)) {
+        $this->isBlazy($settings, $data);
       }
     }
 
@@ -311,6 +321,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
   protected function buildContent(array &$element, array &$build) {
     $settings = &$build['settings'];
     $blazies = $settings['blazies'];
+
     if (empty($build['content'])) {
       return;
     }
@@ -322,13 +333,12 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Supports HTML content for lightboxes as long as having image trigger.
     // Type rich to not conflict with Image rendered by its formatter option.
-    $supported = $blazies->get('is.richbox');
+    $supported = $blazies->is('richbox', $settings['_richbox'] ?? FALSE);
     $rich = $blazies->get('media.type') == 'rich' && $supported;
     if ($rich && $blazy = ($build['content'][0]['#settings'] ?? NULL)) {
-      if ($blazies->get('is.hires') && $blazy->get('lightbox')) {
+      if ($blazies->is('hires', !empty($settings['image'])) && $blazy->get('lightbox')) {
         // Overrides the overriden settings with original formatter settings.
         $settings = array_merge($settings, $blazy->storage());
-
         $element['#lightbox_html'] = $build['content'];
         $build['content'] = [];
       }
@@ -357,7 +367,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // Responsive image integration, with/o CSS background so to work with.
     // Prevents _responsive_image_build_source_attributes from WSOD if missing.
     // Avoided is_file() check due to ramifications, see #3225859.
-    if ($blazies->get('resimage.style') && !$blazies->get('is.unstyled')) {
+    if ($blazies->get('resimage.style') && !$blazies->is('unstyled')) {
       try {
         $this->buildResponsiveImage($element, $attributes, $settings);
       }
@@ -374,7 +384,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // Pass non-rich-media elements to theme_blazy().
     $element['#item_attributes'] = $item_attributes;
 
-    $is_media = $blazies->get('is.multimedia');
+    $is_media = $blazies->is('multimedia');
     $unblur = $is_media && empty($settings['media_switch']);
     if ($blazies->get('libs.blur') && !$unblur) {
       Placeholder::blur($element, $attributes, $settings);
@@ -397,28 +407,21 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $blazies = $settings['blazies'];
 
     if (!$blazies->get('cache.disabled', FALSE)) {
-      $file_tags = $settings['file_tags'] ?? [];
-      $blazies->set('cache.tags', $file_tags, TRUE);
+      $fallback = $settings['file_tags'] ?? [];
+      if ($tags = $blazies->get('cache.file.tags', $fallback)) {
+        $blazies->set('cache.file.tags', $tags);
+      }
 
       $element['#cache']['max-age'] = -1;
       foreach (['contexts', 'keys', 'tags'] as $key) {
         if ($cache = $blazies->get('cache.' . $key)) {
+          if ($key == 'tags' && $tags) {
+            $cache = Cache::mergeTags($cache, $tags);
+          }
           $element['#cache'][$key] = $cache;
         }
       }
     }
-  }
-
-  /**
-   * Deprecated method.
-   *
-   * @deprecated in blazy:8.x-2.0 and is removed from blazy:3.0.0. Use
-   *   self::getBlazy() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public function getImage(array $build = []) {
-    @trigger_error('getImage is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\BlazyManager::getBlazy() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    return $this->getBlazy($build);
   }
 
 }

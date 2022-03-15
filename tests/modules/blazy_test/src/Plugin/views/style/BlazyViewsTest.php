@@ -89,8 +89,8 @@ class BlazyViewsTest extends BlazyStylePluginBase {
       $items = $this->buildElements($settings, $rows);
 
       // Supports Blazy multi-breakpoint images if using Blazy formatter.
-      if ($image = $this->getFirstImage($rows[0] ?? NULL)) {
-        $blazies->set('first.image', $image);
+      if ($data = $this->getFirstImage($rows[0] ?? NULL)) {
+        $blazies->set('first.data', $data);
       }
       $build = ['items' => $items, 'settings' => $settings];
       $elements = $this->blazyManager->build($build);

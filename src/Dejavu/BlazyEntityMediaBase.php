@@ -34,18 +34,19 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
    */
   public function buildElements(array &$build, $entities, $langcode) {
     parent::buildElements($build, $entities, $langcode);
-    $settings = &$build['settings'];
-    $blazies = $settings['blazies'] ?? NULL;
-    $item_id = $settings['item_id'];
+    $settings = $build['settings'];
+    $blazies = $settings['blazies'];
+    $item_id = $settings['item_id'] ?? '';
+    $item_id = $blazies->get('item.id', $item_id);
 
     // Some formatter has a toggle Vanilla.
     if (empty($settings['vanilla'])) {
       // Supports Blazy formatter multi-breakpoint images if available.
-      if ($blazies && $item = ($build['items'][0] ?? NULL)) {
+      if ($item = ($build['items'][0] ?? NULL)) {
         $fallback = $item[$item_id]['#build'] ?? [];
-        $image = $item['#build'] ?? $fallback;
-        if ($image) {
-          $blazies->set('first.image', $image);
+        $data = $item['#build'] ?? $fallback;
+        if ($data) {
+          $blazies->set('first.data', $data);
         }
       }
     }
@@ -55,9 +56,12 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
    * {@inheritdoc}
    */
   public function buildElement(array &$build, $entity, $langcode) {
-    $settings  = &$build['settings'];
-    $item_id   = $settings['item_id'];
-    $view_mode = $settings['view_mode'] = empty($settings['view_mode']) ? 'full' : $settings['view_mode'];
+    $settings  = $build['settings'];
+    $blazies   = $settings['blazies']->reset($settings);
+    $item_id   = $settings['item_id'] ?? '';
+    $item_id   = $blazies->get('item.id', $item_id);
+    $view_mode = $blazies->get('field.view_mode', 'full');
+    $delta     = $blazies->get('delta');
 
     // Bail out if vanilla (rendered entity) is required.
     if (!empty($settings['vanilla'])) {
@@ -65,7 +69,6 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     }
 
     // Otherwise hard work which is meant to reduce custom code at theme level.
-    $delta = $settings['delta'];
     $element = ['item' => NULL, 'settings' => $settings];
 
     // Build media item including custom highres video thumbnail.
@@ -75,7 +78,8 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     if (!empty($settings['image'])) {
       // If Image rendered is picked, render image as is.
       if (($settings['media_switch'] ?? NULL) == 'rendered') {
-        $element['content'][] = $this->blazyEntity()->getFieldRenderable($entity, $settings['image'], $view_mode);
+        $element['content'][] = $this->blazyEntity()
+          ->getFieldRenderable($entity, $settings['image'], $view_mode);
       }
       // This used to be for File entity (non-media), re-purposed.
       // Extracts image item from other entities than Media, such as Paragraphs.
@@ -93,7 +97,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
     $blazy = $this->formatter()->getBlazy($element);
 
     // If the caller is Blazy, provides simple index elements.
-    if ($settings['namespace'] == 'blazy') {
+    if ($blazies->get('namespace') == 'blazy') {
       $build['items'][$delta] = $blazy;
     }
     else {
@@ -131,7 +135,8 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
    * Builds captions with possible multi-value fields.
    */
   public function getCaption(array &$element, $entity, $langcode) {
-    $settings = $element['settings'];
+    $settings  = $element['settings'];
+    $blazies   = $settings['blazies'];
     $view_mode = $settings['view_mode'];
 
     // The caption fields common to all entity formatters, if so configured.
@@ -145,7 +150,8 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
       if ($item = ($element['item'] ?? NULL)) {
         // Provides basic captions based on image attributes (Alt, Title).
         foreach (['title', 'alt'] as $key => $attribute) {
-          if ($name == $attribute && $caption = trim($item->get($attribute)->getString() ?: '')) {
+          $value = $item->{$attribute} ?? '';
+          if ($name == $attribute && $value && $caption = trim($value)) {
             $markup = Xss::filter($caption, BlazyDefault::TAGS);
             $caption_items[$name] = ['#markup' => $markup];
             $weights[] = $key;
@@ -167,8 +173,9 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
       if ($weights) {
         array_multisort($weights, SORT_ASC, $caption_items);
       }
+
       // Differenciate Blazy from Slick, GridStack, etc. to avoid collisions.
-      if ($settings['namespace'] == 'blazy') {
+      if ($blazies->get('namespace') == 'blazy') {
         $element['captions'] = $caption_items;
       }
       else {
@@ -204,8 +211,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
    */
   public function getScopedFormElements() {
     $target_type = $this->getFieldSetting('target_type');
-    $views_ui    = $this->getFieldSetting('handler') == 'default';
-    $bundles     = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
+    $bundles     = $this->getAvailableBundles();
     $captions    = $this->admin()->getFieldOptions($bundles, [], $target_type);
     $images      = [];
 
@@ -215,10 +221,12 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
         $captions['title'] = $this->t('Image Title');
         $captions['alt'] = $this->t('Image Alt');
       }
+
       // Only provides poster if media contains rich media.
       $media = ['audio', 'remote_video', 'video', 'instagram', 'soundcloud'];
-      if (count(array_intersect($bundles, $media)) > 0) {
-        $images['images'] = $this->admin()->getFieldOptions($bundles, ['image'], $target_type);
+      if (count(array_intersect(array_keys($bundles), $media)) > 0) {
+        $images['images'] = $this->admin()
+          ->getFieldOptions($bundles, ['image'], $target_type);
       }
     }
 

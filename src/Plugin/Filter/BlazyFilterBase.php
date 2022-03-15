@@ -104,6 +104,52 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
   /**
    * {@inheritdoc}
    */
+  public function buildSettings($text) {
+    $settings = &$this->settings;
+    $settings += BlazyDefault::lazySettings();
+    $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
+
+    $settings['_check_protocol'] = TRUE;
+    $settings['plugin_id'] = $plugin_id = $this->getPluginId();
+    $settings['id'] = $id = BlazyFilterUtil::getId($plugin_id);
+    $settings['is_media_library'] = $definitions && isset($definitions['field_media_oembed_video']);
+
+    $this->blazyManager->preSettings($settings);
+
+    $blazies = $settings['blazies'];
+    $exist = $blazies->is('resimage');
+
+    if ($style = ($settings['hybrid_style'] ?? FALSE)) {
+      if ($exist && $resimage = $this->blazyManager->entityLoad($style, 'responsive_image_style')) {
+        $settings['responsive_image_style'] = $style;
+        $blazies->set('resimage.style', $resimage);
+      }
+      else {
+        $settings['image_style'] = $style;
+      }
+    }
+
+    if (!isset($this->htmlFilter)) {
+      $this->htmlFilter = $this->filterManager->createInstance('filter_html', [
+        'settings' => [
+          'allowed_html' => '<a href hreflang target rel> <em> <strong> <b> <i> <cite> <code> <br>',
+          'filter_html_help' => FALSE,
+          'filter_html_nofollow' => FALSE,
+        ],
+      ]);
+    }
+
+    $this->blazyManager->postSettings($settings);
+    $blazies->set('box.id', $id)
+      ->set('css.id', $id)
+      ->set('filter.plugin_id', $plugin_id);
+
+    return $settings;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildImageItem(array &$build, &$node) {
     // Checks if we have a valid file entity, not hard-coded image URL.
     // Prioritize data-src for sub-module filters after Blazy.
@@ -295,54 +341,13 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function buildSettings($text) {
-    $settings = &$this->settings;
-    $settings += BlazyDefault::lazySettings();
-    $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
-
-    $settings['_check_protocol'] = TRUE;
-    $settings['plugin_id'] = $plugin_id = $this->getPluginId();
-    $settings['id'] = $id = BlazyFilterUtil::getId($plugin_id);
-    $settings['is_media_library'] = $definitions && isset($definitions['field_media_oembed_video']);
-
-    $this->blazyManager->preSettings($settings);
-    $blazies = $settings['blazies'];
-    $exist = $blazies->get('is.resimage');
-
-    if ($style = ($settings['hybrid_style'] ?? FALSE)) {
-      if ($exist && $resimage = $this->blazyManager->entityLoad($style, 'responsive_image_style')) {
-        $settings['responsive_image_style'] = $style;
-        $blazies->set('resimage.style', $resimage);
-      }
-      else {
-        $settings['image_style'] = $style;
-      }
-    }
-
-    if (!isset($this->htmlFilter)) {
-      $this->htmlFilter = $this->filterManager->createInstance('filter_html', [
-        'settings' => [
-          'allowed_html' => '<a href hreflang target rel> <em> <strong> <b> <i> <cite> <code> <br>',
-          'filter_html_help' => FALSE,
-          'filter_html_nofollow' => FALSE,
-        ],
-      ]);
-    }
-
-    $this->blazyManager->postSettings($settings);
-    $blazies->set('box.id', $id);
-
-    return $settings;
-  }
-
-  /**
    * Provides the grid item attributes, and caption, if any.
    */
   protected function buildItemAttributes(array &$build, $node) {
     $sets = &$build['settings'];
-    $sets['_blazy_tag'] = TRUE;
+    $blazies = $sets['blazies'];
+
+    $blazies->set('is.blazy_tag', TRUE);
 
     if ($caption = $node->getAttribute('caption')) {
       $build['captions']['alt'] = ['#markup' => $this->filterHtml($caption)];
@@ -376,7 +381,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       $settings['image_style'] = $style;
     }
 
-    if ($blazies->get('is.resimage')
+    if ($blazies->is('resimage')
       && $style = $node->getAttribute('data-responsive-image-style')) {
       $settings['responsive_image_style'] = $style;
       $update = TRUE;

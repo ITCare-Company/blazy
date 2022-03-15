@@ -2,6 +2,8 @@
 
 namespace Drupal\blazy\Dejavu;
 
+use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyDefault;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
 
@@ -16,49 +18,44 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
    * Returns media contents.
    */
   public function buildElements(array &$build, $entities, $langcode) {
-    $settings = $build['settings'];
-    $blazies = $settings['blazies'];
-
-    $blazies->set('langcode', $langcode);
-
     foreach ($entities as $delta => $entity) {
       // Protect ourselves from recursive rendering.
       static $depth = 0;
       $depth++;
       if ($depth > 20) {
-        $this->loggerFactory->get('entity')->error('Recursive rendering detected when rendering entity @entity_type @entity_id. Aborting rendering.', [
-          '@entity_type' => $entity->getEntityTypeId(),
-          '@entity_id' => $entity->id(),
-        ]);
+        $this->loggerFactory->get('entity')
+          ->error('Recursive rendering detected when rendering entity @entity_type @entity_id. Aborting rendering.', [
+            '@entity_type' => $entity->getEntityTypeId(),
+            '@entity_id' => $entity->id(),
+          ]);
         return $build;
       }
 
-      // @todo remove.
-      $build['settings']['delta'] = $delta;
-      $build['settings']['langcode'] = $langcode;
-
-      $blazies->set('delta', $delta);
-      if ($bundle = $entity->bundle()) {
-        $blazies->set('bundles.' . $bundle, $bundle);
-      }
-
-      $this->buildElement($build, $entity, $langcode);
+      $this->prepareElement($build, $entity, $langcode, $delta);
 
       // Add the entity to cache dependencies so to clear when it is updated.
-      $this->formatter()->getRenderer()->addCacheableDependency($build['items'][$delta], $entity);
+      if (!empty($build['items'][$delta])) {
+        $this->formatter()
+          ->getRenderer()
+          ->addCacheableDependency($build['items'][$delta], $entity);
+      }
 
       $depth = 0;
     }
   }
 
   /**
-   * Returns item contents.
+   * Build item contents.
    */
   public function buildElement(array &$build, $entity, $langcode) {
-    $view_mode = empty($build['settings']['view_mode']) ? 'full' : $build['settings']['view_mode'];
-    $delta = $build['settings']['delta'];
+    $settings  = $build['settings'];
+    $blazies   = $settings['blazies']->reset($settings);
+    $view_mode = $blazies->get('field.view_mode', 'full');
 
-    $build['items'][$delta] = $this->formatter()->getEntityTypeManager()->getViewBuilder($entity->getEntityTypeId())->view($entity, $view_mode, $langcode);
+    $build['items'][] = $this->formatter()
+      ->getEntityTypeManager()
+      ->getViewBuilder($entity->getEntityTypeId())
+      ->view($entity, $view_mode, $langcode);
   }
 
   /**
@@ -79,7 +76,12 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
    */
   public function buildSettings() {
     $settings = array_merge($this->getCommonFieldDefinition(), $this->getSettings());
-    $settings['third_party'] = $this->getThirdPartySettings();
+    $settings += BlazyDefault::htmlSettings();
+    $blazies = $settings['blazies'];
+
+    $third_party = $this->getThirdPartySettings();
+    $blazies->set('field.third_party', $third_party);
+
     return $settings;
   }
 
@@ -103,15 +105,49 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
    * Defines the scope for the form elements.
    */
   public function getScopedFormElements() {
-    $views_ui = $this->getFieldSetting('handler') == 'default';
-    $bundles = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
-
     // @todo move common/ reusable properties somewhere.
     return [
       'settings'       => $this->getSettings(),
-      'target_bundles' => $bundles,
+      'target_bundles' => $this->getAvailableBundles(),
       'view_mode'      => $this->viewMode,
     ] + $this->getCommonFieldDefinition();
+  }
+
+  /**
+   * Returns available bundles.
+   */
+  protected function getAvailableBundles() {
+    $target_type = $this->getFieldSetting('target_type');
+    $views_ui = $this->getFieldSetting('handler') == 'default';
+    $bundles = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
+
+    // Fix for Views UI not recognizing Media bundles, unlike Formatters.
+    if (empty($bundles)) {
+      $service = Blazy::service('entity_type.bundle.info');
+      $bundles = $service->getBundleInfo($target_type);
+    }
+
+    return $bundles;
+  }
+
+  /**
+   * Prepare item contents.
+   */
+  protected function prepareElement(array &$build, $entity, $langcode, $delta) {
+    $settings = $build['settings'];
+    $blazies  = $settings['blazies'];
+    $bundle   = $entity->bundle();
+
+    $blazies->set('bundles.' . $bundle, $bundle)
+      ->set('langcode', $langcode)
+      ->set('delta', $delta);
+
+    // @todo remove after sub-modules.
+    $settings['delta'] = $delta;
+    $settings['langcode'] = $langcode;
+
+    $build['settings'] = $settings;
+    $this->buildElement($build, $entity, $langcode);
   }
 
 }

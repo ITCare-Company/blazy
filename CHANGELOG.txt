@@ -1,4 +1,15 @@
 
+Blazy 8.x-2.0-dev, 2022-03-15
+-----------------------------
+- Fixed for empty bundles if formatters are accessed from Views UI, not Field
+  UI, causing failure to select like poster (local) video for the supported
+  lightboxes Splidebox, Blazy PhotoSwipe, etc. Specific for the poster image.
+- Moved internal BlazyViews Drupal\blazy\Theme namespace.
+- Moved internal BlazyLightbox into Drupal\blazy\Theme namespace.
+- Moved internal BlazyTheme into Drupal\blazy\Theme namespace.
+- Moved anything internal attributes from Blazy into BlazyAttribute.
+- Added Drupal\blazy\Theme\BlazyAttribute for anything internal attributes.
+
 Blazy 8.x-2.0-dev, 2022-03-12
 -----------------------------
 - Issue #3269222 by gausarts: Move more settings into BlazySettings for sanity.

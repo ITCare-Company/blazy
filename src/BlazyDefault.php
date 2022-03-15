@@ -82,13 +82,11 @@ class BlazyDefault {
    */
   public static function cherrySettings() {
     return [
-      // '_item'           => '',
       'box_style'       => '',
       'image_style'     => '',
       'media_switch'    => '',
       'ratio'           => '',
       'thumbnail_style' => '',
-      '_uri'            => '',
     ];
   }
 
@@ -303,7 +301,6 @@ class BlazyDefault {
       'image_url'      => '',
       'placeholder_fx' => '',
       'placeholder_ui' => '',
-      'player'         => FALSE,
       'scheme'         => '',
       'type'           => 'image',
       'uri'            => '',
@@ -314,10 +311,11 @@ class BlazyDefault {
       'content_url'    => '',
       'use_data_uri'   => FALSE,
       'use_loading'    => TRUE,
-      'use_media'      => FALSE,
+      // 'use_media'      => FALSE,
       'item_id'        => 'blazy',
       'lazy_attribute' => 'src',
       'lazy_class'     => 'b-lazy',
+      // 'player'         => FALSE,
       // 'entity_type_id' => '',
     ] + self::htmlSettings();
   }

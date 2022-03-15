@@ -128,13 +128,30 @@ class BlazyAlter {
    */
   public static function blazySettingsAlter(array &$build, $items): void {
     $settings = &$build['settings'];
+    $blazies = $settings['blazies'];
 
     // Sniffs for Views to allow block__no_wrapper, views_no_wrapper, etc.
-    if (function_exists('views_get_current_view') && $view = views_get_current_view()) {
-      $settings['view_name'] = $view->storage->id();
-      $settings['current_view_mode'] = $view->current_display;
-      $plugin_id = is_null($view->style_plugin) ? "" : $view->style_plugin->getPluginId();
-      $settings['view_plugin_id'] = empty($settings['view_plugin_id']) ? $plugin_id : $settings['view_plugin_id'];
+    if (function_exists('views_get_current_view')
+      && $view = views_get_current_view()) {
+
+      $style = $view->style_plugin;
+      $display = is_null($style) ? '' : $style->displayHandler->getPluginId();
+
+      // @todo remove $settings at 3.x, not before.
+      $settings['view_name'] = $name = $view->storage->id();
+      $settings['current_view_mode'] = $view_mode = $view->current_display;
+      $settings['view_plugin_id'] = $plugin_id = is_null($style) ? '' : $style->getPluginId();
+
+      $current = [
+        'display'     => $display,
+        'instance_id' => str_replace('_', '-', "{$name}-{$display}-{$view_mode}"),
+        'name'        => $name,
+        'plugin_id'   => $plugin_id,
+        'view_mode'   => $view_mode,
+        'is_view'     => FALSE,
+      ];
+
+      $blazies->set('view', $current, TRUE);
     }
   }
 
@@ -178,9 +195,9 @@ class BlazyAlter {
    * via Entity/Media Embed which normally means Blazy should be disabled
    * due to CKEditor not supporting JS assets.
    *
-   * @see \Drupal\blazy\BlazyTheme::blazy()
-   * @see \Drupal\blazy\BlazyTheme::field()
-   * @see \Drupal\blazy\BlazyTheme::fileVideo()
+   * @see \Drupal\blazy\Theme\BlazyTheme::blazy()
+   * @see \Drupal\blazy\Theme\BlazyTheme::field()
+   * @see \Drupal\blazy\Theme\BlazyTheme::fileVideo()
    * @see blazy_preprocess_file_video()
    */
   public static function thirdPartyFormatters(): array {

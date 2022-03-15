@@ -52,34 +52,6 @@ class BlazyUtil {
   }
 
   /**
-   * Collects the first found Blazy formatter settings within Views fields.
-   */
-  public static function isBlazyFormatter(array &$settings, array $item = []) {
-    $blazy = $item['settings'];
-    if (!isset($settings['blazies'])) {
-      $settings += BlazyDefault::htmlSettings();
-    }
-
-    // Merge the first found (Responsive) image data.
-    $formatter_blazies = $blazy['blazies'] ?? NULL;
-    if ($formatter_blazies instanceof BlazySettings) {
-      $blazies = $settings['blazies'];
-
-      $blazies = $blazies->merge($formatter_blazies->storage());
-      $blazies->set('is.dimensions', !empty($blazies->get('ratios')));
-    }
-
-    $cherries = BlazyDefault::cherrySettings() + ['uri' => ''];
-    foreach ($cherries as $key => $value) {
-      $fallback = $settings[$key] ?? $value;
-      $settings[$key] = isset($blazy[$key]) && empty($fallback) ? $blazy[$key] : $fallback;
-    }
-
-    $settings['_uri'] = empty($settings['_uri']) ? $settings['uri'] : $settings['_uri'];
-    unset($settings['uri']);
-  }
-
-  /**
    * Provides original unstyled image dimensions based on the given image item.
    *
    * @todo deprecated and removed < 3.x. Use BlazyImage::dimensions() instead.

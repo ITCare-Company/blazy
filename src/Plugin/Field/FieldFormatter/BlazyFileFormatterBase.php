@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
@@ -46,9 +47,57 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
+   * Returns the Blazy elements.
+   */
+  protected function getElements(array &$build, $files, $caption_id = 'captions'): array {
+    $elements = [];
+    foreach ($files as $delta => $file) {
+      /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+      $item  = $file->_referringItem;
+      $sets  = $build['settings'];
+      $blazy = $sets['blazies']->reset($sets);
+      $tags  = $file->getCacheTags();
+      $uri   = $sets['uri'] = $file->getFileUri();
+
+      $blazy->set('cache.file.tags', $tags, TRUE)
+        ->set('delta', $delta)
+        ->set('media.type', 'image')
+        ->set('uri', $uri);
+
+      $element = ['item' => $item, 'settings' => $sets];
+
+      // Build individual element.
+      $this->buildElement($element, $file);
+
+      // Build captions if so configured.
+      if ($caption_id) {
+        $this->buildCaptions($element, $caption_id);
+      }
+
+      // Image with grid, responsive image, lazyLoad, and lightbox supports.
+      $elements[] = $element;
+    }
+    return $elements;
+  }
+
+  /**
+   * Builds the captions.
+   */
+  protected function buildCaptions(array &$element, $caption_id): void {
+    $settings = $element['settings'];
+    if (!empty($settings['caption'])) {
+      foreach ($settings['caption'] as $caption) {
+        if ($caption_content = $element['item']->{$caption}) {
+          $element[$caption_id][$caption] = ['#markup' => Xss::filterAdmin($caption_content)];
+        }
+      }
+    }
+  }
+
+  /**
    * Build individual item if so configured such as for file ER goodness.
    */
-  public function buildElement(array &$build, $entity) {
+  public function buildElement(array &$element, $entity) {
     // Do nothing.
   }
 

@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\file\FileInterface;
 use Drupal\image\Entity\ImageStyle;
@@ -113,7 +114,9 @@ class BlazyImage {
 
     // We have a Media entity.
     if ($item = self::item(NULL, $options)) {
-      $settings['uri'] = BlazyFile::uri($item);
+      $blazies = $settings['blazies'];
+      $settings['uri'] = $uri = BlazyFile::uri($item);
+      $blazies->set('uri', $uri);
       return ['item' => $item, 'settings' => $settings];
     }
 
@@ -176,6 +179,77 @@ class BlazyImage {
   }
 
   /**
+   * Checks for [Responsive] image styles.
+   */
+  public static function styles(array &$settings, $multiple = FALSE): void {
+    $blazy = Blazy::service('blazy.manager');
+    $blazies = $settings['blazies'];
+    $exist = $blazies->is('resimage');
+
+    // Multiple is a flag for various styles: Blazy Filter, GridStack, etc.
+    // While fields can only have one image style per field.
+    if (!$blazies->get('resimage.style') || $multiple) {
+      $style = $settings['responsive_image_style'] ?? NULL;
+      $applicable = $exist && $style;
+      $resimage = $settings['resimage'] ?? NULL;
+
+      if (empty($resimage) && $applicable) {
+        $resimage = $blazy->entityLoad($style, 'responsive_image_style');
+      }
+
+      $blazies->set('resimage.style', $exist ? $resimage : NULL);
+    }
+
+    // Might be set via BlazyFilter, but not enough data passed.
+    if (!$blazies->get('resimage.id') || $multiple) {
+      if ($resimage = $blazies->get('resimage.style')) {
+        BlazyResponsiveImage::define($blazies, $resimage);
+      }
+    }
+
+    // Specific for lightbox, it can be (Responsive) image.
+    foreach (['box', 'box_media', 'image', 'thumbnail'] as $key) {
+      if (!$blazies->get($key . '.style') || $multiple) {
+        $image_style = NULL;
+        if ($style = ($settings[$key . '_style'] ?? '')) {
+          if ($key == 'box' && $exist) {
+            $resimage = $blazy->entityLoad($style, 'responsive_image_style');
+            $blazies->set($key . '.resimage.style', $resimage)
+              ->set($key . '.resimage.id', $resimage ? $resimage->id() : NULL);
+          }
+          $image_style = $blazy->entityLoad($style, 'image_style');
+        }
+
+        $blazies->set($key . '.style', $image_style);
+      }
+    }
+  }
+
+  /**
+   * Returns the thumbnail image using theme_image(), or theme_image_style().
+   */
+  public static function thumbnail(array $settings = [], $item = NULL): array {
+    // @tod remove check after another check.
+    $blazies = $settings['blazies'] ?? NULL;
+    $default = $settings['uri'] ?? NULL;
+    $uri = $blazies ? $blazies->get('uri', $default) : $default;
+
+    if ($uri) {
+      $external = UrlHelper::isExternal($uri);
+      $style = $settings['thumbnail_style'] ?? NULL;
+
+      return [
+        '#theme'      => $external ? 'image' : 'image_style',
+        '#style_name' => $style ?: 'thumbnail',
+        '#uri'        => $uri,
+        '#item'       => $item,
+        '#alt'        => $item instanceof ImageItem ? $item->getValue()['alt'] : '',
+      ];
+    }
+    return [];
+  }
+
+  /**
    * A wrapper for ImageStyle::transformDimensions().
    *
    * @param object $style
@@ -226,14 +300,16 @@ class BlazyImage {
     if ($uri) {
       ['url' => $url, 'style' => $style] = self::urlAndStyle($uri, $settings, $style);
 
+      // @tdo remove any settngs like this after migraton and sub-modules.
       $settings['image_url'] = $url;
+      $blazies->set('image.url', $url);
 
       // @todo move it out here.
       if ($style) {
         $blazies->set('cache.tags', $style->getCacheTags(), TRUE);
 
         // Only re-calculate dimensions if not cropped, nor already set.
-        if (!$blazies->get('is.dimensions')
+        if (!$blazies->is('dimensions')
           && empty($settings['responsive_image_style'])) {
           $settings = array_merge($settings, self::transformDimensions($style, $settings));
         }
@@ -251,7 +327,7 @@ class BlazyImage {
   public static function urlAndStyle($uri, array $settings, $style = NULL): array {
     $blazies = $settings['blazies'];
     $valid = BlazyFile::isValidUri($uri);
-    $styled = $valid && !$blazies->get('is.unstyled');
+    $styled = $valid && !$blazies->is('unstyled');
     // Image style modifier can be multi-style images such as UGC or GridStack.
     $_style = $settings['image_style'] ?? '';
     $style = $style ?: $blazies->get('image.style');
@@ -300,53 +376,6 @@ class BlazyImage {
 
     // Provides image url based on the given settings.
     self::url($settings);
-  }
-
-  /**
-   * Checks for [Responsive] image styles.
-   */
-  public static function styles(array &$settings, $multiple = FALSE): void {
-    $blazy = Blazy::service('blazy.manager');
-    $blazies = $settings['blazies'];
-    $exist = $blazies->get('is.resimage');
-
-    // Multiple is a flag for various styles: Blazy Filter, GridStack, etc.
-    // While fields can only have one image style per field.
-    if (!$blazies->get('resimage.style') || $multiple) {
-      $style = $settings['responsive_image_style'] ?? NULL;
-      $applicable = $exist && $style;
-      $resimage = $settings['resimage'] ?? NULL;
-
-      if (empty($resimage) && $applicable) {
-        $resimage = $blazy->entityLoad($style, 'responsive_image_style');
-      }
-
-      $blazies->set('resimage.style', $exist ? $resimage : NULL);
-    }
-
-    // Might be set via BlazyFilter, but not enough data passed.
-    if (!$blazies->get('resimage.id') || $multiple) {
-      if ($resimage = $blazies->get('resimage.style')) {
-        BlazyResponsiveImage::define($blazies, $resimage);
-      }
-    }
-
-    // Specific for lightbox, it can be (Responsive) image.
-    foreach (['box', 'box_media', 'image', 'thumbnail'] as $key) {
-      if (!$blazies->get($key . '.style') || $multiple) {
-        $image_style = NULL;
-        if ($style = ($settings[$key . '_style'] ?? '')) {
-          if ($key == 'box' && $exist) {
-            $resimage = $blazy->entityLoad($style, 'responsive_image_style');
-            $blazies->set($key . '.resimage.style', $resimage)
-              ->set($key . '.resimage.id', $resimage ? $resimage->id() : NULL);
-          }
-          $image_style = $blazy->entityLoad($style, 'image_style');
-        }
-
-        $blazies->set($key . '.style', $image_style);
-      }
-    }
   }
 
   /**

@@ -6,6 +6,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazySettings;
+use Drupal\blazy\Theme\BlazyAttribute;
 
 /**
  * Provides extra utilities to work with core Media.
@@ -41,7 +42,7 @@ class BlazyMedia {
     $blazies = $settings['blazies'];
     // Prevents fatal error with disconnected internet when having ME Facebook,
     // ME SlideShare, resorted to static thumbnails to avoid broken displays.
-    if ($input = $blazies->get('media.input_url', $settings['input_url'] ?? '')) {
+    if ($input = $blazies->get('media.input_url')) {
       try {
         \Drupal::httpClient()->get($input, ['timeout' => 3]);
       }
@@ -97,7 +98,7 @@ class BlazyMedia {
     // Iframes: Googledocs, SlideShare. Hardcoded: Soundcloud, Spotify.
     if ($iframe && $src = ($attributes['src'] ?? FALSE)) {
       $blazies->set('media.embed_url', $src);
-      $attributes = NestedArray::mergeDeep($attributes, Blazy::iframeAttributes($settings));
+      $attributes = NestedArray::mergeDeep($attributes, BlazyAttribute::iframe($settings));
     }
     // Media with local files: video.
     elseif (isset($item['#files'], $item['#files'][0]['file'])) {
@@ -138,7 +139,7 @@ class BlazyMedia {
       'view_mode'    => $view_mode ?: 'default',
     ];
 
-    $blazies->set('media', $info);
+    $blazies->set('media', $info, TRUE);
 
     // @todo remove $settings for $blazies after migration and sub-modules.
     foreach ($info as $key => $value) {
@@ -158,7 +159,7 @@ class BlazyMedia {
 
     $item['#attributes']->setAttribute('data-b-lazy', TRUE);
     if ($blazies = ($settings['blazies'] ?? NULL)) {
-      if ($blazies->get('is.undata')) {
+      if ($blazies->is('undata')) {
         $item['#attributes']->setAttribute('data-b-undata', TRUE);
       }
     }

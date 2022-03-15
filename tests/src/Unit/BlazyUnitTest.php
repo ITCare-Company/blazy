@@ -3,9 +3,9 @@
 namespace Drupal\Tests\blazy\Unit;
 
 use Drupal\Tests\UnitTestCase;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyTheme;
+use Drupal\blazy\Theme\BlazyAttribute;
+use Drupal\blazy\Theme\BlazyTheme;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;
 
@@ -32,7 +32,7 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests \Drupal\blazy\Blazy::buildIframe.
+   * Tests \Drupal\blazy\Theme\BlazyAttribute::buildIframe.
    *
    * @param array $data
    *   The input data which can be string, or integer.
@@ -46,12 +46,20 @@ class BlazyUnitTest extends UnitTestCase {
   public function testBuildIframe(array $data, $expected) {
     $variables             = ['attributes' => [], 'image' => []];
     $settings              = BlazyDefault::htmlSettings();
-    $settings['embed_url'] = '//www.youtube.com/watch?v=E03HFA923kw';
+    $settings['embed_url'] = $embed_url = '//www.youtube.com/watch?v=E03HFA923kw';
     $settings['type']      = 'video';
     $settings['bundle']    = 'remote_video';
+    $settings['uri']       = 'public://example.jpg';
+
+    $blazies = $settings['blazies'];
+
+    $blazies->set('media.embed_url', $embed_url)
+      ->set('media.bundle', 'remote_video')
+      ->set('media.type', 'video');
 
     $variables['settings'] = array_merge($settings, $data);
-    Blazy::buildIframe($variables);
+    $variables['image'] = 'x';
+    BlazyAttribute::buildIframe($variables);
 
     $this->assertNotEmpty($variables[$expected]);
   }
@@ -66,7 +74,7 @@ class BlazyUnitTest extends UnitTestCase {
           'media_switch' => 'media',
           'ratio' => 'fluid',
         ],
-        'iframe',
+        'image',
       ],
       [
         [
@@ -81,7 +89,7 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests \Drupal\blazy\BlazyTheme::blazy.
+   * Tests \Drupal\blazy\Theme\BlazyTheme::blazy.
    *
    * @param array $settings
    *   The settings being tested.
@@ -92,7 +100,7 @@ class BlazyUnitTest extends UnitTestCase {
    * @param bool $expected_iframe
    *   Whether to expect an iframe, or not.
    *
-   * @covers \Drupal\blazy\BlazyTheme::blazy
+   * @covers \Drupal\blazy\Theme\BlazyTheme::blazy
    * @covers \Drupal\blazy\Media\BlazyImage::urlAndDimensions
    * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @dataProvider providerPreprocessBlazy
@@ -102,7 +110,7 @@ class BlazyUnitTest extends UnitTestCase {
     $build     = $this->data;
     $settings  = array_merge($build['settings'], $settings);
     $settings += BlazyDefault::itemSettings();
-    $blazies   = &$settings['blazies'];
+    $blazies   = $settings['blazies'];
 
     $settings['blazy']           = TRUE;
     $settings['lazy']            = 'blazy';
@@ -158,15 +166,17 @@ class BlazyUnitTest extends UnitTestCase {
     $data[] = [
       [
         'background' => FALSE,
+        'embed_url' => '//www.youtube.com/watch?v=E03HFA923kw',
+        'media_switch' => '',
         'ratio' => 'fluid',
-        'sizes' => '100w',
         'width' => 640,
         'height' => 360,
         'uri' => $uri,
+        'type' => 'video',
       ],
       TRUE,
-      TRUE,
       FALSE,
+      TRUE,
     ];
     $data[] = [
       [
@@ -174,14 +184,14 @@ class BlazyUnitTest extends UnitTestCase {
         'embed_url' => '//www.youtube.com/watch?v=E03HFA923kw',
         'media_switch' => 'media',
         'ratio' => 'fluid',
-        'sizes' => '100w',
-        'scheme' => 'youtube',
         'type' => 'video',
+        'width' => 640,
+        'height' => 360,
         'uri' => $uri,
       ],
       TRUE,
       TRUE,
-      TRUE,
+      FALSE,
     ];
 
     return $data;
@@ -197,8 +207,8 @@ class BlazyUnitTest extends UnitTestCase {
    *   The settings being tested.
    *
    * @covers \Drupal\blazy\BlazyManager::preRenderBlazy
-   * @covers \Drupal\blazy\BlazyLightbox::build
-   * @covers \Drupal\blazy\BlazyLightbox::buildCaptions
+   * @covers \Drupal\blazy\Theme\BlazyLightbox::build
+   * @covers \Drupal\blazy\Theme\BlazyLightbox::buildCaptions
    * @dataProvider providerTestPreRenderImageLightbox
    */
   public function todoTestPreRenderImageLightbox(array $settings = []) {

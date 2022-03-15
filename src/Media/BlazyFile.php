@@ -7,6 +7,7 @@ use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Site\Settings;
 use Drupal\file\FileInterface;
+use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\blazy\Blazy;
 
 /**
@@ -73,7 +74,7 @@ class BlazyFile {
    * @see BlazyFilter::getImageItemFromImageSrc()
    */
   public static function transformRelative($uri, $style = NULL, array $options = []): string {
-    $url = $trusted_url = $options['url'] ?? '';
+    $url = $options['url'] ?? '';
     $sanitize = $options['sanitize'] ?? FALSE;
 
     if (empty($uri)) {
@@ -168,7 +169,8 @@ class BlazyFile {
       $uri = self::uri($image);
 
       // Only needed the first found image, no problem which with mixed media.
-      if ($uri && empty($settings['_uri'])) {
+      $_uri = $settings['_uri'] ?? '';
+      if ($uri && !$blazies->get('first.uri', $_uri)) {
         $settings['_uri'] = $uri;
 
         $url = self::transformRelative($uri, $style);
@@ -257,27 +259,22 @@ class BlazyFile {
    * Also checks if an extension should not use image style: apng svg gif, etc.
    */
   public static function prepare(array &$settings, $item = NULL): bool {
-    if (!($uri = ($settings['uri'] ?? NULL))) {
+    $blazies = $settings['blazies'];
+    if (!($uri = $blazies->get('uri'))) {
       return FALSE;
     }
 
-    $blazies = $settings['blazies'];
     $pathinfo = pathinfo($uri);
-    $type = $blazies->get('media.type', $settings['type'] ?? '');
-    $bundle = $blazies->get('media.bundle', $settings['bundle'] ?? '');
-    $is_media = in_array($bundle, ['audio', 'remote_video', 'video']);
-    $is_media = in_array($type, ['audio', 'video']) || $is_media;
-    $unblur = $blazies->get('is.sandboxed')
-      || ($is_media && empty($settings['media_switch']));
+    $unblur = $blazies->is('sandboxed')
+      || ($blazies->is('multimedia') && empty($settings['media_switch']));
 
     $settings['extension'] = $ext = $pathinfo['extension'] ?? '';
-    $supported = $blazies->get('is.richbox', !empty($settings['_richbox']));
+    $supported = $blazies->is('richbox', !empty($settings['_richbox']));
     $richbox = $blazies->get('colorbox') || $blazies->get('mfp') || $supported;
-    $embed_url = $blazies->get('media.embed_url', $settings['embed_url'] ?? '');
 
-    if (empty($settings['file_tags']) && $item && $id = ($item->target_id ?? NULL)) {
-      $settings['file_tags'] = ['file:' . $id];
-      $blazies->set('cache.tags', ['file:' . $id], TRUE);
+    if ($item instanceof ImageItem && $file = $item->entity) {
+      $tags = $file->getCacheTags();
+      $blazies->set('cache.file.tags', $tags);
     }
 
     $extensions = ['svg'];
@@ -296,14 +293,11 @@ class BlazyFile {
     }
 
     // Re-define, if the provided API by-passed, or different/ altered per item.
-    $blazies->set('media.embed_url', $embed_url)
-      ->set('media.extension', $ext)
-      ->set('media.type', $type)
-      ->set('is.external', UrlHelper::isExternal($uri))
+    $blazies->set('is.external', UrlHelper::isExternal($uri))
       ->set('is.richbox', $richbox)
-      ->set('is.multimedia', $is_media)
       ->set('is.unblur', $unblur)
-      ->set('is.unstyled', $unstyled);
+      ->set('is.unstyled', $unstyled)
+      ->set('media.extension', $ext);
 
     return $unstyled;
   }
@@ -376,10 +370,11 @@ class BlazyFile {
       foreach ($sources as $source) {
         $url = $source['fallback'];
 
-        // Preloading 1px data URI makes no sense, see if image_url.
+        // Preloading 1px data URI makes no sense, see if image_url exists.
         $data_uri = $url && mb_substr($url, 0, 10) === 'data:image';
-        if ($data_uri && !empty($settings['image_url'])) {
-          $url = $settings['image_url'];
+        $image_url = $blazies->get('image.url', $settings['image_url'] ?? '');
+        if ($data_uri && $image_url) {
+          $url = $image_url;
         }
 
         foreach ($source['items'] as $key => $item) {

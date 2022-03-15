@@ -54,7 +54,7 @@
     content ? 'media--rendered',
     settings.namespace ? 'media--' ~ settings.namespace,
     settings.media_switch ? 'media--switch media--switch--' ~ settings.media_switch|clean_class,
-    settings.player ? 'media--player',
+    blazies.is.player ? 'media--player',
     blazies.media.bundle ? 'media--bundle--' ~ blazies.media.bundle|clean_class,
     blazies.media.type ? 'media--' ~ blazies.media.type,
     blazies.resimage.id ? 'media--responsive',
@@ -64,7 +64,7 @@
   ]
 %}
 
-{% if settings.player %}
+{% if blazies.is.player %}
   {% set attributes = attributes.setAttribute('aria-live', 'polite') %}
 
   {% set label = blazies.media.label %}
@@ -95,7 +95,7 @@
 
 {% set player %}
   {% block blazy_player %}
-    {% if settings.player %}
+    {% if blazies.is.player %}
       <button{{ close_button_attributes }}></button>
       <button{{ play_button_attributes }}></button>
     {% else %}
@@ -125,7 +125,7 @@
 {% set blazy %}
   {% block blazy_content %}
     {% if media_attributes %}<div{{ media_attributes }}>{% endif %}
-      {% if url and not settings.player %}
+      {% if url and not blazies.is.player %}
         <a href="{{ url }}"{{ url_attributes }}>{{- media -}}</a>
 
         {# Allows fieldable captions with A tag, such as social share. #}

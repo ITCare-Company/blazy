@@ -17,7 +17,7 @@ class Placeholder {
    */
   public static function blur(array &$element, array &$attributes, array &$settings) {
     $blazies = $settings['blazies'];
-    if (!$blazies->get('is.unstyled')) {
+    if (!$blazies->is('unstyled')) {
       $blur = [
         '#theme' => 'image',
         '#uri' => $settings['placeholder_ui'] ?: $blazies->get('ui.placeholder'),
@@ -71,7 +71,7 @@ class Placeholder {
       $thumbnail_url = BlazyFile::transformRelative($path);
     }
     else {
-      if (!$blazies->get('is.external') && $style = $blazies->get('thumbnail.style')) {
+      if (!$blazies->is('external') && $style = $blazies->get('thumbnail.style')) {
         $path = $style->buildUri($settings['uri']);
         $thumbnail_url = BlazyFile::transformRelative($settings['uri'], $style);
       }
@@ -89,13 +89,13 @@ class Placeholder {
     }
 
     // Provides image effect if so configured unless being sandboxed.
-    if (!$blazies->get('is.unblur') && $fx = $blazies->get('fx')) {
+    if (!$blazies->is('unblur') && $fx = $blazies->get('fx')) {
       $attributes['class'][] = 'media--fx';
 
       // Ensures at least a hook_alter is always respected. This still allows
       // Blur and hook_alter for Views rewrite issues, unless global UI is set
       // which was already warned about anyway.
-      if (!$blazies->get('is.unstyled')) {
+      if (!$blazies->is('unstyled')) {
         self::dataImage($settings, $style, $path);
       }
 

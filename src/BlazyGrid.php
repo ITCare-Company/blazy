@@ -2,8 +2,12 @@
 
 namespace Drupal\blazy;
 
+use Drupal\blazy\Theme\BlazyAttribute;
+
 /**
  * Provides grid utilities.
+ *
+ * @todo move it into Drupal\blazy\Theme namespace after sub-modules.
  */
 class BlazyGrid {
 
@@ -23,9 +27,16 @@ class BlazyGrid {
     $settings += BlazyDefault::htmlSettings();
     $blazies = $settings['blazies'];
     $style = $settings['style'];
-    $settings['_grid'] = $is_grid = $settings['_grid'] ?? ($style && $settings['grid']);
+    $is_grid = $blazies->is('grid');
     $item_class = $is_grid ? 'grid' : 'blazy__item';
-    $settings['count'] = empty($settings['count']) ? count($items) : $settings['count'];
+
+    // Slick/ Splide may trick count to disable grid slides when lacking,
+    // although not necessarily needed by flat grid like Blazy's.
+    $count = $settings['count'] ?? count($items);
+    $settings['count'] = $count = $blazies->get('count', $count);
+
+    // Update for the rest.
+    $blazies->set('count', $count);
 
     $contents = [];
     foreach ($items as $key => $item) {
@@ -34,7 +45,10 @@ class BlazyGrid {
       $content_attrs = $item['content_attributes'] ?? [];
       $sets = array_merge($settings, $item['settings'] ?? []);
       $sets = array_merge($sets, $item['#build']['settings'] ?? []);
+
+      $blazy = $blazies->reset($sets);
       $sets['delta'] = $key;
+      $blazy->set('delta', $key);
 
       // Supports both single formatter field and complex fields such as Views.
       $classes = $wrapper_attrs['class'] ?? [];
@@ -64,10 +78,11 @@ class BlazyGrid {
 
     // Supports field label via Field UI, unless use_field takes place.
     $title = '';
+    $label = $blazies->get('field.label');
     if (!$blazies->get('use.field')
-      && isset($settings['label'], $settings['label_display'])
-      && $settings['label_display'] != 'hidden') {
-      $title = $settings['label'];
+      && $label
+      && $blazies->get('field.label_display') != 'hidden') {
+      $title = $label;
     }
 
     $attrs = [];
@@ -96,12 +111,12 @@ class BlazyGrid {
     $is_gallery = $blazies->get('lightbox') && $gallery_id;
 
     // Provides data-attributes to avoid conflict with original implementations.
-    Blazy::containerAttributes($attributes, $settings);
+    BlazyAttribute::container($attributes, $settings);
 
     // Provides gallery ID, although Colorbox works without it, others may not.
     // Uniqueness is not crucial as a gallery needs to work across entities.
-    if (!empty($settings['id'])) {
-      $attributes['id'] = $is_gallery ? $gallery_id : $settings['id'];
+    if ($id = $blazies->get('css.id')) {
+      $attributes['id'] = $is_gallery ? $gallery_id : $id;
     }
 
     // Provides grid container attributes.
@@ -113,13 +128,14 @@ class BlazyGrid {
    */
   public static function gridContainerAttributes(array &$attributes, array $settings = []): void {
     $style = $settings['style'];
+    $blazies = $settings['blazies'];
 
-    if (!empty($settings['_grid'])) {
-      $attributes['class'][] = 'blazy--grid block-' . $style . ' block-count-' . $settings['count'];
+    if ($blazies->is('grid')) {
+      $attributes['class'][] = 'blazy--grid block-' . $style . ' block-count-' . $blazies->get('count');
 
       // If Native Grid style with numeric grid, assumed non-two-dimensional.
       if ($style == 'nativegrid') {
-        $attributes['class'][] = empty($settings['nativegrid.masonry']) ? 'is-b-native' : 'is-b-masonry';
+        $attributes['class'][] = $blazies->get('libs.nativegrid.masonry') ? 'is-b-masonry' : 'is-b-native';
       }
 
       // Adds common grid attributes for CSS3 column, Foundation, etc.
@@ -139,8 +155,9 @@ class BlazyGrid {
    * LProvides grid item attributes, relevant for Native Grid.
    */
   public static function gridItemAttributes(array &$attributes, array $settings = []): void {
-    if (isset($settings['grid_large_dimensions']) && $dim = $settings['grid_large_dimensions']) {
-      $key = $settings['delta'];
+    $blazies = $settings['blazies'];
+    if ($dim = $blazies->get('grid.large_dimensions', [])) {
+      $key = $blazies->get('delta');
       if (isset($dim[$key])) {
         $attributes['data-b-w'] = $dim[$key]['width'];
         if (!empty($dim[$key]['height'])) {
@@ -149,10 +166,9 @@ class BlazyGrid {
       }
       else {
         // Supports a grid repeat for the lazy.
-        $count = empty($settings['count']) ? 0 : $settings['count'];
         $height = $dim[0]['height'];
         $width = $dim[0]['width'];
-        if ($count > count($dim) && !empty($width)) {
+        if ($blazies->get('count') > count($dim) && !empty($width)) {
           $attributes['data-b-w'] = $width;
           if (!empty($height)) {
             $attributes['data-b-h'] = $height;
@@ -184,14 +200,17 @@ class BlazyGrid {
     $dimensions = [];
     if (self::isNativeGrid($grid)) {
       $values = array_map('trim', explode(" ", $grid));
+
       foreach ($values as $value) {
-        $width = $value;
+        $width = (int) $value;
         $height = 0;
+
+        // If multidimensional layout.
         if (mb_strpos($value, 'x') !== FALSE) {
           [$width, $height] = array_pad(array_map('trim', explode("x", $value, 2)), 2, NULL);
         }
 
-        $dimensions[] = ['width' => $width, 'height' => $height];
+        $dimensions[] = ['width' => (int) $width, 'height' => (int) $height];
       }
     }
 
@@ -206,16 +225,17 @@ class BlazyGrid {
       return;
     }
 
+    $blazies = $settings['blazies'];
     if ($settings['grid_large'] = $settings['grid']) {
       if (self::isNativeGridAsMasonry($settings)) {
-        $settings['nativegrid.masonry'] = TRUE;
+        $blazies->set('libs.nativegrid.masonry', TRUE);
       }
 
       // If Native Grid style with numeric grid, assumed non-two-dimensional.
       foreach (['small', 'medium', 'large'] as $key) {
         $value = empty($settings['grid_' . $key]) ? NULL : $settings['grid_' . $key];
         if ($dimensions = self::toDimensions($value)) {
-          $settings['grid_' . $key . '_dimensions'] = $dimensions;
+          $blazies->set('grid.' . $key . '_dimensions', $dimensions);
         }
       }
     }

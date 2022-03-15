@@ -1,9 +1,11 @@
 <?php
 
-namespace Drupal\blazy;
+namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Template\Attribute;
+use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Placeholder;
@@ -69,10 +71,16 @@ class BlazyTheme {
     $settings = &$variables['settings'];
     $settings += BlazyDefault::itemSettings();
     $blazies = $settings['blazies'];
+    $item = $variables['item'];
+
+    // Prepares the minimum settings to start.
+    if (!$blazies->get('_api')) {
+      Blazy::prepare($settings, $item);
+    }
 
     // Do not proceed if no URI is provided. URI is not Blazy theme property.
     // Blazy is a wrapper for theme_[(responsive_)image], etc. who wants URI.
-    if (empty($settings['uri'])) {
+    if (!$blazies->get('uri')) {
       return;
     }
 
@@ -80,24 +88,21 @@ class BlazyTheme {
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$blazies->get('_api')) {
       // Prepares URI, extension, image styles, lightboxes.
-      BlazyFile::prepare($settings, $variables['item']);
-      BlazyImage::urlAndDimensions($settings, $variables['item']);
+      BlazyFile::prepare($settings, $item);
+      BlazyImage::urlAndDimensions($settings, $item);
       Blazy::lazyOrNot($settings);
     }
 
     // Allows rich Media entities stored within `content` to take over.
     // Rich media are things Blazy don't understand: Instagram, Facebook, etc.
     if (empty($variables['content'])) {
-      Blazy::buildMedia($variables);
+      BlazyAttribute::buildMedia($variables);
     }
 
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
     // Prevents double padding hacks with AMP which also uses similar technique.
-    $settings['ratio'] = empty($settings['width']) || $blazies->get('is.amp') ? '' : $settings['ratio'];
-    if ($settings['ratio']) {
-      Blazy::aspectRatioAttributes($attributes, $settings);
-    }
+    BlazyAttribute::aspectRatio($attributes, $settings);
 
     // Makes a little BEM order here due to Twig ignoring the preset priority.
     $classes = (array) ($attributes['class'] ?? []);
@@ -116,6 +121,7 @@ class BlazyTheme {
   public static function field(array &$variables): void {
     $element = &$variables['element'];
     $settings = empty($element['#blazy']) ? [] : $element['#blazy'];
+    $blazies = $settings['blazies'];
 
     // 1. Hence Blazy is not the formatter, lacks of settings.
     if (!empty($element['#third_party_settings']['blazy']['blazy'])) {
@@ -123,8 +129,8 @@ class BlazyTheme {
     }
 
     // 2. Hence Blazy is the formatter, has its settings.
-    if (empty($settings['_grid'])) {
-      Blazy::containerAttributes($variables['attributes'], $settings);
+    if (!$blazies->is('grid')) {
+      BlazyAttribute::container($variables['attributes'], $settings);
     }
   }
 
@@ -159,7 +165,7 @@ class BlazyTheme {
           if (!empty($settings['image_url'])) {
             $variables['attributes']->setAttribute('poster', $settings['image_url']);
           }
-          if ($blazies->get('lightbox') && $blazies->get('is.richbox')) {
+          if ($blazies->get('lightbox') && $blazies->is('richbox')) {
             $variables['attributes']->setAttribute('autoplay', TRUE);
           }
         }
@@ -211,7 +217,8 @@ class BlazyTheme {
         $image['#uri'] = $placeholder;
       }
 
-      // More shared-with-image attributes are set at self::imageAttributes().
+      // More shared-with-image attributes are set at
+      // BlazyAttribute::image().
       $image['#attributes']['class'][] = 'b-responsive';
     }
 
@@ -305,10 +312,13 @@ class BlazyTheme {
       $settings += BlazyDefault::htmlSettings();
     }
 
-    $settings['third_party'] = $element['#third_party_settings'];
     $blazies = $settings['blazies'];
     // @todo re-check at CKEditor.
-    $is_undata = $blazies->get('is.undata');
+    $is_undata = $blazies->is('undata');
+
+    // @todo remove.
+    $third_party = $element['#third_party_settings'] ?? [];
+    $blazies->set('field.third_party', $third_party, TRUE);
 
     foreach ($variables['items'] as &$item) {
       if (empty($item['content'])) {

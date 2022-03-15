@@ -1,10 +1,12 @@
 <?php
 
-namespace Drupal\blazy;
+namespace Drupal\blazy\Theme;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Xss;
-use Drupal\Component\Serialization\Json;
+use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 
@@ -39,7 +41,7 @@ class BlazyLightbox {
     $item       = $element['#item'];
     $settings   = &$element['#settings'];
     $blazies    = $settings['blazies'];
-    $uri        = $settings['uri'];
+    $uri        = $blazies->get('uri', $settings['uri'] ?? '');
     $switch     = $settings['media_switch'];
     $switch_css = str_replace('_', '-', $switch);
     $valid      = BlazyFile::isValidUri($uri);
@@ -51,11 +53,10 @@ class BlazyLightbox {
     $url_attributes['class'][] = 'blazy__' . $switch_css . ' litebox';
     $url_attributes['data-' . $switch_css . '-trigger'] = TRUE;
 
-    $element['#icon']['litebox']['#markup'] = '<span class="media__icon media__icon--litebox"></span>';
-
     // Gallery is determined by a view, or overriden by colorbox settings.
-    $gallery_enabled = !empty($settings['view_name']);
-    $gallery_default = $gallery_enabled ? $settings['view_name'] . '-' . $settings['current_view_mode'] : 'blazy-' . $switch_css;
+    $view_name = $blazies->get('view.name');
+    $gallery_enabled = !empty($view_name);
+    $gallery_default = $gallery_enabled ? $view_name . '-' . $blazies->get('view.view_mode') : 'blazy-' . $switch_css;
 
     // Respects colorbox settings unless for an explicit view gallery.
     if (!$gallery_enabled
@@ -89,15 +90,13 @@ class BlazyLightbox {
 
     // Supports local and remote videos, also legacy VEF which has no bundles.
     // See https://drupal.org/node/3210636#comment-14097266.
-    $videos = ['remote_video', 'video'];
-    $is_video = ($json['type'] ?? FALSE) == 'video';
-    $is_video = (isset($json['bundle']) && in_array($json['bundle'], $videos)) || $is_video;
+    $is_multimedia = $blazies->is('multimedia');
 
     if (!empty($settings['box_style']) && $valid) {
       try {
         // The _responsive_image_build_source_attributes is WSOD if missing.
         if ($resimage = $blazies->get('box.resimage.style')) {
-          if (!$is_video && empty($element['#lightbox_html'])) {
+          if (!$is_multimedia && empty($element['#lightbox_html'])) {
             $is_resimage = TRUE;
             $json['type'] = 'rich';
             $element['#lightbox_html'] = [
@@ -137,7 +136,7 @@ class BlazyLightbox {
       $box_media_url = BlazyFile::transformRelative($uri, $box_media_style);
     }
 
-    if ($is_video) {
+    if ($is_multimedia) {
       $json['width']  = 640;
       $json['height'] = 360;
 
@@ -233,6 +232,7 @@ class BlazyLightbox {
     }
 
     $element['#url'] = $url;
+    $element['#icon']['litebox']['#markup'] = '<span class="media__icon media__icon--litebox"></span>';
   }
 
   /**
@@ -260,9 +260,10 @@ class BlazyLightbox {
    *   The renderable array of caption, or empty array.
    */
   private static function buildCaptions($item, array $settings = []): array {
+    $blazies = $settings['blazies'];
     $title   = $item->title ?? '';
     $alt     = $item->alt ?? '';
-    $delta   = $settings['delta'] ?? 0;
+    $delta   = $blazies->get('delta');
     $caption = '';
 
     switch ($settings['box_caption']) {

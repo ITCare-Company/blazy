@@ -34,6 +34,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo remove fallback settings after migration and sub-modules.
    */
   public function buildSettings(array &$build, $items) {
     $settings = &$build['settings'];
@@ -42,45 +44,42 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $this->preSettings($settings);
     $this->prepareData($build, $entity);
     $this->postSettings($settings);
-
-    $blazies    = $settings['blazies'];
-    $field      = $items->getFieldDefinition();
-    $field_name = $field->getName();
-    $field_info = [
-      'name'        => $field_name,
-      'type'        => $field->getType(),
-      'entity_type' => $field->getTargetEntityTypeId(),
-    ];
-
-    $blazies->set('field', $field_info);
     BlazyEntity::settings($settings, $entity);
 
+    $blazies        = $settings['blazies'];
+    $field          = $items->getFieldDefinition();
+    $field_name     = $field->getName();
     $count          = $items->count();
     $field_clean    = str_replace("field_", '', $field_name);
     $entity_type_id = $blazies->get('entity.type_id');
     $entity_id      = $blazies->get('entity.id');
     $bundle         = $blazies->get('entity.bundle');
-    $view_mode      = $settings['current_view_mode'];
-    $namespace      = $settings['namespace'];
+    $view_mode      = $settings['current_view_mode'] ?? 'default';
+    $view_mode      = $blazies->get('field.view_mode', $view_mode);
+    $namespace      = $blazies->get('namespace');
     $id             = $settings['id'] ?? '';
     $gallery_id     = "{$namespace}-{$entity_type_id}-{$bundle}-{$field_clean}-{$view_mode}";
     $id             = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
 
     // When alignment is mismatched, split them to satisfy linter.
     $settings['caption'] = empty($settings['caption']) ? [] : array_filter($settings['caption']);
-    $settings['count']   = $count;
-    $settings['id']      = $id;
 
     // Respects linked_field.module expectation.
-    $linked = $settings['third_party']['linked_field']['linked'] ?? FALSE;
+    $linked = $blazies->get('field.third_party.linked_field.linked');
     $use_field = !$blazies->get('lightbox') && $linked;
     $gallery_id = str_replace('_', '-', $gallery_id . '-' . $settings['media_switch']);
 
     $blazies->set('box.id', $gallery_id)
+      ->set('count', $count)
+      ->set('css.id', $id)
       ->set('use.field', $use_field);
 
     $blazies->set('cache.keys', [$id, $count], TRUE);
     $blazies->set('cache.tags', [$entity_type_id . ':' . $entity_id], TRUE);
+
+    // @todo remove.
+    $settings['count'] = $count;
+    $settings['id'] = $id;
   }
 
   /**
@@ -88,7 +87,9 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    */
   public function preBuildElements(array &$build, $items, array $entities = []) {
     $this->buildSettings($build, $items);
+
     $settings = &$build['settings'];
+    $blazies = $settings['blazies'];
 
     // Pass first item to optimize sizes this time.
     if (!empty($items[0])) {
@@ -97,8 +98,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     // Sets dimensions once, if cropped, to reduce costs with ton of images.
     // This is less expensive than re-defining dimensions per image.
-    if (!empty($settings['_uri'])) {
-      if ($settings['blazies']->get('resimage.style')) {
+    if ($blazies->get('first.uri')) {
+      if ($blazies->get('resimage.style')) {
         BlazyResponsiveImage::dimensionsAndSources($settings, TRUE);
       }
       else {
@@ -134,18 +135,20 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    *   The settings being modified.
    */
   protected function setImageDimensions(array &$settings = []) {
-    if (!isset($this->isImageDimensionSet[md5($settings['id'])])) {
+    $blazies = $settings['blazies'];
+    $id = $blazies->get('css.id', $settings['id'] ?? 'x');
+
+    if (!isset($this->isImageDimensionSet[md5($id)])) {
       // If image style contains crop, sets dimension once, and let all inherit.
       $image_style = $settings['image_style'] ?? '';
       if ($image_style && ($style = $this->isCrop($image_style))) {
         $settings = array_merge($settings, BlazyImage::transformDimensions($style, $settings, TRUE));
 
         // Informs individual images that dimensions are already set once.
-        $blazies = $settings['blazies'];
         $blazies->set('is.dimensions', TRUE);
       }
 
-      $this->isImageDimensionSet[md5($settings['id'])] = TRUE;
+      $this->isImageDimensionSet[md5($id)] = TRUE;
     }
   }
 
@@ -160,7 +163,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     // The first image dimensions to differ from individual item dimensions.
     // @todo merge it into BlazyFile::urisFromField to swap them all once.
-    if ($item = $blazies->get('first.item', $settings['_item'] ?? NULL)) {
+    if ($item = $blazies->get('first.item')) {
       BlazyImage::dimensions($settings, $item, TRUE);
     }
   }

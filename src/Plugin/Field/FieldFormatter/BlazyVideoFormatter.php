@@ -57,12 +57,13 @@ class BlazyVideoFormatter extends BlazyVideoBase {
     // @todo remove $settings after being migrated into $blazies.
     $settings['bundle'] = 'remote_video';
     $settings['media_source'] = 'video_embed_field';
-    $blazies->set('media.bundle', 'remote_video');
-    $blazies->set('media.source', 'video_embed_field');
+
+    // Update the settings.
+    $blazies->set('media.bundle', 'remote_video')
+      ->set('media.source', 'video_embed_field');
 
     foreach ($items as $delta => $item) {
       $settings['input_url'] = $input = strip_tags($item->value);
-      $settings['delta'] = $delta;
 
       if (empty($input) || !($provider = $vef->loadProviderFromInput($input))) {
         continue;
@@ -70,8 +71,12 @@ class BlazyVideoFormatter extends BlazyVideoBase {
 
       // Ensures thumbnail is available.
       $provider->downloadThumbnail();
-      $settings['uri'] = $provider->getLocalThumbnailUri();
-      $blazies->set('media.input_url', $input);
+      $settings['uri'] = $uri = $provider->getLocalThumbnailUri();
+
+      $blazy = $blazies->reset($settings);
+      $blazy->set('delta', $delta)
+        ->set('uri', $uri)
+        ->set('media.input_url', $input);
 
       /*
       // Too risky, but if you got lucky.
@@ -83,6 +88,7 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       // }
       // }
        */
+      // $settings['blazies'] = $blazy;
       $data = ['item' => $item, 'settings' => $settings];
       $this->blazyOembed->build($data, $entity);
 

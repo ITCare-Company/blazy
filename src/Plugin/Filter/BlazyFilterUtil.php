@@ -169,6 +169,7 @@ class BlazyFilterUtil {
    */
   public static function toGrid(\DOMElement $node, array &$settings) {
     if ($check = $node->getAttribute('grid')) {
+      $blazies = $settings['blazies'];
       [$settings['style'], $grid, $settings['visible_items']] = array_pad(array_map('trim', explode(":", $check, 3)), 3, NULL);
 
       if ($grid) {
@@ -178,7 +179,8 @@ class BlazyFilterUtil {
           $settings['grid'],
         ] = array_pad(array_map('trim', explode("-", $grid, 3)), 3, NULL);
 
-        $settings['_grid'] = !empty($settings['style']) && !empty($settings['grid']);
+        $settings['_grid'] = $is_grid = !empty($settings['style']) && !empty($settings['grid']);
+        $blazies->set('is.grid', $is_grid);
 
         if (!empty($settings['style'])) {
           // Babysits typo due to hardcoding. The expected is flex, not flexbox.

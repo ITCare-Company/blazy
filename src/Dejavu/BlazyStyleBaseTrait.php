@@ -57,15 +57,18 @@ trait BlazyStyleBaseTrait {
     $view_name = $view->storage->id();
     $view_mode = $view->current_display;
     $plugin_id = $this->getPluginId();
-    $instance  = str_replace('_', '-', "{$view_name}-{$view_mode}");
+    $display   = $view->style_plugin->displayHandler->getPluginId();
+    $instance  = str_replace('_', '-', "{$view_name}-{$display}-{$view_mode}");
     $id        = empty($settings['id']) ? '' : $settings['id'];
     $id        = Blazy::getHtmlId("{$plugin_id}-views-{$instance}", $id);
     $settings += BlazyDefault::lazySettings();
 
+    $this->blazyManager()->preSettings($settings);
     $this->prepareSettings($settings);
+    $blazies = $settings['blazies'];
 
     // Prepare needed settings to work with.
-    // @todo convert some to blazies.
+    // @todo convert some to blazies, and remove these settings.
     $settings['id']                = $id;
     $settings['count']             = $count;
     $settings['current_view_mode'] = $view_mode;
@@ -73,18 +76,31 @@ trait BlazyStyleBaseTrait {
     $settings['multiple']          = TRUE;
     $settings['plugin_id']         = $settings['view_plugin_id'] = $plugin_id;
     $settings['view_name']         = $view_name;
-    $settings['view_display']      = $view->style_plugin->displayHandler->getPluginId();
-    $settings['_views']            = TRUE;
+    $settings['view_display']      = $display;
+
+    $view_info = [
+      'display'     => $display,
+      'instance_id' => $instance,
+      'name'        => $view_name,
+      'plugin_id'   => $plugin_id,
+      'view_mode'   => $view_mode,
+      'is_view'     => TRUE,
+    ];
+
+    $blazies->set('cache.keys', [$id, $view_mode, $count], TRUE)
+      ->set('cache.tags', $view->getCacheTags() ?: [], TRUE)
+      ->set('count', $count)
+      ->set('css.id', $id)
+      ->set('is.multiple', TRUE)
+      ->set('is.views', TRUE)
+      ->set('use.ajax', $view->ajaxEnabled())
+      ->set('view', $view_info, TRUE);
 
     if (!empty($this->htmlSettings)) {
       $settings = NestedArray::mergeDeep($settings, $this->htmlSettings);
     }
 
     $this->blazyManager()->postSettings($settings);
-    $blazies = $settings['blazies'];
-    $blazies->set('use.ajax', $view->ajaxEnabled());
-    $blazies->set('cache.keys', [$id, $view_mode, $count]);
-    $blazies->set('cache.tags', $view->getCacheTags() ?: []);
 
     $this->blazyManager()->getModuleHandler()->alter('blazy_settings_views', $settings, $view);
     return $settings;

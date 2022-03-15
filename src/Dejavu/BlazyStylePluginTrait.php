@@ -3,8 +3,8 @@
 namespace Drupal\blazy\Dejavu;
 
 use Drupal\Component\Utility\Xss;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyFile;
-use Drupal\blazy\BlazyDefault;
 
 /**
  * A Trait common for optional views style plugins.
@@ -15,11 +15,6 @@ trait BlazyStylePluginTrait {
    * Returns the modified renderable image_formatter to support lazyload.
    */
   public function getImageRenderable(array &$settings, $row, $index) {
-    // @todo remove after another check.
-    if (!isset($settings['blazies'])) {
-      $settings += BlazyDefault::htmlSettings();
-    }
-
     $blazies = $settings['blazies'];
     $image = $this->isImageRenderable($row, $index, $settings['image']);
 
@@ -43,10 +38,11 @@ trait BlazyStylePluginTrait {
       // background option, and other options, and still lazyload it.
       $theme = $image['rendered']['#theme'] ?? '';
       if (in_array($theme, ['blazy', 'image_formatter'])) {
-        $settings['uri'] = BlazyFile::uri($item);
+        $settings['uri'] = $uri = BlazyFile::uri($item);
+        $blazies->set('uri', $uri);
 
         if ($cache_tags = $image['rendered']['#cache']['tags'] ?? []) {
-          $blazies->set('cache.tags', $cache_tags, TRUE);
+          $blazies->set('cache.file.tags', $cache_tags);
         }
 
         if ($theme == 'blazy') {
@@ -54,8 +50,13 @@ trait BlazyStylePluginTrait {
           // This allows richer contents such as multimedia/ lightbox for free.
           // Yet, ensures the Views style plugin wins over Blazy formatter,
           // such as with GridStack which may have its own breakpoints.
-          $item_settings = array_filter($image['rendered']['#build']['settings']);
-          $settings = array_merge($item_settings, array_filter($settings));
+          $blazy_settings = array_filter($image['rendered']['#build']['settings']);
+          $settings = array_merge($blazy_settings, array_filter($settings));
+
+          // Reserves crucial blazy specific settings.
+          Blazy::preserve($settings, $blazy_settings);
+
+          $settings['blazies'] = $blazy_settings['blazies'];
         }
         elseif ($theme == 'image_formatter') {
           // Deals with "link to content/image" by formatters.

@@ -9,7 +9,7 @@ use Drupal\blazy\Media\BlazyImage;
  * A Trait common for Media integration.
  *
  * This file is no longer used nor needed, and will be removed at 3.x.
- * VEF will continue working via BlazyOEmbed instead.
+ * VEF will continue working without this file via BlazyOEmbed instead.
  *
  * BVEF doesn't need this file.
  *

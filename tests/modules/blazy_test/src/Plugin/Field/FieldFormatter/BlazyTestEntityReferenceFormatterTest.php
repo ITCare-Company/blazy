@@ -94,8 +94,7 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase imp
   public function getScopedFormElements() {
     $admin       = $this->admin();
     $target_type = $this->getFieldSetting('target_type');
-    $views_ui    = $this->getFieldSetting('handler') == 'default';
-    $bundles     = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
+    $bundles     = $this->getAvailableBundles();
     $node        = $admin->getFieldOptions($bundles, ['entity_reference'], $target_type, 'node');
     $stages      = $admin->getFieldOptions($bundles, ['image'], $target_type);
 
