@@ -68,9 +68,8 @@ class BlazyDefault {
    */
   public static function baseSettings() {
     $settings = [
-      'cache'             => 0,
-      'current_view_mode' => '',
-      'skin'              => '',
+      'cache' => 0,
+      'skin'  => '',
     ] + self::anywhereSettings();
 
     blazy_alterable_settings($settings);
@@ -112,8 +111,10 @@ class BlazyDefault {
   public static function deprecatedSettings() {
     return [
       'breakpoints' => [],
-      'icon'        => '',
-      'sizes'       => '',
+      'current_view_mode' => '',
+      'icon' => '',
+      'id' => '',
+      'sizes' => '',
       'grid_header' => '',
     ];
   }
@@ -235,7 +236,6 @@ class BlazyDefault {
    */
   public static function blazies() {
     return [
-      '_api' => FALSE,
       'box' => ['resimage' => []],
       'box_media' => [],
       'bgs' => [],
@@ -251,7 +251,9 @@ class BlazyDefault {
       'media' => [],
       'item' => ['delta' => 0],
       'resimage' => ['sources' => [], 'style' => NULL],
+      'switch' => NULL,
       'thumbnail' => [],
+      'view' => [],
     ];
   }
 
@@ -299,8 +301,6 @@ class BlazyDefault {
       'embed_url'      => '',
       'extension'      => '',
       'image_url'      => '',
-      'placeholder_fx' => '',
-      'placeholder_ui' => '',
       'scheme'         => '',
       'type'           => 'image',
       'uri'            => '',
@@ -315,6 +315,8 @@ class BlazyDefault {
       'item_id'        => 'blazy',
       'lazy_attribute' => 'src',
       'lazy_class'     => 'b-lazy',
+      'placeholder_fx' => '',
+      // 'placeholder_ui' => '',
       // 'player'         => FALSE,
       // 'entity_type_id' => '',
     ] + self::htmlSettings();

@@ -131,7 +131,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    *   Whether the expected output is an image.
    *
    * @covers \Drupal\blazy\Theme\BlazyTheme::blazy
-   * @covers \Drupal\blazy\Media\BlazyImage::urlAndDimensions
+   * @covers \Drupal\blazy\Media\BlazyImage::prepare
    * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @covers \Drupal\blazy\BlazyManager::postSettings
    * @covers \Drupal\blazy\Media\BlazyOEmbed::build
@@ -142,9 +142,13 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $variables = ['attributes' => []];
     $settings = array_merge($this->getFormatterSettings(), $settings);
     $settings += BlazyDefault::itemSettings();
+    $blazies = $settings['blazies'];
+    $id = 'blazy';
 
-    $settings['blazy']           = TRUE;
-    $settings['lazy']            = 'blazy';
+    $blazies->set('item.id', $id)
+      ->set('is.blazy', TRUE)
+      ->set('lazy.id', $id);
+
     $settings['image_style']     = 'blazy_crop';
     $settings['thumbnail_style'] = 'thumbnail';
     $settings['uri']             = $use_uri ? $this->uri : '';

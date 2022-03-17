@@ -54,8 +54,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $entity_type_id = $blazies->get('entity.type_id');
     $entity_id      = $blazies->get('entity.id');
     $bundle         = $blazies->get('entity.bundle');
-    $view_mode      = $settings['current_view_mode'] ?? 'default';
-    $view_mode      = $blazies->get('field.view_mode', $view_mode);
+    $view_mode      = $blazies->get('field.view_mode', 'default');
     $namespace      = $blazies->get('namespace');
     $id             = $settings['id'] ?? '';
     $gallery_id     = "{$namespace}-{$entity_type_id}-{$bundle}-{$field_clean}-{$view_mode}";

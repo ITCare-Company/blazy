@@ -126,7 +126,6 @@ trait BlazyStyleOptionsTrait {
 
     $definition['plugin_id'] = $this->getPluginId();
     $definition['settings'] = $this->options;
-    $definition['current_view_mode'] = $this->view->current_display;
     $definition['_views'] = TRUE;
 
     // Provides the requested fields based on available $options.

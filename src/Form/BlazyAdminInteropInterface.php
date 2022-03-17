@@ -1,11 +1,15 @@
 <?php
 
-namespace Drupal\blazy\Dejavu;
+namespace Drupal\blazy\Form;
 
 /**
  * Defines interop form methods for different or competing sub-modules.
  *
  * So that Slick can be interchanged with Splide at 3.+, etc. by 3rd-tiers.
+ *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module, or its sub-modules.
  */
 interface BlazyAdminInteropInterface {
 

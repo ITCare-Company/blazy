@@ -55,7 +55,6 @@ abstract class BlazyVideoBase extends FormatterBase {
 
     return [
       'background'        => TRUE,
-      'current_view_mode' => $this->viewMode,
       'entity_type'       => $entity_type,
       'field_name'        => $this->fieldDefinition->getName(),
       'image_style_form'  => TRUE,

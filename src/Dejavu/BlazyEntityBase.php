@@ -92,12 +92,11 @@ abstract class BlazyEntityBase extends EntityReferenceFormatterBase {
     $field = $this->fieldDefinition;
 
     return [
-      'current_view_mode' => $this->viewMode,
-      'field_name'        => $field->getName(),
-      'field_type'        => $field->getType(),
-      'entity_type'       => $field->getTargetEntityTypeId(),
-      'plugin_id'         => $this->getPluginId(),
-      'target_type'       => $this->getFieldSetting('target_type'),
+      'field_name'  => $field->getName(),
+      'field_type'  => $field->getType(),
+      'entity_type' => $field->getTargetEntityTypeId(),
+      'plugin_id'   => $this->getPluginId(),
+      'target_type' => $this->getFieldSetting('target_type'),
     ];
   }
 

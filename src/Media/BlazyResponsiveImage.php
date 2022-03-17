@@ -50,8 +50,9 @@ class BlazyResponsiveImage {
       // To make compatible with old bLazy which expects no placeholder, provide
       // a real smallest image. Bio will map it to the current breakpoint later.
       $bg = reset($srcset);
-      $unlazy = $settings['unlazy'] = $blazies->is('undata');
+      $unlazy = $blazies->is('undata');
       $settings['image_url'] = $unlazy ? $settings['image_url'] : $bg['src'];
+      $blazies->set('is.unlazy', $unlazy);
       BlazyAttribute::lazy($attributes, $settings);
     }
   }
@@ -175,7 +176,7 @@ class BlazyResponsiveImage {
       $fallback = $resimage->getFallbackImageStyle();
       if ($fallback == '_empty image_') {
         $placeholder = Placeholder::generate($settings['width'], $settings['height']);
-        $settings['image_url'] = $blazies->get('ui.placeholder') ?: $placeholder;
+        $settings['image_url'] = $blazies->get('placeholder') ?: $placeholder;
       }
       else {
         $settings['image_style'] = $fallback;
@@ -191,8 +192,8 @@ class BlazyResponsiveImage {
     $styles = BlazyResponsiveImage::styles($resimage);
 
     $blazies->set('resimage.id', $id)
-      ->set('resimage.caches', $styles['caches'])
-      ->set('resimage.styles', $styles['styles']);
+      ->set('resimage.caches', $styles['caches'] ?? [])
+      ->set('resimage.styles', $styles['styles'] ?? []);
   }
 
   /**

@@ -82,11 +82,10 @@ trait BlazyUnitTestTrait {
    */
   protected function getDefaultFieldDefinition() {
     return [
-      'bundle'            => $this->bundle ?? 'bundle_test',
-      'current_view_mode' => 'default',
-      'entity_type'       => $this->entityType,
-      'field_name'        => $this->testFieldName,
-      'field_type'        => 'image',
+      'bundle'      => $this->bundle ?? 'bundle_test',
+      'entity_type' => $this->entityType,
+      'field_name'  => $this->testFieldName,
+      'field_type'  => 'image',
     ];
   }
 

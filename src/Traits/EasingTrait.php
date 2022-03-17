@@ -1,11 +1,15 @@
 <?php
 
-namespace Drupal\blazy\Dejavu;
+namespace Drupal\blazy\Traits;
 
 /**
  * A Trait for easings, common for Splide, Slick, etc.
+ *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module, or its sub-modules.
  */
-trait BlazyEasingTrait {
+trait EasingTrait {
 
   /**
    * The JS easing options.

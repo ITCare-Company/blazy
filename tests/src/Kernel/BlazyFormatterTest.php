@@ -109,10 +109,11 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $settings = &$format['settings'];
     $blazies = $settings['blazies'];
 
+    $blazies->set('is.blazy', TRUE)
+      ->set('lazy.id', 'blazy');
+
     $settings['bundle']          = $this->bundle;
-    $settings['blazy']           = TRUE;
     $settings['grid']            = 0;
-    $settings['lazy']            = 'blazy';
     $settings['background']      = TRUE;
     $settings['thumbnail_style'] = 'thumbnail';
     $settings['ratio']           = 'enforced';
@@ -209,7 +210,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
         $field[0] = $render;
         $field['#settings'] = $settings;
-        $wrap = BlazyMedia::wrap($field, $settings);
+        $wrap = BlazyMedia::unfield($field, $settings);
         $this->assertNotEmpty($wrap);
 
         $render = $this->blazyManager->getRenderer()->renderRoot($build[$this->testFieldName]);

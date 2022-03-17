@@ -85,7 +85,8 @@ function blazy_preprocess_media_oembed_iframe(array &$variables) {
  * Implements hook_preprocess_field().
  */
 function blazy_preprocess_field(array &$variables) {
-  if (isset($variables['element']['#blazy']) || !empty($variables['element']['#third_party_settings']['blazy']['blazy'])) {
+  if (isset($variables['element']['#blazy'])
+    || !empty($variables['element']['#third_party_settings']['blazy']['blazy'])) {
     BlazyTheme::field($variables);
   }
 }
@@ -94,7 +95,8 @@ function blazy_preprocess_field(array &$variables) {
  * Implements hook_preprocess_views_view().
  */
 function blazy_preprocess_views_view(array &$variables) {
-  if (!empty($variables['css_class']) && strpos($variables['css_class'], 'blazy--') !== FALSE) {
+  if (!empty($variables['css_class'])
+    && strpos($variables['css_class'], 'blazy--') !== FALSE) {
     if ($lightboxes = blazy()->getLightboxes()) {
       BlazyViews::preprocessViewsView($variables, $lightboxes);
     }
@@ -202,9 +204,8 @@ function blazy_filter_cleanup($module = 'blazy') {
   // Removes unclean [module]_filter references, see #3257390.
   foreach ($config_storage->listAll('filter.format') as $config_name) {
     $config = $config_factory->getEditable($config_name);
-    $plugin = $config->get($filter);
 
-    if ($plugin) {
+    if ($plugin = $config->get($filter)) {
       $dependencies = $config->get('dependencies');
       $modules = array_diff($dependencies['module'], [$module]);
 

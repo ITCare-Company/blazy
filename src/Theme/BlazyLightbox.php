@@ -12,6 +12,10 @@ use Drupal\blazy\Media\BlazyImage;
 
 /**
  * Provides lightbox utilities.
+ *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
  */
 class BlazyLightbox {
 
@@ -47,6 +51,7 @@ class BlazyLightbox {
     $valid      = BlazyFile::isValidUri($uri);
     $box_style  = $blazies->get('box.style');
     $box_url    = $url = BlazyFile::transformRelative($uri);
+    $colorbox   = $blazies->get('colorbox');
 
     // Provide relevant URL if it is a lightbox.
     $url_attributes = &$element['#url_attributes'];
@@ -60,7 +65,7 @@ class BlazyLightbox {
 
     // Respects colorbox settings unless for an explicit view gallery.
     if (!$gallery_enabled
-      && $blazies->get('colorbox')
+      && $colorbox
       && function_exists('colorbox_theme')) {
       $gallery_enabled = (bool) $manager->configLoad('custom.slideshow.slideshow', 'colorbox.settings');
     }
@@ -91,20 +96,18 @@ class BlazyLightbox {
     // Supports local and remote videos, also legacy VEF which has no bundles.
     // See https://drupal.org/node/3210636#comment-14097266.
     $is_multimedia = $blazies->is('multimedia');
-
-    if (!empty($settings['box_style']) && $valid) {
+    if (!$is_multimedia && !empty($settings['box_style']) && $valid) {
       try {
         // The _responsive_image_build_source_attributes is WSOD if missing.
-        if ($resimage = $blazies->get('box.resimage.style')) {
-          if (!$is_multimedia && empty($element['#lightbox_html'])) {
-            $is_resimage = TRUE;
-            $json['type'] = 'rich';
-            $element['#lightbox_html'] = [
-              '#theme' => 'responsive_image',
-              '#responsive_image_style_id' => $resimage->id(),
-              '#uri' => $uri,
-            ];
-          }
+        $resimage = $blazies->get('box.resimage.style');
+        if ($resimage && empty($element['#lightbox_html'])) {
+          $is_resimage = TRUE;
+          $json['type'] = 'rich';
+          $element['#lightbox_html'] = [
+            '#theme' => 'responsive_image',
+            '#responsive_image_style_id' => $resimage->id(),
+            '#uri' => $uri,
+          ];
         }
       }
       catch (\Exception $e) {
@@ -141,14 +144,10 @@ class BlazyLightbox {
       $json['height'] = 360;
 
       if ($embed = $blazies->get('media.embed_url')) {
-        $url = $embed;
-
         // Force autoplay for media URL on lightboxes, saving another click.
         // BC for non-oembed such as Video Embed Field without Media migration.
-        if (strpos($url, 'autoplay') === FALSE
-          || strpos($url, 'autoplay=0') !== FALSE) {
-          $url = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
-        }
+        $url = Blazy::autoplay($embed);
+
         $url_attributes['data-oembed-url'] = $url;
         $json['boxType'] = 'iframe';
       }
@@ -177,7 +176,7 @@ class BlazyLightbox {
       ->set('box.height', $box_height)
       ->set('box.media_url', $box_media_url);
 
-    if ($switch == 'colorbox' && $gallery_id) {
+    if ($colorbox && $gallery_id) {
       // @todo make Blazy Grid without Blazy Views fields support multiple
       // fields and entities as a gallery group, likely via a class at Views UI.
       // Must use consistent key for multiple entities, hence cannot use id.

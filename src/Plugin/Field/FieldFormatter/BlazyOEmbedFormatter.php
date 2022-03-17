@@ -65,8 +65,11 @@ class BlazyOEmbedFormatter extends FormatterBase {
     $field_name = $blazies->get('field.name');
 
     foreach ($items as $delta => $item) {
-      $main_property = $item->getFieldDefinition()->getFieldStorageDefinition()->getMainPropertyName();
-      $value = trim($item->{$main_property});
+      $main_property = $item->getFieldDefinition()
+        ->getFieldStorageDefinition()
+        ->getMainPropertyName();
+
+      $value = $item->{$main_property};
 
       if (empty($value)) {
         continue;
@@ -86,7 +89,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
       }
 
       // Media OEmbed with lazyLoad and lightbox supports.
-      $build[$delta] = $this->formatter->getBlazy($data);
+      $build[$delta] = $this->formatter->getBlazy($data, $delta);
     }
   }
 

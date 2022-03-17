@@ -68,7 +68,7 @@
 }
 
 .media:hover .media__icon--litebox,
-.media--switch .media__image {
+.media--switch img.media__element {
   opacity: 1;
   visibility: visible;
 }

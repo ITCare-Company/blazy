@@ -93,7 +93,7 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       $this->blazyOembed->build($data, $entity);
 
       // Image with responsive image, lazyLoad, and lightbox supports.
-      $build[$delta] = $this->formatter->getBlazy($data);
+      $build[$delta] = $this->formatter->getBlazy($data, $delta);
       unset($data);
     }
   }

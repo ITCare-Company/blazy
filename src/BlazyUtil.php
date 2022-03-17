@@ -12,6 +12,8 @@ use Drupal\blazy\Media\BlazyImage;
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
+ *
+ * @todo move into Utility namespace after sub-modules.
  */
 class BlazyUtil {
 
@@ -33,6 +35,7 @@ class BlazyUtil {
   public static function sanitize(array $attributes = [], $escaped = TRUE): array {
     $clean_attributes = [];
     $tags = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];
+
     foreach ($attributes as $key => $value) {
       if (is_array($value)) {
         // Respects array item containing space delimited classes: aaa bbb ccc.

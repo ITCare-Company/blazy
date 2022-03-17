@@ -6,7 +6,6 @@ use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Dejavu\BlazyEntityReferenceBase;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
 use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -18,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   field_types = {"entity_reference", "file"}
  * )
  */
-class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase implements ContainerFactoryPluginInterface {
+class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase {
 
   use BlazyFormatterTrait;
 
@@ -73,19 +72,6 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase imp
 
     // Pass to manager for easy updates to all Blazy formatters.
     return $this->formatter->build($build);
-  }
-
-  /**
-   * Builds the settings.
-   */
-  public function buildSettings() {
-    $settings              = $this->getSettings();
-    $settings['blazy']     = TRUE;
-    $settings['lazy']      = 'blazy';
-    $settings['item_id']   = 'box';
-    $settings['plugin_id'] = $this->getPluginId();
-
-    return $settings;
   }
 
   /**

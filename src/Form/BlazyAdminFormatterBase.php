@@ -155,8 +155,6 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     $image_styles = $this->getEntityAsOptions('image_style');
     $lightboxes   = $this->blazyManager->getLightboxes();
 
-    $excludes['current_view_mode'] = TRUE;
-
     if ($blazy) {
       $excludes['optionset'] = TRUE;
     }

@@ -101,7 +101,7 @@ class BlazyUnitTest extends UnitTestCase {
    *   Whether to expect an iframe, or not.
    *
    * @covers \Drupal\blazy\Theme\BlazyTheme::blazy
-   * @covers \Drupal\blazy\Media\BlazyImage::urlAndDimensions
+   * @covers \Drupal\blazy\Media\BlazyImage::prepare
    * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @dataProvider providerPreprocessBlazy
    */
@@ -112,14 +112,14 @@ class BlazyUnitTest extends UnitTestCase {
     $settings += BlazyDefault::itemSettings();
     $blazies   = $settings['blazies'];
 
-    $settings['blazy']           = TRUE;
-    $settings['lazy']            = 'blazy';
     $settings['image_style']     = '';
     $settings['thumbnail_style'] = '';
 
-    $blazies->set('entity.url', $settings['content_url'] ?? '');
-    $blazies->set('media.embed_url', $settings['embed_url'] ?? '');
-    $blazies->set('media.type', $settings['type'] ?? '');
+    $blazies->set('is.blazy', TRUE)
+      ->set('lazy.id', 'blazy')
+      ->set('entity.url', $settings['content_url'] ?? '')
+      ->set('media.embed_url', $settings['embed_url'] ?? '')
+      ->set('media.type', $settings['type'] ?? '');
 
     if (!empty($settings['embed_url'])) {
       $settings = array_merge(BlazyDefault::entitySettings(), $settings);
@@ -136,7 +136,8 @@ class BlazyUnitTest extends UnitTestCase {
     $this->assertTrue($image);
     $this->assertTrue($iframe);
 
-    $this->assertEquals($settings['blazy'], $variables['settings']['blazy']);
+    $processed = $variables['settings']['blazies'];
+    $this->assertEquals($blazies->get('lazy.id'), $processed->get('lazy.id'));
   }
 
   /**

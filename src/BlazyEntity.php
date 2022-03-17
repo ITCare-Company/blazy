@@ -255,9 +255,9 @@ class BlazyEntity implements BlazyEntityInterface {
    */
   public function getFieldTextOrLink($entity, $field_name, $settings, $multiple = TRUE) {
     if ($entity->hasField($field_name)) {
-      $blazies  = $settings['blazies'] ?? NULL;
+      $blazies  = $settings['blazies'];
       $langcode = $settings['langcode'] ?? '';
-      $langcode = $blazies ? $blazies->get('current_language') : $langcode;
+      $langcode = $blazies->get('current_language', $langcode);
 
       if ($text = $this->getFieldValue($entity, $field_name, $langcode)) {
         if (!empty($text[0]['value']) && !isset($text[0]['uri'])) {
@@ -322,8 +322,6 @@ class BlazyEntity implements BlazyEntityInterface {
 
     $blazies->set('entity', $info);
 
-    // The `current_view_mode` (entity|views display) is not `view_mode` option.
-    $settings['current_view_mode'] = $settings['current_view_mode'] ?: '_custom';
     $settings['bundle'] = $entity->bundle();
 
     // @todo remove after migration and sub-modules.

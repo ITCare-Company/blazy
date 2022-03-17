@@ -25,6 +25,27 @@ trait BlazyFormatterTrait {
   protected $blazyManager;
 
   /**
+   * The logger factory.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
+   */
+  protected $loggerFactory;
+
+  /**
+   * The blazy entity service.
+   *
+   * @var \Drupal\blazy\BlazyEntityInterface
+   */
+  protected $blazyEntity;
+
+  /**
+   * The blazy oembed service.
+   *
+   * @var \Drupal\blazy\Media\BlazyOEmbedInterface
+   */
+  protected $blazyOembed;
+
+  /**
    * Returns the blazy formatter manager.
    */
   public function formatter() {
@@ -36,6 +57,20 @@ trait BlazyFormatterTrait {
    */
   public function blazyManager() {
     return $this->blazyManager;
+  }
+
+  /**
+   * Returns the blazy entity manager.
+   */
+  public function blazyEntity() {
+    return $this->blazyEntity;
+  }
+
+  /**
+   * Returns the blazy oembed manager.
+   */
+  public function blazyOembed() {
+    return $this->blazyOembed;
   }
 
   /**
@@ -105,8 +140,7 @@ trait BlazyFormatterTrait {
       ->set('namespace', $id);
 
     // @todo remove settings after migration and sub-modules.
-    $settings['item_id'] = $settings['lazy'] = $id;
-    $settings['blazy'] = TRUE;
+    $settings['item_id'] = $id;
   }
 
   /**
@@ -117,15 +151,14 @@ trait BlazyFormatterTrait {
   public function getCommonFieldDefinition() {
     $field = $this->fieldDefinition;
 
-    // @todo use blazies.
+    // @todo remove for blazies after sub-modules.
     $settings = [
-      'namespace'        => 'blazy',
-      'current_view_mode' => $this->viewMode,
-      'field_name'        => $field->getName(),
-      'field_type'        => $field->getType(),
-      'entity_type'       => $field->getTargetEntityTypeId(),
-      'plugin_id'         => $this->getPluginId(),
-      'target_type'       => $this->getFieldSetting('target_type'),
+      'namespace'   => 'blazy',
+      'field_name'  => $field->getName(),
+      'field_type'  => $field->getType(),
+      'entity_type' => $field->getTargetEntityTypeId(),
+      'plugin_id'   => $this->getPluginId(),
+      'target_type' => $this->getFieldSetting('target_type'),
     ];
     $settings += BlazyDefault::htmlSettings();
     return $settings;

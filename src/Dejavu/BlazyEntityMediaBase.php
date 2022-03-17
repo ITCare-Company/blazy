@@ -16,20 +16,6 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
   use BlazyDependenciesTrait;
 
   /**
-   * Returns the slick service.
-   */
-  public function blazyEntity() {
-    return $this->blazyEntity;
-  }
-
-  /**
-   * Returns the slick service.
-   */
-  public function blazyOembed() {
-    return $this->blazyOembed;
-  }
-
-  /**
    * Returns media contents.
    */
   public function buildElements(array &$build, $entities, $langcode) {
@@ -94,7 +80,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityBase {
 
     // Optional image with responsive image, lazyLoad, and lightbox supports.
     // Including potential rich Media contents: local video, Facebook, etc.
-    $blazy = $this->formatter()->getBlazy($element);
+    $blazy = $this->formatter()->getBlazy($element, $delta);
 
     // If the caller is Blazy, provides simple index elements.
     if ($blazies->get('namespace') == 'blazy') {

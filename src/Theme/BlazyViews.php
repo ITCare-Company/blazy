@@ -6,6 +6,10 @@ use Drupal\Component\Utility\NestedArray;
 
 /**
  * Provides optional Views integration.
+ *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
  */
 class BlazyViews {
 

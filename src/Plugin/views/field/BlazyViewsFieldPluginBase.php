@@ -146,7 +146,6 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
 
     // @todo convert some to blazies, and remove tese settings.
     $settings['count'] = $count;
-    $settings['current_view_mode'] = $view_mode;
     $settings['view_name'] = $view_name;
     $settings['view_plugin_id'] = $plugin_id;
     $settings['namespace'] = 'blazy';

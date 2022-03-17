@@ -6,7 +6,6 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Placeholder;
 
@@ -72,9 +71,11 @@ class BlazyTheme {
     $settings += BlazyDefault::itemSettings();
     $blazies = $settings['blazies'];
     $item = $variables['item'];
+    $api = $blazies->is('api');
 
-    // Prepares the minimum settings to start.
-    if (!$blazies->get('_api')) {
+    // Still provides a failsafe for direct call to theme_blazy().
+    if (!$api) {
+      Blazy::lazyOrNot($settings);
       Blazy::prepare($settings, $item);
     }
 
@@ -86,11 +87,8 @@ class BlazyTheme {
 
     // URL and dimensions are built out at BlazyManager::preRenderBlazy().
     // Still provides a failsafe for direct call to theme_blazy().
-    if (!$blazies->get('_api')) {
-      // Prepares URI, extension, image styles, lightboxes.
-      BlazyFile::prepare($settings, $item);
-      BlazyImage::urlAndDimensions($settings, $item);
-      Blazy::lazyOrNot($settings);
+    if (!$api) {
+      Blazy::prepared($attributes, $settings, $item);
     }
 
     // Allows rich Media entities stored within `content` to take over.
@@ -110,7 +108,7 @@ class BlazyTheme {
     $variables['blazies'] = $settings['blazies']->storage();
 
     // Still provides a failsafe for direct call to theme_blazy().
-    if (!$blazies->get('_api')) {
+    if (!$api) {
       Blazy::attach($variables, $settings);
     }
   }
@@ -121,7 +119,7 @@ class BlazyTheme {
   public static function field(array &$variables): void {
     $element = &$variables['element'];
     $settings = empty($element['#blazy']) ? [] : $element['#blazy'];
-    $blazies = $settings['blazies'];
+    $blazies = $settings['blazies'] ?? NULL;
 
     // 1. Hence Blazy is not the formatter, lacks of settings.
     if (!empty($element['#third_party_settings']['blazy']['blazy'])) {
@@ -129,7 +127,7 @@ class BlazyTheme {
     }
 
     // 2. Hence Blazy is the formatter, has its settings.
-    if (!$blazies->is('grid')) {
+    if ($blazies && !$blazies->is('grid')) {
       BlazyAttribute::container($variables['attributes'], $settings);
     }
   }
@@ -183,7 +181,7 @@ class BlazyTheme {
   public static function responsiveImage(array &$variables): void {
     $image = &$variables['img_element'];
     $attributes = &$variables['attributes'];
-    $placeholder = empty($attributes['data-placeholder']) ? Placeholder::DATA : $attributes['data-placeholder'];
+    $placeholder = $attributes['data-b-placeholder'] ?? Placeholder::DATA;
 
     // Bail out if a noscript is requested.
     // @todo figure out to not even enter this method, yet not break ratio, etc.
@@ -223,8 +221,8 @@ class BlazyTheme {
     }
 
     // Cleans up the no-longer needed flags:
-    foreach (['placeholder', 'b-lazy', 'b-noscript'] as $key) {
-      unset($attributes['data-' . $key], $image['#attributes']['data-' . $key]);
+    foreach (['lazy', 'noscript', 'placeholder'] as $key) {
+      unset($attributes['data-b-' . $key], $image['#attributes']['data-b-' . $key]);
     }
   }
 
@@ -291,12 +289,11 @@ class BlazyTheme {
    */
   public static function getAutoPlayUrl(?string $url): array {
     $data = [];
+
     if (!empty($url)) {
       $data['oembed_url'] = $url;
       // Adds autoplay for media URL on lightboxes, saving another click.
-      if (strpos($url, 'autoplay') === FALSE || strpos($url, 'autoplay=0') !== FALSE) {
-        $data['autoplay_url'] = strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
-      }
+      $data['autoplay_url'] = Blazy::autoplay($url);
     }
     return $data;
   }

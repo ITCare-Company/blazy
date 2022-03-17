@@ -149,7 +149,7 @@ class BlazyAttribute {
     // Native lazyload just loads the URL directly.
     // With many videos like carousels on the page may chaos, but we provide a
     // solution: use `Image to Iframe` for GDPR, swipe and best performance.
-    elseif ($settings['unlazy']) {
+    elseif ($blazies->is('unlazy')) {
       $attributes['src'] = $embed_url;
     }
     // Non-native lazyload for oldies to avoid loading src, the most efficient.
@@ -180,7 +180,7 @@ class BlazyAttribute {
     }
 
     // For CSS fixes.
-    if ($settings['unlazy']) {
+    if ($blazies->is('unlazy')) {
       $classes[] = 'blazy--nojs';
     }
 
@@ -229,7 +229,7 @@ class BlazyAttribute {
     // Slick has its own class and methods: ondemand, anticipative, progressive.
     // The data-[SRC|SCRSET|LAZY] is if `nojs` disabled, background, or video.
     $attribute = $blazies->get('lazy.attribute', $settings['lazy_attribute'] ?? 'src');
-    if (!$settings['unlazy']) {
+    if (!$blazies->is('unlazy')) {
       $attributes['data-' . $attribute] = $settings['image_url'];
     }
   }
@@ -312,7 +312,7 @@ class BlazyAttribute {
 
     // Provides a noscript if so configured, before any lazy defined.
     // Not needed at preview mode, or when native lazyload takes over.
-    if ($blazies->get('ui.noscript') && empty($settings['unlazy'])) {
+    if ($blazies->get('ui.noscript') && !$blazies->is('unlazy')) {
       self::buildNoscriptImage($variables);
     }
 
@@ -334,14 +334,15 @@ class BlazyAttribute {
     if (empty($settings['background'])) {
       $variables['image'] += [
         '#theme' => 'image',
-        '#uri' => $settings['unlazy'] ? $settings['image_url'] : $blazies->get('ui.placeholder'),
+        '#uri' => $blazies->is('unlazy') ? $settings['image_url'] : $blazies->get('placeholder'),
       ];
     }
     else {
       // Attach BG data attributes to a DIV container.
       $blazies->set('bgs.' . $settings['width'], BlazyImage::background($settings));
-      $unlazy = $settings['unlazy'] = $blazies->is('undata');
-      $settings['image_url'] = $unlazy ? $settings['image_url'] : $blazies->get('ui.placeholder');
+      $unlazy = $blazies->is('undata');
+      $settings['image_url'] = $unlazy ? $settings['image_url'] : $blazies->get('placeholder');
+      $blazies->set('is.unlazy', $unlazy);
       self::lazy($attributes, $settings);
     }
   }
@@ -385,9 +386,9 @@ class BlazyAttribute {
     if (empty($settings['background'])) {
       $natives = ['decoding' => 'async'];
 
-      $attributes = ($settings['unlazy'] ? $natives : [
+      $attributes = ($blazies->is('unlazy') ? $natives : [
         'data-b-lazy' => $blazies->get('ui.one_pixel'),
-        'data-placeholder' => $blazies->get('ui.placeholder'),
+        'data-b-placeholder' => $blazies->get('placeholder'),
       ]);
 
       $variables['image'] += [

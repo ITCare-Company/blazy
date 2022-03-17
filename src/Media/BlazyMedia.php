@@ -62,7 +62,7 @@ class BlazyMedia {
     $build = $media->get($source_field)->view($options);
     $build['#settings'] = $settings;
 
-    return isset($build[0]) ? self::wrap($build) : $build;
+    return isset($build[0]) ? self::unfield($build) : $build;
   }
 
   /**
@@ -74,7 +74,7 @@ class BlazyMedia {
    * @return array
    *   The renderable array of the media item to be wrapped by theme_blazy().
    */
-  public static function wrap(array $field = []): array {
+  public static function unfield(array $field = []): array {
     $item     = $field[0];
     $settings = &$field['#settings'];
     $blazies  = $settings['blazies'];

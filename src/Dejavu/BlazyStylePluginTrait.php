@@ -74,7 +74,7 @@ trait BlazyStylePluginTrait {
         // Rebuilds the image for the brand new richer Blazy.
         // With the working Views cache, nothing to worry much.
         $build = ['item' => $item, 'settings' => $settings];
-        $image['rendered'] = $this->blazyManager->getBlazy($build);
+        $image['rendered'] = $this->blazyManager->getBlazy($build, $index);
       }
     }
 

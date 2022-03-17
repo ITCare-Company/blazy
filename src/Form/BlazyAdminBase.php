@@ -294,14 +294,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns shared ending form elements across field formatter and Views.
    */
   public function closingForm(array &$form, $definition = []) {
-    if (isset($definition['current_view_mode'])) {
-      $form['current_view_mode'] = [
-        '#type'          => 'hidden',
-        '#default_value' => $definition['current_view_mode'] ?? '_custom',
-        '#weight'        => 120,
-      ];
-    }
-
     $this->finalizeForm($form, $definition);
   }
 

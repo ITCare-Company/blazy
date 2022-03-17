@@ -7,9 +7,6 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
-use Drupal\blazy\Media\BlazyFile;
-use Drupal\blazy\Media\BlazyImage;
-use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Theme\BlazyLightbox;
 
 /**
@@ -31,22 +28,26 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    *
    * @param array $build
    *   The array containing: item, content, settings, or optional captions.
+   * @param int $delta
+   *   The optional delta.
    *
    * @return array
    *   The alterable and renderable array of enforced content, or theme_blazy().
    */
-  public function getBlazy(array $build = []) {
+  public function getBlazy(array $build = [], $delta = -1) {
     foreach (BlazyDefault::themeProperties() as $key) {
       $build[$key] = $build[$key] ?? [];
     }
 
     $settings = &$build['settings'];
     $settings += BlazyDefault::itemSettings();
-    $blazies = $settings['blazies'];
     $item = $build['item'];
 
-    // Prepares the minimum settings to start.
-    Blazy::prepare($settings, $item);
+    // Prepares settings to start for Field and Views outputs.
+    Blazy::prepare($settings, $item, $delta);
+
+    $blazies = $settings['blazies'];
+    $blazies->set('is.api', TRUE);
 
     // Respects content not handled by theme_blazy(), but passed through.
     // Yet allows rich contents which might still be processed by theme_blazy().
@@ -83,14 +84,12 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $settings = $element['#settings'];
     $blazies = $settings['blazies'];
 
-    if ($switch = $settings['media_switch']) {
-      if ($switch == 'content'
-        && $url = $blazies->get('entity.url')) {
-        $element['#url'] = $url;
-      }
-      elseif ($blazies->get('lightbox')) {
-        BlazyLightbox::build($element);
-      }
+    if ($blazies->get('switch') == 'content'
+      && $url = $blazies->get('entity.url')) {
+      $element['#url'] = $url;
+    }
+    elseif ($blazies->get('lightbox')) {
+      BlazyLightbox::build($element);
     }
 
     return $element;
@@ -110,11 +109,6 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $settings = &$build['settings'];
     $blazies = $settings['blazies'];
 
-    $blazies->set('_api', TRUE);
-
-    // Prepares URI, extension, image styles, lightboxes.
-    BlazyFile::prepare($settings, $item);
-
     foreach (BlazyDefault::themeAttributes() as $key) {
       $key = $key . '_attributes';
       $build[$key] = $build[$key] ?? [];
@@ -125,22 +119,17 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // Skip attributes via $item, or by module, as they are not user-defined.
     $attributes = &$build['attributes'];
 
+    // Prepares extension, image styles, lightboxes.
     // Build thumbnail and optional placeholder based on thumbnail.
-    // Must be set before BlazyImage::urlAndDimensions to provide placeholder.
-    Placeholder::thumbnail($attributes, $settings);
-
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
-    BlazyImage::urlAndDimensions($settings, $item);
+    Blazy::prepared($attributes, $settings, $item);
 
     // Only process (Responsive) image/ video if no rich-media are provided.
     $this->buildContent($element, $build);
     if (empty($build['content'])) {
       $this->buildMedia($element, $build);
     }
-
-    // Must listen to BG `unlazy`.
-    Blazy::lazyOrNot($settings);
 
     // Multi-breakpoint aspect ratio only applies if lazyloaded.
     // These may be set once at formatter level, or per breakpoint above.
@@ -156,8 +145,9 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     }
 
     // Provides captions, if so configured.
+    $id = $blazies->get('item.id');
     if ($build['captions']
-      && ($captions = $this->buildCaption($build['captions'], $settings))) {
+      && ($captions = $this->buildCaption($build['captions'], $settings, $id))) {
       $element['#captions'] = $captions;
       $element['#caption_attributes']['class'][] = $settings['item_id'] . '__caption';
     }
@@ -179,17 +169,18 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
   /**
    * Build captions for both old image, or media entity.
    */
-  public function buildCaption(array $captions, array $settings) {
-    $blazies = $settings['blazies'];
+  protected function buildCaption(array $captions, array $settings, $id = 'blazy') {
     $content = [];
-    $id = $blazies->get('item.id');
+
     foreach ($captions as $key => $caption_content) {
       if ($caption_content) {
         $content[$key]['content'] = $caption_content;
         $content[$key]['tag'] = strpos($key, 'title') !== FALSE ? 'h2' : 'div';
         $class = $key == 'alt' ? 'description' : str_replace('field_', '', $key);
-        $content[$key]['attributes'] = new Attribute();
-        $content[$key]['attributes']->addClass($id . '__caption--' . str_replace('_', '-', $class));
+
+        $attrs = new Attribute();
+        $attrs->addClass($id . '__caption--' . str_replace('_', '-', $class));
+        $content[$key]['attributes'] = $attrs;
       }
     }
 
@@ -210,14 +201,12 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    */
   public function build(array $build = []) {
     $settings = &$build['settings'];
-
     $settings += BlazyDefault::htmlSettings();
     $blazies = $settings['blazies'];
-    $is_grid = $blazies->is('grid');
 
     // This #pre_render doesn't work if called from Views results, hence the
     // output is split either as theme_field() or theme_item_list().
-    if ($is_grid) {
+    if ($blazies->is('grid')) {
       // Take over theme_field() with a theme_item_list(), if so configured.
       // The reason: this is not only fed by field items, but also Views rows.
       $content = [
@@ -286,7 +275,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $settings = $build['settings'] ?? [];
     $blazies = $settings['blazies'] ?? NULL;
 
-    // Supports Blazy multi-breakpoint images if provided, updates $settings.
+    // Supports galeries if provided, updates $settings.
     // Cases: Blazy within Views gallery, or references without direct image.
     // Views may flatten out the array, bail out.
     // What we do here is extract the formatter settings from the first found
@@ -365,15 +354,9 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     }
 
     // Responsive image integration, with/o CSS background so to work with.
-    // Prevents _responsive_image_build_source_attributes from WSOD if missing.
-    // Avoided is_file() check due to ramifications, see #3225859.
-    if ($blazies->get('resimage.style') && !$blazies->is('unstyled')) {
-      try {
-        $this->buildResponsiveImage($element, $attributes, $settings);
-      }
-      catch (\Exception $e) {
-        // Silently failed like regular images when missing rather than WSOD.
-      }
+    $resimage = $blazies->get('resimage');
+    if (!$blazies->is('unstyled') && $caches = $resimage['caches'] ?? []) {
+      $element['#cache']['tags'] = $caches;
     }
 
     // Regular image, with/o CSS background so to work with.
@@ -384,20 +367,9 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // Pass non-rich-media elements to theme_blazy().
     $element['#item_attributes'] = $item_attributes;
 
-    $is_media = $blazies->is('multimedia');
-    $unblur = $is_media && empty($settings['media_switch']);
-    if ($blazies->get('libs.blur') && !$unblur) {
+    if ($blazies->get('libs.blur') && !$blazies->is('unblur')) {
       Placeholder::blur($element, $attributes, $settings);
     }
-  }
-
-  /**
-   * Build out Responsive image.
-   */
-  private function buildResponsiveImage(array &$element, array &$attributes, array &$settings) {
-    $blazies = $settings['blazies'];
-    $resimage = $blazies->get('resimage');
-    $element['#cache']['tags'] = $resimage['caches'];
   }
 
   /**
@@ -406,20 +378,22 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
   private function buildImage(array &$element, array &$attributes, array &$item_attributes, array &$settings) {
     $blazies = $settings['blazies'];
 
-    if (!$blazies->get('cache.disabled', FALSE)) {
-      $fallback = $settings['file_tags'] ?? [];
-      if ($tags = $blazies->get('cache.file.tags', $fallback)) {
-        $blazies->set('cache.file.tags', $tags);
-      }
+    if ($blazies->get('cache.disabled', FALSE)) {
+      return;
+    }
 
-      $element['#cache']['max-age'] = -1;
-      foreach (['contexts', 'keys', 'tags'] as $key) {
-        if ($cache = $blazies->get('cache.' . $key)) {
-          if ($key == 'tags' && $tags) {
-            $cache = Cache::mergeTags($cache, $tags);
-          }
-          $element['#cache'][$key] = $cache;
+    $fallback = $settings['file_tags'] ?? [];
+    if ($tags = $blazies->get('cache.file.tags', $fallback)) {
+      $blazies->set('cache.file.tags', $tags);
+    }
+
+    $element['#cache']['max-age'] = -1;
+    foreach (['contexts', 'keys', 'tags'] as $key) {
+      if ($cache = $blazies->get('cache.' . $key)) {
+        if ($key == 'tags' && $tags) {
+          $cache = Cache::mergeTags($cache, $tags);
         }
+        $element['#cache'][$key] = $cache;
       }
     }
   }

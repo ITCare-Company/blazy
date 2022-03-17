@@ -352,7 +352,7 @@ class BlazyImage {
   }
 
   /**
-   * Builds URLs, cache tags, and dimensions for an individual image.
+   * Prepares URLs, placeholder, and dimensions for an individual image.
    *
    * Respects a few scenarios:
    * 1. Blazy Filter or unmanaged file with/ without valid URI.
@@ -369,8 +369,7 @@ class BlazyImage {
    * @param object $item
    *   The image item.
    */
-  public static function urlAndDimensions(array &$settings, $item = NULL): void {
-
+  public static function prepare(array &$settings, $item = NULL): void {
     // BlazyFilter, or image style with crop, may already set these.
     self::dimensions($settings, $item);
 

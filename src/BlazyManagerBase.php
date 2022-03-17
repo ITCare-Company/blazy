@@ -410,26 +410,11 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       || $is_defer
       || $blazies->get('libs.compat');
 
-    // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
-    $is_blazy = $blazies->is('blazy', !empty($settings['blazy']));
-    $is_blazy = $is_blazy || $is_bg || $blazies->get('resimage.style');
-    $lazy = $is_blazy ? 'blazy' : ($settings['lazy'] ?? '');
-    $settings['blazy'] = $is_blazy;
-    $settings['lazy'] = $is_lazy = $is_nojs ? '' : $lazy;
-
-    // @todo re-check after sub-modules which were only aware of `is_preview`.
-    // Basically tricking overrides by the reversed name due to sub-modules are
-    // not updated to the new options `No JavaScript` + `Loading priority`, yet.
-    // As known, Splide/ Slick have their own lazy, but might break till further
-    // updates. Choosing Blazy as their lazyload method is the solution to be
-    // compatible with the mentioned options. Better than sacrificing Native.
-    $settings['unlazy'] = $is_unlazy = empty($is_lazy);
-
     // Some should be refined per item against potential mixed media items.
     $blazies->set('is.amp', $is_amp)
-      ->set('is.blazy', $is_blazy)
+      ->set('is.blur', $is_blur)
+      ->set('is.bg', $is_bg)
       ->set('is.fluid', $is_fluid)
-      ->set('is.lazy', $is_lazy)
       ->set('is.nojs', $is_nojs)
       ->set('is.preview', $is_preview)
       ->set('is.sandboxed', $is_sandboxed)
@@ -440,7 +425,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       ->set('is.unload', $is_unload)
       ->set('is.unloading', $is_unloading)
       ->set('is.resimage', $is_resimage)
-      ->set('is.unlazy', $is_unlazy)
       ->set('item.id', $item_id)
       ->set('libs.animate', $fx)
       ->set('libs.background', $is_bg)
@@ -458,18 +442,26 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
     // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
     if ($switch) {
+      // @todo remove settings after migration and sub-modules.
       $settings[$switch] = $feature = empty($settings[$switch]) ? $switch : $settings[$switch];
+
+      // Lightbox is unique, safe to reserve top level key.
       if ($lightbox) {
         $blazies->set($feature, $feature);
-        $blazies->set('first.lightbox', $feature);
       }
-      else {
-        // Non-lightboxes: media player, link to content, image rendered, etc.
-        $blazies->set('media.switch', $feature);
-      }
+
+      // Non-lightboxes: media player, link to content, image rendered, etc.
+      $blazies->set('switch', $feature);
     }
 
-    $blazies->set('presettings', TRUE);
+    // Checks for [Responsive] image styles.
+    BlazyImage::styles($settings);
+
+    // Checks for lazy.
+    Blazy::lazyOrNot($settings);
+
+    // Marks it processed.
+    $blazies->set('is.presettings', TRUE);
   }
 
   /**
@@ -500,15 +492,12 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
       $blazies->set('is.grid', $is_grid);
 
-      // Checks for [Responsive] image styles.
-      BlazyImage::styles($settings);
-
       // Formatters, Views style, not Filters.
       if (!empty($settings['style'])) {
         BlazyGrid::toNativeGrid($settings);
       }
 
-      $blazies->set('postsettings', TRUE);
+      $blazies->set('is.postsettings', TRUE);
     }
   }
 

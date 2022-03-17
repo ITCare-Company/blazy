@@ -61,7 +61,7 @@ trait BlazyCreationTestTrait {
       $display = $storage->create($values);
     }
 
-    $settings['current_view_mode'] = $settings['view_mode'] = $view_mode;
+    $settings['view_mode'] = $view_mode;
     $display->setComponent($field_name, [
       'type'     => $plugin_id,
       'settings' => $settings,

@@ -6,6 +6,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Plugin\Filter\BlazyFilterUtil as Util;
 
 /**
  * Provides a filter to lazyload image, or iframe elements.
@@ -48,14 +49,14 @@ class BlazyFilter extends BlazyFilterBase {
     $blazies = $settings['blazies'];
 
     if (stristr($text, '[blazy') !== FALSE) {
-      $text = BlazyFilterUtil::unwrap($text, 'blazy', 'item');
+      $text = Util::unwrap($text, 'blazy', 'item');
     }
 
     $dom = Html::load($text);
 
     // Works with individual images and or iframes.
     if (!empty($allowed_tags)) {
-      $nodes = BlazyFilterUtil::validNodes($dom, $allowed_tags, 'data-unblazy');
+      $nodes = Util::validNodes($dom, $allowed_tags, 'data-unblazy');
       if (count($nodes) > 0) {
         foreach ($nodes as $delta => $node) {
           $sets = $settings;
@@ -65,7 +66,7 @@ class BlazyFilter extends BlazyFilterBase {
 
           // @todo remove settings.
           $sets['delta'] = $delta;
-          if ($output = $this->build($node, $sets)) {
+          if ($output = $this->build($node, $sets, $delta)) {
             // @todo remove deprecated too-catch-all post Blazy 3.x.
             if ($blazy->is('grid')) {
               $grid_items[] = $output;
@@ -80,7 +81,7 @@ class BlazyFilter extends BlazyFilterBase {
     }
 
     // Works with grids and entities, not always images or iframes.
-    $nodes = BlazyFilterUtil::validNodes($dom, ['blazy']);
+    $nodes = Util::validNodes($dom, ['blazy']);
     if (count($nodes) > 0) {
       foreach ($nodes as $delta => $node) {
         $sets = $settings;
@@ -90,7 +91,7 @@ class BlazyFilter extends BlazyFilterBase {
 
         // @todo remove settings.
         $sets['delta'] = $delta;
-        if ($output = $this->build($node, $sets)) {
+        if ($output = $this->build($node, $sets, $delta)) {
           $this->render($node, $output);
         }
       }
@@ -101,7 +102,7 @@ class BlazyFilter extends BlazyFilterBase {
     $this->buildGrid($settings, $grid_nodes, $grid_items);
 
     // Adds the attachments.
-    $attach = BlazyFilterUtil::attach($settings);
+    $attach = Util::attach($settings);
     $attachments = $this->blazyManager->attach($attach);
 
     // Cleans up invalid, or moved nodes.
@@ -261,12 +262,12 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * Build the blazy, the node might be grid, or direct img/ iframe.
    */
-  private function build(\DOMElement $node, array &$settings) {
+  private function build(\DOMElement $node, array &$settings, $delta = 0) {
     $blazies = $settings['blazies'];
     if ($node->tagName == 'blazy') {
       $attribute = $node->getAttribute('data');
 
-      $settings['id'] = $id = BlazyFilterUtil::getId($settings['plugin_id']);
+      $settings['id'] = $id = Util::getId($settings['plugin_id']);
 
       $blazies->set('box.id', $id)
         ->set('css.id', $id);
@@ -283,7 +284,7 @@ class BlazyFilter extends BlazyFilterBase {
     }
 
     $build = ['settings' => $settings, 'item' => NULL];
-    return $this->buildItem($build, $node);
+    return $this->buildItem($build, $node, $delta);
   }
 
   /**
@@ -352,13 +353,13 @@ class BlazyFilter extends BlazyFilterBase {
    * Build the blazy using the DOM lookups.
    */
   private function byDom(\DOMElement $object, array &$settings) {
-    $text = BlazyFilterUtil::getHtml($object);
+    $text = Util::getHtml($object);
     if (empty($text)) {
       return [];
     }
 
     $dom = Html::load($text);
-    $nodes = BlazyFilterUtil::getNodes($dom, '//item');
+    $nodes = Util::getNodes($dom, '//item');
     if ($nodes->length == 0) {
       return [];
     }
@@ -375,7 +376,7 @@ class BlazyFilter extends BlazyFilterBase {
       $sets['thumbnail_uri'] = $node->getAttribute('data-thumb');
 
       $element = ['attributes' => [], 'item' => NULL, 'settings' => $sets];
-      $content = $this->buildItem($element, $node) ?: ['#markup' => $dom->saveHtml($node)];
+      $content = $this->buildItem($element, $node, $delta) ?: ['#markup' => $dom->saveHtml($node)];
 
       $element['content'] = $content;
       unset($element['captions']);
@@ -389,17 +390,17 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * Build the individual item.
    */
-  private function buildItem(array &$build, $node) {
+  private function buildItem(array &$build, $node, $delta = 0) {
     $media = NULL;
 
     // If using grid, node is grid item, else img or iframe.
     if ($node->tagName == 'item') {
       $this->buildItemAttributes($build, $node);
-      $text = BlazyFilterUtil::getHtml($node);
+      $text = Util::getHtml($node);
 
       if (!empty($text)) {
         $dom = Html::load($text);
-        $items = BlazyFilterUtil::getNodes($dom, '//iframe | //img');
+        $items = Util::getNodes($dom, '//iframe | //img');
         if ($items->length > 0) {
           $media = $items->item(0);
         }
@@ -431,7 +432,7 @@ class BlazyFilter extends BlazyFilterBase {
       return [];
     }
 
-    return $this->blazyManager->getBlazy($build);
+    return $this->blazyManager->getBlazy($build, $delta);
   }
 
   /**
@@ -444,7 +445,7 @@ class BlazyFilter extends BlazyFilterBase {
     $xpath = new \DOMXPath($dom);
     $nodes = $xpath->query("//*[contains(@class, 'blazy-removed')]");
     if ($nodes->length > 0) {
-      BlazyFilterUtil::removeNodes($nodes);
+      Util::removeNodes($nodes);
     }
   }
 
@@ -525,7 +526,7 @@ class BlazyFilter extends BlazyFilterBase {
       }
 
       // Cleanups old nodes already moved into grids.
-      BlazyFilterUtil::removeNodes($grid_nodes);
+      Util::removeNodes($grid_nodes);
     }
   }
 

@@ -56,6 +56,17 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Provides autoplay URL, relevant for lightboxes to save another click.
+   */
+  public static function autoplay($url): string {
+    if (strpos($url, 'autoplay') === FALSE
+      || strpos($url, 'autoplay=0') !== FALSE) {
+      return strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
+    }
+    return $url;
+  }
+
+  /**
    * Returns the trusted HTML ID of a single instance.
    */
   public static function getHtmlId($string = 'blazy', $id = ''): string {
@@ -87,76 +98,104 @@ class Blazy implements BlazyInterface {
   /**
    * Checks lazy insanity given various features/ media types + loading option.
    *
-   * @todo re-check if any misses, or regressions here.
+   * To address mixed media, and various option which also affects individual
+   * items, see self::prepare().
    */
-  public static function lazyOrNot(array &$settings): void {
+  public static function lazyOrNot(array &$settings) {
     $blazies = $settings['blazies'];
 
-    // Loading `slider` or `unlazy` is more a quasi-loading to vary logic.
-    $unlazy = $blazies->is('slider') && $blazies->is('initial');
-    $settings['unlazy'] = $unlazy ? TRUE : $settings['unlazy'];
+    // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
+    $is_blazy = $blazies->is('blazy', !empty($settings['blazy']));
+    $is_blazy = $is_blazy || $blazies->is('bg') || $blazies->get('resimage.id');
+    $lazy = $is_blazy ? 'blazy' : $settings['lazy'] ?? 'blazy';
+    $lazy = $blazies->get('lazy.id', $lazy);
+    $lazy = $blazies->is('nojs') ? '' : $lazy;
 
-    // @todo remove settings.placeholder|use_media checks after sub-modules.
-    // The SVG placeholder should accept either original, or styled image.
-    $default = Placeholder::generate($settings['width'], $settings['height']);
-    $settings['placeholder'] = $placeholder = $blazies->get('ui.placeholder') ?: $default;
+    // @todo re-check after sub-modules which were only aware of `is_preview`.
+    // Basically tricking overrides by the reversed name due to sub-modules are
+    // not updated to the new options `No JavaScript` + `Loading priority`, yet.
+    // As known, Splide/ Slick have their own lazy, but might break till further
+    // updates. Choosing Blazy as their lazyload method is the solution to be
+    // compatible with the mentioned options. Better than sacrificing Native.
+    $is_unlazy = empty($lazy);
 
-    // @todo remove use_loading after sub-module updates.
-    // @todo better logic to support loader as required, must decouple loader.
-    // @todo $lazy = $settings['loading'] == 'lazy';
-    // @todo $lazy = !empty($settings['blazy']) && ($blazies->get('libs.compat') || $lazy);
-    $use_loader = $settings['use_loading'] ?? '';
-    $use_loader = $settings['unlazy'] ? FALSE : $use_loader;
-
-    $settings['use_loading'] = $use_loader;
-
-    $blazies->set('use.loader', $use_loader);
-    $blazies->set('ui.placeholder', $placeholder);
+    $blazies->set('is.blazy', $is_blazy)
+      ->set('is.unlazy', $is_unlazy)
+      ->set('lazy.id', $lazy);
   }
 
   /**
    * Prepares the minimal settings: URI, delta, initial, and media stuffs.
    *
+   * Checks lazy insanity given various features/ media types + loading option.
    * Bundles should not be coupled with embed_url to allow various bundles
    * and use media.source to be more precise instead.
    *
    * @todo remove most $settings once migrated and after sub-modules and tests.
    * @todo remove $type, a legacy VEF period, which knew no bundles, or sources.
    */
-  public static function prepare(array &$settings, $item = NULL) {
-    $blazies = $settings['blazies'];
-    $delta = $blazies->get('delta', $settings['delta'] ?? 0);
-    $namespace = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
-    $item_id = $blazies->get('item.id', $settings['item_id'] ?? 'blazy');
-    $source = $blazies->get('media.source', 'image');
-    $type = $blazies->get('media.type', $settings['type'] ?? 'image');
-    $bundle = $blazies->get('media.bundle', $settings['bundle'] ?? 'image');
-    $embed_url = $blazies->get('media.embed_url', $settings['embed_url'] ?? '');
-    $videos = ['oembed:video', 'video_embed_field'];
-    $medias = array_merge(['audio_file', 'video_file'], $videos);
-    $is_video = $source && in_array($source, $videos);
-    $is_media = $bundle && in_array($source, $medias);
-    // $is_media = $type && in_array($type, ['audio', 'video']) || $is_media;
-    $is_remote = $embed_url
-      && ($is_video || ($bundle == 'remote_video' || $type == 'video'));
-    $is_iframe = $is_remote && $settings['media_switch'] == '';
-    $is_player = $is_remote && $settings['media_switch'] == 'media';
-    $_uri = $blazies->get('uri', $settings['uri'] ?? '');
-    $settings['uri'] = $uri = $_uri ?: BlazyFile::uri($item);
+  public static function prepare(array &$settings, $item = NULL, $delta = -1) {
+    $blazies    = $settings['blazies'];
+    $index      = $settings['delta'] ?? 0;
+    $delta      = $delta > -1 ? $delta : $blazies->get('delta', $index);
+    $namespace  = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
+    $item_id    = $blazies->get('item.id', $settings['item_id'] ?? 'blazy');
+    $source     = $blazies->get('media.source', 'image');
+    $type       = $blazies->get('media.type', $settings['type'] ?? 'image');
+    $bundle     = $blazies->get('media.bundle', $settings['bundle'] ?? 'image');
+    $embed_url  = $blazies->get('media.embed_url', $settings['embed_url'] ?? '');
+    $videos     = ['oembed:video', 'video_embed_field'];
+    $medias     = array_merge(['audio_file', 'video_file'], $videos);
+    $is_video   = $source && in_array($source, $videos);
+    $is_media   = $bundle && in_array($source, $medias);
+    $is_remote  = $bundle == 'remote_video' || $type == 'video';
+    $is_remote  = $embed_url && ($is_video || $is_remote);
+    $is_iframe  = $is_remote && $settings['media_switch'] == '';
+    $is_player  = $is_remote && $settings['media_switch'] == 'media';
+    $is_unblur  = $is_media && $is_iframe;
+    $_uri       = $blazies->get('uri', $settings['uri'] ?? '');
+    $uri        = $settings['uri'] = $_uri ?: BlazyFile::uri($item);
+    $is_initial = $delta == $blazies->get('initial', -2);
+    $unlazy     = $blazies->is('slider') && $is_initial;
+    $unlazy     = $unlazy ? TRUE : $blazies->is('unlazy');
+    $use_loader = $blazies->get('use.loader', $settings['use_loading'] ?? '');
+    $use_loader = $unlazy ? FALSE : $use_loader;
 
+    // @todo better logic to support loader as required, must decouple loader.
+    // @todo $lazy = $settings['loading'] == 'lazy';
+    // @todo $lazy = !empty($settings['blazy']) && ($blazies->get('libs.compat') || $lazy);
     // Redefines some since this can be fed by anyone, including custom works.
     // Also addresses mixed media unique per item.
     $blazies->set('delta', $delta)
       ->set('item.id', $item_id)
       ->set('is.iframe', $is_iframe)
-      ->set('is.initial', $delta == $blazies->get('initial'))
+      ->set('is.initial', $is_initial)
       ->set('is.multimedia', $is_media)
       ->set('is.player', $is_player)
       ->set('is.remote', $is_remote)
+      ->set('is.unblur', $is_unblur)
       ->set('is.video', $is_remote)
       ->set('namespace', $namespace)
       ->set('media.type', $type)
-      ->set('uri', $uri);
+      ->set('is.unlazy', $unlazy)
+      ->set('uri', $uri)
+      ->set('use.loader', $use_loader);
+  }
+
+  /**
+   * Blazy is prepared, provides few attributes as needed.
+   */
+  public static function prepared(array &$attributes, array &$settings, $item = NULL) {
+    // Prepares extension, image styles, lightboxes.
+    BlazyFile::prepare($settings, $item);
+
+    // Build thumbnail and optional placeholder based on thumbnail.
+    // Must be set before self::url to provide placeholder.
+    Placeholder::prepare($attributes, $settings);
+
+    // Prepare image URL and its dimensions, including for rich-media content,
+    // such as for local video poster image if a poster URI is provided.
+    BlazyImage::prepare($settings, $item);
   }
 
   /**
@@ -175,6 +214,7 @@ class Blazy implements BlazyInterface {
    */
   public static function preserve(array &$settings, array $blazy_settings) {
     $cherries = BlazyDefault::cherrySettings();
+
     foreach ($cherries as $key => $value) {
       $fallback = $settings[$key] ?? $value;
       $settings[$key] = isset($blazy_settings[$key]) && empty($fallback)

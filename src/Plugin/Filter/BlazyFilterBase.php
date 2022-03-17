@@ -114,7 +114,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
     $settings['id'] = $id = BlazyFilterUtil::getId($plugin_id);
     $settings['is_media_library'] = $definitions && isset($definitions['field_media_oembed_video']);
 
-    $this->blazyManager->preSettings($settings);
+    $this->preSettings($settings);
 
     $blazies = $settings['blazies'];
     $exist = $blazies->is('resimage');
@@ -145,6 +145,13 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       ->set('filter.plugin_id', $plugin_id);
 
     return $settings;
+  }
+
+  /**
+   * Prepare settings.
+   */
+  protected function preSettings(array &$settings) {
+    $this->blazyManager->preSettings($settings);
   }
 
   /**

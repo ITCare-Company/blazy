@@ -20,7 +20,7 @@ class Placeholder {
     if (!$blazies->is('unstyled')) {
       $blur = [
         '#theme' => 'image',
-        '#uri' => $settings['placeholder_ui'] ?: $blazies->get('ui.placeholder'),
+        '#uri' => $blazies->get('placeholder'),
         '#attributes' => [
           'class' => ['b-lazy', 'b-blur', 'b-blur--tmp'],
           'data-src' => $settings['placeholder_fx'],
@@ -59,13 +59,19 @@ class Placeholder {
   /**
    * Build thumbnails, also to provide placeholder for blur effect.
    */
-  public static function thumbnail(array &$attributes, array &$settings) {
+  public static function prepare(array &$attributes, array &$settings) {
     $blazies = $settings['blazies'];
-    $settings['placeholder_ui'] = $blazies->get('ui.placeholder');
-    $path = $style = $thumbnail_url = '';
+
+    // The SVG placeholder should accept either original, or styled image.
+    $default = self::generate($settings['width'], $settings['height']);
+    $placeholder = $blazies->get('ui.placeholder', $default);
+
+    // Accepts configurable placeholder, alter, and fallback.
+    $blazies->set('placeholder', $placeholder);
 
     // Supports unique thumbnail different from main image, such as logo for
     // thumbnail and main image for company profile.
+    $path = $style = $thumbnail_url = '';
     if (!empty($settings['thumbnail_uri'])) {
       $path = $settings['thumbnail_uri'];
       $thumbnail_url = BlazyFile::transformRelative($path);

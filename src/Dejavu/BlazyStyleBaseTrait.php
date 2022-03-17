@@ -68,15 +68,14 @@ trait BlazyStyleBaseTrait {
     $blazies = $settings['blazies'];
 
     // Prepare needed settings to work with.
-    // @todo convert some to blazies, and remove these settings.
-    $settings['id']                = $id;
-    $settings['count']             = $count;
-    $settings['current_view_mode'] = $view_mode;
-    $settings['instance_id']       = $instance;
-    $settings['multiple']          = TRUE;
-    $settings['plugin_id']         = $settings['view_plugin_id'] = $plugin_id;
-    $settings['view_name']         = $view_name;
-    $settings['view_display']      = $display;
+    // @todo convert some to blazies, and remove these after sub-modules.
+    $settings['id']           = $id;
+    $settings['count']        = $count;
+    $settings['instance_id']  = $instance;
+    $settings['multiple']     = TRUE;
+    $settings['plugin_id']    = $settings['view_plugin_id'] = $plugin_id;
+    $settings['view_name']    = $view_name;
+    $settings['view_display'] = $display;
 
     $view_info = [
       'display'     => $display,

@@ -254,7 +254,7 @@ class BlazyFile {
   }
 
   /**
-   * Prepares URI, extension, image styles, lightboxes.
+   * Prepares extension, image styles, lightboxes.
    *
    * Also checks if an extension should not use image style: apng svg gif, etc.
    */
