@@ -213,6 +213,7 @@ class BlazyFile {
    * Returns the file entity from any object, or just settings, if applicable.
    */
   public static function item($object = NULL, array $settings = []): ?object {
+    $blazies = $settings['blazies'] ?? NULL;
     $entity = $object;
 
     // Bail out early if we are given what we want.
@@ -238,7 +239,7 @@ class BlazyFile {
     if (!($entity instanceof FileInterface)) {
       if ($manager = Blazy::service('blazy.manager')) {
         $uri = $settings['uri'] ?? '';
-        $uuid = $settings['entity_uuid'] ?? '';
+        $uuid = $blazies ? $blazies->get('entity.uuid') : NULL;
         $file = $uuid ? $manager->loadByUuid($uuid, 'file') : NULL;
 
         if (!$file && self::isValidUri($uri)) {
@@ -377,10 +378,10 @@ class BlazyFile {
       }
     }
     else {
-      $uris = $blazies->get('urls', []);
+      $urls = $blazies->get('urls', []);
       foreach ($uris as $key => $uri) {
         // URI might be empty with mixed media, but indices are preserved.
-        if ($uri && ($url = $uris[$key] ?? NULL)) {
+        if ($uri && ($url = $urls[$key] ?? NULL)) {
           $links[] = $link($url, $uri);
         }
       }

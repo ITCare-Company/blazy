@@ -315,8 +315,8 @@ class BlazyAttribute {
     $attributes['decoding'] = 'async';
 
     // Preserves UUID for sub-module lookups, relevant for BlazyFilter.
-    if (!empty($settings['entity_uuid'])) {
-      $attributes['data-entity-uuid'] = $settings['entity_uuid'];
+    if ($uuid = $blazies->get('entity.uuid')) {
+      $attributes['data-entity-uuid'] = $uuid;
     }
 
     self::common($attributes, $variables['settings']);

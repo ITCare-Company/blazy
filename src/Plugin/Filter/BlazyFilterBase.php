@@ -118,7 +118,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
 
     $settings['plugin_id'] = $plugin_id = $this->getPluginId();
     $settings['id'] = $id = BlazyFilterUtil::getId($plugin_id);
-    $settings['is_media_library'] = $definitions && isset($definitions['field_media_oembed_video']);
+    $is_media_library = $definitions && isset($definitions['field_media_oembed_video']);
 
     $this->preSettings($settings);
 
@@ -126,6 +126,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
     $exist = $blazies->is('resimage');
 
     $blazies->set('is.filter', TRUE)
+      ->set('is.media_library', $is_media_library)
       ->set('is.unsafe', TRUE)
       ->set('libs.filter', TRUE);
 
@@ -328,9 +329,12 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
    */
   public function getImageItemFromImageSrc(array &$build, $node, $src) {
     $settings = &$build['settings'];
+    $blazies = $settings['blazies'];
     // Attempts to get the correct URI with hard-coded URL if applicable.
     $uri = $settings['uri'] = BlazyFile::buildUri($src);
-    $uuid = $settings['entity_uuid'] = $node->getAttribute('data-entity-uuid');
+    $uuid = $node->getAttribute('data-entity-uuid');
+    $blazies->set('entity.uuid', $uuid);
+
     $file = BlazyFile::item(NULL, $settings);
 
     // Uploaded image has UUID with file API.
@@ -338,7 +342,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       $uuid = $uuid ?: $file->uuid();
 
       if ($data = BlazyImage::fromAny($file, $settings)) {
-        $settings['entity_uuid'] = $uuid;
+        $blazies->set('entity.uuid', $uuid);
         $build = NestedArray::mergeDeep($build, $data);
       }
     }
@@ -370,7 +374,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
 
     // @todo figure out to not hard-code `field_media_oembed_video`.
     $media = NULL;
-    if (!empty($settings['is_media_library'])) {
+    if ($blazies->is('media_library')) {
       $media = $this->blazyManager->loadByProperties([
         'field_media_oembed_video' => $blazies->get('media.input_url'),
       ], 'media');
@@ -426,14 +430,13 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       $update = TRUE;
     }
 
+    $settings['width'] = $node->getAttribute('width');
+    $settings['height'] = $node->getAttribute('height');
+
     if ($update) {
       // Checks for [Responsive] image styles at individual items.
       BlazyImage::styles($settings, TRUE);
     }
-
-    $settings['width'] = $node->getAttribute('width');
-    $settings['height'] = $node->getAttribute('height');
-    $settings['media_switch'] = empty($settings['media_switch']) ? $this->settings['media_switch'] : $settings['media_switch'];
   }
 
   /**

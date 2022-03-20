@@ -410,7 +410,6 @@ class BlazyFilter extends BlazyFilterBase {
         $items = Util::getNodes($dom, '//iframe | //img');
 
         if ($items->length > 0) {
-          // $media = $items->item(0);
           $media = Util::getValidNode($items);
         }
       }
