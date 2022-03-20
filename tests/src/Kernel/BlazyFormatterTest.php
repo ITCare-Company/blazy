@@ -49,11 +49,14 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
   }
 
   /**
-   * Tests the Blazy formatter methods.
+   * Tests the Blazy formatter buid methods.
    */
-  public function testBlazyFormatterMethods() {
+  public function testBlazyFormatterCache() {
     // Tests type definition.
-    $this->typeDefinition = $this->blazyAdminFormatter->getTypedConfig()->getDefinition('blazy.settings');
+    $this->typeDefinition = $this->blazyAdminFormatter
+      ->getTypedConfig()
+      ->getDefinition('blazy.settings');
+
     $this->assertEquals('Blazy settings', $this->typeDefinition['label']);
 
     // Tests cache.
@@ -64,10 +67,19 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $this->assertInstanceOf('\Drupal\blazy\BlazyManagerInterface', $this->formatterInstance->blazyManager(), 'BlazyManager implements interface.');
 
     // Tests cache tags matching entity ::getCacheTags().
-    $item = $entity->{$this->testFieldName};
+    $item = $entity->get($this->testFieldName);
     $field = $build[$this->testFieldName];
+
+    // Verify it is a theme_field().
+    $this->assertArrayHasKey('#blazy', $field);
+    $this->assertArrayHasKey('#build', $field[0]);
+
+    // Verify it is not a theme_item_list() grid.
+    $this->assertArrayNotHasKey('#build', $field);
+
     $settings0 = $field[0]['#build']['settings'];
     $settings1 = $field[1]['#build']['settings'];
+
     $blazies0 = $settings0['blazies'];
     $blazies1 = $settings1['blazies'];
     $file0 = $item[0]->entity;
@@ -81,22 +93,42 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     $render = $this->blazyManager->getRenderer()->renderRoot($build);
     $this->assertNotEmpty($render);
+    $this->assertStringContainsString('data-blazy', $render);
+  }
 
+  /**
+   * Tests the Blazy formatter settings form.
+   */
+  public function testBlazySettingsForm() {
     // Tests ::settingsForm.
     $form = [];
 
     // Check for setttings form.
     $form_state = new FormState();
     $elements = $this->formatterInstance->settingsForm($form, $form_state);
+    $this->assertArrayHasKey('opening', $elements);
     $this->assertArrayHasKey('closing', $elements);
+  }
 
+  /**
+   * Tests the Blazy formatter view display.
+   */
+  public function testFormatterViewDisplay() {
     $formatter_settings = $this->formatterInstance->buildSettings();
-    $this->assertArrayHasKey('plugin_id', $formatter_settings);
+    $this->assertArrayHasKey('blazies', $formatter_settings);
 
-    // Tests formatter settings.
+    $blazies = $formatter_settings['blazies'];
+    $this->assertArrayHasKey('field', $blazies->storage());
+
+    $this->assertEquals($this->testPluginId, $blazies->get('field.plugin_id'));
+
+    // 1. Tests formatter settings.
     $build = $this->display->build($this->entity);
 
-    $result = $this->entity->{$this->testFieldName}->view(['type' => 'blazy']);
+    $result = $this->entity
+      ->get($this->testFieldName)
+      ->view(['type' => 'blazy']);
+
     $this->assertEquals('blazy', $result[0]['#theme']);
 
     $component = $this->display->getComponent($this->testFieldName);
@@ -108,15 +140,16 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     $settings = &$format['settings'];
     $blazies = $settings['blazies'];
-
+    // @todo remove.
     $blazies->set('is.blazy', TRUE)
       ->set('lazy.id', 'blazy');
 
+    // 2. Test theme_field(), no grid.
     $settings['bundle']          = $this->bundle;
     $settings['grid']            = 0;
     $settings['background']      = TRUE;
     $settings['thumbnail_style'] = 'thumbnail';
-    $settings['ratio']           = 'enforced';
+    $settings['ratio']           = 'fluid';
     $settings['image_style']     = 'blazy_crop';
 
     try {
@@ -129,15 +162,17 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $this->assertEquals($this->testFieldName, $blazies->get('field.name'));
 
     $settings['vanilla'] = FALSE;
-    $this->blazyFormatter->buildSettings($format, $this->testItems);
+    // $this->blazyFormatter->buildSettings($format, $this->testItems);
+    $this->blazyFormatter->preBuildElements($format, $this->testItems);
 
+    // Blazy uses theme_field() output.
     $this->assertEquals($this->testFieldName, $blazies->get('field.name'));
     $this->assertArrayHasKey('#blazy', $build[$this->testFieldName]);
 
     $options = $this->blazyAdminFormatter->getOptionsetOptions('image_style');
     $this->assertArrayHasKey('large', $options);
 
-    // Tests grid.
+    // 3. Tests grid.
     $new_settings = $this->getFormatterSettings();
 
     $new_settings['grid']         = '4';
@@ -155,7 +190,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     $build = $this->display->build($this->entity);
 
-    // Verify theme_field() is taken over by BlazyGrid::build().
+    // Verify theme_field() is taken over by Grid::build().
     $this->assertArrayNotHasKey('#blazy', $build[$this->testFieldName]);
   }
 

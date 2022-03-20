@@ -5,6 +5,7 @@ namespace Drupal\blazy\Plugin\Filter;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\filter\FilterProcessResult;
+use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Plugin\Filter\BlazyFilterUtil as Util;
 
@@ -269,7 +270,7 @@ class BlazyFilter extends BlazyFilterBase {
 
       $settings['id'] = $id = Util::getId($settings['plugin_id']);
 
-      $blazies->set('box.id', $id)
+      $blazies->set('lightbox.gallery_id', $id)
         ->set('css.id', $id);
 
       $blazies->set('is.blazy_tag', TRUE);
@@ -372,9 +373,8 @@ class BlazyFilter extends BlazyFilterBase {
       }
 
       $sets = $build['settings'];
-      $sets['delta'] = $delta;
-      $sets['thumbnail_uri'] = $node->getAttribute('data-thumb');
-
+      // $sets['delta'] = $delta;
+      // $sets['thumbnail_uri'] = $node->getAttribute('data-thumb');
       $element = ['attributes' => [], 'item' => NULL, 'settings' => $sets];
       $content = $this->buildItem($element, $node, $delta) ?: ['#markup' => $dom->saveHtml($node)];
 
@@ -391,7 +391,14 @@ class BlazyFilter extends BlazyFilterBase {
    * Build the individual item.
    */
   private function buildItem(array &$build, $node, $delta = 0) {
-    $media = NULL;
+    $media     = NULL;
+    $settings  = &$build['settings'];
+    $settings += BlazyDefault::itemSettings();
+    $blazies   = $settings['blazies']->reset($settings);
+    $tn_uri    = $node->getAttribute('data-thumb');
+
+    $blazies->set('delta', $delta)
+      ->set('thumbnail.uri', $tn_uri);
 
     // If using grid, node is grid item, else img or iframe.
     if ($node->tagName == 'item') {
@@ -401,8 +408,10 @@ class BlazyFilter extends BlazyFilterBase {
       if (!empty($text)) {
         $dom = Html::load($text);
         $items = Util::getNodes($dom, '//iframe | //img');
+
         if ($items->length > 0) {
-          $media = $items->item(0);
+          // $media = $items->item(0);
+          $media = Util::getValidNode($items);
         }
       }
     }
@@ -425,7 +434,8 @@ class BlazyFilter extends BlazyFilterBase {
 
     // Marks invalid, unknown, missing IMG or IFRAME for removal.
     // Be sure to not affect external images, only strip missing local URI.
-    $uri = $build['settings']['uri'];
+    $uri = $settings['uri'] ?? '';
+    $uri = $blazies->get('uri', $uri) ?: $uri;
     $missing = !empty($uri) && (BlazyFile::isValidUri($uri) && !is_file($uri));
     if (empty($uri) || $missing) {
       $media->setAttribute('class', 'blazy-removed');

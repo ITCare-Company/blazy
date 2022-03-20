@@ -3,7 +3,7 @@
 namespace Drupal\blazy_test\Plugin\Field\FieldFormatter;
 
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Dejavu\BlazyEntityReferenceBase;
+use Drupal\blazy\Field\BlazyEntityReferenceBase;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
 use Drupal\Core\Field\FieldItemListInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;

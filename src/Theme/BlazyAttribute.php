@@ -4,9 +4,10 @@ namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\BlazyResponsiveImage;
+use Drupal\blazy\Media\Placeholder;
 
 /**
  * Provides non-reusable blazy attribute static methods.
@@ -107,8 +108,9 @@ class BlazyAttribute {
       // @todo remove .media--background for .b-bg as more relevant for BG.
       $attributes['class'][] = 'b-bg media--background';
       $attributes['data-b-bg'] = Json::encode($bgs);
+      $url = $blazies->get('image.url', $settings['image_url'] ?? '');
 
-      if ($blazies->is('static') && $url = $settings['image_url']) {
+      if ($blazies->is('static') && $url) {
         self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
       }
     }
@@ -120,8 +122,15 @@ class BlazyAttribute {
     }
 
     // (Responsive) image is optional for Video, or image as CSS background.
-    if ($variables['image']) {
-      self::image($variables);
+    if ($variables['image'] || $bgs) {
+      if ($variables['image']) {
+        self::image($variables);
+      }
+
+      // Only provides if it has an image, or BG.
+      if ($blazies->is('blur')) {
+        Placeholder::blur($variables, $settings);
+      }
     }
   }
 
@@ -166,15 +175,16 @@ class BlazyAttribute {
    * Provides container attributes for .blazy container: .field, .view, etc.
    */
   public static function container(array &$attributes, array $settings = []): void {
-    $settings += BlazyDefault::htmlSettings();
+    Blazy::verify($settings);
     $blazies = $settings['blazies'];
     $classes = empty($attributes['class']) ? [] : $attributes['class'];
-    $attributes['data-blazy'] = empty($settings['blazy_data']) ? '' : Json::encode($settings['blazy_data']);
+    $data = $blazies->get('data.blazy');
+    $attributes['data-blazy'] = $data && is_array($data) ? Json::encode($data) : '';
     $namespace = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
 
     // Provides data-LIGHTBOX-gallery to not conflict with original modules.
-    if (!empty($settings['media_switch']) && $settings['media_switch'] != 'content') {
-      $switch = str_replace('_', '-', $settings['media_switch']);
+    if ($litebox = $blazies->get('lightbox.name')) {
+      $switch = str_replace('_', '-', $litebox);
       $attributes['data-' . $switch . '-gallery'] = TRUE;
       $classes[] = 'blazy--' . $switch;
     }
@@ -230,7 +240,9 @@ class BlazyAttribute {
     // The data-[SRC|SCRSET|LAZY] is if `nojs` disabled, background, or video.
     $attribute = $blazies->get('lazy.attribute', $settings['lazy_attribute'] ?? 'src');
     if (!$blazies->is('unlazy')) {
-      $attributes['data-' . $attribute] = $settings['image_url'];
+      // @todo remove settings.
+      $url = $blazies->get('image.url', $settings['image_url'] ?? '');
+      $attributes['data-' . $attribute] = $url;
     }
   }
 
@@ -331,18 +343,25 @@ class BlazyAttribute {
     $blazies = $settings['blazies'];
 
     // Supports either lazy loaded image, or not.
+    $url = $blazies->get('image.url', $settings['image_url'] ?? '');
     if (empty($settings['background'])) {
       $variables['image'] += [
         '#theme' => 'image',
-        '#uri' => $blazies->is('unlazy') ? $settings['image_url'] : $blazies->get('placeholder'),
+        '#uri' => $blazies->is('unlazy') ? $url : $blazies->get('placeholder'),
       ];
     }
     else {
       // Attach BG data attributes to a DIV container.
       $blazies->set('bgs.' . $settings['width'], BlazyImage::background($settings));
+
       $unlazy = $blazies->is('undata');
-      $settings['image_url'] = $unlazy ? $settings['image_url'] : $blazies->get('placeholder');
-      $blazies->set('is.unlazy', $unlazy);
+      $url = $unlazy ? $url : $blazies->get('placeholder');
+
+      // @todo remove.
+      $settings['image_url'] = $url;
+
+      $blazies->set('image.url', $url)
+        ->set('is.unlazy', $unlazy);
       self::lazy($attributes, $settings);
     }
   }
@@ -354,7 +373,10 @@ class BlazyAttribute {
     $settings = $variables['settings'];
     $blazies = $settings['blazies'];
     $noscript = $variables['image'];
-    $noscript['#uri'] = $blazies->get('resimage.id') ? $blazies->get('uri') : $settings['image_url'];
+    $noscript['#uri'] = $blazies->get('resimage.id')
+      ? $blazies->get('uri')
+      : $blazies->get('image.url');
+
     $noscript['#attributes']['data-b-noscript'] = TRUE;
 
     $variables['noscript'] = [

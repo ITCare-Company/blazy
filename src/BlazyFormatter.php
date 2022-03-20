@@ -61,17 +61,21 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $id             = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
 
     // When alignment is mismatched, split them to satisfy linter.
-    $settings['caption'] = empty($settings['caption']) ? [] : array_filter($settings['caption']);
+    $settings['caption'] = empty($settings['caption'])
+      ? [] : array_filter($settings['caption']);
 
     // Respects linked_field.module expectation.
     $linked = $blazies->get('field.third_party.linked_field.linked');
-    $use_field = !$blazies->get('lightbox') && $linked;
-    $gallery_id = str_replace('_', '-', $gallery_id . '-' . $settings['media_switch']);
+    $use_field = !$blazies->is('lightbox') && $linked;
 
-    $blazies->set('box.id', $gallery_id)
-      ->set('count', $count)
+    if ($blazies->is('lightbox')) {
+      $gallery_id = str_replace('_', '-', $gallery_id . '-' . $settings['media_switch']);
+      $blazies->set('lightbox.gallery_id', $gallery_id);
+    }
+
+    $blazies->set('count', $count)
       ->set('css.id', $id)
-      ->set('use.field', $use_field);
+      ->set('use.theme_field', $use_field || !empty($settings['use_theme_field']));
 
     $blazies->set('cache.keys', [$id, $count], TRUE);
     $blazies->set('cache.tags', [$entity_type_id . ':' . $entity_id], TRUE);

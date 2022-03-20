@@ -9,7 +9,7 @@ use Drupal\Core\Field\FormatterBase;
 use Drupal\media\Entity\MediaType;
 use Drupal\media\Plugin\media\Source\OEmbedInterface;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Dejavu\BlazyDependenciesTrait;
+use Drupal\blazy\Field\BlazyDependenciesTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

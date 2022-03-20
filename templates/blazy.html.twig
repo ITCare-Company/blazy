@@ -143,13 +143,14 @@
 
   {% if captions and captions.inline is defined %}
     {% block blazy_caption %}
-      <div{{ caption_attributes }}>
+      {% set caption_tag = captions.tag %}
+      <{{ caption_tag }}{{ caption_attributes }}>
         {% for caption in captions.inline %}
           {% if caption.content %}
             <{{ caption.tag }} {{ caption.attributes }}>{{- caption.content -}}</{{ caption.tag }}>
           {% endif %}
         {% endfor %}
-      </div>
+      </{{ caption_tag }}>
     {% endblock %}
   {% endif %}
 

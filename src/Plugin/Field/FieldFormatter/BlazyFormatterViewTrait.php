@@ -5,7 +5,7 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 use Drupal\Core\Field\FieldItemListInterface;
 
 /**
- * A Trait common for all blazy formatters.
+ * A Trait common for all blazy, including its sub-modules, formatters.
  */
 trait BlazyFormatterViewTrait {
 
@@ -16,7 +16,6 @@ trait BlazyFormatterViewTrait {
     // Collects specific settings to this formatter.
     $defaults = $this->buildSettings();
     $settings = $settings ? array_merge($defaults, $settings) : $defaults;
-    $settings['langcode'] = $langcode;
 
     $this->preSettings($settings);
 
@@ -35,19 +34,35 @@ trait BlazyFormatterViewTrait {
     $this->formatter->postBuildElements($build, $items, $entities);
 
     // Pass to manager for easy updates to all Blazy formatters.
-    return $this->formatter->build($build);
+    $output = $this->manager->build($build);
+    // Return without field markup, if not so configured, else field.html.twig.
+    return empty($settings['use_theme_field']) ? $output : [$output];
   }
 
   /**
    * Prepare the settings, allows sub-modules to re-use and override.
    */
-  protected function preSettings(array &$settings) {
+  protected function preSettings(array &$settings, $langcode = NULL) {
     $blazies = $settings['blazies'];
+    $blazies->set('language.code', $langcode);
 
     // Marks this formatter as blazy specific.
     if ($blazies->get('namespace') == 'blazy') {
       $this->blazySettings($settings);
     }
+  }
+
+  /**
+   * Builds the specific Blazy settings.
+   */
+  private function blazySettings(array &$settings) {
+    $blazies = $settings['blazies'];
+    $id = 'blazy';
+
+    $blazies->set('item.id', $id)
+      ->set('is.blazy', TRUE)
+      ->set('lazy.id', $id)
+      ->set('namespace', $id);
   }
 
 }

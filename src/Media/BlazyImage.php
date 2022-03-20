@@ -6,7 +6,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\file\FileInterface;
-use Drupal\image\Entity\ImageStyle;
+// @todo remove use Drupal\image\Entity\ImageStyle;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
@@ -27,19 +27,22 @@ class BlazyImage {
    * Provides original unstyled image dimensions based on the given image item.
    */
   public static function dimensions(array &$settings, $item = NULL, $initial = FALSE): void {
-    $width = $initial ? '_width' : 'width';
-    $height = $initial ? '_height' : 'height';
-    $uri = $initial ? '_uri' : 'uri';
+    $_width  = $initial ? '_width' : 'width';
+    $_height = $initial ? '_height' : 'height';
+    $_uri    = $initial ? '_uri' : 'uri';
+    $width   = $settings[$_width] ?? NULL;
+    $height  = $settings[$_height] ?? NULL;
+    $uri     = $settings[$_uri] ?? '';
 
-    if (empty($settings[$height]) && $item) {
-      $settings[$width] = $item->width ?? NULL;
-      $settings[$height] = $item->height ?? NULL;
+    if (empty($height) && $item) {
+      $width = $item->width ?? NULL;
+      $height = $item->height ?? NULL;
     }
 
     // Only applies when Image style is empty, no file API, no $item,
     // with unmanaged VEF/ WYSIWG/ filter image without image_style.
-    if (empty($settings['image_style']) && empty($settings[$height]) && !empty($settings[$uri])) {
-      $abs = empty($settings['uri_root']) ? $settings[$uri] : $settings['uri_root'];
+    if ($uri && empty($settings['image_style']) && empty($height)) {
+      $abs = empty($settings['uri_root']) ? $uri : $settings['uri_root'];
       // Must be valid URI, or web-accessible url, not: /modules|themes/...
       if (!BlazyFile::isValidUri($abs) && mb_substr($abs, 0, 1) == '/') {
         if ($request = Blazy::requestStack()) {
@@ -49,13 +52,15 @@ class BlazyImage {
 
       // Prevents 404 warning when video thumbnail missing for a reason.
       if ($data = @getimagesize($abs)) {
-        [$settings[$width], $settings[$height]] = $data;
+        [$width, $height] = $data;
       }
     }
 
     // Sometimes they are string, cast them integer to reduce JS logic.
-    $settings[$width] = empty($settings[$width]) ? NULL : (int) $settings[$width];
-    $settings[$height] = empty($settings[$height]) ? NULL : (int) $settings[$height];
+    // This one is original image, not styled like self:transformDimensions().
+    $settings[$_width] = $width;
+    $settings[$_height] = $height;
+    self::toInt($settings, $_width, $_height);
   }
 
   /**
@@ -82,12 +87,16 @@ class BlazyImage {
    * @return array
    *   The array of image item and settings if a file image, else empty.
    *
-   * @todo this is likely to be removed for anything Media, still kept for
-   * BlazyFilter and few legacy file entity integrations such as Views file.
    * @todo compare and merge with BlazyMedia::imageItem(), and the two below.
    * @todo simplify this, like everything else. An obvious confusion here.
    */
   public static function fromAny($object = NULL, array $settings = []): array {
+    // @todo remove check at 3.x after sub-modules and VEF removed.
+    Blazy::verify($settings);
+    $blazies = $settings['blazies'];
+    $uri = NULL;
+    $output = [];
+
     // If Media entity, we must have a File entity, and likely ImageItem.
     if ($object instanceof MediaInterface) {
       $entity = $object;
@@ -99,28 +108,35 @@ class BlazyImage {
       // Called by BlazyFilter file upload and legacy BlazyViewsFieldFile.
       if ($entity instanceof FileInterface
         && $factory = Blazy::service('image.factory')) {
-        if ($image = $factory->get($entity->getFileUri())) {
-          return self::fakeWithdata($entity, $image);
+        $uri = $entity->getFileUri();
+        if ($uri && $image = $factory->get($uri)) {
+          $output = self::fakeWithdata($entity, $image);
         }
       }
     }
 
     // Called by formatters.
-    $options = [
-      'entity' => $entity,
-      'source' => $entity == $object ? NULL : $object,
-      'settings' => $settings,
-    ];
+    if (empty($output)) {
+      $options = [
+        'entity' => $entity,
+        'source' => $entity == $object ? NULL : $object,
+        'settings' => $settings,
+      ];
 
-    // We have a Media entity.
-    if ($item = self::item(NULL, $options)) {
-      $blazies = $settings['blazies'];
-      $settings['uri'] = $uri = BlazyFile::uri($item);
-      $blazies->set('uri', $uri);
-      return ['item' => $item, 'settings' => $settings];
+      // We have a Media entity.
+      if ($item = self::item(NULL, $options)) {
+        $uri = BlazyFile::uri($item);
+
+        // @todo remove.
+        $settings['uri'] = $uri;
+        $output = ['item' => $item, 'settings' => $settings];
+      }
     }
 
-    return [];
+    if ($uri) {
+      $blazies->set('uri', $uri);
+    }
+    return $output;
   }
 
   /**
@@ -182,9 +198,9 @@ class BlazyImage {
    * Checks for [Responsive] image styles.
    */
   public static function styles(array &$settings, $multiple = FALSE): void {
-    $blazy = Blazy::service('blazy.manager');
+    $blazy   = Blazy::service('blazy.manager');
     $blazies = $settings['blazies'];
-    $exist = $blazies->is('resimage');
+    $exist   = $blazies->is('resimage');
 
     // Multiple is a flag for various styles: Blazy Filter, GridStack, etc.
     // While fields can only have one image style per field.
@@ -229,10 +245,10 @@ class BlazyImage {
    * Returns the thumbnail image using theme_image(), or theme_image_style().
    */
   public static function thumbnail(array $settings = [], $item = NULL): array {
-    // @tod remove check after another check.
+    // @todo remove check after another check.
     $blazies = $settings['blazies'] ?? NULL;
     $default = $settings['uri'] ?? NULL;
-    $uri = $blazies ? $blazies->get('uri', $default) : $default;
+    $uri     = $blazies ? $blazies->get('uri', $default) : $default;
 
     if ($uri) {
       $external = UrlHelper::isExternal($uri);
@@ -260,8 +276,8 @@ class BlazyImage {
    *   Whether particularly transforms once for all, or individually.
    */
   public static function transformDimensions($style, array $data, $initial = FALSE): array {
-    $uri = $initial ? '_uri' : 'uri';
-    $key = hash('md2', ($style->id() . $data[$uri] . $initial));
+    $_uri = $initial ? '_uri' : 'uri';
+    $key  = hash('md2', ($style->id() . $data[$_uri] . $initial));
 
     if (!isset(static::$styleId[$key])) {
       $_width  = $initial ? '_width' : 'width';
@@ -271,16 +287,16 @@ class BlazyImage {
       $dim     = ['width' => $width, 'height' => $height];
 
       // Funnily $uri is ignored at all core image effects.
-      $style->transformDimensions($dim, $data[$uri]);
+      $style->transformDimensions($dim, $data[$_uri]);
 
       // Sometimes they are string, cast them integer to reduce JS logic.
-      if ($dim['width'] != NULL) {
-        $dim['width'] = (int) $dim['width'];
-      }
-      if ($dim['height'] != NULL) {
-        $dim['height'] = (int) $dim['height'];
-      }
+      self::toInt($dim, 'width', 'height');
 
+      // Keys here are hard-coded, so to be inherited by children as intended.
+      // The underscore prefix is to identify the source/ original unstyled
+      // image properties, not related to the final output printed here.
+      // See \Drupal\blazy\BlazyFormatter::setImageDimensions().
+      // @todo re-check if the container needs image style dimensions.
       static::$styleId[$key] = [
         'width' => $dim['width'],
         'height' => $dim['height'],
@@ -290,17 +306,21 @@ class BlazyImage {
   }
 
   /**
-   * Provides image url based on the given settings.
+   * Provides image url, not URI here, expected by lazyload.
    */
   public static function url(array &$settings, $style = NULL): string {
     $blazies = $settings['blazies'];
-    // Provides image_url, not URI, expected by lazyload.
     $uri = $settings['uri'] ?? $settings['_uri'] ?? NULL;
+    $uri = $blazies->get('uri', $uri);
     $url = '';
-    if ($uri) {
-      ['url' => $url, 'style' => $style] = self::urlAndStyle($uri, $settings, $style);
 
-      // @tdo remove any settngs like this after migraton and sub-modules.
+    if ($uri) {
+      [
+        'url' => $url,
+        'style' => $style,
+      ] = self::urlAndStyle($uri, $settings, $style);
+
+      // @todo remove any settings like this after migraton and sub-modules.
       $settings['image_url'] = $url;
       $blazies->set('image.url', $url);
 
@@ -328,16 +348,19 @@ class BlazyImage {
     $blazies = $settings['blazies'];
     $valid = BlazyFile::isValidUri($uri);
     $styled = $valid && !$blazies->is('unstyled');
-    // Image style modifier can be multi-style images such as UGC or GridStack.
-    $_style = $settings['image_style'] ?? '';
-    $style = $style ?: $blazies->get('image.style');
-    // @todo remove after another check, might be needed by non-API custom work.
-    $style = $style ?: (empty($_style) ? NULL : ImageStyle::load($_style));
-    $url = $settings['image_url'] ?? '';
 
-    $sanitize = !empty($settings['_check_protocol']);
-    $options = ['url' => $url, 'sanitize' => $sanitize];
+    // Image style modifier can be multi-style images such as UGC or GridStack.
+    // $_style = $settings['image_style'] ?? ''; Must end in full-stops, etc!
+    $style = $style ?: $blazies->get('image.style');
+
+    // @todo remove after another check, might be needed by non-API custom work.
+    // $style = $style ?: (empty($_style) ? NULL : ImageStyle::load($_style));
+    $url = $settings['image_url'] ?? '';
+    $url = $blazies->get('image.url', $url);
+
+    $options = ['url' => $url, 'sanitize' => $blazies->is('unsafe')];
     $url = BlazyFile::transformRelative($uri, ($styled ? $style : NULL), $options);
+
     $no_dims = empty($settings['height']) || empty($settings['width']);
 
     // Currently doesn't affect option.ratio, a failsafe for BG, else collapsed.
@@ -378,6 +401,66 @@ class BlazyImage {
   }
 
   /**
+   * Prepares CSS background image.
+   *
+   * @todo remove and merge it with ::urlAndStyle.
+   */
+  public static function background(array $settings, $style = NULL) {
+    $blazies = $settings['blazies'];
+    $no_dims = empty($settings['height']) || empty($settings['width']);
+    $url = $blazies->get('image.url');
+    $uri = $blazies->get('uri');
+
+    return [
+      'src' => $style ? BlazyFile::transformRelative($uri, $style) : $url,
+      'ratio' => $no_dims ? 100 : round((($settings['height'] / $settings['width']) * 100), 2),
+    ];
+  }
+
+  /**
+   * Returns data to provide fake image item of file entity.
+   */
+  private static function fakeWithdata($file, $image): array {
+    if ($settings = self::fromFactory($file, $image)) {
+      if ($item = self::fake($settings)) {
+        $item->entity = $file;
+        $settings['uri'] = $item->uri;
+        return ['item' => $item, 'settings' => $settings];
+      }
+    }
+    return [];
+  }
+
+  /**
+   * Returns image data via ImageFactory to provide fake image item.
+   */
+  private static function fromFactory($file, $image): array {
+    /** @var \Drupal\file\Entity\File $file */
+    [$type] = explode('/', $file->getMimeType(), 2);
+
+    if ($type == 'image' && $image->isValid()) {
+      return [
+        'uri'       => $file->getFileUri(),
+        'target_id' => $file->id(),
+        'width'     => $image->getWidth(),
+        'height'    => $image->getHeight(),
+        'alt'       => $file->getFilename(),
+        'title'     => $file->getFilename(),
+        'type'      => 'image',
+      ];
+    }
+    return [];
+  }
+
+  /**
+   * Converts dimensions to integer unless empty.
+   */
+  private static function toInt(array &$settings, $width, $height): void {
+    $settings[$width] = empty($settings[$width]) ? NULL : (int) $settings[$width];
+    $settings[$height] = empty($settings[$height]) ? NULL : (int) $settings[$height];
+  }
+
+  /**
    * Extracts image from non-media entities for the main background/ stage.
    *
    * Main image can be separate image item from video thumbnail for highres.
@@ -393,7 +476,7 @@ class BlazyImage {
    * @param string $name
    *   The field name to extract image item.
    *
-   * @see \Drupal\blazy\Dejavu\BlazyEntityMediaBase::buildElement
+   * @see \Drupal\blazy\Field\BlazyEntityMediaBase::buildElement
    *
    * Called by SplideVanillaWithNavTrait till Splide removes it for ::build().
    * This used to be for File entity (non-media).
@@ -449,7 +532,7 @@ class BlazyImage {
    * @return array
    *   The array of image item and settings if a file image, else empty.
    *
-   * @todo remove when ::fromAny() is done right.
+   * @todo remove when ::fromAny() is done right. This is not use anywhere.
    */
   public static function fromMedia($media, array &$settings = []): array {
     $blazies = $settings['blazies'];
@@ -485,54 +568,6 @@ class BlazyImage {
 
     // Pass through image item including poster image overrides.
     return $item ? ['item' => $item, 'settings' => $settings] : [];
-  }
-
-  /**
-   * Prepares CSS background image.
-   *
-   * @todo remove and merge it with ::urlAndStyle.
-   */
-  public static function background(array $settings, $style = NULL) {
-    $no_dims = empty($settings['height']) || empty($settings['width']);
-    return [
-      'src' => $style ? BlazyFile::transformRelative($settings['uri'], $style) : $settings['image_url'],
-      'ratio' => $no_dims ? 100 : round((($settings['height'] / $settings['width']) * 100), 2),
-    ];
-  }
-
-  /**
-   * Returns data to provide fake image item of file entity.
-   */
-  private static function fakeWithdata($file, $image): array {
-    if ($settings = self::fromFactory($file, $image)) {
-      if ($item = self::fake($settings)) {
-        $item->entity = $file;
-        $settings['uri'] = $item->uri;
-        return ['item' => $item, 'settings' => $settings];
-      }
-    }
-    return [];
-  }
-
-  /**
-   * Returns image data via ImageFactory to provide fake image item.
-   */
-  private static function fromFactory($file, $image): array {
-    /** @var \Drupal\file\Entity\File $file */
-    [$type] = explode('/', $file->getMimeType(), 2);
-
-    if ($type == 'image' && $image->isValid()) {
-      return [
-        'uri'       => $file->getFileUri(),
-        'target_id' => $file->id(),
-        'width'     => $image->getWidth(),
-        'height'    => $image->getHeight(),
-        'alt'       => $file->getFilename(),
-        'title'     => $file->getFilename(),
-        'type'      => 'image',
-      ];
-    }
-    return [];
   }
 
 }

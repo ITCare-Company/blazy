@@ -9,7 +9,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\field\FieldConfigInterface;
 use Drupal\file\Plugin\Field\FieldFormatter\FileFormatterBase;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Dejavu\BlazyDependenciesTrait;
+use Drupal\blazy\Field\BlazyDependenciesTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -56,11 +56,10 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       $item  = $file->_referringItem;
       $sets  = $build['settings'];
       $blazy = $sets['blazies']->reset($sets);
-      $tags  = $file->getCacheTags();
       $uri   = $sets['uri'] = $file->getFileUri();
 
-      $blazy->set('cache.file.tags', $tags, TRUE)
-        ->set('delta', $delta)
+      // @todo update tests and move it out of here.
+      $blazy->set('delta', $delta)
         ->set('media.type', 'image')
         ->set('uri', $uri);
 

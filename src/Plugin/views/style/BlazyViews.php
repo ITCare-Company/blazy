@@ -93,10 +93,6 @@ class BlazyViews extends StylePluginBase {
       ->set('item.id', 'content')
       ->set('is.grid', TRUE);
 
-    // @todo remove.
-    $settings['item_id'] = 'content';
-    $settings['namespace'] = 'blazy';
-
     $elements = [];
     foreach ($this->renderGrouping($this->view->result, $settings['grouping']) as $rows) {
       $items = [];

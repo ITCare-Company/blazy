@@ -48,8 +48,6 @@ trait BlazyCreationTestTrait {
     $storage    = $this->blazyManager->getStorage('entity_view_display');
     $display    = $storage->load($display_id);
 
-    $this->blazyManager->postSettings($settings);
-
     if (!$display) {
       $values = [
         'targetEntityType' => $this->entityType,

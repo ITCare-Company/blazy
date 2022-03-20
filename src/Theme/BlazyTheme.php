@@ -6,7 +6,6 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Placeholder;
 
 /**
@@ -75,7 +74,7 @@ class BlazyTheme {
 
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
-      Blazy::lazyOrNot($settings);
+      Blazy::impromptu($settings);
       Blazy::prepare($settings, $item);
     }
 
@@ -138,8 +137,10 @@ class BlazyTheme {
   public static function fileVideo(array &$variables): void {
     if ($files = $variables['files']) {
       $use_dataset = empty($variables['attributes']['data-b-undata']);
+
       if ($use_dataset) {
         $variables['attributes']->addClass(['b-lazy']);
+
         foreach ($files as $file) {
           $source_attributes = &$file['source_attributes'];
           $source_attributes->setAttribute('data-src', $source_attributes['src']->value());
@@ -153,17 +154,15 @@ class BlazyTheme {
           $settings = $blazy->storage();
           $blazies = $settings['blazies'];
 
-          $blazies->set('is.dimensions', TRUE);
-
-          BlazyImage::url($settings);
-
-          if (!$blazies->get('use.loader') && $use_dataset) {
-            $blazies->set('use.loader', TRUE);
+          if ($url = $blazies->get('image.url')) {
+            if (!$blazies->get('use.loader') && $use_dataset) {
+              $blazies->set('use.loader', TRUE);
+            }
+            $blazies->set('is.dimensions', TRUE);
+            $variables['attributes']->setAttribute('poster', $url);
           }
-          if (!empty($settings['image_url'])) {
-            $variables['attributes']->setAttribute('poster', $settings['image_url']);
-          }
-          if ($blazies->get('lightbox') && $blazies->is('richbox')) {
+
+          if ($blazies->is('lightbox') && $blazies->is('richbox')) {
             $variables['attributes']->setAttribute('autoplay', TRUE);
           }
         }
@@ -305,10 +304,7 @@ class BlazyTheme {
     $element = $variables['element'];
     $settings = $element['#blazy'] ?? [];
 
-    if (!isset($settings['blazies'])) {
-      $settings += BlazyDefault::htmlSettings();
-    }
-
+    Blazy::verify($settings);
     $blazies = $settings['blazies'];
     // @todo re-check at CKEditor.
     $is_undata = $blazies->is('undata');

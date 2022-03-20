@@ -14,29 +14,40 @@ class Placeholder {
 
   /**
    * Build out the blur image.
+   *
+   * Provides image effect if so configured unless being sandboxed.
+   * Being a separated .b-blur with .b-lazy, this should work for any lazy.
+   * Ensures at least a hook_alter is always respected. This still allows
+   * Blur and hook_alter for Views rewrite issues, unless global UI is set
+   * which was already warned about anyway.
    */
-  public static function blur(array &$element, array &$attributes, array &$settings) {
+  public static function blur(array &$variables, array &$settings) {
+    $attributes = &$variables['attributes'];
     $blazies = $settings['blazies'];
-    if (!$blazies->is('unstyled')) {
-      $blur = [
-        '#theme' => 'image',
-        '#uri' => $blazies->get('placeholder'),
-        '#attributes' => [
-          'class' => ['b-lazy', 'b-blur', 'b-blur--tmp'],
-          'data-src' => $settings['placeholder_fx'],
-          'loading' => 'lazy',
-          'decoding' => 'async',
-        ],
-      ];
 
-      // Reset as already stored.
-      unset($settings['placeholder_fx']);
-      $element['#preface']['blur'] = $blur;
-
-      if (($settings['width'] ?? 0) > 980) {
-        $attributes['class'][] = 'media--fx-lg';
-      }
+    if (!$blazies->get('blur')) {
+      return;
     }
+
+    $blur = [
+      '#theme' => 'image',
+      '#uri' => $blazies->get('placeholder'),
+      '#attributes' => [
+        'class' => ['b-lazy', 'b-blur', 'b-blur--tmp'],
+        'data-src' => $blazies->get('blur'),
+        'loading' => 'lazy',
+        'decoding' => 'async',
+      ],
+    ];
+
+    $width = (int) ($settings['width'] ?? 0);
+    if ($width > 980) {
+      $attributes['class'][] = 'media--fx-lg';
+    }
+
+    // Reset as already stored.
+    $blazies->set('blur', '');
+    $variables['preface']['blur'] = $blur;
   }
 
   /**
@@ -61,10 +72,12 @@ class Placeholder {
    */
   public static function prepare(array &$attributes, array &$settings) {
     $blazies = $settings['blazies'];
+    $uri = $blazies->get('uri', $settings['uri'] ?? '');
+    $tn_uri = $blazies->get('thumbnail.uri', $settings['thumbnail_uri'] ?? '');
 
     // The SVG placeholder should accept either original, or styled image.
     $default = self::generate($settings['width'], $settings['height']);
-    $placeholder = $blazies->get('ui.placeholder', $default);
+    $placeholder = $blazies->get('ui.placeholder', $default) ?: $default;
 
     // Accepts configurable placeholder, alter, and fallback.
     $blazies->set('placeholder', $placeholder);
@@ -72,41 +85,40 @@ class Placeholder {
     // Supports unique thumbnail different from main image, such as logo for
     // thumbnail and main image for company profile.
     $path = $style = $thumbnail_url = '';
-    if (!empty($settings['thumbnail_uri'])) {
-      $path = $settings['thumbnail_uri'];
+    if ($tn_uri) {
+      $path = $tn_uri;
       $thumbnail_url = BlazyFile::transformRelative($path);
     }
     else {
       if (!$blazies->is('external') && $style = $blazies->get('thumbnail.style')) {
-        $path = $style->buildUri($settings['uri']);
-        $thumbnail_url = BlazyFile::transformRelative($settings['uri'], $style);
+        $path = $style->buildUri($uri);
+        $thumbnail_url = BlazyFile::transformRelative($uri, $style);
       }
     }
 
     // With CSS background, IMG may be empty, add thumbnail to the container.
     // @todo remove thumbnail_url after sub-modules.
     if ($thumbnail_url) {
-      $attributes['data-thumb'] = $settings['thumbnail_url'] = $thumbnail_url;
+      $attributes['data-thumb'] = $thumbnail_url;
       $blazies->set('thumbnail.url', $thumbnail_url);
 
       if (BlazyFile::isValidUri($path) && !is_file($path)) {
-        $style->createDerivative($settings['uri'], $path);
+        $style->createDerivative($uri, $path);
       }
     }
 
     // Provides image effect if so configured unless being sandboxed.
-    if (!$blazies->is('unblur') && $fx = $blazies->get('fx')) {
+    // Being a separated .b-blur with .b-lazy, this should work for any lazy.
+    if ($fx = $blazies->get('fx')) {
       $attributes['class'][] = 'media--fx';
+      $attributes['data-animation'] = $fx;
 
-      // Ensures at least a hook_alter is always respected. This still allows
-      // Blur and hook_alter for Views rewrite issues, unless global UI is set
-      // which was already warned about anyway.
-      if (!$blazies->is('unstyled')) {
+      if ($blazies->is('blur')) {
+        // Ensures at least a hook_alter is always respected. This still allows
+        // Blur and hook_alter for Views rewrite issues, unless global UI is set
+        // which was already warned about anyway.
         self::dataImage($settings, $style, $path);
       }
-
-      // Being a separated .b-blur with .b-lazy, this should work for any lazy.
-      $attributes['data-animation'] = $fx;
     }
 
     // Mimicks private _responsive_image_image_style_url, #3119527.
@@ -135,11 +147,10 @@ class Placeholder {
 
       // Overrides placeholder with data URI based on configured thumbnail.
       if (is_file($path) && $content = file_get_contents($path)) {
-        $blur = $settings['placeholder_fx'] = 'data:image/' . pathinfo($path, PATHINFO_EXTENSION) . ';base64,' . base64_encode($content);
+        $blur = 'data:image/' . pathinfo($path, PATHINFO_EXTENSION) . ';base64,' . base64_encode($content);
 
         // Prevents double animations.
-        // @todo remove use_loading after sub-module updates.
-        $settings['use_loading'] = FALSE;
+        $blazies->set('blur', $blur);
         $blazies->set('use.loader', FALSE);
       }
     }

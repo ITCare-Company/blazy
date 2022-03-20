@@ -198,18 +198,31 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       // Might be needed by deprecated VEF, or other unmanaged files.
       if (!BlazyFile::isValidUri($_uri)) {
         // All we have here is external images. URI validity is not crucial.
-        $settings['uri'] = $uri = $settings['image_url'] = $resource->getThumbnailUrl()->getUri();
-        $blazies->set('uri', $uri);
+        $uri = $resource->getThumbnailUrl()->getUri();
+
+        // @todo remove after another check.
+        $settings['uri'] = $settings['image_url'] = $uri;
+
+        $blazies->set('uri', $uri)
+          ->set('image.url', $uri);
       }
 
       $settings['type'] = $type = $resource->getType();
       $blazies->set('media.type', $type);
 
       // Respect hard-coded width and height since no UI for all these here.
-      if (empty($settings['width'])) {
-        $settings['width'] = $resource->getThumbnailWidth() ?: $resource->getWidth();
-        $settings['height'] = $resource->getThumbnailHeight() ?: $resource->getHeight();
+      if (empty($settings['height'])) {
+        $width = $resource->getThumbnailWidth() ?: $resource->getWidth();
+        $height = $resource->getThumbnailHeight() ?: $resource->getHeight();
+
+        // @tbd remove after another check.
+        $settings['width'] = $width;
+        $settings['height'] = $height;
+
+        $blazies->set('dimension.width', $width)
+          ->set('dimension.height', $height);
       }
+
       return BlazyImage::fake($settings);
     }
     return NULL;
@@ -229,9 +242,10 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     }
 
     /** @var Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $entity */
-    if (!BlazyImage::isValidItem($build)
-      && $data = BlazyImage::fromAny($entity, $build['settings'])) {
-      $build = NestedArray::mergeDeep($build, $data);
+    if (!BlazyImage::isValidItem($build)) {
+      if ($data = BlazyImage::fromAny($entity, $build['settings'])) {
+        $build = NestedArray::mergeDeep($build, $data);
+      }
     }
 
     // Attempts to get image data directly from oEmbed resource.
@@ -247,9 +261,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     // }
     // Attempts to get image data directly from oEmbed resource.
     // Caled by BlazyFilter or deprecated VEF, run after data populated.
-    if (!$valid) {
-      if ($blazies->get('media.input_url')
-        && (!$entity || !$blazies->get('media.embed_url'))) {
+    if (!$valid && $blazies->get('media.input_url')) {
+      if (!$entity || !$blazies->get('media.embed_url')) {
         $this->toEmbed($settings);
       }
     }
@@ -311,9 +324,10 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
     // Do not proceed if it has type, already managed by theme_blazy().
     // Supports other Media entities: Facebook, Instagram, local video, etc.
-    if (!$blazies->get('media.type')
-      && ($result = BlazyMedia::build($media, $settings))) {
-      $build['content'][] = $result;
+    if (!$blazies->get('media.type')) {
+      if ($result = BlazyMedia::build($media, $settings)) {
+        $build['content'][] = $result;
+      }
     }
 
     // Collect what's needed for clarity.
@@ -328,10 +342,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   private function toEmbed(array &$settings = []): void {
     $blazies = $settings['blazies'];
+    $default = $settings['input_url'] ?? '';
 
-    $blazies->set('media.embed_url', '');
-    $settings['embed_url'] = '';
-    if (!($input = $blazies->get('media.input_url', $settings['input_url'] ?? ''))) {
+    if (!($input = $blazies->get('media.input_url', $default))) {
       return;
     }
 
@@ -357,6 +370,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $settings['embed_url'] = $embed_url = $url->toString();
 
     $blazies->set('media.embed_url', $embed_url);
+
     if ($source = $blazies->get('media.source')) {
       $videos = in_array($source, ['oembed:video', 'video_embed_field']);
       $settings['type'] = $type = $videos ? 'video' : $source;
@@ -375,10 +389,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * @return array
    *   The array of image item and settings if a file image, else empty.
    *
-   * @todo this is likely to be removed for anything Media, still kept for
-   * BlazyFilter and few legacy file entity integrations such as Views file.
-   * @todo compare and merge with BlazyMedia::imageItem().
    * @todo remove after sub-modules remove this for just ::build().
+   * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0. Use
+   *   BlazyImage::fromAny() instead.
    */
   public function getImageItem($file) {
     return BlazyImage::fromAny($file);
@@ -387,7 +400,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * Gets the Media item thumbnail.
    *
-   * @todo deprecated at 2.9 and removed at 3.x. Use ::build() instead.
+   * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0. Use
+   *   self::build() instead.
    */
   public function getMediaItem(array &$build, $media = NULL) {
     // To preserve old behaviors till sub-modules updated to ::build() at 2.9.

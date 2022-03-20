@@ -182,12 +182,7 @@ function blazy_parse_markdown($string) {
  * Provides a wrapper to replace deprecated libraries_get_path() at ease.
  */
 function blazy_libraries_get_path($name, $base_path = FALSE) {
-  if ($finder = Blazy::service('library.libraries_directory_file_finder')) {
-    return $finder->find($name);
-  }
-
-  $function = 'libraries_get_path';
-  return is_callable($function) ? $function($name, $base_path) : FALSE;
+  return Blazy::getLibrariesPath($name, $base_path);
 }
 
 /**

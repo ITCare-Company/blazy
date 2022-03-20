@@ -79,7 +79,6 @@ class BlazyViewsTest extends BlazyStylePluginBase {
     $settings = $this->buildSettings() + BlazyDefault::entitySettings();
     $blazies = $settings['blazies'];
 
-    $settings['item_id']   = 'box';
     $settings['caption']   = array_filter($settings['caption']);
     $settings['namespace'] = 'blazy';
     $settings['ratio']     = '';
@@ -103,9 +102,10 @@ class BlazyViewsTest extends BlazyStylePluginBase {
    * Returns blazy_test contents.
    */
   public function buildElements(array $settings, $rows) {
+    $blazies = $settings['blazies'];
     $build   = [];
     $view    = $this->view;
-    $item_id = $settings['item_id'];
+    $item_id = $blazies->get('item.id');
 
     foreach ($rows as $index => $row) {
       $view->row_index = $index;

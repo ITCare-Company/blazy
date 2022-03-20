@@ -125,7 +125,7 @@
  * @ingroup blazy_api
  */
 function hook_blazy_attach_alter(array &$load, array $settings = []) {
-  // Non configurable settings are mostly grouped under `blazies` BlazySettings.
+  // Since 2.6, non-configurable settings are mostly grouped under `blazies`.
   $blazies = $settings['blazies'];
 
   // Attach additional libraries or drupalSettings if meeting a condition:
@@ -185,7 +185,7 @@ function hook_blazy_alter(array &$build, array $settings = []) {
  * @ingroup blazy_api
  */
 function hook_blazy_build_alter(array &$build, array $settings = []) {
-  // Non configurable settings are mostly grouped under `blazies` BlazySettings.
+  // // Since 2.6, non-configurable settings are mostly grouped under `blazies`.
   $blazies = $settings['blazies'];
 
   // All (quasi-)lightboxes are put directly under $blazies for being unique.
@@ -253,7 +253,7 @@ function hook_blazy_base_settings_alter(array &$settings, array $context = []) {
 function hook_blazy_settings_alter(array &$build, $items) {
   // Most configurable settings are put as direct key-value pairs.
   $settings = &$build['settings'];
-  // Non configurable settings are mostly grouped under `blazies` BlazySettings.
+  // // Since 2.6, non-configurable settings are mostly grouped under `blazies`.
   $blazies = $settings['blazies'];
 
   // Overrides one pixel placeholder on particular pages relevant if using Views

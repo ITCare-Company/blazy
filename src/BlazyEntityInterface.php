@@ -8,7 +8,7 @@ namespace Drupal\blazy;
  * This is alternative to Drupal\blazy\BlazyFormatter used outside
  * field managers, such as Views field, or Slick/Entity Browser displays, etc.
  *
- * @see Drupal\blazy\Dejavu\BlazyEntityReferenceBase
+ * @see Drupal\blazy\Field\BlazyEntityReferenceBase
  * @see Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase
  */
 interface BlazyEntityInterface {

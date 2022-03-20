@@ -9,6 +9,8 @@ use Drupal\Core\Render\Element\RenderCallbackInterface;
  *
  * @see blazy_test_blazy_alter()
  * @see blazy_photoswipe_blazy_alter()
+ *
+ * @todo remove already taken care of at 2.6.
  */
 class BlazyTestAlter implements RenderCallbackInterface {
 
@@ -18,14 +20,10 @@ class BlazyTestAlter implements RenderCallbackInterface {
   public static function preRender($image) {
     $settings = $image['#settings'];
     $blazies  = $settings['blazies'];
-
-    // @todo remove settings.
-    $embed   = $settings['embed_url'] ?? '';
-    $box_url = $settings['box_url'] ?? '';
-    $box_url = $blazies->get('box.url', $box_url);
+    $box_url  = $blazies->get('lightbox.url');
 
     // Video's HREF points to external site, adds URL to local image.
-    if ($box_url && $blazies->get('media.embed_url', $embed)) {
+    if ($box_url && $blazies->get('media.embed_url')) {
       $image['#url_attributes']['data-box-url'] = $box_url;
     }
 

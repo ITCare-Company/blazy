@@ -117,19 +117,10 @@ class BlazyMedia {
   }
 
   /**
-   * Prepares media item data to provide image item.
+   * Extracts neededinfo from a media.
    */
-  public static function prepare(array &$data, MediaInterface &$media) {
-    $settings = $data['settings'];
-    $blazies = $settings['blazies'];
-    $view_mode = $settings['view_mode'] ?? NULL;
-    $langcode = $blazies->get('current_language');
-
-    // Provides translated $media, if any.
-    $media = Blazy::translated($media, $langcode);
-
-    // Provides settings.
-    $info = [
+  public static function extract(MediaInterface $media, $view_mode = NULL): array {
+    return [
       'bundle'       => $media->bundle(),
       'id'           => $media->id(),
       'label'        => $media->label(),
@@ -138,6 +129,22 @@ class BlazyMedia {
       'url'          => $media->isNew() ? '' : $media->toUrl()->toString(),
       'view_mode'    => $view_mode ?: 'default',
     ];
+  }
+
+  /**
+   * Prepares media item data to provide image item.
+   */
+  public static function prepare(array &$data, MediaInterface &$media) {
+    $settings  = $data['settings'];
+    $blazies   = $settings['blazies'];
+    $view_mode = $settings['view_mode'] ?? NULL;
+    $langcode  = $blazies->get('language.current');
+
+    // Provides translated $media, if any.
+    $media = Blazy::translated($media, $langcode);
+
+    // Provides settings.
+    $info = self::extract($media, $view_mode);
 
     $blazies->set('media', $info, TRUE);
 

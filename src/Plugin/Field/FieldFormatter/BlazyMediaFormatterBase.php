@@ -4,7 +4,7 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Dejavu\BlazyEntityMediaBase;
+use Drupal\blazy\Field\BlazyEntityMediaBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

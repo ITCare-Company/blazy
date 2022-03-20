@@ -167,9 +167,7 @@ class BlazyDefault {
    * Returns optional grid field formatter and Views settings.
    */
   public static function gridSettings() {
-    return ['grid_header' => '']
-      + self::gridBaseSettings()
-      + self::anywhereSettings();
+    return self::gridBaseSettings() + self::anywhereSettings();
   }
 
   /**
@@ -203,11 +201,11 @@ class BlazyDefault {
   public static function richSettings() {
     return [
       'background'   => FALSE,
-      'lightbox'     => FALSE,
+      // 'lightbox'     => FALSE,
       'media_switch' => '',
-      'placeholder'  => '',
-      'resimage'     => FALSE,
-      'use_loading'  => FALSE,
+      // 'placeholder'  => '',
+      // 'resimage'     => FALSE,
+      // 'use_loading'  => FALSE,
       'type'         => 'rich',
     ] + self::anywhereSettings();
   }
@@ -233,24 +231,27 @@ class BlazyDefault {
    * The hustle is sub-modules are not aware, yet. Yet better started before 3.
    * While some configurable settings are intact, blazies are more for grouping
    * dynamic, non-configurable settings. But it can also store blazy-specific.
+   *
+   * @todo do not set keys, unless required to allow default/fallback kicks in.
    */
   public static function blazies() {
     return [
+      'bgs' => [],
       'box' => ['resimage' => []],
       'box_media' => [],
-      'bgs' => [],
+      'image' => [],
       'initial' => 0,
       'is' => [],
+      'item' => ['delta' => 0],
       'lazy' => ['attribute' => 'src', 'class' => 'b-lazy'],
-      'libs' => ['animate' => FALSE, 'blur' => FALSE, 'compat' => FALSE],
+      'libs' => [],
+      'lightbox' => [],
+      'media' => [],
+      'resimage' => [],
       'ui' => self::uiSettings(),
       'uris' => [],
       'urls' => [],
-      'use' => ['ajax' => FALSE, 'dataset' => FALSE, 'field' => FALSE],
-      'image' => ['style' => NULL],
-      'media' => [],
-      'item' => ['delta' => 0],
-      'resimage' => ['sources' => [], 'style' => NULL],
+      'use' => [],
       'switch' => NULL,
       'thumbnail' => [],
       'view' => [],
@@ -267,14 +268,12 @@ class BlazyDefault {
   public static function htmlSettings() {
     return [
       'blazies'     => new BlazySettings(self::blazies()),
-      'blazy_data'  => [],
       'bundle'      => '',
       'namespace'   => 'blazy',
       'id'          => '',
       'route_name'  => '',
       'view_name'   => '',
-      'unlazy'      => FALSE,
-
+      // 'unlazy'      => FALSE,
       // @todo deprecated for blazies after sub-module updates:
       // 'label' => '',
       // 'unstyled'         => FALSE,
@@ -283,10 +282,11 @@ class BlazyDefault {
       // 'check_blazy' => FALSE,
       // 'first_image' => NULL,
       // '_richbox'    => FALSE,
-      'compat'           => FALSE,
+      // 'blazy_data'  => [],
+      // 'compat'           => FALSE,
       'is_preview'       => FALSE,
-      'lightbox'         => FALSE,
-      'resimage'         => FALSE,
+      // 'lightbox'         => FALSE,
+      // 'resimage'         => FALSE,
       // @todo revert  + self::uiSettings()
     ] + self::imageSettings() + self::gridSettings();
   }
@@ -299,23 +299,23 @@ class BlazyDefault {
       'classes'        => [],
       'delta'          => 0,
       'embed_url'      => '',
-      'extension'      => '',
+      // 'extension'      => '',
       'image_url'      => '',
-      'scheme'         => '',
+      // 'scheme'         => '',
       'type'           => 'image',
       'uri'            => '',
       'height'         => NULL,
       'width'          => NULL,
 
       // @todo move into and deprecated for BlazySettings under blazies:
-      'content_url'    => '',
-      'use_data_uri'   => FALSE,
-      'use_loading'    => TRUE,
+      // 'content_url'    => '',
+      // 'use_data_uri'   => FALSE,
+      // 'use_loading'    => TRUE,
       // 'use_media'      => FALSE,
-      'item_id'        => 'blazy',
-      'lazy_attribute' => 'src',
-      'lazy_class'     => 'b-lazy',
-      'placeholder_fx' => '',
+      // 'item_id'        => 'blazy',
+      // 'lazy_attribute' => 'src',
+      // 'lazy_class'     => 'b-lazy',
+      // 'placeholder_fx' => '',
       // 'placeholder_ui' => '',
       // 'player'         => FALSE,
       // 'entity_type_id' => '',
@@ -361,21 +361,29 @@ class BlazyDefault {
    * Returns available components.
    */
   public static function components(): array {
-    return [
+    return array_merge(self::grids(), [
       'animate',
       'background',
       'blur',
-      'column',
       'compat',
       'filter',
-      'flex',
-      'grid',
       'media',
       'mfp',
-      'nativegrid',
-      'nativegrid.masonry',
       'photobox',
       'ratio',
+    ]);
+  }
+
+  /**
+   * Returns available grid components.
+   */
+  public static function grids(): array {
+    return [
+      'column',
+      'flex',
+      'grid',
+      'nativegrid',
+      'nativegrid.masonry',
     ];
   }
 

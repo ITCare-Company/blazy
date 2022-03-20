@@ -8,6 +8,7 @@ use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Theme\BlazyAttribute;
+use Drupal\blazy\Utility\Check;
 
 /**
  * Provides common blazy utility static methods.
@@ -23,27 +24,6 @@ class Blazy implements BlazyInterface {
    * @var int
    */
   private static $blazyId;
-
-  /**
-   * The AMP page.
-   *
-   * @var bool
-   */
-  private static $isAmp;
-
-  /**
-   * The preview mode to disable Blazy where JS is not available, or useless.
-   *
-   * @var bool
-   */
-  private static $isPreview;
-
-  /**
-   * The preview mode to disable interactive elements.
-   *
-   * @var bool
-   */
-  private static $isSandboxed;
 
   /**
    * Provides attachments when not using the provided API.
@@ -96,32 +76,35 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Checks lazy insanity given various features/ media types + loading option.
-   *
-   * To address mixed media, and various option which also affects individual
-   * items, see self::prepare().
+   * Provides a wrapper to replace deprecated libraries_get_path() at ease.
    */
-  public static function lazyOrNot(array &$settings) {
-    $blazies = $settings['blazies'];
+  public static function getLibrariesPath($name, $base_path = FALSE) {
+    if ($finder = self::service('library.libraries_directory_file_finder')) {
+      return $finder->find($name);
+    }
 
-    // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
-    $is_blazy = $blazies->is('blazy', !empty($settings['blazy']));
-    $is_blazy = $is_blazy || $blazies->is('bg') || $blazies->get('resimage.id');
-    $lazy = $is_blazy ? 'blazy' : $settings['lazy'] ?? 'blazy';
-    $lazy = $blazies->get('lazy.id', $lazy);
-    $lazy = $blazies->is('nojs') ? '' : $lazy;
+    $function = 'libraries_get_path';
+    return is_callable($function) ? $function($name, $base_path) : FALSE;
+  }
 
-    // @todo re-check after sub-modules which were only aware of `is_preview`.
-    // Basically tricking overrides by the reversed name due to sub-modules are
-    // not updated to the new options `No JavaScript` + `Loading priority`, yet.
-    // As known, Splide/ Slick have their own lazy, but might break till further
-    // updates. Choosing Blazy as their lazyload method is the solution to be
-    // compatible with the mentioned options. Better than sacrificing Native.
-    $is_unlazy = empty($lazy);
+  /**
+   * Preliminary settings, normally at container/ global level.
+   */
+  public static function impromptu(array &$settings) {
+    // Checks for features.
+    Check::features($settings);
 
-    $blazies->set('is.blazy', $is_blazy)
-      ->set('is.unlazy', $is_unlazy)
-      ->set('lazy.id', $lazy);
+    // Checks for grids.
+    Check::grids($settings);
+
+    // Checks for lightboxes.
+    Check::lightboxes($settings);
+
+    // Checks for [Responsive] image styles.
+    BlazyImage::styles($settings);
+
+    // Checks for lazy.
+    Check::lazyOrNot($settings);
   }
 
   /**
@@ -139,7 +122,7 @@ class Blazy implements BlazyInterface {
     $index      = $settings['delta'] ?? 0;
     $delta      = $delta > -1 ? $delta : $blazies->get('delta', $index);
     $namespace  = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
-    $item_id    = $blazies->get('item.id', $settings['item_id'] ?? 'blazy');
+    $item_id    = $blazies->get('item.id', 'blazy');
     $source     = $blazies->get('media.source', 'image');
     $type       = $blazies->get('media.type', $settings['type'] ?? 'image');
     $bundle     = $blazies->get('media.bundle', $settings['bundle'] ?? 'image');
@@ -152,7 +135,6 @@ class Blazy implements BlazyInterface {
     $is_remote  = $embed_url && ($is_video || $is_remote);
     $is_iframe  = $is_remote && $settings['media_switch'] == '';
     $is_player  = $is_remote && $settings['media_switch'] == 'media';
-    $is_unblur  = $is_media && $is_iframe;
     $_uri       = $blazies->get('uri', $settings['uri'] ?? '');
     $uri        = $settings['uri'] = $_uri ?: BlazyFile::uri($item);
     $is_initial = $delta == $blazies->get('initial', -2);
@@ -160,10 +142,12 @@ class Blazy implements BlazyInterface {
     $unlazy     = $unlazy ? TRUE : $blazies->is('unlazy');
     $use_loader = $blazies->get('use.loader', $settings['use_loading'] ?? '');
     $use_loader = $unlazy ? FALSE : $use_loader;
+    $is_unblur  = $blazies->is('sandboxed') || $blazies->is('unstyled') || $is_iframe;
+    $is_blur    = $blazies->is('blur') && !$is_unblur;
 
     // @todo better logic to support loader as required, must decouple loader.
     // @todo $lazy = $settings['loading'] == 'lazy';
-    // @todo $lazy = !empty($settings['blazy']) && ($blazies->get('libs.compat') || $lazy);
+    // @todo $lazy = $blazies->is('blazy') && ($blazies->get('libs.compat') || $lazy);
     // Redefines some since this can be fed by anyone, including custom works.
     // Also addresses mixed media unique per item.
     $blazies->set('delta', $delta)
@@ -173,13 +157,18 @@ class Blazy implements BlazyInterface {
       ->set('is.multimedia', $is_media)
       ->set('is.player', $is_player)
       ->set('is.remote', $is_remote)
-      ->set('is.unblur', $is_unblur)
+      ->set('is.blur', $is_blur)
       ->set('is.video', $is_remote)
       ->set('namespace', $namespace)
       ->set('media.type', $type)
       ->set('is.unlazy', $unlazy)
       ->set('uri', $uri)
       ->set('use.loader', $use_loader);
+
+    if ($item && ($file = ($item->entity ?? NULL))) {
+      $tags = $file->getCacheTags();
+      $blazies->set('cache.file.tags', $tags);
+    }
   }
 
   /**
@@ -227,9 +216,13 @@ class Blazy implements BlazyInterface {
       // $blazies->set('first.settings', array_filter($blazy));
       // $blazies->set('first.item_id', $blazy->get('item.id'));
       // Hints containers to build relevant lightbox gallery attributes.
-      if ($lightbox = $blazy->get('lightbox')) {
-        $blazies->set('lightbox', $lightbox)
-          ->set($lightbox, $lightbox);
+      $childbox = $blazy->get('lightbox.name');
+      $parentbox = $blazies->get('lightbox.name');
+
+      if ($childbox && !$parentbox) {
+        $optionset = $blazy->get('lightbox.optionset', $childbox);
+        $blazies->set('lightbox.name', $childbox)
+          ->set($childbox, $optionset);
       }
 
       $blazies->set('first', $blazy->get('first'), TRUE);
@@ -237,52 +230,25 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Checks if Blazy is in CKEditor preview mode where no JS assets are loaded.
-   */
-  public static function isPreview(): bool {
-    if (!isset(static::$isPreview)) {
-      static::$isPreview = self::isAmp() || self::isSandboxed();
-    }
-    return static::$isPreview;
-  }
-
-  /**
-   * Checks if Blazy is in AMP pages.
-   */
-  public static function isAmp(): bool {
-    if (!isset(static::$isAmp)) {
-      $stack = self::requestStack();
-      static::$isAmp = $stack && $stack->getCurrentRequest()->query->get('amp');
-    }
-    return static::$isAmp;
-  }
-
-  /**
-   * In CKEditor without JS assets, interactive elements must be sandboxed.
-   */
-  public static function isSandboxed(): bool {
-    if (!isset(static::$isSandboxed)) {
-      $route = self::routeMatch()->getRouteName();
-      $check = FALSE;
-
-      // @todo remove after regression fixes, or keep it due to thumbnail sizes.
-      $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
-      foreach ($edits as $key) {
-        if (mb_strpos($route, $key) !== FALSE) {
-          $check = TRUE;
-          break;
-        }
-      }
-      static::$isSandboxed = $check;
-    }
-    return static::$isSandboxed;
-  }
-
-  /**
    * Returns the cross-compat D8 ~ D10 app root.
    */
   public static function root($container) {
     return version_compare(\Drupal::VERSION, '9.0', '<') ? $container->get('app.root') : $container->getParameter('app.root');
+  }
+
+  /**
+   * Reset the BlazySettings per item.
+   */
+  public static function reset(array &$settings): BlazySettings {
+    self::verify($settings);
+
+    // The settings instance must be unique per item.
+    $blazies = $settings['blazies'];
+    if (!$blazies->is('reset')) {
+      $blazies->reset($settings);
+    }
+
+    return $settings['blazies'];
   }
 
   /**
@@ -294,18 +260,27 @@ class Blazy implements BlazyInterface {
       $settings = &$settings['settings'];
     }
 
-    $settings += BlazyDefault::htmlSettings();
+    self::verify($settings);
     return $settings;
   }
 
   /**
-   * Modifies the common settings extracted from the given entity.
+   * Returns the translated entity if avaiable.
    */
   public static function translated($entity, $langcode): object {
     if ($langcode && $entity->hasTranslation($langcode)) {
       return $entity->getTranslation($langcode);
     }
     return $entity;
+  }
+
+  /**
+   * Verify `blazies` exists, in case accessed outside the workflow.
+   */
+  public static function verify(array &$settings): void {
+    if (!isset($settings['blazies'])) {
+      $settings += BlazyDefault::htmlSettings();
+    }
   }
 
   /**
@@ -325,7 +300,7 @@ class Blazy implements BlazyInterface {
    *   The currently active route match object.
    */
   public static function routeMatch() {
-    return \Drupal::routeMatch();
+    return self::service('current_route_match');
   }
 
   /**
@@ -392,18 +367,18 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Returns URI from image item.
+   * Returns URI from image item, safe to remove anytime.
    *
-   * @todo deprecated and removed for BlazyFile::uri().
+   * @todo deprecated and removed for BlazyFile::uri() anytime.
    */
   public static function uri($item): string {
     return BlazyFile::uri($item);
   }
 
   /**
-   * Returns fake image item based on the given $attributes.
+   * Returns fake image item, safe to remove anytime.
    *
-   * @todo deprecated and removed for BlazyImage::fake().
+   * @todo deprecated and removed for BlazyImage::fake() anytime.
    */
   public static function image(array $attributes = []) {
     return BlazyImage::fake($attributes);

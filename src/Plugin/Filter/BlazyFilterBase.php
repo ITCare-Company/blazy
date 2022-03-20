@@ -86,6 +86,13 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
   protected $result;
 
   /**
+   * The excluded settings to fetch from attributes.
+   *
+   * @var array
+   */
+  protected $excludedSettings = ['filter_tags'];
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -109,7 +116,6 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
     $settings += BlazyDefault::lazySettings();
     $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
 
-    $settings['_check_protocol'] = TRUE;
     $settings['plugin_id'] = $plugin_id = $this->getPluginId();
     $settings['id'] = $id = BlazyFilterUtil::getId($plugin_id);
     $settings['is_media_library'] = $definitions && isset($definitions['field_media_oembed_video']);
@@ -118,6 +124,10 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
 
     $blazies = $settings['blazies'];
     $exist = $blazies->is('resimage');
+
+    $blazies->set('is.filter', TRUE)
+      ->set('is.unsafe', TRUE)
+      ->set('libs.filter', TRUE);
 
     if ($style = ($settings['hybrid_style'] ?? FALSE)) {
       if ($exist && $resimage = $this->blazyManager->entityLoad($style, 'responsive_image_style')) {
@@ -140,7 +150,7 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
     }
 
     $this->blazyManager->postSettings($settings);
-    $blazies->set('box.id', $id)
+    $blazies->set('lightbox.gallery_id', $id)
       ->set('css.id', $id)
       ->set('filter.plugin_id', $plugin_id);
 
@@ -158,31 +168,28 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
    * {@inheritdoc}
    */
   public function buildImageItem(array &$build, &$node) {
-    // Checks if we have a valid file entity, not hard-coded image URL.
-    // Prioritize data-src for sub-module filters after Blazy.
-    $src = $node->getAttribute('data-src') ?: $node->getAttribute('src');
-    if ($src) {
-      // Prevents data URI from screwing up.
-      $data_uri = mb_substr($src, 0, 10) === 'data:image';
-      if (!$data_uri) {
-        // If starts with 2 slashes, it is always external.
-        if (mb_substr($src, 0, 2) === '//') {
-          // We need to query stored SRC, https is enforced.
-          $src = 'https:' . $src;
-        }
+    $settings = &$build['settings'];
+    $blazies = $settings['blazies'];
+    $src = BlazyFilterUtil::getValidSrc($node);
 
-        if ($node->tagName == 'img') {
-          $this->getImageItemFromImageSrc($build, $node, $src);
+    if ($src) {
+      // If starts with 2 slashes, it is always external.
+      if (mb_substr($src, 0, 2) === '//') {
+        // We need to query stored SRC, https is enforced.
+        $src = 'https:' . $src;
+      }
+
+      if ($node->tagName == 'img') {
+        $this->getImageItemFromImageSrc($build, $node, $src);
+      }
+      elseif ($node->tagName == 'iframe') {
+        try {
+          // Prevents invalid video URL (404, etc.) from screwing up.
+          $this->getImageItemFromIframeSrc($build, $node, $src);
         }
-        elseif ($node->tagName == 'iframe') {
-          try {
-            // Prevents invalid video URL (404, etc.) from screwing up.
-            $this->getImageItemFromIframeSrc($build, $node, $src);
-          }
-          catch (\Exception $ignore) {
-            // Do nothing, likely local work without internet, or the site is
-            // down. No need to be chatty on this.
-          }
+        catch (\Exception $ignore) {
+          // Do nothing, likely local work without internet, or the site is
+          // down. No need to be chatty on this.
         }
       }
     }
@@ -193,8 +200,12 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       $item->title = $node->getAttribute('title') ?: ($item->title ?? '');
 
       // Supports hard-coded image url without file API.
-      if (!empty($item->uri) && empty($item->width)) {
-        if ($data = @getimagesize($item->uri)) {
+      if ($uri = BlazyFile::uri($item)) {
+        $settings['uri'] = $uri;
+        $blazies->set('uri', $uri);
+
+        // @todo remove.
+        if (empty($item->width) && $data = @getimagesize($uri)) {
           [$item->width, $item->height] = $data;
         }
       }
@@ -235,12 +246,35 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
    * Prepares the blazy.
    */
   protected function prepareSettings(\DOMElement $node, array &$settings) {
+    $blazies = $settings['blazies'];
     if ($check = $node->getAttribute('settings')) {
       $check = str_replace("'", '"', $check);
       $check = Json::decode($check);
       if ($check) {
         $settings = array_merge($settings, $check);
       }
+    }
+
+    // Merge all defined attributes into settings for convenient.
+    $defaults = $this->defaultConfiguration()['settings'] ?? [];
+    if ($defaults) {
+      foreach ($defaults as $key => $value) {
+        if (in_array($key, $this->excludedSettings)) {
+          continue;
+        }
+
+        $type = gettype($value);
+
+        if ($node->hasAttribute($key)) {
+          $node_value = $node->getAttribute($key);
+          settype($node_value, $type);
+          $settings[$key] = $node_value;
+        }
+      }
+    }
+
+    if (isset($settings['count'])) {
+      $blazies->set('count', $settings['count']);
     }
 
     BlazyFilterUtil::toGrid($node, $settings);
@@ -353,7 +387,6 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
   protected function buildItemAttributes(array &$build, $node) {
     $sets = &$build['settings'];
     $blazies = $sets['blazies'];
-
     $blazies->set('is.blazy_tag', TRUE);
 
     if ($caption = $node->getAttribute('caption')) {
@@ -381,7 +414,6 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
     // See https://www.drupal.org/project/drupal/issues/2061377,
     // https://www.drupal.org/project/drupal/issues/2822389, and
     // https://www.drupal.org/project/inline_responsive_images.
-    $settings['uri'] = $settings['image_url'] = '';
     $update = FALSE;
     if ($style = $node->getAttribute('data-image-style')) {
       $update = TRUE;

@@ -104,16 +104,6 @@ class BlazyUtil {
   }
 
   /**
-   * Provides image url based on the given settings.
-   *
-   * @todo deprecate at 2.5 and removed < 3.x. Use BlazyImage::url()
-   * instead.
-   */
-  public static function imageUrl(array &$settings) {
-    BlazyImage::url($settings);
-  }
-
-  /**
    * Generates an SVG Placeholder.
    *
    * @todo deprecate at 2.7 and removed < 3.x. Use Placeholder::generate().

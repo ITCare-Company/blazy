@@ -27,7 +27,8 @@ class BlazyResponsiveImage {
 
     // Makes Responsive image usable as CSS background image sources.
     // @todo merge it with BlazyFormatter + BlazyFilter.
-    if ($settings['background'] && $resimage = $blazies->get('resimage')) {
+    $resimage = $blazies->get('resimage', []);
+    if ($settings['background'] && isset($resimage['styles'])) {
       $srcset = $ratios = [];
 
       foreach ($resimage['styles'] as $style) {
@@ -51,8 +52,15 @@ class BlazyResponsiveImage {
       // a real smallest image. Bio will map it to the current breakpoint later.
       $bg = reset($srcset);
       $unlazy = $blazies->is('undata');
-      $settings['image_url'] = $unlazy ? $settings['image_url'] : $bg['src'];
-      $blazies->set('is.unlazy', $unlazy);
+      $old_url = $blazies->get('image.url', $settings['image_url'] ?? '');
+      $new_url = $unlazy ? $old_url : $bg['src'];
+
+      // @todo remove.
+      $settings['image_url'] = $new_url;
+
+      $blazies->set('is.unlazy', $unlazy)
+        ->set('image.url', $new_url);
+
       BlazyAttribute::lazy($attributes, $settings);
     }
   }
@@ -156,6 +164,7 @@ class BlazyResponsiveImage {
   public static function dimensionsAndSources(array &$settings = [], $initial = TRUE): void {
     $blazies = $settings['blazies'];
     $preload = !empty($settings['preload']);
+
     // @todo merge background here.
     if ($preload || $blazies->is('fluid')) {
       BlazyResponsiveImage::dimensions($settings, $initial);
@@ -172,11 +181,15 @@ class BlazyResponsiveImage {
     $blazies = $settings['blazies'];
 
     // Mimicks private _responsive_image_image_style_url, #3119527.
-    if (empty($settings['image_style']) && $resimage = $blazies->get('resimage.style')) {
+    if (empty($settings['image_style'])
+      && $resimage = $blazies->get('resimage.style')) {
       $fallback = $resimage->getFallbackImageStyle();
       if ($fallback == '_empty image_') {
-        $placeholder = Placeholder::generate($settings['width'], $settings['height']);
-        $settings['image_url'] = $blazies->get('placeholder') ?: $placeholder;
+        $url = $blazies->get('placeholder');
+
+        // @todo remove.
+        $settings['image_url'] = $url;
+        $blazies->set('image.url', $url);
       }
       else {
         $settings['image_style'] = $fallback;

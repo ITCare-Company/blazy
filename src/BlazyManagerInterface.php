@@ -85,7 +85,7 @@ interface BlazyManagerInterface {
    *   The first item containing settings or item keys.
    *
    * @see \Drupal\blazy\BlazyManager::prepareBuild()
-   * @see \Drupal\blazy\Dejavu\BlazyEntityBase::buildElements()
+   * @see \Drupal\blazy\Field\BlazyEntityVanillaBase::buildElements()
    */
   public function isBlazy(array &$settings, array $item = []);
 

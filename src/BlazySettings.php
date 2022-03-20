@@ -89,8 +89,8 @@ class BlazySettings implements \Countable {
 
     $parts = array_map('trim', explode('.', $key));
 
-    if (is_array($value) && $merge) {
-      $value = array_merge($this->get($key, []), $value);
+    if (is_array($value)) {
+      $value = array_merge((array) $this->get($key, []), $value);
     }
 
     if (count($parts) == 1) {
@@ -189,7 +189,13 @@ class BlazySettings implements \Countable {
    *   The new BlazySettings instance.
    */
   public function reset(array &$settings): BlazySettings {
-    $instance = new BlazySettings($this->storage);
+    $data = $this->storage;
+
+    if ($this->is('debug')) {
+      $this->rksort($data);
+    }
+
+    $instance = new BlazySettings($data);
     $settings['blazies'] = $instance;
     return $instance;
   }
@@ -199,6 +205,21 @@ class BlazySettings implements \Countable {
    */
   public function storage(): array {
     return $this->storage;
+  }
+
+  /**
+   * Sorts recursively.
+   */
+  private function rksort(&$a): bool {
+    if (!is_array($a)) {
+      return FALSE;
+    }
+
+    ksort($a);
+    foreach ($a as $k => $v) {
+      $this->rksort($a[$k]);
+    }
+    return TRUE;
   }
 
 }

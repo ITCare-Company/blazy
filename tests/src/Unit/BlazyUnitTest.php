@@ -44,12 +44,12 @@ class BlazyUnitTest extends UnitTestCase {
    * @dataProvider providerTestBuildIframe
    */
   public function testBuildIframe(array $data, $expected) {
-    $variables             = ['attributes' => [], 'image' => []];
-    $settings              = BlazyDefault::htmlSettings();
-    $settings['embed_url'] = $embed_url = '//www.youtube.com/watch?v=E03HFA923kw';
-    $settings['type']      = 'video';
-    $settings['bundle']    = 'remote_video';
-    $settings['uri']       = 'public://example.jpg';
+    $variables          = ['attributes' => [], 'image' => []];
+    $settings           = BlazyDefault::htmlSettings();
+    $settings['type']   = 'video';
+    $settings['bundle'] = 'remote_video';
+    $settings['uri']    = 'public://example.jpg';
+    $embed_url          = '//www.youtube.com/watch?v=E03HFA923kw';
 
     $blazies = $settings['blazies'];
 
@@ -208,8 +208,8 @@ class BlazyUnitTest extends UnitTestCase {
    *   The settings being tested.
    *
    * @covers \Drupal\blazy\BlazyManager::preRenderBlazy
-   * @covers \Drupal\blazy\Theme\BlazyLightbox::build
-   * @covers \Drupal\blazy\Theme\BlazyLightbox::buildCaptions
+   * @covers \Drupal\blazy\Theme\Lightbox::build
+   * @covers \Drupal\blazy\Theme\Lightbox::buildCaptions
    * @dataProvider providerTestPreRenderImageLightbox
    */
   public function todoTestPreRenderImageLightbox(array $settings = []) {
@@ -266,7 +266,7 @@ class BlazyUnitTest extends UnitTestCase {
       [
         'box_caption' => 'auto',
         'lightbox' => TRUE,
-        'media_switch' => 'colorbox',
+        'media_switch' => 'blazy_test',
         'type' => 'image',
       ],
     ];
@@ -274,7 +274,7 @@ class BlazyUnitTest extends UnitTestCase {
       [
         'box_caption' => 'alt',
         'lightbox' => TRUE,
-        'media_switch' => 'colorbox',
+        'media_switch' => 'blazy_test',
         'type' => 'image',
       ],
     ];
@@ -282,7 +282,7 @@ class BlazyUnitTest extends UnitTestCase {
       [
         'box_caption' => 'title',
         'lightbox' => TRUE,
-        'media_switch' => 'photobox',
+        'media_switch' => 'blazy_test',
         'type' => 'image',
       ],
     ];
@@ -290,7 +290,7 @@ class BlazyUnitTest extends UnitTestCase {
       [
         'box_caption' => 'alt_title',
         'lightbox' => TRUE,
-        'media_switch' => 'colorbox',
+        'media_switch' => 'blazy_test',
         'type' => 'image',
       ],
     ];
@@ -298,7 +298,7 @@ class BlazyUnitTest extends UnitTestCase {
       [
         'box_caption' => 'title_alt',
         'lightbox' => TRUE,
-        'media_switch' => 'photobox',
+        'media_switch' => 'blazy_test',
         'type' => 'image',
       ],
     ];
@@ -306,7 +306,7 @@ class BlazyUnitTest extends UnitTestCase {
       [
         'box_caption' => 'entity_title',
         'lightbox' => TRUE,
-        'media_switch' => 'photobox',
+        'media_switch' => 'blazy_test',
         'type' => 'image',
       ],
     ];
@@ -317,8 +317,7 @@ class BlazyUnitTest extends UnitTestCase {
         'dimension' => '640x360',
         'embed_url' => '//www.youtube.com/watch?v=E03HFA923kw',
         'lightbox' => TRUE,
-        'media_switch' => 'photobox',
-        'scheme' => 'youtube',
+        'media_switch' => 'blazy_test',
         'type' => 'video',
       ],
     ];

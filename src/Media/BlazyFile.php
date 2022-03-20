@@ -7,7 +7,6 @@ use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Site\Settings;
 use Drupal\file\FileInterface;
-use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\blazy\Blazy;
 
 /**
@@ -88,7 +87,8 @@ class BlazyFile {
       $url = $uri;
     }
     else {
-      if (($data_uri || empty($url)) && self::isValidUri($uri)) {
+      // @todo re-check this based on the need.
+      if (($data_uri || empty($url) || $style) && self::isValidUri($uri)) {
         $url = $style ? $style->buildUrl($uri) : self::createUrl($uri);
 
         if ($gen = Blazy::fileUrlGenerator()) {
@@ -265,17 +265,9 @@ class BlazyFile {
     }
 
     $pathinfo = pathinfo($uri);
-    $unblur = $blazies->is('sandboxed')
-      || ($blazies->is('multimedia') && empty($settings['media_switch']));
-
-    $settings['extension'] = $ext = $pathinfo['extension'] ?? '';
+    $ext = $pathinfo['extension'] ?? '';
     $supported = $blazies->is('richbox', !empty($settings['_richbox']));
     $richbox = $blazies->get('colorbox') || $blazies->get('mfp') || $supported;
-
-    if ($item instanceof ImageItem && $file = $item->entity) {
-      $tags = $file->getCacheTags();
-      $blazies->set('cache.file.tags', $tags);
-    }
 
     $extensions = ['svg'];
     if ($unstyles = $blazies->get('ui.unstyled_extensions')) {
@@ -295,7 +287,6 @@ class BlazyFile {
     // Re-define, if the provided API by-passed, or different/ altered per item.
     $blazies->set('is.external', UrlHelper::isExternal($uri))
       ->set('is.richbox', $richbox)
-      ->set('is.unblur', $unblur)
       ->set('is.unstyled', $unstyled)
       ->set('media.extension', $ext);
 
@@ -373,6 +364,7 @@ class BlazyFile {
         // Preloading 1px data URI makes no sense, see if image_url exists.
         $data_uri = $url && mb_substr($url, 0, 10) === 'data:image';
         $image_url = $blazies->get('image.url', $settings['image_url'] ?? '');
+        $image_url = $image_url ?: $blazies->get('first.url');
         if ($data_uri && $image_url) {
           $url = $image_url;
         }
@@ -385,10 +377,10 @@ class BlazyFile {
       }
     }
     else {
-      foreach ($uris as $uri) {
+      $uris = $blazies->get('urls', []);
+      foreach ($uris as $key => $uri) {
         // URI might be empty with mixed media, but indices are preserved.
-        if ($uri) {
-          ['url' => $url] = BlazyImage::urlAndStyle($uri, $settings);
+        if ($uri && ($url = $uris[$key] ?? NULL)) {
           $links[] = $link($url, $uri);
         }
       }

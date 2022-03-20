@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\blazy\Traits;
 
-use Drupal\Core\Cache\Cache;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyEntity;
 
@@ -37,7 +36,9 @@ trait BlazyUnitTestTrait {
       'ratio'           => 'fluid',
       'caption'         => ['alt' => 'alt', 'title' => 'title'],
       'sizes'           => '100w',
-    ] + BlazyDefault::extendedSettings() + BlazyDefault::itemSettings() + $this->getDefaultFieldDefinition();
+    ] + BlazyDefault::extendedSettings()
+      + BlazyDefault::itemSettings()
+      + $this->getDefaultFieldDefinition();
 
     BlazyEntity::settings($defaults, $this->entity);
 
@@ -180,28 +181,6 @@ trait BlazyUnitTestTrait {
   }
 
   /**
-   * Return dummy cache metadata.
-   */
-  protected function getCacheMetaData() {
-    $build = [];
-    $suffixes[] = 3;
-    foreach (['contexts', 'keys', 'tags'] as $key) {
-      if ($key == 'contexts') {
-        $cache = ['languages'];
-      }
-      elseif ($key == 'keys') {
-        $cache = ['blazy_image'];
-      }
-      elseif ($key == 'tags') {
-        $cache = Cache::buildTags('file:123', $suffixes, '.');
-      }
-
-      $build['cache_' . $key] = $cache;
-    }
-    return $build;
-  }
-
-  /**
    * Pre render Blazy image.
    *
    * @param array $build
@@ -211,10 +190,13 @@ trait BlazyUnitTestTrait {
    *   The pre_render element.
    */
   protected function doPreRenderImage(array $build = []) {
+    $settings = &$build['settings'];
+    $this->blazyManager->postSettings($settings);
+
     $image = $this->blazyManager->getBlazy($build);
 
-    $image['#build']['settings'] = array_merge($this->getCacheMetaData(), $build['settings']);
-    $image['#build']['item'] = $build['item'];
+    $image['#build']['item'] = empty($image['#build']['item'])
+      ? $build['item'] : $image['#build']['item'];
     return $this->blazyManager->preRenderBlazy($image);
   }
 

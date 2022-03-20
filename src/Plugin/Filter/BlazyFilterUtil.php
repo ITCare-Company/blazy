@@ -4,8 +4,8 @@ namespace Drupal\blazy\Plugin\Filter;
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\BlazyGrid;
 use Drupal\blazy\BlazyUtil;
+use Drupal\blazy\Theme\Grid;
 
 /**
  * Provides shared filter utilities.
@@ -23,7 +23,7 @@ class BlazyFilterUtil {
    * Returns settings for attachments.
    */
   public static function attach(array $settings = []) {
-    $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE];
+    $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE] + $settings;
     $all['media_switch'] = $switch = $settings['media_switch'];
 
     if (!empty($settings[$switch])) {
@@ -138,6 +138,48 @@ class BlazyFilterUtil {
   }
 
   /**
+   * Returns a valid node, excuding bur image.
+   */
+  public static function getValidNode($children) {
+    $child = $children->item(0);
+    $class = $child->getAttribute('class');
+    $is_blur = $class && mb_strpos($class, 'b-blur') !== FALSE;
+    $is_bg = $class && mb_strpos($class, 'b-bg') !== FALSE;
+
+    if ($is_blur && !$is_bg) {
+      $child = $children->item(1);
+    }
+    return $child;
+  }
+
+  /**
+   * Returns a image/ iframe src.
+   *
+   * Checks if we have a valid file entity, not hard-coded image URL.
+   * Prioritize data-src for sub-module filters after Blazy.
+   */
+  public static function getValidSrc($node) {
+    $url = '';
+    $src = $node->getAttribute('src');
+    $data_src = $node->getAttribute('data-src');
+
+    // Prevents data URI from screwing up.
+    if ($data_src) {
+      $data_uri = mb_substr($data_src, 0, 10) === 'data:image';
+      if (!$data_uri) {
+        $url = $data_src;
+      }
+    }
+    if (!$url && $src) {
+      $data_uri = mb_substr($src, 0, 10) === 'data:image';
+      if (!$data_uri) {
+        $url = $src;
+      }
+    }
+    return $url;
+  }
+
+  /**
    * Returns DOMElement nodes expected to be grid, or slide items.
    */
   public static function getNodes(\DOMDocument $dom, $tag = '//grid') {
@@ -187,7 +229,7 @@ class BlazyFilterUtil {
           if ($settings['style'] == 'flexbox') {
             $settings['style'] = 'flex';
           }
-          BlazyGrid::toNativeGrid($settings);
+          Grid::toNativeGrid($settings);
         }
       }
     }

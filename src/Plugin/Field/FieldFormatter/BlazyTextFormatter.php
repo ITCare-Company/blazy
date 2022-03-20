@@ -59,9 +59,6 @@ class BlazyTextFormatter extends FormatterBase {
     // Build the settings.
     $settings = $this->buildSettings();
 
-    // @todo remove $settings after being migrated into $blazies.
-    $settings['langcode'] = $langcode;
-
     // Marks this formatter as blazy specific.
     $this->blazySettings($settings);
 
@@ -70,7 +67,7 @@ class BlazyTextFormatter extends FormatterBase {
     $blazies->set('is.grid', TRUE)
       ->set('is.unblazy', TRUE)
       ->set('is.text', TRUE)
-      ->set('langcode', $langcode)
+      ->set('language.code', $langcode)
       ->set('lazy', []);
 
     // The ProcessedText element already handles cache context & tag bubbling.

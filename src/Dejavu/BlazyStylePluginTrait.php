@@ -30,8 +30,7 @@ trait BlazyStylePluginTrait {
       // Supports multiple image styles within a single view such as GridStack,
       // else fallbacks to the defined image style if available.
       if (empty($settings['image_style'])) {
-        $image_style = $image['rendered']['#image_style'] ?? '';
-        $settings['image_style'] = empty($settings['image_style']) ? $image_style : $settings['image_style'];
+        $settings['image_style'] = $image['rendered']['#image_style'] ?? '';
       }
 
       // Converts image formatter for blazy to reduce complexity with CSS
@@ -65,7 +64,8 @@ trait BlazyStylePluginTrait {
 
           // Prevent images from having absurd height when being lazyloaded.
           // Allows to disables it by _noratio such as enforced CSS background.
-          $settings['ratio'] = empty($settings['_noratio']) ? 'fluid' : '';
+          $noratio = $settings['_noratio'] ?? '';
+          $settings['ratio'] = $blazies->get('is.noratio', $noratio) ? '' : 'fluid';
           if (empty($settings['media_switch']) && $url) {
             $settings['media_switch'] = 'content';
           }
@@ -85,7 +85,8 @@ trait BlazyStylePluginTrait {
    * Checks if we can work with this formatter, otherwise no go if flattened.
    */
   public function isImageRenderable($row, $index, $field_image = '') {
-    if (!empty($field_image) && $image = $this->getFieldRenderable($row, $index, $field_image)) {
+    if (!empty($field_image)
+      && $image = $this->getFieldRenderable($row, $index, $field_image)) {
       if ($this->getImageItem($image)) {
         return $image;
       }
@@ -107,12 +108,12 @@ trait BlazyStylePluginTrait {
     $item = [];
 
     // Image formatter.
-    if (isset($image['raw'])) {
+    if (isset($image['rendered'])) {
       $item = empty($image['rendered']['#item']) ? [] : $image['rendered']['#item'];
 
       // Blazy formatter.
       if (isset($image['rendered']['#build'])) {
-        $item = $image['rendered']['#build']['item'];
+        $item = $image['rendered']['#build']['item'] ?? NULL;
       }
     }
 
@@ -139,9 +140,14 @@ trait BlazyStylePluginTrait {
       $items['data'] = $this->view->rowPlugin->render($this->view->result[$index]);
     }
 
-    $items['link']    = empty($settings['link']) ? [] : $this->getFieldRendered($index, $settings['link']);
-    $items['title']   = empty($settings['title']) ? [] : $this->getFieldRendered($index, $settings['title'], TRUE);
-    $items['overlay'] = empty($settings['overlay']) ? [] : $this->getFieldRendered($index, $settings['overlay']);
+    $items['link'] = empty($settings['link']) ? []
+      : $this->getFieldRendered($index, $settings['link']);
+
+    $items['title'] = empty($settings['title']) ? []
+      : $this->getFieldRendered($index, $settings['title'], TRUE);
+
+    $items['overlay'] = empty($settings['overlay']) ? []
+      : $this->getFieldRendered($index, $settings['overlay']);
 
     return $items;
   }
@@ -150,8 +156,9 @@ trait BlazyStylePluginTrait {
    * Returns the rendered layout fields.
    */
   public function getLayout(array &$settings, $index) {
-    if (strpos($settings['layout'], 'field_') !== FALSE) {
-      $settings['layout'] = strip_tags($this->getField($index, $settings['layout']));
+    $layout = $settings['layout'] ?? '';
+    if (strpos($layout, 'field_') !== FALSE) {
+      $settings['layout'] = strip_tags($this->getField($index, $layout));
     }
   }
 
@@ -160,7 +167,9 @@ trait BlazyStylePluginTrait {
    */
   public function getFieldRendered($index, $field_name = '', $restricted = FALSE) {
     if (!empty($field_name) && $output = $this->getField($index, $field_name)) {
-      return is_array($output) ? $output : ['#markup' => ($restricted ? Xss::filterAdmin($output) : $output)];
+      return is_array($output) ? $output : [
+        '#markup' => ($restricted ? Xss::filterAdmin($output) : $output),
+      ];
     }
     return [];
   }

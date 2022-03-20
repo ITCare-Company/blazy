@@ -1,4 +1,13 @@
 
+Blazy 8.x-2.0-dev, 2022-03-17
+-----------------------------
+- Moved field base formatters from Dejavu into Drupal\blazy\Field namespace.
+- Moved field operations from BlazyEntity into Drupal\blazy\Field\BlazyField.
+- Changed DIV to FIGCAPTION specific for BlazyFilter captions.
+- Added settings by container attributes for all blazy-related filters.
+- Moved internal BlazyGrid into Drupal\blazy\Theme namespace.
+- Moved internal BlazyLightbox into Drupal\blazy\Theme namespace.
+
 Blazy 8.x-2.0-dev, 2022-03-15
 -----------------------------
 - Fixed for empty bundles if formatters are accessed from Views UI, not Field

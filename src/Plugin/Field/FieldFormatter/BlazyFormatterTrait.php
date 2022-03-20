@@ -25,6 +25,13 @@ trait BlazyFormatterTrait {
   protected $blazyManager;
 
   /**
+   * The blazy-related manager service.
+   *
+   * @var \Drupal\blazy\BlazyManagerInterface
+   */
+  protected $manager;
+
+  /**
    * The logger factory.
    *
    * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
@@ -60,6 +67,13 @@ trait BlazyFormatterTrait {
   }
 
   /**
+   * Returns any blazy-related manager.
+   */
+  public function manager() {
+    return $this->manager;
+  }
+
+  /**
    * Returns the blazy entity manager.
    */
   public function blazyEntity() {
@@ -84,7 +98,8 @@ trait BlazyFormatterTrait {
    * Injects DI services.
    */
   protected static function injectServices($instance, ContainerInterface $container, $type = '') {
-    $instance->formatter = $instance->blazyManager = $container->get('blazy.formatter');
+    // Blazy has sequential inheritance, its sub-modules deviate.
+    $instance->formatter = $instance->blazyManager = $instance->manager = $container->get('blazy.formatter');
 
     // Provides optional services.
     if ($type == 'entity') {
@@ -108,39 +123,13 @@ trait BlazyFormatterTrait {
    */
   public function buildSettings() {
     $settings = array_merge($this->getCommonFieldDefinition(), $this->getSettings());
-    $blazies = $settings['blazies'];
-    $field = $this->fieldDefinition;
-    $is_grid = !empty($settings['style']) && !empty($settings['grid']);
+    $blazies  = &$settings['blazies'];
+    $is_grid  = !empty($settings['style']) && !empty($settings['grid']);
 
-    // Exposes few basic formatter settings w/o use_field.
-    $blazies->set('field.label', $field->getLabel())
-      ->set('field.label_display', $this->label)
-      ->set('field.name', $field->getName())
-      ->set('field.type', $field->getType())
-      ->set('field.plugin_id', $this->getPluginId())
-      ->set('field.entity_type', $field->getTargetEntityTypeId())
-      ->set('field.target_type', $this->getFieldSetting('target_type'))
-      ->set('field.third_party', $this->getThirdPartySettings())
-      ->set('field.view_mode', $this->viewMode)
-      ->set('is.grid', $is_grid);
+    $blazies->set('is.grid', $is_grid)
+      ->set('field.third_party', $this->getThirdPartySettings());
 
     return $settings;
-  }
-
-  /**
-   * Builds the specific Blazy settings.
-   */
-  protected function blazySettings(array &$settings) {
-    $blazies = $settings['blazies'];
-    $id = 'blazy';
-
-    $blazies->set('item.id', $id)
-      ->set('is.blazy', TRUE)
-      ->set('lazy.id', $id)
-      ->set('namespace', $id);
-
-    // @todo remove settings after migration and sub-modules.
-    $settings['item_id'] = $id;
   }
 
   /**
@@ -151,7 +140,7 @@ trait BlazyFormatterTrait {
   public function getCommonFieldDefinition() {
     $field = $this->fieldDefinition;
 
-    // @todo remove for blazies after sub-modules.
+    // @todo remove for blazies after admin updated and sub-modules.
     $settings = [
       'namespace'   => 'blazy',
       'field_name'  => $field->getName(),
@@ -159,8 +148,19 @@ trait BlazyFormatterTrait {
       'entity_type' => $field->getTargetEntityTypeId(),
       'plugin_id'   => $this->getPluginId(),
       'target_type' => $this->getFieldSetting('target_type'),
-    ];
-    $settings += BlazyDefault::htmlSettings();
+    ] + BlazyDefault::htmlSettings();
+
+    // Exposes few basic formatter settings w/o use_field.
+    $blazies = &$settings['blazies'];
+    $blazies->set('field.label', $field->getLabel())
+      ->set('field.label_display', $this->label)
+      ->set('field.name', $field->getName())
+      ->set('field.type', $field->getType())
+      ->set('field.plugin_id', $this->getPluginId())
+      ->set('field.entity_type', $field->getTargetEntityTypeId())
+      ->set('field.target_type', $this->getFieldSetting('target_type'))
+      ->set('field.view_mode', $this->viewMode);
+
     return $settings;
   }
 

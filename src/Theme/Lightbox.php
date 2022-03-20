@@ -17,19 +17,25 @@ use Drupal\blazy\Media\BlazyImage;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
  */
-class BlazyLightbox {
+class Lightbox {
 
   /**
    * Provides lightbox libraries.
    */
-  public static function attach(array &$load, array $attach = []): void {
+  public static function attach(array &$load, array &$attach = []): void {
     $blazies = $attach['blazies'];
 
-    if ($blazies->get('lightbox')) {
+    if ($name = $blazies->get('lightbox.name')) {
       $load['library'][] = 'blazy/lightbox';
 
-      if ($blazies->get('colorbox')) {
-        self::attachColorbox($load, $attach);
+      // Built-in lightboxes.
+      if ($name == 'colorbox') {
+        self::attachColorbox($load);
+      }
+      foreach (['colorbox', 'mfp', 'photobox'] as $key) {
+        if ($name == $key) {
+          $blazies->set('libs.' . $key, TRUE);
+        }
       }
     }
   }
@@ -46,7 +52,7 @@ class BlazyLightbox {
     $settings   = &$element['#settings'];
     $blazies    = $settings['blazies'];
     $uri        = $blazies->get('uri', $settings['uri'] ?? '');
-    $switch     = $settings['media_switch'];
+    $switch     = $blazies->get('lightbox.name');
     $switch_css = str_replace('_', '-', $switch);
     $valid      = BlazyFile::isValidUri($uri);
     $box_style  = $blazies->get('box.style');
@@ -72,7 +78,7 @@ class BlazyLightbox {
 
     // The gallery_id might be a formatter inside a view, not aware of its view.
     // The formatter might be duplicated on a page, although rare at production.
-    $gallery_id = $blazies->get('box.id', $settings['gallery_id'] ?? '');
+    $gallery_id = $blazies->get('lightbox.gallery_id', $settings['gallery_id'] ?? '');
     $gallery_id = empty($gallery_id) ? $gallery_default : $gallery_id . '-' . $gallery_default;
     $gallery_id = !$gallery_enabled ? NULL : str_replace('_', '-', $gallery_id);
     $box_width  = $item->width ?? $settings['width'] ?? NULL;
@@ -169,12 +175,13 @@ class BlazyLightbox {
       }
     }
 
+    // @todo remove after sub-modules.
     $settings['box_url'] = $box_url;
-    $blazies->set('box.id', $gallery_id)
-      ->set('box.url', $box_url)
-      ->set('box.width', $box_width)
-      ->set('box.height', $box_height)
-      ->set('box.media_url', $box_media_url);
+    $blazies->set('lightbox.gallery_id', $gallery_id)
+      ->set('lightbox.url', $box_url)
+      ->set('lightbox.width', (int) $box_width)
+      ->set('lightbox.height', (int) $box_height)
+      ->set('lightbox.media_preview_url', $box_media_url);
 
     if ($colorbox && $gallery_id) {
       // @todo make Blazy Grid without Blazy Views fields support multiple
@@ -230,19 +237,23 @@ class BlazyLightbox {
       $element['#captions']['lightbox'] = self::buildCaptions($item, $settings);
     }
 
+    $icon = '<span class="media__icon media__icon--litebox"></span>';
     $element['#url'] = $url;
-    $element['#icon']['litebox']['#markup'] = '<span class="media__icon media__icon--litebox"></span>';
+    $element['#icon']['lightbox']['#markup'] = $icon;
   }
 
   /**
    * Attaches Colorbox if so configured.
    */
-  private static function attachColorbox(array &$load, $attach = []): void {
+  private static function attachColorbox(array &$load): void {
     if ($service = Blazy::service('colorbox.attachment')) {
       $dummy = [];
       $service->attach($dummy);
-      $load = isset($dummy['#attached']) ? NestedArray::mergeDeep($load, $dummy['#attached']) : $load;
-      $load['library'][] = 'blazy/colorbox';
+
+      if (isset($dummy['#attached'])) {
+        $load = NestedArray::mergeDeep($load, $dummy['#attached']);
+      }
+
       unset($dummy);
     }
   }
