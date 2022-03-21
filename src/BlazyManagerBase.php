@@ -400,16 +400,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function getRouteName() {
-    return Blazy::routeMatch()->getRouteName();
-  }
-
-  /**
    * Provides attachments and cache common for all blazy-related modules.
    */
-  protected function setAttachments(array &$element, array $settings, array $attachments = []) {
+  protected function setAttachments(
+    array &$element,
+    array $settings,
+    array $attachments = []
+  ) {
     $cache                = $this->getCacheMetadata($settings);
     $attached             = $this->attach($settings);
     $attachments          = empty($attachments) ? $attached : NestedArray::mergeDeep($attached, $attachments);

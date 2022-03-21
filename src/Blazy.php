@@ -29,9 +29,12 @@ class Blazy implements BlazyInterface {
    * Provides attachments when not using the provided API.
    */
   public static function attach(array &$variables, array $settings = []): void {
+    // Our own service exists for sure, but tests don't see this due to static.
     if ($blazy = self::service('blazy.manager')) {
       $attachments = $blazy->attach($settings);
-      $variables['#attached'] = empty($variables['#attached']) ? $attachments : NestedArray::mergeDeep($variables['#attached'], $attachments);
+      $variables['#attached'] = empty($variables['#attached'])
+        ? $attachments
+        : NestedArray::mergeDeep($variables['#attached'], $attachments);
     }
   }
 
@@ -41,7 +44,9 @@ class Blazy implements BlazyInterface {
   public static function autoplay($url): string {
     if (strpos($url, 'autoplay') === FALSE
       || strpos($url, 'autoplay=0') !== FALSE) {
-      return strpos($url, '?') === FALSE ? $url . '?autoplay=1' : $url . '&autoplay=1';
+      return strpos($url, '?') === FALSE
+        ? $url . '?autoplay=1'
+        : $url . '&autoplay=1';
     }
     return $url;
   }
@@ -113,9 +118,13 @@ class Blazy implements BlazyInterface {
    * Checks lazy insanity given various features/ media types + loading option.
    * Bundles should not be coupled with embed_url to allow various bundles
    * and use media.source to be more precise instead.
+   * Some duplicate rules are to address non-blazy formatters like embedded
+   * Image formatter within Blazy ecosystem, but not using Blazy formatter, etc.
    *
    * @todo remove most $settings once migrated and after sub-modules and tests.
    * @todo remove $type, a legacy VEF period, which knew no bundles, or sources.
+   * @todo needs a recap to move some container-level here if they must live at
+   * individual level, such as non-blazy Image formatter within Blazy ecosystem.
    */
   public static function prepare(array &$settings, $item = NULL, $delta = -1) {
     $blazies    = $settings['blazies'];
@@ -133,8 +142,9 @@ class Blazy implements BlazyInterface {
     $is_media   = $bundle && in_array($source, $medias);
     $is_remote  = $bundle == 'remote_video' || $type == 'video';
     $is_remote  = $embed_url && ($is_video || $is_remote);
-    $is_iframe  = $is_remote && $settings['media_switch'] == '';
-    $is_player  = $is_remote && $settings['media_switch'] == 'media';
+    $_switch    = $settings['media_switch'] ?? '';
+    $is_iframe  = $is_remote && $_switch == '';
+    $is_player  = $is_remote && $_switch == 'media';
     $_uri       = $blazies->get('uri', $settings['uri'] ?? '');
     $uri        = $settings['uri'] = $_uri ?: BlazyFile::uri($item);
     $is_initial = $delta == $blazies->get('initial', -2);
@@ -145,6 +155,10 @@ class Blazy implements BlazyInterface {
     $is_unblur  = $blazies->is('sandboxed') || $blazies->is('unstyled') || $is_iframe;
     $is_blur    = $blazies->is('blur') && !$is_unblur;
 
+    // Supports core Image formatter embedded with Blazy ecosystem.
+    $is_fluid = $blazies->is('fluid') ?: $settings['ratio'] == 'fluid';
+    $switch   = $blazies->get('switch') ?: $_switch;
+
     // @todo better logic to support loader as required, must decouple loader.
     // @todo $lazy = $settings['loading'] == 'lazy';
     // @todo $lazy = $blazies->is('blazy') && ($blazies->get('libs.compat') || $lazy);
@@ -152,6 +166,7 @@ class Blazy implements BlazyInterface {
     // Also addresses mixed media unique per item.
     $blazies->set('delta', $delta)
       ->set('item.id', $item_id)
+      ->set('is.fluid', $is_fluid)
       ->set('is.iframe', $is_iframe)
       ->set('is.initial', $is_initial)
       ->set('is.multimedia', $is_media)
@@ -163,7 +178,8 @@ class Blazy implements BlazyInterface {
       ->set('media.type', $type)
       ->set('is.unlazy', $unlazy)
       ->set('uri', $uri)
-      ->set('use.loader', $use_loader);
+      ->set('use.loader', $use_loader)
+      ->set('switch', $switch);
 
     if ($item && ($file = ($item->entity ?? NULL))) {
       $tags = $file->getCacheTags();
@@ -172,7 +188,7 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Blazy is prepared, provides few attributes as needed.
+   * Blazy is prepared with an URI, provides few attributes as needed.
    */
   public static function prepared(array &$attributes, array &$settings, $item = NULL) {
     // Prepares extension, image styles, lightboxes.
@@ -190,42 +206,43 @@ class Blazy implements BlazyInterface {
   /**
    * Preserves crucial blazy specific settings to avoid accidental overrides.
    *
-   * To pass the first found Blazy formatter cherry/ limited settings into
-   * the container, like Blazy Grid which lacks of options like `Media switch`
-   * or lightboxes, so that when this is called at the container
-   * level, it can populate lightbox gallery attributes if so configured.
-   * And when called per item within Views gallery, Blazy is not overriden
-   * by its parent settings. This way at Views style, the container can have
-   * lightbox galleries without extra settings, as long as `Use field template`
-   * is disabled under `Style settings`, otherwise flattened out as a string.
+   * To pass the first found Blazy formatter cherry settings into the container,
+   * like Blazy Grid which lacks of options like `Media switch` or lightboxes,
+   * so that when this is called at the container level, it can populate
+   * lightbox gallery attributes if so configured.
+   * This way at Views style, the container can have lightbox galleries without
+   * extra settings, as long as `Use field template` is disabled under
+   * `Style settings`, otherwise flattened out as a string.
    *
    * @see \Drupa\blazy\BlazyManagerBase::isBlazy()
    */
-  public static function preserve(array &$settings, array $blazy_settings) {
+  public static function preserve(array &$parentsets, array &$childsets) {
     $cherries = BlazyDefault::cherrySettings();
 
     foreach ($cherries as $key => $value) {
-      $fallback = $settings[$key] ?? $value;
-      $settings[$key] = isset($blazy_settings[$key]) && empty($fallback)
-        ? $blazy_settings[$key]
+      $fallback = $parentsets[$key] ?? $value;
+      $parentsets[$key] = isset($childsets[$key]) && empty($fallback)
+        ? $childsets[$key]
         : $fallback;
     }
 
-    $blazies = $settings['blazies'] ?? NULL;
-    if ($blazies && $blazy = ($blazy_settings['blazies'] ?? NULL)) {
-      // $blazies->set('first.settings', array_filter($blazy));
-      // $blazies->set('first.item_id', $blazy->get('item.id'));
+    $parent = $parentsets['blazies'] ?? NULL;
+    if ($parent && $child = ($childsets['blazies'] ?? NULL)) {
+      // $parent->set('first.settings', array_filter($child));
+      // $parent->set('first.item_id', $child->get('item.id'));
       // Hints containers to build relevant lightbox gallery attributes.
-      $childbox = $blazy->get('lightbox.name');
-      $parentbox = $blazies->get('lightbox.name');
+      $childbox = $child->get('lightbox.name');
+      $parentbox = $parent->get('lightbox.name');
 
       if ($childbox && !$parentbox) {
-        $optionset = $blazy->get('lightbox.optionset', $childbox);
-        $blazies->set('lightbox.name', $childbox)
-          ->set($childbox, $optionset);
+        $optionset = $child->get('lightbox.optionset', $childbox);
+        $parent->set('lightbox.name', $childbox)
+          ->set($childbox, $optionset)
+          ->set('is.lightbox', TRUE)
+          ->set('switch', $child->get('switch'));
       }
 
-      $blazies->set('first', $blazy->get('first'), TRUE);
+      $parent->set('first', $child->get('first'), TRUE);
     }
   }
 
@@ -355,7 +372,11 @@ class Blazy implements BlazyInterface {
   /**
    * Alias for hook_config_schema_info_alter() for sub-modules.
    */
-  public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', array $settings = []): void {
+  public static function configSchemaInfoAlter(
+    array &$definitions,
+    $formatter = 'blazy_base',
+    array $settings = []
+  ): void {
     BlazyAlter::configSchemaInfoAlter($definitions, $formatter, $settings);
   }
 

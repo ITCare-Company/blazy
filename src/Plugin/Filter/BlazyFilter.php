@@ -65,11 +65,9 @@ class BlazyFilter extends BlazyFilterBase {
 
           $blazy->set('delta', $delta);
 
-          // @todo remove settings.
-          $sets['delta'] = $delta;
           if ($output = $this->build($node, $sets, $delta)) {
             // @todo remove deprecated too-catch-all post Blazy 3.x.
-            if ($blazy->is('grid')) {
+            if ($blazy->is('deprecated_grid')) {
               $grid_items[] = $output;
               $grid_nodes[] = $node;
             }
@@ -90,8 +88,6 @@ class BlazyFilter extends BlazyFilterBase {
 
         $blazy->set('delta', $delta);
 
-        // @todo remove settings.
-        $sets['delta'] = $delta;
         if ($output = $this->build($node, $sets, $delta)) {
           $this->render($node, $output);
         }
@@ -100,7 +96,9 @@ class BlazyFilter extends BlazyFilterBase {
 
     // Builds the grids if so provided via [data-column], or [data-grid].
     // @todo deprecated for grid shortcode.
-    $this->buildGrid($settings, $grid_nodes, $grid_items);
+    if ($blazies->is('deprecated_grid')) {
+      $this->buildGrid($settings, $grid_nodes, $grid_items);
+    }
 
     // Adds the attachments.
     $attach = Util::attach($settings);
@@ -169,15 +167,6 @@ class BlazyFilter extends BlazyFilterBase {
    */
   public function buildSettings($text) {
     $settings = parent::buildSettings($text);
-    $blazies = $settings['blazies'];
-
-    // The data-grid and data-column are deprecated for [blazy] shortcode.
-    $settings['grid'] = stristr($text, 'data-grid') !== FALSE;
-    $settings['column'] = stristr($text, 'data-column') !== FALSE;
-
-    // @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
-    $is_grid = $settings['column'] || $settings['grid'];
-    $blazies->set('is.grid', $is_grid);
 
     // Provides alter like formatters to modify at one go, even clumsy here.
     $build = ['settings' => $settings];
@@ -268,14 +257,11 @@ class BlazyFilter extends BlazyFilterBase {
     if ($node->tagName == 'blazy') {
       $attribute = $node->getAttribute('data');
 
-      $settings['id'] = $id = Util::getId($settings['plugin_id']);
-
-      $blazies->set('lightbox.gallery_id', $id)
-        ->set('css.id', $id);
-
       $blazies->set('is.blazy_tag', TRUE);
 
-      $this->prepareSettings($node, $settings);
+      // Extract settings from attributes.
+      $blazies->set('is.presettings', FALSE);
+      $this->extractSettings($node, $settings);
 
       if (!empty($attribute) && mb_strpos($attribute, ":") !== FALSE) {
         return $this->byEntity($node, $settings, $attribute);
@@ -373,8 +359,7 @@ class BlazyFilter extends BlazyFilterBase {
       }
 
       $sets = $build['settings'];
-      // $sets['delta'] = $delta;
-      // $sets['thumbnail_uri'] = $node->getAttribute('data-thumb');
+
       $element = ['attributes' => [], 'item' => NULL, 'settings' => $sets];
       $content = $this->buildItem($element, $node, $delta) ?: ['#markup' => $dom->saveHtml($node)];
 
@@ -474,22 +459,25 @@ class BlazyFilter extends BlazyFilterBase {
   private function buildGrid(array &$settings, array $grid_nodes, array $grid_items = []) {
     $blazies = $settings['blazies'];
 
-    if (!$blazies->is('grid') || empty($grid_items[0])) {
+    if (!$blazies->is('deprecated_grid') || empty($grid_items[0])) {
       return;
     }
 
     $settings['_uri'] = $uri = $grid_items[0]['#build']['settings']['uri'] ?? '';
     $blazies->get('first.uri', $uri);
 
-    $first = $grid_nodes[0];
-    $dom = $first->ownerDocument;
-    $xpath = new \DOMXPath($dom);
-    $query = $settings['style'] = $settings['column'] ? 'column' : 'grid';
-    $grid = FALSE;
+    $first  = $grid_nodes[0];
+    $dom    = $first->ownerDocument;
+    $xpath  = new \DOMXPath($dom);
+    $column = $settings['style'] == 'column';
+    $query  = $column ? 'column' : 'grid';
+    $grid   = FALSE;
 
     // This is weird, variables not working for xpath?
     $node = $query == 'column' ? $xpath->query('//*[@data-column]') : $xpath->query('//*[@data-grid]');
-    if ($node->length > 0 && $node->item(0) && $node->item(0)->hasAttribute('data-' . $query)) {
+    if ($node->length > 0
+      && $node->item(0)
+      && $node->item(0)->hasAttribute('data-' . $query)) {
       $grid = $node->item(0)->getAttribute('data-' . $query);
     }
 
@@ -536,6 +524,36 @@ class BlazyFilter extends BlazyFilterBase {
 
       // Cleanups old nodes already moved into grids.
       Util::removeNodes($grid_nodes);
+    }
+  }
+
+  /**
+   * Prepare settings.
+   */
+  protected function preSettings(array &$settings, $text) {
+    // @todo remove at 3.x or so.
+    $this->deprecatedGrid($settings, $text);
+
+    parent::preSettings($settings, $text);
+  }
+
+  /**
+   * Provides deprecated settings to be removed at 3.x or so.
+   *
+   * @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
+   */
+  private function deprecatedGrid(array &$settings, $text) {
+    $blazies = $settings['blazies'];
+
+    // The data-grid and data-column are deprecated for [blazy] shortcode.
+    $grid = stristr($text, 'data-grid') !== FALSE;
+    $column = stristr($text, 'data-column') !== FALSE;
+
+    if ($column || $grid) {
+      $settings['style'] = $column ? 'column' : 'grid';
+
+      $blazies->set('is.grid', TRUE)
+        ->set('is.deprecated_grid', TRUE);
     }
   }
 

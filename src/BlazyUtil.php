@@ -89,8 +89,8 @@ class BlazyUtil {
    * @todo deprecate at 2.5 and removed < 3.x. Use BlazyFile::buildUri()
    * instead.
    */
-  public static function buildUri($image_url) {
-    return BlazyFile::buildUri($image_url);
+  public static function buildUri($url) {
+    return BlazyFile::buildUri($url);
   }
 
   /**

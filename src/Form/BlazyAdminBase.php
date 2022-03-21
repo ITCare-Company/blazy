@@ -12,6 +12,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Unicode;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManagerInterface;
 
@@ -590,13 +591,16 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $admin_css = $admin_css ?: $this->blazyManager->configLoad('admin_css', 'blazy.settings');
     $excludes = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
     $selects = ['cache', 'optionset', 'view_mode'];
-    $current_route_name = $this->blazyManager->getRouteName();
 
-    // Disable the admin css in the layout builder, to
-    // avoid conflicts with the active frontend theme.
-    if ($admin_css && !empty($current_route_name)) {
-      // @todo recheck str_starts_with for PHP7. No errors at PHP7.4, last time.
-      $admin_css = mb_strpos($current_route_name, 'layout_builder.') === FALSE;
+    // Disable the admin css in the layout builder, to avoid conflicts with
+    // the active frontend theme.
+    // @todo recheck str_starts_with for PHP7. No errors at PHP7.4, last time.
+    if ($admin_css && $router = Blazy::routeMatch()) {
+      $route_name = $router->getRouteName();
+
+      if (!empty($route_name)) {
+        $admin_css = mb_strpos($route_name, 'layout_builder.') === FALSE;
+      }
     }
 
     $this->blazyManager->getModuleHandler()->alter('blazy_form_element', $form, $definition);

@@ -63,7 +63,7 @@ trait BlazyStylePluginTrait {
           $blazies->set('entity.url', $url);
 
           // Prevent images from having absurd height when being lazyloaded.
-          // Allows to disables it by _noratio such as enforced CSS background.
+          // Allows to disable it by _noratio such as enforced CSS background.
           $noratio = $settings['_noratio'] ?? '';
           $settings['ratio'] = $blazies->get('is.noratio', $noratio) ? '' : 'fluid';
           if (empty($settings['media_switch']) && $url) {

@@ -44,7 +44,8 @@ class BlazyResponsiveImage {
       ksort($srcset);
       ksort($ratios);
 
-      $blazies->set('bgs', $srcset)
+      // Prevents NestedArray from making these indices.
+      $blazies->set('bgs', (object) $srcset)
         ->set('ratios', $ratios)
         ->set('item.padding_bottom', end($ratios));
 

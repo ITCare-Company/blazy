@@ -89,6 +89,7 @@ class Check {
     }
 
     // Adds AJAX helper to revalidate Blazy/ IO, if using VIS, or alike.
+    // @todo remove when VIS detaches behaviors properly like IO.
     if ($blazies->get('use.ajax', FALSE)) {
       $load['library'][] = 'blazy/bio.ajax';
     }
@@ -146,6 +147,7 @@ class Check {
       || $blazies->get('libs.compat');
 
     // Some should be refined per item against potential mixed media items.
+    // @todo move some into Blazy::prepare() as might be called per item.
     $blazies->set('is.amp', $is_amp)
       ->set('is.bg', $is_bg)
       ->set('is.fluid', $is_fluid)
@@ -192,6 +194,8 @@ class Check {
 
   /**
    * Checks for Blazy formatter such as from within a Views style plugin.
+   *
+   * @see \Drupal\blazy\Blazy::preserve()
    */
   public static function isBlazy(array &$settings, array $data = []) {
     // Retrieves Blazy formatter related settings from within Views style.
@@ -219,6 +223,7 @@ class Check {
       Blazy::preserve($settings, $blazy);
     }
 
+    // No longer needed once extracted above, remove.
     $blazies->unset('first.data');
   }
 
@@ -255,7 +260,7 @@ class Check {
         // @todo remove after regression fixes, or keep it due to thumbnail sizes.
         $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
         foreach ($edits as $key) {
-          if (mb_strpos($route, $key) !== FALSE) {
+          if ($route && mb_strpos($route, $key) !== FALSE) {
             $check = TRUE;
             break;
           }
@@ -270,7 +275,7 @@ class Check {
   /**
    * Checks lazy insanity given various features/ media types + loading option.
    *
-   * To address mixed media, and various option which also affects individual
+   * To address mixed media, and various options which also affect individual
    * items, see self::prepare().
    */
   public static function lazyOrNot(array &$settings) {
@@ -345,7 +350,7 @@ class Check {
       return;
     }
 
-    // Preliminary globally when using the provided API.
+    // Preliminary globals when using the provided API.
     Blazy::impromptu($settings);
 
     // Marks it processed.
@@ -356,7 +361,7 @@ class Check {
    * Modifies the common UI settings inherited down to each item.
    */
   public static function postSettings(array &$settings = []) {
-    // Might be called directly at ::attach().
+    // Failsafe, might be called directly at ::attach() outside the workflow.
     Blazy::verify($settings);
 
     $blazies = $settings['blazies'];

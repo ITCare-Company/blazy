@@ -25,6 +25,8 @@ class BlazyImage {
 
   /**
    * Provides original unstyled image dimensions based on the given image item.
+   *
+   * This one is original image, not styled like self:transformDimensions().
    */
   public static function dimensions(array &$settings, $item = NULL, $initial = FALSE): void {
     $_width  = $initial ? '_width' : 'width';
@@ -57,7 +59,6 @@ class BlazyImage {
     }
 
     // Sometimes they are string, cast them integer to reduce JS logic.
-    // This one is original image, not styled like self:transformDimensions().
     $settings[$_width] = $width;
     $settings[$_height] = $height;
     self::toInt($settings, $_width, $_height);
@@ -93,9 +94,10 @@ class BlazyImage {
   public static function fromAny($object = NULL, array $settings = []): array {
     // @todo remove check at 3.x after sub-modules and VEF removed.
     Blazy::verify($settings);
+
     $blazies = $settings['blazies'];
-    $uri = NULL;
-    $output = [];
+    $uri     = NULL;
+    $output  = [];
 
     // If Media entity, we must have a File entity, and likely ImageItem.
     if ($object instanceof MediaInterface) {
@@ -306,75 +308,6 @@ class BlazyImage {
   }
 
   /**
-   * Provides image url, not URI here, expected by lazyload.
-   */
-  public static function url(array &$settings, $style = NULL): string {
-    $blazies = $settings['blazies'];
-    $uri = $settings['uri'] ?? $settings['_uri'] ?? NULL;
-    $uri = $blazies->get('uri', $uri);
-    $url = '';
-
-    if ($uri) {
-      [
-        'url' => $url,
-        'style' => $style,
-      ] = self::urlAndStyle($uri, $settings, $style);
-
-      // @todo remove any settings like this after migraton and sub-modules.
-      $settings['image_url'] = $url;
-      $blazies->set('image.url', $url);
-
-      // @todo move it out here.
-      if ($style) {
-        $blazies->set('cache.tags', $style->getCacheTags(), TRUE);
-
-        // Only re-calculate dimensions if not cropped, nor already set.
-        if (!$blazies->is('dimensions')
-          && empty($settings['responsive_image_style'])) {
-          $settings = array_merge($settings, self::transformDimensions($style, $settings));
-        }
-      }
-    }
-
-    return $url;
-  }
-
-  /**
-   * Returns image url, not URI, expected by lazyload, and style.
-   *
-   * @todo simplify this.
-   */
-  public static function urlAndStyle($uri, array $settings, $style = NULL): array {
-    $blazies = $settings['blazies'];
-    $valid = BlazyFile::isValidUri($uri);
-    $styled = $valid && !$blazies->is('unstyled');
-
-    // Image style modifier can be multi-style images such as UGC or GridStack.
-    // $_style = $settings['image_style'] ?? ''; Must end in full-stops, etc!
-    $style = $style ?: $blazies->get('image.style');
-
-    // @todo remove after another check, might be needed by non-API custom work.
-    // $style = $style ?: (empty($_style) ? NULL : ImageStyle::load($_style));
-    $url = $settings['image_url'] ?? '';
-    $url = $blazies->get('image.url', $url);
-
-    $options = ['url' => $url, 'sanitize' => $blazies->is('unsafe')];
-    $url = BlazyFile::transformRelative($uri, ($styled ? $style : NULL), $options);
-
-    $no_dims = empty($settings['height']) || empty($settings['width']);
-
-    // Currently doesn't affect option.ratio, a failsafe for BG, else collapsed.
-    // @todo decide if to provide NULL or 0 instead.
-    $ratio = $no_dims ? 100 : round((($settings['height'] / $settings['width']) * 100), 2);
-
-    return [
-      'url' => $url,
-      'style' => $style,
-      'ratio' => $ratio,
-    ];
-  }
-
-  /**
    * Prepares URLs, placeholder, and dimensions for an individual image.
    *
    * Respects a few scenarios:
@@ -393,28 +326,45 @@ class BlazyImage {
    *   The image item.
    */
   public static function prepare(array &$settings, $item = NULL): void {
+    $blazies = $settings['blazies'];
+    $style   = $blazies->get('image.style');
+
+    // Might be called from Views without Blazy formatter, like Image formatter.
+    // Since Blazy:2.9, image style entity is loaded once at container level,
+    // but might still be needed fr adopted Image formatter by a Views style.
+    if (!$style && !empty($settings['image_style'])) {
+      self::styles($settings);
+      $style = $blazies->get('image.style');
+    }
+
     // BlazyFilter, or image style with crop, may already set these.
     self::dimensions($settings, $item);
 
     // Provides image url based on the given settings.
-    self::url($settings);
-  }
+    $uri     = $settings['uri'] ?? $settings['_uri'] ?? NULL;
+    $uri     = $blazies->get('uri', $uri);
+    $valid   = BlazyFile::isValidUri($uri);
+    $styled  = $valid && !$blazies->is('unstyled');
+    $url     = $settings['image_url'] ?? '';
+    $url     = $blazies->get('image.url', $url);
+    $options = ['url' => $url, 'sanitize' => $blazies->is('unsafe')];
+    $url     = BlazyFile::transformRelative($uri, ($styled ? $style : NULL), $options);
 
-  /**
-   * Prepares CSS background image.
-   *
-   * @todo remove and merge it with ::urlAndStyle.
-   */
-  public static function background(array $settings, $style = NULL) {
-    $blazies = $settings['blazies'];
-    $no_dims = empty($settings['height']) || empty($settings['width']);
-    $url = $blazies->get('image.url');
-    $uri = $blazies->get('uri');
+    if ($style) {
+      $blazies->set('cache.tags', $style->getCacheTags(), TRUE);
 
-    return [
-      'src' => $style ? BlazyFile::transformRelative($uri, $style) : $url,
-      'ratio' => $no_dims ? 100 : round((($settings['height'] / $settings['width']) * 100), 2),
-    ];
+      // Only re-calculate dimensions if not cropped, nor already set.
+      if (!$blazies->is('dimensions')
+        && empty($settings['responsive_image_style'])) {
+        $settings = array_merge($settings, self::transformDimensions($style, $settings));
+      }
+    }
+
+    // Currently doesn't affect option.ratio, a failsafe for BG, else collapsed.
+    $ratio = self::ratio($settings);
+
+    $blazies->set('image.ratio', $ratio);
+    $blazies->set('image.url', $url);
   }
 
   /**
@@ -522,52 +472,31 @@ class BlazyImage {
   }
 
   /**
-   * Returns the real image item out of Media entity, if applicable.
-   *
-   * @param object $media
-   *   The expected file entity, or ER, to get image item from.
-   * @param array $settings
-   *   The given settings.
-   *
-   * @return array
-   *   The array of image item and settings if a file image, else empty.
-   *
-   * @todo remove when ::fromAny() is done right. This is not use anywhere.
+   * Prepares CSS background image.
    */
-  public static function fromMedia($media, array &$settings = []): array {
+  public static function background(array $settings, $style = NULL) {
     $blazies = $settings['blazies'];
-    $item = NULL;
-    $hires = FALSE;
+    $url     = $blazies->get('image.url');
+    $uri     = $blazies->get('uri');
+    $style   = $style ?: $blazies->get('image.style');
 
-    // Prioritize custom high-res or poster image such as (remote|file) video.
-    if ($image = ($settings['image'] ?? FALSE)) {
-      $item = $media->hasField($image) ? $media->get($image)->first() : NULL;
-      $hires = !empty($item);
-    }
+    return [
+      'src' => $style ? BlazyFile::transformRelative($uri, $style) : $url,
+      'ratio' => self::ratio($settings),
+    ];
+  }
 
-    // If Media has a defined thumbnail, add it to data item, not all has this.
-    if (!$item && $media->hasField('thumbnail')) {
-      /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-      // Title is NULL from thumbnail, likely core bug, so use source.
-      if ($source = $blazies->get('media.source')) {
-        $image = $source == 'image' ? $blazies->get('media.source_field') : 'thumbnail';
-        $item = $media->get($image)->first();
-      }
-    }
-
-    // Checks if Image item is available.
-    if ($item) {
-      $settings['uri'] = BlazyFile::uri($item);
-
-      if (trim($item->title ?? '') == '') {
-        $item->title = $media->label();
-      }
-    }
-
-    $blazies->set('is.hires', $hires);
-
-    // Pass through image item including poster image overrides.
-    return $item ? ['item' => $item, 'settings' => $settings] : [];
+  /**
+   * Provides a computed image ratio aka fluid ratio.
+   *
+   * Addresses multi-image-style Responsive image or, plain old one.
+   * It doesn't affect option.ratio, a failsafe for BG, else collapsed.
+   *
+   * @todo decide if to provide NULL or 0 instead.
+   */
+  public static function ratio(array $settings) {
+    $no_dims = empty($settings['height']) || empty($settings['width']);
+    return $no_dims ? 100 : round((($settings['height'] / $settings['width']) * 100), 2);
   }
 
 }

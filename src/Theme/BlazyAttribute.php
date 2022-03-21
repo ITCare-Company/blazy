@@ -35,7 +35,7 @@ class BlazyAttribute {
 
       // If "lucky", Blazy/ Slick Views galleries may already set this once.
       // Lucky when you don't flatten out the Views output earlier.
-      $padding = round((($settings['height'] / $settings['width']) * 100), 2);
+      $padding = BlazyImage::ratio($settings);
       $padding = $blazies->get('item.padding_bottom', $padding);
 
       self::inlineStyle($attributes, 'padding-bottom: ' . $padding . '%;');
@@ -105,10 +105,9 @@ class BlazyAttribute {
 
     // The settings.bgs is output specific for CSS background purposes with BC.
     if ($bgs = $blazies->get('bgs')) {
-      // @todo remove .media--background for .b-bg as more relevant for BG.
-      $attributes['class'][] = 'b-bg media--background';
+      $attributes['class'][] = 'b-bg';
       $attributes['data-b-bg'] = Json::encode($bgs);
-      $url = $blazies->get('image.url', $settings['image_url'] ?? '');
+      $url = $blazies->get('image.url');
 
       if ($blazies->is('static') && $url) {
         self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
@@ -127,10 +126,16 @@ class BlazyAttribute {
         self::image($variables);
       }
 
-      // Only provides if it has an image, or BG.
+      // Only provides if it has an image, or BG, including the media player.
       if ($blazies->is('blur')) {
         Placeholder::blur($variables, $settings);
       }
+    }
+
+    // Multi-breakpoint aspect ratio only applies if lazyloaded.
+    // These may be set once at formatter level, or per breakpoint above.
+    if (!$blazies->is('undata') && $ratios = $blazies->get('ratios', [])) {
+      $attributes['data-ratios'] = Json::encode($ratios);
     }
   }
 
@@ -176,15 +181,15 @@ class BlazyAttribute {
    */
   public static function container(array &$attributes, array $settings = []): void {
     Blazy::verify($settings);
-    $blazies = $settings['blazies'];
-    $classes = empty($attributes['class']) ? [] : $attributes['class'];
-    $data = $blazies->get('data.blazy');
-    $attributes['data-blazy'] = $data && is_array($data) ? Json::encode($data) : '';
-    $namespace = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
+
+    $blazies   = $settings['blazies'];
+    $classes   = (array) ($attributes['class'] ?? []);
+    $data      = $blazies->get('data.blazy');
+    $namespace = $blazies->get('namespace', 'blazy');
 
     // Provides data-LIGHTBOX-gallery to not conflict with original modules.
-    if ($litebox = $blazies->get('lightbox.name')) {
-      $switch = str_replace('_', '-', $litebox);
+    if ($lightbox = $blazies->get('lightbox.name')) {
+      $switch = str_replace('_', '-', $lightbox);
       $attributes['data-' . $switch . '-gallery'] = TRUE;
       $classes[] = 'blazy--' . $switch;
     }
@@ -215,19 +220,22 @@ class BlazyAttribute {
     }
 
     $attributes['class'] = array_merge(['blazy'], $classes);
+    $attributes['data-blazy'] = $data && is_array($data) ? Json::encode($data) : '';
   }
 
   /**
    * Defines attributes, builtin, or supported lazyload such as Slick.
    *
    * These attributes can be applied to either IMG or DIV as CSS background.
-   * The [data-(src|lazy)] attributes are applivable for (Responsive) image.
+   * The [data-(src|lazy)] attributes are applicable for (Responsive) image.
    * While [data-src] is reserved by Blazy, [data-lazy] by Slick.
    *
    * @param array $attributes
    *   The attributes being modified.
    * @param array $settings
    *   The given settings.
+   *
+   * @todo remove settings.
    */
   public static function lazy(array &$attributes, array $settings = []): void {
     $blazies = $settings['blazies'];
@@ -240,9 +248,7 @@ class BlazyAttribute {
     // The data-[SRC|SCRSET|LAZY] is if `nojs` disabled, background, or video.
     $attribute = $blazies->get('lazy.attribute', $settings['lazy_attribute'] ?? 'src');
     if (!$blazies->is('unlazy')) {
-      // @todo remove settings.
-      $url = $blazies->get('image.url', $settings['image_url'] ?? '');
-      $attributes['data-' . $attribute] = $url;
+      $attributes['data-' . $attribute] = $blazies->get('image.url');
     }
   }
 
@@ -320,7 +326,8 @@ class BlazyAttribute {
     }
 
     self::common($attributes, $variables['settings']);
-    $image['#attributes'] = empty($image['#attributes']) ? $attributes : NestedArray::mergeDeep($image['#attributes'], $attributes);
+    $image['#attributes'] = empty($image['#attributes'])
+      ? $attributes : NestedArray::mergeDeep($image['#attributes'], $attributes);
 
     // Provides a noscript if so configured, before any lazy defined.
     // Not needed at preview mode, or when native lazyload takes over.
@@ -343,7 +350,7 @@ class BlazyAttribute {
     $blazies = $settings['blazies'];
 
     // Supports either lazy loaded image, or not.
-    $url = $blazies->get('image.url', $settings['image_url'] ?? '');
+    $url = $blazies->get('image.url');
     if (empty($settings['background'])) {
       $variables['image'] += [
         '#theme' => 'image',
@@ -357,11 +364,9 @@ class BlazyAttribute {
       $unlazy = $blazies->is('undata');
       $url = $unlazy ? $url : $blazies->get('placeholder');
 
-      // @todo remove.
-      $settings['image_url'] = $url;
-
       $blazies->set('image.url', $url)
         ->set('is.unlazy', $unlazy);
+
       self::lazy($attributes, $settings);
     }
   }
@@ -408,15 +413,17 @@ class BlazyAttribute {
     if (empty($settings['background'])) {
       $natives = ['decoding' => 'async'];
 
-      $attributes = ($blazies->is('unlazy') ? $natives : [
-        'data-b-lazy' => $blazies->get('ui.one_pixel'),
-        'data-b-placeholder' => $blazies->get('placeholder'),
-      ]);
+      $attributes = ($blazies->is('unlazy')
+        ? $natives
+        : [
+          'data-b-lazy' => $blazies->get('ui.one_pixel'),
+          'data-b-placeholder' => $blazies->get('placeholder'),
+        ]);
 
       $variables['image'] += [
         '#type' => 'responsive_image',
         '#responsive_image_style_id' => $blazies->get('resimage.id'),
-        '#uri' => $settings['uri'],
+        '#uri' => $blazies->get('uri'),
         '#attributes' => $attributes,
       ];
     }

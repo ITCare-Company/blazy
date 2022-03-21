@@ -20,11 +20,10 @@ class BlazyCache {
       return [];
     }
 
-    $caches = [];
+    $caches   = [];
     $fallback = $settings['file_tags'] ?? [];
-    $tags = $blazies->get('cache.file.tags', $fallback);
+    $tags     = $blazies->get('cache.file.tags', $fallback);
 
-    $element['#cache']['max-age'] = -1;
     foreach (['contexts', 'keys', 'tags'] as $key) {
       if ($cache = $blazies->get('cache.' . $key)) {
         if ($key == 'tags' && $tags) {
@@ -41,12 +40,12 @@ class BlazyCache {
    */
   public static function lightboxes($root): array {
     $lightboxes = [];
-    foreach (['colorbox', 'photobox'] as $lightbox) {
-      if (function_exists($lightbox . '_theme')) {
-        $lightboxes[] = $lightbox;
-      }
+    if (function_exists('colorbox_theme')) {
+      $lightboxes[] = $lightbox;
     }
 
+    // @todo remove deprecated unmaintained photobox.
+    // Most lightboxes are unmantained, only supports mostly used, or robust.
     $paths = [
       'photobox' => 'photobox/photobox/jquery.photobox.js',
       'mfp' => 'magnific-popup/dist/jquery.magnific-popup.min.js',
@@ -87,7 +86,7 @@ class BlazyCache {
     $cache['max-age']  = $max_age;
     $cache['keys']     = $blazies->get('cache.keys', [$id]);
 
-    if ($tags = $blazies->get('cache.tags', $settings['cache_tags'] ?? [])) {
+    if ($tags = $blazies->get('cache.tags', [])) {
       $cache['tags'] = Cache::mergeTags($cache['tags'], $tags);
     }
 

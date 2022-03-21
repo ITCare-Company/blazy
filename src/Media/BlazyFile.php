@@ -277,6 +277,7 @@ class BlazyFile {
     }
 
     // Disable image style if so configured.
+    // @todo move it out of here, too late here.
     $unstyled = $ext && in_array($ext, $extensions);
     if ($unstyled) {
       $images = ['box', 'box_media', 'image', 'thumbnail', 'responsive_image'];
@@ -356,17 +357,16 @@ class BlazyFile {
     };
 
     $links = [];
+    $urls = $blazies->get('urls', []);
 
     // Supports multiple sources.
     if ($sources = $blazies->get('resimage.sources', [])) {
-      foreach ($sources as $source) {
+      foreach ($sources as $index => $source) {
         $url = $source['fallback'];
 
         // Preloading 1px data URI makes no sense, see if image_url exists.
         $data_uri = $url && mb_substr($url, 0, 10) === 'data:image';
-        $image_url = $blazies->get('image.url', $settings['image_url'] ?? '');
-        $image_url = $image_url ?: $blazies->get('first.url');
-        if ($data_uri && $image_url) {
+        if ($data_uri && ($image_url = $urls[$index] ?? NULL)) {
           $url = $image_url;
         }
 
@@ -378,7 +378,6 @@ class BlazyFile {
       }
     }
     else {
-      $urls = $blazies->get('urls', []);
       foreach ($uris as $key => $uri) {
         // URI might be empty with mixed media, but indices are preserved.
         if ($uri && ($url = $urls[$key] ?? NULL)) {
@@ -392,15 +391,6 @@ class BlazyFile {
         $load['html_head'][$key] = $value;
       }
     }
-  }
-
-  /**
-   * Prepares CSS background image.
-   *
-   * @todo remove and merge it with BlazyImage::urlAndStyle().
-   */
-  public static function backgroundImage(array $settings, $style = NULL) {
-    return BlazyImage::background($settings, $style);
   }
 
 }

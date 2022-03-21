@@ -116,11 +116,14 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
     $settings += BlazyDefault::lazySettings();
     $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
 
+    Blazy::verify($settings);
+
     $settings['plugin_id'] = $plugin_id = $this->getPluginId();
     $settings['id'] = $id = BlazyFilterUtil::getId($plugin_id);
     $is_media_library = $definitions && isset($definitions['field_media_oembed_video']);
 
-    $this->preSettings($settings);
+    $this->preSettings($settings, $text);
+    $this->blazyManager->preSettings($settings);
 
     $blazies = $settings['blazies'];
     $exist = $blazies->is('resimage');
@@ -161,8 +164,8 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
   /**
    * Prepare settings.
    */
-  protected function preSettings(array &$settings) {
-    $this->blazyManager->preSettings($settings);
+  protected function preSettings(array &$settings, $text) {
+    // Do nothing let extenders extend.
   }
 
   /**
@@ -174,12 +177,6 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
     $src = BlazyFilterUtil::getValidSrc($node);
 
     if ($src) {
-      // If starts with 2 slashes, it is always external.
-      if (mb_substr($src, 0, 2) === '//') {
-        // We need to query stored SRC, https is enforced.
-        $src = 'https:' . $src;
-      }
-
       if ($node->tagName == 'img') {
         $this->getImageItemFromImageSrc($build, $node, $src);
       }
@@ -219,6 +216,8 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
    * {@inheritdoc}
    */
   public function buildImageCaption(array &$build, &$node) {
+    $settings = &$build['settings'];
+    $blazies = $settings['blazies'];
     $item = $this->getCaptionElement($node);
 
     // Sanitization was done by Caption filter when arriving here, as
@@ -237,6 +236,8 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
           $settings['box_caption'] = $markup;
         }
 
+        $blazies->set('is.figcaption', TRUE);
+
         $this->cleanupImageCaption($build, $node, $item);
       }
     }
@@ -244,9 +245,9 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
   }
 
   /**
-   * Prepares the blazy.
+   * Extracts setting from attributes.
    */
-  protected function prepareSettings(\DOMElement $node, array &$settings) {
+  protected function extractSettings(\DOMElement $node, array &$settings) {
     $blazies = $settings['blazies'];
     if ($check = $node->getAttribute('settings')) {
       $check = str_replace("'", '"', $check);

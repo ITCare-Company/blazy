@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-03-21
+-----------------------------
+- Fixed for multi-breakpoint background image regressions.
+- Fixed for Image formatter embedded within Blazy ecosystem regression.
+
 Blazy 8.x-2.0-dev, 2022-03-17
 -----------------------------
 - Moved field base formatters from Dejavu into Drupal\blazy\Field namespace.

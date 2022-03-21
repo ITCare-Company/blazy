@@ -160,22 +160,34 @@ class BlazyFilterUtil {
    */
   public static function getValidSrc($node) {
     $url = '';
-    $src = $node->getAttribute('src');
-    $data_src = $node->getAttribute('data-src');
 
     // Prevents data URI from screwing up.
-    if ($data_src) {
-      $data_uri = mb_substr($data_src, 0, 10) === 'data:image';
-      if (!$data_uri) {
-        $url = $data_src;
+    $func = function ($input) {
+      if ($input) {
+        $data_uri = mb_substr($input, 0, 10) === 'data:image';
+        if (!$data_uri) {
+          return $input;
+        }
+      }
+      return '';
+    };
+
+    foreach (['data-src', 'src'] as $key) {
+      $src = $node->getAttribute($key);
+      $check = $func($src);
+
+      if ($check) {
+        $url = $check;
+        break;
       }
     }
-    if (!$url && $src) {
-      $data_uri = mb_substr($src, 0, 10) === 'data:image';
-      if (!$data_uri) {
-        $url = $src;
-      }
+
+    // If starts with 2 slashes, it is always external.
+    if ($url && mb_substr($url, 0, 2) === '//') {
+      // We need to query stored SRC for image dimensions, https is enforced.
+      $url = 'https:' . $url;
     }
+
     return $url;
   }
 

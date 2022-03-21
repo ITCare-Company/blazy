@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy;
 
-use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
@@ -222,7 +221,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     }
 
     // Figcaption is more relevant for core filter captions under Figure.
-    $tag = $blazies->is('filter') ? 'figcaption' : 'div';
+    $tag = $blazies->is('figcaption') ? 'figcaption' : 'div';
 
     return $content ? ['inline' => $content, 'tag' => $tag] : [];
   }
@@ -293,6 +292,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // Provides caches for regular image, with/o CSS background.
     if (!$blazies->get('resimage.id')) {
       if ($caches = BlazyCache::file($settings)) {
+        $element['#cache']['max-age'] = -1;
         foreach ($caches as $key => $cache) {
           $element['#cache'][$key] = $cache;
         }
@@ -337,12 +337,6 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $this->buildContent($element, $build);
     if (empty($build['content'])) {
       $this->buildMedia($element, $build);
-    }
-
-    // Multi-breakpoint aspect ratio only applies if lazyloaded.
-    // These may be set once at formatter level, or per breakpoint above.
-    if (!$blazies->is('undata') && $ratios = $blazies->get('ratios', [])) {
-      $attributes['data-ratios'] = Json::encode($ratios);
     }
 
     // Provides extra attributes as needed, excluding url, item, done above.

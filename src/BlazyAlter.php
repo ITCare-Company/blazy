@@ -25,7 +25,11 @@ class BlazyAlter {
   /**
    * Implements hook_config_schema_info_alter().
    */
-  public static function configSchemaInfoAlter(array &$definitions, $formatter = 'blazy_base', array $settings = []): void {
+  public static function configSchemaInfoAlter(
+    array &$definitions,
+    $formatter = 'blazy_base',
+    array $settings = []
+  ): void {
     if (isset($definitions[$formatter])) {
       $mappings = &$definitions[$formatter]['mapping'];
       $settings = $settings ?: BlazyDefault::extendedSettings() + BlazyDefault::gridSettings();
@@ -124,38 +128,6 @@ class BlazyAlter {
   }
 
   /**
-   * Implements hook_blazy_settings_alter().
-   */
-  public static function blazySettingsAlter(array &$build, $items): void {
-    $settings = &$build['settings'];
-    $blazies = $settings['blazies'];
-
-    // Sniffs for Views to allow block__no_wrapper, views_no_wrapper, etc.
-    if (function_exists('views_get_current_view')
-      && $view = views_get_current_view()) {
-
-      $style = $view->style_plugin;
-      $display = is_null($style) ? '' : $style->displayHandler->getPluginId();
-
-      // @todo remove $settings at 3.x, not before.
-      $settings['view_name'] = $name = $view->storage->id();
-      $settings['current_view_mode'] = $view_mode = $view->current_display;
-      $settings['view_plugin_id'] = $plugin_id = is_null($style) ? '' : $style->getPluginId();
-
-      $current = [
-        'display'     => $display,
-        'instance_id' => str_replace('_', '-', "{$name}-{$display}-{$view_mode}"),
-        'name'        => $name,
-        'plugin_id'   => $plugin_id,
-        'view_mode'   => $view_mode,
-        'is_view'     => FALSE,
-      ];
-
-      $blazies->set('view', $current, TRUE);
-    }
-  }
-
-  /**
    * Checks if Entity/Media Embed is enabled.
    */
   public static function isCkeditorApplicable(Editor $editor): bool {
@@ -229,6 +201,44 @@ class BlazyAlter {
     $on = $context['formatter']->getThirdPartySetting('blazy', 'blazy', FALSE);
     if ($on && in_array($context['formatter']->getPluginId(), self::thirdPartyFormatters())) {
       $summary[] = 'Blazy';
+    }
+  }
+
+  /**
+   * Implements hook_blazy_settings_alter().
+   *
+   * @todo remove, likely no-longer relevant since sub-modules re-use the same
+   * Blazy::containerAttributes() without being exclusive to `blazy` namespace
+   * which was at 1.x, but not 2.x. At 2.x `blazy` is merged into the embedding
+   * parent automatically making this irrelevant. Meaning CSS classes are
+   * preserved by Blazy containing Views style since 2.x.
+   */
+  public static function blazySettingsAlter(array &$build, $items): void {
+    $settings = &$build['settings'];
+    $blazies = $settings['blazies'];
+
+    // Sniffs for Views to allow block__no_wrapper, views_no_wrapper, etc.
+    $function = 'views_get_current_view';
+    if (is_callable($function) && $view = $function()) {
+
+      $style = $view->style_plugin;
+      $display = is_null($style) ? '' : $style->displayHandler->getPluginId();
+
+      $name = $view->storage->id();
+      $view_mode = $view->current_display;
+      $plugin_id = is_null($style) ? '' : $style->getPluginId();
+
+      $current = [
+        'display'     => $display,
+        'instance_id' => str_replace('_', '-', "{$name}-{$display}-{$view_mode}"),
+        'name'        => $name,
+        'plugin_id'   => $plugin_id,
+        'view_mode'   => $view_mode,
+        'is_view'     => FALSE,
+      ];
+
+      // @todo remove `formatter` key if the above is proven wrong.
+      $blazies->set('view.formatter', $current, TRUE);
     }
   }
 
