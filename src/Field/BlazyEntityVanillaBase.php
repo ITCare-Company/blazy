@@ -2,9 +2,10 @@
 
 namespace Drupal\blazy\Field;
 
-use Drupal\blazy\Blazy;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
+use Drupal\blazy\Blazy;
+use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
 
 /**
  * Base class for entity reference formatters without field details.
@@ -12,6 +13,10 @@ use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
  * @see \Drupal\blazy\Field\BlazyEntityMediaBase
  */
 abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
+
+  // Since 2.9 Blazy adapts to sub-module self::viewElements() to DRY so they
+  // can remove their own FormatterViewTrait later thanks to similarities.
+  use BlazyFormatterTrait;
 
   /**
    * Returns media contents.
@@ -34,7 +39,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
 
       // Add the entity to cache dependencies so to clear when it is updated.
       if (!empty($build['items'][$delta])) {
-        $this->formatter()
+        $this->formatter
           ->getRenderer()
           ->addCacheableDependency($build['items'][$delta], $entity);
       }
@@ -48,13 +53,16 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    */
   public function buildElement(array &$build, $entity, $langcode) {
     $settings  = $build['settings'];
-    $blazies   = $settings['blazies']->reset($settings);
+    $blazies   = $settings['blazies'];
     $view_mode = $blazies->get('field.view_mode', 'full');
 
-    $build['items'][] = $this->formatter()
-      ->getEntityTypeManager()
-      ->getViewBuilder($entity->getEntityTypeId())
-      ->view($entity, $view_mode, $langcode);
+    // Sub-modules always flag `vanilla` as required, -- configurable, or not.
+    if (!empty($settings['vanilla'])) {
+      $build['items'][] = $this->formatter
+        ->getEntityTypeManager()
+        ->getViewBuilder($entity->getEntityTypeId())
+        ->view($entity, $view_mode, $langcode);
+    }
   }
 
   /**
@@ -71,57 +79,25 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   }
 
   /**
-   * Builds the settings.
+   * {@inheritdoc}
    */
-  public function buildSettings() {
-    $settings = array_merge($this->getCommonFieldDefinition(), $this->getSettings());
-    Blazy::verify($settings);
-    $blazies = $settings['blazies'];
-
-    $third_party = $this->getThirdPartySettings();
-    $blazies->set('field.third_party', $third_party);
-
-    return $settings;
-  }
-
-  /**
-   * Defines the common scope for both front and admin.
-   */
-  public function getCommonFieldDefinition() {
-    $field = $this->fieldDefinition;
-
+  protected function getPluginScopes(): array {
     return [
-      'field_name'  => $field->getName(),
-      'field_type'  => $field->getType(),
-      'entity_type' => $field->getTargetEntityTypeId(),
-      'plugin_id'   => $this->getPluginId(),
-      'target_type' => $this->getFieldSetting('target_type'),
-    ];
-  }
-
-  /**
-   * Defines the scope for the form elements.
-   */
-  public function getScopedFormElements() {
-    // @todo move common/ reusable properties somewhere.
-    return [
-      'settings'       => $this->getSettings(),
       'target_bundles' => $this->getAvailableBundles(),
-      'view_mode'      => $this->viewMode,
-    ] + $this->getCommonFieldDefinition();
+    ];
   }
 
   /**
    * Returns available bundles.
    */
-  protected function getAvailableBundles() {
+  protected function getAvailableBundles(): array {
     $target_type = $this->getFieldSetting('target_type');
     $views_ui = $this->getFieldSetting('handler') == 'default';
     $bundles = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
 
     // Fix for Views UI not recognizing Media bundles, unlike Formatters.
-    if (empty($bundles)) {
-      $service = Blazy::service('entity_type.bundle.info');
+    if (empty($bundles)
+      && $service = Blazy::service('entity_type.bundle.info')) {
       $bundles = $service->getBundleInfo($target_type);
     }
 
@@ -130,18 +106,17 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
 
   /**
    * Prepare item contents.
+   *
+   * Alternative for self::buildElement() with extra params for convenient.
    */
-  protected function prepareElement(array &$build, $entity, $langcode, $delta) {
+  protected function prepareElement(array &$build, $entity, $langcode, $delta): void {
     $settings = $build['settings'];
-    $blazies  = $settings['blazies'];
+    $blazies  = $settings['blazies']->reset($settings);
     $bundle   = $entity->bundle();
 
     $blazies->set('bundles.' . $bundle, $bundle)
       ->set('language.code', $langcode)
       ->set('delta', $delta);
-
-    // @todo remove after sub-modules.
-    $settings['delta'] = $delta;
 
     $build['settings'] = $settings;
     $this->buildElement($build, $entity, $langcode);

@@ -282,6 +282,11 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
   /**
    * Prepare base preliminary settings.
+   *
+   * The `fx` sequence: hook_alter > formatters (not implemented yet) > UI.
+   * The `_fx` is a special flag such as to temporarily disable till needed.
+   * Called by field formatters, views [styles|fields via BlazyEntity],
+   * [blazy|splide|slick] filters.
    */
   public function preSettings(array &$settings = []): void {
     Blazy::verify($settings);
@@ -292,7 +297,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $is_debug = !$this->configLoad('css.preprocess', 'system.performance');
     $ui['fx'] = $ui['fx'] ?? '';
     $ui['fx'] = empty($settings['fx']) ? $ui['fx'] : $settings['fx'];
-    $settings['fx'] = $fx = $settings['_fx'] ?? $ui['fx'];
+    $fx = $settings['fx'] = $settings['_fx'] ?? $ui['fx'];
     $language = $this->languageManager->getCurrentLanguage()->getId();
     $lightboxes = $this->getLightboxes();
     $lightboxes = $blazies->get('lightbox.plugins', $lightboxes) ?: [];
@@ -316,14 +321,15 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $blazies->set('route_name', $route_name);
     }
 
-    Check::preSettings($settings);
+    // Preliminary globals when using the provided API.
+    Blazy::preSettings($settings);
   }
 
   /**
    * Modifies the common UI settings inherited down to each item.
    */
   public function postSettings(array &$settings = []) {
-    Check::postSettings($settings);
+    Blazy::postSettings($settings);
   }
 
   /**
@@ -368,18 +374,18 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * {@inheritdoc}
    */
   public function isBlazy(array &$settings, array $data = []) {
-    Check::isBlazy($settings, $data);
+    Check::blazyOrNot($settings, $data);
   }
 
   /**
-   * Return the cache metadata common for all blazy-related modules.
+   * Alias for BlazyCache::metadata() to forget looking up unknown classes.
    */
   public function getCacheMetadata(array $build = []) {
     return BlazyCache::metadata($build);
   }
 
   /**
-   * Returns the thumbnail image using theme_image(), or theme_image_style().
+   * Alias for BlazyImage::thumbnail() to forget looking up unknown classes.
    */
   public function getThumbnail(array $settings = [], $item = NULL) {
     return BlazyImage::thumbnail($settings, $item);
@@ -409,9 +415,12 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   ) {
     $cache                = $this->getCacheMetadata($settings);
     $attached             = $this->attach($settings);
-    $attachments          = empty($attachments) ? $attached : NestedArray::mergeDeep($attached, $attachments);
-    $element['#attached'] = empty($element['#attached']) ? $attachments : NestedArray::mergeDeep($element['#attached'], $attachments);
-    $element['#cache']    = empty($element['#cache']) ? $cache : NestedArray::mergeDeep($element['#cache'], $cache);
+    $attachments          = empty($attachments)
+      ? $attached : NestedArray::mergeDeep($attached, $attachments);
+    $element['#attached'] = empty($element['#attached'])
+      ? $attachments : NestedArray::mergeDeep($element['#attached'], $attachments);
+    $element['#cache']    = empty($element['#cache'])
+      ? $cache : NestedArray::mergeDeep($element['#cache'], $cache);
   }
 
   /**

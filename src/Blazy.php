@@ -95,9 +95,16 @@ class Blazy implements BlazyInterface {
   /**
    * Preliminary settings, normally at container/ global level.
    */
-  public static function impromptu(array &$settings) {
-    // Checks for features.
-    Check::features($settings);
+  public static function preSettings(array &$settings) {
+    self::verify($settings);
+
+    $blazies = $settings['blazies'];
+    if ($blazies->is('presettings')) {
+      return;
+    }
+
+    // Checks for basic features.
+    Check::basics($settings);
 
     // Checks for grids.
     Check::grids($settings);
@@ -110,6 +117,22 @@ class Blazy implements BlazyInterface {
 
     // Checks for lazy.
     Check::lazyOrNot($settings);
+
+    // Marks it processed.
+    $blazies->set('is.presettings', TRUE);
+  }
+
+  /**
+   * Modifies the common UI settings inherited down to each item.
+   */
+  public static function postSettings(array &$settings = []) {
+    // Failsafe, might be called directly at ::attach() outside the workflow.
+    self::verify($settings);
+
+    $blazies = $settings['blazies'];
+    if (!$blazies->is('presettings')) {
+      self::preSettings($settings);
+    }
   }
 
   /**
@@ -155,7 +178,7 @@ class Blazy implements BlazyInterface {
     $is_unblur  = $blazies->is('sandboxed') || $blazies->is('unstyled') || $is_iframe;
     $is_blur    = $blazies->is('blur') && !$is_unblur;
 
-    // Supports core Image formatter embedded with Blazy ecosystem.
+    // Supports core Image formatter embedded within Blazy ecosystem.
     $is_fluid = $blazies->is('fluid') ?: $settings['ratio'] == 'fluid';
     $switch   = $blazies->get('switch') ?: $_switch;
 
@@ -191,11 +214,10 @@ class Blazy implements BlazyInterface {
    * Blazy is prepared with an URI, provides few attributes as needed.
    */
   public static function prepared(array &$attributes, array &$settings, $item = NULL) {
-    // Prepares extension, image styles, lightboxes.
+    // Prepares extension, image styles.
     BlazyFile::prepare($settings, $item);
 
     // Build thumbnail and optional placeholder based on thumbnail.
-    // Must be set before self::url to provide placeholder.
     Placeholder::prepare($attributes, $settings);
 
     // Prepare image URL and its dimensions, including for rich-media content,
@@ -269,7 +291,14 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Extracts setting from the $build.
+   * Initialize BlazySettings object for convenient, and easy organization.
+   */
+  public static function settings(array $data = []): BlazySettings {
+    return new BlazySettings($data);
+  }
+
+  /**
+   * Extracts settings from the $build.
    */
   public static function toSettings(array &$build): array {
     $settings = $build;
@@ -282,7 +311,7 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Returns the translated entity if avaiable.
+   * Returns the translated entity if available.
    */
   public static function translated($entity, $langcode): object {
     if ($langcode && $entity->hasTranslation($langcode)) {
@@ -295,7 +324,7 @@ class Blazy implements BlazyInterface {
    * Verify `blazies` exists, in case accessed outside the workflow.
    */
   public static function verify(array &$settings): void {
-    if (!isset($settings['blazies'])) {
+    if (!isset($settings['blazies']) && !isset($settings['inited'])) {
       $settings += BlazyDefault::htmlSettings();
     }
   }

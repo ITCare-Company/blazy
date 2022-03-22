@@ -9,12 +9,15 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\BlazyEntityInterface;
+use Drupal\blazy\Traits\PluginScopesTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Defines a base views field plugin to render a preview of supported fields.
  */
 abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
+
+  use PluginScopesTrait;
 
   /**
    * The blazy service manager.
@@ -172,14 +175,30 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   }
 
   /**
-   * Defines the scope for the form elements.
+   * {@inheritdoc}
    */
-  public function getScopedFormElements() {
+  protected function getPluginScopes(): array {
     return [
-      'settings' => array_filter($this->options),
-      'target_type' => !$this->view->getBaseEntityType() ? '' : $this->view->getBaseEntityType()->id(),
+      'target_type' => !$this->view->getBaseEntityType()
+      ? ''
+      : $this->view->getBaseEntityType()->id(),
       'thumbnail_style' => TRUE,
     ];
+  }
+
+  /**
+   * Defines the scope for the form elements.
+   *
+   * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().
+   */
+  public function getScopedFormElements() {
+    $scopes = $this->getPluginScopes();
+
+    // @todo remove `$scopes +` at Blazy 3.x.
+    $definitions = $scopes;
+    $definitions['scopes'] = $this->toPluginScopes($scopes);
+    $definitions['settings'] = array_filter($this->options);
+    return $definitions;
   }
 
 }

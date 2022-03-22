@@ -5,23 +5,21 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 use Drupal\Core\Field\FieldItemListInterface;
 
 /**
- * A Trait common for all blazy, including its sub-modules, formatters.
+ * A Trait common for all blazy, including its sub-modules, text formatters.
  *
- * Since 2.9 this can replace and remove sub-module FormatterViewTrait anytime.
+ * By-passed routines at BlazyFormatter designed for Image, Media, entities.
+ * Bp-passed theme_blazy() for more relevant themes/ types like  processed_text.
  */
-trait BlazyFormatterViewTrait {
-
-  use BlazyFormatterViewBaseTrait;
+trait BlazyFormatterViewBaseTrait {
 
   /**
-   * Returns similar view elements across sub-modules.
+   * Returns base view elements.
    */
-  public function commonViewElements(
+  public function baseViewElements(
     FieldItemListInterface $items,
     $langcode,
-    array $entities = [],
     array $settings = []
-  ) {
+  ): array {
     // Early opt-out if the field is empty.
     if ($items->isEmpty()) {
       return [];
@@ -35,23 +33,24 @@ trait BlazyFormatterViewTrait {
 
     // Build the settings.
     $build = ['settings' => $settings];
-
-    // Modifies settings before building elements.
-    $entities = empty($entities) ? [] : array_values($entities);
-    $this->formatter->preBuildElements($build, $items, $entities);
+    $this->formatter->fieldSettings($build, $items);
 
     // Build the elements.
-    $elements = $entities ?: $items;
-    $this->buildElements($build, $elements, $langcode);
-
-    // Modifies settings post building elements.
-    $this->formatter->postBuildElements($build, $items, $entities);
+    $this->buildElements($build, $items, $langcode);
 
     // Pass to manager for easy updates to all Blazy formatters.
     $output = $this->manager->build($build);
 
     // Return without field markup, if not so configured, else field.html.twig.
     return empty($settings['use_theme_field']) ? $output : [$output];
+  }
+
+  /**
+   * Prepare the settings, allows sub-modules to re-use and override.
+   */
+  protected function preSettings(array &$settings, $langcode = NULL): void {
+    $blazies = $settings['blazies'];
+    $blazies->set('language.code', $langcode);
   }
 
 }

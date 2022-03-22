@@ -168,10 +168,10 @@ class BlazyResponsiveImage {
 
     // @todo merge background here.
     if ($preload || $blazies->is('fluid')) {
-      BlazyResponsiveImage::dimensions($settings, $initial);
+      self::dimensions($settings, $initial);
     }
     if ($preload) {
-      BlazyResponsiveImage::sources($settings);
+      self::sources($settings);
     }
   }
 
@@ -203,7 +203,7 @@ class BlazyResponsiveImage {
    */
   public static function define(&$blazies, $resimage) {
     $id = $resimage->id();
-    $styles = BlazyResponsiveImage::styles($resimage);
+    $styles = self::styles($resimage);
 
     $blazies->set('resimage.id', $id)
       ->set('resimage.caches', $styles['caches'] ?? [])

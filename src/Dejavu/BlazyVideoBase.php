@@ -6,6 +6,7 @@ use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
 
 @trigger_error('The ' . __NAMESPACE__ . '\BlazyVideoBase is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
 
@@ -22,6 +23,8 @@ use Drupal\blazy\BlazyDefault;
  * at Blazy 8.2.x with core Media only.
  */
 abstract class BlazyVideoBase extends FormatterBase {
+
+  use BlazyFormatterTrait;
 
   /**
    * {@inheritdoc}
@@ -46,23 +49,14 @@ abstract class BlazyVideoBase extends FormatterBase {
   }
 
   /**
-   * Defines the scope for the form elements.
+   * {@inheritdoc}
    */
-  public function getScopedFormElements() {
-    $field       = $this->fieldDefinition;
-    $entity_type = $field->getTargetEntityTypeId();
-    $target_type = $this->getFieldSetting('target_type');
-
+  protected function getPluginScopes(): array {
     return [
       'background'        => TRUE,
-      'entity_type'       => $entity_type,
-      'field_name'        => $this->fieldDefinition->getName(),
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,
       'multimedia'        => TRUE,
-      'plugin_id'         => $this->getPluginId(),
-      'settings'          => $this->getSettings(),
-      'target_type'       => $target_type,
       'thumb_positions'   => TRUE,
       'nav'               => TRUE,
     ];

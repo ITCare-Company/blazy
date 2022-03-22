@@ -26,18 +26,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class BlazyTextFormatter extends FormatterBase {
 
   use BlazyFormatterTrait;
+  use BlazyFormatterViewBaseTrait;
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    /**
-     * @var \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyTextFormatter
-     */
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
-    $instance->formatter = $container->get('blazy.manager');
-
-    return $instance;
+    return self::injectServices($instance, $container, 'text');
   }
 
   /**
@@ -51,39 +47,37 @@ class BlazyTextFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    // Early opt-out if the field is empty.
-    if ($items->isEmpty()) {
-      return [];
-    }
+    return $this->baseViewElements($items, $langcode);
+  }
 
-    // Build the settings.
-    $settings = $this->buildSettings();
+  /**
+   * Build the grid text elements.
+   */
+  public function buildElements(array &$build, $items) {
+    $settings = &$build['settings'];
+    $blazies  = $settings['blazies'];
 
-    // Marks this formatter as blazy specific.
-    $this->blazySettings($settings);
-
-    // Update the settings.
-    $blazies = $settings['blazies'];
     $blazies->set('is.grid', TRUE)
       ->set('is.unblazy', TRUE)
       ->set('is.text', TRUE)
-      ->set('language.code', $langcode)
       ->set('lazy', []);
 
     // The ProcessedText element already handles cache context & tag bubbling.
     // @see \Drupal\filter\Element\ProcessedText::preRenderText()
-    $build = ['settings' => $settings];
     foreach ($items as $item) {
-      $build[] = [
+      if (empty($item->value)) {
+        continue;
+      }
+
+      $element = [
         '#type'     => 'processed_text',
         '#text'     => $item->value,
         '#format'   => $item->format,
         '#langcode' => $item->getLangcode(),
       ];
+      $build[] = $element;
+      unset($element);
     }
-
-    // Pass to manager for easy updates to all Blazy formatters.
-    return $this->formatter->build($build);
   }
 
   /**
@@ -96,9 +90,9 @@ class BlazyTextFormatter extends FormatterBase {
   }
 
   /**
-   * Defines the scope for the form elements.
+   * {@inheritdoc}
    */
-  public function getScopedFormElements() {
+  protected function getPluginScopes(): array {
     return [
       'grid_form'        => TRUE,
       'grid_required'    => TRUE,
@@ -106,7 +100,7 @@ class BlazyTextFormatter extends FormatterBase {
       'no_layouts'       => TRUE,
       'responsive_image' => FALSE,
       'style'            => TRUE,
-    ] + $this->getCommonScopedFormElements();
+    ];
   }
 
   /**

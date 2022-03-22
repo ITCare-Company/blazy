@@ -237,7 +237,7 @@ class BlazyDefault {
   public static function blazies() {
     return [
       'bgs' => [],
-      'box' => ['resimage' => []],
+      'box' => [],
       'box_media' => [],
       'image' => [],
       'initial' => 0,
@@ -267,26 +267,28 @@ class BlazyDefault {
    */
   public static function htmlSettings() {
     return [
-      'blazies'     => new BlazySettings(self::blazies()),
-      'bundle'      => '',
-      'namespace'   => 'blazy',
-      'id'          => '',
-      'route_name'  => '',
-      'view_name'   => '',
-      // 'unlazy'      => FALSE,
+      'blazies' => Blazy::settings(self::blazies()),
+      'inited' => TRUE,
+      'namespace' => 'blazy',
+
       // @todo deprecated for blazies after sub-module updates:
+      'bundle' => '',
+      'id' => '',
+      'route_name' => '',
+      'view_name' => '',
+      'is_preview' => FALSE,
       // 'label' => '',
-      // 'unstyled'         => FALSE,
-      // '_resimage'        => FALSE,
-      // '_image_url'  => '',
+      // 'unstyled' => FALSE,
+      // '_resimage' => FALSE,
+      // '_image_url' => '',
       // 'check_blazy' => FALSE,
       // 'first_image' => NULL,
-      // '_richbox'    => FALSE,
-      // 'blazy_data'  => [],
-      // 'compat'           => FALSE,
-      'is_preview'       => FALSE,
-      // 'lightbox'         => FALSE,
-      // 'resimage'         => FALSE,
+      // '_richbox' => FALSE,
+      // 'blazy_data' => [],
+      // 'compat' => FALSE,
+      // 'lightbox' => FALSE,
+      // 'resimage' => FALSE,
+      // 'unlazy' => FALSE,
       // @todo revert  + self::uiSettings()
     ] + self::imageSettings() + self::gridSettings();
   }

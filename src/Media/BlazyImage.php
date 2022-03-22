@@ -6,7 +6,6 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\file\FileInterface;
-// @todo remove use Drupal\image\Entity\ImageStyle;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
@@ -15,6 +14,20 @@ use Drupal\blazy\Blazy;
  * Provides image-related methods.
  */
 class BlazyImage {
+
+  /**
+   * Checks if the image style contains crop in the effect name.
+   *
+   * @var array
+   */
+  private static $crop;
+
+  /**
+   * Checks if image dimensions are set.
+   *
+   * @var array
+   */
+  private static $isCropSet;
 
   /**
    * The image style ID.
@@ -152,9 +165,9 @@ class BlazyImage {
     }
 
     $settings = $options['settings'] ?? [];
-    $blazies = $settings['blazies'] ?? NULL;
-    $poster = $settings['image'] ?? FALSE;
-    $name = $name ?: $poster;
+    $blazies  = $settings['blazies'] ?? NULL;
+    $poster   = $settings['image'] ?? FALSE;
+    $name     = $name ?: $poster;
 
     // Title is NULL from thumbnail, likely core bug, so use source.
     if ($blazies && !$name && $source = $blazies->get('media.source')) {
@@ -297,7 +310,7 @@ class BlazyImage {
       // Keys here are hard-coded, so to be inherited by children as intended.
       // The underscore prefix is to identify the source/ original unstyled
       // image properties, not related to the final output printed here.
-      // See \Drupal\blazy\BlazyFormatter::setImageDimensions().
+      // See self::initialDimensions().
       // @todo re-check if the container needs image style dimensions.
       static::$styleId[$key] = [
         'width' => $dim['width'],
@@ -480,6 +493,7 @@ class BlazyImage {
     $uri     = $blazies->get('uri');
     $style   = $style ?: $blazies->get('image.style');
 
+    // @tbd replace src with URL before 3.x, or keep it.
     return [
       'src' => $style ? BlazyFile::transformRelative($uri, $style) : $url,
       'ratio' => self::ratio($settings),
@@ -490,13 +504,64 @@ class BlazyImage {
    * Provides a computed image ratio aka fluid ratio.
    *
    * Addresses multi-image-style Responsive image or, plain old one.
-   * It doesn't affect option.ratio, a failsafe for BG, else collapsed.
+   * A failsafe for BG, else collapsed.
    *
    * @todo decide if to provide NULL or 0 instead.
    */
   public static function ratio(array $settings) {
     $no_dims = empty($settings['height']) || empty($settings['width']);
     return $no_dims ? 100 : round((($settings['height'] / $settings['width']) * 100), 2);
+  }
+
+  /**
+   * Returns the image style if it contains crop effect.
+   *
+   * @param object $style
+   *   The image style to check for.
+   *
+   * @return object
+   *   Returns the image style instance if it contains crop effect, else NULL.
+   */
+  public static function getCrop($style): ?object {
+    $id = $style->id();
+
+    if (!isset(static::$crop[$id])) {
+      $output = NULL;
+
+      foreach ($style->getEffects() as $effect) {
+        if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
+          $output = $style;
+          break;
+        }
+      }
+      static::$crop[$id] = $output;
+    }
+    return static::$crop[$id];
+  }
+
+  /**
+   * Sets dimensions once to reduce method calls, if image style contains crop.
+   *
+   * @param array $settings
+   *   The settings being modified.
+   * @param object $style
+   *   The image style to check for crp effect.
+   */
+  public static function cropDimensions(array &$settings, $style): void {
+    $id = $style->id();
+
+    if (!isset(static::$isCropSet[$id])) {
+      // If image style contains crop, sets dimension once, and let all inherit.
+      if ($crop = self::getCrop($style)) {
+        $blazies = $settings['blazies'];
+        $settings = array_merge($settings, self::transformDimensions($crop, $settings, TRUE));
+
+        // Informs individual images that dimensions are already set once.
+        $blazies->set('is.dimensions', TRUE);
+      }
+
+      static::$isCropSet[$id] = TRUE;
+    }
   }
 
 }

@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\BlazyResponsiveImage;
+use Drupal\blazy\Utility\Check;
 
 /**
  * Provides common field formatter-related methods: Blazy, Slick.
@@ -12,30 +13,14 @@ use Drupal\blazy\Media\BlazyResponsiveImage;
 class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
   /**
-   * Checks if image dimensions are set.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  private $isImageDimensionSet;
-
-  /**
-   * Returns available styles with crop in the effect name.
-   *
-   * @var array
-   */
-  protected $cropStyles;
-
-  /**
-   * Checks if the image style contains crop in the effect name.
-   *
-   * @var array
-   */
-  protected $isCrop;
+  public function fieldSettings(array &$build, $items) {
+    Check::fields($build, $items);
+  }
 
   /**
    * {@inheritdoc}
-   *
-   * @todo remove fallback settings after migration and sub-modules.
    */
   public function buildSettings(array &$build, $items) {
     $settings = &$build['settings'];
@@ -44,45 +29,11 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $this->preSettings($settings);
     $this->prepareData($build, $entity);
     $this->postSettings($settings);
-    BlazyEntity::settings($settings, $entity);
+    $this->fieldSettings($build, $items);
 
-    $blazies        = $settings['blazies'];
-    $field          = $items->getFieldDefinition();
-    $field_name     = $field->getName();
-    $count          = $items->count();
-    $field_clean    = str_replace("field_", '', $field_name);
-    $entity_type_id = $blazies->get('entity.type_id');
-    $entity_id      = $blazies->get('entity.id');
-    $bundle         = $blazies->get('entity.bundle');
-    $view_mode      = $blazies->get('field.view_mode', 'default');
-    $namespace      = $blazies->get('namespace');
-    $id             = $settings['id'] ?? '';
-    $gallery_id     = "{$namespace}-{$entity_type_id}-{$bundle}-{$field_clean}-{$view_mode}";
-    $id             = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
-
-    // When alignment is mismatched, split them to satisfy linter.
-    $settings['caption'] = empty($settings['caption'])
-      ? [] : array_filter($settings['caption']);
-
-    // Respects linked_field.module expectation.
-    $linked = $blazies->get('field.third_party.linked_field.linked');
-    $use_field = !$blazies->is('lightbox') && $linked;
-
-    if ($blazies->is('lightbox')) {
-      $gallery_id = str_replace('_', '-', $gallery_id . '-' . $settings['media_switch']);
-      $blazies->set('lightbox.gallery_id', $gallery_id);
+    if (!empty($settings['caption'])) {
+      $settings['caption'] = array_filter($settings['caption']);
     }
-
-    $blazies->set('count', $count)
-      ->set('css.id', $id)
-      ->set('use.theme_field', $use_field || !empty($settings['use_theme_field']));
-
-    $blazies->set('cache.keys', [$id, $count], TRUE);
-    $blazies->set('cache.tags', [$entity_type_id . ':' . $entity_id], TRUE);
-
-    // @todo remove.
-    $settings['count'] = $count;
-    $settings['id'] = $id;
   }
 
   /**
@@ -105,8 +56,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       if ($blazies->get('resimage.style')) {
         BlazyResponsiveImage::dimensionsAndSources($settings, TRUE);
       }
-      else {
-        $this->setImageDimensions($settings);
+      elseif ($style = $blazies->get('image.style')) {
+        BlazyImage::cropDimensions($settings, $style);
       }
     }
 
@@ -119,40 +70,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    */
   public function postBuildElements(array &$build, $items, array $entities = []) {
     // Do nothing.
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isCrop($style) {
-    if (!isset($this->isCrop[$style])) {
-      $this->isCrop[$style] = $this->cropStyles()[$style] ?? FALSE;
-    }
-    return $this->isCrop[$style];
-  }
-
-  /**
-   * Sets dimensions once to reduce method calls, if image style contains crop.
-   *
-   * @param array $settings
-   *   The settings being modified.
-   */
-  protected function setImageDimensions(array &$settings = []) {
-    $blazies = $settings['blazies'];
-    $id = $blazies->get('css.id', $settings['id'] ?? 'x');
-
-    if (!isset($this->isImageDimensionSet[md5($id)])) {
-      // If image style contains crop, sets dimension once, and let all inherit.
-      $image_style = $settings['image_style'] ?? '';
-      if ($image_style && ($style = $this->isCrop($image_style))) {
-        $settings = array_merge($settings, BlazyImage::transformDimensions($style, $settings, TRUE));
-
-        // Informs individual images that dimensions are already set once.
-        $blazies->set('is.dimensions', TRUE);
-      }
-
-      $this->isImageDimensionSet[md5($id)] = TRUE;
-    }
   }
 
   /**
@@ -170,32 +87,5 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       BlazyImage::dimensions($settings, $item, TRUE);
     }
   }
-
-  /**
-   * Returns available image styles with crop in the name.
-   */
-  private function cropStyles() {
-    if (!isset($this->cropStyles)) {
-      $this->cropStyles = [];
-      foreach ($this->entityLoadMultiple('image_style') as $style) {
-        foreach ($style->getEffects() as $effect) {
-          if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
-            $this->cropStyles[$style->getName()] = $style;
-            break;
-          }
-        }
-      }
-    }
-    return $this->cropStyles;
-  }
-
-  /**
-   * Deprecated method.
-   *
-   * @deprecated in blazy:8.x-2.6 and is removed from blazy:3.0.0. Use
-   *   BlazyFile::urisFromField() instead to also extract URIs for preload.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public function extractFirstItem(array &$settings, $item, $entity = NULL) {}
 
 }

@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyImage;
@@ -21,14 +22,14 @@ class BlazyAttribute {
   /**
    * Modifies container attributes with aspect ratio for iframe, image, etc.
    */
-  public static function aspectRatio(array &$attributes, array &$settings): void {
+  public static function finalize(array &$attributes, array &$settings): void {
     $blazies = $settings['blazies'];
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
     // Prevents double padding hacks with AMP which also uses similar technique.
     $disabled = empty($settings['height']) || $blazies->is('amp');
-    $settings['ratio'] = $disabled ? '' : $settings['ratio'];
-    $settings['ratio'] = str_replace(':', '', $settings['ratio']);
+    $ratio = $disabled ? '' : $settings['ratio'];
+    $settings['ratio'] = str_replace(':', '', $ratio);
 
     // Fixed aspect ratio is taken care of by pure CSS. Fluid means dynamic.
     if ($settings['ratio'] && $settings['height'] && $blazies->is('fluid')) {
@@ -44,6 +45,11 @@ class BlazyAttribute {
       // attributes, provide hint to JS.
       $attributes['data-ratio'] = $padding;
     }
+
+    // Makes a little BEM order here due to Twig ignoring the preset priority.
+    $classes = (array) ($attributes['class'] ?? []);
+    $attributes['class'] = array_merge(['media', 'media--blazy'], $classes);
+    $variables['blazies'] = $blazies->storage();
   }
 
   /**
@@ -91,9 +97,9 @@ class BlazyAttribute {
    */
   public static function buildMedia(array &$variables): void {
     $attributes = &$variables['attributes'];
-    $settings = &$variables['settings'];
-    $blazies = $settings['blazies'];
-    $resimage = $blazies->get('resimage.id');
+    $settings   = &$variables['settings'];
+    $blazies    = $settings['blazies'];
+    $resimage   = $blazies->get('resimage.id');
 
     // (Responsive) image is optional for Video, or image as CSS background.
     if ($resimage) {
@@ -126,7 +132,7 @@ class BlazyAttribute {
         self::image($variables);
       }
 
-      // Only provides if it has an image, or BG, including the media player.
+      // Only blur if it has an image, or BG, including the media player.
       if ($blazies->is('blur')) {
         Placeholder::blur($variables, $settings);
       }
@@ -159,7 +165,6 @@ class BlazyAttribute {
       $attributes['sandbox'] = TRUE;
       $attributes['src'] = $embed_url;
     }
-
     // Native lazyload just loads the URL directly.
     // With many videos like carousels on the page may chaos, but we provide a
     // solution: use `Image to Iframe` for GDPR, swipe and best performance.
@@ -178,6 +183,10 @@ class BlazyAttribute {
 
   /**
    * Provides container attributes for .blazy container: .field, .view, etc.
+   *
+   * Relevant for JS lookups, lightbox galleries, also to accommodate
+   * block__no_wrapper, views__no_wrapper, etc. with helpful CSS classes, useful
+   * for DOM diets.
    */
   public static function container(array &$attributes, array $settings = []): void {
     Blazy::verify($settings);
@@ -241,12 +250,12 @@ class BlazyAttribute {
     $blazies = $settings['blazies'];
 
     // For consistent CSS fix, and w/o Native.
-    $class = $blazies->get('lazy.class', $settings['lazy_class'] ?? 'b-lazy');
+    $class = $blazies->get('lazy.class', 'b-lazy');
     $attributes['class'][] = $class;
 
     // Slick has its own class and methods: ondemand, anticipative, progressive.
     // The data-[SRC|SCRSET|LAZY] is if `nojs` disabled, background, or video.
-    $attribute = $blazies->get('lazy.attribute', $settings['lazy_attribute'] ?? 'src');
+    $attribute = $blazies->get('lazy.attribute');
     if (!$blazies->is('unlazy')) {
       $attributes['data-' . $attribute] = $blazies->get('image.url');
     }
@@ -257,6 +266,43 @@ class BlazyAttribute {
    */
   public static function inlineStyle(array &$attributes, $css): void {
     $attributes['style'] = ($attributes['style'] ?? '') . $css;
+  }
+
+  /**
+   * Returns the sanitized attributes for user-defined (UGC Blazy Filter).
+   *
+   * When IMG and IFRAME are allowed for untrusted users, trojan horses are
+   * welcome. Hence sanitize attributes relevant for BlazyFilter. The rest
+   * should be taken care of by HTML filters after Blazy.
+   *
+   * @param array $attributes
+   *   The given attributes to sanitize.
+   * @param bool $escaped
+   *   Sets to FALSE to avoid double escapes, for further processing.
+   *
+   * @return array
+   *   The sanitized $attributes suitable for UGC, such as Blazy filter.
+   */
+  public static function sanitize(array $attributes = [], $escaped = TRUE): array {
+    $output = [];
+    $tags = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];
+
+    foreach ($attributes as $key => $value) {
+      if (is_array($value)) {
+        // Respects array item containing space delimited classes: aaa bbb ccc.
+        $value = implode(' ', $value);
+        $output[$key] = array_map('\Drupal\Component\Utility\Html::cleanCssIdentifier', explode(' ', $value));
+      }
+      else {
+        // Since Blazy is lazyloading known URLs, sanitize attributes which
+        // make no sense to stick around within IMG or IFRAME tags.
+        $kid = mb_substr($key, 0, 2) === 'on' || in_array($key, $tags);
+        $key = $kid ? 'data-' . $key : $key;
+        $escaped_value = $escaped ? Html::escape($value) : $value;
+        $output[$key] = $kid ? Html::cleanCssIdentifier($value) : $escaped_value;
+      }
+    }
+    return $output;
   }
 
   /**

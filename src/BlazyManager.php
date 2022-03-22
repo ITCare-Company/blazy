@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
+use Drupal\blazy\Theme\BlazyAttribute;
 use Drupal\blazy\Cache\BlazyCache;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Theme\Lightbox;
@@ -274,7 +275,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // (Responsive) image with item attributes, might be RDF.
     $item_attributes = empty($build['item_attributes'])
       ? []
-      : BlazyUtil::sanitize($build['item_attributes']);
+      : BlazyAttribute::sanitize($build['item_attributes']);
 
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
@@ -343,7 +344,8 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // Was planned to replace sub-module item markups if similarity is found for
     // theme_gridstack_box(), theme_slick_slide(), etc. Likely for Blazy 3.x+.
     foreach (['caption', 'media', 'wrapper'] as $key) {
-      $element["#$key" . '_attributes'] = empty($build[$key . '_attributes']) ? [] : BlazyUtil::sanitize($build[$key . '_attributes']);
+      $element["#$key" . '_attributes'] = empty($build[$key . '_attributes'])
+        ? [] : BlazyAttribute::sanitize($build[$key . '_attributes']);
     }
 
     // Provides captions, if so configured.

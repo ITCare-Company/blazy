@@ -74,7 +74,7 @@ class BlazyTheme {
 
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
-      Blazy::impromptu($settings);
+      Blazy::preSettings($settings);
       Blazy::prepare($settings, $item);
     }
 
@@ -99,12 +99,7 @@ class BlazyTheme {
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
     // Prevents double padding hacks with AMP which also uses similar technique.
-    BlazyAttribute::aspectRatio($attributes, $settings);
-
-    // Makes a little BEM order here due to Twig ignoring the preset priority.
-    $classes = (array) ($attributes['class'] ?? []);
-    $attributes['class'] = array_merge(['media', 'media--blazy'], $classes);
-    $variables['blazies'] = $settings['blazies']->storage();
+    BlazyAttribute::finalize($attributes, $settings);
 
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {

@@ -16,14 +16,14 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   use BlazyDependenciesTrait;
 
   /**
-   * Returns media contents.
+   * {@inheritdoc}
    */
   public function buildElements(array &$build, $entities, $langcode) {
     parent::buildElements($build, $entities, $langcode);
 
     $settings = $build['settings'];
-    $blazies = $settings['blazies'];
-    $item_id = $blazies->get('item.id');
+    $blazies  = $settings['blazies'];
+    $item_id  = $blazies->get('item.id');
 
     // Some formatter has a toggle Vanilla.
     if (empty($settings['vanilla'])) {
@@ -41,23 +41,24 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   /**
    * {@inheritdoc}
    */
-  public function buildElement(array &$build, $entity, $langcode) {
+  protected function prepareElement(array &$build, $entity, $langcode, $delta): void {
+    parent::prepareElement($build, $entity, $langcode, $delta);
+
     $settings  = $build['settings'];
-    $blazies   = $settings['blazies']->reset($settings);
+    $blazies   = $settings['blazies'];
     $item_id   = $blazies->get('item.id');
     $view_mode = $settings['view_mode'];
-    $delta     = $blazies->get('delta');
 
     // Bail out if vanilla (rendered entity) is required.
     if (!empty($settings['vanilla'])) {
-      return parent::buildElement($build, $entity, $langcode);
+      return;
     }
 
     // Otherwise hard work which is meant to reduce custom code at theme level.
     $element = ['item' => NULL, 'settings' => $settings];
 
     // Build media item including custom highres video thumbnail.
-    $this->blazyOembed()->build($element, $entity);
+    $this->blazyOembed->build($element, $entity);
 
     // Build the main stage with image options from highres video thumbnail.
     if (!empty($settings['image'])) {
@@ -78,7 +79,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
     // Optional image with responsive image, lazyLoad, and lightbox supports.
     // Including potential rich Media contents: local video, Facebook, etc.
-    $blazy = $this->formatter()->getBlazy($element, $delta);
+    $blazy = $this->formatter->getBlazy($element, $delta);
 
     // If the caller is Blazy, provides simple index elements.
     if ($blazies->get('namespace') == 'blazy') {
@@ -193,7 +194,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   /**
    * {@inheritdoc}
    */
-  public function getScopedFormElements() {
+  protected function getPluginScopes(): array {
     $target_type = $this->getFieldSetting('target_type');
     $bundles     = $this->getAvailableBundles();
     $captions    = $this->admin()->getFieldOptions($bundles, [], $target_type);
@@ -225,7 +226,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,
       'multimedia'        => TRUE,
-    ] + parent::getScopedFormElements() + $images;
+    ] + $images + parent::getPluginScopes();
   }
 
 }

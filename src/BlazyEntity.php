@@ -193,6 +193,7 @@ class BlazyEntity implements BlazyEntityInterface {
     $info = [
       'bundle' => $entity->bundle(),
       'id' => $id,
+      'rid' => $rid,
       'type_id' => $entity->getEntityTypeId(),
       'url' => $absolute_path,
       'path' => $internal_path,
@@ -200,6 +201,7 @@ class BlazyEntity implements BlazyEntityInterface {
 
     $blazies->set('entity', $info, TRUE);
 
+    // @todo remove.
     $settings['bundle'] = $entity->bundle();
 
     // @todo remove after migration and sub-modules. After tests updated.

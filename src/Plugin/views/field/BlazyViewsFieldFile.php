@@ -29,11 +29,13 @@ class BlazyViewsFieldFile extends BlazyViewsFieldPluginBase {
   }
 
   /**
-   * Defines the scope for the form elements.
+   * {@inheritdoc}
    */
-  public function getScopedFormElements() {
-    return ['multimedia' => TRUE, 'view_mode' => 'default']
-      + parent::getScopedFormElements();
+  protected function getPluginScopes(): array {
+    return [
+      'multimedia' => TRUE,
+      'view_mode' => 'default',
+    ] + parent::getPluginScopes();
   }
 
 }

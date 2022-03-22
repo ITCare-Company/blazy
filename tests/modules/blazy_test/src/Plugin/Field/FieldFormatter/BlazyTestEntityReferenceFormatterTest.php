@@ -4,7 +4,6 @@ namespace Drupal\blazy_test\Plugin\Field\FieldFormatter;
 
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyEntityReferenceBase;
-use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
 use Drupal\Core\Field\FieldItemListInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -19,8 +18,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase {
 
-  use BlazyFormatterTrait;
-
   /**
    * {@inheritdoc}
    */
@@ -34,13 +31,6 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase {
    */
   public function admin() {
     return \Drupal::service('blazy_test.admin');
-  }
-
-  /**
-   * Returns the slick service.
-   */
-  public function blazyEntity() {
-    return $this->blazyEntity;
   }
 
   /**
@@ -61,23 +51,13 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase {
       return [];
     }
 
-    // Collects specific settings to this formatter.
-    $settings = $this->buildSettings();
-    $build = ['settings' => $settings];
-
-    $this->formatter()->buildSettings($build, $items);
-
-    // Build the elements.
-    $this->buildElements($build, $entities, $langcode);
-
-    // Pass to manager for easy updates to all Blazy formatters.
-    return $this->formatter->build($build);
+    return $this->commonViewElements($items, $langcode, $entities);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getScopedFormElements() {
+  protected function getPluginScopes(): array {
     $admin       = $this->admin();
     $target_type = $this->getFieldSetting('target_type');
     $bundles     = $this->getAvailableBundles();
@@ -90,7 +70,7 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase {
       'overlays'   => $stages + $node,
       'thumbnails' => $stages,
       'optionsets' => ['default' => 'Default'],
-    ] + parent::getScopedFormElements();
+    ] + parent::getPluginScopes();
   }
 
 }

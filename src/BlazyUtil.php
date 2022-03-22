@@ -2,9 +2,9 @@
 
 namespace Drupal\blazy;
 
-use Drupal\Component\Utility\Html;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
+use Drupal\blazy\Theme\BlazyAttribute;
 
 /**
  * Provides internal Blazy utilities, hardly re-usable outside blazy.module.
@@ -13,45 +13,18 @@ use Drupal\blazy\Media\BlazyImage;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
  *
- * @todo move into Utility namespace after sub-modules.
+ * @todo remove after sub-modules anytime before 3.x.
  */
 class BlazyUtil {
 
   /**
    * Returns the sanitized attributes for user-defined (UGC Blazy Filter).
    *
-   * When IMG and IFRAME are allowed for untrusted users, trojan horses are
-   * welcome. Hence sanitize attributes relevant for BlazyFilter. The rest
-   * should be taken care of by HTML filters after Blazy.
-   *
-   * @param array $attributes
-   *   The given attributes to sanitize.
-   * @param bool $escaped
-   *   Sets to FALSE to avoid double escapes, for further processing.
-   *
-   * @return array
-   *   The sanitized $attributes suitable for UGC, such as Blazy filter.
+   * @todo deprecated at 2.5 and removed < 3.x. Use
+   * BlazyAttribute::sanitize() instead.
    */
   public static function sanitize(array $attributes = [], $escaped = TRUE): array {
-    $clean_attributes = [];
-    $tags = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];
-
-    foreach ($attributes as $key => $value) {
-      if (is_array($value)) {
-        // Respects array item containing space delimited classes: aaa bbb ccc.
-        $value = implode(' ', $value);
-        $clean_attributes[$key] = array_map('\Drupal\Component\Utility\Html::cleanCssIdentifier', explode(' ', $value));
-      }
-      else {
-        // Since Blazy is lazyloading known URLs, sanitize attributes which
-        // make no sense to stick around within IMG or IFRAME tags.
-        $kid = mb_substr($key, 0, 2) === 'on' || in_array($key, $tags);
-        $key = $kid ? 'data-' . $key : $key;
-        $escaped_value = $escaped ? Html::escape($value) : $value;
-        $clean_attributes[$key] = $kid ? Html::cleanCssIdentifier($value) : $escaped_value;
-      }
-    }
-    return $clean_attributes;
+    return BlazyAttribute::sanitize($attributes, $escaped);
   }
 
   /**
@@ -66,7 +39,7 @@ class BlazyUtil {
   /**
    * A wrapper for ImageStyle::transformDimensions().
    *
-   * @todo deprecate and removed < 3.x. Use BlazyImage::transformDimensions()
+   * @todo deprecated and removed < 3.x. Use BlazyImage::transformDimensions()
    * instead.
    */
   public static function transformDimensions($style, array $data, $initial = FALSE) {
@@ -76,7 +49,7 @@ class BlazyUtil {
   /**
    * A wrapper for ::transformRelative() to pass tests anywhere else.
    *
-   * @todo deprecate at 2.5 and removed < 3.x. Use
+   * @todo deprecated at 2.5 and removed < 3.x. Use
    * BlazyFile::transformRelative() instead.
    */
   public static function transformRelative($uri, $style = NULL) {
@@ -86,7 +59,7 @@ class BlazyUtil {
   /**
    * Returns the URI from the given image URL, relevant for unmanaged files.
    *
-   * @todo deprecate at 2.5 and removed < 3.x. Use BlazyFile::buildUri()
+   * @todo deprecated at 2.5 and removed < 3.x. Use BlazyFile::buildUri()
    * instead.
    */
   public static function buildUri($url) {
@@ -96,7 +69,7 @@ class BlazyUtil {
   /**
    * Determines whether the URI has a valid scheme for file API operations.
    *
-   * @todo deprecate at 2.5 and removed < 3.x. Use BlazyFile::isValidUri()
+   * @todo deprecated at 2.5 and removed < 3.x. Use BlazyFile::isValidUri()
    * instead.
    */
   public static function isValidUri($uri) {
@@ -106,7 +79,7 @@ class BlazyUtil {
   /**
    * Generates an SVG Placeholder.
    *
-   * @todo deprecate at 2.7 and removed < 3.x. Use Placeholder::generate().
+   * @todo deprecated at 2.7 and removed < 3.x. Use Placeholder::generate().
    */
   public static function generatePlaceholder($width, $height): string {
     $width = $width ?: 100;

@@ -184,12 +184,18 @@ class BlazySettings implements \Countable {
    *
    * @param array $settings
    *   The settings to reset/ renew the instance.
+   * @param bool $filter
+   *   A flag to filter out settings.
    *
    * @return \Drupal\blazy\BlazySettings
    *   The new BlazySettings instance.
    */
-  public function reset(array &$settings): BlazySettings {
+  public function reset(array &$settings, $filter = FALSE): BlazySettings {
     $data = $this->storage;
+
+    if ($filter) {
+      $data = array_filter($data);
+    }
 
     if ($this->is('debug')) {
       $this->rksort($data);

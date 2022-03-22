@@ -9,6 +9,11 @@ use Drupal\blazy\BlazyDefault;
 /**
  * Base class for all entity reference formatters with field details.
  *
+ * The most robust formatter at field level, more than BlazyEntityMediaBase, to
+ * support nested/ overlayed formatters like seen at Slick/ Splide Paragraphs
+ * formatters which is not supported at BlazyEntityMediaBase to avoid
+ * complication -- embedding entities within Media, although fine and possible.
+ *
  * @see \Drupal\slick\Plugin\Field\FieldFormatter\SlickEntityReferenceFormatterBase
  */
 abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
@@ -120,7 +125,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
   /**
    * {@inheritdoc}
    */
-  public function getScopedFormElements() {
+  protected function getPluginScopes(): array {
     $admin       = $this->admin();
     $target_type = $this->getFieldSetting('target_type');
     $bundles     = $this->getAvailableBundles();
@@ -137,7 +142,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
       'links'   => $admin->getFieldOptions($bundles, $links, $target_type),
       'titles'  => $texts,
       'vanilla' => TRUE,
-    ] + parent::getScopedFormElements();
+    ] + parent::getPluginScopes();
   }
 
 }

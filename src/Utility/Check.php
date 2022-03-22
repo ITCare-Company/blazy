@@ -4,13 +4,14 @@ namespace Drupal\blazy\Utility;
 
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\BlazyEntity;
+use Drupal\blazy\Media\Preloader;
 use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Theme\Lightbox;
 
 /**
- * Provides check methods.
+ * Provides feature check methods.
  */
 class Check {
 
@@ -37,9 +38,11 @@ class Check {
 
   /**
    * Modifies asset attachments.
+   *
+   * @todo move it out of here for all attachments, what folder, Asset?
    */
   public static function attachments(array &$load, array &$attach = []): void {
-    self::postSettings($attach);
+    Blazy::postSettings($attach);
 
     $manager = Blazy::service('blazy.manager');
     $blazies = $attach['blazies'];
@@ -96,40 +99,34 @@ class Check {
 
     // Preload.
     if (!empty($attach['preload'])) {
-      BlazyFile::preload($load, $attach);
+      Preloader::preload($load, $attach);
     }
   }
 
   /**
    * Checks for global libraries.
-   *
-   * The `fx` sequence: hook_alter > formatters (not implemented yet) > UI.
-   * The `_fx` is a special flag such as to temporarily disable till needed.
-   * Called by field formatters, views [styles|fields via BlazyEntity],
-   * [blazy|splide|slick] filters.
    */
-  public static function features(array &$settings = []): void {
-    $blazies = $settings['blazies'];
-    $ui = $blazies->get('ui');
-    $namespace = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
-    $item_id = $blazies->get('item.id', $settings['item_id'] ?? 'blazy');
-
-    $settings['loading'] = $settings['loading'] ?: 'lazy';
-
-    $bundle = $blazies->get('media.bundle', $settings['bundle'] ?? '');
-    $is_preview = $settings['is_preview'] = self::isPreview();
-    $is_amp = self::isAmp();
+  public static function basics(array &$settings = []): void {
+    $blazies      = $settings['blazies'];
+    $ui           = $blazies->get('ui');
+    $namespace    = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
+    $item_id      = $blazies->get('item.id', $settings['item_id'] ?? 'blazy');
+    $_loading     = $settings['loading'] ?? '';
+    $loading      = $settings['loading'] = $_loading ?: 'lazy';
+    $bundle       = $blazies->get('media.bundle', $settings['bundle'] ?? '');
+    $is_preview   = $settings['is_preview'] = self::isPreview();
+    $is_amp       = self::isAmp();
     $is_sandboxed = self::isSandboxed();
-    $is_bg = !empty($settings['background']);
-    $is_unload = !empty($ui['nojs']['lazy']);
-    $is_slider = $settings['loading'] == 'slider';
-    $is_unloading = $settings['loading'] == 'unlazy';
-    $is_defer = $settings['loading'] == 'defer';
-    $is_fluid = $settings['ratio'] == 'fluid';
-    $is_static = $is_preview || $is_amp || $is_sandboxed;
-    $is_undata = $is_static || $is_unloading;
-    $is_nojs = $is_unload || $is_undata;
-    $is_local_video = $bundle == 'video'
+    $is_bg        = !empty($settings['background']);
+    $is_unload    = !empty($ui['nojs']['lazy']);
+    $is_slider    = $loading == 'slider';
+    $is_unloading = $loading == 'unlazy';
+    $is_defer     = $loading == 'defer';
+    $is_fluid     = ($settings['ratio'] ?? '') == 'fluid';
+    $is_static    = $is_preview || $is_amp || $is_sandboxed;
+    $is_undata    = $is_static || $is_unloading;
+    $is_nojs      = $is_unload || $is_undata;
+    $is_video     = $bundle == 'video'
       || in_array('video', $blazies->get('bundles', []));
 
     // When `defer` is chosen, overrides global `No JavaScript: lazy`, ensures
@@ -141,7 +138,7 @@ class Check {
     // Compat is anything that Native lazy doesn't support.
     $is_compat = $is_bg
       || $is_fluid
-      || $is_local_video
+      || $is_video
       || $is_defer
       || $blazies->get('fx')
       || $blazies->get('libs.compat');
@@ -164,40 +161,16 @@ class Check {
       ->set('libs.compat', $is_compat)
       ->set('libs.ratio', !empty($settings['ratio']))
       ->set('namespace', $namespace)
-      ->set('use.dataset', $is_bg || $is_local_video);
-  }
-
-  /**
-   * Checks for grids.
-   */
-  public static function grids(array &$settings = []) {
-    $blazies  = $settings['blazies'];
-    $has_grid = !empty($settings['grid']);
-    $style    = $settings['style'] ?? NULL;
-    $is_grid  = $has_grid && !empty($settings['visible_items']);
-    $is_grid  = $is_grid ?: ($style && $has_grid);
-    $is_grid  = $blazies->is('grid', $settings['_grid'] ?? $is_grid);
-
-    $blazies->set('is.grid', $is_grid);
-
-    if ($is_grid && $style) {
-      foreach (BlazyDefault::grids() as $grid) {
-        if ($style == $grid) {
-          $blazies->set('libs.' . $style, $grid);
-        }
-      }
-
-      // Formatters, Views style, not Filters.
-      Grid::toNativeGrid($settings);
-    }
+      ->set('use.dataset', $is_bg || $is_video);
   }
 
   /**
    * Checks for Blazy formatter such as from within a Views style plugin.
    *
    * @see \Drupal\blazy\Blazy::preserve()
+   * @see \Drupal\blazy\BlazyManagerInterface::isBlazy()
    */
-  public static function isBlazy(array &$settings, array $data = []) {
+  public static function blazyOrNot(array &$settings, array $data = []): void {
     // Retrieves Blazy formatter related settings from within Views style.
     if (!$blazies = $settings['blazies'] ?? NULL) {
       return;
@@ -225,6 +198,80 @@ class Check {
 
     // No longer needed once extracted above, remove.
     $blazies->unset('first.data');
+  }
+
+  /**
+   * Checks for field formatter settings.
+   *
+   * @todo remove fallback settings after migration and sub-modules.
+   */
+  public static function fields(array &$build, $items): void {
+    $settings = &$build['settings'];
+    $entity   = $items->getEntity();
+
+    BlazyEntity::settings($settings, $entity);
+
+    $blazies        = $settings['blazies'];
+    $field          = $items->getFieldDefinition();
+    $field_name     = $field->getName();
+    $count          = $items->count();
+    $field_clean    = str_replace("field_", '', $field_name);
+    $entity_type_id = $blazies->get('entity.type_id');
+    $entity_id      = $blazies->get('entity.id');
+    $bundle         = $blazies->get('entity.bundle');
+    $view_mode      = $blazies->get('field.view_mode', 'default');
+    $namespace      = $blazies->get('namespace');
+    $id             = $settings['id'] ?? '';
+    $gallery_id     = "{$namespace}-{$entity_type_id}-{$bundle}-{$field_clean}-{$view_mode}";
+    $id             = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
+    $switch         = $settings['media_switch'] ?? '';
+
+    // When alignment is mismatched, split them to satisfy linter.
+    // Respects linked_field.module expectation.
+    $linked    = $blazies->get('field.third_party.linked_field.linked');
+    $use_field = !$blazies->is('lightbox') && $linked;
+
+    if ($switch && $blazies->is('lightbox')) {
+      $gallery_id = str_replace('_', '-', $gallery_id . '-' . $switch);
+      $blazies->set('lightbox.gallery_id', $gallery_id);
+    }
+
+    $blazies->set('count', $count)
+      ->set('css.id', $id)
+      ->set('use.theme_field', $use_field || !empty($settings['use_theme_field']));
+
+    $blazies->set('cache.keys', [$id, $count], TRUE);
+    $blazies->set('cache.tags', [$entity_type_id . ':' . $entity_id], TRUE);
+
+    // @todo remove.
+    $settings['count'] = $count;
+    $settings['id'] = $id;
+  }
+
+  /**
+   * Checks for grids.
+   */
+  public static function grids(array &$settings = []): void {
+    $blazies  = $settings['blazies'];
+    $has_grid = !empty($settings['grid']);
+    $is_grid  = $has_grid && !empty($settings['visible_items']);
+    $style    = $settings['style'] ?? NULL;
+    $style    = $style ?: ($is_grid ? 'grid' : NULL);
+    $is_grid  = $is_grid ?: ($style && $has_grid);
+    $is_grid  = $blazies->is('grid', $settings['_grid'] ?? $is_grid);
+
+    $blazies->set('is.grid', $is_grid);
+
+    if ($is_grid && $style) {
+      foreach (BlazyDefault::grids() as $grid) {
+        if ($style == $grid) {
+          $blazies->set('libs.' . $style, $grid);
+        }
+      }
+
+      // Formatters, Views style, not Filters.
+      Grid::toNativeGrid($settings);
+    }
   }
 
   /**
@@ -278,7 +325,7 @@ class Check {
    * To address mixed media, and various options which also affect individual
    * items, see self::prepare().
    */
-  public static function lazyOrNot(array &$settings) {
+  public static function lazyOrNot(array &$settings): void {
     $blazies = $settings['blazies'];
 
     // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
@@ -298,7 +345,9 @@ class Check {
 
     $blazies->set('is.blazy', $is_blazy)
       ->set('is.unlazy', $is_unlazy)
-      ->set('lazy.id', $lazy);
+      ->set('lazy.id', $lazy)
+      ->set('lazy.attribute', $settings['lazy_attribute'] ?? 'src')
+      ->set('lazy.class', $settings['lazy_class'] ?? 'b-lazy');
   }
 
   /**
@@ -310,6 +359,8 @@ class Check {
     $lightboxes = $blazies->get('lightbox.plugins', []);
     $lightbox   = ($switch && in_array($switch, $lightboxes)) ? $switch : FALSE;
     $optionset  = '';
+    $_richbox   = $blazies->is('richbox', !empty($settings['_richbox']));
+    $richbox    = $blazies->get('colorbox') || $blazies->get('mfp') || $_richbox;
 
     // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
     if ($switch) {
@@ -334,40 +385,8 @@ class Check {
 
     // @todo remove settings after migration and sub-modules.
     $settings['lightbox'] = $lightbox;
-    $blazies->set('is.lightbox', !empty($lightbox));
-  }
-
-  /**
-   * Prepare base preliminary settings.
-   *
-   * @todo remove non-configurable settings after migration and sub-modules.
-   */
-  public static function preSettings(array &$settings = []): void {
-    Blazy::verify($settings);
-
-    $blazies = $settings['blazies'];
-    if ($blazies->is('presettings')) {
-      return;
-    }
-
-    // Preliminary globals when using the provided API.
-    Blazy::impromptu($settings);
-
-    // Marks it processed.
-    $blazies->set('is.presettings', TRUE);
-  }
-
-  /**
-   * Modifies the common UI settings inherited down to each item.
-   */
-  public static function postSettings(array &$settings = []) {
-    // Failsafe, might be called directly at ::attach() outside the workflow.
-    Blazy::verify($settings);
-
-    $blazies = $settings['blazies'];
-    if (!$blazies->is('presettings')) {
-      self::preSettings($settings);
-    }
+    $blazies->set('is.lightbox', !empty($lightbox))
+      ->set('is.richbox', $richbox);
   }
 
 }

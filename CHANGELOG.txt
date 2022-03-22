@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2022-03-22
+-----------------------------
+- Added src/Media/Preloader.php.
+- Added src/Plugin/Field/FieldFormatter/BlazyFormatterViewBaseTrait.php.
+- Added src/Traits/PluginScopesTrait.php to reduce boilerplate at sub-modules.
+
 Blazy 8.x-2.0-dev, 2022-03-21
 -----------------------------
 - Fixed for multi-breakpoint background image regressions.

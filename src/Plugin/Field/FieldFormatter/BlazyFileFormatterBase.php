@@ -28,7 +28,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
   use BlazyFormatterTrait;
-  use BlazyFormatterViewTrait;
   use BlazyDependenciesTrait;
 
   /**
@@ -114,9 +113,9 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * Defines the scope for the form elements.
+   * {@inheritdoc}
    */
-  public function getScopedFormElements() {
+  protected function getPluginScopes(): array {
     $multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
     $captions = ['title' => $this->t('Title'), 'alt' => $this->t('Alt')];
 
@@ -129,7 +128,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       'media_switch_form' => TRUE,
       'style'             => $multiple,
       'thumbnail_style'   => TRUE,
-    ] + $this->getCommonScopedFormElements();
+    ];
   }
 
   /**

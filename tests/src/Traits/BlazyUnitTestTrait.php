@@ -4,6 +4,7 @@ namespace Drupal\Tests\blazy\Traits;
 
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyEntity;
+use Drupal\blazy\Traits\PluginScopesTrait;
 
 /**
  * A Trait common for Blazy Unit tests.
@@ -11,6 +12,7 @@ use Drupal\blazy\BlazyEntity;
 trait BlazyUnitTestTrait {
 
   use BlazyPropertiesTestTrait;
+  use PluginScopesTrait;
 
   /**
    * The formatter settings.
@@ -96,15 +98,29 @@ trait BlazyUnitTestTrait {
    * @return array
    *   The default field formatter settings.
    */
-  protected function getDefaultFormatterDefinition() {
-    // @todo Will be replaced by `form` array below.
-    $deprecated = [
-      'grid_form'         => TRUE,
-      'image_style_form'  => TRUE,
-      'fieldable_form'    => TRUE,
-      'media_switch_form' => TRUE,
-    ];
+  public function getCommonScopedFormElements() {
+    return ['settings' => $this->getFormatterSettings()]
+      + $this->getDefaultFieldDefinition();
+  }
 
+  /**
+   * Defines the scope for the form elements.
+   *
+   * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().
+   */
+  public function getScopedFormElements() {
+    $scopes = $this->getPluginScopes();
+
+    // @todo remove `$scopes +` at Blazy 3.x.
+    $definitions = $scopes + $this->getCommonScopedFormElements();
+    $definitions['scopes'] = $this->toPluginScopes($scopes);
+    return $definitions;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getPluginScopes(): array {
     return [
       'background'        => TRUE,
       'box_captions'      => TRUE,
@@ -122,14 +138,11 @@ trait BlazyUnitTestTrait {
       'target_type'       => 'file',
       'titles'            => ['field_text' => 'Text'],
       'view_mode'         => 'default',
-      'settings'          => $this->getFormatterSettings(),
-      'form'              => [
-        'fieldable',
-        'grid',
-        'image_style',
-        'media_switch',
-      ],
-    ] + $deprecated + $this->getDefaultFieldDefinition();
+      'grid_form'         => TRUE,
+      'image_style_form'  => TRUE,
+      'fieldable_form'    => TRUE,
+      'media_switch_form' => TRUE,
+    ];
   }
 
   /**
@@ -160,8 +173,10 @@ trait BlazyUnitTestTrait {
    *   The field formatter settings.
    */
   protected function getFormatterDefinition() {
-    $defaults = $this->getDefaultFormatterDefinition();
-    return empty($this->formatterDefinition) ? $defaults : array_merge($defaults, $this->formatterDefinition);
+    $defaults = $this->getScopedFormElements();
+
+    return empty($this->formatterDefinition)
+      ? $defaults : array_merge($defaults, $this->formatterDefinition);
   }
 
   /**

@@ -2,13 +2,17 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
-use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Blazy;
+use Drupal\blazy\Traits\PluginScopesTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * A Trait common for all blazy formatters.
  */
 trait BlazyFormatterTrait {
+
+  use PluginScopesTrait;
+  use BlazyFormatterViewTrait;
 
   /**
    * The blazy manager service.
@@ -126,8 +130,9 @@ trait BlazyFormatterTrait {
     $blazies  = &$settings['blazies'];
     $is_grid  = !empty($settings['style']) && !empty($settings['grid']);
 
-    $blazies->set('is.grid', $is_grid)
-      ->set('field.third_party', $this->getThirdPartySettings());
+    $blazies->set('is.grid', $is_grid);
+
+    $this->pluginSettings($blazies, $settings);
 
     return $settings;
   }
@@ -148,10 +153,13 @@ trait BlazyFormatterTrait {
       'entity_type' => $field->getTargetEntityTypeId(),
       'plugin_id'   => $this->getPluginId(),
       'target_type' => $this->getFieldSetting('target_type'),
-    ] + BlazyDefault::htmlSettings();
+      'view_mode'   => $this->viewMode,
+      'blazies'     => Blazy::settings(),
+    ];
 
     // Exposes few basic formatter settings w/o use_field.
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
+
     $blazies->set('field.label', $field->getLabel())
       ->set('field.label_display', $this->label)
       ->set('field.name', $field->getName())
@@ -159,7 +167,8 @@ trait BlazyFormatterTrait {
       ->set('field.plugin_id', $this->getPluginId())
       ->set('field.entity_type', $field->getTargetEntityTypeId())
       ->set('field.target_type', $this->getFieldSetting('target_type'))
-      ->set('field.view_mode', $this->viewMode);
+      ->set('field.view_mode', $this->viewMode)
+      ->set('field.third_party', $this->getThirdPartySettings());
 
     return $settings;
   }
@@ -169,6 +178,20 @@ trait BlazyFormatterTrait {
    */
   public function getCommonScopedFormElements() {
     return ['settings' => $this->getSettings()] + $this->getCommonFieldDefinition();
+  }
+
+  /**
+   * Defines the scope for the form elements.
+   *
+   * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().
+   */
+  public function getScopedFormElements() {
+    $scopes = $this->getPluginScopes();
+
+    // @todo remove `$scopes +` at Blazy 3.x.
+    $definitions = $scopes + $this->getCommonScopedFormElements();
+    $definitions['scopes'] = $this->toPluginScopes($scopes);
+    return $definitions;
   }
 
 }

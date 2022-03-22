@@ -137,7 +137,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * Returns shared form elements across field formatter and Views.
    */
   public function openingForm(array &$form, &$definition = []) {
-    $this->blazyManager->getModuleHandler()->alter('blazy_form_element_definition', $definition);
+    $this->blazyManager
+      ->getModuleHandler()
+      ->alter('blazy_form_element_definition', $definition);
 
     // Display style: column, plain static grid, slick grid, slick carousel.
     // https://drafts.csswg.org/css-multicol

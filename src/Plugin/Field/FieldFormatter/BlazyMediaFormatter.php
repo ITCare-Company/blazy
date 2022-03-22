@@ -38,7 +38,7 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
   /**
    * {@inheritdoc}
    */
-  public function getScopedFormElements() {
+  protected function getPluginScopes(): array {
     $multiple = $this->fieldDefinition
       ->getFieldStorageDefinition()
       ->isMultiple();
@@ -50,7 +50,7 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
       'style'           => $multiple,
       'thumbnail_style' => TRUE,
       'vanilla'         => FALSE,
-    ] + $this->getCommonScopedFormElements() + parent::getScopedFormElements();
+    ] + parent::getPluginScopes();
   }
 
 }

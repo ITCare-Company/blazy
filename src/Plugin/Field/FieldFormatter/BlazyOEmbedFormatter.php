@@ -32,7 +32,6 @@ class BlazyOEmbedFormatter extends FormatterBase {
 
   use BlazyDependenciesTrait;
   use BlazyFormatterTrait;
-  use BlazyFormatterViewTrait;
 
   /**
    * {@inheritdoc}
@@ -60,9 +59,8 @@ class BlazyOEmbedFormatter extends FormatterBase {
    * Build the blazy elements.
    */
   public function buildElements(array &$build, $items) {
-    $settings = &$build['settings'];
-    $blazies = $settings['blazies'];
-    $field_name = $blazies->get('field.name');
+    $settings   = $build['settings'];
+    $field_name = $this->fieldDefinition->getName();
 
     foreach ($items as $delta => $item) {
       $main_property = $item->getFieldDefinition()
@@ -75,15 +73,18 @@ class BlazyOEmbedFormatter extends FormatterBase {
         continue;
       }
 
-      // @todo remove $settings after being migrated into $blazies.
+      $blazies = $settings['blazies']->reset($settings);
       $blazies->set('delta', $delta)
         ->set('media.input_url', $value);
 
-      $settings['blazies'] = $blazies;
       $data = ['item' => NULL, 'settings' => $settings];
 
       // Attempts to fetch media entity.
-      $media = $this->formatter->loadByProperties([$field_name => $value], 'media');
+      $media = $this->formatter
+        ->loadByProperties([
+          $field_name => $value,
+        ], 'media');
+
       if ($media = reset($media)) {
         $this->blazyOembed->build($data, $media);
       }
@@ -113,13 +114,13 @@ class BlazyOEmbedFormatter extends FormatterBase {
   /**
    * {@inheritdoc}
    */
-  public function getScopedFormElements() {
+  protected function getPluginScopes(): array {
     return [
       'background'        => TRUE,
       'media_switch_form' => TRUE,
       'multimedia'        => TRUE,
       'responsive_image'  => FALSE,
-    ] + $this->getCommonScopedFormElements();
+    ];
   }
 
   /**
