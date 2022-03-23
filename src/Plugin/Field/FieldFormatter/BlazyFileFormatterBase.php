@@ -46,6 +46,26 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
+   * Build individual item if so configured such as for file ER goodness.
+   */
+  public function buildElement(array &$element, $entity) {
+    // Do nothing.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+    $element    = [];
+    $definition = $this->getScopedFormElements();
+
+    $definition['_views'] = isset($form['field_api_classes']);
+    $this->admin()->buildSettingsForm($element, $definition);
+
+    return $element;
+  }
+
+  /**
    * Returns the Blazy elements.
    */
   protected function getElements(array &$build, $files, $caption_id = 'captions'): array {
@@ -90,26 +110,6 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
         }
       }
     }
-  }
-
-  /**
-   * Build individual item if so configured such as for file ER goodness.
-   */
-  public function buildElement(array &$element, $entity) {
-    // Do nothing.
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    $element    = [];
-    $definition = $this->getScopedFormElements();
-
-    $definition['_views'] = isset($form['field_api_classes']);
-    $this->admin()->buildSettingsForm($element, $definition);
-
-    return $element;
   }
 
   /**

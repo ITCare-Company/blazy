@@ -28,7 +28,7 @@ trait PluginScopesTrait {
   }
 
   /**
-   * Converts old plugin scopes array into BlazySettings object.
+   * Converts old plugin scopes array into BlazySettings object to interop.
    */
   protected function toPluginScopes(array $scopes = []): BlazySettings {
     $definitions = [];

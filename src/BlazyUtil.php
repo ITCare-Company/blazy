@@ -7,7 +7,7 @@ use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\BlazyAttribute;
 
 /**
- * Provides internal Blazy utilities, hardly re-usable outside blazy.module.
+ * Provides internal Blazy utilities, called by SlickFilter till removed.
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
@@ -20,7 +20,7 @@ class BlazyUtil {
   /**
    * Returns the sanitized attributes for user-defined (UGC Blazy Filter).
    *
-   * @todo deprecated at 2.5 and removed < 3.x. Use
+   * @todo deprecated at 2.9 and removed < 3.x. Use
    * BlazyAttribute::sanitize() instead.
    */
   public static function sanitize(array $attributes = [], $escaped = TRUE): array {

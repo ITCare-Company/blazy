@@ -26,7 +26,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
   }
 
   /**
-   * Build extra elements.
+   * {@inheritdoc}
    */
   public function buildElementExtra(array &$element, $entity, $langcode) {
     parent::buildElementExtra($element, $entity, $langcode);
@@ -51,7 +51,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
   }
 
   /**
-   * Builds slide captions with possible multi-value fields.
+   * {@inheritdoc}
    */
   public function getCaption(array &$element, $entity, $langcode) {
     parent::getCaption($element, $entity, $langcode);

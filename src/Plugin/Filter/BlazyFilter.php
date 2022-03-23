@@ -260,7 +260,7 @@ class BlazyFilter extends BlazyFilterBase {
       $blazies->set('is.blazy_tag', TRUE);
 
       // Extract settings from attributes.
-      $blazies->set('is.presettings', FALSE);
+      $blazies->set('was.initialized', FALSE);
       $this->extractSettings($node, $settings);
 
       if (!empty($attribute) && mb_strpos($attribute, ":") !== FALSE) {

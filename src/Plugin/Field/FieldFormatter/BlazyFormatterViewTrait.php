@@ -16,7 +16,7 @@ trait BlazyFormatterViewTrait {
   /**
    * Returns similar view elements across sub-modules.
    */
-  public function commonViewElements(
+  protected function commonViewElements(
     FieldItemListInterface $items,
     $langcode,
     array $entities = [],

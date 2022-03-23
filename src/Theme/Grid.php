@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Theme;
 
 use Drupal\blazy\Blazy;
+use Drupal\blazy\Utility\Check;
 
 /**
  * Provides grid utilities.
@@ -24,10 +25,16 @@ class Grid {
    * @return array
    *   The modified array of grid items.
    */
-  public static function build(array $items = [], array $settings = []): array {
-    // @todo remove after another check and sub-modules.
+  public static function build(array $items, array $settings): array {
+    // Might be called outside the workflow like Slick/ Splide list builders.
     Blazy::verify($settings);
+
+    // If the workflow is by-passed, by calling this directly, re-check grids.
     $blazies = $settings['blazies'];
+    if (!$blazies->was('grid')) {
+      Check::grids($settings);
+    }
+
     $style = $settings['style'];
     $is_grid = $blazies->is('grid');
     $item_class = $is_grid ? 'grid' : 'blazy__item';
@@ -107,7 +114,7 @@ class Grid {
   /**
    * Provides reusable container attributes.
    */
-  public static function attributes(array &$attributes, array $settings = []): void {
+  public static function attributes(array &$attributes, array $settings): void {
     $blazies = $settings['blazies'];
     $gallery_id = $blazies->get('lightbox.gallery_id', $settings['gallery_id'] ?? '');
     $is_gallery = $blazies->is('lightbox') && $gallery_id;
@@ -128,7 +135,7 @@ class Grid {
   /**
    * Limit to grid only, so to be usable for plain list.
    */
-  public static function gridContainerAttributes(array &$attributes, array $settings = []): void {
+  public static function gridContainerAttributes(array &$attributes, array $settings): void {
     $style = $settings['style'];
     $blazies = $settings['blazies'];
 
@@ -156,7 +163,7 @@ class Grid {
   /**
    * LProvides grid item attributes, relevant for Native Grid.
    */
-  public static function gridItemAttributes(array &$attributes, array $settings = []): void {
+  public static function gridItemAttributes(array &$attributes, array $settings): void {
     $blazies = $settings['blazies'];
     if ($dim = $blazies->get('grid.large_dimensions', [])) {
       $key = $blazies->get('delta');
@@ -190,7 +197,7 @@ class Grid {
   /**
    * Checks if a grid uses a native grid, but expecting a masonry.
    */
-  public static function isNativeGridAsMasonry(array $settings = []): bool {
+  public static function isNativeGridAsMasonry(array $settings): bool {
     $grid = $settings['grid'];
     return !self::isNativeGrid($grid) && $settings['style'] == 'nativegrid';
   }
@@ -222,7 +229,7 @@ class Grid {
   /**
    * Passes grid like: 4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2 to settings.
    */
-  public static function toNativeGrid(array &$settings = []): void {
+  public static function toNativeGrid(array &$settings): void {
     if (empty($settings['grid'])) {
       return;
     }

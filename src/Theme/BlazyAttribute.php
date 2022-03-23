@@ -191,7 +191,7 @@ class BlazyAttribute {
    * block__no_wrapper, views__no_wrapper, etc. with helpful CSS classes, useful
    * for DOM diets.
    */
-  public static function container(array &$attributes, array $settings = []): void {
+  public static function container(array &$attributes, array $settings): void {
     Blazy::verify($settings);
 
     $blazies   = $settings['blazies'];
@@ -249,7 +249,7 @@ class BlazyAttribute {
    *
    * @todo remove settings.
    */
-  public static function lazy(array &$attributes, array $settings = []): void {
+  public static function lazy(array &$attributes, array $settings): void {
     $blazies = $settings['blazies'];
 
     // For consistent CSS fix, and w/o Native.
@@ -286,7 +286,7 @@ class BlazyAttribute {
    * @return array
    *   The sanitized $attributes suitable for UGC, such as Blazy filter.
    */
-  public static function sanitize(array $attributes = [], $escaped = TRUE): array {
+  public static function sanitize(array $attributes, $escaped = TRUE): array {
     $output = [];
     $tags = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];
 
@@ -311,7 +311,7 @@ class BlazyAttribute {
   /**
    * Provide common attributes for IMG, IFRAME, VIDEO, DIV, etc. elements.
    */
-  private static function common(array &$attributes, array $settings = []): void {
+  private static function common(array &$attributes, array $settings): void {
     $attributes['class'][] = 'media__element';
 
     // @todo at 2022/2 core has no loading Responsive.

@@ -288,7 +288,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * Called by field formatters, views [styles|fields via BlazyEntity],
    * [blazy|splide|slick] filters.
    */
-  public function preSettings(array &$settings = []): void {
+  public function preSettings(array &$settings): void {
     Blazy::verify($settings);
 
     $blazies = $settings['blazies'];
@@ -328,7 +328,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * Modifies the common UI settings inherited down to each item.
    */
-  public function postSettings(array &$settings = []) {
+  public function postSettings(array &$settings) {
     Blazy::postSettings($settings);
   }
 

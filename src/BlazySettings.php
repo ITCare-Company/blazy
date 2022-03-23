@@ -77,6 +77,23 @@ class BlazySettings implements \Countable {
   }
 
   /**
+   * Returns TRUE if a feature idenfied by the key was processed.
+   *
+   * To verify if the expected workflow is by-passed when the key was missing.
+   *
+   * @param string $key
+   *   The storage key.
+   * @param string $default_value
+   *   The storage default_value.
+   *
+   * @return mixed
+   *   A mixed value (array, string, bool, null, etc.).
+   */
+  public function was($key, $default_value = NULL) {
+    return $this->get('was.' . $key, $default_value);
+  }
+
+  /**
    * Sets values for a key.
    */
   public function set($key, $value = NULL, $merge = FALSE): self {

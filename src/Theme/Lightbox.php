@@ -103,6 +103,7 @@ class Lightbox {
     // See https://drupal.org/node/3210636#comment-14097266.
     $is_multimedia = $blazies->is('multimedia');
     if (!$is_multimedia && !empty($settings['box_style']) && $valid) {
+      // Change xdebug.show_exception_trace = 1 to 0 to catch exceptions.
       try {
         // The _responsive_image_build_source_attributes is WSOD if missing.
         $resimage = $blazies->get('box.resimage.style');

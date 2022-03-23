@@ -8,6 +8,7 @@ use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Theme\BlazyAttribute;
+use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\Check;
 
 /**
@@ -99,7 +100,7 @@ class Blazy implements BlazyInterface {
     self::verify($settings);
 
     $blazies = $settings['blazies'];
-    if ($blazies->is('presettings')) {
+    if ($blazies->was('initialized')) {
       return;
     }
 
@@ -119,7 +120,7 @@ class Blazy implements BlazyInterface {
     Check::lazyOrNot($settings);
 
     // Marks it processed.
-    $blazies->set('is.presettings', TRUE);
+    $blazies->set('was.initialized', TRUE);
   }
 
   /**
@@ -130,7 +131,7 @@ class Blazy implements BlazyInterface {
     self::verify($settings);
 
     $blazies = $settings['blazies'];
-    if (!$blazies->is('presettings')) {
+    if (!$blazies->was('initialized')) {
       self::preSettings($settings);
     }
   }
@@ -202,7 +203,8 @@ class Blazy implements BlazyInterface {
       ->set('is.unlazy', $unlazy)
       ->set('uri', $uri)
       ->set('use.loader', $use_loader)
-      ->set('switch', $switch);
+      ->set('switch', $switch)
+      ->set('was.prepare', TRUE);
 
     if ($item && ($file = ($item->entity ?? NULL))) {
       $tags = $file->getCacheTags();
@@ -214,6 +216,8 @@ class Blazy implements BlazyInterface {
    * Blazy is prepared with an URI, provides few attributes as needed.
    */
   public static function prepared(array &$attributes, array &$settings, $item = NULL) {
+    $blazies = $settings['blazies'];
+
     // Prepares extension, image styles.
     BlazyFile::prepare($settings, $item);
 
@@ -223,6 +227,8 @@ class Blazy implements BlazyInterface {
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
     BlazyImage::prepare($settings, $item);
+
+    $blazies->set('was.prepared', TRUE);
   }
 
   /**
@@ -264,7 +270,8 @@ class Blazy implements BlazyInterface {
           ->set('switch', $child->get('switch'));
       }
 
-      $parent->set('first', $child->get('first'), TRUE);
+      $parent->set('first', $child->get('first'), TRUE)
+        ->set('was.preserve', TRUE);
     }
   }
 
@@ -282,12 +289,13 @@ class Blazy implements BlazyInterface {
     self::verify($settings);
 
     // The settings instance must be unique per item.
-    $blazies = $settings['blazies'];
-    if (!$blazies->is('reset')) {
+    $blazies = &$settings['blazies'];
+    if (!$blazies->was('reset')) {
       $blazies->reset($settings);
+      $blazies->set('was.reset', TRUE);
     }
 
-    return $settings['blazies'];
+    return $blazies;
   }
 
   /**
@@ -412,8 +420,15 @@ class Blazy implements BlazyInterface {
   /**
    * Alias for BlazyAttribute::container() for sub-modules.
    */
-  public static function containerAttributes(array &$attributes, array $settings = []): void {
+  public static function containerAttributes(array &$attributes, array $settings): void {
     BlazyAttribute::container($attributes, $settings);
+  }
+
+  /**
+   * Alias for Grid::build() for sub-modules.
+   */
+  public static function grid(array $items, array $settings): array {
+    return Grid::build($items, $settings);
   }
 
   /**

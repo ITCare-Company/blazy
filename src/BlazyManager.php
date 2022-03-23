@@ -283,6 +283,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
   /**
    * Prepares Blazy settings.
+   *
    * Supports galeries if provided, updates $settings.
    * Cases: Blazy within Views gallery, or references without direct image.
    * Views may flatten out the array, bail out.

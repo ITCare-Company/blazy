@@ -106,7 +106,7 @@ class Check {
   /**
    * Checks for global libraries.
    */
-  public static function basics(array &$settings = []): void {
+  public static function basics(array &$settings): void {
     $blazies      = $settings['blazies'];
     $ui           = $blazies->get('ui');
     $namespace    = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
@@ -161,7 +161,8 @@ class Check {
       ->set('libs.compat', $is_compat)
       ->set('libs.ratio', !empty($settings['ratio']))
       ->set('namespace', $namespace)
-      ->set('use.dataset', $is_bg || $is_video);
+      ->set('use.dataset', $is_bg || $is_video)
+      ->set('was.basic', TRUE);
   }
 
   /**
@@ -197,7 +198,8 @@ class Check {
     }
 
     // No longer needed once extracted above, remove.
-    $blazies->unset('first.data');
+    $blazies->unset('first.data')
+      ->set('was.blazy', TRUE);
   }
 
   /**
@@ -236,22 +238,23 @@ class Check {
       $blazies->set('lightbox.gallery_id', $gallery_id);
     }
 
-    $blazies->set('count', $count)
-      ->set('css.id', $id)
-      ->set('use.theme_field', $use_field || !empty($settings['use_theme_field']));
-
     $blazies->set('cache.keys', [$id, $count], TRUE);
     $blazies->set('cache.tags', [$entity_type_id . ':' . $entity_id], TRUE);
 
     // @todo remove.
     $settings['count'] = $count;
     $settings['id'] = $id;
+
+    $blazies->set('count', $count)
+      ->set('css.id', $id)
+      ->set('use.theme_field', $use_field || !empty($settings['use_theme_field']))
+      ->set('was.field', TRUE);
   }
 
   /**
-   * Checks for grids.
+   * Checks for grids, also supports Slick which requires no `style`.
    */
-  public static function grids(array &$settings = []): void {
+  public static function grids(array &$settings): void {
     $blazies  = $settings['blazies'];
     $has_grid = !empty($settings['grid']);
     $is_grid  = $has_grid && !empty($settings['visible_items']);
@@ -272,6 +275,8 @@ class Check {
       // Formatters, Views style, not Filters.
       Grid::toNativeGrid($settings);
     }
+
+    $blazies->set('was.grid', TRUE);
   }
 
   /**
@@ -302,14 +307,13 @@ class Check {
     if (!isset(static::$isSandboxed)) {
       $check = FALSE;
       if ($router = Blazy::routeMatch()) {
-        $route = $router->getRouteName();
-
-        // @todo remove after regression fixes, or keep it due to thumbnail sizes.
-        $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
-        foreach ($edits as $key) {
-          if ($route && mb_strpos($route, $key) !== FALSE) {
-            $check = TRUE;
-            break;
+        if ($route = $router->getRouteName()) {
+          $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
+          foreach ($edits as $key) {
+            if (mb_strpos($route, $key) !== FALSE) {
+              $check = TRUE;
+              break;
+            }
           }
         }
       }
@@ -347,13 +351,14 @@ class Check {
       ->set('is.unlazy', $is_unlazy)
       ->set('lazy.id', $lazy)
       ->set('lazy.attribute', $settings['lazy_attribute'] ?? 'src')
-      ->set('lazy.class', $settings['lazy_class'] ?? 'b-lazy');
+      ->set('lazy.class', $settings['lazy_class'] ?? 'b-lazy')
+      ->set('was.lazy', TRUE);
   }
 
   /**
    * Checks for lightboxes.
    */
-  public static function lightboxes(array &$settings = []): void {
+  public static function lightboxes(array &$settings): void {
     $blazies    = $settings['blazies'];
     $switch     = $settings['media_switch'] ?? '';
     $lightboxes = $blazies->get('lightbox.plugins', []);
@@ -386,7 +391,8 @@ class Check {
     // @todo remove settings after migration and sub-modules.
     $settings['lightbox'] = $lightbox;
     $blazies->set('is.lightbox', !empty($lightbox))
-      ->set('is.richbox', $richbox);
+      ->set('is.richbox', $richbox)
+      ->set('was.lightbox', TRUE);
   }
 
 }

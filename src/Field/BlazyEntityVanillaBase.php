@@ -133,6 +133,10 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     $blazies  = $settings['blazies']->reset($settings);
     $bundle   = $entity->bundle();
 
+    // @todo remove after sub-modules.
+    $settings['delta'] = $delta;
+    $settings['langcode'] = $langcode;
+
     $blazies->set('bundles.' . $bundle, $bundle, TRUE)
       ->set('language.code', $langcode)
       ->set('delta', $delta);

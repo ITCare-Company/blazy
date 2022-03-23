@@ -80,7 +80,7 @@ class BlazyImage {
   /**
    * Returns fake image item based on the given $settings.
    */
-  public static function fake(array $settings = []) {
+  public static function fake(array $settings) {
     $item = new \stdClass();
     foreach (['uri', 'width', 'height', 'target_id', 'alt', 'title'] as $key) {
       if (isset($settings[$key])) {
@@ -259,7 +259,7 @@ class BlazyImage {
   /**
    * Returns the thumbnail image using theme_image(), or theme_image_style().
    */
-  public static function thumbnail(array $settings = [], $item = NULL): array {
+  public static function thumbnail(array $settings, $item = NULL): array {
     // @todo remove check after another check.
     $blazies = $settings['blazies'] ?? NULL;
     $default = $settings['uri'] ?? NULL;

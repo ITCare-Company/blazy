@@ -42,11 +42,14 @@
 .form--vanilla.form--vanilla-on .form-item--media-switch,
 .form--vanilla:not(.form--grid-on) .form-item--grid-medium,
 .form--vanilla:not(.form--grid-on) .form-item--grid-small {
-  display: none !important;
+  display: none !important; /* csslint allow: known-properties, important */
 }
 
+/** Fixed for things beyond Blazy. */
+.form--media-switch-lightbox .form-item--box-style,
+.form--media-switch-lightbox .form-item--box-media-style,
 .form--vanilla.form--vanilla-off .form-item--media-switch {
-  display: block !important;
+  display: block !important; /* csslint allow: known-properties, important */
 }
 
 /* Off-canvas. */
@@ -144,12 +147,6 @@
 /* Views UI. */
 .ui-dialog-content .form--slick .form-item {
   margin: 0;
-}
-
-/** Fixed for things beyond Blazy. */
-.form--media-switch-lightbox .form-item--box-style,
-.form--media-switch-lightbox .form-item--box-media-style {
-  display: block !important; /* csslint allow: known-properties, important */
 }
 
 @media screen and (min-width: 760px) {

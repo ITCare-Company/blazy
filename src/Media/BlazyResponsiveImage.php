@@ -69,7 +69,7 @@ class BlazyResponsiveImage {
   /**
    * Sets dimensions once to reduce method calls for Responsive image.
    */
-  public static function dimensions(array &$settings = [], $initial = TRUE): BlazySettings {
+  public static function dimensions(array &$settings, $initial = TRUE): BlazySettings {
     $blazies = $settings['blazies'];
     $dimensions = $blazies->get('dimensions', []);
     if ($dimensions) {
@@ -111,7 +111,7 @@ class BlazyResponsiveImage {
   /**
    * Provides Responsive image sources relevant for link preload.
    */
-  public static function sources(array &$settings = []): array {
+  public static function sources(array &$settings): array {
     if (!($manager = Blazy::breakpointManager())) {
       return [];
     }
@@ -162,7 +162,7 @@ class BlazyResponsiveImage {
   /**
    * Modifies dimensions and sources.
    */
-  public static function dimensionsAndSources(array &$settings = [], $initial = TRUE): void {
+  public static function dimensionsAndSources(array &$settings, $initial = TRUE): void {
     $blazies = $settings['blazies'];
     $preload = !empty($settings['preload']);
 

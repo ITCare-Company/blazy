@@ -15,7 +15,7 @@ trait BlazyFormatterViewBaseTrait {
   /**
    * Returns base view elements.
    */
-  public function baseViewElements(
+  protected function baseViewElements(
     FieldItemListInterface $items,
     $langcode,
     array $settings = []

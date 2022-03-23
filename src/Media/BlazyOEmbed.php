@@ -165,7 +165,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * Checks the given input URL.
    */
-  public function checkInputUrl(array &$settings = []): void {
+  public function checkInputUrl(array &$settings): void {
     $blazies = $settings['blazies'];
 
     if ($input = $blazies->get('media.input_url', $settings['input_url'] ?? NULL)) {
@@ -340,7 +340,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * @param array $settings
    *   The settings array being modified.
    */
-  private function toEmbed(array &$settings = []): void {
+  private function toEmbed(array &$settings): void {
     $blazies = $settings['blazies'];
     $default = $settings['input_url'] ?? '';
 
