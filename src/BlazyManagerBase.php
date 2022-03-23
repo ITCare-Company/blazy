@@ -356,7 +356,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
         $this->lightboxes = $lightboxes;
       }
     }
-    return $this->lightboxes ?: [];
+    return $this->lightboxes ? array_filter($this->lightboxes) : [];
   }
 
   /**

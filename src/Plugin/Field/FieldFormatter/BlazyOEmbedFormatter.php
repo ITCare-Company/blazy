@@ -59,7 +59,8 @@ class BlazyOEmbedFormatter extends FormatterBase {
    * Build the blazy elements.
    */
   public function buildElements(array &$build, $items) {
-    $settings   = $build['settings'];
+    $settings   = &$build['settings'];
+    $blazies    = $settings['blazies'];
     $field_name = $this->fieldDefinition->getName();
 
     foreach ($items as $delta => $item) {

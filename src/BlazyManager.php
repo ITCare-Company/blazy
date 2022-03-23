@@ -180,29 +180,6 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
   }
 
   /**
-   * Prepares Blazy settings.
-   */
-  protected function getSettings(array &$build) {
-    $settings = $build['settings'] ?? [];
-    $blazies = $settings['blazies'] ?? NULL;
-
-    // Supports galeries if provided, updates $settings.
-    // Cases: Blazy within Views gallery, or references without direct image.
-    // Views may flatten out the array, bail out.
-    // What we do here is extract the formatter settings from the first found
-    // image and pass its settings to this container so that Blazy Grid which
-    // lacks of settings may know if it should load/ display a lightbox, etc.
-    // Lightbox should work without `Use field template` checked.
-    if ($blazies && $data = $blazies->get('first.data')) {
-      if (is_array($data)) {
-        $this->isBlazy($settings, $data);
-      }
-    }
-
-    return $settings;
-  }
-
-  /**
    * Build captions for both old image, or media entity.
    */
   protected function buildCaption(array $captions, array $settings, $id = 'blazy') {
@@ -302,6 +279,29 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Pass non-rich-media elements to theme_blazy().
     $element['#item_attributes'] = $item_attributes;
+  }
+
+  /**
+   * Prepares Blazy settings.
+   * Supports galeries if provided, updates $settings.
+   * Cases: Blazy within Views gallery, or references without direct image.
+   * Views may flatten out the array, bail out.
+   * What we do here is extract the formatter settings from the first found
+   * image and pass its settings to this container so that Blazy Grid which
+   * lacks of settings may know if it should load/ display a lightbox, etc.
+   * Lightbox should work without `Use field template` checked.
+   */
+  private function getSettings(array &$build) {
+    $settings = $build['settings'] ?? [];
+    $blazies = $settings['blazies'] ?? NULL;
+
+    if ($blazies && $data = $blazies->get('first.data')) {
+      if (is_array($data)) {
+        $this->isBlazy($settings, $data);
+      }
+    }
+
+    return $settings;
   }
 
   /**

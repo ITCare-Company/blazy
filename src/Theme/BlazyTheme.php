@@ -99,7 +99,7 @@ class BlazyTheme {
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
     // Prevents double padding hacks with AMP which also uses similar technique.
-    BlazyAttribute::finalize($attributes, $settings);
+    BlazyAttribute::finalize($variables);
 
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {

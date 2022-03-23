@@ -84,7 +84,7 @@ class BlazyField {
           // except for a few reasonable tags acceptable within H2 tag.
           $text = self::getString($entity, $field_name, $langcode, FALSE);
         }
-        elseif (isset($text[0]['uri']) && !empty($text[0]['title'])) {
+        elseif (isset($text[0]['uri'])) {
           $text = self::view($entity, $field_name, $view_mode, $multiple);
         }
 

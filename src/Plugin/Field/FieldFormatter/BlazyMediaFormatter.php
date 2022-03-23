@@ -39,9 +39,7 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
    * {@inheritdoc}
    */
   protected function getPluginScopes(): array {
-    $multiple = $this->fieldDefinition
-      ->getFieldStorageDefinition()
-      ->isMultiple();
+    $multiple = $this->isMultiple();
 
     return [
       'fieldable_form'  => FALSE,

@@ -116,7 +116,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    * {@inheritdoc}
    */
   protected function getPluginScopes(): array {
-    $multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
+    $multiple = $this->isMultiple();
     $captions = ['title' => $this->t('Title'), 'alt' => $this->t('Alt')];
 
     return [
@@ -129,6 +129,15 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       'style'             => $multiple,
       'thumbnail_style'   => TRUE,
     ];
+  }
+
+  /**
+   * Returns TRUE if a multi-value field.
+   */
+  protected function isMultiple(): bool {
+    return $this->fieldDefinition
+      ->getFieldStorageDefinition()
+      ->isMultiple();
   }
 
   /**

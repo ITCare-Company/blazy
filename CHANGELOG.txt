@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-03-23
+-----------------------------
+- Regressions fixes: Vanilla view mode, random admin form item visibility when
+  core JS spit errors at View UI, etc.
+
 Blazy 8.x-2.0-dev, 2022-03-22
 -----------------------------
 - Added src/Media/Preloader.php.

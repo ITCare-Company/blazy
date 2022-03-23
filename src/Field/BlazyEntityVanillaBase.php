@@ -53,8 +53,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    */
   public function buildElement(array &$build, $entity, $langcode) {
     $settings  = $build['settings'];
-    $blazies   = $settings['blazies'];
-    $view_mode = $blazies->get('field.view_mode', 'full');
+    $view_mode = $settings['view_mode'] ?? 'full';
 
     // Sub-modules always flag `vanilla` as required, -- configurable, or not.
     if (!empty($settings['vanilla'])) {
@@ -92,8 +91,9 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    */
   protected function getAvailableBundles(): array {
     $target_type = $this->getFieldSetting('target_type');
-    $views_ui = $this->getFieldSetting('handler') == 'default';
-    $bundles = $views_ui ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
+    $views_ui    = $this->getFieldSetting('handler') == 'default';
+    $bundles     = $views_ui
+      ? [] : $this->getFieldSetting('handler_settings')['target_bundles'];
 
     // Fix for Views UI not recognizing Media bundles, unlike Formatters.
     if (empty($bundles)
@@ -102,6 +102,25 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     }
 
     return $bundles;
+  }
+
+  /**
+   * Returns fields as options. Passing empty array will return them all.
+   */
+  protected function getFieldOptions(array $names = [], $target_type = NULL): array {
+    $target_type = $target_type ?: $this->getFieldSetting('target_type');
+    $bundles     = $this->getAvailableBundles();
+
+    return $this->admin()->getFieldOptions($bundles, $names, $target_type);
+  }
+
+  /**
+   * Returns TRUE if a multi-value field.
+   */
+  protected function isMultiple(): bool {
+    return $this->fieldDefinition
+      ->getFieldStorageDefinition()
+      ->isMultiple();
   }
 
   /**
@@ -114,7 +133,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     $blazies  = $settings['blazies']->reset($settings);
     $bundle   = $entity->bundle();
 
-    $blazies->set('bundles.' . $bundle, $bundle)
+    $blazies->set('bundles.' . $bundle, $bundle, TRUE)
       ->set('language.code', $langcode)
       ->set('delta', $delta);
 

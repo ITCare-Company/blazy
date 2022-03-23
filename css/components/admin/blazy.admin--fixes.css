@@ -31,6 +31,24 @@
   margin-right: auto;
 }
 
+/* Workarounds for core JS errors with reference is null at states.js:117.
+@todo recheck might be bad for Blazy OEmbed form, etc. */
+.form--vanilla:not(.form--media-switch-lightbox) .form-item--box-style,
+.form--vanilla:not(.form--media-switch-lightbox) .form-item--box-media-style,
+.form--vanilla:not(.form--media-switch-lightbox) .form-item--box-caption,
+.form--vanilla:not(.form--media-switch-lightbox) .form-item--box-caption-custom,
+.form--vanilla:not(.form--media-switch-lightbox) .form-item--media-switch,
+.form--vanilla:not(.form--override-on) .form-wrapper--overridables,
+.form--vanilla.form--vanilla-on .form-item--media-switch,
+.form--vanilla:not(.form--grid-on) .form-item--grid-medium,
+.form--vanilla:not(.form--grid-on) .form-item--grid-small {
+  display: none !important;
+}
+
+.form--vanilla.form--vanilla-off .form-item--media-switch {
+  display: block !important;
+}
+
 /* Off-canvas. */
 /* csslint ignore:start */
 #drupal-off-canvas .form--slick.form--half,

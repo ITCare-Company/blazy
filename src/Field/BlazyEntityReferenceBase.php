@@ -57,7 +57,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
     parent::getCaption($element, $entity, $langcode);
 
     $settings  = $element['settings'];
-    $view_mode = $settings['view_mode'];
+    $view_mode = $settings['view_mode'] ?? 'full';
     $_link     = $settings['link'];
     $_overlay  = $settings['overlay'];
     $_title    = $settings['title'];
@@ -126,20 +126,17 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
    * {@inheritdoc}
    */
   protected function getPluginScopes(): array {
-    $admin       = $this->admin();
-    $target_type = $this->getFieldSetting('target_type');
-    $bundles     = $this->getAvailableBundles();
-    $strings     = ['text', 'string', 'list_string'];
-    $strings     = $admin->getFieldOptions($bundles, $strings, $target_type);
-    $texts       = ['text', 'text_long', 'string', 'string_long', 'link'];
-    $texts       = $admin->getFieldOptions($bundles, $texts, $target_type);
-    $links       = ['text', 'string', 'link'];
+    $_strings = ['text', 'string', 'list_string'];
+    $strings  = $this->getFieldOptions($_strings);
+    $_texts   = ['text', 'text_long', 'string', 'string_long', 'link'];
+    $texts    = $this->getFieldOptions($_texts);
+    $_links   = ['text', 'string', 'link'];
 
     return [
       'classes' => $strings,
-      'images'  => $admin->getFieldOptions($bundles, ['image'], $target_type),
+      'images'  => $this->getFieldOptions(['image']),
       'layouts' => $strings,
-      'links'   => $admin->getFieldOptions($bundles, $links, $target_type),
+      'links'   => $this->getFieldOptions($_links),
       'titles'  => $texts,
       'vanilla' => TRUE,
     ] + parent::getPluginScopes();

@@ -47,7 +47,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     $settings  = $build['settings'];
     $blazies   = $settings['blazies'];
     $item_id   = $blazies->get('item.id');
-    $view_mode = $settings['view_mode'];
+    $view_mode = $settings['view_mode'] ?? 'full';
 
     // Bail out if vanilla (rendered entity) is required.
     if (!empty($settings['vanilla'])) {
@@ -122,7 +122,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   public function getCaption(array &$element, $entity, $langcode) {
     $settings  = $element['settings'];
     $blazies   = $settings['blazies'];
-    $view_mode = $settings['view_mode'];
+    $view_mode = $settings['view_mode'] ?? 'full';
 
     // The caption fields common to all entity formatters, if so configured.
     if (empty($settings['caption'])) {
@@ -195,10 +195,9 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
    * {@inheritdoc}
    */
   protected function getPluginScopes(): array {
-    $target_type = $this->getFieldSetting('target_type');
-    $bundles     = $this->getAvailableBundles();
-    $captions    = $this->admin()->getFieldOptions($bundles, [], $target_type);
-    $images      = [];
+    $bundles  = $this->getAvailableBundles();
+    $captions = $this->getFieldOptions();
+    $images   = [];
 
     if ($bundles) {
       // @todo figure out to not hard-code stock bundle image.
@@ -210,8 +209,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       // Only provides poster if media contains rich media.
       $media = ['audio', 'remote_video', 'video', 'instagram', 'soundcloud'];
       if (count(array_intersect(array_keys($bundles), $media)) > 0) {
-        $images['images'] = $this->admin()
-          ->getFieldOptions($bundles, ['image'], $target_type);
+        $images['images'] = $this->getFieldOptions(['image']);
       }
     }
 

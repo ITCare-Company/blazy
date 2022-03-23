@@ -41,7 +41,7 @@ class BlazyCache {
   public static function lightboxes($root): array {
     $lightboxes = [];
     if (function_exists('colorbox_theme')) {
-      $lightboxes[] = $lightbox;
+      $lightboxes[] = 'colorbox';
     }
 
     // @todo remove deprecated unmaintained photobox.

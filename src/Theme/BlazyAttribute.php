@@ -22,8 +22,11 @@ class BlazyAttribute {
   /**
    * Modifies container attributes with aspect ratio for iframe, image, etc.
    */
-  public static function finalize(array &$attributes, array &$settings): void {
+  public static function finalize(array &$variables): void {
+    $attributes = &$variables['attributes'];
+    $settings = &$variables['settings'];
     $blazies = $settings['blazies'];
+
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
     // Prevents double padding hacks with AMP which also uses similar technique.
