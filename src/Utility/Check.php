@@ -12,6 +12,8 @@ use Drupal\blazy\Theme\Lightbox;
 
 /**
  * Provides feature check methods.
+ *
+ * @todo refine, and split them conditionally based on fields like libraries.
  */
 class Check {
 
@@ -104,16 +106,16 @@ class Check {
   }
 
   /**
-   * Checks for global libraries.
+   * Checks for root/ container stuffs.
+   *
+   * @todo remove some settings after sub-modules.
    */
-  public static function basics(array &$settings): void {
+  public static function container(array &$settings): void {
     $blazies      = $settings['blazies'];
     $ui           = $blazies->get('ui');
-    $namespace    = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
-    $item_id      = $blazies->get('item.id', $settings['item_id'] ?? 'blazy');
     $_loading     = $settings['loading'] ?? '';
     $loading      = $settings['loading'] = $_loading ?: 'lazy';
-    $bundle       = $blazies->get('media.bundle', $settings['bundle'] ?? '');
+    $bundle       = $settings['bundle'] ?? $blazies->get('media.bundle');
     $is_preview   = $settings['is_preview'] = self::isPreview();
     $is_amp       = self::isAmp();
     $is_sandboxed = self::isSandboxed();
@@ -128,6 +130,8 @@ class Check {
     $is_nojs      = $is_unload || $is_undata;
     $is_video     = $bundle == 'video'
       || in_array('video', $blazies->get('bundles', []));
+    $item_id      = $settings['item_id'] ?? $blazies->get('item.id', 'blazy');
+    $namespace    = $settings['namespace'] ?? $blazies->get('namespace', 'blazy');
 
     // When `defer` is chosen, overrides global `No JavaScript: lazy`, ensures
     // to not affect AMP, CKEditor, or other preview pages where nojs is a must.
@@ -157,12 +161,12 @@ class Check {
       ->set('is.unload', $is_unload)
       ->set('is.unloading', $is_unloading)
       ->set('item.id', $item_id)
+      ->set('namespace', $namespace)
       ->set('libs.background', $is_bg)
       ->set('libs.compat', $is_compat)
       ->set('libs.ratio', !empty($settings['ratio']))
-      ->set('namespace', $namespace)
       ->set('use.dataset', $is_bg || $is_video)
-      ->set('was.basic', TRUE);
+      ->set('was.container', TRUE);
   }
 
   /**
@@ -179,7 +183,7 @@ class Check {
 
     // 1. Blazy formatter within Views styles by supported modules.
     $blazy   = $data['settings'] ?? [];
-    $item_id = $blazies->get('item.id', $settings['item_id'] ?? 'x');
+    $item_id = $blazies->get('item.id');
     $content = $data[$item_id] ?? $data;
 
     // 2. Blazy Views fields by supported modules.
@@ -213,20 +217,29 @@ class Check {
 
     BlazyEntity::settings($settings, $entity);
 
-    $blazies        = $settings['blazies'];
-    $field          = $items->getFieldDefinition();
-    $field_name     = $field->getName();
+    $blazies    = $settings['blazies'];
+    $field      = $items->getFieldDefinition();
+    $field_name = $field->getName();
+
+    // @todo remove after sub-modules.
+    if (!$blazies->get('field')) {
+      $blazies->set('field.name', $field->getName())
+        ->set('field.type', $field->getType())
+        ->set('field.entity_type', $field->getTargetEntityTypeId())
+        ->set('field.view_mode', $settings['view_mode'] ?? '');
+    }
+
     $count          = $items->count();
     $field_clean    = str_replace("field_", '', $field_name);
     $entity_type_id = $blazies->get('entity.type_id');
     $entity_id      = $blazies->get('entity.id');
     $bundle         = $blazies->get('entity.bundle');
     $view_mode      = $blazies->get('field.view_mode', 'default');
-    $namespace      = $blazies->get('namespace');
+    $namespace      = $settings['namespace'] ?? $blazies->get('namespace');
     $id             = $settings['id'] ?? '';
     $gallery_id     = "{$namespace}-{$entity_type_id}-{$bundle}-{$field_clean}-{$view_mode}";
     $id             = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
-    $switch         = $settings['media_switch'] ?? '';
+    $switch         = $settings['media_switch'] ?? $blazies->get('switch');
 
     // When alignment is mismatched, split them to satisfy linter.
     // Respects linked_field.module expectation.
@@ -261,11 +274,16 @@ class Check {
     $style    = $settings['style'] ?? NULL;
     $style    = $style ?: ($is_grid ? 'grid' : NULL);
     $is_grid  = $is_grid ?: ($style && $has_grid);
-    $is_grid  = $blazies->is('grid', $settings['_grid'] ?? $is_grid);
+    $is_grid  = $settings['_grid'] ?? $blazies->is('grid', $is_grid);
+
+    // Bail out early if not so configured.
+    if (!$is_grid) {
+      return;
+    }
 
     $blazies->set('is.grid', $is_grid);
 
-    if ($is_grid && $style) {
+    if ($style) {
       foreach (BlazyDefault::grids() as $grid) {
         if ($style == $grid) {
           $blazies->set('libs.' . $style, $grid);
@@ -359,29 +377,33 @@ class Check {
    * Checks for lightboxes.
    */
   public static function lightboxes(array &$settings): void {
+    $switch = $settings['media_switch'] ?? NULL;
+
+    // Bail out early if not so configured.
+    if (!$switch) {
+      return;
+    }
+
     $blazies    = $settings['blazies'];
-    $switch     = $settings['media_switch'] ?? '';
     $lightboxes = $blazies->get('lightbox.plugins', []);
-    $lightbox   = ($switch && in_array($switch, $lightboxes)) ? $switch : FALSE;
+    $lightbox   = in_array($switch, $lightboxes) ? $switch : FALSE;
     $optionset  = '';
-    $_richbox   = $blazies->is('richbox', !empty($settings['_richbox']));
+    $_richbox   = $settings['_richbox'] ?? $blazies->is('richbox');
     $richbox    = $blazies->get('colorbox') || $blazies->get('mfp') || $_richbox;
 
     // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
-    if ($switch) {
-      $optionset = empty($settings[$switch]) ? $switch : $settings[$switch];
+    $optionset = empty($settings[$switch]) ? $switch : $settings[$switch];
 
-      // Lightbox is unique, safe to reserve top level key:
-      if ($lightbox) {
-        // @todo remove settings after migration and sub-modules.
-        $settings[$switch] = $optionset;
+    // Lightbox is unique, safe to reserve top level key:
+    if ($lightbox) {
+      // @todo remove settings after migration and sub-modules.
+      $settings[$switch] = $optionset;
 
-        // With an optionset: `elevetazoomplus:responsive`.
-        // Without an optionset: `colorbox:colorbox`, etc.
-        $blazies->set($switch, $optionset)
-          ->set('lightbox.name', $lightbox)
-          ->set('lightbox.optionset', $optionset);
-      }
+      // With an optionset: `elevetazoomplus:responsive`.
+      // Without an optionset: `colorbox:colorbox`, etc.
+      $blazies->set($switch, $optionset)
+        ->set('lightbox.name', $lightbox)
+        ->set('lightbox.optionset', $optionset);
     }
 
     // (Non-)lightboxes: media player, link to content, image rendered, etc.

@@ -34,6 +34,8 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    *
    * @return array
    *   The alterable and renderable array of enforced content, or theme_blazy().
+   *
+   * @todo remove some $settings after sub-modules.
    */
   public function getBlazy(array $build = [], $delta = -1) {
     foreach (BlazyDefault::themeProperties() as $key) {
@@ -44,9 +46,10 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $settings += BlazyDefault::itemSettings();
     $item = $build['item'];
 
-    // Prepares settings to start for Field and Views outputs.
-    Blazy::prepare($settings, $item, $delta);
+    Blazy::verify($settings);
+    Blazy::essentials($settings, $item, $delta);
 
+    // Prevents double checks.
     $blazies = $settings['blazies'];
     $blazies->set('is.api', TRUE);
 
@@ -228,9 +231,10 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $supported = $blazies->is('richbox') ?: $settings['_richbox'] ?? FALSE;
     $rich = $blazies->get('media.type') == 'rich' && $supported;
     $litebox = $blazies->is('lightbox');
+    $blazy = ($build['content'][0]['#settings'] ?? NULL);
 
-    if ($rich && $blazy = ($build['content'][0]['#settings'] ?? NULL)) {
-      if ($blazies->is('hires', !empty($settings['image'])) && $litebox) {
+    if ($rich && $litebox && $blazy) {
+      if ($blazies->is('hires', !empty($settings['image']))) {
         // Overrides the overriden settings with original formatter settings.
         $settings = array_merge($settings, $blazy->storage());
         $element['#lightbox_html'] = $build['content'];
@@ -315,9 +319,9 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    *   object, settings, optional container attributes.
    */
   private function prepareBlazy(array &$element, array $build) {
-    $item = $build['item'] ?? NULL;
+    $item     = $build['item'] ?? NULL;
     $settings = &$build['settings'];
-    $blazies = $settings['blazies'];
+    $blazies  = $settings['blazies'];
 
     foreach (BlazyDefault::themeAttributes() as $key) {
       $key = $key . '_attributes';
@@ -329,7 +333,9 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // Skip attributes via $item, or by module, as they are not user-defined.
     $attributes = &$build['attributes'];
 
-    // Prepares extension, image styles, lightboxes.
+    // Initial feature checks, URI, delta, media features, etc.
+    Blazy::prepare($settings, $item);
+
     // Build thumbnail and optional placeholder based on thumbnail.
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.

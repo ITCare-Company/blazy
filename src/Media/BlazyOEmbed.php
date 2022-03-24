@@ -234,6 +234,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * @todo move it directly into ::build() after sub-modules.
    */
   private function fromMediaOrAny(array &$build, $entity = NULL): void {
+    $settings = &$build['settings'];
+    $blazies = $settings['blazies']->reset($settings);
     $valid = $entity instanceof MediaInterface;
 
     /** @var \Drupal\media\Entity\Media $entity */
@@ -249,9 +251,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     }
 
     // Attempts to get image data directly from oEmbed resource.
-    $settings = $build['settings'];
-    $blazies = $settings['blazies'];
-
     // This used to be for File entity (non-media), re-purposed.
     // Extracts image item from non-media, such as Paragraphs, ER, Node, etc.
     // @todo remove when the above ::fromAny() is done right.
@@ -260,8 +259,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     // BlazyImage::fromField($build, $entity, $stage);
     // }
     // Attempts to get image data directly from oEmbed resource.
-    // Caled by BlazyFilter or deprecated VEF, run after data populated.
-    if (!$valid && $blazies->get('media.input_url')) {
+    // Called by BlazyFilter or deprecated VEF, run after data populated.
+    $input = $settings['input_url'] ?? $blazies->get('media.input_url');
+    if (!$valid && $input) {
       if (!$entity || !$blazies->get('media.embed_url')) {
         $this->toEmbed($settings);
       }
@@ -293,13 +293,19 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
     // @todo support local video/ audio file, and other media sources.
     // @todo check for Resource::TYPE_PHOTO, Resource::TYPE_RICH, etc.
-    $input = '';
     switch ($blazies->get('media.source')) {
       case 'oembed':
       case 'oembed:video':
       case 'video_embed_field':
         // Input url != embed url. For Youtube, /watch != /embed.
         $input = $media->getSource()->getSourceFieldValue($media);
+        if ($input) {
+          // @todo remove settings.
+          $settings['input_url'] = $input;
+          $blazies->set('media.input_url', $input);
+
+          $this->toEmbed($settings);
+        }
         break;
 
       case 'image':
@@ -310,16 +316,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
       // No special handling for anything else for now, pass through.
       default:
-        $blazies->set('media.type', '');
         break;
-    }
-
-    // @todo remove settings.
-    $settings['input_url'] = $input;
-    $blazies->set('media.input_url', $input);
-
-    if ($input) {
-      $this->toEmbed($settings);
     }
 
     // Do not proceed if it has type, already managed by theme_blazy().
@@ -342,9 +339,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   private function toEmbed(array &$settings): void {
     $blazies = $settings['blazies'];
-    $default = $settings['input_url'] ?? '';
+    $input = $settings['input_url'] ?? $blazies->get('media.input_url');
 
-    if (!($input = $blazies->get('media.input_url', $default))) {
+    if (empty($input)) {
       return;
     }
 
@@ -367,6 +364,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     }
 
     // The top level iframe url relative to the site, or iframe_domain.
+    // @todo remove settings after sub-modules.
     $settings['embed_url'] = $embed_url = $url->toString();
 
     $blazies->set('media.embed_url', $embed_url);

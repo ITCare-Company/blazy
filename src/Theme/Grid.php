@@ -30,8 +30,8 @@ class Grid {
     Blazy::verify($settings);
 
     // If the workflow is by-passed, by calling this directly, re-check grids.
-    $blazies = $settings['blazies'];
-    if (!$blazies->was('grid')) {
+    $blazies = &$settings['blazies'];
+    if (!$blazies->get('namespace')) {
       Check::grids($settings);
     }
 

@@ -70,7 +70,7 @@ class BlazyCache {
     Blazy::verify($settings);
 
     $blazies   = $settings['blazies'];
-    $namespace = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
+    $namespace = $settings['namespace'] ?? $blazies->get('namespace', 'blazy');
     $max_age   = $manager->configLoad('cache.page.max_age', 'system.performance');
     $max_age   = empty($settings['cache']) ? $max_age : $settings['cache'];
     $id        = $settings['id'] ?? Blazy::getHtmlId($namespace);

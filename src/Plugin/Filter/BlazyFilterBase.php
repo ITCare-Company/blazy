@@ -249,6 +249,10 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
    */
   protected function extractSettings(\DOMElement $node, array &$settings) {
     $blazies = $settings['blazies'];
+
+    // Ensures these settings are re-checked.
+    $blazies->set('was.initialized', FALSE);
+
     if ($check = $node->getAttribute('settings')) {
       $check = str_replace("'", '"', $check);
       $check = Json::decode($check);
@@ -511,6 +515,16 @@ abstract class BlazyFilterBase extends FilterBase implements BlazyFilterInterfac
       '#default_value' => $this->settings['box_caption'] ?? '',
       '#description' => $this->t('Automatic will search for Alt text first, then Title text. <br>Image styles only work for uploaded images, not hand-coded ones. Caption filter will use <code>data-caption</code> normally managed by Caption filter.'),
     ];
+  }
+
+  /**
+   * Extracts setting from attributes.
+   *
+   * @todo deprecated at 2.9 and removed from 3.x. Use
+   * self::extractSettings() instead.
+   */
+  protected function prepareSettings(\DOMElement $node, array &$settings) {
+    $this->extractSettings($node, $settings);
   }
 
 }

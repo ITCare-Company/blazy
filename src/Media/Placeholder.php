@@ -76,7 +76,9 @@ class Placeholder {
     $tn_uri = $blazies->get('thumbnail.uri', $settings['thumbnail_uri'] ?? '');
 
     // The SVG placeholder should accept either original, or styled image.
-    $default = self::generate($settings['width'], $settings['height']);
+    $width = $settings['width'] ?? NULL;
+    $height = $settings['height'] ?? NULL;
+    $default = self::generate($width, $height);
     $placeholder = $blazies->get('ui.placeholder', $default) ?: $default;
 
     // Accepts configurable placeholder, alter, and fallback.

@@ -94,6 +94,31 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Checks for essential settings.
+   */
+  public static function essentials(array &$settings, $item = NULL, $delta = -1): void {
+    $blazies = $settings['blazies'];
+    $delta   = $settings['delta'] ?? $blazies->get('delta', $delta);
+    $initial = $delta == $blazies->get('initial', -2);
+    $uri     = BlazyFile::uri($item, $settings);
+
+    // This means re-definition since URI can be fed from any sources uptream.
+    $blazies->set('delta', $delta)
+      ->set('is.initial', $initial)
+      ->set('uri', $uri);
+
+    // File tags.
+    if ($item && ($file = ($item->entity ?? NULL))) {
+      $tags = $file->getCacheTags();
+      $blazies->set('cache.file.tags', $tags);
+    }
+
+    // @todo remove after sub-modules.
+    $settings['delta'] = $delta;
+    $settings['uri'] = $uri;
+  }
+
+  /**
    * Preliminary settings, normally at container/ global level.
    */
   public static function preSettings(array &$settings) {
@@ -105,7 +130,7 @@ class Blazy implements BlazyInterface {
     }
 
     // Checks for basic features.
-    Check::basics($settings);
+    Check::container($settings);
 
     // Checks for grids.
     Check::grids($settings);
@@ -151,14 +176,13 @@ class Blazy implements BlazyInterface {
    * individual level, such as non-blazy Image formatter within Blazy ecosystem.
    */
   public static function prepare(array &$settings, $item = NULL, $delta = -1) {
+    // Checks for essential features.
+    self::essentials($settings, $item, $delta);
+
     $blazies    = $settings['blazies'];
-    $index      = $settings['delta'] ?? 0;
-    $delta      = $delta > -1 ? $delta : $blazies->get('delta', $index);
-    $namespace  = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
-    $item_id    = $blazies->get('item.id', 'blazy');
-    $source     = $blazies->get('media.source', 'image');
+    $source     = $blazies->get('media.source');
     $type       = $blazies->get('media.type', $settings['type'] ?? 'image');
-    $bundle     = $blazies->get('media.bundle', $settings['bundle'] ?? 'image');
+    $bundle     = $blazies->get('media.bundle', $settings['bundle'] ?? '');
     $embed_url  = $blazies->get('media.embed_url', $settings['embed_url'] ?? '');
     $videos     = ['oembed:video', 'video_embed_field'];
     $medias     = array_merge(['audio_file', 'video_file'], $videos);
@@ -166,50 +190,36 @@ class Blazy implements BlazyInterface {
     $is_media   = $bundle && in_array($source, $medias);
     $is_remote  = $bundle == 'remote_video' || $type == 'video';
     $is_remote  = $embed_url && ($is_video || $is_remote);
-    $_switch    = $settings['media_switch'] ?? '';
-    $is_iframe  = $is_remote && $_switch == '';
-    $is_player  = $is_remote && $_switch == 'media';
-    $_uri       = $blazies->get('uri', $settings['uri'] ?? '');
-    $uri        = $settings['uri'] = $_uri ?: BlazyFile::uri($item);
-    $is_initial = $delta == $blazies->get('initial', -2);
-    $unlazy     = $blazies->is('slider') && $is_initial;
+    $switch     = $settings['media_switch'] ?? $blazies->get('switch');
+    $is_iframe  = $is_remote && $switch == '';
+    $is_player  = $is_remote && $switch == 'media';
+    $unlazy     = $blazies->is('slider') && $blazies->is('initial');
     $unlazy     = $unlazy ? TRUE : $blazies->is('unlazy');
-    $use_loader = $blazies->get('use.loader', $settings['use_loading'] ?? '');
+    $use_loader = $settings['use_loading'] ?? $blazies->get('use.loader');
     $use_loader = $unlazy ? FALSE : $use_loader;
     $is_unblur  = $blazies->is('sandboxed') || $blazies->is('unstyled') || $is_iframe;
     $is_blur    = $blazies->is('blur') && !$is_unblur;
 
     // Supports core Image formatter embedded within Blazy ecosystem.
     $is_fluid = $blazies->is('fluid') ?: $settings['ratio'] == 'fluid';
-    $switch   = $blazies->get('switch') ?: $_switch;
 
     // @todo better logic to support loader as required, must decouple loader.
     // @todo $lazy = $settings['loading'] == 'lazy';
     // @todo $lazy = $blazies->is('blazy') && ($blazies->get('libs.compat') || $lazy);
     // Redefines some since this can be fed by anyone, including custom works.
     // Also addresses mixed media unique per item.
-    $blazies->set('delta', $delta)
-      ->set('item.id', $item_id)
-      ->set('is.fluid', $is_fluid)
+    $blazies->set('is.fluid', $is_fluid)
       ->set('is.iframe', $is_iframe)
-      ->set('is.initial', $is_initial)
       ->set('is.multimedia', $is_media)
       ->set('is.player', $is_player)
       ->set('is.remote', $is_remote)
       ->set('is.blur', $is_blur)
       ->set('is.video', $is_remote)
-      ->set('namespace', $namespace)
       ->set('media.type', $type)
       ->set('is.unlazy', $unlazy)
-      ->set('uri', $uri)
       ->set('use.loader', $use_loader)
       ->set('switch', $switch)
       ->set('was.prepare', TRUE);
-
-    if ($item && ($file = ($item->entity ?? NULL))) {
-      $tags = $file->getCacheTags();
-      $blazies->set('cache.file.tags', $tags);
-    }
   }
 
   /**

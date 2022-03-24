@@ -106,7 +106,7 @@ class BlazySettings implements \Countable {
 
     $parts = array_map('trim', explode('.', $key));
 
-    if (is_array($value)) {
+    if (is_array($value) && $merge) {
       $value = array_merge((array) $this->get($key, []), $value);
     }
 

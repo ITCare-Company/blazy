@@ -292,7 +292,8 @@ class BlazyImage {
    */
   public static function transformDimensions($style, array $data, $initial = FALSE): array {
     $_uri = $initial ? '_uri' : 'uri';
-    $key  = hash('md2', ($style->id() . $data[$_uri] . $initial));
+    $uri  = $data[$_uri] ?? '';
+    $key  = hash('md2', ($style->id() . $uri . $initial));
 
     if (!isset(static::$styleId[$key])) {
       $_width  = $initial ? '_width' : 'width';
@@ -302,7 +303,7 @@ class BlazyImage {
       $dim     = ['width' => $width, 'height' => $height];
 
       // Funnily $uri is ignored at all core image effects.
-      $style->transformDimensions($dim, $data[$_uri]);
+      $style->transformDimensions($dim, $uri);
 
       // Sometimes they are string, cast them integer to reduce JS logic.
       self::toInt($dim, 'width', 'height');

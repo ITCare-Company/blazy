@@ -71,6 +71,11 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     $element    = [];
     $definition = $this->getScopedFormElements();
 
+    // @todo remove after sub-modules.
+    $definition['view_mode'] = $this->viewMode;
+    $definition['plugin_id'] = $this->getPluginId();
+    $definition['target_type'] = $this->getFieldSetting('target_type');
+
     $definition['_views'] = isset($form['field_api_classes']);
 
     $this->admin()->buildSettingsForm($element, $definition);
@@ -143,6 +148,42 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
 
     $build['settings'] = $settings;
     $this->buildElement($build, $entity, $langcode);
+  }
+
+  /**
+   * Defines the common scope for both front and admin.
+   *
+   * @todo convert all these into BlazySettings as well at 3.x.
+   */
+  public function getCommonFieldDefinition() {
+    $field = $this->fieldDefinition;
+
+    // @todo remove for blazies after admin updated and sub-modules.
+    $settings = [
+      'namespace'   => 'blazy',
+      'field_name'  => $field->getName(),
+      'field_type'  => $field->getType(),
+      'entity_type' => $field->getTargetEntityTypeId(),
+      'plugin_id'   => $this->getPluginId(),
+      'target_type' => $this->getFieldSetting('target_type'),
+      'view_mode'   => $this->viewMode,
+      'blazies'     => Blazy::settings(),
+    ];
+
+    // Exposes few basic formatter settings w/o use_field.
+    $blazies = $settings['blazies'];
+
+    $blazies->set('field.label', $field->getLabel())
+      ->set('field.label_display', $this->label)
+      ->set('field.name', $field->getName())
+      ->set('field.type', $field->getType())
+      ->set('field.plugin_id', $this->getPluginId())
+      ->set('field.entity_type', $field->getTargetEntityTypeId())
+      ->set('field.target_type', $this->getFieldSetting('target_type'))
+      ->set('field.view_mode', $this->viewMode)
+      ->set('field.third_party', $this->getThirdPartySettings());
+
+    return $settings;
   }
 
 }

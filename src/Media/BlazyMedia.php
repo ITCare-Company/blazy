@@ -101,7 +101,9 @@ class BlazyMedia {
       $attributes = NestedArray::mergeDeep($attributes, BlazyAttribute::iframe($settings));
     }
     // Media with local files: video.
-    elseif (isset($item['#files'], $item['#files'][0]['file'])) {
+    elseif (isset($item['#files']) && $file = ($item['#files'][0]['file'] ?? NULL)) {
+      // @todo multiple sources, not crucial for now.
+      $blazies->set('media.uri', $file->getFileUri());
       self::videoItem($item, $settings);
     }
 
@@ -158,10 +160,11 @@ class BlazyMedia {
   /**
    * Modifies item attributes for local video item.
    */
-  public static function videoItem(array &$item, array $settings): void {
+  private static function videoItem(array &$item, array $settings): void {
     // Do this as $item['#settings'] is not available as file_video variables.
-    foreach ($item['#files'] as &$file) {
-      $file['blazy'] = new BlazySettings($settings);
+    // @todo re-check, most like just a single file here.
+    foreach ($item['#files'] as &$files) {
+      $files['blazy'] = new BlazySettings($settings);
     }
 
     $item['#attributes']->setAttribute('data-b-lazy', TRUE);

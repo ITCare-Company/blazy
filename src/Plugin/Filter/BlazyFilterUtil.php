@@ -138,7 +138,7 @@ class BlazyFilterUtil {
   }
 
   /**
-   * Returns a valid node, excuding bur image.
+   * Returns a valid node, excluding blur/ noscript images.
    */
   public static function getValidNode($children) {
     $child = $children->item(0);
@@ -147,7 +147,7 @@ class BlazyFilterUtil {
     $is_bg = $class && mb_strpos($class, 'b-bg') !== FALSE;
 
     if ($is_blur && !$is_bg) {
-      $child = $children->item(1);
+      $child = $children->item(1) ?: $child;
     }
     return $child;
   }

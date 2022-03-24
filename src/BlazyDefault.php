@@ -269,7 +269,6 @@ class BlazyDefault {
     return [
       'blazies' => Blazy::settings(self::blazies()),
       'inited' => TRUE,
-      'namespace' => 'blazy',
 
       // @todo deprecated for blazies after sub-module updates:
       'bundle' => '',
@@ -277,6 +276,7 @@ class BlazyDefault {
       'route_name' => '',
       'view_name' => '',
       'is_preview' => FALSE,
+      // 'namespace' => 'blazy',
       // 'label' => '',
       // 'unstyled' => FALSE,
       // '_resimage' => FALSE,
@@ -299,13 +299,13 @@ class BlazyDefault {
   public static function itemSettings() {
     return [
       'classes'        => [],
-      'delta'          => 0,
-      'embed_url'      => '',
+      // 'delta'          => 0,
+      // 'embed_url'      => '',
       // 'extension'      => '',
       'image_url'      => '',
       // 'scheme'         => '',
-      'type'           => 'image',
-      'uri'            => '',
+      // 'type'           => 'image',
+      // 'uri'            => '',
       'height'         => NULL,
       'width'          => NULL,
 

@@ -201,12 +201,18 @@ class BlazyFile {
    *
    * @todo make it more robust to accept few sources.
    */
-  public static function uri($item): ?string {
+  public static function uri($item, array $settings = []): ?string {
+    $uri = '';
     if ($item) {
       $file = $item->entity ?? NULL;
-      return $file instanceof FileInterface ? $file->getFileUri() : ($item->uri ?? '');
+      $uri = $file instanceof FileInterface ? $file->getFileUri() : ($item->uri ?? '');
     }
-    return '';
+    if (empty($uri)) {
+      $blazies = $settings['blazies'] ?? NULL;
+      $uri = $blazies ? $blazies->get('uri', '') : '';
+      $uri = $settings['uri'] ?? $uri;
+    }
+    return $uri;
   }
 
   /**
