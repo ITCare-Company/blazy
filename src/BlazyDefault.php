@@ -274,7 +274,6 @@ class BlazyDefault {
       'bundle' => '',
       'id' => '',
       'route_name' => '',
-      'view_name' => '',
       'is_preview' => FALSE,
       // 'namespace' => 'blazy',
       // 'label' => '',
@@ -289,8 +288,10 @@ class BlazyDefault {
       // 'lightbox' => FALSE,
       // 'resimage' => FALSE,
       // 'unlazy' => FALSE,
+      // 'view_name' => '',
       // @todo revert  + self::uiSettings()
-    ] + self::imageSettings() + self::gridSettings();
+    ] + self::imageSettings()
+      + self::gridSettings();
   }
 
   /**
@@ -298,28 +299,28 @@ class BlazyDefault {
    */
   public static function itemSettings() {
     return [
-      'classes'        => [],
-      // 'delta'          => 0,
-      // 'embed_url'      => '',
-      // 'extension'      => '',
-      'image_url'      => '',
-      // 'scheme'         => '',
-      // 'type'           => 'image',
-      // 'uri'            => '',
-      'height'         => NULL,
-      'width'          => NULL,
+      'classes' => [],
+      'image_url' => '',
+      'height' => NULL,
+      'width' => NULL,
 
       // @todo move into and deprecated for BlazySettings under blazies:
-      // 'content_url'    => '',
-      // 'use_data_uri'   => FALSE,
-      // 'use_loading'    => TRUE,
-      // 'use_media'      => FALSE,
-      // 'item_id'        => 'blazy',
+      // 'delta' => 0,
+      // 'embed_url' => '',
+      // 'extension' => '',
+      // 'scheme' => '',
+      // 'type' => 'image',
+      // 'uri' => '',
+      // 'content_url' => '',
+      // 'use_data_uri' => FALSE,
+      // 'use_loading' => TRUE,
+      // 'use_media' => FALSE,
+      // 'item_id' => 'blazy',
       // 'lazy_attribute' => 'src',
-      // 'lazy_class'     => 'b-lazy',
+      // 'lazy_class' => 'b-lazy',
       // 'placeholder_fx' => '',
       // 'placeholder_ui' => '',
-      // 'player'         => FALSE,
+      // 'player' => FALSE,
       // 'entity_type_id' => '',
     ] + self::htmlSettings();
   }

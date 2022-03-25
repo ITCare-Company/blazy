@@ -16,7 +16,9 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
 
   // Since 2.9 Blazy adapts to sub-module self::viewElements() to DRY so they
   // can remove their own FormatterViewTrait later thanks to similarities.
-  use BlazyFormatterTrait;
+  use BlazyFormatterTrait {
+    pluginSettings as traitPluginSettings;
+  }
 
   /**
    * Returns media contents.
@@ -71,24 +73,15 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     $element    = [];
     $definition = $this->getScopedFormElements();
 
+    $definition['_views'] = isset($form['field_api_classes']);
+
     // @todo remove after sub-modules.
     $definition['view_mode'] = $this->viewMode;
     $definition['plugin_id'] = $this->getPluginId();
     $definition['target_type'] = $this->getFieldSetting('target_type');
 
-    $definition['_views'] = isset($form['field_api_classes']);
-
     $this->admin()->buildSettingsForm($element, $definition);
     return $element;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getPluginScopes(): array {
-    return [
-      'target_bundles' => $this->getAvailableBundles(),
-    ];
   }
 
   /**
@@ -151,39 +144,28 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   }
 
   /**
-   * Defines the common scope for both front and admin.
-   *
-   * @todo convert all these into BlazySettings as well at 3.x.
+   * {@inheritdoc}
    */
-  public function getCommonFieldDefinition() {
-    $field = $this->fieldDefinition;
-
-    // @todo remove for blazies after admin updated and sub-modules.
-    $settings = [
-      'namespace'   => 'blazy',
-      'field_name'  => $field->getName(),
-      'field_type'  => $field->getType(),
-      'entity_type' => $field->getTargetEntityTypeId(),
-      'plugin_id'   => $this->getPluginId(),
-      'target_type' => $this->getFieldSetting('target_type'),
-      'view_mode'   => $this->viewMode,
-      'blazies'     => Blazy::settings(),
+  protected function getPluginScopes(): array {
+    return [
+      'no_layouts'       => TRUE,
+      'no_image_style'   => TRUE,
+      'responsive_image' => FALSE,
+      'target_bundles'   => $this->getAvailableBundles(),
+      'vanilla'          => TRUE,
+      'view_mode'        => $this->viewMode,
     ];
+  }
 
-    // Exposes few basic formatter settings w/o use_field.
-    $blazies = $settings['blazies'];
+  /**
+   * {@inheritdoc}
+   */
+  protected function pluginSettings(&$blazies, array &$settings): void {
+    $this->traitPluginSettings($blazies, $settings);
+    $blazies->set('is.blazy', TRUE);
 
-    $blazies->set('field.label', $field->getLabel())
-      ->set('field.label_display', $this->label)
-      ->set('field.name', $field->getName())
-      ->set('field.type', $field->getType())
-      ->set('field.plugin_id', $this->getPluginId())
-      ->set('field.entity_type', $field->getTargetEntityTypeId())
-      ->set('field.target_type', $this->getFieldSetting('target_type'))
-      ->set('field.view_mode', $this->viewMode)
-      ->set('field.third_party', $this->getThirdPartySettings());
-
-    return $settings;
+    // @todo remove.
+    $settings['blazy'] = TRUE;
   }
 
 }

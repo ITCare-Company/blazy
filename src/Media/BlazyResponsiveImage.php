@@ -186,7 +186,7 @@ class BlazyResponsiveImage {
       && $resimage = $blazies->get('resimage.style')) {
       $fallback = $resimage->getFallbackImageStyle();
       if ($fallback == '_empty image_') {
-        $url = $blazies->get('placeholder');
+        $url = $blazies->get('placeholder.url');
 
         // @todo remove.
         $settings['image_url'] = $url;

@@ -79,6 +79,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    */
   protected function uris(array &$settings, $items, array $entities = []) {
     $blazies = $settings['blazies'];
+
     BlazyFile::urisFromField($settings, $items, $entities);
 
     // The first image dimensions to differ from individual item dimensions.

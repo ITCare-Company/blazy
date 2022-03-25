@@ -8,7 +8,8 @@ use Drupal\Core\Field\FieldItemListInterface;
  * A Trait common for all blazy, including its sub-modules, text formatters.
  *
  * By-passed routines at BlazyFormatter designed for Image, Media, entities.
- * Bp-passed theme_blazy() for more relevant themes/ types like  processed_text.
+ * Bp-passed theme_[blazy|slick|splide|gridstack|mason|etc.]() routines for
+ * more relevant themes/ types like processed_text, or others.
  */
 trait BlazyFormatterViewBaseTrait {
 

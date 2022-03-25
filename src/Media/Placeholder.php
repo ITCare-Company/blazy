@@ -31,7 +31,7 @@ class Placeholder {
 
     $blur = [
       '#theme' => 'image',
-      '#uri' => $blazies->get('placeholder'),
+      '#uri' => $blazies->get('placeholder.url'),
       '#attributes' => [
         'class' => ['b-lazy', 'b-blur', 'b-blur--tmp'],
         'data-src' => $blazies->get('blur'),
@@ -72,46 +72,61 @@ class Placeholder {
    */
   public static function prepare(array &$attributes, array &$settings) {
     $blazies = $settings['blazies'];
-    $uri = $blazies->get('uri', $settings['uri'] ?? '');
-    $tn_uri = $blazies->get('thumbnail.uri', $settings['thumbnail_uri'] ?? '');
-
-    // The SVG placeholder should accept either original, or styled image.
-    $width = $settings['width'] ?? NULL;
-    $height = $settings['height'] ?? NULL;
-    $default = self::generate($width, $height);
-    $placeholder = $blazies->get('ui.placeholder', $default) ?: $default;
-
-    // Accepts configurable placeholder, alter, and fallback.
-    $blazies->set('placeholder', $placeholder);
+    $uri = $settings['uri'] ?? '';
+    $uri = $uri ?: $blazies->get('uri');
+    $tn_uri = $settings['thumbnail_uri'] ?? $blazies->get('thumbnail.uri');
 
     // Supports unique thumbnail different from main image, such as logo for
     // thumbnail and main image for company profile.
-    $path = $style = $thumbnail_url = '';
+    $path = $style = $tn_url = '';
     if ($tn_uri) {
       $path = $tn_uri;
-      $thumbnail_url = BlazyFile::transformRelative($path);
+      $tn_url = BlazyFile::transformRelative($path);
     }
     else {
+      // This one uses the same non-unique image like the main stage image.
       if (!$blazies->is('external') && $style = $blazies->get('thumbnail.style')) {
         $path = $style->buildUri($uri);
-        $thumbnail_url = BlazyFile::transformRelative($uri, $style);
+        $tn_url = BlazyFile::transformRelative($uri, $style);
       }
     }
 
     // With CSS background, IMG may be empty, add thumbnail to the container.
     // @todo remove thumbnail_url after sub-modules.
-    if ($thumbnail_url) {
-      $attributes['data-thumb'] = $thumbnail_url;
-      $blazies->set('thumbnail.url', $thumbnail_url);
+    if ($tn_url) {
+      $attributes['data-thumb'] = $tn_url;
+      $blazies->set('thumbnail.url', $tn_url);
 
-      if (BlazyFile::isValidUri($path) && !is_file($path)) {
-        $style->createDerivative($uri, $path);
+      if (BlazyFile::isValidUri($path)) {
+        $blazies->set('thumbnail.uri', $path);
+
+        if (!$blazies->get('thumbnail.checked')) {
+          if ($style && !is_file($path)) {
+            $style->createDerivative($uri, $path);
+          }
+          $blazies->set('thumbnail.checked', TRUE);
+        }
       }
     }
 
+    // The SVG placeholder should accept either original, or styled image.
+    $width = $settings['width'] ?? NULL;
+    $height = $settings['height'] ?? NULL;
+
+    // @todo use the thumbnail size, not original ones, see: #3210759?
+    $blazies->set('placeholder.width', $width)
+      ->set('placeholder.height', $height);
+
+    $default = self::generate($width, $height);
+    $placeholder = $blazies->get('ui.placeholder', $default) ?: $default;
+
+    // Accepts configurable placeholder, alter, and fallback.
+    $blazies->set('placeholder.url', $placeholder);
+
     // Provides image effect if so configured unless being sandboxed.
     // Being a separated .b-blur with .b-lazy, this should work for any lazy.
-    if ($fx = $blazies->get('fx')) {
+    // Slick/ Splide lazy loads won't work, needs Blazy to make animation.
+    if ($blazies->is('blazy') && $fx = $blazies->get('fx')) {
       $attributes['class'][] = 'media--fx';
       $attributes['data-animation'] = $fx;
 

@@ -21,13 +21,6 @@ trait PluginScopesTrait {
   protected $scopes = [];
 
   /**
-   * Returns the specific plugin scopes, no interface to drop in directly.
-   */
-  protected function getPluginScopes(): array {
-    return [];
-  }
-
-  /**
    * Converts old plugin scopes array into BlazySettings object to interop.
    */
   protected function toPluginScopes(array $scopes = []): BlazySettings {

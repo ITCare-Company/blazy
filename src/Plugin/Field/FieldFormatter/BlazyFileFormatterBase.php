@@ -27,7 +27,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
-  use BlazyFormatterTrait;
+  use BlazyFormatterTrait {
+    getScopedFormElements as traitGetScopedFormElements;
+  }
   use BlazyDependenciesTrait;
 
   /**

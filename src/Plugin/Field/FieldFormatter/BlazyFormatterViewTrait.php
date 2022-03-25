@@ -7,10 +7,14 @@ use Drupal\Core\Field\FieldItemListInterface;
 /**
  * A Trait common for all blazy, including its sub-modules, formatters.
  *
- * Since 2.9 this can replace and remove sub-module FormatterViewTrait anytime.
+ * Since 2.9 this can replace and remove sub-module FormatterViewTrait anytime
+ * for Media or Entity related formatters. For basic texts, use
+ * self::baseViewElements() instead to by-pass
+ * theme_[blazy|slick|splide|gridstack|mason|etc.]() routines.
  */
 trait BlazyFormatterViewTrait {
 
+  // Import once for very minimal difference.
   use BlazyFormatterViewBaseTrait;
 
   /**

@@ -89,7 +89,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $blazies = $settings['blazies'];
     $url = $blazies->get('entity.url');
 
-    if ($url && $blazies->get('switch') == 'content') {
+    if ($blazies->get('switch') == 'content' && $url) {
       $element['#url'] = $url;
     }
     elseif ($blazies->get('lightbox.name')) {
@@ -221,7 +221,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // Prevents complication for now, such as lightbox for Facebook, etc.
     // Either makes no sense, or not currently supported without extra legs.
     // Original formatter settings can still be accessed via content variable.
-    $blazies->set('placeholder', '')
+    $blazies->set('placeholder', [])
       ->set('is.bg', FALSE)
       ->set('use.loader', FALSE);
 

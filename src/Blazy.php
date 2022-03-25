@@ -198,7 +198,7 @@ class Blazy implements BlazyInterface {
     $use_loader = $settings['use_loading'] ?? $blazies->get('use.loader');
     $use_loader = $unlazy ? FALSE : $use_loader;
     $is_unblur  = $blazies->is('sandboxed') || $blazies->is('unstyled') || $is_iframe;
-    $is_blur    = $blazies->is('blur') && !$is_unblur;
+    $is_blur    = $blazies->is('blur') && $blazies->is('blazy') && !$is_unblur;
 
     // Supports core Image formatter embedded within Blazy ecosystem.
     $is_fluid = $blazies->is('fluid') ?: $settings['ratio'] == 'fluid';
@@ -259,19 +259,23 @@ class Blazy implements BlazyInterface {
 
     foreach ($cherries as $key => $value) {
       $fallback = $parentsets[$key] ?? $value;
+      // Ensures to respect parent formatter or Views style if provided.
       $parentsets[$key] = isset($childsets[$key]) && empty($fallback)
         ? $childsets[$key]
         : $fallback;
     }
 
     $parent = $parentsets['blazies'] ?? NULL;
-    if ($parent && $child = ($childsets['blazies'] ?? NULL)) {
+    $child = ($childsets['blazies'] ?? NULL);
+    if ($parent && $child) {
       // $parent->set('first.settings', array_filter($child));
       // $parent->set('first.item_id', $child->get('item.id'));
       // Hints containers to build relevant lightbox gallery attributes.
       $childbox = $child->get('lightbox.name');
       $parentbox = $parent->get('lightbox.name');
 
+      // Ensures to respect parent formatter or Views style if provided.
+      // The moral of this method is only if parent lacks of settings like Grid.
       if ($childbox && !$parentbox) {
         $optionset = $child->get('lightbox.optionset', $childbox);
         $parent->set('lightbox.name', $childbox)
@@ -435,10 +439,49 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Alias for Grid::build() for sub-modules.
+   * Alias for Grid::build() for sub-modules and easy organization later.
    */
   public static function grid(array $items, array $settings): array {
     return Grid::build($items, $settings);
+  }
+
+  /**
+   * Determines which lazyload to use for Slick and Splide.
+   *
+   * Moved it here to avoid similar issues like `is_preview` complication,
+   * and other improvements: `Loading` priority, `No JavaScript: lazy`, etc.
+   *
+   * @todo refine this based on the new options.
+   */
+  public static function which(array &$settings, $lazy, $class, $attribute) {
+    // Don't bother if empty.
+    if (empty($lazy)) {
+      return;
+    }
+
+    // Slick only knows plain old image.
+    // Splide does know plain (Responsive) image, but not Picture.
+    // Blazy knows more: BG, local video, remote video or iframe, (Responsive
+    // |Picture) image.
+    // Must be re-defined at item level to respect mixed media.
+    $settings['blazy'] = $use_blazy = $lazy == 'blazy'
+      || !empty($settings['blazy'])
+      || !empty($settings['background'])
+      || !empty($settings['responsive_image_style']);
+
+    $settings['lazy'] = $use_blazy ? 'blazy' : $lazy;
+
+    // Allows Blazy to take over for advanced features like Responsive image,
+    // CSS background, video, etc.
+    if (!$use_blazy) {
+      $settings['lazy_class'] = $class;
+      $settings['lazy_attribute'] = $attribute;
+    }
+
+    // Disable anything lazy-related settings if in preview mode.
+    // @todo replace `is_preview` with sandbox.
+    $settings['lazy'] = empty($settings['is_preview']) ? $settings['lazy'] : '';
+    $settings['_lazy'] = TRUE;
   }
 
   /**

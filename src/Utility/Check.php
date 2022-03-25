@@ -356,6 +356,8 @@ class Check {
     $lazy = $is_blazy ? 'blazy' : $settings['lazy'] ?? 'blazy';
     $lazy = $blazies->get('lazy.id', $lazy ?: 'blazy');
     $lazy = $blazies->is('nojs') ? '' : $lazy;
+    $attribute = $settings['lazy_attribute'] ?? $blazies->get('lazy.attribute', 'src');
+    $class = $settings['lazy_class'] ?? $blazies->get('lazy.class', 'b-lazy');
 
     // @todo re-check after sub-modules which were only aware of `is_preview`.
     // Basically tricking overrides by the reversed name due to sub-modules are
@@ -368,8 +370,8 @@ class Check {
     $blazies->set('is.blazy', $is_blazy)
       ->set('is.unlazy', $is_unlazy)
       ->set('lazy.id', $lazy)
-      ->set('lazy.attribute', $settings['lazy_attribute'] ?? 'src')
-      ->set('lazy.class', $settings['lazy_class'] ?? 'b-lazy')
+      ->set('lazy.attribute', $attribute)
+      ->set('lazy.class', $class)
       ->set('was.lazy', TRUE);
   }
 
@@ -387,7 +389,6 @@ class Check {
     $blazies    = $settings['blazies'];
     $lightboxes = $blazies->get('lightbox.plugins', []);
     $lightbox   = in_array($switch, $lightboxes) ? $switch : FALSE;
-    $optionset  = '';
     $_richbox   = $settings['_richbox'] ?? $blazies->is('richbox');
     $richbox    = $blazies->get('colorbox') || $blazies->get('mfp') || $_richbox;
 

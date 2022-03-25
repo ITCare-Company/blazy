@@ -153,7 +153,6 @@ trait BlazyFormatterTrait {
       'entity_type' => $field->getTargetEntityTypeId(),
       'plugin_id'   => $this->getPluginId(),
       'target_type' => $this->getFieldSetting('target_type'),
-      'view_mode'   => $this->viewMode,
       'blazies'     => Blazy::settings(),
     ];
 

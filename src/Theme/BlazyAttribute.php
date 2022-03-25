@@ -102,10 +102,9 @@ class BlazyAttribute {
     $attributes = &$variables['attributes'];
     $settings   = &$variables['settings'];
     $blazies    = $settings['blazies'];
-    $resimage   = $blazies->get('resimage.id');
 
     // (Responsive) image is optional for Video, or image as CSS background.
-    if ($resimage) {
+    if ($blazies->get('resimage.id')) {
       self::buildResponsiveImage($variables);
     }
     else {
@@ -253,12 +252,12 @@ class BlazyAttribute {
     $blazies = $settings['blazies'];
 
     // For consistent CSS fix, and w/o Native.
-    $class = $blazies->get('lazy.class', 'b-lazy');
-    $attributes['class'][] = $class;
+    $attributes['class'][] = $blazies->get('lazy.class', 'b-lazy');
 
     // Slick has its own class and methods: ondemand, anticipative, progressive.
     // The data-[SRC|SCRSET|LAZY] is if `nojs` disabled, background, or video.
     $attribute = $blazies->get('lazy.attribute');
+
     if (!$blazies->is('unlazy')) {
       $attributes['data-' . $attribute] = $blazies->get('image.url');
     }
@@ -403,7 +402,7 @@ class BlazyAttribute {
     if (empty($settings['background'])) {
       $variables['image'] += [
         '#theme' => 'image',
-        '#uri' => $blazies->is('unlazy') ? $url : $blazies->get('placeholder'),
+        '#uri' => $blazies->is('unlazy') ? $url : $blazies->get('placeholder.url'),
       ];
     }
     else {
@@ -411,7 +410,7 @@ class BlazyAttribute {
       $blazies->set('bgs.' . $settings['width'], BlazyImage::background($settings));
 
       $unlazy = $blazies->is('undata');
-      $url = $unlazy ? $url : $blazies->get('placeholder');
+      $url = $unlazy ? $url : $blazies->get('placeholder.url');
 
       $blazies->set('image.url', $url)
         ->set('is.unlazy', $unlazy);
@@ -466,7 +465,7 @@ class BlazyAttribute {
         ? $natives
         : [
           'data-b-lazy' => $blazies->get('ui.one_pixel'),
-          'data-b-placeholder' => $blazies->get('placeholder'),
+          'data-b-placeholder' => $blazies->get('placeholder.url'),
         ]);
 
       $variables['image'] += [

@@ -1,4 +1,13 @@
 
+Blazy 8.x-2.0-dev, 2022-03-25
+-----------------------------
+- Moved duplicate boilerplates at sub-modules into Blazy to avoid previous
+  mistakes like they were left behind from Blazy betterments with Loading
+  priority and No JavaScript: lazy option aka decoupled lazy loaders.
+- Disabled Blur and animation when not using Blazy, like Slick/ Splide own lazy
+  load since they require Blazy lazy load to function.
+- Fixed for missing a few options at sub-modules due to not being updated, yet.
+
 Blazy 8.x-2.0-dev, 2022-03-23
 -----------------------------
 - Regressions fixes: Vanilla view mode, random admin form item visibility when

@@ -89,8 +89,8 @@ class Grid {
     $title = '';
     $label = $blazies->get('field.label');
     if (!$blazies->get('use.theme_field')
-      && $label
-      && $blazies->get('field.label_display') != 'hidden') {
+      && $blazies->get('field.label_display') != 'hidden'
+      && $label) {
       $title = $label;
     }
 

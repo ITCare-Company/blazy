@@ -321,15 +321,23 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       $blazies->set('route_name', $route_name);
     }
 
+    // Sub-modules may need to provide their data to be consumed here.
+    // Basicaly needs basic UI and definitions above to supply data properly,
+    // such as to determine Slick/ Splide own lazy load methods based on UI.
+    $this->preSettingsData($settings);
+
     // Preliminary globals when using the provided API.
     Blazy::preSettings($settings);
   }
 
   /**
-   * Modifies the common UI settings inherited down to each item.
+   * Modifies the post settings inherited down to each item.
    */
   public function postSettings(array &$settings) {
     Blazy::postSettings($settings);
+
+    // Sub-modules may need to override Blazy definitions.
+    $this->postSettingsData($settings);
   }
 
   /**
@@ -403,6 +411,22 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     ];
     $this->moduleHandler->alter('blazy_style', $styles);
     return $styles;
+  }
+
+  /**
+   * Provides data to be consumed by Blazy::preSettings().
+   *
+   * Such as to provide lazy attribute and class for Slick or Splide, etc.
+   */
+  protected function preSettingsData(array &$settings): void {
+    // Do nothing, let extenders input data at ease as needed.
+  }
+
+  /**
+   * Overrides data massaged by Blazy::postSettings().
+   */
+  protected function postSettingsData(array &$settings): void {
+    // Do nothing, let extenders override data at ease as needed.
   }
 
   /**
