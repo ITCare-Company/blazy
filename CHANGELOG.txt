@@ -1,4 +1,11 @@
 
+Blazy 8.x-2.0-dev, 2022-03-26
+-----------------------------
+- Prioritized custom Placeholder ('/blank.svg') to fix for Views rewrite
+  results to override Responsive image `data:image` which causes 404.
+- Prevents double-downloading the fallback image, enforced since 2.10, to
+  allow having non `data:image` as fallback image.
+
 Blazy 8.x-2.0-dev, 2022-03-25
 -----------------------------
 - Moved duplicate boilerplates at sub-modules into Blazy to avoid previous

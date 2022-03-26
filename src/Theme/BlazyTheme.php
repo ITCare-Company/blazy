@@ -203,19 +203,23 @@ class BlazyTheme {
         $image['#attributes']['srcset'] = '';
       }
 
-      // The [data-b-lazy] is a flag indicating 1px placeholder.
-      // This prevents double-downloading the fallback image, if enabled.
-      if (!empty($attributes['data-b-lazy'])) {
+      // Prioritized custom Placeholder ('/blank.svg') to fix for Views rewrite
+      // results to override Responsive image `data:image` which causes 404.
+      if ($ui = $attributes['data-b-ui'] ?? NULL) {
+        $image['#uri'] = $ui;
+      }
+      // Prevents double-downloading the fallback image, enforced since 2.10, to
+      // allow having non `data:image` as fallback image.
+      else {
         $image['#uri'] = $placeholder;
       }
 
-      // More shared-with-image attributes are set at
-      // BlazyAttribute::image().
+      // More shared-with-image attributes are set at BlazyAttribute::image().
       $image['#attributes']['class'][] = 'b-responsive';
     }
 
     // Cleans up the no-longer needed flags:
-    foreach (['lazy', 'noscript', 'placeholder'] as $key) {
+    foreach (['lazy', 'noscript', 'placeholder', 'ui'] as $key) {
       unset($attributes['data-b-' . $key], $image['#attributes']['data-b-' . $key]);
     }
   }

@@ -256,9 +256,8 @@ class BlazyAttribute {
 
     // Slick has its own class and methods: ondemand, anticipative, progressive.
     // The data-[SRC|SCRSET|LAZY] is if `nojs` disabled, background, or video.
-    $attribute = $blazies->get('lazy.attribute');
-
     if (!$blazies->is('unlazy')) {
+      $attribute = $blazies->get('lazy.attribute');
       $attributes['data-' . $attribute] = $blazies->get('image.url');
     }
   }
@@ -324,12 +323,12 @@ class BlazyAttribute {
    * Modifies $variables to provide optional (Responsive) image attributes.
    */
   private static function image(array &$variables): void {
-    $item = $variables['item'];
-    $settings = &$variables['settings'];
-    $image = &$variables['image'];
+    $item       = $variables['item'];
+    $settings   = &$variables['settings'];
+    $image      = &$variables['image'];
     $attributes = &$variables['item_attributes'];
-    $blazies = $settings['blazies'];
-    $embed_url = $blazies->get('media.embed_url');
+    $blazies    = $settings['blazies'];
+    $embed_url  = $blazies->get('media.embed_url');
 
     // Respects hand-coded image attributes.
     if ($item) {
@@ -385,7 +384,6 @@ class BlazyAttribute {
 
     // Provides [data-(src|lazy)] for (Responsive) image, after noscript.
     self::lazy($image['#attributes'], $settings);
-
     self::unloading($image['#attributes'], $settings);
   }
 
@@ -398,8 +396,8 @@ class BlazyAttribute {
     $blazies = $settings['blazies'];
 
     // Supports either lazy loaded image, or not.
-    $url = $blazies->get('image.url');
     if (empty($settings['background'])) {
+      $url = $blazies->get('image.url');
       $variables['image'] += [
         '#theme' => 'image',
         '#uri' => $blazies->is('unlazy') ? $url : $blazies->get('placeholder.url'),
@@ -460,16 +458,16 @@ class BlazyAttribute {
 
     if (empty($settings['background'])) {
       $natives = ['decoding' => 'async'];
-
       $attributes = ($blazies->is('unlazy')
         ? $natives
         : [
           'data-b-lazy' => $blazies->get('ui.one_pixel'),
+          'data-b-ui' => $blazies->get('ui.placeholder'),
           'data-b-placeholder' => $blazies->get('placeholder.url'),
         ]);
 
       $variables['image'] += [
-        '#type' => 'responsive_image',
+        '#theme' => 'responsive_image',
         '#responsive_image_style_id' => $blazies->get('resimage.id'),
         '#uri' => $blazies->get('uri'),
         '#attributes' => $attributes,

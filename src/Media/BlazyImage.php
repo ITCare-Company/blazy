@@ -210,6 +210,66 @@ class BlazyImage {
   }
 
   /**
+   * Prepares URLs, placeholder, and dimensions for an individual image.
+   *
+   * Respects a few scenarios:
+   * 1. Blazy Filter or unmanaged file with/ without valid URI.
+   * 2. Hand-coded image_url with/ without valid URI.
+   * 3. Respects first_uri without image_url such as colorbox/zoom-like.
+   * 4. File API via field formatters or Views fields/ styles with valid URI.
+   * If we have a valid URI, provides the correct image URL.
+   * Otherwise leave it as is, likely hotlinking to external/ sister sites.
+   * Hence URI validity is not crucial in regards to anything but #4.
+   * The image will fail silently at any rate given non-expected URI.
+   *
+   * @param array $settings
+   *   The given settings being modified.
+   * @param object $item
+   *   The image item.
+   */
+  public static function prepare(array &$settings, $item = NULL): void {
+    $blazies = $settings['blazies'];
+    $style   = $blazies->get('image.style');
+
+    // Might be called from Views without Blazy formatter, like Image formatter.
+    // Since Blazy:2.9, image style entity is loaded once at container level,
+    // but might still be needed fr adopted Image formatter by a Views style.
+    if (!$style && !empty($settings['image_style'])) {
+      self::styles($settings);
+      $style = $blazies->get('image.style');
+    }
+
+    // BlazyFilter, or image style with crop, may already set these.
+    self::dimensions($settings, $item);
+
+    // Provides image url based on the given settings.
+    $uri     = $settings['uri'] ?? $settings['_uri'] ?? NULL;
+    $uri     = $blazies->get('uri', $uri);
+    $valid   = BlazyFile::isValidUri($uri);
+    $styled  = $valid && !$blazies->is('unstyled');
+    $url     = $settings['image_url'] ?? '';
+    $url     = $blazies->get('image.url', $url);
+    $options = ['url' => $url, 'sanitize' => $blazies->is('unsafe')];
+    $url     = BlazyFile::transformRelative($uri, ($styled ? $style : NULL), $options);
+
+    if ($style) {
+      $blazies->set('cache.tags', $style->getCacheTags(), TRUE);
+
+      // Only re-calculate dimensions if not cropped, nor already set.
+      if (!$blazies->is('dimensions')
+        && empty($settings['responsive_image_style'])) {
+        $settings = array_merge($settings, self::transformDimensions($style, $settings));
+      }
+    }
+
+    // Currently doesn't affect option.ratio, a failsafe for BG, else collapsed.
+    $ratio = self::ratio($settings);
+
+    $blazies->set('image.ratio', $ratio);
+    $blazies->set('image.url', $url);
+  }
+
+  /**
    * Checks for [Responsive] image styles.
    */
   public static function styles(array &$settings, $multiple = FALSE): void {
@@ -319,66 +379,6 @@ class BlazyImage {
       ];
     }
     return static::$styleId[$key];
-  }
-
-  /**
-   * Prepares URLs, placeholder, and dimensions for an individual image.
-   *
-   * Respects a few scenarios:
-   * 1. Blazy Filter or unmanaged file with/ without valid URI.
-   * 2. Hand-coded image_url with/ without valid URI.
-   * 3. Respects first_uri without image_url such as colorbox/zoom-like.
-   * 4. File API via field formatters or Views fields/ styles with valid URI.
-   * If we have a valid URI, provides the correct image URL.
-   * Otherwise leave it as is, likely hotlinking to external/ sister sites.
-   * Hence URI validity is not crucial in regards to anything but #4.
-   * The image will fail silently at any rate given non-expected URI.
-   *
-   * @param array $settings
-   *   The given settings being modified.
-   * @param object $item
-   *   The image item.
-   */
-  public static function prepare(array &$settings, $item = NULL): void {
-    $blazies = $settings['blazies'];
-    $style   = $blazies->get('image.style');
-
-    // Might be called from Views without Blazy formatter, like Image formatter.
-    // Since Blazy:2.9, image style entity is loaded once at container level,
-    // but might still be needed fr adopted Image formatter by a Views style.
-    if (!$style && !empty($settings['image_style'])) {
-      self::styles($settings);
-      $style = $blazies->get('image.style');
-    }
-
-    // BlazyFilter, or image style with crop, may already set these.
-    self::dimensions($settings, $item);
-
-    // Provides image url based on the given settings.
-    $uri     = $settings['uri'] ?? $settings['_uri'] ?? NULL;
-    $uri     = $blazies->get('uri', $uri);
-    $valid   = BlazyFile::isValidUri($uri);
-    $styled  = $valid && !$blazies->is('unstyled');
-    $url     = $settings['image_url'] ?? '';
-    $url     = $blazies->get('image.url', $url);
-    $options = ['url' => $url, 'sanitize' => $blazies->is('unsafe')];
-    $url     = BlazyFile::transformRelative($uri, ($styled ? $style : NULL), $options);
-
-    if ($style) {
-      $blazies->set('cache.tags', $style->getCacheTags(), TRUE);
-
-      // Only re-calculate dimensions if not cropped, nor already set.
-      if (!$blazies->is('dimensions')
-        && empty($settings['responsive_image_style'])) {
-        $settings = array_merge($settings, self::transformDimensions($style, $settings));
-      }
-    }
-
-    // Currently doesn't affect option.ratio, a failsafe for BG, else collapsed.
-    $ratio = self::ratio($settings);
-
-    $blazies->set('image.ratio', $ratio);
-    $blazies->set('image.url', $url);
   }
 
   /**

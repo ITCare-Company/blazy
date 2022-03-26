@@ -140,6 +140,7 @@ class BlazyResponsiveImage {
         }
       }
 
+      $blazies->set('resimage.fallback.url', $fallback);
       return empty($sources) ? [] : [
         'items' => $sources,
         'fallback' => $fallback,
@@ -178,24 +179,46 @@ class BlazyResponsiveImage {
   /**
    * Modifies fallback image style.
    */
-  public static function fallback(array &$settings): void {
+  public static function fallback(array &$settings, $placeholder): void {
     $blazies = $settings['blazies'];
+    $id = '_empty image_';
+    $width = $height = 1;
+    $data_src = $placeholder;
 
-    // Mimicks private _responsive_image_image_style_url, #3119527.
-    if (empty($settings['image_style'])
-      && $resimage = $blazies->get('resimage.style')) {
-      $fallback = $resimage->getFallbackImageStyle();
-      if ($fallback == '_empty image_') {
-        $url = $blazies->get('placeholder.url');
+    // If not enabled via UI, by default, always 1px, or the custom Placeholder.
+    if (!$blazies->get('ui.one_pixel')) {
+      // Mimicks private _responsive_image_image_style_url, #3119527.
+      if (empty($settings['image_style'])) {
+        if ($resimage = $blazies->get('resimage.style')) {
+          $fallback = $resimage->getFallbackImageStyle();
+          if ($fallback == $id) {
+            $data_src = $placeholder;
+          }
+          else {
+            $settings['image_style'] = $id = $fallback;
+            if ($blazy = Blazy::service('blazy.manager')) {
+              $uri = $blazies->get('uri');
 
-        // @todo remove.
-        $settings['image_url'] = $url;
-        $blazies->set('image.url', $url);
-      }
-      else {
-        $settings['image_style'] = $fallback;
+              // @todo use dimensions based on the chosen fallback.
+              if ($uri && $style = $blazy->entityLoad($id, 'image_style')) {
+                $data_src = BlazyFile::transformRelative($uri, $style);
+              }
+            }
+          }
+        }
       }
     }
+
+    if ($data_src) {
+      // The controller `data-src` attribute, might be valid image thumbnail.
+      $blazies->set('image.url', $data_src);
+      $blazies->set('placeholder.id', $id);
+      // The controller `src` attribute, the placeholder.
+      $blazies->set('placeholder.url', $placeholder);
+      $blazies->set('placeholder.width', $width);
+      $blazies->set('placeholder.height', $height);
+    }
+
   }
 
   /**
@@ -205,6 +228,7 @@ class BlazyResponsiveImage {
     $id = $resimage->id();
     $styles = self::styles($resimage);
 
+    // @todo move it out of blazies.
     $blazies->set('resimage.id', $id)
       ->set('resimage.caches', $styles['caches'] ?? [])
       ->set('resimage.styles', $styles['styles'] ?? []);

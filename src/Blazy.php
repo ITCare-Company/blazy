@@ -198,7 +198,8 @@ class Blazy implements BlazyInterface {
     $use_loader = $settings['use_loading'] ?? $blazies->get('use.loader');
     $use_loader = $unlazy ? FALSE : $use_loader;
     $is_unblur  = $blazies->is('sandboxed') || $blazies->is('unstyled') || $is_iframe;
-    $is_blur    = $blazies->is('blur') && $blazies->is('blazy') && !$is_unblur;
+    $is_blazy   = $blazies->get('lazy.id') == 'blazy' && $blazies->is('blazy');
+    $is_blur    = $blazies->is('blur') && $is_blazy && !$is_unblur;
 
     // Supports core Image formatter embedded within Blazy ecosystem.
     $is_fluid = $blazies->is('fluid') ?: $settings['ratio'] == 'fluid';
@@ -220,6 +221,14 @@ class Blazy implements BlazyInterface {
       ->set('use.loader', $use_loader)
       ->set('switch', $switch)
       ->set('was.prepare', TRUE);
+
+    // Overrides sub-modules which know not iframe, Picture, Video, BG, Blur.
+    if ($is_blazy || $is_blur) {
+      $blazies->set('lazy.attribute', 'src')
+        ->set('lazy.class', 'b-lazy')
+        ->set('lazy.id', 'blazy')
+        ->set('is.blazy', TRUE);
+    }
   }
 
   /**
@@ -231,12 +240,12 @@ class Blazy implements BlazyInterface {
     // Prepares extension, image styles.
     BlazyFile::prepare($settings, $item);
 
-    // Build thumbnail and optional placeholder based on thumbnail.
-    Placeholder::prepare($attributes, $settings);
-
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
     BlazyImage::prepare($settings, $item);
+
+    // Build thumbnail and optional placeholder based on thumbnail.
+    Placeholder::prepare($attributes, $settings);
 
     $blazies->set('was.prepared', TRUE);
   }

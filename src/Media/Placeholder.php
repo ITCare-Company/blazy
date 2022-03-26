@@ -25,7 +25,7 @@ class Placeholder {
     $attributes = &$variables['attributes'];
     $blazies = $settings['blazies'];
 
-    if (!$blazies->get('blur')) {
+    if (!$blazies->get('blur.data')) {
       return;
     }
 
@@ -34,7 +34,7 @@ class Placeholder {
       '#uri' => $blazies->get('placeholder.url'),
       '#attributes' => [
         'class' => ['b-lazy', 'b-blur', 'b-blur--tmp'],
-        'data-src' => $blazies->get('blur'),
+        'data-src' => $blazies->get('blur.data'),
         'loading' => 'lazy',
         'decoding' => 'async',
       ],
@@ -46,7 +46,7 @@ class Placeholder {
     }
 
     // Reset as already stored.
-    $blazies->set('blur', '');
+    $blazies->set('blur.data', '');
     $variables['preface']['blur'] = $blur;
   }
 
@@ -72,13 +72,15 @@ class Placeholder {
    */
   public static function prepare(array &$attributes, array &$settings) {
     $blazies = $settings['blazies'];
-    $uri = $settings['uri'] ?? '';
-    $uri = $uri ?: $blazies->get('uri');
-    $tn_uri = $settings['thumbnail_uri'] ?? $blazies->get('thumbnail.uri');
+    $uri     = $settings['uri'] ?? '';
+    $uri     = $uri ?: $blazies->get('uri');
+    $tn_uri  = $settings['thumbnail_uri'] ?? $blazies->get('thumbnail.uri');
+    $width   = $height = 1;
+    $style   = NULL;
+    $path    = $tn_url = '';
 
     // Supports unique thumbnail different from main image, such as logo for
     // thumbnail and main image for company profile.
-    $path = $style = $tn_url = '';
     if ($tn_uri) {
       $path = $tn_uri;
       $tn_url = BlazyFile::transformRelative($path);
@@ -88,11 +90,15 @@ class Placeholder {
       if (!$blazies->is('external') && $style = $blazies->get('thumbnail.style')) {
         $path = $style->buildUri($uri);
         $tn_url = BlazyFile::transformRelative($uri, $style);
+
+        [
+          'width' => $width,
+          'height' => $height,
+        ] = BlazyImage::transformDimensions($style, $settings);
       }
     }
 
     // With CSS background, IMG may be empty, add thumbnail to the container.
-    // @todo remove thumbnail_url after sub-modules.
     if ($tn_url) {
       $attributes['data-thumb'] = $tn_url;
       $blazies->set('thumbnail.url', $tn_url);
@@ -109,18 +115,13 @@ class Placeholder {
       }
     }
 
-    // The SVG placeholder should accept either original, or styled image.
-    $width = $settings['width'] ?? NULL;
-    $height = $settings['height'] ?? NULL;
-
     // @todo use the thumbnail size, not original ones, see: #3210759?
     $blazies->set('placeholder.width', $width)
       ->set('placeholder.height', $height);
 
-    $default = self::generate($width, $height);
-    $placeholder = $blazies->get('ui.placeholder', $default) ?: $default;
-
     // Accepts configurable placeholder, alter, and fallback.
+    $default = self::generate($width, $height);
+    $placeholder = $blazies->get('ui.placeholder') ?: $default;
     $blazies->set('placeholder.url', $placeholder);
 
     // Provides image effect if so configured unless being sandboxed.
@@ -138,8 +139,10 @@ class Placeholder {
       }
     }
 
-    // Mimicks private _responsive_image_image_style_url, #3119527.
-    BlazyResponsiveImage::fallback($settings);
+    if ($blazies->get('resimage.id')) {
+      // Mimicks private _responsive_image_image_style_url, #3119527.
+      BlazyResponsiveImage::fallback($settings, $placeholder);
+    }
   }
 
   /**
@@ -167,7 +170,7 @@ class Placeholder {
         $blur = 'data:image/' . pathinfo($path, PATHINFO_EXTENSION) . ';base64,' . base64_encode($content);
 
         // Prevents double animations.
-        $blazies->set('blur', $blur);
+        $blazies->set('blur.data', $blur);
         $blazies->set('use.loader', FALSE);
       }
     }
