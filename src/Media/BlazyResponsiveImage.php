@@ -202,6 +202,13 @@ class BlazyResponsiveImage {
               // @todo use dimensions based on the chosen fallback.
               if ($uri && $style = $blazy->entityLoad($id, 'image_style')) {
                 $data_src = BlazyFile::transformRelative($uri, $style);
+
+                [
+                  'width' => $width,
+                  'height' => $height,
+                ] = BlazyImage::transformDimensions($style, $settings);
+
+                $placeholder = Placeholder::generate($width, $height);
               }
             }
           }

@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2022-03-26
 -----------------------------
+- Issue #3210759 by gausarts, jlstrecker, aminorking: Generated SVG placeholder
+  dimensions are not using the responsive image style dimensions.
 - Prioritized custom Placeholder ('/blank.svg') to fix for Views rewrite
   results to override Responsive image `data:image` which causes 404.
 - Prevents double-downloading the fallback image, enforced since 2.10, to
