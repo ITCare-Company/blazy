@@ -6,6 +6,8 @@ use Drupal\Component\Utility\UrlHelper;
 
 /**
  * Provides preload utility.
+ *
+ * @todo recap similiraties and make them plugins.
  */
 class Preloader {
 
@@ -105,6 +107,58 @@ class Preloader {
         $load['html_head'][$key] = $value;
       }
     }
+  }
+
+  /**
+   * Extracts uris from file/ media entity, relevant for the new option Preload.
+   *
+   * Also extract the found image for gallery/ zoom like, ElevateZoomPlus, etc.
+   *
+   * @todo merge urls here as well once puzzles are solved: URI may be fed by
+   * field formatters like this, blazy_filter, or manual call.
+   */
+  public static function prepare(array &$settings, $items, array $entities = []): array {
+    $blazies = $settings['blazies'];
+    if ($uris = $blazies->get('uris')) {
+      return $uris;
+    }
+
+    $style = $blazies->get('image.style');
+    $func = function ($item, $entity = NULL) use (&$settings, $blazies, $style) {
+      $options = ['entity' => $entity, 'settings' => $settings];
+
+      $image = BlazyImage::item($item, $options);
+      $uri = BlazyFile::uri($image);
+
+      // Only needed the first found image, no problem which with mixed media.
+      $_uri = $settings['_uri'] ?? '';
+      if ($uri && !$blazies->get('first.uri', $_uri)) {
+        $settings['_uri'] = $uri;
+
+        $url = BlazyFile::transformRelative($uri, $style);
+        $blazies->set('first.image_url', $url)
+          ->set('first.item', $image)
+          ->set('first.uri', $uri);
+
+        // The first image dimensions to differ from individual item dimensions.
+        BlazyImage::dimensions($settings, $image, TRUE);
+      }
+
+      return $uri;
+    };
+
+    $uris = $urls = [];
+    foreach ($items as $key => $item) {
+      // Respects empty URI to keep indices intact for correct mixed media.
+      $uri = $func($item, $entities[$key] ?? NULL);
+      $uris[] = $uri;
+      $urls[] = $uri ? BlazyFile::transformRelative($uri, $style) : '';
+    }
+
+    $blazies->set('uris', $uris);
+    $blazies->set('urls', $urls);
+
+    return $uris;
   }
 
 }

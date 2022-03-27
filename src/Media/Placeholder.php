@@ -4,6 +4,8 @@ namespace Drupal\blazy\Media;
 
 /**
  * Provides placeholder thumbnail image.
+ *
+ * @todo recap similiraties and make them plugins.
  */
 class Placeholder {
 
@@ -24,8 +26,9 @@ class Placeholder {
   public static function blur(array &$variables, array &$settings) {
     $attributes = &$variables['attributes'];
     $blazies = $settings['blazies'];
+    $data = $blazies->get('blur.data');
 
-    if (!$blazies->get('blur.data')) {
+    if (!$data) {
       return;
     }
 
@@ -33,8 +36,10 @@ class Placeholder {
       '#theme' => 'image',
       '#uri' => $blazies->get('placeholder.url'),
       '#attributes' => [
-        'class' => ['b-lazy', 'b-blur', 'b-blur--tmp'],
-        'data-src' => $blazies->get('blur.data'),
+        'class' => ['b-lazy', 'b-blur'],
+        // @todo use client-size solution, too many bytes for a short life.
+        // 'data-src' => $blazies->get('blur.url'),
+        'data-src' => $data,
         'loading' => 'lazy',
         'decoding' => 'async',
       ],
@@ -72,23 +77,24 @@ class Placeholder {
    */
   public static function prepare(array &$attributes, array &$settings) {
     $blazies = $settings['blazies'];
-    $uri     = $settings['uri'] ?? '';
-    $uri     = $uri ?: $blazies->get('uri');
-    $tn_uri  = $settings['thumbnail_uri'] ?? $blazies->get('thumbnail.uri');
-    $width   = $height = 1;
     $style   = NULL;
-    $path    = $tn_url = '';
+    $width   = $height = 1;
+    $uri     = $settings['uri'] ?? NULL;
+    $uri     = $uri ?: $blazies->get('uri');
+    $tn_uri  = $settings['thumbnail_uri'] ?? NULL;
+    $tn_uri  = $tn_uri ?: $blazies->get('thumbnail.uri');
+    $tn_url  = '';
 
     // Supports unique thumbnail different from main image, such as logo for
     // thumbnail and main image for company profile.
     if ($tn_uri) {
-      $path = $tn_uri;
-      $tn_url = BlazyFile::transformRelative($path);
+      $tn_url = BlazyFile::transformRelative($tn_uri);
     }
     else {
-      // This one uses the same non-unique image like the main stage image.
-      if (!$blazies->is('external') && $style = $blazies->get('thumbnail.style')) {
-        $path = $style->buildUri($uri);
+      // This one uses non-unique image, similar to the main stage image.
+      $style = $blazies->get('thumbnail.style');
+      if (!$blazies->is('external') && $style) {
+        $tn_uri = $style->buildUri($uri);
         $tn_url = BlazyFile::transformRelative($uri, $style);
 
         [
@@ -103,16 +109,7 @@ class Placeholder {
       $attributes['data-thumb'] = $tn_url;
       $blazies->set('thumbnail.url', $tn_url);
 
-      if (BlazyFile::isValidUri($path)) {
-        $blazies->set('thumbnail.uri', $path);
-
-        if (!$blazies->get('thumbnail.checked')) {
-          if ($style && !is_file($path)) {
-            $style->createDerivative($uri, $path);
-          }
-          $blazies->set('thumbnail.checked', TRUE);
-        }
-      }
+      self::derivative($blazies, $uri, $tn_uri, $style, 'thumbnail');
     }
 
     // @todo use the thumbnail size, not original ones, see: #3210759?
@@ -124,6 +121,17 @@ class Placeholder {
     $placeholder = $blazies->get('ui.placeholder') ?: $default;
     $blazies->set('placeholder.url', $placeholder);
 
+    if ($blazies->get('resimage.id')) {
+      BlazyResponsiveImage::fallback($settings, $placeholder);
+
+      // @todo decide priority whether various thumbnails or one fallback style.
+      // Thumbnail gives more selective styles per field than a single fallback.
+      // If thumbnail, move it to the top. This is to preserve old behaviors.
+      if ($restyle = $blazies->get('resimage.fallback.style')) {
+        $style = $restyle;
+      }
+    }
+
     // Provides image effect if so configured unless being sandboxed.
     // Being a separated .b-blur with .b-lazy, this should work for any lazy.
     // Slick/ Splide lazy loads won't work, needs Blazy to make animation.
@@ -131,50 +139,60 @@ class Placeholder {
       $attributes['class'][] = 'media--fx';
       $attributes['data-animation'] = $fx;
 
-      if ($blazies->is('blur')) {
-        // Ensures at least a hook_alter is always respected. This still allows
-        // Blur and hook_alter for Views rewrite issues, unless global UI is set
-        // which was already warned about anyway.
-        self::dataImage($settings, $style, $path);
-      }
-    }
-
-    if ($blazies->get('resimage.id')) {
-      // Mimicks private _responsive_image_image_style_url, #3119527.
-      BlazyResponsiveImage::fallback($settings, $placeholder);
+      // Creates `data:image` for blur effect if so configured and applicable.
+      self::dataImage($blazies, $uri, $tn_uri, $tn_url, $style);
     }
   }
 
   /**
-   * Build thumbnails, also to provide placeholder for blur effect.
+   * Provide `data:image` placeholder for blur effect.
+   *
+   * Ensures at least a hook_alter is always respected. This still allows
+   * Blur and hook_alter for Views rewrite issues, unless global UI is set
+   * which was already warned about anyway.
    */
-  private static function dataImage(array &$settings, $style = NULL, $path = ''): string {
-    $blur = '';
-    $uri = $settings['uri'];
-    $blazies = $settings['blazies'];
+  private static function dataImage(&$blazies, $uri, $tn_uri, $tn_url, $style): void {
+    if (!$blazies->is('blur')) {
+      return;
+    }
 
     // Provides default path, in case required by global, but not provided.
     $style = $style ?: \blazy()->entityLoad('thumbnail', 'image_style');
-    if (empty($path) && $style && BlazyFile::isValidUri($uri)) {
-      $path = $style->buildUri($uri);
+    if (empty($tn_uri) && $style && BlazyFile::isValidUri($uri)) {
+      $tn_uri = $style->buildUri($uri);
+      $tn_url = BlazyFile::transformRelative($uri, $style);
     }
 
-    if (BlazyFile::isValidUri($path)) {
-      // Ensures the thumbnail exists before creating a dataURI.
-      if (!is_file($path) && $style) {
-        $style->createDerivative($uri, $path);
-      }
+    // Overrides placeholder with data URI based on configured thumbnail.
+    $valid = self::derivative($blazies, $uri, $tn_uri, $style, 'blur');
+    if ($valid && $content = file_get_contents($tn_uri)) {
+      // @todo use client-side for better diet.
+      $blur = 'data:image/' .
+        pathinfo($tn_uri, PATHINFO_EXTENSION) .
+        ';base64,' .
+        base64_encode($content);
 
-      // Overrides placeholder with data URI based on configured thumbnail.
-      if (is_file($path) && $content = file_get_contents($path)) {
-        $blur = 'data:image/' . pathinfo($path, PATHINFO_EXTENSION) . ';base64,' . base64_encode($content);
+      // Prevents double animations.
+      $blazies->set('blur.data', $blur);
+      $blazies->set('blur.url', $tn_url);
+      $blazies->set('use.loader', FALSE);
+    }
+  }
 
-        // Prevents double animations.
-        $blazies->set('blur.data', $blur);
-        $blazies->set('use.loader', FALSE);
+  /**
+   * Ensures the thumbnail exists before creating a dataURI.
+   */
+  private static function derivative(&$blazies, $uri, $tn_uri, $style, $key = 'blur'): bool {
+    if (BlazyFile::isValidUri($tn_uri)) {
+      $blazies->set($key . '.uri', $tn_uri);
+      if (!$blazies->get($key . '.checked')) {
+        if ($style && !is_file($tn_uri)) {
+          $style->createDerivative($uri, $tn_uri);
+        }
+        $blazies->set($key . '.checked', TRUE);
       }
     }
-    return $blur;
+    return is_file($tn_uri);
   }
 
 }

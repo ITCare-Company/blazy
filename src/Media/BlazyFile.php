@@ -12,6 +12,7 @@ use Drupal\blazy\Blazy;
 /**
  * Provides file_BLAH BC for D8 - D10+ till D11 rules.
  *
+ * @todo recap similiraties and make them plugins.
  * @todo remove deprecated functions post D11, not D10, and when D8 is dropped.
  */
 class BlazyFile {
@@ -149,77 +150,33 @@ class BlazyFile {
   }
 
   /**
-   * Extracts uris from file/ media entity.
-   *
-   * @todo merge urls here as well once puzzles are solved: URI may be fed by
-   * field formatters like this, blazy_filter, or manual call.
-   */
-  public static function urisFromField(array &$settings, $items, array $entities = []): array {
-    $blazies = $settings['blazies'];
-    if ($uris = $blazies->get('uris')) {
-      return $uris;
-    }
-
-    $style = $blazies->get('image.style');
-    $func = function ($item, $entity = NULL) use (&$settings, $style) {
-      $blazies = $settings['blazies'];
-      $options = ['entity' => $entity, 'settings' => $settings];
-
-      $image = BlazyImage::item($item, $options);
-      $uri = self::uri($image);
-
-      // Only needed the first found image, no problem which with mixed media.
-      $_uri = $settings['_uri'] ?? '';
-      if ($uri && !$blazies->get('first.uri', $_uri)) {
-        $settings['_uri'] = $uri;
-
-        $url = self::transformRelative($uri, $style);
-        $blazies->set('first.image_url', $url)
-          ->set('first.item', $image)
-          ->set('first.uri', $uri);
-      }
-
-      return $uri;
-    };
-
-    $uris = $urls = [];
-    foreach ($items as $key => $item) {
-      // Respects empty URI to keep indices intact for correct mixed media.
-      $uri = $func($item, $entities[$key] ?? NULL);
-      $uris[] = $uri;
-      $urls[] = $uri ? self::transformRelative($uri, $style) : '';
-    }
-
-    $blazies->set('uris', $uris);
-    $blazies->set('urls', $urls);
-
-    return $uris;
-  }
-
-  /**
    * Returns URI from image item, fake or valid one, no problem.
-   *
-   * @todo make it more robust to accept few sources.
    */
   public static function uri($item, array $settings = []): ?string {
-    $uri = '';
+    $uri = NULL;
     if ($item) {
       $file = $item->entity ?? NULL;
       $uri = $file instanceof FileInterface ? $file->getFileUri() : ($item->uri ?? '');
     }
-    if (empty($uri)) {
-      $blazies = $settings['blazies'] ?? NULL;
-      $uri = $blazies ? $blazies->get('uri', '') : '';
-      $uri = $settings['uri'] ?? $uri;
+
+    if (empty($uri) && $settings) {
+      // Respects first.uri without image_url such as colorbox/zoom-like.
+      if ($blazies = ($settings['blazies'] ?? NULL)) {
+        $uri = $blazies->get('uri') ?: $blazies->get('firtst.uri');
+      }
+
+      // @todo remove settings once done migration.
+      $uri = $settings['uri'] ?? $settings['_uri'] ?? $uri;
     }
-    return $uri;
+    return $uri ?: '';
   }
 
   /**
-   * Returns the file entity from any object, or just settings, if applicable.
+   * Returns the File entity from any object, or just settings, if applicable.
+   *
+   * Should be named entity, but for consistency with BlazyImage:item().
    */
   public static function item($object = NULL, array $settings = []): ?object {
-    $blazies = $settings['blazies'] ?? NULL;
     $entity = $object;
 
     // Bail out early if we are given what we want.
@@ -242,39 +199,29 @@ class BlazyFile {
     }
 
     // BlazyFilter without any entity/ formatters associated with.
-    if (!($entity instanceof FileInterface)) {
-      if ($manager = Blazy::service('blazy.manager')) {
-        $uri = $settings['uri'] ?? '';
-        $uuid = $blazies ? $blazies->get('entity.uuid') : NULL;
-        $file = $uuid ? $manager->loadByUuid($uuid, 'file') : NULL;
-
-        if (!$file && self::isValidUri($uri)) {
-          if ($files = $manager->loadByProperties(['uri' => $uri], 'file')) {
-            $file = reset($files);
-          }
-        }
-        $entity = $file ?: $entity;
-      }
+    if (!($entity instanceof FileInterface) && $settings) {
+      $entity = self::fromSettings($settings);
     }
 
     return $entity instanceof FileInterface ? $entity : NULL;
   }
 
   /**
-   * Prepares extension, image styles, lightboxes.
+   * Prepares extension, (lightbox) image styles, after Blazy::essentials().
    *
    * Also checks if an extension should not use image style: apng svg gif, etc.
    */
-  public static function prepare(array &$settings, $item = NULL): bool {
+  public static function prepare(array &$settings, $item = NULL) {
     $blazies = $settings['blazies'];
     if (!($uri = $blazies->get('uri'))) {
-      return FALSE;
+      return;
     }
 
     $pathinfo = pathinfo($uri);
     $ext = $pathinfo['extension'] ?? '';
     $extensions = ['svg'];
 
+    // Extensions without image styles: animated GIF, APNG, SVG, etc.
     if ($unstyles = $blazies->get('ui.unstyled_extensions')) {
       $extensions = array_merge($extensions,
       array_map('trim', explode(' ', mb_strtolower($unstyles))));
@@ -294,9 +241,28 @@ class BlazyFile {
     // Re-define, if the provided API by-passed, or different/ altered per item.
     $blazies->set('is.external', UrlHelper::isExternal($uri))
       ->set('is.unstyled', $unstyled)
-      ->set('media.extension', $ext);
+      ->set('image.extension', $ext);
+  }
 
-    return $unstyled;
+  /**
+   * Returns the File entity from settings, if applicable, relevant for Filter.
+   */
+  private static function fromSettings(array $settings): ?object {
+    $entity = NULL;
+    $blazies = $settings['blazies'] ?? NULL;
+
+    if ($manager = Blazy::service('blazy.manager')) {
+      $uri = self::uri(NULL, $settings);
+      $uuid = $blazies ? $blazies->get('entity.uuid') : NULL;
+      $entity = $uuid ? $manager->loadByUuid($uuid, 'file') : NULL;
+
+      if (!$entity && self::isValidUri($uri)) {
+        if ($files = $manager->loadByProperties(['uri' => $uri], 'file')) {
+          $entity = reset($files);
+        }
+      }
+    }
+    return $entity;
   }
 
 }

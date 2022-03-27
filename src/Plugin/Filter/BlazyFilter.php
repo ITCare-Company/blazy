@@ -40,11 +40,11 @@ class BlazyFilter extends BlazyFilterBase {
     $this->result = $result = new FilterProcessResult($text);
     $this->langcode = $langcode;
 
-    $allowed_tags = array_values((array) $this->settings['filter_tags']);
     if (empty($text)) {
       return $result;
     }
 
+    $allowed_tags = array_values((array) $this->settings['filter_tags']);
     $attachments = $grid_items = $grid_nodes = [];
     $settings = $this->buildSettings($text);
     $blazies = $settings['blazies'];
@@ -250,6 +250,16 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
+   * Prepare settings.
+   */
+  protected function preSettings(array &$settings, $text) {
+    // @todo remove at 3.x or so.
+    $this->deprecatedGrid($settings, $text);
+
+    parent::preSettings($settings, $text);
+  }
+
+  /**
    * Build the blazy, the node might be grid, or direct img/ iframe.
    */
   private function build(\DOMElement $node, array &$settings, $delta = 0) {
@@ -361,7 +371,8 @@ class BlazyFilter extends BlazyFilterBase {
       $sets = $build['settings'];
 
       $element = ['attributes' => [], 'item' => NULL, 'settings' => $sets];
-      $content = $this->buildItem($element, $node, $delta) ?: ['#markup' => $dom->saveHtml($node)];
+      $content = $this->buildItem($element, $node, $delta)
+        ?: ['#markup' => $dom->saveHtml($node)];
 
       $element['content'] = $content;
       unset($element['captions']);
@@ -419,7 +430,7 @@ class BlazyFilter extends BlazyFilterBase {
     // Marks invalid, unknown, missing IMG or IFRAME for removal.
     // Be sure to not affect external images, only strip missing local URI.
     $uri = $settings['uri'] ?? '';
-    $uri = $blazies->get('uri', $uri) ?: $uri;
+    $uri = $blazies->get('uri') ?: $uri;
     $missing = !empty($uri) && (BlazyFile::isValidUri($uri) && !is_file($uri));
     if (empty($uri) || $missing) {
       $media->setAttribute('class', 'blazy-removed');
@@ -469,7 +480,7 @@ class BlazyFilter extends BlazyFilterBase {
     $first  = $grid_nodes[0];
     $dom    = $first->ownerDocument;
     $xpath  = new \DOMXPath($dom);
-    $column = $settings['style'] == 'column';
+    $column = ($settings['style'] ?? '') == 'column';
     $query  = $column ? 'column' : 'grid';
     $grid   = FALSE;
 
@@ -525,16 +536,6 @@ class BlazyFilter extends BlazyFilterBase {
       // Cleanups old nodes already moved into grids.
       Util::removeNodes($grid_nodes);
     }
-  }
-
-  /**
-   * Prepare settings.
-   */
-  protected function preSettings(array &$settings, $text) {
-    // @todo remove at 3.x or so.
-    $this->deprecatedGrid($settings, $text);
-
-    parent::preSettings($settings, $text);
   }
 
   /**

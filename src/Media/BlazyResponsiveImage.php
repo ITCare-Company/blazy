@@ -9,6 +9,8 @@ use Drupal\blazy\Theme\BlazyAttribute;
 
 /**
  * Provides responsive image utilities.
+ *
+ * @todo recap similiraties and make them plugins.
  */
 class BlazyResponsiveImage {
 
@@ -27,11 +29,12 @@ class BlazyResponsiveImage {
 
     // Makes Responsive image usable as CSS background image sources.
     // @todo merge it with BlazyFormatter + BlazyFilter.
-    $resimage = $blazies->get('resimage', []);
-    if ($settings['background'] && isset($resimage['styles'])) {
+    $resimage = $blazies->get('resimage.style');
+
+    if ($settings['background'] && $styles = self::styles($resimage)) {
       $srcset = $ratios = [];
 
-      foreach ($resimage['styles'] as $style) {
+      foreach (array_values($styles['styles']) as $style) {
         $styled = array_merge($settings, BlazyImage::transformDimensions($style, $settings, FALSE));
 
         // Sort image URLs based on width.
@@ -78,7 +81,9 @@ class BlazyResponsiveImage {
 
     $ratios = [];
     $resimage = $blazies->get('resimage.style');
-    foreach (self::styles($resimage)['styles'] as $style) {
+    $styles = self::styles($resimage);
+    $names = [];
+    foreach (array_values($styles['styles']) as $style) {
       $styled = BlazyImage::transformDimensions($style, $settings, $initial);
 
       // In order to avoid layout reflow, we get dimensions beforehand.
@@ -86,7 +91,8 @@ class BlazyResponsiveImage {
       $height = $styled['height'];
 
       // @todo merge ratios into dimensions elsewhere.
-      $ratios[$width] = $ratio = empty($width) ? 100 : round((($height / $width) * 100), 2);
+      $names[$width] = $style->id();
+      $ratios[$width] = $ratio = BlazyImage::ratio($styled);
       $dimensions[$width] = [
         'width' => $width,
         'height' => $height,
@@ -96,6 +102,7 @@ class BlazyResponsiveImage {
 
     // Sort the srcset from small to large image width or multiplier.
     ksort($dimensions);
+    ksort($names);
     ksort($ratios);
 
     // Informs individual images that dimensions are already set once.
@@ -103,7 +110,8 @@ class BlazyResponsiveImage {
     $blazies->set('dimensions', $dimensions)
       ->set('is.dimensions', TRUE)
       ->set('item.padding_bottom', end($ratios))
-      ->set('ratios', $ratios);
+      ->set('ratios', $ratios)
+      ->set('resimage.ids', array_values($names));
 
     return $blazies;
   }
@@ -191,6 +199,7 @@ class BlazyResponsiveImage {
       if (empty($settings['image_style'])) {
         if ($resimage = $blazies->get('resimage.style')) {
           $fallback = $resimage->getFallbackImageStyle();
+
           if ($fallback == $id) {
             $data_src = $placeholder;
           }
@@ -202,6 +211,7 @@ class BlazyResponsiveImage {
               // @todo use dimensions based on the chosen fallback.
               if ($uri && $style = $blazy->entityLoad($id, 'image_style')) {
                 $data_src = BlazyFile::transformRelative($uri, $style);
+                $tn_uri = $style->buildUri($uri);
 
                 [
                   'width' => $width,
@@ -209,23 +219,26 @@ class BlazyResponsiveImage {
                 ] = BlazyImage::transformDimensions($style, $settings);
 
                 $placeholder = Placeholder::generate($width, $height);
+                $blazies->set('resimage.fallback.style', $style);
+                $blazies->set('resimage.fallback.uri', $tn_uri);
               }
             }
           }
+
+          $blazies->set('resimage.fallback.url', $data_src);
         }
       }
-    }
 
-    if ($data_src) {
-      // The controller `data-src` attribute, might be valid image thumbnail.
-      $blazies->set('image.url', $data_src);
-      $blazies->set('placeholder.id', $id);
-      // The controller `src` attribute, the placeholder.
-      $blazies->set('placeholder.url', $placeholder);
-      $blazies->set('placeholder.width', $width);
-      $blazies->set('placeholder.height', $height);
+      if ($data_src) {
+        // The controller `data-src` attribute, might be valid image thumbnail.
+        $blazies->set('image.url', $data_src);
+        $blazies->set('placeholder.id', $id);
+        // The controller `src` attribute, the placeholder.
+        $blazies->set('placeholder.url', $placeholder);
+        $blazies->set('placeholder.width', $width);
+        $blazies->set('placeholder.height', $height);
+      }
     }
-
   }
 
   /**
@@ -237,8 +250,7 @@ class BlazyResponsiveImage {
 
     // @todo move it out of blazies.
     $blazies->set('resimage.id', $id)
-      ->set('resimage.caches', $styles['caches'] ?? [])
-      ->set('resimage.styles', $styles['styles'] ?? []);
+      ->set('resimage.caches', $styles['caches'] ?? []);
   }
 
   /**
@@ -263,6 +275,7 @@ class BlazyResponsiveImage {
 
       static::$styles[$id] = [
         'caches' => $cache_tags,
+        'names' => array_keys($image_styles),
         'styles' => $image_styles,
       ];
     }

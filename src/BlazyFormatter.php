@@ -2,13 +2,13 @@
 
 namespace Drupal\blazy;
 
-use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\BlazyResponsiveImage;
+use Drupal\blazy\Media\Preloader;
 use Drupal\blazy\Utility\Check;
 
 /**
- * Provides common field formatter-related methods: Blazy, Slick.
+ * Provides common image, file, media formatter-related methods.
  */
 class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
@@ -31,6 +31,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $this->postSettings($settings);
     $this->fieldSettings($build, $items);
 
+    // Minor byte saving.
     if (!empty($settings['caption'])) {
       $settings['caption'] = array_filter($settings['caption']);
     }
@@ -46,18 +47,21 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $blazies = $settings['blazies'];
 
     // Pass first item to optimize sizes this time.
+    // Extract the first image item to build colorbox/zoom-like gallery.
+    // Also prepare URIs for the new Preload option.
+    // @tdo remove condition after another check.
     if (!empty($items[0])) {
-      $this->uris($settings, $items, $entities);
-    }
+      Preloader::prepare($settings, $items, $entities);
 
-    // Sets dimensions once, if cropped, to reduce costs with ton of images.
-    // This is less expensive than re-defining dimensions per image.
-    if ($blazies->get('first.uri')) {
-      if ($blazies->get('resimage.style')) {
-        BlazyResponsiveImage::dimensionsAndSources($settings, TRUE);
-      }
-      elseif ($style = $blazies->get('image.style')) {
-        BlazyImage::cropDimensions($settings, $style);
+      // Sets dimensions once, if cropped, to reduce costs with ton of images.
+      // This is less expensive than re-defining dimensions per image.
+      if ($blazies->get('first.uri')) {
+        if ($blazies->get('resimage.style')) {
+          BlazyResponsiveImage::dimensionsAndSources($settings, TRUE);
+        }
+        elseif ($style = $blazies->get('image.style')) {
+          BlazyImage::cropDimensions($settings, $style);
+        }
       }
     }
 
@@ -70,23 +74,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    */
   public function postBuildElements(array &$build, $items, array $entities = []) {
     // Do nothing.
-  }
-
-  /**
-   * Extract the first image item to build colorbox/zoom-like gallery.
-   *
-   * @todo move it into BlazyManagerBase if usable outside formatters.
-   */
-  protected function uris(array &$settings, $items, array $entities = []) {
-    $blazies = $settings['blazies'];
-
-    BlazyFile::urisFromField($settings, $items, $entities);
-
-    // The first image dimensions to differ from individual item dimensions.
-    // @todo merge it into BlazyFile::urisFromField to swap them all once.
-    if ($item = $blazies->get('first.item')) {
-      BlazyImage::dimensions($settings, $item, TRUE);
-    }
   }
 
 }

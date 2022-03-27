@@ -12,6 +12,8 @@ use Drupal\blazy\Blazy;
 
 /**
  * Provides image-related methods.
+ *
+ * @todo recap similiraties and make them plugins.
  */
 class BlazyImage {
 
@@ -35,6 +37,73 @@ class BlazyImage {
    * @var array
    */
   private static $styleId;
+
+  /**
+   * Prepares CSS background image.
+   */
+  public static function background(array $settings, $style = NULL) {
+    $blazies = $settings['blazies'];
+    $url     = $blazies->get('image.url');
+    $uri     = $blazies->get('uri');
+    $style   = $style ?: $blazies->get('image.style');
+
+    // @tbd replace src with URL before 3.x, or keep it.
+    return [
+      'src' => $style ? BlazyFile::transformRelative($uri, $style) : $url,
+      'ratio' => self::ratio($settings),
+    ];
+  }
+
+  /**
+   * Returns the image style if it contains crop effect.
+   *
+   * @param object $style
+   *   The image style to check for.
+   *
+   * @return object
+   *   Returns the image style instance if it contains crop effect, else NULL.
+   */
+  public static function getCrop($style): ?object {
+    $id = $style->id();
+
+    if (!isset(static::$crop[$id])) {
+      $output = NULL;
+
+      foreach ($style->getEffects() as $effect) {
+        if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
+          $output = $style;
+          break;
+        }
+      }
+      static::$crop[$id] = $output;
+    }
+    return static::$crop[$id];
+  }
+
+  /**
+   * Sets dimensions once to reduce method calls, if image style contains crop.
+   *
+   * @param array $settings
+   *   The settings being modified.
+   * @param object $style
+   *   The image style to check for crp effect.
+   */
+  public static function cropDimensions(array &$settings, $style): void {
+    $id = $style->id();
+
+    if (!isset(static::$isCropSet[$id])) {
+      // If image style contains crop, sets dimension once, and let all inherit.
+      if ($crop = self::getCrop($style)) {
+        $blazies = $settings['blazies'];
+        $settings = array_merge($settings, self::transformDimensions($crop, $settings, TRUE));
+
+        // Informs individual images that dimensions are already set once.
+        $blazies->set('is.dimensions', TRUE);
+      }
+
+      static::$isCropSet[$id] = TRUE;
+    }
+  }
 
   /**
    * Provides original unstyled image dimensions based on the given image item.
@@ -101,7 +170,6 @@ class BlazyImage {
    * @return array
    *   The array of image item and settings if a file image, else empty.
    *
-   * @todo compare and merge with BlazyMedia::imageItem(), and the two below.
    * @todo simplify this, like everything else. An obvious confusion here.
    */
   public static function fromAny($object = NULL, array $settings = []): array {
@@ -158,6 +226,10 @@ class BlazyImage {
    * Returns the image item from any sources, if available.
    *
    * PHP 7.2 accepts object. D8 >= PHP 7.3. Not good for D7 backport.
+   * This block is a bit scary yet it is a more organized way to extract Image
+   * item from various sources in tandem with custom settings.image previously
+   * scattered with if-else. This has saved more than 60 lines, and two methods:
+   * ::fromMedia(), already gone, and ::fromField(), to be gone. Can be better.
    */
   public static function item($item = NULL, array $options = [], $name = NULL): ?object {
     if ($item instanceof ImageItem) {
@@ -166,9 +238,10 @@ class BlazyImage {
 
     $settings = $options['settings'] ?? [];
     $blazies  = $settings['blazies'] ?? NULL;
-    $poster   = $settings['image'] ?? FALSE;
+    $poster   = $settings['image'] ?? NULL;
     $name     = $name ?: $poster;
 
+    // If poster is not defined, use the source_field or thumbnail property.
     // Title is NULL from thumbnail, likely core bug, so use source.
     if ($blazies && !$name && $source = $blazies->get('media.source')) {
       $name = $source == 'image' ? $blazies->get('media.source_field') : 'thumbnail';
@@ -233,7 +306,7 @@ class BlazyImage {
 
     // Might be called from Views without Blazy formatter, like Image formatter.
     // Since Blazy:2.9, image style entity is loaded once at container level,
-    // but might still be needed fr adopted Image formatter by a Views style.
+    // but might still be needed for adopted Image formatter by a Views style.
     if (!$style && !empty($settings['image_style'])) {
       self::styles($settings);
       $style = $blazies->get('image.style');
@@ -243,12 +316,11 @@ class BlazyImage {
     self::dimensions($settings, $item);
 
     // Provides image url based on the given settings.
-    $uri     = $settings['uri'] ?? $settings['_uri'] ?? NULL;
-    $uri     = $blazies->get('uri', $uri);
+    $uri     = BlazyFile::uri($item, $settings);
     $valid   = BlazyFile::isValidUri($uri);
     $styled  = $valid && !$blazies->is('unstyled');
     $url     = $settings['image_url'] ?? '';
-    $url     = $blazies->get('image.url', $url);
+    $url     = $url ?: $blazies->get('image.url');
     $options = ['url' => $url, 'sanitize' => $blazies->is('unsafe')];
     $url     = BlazyFile::transformRelative($uri, ($styled ? $style : NULL), $options);
 
@@ -270,48 +342,60 @@ class BlazyImage {
   }
 
   /**
+   * Provides a computed image ratio aka fluid ratio.
+   *
+   * Addresses multi-image-style Responsive image or, plain old one.
+   * A failsafe for BG, else collapsed.
+   *
+   * @todo decide if to provide NULL or 0 instead.
+   */
+  public static function ratio(array $settings) {
+    $no_dims = empty($settings['height']) || empty($settings['width']);
+    return $no_dims ? 100 : round((($settings['height'] / $settings['width']) * 100), 2);
+  }
+
+  /**
    * Checks for [Responsive] image styles.
    */
   public static function styles(array &$settings, $multiple = FALSE): void {
-    $blazy   = Blazy::service('blazy.manager');
-    $blazies = $settings['blazies'];
-    $exist   = $blazies->is('resimage');
+    $blazy      = Blazy::service('blazy.manager');
+    $blazies    = $settings['blazies'];
+    $exist      = $blazies->is('resimage');
+    $_style     = $settings['responsive_image_style'] ?? NULL;
+    $applicable = $exist && $_style;
 
     // Multiple is a flag for various styles: Blazy Filter, GridStack, etc.
     // While fields can only have one image style per field.
-    if (!$blazies->get('resimage.style') || $multiple) {
-      $style = $settings['responsive_image_style'] ?? NULL;
-      $applicable = $exist && $style;
-      $resimage = $settings['resimage'] ?? NULL;
+    if ($applicable && (!$blazies->get('resimage.style') || $multiple)) {
+      // @todo remove settings after migration and sub-modules.
+      $entity = $settings['resimage'] ?? NULL;
 
-      if (empty($resimage) && $applicable) {
-        $resimage = $blazy->entityLoad($style, 'responsive_image_style');
+      if (!$entity) {
+        $entity = $blazy->entityLoad($_style, 'responsive_image_style');
       }
 
-      $blazies->set('resimage.style', $exist ? $resimage : NULL);
+      $blazies->set('resimage.style', $entity);
     }
 
     // Might be set via BlazyFilter, but not enough data passed.
     if (!$blazies->get('resimage.id') || $multiple) {
-      if ($resimage = $blazies->get('resimage.style')) {
-        BlazyResponsiveImage::define($blazies, $resimage);
+      if ($entity = $blazies->get('resimage.style')) {
+        BlazyResponsiveImage::define($blazies, $entity);
       }
     }
 
     // Specific for lightbox, it can be (Responsive) image.
     foreach (['box', 'box_media', 'image', 'thumbnail'] as $key) {
       if (!$blazies->get($key . '.style') || $multiple) {
-        $image_style = NULL;
-        if ($style = ($settings[$key . '_style'] ?? '')) {
+        if ($_style = ($settings[$key . '_style'] ?? '')) {
           if ($key == 'box' && $exist) {
-            $resimage = $blazy->entityLoad($style, 'responsive_image_style');
+            $resimage = $blazy->entityLoad($_style, 'responsive_image_style');
             $blazies->set($key . '.resimage.style', $resimage)
               ->set($key . '.resimage.id', $resimage ? $resimage->id() : NULL);
           }
-          $image_style = $blazy->entityLoad($style, 'image_style');
+          $entity = $blazy->entityLoad($_style, 'image_style');
+          $blazies->set($key . '.style', $entity);
         }
-
-        $blazies->set($key . '.style', $image_style);
       }
     }
   }
@@ -320,12 +404,7 @@ class BlazyImage {
    * Returns the thumbnail image using theme_image(), or theme_image_style().
    */
   public static function thumbnail(array $settings, $item = NULL): array {
-    // @todo remove check after another check.
-    $blazies = $settings['blazies'] ?? NULL;
-    $default = $settings['uri'] ?? NULL;
-    $uri     = $blazies ? $blazies->get('uri', $default) : $default;
-
-    if ($uri) {
+    if ($uri = BlazyFile::uri($item, $settings)) {
       $external = UrlHelper::isExternal($uri);
       $style = $settings['thumbnail_style'] ?? NULL;
 
@@ -347,6 +426,7 @@ class BlazyImage {
    *   The given image style.
    * @param array $data
    *   The data settings: _width, _height, _uri, width, height, and uri.
+   *   The `_` prefix identifies it as the initial call at container level.
    * @param bool $initial
    *   Whether particularly transforms once for all, or individually.
    */
@@ -371,7 +451,7 @@ class BlazyImage {
       // Keys here are hard-coded, so to be inherited by children as intended.
       // The underscore prefix is to identify the source/ original unstyled
       // image properties, not related to the final output printed here.
-      // See self::initialDimensions().
+      // See self::dimensions().
       // @todo re-check if the container needs image style dimensions.
       static::$styleId[$key] = [
         'width' => $dim['width'],
@@ -482,86 +562,6 @@ class BlazyImage {
           $data = NestedArray::mergeDeep($data, $result);
         }
       }
-    }
-  }
-
-  /**
-   * Prepares CSS background image.
-   */
-  public static function background(array $settings, $style = NULL) {
-    $blazies = $settings['blazies'];
-    $url     = $blazies->get('image.url');
-    $uri     = $blazies->get('uri');
-    $style   = $style ?: $blazies->get('image.style');
-
-    // @tbd replace src with URL before 3.x, or keep it.
-    return [
-      'src' => $style ? BlazyFile::transformRelative($uri, $style) : $url,
-      'ratio' => self::ratio($settings),
-    ];
-  }
-
-  /**
-   * Provides a computed image ratio aka fluid ratio.
-   *
-   * Addresses multi-image-style Responsive image or, plain old one.
-   * A failsafe for BG, else collapsed.
-   *
-   * @todo decide if to provide NULL or 0 instead.
-   */
-  public static function ratio(array $settings) {
-    $no_dims = empty($settings['height']) || empty($settings['width']);
-    return $no_dims ? 100 : round((($settings['height'] / $settings['width']) * 100), 2);
-  }
-
-  /**
-   * Returns the image style if it contains crop effect.
-   *
-   * @param object $style
-   *   The image style to check for.
-   *
-   * @return object
-   *   Returns the image style instance if it contains crop effect, else NULL.
-   */
-  public static function getCrop($style): ?object {
-    $id = $style->id();
-
-    if (!isset(static::$crop[$id])) {
-      $output = NULL;
-
-      foreach ($style->getEffects() as $effect) {
-        if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
-          $output = $style;
-          break;
-        }
-      }
-      static::$crop[$id] = $output;
-    }
-    return static::$crop[$id];
-  }
-
-  /**
-   * Sets dimensions once to reduce method calls, if image style contains crop.
-   *
-   * @param array $settings
-   *   The settings being modified.
-   * @param object $style
-   *   The image style to check for crp effect.
-   */
-  public static function cropDimensions(array &$settings, $style): void {
-    $id = $style->id();
-
-    if (!isset(static::$isCropSet[$id])) {
-      // If image style contains crop, sets dimension once, and let all inherit.
-      if ($crop = self::getCrop($style)) {
-        $blazies = $settings['blazies'];
-        $settings = array_merge($settings, self::transformDimensions($crop, $settings, TRUE));
-
-        // Informs individual images that dimensions are already set once.
-        $blazies->set('is.dimensions', TRUE);
-      }
-
-      static::$isCropSet[$id] = TRUE;
     }
   }
 

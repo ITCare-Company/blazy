@@ -24,6 +24,7 @@ use Drupal\blazy\Theme\BlazyAttribute;
  * for the next releases is to replace ImageItem references into just $settings,
  * and convert this into non-static to move most BlazyOEmbed stuffs here.
  * Not urgent, the important is to make it just work with minimal regressions.
+ * @todo recap similiraties and make them plugins.
  */
 class BlazyMedia {
 

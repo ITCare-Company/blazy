@@ -119,6 +119,38 @@ class Blazy implements BlazyInterface {
   }
 
   /**
+   * Checks for multimedia settings.
+   *
+   * @todo remove some old settings.
+   */
+  public static function multimedia(array &$settings): void {
+    $blazies   = $settings['blazies'];
+    $source    = $blazies->get('media.source');
+    $type      = $blazies->get('media.type', $settings['type'] ?? 'image');
+    $bundle    = $blazies->get('media.bundle', $settings['bundle'] ?? '');
+    $embed_url = $blazies->get('media.embed_url', $settings['embed_url'] ?? '');
+    $videos    = ['oembed:video', 'video_embed_field'];
+    $medias    = array_merge(['audio_file', 'video_file'], $videos);
+    $is_video  = $source && in_array($source, $videos);
+    $is_media  = $bundle && in_array($source, $medias);
+    $is_remote = $bundle == 'remote_video' || $type == 'video';
+    $is_remote = $embed_url && ($is_video || $is_remote);
+    $switch    = $settings['media_switch'] ?? NULL;
+    $switch    = $switch ?: $blazies->get('switch');
+    $is_iframe = $is_remote && $switch == '';
+    $is_player = $is_remote && $switch == 'media';
+
+    // Also addresses mixed media unique per item.
+    $blazies->set('is.iframe', $is_iframe)
+      ->set('is.multimedia', $is_media)
+      ->set('is.player', $is_player)
+      ->set('is.remote', $is_remote)
+      ->set('is.video', $is_remote)
+      ->set('media.type', $type)
+      ->set('switch', $switch);
+  }
+
+  /**
    * Preliminary settings, normally at container/ global level.
    */
   public static function preSettings(array &$settings) {
@@ -178,26 +210,15 @@ class Blazy implements BlazyInterface {
   public static function prepare(array &$settings, $item = NULL, $delta = -1) {
     // Checks for essential features.
     self::essentials($settings, $item, $delta);
+    self::multimedia($settings);
 
     $blazies    = $settings['blazies'];
-    $source     = $blazies->get('media.source');
-    $type       = $blazies->get('media.type', $settings['type'] ?? 'image');
-    $bundle     = $blazies->get('media.bundle', $settings['bundle'] ?? '');
-    $embed_url  = $blazies->get('media.embed_url', $settings['embed_url'] ?? '');
-    $videos     = ['oembed:video', 'video_embed_field'];
-    $medias     = array_merge(['audio_file', 'video_file'], $videos);
-    $is_video   = $source && in_array($source, $videos);
-    $is_media   = $bundle && in_array($source, $medias);
-    $is_remote  = $bundle == 'remote_video' || $type == 'video';
-    $is_remote  = $embed_url && ($is_video || $is_remote);
-    $switch     = $settings['media_switch'] ?? $blazies->get('switch');
-    $is_iframe  = $is_remote && $switch == '';
-    $is_player  = $is_remote && $switch == 'media';
     $unlazy     = $blazies->is('slider') && $blazies->is('initial');
     $unlazy     = $unlazy ? TRUE : $blazies->is('unlazy');
     $use_loader = $settings['use_loading'] ?? $blazies->get('use.loader');
     $use_loader = $unlazy ? FALSE : $use_loader;
-    $is_unblur  = $blazies->is('sandboxed') || $blazies->is('unstyled') || $is_iframe;
+    $is_unblur  = $blazies->is('sandboxed')
+      || $blazies->is('unstyled') || $blazies->is('iframe');
     $is_blazy   = $blazies->get('lazy.id') == 'blazy' && $blazies->is('blazy');
     $is_blur    = $blazies->is('blur') && $is_blazy && !$is_unblur;
 
@@ -208,18 +229,10 @@ class Blazy implements BlazyInterface {
     // @todo $lazy = $settings['loading'] == 'lazy';
     // @todo $lazy = $blazies->is('blazy') && ($blazies->get('libs.compat') || $lazy);
     // Redefines some since this can be fed by anyone, including custom works.
-    // Also addresses mixed media unique per item.
     $blazies->set('is.fluid', $is_fluid)
-      ->set('is.iframe', $is_iframe)
-      ->set('is.multimedia', $is_media)
-      ->set('is.player', $is_player)
-      ->set('is.remote', $is_remote)
       ->set('is.blur', $is_blur)
-      ->set('is.video', $is_remote)
-      ->set('media.type', $type)
       ->set('is.unlazy', $unlazy)
       ->set('use.loader', $use_loader)
-      ->set('switch', $switch)
       ->set('was.prepare', TRUE);
 
     // Overrides sub-modules which know not iframe, Picture, Video, BG, Blur.
@@ -275,7 +288,7 @@ class Blazy implements BlazyInterface {
     }
 
     $parent = $parentsets['blazies'] ?? NULL;
-    $child = ($childsets['blazies'] ?? NULL);
+    $child = $childsets['blazies'] ?? NULL;
     if ($parent && $child) {
       // $parent->set('first.settings', array_filter($child));
       // $parent->set('first.item_id', $child->get('item.id'));

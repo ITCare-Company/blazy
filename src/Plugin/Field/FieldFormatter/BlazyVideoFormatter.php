@@ -57,7 +57,7 @@ class BlazyVideoFormatter extends BlazyVideoBase {
     $settings['bundle'] = 'remote_video';
     $settings['media_source'] = 'video_embed_field';
 
-    // Update the settings.
+    // Update the settings, hard-coded, terracota.
     $blazies->set('media.bundle', 'remote_video')
       ->set('media.source', 'video_embed_field');
 
@@ -87,7 +87,6 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       // }
       // }
        */
-      // $settings['blazies'] = $blazy;
       $data = ['item' => $item, 'settings' => $settings];
       $this->blazyOembed->build($data, $entity);
 

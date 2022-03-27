@@ -213,17 +213,6 @@ class BlazyEntity implements BlazyEntityInterface {
   }
 
   /**
-   * Returns the string value of link, or text, called by sub-modules.
-   *
-   * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
-   *   BlazyField::getString() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public function getFieldString($entity, $field_name, $langcode, $clean = TRUE) {
-    return BlazyField::getString($entity, $field_name, $langcode, $clean);
-  }
-
-  /**
    * Returns the formatted renderable array of the field, called by sub-modules.
    *
    * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
@@ -232,6 +221,17 @@ class BlazyEntity implements BlazyEntityInterface {
    */
   public function getFieldRenderable($entity, $field_name, $view_mode, $multiple = TRUE) {
     return BlazyField::view($entity, $field_name, $view_mode, $multiple);
+  }
+
+  /**
+   * Returns the string value of link, or text, called by sub-modules.
+   *
+   * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
+   *   BlazyField::getString() instead.
+   * @see https://www.drupal.org/node/3103018
+   */
+  public function getFieldString($entity, $field_name, $langcode, $clean = TRUE) {
+    return BlazyField::getString($entity, $field_name, $langcode, $clean);
   }
 
   /**
