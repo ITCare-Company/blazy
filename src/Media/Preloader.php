@@ -75,7 +75,7 @@ class Preloader {
     $links = [];
     $urls = $blazies->get('urls', []);
 
-    // Supports multiple sources.
+    // Responsive image with multiple sources.
     if ($sources = $blazies->get('resimage.sources', [])) {
       foreach ($sources as $index => $source) {
         $url = $source['fallback'];
@@ -94,6 +94,7 @@ class Preloader {
       }
     }
     else {
+      // Regular plain old images.
       foreach ($uris as $key => $uri) {
         // URI might be empty with mixed media, but indices are preserved.
         if ($uri && ($url = $urls[$key] ?? NULL)) {

@@ -137,6 +137,37 @@ class BlazySettingsForm extends ConfigFormBase {
       '#description'   => $this->t('Choose the image effect. Will use Thumbnail style option at Blazy formatters for the placeholder with fallback to core Thumbnail style. For best results: use similar aspect ratio for both Thumbnail and Image styles; adjust Offset and or threshold; the smaller the better. Use <code>hook_blazy_image_effects_alter()</code> to add more effects -- curtain, fractal, slice, whatever. <b>Limitations</b>: Best with a proper Aspect ratio option as otherwise collapsed image. Be sure to add one. If not, add regular CSS <code>min-height</code> for each mediaquery. The Placeholder option is still respected. Is it still relevant for Native lazyload? You decide. The name is `Native lazyload`, not `Native load`.'),
     ];
 
+    $form['blur_client'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Use client-side blur'),
+      '#default_value' => $config->get('blur_client'),
+      '#description'   => $this->t("Uncheck to preserve old behaviors data URI printed on the page server-side. Check to enable Blur client-side. <br><b>Pros:</b> Client-side doesn't add ugly data URI to the page till required, and automatically cleared when done, meaning lighter page weight at initial and end, and at the next pages if any stored data found, but not during runtime animation. It leverages lazy load mechanism. <br><b>Cons:</b> Client-side does a HTTP request. Can use localStorage option below to cache them."),
+    ];
+
+    $form['blur_storage'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Store blur in localStorage'),
+      '#default_value' => $config->get('blur_storage'),
+      '#description'   => $this->t('Check to cache Blur data URI in localStorage to save HTTP requests on the next requests. Uncheck if using localStorage for more custom important stuffs. Core localStorage providers vary 0.05KB - 150KB, to a tentative amount of 739.07 KB. This option will obviously hit the limit anytime (says 40KB x 100 images = 4000KB), can be larger given non-optimized or large Blur image style. However, configurable at <b>Thumbnail style</b> option, or Responsive image style fallback. That is why the smaller, file size and dimension, the more efficient. Will auto-clear, and recycle, when the quota (2-10MB) is exceeded.'),
+    ];
+
+    $form['blur_minwidth'] = [
+      '#type'          => 'number',
+      '#title'         => $this->t('Blur min-width'),
+      '#default_value' => $config->get('blur_minwidth') ?: 0,
+      '#description'   => $this->t("Only enable Blur if the image style width is bigger than this value. Useful to disable it for mobile to avoid potential unverified OOM (Out of Memory) issues, or non-fancy listing thumbnails, says 767."),
+      '#maxlength'     => 4,
+      '#field_suffix'  => 'px',
+    ];
+
+    foreach (['client', 'storage', 'minwidth'] as $key) {
+      $form['blur_' . $key]['#states'] = [
+        'visible' => [
+          'select[name="fx"]' => ['value' => 'blur'],
+        ],
+      ];
+    }
+
     $form['blazy'] = [
       '#type'        => 'details',
       '#tree'        => TRUE,
@@ -250,6 +281,9 @@ class BlazySettingsForm extends ConfigFormBase {
       ->set('admin_css', $form_state->getValue('admin_css'))
       ->set('nojs', $form_state->getValue('nojs'))
       ->set('fx', $form_state->getValue('fx'))
+      ->set('blur_client', $form_state->getValue('blur_client'))
+      ->set('blur_storage', $form_state->getValue('blur_storage'))
+      ->set('blur_minwidth', $form_state->getValue('blur_minwidth'))
       ->set('noscript', $form_state->getValue('noscript'))
       ->set('responsive_image', $form_state->getValue('responsive_image'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))

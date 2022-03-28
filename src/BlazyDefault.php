@@ -215,6 +215,9 @@ class BlazyDefault {
    */
   public static function uiSettings() {
     return [
+      'blur_client'         => FALSE,
+      'blur_storage'        => FALSE,
+      'blur_minwidth'       => 0,
       'nojs'                => [],
       'one_pixel'           => TRUE,
       'noscript'            => FALSE,

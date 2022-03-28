@@ -16,6 +16,7 @@
   var _erCounted = 0;
   var _isVisibleClass = 'is-b-visible';
   var _data = 'data-';
+  var _dataAnimation = _data + 'animation';
   var _src = 'src';
   var _srcSet = 'srcset';
   var _imgSources = [_srcSet, _src];
@@ -177,6 +178,14 @@
       winData: winData,
       entries: elms
     });
+  };
+
+  $.aniElement = function (el) {
+    var an = $.closest(el, '[' + _dataAnimation + ']');
+    if ($.hasAttr(el, _dataAnimation) && !$.isElm(an)) {
+      an = el;
+    }
+    return an;
   };
 
 })(dBlazy, this, this.document);

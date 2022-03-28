@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2022-03-28
+-----------------------------
+- Moved some exclusive field formatters out into Blazy to prepare filters taste
+  like formatters.
+- Added optional client-side Blur.
+
 Blazy 8.x-2.0-dev, 2022-03-26
 -----------------------------
 - Issue #3210759 by gausarts, jlstrecker, aminorking: Generated SVG placeholder

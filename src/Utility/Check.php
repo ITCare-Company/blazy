@@ -11,9 +11,10 @@ use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Theme\Lightbox;
 
 /**
- * Provides feature check methods.
+ * Provides feature check methods at container level, or globally.
  *
  * @todo refine, and split them conditionally based on fields like libraries.
+ * @todo remove most $settings once migrated and after sub-modules and tests.
  */
 class Check {
 
@@ -345,7 +346,7 @@ class Check {
    * Checks lazy insanity given various features/ media types + loading option.
    *
    * To address mixed media, and various options which also affect individual
-   * items, see self::prepare().
+   * items, see Blazy::preSettings().
    */
   public static function lazyOrNot(array &$settings): void {
     $blazies = $settings['blazies'];
@@ -356,8 +357,10 @@ class Check {
     $lazy = $is_blazy ? 'blazy' : $settings['lazy'] ?? 'blazy';
     $lazy = $blazies->get('lazy.id', $lazy ?: 'blazy');
     $lazy = $blazies->is('nojs') ? '' : $lazy;
-    $attribute = $settings['lazy_attribute'] ?? $blazies->get('lazy.attribute', 'src');
-    $class = $settings['lazy_class'] ?? $blazies->get('lazy.class', 'b-lazy');
+    $_attribute = $settings['lazy_attribute'] ?? NULL;
+    $attribute = $_attribute ?: $blazies->get('lazy.attribute', 'src');
+    $_class = $settings['lazy_class'] ?? NULL;
+    $class = $_class ?: $blazies->get('lazy.class', 'b-lazy');
 
     // @todo re-check after sub-modules which were only aware of `is_preview`.
     // Basically tricking overrides by the reversed name due to sub-modules are

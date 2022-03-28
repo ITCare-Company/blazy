@@ -13,7 +13,7 @@
  * @todo use Cash for better DOM queries, or any core libraries when available.
  * @todo remove unneeded dup methods once all codebase migrated.
  * @todo move more DOM methods into blazy.dom.js to make it ditchable for Cash.
- * @todo https://caniuse.com/dom-manip-convenience
+ * @todo when IE gone, https://caniuse.com/dom-manip-convenience
  */
 
 /* global define, module */
@@ -1901,6 +1901,7 @@
   db.next = next;
   db.prev = prev;
   db.index = index;
+  db.keys = keys;
 
   db.create = function (tagName, attrs, html) {
     var el = _doc.createElement(tagName);
@@ -1927,12 +1928,29 @@
   };
 
   // See https://caniuse.com/?search=localstorage
-  db.storage = function (key, value, defValue) {
+  db.storage = function (key, value, defValue, restore) {
     if (_storage) {
       if (isUnd(value)) {
         return _storage.getItem(key);
       }
-      _storage.setItem(key, value);
+
+      if (isNull(value)) {
+        _storage.removeItem(key);
+      }
+      else {
+        try {
+          _storage.setItem(key, value);
+        }
+        catch (e) {
+          // Reset if (2 - 10MB) quota is exceeded, if value is growing.
+          _storage.removeItem(key);
+
+          // Only makes sense if the value is incremental, not the quota limit.
+          if (restore) {
+            _storage.setItem(key, value);
+          }
+        }
+      }
     }
     return defValue || false;
   };

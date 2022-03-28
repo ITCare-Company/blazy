@@ -22,28 +22,38 @@ class Placeholder {
    * Ensures at least a hook_alter is always respected. This still allows
    * Blur and hook_alter for Views rewrite issues, unless global UI is set
    * which was already warned about anyway.
+   *
+   * Since 2.10, using client-size solution, too many bytes for a short life.
    */
   public static function blur(array &$variables, array &$settings) {
     $attributes = &$variables['attributes'];
     $blazies = $settings['blazies'];
-    $data = $blazies->get('blur.data');
+    $uri = $blazies->get('blur.uri');
+    $url = $blazies->get('blur.url');
 
-    if (!$data) {
+    if (!$url) {
       return;
     }
 
+    $id = md5($url);
+    $mime = mime_content_type($uri);
+    $client = $blazies->get('ui.blur_client');
+    $store = $client ? ($blazies->get('ui.blur_storage') ? 1 : 0) : -1;
     $blur = [
       '#theme' => 'image',
       '#uri' => $blazies->get('placeholder.url'),
       '#attributes' => [
-        'class' => ['b-lazy', 'b-blur'],
-        // @todo use client-size solution, too many bytes for a short life.
-        // 'data-src' => $blazies->get('blur.url'),
-        'data-src' => $data,
-        'loading' => 'lazy',
+        'class' => ['b-blur'],
+        'data-b-blur' => "$store:$id:$mime:$url",
         'decoding' => 'async',
       ],
     ];
+
+    // Preserves old behaviors.
+    if (!$client) {
+      $blur['#attributes']['class'][] = 'b-lazy';
+      $blur['#attributes']['data-src'] = $blazies->get('blur.data');
+    }
 
     $width = (int) ($settings['width'] ?? 0);
     if ($width > 980) {
@@ -74,8 +84,117 @@ class Placeholder {
 
   /**
    * Build thumbnails, also to provide placeholder for blur effect.
+   *
+   * Requires image style and dimensions setup after BlazyImage::prepare().
+   *
+   * @see \Drupal\blazy\Blazy:prepared()
    */
   public static function prepare(array &$attributes, array &$settings) {
+    // Requires dimensions and image style setup.
+    self::blurs($settings);
+    self::thumbnails($settings);
+
+    // Apply attributes related to Blur and Thumbnail image style.
+    $blazies = $settings['blazies'];
+    if ($tn_url = $blazies->get('thumbnail.url')) {
+      $attributes['data-thumb'] = $tn_url;
+    }
+
+    // Provides image effect if so configured unless being sandboxed.
+    // Slick/ Splide lazy loads won't work, needs Blazy to make animation.
+    if ($blazies->is('blazy') && $fx = $blazies->get('fx')) {
+      $attributes['class'][] = 'media--fx';
+      $attributes['data-animation'] = $fx;
+    }
+  }
+
+  /**
+   * Checks for blur settings, required Image style and dimensions setup.
+   */
+  private static function blurs(array &$settings): void {
+    $blazies = $settings['blazies'];
+    if (!$blazies->is('blur')) {
+      return;
+    }
+
+    // Disable Blur if the image style width is less than Bur min-width.
+    $width = $blazies->get('image.dimensions.styled.width') ?: ($settings['width'] ?? 0);
+    $width = (int) $width;
+    if ($minwidth = (int) $blazies->get('ui.blur_minwidth', 0)) {
+      if ($width < $minwidth) {
+        if ($blazies->is('blur')) {
+          $blazies->set('fx', NULL);
+        }
+
+        $blazies->set('is.blur', FALSE);
+      }
+    }
+  }
+
+  /**
+   * Provide `data:image` placeholder for blur effect.
+   *
+   * Ensures at least a hook_alter is always respected. This still allows
+   * Blur and hook_alter for Views rewrite issues, unless global UI is set
+   * which was already warned about anyway.
+   */
+  private static function dataImage(&$blazies, $uri, $tn_uri, $tn_url, $style): void {
+    if (!$blazies->is('blazy') || !$blazies->is('blur')) {
+      return;
+    }
+
+    // Provides default path, in case required by global, but not provided.
+    $style = $style ?: \blazy()->entityLoad('thumbnail', 'image_style');
+    if (empty($tn_uri) && $style && BlazyFile::isValidUri($uri)) {
+      $tn_uri = $style->buildUri($uri);
+      $tn_url = BlazyFile::transformRelative($uri, $style);
+    }
+
+    // Overrides placeholder with data URI based on configured thumbnail.
+    $valid = self::derivative($blazies, $uri, $tn_uri, $style, 'blur');
+    if ($valid) {
+      // Use client-side for better diet.
+      if (!$blazies->get('ui.blur_client')
+        && $content = file_get_contents($tn_uri)) {
+        $blur = 'data:image/' .
+          pathinfo($tn_uri, PATHINFO_EXTENSION) .
+          ';base64,' .
+          base64_encode($content);
+
+        $blazies->set('blur.data', $blur);
+      }
+
+      $blazies->set('blur.uri', $tn_uri);
+      $blazies->set('blur.url', $tn_url);
+
+      // Prevents double animations.
+      $blazies->set('use.loader', FALSE);
+    }
+  }
+
+  /**
+   * Ensures the thumbnail exists before creating a dataURI.
+   */
+  private static function derivative(&$blazies, $uri, $tn_uri, $style, $key = 'blur'): bool {
+    if (BlazyFile::isValidUri($tn_uri)) {
+      $blazies->set($key . '.uri', $tn_uri);
+      if (!$blazies->get($key . '.checked')) {
+        if ($style && !is_file($tn_uri)) {
+          $style->createDerivative($uri, $tn_uri);
+        }
+        $blazies->set($key . '.checked', TRUE);
+      }
+      return is_file($tn_uri);
+    }
+    return FALSE;
+  }
+
+  /**
+   * Checks for blur settings, required Image style and dimensions setup.
+   *
+   * @see self::prepare()
+   */
+  private static function thumbnails(array &$settings): void {
     $blazies = $settings['blazies'];
     $style   = NULL;
     $width   = $height = 1;
@@ -106,7 +225,6 @@ class Placeholder {
 
     // With CSS background, IMG may be empty, add thumbnail to the container.
     if ($tn_url) {
-      $attributes['data-thumb'] = $tn_url;
       $blazies->set('thumbnail.url', $tn_url);
 
       self::derivative($blazies, $uri, $tn_uri, $style, 'thumbnail');
@@ -132,67 +250,8 @@ class Placeholder {
       }
     }
 
-    // Provides image effect if so configured unless being sandboxed.
-    // Being a separated .b-blur with .b-lazy, this should work for any lazy.
-    // Slick/ Splide lazy loads won't work, needs Blazy to make animation.
-    if ($blazies->is('blazy') && $fx = $blazies->get('fx')) {
-      $attributes['class'][] = 'media--fx';
-      $attributes['data-animation'] = $fx;
-
-      // Creates `data:image` for blur effect if so configured and applicable.
-      self::dataImage($blazies, $uri, $tn_uri, $tn_url, $style);
-    }
-  }
-
-  /**
-   * Provide `data:image` placeholder for blur effect.
-   *
-   * Ensures at least a hook_alter is always respected. This still allows
-   * Blur and hook_alter for Views rewrite issues, unless global UI is set
-   * which was already warned about anyway.
-   */
-  private static function dataImage(&$blazies, $uri, $tn_uri, $tn_url, $style): void {
-    if (!$blazies->is('blur')) {
-      return;
-    }
-
-    // Provides default path, in case required by global, but not provided.
-    $style = $style ?: \blazy()->entityLoad('thumbnail', 'image_style');
-    if (empty($tn_uri) && $style && BlazyFile::isValidUri($uri)) {
-      $tn_uri = $style->buildUri($uri);
-      $tn_url = BlazyFile::transformRelative($uri, $style);
-    }
-
-    // Overrides placeholder with data URI based on configured thumbnail.
-    $valid = self::derivative($blazies, $uri, $tn_uri, $style, 'blur');
-    if ($valid && $content = file_get_contents($tn_uri)) {
-      // @todo use client-side for better diet.
-      $blur = 'data:image/' .
-        pathinfo($tn_uri, PATHINFO_EXTENSION) .
-        ';base64,' .
-        base64_encode($content);
-
-      // Prevents double animations.
-      $blazies->set('blur.data', $blur);
-      $blazies->set('blur.url', $tn_url);
-      $blazies->set('use.loader', FALSE);
-    }
-  }
-
-  /**
-   * Ensures the thumbnail exists before creating a dataURI.
-   */
-  private static function derivative(&$blazies, $uri, $tn_uri, $style, $key = 'blur'): bool {
-    if (BlazyFile::isValidUri($tn_uri)) {
-      $blazies->set($key . '.uri', $tn_uri);
-      if (!$blazies->get($key . '.checked')) {
-        if ($style && !is_file($tn_uri)) {
-          $style->createDerivative($uri, $tn_uri);
-        }
-        $blazies->set($key . '.checked', TRUE);
-      }
-    }
-    return is_file($tn_uri);
+    // Creates `data:image` for blur effect if so configured and applicable.
+    self::dataImage($blazies, $uri, $tn_uri, $tn_url, $style);
   }
 
 }

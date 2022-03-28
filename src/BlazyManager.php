@@ -9,6 +9,7 @@ use Drupal\blazy\Theme\BlazyAttribute;
 use Drupal\blazy\Cache\BlazyCache;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Theme\Lightbox;
+use Drupal\blazy\Utility\CheckItem;
 
 /**
  * Implements a public facing blazy manager.
@@ -47,7 +48,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $item = $build['item'];
 
     Blazy::verify($settings);
-    Blazy::essentials($settings, $item, $delta);
+    CheckItem::essentials($settings, $item, $delta);
 
     // Prevents double checks.
     $blazies = $settings['blazies'];

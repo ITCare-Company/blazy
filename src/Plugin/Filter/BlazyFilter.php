@@ -475,7 +475,7 @@ class BlazyFilter extends BlazyFilterBase {
     }
 
     $settings['_uri'] = $uri = $grid_items[0]['#build']['settings']['uri'] ?? '';
-    $blazies->get('first.uri', $uri);
+    $blazies->set('first.uri', $uri);
 
     $first  = $grid_nodes[0];
     $dom    = $first->ownerDocument;

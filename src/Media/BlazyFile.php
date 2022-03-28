@@ -207,7 +207,7 @@ class BlazyFile {
   }
 
   /**
-   * Prepares extension, (lightbox) image styles, after Blazy::essentials().
+   * Prepares extension, (lightbox) image styles, after CheckItem::essentials().
    *
    * Also checks if an extension should not use image style: apng svg gif, etc.
    */

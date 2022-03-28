@@ -17,8 +17,10 @@
   min-height: 1px;
 }
 
-/* Ensure that without js (or in print or emails) our lazy-loader stubs don't interfere. */
-html:not(.js) .b-lazy[data-src] {
+/* Ensure that without js (or in print or emails) our lazy-loader stubs don't
+interfere. */
+html:not(.js) .b-lazy[data-src],
+html:not(.js) [data-b-blur] {
   display: none;
 }
 
@@ -111,4 +113,10 @@ absolute position and fixed dimensions. */
 /* Be sure to add width to the container accordingly, otherwise collapsed. */
 .field[data-blazy] {
   min-width: 50%;
+}
+
+/* Overrides .field--type-image img, causes confusing blur mismatched height. */
+.blazy .media--blazy img.b-blur,
+.blazy .media--blazy img.media__element {
+  margin: 0;
 }

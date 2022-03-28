@@ -42,14 +42,9 @@ class BlazyImage {
    * Prepares CSS background image.
    */
   public static function background(array $settings, $style = NULL) {
-    $blazies = $settings['blazies'];
-    $url     = $blazies->get('image.url');
-    $uri     = $blazies->get('uri');
-    $style   = $style ?: $blazies->get('image.style');
-
     // @tbd replace src with URL before 3.x, or keep it.
     return [
-      'src' => $style ? BlazyFile::transformRelative($uri, $style) : $url,
+      'src' => self::url($settings, $style),
       'ratio' => self::ratio($settings),
     ];
   }
@@ -97,6 +92,9 @@ class BlazyImage {
         $blazies = $settings['blazies'];
         $settings = array_merge($settings, self::transformDimensions($crop, $settings, TRUE));
 
+        $blazies->set('image.dimensions.styled.width', $settings['width'])
+          ->set('image.dimensions.styled.height', $settings['height']);
+
         // Informs individual images that dimensions are already set once.
         $blazies->set('is.dimensions', TRUE);
       }
@@ -109,8 +107,10 @@ class BlazyImage {
    * Provides original unstyled image dimensions based on the given image item.
    *
    * This one is original image, not styled like self:transformDimensions().
+   * Sources: formatters, filters or any hard-coded unmanaged files like VEF.
    */
   public static function dimensions(array &$settings, $item = NULL, $initial = FALSE): void {
+    $blazies = $settings['blazies'];
     $_width  = $initial ? '_width' : 'width';
     $_height = $initial ? '_height' : 'height';
     $_uri    = $initial ? '_uri' : 'uri';
@@ -143,7 +143,14 @@ class BlazyImage {
     // Sometimes they are string, cast them integer to reduce JS logic.
     $settings[$_width] = $width;
     $settings[$_height] = $height;
+
     self::toInt($settings, $_width, $_height);
+
+    // Defines original dimensions.
+    $data = ['width' => $settings[$_width], 'height' => $settings[$_height]];
+    $ratio = self::ratio($data);
+    $blazies->set('image.dimensions.original', $data)
+      ->set('image.dimensions.original.ratio', $ratio);
   }
 
   /**
@@ -316,13 +323,10 @@ class BlazyImage {
     self::dimensions($settings, $item);
 
     // Provides image url based on the given settings.
-    $uri     = BlazyFile::uri($item, $settings);
-    $valid   = BlazyFile::isValidUri($uri);
-    $styled  = $valid && !$blazies->is('unstyled');
-    $url     = $settings['image_url'] ?? '';
-    $url     = $url ?: $blazies->get('image.url');
-    $options = ['url' => $url, 'sanitize' => $blazies->is('unsafe')];
-    $url     = BlazyFile::transformRelative($uri, ($styled ? $style : NULL), $options);
+    $uri = BlazyFile::uri($item, $settings);
+
+    // @todo remove after another check.
+    $blazies->set('uri', $uri);
 
     if ($style) {
       $blazies->set('cache.tags', $style->getCacheTags(), TRUE);
@@ -331,11 +335,15 @@ class BlazyImage {
       if (!$blazies->is('dimensions')
         && empty($settings['responsive_image_style'])) {
         $settings = array_merge($settings, self::transformDimensions($style, $settings));
+
+        $blazies->set('image.dimensions.styled.width', $settings['width'])
+          ->set('image.dimensions.styled.height', $settings['height']);
       }
     }
 
     // Currently doesn't affect option.ratio, a failsafe for BG, else collapsed.
     $ratio = self::ratio($settings);
+    $url = self::url($settings, $style);
 
     $blazies->set('image.ratio', $ratio);
     $blazies->set('image.url', $url);
@@ -459,6 +467,35 @@ class BlazyImage {
       ];
     }
     return static::$styleId[$key];
+  }
+
+  /**
+   * Returns image URL with an optional image style.
+   *
+   * Addressed various sources:
+   * - URL which should not be styled: animated gif, apng, svg, etc.
+   * - UGC image URL, with likely invalid URI due to hard-coded markdown, etc.
+   * - Responsive image vs. regular image style.
+   *
+   * @requires \Drupal\blazy\Blazy::prepare()
+   *
+   * @see self::prepare()
+   * @see self::background()
+   * @see BlazyResponsiveImage::background()
+   *
+   * @todo remove fallbacks after another check, also settings after migration.
+   */
+  public static function url(array $settings, $style = NULL) {
+    $blazies = $settings['blazies'];
+    $uri     = $blazies->get('uri');
+    $valid   = BlazyFile::isValidUri($uri);
+    $styled  = $valid && !$blazies->is('unstyled');
+    $style   = $style ?: $blazies->get('image.style');
+    $url     = $settings['image_url'] ?? '';
+    $url     = $url ?: $blazies->get('image.url');
+    $options = ['url' => $url, 'sanitize' => $blazies->is('unsafe')];
+
+    return BlazyFile::transformRelative($uri, ($styled ? $style : NULL), $options);
   }
 
   /**

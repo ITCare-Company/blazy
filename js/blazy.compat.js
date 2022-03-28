@@ -19,7 +19,6 @@
 
   var _id = 'blazy';
   var _data = 'data-';
-  var _dataAnimation = _data + 'animation';
   var _dataRatios = _data + 'ratios';
   var _dataRatio = _data + 'ratio';
   var _media = 'media';
@@ -102,16 +101,13 @@
    */
   function animate(el) {
     // Blur, animate.css, for CSS background, picture, image, media.
-    var an = $.closest(el, '[' + _dataAnimation + ']');
-    if ($.hasAttr(el, _dataAnimation) && !$.isElm(an)) {
-      an = el;
-    }
+    var an = $.aniElement && $.aniElement(el);
 
     // Animate if any.
-    if ($.isElm(an) && !$.hasClass(an, _isAnimated)) {
+    if ($.animate && $.isElm(an) && !$.hasClass(an, _isAnimated)) {
       setTimeout(function () {
         $.animate(an);
-      }, 100);
+      }, 60);
     }
   }
 
