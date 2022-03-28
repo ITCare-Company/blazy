@@ -137,16 +137,19 @@ class Blazy implements BlazyInterface {
       self::preSettings($settings);
     }
 
-    // Checks for [Responsive] image dimensions for formatters and filters.
-    // Sets dimensions once, if cropped, to reduce costs with ton of images.
-    // This is less expensive than re-defining dimensions per image.
-    if ($blazies->get('first.uri')) {
-      if ($blazies->get('resimage.style')) {
-        BlazyResponsiveImage::dimensions($settings, TRUE);
+    // Checks for [Responsive] image dimensions and sources for formatters
+    // and filters. Sets dimensions once, if cropped, to reduce costs with ton
+    // of images. This is less expensive than re-defining dimensions per image.
+    if (!$blazies->was('dimensions')) {
+      if ($blazies->get('first.uri')) {
+        if ($blazies->get('resimage.style')) {
+          BlazyResponsiveImage::dimensionsAndSources($settings, TRUE);
+        }
+        elseif ($style = $blazies->get('image.style')) {
+          BlazyImage::cropDimensions($settings, $style);
+        }
       }
-      elseif ($style = $blazies->get('image.style')) {
-        BlazyImage::cropDimensions($settings, $style);
-      }
+      $blazies->set('was.dimensions', TRUE);
     }
   }
 

@@ -182,7 +182,6 @@ class BlazyResponsiveImage {
    * Modifies dimensions and sources.
    */
   public static function dimensionsAndSources(array &$settings, $initial = TRUE): void {
-    // @todo merge background here.
     // Do not limit to preload or fluid, to re-use this for background, etc.
     self::dimensions($settings, $initial);
 
