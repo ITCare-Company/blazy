@@ -116,6 +116,7 @@
   };
 
   // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement.
+  // https://caniuse.com/canvas
   function toDataUri(url, mime, cb) {
     var img = new Image();
     var load = function () {
@@ -164,7 +165,7 @@
       return;
     }
 
-    data = data.split(':');
+    data = data.split('::');
 
     var shouldStore = _isStorage && data[0] === '1';
     var isDisabled = data[0] === '-1';

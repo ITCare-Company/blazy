@@ -180,6 +180,7 @@ class BlazyFile {
     $entity = $object;
 
     // Bail out early if we are given what we want.
+    /** @var \Drupal\file\Entity\File $entity */
     if ($entity instanceof FileInterface) {
       return $entity;
     }
@@ -199,8 +200,33 @@ class BlazyFile {
     }
 
     // BlazyFilter without any entity/ formatters associated with.
+    // Or any entities: Node, Paragraphs, User, etc. having settings.image.
     if (!($entity instanceof FileInterface) && $settings) {
-      $entity = self::fromSettings($settings);
+      // Extracts File entity from settings.image, the poster image.
+      if ($name = $settings['image'] ?? NULL) {
+        // With a mix of image and video, image is not always there.
+        /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $field */
+        if (isset($entity->{$name}) && $field = $entity->get($name)) {
+          if (method_exists($field, 'referencedEntities')) {
+            // Two designated types: MediaInterface and FileInterface.
+            $reference = $field->referencedEntities()[0] ?? NULL;
+            if ($reference instanceof FileInterface) {
+              $entity = $reference;
+            }
+            else {
+              // The last is MediaInterface, but let the dogs out for now.
+              $options = ['entity' => $reference, 'settings' => $settings];
+              if ($image = BlazyImage::fromContent($options, $name)) {
+                $entity = $image->entity;
+              }
+            }
+          }
+        }
+      }
+      // BlazyFilter without any entity/ formatters associated with.
+      else {
+        $entity = self::fromSettings($settings);
+      }
     }
 
     return $entity instanceof FileInterface ? $entity : NULL;

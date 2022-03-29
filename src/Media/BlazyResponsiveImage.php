@@ -128,6 +128,8 @@ class BlazyResponsiveImage {
 
   /**
    * Provides Responsive image sources relevant for link preload.
+   *
+   * @requires Drupal\blazy\Media\Preloader::prepare()
    */
   public static function sources(array &$settings): array {
     if (!($manager = Blazy::breakpointManager())) {
@@ -147,18 +149,21 @@ class BlazyResponsiveImage {
         $variables[$key] = $end[$key] ?? $settings[$key] ?? NULL;
       }
 
+      $id = $style->getFallbackImageStyle();
       $breakpoints = array_reverse($manager->getBreakpointsByGroup($style->getBreakpointGroup()));
       $function = '_responsive_image_build_source_attributes';
       if (is_callable($function)) {
-        $fallback = \_responsive_image_image_style_url($style->getFallbackImageStyle(), $variables['uri']);
-        foreach ($style->getKeyedImageStyleMappings() as $breakpoint_id => $multipliers) {
-          if (isset($breakpoints[$breakpoint_id])) {
-            $sources[] = $function($variables, $breakpoints[$breakpoint_id], $multipliers);
+        $fallback = \_responsive_image_image_style_url($id, $variables['uri']);
+        foreach ($style->getKeyedImageStyleMappings() as $bid => $multipliers) {
+          if (isset($breakpoints[$bid])) {
+            $sources[] = $function($variables, $breakpoints[$bid], $multipliers);
           }
         }
       }
 
-      $blazies->set('resimage.fallback.url', $fallback);
+      $blazies->set('resimage.fallback.id', $id)
+        ->set('resimage.fallback.url', $fallback);
+
       return empty($sources) ? [] : [
         'items' => $sources,
         'fallback' => $fallback,
@@ -166,6 +171,7 @@ class BlazyResponsiveImage {
     };
 
     $output = [];
+    // The URIs are extracted by Preloader::prepare().
     if ($uris = $blazies->get('uris')) {
       // Preserves indices even if empty to have correct mixed media elsewhere.
       foreach ($uris as $uri) {
@@ -193,6 +199,11 @@ class BlazyResponsiveImage {
 
   /**
    * Modifies fallback image style.
+   *
+   * Tasks:
+   * - Replace core `data:image` GIF with SVG or custom placeholder due to known
+   *   issues with GIF, see #2795415. And Views rewrite results, see #2908861.
+   * - Provide URL, URI, style from a non-empty fallback, also for Blur, etc.
    */
   public static function fallback(array &$settings, $placeholder): void {
     $blazies = $settings['blazies'];
@@ -213,7 +224,7 @@ class BlazyResponsiveImage {
         $data_src = $placeholder;
       }
       else {
-        $settings['image_style'] = $id = $fallback;
+        $id = $fallback;
         if ($blazy = Blazy::service('blazy.manager')) {
           $uri = $blazies->get('uri');
 
@@ -227,9 +238,14 @@ class BlazyResponsiveImage {
               'height' => $height,
             ] = BlazyImage::transformDimensions($style, $settings);
 
-            $placeholder = Placeholder::generate($width, $height);
             $blazies->set('resimage.fallback.style', $style);
             $blazies->set('resimage.fallback.uri', $tn_uri);
+
+            // Prevents double downloadings.
+            $placeholder = Placeholder::generate($width, $height);
+            if (empty($settings['thumbnail_style'])) {
+              $settings['thumbnail_style'] = $id;
+            }
           }
         }
       }
@@ -241,7 +257,7 @@ class BlazyResponsiveImage {
       // The controller `data-src` attribute, might be valid image thumbnail.
       $blazies->set('image.url', $data_src);
       $blazies->set('placeholder.id', $id);
-      // The controller `src` attribute, the placeholder.
+      // The controller `src` attribute, the placeholder: 1px or thumbnail.
       $blazies->set('placeholder.url', $placeholder);
       $blazies->set('placeholder.width', $width);
       $blazies->set('placeholder.height', $height);
@@ -255,7 +271,6 @@ class BlazyResponsiveImage {
     $id = $resimage->id();
     $styles = self::styles($resimage);
 
-    // @todo move it out of blazies.
     $blazies->set('resimage.id', $id)
       ->set('resimage.caches', $styles['caches'] ?? []);
   }

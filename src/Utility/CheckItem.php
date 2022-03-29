@@ -49,7 +49,8 @@ class CheckItem {
   public static function multimedia(array &$settings): void {
     $blazies   = $settings['blazies'];
     $source    = $blazies->get('media.source');
-    $type      = $blazies->get('media.type', $settings['type'] ?? 'image');
+    $type      = $settings['type'] ?? 'image';
+    $type      = $settings['type'] = $blazies->get('media.type') ?: $type;
     $bundle    = $blazies->get('media.bundle', $settings['bundle'] ?? '');
     $embed_url = $blazies->get('media.embed_url', $settings['embed_url'] ?? '');
     $videos    = ['oembed:video', 'video_embed_field'];

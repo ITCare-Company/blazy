@@ -140,6 +140,7 @@ class Blazy implements BlazyInterface {
     // Checks for [Responsive] image dimensions and sources for formatters
     // and filters. Sets dimensions once, if cropped, to reduce costs with ton
     // of images. This is less expensive than re-defining dimensions per image.
+    // These also provide data for the Preload option.
     if (!$blazies->was('dimensions')) {
       if ($blazies->get('first.uri')) {
         if ($blazies->get('resimage.style')) {

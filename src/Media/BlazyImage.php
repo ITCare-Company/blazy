@@ -233,16 +233,25 @@ class BlazyImage {
    * Returns the image item from any sources, if available.
    *
    * PHP 7.2 accepts object. D8 >= PHP 7.3. Not good for D7 backport.
-   * This block is a bit scary yet it is a more organized way to extract Image
-   * item from various sources in tandem with custom settings.image previously
-   * scattered with if-else. This has saved more than 60 lines, and two methods:
-   * ::fromMedia(), already gone, and ::fromField(), to be gone. Can be better.
    */
   public static function item($item = NULL, array $options = [], $name = NULL): ?object {
     if ($item instanceof ImageItem) {
       return $item;
     }
 
+    return self::fromContent($options, $name);
+  }
+
+  /**
+   * Returns the image item from any sources, if available.
+   *
+   * PHP 7.2 accepts object. D8 >= PHP 7.3. Not good for D7 backport.
+   * This block is a bit scary yet it is a more organized way to extract Image
+   * item from various sources in tandem with custom settings.image previously
+   * scattered with if-else. This has saved more than 60 lines, and two methods:
+   * ::fromMedia(), already gone, and ::fromField(), to be gone. Can be better.
+   */
+  public static function fromContent(array $options = [], $name = NULL): ?object {
     $settings = $options['settings'] ?? [];
     $blazies  = $settings['blazies'] ?? NULL;
     $poster   = $settings['image'] ?? NULL;

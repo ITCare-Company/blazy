@@ -27,12 +27,14 @@ class Preloader {
       return;
     }
 
-    $mime = mime_content_type($uris[0]);
+    // Suppress useless warning of likely failing initial image generation.
+    // Better than checking file exists.
+    $mime = @mime_content_type($uris[0]);
     [$type] = array_map('trim', explode('/', $mime, 2));
 
     $link = function ($url, $uri = NULL, $item = NULL) use ($mime, $type): array {
       // Each field may have different mime types for each image just like URIs.
-      $mime = $uri ? mime_content_type($uri) : $mime;
+      $mime = $uri ? @mime_content_type($uri) : $mime;
       if ($item) {
         $item_type = $item['type'] ?? NULL;
         $mime = $item_type ? $item_type->value() : $mime;

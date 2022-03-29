@@ -22,7 +22,18 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    */
   public function buildSettings(array &$build, $items) {
     $settings = &$build['settings'];
+    $blazies  = $settings['blazies'];
     $entity   = $items->getEntity();
+
+    // @todo remove after sub-modules.
+    if (!empty($settings['item_id'])) {
+      foreach (['item_id', 'namespace'] as $key) {
+        if (!empty($settings[$key])) {
+          $k = str_replace('_', '.', $key);
+          $blazies->set($k, $settings[$key]);
+        }
+      }
+    }
 
     $this->prepareData($build, $entity);
     $this->fieldSettings($build, $items);

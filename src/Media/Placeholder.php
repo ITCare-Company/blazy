@@ -35,8 +35,10 @@ class Placeholder {
       return;
     }
 
+    // Suppress useless warning of likely failing initial image generation.
+    // Better than checking file exists.
+    $mime = @mime_content_type($uri);
     $id = md5($url);
-    $mime = mime_content_type($uri);
     $client = $blazies->get('ui.blur_client');
     $store = $client ? ($blazies->get('ui.blur_storage') ? 1 : 0) : -1;
     $blur = [
@@ -44,7 +46,7 @@ class Placeholder {
       '#uri' => $blazies->get('placeholder.url'),
       '#attributes' => [
         'class' => ['b-blur'],
-        'data-b-blur' => "$store:$id:$mime:$url",
+        'data-b-blur' => "$store::$id::$mime::$url",
         'decoding' => 'async',
       ],
     ];
@@ -86,8 +88,24 @@ class Placeholder {
    * Build thumbnails, also to provide placeholder for blur effect.
    *
    * Requires image style and dimensions setup after BlazyImage::prepare().
+   * The `[data-thumb]` attribute usages:
+   * - Zoom-in-out effect as seen at Splidebox and PhotoSwipe.
+   * - Hoverable or static grid pagination/ thumbnails seen at Splide/ Slick.
+   * - Lightbox thumbnails seen at Photobox.
+   * - Switchabe thumbnail to main stage seen at ElevateZoomPlus.
+   * - Slider arrows with thumbnails as navigation previews, etc. seen at Slick.
+   * - etc.
+   *
+   * The `[data-animation]` attribute usages:
+   * - Blur animation.
+   * - Any animation supported by `animate.css` as seen GridStack, or custom.
+   *   Check out for details at `/admin/help/blazy_ui`.
+   *
+   * Most of these had been implemented since 1.x.
    *
    * @see \Drupal\blazy\Blazy:prepared()
+   * @see self:blurs()
+   * @see self:thumbnails()
    */
   public static function prepare(array &$attributes, array &$settings) {
     // Requires dimensions and image style setup.
@@ -117,8 +135,9 @@ class Placeholder {
       return;
     }
 
-    // Disable Blur if the image style width is less than Bur min-width.
-    $width = $blazies->get('image.dimensions.styled.width') ?: ($settings['width'] ?? 0);
+    // Disable Blur if the image style width is less than Blur min-width.
+    $width = $blazies->get('image.dimensions.styled.width')
+      ?: ($settings['width'] ?? 0);
     $width = (int) $width;
     if ($minwidth = (int) $blazies->get('ui.blur_minwidth', 0)) {
       if ($width < $minwidth) {
