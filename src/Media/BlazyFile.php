@@ -18,6 +18,13 @@ use Drupal\blazy\Blazy;
 class BlazyFile {
 
   /**
+   * Returns TRUE if a File entity.
+   */
+  public static function isFile($entity): bool {
+    return $entity instanceof FileInterface;
+  }
+
+  /**
    * Determines whether the URI has a valid scheme for file API operations.
    *
    * @param string $uri
@@ -156,9 +163,10 @@ class BlazyFile {
     $uri = NULL;
     if ($item) {
       $file = $item->entity ?? NULL;
-      $uri = $file instanceof FileInterface ? $file->getFileUri() : ($item->uri ?? '');
+      $uri = self::isFile($file) ? $file->getFileUri() : ($item->uri ?? '');
     }
 
+    // No file API with unmanaged files here: hard-coded UGC, legacy VEF.
     if (empty($uri) && $settings) {
       // Respects first.uri without image_url such as colorbox/zoom-like.
       if ($blazies = ($settings['blazies'] ?? NULL)) {
@@ -181,7 +189,7 @@ class BlazyFile {
 
     // Bail out early if we are given what we want.
     /** @var \Drupal\file\Entity\File $entity */
-    if ($entity instanceof FileInterface) {
+    if (self::isFile($entity)) {
       return $entity;
     }
 
@@ -201,73 +209,56 @@ class BlazyFile {
 
     // BlazyFilter without any entity/ formatters associated with.
     // Or any entities: Node, Paragraphs, User, etc. having settings.image.
-    if (!($entity instanceof FileInterface) && $settings) {
+    if (!self::isFile($entity) && $settings) {
       // Extracts File entity from settings.image, the poster image.
       if ($name = $settings['image'] ?? NULL) {
         // With a mix of image and video, image is not always there.
-        /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $field */
-        if (isset($entity->{$name}) && $field = $entity->get($name)) {
-          if (method_exists($field, 'referencedEntities')) {
-            // Two designated types: MediaInterface and FileInterface.
-            $reference = $field->referencedEntities()[0] ?? NULL;
-            if ($reference instanceof FileInterface) {
-              $entity = $reference;
-            }
-            else {
-              // The last is MediaInterface, but let the dogs out for now.
-              $options = ['entity' => $reference, 'settings' => $settings];
-              if ($image = BlazyImage::fromContent($options, $name)) {
-                $entity = $image->entity;
-              }
-            }
-          }
-        }
+        $entity = self::fromField($entity, $name, $settings);
       }
+
       // BlazyFilter without any entity/ formatters associated with.
-      else {
+      // Or legacy VEF with hard-coded image URL without file API.
+      if (!self::isFile($entity)) {
         $entity = self::fromSettings($settings);
       }
     }
 
-    return $entity instanceof FileInterface ? $entity : NULL;
+    return self::isFile($entity) ? $entity : NULL;
   }
 
   /**
-   * Prepares extension, (lightbox) image styles, after CheckItem::essentials().
+   * Returns the File entity from a field name, if applicable.
    *
-   * Also checks if an extension should not use image style: apng svg gif, etc.
+   * Main image can be separate image item from video thumbnail for highres.
+   * Fallback to default thumbnail if any, which has no file API. This used to
+   * be for non-media File Entity Reference at 1.x, things changed since then.
+   * Some core methods during Blazy 1.x are now gone at 2.x.
+   * Re-purposed for Paragraphs, Node, etc. which embeds Media or File.
+   *
+   * @see BlazyImage::fromField()
+   *  The deprecated/ previous approach on this.
    */
-  public static function prepare(array &$settings, $item = NULL) {
-    $blazies = $settings['blazies'];
-    if (!($uri = $blazies->get('uri'))) {
-      return;
-    }
-
-    $pathinfo = pathinfo($uri);
-    $ext = $pathinfo['extension'] ?? '';
-    $extensions = ['svg'];
-
-    // Extensions without image styles: animated GIF, APNG, SVG, etc.
-    if ($unstyles = $blazies->get('ui.unstyled_extensions')) {
-      $extensions = array_merge($extensions,
-      array_map('trim', explode(' ', mb_strtolower($unstyles))));
-      $extensions = array_unique($extensions);
-    }
-
-    // Disable image style if so configured.
-    // @todo move it out of here, too late here.
-    $unstyled = $ext && in_array($ext, $extensions);
-    if ($unstyled) {
-      $images = ['box', 'box_media', 'image', 'thumbnail', 'responsive_image'];
-      foreach ($images as $image) {
-        $settings[$image . '_style'] = '';
+  public static function fromField($entity, $name, array $settings): ?object {
+    $file = NULL;
+    /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $field */
+    if (isset($entity->{$name}) && $field = $entity->get($name)) {
+      if (method_exists($field, 'referencedEntities')) {
+        // Two designated types: MediaInterface and FileInterface.
+        $reference = $field->referencedEntities()[0] ?? NULL;
+        // The first is FileInterface.
+        if (self::isFile($reference)) {
+          $file = $reference;
+        }
+        else {
+          // The last is MediaInterface, but let the dogs out for now.
+          $options = ['entity' => $reference, 'settings' => $settings];
+          if ($image = BlazyImage::fromContent($options, $name)) {
+            $file = $image->entity;
+          }
+        }
       }
     }
-
-    // Re-define, if the provided API by-passed, or different/ altered per item.
-    $blazies->set('is.external', UrlHelper::isExternal($uri))
-      ->set('is.unstyled', $unstyled)
-      ->set('image.extension', $ext);
+    return $file;
   }
 
   /**

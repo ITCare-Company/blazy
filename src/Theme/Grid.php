@@ -85,7 +85,7 @@ class Grid {
       $contents[] = $content;
     }
 
-    // Supports field label via Field UI, unless use_field takes place.
+    // Supports field label via Field UI, unless use.theme_field takes place.
     $title = '';
     $label = $blazies->get('field.label');
     if (!$blazies->get('use.theme_field')
@@ -144,7 +144,8 @@ class Grid {
 
       // If Native Grid style with numeric grid, assumed non-two-dimensional.
       if ($style == 'nativegrid') {
-        $attributes['class'][] = $blazies->get('libs.nativegrid_masonry') ? 'is-b-masonry' : 'is-b-native';
+        $attributes['class'][] = $blazies->get('libs.nativegrid_masonry')
+          ? 'is-b-masonry' : 'is-b-native';
       }
 
       // Adds common grid attributes for CSS3 column, Foundation, etc.

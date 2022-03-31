@@ -144,7 +144,7 @@ class Blazy implements BlazyInterface {
     if (!$blazies->was('dimensions')) {
       if ($blazies->get('first.uri')) {
         if ($blazies->get('resimage.style')) {
-          BlazyResponsiveImage::dimensionsAndSources($settings, TRUE);
+          BlazyResponsiveImage::dimensions($settings, TRUE);
         }
         elseif ($style = $blazies->get('image.style')) {
           BlazyImage::cropDimensions($settings, $style);
@@ -155,12 +155,12 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Prepares the minimal settings: URI, delta, initial, and media stuffs.
+   * Prepares the essential settings, URI, delta, etc.
    */
   public static function prepare(array &$settings, $item = NULL, $delta = -1) {
-    // Checks for essential, multimedia and insanity features.
     CheckItem::essentials($settings, $item, $delta);
     CheckItem::multimedia($settings);
+    CheckItem::unstyled($settings, $item);
     CheckItem::insanity($settings);
   }
 
@@ -168,19 +168,12 @@ class Blazy implements BlazyInterface {
    * Blazy is prepared with an URI, provides few attributes as needed.
    */
   public static function prepared(array &$attributes, array &$settings, $item = NULL) {
-    $blazies = $settings['blazies'];
-
-    // Prepares extension, image styles.
-    BlazyFile::prepare($settings, $item);
-
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
     BlazyImage::prepare($settings, $item);
 
     // Build thumbnail and optional placeholder based on thumbnail.
     Placeholder::prepare($attributes, $settings);
-
-    $blazies->set('was.prepared', TRUE);
   }
 
   /**
@@ -196,7 +189,7 @@ class Blazy implements BlazyInterface {
    *
    * @see \Drupa\blazy\BlazyManagerBase::isBlazy()
    */
-  public static function preserve(array &$parentsets, array &$childsets) {
+  public static function preserve(array &$parentsets, array &$childsets): void {
     $cherries = BlazyDefault::cherrySettings();
 
     foreach ($cherries as $key => $value) {
@@ -395,7 +388,7 @@ class Blazy implements BlazyInterface {
    *
    * @todo refine this based on the new options.
    */
-  public static function which(array &$settings, $lazy, $class, $attribute) {
+  public static function which(array &$settings, $lazy, $class, $attribute): void {
     // Don't bother if empty.
     if (empty($lazy)) {
       return;

@@ -22,7 +22,8 @@ class Preloader {
    */
   public static function preload(array &$load, array $settings = []): void {
     $blazies = $settings['blazies'];
-    $uris = $blazies->get('uris', []);
+    $uris = array_filter($blazies->get('uris', []));
+
     if (empty($uris)) {
       return;
     }
@@ -129,7 +130,6 @@ class Preloader {
     $style = $blazies->get('image.style');
     $func = function ($item, $entity = NULL) use (&$settings, $blazies, $style) {
       $options = ['entity' => $entity, 'settings' => $settings];
-
       $image = BlazyImage::item($item, $options);
       $uri = BlazyFile::uri($image);
 

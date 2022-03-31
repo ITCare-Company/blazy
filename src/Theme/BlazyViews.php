@@ -39,13 +39,15 @@ class BlazyViews {
 
       // Prevents dup [data-LIGHTBOX-gallery] if the Views style supports Grid.
       if (!$grid) {
-        $view->element['#attributes'] = empty($view->element['#attributes']) ? [] : $view->element['#attributes'];
+        $view->element['#attributes'] = empty($view->element['#attributes'])
+          ? [] : $view->element['#attributes'];
         BlazyAttribute::container($view->element['#attributes'], $settings);
       }
     }
 
     if ($loads) {
-      $view->element['#attached'] = empty($view->element['#attached']) ? $loads : NestedArray::mergeDeep($view->element['#attached'], $loads);
+      $view->element['#attached'] = empty($view->element['#attached'])
+        ? $loads : NestedArray::mergeDeep($view->element['#attached'], $loads);
     }
   }
 
@@ -72,7 +74,9 @@ class BlazyViews {
     if ($lightbox && in_array($lightbox, $lightboxes)) {
       $settings['namespace'] = 'blazy';
       $settings['media_switch'] = $matches[1];
-      $variables['attributes'] = empty($variables['attributes']) ? [] : $variables['attributes'];
+      $variables['attributes'] = empty($variables['attributes'])
+        ? [] : $variables['attributes'];
+
       BlazyAttribute::container($variables['attributes'], $settings);
     }
   }

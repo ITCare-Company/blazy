@@ -67,8 +67,7 @@ class BlazyResponsiveImage {
       $new_url = $unlazy ? $old_url : $bg['src'];
 
       // @todo remove.
-      $settings['image_url'] = $new_url;
-
+      // $settings['image_url'] = $new_url;
       $blazies->set('is.unlazy', $unlazy)
         ->set('image.url', $new_url);
 
@@ -78,6 +77,10 @@ class BlazyResponsiveImage {
 
   /**
    * Sets dimensions once to reduce method calls for Responsive image.
+   *
+   * Do not limit to preload or fluid, to re-use this for background, etc.
+   *
+   * @requires Drupal\blazy\Media\Preloader::prepare()
    */
   public static function dimensions(array &$settings, $initial = TRUE): void {
     $blazies = $settings['blazies'];
@@ -121,80 +124,54 @@ class BlazyResponsiveImage {
       ->set('ratios', $ratios)
       ->set('resimage.ids', array_values($names));
 
-    if (!$blazies->get('image.dimensions.styled')) {
-      $blazies->set('image.dimensions.styled', end($dimensions));
+    if (!$blazies->get('image.width')) {
+      $blazies->set('image', end($dimensions), TRUE);
     }
-  }
-
-  /**
-   * Provides Responsive image sources relevant for link preload.
-   *
-   * @requires Drupal\blazy\Media\Preloader::prepare()
-   */
-  public static function sources(array &$settings): array {
-    if (!($manager = Blazy::breakpointManager())) {
-      return [];
-    }
-
-    $blazies = $settings['blazies'];
-    $func = function ($uri) use ($manager, $settings, $blazies) {
-      $fallback = NULL;
-      $sources = $variables = [];
-      $style = $blazies->get('resimage.style');
-      $dimensions = $blazies->get('resimage.dimensions', []);
-      $end = end($dimensions);
-
-      $variables['uri'] = $uri;
-      foreach (['width', 'height'] as $key) {
-        $variables[$key] = $end[$key] ?? $settings[$key] ?? NULL;
-      }
-
-      $id = $style->getFallbackImageStyle();
-      $breakpoints = array_reverse($manager->getBreakpointsByGroup($style->getBreakpointGroup()));
-      $function = '_responsive_image_build_source_attributes';
-      if (is_callable($function)) {
-        $fallback = \_responsive_image_image_style_url($id, $variables['uri']);
-        foreach ($style->getKeyedImageStyleMappings() as $bid => $multipliers) {
-          if (isset($breakpoints[$bid])) {
-            $sources[] = $function($variables, $breakpoints[$bid], $multipliers);
-          }
-        }
-      }
-
-      $blazies->set('resimage.fallback.id', $id)
-        ->set('resimage.fallback.url', $fallback);
-
-      return empty($sources) ? [] : [
-        'items' => $sources,
-        'fallback' => $fallback,
-      ];
-    };
-
-    $output = [];
-    // The URIs are extracted by Preloader::prepare().
-    if ($uris = $blazies->get('uris')) {
-      // Preserves indices even if empty to have correct mixed media elsewhere.
-      foreach ($uris as $uri) {
-        $output[] = empty($uri) ? [] : $func($uri);
-      }
-    }
-
-    $blazies->set('resimage.sources', $output);
-
-    return $output;
-  }
-
-  /**
-   * Modifies dimensions and sources.
-   */
-  public static function dimensionsAndSources(array &$settings, $initial = TRUE): void {
-    // Do not limit to preload or fluid, to re-use this for background, etc.
-    self::dimensions($settings, $initial);
 
     // Currently only needed by Preload.
     if (!empty($settings['preload'])) {
       self::sources($settings);
     }
+  }
+
+  /**
+   * Defines the Responsive image id, styles and caches tags.
+   */
+  public static function define(&$blazies, $resimage) {
+    $id = $resimage->id();
+    $styles = self::styles($resimage);
+
+    $blazies->set('resimage.id', $id)
+      ->set('resimage.caches', $styles['caches'] ?? []);
+  }
+
+  /**
+   * Returns the Responsive image styles and caches tags.
+   *
+   * @param object $resimage
+   *   The responsive image style entity.
+   *
+   * @return array|mixed
+   *   The responsive image styles and cache tags.
+   */
+  public static function styles($resimage): array {
+    $id = $resimage->id();
+
+    if (!isset(static::$styles[$id])) {
+      $cache_tags = $resimage->getCacheTags();
+      $image_styles = \blazy()->entityLoadMultiple('image_style', $resimage->getImageStyleIds());
+
+      foreach ($image_styles as $image_style) {
+        $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
+      }
+
+      static::$styles[$id] = [
+        'caches' => $cache_tags,
+        'names' => array_keys($image_styles),
+        'styles' => $image_styles,
+      ];
+    }
+    return static::$styles[$id];
   }
 
   /**
@@ -204,6 +181,9 @@ class BlazyResponsiveImage {
    * - Replace core `data:image` GIF with SVG or custom placeholder due to known
    *   issues with GIF, see #2795415. And Views rewrite results, see #2908861.
    * - Provide URL, URI, style from a non-empty fallback, also for Blur, etc.
+   *
+   * @todo deprecate this when `Image style` has similar `_empty image_` option
+   * to reduce complication at Blazy UI, and here.
    */
   public static function fallback(array &$settings, $placeholder): void {
     $blazies = $settings['blazies'];
@@ -212,6 +192,9 @@ class BlazyResponsiveImage {
     $data_src = $placeholder;
 
     // If not enabled via UI, by default, always 1px, or the custom Placeholder.
+    // Image style will be prioritized as fallback to have different fallbacks
+    // per field relevant for various aspect ratios rather than the one and only
+    // fallback for the entire site via Responsive image UI.
     if ($blazies->get('ui.one_pixel') || !empty($settings['image_style'])) {
       return;
     }
@@ -265,43 +248,65 @@ class BlazyResponsiveImage {
   }
 
   /**
-   * Defines the Responsive image id, styles and caches tags.
-   */
-  public static function define(&$blazies, $resimage) {
-    $id = $resimage->id();
-    $styles = self::styles($resimage);
-
-    $blazies->set('resimage.id', $id)
-      ->set('resimage.caches', $styles['caches'] ?? []);
-  }
-
-  /**
-   * Returns the Responsive image styles and caches tags.
+   * Provides Responsive image sources relevant for link preload.
    *
-   * @param object $resimage
-   *   The responsive image style entity.
-   *
-   * @return array|mixed
-   *   The responsive image styles and cache tags.
+   * @see self::dimensions()
    */
-  public static function styles($resimage): array {
-    $id = $resimage->id();
+  private static function sources(array &$settings): array {
+    if (!($manager = Blazy::breakpointManager())) {
+      return [];
+    }
 
-    if (!isset(static::$styles[$id])) {
-      $cache_tags = $resimage->getCacheTags();
-      $image_styles = \blazy()->entityLoadMultiple('image_style', $resimage->getImageStyleIds());
+    $blazies = $settings['blazies'];
+    if ($sources = $blazies->get('resimage.sources', [])) {
+      return $sources;
+    }
 
-      foreach ($image_styles as $image_style) {
-        $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
+    $func = function ($uri) use ($manager, $settings, $blazies) {
+      $fallback = NULL;
+      $sources = $variables = [];
+      $style = $blazies->get('resimage.style');
+      $dimensions = $blazies->get('resimage.dimensions', []);
+      $end = end($dimensions);
+
+      $variables['uri'] = $uri;
+      foreach (['width', 'height'] as $key) {
+        $variables[$key] = $end[$key] ?? $settings[$key] ?? NULL;
       }
 
-      static::$styles[$id] = [
-        'caches' => $cache_tags,
-        'names' => array_keys($image_styles),
-        'styles' => $image_styles,
+      $id = $style->getFallbackImageStyle();
+      $breakpoints = array_reverse($manager->getBreakpointsByGroup($style->getBreakpointGroup()));
+      $function = '_responsive_image_build_source_attributes';
+      if (is_callable($function)) {
+        $fallback = \_responsive_image_image_style_url($id, $variables['uri']);
+        foreach ($style->getKeyedImageStyleMappings() as $bid => $multipliers) {
+          if (isset($breakpoints[$bid])) {
+            $sources[] = $function($variables, $breakpoints[$bid], $multipliers);
+          }
+        }
+      }
+
+      $blazies->set('resimage.fallback.id', $id)
+        ->set('resimage.fallback.url', $fallback);
+
+      return empty($sources) ? [] : [
+        'items' => $sources,
+        'fallback' => $fallback,
       ];
+    };
+
+    $output = [];
+    // The URIs are extracted by Preloader::prepare().
+    if ($uris = $blazies->get('uris')) {
+      // Preserves indices even if empty to have correct mixed media elsewhere.
+      foreach ($uris as $uri) {
+        $output[] = empty($uri) ? [] : $func($uri);
+      }
     }
-    return static::$styles[$id];
+
+    $blazies->set('resimage.sources', $output);
+
+    return $output;
   }
 
 }

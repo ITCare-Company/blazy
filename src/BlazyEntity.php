@@ -62,7 +62,7 @@ class BlazyEntity implements BlazyEntityInterface {
   /**
    * {@inheritdoc}
    */
-  public function build(array &$data, $entity, $fallback = '') {
+  public function build(array &$data, $entity, $fallback = ''): array {
     if (!$entity instanceof EntityInterface) {
       return [];
     }
@@ -87,14 +87,14 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // Made Responsive image also available outside formatters here.
     if ($blazies->get('resimage.style')) {
-      BlazyResponsiveImage::dimensionsAndSources($settings, FALSE);
+      BlazyResponsiveImage::dimensions($settings, FALSE);
     }
 
     // Only pass to Blazy for known entities related to File or Media.
     if (in_array($entity->getEntityTypeId(), ['file', 'media'])) {
       /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
       if (empty($data['item'])) {
-        $data['content'][] = $this->getEntityView($entity, $settings, $fallback);
+        $data['content'][] = $this->view($entity, $settings, $fallback);
       }
 
       // Pass it to Blazy for consistent markups.
@@ -108,7 +108,7 @@ class BlazyEntity implements BlazyEntityInterface {
       }
     }
     else {
-      $build = $this->getEntityView($entity, $settings, $fallback);
+      $build = $this->view($entity, $settings, $fallback);
     }
 
     $manager->getModuleHandler()->alter('blazy_build_entity', $build, $entity, $settings);
@@ -118,17 +118,25 @@ class BlazyEntity implements BlazyEntityInterface {
   /**
    * {@inheritdoc}
    */
-  public function getEntityView($entity, array $settings = [], $fallback = '') {
+  public function view($entity, array $settings = [], $fallback = ''): array {
+    if ($fallback && is_string($fallback)) {
+      $fallback = ['#markup' => '<div class="is-fallback">' . $fallback . '</div>'];
+    }
+    $fallback = $fallback ?: [];
+
     if ($entity instanceof EntityInterface) {
       $manager        = $this->blazyManager;
       $entity_type_id = $entity->getEntityTypeId();
-      $view_mode      = $settings['view_mode'] = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
+      $view_mode      = $settings['view_mode'] = empty($settings['view_mode'])
+        ? 'default' : $settings['view_mode'];
       $langcode       = $entity->language()->getId();
-      $fallback       = $fallback && is_string($fallback) ? ['#markup' => '<div class="is-fallback">' . $fallback . '</div>'] : $fallback;
 
       // If entity has view_builder handler.
-      if ($manager->getEntityTypeManager()->hasHandler($entity_type_id, 'view_builder')) {
-        $build = $manager->getEntityTypeManager()->getViewBuilder($entity_type_id)->view($entity, $view_mode, $langcode);
+      if ($manager->getEntityTypeManager()
+        ->hasHandler($entity_type_id, 'view_builder')) {
+        $build = $manager->getEntityTypeManager()
+          ->getViewBuilder($entity_type_id)
+          ->view($entity, $view_mode, $langcode);
 
         // @todo figure out why video_file empty, this is blatant assumption.
         if ($entity_type_id == 'file') {
@@ -157,7 +165,7 @@ class BlazyEntity implements BlazyEntityInterface {
   /**
    * Modifies the common settings extracted from the given entity.
    */
-  public static function settings(array &$settings, $entity) {
+  public static function settings(array &$settings, $entity): void {
     // Might be accessed by tests, or anywhere outside the workflow.
     Blazy::verify($settings);
 
@@ -210,6 +218,17 @@ class BlazyEntity implements BlazyEntityInterface {
     // $key = in_array($key, ['id', 'type_id']) ? 'entity_' . $key : $key;
     // $settings[$key] = $value;
     // }
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
+   *   self::view() instead.
+   * @see https://www.drupal.org/node/3103018
+   */
+  public function getEntityView($entity, array $settings = [], $fallback = '') {
+    return $this->view($entity, $settings, $fallback);
   }
 
   /**

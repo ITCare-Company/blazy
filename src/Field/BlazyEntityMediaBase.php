@@ -60,22 +60,16 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     // Build media item including custom highres video thumbnail.
     $this->blazyOembed->build($element, $entity);
 
-    // Build the main stage with image options from highres video thumbnail.
-    if (!empty($settings['image'])) {
-      // If Image rendered is picked, render image as is.
-      if (($settings['media_switch'] ?? NULL) == 'rendered') {
-        $element['content'][] = BlazyField::view($entity, $settings['image'], $view_mode);
-      }
-      // This used to be for File entity (non-media), re-purposed.
-      // Extracts image item from other entities than Media, such as Paragraphs.
-      // @todo remove, already taken care of by the new ::build().
-      // elseif (empty($element['item']) && empty($settings['uri'])) {
-      // BlazyMedia::imageItem($element, $entity);
-      // }
-    }
-
     // Captions if so configured, including Blazy formatters.
     $this->getCaption($element, $entity, $langcode);
+
+    // If `Image rendered` is picked, render image as is. Might not be Blazy's
+    // formatter, yet has awesomeness that Blazy doesn't, but still wants to be
+    // embedded in Blazy ecosytem mostly for Grid, Slider, Mason, GridStack etc.
+    $rendered = ($settings['media_switch'] ?? NULL) == 'rendered';
+    if (!empty($settings['image']) && $rendered) {
+      $element['content'][] = BlazyField::view($entity, $settings['image'], $view_mode);
+    }
 
     // Optional image with responsive image, lazyLoad, and lightbox supports.
     // Including potential rich Media contents: local video, Facebook, etc.
@@ -136,7 +130,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
         // Provides basic captions based on image attributes (Alt, Title).
         foreach (['title', 'alt'] as $key => $attribute) {
           $value = $item->{$attribute} ?? '';
-          if ($name == $attribute && $value && $caption = trim($value)) {
+          if ($name == $attribute && $caption = trim($value)) {
             $markup = Xss::filter($caption, BlazyDefault::TAGS);
             $caption_items[$name] = ['#markup' => $markup];
             $weights[] = $key;

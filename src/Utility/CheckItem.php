@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Utility;
 
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Media\BlazyFile;
 
 /**
@@ -12,7 +13,14 @@ use Drupal\blazy\Media\BlazyFile;
 class CheckItem {
 
   /**
-   * Checks for essential settings.
+   * Checks for essential settings: URI, delta, cache and initial delta.
+   *
+   * The initial delta related to option `Loading: slider`, the initial is not
+   * lazyloaded, the rest are. Sometimes the initial delta is not always 0 as
+   * normally seen at slider option name: `initial slide` or `start`.
+   *
+   * Image URI might be NULL given rich media like Facebook, etc., no problem.
+   * That is why this is called twice. Once to check, another to re-check.
    */
   public static function essentials(array &$settings, $item = NULL, $delta = -1): void {
     $blazies = $settings['blazies'];
@@ -25,7 +33,7 @@ class CheckItem {
       ->set('is.initial', $initial)
       ->set('uri', $uri);
 
-    // File tags.
+    // File cache tags.
     if ($item && ($file = ($item->entity ?? NULL))) {
       $tags = $file->getCacheTags();
       $blazies->set('cache.file.tags', $tags);
@@ -64,7 +72,7 @@ class CheckItem {
     $is_iframe = $is_remote && $switch == '';
     $is_player = $is_remote && $switch == 'media';
 
-    // Also addresses mixed media unique per item.
+    // Also addresses mixed media unique per item, also for convenient.
     $blazies->set('is.iframe', $is_iframe)
       ->set('is.multimedia', $is_media)
       ->set('is.player', $is_player)
@@ -75,18 +83,64 @@ class CheckItem {
   }
 
   /**
+   * Checks if an extension should not use image style: apng svg gif, etc.
+   *
+   * @requires self::essentials(), self::multimedia()
+   */
+  public static function unstyled(array &$settings, $item = NULL) {
+    $blazies = $settings['blazies'];
+    if (!($uri = $blazies->get('uri'))) {
+      return;
+    }
+
+    $pathinfo = pathinfo($uri);
+    $ext = $pathinfo['extension'] ?? '';
+    $extensions = ['svg'];
+
+    // Extensions without image styles: animated GIF, APNG, SVG, etc.
+    if ($unstyles = $blazies->get('ui.unstyled_extensions')) {
+      $extensions = array_merge($extensions,
+      array_map('trim', explode(' ', mb_strtolower($unstyles))));
+      $extensions = array_unique($extensions);
+    }
+
+    // Disable image style if so configured.
+    $unstyled = $ext && in_array($ext, $extensions);
+    if ($unstyled) {
+      $images = ['box', 'box_media', 'image', 'thumbnail', 'responsive_image'];
+      foreach ($images as $image) {
+        $settings[$image . '_style'] = '';
+      }
+    }
+
+    // Re-define, if the provided API by-passed, or different/ altered per item.
+    $blazies->set('is.external', UrlHelper::isExternal($uri))
+      ->set('is.unstyled', $unstyled)
+      ->set('image.extension', $ext);
+  }
+
+  /**
    * Checks lazy insanity given various features/ media types + loading option.
    *
    * @requires self::multimedia()
    *
    * Some duplicate rules are to address non-blazy formatters like embedded
    * Image formatter within Blazy ecosystem, but not using Blazy formatter, etc.
+   * The lazy insanity:
+   * - Respects `No Javascript: lazy` aka decoupled lazy loader.
+   * - Respects `Loading priority` to avoid anti-pattern.
+   * - Respects `Loading: slider`, the initial is not lazyloaded, the rest are.
+   * - Respects sub-module lazy attributes and methods:
+   *   - Splide: nearby and sequential.
+   *   - Slick: anticipated, ondemand and progressive.
+   *   Unless they are incapable of dealing with: iframe, BG, Picture, BG, etc.
    *
    * @todo needs a recap to move some container-level here if they must live at
    * individual level, such as non-blazy Image formatter within Blazy ecosystem.
    */
   public static function insanity(array &$settings): void {
     $blazies    = $settings['blazies'];
+    $ratio      = $settings['ratio'] ?? '';
     $unlazy     = $blazies->is('slider') && $blazies->is('initial');
     $unlazy     = $unlazy ? TRUE : $blazies->is('unlazy');
     $use_loader = $settings['use_loading'] ?? $blazies->get('use.loader');
@@ -97,7 +151,7 @@ class CheckItem {
     $is_blur    = $blazies->is('blur') && $is_blazy && !$is_unblur;
 
     // Supports core Image formatter embedded within Blazy ecosystem.
-    $is_fluid = $blazies->is('fluid') ?: $settings['ratio'] == 'fluid';
+    $is_fluid = $blazies->is('fluid') ?: $ratio == 'fluid';
 
     // @todo better logic to support loader as required, must decouple loader.
     // @todo $lazy = $settings['loading'] == 'lazy';

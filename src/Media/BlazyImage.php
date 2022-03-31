@@ -5,7 +5,6 @@ namespace Drupal\blazy\Media;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\file\FileInterface;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
@@ -92,11 +91,13 @@ class BlazyImage {
         $blazies = $settings['blazies'];
         $settings = array_merge($settings, self::transformDimensions($crop, $settings, TRUE));
 
-        $blazies->set('image.dimensions.styled.width', $settings['width'])
-          ->set('image.dimensions.styled.height', $settings['height']);
+        $data = ['width' => $settings['width'], 'height' => $settings['height']];
+        $ratio = self::ratio($data);
 
         // Informs individual images that dimensions are already set once.
-        $blazies->set('is.dimensions', TRUE);
+        $blazies->set('image', $data, TRUE)
+          ->set('image.ratio', $ratio)
+          ->set('is.dimensions', TRUE);
       }
 
       static::$isCropSet[$id] = TRUE;
@@ -149,8 +150,8 @@ class BlazyImage {
     // Defines original dimensions.
     $data = ['width' => $settings[$_width], 'height' => $settings[$_height]];
     $ratio = self::ratio($data);
-    $blazies->set('image.dimensions.original', $data)
-      ->set('image.dimensions.original.ratio', $ratio);
+    $blazies->set('image.original', $data)
+      ->set('image.original.ratio', $ratio);
   }
 
   /**
@@ -193,10 +194,11 @@ class BlazyImage {
     }
     else {
       // Extracts File entity from any object or settings, if applicable.
+      // Node, EntityReferenceRevisionsItem, etc.
       $entity = BlazyFile::item($object, $settings);
 
       // Called by BlazyFilter file upload and legacy BlazyViewsFieldFile.
-      if ($entity instanceof FileInterface
+      if (BlazyFile::isFile($entity)
         && $factory = Blazy::service('image.factory')) {
         $uri = $entity->getFileUri();
         if ($uri && $image = $factory->get($uri)) {
@@ -213,8 +215,8 @@ class BlazyImage {
         'settings' => $settings,
       ];
 
-      // We have a Media entity.
-      if ($item = self::item(NULL, $options)) {
+      // We may have a Media entity, etc.
+      if ($item = self::fromContent($options)) {
         $uri = BlazyFile::uri($item);
 
         // @todo remove.
@@ -230,22 +232,24 @@ class BlazyImage {
   }
 
   /**
-   * Returns the image item from any sources, if available.
-   *
-   * PHP 7.2 accepts object. D8 >= PHP 7.3. Not good for D7 backport.
+   * Returns TRUE if an ImageItem.
    */
-  public static function item($item = NULL, array $options = [], $name = NULL): ?object {
-    if ($item instanceof ImageItem) {
-      return $item;
-    }
-
-    return self::fromContent($options, $name);
+  public static function isImage($item): bool {
+    return $item instanceof ImageItem;
   }
 
   /**
    * Returns the image item from any sources, if available.
    *
    * PHP 7.2 accepts object. D8 >= PHP 7.3. Not good for D7 backport.
+   */
+  public static function item($item = NULL, array $options = [], $name = NULL): ?object {
+    return self::isImage($item) ? $item : self::fromContent($options, $name);
+  }
+
+  /**
+   * Returns the image item from any sources, if available.
+   *
    * This block is a bit scary yet it is a more organized way to extract Image
    * item from various sources in tandem with custom settings.image previously
    * scattered with if-else. This has saved more than 60 lines, and two methods:
@@ -265,9 +269,20 @@ class BlazyImage {
 
     $func = function ($key, $property) use ($options) {
       $object = ($options[$key] ?? NULL);
-      if ($object instanceof ContentEntityInterface && $object->hasField($property)) {
+      if ($object instanceof ContentEntityInterface
+        && $object->hasField($property)) {
         $item = $object->get($property)->first();
-        $valid = $item instanceof ImageItem;
+        $valid = self::isImage($item);
+
+        // Media embedded inside Paragraph item as defined by settings.image,
+        // basically drilling down nested entities here to find the gold.
+        if (!$valid && $item && $entity = ($item->entity ?? NULL)) {
+          if ($entity instanceof ContentEntityInterface
+            && $entity->hasField('thumbnail')) {
+            $item = $entity->get('thumbnail')->first();
+            $valid = self::isImage($item);
+          }
+        }
 
         // Specific for Remote video, it has meaningful label from OEmbed, OOTB.
         if ($valid && trim($item->title ?? '') == '') {
@@ -315,6 +330,8 @@ class BlazyImage {
    *   The given settings being modified.
    * @param object $item
    *   The image item.
+   *
+   * @requires CheckItem::unstyled()
    */
   public static function prepare(array &$settings, $item = NULL): void {
     $blazies = $settings['blazies'];
@@ -323,6 +340,7 @@ class BlazyImage {
     // Might be called from Views without Blazy formatter, like Image formatter.
     // Since Blazy:2.9, image style entity is loaded once at container level,
     // but might still be needed for adopted Image formatter by a Views style.
+    // @todo since done at container, it might also truble the unstyled per URI.
     if (!$style && !empty($settings['image_style'])) {
       self::styles($settings);
       $style = $blazies->get('image.style');
@@ -332,11 +350,9 @@ class BlazyImage {
     self::dimensions($settings, $item);
 
     // Provides image url based on the given settings.
-    $uri = BlazyFile::uri($item, $settings);
-
-    // @todo remove after another check.
-    $blazies->set('uri', $uri);
-
+    // @todo remove after re-check, already done at CheckItem::essentials().
+    // $uri = BlazyFile::uri($item, $settings);
+    // $blazies->set('uri', $uri);
     if ($style) {
       $blazies->set('cache.tags', $style->getCacheTags(), TRUE);
 
@@ -344,18 +360,17 @@ class BlazyImage {
       if (!$blazies->is('dimensions')
         && empty($settings['responsive_image_style'])) {
         $settings = array_merge($settings, self::transformDimensions($style, $settings));
-
-        $blazies->set('image.dimensions.styled.width', $settings['width'])
-          ->set('image.dimensions.styled.height', $settings['height']);
       }
     }
 
     // Currently doesn't affect option.ratio, a failsafe for BG, else collapsed.
-    $ratio = self::ratio($settings);
+    $data = ['width' => $settings['width'], 'height' => $settings['height']];
     $url = self::url($settings, $style);
+    $ratio = self::ratio($data);
 
-    $blazies->set('image.ratio', $ratio);
-    $blazies->set('image.url', $url);
+    $blazies->set('image', $data, TRUE)
+      ->set('image.ratio', $ratio)
+      ->set('image.url', $url);
   }
 
   /**
@@ -410,8 +425,13 @@ class BlazyImage {
             $blazies->set($key . '.resimage.style', $resimage)
               ->set($key . '.resimage.id', $resimage ? $resimage->id() : NULL);
           }
+
           $entity = $blazy->entityLoad($_style, 'image_style');
           $blazies->set($key . '.style', $entity);
+
+          if ($entity) {
+            $blazies->set($key . '.id', $entity->id());
+          }
         }
       }
     }
@@ -430,7 +450,7 @@ class BlazyImage {
         '#style_name' => $style ?: 'thumbnail',
         '#uri'        => $uri,
         '#item'       => $item,
-        '#alt'        => $item instanceof ImageItem ? $item->getValue()['alt'] : '',
+        '#alt'        => self::isImage($item) ? $item->getValue()['alt'] : '',
       ];
     }
     return [];
@@ -572,7 +592,7 @@ class BlazyImage {
    * This used to be for File entity (non-media).
    * Extracts image item from non-media, such as Paragraphs, Node, etc.
    * @todo re-check, some File core methods are gone at Blazy 2.x.
-   * @todo remove when ::fromAny() is done right, and only after sub-modules.
+   * @todo deprecate and remove for ::fromAny(), and only after sub-modules.
    */
   public static function fromField(array &$data, $entity, $name): void {
     $settings = &$data['settings'];
@@ -600,7 +620,7 @@ class BlazyImage {
         }
 
         // Pass it directly if a File.
-        $object = $reference instanceof FileInterface ? $reference : $field;
+        $object = BlazyFile::isFile($reference) ? $reference : $field;
 
         // Called by BlazyFilter and legacy File entity like Views file.
         // Also vanilla Splide for the main stage.

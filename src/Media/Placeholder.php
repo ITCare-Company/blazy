@@ -11,8 +11,10 @@ class Placeholder {
 
   /**
    * Defines constant placeholder Data URI image.
+   *
+   * <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"/>
    */
-  const DATA = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  const DATA = 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D"http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg"%20viewBox%3D"0%200%201%201"%2F%3E';
 
   /**
    * Build out the blur image.
@@ -92,14 +94,14 @@ class Placeholder {
    * - Zoom-in-out effect as seen at Splidebox and PhotoSwipe.
    * - Hoverable or static grid pagination/ thumbnails seen at Splide/ Slick.
    * - Lightbox thumbnails seen at Photobox.
-   * - Switchabe thumbnail to main stage seen at ElevateZoomPlus.
+   * - Switchable thumbnail to main stage seen at ElevateZoomPlus.
    * - Slider arrows with thumbnails as navigation previews, etc. seen at Slick.
    * - etc.
    *
    * The `[data-animation]` attribute usages:
    * - Blur animation.
    * - Any animation supported by `animate.css` as seen GridStack, or custom.
-   *   Check out for details at `/admin/help/blazy_ui`.
+   *   Check out `/admin/help/blazy_ui` for details.
    *
    * Most of these had been implemented since 1.x.
    *
@@ -136,7 +138,7 @@ class Placeholder {
     }
 
     // Disable Blur if the image style width is less than Blur min-width.
-    $width = $blazies->get('image.dimensions.styled.width')
+    $width = $blazies->get('image.width')
       ?: ($settings['width'] ?? 0);
     $width = (int) $width;
     if ($minwidth = (int) $blazies->get('ui.blur_minwidth', 0)) {
