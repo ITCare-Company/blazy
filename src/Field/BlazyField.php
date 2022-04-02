@@ -57,7 +57,9 @@ class BlazyField {
       $string = $values[0]['uri'] ?? ($values[0]['value'] ?? '');
 
       if ($string && is_string($string)) {
-        $string = $clean ? strip_tags($string, '<a><strong><em><span><small>') : Xss::filter($string, BlazyDefault::TAGS);
+        $string = $clean
+          ? strip_tags($string, '<a><strong><em><span><small>')
+          : Xss::filter($string, BlazyDefault::TAGS);
         return trim($string);
       }
     }
@@ -67,17 +69,8 @@ class BlazyField {
   /**
    * Returns the text or link value of the fields: link, or text.
    */
-  public static function getTextOrLink($entity, $field_name, $settings, $multiple = TRUE): array {
+  public static function getTextOrLink($entity, $field_name, $view_mode, $langcode, $multiple = TRUE): array {
     if ($entity->hasField($field_name)) {
-      // Might be accessed by tests, or anywhere outside the workflow.
-      Blazy::verify($settings);
-
-      $blazies   = $settings['blazies'];
-      $langcode  = $settings['langcode'] ?? '';
-      $langcode  = $blazies->get('language.current', $langcode);
-      $view_mode = $settings['view_mode'] ?? 'default';
-      $view_mode = $blazies->get('field.view_mode', $view_mode);
-
       if ($text = self::getValue($entity, $field_name, $langcode)) {
         if (!empty($text[0]['value']) && !isset($text[0]['uri'])) {
           // Prevents HTML-filter-enabled text from having bad markups (h2 > p),

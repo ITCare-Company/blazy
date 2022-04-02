@@ -261,7 +261,9 @@ class BlazyEntity implements BlazyEntityInterface {
    * @see https://www.drupal.org/node/3103018
    */
   public function getFieldTextOrLink($entity, $field_name, $settings, $multiple = TRUE) {
-    return BlazyField::getTextOrLink($entity, $field_name, $settings, $multiple);
+    $langcode  = $settings['langcode'] ?? '';
+    $view_mode = $settings['view_mode'] ?? 'default';
+    return BlazyField::getTextOrLink($entity, $field_name, $view_mode, $langcode, $multiple);
   }
 
   /**

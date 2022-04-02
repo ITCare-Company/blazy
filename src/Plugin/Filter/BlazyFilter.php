@@ -430,7 +430,7 @@ class BlazyFilter extends BlazyFilterBase {
     // Marks invalid, unknown, missing IMG or IFRAME for removal.
     // Be sure to not affect external images, only strip missing local URI.
     $uri = $settings['uri'] ?? '';
-    $uri = $blazies->get('uri') ?: $uri;
+    $uri = $blazies->get('image.uri') ?: $uri;
     $missing = !empty($uri) && (BlazyFile::isValidUri($uri) && !is_file($uri));
     if (empty($uri) || $missing) {
       $media->setAttribute('class', 'blazy-removed');
@@ -464,7 +464,7 @@ class BlazyFilter extends BlazyFilterBase {
    * @param array $grid_items
    *   The renderable array of blazy item.
    *
-   * @todo deprecate and remove for shortcodes at Blazy 3.x due to being
+   * @todo deprecate and remove for shortcodes at Blazy 4.x due to being
    * too catch-all, not selective like field formatters.
    */
   private function buildGrid(array &$settings, array $grid_nodes, array $grid_items = []) {

@@ -138,12 +138,10 @@ class Placeholder {
     }
 
     // Disable Blur if the image style width is less than Blur min-width.
-    $width = $blazies->get('image.width')
-      ?: ($settings['width'] ?? 0);
-    $width = (int) $width;
     if ($minwidth = (int) $blazies->get('ui.blur_minwidth', 0)) {
+      $width = (int) $blazies->get('image.width');
       if ($width < $minwidth) {
-        if ($blazies->is('blur')) {
+        if ($blazies->get('fx') == 'blur') {
           $blazies->set('fx', NULL);
         }
 
@@ -220,7 +218,7 @@ class Placeholder {
     $style   = NULL;
     $width   = $height = 1;
     $uri     = $settings['uri'] ?? NULL;
-    $uri     = $uri ?: $blazies->get('uri');
+    $uri     = $uri ?: $blazies->get('image.uri');
     $tn_uri  = $settings['thumbnail_uri'] ?? NULL;
     $tn_uri  = $tn_uri ?: $blazies->get('thumbnail.uri');
     $tn_url  = '';

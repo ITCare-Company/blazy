@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy\Media;
 
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
@@ -150,12 +149,20 @@ class BlazyImage {
     // Defines original dimensions.
     $data = ['width' => $settings[$_width], 'height' => $settings[$_height]];
     $ratio = self::ratio($data);
-    $blazies->set('image.original', $data)
+    $blazies->set('image.original', $data, TRUE)
       ->set('image.original.ratio', $ratio);
+
+    // In case `image_style` is not provided.
+    if ($initial) {
+      $blazies->set('image', $data, TRUE)
+        ->set('image.ratio', $ratio);
+    }
   }
 
   /**
    * Returns fake image item based on the given $settings.
+   *
+   * @todo use blazies after migration.
    */
   public static function fake(array $settings) {
     $item = new \stdClass();
@@ -175,18 +182,17 @@ class BlazyImage {
    * @param array $settings
    *   The optional settings.
    *
-   * @return array
-   *   The array of image item and settings if a file image, else empty.
+   * @return mixed
+   *   The object of image item, or NULL.
    *
    * @todo simplify this, like everything else. An obvious confusion here.
+   * @todo return image item directly without settings.
    */
-  public static function fromAny($object = NULL, array $settings = []): array {
+  public static function fromAny($object = NULL, array $settings = []): ?object {
     // @todo remove check at 3.x after sub-modules and VEF removed.
     Blazy::verify($settings);
 
-    $blazies = $settings['blazies'];
-    $uri     = NULL;
-    $output  = [];
+    $output = NULL;
 
     // If Media entity, we must have a File entity, and likely ImageItem.
     if ($object instanceof MediaInterface) {
@@ -201,7 +207,7 @@ class BlazyImage {
       if (BlazyFile::isFile($entity)
         && $factory = Blazy::service('image.factory')) {
         $uri = $entity->getFileUri();
-        if ($uri && $image = $factory->get($uri)) {
+        if ($image = $factory->get($uri)) {
           $output = self::fakeWithdata($entity, $image);
         }
       }
@@ -216,18 +222,9 @@ class BlazyImage {
       ];
 
       // We may have a Media entity, etc.
-      if ($item = self::fromContent($options)) {
-        $uri = BlazyFile::uri($item);
-
-        // @todo remove.
-        $settings['uri'] = $uri;
-        $output = ['item' => $item, 'settings' => $settings];
-      }
+      $output = self::fromContent($options);
     }
 
-    if ($uri) {
-      $blazies->set('uri', $uri);
-    }
     return $output;
   }
 
@@ -334,7 +331,7 @@ class BlazyImage {
    * @requires CheckItem::unstyled()
    */
   public static function prepare(array &$settings, $item = NULL): void {
-    $blazies = $settings['blazies'];
+    $blazies = &$settings['blazies'];
     $style   = $blazies->get('image.style');
 
     // Might be called from Views without Blazy formatter, like Image formatter.
@@ -347,12 +344,12 @@ class BlazyImage {
     }
 
     // BlazyFilter, or image style with crop, may already set these.
-    self::dimensions($settings, $item);
+    self::dimensions($settings, $item, FALSE);
 
     // Provides image url based on the given settings.
     // @todo remove after re-check, already done at CheckItem::essentials().
     // $uri = BlazyFile::uri($item, $settings);
-    // $blazies->set('uri', $uri);
+    // $blazies->set('image.uri', $uri);
     if ($style) {
       $blazies->set('cache.tags', $style->getCacheTags(), TRUE);
 
@@ -516,7 +513,7 @@ class BlazyImage {
    */
   public static function url(array $settings, $style = NULL) {
     $blazies = $settings['blazies'];
-    $uri     = $blazies->get('uri');
+    $uri     = $blazies->get('image.uri');
     $valid   = BlazyFile::isValidUri($uri);
     $styled  = $valid && !$blazies->is('unstyled');
     $style   = $style ?: $blazies->get('image.style');
@@ -530,15 +527,15 @@ class BlazyImage {
   /**
    * Returns data to provide fake image item of file entity.
    */
-  private static function fakeWithdata($file, $image): array {
+  private static function fakeWithdata($file, $image): ?object {
     if ($settings = self::fromFactory($file, $image)) {
       if ($item = self::fake($settings)) {
         $item->entity = $file;
-        $settings['uri'] = $item->uri;
-        return ['item' => $item, 'settings' => $settings];
+        /* @todo revert return ['item' => $item, 'settings' => $settings]; */
+        return $item;
       }
     }
-    return [];
+    return NULL;
   }
 
   /**
@@ -613,19 +610,22 @@ class BlazyImage {
         /** @var Drupal\media\MediaInterface $reference */
         $reference = $field->referencedEntities()[0] ?? NULL;
         $ok = FALSE;
+        $object = $field;
 
         if ($reference instanceof MediaInterface) {
+          $object = $reference;
           BlazyMedia::prepare($data, $reference);
           $ok = !empty($data['item']);
         }
 
         // Pass it directly if a File.
-        $object = BlazyFile::isFile($reference) ? $reference : $field;
+        $object = BlazyFile::isFile($reference) ? $reference : $object;
 
         // Called by BlazyFilter and legacy File entity like Views file.
         // Also vanilla Splide for the main stage.
         if (!$ok && $result = self::fromAny($object, $settings)) {
-          $data = NestedArray::mergeDeep($data, $result);
+          // $data = NestedArray::mergeDeep($data, $result);
+          $data['item'] = $result;
         }
       }
     }

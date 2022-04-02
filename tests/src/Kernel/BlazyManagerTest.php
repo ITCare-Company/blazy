@@ -145,6 +145,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    */
   public function testPreprocessBlazy(array $settings, $use_uri, $use_item, $iframe, $expected) {
     $variables = ['attributes' => []];
+    $input_url = $settings['input_url'] ?? NULL;
     $settings = array_merge($this->getFormatterSettings(), $settings);
     $settings += BlazyDefault::itemSettings();
     $blazies = $settings['blazies'];
@@ -158,7 +159,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $settings['thumbnail_style'] = 'thumbnail';
     $settings['uri']             = $use_uri ? $this->uri : '';
 
-    if (!empty($settings['input_url'])) {
+    if ($input_url) {
       $settings = array_merge(BlazyDefault::entitySettings(), $settings);
     }
 
@@ -166,8 +167,10 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $blazies = $settings['blazies']->reset($settings);
     $item = $use_item ? $this->testItem : NULL;
 
-    if (!empty($settings['input_url'])) {
-      $blazies->set('media.source', 'oembed:video');
+    if ($input_url) {
+      $blazies->set('media.input_url', $input_url)
+        ->set('media.source', 'oembed:video');
+
       $data = ['item' => $item, 'settings' => $settings];
 
       $this->blazyOembed->build($data);

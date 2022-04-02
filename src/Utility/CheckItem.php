@@ -29,9 +29,11 @@ class CheckItem {
     $uri     = BlazyFile::uri($item, $settings);
 
     // This means re-definition since URI can be fed from any sources uptream.
-    $blazies->set('delta', $delta)
+    // @todo remove uri for image.uri for better grouping.
+    $blazies->set('uri', $uri)
+      ->set('delta', $delta)
       ->set('is.initial', $initial)
-      ->set('uri', $uri);
+      ->set('image.uri', $uri);
 
     // File cache tags.
     if ($item && ($file = ($item->entity ?? NULL))) {
@@ -64,20 +66,20 @@ class CheckItem {
     $videos    = ['oembed:video', 'video_embed_field'];
     $medias    = array_merge(['audio_file', 'video_file'], $videos);
     $is_video  = $source && in_array($source, $videos);
-    $is_media  = $bundle && in_array($source, $medias);
+    $is_media  = $source && in_array($source, $medias);
     $is_remote = $bundle == 'remote_video' || $type == 'video';
     $is_remote = $embed_url && ($is_video || $is_remote);
     $switch    = $settings['media_switch'] ?? NULL;
     $switch    = $switch ?: $blazies->get('switch');
-    $is_iframe = $is_remote && $switch == '';
+    $is_iframe = $is_remote && empty($switch);
     $is_player = $is_remote && $switch == 'media';
 
     // Also addresses mixed media unique per item, also for convenient.
     $blazies->set('is.iframe', $is_iframe)
       ->set('is.multimedia', $is_media)
       ->set('is.player', $is_player)
-      ->set('is.remote', $is_remote)
-      ->set('is.video', $is_remote)
+      ->set('is.remote_video', $is_remote)
+      ->set('is.video_file', $source == 'video_file')
       ->set('media.type', $type)
       ->set('switch', $switch);
   }
@@ -89,7 +91,7 @@ class CheckItem {
    */
   public static function unstyled(array &$settings, $item = NULL) {
     $blazies = $settings['blazies'];
-    if (!($uri = $blazies->get('uri'))) {
+    if (!($uri = $blazies->get('image.uri'))) {
       return;
     }
 
@@ -148,7 +150,7 @@ class CheckItem {
     $is_unblur  = $blazies->is('sandboxed')
       || $blazies->is('unstyled') || $blazies->is('iframe');
     $is_blazy   = $blazies->get('lazy.id') == 'blazy' && $blazies->is('blazy');
-    $is_blur    = $blazies->is('blur') && $is_blazy && !$is_unblur;
+    $is_blur    = !$is_unblur && ($blazies->is('blur') && $is_blazy);
 
     // Supports core Image formatter embedded within Blazy ecosystem.
     $is_fluid = $blazies->is('fluid') ?: $ratio == 'fluid';
@@ -162,6 +164,11 @@ class CheckItem {
       ->set('is.unlazy', $unlazy)
       ->set('use.loader', $use_loader)
       ->set('was.prepare', TRUE);
+
+    // Also disable blur effect attributes.
+    if (!$is_blur && $blazies->get('fx') == 'blur') {
+      $blazies->set('fx', NULL);
+    }
 
     // Overrides sub-modules which know not iframe, Picture, Video, BG, Blur.
     if ($is_blazy || $is_blur) {

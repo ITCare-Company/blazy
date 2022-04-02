@@ -56,7 +56,7 @@ class BlazyResponsiveImage {
       // Prevents NestedArray from making these indices.
       $blazies->set('bgs', (object) $srcset)
         ->set('ratios', $ratios)
-        ->set('item.padding_bottom', end($ratios));
+        ->set('image.ratio', end($ratios));
 
       // To make compatible with old bLazy (not Bio) which expects no 1px
       // for [data-src], else error, provide a real smallest image. Bio will
@@ -120,7 +120,7 @@ class BlazyResponsiveImage {
     // Dynamic aspect ratio is useless without JS.
     $blazies->set('resimage.dimensions', $dimensions)
       ->set('is.dimensions', TRUE)
-      ->set('item.padding_bottom', end($ratios))
+      ->set('image.ratio', end($ratios))
       ->set('ratios', $ratios)
       ->set('resimage.ids', array_values($names));
 
@@ -209,7 +209,7 @@ class BlazyResponsiveImage {
       else {
         $id = $fallback;
         if ($blazy = Blazy::service('blazy.manager')) {
-          $uri = $blazies->get('uri');
+          $uri = $blazies->get('image.uri');
 
           // @todo use dimensions based on the chosen fallback.
           if ($uri && $style = $blazy->entityLoad($id, 'image_style')) {

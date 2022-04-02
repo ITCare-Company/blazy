@@ -68,7 +68,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * Returns the Blazy elements.
+   * Returns the Blazy elements, also for sub-modules to re-use.
    */
   protected function getElements(array &$build, $files, $caption_id = 'captions'): array {
     $elements = [];
@@ -82,7 +82,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       // @todo update tests and move it out of here.
       $blazy->set('delta', $delta)
         ->set('media.type', 'image')
-        ->set('uri', $uri);
+        ->set('image.uri', $uri);
 
       $element = ['item' => $item, 'settings' => $sets];
 
@@ -105,10 +105,12 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    */
   protected function buildCaptions(array &$element, $caption_id): void {
     $settings = $element['settings'];
-    if (!empty($settings['caption'])) {
+    if (!empty($settings['caption']) && $item = ($element['item'] ?? NULL)) {
       foreach ($settings['caption'] as $caption) {
-        if ($caption_content = $element['item']->{$caption}) {
-          $element[$caption_id][$caption] = ['#markup' => Xss::filterAdmin($caption_content)];
+        if ($content = ($item->{$caption} ?? NULL)) {
+          $element[$caption_id][$caption] = [
+            '#markup' => Xss::filterAdmin($content),
+          ];
         }
       }
     }

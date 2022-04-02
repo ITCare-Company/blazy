@@ -30,18 +30,14 @@ class BlazyAttribute {
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
     // Prevents double padding hacks with AMP which also uses similar technique.
-    $disabled = empty($settings['height']) || $blazies->is('amp');
+    $disabled = !$blazies->get('image.height') || $blazies->is('amp');
     $ratio = $disabled ? '' : $settings['ratio'];
     $settings['ratio'] = str_replace(':', '', $ratio);
 
     // Fixed aspect ratio is taken care of by pure CSS. Fluid means dynamic.
-    if ($settings['ratio'] && $settings['height'] && $blazies->is('fluid')) {
-
+    if ($ratio && $blazies->is('fluid') && $padding = $blazies->get('image.ratio')) {
       // If "lucky", Blazy/ Slick Views galleries may already set this once.
       // Lucky when you don't flatten out the Views output earlier.
-      $padding = BlazyImage::ratio($settings);
-      $padding = $blazies->get('item.padding_bottom', $padding);
-
       self::inlineStyle($attributes, 'padding-bottom: ' . $padding . '%;');
 
       // Views rewrite results or Twig inline_template may strip out `style`
@@ -70,6 +66,7 @@ class BlazyAttribute {
    */
   public static function buildIframe(array &$variables): void {
     $settings = &$variables['settings'];
+    $blazies = $settings['blazies'];
 
     // Only provide iframe if not for lightboxes, identified by URL.
     if (empty($variables['url'])) {
@@ -88,7 +85,8 @@ class BlazyAttribute {
       }
 
       // Iframe is removed on lazyloaded, puts data at non-removable storage.
-      $variables['attributes']['data-media'] = Json::encode(['type' => $settings['type']]);
+      $type = $blazies->get('media.type');
+      $variables['attributes']['data-media'] = Json::encode(['type' => $type]);
     }
   }
 
@@ -179,7 +177,7 @@ class BlazyAttribute {
       $attributes['src'] = 'about:blank';
     }
 
-    self::common($attributes, $settings);
+    self::common($attributes, $settings, $blazies->get('image.width'));
     return $attributes;
   }
 
@@ -309,12 +307,12 @@ class BlazyAttribute {
   /**
    * Provide common attributes for IMG, IFRAME, VIDEO, DIV, etc. elements.
    */
-  private static function common(array &$attributes, array $settings): void {
+  private static function common(array &$attributes, array $settings, $width = NULL): void {
     $attributes['class'][] = 'media__element';
 
     // @todo at 2022/2 core has no loading Responsive.
     $excludes = in_array($settings['loading'], ['slider', 'unlazy']);
-    if (!empty($settings['width']) && !$excludes) {
+    if ($width && !$excludes) {
       $attributes['loading'] = $settings['loading'] ?: 'lazy';
     }
   }
@@ -329,6 +327,7 @@ class BlazyAttribute {
     $attributes = &$variables['item_attributes'];
     $blazies    = $settings['blazies'];
     $embed_url  = $blazies->get('media.embed_url');
+    $width      = $blazies->get('image.width');
 
     // Respects hand-coded image attributes.
     if ($item) {
@@ -345,8 +344,9 @@ class BlazyAttribute {
     // Only output dimensions for non-svg. Respects hand-coded image attributes.
     // Do not pass it to $attributes to also respect both (Responsive) image.
     if (!isset($attributes['width']) && !$blazies->is('unstyled')) {
-      $image['#height'] = $settings['height'];
-      $image['#width'] = $settings['width'];
+      // @todo remove settings.
+      $image['#height'] = $blazies->get('image.height');
+      $image['#width'] = $width;
     }
 
     // Overrides title if to be used as a placeholder for lazyloaded video.
@@ -372,7 +372,7 @@ class BlazyAttribute {
       $attributes['data-entity-uuid'] = $uuid;
     }
 
-    self::common($attributes, $variables['settings']);
+    self::common($attributes, $variables['settings'], $width);
     $image['#attributes'] = empty($image['#attributes'])
       ? $attributes : NestedArray::mergeDeep($image['#attributes'], $attributes);
 
@@ -384,7 +384,7 @@ class BlazyAttribute {
 
     // Provides [data-(src|lazy)] for (Responsive) image, after noscript.
     self::lazy($image['#attributes'], $settings);
-    self::unloading($image['#attributes'], $settings);
+    self::unloading($image['#attributes'], $blazies);
   }
 
   /**
@@ -394,6 +394,7 @@ class BlazyAttribute {
     $attributes = &$variables['attributes'];
     $settings = &$variables['settings'];
     $blazies = $settings['blazies'];
+    $width = $blazies->get('image.width');
 
     // Supports either lazy loaded image, or not.
     if (empty($settings['background'])) {
@@ -405,7 +406,7 @@ class BlazyAttribute {
     }
     else {
       // Attach BG data attributes to a DIV container.
-      $blazies->set('bgs.' . $settings['width'], BlazyImage::background($settings));
+      $blazies->set('bgs.' . $width, BlazyImage::background($settings));
 
       $unlazy = $blazies->is('undata');
       $url = $unlazy ? $url : $blazies->get('placeholder.url');
@@ -425,7 +426,7 @@ class BlazyAttribute {
     $blazies = $settings['blazies'];
     $noscript = $variables['image'];
     $noscript['#uri'] = $blazies->get('resimage.id')
-      ? $blazies->get('uri')
+      ? $blazies->get('image.uri')
       : $blazies->get('image.url');
 
     $noscript['#attributes']['data-b-noscript'] = TRUE;
@@ -469,7 +470,7 @@ class BlazyAttribute {
       $variables['image'] += [
         '#theme' => 'responsive_image',
         '#responsive_image_style_id' => $blazies->get('resimage.id'),
-        '#uri' => $blazies->get('uri'),
+        '#uri' => $blazies->get('image.uri'),
         '#attributes' => $attributes,
       ];
     }
@@ -483,8 +484,7 @@ class BlazyAttribute {
   /**
    * Removes loading attributes if so configured.
    */
-  private static function unloading(array &$attributes, array &$settings): void {
-    $blazies = $settings['blazies'];
+  private static function unloading(array &$attributes, $blazies): void {
     $flag = $blazies->is('unloading');
     $flag = $flag || $blazies->is('slider') && $blazies->is('initial');
 

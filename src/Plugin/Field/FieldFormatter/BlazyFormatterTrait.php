@@ -169,6 +169,12 @@ trait BlazyFormatterTrait {
       ->set('field.view_mode', $this->viewMode)
       ->set('field.third_party', $this->getThirdPartySettings());
 
+    if ($scopes = $this->getPluginScopes()) {
+      if (!empty($scopes['target_bundles'])) {
+        $blazies->set('field.target_bundles', $scopes['target_bundles']);
+      }
+    }
+
     return $settings;
   }
 

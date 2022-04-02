@@ -116,7 +116,6 @@ class Check {
     $ui           = $blazies->get('ui');
     $_loading     = $settings['loading'] ?? '';
     $loading      = $settings['loading'] = $_loading ?: 'lazy';
-    $bundle       = $settings['bundle'] ?? $blazies->get('media.bundle');
     $is_preview   = $settings['is_preview'] = self::isPreview();
     $is_amp       = self::isAmp();
     $is_sandboxed = self::isSandboxed();
@@ -129,8 +128,8 @@ class Check {
     $is_static    = $is_preview || $is_amp || $is_sandboxed;
     $is_undata    = $is_static || $is_unloading;
     $is_nojs      = $is_unload || $is_undata;
-    $is_video     = $bundle == 'video'
-      || in_array('video', $blazies->get('bundles', []));
+    $bundles      = $blazies->get('field.target_bundles', []);
+    $is_video     = $bundles && in_array('video', $bundles);
     $item_id      = $settings['item_id'] ?? $blazies->get('item.id', 'blazy');
     $namespace    = $settings['namespace'] ?? $blazies->get('namespace', 'blazy');
 

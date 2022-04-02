@@ -37,7 +37,7 @@
 .form--vanilla:not(.form--media-switch-lightbox) .form-item--box-media-style,
 .form--vanilla:not(.form--media-switch-lightbox) .form-item--box-caption,
 .form--vanilla:not(.form--media-switch-lightbox) .form-item--box-caption-custom,
-.form--vanilla:not(.form--media-switch-lightbox) .form-item--media-switch,
+.form--vanilla:not(.form--media-switch-on) .form-item--media-switch,
 .form--vanilla:not(.form--override-on) .form-wrapper--overridables,
 .form--vanilla.form--vanilla-on .form-item--media-switch,
 .form--vanilla:not(.form--grid-on) .form-item--grid-medium,
@@ -46,8 +46,9 @@
 }
 
 /** Fixed for things beyond Blazy. */
-.form--media-switch-lightbox .form-item--box-style,
-.form--media-switch-lightbox .form-item--box-media-style,
+.form--slick.form--media-switch-lightbox .form-item--box-style,
+.form--slick.form--media-switch-lightbox .form-item--box-media-style,
+.form--slick.form--media-switch-on .form-item--media-switch,
 .form--vanilla.form--vanilla-off .form-item--media-switch {
   display: block !important; /* csslint allow: known-properties, important */
 }

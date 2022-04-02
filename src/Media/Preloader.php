@@ -134,8 +134,7 @@ class Preloader {
       $uri = BlazyFile::uri($image);
 
       // Only needed the first found image, no problem which with mixed media.
-      $_uri = $settings['_uri'] ?? '';
-      if ($uri && !$blazies->get('first.uri', $_uri)) {
+      if ($uri && !$blazies->get('first.uri')) {
         $settings['_uri'] = $uri;
 
         $url = BlazyFile::transformRelative($uri, $style);
@@ -150,16 +149,21 @@ class Preloader {
       return $uri;
     };
 
-    $uris = $urls = [];
+    $uris = $urls = $empties = [];
     foreach ($items as $key => $item) {
       // Respects empty URI to keep indices intact for correct mixed media.
       $uri = $func($item, $entities[$key] ?? NULL);
       $uris[] = $uri;
       $urls[] = $uri ? BlazyFile::transformRelative($uri, $style) : '';
+
+      if (!$uri) {
+        $empties[] = TRUE;
+      }
     }
 
-    $blazies->set('uris', $uris);
-    $blazies->set('urls', $urls);
+    $empty = count($empties) == count($uris);
+    $blazies->set('uris', $empty ? array_filter($uris) : $uris);
+    $blazies->set('urls', $empty ? array_filter($urls) : $urls);
 
     return $uris;
   }

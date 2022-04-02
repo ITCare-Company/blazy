@@ -55,7 +55,6 @@ class BlazyDefault {
    */
   public static function anywhereSettings() {
     return [
-      'fx'      => '',
       'lazy'    => '',
       'loading' => 'lazy',
       'preload' => FALSE,
@@ -112,6 +111,7 @@ class BlazyDefault {
     return [
       'breakpoints' => [],
       'current_view_mode' => '',
+      'fx' => '',
       'icon' => '',
       'id' => '',
       'sizes' => '',
@@ -218,6 +218,7 @@ class BlazyDefault {
       'blur_client'         => FALSE,
       'blur_storage'        => FALSE,
       'blur_minwidth'       => 0,
+      'fx'                  => '',
       'nojs'                => [],
       'one_pixel'           => TRUE,
       'noscript'            => FALSE,

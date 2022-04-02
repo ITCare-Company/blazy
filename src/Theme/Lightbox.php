@@ -51,7 +51,7 @@ class Lightbox {
     $item       = $element['#item'];
     $settings   = &$element['#settings'];
     $blazies    = $settings['blazies'];
-    $uri        = $blazies->get('uri', $settings['uri'] ?? '');
+    $uri        = $blazies->get('image.uri', $settings['uri'] ?? '');
     $switch     = $blazies->get('lightbox.name');
     $switch_css = str_replace('_', '-', $switch);
     $valid      = BlazyFile::isValidUri($uri);

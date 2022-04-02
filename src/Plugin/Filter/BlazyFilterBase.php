@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy\Plugin\Filter;
 
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Xss;
 use Drupal\blazy\Blazy;
@@ -118,7 +117,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       // Supports hard-coded image url without file API.
       if ($uri = BlazyFile::uri($item)) {
         $settings['uri'] = $uri;
-        $blazies->set('uri', $uri);
+        $blazies->set('image.uri', $uri);
 
         // @todo remove.
         if (empty($item->width) && $data = @getimagesize($uri)) {
@@ -197,9 +196,9 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     if (BlazyFile::isFile($file)) {
       $uuid = $uuid ?: $file->uuid();
 
-      if ($data = BlazyImage::fromAny($file, $settings)) {
+      if ($item = BlazyImage::fromAny($file, $settings)) {
         $blazies->set('entity.uuid', $uuid);
-        $build = NestedArray::mergeDeep($build, $data);
+        $build['item'] = $item;
       }
     }
     else {

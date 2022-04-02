@@ -64,16 +64,20 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
 
     // Title can be plain text, or link field.
     if (!empty($_title)) {
+      $output = [];
+      // If title is available as a field.
       if (isset($entity->{$_title})) {
-        $element['caption']['title'] = BlazyField::getTextOrLink($entity, $_title, $settings);
+        $output = BlazyField::getTextOrLink($entity, $_title, $view_mode, $langcode);
       }
+      // Else fallback to image title property.
       elseif ($item = ($element['item'] ?? NULL)) {
         if (($_title == 'title')
           && ($caption = trim($item->get('title')->getString() ?: ''))) {
           $markup = Xss::filter($caption, BlazyDefault::TAGS);
-          $element['caption']['title'] = ['#markup' => $markup];
+          $output = ['#markup' => $markup];
         }
       }
+      $element['caption']['title'] = $output;
     }
 
     // Link, if so configured.
@@ -91,17 +95,12 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
       $element['caption']['link'] = $links;
     }
 
-    // Overlay, if so configured.
+    // Overlay, like slider or video over slider, if so configured.
     if (!empty($_overlay) && isset($entity->{$_overlay})) {
-      $element['caption']['overlay'] = $this->getOverlay($settings, $entity, $langcode);
+      $element['caption']['overlay'] = $entity
+        ->get($_overlay)
+        ->view($view_mode);
     }
-  }
-
-  /**
-   * Builds overlay placed within the caption.
-   */
-  public function getOverlay(array $settings, $entity, $langcode) {
-    return $entity->get($settings['overlay'])->view($settings['view_mode']);
   }
 
   /**
@@ -140,6 +139,17 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
       'titles'  => $texts,
       'vanilla' => TRUE,
     ] + parent::getPluginScopes();
+  }
+
+  /**
+   * Remove this method, never extended nor modified by sub-modules.
+   *
+   * @deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
+   *   self::getCaption() instead.
+   * @see https://www.drupal.org/node/3103018
+   */
+  public function getOverlay(array $settings, $entity, $langcode) {
+    return $entity->get($settings['overlay'])->view($settings['view_mode']);
   }
 
 }

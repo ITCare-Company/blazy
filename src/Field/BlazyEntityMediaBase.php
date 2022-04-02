@@ -48,6 +48,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     $blazies   = $settings['blazies'];
     $item_id   = $blazies->get('item.id');
     $view_mode = $settings['view_mode'] ?? 'full';
+    $is_nav    = $blazies->is('nav') ?: !empty($settings['nav']);
 
     // Bail out if vanilla (rendered entity) is required.
     if (!empty($settings['vanilla'])) {
@@ -90,7 +91,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       $build['items'][$delta] = $element;
 
       // Build the thumbnail item.
-      if (!empty($settings['nav'])) {
+      if ($is_nav) {
         $this->buildElementThumbnail($build, $element, $entity, $delta);
       }
     }

@@ -62,7 +62,7 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       ->set('media.source', 'video_embed_field');
 
     foreach ($items as $delta => $item) {
-      $settings['input_url'] = $input = strip_tags($item->value);
+      $input = strip_tags($item->value);
 
       if (empty($input) || !($provider = $vef->loadProviderFromInput($input))) {
         continue;
@@ -74,7 +74,7 @@ class BlazyVideoFormatter extends BlazyVideoBase {
 
       $blazy = $blazies->reset($settings);
       $blazy->set('delta', $delta)
-        ->set('uri', $uri)
+        ->set('image.uri', $uri)
         ->set('media.input_url', $input);
 
       /*

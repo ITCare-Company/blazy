@@ -80,7 +80,7 @@ class BlazyTheme {
 
     // Do not proceed if no URI is provided. URI is not Blazy theme property.
     // Blazy is a wrapper for theme_[(responsive_)image], etc. who wants URI.
-    if (!$blazies->get('uri')) {
+    if (!$blazies->get('image.uri')) {
       return;
     }
 
@@ -145,7 +145,7 @@ class BlazyTheme {
 
       // Adds a poster image if so configured.
       if ($blazy = ($files[0]['blazy'] ?? FALSE)) {
-        if ($blazy->get('image') && $blazy->get('uri')) {
+        if ($blazy->get('image.uri')) {
           $settings = $blazy->storage();
           $blazies = $settings['blazies'];
 

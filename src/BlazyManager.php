@@ -56,7 +56,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
 
     // Respects content not handled by theme_blazy(), but passed through.
     // Yet allows rich contents which might still be processed by theme_blazy().
-    $content = !$blazies->get('uri') ? $build['content'] : [
+    $content = !$blazies->get('image.uri') ? $build['content'] : [
       '#theme'       => 'blazy',
       '#delta'       => $blazies->get('delta'),
       '#item'        => $item,

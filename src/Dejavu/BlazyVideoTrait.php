@@ -79,7 +79,8 @@ trait BlazyVideoTrait {
   public function getImageItem($file) {
     // @todo enable post release
     // @trigger_error('getImageItem is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Media\BlazyImage::fromAny() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    return BlazyImage::fromAny($file);
+    $item = BlazyImage::fromAny($file);
+    return $item ? ['item' => $item] : [];
   }
 
   /**

@@ -298,7 +298,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $ui['fx'] = $ui['fx'] ?? '';
     $ui['fx'] = empty($settings['fx']) ? $ui['fx'] : $settings['fx'];
     $ui['blur_minwidth'] = (int) ($ui['blur_minwidth'] ?? 0);
-    $fx = $settings['fx'] = $settings['_fx'] ?? $ui['fx'];
+    $fx = $settings['_fx'] ?? $ui['fx'];
     $language = $this->languageManager->getCurrentLanguage()->getId();
     $lightboxes = $this->getLightboxes();
     $lightboxes = $blazies->get('lightbox.plugins', $lightboxes) ?: [];

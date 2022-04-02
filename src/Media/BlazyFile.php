@@ -163,18 +163,18 @@ class BlazyFile {
     $uri = NULL;
     if ($item) {
       $file = $item->entity ?? NULL;
-      $uri = self::isFile($file) ? $file->getFileUri() : ($item->uri ?? '');
+      $uri = self::isFile($file) ? $file->getFileUri() : ($item->uri ?? NULL);
     }
 
     // No file API with unmanaged files here: hard-coded UGC, legacy VEF.
     if (empty($uri) && $settings) {
       // Respects first.uri without image_url such as colorbox/zoom-like.
       if ($blazies = ($settings['blazies'] ?? NULL)) {
-        $uri = $blazies->get('uri') ?: $blazies->get('firtst.uri');
+        $uri = $blazies->get('image.uri') ?: $blazies->get('first.uri');
       }
 
       // @todo remove settings once done migration.
-      $uri = $settings['uri'] ?? $settings['_uri'] ?? $uri;
+      $uri = $uri ?: ($settings['uri'] ?? $settings['_uri'] ?? NULL);
     }
     return $uri ?: '';
   }
@@ -251,7 +251,11 @@ class BlazyFile {
         }
         else {
           // The last is MediaInterface, but let the dogs out for now.
-          $options = ['entity' => $reference, 'settings' => $settings];
+          $options = [
+            'entity' => $reference,
+            'source' => $entity,
+            'settings' => $settings,
+          ];
           if ($image = BlazyImage::fromContent($options, $name)) {
             $file = $image->entity;
           }

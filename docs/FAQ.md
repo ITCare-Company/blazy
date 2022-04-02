@@ -105,9 +105,10 @@ function MYTHEME_preprocess_blazy(&$variables) {
   // Be sure to limit the scope, only animate for particular conditions.
   if ($blazies->get('entity.id') == 123
     && $blazies->get('field.name') == 'field_media_animated')  {
+    $fx = $blazies->get('fx');
 
-    // This was taken care of by feeding $settings['fx'], or hard-coded here.
-    $attributes['data-animation'] = 'wobble';
+    // This was taken care of by feeding $fx, or hard-coded here.
+    $attributes['data-animation'] = $fx ?: 'wobble';
 
     // The following can be defined manually.
     $attributes['data-animation-duration'] = '3s';
