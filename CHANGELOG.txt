@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-04-03
+-----------------------------
+- Issue #3273186 by gausarts: Improve Main stage display at Paragraphs
+  integration.
+
 Blazy 8.x-2.0-dev, 2022-03-28
 -----------------------------
 - Moved some exclusive field formatters out into Blazy to prepare filters taste

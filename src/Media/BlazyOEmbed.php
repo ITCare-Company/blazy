@@ -5,6 +5,7 @@ namespace Drupal\blazy\Media;
 // @todo revert use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Url;
+use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Image\ImageFactory;
 use Drupal\media\IFrameUrlHelper;
 use Drupal\media\MediaInterface;
@@ -241,6 +242,28 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $settings = &$build['settings'];
     $blazies = $settings['blazies']->reset($settings);
     $valid = $entity instanceof MediaInterface;
+    $switch = $settings['media_switch'] ?? NULL;
+    $stage = $settings['image'] ?? NULL;
+
+    // Two designated types of $stage: MediaInterface and FileInterface.
+    // Since 2.10, Main stage is usable as the main display of a Paragraphs,
+    // only if the stage is a Media entity and Overlay is left empty. Basically
+    // render the Media and replace its parent $entity. This way if it is a
+    // video, Media switch will kick in as a Media player or simply an iframe.
+    // Old behavior is intact if Overlay is provided as previously designed.
+    // Before 2.10, the stage was always made an Image, and required Overlay
+    // to have a video player or iframe on top of the stage as an Image.
+    if (!$valid && $entity && $stage && empty($settings['overlay'])) {
+      if (isset($entity->{$stage}) && $reference = $entity->get($stage)->first()) {
+        if ($reference instanceof EntityReferenceItem) {
+          $object = $reference->entity;
+          if ($object instanceof MediaInterface) {
+            $entity = $object;
+            $valid = TRUE;
+          }
+        }
+      }
+    }
 
     /** @var \Drupal\media\Entity\Media $entity */
     if ($valid) {
