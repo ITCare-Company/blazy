@@ -49,6 +49,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     $item_id   = $blazies->get('item.id');
     $view_mode = $settings['view_mode'] ?? 'full';
     $is_nav    = $blazies->is('nav') ?: !empty($settings['nav']);
+    $switch    = $settings['media_switch'] ?? NULL;
 
     // Bail out if vanilla (rendered entity) is required.
     if (!empty($settings['vanilla'])) {
@@ -67,8 +68,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     // If `Image rendered` is picked, render image as is. Might not be Blazy's
     // formatter, yet has awesomeness that Blazy doesn't, but still wants to be
     // embedded in Blazy ecosytem mostly for Grid, Slider, Mason, GridStack etc.
-    $rendered = ($settings['media_switch'] ?? NULL) == 'rendered';
-    if (!empty($settings['image']) && $rendered) {
+    if (!empty($settings['image']) && $switch == 'rendered') {
       $element['content'][] = BlazyField::view($entity, $settings['image'], $view_mode);
     }
 

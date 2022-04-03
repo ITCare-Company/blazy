@@ -136,11 +136,12 @@ class Grid {
    * Limit to grid only, so to be usable for plain list.
    */
   public static function gridContainerAttributes(array &$attributes, array $settings): void {
-    $style = $settings['style'];
+    $style = $settings['style'] ?: 'grid';
     $blazies = $settings['blazies'];
 
     if ($blazies->is('grid')) {
-      $attributes['class'][] = 'blazy--grid block-' . $style . ' block-count-' . $blazies->get('count');
+      $format = 'blazy--grid block-%s block-count-%d';
+      $attributes['class'][] = sprintf($format, $style, $blazies->get('count'));
 
       // If Native Grid style with numeric grid, assumed non-two-dimensional.
       if ($style == 'nativegrid') {
@@ -212,7 +213,7 @@ class Grid {
       $values = array_map('trim', explode(" ", $grid));
 
       foreach ($values as $value) {
-        $width = (int) $value;
+        $width = $value;
         $height = 0;
 
         // If multidimensional layout.
