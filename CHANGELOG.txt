@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2022-04-04
+-----------------------------
+- Fixed for thumbnail regression for sub-modules.
+
 Blazy 8.x-2.0-dev, 2022-04-03
 -----------------------------
 - Issue #3273186 by gausarts: Improve Main stage display at Paragraphs

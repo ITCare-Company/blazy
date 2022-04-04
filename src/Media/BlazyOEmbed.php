@@ -218,6 +218,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
     // @todo remove settings.
     $settings['type'] = $type;
+    $settings['uri'] = $uri;
     $blazies->set('media.label', $title)
       ->set('media.type', $type);
 
@@ -242,7 +243,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $settings = &$build['settings'];
     $blazies = $settings['blazies']->reset($settings);
     $valid = $entity instanceof MediaInterface;
-    $switch = $settings['media_switch'] ?? NULL;
     $stage = $settings['image'] ?? NULL;
 
     // Two designated types of $stage: MediaInterface and FileInterface.
@@ -298,7 +298,12 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     }
     else {
       // Failsafe, BlazyFilter/ VEF without file upload [data-entity-uuid].
-      $build['item'] = $this->getExternalImageItem($settings);
+      try {
+        $build['item'] = $this->getExternalImageItem($settings);
+      }
+      catch (\Exception $ignore) {
+        // Silently failed likely local works without internet.
+      }
     }
   }
 

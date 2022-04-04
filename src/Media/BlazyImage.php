@@ -188,11 +188,12 @@ class BlazyImage {
    * @todo simplify this, like everything else. An obvious confusion here.
    * @todo return image item directly without settings.
    */
-  public static function fromAny($object = NULL, array $settings = []): ?object {
+  public static function fromAny($object = NULL, array &$settings = []): ?object {
     // @todo remove check at 3.x after sub-modules and VEF removed.
     Blazy::verify($settings);
+    $blazies = $settings['blazies'];
 
-    $output = NULL;
+    $output = $uri = NULL;
 
     // If Media entity, we must have a File entity, and likely ImageItem.
     if ($object instanceof MediaInterface) {
@@ -224,6 +225,10 @@ class BlazyImage {
       // We may have a Media entity, etc.
       $output = self::fromContent($options);
     }
+
+    // @todo remove after sub-modules, require by thumbnails till updated.
+    $uri = $settings['uri'] = $uri ?: BlazyFile::uri($output, $settings);
+    $blazies->set('image.uri', $uri);
 
     return $output;
   }

@@ -11,7 +11,8 @@ use Drupal\blazy\Media\BlazyImage;
  * This file is no longer used nor needed, and will be removed at 3.x.
  * VEF will continue working without this file via BlazyOEmbed instead.
  *
- * BVEF doesn't need this file.
+ * BVEF doesn't need this file, can adopt
+ * \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter instead.
  *
  * @see Drupal\blazy\Plugin\views\field\BlazyViewsFieldPluginBase
  * @see Drupal\slick_browser\SlickBrowser::widgetEntityBrowserFileFormAlter()
