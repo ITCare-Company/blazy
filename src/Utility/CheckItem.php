@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Utility;
 
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyFile;
 
 /**
@@ -62,11 +63,12 @@ class CheckItem {
     $type      = $settings['type'] ?? 'image';
     $type      = $settings['type'] = $blazies->get('media.type') ?: $type;
     $bundle    = $blazies->get('media.bundle', $settings['bundle'] ?? '');
-    $embed_url = $blazies->get('media.embed_url', $settings['embed_url'] ?? '');
+    $embed_url = $settings['embed_url'] ?? '';
+    $embed_url = $embed_url ?: $blazies->get('media.embed_url');
     $videos    = ['oembed:video', 'video_embed_field'];
     $medias    = array_merge(['audio_file', 'video_file'], $videos);
-    $is_video  = $source && in_array($source, $videos);
-    $is_media  = $source && in_array($source, $medias);
+    $is_video  = $source && in_array($source, $videos) || $type == 'video';
+    $is_media  = $source && in_array($source, $medias) || $is_video;
     $is_remote = $bundle == 'remote_video' || $type == 'video';
     $is_remote = $embed_url && ($is_video || $is_remote);
     $switch    = $settings['media_switch'] ?? NULL;
@@ -74,12 +76,20 @@ class CheckItem {
     $is_iframe = $is_remote && empty($switch);
     $is_player = $is_remote && $switch == 'media';
 
+    // BVEF compat without core OEmbed security feature.
+    // @todo remove once BVEF adopted Blazy:2.10 BlazyVideoFormatter.
+    if ($is_player && strpos($embed_url, 'media/oembed') === FALSE) {
+      $embed_url = Blazy::autoplay($embed_url);
+    }
+
     // Also addresses mixed media unique per item, also for convenient.
+    // And compat with BVEF till they are updated to adopt 2.10 changes.
     $blazies->set('is.iframe', $is_iframe)
       ->set('is.multimedia', $is_media)
       ->set('is.player', $is_player)
       ->set('is.remote_video', $is_remote)
       ->set('is.video_file', $source == 'video_file')
+      ->set('media.embed_url', $embed_url)
       ->set('media.type', $type)
       ->set('switch', $switch);
   }

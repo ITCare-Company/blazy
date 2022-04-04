@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2022-04-05
+-----------------------------
+- Fixed for BVEF BC, lightbox gallery regression, etc.
+
 Blazy 8.x-2.0-dev, 2022-04-04
 -----------------------------
 - Fixed for thumbnail regression for sub-modules.

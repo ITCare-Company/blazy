@@ -87,8 +87,16 @@ class Check {
     $load['drupalSettings']['blazy'] = $config;
     $load['drupalSettings']['blazyIo'] = $manager->getIoSettings($attach);
 
+    if ($libs = array_filter($blazies->get('libs', []))) {
+      foreach (array_keys($libs) as $lib) {
+        $key = str_replace('__', '.', $lib);
+        $load['library'][] = 'blazy/' . $key;
+      }
+    }
+
+    // @todo remove for the above once all components are set to libs.
     foreach (BlazyDefault::components() as $component) {
-      $key = str_replace('.', '_', $component);
+      $key = str_replace('.', '__', $component);
       if ($blazies->get('libs.' . $key, FALSE)) {
         $load['library'][] = 'blazy/' . $component;
       }
@@ -286,7 +294,8 @@ class Check {
     if ($style) {
       foreach (BlazyDefault::grids() as $grid) {
         if ($style == $grid) {
-          $blazies->set('libs.' . $style, $grid);
+          $key = str_replace('.', '__', $style);
+          $blazies->set('libs.' . $key, $grid);
         }
       }
 

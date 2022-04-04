@@ -169,7 +169,7 @@ trait BlazyFormatterTrait {
       ->set('field.view_mode', $this->viewMode)
       ->set('field.third_party', $this->getThirdPartySettings());
 
-    if ($scopes = $this->getPluginScopes()) {
+    if (method_exists($this, 'getPluginScopes') && $scopes = $this->getPluginScopes()) {
       if (!empty($scopes['target_bundles'])) {
         $blazies->set('field.target_bundles', $scopes['target_bundles']);
       }
@@ -191,7 +191,8 @@ trait BlazyFormatterTrait {
    * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().
    */
   public function getScopedFormElements() {
-    $scopes = $this->getPluginScopes();
+    // Compat for BVEF till updated to adopt Blazy 2.10 BlazyVideoFormatter.
+    $scopes = method_exists($this, 'getPluginScopes') ? $this->getPluginScopes() : [];
 
     // @todo remove `$scopes +` at Blazy 3.x.
     $definitions = $scopes + $this->getCommonScopedFormElements();

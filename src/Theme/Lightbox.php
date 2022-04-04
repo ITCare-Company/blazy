@@ -67,7 +67,7 @@ class Lightbox {
     // Gallery is determined by a view, or overriden by colorbox settings.
     $view_name = $blazies->get('view.name');
     $gallery_enabled = !empty($view_name);
-    $gallery_default = $gallery_enabled ? $view_name . '-' . $blazies->get('view.view_mode') : 'blazy-' . $switch_css;
+    $gallery_default = $gallery_enabled ? $view_name . '-' . $blazies->get('view.view_mode') : '';
 
     // Respects colorbox settings unless for an explicit view gallery.
     if (!$gallery_enabled
@@ -78,9 +78,9 @@ class Lightbox {
 
     // The gallery_id might be a formatter inside a view, not aware of its view.
     // The formatter might be duplicated on a page, although rare at production.
-    $gallery_id = $blazies->get('lightbox.gallery_id', $settings['gallery_id'] ?? '');
-    $gallery_id = empty($gallery_id) ? $gallery_default : $gallery_id . '-' . $gallery_default;
-    $gallery_id = !$gallery_enabled ? NULL : str_replace('_', '-', $gallery_id);
+    $gallery_id = $blazies->get('lightbox.gallery_id');
+    $gallery_id = empty($gallery_id) ? $gallery_default : $gallery_id . $gallery_default;
+    $box_id     = !$gallery_enabled ? NULL : str_replace('_', '-', $gallery_id);
     $box_width  = $item->width ?? $settings['width'] ?? NULL;
     $box_height = $item->height ?? $settings['height'] ?? NULL;
 
@@ -178,13 +178,13 @@ class Lightbox {
 
     // @todo remove after sub-modules.
     $settings['box_url'] = $box_url;
-    $blazies->set('lightbox.gallery_id', $gallery_id)
+    $blazies->set('lightbox.gallery_id', $box_id)
       ->set('lightbox.url', $box_url)
       ->set('lightbox.width', (int) $box_width)
       ->set('lightbox.height', (int) $box_height)
       ->set('lightbox.media_preview_url', $box_media_url);
 
-    if ($colorbox && $gallery_id) {
+    if ($colorbox && $box_id) {
       // @todo make Blazy Grid without Blazy Views fields support multiple
       // fields and entities as a gallery group, likely via a class at Views UI.
       // Must use consistent key for multiple entities, hence cannot use id.
@@ -192,7 +192,7 @@ class Lightbox {
       // to the known Blazy formatters, or Blazy Views style plugins for now.
       // The hustle is Colorbox wants rel on individual item to group, unlike
       // other lightbox library which provides a way to just use a container.
-      $json['rel'] = $gallery_id;
+      $json['rel'] = $box_id;
     }
 
     $has_dim = !empty($json['height']) && !empty($json['width']);

@@ -87,7 +87,7 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       // }
       // }
        */
-      $data = ['item' => $item, 'settings' => $settings];
+      $data = ['item' => NULL, 'settings' => $settings];
       $this->blazyOembed->build($data, $entity);
 
       // Image with responsive image, lazyLoad, and lightbox supports.

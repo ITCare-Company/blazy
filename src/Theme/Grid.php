@@ -145,7 +145,7 @@ class Grid {
 
       // If Native Grid style with numeric grid, assumed non-two-dimensional.
       if ($style == 'nativegrid') {
-        $attributes['class'][] = $blazies->get('libs.nativegrid_masonry')
+        $attributes['class'][] = $blazies->get('libs.nativegrid__masonry')
           ? 'is-b-masonry' : 'is-b-native';
       }
 
@@ -239,7 +239,7 @@ class Grid {
     $blazies = $settings['blazies'];
     if ($settings['grid_large'] = $settings['grid']) {
       if (self::isNativeGridAsMasonry($settings)) {
-        $blazies->set('libs.nativegrid_masonry', TRUE);
+        $blazies->set('libs.nativegrid__masonry', TRUE);
       }
 
       // If Native Grid style with numeric grid, assumed non-two-dimensional.

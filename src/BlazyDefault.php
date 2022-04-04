@@ -211,6 +211,13 @@ class BlazyDefault {
   }
 
   /**
+   * Returns text settings.
+   */
+  public static function textSettings() {
+    return self::gridBaseSettings() + ['style' => ''];
+  }
+
+  /**
    * Returns shared global form settings which should be consumed at formatters.
    */
   public static function uiSettings() {

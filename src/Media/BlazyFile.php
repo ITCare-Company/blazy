@@ -173,9 +173,11 @@ class BlazyFile {
         $uri = $blazies->get('image.uri') ?: $blazies->get('first.uri');
       }
 
-      // @todo remove settings once done migration.
-      $uri = $uri ?: ($settings['uri'] ?? $settings['_uri'] ?? NULL);
+      // @todo remove settings once done migration, and after sub-modules.
+      $_uri = $settings['uri'] ?? $settings['_uri'] ?? NULL;
+      $uri = $_uri ?: $uri;
     }
+
     return $uri ?: '';
   }
 
@@ -268,7 +270,7 @@ class BlazyFile {
   /**
    * Returns the File entity from settings, if applicable, relevant for Filter.
    */
-  private static function fromSettings(array $settings): ?object {
+  public static function fromSettings(array $settings): ?object {
     $entity = NULL;
     $blazies = $settings['blazies'] ?? NULL;
 

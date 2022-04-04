@@ -35,6 +35,14 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       }
     }
 
+    // BVEF compat due to its ::viewElements being left behind.
+    // @todo remove once BVEF is updated to Blazy:2.10.
+    if (!$blazies->was('initialized')) {
+      $this->preSettings($settings);
+      Preloader::prepare($settings, $items);
+      $this->postSettings($settings);
+    }
+
     $this->prepareData($build, $entity);
     $this->fieldSettings($build, $items);
 

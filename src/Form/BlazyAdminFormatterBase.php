@@ -40,10 +40,21 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    */
   public function imageStyleForm(array &$form, $definition = []) {
     $is_responsive = function_exists('responsive_image_get_image_dimensions');
+    $field_type = $definition['field_type'] ?? '';
+    $plugin_id = $definition['plugin_id'] ?? '';
 
     if (empty($definition['no_image_style'])) {
       $base = $this->baseForm($definition);
-      foreach (['preload', 'loading', 'image_style'] as $key) {
+
+      // Excludes VEF which has no File API to work with.
+      $vef = ($field_type && $field_type == 'video_embed_field')
+        || $plugin_id == 'blazy_vef_default';
+
+      if (!$vef) {
+        $form['preload'] = $base['preload'];
+      }
+
+      foreach (['image_style', 'loading'] as $key) {
         $form[$key] = $base[$key];
       }
     }
