@@ -55,10 +55,8 @@ class BlazyDefault {
    */
   public static function anywhereSettings() {
     return [
-      'lazy'    => '',
-      'loading' => 'lazy',
-      'preload' => FALSE,
-      'style'   => '',
+      'lazy'  => '',
+      'style' => '',
     ];
   }
 
@@ -98,12 +96,14 @@ class BlazyDefault {
       'box_caption_custom'     => '',
       'box_media_style'        => '',
       'caption'                => [],
+      'loading'                => 'lazy',
+      'preload'                => FALSE,
       'responsive_image_style' => '',
     ] + self::cherrySettings();
   }
 
   /**
-   * Returns deprecated settings.
+   * Returns deprecated, or previously wrong room settings.
    *
    * @todo remove custom breakpoints anytime before 3.x.
    */
@@ -116,6 +116,8 @@ class BlazyDefault {
       'id' => '',
       'sizes' => '',
       'grid_header' => '',
+      'loading' => 'lazy',
+      'preload' => FALSE,
     ];
   }
 
@@ -126,7 +128,6 @@ class BlazyDefault {
     return [
       'layout'    => '',
       'view_mode' => '',
-      // @todo remove + self::deprecatedSettings()
     ] + self::baseSettings() + self::baseImageSettings();
   }
 

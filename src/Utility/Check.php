@@ -47,7 +47,10 @@ class Check {
   public static function attachments(array &$load, array &$attach = []): void {
     Blazy::postSettings($attach);
 
-    $manager = Blazy::service('blazy.manager');
+    if (!($manager = Blazy::service('blazy.manager'))) {
+      return;
+    }
+
     $blazies = $attach['blazies'];
     $unblazy = $blazies->is('unblazy', FALSE);
     $unload  = $blazies->get('ui.nojs.lazy', FALSE);
@@ -174,6 +177,7 @@ class Check {
       ->set('libs.compat', $is_compat)
       ->set('libs.ratio', !empty($settings['ratio']))
       ->set('use.dataset', $is_bg || $is_video)
+      ->set('use.loader', !$is_nojs)
       ->set('was.container', TRUE);
   }
 

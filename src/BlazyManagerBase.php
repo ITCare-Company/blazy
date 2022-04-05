@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy;
 
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -84,11 +83,11 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   protected $languageManager;
 
   /**
-   * Static cache for the lightboxes.
+   * The cached data.
    *
    * @var array
    */
-  protected $lightboxes;
+  protected $cachedData;
 
   /**
    * Constructs a BlazyManager object.
@@ -247,7 +246,42 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getIoSettings(array $attach = []) {
+  public function getCachedData($cid, array $data, $combine = FALSE): array {
+    if (!isset($this->cachedData[$cid])) {
+      if ($cache = $this->cache->get($cid)) {
+        $this->cachedData[$cid] = $cache->data;
+      }
+      else {
+        $this->moduleHandler->alter($cid, $data);
+        $data = array_unique($data);
+
+        if ($combine) {
+          $data = array_combine($data, $data);
+        }
+
+        sort($data);
+
+        $count = count($data);
+        $tags = Cache::buildTags($cid, ['count:' . $count]);
+        $this->cache->set($cid, $data, Cache::PERMANENT, $tags);
+
+        $this->cachedData[$cid] = $data;
+      }
+    }
+    return $this->cachedData[$cid] ? array_filter($this->cachedData[$cid]) : [];
+  }
+
+  /**
+   * Alias for BlazyCache::metadata() to forget looking up unknown classes.
+   */
+  public function getCacheMetadata(array $build = []) {
+    return BlazyCache::metadata($build);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getIoSettings(array $attach = []): object {
     $io = [];
     $thold = trim($this->configLoad('io.threshold') ?? "");
     $thold = str_replace(['[', ']'], '', $thold ?: '0');
@@ -276,17 +310,72 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * {@inheritdoc}
    */
+  public function getImageEffects(): array {
+    $effects[] = 'blur';
+    return $this->getCachedData('blazy_image_effects', $effects, TRUE);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLibrariesPath($name, $base_path = FALSE): ?string {
+    return Blazy::getLibrariesPath($name, $base_path);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLightboxes(): array {
+    $data = BlazyCache::lightboxes($this->root);
+    return $this->getCachedData('blazy_lightboxes', $data, FALSE);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPath($type, $name, $absolute = FALSE): ?string {
+    return Blazy::getPath($type, $name, $absolute);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getStyles(): array {
+    $styles = [
+      'column' => 'CSS3 Columns',
+      'grid' => 'Grid Foundation',
+      'flex' => 'Flexbox Masonry',
+      'nativegrid' => 'Native Grid',
+    ];
+    $this->moduleHandler->alter('blazy_style', $styles);
+    return $styles;
+  }
+
+  /**
+   * Alias for BlazyImage::thumbnail() to forget looking up unknown classes.
+   *
+   * @todo make it into interface after sub-modules removal.
+   */
+  public function getThumbnail(array $settings = [], $item = NULL) {
+    return BlazyImage::thumbnail($settings, $item);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isBlazy(array &$settings, array $data = []): void {
+    Check::blazyOrNot($settings, $data);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function prepareData(array &$build, $entity = NULL): void {
     // Do nothing, let extenders share data at ease as needed.
   }
 
   /**
-   * Prepare base preliminary settings.
-   *
-   * The `fx` sequence: hook_alter > formatters (not implemented yet) > UI.
-   * The `_fx` is a special flag such as to temporarily disable till needed.
-   * Called by field formatters, views [styles|fields via BlazyEntity],
-   * [blazy|splide|slick] filters.
+   * {@inheritdoc}
    */
   public function preSettings(array &$settings): void {
     Blazy::verify($settings);
@@ -332,9 +421,9 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
-   * Modifies the post settings inherited down to each item.
+   * {@inheritdoc}
    */
-  public function postSettings(array &$settings) {
+  public function postSettings(array &$settings): void {
     Blazy::postSettings($settings);
 
     // Sub-modules may need to override Blazy definitions.
@@ -344,74 +433,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getLightboxes() {
-    if (!isset($this->lightboxes)) {
-      $cid = 'blazy_lightboxes';
-
-      if ($cache = $this->cache->get($cid)) {
-        $this->lightboxes = $cache->data;
-      }
-      else {
-        $lightboxes = BlazyCache::lightboxes($this->root);
-
-        $this->moduleHandler->alter('blazy_lightboxes', $lightboxes);
-        $lightboxes = array_unique($lightboxes);
-        sort($lightboxes);
-
-        $count = count($lightboxes);
-        $tags = Cache::buildTags($cid, ['count:' . $count]);
-        $this->cache->set($cid, $lightboxes, Cache::PERMANENT, $tags);
-
-        $this->lightboxes = $lightboxes;
-      }
-    }
-    return $this->lightboxes ? array_filter($this->lightboxes) : [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getImageEffects() {
-    $effects[] = 'blur';
-
-    $this->moduleHandler->alter('blazy_image_effects', $effects);
-    $effects = array_unique($effects);
-    return array_combine($effects, $effects);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isBlazy(array &$settings, array $data = []) {
-    Check::blazyOrNot($settings, $data);
-  }
-
-  /**
-   * Alias for BlazyCache::metadata() to forget looking up unknown classes.
-   */
-  public function getCacheMetadata(array $build = []) {
-    return BlazyCache::metadata($build);
-  }
-
-  /**
-   * Alias for BlazyImage::thumbnail() to forget looking up unknown classes.
-   */
-  public function getThumbnail(array $settings = [], $item = NULL) {
-    return BlazyImage::thumbnail($settings, $item);
-  }
-
-  /**
-   * Provides alterable display styles.
-   */
-  public function getStyles() {
-    $styles = [
-      'column' => 'CSS3 Columns',
-      'grid' => 'Grid Foundation',
-      'flex' => 'Flexbox Masonry',
-      'nativegrid' => 'Native Grid',
-    ];
-    $this->moduleHandler->alter('blazy_style', $styles);
-    return $styles;
+  public function toGrid(array $items, array $settings): array {
+    return Blazy::grid($items, $settings);
   }
 
   /**
@@ -437,15 +460,12 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     array &$element,
     array $settings,
     array $attachments = []
-  ) {
+  ): void {
     $cache                = $this->getCacheMetadata($settings);
     $attached             = $this->attach($settings);
-    $attachments          = empty($attachments)
-      ? $attached : NestedArray::mergeDeep($attached, $attachments);
-    $element['#attached'] = empty($element['#attached'])
-      ? $attachments : NestedArray::mergeDeep($element['#attached'], $attachments);
-    $element['#cache']    = empty($element['#cache'])
-      ? $cache : NestedArray::mergeDeep($element['#cache'], $cache);
+    $attachments          = Blazy::merge($attached, $attachments);
+    $element['#attached'] = Blazy::merge($attachments, $element, '#attached');
+    $element['#cache']    = Blazy::merge($cache, $element, '#cache');
   }
 
   /**

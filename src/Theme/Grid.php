@@ -18,7 +18,7 @@ class Grid {
    * Returns items wrapped by theme_item_list(), can be a grid, or plain list.
    *
    * @param array $items
-   *   The grid items being modified.
+   *   The grid items.
    * @param array $settings
    *   The given settings.
    *

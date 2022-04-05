@@ -62,6 +62,23 @@ class BlazyTextFormatter extends FormatterBase {
       ->set('is.text', TRUE)
       ->set('lazy', []);
 
+    $build += $this->getElements($items);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+    $element = [];
+    $this->admin()->buildSettingsForm($element, $this->getScopedFormElements());
+    return $element;
+  }
+
+  /**
+   * Returns the Blazy elements, also for sub-modules to re-use.
+   */
+  protected function getElements($items): array {
+    $elements = [];
     // The ProcessedText element already handles cache context & tag bubbling.
     // @see \Drupal\filter\Element\ProcessedText::preRenderText()
     foreach ($items as $item) {
@@ -75,18 +92,10 @@ class BlazyTextFormatter extends FormatterBase {
         '#format'   => $item->format,
         '#langcode' => $item->getLangcode(),
       ];
-      $build[] = $element;
-      unset($element);
-    }
-  }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    $element = [];
-    $this->admin()->buildSettingsForm($element, $this->getScopedFormElements());
-    return $element;
+      $elements[] = $element;
+    }
+    return $elements;
   }
 
   /**

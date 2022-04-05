@@ -7,7 +7,6 @@ use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Theme\BlazyAttribute;
 use Drupal\blazy\Cache\BlazyCache;
-use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Theme\Lightbox;
 use Drupal\blazy\Utility\CheckItem;
 
@@ -163,7 +162,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     // Take over elements for a grid display as this is all we need, learned
     // from the issues such as: #2945524, or product variations.
     // We'll selectively pass or work out $attributes not so far below.
-    $element = Grid::build($build, $settings);
+    $element = $this->toGrid($build, $settings);
     $this->setAttachments($element, $settings);
 
     if ($attributes) {
@@ -175,7 +174,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
       }
       else {
         // Use case: VIS, can be blended with UL element safely down here.
-        // The $attributes is merged with Grid::build ones here.
+        // The $attributes is merged with self::toGrid() ones here.
         $element['#attributes'] = NestedArray::mergeDeep($element['#attributes'], $attributes);
       }
     }

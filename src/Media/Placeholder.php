@@ -141,6 +141,7 @@ class Placeholder {
     if ($minwidth = (int) $blazies->get('ui.blur_minwidth', 0)) {
       $width = (int) $blazies->get('image.width');
       if ($width < $minwidth) {
+        // Ensures ony if Blur since animation can be anything.
         if ($blazies->get('fx') == 'blur') {
           $blazies->set('fx', NULL);
         }

@@ -43,14 +43,15 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     $field_type = $definition['field_type'] ?? '';
     $plugin_id = $definition['plugin_id'] ?? '';
 
-    if (empty($definition['no_image_style'])) {
+    if (empty($definition['no_image_style'])
+      && strpos($plugin_id, '_text') === FALSE) {
       $base = $this->baseForm($definition);
 
       // Excludes VEF which has no File API to work with.
-      $vef = ($field_type && $field_type == 'video_embed_field')
+      $disabled = ($field_type && $field_type == 'video_embed_field')
         || $plugin_id == 'blazy_vef_default';
 
-      if (!$vef) {
+      if (!$disabled) {
         $form['preload'] = $base['preload'];
       }
 

@@ -16,7 +16,7 @@ use Drupal\blazy\Utility\CheckItem;
 /**
  * Provides common blazy utility static methods.
  */
-class Blazy implements BlazyInterface {
+class Blazy {
 
   // @todo remove at blazy:3.0.
   use BlazyDeprecatedTrait;
@@ -32,12 +32,9 @@ class Blazy implements BlazyInterface {
    * Provides attachments when not using the provided API.
    */
   public static function attach(array &$variables, array $settings = []): void {
-    // Our own service exists for sure, but tests don't see this due to static.
     if ($blazy = self::service('blazy.manager')) {
       $attachments = $blazy->attach($settings);
-      $variables['#attached'] = empty($variables['#attached'])
-        ? $attachments
-        : NestedArray::mergeDeep($variables['#attached'], $attachments);
+      $variables['#attached'] = self::merge($attachments, $variables, '#attached');
     }
   }
 
@@ -72,7 +69,7 @@ class Blazy implements BlazyInterface {
    *
    * @todo remove drupal_get_path check when min D9.3.
    */
-  public static function getPath($type, $name, $absolute = FALSE): string {
+  public static function getPath($type, $name, $absolute = FALSE): ?string {
     if ($resolver = self::pathResolver()) {
       $path = $resolver->getPath($type, $name);
     }
@@ -86,19 +83,31 @@ class Blazy implements BlazyInterface {
   /**
    * Provides a wrapper to replace deprecated libraries_get_path() at ease.
    */
-  public static function getLibrariesPath($name, $base_path = FALSE) {
+  public static function getLibrariesPath($name, $base_path = FALSE): ?string {
     if ($finder = self::service('library.libraries_directory_file_finder')) {
       return $finder->find($name);
     }
 
     $function = 'libraries_get_path';
-    return is_callable($function) ? $function($name, $base_path) : FALSE;
+    return is_callable($function) ? $function($name, $base_path) : '';
+  }
+
+  /**
+   * Merge data with a new one with an optional key.
+   */
+  public static function merge(array $data, array $element, $key = NULL): array {
+    if ($key) {
+      return empty($element[$key])
+        ? $data : NestedArray::mergeDeep($element[$key], $data);
+    }
+    return empty($element)
+      ? $data : NestedArray::mergeDeep($data, $element);
   }
 
   /**
    * Preliminary settings, normally at container/ global level.
    */
-  public static function preSettings(array &$settings) {
+  public static function preSettings(array &$settings): void {
     self::verify($settings);
 
     $blazies = $settings['blazies'];
@@ -128,7 +137,7 @@ class Blazy implements BlazyInterface {
   /**
    * Modifies the common UI settings inherited down to each item.
    */
-  public static function postSettings(array &$settings = []) {
+  public static function postSettings(array &$settings = []): void {
     // Failsafe, might be called directly at ::attach() outside the workflow.
     self::verify($settings);
 
@@ -157,7 +166,7 @@ class Blazy implements BlazyInterface {
   /**
    * Prepares the essential settings, URI, delta, etc.
    */
-  public static function prepare(array &$settings, $item = NULL, $delta = -1) {
+  public static function prepare(array &$settings, $item = NULL, $delta = -1): void {
     CheckItem::essentials($settings, $item, $delta);
     CheckItem::multimedia($settings);
     CheckItem::unstyled($settings, $item);
@@ -167,7 +176,7 @@ class Blazy implements BlazyInterface {
   /**
    * Blazy is prepared with an URI, provides few attributes as needed.
    */
-  public static function prepared(array &$attributes, array &$settings, $item = NULL) {
+  public static function prepared(array &$attributes, array &$settings, $item = NULL): void {
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
     BlazyImage::prepare($settings, $item);
@@ -225,13 +234,6 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Returns the cross-compat D8 ~ D10 app root.
-   */
-  public static function root($container) {
-    return version_compare(\Drupal::VERSION, '9.0', '<') ? $container->get('app.root') : $container->getParameter('app.root');
-  }
-
-  /**
    * Reset the BlazySettings per item.
    */
   public static function reset(array &$settings): BlazySettings {
@@ -245,6 +247,13 @@ class Blazy implements BlazyInterface {
     }
 
     return $blazies;
+  }
+
+  /**
+   * Returns the cross-compat D8 ~ D10 app root.
+   */
+  public static function root($container) {
+    return version_compare(\Drupal::VERSION, '9.0', '<') ? $container->get('app.root') : $container->getParameter('app.root');
   }
 
   /**
@@ -287,43 +296,13 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Retrieves the stream wrapper manager service.
+   * Retrieves the breakpoint manager.
    *
-   * @return \Drupal\Core\StreamWrapper\StreamWrapperManager
-   *   The stream wrapper manager.
+   * @return \Drupal\breakpoint\BreakpointManager
+   *   The breakpoint manager.
    */
-  public static function streamWrapperManager() {
-    return self::service('stream_wrapper_manager');
-  }
-
-  /**
-   * Retrieves the currently active route match object.
-   *
-   * @return \Drupal\Core\Routing\RouteMatchInterface
-   *   The currently active route match object.
-   */
-  public static function routeMatch() {
-    return self::service('current_route_match');
-  }
-
-  /**
-   * Retrieves the request stack.
-   *
-   * @return \Symfony\Component\HttpFoundation\RequestStack
-   *   The request stack.
-   */
-  public static function requestStack() {
-    return self::service('request_stack');
-  }
-
-  /**
-   * Retrieves the path resolver.
-   *
-   * @return \Drupal\Core\Extension\ExtensionPathResolver
-   *   The path resolver.
-   */
-  public static function pathResolver() {
-    return self::service('extension.path.resolver');
+  public static function breakpointManager() {
+    return self::service('breakpoint.manager');
   }
 
   /**
@@ -339,13 +318,43 @@ class Blazy implements BlazyInterface {
   }
 
   /**
-   * Retrieves the breakpoint manager.
+   * Retrieves the path resolver.
    *
-   * @return \Drupal\breakpoint\BreakpointManager
-   *   The breakpoint manager.
+   * @return \Drupal\Core\Extension\ExtensionPathResolver
+   *   The path resolver.
    */
-  public static function breakpointManager() {
-    return self::service('breakpoint.manager');
+  public static function pathResolver() {
+    return self::service('extension.path.resolver');
+  }
+
+  /**
+   * Retrieves the request stack.
+   *
+   * @return \Symfony\Component\HttpFoundation\RequestStack
+   *   The request stack.
+   */
+  public static function requestStack() {
+    return self::service('request_stack');
+  }
+
+  /**
+   * Retrieves the currently active route match object.
+   *
+   * @return \Drupal\Core\Routing\RouteMatchInterface
+   *   The currently active route match object.
+   */
+  public static function routeMatch() {
+    return self::service('current_route_match');
+  }
+
+  /**
+   * Retrieves the stream wrapper manager service.
+   *
+   * @return \Drupal\Core\StreamWrapper\StreamWrapperManager
+   *   The stream wrapper manager.
+   */
+  public static function streamWrapperManager() {
+    return self::service('stream_wrapper_manager');
   }
 
   /**
