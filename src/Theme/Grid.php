@@ -63,7 +63,7 @@ class Grid {
       $classes = $wrapper_attrs['class'] ?? [];
       $wrapper_attrs['class'] = array_merge([$item_class], $classes);
 
-      self::gridItemAttributes($wrapper_attrs, $sets);
+      self::itemAttributes($wrapper_attrs, $sets);
 
       // Good for Bootstrap .well/ .card class, must cast or BS will reset.
       $classes = (array) ($content_attrs['class'] ?? []);
@@ -116,7 +116,7 @@ class Grid {
    */
   public static function attributes(array &$attributes, array $settings): void {
     $blazies = $settings['blazies'];
-    $gallery_id = $blazies->get('lightbox.gallery_id', $settings['gallery_id'] ?? '');
+    $gallery_id = $blazies->get('lightbox.gallery_id');
     $is_gallery = $blazies->is('lightbox') && $gallery_id;
 
     // Provides data-attributes to avoid conflict with original implementations.
@@ -128,64 +128,9 @@ class Grid {
       $attributes['id'] = $is_gallery ? $gallery_id : $id;
     }
 
-    // Provides grid container attributes.
-    self::gridContainerAttributes($attributes, $settings);
-  }
-
-  /**
-   * Limit to grid only, so to be usable for plain list.
-   */
-  public static function gridContainerAttributes(array &$attributes, array $settings): void {
-    $style = $settings['style'] ?: 'grid';
-    $blazies = $settings['blazies'];
-
+    // Limit to grid only, so to be usable for plain list.
     if ($blazies->is('grid')) {
-      $format = 'blazy--grid block-%s block-count-%d';
-      $attributes['class'][] = sprintf($format, $style, $blazies->get('count'));
-
-      // If Native Grid style with numeric grid, assumed non-two-dimensional.
-      if ($style == 'nativegrid') {
-        $attributes['class'][] = $blazies->get('libs.nativegrid__masonry')
-          ? 'is-b-masonry' : 'is-b-native';
-      }
-
-      // Adds common grid attributes for CSS3 column, Foundation, etc.
-      // Only if using the plain grid column numbers (1 - 12).
-      if ($settings['grid_large'] = $settings['grid']) {
-        foreach (['small', 'medium', 'large'] as $key) {
-          $value = $settings['grid_' . $key] ?? NULL;
-          if ($value && is_numeric($value)) {
-            $attributes['class'][] = $key . '-block-' . $style . '-' . $value;
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * LProvides grid item attributes, relevant for Native Grid.
-   */
-  public static function gridItemAttributes(array &$attributes, array $settings): void {
-    $blazies = $settings['blazies'];
-    if ($dim = $blazies->get('grid.large_dimensions', [])) {
-      $key = $blazies->get('delta');
-      if (isset($dim[$key])) {
-        $attributes['data-b-w'] = $dim[$key]['width'];
-        if (!empty($dim[$key]['height'])) {
-          $attributes['data-b-h'] = $dim[$key]['height'];
-        }
-      }
-      else {
-        // Supports a grid repeat for the lazy.
-        $height = $dim[0]['height'];
-        $width = $dim[0]['width'];
-        if ($blazies->get('count') > count($dim) && !empty($width)) {
-          $attributes['data-b-w'] = $width;
-          if (!empty($height)) {
-            $attributes['data-b-h'] = $height;
-          }
-        }
-      }
+      self::containerAttributes($attributes, $settings, $blazies);
     }
   }
 
@@ -247,6 +192,60 @@ class Grid {
         $value = empty($settings['grid_' . $key]) ? NULL : $settings['grid_' . $key];
         if ($dimensions = self::toDimensions($value)) {
           $blazies->set('grid.' . $key . '_dimensions', $dimensions);
+        }
+      }
+    }
+  }
+
+  /**
+   * Limit to grid only, so to be usable for plain list.
+   */
+  private static function containerAttributes(array &$attributes, array $settings, $blazies): void {
+    $style = $settings['style'] ?: 'grid';
+
+    $format = 'blazy--grid block-%s block-count-%d';
+    $attributes['class'][] = sprintf($format, $style, $blazies->get('count'));
+
+    // If Native Grid style with numeric grid, assumed non-two-dimensional.
+    if ($style == 'nativegrid') {
+      $attributes['class'][] = self::isNativeGridAsMasonry($settings)
+        ? 'is-b-masonry' : 'is-b-native';
+    }
+
+    // Adds common grid attributes for CSS3 column, Foundation, etc.
+    // Only if using the plain grid column numbers (1 - 12).
+    if ($settings['grid_large'] = $settings['grid']) {
+      foreach (['small', 'medium', 'large'] as $key) {
+        $value = $settings['grid_' . $key] ?? NULL;
+        if ($value && is_numeric($value)) {
+          $attributes['class'][] = $key . '-block-' . $style . '-' . $value;
+        }
+      }
+    }
+  }
+
+  /**
+   * LProvides grid item attributes, relevant for Native Grid.
+   */
+  private static function itemAttributes(array &$attributes, array $settings): void {
+    $blazies = $settings['blazies'];
+    if ($dim = $blazies->get('grid.large_dimensions', [])) {
+      $key = $blazies->get('delta');
+      if (isset($dim[$key])) {
+        $attributes['data-b-w'] = $dim[$key]['width'];
+        if (!empty($dim[$key]['height'])) {
+          $attributes['data-b-h'] = $dim[$key]['height'];
+        }
+      }
+      else {
+        // Supports a grid repeat for the lazy.
+        $height = $dim[0]['height'];
+        $width = $dim[0]['width'];
+        if ($blazies->get('count') > count($dim) && !empty($width)) {
+          $attributes['data-b-w'] = $width;
+          if (!empty($height)) {
+            $attributes['data-b-h'] = $height;
+          }
         }
       }
     }
