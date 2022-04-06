@@ -17,16 +17,16 @@ interface BlazyEntityInterface {
    * Build image/video preview either using theme_blazy(), or view builder.
    *
    * @param array $data
-   *   An array of data containing settings, and image item.
+   *   An array of data containing settings, image item, entity, and fallback.
    * @param object $entity
-   *   The media entity, else file entity to be associated to media if any.
+   *   The deprecated media entity, else file entity to be associated to media.
    * @param string $fallback
-   *   The fallback string to display such as file name or entity label.
+   *   The deprecated fallback string such as file name or entity label.
    *
    * @return array
    *   The renderable array of theme_blazy(), or view builder, else empty array.
    */
-  public function build(array &$data, $entity, $fallback = ''): array;
+  public function build(array &$data, $entity = NULL, $fallback = ''): array;
 
   /**
    * Returns the entity view, if available.

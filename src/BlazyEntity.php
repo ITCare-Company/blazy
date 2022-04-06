@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy;
 
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Media\BlazyOEmbedInterface;
@@ -61,15 +60,23 @@ class BlazyEntity implements BlazyEntityInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo make it single param after sub-modules for easy updates.
    */
-  public function build(array &$data, $entity, $fallback = ''): array {
+  public function build(array &$data, $entity = NULL, $fallback = ''): array {
+    $entity = $data['entity'] ?? $entity;
+    $fallback = $data['fallback'] ?? $fallback;
+
     if (!$entity instanceof EntityInterface) {
       return [];
     }
 
+    unset($data['entity'], $data['fallback']);
+
     // Supports core Media via Drupal\blazy\Media\BlazyOEmbed::build().
     $manager = $this->blazyManager;
     $settings = &$data['settings'];
+    $delta = $settings['delta'] ?? -1;
 
     // Common settings.
     $manager->preSettings($settings);
@@ -98,13 +105,13 @@ class BlazyEntity implements BlazyEntityInterface {
       }
 
       // Pass it to Blazy for consistent markups.
-      $build = $manager->getBlazy($data);
+      $build = $manager->getBlazy($data, $delta);
 
       // Allows top level elements to load Blazy once rather than per field.
       // This is still here for non-supported Views style plugins, etc.
       if (empty($settings['_detached'])) {
         $load = $manager->attach($settings);
-        $build['#attached'] = empty($build['#attached']) ? $load : NestedArray::mergeDeep($build['#attached'], $load);
+        $build['#attached'] = Blazy::merge($load, $build, '#attached');
       }
     }
     else {

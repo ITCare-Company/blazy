@@ -33,7 +33,7 @@ class Blazy {
    */
   public static function attach(array &$variables, array $settings = []): void {
     if ($blazy = self::service('blazy.manager')) {
-      $attachments = $blazy->attach($settings);
+      $attachments = $blazy->attach($settings) ?: [];
       $variables['#attached'] = self::merge($attachments, $variables, '#attached');
     }
   }
