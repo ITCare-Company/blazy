@@ -7,6 +7,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\Utility\Path;
 
 /**
  * Provides image-related methods.
@@ -129,7 +130,7 @@ class BlazyImage {
       $abs = empty($settings['uri_root']) ? $uri : $settings['uri_root'];
       // Must be valid URI, or web-accessible url, not: /modules|themes/...
       if (!BlazyFile::isValidUri($abs) && mb_substr($abs, 0, 1) == '/') {
-        if ($request = Blazy::requestStack()) {
+        if ($request = Path::requestStack()) {
           $abs = $request->getCurrentRequest()->getSchemeAndHttpHost() . $abs;
         }
       }

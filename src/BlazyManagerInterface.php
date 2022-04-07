@@ -25,13 +25,11 @@ interface BlazyManagerInterface {
    *   The cache ID, als used for the hook_alter.
    * @param array $data
    *   The given data to cache.
-   * @param bool $combine
-   *   Whether to combine data, normally indexed items for options.
    *
    * @return array
    *   The cache data.
    */
-  public function getCachedData($cid, array $data, $combine = FALSE): array;
+  public function getCachedData($cid, array $data): array;
 
   /**
    * Returns the supported image effects.

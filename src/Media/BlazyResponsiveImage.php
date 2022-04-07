@@ -21,6 +21,16 @@ class BlazyResponsiveImage {
   private static $styles;
 
   /**
+   * Retrieves the breakpoint manager.
+   *
+   * @return \Drupal\breakpoint\BreakpointManager
+   *   The breakpoint manager.
+   */
+  public static function breakpointManager() {
+    return Blazy::service('breakpoint.manager');
+  }
+
+  /**
    * Makes Responsive image usable as CSS background image sources.
    *
    * This is per item dependent on URI, the self::dimensions() is global.
@@ -288,7 +298,7 @@ class BlazyResponsiveImage {
    * @see self::dimensions()
    */
   private static function sources(array &$settings, $style = NULL): array {
-    if (!($manager = Blazy::breakpointManager())) {
+    if (!($manager = self::breakpointManager())) {
       return [];
     }
 

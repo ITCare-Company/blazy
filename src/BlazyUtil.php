@@ -13,7 +13,7 @@ use Drupal\blazy\Theme\BlazyAttribute;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
  *
- * @todo remove after sub-modules anytime before 3.x.
+ * @todo remove this class after sub-modules anytime before 3.x.
  */
 class BlazyUtil {
 

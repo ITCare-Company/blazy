@@ -15,6 +15,7 @@ use Drupal\blazy\Cache\BlazyCache;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\BlazyResponsiveImage;
 use Drupal\blazy\Utility\Check;
+use Drupal\blazy\Utility\Path;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -246,7 +247,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCachedData($cid, array $data, $combine = FALSE): array {
+  public function getCachedData($cid, array $data): array {
     if (!isset($this->cachedData[$cid])) {
       if ($cache = $this->cache->get($cid)) {
         $this->cachedData[$cid] = $cache->data;
@@ -254,10 +255,6 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       else {
         $this->moduleHandler->alter($cid, $data);
         $data = array_unique($data);
-
-        if ($combine) {
-          $data = array_combine($data, $data);
-        }
 
         sort($data);
 
@@ -312,7 +309,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function getImageEffects(): array {
     $effects[] = 'blur';
-    return $this->getCachedData('blazy_image_effects', $effects, TRUE);
+    return $this->getCachedData('blazy_image_effects', $effects);
   }
 
   /**
@@ -327,7 +324,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function getLightboxes(): array {
     $data = BlazyCache::lightboxes($this->root);
-    return $this->getCachedData('blazy_lightboxes', $data, FALSE);
+    return $this->getCachedData('blazy_lightboxes', $data);
   }
 
   /**
@@ -406,7 +403,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
       ->set('lightbox.plugins', $lightboxes)
       ->set('ui', $ui);
 
-    if ($router = Blazy::routeMatch()) {
+    if ($router = Path::routeMatch()) {
       $settings['route_name'] = $route_name = $router->getRouteName();
       $blazies->set('route_name', $route_name);
     }

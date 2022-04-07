@@ -46,7 +46,6 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
     $settings += BlazyDefault::itemSettings();
     $item = $build['item'];
 
-    Blazy::verify($settings);
     CheckItem::essentials($settings, $item, $delta);
 
     // Prevents double checks.

@@ -19,27 +19,6 @@ use Drupal\blazy\Theme\Lightbox;
 class Check {
 
   /**
-   * The AMP page.
-   *
-   * @var bool
-   */
-  private static $isAmp;
-
-  /**
-   * The preview mode to disable Blazy where JS is not available, or useless.
-   *
-   * @var bool
-   */
-  private static $isPreview;
-
-  /**
-   * The preview mode to disable interactive elements.
-   *
-   * @var bool
-   */
-  private static $isSandboxed;
-
-  /**
    * Modifies asset attachments.
    *
    * @todo move it out of here for all attachments, what folder, Asset?
@@ -127,9 +106,9 @@ class Check {
     $ui           = $blazies->get('ui');
     $_loading     = $settings['loading'] ?? '';
     $loading      = $settings['loading'] = $_loading ?: 'lazy';
-    $is_preview   = $settings['is_preview'] = self::isPreview();
-    $is_amp       = self::isAmp();
-    $is_sandboxed = self::isSandboxed();
+    $is_preview   = $settings['is_preview'] = Path::isPreview();
+    $is_amp       = Path::isAmp();
+    $is_sandboxed = Path::isSandboxed();
     $is_bg        = !empty($settings['background']);
     $is_unload    = !empty($ui['nojs']['lazy']);
     $is_slider    = $loading == 'slider';
@@ -143,6 +122,8 @@ class Check {
     $is_video     = $bundles && in_array('video', $bundles);
     $item_id      = $settings['item_id'] ?? $blazies->get('item.id', 'blazy');
     $namespace    = $settings['namespace'] ?? $blazies->get('namespace', 'blazy');
+    $is_resimage  = $blazies->is('resimage')
+      || is_callable('responsive_image_get_mime_type');
 
     // When `defer` is chosen, overrides global `No JavaScript: lazy`, ensures
     // to not affect AMP, CKEditor, or other preview pages where nojs is a must.
@@ -165,6 +146,7 @@ class Check {
       ->set('is.fluid', $is_fluid)
       ->set('is.nojs', $is_nojs)
       ->set('is.preview', $is_preview)
+      ->set('is.resimage', $is_resimage)
       ->set('is.sandboxed', $is_sandboxed)
       ->set('is.slider', $is_slider)
       ->set('is.static', $is_static)
@@ -190,6 +172,13 @@ class Check {
   public static function blazyOrNot(array &$settings, array $data = []): void {
     // Retrieves Blazy formatter related settings from within Views style.
     if (!$blazies = $settings['blazies'] ?? NULL) {
+      return;
+    }
+
+    // Allows to remove second parameter later.
+    $deprecated = $settings['first_image'] ?? [];
+    $data = $data ?: $blazies->get('first.data', $deprecated);
+    if (empty($data) || !is_array($data)) {
       return;
     }
 
@@ -308,50 +297,6 @@ class Check {
     }
 
     $blazies->set('was.grid', TRUE);
-  }
-
-  /**
-   * Checks if Blazy is in CKEditor preview mode where no JS assets are loaded.
-   */
-  public static function isPreview(): bool {
-    if (!isset(static::$isPreview)) {
-      static::$isPreview = self::isAmp() || self::isSandboxed();
-    }
-    return static::$isPreview;
-  }
-
-  /**
-   * Checks if Blazy is in AMP pages.
-   */
-  public static function isAmp(): bool {
-    if (!isset(static::$isAmp)) {
-      $stack = Blazy::requestStack();
-      static::$isAmp = $stack && $stack->getCurrentRequest()->query->get('amp');
-    }
-    return static::$isAmp;
-  }
-
-  /**
-   * In CKEditor without JS assets, interactive elements must be sandboxed.
-   */
-  public static function isSandboxed(): bool {
-    if (!isset(static::$isSandboxed)) {
-      $check = FALSE;
-      if ($router = Blazy::routeMatch()) {
-        if ($route = $router->getRouteName()) {
-          $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
-          foreach ($edits as $key) {
-            if (mb_strpos($route, $key) !== FALSE) {
-              $check = TRUE;
-              break;
-            }
-          }
-        }
-      }
-
-      static::$isSandboxed = $check;
-    }
-    return static::$isSandboxed;
   }
 
   /**

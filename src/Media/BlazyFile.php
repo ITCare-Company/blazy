@@ -8,6 +8,7 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Site\Settings;
 use Drupal\file\FileInterface;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\Utility\Path;
 
 /**
  * Provides file_BLAH BC for D8 - D10+ till D11 rules.
@@ -20,8 +21,8 @@ class BlazyFile {
   /**
    * Returns TRUE if a File entity.
    */
-  public static function isFile($entity): bool {
-    return $entity instanceof FileInterface;
+  public static function isFile($file): bool {
+    return $file instanceof FileInterface;
   }
 
   /**
@@ -34,7 +35,7 @@ class BlazyFile {
    *   TRUE if the URI is valid.
    */
   public static function isValidUri($uri): bool {
-    if (!empty($uri) && $manager = Blazy::streamWrapperManager()) {
+    if (!empty($uri) && $manager = Path::streamWrapperManager()) {
       return $manager->isValidUri($uri);
     }
     return FALSE;
@@ -52,7 +53,7 @@ class BlazyFile {
    *   Returns an absolute web-accessible URL string.
    */
   public static function createUrl($uri, $relative = FALSE): string {
-    if ($gen = Blazy::fileUrlGenerator()) {
+    if ($gen = Path::fileUrlGenerator()) {
       // @todo recheck ::generateAbsoluteString doesn't return web-accessible
       // protocol as expected, required by getimagesize to work correctly.
       return $relative ? $gen->generateString($uri) : $gen->generateAbsoluteString($uri);
@@ -99,7 +100,7 @@ class BlazyFile {
       if (($data_uri || empty($url) || $style) && self::isValidUri($uri)) {
         $url = $style ? $style->buildUrl($uri) : self::createUrl($uri);
 
-        if ($gen = Blazy::fileUrlGenerator()) {
+        if ($gen = Path::fileUrlGenerator()) {
           $url = $gen->transformRelative($url);
         }
         else {
@@ -129,7 +130,8 @@ class BlazyFile {
    * @todo re-check if core has this type of conversion.
    */
   public static function buildUri($url): ?string {
-    if (!UrlHelper::isExternal($url) && $normal_path = UrlHelper::parse($url)['path']) {
+    if (!UrlHelper::isExternal($url)
+      && $normal_path = UrlHelper::parse($url)['path']) {
       // If the request has a base path, remove it from the beginning of the
       // normal path as it should not be included in the URI.
       $base_path = \Drupal::request()->getBasePath();
@@ -143,14 +145,16 @@ class BlazyFile {
       // displayed via SRC attribute. Don't bother language prefixes for IMG.
       if ($public_path && mb_strpos($normal_path, $public_path) !== FALSE) {
         $rel_path = str_replace($public_path, '', $normal_path);
-        $uri = Blazy::streamWrapperManager()->normalizeUri($rel_path);
+        if ($stream = Path::streamWrapperManager()) {
+          $uri = $stream->normalizeUri($rel_path);
 
-        // @todo re-check why the scheme is gone since 2.9. It was there <= 2.5.
-        if (substr($uri, 0, 2) === '//') {
-          $uri = 'public:' . $uri;
+          // @todo re-check why scheme is gone since 2.9. It was there <= 2.5.
+          if (substr($uri, 0, 2) === '//') {
+            $uri = 'public:' . $uri;
+          }
+
+          return $uri;
         }
-
-        return $uri;
       }
     }
     return NULL;
@@ -187,45 +191,45 @@ class BlazyFile {
    * Should be named entity, but for consistency with BlazyImage:item().
    */
   public static function item($object = NULL, array $settings = []): ?object {
-    $entity = $object;
+    $file = $object;
 
     // Bail out early if we are given what we want.
-    /** @var \Drupal\file\Entity\File $entity */
-    if (self::isFile($entity)) {
-      return $entity;
+    /** @var \Drupal\file\Entity\File $file */
+    if (self::isFile($file)) {
+      return $file;
     }
 
     /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $object */
     if ($object instanceof EntityReferenceItem) {
-      /** @var \Drupal\file\Entity\File $entity */
-      $entity = $object->entity;
+      /** @var \Drupal\file\Entity\File $file */
+      $file = $object->entity;
     }
     elseif ($object instanceof EntityReferenceFieldItemListInterface) {
       /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $object */
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $image */
       if ($image = $object->first()) {
-        /** @var \Drupal\file\Entity\File $entity */
-        $entity = $image->entity;
+        /** @var \Drupal\file\Entity\File $file */
+        $file = $image->entity;
       }
     }
 
     // BlazyFilter without any entity/ formatters associated with.
     // Or any entities: Node, Paragraphs, User, etc. having settings.image.
-    if (!self::isFile($entity) && $settings) {
+    if (!self::isFile($file) && $settings) {
       // Extracts File entity from settings.image, the poster image.
       if ($name = $settings['image'] ?? NULL) {
         // With a mix of image and video, image is not always there.
-        $entity = self::fromField($entity, $name, $settings);
+        $file = self::fromField($file, $name, $settings);
       }
 
       // BlazyFilter without any entity/ formatters associated with.
       // Or legacy VEF with hard-coded image URL without file API.
-      if (!self::isFile($entity)) {
-        $entity = self::fromSettings($settings);
+      if (!self::isFile($file)) {
+        $file = self::fromSettings($settings);
       }
     }
 
-    return self::isFile($entity) ? $entity : NULL;
+    return self::isFile($file) ? $file : NULL;
   }
 
   /**
@@ -271,21 +275,21 @@ class BlazyFile {
    * Returns the File entity from settings, if applicable, relevant for Filter.
    */
   public static function fromSettings(array $settings): ?object {
-    $entity = NULL;
+    $file = NULL;
     $blazies = $settings['blazies'] ?? NULL;
 
     if ($manager = Blazy::service('blazy.manager')) {
       $uri = self::uri(NULL, $settings);
       $uuid = $blazies ? $blazies->get('entity.uuid') : NULL;
-      $entity = $uuid ? $manager->loadByUuid($uuid, 'file') : NULL;
+      $file = $uuid ? $manager->loadByUuid($uuid, 'file') : NULL;
 
-      if (!$entity && self::isValidUri($uri)) {
+      if (!$file && self::isValidUri($uri)) {
         if ($files = $manager->loadByProperties(['uri' => $uri], 'file')) {
-          $entity = reset($files);
+          $file = reset($files);
         }
       }
     }
-    return $entity;
+    return $file;
   }
 
 }

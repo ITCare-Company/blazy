@@ -128,11 +128,12 @@ class BlazySettingsForm extends ConfigFormBase {
       '#description'   => $this->t('Extensions that should not use (Responsive) image style, space delimited without dot, e.g.: <code>gif apng</code> <br>Normally animated images. No way to distinguish animated from static gif, it is all or nothing. This means no thumbnail, no blur, nor features which makes use image style. Default to svg.'),
     ];
 
+    $fx = $this->manager->getImageEffects();
     $form['fx'] = [
       '#type'          => 'select',
       '#title'         => $this->t('Image effect'),
       '#empty_option'  => '- None -',
-      '#options'       => $this->manager->getImageEffects(),
+      '#options'       => array_combine($fx, $fx),
       '#default_value' => $config->get('fx'),
       '#description'   => $this->t("Choose the image effect. Will use Thumbnail style option at Blazy formatters for the placeholder with fallback to core Thumbnail style. For best results: use similar aspect ratio for both Thumbnail and Image styles; adjust Offset and or threshold; the smaller the better. Use <code>hook_blazy_image_effects_alter()</code> to add more effects -- curtain, fractal, slice, whatever. <b>Limitations</b>: Best with a proper Aspect ratio option as otherwise collapsed image. Be sure to add one. If not, add regular CSS <code>min-height</code> for each mediaquery. The Placeholder option is still respected. Is it still relevant for Native lazyload? You decide. The name is `Native lazyload`, not `Native load`. It is permanently cached, be sure to clear cache if your or a module's provided additional altered data do not appear here."),
     ];

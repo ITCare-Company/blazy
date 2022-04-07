@@ -7,6 +7,7 @@ use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Media\Placeholder;
+use Drupal\blazy\Utility\Path;
 
 /**
  * Provides theme-related alias methods to de-clutter Blazy.
@@ -228,7 +229,7 @@ class BlazyTheme {
    * Overrides variables for media-oembed-iframe.html.twig templates.
    */
   public static function mediaOembedIframe(array &$variables): void {
-    $request = Blazy::requestStack()->getCurrentRequest();
+    $request = Path::requestStack()->getCurrentRequest();
     // Without internet, this may be empty, bail out.
     if (empty($variables['media']) || !$request) {
       return;

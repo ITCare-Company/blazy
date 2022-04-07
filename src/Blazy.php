@@ -11,9 +11,10 @@ use Drupal\blazy\Theme\BlazyAttribute;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\CheckItem;
+use Drupal\blazy\Utility\Path;
 
 /**
- * Provides common blazy utility static methods.
+ * Provides common blazy utility and a few alias for frequent methods.
  */
 class Blazy {
 
@@ -64,31 +65,17 @@ class Blazy {
   }
 
   /**
-   * Returns the commonly used path, or just the base path.
-   *
-   * @todo remove drupal_get_path check when min D9.3.
+   * Alias for Path::getPath().
    */
   public static function getPath($type, $name, $absolute = FALSE): ?string {
-    if ($resolver = self::pathResolver()) {
-      $path = $resolver->getPath($type, $name);
-    }
-    else {
-      $function = 'drupal_get_path';
-      $path = is_callable($function) ? $function($type, $name) : '';
-    }
-    return $absolute ? \base_path() . $path : $path;
+    return Path::getPath($type, $name, $absolute);
   }
 
   /**
-   * Provides a wrapper to replace deprecated libraries_get_path() at ease.
+   * Alias for Path::getLibrariesPath().
    */
   public static function getLibrariesPath($name, $base_path = FALSE): ?string {
-    if ($finder = self::service('library.libraries_directory_file_finder')) {
-      return $finder->find($name);
-    }
-
-    $function = 'libraries_get_path';
-    return is_callable($function) ? $function($name, $base_path) : '';
+    return Path::getLibrariesPath($name, $base_path);
   }
 
   /**
@@ -282,42 +269,12 @@ class Blazy {
   }
 
   /**
-   * Retrieves the breakpoint manager.
-   *
-   * @return \Drupal\breakpoint\BreakpointManager
-   *   The breakpoint manager.
-   */
-  public static function breakpointManager() {
-    return self::service('breakpoint.manager');
-  }
-
-  /**
-   * Retrieves the file url generator service.
-   *
-   * @return \Drupal\Core\Extension\ExtensionPathResolver
-   *   The file url generator.
-   *
-   * @see https://www.drupal.org/node/2940031
-   */
-  public static function fileUrlGenerator() {
-    return self::service('file_url_generator');
-  }
-
-  /**
-   * Retrieves the path resolver.
-   *
-   * @return \Drupal\Core\Extension\ExtensionPathResolver
-   *   The path resolver.
-   */
-  public static function pathResolver() {
-    return self::service('extension.path.resolver');
-  }
-
-  /**
    * Retrieves the request stack.
    *
    * @return \Symfony\Component\HttpFoundation\RequestStack
    *   The request stack.
+   *
+   * @todo remove for Path::requestStack() after sub-modules, if any.
    */
   public static function requestStack() {
     return self::service('request_stack');
@@ -328,6 +285,8 @@ class Blazy {
    *
    * @return \Drupal\Core\Routing\RouteMatchInterface
    *   The currently active route match object.
+   *
+   * @todo remove for Path::routeMatch() after sub-modules, if any.
    */
   public static function routeMatch() {
     return self::service('current_route_match');
@@ -338,6 +297,8 @@ class Blazy {
    *
    * @return \Drupal\Core\StreamWrapper\StreamWrapperManager
    *   The stream wrapper manager.
+   *
+   * @todo remove for Path::streamWrapperManager() after sub-modules: GridStack.
    */
   public static function streamWrapperManager() {
     return self::service('stream_wrapper_manager');
@@ -373,6 +334,20 @@ class Blazy {
    */
   public static function grid(array $items, array $settings): array {
     return Grid::build($items, $settings);
+  }
+
+  /**
+   * Alias for BlazyFile::transformRelative() for sub-modules.
+   */
+  public static function transformRelative($uri, $style = NULL, array $options = []): string {
+    return BlazyFile::transformRelative($uri, $style, $options);
+  }
+
+  /**
+   * Alias for BlazyFile::uri() for sub-modules.
+   */
+  public static function uri($item, array $settings = []): string {
+    return BlazyFile::uri($item, $settings);
   }
 
   /**
@@ -412,24 +387,6 @@ class Blazy {
     // @todo replace `is_preview` with sandbox.
     $settings['lazy'] = empty($settings['is_preview']) ? $settings['lazy'] : '';
     $settings['_lazy'] = TRUE;
-  }
-
-  /**
-   * Returns URI from image item, safe to remove anytime.
-   *
-   * @todo deprecated and removed for BlazyFile::uri() anytime.
-   */
-  public static function uri($item): string {
-    return BlazyFile::uri($item);
-  }
-
-  /**
-   * Returns fake image item, safe to remove anytime.
-   *
-   * @todo deprecated and removed for BlazyImage::fake() anytime.
-   */
-  public static function image(array $attributes = []) {
-    return BlazyImage::fake($attributes);
   }
 
 }

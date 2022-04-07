@@ -12,9 +12,9 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Unicode;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManagerInterface;
+use Drupal\blazy\Utility\Path;
 
 /**
  * A base for blazy admin integration to have re-usable methods in one place.
@@ -597,7 +597,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     // Disable the admin css in the layout builder, to avoid conflicts with
     // the active frontend theme.
     // @todo recheck str_starts_with for PHP7. No errors at PHP7.4, last time.
-    if ($admin_css && $router = Blazy::routeMatch()) {
+    if ($admin_css && $router = Path::routeMatch()) {
       $route_name = $router->getRouteName();
 
       if (!empty($route_name)) {
