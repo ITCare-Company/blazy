@@ -6,7 +6,6 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
-use Drupal\blazy\Media\BlazyResponsiveImage;
 use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Theme\BlazyAttribute;
 use Drupal\blazy\Theme\Grid;
@@ -124,7 +123,7 @@ class Blazy {
     // Checks for lightboxes.
     Check::lightboxes($settings);
 
-    // Checks for [Responsive] image styles.
+    // Checks for Image styles, excluding Responsive image.
     BlazyImage::styles($settings);
 
     // Checks for lazy.
@@ -145,22 +144,6 @@ class Blazy {
     if (!$blazies->was('initialized')) {
       self::preSettings($settings);
     }
-
-    // Checks for [Responsive] image dimensions and sources for formatters
-    // and filters. Sets dimensions once, if cropped, to reduce costs with ton
-    // of images. This is less expensive than re-defining dimensions per image.
-    // These also provide data for the Preload option.
-    if (!$blazies->was('dimensions')) {
-      if ($blazies->get('first.uri')) {
-        if ($blazies->get('resimage.style')) {
-          BlazyResponsiveImage::dimensions($settings, TRUE);
-        }
-        elseif ($style = $blazies->get('image.style')) {
-          BlazyImage::cropDimensions($settings, $style);
-        }
-      }
-      $blazies->set('was.dimensions', TRUE);
-    }
   }
 
   /**
@@ -168,9 +151,12 @@ class Blazy {
    */
   public static function prepare(array &$settings, $item = NULL, $delta = -1): void {
     CheckItem::essentials($settings, $item, $delta);
-    CheckItem::multimedia($settings);
-    CheckItem::unstyled($settings, $item);
-    CheckItem::insanity($settings);
+
+    if ($settings['blazies']->get('image.uri')) {
+      CheckItem::multimedia($settings);
+      CheckItem::unstyled($settings);
+      CheckItem::insanity($settings);
+    }
   }
 
   /**

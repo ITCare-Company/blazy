@@ -512,15 +512,4 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     BlazyEntity::settings($settings, $entity);
   }
 
-  /**
-   * Deprecated method, safe to remove before 3.x for being too specific.
-   *
-   * @deprecated in blazy:8.x-2.5 and is removed from blazy:3.0.0. Use
-   *   BlazyResponsiveImage::dimensions() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public function setResponsiveImageDimensions(array &$settings = [], $initial = TRUE) {
-    BlazyResponsiveImage::dimensions($settings, $initial);
-  }
-
 }

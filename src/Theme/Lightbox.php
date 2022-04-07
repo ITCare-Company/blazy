@@ -55,6 +55,7 @@ class Lightbox {
     $switch     = $blazies->get('lightbox.name');
     $switch_css = str_replace('_', '-', $switch);
     $valid      = BlazyFile::isValidUri($uri);
+    $_box_style = $settings['box_style'] ?? NULL;
     $box_style  = $blazies->get('box.style');
     $box_url    = $url = BlazyFile::transformRelative($uri);
     $colorbox   = $blazies->get('colorbox');
@@ -102,12 +103,13 @@ class Lightbox {
     // Supports local and remote videos, also legacy VEF which has no bundles.
     // See https://drupal.org/node/3210636#comment-14097266.
     $is_multimedia = $blazies->is('multimedia');
-    if (!$is_multimedia && !empty($settings['box_style']) && $valid) {
+    $ok = $valid && $_box_style && !$blazies->is('unstyled');
+    if (!$is_multimedia && $ok && $blazies->is('resimage')) {
       // Change xdebug.show_exception_trace = 1 to 0 to catch exceptions.
+      // The _responsive_image_build_source_attributes is WSOD if missing.
       try {
-        // The _responsive_image_build_source_attributes is WSOD if missing.
-        $resimage = $blazies->get('box.resimage.style');
-        if ($resimage && empty($element['#lightbox_html'])) {
+        $resimage = $manager->entityLoad($_box_style, 'responsive_image_style');
+        if (empty($element['#lightbox_html']) && $resimage) {
           $is_resimage = TRUE;
           $json['type'] = 'rich';
           $element['#lightbox_html'] = [

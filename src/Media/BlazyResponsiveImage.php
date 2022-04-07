@@ -82,10 +82,14 @@ class BlazyResponsiveImage {
    *
    * @requires Drupal\blazy\Media\Preloader::prepare()
    */
-  public static function dimensions(array &$settings, $initial = TRUE): void {
+  public static function dimensions(
+    array &$settings,
+    $resimage = NULL,
+    $initial = TRUE
+  ): void {
     $blazies = $settings['blazies'];
     $dimensions = $blazies->get('resimage.dimensions', []);
-    $resimage = $blazies->get('resimage.style');
+    $resimage = $resimage ?: $blazies->get('resimage.style');
 
     if ($dimensions || !$resimage) {
       return;
@@ -129,8 +133,8 @@ class BlazyResponsiveImage {
     }
 
     // Currently only needed by Preload.
-    if (!empty($settings['preload'])) {
-      self::sources($settings);
+    if ($initial && $resimage && !empty($settings['preload'])) {
+      self::sources($settings, $resimage);
     }
   }
 
@@ -248,11 +252,42 @@ class BlazyResponsiveImage {
   }
 
   /**
+   * Converts settings.responsive_image_style to its entity.
+   *
+   * Unlike Image style, Responsive image style requires URI detection per item
+   * to determine extension which should not use image style, else BOOM:
+   * "This image style can not be used for a responsive image style mapping
+   * using the 'sizes' attribute. in
+   * responsive_image_build_source_attributes() (line 386...".
+   *
+   * @requires `unstyled` defined
+   */
+  public static function toStyle(array $settings, $unstyled = FALSE): ?object {
+    $blazies    = $settings['blazies'];
+    $exist      = $blazies->is('resimage');
+    $_style     = $settings['responsive_image_style'] ?? NULL;
+    $multiple   = $blazies->is('multistyle');
+    $applicable = $exist && $_style;
+    $style      = $blazies->get('resimage.style');
+
+    // Multiple is a flag for various styles: Blazy Filter, GridStack, etc.
+    // While fields can only have one image style per field.
+    if ($applicable && $blazy = Blazy::service('blazy.manager')) {
+      if (!$unstyled && (!$style || $multiple)) {
+        $style = $blazy->entityLoad($_style, 'responsive_image_style');
+      }
+    }
+
+    // @todo remove settings after migration and sub-modules.
+    return $style ?: ($settings['resimage'] ?? NULL);
+  }
+
+  /**
    * Provides Responsive image sources relevant for link preload.
    *
    * @see self::dimensions()
    */
-  private static function sources(array &$settings): array {
+  private static function sources(array &$settings, $style = NULL): array {
     if (!($manager = Blazy::breakpointManager())) {
       return [];
     }
@@ -262,10 +297,14 @@ class BlazyResponsiveImage {
       return $sources;
     }
 
-    $func = function ($uri) use ($manager, $settings, $blazies) {
+    $style = $style ?: $blazies->get('resimage.style');
+    if (!$style) {
+      return [];
+    }
+
+    $func = function ($uri) use ($manager, $settings, $blazies, $style) {
       $fallback = NULL;
       $sources = $variables = [];
-      $style = $blazies->get('resimage.style');
       $dimensions = $blazies->get('resimage.dimensions', []);
       $end = end($dimensions);
 
@@ -275,7 +314,8 @@ class BlazyResponsiveImage {
       }
 
       $id = $style->getFallbackImageStyle();
-      $breakpoints = array_reverse($manager->getBreakpointsByGroup($style->getBreakpointGroup()));
+      $breakpoints = array_reverse($manager
+        ->getBreakpointsByGroup($style->getBreakpointGroup()));
       $function = '_responsive_image_build_source_attributes';
       if (is_callable($function)) {
         $fallback = \_responsive_image_image_style_url($id, $variables['uri']);
@@ -297,9 +337,10 @@ class BlazyResponsiveImage {
 
     $output = [];
     // The URIs are extracted by Preloader::prepare().
-    if ($uris = $blazies->get('uris')) {
+    if ($images = $blazies->get('images')) {
       // Preserves indices even if empty to have correct mixed media elsewhere.
-      foreach ($uris as $uri) {
+      foreach ($images as $image) {
+        $uri = $image['uri'] ?? NULL;
         $output[] = empty($uri) ? [] : $func($uri);
       }
     }

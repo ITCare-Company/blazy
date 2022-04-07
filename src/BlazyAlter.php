@@ -237,8 +237,8 @@ class BlazyAlter {
         'is_view'     => FALSE,
       ];
 
-      // @todo remove `formatter` key if the above is proven wrong.
-      $blazies->set('view.formatter', $current, TRUE);
+      // @todo add `formatter` key if the above is proven right.
+      $blazies->set('view', $current, TRUE);
     }
   }
 

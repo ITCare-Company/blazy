@@ -225,6 +225,11 @@ class BlazyAttribute {
           $view_mode = str_replace('_', '-', $view_mode);
           $classes[] = $namespace . '--' . $name . '--' . $view_mode;
         }
+
+        // See BlazyAlter::blazySettingsAlter().
+        if ($id = $blazies->get('view.instance_id')) {
+          $classes[] = $namespace . '--view--' . $id;
+        }
       }
     }
 
@@ -391,29 +396,33 @@ class BlazyAttribute {
    * Modifies variables for blazy (non-)lazyloaded image.
    */
   private static function buildImage(array &$variables): void {
-    $attributes = &$variables['attributes'];
-    $settings = &$variables['settings'];
-    $blazies = $settings['blazies'];
-    $width = $blazies->get('image.width');
+    $attributes  = &$variables['attributes'];
+    $settings    = &$variables['settings'];
+    $blazies     = $settings['blazies'];
+    $url         = $blazies->get('image.url');
+    $placeholder = $blazies->get('placeholder.url');
 
     // Supports either lazy loaded image, or not.
     if (empty($settings['background'])) {
-      $url = $blazies->get('image.url');
       $variables['image'] += [
         '#theme' => 'image',
-        '#uri' => $blazies->is('unlazy') ? $url : $blazies->get('placeholder.url'),
+        '#uri' => $blazies->is('unlazy') ? $url : $placeholder,
       ];
     }
     else {
       // Attach BG data attributes to a DIV container.
-      $blazies->set('bgs.' . $width, BlazyImage::background($settings));
-
+      // Background is not supported by Native, cannot use unlazy, use undata:
+      // - undata: no use of dataset (data-b-bg) like at AMP, or preview pages.
+      // - unlazy: `No JavaScript: lazy` aka decoupled lazy loader + undata.
+      $style  = $blazies->get('image.style');
+      $width  = $blazies->get('image.width');
       $unlazy = $blazies->is('undata');
-      $url = $unlazy ? $url : $blazies->get('placeholder.url');
+      $url    = $unlazy ? $url : $placeholder;
 
       $blazies->set('image.url', $url)
         ->set('is.unlazy', $unlazy);
 
+      $blazies->set('bgs.' . $width, BlazyImage::background($settings, $style));
       self::lazy($attributes, $settings);
     }
   }

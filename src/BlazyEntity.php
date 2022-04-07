@@ -5,7 +5,6 @@ namespace Drupal\blazy;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Media\BlazyOEmbedInterface;
-use Drupal\blazy\Media\BlazyResponsiveImage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -90,12 +89,6 @@ class BlazyEntity implements BlazyEntityInterface {
     $this->oembed->build($data, $entity);
 
     $settings = &$data['settings'];
-    $blazies = $settings['blazies'];
-
-    // Made Responsive image also available outside formatters here.
-    if ($blazies->get('resimage.style')) {
-      BlazyResponsiveImage::dimensions($settings, FALSE);
-    }
 
     // Only pass to Blazy for known entities related to File or Media.
     if (in_array($entity->getEntityTypeId(), ['file', 'media'])) {

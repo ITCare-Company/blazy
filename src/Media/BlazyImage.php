@@ -306,6 +306,26 @@ class BlazyImage {
   }
 
   /**
+   * Disable image style if so configured.
+   *
+   * Extensions without image styles: animated GIF, APNG, SVG, etc.
+   */
+  public static function isUnstyled($uri, array $settings, $ext = NULL): bool {
+    $blazies = $settings['blazies'];
+    $ext = $ext ?: pathinfo($uri, PATHINFO_EXTENSION);
+    $extensions = ['svg'];
+
+    // If we have added extensions.
+    if ($unstyles = $blazies->get('ui.unstyled_extensions', [])) {
+      $extensions = array_merge($extensions,
+      array_map('trim', explode(' ', mb_strtolower($unstyles))));
+      $extensions = array_unique($extensions);
+    }
+
+    return $ext && in_array($ext, $extensions);
+  }
+
+  /**
    * Checks if we have image item.
    *
    * Both ImageItem and fake stdClass are valid, no problem.
@@ -337,7 +357,7 @@ class BlazyImage {
    */
   public static function prepare(array &$settings, $item = NULL): void {
     $blazies = &$settings['blazies'];
-    $style   = $blazies->get('image.style');
+    $style   = $blazies->is('unstyled') ? NULL : $blazies->get('image.style');
 
     // Might be called from Views without Blazy formatter, like Image formatter.
     // Since Blazy:2.9, image style entity is loaded once at container level,
@@ -352,9 +372,6 @@ class BlazyImage {
     self::dimensions($settings, $item, FALSE);
 
     // Provides image url based on the given settings.
-    // @todo remove after re-check, already done at CheckItem::essentials().
-    // $uri = BlazyFile::uri($item, $settings);
-    // $blazies->set('image.uri', $uri);
     if ($style) {
       $blazies->set('cache.tags', $style->getCacheTags(), TRUE);
 
@@ -389,50 +406,26 @@ class BlazyImage {
   }
 
   /**
-   * Checks for [Responsive] image styles.
+   * Checks for Image styles.
+   *
+   * Specific for lightbox, it can be (Responsive) image, but not here.
+   *
+   * @param array $settings
+   *   The modified settings.
+   * @param bool $multiple
+   *   A flag for various Image styles: Blazy Filter, etc., old GridStack.
+   *   While most field formatters can only have one image style per field.
    */
   public static function styles(array &$settings, $multiple = FALSE): void {
-    $blazy      = Blazy::service('blazy.manager');
-    $blazies    = $settings['blazies'];
-    $exist      = $blazies->is('resimage');
-    $_style     = $settings['responsive_image_style'] ?? NULL;
-    $applicable = $exist && $_style;
-
-    // Multiple is a flag for various styles: Blazy Filter, GridStack, etc.
-    // While fields can only have one image style per field.
-    if ($applicable && (!$blazies->get('resimage.style') || $multiple)) {
-      // @todo remove settings after migration and sub-modules.
-      $entity = $settings['resimage'] ?? NULL;
-
-      if (!$entity) {
-        $entity = $blazy->entityLoad($_style, 'responsive_image_style');
-      }
-
-      $blazies->set('resimage.style', $entity);
-    }
-
-    // Might be set via BlazyFilter, but not enough data passed.
-    if (!$blazies->get('resimage.id') || $multiple) {
-      if ($entity = $blazies->get('resimage.style')) {
-        BlazyResponsiveImage::define($blazies, $entity);
-      }
-    }
-
-    // Specific for lightbox, it can be (Responsive) image.
-    foreach (['box', 'box_media', 'image', 'thumbnail'] as $key) {
-      if (!$blazies->get($key . '.style') || $multiple) {
-        if ($_style = ($settings[$key . '_style'] ?? '')) {
-          if ($key == 'box' && $exist) {
-            $resimage = $blazy->entityLoad($_style, 'responsive_image_style');
-            $blazies->set($key . '.resimage.style', $resimage)
-              ->set($key . '.resimage.id', $resimage ? $resimage->id() : NULL);
-          }
-
-          $entity = $blazy->entityLoad($_style, 'image_style');
-          $blazies->set($key . '.style', $entity);
-
-          if ($entity) {
-            $blazies->set($key . '.id', $entity->id());
+    $blazies = $settings['blazies'];
+    if ($blazy = Blazy::service('blazy.manager')) {
+      foreach (['box', 'box_media', 'image', 'thumbnail'] as $key) {
+        if (!$blazies->get($key . '.style') || $multiple) {
+          if ($_style = ($settings[$key . '_style'] ?? '')) {
+            if ($entity = $blazy->entityLoad($_style, 'image_style')) {
+              $blazies->set($key . '.style', $entity)
+                ->set($key . '.id', $entity->id());
+            }
           }
         }
       }
@@ -516,17 +509,17 @@ class BlazyImage {
    *
    * @todo remove fallbacks after another check, also settings after migration.
    */
-  public static function url(array $settings, $style = NULL) {
+  public static function url(array $settings, $style = NULL, $uri = NULL) {
     $blazies = $settings['blazies'];
-    $uri     = $blazies->get('image.uri');
+    $uri     = $uri ?: $blazies->get('image.uri');
     $valid   = BlazyFile::isValidUri($uri);
     $styled  = $valid && !$blazies->is('unstyled');
-    $style   = $style ?: $blazies->get('image.style');
+    $style   = $styled ? $style : NULL;
     $url     = $settings['image_url'] ?? '';
     $url     = $url ?: $blazies->get('image.url');
     $options = ['url' => $url, 'sanitize' => $blazies->is('unsafe')];
 
-    return BlazyFile::transformRelative($uri, ($styled ? $style : NULL), $options);
+    return BlazyFile::transformRelative($uri, $style, $options);
   }
 
   /**

@@ -68,6 +68,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       ->set('libs.filter', TRUE);
 
     if ($style = ($settings['hybrid_style'] ?? FALSE)) {
+      // @todo move it out of here due to requiring URI to determine style.
       if ($exist && $resimage = $this->blazyManager->entityLoad($style, 'responsive_image_style')) {
         $settings['responsive_image_style'] = $style;
         $blazies->set('resimage.style', $resimage);
@@ -282,11 +283,16 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     if ($blazies->is('resimage')
       && $style = $node->getAttribute('data-responsive-image-style')) {
       $settings['responsive_image_style'] = $style;
+      $blazies->set('is.multistyle', TRUE);
       $update = TRUE;
     }
 
-    $settings['width'] = $node->getAttribute('width');
-    $settings['height'] = $node->getAttribute('height');
+    foreach (['width', 'height'] as $key) {
+      if ($value = $node->getAttribute($key)) {
+        $settings[$key] = $value;
+        $blazies->set('image.' . $key, $value);
+      }
+    }
 
     if ($update) {
       // Checks for [Responsive] image styles at individual items.

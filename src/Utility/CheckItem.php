@@ -5,6 +5,8 @@ namespace Drupal\blazy\Utility;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\BlazyImage;
+use Drupal\blazy\Media\BlazyResponsiveImage;
 
 /**
  * Provides feature check methods at item level, or individually.
@@ -82,8 +84,8 @@ class CheckItem {
       $embed_url = Blazy::autoplay($embed_url);
     }
 
-    // Also addresses mixed media unique per item, also for convenient.
-    // And compat with BVEF till they are updated to adopt 2.10 changes.
+    // Addresses mixed media unique per item, aside from convenience.
+    // Also compat with BVEF till they are updated to adopt 2.10 changes.
     $blazies->set('is.iframe', $is_iframe)
       ->set('is.multimedia', $is_media)
       ->set('is.player', $is_player)
@@ -99,29 +101,19 @@ class CheckItem {
    *
    * @requires self::essentials(), self::multimedia()
    */
-  public static function unstyled(array &$settings, $item = NULL) {
+  public static function unstyled(array &$settings) {
     $blazies = $settings['blazies'];
-    if (!($uri = $blazies->get('image.uri'))) {
-      return;
-    }
-
-    $pathinfo = pathinfo($uri);
-    $ext = $pathinfo['extension'] ?? '';
-    $extensions = ['svg'];
-
-    // Extensions without image styles: animated GIF, APNG, SVG, etc.
-    if ($unstyles = $blazies->get('ui.unstyled_extensions')) {
-      $extensions = array_merge($extensions,
-      array_map('trim', explode(' ', mb_strtolower($unstyles))));
-      $extensions = array_unique($extensions);
-    }
+    $uri = $blazies->get('image.uri');
+    $ext = pathinfo($uri, PATHINFO_EXTENSION);
+    $unstyled = BlazyImage::isUnstyled($uri, $settings, $ext);
 
     // Disable image style if so configured.
-    $unstyled = $ext && in_array($ext, $extensions);
+    // Extensions without image styles: animated GIF, APNG, SVG, etc.
     if ($unstyled) {
       $images = ['box', 'box_media', 'image', 'thumbnail', 'responsive_image'];
       foreach ($images as $image) {
         $settings[$image . '_style'] = '';
+        $blazies->set('image.style', NULL);
       }
     }
 
@@ -129,6 +121,24 @@ class CheckItem {
     $blazies->set('is.external', UrlHelper::isExternal($uri))
       ->set('is.unstyled', $unstyled)
       ->set('image.extension', $ext);
+
+    // ResponsiveImage is the most temperamental module. Unlike plain old Image,
+    // it explodes when the image is missing as much as when fed wrong URI, etc.
+    // Do not let SVG alike mess up with ResponsiveImage, else fatal.
+    if (!$unstyled) {
+      if ($style = BlazyResponsiveImage::toStyle($settings, $unstyled)) {
+        $blazies->set('resimage.style', $style);
+
+        // Might be set via BlazyFilter, but not enough data passed.
+        $multiple = $blazies->is('multistyle');
+        if (!$blazies->get('resimage.id') || $multiple) {
+          BlazyResponsiveImage::define($blazies, $style);
+        }
+
+        // We'll bail out internally if already set once at container level.
+        BlazyResponsiveImage::dimensions($settings, $style, FALSE);
+      }
+    }
   }
 
   /**
@@ -139,7 +149,7 @@ class CheckItem {
    * Some duplicate rules are to address non-blazy formatters like embedded
    * Image formatter within Blazy ecosystem, but not using Blazy formatter, etc.
    * The lazy insanity:
-   * - Respects `No Javascript: lazy` aka decoupled lazy loader.
+   * - Respects `No JavaScript: lazy` aka decoupled lazy loader.
    * - Respects `Loading priority` to avoid anti-pattern.
    * - Respects `Loading: slider`, the initial is not lazyloaded, the rest are.
    * - Respects sub-module lazy attributes and methods:

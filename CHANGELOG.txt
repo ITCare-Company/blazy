@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2022-04-07
+-----------------------------
+- Issue #3273663 by gausarts, vistree: Update to version > 2.6 breaks svg_image.
+
 Blazy 8.x-2.0-dev, 2022-04-05
 -----------------------------
 - Fixed for BVEF BC, lightbox gallery regression, etc.

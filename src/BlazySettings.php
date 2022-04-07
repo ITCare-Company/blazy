@@ -70,14 +70,14 @@ class BlazySettings implements \Countable {
    *   The storage default_value.
    *
    * @return mixed
-   *   A mixed value (array, string, bool, null, etc.).
+   *   Normally bool, but can be mixed values (array, string, bool, null, etc.).
    */
   public function is($key, $default_value = NULL) {
     return $this->get('is.' . $key, $default_value);
   }
 
   /**
-   * Returns TRUE if a feature idenfied by the key was processed.
+   * Returns TRUE if a feature identified by the key was processed.
    *
    * To verify if the expected workflow is by-passed when the key was missing.
    *
@@ -87,7 +87,7 @@ class BlazySettings implements \Countable {
    *   The storage default_value.
    *
    * @return mixed
-   *   A mixed value (array, string, bool, null, etc.).
+   *   Normally bool, but can be mixed values (array, string, bool, null, etc.).
    */
   public function was($key, $default_value = NULL) {
     return $this->get('was.' . $key, $default_value);
