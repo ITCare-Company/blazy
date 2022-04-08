@@ -177,8 +177,8 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * {@inheritdoc}
    */
-  public function buildImageItem(array &$build, &$node) {
-    parent::buildImageItem($build, $node);
+  protected function buildImageItem(array &$build, &$node, $delta = 0) {
+    parent::buildImageItem($build, $node, $delta);
 
     $item = $build['item'] ?? NULL;
     $settings = $build['settings'];
@@ -398,7 +398,7 @@ class BlazyFilter extends BlazyFilterBase {
 
     // If using grid, node is grid item, else img or iframe.
     if ($node->tagName == 'item') {
-      $this->buildItemAttributes($build, $node);
+      $this->buildItemAttributes($build, $node, $delta);
       $text = Util::getHtml($node);
 
       if (!empty($text)) {
@@ -418,14 +418,8 @@ class BlazyFilter extends BlazyFilterBase {
       return [];
     }
 
-    // Provides individual item settings.
-    $this->buildItemSettings($build, $media);
-
-    // Extracts image item from SRC attribute.
-    $this->buildImageItem($build, $media);
-
-    // Extracts image caption if available.
-    $this->buildImageCaption($build, $media);
+    // Build item settings, image, and caption.
+    $this->buildItemContent($build, $media, $delta);
 
     // Marks invalid, unknown, missing IMG or IFRAME for removal.
     // Be sure to not affect external images, only strip missing local URI.

@@ -131,11 +131,12 @@ class BlazyTheme {
    * Overrides variables for file-video.html.twig templates.
    */
   public static function fileVideo(array &$variables): void {
+    $attributes = &$variables['attributes'];
     if ($files = $variables['files']) {
-      $use_dataset = empty($variables['attributes']['data-b-undata']);
+      $use_dataset = empty($attributes['data-b-undata']);
 
       if ($use_dataset) {
-        $variables['attributes']->addClass(['b-lazy']);
+        $attributes->addClass(['b-lazy']);
 
         foreach ($files as $file) {
           $source_attributes = &$file['source_attributes'];
@@ -155,18 +156,18 @@ class BlazyTheme {
               $blazies->set('use.loader', TRUE);
             }
             $blazies->set('is.dimensions', TRUE);
-            $variables['attributes']->setAttribute('poster', $url);
+            $attributes->setAttribute('poster', $url);
           }
 
           if ($blazies->is('lightbox') && $blazies->is('richbox')) {
-            $variables['attributes']->setAttribute('autoplay', TRUE);
+            $attributes->setAttribute('autoplay', TRUE);
           }
         }
       }
 
       $attrs = ['data-b-lazy', 'data-b-undata'];
-      $variables['attributes']->addClass(['media__element']);
-      $variables['attributes']->removeAttribute($attrs);
+      $attributes->addClass(['media__element']);
+      $attributes->removeAttribute($attrs);
     }
   }
 
@@ -229,7 +230,7 @@ class BlazyTheme {
    * Overrides variables for media-oembed-iframe.html.twig templates.
    */
   public static function mediaOembedIframe(array &$variables): void {
-    $request = Path::requestStack()->getCurrentRequest();
+    $request = Path::request();
     // Without internet, this may be empty, bail out.
     if (empty($variables['media']) || !$request) {
       return;
@@ -246,24 +247,28 @@ class BlazyTheme {
       if ($url && $is_blazy == 1) {
         // Load iframe string as a DOMDocument as alternative to regex.
         $dom = Html::load($variables['media']);
-        $iframe = $dom->getElementsByTagName('iframe');
+        $iframes = $dom->getElementsByTagName('iframe');
 
         // Replace old oEmbed url with autoplay support, and save the DOM.
-        if ($iframe->length > 0) {
-          // Fetches autoplay_url.
-          $embed_url = $iframe->item(0)->getAttribute('src');
-          $settings = self::getAutoPlayUrl($embed_url);
+        if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
+          // Autoplay url suitable for lightboxes, or custom video trigger.
+          $embed_url = $iframe->getAttribute('src');
 
           // Only replace if autoplay == 1 for Image to iframe, or lightboxes.
-          if ($is_autoplay == 1 && !empty($settings['autoplay_url'])) {
-            $iframe->item(0)->setAttribute('src', $settings['autoplay_url']);
+          if ($is_autoplay == 1 && $embed_url) {
+            $autoplay_url = Blazy::autoplay($embed_url);
+            $iframe->setAttribute('src', $autoplay_url);
           }
 
           // Make responsive iframe with/ without autoplay.
           // The following ensures iframe does not shrink due to its attributes.
-          $iframe->item(0)->setAttribute('height', '100%');
-          $iframe->item(0)->setAttribute('width', '100%');
-          $dom->getElementsByTagName('body')->item(0)->setAttribute('class', 'is-b-oembed');
+          $iframe->setAttribute('height', '100%');
+          $iframe->setAttribute('width', '100%');
+
+          $dom->getElementsByTagName('body')
+            ->item(0)
+            ->setAttribute('class', 'is-b-oembed');
+
           $variables['media'] = $dom->saveHTML();
         }
       }
@@ -272,29 +277,6 @@ class BlazyTheme {
       // Do nothing, likely local work without internet, or the site is down.
       // No need to be chatty on this.
     }
-  }
-
-  /**
-   * Provides the autoplay url suitable for lightboxes, or custom video trigger.
-   *
-   * As per 21/12/31, coder doesn't recognize nullable typehints, and err.
-   * https://www.php.net/manual/en/migration71.new-features.php.
-   *
-   * @param string $url
-   *   The embed URL, not input URL.
-   *
-   * @return array
-   *   The settings array containing autoplay and oembed URL.
-   */
-  public static function getAutoPlayUrl(?string $url): array {
-    $data = [];
-
-    if (!empty($url)) {
-      $data['oembed_url'] = $url;
-      // Adds autoplay for media URL on lightboxes, saving another click.
-      $data['autoplay_url'] = Blazy::autoplay($url);
-    }
-    return $data;
   }
 
   /**

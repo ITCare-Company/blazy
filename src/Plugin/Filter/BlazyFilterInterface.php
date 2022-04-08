@@ -8,16 +8,6 @@ namespace Drupal\blazy\Plugin\Filter;
 interface BlazyFilterInterface {
 
   /**
-   * Returns the faked image item for the image, uploaded or hard-coded.
-   *
-   * @param array $build
-   *   The content array being modified.
-   * @param object $node
-   *   The HTML DOM object.
-   */
-  public function buildImageItem(array &$build, &$node);
-
-  /**
    * Gets the caption if available.
    *
    * @param array $build
@@ -70,15 +60,5 @@ interface BlazyFilterInterface {
    *   The main settings for current filter.
    */
   public function buildSettings($text);
-
-  /**
-   * Returns the item settings for the current $node.
-   *
-   * @param array $build
-   *   The settings being modified.
-   * @param object $node
-   *   The HTML DOM object.
-   */
-  public function buildItemSettings(array &$build, $node);
 
 }

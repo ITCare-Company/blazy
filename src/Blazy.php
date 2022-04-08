@@ -357,10 +357,19 @@ class Blazy {
    * and other improvements: `Loading` priority, `No JavaScript: lazy`, etc.
    *
    * @todo refine this based on the new options.
+   * @todo remove non configurable settings after sub-modules.
    */
   public static function which(array &$settings, $lazy, $class, $attribute): void {
     // Don't bother if empty.
     if (empty($lazy)) {
+      return;
+    }
+
+    self::verify($settings);
+    $blazies = $settings['blazies'];
+
+    // Bail out if lazy load is disabled, or in sandbox mode.
+    if ($blazies->is('nojs') || $blazies->is('sandboxed')) {
       return;
     }
 
@@ -369,24 +378,33 @@ class Blazy {
     // Blazy knows more: BG, local video, remote video or iframe, (Responsive
     // |Picture) image.
     // Must be re-defined at item level to respect mixed media.
-    $settings['blazy'] = $use_blazy = $lazy == 'blazy'
+    // @todo local video, iframe, etc. are not covered at container level.
+    $use_blazy = $lazy == 'blazy'
       || !empty($settings['blazy'])
       || !empty($settings['background'])
-      || !empty($settings['responsive_image_style']);
+      || !empty($settings['responsive_image_style'])
+      || $blazies->is('blazy')
+      || $blazies->is('blur');
 
-    $settings['lazy'] = $use_blazy ? 'blazy' : $lazy;
+    // Allows Blazy to take over for advanced features above.
+    $lazy = $use_blazy ? 'blazy' : $lazy;
 
-    // Allows Blazy to take over for advanced features like Responsive image,
-    // CSS background, video, etc.
-    if (!$use_blazy) {
+    // Still a check in case the above does not cover, like video, iframe, etc.
+    if ($use_blazy) {
+      $blazies->set('is.blazy', TRUE);
+    }
+    else {
       $settings['lazy_class'] = $class;
       $settings['lazy_attribute'] = $attribute;
+
+      $blazies->set('lazy.attribute', $attribute)
+        ->set('lazy.class', $class);
     }
 
-    // Disable anything lazy-related settings if in preview mode.
-    // @todo replace `is_preview` with sandbox.
-    $settings['lazy'] = empty($settings['is_preview']) ? $settings['lazy'] : '';
-    $settings['_lazy'] = TRUE;
+    $settings['blazy'] = $use_blazy;
+    $settings['lazy'] = $lazy;
+
+    $blazies->set('lazy.id', $lazy);
   }
 
 }

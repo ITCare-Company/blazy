@@ -48,7 +48,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     $blazies   = $settings['blazies'];
     $item_id   = $blazies->get('item.id');
     $view_mode = $settings['view_mode'] ?? 'full';
-    $is_nav    = $blazies->is('nav') ?: !empty($settings['nav']);
+    $is_nav    = $blazies->is('nav') || !empty($settings['nav']);
     $switch    = $settings['media_switch'] ?? NULL;
 
     // Bail out if vanilla (rendered entity) is required.

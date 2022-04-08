@@ -69,11 +69,19 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     if ($style = ($settings['hybrid_style'] ?? FALSE)) {
       // @todo move it out of here due to requiring URI to determine style.
-      if ($exist && $resimage = $this->blazyManager->entityLoad($style, 'responsive_image_style')) {
-        $settings['responsive_image_style'] = $style;
-        $blazies->set('resimage.style', $resimage);
+      if ($exist) {
+        try {
+          if ($resimage = $this->blazyManager->entityLoad($style, 'responsive_image_style')) {
+            $settings['responsive_image_style'] = $style;
+            $blazies->set('resimage.style', $resimage);
+          }
+        }
+        catch (\Exception $ignore) {
+          // Likely SVG, etc. without dimensions.
+        }
       }
-      else {
+
+      if (empty($settings['responsive_image_style'])) {
         $settings['image_style'] = $style;
       }
     }
@@ -87,9 +95,16 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the faked image item for the image, uploaded or hard-coded.
+   *
+   * @param array $build
+   *   The content array being modified.
+   * @param object $node
+   *   The HTML DOM object.
+   * @param int $delta
+   *   The item index.
    */
-  public function buildImageItem(array &$build, &$node) {
+  protected function buildImageItem(array &$build, &$node, $delta = 0) {
     $settings = &$build['settings'];
     $blazies = $settings['blazies'];
     $src = BlazyFilterUtil::getValidSrc($node);
@@ -174,6 +189,37 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   }
 
   /**
+   * Returns the fallback caption DOMElement for Splide/ Slick, etc.
+   */
+  protected function getCaptionFallback($node) {
+    $caption = NULL;
+
+    // @todo figure out better traversal with DOM.
+    if ($node->parentNode) {
+      $parent = $node->parentNode->parentNode;
+      if ($parent && $grandpa = $parent->parentNode) {
+        if ($grandpa->parentNode) {
+          $divs = $grandpa->parentNode->getElementsByTagName('div');
+        }
+        else {
+          $divs = $grandpa->getElementsByTagName('div');
+        }
+
+        if ($divs) {
+          foreach ($divs as $div) {
+            $class = $div->getAttribute('class');
+            if ($class == 'blazy__caption') {
+              $caption = $div;
+              break;
+            }
+          }
+        }
+      }
+    }
+    return $caption;
+  }
+
+  /**
    * Cleanups image caption.
    */
   protected function cleanupImageCaption(array &$build, &$node, &$item) {
@@ -230,10 +276,11 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     // @todo figure out to not hard-code `field_media_oembed_video`.
     $media = NULL;
-    if ($blazies->is('media_library')) {
+    if ($src && $blazies->is('media_library')) {
       $media = $this->blazyManager->loadByProperties([
-        'field_media_oembed_video' => $blazies->get('media.input_url'),
+        'field_media_oembed_video' => $src,
       ], 'media');
+
       $media = reset($media);
     }
 
@@ -244,7 +291,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * Provides the grid item attributes, and caption, if any.
    */
-  protected function buildItemAttributes(array &$build, $node) {
+  protected function buildItemAttributes(array &$build, $node, $delta = 0) {
     $sets = &$build['settings'];
     $blazies = $sets['blazies'];
     $blazies->set('is.blazy_tag', TRUE);
@@ -265,11 +312,19 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the item settings for the current $node.
+   *
+   * @param array $build
+   *   The settings being modified.
+   * @param object $node
+   *   The HTML DOM object.
+   * @param int $delta
+   *   The item index.
    */
-  public function buildItemSettings(array &$build, $node) {
+  protected function buildItemSettings(array &$build, $node, $delta = 0) {
     $settings = &$build['settings'];
     $blazies = $settings['blazies'];
+
     // Set an image style based on node data properties.
     // See https://www.drupal.org/project/drupal/issues/2061377,
     // https://www.drupal.org/project/drupal/issues/2822389, and
@@ -282,9 +337,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     if ($blazies->is('resimage')
       && $style = $node->getAttribute('data-responsive-image-style')) {
-      $settings['responsive_image_style'] = $style;
-      $blazies->set('is.multistyle', TRUE);
       $update = TRUE;
+      $settings['responsive_image_style'] = $style;
     }
 
     foreach (['width', 'height'] as $key) {
@@ -295,9 +349,32 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     }
 
     if ($update) {
-      // Checks for [Responsive] image styles at individual items.
+      $blazies->set('is.multistyle', TRUE);
+      // Checks for image styles at individual items, normally set at container.
+      // Responsive image is at item level due to requiring URI detection.
       BlazyImage::styles($settings, TRUE);
     }
+  }
+
+  /**
+   * Build the individual item content.
+   *
+   * @param array $build
+   *   The content array being modified.
+   * @param object $node
+   *   The HTML DOM object.
+   * @param int $delta
+   *   The item index.
+   */
+  protected function buildItemContent(array &$build, $node, $delta = 0) {
+    // Provides individual item settings.
+    $this->buildItemSettings($build, $node, $delta);
+
+    // Extracts image item from SRC attribute.
+    $this->buildImageItem($build, $node, $delta);
+
+    // Extracts image caption if available.
+    $this->buildImageCaption($build, $node);
   }
 
   /**
@@ -324,7 +401,9 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       }
     }
 
-    $styles = $this->blazyAdmin->getResponsiveImageOptions() + $this->blazyAdmin->getEntityAsOptions('image_style');
+    $styles = $this->blazyAdmin->getResponsiveImageOptions()
+      + $this->blazyAdmin->getEntityAsOptions('image_style');
+
     $form['hybrid_style'] = [
       '#type' => 'select',
       '#title' => $this->t('(Responsive) image style'),
