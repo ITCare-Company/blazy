@@ -402,6 +402,16 @@ class BlazyAttribute {
     $url         = $blazies->get('image.url');
     $placeholder = $blazies->get('placeholder.url');
 
+    // @todo, remove supporting custom work here.
+    $item_attributes = &$variables['item_attributes'];
+    if (!$blazies->get('image.width')) {
+      foreach (['width', 'height'] as $key => $value) {
+        if (!empty($item_attributes[$key])) {
+          $blazies->set('image.' . $key, $value);
+        }
+      }
+    }
+
     // Supports either lazy loaded image, or not.
     if (empty($settings['background'])) {
       $variables['image'] += [
