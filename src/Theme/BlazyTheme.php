@@ -300,11 +300,16 @@ class BlazyTheme {
         continue;
       }
 
-      $item_attributes = &$item['content'][isset($item['content']['#attributes']) ? '#attributes' : '#item_attributes'];
-      $item_attributes['data-b-lazy'] = TRUE;
+      $key = isset($item['content']['#attributes'])
+        ? '#attributes' : '#item_attributes';
 
-      if ($is_undata) {
-        $item_attributes['data-b-undata'] = TRUE;
+      if (isset($item['content'][$key])) {
+        $item_attributes = &$item['content'][$key];
+        $item_attributes['data-b-lazy'] = TRUE;
+
+        if ($is_undata) {
+          $item_attributes['data-b-undata'] = TRUE;
+        }
       }
     }
 

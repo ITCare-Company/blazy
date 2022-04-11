@@ -20,6 +20,62 @@ use Drupal\blazy\Media\Placeholder;
 class BlazyAttribute {
 
   /**
+   * Provides container attributes for .blazy container: .field, .view, etc.
+   *
+   * Relevant for JS lookups, lightbox galleries, also to accommodate
+   * block__no_wrapper, views__no_wrapper, etc. with helpful CSS classes, useful
+   * for DOM diets.
+   */
+  public static function container(array &$attributes, array $settings): void {
+    Blazy::verify($settings);
+
+    $blazies   = $settings['blazies'];
+    $classes   = (array) ($attributes['class'] ?? []);
+    $data      = $blazies->get('data.blazy');
+    $namespace = $blazies->get('namespace', 'blazy');
+
+    // Provides data-LIGHTBOX-gallery to not conflict with original modules.
+    if ($lightbox = $blazies->get('lightbox.name')) {
+      $switch = str_replace('_', '-', $lightbox);
+      $attributes['data-' . $switch . '-gallery'] = TRUE;
+      $classes[] = 'blazy--' . $switch;
+    }
+
+    // For CSS fixes.
+    if ($blazies->is('unlazy')) {
+      $classes[] = 'blazy--nojs';
+    }
+
+    // Provides contextual classes relevant to the container: .field, or .view.
+    // Sniffs for Views to allow block__no_wrapper, views__no_wrapper, etc.
+    $view_mode = $settings['current_view_mode'] ?? '';
+    foreach (['field', 'view'] as $key) {
+      $name = $settings[$key . '_name'] ?? '';
+      $name = $blazies->get($key . '.name', $name);
+      if ($name) {
+        $name = str_replace('_', '-', $name);
+        $name = $key == 'view' ? 'view--' . $name : $name;
+        $classes[] = $namespace . '--' . $key;
+        $classes[] = $namespace . '--' . $name;
+
+        $view_mode = $blazies->get($key . '.view_mode', $view_mode);
+        if ($view_mode) {
+          $view_mode = str_replace('_', '-', $view_mode);
+          $classes[] = $namespace . '--' . $name . '--' . $view_mode;
+        }
+
+        // See BlazyAlter::blazySettingsAlter().
+        if ($id = $blazies->get('view.instance_id')) {
+          $classes[] = $namespace . '--view--' . $id;
+        }
+      }
+    }
+
+    $attributes['class'] = array_merge(['blazy'], $classes);
+    $attributes['data-blazy'] = $data && is_array($data) ? Json::encode($data) : '';
+  }
+
+  /**
    * Modifies container attributes with aspect ratio for iframe, image, etc.
    */
   public static function finalize(array &$variables): void {
@@ -100,6 +156,9 @@ class BlazyAttribute {
     $attributes = &$variables['attributes'];
     $settings   = &$variables['settings'];
     $blazies    = $settings['blazies'];
+
+    // Minimal attributes extracted from ImageItem.
+    self::item($variables['item_attributes'], $blazies);
 
     // (Responsive) image is optional for Video, or image as CSS background.
     if ($blazies->get('resimage.id')) {
@@ -182,59 +241,10 @@ class BlazyAttribute {
   }
 
   /**
-   * Provides container attributes for .blazy container: .field, .view, etc.
-   *
-   * Relevant for JS lookups, lightbox galleries, also to accommodate
-   * block__no_wrapper, views__no_wrapper, etc. with helpful CSS classes, useful
-   * for DOM diets.
+   * Modifies inline style to not nullify others.
    */
-  public static function container(array &$attributes, array $settings): void {
-    Blazy::verify($settings);
-
-    $blazies   = $settings['blazies'];
-    $classes   = (array) ($attributes['class'] ?? []);
-    $data      = $blazies->get('data.blazy');
-    $namespace = $blazies->get('namespace', 'blazy');
-
-    // Provides data-LIGHTBOX-gallery to not conflict with original modules.
-    if ($lightbox = $blazies->get('lightbox.name')) {
-      $switch = str_replace('_', '-', $lightbox);
-      $attributes['data-' . $switch . '-gallery'] = TRUE;
-      $classes[] = 'blazy--' . $switch;
-    }
-
-    // For CSS fixes.
-    if ($blazies->is('unlazy')) {
-      $classes[] = 'blazy--nojs';
-    }
-
-    // Provides contextual classes relevant to the container: .field, or .view.
-    // Sniffs for Views to allow block__no_wrapper, views__no_wrapper, etc.
-    $view_mode = $settings['current_view_mode'] ?? '';
-    foreach (['field', 'view'] as $key) {
-      $name = $settings[$key . '_name'] ?? '';
-      $name = $blazies->get($key . '.name', $name);
-      if ($name) {
-        $name = str_replace('_', '-', $name);
-        $name = $key == 'view' ? 'view--' . $name : $name;
-        $classes[] = $namespace . '--' . $key;
-        $classes[] = $namespace . '--' . $name;
-
-        $view_mode = $blazies->get($key . '.view_mode', $view_mode);
-        if ($view_mode) {
-          $view_mode = str_replace('_', '-', $view_mode);
-          $classes[] = $namespace . '--' . $name . '--' . $view_mode;
-        }
-
-        // See BlazyAlter::blazySettingsAlter().
-        if ($id = $blazies->get('view.instance_id')) {
-          $classes[] = $namespace . '--view--' . $id;
-        }
-      }
-    }
-
-    $attributes['class'] = array_merge(['blazy'], $classes);
-    $attributes['data-blazy'] = $data && is_array($data) ? Json::encode($data) : '';
+  public static function inlineStyle(array &$attributes, $css): void {
+    $attributes['style'] = ($attributes['style'] ?? '') . $css;
   }
 
   /**
@@ -263,13 +273,6 @@ class BlazyAttribute {
       $attribute = $blazies->get('lazy.attribute');
       $attributes['data-' . $attribute] = $blazies->get('image.url');
     }
-  }
-
-  /**
-   * Modifies inline style to not nullify others.
-   */
-  public static function inlineStyle(array &$attributes, $css): void {
-    $attributes['style'] = ($attributes['style'] ?? '') . $css;
   }
 
   /**
@@ -393,6 +396,21 @@ class BlazyAttribute {
   }
 
   /**
+   * Provides legacy minimal item attributes.
+   *
+   * @todo deprecated and remove supporting passing data via item_attributes.
+   */
+  private static function item(array $attributes, $blazies): void {
+    if (!$blazies->get('image.width')) {
+      foreach (['width', 'height'] as $key) {
+        if (!empty($attributes[$key])) {
+          $blazies->set('image.' . $key, $attributes[$key]);
+        }
+      }
+    }
+  }
+
+  /**
    * Modifies variables for blazy (non-)lazyloaded image.
    */
   private static function buildImage(array &$variables): void {
@@ -401,16 +419,6 @@ class BlazyAttribute {
     $blazies     = $settings['blazies'];
     $url         = $blazies->get('image.url');
     $placeholder = $blazies->get('placeholder.url');
-
-    // @todo, remove supporting custom work here.
-    $item_attributes = &$variables['item_attributes'];
-    if (!$blazies->get('image.width')) {
-      foreach (['width', 'height'] as $key => $value) {
-        if (!empty($item_attributes[$key])) {
-          $blazies->set('image.' . $key, $value);
-        }
-      }
-    }
 
     // Supports either lazy loaded image, or not.
     if (empty($settings['background'])) {
