@@ -51,7 +51,8 @@
       // @todo re-check common integer.
       var arr = [_width, _height, 'top', 'right', 'bottom', 'left'];
       var result = $.computeStyle(el, props);
-      return arr.indexOf(props) === -1 ? result : parseInt(result, 2);
+      var num = $.isNum(result) ? parseInt(result, 2) : result;
+      return arr.indexOf(props) === -1 ? result : num;
     }
 
     var chainCallback = function (el) {
