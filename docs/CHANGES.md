@@ -1,6 +1,8 @@
 
 ***
 ## <a name="changes"></a>NOTABLE CHANGES
+* _Blazy 2.10_, 2022/04/16:
+  + Regression fixes for [Optimization](https://drupal.org/node/3257511).
 * _Blazy 2.9_, 2022/03/07:
   + [#3268089](https://drupal.org/node/3268089), hotdamn fix.
 * _Blazy 2.8_, 2022/03/06:

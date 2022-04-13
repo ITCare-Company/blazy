@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2022-04-13
+-----------------------------
+- Issue #3274730 by gausarts, trickfun: Padding bottom under the image.
+
 Blazy 8.x-2.0-dev, 2022-04-07
 -----------------------------
 - Issue #3273663 by gausarts, vistree: Update to version > 2.6 breaks svg_image.

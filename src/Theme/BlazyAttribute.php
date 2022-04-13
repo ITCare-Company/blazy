@@ -91,7 +91,8 @@ class BlazyAttribute {
     $settings['ratio'] = str_replace(':', '', $ratio);
 
     // Fixed aspect ratio is taken care of by pure CSS. Fluid means dynamic.
-    if ($ratio && $blazies->is('fluid') && $padding = $blazies->get('image.ratio')) {
+    if ($ratio && $blazies->is('fluid')
+      && $padding = $blazies->get('image.ratio')) {
       // If "lucky", Blazy/ Slick Views galleries may already set this once.
       // Lucky when you don't flatten out the Views output earlier.
       self::inlineStyle($attributes, 'padding-bottom: ' . $padding . '%;');
@@ -199,8 +200,11 @@ class BlazyAttribute {
 
     // Multi-breakpoint aspect ratio only applies if lazyloaded.
     // These may be set once at formatter level, or per breakpoint above.
-    if (!$blazies->is('undata') && $ratios = $blazies->get('ratios', [])) {
-      $attributes['data-ratios'] = Json::encode($ratios);
+    // Only relevant if Fluid is selected for Aspect ratio, else a leak.
+    if ($blazies->is('fluid')) {
+      if (!$blazies->is('undata') && $ratios = $blazies->get('ratios', [])) {
+        $attributes['data-ratios'] = Json::encode($ratios);
+      }
     }
   }
 
