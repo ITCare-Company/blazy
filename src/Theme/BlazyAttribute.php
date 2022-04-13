@@ -340,6 +340,7 @@ class BlazyAttribute {
     $blazies    = $settings['blazies'];
     $embed_url  = $blazies->get('media.embed_url');
     $width      = $blazies->get('image.width');
+    $title      = $blazies->get('media.label');
 
     // Respects hand-coded image attributes.
     if ($item) {
@@ -349,7 +350,8 @@ class BlazyAttribute {
 
       // Do not output an empty 'title' attribute.
       if (isset($item->title) && (mb_strlen($item->title) != 0)) {
-        $attributes['title'] = trim($item->title);
+        $attributes['title'] = $title = trim($item->title);
+        $blazies->set('image.title', $title);
       }
     }
 
@@ -362,7 +364,8 @@ class BlazyAttribute {
     }
 
     // Overrides title if to be used as a placeholder for lazyloaded video.
-    if ($embed_url && $title = $blazies->get('media.label')) {
+    if ($embed_url && $title) {
+      $blazies->set('media.label', $title);
       $translation_replacements = ['@label' => $title];
       $attributes['title'] = t('Preview image for the video "@label".', $translation_replacements);
 

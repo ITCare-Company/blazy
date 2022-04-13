@@ -196,7 +196,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
     if ($bundles) {
       // @todo figure out to not hard-code stock bundle image.
-      if (in_array('image', $bundles)) {
+      if (in_array('image', array_keys($bundles))) {
         $captions['title'] = $this->t('Image Title');
         $captions['alt'] = $this->t('Image Alt');
       }

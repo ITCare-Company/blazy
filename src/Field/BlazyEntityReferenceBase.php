@@ -125,20 +125,27 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
    * {@inheritdoc}
    */
   protected function getPluginScopes(): array {
+    $parent   = parent::getPluginScopes();
     $_strings = ['text', 'string', 'list_string'];
     $strings  = $this->getFieldOptions($_strings);
     $_texts   = ['text', 'text_long', 'string', 'string_long', 'link'];
     $texts    = $this->getFieldOptions($_texts);
     $_links   = ['text', 'string', 'link'];
+    $title    = $parent['captions']['title'] ?? NULL;
+    $titles   = $texts;
+
+    if ($title) {
+      $titles['title'] = $title;
+    }
 
     return [
       'classes' => $strings,
       'images'  => $this->getFieldOptions(['image']),
       'layouts' => $strings,
       'links'   => $this->getFieldOptions($_links),
-      'titles'  => $texts,
+      'titles'  => $titles,
       'vanilla' => TRUE,
-    ] + parent::getPluginScopes();
+    ] + $parent;
   }
 
   /**

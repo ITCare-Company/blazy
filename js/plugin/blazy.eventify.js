@@ -64,7 +64,7 @@
     me._events[event].push(listener);
     return function () {
       me.off(event, listener);
-    }
+    };
   };
 
   fn.off = function (event, listener) {

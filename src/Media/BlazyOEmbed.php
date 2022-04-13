@@ -200,7 +200,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
     // Iframe URL may be valid, but not stored as a Media entity.
     if ($input && $resource = $this->getResource($input)) {
-      $title = $resource->getTitle();
+      $title = $resource->getTitle() ?: $title;
       $type = $resource->getType();
 
       // VEF has valid local URI, other hard-coded unmanaged files might not.

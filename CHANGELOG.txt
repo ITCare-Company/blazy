@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2022-04-13
 -----------------------------
+- Fixed for Image title within Media regression: #3241415.
 - Issue #3274730 by gausarts, trickfun: Padding bottom under the image.
 
 Blazy 8.x-2.0-dev, 2022-04-07
