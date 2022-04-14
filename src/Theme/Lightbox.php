@@ -260,7 +260,8 @@ class Lightbox {
     $title   = $item->title ?? '';
     $alt     = $item->alt ?? '';
     $delta   = $blazies->get('delta');
-    $entity  = $item->getEntity();
+    $file    = $item ? $item->entity : NULL;
+    $entity  = $blazies->get('entity.instance') ?: $file;
     $caption = '';
 
     switch ($settings['box_caption']) {
@@ -293,7 +294,7 @@ class Lightbox {
           $options = ['clear' => TRUE];
           $caption = \Drupal::token()->replace($settings['box_caption_custom'], [
             $entity->getEntityTypeId() => $entity,
-            'file' => $item,
+            'file' => $file,
           ], $options);
 
           // Checks for multi-value text fields, and maps its delta to image.

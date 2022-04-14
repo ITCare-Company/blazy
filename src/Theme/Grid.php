@@ -115,9 +115,10 @@ class Grid {
    * Provides reusable container attributes.
    */
   public static function attributes(array &$attributes, array $settings): void {
-    $blazies = $settings['blazies'];
+    $blazies    = $settings['blazies'];
     $gallery_id = $blazies->get('lightbox.gallery_id');
     $is_gallery = $blazies->is('lightbox') && $gallery_id;
+    $namespace  = $blazies->get('namespace');
 
     // Provides data-attributes to avoid conflict with original implementations.
     BlazyAttribute::container($attributes, $settings);
@@ -125,7 +126,13 @@ class Grid {
     // Provides gallery ID, although Colorbox works without it, others may not.
     // Uniqueness is not crucial as a gallery needs to work across entities.
     if ($id = $blazies->get('css.id')) {
-      $attributes['id'] = $is_gallery ? $gallery_id : $id;
+      $id = $is_gallery ? $gallery_id : $id;
+
+      // Non-blazy may group galleries per slide like Splide or Slick.
+      if ($namespace != 'blazy') {
+        $id = $id . Blazy::getHtmlId('-');
+      }
+      $attributes['id'] = $id;
     }
 
     // Limit to grid only, so to be usable for plain list.

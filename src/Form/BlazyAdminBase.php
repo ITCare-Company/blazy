@@ -788,6 +788,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   protected function getState($state, array $definition = []) {
     $lightboxes = [];
 
+    // @fixme this appears to be broken at some point of Drupal.
     foreach ($this->blazyManager->getLightboxes() as $key => $lightbox) {
       $lightboxes[$key]['value'] = $lightbox;
     }
@@ -806,7 +807,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       static::STATE_LIGHTBOX_CUSTOM => [
         'visible' => [
           'select[name$="[box_caption]"]' => ['value' => 'custom'],
-          'select[name*="[media_switch]"]' => $lightboxes,
+          // @fixme 'select[name*="[media_switch]"]' => $lightboxes,
         ],
       ],
       static::STATE_IFRAME_ENABLED => [

@@ -464,8 +464,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * Overrides data massaged by [blazy|slick|splide, etc.]_settings_alter().
    */
-  public function postSettingsAlter(array &$settings): void {
-    Check::settingsAlter($settings);
+  public function postSettingsAlter(array &$settings, $entity = NULL): void {
+    Check::settingsAlter($settings, $entity);
   }
 
   /**

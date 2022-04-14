@@ -49,6 +49,8 @@
 .form--slick.form--media-switch-lightbox .form-item--box-style,
 .form--slick.form--media-switch-lightbox .form-item--box-media-style,
 .form--slick.form--media-switch-on .form-item--media-switch,
+.form--slick.form--media-switch-lightbox .form-item--box-caption,
+.form--slick.form--media-switch-splidebox .form-item--ajax-link,
 .form--vanilla.form--vanilla-off .form-item--media-switch {
   display: block !important; /* csslint allow: known-properties, important */
 }

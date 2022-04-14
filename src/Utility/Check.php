@@ -382,7 +382,7 @@ class Check {
   /**
    * Checks for settings alter.
    */
-  public static function settingsAlter(array &$settings): void {
+  public static function settingsAlter(array &$settings, $entity = NULL): void {
     $blazies = $settings['blazies'];
     $manager = Blazy::service('blazy.manager');
 
@@ -410,6 +410,8 @@ class Check {
       $blazies->set('lightbox.gallery_id', $gallery_id)
         ->set('is.gallery', TRUE);
     }
+
+    $blazies->set('entity.instance', $entity);
   }
 
 }

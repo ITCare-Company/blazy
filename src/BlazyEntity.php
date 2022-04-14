@@ -85,7 +85,7 @@ class BlazyEntity implements BlazyEntityInterface {
     // Entity settings.
     self::settings($settings, $entity);
 
-    $manager->postSettingsAlter($settings);
+    $manager->postSettingsAlter($settings, $entity);
 
     // Build the Media item.
     $this->oembed->build($data, $entity);
