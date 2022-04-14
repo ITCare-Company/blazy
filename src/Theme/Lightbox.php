@@ -59,31 +59,15 @@ class Lightbox {
     $box_style  = $blazies->get('box.style');
     $box_url    = $url = BlazyFile::transformRelative($uri);
     $colorbox   = $blazies->get('colorbox');
+    $gallery_id = $blazies->get('lightbox.gallery_id');
+    $box_id     = !$blazies->is('gallery') ? NULL : $gallery_id;
+    $box_width  = $item->width ?? $blazies->get('image.original.width');
+    $box_height = $item->height ?? $blazies->get('image.original.height');
 
     // Provide relevant URL if it is a lightbox.
     $url_attributes = &$element['#url_attributes'];
     $url_attributes['class'][] = 'blazy__' . $switch_css . ' litebox';
     $url_attributes['data-' . $switch_css . '-trigger'] = TRUE;
-
-    // Gallery is determined by a view, or overriden by colorbox settings.
-    $view_name = $blazies->get('view.name');
-    $gallery_enabled = !empty($view_name);
-    $gallery_default = $gallery_enabled ? $view_name . '-' . $blazies->get('view.view_mode') : '';
-
-    // Respects colorbox settings unless for an explicit view gallery.
-    if (!$gallery_enabled
-      && $colorbox
-      && function_exists('colorbox_theme')) {
-      $gallery_enabled = (bool) $manager->configLoad('custom.slideshow.slideshow', 'colorbox.settings');
-    }
-
-    // The gallery_id might be a formatter inside a view, not aware of its view.
-    // The formatter might be duplicated on a page, although rare at production.
-    $gallery_id = $blazies->get('lightbox.gallery_id');
-    $gallery_id = empty($gallery_id) ? $gallery_default : $gallery_id . $gallery_default;
-    $box_id     = !$gallery_enabled ? NULL : str_replace('_', '-', $gallery_id);
-    $box_width  = $item->width ?? $settings['width'] ?? NULL;
-    $box_height = $item->height ?? $settings['height'] ?? NULL;
 
     $dimensions = [
       'width' => $box_width,
@@ -180,8 +164,7 @@ class Lightbox {
 
     // @todo remove after sub-modules.
     $settings['box_url'] = $box_url;
-    $blazies->set('lightbox.gallery_id', $box_id)
-      ->set('lightbox.url', $box_url)
+    $blazies->set('lightbox.url', $box_url)
       ->set('lightbox.width', (int) $box_width)
       ->set('lightbox.height', (int) $box_height)
       ->set('lightbox.media_preview_url', $box_media_url);
@@ -277,6 +260,7 @@ class Lightbox {
     $title   = $item->title ?? '';
     $alt     = $item->alt ?? '';
     $delta   = $blazies->get('delta');
+    $entity  = $item->getEntity();
     $caption = '';
 
     switch ($settings['box_caption']) {
@@ -300,12 +284,12 @@ class Lightbox {
         break;
 
       case 'entity_title':
-        $caption = ($entity = $item->getEntity()) ? $entity->label() : '';
+        $caption = $entity ? $entity->label() : '';
         break;
 
       case 'custom':
         $caption = '';
-        if (!empty($settings['box_caption_custom']) && ($entity = $item->getEntity())) {
+        if (!empty($settings['box_caption_custom']) && $entity) {
           $options = ['clear' => TRUE];
           $caption = \Drupal::token()->replace($settings['box_caption_custom'], [
             $entity->getEntityTypeId() => $entity,

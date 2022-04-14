@@ -84,7 +84,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
       $media = $this->formatter
         ->loadByProperties([
           $field_name => $value,
-        ], 'media');
+        ], 'media', TRUE);
 
       if ($media = reset($media)) {
         $this->blazyOembed->build($data, $media);

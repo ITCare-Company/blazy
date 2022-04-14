@@ -147,7 +147,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Prepare settings.
+   * Prepares the settings.
    */
   protected function preSettings(array &$settings, $text) {
     if (!isset($this->htmlFilter)) {
@@ -159,6 +159,13 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
         ],
       ]);
     }
+  }
+
+  /**
+   * Modifies the settings.
+   */
+  protected function postSettings(array &$settings) {
+    // Do nothing.
   }
 
   /**

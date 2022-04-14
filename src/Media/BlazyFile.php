@@ -19,6 +19,13 @@ use Drupal\blazy\Utility\Path;
 class BlazyFile {
 
   /**
+   * Returns TRUE if an external URL.
+   */
+  public static function isExternal($uri): bool {
+    return $uri && UrlHelper::isExternal($uri);
+  }
+
+  /**
    * Returns TRUE if a File entity.
    */
   public static function isFile($file): bool {
@@ -92,7 +99,7 @@ class BlazyFile {
     $data_uri = $url && mb_substr($url, 0, 10) === 'data:image';
 
     // Returns as is if an external URL: UCG or external OEmbed image URL.
-    if (UrlHelper::isExternal($uri)) {
+    if (self::isExternal($uri)) {
       $url = $uri;
     }
     else {
@@ -130,7 +137,7 @@ class BlazyFile {
    * @todo re-check if core has this type of conversion.
    */
   public static function buildUri($url): ?string {
-    if (!UrlHelper::isExternal($url)
+    if (!self::isExternal($url)
       && $normal_path = UrlHelper::parse($url)['path']) {
       // If the request has a base path, remove it from the beginning of the
       // normal path as it should not be included in the URI.
@@ -284,7 +291,7 @@ class BlazyFile {
       $file = $uuid ? $manager->loadByUuid($uuid, 'file') : NULL;
 
       if (!$file && self::isValidUri($uri)) {
-        if ($files = $manager->loadByProperties(['uri' => $uri], 'file')) {
+        if ($files = $manager->loadByProperties(['uri' => $uri], 'file', TRUE)) {
           $file = reset($files);
         }
       }

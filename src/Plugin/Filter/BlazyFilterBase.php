@@ -60,33 +60,14 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $this->blazyManager->preSettings($settings);
 
     $blazies = $settings['blazies'];
-    $exist = $blazies->is('resimage');
-
     $blazies->set('is.filter', TRUE)
       ->set('is.media_library', $is_media_library)
       ->set('is.unsafe', TRUE)
       ->set('libs.filter', TRUE);
 
-    if ($style = ($settings['hybrid_style'] ?? FALSE)) {
-      // @todo move it out of here due to requiring URI to determine style.
-      if ($exist) {
-        try {
-          if ($resimage = $this->blazyManager->entityLoad($style, 'responsive_image_style')) {
-            $settings['responsive_image_style'] = $style;
-            $blazies->set('resimage.style', $resimage);
-          }
-        }
-        catch (\Exception $ignore) {
-          // Likely SVG, etc. without dimensions.
-        }
-      }
-
-      if (empty($settings['responsive_image_style'])) {
-        $settings['image_style'] = $style;
-      }
-    }
-
+    $this->postSettings($settings);
     $this->blazyManager->postSettings($settings);
+
     $blazies->set('lightbox.gallery_id', $id)
       ->set('css.id', $id)
       ->set('filter.plugin_id', $plugin_id);
@@ -165,7 +146,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
           $build['captions']['alt'] = ['#markup' => $markup];
         }
 
-        if (isset($settings['box_caption']) && $settings['box_caption'] == 'inline') {
+        if (($settings['box_caption'] ?? '') == 'inline') {
           $settings['box_caption'] = $markup;
         }
 
@@ -279,7 +260,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     if ($src && $blazies->is('media_library')) {
       $media = $this->blazyManager->loadByProperties([
         'field_media_oembed_video' => $src,
-      ], 'media');
+      ], 'media', TRUE);
 
       $media = reset($media);
     }

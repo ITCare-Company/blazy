@@ -4,6 +4,8 @@ namespace Drupal\blazy;
 
 /**
  * Defines re-usable services and functions for blazy plugins.
+ *
+ * @todo move some non-media methods into BlazyInterface at 3.x, or before.
  */
 interface BlazyManagerInterface {
 

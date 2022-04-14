@@ -81,7 +81,7 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       // Too risky, but if you got lucky.
       // if ($medias = $this->blazyManager->loadByProperties([
       // 'field_media_oembed_video.value' => $input,
-      // ], 'media')) {
+      // ], 'media', TRUE)) {
       // if ($media = reset($medias)) {
       // $entity = $media;
       // }

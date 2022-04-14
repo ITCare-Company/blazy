@@ -20,6 +20,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides common shared methods across Blazy ecosystem to DRY.
+ *
+ * @todo extends BlazyBase at or by 3.x, and remove most non-media methods.
  */
 abstract class BlazyManagerBase implements BlazyManagerInterface {
 
@@ -206,10 +208,35 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
-   * Returns a shortcut for loading entity by its properties.
+   * Returns the entity query object for this entity type.
    */
-  public function loadByProperties($properties, $type = 'file') {
-    return $this->getStorage($type)->loadByProperties($properties);
+  public function entityQuery($type, $conjunction = 'AND') {
+    return $this->getStorage($type)->getQuery($conjunction);
+  }
+
+  /**
+   * Returns a shortcut for loading entity by its properties.
+   *
+   * The only difference from EntityStorageBase::loadByProperties() is the
+   * explicit access TRUE specific for content entities, FALSE config ones.
+   *
+   * @see https://www.drupal.org/node/3201242
+   */
+  public function loadByProperties(
+    array $values,
+    $type = 'file',
+    $access = TRUE,
+    $conjunction = 'AND',
+    $condition = 'IN'
+  ): array {
+    $storage = $this->getStorage($type);
+    $query = $storage->getQuery($conjunction);
+
+    $query->accessCheck($access);
+    $this->buildPropertyQuery($query, $values, $condition);
+
+    $result = $query->execute();
+    return $result ? $storage->loadMultiple($result) : [];
   }
 
   /**
@@ -435,6 +462,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   }
 
   /**
+   * Overrides data massaged by [blazy|slick|splide, etc.]_settings_alter().
+   */
+  public function postSettingsAlter(array &$settings): void {
+    Check::settingsAlter($settings);
+  }
+
+  /**
    * Provides data to be consumed by Blazy::preSettings().
    *
    * Such as to provide lazy attribute and class for Slick or Splide, etc.
@@ -463,6 +497,16 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $attachments          = Blazy::merge($attached, $attachments);
     $element['#attached'] = Blazy::merge($attachments, $element, '#attached');
     $element['#cache']    = Blazy::merge($cache, $element, '#cache');
+  }
+
+  /**
+   * Builds an entity query.
+   */
+  private function buildPropertyQuery($query, array $values, $condition = 'IN'): void {
+    foreach ($values as $name => $value) {
+      // Cast scalars to array so we can consistently use an IN condition.
+      $query->condition($name, (array) $value, $condition);
+    }
   }
 
   /**

@@ -349,23 +349,24 @@ class Check {
     $blazies    = $settings['blazies'];
     $lightboxes = $blazies->get('lightbox.plugins', []);
     $lightbox   = in_array($switch, $lightboxes) ? $switch : FALSE;
-    $_richbox   = $settings['_richbox'] ?? $blazies->is('richbox');
-    $richbox    = $blazies->get('colorbox') || $blazies->get('mfp') || $_richbox;
-
-    // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
-    $optionset = empty($settings[$switch]) ? $switch : $settings[$switch];
+    $optionset  = empty($settings[$switch]) ? $switch : $settings[$switch];
 
     // Lightbox is unique, safe to reserve top level key:
     if ($lightbox) {
       // @todo remove settings after migration and sub-modules.
       $settings[$switch] = $optionset;
 
+      // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.
       // With an optionset: `elevetazoomplus:responsive`.
       // Without an optionset: `colorbox:colorbox`, etc.
       $blazies->set($switch, $optionset)
         ->set('lightbox.name', $lightbox)
         ->set('lightbox.optionset', $optionset);
     }
+
+    // Richbox is local video inside lightboxes by supported lightboxes.
+    $_richbox = $settings['_richbox'] ?? $blazies->is('richbox');
+    $richbox  = $blazies->get('colorbox') || $blazies->get('mfp') || $_richbox;
 
     // (Non-)lightboxes: media player, link to content, image rendered, etc.
     $blazies->set('switch', $switch);
@@ -376,6 +377,39 @@ class Check {
     $blazies->set('is.lightbox', !empty($lightbox))
       ->set('is.richbox', $richbox)
       ->set('was.lightbox', TRUE);
+  }
+
+  /**
+   * Checks for settings alter.
+   */
+  public static function settingsAlter(array &$settings): void {
+    $blazies = $settings['blazies'];
+    $manager = Blazy::service('blazy.manager');
+
+    // Bail out early if not so configured.
+    if (!$blazies->is('lightbox') || !$manager) {
+      return;
+    }
+
+    // Gallery is determined by a view, or overriden by colorbox settings.
+    // Might be set by formatters or filters, but not View styles/ fields.
+    $gallery_id = $blazies->get('view.instance_id');
+    $gallery_id = $blazies->get('lightbox.gallery_id') ?: $gallery_id;
+    $is_gallery = !empty($gallery_id);
+
+    // Respects colorbox settings unless for an explicit field/ view gallery.
+    if (!$is_gallery
+      && $colorbox
+      && function_exists('colorbox_theme')) {
+      $is_gallery = (bool) $manager->configLoad('custom.slideshow.slideshow', 'colorbox.settings');
+    }
+
+    // Re-define based on potential hook_alter().
+    if ($is_gallery) {
+      $gallery_id = str_replace('_', '-', $gallery_id);
+      $blazies->set('lightbox.gallery_id', $gallery_id)
+        ->set('is.gallery', TRUE);
+    }
   }
 
 }

@@ -211,7 +211,6 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    */
   public function getFieldOptions($target_bundles = [], $allowed_field_types = [], $entity_type = 'media', $target_type = '') {
     $options = [];
-    $storage = $this->blazyManager()->getStorage('field_config');
 
     // Fix for Views UI not recognizing Media bundles, unlike Formatters.
     if (empty($target_bundles)) {
@@ -223,10 +222,10 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     $excludes = $this->getExcludedFieldOptions();
 
     foreach ($target_bundles as $bundle => $label) {
-      if ($fields = $storage->loadByProperties([
+      if ($fields = $this->blazyManager()->loadByProperties([
         'entity_type' => $entity_type,
         'bundle' => $bundle,
-      ])) {
+      ], 'field_config', FALSE)) {
         foreach ((array) $fields as $field) {
           if (in_array($field->getName(), $excludes)) {
             continue;
@@ -238,7 +237,8 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
             $options[$field->getName()] = $field->getLabel();
           }
 
-          if (!empty($target_type) && ($field->getSetting('target_type') == $target_type)) {
+          if (!empty($target_type)
+            && ($field->getSetting('target_type') == $target_type)) {
             $options[$field->getName()] = $field->getLabel();
           }
         }

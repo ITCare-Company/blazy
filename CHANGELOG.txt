@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2022-04-14
+-----------------------------
+- Added Drupal\blazy\BlazyBase service for non-media methods for 3.x.
+- Fixed for Colorbox gallery ID regression.
+- Fixed for D10 access check explicit requirement (3201242).
+
 Blazy 8.x-2.0-dev, 2022-04-13
 -----------------------------
 - Fixed for Image title within Media regression: #3241415.

@@ -104,11 +104,11 @@ class Blazy {
     // Checks for basic features.
     Check::container($settings);
 
-    // Checks for grids.
-    Check::grids($settings);
-
     // Checks for lightboxes.
     Check::lightboxes($settings);
+
+    // Checks for grids.
+    Check::grids($settings);
 
     // Checks for Image styles, excluding Responsive image.
     BlazyImage::styles($settings);
@@ -330,10 +330,17 @@ class Blazy {
   }
 
   /**
-   * Alias for Grid::build() for sub-modules and easy organization later.
+   * Alias for Grid::build() for sub-modules and easy organization.
    */
   public static function grid(array $items, array $settings): array {
     return Grid::build($items, $settings);
+  }
+
+  /**
+   * Alias for Grid::attributes() for sub-modules and easy organization.
+   */
+  public static function gridAttributes(array &$attributes, array $settings): void {
+    Grid::attributes($attributes, $settings);
   }
 
   /**

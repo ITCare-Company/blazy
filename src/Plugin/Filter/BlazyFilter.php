@@ -171,7 +171,11 @@ class BlazyFilter extends BlazyFilterBase {
     // Provides alter like formatters to modify at one go, even clumsy here.
     $build = ['settings' => $settings];
     $this->blazyManager->getModuleHandler()->alter('blazy_settings', $build, $this->settings);
-    return array_merge($settings, $build['settings']);
+
+    $settings = array_merge($settings, $build['settings']);
+    $this->blazyManager->postSettingsAlter($settings);
+    return $settings;
+
   }
 
   /**
@@ -250,13 +254,40 @@ class BlazyFilter extends BlazyFilterBase {
   }
 
   /**
-   * Prepare settings.
+   * {@inheritdoc}
    */
   protected function preSettings(array &$settings, $text) {
     // @todo remove at 3.x or so.
     $this->deprecatedGrid($settings, $text);
 
     parent::preSettings($settings, $text);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function postSettings(array &$settings) {
+    $blazies = $settings['blazies'];
+    if ($style = ($settings['hybrid_style'] ?? NULL)) {
+      // @todo move it out of here due to requiring URI to determine style.
+      if ($blazies->is('resimage')) {
+        try {
+          if ($resimage = $this->blazyManager->entityLoad($style, 'responsive_image_style')) {
+            $settings['responsive_image_style'] = $style;
+            $blazies->set('resimage.style', $resimage);
+          }
+        }
+        catch (\Exception $ignore) {
+          // Likely SVG, etc. without dimensions.
+        }
+      }
+
+      if (empty($settings['responsive_image_style'])) {
+        $settings['image_style'] = $style;
+      }
+    }
+
+    parent::postSettings($settings);
   }
 
   /**
@@ -425,7 +456,10 @@ class BlazyFilter extends BlazyFilterBase {
     // Be sure to not affect external images, only strip missing local URI.
     $uri = $settings['uri'] ?? '';
     $uri = $blazies->get('image.uri') ?: $uri;
-    $missing = !empty($uri) && (BlazyFile::isValidUri($uri) && !is_file($uri));
+    $missing = FALSE;
+    if ($uri && !BlazyFile::isExternal($uri)) {
+      $missing = BlazyFile::isValidUri($uri) && !is_file($uri);
+    }
     if (empty($uri) || $missing) {
       $media->setAttribute('class', 'blazy-removed');
       return [];
