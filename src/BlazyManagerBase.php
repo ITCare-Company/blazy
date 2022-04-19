@@ -283,7 +283,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   ): array {
     if (!isset($this->cachedData[$cid]) || $reset) {
       $cache = $this->cache->get($cid);
-      if ($result = $cache->data) {
+      if ($cache && $result = $cache->data) {
         $this->cachedData[$cid] = $result;
       }
       else {
