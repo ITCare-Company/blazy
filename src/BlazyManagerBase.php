@@ -274,20 +274,29 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCachedData($cid, array $data): array {
-    if (!isset($this->cachedData[$cid])) {
-      if ($cache = $this->cache->get($cid)) {
-        $this->cachedData[$cid] = $cache->data;
+  public function getCachedData(
+    $cid,
+    array $data = [],
+    $reset = FALSE,
+    $alter = NULL,
+    array $context = []
+  ): array {
+    if (!isset($this->cachedData[$cid]) || $reset) {
+      $cache = $this->cache->get($cid);
+      if ($result = $cache->data) {
+        $this->cachedData[$cid] = $result;
       }
       else {
-        $this->moduleHandler->alter($cid, $data);
-        $data = array_unique($data);
+        if ($data) {
+          $this->moduleHandler->alter($alter ?: $cid, $data, $context);
+          $data = array_unique($data);
 
-        sort($data);
+          sort($data);
 
-        $count = count($data);
-        $tags = Cache::buildTags($cid, ['count:' . $count]);
-        $this->cache->set($cid, $data, Cache::PERMANENT, $tags);
+          $count = count($data);
+          $tags = Cache::buildTags($cid, ['count:' . $count]);
+          $this->cache->set($cid, $data, Cache::PERMANENT, $tags);
+        }
 
         $this->cachedData[$cid] = $data;
       }
@@ -335,8 +344,13 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * {@inheritdoc}
    */
   public function getImageEffects(): array {
+    $cid = 'blazy_image_effects';
+    if ($data = $this->getCachedData($cid)) {
+      return $data;
+    }
+
     $effects[] = 'blur';
-    return $this->getCachedData('blazy_image_effects', $effects);
+    return $this->getCachedData($cid, $effects, TRUE);
   }
 
   /**
@@ -350,8 +364,12 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * {@inheritdoc}
    */
   public function getLightboxes(): array {
+    $cid = 'blazy_lightboxes';
+    if ($data = $this->getCachedData($cid)) {
+      return $data;
+    }
     $data = BlazyCache::lightboxes($this->root);
-    return $this->getCachedData('blazy_lightboxes', $data);
+    return $this->getCachedData($cid, $data, TRUE);
   }
 
   /**

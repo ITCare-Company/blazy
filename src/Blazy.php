@@ -298,7 +298,7 @@ class Blazy {
    * @return \Drupal\Core\StreamWrapper\StreamWrapperManager
    *   The stream wrapper manager.
    *
-   * @todo remove for Path::streamWrapperManager() after sub-modules: GridStack.
+   * @todo remove for Path::streamWrapperManager() after sub-modules.
    */
   public static function streamWrapperManager() {
     return self::service('stream_wrapper_manager');
@@ -348,6 +348,13 @@ class Blazy {
    */
   public static function transformRelative($uri, $style = NULL, array $options = []): string {
     return BlazyFile::transformRelative($uri, $style, $options);
+  }
+
+  /**
+   * Alias for BlazyFile::normalizeUri() for sub-modules.
+   */
+  public static function normalizeUri($path): string {
+    return BlazyFile::normalizeUri($path);
   }
 
   /**

@@ -189,9 +189,13 @@
     insert(target, el, _after + _begin);
   }
 
-  function clone(els) {
+  function clone(els, deep) {
+    if ($.isUnd(deep)) {
+      deep = true;
+    }
+
     var chainCallback = function (el) {
-      return $.isElm(el) && el.cloneNode(true);
+      return $.isElm(el) && el.cloneNode(deep);
     };
     return $.chain(els, chainCallback);
   }
@@ -271,8 +275,8 @@
       // els.push(findAll(el, selector));
       // });
     },
-    clone: function () {
-      return clone(this);
+    clone: function (deep) {
+      return clone(this, deep);
     },
     computeStyle: function (prop) {
       return $.computeStyle(this[0], prop);

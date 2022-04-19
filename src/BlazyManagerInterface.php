@@ -27,11 +27,23 @@ interface BlazyManagerInterface {
    *   The cache ID, als used for the hook_alter.
    * @param array $data
    *   The given data to cache.
+   * @param bool $reset
+   *   Whether to re-fetch in case not cached yet.
+   * @param string $alter
+   *   The specific alter for the hook_alter, otherwise $cid.
+   * @param array $context
+   *   The optional context or info for the hook_alter.
    *
    * @return array
    *   The cache data.
    */
-  public function getCachedData($cid, array $data): array;
+  public function getCachedData(
+    $cid,
+    array $data = [],
+    $reset = FALSE,
+    $alter = NULL,
+    array $context = []
+  ): array;
 
   /**
    * Returns the supported image effects.

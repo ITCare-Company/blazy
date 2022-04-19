@@ -543,6 +543,11 @@
       }
     }
 
+    // Filter out useless empty object.
+    if (isObj(obj) && isEmpty(obj)) {
+      return [];
+    }
+
     if (_toString.call(obj) === '[object Object]') {
       for (var prop in obj) {
         if (hasProp(obj, prop)) {
@@ -556,6 +561,10 @@
       }
     }
     else if (obj) {
+      if (obj instanceof HTMLCollection) {
+        obj = _aProto.slice.call(obj);
+      }
+
       var len = obj.length;
       if (len && len === 1 && !isUnd(obj[0])) {
         cb.call(scope, obj[0], 0, obj);
@@ -1376,7 +1385,7 @@
               _cbt.call(t, e);
               break;
             }
-            t = t.parentElement;
+            t = t.parentElement || t.parentNode;
           }
         }
       };
@@ -1654,12 +1663,17 @@
   function onceCompat(cb, id, selector, ctx) {
     var els = [];
 
+    // If a string, assumes find once like core/once.
+    if (isStr(cb)) {
+      return findOnce(cb, id);
+    }
+
     // Original once.
     if (isUnd(selector)) {
       _once(cb);
     }
+    // If extra arguments are provided, assumes regular loop over elements.
     else {
-      // If extra arguments are provided, assumes regular loop over elements.
       els = initOnce(id, selector, ctx);
       if (els.length) {
         // Already avoids loop for a single item.
@@ -1769,6 +1783,16 @@
   function context(ctx) {
     // Weirdo: context may be null after Colorbox close.
     ctx = ctx || _doc;
+
+    // Checks if a string is given as a context.
+    if (isStr(ctx)) {
+      ctx = is(ctx, 'html') ? _doc : _doc.querySelector(ctx);
+    }
+
+    // Prevents problematic _doc.documentElement as the context.
+    if (is(ctx, 'html')) {
+      ctx = _doc;
+    }
 
     // jQuery may pass its array as non-expected context identified by length.
     ctx = toElm(ctx);
@@ -2039,10 +2063,12 @@
     });
   }
 
+  function findOnce(id, ctx) {
+    return elsOnce(!id ? '[' + _dataOnce + ']' : selOnce(id), ctx);
+  }
+
   if (!db.once.find) {
-    db.once.find = function (id, ctx) {
-      return elsOnce(!id ? '[' + _dataOnce + ']' : selOnce(id), ctx);
-    };
+    db.once.find = findOnce;
     db.once.filter = function (id, selector, ctx) {
       return _filter(selOnce(id), elsOnce(selector, ctx));
     };

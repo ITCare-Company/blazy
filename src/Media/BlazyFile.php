@@ -152,19 +152,26 @@ class BlazyFile {
       // displayed via SRC attribute. Don't bother language prefixes for IMG.
       if ($public_path && mb_strpos($normal_path, $public_path) !== FALSE) {
         $rel_path = str_replace($public_path, '', $normal_path);
-        if ($stream = Path::streamWrapperManager()) {
-          $uri = $stream->normalizeUri($rel_path);
-
-          // @todo re-check why scheme is gone since 2.9. It was there <= 2.5.
-          if (substr($uri, 0, 2) === '//') {
-            $uri = 'public:' . $uri;
-          }
-
-          return $uri;
-        }
+        return self::normalizeUri($rel_path);
       }
     }
     return NULL;
+  }
+
+  /**
+   * Normalizes URI for sub-modules.
+   */
+  public static function normalizeUri($path): string {
+    $uri = $path;
+    if ($stream = Path::streamWrapperManager()) {
+      $uri = $stream->normalizeUri($path);
+
+      // @todo re-check why scheme is gone since 2.9. It was there <= 2.5.
+      if (substr($uri, 0, 2) === '//') {
+        $uri = 'public:' . $uri;
+      }
+    }
+    return $uri;
   }
 
   /**
