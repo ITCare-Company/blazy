@@ -287,9 +287,12 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
         $this->cachedData[$cid] = $result;
       }
       else {
-        if ($data) {
+        if ($data && is_array($data)) {
           $this->moduleHandler->alter($alter ?: $cid, $data, $context);
-          $data = array_unique($data);
+
+          if (isset($data[1])) {
+            $data = array_unique($data);
+          }
 
           sort($data);
 
@@ -316,15 +319,16 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function getIoSettings(array $attach = []): object {
     $io = [];
-    $thold = trim($this->configLoad('io.threshold') ?? "");
-    $thold = str_replace(['[', ']'], '', $thold ?: '0');
+    $thold = $this->configLoad('io.threshold');
+    $thold = str_replace(['[', ']'], '', trim($thold ?: '0'));
 
     // @todo re-check, looks like the default 0 is broken sometimes.
     if ($thold == '0') {
       $thold = '0, 0.25, 0.5, 0.75, 1';
     }
 
-    $thold = strpos($thold, ',') !== FALSE ? array_map('trim', explode(',', $thold)) : [$thold];
+    $thold = strpos($thold, ',') !== FALSE
+      ? array_map('trim', explode(',', $thold)) : [$thold];
     $formatted = [];
     foreach ($thold as $value) {
       $formatted[] = strpos($value, '.') !== FALSE ? (float) $value : (int) $value;
@@ -430,6 +434,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $ui['fx'] = empty($settings['fx']) ? $ui['fx'] : $settings['fx'];
     $ui['blur_minwidth'] = (int) ($ui['blur_minwidth'] ?? 0);
     $fx = $settings['_fx'] ?? $ui['fx'];
+    $fx = $blazies->get('fx', $fx);
     $language = $this->languageManager->getCurrentLanguage()->getId();
     $lightboxes = $this->getLightboxes();
     $lightboxes = $blazies->get('lightbox.plugins', $lightboxes) ?: [];

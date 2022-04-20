@@ -248,20 +248,32 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCachedData($cid, array $data): array {
-    if (!isset($this->cachedData[$cid])) {
-      if ($cache = $this->cache->get($cid)) {
-        $this->cachedData[$cid] = $cache->data;
+  public function getCachedData(
+    $cid,
+    array $data = [],
+    $reset = FALSE,
+    $alter = NULL,
+    array $context = []
+  ): array {
+    if (!isset($this->cachedData[$cid]) || $reset) {
+      $cache = $this->cache->get($cid);
+      if ($cache && $result = $cache->data) {
+        $this->cachedData[$cid] = $result;
       }
       else {
-        $this->moduleHandler->alter($cid, $data);
-        $data = array_unique($data);
+        if ($data && is_array($data)) {
+          $this->moduleHandler->alter($alter ?: $cid, $data, $context);
 
-        sort($data);
+          if (isset($data[1])) {
+            $data = array_unique($data);
+          }
 
-        $count = count($data);
-        $tags = Cache::buildTags($cid, ['count:' . $count]);
-        $this->cache->set($cid, $data, Cache::PERMANENT, $tags);
+          sort($data);
+
+          $count = count($data);
+          $tags = Cache::buildTags($cid, ['count:' . $count]);
+          $this->cache->set($cid, $data, Cache::PERMANENT, $tags);
+        }
 
         $this->cachedData[$cid] = $data;
       }

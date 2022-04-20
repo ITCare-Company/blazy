@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2022-04-20
+-----------------------------
+- Fixed for Slick caption not visible anymore by stopopol (#3276156).
+
 Blazy 8.x-2.0-dev, 2022-04-14
 -----------------------------
 - Added Drupal\blazy\BlazyBase service for non-media methods for 3.x.

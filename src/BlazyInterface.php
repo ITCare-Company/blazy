@@ -3,9 +3,7 @@
 namespace Drupal\blazy;
 
 /**
- * Provides common blazy utility static methods.
- *
- * @todo remove this file when Blazy stays static at 3.x.
+ * Provides common blazy utility methods.
  */
 interface BlazyInterface {
 
