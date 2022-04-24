@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2022-04-24
+-----------------------------
+- Issue #3118368 by gausarts, W01F: Lightboxes are gone.
+
 Blazy 8.x-2.0-dev, 2022-04-20
 -----------------------------
 - Fixed for Slick caption not visible anymore by stopopol (#3276156).
