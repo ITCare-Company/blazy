@@ -305,6 +305,13 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function moduleExists($name): bool {
+    return $this->moduleHandler->moduleExists($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function toGrid(array $items, array $settings): array {
     return Blazy::grid($items, $settings);
   }
