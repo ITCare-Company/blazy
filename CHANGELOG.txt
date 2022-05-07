@@ -1,7 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2022-05-07
 -----------------------------
-- Issue #3278009 by gausarts, hunterbuchanan: Default image no longer 
+- Fixed for lightbox caption with token regression.
+- Issue #3278009 by gausarts, hunterbuchanan: Default image no longer
   shows up in image field using Blazy 2.10.
 
 Blazy 8.x-2.0-dev, 2022-04-24
