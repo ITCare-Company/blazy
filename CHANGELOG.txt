@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2022-05-17
 -----------------------------
+- Issue #3279831 by poedan: Allow multiple thumbnails on the same video url.
 - Issue #3280769 by gausarts, bgreco: "Lightbox image style" setting does
   not work.
 
