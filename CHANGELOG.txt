@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-05-17
+-----------------------------
+- Issue #3280769 by gausarts, bgreco: "Lightbox image style" setting does
+  not work.
+
 Blazy 8.x-2.0-dev, 2022-05-07
 -----------------------------
 - Fixed for dup thumbnail regression, see #3278525.
