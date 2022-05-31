@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-05-31
+-----------------------------
+- Issue #3282785 by jurgenhaas, Anybody, gausarts, Rajab Natshah: WSOD after
+  update to 2.12: Error: Call to a member function get() on null.
+
 Blazy 8.x-2.0-dev, 2022-05-18
 -----------------------------
 - Fixed for vanilla regressions.

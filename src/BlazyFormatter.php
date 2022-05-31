@@ -56,7 +56,11 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    * {@inheritdoc}
    */
   public function preBuildElements(array &$build, $items, array $entities = []) {
-    $settings  = &$build['settings'];
+    $settings = &$build['settings'];
+
+    // BC for mismatched minor versions.
+    Blazy::verify($settings);
+
     $blazies   = $settings['blazies'];
     $plugin_id = $blazies->get('field.plugin_id');
 
