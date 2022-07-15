@@ -63,7 +63,6 @@ html:not(.js) [data-b-blur] {
 /** Fix for conflict with Bootstrap CSS if not using aspect ratio. */
 .blazy .media {
   display: block;
-  position: relative;
 }
 
 /**

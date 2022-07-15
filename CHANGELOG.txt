@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2022-07-15
 -----------------------------
+- Issue #3285374 by vinitk, djsagar: Blazy module hiding media gallery image
+  with gin admin theme.
 - Issue #3296139 by Carlos Romero, gausarts: Lightbox gallery not working for
   Blazy custom Views fields.
 
