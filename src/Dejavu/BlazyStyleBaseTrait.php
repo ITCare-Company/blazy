@@ -131,25 +131,46 @@ trait BlazyStyleBaseTrait {
 
       $rendered = [];
       if ($row && $render = $this->view->rowPlugin->render($row)) {
-        if (isset($render['#view']->field) && $fields = $render['#view']->field) {
+        if (isset($render['#view']->field)
+          && $fields = $render['#view']->field) {
           foreach ($fields as $field) {
             $options = isset($field->options) ? $field->options : [];
-            if (!isset($options['type'])) {
+            $id = $options['plugin_id'] ?? '';
+            $type = $options['type'] ?? $id;
+            $switch = isset($options['media_switch']) || isset($options['settings']['media_switch']);
+
+            if (!$type) {
               continue;
             }
 
-            if (!empty($options['field']) && isset($options['settings']['media_switch']) && strpos($options['type'], 'blazy') !== FALSE) {
+            if (!empty($options['field'])
+              && $switch
+              && strpos($type, 'blazy') !== FALSE) {
               $name = $options['field'];
             }
           }
 
-          if (isset($name) && $rendered = $this->getFieldRenderable($row, 0, $name)) {
-            if (is_array($rendered) && isset($rendered['rendered']) && !($rendered['rendered'] instanceof Markup)) {
-              $rendered = isset($rendered['rendered']['#build']) ? $rendered['rendered']['#build'] : [];
+          if (isset($name)) {
+            // Blazy Views field plugins.
+            if (strpos($name, 'blazy_') !== FALSE
+            && $field = ($this->view->field[$name] ?? NULL)) {
+              $result['rendered'] = $field->render($row);
+            }
+            else {
+              // Blazy, Splide, Slick, etc. field formatters.
+              $result = $this->getFieldRenderable($row, 0, $name);
+            }
+
+            if ($result
+              && is_array($result)
+              && isset($result['rendered'])
+              && !($result['rendered'] instanceof Markup)) {
+              $rendered = $result['rendered']['#build'] ?? [];
             }
           }
         }
       }
+
       $this->firstImage = $rendered;
     }
     return $this->firstImage;
@@ -161,8 +182,14 @@ trait BlazyStyleBaseTrait {
   public function getFieldRenderable($row, $index, $field_name = '', $multiple = FALSE) {
     // Be sure to not check "Use field template" under "Style settings" to have
     // renderable array to work with, otherwise flattened string!
-    $result = isset($this->view->field[$field_name]) ? $this->view->field[$field_name]->getItems($row) : [];
-    return empty($result) ? [] : ($multiple ? $result : $result[0]);
+    if ($field = ($this->view->field[$field_name] ?? NULL)) {
+      if (method_exists($field, 'getItems')) {
+        $result = $field->getItems($row) ?: [];
+        return empty($result) ? [] : ($multiple ? $result : $result[0]);
+      }
+    }
+
+    return [];
   }
 
 }
