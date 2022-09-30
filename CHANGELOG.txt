@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2022-09-30
+-----------------------------
+- Issue #3308524 by balintpekker, nkoporec, mglaman: Drupal 10
+  compatibility - off canvas.
+
 Blazy 8.x-2.0-dev, 2022-07-15
 -----------------------------
 - Issue #3285374 by vinitk, djsagar: Blazy module hiding media gallery image
