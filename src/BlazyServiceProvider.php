@@ -19,6 +19,8 @@ class BlazyServiceProvider implements ServiceProviderInterface {
    */
   public function register(ContainerBuilder $container) {
     if (version_compare(\Drupal::VERSION, '9.0', '<')) {
+      $container->getDefinition('blazy.base')
+        ->setArgument(0, '@app.root');
       $container->getDefinition('blazy.manager.base')
         ->setArgument(0, '@app.root');
     }
