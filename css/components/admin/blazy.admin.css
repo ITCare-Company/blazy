@@ -1343,11 +1343,6 @@ td .form__title {
   .form--slick .form__header .form-type-checkbox {
     max-width: 160px;
   }
-
-  .form--slick #edit-delete { /* csslint allow: ids */
-    position: absolute;
-    right: 0;
-  }
 }
 
 @media screen and (min-width: 1280px) {

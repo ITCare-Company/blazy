@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2022-12-15
 ------------------------------
+- Issue #3325423 by AnasNaamneh: Delete button at slick UI admin page is not
+  shown.
 - Issue #3321264 by trickfun, gausarts: Call to a member function storage() on
   array in Drupal\blazy\BlazyManager->buildContent().
 - Issue #3326389 by Berdir: Drupal 10: TypeError: ParameterBag::getInt():
