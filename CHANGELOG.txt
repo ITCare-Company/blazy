@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2022-12-15
+------------------------------
+- Issue #3323439 by rcodina: Inserting a slideshare iframe causes a PHP error.
+
 Blazy 8.x-2.0-dev, 2022-09-30
 ------------------------------
 - Issue #3299609 by DD 85: The service "blazy.base" has a dependency on a

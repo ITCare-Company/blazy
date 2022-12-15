@@ -206,7 +206,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       // VEF has valid local URI, other hard-coded unmanaged files might not.
       if (!BlazyFile::isValidUri($uri)) {
         // All we have here is external images. URI validity is not crucial.
-        $uri = $resource->getThumbnailUrl()->getUri();
+        if (!empty($resource->getThumbnailUrl())) {
+          $uri = $resource->getThumbnailUrl()->getUri();
+        }
       }
 
       // Respect hard-coded width and height since no UI for all these here.
