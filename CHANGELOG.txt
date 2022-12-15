@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2022-12-15
 ------------------------------
+- Issue #3326389 by Berdir: Drupal 10: TypeError: ParameterBag::getInt():
+  Argument #2 ($default) must be of type int, null given.
 - Issue #3323439 by rcodina: Inserting a slideshare iframe causes a PHP error.
 
 Blazy 8.x-2.0-dev, 2022-09-30

@@ -239,8 +239,8 @@ class BlazyTheme {
     // Only needed to autoplay video, and make responsive iframe.
     try {
       // Blazy formatters with oEmbed provide contextual params to the query.
-      $is_blazy = $request->query->getInt('blazy', NULL);
-      $is_autoplay = $request->query->getInt('autoplay', NULL);
+      $is_blazy = $request->query->getInt('blazy');
+      $is_autoplay = $request->query->getInt('autoplay');
       $url = $request->query->get('url');
 
       // Only replace url if it is required by Blazy.
