@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2022-12-15
 ------------------------------
+- Issue #3317773 by Elvin - Albania Drupal Developer: Missing ALT attribute when
+  using Decorative Image and Responsive Image.
 - Issue #3322138 by Luispe: Activate Responsive Image Styles on Blazy OEmbed
   Formatter.
 - Issue #3325423 by AnasNaamneh: Delete button at slick UI admin page is not

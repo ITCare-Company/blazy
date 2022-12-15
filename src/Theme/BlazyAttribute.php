@@ -346,7 +346,7 @@ class BlazyAttribute {
     // Respects hand-coded image attributes.
     if ($item) {
       if (!isset($attributes['alt'])) {
-        $attributes['alt'] = empty($item->alt) ? NULL : trim($item->alt);
+        $attributes['alt'] = empty($item->alt) ? "" : trim($item->alt);
       }
 
       // Do not output an empty 'title' attribute.
