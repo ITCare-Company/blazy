@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2022-12-15
 ------------------------------
+- Issue #3322138 by Luispe: Activate Responsive Image Styles on Blazy OEmbed
+  Formatter.
 - Issue #3325423 by AnasNaamneh: Delete button at slick UI admin page is not
   shown.
 - Issue #3321264 by trickfun, gausarts: Call to a member function storage() on

@@ -130,7 +130,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
       'background'        => TRUE,
       'media_switch_form' => TRUE,
       'multimedia'        => TRUE,
-      'responsive_image'  => FALSE,
+      'responsive_image'  => TRUE,
     ];
   }
 
