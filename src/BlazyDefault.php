@@ -118,6 +118,8 @@ class BlazyDefault {
       'grid_header' => '',
       'loading' => 'lazy',
       'preload' => FALSE,
+      '_item' => '',
+      '_uri' => '',
     ];
   }
 

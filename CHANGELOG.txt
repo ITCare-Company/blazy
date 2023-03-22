@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-03-22
+------------------------------
+- Issue #3332385 by vacho: Missing schemas for _item and _uri.
+
 Blazy 8.x-2.0-dev, 2022-12-15
 ------------------------------
 - Issue #3317773 by Elvin - Albania Drupal Developer: Missing ALT attribute when
