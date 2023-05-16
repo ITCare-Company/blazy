@@ -264,12 +264,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function getImageEffects(): array {
     $cid = 'blazy_image_effects';
-    if ($data = $this->getCachedData($cid)) {
-      return $data;
-    }
-
     $effects[] = 'blur';
-    return $this->getCachedData($cid, $effects, TRUE);
+    return $this->getCachedData($cid, $effects);
   }
 
   /**
@@ -277,11 +273,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    */
   public function getLightboxes(): array {
     $cid = 'blazy_lightboxes';
-    if ($data = $this->getCachedData($cid)) {
-      return $data;
-    }
     $data = BlazyCache::lightboxes($this->root);
-    return $this->getCachedData($cid, $data, TRUE);
+    return $this->getCachedData($cid, $data);
   }
 
   /**
@@ -505,7 +498,7 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
   ): array {
     if (!isset($this->cachedData[$cid]) || $reset) {
       $cache = $this->cache->get($cid);
-      if ($cache && $result = $cache->data) {
+      if (!$reset && $cache && $result = $cache->data) {
         $this->cachedData[$cid] = $result;
       }
       else {
