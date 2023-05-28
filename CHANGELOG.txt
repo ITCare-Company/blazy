@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-05-28
+------------------------------
+- Updated to account for PHP8.1+.
+
 Blazy 8.x-2.0-dev, 2023-05-15
 ------------------------------
 - Fixed for non-refreshable cached options, e.g: missing Media switcher option.

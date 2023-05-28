@@ -6,6 +6,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\BlazyInternal;
 use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Utility\Path;
 
@@ -75,8 +76,8 @@ class BlazyTheme {
 
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
-      Blazy::preSettings($settings);
-      Blazy::prepare($settings, $item, $settings['delta'] ?? 0);
+      BlazyInternal::preSettings($settings);
+      BlazyInternal::prepare($settings, $item, $settings['delta'] ?? 0);
     }
 
     // Do not proceed if no URI is provided. URI is not Blazy theme property.
@@ -88,7 +89,7 @@ class BlazyTheme {
     // URL and dimensions are built out at BlazyManager::preRenderBlazy().
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
-      Blazy::prepared($attributes, $settings, $item);
+      BlazyInternal::prepared($attributes, $settings, $item);
     }
 
     // Allows rich Media entities stored within `content` to take over.
@@ -152,7 +153,7 @@ class BlazyTheme {
           $blazies = $settings['blazies'];
 
           if ($url = $blazies->get('image.url')) {
-            if (!$blazies->get('use.loader') && $use_dataset) {
+            if (!$blazies->use('loader') && $use_dataset) {
               $blazies->set('use.loader', TRUE);
             }
             $blazies->set('is.dimensions', TRUE);

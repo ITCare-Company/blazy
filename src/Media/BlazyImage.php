@@ -227,7 +227,7 @@ class BlazyImage {
       $output = self::fromContent($options);
     }
 
-    // @todo remove after sub-modules, require by thumbnails till updated.
+    // @todo remove after sub-modules, required by thumbnails till updated.
     $uri = $settings['uri'] = $uri ?: BlazyFile::uri($output, $settings);
     $blazies->set('image.uri', $uri);
 
@@ -317,7 +317,9 @@ class BlazyImage {
     $extensions = ['svg'];
 
     // If we have added extensions.
-    if ($unstyles = $blazies->get('ui.unstyled_extensions', [])) {
+    if ($unstyles = $blazies->get('ui.unstyled_extensions')) {
+      // @todo remove after another check.
+      $unstyles = strip_tags($unstyles);
       $extensions = array_merge($extensions,
       array_map('trim', explode(' ', mb_strtolower($unstyles))));
       $extensions = array_unique($extensions);
@@ -502,7 +504,7 @@ class BlazyImage {
    * - UGC image URL, with likely invalid URI due to hard-coded markdown, etc.
    * - Responsive image vs. regular image style.
    *
-   * @requires \Drupal\blazy\Blazy::prepare()
+   * @requires \Drupal\blazy\BlazyInternal::prepare()
    *
    * @see self::prepare()
    * @see self::background()
@@ -602,7 +604,7 @@ class BlazyImage {
       $valid = $values[0]['target_id'] ?? FALSE;
 
       // Do not proceed if it is a Media entity video. This means File here.
-      if ($valid && $exist = method_exists($field, 'referencedEntities')) {
+      if ($valid && method_exists($field, 'referencedEntities')) {
         // The reference can be File or Media.
         // If image, even if multi-value, we can only have one stage per slide.
         /** @var \Drupal\file\Entity\File $reference */

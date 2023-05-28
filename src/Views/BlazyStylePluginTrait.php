@@ -3,7 +3,7 @@
 namespace Drupal\blazy\Views;
 
 use Drupal\Component\Utility\Xss;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyInternal;
 
 /**
  * A Trait common for optional views style plugins.
@@ -51,7 +51,7 @@ trait BlazyStylePluginTrait {
           $settings = array_merge($blazy_settings, array_filter($settings));
 
           // Reserves crucial blazy specific settings.
-          Blazy::preserve($settings, $blazy_settings);
+          BlazyInternal::preserve($settings, $blazy_settings);
 
           $settings['blazies'] = $blazy_settings['blazies'];
         }

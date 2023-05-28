@@ -356,14 +356,14 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
     $this->preSettingsData($settings);
 
     // Preliminary globals when using the provided API.
-    Blazy::preSettings($settings);
+    BlazyInternal::preSettings($settings);
   }
 
   /**
    * {@inheritdoc}
    */
   public function postSettings(array &$settings): void {
-    Blazy::postSettings($settings);
+    BlazyInternal::postSettings($settings);
 
     // Sub-modules may need to override Blazy definitions.
     $this->postSettingsData($settings);

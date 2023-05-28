@@ -180,8 +180,8 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   protected function getPluginScopes(): array {
     return [
       'target_type' => !$this->view->getBaseEntityType()
-      ? ''
-      : $this->view->getBaseEntityType()->id(),
+        ? ''
+        : $this->view->getBaseEntityType()->id(),
       'thumbnail_style' => TRUE,
     ];
   }

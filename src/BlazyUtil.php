@@ -4,7 +4,6 @@ namespace Drupal\blazy;
 
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
-use Drupal\blazy\Theme\BlazyAttribute;
 
 /**
  * Provides internal Blazy utilities, called by SlickFilter till removed.
@@ -16,16 +15,6 @@ use Drupal\blazy\Theme\BlazyAttribute;
  * @todo remove this class after sub-modules anytime before 3.x.
  */
 class BlazyUtil {
-
-  /**
-   * Returns the sanitized attributes for user-defined (UGC Blazy Filter).
-   *
-   * @todo deprecated at 2.9 and removed < 3.x. Use
-   * BlazyAttribute::sanitize() instead.
-   */
-  public static function sanitize(array $attributes = [], $escaped = TRUE): array {
-    return BlazyAttribute::sanitize($attributes, $escaped);
-  }
 
   /**
    * Provides original unstyled image dimensions based on the given image item.

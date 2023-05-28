@@ -5,6 +5,7 @@ namespace Drupal\blazy\Utility;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyEntity;
+use Drupal\blazy\BlazyInternal;
 use Drupal\blazy\Media\Preloader;
 use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Theme\Grid;
@@ -12,6 +13,10 @@ use Drupal\blazy\Theme\Lightbox;
 
 /**
  * Provides feature check methods at container level, or globally.
+ *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
  *
  * @todo refine, and split them conditionally based on fields like libraries.
  * @todo remove most $settings once migrated and after sub-modules and tests.
@@ -24,7 +29,7 @@ class Check {
    * @todo move it out of here for all attachments, what folder, Asset?
    */
   public static function attachments(array &$load, array &$attach = []): void {
-    Blazy::postSettings($attach);
+    BlazyInternal::postSettings($attach);
 
     if (!($manager = Blazy::service('blazy.manager'))) {
       return;
@@ -86,7 +91,7 @@ class Check {
 
     // Adds AJAX helper to revalidate Blazy/ IO, if using VIS, or alike.
     // @todo remove when VIS detaches behaviors properly like IO.
-    if ($blazies->get('use.ajax', FALSE)) {
+    if ($blazies->use('ajax', FALSE)) {
       $load['library'][] = 'blazy/bio.ajax';
     }
 
@@ -199,7 +204,7 @@ class Check {
 
     // Makes this container aware of Blazy formatter it might contain.
     if ($blazy) {
-      Blazy::preserve($settings, $blazy);
+      BlazyInternal::preserve($settings, $blazy);
     }
 
     // No longer needed once extracted above, remove.

@@ -5,7 +5,7 @@ namespace Drupal\blazy\Utility;
 use Drupal\blazy\Blazy;
 
 /**
- * Provides urtl, route, request, stream, or any path-related methods.
+ * Provides url, route, request, stream, or any path-related methods.
  */
 class Path {
 

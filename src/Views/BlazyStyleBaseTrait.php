@@ -134,7 +134,7 @@ trait BlazyStyleBaseTrait {
         if (isset($render['#view']->field)
           && $fields = $render['#view']->field) {
           foreach ($fields as $field) {
-            $options = isset($field->options) ? $field->options : [];
+            $options = $field->options ?? [];
             $id = $options['plugin_id'] ?? '';
             $type = $options['type'] ?? $id;
             $switch = isset($options['media_switch'])
