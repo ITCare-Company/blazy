@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\blazy_ui\Form;
+namespace Drupal\blazy\Form;
 
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\ConfigFormBase;

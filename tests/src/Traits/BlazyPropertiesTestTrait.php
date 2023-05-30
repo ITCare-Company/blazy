@@ -224,4 +224,60 @@ trait BlazyPropertiesTestTrait {
    */
   protected $filterFormatRestricted = NULL;
 
+  /**
+   * The file system service.
+   *
+   * @var \Drupal\Core\File\FileSystem
+   */
+  protected $fileSystem;
+
+  /**
+   * Test directory path.
+   *
+   * @var string
+   */
+  protected $testDirPath;
+
+  /**
+   * Test node type.
+   *
+   * @var string
+   */
+  protected $testNodeType;
+
+  /**
+   * Test dummy data.
+   *
+   * @var array
+   */
+  protected $dummyData;
+
+  /**
+   * Test dummy image item.
+   *
+   * @var object
+   */
+  protected $dummItem;
+
+  /**
+   * Test dummy url.
+   *
+   * @var string
+   */
+  protected $dummyData;
+
+  /**
+   * Test dummy URI.
+   *
+   * @var array
+   */
+  protected $dummyUri;
+
+  /**
+   * Test script loader.
+   *
+   * @var string
+   */
+  protected $scriptLoader;
+
 }

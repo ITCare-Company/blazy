@@ -4,6 +4,7 @@ namespace Drupal\blazy_ui\Form;
 
 use Drupal\Core\Url;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\blazy\Form\BlazyConfigFormBase;
 
 /**
  * Defines blazy admin settings form.
