@@ -257,14 +257,7 @@ trait BlazyPropertiesTestTrait {
    *
    * @var object
    */
-  protected $dummItem;
-
-  /**
-   * Test dummy url.
-   *
-   * @var string
-   */
-  protected $dummyData;
+  protected $dummyItem;
 
   /**
    * Test dummy URI.
