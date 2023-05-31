@@ -104,27 +104,6 @@ class BlazyDefault {
   }
 
   /**
-   * Returns deprecated, or previously wrong room settings.
-   *
-   * @todo remove custom breakpoints anytime before 3.x.
-   */
-  public static function deprecatedSettings() {
-    return [
-      'breakpoints' => [],
-      'current_view_mode' => '',
-      'fx' => '',
-      'icon' => '',
-      'id' => '',
-      'sizes' => '',
-      'grid_header' => '',
-      'loading' => 'lazy',
-      'preload' => FALSE,
-      '_item' => '',
-      '_uri' => '',
-    ];
-  }
-
-  /**
    * Returns image-related field formatter and Views settings.
    */
   public static function imageSettings() {
@@ -413,6 +392,27 @@ class BlazyDefault {
   public static function ondemandPolyfills(): array {
     return [
       'fullscreen',
+    ];
+  }
+
+  /**
+   * Returns deprecated, or previously wrong room settings.
+   *
+   * @todo remove custom breakpoints anytime before 3.x.
+   */
+  public static function deprecatedSettings() {
+    return [
+      'breakpoints' => [],
+      'current_view_mode' => '',
+      'fx' => '',
+      'icon' => '',
+      'id' => '',
+      'sizes' => '',
+      'grid_header' => '',
+      'loading' => 'lazy',
+      'preload' => FALSE,
+      '_item' => '',
+      '_uri' => '',
     ];
   }
 

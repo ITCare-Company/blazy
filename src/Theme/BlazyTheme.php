@@ -115,7 +115,11 @@ class BlazyTheme {
   public static function field(array &$variables): void {
     $element = &$variables['element'];
     $settings = empty($element['#blazy']) ? [] : $element['#blazy'];
-    $blazies = $settings['blazies'] ?? NULL;
+
+    // D10 moves it into content.
+    if (!$settings) {
+      $settings = $variables['items'][0]['content']['#blazy'] ?? [];
+    }
 
     // 1. Hence Blazy is not the formatter, lacks of settings.
     if (!empty($element['#third_party_settings']['blazy']['blazy'])) {
@@ -123,6 +127,7 @@ class BlazyTheme {
     }
 
     // 2. Hence Blazy is the formatter, has its settings.
+    $blazies = $settings['blazies'] ?? NULL;
     if ($blazies && !$blazies->is('grid')) {
       BlazyAttribute::container($variables['attributes'], $settings);
     }
@@ -286,6 +291,9 @@ class BlazyTheme {
   private static function thirdPartyField(array &$variables): void {
     $element = $variables['element'];
     $settings = $element['#blazy'] ?? [];
+    if (!$settings) {
+      $settings = $variables['items'][0]['content']['#blazy'] ?? [];
+    }
 
     Blazy::verify($settings);
     $blazies = $settings['blazies'];

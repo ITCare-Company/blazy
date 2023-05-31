@@ -260,13 +260,15 @@ class Check {
     $blazies->set('cache.keys', [$id, $count], TRUE);
     $blazies->set('cache.tags', [$entity_type_id . ':' . $entity_id], TRUE);
 
+    $settings['use_theme_field'] = $use_field || !empty($settings['use_theme_field']);
+
     // @todo remove.
     $settings['count'] = $count;
     $settings['id'] = $id;
 
     $blazies->set('count', $count)
       ->set('css.id', $id)
-      ->set('use.theme_field', $use_field || !empty($settings['use_theme_field']))
+      ->set('use.theme_field', $settings['use_theme_field'])
       ->set('was.field', TRUE);
   }
 
