@@ -608,11 +608,11 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
    * Deprecated method, safe to remove before 3.x for being too specific.
    *
    * @deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
-   *   BlazyEntity::settings() instead.
+   *   Blazy::entitySettings() instead.
    * @see https://www.drupal.org/node/3103018
    */
   public function getEntitySettings(array &$settings, $entity) {
-    BlazyEntity::settings($settings, $entity);
+    Blazy::entitySettings($settings, $entity);
   }
 
 }

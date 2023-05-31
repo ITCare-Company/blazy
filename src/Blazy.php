@@ -50,6 +50,13 @@ class Blazy {
   }
 
   /**
+   * Alias for BlazyEntity::settings() for sub-modules.
+   */
+  public static function entitySettings(array &$settings, $entity): void {
+    BlazyEntity::settings($settings, $entity);
+  }
+
+  /**
    * Returns the trusted HTML ID of a single instance.
    */
   public static function getHtmlId($string = 'blazy', $id = ''): string {

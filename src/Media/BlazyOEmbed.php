@@ -99,37 +99,28 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
-   * Returns the Media oEmbed resource fecther.
+   * {@inheritdoc}
    */
   public function getResourceFetcher() {
     return $this->resourceFetcher;
   }
 
   /**
-   * Returns the Media oEmbed url resolver fecthers.
+   * {@inheritdoc}
    */
   public function getUrlResolver() {
     return $this->urlResolver;
   }
 
   /**
-   * Returns the Media oEmbed url resolver fecthers.
+   * {@inheritdoc}
    */
   public function getIframeUrlHelper() {
     return $this->iframeUrlHelper;
   }
 
   /**
-   * Returns the image factory.
-   *
-   * @todo remove ::imageFactory (was for UGC), not used anywhere since 2.6.
-   */
-  public function imageFactory() {
-    return $this->imageFactory;
-  }
-
-  /**
-   * Returns the blazy manager.
+   * {@inheritdoc}
    */
   public function blazyManager() {
     return $this->blazyManager;
@@ -164,7 +155,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
-   * Checks the given input URL.
+   * {@inheritdoc}
    */
   public function checkInputUrl(array &$settings): void {
     $blazies = $settings['blazies'];
@@ -438,6 +429,15 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     // To preserve old behaviors till sub-modules updated to ::build() at 2.9.
     // The arguments are made similar to ::build() with the new arguments.
     $this->fromMediaOrAny($build, $media);
+  }
+
+  /**
+   * Returns the image factory.
+   *
+   * @todo remove ::imageFactory (was for UGC), not used anywhere since 2.6.
+   */
+  public function imageFactory() {
+    return $this->imageFactory;
   }
 
 }

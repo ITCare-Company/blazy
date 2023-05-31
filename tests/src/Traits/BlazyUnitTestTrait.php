@@ -2,8 +2,8 @@
 
 namespace Drupal\Tests\blazy\Traits;
 
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyEntity;
 use Drupal\blazy\Traits\PluginScopesTrait;
 
 /**
@@ -42,7 +42,7 @@ trait BlazyUnitTestTrait {
       + BlazyDefault::itemSettings()
       + $this->getDefaultFieldDefinition();
 
-    BlazyEntity::settings($defaults, $this->entity);
+    Blazy::entitySettings($defaults, $this->entity);
 
     return empty($this->formatterSettings) ? $defaults : array_merge($defaults, $this->formatterSettings);
   }

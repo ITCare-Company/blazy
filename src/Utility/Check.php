@@ -4,7 +4,6 @@ namespace Drupal\blazy\Utility;
 
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyEntity;
 use Drupal\blazy\BlazyInternal;
 use Drupal\blazy\Media\Preloader;
 use Drupal\blazy\Theme\BlazyViews;
@@ -221,7 +220,7 @@ class Check {
     $settings = &$build['settings'];
     $entity   = $items->getEntity();
 
-    BlazyEntity::settings($settings, $entity);
+    Blazy::entitySettings($settings, $entity);
 
     $blazies    = $settings['blazies'];
     $field      = $items->getFieldDefinition();
