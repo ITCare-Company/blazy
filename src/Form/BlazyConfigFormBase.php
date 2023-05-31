@@ -34,6 +34,13 @@ abstract class BlazyConfigFormBase extends ConfigFormBase {
   protected $validatedOptions = [];
 
   /**
+   * The allowed tags can be NULL for default, or array.
+   *
+   * @var mixed
+   */
+  protected $allowedTags = NULL;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
@@ -56,7 +63,9 @@ abstract class BlazyConfigFormBase extends ConfigFormBase {
       foreach ($options as $option) {
         if ($form_state->hasValue($option)) {
           // Not effective, best is to validate output, yet better than misses.
-          $value = Xss::filter($form_state->getValue($option));
+          $value = $form_state->getValue($option);
+          $value = Xss::filter($value, $this->allowedTags);
+
           $form_state->setValue($option, $value);
         }
       }
