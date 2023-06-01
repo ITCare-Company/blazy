@@ -108,6 +108,21 @@ class BlazySettings implements \Countable {
   }
 
   /**
+   * Returns a convenient shortcut to get a feature with a `ui` key.
+   *
+   * @param string $key
+   *   The storage key.
+   * @param string $default_value
+   *   The storage default_value.
+   *
+   * @return bool
+   *   Returns TRUE or FALSE.
+   */
+  public function ui($key, $default_value = NULL) {
+    return $this->get('ui.' . $key, $default_value);
+  }
+
+  /**
    * Sets values for a key.
    */
   public function set($key, $value = NULL, $merge = FALSE): self {

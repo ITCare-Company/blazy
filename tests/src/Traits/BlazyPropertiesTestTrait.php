@@ -8,6 +8,83 @@ namespace Drupal\Tests\blazy\Traits;
 trait BlazyPropertiesTestTrait {
 
   /**
+   * The entity storage.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected $entityStorage;
+
+  /**
+   * The entity view builder.
+   *
+   * @var \Drupal\Core\Entity\EntityViewBuilderInterface
+   */
+  protected $entityViewBuilder;
+
+  /**
+   * The entity mockup.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeInterface
+   */
+  protected $entityTypeMock;
+
+  /**
+   * The entity mockup.
+   *
+   * @var \Drupal\Core\Entity\EntityRepositoryInterface
+   */
+  protected $entityRepository;
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * The renderer.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
+   * The cache.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
+  protected $cache;
+
+  /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandler
+   */
+  protected $moduleHandler;
+
+  /**
+   * The token.
+   *
+   * @var \Drupal\Core\Utility\Token
+   */
+  protected $token;
+
+  /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+   * The blazy admin service.
+   *
+   * @var \Drupal\blazy\Form\BlazyAdminInterface
+   */
+  protected $blazyAdminExtended;
+
+  /**
    * The blazy admin service.
    *
    * @var \Drupal\blazy\Form\BlazyAdminInterface
@@ -41,6 +118,13 @@ trait BlazyPropertiesTestTrait {
    * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
   protected $entityFieldManager;
+
+  /**
+   * The field type manager.
+   *
+   * @var \Drupal\Core\Field\FieldTypePluginManager
+   */
+  protected $fieldTypePluginManager;
 
   /**
    * The entity display.
@@ -83,6 +167,13 @@ trait BlazyPropertiesTestTrait {
    * @var \Drupal\Core\Entity\EntityInterface
    */
   protected $referencedEntity;
+
+  /**
+   * The blazy oembed service.
+   *
+   * @var \Drupal\blazy\Media\BlazyOEmbedInterface
+   */
+  protected $blazyOembed;
 
   /**
    * The bundle name.
@@ -232,6 +323,13 @@ trait BlazyPropertiesTestTrait {
   protected $fileSystem;
 
   /**
+   * The formatter instance.
+   *
+   * @var \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyImageFormatter
+   */
+  protected $formatterInstance;
+
+  /**
    * Test directory path.
    *
    * @var string
@@ -262,9 +360,16 @@ trait BlazyPropertiesTestTrait {
   /**
    * Test dummy URI.
    *
-   * @var array
+   * @var string
    */
   protected $dummyUri;
+
+  /**
+   * Test dummy url.
+   *
+   * @var string
+   */
+  protected $dummyUrl;
 
   /**
    * Test script loader.
@@ -272,5 +377,26 @@ trait BlazyPropertiesTestTrait {
    * @var string
    */
   protected $scriptLoader;
+
+  /**
+   * Test data.
+   *
+   * @var array
+   */
+  protected $data;
+
+  /**
+   * Test dummy URI.
+   *
+   * @var string
+   */
+  protected $uri;
+
+  /**
+   * Test dummy url.
+   *
+   * @var string
+   */
+  protected $url;
 
 }

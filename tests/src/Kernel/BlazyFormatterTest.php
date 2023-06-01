@@ -17,13 +17,6 @@ use GuzzleHttp\Exception\GuzzleException;
 class BlazyFormatterTest extends BlazyKernelTestBase {
 
   /**
-   * The formatter instance.
-   *
-   * @var \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyImageFormatter
-   */
-  protected $formatterInstance;
-
-  /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
