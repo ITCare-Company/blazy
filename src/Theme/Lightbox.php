@@ -57,7 +57,7 @@ class Lightbox {
     $valid      = BlazyFile::isValidUri($uri);
     $_box_style = $settings['box_style'] ?? NULL;
     $box_style  = $blazies->get('box.style');
-    $box_url    = $url = BlazyFile::transformRelative($uri);
+    $box_url    = $url = Blazy::transformRelative($uri);
     $colorbox   = $blazies->get('colorbox');
     $gallery_id = $blazies->get('lightbox.gallery_id');
     $box_id     = !$blazies->is('gallery') ? NULL : $gallery_id;
@@ -112,7 +112,7 @@ class Lightbox {
       // Use non-responsive images if not-so-configured.
       if (!isset($is_resimage) && $box_style) {
         $dimensions = array_merge($dimensions, BlazyImage::transformDimensions($box_style, $dimensions));
-        $box_url = $url = BlazyFile::transformRelative($uri, $box_style);
+        $box_url = $url = Blazy::transformRelative($uri, $box_style);
       }
     }
 
@@ -131,7 +131,7 @@ class Lightbox {
     $box_media_url = NULL;
     if ($valid && $box_media_style = $blazies->get('box_media.style')) {
       $dimensions = array_merge($dimensions, BlazyImage::transformDimensions($box_media_style, $dimensions));
-      $box_media_url = BlazyFile::transformRelative($uri, $box_media_style);
+      $box_media_url = Blazy::transformRelative($uri, $box_media_style);
     }
 
     if ($is_multimedia) {

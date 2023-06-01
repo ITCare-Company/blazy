@@ -162,14 +162,14 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
       'name'           => $view_name,
       'plugin_id'      => $plugin_id,
       'view_mode'      => $view_mode,
-      'is_view'        => TRUE,
-      'is_views_field' => TRUE,
     ];
 
     $blazies->set('count', $count)
       ->set('css.id', $id)
       ->set('namespace', 'blazy')
-      ->set('view', $view_info, TRUE);
+      ->set('view', $view_info, TRUE)
+      ->set('is.view', TRUE)
+      ->set('is.views_field', TRUE);
 
     return $settings;
   }

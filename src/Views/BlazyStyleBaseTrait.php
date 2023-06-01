@@ -83,7 +83,6 @@ trait BlazyStyleBaseTrait {
       'name'        => $view_name,
       'plugin_id'   => $plugin_id,
       'view_mode'   => $view_mode,
-      'is_view'     => TRUE,
     ];
 
     $blazies->set('cache.keys', [$id, $view_mode, $count], TRUE)
@@ -91,7 +90,7 @@ trait BlazyStyleBaseTrait {
       ->set('count', $count)
       ->set('css.id', $id)
       ->set('is.multiple', TRUE)
-      ->set('is.views', TRUE)
+      ->set('is.view', TRUE)
       ->set('use.ajax', $view->ajaxEnabled())
       ->set('view', $view_info, TRUE);
 

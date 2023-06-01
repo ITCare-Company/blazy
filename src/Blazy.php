@@ -133,19 +133,6 @@ class Blazy {
   }
 
   /**
-   * Extracts settings from the $build.
-   */
-  public static function toSettings(array &$build): array {
-    $settings = $build;
-    if (isset($settings['settings'])) {
-      $settings = &$settings['settings'];
-    }
-
-    self::verify($settings);
-    return $settings;
-  }
-
-  /**
    * Returns the translated entity if available.
    */
   public static function translated($entity, $langcode): object {

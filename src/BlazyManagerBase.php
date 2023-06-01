@@ -409,6 +409,8 @@ abstract class BlazyManagerBase implements BlazyManagerInterface {
 
   /**
    * Builds an entity query.
+   *
+   * @todo remove for BlazyInterface once extended.
    */
   private function buildPropertyQuery($query, array $values, $condition = 'IN'): void {
     foreach ($values as $name => $value) {
