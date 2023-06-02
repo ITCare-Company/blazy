@@ -25,16 +25,16 @@ abstract class BlazyEntityFormBase extends EntityForm {
   protected static $machineName = 'slick';
 
   /**
-   * The slick admin service.
+   * The blazy admin service.
    *
-   * @var \Drupal\slick\Form\SlickAdminInterface
+   * @var \Drupal\blazy\Form\BlazyAdminInterface
    */
   protected $admin;
 
   /**
-   * The slick manager service.
+   * The blazy manager service.
    *
-   * @var \Drupal\slick\SlickManagerInterface
+   * @var \Drupal\blazy\BlazyManagerInterface
    */
   protected $manager;
 
@@ -46,14 +46,14 @@ abstract class BlazyEntityFormBase extends EntityForm {
   protected $formElements;
 
   /**
-   * Returns the slick admin service.
+   * Returns the blazy admin service.
    */
   public function admin() {
     return $this->admin;
   }
 
   /**
-   * Returns the slick manager service.
+   * Returns the blazy manager service.
    */
   public function manager() {
     return $this->manager;
@@ -63,14 +63,15 @@ abstract class BlazyEntityFormBase extends EntityForm {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-    $admin_css = $this->manager->configLoad('admin_css', 'blazy.settings');
+    $admin_css = $this->manager->config('admin_css', 'blazy.settings');
 
     $form['#attributes']['class'][] = 'form--blazy form--slick form--optionset has-tooltip';
+    $form['#attributes']['class'][] = 'form--' . self::$machineName;
 
     // Change page title for the duplicate operation.
     if ($this->operation == 'duplicate') {
       $form['#title'] = $this->t('<em>Duplicate %name optionset</em>: @label', [
-        '%name' => static::$niceName,
+        '%name' => self::$niceName,
         '@label' => $this->entity->label(),
       ]);
       $this->entity = $this->entity->createDuplicate();
@@ -79,14 +80,20 @@ abstract class BlazyEntityFormBase extends EntityForm {
     // Change page title for the edit operation.
     if ($this->operation == 'edit') {
       $form['#title'] = $this->t('<em>Edit %name optionset</em>: @label', [
-        '%name' => static::$niceName,
+        '%name' => self::$niceName,
         '@label' => $this->entity->label(),
       ]);
     }
 
     // Attach Slick admin library.
-    if ($admin_css && $this->manager->getModuleHandler()->moduleExists('slick_ui')) {
-      $form['#attached']['library'][] = 'slick_ui/slick.admin.vtabs';
+    $handler = $this->manager->moduleHandler();
+    if ($admin_css) {
+      if ($handler->moduleExists('slick_ui')) {
+        $form['#attached']['library'][] = 'slick_ui/slick.admin.vtabs';
+      }
+      elseif ($handler->moduleExists('splide_ui')) {
+        $form['#attached']['library'][] = 'splide_ui/admin.vtabs';
+      }
     }
 
     return parent::form($form, $form_state);
@@ -120,15 +127,16 @@ abstract class BlazyEntityFormBase extends EntityForm {
       // If we edited an existing entity.
       // @todo #2278383.
       $this->messenger()->addMessage($this->t('@config_prefix %label has been updated.', $message));
-      $this->logger(static::$machineName)->notice('@config_prefix %label has been updated.', $notice);
+      $this->logger(self::$machineName)->notice('@config_prefix %label has been updated.', $notice);
     }
     else {
       // If we created a new entity.
       $this->messenger()->addMessage($this->t('@config_prefix %label has been added.', $message));
-      $this->logger(static::$machineName)->notice('@config_prefix %label has been added.', $notice);
+      $this->logger(self::$machineName)->notice('@config_prefix %label has been added.', $notice);
     }
 
     $form_state->setRedirectUrl($this->entity->toUrl('collection'));
+    return parent::save($form, $form_state);
   }
 
 }

@@ -130,12 +130,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * {@inheritdoc}
    */
   public function getResource($input_url) {
-    if (!isset($this->resource[hash('md2', $input_url)])) {
-      $resource_url = $this->urlResolver->getResourceUrl($input_url, 0, 0);
-      $this->resource[hash('md2', $input_url)] = $this->resourceFetcher->fetchResource($resource_url);
-    }
-
-    return $this->resource[hash('md2', $input_url)];
+    $resource_url = $this->urlResolver->getResourceUrl($input_url, 0, 0);
+    return $this->resourceFetcher->fetchResource($resource_url);
   }
 
   /**
@@ -263,7 +259,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       $this->fromMedia($build, $entity);
     }
 
-    /** @var Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $entity */
+    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $entity */
     if (!BlazyImage::isValidItem($build)) {
       if ($item = BlazyImage::fromAny($entity, $build['settings'])) {
         // @todo revert if issues $build = NestedArray::mergeDeep($build, $item);

@@ -4,19 +4,10 @@ services:
     class: Drupal\blazy\BlazyBase
     arguments: ['%app.root%', '@entity.repository', '@entity_type.manager', '@module_handler', '@renderer', '@config.factory', '@cache.default', '@language_manager']
 
-  # @todo extends blazy.base at 3.x, or before.
-  # Still intact to minimize mis-matched version issues for non-composer users.
   blazy.manager.base:
     abstract: true
     class: Drupal\blazy\BlazyManagerBase
-    # @todo enable at 3.x, or before:
-    # parent: blazy.base
-    # @todo remove the following at 3.x, or before:
-    arguments: ['%app.root%', '@entity.repository', '@entity_type.manager', '@module_handler', '@renderer', '@config.factory', '@cache.default']
-    calls:
-      # @todo remove and use DI instead after sub-module updates, and put as the
-      # last argument only if to support careless users ignoring hook_update().
-      - [setLanguageManager, ['@language_manager']]
+    parent: blazy.base
 
   blazy.manager:
     abstract: false

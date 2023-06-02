@@ -137,7 +137,7 @@ trait BlazyStyleOptionsTrait {
       'handler' => $this->displayHandler,
       'view' => $this->view,
     ];
-    $this->blazyManager->getModuleHandler()->alter('blazy_views_field_options', $definition, $contexts);
+    $this->blazyManager->moduleHandler()->alter('blazy_views_field_options', $definition, $contexts);
 
     return $definition;
   }

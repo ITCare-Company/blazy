@@ -2,18 +2,17 @@
 
 namespace Drupal\blazy\Dejavu;
 
-use Drupal\blazy\Form\BlazyAdminInterface;
 use Drupal\blazy\Form\BlazyAdminFormatterBase;
 
 /**
  * Provides re-usable admin functions, or form elements.
  */
-class BlazyAdminExtended extends BlazyAdminFormatterBase implements BlazyAdminInterface {
+class BlazyAdminExtended extends BlazyAdminFormatterBase {
 
   /**
    * Returns shared form elements across field formatter and Views.
    */
-  public function openingForm(array &$form, &$definition = []) {
+  public function openingForm(array &$form, array &$definition): void {
     $namespace = $definition['namespace'] ?? 'blazy';
     $settings  = $definition['settings'] ?? [];
 
@@ -51,7 +50,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase implements BlazyAdminIn
   /**
    * Returns re-usable fieldable formatter form elements.
    */
-  public function fieldableForm(array &$form, $definition = []) {
+  public function fieldableForm(array &$form, array $definition): void {
     if (isset($definition['images'])) {
       $form['image'] = $this->baseForm($definition)['image'];
     }
@@ -139,7 +138,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase implements BlazyAdminIn
   /**
    * Returns shared ending form elements across field formatter and Views.
    */
-  public function closingForm(array &$form, $definition = []) {
+  public function closingForm(array &$form, array $definition): void {
     if (!empty($definition['caches'])) {
       $form['cache'] = [
         '#type'        => 'select',

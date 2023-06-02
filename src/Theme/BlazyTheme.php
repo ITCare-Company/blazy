@@ -190,8 +190,8 @@ class BlazyTheme {
     if (!isset($attributes['data-b-noscript'])) {
       // Modifies <picture> [data-srcset] attributes on <source> elements.
       if (!$variables['output_image_tag']) {
-        /** @var \Drupal\Core\Template\Attribute $source */
         if ($sources = ($variables['sources'] ?? [])) {
+          /** @var \Drupal\Core\Template\Attribute $source */
           foreach ((array) $sources as &$source) {
             $source->setAttribute('data-srcset', $source['srcset']->value());
             $source->setAttribute('srcset', '');

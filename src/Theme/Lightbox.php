@@ -93,7 +93,7 @@ class Lightbox {
       // The _responsive_image_build_source_attributes is WSOD if missing.
       if ($blazies->is('resimage')) {
         try {
-          $resimage = $manager->entityLoad($_box_style, 'responsive_image_style');
+          $resimage = $manager->load($_box_style, 'responsive_image_style');
           if (empty($element['#lightbox_html']) && $resimage) {
             $is_resimage = TRUE;
             $json['type'] = 'rich';
@@ -205,7 +205,7 @@ class Lightbox {
 
       // Responsive image is unwrapped. Local videos wrapped.
       $content = isset($is_resimage) ? $element['#lightbox_html'] : $html;
-      $content = $manager->getRenderer()->renderPlain($content);
+      $content = $manager->renderer()->renderPlain($content);
       $json['html'] = trim($content);
       if (isset($is_resimage)) {
         $json['boxType'] = strpos($content, '<picture') !== FALSE ? 'picture' : 'responsive-image';

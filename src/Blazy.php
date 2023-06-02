@@ -60,12 +60,12 @@ class Blazy {
    * Returns the trusted HTML ID of a single instance.
    */
   public static function getHtmlId($string = 'blazy', $id = ''): string {
-    if (!isset(static::$blazyId)) {
-      static::$blazyId = 0;
+    if (!isset(self::$blazyId)) {
+      self::$blazyId = 0;
     }
 
     // Do not use dynamic Html::getUniqueId, otherwise broken AJAX.
-    $id = empty($id) ? ($string . '-' . ++static::$blazyId) : $id;
+    $id = empty($id) ? ($string . '-' . ++self::$blazyId) : $id;
     return Html::getId($id);
   }
 

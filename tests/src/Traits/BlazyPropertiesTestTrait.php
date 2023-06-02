@@ -99,6 +99,13 @@ trait BlazyPropertiesTestTrait {
   protected $blazyAdminFormatter;
 
   /**
+   * The blazy formatter service.
+   *
+   * @var \Drupal\blazy\BlazyFormatterInterface
+   */
+  protected $blazyFormatter;
+
+  /**
    * The blazy manager service.
    *
    * @var \Drupal\blazy\BlazyManagerInterface
@@ -169,6 +176,20 @@ trait BlazyPropertiesTestTrait {
   protected $referencedEntity;
 
   /**
+   * The referenced formatter display.
+   *
+   * @var object
+   */
+  protected $referencedDisplay;
+
+  /**
+   * The referencing formatter display.
+   *
+   * @var object
+   */
+  protected $referencingDisplay;
+
+  /**
    * The blazy oembed service.
    *
    * @var \Drupal\blazy\Media\BlazyOEmbedInterface
@@ -183,11 +204,25 @@ trait BlazyPropertiesTestTrait {
   protected $bundle;
 
   /**
+   * The target bundle name.
+   *
+   * @var string
+   */
+  protected $targetBundle;
+
+  /**
    * The target bundle names.
    *
    * @var array
    */
   protected $targetBundles;
+
+  /**
+   * The tested entity field name.
+   *
+   * @var string
+   */
+  protected $entityFieldName;
 
   /**
    * The tested entity type.

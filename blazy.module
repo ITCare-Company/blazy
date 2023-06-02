@@ -234,7 +234,7 @@ function blazy_filter_cleanup($module = 'blazy') {
  * @todo remove VEF/VEM from blazy:8.x-3.0 for core Media integration.
  */
 function blazy_field_formatter_info_alter(array &$info) {
-  if (blazy()->getModuleHandler()->moduleExists('video_embed_field')) {
+  if (blazy()->moduleHandler()->moduleExists('video_embed_field')) {
     Blazy::fieldFormatterInfoAlter($info);
   }
 }

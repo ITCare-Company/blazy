@@ -100,7 +100,7 @@ trait BlazyStyleBaseTrait {
 
     $this->blazyManager()->postSettings($settings);
 
-    $this->blazyManager()->getModuleHandler()->alter('blazy_settings_views', $settings, $view);
+    $this->blazyManager()->moduleHandler()->alter('blazy_settings_views', $settings, $view);
     $this->blazyManager()->postSettingsAlter($settings);
     return $settings;
   }

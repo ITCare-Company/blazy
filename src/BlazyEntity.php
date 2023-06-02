@@ -94,7 +94,7 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // Only pass to Blazy for known entities related to File or Media.
     if (in_array($entity->getEntityTypeId(), ['file', 'media'])) {
-      /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+      /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
       if (empty($data['item'])) {
         $data['content'][] = $this->view($entity, $settings, $fallback);
       }
@@ -113,7 +113,7 @@ class BlazyEntity implements BlazyEntityInterface {
       $build = $this->view($entity, $settings, $fallback);
     }
 
-    $manager->getModuleHandler()->alter('blazy_build_entity', $build, $entity, $settings);
+    $manager->moduleHandler()->alter('blazy_build_entity', $build, $entity, $settings);
     return $build;
   }
 

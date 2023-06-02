@@ -14,6 +14,8 @@ use Drupal\blazy\Utility\Sanitize;
  * Implements a public facing blazy manager.
  *
  * A few modules re-use this: GridStack, Mason, Slick...
+ *
+ * @todo implements BlazyManagerInterface after sub-modules.
  */
 class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface {
 
@@ -25,19 +27,9 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
   }
 
   /**
-   * Returns the enforced rich media content, or media using theme_blazy().
-   *
-   * @param array $build
-   *   The array containing: item, content, settings, or optional captions.
-   * @param int $delta
-   *   The optional delta.
-   *
-   * @return array
-   *   The alterable and renderable array of enforced content, or theme_blazy().
-   *
-   * @todo remove some $settings after sub-modules.
+   * {@inheritdoc}
    */
-  public function getBlazy(array $build = [], $delta = -1) {
+  public function getBlazy(array $build, $delta = -1): array {
     foreach (BlazyDefault::themeProperties() as $key) {
       $build[$key] = $build[$key] ?? [];
     }
@@ -69,15 +61,9 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
   }
 
   /**
-   * Builds the Blazy image as a structured array ready for ::renderer().
-   *
-   * @param array $element
-   *   The pre-rendered element.
-   *
-   * @return array
-   *   The renderable array of pre-rendered element.
+   * {@inheritdoc}
    */
-  public function preRenderBlazy(array $element) {
+  public function preRenderBlazy(array $element): array {
     $build = $element['#build'];
     unset($element['#build']);
 
@@ -111,7 +97,7 @@ class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface 
    * @return array
    *   The alterable and renderable array of contents.
    */
-  public function build(array $build = []) {
+  public function build(array $build): array {
     $settings = &$build['settings'];
     Blazy::verify($settings);
 

@@ -131,7 +131,7 @@ class BlazyViewsFileTest extends BlazyViewsTestBase {
     $this->assertArrayHasKey('data-blazy', $render['#attributes']);
 
     $output = $view->preview();
-    $output = $this->blazyManager->getRenderer()->renderRoot($output);
+    $output = $this->blazyManager->renderer()->renderRoot($output);
     $this->assertStringContainsString('data-blazy', $output);
 
     $element = ['settings' => $settings];

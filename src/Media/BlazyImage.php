@@ -60,7 +60,7 @@ class BlazyImage {
   public static function getCrop($style): ?object {
     $id = $style->id();
 
-    if (!isset(static::$crop[$id])) {
+    if (!isset(self::$crop[$id])) {
       $output = NULL;
 
       foreach ($style->getEffects() as $effect) {
@@ -69,9 +69,9 @@ class BlazyImage {
           break;
         }
       }
-      static::$crop[$id] = $output;
+      self::$crop[$id] = $output;
     }
-    return static::$crop[$id];
+    return self::$crop[$id];
   }
 
   /**
@@ -85,7 +85,7 @@ class BlazyImage {
   public static function cropDimensions(array &$settings, $style): void {
     $id = $style->id();
 
-    if (!isset(static::$isCropSet[$id])) {
+    if (!isset(self::$isCropSet[$id])) {
       // If image style contains crop, sets dimension once, and let all inherit.
       if ($crop = self::getCrop($style)) {
         $blazies = $settings['blazies'];
@@ -100,7 +100,7 @@ class BlazyImage {
           ->set('is.dimensions', TRUE);
       }
 
-      static::$isCropSet[$id] = TRUE;
+      self::$isCropSet[$id] = TRUE;
     }
   }
 
@@ -425,7 +425,7 @@ class BlazyImage {
       foreach (['box', 'box_media', 'image', 'thumbnail'] as $key) {
         if (!$blazies->get($key . '.style') || $multiple) {
           if ($_style = ($settings[$key . '_style'] ?? '')) {
-            if ($entity = $blazy->entityLoad($_style, 'image_style')) {
+            if ($entity = $blazy->load($_style, 'image_style')) {
               $blazies->set($key . '.style', $entity)
                 ->set($key . '.id', $entity->id());
             }
@@ -470,7 +470,7 @@ class BlazyImage {
     $uri  = $data[$_uri] ?? '';
     $key  = hash('md2', ($style->id() . $uri . $initial));
 
-    if (!isset(static::$styleId[$key])) {
+    if (!isset(self::$styleId[$key])) {
       $_width  = $initial ? '_width' : 'width';
       $_height = $initial ? '_height' : 'height';
       $width   = $data[$_width] ?? NULL;
@@ -488,12 +488,12 @@ class BlazyImage {
       // image properties, not related to the final output printed here.
       // See self::dimensions().
       // @todo re-check if the container needs image style dimensions.
-      static::$styleId[$key] = [
+      self::$styleId[$key] = [
         'width' => $dim['width'],
         'height' => $dim['height'],
       ];
     }
-    return static::$styleId[$key];
+    return self::$styleId[$key];
   }
 
   /**
@@ -608,7 +608,7 @@ class BlazyImage {
         // The reference can be File or Media.
         // If image, even if multi-value, we can only have one stage per slide.
         /** @var \Drupal\file\Entity\File $reference */
-        /** @var Drupal\media\MediaInterface $reference */
+        /** @var \Drupal\media\MediaInterface $reference */
         $reference = $field->referencedEntities()[0] ?? NULL;
         $ok = FALSE;
         $object = $field;

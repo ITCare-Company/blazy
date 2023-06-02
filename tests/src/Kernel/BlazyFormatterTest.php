@@ -84,7 +84,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $this->assertEquals($file0->getCacheTags(), $tag0, 'First image cache tags is as expected');
     $this->assertEquals($file1->getCacheTags(), $tag1, 'Second image cache tags is as expected');
 
-    $render = $this->blazyManager->getRenderer()->renderRoot($build);
+    $render = $this->blazyManager->renderer()->renderRoot($build);
     $this->assertNotEmpty($render);
     $this->assertStringContainsString('data-blazy', $render);
   }
@@ -241,7 +241,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
         $wrap = BlazyMedia::unfield($field, $settings);
         $this->assertNotEmpty($wrap);
 
-        $render = $this->blazyManager->getRenderer()->renderRoot($build[$this->testFieldName]);
+        $render = $this->blazyManager->renderer()->renderRoot($build[$this->testFieldName]);
         $this->assertStringContainsString('data-blazy', $render);
       }
       else {

@@ -80,7 +80,7 @@ class BlazyAlter {
    * Implements hook_library_info_build().
    */
   public static function libraryInfoBuild() {
-    if (!isset(static::$libraryInfoBuild)) {
+    if (!isset(self::$libraryInfoBuild)) {
       // Optional polyfills for IEs, and oldies.
       $polyfills = array_merge(BlazyDefault::polyfills(), BlazyDefault::ondemandPolyfills());
       foreach ($polyfills as $id) {
@@ -122,9 +122,9 @@ class BlazyAlter {
         ];
       }
 
-      static::$libraryInfoBuild = $libraries;
+      self::$libraryInfoBuild = $libraries;
     }
-    return static::$libraryInfoBuild;
+    return self::$libraryInfoBuild;
   }
 
   /**
@@ -174,7 +174,7 @@ class BlazyAlter {
    */
   public static function thirdPartyFormatters(): array {
     $formatters = ['file_video'];
-    \blazy()->getModuleHandler()->alter('blazy_third_party_formatters', $formatters);
+    \blazy()->moduleHandler()->alter('blazy_third_party_formatters', $formatters);
     return array_unique($formatters);
   }
 

@@ -27,6 +27,13 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   protected $blazyManager;
 
   /**
+   * The blazy entity service.
+   *
+   * @var \Drupal\blazy\BlazyEntityInterface
+   */
+  protected $blazyEntity;
+
+  /**
    * The blazy merged settings.
    *
    * @var array

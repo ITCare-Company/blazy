@@ -21,13 +21,6 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
   use BlazyManagerUnitTestTrait;
 
   /**
-   * The mocked translator.
-   *
-   * @var \Drupal\Core\StringTranslation\TranslationInterface|\PHPUnit_Framework_MockObject_MockObject
-   */
-  protected $stringTranslation;
-
-  /**
    * {@inheritdoc}
    */
   protected function setUp(): void {

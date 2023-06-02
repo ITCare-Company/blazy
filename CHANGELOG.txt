@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2023-06-02
+------------------------------
+- Issue #3253012 by Rajab Natshah, gausarts, Anybody: Drupal 10.
+- Added few more strict contracts.
+- Implemented BlazyBase service to separate Media from basic reusable methods.
+
 Blazy 8.x-2.0-dev, 2023-05-28
 ------------------------------
 - Fixed for D10 breaking-changes Blazy formatter with lightboxes.

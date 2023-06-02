@@ -27,7 +27,7 @@ trait BlazyStylePluginTrait {
     // If the image has #item property, lazyload may work, otherwise skip.
     // This hustle is to lazyload tons of images -- grids, large galleries,
     // gridstack, mason, with multimedia/ lightboxes for free.
-    /** @var Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+    /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
     if ($item = $this->getImageItem($image)) {
       // Supports multiple image styles within a single view such as GridStack,
       // else fallbacks to the defined image style if available.

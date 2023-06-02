@@ -43,7 +43,7 @@ class Check {
     }
 
     // Always keep Drupal UI config to support dynamic compat features.
-    $config = $manager->configLoad('blazy');
+    $config = $manager->config('blazy');
     $config['loader'] = !$unload;
     $config['unblazy'] = $unblazy;
 
@@ -405,9 +405,9 @@ class Check {
 
     // Respects colorbox settings unless for an explicit field/ view gallery.
     if (!$is_gallery
-      && $colorbox
+      && $blazies->get('colorbox')
       && function_exists('colorbox_theme')) {
-      $is_gallery = (bool) $manager->configLoad('custom.slideshow.slideshow', 'colorbox.settings');
+      $is_gallery = (bool) $manager->config('custom.slideshow.slideshow', 'colorbox.settings');
     }
 
     // Re-define based on potential hook_alter().

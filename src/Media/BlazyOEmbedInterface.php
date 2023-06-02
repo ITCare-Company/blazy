@@ -33,7 +33,7 @@ interface BlazyOEmbedInterface {
    * @param string $input_url
    *   The video url.
    *
-   * @return Drupal\media\OEmbed\Resource[]
+   * @return \Drupal\media\OEmbed\Resource[]
    *   The oEmbed resource.
    */
   public function getResource($input_url);
