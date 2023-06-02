@@ -71,6 +71,7 @@ trait BlazyKernelTestTrait {
     $this->blazyAdminFormatter    = $this->container->get('blazy.admin.formatter');
     $this->blazyAdmin             = $this->container->get('blazy.admin');
     $this->blazyAdminExtended     = $this->container->get('blazy.admin.extended');
+    $this->languageManager        = $this->container->get('language_manager');
 
     // @todo remove at 3.x.
     $this->blazyManager->configFactory()->getEditable('blazy.settings')->set('responsive_image', TRUE)->save();

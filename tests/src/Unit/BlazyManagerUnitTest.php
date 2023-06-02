@@ -42,6 +42,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
     $this->assertInstanceOf('\Drupal\Core\Render\RendererInterface', $this->blazyManager->renderer());
     $this->assertInstanceOf('\Drupal\Core\Config\ConfigFactoryInterface', $this->blazyManager->configFactory());
     $this->assertInstanceOf('\Drupal\Core\Cache\CacheBackendInterface', $this->blazyManager->cache());
+    $this->assertInstanceOf('\Drupal\Core\Language\LanguageManager', $this->blazyManager->languageManager());
   }
 
   /**
