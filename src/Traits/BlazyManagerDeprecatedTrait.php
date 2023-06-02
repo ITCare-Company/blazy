@@ -2,6 +2,8 @@
 
 namespace Drupal\blazy\Traits;
 
+use Drupal\blazy\Media\BlazyResponsiveImage;
+
 /**
  * Deprecated methods for easy removal.
  *

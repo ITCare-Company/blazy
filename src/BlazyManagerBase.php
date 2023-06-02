@@ -4,7 +4,6 @@ namespace Drupal\blazy;
 
 use Drupal\blazy\Cache\BlazyCache;
 use Drupal\blazy\Media\BlazyImage;
-use Drupal\blazy\Media\BlazyResponsiveImage;
 use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Traits\BlazyManagerDeprecatedTrait;

@@ -10,6 +10,7 @@ use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Utility\Sanitize;
+use Drupal\blazy\Traits\BlazyDeprecatedTrait;
 
 /**
  * Provides common public blazy utility and a few aliases for frequent methods.

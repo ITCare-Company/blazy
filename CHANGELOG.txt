@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-06-02
 ------------------------------
+- Fixed for LB off-canvas modal.
 - Removed 1.x unused services: blazy.media, blazy, blazy.formatter.manager.
 - Removed unused classes: BlazyUtil.
 - Issue #3253012 by Rajab Natshah, gausarts, Anybody: Drupal 10.
