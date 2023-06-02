@@ -81,6 +81,7 @@ class BlazyAlter {
    */
   public static function libraryInfoBuild() {
     if (!isset(self::$libraryInfoBuild)) {
+      $libraries = [];
       // Optional polyfills for IEs, and oldies.
       $polyfills = array_merge(BlazyDefault::polyfills(), BlazyDefault::ondemandPolyfills());
       foreach ($polyfills as $id) {

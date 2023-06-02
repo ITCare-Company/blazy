@@ -125,6 +125,16 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
   public function postSettings(array &$settings): void;
 
   /**
+   * Overrides data massaged by [blazy|slick|splide, etc.]_settings_alter().
+   *
+   * @param array $settings
+   *   The settings being modified.
+   * @param object $entity
+   *   The optional entity object.
+   */
+  public function postSettingsAlter(array &$settings, $entity = NULL): void;
+
+  /**
    * Returns cached data identified by its cache ID, normally alterable data.
    *
    * @param string $cid
