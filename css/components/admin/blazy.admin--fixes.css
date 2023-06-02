@@ -171,6 +171,7 @@
   #drupal-off-canvas .form--half {/* csslint allow: ids */
     background: none;
     border: 0;
+    box-shadow: 0 0 0 4px #777;
     max-width: 100%;
     min-width: 100%;
     padding: 0;
@@ -190,8 +191,9 @@
     position: relative;
     border-top: 0;
     border-right: 0;
+    border-color: #777;
     margin: 0;
-    min-height: 42px;
+    min-height: 32px;
   }
 
   #drupal-off-canvas .has-tooltip .form-item > .description,
@@ -204,16 +206,23 @@
     display: none;
   }
 
+  #drupal-off-canvas .has-tooltip select,
+  #drupal-off-canvas .has-tooltip input,
+  #drupal-off-canvas .has-tooltip div[class*="-vanilla"] {/* csslint allow: ids */
+    height: auto;
+    position: relative;
+    z-index: 7;
+  }
+
+  #drupal-off-canvas .has-tooltip .form-item.is-hovered,
+  #drupal-off-canvas .has-tooltip .form-item.is-selected {
+    z-index: 10;
+  }
+
   #drupal-off-canvas .has-tooltip .form-item.is-hovered > .description,
   #drupal-off-canvas .has-tooltip .form-item.is-selected > .description {/* csslint allow: ids */
     display: block;
-    z-index: 9;
-  }
-
-  #drupal-off-canvas .has-tooltip select,
-  #drupal-off-canvas .has-tooltip input {/* csslint allow: ids */
-    position: relative;
-    z-index: 8;
+    z-index: 12;
   }
 
   #drupal-off-canvas .b-hint {/* csslint allow: ids */
@@ -227,7 +236,7 @@
     position: absolute;
     top: 8px;
     right: 8px;
-    z-index: 8;
+    z-index: 7;
   }
 
   #drupal-off-canvas .form--half fieldset {/* csslint allow: ids */
@@ -240,7 +249,7 @@
 
   #drupal-off-canvas .form--half .form-item--style {/* csslint allow: ids */
     height: auto;
-    min-width: none;
+    min-width: 0;
     top: 0;
   }
 

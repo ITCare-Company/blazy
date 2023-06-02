@@ -21,7 +21,7 @@ class BlazyAdminExtended extends BlazyAdminFormatterBase {
         '#type'        => 'checkbox',
         '#title'       => $this->t('Vanilla @namespace', ['@namespace' => $namespace]),
         '#description' => $this->t('<strong>Check</strong>:<ul><li>To render individual item as is as without extra logic.</li><li>To disable 99% @module features, and most of the mentioned options here, such as layouts, et al.</li><li>When the @module features can not satisfy the need.</li><li>Things may be broken! You are on your own.</li></ul><strong>Uncheck</strong>:<ul><li>To get consistent markups and its advanced features -- relevant for the provided options as @module needs to know what to style/work with.</li></ul>', ['@module' => $namespace]),
-        '#weight'      => -109,
+        '#weight'      => -112,
         '#enforced'    => TRUE,
         '#attributes'  => ['class' => ['form-checkbox--vanilla']],
         '#wrapper_attributes' => [
