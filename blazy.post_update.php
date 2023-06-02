@@ -147,7 +147,7 @@ function blazy_post_update_added_blazy_base_service() {
 }
 
 /**
- * Clear cache to enable implement \Drupal\blazy\BlazyBase service.
+ * Clear cache to enable \Drupal\blazy\BlazyBase service.
  */
 function blazy_post_update_implemented_blazy_base_service() {
   // Empty hook to clear caches.

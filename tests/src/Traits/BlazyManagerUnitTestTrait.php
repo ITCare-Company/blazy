@@ -43,6 +43,7 @@ trait BlazyManagerUnitTestTrait {
       ->disableOriginalConstructor()
       ->getMock();
 
+    // @todo remove post 2.16.
     $this->blazyManager->expects($this->any())
       ->method('getModuleHandler')
       ->willReturn($this->moduleHandler);
@@ -61,6 +62,27 @@ trait BlazyManagerUnitTestTrait {
 
     $this->blazyManager->expects($this->any())
       ->method('getCache')
+      ->willReturn($this->cache);
+
+    // Since 2.16.
+    $this->blazyManager->expects($this->any())
+      ->method('moduleHandler')
+      ->willReturn($this->moduleHandler);
+
+    $this->blazyManager->expects($this->any())
+      ->method('entityTypeManager')
+      ->willReturn($this->entityTypeManager);
+
+    $this->blazyManager->expects($this->any())
+      ->method('renderer')
+      ->willReturn($this->renderer);
+
+    $this->blazyManager->expects($this->any())
+      ->method('configFactory')
+      ->willReturn($this->configFactory);
+
+    $this->blazyManager->expects($this->any())
+      ->method('cache')
       ->willReturn($this->cache);
   }
 

@@ -64,7 +64,10 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $field = $build[$this->testFieldName];
 
     // Verify it is a theme_field().
-    /* $this->assertArrayHasKey('#blazy', $field); */
+    /*
+    // No longer relevant for D10.
+    $this->assertArrayHasKey('#blazy', $field);
+     */
     $this->assertArrayHasKey('#build', $field[0]);
 
     // Verify it is not a theme_item_list() grid.
@@ -160,8 +163,9 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     // Blazy uses theme_field() output.
     $this->assertEquals($this->testFieldName, $blazies->get('field.name'));
-    $this->assertArrayHasKey('#blazy', $build[$this->testFieldName]);
 
+    // No longer relevant for D10.
+    /* $this->assertArrayHasKey('#blazy', $build[$this->testFieldName]); */
     $options = $this->blazyAdminFormatter->getOptionsetOptions('image_style');
     $this->assertArrayHasKey('large', $options);
 

@@ -49,17 +49,3 @@ services:
       - '@library.dependency_resolver'
     tags:
       - { name: event_subscriber }
-
-  # @todo deprecate this if you can't make it non-static at blazy: 4.x.
-  blazy.media:
-    class: Drupal\blazy\Media\BlazyMedia
-    # @todo arguments: ['@blazy.entity', '@blazy.oembed']
-
-  # @todo deprecated and is removed for blazy.formatter at blazy: 3.x.
-  blazy.formatter.manager:
-    class: Drupal\blazy\BlazyFormatterManager
-    parent: blazy.formatter
-
-  # @todo deprecated and is removed from blazy: 8.2.1+.
-  blazy:
-    class: Drupal\blazy\Blazy

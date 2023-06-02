@@ -17,7 +17,7 @@ use Drupal\blazy\Utility\Sanitize;
  *
  * @todo implements BlazyManagerInterface after sub-modules.
  */
-class BlazyManager extends BlazyManagerBase implements TrustedCallbackInterface {
+class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, TrustedCallbackInterface {
 
   /**
    * {@inheritdoc}

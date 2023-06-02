@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2023-06-02
 ------------------------------
+- Removed 1.x unused services: blazy.media, blazy, blazy.formatter.manager.
+- Removed unused classes: BlazyUtil.
 - Issue #3253012 by Rajab Natshah, gausarts, Anybody: Drupal 10.
 - Added few more strict contracts.
 - Implemented BlazyBase service to separate Media from basic reusable methods.

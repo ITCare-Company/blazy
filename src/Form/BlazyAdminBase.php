@@ -778,7 +778,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function getViewModeOptions($target_type): array {
-    return $this->entityDisplayRepository->getViewModeOptions($target_type);
+    return $this->entityDisplayRepository->getViewModeOptions($target_type) ?: [];
   }
 
   /**
