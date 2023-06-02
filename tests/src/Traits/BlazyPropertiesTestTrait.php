@@ -64,6 +64,13 @@ trait BlazyPropertiesTestTrait {
   protected $moduleHandler;
 
   /**
+   * The language manager.
+   *
+   * @var \Drupal\Core\Language\LanguageManager
+   */
+  protected $languageManager;
+
+  /**
    * The token.
    *
    * @var \Drupal\Core\Utility\Token

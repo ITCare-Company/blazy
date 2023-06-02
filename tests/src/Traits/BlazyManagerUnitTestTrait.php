@@ -21,6 +21,7 @@ trait BlazyManagerUnitTestTrait {
     $this->entityTypeManager  = $this->createMock('\Drupal\Core\Entity\EntityTypeManagerInterface');
     $this->renderer           = $this->createMock('\Drupal\Core\Render\RendererInterface');
     $this->cache              = $this->createMock('\Drupal\Core\Cache\CacheBackendInterface');
+    $this->languageManager    = $this->createMock('\Drupal\Core\Language\LanguageManager');
     $this->moduleHandler      = $this->getMockBuilder('Drupal\Core\Extension\ModuleHandler')->disableOriginalConstructor()->getMock();
 
     $this->token = $this->getMockBuilder('\Drupal\Core\Utility\Token')
@@ -43,27 +44,6 @@ trait BlazyManagerUnitTestTrait {
       ->disableOriginalConstructor()
       ->getMock();
 
-    // @todo remove post 2.16.
-    $this->blazyManager->expects($this->any())
-      ->method('getModuleHandler')
-      ->willReturn($this->moduleHandler);
-
-    $this->blazyManager->expects($this->any())
-      ->method('getEntityTypeManager')
-      ->willReturn($this->entityTypeManager);
-
-    $this->blazyManager->expects($this->any())
-      ->method('getRenderer')
-      ->willReturn($this->renderer);
-
-    $this->blazyManager->expects($this->any())
-      ->method('getConfigFactory')
-      ->willReturn($this->configFactory);
-
-    $this->blazyManager->expects($this->any())
-      ->method('getCache')
-      ->willReturn($this->cache);
-
     // Since 2.16.
     $this->blazyManager->expects($this->any())
       ->method('moduleHandler')
@@ -84,6 +64,10 @@ trait BlazyManagerUnitTestTrait {
     $this->blazyManager->expects($this->any())
       ->method('cache')
       ->willReturn($this->cache);
+
+    $this->blazyManager->expects($this->any())
+      ->method('languageManager')
+      ->willReturn($this->languageManager);
   }
 
   /**
@@ -98,6 +82,7 @@ trait BlazyManagerUnitTestTrait {
     $container->set('renderer', $this->renderer);
     $container->set('config.factory', $this->configFactory);
     $container->set('cache.default', $this->cache);
+    $container->set('language_manager', $this->languageManager);
     $container->set('token', $this->token);
     $container->set('blazy.manager', $this->blazyManager);
 

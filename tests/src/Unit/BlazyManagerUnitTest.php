@@ -51,7 +51,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
    */
   public function testConfigLoad() {
     $this->blazyManager->expects($this->any())
-      ->method('configLoad')
+      ->method('config')
       ->with('blazy')
       ->willReturn(['loadInvisible' => FALSE]);
 
@@ -59,12 +59,12 @@ class BlazyManagerUnitTest extends UnitTestCase {
     $this->assertArrayHasKey('loadInvisible', $blazy);
 
     $this->blazyManager->expects($this->any())
-      ->method('configLoad')
+      ->method('config')
       ->with('admin_css')
       ->willReturn(TRUE);
 
     $this->blazyManager->expects($this->any())
-      ->method('configLoad')
+      ->method('config')
       ->with('responsive_image')
       ->willReturn(TRUE);
   }
@@ -72,15 +72,15 @@ class BlazyManagerUnitTest extends UnitTestCase {
   /**
    * Tests cases for config.
    *
-   * @covers ::entityLoad
-   * @covers ::entityLoadMultiple
+   * @covers ::load
+   * @covers ::loadMultiple
    */
   public function testEntityLoadImageStyle() {
     $styles = $this->setUpImageStyle();
     $ids = array_keys($styles);
 
     $this->blazyManager->expects($this->any())
-      ->method('entityLoadMultiple')
+      ->method('loadMultiple')
       ->with('image_style')
       ->willReturn($styles);
 
@@ -88,7 +88,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
     $this->assertArrayHasKey('large', $multiple);
 
     $this->blazyManager->expects($this->any())
-      ->method('entityLoad')
+      ->method('load')
       ->with('large')
       ->willReturn($multiple['large']);
 
