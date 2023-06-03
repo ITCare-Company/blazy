@@ -69,7 +69,7 @@ class BlazyDefault {
       'skin'  => '',
     ] + self::anywhereSettings();
 
-    \blazy_alterable_settings($settings);
+    blazy_alterable_settings($settings);
     return $settings;
   }
 
