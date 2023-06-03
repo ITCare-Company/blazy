@@ -97,7 +97,7 @@ class Blazy {
   }
 
   /**
-   * Reset the BlazySettings per item.
+   * Reset the BlazySettings per item to have unique URI, delta, style, etc.
    */
   public static function reset(array &$settings): BlazySettings {
     self::verify($settings);

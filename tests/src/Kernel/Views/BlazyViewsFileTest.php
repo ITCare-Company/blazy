@@ -150,7 +150,7 @@ class BlazyViewsFileTest extends BlazyViewsTestBase {
     $output = $view->getStyle()->getImageItem($image);
     $this->assertArrayHasKey('image', $settings);
 
-    $output = $view->getStyle()->isImageRenderable($row, $index, $this->testFieldName);
+    $output = $view->getStyle()->getImageArray($row, $index, $this->testFieldName);
     $this->assertArrayHasKey('image', $settings);
 
     $output = $view->getStyle()->getCaption($index, $settings);

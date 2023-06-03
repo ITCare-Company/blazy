@@ -13,8 +13,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @see \Drupal\mason\Plugin\views\style\MasonViews
  * @see \Drupal\gridstack\Plugin\views\style\GridStackViews
  * @see \Drupal\slick_views\Plugin\views\style\SlickViews
+ * @see \Drupal\splide\Plugin\views\style\SplideViews
  */
-abstract class BlazyStylePluginBase extends StylePluginBase {
+abstract class BlazyStylePluginBase extends StylePluginBase implements BlazyStylePluginInterface {
 
   use BlazyStyleBaseTrait;
   use BlazyStyleOptionsTrait;
@@ -46,14 +47,12 @@ abstract class BlazyStylePluginBase extends StylePluginBase {
   }
 
   /**
-   * Returns an individual row/element content.
+   * {@inheritdoc}
    */
   public function buildElement(array &$element, $row, $index) {
     $settings = &$element['settings'];
-    $blazies = $settings['blazies'];
-    $item_id = $blazies->get('item.id') ?: 'box';
-
-    $this->reset($settings);
+    $blazies  = $this->reset($settings);
+    $item_id  = $blazies->get('item.id') ?: 'box';
 
     // Add main image fields if so configured.
     if (!empty($settings['image'])) {

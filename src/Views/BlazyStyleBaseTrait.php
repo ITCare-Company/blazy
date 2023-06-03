@@ -34,7 +34,7 @@ trait BlazyStyleBaseTrait {
   protected $blazyManager;
 
   /**
-   * Returns the blazy manager.
+   * {@inheritdoc}
    */
   public function blazyManager() {
     return $this->blazyManager;
@@ -63,7 +63,7 @@ trait BlazyStyleBaseTrait {
     $id        = Blazy::getHtmlId("{$plugin_id}-views-{$instance}", $id);
     $settings += BlazyDefault::lazySettings();
 
-    $this->blazyManager()->preSettings($settings);
+    $this->blazyManager->preSettings($settings);
     $this->prepareSettings($settings);
     $blazies = $settings['blazies'];
 
@@ -98,10 +98,10 @@ trait BlazyStyleBaseTrait {
       $settings = NestedArray::mergeDeep($settings, $this->htmlSettings);
     }
 
-    $this->blazyManager()->postSettings($settings);
+    $this->blazyManager->postSettings($settings);
 
-    $this->blazyManager()->moduleHandler()->alter('blazy_settings_views', $settings, $view);
-    $this->blazyManager()->postSettingsAlter($settings);
+    $this->blazyManager->moduleHandler()->alter('blazy_settings_views', $settings, $view);
+    $this->blazyManager->postSettingsAlter($settings);
     return $settings;
   }
 
@@ -114,13 +114,9 @@ trait BlazyStyleBaseTrait {
   }
 
   /**
-   * Returns the first Blazy formatter found, to save image dimensions once.
-   *
-   * Given 100 images on a page, Blazy will call
-   * ImageStyle::transformDimensions() once rather than 100 times and let the
-   * 100 images inherit it as long as the image style has CROP in the name.
+   * {@inheritdoc}
    */
-  public function getFirstImage($row) {
+  public function getFirstImage($row): array {
     if (!isset($this->firstImage)) {
       // Fixed for Undefined property: Drupal\views\ViewExecutable::$row_index
       // by Drupal\views\Plugin\views\field\EntityField->prepareItemsByDelta.
@@ -177,20 +173,80 @@ trait BlazyStyleBaseTrait {
   }
 
   /**
-   * Returns the renderable array of field containing rendered and raw data.
+   * {@inheritdoc}
    */
-  public function getFieldRenderable($row, $index, $field_name = '', $multiple = FALSE) {
+  public function getFieldRenderable($row, $index, $field_name = '', $multiple = FALSE): array {
     // Be sure to not check "Use field template" under "Style settings" to have
     // renderable array to work with, otherwise flattened string!
     /** @var \Drupal\views\Plugin\views\field\EntityField $field */
     if ($field = ($this->view->field[$field_name] ?? NULL)) {
       if (method_exists($field, 'getItems')) {
         $result = $field->getItems($row) ?: [];
-        return empty($result) ? [] : ($multiple ? $result : $result[0]);
+        $result = empty($result) ? [] : ($multiple ? $result : $result[0]);
+        return is_array($result) ? $result : [];
       }
     }
 
     return [];
+  }
+
+  /**
+   * Returns the thumbnail if so configured.
+   *
+   * Be sure to reset settings before calling this method:
+   * $this->reset($sets);
+   */
+  protected function getThumbnail(array &$sets, $row, $index): array {
+    $name = $sets['thumbnail'] ?? NULL;
+
+    if (empty($name)) {
+      return [];
+    }
+
+    // Provides a potential unique thumbnail different from the main image.
+    $blazies = $sets['blazies'];
+    $blazies->set('is.reset', TRUE);
+    $tn = $this->getFieldRenderable($row, 0, $name);
+    $rendered = $tn['rendered'] ?? [];
+    $tn_style = $rendered['#image_style'] ?? NULL;
+    $item = $rendered['#item'] ?? NULL;
+    $build = $rendered['#build'] ?? [];
+
+    // Even if ignorantly multiple, thumbnails must be one only.
+    if (!$tn_style && $build) {
+      $tn_style = $build['settings']['thumbnail_style']
+        ?? $build['settings']['image_style']
+        ?? NULL;
+    }
+
+    if (!$item) {
+      $item = $build[0]['#item'] ?? $rendered['raw'] ?? NULL;
+    }
+
+    if ($tn_style && is_object($item)) {
+      $uri = Blazy::uri($item);
+      $sets['thumbnail_style'] = $tn_style;
+
+      $tn_uri = empty($tn_style)
+        ? $uri
+        : $this->blazyManager
+          ->load($tn_style, 'image_style')
+          ->buildUri($uri);
+
+      if ($tn_uri) {
+        $sets['thumbnail_uri'] = $tn_uri;
+        $blazies->set('thumbnail.uri', $tn_uri);
+      }
+    }
+
+    // If multiple, only one thumbnail can exist.
+    if (isset($build[1])) {
+      $tn = $this->blazyManager->getThumbnail($sets, $item);
+    }
+    else {
+      $tn = $this->getFieldRendered($index, $name);
+    }
+    return is_array($tn) ? $tn : [$tn];
   }
 
 }
