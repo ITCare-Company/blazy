@@ -13,8 +13,8 @@ trait BlazyManagerUnitTestTrait {
    * Setup the unit manager.
    */
   protected function setUpUnitServices() {
-    $this->entityStorage      = $this->createMock('Drupal\Core\Entity\EntityStorageInterface');
-    $this->entityViewBuilder  = $this->createMock('Drupal\Core\Entity\EntityViewBuilderInterface');
+    $this->entityStorage      = $this->createMock('\Drupal\Core\Entity\EntityStorageInterface');
+    $this->entityViewBuilder  = $this->createMock('\Drupal\Core\Entity\EntityViewBuilderInterface');
     $this->entityTypeMock     = $this->createMock('\Drupal\Core\Entity\EntityTypeInterface');
     $this->entityFieldManager = $this->createMock('\Drupal\Core\Entity\EntityFieldManagerInterface');
     $this->entityRepository   = $this->createMock('\Drupal\Core\Entity\EntityRepositoryInterface');
@@ -22,11 +22,9 @@ trait BlazyManagerUnitTestTrait {
     $this->renderer           = $this->createMock('\Drupal\Core\Render\RendererInterface');
     $this->cache              = $this->createMock('\Drupal\Core\Cache\CacheBackendInterface');
     $this->languageManager    = $this->createMock('\Drupal\Core\Language\LanguageManager');
-    $this->moduleHandler      = $this->getMockBuilder('Drupal\Core\Extension\ModuleHandler')->disableOriginalConstructor()->getMock();
+    $this->moduleHandler      = $this->createMock('\Drupal\Core\Extension\ModuleHandler');
+    $this->token              = $this->createMock('\Drupal\Core\Utility\Token');
 
-    $this->token = $this->getMockBuilder('\Drupal\Core\Utility\Token')
-      ->disableOriginalConstructor()
-      ->getMock();
     $this->token->expects($this->any())
       ->method('replace')
       ->willReturnArgument(0);
@@ -95,7 +93,7 @@ trait BlazyManagerUnitTestTrait {
 
     $dummies = ['blazy_crop', 'large', 'medium', 'small'];
     foreach ($dummies as $style) {
-      $mock = $this->createMock('Drupal\Core\Config\Entity\ConfigEntityInterface');
+      $mock = $this->createMock('\Drupal\Core\Config\Entity\ConfigEntityInterface');
       $mock->expects($this->any())
         ->method('getCacheTags')
         ->willReturn([]);
@@ -130,7 +128,7 @@ trait BlazyManagerUnitTestTrait {
   protected function setUpResponsiveImageStyle() {
     $styles = $image_styles = [];
     foreach (['fallback', 'small', 'medium', 'large'] as $style) {
-      $mock = $this->createMock('Drupal\Core\Config\Entity\ConfigEntityInterface');
+      $mock = $this->createMock('\Drupal\Core\Config\Entity\ConfigEntityInterface');
       $mock->expects($this->any())
         ->method('getConfigDependencyName')
         ->willReturn('image.style.' . $style);
@@ -142,7 +140,7 @@ trait BlazyManagerUnitTestTrait {
     }
 
     foreach (['blazy_picture_test', 'blazy_responsive_test'] as $style) {
-      $mock = $this->createMock('Drupal\responsive_image\ResponsiveImageStyleInterface');
+      $mock = $this->createMock('\Drupal\responsive_image\ResponsiveImageStyleInterface');
       $mock->expects($this->any())
         ->method('getImageStyleIds')
         ->willReturn(array_keys($image_styles));
