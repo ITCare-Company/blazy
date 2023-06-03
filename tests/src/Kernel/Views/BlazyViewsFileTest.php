@@ -32,49 +32,9 @@ class BlazyViewsFileTest extends BlazyViewsTestBase {
   }
 
   /**
-   * Build contents.
-   */
-  private function buildContents() {
-    $this->setUpRealImage();
-
-    $bundle = $this->bundle;
-    $settings['image_settings'] = [
-      'image_style'  => 'blazy_crop',
-      'media_switch' => 'blazy_test',
-      'ratio'        => 'fluid',
-      'view_mode'    => 'default',
-    ];
-
-    $this->setUpContentWithEntityReference($settings);
-
-    // Create referencing entity.
-    $this->referencingEntity = $this->createReferencingEntity();
-
-    $data['fields'] = $this->getDefaultFields();
-
-    // Create contents.
-    $this->setUpContentTypeTest($bundle, $data);
-
-    $data['settings'] = $this->getFormatterSettings();
-    $display = $this->setUpFormatterDisplay($bundle, $data);
-
-    $display->setComponent('field_image', [
-      'type'     => 'blazy',
-      'settings' => $settings['image_settings'],
-      'label'    => 'hidden',
-    ]);
-
-    $display->save();
-
-    $this->setUpContentWithItems($bundle);
-  }
-
-  /**
    * Make sure that the HTML list style markup is correct.
    */
   public function testBlazyViewsForm() {
-    $this->buildContents();
-
     $view = Views::getView('test_blazy_entity_2');
     $this->executeView($view);
     $view->setDisplay('default');
