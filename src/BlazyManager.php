@@ -14,8 +14,6 @@ use Drupal\blazy\Utility\Sanitize;
  * Implements a public facing blazy manager.
  *
  * A few modules re-use this: GridStack, Mason, Slick...
- *
- * @todo implements BlazyManagerInterface after sub-modules.
  */
 class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, TrustedCallbackInterface {
 
