@@ -211,6 +211,15 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerInterfa
    *
    * @todo remove at/by 3.x after subs extending BlazyManagerBaseInterface.
    */
+  public function build(array $build): array {
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @todo remove at/by 3.x after subs extending BlazyManagerBaseInterface.
+   */
   public function getBlazy(array $build, $delta = -1): array {
     return [];
   }

@@ -7,7 +7,7 @@ use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyManagerInterface;
+use Drupal\blazy\BlazyManager;
 use Drupal\blazy\BlazyEntityInterface;
 use Drupal\blazy\Traits\PluginScopesTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -43,7 +43,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * Constructs a BlazyViewsFieldPluginBase object.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, BlazyManagerInterface $blazy_manager, BlazyEntityInterface $blazy_entity) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, BlazyManager $blazy_manager, BlazyEntityInterface $blazy_entity) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->blazyManager = $blazy_manager;
     $this->blazyEntity = $blazy_entity;

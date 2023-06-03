@@ -12,17 +12,6 @@ namespace Drupal\blazy;
 interface BlazyManagerInterface extends BlazyManagerBaseInterface {
 
   /**
-   * Returns drupalSettings for IO.
-   *
-   * @param array $attach
-   *   The settings which determine what library to attach.
-   *
-   * @return object
-   *   The supported IO drupalSettings.
-   */
-  public function getIoSettings(array $attach = []): object;
-
-  /**
    * Returns the enforced rich media content, or media using theme_blazy().
    *
    * @param array $build
@@ -56,5 +45,16 @@ interface BlazyManagerInterface extends BlazyManagerBaseInterface {
    *   The renderable array of pre-rendered element.
    */
   public function preRenderBuild(array $element): array;
+
+  /**
+   * Returns drupalSettings for IO.
+   *
+   * @param array $attach
+   *   The settings which determine what library to attach.
+   *
+   * @return object
+   *   The supported IO drupalSettings.
+   */
+  public function getIoSettings(array $attach = []): object;
 
 }

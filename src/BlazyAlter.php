@@ -175,7 +175,9 @@ class BlazyAlter {
    */
   public static function thirdPartyFormatters(): array {
     $formatters = ['file_video'];
-    \blazy()->moduleHandler()->alter('blazy_third_party_formatters', $formatters);
+    if ($manager = Blazy::service('blazy.manager')) {
+      $manager->moduleHandler()->alter('blazy_third_party_formatters', $formatters);
+    }
     return array_unique($formatters);
   }
 

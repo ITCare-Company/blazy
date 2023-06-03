@@ -219,8 +219,8 @@ class BlazyFile {
       /** @var \Drupal\file\Entity\File $file */
       $file = $object->entity;
     }
+    /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $object */
     elseif ($object instanceof EntityReferenceFieldItemListInterface) {
-      /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $object */
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $image */
       if ($image = $object->first()) {
         /** @var \Drupal\file\Entity\File $file */

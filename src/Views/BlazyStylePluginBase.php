@@ -4,7 +4,7 @@ namespace Drupal\blazy\Views;
 
 use Drupal\views\Plugin\views\style\StylePluginBase;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\BlazyManagerInterface;
+use Drupal\blazy\BlazyManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -34,7 +34,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase implements BlazyStyl
   /**
    * Constructs a GridStackManager object.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, BlazyManagerInterface $blazy_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, BlazyManager $blazy_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->blazyManager = $blazy_manager;
   }

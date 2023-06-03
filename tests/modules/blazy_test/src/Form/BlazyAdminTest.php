@@ -24,7 +24,7 @@ class BlazyAdminTest implements BlazyAdminTestInterface {
   /**
    * The blazy_test manager service.
    *
-   * @var \Drupal\blazy_test\BlazyManagerInterface
+   * @var \Drupal\blazy\BlazyManagerInterface
    */
   protected $manager;
 

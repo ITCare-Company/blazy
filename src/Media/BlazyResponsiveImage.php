@@ -165,7 +165,7 @@ class BlazyResponsiveImage {
    * @param object $resimage
    *   The responsive image style entity.
    *
-   * @return array|mixed
+   * @return array
    *   The responsive image styles and cache tags.
    */
   public static function styles($resimage): array {
@@ -173,7 +173,10 @@ class BlazyResponsiveImage {
 
     if (!isset(self::$styles[$id])) {
       $cache_tags = $resimage->getCacheTags();
-      $image_styles = \blazy()->loadMultiple('image_style', $resimage->getImageStyleIds());
+      $image_styles = [];
+      if ($manager = Blazy::service('blazy.manager')) {
+        $image_styles = $manager->loadMultiple('image_style', $resimage->getImageStyleIds());
+      }
 
       foreach ($image_styles as $image_style) {
         $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());

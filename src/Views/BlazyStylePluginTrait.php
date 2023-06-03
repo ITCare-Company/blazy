@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Views;
 
 use Drupal\Component\Utility\Xss;
+use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\blazy\BlazyInternal;
 
 /**
@@ -98,7 +99,7 @@ trait BlazyStylePluginTrait {
   /**
    * {@inheritdoc}
    */
-  public function getImageItem($image): ?object {
+  public function getImageItem($image): ?ImageItem {
     $item = NULL;
 
     if ($rendered = ($image['rendered'] ?? [])) {

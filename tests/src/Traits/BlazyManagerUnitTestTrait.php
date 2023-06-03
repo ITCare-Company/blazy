@@ -40,11 +40,9 @@ trait BlazyManagerUnitTestTrait {
       ],
     ]);
 
-    $this->blazyManager = $this->getMockBuilder('\Drupal\blazy\BlazyManager')
-      ->disableOriginalConstructor()
-      ->getMock();
-
     // Since 2.16.
+    $this->blazyManager = $this->createMock('\Drupal\blazy\BlazyManagerInterface');
+
     $this->blazyManager->expects($this->any())
       ->method('moduleHandler')
       ->willReturn($this->moduleHandler);

@@ -190,7 +190,7 @@ trait BlazyStyleOptionsTrait {
    *
    * Cannot use Views::getViewsAsOptions() as we need to limit to something.
    */
-  protected function getViewsAsOptions($plugin = 'html_list') {
+  protected function getViewsAsOptions($plugin = 'html_list'): array {
     if (!isset($this->viewsOptions[$plugin])) {
       $options = [];
 

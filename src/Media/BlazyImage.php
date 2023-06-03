@@ -183,7 +183,7 @@ class BlazyImage {
    * @param array $settings
    *   The optional settings.
    *
-   * @return mixed
+   * @return object|null
    *   The object of image item, or NULL.
    *
    * @todo simplify this, like everything else. An obvious confusion here.

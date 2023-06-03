@@ -43,7 +43,7 @@ class BlazyDefault {
   /**
    * Returns alterable plugin settings to pass the tests.
    */
-  public function alterableSettings(array &$settings = []) {
+  public function alterableSettings(array &$settings) {
     $context = ['class' => get_called_class()];
     \Drupal::moduleHandler()->alter('blazy_base_settings', $settings, $context);
 
@@ -69,7 +69,7 @@ class BlazyDefault {
       'skin'  => '',
     ] + self::anywhereSettings();
 
-    blazy_alterable_settings($settings);
+    \blazy_alterable_settings($settings);
     return $settings;
   }
 

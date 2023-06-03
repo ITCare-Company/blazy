@@ -10,6 +10,7 @@ use Drupal\editor\Entity\Editor;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyAlter;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\BlazyManager;
 use Drupal\blazy\Theme\BlazyTheme;
 use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Utility\BlazyMarkdown;
@@ -17,10 +18,10 @@ use Drupal\blazy\Utility\BlazyMarkdown;
 /**
  * Provides a convenient shortcut for procedural hooks, or static methods.
  *
- * @return class
+ * @return \Drupal\blazy\BlazyManager
  *   The Blazy manager class instance.
  */
-function blazy() {
+function blazy(): BlazyManager {
   static $manager;
 
   if (!isset($manager)) {

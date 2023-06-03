@@ -11,7 +11,7 @@ use Drupal\media\IFrameUrlHelper;
 use Drupal\media\MediaInterface;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
 use Drupal\media\OEmbed\UrlResolverInterface;
-use Drupal\blazy\BlazyManagerInterface;
+use Drupal\blazy\BlazyManager;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -51,7 +51,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * The Media oEmbed Resource.
    *
-   * @var \Drupal\media\OEmbed\Resource[]
+   * @var \Drupal\media\OEmbed\Resource
    */
   protected $resource;
 
@@ -74,7 +74,14 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    *
    * @todo remove ::imageFactory (was for UGC), not used anywhere since 2.6.
    */
-  public function __construct(RequestStack $request, ResourceFetcherInterface $resource_fetcher, UrlResolverInterface $url_resolver, IFrameUrlHelper $iframe_url_helper, ImageFactory $image_factory, BlazyManagerInterface $blazy_manager) {
+  public function __construct(
+    RequestStack $request,
+    ResourceFetcherInterface $resource_fetcher,
+    UrlResolverInterface $url_resolver,
+    IFrameUrlHelper $iframe_url_helper,
+    ImageFactory $image_factory,
+    BlazyManager $blazy_manager
+  ) {
     $this->request = $request;
     $this->resourceFetcher = $resource_fetcher;
     $this->urlResolver = $url_resolver;
@@ -187,21 +194,24 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
     // Iframe URL may be valid, but not stored as a Media entity.
     if ($input && $resource = $this->getResource($input)) {
-      $title = $resource->getTitle() ?: $title;
-      $type = $resource->getType();
+      // PHP-stan always assumes it an array.
+      if (is_object($resource)) {
+        $title = $resource->getTitle() ?: $title;
+        $type = $resource->getType();
 
-      // VEF has valid local URI, other hard-coded unmanaged files might not.
-      if (!BlazyFile::isValidUri($uri)) {
-        // All we have here is external images. URI validity is not crucial.
-        if (!empty($resource->getThumbnailUrl())) {
-          $uri = $resource->getThumbnailUrl()->getUri();
+        // VEF has valid local URI, other hard-coded unmanaged files might not.
+        if (!BlazyFile::isValidUri($uri)) {
+          // All we have here is external images. URI validity is not crucial.
+          if (!empty($resource->getThumbnailUrl())) {
+            $uri = $resource->getThumbnailUrl()->getUri();
+          }
         }
-      }
 
-      // Respect hard-coded width and height since no UI for all these here.
-      if (!$height) {
-        $width = $resource->getThumbnailWidth() ?: $resource->getWidth();
-        $height = $resource->getThumbnailHeight() ?: $resource->getHeight();
+        // Respect hard-coded width and height since no UI for all these here.
+        if (!$height) {
+          $width = $resource->getThumbnailWidth() ?: $resource->getWidth();
+          $height = $resource->getThumbnailHeight() ?: $resource->getHeight();
+        }
       }
     }
 

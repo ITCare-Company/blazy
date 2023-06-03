@@ -171,7 +171,7 @@ class Check {
    * Checks for Blazy formatter such as from within a Views style plugin.
    *
    * @see \Drupal\blazy\Blazy::preserve()
-   * @see \Drupal\blazy\BlazyManagerInterface::isBlazy()
+   * @see \Drupal\blazy\BlazyManager::isBlazy()
    */
   public static function blazyOrNot(array &$settings, array $data = []): void {
     // Retrieves Blazy formatter related settings from within Views style.
