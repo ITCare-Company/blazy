@@ -1,6 +1,10 @@
 
 Blazy 8.x-2.0-dev, 2023-06-02
 ------------------------------
+- Fixed for D10 breaking changes with Blazy lightboxes within Views.
+
+Blazy 8.x-2.0-dev, 2023-06-02
+------------------------------
 - Fixed for LB off-canvas modal.
 - Removed 1.x unused services: blazy.media, blazy, blazy.formatter.manager.
 - Removed unused classes: BlazyUtil.

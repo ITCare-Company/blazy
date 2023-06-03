@@ -88,7 +88,8 @@ trait BlazyStyleBaseTrait {
               && is_array($result)
               && isset($result['rendered'])
               && !($result['rendered'] instanceof Markup)) {
-              $rendered = $result['rendered']['#build'] ?? [];
+              // D10 moves it into indices.
+              $rendered = $result['rendered'][0]['#build'] ?? $result['rendered']['#build'] ?? [];
             }
           }
         }
