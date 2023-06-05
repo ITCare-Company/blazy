@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -218,7 +219,7 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function loadMultiple($type = 'image_style', $ids = NULL) {
+  public function loadMultiple($type = 'image_style', $ids = NULL): array {
     return $this->getStorage($type)->loadMultiple($ids);
   }
 
@@ -245,7 +246,7 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function loadByUuid($uuid, $type = 'file') {
+  public function loadByUuid($uuid, $type = 'file'): ?object {
     return $this->entityRepository->loadEntityByUuid($type, $uuid);
   }
 
@@ -292,7 +293,21 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCacheMetadata(array $build = []) {
+  public function getEntityAsOptions($entity_type): array {
+    $options = [];
+    if ($entities = $this->loadMultiple($entity_type)) {
+      foreach ($entities as $entity) {
+        $options[$entity->id()] = Html::escape($entity->label());
+      }
+      ksort($options);
+    }
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheMetadata(array $build) {
     return BlazyCache::metadata($build);
   }
 

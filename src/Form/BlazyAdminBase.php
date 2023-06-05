@@ -758,21 +758,14 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * {@inheritdoc}
    */
-  public function getEntityAsOptions($entity_type = ''): array {
-    $options = [];
-    if ($entities = $this->blazyManager->loadMultiple($entity_type)) {
-      foreach ($entities as $entity) {
-        $options[$entity->id()] = Html::escape($entity->label());
-      }
-      ksort($options);
-    }
-    return $options;
+  public function getEntityAsOptions($entity_type): array {
+    return $this->blazyManager->getEntityAsOptions($entity_type);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getOptionsetOptions($entity_type = ''): array {
+  public function getOptionsetOptions($entity_type): array {
     return $this->getEntityAsOptions($entity_type);
   }
 
@@ -788,8 +781,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    */
   public function getResponsiveImageOptions(): array {
     $options = [];
-    if ($this->blazyManager()->moduleExists('responsive_image')) {
-      $image_styles = $this->blazyManager()->loadMultiple('responsive_image_style');
+    if ($this->blazyManager->moduleExists('responsive_image')) {
+      $image_styles = $this->blazyManager->loadMultiple('responsive_image_style');
       if (!empty($image_styles)) {
         foreach ($image_styles as $name => $image_style) {
           if ($image_style->hasImageStyleMappings()) {

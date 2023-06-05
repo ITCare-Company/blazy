@@ -64,16 +64,36 @@ interface BlazyAdminInterface {
 
   /**
    * Returns available entities for select options.
+   *
+   * @param string $entity_type
+   *   The entity type.
+   *
+   * @return array
+   *   The entity types
    */
-  public function getEntityAsOptions($entity_type = ''): array;
+  public function getEntityAsOptions($entity_type): array;
 
   /**
    * Returns available optionsets for select options.
+   *
+   * Might be removed, duplicate for self::getEntityAsOptions() for easy words.
+   *
+   * @param string $entity_type
+   *   The entity type.
+   *
+   * @return array
+   *   The entity types
    */
-  public function getOptionsetOptions($entity_type = ''): array;
+  public function getOptionsetOptions($entity_type): array;
 
   /**
    * Returns available view modes for select options.
+   *
+   * @param string $target_type
+   *   The target entity type.
+   *
+   * @return array
+   *   The target entity types
    */
   public function getViewModeOptions($target_type): array;
 

@@ -121,10 +121,10 @@ interface BlazyInterface {
    * @param string $id
    *   The entity ID.
    * @param string $type
-   *   The entity type.
+   *   The entity type, can be configuration object like blazy.settings.
    *
-   * @return mixed|object
-   *   The entity, or empty.
+   * @return mixed
+   *   The entity, or config values: string, bool, etc.
    */
   public function load($id, $type = 'image_style');
 
@@ -139,7 +139,7 @@ interface BlazyInterface {
    * @return array
    *   The entities, or empty array.
    */
-  public function loadMultiple($type = 'image_style', $ids = NULL);
+  public function loadMultiple($type = 'image_style', $ids = NULL): array;
 
   /**
    * Returns a shortcut for loading entity by its properties.
@@ -165,10 +165,10 @@ interface BlazyInterface {
    * @param string $type
    *   The entity type.
    *
-   * @return mixed|object
+   * @return object|null
    *   The entity, else NULL.
    */
-  public function loadByUuid($uuid, $type = 'file');
+  public function loadByUuid($uuid, $type = 'file'): ?object;
 
   /**
    * Returns cached data identified by its cache ID, normally alterable data.
@@ -204,7 +204,18 @@ interface BlazyInterface {
    * @return array
    *   The cache metadata.
    */
-  public function getCacheMetadata(array $build = []);
+  public function getCacheMetadata(array $build);
+
+  /**
+   * Returns available entities for select options.
+   *
+   * @param string $entity_type
+   *   The entity type.
+   *
+   * @return array
+   *   The entity types
+   */
+  public function getEntityAsOptions($entity_type): array;
 
   /**
    * Alias for Blazy::getLibrariesPath() to get libraries path.
