@@ -13,25 +13,6 @@ class BlazyDefault {
   const TAGS = ['a', 'em', 'strong', 'h2', 'p', 'span', 'ul', 'ol', 'li'];
 
   /**
-   * The current class instance.
-   *
-   * @var self
-   */
-  private static $instance = NULL;
-
-  /**
-   * Returns the static instance of this class.
-   */
-  public static function getInstance() {
-
-    if (is_null(self::$instance)) {
-      self::$instance = new BlazyDefault();
-    }
-
-    return self::$instance;
-  }
-
-  /**
    * Returns Blazy specific breakpoints.
    *
    * @todo remove custom breakpoints anytime before blazy:3.x.
@@ -46,9 +27,11 @@ class BlazyDefault {
    * @param array $settings
    *   The settings being modified.
    */
-  public function alterableSettings(array &$settings) {
-    $context = ['class' => get_called_class()];
-    \Drupal::moduleHandler()->alter('blazy_base_settings', $settings, $context);
+  public static function alterableSettings(array &$settings) {
+    if ($manager = Blazy::service('blazy.manager')) {
+      $context = ['class' => get_called_class()];
+      $manager->moduleHandler()->alter('blazy_base_settings', $settings, $context);
+    }
   }
 
   /**
@@ -70,7 +53,7 @@ class BlazyDefault {
       'skin'  => '',
     ] + self::anywhereSettings();
 
-    \blazy_alterable_settings($settings);
+    self::alterableSettings($settings);
     return $settings;
   }
 

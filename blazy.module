@@ -9,7 +9,6 @@ use Drupal\Core\Field\FormatterInterface;
 use Drupal\editor\Entity\Editor;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyAlter;
-use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManager;
 use Drupal\blazy\Theme\BlazyTheme;
 use Drupal\blazy\Theme\BlazyViews;
@@ -167,13 +166,6 @@ function blazy_field_formatter_settings_summary_alter(&$summary, $context) {
  */
 function blazy_ckeditor_css_alter(array &$css, Editor $editor) {
   BlazyAlter::ckeditorCssAlter($css, $editor);
-}
-
-/**
- * Alters blazy settings here due to static FormatterBase::defaultSettings().
- */
-function blazy_alterable_settings(array &$settings) {
-  BlazyDefault::getInstance()->alterableSettings($settings);
 }
 
 /**
