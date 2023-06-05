@@ -45,8 +45,10 @@ class BlazyMarkdown {
         $text = $converter->convert($text);
       }
       else {
-        if (is_callable([$converter, 'convertToHtml'])) {
-          $text = $converter->convertToHtml($text);
+        // Deprecated since 2.2.
+        $method = 'convertToHtml';
+        if (is_callable([$converter, $method])) {
+          $text = $converter->{$method}($text);
         }
       }
     }

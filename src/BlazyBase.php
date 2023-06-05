@@ -17,8 +17,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides common non-media related methods across Blazy ecosystem to DRY.
- *
- * @todo remove this line, non-functional till extended by BlazyManagerBase.
  */
 abstract class BlazyBase implements BlazyInterface {
 

@@ -148,8 +148,8 @@
     var img = $el.find('img');
     var data = $.parse($el.attr('data-' + _md));
     var alt = $.isElm(img) ? Drupal.checkPlain($.attr(img, 'alt', 'Video preview', true)) : '';
-    var width = data.width ? parseInt(data.width, 10) : 640;
-    var height = data.height ? parseInt(data.height, 10) : 360;
+    var width = data.width ? parseInt(data.width, 0) : 640;
+    var height = data.height ? parseInt(data.height, 0) : 360;
     var pad = data ? ((height / width) * 100).toFixed(2) : 100;
     var imgUrl = $el.attr('data-box-url');
     var href = $el.attr('href');

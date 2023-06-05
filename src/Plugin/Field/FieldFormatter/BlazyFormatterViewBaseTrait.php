@@ -39,6 +39,7 @@ trait BlazyFormatterViewBaseTrait {
     $this->formatter->fieldSettings($build, $items);
 
     // Build the elements.
+    /* @phpstan-ignore-next-line */
     $this->buildElements($build, $items, $langcode);
 
     // Pass to manager for easy updates to all Blazy ecosystem formatters.

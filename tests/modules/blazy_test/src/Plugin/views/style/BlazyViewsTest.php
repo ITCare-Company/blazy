@@ -101,7 +101,7 @@ class BlazyViewsTest extends BlazyStylePluginBase {
   /**
    * Returns blazy_test contents.
    */
-  public function buildElements(array $settings, $rows) {
+  protected function buildElements(array $settings, $rows) {
     $blazies = $settings['blazies'];
     $build   = [];
     $view    = $this->view;

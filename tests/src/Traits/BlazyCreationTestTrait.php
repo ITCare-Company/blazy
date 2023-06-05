@@ -233,7 +233,11 @@ trait BlazyCreationTestTrait {
       if (!empty($settings['extra_text'])) {
         $text .= $settings['extra_text'];
       }
-      $node->get('body')->setValue(['value' => $text, 'format' => 'full_html']);
+
+      /* @phpstan-ignore-next-line */
+      if ($body = $node->get('body')) {
+        $body->setValue(['value' => $text, 'format' => 'full_html']);
+      }
     }
 
     if (!empty($this->testFieldName)) {
@@ -258,7 +262,10 @@ trait BlazyCreationTestTrait {
         $max = $multiple ? $this->maxItems : 2;
         if (isset($node->{$field_name})) {
           // @see \Drupal\Core\Field\FieldItemListInterface::generateSampleItems
-          $node->get($field_name)->generateSampleItems($max);
+          /* @phpstan-ignore-next-line */
+          if ($field = $node->get($field_name)) {
+            $field->generateSampleItems($max);
+          }
         }
       }
     }
@@ -364,6 +371,7 @@ trait BlazyCreationTestTrait {
    */
   protected function buildEntityReferenceRenderArray(array $referenced_entities, $type = '', array $settings = []) {
     $type = empty($type) ? $this->entityPluginId : $type;
+    /* @phpstan-ignore-next-line */
     $items = $this->referencingEntity->get($this->entityFieldName);
 
     // Assign the referenced entities.
@@ -475,6 +483,7 @@ trait BlazyCreationTestTrait {
    * Set up dummy image.
    */
   protected function setUpRealImage() {
+    /* @phpstan-ignore-next-line */
     $this->uri = $this->getImagePath();
     $item = $this->dummyItem;
 
@@ -482,6 +491,7 @@ trait BlazyCreationTestTrait {
       $item = $this->testItems[0];
 
       if ($item instanceof ImageItem) {
+        /* @phpstan-ignore-next-line */
         $this->uri = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
         $this->url = BlazyFile::transformRelative($this->uri);
       }

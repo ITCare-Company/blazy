@@ -124,6 +124,7 @@ class BlazyFilterUtil {
     $valid_nodes = [];
     foreach ($allowed_tags as $allowed_tag) {
       $nodes = $dom->getElementsByTagName($allowed_tag);
+      /* @phpstan-ignore-next-line */
       if ($nodes->length > 0) {
         foreach ($nodes as $node) {
           if ($exclude && $node->hasAttribute($exclude)) {
@@ -205,6 +206,7 @@ class BlazyFilterUtil {
    */
   public static function getAttribute(\DOMElement $node, array $excludes = []) {
     $attributes = [];
+    /* @phpstan-ignore-next-line */
     if ($node && $node->attributes->length) {
       foreach ($node->attributes as $attribute) {
         $name = $attribute->nodeName;

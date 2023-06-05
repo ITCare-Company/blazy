@@ -12,9 +12,9 @@ use Drupal\blazy\BlazyInternal;
 trait BlazyStylePluginTrait {
 
   /**
-   * {@inheritdoc}
+   * Returns the modified renderable image_formatter to support lazyload.
    */
-  public function getImageRenderable(array &$settings, $row, $index): array {
+  protected function getImageRenderable(array &$settings, $row, $index): array {
     $blazies = $settings['blazies'];
     $image = $this->getImageArray($row, $index, $settings['image']);
     $rendered = $image['rendered'] ?? [];
@@ -29,6 +29,7 @@ trait BlazyStylePluginTrait {
     // This hustle is to lazyload tons of images -- grids, large galleries,
     // gridstack, mason, with multimedia/ lightboxes for free.
     /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+    /* @phpstan-ignore-next-line */
     if ($item = $this->getImageItem($image)) {
       // Supports multiple image styles within a single view such as GridStack,
       // else fallbacks to the defined image style if available.
@@ -81,7 +82,7 @@ trait BlazyStylePluginTrait {
   }
 
   /**
-   * {@inheritdoc}
+   * Checks if we can work with this formatter, otherwise no go if flattened.
    */
   public function getImageArray($row, $index, $field_image = ''): array {
     if (!empty($field_image)
@@ -97,9 +98,11 @@ trait BlazyStylePluginTrait {
   }
 
   /**
-   * {@inheritdoc}
+   * Get the image item to work with out of this formatter.
+   *
+   * All this mess is because Views may render/flatten images earlier.
    */
-  public function getImageItem($image): ?ImageItem {
+  protected function getImageItem($image): ?ImageItem {
     $item = NULL;
 
     if ($rendered = ($image['rendered'] ?? [])) {
@@ -117,9 +120,9 @@ trait BlazyStylePluginTrait {
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the caption element.
    */
-  public function getCaption($index, array $settings = []): array {
+  protected function getCaption($index, array $settings = []): array {
     $items = [];
     $keys = array_keys($this->view->field);
 
@@ -148,9 +151,9 @@ trait BlazyStylePluginTrait {
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the rendered layout fields.
    */
-  public function getLayout(array &$settings, $index): void {
+  protected function getLayout(array &$settings, $index): void {
     $layout = $settings['layout'] ?? '';
     if (strpos($layout, 'field_') !== FALSE) {
       $settings['layout'] = strip_tags($this->getField($index, $layout));
@@ -158,9 +161,9 @@ trait BlazyStylePluginTrait {
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the rendered field, either string or array.
    */
-  public function getFieldRendered($index, $field_name = '', $restricted = FALSE): array {
+  protected function getFieldRendered($index, $field_name = '', $restricted = FALSE): array {
     if (!empty($field_name) && $output = $this->getField($index, $field_name)) {
       return is_array($output) ? $output : [
         '#markup' => ($restricted ? Xss::filterAdmin($output) : $output),

@@ -279,18 +279,23 @@ class BlazyImage {
 
         // Media embedded inside Paragraph item as defined by settings.image,
         // basically drilling down nested entities here to find the gold.
-        if (!$valid && $item && $entity = ($item->entity ?? NULL)) {
-          if ($entity instanceof ContentEntityInterface
-            && $entity->hasField('thumbnail')) {
-            $item = $entity->get('thumbnail')->first();
-            $valid = self::isImage($item);
+        if ($item) {
+          if (!$valid && $entity = ($item->entity ?? NULL)) {
+            if ($entity instanceof ContentEntityInterface
+              && $entity->hasField('thumbnail')) {
+              $item = $entity->get('thumbnail')->first();
+              $valid = self::isImage($item);
+            }
+          }
+
+          // For Remote video, it has meaningful label from OEmbed, OOTB.
+          /* @phpstan-ignore-next-line */
+          if ($valid && trim($item->title ?? '') == '') {
+            /* @phpstan-ignore-next-line */
+            $item->title = $object->label();
           }
         }
 
-        // Specific for Remote video, it has meaningful label from OEmbed, OOTB.
-        if ($valid && trim($item->title ?? '') == '') {
-          $item->title = $object->label();
-        }
         return $valid ? $item : NULL;
       }
       return NULL;
@@ -599,6 +604,7 @@ class BlazyImage {
     // This fetches the highres image if provided and available.
     // With a mix of image and video, image is not always there.
     /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $field */
+    /* @phpstan-ignore-next-line */
     if (isset($entity->{$name}) && $field = $entity->get($name)) {
       $values = $field->getValue();
       $valid = $values[0]['target_id'] ?? FALSE;

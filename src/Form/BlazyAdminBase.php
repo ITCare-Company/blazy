@@ -315,7 +315,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $form       = [];
     $ui_url     = '/admin/config/media/blazy';
 
-    if ($this->blazyManager->moduleHandler()->moduleExists('blazy_ui')) {
+    if ($this->blazyManager->moduleExists('blazy_ui')) {
       $ui_url = Url::fromRoute('blazy.settings')->toString();
     }
 
@@ -337,6 +337,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
       $loadings = ['auto', 'defer', 'eager', 'unlazy'];
       $sliders = in_array($namespace, ['slick', 'splide']);
+      // It is defined in sub-modules, not Blazy.
+      /* @phpstan-ignore-next-line */
       if (!empty($definitions['slider']) || $sliders) {
         $loadings[] = 'slider';
       }
@@ -463,7 +465,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#enforced'    => TRUE,
       ];
 
-      if ($this->blazyManager->moduleHandler()->moduleExists('field_ui')) {
+      if ($this->blazyManager->moduleExists('field_ui')) {
         $form['view_mode']['#description'] .= ' ' . $this->t('Manage view modes on the <a href=":view_modes">View modes page</a>.', [':view_modes' => Url::fromRoute('entity.entity_view_mode.collection')->toString()]);
       }
     }
@@ -500,7 +502,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   public function mediaSwitchForm(array &$form, array $definition): void {
     $settings   = $definition['settings'] ?? [];
     $lightboxes = $this->blazyManager->getLightboxes();
-    $is_token   = $this->blazyManager->moduleHandler()->moduleExists('token');
+    $is_token   = $this->blazyManager->moduleExists('token');
 
     if (isset($settings['media_switch'])) {
       $form['media_switch'] = $this->baseForm($definition)['media_switch'];
@@ -786,7 +788,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    */
   public function getResponsiveImageOptions(): array {
     $options = [];
-    if ($this->blazyManager()->moduleHandler()->moduleExists('responsive_image')) {
+    if ($this->blazyManager()->moduleExists('responsive_image')) {
       $image_styles = $this->blazyManager()->loadMultiple('responsive_image_style');
       if (!empty($image_styles)) {
         foreach ($image_styles as $name => $image_style) {

@@ -126,7 +126,7 @@ trait BlazyUnitTestTrait {
    * @return array
    *   The default field formatter settings.
    */
-  public function getCommonScopedFormElements() {
+  protected function getCommonScopedFormElements() {
     return ['settings' => $this->getFormatterSettings()]
       + $this->getDefaultFieldDefinition();
   }
@@ -312,14 +312,20 @@ trait BlazyUnitTestTrait {
    */
   protected function setUpMockImage() {
     $entity = $this->createMock('\Drupal\Core\Entity\ContentEntityInterface');
+
+    /* @phpstan-ignore-next-line */
     $entity->expects($this->any())
       ->method('label')
       ->willReturn($this->randomMachineName());
+
+    /* @phpstan-ignore-next-line */
     $entity->expects($this->any())
       ->method('getEntityTypeId')
       ->will($this->returnValue('node'));
 
     $item = $this->createMock('\Drupal\Core\Field\FieldItemListInterface');
+
+    /* @phpstan-ignore-next-line */
     $item->expects($this->any())
       ->method('getEntity')
       ->willReturn($entity);
@@ -334,17 +340,6 @@ trait BlazyUnitTestTrait {
 }
 
 namespace Drupal\blazy;
-
-if (!function_exists('blazy_alterable_settings')) {
-
-  /**
-   * Dummy function.
-   */
-  function blazy_alterable_settings() {
-    // Empty block to satisfy coder.
-  }
-
-}
 
 if (!function_exists('blazy')) {
 

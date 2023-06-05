@@ -28,7 +28,14 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
   /**
    * {@inheritdoc}
    */
-  public function buildElement(array &$element, $entity) {
+  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+    return $field_definition->getFieldStorageDefinition()->getSetting('target_type') === 'file';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function buildElement(array &$element, $entity) {
     $this->blazyOembed->build($element, $entity);
   }
 
@@ -40,13 +47,6 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
       'fieldable_form' => TRUE,
       'multimedia'     => TRUE,
     ] + parent::getPluginScopes();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function isApplicable(FieldDefinitionInterface $field_definition) {
-    return $field_definition->getFieldStorageDefinition()->getSetting('target_type') === 'file';
   }
 
 }

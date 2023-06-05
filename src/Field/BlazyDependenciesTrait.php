@@ -31,7 +31,7 @@ trait BlazyDependenciesTrait {
       }
     }
 
-    if ($this->formatter->moduleHandler()->moduleExists('responsive_image')) {
+    if ($this->formatter->moduleExists('responsive_image')) {
       foreach (['box', 'responsive_image'] as $key) {
         $style_id = $this->getSetting($key . '_style');
 

@@ -56,9 +56,42 @@ class BlazyOEmbedFormatter extends FormatterBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+    $element = [];
+    $definition = $this->getScopedFormElements();
+    $definition['_views'] = isset($form['field_api_classes']);
+
+    $this->admin()->buildSettingsForm($element, $definition);
+
+    // Makes options look compact.
+    if (isset($element['background'])) {
+      $element['background']['#weight'] = -99;
+    }
+    return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+    if ($field_definition->getTargetEntityTypeId() !== 'media') {
+      return FALSE;
+    }
+
+    if ($media_type = $field_definition->getTargetBundle()) {
+      $media_type = MediaType::load($media_type);
+      return $media_type && $media_type->getSource() instanceof OEmbedInterface;
+    }
+
+    return FALSE;
+  }
+
+  /**
    * Build the blazy elements.
    */
-  public function buildElements(array &$build, $items, $langcode) {
+  protected function buildElements(array &$build, $items, $langcode) {
     $settings   = &$build['settings'];
     $field_name = $this->fieldDefinition->getName();
     $entity     = $items->getParent()->getEntity();
@@ -107,23 +140,6 @@ class BlazyOEmbedFormatter extends FormatterBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    $element = [];
-    $definition = $this->getScopedFormElements();
-    $definition['_views'] = isset($form['field_api_classes']);
-
-    $this->admin()->buildSettingsForm($element, $definition);
-
-    // Makes options look compact.
-    if (isset($element['background'])) {
-      $element['background']['#weight'] = -99;
-    }
-    return $element;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   protected function getPluginScopes(): array {
     return [
       'background'        => TRUE,
@@ -131,22 +147,6 @@ class BlazyOEmbedFormatter extends FormatterBase {
       'multimedia'        => TRUE,
       'responsive_image'  => TRUE,
     ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function isApplicable(FieldDefinitionInterface $field_definition) {
-    if ($field_definition->getTargetEntityTypeId() !== 'media') {
-      return FALSE;
-    }
-
-    if ($media_type = $field_definition->getTargetBundle()) {
-      $media_type = MediaType::load($media_type);
-      return $media_type && $media_type->getSource() instanceof OEmbedInterface;
-    }
-
-    return FALSE;
   }
 
 }

@@ -5,8 +5,7 @@ namespace Drupal\blazy;
 /**
  * Defines re-usable services and functions for blazy plugins.
  *
- * @todo move some non-media methods into BlazyInterface at 3.x, or before.
- * @todo sub-modules should implement BlazyManagerBaseInterface, not
+ * Sub-modules should implement/ extend BlazyManagerBaseInterface, not
  * BlazyManagerInterface to have their own unique render methods.
  */
 interface BlazyManagerInterface extends BlazyManagerBaseInterface {
@@ -34,6 +33,20 @@ interface BlazyManagerInterface extends BlazyManagerBaseInterface {
    *   The renderable array of pre-rendered element.
    */
   public function preRenderBlazy(array $element): array;
+
+  /**
+   * Returns the contents using theme_field(), or theme_item_list().
+   *
+   * Blazy outputs can be formatted using either flat list via theme_field(), or
+   * a grid of Field items or Views rows via theme_item_list().
+   *
+   * @param array $build
+   *   The array containing: settings, children elements, or optional items.
+   *
+   * @return array
+   *   The alterable and renderable array of contents.
+   */
+  public function build(array $build): array;
 
   /**
    * Builds the Blazy outputs as a structured array ready for ::renderer().

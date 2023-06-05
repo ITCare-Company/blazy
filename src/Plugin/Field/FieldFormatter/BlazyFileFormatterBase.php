@@ -48,13 +48,6 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * Build individual item if so configured such as for file ER goodness.
-   */
-  public function buildElement(array &$element, $entity) {
-    // Do nothing.
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
@@ -65,6 +58,13 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     $this->admin()->buildSettingsForm($element, $definition);
 
     return $element;
+  }
+
+  /**
+   * Build individual item if so configured such as for file ER goodness.
+   */
+  protected function buildElement(array &$element, $entity) {
+    // Do nothing.
   }
 
   /**

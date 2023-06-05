@@ -18,9 +18,9 @@ trait BlazyStyleOptionsTrait {
   protected $viewsOptions;
 
   /**
-   * {@inheritdoc}
+   * Returns available fields for select options.
    */
-  public function getDefinedFieldOptions(array $defined_options = []): array {
+  protected function getDefinedFieldOptions(array $defined_options = []): array {
     $field_names = $this->displayHandler->getFieldLabels();
     $definition = [];
     $stages = [
@@ -145,9 +145,11 @@ trait BlazyStyleOptionsTrait {
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the string values for the expected Title, ET label, List, Term.
+   *
+   * @todo re-check this, or if any consistent way to retrieve string values.
    */
-  public function getFieldString($row, $field_name, $index, $clean = TRUE): array {
+  protected function getFieldString($row, $field_name, $index, $clean = TRUE): array {
     $values = [];
 
     // Content title/List/Text, either as link or plain text.

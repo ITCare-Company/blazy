@@ -10,10 +10,8 @@ use Drupal\blazy\Traits\BlazyManagerDeprecatedTrait;
 
 /**
  * Provides common shared methods across Blazy ecosystem to DRY.
- *
- * @todo implements BlazyManagerBaseInterface after sub-modules.
  */
-abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerInterface {
+abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInterface {
 
   use BlazyManagerDeprecatedTrait;
 
@@ -118,7 +116,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerInterfa
     Blazy::verify($settings);
 
     $blazies = $settings['blazies'];
-    $ui = array_intersect_key($this->config(), BlazyDefault::uiSettings());
+    $ui = $this->config();
     $iframe_domain = $this->config('iframe_domain', 'media.settings');
     $is_debug = !$this->config('css.preprocess', 'system.performance');
     $ui['fx'] = $ui['fx'] ?? '';

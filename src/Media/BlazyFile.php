@@ -222,6 +222,7 @@ class BlazyFile {
     /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $object */
     elseif ($object instanceof EntityReferenceFieldItemListInterface) {
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $image */
+      /* @phpstan-ignore-next-line */
       if ($image = $object->first()) {
         /** @var \Drupal\file\Entity\File $file */
         $file = $image->entity;
@@ -262,6 +263,7 @@ class BlazyFile {
   private static function fromField($entity, $name, array $settings): ?object {
     $file = NULL;
     /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $field */
+    /* @phpstan-ignore-next-line */
     if (isset($entity->{$name}) && $field = $entity->get($name)) {
       if (method_exists($field, 'referencedEntities')) {
         // Two designated types: MediaInterface and FileInterface.

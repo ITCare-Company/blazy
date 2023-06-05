@@ -306,6 +306,7 @@ class BlazyFilter extends BlazyFilterBase {
   private function build(\DOMElement $node, array &$settings, $delta = 0) {
     $blazies = $settings['blazies'];
     if ($node->tagName == 'blazy') {
+      /* @phpstan-ignore-next-line */
       $attribute = $node->getAttribute('data');
 
       $blazies->set('is.blazy_tag', TRUE);
@@ -432,7 +433,9 @@ class BlazyFilter extends BlazyFilterBase {
     $settings  = &$build['settings'];
     $settings += BlazyDefault::itemSettings();
     $blazies   = $settings['blazies']->reset($settings);
-    $tn_uri    = $node->getAttribute('data-thumb');
+
+    /* @phpstan-ignore-next-line */
+    $tn_uri = $node->getAttribute('data-thumb');
 
     $blazies->set('delta', $delta)
       ->set('thumbnail.uri', $tn_uri);
@@ -526,7 +529,9 @@ class BlazyFilter extends BlazyFilterBase {
     $node = $query == 'column' ? $xpath->query('//*[@data-column]') : $xpath->query('//*[@data-grid]');
     if ($node->length > 0
       && $node->item(0)
+      /* @phpstan-ignore-next-line */
       && $node->item(0)->hasAttribute('data-' . $query)) {
+      /* @phpstan-ignore-next-line */
       $grid = $node->item(0)->getAttribute('data-' . $query);
     }
 

@@ -35,6 +35,7 @@ trait BlazyFormatterViewTrait {
     // Specific to file, media, entity_reference, this was checked upstream.
     // Only needed during transition to Blazy:3.x for sub-modules BC.
     // This can be removed when sub-modules have all extended Blazy view at 3.x.
+    /* @phpstan-ignore-next-line */
     if (empty($elements)) {
       return [];
     }
@@ -51,6 +52,7 @@ trait BlazyFormatterViewTrait {
     // Build the elements.
     $this->formatter->preBuildElements($build, $items, $entities);
 
+    /* @phpstan-ignore-next-line */
     $this->buildElements($build, $elements, $langcode);
 
     // Modifies settings post building elements.

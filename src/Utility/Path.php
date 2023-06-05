@@ -118,7 +118,10 @@ class Path {
    */
   public static function getLibrariesPath($name, $base_path = FALSE): ?string {
     if ($finder = Blazy::service('library.libraries_directory_file_finder')) {
-      return $finder->find($name);
+      if ($path = $finder->find($name)) {
+        return $base_path ? \base_path() . $path : $path;
+      }
+      return '';
     }
 
     $function = 'libraries_get_path';

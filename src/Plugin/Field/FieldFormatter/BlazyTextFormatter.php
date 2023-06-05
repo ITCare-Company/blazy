@@ -51,9 +51,25 @@ class BlazyTextFormatter extends FormatterBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+    $element = [];
+    $this->admin()->buildSettingsForm($element, $this->getScopedFormElements());
+    return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+    return $field_definition->getFieldStorageDefinition()->isMultiple();
+  }
+
+  /**
    * Build the grid text elements.
    */
-  public function buildElements(array &$build, $items, $langcode) {
+  protected function buildElements(array &$build, $items, $langcode) {
     $settings = &$build['settings'];
     $blazies  = $settings['blazies'];
 
@@ -63,15 +79,6 @@ class BlazyTextFormatter extends FormatterBase {
       ->set('lazy', []);
 
     $build += $this->getElements($items);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    $element = [];
-    $this->admin()->buildSettingsForm($element, $this->getScopedFormElements());
-    return $element;
   }
 
   /**
@@ -89,7 +96,9 @@ class BlazyTextFormatter extends FormatterBase {
       $element = [
         '#type'     => 'processed_text',
         '#text'     => $item->value,
+        /* @phpstan-ignore-next-line */
         '#format'   => $item->format,
+        /* @phpstan-ignore-next-line */
         '#langcode' => $item->getLangcode(),
       ];
 
@@ -110,13 +119,6 @@ class BlazyTextFormatter extends FormatterBase {
       'responsive_image' => FALSE,
       'style'            => TRUE,
     ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function isApplicable(FieldDefinitionInterface $field_definition) {
-    return $field_definition->getFieldStorageDefinition()->isMultiple();
   }
 
 }

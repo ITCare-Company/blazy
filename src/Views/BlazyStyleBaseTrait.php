@@ -41,9 +41,13 @@ trait BlazyStyleBaseTrait {
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the first Blazy formatter found, to save image dimensions once.
+   *
+   * Given 100 images on a page, Blazy will call
+   * ImageStyle::transformDimensions() once rather than 100 times and let the
+   * 100 images inherit it as long as the image style has CROP in the name.
    */
-  public function getFirstImage($row): array {
+  protected function getFirstImage($row): array {
     if (!isset($this->firstImage)) {
       // Fixed for Undefined property: Drupal\views\ViewExecutable::$row_index
       // by Drupal\views\Plugin\views\field\EntityField->prepareItemsByDelta.
@@ -53,8 +57,9 @@ trait BlazyStyleBaseTrait {
 
       $rendered = [];
       if ($row && $render = $this->view->rowPlugin->render($row)) {
-        if (isset($render['#view']->field)
-          && $fields = $render['#view']->field) {
+        $view = $render['#view'] ?? NULL;
+        if ($view && isset($view->field)
+          && $fields = $view->field) {
           foreach ($fields as $field) {
             $options = $field->options ?? [];
             $id = $options['plugin_id'] ?? '';
@@ -101,12 +106,13 @@ trait BlazyStyleBaseTrait {
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the renderable array of field containing rendered and raw data.
    */
-  public function getFieldRenderable($row, $index, $field_name = '', $multiple = FALSE): array {
+  protected function getFieldRenderable($row, $index, $field_name = '', $multiple = FALSE): array {
     // Be sure to not check "Use field template" under "Style settings" to have
     // renderable array to work with, otherwise flattened string!
     /** @var \Drupal\views\Plugin\views\field\EntityField $field */
+    /* @phpstan-ignore-next-line */
     if ($field = ($this->view->field[$field_name] ?? NULL)) {
       if (method_exists($field, 'getItems')) {
         $result = $field->getItems($row) ?: [];
@@ -213,11 +219,9 @@ trait BlazyStyleBaseTrait {
       $uri = Blazy::uri($item);
       $sets['thumbnail_style'] = $tn_style;
 
-      $tn_uri = empty($tn_style)
-        ? $uri
-        : $this->blazyManager
-          ->load($tn_style, 'image_style')
-          ->buildUri($uri);
+      $tn_uri = $uri ? $this->blazyManager
+        ->load($tn_style, 'image_style')
+        ->buildUri($uri) : NULL;
 
       if ($tn_uri) {
         $sets['thumbnail_uri'] = $tn_uri;
@@ -230,6 +234,7 @@ trait BlazyStyleBaseTrait {
       $tn = $this->blazyManager->getThumbnail($sets, $item);
     }
     else {
+      /* @phpstan-ignore-next-line */
       $tn = $this->getFieldRendered($index, $name);
     }
     return is_array($tn) ? $tn : [$tn];

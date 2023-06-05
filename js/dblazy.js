@@ -1030,8 +1030,8 @@
    * To check if the expected element is found:
    *   - use $.isElm(el) which returns a bool.
    *
-   * @param {Element} el
-   *   The parent HTML element.
+   * @param {Element|string} el
+   *   The parent HTML element or common selector strings.
    * @param {string} selector
    *   The CSS selector or HTML tag to query.
    * @param {bool|int} asArray
@@ -1041,6 +1041,10 @@
    *   Empty array if not found, else the expected element(s).
    */
   function find(el, selector, asArray) {
+    if (isStr(el)) {
+      el = toElm(el);
+    }
+
     if (isQsa(el)) {
       // Direct descendant.
       var scope = ':scope';
@@ -1173,7 +1177,7 @@
     var rw = mobileFirst ? ww : pr;
     var mw = function (w) {
       // The picture wants <= (approximate), non-picture wants >=, wtf.
-      return mobileFirst ? parseInt(w, 10) <= rw : parseInt(w, 10) >= rw;
+      return mobileFirst ? parseInt(w, 0) <= rw : parseInt(w, 0) >= rw;
     };
 
     var data = _k.filter(mw).map(function (v) {
@@ -1784,30 +1788,40 @@
     // Weirdo: context may be null after Colorbox close.
     ctx = ctx || _doc;
 
-    // Checks if a string is given as a context.
-    if (isStr(ctx)) {
-      ctx = is(ctx, 'html') ? _doc : _doc.querySelector(ctx);
-    }
+    // In case a string, and if none is found, give a default document here on.
+    ctx = toElm(ctx) || _doc;
 
-    // Prevents problematic _doc.documentElement as the context.
-    if (is(ctx, 'html')) {
-      ctx = _doc;
-    }
-
-    // jQuery may pass its array as non-expected context identified by length.
-    ctx = toElm(ctx);
-
-    // Absurd <script> elements which have no children may be spit on AJAX.
+    // Absurd arbitrary <script> elements which have no children may be spit on
+    // AJAX causing temporary failures as seen at Views UI.
     if (isQsa(ctx) && ctx.children && ctx.children.length) {
       return ctx;
     }
 
     // IE9 knows not deprecated HTMLDocument, IE8 does.
+    // Node.DOCUMENT_NODE|Node.DOCUMENT_FRAGMENT_NODE is not just _doc.
     return isDoc(ctx) ? ctx : _doc;
   }
 
   // Valid elements for querySelector with length: form, select, etc.
   function toElm(el) {
+    // Checks if a string is given as a context.
+    if (isStr(el)) {
+      if (el === 'body') {
+        return _doc.body;
+      }
+      // Prevents problematic _doc.documentElement as the element.
+      else if (el === 'html') {
+        return _doc;
+      }
+      return _doc.querySelector(el);
+    }
+
+    // Prevents problematic _doc.documentElement as the context.
+    if (is(el, 'html')) {
+      return _doc;
+    }
+
+    // jQuery may pass its array as non-expected context identified by length.
     var isJq = _isJq && el instanceof _win.jQuery;
     var isCash = _isCash && el instanceof _win.cash;
     return el && (isMe(el) || isJq || isCash) ? el[0] : el;

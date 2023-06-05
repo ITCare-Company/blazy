@@ -49,7 +49,7 @@ abstract class BlazyStylePluginBase extends StylePluginBase implements BlazyStyl
   /**
    * {@inheritdoc}
    */
-  public function buildElement(array &$element, $row, $index) {
+  protected function buildElement(array &$element, $row, $index) {
     $settings = &$element['settings'];
     $blazies  = $this->reset($settings);
     $item_id  = $blazies->get('item.id') ?: 'box';

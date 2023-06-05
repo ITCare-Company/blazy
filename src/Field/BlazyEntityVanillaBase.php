@@ -21,9 +21,27 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+    $element    = [];
+    $definition = $this->getScopedFormElements();
+
+    $definition['_views'] = isset($form['field_api_classes']);
+
+    // @todo remove after sub-modules.
+    $definition['view_mode'] = $this->viewMode;
+    $definition['plugin_id'] = $this->getPluginId();
+    $definition['target_type'] = $this->getFieldSetting('target_type');
+
+    $this->admin()->buildSettingsForm($element, $definition);
+    return $element;
+  }
+
+  /**
    * Returns media contents.
    */
-  public function buildElements(array &$build, $entities, $langcode) {
+  protected function buildElements(array &$build, $entities, $langcode) {
     foreach ($entities as $delta => $entity) {
       // Protect ourselves from recursive rendering.
       static $depth = 0;
@@ -53,7 +71,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   /**
    * Build item contents.
    */
-  public function buildElement(array &$build, $entity, $langcode) {
+  protected function buildElement(array &$build, $entity, $langcode) {
     $settings  = $build['settings'];
     $view_mode = $settings['view_mode'] ?? 'full';
 
@@ -69,24 +87,6 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
           ->view($entity, $view_mode, $langcode);
       }
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    $element    = [];
-    $definition = $this->getScopedFormElements();
-
-    $definition['_views'] = isset($form['field_api_classes']);
-
-    // @todo remove after sub-modules.
-    $definition['view_mode'] = $this->viewMode;
-    $definition['plugin_id'] = $this->getPluginId();
-    $definition['target_type'] = $this->getFieldSetting('target_type');
-
-    $this->admin()->buildSettingsForm($element, $definition);
-    return $element;
   }
 
   /**

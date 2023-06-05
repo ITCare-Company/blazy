@@ -65,17 +65,24 @@ class BlazyMediaUnitTest extends UnitTestCase {
     $field_definition = $this->createMock('\Drupal\Core\Field\FieldDefinitionInterface');
 
     $items = $this->createMock('\Drupal\Core\Field\FieldItemListInterface');
+
+    /* @phpstan-ignore-next-line */
     $items->expects($this->any())
       ->method('getFieldDefinition')
       ->willReturn($field_definition);
+
+    /* @phpstan-ignore-next-line */
     $items->expects($this->any())
       ->method('view')
       ->with($view_mode)
       ->willReturn($markup);
+
+    /* @phpstan-ignore-next-line */
     $items->expects($this->any())
       ->method('getEntity')
       ->willReturn($entity);
 
+    /* @phpstan-ignore-next-line */
     $entity->expects($this->once())
       ->method('get')
       ->with($source_field)

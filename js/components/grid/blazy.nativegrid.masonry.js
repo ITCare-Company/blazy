@@ -98,10 +98,10 @@
       var rows = style.getPropertyValue('grid-auto-rows');
 
       if (gap) {
-        _opts.gap = parseInt(gap, 10);
+        _opts.gap = parseInt(gap, 0);
       }
       if (rows) {
-        _opts.height = parseInt(rows, 10);
+        _opts.height = parseInt(rows, 0);
       }
 
       if (items.length) {

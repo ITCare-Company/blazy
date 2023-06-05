@@ -65,7 +65,7 @@
 
   /* eslint-disable no-unused-vars */
   function computeStyleInt(el, prop) {
-    return parseInt($.computeStyle(el, prop), 10) || 0;
+    return parseInt($.computeStyle(el, prop), 0) || 0;
   }
   /* eslint-disable no-unused-vars */
 

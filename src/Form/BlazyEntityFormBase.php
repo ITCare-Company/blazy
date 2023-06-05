@@ -86,12 +86,11 @@ abstract class BlazyEntityFormBase extends EntityForm {
     }
 
     // Attach Slick admin library.
-    $handler = $this->manager->moduleHandler();
     if ($admin_css) {
-      if ($handler->moduleExists('slick_ui')) {
+      if ($this->manager->moduleExists('slick_ui')) {
         $form['#attached']['library'][] = 'slick_ui/slick.admin.vtabs';
       }
-      elseif ($handler->moduleExists('splide_ui')) {
+      elseif ($this->manager->moduleExists('splide_ui')) {
         $form['#attached']['library'][] = 'splide_ui/admin.vtabs';
       }
     }
@@ -108,12 +107,14 @@ abstract class BlazyEntityFormBase extends EntityForm {
     $optionset = $this->entity;
 
     // Prevent leading and trailing spaces in slick names.
-    $optionset->set('label', trim($optionset->label()));
-    $optionset->set('id', $optionset->id());
+    /* @phpstan-ignore-next-line */
+    $optionset->set('label', trim($optionset->label()))->set('id', $optionset->id());
 
-    $status        = $optionset->save();
-    $label         = $optionset->label();
-    $edit_link     = $optionset->toLink($this->t('Edit'), 'edit-form')->toString();
+    $status    = $optionset->save();
+    $label     = $optionset->label();
+    $edit_link = $optionset->toLink($this->t('Edit'), 'edit-form')->toString();
+
+    /* @phpstan-ignore-next-line */
     $config_prefix = $optionset->getEntityType()->getConfigPrefix();
     $message       = ['@config_prefix' => $config_prefix, '%label' => $label];
 

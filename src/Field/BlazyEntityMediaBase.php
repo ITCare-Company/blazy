@@ -18,7 +18,29 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   /**
    * {@inheritdoc}
    */
-  public function buildElements(array &$build, $entities, $langcode) {
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+    $element = parent::settingsForm($form, $form_state);
+
+    if (isset($element['media_switch'])) {
+      $element['media_switch']['#options']['rendered'] = $this->t('Image rendered by its formatter');
+      $element['media_switch']['#description'] .= ' ' . $this->t('<b>Image rendered</b> requires <b>Image</b> option filled out and is useful if the formmater offers awesomeness that Blazy does not have but still wants Blazy for a Grid, etc. Be sure the enabled fields here are not hidden/ disabled at its view mode.');
+    }
+
+    if (isset($element['caption'])) {
+      $element['caption']['#description'] = $this->t('Check fields to be treated as captions, even if not caption texts.');
+    }
+
+    if (isset($element['image']['#description'])) {
+      $element['image']['#description'] .= ' ' . $this->t('For (remote|local) video, this allows separate high-res or poster image. Be sure this exact same field is also used for bundle <b>Image</b> to have a mix of videos and images if this entity is Media. Leaving it empty will fallback to the video provider thumbnails, or no poster for local video. The formatter/renderer is managed by <strong>@plugin_id</strong> formatter. Meaning original formatter ignored.', ['@plugin_id' => $this->getPluginId()]);
+    }
+
+    return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function buildElements(array &$build, $entities, $langcode) {
     parent::buildElements($build, $entities, $langcode);
 
     $settings = $build['settings'];
@@ -100,21 +122,21 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   /**
    * Build extra elements.
    */
-  public function buildElementExtra(array &$element, $entity, $langcode) {
+  protected function buildElementExtra(array &$element, $entity, $langcode) {
     // Do nothing, let extenders do their jobs.
   }
 
   /**
    * Build thumbnail navigation such as for Slick asnavfor.
    */
-  public function buildElementThumbnail(array &$build, $element, $entity, $delta) {
+  protected function buildElementThumbnail(array &$build, $element, $entity, $delta) {
     // Do nothing, let extenders do their jobs.
   }
 
   /**
    * Builds captions with possible multi-value fields.
    */
-  public function getCaption(array &$element, $entity, $langcode) {
+  protected function getCaption(array &$element, $entity, $langcode) {
     $settings  = $element['settings'];
     $blazies   = $settings['blazies'];
     $view_mode = $settings['view_mode'] ?? 'full';
@@ -162,28 +184,6 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
         $element['caption']['data'] = $caption_items;
       }
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    $element = parent::settingsForm($form, $form_state);
-
-    if (isset($element['media_switch'])) {
-      $element['media_switch']['#options']['rendered'] = $this->t('Image rendered by its formatter');
-      $element['media_switch']['#description'] .= ' ' . $this->t('<b>Image rendered</b> requires <b>Image</b> option filled out and is useful if the formmater offers awesomeness that Blazy does not have but still wants Blazy for a Grid, etc. Be sure the enabled fields here are not hidden/ disabled at its view mode.');
-    }
-
-    if (isset($element['caption'])) {
-      $element['caption']['#description'] = $this->t('Check fields to be treated as captions, even if not caption texts.');
-    }
-
-    if (isset($element['image']['#description'])) {
-      $element['image']['#description'] .= ' ' . $this->t('For (remote|local) video, this allows separate high-res or poster image. Be sure this exact same field is also used for bundle <b>Image</b> to have a mix of videos and images if this entity is Media. Leaving it empty will fallback to the video provider thumbnails, or no poster for local video. The formatter/renderer is managed by <strong>@plugin_id</strong> formatter. Meaning original formatter ignored.', ['@plugin_id' => $this->getPluginId()]);
-    }
-
-    return $element;
   }
 
   /**

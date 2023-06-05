@@ -15,7 +15,7 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
    * {@inheritdoc}
    */
   public function render(ResultRow $values) {
-    /** @var \Drupal\media_entity\Entity\Media $media */
+    /** @var \Drupal\media\Entity\Media $media */
     $media = $values->_entity;
 
     $settings = $this->mergedViewsSettings();

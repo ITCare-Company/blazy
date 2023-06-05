@@ -99,23 +99,6 @@ trait BlazyFormatterTrait {
   }
 
   /**
-   * Injects DI services.
-   */
-  protected static function injectServices($instance, ContainerInterface $container, $type = '') {
-    // Blazy has sequential inheritance, its sub-modules deviate.
-    $instance->formatter = $instance->blazyManager = $instance->manager = $container->get('blazy.formatter');
-
-    // Provides optional services.
-    if ($type == 'entity') {
-      $instance->loggerFactory = $instance->loggerFactory ?? $container->get('logger.factory');
-      $instance->blazyEntity = $instance->blazyEntity ?? $container->get('blazy.entity');
-      $instance->blazyOembed = $instance->blazyOembed ?? $instance->blazyEntity->oembed();
-    }
-
-    return $instance;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function settingsSummary() {
@@ -138,12 +121,45 @@ trait BlazyFormatterTrait {
   }
 
   /**
+   * Defines the scope for the form elements.
+   *
+   * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().
+   */
+  public function getScopedFormElements() {
+    // Compat for BVEF till updated to adopt Blazy 2.10 BlazyVideoFormatter.
+    $scopes = method_exists($this, 'getPluginScopes')
+      ? $this->getPluginScopes() : [];
+
+    // @todo remove `$scopes +` at Blazy 3.x.
+    $definitions = $scopes + $this->getCommonScopedFormElements();
+    $definitions['scopes'] = $this->toPluginScopes($scopes);
+    return $definitions;
+  }
+
+  /**
+   * Injects DI services.
+   */
+  protected static function injectServices($instance, ContainerInterface $container, $type = '') {
+    // Blazy has sequential inheritance, its sub-modules deviate.
+    $instance->formatter = $instance->blazyManager = $instance->manager = $container->get('blazy.formatter');
+
+    // Provides optional services.
+    if ($type == 'entity') {
+      $instance->loggerFactory = $instance->loggerFactory ?? $container->get('logger.factory');
+      $instance->blazyEntity = $instance->blazyEntity ?? $container->get('blazy.entity');
+      $instance->blazyOembed = $instance->blazyOembed ?? $instance->blazyEntity->oembed();
+    }
+
+    return $instance;
+  }
+
+  /**
    * Defines the common scope for both front and admin.
    *
    * @todo convert all these into BlazySettings as well at 3.x after admin
    * updated and sub-modules.
    */
-  public function getCommonFieldDefinition() {
+  protected function getCommonFieldDefinition() {
     $field = $this->fieldDefinition;
     $settings = [
       'namespace'   => 'blazy',
@@ -178,24 +194,8 @@ trait BlazyFormatterTrait {
   /**
    * Defines the common scope for the form elements.
    */
-  public function getCommonScopedFormElements() {
+  protected function getCommonScopedFormElements() {
     return ['settings' => $this->getSettings()] + $this->getCommonFieldDefinition();
-  }
-
-  /**
-   * Defines the scope for the form elements.
-   *
-   * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().
-   */
-  public function getScopedFormElements() {
-    // Compat for BVEF till updated to adopt Blazy 2.10 BlazyVideoFormatter.
-    $scopes = method_exists($this, 'getPluginScopes')
-      ? $this->getPluginScopes() : [];
-
-    // @todo remove `$scopes +` at Blazy 3.x.
-    $definitions = $scopes + $this->getCommonScopedFormElements();
-    $definitions['scopes'] = $this->toPluginScopes($scopes);
-    return $definitions;
   }
 
 }

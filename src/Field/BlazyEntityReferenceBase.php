@@ -28,7 +28,25 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
   /**
    * {@inheritdoc}
    */
-  public function buildElementExtra(array &$element, $entity, $langcode) {
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+    $element = parent::settingsForm($form, $form_state);
+
+    if (isset($element['layout'])) {
+      $layout_description = $element['layout']['#description'];
+      $element['layout']['#description'] = $this->t('Create a dedicated List (text - max number 1) field related to the caption placement to have unique layout per slide with the following supported keys: top, right, bottom, left, center, center-top, etc. Be sure its formatter is Key.') . ' ' . $layout_description;
+    }
+
+    if (isset($element['overlay']['#description'])) {
+      $element['overlay']['#description'] .= ' ' . $this->t('The formatter/renderer is managed by the child formatter.');
+    }
+
+    return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function buildElementExtra(array &$element, $entity, $langcode) {
     parent::buildElementExtra($element, $entity, $langcode);
 
     $settings = &$element['settings'];
@@ -53,7 +71,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
   /**
    * {@inheritdoc}
    */
-  public function getCaption(array &$element, $entity, $langcode) {
+  protected function getCaption(array &$element, $entity, $langcode) {
     parent::getCaption($element, $entity, $langcode);
 
     $settings  = $element['settings'];
@@ -106,24 +124,6 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    $element = parent::settingsForm($form, $form_state);
-
-    if (isset($element['layout'])) {
-      $layout_description = $element['layout']['#description'];
-      $element['layout']['#description'] = $this->t('Create a dedicated List (text - max number 1) field related to the caption placement to have unique layout per slide with the following supported keys: top, right, bottom, left, center, center-top, etc. Be sure its formatter is Key.') . ' ' . $layout_description;
-    }
-
-    if (isset($element['overlay']['#description'])) {
-      $element['overlay']['#description'] .= ' ' . $this->t('The formatter/renderer is managed by the child formatter.');
-    }
-
-    return $element;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   protected function getPluginScopes(): array {
     $parent   = parent::getPluginScopes();
     $_strings = ['text', 'string', 'list_string'];
@@ -155,7 +155,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
    *   self::getCaption() instead.
    * @see https://www.drupal.org/node/3103018
    */
-  public function getOverlay(array $settings, $entity, $langcode) {
+  protected function getOverlay(array $settings, $entity, $langcode) {
     return $entity->get($settings['overlay'])->view($settings['view_mode']);
   }
 

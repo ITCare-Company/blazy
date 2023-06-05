@@ -14,7 +14,7 @@ use Drupal\blazy\Theme\BlazyAttribute;
  * This class makes it possible to have a mixed display of all media entities,
  * useful for Blazy Grid, Slick Carousel, GridStack contents as mixed media.
  * This approach is alternative to regular preprocess overrides, still saner
- * than iterating over unknown like template_preprocess_media_entity_BLAH, etc.
+ * than iterating over unknown like template_preprocess_media_BLAH, etc.
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by

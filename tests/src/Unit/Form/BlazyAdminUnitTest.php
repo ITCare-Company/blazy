@@ -47,6 +47,7 @@ class BlazyAdminUnitTest extends UnitTestCase {
       ['blazy.manager', $exception, $this->blazyManager],
     ];
 
+    /* @phpstan-ignore-next-line */
     $container->expects($this->any())
       ->method('get')
       ->willReturnMap($map);

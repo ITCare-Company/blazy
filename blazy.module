@@ -60,7 +60,7 @@ function blazy_preprocess_image(&$variables) {
 /**
  * Overrides variables for responsive-image.html.twig templates.
  */
-function blazy_preprocess_responsive_image(&$variables) {
+function blazy_preprocess_responsive_image(array &$variables) {
   if (isset($variables['attributes']['data-b-lazy'])) {
     BlazyTheme::responsiveImage($variables);
   }
@@ -69,7 +69,7 @@ function blazy_preprocess_responsive_image(&$variables) {
 /**
  * Overrides variables for file-video.html.twig templates.
  */
-function blazy_preprocess_file_video(&$variables) {
+function blazy_preprocess_file_video(array &$variables) {
   if (isset($variables['attributes']['data-b-lazy'])) {
     BlazyTheme::fileVideo($variables);
   }
@@ -126,7 +126,7 @@ function blazy_config_schema_info_alter(array &$definitions) {
 /**
  * Implements hook_library_info_alter().
  */
-function blazy_library_info_alter(&$libraries, $extension) {
+function blazy_library_info_alter(array &$libraries, $extension) {
   $core = $extension === 'core'
     && (isset($libraries['once']) || isset($libraries['drupal.debounce']));
   if ($extension === 'blazy' || $extension === 'media' || $core) {
@@ -173,7 +173,7 @@ function blazy_ckeditor_css_alter(array &$css, Editor $editor) {
  * Alters blazy settings here due to static FormatterBase::defaultSettings().
  */
 function blazy_alterable_settings(array &$settings) {
-  return BlazyDefault::getInstance()->alterableSettings($settings);
+  BlazyDefault::getInstance()->alterableSettings($settings);
 }
 
 /**

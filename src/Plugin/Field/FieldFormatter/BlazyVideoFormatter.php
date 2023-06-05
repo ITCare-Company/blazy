@@ -47,9 +47,16 @@ class BlazyVideoFormatter extends BlazyVideoBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+    return $field_definition->getFieldStorageDefinition()->getType() === 'video_embed_field';
+  }
+
+  /**
    * Build the blazy elements.
    */
-  public function buildElements(array &$build, $items, $langcode) {
+  protected function buildElements(array &$build, $items, $langcode) {
     $settings = &$build['settings'];
     $blazies  = $settings['blazies'];
     $entity   = $items->getEntity();
@@ -109,13 +116,6 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       'fieldable_form' => TRUE,
       'multimedia'     => TRUE,
     ] + parent::getPluginScopes();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function isApplicable(FieldDefinitionInterface $field_definition) {
-    return $field_definition->getFieldStorageDefinition()->getType() === 'video_embed_field';
   }
 
 }

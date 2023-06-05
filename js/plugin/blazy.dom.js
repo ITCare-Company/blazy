@@ -51,7 +51,7 @@
       // @todo re-check common integer.
       var arr = [_width, _height, 'top', 'right', 'bottom', 'left'];
       var result = $.computeStyle(el, props);
-      var num = $.isNum(result) ? parseInt(result, 2) : result;
+      var num = $.isNum(result) ? parseInt(result, 0) : result;
       return arr.indexOf(props) === -1 ? result : num;
     }
 
@@ -119,7 +119,7 @@
       if (withMargin) {
         var style = $.computeStyle(el);
         var margin = function (pos) {
-          return parseInt(style['margin' + pos], 2);
+          return parseInt(style['margin' + pos], 0);
         };
         if (prop === _uHeight) {
           result += margin(_uTop) + margin('Bottom');
