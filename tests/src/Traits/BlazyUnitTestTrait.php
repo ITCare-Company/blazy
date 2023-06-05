@@ -341,6 +341,17 @@ trait BlazyUnitTestTrait {
 
 namespace Drupal\blazy;
 
+if (!function_exists('blazy_alterable_settings')) {
+
+  /**
+   * Dummy function.
+   */
+  function blazy_alterable_settings() {
+    // Empty block to satisfy coder.
+  }
+
+}
+
 if (!function_exists('blazy')) {
 
   /**
