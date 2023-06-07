@@ -106,7 +106,7 @@ class BlazyEntity implements BlazyEntityInterface {
       // This is still here for non-supported Views style plugins, etc.
       if (empty($settings['_detached'])) {
         $load = $manager->attach($settings);
-        $build['#attached'] = Blazy::merge($load, $build, '#attached');
+        $build['#attached'] = $manager->merge($load, $build, '#attached');
       }
     }
     else {

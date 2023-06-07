@@ -349,6 +349,13 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function merge(array $data, array $element, $key = NULL): array {
+    return Blazy::merge($data, $element, $key);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function moduleExists($name): bool {
     return $this->moduleHandler->moduleExists($name);
   }

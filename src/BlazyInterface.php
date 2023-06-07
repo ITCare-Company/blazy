@@ -253,6 +253,11 @@ interface BlazyInterface {
   public function markdown($string): string;
 
   /**
+   * Merge data with a new one with an optional key.
+   */
+  public function merge(array $data, array $element, $key = NULL): array;
+
+  /**
    * A wrapper for \Drupal\Core\Extension\ModuleHandlerInterface::moduleExists.
    *
    * @param string $name
