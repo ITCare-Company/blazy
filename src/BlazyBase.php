@@ -14,6 +14,7 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\blazy\Cache\BlazyCache;
+use Drupal\blazy\Utility\BlazyMarkdown;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -99,7 +100,8 @@ abstract class BlazyBase implements BlazyInterface {
     RendererInterface $renderer,
     ConfigFactoryInterface $config_factory,
     CacheBackendInterface $cache,
-    LanguageManager $language_manager) {
+    LanguageManager $language_manager
+  ) {
     $this->root              = $root;
     $this->entityRepository  = $entity_repository;
     $this->entityTypeManager = $entity_type_manager;
@@ -195,6 +197,17 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function configSchemaInfoAlter(
+    array &$definitions,
+    $formatter = 'blazy_base',
+    array $settings = []
+  ): void {
+    BlazyAlter::configSchemaInfoAlter($definitions, $formatter, $settings);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function entityQuery($type, $conjunction = 'AND') {
     return $this->getStorage($type)->getQuery($conjunction);
   }
@@ -262,8 +275,9 @@ abstract class BlazyBase implements BlazyInterface {
   ): array {
     if (!isset($this->cachedData[$cid]) || $reset) {
       $cache = $this->cache->get($cid);
-      if ($cache && $result = $cache->data) {
-        $this->cachedData[$cid] = $result;
+
+      if ($cache && $data = $cache->data) {
+        $this->cachedData[$cid] = $data;
       }
       else {
         // Allows empty array to trigger hook_alter.
@@ -323,6 +337,13 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function getPath($type, $name, $absolute = FALSE): ?string {
     return Blazy::getPath($type, $name, $absolute);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function markdown($string): string {
+    return BlazyMarkdown::parse($string);
   }
 
   /**

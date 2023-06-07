@@ -158,6 +158,8 @@ function hook_blazy_lightboxes_alter(array &$lightboxes) {
 /**
  * Alters Blazy individual item output to support a custom lightbox.
  *
+ * Or better use hook_preprocess_blazy() for simple needs.
+ *
  * @param array $build
  *   The renderable array of image/ video iframe being modified.
  * @param array $settings
@@ -217,7 +219,7 @@ function hook_blazy_build_alter(array &$build, array $settings = []) {
  * @code
  * function hook_config_schema_info_alter(array &$definitions) {
  *   $settings = ['color' => '', 'arrowpos' => '', 'dotpos' => ''];
- *   BlazyAlter::configSchemaInfoAlter($definitions,
+ *   Blazy::configSchemaInfoAlter($definitions,
  *     'slick_base', SlickDefault::extendedSettings() + $settings);
  * }
  * @endcode
@@ -233,12 +235,23 @@ function hook_blazy_build_alter(array &$build, array $settings = []) {
  *
  * @ingroup blazy_api
  */
-function hook_blazy_base_settings_alter(array &$settings, array $context = []) {
+function hook_blazy_base_settings_alter(array &$settings, array $context) {
   // One override for both various Slick field formatters and Slick views style.
   // SlickDefault extends BlazyDefault, hence capable to modify/ extend options.
   // These options will be available at many Slick formatters at one go.
   if ($context['class'] == 'Drupal\slick\SlickDefault') {
     $settings += ['color' => '', 'arrowpos' => '', 'dotpos' => ''];
+  }
+
+  // If you want to inject new settings into various sub-module formatters:
+  $classes = [
+    'Drupal\blazy\BlazyDefault',
+    'Drupal\gridstack\GridStackDefault',
+    'Drupal\slick\SlickDefault',
+    'Drupal\splide\SplideDefault',
+  ];
+  if (in_array($context['class'], $classes)) {
+    $settings += ['elevatezoomplus' => ''];
   }
 }
 

@@ -92,6 +92,15 @@ interface BlazyInterface {
   public function config($key = NULL, $group = 'blazy.settings');
 
   /**
+   * Implements hook_config_schema_info_alter().
+   */
+  public function configSchemaInfoAlter(
+    array &$definitions,
+    $formatter = 'blazy_base',
+    array $settings = []
+  ): void;
+
+  /**
    * Returns the entity query object for this entity type.
    *
    * @param string $type
@@ -244,6 +253,11 @@ interface BlazyInterface {
    *   The path to object or NULL if not found.
    */
   public function getPath($type, $name, $absolute = FALSE): ?string;
+
+  /**
+   * Provides a shortcut to parse the markdown string for better hook_help().
+   */
+  public function markdown($string): string;
 
   /**
    * A wrapper for \Drupal\Core\Extension\ModuleHandlerInterface::moduleExists.

@@ -25,7 +25,7 @@ trait EasingTrait {
    *   An array of available jQuery Easing options as fallback for browsers that
    *   don't support pure CSS easing.
    */
-  public function getJsEasingOptions() {
+  protected function getJsEasingOptions() {
     if (!isset($this->jsEasingOptions)) {
       $this->jsEasingOptions = [
         'linear'           => 'Linear',
@@ -78,7 +78,7 @@ trait EasingTrait {
    * @see http://matthewlein.com/ceaser/
    * @see http://www.w3.org/TR/css3-transitions/
    */
-  public function getCssEasingOptions($map = FALSE) {
+  protected function getCssEasingOptions($map = FALSE) {
     $css_easings = [];
     $available_easings = [
 
@@ -133,7 +133,7 @@ trait EasingTrait {
    * @return string
    *   A string of unfriendly bezier equivalent, or NULL.
    */
-  public function getBezier($easing = NULL) {
+  protected function getBezier($easing = NULL) {
     $css_easing = '';
     if ($easing) {
       $easings = $this->getCssEasingOptions(TRUE);

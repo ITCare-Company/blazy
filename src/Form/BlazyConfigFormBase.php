@@ -44,9 +44,6 @@ abstract class BlazyConfigFormBase extends ConfigFormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    /**
-     * @var \Drupal\blazy_ui\Form\BlazySettingsForm
-     */
     $instance = parent::create($container);
     $instance->libraryDiscovery = $container->get('library.discovery');
     $instance->manager = $container->get('blazy.manager');

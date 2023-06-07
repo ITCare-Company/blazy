@@ -687,35 +687,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * {@inheritdoc}
    */
-  public function fieldableForm(array &$form, array $definition): void {}
-
-  /**
-   * {@inheritdoc}
-   */
-  public function imageStyleForm(array &$form, array $definition): void {}
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSettingsSummary(array $definition): array {
-    return [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFieldOptions(
-    array $target_bundles = [],
-    array $allowed_field_types = [],
-    $entity_type = 'media',
-    $target_type = ''
-  ): array {
-    return [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getCacheOptions(): array {
     $period = [
       0,
@@ -792,6 +763,40 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
     }
     return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFieldOptions(
+    array $target_bundles = [],
+    array $allowed_field_types = [],
+    $entity_type = 'media',
+    $target_type = ''
+  ): array {
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildSettingsForm(array &$form, array $definition): void {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fieldableForm(array &$form, array $definition): void {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public function imageStyleForm(array &$form, array $definition): void {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSettingsSummary(array $definition): array {
+    return [];
   }
 
   /**

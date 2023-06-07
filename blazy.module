@@ -12,7 +12,6 @@ use Drupal\blazy\BlazyAlter;
 use Drupal\blazy\BlazyManager;
 use Drupal\blazy\Theme\BlazyTheme;
 use Drupal\blazy\Theme\BlazyViews;
-use Drupal\blazy\Utility\BlazyMarkdown;
 
 /**
  * Provides a convenient shortcut for procedural hooks, or static methods.
@@ -119,7 +118,7 @@ function blazy_views_pre_render($view) {
  * Implements hook_config_schema_info_alter().
  */
 function blazy_config_schema_info_alter(array &$definitions) {
-  BlazyAlter::configSchemaInfoAlter($definitions, 'blazy_base');
+  blazy()->configSchemaInfoAlter($definitions, 'blazy_base');
 }
 
 /**
@@ -169,20 +168,6 @@ function blazy_ckeditor_css_alter(array &$css, Editor $editor) {
 }
 
 /**
- * Provides a shortcut to parse the markdown string for better hook_help().
- */
-function blazy_parse_markdown($string) {
-  return BlazyMarkdown::parse($string);
-}
-
-/**
- * Provides a wrapper to replace deprecated libraries_get_path() at ease.
- */
-function blazy_libraries_get_path($name, $base_path = FALSE) {
-  return Blazy::getLibrariesPath($name, $base_path);
-}
-
-/**
  * Cleans out unclean module filter references.
  *
  * @todo remove when core filter takes care of its own plugins removal cleanly.
@@ -219,6 +204,26 @@ function blazy_filter_cleanup($module = 'blazy') {
 
   // Clear plugin manager caches.
   \Drupal::getContainer()->get('plugin.cache_clearer')->clearCachedDefinitions();
+}
+
+/**
+ * Provides a shortcut to parse the markdown string for better hook_help().
+ *
+ * @todo deprecated in blazy:2.16 and is removed from blazy:3.x. Use
+ * blazy()->markdown() instead.
+ */
+function blazy_parse_markdown($string) {
+  return blazy()->markdown($string);
+}
+
+/**
+ * Provides a wrapper to replace deprecated libraries_get_path() at ease.
+ *
+ * @todo deprecated in blazy:2.16 and is removed from blazy:3.x. Use
+ * blazy()->getLibrariesPath() instead.
+ */
+function blazy_libraries_get_path($name, $base_path = FALSE) {
+  return blazy()->getLibrariesPath($name, $base_path);
 }
 
 /**

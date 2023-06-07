@@ -78,7 +78,7 @@ To make reading this README a breeze at [Blazy help](/admin/help/blazy_ui)
 
 
 Most duplication efforts from the above modules will be merged into
-`\Drupal\blazy\Dejavu`, or anywhere else namespace.
+`\Drupal\blazy\Dejavu`, or anywhere else namespaces.
 
 
 **What dups?**
@@ -149,13 +149,13 @@ Visit the following to configure and make use of Blazy:
 
 
 ### USAGES: BLAZY FOR MULTIMEDIA GALLERY VIA VIEWS UI
-#### Using **Blazy Grid**
+#### Using **Blazy Grid**  
 1. Add a Views style **Blazy Grid** for entities containing Media or Image.
 2. Add a Blazy formatter for the Media or Image field.
 3. Add any lightbox under **Media switcher** option.
 4. Limit the values to 1 under **Multiple field settings** > **Display**.
 
-#### Without **Blazy Grid**
+#### Without **Blazy Grid**  
 If you can't use **Blazy Grid** for a reason, maybe having a table, HTML list,
 etc., try the following:
 
@@ -180,12 +180,18 @@ etc., try the following:
 3. Add the relevant lightbox under **Media switcher** option based on the given
    CSS class at #1.
 
+#### Bonus  
+* With [Splidebox](https://drupal.org/project/splidebox), this can be used to
+  have simple profile, author, product, portfolio, etc. grids containing links
+  to display them directly on the same page as ajaxified lightboxes.
+* With [IO](https://drupal.org/project/io), this can be used to have simple
+  and modern Views infinite pagers as grid displays.
 
 **Important!**
 
 Be sure to leave `Use field template` under `Style settings` unchecked.
 If checked, the gallery is locked to a single entity, that is no Views gallery,
-but gallery per field. The same applies when using Blazy formatter with VIS
+but gallery per field. The same applies when using Blazy formatter with VIS/IO
 pager, alike, or inside Slick Carousel, GridStack, etc. If confusing, just
 toggle this option, and you'll know which works. Only checked if Blazy formatter
 is a standalone output from Views so to use field template in this case.

@@ -12,13 +12,6 @@ use League\CommonMark\CommonMarkConverter;
 class BlazyMarkdown {
 
   /**
-   * Checks if we have the needed classes.
-   */
-  public static function isApplicable() {
-    return class_exists('Michelf\MarkdownExtra') || class_exists('League\CommonMark\CommonMarkConverter');
-  }
-
-  /**
    * Processes Markdown text, and convert into HTML suitable for the help text.
    *
    * @param string $text
@@ -31,7 +24,7 @@ class BlazyMarkdown {
    * @return string
    *   The filtered, or raw converted text.
    */
-  public static function parse($text, $sanitize = TRUE, $help = TRUE) {
+  public static function parse($text, $sanitize = TRUE, $help = TRUE): string {
     if (!self::isApplicable()) {
       return $help ? '<pre>' . $text . '</pre>' : $text;
     }
@@ -55,6 +48,13 @@ class BlazyMarkdown {
 
     // We do not pass it to FilterProcessResult, as this is meant simple.
     return $sanitize ? Xss::filterAdmin($text) : $text;
+  }
+
+  /**
+   * Checks if we have the needed classes.
+   */
+  private static function isApplicable(): bool {
+    return class_exists('Michelf\MarkdownExtra') || class_exists('League\CommonMark\CommonMarkConverter');
   }
 
 }

@@ -5,7 +5,7 @@ namespace Drupal\blazy\Form;
 /**
  * Defines re-usable services and functions for blazy plugins.
  */
-interface BlazyAdminInterface {
+interface BlazyAdminInterface extends BlazyAdminInteropInterface {
 
   /**
    * Returns the entity display repository.
@@ -23,34 +23,9 @@ interface BlazyAdminInterface {
   public function blazyManager();
 
   /**
-   * Returns shared form elements across field formatter and Views.
-   */
-  public function openingForm(array &$form, array &$definition): void;
-
-  /**
-   * Returns re-usable grid elements across field formatter and Views.
-   */
-  public function gridForm(array &$form, array $definition): void;
-
-  /**
-   * Returns shared ending form elements across field formatter and Views.
-   */
-  public function closingForm(array &$form, array $definition): void;
-
-  /**
    * Returns simple form elements common for Views field, EB widget, formatters.
    */
   public function baseForm(array $definition = []): array;
-
-  /**
-   * Returns re-usable media switch form elements.
-   */
-  public function mediaSwitchForm(array &$form, array $definition): void;
-
-  /**
-   * Returns re-usable logic, styling and assets across fields and Views.
-   */
-  public function finalizeForm(array &$form, array $definition): void;
 
   /**
    * Returns time in interval for select options.
@@ -99,26 +74,37 @@ interface BlazyAdminInterface {
 
   /**
    * Returns Responsive image for select options.
+   *
+   * @return array
+   *   The responsive images as options.
    */
   public function getResponsiveImageOptions(): array;
 
   /**
-   * Returns re-usable fieldable formatter form elements.
-   */
-  public function fieldableForm(array &$form, array $definition): void;
-
-  /**
-   * Modifies the image formatter form elements.
-   */
-  public function imageStyleForm(array &$form, array $definition): void;
-
-  /**
    * Return the field formatter settings summary.
+   *
+   * @param array $definition
+   *   The setting definition.
+   *
+   * @return array
+   *   The settings sumary.
    */
   public function getSettingsSummary(array $definition): array;
 
   /**
    * Returns available fields for select options.
+   *
+   * @param array $target_bundles
+   *   The optional target bundles, might be empty from View UI.
+   * @param array $allowed_field_types
+   *   The optional field types to query for.
+   * @param string $entity_type
+   *   The optional entity type.
+   * @param string $target_type
+   *   The optional target type.
+   *
+   * @return array
+   *   The available fields as options.
    */
   public function getFieldOptions(
     array $target_bundles = [],

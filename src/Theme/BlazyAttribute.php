@@ -117,7 +117,7 @@ class BlazyAttribute {
    * Prepares a media player, and allows a tiny video preview without iframe.
    * image : If iframe switch disabled, fallback to iframe, remove image.
    * player: If no ightboxes, it is an image to iframe switcher.
-   * data- : Gets consistent with ightboxes to share JS manipulation.
+   * data- : Gets consistent with lightboxes to share JS manipulation.
    *
    * @param array $variables
    *   The variables being modified.

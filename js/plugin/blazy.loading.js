@@ -21,6 +21,9 @@
   function unloading(els) {
     var chainCallback = function (el) {
       var _loading = 'loading';
+      var parent = $.parent(el, '.media') || el;
+      var bloader;
+
       // The .b-lazy element can be attached to IMG, or DIV as CSS background.
       // The .(*)loading can be .media, .grid, .slide__content, .box, etc.
       // Check for potential nested loading classes.
@@ -38,6 +41,16 @@
           }
         }
       };
+
+      // Looks like Ajaxin fails given iframes with various lightboxes/ options.
+      // Be sure to not interupt success ones, only the failures.
+      // @todo remove once Ajaxin is better handling iframes.
+      setTimeout(function () {
+        bloader = $.next(parent, '.b-loader');
+        if ($.isElm(bloader)) {
+          $.remove(bloader);
+        }
+      }, 1500);
 
       $.each(loaders, cleanout);
     };

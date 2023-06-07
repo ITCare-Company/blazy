@@ -4,11 +4,21 @@
 Check [this](https://drupal.org/node/3263027#comment-14402693) out for hints
 on testing updates against Blazy ecosystem.
 
-Visit any of the following URLs when updating Blazy, or its related modules.
 Please ignore any documentation if already aware of Drupal site building. This
 is for the sake of completed documentation for those who may need it.
 
-1. [Performance](/admin/config/development/performance)
+If using drush, running `drush updb` and `drush cr` should be enough. If not,
+and or there are still remaining errors, the following will help.
+
+Visit any of the following URLs before updating Blazy, or its related modules.
+Keep the `Performance` page open on a separate tab till the update is performed.
+This will be your last resort if updates have errors, never reload this page.
+
+1. [Maintenance](/admin/config/development/maintenance)  
+
+   Be sure to put your site on maintenance mode.
+
+2. [Performance](/admin/config/development/performance)
 
   Unless an update is required, clearing cache should fix most issues.
   * Hit **Clear all caches** button once the new Blazy in place.
@@ -24,16 +34,18 @@ is for the sake of completed documentation for those who may need it.
       * [Ignorable] Press F5, or CMD/ CTRL + R to refresh browser cache if
         needed.
 
-2. [Admin status](/admin/reports/status)
+3. [Admin status](/admin/reports/status)
 
    Check for any pending update, and run `/update.php` from browser address bar.
+   Do not view your website till the update is performed.
 
-3. If Twig templates are customized, compare against the latest.
+4. If Twig templates are customized, compare against the latest. If having lots
+   of customized works, review the latest `blazy.api.php`, if any new changes.
 
-4. Always test updates at DEV or STAGING environments like a pro so nothing
+5. Always test updates at DEV or STAGING environments like a pro so nothing
    breaks your PRODUCTION site till everything is thoroughly reviewed.
 
-5. Read more the [TROUBLESHOOTING](#troubleshooting) section for common trouble
+6. Read more the [TROUBLESHOOTING](#troubleshooting) section for common trouble
    solutions.
 
 

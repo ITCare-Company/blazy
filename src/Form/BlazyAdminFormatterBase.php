@@ -12,7 +12,7 @@ use Drupal\blazy\Blazy;
 abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
 
   /**
-   * Defines re-usable basic form elements.
+   * {@inheritdoc}
    */
   public function basicImageForm(array &$form, array $definition): void {
     $this->imageStyleForm($form, $definition);
@@ -36,7 +36,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
   }
 
   /**
-   * Returns re-usable image formatter form elements.
+   * {@inheritdoc}
    */
   public function imageStyleForm(array &$form, array $definition): void {
     $is_responsive = function_exists('responsive_image_get_image_dimensions');
@@ -87,7 +87,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
   }
 
   /**
-   * Return the field formatter settings summary.
+   * {@inheritdoc}
    */
   public function getSettingsSummary(array $definition): array {
     if (empty($definition['settings'])) {
@@ -157,7 +157,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
   }
 
   /**
-   * Returns available fields for select options.
+   * {@inheritdoc}
    */
   public function getFieldOptions(
     array $target_bundles = [],

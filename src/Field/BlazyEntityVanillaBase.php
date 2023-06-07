@@ -110,6 +110,9 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
 
   /**
    * Returns fields as options. Passing empty array will return them all.
+   *
+   * @return array
+   *   The available fields as options.
    */
   protected function getFieldOptions(array $names = [], $target_type = NULL): array {
     $target_type = $target_type ?: $this->getFieldSetting('target_type');
@@ -120,6 +123,9 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
 
   /**
    * Returns TRUE if a multi-value field.
+   *
+   * @return bool
+   *   TRUE if a multivalue field, else FALSE.
    */
   protected function isMultiple(): bool {
     return $this->fieldDefinition
