@@ -8,6 +8,8 @@ use Drupal\blazy\BlazyInternal;
 
 /**
  * A Trait common for optional views style plugins.
+ *
+ * @todo move some into base classes unless clear like BlazyStyleOptionsTrait.
  */
 trait BlazyStylePluginTrait {
 

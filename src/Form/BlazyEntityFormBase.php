@@ -86,11 +86,12 @@ abstract class BlazyEntityFormBase extends EntityForm {
     }
 
     // Attach Slick admin library.
+    // @todo remove after sub-modules.
     if ($admin_css) {
-      if ($this->manager->moduleExists('slick_ui')) {
+      if ($this->machineName = 'slick' && $this->manager->moduleExists('slick_ui')) {
         $form['#attached']['library'][] = 'slick_ui/slick.admin.vtabs';
       }
-      elseif ($this->manager->moduleExists('splide_ui')) {
+      if ($this->machineName = 'splide' && $this->manager->moduleExists('splide_ui')) {
         $form['#attached']['library'][] = 'splide_ui/admin.vtabs';
       }
     }
@@ -104,21 +105,27 @@ abstract class BlazyEntityFormBase extends EntityForm {
    * @todo revert #1497268, or use config_update instead.
    */
   public function save(array $form, FormStateInterface $form_state) {
-    $optionset = $this->entity;
+    $entity = $this->entity;
 
     // Prevent leading and trailing spaces in slick names.
-    /* @phpstan-ignore-next-line */
-    $optionset->set('label', trim($optionset->label()))->set('id', $optionset->id());
+    if (!method_exists($entity, 'set')) {
+      return parent::save($form, $form_state);
+    }
 
-    $status    = $optionset->save();
-    $label     = $optionset->label();
-    $edit_link = $optionset->toLink($this->t('Edit'), 'edit-form')->toString();
+    $entity->set('label', trim($entity->label()))->set('id', $entity->id());
 
-    /* @phpstan-ignore-next-line */
-    $config_prefix = $optionset->getEntityType()->getConfigPrefix();
-    $message       = ['@config_prefix' => $config_prefix, '%label' => $label];
+    $status        = $entity->save();
+    $label         = $entity->label();
+    $edit_link     = $entity->toLink($this->t('Edit'), 'edit-form')->toString();
+    $entity_type   = $entity->getEntityType();
+    $config_prefix = '';
 
-    $notice = [
+    if (method_exists($entity_type, 'getConfigPrefix')) {
+      $config_prefix = $entity_type->getConfigPrefix();
+    }
+
+    $message = ['@config_prefix' => $config_prefix, '%label' => $label];
+    $notice  = [
       '@config_prefix' => $config_prefix,
       '%label' => $label,
       'link' => $edit_link,
@@ -136,7 +143,7 @@ abstract class BlazyEntityFormBase extends EntityForm {
       $this->logger(self::$machineName)->notice('@config_prefix %label has been added.', $notice);
     }
 
-    $form_state->setRedirectUrl($this->entity->toUrl('collection'));
+    $form_state->setRedirectUrl($entity->toUrl('collection'));
     return parent::save($form, $form_state);
   }
 

@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Views;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Render\Markup;
 use Drupal\blazy\Blazy;
@@ -9,6 +10,8 @@ use Drupal\blazy\BlazyDefault;
 
 /**
  * A Trait common for optional views style plugins.
+ *
+ * @todo move some into base classes unless clear like BlazyStyleOptionsTrait.
  */
 trait BlazyStyleBaseTrait {
 
@@ -38,6 +41,47 @@ trait BlazyStyleBaseTrait {
    */
   public function blazyManager() {
     return $this->blazyManager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFieldString($row, $field_name, $index, $clean = TRUE): array {
+    $values = [];
+
+    // Content title/List/Text, either as link or plain text.
+    if ($value = $this->getFieldValue($index, $field_name)) {
+      $value = is_array($value) ? array_filter($value) : $value;
+
+      // Entity reference label where the above $value can be term ID.
+      if ($markup = $this->getField($index, $field_name)) {
+        $value = is_object($markup) ? trim(strip_tags($markup->__toString()) ?: '') : $value;
+      }
+
+      if (is_string($value)) {
+        // Only respects tags with default CSV, just too much to worry about.
+        if (strpos($value, ',') !== FALSE) {
+          $tags = explode(',', $value);
+          $rendered_tags = [];
+          foreach ($tags as $tag) {
+            $tag = trim($tag);
+            $rendered_tags[] = $clean ? Html::cleanCssIdentifier(mb_strtolower($tag)) : $tag;
+          }
+          $values[$index] = implode(' ', $rendered_tags);
+        }
+        else {
+          $values[$index] = $clean ? Html::cleanCssIdentifier(mb_strtolower($value)) : $value;
+        }
+      }
+      else {
+        $value = $value[0]['value'] ?? '';
+        if ($value) {
+          $values[$index] = $clean ? Html::cleanCssIdentifier(mb_strtolower($value)) : $value;
+        }
+      }
+    }
+
+    return $values;
   }
 
   /**
