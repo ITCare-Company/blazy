@@ -147,7 +147,7 @@ class BlazyTheme {
         foreach ($files as $file) {
           $source_attributes = &$file['source_attributes'];
           $source_attributes->setAttribute('data-src', $source_attributes['src']->value());
-          $source_attributes->setAttribute('src', '');
+          $source_attributes->setAttribute('src', Placeholder::BLANK);
         }
       }
 
@@ -194,7 +194,7 @@ class BlazyTheme {
           /** @var \Drupal\Core\Template\Attribute $source */
           foreach ((array) $sources as &$source) {
             $source->setAttribute('data-srcset', $source['srcset']->value());
-            $source->setAttribute('srcset', '');
+            $source->setAttribute('srcset', Placeholder::BLANK);
           }
         }
 

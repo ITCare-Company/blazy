@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-06-07
+------------------------------
+- Issue #3364903 by SadySierralta, gausarts: W3C validation - Bad value for
+  attribute srcset on element source.
+
 Blazy 8.x-2.0-dev, 2023-06-02
 ------------------------------
 - Fixed for D10 breaking changes with Blazy lightboxes within Views.
