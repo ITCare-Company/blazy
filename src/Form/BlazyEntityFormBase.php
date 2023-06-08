@@ -88,10 +88,10 @@ abstract class BlazyEntityFormBase extends EntityForm {
     // Attach Slick admin library.
     // @todo remove after sub-modules.
     if ($admin_css) {
-      if ($this->machineName = 'slick' && $this->manager->moduleExists('slick_ui')) {
+      if (self::$machineName = 'slick' && $this->manager->moduleExists('slick_ui')) {
         $form['#attached']['library'][] = 'slick_ui/slick.admin.vtabs';
       }
-      if ($this->machineName = 'splide' && $this->manager->moduleExists('splide_ui')) {
+      if (self::$machineName = 'splide' && $this->manager->moduleExists('splide_ui')) {
         $form['#attached']['library'][] = 'splide_ui/admin.vtabs';
       }
     }
