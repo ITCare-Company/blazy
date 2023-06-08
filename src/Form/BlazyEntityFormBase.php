@@ -107,11 +107,12 @@ abstract class BlazyEntityFormBase extends EntityForm {
   public function save(array $form, FormStateInterface $form_state) {
     $entity = $this->entity;
 
-    // Prevent leading and trailing spaces in slick names.
+    // Satisfy phpstan.
     if (!method_exists($entity, 'set')) {
       return parent::save($form, $form_state);
     }
 
+    // Prevent leading and trailing spaces in entity names.
     $entity->set('label', trim($entity->label()))->set('id', $entity->id());
 
     $status        = $entity->save();
@@ -120,6 +121,7 @@ abstract class BlazyEntityFormBase extends EntityForm {
     $entity_type   = $entity->getEntityType();
     $config_prefix = '';
 
+    // Satisfy phpstan.
     if (method_exists($entity_type, 'getConfigPrefix')) {
       $config_prefix = $entity_type->getConfigPrefix();
     }

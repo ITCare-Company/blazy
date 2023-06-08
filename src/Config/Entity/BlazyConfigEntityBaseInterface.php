@@ -74,15 +74,4 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
    */
   public function setSetting($setting_name, $value);
 
-  /**
-   * Returns available default options under group 'settings'.
-   *
-   * @param string $group
-   *   The name of group: settings, responsives.
-   *
-   * @return array
-   *   The default settings under options.
-   */
-  public static function defaultSettings($group = 'settings');
-
 }

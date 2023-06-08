@@ -10,7 +10,7 @@ interface BlazyInterface {
   /**
    * Returns the app root.
    *
-   * @return \SplString
+   * @return string
    *   The app root.
    */
   public function root();

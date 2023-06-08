@@ -102,7 +102,13 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
   }
 
   /**
-   * {@inheritdoc}
+   * Returns available default options under group 'settings'.
+   *
+   * @param string $group
+   *   The name of group: settings, responsives.
+   *
+   * @return array
+   *   The default settings under options.
    */
   public static function defaultSettings($group = 'settings') {
     return self::load('default')->options[$group];
@@ -110,6 +116,12 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
 
   /**
    * Load the optionset with a fallback.
+   *
+   * @param string $id
+   *   The optionset name.
+   *
+   * @return object
+   *   The optionset object.
    */
   public static function loadWithFallback($id) {
     $optionset = self::load($id);
