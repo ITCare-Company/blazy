@@ -168,7 +168,7 @@ function blazy_ckeditor_css_alter(array &$css, Editor $editor) {
 }
 
 /**
- * Cleans out unclean module filter references.
+ * Cleans out unclean module filter references after uninstalls.
  *
  * @todo remove when core filter takes care of its own plugins removal cleanly.
  */

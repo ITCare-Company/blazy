@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy\Media;
 
-use Drupal\Component\Utility\NestedArray;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazySettings;
@@ -99,7 +98,7 @@ class BlazyMedia {
     // Iframes: Googledocs, SlideShare. Hardcoded: Soundcloud, Spotify.
     if ($iframe && $src = ($attributes['src'] ?? FALSE)) {
       $blazies->set('media.embed_url', $src);
-      $attributes = NestedArray::mergeDeep($attributes, BlazyAttribute::iframe($settings));
+      $attributes = Blazy::merge($attributes, BlazyAttribute::iframe($settings));
     }
     // Media with local files: video.
     elseif (isset($item['#files']) && $file = ($item['#files'][0]['file'] ?? NULL)) {
@@ -110,8 +109,8 @@ class BlazyMedia {
 
     // Clone relevant keys since field wrapper is no longer in use.
     foreach (['attached', 'cache', 'third_party_settings'] as $key) {
-      if (!empty($field["#$key"])) {
-        $item["#$key"] = isset($item["#$key"]) ? NestedArray::mergeDeep($field["#$key"], $item["#$key"]) : $field["#$key"];
+      if ($data = $field["#$key"] ?? []) {
+        $item["#$key"] = Blazy::merge($data, $item, "#$key");
       }
     }
     // Keep original formatter configurations intact here for custom works.

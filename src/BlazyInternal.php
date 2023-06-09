@@ -76,8 +76,10 @@ class BlazyInternal {
 
       // Ensures to respect parent formatter or Views style if provided.
       // The moral of this method is only if parent lacks of settings like Grid.
+      // Other settings are not parents' business. Only concerns about those
+      // needed by the container, e.g. LIGHTBOX for [data-LIGHTBOX-gallery].
       if ($childbox && !$parentbox) {
-        $optionset = $child->get('lightbox.optionset', $childbox);
+        $optionset = $child->get('lightbox.optionset', $childbox) ?: $childbox;
         $parent->set('lightbox.name', $childbox)
           ->set($childbox, $optionset)
           ->set('is.lightbox', TRUE)

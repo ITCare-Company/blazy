@@ -93,7 +93,7 @@ class Blazy {
         ? $data : NestedArray::mergeDeep($element[$key], $data);
     }
     return empty($element)
-      ? $data : NestedArray::mergeDeep($data, $element);
+      ? $data : NestedArray::mergeDeep($element, $data);
   }
 
   /**

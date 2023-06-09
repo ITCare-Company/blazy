@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy;
 
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Cache\BlazyCache;
@@ -158,7 +157,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       else {
         // Use case: VIS, can be blended with UL element safely down here.
         // The $attributes is merged with self::toGrid() ones here.
-        $element['#attributes'] = NestedArray::mergeDeep($element['#attributes'], $attributes);
+        $element['#attributes'] = $this->merge($element['#attributes'] ?? [], $attributes);
       }
     }
 
@@ -358,9 +357,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // or lightbox links or iframe over image or CSS background over noscript
     // which cannot be simply dumped as array without elaborate arrangements).
     foreach (['content', 'icon', 'overlay', 'preface', 'postscript'] as $key) {
-      $element["#$key"] = empty($element["#$key"])
-        ? $build[$key]
-        : NestedArray::mergeDeep($element["#$key"], $build[$key]);
+      $element["#$key"] = $this->merge($build[$key] ?? [], $element, "#$key");
     }
   }
 

@@ -3,7 +3,6 @@
 namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Serialization\Json;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Xss;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
@@ -63,6 +62,7 @@ class Lightbox {
     $box_id     = !$blazies->is('gallery') ? NULL : $gallery_id;
     $box_width  = $item->width ?? $blazies->get('image.original.width');
     $box_height = $item->height ?? $blazies->get('image.original.height');
+    $count      = $blazies->get('count');
 
     // Provide relevant URL if it is a lightbox.
     $url_attributes = &$element['#url_attributes'];
@@ -82,6 +82,10 @@ class Lightbox {
       if ($value = $blazies->get('media.' . $key, $default)) {
         $json[$key] = $value;
       }
+    }
+
+    if ($count) {
+      $json['count'] = $count;
     }
 
     // Supports local and remote videos, also legacy VEF which has no bundles.
@@ -171,6 +175,8 @@ class Lightbox {
       ->set('lightbox.height', (int) $box_height)
       ->set('lightbox.media_preview_url', $box_media_url);
 
+    // @todo recheck $count given views gallery vs formatters vs formatters
+    // inside views gallery, and add: && $count > 1.
     if ($colorbox && $box_id) {
       // @todo make Blazy Grid without Blazy Views fields support multiple
       // fields and entities as a gallery group, likely via a class at Views UI.
@@ -238,9 +244,7 @@ class Lightbox {
       $dummy = [];
       $service->attach($dummy);
 
-      if (isset($dummy['#attached'])) {
-        $load = NestedArray::mergeDeep($load, $dummy['#attached']);
-      }
+      $load = Blazy::merge($load, $dummy, '#attached');
 
       unset($dummy);
     }

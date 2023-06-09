@@ -2,7 +2,7 @@
 
 namespace Drupal\blazy\Theme;
 
-use Drupal\Component\Utility\NestedArray;
+use Drupal\blazy\Blazy;
 
 /**
  * Provides optional Views integration.
@@ -30,7 +30,7 @@ class BlazyViews {
       $plugin_id = $view->getStyle()->getPluginId();
       $settings = $blazy->mergedViewsSettings();
       $load = $blazy->blazyManager()->attach($settings);
-      $loads = empty($loads) ? $load : NestedArray::mergeDeep($load, $loads);
+      $loads = Blazy::merge($load, $loads);
 
       $grid = $plugin_id == 'blazy';
       if ($options = $view->getStyle()->options) {
@@ -46,8 +46,7 @@ class BlazyViews {
     }
 
     if ($loads) {
-      $view->element['#attached'] = empty($view->element['#attached'])
-        ? $loads : NestedArray::mergeDeep($view->element['#attached'], $loads);
+      $view->element['#attached'] = Blazy::merge($loads, $view->element, '#attached');
     }
   }
 

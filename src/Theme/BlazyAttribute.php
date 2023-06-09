@@ -3,7 +3,6 @@
 namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Serialization\Json;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyImage;
@@ -360,8 +359,7 @@ class BlazyAttribute {
     }
 
     self::common($attributes, $variables['settings'], $width);
-    $image['#attributes'] = empty($image['#attributes'])
-      ? $attributes : NestedArray::mergeDeep($image['#attributes'], $attributes);
+    $image['#attributes'] = Blazy::merge($attributes, $image, '#attributes');
 
     // Provides a noscript if so configured, before any lazy defined.
     // Not needed at preview mode, or when native lazyload takes over.
