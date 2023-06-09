@@ -972,8 +972,8 @@
    *
    * @private
    *
-   * @param {Element} el
-   *   The current element.
+   * @param {Element|string} el
+   *   The current element or string.
    * @param {string} selector
    *   Selector to match against (class, ID, data attribute, or tag).
    *
@@ -990,7 +990,7 @@
       }
       return isElm(selector) && el === selector;
     }
-    return false;
+    return el === selector;
   }
 
   /**
@@ -1053,7 +1053,9 @@
           selector = scope + ' ' + selector;
         }
       }
-      return isUnd(asArray) && isStr(selector) ? (el.querySelector(selector) || []) : toElms(selector, el);
+      return isUnd(asArray) && isStr(selector)
+        ? (el.querySelector(selector) || [])
+        : toElms(selector, el);
     }
     return [];
   }

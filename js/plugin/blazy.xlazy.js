@@ -14,7 +14,6 @@
 
   var _id = 'blazy';
   var _erCounted = 0;
-  var _isVisibleClass = 'is-b-visible';
   var _data = 'data-';
   var _dataAnimation = _data + 'animation';
   var _src = 'src';
@@ -142,7 +141,6 @@
     $.addClass(el, ok ? successClass : errorClass);
     // Adds context for effetcs: blur, etc. considering BG, or just media.
     $.addClass(cn, ok ? isLoaded : isError);
-    $.removeClass(cn, _isVisibleClass);
 
     _erCounted = me[ok ? 'success' : 'error'](el, status, parent, opts);
 

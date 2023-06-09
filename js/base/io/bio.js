@@ -304,20 +304,25 @@
       var resized = $.isResized(me, e);
       var visible = $.isVisible(e, vp);
       var cn = $.closest(el, _parent) || el;
-      var loaded = me.isLoaded(el);
 
-      // To make efficient blur filter via CSS, etc. Blur filter is expensive.
-      $[visible && !loaded ? _addClass : _removeClass](cn, _isVisible);
+      // The element is being intersected.
+      if (visible) {
+        intersecting.call(me, el);
+
+        // The intersecting does the loading, the check must be afterwards.
+        // To make efficient blur filter via CSS, etc. Blur filter is expensive.
+        if (me.isLoaded(el)) {
+          $[_addClass](cn, _isVisible);
+        }
+      }
+      else {
+        $[_removeClass](cn, _isVisible);
+      }
 
       // For different toggle purposes regardless being loaded, or not.
       // Avoid using the reserved `is-b-visible`, use `is-b-inview`, etc.
       if (visibleClass && $.isStr(visibleClass)) {
         $[visible ? _addClass : _removeClass](cn, visibleClass);
-      }
-
-      // The element is being intersected.
-      if (visible) {
-        intersecting.call(me, el);
       }
 
       // The element is being resized.

@@ -190,14 +190,19 @@
   };
 
   // Applies the defer loading as per https://drupal.org/node/3120696.
+  // This replaces all loading=defer into original loading=lazy once the first
+  // row of images is found to solve the hard-coded threshold 8000px problems.
+  // Basically telling browsers to delay lazyloading until one is nearly
+  // visible, not immediately lazyloaded at 8000px down the viewport which makes
+  // expectations useless such as for blurs, loading animation, interactive
+  // elements on the exact moment of loading/ visible event, etc. If you hate
+  // cool kids or fancy stuffs, do not choose `defer` option, no fuss.
   function defer(me, el, status, opts) {
     if (!_isDeferChecked) {
-      var elms = natively(me, 'defer');
-      if (elms) {
-        $.each(elms, function (elm) {
-          $.attr(elm, 'loading', 'lazy');
-        });
-      }
+      var cb = function (elm) {
+        $.attr(elm, 'loading', 'lazy');
+      };
+      natively(me, 'defer', cb);
       _isDeferChecked = true;
     }
 
@@ -226,7 +231,7 @@
   // @done recheck IF wrong so to put back https://drupal.org/node/3120696.
   // Almost not wrong, no blur nor `b-loaded` were added till intersected, but
   // added a new `loading:defer` to solve 8000px threshold.
-  function natively(me, key) {
+  function natively(me, key, cb) {
     var opts = me.options;
 
     if (!$.isNativeLazy) {
@@ -241,10 +246,18 @@
 
     // We are here if `No JavaScript` is being disabled.
     if (els.length) {
-      // Reset attributes, and let supportive browsers lazy load natively.
-      $(els).mapAttr(['srcset', 'src'], true)
+      $.each(els, function (el) {
+        // Reset attributes, and let supportive browsers lazy load natively.
+        $.mapAttr(el, ['srcset', 'src'], true);
+
         // Also supports PICTURE which contains SOURCEs. Excluding VIDEO.
-        .mapSource(false, true, false);
+        $.mapSource(el, false, true, false);
+
+        // Executes a function if any.
+        if ($.isFun(cb)) {
+          cb(el);
+        }
+      });
     }
     return els;
   }

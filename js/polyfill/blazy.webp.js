@@ -6,7 +6,7 @@
  * which is always included as core/responsive_image polifyll as per 2022/2.
  * This file is a client-side solution, with advantage clean native image markup
  * since it doesn't change IMG into PICTURE till required by old browsers, as
- * alt for HTML/ server-side solutions:
+ * alternative for HTML/ server-side solutions:
  *   - https://www.drupal.org/project/webp
  *   - https://www.drupal.org/project/imageapi_optimize_webp
  *

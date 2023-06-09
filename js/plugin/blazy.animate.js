@@ -175,6 +175,12 @@
     var existing = null;
     var valid = false;
     var stored = $.storage(_blurKey);
+    var dt = 'data-thumb';
+    var dtValue = $.attr(cn, dt);
+
+    if (dtValue && $.is(url, dt)) {
+      url = dtValue;
+    }
 
     // If the browser is capable, and the client option enabled.
     if (shouldStore) {

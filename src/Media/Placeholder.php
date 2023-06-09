@@ -55,6 +55,12 @@ class Placeholder {
     $id = md5($url);
     $client = $blazies->get('ui.blur_client');
     $store = $client ? ($blazies->get('ui.blur_storage') ? 1 : 0) : -1;
+
+    // If blur and thumbnail use the same image style, indicate so instead to
+    // save from few bytes.
+    if ($url == $blazies->get('thumbnail.url')) {
+      $url = 'data-thumb';
+    }
     $blur = [
       '#theme' => 'image',
       '#uri' => $blazies->get('placeholder.url'),
