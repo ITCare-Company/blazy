@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Form;
 
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -61,8 +62,10 @@ abstract class BlazyConfigFormBase extends ConfigFormBase {
         if ($form_state->hasValue($option)) {
           // Not effective, best is to validate output, yet better than misses.
           $value = $form_state->getValue($option);
+          if ($option == 'placeholder') {
+            $value = UrlHelper::filterBadProtocol($value);
+          }
           $value = Xss::filter($value, $this->allowedTags);
-
           $form_state->setValue($option, $value);
         }
       }

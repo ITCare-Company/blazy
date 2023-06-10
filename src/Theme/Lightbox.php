@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
@@ -145,9 +146,8 @@ class Lightbox {
       if ($embed = $blazies->get('media.embed_url')) {
         // Force autoplay for media URL on lightboxes, saving another click.
         // BC for non-oembed such as Video Embed Field without Media migration.
-        $url = Blazy::autoplay($embed);
-
-        $url_attributes['data-oembed-url'] = $url;
+        $url = Blazy::autoplay($embed, FALSE);
+        $url_attributes['data-oembed-url'] = UrlHelper::filterBadProtocol($url);
         $json['boxType'] = 'iframe';
       }
 
@@ -157,18 +157,16 @@ class Lightbox {
         $box_url = $box_media_url;
         $json['width'] = $box_width = $dimensions['width'];
         $json['height'] = $box_height = $dimensions['height'];
+        $url_attributes['data-box-url'] = UrlHelper::filterBadProtocol($box_url);
       }
 
       if ($blazies->get('photobox')) {
         $url_attributes['rel'] = 'video';
       }
-
-      if ($box_url) {
-        $url_attributes['data-box-url'] = $box_url;
-      }
     }
 
     // @todo remove after sub-modules.
+    $box_url = UrlHelper::filterBadProtocol($box_url);
     $settings['box_url'] = $box_url;
     $blazies->set('lightbox.url', $box_url)
       ->set('lightbox.width', (int) $box_width)
@@ -211,10 +209,11 @@ class Lightbox {
 
       // Responsive image is unwrapped. Local videos wrapped.
       $content = isset($is_resimage) ? $element['#lightbox_html'] : $html;
-      $content = $manager->renderer()->renderPlain($content);
-      $json['html'] = trim($content);
+      $content = trim($manager->renderer()->renderPlain($content));
+      $json['html'] = Xss::filter($content, BlazyDefault::MEDIA_TAGS);
       if (isset($is_resimage)) {
-        $json['boxType'] = strpos($content, '<picture') !== FALSE ? 'picture' : 'responsive-image';
+        $json['boxType'] = strpos($content, '<picture') !== FALSE
+          ? 'picture' : 'responsive-image';
       }
       else {
         if (strpos($content, '<video') !== FALSE) {
@@ -232,7 +231,7 @@ class Lightbox {
     }
 
     $icon = '<span class="media__icon media__icon--litebox"></span>';
-    $element['#url'] = $url;
+    $element['#url'] = UrlHelper::filterBadProtocol($url);
     $element['#icon']['lightbox']['#markup'] = $icon;
   }
 

@@ -12,11 +12,13 @@
   var _context = _doc;
   var _id = 'blazybox';
   var _idOnce = _id;
+  var _nick = 'blazyBox';
   var _element = '.' + _id;
   var _elContent = _element + '__content';
   var _isOpened = 'is-' + _id + '--open';
   var _visualyHidden = 'visually-hidden';
   var _ariaHidden = 'aria-hidden';
+  var _btnClose = _element + '__close';
 
   /**
    * Blazybox public methods.
@@ -24,6 +26,7 @@
    * @namespace
    */
   Drupal.blazyBox = {
+    btnClose: null,
     el: null,
     $el: null,
     options: {
@@ -39,7 +42,7 @@
     open: function (settings) {
       var me = Drupal.blazyBox;
       var $el = me.$el;
-      var content = Drupal.theme('blazyBoxMedia', {
+      var content = Drupal.theme(_nick + 'Media', {
         data: settings
       });
 
@@ -82,10 +85,8 @@
       var me = this;
 
       if (me.options.hideCloseBtn) {
-        var close = me.$el.find(_element + '__close');
-        if ($.isElm(close)) {
-          $.addClass(close, _visualyHidden);
-        }
+        var close = me.btnClose || me.$el.find(_btnClose);
+        $.addClass(close, _visualyHidden);
       }
     },
 
@@ -165,11 +166,11 @@
     var me = Drupal.blazyBox;
     var $el = $(el);
 
-    // @todo remove for me.$el after sub-modules update.
     me.el = el;
     me.$el = $el;
+    me.btnClose = $el.find(_btnClose);
 
-    $el.on('click.' + _id, _element + '__close', me.close, true);
+    $el.on('click.' + _id, _btnClose, me.close, true);
   }
 
   /**

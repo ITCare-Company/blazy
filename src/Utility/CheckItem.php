@@ -49,6 +49,7 @@ class CheckItem {
         $blazies->set('cache.file.tags', $tags);
       }
 
+      // Extracts alt from $item.
       $alt = empty($item->alt) ? "" : trim($item->alt);
       $blazies->set('image.alt', $alt);
 

@@ -160,12 +160,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * {@inheritdoc}
    */
-  public function checkInputUrl(array &$settings): void {
+  public function checkInputUrl(array &$settings, $input): ?string {
     $blazies = $settings['blazies'];
-
-    if ($input = $blazies->get('media.input_url')) {
-      $input = UrlHelper::stripDangerousProtocols($input);
-
+    if ($input) {
       // OEmbed Resource doesn't accept `/embed`, provides a conversion helper.
       if (strpos($input, 'youtube.com/embed') !== FALSE) {
         $search = '/youtube\.com\/embed\/([a-zA-Z0-9]+)/smi';
@@ -175,6 +172,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     }
 
     $blazies->set('media.input_url', $input);
+    return $input;
   }
 
   /**
@@ -373,8 +371,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       return;
     }
 
+    $input = $this->checkInputUrl($settings, $input);
+    $input = UrlHelper::filterBadProtocol($input);
     $blazies->set('media.input_url', $input);
-    $this->checkInputUrl($settings);
 
     // @todo revisit if any issue with other resource types.
     $url = Url::fromRoute('media.oembed_iframe', [], [
@@ -389,6 +388,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     ]);
 
     if ($iframe_domain = $blazies->get('iframe_domain')) {
+      // @todo remove if useless, or already checked upstream.
+      $iframe_domain = UrlHelper::filterBadProtocol($iframe_domain);
       $url->setOption('base_url', $iframe_domain);
     }
 

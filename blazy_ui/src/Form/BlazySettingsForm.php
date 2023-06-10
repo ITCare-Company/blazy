@@ -142,7 +142,7 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       '#type'          => 'number',
       '#title'         => $this->t('Blur min-width'),
       '#default_value' => $config->get('blur_minwidth') ?: 0,
-      '#description'   => $this->t("Only enable Blur if the image style width is bigger than this value. Useful to disable it for mobile to avoid potential unverified OOM (Out of Memory) issues, or non-fancy listing thumbnails, says 767."),
+      '#description'   => $this->t("Only enable Blur if the image style (not window) width is bigger than this value. Useful to disable it for mobile to avoid potential unverified OOM (Out of Memory) issues, or non-fancy listing thumbnails, says 767."),
       '#maxlength'     => 4,
       '#field_suffix'  => 'px',
     ];
@@ -153,6 +153,13 @@ class BlazySettingsForm extends BlazyConfigFormBase {
           'select[name="fx"]' => ['value' => 'blur'],
         ],
       ];
+      if ($key == 'storage') {
+        $form['blur_' . $key]['#states']['visible'][] = [
+          'input[name="blur_client"]' => [
+            'checked' => TRUE,
+          ],
+        ];
+      }
     }
 
     $form['blazy'] = [

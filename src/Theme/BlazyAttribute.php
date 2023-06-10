@@ -3,6 +3,8 @@
 namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\UrlHelper;
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyImage;
@@ -221,7 +223,7 @@ class BlazyAttribute {
     $blazies = $settings['blazies'];
     $attributes['class'] = ['b-lazy', 'media__iframe'];
     $attributes['allowfullscreen'] = TRUE;
-    $embed_url = $blazies->get('media.embed_url');
+    $embed_url = UrlHelper::filterBadProtocol($blazies->get('media.embed_url'));
 
     // Inside CKEditor must disable interactive elements.
     if ($blazies->is('sandboxed')) {
@@ -297,33 +299,26 @@ class BlazyAttribute {
    * Modifies $variables to provide optional (Responsive) image attributes.
    */
   private static function image(array &$variables): void {
-    $item       = $variables['item'];
     $settings   = &$variables['settings'];
     $image      = &$variables['image'];
     $attributes = &$variables['item_attributes'];
     $blazies    = $settings['blazies'];
     $embed_url  = $blazies->get('media.embed_url');
     $width      = $blazies->get('image.width');
-    $title      = $blazies->get('media.label') ?: $blazies->get('image.title');
+    $title      = $blazies->get('image.title') ?: $blazies->get('media.label');
+    $alt        = $blazies->get('image.alt');
 
-    /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-    if ($item) {
-      // Respects hand-coded image attributes.
-      if (!isset($attributes['alt'])) {
-        $attributes['alt'] = empty($item->alt) ? "" : trim($item->alt);
-      }
-
-      if (!$blazies->get('image.alt')) {
-        $blazies->set('image.alt', $attributes['alt']);
-      }
-
-      // Do not output an empty 'title' attribute.
-      // Prioritize editable user inputs rather than external sites'.
-      if (isset($item->title) && (mb_strlen($item->title) != 0)) {
-        $attributes['title'] = $title = trim($item->title);
-        $blazies->set('image.title', $title);
-      }
+    // Updates $title whether for video, or just image, and accounts for UGC
+    if ($title) {
+      $title = Xss::filter($title);
+      $attributes['title'] = $title;
+      $blazies->set('image.title', $title);
     }
+
+    // Respects hand-coded image attributes, and accounts for UGC
+    $alt = $attributes['alt'] ?? $alt;
+    $attributes['alt'] = $alt = $alt ? Xss::filter($alt) : '';
+    $blazies->set('image.alt', $alt);
 
     // Only output dimensions for non-svg. Respects hand-coded image attributes.
     // Do not pass it to $attributes to also respect both (Responsive) image.

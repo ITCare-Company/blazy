@@ -1912,19 +1912,31 @@
 
   function index(el, parents) {
     var i = 0;
+    var loop = false;
     if (isElm(el)) {
       if (!isUnd(parents)) {
-        each(toArray(parents), function (sel) {
-          var check = closest(el, sel);
-          if (isElm(check)) {
-            el = check;
-            return false;
+        each(toArray(parents), function (sel, idx) {
+          if (isElm(sel)) {
+            if (is(el, sel)) {
+              i = idx;
+              return false;
+            }
+          }
+          else if (isStr(sel)) {
+            loop = true;
+            var check = closest(el, sel);
+            if (isElm(check)) {
+              el = check;
+              return false;
+            }
           }
         });
       }
 
-      while (!isNull(el = prev(el))) {
-        i++;
+      if (loop) {
+        while (!isNull(el = prev(el))) {
+          i++;
+        }
       }
     }
     return i;

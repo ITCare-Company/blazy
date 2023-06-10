@@ -13,6 +13,24 @@ class BlazyDefault {
   const TAGS = ['a', 'em', 'strong', 'h2', 'p', 'span', 'ul', 'ol', 'li'];
 
   /**
+   * Defines constant for the supported media tags.
+   *
+   * @todo recheck if OEmbed supports <embed>, <object>, <track>, etc.
+   */
+  const MEDIA_TAGS = [
+    'audio',
+    'div',
+    'figcaption',
+    'figure',
+    'iframe',
+    'img',
+    'picture',
+    'source',
+    'span',
+    'video',
+  ];
+
+  /**
    * Returns Blazy specific breakpoints.
    *
    * @todo remove custom breakpoints anytime before blazy:3.x.

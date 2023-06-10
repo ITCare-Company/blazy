@@ -451,7 +451,7 @@ class BlazyImage {
       return [
         '#theme'      => $external ? 'image' : 'image_style',
         '#style_name' => $style ?: 'thumbnail',
-        '#uri'        => $uri,
+        '#uri'        => UrlHelper::filterBadProtocol($uri),
         '#item'       => $item,
         '#alt'        => self::isImage($item) ? $item->getValue()['alt'] : '',
       ];
@@ -524,7 +524,7 @@ class BlazyImage {
     $styled  = $valid && !$blazies->is('unstyled');
     $style   = $styled ? $style : NULL;
     $url     = $settings['image_url'] ?? '';
-    $url     = $url ?: $blazies->get('image.url');
+    $url     = $blazies->get('image.url') ?: $url;
     $options = ['url' => $url, 'sanitize' => $blazies->is('unsafe')];
 
     return BlazyFile::transformRelative($uri, $style, $options);

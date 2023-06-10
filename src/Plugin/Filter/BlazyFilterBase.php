@@ -267,7 +267,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     // Iframe with data: alike scheme is a serious kidding, strip it earlier.
     $blazies->set('media.input_url', $src);
-    $this->blazyOembed->checkInputUrl($settings);
+    $this->blazyOembed->checkInputUrl($settings, $src);
 
     // @todo figure out to not hard-code `field_media_oembed_video`.
     $media = NULL;

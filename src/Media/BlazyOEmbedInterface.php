@@ -33,7 +33,7 @@ interface BlazyOEmbedInterface {
    * @param string $input_url
    *   The video url.
    *
-   * @return \Drupal\media\OEmbed\Resource[]
+   * @return \Drupal\media\OEmbed\Resource
    *   The oEmbed resource.
    */
   public function getResource($input_url);
@@ -59,7 +59,12 @@ interface BlazyOEmbedInterface {
    *
    * @param array $settings
    *   The settings to modify.
+   * @param array $input
+   *   The input to modify.
+   *
+   * @return string
+   *   The modified input url.
    */
-  public function checkInputUrl(array &$settings): void;
+  public function checkInputUrl(array &$settings, $input): ?string;
 
 }

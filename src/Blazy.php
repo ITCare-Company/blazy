@@ -4,6 +4,7 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Theme\BlazyAttribute;
 use Drupal\blazy\Theme\Grid;
@@ -40,14 +41,14 @@ class Blazy {
   /**
    * Provides autoplay URL, relevant for lightboxes to save another click.
    */
-  public static function autoplay($url): string {
+  public static function autoplay($url, $check = TRUE): string {
     if (strpos($url, 'autoplay') === FALSE
       || strpos($url, 'autoplay=0') !== FALSE) {
       return strpos($url, '?') === FALSE
         ? $url . '?autoplay=1'
         : $url . '&autoplay=1';
     }
-    return $url;
+    return $check ? UrlHelper::filterBadProtocol($url) : $url;
   }
 
   /**
@@ -232,6 +233,13 @@ class Blazy {
    */
   public static function transformRelative($uri, $style = NULL, array $options = []): string {
     return BlazyFile::transformRelative($uri, $style, $options);
+  }
+
+  /**
+   * Return TRUE if an url is a data URI.
+   */
+  public static function isDataUri($url) {
+    return $url && mb_substr($url, 0, 10) === 'data:image';
   }
 
   /**

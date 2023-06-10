@@ -135,12 +135,6 @@
         $.unloading(el);
       }
 
-      // Provides event listeners for easy overrides without full overrides.
-      // Runs before native to allow native use this on its own onload event.
-      $.trigger(el, _eventDone, {
-        options: me.options
-      });
-
       // With `No JavaScript` on, facilitate both parties: native vs. script.
       // This is to use the same clearing approach for all parties.
       me.clearCompat(el);
@@ -153,6 +147,11 @@
           elements: [el]
         });
       }
+
+      // Provides event listeners for easy overrides without full overrides.
+      $.trigger(el, _eventDone, {
+        options: me.options
+      });
 
       el.bclearing = true;
     },

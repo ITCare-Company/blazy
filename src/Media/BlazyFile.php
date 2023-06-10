@@ -96,7 +96,7 @@ class BlazyFile {
       return $url;
     }
 
-    $data_uri = $url && mb_substr($url, 0, 10) === 'data:image';
+    $data_uri = Blazy::isDataUri($url);
 
     // Returns as is if an external URL: UCG or external OEmbed image URL.
     if (self::isExternal($uri)) {
@@ -123,7 +123,7 @@ class BlazyFile {
     // Just in case, an attempted kidding gets in the way, relevant for UGC.
     // @todo re-check to completely remove data URI.
     if ($sanitize && !$data_uri) {
-      $url = UrlHelper::stripDangerousProtocols($url);
+      $url = UrlHelper::filterBadProtocol($url);
     }
 
     return $url ?: '';
