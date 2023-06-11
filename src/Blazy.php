@@ -48,7 +48,9 @@ class Blazy {
         ? $url . '?autoplay=1'
         : $url . '&autoplay=1';
     }
-    return $check ? UrlHelper::filterBadProtocol($url) : $url;
+
+    // @todo recheck if any side effect/ double escape to cdn/ valid input.
+    return $check ? UrlHelper::stripDangerousProtocols($url) : $url;
   }
 
   /**

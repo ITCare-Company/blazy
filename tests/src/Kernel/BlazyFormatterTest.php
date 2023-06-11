@@ -215,17 +215,18 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
       $entity = $this->entity;
 
       $settings = [
-        'input_url'       => $input_url,
+        // 'input_url'       => $input_url,
         // 'source_field'    => $this->testFieldName,
         // 'media_source'    => 'remote_video',
         // 'view_mode'       => 'default',
-        'bundle'          => $this->bundle,
+        // 'bundle'          => $this->bundle,
         'thumbnail_style' => 'thumbnail',
         'uri'             => $this->uri,
       ] + BlazyDefault::htmlSettings();
 
       $blazies = &$settings['blazies'];
       $info = [
+        'bundle'       => $this->bundle,
         'input_url'    => $input_url,
         'source_field' => $this->testFieldName,
         'source'       => 'remote_video',

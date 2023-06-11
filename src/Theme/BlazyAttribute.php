@@ -223,7 +223,15 @@ class BlazyAttribute {
     $blazies = $settings['blazies'];
     $attributes['class'] = ['b-lazy', 'media__iframe'];
     $attributes['allowfullscreen'] = TRUE;
-    $embed_url = UrlHelper::filterBadProtocol($blazies->get('media.embed_url'));
+    $is_escaped = $blazies->get('media.escaped');
+
+    // Already escaped upstream.
+    $embed_url = $blazies->get('media.embed_url');
+
+    // @todo recheck if any side effect/ double escape to cdn/ valid input.
+    if (!$is_escaped) {
+      $embed_url = UrlHelper::stripDangerousProtocols($embed_url);
+    }
 
     // Inside CKEditor must disable interactive elements.
     if ($blazies->is('sandboxed')) {
@@ -308,14 +316,14 @@ class BlazyAttribute {
     $title      = $blazies->get('image.title') ?: $blazies->get('media.label');
     $alt        = $blazies->get('image.alt');
 
-    // Updates $title whether for video, or just image, and accounts for UGC
+    // Updates $title whether for video, or just image, and accounts for UGC.
     if ($title) {
       $title = Xss::filter($title);
       $attributes['title'] = $title;
       $blazies->set('image.title', $title);
     }
 
-    // Respects hand-coded image attributes, and accounts for UGC
+    // Respects hand-coded image attributes, and accounts for UGC.
     $alt = $attributes['alt'] ?? $alt;
     $attributes['alt'] = $alt = $alt ? Xss::filter($alt) : '';
     $blazies->set('image.alt', $alt);

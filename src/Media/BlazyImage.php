@@ -451,7 +451,8 @@ class BlazyImage {
       return [
         '#theme'      => $external ? 'image' : 'image_style',
         '#style_name' => $style ?: 'thumbnail',
-        '#uri'        => UrlHelper::filterBadProtocol($uri),
+        // @todo recheck if any side effect/ double escape to cdn/ valid input.
+        '#uri'        => UrlHelper::stripDangerousProtocols($uri),
         '#item'       => $item,
         '#alt'        => self::isImage($item) ? $item->getValue()['alt'] : '',
       ];

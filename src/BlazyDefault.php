@@ -15,29 +15,19 @@ class BlazyDefault {
   /**
    * Defines constant for the supported media tags.
    *
-   * @todo recheck if OEmbed supports <embed>, <object>, <track>, etc.
+   * @todo recheck if OEmbed has <iframe>, <embed>, <object>, <track>, etc.
    */
   const MEDIA_TAGS = [
     'audio',
     'div',
     'figcaption',
     'figure',
-    'iframe',
     'img',
     'picture',
     'source',
     'span',
     'video',
   ];
-
-  /**
-   * Returns Blazy specific breakpoints.
-   *
-   * @todo remove custom breakpoints anytime before blazy:3.x.
-   */
-  public static function getConstantBreakpoints() {
-    return ['xs', 'sm', 'md', 'lg', 'xl'];
-  }
 
   /**
    * Returns alterable plugin settings to pass the tests.
@@ -276,6 +266,8 @@ class BlazyDefault {
 
   /**
    * Returns sensible default item settings to shutup notices when lacking.
+   *
+   * @todo refine more for blazies after sub-module updates:
    */
   public static function itemSettings() {
     return [
@@ -416,6 +408,15 @@ class BlazyDefault {
       '_item' => '',
       '_uri' => '',
     ];
+  }
+
+  /**
+   * Returns Blazy specific breakpoints.
+   *
+   * @todo remove custom breakpoints anytime at blazy:3.x.
+   */
+  public static function getConstantBreakpoints() {
+    return ['xs', 'sm', 'md', 'lg', 'xl'];
   }
 
 }

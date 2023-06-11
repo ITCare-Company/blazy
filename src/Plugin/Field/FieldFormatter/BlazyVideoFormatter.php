@@ -66,9 +66,8 @@ class BlazyVideoFormatter extends BlazyVideoBase {
     }
 
     // @todo remove $settings after being migrated into $blazies.
-    $settings['bundle'] = 'remote_video';
-    $settings['media_source'] = 'video_embed_field';
-
+    // $settings['bundle'] = 'remote_video';
+    // $settings['media_source'] = 'video_embed_field';
     // Update the settings, hard-coded, terracota.
     $blazies->set('media.bundle', 'remote_video')
       ->set('media.source', 'video_embed_field');

@@ -220,6 +220,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   protected function getImageItemFromImageSrc(array &$build, $node, $src): void {
     $settings = &$build['settings'];
     $blazies = $settings['blazies'];
+
     // Attempts to get the correct URI with hard-coded URL if applicable.
     $uri = $settings['uri'] = BlazyFile::buildUri($src);
     $uuid = $node->getAttribute('data-entity-uuid');

@@ -170,7 +170,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         $input = preg_replace($search, $replace, $input);
       }
     }
-
+    // @todo recheck if any side effect/ double escape to cdn/ valid input.
+    $input = UrlHelper::stripDangerousProtocols($input);
     $blazies->set('media.input_url', $input);
     return $input;
   }
@@ -372,32 +373,32 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     }
 
     $input = $this->checkInputUrl($settings, $input);
-    $input = UrlHelper::filterBadProtocol($input);
-    $blazies->set('media.input_url', $input);
+    $autoplay = empty($settings['media_switch'])
+      ? [] : ['autoplay' => 1];
+
+    $query = [
+      'url' => $input,
+      'max_width' => 0,
+      'max_height' => 0,
+      'hash' => $this->iframeUrlHelper->getHash($input, 0, 0),
+      'blazy' => 1,
+      'autoplay' => empty($settings['media_switch']) ? 0 : 1,
+    ] + $autoplay;
 
     // @todo revisit if any issue with other resource types.
     $url = Url::fromRoute('media.oembed_iframe', [], [
-      'query' => [
-        'url' => $input,
-        'max_width' => 0,
-        'max_height' => 0,
-        'hash' => $this->iframeUrlHelper->getHash($input, 0, 0),
-        'blazy' => 1,
-        'autoplay' => empty($settings['media_switch']) ? 0 : 1,
-      ],
+      'query' => $query,
     ]);
 
     if ($iframe_domain = $blazies->get('iframe_domain')) {
-      // @todo remove if useless, or already checked upstream.
-      $iframe_domain = UrlHelper::filterBadProtocol($iframe_domain);
       $url->setOption('base_url', $iframe_domain);
     }
 
     // The top level iframe url relative to the site, or iframe_domain.
     // @todo remove settings after sub-modules: zooming.
     $settings['embed_url'] = $embed_url = $url->toString();
-
-    $blazies->set('media.embed_url', $embed_url);
+    $blazies->set('media.embed_url', $embed_url)
+      ->set('media.escaped', TRUE);
 
     if ($source = $blazies->get('media.source')) {
       $videos = in_array($source, ['oembed:video', 'video_embed_field']);

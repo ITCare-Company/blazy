@@ -39,6 +39,7 @@ class BlazyMedia {
    *   The renderable array of the media field, or empty if not applicable.
    */
   public static function build($media, array $settings = []): array {
+    Blazy::verify($settings);
     $blazies = $settings['blazies'];
     // Prevents fatal error with disconnected internet when having ME Facebook,
     // ME SlideShare, resorted to static thumbnails to avoid broken displays.
@@ -51,6 +52,7 @@ class BlazyMedia {
       }
     }
 
+    // @todo remove settings post migrations and sub-modules.
     $settings['type'] = $type = 'rich';
     $blazies->set('media.type', $type);
 
@@ -78,7 +80,7 @@ class BlazyMedia {
     $item     = $field[0];
     $settings = &$field['#settings'];
     $blazies  = $settings['blazies'];
-    $iframe   = isset($item['#tag']) && $item['#tag'] == 'iframe';
+    $iframe   = ($item['#tag'] ?? NULL) == 'iframe';
 
     if (isset($item['#attributes'])) {
       $attributes = &$item['#attributes'];
@@ -89,8 +91,9 @@ class BlazyMedia {
 
     // Update iframe/video dimensions based on configurable image style, if any.
     foreach (['width', 'height'] as $key) {
-      if (!empty($settings[$key])) {
-        $attributes[$key] = $settings[$key];
+      $default = $settings[$key] ?? NULL;
+      if ($dimension = $blazies->get('image.' . $key, $default)) {
+        $attributes[$key] = $dimension;
       }
     }
 
@@ -119,15 +122,25 @@ class BlazyMedia {
   }
 
   /**
-   * Extracts neededinfo from a media.
+   * Extracts needed info from a media.
    */
   public static function extract(MediaInterface $media, $view_mode = NULL): array {
+    $source = $media->getSource();
+    $definition = $source->getPluginDefinition();
+    $uri = '';
+
+    // @todo recheck and replace if any direct method for URI.
+    if ($attr = ($definition['thumbnail_uri_metadata_attribute'] ?? '')) {
+      $uri = $source->getMetadata($media, $attr);
+    }
+
     return [
       'bundle'       => $media->bundle(),
       'id'           => $media->id(),
       'label'        => $media->label(),
-      'source'       => $media->getSource()->getPluginId(),
-      'source_field' => $media->getSource()->getConfiguration()['source_field'],
+      'source'       => $source->getPluginId(),
+      'source_field' => $source->getConfiguration()['source_field'],
+      'uri'          => $uri,
       'url'          => $media->isNew() ? '' : $media->toUrl()->toString(),
       'view_mode'    => $view_mode ?: 'default',
     ];
@@ -152,7 +165,8 @@ class BlazyMedia {
 
     // @todo remove $settings for $blazies after migration and sub-modules.
     foreach ($info as $key => $value) {
-      $key = in_array($key, ['id', 'url', 'source']) ? 'media_' . $key : $key;
+      $key = in_array($key, ['id', 'uri', 'url', 'source'])
+        ? 'media_' . $key : $key;
       $settings[$key] = $value;
     }
   }

@@ -63,7 +63,8 @@ class Lightbox {
     $box_id     = !$blazies->is('gallery') ? NULL : $gallery_id;
     $box_width  = $item->width ?? $blazies->get('image.original.width');
     $box_height = $item->height ?? $blazies->get('image.original.height');
-    $count      = $blazies->get('count');
+    $count      = $blazies->get('count', 1);
+    $is_escaped = $blazies->get('media.escaped');
 
     // Provide relevant URL if it is a lightbox.
     $url_attributes = &$element['#url_attributes'];
@@ -77,7 +78,7 @@ class Lightbox {
     ];
 
     // Might not be present from BlazyFilter.
-    $json = ['id' => $switch_css];
+    $json = ['id' => $switch_css, 'count' => $count, 'boxType' => 'image'];
     foreach (['bundle', 'type'] as $key) {
       $default = $settings[$key] ?? '';
       if ($value = $blazies->get('media.' . $key, $default)) {
@@ -85,79 +86,60 @@ class Lightbox {
       }
     }
 
-    if ($count) {
-      $json['count'] = $count;
-    }
-
     // Supports local and remote videos, also legacy VEF which has no bundles.
     // See https://drupal.org/node/3210636#comment-14097266.
     $is_multimedia = $blazies->is('multimedia');
+    $is_resimage = FALSE;
     $ok = $valid && $_box_style && !$blazies->is('unstyled');
+
+    // If image with valid URI, box image style, and not SVG, APNG, etc.
     if (!$is_multimedia && $ok) {
-      // Change xdebug.show_exception_trace = 1 to 0 to catch exceptions.
-      // The _responsive_image_build_source_attributes is WSOD if missing.
-      if ($blazies->is('resimage')) {
-        try {
-          $resimage = $manager->load($_box_style, 'responsive_image_style');
-          if (empty($element['#lightbox_html']) && $resimage) {
-            $is_resimage = TRUE;
-            $json['type'] = 'rich';
-            $element['#lightbox_html'] = [
-              '#theme' => 'responsive_image',
-              '#responsive_image_style_id' => $resimage->id(),
-              '#uri' => $uri,
-            ];
-          }
-        }
-        catch (\Exception $e) {
-          // Silently failed like regular images when missing rather than WSOD.
-        }
+      // Use responsive image if so-configured, unless rich content is provided.
+      if ($blazies->is('resimage') && empty($element['#lightbox_html'])) {
+        $options = [
+          'uri' => $uri,
+          'box_style' => $_box_style,
+        ];
+        $is_resimage = self::responsiveImage($element, $options, $manager);
       }
 
-      // Use non-responsive images if not-so-configured.
-      if (!isset($is_resimage) && $box_style) {
+      // Use non-responsive image if so-configured.
+      if (!$is_resimage && $box_style) {
         $dimensions = array_merge($dimensions, BlazyImage::transformDimensions($box_style, $dimensions));
         $box_url = $url = Blazy::transformRelative($uri, $box_style);
       }
     }
 
-    // Allows custom work to override this without image style, such as
-    // a combo of image, video, Instagram, Facebook, etc.
-    if (empty($settings['_box_width'])) {
-      $box_width = $dimensions['width'];
-      $box_height = $dimensions['height'];
-    }
+    // Can be original or styled dimensions.
+    $box_width = $dimensions['width'];
+    $box_height = $dimensions['height'];
 
-    $json['width'] = $box_width;
-    $json['height'] = $box_height;
-    $json['boxType'] = 'image';
-
-    // This allows PhotoSwipe with videos still swipable.
-    $box_media_url = NULL;
-    if ($valid && $box_media_style = $blazies->get('box_media.style')) {
-      $dimensions = array_merge($dimensions, BlazyImage::transformDimensions($box_media_style, $dimensions));
-      $box_media_url = Blazy::transformRelative($uri, $box_media_style);
-    }
-
+    // If multimendia with remote or local videos.
     if ($is_multimedia) {
-      $json['width']  = 640;
-      $json['height'] = 360;
+      $box_width = 640;
+      $box_height = 360;
 
       if ($embed = $blazies->get('media.embed_url')) {
         // Force autoplay for media URL on lightboxes, saving another click.
         // BC for non-oembed such as Video Embed Field without Media migration.
-        $url = Blazy::autoplay($embed, FALSE);
-        $url_attributes['data-oembed-url'] = UrlHelper::filterBadProtocol($url);
+        $url = Blazy::autoplay($embed, !$is_escaped);
+        $url_attributes['data-oembed-url'] = $url;
         $json['boxType'] = 'iframe';
       }
 
-      // Remote or local videos.
-      if ($box_media_url) {
-        // This allows PhotoSwipe with remote videos still swipable.
-        $box_url = $box_media_url;
-        $json['width'] = $box_width = $dimensions['width'];
-        $json['height'] = $box_height = $dimensions['height'];
-        $url_attributes['data-box-url'] = UrlHelper::filterBadProtocol($box_url);
+      // This allows PhotoSwipe with videos still swipable.
+      if ($valid && $box_media_style = $blazies->get('box_media.style')) {
+        $dimensions = array_merge(
+          $dimensions,
+          BlazyImage::transformDimensions($box_media_style, $dimensions)
+        );
+
+        $box_url = Blazy::transformRelative($uri, $box_media_style);
+        $box_width = $dimensions['width'];
+        $box_height = $dimensions['height'];
+
+        $blazies->set('lightbox.media_preview_url', $box_url);
+        $data_box_url = TRUE;
       }
 
       if ($blazies->get('photobox')) {
@@ -165,13 +147,19 @@ class Lightbox {
       }
     }
 
+    // @todo recheck if any side effect/ double escape to cdn/ valid input.
+    $box_url = UrlHelper::stripDangerousProtocols($box_url);
+
+    // Only needed by videos, the rest can just use $url set into HREF.
+    if (isset($data_box_url)) {
+      $url_attributes['data-box-url'] = $box_url;
+    }
+
     // @todo remove after sub-modules.
-    $box_url = UrlHelper::filterBadProtocol($box_url);
     $settings['box_url'] = $box_url;
     $blazies->set('lightbox.url', $box_url)
       ->set('lightbox.width', (int) $box_width)
-      ->set('lightbox.height', (int) $box_height)
-      ->set('lightbox.media_preview_url', $box_media_url);
+      ->set('lightbox.height', (int) $box_height);
 
     // @todo recheck $count given views gallery vs formatters vs formatters
     // inside views gallery, and add: && $count > 1.
@@ -186,10 +174,65 @@ class Lightbox {
       $json['rel'] = $box_id;
     }
 
-    $has_dim = !empty($json['height']) && !empty($json['width']);
+    // Provides the content and its attributes.
+    $options = [
+      'url' => $url,
+      'is_escaped' => $is_escaped,
+      'is_resimage' => $is_resimage,
+      'item' => $item,
+      'box_width' => $box_width,
+      'box_height' => $box_height,
+    ];
+
+    self::content(
+      $element,
+      $json,
+      $url_attributes,
+      $options,
+      $settings,
+      $manager
+    );
+  }
+
+  /**
+   * Attaches Colorbox if so configured.
+   */
+  private static function attachColorbox(array &$load): void {
+    if ($service = Blazy::service('colorbox.attachment')) {
+      $dummy = [];
+      $service->attach($dummy);
+
+      $load = Blazy::merge($load, $dummy, '#attached');
+
+      unset($dummy);
+    }
+  }
+
+  /**
+   * Provides html content for lightboxes.
+   */
+  private static function content(
+    array &$element,
+    array &$json,
+    array &$url_attributes,
+    array $options,
+    array $settings,
+    $manager
+  ): void {
+    [
+      'url' => $url,
+      'is_escaped' => $is_escaped,
+      'is_resimage' => $is_resimage,
+      'item' => $item,
+      'box_width' => $box_width,
+      'box_height' => $box_height,
+    ] = $options;
+
+    // Do not output NULL dimensions.
+    $has_dim = !empty($box_width) && !empty($box_height);
     if ($has_dim) {
-      $json['height'] = (int) $json['height'];
-      $json['width'] = (int) $json['width'];
+      $json['width'] = (int) $box_width;
+      $json['height'] = (int) $box_height;
     }
 
     // @todo make is flexible for regular non-media HTML.
@@ -208,10 +251,12 @@ class Lightbox {
       }
 
       // Responsive image is unwrapped. Local videos wrapped.
-      $content = isset($is_resimage) ? $element['#lightbox_html'] : $html;
+      $content = $is_resimage ? $element['#lightbox_html'] : $html;
       $content = trim($manager->renderer()->renderPlain($content));
       $json['html'] = Xss::filter($content, BlazyDefault::MEDIA_TAGS);
-      if (isset($is_resimage)) {
+
+      if ($is_resimage) {
+        $json['type'] = 'rich';
         $json['boxType'] = strpos($content, '<picture') !== FALSE
           ? 'picture' : 'responsive-image';
       }
@@ -230,23 +275,42 @@ class Lightbox {
       $element['#captions']['lightbox'] = self::buildCaptions($item, $settings);
     }
 
+    // @todo remove after another check, or any side effects.
+    if (!$is_escaped) {
+      $url = UrlHelper::stripDangerousProtocols($url);
+    }
+
+    $element['#url'] = $url;
+
     $icon = '<span class="media__icon media__icon--litebox"></span>';
-    $element['#url'] = UrlHelper::filterBadProtocol($url);
     $element['#icon']['lightbox']['#markup'] = $icon;
   }
 
   /**
-   * Attaches Colorbox if so configured.
+   * Provides responsive image for lightboxes.
    */
-  private static function attachColorbox(array &$load): void {
-    if ($service = Blazy::service('colorbox.attachment')) {
-      $dummy = [];
-      $service->attach($dummy);
+  private static function responsiveImage(array &$element, array $options, $manager): bool {
+    [
+      'uri' => $uri,
+      'box_style' => $box_style,
+    ] = $options;
 
-      $load = Blazy::merge($load, $dummy, '#attached');
-
-      unset($dummy);
+    // The _responsive_image_build_source_attributes is WSOD if missing.
+    $is_resimage = FALSE;
+    try {
+      if ($resimage = $manager->load($box_style, 'responsive_image_style')) {
+        $is_resimage = TRUE;
+        $element['#lightbox_html'] = [
+          '#theme' => 'responsive_image',
+          '#responsive_image_style_id' => $resimage->id(),
+          '#uri' => $uri,
+        ];
+      }
     }
+    catch (\Exception $e) {
+      // Silently failed like regular images when missing rather than WSOD.
+    }
+    return $is_resimage;
   }
 
   /**

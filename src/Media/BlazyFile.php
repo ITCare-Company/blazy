@@ -123,7 +123,7 @@ class BlazyFile {
     // Just in case, an attempted kidding gets in the way, relevant for UGC.
     // @todo re-check to completely remove data URI.
     if ($sanitize && !$data_uri) {
-      $url = UrlHelper::filterBadProtocol($url);
+      $url = UrlHelper::stripDangerousProtocols($url);
     }
 
     return $url ?: '';
