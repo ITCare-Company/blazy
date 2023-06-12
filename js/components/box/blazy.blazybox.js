@@ -14,6 +14,7 @@
   var _idOnce = _id;
   var _nick = 'blazyBox';
   var _element = '.' + _id;
+  var _mounted = 'is-' + _id + '-mounted';
   var _elContent = _element + '__content';
   var _isOpened = 'is-' + _id + '--open';
   var _visualyHidden = 'visually-hidden';
@@ -171,6 +172,7 @@
     me.btnClose = $el.find(_btnClose);
 
     $el.on('click.' + _id, _btnClose, me.close, true);
+    $el.addClass(_mounted);
   }
 
   /**
@@ -185,7 +187,7 @@
 
       Drupal.blazyBox.attach();
 
-      $.once(process, _idOnce, _element, _context);
+      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', _context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {

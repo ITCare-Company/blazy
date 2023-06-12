@@ -13,6 +13,7 @@
   var _idOnce = 'b-' + _md;
   var _player = _md + '--player';
   var _element = '.' + _player;
+  var _mounted = 'is-' + _player + '-mounted';
   var _icon = _md + '__icon';
   var _elIconPlay = '.' + _icon + '--play';
   var _elIconClose = '.' + _icon + '--close';
@@ -129,6 +130,7 @@
 
     // Closes the video.
     $el.on('click.' + _id, _elIconClose, stop);
+    $el.addClass(_mounted);
   }
 
   /**
@@ -201,15 +203,13 @@
    */
   Drupal.behaviors.blazyMedia = {
     attach: function (context) {
-
-      _context = $.context(context);
-
-      $.once(process, _idOnce, _element, _context);
+      // For some reasons, context failed on lightboxes.
+      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', _doc);
 
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _element, _context);
+        $.once.removeSafely(_idOnce, _element, _doc);
       }
     }
   };

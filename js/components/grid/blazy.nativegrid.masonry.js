@@ -18,6 +18,7 @@
   var _isMasonry = 'is-' + _idOnce;
   var _isUnload = 'is-b-unload';
   var _element = '.' + _id + '.' + _isMasonry;
+  var _mounted = _isMasonry + '-mounted';
   var _unload = false;
 
   Drupal.blazy = Drupal.blazy || {};
@@ -133,6 +134,7 @@
       $.addClass(elm, _isUnload);
     }
     _unload = false;
+    $.addClass(elm, _mounted);
   }
 
   /**
@@ -145,7 +147,7 @@
 
       _context = $.context(context);
 
-      $.once(process, _idOnce, _element, _context);
+      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', _context);
 
     },
     detach: function (context, setting, trigger) {

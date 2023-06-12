@@ -17,6 +17,7 @@
   var _idOnce = 'b-flex';
   var _isLoading = 'is-b-loading';
   var _element = '.' + _id;
+  var _mounted = 'is-' + _idOnce + '-mounted';
   var _max = 0;
   var _unload = false;
   var _opts = {
@@ -146,6 +147,7 @@
       }, 600);
     }
 
+    $.addClass(elm, _mounted);
     _opts.$el = elm;
     _unload = false;
   }
@@ -160,7 +162,7 @@
 
       _context = $.context(context);
 
-      $.once(process, _idOnce, _element, _context);
+      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', _context);
     },
     detach: function (context, setting, trigger) {
       _unload = trigger === 'unload';

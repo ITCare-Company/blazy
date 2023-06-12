@@ -29,7 +29,7 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * The app root.
    *
-   * @var \SplString
+   * @var string
    */
   protected $root;
 

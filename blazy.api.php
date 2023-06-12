@@ -334,10 +334,10 @@ function hook_blazy_item_alter(array &$settings, array &$attributes, $item = NUL
   // If it has a media embed url and a lightbox with unwanted implementations,
   // replace the lightbox with an inline media player, and leave the rest of
   // images as lightboxes.
-  // Be sure to require `blazy/media` library somewhere, if not already loaded.
+  // Be sure to require `blazy/media` library somewhere, if not already loaded,
+  // says put $blazies->set('libs.media', TRUE); in hook_blazy_settings_alter().
   if ($blazies->get('colorbox') && $blazies->get('media.embed_url')) {
     $blazies->set('switch', 'media')
-      ->set('libs.media', TRUE)
       ->set('is.player', TRUE)
       ->set('is.lightbox', FALSE);
   }

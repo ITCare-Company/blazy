@@ -104,9 +104,18 @@ class BlazyMedia {
       $attributes = Blazy::merge($attributes, BlazyAttribute::iframe($settings));
     }
     // Media with local files: video.
-    elseif (isset($item['#files']) && $file = ($item['#files'][0]['file'] ?? NULL)) {
+    elseif (isset($item['#files'])
+      && $file = ($item['#files'][0]['file'] ?? NULL)) {
       // @todo multiple sources, not crucial for now.
       $blazies->set('media.uri', $file->getFileUri());
+
+      // For some reasons now colorbox fails loading local video, disable lazy.
+      // @todo recheck other lightboxes w/o local video supports.
+      if ($blazies->get('colorbox')) {
+        $blazies->set('is.unlazy', TRUE)
+          ->set('is.undata', TRUE);
+      }
+
       self::videoItem($item, $settings);
     }
 

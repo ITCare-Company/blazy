@@ -144,20 +144,10 @@ class BlazyTheme {
     if ($files = $variables['files']) {
       $use_dataset = empty($attributes['data-b-undata']);
 
-      if ($use_dataset) {
-        $attributes->addClass(['b-lazy']);
-
-        foreach ($files as $file) {
-          $source_attributes = &$file['source_attributes'];
-          $source_attributes->setAttribute('data-src', $source_attributes['src']->value());
-          $source_attributes->setAttribute('src', Placeholder::BLANK);
-        }
-      }
-
       // Adds a poster image if so configured.
       if ($blazy = ($files[0]['#blazy'] ?? FALSE)) {
         $settings = $blazy->storage();
-        $blazies = $settings['blazies'];
+        $blazies = &$settings['blazies'];
 
         if ($blazies->get('image.uri')) {
           // @todo recheck why image.url is not here, was fine <2.6.
@@ -178,6 +168,16 @@ class BlazyTheme {
           if ($blazies->is('lightbox') && $blazies->is('richbox')) {
             $attributes->setAttribute('autoplay', TRUE);
           }
+        }
+      }
+
+      if ($use_dataset) {
+        $attributes->addClass(['b-lazy']);
+
+        foreach ($files as $file) {
+          $source_attributes = &$file['source_attributes'];
+          $source_attributes->setAttribute('data-src', $source_attributes['src']->value());
+          $source_attributes->setAttribute('src', Placeholder::BLANK);
         }
       }
 

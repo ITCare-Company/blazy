@@ -13,6 +13,7 @@
   var _idOnce = 'b-' + _id;
   var $body = $('body');
   var _element = '[data-' + _id + '-trigger]';
+  var _mounted = 'is-' + _idOnce + '-mounted';
   var cboxTimer;
 
   /**
@@ -166,6 +167,7 @@
     }
 
     $box.colorbox($.extend({}, _cbox, runtimeOptions));
+    $box.addClass(_mounted);
   }
 
   /**
@@ -185,7 +187,7 @@
 
       _context = _d.context(context);
 
-      var elms = _d.once(process, _idOnce, _element, _context);
+      var elms = _d.once(process, _idOnce, _element + ':not(.' + _mounted + ')', _context);
       if (elms.length) {
         $('#colorbox').attr('aria-label', 'color box');
       }
