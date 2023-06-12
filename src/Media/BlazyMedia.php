@@ -178,7 +178,7 @@ class BlazyMedia {
     // Do this as $item['#settings'] is not available as file_video variables.
     // @todo re-check, most like just a single file here.
     foreach ($item['#files'] as &$files) {
-      $files['blazy'] = new BlazySettings($settings);
+      $files['#blazy'] = new BlazySettings($settings);
     }
 
     $item['#attributes']->setAttribute('data-b-lazy', TRUE);

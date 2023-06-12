@@ -39,6 +39,10 @@ class BlazyInternal {
 
     // Build thumbnail and optional placeholder based on thumbnail.
     Placeholder::prepare($attributes, $settings);
+
+    if ($manager = Blazy::service('blazy.manager')) {
+      $manager->moduleHandler()->alter('blazy_item', $settings, $attributes, $item);
+    }
   }
 
   /**

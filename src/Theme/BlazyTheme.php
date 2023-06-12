@@ -70,7 +70,9 @@ class BlazyTheme {
     // Provides sensible default html settings to shutup notices when lacking.
     $attributes = &$variables['attributes'];
     $settings = &$variables['settings'];
-    $settings += BlazyDefault::itemSettings();
+
+    Blazy::verify($settings);
+
     $blazies = $settings['blazies'];
     $item = $variables['item'];
     $api = $blazies->is('api');
@@ -153,7 +155,7 @@ class BlazyTheme {
       }
 
       // Adds a poster image if so configured.
-      if ($blazy = ($files[0]['blazy'] ?? FALSE)) {
+      if ($blazy = ($files[0]['#blazy'] ?? FALSE)) {
         $settings = $blazy->storage();
         $blazies = $settings['blazies'];
 

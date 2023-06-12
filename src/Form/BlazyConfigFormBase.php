@@ -42,6 +42,13 @@ abstract class BlazyConfigFormBase extends ConfigFormBase {
   protected $allowedTags = NULL;
 
   /**
+   * Whether to allow tags.
+   *
+   * @var mixed
+   */
+  protected $stripTags = TRUE;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
@@ -66,6 +73,9 @@ abstract class BlazyConfigFormBase extends ConfigFormBase {
             $value = UrlHelper::filterBadProtocol($value);
           }
           $value = Xss::filter($value, $this->allowedTags);
+          if ($this->stripTags) {
+            $value = strip_tags($value);
+          }
           $form_state->setValue($option, $value);
         }
       }

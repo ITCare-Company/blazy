@@ -267,7 +267,7 @@ class BlazyDefault {
   /**
    * Returns sensible default item settings to shutup notices when lacking.
    *
-   * @todo refine more for blazies after sub-module updates:
+   * @todo remove, no longer useful as per 2.17.
    */
   public static function itemSettings() {
     return [

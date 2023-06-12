@@ -52,7 +52,7 @@ class Sanitize {
    * Returns the unstripped content after being stripped.
    *
    * Xss::filter() stripped a few useful and assumed safe attributes and its
-   * values. This methods corrects very few known safe ones while still keeping
+   * values. This method corrects very few known safe ones while still keeping
    * safety in mind.
    *
    * @param string $content

@@ -375,12 +375,9 @@ class Check {
     $richbox  = $blazies->get('colorbox') || $blazies->get('mfp') || $_richbox;
 
     // (Non-)lightboxes: media player, link to content, image rendered, etc.
-    $blazies->set('switch', $switch);
-    $blazies->set('libs.media', $switch == 'media');
-
-    // @todo remove settings after migration and sub-modules.
-    $settings['lightbox'] = $lightbox;
-    $blazies->set('is.lightbox', !empty($lightbox))
+    $blazies->set('switch', $switch)
+      ->set('libs.media', $switch == 'media')
+      ->set('is.lightbox', !empty($lightbox))
       ->set('is.richbox', $richbox)
       ->set('was.lightbox', TRUE);
   }

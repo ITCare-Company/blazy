@@ -314,6 +314,36 @@ function hook_blazy_settings_alter(array &$build, $items) {
 }
 
 /**
+ * Alters blazy item settings, useful for mixed media contents.
+ *
+ * This is called before the mixed media elements being populated allowing you
+ * to change the item output via its specific settings.
+ *
+ * @param array $settings
+ *   The array settings being modified.
+ * @param array $attributes
+ *   The .media element attributes being modified.
+ * @param object $item
+ *   The nullable image item, or stdClass.
+ *
+ * @ingroup blazy_api
+ */
+function hook_blazy_item_alter(array &$settings, array &$attributes, $item = NULL) {
+  $blazies = $settings['blazies'];
+
+  // If it has a media embed url and a lightbox with unwanted implementations,
+  // replace the lightbox with an inline media player, and leave the rest of
+  // images as lightboxes.
+  // Be sure to require `blazy/media` library somewhere, if not already loaded.
+  if ($blazies->get('colorbox') && $blazies->get('media.embed_url')) {
+    $blazies->set('switch', 'media')
+      ->set('libs.media', TRUE)
+      ->set('is.player', TRUE)
+      ->set('is.lightbox', FALSE);
+  }
+}
+
+/**
  * Alters blazy-related formatter form elements.
  *
  * This takes advantage of Blazy taking care of a few elements finalizations,

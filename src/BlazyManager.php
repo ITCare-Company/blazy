@@ -32,15 +32,15 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     $settings = &$build['settings'];
-    $settings += BlazyDefault::itemSettings();
     $item = $build['item'];
-
-    CheckItem::essentials($settings, $item, $delta);
 
     // Prevents double checks.
     // @todo re-check for dup thumbnails without a reset here, see #3278525.
-    $blazies = $settings['blazies']->reset($settings);
+    Blazy::verify($settings);
+    $blazies = Blazy::reset($settings);
     $blazies->set('is.api', TRUE);
+
+    CheckItem::essentials($settings, $item, $delta);
 
     // Respects content not handled by theme_blazy(), but passed through.
     // Yet allows rich contents which might still be processed by theme_blazy().
@@ -75,7 +75,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     if ($blazies->get('switch') == 'content' && $url) {
       $element['#url'] = $url;
     }
-    elseif ($blazies->get('lightbox.name')) {
+    elseif ($blazies->is('lightbox')) {
       Lightbox::build($element);
     }
 
@@ -207,7 +207,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       ->set('is.bg', FALSE)
       ->set('use.loader', FALSE);
 
-    // $settings = array_merge($settings, BlazyDefault::richSettings());
     // Supports HTML content for lightboxes as long as having image trigger.
     // Type rich to not conflict with Image rendered by its formatter option.
     $supported = $blazies->is('richbox') ?: $settings['_richbox'] ?? FALSE;
@@ -215,7 +214,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $litebox = $blazies->is('lightbox');
     $blazy = ($build['content'][0]['#settings'] ?? NULL);
 
-    if ($rich && $litebox && is_object($blazy)) {
+    if ($rich && $litebox && $blazy instanceof BlazySettings) {
       if ($blazies->is('hires', !empty($settings['image']))) {
         // Overrides the overriden settings with original formatter settings.
         $settings = $this->merge($settings, $blazy->storage());
