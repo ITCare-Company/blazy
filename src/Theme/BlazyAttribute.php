@@ -314,7 +314,7 @@ class BlazyAttribute {
     $embed_url  = $blazies->get('media.embed_url');
     $width      = $blazies->get('image.width');
     $title      = $blazies->get('image.title') ?: $blazies->get('media.label');
-    $alt        = $blazies->get('image.alt');
+    $alt        = $attributes['alt'] ?? $blazies->get('image.alt');
 
     // Updates $title whether for video, or just image, and accounts for UGC.
     if ($title) {
@@ -324,7 +324,6 @@ class BlazyAttribute {
     }
 
     // Respects hand-coded image attributes, and accounts for UGC.
-    $alt = $attributes['alt'] ?? $alt;
     $attributes['alt'] = $alt = $alt ? Xss::filter($alt) : '';
     $blazies->set('image.alt', $alt);
 
@@ -343,7 +342,7 @@ class BlazyAttribute {
       $translation_replacements = ['@label' => $title];
       $attributes['title'] = new TranslatableMarkup('Preview image for the video "@label".', $translation_replacements);
 
-      if ($alt = $blazies->get('image.alt')) {
+      if ($alt) {
         $translation_replacements['@alt'] = $alt;
         $attributes['alt'] = new TranslatableMarkup('Preview image for the video "@label" - @alt.', $translation_replacements);
       }
@@ -361,6 +360,7 @@ class BlazyAttribute {
       $attributes['data-entity-uuid'] = $uuid;
     }
 
+    // Apply common shared attributes.
     self::common($attributes, $variables['settings'], $width);
     $image['#attributes'] = Blazy::merge($attributes, $image, '#attributes');
 
@@ -373,21 +373,6 @@ class BlazyAttribute {
     // Provides [data-(src|lazy)] for (Responsive) image, after noscript.
     self::lazy($image['#attributes'], $settings);
     self::unloading($image['#attributes'], $blazies);
-  }
-
-  /**
-   * Provides legacy minimal item attributes.
-   *
-   * @todo deprecated and remove supporting passing data via item_attributes.
-   */
-  private static function item(array $attributes, $blazies): void {
-    if (!$blazies->get('image.width')) {
-      foreach (['width', 'height'] as $key) {
-        if (!empty($attributes[$key])) {
-          $blazies->set('image.' . $key, $attributes[$key]);
-        }
-      }
-    }
   }
 
   /**
@@ -497,6 +482,21 @@ class BlazyAttribute {
 
     if ($flag) {
       $attributes['data-b-unloading'] = TRUE;
+    }
+  }
+
+  /**
+   * Provides legacy minimal item attributes.
+   *
+   * @todo deprecated and remove supporting passing data via item_attributes.
+   */
+  private static function item(array $attributes, $blazies): void {
+    if (!$blazies->get('image.width')) {
+      foreach (['width', 'height'] as $key) {
+        if (!empty($attributes[$key])) {
+          $blazies->set('image.' . $key, $attributes[$key]);
+        }
+      }
     }
   }
 

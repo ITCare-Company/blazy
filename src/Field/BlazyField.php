@@ -126,7 +126,7 @@ class BlazyField {
       $k = str_replace('field_', '', $key);
       $blazies->set('field.' . $k, $value);
 
-      // @todo remove at 3.x after sub-modules.
+      // @todo remove at/ by 3.x after sub-modules.
       $settings[$key] = $value;
     }
   }

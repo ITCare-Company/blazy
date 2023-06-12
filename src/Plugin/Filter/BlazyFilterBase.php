@@ -45,6 +45,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    * {@inheritdoc}
    */
   public function buildSettings($text) {
+    $config = $this->settings;
     $settings = &$this->settings;
     $settings += BlazyDefault::lazySettings();
 
@@ -59,18 +60,19 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $this->preSettings($settings, $text);
     $this->blazyManager->preSettings($settings);
 
+    $namespace = $this->provider;
     $blazies = $settings['blazies'];
-    $blazies->set('is.filter', TRUE)
+    $blazies->set('css.id', $id)
+      ->set('is.filter', TRUE)
       ->set('is.media_library', $is_media_library)
       ->set('is.unsafe', TRUE)
-      ->set('libs.filter', TRUE);
+      ->set('libs.filter', TRUE)
+      ->set('filter.' . $namespace, $config)
+      ->set('filter.plugin_id', $plugin_id)
+      ->set('lightbox.gallery_id', $id);
 
     $this->postSettings($settings);
     $this->blazyManager->postSettings($settings);
-
-    $blazies->set('lightbox.gallery_id', $id)
-      ->set('css.id', $id)
-      ->set('filter.plugin_id', $plugin_id);
 
     return $settings;
   }
@@ -415,6 +417,14 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       '#options' => $styles,
       '#empty_option' => $this->t('- None -'),
       '#default_value' => $this->settings['box_style'] ?? '',
+    ];
+
+    $form['box_media_style'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Lightbox media style'),
+      '#options' => $styles,
+      '#empty_option' => $this->t('- None -'),
+      '#default_value' => $this->settings['box_media_style'] ?? '',
     ];
 
     $captions = $this->blazyAdmin->getLightboxCaptionOptions();

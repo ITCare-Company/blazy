@@ -136,6 +136,9 @@ blazy_filter:
     box_style:
       type: string
       label: 'Lightbox (Responsive) image style'
+    box_media_style:
+      type: string
+      label: 'Lightbox media style'
     box_caption:
       type: string
       label: 'Lightbox caption'

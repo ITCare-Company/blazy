@@ -85,7 +85,7 @@ class CheckItem {
     $videos    = ['oembed:video', 'video_embed_field'];
     $medias    = array_merge(['audio_file', 'video_file'], $videos);
     $is_video  = $source && in_array($source, $videos) || $type == 'video';
-    $is_media  = $source && in_array($source, $medias) || $is_video;
+    $is_media  = $source && in_array($source, $medias) || $is_video || $blazies->is('multimedia');
     $is_remote = $bundle == 'remote_video' || $type == 'video';
     $is_remote = $embed_url && ($is_video || $is_remote);
     $switch    = $settings['media_switch'] ?? NULL;

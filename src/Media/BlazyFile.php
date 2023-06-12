@@ -80,7 +80,7 @@ class BlazyFile {
    * @param object $style
    *   The optional image style instance.
    * @param array $options
-   *   The options: default url, sanitize.
+   *   The options: default url.
    *
    * @return string
    *   Returns an absolute URL of a local file to a relative one.
@@ -90,13 +90,10 @@ class BlazyFile {
    */
   public static function transformRelative($uri, $style = NULL, array $options = []): string {
     $url = $options['url'] ?? '';
-    $sanitize = $options['sanitize'] ?? FALSE;
 
     if (empty($uri)) {
       return $url;
     }
-
-    $data_uri = Blazy::isDataUri($url);
 
     // Returns as is if an external URL: UCG or external OEmbed image URL.
     if (self::isExternal($uri)) {
@@ -104,7 +101,7 @@ class BlazyFile {
     }
     else {
       // @todo re-check this based on the need.
-      if (($data_uri || empty($url) || $style) && self::isValidUri($uri)) {
+      if ((empty($url) || $style) && self::isValidUri($uri)) {
         $url = $style ? $style->buildUrl($uri) : self::createUrl($uri);
 
         if ($gen = Path::fileUrlGenerator()) {
@@ -118,15 +115,7 @@ class BlazyFile {
     }
 
     // If transform failed, returns default URL, or URI as is.
-    $url = $url ?: $uri;
-
-    // Just in case, an attempted kidding gets in the way, relevant for UGC.
-    // @todo re-check to completely remove data URI.
-    if ($sanitize && !$data_uri) {
-      $url = UrlHelper::stripDangerousProtocols($url);
-    }
-
-    return $url ?: '';
+    return $url ?: $uri;
   }
 
   /**

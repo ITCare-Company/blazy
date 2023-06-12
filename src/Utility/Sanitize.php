@@ -48,4 +48,36 @@ class Sanitize {
     return $output;
   }
 
+  /**
+   * Returns the unstripped content after being stripped.
+   *
+   * Xss::filter() stripped a few useful and assumed safe attributes and its
+   * values. This methods corrects very few known safe ones while still keeping
+   * safety in mind.
+   *
+   * @param string $content
+   *   The given string content.
+   * @param array $options
+   *   The options.
+   *
+   * @return string
+   *   The content after corrections.
+   *
+   * @see https://www.drupal.org/project/drupal/issues/3109650
+   */
+  public static function unstrip($content, array $options): string {
+    $prestyle = $options['prestyle'] ?? '';
+    $style = $options['style'] ?? '';
+
+    // @todo remove when local videos are generated dynamically like remote.
+    if (strpos($content, 'src="blank"') !== FALSE) {
+      $content = str_replace('src="blank"', 'src="about:blank"', $content);
+    }
+
+    if ($style && $prestyle && strpos($content, $prestyle) !== FALSE) {
+      $content = str_replace($prestyle, $prestyle . ' style="' . $style . '"', $content);
+    }
+    return $content;
+  }
+
 }

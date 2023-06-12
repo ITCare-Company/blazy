@@ -23,6 +23,7 @@ use Drupal\blazy\Plugin\Filter\BlazyFilterUtil as Util;
  *     "filter_tags" = {"img" = "img", "iframe" = "iframe"},
  *     "media_switch" = "",
  *     "box_style" = "",
+ *     "box_media_style" = "",
  *     "hybrid_style" = "",
  *     "use_data_uri" = "0",
  *   },

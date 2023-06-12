@@ -218,7 +218,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     if ($rich && $litebox && is_object($blazy)) {
       if ($blazies->is('hires', !empty($settings['image']))) {
         // Overrides the overriden settings with original formatter settings.
-        $settings = array_merge($settings, $blazy->storage());
+        $settings = $this->merge($settings, $blazy->storage());
         $element['#lightbox_html'] = $build['content'];
         $build['content'] = [];
       }

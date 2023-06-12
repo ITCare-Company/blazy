@@ -70,6 +70,7 @@ class Grid {
       $content_attrs['class'] = array_merge(['grid__content'], $classes);
 
       // Remove known unused array.
+      // @todo refactor at 3.x to use hashes instead.
       unset($item['settings'], $item['attributes'], $item['content_attributes']);
       if (is_object($item['item'] ?? NULL)) {
         unset($item['item']);
@@ -85,15 +86,6 @@ class Grid {
       $contents[] = $content;
     }
 
-    // Supports field label via Field UI, unless use.theme_field takes place.
-    $title = '';
-    $label = $blazies->get('field.label');
-    if (!$blazies->use('theme_field')
-      && $blazies->get('field.label_display') != 'hidden'
-      && $label) {
-      $title = $label;
-    }
-
     $attrs = [];
     self::attributes($attrs, $settings);
 
@@ -107,7 +99,7 @@ class Grid {
       '#context'            => ['settings' => $settings],
       '#attributes'         => $attrs,
       '#wrapper_attributes' => ['class' => $wrapper],
-      '#title'              => $title,
+      '#title'              => self::label($blazies),
     ];
   }
 
@@ -152,8 +144,8 @@ class Grid {
    * Checks if a grid uses a native grid, but expecting a masonry.
    */
   public static function isNativeGridAsMasonry(array $settings): bool {
-    $grid = $settings['grid'];
-    return !self::isNativeGrid($grid) && $settings['style'] == 'nativegrid';
+    return !self::isNativeGrid($settings['grid'])
+      && $settings['style'] == 'nativegrid';
   }
 
   /**
@@ -232,7 +224,21 @@ class Grid {
   }
 
   /**
-   * LProvides grid item attributes, relevant for Native Grid.
+   * Returns field label via Field UI, unless use.theme_field takes place.
+   */
+  private static function label($blazies): ?string {
+    $title = '';
+    $label = $blazies->get('field.label');
+    if (!$blazies->use('theme_field')
+      && $blazies->get('field.label_display') != 'hidden'
+      && $label) {
+      $title = $label;
+    }
+    return $title;
+  }
+
+  /**
+   * Provides grid item attributes, relevant for Native Grid.
    */
   private static function itemAttributes(array &$attributes, array $settings): void {
     $blazies = $settings['blazies'];

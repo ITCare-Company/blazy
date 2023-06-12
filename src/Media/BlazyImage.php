@@ -526,9 +526,25 @@ class BlazyImage {
     $style   = $styled ? $style : NULL;
     $url     = $settings['image_url'] ?? '';
     $url     = $blazies->get('image.url') ?: $url;
-    $options = ['url' => $url, 'sanitize' => $blazies->is('unsafe')];
+    $options = ['url' => $url];
 
-    return BlazyFile::transformRelative($uri, $style, $options);
+    $url = BlazyFile::transformRelative($uri, $style, $options);
+
+    // Just in case, an attempted kidding gets in the way, relevant for UGC.
+    // @todo re-check to completely remove data URI.
+    if ($blazies->is('unsafe')) {
+      $use_data_uri = $blazies->filter('use_data_uri');
+      $data_uri = Blazy::isDataUri($url);
+
+      if ($data_uri) {
+        $url = $use_data_uri ? $url : UrlHelper::stripDangerousProtocols($url);
+      }
+      else {
+        $url = UrlHelper::stripDangerousProtocols($url);
+      }
+    }
+
+    return $url;
   }
 
   /**

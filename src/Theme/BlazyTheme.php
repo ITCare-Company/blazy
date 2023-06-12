@@ -7,6 +7,7 @@ use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyInternal;
+use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Utility\Path;
 
@@ -153,11 +154,18 @@ class BlazyTheme {
 
       // Adds a poster image if so configured.
       if ($blazy = ($files[0]['blazy'] ?? FALSE)) {
-        if ($blazy->get('image.uri')) {
-          $settings = $blazy->storage();
-          $blazies = $settings['blazies'];
+        $settings = $blazy->storage();
+        $blazies = $settings['blazies'];
 
-          if ($url = $blazies->get('image.url')) {
+        if ($blazies->get('image.uri')) {
+          // @todo recheck why image.url is not here, was fine <2.6.
+          $url = $blazies->get('image.url');
+
+          if (!$url) {
+            $url = BlazyImage::url($settings, $blazies->get('image.style'));
+          }
+
+          if ($url) {
             if (!$blazies->use('loader') && $use_dataset) {
               $blazies->set('use.loader', TRUE);
             }

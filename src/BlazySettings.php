@@ -61,6 +61,23 @@ class BlazySettings implements \Countable {
   }
 
   /**
+   * Returns a convenient shortcut to get a feature with a `filter` key.
+   *
+   * @param string $key
+   *   The storage key.
+   * @param string $default_value
+   *   The storage default_value.
+   * @param string $namespace
+   *   The plugin namespace.
+   *
+   * @return mixed
+   *   A mixed value (array, string, bool, null, etc.).
+   */
+  public function filter($key, $default_value = NULL, $namespace = 'blazy') {
+    return $this->get('filter.' . $namespace . '.' . $key, $default_value);
+  }
+
+  /**
    * Returns a convenient shortcut to get a feature with an `is` key.
    *
    * @param string $key

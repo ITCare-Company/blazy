@@ -9,6 +9,7 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
+use Drupal\blazy\Utility\Sanitize;
 
 /**
  * Provides lightbox utilities.
@@ -135,8 +136,8 @@ class Lightbox {
         );
 
         $box_url = Blazy::transformRelative($uri, $box_media_style);
-        $box_width = $dimensions['width'];
-        $box_height = $dimensions['height'];
+        $box_width = $dimensions['width'] ?: $box_width;
+        $box_height = $dimensions['height'] ?: $box_height;
 
         $blazies->set('lightbox.media_preview_url', $box_url);
         $data_box_url = TRUE;
@@ -235,25 +236,35 @@ class Lightbox {
       $json['height'] = (int) $box_height;
     }
 
-    // @todo make is flexible for regular non-media HTML.
-    if (!empty($element['#lightbox_html'])) {
+    // @todo make it flexible for regular non-media HTML.
+    if ($box_html = ($element['#lightbox_html'] ?? [])) {
       $html = [
         '#theme' => 'container',
-        '#children' => $element['#lightbox_html'],
+        '#children' => $box_html,
         '#attributes' => [
           'class' => ['media', 'media--ratio'],
         ],
       ];
 
+      $style = '';
       if ($has_dim) {
         $pad = round((($json['height'] / $json['width']) * 100), 2);
-        $html['#attributes']['style'] = 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;';
+        $style = 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;';
+        $html['#attributes']['style'] = $style;
       }
 
       // Responsive image is unwrapped. Local videos wrapped.
-      $content = $is_resimage ? $element['#lightbox_html'] : $html;
+      $content = $is_resimage ? $box_html : $html;
       $content = trim($manager->renderer()->renderPlain($content));
-      $json['html'] = Xss::filter($content, BlazyDefault::MEDIA_TAGS);
+      $content = Xss::filter($content, BlazyDefault::MEDIA_TAGS);
+
+      // See https://www.drupal.org/project/drupal/issues/3109650.
+      $options = [
+        'prestyle' => 'ratio"',
+        'style' => $style,
+      ];
+
+      $json['html'] = Sanitize::unstrip($content, $options);
 
       if ($is_resimage) {
         $json['type'] = 'rich';
@@ -280,10 +291,9 @@ class Lightbox {
       $url = UrlHelper::stripDangerousProtocols($url);
     }
 
-    $element['#url'] = $url;
-
     $icon = '<span class="media__icon media__icon--litebox"></span>';
     $element['#icon']['lightbox']['#markup'] = $icon;
+    $element['#url'] = $url;
   }
 
   /**

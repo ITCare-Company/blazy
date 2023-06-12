@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-06-12
+------------------------------
+- Fixed for local video regressions within lightboxes.
+- Added box_media_style for BlazyFilter.
+
 Blazy 8.x-2.0-dev, 2023-06-09
 ------------------------------
 - Added persistent "is-b-visible" CSS class.
