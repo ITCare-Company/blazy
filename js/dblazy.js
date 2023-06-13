@@ -76,7 +76,7 @@
 
       var els = selector;
       if (isStr(selector)) {
-        els = findAll(context(ctx), selector);
+        els = findAll(ctx, selector);
         if (!els.length) {
           return;
         }
@@ -694,6 +694,9 @@
           // To minimize unnecessary mutations.
           el.src = defValue;
         }
+        else if (attr === 'href') {
+          el.href = defValue;
+        }
         else {
           _op(el, _set, attr, defValue);
         }
@@ -986,6 +989,7 @@
   function is(el, selector) {
     if (isElm(el)) {
       if (isStr(selector)) {
+        selector = toScope(selector);
         return el.matches(selector);
       }
       return isElm(selector) && el === selector;
@@ -1046,18 +1050,36 @@
     }
 
     if (isQsa(el)) {
-      // Direct descendant.
-      var scope = ':scope';
-      if (isStr(selector) && startsWith(selector, '>')) {
-        if (!contains(selector, scope)) {
-          selector = scope + ' ' + selector;
-        }
-      }
+      selector = toScope(selector);
+      el = context(el, selector);
       return isUnd(asArray) && isStr(selector)
         ? (el.querySelector(selector) || [])
         : toElms(selector, el);
     }
     return [];
+  }
+
+  /**
+   * A simple direct descendant wrapper.
+   *
+   * @private
+   *
+   * @param {string} selector
+   *   The CSS selector or HTML tag to query.
+   *
+   * @return {string}
+   *   The corrected selector with :scope.
+   */
+  function toScope(selector) {
+    var sel = selector;
+    // Direct descendant.
+    var scope = ':scope';
+    if (isStr(selector) && startsWith(selector, '>')) {
+      if (!contains(selector, scope)) {
+        sel = scope + ' ' + selector;
+      }
+    }
+    return sel;
   }
 
   /**
@@ -1325,7 +1347,6 @@
     // Assume selector is an array-like element unless a string.
     var elements = toArray(selector);
     if (isStr(selector)) {
-      ctx = context(ctx);
       var check = ctx.querySelector(selector);
       elements = isNull(check) ? [] : ctx.querySelectorAll(selector);
     }
@@ -1776,22 +1797,32 @@
    *
    * Context is unreliable with AJAX contents like product variations, etc.
    * This can be null after Colorbox close, or absurd <script> element, likely
-   * arbitrary, etc.
+   * arbitrary, etc. Since D10, or blazy:2.17, also identified that the context
+   * can be returned as the element with the given selector itself to QSA for
+   * causing QSA fail since it QSA itself.
    *
    * @param {Document|Element} ctx
    *   Any element, including weird script element.
+   * @param {string} selector
+   *   The selector to compare against ctx in case borked somehwere.
    *
    * @return {Element|Document|DocumentFragment}
    *   The Element|Document|DocumentFragment to not fail querySelector, etc.
    *
    * @todo refine core/once expects Element only, or patch it for [1,9,11].
    */
-  function context(ctx) {
+  function context(ctx, selector) {
     // Weirdo: context may be null after Colorbox close.
     ctx = ctx || _doc;
 
     // In case a string, and if none is found, give a default document here on.
     ctx = toElm(ctx) || _doc;
+
+    // @todo fix why the selector itself is given as context on lightboxes
+    // since D10/ blazy:2.17. And also check it around for internal mistakes.
+    if (selector && is(ctx, selector)) {
+      ctx = _doc;
+    }
 
     // Absurd arbitrary <script> elements which have no children may be spit on
     // AJAX causing temporary failures as seen at Views UI.
@@ -2056,7 +2087,7 @@
   // When removed and context issue is fixed, it will be just:
   // `db.once = extend(db.once, once);` + `db.once.removeSafely()`.
   function elsOnce(selector, ctx) {
-    return findAll(context(ctx), selector);
+    return findAll(ctx, selector);
   }
 
   function selOnce(id) {

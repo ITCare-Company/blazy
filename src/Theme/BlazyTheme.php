@@ -177,7 +177,9 @@ class BlazyTheme {
         }
       }
 
+      // For consistent lazy selectors .b-lazy[data-src] vs Native .b-lazy.
       $attrs = ['data-b-lazy', 'data-b-undata'];
+      $attributes->setAttribute('data-src', '');
       $attributes->addClass(['media__element']);
       $attributes->removeAttribute($attrs);
     }

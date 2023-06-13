@@ -97,6 +97,13 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       '#description'   => $this->t('By default a 1px Data URI image is the placeholder for lazyloaded (Responsive) image. Useful to perform a lot better. Uncheck to disable, and use Drupal-managed smallest/fallback image style instead. Be sure to add proper dimensions or at least min-height/min-width via CSS accordingly to avoid layout reflow, or choose an Aspect ratio via Blazy formatters. <br>Since <b>2.10</b>, disabling this will no longer result in downloading fallback image (double downloads). Thus, allows you to have non <code>empty image</code> for fallback at Responsive image style UI without extra HTTP requests, while using <code>empty image</code> (enforced now) for the SRC. Basically marrying those options. not negating each other anymore.'),
     ];
 
+    $form['visible_class'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Add is-b-visible class'),
+      '#default_value' => $config->get('visible_class'),
+      '#description'   => $this->t('Add <code>is-b-visible</code> CSS class when entering the viewport. Only enable if any real use for animating anything, otherwise disable it. If enabled, IO is not destroyed so to keep watching the class changes.'),
+    ];
+
     $form['placeholder'] = [
       '#type'          => 'textfield',
       '#title'         => $this->t('Placeholder'),
@@ -281,6 +288,7 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       ->set('noscript', $form_state->getValue('noscript'))
       ->set('responsive_image', $form_state->getValue('responsive_image'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))
+      ->set('visible_class', $form_state->getValue('visible_class'))
       ->set('placeholder', $form_state->getValue('placeholder'))
       ->set('unstyled_extensions', $form_state->getValue('unstyled_extensions'))
       ->set('blazy.loadInvisible', $form_state->getValue([

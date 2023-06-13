@@ -29,6 +29,9 @@ blazy.settings:
     one_pixel:
       type: boolean
       label: 'One pixel placeholder'
+    visible_class:
+      type: boolean
+      label: 'Add is-b-visible class'
     placeholder:
       type: string
       label: Placeholder

@@ -64,6 +64,7 @@
   var _initialized = false;
   var _resizing = false;
   var _validateDelay = 25;
+  var _observer = $.observer || false;
 
   // Cache our prototype.
   var fn = Bio.prototype;
@@ -189,7 +190,9 @@
         io.disconnect();
       }
 
-      $.unload(me);
+      if (_observer) {
+        _observer.unload(me);
+      }
       me.count = 0;
       me.elms = [];
       me.ioObserver = null;
@@ -201,16 +204,20 @@
     var me = this;
     var elms = me.elms;
 
+    if (!_observer) {
+      return;
+    }
+
     // Only initialize the observer if destroyed, and IO.
     if ($.isIo && (me.destroyed || reobserve)) {
-      _winData = $.initObserver(me, interact, elms, true);
+      _winData = _observer.init(me, interact, elms, true);
 
       me.destroyed = false;
     }
 
     // Observe as IO, or initialize old bLazy as fallback.
     if (!_initialized || reobserve) {
-      $.observe(me, elms, true);
+      _observer.observe(me, elms, true);
 
       _initialized = true;
     }
@@ -228,16 +235,20 @@
     var opts = me.options;
     var count = me.count;
     var io = me.ioObserver;
+    var watching = opts.visibleClass || false;
 
-    if (_bioTick === count - 1) {
+    // Only destroy if no use for is-b-visible class.
+    if (_bioTick === count - 1 && !watching) {
       me.destroyQuietly();
     }
 
     // Unlike ResizeObserver/ infinite pager, IntersectionObserver is done.
     if (io && me.isLoaded(el) && !el.bloaded && opts.isMedia && !revalidate) {
-      io.unobserve(el);
-      el.bloaded = true;
+      if (!watching) {
+        io.unobserve(el);
+      }
 
+      el.bloaded = true;
       _bioTick++;
     }
 
@@ -280,6 +291,7 @@
     var isBlur = $.isBlur(entry);
     var isResizing = $.isResized(me, entry);
     var visibleClass = opts.visibleClass;
+    var forAnim = $.isBool(visibleClass) && visibleClass;
 
     // RO is another abserver.
     if (isResizing) {
@@ -304,6 +316,7 @@
       var resized = $.isResized(me, e);
       var visible = $.isVisible(e, vp);
       var cn = $.closest(el, _parent) || el;
+      isBlur = isBlur && !$.hasClass(cn, 'is-b-animated');
 
       // The element is being intersected.
       if (visible) {
@@ -312,7 +325,15 @@
         // The intersecting does the loading, the check must be afterwards.
         // To make efficient blur filter via CSS, etc. Blur filter is expensive.
         if (me.isLoaded(el)) {
-          $[_addClass](cn, _isVisible);
+          if (isBlur || forAnim) {
+            $[_addClass](cn, _isVisible);
+          }
+
+          if (!forAnim) {
+            setTimeout(function () {
+              $[_removeClass](cn, _isVisible);
+            }, 601);
+          }
         }
       }
       else {

@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-06-13
+------------------------------
+- Added visible_class option.
+
 Blazy 8.x-2.0-dev, 2023-06-12
 ------------------------------
 - Added hook_blazy_item_alter(), useful for mixed media.

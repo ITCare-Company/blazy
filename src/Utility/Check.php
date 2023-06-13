@@ -46,6 +46,7 @@ class Check {
     $config = $manager->config('blazy');
     $config['loader'] = !$unload;
     $config['unblazy'] = $unblazy;
+    $config['visibleClass'] = $blazies->get('ui.visible_class', FALSE);
 
     // One is enough due to various formatters negating each others.
     $compat = $blazies->get('libs.compat');

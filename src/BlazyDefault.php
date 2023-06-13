@@ -203,6 +203,7 @@ class BlazyDefault {
       'fx'                  => '',
       'nojs'                => [],
       'one_pixel'           => TRUE,
+      'visible_class'       => FALSE,
       'noscript'            => FALSE,
       'placeholder'         => '',
       'responsive_image'    => FALSE,

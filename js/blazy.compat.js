@@ -88,7 +88,9 @@
     },
 
     unresize: function () {
-      $.unload(this);
+      if ($.observer) {
+        $.observer.unload(this);
+      }
     }
   });
 

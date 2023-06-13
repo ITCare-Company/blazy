@@ -7,7 +7,6 @@
 
   'use strict';
 
-  var _context = _doc;
   var _md = 'media';
   var _id = 'blazy-' + _md;
   var _idOnce = 'b-' + _md;
@@ -121,8 +120,7 @@
       $.remove(iframe);
     }
 
-    // Remove iframe to avoid browser requesting them till clicked.
-    // The iframe is there as Blazy supports non-lazyloaded/ non-JS iframes.
+    // Remove iframe if any to avoid browser requesting them till clicked.
     $.remove(iframe);
 
     // Plays the media player.
@@ -131,6 +129,29 @@
     // Closes the video.
     $el.on('click.' + _id, _elIconClose, stop);
     $el.addClass(_mounted);
+  }
+
+  /**
+   * Returns the available alt.
+   *
+   * @param {Element} $el
+   *   The triggering link element.
+   *
+   * @return {string}
+   *   The alt.
+   */
+  function extractAlt($el) {
+    var img = $el.find('img:not(.b-blur)');
+    var alt = $.attr(img, 'alt');
+
+    // If using BG.
+    if (!alt) {
+      var cn = $el.find('.media');
+      alt = $.attr(cn, 'title');
+    }
+
+    // If nobody put the important info, add a fallback.
+    return alt ? Drupal.checkPlain(alt) : Drupal.t('Video preview');
   }
 
   /**
@@ -147,14 +168,13 @@
     // PhotoSwipe5 has element, PhotoSwipe4 el, etc.
     var el = settings.el || settings.element;
     var $el = $(el);
-    var img = $el.find('img');
+    var alt = extractAlt($el);
     var data = $.parse($el.attr('data-' + _md));
-    var alt = $.isElm(img) ? Drupal.checkPlain($.attr(img, 'alt', 'Video preview', true)) : '';
     var width = data.width ? parseInt(data.width, 0) : 640;
     var height = data.height ? parseInt(data.height, 0) : 360;
     var pad = data ? ((height / width) * 100).toFixed(2) : 100;
     var imgUrl = $el.attr('data-box-url');
-    var href = $el.attr('href');
+    var href = el.href;
     var oembedUrl = $el.attr('data-oembed-url', href, true);
     var defClass = _md + '__image ' + _md + '__element';
     var imgClass = settings.imgClass ?
@@ -203,13 +223,12 @@
    */
   Drupal.behaviors.blazyMedia = {
     attach: function (context) {
-      // For some reasons, context failed on lightboxes.
-      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', _doc);
-
+      context = $.context(context);
+      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _element, _doc);
+        $.once.removeSafely(_idOnce, _element, context);
       }
     }
   };

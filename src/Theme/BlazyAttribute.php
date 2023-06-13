@@ -90,7 +90,7 @@ class BlazyAttribute {
     // Prevents double padding hacks with AMP which also uses similar technique.
     $disabled = !$blazies->get('image.height') || $blazies->is('amp');
     $ratio = $disabled ? '' : $settings['ratio'];
-    $settings['ratio'] = str_replace(':', '', $ratio);
+    $settings['ratio'] = $ratio ? str_replace(':', '', $ratio) : '';
 
     // Fixed aspect ratio is taken care of by pure CSS. Fluid means dynamic.
     if ($ratio && $blazies->is('fluid')
@@ -176,6 +176,18 @@ class BlazyAttribute {
       $attributes['class'][] = 'b-bg';
       $attributes['data-b-bg'] = Json::encode($bgs);
       $url = $blazies->get('image.url');
+
+      // If using BG, store it in the permanent container.
+      if ($blazies->is('multimedia')) {
+        $title = $blazies->get('image.title') ?: $blazies->get('media.label');
+        if (!$title) {
+          $title = $blazies->get('image.alt');
+        }
+        if ($title) {
+          $translation_replacements = ['@label' => Xss::filter($title)];
+          $attributes['title'] = self::videoTitle($title, $translation_replacements);
+        }
+      }
 
       if ($blazies->is('static') && $url) {
         self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
@@ -340,7 +352,7 @@ class BlazyAttribute {
       $blazies->set('media.label', $title);
 
       $translation_replacements = ['@label' => $title];
-      $attributes['title'] = new TranslatableMarkup('Preview image for the video "@label".', $translation_replacements);
+      $attributes['title'] = self::videoTitle($title, $translation_replacements);
 
       if ($alt) {
         $translation_replacements['@alt'] = $alt;
@@ -471,6 +483,13 @@ class BlazyAttribute {
       $attributes = &$variables['attributes'];
       BlazyResponsiveImage::background($attributes, $settings);
     }
+  }
+
+  /**
+   * Return the image title.
+   */
+  private static function videoTitle($title, $translation_replacements): TranslatableMarkup {
+    return new TranslatableMarkup('Preview image for the video "@label".', $translation_replacements);
   }
 
   /**

@@ -52,7 +52,7 @@
 {%
   set classes = [
     content ? 'media--rendered',
-    settings.namespace ? 'media--' ~ settings.namespace,
+    blazies.namespace ? 'media--' ~ blazies.namespace,
     settings.media_switch ? 'media--switch media--switch--' ~ settings.media_switch|clean_class,
     blazies.is.player ? 'media--player',
     blazies.media.bundle ? 'media--bundle--' ~ blazies.media.bundle|clean_class,
