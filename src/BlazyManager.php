@@ -119,6 +119,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
 
       // Runs after ::getSettings.
       $this->toElementChildren($build);
+
       $build['#blazy'] = $settings;
       $this->setAttachments($build, $settings);
     }

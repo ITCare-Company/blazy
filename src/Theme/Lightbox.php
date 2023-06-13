@@ -66,6 +66,7 @@ class Lightbox {
     $box_height = $item->height ?? $blazies->get('image.original.height');
     $count      = $blazies->get('count', 1);
     $is_escaped = $blazies->get('media.escaped');
+    $delta      = $blazies->get('delta', 0);
 
     // Provide relevant URL if it is a lightbox.
     $url_attributes = &$element['#url_attributes'];
@@ -164,7 +165,11 @@ class Lightbox {
 
     // @todo recheck $count given views gallery vs formatters vs formatters
     // inside views gallery, and add: && $count > 1.
-    if ($colorbox && $box_id) {
+    if ($box_id) {
+      // Adds persistent delta, help fix for slide clones which screw up deltas.
+      // This is useless for views gallery, though.
+      $url_attributes['data-b-delta'] = $delta;
+
       // @todo make Blazy Grid without Blazy Views fields support multiple
       // fields and entities as a gallery group, likely via a class at Views UI.
       // Must use consistent key for multiple entities, hence cannot use id.
@@ -172,7 +177,9 @@ class Lightbox {
       // to the known Blazy formatters, or Blazy Views style plugins for now.
       // The hustle is Colorbox wants rel on individual item to group, unlike
       // other lightbox library which provides a way to just use a container.
-      $json['rel'] = $box_id;
+      if ($colorbox) {
+        $json['rel'] = $box_id;
+      }
     }
 
     // Provides the content and its attributes.
@@ -338,7 +345,7 @@ class Lightbox {
     $blazies = $settings['blazies'];
     $title   = $blazies->get('image.title', $item->title ?? '');
     $alt     = $blazies->get('image.alt', $item->alt ?? '');
-    $delta   = $blazies->get('delta');
+    $delta   = $blazies->get('delta', 0);
     $object  = NULL;
 
     // @todo re-check this if any issues, might be a fake stdClass image item.

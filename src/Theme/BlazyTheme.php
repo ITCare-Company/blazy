@@ -164,10 +164,6 @@ class BlazyTheme {
             $blazies->set('is.dimensions', TRUE);
             $attributes->setAttribute('poster', $url);
           }
-
-          if ($blazies->is('lightbox') && $blazies->is('richbox')) {
-            $attributes->setAttribute('autoplay', TRUE);
-          }
         }
       }
 

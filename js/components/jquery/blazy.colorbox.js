@@ -14,6 +14,7 @@
   var $body = $('body');
   var _element = '[data-' + _id + '-trigger]';
   var _mounted = 'is-' + _idOnce + '-mounted';
+  var _blazy = Drupal.blazy || {};
   var cboxTimer;
 
   /**
@@ -112,6 +113,7 @@
           var $container = $('#cboxLoadedContent');
           var $iframe = $('.cboxIframe', $container);
           var $media = $('.media--ratio', $container);
+          var $video = $('video', $container);
           var $picture = $container.find('picture img');
           var $resimage = $container.find('img[srcset]');
           var isResimage = $resimage.length || $picture.length;
@@ -133,6 +135,11 @@
               width: mw || media.width,
               height: mh || media.height
             };
+          }
+          else if ($video.length) {
+            if (_blazy.load) {
+              _blazy.load($container[0]);
+            }
           }
 
           if (!$iframe.length && $media.length) {

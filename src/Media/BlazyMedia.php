@@ -111,11 +111,10 @@ class BlazyMedia {
 
       // For some reasons now colorbox fails loading local video, disable lazy.
       // @todo recheck other lightboxes w/o local video supports.
-      if ($blazies->get('colorbox')) {
-        $blazies->set('is.unlazy', TRUE)
-          ->set('is.undata', TRUE);
-      }
-
+      // if ($blazies->is('richbox')) {
+      // $blazies->set('is.unlazy', TRUE)
+      // ->set('is.undata', TRUE);
+      // }
       self::videoItem($item, $settings);
     }
 

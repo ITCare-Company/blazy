@@ -60,6 +60,9 @@
               // FOUC fix.
               setTimeout(function () {
                 $.addClass($wrap[0], 'mfp-on');
+                if (_blazy.load) {
+                  _blazy.load($wrap[0]);
+                }
               }, 100);
             }
           }
