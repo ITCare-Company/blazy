@@ -64,7 +64,8 @@
   var _initialized = false;
   var _resizing = false;
   var _validateDelay = 25;
-  var _observer = $.observer || false;
+  var _observer = $.observer;
+  var _viewport = $.viewport;
 
   // Cache our prototype.
   var fn = Bio.prototype;
@@ -111,7 +112,7 @@
   fn.resizing = function (el, winData) {};
   fn.prepare = function () {};
   fn.windowData = function () {
-    return $.isUnd(_winData.vp) ? $.windowData(this.options, true) : _winData;
+    return $.isUnd(_winData.vp) ? _viewport.windowData(this.options, true) : _winData;
   };
 
   // BC for interchanging with bLazy.
@@ -190,9 +191,7 @@
         io.disconnect();
       }
 
-      if (_observer) {
-        _observer.unload(me);
-      }
+      _observer.unload(me);
       me.count = 0;
       me.elms = [];
       me.ioObserver = null;
@@ -203,10 +202,6 @@
   fn.observe = function (reobserve) {
     var me = this;
     var elms = me.elms;
-
-    if (!_observer) {
-      return;
-    }
 
     // Only initialize the observer if destroyed, and IO.
     if ($.isIo && (me.destroyed || reobserve)) {
@@ -285,19 +280,19 @@
   function interact(entries) {
     var me = this;
     var opts = me.options;
-    var vp = $.vp;
-    var ww = $.ww;
+    var vp = _viewport.vp || {};
+    var ww = _viewport.ww || {};
     var entry = entries[0];
     var isBlur = $.isBlur(entry);
-    var isResizing = $.isResized(me, entry);
+    var isResizing = _viewport.isResized(me, entry);
     var visibleClass = opts.visibleClass;
     var forAnim = $.isBool(visibleClass) && visibleClass;
 
     // RO is another abserver.
     if (isResizing) {
-      _winData = $.updateViewport(opts);
+      _winData = _viewport.update(opts);
 
-      $.onresizing(me, _winData);
+      _viewport.onresizing(me, _winData);
     }
     else {
       // Stop IO watching if destroyed, unless a visibleClass is defined:
@@ -313,8 +308,8 @@
     $.each(entries, function (e) {
       var target = e.target;
       var el = target || e;
-      var resized = $.isResized(me, e);
-      var visible = $.isVisible(e, vp);
+      var resized = _viewport.isResized(me, e);
+      var visible = _viewport.isVisible(e, vp);
       var cn = $.closest(el, _parent) || el;
       isBlur = isBlur && !$.hasClass(cn, 'is-b-animated');
 

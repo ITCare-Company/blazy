@@ -8,7 +8,6 @@
 
   'use strict';
 
-  var _context = _doc;
   var _id = 'colorbox';
   var _idOnce = 'b-' + _id;
   var $body = $('body');
@@ -192,16 +191,14 @@
         return;
       }
 
-      _context = _d.context(context);
-
-      var elms = _d.once(process, _idOnce, _element + ':not(.' + _mounted + ')', _context);
+      var elms = _d.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
       if (elms.length) {
         $('#colorbox').attr('aria-label', 'color box');
       }
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        _d.once.removeSafely(_idOnce, _element, _context);
+        _d.once.removeSafely(_idOnce, _element, context);
       }
     }
   };

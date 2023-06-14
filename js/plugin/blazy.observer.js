@@ -23,6 +23,7 @@
       var queue = scope._queue || [];
       var resizeTrigger;
       var data = 'windowData' in scope ? scope.windowData() : {};
+      var viewport = $.viewport;
 
       // Do not fill in the root, else broken. Leave it to browsers.
       var config = {
@@ -65,7 +66,7 @@
         resizeTrigger = this;
 
         // Called once during page load, not called during resizing.
-        data = $.isUnd(data.ww) ? $.windowData(opts, true) : scope.windowData();
+        data = $.isUnd(data.ww) ? viewport.windowData(opts, true) : scope.windowData();
         return $.isRo ? new ResizeObserver(_cb) : cb.call(scope, elms);
       };
 

@@ -7,11 +7,11 @@
 
   'use strict';
 
-  var _context = _doc;
   var _id = 'blazy';
   var _idOnce = 'b-filter';
   var _wrapper = 'media-wrapper--' + _id;
   var _element = '.' + _wrapper + ':not(.grid .' + _wrapper + ')';
+  var _mounted = 'is-' + _idOnce + '-mounted';
   var _data = 'data-';
 
   /**
@@ -43,6 +43,8 @@
           .attr(_data + mid + '-gallery', '');
       }
     }
+
+    $.addClass(elm, _mounted);
   }
 
   /**
@@ -52,14 +54,11 @@
    */
   Drupal.behaviors.blazyFilter = {
     attach: function (context) {
-
-      _context = $.context(context);
-
-      $.once(process, _idOnce, _element, _context);
+      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _element, _context);
+        $.once.removeSafely(_idOnce, _element, context);
       }
     }
   };

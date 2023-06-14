@@ -182,6 +182,8 @@
       defClass;
     var idClass = data.id ? ' ' + _md + '--' + data.id : '';
     var player = data.type === 'video' ? ' ' + _player : '';
+    var ariaClose = Drupal.t('Stop and close the video');
+    var ariaPlay = Drupal.t('Load and play the video');
     var html = '';
 
     if (imgUrl) {
@@ -189,8 +191,8 @@
     }
 
     if (player) {
-      html += '<span class="$icon $icon--close"></span>';
-      html += '<span class="$icon $icon--play" data-url="$oembed" data-iframe-title="$alt"></span>';
+      html += '<span class="$icon $icon--close" aria-label="$ariaClose"></span>';
+      html += '<span class="$icon $icon--play" data-url="$oembed" data-iframe-title="$alt" aria-label="$ariaPlay"></span>';
     }
 
     html = '<div class="$md $idClass $md--switch $player $md--ratio $md--ratio--fluid" style="padding-bottom: $pad%">' + html + '</div>';
@@ -204,6 +206,8 @@
     return $.template(html, {
       md: _md,
       icon: _icon,
+      ariaClose: ariaClose,
+      ariaPlay: ariaPlay,
       idClass: idClass,
       player: player,
       pad: pad,
@@ -223,7 +227,6 @@
    */
   Drupal.behaviors.blazyMedia = {
     attach: function (context) {
-      context = $.context(context);
       $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
     },
     detach: function (context, setting, trigger) {

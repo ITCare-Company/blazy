@@ -7,7 +7,6 @@
 
   'use strict';
 
-  var _context = _doc;
   var _desc = 'description';
   var _checkbox = 'form-checkbox';
   var _idTooltip = 'b-' + _desc;
@@ -183,18 +182,15 @@
    */
   Drupal.behaviors.blazyAdmin = {
     attach: function (context) {
-
-      _context = _d.context(context);
-
-      _d.once(blazyTooltip, _idTooltip, _elTootip, _context);
-      _d.once(blazyCheckbox, _idCheckbox, _elCheckbox, _context);
-      _d.once(blazyForm, _idForm, _elForm, _context);
+      _d.once(blazyTooltip, _idTooltip, _elTootip, context);
+      _d.once(blazyCheckbox, _idCheckbox, _elCheckbox, context);
+      _d.once(blazyForm, _idForm, _elForm, context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        _d.once.removeSafely(_idTooltip, _elTootip, _context);
-        _d.once.removeSafely(_idCheckbox, _elCheckbox, _context);
-        _d.once.removeSafely(_idForm, _elForm, _context);
+        _d.once.removeSafely(_idTooltip, _elTootip, context);
+        _d.once.removeSafely(_idCheckbox, _elCheckbox, context);
+        _d.once.removeSafely(_idForm, _elForm, context);
       }
     }
   };

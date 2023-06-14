@@ -20,7 +20,6 @@
 
   'use strict';
 
-  var _context = _doc;
   var _id = 'blazy';
   var _idOnce = _id;
   var _element = '.' + _id;
@@ -214,22 +213,21 @@
     attach: function (context) {
 
       var me = Drupal.blazy;
-      _context = $.context(context);
 
-      me.context = _context;
+      me.context = $.context(context);
 
       // Processes .blazy, if available, without initialization.
       // Initialization is not per container to also support IO with root.
       // @todo replace with core/once when min D9.2, and or after sub-modules.
-      $.once(process.bind(me), _idOnce, _element, _context);
+      $.once(process.bind(me), _idOnce, _element, context);
 
       // Initializes blazy once as a global observer, not per container.
-      $.once(init.bind(me), _idOnceGlobal, _elementGlobal, _doc);
+      $.once(init.bind(me), _idOnceGlobal, _elementGlobal, context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _element, _context);
-        $.once.removeSafely(_idOnceGlobal, _elementGlobal, _doc);
+        $.once.removeSafely(_idOnce, _element, context);
+        $.once.removeSafely(_idOnceGlobal, _elementGlobal, context);
       }
     }
   };

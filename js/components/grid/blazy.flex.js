@@ -12,7 +12,6 @@
 
   'use strict';
 
-  var _context = _doc;
   var _id = 'block-flex';
   var _idOnce = 'b-flex';
   var _isLoading = 'is-b-loading';
@@ -159,15 +158,12 @@
    */
   Drupal.behaviors.blazyFlex = {
     attach: function (context) {
-
-      _context = $.context(context);
-
-      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', _context);
+      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
     },
     detach: function (context, setting, trigger) {
       _unload = trigger === 'unload';
       if (_unload) {
-        $.once.removeSafely(_idOnce, _element, _context);
+        $.once.removeSafely(_idOnce, _element, context);
       }
     }
   };

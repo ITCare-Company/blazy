@@ -12,16 +12,14 @@
 
   'use strict';
 
-  $.ww = 0;
-  $.vp = {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0
-  };
+  if ($.viewport) {
+    return;
+  }
+
+  var _id = 'blazy';
 
   /**
-   * Returns element visibility.
+   * Returns element visibility for oldies.
    *
    * @private
    *
@@ -42,16 +40,6 @@
       rect.top <= vp.bottom;
   }
 
-  $.isVisible = function (e, vp) {
-    var target = e.target;
-    var el = target || e;
-    return $.isIo ? (e.isIntersecting || e.intersectionRatio > 0) : isVisible(el, vp);
-  };
-
-  $.isResized = function (scope, e) {
-    return (!!e.contentRect || !!scope.resizeTrigger || false);
-  };
-
   /**
    * Returns viewport info.
    *
@@ -63,7 +51,7 @@
    * @return {Object}
    *   Returns the window viewport info.
    */
-  function viewport(offset) {
+  function info(offset) {
     offset = offset || 0;
     var size = $.windowSize();
     return {
@@ -74,45 +62,80 @@
     };
   }
 
-  $.viewport = viewport;
+  $.viewport = {
+    vp: {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0
+    },
 
-  // Must be called after initViewport and updateViewport.
-  $.windowData = function (opts, init) {
-    var me = this;
-    var offset = opts.offset || 100;
-    var mobileFirst = opts.mobileFirst || false;
+    ww: 0,
 
-    if (init) {
-      me.initViewport(opts);
+    init: function (opts) {
+      var me = this;
+
+      me.vp = info(opts.offset);
+
+      // me.vp.top = 0 - offset;
+      // me.vp.left = 0 - offset;
+      return me.vp;
+    },
+
+    isResized: function (scope, e) {
+      return (!!e.contentRect || !!scope.resizeTrigger || false);
+    },
+
+    isVisible: function (e, vp) {
+      var target = e.target;
+      var el = target || e;
+      return $.isIo ? (e.isIntersecting || e.intersectionRatio > 0) : isVisible(el, vp);
+    },
+
+    onresizing: function (scope, winData) {
+      var elms = scope.elms;
+      var opts = scope.options;
+
+      // Provides a way to fix dynamic aspect ratio, etc.
+      if ($.isFun(opts.resizing)) {
+        opts.resizing(scope, elms, winData);
+      }
+
+      // If not extending/ overriding, also allows to listen to.
+      $.trigger(_win, _id + '.resizing', {
+        winData: winData,
+        entries: elms
+      });
+    },
+
+    update: function (opts) {
+      var me = this;
+      var offset = opts.offset;
+
+      me.vp.bottom = (_win.innerHeight || _doc.documentElement.clientHeight) + offset;
+      me.vp.right = (_win.innerWidth || _doc.documentElement.clientWidth) + offset;
+
+      return me.windowData(opts);
+    },
+
+    // Must be called after init and update.
+    windowData: function (opts, init) {
+      var me = this;
+      var offset = opts.offset || 100;
+      var mobileFirst = opts.mobileFirst || false;
+
+      if (init) {
+        me.init(opts);
+      }
+
+      me.ww = me.vp.right - offset;
+
+      return {
+        vp: me.vp,
+        ww: me.ww,
+        up: mobileFirst
+      };
     }
-
-    me.ww = me.vp.right - offset;
-
-    return {
-      vp: me.vp,
-      ww: me.ww,
-      up: mobileFirst
-    };
-  };
-
-  $.initViewport = function (opts) {
-    var me = this;
-
-    me.vp = viewport(opts.offset);
-
-    // me.vp.top = 0 - offset;
-    // me.vp.left = 0 - offset;
-    return me.vp;
-  };
-
-  $.updateViewport = function (opts) {
-    var me = this;
-    var offset = opts.offset;
-
-    me.vp.bottom = (_win.innerHeight || _doc.documentElement.clientHeight) + offset;
-    me.vp.right = (_win.innerWidth || _doc.documentElement.clientWidth) + offset;
-
-    return me.windowData(opts);
   };
 
 })(dBlazy, this, this.document);

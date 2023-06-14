@@ -9,7 +9,6 @@
 
   'use strict';
 
-  var _context = _doc;
   var _id = 'blazybox';
   var _idOnce = _id;
   var _nick = 'blazyBox';
@@ -183,15 +182,13 @@
   Drupal.behaviors.blazyBox = {
     attach: function (context) {
 
-      _context = $.context(context);
-
       Drupal.blazyBox.attach();
 
-      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', _context);
+      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _element, _context);
+        $.once.removeSafely(_idOnce, _element, context);
       }
     }
   };

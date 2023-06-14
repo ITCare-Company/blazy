@@ -163,21 +163,6 @@
     return $.status(el, ok, opts);
   };
 
-  $.onresizing = function (scope, winData) {
-    var elms = scope.elms;
-    var opts = scope.options;
-    // Provides a way to fix dynamic aspect ratio, etc.
-    if ($.isFun(opts.resizing)) {
-      opts.resizing(scope, elms, winData);
-    }
-
-    // If not extending/ overriding, also allows to listen to.
-    $.trigger(_win, _id + '.resizing', {
-      winData: winData,
-      entries: elms
-    });
-  };
-
   $.aniElement = function (el) {
     var an = $.closest(el, '[' + _dataAnimation + ']');
     if ($.hasAttr(el, _dataAnimation) && !$.isElm(an)) {

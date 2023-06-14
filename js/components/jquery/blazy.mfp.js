@@ -21,7 +21,6 @@
   var _elClicked;
   var _index = 0;
   var _mp;
-  var _context = _doc;
 
   /**
    * Blazy MagnificPopup utility functions.
@@ -243,8 +242,6 @@
   Drupal.behaviors.blazyMagnificPopup = {
     attach: function (context) {
 
-      _context = $.context(context);
-
       // Converts jQuery.magnificPopup into dBlazy for consistent vanilla JS.
       if (_jq && $.isFun(_jq.fn.magnificPopup) && !$.isFun($.fn.magnificPopup)) {
         var _mfp = _jq.fn.magnificPopup;
@@ -260,12 +257,12 @@
         };
       }
 
-      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', _context);
+      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
 
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _element, _context);
+        $.once.removeSafely(_idOnce, _element, context);
       }
     }
 

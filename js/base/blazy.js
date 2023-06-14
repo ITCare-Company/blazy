@@ -49,8 +49,9 @@
   var _attrSrc = 'src';
   var _attrSrcset = 'srcset';
   var _opts = {};
-  var _viewport = {};
+  var _vp = {};
   var _winData = {};
+  var _viewport = $.viewport;
 
   /**
    * Constructor for Blazy.
@@ -76,11 +77,11 @@
     _source = _opts.src || 'data-src';
     _isRetina = $.pixelRatio() > 1;
 
-    $.initViewport(_opts);
+    _viewport.init(_opts);
 
     // Public functions.
     me.windowData = function () {
-      return $.isUnd(_winData.vp) ? $.windowData(_opts, true) : _winData;
+      return $.isUnd(_winData.vp) ? _viewport.windowData(_opts, true) : _winData;
     };
 
     me.revalidate = function () {
@@ -125,7 +126,7 @@
     util.saveViewportOffsetT = $.throttle(function () {
       saveViewportOffset(_opts);
 
-      $.onresizing(me, _winData);
+      _viewport.onresizing(me, _winData);
     }, _opts.saveViewportOffsetDelay, me);
 
     saveViewportOffset(_opts);
@@ -190,28 +191,28 @@
       if (elementContainer) {
         var containerRect = $.rect(elementContainer);
         // Is container in view?
-        if ($.isVisible(containerRect, _viewport)) {
+        if (_viewport.isVisible(containerRect, _vp)) {
           var top = containerRect.top - options.offset;
           var right = containerRect.right + options.offset;
           var bottom = containerRect.bottom + options.offset;
           var left = containerRect.left - options.offset;
 
           var containerRectWithOffset = {
-            top: top > _viewport.top ? top : _viewport.top,
-            right: right < _viewport.right ? right : _viewport.right,
-            bottom: bottom < _viewport.bottom ? bottom : _viewport.bottom,
-            left: left > _viewport.left ? left : _viewport.left
+            top: top > _vp.top ? top : _vp.top,
+            right: right < _vp.right ? right : _vp.right,
+            bottom: bottom < _vp.bottom ? bottom : _vp.bottom,
+            left: left > _vp.left ? left : _vp.left
           };
 
           // Is element in view of container?
-          return $.isVisible(rect, containerRectWithOffset);
+          return _viewport.isVisible(rect, containerRectWithOffset);
         }
         else {
           return false;
         }
       }
     }
-    return $.isVisible(rect, _viewport);
+    return _viewport.isVisible(rect, _vp);
   }
 
   // @todo merge with Bio.js.
@@ -346,8 +347,8 @@
   }
 
   function saveViewportOffset(opts) {
-    _winData = $.updateViewport(opts);
-    _viewport = $.vp;
+    _winData = _viewport.update(opts);
+    _vp = _viewport.vp;
   }
 
 });

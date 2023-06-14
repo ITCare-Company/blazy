@@ -43,6 +43,8 @@
   var _scroll = 'scroll';
   var _iterator = 'iterator';
   var _observer = 'Observer';
+  var _body = 'body';
+  var _html = 'html';
   var _dashAlphaRe = /-([a-z])/g;
   var _cssVariableRe = /^--/;
   var _wsRe = /[\11\12\14\15\40]+/;
@@ -1804,7 +1806,7 @@
    * @param {Document|Element} ctx
    *   Any element, including weird script element.
    * @param {string} selector
-   *   The selector to compare against ctx in case borked somehwere.
+   *   The selector to compare against ctx in case borked somewhere.
    *
    * @return {Element|Document|DocumentFragment}
    *   The Element|Document|DocumentFragment to not fail querySelector, etc.
@@ -1820,8 +1822,12 @@
 
     // @todo fix why the selector itself is given as context on lightboxes
     // since D10/ blazy:2.17. And also check it around for internal mistakes.
-    if (selector && is(ctx, selector)) {
-      ctx = _doc;
+    if (selector) {
+      if (is(ctx, selector)
+        || is(selector, _body)
+        || is(selector, _html)) {
+        ctx = _doc;
+      }
     }
 
     // Absurd arbitrary <script> elements which have no children may be spit on
@@ -1839,18 +1845,18 @@
   function toElm(el) {
     // Checks if a string is given as a context.
     if (isStr(el)) {
-      if (el === 'body') {
+      if (el === _body) {
         return _doc.body;
       }
       // Prevents problematic _doc.documentElement as the element.
-      else if (el === 'html') {
+      else if (el === _html) {
         return _doc;
       }
       return _doc.querySelector(el);
     }
 
     // Prevents problematic _doc.documentElement as the context.
-    if (is(el, 'html')) {
+    if (is(el, _html)) {
       return _doc;
     }
 

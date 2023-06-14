@@ -12,7 +12,6 @@
 
   'use strict';
 
-  var _context = _doc;
   var _id = 'block-nativegrid';
   var _idOnce = 'b-masonry';
   var _isMasonry = 'is-' + _idOnce;
@@ -144,16 +143,13 @@
    */
   Drupal.behaviors.blazyNativeGrid = {
     attach: function (context) {
-
-      _context = $.context(context);
-
-      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', _context);
+      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
 
     },
     detach: function (context, setting, trigger) {
       _unload = trigger === 'unload';
       if (_unload) {
-        $.once.removeSafely(_idOnce, _element, _context);
+        $.once.removeSafely(_idOnce, _element, context);
       }
     }
 

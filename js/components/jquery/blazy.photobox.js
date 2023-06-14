@@ -10,7 +10,6 @@
 
   'use strict';
 
-  var _context = _doc;
   var _id = 'photobox';
   var _idOnce = 'b-' + _id;
   var _element = '[data-' + _id + '-gallery]';
@@ -29,7 +28,7 @@
       if ($.isElm(el)) {
         var caption = $.next(el);
         if (caption) {
-          var title = $.find(_context, '#pbCaption .title');
+          var title = $.find(_doc, '#pbCaption .title');
           if ($.isElm(title)) {
             title.innerHTML = caption.innerHTML;
           }
@@ -53,8 +52,6 @@
   Drupal.behaviors.blazyPhotobox = {
     attach: function (context) {
 
-      _context = $.context(context);
-
       // Converts jQuery.photobox into dBlazy.photobox to demonstrate the new
       // dBlazy plugin system post Blazy 2.6.
       if (jQuery && $.isFun(jQuery.fn.photobox) && !$.isFun($.fn.photobox)) {
@@ -65,12 +62,12 @@
         };
       }
 
-      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', _context);
+      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
 
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _element, _context);
+        $.once.removeSafely(_idOnce, _element, context);
       }
     }
   };
