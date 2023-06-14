@@ -156,7 +156,7 @@ class BlazyFilter extends BlazyFilterBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Trust data URI'),
       '#default_value' => $this->settings['use_data_uri'] ?? FALSE,
-      '#description' => $this->t('Enable to support the use of data URI. Leave it unchecked if unsure, or never use data URI. It has security implications given to untrusted users.'),
+      '#description' => $this->t('Enable to support the use of data URI. Leave it unchecked if unsure, or never use data URI. Warning! It has security implications given to untrusted users.'),
       '#suffix' => '<p>' . $this->t('Recommended placement after Align / Caption images. Not tested against, nor dependent on, Shortcode module. Be sure to place Blazy filter before any other Shortcode if installed.') . '</p>',
     ];
 

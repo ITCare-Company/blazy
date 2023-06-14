@@ -70,14 +70,32 @@ class Sanitize {
     $style = $options['style'] ?? '';
 
     // @todo remove when local videos are generated dynamically like remote.
-    if (strpos($content, 'src="blank"') !== FALSE) {
+    if (self::has($content, 'src="blank"')) {
       $content = str_replace('src="blank"', 'src="about:blank"', $content);
     }
 
-    if ($style && $prestyle && strpos($content, $prestyle) !== FALSE) {
+    // Fixed for 404 images when data URI is enabled via UI or trusted.
+    $blazy = self::has($content, 'b-lazy');
+    if ($blazy && self::has($content, 'src="image/"')) {
+      $data_uri = self::has($content, 'base64')
+        || self::has($content, 'svg+xml');
+
+      if ($data_uri) {
+        $content = str_replace('src="image/"', 'src="data:image/"', $content);
+      }
+    }
+
+    if ($style && $prestyle && self::has($content, $prestyle)) {
       $content = str_replace($prestyle, $prestyle . ' style="' . $style . '"', $content);
     }
     return $content;
+  }
+
+  /**
+   * Returns TRUE if it has the needle.
+   */
+  private static function has($content, $needle) {
+    return strpos($content, $needle) !== FALSE;
   }
 
 }

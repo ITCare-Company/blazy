@@ -242,7 +242,7 @@ class BlazyImage {
    * scattered with if-else. This has saved more than 60 lines, and two methods:
    * ::fromMedia(), already gone, and ::fromField(), to be gone. Can be better.
    */
-  public static function fromContent(array $options = [], $name = NULL): ?object {
+  public static function fromContent(array $options, $name = NULL): ?object {
     $settings = $options['settings'] ?? [];
     $blazies  = $settings['blazies'] ?? NULL;
     $poster   = $settings['image'] ?? NULL;
