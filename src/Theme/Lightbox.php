@@ -235,6 +235,8 @@ class Lightbox {
       'box_height' => $box_height,
     ] = $options;
 
+    $blazies = $settings['blazies'];
+
     // Do not output NULL dimensions.
     $has_dim = !empty($box_width) && !empty($box_height);
     if ($has_dim) {
@@ -297,8 +299,14 @@ class Lightbox {
       $url = UrlHelper::stripDangerousProtocols($url);
     }
 
-    $icon = '<span class="media__icon media__icon--litebox"></span>';
-    $element['#icon']['lightbox']['#markup'] = $icon;
+    // Do not show icon for video file unless supported.
+    $is_video = $blazies->is('video_file');
+    $show_icon = !$is_video || $is_video && $blazies->is('richbox');
+    if ($show_icon) {
+      $icon = '<span class="media__icon media__icon--litebox"></span>';
+      $element['#icon']['lightbox']['#markup'] = $icon;
+    }
+
     $element['#url'] = $url;
   }
 

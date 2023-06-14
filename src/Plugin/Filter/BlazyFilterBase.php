@@ -57,15 +57,16 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
     $is_media_library = $definitions && isset($definitions['field_media_oembed_video']);
 
+    $namespace = $this->provider;
+    $blazies = &$settings['blazies'];
+    $blazies->set('css.id', $id)
+      ->set('is.filter', TRUE)
+      ->set('is.unsafe', TRUE);
+
     $this->preSettings($settings, $text);
     $this->blazyManager->preSettings($settings);
 
-    $namespace = $this->provider;
-    $blazies = $settings['blazies'];
-    $blazies->set('css.id', $id)
-      ->set('is.filter', TRUE)
-      ->set('is.media_library', $is_media_library)
-      ->set('is.unsafe', TRUE)
+    $blazies->set('is.media_library', $is_media_library)
       ->set('libs.filter', TRUE)
       ->set('filter.' . $namespace, $config)
       ->set('filter.plugin_id', $plugin_id)

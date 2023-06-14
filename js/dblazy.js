@@ -1718,11 +1718,14 @@
   /**
    * Pause a video element.
    *
+   * @param {Document|Element} ctx
+   *   An element to use as context for querySelectorAll.
+   *
    * @return {Object}
    *   The current dBlazy collection object.
    */
-  function pauseVideo() {
-    var els = findAll(_doc, 'video');
+  function pauseVideo(ctx) {
+    var els = findAll(ctx || _doc, 'video');
     var chainCallback = function (el) {
       if (isElm(el)) {
         var playing = !!(el.currentTime > 0

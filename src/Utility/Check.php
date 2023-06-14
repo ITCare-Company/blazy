@@ -175,11 +175,10 @@ class Check {
    * @see \Drupal\blazy\BlazyManager::isBlazy()
    */
   public static function blazyOrNot(array &$settings, array $data = []): void {
-    // Retrieves Blazy formatter related settings from within Views style.
-    if (!$blazies = $settings['blazies'] ?? NULL) {
-      return;
-    }
+    Blazy::verify($settings);
 
+    // Retrieves Blazy formatter related settings from within Views style.
+    $blazies = $settings['blazies'];
     // Allows to remove second parameter later.
     $deprecated = $settings['first_image'] ?? [];
     $data = $data ?: $blazies->get('first.data', $deprecated);
@@ -241,8 +240,8 @@ class Check {
     $entity_id      = $blazies->get('entity.id');
     $bundle         = $blazies->get('entity.bundle');
     $view_mode      = $blazies->get('field.view_mode', 'default');
-    $namespace      = $settings['namespace'] ?? $blazies->get('namespace');
-    $id             = $settings['id'] ?? '';
+    $namespace      = $blazies->get('namespace') ?: $settings['namespace'] ?? 'blazy';
+    $id             = $blazies->get('css.id') ?: $settings['id'] ?? '';
     $gallery_id     = "{$namespace}-{$entity_type_id}-{$bundle}-{$field_clean}-{$view_mode}";
     $id             = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
     $switch         = $settings['media_switch'] ?? $blazies->get('switch');
@@ -262,7 +261,7 @@ class Check {
 
     $settings['use_theme_field'] = $use_field || !empty($settings['use_theme_field']);
 
-    // @todo remove.
+    // @todo remove, used by sliders at twigs.
     $settings['count'] = $count;
     $settings['id'] = $id;
 
