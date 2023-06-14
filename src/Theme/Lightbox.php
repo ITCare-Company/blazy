@@ -52,7 +52,7 @@ class Lightbox {
     $item       = $element['#item'];
     $settings   = &$element['#settings'];
     $blazies    = $settings['blazies'];
-    $uri        = $blazies->get('image.uri', $settings['uri'] ?? '');
+    $uri        = $blazies->get('image.uri') ?: $settings['uri'] ?? '';
     $switch     = $blazies->get('lightbox.name');
     $switch_css = str_replace('_', '-', $switch);
     $valid      = BlazyFile::isValidUri($uri);
@@ -61,9 +61,9 @@ class Lightbox {
     $box_url    = $url = Blazy::transformRelative($uri);
     $colorbox   = $blazies->get('colorbox');
     $gallery_id = $blazies->get('lightbox.gallery_id');
-    $box_id     = !$blazies->is('gallery') ? NULL : $gallery_id;
-    $box_width  = $item->width ?? $blazies->get('image.original.width');
-    $box_height = $item->height ?? $blazies->get('image.original.height');
+    $box_id     = $blazies->is('gallery') ? $gallery_id : NULL;
+    $box_width  = $blazies->get('image.original.width') ?: $item->width ?? NULL;
+    $box_height = $blazies->get('image.original.height') ?: $item->height ?? NULL;
     $count      = $blazies->get('count', 1);
     $is_escaped = $blazies->get('media.escaped');
     $delta      = $blazies->get('delta', 0);
@@ -82,8 +82,7 @@ class Lightbox {
     // Might not be present from BlazyFilter.
     $json = ['id' => $switch_css, 'count' => $count, 'boxType' => 'image'];
     foreach (['bundle', 'type'] as $key) {
-      $default = $settings[$key] ?? '';
-      if ($value = $blazies->get('media.' . $key, $default)) {
+      if ($value = $blazies->get('media.' . $key)) {
         $json[$key] = $value;
       }
     }
@@ -343,19 +342,19 @@ class Lightbox {
    */
   private static function buildCaptions($item, array $settings = []): array {
     $blazies = $settings['blazies'];
-    $title   = $blazies->get('image.title', $item->title ?? '');
-    $alt     = $blazies->get('image.alt', $item->alt ?? '');
+    $title   = $blazies->get('image.title');
+    $alt     = $blazies->get('image.alt');
     $delta   = $blazies->get('delta', 0);
     $object  = NULL;
+    $caption = '';
 
     // @todo re-check this if any issues, might be a fake stdClass image item.
     if ($item) {
       $object = method_exists($item, 'getEntity')
-        ? $item->getEntity() : $item->entity;
+        ? $item->getEntity() : ($item->entity ?? NULL);
     }
 
-    $entity  = $blazies->get('entity.instance', $object);
-    $caption = '';
+    $entity = $blazies->get('entity.instance') ?: $object;
 
     switch ($settings['box_caption']) {
       case 'auto':

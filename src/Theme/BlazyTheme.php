@@ -117,12 +117,7 @@ class BlazyTheme {
    */
   public static function field(array &$variables): void {
     $element = &$variables['element'];
-    $settings = empty($element['#blazy']) ? [] : $element['#blazy'];
-
-    // D10 moves it into content.
-    if (!$settings) {
-      $settings = $variables['items'][0]['content']['#blazy'] ?? [];
-    }
+    $settings = self::formatterSettings($variables);
 
     // 1. Hence Blazy is not the formatter, lacks of settings.
     if (!empty($element['#third_party_settings']['blazy']['blazy'])) {
@@ -130,9 +125,10 @@ class BlazyTheme {
     }
 
     // 2. Hence Blazy is the formatter, has its settings.
-    $blazies = $settings['blazies'] ?? NULL;
-    if ($blazies && !$blazies->is('grid')) {
-      BlazyAttribute::container($variables['attributes'], $settings);
+    if ($blazies = $settings['blazies'] ?? []) {
+      if (!$blazies->is('grid')) {
+        BlazyAttribute::container($variables['attributes'], $settings);
+      }
     }
   }
 
@@ -298,12 +294,12 @@ class BlazyTheme {
    */
   private static function thirdPartyField(array &$variables): void {
     $element = $variables['element'];
-    $settings = $element['#blazy'] ?? [];
-    if (!$settings) {
-      $settings = $variables['items'][0]['content']['#blazy'] ?? [];
+    $settings = self::formatterSettings($variables);
+
+    if (!isset($settings['blazies'])) {
+      return;
     }
 
-    Blazy::verify($settings);
     $blazies = $settings['blazies'];
     // @todo re-check at CKEditor.
     $is_undata = $blazies->is('undata');
@@ -332,6 +328,38 @@ class BlazyTheme {
 
     // Attaches Blazy libraries here since Blazy is not the formatter.
     Blazy::attach($variables, $settings);
+  }
+
+  /**
+   * Returns available formatter settings.
+   */
+  private static function formatterSettings(array $variables): array {
+    $element = $variables['element'];
+    $settings = $element['#blazy'] ?? [];
+
+    // D10 moves it into content.
+    if (!$settings) {
+      if ($content = $variables['items'][0]['content'] ?? []) {
+        // Since D10, Blazy field formatter settings is decluttered here.
+        $settings = $content['#blazy'] ?? [];
+
+        // Blazy Grid settings:
+        if (!$settings) {
+          $settings = $content['#build']['settings'] ?? [];
+        }
+
+        // @todo simplify ElevateZoomPlus build_alter overrides:
+        if (!$settings) {
+          $settings = $content['#build']['#build']['settings'] ?? [];
+        }
+      }
+    }
+
+    if ($settings) {
+      Blazy::verify($settings);
+    }
+
+    return $settings;
   }
 
 }

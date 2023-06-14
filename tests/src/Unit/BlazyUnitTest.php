@@ -44,18 +44,16 @@ class BlazyUnitTest extends UnitTestCase {
    * @dataProvider providerTestBuildIframe
    */
   public function testBuildIframe(array $data, $expected) {
-    $variables          = ['attributes' => [], 'image' => []];
-    $settings           = BlazyDefault::htmlSettings();
-    $settings['type']   = 'video';
-    $settings['bundle'] = 'remote_video';
-    $settings['uri']    = 'public://example.jpg';
-    $embed_url          = '//www.youtube.com/watch?v=E03HFA923kw';
+    $variables = ['attributes' => [], 'image' => []];
+    $settings  = BlazyDefault::htmlSettings();
+    $uri       = $settings['uri'] = 'public://example.jpg';
+    $embed_url = '//www.youtube.com/watch?v=E03HFA923kw';
 
     $blazies = $settings['blazies'];
-
     $blazies->set('media.embed_url', $embed_url)
       ->set('media.bundle', 'remote_video')
-      ->set('media.type', 'video');
+      ->set('media.type', 'video')
+      ->set('image.uri', $uri);
 
     $variables['settings'] = array_merge($settings, $data);
     $variables['image'] = 'x';

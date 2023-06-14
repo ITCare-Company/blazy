@@ -49,10 +49,10 @@ Any references to bLazy library is no longer relevant for forked version at 2.6.
 
 ***
 ## <a name="recommended-modules"> </a>RECOMMENDED MODULES
-For better admin help page, either way will do:  
+For better admin help page, either way will do, ordered by recommendation:  
 
-* [Markdown](https://www.drupal.org/project/markdown)  
-* `composer require league/commonmark`  
+* `composer require league/commonmark`
+* [Markdown](https://www.drupal.org/project/markdown)
 
 To make reading this README a breeze at [Blazy help](/admin/help/blazy_ui)
 
@@ -153,7 +153,8 @@ Visit the following to configure and make use of Blazy:
 1. Add a Views style **Blazy Grid** for entities containing Media or Image.
 2. Add a Blazy formatter for the Media or Image field.
 3. Add any lightbox under **Media switcher** option.
-4. Limit the values to 1 under **Multiple field settings** > **Display**.
+4. Limit the values to 1 under **Multiple field settings** > **Display**, if
+   any.
 
 #### Without **Blazy Grid**  
 If you can't use **Blazy Grid** for a reason, maybe having a table, HTML list,
@@ -172,6 +173,7 @@ etc., try the following:
 
   Note the double dashes BEM modifier "**--**", just to make sure we are on the
   same page that you are intentionally creating a blazy LIGHTBOX gallery.
+  All this is taken care of if using **Blazy Grid** under **Format**.
   The View container will then have the following attributes:
 
   `class="blazy blazy--LIGHTBOX-gallery ..." data-blazy data-LIGHTBOX-gallery`

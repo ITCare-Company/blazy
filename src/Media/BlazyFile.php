@@ -182,7 +182,7 @@ class BlazyFile {
 
       // @todo remove settings once done migration, and after sub-modules.
       $_uri = $settings['uri'] ?? $settings['_uri'] ?? NULL;
-      $uri = $_uri ?: $uri;
+      $uri = $uri ?: $_uri;
     }
 
     return $uri ?: '';

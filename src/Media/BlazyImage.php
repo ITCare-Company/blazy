@@ -161,21 +161,6 @@ class BlazyImage {
   }
 
   /**
-   * Returns fake image item based on the given $settings.
-   *
-   * @todo use blazies after migration.
-   */
-  public static function fake(array $settings) {
-    $item = new \stdClass();
-    foreach (['uri', 'width', 'height', 'target_id', 'alt', 'title'] as $key) {
-      if (isset($settings[$key])) {
-        $item->{$key} = $settings[$key];
-      }
-    }
-    return $item;
-  }
-
-  /**
    * Returns the image item out of File entity, ER, etc., or just $settings.
    *
    * @param object $object
@@ -193,7 +178,6 @@ class BlazyImage {
     // @todo remove check at 3.x after sub-modules and VEF removed.
     Blazy::verify($settings);
     $blazies = $settings['blazies'];
-
     $output = $uri = NULL;
 
     // If Media entity, we must have a File entity, and likely ImageItem.
@@ -210,7 +194,7 @@ class BlazyImage {
         && $factory = Blazy::service('image.factory')) {
         $uri = $entity->getFileUri();
         if ($image = $factory->get($uri)) {
-          $output = self::fakeWithdata($entity, $image);
+          $output = self::fakeFromFactory($blazies, $entity, $image);
         }
       }
     }
@@ -322,7 +306,7 @@ class BlazyImage {
     $extensions = ['svg'];
 
     // If we have added extensions.
-    if ($unstyles = $blazies->get('ui.unstyled_extensions')) {
+    if ($unstyles = $blazies->ui('unstyled_extensions')) {
       // @todo remove after another check.
       $unstyles = strip_tags($unstyles);
       $extensions = array_merge($extensions,
@@ -548,28 +532,28 @@ class BlazyImage {
   }
 
   /**
-   * Returns data to provide fake image item of file entity.
+   * Returns fake image item based on the given $blazies.
    */
-  private static function fakeWithdata($file, $image): ?object {
-    if ($settings = self::fromFactory($file, $image)) {
-      if ($item = self::fake($settings)) {
-        $item->entity = $file;
-        /* @todo revert return ['item' => $item, 'settings' => $settings]; */
-        return $item;
+  public static function fakeFromSettings($blazies) {
+    $item = new \stdClass();
+    $keys = ['uri', 'width', 'height', 'target_id', 'alt', 'title', 'entity'];
+    foreach ($keys as $key) {
+      if ($value = $blazies->get('image.' . $key)) {
+        $item->{$key} = $value;
       }
     }
-    return NULL;
+    return $item;
   }
 
   /**
-   * Returns image data via ImageFactory to provide fake image item.
+   * Returns data to provide fake image item of file entity via ImageFactory.
    */
-  private static function fromFactory($file, $image): array {
+  private static function fakeFromFactory(&$blazies, $file, $image): ?object {
     /** @var \Drupal\file\Entity\File $file */
     [$type] = explode('/', $file->getMimeType(), 2);
 
     if ($type == 'image' && $image->isValid()) {
-      return [
+      $data = [
         'uri'       => $file->getFileUri(),
         'target_id' => $file->id(),
         'width'     => $image->getWidth(),
@@ -577,9 +561,13 @@ class BlazyImage {
         'alt'       => $file->getFilename(),
         'title'     => $file->getFilename(),
         'type'      => 'image',
+        'entity'    => $file,
       ];
+
+      $blazies->set('image', $data, TRUE);
+      return self::fakeFromSettings($blazies);
     }
-    return [];
+    return NULL;
   }
 
   /**

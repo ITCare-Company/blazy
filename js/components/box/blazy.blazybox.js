@@ -54,6 +54,9 @@
 
       $.addClass(_doc.body, _isOpened);
 
+      // First, reset any (local) video to avoid multiple videos from playing.
+      $.pauseVideo();
+
       me.check();
     },
 

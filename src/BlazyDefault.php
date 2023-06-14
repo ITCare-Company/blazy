@@ -257,10 +257,10 @@ class BlazyDefault {
       'inited' => TRUE,
 
       // @todo deprecated for blazies after sub-module updates:
-      'bundle' => '',
+      // 'bundle' => '',
       'id' => '',
-      'route_name' => '',
-      'is_preview' => FALSE,
+      // 'route_name' => '',
+      // 'is_preview' => FALSE,
     ] + self::imageSettings()
       + self::gridSettings();
   }

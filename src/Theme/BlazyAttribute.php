@@ -378,7 +378,7 @@ class BlazyAttribute {
 
     // Provides a noscript if so configured, before any lazy defined.
     // Not needed at preview mode, or when native lazyload takes over.
-    if ($blazies->get('ui.noscript') && !$blazies->is('unlazy')) {
+    if ($blazies->ui('noscript') && !$blazies->is('unlazy')) {
       self::buildNoscriptImage($variables);
     }
 
@@ -466,8 +466,8 @@ class BlazyAttribute {
       $attributes = ($blazies->is('unlazy')
         ? $natives
         : [
-          'data-b-lazy' => $blazies->get('ui.one_pixel'),
-          'data-b-ui' => $blazies->get('ui.placeholder'),
+          'data-b-lazy' => $blazies->ui('one_pixel'),
+          'data-b-ui' => $blazies->ui('placeholder'),
           'data-b-placeholder' => $blazies->get('placeholder.url'),
         ]);
 

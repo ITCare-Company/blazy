@@ -123,10 +123,10 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $ui['fx'] = empty($settings['fx']) ? $ui['fx'] : $settings['fx'];
     $ui['blur_minwidth'] = (int) ($ui['blur_minwidth'] ?? 0);
     $fx = $settings['_fx'] ?? $ui['fx'];
-    $fx = $blazies->get('fx', $fx);
+    $fx = $blazies->get('fx') ?: $fx;
     $language = $this->languageManager->getCurrentLanguage()->getId();
     $lightboxes = $this->getLightboxes();
-    $lightboxes = $blazies->get('lightbox.plugins', $lightboxes) ?: [];
+    $lightboxes = $blazies->get('lightbox.plugins') ?: $lightboxes;
     $is_blur = $fx == 'blur';
     $is_resimage = $this->moduleExists('responsive_image');
 
@@ -143,7 +143,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
       ->set('ui', $ui);
 
     if ($router = Path::routeMatch()) {
-      $settings['route_name'] = $route_name = $router->getRouteName();
+      $route_name = $router->getRouteName();
       $blazies->set('route_name', $route_name);
     }
 

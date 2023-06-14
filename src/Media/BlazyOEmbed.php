@@ -188,7 +188,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $uri     = $uri ?: $blazies->get('image.uri');
     $height  = $settings['height'] ?? $blazies->get('image.height');
     $width   = $settings['width'] ?? $blazies->get('image.width');
-    $title   = $blazies->get('media.label') ?: $blazies->get('image.title');
+    $title   = $blazies->get('image.title') ?: $blazies->get('media.label');
     $type    = $blazies->get('media.type', 'video');
 
     // Iframe URL may be valid, but not stored as a Media entity.
@@ -229,7 +229,12 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       'title' => $title,
     ];
 
-    return $uri ? BlazyImage::fake($data) : NULL;
+    if ($uri) {
+      $blazies->set('image', $data, TRUE);
+      return BlazyImage::fakeFromSettings($blazies);
+    }
+
+    return NULL;
   }
 
   /**

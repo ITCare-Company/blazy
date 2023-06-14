@@ -62,17 +62,14 @@
       var player = target.parentNode;
       var playing = $.find(_doc, '.' + _isPlaying);
       var iframe = $.find(player, _iFrame);
-      var video = $.find(_doc, 'video');
 
       url = $.attr(target, _dataUrl);
       title = $.attr(target, _dataIFrameTitle);
 
       // First, reset any (local) video to avoid multiple videos from playing.
-      if ($.isElm(video) && !video.paused) {
-        video.pause();
-      }
+      $.pauseVideo();
 
-      // Remove other playing video.
+      // Remove other playing remote videos.
       if ($.isElm(playing)) {
         var played = $.find(_doc, '.' + _isPlaying + ' ' + _iFrame);
         // Remove the previous iframe.

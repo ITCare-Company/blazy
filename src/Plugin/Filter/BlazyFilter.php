@@ -345,7 +345,7 @@ class BlazyFilter extends BlazyFilterBase {
     $settings['image'] = $field_image;
 
     if ($entity && $entity->hasField($field_name)) {
-      $settings['bundle'] = $bundle = $entity->bundle();
+      $bundle = $entity->bundle();
       $list = $entity->get($field_name);
 
       $blazies->set('entity.bundle', $bundle);

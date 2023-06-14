@@ -53,8 +53,8 @@ class Placeholder {
     // Better than checking file exists.
     $mime = @mime_content_type($uri);
     $id = md5($url);
-    $client = $blazies->get('ui.blur_client');
-    $store = $client ? ($blazies->get('ui.blur_storage') ? 1 : 0) : -1;
+    $client = $blazies->ui('blur_client');
+    $store = $client ? ($blazies->ui('blur_storage') ? 1 : 0) : -1;
 
     // If blur and thumbnail use the same image style, indicate so instead to
     // save from few bytes.
@@ -156,7 +156,7 @@ class Placeholder {
     }
 
     // Disable Blur if the image style width is less than Blur min-width.
-    if ($minwidth = (int) $blazies->get('ui.blur_minwidth', 0)) {
+    if ($minwidth = (int) $blazies->ui('blur_minwidth', 0)) {
       $width = (int) $blazies->get('image.width');
       if ($width < $minwidth) {
         // Ensures ony if Blur since animation can be anything.
@@ -195,7 +195,7 @@ class Placeholder {
     $valid = self::derivative($blazies, $uri, $tn_uri, $style, 'blur');
     if ($valid) {
       // Use client-side for better diet.
-      if (!$blazies->get('ui.blur_client')
+      if (!$blazies->ui('blur_client')
         && $content = file_get_contents($tn_uri)) {
         $blur = 'data:image/' .
           pathinfo($tn_uri, PATHINFO_EXTENSION) .
@@ -276,7 +276,7 @@ class Placeholder {
 
     // Accepts configurable placeholder, alter, and fallback.
     $default = self::generate($width, $height);
-    $placeholder = $blazies->get('ui.placeholder') ?: $default;
+    $placeholder = $blazies->ui('placeholder') ?: $default;
     $blazies->set('placeholder.url', $placeholder);
 
     if ($blazies->get('resimage.id')) {

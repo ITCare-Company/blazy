@@ -36,7 +36,7 @@ class Check {
 
     $blazies = $attach['blazies'];
     $unblazy = $blazies->is('unblazy', FALSE);
-    $unload  = $blazies->get('ui.nojs.lazy', FALSE);
+    $unload  = $blazies->ui('nojs.lazy', FALSE);
 
     if ($blazies->is('lightbox')) {
       Lightbox::attach($load, $attach);
@@ -46,7 +46,7 @@ class Check {
     $config = $manager->config('blazy');
     $config['loader'] = !$unload;
     $config['unblazy'] = $unblazy;
-    $config['visibleClass'] = $blazies->get('ui.visible_class', FALSE);
+    $config['visibleClass'] = $blazies->ui('visible_class') ?: FALSE;
 
     // One is enough due to various formatters negating each others.
     $compat = $blazies->get('libs.compat');
@@ -64,7 +64,7 @@ class Check {
       }
 
       foreach (BlazyDefault::nojs() as $key) {
-        if (empty($blazies->get('ui.nojs.' . $key))) {
+        if (empty($blazies->ui('nojs.' . $key))) {
           $lib = $key == 'lazy' ? 'load' : $key;
           $load['library'][] = 'blazy/' . $lib;
         }
@@ -111,7 +111,7 @@ class Check {
     $ui           = $blazies->get('ui');
     $_loading     = $settings['loading'] ?? '';
     $loading      = $settings['loading'] = $_loading ?: 'lazy';
-    $is_preview   = $settings['is_preview'] = Path::isPreview();
+    $is_preview   = Path::isPreview();
     $is_amp       = Path::isAmp();
     $is_sandboxed = Path::isSandboxed();
     $is_bg        = !empty($settings['background']);
@@ -321,10 +321,8 @@ class Check {
     $lazy = $is_blazy ? 'blazy' : $settings['lazy'] ?? 'blazy';
     $lazy = $blazies->get('lazy.id', $lazy ?: 'blazy');
     $lazy = $blazies->is('nojs') ? '' : $lazy;
-    $_attribute = $settings['lazy_attribute'] ?? NULL;
-    $attribute = $_attribute ?: $blazies->get('lazy.attribute', 'src');
-    $_class = $settings['lazy_class'] ?? NULL;
-    $class = $_class ?: $blazies->get('lazy.class', 'b-lazy');
+    $attribute = $blazies->get('lazy.attribute', 'src');
+    $class = $blazies->get('lazy.class', 'b-lazy');
 
     // @todo re-check after sub-modules which were only aware of `is_preview`.
     // Basically tricking overrides by the reversed name due to sub-modules are

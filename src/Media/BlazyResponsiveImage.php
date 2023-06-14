@@ -212,7 +212,7 @@ class BlazyResponsiveImage {
     // Image style will be prioritized as fallback to have different fallbacks
     // per field relevant for various aspect ratios rather than the one and only
     // fallback for the entire site via Responsive image UI.
-    if ($blazies->get('ui.one_pixel') || !empty($settings['image_style'])) {
+    if ($blazies->ui('one_pixel') || !empty($settings['image_style'])) {
       return;
     }
 

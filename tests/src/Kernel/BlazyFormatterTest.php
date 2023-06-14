@@ -137,17 +137,17 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     $settings = &$format['settings'];
     $blazies = $settings['blazies'];
-    // @todo remove.
-    $blazies->set('is.blazy', TRUE)
-      ->set('lazy.id', 'blazy');
 
     // 2. Test theme_field(), no grid.
-    $settings['bundle']          = $this->bundle;
     $settings['grid']            = 0;
     $settings['background']      = TRUE;
     $settings['thumbnail_style'] = 'thumbnail';
     $settings['ratio']           = 'fluid';
     $settings['image_style']     = 'blazy_crop';
+
+    $blazies->set('is.blazy', TRUE)
+      ->set('lazy.id', 'blazy')
+      ->set('entity.bundle', $this->bundle);
 
     try {
       $settings['vanilla'] = TRUE;

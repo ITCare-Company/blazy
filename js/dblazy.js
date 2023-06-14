@@ -1716,6 +1716,32 @@
   db.once = onceCompat;
 
   /**
+   * Pause a video element.
+   *
+   * @return {Object}
+   *   The current dBlazy collection object.
+   */
+  function pauseVideo() {
+    var els = findAll(_doc, 'video');
+    var chainCallback = function (el) {
+      if (isElm(el)) {
+        var playing = !!(el.currentTime > 0
+          && !el.paused
+          && !el.ended
+          && el.readyState > 2);
+
+        if (playing) {
+          el.pause();
+        }
+      }
+    };
+
+    return chain.call(els, chainCallback);
+  }
+
+  db.pauseVideo = pauseVideo;
+
+  /**
    * A simple wrapper to delay callback function, taken out of blazy library.
    *
    * Alternative to core Drupal.debounce for D7 compatibility, and easy port.

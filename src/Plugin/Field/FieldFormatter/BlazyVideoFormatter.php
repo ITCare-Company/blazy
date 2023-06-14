@@ -65,9 +65,6 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       return;
     }
 
-    // @todo remove $settings after being migrated into $blazies.
-    // $settings['bundle'] = 'remote_video';
-    // $settings['media_source'] = 'video_embed_field';
     // Update the settings, hard-coded, terracota.
     $blazies->set('media.bundle', 'remote_video')
       ->set('media.source', 'video_embed_field');
@@ -81,7 +78,7 @@ class BlazyVideoFormatter extends BlazyVideoBase {
 
       // Ensures thumbnail is available.
       $provider->downloadThumbnail();
-      $settings['uri'] = $uri = $provider->getLocalThumbnailUri();
+      $uri = $provider->getLocalThumbnailUri();
 
       $blazy = $blazies->reset($settings);
       $blazy->set('delta', $delta)

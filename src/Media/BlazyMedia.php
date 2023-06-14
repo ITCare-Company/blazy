@@ -53,13 +53,14 @@ class BlazyMedia {
     }
 
     // @todo remove settings post migrations and sub-modules.
-    $settings['type'] = $type = 'rich';
+    $type = 'rich';
     $blazies->set('media.type', $type);
 
-    $is_local = $blazies->get('media.source', $settings['media_source'] ?? '') == 'video_file';
-    $view_mode = $blazies->get('media.view_mode', $settings['view_mode'] ?? 'default');
+    $source = $blazies->get('media.source') ?: $settings['media_source'] ?? '';
+    $is_local = $source == 'video_file';
+    $view_mode = $blazies->get('media.view_mode') ?: $settings['view_mode'] ?? 'default';
+    $source_field = $blazies->get('media.source_field') ?: $settings['source_field'] ?? '';
     $options = $is_local ? ['type' => 'file_video'] : $view_mode;
-    $source_field = $blazies->get('media.source_field', $settings['source_field'] ?? '');
 
     $build = $media->get($source_field)->view($options);
     $build['#settings'] = $settings;
@@ -92,7 +93,7 @@ class BlazyMedia {
     // Update iframe/video dimensions based on configurable image style, if any.
     foreach (['width', 'height'] as $key) {
       $default = $settings[$key] ?? NULL;
-      if ($dimension = $blazies->get('image.' . $key, $default)) {
+      if ($dimension = ($blazies->get('image.' . $key) ?: $default)) {
         $attributes[$key] = $dimension;
       }
     }
@@ -107,14 +108,10 @@ class BlazyMedia {
     elseif (isset($item['#files'])
       && $file = ($item['#files'][0]['file'] ?? NULL)) {
       // @todo multiple sources, not crucial for now.
+      // This is not an image URI, but file video URI.
+      // The poster or file image is set via settings.image option instead.
       $blazies->set('media.uri', $file->getFileUri());
 
-      // For some reasons now colorbox fails loading local video, disable lazy.
-      // @todo recheck other lightboxes w/o local video supports.
-      // if ($blazies->is('richbox')) {
-      // $blazies->set('is.unlazy', TRUE)
-      // ->set('is.undata', TRUE);
-      // }
       self::videoItem($item, $settings);
     }
 

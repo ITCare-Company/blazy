@@ -210,16 +210,6 @@ class BlazyEntity implements BlazyEntityInterface {
     ];
 
     $blazies->set('entity', $info, TRUE);
-
-    // @todo remove.
-    $settings['bundle'] = $entity->bundle();
-
-    // @todo remove after migration and sub-modules. After tests updated.
-    // foreach ($info as $key => $value) {
-    // $key = $key == 'url' ? 'content_' . $key : $key;
-    // $key = in_array($key, ['id', 'type_id']) ? 'entity_' . $key : $key;
-    // $settings[$key] = $value;
-    // }
   }
 
   /**

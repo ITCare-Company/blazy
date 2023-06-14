@@ -79,9 +79,9 @@ class CheckItem {
     $source    = $blazies->get('media.source');
     $type      = $settings['type'] ?? 'image';
     $type      = $settings['type'] = $blazies->get('media.type') ?: $type;
-    $bundle    = $blazies->get('media.bundle', $settings['bundle'] ?? '');
+    $bundle    = $blazies->get('media.bundle') ?: $settings['bundle'] ?? '';
     $embed_url = $settings['embed_url'] ?? '';
-    $embed_url = $embed_url ?: $blazies->get('media.embed_url');
+    $embed_url = $blazies->get('media.embed_url') ?: $embed_url;
     $videos    = ['oembed:video', 'video_embed_field'];
     $medias    = array_merge(['audio_file', 'video_file'], $videos);
     $is_video  = $source && in_array($source, $videos) || $type == 'video';
@@ -180,7 +180,7 @@ class CheckItem {
     $ratio      = $settings['ratio'] ?? '';
     $unlazy     = $blazies->is('slider') && $blazies->is('initial');
     $unlazy     = $unlazy ? TRUE : $blazies->is('unlazy');
-    $use_loader = $settings['use_loading'] ?? $blazies->use('loader');
+    $use_loader = $blazies->use('loader') ?: $settings['use_loading'] ?? FALSE;
     $use_loader = $unlazy ? FALSE : $use_loader;
     $is_unblur  = $blazies->is('sandboxed')
       || $blazies->is('unstyled') || $blazies->is('iframe');
@@ -258,13 +258,11 @@ class CheckItem {
       $blazies->set('is.blazy', TRUE);
     }
     else {
-      $settings['lazy_class'] = $class;
-      $settings['lazy_attribute'] = $attribute;
-
       $blazies->set('lazy.attribute', $attribute)
         ->set('lazy.class', $class);
     }
 
+    // @todo remove $settings.
     $settings['blazy'] = $use_blazy;
     $settings['lazy'] = $lazy;
 

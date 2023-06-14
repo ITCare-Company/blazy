@@ -242,10 +242,21 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     else {
       // Manually hard-coded image has no UUID, nor file API.
       // URI validity is not crucial, URL is the bare minimum for Blazy to work.
-      $settings['uri'] = $uri ?: $src;
+      $settings['uri'] = $uri = $uri ?: $src;
+
+      // @todo remove settings after migrations.
+      $data = [];
+      $keys = ['uri', 'width', 'height', 'alt', 'title', 'entity'];
+      foreach ($keys as $key) {
+        $default = $key == 'entity' ? $file : ($settings[$key] ?? NULL);
+        if ($value = $blazies->get('image.' . $key) ?: $default) {
+          $data[$key] = $value;
+        }
+      }
 
       if ($uri) {
-        $build['item'] = BlazyImage::fake($settings);
+        $blazies->set('image', $data, TRUE);
+        $build['item'] = BlazyImage::fakeFromSettings($blazies);
       }
       else {
         // At least provide root URI to figure out image dimensions.
