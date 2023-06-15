@@ -156,7 +156,10 @@ class BlazyImage {
     // In case `image_style` is not provided.
     if ($initial) {
       $blazies->set('image', $data, TRUE)
-        ->set('image.ratio', $ratio);
+        ->set('image.ratio', $ratio)
+        ->set('first.width', $data['width'])
+        ->set('first.height', $data['height'])
+        ->set('first.ratio', $ratio);
     }
   }
 
@@ -213,7 +216,15 @@ class BlazyImage {
 
     // @todo remove after sub-modules, required by thumbnails till updated.
     $uri = $settings['uri'] = $uri ?: BlazyFile::uri($output, $settings);
-    $blazies->set('image.uri', $uri);
+
+    if ($uri) {
+      $blazies->set('image.uri', $uri);
+
+      // Prepare image URL and its dimensions, including for rich-media content,
+      // such as for local video poster image if a poster URI is provided.
+      // Url needs to be defined here for file_video.
+      self::prepare($settings, $output);
+    }
 
     return $output;
   }
@@ -349,12 +360,17 @@ class BlazyImage {
    */
   public static function prepare(array &$settings, $item = NULL): void {
     $blazies = &$settings['blazies'];
-    $style   = $blazies->is('unstyled') ? NULL : $blazies->get('image.style');
+
+    // Bail out if already processed.
+    if ($blazies->was('url')) {
+      return;
+    }
 
     // Might be called from Views without Blazy formatter, like Image formatter.
     // Since Blazy:2.9, image style entity is loaded once at container level,
     // but might still be needed for adopted Image formatter by a Views style.
     // @todo since done at container, it might also truble the unstyled per URI.
+    $style = $blazies->is('unstyled') ? NULL : $blazies->get('image.style');
     if (!$style && !empty($settings['image_style'])) {
       self::styles($settings);
       $style = $blazies->get('image.style');
@@ -381,7 +397,8 @@ class BlazyImage {
 
     $blazies->set('image', $data, TRUE)
       ->set('image.ratio', $ratio)
-      ->set('image.url', $url);
+      ->set('image.url', $url)
+      ->set('was.url', TRUE);
   }
 
   /**
@@ -410,11 +427,11 @@ class BlazyImage {
    */
   public static function styles(array &$settings, $multiple = FALSE): void {
     $blazies = $settings['blazies'];
-    if ($blazy = Blazy::service('blazy.manager')) {
+    if ($manager = Blazy::service('blazy.manager')) {
       foreach (['box', 'box_media', 'image', 'thumbnail'] as $key) {
         if (!$blazies->get($key . '.style') || $multiple) {
           if ($_style = ($settings[$key . '_style'] ?? '')) {
-            if ($entity = $blazy->load($_style, 'image_style')) {
+            if ($entity = $manager->load($_style, 'image_style')) {
               $blazies->set($key . '.style', $entity)
                 ->set($key . '.id', $entity->id());
             }
@@ -428,7 +445,11 @@ class BlazyImage {
    * Returns the thumbnail image using theme_image(), or theme_image_style().
    */
   public static function thumbnail(array $settings, $item = NULL): array {
-    if ($uri = BlazyFile::uri($item, $settings)) {
+    $blazies = $settings['blazies'];
+
+    // @todo remove the fallback after another check.
+    $uri = $blazies->get('image.uri') ?: BlazyFile::uri($item, $settings);
+    if ($uri) {
       $external = UrlHelper::isExternal($uri);
       $style = $settings['thumbnail_style'] ?? NULL;
 

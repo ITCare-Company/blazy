@@ -25,7 +25,7 @@ class BlazySettings implements \Countable {
    *   The storage.
    */
   public function __construct(array $storage) {
-    $this->storage = $storage;
+    $this->storage = $storage ? Blazy::arrayFilter($storage) : [];
   }
 
   /**
@@ -281,27 +281,25 @@ class BlazySettings implements \Countable {
   /**
    * Reset or renew the BlazySettings object.
    *
+   * Normally called at item level so to get correct delta or settings per item.
+   *
    * @param array $settings
    *   The settings to reset/ renew the instance.
-   * @param bool $filter
-   *   A flag to filter out settings.
+   * @param string $key
+   *   The key inditifying this reset object.
    *
    * @return \Drupal\blazy\BlazySettings
    *   The new BlazySettings instance.
    */
-  public function reset(array &$settings, $filter = FALSE): BlazySettings {
+  public function reset(array &$settings, $key = 'blazies'): BlazySettings {
     $data = $this->storage;
 
-    if ($filter) {
-      $data = array_filter($data);
-    }
-
-    if ($this->is('debug')) {
+    if ($data && $this->is('debug')) {
       $this->rksort($data);
     }
 
     $instance = new BlazySettings($data);
-    $settings['blazies'] = $instance;
+    $settings[$key] = $instance;
     return $instance;
   }
 

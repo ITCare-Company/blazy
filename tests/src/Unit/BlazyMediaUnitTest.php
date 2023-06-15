@@ -37,11 +37,9 @@ class BlazyMediaUnitTest extends UnitTestCase {
     $source_field = $this->randomMachineName();
     $view_mode = 'default';
     $settings = [
-      // 'source_field' => $source_field,
       'image_style'  => 'blazy_crop',
       'ratio'        => 'fluid',
-      // 'view_mode'    => 'default',
-      // 'media_source' => 'remote_video',
+      'view_mode'    => 'default',
       'media_switch' => 'media',
       // @todo 'bundle' => 'entity_test',
     ] + BlazyDefault::htmlSettings();

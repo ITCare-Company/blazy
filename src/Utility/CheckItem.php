@@ -31,9 +31,9 @@ class CheckItem {
    */
   public static function essentials(array &$settings, $item = NULL, $delta = -1): void {
     $blazies = $settings['blazies'];
-    $delta   = $settings['delta'] ?? $blazies->get('delta', $delta);
+    $delta   = $blazies->get('delta') ?: ($settings['delta'] ?? $delta);
     $initial = $delta == $blazies->get('initial', -2);
-    $uri     = BlazyFile::uri($item, $settings);
+    $uri     = $blazies->get('image.uri') ?: BlazyFile::uri($item, $settings);
 
     // This means re-definition since URI can be fed from any sources uptream.
     // @todo remove uri for image.uri for better grouping.

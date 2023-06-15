@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Media;
 
+use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazySettings;
@@ -41,6 +42,7 @@ class BlazyMedia {
   public static function build($media, array $settings = []): array {
     Blazy::verify($settings);
     $blazies = $settings['blazies'];
+
     // Prevents fatal error with disconnected internet when having ME Facebook,
     // ME SlideShare, resorted to static thumbnails to avoid broken displays.
     if ($input = $blazies->get('media.input_url')) {
@@ -56,74 +58,15 @@ class BlazyMedia {
     $type = 'rich';
     $blazies->set('media.type', $type);
 
-    $source = $blazies->get('media.source') ?: $settings['media_source'] ?? '';
-    $is_local = $source == 'video_file';
+    $source = $blazies->get('media.source');
     $view_mode = $blazies->get('media.view_mode') ?: $settings['view_mode'] ?? 'default';
-    $source_field = $blazies->get('media.source_field') ?: $settings['source_field'] ?? '';
-    $options = $is_local ? ['type' => 'file_video'] : $view_mode;
+    $source_field = $blazies->get('media.source_field');
+    $options = $source == 'video_file' ? ['type' => 'file_video'] : $view_mode;
 
     $build = $media->get($source_field)->view($options);
     $build['#settings'] = $settings;
 
     return isset($build[0]) ? self::unfield($build) : $build;
-  }
-
-  /**
-   * Returns a field item/ content to be wrapped by theme_blazy().
-   *
-   * @param array $field
-   *   The source renderable array $field.
-   *
-   * @return array
-   *   The renderable array of the media item to be wrapped by theme_blazy().
-   */
-  public static function unfield(array $field): array {
-    $item     = $field[0];
-    $settings = &$field['#settings'];
-    $blazies  = $settings['blazies'];
-    $iframe   = ($item['#tag'] ?? NULL) == 'iframe';
-
-    if (isset($item['#attributes'])) {
-      $attributes = &$item['#attributes'];
-    }
-    else {
-      $attributes = [];
-    }
-
-    // Update iframe/video dimensions based on configurable image style, if any.
-    foreach (['width', 'height'] as $key) {
-      $default = $settings[$key] ?? NULL;
-      if ($dimension = ($blazies->get('image.' . $key) ?: $default)) {
-        $attributes[$key] = $dimension;
-      }
-    }
-
-    // Converts iframes into lazyloaded ones.
-    // Iframes: Googledocs, SlideShare. Hardcoded: Soundcloud, Spotify.
-    if ($iframe && $src = ($attributes['src'] ?? FALSE)) {
-      $blazies->set('media.embed_url', $src);
-      $attributes = Blazy::merge($attributes, BlazyAttribute::iframe($settings));
-    }
-    // Media with local files: video.
-    elseif (isset($item['#files'])
-      && $file = ($item['#files'][0]['file'] ?? NULL)) {
-      // @todo multiple sources, not crucial for now.
-      // This is not an image URI, but file video URI.
-      // The poster or file image is set via settings.image option instead.
-      $blazies->set('media.uri', $file->getFileUri());
-
-      self::videoItem($item, $settings);
-    }
-
-    // Clone relevant keys since field wrapper is no longer in use.
-    foreach (['attached', 'cache', 'third_party_settings'] as $key) {
-      if ($data = $field["#$key"] ?? []) {
-        $item["#$key"] = Blazy::merge($data, $item, "#$key");
-      }
-    }
-    // Keep original formatter configurations intact here for custom works.
-    $item['#settings'] = new BlazySettings(array_filter($settings));
-    return $item;
   }
 
   /**
@@ -145,7 +88,7 @@ class BlazyMedia {
       'label'        => $media->label(),
       'source'       => $source->getPluginId(),
       'source_field' => $source->getConfiguration()['source_field'],
-      'uri'          => $uri,
+      'thumbnail'    => $uri,
       'url'          => $media->isNew() ? '' : $media->toUrl()->toString(),
       'view_mode'    => $view_mode ?: 'default',
     ];
@@ -169,11 +112,85 @@ class BlazyMedia {
     $blazies->set('media', $info, TRUE);
 
     // @todo remove $settings for $blazies after migration and sub-modules.
-    foreach ($info as $key => $value) {
-      $key = in_array($key, ['id', 'uri', 'url', 'source'])
-        ? 'media_' . $key : $key;
-      $settings[$key] = $value;
+    // foreach ($info as $key => $value) {
+    // $key = in_array($key, ['id', 'uri', 'url', 'source'])
+    // ? 'media_' . $key : $key;
+    // $settings[$key] = $value;
+    // }
+  }
+
+  /**
+   * Returns a media entity from a field, if any.
+   */
+  public static function fromField($entity, $stage): ?object {
+    $media = NULL;
+    if (isset($entity->{$stage})
+      && $reference = $entity->get($stage)->first()) {
+      if ($reference instanceof EntityReferenceItem) {
+        $media = $reference->entity;
+      }
     }
+    return $media instanceof MediaInterface ? $media : NULL;
+  }
+
+  /**
+   * Returns a field item/ content to be wrapped by theme_blazy().
+   *
+   * @param array $field
+   *   The source renderable array to remove field markups from for DOM diet.
+   *
+   * @return array
+   *   The array of the media item to be wrapped directly by theme_blazy().
+   */
+  private static function unfield(array $field): array {
+    $item     = $field[0];
+    $settings = &$field['#settings'];
+    $blazies  = $settings['blazies'];
+    $iframe   = ($item['#tag'] ?? NULL) == 'iframe';
+
+    if (!isset($item['#attributes'])) {
+      $item['#attributes'] = [];
+    }
+
+    $attributes = &$item['#attributes'];
+
+    // Update iframe/video dimensions based on configurable image style, if any.
+    foreach (['width', 'height'] as $key) {
+      $default = $settings[$key] ?? NULL;
+      if ($dimension = ($blazies->get('image.' . $key) ?: $default)) {
+        $attributes[$key] = $dimension;
+      }
+    }
+
+    // Converts iframes into lazyloaded ones.
+    // Iframes: Googledocs, SlideShare. Hardcoded: Soundcloud, Spotify.
+    // @todo recheck, likely everyone hardly uses iframes lately.
+    if ($iframe && $src = ($attributes['src'] ?? FALSE)) {
+      $blazies->set('media.embed_url', $src);
+      $attributes = Blazy::merge(BlazyAttribute::iframe($settings), $attributes);
+    }
+    // Media with local files: video.
+    elseif (isset($item['#files'])
+      && $file = ($item['#files'][0]['file'] ?? NULL)) {
+      // @todo multiple sources, not crucial for now.
+      // This is not an image URI, but file video URI.
+      // The poster or file image is set via settings.image option instead.
+      $blazies->set('media.uri', $file->getFileUri());
+
+      self::videoItem($item, $settings);
+    }
+
+    // Clone relevant keys since field wrapper is no longer in use.
+    foreach (['attached', 'cache', 'third_party_settings'] as $key) {
+      if ($data = $field["#$key"] ?? []) {
+        $item["#$key"] = Blazy::merge($data, $item, "#$key");
+      }
+    }
+    // Keep original formatter configurations intact here for custom works.
+    // Non-accessible at file_video preprocess, but required by theme_blazy().
+    $item['#settings'] = new BlazySettings($settings);
+
+    return $item;
   }
 
   /**

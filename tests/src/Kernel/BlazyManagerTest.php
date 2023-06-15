@@ -51,10 +51,12 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $this->blazyManager->postSettings($settings);
 
     $blazies = $settings['blazies'];
-    $blazies->set('entity.url', $url);
-    $blazies->set('media.embed_url', $settings['embed_url'] ?? '');
+    $blazies->set('entity.url', $url)
+      ->set('media.embed_url', $settings['embed_url'] ?? '')
     // $blazies->set('is.lightbox', ($settings['lightbox'] ?? FALSE));
-    $blazies->set('media.type', $settings['type'] ?? '');
+      ->set('media.type', $settings['type'] ?? '')
+      ->set('image.uri', $this->uri)
+      ->set('count', $this->maxItems);
 
     $settings['count'] = $this->maxItems;
     $settings['uri'] = $this->uri;

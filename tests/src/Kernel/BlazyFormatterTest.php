@@ -215,11 +215,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
       $entity = $this->entity;
 
       $settings = [
-        // 'input_url'       => $input_url,
-        // 'source_field'    => $this->testFieldName,
-        // 'media_source'    => 'remote_video',
-        // 'view_mode'       => 'default',
-        // 'bundle'          => $this->bundle,
+        'view_mode'       => 'default',
         'thumbnail_style' => 'thumbnail',
         'uri'             => $this->uri,
       ] + BlazyDefault::htmlSettings();
@@ -233,7 +229,8 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
         'view_mode'    => 'default',
       ];
 
-      $blazies->set('media', $info);
+      $blazies->set('media', $info)
+        ->set('image.uri', $this->uri);
 
       $build = $this->display->build($entity);
 
@@ -241,11 +238,6 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
       if ($expected && $render) {
         $this->assertNotEmpty($render);
-
-        $field[0] = $render;
-        $field['#settings'] = $settings;
-        $wrap = BlazyMedia::unfield($field);
-        $this->assertNotEmpty($wrap);
 
         $render = $this->blazyManager->renderer()->renderRoot($build[$this->testFieldName]);
         $this->assertStringContainsString('data-blazy', $render);

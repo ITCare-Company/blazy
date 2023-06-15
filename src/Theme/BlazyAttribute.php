@@ -237,7 +237,7 @@ class BlazyAttribute {
     $attributes['allowfullscreen'] = TRUE;
     $is_escaped = $blazies->get('media.escaped');
 
-    // Already escaped upstream.
+    // Already escaped upstream for core, except for contribs.
     $embed_url = $blazies->get('media.embed_url');
 
     // @todo recheck if any side effect/ double escape to cdn/ valid input.

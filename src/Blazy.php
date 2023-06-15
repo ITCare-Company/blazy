@@ -61,6 +61,20 @@ class Blazy {
   }
 
   /**
+   * Filters out empty string value to avoid JSON.parse error.
+   */
+  public static function arrayFilter(array $config): array {
+    return array_filter($config, '\Drupal\blazy\Blazy::filterEmpty');
+  }
+
+  /**
+   * Filters out empty string value to avoid JSON.parse error.
+   */
+  public static function filterEmpty($config): bool {
+    return ($config !== NULL && $config !== '' && $config !== []);
+  }
+
+  /**
    * Returns the trusted HTML ID of a single instance.
    */
   public static function getHtmlId($string = 'blazy', $id = ''): string {

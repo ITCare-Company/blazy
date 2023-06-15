@@ -7,7 +7,6 @@ use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyInternal;
-use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Utility\Path;
 
@@ -125,7 +124,7 @@ class BlazyTheme {
     }
 
     // 2. Hence Blazy is the formatter, has its settings.
-    if ($blazies = $settings['blazies'] ?? []) {
+    if ($blazies = $settings['blazies'] ?? NULL) {
       if (!$blazies->is('grid')) {
         BlazyAttribute::container($variables['attributes'], $settings);
       }
@@ -145,21 +144,12 @@ class BlazyTheme {
         $settings = $blazy->storage();
         $blazies = &$settings['blazies'];
 
-        if ($blazies->get('image.uri')) {
-          // @todo recheck why image.url is not here, was fine <2.6.
-          $url = $blazies->get('image.url');
-
-          if (!$url) {
-            $url = BlazyImage::url($settings, $blazies->get('image.style'));
+        if ($url = $blazies->get('image.url')) {
+          if (!$blazies->use('loader') && $use_dataset) {
+            $blazies->set('use.loader', TRUE);
           }
-
-          if ($url) {
-            if (!$blazies->use('loader') && $use_dataset) {
-              $blazies->set('use.loader', TRUE);
-            }
-            $blazies->set('is.dimensions', TRUE);
-            $attributes->setAttribute('poster', $url);
-          }
+          $blazies->set('is.dimensions', TRUE);
+          $attributes->setAttribute('poster', $url);
         }
       }
 

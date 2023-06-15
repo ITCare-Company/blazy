@@ -117,7 +117,8 @@ class BlazyUnitTest extends UnitTestCase {
     $blazies->set('is.blazy', TRUE)
       ->set('lazy.id', 'blazy')
       ->set('media.embed_url', $embed_url)
-      ->set('media.type', $settings['type'] ?? '');
+      ->set('media.type', $settings['type'] ?? '')
+      ->set('image.uri', $settings['uri'] ?? '');
 
     if ($embed_url) {
       $settings = array_merge(BlazyDefault::entitySettings(), $settings);
