@@ -11,13 +11,21 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
    * Defines re-usable form elements.
    */
   public function buildSettingsForm(array &$form, array $definition): void {
-    $definition['namespace'] = 'blazy';
-    $definition['responsive_image'] = $definition['responsive_image'] ?? TRUE;
+    $scopes = $this->toScopes($definition);
+    $scopes->set('namespace', 'blazy');
+    $bools = $scopes->get('is');
+
+    if (isset($bools['responsive_image'])) {
+      $scopes->set('is.responsive_image', $scopes->is('responsive_image'));
+    }
+    else {
+      $scopes->set('is.responsive_image', TRUE);
+    }
 
     $this->openingForm($form, $definition);
     $this->basicImageForm($form, $definition);
 
-    if (!empty($definition['grid_form']) && !isset($form['grid'])) {
+    if ($scopes->form('grid') && !isset($form['grid'])) {
       $this->gridForm($form, $definition);
 
       // Blazy doesn't need complex grid with multiple groups.

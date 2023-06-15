@@ -61,6 +61,21 @@ class BlazySettings implements \Countable {
   }
 
   /**
+   * Returns a convenient shortcut to get a feature with a `data` key.
+   *
+   * @param string $key
+   *   The storage key.
+   * @param array $default_value
+   *   The storage default_value.
+   *
+   * @return array
+   *   The array of items inside the data key, or empty array.
+   */
+  public function data($key, array $default_value = []): array {
+    return $this->get('data.' . $key, $default_value) ?: [];
+  }
+
+  /**
    * Returns a convenient shortcut to get a feature with a `filter` key.
    *
    * @param string $key
@@ -78,17 +93,32 @@ class BlazySettings implements \Countable {
   }
 
   /**
-   * Returns a convenient shortcut to get a feature with an `is` key.
+   * Returns a convenient shortcut to get a feature with an `form` key.
    *
    * @param string $key
    *   The storage key.
-   * @param string $default_value
+   * @param bool $default_value
    *   The storage default_value.
    *
    * @return bool
    *   Returns TRUE or FALSE.
    */
-  public function is($key, $default_value = NULL) {
+  public function form($key, $default_value = FALSE): bool {
+    return $this->get('form.' . $key, $default_value);
+  }
+
+  /**
+   * Returns a convenient shortcut to get a feature with an `is` key.
+   *
+   * @param string $key
+   *   The storage key.
+   * @param bool $default_value
+   *   The storage default_value.
+   *
+   * @return bool
+   *   Returns TRUE or FALSE.
+   */
+  public function is($key, $default_value = FALSE): bool {
     return $this->get('is.' . $key, $default_value);
   }
 
@@ -99,13 +129,13 @@ class BlazySettings implements \Countable {
    *
    * @param string $key
    *   The storage key.
-   * @param string $default_value
+   * @param bool $default_value
    *   The storage default_value.
    *
    * @return bool
    *   Returns TRUE or FALSE.
    */
-  public function was($key, $default_value = NULL) {
+  public function was($key, $default_value = FALSE): bool {
     return $this->get('was.' . $key, $default_value);
   }
 
@@ -114,13 +144,13 @@ class BlazySettings implements \Countable {
    *
    * @param string $key
    *   The storage key.
-   * @param string $default_value
+   * @param bool $default_value
    *   The storage default_value.
    *
    * @return bool
    *   Returns TRUE or FALSE.
    */
-  public function use($key, $default_value = NULL) {
+  public function use($key, $default_value = FALSE): bool {
     return $this->get('use.' . $key, $default_value);
   }
 
@@ -132,8 +162,8 @@ class BlazySettings implements \Countable {
    * @param string $default_value
    *   The storage default_value.
    *
-   * @return bool
-   *   Returns TRUE or FALSE.
+   * @return mixed
+   *   A mixed value (array, string, bool, null, etc.).
    */
   public function ui($key, $default_value = NULL) {
     return $this->get('ui.' . $key, $default_value);
@@ -174,7 +204,7 @@ class BlazySettings implements \Countable {
    * @return $this
    *   The configuration object.
    */
-  public function merge(array $data_to_merge) {
+  public function merge(array $data_to_merge): self {
     // Preserve integer keys so that configuration keys are not changed.
     $this->setData(NestedArray::mergeDeepArray([$this->storage, $data_to_merge], TRUE));
     return $this;
@@ -189,7 +219,7 @@ class BlazySettings implements \Countable {
    * @return $this
    *   The configuration object.
    */
-  public function setData(array $data) {
+  public function setData(array $data): self {
     $this->storage = $data;
     return $this;
   }
@@ -203,7 +233,7 @@ class BlazySettings implements \Countable {
    * @return $this
    *   The configuration object.
    */
-  public function unset($key) {
+  public function unset($key): self {
     $parts = array_map('trim', explode('.', $key));
     if (count($parts) == 1) {
       unset($this->storage[$key]);
@@ -219,24 +249,30 @@ class BlazySettings implements \Countable {
    *
    * @param string $key
    *   The key to check.
-   * @param object $group
+   * @param string|object $group
    *   The BlazySettings as sub-key to check for.
    *
    * @return bool
    *   True if found.
    */
-  public function isset($key, $group = NULL) {
+  public function isset($key, $group = NULL): bool {
     $found = FALSE;
     $parts = array_map('trim', explode('.', $key));
     if (count($parts) == 1) {
       if ($group) {
-        $found = isset($group->storage()[$key]);
+        if (is_string($group)) {
+          $found = isset($this->storage[$group][$key]);
+        }
+        elseif ($group instanceof BlazySettings) {
+          $found = isset($group->storage()[$key]);
+        }
       }
       else {
         $found = isset($this->storage[$key]);
       }
     }
     else {
+      // @fixme not working, yet.
       $found = NestedArray::keyExists($parts, $this->storage);
     }
     return $found;

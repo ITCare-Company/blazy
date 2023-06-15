@@ -15,13 +15,16 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    * {@inheritdoc}
    */
   public function basicImageForm(array &$form, array $definition): void {
+    $scopes = $this->toScopes($definition);
+    $data = $scopes->get('data');
+
     $this->imageStyleForm($form, $definition);
 
-    if (!empty($definition['media_switch_form']) && !isset($form['media_switch'])) {
+    if ($scopes->form('media_switch') && !isset($form['media_switch'])) {
       $this->mediaSwitchForm($form, $definition);
     }
 
-    if (isset($definition['images'])) {
+    if (isset($data['images'])) {
       $form['image'] = $this->baseForm($definition)['image'];
       $form['image']['#prefix'] = '';
     }
@@ -39,11 +42,12 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    * {@inheritdoc}
    */
   public function imageStyleForm(array &$form, array $definition): void {
+    $scopes = $this->toScopes($definition);
     $is_responsive = function_exists('responsive_image_get_image_dimensions');
-    $field_type = $definition['field_type'] ?? '';
-    $plugin_id = $definition['plugin_id'] ?? '';
+    $field_type = $scopes->get('field.type');
+    $plugin_id = $scopes->get('plugin_id');
 
-    if (empty($definition['no_image_style'])
+    if (!$scopes->is('no_image_style')
       && strpos($plugin_id, '_text') === FALSE) {
       $base = $this->baseForm($definition);
 
@@ -60,11 +64,11 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       }
     }
 
-    if (!empty($definition['thumbnail_style'])) {
+    if ($scopes->is('thumbnail_style')) {
       $form['thumbnail_style'] = $this->baseForm($definition)['thumbnail_style'];
     }
 
-    if ($is_responsive && !empty($definition['responsive_image'])) {
+    if ($is_responsive && $scopes->is('responsive_image')) {
       $url = Url::fromRoute('entity.responsive_image_style.collection')->toString();
       $form['responsive_image_style'] = [
         '#type'        => 'select',
@@ -76,11 +80,11 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       ];
     }
 
-    if (!empty($definition['thumbnail_effect'])) {
+    if ($effects = $scopes->data('thumbnail_effect')) {
       $form['thumbnail_effect'] = [
         '#type'    => 'select',
         '#title'   => $this->t('Thumbnail effect'),
-        '#options' => $definition['thumbnail_effect'],
+        '#options' => $effects,
         '#weight'  => -100,
       ];
     }
@@ -225,9 +229,10 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    * Exclude the field formatter settings summary as required.
    */
   protected function getExcludedSettingsSummary(array &$definition): void {
+    $scopes       = $this->toScopes($definition);
     $settings     = &$definition['settings'];
-    $excludes     = empty($definition['excludes']) ? [] : $definition['excludes'];
-    $plugin_id    = $definition['plugin_id'] ?? '';
+    $excludes     = $scopes->data('excludes');
+    $plugin_id    = $scopes->get('plugin_id');
     $blazy        = $plugin_id && strpos($plugin_id, 'blazy') !== FALSE;
     $image_styles = $this->getEntityAsOptions('image_style');
     $lightboxes   = $this->blazyManager->getLightboxes();
@@ -242,7 +247,9 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       }
     }
 
-    if ($lightboxes && !empty($settings['media_switch']) && !in_array($settings['media_switch'], $lightboxes)) {
+    if ($lightboxes
+      && !empty($settings['media_switch'])
+      && !in_array($settings['media_switch'], $lightboxes)) {
       foreach (['box_style', 'box_media_style', 'box_caption'] as $key) {
         $excludes[$key] = TRUE;
       }
@@ -255,6 +262,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     }
 
     // Remove exluded settings.
+    $scopes->set('data.excludes', $excludes);
     foreach ($excludes as $key => $value) {
       if (isset($settings[$key])) {
         unset($settings[$key]);

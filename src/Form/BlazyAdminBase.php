@@ -14,6 +14,8 @@ use Drupal\Component\Utility\Unicode;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManagerInterface;
+use Drupal\blazy\BlazySettings;
+use Drupal\blazy\Traits\PluginScopesTrait;
 use Drupal\blazy\Utility\Path;
 
 /**
@@ -27,6 +29,7 @@ use Drupal\blazy\Utility\Path;
 abstract class BlazyAdminBase implements BlazyAdminInterface {
 
   use StringTranslationTrait;
+  use PluginScopesTrait;
 
   /**
    * A state that represents the responsive image style is disabled.
@@ -142,13 +145,15 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function openingForm(array &$form, array &$definition): void {
+    $scopes = $this->toScopes($definition);
+
     $this->blazyManager
       ->moduleHandler()
       ->alter('blazy_form_element_definition', $definition);
 
     // Display style: column, plain static grid, slick grid, slick carousel.
     // https://drafts.csswg.org/css-multicol
-    if (!empty($definition['style'])) {
+    if ($scopes->is('style')) {
       $form['style'] = [
         '#type'         => 'select',
         '#title'        => $this->t('Display style'),
@@ -156,7 +161,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#enforced'     => TRUE,
         '#empty_option' => $this->t('- None -'),
         '#options'      => $this->blazyManager->getStyles(),
-        '#required' => !empty($definition['grid_required']),
+        '#required' => $scopes->is('grid_required'),
         '#weight'   => -112,
         '#wrapper_attributes' => [
           'class' => [
@@ -167,18 +172,18 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
     }
 
-    if (!empty($definition['skins'])) {
+    if ($skins = $scopes->data('skins')) {
       $form['skin'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Skin'),
-        '#options'     => $definition['skins'],
+        '#options'     => $skins,
         '#enforced'    => TRUE,
         '#description' => $this->t('Skins allow various layouts with just CSS. Some options below depend on a skin. Leave empty to DIY. Or use the provided hook_info() and implement the skin interface to register ones.'),
         '#weight'      => -107,
       ];
     }
 
-    if (!empty($definition['background'])) {
+    if ($scopes->is('background')) {
       $form['background'] = [
         '#type'        => 'checkbox',
         '#title'       => $this->t('Use CSS background'),
@@ -187,28 +192,28 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
     }
 
-    if (!empty($definition['layouts'])) {
+    if ($layouts = $scopes->data('layouts')) {
       $form['layout'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Layout'),
-        '#options'     => $definition['layouts'],
+        '#options'     => $layouts,
         '#description' => $this->t('Requires a skin. The builtin layouts affects the entire items uniformly. Leave empty to DIY.'),
         '#weight'      => 2,
       ];
     }
 
-    if (!empty($definition['captions'])) {
+    if ($captions = $scopes->data('captions')) {
       $form['caption'] = [
         '#type'        => 'checkboxes',
         '#title'       => $this->t('Caption fields'),
-        '#options'     => $definition['captions'],
+        '#options'     => $captions,
         '#description' => $this->t('Enable any of the following fields as captions. These fields are treated and wrapped as captions.'),
         '#weight'      => 80,
         '#attributes'  => ['class' => ['form-wrapper--caption']],
       ];
     }
 
-    if (!empty($definition['target_type']) && !empty($definition['view_mode'])) {
+    if ($scopes->get('target_type') && $scopes->get('view_mode')) {
       $form['view_mode'] = $this->baseForm($definition)['view_mode'];
     }
 
@@ -224,7 +229,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function gridForm(array &$form, array $definition): void {
-    $required = !empty($definition['grid_required']);
+    $scopes = $this->toScopes($definition);
+    $required = $scopes->is('grid_required');
 
     $header = $this->t('Group individual items as block grid<small>Depends on the <strong>Display style</strong>.</small>');
     $form['grid_header'] = [
@@ -309,9 +315,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function baseForm(array $definition = []): array {
+    $scopes     = $this->toScopes($definition);
+    $data       = $scopes->get('data');
     $settings   = $definition['settings'] ?? [];
     $lightboxes = $this->blazyManager->getLightboxes();
-    $namespace  = $definition['namespace'] ?? '';
+    $namespace  = $scopes->get('namespace');
     $form       = [];
     $ui_url     = '/admin/config/media/blazy';
 
@@ -319,7 +327,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $ui_url = Url::fromRoute('blazy.settings')->toString();
     }
 
-    if (empty($definition['no_image_style'])) {
+    if (!$scopes->is('no_image_style')) {
       $form['preload'] = [
         '#type'        => 'checkbox',
         '#title'       => $this->t('Preload'),
@@ -338,8 +346,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $loadings = ['auto', 'defer', 'eager', 'unlazy'];
       $sliders = in_array($namespace, ['slick', 'splide']);
       // It is defined in sub-modules, not Blazy.
-      /* @phpstan-ignore-next-line */
-      if (!empty($definitions['slider']) || $sliders) {
+      if ($scopes->is('slider') || $sliders) {
         $loadings[] = 'slider';
       }
       $form['loading'] = [
@@ -409,7 +416,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           '#description' => $this->t('Supports both Responsive and regular images.'),
         ];
 
-        if (!empty($definition['multimedia'])) {
+        if ($scopes->is('multimedia')) {
           $form['box_media_style'] = [
             '#type'        => 'select',
             '#title'       => $this->t('Lightbox video style'),
@@ -423,7 +430,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           ];
         }
 
-        if (empty($definition['box_stateless'])) {
+        if (!$scopes->is('box_stateless')) {
           foreach (['box_style', 'box_media_style'] as $key) {
             if (isset($form[$key])) {
               $form[$key]['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition);
@@ -433,13 +440,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
 
       // Adds common supported entities for media integration.
-      if (!empty($definition['multimedia'])) {
+      if ($scopes->is('multimedia')) {
         $form['media_switch']['#options']['media'] = $this->t('Image to iFrame');
       }
 
       // http://en.wikipedia.org/wiki/List_of_common_resolutions
       $ratio = ['1:1', '3:2', '4:3', '8:5', '16:9', 'fluid'];
-      if (empty($definition['no_ratio'])) {
+      if (!$scopes->is('no_ratio')) {
         $form['ratio'] = [
           '#type'         => 'select',
           '#title'        => $this->t('Aspect ratio'),
@@ -455,10 +462,10 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
     }
 
-    if (!empty($definition['target_type']) && !empty($definition['view_mode'])) {
+    if ($scopes->get('view_mode') && $target_type = $scopes->get('target_type')) {
       $form['view_mode'] = [
         '#type'        => 'select',
-        '#options'     => $this->getViewModeOptions($definition['target_type']),
+        '#options'     => $this->getViewModeOptions($target_type),
         '#title'       => $this->t('View mode'),
         '#description' => $this->t('Required to grab the fields, or to have custom entity display as fallback display. If it has fields, be sure the selected "View mode" is enabled, and the enabled fields here are not hidden there.'),
         '#weight'      => -94,
@@ -470,7 +477,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
     }
 
-    if (!empty($definition['thumbnail_style'])) {
+    if ($scopes->is('thumbnail_style')) {
       $form['thumbnail_style'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Thumbnail style'),
@@ -481,11 +488,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
 
     // @todo this can also be used for local video poster image option.
-    if (isset($definition['images'])) {
+    if (isset($data['images'])) {
       $form['image'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Main stage'),
-        '#options'     => is_array($definition['images']) ? $definition['images'] : [],
+        '#options'     => $scopes->data('images'),
         '#description' => $this->t('Main background/stage/poster image field with the only supported field types: <b>Image</b> or <b>Media</b> containing Image field. You may want to add a new Image field to this entity.'),
         '#prefix'      => '<h3 class="form__title form__title--fields">' . $this->t('Fields') . '</h3>',
       ];
@@ -500,6 +507,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function mediaSwitchForm(array &$form, array $definition): void {
+    $scopes     = $this->toScopes($definition);
     $settings   = $definition['settings'] ?? [];
     $lightboxes = $this->blazyManager->getLightboxes();
     $is_token   = $this->blazyManager->moduleExists('token');
@@ -508,20 +516,20 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['media_switch'] = $this->baseForm($definition)['media_switch'];
       $form['media_switch']['#prefix'] = '<h3 class="form__title form__title--media-switch">' . $this->t('Media switcher') . '</h3>';
 
-      if (empty($definition['no_ratio'])) {
+      if (!$scopes->is('no_ratio')) {
         $form['ratio'] = $this->baseForm($definition)['ratio'];
       }
     }
 
     // Optional lightbox integration.
-    if (!empty($lightboxes) && isset($settings['media_switch'])) {
+    if ($lightboxes && isset($settings['media_switch'])) {
       $form['box_style'] = $this->baseForm($definition)['box_style'];
 
-      if (!empty($definition['multimedia'])) {
+      if ($scopes->is('multimedia')) {
         $form['box_media_style'] = $this->baseForm($definition)['box_media_style'];
       }
 
-      if (!empty($definition['box_captions'])) {
+      if ($scopes->is('box_captions')) {
         $form['box_caption'] = [
           '#type'        => 'select',
           '#title'       => $this->t('Lightbox caption'),
@@ -530,7 +538,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           '#description' => $this->t('Automatic will search for Alt text first, then Title text. Try selecting <strong>- None -</strong> first when changing if trouble with form states.'),
         ];
 
-        if (empty($definition['box_stateless'])) {
+        if (!$scopes->is('box_stateless')) {
           $form['box_caption']['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition);
         }
 
@@ -543,8 +551,10 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         ];
 
         if ($is_token) {
-          $types = isset($definition['entity_type']) ? [$definition['entity_type']] : [];
-          $types = isset($definition['target_type']) ? array_merge($types, [$definition['target_type']]) : $types;
+          $entity_type = $scopes->get('entity.type');
+          $target_type = $scopes->get('target_type');
+          $types = $entity_type ? [$entity_type] : [];
+          $types = $target_type ? array_merge($types, [$target_type]) : $types;
 
           if ($types) {
             $form['box_caption_custom']['#field_suffix'] = [
@@ -564,21 +574,24 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function finalizeForm(array &$form, array $definition): void {
-    $namespace = $definition['namespace'] ?? 'slick';
+    $scopes = $this->toScopes($definition);
+    $namespace = $scopes->get('namespace', 'blazy');
     $settings = $definition['settings'] ?? [];
-    $vanilla = !empty($definition['vanilla']) ? ' form--vanilla' : '';
-    $grid = !empty($definition['grid_required']) ? ' form--grid-required' : '';
-    $plugind_id = !empty($definition['plugin_id']) ? ' form--plugin-' . str_replace('_', '-', $definition['plugin_id']) : '';
-    $count = empty($definition['captions']) ? 0 : count($definition['captions']);
-    $count = empty($definition['captions_count']) ? $count : $definition['captions_count'];
+    $vanilla = $scopes->is('vanilla') ? ' form--vanilla' : '';
+    $grid = $scopes->is('grid_required') ? ' form--grid-required' : '';
+    $plugin_id = $scopes->get('plugin_id');
+    $plugin_id = $plugin_id ? ' form--plugin-' . str_replace('_', '-', $plugin_id) : '';
+    $captions = $scopes->data('captions');
+    $count = $captions ? count($captions) : 0;
+    $count = $scopes->get('captions_count') ?: $count;
     $wide = $count > 2 ? ' form--wide form--caption-' . $count : ' form--caption-' . $count;
     $fallback = $namespace == 'slick' ? 'form--slick' : 'form--' . $namespace . ' form--slick';
     $plugins = ' form--namespace-' . $namespace;
-    $custom = $definition['opening_class'] ?? '';
-    $classes = ($fallback . ' form--half has-tooltip' . $wide . $vanilla . $grid . $plugind_id . ' ' . $custom . $plugins);
+    $custom = $scopes->get('opening_class') ?: '';
+    $classes = ($fallback . ' form--half has-tooltip' . $wide . $vanilla . $grid . $plugin_id . ' ' . $custom . $plugins);
 
-    if (!empty($definition['field_type'])) {
-      $classes .= ' form--' . str_replace('_', '-', $definition['field_type']);
+    if ($field_type = $scopes->get('field.type')) {
+      $classes .= ' form--' . str_replace('_', '-', $field_type);
     }
 
     if (isset($form['grid'], $form['grid']['#description'])) {
@@ -597,7 +610,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     ];
 
     // @todo Check if needed: 'button', 'container', 'submit'.
-    $admin_css = $definition['admin_css'] ?? FALSE;
+    $admin_css = $scopes->is('admin_css');
     $admin_css = $admin_css ?: $this->blazyManager->config('admin_css', 'blazy.settings');
     $excludes = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
     $selects = ['cache', 'optionset', 'view_mode'];
@@ -607,7 +620,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     if ($admin_css && $router = Path::requestStack()) {
       $wrapper_format = $router->getCurrentRequest()->query->get('_wrapper_format');
 
-      if (!empty($wrapper_format) && $wrapper_format === "drupal_dialog.off_canvas") {
+      if ($wrapper_format && $wrapper_format === "drupal_dialog.off_canvas") {
         $admin_css = FALSE;
       }
     }
@@ -800,6 +813,18 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
+   * Verify the plugin scopes is initialized downstream.
+   */
+  protected function toScopes(array &$definition): BlazySettings {
+    $scopes = $definition['scopes'] ?? $this->toPluginScopes();
+    if (!$scopes->get('initializer')) {
+      $definition['scopes'] = $scopes = $this->getScopes($definition);
+      $scopes->set('initializer', get_called_class());
+    }
+    return $scopes;
+  }
+
+  /**
    * Returns native grid description.
    */
   protected function nativeGridDescription() {
@@ -861,6 +886,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ],
     ];
     return $states[$state];
+  }
+
+  /**
+   * Returns the plugin scopes.
+   */
+  private function getScopes(array &$definition): BlazySettings {
+    return $this->toPluginScopes($definition);
   }
 
 }

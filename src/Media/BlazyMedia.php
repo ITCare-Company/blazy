@@ -197,7 +197,7 @@ class BlazyMedia {
   /**
    * Extracts image from non-media entities for the main background/ stage.
    *
-   * @todo remove after sub-modules.
+   * @todo remove after sub-modules anytime by 3.x.
    */
   public static function imageItem(array &$data, $entity): void {
     $settings = &$data['settings'];

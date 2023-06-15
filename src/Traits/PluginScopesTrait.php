@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Traits;
 
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazySettings;
 
 /**
@@ -30,21 +31,37 @@ trait PluginScopesTrait {
       return new BlazySettings($definitions);
     }
 
+    // Allows to merge at admin level for consistent sane method uses.
     if (isset($scopes['scopes'])) {
       $this->scopes = $scopes['scopes']->storage();
+      unset($scopes['scopes']);
     }
+
     if ($this->scopes) {
-      $scopes = array_merge($this->scopes, $scopes);
+      $this->scopes = Blazy::merge($scopes, $this->scopes);
     }
     else {
       $this->scopes = $scopes;
     }
 
-    foreach ($scopes as $key => $value) {
+    // Excludes unique keys out of scopes at admin form level.
+    foreach (['blazies', 'settings'] as $key) {
+      if (isset($this->scopes[$key])) {
+        unset($this->scopes[$key]);
+      }
+    }
+
+    foreach ($this->scopes as $key => $value) {
       if (is_array($value)) {
+        // Do not put duplicate keys into $data, already processed.
+        if (in_array($key, ['data', 'form', 'use'])) {
+          continue;
+        }
+
         $data[$key] = $value;
-        if (isset($scopes['data'])) {
-          $definitions['data'] = array_merge($scopes['data'], $data);
+
+        if (isset($this->scopes['data'])) {
+          $definitions['data'] = Blazy::merge($data, $this->scopes['data']);
         }
         else {
           $definitions['data'] = $data;
@@ -52,12 +69,22 @@ trait PluginScopesTrait {
       }
       else {
         if (is_bool($value)) {
-          $group = strpos($key, '_form') === FALSE ? 'use' : 'form';
+          $group = strpos($key, '_form') === FALSE ? 'is' : 'form';
           $key = str_replace('_form', '', $key);
           $definitions[$group][$key] = $value;
         }
         else {
-          $definitions[$key] = $value;
+          if (strpos($key, 'field_') !== FALSE) {
+            $key = str_replace('field_', '', $key);
+            $definitions['field'][$key] = $value;
+          }
+          elseif (strpos($key, 'entity_') !== FALSE) {
+            $key = str_replace('entity_', '', $key);
+            $definitions['entity'][$key] = $value;
+          }
+          else {
+            $definitions[$key] = $value;
+          }
         }
       }
     }
