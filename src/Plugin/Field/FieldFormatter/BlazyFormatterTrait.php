@@ -115,6 +115,10 @@ trait BlazyFormatterTrait {
 
     $blazies->set('is.grid', $is_grid);
 
+    if (method_exists($this, 'isMultiple')) {
+      $blazies->set('is.multiple', $this->isMultiple());
+    }
+
     $this->pluginSettings($blazies, $settings);
 
     return $settings;

@@ -132,6 +132,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       'media_switch_form' => TRUE,
       'style'             => $multiple,
       'thumbnail_style'   => TRUE,
+      'multiple'          => $multiple,
     ];
   }
 

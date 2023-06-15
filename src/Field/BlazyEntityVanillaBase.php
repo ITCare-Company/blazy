@@ -166,6 +166,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
       'target_bundles'   => $this->getAvailableBundles(),
       'vanilla'          => TRUE,
       'view_mode'        => $this->viewMode,
+      'multiple'         => $this->isMultiple(),
     ];
   }
 

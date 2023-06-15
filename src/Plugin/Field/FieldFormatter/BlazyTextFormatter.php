@@ -67,6 +67,15 @@ class BlazyTextFormatter extends FormatterBase {
   }
 
   /**
+   * Returns TRUE if a multi-value field.
+   */
+  protected function isMultiple(): bool {
+    return $this->fieldDefinition
+      ->getFieldStorageDefinition()
+      ->isMultiple();
+  }
+
+  /**
    * Build the grid text elements.
    */
   protected function buildElements(array &$build, $items, $langcode) {
@@ -118,6 +127,7 @@ class BlazyTextFormatter extends FormatterBase {
       'no_layouts'       => TRUE,
       'responsive_image' => FALSE,
       'style'            => TRUE,
+      'multiple'         => $this->isMultiple(),
     ];
   }
 
