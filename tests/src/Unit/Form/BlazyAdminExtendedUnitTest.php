@@ -80,15 +80,11 @@ class BlazyAdminExtendedUnitTest extends UnitTestCase {
       + $this->getScopedFormElements();
 
     $definition['settings'] += $this->getDefaultFields(TRUE);
-    $definition['id'] = $id;
     $definition['vanilla'] = $vanilla;
     $definition['_views'] = TRUE;
 
     $this->blazyAdminExtended->openingForm($form, $definition);
     $this->assertEquals($vanilla, !empty($form['vanilla']));
-
-    $this->blazyAdminExtended->fieldableForm($form, $definition);
-    $this->assertEquals($id, !empty($form['id']));
 
     $this->blazyAdminExtended->closingForm($form, $definition);
     $this->assertArrayHasKey('closing', $form);

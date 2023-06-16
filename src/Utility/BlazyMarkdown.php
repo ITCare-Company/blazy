@@ -26,6 +26,7 @@ class BlazyMarkdown {
    */
   public static function parse($text, $sanitize = TRUE, $help = TRUE): string {
     if (!self::isApplicable()) {
+      $text = $sanitize ? Xss::filterAdmin($text) : $text;
       return $help ? '<pre>' . $text . '</pre>' : $text;
     }
 

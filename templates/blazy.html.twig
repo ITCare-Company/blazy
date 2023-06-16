@@ -63,7 +63,6 @@
     settings.classes ? settings.classes|join(' ')|clean_class,
   ]
 %}
-
 {% if blazies.is.player %}
   {% set attributes = attributes.setAttribute('aria-live', 'polite') %}
 
@@ -92,7 +91,6 @@
     'type': 'button'
   }) %}
 {% endif %}
-
 {% set player %}
   {% block blazy_player %}
     {% if blazies.is.player %}
@@ -103,7 +101,6 @@
     {% endif %}
   {% endblock %}
 {% endset %}
-
 {% set media %}
   {% block blazy_media %}
     <div{{ attributes.addClass(classes) }}>
@@ -114,34 +111,28 @@
       {{- noscript -}}
       {{- overlay -}}
       {{- player -}}
-
-      {# @todo settings.icon is deprecated in 2.0 and is removed from 3.0. Use icon instead. #}
-      {{- settings.icon -}}
       {{- icon -}}
     </div>
   {% endblock %}
 {% endset %}
-
 {% set blazy %}
   {% block blazy_content %}
-    {% if media_attributes %}<div{{ media_attributes }}>{% endif %}
-      {% if url and not blazies.is.player %}
+    {%- if media_attributes -%}<div{{ media_attributes }}>{%- endif -%}
+      {%- if url and not blazies.is.player -%}
         <a href="{{ url }}"{{ url_attributes }}>{{- media -}}</a>
-
         {# Allows fieldable captions with A tag, such as social share. #}
-        {% if captions and captions.lightbox is not empty %}
+        {%- if captions and captions.lightbox is not empty -%}
           <div class="litebox-caption visually-hidden">
             {{- captions.lightbox -}}
           </div>
-        {% endif %}
-
+        {%- endif -%}
       {% else %}
         {{- media -}}
-      {% endif %}
-    {% if media_attributes %}</div>{% endif %}
+      {%- endif -%}
+    {%- if media_attributes -%}</div>{%- endif -%}
   {% endblock %}
 
-  {% if captions and captions.inline is defined %}
+  {%- if captions and captions.inline is defined -%}
     {% block blazy_caption %}
       {% set caption_tag = captions.tag %}
       <{{ caption_tag }}{{ caption_attributes }}>
@@ -152,16 +143,13 @@
         {% endfor %}
       </{{ caption_tag }}>
     {% endblock %}
-  {% endif %}
-
+  {%- endif -%}
   {{- postscript -}}
-
 {% endset %}
-
-{% if wrapper_attributes %}
+{%- if wrapper_attributes -%}
   <div{{ wrapper_attributes }}>
     {{- blazy -}}
   </div>
 {% else %}
-  {{- blazy }}
-{% endif %}
+  {{- blazy -}}
+{%- endif -%}

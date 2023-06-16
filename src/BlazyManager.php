@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy;
 
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Cache\BlazyCache;
@@ -28,7 +29,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    */
   public function getBlazy(array $build, $delta = -1): array {
     foreach (BlazyDefault::themeProperties() as $key) {
-      $build[$key] = $build[$key] ?? [];
+      $default = $key == 'item' ? NULL : [];
+      $build[$key] = $build[$key] ?? $default;
     }
 
     $settings = &$build['settings'];
@@ -73,7 +75,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $url = $blazies->get('entity.url');
 
     if ($blazies->get('switch') == 'content' && $url) {
-      $element['#url'] = $url;
+      $element['#url'] = UrlHelper::stripDangerousProtocols($url);
     }
     elseif ($blazies->is('lightbox')) {
       Lightbox::build($element);
@@ -97,7 +99,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   public function build(array $build): array {
     $settings = &$build['settings'];
     Blazy::verify($settings);
-
     $blazies = $settings['blazies'];
 
     // This #pre_render doesn't work if called from Views results, hence the
@@ -136,8 +137,9 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     unset($element['#build']);
 
     // Checks if we got some signaled attributes.
-    $attributes = $element['#theme_wrappers']['container']['#attributes'] ?? $element['#attributes'] ?? [];
-    $settings   = $this->getSettings($build);
+    $attributes = $element['#theme_wrappers']['container']['#attributes']
+      ?? $element['#attributes'] ?? [];
+    $settings = $this->getSettings($build);
 
     // Runs after ::getSettings.
     $this->toElementChildren($build);
@@ -153,12 +155,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       // Cannot merge it into Grid (wrapper_)attributes, done as grid.
       // Use case: Product variations, best served by ElevateZoom Plus.
       if (isset($element['#ajax_replace_class'])) {
-        $element['#container_attributes'] = $attributes;
+        $element['#container_attributes'] = Sanitize::attribute($attributes);
       }
       else {
         // Use case: VIS, can be blended with UL element safely down here.
         // The $attributes is merged with self::toGrid() ones here.
-        $element['#attributes'] = $this->merge($element['#attributes'] ?? [], $attributes);
+        $attrs = $this->merge($attributes, $element, '#attributes');
+        $element['#attributes'] = Sanitize::attribute($attrs);
       }
     }
 
@@ -234,14 +237,11 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $item = $build['item'];
     $settings = &$build['settings'];
     $blazies = $settings['blazies'];
-
-    // (Responsive) image with item attributes, might be RDF.
-    $item_attributes = empty($build['item_attributes'])
-      ? []
-      : Sanitize::attribute($build['item_attributes']);
+    $item_attributes = $build['item_attributes'] ?? [];
 
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
+    // (Responsive) image with item attributes, might be RDF.
     if ($item && isset($item->_attributes)) {
       $item_attributes += $item->_attributes;
       unset($item->_attributes);
@@ -264,7 +264,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Pass non-rich-media elements to theme_blazy().
-    $element['#item_attributes'] = $item_attributes;
+    $element['#item_attributes'] = Sanitize::attribute($item_attributes);
+    unset($build['item_attributes']);
   }
 
   /**
@@ -303,19 +304,18 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    *   object, settings, optional container attributes.
    */
   private function prepareBlazy(array &$element, array $build) {
-    $item     = $build['item'] ?? NULL;
+    $item = $build['item'] ?? NULL;
     $settings = &$build['settings'];
-    $blazies  = $settings['blazies'];
+    $blazies = $settings['blazies'];
+    $attributes = &$build['attributes'];
 
-    foreach (BlazyDefault::themeAttributes() as $key) {
+    // Blazy has these 3 attributes, yet provides optional ones far below.
+    // The supported: 'caption', 'media', 'url', 'wrapper'.
+    $theme_attributes = BlazyDefault::themeAttributes();
+    foreach ($theme_attributes as $key) {
       $key = $key . '_attributes';
       $build[$key] = $build[$key] ?? [];
     }
-
-    // Blazy has these 3 attributes, yet provides optional ones far below.
-    // Sanitize potential user-defined attributes such as from BlazyFilter.
-    // Skip attributes via $item, or by module, as they are not user-defined.
-    $attributes = &$build['attributes'];
 
     // Initial feature checks, URI, delta, media features, etc.
     BlazyInternal::prepare($settings, $item);
@@ -331,12 +331,14 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       $this->buildMedia($element, $build);
     }
 
-    // Provides extra attributes as needed, excluding url, item, done above.
+    // Provides extra attributes as needed.
     // Was planned to replace sub-module item markups if similarity is found for
     // theme_gridstack_box(), theme_slick_slide(), etc. Likely for Blazy 3.x+.
-    foreach (['caption', 'media', 'wrapper'] as $key) {
-      $element["#$key" . '_attributes'] = empty($build[$key . '_attributes'])
-        ? [] : Sanitize::attribute($build[$key . '_attributes']);
+    // The supported: 'caption', 'media', 'url', 'wrapper'.
+    foreach ($theme_attributes as $key) {
+      $attrs = $build[$key . '_attributes'] ?? [];
+      // Sanitize potential user-defined attributes such as from BlazyFilter.
+      $element["#$key" . '_attributes'] = Sanitize::attribute($attrs);
     }
 
     // Provides captions, if so configured.
@@ -348,9 +350,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Pass common elements to theme_blazy().
-    $element['#attributes']     = $attributes;
-    $element['#settings']       = $settings;
-    $element['#url_attributes'] = $build['url_attributes'];
+    $element['#attributes'] = Sanitize::attribute($attributes);
+    $element['#settings'] = $settings;
 
     // Preparing Blazy to replace other blazy-related content/ item markups.
     // Composing or layering is crucial for mixed media (icon over CTA or text
@@ -358,6 +359,9 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // which cannot be simply dumped as array without elaborate arrangements).
     foreach (['content', 'icon', 'overlay', 'preface', 'postscript'] as $key) {
       $element["#$key"] = $this->merge($build[$key] ?? [], $element, "#$key");
+      if (isset($build[$key])) {
+        unset($build[$key]);
+      }
     }
   }
 

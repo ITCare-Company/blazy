@@ -30,7 +30,12 @@ class Sanitize {
     $output = [];
     $tags = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];
 
+    if (empty($attributes)) {
+      return $output;
+    }
+
     foreach ($attributes as $key => $value) {
+      $key = Html::escape($key);
       if (is_array($value)) {
         // Respects array item containing space delimited classes: aaa bbb ccc.
         $value = implode(' ', $value);
