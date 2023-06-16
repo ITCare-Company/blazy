@@ -104,7 +104,7 @@ class BlazySettings implements \Countable {
    *   Returns TRUE or FALSE.
    */
   public function form($key, $default_value = FALSE): bool {
-    return $this->get('form.' . $key, $default_value);
+    return $this->get('form.' . $key, $default_value) ?: FALSE;
   }
 
   /**
@@ -119,7 +119,7 @@ class BlazySettings implements \Countable {
    *   Returns TRUE or FALSE.
    */
   public function is($key, $default_value = FALSE): bool {
-    return $this->get('is.' . $key, $default_value);
+    return $this->get('is.' . $key, $default_value) ?: FALSE;
   }
 
   /**
@@ -136,7 +136,7 @@ class BlazySettings implements \Countable {
    *   Returns TRUE or FALSE.
    */
   public function was($key, $default_value = FALSE): bool {
-    return $this->get('was.' . $key, $default_value);
+    return $this->get('was.' . $key, $default_value) ?: FALSE;
   }
 
   /**
@@ -151,7 +151,7 @@ class BlazySettings implements \Countable {
    *   Returns TRUE or FALSE.
    */
   public function use($key, $default_value = FALSE): bool {
-    return $this->get('use.' . $key, $default_value);
+    return $this->get('use.' . $key, $default_value) ?: FALSE;
   }
 
   /**
