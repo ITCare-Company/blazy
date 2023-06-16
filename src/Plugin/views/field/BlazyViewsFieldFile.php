@@ -17,12 +17,11 @@ class BlazyViewsFieldFile extends BlazyViewsFieldPluginBase {
   public function render(ResultRow $values) {
     /** @var \Drupal\file\Entity\File $entity */
     $entity = $values->_entity;
-
     $settings = $this->mergedViewsSettings();
-    $settings['delta'] = $values->index;
 
     $data['settings'] = $this->mergedSettings = $settings;
     $data['entity'] = $entity;
+    $data['delta'] = $values->index;
     $data['fallback'] = $entity->getFilename();
 
     // Pass results to \Drupal\blazy\BlazyEntity.

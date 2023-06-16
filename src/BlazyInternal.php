@@ -19,8 +19,9 @@ class BlazyInternal {
   /**
    * Prepares the essential settings, URI, delta, etc.
    */
-  public static function prepare(array &$settings, $item = NULL, $delta = -1): void {
-    CheckItem::essentials($settings, $item, $delta);
+  public static function prepare(array &$settings, $item = NULL): void {
+    // Checks for essential settings: URI, delta, cache and initial delta.
+    CheckItem::essentials($settings, $item);
 
     if ($settings['blazies']->get('image.uri')) {
       CheckItem::multimedia($settings);

@@ -54,6 +54,13 @@ class Blazy {
   }
 
   /**
+   * Alias for CheckItem::denied() for sub-modules.
+   */
+  public static function denied($entity): array {
+    return CheckItem::denied($entity);
+  }
+
+  /**
    * Alias for BlazyEntity::settings() for sub-modules.
    */
   public static function entitySettings(array &$settings, $entity): void {

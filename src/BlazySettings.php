@@ -286,7 +286,7 @@ class BlazySettings implements \Countable {
    * @param array $settings
    *   The settings to reset/ renew the instance.
    * @param string $key
-   *   The key inditifying this reset object.
+   *   The key identifying this reset object.
    *
    * @return \Drupal\blazy\BlazySettings
    *   The new BlazySettings instance.

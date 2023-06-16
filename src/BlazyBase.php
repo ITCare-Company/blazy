@@ -208,6 +208,13 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function denied($entity): array {
+    return Blazy::denied($entity);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function entityQuery($type, $conjunction = 'AND') {
     return $this->getStorage($type)->getQuery($conjunction);
   }

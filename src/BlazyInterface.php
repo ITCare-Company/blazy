@@ -94,6 +94,11 @@ interface BlazyInterface {
   ): void;
 
   /**
+   * Alias for Blazy::denied() for sub-modules.
+   */
+  public function denied($entity): array;
+
+  /**
    * Returns the entity query object for this entity type.
    *
    * @param string $type

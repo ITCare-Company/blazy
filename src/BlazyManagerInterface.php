@@ -16,10 +16,12 @@ interface BlazyManagerInterface extends BlazyManagerBaseInterface {
    * @param array $build
    *   The array containing: item, content, settings, or optional captions.
    * @param int $delta
-   *   The optional delta.
+   *   The optional delta after sub-modules.
    *
    * @return array
    *   The alterable and renderable array of enforced content, or theme_blazy().
+   *
+   * @todo remove the optional delta after sub-modules.
    */
   public function getBlazy(array $build, $delta = -1): array;
 

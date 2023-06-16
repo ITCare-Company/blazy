@@ -65,17 +65,20 @@ class BlazyEntity implements BlazyEntityInterface {
   public function build(array &$data, $entity = NULL, $fallback = ''): array {
     $entity = $data['entity'] ?? $entity;
     $fallback = $data['fallback'] ?? $fallback;
+    $manager = $this->blazyManager;
+    $settings = &$data['settings'];
 
     if (!$entity instanceof EntityInterface) {
       return [];
     }
 
-    unset($data['entity'], $data['fallback']);
+    if ($denied = $manager->denied($entity)) {
+      return $denied;
+    }
 
-    // Supports core Media via Drupal\blazy\Media\BlazyOEmbed::build().
-    $manager = $this->blazyManager;
-    $settings = &$data['settings'];
-    $delta = $settings['delta'] ?? -1;
+    // @todo remove $settings after sub-modules: gridstack, slick_browser.
+    $delta = $data['delta'] ?? ($settings['delta'] ?? -1);
+    unset($data['entity'], $data['delta'], $data['fallback']);
 
     // Common settings.
     $manager->preSettings($settings);
@@ -84,33 +87,40 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // Entity settings.
     self::settings($settings, $entity);
+    $blazies = $settings['blazies']->reset($settings);
+    $blazies->set('delta', $delta);
 
     $manager->postSettingsAlter($settings, $entity);
 
     // Build the Media item.
     $this->oembed->build($data, $entity);
-
     $settings = &$data['settings'];
+    $view = [
+      'entity' => $entity,
+      'settings' => $settings,
+      'fallback' => $fallback,
+    ];
 
     // Only pass to Blazy for known entities related to File or Media.
     if (in_array($entity->getEntityTypeId(), ['file', 'media'])) {
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $data['item'] */
       if (empty($data['item'])) {
-        $data['content'][] = $this->view($entity, $settings, $fallback);
+        $data['content'][] = $this->view($view);
       }
 
       // Pass it to Blazy for consistent markups.
-      $build = $manager->getBlazy($data, $delta);
+      $build = $manager->getBlazy($data);
 
       // Allows top level elements to load Blazy once rather than per field.
       // This is still here for non-supported Views style plugins, etc.
-      if (empty($settings['_detached'])) {
+      $detached = $blazies->is('detached') ?: $settings['_detached'] ?? FALSE;
+      if (!$detached) {
         $load = $manager->attach($settings);
         $build['#attached'] = $manager->merge($load, $build, '#attached');
       }
     }
     else {
-      $build = $this->view($entity, $settings, $fallback);
+      $build = $this->view($view);
     }
 
     $manager->moduleHandler()->alter('blazy_build_entity', $build, $entity, $settings);
@@ -119,29 +129,40 @@ class BlazyEntity implements BlazyEntityInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo make it single param after sub-modules for easy updates.
    */
   public function view($entity, array $settings = [], $fallback = ''): array {
+    if (is_array($entity)) {
+      $settings = $entity['settings'] ?? [];
+      $fallback = $entity['fallback'] ?? '';
+      $entity = $entity['entity'] ?? NULL;
+    }
+
+    if ($denied = $this->blazyManager->denied($entity)) {
+      return $denied;
+    }
+
     if ($fallback && is_string($fallback)) {
       $fallback = ['#markup' => '<div class="is-fallback">' . $fallback . '</div>'];
     }
     $fallback = $fallback ?: [];
 
     if ($entity instanceof EntityInterface) {
-      $manager        = $this->blazyManager;
-      $entity_type_id = $entity->getEntityTypeId();
-      $view_mode      = $settings['view_mode'] = empty($settings['view_mode'])
-        ? 'default' : $settings['view_mode'];
-      $langcode       = $entity->language()->getId();
+      $manager      = $this->blazyManager;
+      $entity_type  = $entity->getEntityTypeId();
+      $view_mode    = $settings['view_mode'] = $settings['view_mode'] ?? 'default';
+      $langcode     = $entity->language()->getId();
+      $type_manager = $manager->entityTypeManager();
 
       // If entity has view_builder handler.
-      if ($manager->entityTypeManager()
-        ->hasHandler($entity_type_id, 'view_builder')) {
-        $build = $manager->entityTypeManager()
-          ->getViewBuilder($entity_type_id)
+      if ($type_manager->hasHandler($entity_type, 'view_builder')) {
+        $build = $type_manager
+          ->getViewBuilder($entity_type)
           ->view($entity, $view_mode, $langcode);
 
         // @todo figure out why video_file empty, this is blatant assumption.
-        if ($entity_type_id == 'file') {
+        if ($entity_type == 'file') {
           try {
             $build = BlazyField::getOrViewMedia($entity, $settings, TRUE) ?: $build;
           }
@@ -155,7 +176,7 @@ class BlazyEntity implements BlazyEntityInterface {
         // If module implements own {entity_type}_view.
         // @todo remove due to being deprecated at D8.7.
         // See https://www.drupal.org/node/3033656
-        $view_hook = $entity_type_id . '_view';
+        $view_hook = $entity_type . '_view';
         if (is_callable($view_hook)) {
           return $view_hook($entity, $view_mode, $langcode);
         }

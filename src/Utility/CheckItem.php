@@ -2,7 +2,9 @@
 
 namespace Drupal\blazy\Utility;
 
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
@@ -20,6 +22,29 @@ use Drupal\blazy\Media\BlazyResponsiveImage;
 class CheckItem {
 
   /**
+   * Returns a message if access to view the entity is denied.
+   */
+  public static function denied($entity): array {
+    if (!$entity instanceof EntityInterface) {
+      return [];
+    }
+
+    if (!$entity->access('view')) {
+      $parameters = [
+        '@label' => $entity->getEntityType()->getSingularLabel(),
+        '@id' => $entity->id(),
+        '@langcode' => $entity->language()->getId(),
+        '@title' => $entity->label(),
+      ];
+      $restricted_access_label = $entity->access('view label')
+       ? new FormattableMarkup('@label @id (@title)', $parameters)
+       : new FormattableMarkup('@label @id', $parameters);
+      return ['#markup' => $restricted_access_label];
+    }
+    return [];
+  }
+
+  /**
    * Checks for essential settings: URI, delta, cache and initial delta.
    *
    * The initial delta related to option `Loading: slider`, the initial is not
@@ -29,18 +54,16 @@ class CheckItem {
    * Image URI might be NULL given rich media like Facebook, etc., no problem.
    * That is why this is called twice. Once to check, another to re-check.
    */
-  public static function essentials(array &$settings, $item = NULL, $delta = -1): void {
+  public static function essentials(array &$settings, $item = NULL): void {
     $blazies = $settings['blazies'];
-    $delta   = $blazies->get('delta') ?: ($settings['delta'] ?? $delta);
+
+    if ($blazies->was('essentials')) {
+      return;
+    }
+
+    $delta   = $blazies->get('delta') ?: ($settings['delta'] ?? -1);
     $initial = $delta == $blazies->get('initial', -2);
     $uri     = $blazies->get('image.uri') ?: BlazyFile::uri($item, $settings);
-
-    // This means re-definition since URI can be fed from any sources uptream.
-    // @todo remove uri for image.uri for better grouping.
-    $blazies->set('uri', $uri)
-      ->set('delta', $delta)
-      ->set('is.initial', $initial)
-      ->set('image.uri', $uri);
 
     // File cache tags.
     if ($item) {
@@ -58,6 +81,12 @@ class CheckItem {
         $blazies->set('image.title', trim($item->title));
       }
     }
+
+    // This means re-definition since URI can be fed from any sources uptream.
+    $blazies->set('delta', $delta)
+      ->set('is.initial', $initial)
+      ->set('image.uri', $uri)
+      ->set('was.essentials', TRUE);
 
     // @todo remove after sub-modules.
     $settings['delta'] = $delta;
@@ -77,8 +106,7 @@ class CheckItem {
   public static function multimedia(array &$settings): void {
     $blazies   = $settings['blazies'];
     $source    = $blazies->get('media.source');
-    $type      = $settings['type'] ?? 'image';
-    $type      = $settings['type'] = $blazies->get('media.type') ?: $type;
+    $type      = $blazies->get('media.type') ?: $settings['type'] ?? 'image';
     $bundle    = $blazies->get('media.bundle') ?: $settings['bundle'] ?? '';
     $embed_url = $settings['embed_url'] ?? '';
     $embed_url = $blazies->get('media.embed_url') ?: $embed_url;

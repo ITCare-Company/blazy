@@ -202,4 +202,16 @@ trait BlazyFormatterTrait {
     return ['settings' => $this->getSettings()] + $this->getCommonFieldDefinition();
   }
 
+  /**
+   * Returns TRUE if a multi-value field.
+   *
+   * @return bool
+   *   TRUE if a multivalue field, else FALSE.
+   */
+  protected function isMultiple(): bool {
+    return $this->fieldDefinition
+      ->getFieldStorageDefinition()
+      ->isMultiple();
+  }
+
 }

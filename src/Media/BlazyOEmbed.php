@@ -213,6 +213,11 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
     /** @var \Drupal\media\Entity\Media $entity */
     if ($valid) {
+      if ($denied = $this->blazyManager->denied($media)) {
+        $build['content'][] = $denied;
+        return;
+      }
+
       $this->fromMedia($build, $media);
     }
 

@@ -40,7 +40,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $blazies = Blazy::reset($settings);
     $blazies->set('is.api', TRUE);
 
-    CheckItem::essentials($settings, $item, $delta);
+    CheckItem::essentials($settings, $item);
 
     // Respects content not handled by theme_blazy(), but passed through.
     // Yet allows rich contents which might still be processed by theme_blazy().

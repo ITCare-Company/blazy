@@ -96,7 +96,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
     // Optional image with responsive image, lazyLoad, and lightbox supports.
     // Including potential rich Media contents: local video, Facebook, etc.
-    $blazy = $this->formatter->getBlazy($element, $delta);
+    $blazy = $this->formatter->getBlazy($element);
 
     // If the caller is Blazy, provides simple index elements.
     if ($blazies->get('namespace') == 'blazy') {

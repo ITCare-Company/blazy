@@ -17,12 +17,14 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
   public function render(ResultRow $values) {
     /** @var \Drupal\media\Entity\Media $media */
     $media = $values->_entity;
-
     $settings = $this->mergedViewsSettings();
-    $settings['delta'] = $values->index;
+
+    // Due to minimal settings, assumed core fields are in use.
+    $settings['image'] = 'field_media_image';
 
     $data['settings'] = $this->mergedSettings = $settings;
     $data['entity'] = $media;
+    $data['delta'] = $values->index;
     $data['fallback'] = $media->label();
 
     // Pass results to \Drupal\blazy\BlazyEntity.

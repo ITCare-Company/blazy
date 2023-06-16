@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
@@ -57,7 +58,8 @@ class BlazyTheme {
   public static function blazy(array &$variables): void {
     $element = $variables['element'];
     foreach (BlazyDefault::themeProperties() as $key) {
-      $variables[$key] = $element["#$key"] ?? [];
+      $default = $key == 'item' ? NULL : [];
+      $variables[$key] = $element["#$key"] ?? $default;
     }
 
     // Provides optional attributes, see BlazyFilter.
@@ -79,7 +81,7 @@ class BlazyTheme {
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
       BlazyInternal::preSettings($settings);
-      BlazyInternal::prepare($settings, $item, $settings['delta'] ?? 0);
+      BlazyInternal::prepare($settings, $item);
     }
 
     // Do not proceed if no URI is provided. URI is not Blazy theme property.
@@ -145,6 +147,7 @@ class BlazyTheme {
         $blazies = &$settings['blazies'];
 
         if ($url = $blazies->get('image.url')) {
+          $url = UrlHelper::stripDangerousProtocols($url);
           if (!$blazies->use('loader') && $use_dataset) {
             $blazies->set('use.loader', TRUE);
           }

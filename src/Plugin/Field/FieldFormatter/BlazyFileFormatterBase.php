@@ -137,15 +137,6 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * Returns TRUE if a multi-value field.
-   */
-  protected function isMultiple(): bool {
-    return $this->fieldDefinition
-      ->getFieldStorageDefinition()
-      ->isMultiple();
-  }
-
-  /**
    * Overrides parent::needsEntityLoad().
    *
    * One step back to have both image and file ER plugins extend this, because

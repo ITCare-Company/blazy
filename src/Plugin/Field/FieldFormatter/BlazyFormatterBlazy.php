@@ -31,7 +31,7 @@ class BlazyFormatterBlazy extends BlazyFileFormatterBase {
    */
   protected function buildElements(array &$build, $files, $langcode) {
     foreach ($this->getElements($build, $files) as $delta => $element) {
-      $build[] = $this->formatter->getBlazy($element, $delta);
+      $build[$delta] = $this->formatter->getBlazy($element);
     }
   }
 

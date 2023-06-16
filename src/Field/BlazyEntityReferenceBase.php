@@ -115,9 +115,10 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
 
     // Overlay, like slider or video over slider, if so configured.
     if (!empty($_overlay) && isset($entity->{$_overlay})) {
-      $element['caption']['overlay'] = $entity
-        ->get($_overlay)
-        ->view($view_mode);
+      // @todo remove after another check, if not needed down here.
+      $denied = $this->formatter->denied($entity);
+      $overlay = $entity->get($_overlay)->view($view_mode);
+      $element['caption']['overlay'] = $denied ?: $overlay;
     }
   }
 
@@ -146,17 +147,6 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
       'titles'  => $titles,
       'vanilla' => TRUE,
     ] + $parent;
-  }
-
-  /**
-   * Remove this method, never extended nor modified by sub-modules.
-   *
-   * @deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
-   *   self::getCaption() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  protected function getOverlay(array $settings, $entity, $langcode) {
-    return $entity->get($settings['overlay'])->view($settings['view_mode']);
   }
 
 }

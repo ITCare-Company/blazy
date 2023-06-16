@@ -133,7 +133,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
       }
 
       // Media OEmbed with lazyLoad and lightbox supports.
-      $build[$delta] = $this->formatter->getBlazy($data, $delta);
+      $build[$delta] = $this->formatter->getBlazy($data);
     }
   }
 

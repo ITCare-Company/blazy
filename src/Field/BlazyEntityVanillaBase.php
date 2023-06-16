@@ -72,19 +72,18 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * Build item contents.
    */
   protected function buildElement(array &$build, $entity, $langcode) {
-    $settings  = $build['settings'];
-    $view_mode = $settings['view_mode'] ?? 'full';
+    $settings = $build['settings'];
 
     // Sub-modules always flag `vanilla` as required, -- configurable, or not.
     // The "paragraphs_type" entity type did not specify a view_builder handler.
     if (!empty($settings['vanilla'])) {
-      $manager = $this->formatter->entityTypeManager();
-      $type = $entity->getEntityTypeId();
+      $data = [
+        'entity' => $entity,
+        'settings' => $settings,
+      ];
 
-      if ($manager->hasHandler($type, 'view_builder')) {
-        $build['items'][] = $manager
-          ->getViewBuilder($type)
-          ->view($entity, $view_mode, $langcode);
+      if ($output = $this->blazyEntity->view($data)) {
+        $build['items'][] = $output;
       }
     }
   }
@@ -119,18 +118,6 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     $bundles     = $this->getAvailableBundles();
 
     return $this->admin()->getFieldOptions($bundles, $names, $target_type);
-  }
-
-  /**
-   * Returns TRUE if a multi-value field.
-   *
-   * @return bool
-   *   TRUE if a multivalue field, else FALSE.
-   */
-  protected function isMultiple(): bool {
-    return $this->fieldDefinition
-      ->getFieldStorageDefinition()
-      ->isMultiple();
   }
 
   /**
