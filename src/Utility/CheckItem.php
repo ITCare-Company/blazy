@@ -3,12 +3,9 @@
 namespace Drupal\blazy\Utility;
 
 use Drupal\Component\Render\FormattableMarkup;
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyFile;
-use Drupal\blazy\Media\BlazyImage;
-use Drupal\blazy\Media\BlazyResponsiveImage;
 
 /**
  * Provides feature check methods at item level.
@@ -137,51 +134,6 @@ class CheckItem {
       ->set('media.embed_url', $embed_url)
       ->set('media.type', $type)
       ->set('switch', $switch);
-  }
-
-  /**
-   * Checks if an extension should not use image style: apng svg gif, etc.
-   *
-   * @requires self::essentials(), self::multimedia()
-   */
-  public static function unstyled(array &$settings) {
-    $blazies = $settings['blazies'];
-    $uri = $blazies->get('image.uri');
-    $ext = pathinfo($uri, PATHINFO_EXTENSION);
-    $unstyled = BlazyImage::isUnstyled($uri, $settings, $ext);
-
-    // Disable image style if so configured.
-    // Extensions without image styles: animated GIF, APNG, SVG, etc.
-    if ($unstyled) {
-      $images = ['box', 'box_media', 'image', 'thumbnail', 'responsive_image'];
-      foreach ($images as $image) {
-        $settings[$image . '_style'] = '';
-        $blazies->set('image.style', NULL);
-      }
-    }
-
-    // Re-define, if the provided API by-passed, or different/ altered per item.
-    $blazies->set('is.external', UrlHelper::isExternal($uri))
-      ->set('is.unstyled', $unstyled)
-      ->set('image.extension', $ext);
-
-    // ResponsiveImage is the most temperamental module. Unlike plain old Image,
-    // it explodes when the image is missing as much as when fed wrong URI, etc.
-    // Do not let SVG alike mess up with ResponsiveImage, else fatal.
-    if (!$unstyled) {
-      if ($style = BlazyResponsiveImage::toStyle($settings, $unstyled)) {
-        $blazies->set('resimage.style', $style);
-
-        // Might be set via BlazyFilter, but not enough data passed.
-        $multiple = $blazies->is('multistyle');
-        if (!$blazies->get('resimage.id') || $multiple) {
-          BlazyResponsiveImage::define($blazies, $style);
-        }
-
-        // We'll bail out internally if already set once at container level.
-        BlazyResponsiveImage::dimensions($settings, $style, FALSE);
-      }
-    }
   }
 
   /**

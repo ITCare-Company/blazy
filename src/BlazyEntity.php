@@ -139,50 +139,29 @@ class BlazyEntity implements BlazyEntityInterface {
       $entity = $entity['entity'] ?? NULL;
     }
 
-    if ($denied = $this->blazyManager->denied($entity)) {
-      return $denied;
-    }
-
-    if ($fallback && is_string($fallback)) {
-      $fallback = ['#markup' => '<div class="is-fallback">' . $fallback . '</div>'];
-    }
-    $fallback = $fallback ?: [];
+    $settings['view_mode'] = $settings['view_mode'] ?? 'default';
+    // @todo remove $data as the single param after sub-modules.
+    $data = [
+      'entity' => $entity,
+      'settings' => $settings,
+      'fallback' => $fallback,
+    ];
 
     if ($entity instanceof EntityInterface) {
-      $manager      = $this->blazyManager;
-      $entity_type  = $entity->getEntityTypeId();
-      $view_mode    = $settings['view_mode'] = $settings['view_mode'] ?? 'default';
-      $langcode     = $entity->language()->getId();
-      $type_manager = $manager->entityTypeManager();
+      $build = $this->blazyManager->view($data);
 
-      // If entity has view_builder handler.
-      if ($type_manager->hasHandler($entity_type, 'view_builder')) {
-        $build = $type_manager
-          ->getViewBuilder($entity_type)
-          ->view($entity, $view_mode, $langcode);
-
-        // @todo figure out why video_file empty, this is blatant assumption.
-        if ($entity_type == 'file') {
-          try {
-            $build = BlazyField::getOrViewMedia($entity, $settings, TRUE) ?: $build;
-          }
-          catch (\Exception $ignore) {
-            // Do nothing, no need to be chatty in mischievous deeds.
-          }
+      // @todo figure out why video_file empty, this is blatant assumption.
+      if ($entity->getEntityTypeId() == 'file') {
+        try {
+          $build = BlazyField::getOrViewMedia($entity, $settings, TRUE) ?: $build;
         }
-        return $build ?: $fallback;
-      }
-      else {
-        // If module implements own {entity_type}_view.
-        // @todo remove due to being deprecated at D8.7.
-        // See https://www.drupal.org/node/3033656
-        $view_hook = $entity_type . '_view';
-        if (is_callable($view_hook)) {
-          return $view_hook($entity, $view_mode, $langcode);
+        catch (\Exception $ignore) {
+          // Do nothing, no need to be chatty in mischievous deeds.
         }
       }
+      return $build;
     }
-    return $fallback;
+    return [];
   }
 
   /**

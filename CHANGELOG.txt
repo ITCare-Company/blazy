@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-06-16
+------------------------------
+- Fixed for SVG regressions as thumbnails.
+- Removed deprecated entity_view().
+
 Blazy 8.x-2.0-dev, 2023-06-13
 ------------------------------
 - Added visible_class option.

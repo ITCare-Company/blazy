@@ -356,7 +356,7 @@ class BlazyImage {
    * @param object $item
    *   The image item.
    *
-   * @requires CheckItem::unstyled()
+   * @requires self::unstyled()
    */
   public static function prepare(array &$settings, $item = NULL): void {
     $blazies = &$settings['blazies'];
@@ -366,6 +366,7 @@ class BlazyImage {
       return;
     }
 
+    self::unstyled($settings);
     // Might be called from Views without Blazy formatter, like Image formatter.
     // Since Blazy:2.9, image style entity is loaded once at container level,
     // but might still be needed for adopted Image formatter by a Views style.
@@ -660,6 +661,51 @@ class BlazyImage {
           // $data = NestedArray::mergeDeep($data, $result);
           $data['item'] = $result;
         }
+      }
+    }
+  }
+
+  /**
+   * Checks if an extension should not use image style: apng svg gif, etc.
+   *
+   * @requires CheckItem::essentials(), CheckItem::multimedia()
+   */
+  private static function unstyled(array &$settings) {
+    $blazies = $settings['blazies'];
+    $uri = $blazies->get('image.uri');
+    $ext = pathinfo($uri, PATHINFO_EXTENSION);
+    $unstyled = self::isUnstyled($uri, $settings, $ext);
+
+    // Disable image style if so configured.
+    // Extensions without image styles: animated GIF, APNG, SVG, etc.
+    if ($unstyled) {
+      $images = ['box', 'box_media', 'image', 'thumbnail', 'responsive_image'];
+      foreach ($images as $image) {
+        $settings[$image . '_style'] = '';
+        $blazies->set('image.style', NULL);
+      }
+    }
+
+    // Re-define, if the provided API by-passed, or different/ altered per item.
+    $blazies->set('is.external', UrlHelper::isExternal($uri))
+      ->set('is.unstyled', $unstyled)
+      ->set('image.extension', $ext);
+
+    // ResponsiveImage is the most temperamental module. Unlike plain old Image,
+    // it explodes when the image is missing as much as when fed wrong URI, etc.
+    // Do not let SVG alike mess up with ResponsiveImage, else fatal.
+    if (!$unstyled) {
+      if ($style = BlazyResponsiveImage::toStyle($settings, $unstyled)) {
+        $blazies->set('resimage.style', $style);
+
+        // Might be set via BlazyFilter, but not enough data passed.
+        $multiple = $blazies->is('multistyle');
+        if (!$blazies->get('resimage.id') || $multiple) {
+          BlazyResponsiveImage::define($blazies, $style);
+        }
+
+        // We'll bail out internally if already set once at container level.
+        BlazyResponsiveImage::dimensions($settings, $style, FALSE);
       }
     }
   }

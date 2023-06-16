@@ -6,6 +6,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -372,6 +373,37 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function toGrid(array $items, array $settings): array {
     return Blazy::grid($items, $settings);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function view(array $data): array {
+    $entity = $data['entity'] ?? NULL;
+    $settings = $data['settings'] ?? [];
+    $fallback = $data['fallback'] ?? '';
+
+    // @todo remove after another check.
+    if ($fallback && is_string($fallback)) {
+      $fallback = [
+        '#markup' => '<span class="is-fallback">' . $fallback . '</span>',
+      ];
+    }
+
+    if ($entity instanceof EntityInterface) {
+      if ($denied = $this->denied($entity)) {
+        return $denied;
+      }
+
+      $type = $entity->getEntityTypeId();
+      $langcode = $entity->language()->getId();
+      $view_mode = $settings['view_mode'] ?? 'default';
+
+      // See https://www.drupal.org/node/3033656
+      $builder = $this->entityTypeManager->getViewBuilder($type);
+      return $builder->view($entity, $view_mode, $langcode);
+    }
+    return $fallback ?: [];
   }
 
   /**

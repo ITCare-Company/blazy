@@ -288,4 +288,17 @@ interface BlazyInterface {
    */
   public function toGrid(array $items, array $settings): array;
 
+  /**
+   * A wrapper for the entity view with access check.
+   *
+   * @param array $data
+   *   The data containing: entity, settings, and fallback.
+   *
+   * @return array
+   *   The renderable array of the view builder, or empty if not applicable.
+   *
+   * @see https://www.drupal.org/node/3033656
+   */
+  public function view(array $data): array;
+
 }

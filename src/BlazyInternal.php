@@ -25,7 +25,6 @@ class BlazyInternal {
 
     if ($settings['blazies']->get('image.uri')) {
       CheckItem::multimedia($settings);
-      CheckItem::unstyled($settings);
       CheckItem::insanity($settings);
     }
   }
