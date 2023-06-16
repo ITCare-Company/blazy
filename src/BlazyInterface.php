@@ -95,6 +95,12 @@ interface BlazyInterface {
 
   /**
    * Alias for Blazy::denied() for sub-modules.
+   *
+   * @param object $entity
+   *   The expected entity interface object to check for its view access.
+   *
+   * @return array
+   *   The renderable array of the minimal denial info, or empty if accessible.
    */
   public function denied($entity): array;
 

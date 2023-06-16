@@ -7,7 +7,8 @@ use Drupal\blazy\Media\BlazyMedia as Media;
 /**
  * Provides extra utilities to work with core Media.
  *
- * @todo deprecated at 2.6, and removed at 3.x. Use
- * Drupal\blazy\Media\BlazyMedia instead.
+ * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
+ *   Drupal\blazy\Media\BlazyMedia instead.
+ * @see https://www.drupal.org/node/3367304
  */
 class BlazyMedia extends Media {}
