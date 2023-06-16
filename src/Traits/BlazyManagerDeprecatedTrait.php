@@ -10,13 +10,18 @@ use Drupal\blazy\Media\BlazyResponsiveImage;
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module, or its sub-modules.
+ *
+ * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
+ *   BlazyInterface methods instead.
  */
 trait BlazyManagerDeprecatedTrait {
 
   /**
    * Returns the entity repository service.
    *
-   * @todo deprecated for BlazyInterface::entityRepository once extended.
+   * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
+   *   BlazyInterface::entityRepository() instead.
+   * @see https://www.drupal.org/node/3367291
    */
   public function getEntityRepository() {
     return $this->entityRepository;
@@ -25,7 +30,9 @@ trait BlazyManagerDeprecatedTrait {
   /**
    * Returns the entity type manager.
    *
-   * @todo deprecated for BlazyInterface::entityTypeManager once extended.
+   * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
+   *   BlazyInterface::entityTypeManager() instead.
+   * @see https://www.drupal.org/node/3367291
    */
   public function getEntityTypeManager() {
     return $this->entityTypeManager;
@@ -34,7 +41,9 @@ trait BlazyManagerDeprecatedTrait {
   /**
    * Returns the module handler.
    *
-   * @todo deprecated for BlazyInterface::moduleHandler once extended.
+   * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
+   *   BlazyInterface::moduleHandler() instead.
+   * @see https://www.drupal.org/node/3367291
    */
   public function getModuleHandler() {
     return $this->moduleHandler;
@@ -43,7 +52,9 @@ trait BlazyManagerDeprecatedTrait {
   /**
    * Returns the renderer.
    *
-   * @todo deprecated for BlazyInterface::renderer once extended.
+   * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
+   *   BlazyInterface::renderer() instead.
+   * @see https://www.drupal.org/node/3367291
    */
   public function getRenderer() {
     return $this->renderer;
@@ -52,7 +63,9 @@ trait BlazyManagerDeprecatedTrait {
   /**
    * Returns the config factory.
    *
-   * @todo deprecated for BlazyInterface::configFactory once extended.
+   * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
+   *   BlazyInterface::configFactory() instead.
+   * @see https://www.drupal.org/node/3367291
    */
   public function getConfigFactory() {
     return $this->configFactory;
@@ -61,7 +74,9 @@ trait BlazyManagerDeprecatedTrait {
   /**
    * Returns the cache.
    *
-   * @todo deprecated for BlazyInterface::cache once extended.
+   * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
+   *   BlazyInterface::cache() instead.
+   * @see https://www.drupal.org/node/3367291
    */
   public function getCache() {
     return $this->cache;
@@ -70,7 +85,9 @@ trait BlazyManagerDeprecatedTrait {
   /**
    * Returns any config, or keyed by the $setting_name.
    *
-   * @todo deprecated for BlazyInterface::config once extended.
+   * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
+   *   BlazyInterface::config() instead.
+   * @see https://www.drupal.org/node/3367291
    */
   public function configLoad($setting_name = '', $settings = 'blazy.settings') {
     return $this->config($setting_name, $settings);
@@ -79,7 +96,9 @@ trait BlazyManagerDeprecatedTrait {
   /**
    * Returns a shortcut for loading a config entity: image_style, slick, etc.
    *
-   * @todo deprecated for BlazyInterface::load once extended.
+   * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
+   *   BlazyInterface::load() instead.
+   * @see https://www.drupal.org/node/3367291
    */
   public function entityLoad($id, $type = 'image_style') {
     return $this->load($id, $type);
@@ -88,7 +107,9 @@ trait BlazyManagerDeprecatedTrait {
   /**
    * Returns a shortcut for loading multiple configuration entities.
    *
-   * @todo deprecated for BlazyInterface::loadMultiple once extended.
+   * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
+   *   BlazyInterface::loadMultiple() instead.
+   * @see https://www.drupal.org/node/3367291
    */
   public function entityLoadMultiple($type = 'image_style', $ids = NULL) {
     return $this->loadMultiple($type, $ids);

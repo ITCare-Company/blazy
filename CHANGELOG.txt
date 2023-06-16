@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-06-16
 ------------------------------
+- Added a Change Record https://www.drupal.org/node/3367291 for deprecations.
 - Fixed for SVG regressions as thumbnails.
 - Removed deprecated entity_view().
 
