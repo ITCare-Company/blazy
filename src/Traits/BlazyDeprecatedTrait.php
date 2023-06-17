@@ -38,7 +38,7 @@ trait BlazyDeprecatedTrait {
 
     $info['blazy_video'] = $common + [
       'id'          => 'blazy_video',
-      'label'       => new TranslatableMarkup('Blazy Video (deprecated)'),
+      'label'       => new TranslatableMarkup('Blazy VEF (deprecated)'),
       'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter',
       'field_types' => ['video_embed_field'],
     ];
