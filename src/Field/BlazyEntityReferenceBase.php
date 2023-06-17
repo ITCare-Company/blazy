@@ -89,10 +89,12 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
       }
       // Else fallback to image title property.
       elseif ($item = ($element['item'] ?? NULL)) {
-        if (($_title == 'title')
-          && ($caption = trim($item->get('title')->getString() ?: ''))) {
-          $markup = Xss::filter($caption, BlazyDefault::TAGS);
-          $output = ['#markup' => $markup];
+        if ($_title == 'title') {
+          // Respects both fake and real image item.
+          if ($caption = ($item->title ?? NULL)) {
+            $caption = Xss::filter($caption, BlazyDefault::TAGS);
+            $output = ['#markup' => trim($caption)];
+          }
         }
       }
       $element['caption']['title'] = $output;
