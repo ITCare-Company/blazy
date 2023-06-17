@@ -20,7 +20,7 @@ trait BlazyDeprecatedTrait {
    *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter.
    * @see https://www.drupal.org/node/3103018
    */
-  public static function fieldFormatterInfoAlter(array &$info) {
+  public static function fieldFormatterInfoAlter(array &$info): void {
     // Supports optional Media Entity via VEM/VEF if available.
     $common = [
       'description' => new TranslatableMarkup('Displays lazyloaded images, or iframes, for VEF/ ME.'),

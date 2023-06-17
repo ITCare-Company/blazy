@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @FieldFormatter(
  *   id = "blazy_oembed",
- *   label = @Translation("Blazy"),
+ *   label = @Translation("Blazy OEmbed"),
  *   field_types = {
  *     "link",
  *     "string",

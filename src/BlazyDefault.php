@@ -186,6 +186,13 @@ class BlazyDefault {
   }
 
   /**
+   * Returns minimum grid and style settings.
+   */
+  public static function gridEntitySettings() {
+    return self::textSettings() + ['view_mode' => ''];
+  }
+
+  /**
    * Returns text settings.
    */
   public static function textSettings() {

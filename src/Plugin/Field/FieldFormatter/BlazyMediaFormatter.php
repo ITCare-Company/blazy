@@ -9,10 +9,9 @@ use Drupal\Core\Field\FieldItemListInterface;
  *
  * @FieldFormatter(
  *   id = "blazy_media",
- *   label = @Translation("Blazy"),
+ *   label = @Translation("Blazy Media"),
  *   field_types = {
  *     "entity_reference",
- *     "entity_reference_revisions",
  *   }
  * )
  *

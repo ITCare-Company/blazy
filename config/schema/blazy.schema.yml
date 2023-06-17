@@ -98,13 +98,9 @@ field.formatter.settings.blazy:
   type: blazy_base
   label: 'Blazy image display format settings'
 
-field.formatter.settings.blazy_file:
+field.formatter.settings.blazy_entity:
   type: blazy_base
-  label: 'Blazy image with ME display format settings'
-
-field.formatter.settings.blazy_video:
-  type: blazy_base
-  label: 'Blazy image with VEF display format settings'
+  label: 'Blazy entity display format settings'
 
 field.formatter.settings.blazy_media:
   type: blazy_base
@@ -159,3 +155,12 @@ filter_settings.blazy_filter:
     use_data_uri:
       type: string
       label: 'Trust data URI'
+
+# @todo remove at 3.x
+field.formatter.settings.blazy_file:
+  type: blazy_base
+  label: 'Blazy image with ME display format settings'
+
+field.formatter.settings.blazy_video:
+  type: blazy_base
+  label: 'Blazy image with VEF display format settings'      
