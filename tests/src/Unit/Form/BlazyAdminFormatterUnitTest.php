@@ -52,22 +52,37 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
   }
 
   /**
+   * Provide test cases for ::testBuildSettingsForm.
+   */
+  public function providerTestBuildSettingsForm() {
+    return [
+      [FALSE],
+      [TRUE],
+    ];
+  }
+
+  /**
    * @covers ::buildSettingsForm
    * @covers ::openingForm
+   * @covers ::fieldableForm
    * @covers ::imageStyleForm
    * @covers ::mediaSwitchForm
    * @covers ::gridForm
    * @covers ::closingForm
    * @covers ::finalizeForm
+   * @dataProvider providerTestBuildSettingsForm
    */
-  public function testBuildSettingsForm() {
+  public function testBuildSettingsForm($vanilla) {
     $form = [];
     $definition = $this->getDefaulEntityFormatterDefinition()
       + $this->getScopedFormElements();
 
     $definition['settings'] += $this->getDefaultFields(TRUE);
+    $definition['vanilla'] = $vanilla;
+    $definition['_views'] = TRUE;
 
-    $this->assertArrayHasKey('scopes', $definition);
+    $this->blazyAdminFormatter->openingForm($form, $definition);
+    $this->assertEquals($vanilla, !empty($form['vanilla']));
 
     $this->blazyAdminFormatter->buildSettingsForm($form, $definition);
     $this->assertArrayHasKey('scopes', $definition);
@@ -112,6 +127,19 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
     $check_summary = !$expected ? empty($summary) : !empty($summary);
 
     $this->assertTrue($check_summary);
+  }
+
+}
+
+namespace Drupal\blazy\Form;
+
+if (!function_exists('responsive_image_get_image_dimensions')) {
+
+  /**
+   * Dummy function.
+   */
+  function responsive_image_get_image_dimensions() {
+    // Empty block to satisfy coder.
   }
 
 }

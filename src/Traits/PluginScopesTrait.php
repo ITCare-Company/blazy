@@ -15,17 +15,10 @@ use Drupal\blazy\BlazySettings;
 trait PluginScopesTrait {
 
   /**
-   * The form element scopes.
-   *
-   * @var array
-   */
-  protected $scopes = [];
-
-  /**
    * Converts old plugin scopes array into BlazySettings object to interop.
    */
   protected function toPluginScopes(array $scopes = []): BlazySettings {
-    $definitions = [];
+    $definitions = $current = [];
 
     if (empty($scopes)) {
       return new BlazySettings($definitions);
@@ -33,35 +26,30 @@ trait PluginScopesTrait {
 
     // Allows to merge at admin level for consistent sane method uses.
     if (isset($scopes['scopes'])) {
-      $this->scopes = $scopes['scopes']->storage();
+      $current = $scopes['scopes']->storage();
       unset($scopes['scopes']);
     }
 
-    if ($this->scopes) {
-      $this->scopes = Blazy::merge($scopes, $this->scopes);
-    }
-    else {
-      $this->scopes = $scopes;
-    }
+    $current = Blazy::merge($scopes, $current);
 
     // Excludes unique keys out of scopes at admin form level.
     foreach (['blazies', 'settings'] as $key) {
-      if (isset($this->scopes[$key])) {
-        unset($this->scopes[$key]);
+      if (isset($current[$key])) {
+        unset($current[$key]);
       }
     }
 
-    foreach ($this->scopes as $key => $value) {
+    foreach ($current as $key => $value) {
       if (is_array($value)) {
         // Do not put duplicate keys into $data, already processed.
-        if (in_array($key, ['data', 'form', 'use'])) {
+        if (in_array($key, ['data', 'form', 'is'])) {
           continue;
         }
 
         $data[$key] = $value;
 
-        if (isset($this->scopes['data'])) {
-          $definitions['data'] = Blazy::merge($data, $this->scopes['data']);
+        if (isset($current['data'])) {
+          $definitions['data'] = Blazy::merge($data, $current['data']);
         }
         else {
           $definitions['data'] = $data;

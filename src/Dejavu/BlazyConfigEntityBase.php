@@ -9,5 +9,6 @@ use Drupal\blazy\Config\Entity\BlazyConfigEntityBase as ConfigEntityBase;
  *
  * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:8.x-3.0. Use
  *   Drupal\blazy\Config\Entity\BlazyConfigEntityBase instead.
+ * @see https://www.drupal.org/node/3367304
  */
 abstract class BlazyConfigEntityBase extends ConfigEntityBase {}

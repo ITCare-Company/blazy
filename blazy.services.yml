@@ -35,10 +35,6 @@ services:
     class: Drupal\blazy\Form\BlazyAdminFormatter
     parent: blazy.admin.base
 
-  blazy.admin.extended:
-    class: Drupal\blazy\Dejavu\BlazyAdminExtended
-    parent: blazy.admin.base
-
   blazy.admin:
     class: Drupal\blazy\Form\BlazyAdmin
     parent: blazy.admin.base
@@ -49,3 +45,8 @@ services:
       - '@library.dependency_resolver'
     tags:
       - { name: event_subscriber }
+
+  # @todo deprecated at 2.16 for blazy.admin.formatter, and removed at 3.x.
+  blazy.admin.extended:
+    class: Drupal\blazy\Dejavu\BlazyAdminExtended
+    parent: blazy.admin.formatter
