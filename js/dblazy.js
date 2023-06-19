@@ -310,7 +310,7 @@
    *   True if x is an instanceof Element.
    */
   function isElm(x) {
-    return x && x instanceof Element;
+    return x && (x instanceof Element || x.querySelector);
   }
 
   /**
@@ -494,7 +494,7 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
    */
   function isQsa(x) {
-    return [1, 9, 11].indexOf(!!x && x.nodeType) !== -1;
+    return x && (x.querySelector || [1, 9, 11].indexOf(!!x && x.nodeType) !== -1);
   }
 
   /**
@@ -1029,7 +1029,7 @@
     if (isElm(el)) {
       if (isStr(selector)) {
         selector = toScope(selector);
-        return el.matches(selector);
+        return el.matches ? el.matches(selector) : false;
       }
       return isElm(selector) && el === selector;
     }

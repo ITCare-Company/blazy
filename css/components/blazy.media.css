@@ -132,6 +132,11 @@ button.media__icon--close {
   z-index: -1;
 }
 
+/** Prevents potential dimmed iframes when being played. */
+.media--switch.is-playing {
+  opacity: 1 !important; /* csslint allow: known-properties, important */
+}
+
 .media--switch.is-playing iframe {
   z-index: 3;
 }
