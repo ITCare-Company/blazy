@@ -119,9 +119,9 @@ class BlazyImage {
     $height  = $settings[$_height] ?? NULL;
     $uri     = $settings[$_uri] ?? '';
 
-    if (empty($height) && $item) {
-      $width = $item->width ?? NULL;
-      $height = $item->height ?? NULL;
+    if ($item && (empty($height) || empty($width))) {
+      $width = $item->width ?? $width;
+      $height = $item->height ?? $height;
     }
 
     // Only applies when Image style is empty, no file API, no $item,
@@ -150,17 +150,18 @@ class BlazyImage {
     // Defines original dimensions.
     $data = ['width' => $settings[$_width], 'height' => $settings[$_height]];
     $ratio = self::ratio($data);
-    $blazies->set('image.original', $data, TRUE)
-      ->set('image.original.ratio', $ratio);
 
     // In case `image_style` is not provided.
     if ($initial) {
-      $blazies->set('image', $data, TRUE)
+      $blazies->set('image', $data)
         ->set('image.ratio', $ratio)
         ->set('first.width', $data['width'])
         ->set('first.height', $data['height'])
         ->set('first.ratio', $ratio);
     }
+
+    $blazies->set('image.original', $data, TRUE)
+      ->set('image.original.ratio', $ratio);
   }
 
   /**
