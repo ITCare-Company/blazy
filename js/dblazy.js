@@ -1084,6 +1084,7 @@
    *   Empty array if not found, else the expected element(s).
    */
   function find(el, selector, asArray) {
+    el = el || _doc;
     if (isStr(el)) {
       el = toElm(el);
     }
@@ -1761,7 +1762,7 @@
    *   The current dBlazy collection object.
    */
   function pauseVideo(ctx) {
-    var els = findAll(ctx || _doc, 'video');
+    var els = findAll(ctx, 'video');
     var chainCallback = function (el) {
       if (isElm(el)) {
         var playing = !!(el.currentTime > 0
