@@ -13,9 +13,9 @@
   var _id = 'mfp';
   var _idOnce = 'b-' + _id;
   var _dataId = 'data-' + _id;
-  var _element = '[' + _dataId + '-gallery]';
+  var _mounted = 'is-' + _idOnce;
+  var _element = '[' + _dataId + '-gallery]:not(.' + _mounted + ')';
   var _trigger = '[' + _dataId + '-trigger]';
-  var _mounted = 'is-' + _id + '-mounted';
   var _blazy = Drupal.blazy || {};
   var _canZoom = true;
   var _elClicked;
@@ -257,7 +257,7 @@
         };
       }
 
-      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
+      $.once(process, _idOnce, _element, context);
 
     },
     detach: function (context, setting, trigger) {

@@ -15,9 +15,9 @@
   var _id = 'block-nativegrid';
   var _idOnce = 'b-masonry';
   var _isMasonry = 'is-' + _idOnce;
-  var _isUnload = 'is-b-unload';
-  var _element = '.' + _id + '.' + _isMasonry;
   var _mounted = _isMasonry + '-mounted';
+  var _isUnload = 'is-b-unload';
+  var _element = '.' + _id + '.' + _isMasonry + ':not(.' + _mounted + ')';
   var _unload = false;
 
   Drupal.blazy = Drupal.blazy || {};
@@ -143,7 +143,7 @@
    */
   Drupal.behaviors.blazyNativeGrid = {
     attach: function (context) {
-      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
+      $.once(process, _idOnce, _element, context);
 
     },
     detach: function (context, setting, trigger) {

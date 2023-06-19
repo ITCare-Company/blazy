@@ -8,7 +8,6 @@ use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Cache\BlazyCache;
 use Drupal\blazy\Theme\Lightbox;
 use Drupal\blazy\Utility\CheckItem;
-use Drupal\blazy\Utility\Sanitize;
 
 /**
  * Implements a public facing blazy manager.
@@ -155,13 +154,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       // Cannot merge it into Grid (wrapper_)attributes, done as grid.
       // Use case: Product variations, best served by ElevateZoom Plus.
       if (isset($element['#ajax_replace_class'])) {
-        $element['#container_attributes'] = Sanitize::attribute($attributes);
+        $element['#container_attributes'] = Blazy::sanitize($attributes);
       }
       else {
         // Use case: VIS, can be blended with UL element safely down here.
         // The $attributes is merged with self::toGrid() ones here.
         $attrs = $this->merge($attributes, $element, '#attributes');
-        $element['#attributes'] = Sanitize::attribute($attrs);
+        $element['#attributes'] = Blazy::sanitize($attrs);
       }
     }
 
@@ -264,7 +263,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Pass non-rich-media elements to theme_blazy().
-    $element['#item_attributes'] = Sanitize::attribute($item_attributes);
+    $element['#item_attributes'] = Blazy::sanitize($item_attributes);
     unset($build['item_attributes']);
   }
 
@@ -338,7 +337,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     foreach ($theme_attributes as $key) {
       $attrs = $build[$key . '_attributes'] ?? [];
       // Sanitize potential user-defined attributes such as from BlazyFilter.
-      $element["#$key" . '_attributes'] = Sanitize::attribute($attrs);
+      $element["#$key" . '_attributes'] = Blazy::sanitize($attrs);
     }
 
     // Provides captions, if so configured.
@@ -350,7 +349,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Pass common elements to theme_blazy().
-    $element['#attributes'] = Sanitize::attribute($attributes);
+    $element['#attributes'] = Blazy::sanitize($attributes);
     $element['#settings'] = $settings;
 
     // Preparing Blazy to replace other blazy-related content/ item markups.

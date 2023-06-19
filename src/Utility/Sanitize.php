@@ -28,24 +28,25 @@ class Sanitize {
    */
   public static function attribute(array $attributes, $escaped = TRUE): array {
     $output = [];
-    $tags = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];
+    $list = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];
 
     if (empty($attributes)) {
       return $output;
     }
 
     foreach ($attributes as $key => $value) {
+      // Since Blazy is lazyloading known URLs, sanitize attributes which
+      // make no sense to stick around within IMG or IFRAME tags.
       $key = Html::escape($key);
+      $kid = mb_substr($key, 0, 2) === 'on' || in_array($key, $list);
+      $key = $kid ? 'data-' . $key : $key;
+
       if (is_array($value)) {
         // Respects array item containing space delimited classes: aaa bbb ccc.
         $value = implode(' ', $value);
         $output[$key] = array_map('\Drupal\Component\Utility\Html::cleanCssIdentifier', explode(' ', $value));
       }
       else {
-        // Since Blazy is lazyloading known URLs, sanitize attributes which
-        // make no sense to stick around within IMG or IFRAME tags.
-        $kid = mb_substr($key, 0, 2) === 'on' || in_array($key, $tags);
-        $key = $kid ? 'data-' . $key : $key;
         $escaped_value = $escaped ? Html::escape($value) : $value;
         $output[$key] = $kid ? Html::cleanCssIdentifier($value) : $escaped_value;
       }

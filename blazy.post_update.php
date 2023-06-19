@@ -152,3 +152,10 @@ function blazy_post_update_added_blazy_base_service() {
 function blazy_post_update_implemented_blazy_base_service() {
   // Empty hook to clear caches.
 }
+
+/**
+ * Added a new Blazy Grid formatter for entityreferences.
+ */
+function blazy_post_update_added_formatter_blazy_entity() {
+  // Empty hook to clear caches.
+}

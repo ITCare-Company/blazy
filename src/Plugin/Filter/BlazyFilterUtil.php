@@ -5,7 +5,6 @@ namespace Drupal\blazy\Plugin\Filter;
 use Drupal\Component\Utility\Crypt;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Theme\Grid;
-use Drupal\blazy\Utility\Sanitize;
 
 /**
  * Provides shared filter utilities.
@@ -165,7 +164,7 @@ class BlazyFilterUtil {
     // Prevents data URI from screwing up.
     $func = function ($input) {
       if ($input) {
-        $data_uri = mb_substr($input, 0, 10) === 'data:image';
+        $data_uri = Blazy::isDataUri($input);
         if (!$data_uri) {
           return $input;
         }
@@ -217,7 +216,7 @@ class BlazyFilterUtil {
         $attributes[$name] = ($name == 'class') ? [$value] : $value;
       }
     }
-    return $attributes ? Sanitize::attribute($attributes) : [];
+    return Blazy::sanitize($attributes);
   }
 
   /**
@@ -229,6 +228,7 @@ class BlazyFilterUtil {
       [$settings['style'], $grid, $settings['visible_items']] = array_pad(array_map('trim', explode(":", $check, 3)), 3, NULL);
 
       if ($grid) {
+        $grid = strip_tags($grid);
         [
           $settings['grid_small'],
           $settings['grid_medium'],

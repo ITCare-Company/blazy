@@ -513,6 +513,30 @@
   }
 
   /**
+   * Returns an object from a NamedNodeMap.
+   *
+   * @private
+   *
+   * @param {NamedNodeMap} obj
+   *   The NamedNodeMap object.
+   * @param {object} scope
+   *   The optional current scope.
+   *
+   * @return {object}
+   *   The simplified iterable object.
+   */
+  function getNodeMap(obj, scope) {
+    var info = {};
+    if (obj && obj.length) {
+      var arr = _aProto.slice.call(obj);
+      arr.forEach(function (a) {
+        info[a.name] = a.value;
+      }, scope || this);
+    }
+    return info;
+  }
+
+  /**
    * A not simple forEach() implementation for Arrays, Objects and NodeLists.
    *
    * @private
@@ -567,13 +591,19 @@
         obj = _aProto.slice.call(obj);
       }
 
-      var len = obj.length;
-      if (len && len === 1 && !isUnd(obj[0])) {
-        cb.call(scope, obj[0], 0, obj);
+      if (obj instanceof NamedNodeMap) {
+        var info = getNodeMap(obj, scope);
+        cb.call(scope, info, 0, obj);
       }
       else {
-        // Assumes array, at least non-expected objs were blacklisted above.
-        obj.forEach(cb, scope);
+        var len = obj.length;
+        if (len && len === 1 && !isUnd(obj[0])) {
+          cb.call(scope, obj[0], 0, obj);
+        }
+        else {
+          // Assumes array, at least non-expected objs were blacklisted above.
+          obj.forEach(cb, scope);
+        }
       }
     }
 
@@ -659,15 +689,20 @@
     var _obj = isObj(attr);
     var _getter = !_obj && (_undefined || isBool(withDefault));
     var prefix = isStr(withDefault) ? withDefault : '';
+    // @todo figure out multi-element getters. Ok for now, as hardly multiple.
+    var elm = els && els.length ? els[0] : els;
+
+    // Returns all available attributes, if any.
+    if (isUnd(attr) && isElm(elm)) {
+      return getNodeMap(elm.attributes);
+    }
 
     // No defValue defined, or withDefault set, means a getter.
     if (_getter) {
-      // @todo figure out multi-element getters. Ok for now, as hardly multiple.
-      var el = els && els.length ? els[0] : els;
       if (_undefined) {
         defValue = '';
       }
-      return hasAttr(el, attr) ? _op(el, _get, attr) : defValue;
+      return hasAttr(elm, attr) ? _op(elm, _get, attr) : defValue;
     }
 
     var chainCallback = function (el) {
@@ -885,7 +920,9 @@
       return str.indexOf(substr) !== -1;
     }
 
-    if (isStr(str)) {
+    if (isStr(str) && isStr(substr)) {
+      str = str.toLowerCase();
+      substr = substr.toLowerCase();
       each(toArray(substr), function (value) {
         if (str.indexOf(value) !== -1) {
           found++;
@@ -1076,10 +1113,10 @@
     var sel = selector;
     // Direct descendant.
     var scope = ':scope';
+
+    // Only needed the first found to be valid, not the rest.
     if (isStr(selector) && startsWith(selector, '>')) {
-      if (!contains(selector, scope)) {
-        sel = scope + ' ' + selector;
-      }
+      sel = scope + ' ' + selector;
     }
     return sel;
   }
@@ -1299,7 +1336,6 @@
    *   True if the image is loaded.
    */
   function isDecoded(img) {
-    // This is working fine, not a culprit.
     return img.decoded || img.complete;
   }
 
@@ -1574,8 +1610,8 @@
     return reverse ? extend(plugins, fn) : extend(fn, plugins);
   };
 
+  // Object and array with strings methods.
   db.hasProp = hasProp;
-
   db.parse = parse;
   db.toArray = toArray;
 
@@ -2008,6 +2044,110 @@
     return i;
   }
 
+  /**
+   * Sanitize an HTML string.
+   *
+   * A minimal DOMPurify for semi-trusted Drupal UI/ code outputs. The rest
+   * should be taken care of server-side.
+   *
+   * @private
+   *
+   * @author 2021 Chris Ferdinandi
+   * @link https://vanillajstoolkit.com/helpers/cleanhtml/
+   *
+   * @param {String} str
+   *   The HTML string to sanitize.
+   * @param {Boolean} nodes
+   *   If true, returns HTML nodes instead of a string.
+   *
+   * @return {String|NodeList}
+   *   The sanitized string or nodes.
+   *
+   * @see https://en.wikipedia.org/wiki/Cross-site_scripting
+   * @see https://github.com/cure53/DOMPurify
+   */
+  function sanitize(str, nodes) {
+
+    /**
+     * Convert the string to an HTML document.
+     *
+     * @return {Node}
+     *   An HTML document.
+     */
+    function stringToHTML() {
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(str, 'text/html');
+      return doc.body || _doc.createElement('body');
+    }
+
+    /**
+     * Check if the attribute is potentially dangerous.
+     *
+     * @param {String} name
+     *   The attribute name.
+     * @param {String} value
+     *   The attribute value.
+     *
+     * @return {Boolean}
+     *   If true, the attribute is potentially dangerous.
+     */
+    function isPossiblyDangerous(name, value) {
+      var val = value.replace(/\s+/g, '').toLowerCase();
+      if (['src', 'href', 'xlink:href'].includes(name)) {
+        // See https://github.com/eslint/eslint/issues/2530
+        if (val.includes('javascript:') || val.includes('data:text/html')) { // eslint-disable-line
+          return true;
+        }
+      }
+      if (name.toLowerCase().startsWith('on')) {
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Remove potentially dangerous attributes from an element.
+     *
+     * @param {Node} el
+     *   The element.
+     */
+    function removeAttributes(el) {
+      var attrs = getNodeMap(el.attributes);
+      each(attrs, function (value, name) {
+        if (!isPossiblyDangerous(name, value)) {
+          return false;
+        }
+
+        el.removeAttribute(name);
+      });
+    }
+
+    /**
+     * Remove dangerous stuff from the HTML document's nodes.
+     *
+     * @param {Node} html
+     *   The HTML document.
+     */
+    function clean(html) {
+      var children = html.children;
+
+      each(children, function (node) {
+        removeAttributes(node);
+        clean(node);
+      });
+    }
+
+    // Convert the string to HTML.
+    var html = stringToHTML();
+
+    // Sanitize it.
+    clean(html);
+
+    // If the user wants HTML nodes back, return them.
+    // Otherwise, pass a sanitized string back.
+    return nodes ? html.childNodes : html.innerHTML;
+  }
+
   db.context = context;
   db.toElm = toElm;
   db.camelCase = camelCase;
@@ -2020,6 +2160,7 @@
   db.prev = prev;
   db.index = index;
   db.keys = keys;
+  db.sanitize = sanitize;
 
   db.create = function (tagName, attrs, html) {
     var el = _doc.createElement(tagName);
@@ -2036,7 +2177,7 @@
     if (html) {
       html = html.trim();
 
-      el.innerHTML = html;
+      el.innerHTML = sanitize(html);
       if (tagName === 'template') {
         el = el.content.firstChild || el;
       }

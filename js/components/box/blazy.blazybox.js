@@ -10,15 +10,16 @@
   'use strict';
 
   var _id = 'blazybox';
+  var _nick = 'b-box';
   var _idOnce = _id;
-  var _nick = 'blazyBox';
-  var _element = '.' + _id;
-  var _mounted = 'is-' + _id + '-mounted';
-  var _elContent = _element + '__content';
+  var _mounted = 'is-' + _nick;
+  var _elBase = '.' + _id;
+  var _element = _elBase + ':not(.' + _mounted + ')';
+  var _elContent = _elBase + '__content';
+  var _btnClose = _elBase + '__close';
   var _isOpened = 'is-' + _id + '--open';
   var _visualyHidden = 'visually-hidden';
   var _ariaHidden = 'aria-hidden';
-  var _btnClose = _element + '__close';
 
   /**
    * Blazybox public methods.
@@ -42,7 +43,7 @@
     open: function (settings) {
       var me = Drupal.blazyBox;
       var $el = me.$el;
-      var content = Drupal.theme(_nick + 'Media', {
+      var content = Drupal.theme('blazyBoxMedia', {
         data: settings
       });
 
@@ -187,7 +188,7 @@
 
       Drupal.blazyBox.attach();
 
-      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
+      $.once(process, _idOnce, _element, context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {

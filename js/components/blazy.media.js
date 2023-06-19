@@ -8,11 +8,11 @@
   'use strict';
 
   var _md = 'media';
-  var _id = 'blazy-' + _md;
-  var _idOnce = 'b-' + _md;
+  var _id = 'b-' + _md;
+  var _idOnce = _id;
   var _player = _md + '--player';
-  var _element = '.' + _player;
-  var _mounted = 'is-' + _player + '-mounted';
+  var _mounted = 'is-' + _id;
+  var _element = '.' + _player + ':not(.' + _mounted + ')';
   var _icon = _md + '__icon';
   var _elIconPlay = '.' + _icon + '--play';
   var _elIconClose = '.' + _icon + '--close';
@@ -224,7 +224,7 @@
    */
   Drupal.behaviors.blazyMedia = {
     attach: function (context) {
-      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
+      $.once(process, _idOnce, _element, context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {

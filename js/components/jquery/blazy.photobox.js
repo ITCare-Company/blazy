@@ -11,9 +11,10 @@
   'use strict';
 
   var _id = 'photobox';
-  var _idOnce = 'b-' + _id;
-  var _element = '[data-' + _id + '-gallery]';
-  var _mounted = 'is-' + _id + '-mounted';
+  var _nick = 'pbox';
+  var _idOnce = 'b-' + _nick;
+  var _mounted = 'is-' + _idOnce;
+  var _element = '[data-' + _id + '-gallery]:not(.' + _mounted + ')';
 
   /**
    * Blazy Photobox utility functions.
@@ -62,7 +63,7 @@
         };
       }
 
-      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
+      $.once(process, _idOnce, _element, context);
 
     },
     detach: function (context, setting, trigger) {

@@ -16,6 +16,7 @@
 
   'use strict';
 
+  var _aProto = Array.prototype;
   var _eProto = Element.prototype;
   var _nProto = NodeList.prototype;
   var _sProto = String.prototype;
@@ -48,7 +49,7 @@
 
   // @see https://developer.mozilla.org/en-US/docs/Web/API/NodeList/forEach#Polyfill
   if (_win.NodeList && !_nProto.forEach) {
-    _nProto.forEach = Array.prototype.forEach;
+    _nProto.forEach = _aProto.forEach;
   }
 
   // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill
@@ -90,6 +91,13 @@
         return this.substring(pos, pos + search.length) === search;
       }
     });
+  }
+
+  if (!_aProto.includes) {
+    // Or use Object.defineProperty.
+    _aProto.includes = function (search) {
+      return !!~this.indexOf(search);
+    };
   }
 
   // IE >= 9 compat, else SCRIPT445: Object doesn't support this action.

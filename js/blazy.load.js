@@ -22,7 +22,8 @@
 
   var _id = 'blazy';
   var _idOnce = _id;
-  var _element = '.' + _id;
+  var _mounted = 'is-' + _id;
+  var _element = '.' + _id + ':not(.' + _mounted + ')';
   var _elementGlobal = 'body';
   var _idOnceGlobal = 'b-root';
   var _data = 'data';
@@ -198,6 +199,7 @@
     if (isUniform && localItems.length) {
       $.on(elm, eventId, swapRatio);
     }
+    $.addClass(elm, _mounted);
   }
 
   /**

@@ -386,7 +386,7 @@ abstract class BlazyBase implements BlazyInterface {
     // @todo remove after another check.
     if ($fallback && is_string($fallback)) {
       $fallback = [
-        '#markup' => '<span class="is-fallback">' . $fallback . '</span>',
+        '#markup' => '<span class="b-fallback">' . $fallback . '</span>',
       ];
     }
 
@@ -398,10 +398,23 @@ abstract class BlazyBase implements BlazyInterface {
       $type = $entity->getEntityTypeId();
       $langcode = $entity->language()->getId();
       $view_mode = $settings['view_mode'] ?? 'default';
+      $manager = $this->entityTypeManager;
 
-      // See https://www.drupal.org/node/3033656
-      $builder = $this->entityTypeManager->getViewBuilder($type);
-      return $builder->view($entity, $view_mode, $langcode);
+      // If entity has view_builder handler.
+      if ($manager->hasHandler($type, 'view_builder')) {
+        $builder = $manager->getViewBuilder($type);
+        return $builder->view($entity, $view_mode, $langcode);
+      }
+      else {
+        // If module implements own {entity_type}_view.
+        // The "paragraphs_type" entity type did not specify a view_builder.
+        // @todo remove due to being deprecated at D8.7, and after paragraphs.
+        // See https://www.drupal.org/node/3033656.
+        $view_hook = $type . '_view';
+        if (is_callable($view_hook)) {
+          return $view_hook($entity, $view_mode, $langcode);
+        }
+      }
     }
     return $fallback ?: [];
   }

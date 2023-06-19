@@ -10,8 +10,8 @@
   var _id = 'blazy';
   var _idOnce = 'b-filter';
   var _wrapper = 'media-wrapper--' + _id;
-  var _element = '.' + _wrapper + ':not(.grid .' + _wrapper + ')';
-  var _mounted = 'is-' + _idOnce + '-mounted';
+  var _mounted = 'is-' + _idOnce;
+  var _element = '.' + _wrapper + ':not(.grid .' + _wrapper + '):not(.' + _mounted + ')';
   var _data = 'data-';
 
   /**
@@ -54,7 +54,7 @@
    */
   Drupal.behaviors.blazyFilter = {
     attach: function (context) {
-      $.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
+      $.once(process, _idOnce, _element, context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {

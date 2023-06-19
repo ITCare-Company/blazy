@@ -9,10 +9,11 @@
   'use strict';
 
   var _id = 'colorbox';
-  var _idOnce = 'b-' + _id;
+  var _nick = 'cbox';
+  var _idOnce = 'b-' + _nick;
   var $body = $('body');
-  var _element = '[data-' + _id + '-trigger]';
-  var _mounted = 'is-' + _idOnce + '-mounted';
+  var _mounted = 'is-' + _idOnce;
+  var _element = '[data-' + _id + '-trigger]:not(.' + _mounted + ')';
   var _blazy = Drupal.blazy || {};
   var cboxTimer;
 
@@ -191,9 +192,9 @@
         return;
       }
 
-      var elms = _d.once(process, _idOnce, _element + ':not(.' + _mounted + ')', context);
+      var elms = _d.once(process, _idOnce, _element, context);
       if (elms.length) {
-        $('#colorbox').attr('aria-label', 'color box');
+        $('#' + _id).attr('aria-label', 'color box');
       }
     },
     detach: function (context, setting, trigger) {
