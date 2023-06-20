@@ -8,7 +8,8 @@ Please ignore any documentation if already aware of Drupal site building. This
 is for the sake of completed documentation for those who may need it.
 
 If using drush, running  `drush cr`, `drush updb` and `drush cr` should be
-enough. If not, and or there are still remaining errors, the following will help.
+enough. If not, and or there are still remaining errors, the following will
+help.
 
 Visit any of the following URLs before updating Blazy, or its related modules.
 Keep the `Performance` page open on a separate tab till the update is performed.
