@@ -350,8 +350,8 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function markdown($string): string {
-    return BlazyMarkdown::parse($string);
+  public function markdown($string, $help = TRUE): string {
+    return BlazyMarkdown::parse($string, $help);
   }
 
   /**

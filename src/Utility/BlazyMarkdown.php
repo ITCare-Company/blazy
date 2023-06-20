@@ -16,24 +16,21 @@ class BlazyMarkdown {
    *
    * @param string $text
    *   The text to apply the Markdown filter to.
-   * @param bool $sanitize
-   *   True, if the text should be sanitized.
    * @param bool $help
    *   True, if the text will be used for Help pages.
+   * @param bool $sanitize
+   *   True, if the text should be sanitized.
    *
    * @return string
    *   The filtered, or raw converted text.
    */
-  public static function parse($text, $sanitize = TRUE, $help = TRUE): string {
+  public static function parse(string $text, $help = TRUE, $sanitize = TRUE): string {
     if (!self::isApplicable()) {
       $text = $sanitize ? Xss::filterAdmin($text) : $text;
       return $help ? '<pre>' . $text . '</pre>' : $text;
     }
 
-    if (class_exists('Michelf\MarkdownExtra')) {
-      $text = MarkdownExtra::defaultTransform($text);
-    }
-    elseif (class_exists('League\CommonMark\CommonMarkConverter')) {
+    if (class_exists('League\CommonMark\CommonMarkConverter')) {
       $converter = new CommonMarkConverter();
       if (method_exists($converter, 'convert')) {
         $text = $converter->convert($text);
@@ -46,6 +43,9 @@ class BlazyMarkdown {
         }
       }
     }
+    elseif (class_exists('Michelf\MarkdownExtra')) {
+      $text = MarkdownExtra::defaultTransform($text);
+    }
 
     // We do not pass it to FilterProcessResult, as this is meant simple.
     return $sanitize ? Xss::filterAdmin($text) : $text;
@@ -55,7 +55,8 @@ class BlazyMarkdown {
    * Checks if we have the needed classes.
    */
   private static function isApplicable(): bool {
-    return class_exists('Michelf\MarkdownExtra') || class_exists('League\CommonMark\CommonMarkConverter');
+    return class_exists('League\CommonMark\CommonMarkConverter')
+      || class_exists('Michelf\MarkdownExtra');
   }
 
 }

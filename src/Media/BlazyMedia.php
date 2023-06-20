@@ -5,7 +5,6 @@ namespace Drupal\blazy\Media;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Theme\BlazyAttribute;
 
 /**
@@ -188,7 +187,7 @@ class BlazyMedia {
     }
     // Keep original formatter configurations intact here for custom works.
     // Non-accessible at file_video preprocess, but required by theme_blazy().
-    $item['#settings'] = new BlazySettings($settings);
+    $item['#settings'] = Blazy::settings($settings);
 
     return $item;
   }
@@ -200,7 +199,7 @@ class BlazyMedia {
     // Do this as $item['#settings'] is not available as file_video variables.
     // @todo re-check, most likely just a single file here.
     foreach ($item['#files'] as &$files) {
-      $files['#blazy'] = new BlazySettings($settings);
+      $files['#blazy'] = Blazy::settings($settings);
     }
 
     $item['#attributes']->setAttribute('data-b-lazy', TRUE);

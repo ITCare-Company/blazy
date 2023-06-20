@@ -3,7 +3,6 @@
 namespace Drupal\blazy\Traits;
 
 use Drupal\blazy\Blazy;
-use Drupal\blazy\BlazySettings;
 
 /**
  * A Trait for plugins, common for Blazy, Splide, Slick, etc.
@@ -17,11 +16,11 @@ trait PluginScopesTrait {
   /**
    * Converts old plugin scopes array into BlazySettings object to interop.
    */
-  protected function toPluginScopes(array $scopes = []): BlazySettings {
+  protected function toPluginScopes(array $scopes = []) {
     $definitions = $current = [];
 
     if (empty($scopes)) {
-      return new BlazySettings($definitions);
+      return Blazy::settings($definitions);
     }
 
     // Allows to merge at admin level for consistent sane method uses.
@@ -76,7 +75,7 @@ trait PluginScopesTrait {
         }
       }
     }
-    return new BlazySettings($definitions);
+    return Blazy::settings($definitions);
   }
 
   /**

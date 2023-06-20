@@ -20,7 +20,7 @@ class Preloader {
    * @see https://developer.chrome.com/blog/new-in-chrome-73/#more
    * @todo support multiple hero images like carousels.
    */
-  public static function preload(array &$load, array $settings = []): void {
+  public static function preload(array &$load, array $settings): void {
     $blazies = $settings['blazies'];
     $images = array_filter($blazies->get('images', []));
 

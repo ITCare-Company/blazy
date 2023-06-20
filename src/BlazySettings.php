@@ -24,7 +24,7 @@ class BlazySettings implements \Countable {
    * @param \stdClass[] $storage
    *   The storage.
    */
-  public function __construct(array $storage) {
+  public function __construct(array $storage = []) {
     $this->storage = $storage ? Blazy::arrayFilter($storage) : [];
   }
 

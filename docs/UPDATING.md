@@ -7,21 +7,31 @@ on testing updates against Blazy ecosystem.
 Please ignore any documentation if already aware of Drupal site building. This
 is for the sake of completed documentation for those who may need it.
 
-If using drush, running `drush updb` and `drush cr` should be enough. If not,
-and or there are still remaining errors, the following will help.
+If using drush, running  `drush cr`, `drush updb` and `drush cr` should be
+enough. If not, and or there are still remaining errors, the following will help.
 
 Visit any of the following URLs before updating Blazy, or its related modules.
 Keep the `Performance` page open on a separate tab till the update is performed.
 This will be your last resort if updates have errors, never reload this page.
 
-1. [Maintenance](/admin/config/development/maintenance)  
+1. Always test updates at DEV or STAGING environments like a pro so nothing
+   breaks your PRODUCTION site till everything is thoroughly reviewed.
+
+2. [/admin/config/development/maintenance](/admin/config/development/maintenance)  
 
    Be sure to put your site on maintenance mode.
 
-2. [Performance](/admin/config/development/performance)
-
-  Unless an update is required, clearing cache should fix most issues.
-  * Hit **Clear all caches** button once the new Blazy in place.
+3. [/admin/config/development/performance](/admin/config/development/performance)  
+  * Hit **Clear all caches** button once the new Blazy in place, immediately
+    after running `composer update`...  
+    Do not run `/update.php` yet until all caches are cleared up! Even if
+    `/update.php` looks like taking care of this.
+    Clearing cache should fix most issues with or without updates. If any, this
+    step will also make sure a smooth update, since all code base, including
+    those dynamic ones generated at `../files/php`, are now synced.
+    Any blocking code changes will no longer block the update process. Most
+    reported errors are due to failing to clear cache in the first place prior
+    to running updates.
   * Regenerate CSS and JS as the latest fixes may contain changes to the assets.
     Ignore below if you are aware, and found no asset changes from commits.
     Normally clearing cache suffices when no asset changes are found.
@@ -34,20 +44,19 @@ This will be your last resort if updates have errors, never reload this page.
       * [Ignorable] Press F5, or CMD/ CTRL + R to refresh browser cache if
         needed.
 
-3. [Admin status](/admin/reports/status)
+4. [Admin status](/admin/reports/status)
 
    Check for any pending update, and run `/update.php` from browser address bar.
    Do not view your website till the update is performed.
 
-4. If Twig templates are customized, compare against the latest. If having lots
+5. If Twig templates are customized, compare against the latest. If having lots
    of customized works, review the latest `blazy.api.php`, if any new changes.
-
-5. Always test updates at DEV or STAGING environments like a pro so nothing
-   breaks your PRODUCTION site till everything is thoroughly reviewed.
 
 6. Read more the [TROUBLESHOOTING](#troubleshooting) section for common trouble
    solutions.
 
+**Note the order!**  
+It is very important to follow as is for successful updates.
 
 ## BROKEN MODULES
 Alpha, Beta, DEV releases are for developers only. Beware of possible breakage.

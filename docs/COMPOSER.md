@@ -25,6 +25,10 @@ be sure to set up your composer.json correctly, some distros use it, see
 copy/ paste from their composer.json files. Be warned! Invalid json may break.
 Normally unwanted trailing commas.
 
+To avoid potential security issues, please only install the `dist` directory, if
+any, or only the required files, and not any other files from the archive. Check
+out the relevant module project requirements for the exact needed files.
+
 1. Add/ merge these lines, add commas as required:  
 ````
     "repositories": [

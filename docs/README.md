@@ -3,6 +3,7 @@
 
  * [Introduction](#introduction)
  * [Upgrading from 1.x](https://www.drupal.org/project/blazy#blazy-upgrade)
+ * [Update SOP](#updating)
  * [Requirements](#requirements)
  * [Recommended modules](#recommended-modules)
  * [Installation](#installation)
@@ -10,7 +11,6 @@
  * [Configuration](#configuration)
  * [Lightboxes](#lightboxes)
  * [Features](#features)
- * [Updating](#updating)
  * [Troubleshooting](#troubleshooting)
  * [Roadmap](#roadmap)
  * [FAQ](#faq)
@@ -52,6 +52,7 @@ Any references to bLazy library is no longer relevant for forked version at 2.6.
 For better admin help page, either way will do, ordered by recommendation:  
 
 * `composer require league/commonmark`
+* `composer require michelf/php-markdown`
 * [Markdown](https://www.drupal.org/project/markdown)
 
 To make reading this README a breeze at [Blazy help](/admin/help/blazy_ui)

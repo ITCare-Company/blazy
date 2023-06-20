@@ -261,7 +261,7 @@ interface BlazyInterface {
   /**
    * Provides a shortcut to parse the markdown string for better hook_help().
    */
-  public function markdown($string): string;
+  public function markdown($string, $help = TRUE): string;
 
   /**
    * Merge data with a new one with an optional key.

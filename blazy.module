@@ -45,8 +45,6 @@ function template_preprocess_blazy(&$variables) {
 
 /**
  * Overrides variables for image.html.twig templates.
- *
- * @todo remove when core makes `loading` attribute optional.
  */
 function blazy_preprocess_image(&$variables) {
   $attributes = &$variables['attributes'];
@@ -87,6 +85,7 @@ function blazy_preprocess_field(array &$variables) {
   $element = $variables['element'];
   $formatter = $element['#formatter'] ?? 'null';
   $blazy = strpos($formatter, 'blazy') !== FALSE;
+
   if ($blazy || isset($element['#blazy'])
     || !empty($element['#third_party_settings']['blazy']['blazy'])) {
     BlazyTheme::field($variables);
@@ -97,8 +96,8 @@ function blazy_preprocess_field(array &$variables) {
  * Implements hook_preprocess_views_view().
  */
 function blazy_preprocess_views_view(array &$variables) {
-  if (!empty($variables['css_class'])
-    && strpos($variables['css_class'], 'blazy--') !== FALSE) {
+  $css_class = $variables['css_class'] ?? NULL;
+  if ($css_class && strpos($css_class, 'blazy--') !== FALSE) {
     if ($lightboxes = blazy()->getLightboxes()) {
       BlazyViews::preprocessViewsView($variables, $lightboxes);
     }
