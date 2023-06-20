@@ -4,7 +4,6 @@ namespace Drupal\blazy\Field;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
 
 /**
@@ -99,19 +98,8 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * Returns available bundles.
    */
   protected function getAvailableBundles(): array {
-    $target_type = $this->getFieldSetting('target_type');
-    $views_ui    = $this->getFieldSetting('handler') == 'default';
-    $handlers    = $this->getFieldSetting('handler_settings');
-    $targets     = $handlers ? $handlers['target_bundles'] : [];
-    $bundles     = $views_ui ? [] : $targets;
-
-    // Fix for Views UI not recognizing Media bundles, unlike Formatters.
-    if (empty($bundles)
-      && $service = Blazy::service('entity_type.bundle.info')) {
-      $bundles = $service->getBundleInfo($target_type);
-    }
-
-    return $bundles;
+    $field = $this->fieldDefinition;
+    return BlazyField::getAvailableBundles($field);
   }
 
   /**

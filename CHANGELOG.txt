@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-06-20
 ------------------------------
+- Issue #3363404 by Aneida: Warning: Undefined array key "target_bundles".
 - Fixed for BlazyFilter image formatter name typo.
 
 Blazy 8.x-2.0-dev, 2023-06-19

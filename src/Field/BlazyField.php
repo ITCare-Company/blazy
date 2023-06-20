@@ -106,11 +106,31 @@ class BlazyField {
   }
 
   /**
+   * Returns available bundles.
+   */
+  public static function getAvailableBundles($field): array {
+    $type     = $field->getSetting('target_type');
+    $views_ui = $field->getSetting('handler') == 'default';
+    $handlers = $field->getSetting('handler_settings');
+    $targets  = $handlers ? ($handlers['target_bundles'] ?? []) : [];
+    $bundles  = $views_ui ? [] : $targets;
+
+    // Fix for Views UI not recognizing Media bundles, unlike Formatters.
+    if (empty($bundles)
+      && $type
+      && $service = Blazy::service('entity_type.bundle.info')) {
+      $bundles = $service->getBundleInfo($type);
+    }
+
+    return $bundles;
+  }
+
+  /**
    * Provides field-related settings.
    */
   public static function settings(array &$settings, array $data, $field): void {
     // @todo remove for blazies after admin updated and sub-modules.
-    $settings['blazies'] = $blazies = Blazy::settings();
+    $settings['blazies'] = $blazies = $settings['blazies'] ?? Blazy::settings();
     $info = [
       'field_label' => $field->getLabel(),
       'field_name'  => $field->getName(),
@@ -118,8 +138,10 @@ class BlazyField {
       'entity_type' => $field->getTargetEntityTypeId(),
     ];
 
-    foreach ($data as $key => $value) {
-      $blazies->set('field.' . $key, $value);
+    if ($data) {
+      foreach ($data as $key => $value) {
+        $blazies->set('field.' . $key, $value);
+      }
     }
 
     foreach ($info as $key => $value) {

@@ -32,19 +32,20 @@ class BlazyMarkdown {
 
     if (class_exists('League\CommonMark\CommonMarkConverter')) {
       $converter = new CommonMarkConverter();
+
       if (method_exists($converter, 'convert')) {
-        $text = $converter->convert($text);
+        $text = (string) $converter->convert($text);
       }
       else {
         // Deprecated since 2.2.
         $method = 'convertToHtml';
         if (is_callable([$converter, $method])) {
-          $text = $converter->{$method}($text);
+          $text = (string) $converter->{$method}($text);
         }
       }
     }
     elseif (class_exists('Michelf\MarkdownExtra')) {
-      $text = MarkdownExtra::defaultTransform($text);
+      $text = (string) MarkdownExtra::defaultTransform($text);
     }
 
     // We do not pass it to FilterProcessResult, as this is meant simple.

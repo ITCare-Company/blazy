@@ -136,10 +136,11 @@ Visit the following to configure and make use of Blazy:
    Blazy UI can be uninstalled at production later without problems.
 
 2. Visit any entity types:  
-  + `/admin/structure/types`
-  + `/admin/structure/block/block-content/types`
-  + `/admin/structure/paragraphs_type`
-  + etc.
+
+   + `/admin/structure/types`
+   + `/admin/structure/block/block-content/types`
+   + `/admin/structure/paragraphs_type`
+   + etc.
 
    Use Blazy as a formatter under **Manage display** for the supported fields:
    Image, Media, Entity reference, or even Text.
