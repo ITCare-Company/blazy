@@ -8,19 +8,6 @@ namespace Drupal\blazy\Plugin\Filter;
 interface BlazyFilterInterface {
 
   /**
-   * Gets the caption if available.
-   *
-   * @param array $build
-   *   The content array being modified.
-   * @param object $node
-   *   The HTML DOM object.
-   *
-   * @return object
-   *   The HTML DOM object.
-   */
-  public function buildImageCaption(array &$build, &$node);
-
-  /**
    * Returns the main settings.
    *
    * @param string $text

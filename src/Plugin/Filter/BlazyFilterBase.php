@@ -61,21 +61,75 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $blazies = &$settings['blazies'];
     $blazies->set('css.id', $id)
       ->set('is.filter', TRUE)
-      ->set('is.unsafe', TRUE);
+      ->set('is.unsafe', TRUE)
+      ->set('is.media_library', $is_media_library)
+      ->set('libs.filter', TRUE)
+      ->set('filter.' . $namespace, $config)
+      ->set('filter.plugin_id', $plugin_id)
+      ->set('namespace', $namespace);
 
     $this->preSettings($settings, $text);
     $this->blazyManager->preSettings($settings);
 
-    $blazies->set('is.media_library', $is_media_library)
-      ->set('libs.filter', TRUE)
-      ->set('filter.' . $namespace, $config)
-      ->set('filter.plugin_id', $plugin_id)
-      ->set('lightbox.gallery_id', $id);
+    $unwrap = $blazies->no('item_container') || !empty($settings['no_item_container']);
+    $blazies->set('lightbox.gallery_id', $id)
+      ->set('no.item_container', $unwrap);
 
     $this->postSettings($settings);
     $this->blazyManager->postSettings($settings);
 
     return $settings;
+  }
+
+  /**
+   * Build the blazy using the node ID and field_name.
+   */
+  protected function formatterSettings(array &$settings, $attribute) {
+    [$entity_type, $id, $field_name, $field_image] = array_pad(array_map('trim', explode(":", $attribute, 4)), 4, NULL);
+
+    $list = NULL;
+    if (empty($field_name)) {
+      return $list;
+    }
+
+    $entity = $this->blazyManager->load($id, $entity_type);
+    $blazies = &$settings['blazies'];
+    $id = (int) $id;
+
+    if ($entity && $entity->hasField($field_name)) {
+      $bundle = $entity->bundle();
+      $list = $entity->get($field_name);
+      $count = count($list);
+
+      if ($list && $count > 0) {
+        $definition = $list->getFieldDefinition();
+        $field_type = $definition->get('field_type');
+        $field_settings = $definition->get('settings');
+        $handler = $field_settings['handler'] ?? NULL;
+        $strings = ['link', 'string', 'string_long'];
+        $texts = ['text', 'text_long', 'text_with_summary'];
+
+        // @todo remove after migrations.
+        $settings['field_type'] = $field_type;
+        $settings['count'] = $count;
+
+        $settings['image'] = $field_image;
+        $blazies->set('bundles.' . $bundle, $bundle, TRUE)
+          ->set('count', $count);
+
+        $blazies->set('entity.bundle', $bundle)
+          ->set('entity.id', $id)
+          ->set('entity.type_id', $entity_type)
+          ->set('entity.instance', $entity)
+          ->set('field.handler', $handler)
+          ->set('field.name', $field_name)
+          ->set('field.type', $field_type)
+          ->set('field.settings', $field_settings)
+          ->set('is.string', in_array($field_type, $strings))
+          ->set('is.text', in_array($field_type, $texts));
+      }
+    }
+    return $list;
   }
 
   /**
@@ -130,9 +184,17 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   }
 
   /**
-   * {@inheritdoc}
+   * Gets the caption if available.
+   *
+   * @param array $build
+   *   The content array being modified.
+   * @param object $node
+   *   The HTML DOM object.
+   *
+   * @return object
+   *   The HTML DOM object.
    */
-  public function buildImageCaption(array &$build, &$node) {
+  protected function buildImageCaption(array &$build, &$node) {
     $settings = &$build['settings'];
     $blazies = $settings['blazies'];
     $item = $this->getCaptionElement($node);

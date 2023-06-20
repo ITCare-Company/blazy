@@ -5,7 +5,6 @@ namespace Drupal\blazy\Plugin\Filter;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\filter\FilterProcessResult;
-use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Plugin\Filter\BlazyFilterUtil as Util;
 
@@ -123,13 +122,13 @@ class BlazyFilter extends BlazyFilterBase {
       return file_get_contents(dirname(__FILE__) . "/FILTER_TIPS.txt");
     }
     else {
-      return $this->t('<b>Blazy</b>: <ul><li>With HTML: <code>[blazy]..[item]IMG[/item]..[/blazy]</code></li><li>With entity, self-closed: <code>[blazy data="node:44:field_media" /]</code></li><li>Grid format:
+      return $this->t('<b>Blazy</b>: <ul><li>With HTML: <code>[blazy]..[item]IMG[/item]..[/blazy]</code></li><li>With self-closing using data entity, <code>data=ENTITY_TYPE:ID:FIELD_NAME:FIELD_IMAGE</code>:<br><code>[blazy data="node:44:field_media" /]</code>. <code>FIELD_IMAGE</code> is optional for video poster, or hires, normally <code>field_media_image</code>.<li>Grid format:
       <code>STYLE:SMALL-MEDIUM-LARGE</code>, where <code>STYLE</code> is one of <code>column grid
       flex nativegrid</code>.<br>
       <code>[blazy grid="column:2-3-4" data="node:44:field_media" /]</code><br>
       <code>[blazy grid="nativegrid:2-3-4"]...[/blazy]</code><br>
       <code>[blazy grid="nativegrid:2-3-4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2"]...[/blazy]
-      </code><br>Only nativegrid can have number or dimension string (4x4...). The rest number only.</li><li>To disable, add <code>data-unblazy</code>, e.g.: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>. Add width and height for SVG, and non-uploaded images without image styles.</li></ul>');
+      </code><br>Only nativegrid can have number or dimension string (4x4...). The rest number only.</li><li>The attributes grid, data, settings can be combined into one [blazy].</li><li>To disable, add <code>data-unblazy</code>, e.g.: <code>&lt;img data-unblazy</code> or <code>&lt;iframe data-unblazy</code>. Add width and height for SVG, and non-uploaded images without image styles.</li></ul>');
     }
   }
 
@@ -190,7 +189,7 @@ class BlazyFilter extends BlazyFilterBase {
     $blazies = $settings['blazies'];
 
     // @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
-    if ($blazies->is('grid') || !empty($settings['no_item_container'])) {
+    if ($blazies->is('grid') || $blazies->no('item_container')) {
       return;
     }
 
@@ -308,7 +307,7 @@ class BlazyFilter extends BlazyFilterBase {
     $blazies = $settings['blazies'];
     if ($node->tagName == 'blazy') {
       /* @phpstan-ignore-next-line */
-      $attribute = $node->getAttribute('data');
+      $dataset = $node->getAttribute('data');
 
       $blazies->set('is.blazy_tag', TRUE);
 
@@ -316,8 +315,10 @@ class BlazyFilter extends BlazyFilterBase {
       $blazies->set('was.initialized', FALSE);
       $this->extractSettings($node, $settings);
 
-      if (!empty($attribute) && mb_strpos($attribute, ":") !== FALSE) {
-        return $this->byEntity($node, $settings, $attribute);
+      if (!empty($dataset) && mb_strpos($dataset, ":") !== FALSE) {
+        $dataset = strip_tags($dataset);
+        $node->setAttribute('data', '');
+        return $this->byEntity($settings, $dataset);
       }
 
       return $this->byDom($node, $settings);
@@ -330,59 +331,41 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * Build the blazy using the node ID and field_name.
    */
-  private function byEntity(\DOMElement $object, array &$settings, $attribute) {
-    [$entity_type, $id, $field_name, $field_image] = array_pad(array_map('trim', explode(":", $attribute, 4)), 4, NULL);
-    if (empty($field_name)) {
+  private function byEntity(array &$settings, $attribute) {
+    $list = $this->formatterSettings($settings, $attribute);
+
+    if (!$list) {
       return [];
     }
 
-    $entity = $this->blazyManager->load($id, $entity_type);
     $blazies = $settings['blazies'];
-    $blazies->set('entity.id', $id)
-      ->set('entity.type_id', $entity_type)
-      ->set('field.name', $field_name);
+    $count = $blazies->get('count');
 
-    $settings['image'] = $field_image;
+    if ($count > 0 && $type = $blazies->get('field.type')) {
+      $formatter = NULL;
+      $handler = $blazies->get('field.handler');
 
-    if ($entity && $entity->hasField($field_name)) {
-      $bundle = $entity->bundle();
-      $list = $entity->get($field_name);
-
-      $blazies->set('entity.bundle', $bundle);
-
-      if ($list) {
-        $definition = $list->getFieldDefinition();
-        $field_type = $settings['field_type'] = $definition->get('field_type');
-        $field_settings = $definition->get('settings');
-        $handler = $field_settings['handler'] ?? NULL;
-        $strings = ['link', 'string', 'string_long'];
-        $texts = ['text', 'text_long', 'text_with_summary'];
-
-        $blazies->set('field.type', $field_type);
-
-        $formatter = NULL;
-        // @todo refine for main stage, etc.
-        if ($field_type == 'entity_reference' || $field_type == 'entity_reference_revisions') {
-          if ($handler == 'default:media') {
-            $formatter = 'blazy_media';
-          }
+      // @todo refine for main stage, etc.
+      if ($type == 'entity_reference' || $type == 'entity_reference_revisions') {
+        if ($handler == 'default:media') {
+          $formatter = 'blazy_media';
         }
-        elseif ($field_type == 'image') {
-          $formatter = 'blazy_image';
-        }
-        elseif (in_array($field_type, $strings)) {
-          $formatter = 'blazy_oembed';
-        }
-        elseif (in_array($field_type, $texts)) {
-          $formatter = 'blazy_text';
-        }
+      }
+      elseif ($type == 'image') {
+        $formatter = 'blazy';
+      }
+      elseif ($blazies->is('string')) {
+        $formatter = 'blazy_oembed';
+      }
+      elseif ($blazies->is('text')) {
+        $formatter = 'blazy_text';
+      }
 
-        if ($formatter) {
-          return $list->view([
-            'type' => $formatter,
-            'settings' => $settings,
-          ]);
-        }
+      if ($formatter) {
+        return $list->view([
+          'type' => $formatter,
+          'settings' => $settings,
+        ]);
       }
     }
 
@@ -404,6 +387,12 @@ class BlazyFilter extends BlazyFilterBase {
       return [];
     }
 
+    $blazies = $settings['blazies'];
+    $count = $nodes->length;
+    $settings['count'] = $count;
+
+    $blazies->set('count', $count);
+
     $build = ['settings' => $settings];
 
     foreach ($nodes as $delta => $node) {
@@ -412,7 +401,6 @@ class BlazyFilter extends BlazyFilterBase {
       }
 
       $sets = $build['settings'];
-
       $element = ['attributes' => [], 'item' => NULL, 'settings' => $sets];
       $content = $this->buildItem($element, $node, $delta)
         ?: ['#markup' => $dom->saveHtml($node)];
@@ -430,10 +418,9 @@ class BlazyFilter extends BlazyFilterBase {
    * Build the individual item.
    */
   private function buildItem(array &$build, $node, $delta = 0) {
-    $media     = NULL;
-    $settings  = &$build['settings'];
-    $settings += BlazyDefault::itemSettings();
-    $blazies   = $settings['blazies']->reset($settings);
+    $media    = NULL;
+    $settings = &$build['settings'];
+    $blazies  = $settings['blazies']->reset($settings);
 
     /* @phpstan-ignore-next-line */
     $tn_uri = $node->getAttribute('data-thumb');

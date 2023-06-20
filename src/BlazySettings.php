@@ -123,6 +123,21 @@ class BlazySettings implements \Countable {
   }
 
   /**
+   * Returns a convenient shortcut to get a feature with a `no` key.
+   *
+   * @param string $key
+   *   The storage key.
+   * @param bool $default_value
+   *   The storage default_value.
+   *
+   * @return bool
+   *   Returns TRUE or FALSE.
+   */
+  public function no($key, $default_value = FALSE): bool {
+    return $this->get('no.' . $key, $default_value) ?: FALSE;
+  }
+
+  /**
    * Returns a convenient shortcut to get a feature with a `was` key.
    *
    * To verify if the expected workflow is by-passed when the key was missing.
