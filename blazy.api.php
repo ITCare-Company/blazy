@@ -282,7 +282,7 @@ function hook_blazy_settings_alter(array &$build, $items) {
 
   // Alternatively override views blocks identified by `view.view_mode` with
   // a blank SVG since 1px gif has issues with non-square sizes, see #2908861:
-  // <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'/>
+  // <svg xmlns='https://www.w3.org/2000/svg' viewBox='0 0 100 100'/>
   // Adjust plugin ID since Blazy has a few formatters, View style/ fields.
   // Since 2.6, plugin_id is put under: `field`, 'view', `filter` under blazies.
   // For pre 2.6 all plugin IDs are ignorantly put under settings.plugin_id

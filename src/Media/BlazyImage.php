@@ -397,7 +397,8 @@ class BlazyImage {
     $url = self::url($settings, $style);
     $ratio = self::ratio($data);
 
-    $blazies->set('image', $data, TRUE)
+    $blazies->set('image.width', $settings['width'])
+      ->set('image.height', $settings['height'])
       ->set('image.ratio', $ratio)
       ->set('image.url', $url)
       ->set('was.url', TRUE);

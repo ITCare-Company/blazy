@@ -140,7 +140,7 @@
       me.clearCompat(el);
       me.clearScript(el);
 
-      // @see http://scottjehl.github.io/picturefill/
+      // @see https://scottjehl.github.io/picturefill/
       if (_win.picturefill && ie) {
         _win.picturefill({
           reevaluate: true,

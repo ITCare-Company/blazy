@@ -2,10 +2,10 @@
 ***
 ## <a name="aspect-ratio-template"></a>ASPECT RATIO TEMPLATE
 ### Tools to check aspect ratio:
-http://size43.com/jqueryVideoTool.html
+https://size43.com/jqueryVideoTool.html
 
 ### Common resolutions:
-http://en.wikipedia.org/wiki/List_of_common_resolutions
+https://en.wikipedia.org/wiki/List_of_common_resolutions
 
 ### Aspect ratio 4:3
 * 640x480

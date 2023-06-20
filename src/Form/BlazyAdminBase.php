@@ -444,7 +444,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         $form['media_switch']['#options']['media'] = $this->t('Image to iFrame');
       }
 
-      // http://en.wikipedia.org/wiki/List_of_common_resolutions
+      // https://en.wikipedia.org/wiki/List_of_common_resolutions
       $ratio = ['1:1', '3:2', '4:3', '8:5', '16:9', 'fluid'];
       if (!$scopes->is('no_ratio')) {
         $form['ratio'] = [

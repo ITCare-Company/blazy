@@ -75,8 +75,8 @@ trait EasingTrait {
    *   An array of CSS easings for select options, or all for the mappings.
    *
    * @see https://github.com/kenwheeler/slick/issues/118
-   * @see http://matthewlein.com/ceaser/
-   * @see http://www.w3.org/TR/css3-transitions/
+   * @see https://matthewlein.com/ceaser/
+   * @see https://www.w3.org/TR/css3-transitions/
    */
   protected function getCssEasingOptions($map = FALSE) {
     $css_easings = [];

@@ -28,8 +28,8 @@
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
   // @todo remove when min D9.2 for drupal.element.closest|matches.
-  // @see http://caniuse.com/#feat=element-closest
-  // @see http://caniuse.com/#feat=matchesselector
+  // @see https://caniuse.com/#feat=element-closest
+  // @see https://caniuse.com/#feat=matchesselector
   // @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
   // @see https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
   // @see https://developer.mozilla.org/en-US/docs/Web/API/Element/closest

@@ -1022,7 +1022,7 @@
    * @return {bool}
    *   Returns true if found, else false.
    *
-   * @see http://caniuse.com/#feat=matchesselector
+   * @see https://caniuse.com/#feat=matchesselector
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
    */
   function is(el, selector) {

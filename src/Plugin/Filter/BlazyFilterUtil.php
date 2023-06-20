@@ -51,7 +51,7 @@ class BlazyFilterUtil {
   /**
    * Returns the inner HTMLof the DOMElement node.
    *
-   * See http://www.php.net/manual/en/class.domelement.php#101243
+   * See https://www.php.net/manual/en/class.domelement.php#101243
    */
   public static function getHtml(\DOMElement $node) {
     $text = '';

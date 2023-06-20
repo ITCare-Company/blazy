@@ -275,4 +275,4 @@ See the project page on drupal.org:
 See the bLazy docs at:
 
 * [Blazy library](https://github.com/dinbror/blazy)
-* [Blazy website](http://dinbror.dk/blazy/)
+* [Blazy website](https://dinbror.dk/blazy/)

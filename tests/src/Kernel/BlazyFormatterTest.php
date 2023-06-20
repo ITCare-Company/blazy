@@ -260,7 +260,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
   public function providerTestBlazyMedia() {
     return [
       ['', TRUE],
-      ['http://xyz123.com/x/123', FALSE],
+      ['https://xyz123.com/x/123', FALSE],
       ['user', TRUE],
     ];
   }
