@@ -43,11 +43,11 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    */
   public function imageStyleForm(array &$form, array $definition): void {
     $scopes = $this->toScopes($definition);
-    $is_responsive = function_exists('responsive_image_get_image_dimensions');
     $field_type = $scopes->get('field.type');
     $plugin_id = $scopes->get('plugin_id');
+    $use_image = !$scopes->is('no_image_style');
 
-    if (!$scopes->is('no_image_style')
+    if ($use_image
       && strpos($plugin_id, '_text') === FALSE) {
       $base = $this->baseForm($definition);
 
@@ -64,11 +64,11 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       }
     }
 
-    if ($scopes->is('thumbnail_style')) {
+    if ($use_image || $scopes->is('thumbnail_style')) {
       $form['thumbnail_style'] = $this->baseForm($definition)['thumbnail_style'];
     }
 
-    if ($is_responsive && $scopes->is('responsive_image')) {
+    if ($scopes->is('responsive_image')) {
       $url = Url::fromRoute('entity.responsive_image_style.collection')->toString();
       $form['responsive_image_style'] = [
         '#type'        => 'select',

@@ -25,7 +25,7 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
   /**
    * Returns simple form elements common for Views field, EB widget, formatters.
    */
-  public function baseForm(array $definition = []): array;
+  public function baseForm(array &$definition): array;
 
   /**
    * Returns time in interval for select options.

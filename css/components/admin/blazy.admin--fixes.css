@@ -46,6 +46,13 @@
 } */
 
 /** Fixed for things beyond Blazy. */
+.form--slick .form-item--ajax-link,
+.form--slick .form-item--box-style,
+.form--slick .form-item--box-media-style,
+.form--slick .form-item--box-caption {
+  display: none !important; /* csslint allow: known-properties, important */
+}
+
 .form--slick.form--media-switch-lightbox .form-item--box-style,
 .form--slick.form--media-switch-lightbox .form-item--box-media-style,
 .form--slick.form--media-switch-on .form-item--media-switch,

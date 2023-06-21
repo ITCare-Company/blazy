@@ -109,15 +109,14 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
         $strings = ['link', 'string', 'string_long'];
         $texts = ['text', 'text_long', 'text_with_summary'];
 
-        // @todo remove after migrations.
+        // @todo remove after migrations, except image.
         $settings['field_type'] = $field_type;
         $settings['count'] = $count;
-
         $settings['image'] = $field_image;
-        $blazies->set('bundles.' . $bundle, $bundle, TRUE)
-          ->set('count', $count);
 
-        $blazies->set('entity.bundle', $bundle)
+        $blazies->set('bundles.' . $bundle, $bundle, TRUE)
+          ->set('count', $count)
+          ->set('entity.bundle', $bundle)
           ->set('entity.id', $id)
           ->set('entity.type_id', $entity_type)
           ->set('entity.instance', $entity)

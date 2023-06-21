@@ -12,14 +12,6 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
    */
   public function buildSettingsForm(array &$form, array $definition): void {
     $scopes = $this->toScopes($definition);
-    $bools = $scopes->get('is');
-
-    if (isset($bools['responsive_image'])) {
-      $scopes->set('is.responsive_image', $scopes->is('responsive_image'));
-    }
-    else {
-      $scopes->set('is.responsive_image', TRUE);
-    }
 
     $this->openingForm($form, $definition);
     $this->basicImageForm($form, $definition);
@@ -50,9 +42,8 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
   public function openingForm(array &$form, array &$definition): void {
     $scopes    = $this->toScopes($definition);
     $namespace = $scopes->get('namespace', 'blazy');
-    $settings  = $definition['settings'] ?? [];
 
-    if ($scopes->is('vanilla') && isset($settings['vanilla'])) {
+    if ($scopes->is('vanilla')) {
       $form['vanilla'] = [
         '#type'        => 'checkbox',
         '#title'       => $this->t('Vanilla @namespace', ['@namespace' => $namespace]),

@@ -72,7 +72,13 @@ Ugly, but nobody except devs pressing F12 at browsers. */
 .media.is-b-loaded .b-blur.is-b-ie {
   /* display: none; */
   /* To minimize abrupt hiding, safe since it is absolute by default. */
+  bottom: auto;
+  height: 0;
+  object-fit: none;
   opacity: 0;
+  right: auto;
+  visibility: hidden;
+  width: 0;
   z-index: -1;
 }
 

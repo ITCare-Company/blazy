@@ -234,7 +234,7 @@ class Check {
         ->set('field.view_mode', $settings['view_mode'] ?? '');
     }
 
-    $count          = $items->count();
+    $count          = $blazies->get('count') ?: $items->count();
     $field_clean    = str_replace("field_", '', $field_name);
     $entity_type_id = $blazies->get('entity.type_id');
     $entity_id      = $blazies->get('entity.id');

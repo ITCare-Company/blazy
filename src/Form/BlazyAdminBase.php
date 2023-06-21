@@ -147,13 +147,16 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   public function openingForm(array &$form, array &$definition): void {
     $scopes = $this->toScopes($definition);
 
+    // @todo remove this failsafe after sub-module migrations done.
+    $this->checkScopes($scopes, $definition);
+
     $this->blazyManager
       ->moduleHandler()
       ->alter('blazy_form_element_definition', $definition);
 
     // Display style: column, plain static grid, slick grid, slick carousel.
     // https://drafts.csswg.org/css-multicol
-    if ($scopes->is('style')) {
+    if ($scopes->is('style') && $scopes->is('grid')) {
       $form['style'] = [
         '#type'         => 'select',
         '#title'        => $this->t('Display style'),
@@ -314,7 +317,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * {@inheritdoc}
    */
-  public function baseForm(array $definition = []): array {
+  public function baseForm(array &$definition): array {
     $scopes     = $this->toScopes($definition);
     $data       = $scopes->get('data');
     $settings   = $definition['settings'] ?? [];
@@ -322,12 +325,14 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $namespace  = $scopes->get('namespace');
     $form       = [];
     $ui_url     = '/admin/config/media/blazy';
+    $use_image  = !$scopes->is('no_image_style');
+    $multimedia = $scopes->is('multimedia');
 
     if ($this->blazyManager->moduleExists('blazy_ui')) {
       $ui_url = Url::fromRoute('blazy.settings')->toString();
     }
 
-    if (!$scopes->is('no_image_style')) {
+    if ($use_image) {
       $form['preload'] = [
         '#type'        => 'checkbox',
         '#title'       => $this->t('Preload'),
@@ -416,7 +421,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           '#description' => $this->t('Supports both Responsive and regular images.'),
         ];
 
-        if ($scopes->is('multimedia')) {
+        if ($multimedia) {
           $form['box_media_style'] = [
             '#type'        => 'select',
             '#title'       => $this->t('Lightbox video style'),
@@ -440,7 +445,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
 
       // Adds common supported entities for media integration.
-      if ($scopes->is('multimedia')) {
+      if ($multimedia) {
         $form['media_switch']['#options']['media'] = $this->t('Image to iFrame');
       }
 
@@ -477,7 +482,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
     }
 
-    if ($scopes->is('thumbnail_style')) {
+    if ($use_image || $scopes->is('thumbnail_style')) {
       $form['thumbnail_style'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Thumbnail style'),
@@ -492,8 +497,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['image'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Main stage'),
-        '#options'     => $scopes->data('images'),
-        '#description' => $this->t('Main background/stage/poster image field with the only supported field types: <b>Image</b> or <b>Media</b> containing Image field. You may want to add a new Image field to this entity.'),
+        '#options'     => $data['images'] ?: [],
+        '#description' => $this->t('Main background/stage/poster image field with the only supported field types: <b>Image</b> or <b>Media</b> containing Image field. You may want to add a new Image field to this entity. Be sure to reuse the exact same image field across various entitiy types (Image, Remote video, Local video, etc.) within this particular entity (says, Media).'),
         '#prefix'      => '<h3 class="form__title form__title--fields">' . $this->t('Fields') . '</h3>',
       ];
     }
@@ -511,57 +516,59 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $settings   = $definition['settings'] ?? [];
     $lightboxes = $this->blazyManager->getLightboxes();
     $is_token   = $this->blazyManager->moduleExists('token');
+    $multimedia = $scopes->is('multimedia');
+    $use_switch = isset($settings['media_switch']);
 
-    if (isset($settings['media_switch'])) {
+    if ($use_switch) {
       $form['media_switch'] = $this->baseForm($definition)['media_switch'];
       $form['media_switch']['#prefix'] = '<h3 class="form__title form__title--media-switch">' . $this->t('Media switcher') . '</h3>';
 
       if (!$scopes->is('no_ratio')) {
         $form['ratio'] = $this->baseForm($definition)['ratio'];
       }
-    }
 
-    // Optional lightbox integration.
-    if ($lightboxes && isset($settings['media_switch'])) {
-      $form['box_style'] = $this->baseForm($definition)['box_style'];
+      // Optional lightbox integration.
+      if ($lightboxes) {
+        $form['box_style'] = $this->baseForm($definition)['box_style'];
 
-      if ($scopes->is('multimedia')) {
-        $form['box_media_style'] = $this->baseForm($definition)['box_media_style'];
-      }
-
-      if ($scopes->is('box_captions')) {
-        $form['box_caption'] = [
-          '#type'        => 'select',
-          '#title'       => $this->t('Lightbox caption'),
-          '#options'     => $this->getLightboxCaptionOptions(),
-          '#weight'      => -95,
-          '#description' => $this->t('Automatic will search for Alt text first, then Title text. Try selecting <strong>- None -</strong> first when changing if trouble with form states.'),
-        ];
-
-        if (!$scopes->is('box_stateless')) {
-          $form['box_caption']['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition);
+        if ($multimedia) {
+          $form['box_media_style'] = $this->baseForm($definition)['box_media_style'];
         }
 
-        $form['box_caption_custom'] = [
-          '#title'       => $this->t('Lightbox custom caption'),
-          '#type'        => 'textfield',
-          '#weight'      => -94,
-          '#states'      => $this->getState(static::STATE_LIGHTBOX_CUSTOM, $definition),
-          '#description' => $this->t('Multi-value rich text field will be mapped to each image by its delta.'),
-        ];
+        if ($scopes->is('box_captions')) {
+          $form['box_caption'] = [
+            '#type'        => 'select',
+            '#title'       => $this->t('Lightbox caption'),
+            '#options'     => $this->getLightboxCaptionOptions(),
+            '#weight'      => -95,
+            '#description' => $this->t('Automatic will search for Alt text first, then Title text. Try selecting <strong>- None -</strong> first when changing if trouble with form states.'),
+          ];
 
-        if ($is_token) {
-          $entity_type = $scopes->get('entity.type');
-          $target_type = $scopes->get('target_type');
-          $types = $entity_type ? [$entity_type] : [];
-          $types = $target_type ? array_merge($types, [$target_type]) : $types;
+          if (!$scopes->is('box_stateless')) {
+            $form['box_caption']['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition);
+          }
 
-          if ($types) {
-            $form['box_caption_custom']['#field_suffix'] = [
-              '#theme'       => 'token_tree_link',
-              '#text'        => $this->t('Tokens'),
-              '#token_types' => $types,
-            ];
+          $form['box_caption_custom'] = [
+            '#title'       => $this->t('Lightbox custom caption'),
+            '#type'        => 'textfield',
+            '#weight'      => -94,
+            '#states'      => $this->getState(static::STATE_LIGHTBOX_CUSTOM, $definition),
+            '#description' => $this->t('Multi-value rich text field will be mapped to each image by its delta.'),
+          ];
+
+          if ($is_token) {
+            $entity_type = $scopes->get('entity.type');
+            $target_type = $scopes->get('target_type');
+            $types = $entity_type ? [$entity_type] : [];
+            $types = $target_type ? array_merge($types, [$target_type]) : $types;
+
+            if ($types) {
+              $form['box_caption_custom']['#field_suffix'] = [
+                '#theme'       => 'token_tree_link',
+                '#text'        => $this->t('Tokens'),
+                '#token_types' => $types,
+              ];
+            }
           }
         }
       }
@@ -886,6 +893,100 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ],
     ];
     return $states[$state];
+  }
+
+  /**
+   * Check scopes, a failsafe till sub-modules migrated.
+   *
+   * @todo remove after sub-module migrations.
+   */
+  private function checkScopes(&$scopes, array &$definition): void {
+    $background = $scopes->is('background') || !empty($definition['background']);
+    $box_captions = $scopes->is('box_captions') || !empty($definition['box_captions']);
+    $style = $scopes->is('style') || !empty($definition['style']);
+    $grid = $scopes->is('grid') || !empty($definition['grid_form']);
+    $multimedia = $scopes->is('multimedia') || !empty($definition['multimedia']);
+    $plugin_id = $scopes->get('plugin_id') ?: ($definition['plugin_id'] ?? NULL);
+    $target_type = $scopes->get('target_type') ?: ($definition['target_type'] ?? NULL);
+    $entity_type = $scopes->get('entity.type') ?: ($definition['entity_type'] ?? NULL);
+    $view_mode = $scopes->get('view_mode') ?: ($definition['view_mode'] ?? NULL);
+    $required = $scopes->is('grid_required') || !empty($definition['grid_required']);
+    $thumbnail_style = $scopes->is('thumbnail_style') || !empty($definition['thumbnail_style']);
+    $nav = $scopes->is('nav') || !empty($definition['nav']);
+    $no_image_style = $scopes->is('no_image_style') || !empty($definition['no_image_style']);
+    $no_layouts = $scopes->is('no_layouts') || !empty($definition['no_layouts']);
+    $responsive_image = $scopes->is('responsive_image') || !empty($definition['responsive_image']);
+    $is_responsive = function_exists('responsive_image_get_image_dimensions');
+    $vanilla = $scopes->isset('vanilla') || isset($definition['vanilla']);
+    $namespace = $scopes->get('namespace') ?: ($definition['namespace'] ?? NULL);
+    $views = $scopes->is('_views') || !empty($definition['_views']);
+    $caches = $scopes->is('caches') || !empty($definition['caches']);
+
+    // Redefine for easy calls later due to sub-modules not migrated yet.
+    // @todo remove after sub-modules migrations, and simplify all these at 3.x.
+    $scopes->set('is.background', $background)
+      ->set('is.box_captions', $box_captions)
+      ->set('is.caches', $caches)
+      ->set('is.fieldable', $entity_type && $entity_type && $background)
+      ->set('is.grid', $grid)
+      ->set('is.grid_required', $required)
+      ->set('is.multimedia', $multimedia)
+      ->set('is.nav', $nav)
+      ->set('is.no_image_style', $no_image_style)
+      ->set('is.no_layouts', $no_layouts)
+      ->set('is.responsive_image', $is_responsive && ($responsive_image || $background))
+      ->set('is.style', $style)
+      ->set('is.thumbnail_style', $thumbnail_style)
+      ->set('is.vanilla', $vanilla && isset($settings['vanilla']))
+      ->set('is._views', $views)
+      ->set('entity.type', $entity_type)
+      ->set('namespace', $namespace)
+      ->set('plugin_id', $plugin_id)
+      ->set('target_type', $target_type)
+      ->set('view_mode', $view_mode);
+
+    $data = [
+      'captions',
+      'classes',
+      'images',
+      'layouts',
+      'links',
+      'optionsets',
+      'overlays',
+      'skins',
+      'thumbnails',
+      'thumbnail_effect',
+      'thumb_captions',
+      'titles',
+    ];
+
+    foreach ($data as $key) {
+      $value = $scopes->data($key) ?: ($definition[$key] ?? NULL);
+      // Respects empty arrays so the option is visible to raise awareness.
+      if (is_array($value)) {
+        $scopes->set('data.' . $key, $value);
+      }
+    }
+
+    $forms = [
+      'grid',
+      'fieldable',
+      'image_style',
+      'media_switch',
+    ];
+
+    foreach ($forms as $key) {
+      $value = $scopes->form($key) ?: ($definition[$key . '_form'] ?? NULL);
+      if (is_bool($value)) {
+        $scopes->set('form.' . $key, $value);
+      }
+    }
+
+    // Ensures merged once.
+    if (!$scopes->is('scopes_merged') && $definition['scopes']) {
+      $definition['scopes'] = $definition['scopes']->merge($scopes->storage());
+      $scopes->set('is.scopes_merged', TRUE);
+    }
   }
 
   /**

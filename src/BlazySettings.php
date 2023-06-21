@@ -71,7 +71,11 @@ class BlazySettings implements \Countable {
    * @return array
    *   The array of items inside the data key, or empty array.
    */
-  public function data($key, array $default_value = []): array {
+  public function data($key = NULL, array $default_value = []): array {
+    // For some reasons twig fails with the required $key although provided.
+    if (empty($key)) {
+      return $default_value;
+    }
     return $this->get('data.' . $key, $default_value) ?: [];
   }
 
@@ -88,7 +92,11 @@ class BlazySettings implements \Countable {
    * @return mixed
    *   A mixed value (array, string, bool, null, etc.).
    */
-  public function filter($key, $default_value = NULL, $namespace = 'blazy') {
+  public function filter($key = NULL, $default_value = NULL, $namespace = 'blazy') {
+    // For some reasons twig fails with the required $key although provided.
+    if (empty($key)) {
+      return $default_value;
+    }
     return $this->get('filter.' . $namespace . '.' . $key, $default_value);
   }
 
@@ -103,7 +111,11 @@ class BlazySettings implements \Countable {
    * @return bool
    *   Returns TRUE or FALSE.
    */
-  public function form($key, $default_value = FALSE): bool {
+  public function form($key = NULL, $default_value = FALSE): bool {
+    // For some reasons twig fails with the required $key although provided.
+    if (empty($key)) {
+      return $default_value;
+    }
     return $this->get('form.' . $key, $default_value) ?: FALSE;
   }
 
@@ -118,7 +130,11 @@ class BlazySettings implements \Countable {
    * @return bool
    *   Returns TRUE or FALSE.
    */
-  public function is($key, $default_value = FALSE): bool {
+  public function is($key = NULL, $default_value = FALSE): bool {
+    // For some reasons twig fails with the required $key although provided.
+    if (empty($key)) {
+      return $default_value;
+    }
     return $this->get('is.' . $key, $default_value) ?: FALSE;
   }
 
@@ -133,7 +149,11 @@ class BlazySettings implements \Countable {
    * @return bool
    *   Returns TRUE or FALSE.
    */
-  public function no($key, $default_value = FALSE): bool {
+  public function no($key = NULL, $default_value = FALSE): bool {
+    // For some reasons twig fails with the required $key although provided.
+    if (empty($key)) {
+      return $default_value;
+    }
     return $this->get('no.' . $key, $default_value) ?: FALSE;
   }
 
@@ -150,7 +170,11 @@ class BlazySettings implements \Countable {
    * @return bool
    *   Returns TRUE or FALSE.
    */
-  public function was($key, $default_value = FALSE): bool {
+  public function was($key = NULL, $default_value = FALSE): bool {
+    // For some reasons twig fails with the required $key although provided.
+    if (empty($key)) {
+      return $default_value;
+    }
     return $this->get('was.' . $key, $default_value) ?: FALSE;
   }
 
@@ -165,7 +189,11 @@ class BlazySettings implements \Countable {
    * @return bool
    *   Returns TRUE or FALSE.
    */
-  public function use($key, $default_value = FALSE): bool {
+  public function use($key = NULL, $default_value = FALSE): bool {
+    // For some reasons twig fails with the required $key although provided.
+    if (empty($key)) {
+      return $default_value;
+    }
     return $this->get('use.' . $key, $default_value) ?: FALSE;
   }
 
@@ -180,7 +208,11 @@ class BlazySettings implements \Countable {
    * @return mixed
    *   A mixed value (array, string, bool, null, etc.).
    */
-  public function ui($key, $default_value = NULL) {
+  public function ui($key = NULL, $default_value = NULL) {
+    // For some reasons twig fails with the required $key although provided.
+    if (empty($key)) {
+      return $default_value;
+    }
     return $this->get('ui.' . $key, $default_value);
   }
 

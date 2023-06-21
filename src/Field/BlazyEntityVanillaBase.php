@@ -141,6 +141,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * {@inheritdoc}
    */
   protected function getPluginScopes(): array {
+    $multiple = $this->isMultiple();
     return [
       'no_layouts'       => TRUE,
       'no_image_style'   => TRUE,
@@ -149,6 +150,8 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
       'vanilla'          => TRUE,
       'view_mode'        => $this->viewMode,
       'multiple'         => $this->isMultiple(),
+      'grid_form'        => $multiple,
+      'style'            => $multiple,
     ];
   }
 

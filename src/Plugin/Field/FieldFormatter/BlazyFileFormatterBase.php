@@ -133,6 +133,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       'style'             => $multiple,
       'thumbnail_style'   => TRUE,
       'no_image_style'    => FALSE,
+      'responsive_image'  => TRUE,
       'multiple'          => $multiple,
     ];
   }
