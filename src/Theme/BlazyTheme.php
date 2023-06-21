@@ -326,14 +326,16 @@ class BlazyTheme {
   /**
    * Returns available formatter settings.
    */
-  private static function formatterSettings(array $variables): array {
+  private static function formatterSettings(array &$variables): array {
     $element = $variables['element'];
     $settings = $element['#blazy'] ?? [];
 
-    // D10 moves it into content.
+    // D10/D9.5.10, moves it into content, only if explicitly required
+    // theme_field() via `use_theme_field` option from Views outputs. Non-views
+    // field formatters are not affected. This is different from previous D9.
     if (!$settings) {
       if ($content = $variables['items'][0]['content'] ?? []) {
-        // Since D10, Blazy field formatter settings is decluttered here.
+        // Since D10/D9.5.10, Blazy field formatter settings is moved here.
         $settings = $content['#blazy'] ?? [];
 
         // Blazy Grid settings:
