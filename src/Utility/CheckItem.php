@@ -99,38 +99,47 @@ class CheckItem {
    * and use media.source to be more precise instead.
    *
    * @todo remove $type, a legacy VEF period, which knew no bundles, or sources.
+   * @todo recheck BlazyFilter multimedia after moving some into BlazyMedia.
    */
   public static function multimedia(array &$settings): void {
     $blazies   = $settings['blazies'];
-    $source    = $blazies->get('media.source');
-    $type      = $blazies->get('media.type') ?: $settings['type'] ?? 'image';
-    $bundle    = $blazies->get('media.bundle') ?: $settings['bundle'] ?? '';
-    $embed_url = $settings['embed_url'] ?? '';
-    $embed_url = $blazies->get('media.embed_url') ?: $embed_url;
-    $videos    = ['oembed:video', 'video_embed_field'];
-    $medias    = array_merge(['audio_file', 'video_file'], $videos);
-    $is_video  = $source && in_array($source, $videos) || $type == 'video';
-    $is_media  = $source && in_array($source, $medias) || $is_video || $blazies->is('multimedia');
-    $is_remote = $bundle == 'remote_video' || $type == 'video';
-    $is_remote = $embed_url && ($is_video || $is_remote);
     $switch    = $settings['media_switch'] ?? NULL;
     $switch    = $switch ?: $blazies->get('switch');
+    $type      = $blazies->get('media.type') ?: $settings['type'] ?? 'image';
+    $embed_url = $settings['embed_url'] ?? '';
+    $embed_url = $blazies->get('media.embed_url') ?: $embed_url;
+    $is_vef    = $type == 'video';
+    // $bundle    = $blazies->get('media.bundle') ?: $settings['bundle'] ?? '';
+    // $source    = $blazies->get('media.source');
+    // $locals    = ['audio_file', 'video_file'];
+    // $videos    = ['oembed:video', 'video_embed_field'];
+    // $medias    = array_merge($locals, $videos);
+    // $is_local  = $source && in_array($source, $locals);
+    // $is_video  = $source && in_array($source, $videos) || $is_vef;
+    // $is_media  = $source && in_array($source, $medias) || $is_video
+    // || $blazies->is('multimedia');
+    // $is_remote = $bundle == 'remote_video' || $is_vef;
+    $is_remote = $embed_url && ($blazies->is('remote_video') || $is_vef);
     $is_iframe = $is_remote && empty($switch);
     $is_player = $is_remote && $switch == 'media';
 
     // BVEF compat without core OEmbed security feature.
     // @todo remove once BVEF adopted Blazy:2.10 BlazyVideoFormatter.
-    if ($is_player && strpos($embed_url, 'media/oembed') === FALSE) {
-      $embed_url = Blazy::autoplay($embed_url);
+    if ($is_remote && strpos($embed_url, 'media/oembed') === FALSE) {
+      // The multimedia is defined for core Media, not VEF, so set it here.
+      $blazies->set('is.multimedia', TRUE);
+      if ($is_player) {
+        $embed_url = Blazy::autoplay($embed_url);
+      }
     }
 
     // Addresses mixed media unique per item, aside from convenience.
     // Also compat with BVEF till they are updated to adopt 2.10 changes.
     $blazies->set('is.iframe', $is_iframe)
-      ->set('is.multimedia', $is_media)
-      ->set('is.player', $is_player)
+      // ->set('is.multimedia', $is_media || $is_local)
+      // ->set('is.local_media', $is_local)
       ->set('is.remote_video', $is_remote)
-      ->set('is.video_file', $source == 'video_file')
+      ->set('is.player', $is_player)
       ->set('media.embed_url', $embed_url)
       ->set('media.type', $type)
       ->set('switch', $switch);

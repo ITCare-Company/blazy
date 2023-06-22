@@ -65,8 +65,13 @@ class Lightbox {
     $box_width  = $blazies->get('image.original.width') ?: $item->width ?? NULL;
     $box_height = $blazies->get('image.original.height') ?: $item->height ?? NULL;
     $count      = $blazies->get('count', 1);
-    $is_escaped = $blazies->get('media.escaped');
     $delta      = $blazies->get('delta', 0);
+    $multimedia = $blazies->is('multimedia') ?: $blazies->is('local_media');
+    $svg        = $blazies->is('unstyled');
+    $styleable  = $valid && !$svg;
+    $_escaped   = $blazies->get('media.escaped');
+    $_fullsize  = $_box_style && $styleable;
+    $_resimage  = FALSE;
 
     // Provide relevant URL if it is a lightbox.
     $url_attributes = &$element['#url_attributes'];
@@ -87,49 +92,21 @@ class Lightbox {
       }
     }
 
-    // Supports local and remote videos, also legacy VEF which has no bundles.
-    // See https://drupal.org/node/3210636#comment-14097266.
-    $is_multimedia = $blazies->is('multimedia');
-    $is_resimage = FALSE;
-    $ok = $valid && $_box_style && !$blazies->is('unstyled');
-
-    // If image with valid URI, box image style, and not SVG, APNG, etc.
-    if (!$is_multimedia && $ok) {
-      // Use responsive image if so-configured, unless rich content is provided.
-      if ($blazies->is('resimage') && empty($element['#lightbox_html'])) {
-        $options = [
-          'uri' => $uri,
-          'box_style' => $_box_style,
-        ];
-        $is_resimage = self::responsiveImage($element, $options, $manager);
-      }
-
-      // Use non-responsive image if so-configured.
-      if (!$is_resimage && $box_style) {
-        $dimensions = array_merge($dimensions, BlazyImage::transformDimensions($box_style, $dimensions));
-        $box_url = $url = Blazy::transformRelative($uri, $box_style);
-      }
-    }
-
-    // Can be original or styled dimensions.
-    $box_width = $dimensions['width'];
-    $box_height = $dimensions['height'];
-
     // If multimendia with remote or local videos.
-    if ($is_multimedia) {
+    if ($multimedia) {
       $box_width = 640;
       $box_height = 360;
 
       if ($embed = $blazies->get('media.embed_url')) {
         // Force autoplay for media URL on lightboxes, saving another click.
         // BC for non-oembed such as Video Embed Field without Media migration.
-        $url = Blazy::autoplay($embed, !$is_escaped);
+        $url = Blazy::autoplay($embed, !$_escaped);
         $url_attributes['data-oembed-url'] = $url;
         $json['boxType'] = 'iframe';
       }
 
       // This allows PhotoSwipe with videos still swipable.
-      if ($valid && $box_media_style = $blazies->get('box_media.style')) {
+      if ($styleable && $box_media_style = $blazies->get('box_media.style')) {
         $dimensions = array_merge(
           $dimensions,
           BlazyImage::transformDimensions($box_media_style, $dimensions)
@@ -147,8 +124,32 @@ class Lightbox {
         $url_attributes['rel'] = 'video';
       }
     }
+    else {
+      // Supports local and remote videos, also legacy VEF which has no bundles.
+      // See https://drupal.org/node/3210636#comment-14097266.
+      // If image with valid URI, box image style, and not SVG, APNG, etc.
+      // The lightbox full sized image can be plain or responsive images.
+      if ($_fullsize) {
+        // Use responsive image if so-configured, unless rich content is given.
+        if ($blazies->is('resimage') && empty($element['#lightbox_html'])) {
+          $options = [
+            'uri' => $uri,
+            'box_style' => $_box_style,
+          ];
+          $_resimage = self::responsiveImage($element, $options, $manager);
+        }
 
-    // @todo recheck if any side effect/ double escape to cdn/ valid input.
+        // Use non-responsive image if so-configured.
+        if (!$_resimage && $box_style) {
+          $dimensions = array_merge($dimensions, BlazyImage::transformDimensions($box_style, $dimensions));
+          $box_url = $url = Blazy::transformRelative($uri, $box_style);
+        }
+      }
+    }
+
+    // Can be original, or styled dimensions.
+    $box_width = $dimensions['width'];
+    $box_height = $dimensions['height'];
     $box_url = UrlHelper::stripDangerousProtocols($box_url);
 
     // Only needed by videos, the rest can just use $url set into HREF.
@@ -184,11 +185,11 @@ class Lightbox {
     // Provides the content and its attributes.
     $options = [
       'url' => $url,
-      'is_escaped' => $is_escaped,
-      'is_resimage' => $is_resimage,
       'item' => $item,
       'box_width' => $box_width,
       'box_height' => $box_height,
+      '_escaped' => $_escaped,
+      '_resimage' => $_resimage,
     ];
 
     self::content(
@@ -228,32 +229,38 @@ class Lightbox {
   ): void {
     [
       'url' => $url,
-      'is_escaped' => $is_escaped,
-      'is_resimage' => $is_resimage,
       'item' => $item,
       'box_width' => $box_width,
       'box_height' => $box_height,
+      '_escaped' => $_escaped,
+      '_resimage' => $_resimage,
     ] = $options;
 
     $blazies = $settings['blazies'];
 
     // Do not output NULL dimensions.
     $has_dim = !empty($box_width) && !empty($box_height);
+    // (Responsive) image, local video or iframe must have dimensions.
     if ($has_dim) {
       $json['width'] = (int) $box_width;
       $json['height'] = (int) $box_height;
     }
 
-    // @todo make it flexible for regular non-media HTML.
+    // Currently: Responsive/Picture image, not plain, and Local video.
     if ($box_html = ($element['#lightbox_html'] ?? [])) {
+      // Local video ($html) is wrapped, but not Responsive image ($box_html).
+      // Reasons: video displayed as is, image is disassembled for zoom, etc.,
+      // or just dumped as is, depending on the supportive lightbox capability.
       $html = [
         '#theme' => 'container',
         '#children' => $box_html,
         '#attributes' => [
+          // @todo make it flexible for regular non-media HTML.
           'class' => ['media', 'media--ratio'],
         ],
       ];
 
+      // Only video needs help, responsive image is taken care of by lightbox.
       $style = '';
       if ($has_dim) {
         $pad = round((($json['height'] / $json['width']) * 100), 2);
@@ -262,25 +269,28 @@ class Lightbox {
       }
 
       // Responsive image is unwrapped. Local videos wrapped.
-      $content = $is_resimage ? $box_html : $html;
+      $content = $_resimage ? $box_html : $html;
       $content = trim($manager->renderer()->renderPlain($content));
+
+      // @todo merge with BlazyDefault::TAGS when mixed contents supported.
       $content = Xss::filter($content, BlazyDefault::MEDIA_TAGS);
 
       // See https://www.drupal.org/project/drupal/issues/3109650.
-      $options = [
+      $unstrips = [
         'prestyle' => 'ratio"',
         'style' => $style,
       ];
 
-      $json['html'] = Sanitize::unstrip($content, $options);
+      $json['html'] = Sanitize::unstrip($content, $unstrips);
 
-      if ($is_resimage) {
+      if ($_resimage) {
         $json['type'] = 'rich';
         $json['boxType'] = strpos($content, '<picture') !== FALSE
-          ? 'picture' : 'responsive-image';
+          ? 'picture' : 'responsiveImage';
       }
       else {
         if (strpos($content, '<video') !== FALSE) {
+          $json['type'] = 'rich';
           $json['boxType'] = 'video';
         }
       }
@@ -288,26 +298,22 @@ class Lightbox {
       unset($element['#lightbox_html']);
     }
 
-    $url_attributes['data-media'] = Json::encode($json);
-
+    // Provides captions if so configured.
     if (!empty($settings['box_caption'])) {
       $element['#captions']['lightbox'] = self::buildCaptions($item, $settings);
     }
 
-    // @todo remove after another check, or any side effects.
-    if (!$is_escaped) {
-      $url = UrlHelper::stripDangerousProtocols($url);
-    }
-
-    // Do not show icon for video file unless supported.
-    $is_video = $blazies->is('video_file');
-    $show_icon = !$is_video || $is_video && $blazies->is('richbox');
+    // Do not show icon for local video file unless supported.
+    $is_local = $blazies->is('local_media');
+    $show_icon = !$is_local || $is_local && $blazies->is('richbox');
     if ($show_icon) {
       $icon = '<span class="media__icon media__icon--litebox"></span>';
       $element['#icon']['lightbox']['#markup'] = $icon;
     }
 
-    $element['#url'] = $url;
+    // Only strip if not already.
+    $element['#url'] = $_escaped ? $url : UrlHelper::stripDangerousProtocols($url);
+    $url_attributes['data-media'] = Json::encode($json);
   }
 
   /**
@@ -320,10 +326,10 @@ class Lightbox {
     ] = $options;
 
     // The _responsive_image_build_source_attributes is WSOD if missing.
-    $is_resimage = FALSE;
+    $_resimage = FALSE;
     try {
       if ($resimage = $manager->load($box_style, 'responsive_image_style')) {
-        $is_resimage = TRUE;
+        $_resimage = TRUE;
         $element['#lightbox_html'] = [
           '#theme' => 'responsive_image',
           '#responsive_image_style_id' => $resimage->id(),
@@ -334,7 +340,7 @@ class Lightbox {
     catch (\Exception $e) {
       // Silently failed like regular images when missing rather than WSOD.
     }
-    return $is_resimage;
+    return $_resimage;
   }
 
   /**

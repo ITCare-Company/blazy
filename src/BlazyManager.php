@@ -115,9 +115,9 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
     else {
       // If not a grid, pass items as regular index children to theme_field().
-      $settings = $this->getSettings($build);
+      $settings = $this->getBlazySettings($build);
 
-      // Runs after ::getSettings.
+      // Runs after ::getBlazySettings.
       $this->toElementChildren($build);
 
       $build['#blazy'] = $settings;
@@ -138,9 +138,9 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Checks if we got some signaled attributes.
     $attributes = $element['#theme_wrappers']['container']['#attributes']
       ?? $element['#attributes'] ?? [];
-    $settings = $this->getSettings($build);
+    $settings = $this->getBlazySettings($build);
 
-    // Runs after ::getSettings.
+    // Runs after ::getBlazySettings.
     $this->toElementChildren($build);
 
     // Take over elements for a grid display as this is all we need, learned
@@ -211,19 +211,19 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       ->set('use.loader', FALSE);
 
     // Supports HTML content for lightboxes as long as having image trigger.
-    // Type rich to not conflict with Image rendered by its formatter option.
+    // Local media to not conflict with Image rendered by its formatter option.
+    // Only possible if having hires image via `Main stage` aka cross image.
+    $hires     = $blazies->is('hires', !empty($settings['image']));
+    $litebox   = $blazies->is('lightbox');
     $supported = $blazies->is('richbox') ?: $settings['_richbox'] ?? FALSE;
-    $rich = $blazies->get('media.type') == 'rich' && $supported;
-    $litebox = $blazies->is('lightbox');
-    $blazy = ($build['content'][0]['#settings'] ?? NULL);
+    $supported = $blazies->is('local_media') && $litebox && $supported;
+    $blazy     = ($build['content'][0]['#settings'] ?? NULL);
 
-    if ($rich && $litebox && $blazy instanceof BlazySettings) {
-      if ($blazies->is('hires', !empty($settings['image']))) {
-        // Overrides the overriden settings with original formatter settings.
-        $settings = $this->merge($blazy->storage(), $settings);
-        $element['#lightbox_html'] = $build['content'];
-        $build['content'] = [];
-      }
+    if ($supported && $hires && $blazy instanceof BlazySettings) {
+      // Overrides the overriden settings with original formatter settings.
+      $settings = $this->merge($blazy->storage(), $settings);
+      $element['#lightbox_html'] = $build['content'];
+      $build['content'] = [];
     }
   }
 
@@ -278,7 +278,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * lacks of settings may know if it should load/ display a lightbox, etc.
    * Lightbox should work without `Use field template` checked.
    */
-  private function getSettings(array &$build) {
+  private function getBlazySettings(array &$build) {
     $settings = $build['settings'] ?? [];
 
     Blazy::verify($settings);

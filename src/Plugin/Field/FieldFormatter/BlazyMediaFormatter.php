@@ -41,11 +41,9 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
     $multiple = $this->isMultiple();
 
     return [
-      'fieldable_form'  => FALSE,
       'grid_form'       => $multiple,
       'layouts'         => [],
       'style'           => $multiple,
-      'thumbnail_style' => TRUE,
       'vanilla'         => FALSE,
     ] + parent::getPluginScopes();
   }

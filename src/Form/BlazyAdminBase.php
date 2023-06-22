@@ -639,6 +639,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         if (!isset($form[$key]['#default_value']) && isset($settings[$key])) {
           $value = is_array($settings[$key]) ? array_values((array) $settings[$key]) : $settings[$key];
 
+          // @todo remove babysitter.
           if (!empty($definition['grid_required']) && $key == 'grid' && empty($settings[$key])) {
             $value = 3;
           }
@@ -675,7 +676,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           }
         }
 
-        if (!isset($form[$key]['#enforced']) && !empty($definition['vanilla']) && isset($form[$key]['#type'])) {
+        if (!isset($form[$key]['#enforced'])
+          && !empty($definition['vanilla']) && isset($form[$key]['#type'])) {
           $states['visible'][':input[name*="[vanilla]"]'] = ['checked' => FALSE];
           if (isset($form[$key]['#states'])) {
             $form[$key]['#states']['visible'][':input[name*="[vanilla]"]'] = ['checked' => FALSE];
@@ -901,6 +903,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * @todo remove after sub-module migrations.
    */
   private function checkScopes(&$scopes, array &$definition): void {
+    $settings = $definition['settings'] ?? [];
     $background = $scopes->is('background') || !empty($definition['background']);
     $box_captions = $scopes->is('box_captions') || !empty($definition['box_captions']);
     $style = $scopes->is('style') || !empty($definition['style']);

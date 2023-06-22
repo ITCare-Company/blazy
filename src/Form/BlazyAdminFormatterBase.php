@@ -70,12 +70,13 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
 
     if ($scopes->is('responsive_image')) {
       $url = Url::fromRoute('entity.responsive_image_style.collection')->toString();
+      $options = $this->getResponsiveImageOptions();
       $form['responsive_image_style'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Responsive image'),
-        '#options'     => $this->getResponsiveImageOptions(),
+        '#options'     => $options,
         '#description' => $this->t('Responsive image style for the main stage image is more reasonable for large images. Works with multi-serving IMG, or PICTURE element. Leave empty to disable. <a href=":url" target="_blank">Manage responsive image styles</a>.', [':url' => $url]),
-        '#access'      => $this->getResponsiveImageOptions(),
+        '#access'      => count($options) > 0,
         '#weight'      => -100,
       ];
     }

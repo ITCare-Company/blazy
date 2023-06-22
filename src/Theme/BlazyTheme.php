@@ -156,21 +156,22 @@ class BlazyTheme {
         }
       }
 
+      // If using lazy [data-src].
       if ($use_dataset) {
-        $attributes->addClass(['b-lazy']);
-
         foreach ($files as $file) {
           $source_attributes = &$file['source_attributes'];
           $source_attributes->setAttribute('data-src', $source_attributes['src']->value());
           $source_attributes->setAttribute('src', Placeholder::BLANK);
         }
+
+        // For consistent lazy selectors .b-lazy[data-src] vs Native .b-lazy.
+        $attributes->addClass(['b-lazy']);
+        $attributes->setAttribute('data-src', '');
       }
 
-      // For consistent lazy selectors .b-lazy[data-src] vs Native .b-lazy.
-      $attrs = ['data-b-lazy', 'data-b-undata'];
-      $attributes->setAttribute('data-src', '');
+      $removes = ['data-b-lazy', 'data-b-undata'];
       $attributes->addClass(['media__element']);
-      $attributes->removeAttribute($attrs);
+      $attributes->removeAttribute($removes);
     }
   }
 

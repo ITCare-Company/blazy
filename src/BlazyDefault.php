@@ -111,7 +111,7 @@ class BlazyDefault {
   public static function viewsSettings() {
     return [
       'class'   => '',
-      'id'      => '',
+      // 'id'      => '',
       'image'   => '',
       'link'    => '',
       'overlay' => '',
@@ -412,7 +412,7 @@ class BlazyDefault {
       'sizes' => '',
       'grid_header' => '',
       'loading' => 'lazy',
-      'preload' => FALSE,
+      // 'preload' => FALSE,
       '_item' => '',
       '_uri' => '',
     ];

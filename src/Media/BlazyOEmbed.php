@@ -340,6 +340,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     // @todo remove settings.
     $settings['type'] = $type;
     $settings['uri'] = $uri;
+
     $blazies->set('media.label', $title)
       ->set('media.type', $type);
 

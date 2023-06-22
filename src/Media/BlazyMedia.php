@@ -38,7 +38,7 @@ class BlazyMedia {
    * @return array
    *   The renderable array of the media field, or empty if not applicable.
    */
-  public static function build($media, array $settings = []): array {
+  public static function build($media, array &$settings = []): array {
     Blazy::verify($settings);
     $blazies = $settings['blazies'];
 
@@ -53,14 +53,13 @@ class BlazyMedia {
       }
     }
 
-    // @todo remove settings post migrations and sub-modules.
-    $type = 'rich';
-    $blazies->set('media.type', $type);
+    // Local video, FB, Twitter, etc. is rich to be simple due to terracota,
+    // can be refined later when Blazy supports more media types better.
+    $blazies->set('media.type', 'rich');
 
-    $source = $blazies->get('media.source');
     $view_mode = $blazies->get('media.view_mode') ?: $settings['view_mode'] ?? 'default';
     $source_field = $blazies->get('media.source_field');
-    $options = $source == 'video_file' ? ['type' => 'file_video'] : $view_mode;
+    $options = $blazies->is('local_video') ? ['type' => 'file_video'] : $view_mode;
 
     $build = $media->get($source_field)->view($options);
     $build['#settings'] = $settings;
@@ -96,7 +95,7 @@ class BlazyMedia {
   /**
    * Prepares media item data to provide image item.
    */
-  public static function prepare(array &$data, MediaInterface &$media) {
+  public static function prepare(array &$data, MediaInterface $media) {
     $settings  = $data['settings'];
     $blazies   = $settings['blazies'];
     $view_mode = $settings['view_mode'] ?? NULL;
@@ -106,16 +105,22 @@ class BlazyMedia {
     $media = Blazy::translated($media, $langcode);
 
     // Provides settings.
-    $info = self::extract($media, $view_mode);
+    $info      = self::extract($media, $view_mode);
+    $locals    = ['audio_file', 'video_file'];
+    $videos    = ['oembed:video', 'video_embed_field'];
+    $source    = $info['source'];
+    $bundle    = $info['bundle'];
+    $medias    = array_merge($locals, $videos);
+    $is_local  = $source && in_array($source, $locals);
+    $is_media  = $source && in_array($source, $medias);
+    $is_remote = $source && in_array($source, $videos) || $bundle == 'remote_video';
 
-    $blazies->set('media', $info, TRUE);
-
-    // @todo remove $settings for $blazies after migration and sub-modules.
-    // foreach ($info as $key => $value) {
-    // $key = in_array($key, ['id', 'uri', 'url', 'source'])
-    // ? 'media_' . $key : $key;
-    // $settings[$key] = $value;
-    // }
+    // Embed url is not defined here, yet, provides basic media checks.
+    $blazies->set('media', $info, TRUE)
+      ->set('is.multimedia', $is_media)
+      ->set('is.local_media', $is_local)
+      ->set('is.local_video', $source == 'video_file')
+      ->set('is.remote_video', $is_remote);
   }
 
   /**
@@ -204,7 +209,8 @@ class BlazyMedia {
 
     $item['#attributes']->setAttribute('data-b-lazy', TRUE);
     if ($blazies = ($settings['blazies'] ?? NULL)) {
-      if ($blazies->is('undata')) {
+      // Disable [data-src] lazy if undata, or richbox is supported.
+      if ($blazies->is('undata') || $blazies->is('richbox')) {
         $item['#attributes']->setAttribute('data-b-undata', TRUE);
       }
     }
