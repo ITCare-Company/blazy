@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-06-22
 ------------------------------
+- Updated docs for warnings about Responsive image within lightboxes.
 - Fixed Responsive image empty option regression seen at PHP8.2.
 - Fixed local video dimensions within lightboxes.
 

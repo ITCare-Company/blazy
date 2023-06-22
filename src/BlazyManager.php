@@ -208,6 +208,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Original formatter settings can still be accessed via content variable.
     $blazies->set('placeholder', [])
       ->set('is.bg', FALSE)
+      ->set('is.unlazy', TRUE)
       ->set('use.loader', FALSE);
 
     // Supports HTML content for lightboxes as long as having image trigger.

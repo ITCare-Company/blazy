@@ -81,19 +81,19 @@ class Sanitize {
     }
 
     // Fixed for 404 images when data URI is enabled via UI or trusted.
-    $blazy = self::has($content, 'b-lazy');
-    if ($blazy && self::has($content, 'src="image/"')) {
+    if (self::has($content, 'src="image/')) {
       $data_uri = self::has($content, 'base64')
         || self::has($content, 'svg+xml');
 
       if ($data_uri) {
-        $content = str_replace('src="image/"', 'src="data:image/"', $content);
+        $content = str_replace('src="image/', 'src="data:image/', $content);
       }
     }
 
     if ($style && $prestyle && self::has($content, $prestyle)) {
       $content = str_replace($prestyle, $prestyle . ' style="' . $style . '"', $content);
     }
+
     return $content;
   }
 

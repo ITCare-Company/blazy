@@ -219,6 +219,12 @@ Images does not load within hidden tabs, or other hidden containers:
 
 * `/admin/config/media/blazy`  
 * Enable `Load invisible` option.  
+* Specific for `Responsive image` within lightboxes under option
+  `Lightbox image style`, be sure to not use `-empty image-` option under
+  `Fallback image style`, edit them at
+  [/admin/config/media/responsive-image-style](/admin/config/media/responsive-image-style)
+  The reason, lightbox full size images are never lazy loaded by Blazy due to
+  lightbox library requirements. Lightboxes are another kind of lazy loadings.
 
 Only an issue with old bLazy, not IO, AFAIK. Other than that, be sure to read
 back the topmost troubleshooting section.
