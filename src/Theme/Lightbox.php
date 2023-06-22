@@ -273,7 +273,8 @@ class Lightbox {
       $content = trim($manager->renderer()->renderPlain($content));
 
       // @todo merge with BlazyDefault::TAGS when mixed contents supported.
-      $content = Xss::filter($content, BlazyDefault::MEDIA_TAGS);
+      // Lightbox Responsive|Picture image will be broken when filtered out.
+      $content = $_resimage ? $content : Xss::filter($content, BlazyDefault::MEDIA_TAGS);
 
       // See https://www.drupal.org/project/drupal/issues/3109650.
       $unstrips = [
