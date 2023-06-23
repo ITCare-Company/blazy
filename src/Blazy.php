@@ -11,7 +11,7 @@ use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Utility\Sanitize;
-use Drupal\blazy\Traits\BlazyDeprecatedTrait;
+use Drupal\blazy\Deprecated\BlazyDeprecatedTrait;
 
 /**
  * Provides common public blazy utility and a few aliases for frequent methods.
@@ -123,11 +123,12 @@ class Blazy {
   /**
    * Reset the BlazySettings per item to have unique URI, delta, style, etc.
    */
-  public static function reset(array &$settings): BlazySettings {
+  public static function reset(array &$settings, $key = 'blazies'): BlazySettings {
+    // Other implementors should verify the $key prior to calling this.
     self::verify($settings);
 
     // The settings instance must be unique per item.
-    $blazies = &$settings['blazies'];
+    $blazies = &$settings[$key];
     if (!$blazies->was('reset')) {
       $blazies->reset($settings);
       $blazies->set('was.reset', TRUE);

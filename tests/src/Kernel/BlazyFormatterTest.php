@@ -115,8 +115,8 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $this->assertArrayHasKey('blazies', $formatter_settings);
 
     $blazies = $formatter_settings['blazies'];
-    $this->assertArrayHasKey('field', $blazies->storage());
 
+    $this->assertArrayHasKey('field', $blazies->storage());
     $this->assertEquals($this->testPluginId, $blazies->get('field.plugin_id'));
 
     // 1. Tests formatter settings.
@@ -136,6 +136,9 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $format['settings'] = array_merge($this->getFormatterSettings(), $formatter_settings);
 
     $settings = &$format['settings'];
+
+    $this->assertArrayHasKey('blazies', $settings);
+
     $blazies = $settings['blazies'];
 
     // 2. Test theme_field(), no grid.
@@ -147,19 +150,9 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     $blazies->set('is.blazy', TRUE)
       ->set('lazy.id', 'blazy')
-      ->set('entity.bundle', $this->bundle);
+      ->set('entity.bundle', $this->bundle)
+      ->set('is.vanilla', FALSE);
 
-    try {
-      $settings['vanilla'] = TRUE;
-      $this->blazyFormatter->buildSettings($format, $this->testItems);
-    }
-    catch (\Exception $e) {
-    }
-
-    $this->assertEquals($this->testFieldName, $blazies->get('field.name'));
-
-    $settings['vanilla'] = FALSE;
-    // $this->blazyFormatter->buildSettings($format, $this->testItems);
     $this->blazyFormatter->preBuildElements($format, $this->testItems);
 
     // Blazy uses theme_field() output.

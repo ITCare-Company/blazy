@@ -5,6 +5,7 @@ namespace Drupal\blazy\Utility;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyInternal;
+use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Media\Preloader;
 use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Theme\Grid;
@@ -228,10 +229,7 @@ class Check {
 
     // @todo remove after sub-modules.
     if (!$blazies->get('field')) {
-      $blazies->set('field.name', $field->getName())
-        ->set('field.type', $field->getType())
-        ->set('field.entity_type', $field->getTargetEntityTypeId())
-        ->set('field.view_mode', $settings['view_mode'] ?? '');
+      BlazyField::settings($settings, [], $field);
     }
 
     $count          = $blazies->get('count') ?: $items->count();
@@ -244,30 +242,30 @@ class Check {
     $id             = $blazies->get('css.id') ?: $settings['id'] ?? '';
     $gallery_id     = "{$namespace}-{$entity_type_id}-{$bundle}-{$field_clean}-{$view_mode}";
     $id             = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
-    $switch         = $settings['media_switch'] ?? $blazies->get('switch');
+    $switch         = $settings['media_switch'] ?? NULL;
+    $switch         = $switch ?: $blazies->get('switch');
 
     // When alignment is mismatched, split them to satisfy linter.
     // Respects linked_field.module expectation.
     $linked    = $blazies->get('field.third_party.linked_field.linked');
     $use_field = !$blazies->is('lightbox') && $linked;
+    $use_field = $use_field || !empty($settings['use_theme_field']);
+
+    // @todo remove, used by sliders at twigs.
+    $settings['count'] = $count;
+    $settings['id'] = $id;
+    $settings['use_theme_field'] = $use_field;
 
     if ($switch && $blazies->is('lightbox')) {
       $gallery_id = str_replace('_', '-', $gallery_id . '-' . $switch);
       $blazies->set('lightbox.gallery_id', $gallery_id);
     }
 
-    $blazies->set('cache.keys', [$id, $count], TRUE);
-    $blazies->set('cache.tags', [$entity_type_id . ':' . $entity_id], TRUE);
-
-    $settings['use_theme_field'] = $use_field || !empty($settings['use_theme_field']);
-
-    // @todo remove, used by sliders at twigs.
-    $settings['count'] = $count;
-    $settings['id'] = $id;
-
-    $blazies->set('count', $count)
+    $blazies->set('cache.keys', [$id, $count], TRUE)
+      ->set('cache.tags', [$entity_type_id . ':' . $entity_id], TRUE)
+      ->set('count', $count)
       ->set('css.id', $id)
-      ->set('use.theme_field', $settings['use_theme_field'])
+      ->set('use.theme_field', $use_field)
       ->set('was.field', TRUE);
   }
 
@@ -343,7 +341,7 @@ class Check {
    * Checks for lightboxes.
    */
   public static function lightboxes(array &$settings): void {
-    $switch = $settings['media_switch'] ?? NULL;
+    $switch = $settings['media_switch'] ?? $blazies->get('switch');
 
     // Bail out early if not so configured.
     if (!$switch) {
@@ -369,7 +367,7 @@ class Check {
     }
 
     // Richbox is local video inside lightboxes by supported lightboxes.
-    $_richbox = $settings['_richbox'] ?? $blazies->is('richbox');
+    $_richbox = $blazies->is('richbox') ?: ($settings['_richbox'] ?? FALSE);
     $richbox  = $blazies->get('colorbox') || $blazies->get('mfp') || $_richbox;
 
     // (Non-)lightboxes: media player, link to content, image rendered, etc.

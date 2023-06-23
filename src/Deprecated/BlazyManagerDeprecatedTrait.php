@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\blazy\Traits;
+namespace Drupal\blazy\Deprecated;
 
 use Drupal\blazy\Media\BlazyResponsiveImage;
 

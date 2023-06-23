@@ -297,7 +297,7 @@ class BlazySettings implements \Countable {
    * @param string $key
    *   The key to check.
    * @param string|object $group
-   *   The BlazySettings as sub-key to check for.
+   *   The BlazySettings as sub-key to check for, or a parent key string.
    *
    * @return bool
    *   True if found.
@@ -319,8 +319,7 @@ class BlazySettings implements \Countable {
       }
     }
     else {
-      // @fixme not working, yet.
-      $found = NestedArray::keyExists($parts, $this->storage);
+      $found = NestedArray::keyExists($this->storage, $parts);
     }
     return $found;
   }

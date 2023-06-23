@@ -6,7 +6,7 @@ use Drupal\blazy\Cache\BlazyCache;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\Path;
-use Drupal\blazy\Traits\BlazyManagerDeprecatedTrait;
+use Drupal\blazy\Deprecated\BlazyManagerDeprecatedTrait;
 
 /**
  * Provides common shared methods across Blazy ecosystem to DRY.
@@ -202,6 +202,8 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $attachments          = $this->merge($attached, $attachments);
     $element['#attached'] = $this->merge($attachments, $element, '#attached');
     $element['#cache']    = $this->merge($cache, $element, '#cache');
+
+    $this->moduleHandler->alter('blazy_element', $element, $settings);
   }
 
   /**

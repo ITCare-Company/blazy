@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Plugin\views\field;
 
+use Drupal\media\Entity\Media;
 use Drupal\views\ResultRow;
 
 /**
@@ -16,19 +17,23 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
    */
   public function render(ResultRow $values) {
     /** @var \Drupal\media\Entity\Media $media */
-    $media = $values->_entity;
-    $settings = $this->mergedViewsSettings();
+    $entity = $values->_entity;
 
-    // Due to minimal settings, assumed core fields are in use.
-    $settings['image'] = 'field_media_image';
+    if ($entity instanceof Media) {
+      $settings = $this->mergedViewsSettings();
 
-    $data['settings'] = $this->mergedSettings = $settings;
-    $data['entity'] = $media;
-    $data['delta'] = $values->index;
-    $data['fallback'] = $media->label();
+      // Due to minimal settings, assumed core fields are in use.
+      $settings['image'] = 'field_media_image';
 
-    // Pass results to \Drupal\blazy\BlazyEntity.
-    return $this->blazyEntity->build($data);
+      $data['settings'] = $this->mergedSettings = $settings;
+      $data['entity'] = $entity;
+      $data['delta'] = $values->index;
+      $data['fallback'] = $entity->label();
+
+      // Pass results to \Drupal\blazy\BlazyEntity.
+      return $this->blazyEntity->build($data);
+    }
+    return [];
   }
 
   /**

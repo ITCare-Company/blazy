@@ -26,11 +26,14 @@ class BlazyField {
     if ($manager = Blazy::service('blazy.manager')) {
       [$type] = explode('/', $file->getMimeType(), 2);
 
-      if ($type == 'video') {
-        // As long as you are not being too creative by renaming or changing
-        // fields provided by core, this should be your good friend.
-        $blazies->set('media.source', 'video_file');
-        $blazies->set('media.source_field', 'field_media_video_file');
+      // As long as you are not being too creative by renaming, or changing
+      // fields provided by core, this should be your good friend.
+      foreach (['audio', 'video'] as $key) {
+        if ($type == $key) {
+          $skey = $key . '_file';
+          $blazies->set('media.source', $skey);
+          $blazies->set('media.source_field', 'field_media_' . $skey);
+        }
       }
 
       $source_field = $blazies->get('media.source_field');
@@ -132,10 +135,13 @@ class BlazyField {
     // @todo remove for blazies after admin updated and sub-modules.
     $settings['blazies'] = $blazies = $settings['blazies'] ?? Blazy::settings();
     $info = [
-      'field_label' => $field->getLabel(),
-      'field_name'  => $field->getName(),
-      'field_type'  => $field->getType(),
-      'entity_type' => $field->getTargetEntityTypeId(),
+      'cardinality'   => $field->getFieldStorageDefinition()->getCardinality(),
+      'field_label'   => $field->getLabel(),
+      'field_name'    => $field->getName(),
+      'field_type'    => $field->getType(),
+      'entity_type'   => $field->getTargetEntityTypeId(),
+      'target_bundle' => $field->getTargetBundle(),
+      'target_type'   => $field->getSetting('target_type'),
     ];
 
     if ($data) {
@@ -144,12 +150,15 @@ class BlazyField {
       }
     }
 
+    $blazies->set('field.settings', $field->getSettings());
     foreach ($info as $key => $value) {
       $k = str_replace('field_', '', $key);
       $blazies->set('field.' . $k, $value);
 
       // @todo remove at/ by 3.x after sub-modules.
-      $settings[$key] = $value;
+      if (!$blazies->is('field.migrated')) {
+        $settings[$key] = $value;
+      }
     }
   }
 

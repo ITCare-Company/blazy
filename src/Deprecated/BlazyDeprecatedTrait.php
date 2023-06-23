@@ -1,11 +1,15 @@
 <?php
 
-namespace Drupal\blazy\Traits;
+namespace Drupal\blazy\Deprecated;
 
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * A Trait common for deprecated methods for easy removal and declutter.
+ *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module, or its sub-modules.
  *
  * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:3.0.0. Use BVEF
  * instead.

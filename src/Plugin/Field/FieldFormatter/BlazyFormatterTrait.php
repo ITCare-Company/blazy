@@ -165,7 +165,6 @@ trait BlazyFormatterTrait {
     $settings = [
       'namespace'   => 'blazy',
       'plugin_id'   => $this->getPluginId(),
-      'target_type' => $this->getFieldSetting('target_type'),
     ];
 
     // Exposes few basic formatter settings w/o use_field.

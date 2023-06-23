@@ -35,7 +35,7 @@ trait BlazyFormatterViewBaseTrait {
     // Build the settings.
     $build = ['settings' => $settings];
 
-    // @todo re-check if to call BlazyFormatter::buildSettings() instead.
+    // BlazyFormatter::buildSettings() contains media, irrelevant for texts.
     $this->formatter->fieldSettings($build, $items);
 
     // Build the elements.

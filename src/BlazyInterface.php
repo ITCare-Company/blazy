@@ -222,6 +222,8 @@ interface BlazyInterface {
   /**
    * Returns available entities for select options.
    *
+   * To get all entities of an entity_type, use self::loadMultiple() instead.
+   *
    * @param string $entity_type
    *   The entity type.
    *

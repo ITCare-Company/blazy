@@ -19,6 +19,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo make it protected after sub-modules, mostly are just tests.
    */
   public function buildSettings(array &$build, $items) {
     $settings = &$build['settings'];
@@ -71,6 +73,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     // BC for non-nego vanilla formatters identified by its plugin ID.
     if ($plugin_id && strpos($plugin_id, 'vanilla') !== FALSE) {
       $settings['vanilla'] = TRUE;
+      $blazies->set('is.vanilla', TRUE);
     }
 
     // Extracts initial settings:
@@ -91,7 +94,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $this->buildSettings($build, $items);
 
     // Allows altering the settings.
-    $this->moduleHandler()->alter('blazy_settings', $build, $items);
+    $this->moduleHandler->alter('blazy_settings', $build, $items);
 
     // Combines settings with the provided hook_alter().
     $this->postSettingsAlter($settings, $items->getEntity());
