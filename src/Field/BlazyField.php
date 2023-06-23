@@ -131,8 +131,7 @@ class BlazyField {
   /**
    * Provides field-related settings.
    */
-  public static function settings(array &$settings, array $data, $field): void {
-    // @todo remove for blazies after admin updated and sub-modules.
+  public static function settings(array &$settings, $field, array $data = []): void {
     $settings['blazies'] = $blazies = $settings['blazies'] ?? Blazy::settings();
     $info = [
       'cardinality'   => $field->getFieldStorageDefinition()->getCardinality(),
@@ -155,7 +154,7 @@ class BlazyField {
       $k = str_replace('field_', '', $key);
       $blazies->set('field.' . $k, $value);
 
-      // @todo remove at/ by 3.x after sub-modules.
+      // @todo remove at/ by 3.x after migration and sub-modules.
       if (!$blazies->is('field.migrated')) {
         $settings[$key] = $value;
       }

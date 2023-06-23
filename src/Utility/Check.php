@@ -229,7 +229,7 @@ class Check {
 
     // @todo remove after sub-modules.
     if (!$blazies->get('field')) {
-      BlazyField::settings($settings, [], $field);
+      BlazyField::settings($settings, $field);
     }
 
     $count          = $blazies->get('count') ?: $items->count();

@@ -178,7 +178,7 @@ trait BlazyFormatterTrait {
       $data[$key] = $settings[$key];
     }
 
-    BlazyField::settings($settings, $data, $field);
+    BlazyField::settings($settings, $field, $data);
     $blazies = $settings['blazies'];
 
     if (method_exists($this, 'getPluginScopes')
