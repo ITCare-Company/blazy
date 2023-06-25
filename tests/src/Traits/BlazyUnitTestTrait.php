@@ -151,7 +151,6 @@ trait BlazyUnitTestTrait {
   protected function getPluginScopes(): array {
     return [
       'background'        => TRUE,
-      'box_captions'      => TRUE,
       'captions'          => ['alt' => 'Alt', 'title' => 'Title'],
       'classes'           => ['field_class' => 'Classes'],
       'multimedia'        => TRUE,

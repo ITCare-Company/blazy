@@ -125,7 +125,6 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
     return [
       'background'        => TRUE,
-      'box_captions'      => TRUE,
       'captions'          => $captions,
       'grid_form'         => $multiple,
       'image_style_form'  => TRUE,

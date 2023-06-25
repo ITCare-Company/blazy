@@ -117,7 +117,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('entity_display.repository'), $container->get('config.typed'), $container->get('date.formatter'), $container->get('blazy.manager'));
+    return new static(
+      $container->get('entity_display.repository'),
+      $container->get('config.typed'),
+      $container->get('date.formatter'),
+      $container->get('blazy.manager')
+    );
   }
 
   /**
@@ -303,12 +308,14 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     ];
 
     foreach ($grids as $key) {
-      $form[$key]['#enforced'] = TRUE;
-      $form[$key]['#states'] = [
-        'visible' => [
-          'input[name$="[grid]"]' => ['!value' => ''],
-        ],
-      ];
+      if (isset($form[$key])) {
+        $form[$key]['#enforced'] = TRUE;
+        $form[$key]['#states'] = [
+          'visible' => [
+            'input[name$="[grid]"]' => ['!value' => ''],
+          ],
+        ];
+      }
     }
   }
 
@@ -542,7 +549,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         }
       }
 
-      if ($scopes->is('box_captions')) {
+      if (!$scopes->is('no_box_captions')) {
         $form['box_caption'] = [
           '#type'        => 'select',
           '#title'       => $this->t('Lightbox caption'),
@@ -918,12 +925,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
     $bools = [
       'background',
-      'box_captions',
       'caches',
       'grid_required',
       'grid_simple',
       'multimedia',
       'nav',
+      'no_box_captions',
       'no_grid_header',
       'no_image_style',
       'no_layouts',

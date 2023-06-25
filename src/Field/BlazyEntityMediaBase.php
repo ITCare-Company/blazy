@@ -213,7 +213,6 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
     return [
       'background'        => TRUE,
-      'box_captions'      => TRUE,
       'captions'          => $captions,
       'fieldable_form'    => TRUE,
       'image_style_form'  => TRUE,
