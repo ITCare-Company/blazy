@@ -33,7 +33,7 @@ class BlazyAttribute {
     $blazies   = $settings['blazies'];
     $classes   = (array) ($attributes['class'] ?? []);
     $data      = $blazies->get('data.blazy');
-    $namespace = $blazies->get('namespace', 'blazy');
+    $namespace = $blazies->get('namespace') ?: $settings['namespace'] ?? 'blazy';
     $lightbox  = $blazies->get('lightbox.name') ?: $settings['media_switch'] ?? NULL;
 
     // Provides data-LIGHTBOX-gallery to not conflict with original modules.

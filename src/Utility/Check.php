@@ -341,6 +341,7 @@ class Check {
    * Checks for lightboxes.
    */
   public static function lightboxes(array &$settings): void {
+    $blazies = $settings['blazies'];
     $switch = $settings['media_switch'] ?? $blazies->get('switch');
 
     // Bail out early if not so configured.
@@ -348,7 +349,6 @@ class Check {
       return;
     }
 
-    $blazies    = $settings['blazies'];
     $lightboxes = $blazies->get('lightbox.plugins', []);
     $lightbox   = in_array($switch, $lightboxes) ? $switch : FALSE;
     $optionset  = empty($settings[$switch]) ? $switch : $settings[$switch];

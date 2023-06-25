@@ -50,27 +50,28 @@ class Grid {
     $contents = [];
     foreach ($items as $key => $item) {
       // Support non-Blazy which normally uses item_id.
-      $wrapper_attrs = $item['attributes'] ?? [];
-      $content_attrs = $item['content_attributes'] ?? [];
-      $sets = array_merge($settings, $item['settings'] ?? []);
-      $sets = array_merge($sets, $item['#build']['settings'] ?? []);
+      $wrapper_attrs = $item['#attributes'] ?? $item['attributes'] ?? [];
+      $content_attrs = $item['#content_attributes'] ?? $item['content_attributes'] ?? [];
+      $item_sets = $item['#settings'] ?? $item['settings'] ?? [];
+      $sets = Blazy::merge($item_sets, $settings);
+      $sets = Blazy::merge($item['#build']['settings'] ?? [], $sets);
 
       $blazy = $blazies->reset($sets);
       $sets['delta'] = $key;
       $blazy->set('delta', $key);
 
       // Supports both single formatter field and complex fields such as Views.
-      $classes = $wrapper_attrs['class'] ?? [];
+      $classes = (array) ($wrapper_attrs['class'] ?? []);
       $wrapper_attrs['class'] = array_merge([$item_class], $classes);
 
-      self::itemAttributes($wrapper_attrs, $sets);
+      self::itemAttributes($wrapper_attrs, $content_attrs, $sets);
 
       // Good for Bootstrap .well/ .card class, must cast or BS will reset.
       $classes = (array) ($content_attrs['class'] ?? []);
       $content_attrs['class'] = array_merge(['grid__content'], $classes);
 
       // Remove known unused array.
-      // @todo refactor at 3.x to use hashes instead.
+      // @todo remove after 3.x refactors to use hashes instead.
       unset($item['settings'], $item['attributes'], $item['content_attributes']);
       if (is_object($item['item'] ?? NULL)) {
         unset($item['item']);
@@ -130,6 +131,11 @@ class Grid {
     // Limit to grid only, so to be usable for plain list.
     if ($blazies->is('grid')) {
       self::containerAttributes($attributes, $settings, $blazies);
+    }
+
+    // Listens to hook_blazy_settings_alter for minor alters.
+    if ($attrs_alter = ($blazies->get('grid.attributes') ?: [])) {
+      $attributes = Blazy::merge($attrs_alter, $attributes);
     }
   }
 
@@ -240,8 +246,23 @@ class Grid {
   /**
    * Provides grid item attributes, relevant for Native Grid.
    */
-  private static function itemAttributes(array &$attributes, array $settings): void {
+  private static function itemAttributes(
+    array &$attributes,
+    array &$content_attributes,
+    array $settings
+  ): void {
     $blazies = $settings['blazies'];
+
+    // Listens to hook_blazy_settings_alter for minor alters, such as adding
+    // generic .card, etc. classes without extra legs.
+    if ($attrs_alter = ($blazies->get('grid.item_attributes') ?: [])) {
+      $attributes = Blazy::merge($attrs_alter, $attributes);
+    }
+
+    if ($content_attrs_alter = ($blazies->get('grid.item_content_attributes') ?: [])) {
+      $content_attributes = Blazy::merge($content_attrs_alter, $content_attributes);
+    }
+
     if ($dim = $blazies->get('grid.large_dimensions', [])) {
       $key = $blazies->get('delta');
       if (isset($dim[$key])) {

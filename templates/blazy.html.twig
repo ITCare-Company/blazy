@@ -16,6 +16,8 @@
  * Good: postscript.cta, or postscript.widget (This extends postscript)
  * Bad: postscript = cta (This overrides/ nullifies other postscripts with cta)
  *
+ * Unless that is expected, of course.
+ *
  * Available variables:
  *   - captions: An optional renderable array of inline or lightbox captions.
  *   - image: A collection of image data.
@@ -42,7 +44,8 @@
  *       However you can override them accordingly as needed, such as lightbox
  *       for local Video with/o a pre-configured poster image. The #settings
  *       are provided under content variables for more work. Originally
- *       content is a theme_field() output, trimmed down to bare minimum.
+ *       content is a theme_field() output, trimmed down to a bare minimum to
+ *       avoid nested field markups for DOM diets.
  *
  * @see template_preprocess_blazy()
  *

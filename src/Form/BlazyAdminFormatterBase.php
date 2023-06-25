@@ -55,12 +55,14 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       $disabled = ($field_type && $field_type == 'video_embed_field')
         || $plugin_id == 'blazy_vef_default';
 
-      if (!$disabled) {
+      if (!$disabled && isset($base['preload'])) {
         $form['preload'] = $base['preload'];
       }
 
       foreach (['image_style', 'loading'] as $key) {
-        $form[$key] = $base[$key];
+        if (isset($base[$key])) {
+          $form[$key] = $base[$key];
+        }
       }
     }
 

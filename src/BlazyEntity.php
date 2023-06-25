@@ -80,7 +80,7 @@ class BlazyEntity implements BlazyEntityInterface {
     }
 
     // @todo remove $settings after sub-modules: gridstack, slick_browser.
-    $delta = $data['delta'] ?? ($settings['delta'] ?? -1);
+    $delta = $settings['delta'] = $data['delta'] ?? ($settings['delta'] ?? -1);
     unset($data['entity'], $data['delta'], $data['fallback']);
 
     // Common settings.

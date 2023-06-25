@@ -17,16 +17,12 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
     $this->basicImageForm($form, $definition);
 
     if ($scopes->form('grid') && !isset($form['grid'])) {
-      $this->gridForm($form, $definition);
-
       // Blazy doesn't need complex grid with multiple groups.
       if ($scopes->get('namespace') == 'blazy') {
-        unset($form['preserve_keys'], $form['visible_items']);
+        $scopes->set('is.grid_simple', TRUE);
       }
 
-      if (isset($form['grid'])) {
-        $form['grid']['#description'] = $this->t('The amount of block grid columns (1 - 12, or empty)  for large monitors 64.063em+.');
-      }
+      $this->gridForm($form, $definition);
     }
 
     if ($scopes->form('fieldable') && !isset($form['image'])) {

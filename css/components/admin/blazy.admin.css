@@ -54,7 +54,7 @@ body.path-admin .form--slick *,
 .form--slick .details--responsive .details--settings {
   box-shadow: 0 0 0 4px #f9f9f9;
   clear: both;
-  float: left;
+  /* float: left; */
   margin: 30px auto;
   width: 100%;
 }

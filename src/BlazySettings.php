@@ -32,7 +32,7 @@ class BlazySettings implements \Countable {
    * Counts total items.
    */
   public function count(): int {
-    return count($this->storage);
+    return $this->get('count');
   }
 
   /**

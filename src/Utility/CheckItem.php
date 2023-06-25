@@ -58,7 +58,8 @@ class CheckItem {
       return;
     }
 
-    $delta   = $blazies->get('delta') ?: ($settings['delta'] ?? -1);
+    $delta   = $blazies->get('delta', -1);
+    $delta   = $delta == -1 ? ($settings['delta'] ?? -1) : $delta;
     $initial = $delta == $blazies->get('initial', -2);
     $uri     = $blazies->get('image.uri') ?: BlazyFile::uri($item, $settings);
 

@@ -53,13 +53,14 @@ class BlazyViews extends StylePluginBase implements BlazyViewsInterface {
    */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     $definition = [
-      'namespace'     => 'blazy',
-      'grid_form'     => TRUE,
-      'grid_required' => TRUE,
-      'settings'      => $this->options,
-      'style'         => TRUE,
-      'opening_class' => 'form--views',
-      '_views'        => TRUE,
+      'namespace'      => 'blazy',
+      'grid_form'      => TRUE,
+      'grid_required'  => TRUE,
+      'no_image_style' => TRUE,
+      'opening_class'  => 'form--views',
+      'settings'       => $this->options,
+      'style'          => TRUE,
+      '_views'         => TRUE,
     ];
 
     // Build the form.

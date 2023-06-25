@@ -11,7 +11,7 @@ use Drupal\blazy\Field\BlazyField;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module, or its sub-modules.
  *
- * @deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
+ * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
  *   BlazyField::getValue() instead.
  * @see https://www.drupal.org/node/3103018
  */
@@ -20,7 +20,7 @@ trait BlazyEntityDeprecatedTrait {
   /**
    * Returns the entity renderable array, no more called by sub-modules.
    *
-   * @deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
    *   self::view() instead.
    * @see https://www.drupal.org/node/3103018
    */
@@ -31,7 +31,7 @@ trait BlazyEntityDeprecatedTrait {
   /**
    * Returns the field renderable array, no more called by sub-modules.
    *
-   * @deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
    *   BlazyField::view() instead.
    * @see https://www.drupal.org/node/3103018
    */
@@ -42,7 +42,7 @@ trait BlazyEntityDeprecatedTrait {
   /**
    * Returns the string value of link, or text, no more called by sub-modules.
    *
-   * @deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
    *   BlazyField::getString() instead.
    * @see https://www.drupal.org/node/3103018
    */
@@ -53,7 +53,7 @@ trait BlazyEntityDeprecatedTrait {
   /**
    * Returns the text or link value, no more called by sub-modules.
    *
-   * @deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
    *   BlazyField::getTextOrLink() instead.
    * @see https://www.drupal.org/node/3103018
    */
@@ -66,7 +66,7 @@ trait BlazyEntityDeprecatedTrait {
   /**
    * Returns the string value of link, or text, no more called by sub-modules.
    *
-   * @deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
    *   BlazyField::getValue() instead.
    * @see https://www.drupal.org/node/3103018
    */
@@ -77,7 +77,7 @@ trait BlazyEntityDeprecatedTrait {
   /**
    * Returns file view or media due to being empty returned by view builder.
    *
-   * @deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
    *   BlazyField::getOrViewMedia() instead.
    * @see https://www.drupal.org/node/3103018
    */

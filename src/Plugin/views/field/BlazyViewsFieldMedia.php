@@ -16,7 +16,7 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
    * {@inheritdoc}
    */
   public function render(ResultRow $values) {
-    /** @var \Drupal\media\Entity\Media $media */
+    /** @var \Drupal\media\Entity\Media $entity */
     $entity = $values->_entity;
 
     if ($entity instanceof Media) {
