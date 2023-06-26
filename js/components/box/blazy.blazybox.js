@@ -13,10 +13,10 @@
   var _nick = 'b-box';
   var _idOnce = _id;
   var _mounted = 'is-' + _nick;
-  var _elBase = '.' + _id;
-  var _element = _elBase + ':not(.' + _mounted + ')';
-  var _elContent = _elBase + '__content';
-  var _btnClose = _elBase + '__close';
+  var _selBase = '.' + _id;
+  var _selector = _selBase + ':not(.' + _mounted + ')';
+  var _selContent = _selBase + '__content';
+  var _btnClose = _selBase + '__close';
   var _isOpened = 'is-' + _id + '--open';
   var _visualyHidden = 'visually-hidden';
   var _ariaHidden = 'aria-hidden';
@@ -51,7 +51,7 @@
 
       $el.removeClass(_visualyHidden)
         .attr(_ariaHidden, false)
-        .find(_elContent).innerHTML = content;
+        .find(_selContent).innerHTML = content;
 
       $.addClass(_doc.body, _isOpened);
 
@@ -78,7 +78,7 @@
 
       $el.addClass(_visualyHidden)
         .attr(_ariaHidden, true)
-        .find(_elContent).innerHTML = '';
+        .find(_selContent).innerHTML = '';
 
       $.removeClass(_doc.body, _isOpened);
 
@@ -98,7 +98,8 @@
      * Attach the blazyBox.
      */
     attach: function () {
-      if (!$.isElm($.find(_doc.body, _element))) {
+      var check = $.find(_doc.body, _selBase);
+      if (!$.isElm(check)) {
         $.append(_doc.body, Drupal.theme('blazyBox'));
       }
     },
@@ -140,15 +141,19 @@
   Drupal.theme.blazyBoxMedia = function (settings) {
     var data = settings.data;
     var oembedUrl = data;
-    var html = '';
-
-    html = '<div class="media media--fullscreen">';
+    var el;
+    var $el;
+    var href;
+    var html = '<div class="media media--fullscreen">';
 
     // For future betterment, allows more complex data object than just url.
     if ($.isObj(data)) {
-      var $el = $(data.el || data.element);
-      var href = $el.attr('href');
-      oembedUrl = $el.attr('data-oembed-url', href, true);
+      el = data.el || data.element;
+      if ($.isElm(el)) {
+        $el = $(el);
+        href = $el.attr('href');
+        oembedUrl = $el.attr('data-oembed-url', href, true);
+      }
     }
 
     if ($.isStr(oembedUrl)) {
@@ -188,11 +193,11 @@
 
       Drupal.blazyBox.attach();
 
-      $.once(process, _idOnce, _element, context);
+      $.once(process, _idOnce, _selector, context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _element, context);
+        $.once.removeSafely(_idOnce, _selector, context);
       }
     }
   };

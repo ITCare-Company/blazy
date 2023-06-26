@@ -185,7 +185,7 @@ class BlazyAttribute {
         }
         if ($title) {
           $translation_replacements = ['@label' => Xss::filter($title)];
-          $attributes['title'] = self::videoTitle($title, $translation_replacements);
+          $attributes['title'] = self::videoTitle($translation_replacements);
         }
       }
 
@@ -352,7 +352,7 @@ class BlazyAttribute {
       $blazies->set('media.label', $title);
 
       $translation_replacements = ['@label' => $title];
-      $attributes['title'] = self::videoTitle($title, $translation_replacements);
+      $attributes['title'] = self::videoTitle($translation_replacements);
 
       if ($alt) {
         $translation_replacements['@alt'] = $alt;
@@ -488,7 +488,7 @@ class BlazyAttribute {
   /**
    * Return the image title.
    */
-  private static function videoTitle($title, $translation_replacements): TranslatableMarkup {
+  private static function videoTitle($translation_replacements): TranslatableMarkup {
     return new TranslatableMarkup('Preview image for the video "@label".', $translation_replacements);
   }
 

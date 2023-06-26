@@ -413,7 +413,7 @@
   }
 
   /**
-   * Returns true if the argument is a string.
+   * Returns true if the argument is a string, also non empty.
    *
    * @private
    *

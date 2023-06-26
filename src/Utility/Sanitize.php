@@ -48,7 +48,7 @@ class Sanitize {
       }
       else {
         $escaped_value = $escaped ? Html::escape($value) : $value;
-        $output[$key] = $kid ? Html::cleanCssIdentifier($value) : $escaped_value;
+        $output[$key] = $kid || $key == 'class' ? Html::cleanCssIdentifier($value) : $escaped_value;
       }
     }
     return $output;
