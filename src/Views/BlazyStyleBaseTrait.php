@@ -93,17 +93,16 @@ trait BlazyStyleBaseTrait {
    */
   protected function getFirstImage($row): array {
     if (!isset($this->firstImage)) {
+      $view = $this->view;
       // Fixed for Undefined property: Drupal\views\ViewExecutable::$row_index
       // by Drupal\views\Plugin\views\field\EntityField->prepareItemsByDelta.
-      if (!isset($this->view->row_index)) {
-        $this->view->row_index = 0;
+      if (!isset($view->row_index)) {
+        $view->row_index = 0;
       }
 
       $rendered = [];
-      if ($row && $render = $this->view->rowPlugin->render($row)) {
-        $view = $render['#view'] ?? NULL;
-        if ($view && isset($view->field)
-          && $fields = $view->field) {
+      if ($row && $view->rowPlugin->render($row)) {
+        if ($fields = $view->field ?? []) {
           foreach ($fields as $field) {
             $options = $field->options ?? [];
             $id = $options['plugin_id'] ?? '';
@@ -125,7 +124,7 @@ trait BlazyStyleBaseTrait {
           if (isset($name)) {
             // Blazy Views field plugins.
             if (strpos($name, 'blazy_') !== FALSE
-            && $field = ($this->view->field[$name] ?? NULL)) {
+            && $field = ($view->field[$name] ?? NULL)) {
               $result['rendered'] = $field->render($row);
             }
             else {
@@ -137,8 +136,9 @@ trait BlazyStyleBaseTrait {
               && is_array($result)
               && isset($result['rendered'])
               && !($result['rendered'] instanceof Markup)) {
-              // D10 moves it into indices.
-              $rendered = $result['rendered'][0]['#build'] ?? $result['rendered']['#build'] ?? [];
+              // D10/9.5.10 moves it into indices.
+              $rendered = $result['rendered'][0]['#build']
+                ?? $result['rendered']['#build'] ?? [];
             }
           }
         }

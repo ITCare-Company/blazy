@@ -183,7 +183,7 @@ function blazy_filter_cleanup($module = 'blazy') {
 
     if ($config->get($filter)) {
       $dependencies = $config->get('dependencies');
-      $modules = array_diff($dependencies['module'], [$module]);
+      $modules = array_diff($dependencies['module'] ?? [], [$module]);
 
       $config
         ->clear($filter)

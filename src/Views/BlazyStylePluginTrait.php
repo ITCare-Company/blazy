@@ -75,7 +75,10 @@ trait BlazyStylePluginTrait {
 
         // Rebuilds the image for the brand new richer Blazy.
         // With the working Views cache, nothing to worry much.
+        // @todo remove $settings after another check.
+        $settings['delta'] = $index;
         $blazies->set('delta', $index);
+
         $build = ['item' => $item, 'settings' => $settings];
         $image['rendered'] = $this->blazyManager->getBlazy($build);
       }
@@ -125,21 +128,10 @@ trait BlazyStylePluginTrait {
   /**
    * Returns the caption element.
    */
-  protected function getCaption($index, array $settings = []): array {
+  protected function getCaption($index, array $settings): array {
     $items = [];
     $keys = array_keys($this->view->field);
-
-    if (!empty($settings['caption'])) {
-      // Exclude non-caption fields so that theme_views_view_fields() kicks in
-      // and only render expected caption fields. As long as not-hidden, each
-      // caption field should be wrapped with Views markups.
-      $excludes = array_diff_assoc(array_combine($keys, $keys), $settings['caption']);
-      foreach ($excludes as $field) {
-        $this->view->field[$field]->options['exclude'] = TRUE;
-      }
-
-      $items['data'] = $this->view->rowPlugin->render($this->view->result[$index]);
-    }
+    $keys = array_combine($keys, $keys);
 
     $items['link'] = empty($settings['link']) ? []
       : $this->getFieldRendered($index, $settings['link']);
@@ -149,6 +141,18 @@ trait BlazyStylePluginTrait {
 
     $items['overlay'] = empty($settings['overlay']) ? []
       : $this->getFieldRendered($index, $settings['overlay']);
+
+    // Exclude non-caption fields so that theme_views_view_fields() kicks in
+    // and only render expected caption fields. As long as not-hidden, each
+    // caption field should be wrapped with Views markups.
+    if ($captions = ($settings['caption'] ?? [])) {
+      $excludes = array_diff_assoc($keys, $captions);
+      foreach ($excludes as $field) {
+        $this->view->field[$field]->options['exclude'] = TRUE;
+      }
+
+      $items['data'] = $this->view->rowPlugin->render($this->view->result[$index]);
+    }
 
     return $items;
   }

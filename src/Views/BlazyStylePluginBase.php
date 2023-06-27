@@ -34,7 +34,12 @@ abstract class BlazyStylePluginBase extends StylePluginBase implements BlazyStyl
   /**
    * Constructs a GridStackManager object.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, BlazyManager $blazy_manager) {
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    BlazyManager $blazy_manager
+  ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->blazyManager = $blazy_manager;
   }
@@ -42,7 +47,12 @@ abstract class BlazyStylePluginBase extends StylePluginBase implements BlazyStyl
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(
+    ContainerInterface $container,
+    array $configuration,
+    $plugin_id,
+    $plugin_definition
+  ) {
     return new static($configuration, $plugin_id, $plugin_definition, $container->get('blazy.manager'));
   }
 

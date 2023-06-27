@@ -28,6 +28,13 @@ class BlazySettingsForm extends BlazyConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  protected $validatedPaths = [
+    'placeholder',
+  ];
+
+  /**
+   * {@inheritdoc}
+   */
   public function getFormId() {
     return 'blazy_settings_form';
   }

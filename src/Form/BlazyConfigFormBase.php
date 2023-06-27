@@ -35,6 +35,13 @@ abstract class BlazyConfigFormBase extends ConfigFormBase {
   protected $validatedOptions = [];
 
   /**
+   * The available paths to check for.
+   *
+   * @var array
+   */
+  protected $validatedPaths = [];
+
+  /**
    * The allowed tags can be NULL for default, or array.
    *
    * @var mixed
@@ -64,12 +71,16 @@ abstract class BlazyConfigFormBase extends ConfigFormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
 
-    if ($options = $this->validatedOptions) {
+    $paths = $this->validatedPaths;
+    $options = $this->validatedOptions;
+    $options = array_unique(array_merge($options, $paths));
+
+    if ($options) {
       foreach ($options as $option) {
         if ($form_state->hasValue($option)) {
           // Not effective, best is to validate output, yet better than misses.
           $value = $form_state->getValue($option);
-          if ($option == 'placeholder') {
+          if ($paths && in_array($option, $paths)) {
             $value = UrlHelper::filterBadProtocol($value);
           }
           $value = Xss::filter($value, $this->allowedTags);

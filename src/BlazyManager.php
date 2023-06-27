@@ -138,6 +138,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Checks if we got some signaled attributes.
     $attributes = $element['#theme_wrappers']['container']['#attributes']
       ?? $element['#attributes'] ?? [];
+
+    // Checks if we got some signaled attachments.
+    $attachments = $build['#attached'] ?? $build['attached'] ?? [];
+    if ($attachments) {
+      unset($build['#attached'], $build['attached']);
+    }
+
     $settings = $this->getBlazySettings($build);
 
     // Runs after ::getBlazySettings.
@@ -147,7 +154,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // from the issues such as: #2945524, or product variations.
     // We'll selectively pass or work out $attributes not so far below.
     $element = $this->toGrid($build, $settings);
-    $this->setAttachments($element, $settings);
+    $this->setAttachments($element, $settings, $attachments);
 
     if ($attributes) {
       // Signals other modules if they want to use it.
