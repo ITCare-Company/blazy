@@ -245,9 +245,6 @@ class BlazyFile {
    * be for non-media File Entity Reference at 1.x, things changed since then.
    * Some core methods during Blazy 1.x are now gone at 2.x.
    * Re-purposed for Paragraphs, Node, etc. which embeds Media or File.
-   *
-   * @see BlazyImage::fromField()
-   *  The deprecated/ previous approach on this.
    */
   private static function fromField($entity, $name, array $settings): ?object {
     $file = NULL;

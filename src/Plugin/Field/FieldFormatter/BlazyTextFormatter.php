@@ -26,7 +26,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class BlazyTextFormatter extends FormatterBase {
 
   use BlazyFormatterTrait;
-  use BlazyFormatterViewBaseTrait;
 
   /**
    * {@inheritdoc}

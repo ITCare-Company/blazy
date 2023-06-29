@@ -253,6 +253,17 @@ class Blazy {
   }
 
   /**
+   * Alias for Grid::itemAttributes() for sub-modules and easy organization.
+   */
+  public static function gridItemAttributes(
+    array &$attributes,
+    array &$content_attributes,
+    array $settings
+  ): void {
+    Grid::itemAttributes($attributes, $content_attributes, $settings);
+  }
+
+  /**
    * Alias for BlazyFile::transformRelative() for sub-modules.
    */
   public static function transformRelative($uri, $style = NULL, array $options = []): string {
@@ -263,6 +274,7 @@ class Blazy {
    * Return TRUE if an url is a data URI.
    */
   public static function isDataUri($url) {
+    $url = trim($url ?: '');
     return $url && mb_substr($url, 0, 10) === 'data:image';
   }
 

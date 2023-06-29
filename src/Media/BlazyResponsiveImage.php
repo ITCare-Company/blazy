@@ -76,8 +76,6 @@ class BlazyResponsiveImage {
       $old_url = $blazies->get('image.url', $settings['image_url'] ?? '');
       $new_url = $unlazy ? $old_url : $bg['src'];
 
-      // @todo remove.
-      // $settings['image_url'] = $new_url;
       $blazies->set('is.unlazy', $unlazy)
         ->set('image.url', $new_url);
 
@@ -156,7 +154,7 @@ class BlazyResponsiveImage {
     $styles = self::styles($resimage);
 
     $blazies->set('resimage.id', $id)
-      ->set('resimage.caches', $styles['caches'] ?? []);
+      ->set('resimage.cache', $styles['caches'] ?? []);
   }
 
   /**

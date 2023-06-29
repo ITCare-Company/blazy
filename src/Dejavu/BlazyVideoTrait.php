@@ -100,7 +100,8 @@ trait BlazyVideoTrait {
    */
   public function getMediaItem(array &$data = [], $media = NULL) {
     @trigger_error('getMediaItem is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Media\BlazyOEmbed::build() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    $this->blazyOembed()->build($data, $media);
+    $data['#entity'] = $data['#entity'] ?? $media;
+    $this->blazyOembed()->build($data);
   }
 
   /**

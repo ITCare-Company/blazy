@@ -30,7 +30,7 @@ class Grid {
     Blazy::verify($settings);
 
     // If the workflow is by-passed, by calling this directly, re-check grids.
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     if (!$blazies->get('namespace')) {
       Check::grids($settings);
     }
@@ -38,6 +38,7 @@ class Grid {
     $style = $settings['style'];
     $is_grid = $blazies->is('grid');
     $item_class = $is_grid ? 'grid' : 'blazy__item';
+    $contents = [];
 
     // Slick/ Splide may trick count to disable grid slides when lacking,
     // although not necessarily needed by flat grid like Blazy's.
@@ -47,9 +48,13 @@ class Grid {
     // Update for the rest.
     $blazies->set('count', $count);
 
-    $contents = [];
     foreach ($items as $key => $item) {
+      if (!is_array($item)) {
+        continue;
+      }
+
       // Support non-Blazy which normally uses item_id.
+      // @todo remove the last two after migrations at 3.x.
       $wrapper_attrs = $item['#attributes'] ?? $item['attributes'] ?? [];
       $content_attrs = $item['#content_attributes'] ?? $item['content_attributes'] ?? [];
       $item_sets = $item['#settings'] ?? $item['settings'] ?? [];
@@ -137,6 +142,8 @@ class Grid {
     if ($attrs_alter = ($blazies->get('grid.attributes') ?: [])) {
       $attributes = Blazy::merge($attrs_alter, $attributes);
     }
+
+    $blazies->set('grid.attributes', $attributes);
   }
 
   /**
@@ -246,7 +253,7 @@ class Grid {
   /**
    * Provides grid item attributes, relevant for Native Grid.
    */
-  private static function itemAttributes(
+  public static function itemAttributes(
     array &$attributes,
     array &$content_attributes,
     array $settings
@@ -283,6 +290,9 @@ class Grid {
         }
       }
     }
+
+    $blazies->set('grid.item_attributes', $attributes);
+    $blazies->get('grid.item_content_attributes', $content_attributes);
   }
 
 }

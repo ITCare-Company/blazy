@@ -6,6 +6,7 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Theme\BlazyAttribute;
+use Drupal\blazy\Utility\CheckItem;
 
 /**
  * Provides extra utilities to work with core Media.
@@ -38,7 +39,7 @@ class BlazyMedia {
    * @return array
    *   The renderable array of the media field, or empty if not applicable.
    */
-  public static function build($media, array &$settings = []): array {
+  public static function build($media, array &$settings): array {
     Blazy::verify($settings);
     $blazies = $settings['blazies'];
 
@@ -70,9 +71,10 @@ class BlazyMedia {
   /**
    * Extracts needed info from a media.
    */
-  public static function extract(MediaInterface $media, $view_mode = NULL): array {
+  public static function extract(MediaInterface $media, $view_mode = NULL, $langcode = NULL): array {
     $source = $media->getSource();
     $definition = $source->getPluginDefinition();
+    $source_id = $source->getPluginId();
     $uri = '';
 
     // @todo recheck and replace if any direct method for URI.
@@ -80,47 +82,55 @@ class BlazyMedia {
       $uri = $source->getMetadata($media, $attr);
     }
 
-    return [
-      'bundle'       => $media->bundle(),
-      'id'           => $media->id(),
+    $data = [];
+    $translated = $media;
+    if ($info = CheckItem::entity($media, $langcode)) {
+      $data = $info['data'];
+      $translated = $info['entity'];
+    }
+
+    $output = [
       'label'        => $media->label(),
-      'source'       => $source->getPluginId(),
+      'source'       => $source_id,
       'source_field' => $source->getConfiguration()['source_field'],
       'thumbnail'    => $uri,
-      'url'          => $media->isNew() ? '' : $media->toUrl()->toString(),
       'view_mode'    => $view_mode ?: 'default',
-    ];
+    ] + $data;
+
+    return ['data' => $output, 'entity' => $translated];
   }
 
   /**
    * Prepares media item data to provide image item.
    */
-  public static function prepare(array &$data, MediaInterface $media) {
-    $settings  = $data['settings'];
+  public static function prepare(array &$data) {
+    $media     = $data['#entity'];
+    $settings  = &$data['settings'];
     $blazies   = $settings['blazies'];
     $view_mode = $settings['view_mode'] ?? NULL;
     $langcode  = $blazies->get('language.current');
-
-    // Provides translated $media, if any.
-    $media = Blazy::translated($media, $langcode);
-
-    // Provides settings.
-    $info      = self::extract($media, $view_mode);
+    $result    = self::extract($media, $view_mode, $langcode);
+    $media     = $result['entity'];
+    $info      = $result['data'];
+    $id        = $info['id'];
+    $rid       = $info['rid'];
     $locals    = ['audio_file', 'video_file'];
     $videos    = ['oembed:video', 'video_embed_field'];
     $source    = $info['source'];
-    $bundle    = $info['bundle'];
     $medias    = array_merge($locals, $videos);
     $is_local  = $source && in_array($source, $locals);
     $is_media  = $source && in_array($source, $medias);
-    $is_remote = $source && in_array($source, $videos) || $bundle == 'remote_video';
+    $is_remote = $source && in_array($source, $videos);
 
     // Embed url is not defined here, yet, provides basic media checks.
-    $blazies->set('media', $info, TRUE)
+    $blazies->set('media', $info)
+      ->set('media.cache.keys', [$id, $rid])
       ->set('is.multimedia', $is_media)
       ->set('is.local_media', $is_local)
       ->set('is.local_video', $source == 'video_file')
       ->set('is.remote_video', $is_remote);
+
+    return $media;
   }
 
   /**
@@ -213,18 +223,6 @@ class BlazyMedia {
       if ($blazies->is('undata') || $blazies->is('richbox')) {
         $item['#attributes']->setAttribute('data-b-undata', TRUE);
       }
-    }
-  }
-
-  /**
-   * Extracts image from non-media entities for the main background/ stage.
-   *
-   * @todo remove after sub-modules anytime by 3.x.
-   */
-  public static function imageItem(array &$data, $entity): void {
-    $settings = &$data['settings'];
-    if ($stage = ($settings['image'] ?? FALSE)) {
-      BlazyImage::fromField($data, $entity, $stage);
     }
   }
 

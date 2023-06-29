@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Media\BlazyOEmbedInterface;
+use Drupal\blazy\Utility\CheckItem;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\blazy\Deprecated\BlazyEntityDeprecatedTrait;
 
@@ -65,11 +66,12 @@ class BlazyEntity implements BlazyEntityInterface {
    *
    * @todo make it single param after sub-modules for easy updates.
    */
-  public function build(array &$data, $entity = NULL, $fallback = ''): array {
-    $entity = $data['entity'] ?? $entity;
+  public function build(array $data, $entity = NULL, $fallback = ''): array {
+    // Using hashed key to avoid render error with BVEF due to out of sync.
+    $entity = $data['#entity'] ?? $entity;
     $fallback = $data['fallback'] ?? $fallback;
-    $manager = $this->blazyManager;
     $settings = &$data['settings'];
+    $manager = $this->blazyManager;
 
     if (!$entity instanceof EntityInterface) {
       return [];
@@ -81,25 +83,27 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // @todo remove $settings after sub-modules: gridstack, slick_browser.
     $delta = $settings['delta'] = $data['delta'] ?? ($settings['delta'] ?? -1);
-    unset($data['entity'], $data['delta'], $data['fallback']);
 
-    // Common settings.
-    $manager->preSettings($settings);
-    $manager->prepareData($data, $entity);
-    $manager->postSettings($settings);
+    // Prepare container settings.
+    // This class was designed for a single entity, not multiple.
+    // Call this method at the container level if multiple.
+    $this->prepare($data);
 
-    // Entity settings.
+    // Individual entity settings.
     self::settings($settings, $entity);
-    $blazies = $settings['blazies']->reset($settings);
+    $blazies = Blazy::reset($settings);
     $blazies->set('delta', $delta);
 
     $manager->postSettingsAlter($settings, $entity);
 
     // Build the Media item.
-    $this->oembed->build($data, $entity);
-    $settings = &$data['settings'];
+    $this->oembed->build($data);
+    $settings = $data['settings'];
+    $blazies = $settings['blazies'];
+
+    // @todo remove for $data after single param implemented.
     $view = [
-      'entity' => $entity,
+      '#entity' => $entity,
       'settings' => $settings,
       'fallback' => $fallback,
     ];
@@ -112,6 +116,7 @@ class BlazyEntity implements BlazyEntityInterface {
       }
 
       // Pass it to Blazy for consistent markups.
+      unset($data['delta'], $data['fallback']);
       $build = $manager->getBlazy($data);
 
       // Allows top level elements to load Blazy once rather than per field.
@@ -132,6 +137,27 @@ class BlazyEntity implements BlazyEntityInterface {
 
   /**
    * {@inheritdoc}
+   */
+  public function prepare(array &$data): void {
+    $manager = $this->blazyManager;
+    $settings = &$data['settings'];
+
+    Blazy::verify($settings);
+
+    $blazies = $settings['blazies'];
+    if ($blazies->was('entity_prepared')) {
+      return;
+    }
+
+    $manager->preSettings($settings);
+    $manager->prepareData($data);
+    $manager->postSettings($settings);
+
+    $blazies->set('was.entity_prepared', TRUE);
+  }
+
+  /**
+   * {@inheritdoc}
    *
    * @todo make it single param after sub-modules for easy updates.
    */
@@ -139,13 +165,14 @@ class BlazyEntity implements BlazyEntityInterface {
     if (is_array($entity)) {
       $settings = $entity['settings'] ?? [];
       $fallback = $entity['fallback'] ?? '';
-      $entity = $entity['entity'] ?? NULL;
+      $entity = $entity['#entity'] ?? NULL;
     }
 
     $settings['view_mode'] = $settings['view_mode'] ?? 'default';
+
     // @todo remove $data as the single param after sub-modules.
     $data = [
-      'entity' => $entity,
+      '#entity' => $entity,
       'settings' => $settings,
       'fallback' => $fallback,
     ];
@@ -173,46 +200,17 @@ class BlazyEntity implements BlazyEntityInterface {
   public static function settings(array &$settings, $entity): void {
     // Might be accessed by tests, or anywhere outside the workflow.
     Blazy::verify($settings);
-
     $blazies = $settings['blazies'];
-    $internal_path = $absolute_path = NULL;
     $langcode = $blazies->get('language.current');
 
-    // @todo remove after test updates.
-    if (!$entity) {
-      return;
+    if ($info = CheckItem::entity($entity, $langcode)) {
+      $data = $info['data'];
+      $id = $data['id'];
+      $rid = $data['rid'];
+
+      $blazies->set('cache.keys', [$id, $rid], TRUE)
+        ->set('entity', $data, TRUE);
     }
-
-    // Deals with UndefinedLinkTemplateException such as paragraphs type.
-    // @see #2596385, or fetch the host entity.
-    if (!$entity->isNew()) {
-      try {
-        // Provides translated $entity, if any.
-        $entity = Blazy::translated($entity, $langcode);
-        $url = $entity->toUrl();
-
-        $internal_path = $url->getInternalPath();
-        $absolute_path = $url->setAbsolute()->toString();
-      }
-      catch (\Exception $ignore) {
-        // Do nothing.
-      }
-    }
-
-    $id = $entity->id();
-    $rid = $entity->getRevisionID();
-    $blazies->set('cache.keys', [$id, $rid], TRUE);
-
-    $info = [
-      'bundle' => $entity->bundle(),
-      'id' => $id,
-      'rid' => $rid,
-      'type_id' => $entity->getEntityTypeId(),
-      'url' => $absolute_path,
-      'path' => $internal_path,
-    ];
-
-    $blazies->set('entity', $info, TRUE);
   }
 
 }

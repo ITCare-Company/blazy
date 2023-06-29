@@ -1,4 +1,11 @@
 
+Blazy 8.x-2.0-dev, 2023-06-29
+------------------------------
+- Fixed for BlazyEntity class not designed for multiple entities, but given 
+  multiple entities upstream.
+- Added real supports for data URI for BlazyFilter to exercise frontend muscle
+  memory a bit.
+
 Blazy 8.x-2.0-dev, 2023-06-22
 ------------------------------
 - Updated docs for warnings about Responsive image within lightboxes.

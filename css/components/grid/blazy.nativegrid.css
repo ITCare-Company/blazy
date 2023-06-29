@@ -1,6 +1,6 @@
 /**
  * @file
- * Provides CSS3 nativegrid based on Grid Layout.
+ * Provides pure CSS3 nativegrid based on Grid Layout without JavaScript.
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout
  * Below is the less-robust version of GridStack layouts.
@@ -45,6 +45,14 @@
   position: relative;
   overflow: visible;
   width: 100%;
+}
+
+/* Olivero surprises, adjust it. */
+.is-b-native h2 {
+  color: #fff;
+  font-size: 1.25rem;
+  line-height: 1.6rem;
+  margin: 0;
 }
 
 /** 480px with 16px base font. */
@@ -101,6 +109,7 @@
 
   /* Add more relevant selectors accordingly to make gapless grids.
   Remove .is-b-native to make it fit height-width for Masonry. */
+  .block-nativegrid.is-b-native .grid .b-cover,
   .block-nativegrid.is-b-native .grid .litebox,
   .block-nativegrid.is-b-native .grid .b-bg,
   .block-nativegrid.is-b-native .grid iframe,
@@ -135,6 +144,7 @@
     padding: 10px 15px;
     z-index: 3;
   }
+
 
   /* The only rule make sense for small devices, adjust it accordingly. */
   .small-block-nativegrid-2 {

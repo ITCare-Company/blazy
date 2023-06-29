@@ -64,7 +64,7 @@ trait BlazyStyleBaseTrait {
           $tags = explode(',', $value);
           $rendered_tags = [];
           foreach ($tags as $tag) {
-            $tag = trim($tag);
+            $tag = trim($tag ?: '');
             $rendered_tags[] = $clean ? Html::cleanCssIdentifier(mb_strtolower($tag)) : $tag;
           }
           $values[$index] = implode(' ', $rendered_tags);

@@ -58,7 +58,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $is_media_library = $definitions && isset($definitions['field_media_oembed_video']);
 
     $namespace = $this->provider;
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     $blazies->set('css.id', $id)
       ->set('is.filter', TRUE)
       ->set('is.unsafe', TRUE)
@@ -93,7 +93,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     }
 
     $entity = $this->blazyManager->load($id, $entity_type);
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     $id = (int) $id;
 
     if ($entity && $entity->hasField($field_name)) {
@@ -144,7 +144,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   protected function buildImageItem(array &$build, &$node, $delta = 0) {
     $settings = &$build['settings'];
     $blazies = $settings['blazies'];
-    $src = BlazyFilterUtil::getValidSrc($node);
+    $use_data_uri = $this->settings['use_data_uri'] ?? FALSE;
+    $src = BlazyFilterUtil::getValidSrc($node, $use_data_uri);
 
     if ($src) {
       if ($node->tagName == 'img') {
@@ -356,7 +357,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     }
 
     // Runs after type, width and height set, if any, to not recheck them.
-    $this->blazyOembed->build($build, $media);
+    $build['#entity'] = $media;
+    $this->blazyOembed->build($build);
   }
 
   /**

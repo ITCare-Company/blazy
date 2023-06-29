@@ -79,7 +79,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     // The "paragraphs_type" entity type did not specify a view_builder handler.
     if (!empty($settings['vanilla'])) {
       $data = [
-        'entity' => $entity,
+        '#entity' => $entity,
         'settings' => $settings,
       ];
 

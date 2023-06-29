@@ -213,7 +213,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
         'uri'             => $this->uri,
       ] + BlazyDefault::htmlSettings();
 
-      $blazies = &$settings['blazies'];
+      $blazies = $settings['blazies'];
       $info = [
         'bundle'       => $this->bundle,
         'input_url'    => $input_url,

@@ -214,7 +214,7 @@ class BlazyUnitTest extends UnitTestCase {
   public function todoTestPreRenderImageLightbox(array $settings = []) {
     $build                       = $this->data;
     $settings                   += BlazyDefault::itemSettings();
-    $blazies                     = &$settings['blazies'];
+    $blazies                     = $settings['blazies'];
     $settings['count']           = $this->maxItems;
     $settings['uri']             = $this->uri;
     $settings['box_style']       = '';

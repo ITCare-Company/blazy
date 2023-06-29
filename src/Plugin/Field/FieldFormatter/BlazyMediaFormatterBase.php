@@ -15,8 +15,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 abstract class BlazyMediaFormatterBase extends BlazyEntityMediaBase {
 
-  use BlazyFormatterTrait;
-
   /**
    * {@inheritdoc}
    */

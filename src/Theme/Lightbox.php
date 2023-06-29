@@ -312,6 +312,12 @@ class Lightbox {
       $element['#icon']['lightbox']['#markup'] = $icon;
     }
 
+    // @todo re-check to completely remove data URI.
+    if ($url && $blazies->is('unsafe')) {
+      $_escaped = $blazies->filter('use_data_uri');
+      $url = Sanitize::url($url, $_escaped);
+    }
+
     // Only strip if not already.
     $element['#url'] = $_escaped ? $url : UrlHelper::stripDangerousProtocols($url);
     $url_attributes['data-media'] = Json::encode($json);

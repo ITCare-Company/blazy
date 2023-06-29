@@ -173,7 +173,11 @@ class BlazyManagerTest extends BlazyKernelTestBase {
       $blazies->set('media.input_url', $input_url)
         ->set('media.source', 'oembed:video');
 
-      $data = ['item' => $item, 'settings' => $settings];
+      $data = [
+        '#entity' => $this->entity,
+        'item' => $item,
+        'settings' => $settings,
+      ];
 
       $this->blazyOembed->build($data);
       $settings = $data['settings'];

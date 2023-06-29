@@ -37,7 +37,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
 
     // Prevents double checks.
     // @todo re-check for dup thumbnails without a reset here, see #3278525.
-    Blazy::verify($settings);
     $blazies = Blazy::reset($settings);
     $blazies->set('is.api', TRUE);
 
@@ -120,6 +119,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       // Runs after ::getBlazySettings.
       $this->toElementChildren($build);
 
+      // @todo refactor and move non-children out of here at 3.x.
       $build['#blazy'] = $settings;
       $this->setAttachments($build, $settings);
     }
@@ -254,18 +254,25 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       unset($item->_attributes);
     }
 
-    // Responsive image integration, with/o CSS background so to work with.
-    $resimage = $blazies->get('resimage');
-    if ($resimage && $caches = $resimage['caches'] ?? []) {
-      $element['#cache']['tags'] = $caches;
-    }
+    // @todo refine these caches.
+    // See https://www.drupal.org/project/drupal/issues/2469277.
+    if (!$blazies->is('cache_deferred')) {
+      // Provides media cache.
+      if ($caches = $blazies->get('media.cache', [])) {
+        $element['#cache'] = $caches;
+      }
 
-    // Provides caches for regular image, with/o CSS background.
-    if (!$blazies->get('resimage.id')) {
-      if ($caches = BlazyCache::file($settings)) {
-        $element['#cache']['max-age'] = -1;
-        foreach ($caches as $key => $cache) {
-          $element['#cache'][$key] = $cache;
+      // Responsive image integration, with/o CSS background so to work with.
+      if ($caches = $blazies->get('resimage.cache', [])) {
+        $element['#cache']['tags'] = $caches;
+      }
+      else {
+        // Provides caches for regular image, with/o CSS background.
+        if ($caches = BlazyCache::file($settings)) {
+          $element['#cache']['max-age'] = -1;
+          foreach ($caches as $key => $cache) {
+            $element['#cache'][$key] = $cache;
+          }
         }
       }
     }
@@ -312,7 +319,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    */
   private function prepareBlazy(array &$element, array $build) {
     $item = $build['item'] ?? NULL;
-    $settings = &$build['settings'];
+    $settings = $build['settings'];
     $blazies = $settings['blazies'];
     $attributes = &$build['attributes'];
 
@@ -383,7 +390,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    */
   private function toElementChildren(array &$build): void {
     $build = $build['items'] ?? $build;
-    unset($build['items'], $build['settings']);
+    unset($build['#entity'], $build['items'], $build['settings']);
   }
 
 }

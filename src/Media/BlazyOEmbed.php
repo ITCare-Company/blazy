@@ -144,6 +144,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * {@inheritdoc}
    *
    * @todo should be at non-static BlazyMedia at 4.x, if too late for 3.x.
+   * @todo make it single param like the rest.
    */
   public function build(array &$build, $entity = NULL): void {
     // @todo remove old approach at 3.x after old VEF BlazyVideoTrait removed.
@@ -153,7 +154,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     }
 
     // Extracts image item from Media, File entity, ER, FieldItemList, etc.
-    $this->fromMediaOrAny($build, $entity);
+    $build['#entity'] = $build['#entity'] ?? $entity;
+    $this->fromMediaOrAny($build);
   }
 
   /**
@@ -180,9 +182,10 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    *
    * @todo move it directly into ::build() after sub-modules.
    */
-  private function fromMediaOrAny(array &$build, $entity = NULL): void {
+  private function fromMediaOrAny(array &$build): void {
+    $entity = $build['#entity'] ?? NULL;
     $settings = &$build['settings'];
-    $blazies = $settings['blazies']->reset($settings);
+    $blazies = $settings['blazies'];
     $valid = $entity instanceof MediaInterface;
     $stage = $settings['image'] ?? NULL;
     $media = $valid ? $entity : NULL;
@@ -203,36 +206,31 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     }
 
     // Provides image url earlier for file_video at ::fromMedia to have posters.
-    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $entity */
     if (!BlazyImage::isValidItem($build)) {
+      $entity = $valid ? $media : $entity;
+      /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $entity */
       if ($item = BlazyImage::fromAny($entity, $build['settings'])) {
-        // @todo revert if issues $build = NestedArray::mergeDeep($build, $item);
         $build['item'] = $item;
       }
     }
 
-    /** @var \Drupal\media\Entity\Media $entity */
-    if ($valid) {
-      if ($denied = $this->blazyManager->denied($media)) {
-        $build['content'][] = $denied;
-        return;
-      }
-
-      $this->fromMedia($build, $media);
+    // Checks for access.
+    if ($denied = $this->blazyManager->denied($entity)) {
+      $build['content'][] = $denied;
+      return;
     }
 
-    // Attempts to get image data directly from oEmbed resource.
-    // This used to be for File entity (non-media), re-purposed.
-    // Extracts image item from non-media, such as Paragraphs, ER, Node, etc.
-    // @todo remove when the above ::fromAny() is done right.
-    // if (!BlazyImage::isValidItem($build)
-    // && $stage = ($settings['image'] ?? FALSE)) {
-    // BlazyImage::fromField($build, $entity, $stage);
-    // }
-    // Attempts to get image data directly from oEmbed resource.
-    // Called by BlazyFilter or deprecated VEF, run after data populated.
-    if (!$valid && (!$entity || !$blazies->get('media.embed_url'))) {
-      $this->toEmbed($settings);
+    /** @var \Drupal\media\Entity\Media $entity */
+    if ($valid) {
+      $build['#entity'] = $media;
+      $this->fromMedia($build);
+    }
+    else {
+      // Attempts to get image data directly from oEmbed resource.
+      // Called by BlazyFilter or deprecated VEF, run after data populated.
+      if (!$entity || !$blazies->get('media.embed_url')) {
+        $this->toEmbed($settings);
+      }
     }
 
     // Marks a hires if valid and so configured.
@@ -255,12 +253,10 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    *
    * @param array $build
    *   The modified array containing: settings, and candidate video thumbnail.
-   * @param \Drupal\media\MediaInterface $media
-   *   The core Media entity.
    */
-  private function fromMedia(array &$build, MediaInterface &$media): void {
+  private function fromMedia(array &$build): void {
     // Prepare Media needed settings, and extract Media thumbnail.
-    BlazyMedia::prepare($build, $media);
+    $media = BlazyMedia::prepare($build);
     $settings = &$build['settings'];
     $blazies = $settings['blazies'];
 
@@ -274,7 +270,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         $input = $media->getSource()->getSourceFieldValue($media);
         if ($input) {
           $blazies->set('media.input_url', $input);
-
           $this->toEmbed($settings);
         }
         break;
@@ -312,7 +307,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $height  = $blazies->get('image.height') ?: ($settings['height'] ?? NULL);
     $width   = $blazies->get('image.width') ?: ($settings['width'] ?? NULL);
     $title   = $blazies->get('image.title') ?: $blazies->get('media.label');
-    $type    = $blazies->get('media.type', 'video');
+    $type    = $blazies->get('media.type');
 
     // Iframe URL may be valid, but not stored as a Media entity.
     if ($input && $resource = $this->getResource($input)) {
@@ -402,43 +397,12 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $blazies->set('media.embed_url', $embed_url)
       ->set('media.escaped', TRUE);
 
+    // In order to make local video kick in, defer type here, not upstream.
     if ($source = $blazies->get('media.source')) {
       $videos = in_array($source, ['oembed:video', 'video_embed_field']);
       $settings['type'] = $type = $videos ? 'video' : $source;
       $blazies->set('media.type', $type);
     }
-  }
-
-  /**
-   * Gets the faked image item out of file entity, or ER, if applicable.
-   *
-   * This method is called by slick_browser.
-   *
-   * @param object $file
-   *   The expected file entity, or ER, to get image item from.
-   *
-   * @return array
-   *   The array of image item and settings if a file image, else empty.
-   *
-   * @todo remove after sub-modules remove this for just ::build().
-   * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0. Use
-   *   BlazyImage::fromAny() instead.
-   */
-  public function getImageItem($file) {
-    $item = BlazyImage::fromAny($file);
-    return $item ? ['item' => $item] : [];
-  }
-
-  /**
-   * Gets the Media item thumbnail.
-   *
-   * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0. Use
-   *   self::build() instead.
-   */
-  public function getMediaItem(array &$build, $media = NULL) {
-    // To preserve old behaviors till sub-modules updated to ::build() at 2.9.
-    // The arguments are made similar to ::build() with the new arguments.
-    $this->fromMediaOrAny($build, $media);
   }
 
   /**

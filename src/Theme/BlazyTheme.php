@@ -144,7 +144,7 @@ class BlazyTheme {
       // Adds a poster image if so configured.
       if ($blazy = ($files[0]['#blazy'] ?? FALSE)) {
         $settings = $blazy->storage();
-        $blazies = &$settings['blazies'];
+        $blazies = $settings['blazies'];
 
         if ($url = $blazies->get('image.url')) {
           $url = UrlHelper::stripDangerousProtocols($url);

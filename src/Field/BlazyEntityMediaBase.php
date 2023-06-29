@@ -79,10 +79,14 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     }
 
     // Otherwise hard work which is meant to reduce custom code at theme level.
-    $element = ['item' => NULL, 'settings' => $settings];
+    $element = [
+      '#entity' => $entity,
+      'item' => NULL,
+      'settings' => $settings,
+    ];
 
     // Build media item including custom highres video thumbnail.
-    $this->blazyOembed->build($element, $entity);
+    $this->blazyOembed->build($element);
 
     // Captions if so configured, including Blazy formatters.
     $this->getCaption($element, $entity, $langcode);

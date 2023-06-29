@@ -129,7 +129,8 @@ class BlazyOEmbedFormatter extends FormatterBase {
       }
 
       if ($media) {
-        $this->blazyOembed->build($data, $media);
+        $data['#entity'] = $media;
+        $this->blazyOembed->build($data);
       }
 
       // Media OEmbed with lazyLoad and lightbox supports.

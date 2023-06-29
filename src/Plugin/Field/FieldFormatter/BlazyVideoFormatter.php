@@ -24,8 +24,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class BlazyVideoFormatter extends BlazyVideoBase {
 
-  use BlazyFormatterViewTrait;
-
   /**
    * {@inheritdoc}
    */
@@ -95,8 +93,12 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       // }
       // }
        */
-      $data = ['item' => NULL, 'settings' => $settings];
-      $this->blazyOembed->build($data, $entity);
+      $data = [
+        '#entity' => $entity,
+        'item' => NULL,
+        'settings' => $settings,
+      ];
+      $this->blazyOembed->build($data);
 
       // Image with responsive image, lazyLoad, and lightbox supports.
       $build[$delta] = $this->formatter->getBlazy($data);

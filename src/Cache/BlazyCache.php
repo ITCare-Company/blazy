@@ -12,6 +12,8 @@ class BlazyCache {
 
   /**
    * Build out image, or anything related, including cache, CSS background, etc.
+   *
+   * @todo refine against media, file and (responsive) image caches.
    */
   public static function file(array &$settings): array {
     $blazies = $settings['blazies'];
@@ -20,9 +22,8 @@ class BlazyCache {
       return [];
     }
 
-    $caches   = [];
-    $fallback = $settings['file_tags'] ?? [];
-    $tags     = $blazies->get('cache.file.tags', $fallback);
+    $caches = [];
+    $tags   = $blazies->get('cache.file.tags', []);
 
     foreach (['contexts', 'keys', 'tags'] as $key) {
       if ($cache = $blazies->get('cache.' . $key)) {

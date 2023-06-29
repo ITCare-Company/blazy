@@ -49,7 +49,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       $this->postSettings($settings);
     }
 
-    $this->prepareData($build, $entity);
+    $build['#entity'] = $entity;
+    $this->prepareData($build);
     $this->fieldSettings($build, $items);
 
     // Minor byte saving.

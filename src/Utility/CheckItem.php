@@ -42,6 +42,44 @@ class CheckItem {
   }
 
   /**
+   * Returns a message if access to view the entity is denied.
+   */
+  public static function entity($entity, $langcode): array {
+    if (!$entity instanceof EntityInterface) {
+      return [];
+    }
+
+    $internal_path = $absolute_path = NULL;
+    // Deals with UndefinedLinkTemplateException such as paragraphs type.
+    // @see #2596385, or fetch the host entity.
+    if (!$entity->isNew()) {
+      try {
+        // Provides translated $entity, if any.
+        $entity = Blazy::translated($entity, $langcode);
+        $url = $entity->toUrl();
+
+        // $media->toUrl()->toString()
+        $internal_path = $url->getInternalPath();
+        $absolute_path = $url->setAbsolute()->toString();
+      }
+      catch (\Exception $ignore) {
+        // Do nothing.
+      }
+    }
+
+    $data = [
+      'bundle' => $entity->bundle(),
+      'id' => $entity->id(),
+      'rid' => $entity->getRevisionID(),
+      'type_id' => $entity->getEntityTypeId(),
+      'url' => $absolute_path,
+      'path' => $internal_path,
+    ];
+
+    return ['data' => $data, 'entity' => $entity];
+  }
+
+  /**
    * Checks for essential settings: URI, delta, cache and initial delta.
    *
    * The initial delta related to option `Loading: slider`, the initial is not
@@ -54,16 +92,18 @@ class CheckItem {
   public static function essentials(array &$settings, $item = NULL): void {
     $blazies = $settings['blazies'];
 
+    // Bail out early if already processed.
     if ($blazies->was('essentials')) {
       return;
     }
 
-    $delta   = $blazies->get('delta', -1);
-    $delta   = $delta == -1 ? ($settings['delta'] ?? -1) : $delta;
-    $initial = $delta == $blazies->get('initial', -2);
-    $uri     = $blazies->get('image.uri') ?: BlazyFile::uri($item, $settings);
+    // @fixme should be reversed, but screwed up with the above edgecases.
+    $uri     = BlazyFile::uri($item, $settings) ?: $blazies->get('image.uri');
+    $delta   = $blazies->get('delta') ?: ($settings['delta'] ?? 0);
+    $initial = $delta == $blazies->get('initial', -1);
 
     // File cache tags.
+    // @todo move it out of here.
     if ($item) {
       if ($file = ($item->entity ?? NULL)) {
         $tags = $file->getCacheTags();
@@ -110,16 +150,6 @@ class CheckItem {
     $embed_url = $settings['embed_url'] ?? '';
     $embed_url = $blazies->get('media.embed_url') ?: $embed_url;
     $is_vef    = $type == 'video';
-    // $bundle    = $blazies->get('media.bundle') ?: $settings['bundle'] ?? '';
-    // $source    = $blazies->get('media.source');
-    // $locals    = ['audio_file', 'video_file'];
-    // $videos    = ['oembed:video', 'video_embed_field'];
-    // $medias    = array_merge($locals, $videos);
-    // $is_local  = $source && in_array($source, $locals);
-    // $is_video  = $source && in_array($source, $videos) || $is_vef;
-    // $is_media  = $source && in_array($source, $medias) || $is_video
-    // || $blazies->is('multimedia');
-    // $is_remote = $bundle == 'remote_video' || $is_vef;
     $is_remote = $embed_url && ($blazies->is('remote_video') || $is_vef);
     $is_iframe = $is_remote && empty($switch);
     $is_player = $is_remote && $switch == 'media';
@@ -137,8 +167,6 @@ class CheckItem {
     // Addresses mixed media unique per item, aside from convenience.
     // Also compat with BVEF till they are updated to adopt 2.10 changes.
     $blazies->set('is.iframe', $is_iframe)
-      // ->set('is.multimedia', $is_media || $is_local)
-      // ->set('is.local_media', $is_local)
       ->set('is.remote_video', $is_remote)
       ->set('is.player', $is_player)
       ->set('media.embed_url', $embed_url)

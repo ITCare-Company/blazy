@@ -84,13 +84,14 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *
    * @param array $settings
    *   The settings being modified.
-   * @param array $item
-   *   The first item containing settings or item keys.
+   * @param array $data
+   *   The first data containing settings or item keys.
    *
    * @see \Drupal\blazy\BlazyManager::prepareBuild()
    * @see \Drupal\blazy\Field\BlazyEntityVanillaBase::buildElements()
+   * @todo change the second param back to array at 3.x when BVEF is dropped.
    */
-  public function isBlazy(array &$settings, array $item = []): void;
+  public function isBlazy(array &$settings, array $data = []): void;
 
   /**
    * Prepares shared data common between field formatter and views field.
@@ -98,11 +99,9 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    * This is to overcome the limitation of self::postSettings().
    *
    * @param array $build
-   *   The build data containing settings, etc.
-   * @param object $entity
-   *   The entity related to the formatter, or views field.
+   *   The build data containing settings, entity, etc.
    */
-  public function prepareData(array &$build, $entity = NULL): void;
+  public function prepareData(array &$build): void;
 
   /**
    * Prepare base preliminary settings.

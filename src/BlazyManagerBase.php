@@ -105,7 +105,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   /**
    * {@inheritdoc}
    */
-  public function prepareData(array &$build, $entity = NULL): void {
+  public function prepareData(array &$build): void {
     // Do nothing, let extenders share data at ease as needed.
   }
 

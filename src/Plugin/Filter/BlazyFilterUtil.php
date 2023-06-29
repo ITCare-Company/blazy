@@ -158,15 +158,20 @@ class BlazyFilterUtil {
    * Checks if we have a valid file entity, not hard-coded image URL.
    * Prioritize data-src for sub-module filters after Blazy.
    */
-  public static function getValidSrc($node) {
+  public static function getValidSrc($node, $use_data_uri = FALSE) {
     $url = '';
 
-    // Prevents data URI from screwing up.
-    $func = function ($input) {
+    // Prevents data URI from screwing up, unless consciously required.
+    $func = function ($input, $key) use ($use_data_uri) {
       if ($input) {
         $data_uri = Blazy::isDataUri($input);
         if (!$data_uri) {
           return $input;
+        }
+        else {
+          if ($key == 'src' && $use_data_uri) {
+            return $input;
+          }
         }
       }
       return '';
@@ -174,7 +179,7 @@ class BlazyFilterUtil {
 
     foreach (['data-src', 'src'] as $key) {
       $src = $node->getAttribute($key);
-      $check = $func($src);
+      $check = $func($src, $key);
 
       if ($check) {
         $url = $check;

@@ -54,7 +54,7 @@ class BlazyEntityTest extends BlazyKernelTestBase {
     }
 
     $data = [
-      'entity' => $entity,
+      '#entity' => $entity,
       'settings' => [],
       'fallback' => $fallback,
     ];

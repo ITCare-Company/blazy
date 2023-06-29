@@ -136,12 +136,6 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $attachments = $result->getAttachments();
     $this->assertContains('blazy/filter', $attachments['library']);
     $this->assertArrayHasKey('blazy', $attachments['drupalSettings']);
-
-    // Check external image item from resource relevant to BlazyFilter.
-    // Too risky when the video is removed causing false positive.
-    // $settings['input_url'] = 'https://www.youtube.com/watch?v=uny9kbh4iOEd';
-    // $item = $this->blazyOembed->build($settings);
-    // $this->assertNotEmpty($item);
   }
 
   /**

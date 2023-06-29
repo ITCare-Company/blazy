@@ -100,7 +100,7 @@ To replace **Blur** effect with `animate.css` thingies, implements two things:
 function MYTHEME_preprocess_blazy(&$variables) {
   $settings = &$variables['settings'];
   $attributes = &$variables['attributes'];
-  $blazies = &$settings['blazies'];
+  $blazies = $settings['blazies'];
 
   // Be sure to limit the scope, only animate for particular conditions.
   if ($blazies->get('entity.id') == 123

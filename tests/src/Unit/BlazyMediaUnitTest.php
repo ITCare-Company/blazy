@@ -44,7 +44,7 @@ class BlazyMediaUnitTest extends UnitTestCase {
       // @todo 'bundle' => 'entity_test',
     ] + BlazyDefault::htmlSettings();
 
-    $blazies = &$settings['blazies'];
+    $blazies = $settings['blazies'];
     $info = [
       // 'input_url'    => $input_url,
       'source_field' => $source_field,

@@ -36,7 +36,8 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
    * {@inheritdoc}
    */
   protected function buildElement(array &$element, $entity) {
-    $this->blazyOembed->build($element, $entity);
+    $element['#entity'] = $entity;
+    $this->blazyOembed->build($element);
   }
 
   /**

@@ -379,7 +379,7 @@ abstract class BlazyBase implements BlazyInterface {
    * {@inheritdoc}
    */
   public function view(array $data): array {
-    $entity = $data['entity'] ?? NULL;
+    $entity = $data['#entity'] ?? NULL;
     $settings = $data['settings'] ?? [];
     $fallback = $data['fallback'] ?? '';
 

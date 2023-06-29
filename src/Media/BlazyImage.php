@@ -8,6 +8,7 @@ use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Utility\Path;
+use Drupal\blazy\Utility\Sanitize;
 
 /**
  * Provides image-related methods.
@@ -95,7 +96,8 @@ class BlazyImage {
         $ratio = self::ratio($data);
 
         // Informs individual images that dimensions are already set once.
-        $blazies->set('image', $data, TRUE)
+        $blazies->set('image.width', $data['width'])
+          ->set('image.height', $data['height'])
           ->set('image.ratio', $ratio)
           ->set('is.dimensions', TRUE);
       }
@@ -153,7 +155,8 @@ class BlazyImage {
 
     // In case `image_style` is not provided.
     if ($initial) {
-      $blazies->set('image', $data)
+      $blazies->set('image.width', $data['width'])
+        ->set('image.height', $data['height'])
         ->set('image.ratio', $ratio)
         ->set('first.width', $data['width'])
         ->set('first.height', $data['height'])
@@ -224,7 +227,7 @@ class BlazyImage {
       // Prepare image URL and its dimensions, including for rich-media content,
       // such as for local video poster image if a poster URI is provided.
       // Url needs to be defined here for file_video.
-      self::prepare($settings, $output);
+      self::prepare($settings, $output, $uri);
     }
 
     return $output;
@@ -252,7 +255,7 @@ class BlazyImage {
    * This block is a bit scary yet it is a more organized way to extract Image
    * item from various sources in tandem with custom settings.image previously
    * scattered with if-else. This has saved more than 60 lines, and two methods:
-   * ::fromMedia(), already gone, and ::fromField(), to be gone. Can be better.
+   * ::fromMedia(), already gone. Can be better.
    */
   public static function fromContent(array $options, $name = NULL): ?object {
     $settings = $options['settings'] ?? [];
@@ -356,17 +359,20 @@ class BlazyImage {
    *   The given settings being modified.
    * @param object $item
    *   The image item.
+   * @param string $uri
+   *   The image uri.
    *
    * @requires self::unstyled()
    */
-  public static function prepare(array &$settings, $item = NULL): void {
-    $blazies = &$settings['blazies'];
+  public static function prepare(array &$settings, $item = NULL, $uri = NULL): void {
+    $blazies = $settings['blazies'];
+    $uri = $uri ?: $blazies->get('image.uri');
 
     // Bail out if already processed.
-    if ($blazies->was('url')) {
-      return;
-    }
-
+    // @fixme called once for the entire items, not just this context.
+    // if ($blazies->was('url') && $blazies->get('image.url')) {
+    // return;
+    // }
     self::unstyled($settings);
     // Might be called from Views without Blazy formatter, like Image formatter.
     // Since Blazy:2.9, image style entity is loaded once at container level,
@@ -394,11 +400,11 @@ class BlazyImage {
 
     // Currently doesn't affect option.ratio, a failsafe for BG, else collapsed.
     $data = ['width' => $settings['width'], 'height' => $settings['height']];
-    $url = self::url($settings, $style);
+    $url = self::url($settings, $style, $uri);
     $ratio = self::ratio($data);
 
-    $blazies->set('image.width', $settings['width'])
-      ->set('image.height', $settings['height'])
+    $blazies->set('image.width', $data['width'])
+      ->set('image.height', $data['height'])
       ->set('image.ratio', $ratio)
       ->set('image.url', $url)
       ->set('was.url', TRUE);
@@ -540,16 +546,9 @@ class BlazyImage {
 
     // Just in case, an attempted kidding gets in the way, relevant for UGC.
     // @todo re-check to completely remove data URI.
-    if ($blazies->is('unsafe')) {
+    if ($url && $blazies->is('unsafe')) {
       $use_data_uri = $blazies->filter('use_data_uri');
-      $data_uri = Blazy::isDataUri($url);
-
-      if ($data_uri) {
-        $url = $use_data_uri ? $url : UrlHelper::stripDangerousProtocols($url);
-      }
-      else {
-        $url = UrlHelper::stripDangerousProtocols($url);
-      }
+      $url = Sanitize::url($url, $use_data_uri);
     }
 
     return $url;
@@ -600,71 +599,6 @@ class BlazyImage {
   private static function toInt(array &$settings, $width, $height): void {
     $settings[$width] = empty($settings[$width]) ? NULL : (int) $settings[$width];
     $settings[$height] = empty($settings[$height]) ? NULL : (int) $settings[$height];
-  }
-
-  /**
-   * Extracts image from non-media entities for the main background/ stage.
-   *
-   * Main image can be separate image item from video thumbnail for highres.
-   * Fallback to default thumbnail if any, which has no file API. This used to
-   * be for non-media File Entity Reference at 1.x, things changed since then.
-   * Some core methods during Blazy 1.x are now gone at 2.x.
-   * Re-purposed for Paragraphs, Node, etc. which embeds Media or File.
-   *
-   * @param array $data
-   *   The element array might contain item and settings.
-   * @param object $entity
-   *   The file entity or entityreference which might have image item.
-   * @param string $name
-   *   The field name to extract image item.
-   *
-   * @see \Drupal\blazy\Field\BlazyEntityMediaBase::buildElement
-   *
-   * Called by SplideVanillaWithNavTrait till Splide removes it for ::build().
-   * This used to be for File entity (non-media).
-   * Extracts image item from non-media, such as Paragraphs, Node, etc.
-   * @todo re-check, some File core methods are gone at Blazy 2.x.
-   * @todo deprecate and remove for ::fromAny(), and only after sub-modules.
-   */
-  public static function fromField(array &$data, $entity, $name): void {
-    $settings = &$data['settings'];
-
-    // The actual video thumbnail has already been downloaded earlier.
-    // This fetches the highres image if provided and available.
-    // With a mix of image and video, image is not always there.
-    /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $field */
-    /* @phpstan-ignore-next-line */
-    if (isset($entity->{$name}) && $field = $entity->get($name)) {
-      $values = $field->getValue();
-      $valid = $values[0]['target_id'] ?? FALSE;
-
-      // Do not proceed if it is a Media entity video. This means File here.
-      if ($valid && method_exists($field, 'referencedEntities')) {
-        // The reference can be File or Media.
-        // If image, even if multi-value, we can only have one stage per slide.
-        /** @var \Drupal\file\Entity\File $reference */
-        /** @var \Drupal\media\MediaInterface $reference */
-        $reference = $field->referencedEntities()[0] ?? NULL;
-        $ok = FALSE;
-        $object = $field;
-
-        if ($reference instanceof MediaInterface) {
-          $object = $reference;
-          BlazyMedia::prepare($data, $reference);
-          $ok = !empty($data['item']);
-        }
-
-        // Pass it directly if a File.
-        $object = BlazyFile::isFile($reference) ? $reference : $object;
-
-        // Called by BlazyFilter and legacy File entity like Views file.
-        // Also vanilla Splide for the main stage.
-        if (!$ok && $result = self::fromAny($object, $settings)) {
-          // $data = NestedArray::mergeDeep($data, $result);
-          $data['item'] = $result;
-        }
-      }
-    }
   }
 
   /**

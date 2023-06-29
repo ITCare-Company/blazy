@@ -22,9 +22,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class BlazyEntityFormatter extends BlazyEntityVanillaBase {
 
-  use BlazyFormatterTrait;
-  use BlazyFormatterViewTrait;
-
   /**
    * {@inheritdoc}
    */

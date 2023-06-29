@@ -110,7 +110,7 @@ trait BlazyFormatterTrait {
    */
   public function buildSettings() {
     $settings = array_merge($this->getCommonFieldDefinition(), $this->getSettings());
-    $blazies  = &$settings['blazies'];
+    $blazies  = $settings['blazies'];
     $is_grid  = !empty($settings['style']) && !empty($settings['grid']);
 
     $blazies->set('is.grid', $is_grid);
