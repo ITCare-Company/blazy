@@ -85,7 +85,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
       $form['thumbnail'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Thumbnail image'),
-        '#options'     => $scopes->data('thumbnails'),
+        '#options'     => $this->toOptions($data['thumbnails']),
         '#description' => $this->t('Leave empty to not use thumbnail pager.'),
       ];
     }
@@ -94,7 +94,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
       $form['overlay'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Overlay media'),
-        '#options'     => $scopes->data('overlays'),
+        '#options'     => $this->toOptions($data['overlays']),
         '#description' => $this->t('Overlay is displayed over the main stage.'),
       ];
     }
@@ -104,10 +104,11 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
       if ($scopes->data('images') && !$scopes->is('_views')) {
         $scopes->set('data.titles.title', $this->t('Image Title'));
       }
+
       $form['title'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Title'),
-        '#options'     => $scopes->data('titles'),
+        '#options'     => $this->toOptions($scopes->data('titles')),
         '#description' => $this->t('If provided, it will be wrapped with H2. Also supported the basic non-field Image title'),
       ];
     }
@@ -116,7 +117,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
       $form['link'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Link'),
-        '#options'     => $scopes->data('links'),
+        '#options'     => $this->toOptions($data['links']),
         '#description' => $this->t('Link to content: Read more, View Case Study, etc.'),
       ];
     }
@@ -126,7 +127,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
       $form['class'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Item class'),
-        '#options'     => $scopes->data('classes'),
+        '#options'     => $this->toOptions($data['classes']),
         '#description' => $this->t('If provided, individual item will have this class, e.g.: to have different background with transparent images. Be sure its formatter is Key or Label. Accepted field types: list text, string (e.g.: node title), term/entity reference label.'),
         '#weight'      => 6,
       ];

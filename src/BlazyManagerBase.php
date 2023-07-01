@@ -62,7 +62,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   public function getImageEffects(): array {
     $cid = 'blazy_image_effects';
     $effects[] = 'blur';
-    return $this->getCachedData($cid, $effects);
+    return $this->getCachedOptions($cid, $effects);
   }
 
   /**
@@ -71,7 +71,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   public function getLightboxes(): array {
     $cid = 'blazy_lightboxes';
     $data = BlazyCache::lightboxes($this->root);
-    return $this->getCachedData($cid, $data);
+    return $this->getCachedOptions($cid, $data);
   }
 
   /**
@@ -84,7 +84,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
       'flex' => 'Flexbox Masonry',
       'nativegrid' => 'Native Grid',
     ];
-    $this->moduleHandler->alter('blazy_style', $styles);
+    $this->moduleHandler->alter('blazy_styles', $styles);
     return $styles;
   }
 

@@ -43,23 +43,10 @@ class BlazyDefault {
   }
 
   /**
-   * Returns settings provided by various UI.
-   */
-  public static function anywhereSettings() {
-    return [
-      'lazy'  => '',
-      'style' => '',
-    ];
-  }
-
-  /**
    * Returns basic plugin settings.
    */
   public static function baseSettings() {
-    $settings = [
-      'cache' => 0,
-      'skin'  => '',
-    ] + self::anywhereSettings();
+    $settings = ['cache' => 0];
 
     self::alterableSettings($settings);
     return $settings;
@@ -111,7 +98,6 @@ class BlazyDefault {
   public static function viewsSettings() {
     return [
       'class'   => '',
-      // 'id'      => '',
       'image'   => '',
       'link'    => '',
       'overlay' => '',
@@ -130,19 +116,13 @@ class BlazyDefault {
   /**
    * Returns optional grid field formatter and Views settings.
    */
-  public static function gridBaseSettings() {
+  public static function gridSettings() {
     return [
       'grid'        => '',
       'grid_medium' => '',
       'grid_small'  => '',
+      'style'       => '',
     ];
-  }
-
-  /**
-   * Returns optional grid field formatter and Views settings.
-   */
-  public static function gridSettings() {
-    return self::gridBaseSettings() + self::anywhereSettings();
   }
 
   /**
@@ -176,27 +156,15 @@ class BlazyDefault {
   public static function richSettings() {
     return [
       'background'   => FALSE,
-      // 'lightbox'     => FALSE,
       'media_switch' => '',
-      // 'placeholder'  => '',
-      // 'resimage'     => FALSE,
-      // 'use_loading'  => FALSE,
-      'type'         => 'rich',
-    ] + self::anywhereSettings();
+    ];
   }
 
   /**
    * Returns minimum grid and style settings.
    */
   public static function gridEntitySettings() {
-    return self::textSettings() + ['view_mode' => ''];
-  }
-
-  /**
-   * Returns text settings.
-   */
-  public static function textSettings() {
-    return self::gridBaseSettings() + ['style' => ''];
+    return self::gridSettings() + ['view_mode' => ''];
   }
 
   /**
@@ -215,7 +183,7 @@ class BlazyDefault {
       'placeholder'         => '',
       'responsive_image'    => FALSE,
       'unstyled_extensions' => '',
-    ] + self::anywhereSettings();
+    ];
   }
 
   /**
@@ -225,65 +193,36 @@ class BlazyDefault {
    * The hustle is sub-modules are not aware, yet. Yet better started before 3.
    * While some configurable settings are intact, blazies are more for grouping
    * dynamic, non-configurable settings. But it can also store blazy-specific.
-   *
-   * @todo do not set keys, unless required to allow default/fallback kicks in.
+   * Very few are adjusted into blazies for easy calls/overrides/alters.
    */
   public static function blazies() {
     return [
-      'bgs' => [],
-      'box' => [],
-      'box_media' => [],
-      'image' => [],
-      'images' => [],
       'initial' => 0,
       'is' => [],
-      'item' => ['delta' => 0],
       'lazy' => ['attribute' => 'src', 'class' => 'b-lazy'],
       'libs' => [],
-      'lightbox' => [],
-      'media' => [],
-      'resimage' => [],
       'ui' => self::uiSettings(),
       'use' => [],
-      'switch' => NULL,
-      'thumbnail' => [],
-      'view' => [],
     ];
   }
 
   /**
    * Returns sensible default container settings to shutup notices when lacking.
-   *
-   * @todo remove blazy_data for blazies due to problematic with picture where
-   * we can't have uniform sizes or aspect ratios.
-   * @todo move safe settings into blazies: new or not used by sub-modules.
    */
   public static function htmlSettings() {
     return [
       'blazies' => Blazy::settings(self::blazies()),
       'inited' => TRUE,
 
-      // @todo deprecated for blazies after sub-module updates:
-      // 'bundle' => '',
-      // 'id' => '',
-      // 'route_name' => '',
-      // 'is_preview' => FALSE,
-    ] + self::imageSettings()
-      + self::gridSettings();
-  }
-
-  /**
-   * Returns sensible default item settings to shutup notices when lacking.
-   *
-   * @todo remove, no longer useful as per 2.17.
-   */
-  public static function itemSettings() {
-    return [
-      'classes' => [],
+      // @todo remove after complete migrations:
       'image_url' => '',
       'height' => NULL,
       'width' => NULL,
-    ] + self::htmlSettings();
+
+      // Configurable settings are dumped as they are as always.
+      // Very few are adjusted into blazies for easy calls/overrides/alters.
+    ] + self::imageSettings()
+      + self::gridSettings();
   }
 
   /**
@@ -291,23 +230,25 @@ class BlazyDefault {
    *
    * The reserved attributes is defined before entering Blazy as bonus variable.
    * Consider other bonuses: title and content attributes at a later stage.
+   * layering is crucial for mixed media, cannot be simply dumped as
+   * indexed children, must have clear properties indentifying their functions.
    */
   public static function themeProperties() {
     return [
-      'attributes',
-      'captions',
-      'content',
-      'iframe',
-      'image',
-      'icon',
-      'item',
-      'item_attributes',
-      'noscript',
-      'overlay',
-      'preface',
-      'postscript',
-      'settings',
-      'url',
+      'attributes' => [],
+      'captions' => [],
+      'content' => [],
+      'iframe' => [],
+      'image' => [],
+      'icon' => [],
+      'item' => NULL,
+      'item_attributes' => [],
+      'noscript' => [],
+      'overlay' => [],
+      'preface' => [],
+      'postscript' => [],
+      'settings' => [],
+      'url' => NULL,
     ];
   }
 
@@ -400,19 +341,23 @@ class BlazyDefault {
   /**
    * Returns deprecated, or previously wrong room settings.
    *
-   * @todo remove custom breakpoints anytime before 3.x.
+   * Only needed by 1.x/old users who never re-saved the forms at 2.x. This is
+   * easily solved by just re-saving them. And these will be just gone for good.
+   *
+   * @todo deprecated/ removed at 3.x.
    */
   public static function deprecatedSettings() {
     return [
       'breakpoints' => [],
       'current_view_mode' => '',
       'fx' => '',
+      'grid_header' => '',
       'icon' => '',
       'id' => '',
+      'lazy'  => 'blazy',
       'sizes' => '',
-      'grid_header' => '',
-      'loading' => 'lazy',
-      // 'preload' => FALSE,
+      'skin'  => '',
+      'style' => '',
       '_item' => '',
       '_uri' => '',
     ];
@@ -421,10 +366,59 @@ class BlazyDefault {
   /**
    * Returns Blazy specific breakpoints.
    *
-   * @todo remove custom breakpoints anytime at blazy:3.x.
+   * @todo remove custom breakpoints anytime at blazy:3.x, called by BVEF.
    */
   public static function getConstantBreakpoints() {
     return ['xs', 'sm', 'md', 'lg', 'xl'];
+  }
+
+  /**
+   * Returns optional grid field formatter and Views settings.
+   *
+   * @todo deprecated/ removed for self::gridSettings() since style is coupled.
+   */
+  public static function gridBaseSettings() {
+    return [
+      'grid'        => '',
+      'grid_medium' => '',
+      'grid_small'  => '',
+      'style'       => '',
+    ];
+  }
+
+  /**
+   * Returns text settings.
+   *
+   * @todo deprecated/ removed for self::gridSettings() since style is coupled.
+   */
+  public static function textSettings() {
+    return self::gridSettings();
+  }
+
+  /**
+   * Returns settings provided by various UI.
+   *
+   * @todo deprecated/ removed, no longer relevant since 2.17 after blazies.
+   */
+  public static function anywhereSettings() {
+    return [
+      'lazy'  => '',
+      'style' => '',
+    ];
+  }
+
+  /**
+   * Returns sensible default item settings to shutup notices when lacking.
+   *
+   * @todo deprecated/ removed, no longer relevant since 2.17 after blazies.
+   */
+  public static function itemSettings() {
+    return [
+      'classes' => [],
+      'image_url' => '',
+      'height' => NULL,
+      'width' => NULL,
+    ] + self::htmlSettings();
   }
 
 }

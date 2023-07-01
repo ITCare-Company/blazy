@@ -91,7 +91,7 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // Individual entity settings.
     self::settings($settings, $entity);
-    $blazies = Blazy::reset($settings);
+    $blazies = $settings['blazies']->reset($settings);
     $blazies->set('delta', $delta);
 
     $manager->postSettingsAlter($settings, $entity);

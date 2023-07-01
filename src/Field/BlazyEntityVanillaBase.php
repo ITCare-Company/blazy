@@ -71,7 +71,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * Build item contents.
    */
   protected function buildElement(array &$build, $entity, $langcode) {
-    $settings = $build['settings'];
+    $settings = &$build['settings'];
     $blazies = $settings['blazies'];
     $item_id = $blazies->get('item.id');
 
@@ -121,7 +121,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * Alternative for self::buildElement() with extra params for convenient.
    */
   protected function prepareElement(array &$build, $entity, $langcode, $delta): void {
-    $settings = $build['settings'];
+    $settings = &$build['settings'];
     $blazies  = $settings['blazies']->reset($settings);
     $bundle   = $entity->bundle();
 

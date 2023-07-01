@@ -149,7 +149,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $variables = ['attributes' => []];
     $input_url = $settings['input_url'] ?? NULL;
     $settings = array_merge($this->getFormatterSettings(), $settings);
-    $settings += BlazyDefault::itemSettings();
+    $settings += BlazyDefault::htmlSettings();
     $blazies = $settings['blazies'];
     $id = 'blazy';
 

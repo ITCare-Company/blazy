@@ -19,7 +19,7 @@ use Drupal\blazy\Utility\BlazyMarkdown;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides common non-media related methods across Blazy ecosystem to DRY.
+ * Provides common non-media/ generic methods across Blazy ecosystem to DRY.
  */
 abstract class BlazyBase implements BlazyInterface {
 
@@ -84,11 +84,11 @@ abstract class BlazyBase implements BlazyInterface {
   protected $languageManager;
 
   /**
-   * The cached data.
+   * The cached data/ options.
    *
    * @var array
    */
-  protected $cachedData;
+  protected $cachedOptions;
 
   /**
    * Constructs a BlazyBase object.
@@ -281,11 +281,32 @@ abstract class BlazyBase implements BlazyInterface {
     $alter = NULL,
     array $context = []
   ): array {
-    if (!isset($this->cachedData[$cid]) || $reset) {
+    return $this->getCachedOptions(
+      $cid,
+      $data,
+      FALSE,
+      $reset,
+      $alter,
+      $context
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCachedOptions(
+    $cid,
+    array $data = [],
+    $as_options = TRUE,
+    $reset = FALSE,
+    $alter = NULL,
+    array $context = []
+  ): array {
+    if (!isset($this->cachedOptions[$cid]) || $reset) {
       $cache = $this->cache->get($cid);
 
       if ($cache && $data = $cache->data) {
-        $this->cachedData[$cid] = $data;
+        $this->cachedOptions[$cid] = $data;
       }
       else {
         // Allows empty array to trigger hook_alter.
@@ -299,17 +320,22 @@ abstract class BlazyBase implements BlazyInterface {
             $data = array_unique($data);
           }
 
-          ksort($data);
+          if ($as_options) {
+            $data = $this->toOptions($data);
+          }
+          else {
+            ksort($data);
+          }
 
           $count = count($data);
           $tags = Cache::buildTags($cid, ['count:' . $count]);
           $this->cache->set($cid, $data, Cache::PERMANENT, $tags);
         }
 
-        $this->cachedData[$cid] = $data;
+        $this->cachedOptions[$cid] = $data;
       }
     }
-    return $this->cachedData[$cid] ? array_filter($this->cachedData[$cid]) : [];
+    return $this->cachedOptions[$cid] ? array_filter($this->cachedOptions[$cid]) : [];
   }
 
   /**
@@ -321,7 +347,7 @@ abstract class BlazyBase implements BlazyInterface {
       foreach ($entities as $entity) {
         $options[$entity->id()] = Html::escape($entity->label());
       }
-      ksort($options);
+      uasort($options, 'strnatcasecmp');
     }
     return $options;
   }
@@ -373,6 +399,17 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function toGrid(array $items, array $settings): array {
     return Blazy::grid($items, $settings);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function toOptions(array $options): array {
+    if ($options) {
+      $options = array_map('\Drupal\Component\Utility\Html::escape', $options);
+      uasort($options, 'strnatcasecmp');
+    }
+    return $options;
   }
 
   /**

@@ -23,6 +23,7 @@ class BlazySettingsForm extends BlazyConfigFormBase {
     ['blazy', 'validateDelay'],
     ['io', 'rootMargin'],
     ['io', 'threshold'],
+    'extras',
   ];
 
   /**

@@ -27,17 +27,18 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * {@inheritdoc}
    */
   public function getBlazy(array $build, $delta = -1): array {
-    foreach (BlazyDefault::themeProperties() as $key) {
-      $default = $key == 'item' ? NULL : [];
+    foreach (BlazyDefault::themeProperties() as $key => $default) {
       $build[$key] = $build[$key] ?? $default;
     }
 
     $settings = &$build['settings'];
+    $settings += BlazyDefault::htmlSettings();
     $item = $build['item'];
 
     // Prevents double checks.
-    // @todo re-check for dup thumbnails without a reset here, see #3278525.
-    $blazies = Blazy::reset($settings);
+    // BlazySettings is a self containing object, initialized at container level
+    // and must be renewed at item level to get correct delta, see #3278525.
+    $blazies = $settings['blazies']->reset($settings);
     $blazies->set('is.api', TRUE);
 
     CheckItem::essentials($settings, $item);

@@ -143,8 +143,8 @@ class BlazyFilterUtil {
   public static function getValidNode($children) {
     $child = $children->item(0);
     $class = $child->getAttribute('class');
-    $is_blur = $class && mb_strpos($class, 'b-blur') !== FALSE;
-    $is_bg = $class && mb_strpos($class, 'b-bg') !== FALSE;
+    $is_blur = $class && strpos($class, 'b-blur') !== FALSE;
+    $is_bg = $class && strpos($class, 'b-bg') !== FALSE;
 
     if ($is_blur && !$is_bg) {
       $child = $children->item(1) ?: $child;

@@ -76,7 +76,7 @@ trait BlazyStyleOptionsTrait {
           $options['classes'][$field] = $field_names[$field];
         }
 
-        // Alloes nested sliders.
+        // Allows nested sliders.
         $sliders = strpos($formatter, 'slick') !== FALSE
           || strpos($formatter, 'splide') !== FALSE;
         if ($sliders || in_array($formatter, $stages)) {

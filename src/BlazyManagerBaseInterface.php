@@ -3,7 +3,7 @@
 namespace Drupal\blazy;
 
 /**
- * Defines re-usable services and functions for blazy plugins.
+ * Defines re-usable media-related methods across Blazy ecosystem to DRY.
  *
  * Sub-modules should implement/ extend BlazyManagerBaseInterface, not
  * BlazyManagerInterface to have their own unique render methods.

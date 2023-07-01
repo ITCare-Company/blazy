@@ -1,6 +1,8 @@
 
 ***
 ## <a name="changes"></a>NOTABLE CHANGES
+* _Blazy 2.17_, 2023/07/02:
+   Cold fixes for few minor regressions and self organizations.
 * _Blazy 2.16_, 2023/06/02:
    Hotdamn fix for D10 breaking changes with formatter lightboxes.
 * _Blazy 2.13_, 2022/05/31:

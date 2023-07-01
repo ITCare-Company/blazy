@@ -86,7 +86,7 @@ class BlazyImage {
   public static function cropDimensions(array &$settings, $style): void {
     $id = $style->id();
 
-    if (!isset(self::$isCropSet[$id])) {
+    if ($style && !isset(self::$isCropSet[$id])) {
       // If image style contains crop, sets dimension once, and let all inherit.
       if ($crop = self::getCrop($style)) {
         $blazies = $settings['blazies'];
@@ -153,7 +153,7 @@ class BlazyImage {
     $data = ['width' => $settings[$_width], 'height' => $settings[$_height]];
     $ratio = self::ratio($data);
 
-    // In case `image_style` is not provided.
+    // If an initial call.
     if ($initial) {
       $blazies->set('image.width', $data['width'])
         ->set('image.height', $data['height'])
@@ -163,6 +163,7 @@ class BlazyImage {
         ->set('first.ratio', $ratio);
     }
 
+    // In case `image_style` is not provided.
     $blazies->set('image.original', $data, TRUE)
       ->set('image.original.ratio', $ratio);
   }
@@ -365,24 +366,29 @@ class BlazyImage {
    * @requires self::unstyled()
    */
   public static function prepare(array &$settings, $item = NULL, $uri = NULL): void {
-    $blazies = $settings['blazies'];
+    // @todo figure out why another reset is required here to get correct item,
+    // otherwise the below bailout called once for entire items. No big deal to
+    // renew, just not as expected. Strangely only happens sometimes at
+    // some modules override, some edge cases.
+    // @todo remove this reset once things work consistently at all cases.
+    $blazies = $settings['blazies']->reset($settings);
     $uri = $uri ?: $blazies->get('image.uri');
 
     // Bail out if already processed.
-    // @fixme called once for the entire items, not just this context.
-    // if ($blazies->was('url') && $blazies->get('image.url')) {
-    // return;
-    // }
+    // @fixme called once for the entire items, not just this context, unless
+    // reset as above, see dup zooming samples. Only some edge cases, though.
+    if ($blazies->was('url') && $blazies->get('image.url')) {
+      return;
+    }
+
+    // SVG, APNG, etc. should not use image_style as they don't convert.
     self::unstyled($settings);
+
     // Might be called from Views without Blazy formatter, like Image formatter.
     // Since Blazy:2.9, image style entity is loaded once at container level,
     // but might still be needed for adopted Image formatter by a Views style.
     // @todo since done at container, it might also truble the unstyled per URI.
-    $style = $blazies->is('unstyled') ? NULL : $blazies->get('image.style');
-    if (!$style && !empty($settings['image_style'])) {
-      self::styles($settings);
-      $style = $blazies->get('image.style');
-    }
+    $style = $blazies->get('image.style');
 
     // BlazyFilter, or image style with crop, may already set these.
     self::dimensions($settings, $item, FALSE);
@@ -417,6 +423,7 @@ class BlazyImage {
    * A failsafe for BG, else collapsed.
    *
    * @todo decide if to provide NULL or 0 instead.
+   * @todo converts to blazies at/by 3.x.
    */
   public static function ratio(array $settings) {
     $no_dims = empty($settings['height']) || empty($settings['width']);
@@ -459,11 +466,15 @@ class BlazyImage {
     // @todo remove the fallback after another check.
     $uri = $blazies->get('image.uri') ?: BlazyFile::uri($item, $settings);
     if ($uri) {
-      $external = UrlHelper::isExternal($uri);
+      // @todo remove the first two after moving the last check upstream due to
+      // this thumbnail method is not aware of theme_blazy() checks.
+      $unstyled = UrlHelper::isExternal($uri)
+        || Blazy::isDataUri($uri)
+        || $blazies->is('unstyled');
       $style = $settings['thumbnail_style'] ?? NULL;
 
       return [
-        '#theme'      => $external ? 'image' : 'image_style',
+        '#theme'      => $unstyled ? 'image' : 'image_style',
         '#style_name' => $style ?: 'thumbnail',
         // @todo recheck if any side effect/ double escape to cdn/ valid input.
         '#uri'        => UrlHelper::stripDangerousProtocols($uri),
@@ -611,19 +622,27 @@ class BlazyImage {
     $uri = $blazies->get('image.uri');
     $ext = pathinfo($uri, PATHINFO_EXTENSION);
     $unstyled = self::isUnstyled($uri, $settings, $ext);
+    $external = UrlHelper::isExternal($uri);
+
+    if (!$unstyled) {
+      // @todo recheck if anything against this at all.
+      $unstyled = $external || Blazy::isDataUri($uri);
+    }
 
     // Disable image style if so configured.
     // Extensions without image styles: animated GIF, APNG, SVG, etc.
+    // Do this downstream, and only these, so that at least dimensions are set.
+    // Do not nullify width, height, id for other useful purposes.
     if ($unstyled) {
       $images = ['box', 'box_media', 'image', 'thumbnail', 'responsive_image'];
       foreach ($images as $image) {
         $settings[$image . '_style'] = '';
-        $blazies->set('image.style', NULL);
+        $blazies->set($image . '.style', NULL);
       }
     }
 
     // Re-define, if the provided API by-passed, or different/ altered per item.
-    $blazies->set('is.external', UrlHelper::isExternal($uri))
+    $blazies->set('is.external', $external)
       ->set('is.unstyled', $unstyled)
       ->set('image.extension', $ext);
 

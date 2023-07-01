@@ -186,7 +186,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['skin'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Skin'),
-        '#options'     => $skins,
+        '#options'     => $this->toOptions($skins),
         '#enforced'    => TRUE,
         '#description' => $this->t('Skins allow various layouts with just CSS. Some options below depend on a skin. Leave empty to DIY. Or use the provided hook_info() and implement the skin interface to register ones.'),
         '#weight'      => -107,
@@ -206,7 +206,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['layout'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Layout'),
-        '#options'     => $layouts,
+        '#options'     => $this->toOptions($layouts),
         '#description' => $this->t('Requires a skin. The builtin layouts affects the entire items uniformly. Leave empty to DIY.'),
         '#weight'      => 2,
       ];
@@ -216,7 +216,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['caption'] = [
         '#type'        => 'checkboxes',
         '#title'       => $this->t('Caption fields'),
-        '#options'     => $captions,
+        '#options'     => $this->toOptions($captions),
         '#description' => $this->t('Enable any of the following fields as captions. These fields are treated and wrapped as captions.'),
         '#weight'      => 80,
         '#attributes'  => ['class' => ['form-wrapper--caption']],
@@ -426,10 +426,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         }
 
         // Re-use the same image style for both lightboxes.
+        $box_styles = $this->getResponsiveImageOptions()
+          + $this->getEntityAsOptions('image_style');
         $form['box_style'] = [
           '#type'        => 'select',
           '#title'       => $this->t('Lightbox image style'),
-          '#options'     => $this->getResponsiveImageOptions() + $this->getEntityAsOptions('image_style'),
+          '#options'     => $box_styles,
           '#weight'      => -97,
           '#description' => $this->t('Supports both Responsive and regular images.'),
         ];
@@ -451,7 +453,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         if (!$scopes->is('box_stateless')) {
           foreach (['box_caption', 'box_style', 'box_media_style'] as $key) {
             if (isset($form[$key])) {
-              $form[$key]['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $definition);
+              $form[$key]['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $scopes);
             }
           }
         }
@@ -513,7 +515,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['image'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Main stage'),
-        '#options'     => $data['images'] ?: [],
+        '#options'     => $this->toOptions($data['images'] ?: []),
         '#description' => $this->t('Main background/stage/poster image field with the only supported field types: <b>Image</b> or <b>Media</b> containing Image field. You may want to add a new Image field to this entity. Be sure to reuse the exact same image field across various entitiy types (Image, Remote video, Local video, etc.) within this particular entity (says, Media).'),
         '#prefix'      => '<h3 class="form__title form__title--fields">' . $this->t('Fields') . '</h3>',
       ];
@@ -562,7 +564,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           '#title'       => $this->t('Lightbox custom caption'),
           '#type'        => 'textfield',
           '#weight'      => -94,
-          '#states'      => $this->getState(static::STATE_LIGHTBOX_CUSTOM, $definition),
+          '#states'      => $this->getState(static::STATE_LIGHTBOX_CUSTOM, $scopes),
           '#description' => $this->t('Multi-value rich text field will be mapped to each image by its delta.'),
         ];
 
@@ -775,7 +777,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function getViewModeOptions($target_type): array {
-    return $this->entityDisplayRepository->getViewModeOptions($target_type) ?: [];
+    $view_modes = $this->entityDisplayRepository->getViewModeOptions($target_type) ?: [];
+    return $this->toOptions($view_modes);
   }
 
   /**
@@ -791,6 +794,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
             $options[$name] = Html::escape($image_style->label());
           }
         }
+        uasort($options, 'strnatcasecmp');
       }
     }
     return $options;
@@ -831,6 +835,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
+   * Returns escaped options.
+   */
+  protected function toOptions(array $data) {
+    return $this->blazyManager->toOptions($data);
+  }
+
+  /**
    * Verify the plugin scopes is initialized downstream.
    */
   protected function toScopes(array &$definition): BlazySettings {
@@ -856,17 +867,20 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    *
    * @param string $state
    *   The state to get that matches one of the state class constants.
-   * @param array $definition
-   *   The foem definitions or settings.
+   * @param \Drupal\blazy\BlazySettings $scopes
+   *   The current scopes.
    *
    * @return array
    *   A corresponding form API state.
    */
-  protected function getState($state, array $definition): array {
+  protected function getState($state, $scopes): array {
     $lightboxes = [];
 
+    // @todo remove the second after complete migrations.
+    $options = $scopes->data('lightboxes') ?: $this->blazyManager->getLightboxes();
+
     // @fixme this appears to be broken at some point of Drupal.
-    foreach ($this->blazyManager->getLightboxes() as $key => $lightbox) {
+    foreach ($options as $key => $lightbox) {
       $lightboxes[$key]['value'] = $lightbox;
     }
 
@@ -978,6 +992,15 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       'thumb_captions',
       'titles',
     ];
+
+    $check = $definition['thumb_captions'] ?? NULL;
+    if ($check == 'default') {
+      $value = [
+        'alt' => $this->t('Alt'),
+        'title' => $this->t('Title'),
+      ];
+      $scopes->set('data.thumb_captions', $value);
+    }
 
     foreach ($data as $key) {
       $value = $scopes->data($key) ?: ($definition[$key] ?? NULL);

@@ -213,7 +213,7 @@ class BlazyFilter extends BlazyFilterBase {
         // work with alignments and aspect ratio. Sanitization is performed at
         // BlazyManager::prepareBlazy() to avoid double escapes.
         if ($name == 'class') {
-          if (mb_strpos($value, 'b-lazy') === FALSE) {
+          if (strpos($value, 'b-lazy') === FALSE) {
             $build['media_attributes']['class'][] = $value;
           }
         }

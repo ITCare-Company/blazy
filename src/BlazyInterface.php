@@ -189,7 +189,7 @@ interface BlazyInterface {
    * @param string $cid
    *   The cache ID, als used for the hook_alter.
    * @param array $data
-   *   The given data to cache.
+   *   The given data to cache, accepting empty array to trigger hook_alter.
    * @param bool $reset
    *   Whether to re-fetch in case not cached yet.
    * @param string $alter
@@ -203,6 +203,34 @@ interface BlazyInterface {
   public function getCachedData(
     $cid,
     array $data = [],
+    $reset = FALSE,
+    $alter = NULL,
+    array $context = []
+  ): array;
+
+  /**
+   * Returns cached options identified by its cache ID, normally alterable data.
+   *
+   * @param string $cid
+   *   The cache ID, als used for the hook_alter.
+   * @param array $data
+   *   The given data to cache, accepting empty array to trigger hook_alter.
+   * @param bool $as_options
+   *   Whether to use it for select options.
+   * @param bool $reset
+   *   Whether to re-fetch in case not cached yet.
+   * @param string $alter
+   *   The specific alter for the hook_alter, otherwise $cid.
+   * @param array $context
+   *   The optional context or info for the hook_alter.
+   *
+   * @return array
+   *   The cache data/ options.
+   */
+  public function getCachedOptions(
+    $cid,
+    array $data = [],
+    $as_options = TRUE,
     $reset = FALSE,
     $alter = NULL,
     array $context = []
@@ -295,6 +323,17 @@ interface BlazyInterface {
    *   The modified array of grid items.
    */
   public function toGrid(array $items, array $settings): array;
+
+  /**
+   * Returns escaped options.
+   *
+   * @param array $options
+   *   The given options.
+   *
+   * @return array
+   *   The modified array of options suitable for select options.
+   */
+  public function toOptions(array $options): array;
 
   /**
    * A wrapper for the entity view with access check.

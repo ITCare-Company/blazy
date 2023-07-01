@@ -57,8 +57,7 @@ class BlazyTheme {
    */
   public static function blazy(array &$variables): void {
     $element = $variables['element'];
-    foreach (BlazyDefault::themeProperties() as $key) {
-      $default = $key == 'item' ? NULL : [];
+    foreach (BlazyDefault::themeProperties() as $key => $default) {
       $variables[$key] = $element["#$key"] ?? $default;
     }
 
@@ -126,6 +125,9 @@ class BlazyTheme {
     }
 
     // 2. Hence Blazy is the formatter, has its settings.
+    // We do this because Blazy has no special themes for containers, but
+    // reusing core theme_field() + theme_item_list(). The trouble is when
+    // things changed, as seen at self::formatterSettings().
     if ($blazies = $settings['blazies'] ?? NULL) {
       if (!$blazies->is('grid')) {
         BlazyAttribute::container($variables['attributes'], $settings);
@@ -325,7 +327,7 @@ class BlazyTheme {
   }
 
   /**
-   * Returns available formatter settings.
+   * Returns formatter settings, needed for lightbox + container classes.
    */
   private static function formatterSettings(array &$variables): array {
     $element = $variables['element'];
@@ -333,10 +335,10 @@ class BlazyTheme {
 
     // D10/D9.5.10, moves it into content, only if explicitly required
     // theme_field() via `use_theme_field` option from Views outputs. Non-views
-    // field formatters are not affected. This is different from previous D9.
+    // field formatters are not affected. This is different from previous D9,
+    // at least we didn't have all these then.
     if (!$settings) {
       if ($content = $variables['items'][0]['content'] ?? []) {
-        // Since D10/D9.5.10, Blazy field formatter settings is moved here.
         $settings = $content['#blazy'] ?? [];
 
         // Blazy Grid settings:

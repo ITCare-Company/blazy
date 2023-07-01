@@ -107,7 +107,7 @@ class BlazyUnitTest extends UnitTestCase {
     $variables = ['attributes' => []];
     $build     = $this->data;
     $settings  = array_merge($build['settings'], $settings);
-    $settings += BlazyDefault::itemSettings();
+    $settings += BlazyDefault::htmlSettings();
     $blazies   = $settings['blazies'];
     $embed_url = $settings['embed_url'] ?? '';
 
@@ -213,7 +213,7 @@ class BlazyUnitTest extends UnitTestCase {
    */
   public function todoTestPreRenderImageLightbox(array $settings = []) {
     $build                       = $this->data;
-    $settings                   += BlazyDefault::itemSettings();
+    $settings                   += BlazyDefault::htmlSettings();
     $blazies                     = $settings['blazies'];
     $settings['count']           = $this->maxItems;
     $settings['uri']             = $this->uri;

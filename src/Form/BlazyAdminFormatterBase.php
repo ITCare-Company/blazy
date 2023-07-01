@@ -47,8 +47,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     $plugin_id = $scopes->get('plugin_id');
     $use_image = !$scopes->is('no_image_style');
 
-    if ($use_image
-      && strpos($plugin_id, '_text') === FALSE) {
+    if ($use_image && strpos($plugin_id, '_text') === FALSE) {
       $base = $this->baseForm($definition);
 
       // Excludes VEF which has no File API to work with.
@@ -64,10 +63,12 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
           $form[$key] = $base[$key];
         }
       }
-    }
 
-    if ($use_image || $scopes->is('thumbnail_style')) {
-      $form['thumbnail_style'] = $this->baseForm($definition)['thumbnail_style'];
+      if ($scopes->is('thumbnail_style')) {
+        if (isset($base['thumbnail_style'])) {
+          $form['thumbnail_style'] = $base['thumbnail_style'];
+        }
+      }
     }
 
     if ($scopes->is('responsive_image')) {
@@ -87,7 +88,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       $form['thumbnail_effect'] = [
         '#type'    => 'select',
         '#title'   => $this->t('Thumbnail effect'),
-        '#options' => $effects,
+        '#options' => $this->toOptions($effects),
         '#weight'  => -100,
       ];
     }
@@ -238,7 +239,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     $plugin_id    = $scopes->get('plugin_id');
     $blazy        = $plugin_id && strpos($plugin_id, 'blazy') !== FALSE;
     $image_styles = $this->getEntityAsOptions('image_style');
-    $lightboxes   = $this->blazyManager->getLightboxes();
+    $lightboxes   = $scopes->data('lightboxes');
 
     if ($blazy) {
       $excludes['optionset'] = TRUE;

@@ -39,7 +39,7 @@ class BlazyTextFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return BlazyDefault::textSettings();
+    return BlazyDefault::gridSettings();
   }
 
   /**

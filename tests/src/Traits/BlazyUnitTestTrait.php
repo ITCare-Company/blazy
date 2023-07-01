@@ -67,7 +67,7 @@ trait BlazyUnitTestTrait {
       'caption'         => ['alt' => 'alt', 'title' => 'title'],
       'sizes'           => '100w',
     ] + BlazyDefault::extendedSettings()
-      + BlazyDefault::itemSettings()
+      + BlazyDefault::htmlSettings()
       + $this->getDefaultFieldDefinition();
 
     Blazy::entitySettings($defaults, $this->entity);

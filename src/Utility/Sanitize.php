@@ -7,7 +7,7 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Blazy;
 
 /**
- * Provides common sanitization methods.
+ * Provides very few common sanitization wrapper methods.
  *
  * @todo checks for core equivalents, Xss::filter() is causing 404, etc.
  * @see https://www.drupal.org/project/drupal/issues/3109650
@@ -41,10 +41,13 @@ class Sanitize {
     foreach ($attributes as $key => $value) {
       // Since Blazy is lazyloading known URLs, sanitize attributes which
       // make no sense to stick around within IMG or IFRAME tags.
+      $key = trim($key);
       $key = Html::escape($key);
-      $kid = mb_substr($key, 0, 2) === 'on' || in_array($key, $list);
+      $check = strtolower($key);
+      $kid = mb_substr($check, 0, 2) === 'on' || in_array($check, $list);
       $key = $kid ? 'data-' . $key : $key;
 
+      // Only key class is known as array.
       if (is_array($value)) {
         // Respects array item containing space delimited classes: aaa bbb ccc.
         $value = implode(' ', $value);
@@ -76,20 +79,24 @@ class Sanitize {
    *   The content after corrections.
    *
    * @see https://www.drupal.org/project/drupal/issues/3109650
+   * @see https://learn.microsoft.com/en-us/previous-versions//cc848897(v=vs.85)?redirectedfrom=MSDN
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img
    */
   public static function unstrip($content, array $options): string {
     $prestyle = $options['prestyle'] ?? '';
     $style = $options['style'] ?? '';
 
     // @todo remove when local videos are generated dynamically like remote.
-    if (self::has($content, 'src="blank"')) {
+    if (Blazy::has($content, 'src="blank"')) {
       $content = str_replace('src="blank"', 'src="about:blank"', $content);
     }
 
     // Fixed for 404 images when data URI is enabled via UI, or trusted.
-    if (self::has($content, 'src="image/')) {
-      $data_uri = self::has($content, 'base64')
-        || self::has($content, 'svg+xml');
+    // @todo recheck if data:image is tweakable, a trojan carrier, based on some
+    // limited info, browsers prevent embedded scripts from being executable.
+    if (Blazy::has($content, 'src="image/')) {
+      $data_uri = Blazy::has($content, 'base64')
+        || Blazy::has($content, 'svg+xml');
 
       if ($data_uri) {
         $content = str_replace('src="image/', 'src="data:image/', $content);
@@ -97,7 +104,7 @@ class Sanitize {
     }
 
     // The $prestyle is the only known barrier to limit scopes.
-    if ($style && $prestyle && self::has($content, $prestyle)) {
+    if ($style && Blazy::has($content, $prestyle)) {
       $content = str_replace($prestyle, $prestyle . ' style="' . $style . '"', $content);
     }
 
@@ -132,13 +139,6 @@ class Sanitize {
   }
 
   /**
-   * Returns TRUE if it has the needle.
-   */
-  private static function has($content, $needle) {
-    return strpos($content, $needle) !== FALSE;
-  }
-
-  /**
    * Returns true if it is another scary joke, relevant for UGC.
    *
    * @param string $value
@@ -146,16 +146,21 @@ class Sanitize {
    *
    * @return bool
    *   Whether an attempted kidding, or normal input.
+   *
+   * @see https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
+   * @see https://en.wikipedia.org/wiki/ASCII
    */
   public static function kid($value): bool {
-    $check = strtolower($value);
-
     // Should use the proper filter before/after Blazy, not this naive.
     // At least useless when already passed to self::attribute() upstream.
-    return strpos($check, 'data:text') !== FALSE
-      || strpos($check, 'script:') !== FALSE
-      || strpos($check, ';&#') !== FALSE
-      || strpos($check, '&#x') !== FALSE;
+    return Blazy::has($value, 'data:text')
+      || Blazy::has($value, 'script:')
+      // @todo recheck, the last suspects might be innocent, just being cryptic
+      // for common attributes values, normally readable.
+      // The Dec is represented with &#.
+      || Blazy::has($value, ';&#')
+      // The Hex is represented with &#x0.
+      || Blazy::has($value, '&#x');
   }
 
 }

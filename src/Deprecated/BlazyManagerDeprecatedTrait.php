@@ -12,7 +12,7 @@ use Drupal\blazy\Media\BlazyResponsiveImage;
  *   blazy-related code in Blazy module, or its sub-modules.
  *
  * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
- *   BlazyInterface methods instead.
+ *   \Drupal\blazy\BlazyInterface methods instead.
  */
 trait BlazyManagerDeprecatedTrait {
 

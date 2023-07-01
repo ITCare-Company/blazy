@@ -164,7 +164,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   public function checkInputUrl(array &$settings, $input): ?string {
     $blazies = $settings['blazies'];
     if ($input) {
-      // OEmbed Resource doesn't accept `/embed`, provides a conversion helper.
+      // OEmbed Resource doesn't accept `/embed`, provides a conversion helper,
+      // normally seen at BlazyFilter with youtube embed copy/paste, without
+      // creating media entities.
       if (strpos($input, 'youtube.com/embed') !== FALSE) {
         $search = '/youtube\.com\/embed\/([a-zA-Z0-9]+)/smi';
         $replace = "youtube.com/watch?v=$1";

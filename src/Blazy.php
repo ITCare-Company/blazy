@@ -42,11 +42,12 @@ class Blazy {
    * Provides autoplay URL, relevant for lightboxes to save another click.
    */
   public static function autoplay($url, $check = TRUE): string {
-    if (strpos($url, 'autoplay') === FALSE
-      || strpos($url, 'autoplay=0') !== FALSE) {
-      return strpos($url, '?') === FALSE
-        ? $url . '?autoplay=1'
-        : $url . '&autoplay=1';
+    // It doesn't cover all providers, but few, no biggies till needed.
+    if (!self::has($url, 'autoplay')
+      || self::has($url, 'autoplay=0')) {
+      return self::has($url, '?')
+        ? $url . '&autoplay=1'
+        : $url . '?autoplay=1';
     }
 
     // @todo recheck if any side effect/ double escape to cdn/ valid input.
@@ -106,6 +107,18 @@ class Blazy {
    */
   public static function getLibrariesPath($name, $base_path = FALSE): ?string {
     return Path::getLibrariesPath($name, $base_path);
+  }
+
+  /**
+   * A simple wrapper for stripos().
+   */
+  public static function has($content, $needle) {
+    if ($content && $needle = trim($needle ?: '')) {
+      // stripos() won't work with diacritical signs.
+      $needle = strtolower($needle);
+      return strpos($content, $needle) !== FALSE;
+    }
+    return FALSE;
   }
 
   /**

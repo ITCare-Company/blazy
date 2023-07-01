@@ -174,7 +174,7 @@ class Grid {
         $height = 0;
 
         // If multidimensional layout.
-        if (mb_strpos($value, 'x') !== FALSE) {
+        if (Blazy::has($value, 'x')) {
           [$width, $height] = array_pad(array_map('trim', explode("x", $value, 2)), 2, NULL);
         }
 

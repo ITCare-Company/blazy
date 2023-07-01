@@ -12,7 +12,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
  *   blazy-related code in Blazy module, or its sub-modules.
  *
  * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:3.0.0. Use BVEF
- * instead.
+ *   instead.
  * @see https://www.drupal.org/node/3103018
  */
 trait BlazyDeprecatedTrait {

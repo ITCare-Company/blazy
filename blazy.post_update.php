@@ -31,7 +31,7 @@ function blazy_post_update_schema_formatter_grid_int_to_string(array &$sandbox =
         continue;
       }
 
-      foreach (BlazyDefault::gridBaseSettings() as $key => $value) {
+      foreach (BlazyDefault::gridSettings() as $key => $value) {
         if (isset($config[$key])) {
           $saved_value = $config[$key];
           $component['settings'][$key] = empty($saved_value) ? '' : (string) $saved_value;
@@ -88,7 +88,7 @@ function blazy_post_update_schema_view_grid_int_to_string(array &$sandbox = []) 
         continue;
       }
 
-      foreach (BlazyDefault::gridBaseSettings() as $key => $value) {
+      foreach (BlazyDefault::gridSettings() as $key => $value) {
         if (isset($config[$key])) {
           $saved_value = $config[$key];
           $display['display_options']['style']['options'][$key] = empty($saved_value) ? '' : (string) $saved_value;

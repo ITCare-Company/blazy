@@ -56,16 +56,16 @@ trait PluginScopesTrait {
       }
       else {
         if (is_bool($value)) {
-          $group = strpos($key, '_form') === FALSE ? 'is' : 'form';
+          $group = Blazy::has($key, '_form') ? 'form' : 'is';
           $key = str_replace('_form', '', $key);
           $definitions[$group][$key] = $value;
         }
         else {
-          if (strpos($key, 'field_') !== FALSE) {
+          if (Blazy::has($key, 'field_')) {
             $key = str_replace('field_', '', $key);
             $definitions['field'][$key] = $value;
           }
-          elseif (strpos($key, 'entity_') !== FALSE) {
+          elseif (Blazy::has($key, 'entity_')) {
             $key = str_replace('entity_', '', $key);
             $definitions['entity'][$key] = $value;
           }

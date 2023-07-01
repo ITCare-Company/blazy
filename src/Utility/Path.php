@@ -159,7 +159,7 @@ class Path {
         if ($route = $router->getRouteName()) {
           $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
           foreach ($edits as $key) {
-            if (mb_strpos($route, $key) !== FALSE) {
+            if (Blazy::has($route, $key)) {
               $check = TRUE;
               break;
             }

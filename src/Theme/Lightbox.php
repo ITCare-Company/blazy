@@ -286,11 +286,11 @@ class Lightbox {
 
       if ($_resimage) {
         $json['type'] = 'rich';
-        $json['boxType'] = strpos($content, '<picture') !== FALSE
+        $json['boxType'] = Blazy::has($content, '<picture')
           ? 'picture' : 'responsiveImage';
       }
       else {
-        if (strpos($content, '<video') !== FALSE) {
+        if (Blazy::has($content, '<video')) {
           $json['type'] = 'rich';
           $json['boxType'] = 'video';
         }
@@ -412,7 +412,7 @@ class Lightbox {
           ], $options);
 
           // Checks for multi-value text fields, and maps its delta to image.
-          if (!empty($caption) && strpos($caption, ", <p>") !== FALSE) {
+          if (Blazy::has($caption, ", <p>")) {
             $caption = str_replace(", <p>", '| <p>', $caption);
             $captions = explode("|", $caption);
             $caption = $captions[$delta] ?? '';

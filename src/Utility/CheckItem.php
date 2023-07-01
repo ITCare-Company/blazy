@@ -97,13 +97,15 @@ class CheckItem {
       return;
     }
 
-    // @fixme should be reversed, but screwed up with the above edgecases.
-    $uri     = BlazyFile::uri($item, $settings) ?: $blazies->get('image.uri');
+    // The first is for 2.6+ approach. The last to account for custom works
+    // with old approach/ or direct call to theme_blazy() via settings.uri.
+    // This issue do not happen at D7, since it consistently uses API.
+    $uri     = $blazies->get('image.uri') ?: BlazyFile::uri($item, $settings);
     $delta   = $blazies->get('delta') ?: ($settings['delta'] ?? 0);
     $initial = $delta == $blazies->get('initial', -1);
 
     // File cache tags.
-    // @todo move it out of here.
+    // @todo move it out of here, but whereelse, the essentials are here.
     if ($item) {
       if ($file = ($item->entity ?? NULL)) {
         $tags = $file->getCacheTags();
