@@ -11,7 +11,8 @@
     "dBlazy": true,
     "Bio": true,
     "BioMedia": true,
-    "cash": true
+    "cash": true,
+    "DOMPurify": true
   },
   "rules": {
     "consistent-this": [0, "me"],

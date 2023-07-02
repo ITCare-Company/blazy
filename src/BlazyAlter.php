@@ -74,6 +74,21 @@ class BlazyAlter {
     if ($extension === 'media' && isset($libraries['oembed.frame'])) {
       $libraries['oembed.frame']['dependencies'][] = 'blazy/oembed';
     }
+
+    if ($extension === 'blazy') {
+      if ($manager = Blazy::service('blazy.manager')) {
+        if ($path = $manager->getLibraresPathAlternative('DOMPurify')) {
+          $js = [
+            '/' . $path . '/dist/purify.min.js' => [
+              'minified' => TRUE,
+              'weight' => -16,
+            ],
+          ];
+          $libraries['dompurify']['js'] = $js;
+          $libraries['dblazy']['dependencies'][] = 'blazy/dompurify';
+        }
+      }
+    }
   }
 
   /**

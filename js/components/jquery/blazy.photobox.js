@@ -28,10 +28,10 @@
     function callback(el) {
       if ($.isElm(el)) {
         var caption = $.next(el);
-        if (caption) {
+        if ($.isElm(caption)) {
           var title = $.find(_doc, '#pbCaption .title');
           if ($.isElm(title)) {
-            title.innerHTML = caption.innerHTML;
+            title.innerHTML = $.sanitize(caption.innerHTML);
           }
         }
       }

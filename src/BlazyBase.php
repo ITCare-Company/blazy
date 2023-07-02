@@ -91,6 +91,13 @@ abstract class BlazyBase implements BlazyInterface {
   protected $cachedOptions;
 
   /**
+   * The DOM purify path.
+   *
+   * @var string
+   */
+  protected $libraresPathAlt;
+
+  /**
    * Constructs a BlazyBase object.
    */
   public function __construct(
@@ -223,6 +230,123 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function getCachedData(
+    $cid,
+    array $data = [],
+    array $info = []
+  ): array {
+    return $this->getCachedOptions($cid, $data, FALSE, $info);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCachedOptions(
+    $cid,
+    array $data = [],
+    $as_options = TRUE,
+    array $info = []
+  ): array {
+    $reset = $info['reset'] ?? FALSE;
+    if (!isset($this->cachedOptions[$cid]) || $reset) {
+      $cache = $this->cache->get($cid);
+
+      if (!$reset && $cache && $data = $cache->data) {
+        $this->cachedOptions[$cid] = $data;
+      }
+      else {
+        $alter = $info['alter'] ?? NULL;
+        $context = $info['context'] ?? [];
+
+        // Allows empty array to trigger hook_alter.
+        if (is_array($data)) {
+          $this->moduleHandler->alter($alter ?: $cid, $data, $context);
+        }
+
+        // Only if we have data, cache them.
+        if ($data && is_array($data)) {
+          if (isset($data[1])) {
+            $data = array_unique($data);
+          }
+
+          if ($as_options) {
+            $data = $this->toOptions($data);
+          }
+          else {
+            ksort($data);
+          }
+
+          $count = count($data);
+          $tags = Cache::buildTags($cid, ['count:' . $count]);
+          $this->cache->set($cid, $data, Cache::PERMANENT, $tags);
+        }
+
+        $this->cachedOptions[$cid] = $data;
+      }
+    }
+    return $this->cachedOptions[$cid] ?: [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheMetadata(array $build) {
+    return BlazyCache::metadata($build);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityAsOptions($entity_type): array {
+    $options = [];
+    if ($entities = $this->loadMultiple($entity_type)) {
+      foreach ($entities as $entity) {
+        $options[$entity->id()] = Html::escape($entity->label());
+      }
+      uasort($options, 'strnatcasecmp');
+    }
+    return $options;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHtmlId($name = 'blazy', $id = ''): string {
+    return Blazy::getHtmlId($name, $id);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLibrariesPath($name, $base_path = FALSE): ?string {
+    return Blazy::getLibrariesPath($name, $base_path);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLibraresPathAlternative(
+    $base = 'DOMPurify',
+    $packagist = 'dompurify',
+    $absolute = FALSE
+  ): ?string {
+    if (!isset($this->libraresPathAlt[$base])) {
+      $this->libraresPathAlt[$base] = $this->getLibrariesPath($packagist, $absolute)
+        ?: $this->getLibrariesPath($base, $absolute);
+    }
+    return $this->libraresPathAlt[$base];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPath($type, $name, $absolute = FALSE): ?string {
+    return Blazy::getPath($type, $name, $absolute);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getStorage($type = 'media') {
     return $this->entityTypeManager->getStorage($type);
   }
@@ -274,108 +398,6 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCachedData(
-    $cid,
-    array $data = [],
-    $reset = FALSE,
-    $alter = NULL,
-    array $context = []
-  ): array {
-    return $this->getCachedOptions(
-      $cid,
-      $data,
-      FALSE,
-      $reset,
-      $alter,
-      $context
-    );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCachedOptions(
-    $cid,
-    array $data = [],
-    $as_options = TRUE,
-    $reset = FALSE,
-    $alter = NULL,
-    array $context = []
-  ): array {
-    if (!isset($this->cachedOptions[$cid]) || $reset) {
-      $cache = $this->cache->get($cid);
-
-      if ($cache && $data = $cache->data) {
-        $this->cachedOptions[$cid] = $data;
-      }
-      else {
-        // Allows empty array to trigger hook_alter.
-        if (is_array($data)) {
-          $this->moduleHandler->alter($alter ?: $cid, $data, $context);
-        }
-
-        // Only if we have data, cache them.
-        if ($data && is_array($data)) {
-          if (isset($data[1])) {
-            $data = array_unique($data);
-          }
-
-          if ($as_options) {
-            $data = $this->toOptions($data);
-          }
-          else {
-            ksort($data);
-          }
-
-          $count = count($data);
-          $tags = Cache::buildTags($cid, ['count:' . $count]);
-          $this->cache->set($cid, $data, Cache::PERMANENT, $tags);
-        }
-
-        $this->cachedOptions[$cid] = $data;
-      }
-    }
-    return $this->cachedOptions[$cid] ? array_filter($this->cachedOptions[$cid]) : [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getEntityAsOptions($entity_type): array {
-    $options = [];
-    if ($entities = $this->loadMultiple($entity_type)) {
-      foreach ($entities as $entity) {
-        $options[$entity->id()] = Html::escape($entity->label());
-      }
-      uasort($options, 'strnatcasecmp');
-    }
-    return $options;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getCacheMetadata(array $build) {
-    return BlazyCache::metadata($build);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getLibrariesPath($name, $base_path = FALSE): ?string {
-    return Blazy::getLibrariesPath($name, $base_path);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getPath($type, $name, $absolute = FALSE): ?string {
-    return Blazy::getPath($type, $name, $absolute);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function markdown($string, $help = TRUE): string {
     return BlazyMarkdown::parse($string, $help);
   }
@@ -392,6 +414,13 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function moduleExists($name): bool {
     return $this->moduleHandler->moduleExists($name);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function service($name): ?object {
+    return Blazy::service($name);
   }
 
   /**

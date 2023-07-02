@@ -118,12 +118,148 @@ interface BlazyInterface {
   public function entityQuery($type, $conjunction = 'AND');
 
   /**
+   * Returns cached data identified by its cache ID, normally alterable data.
+   *
+   * @param string $cid
+   *   The cache ID, als used for the hook_alter.
+   * @param array $data
+   *   The given data to cache, accepting empty array to trigger hook_alter.
+   * @param array $info
+   *   The optional info containing:
+   *   - reset: Whether to bypass cache.
+   *   - alter: key for the hook_alter, otherwise $cid.
+   *   - context: additional data to be altered or as contextual info.
+   *
+   * @return array
+   *   The cache data.
+   */
+  public function getCachedData(
+    $cid,
+    array $data = [],
+    array $info = []
+  ): array;
+
+  /**
+   * Returns cached options identified by its cache ID, normally alterable data.
+   *
+   * @param string $cid
+   *   The cache ID, als used for the hook_alter.
+   * @param array $data
+   *   The given data to cache, accepting empty array to trigger hook_alter.
+   * @param bool $as_options
+   *   Whether to use it for select options.
+   * @param array $info
+   *   The optional info containing:
+   *   - reset: Whether to bypass cache,
+   *   - alter: key for the hook_alter, otherwise $cid.
+   *   - context: additional data to be altered or as contextual info.
+   *
+   * @return array
+   *   The cache data/ options.
+   */
+  public function getCachedOptions(
+    $cid,
+    array $data = [],
+    $as_options = TRUE,
+    array $info = []
+  ): array;
+
+  /**
+   * Returns the cache metadata common for all blazy-related modules.
+   *
+   * @param array $build
+   *   The provided build info.
+   *
+   * @return array
+   *   The cache metadata.
+   */
+  public function getCacheMetadata(array $build);
+
+  /**
+   * Returns available entities for select options.
+   *
+   * To get all entities of an entity_type, use self::loadMultiple() instead.
+   *
+   * @param string $entity_type
+   *   The entity type.
+   *
+   * @return array
+   *   The entity types
+   */
+  public function getEntityAsOptions($entity_type): array;
+
+  /**
+   * Alias for Blazy::getHtmlId() to get the trusted HTML ID.
+   *
+   * @param string $name
+   *   The module name.
+   * @param string $id
+   *   The optional hardcoded ID.
+   *
+   * @return string
+   *   The static CSS ID.
+   */
+  public function getHtmlId($name = 'blazy', $id = ''): string;
+
+  /**
+   * Alias for Blazy::getLibrariesPath() to get libraries path.
+   *
+   * @param string $name
+   *   The library name.
+   * @param bool $base_path
+   *   Whether to prefix it with an a base path, deprecated.
+   *
+   * @return string|null
+   *   The path to library or NULL if not found.
+   */
+  public function getLibrariesPath($name, $base_path = FALSE): ?string;
+
+  /**
+   * Returns available double libraries, e.g.: DOMPurify vs. dompurify.
+   *
+   * A few libraries have inconsistent namings, given different packagers:
+   *   - splide x splidejs--splide
+   *   - slick x slick-carousel
+   *   - DOMPurify x dompurify, etc.
+   *
+   * @param string $base
+   *   The regular download path for FTP.
+   * @param string $packagist
+   *   If using composer require npm-asset/LIBRARY_NAME.
+   * @param bool $absolute
+   *   Whether to use base path, or not.
+   *
+   * @return string|null
+   *   The path to the installed expected library, or NULL.
+   */
+  public function getLibraresPathAlternative(
+    $base = 'DOMPurify',
+    $packagist = 'dompurify',
+    $absolute = FALSE
+  ): ?string;
+
+  /**
+   * Alias for Blazy::getPath() to get module or theme path.
+   *
+   * @param string $type
+   *   The object type, can be module or theme.
+   * @param string $name
+   *   The object name.
+   * @param bool $absolute
+   *   Whether to return an absolute path.
+   *
+   * @return string|null
+   *   The path to object or NULL if not found.
+   */
+  public function getPath($type, $name, $absolute = FALSE): ?string;
+
+  /**
    * Returns a shortcut for entity type storage.
    *
    * @param string $type
    *   The entity type.
    *
-   * @return object
+   * @return object|null
    *   The entity type storage object.
    */
   public function getStorage($type = 'media');
@@ -184,111 +320,6 @@ interface BlazyInterface {
   public function loadByUuid($uuid, $type = 'file'): ?object;
 
   /**
-   * Returns cached data identified by its cache ID, normally alterable data.
-   *
-   * @param string $cid
-   *   The cache ID, als used for the hook_alter.
-   * @param array $data
-   *   The given data to cache, accepting empty array to trigger hook_alter.
-   * @param bool $reset
-   *   Whether to re-fetch in case not cached yet.
-   * @param string $alter
-   *   The specific alter for the hook_alter, otherwise $cid.
-   * @param array $context
-   *   The optional context or info for the hook_alter.
-   *
-   * @return array
-   *   The cache data.
-   */
-  public function getCachedData(
-    $cid,
-    array $data = [],
-    $reset = FALSE,
-    $alter = NULL,
-    array $context = []
-  ): array;
-
-  /**
-   * Returns cached options identified by its cache ID, normally alterable data.
-   *
-   * @param string $cid
-   *   The cache ID, als used for the hook_alter.
-   * @param array $data
-   *   The given data to cache, accepting empty array to trigger hook_alter.
-   * @param bool $as_options
-   *   Whether to use it for select options.
-   * @param bool $reset
-   *   Whether to re-fetch in case not cached yet.
-   * @param string $alter
-   *   The specific alter for the hook_alter, otherwise $cid.
-   * @param array $context
-   *   The optional context or info for the hook_alter.
-   *
-   * @return array
-   *   The cache data/ options.
-   */
-  public function getCachedOptions(
-    $cid,
-    array $data = [],
-    $as_options = TRUE,
-    $reset = FALSE,
-    $alter = NULL,
-    array $context = []
-  ): array;
-
-  /**
-   * Returns the cache metadata common for all blazy-related modules.
-   *
-   * @param array $build
-   *   The provided build info.
-   *
-   * @return array
-   *   The cache metadata.
-   */
-  public function getCacheMetadata(array $build);
-
-  /**
-   * Returns available entities for select options.
-   *
-   * To get all entities of an entity_type, use self::loadMultiple() instead.
-   *
-   * @param string $entity_type
-   *   The entity type.
-   *
-   * @return array
-   *   The entity types
-   */
-  public function getEntityAsOptions($entity_type): array;
-
-  /**
-   * Alias for Blazy::getLibrariesPath() to get libraries path.
-   *
-   * @param string $name
-   *   The library name.
-   * @param bool $base_path
-   *   Whether to prefix it with an a base path, deprecated.
-   *
-   * @return string
-   *   The path to library or NULL if not found.
-   */
-  public function getLibrariesPath($name, $base_path = FALSE): ?string;
-
-  /**
-   * Alias for Blazy::getPath() to get module or theme path.
-   *
-   * @param string $type
-   *   The object type, can be module or theme.
-   * @param string $name
-   *   The object name.
-   * @param bool $absolute
-   *   Whether to return an absolute path.
-   *
-   * @return string
-   *   The path to object or NULL if not found.
-   */
-  public function getPath($type, $name, $absolute = FALSE): ?string;
-
-  /**
    * Provides a shortcut to parse the markdown string for better hook_help().
    */
   public function markdown($string, $help = TRUE): string;
@@ -308,6 +339,17 @@ interface BlazyInterface {
    *   Whether the module exists, or not.
    */
   public function moduleExists($name): bool;
+
+  /**
+   * A wrapper for Blazy::service()
+   *
+   * @param string $name
+   *   The service name.
+   *
+   * @return object|null
+   *   The service if already initialized, or NULL.
+   */
+  public function service($name): ?object;
 
   /**
    * Returns items wrapped by theme_item_list(), can be a grid, or plain list.

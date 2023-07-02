@@ -200,9 +200,12 @@ class BlazyImage {
       // Called by BlazyFilter file upload and legacy BlazyViewsFieldFile.
       if (BlazyFile::isFile($entity)
         && $factory = Blazy::service('image.factory')) {
-        $uri = $entity->getFileUri();
-        if ($image = $factory->get($uri)) {
+        // Might be a video/ audio file URI, not just image.
+        $check = $entity->getFileUri();
+
+        if ($image = $factory->get($check)) {
           $output = self::fakeFromFactory($blazies, $entity, $image);
+          $uri = $output ? ($output->uri ?? NULL) : NULL;
         }
       }
     }
@@ -366,13 +369,13 @@ class BlazyImage {
    * @requires self::unstyled()
    */
   public static function prepare(array &$settings, $item = NULL, $uri = NULL): void {
-    // @todo figure out why another reset is required here to get correct item,
+    // @fixme figure out why another reset is required here to get correct item,
     // otherwise the below bailout called once for entire items. No big deal to
     // renew, just not as expected. Strangely only happens sometimes at
     // some modules override, some edge cases.
     // @todo remove this reset once things work consistently at all cases.
     $blazies = $settings['blazies']->reset($settings);
-    $uri = $uri ?: $blazies->get('image.uri');
+    $uri = $blazies->get('image.uri') ?: $uri;
 
     // Bail out if already processed.
     // @fixme called once for the entire items, not just this context, unless

@@ -6,6 +6,15 @@ dblazy:
   js:
     js/dblazy.min.js: { minified: true, weight: -6 }
 
+dompurify:
+  remote: https://github.com/cure53/DOMPurify
+  version: VERSION
+  license:
+    name: MPL
+    gpl-compatible: false
+  js:
+    /libraries/dompurify/dist/purify.min.js: { minified: true, weight: -16 }
+
 # This library appears to be unmaintained, yet it is great and stable for 2KB.
 # Forked it as a module asset to expose private function/methods and minimize
 # dups, and more integrated with Native lazy and module features.

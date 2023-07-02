@@ -4,6 +4,7 @@ namespace Drupal\blazy\Utility;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\Component\Utility\Xss;
 use Drupal\blazy\Blazy;
 
 /**
@@ -61,6 +62,58 @@ class Sanitize {
       }
     }
     return $output;
+  }
+
+  /**
+   * Returns the sanitized input for UGC.
+   *
+   * @param array|string $input
+   *   The given input to sanitize.
+   * @param string $name
+   *   The given input name.
+   * @param array $options
+   *   The options: paths, striptags, tags.
+   *
+   * @return array|string
+   *   The relatively sanitized $input suitable for UGC.
+   */
+  public static function input($input, $name, array $options) {
+    $paths = $options['paths'] ?? [];
+    $striptags = $options['striptags'] ?? TRUE;
+    $tags = $options['tags'] ?? NULL;
+    $value = $input;
+
+    if (is_string($value)) {
+      if ($striptags) {
+        $value = strip_tags($value, $tags);
+      }
+      if ($paths && in_array($name, $paths)) {
+        $value = UrlHelper::filterBadProtocol($value);
+      }
+      $value = Xss::filter($value, $tags);
+    }
+    elseif (is_array($value)) {
+      if ($striptags) {
+        $value = array_map(function ($val) use ($tags) {
+          return $val ? strip_tags($val, $tags) : $val;
+        }, $value);
+      }
+
+      array_walk($value, function (&$val, $key) use ($name, $paths) {
+        if ($val && is_string($val)) {
+          $check = $paths && in_array($name, $paths);
+          // The last is just an exercise for now.
+          if ($check || $key == 'io_fallback') {
+            $val = UrlHelper::filterBadProtocol($val);
+          }
+        }
+      });
+
+      $value = array_map(function ($val) use ($tags) {
+        return $val ? Xss::filter($val, $tags) : $val;
+      }, $value);
+    }
+    return $value;
   }
 
   /**
@@ -154,13 +207,15 @@ class Sanitize {
     // Should use the proper filter before/after Blazy, not this naive.
     // At least useless when already passed to self::attribute() upstream.
     return Blazy::has($value, 'data:text')
-      || Blazy::has($value, 'script:')
-      // @todo recheck, the last suspects might be innocent, just being cryptic
-      // for common attributes values, normally readable.
-      // The Dec is represented with &#.
-      || Blazy::has($value, ';&#')
-      // The Hex is represented with &#x0.
-      || Blazy::has($value, '&#x');
+      || Blazy::has($value, 'script:');
+    // @todo recheck, the last suspects might be innocent, just being cryptic
+    // for common attribute values, normally readable. OK to strip since it
+    // tests against attribute values, not HTML content after Xss::filter().
+    // However useless checks after self::attribute() for now.
+    // The Dec is represented with &#.
+    // || Blazy::has($value, ';&#')
+    // The Hex is represented with &#x0.
+    // || Blazy::has($value, '&#x');
   }
 
 }

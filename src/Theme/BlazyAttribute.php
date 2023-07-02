@@ -50,25 +50,27 @@ class BlazyAttribute {
 
     // Provides contextual classes relevant to the container: .field, or .view.
     // Sniffs for Views to allow block__no_wrapper, views__no_wrapper, etc.
-    $view_mode = $settings['current_view_mode'] ?? '';
-    foreach (['field', 'view'] as $key) {
-      $name = $settings[$key . '_name'] ?? '';
-      $name = $blazies->get($key . '.name', $name);
-      if ($name) {
-        $name = str_replace('_', '-', $name);
-        $name = $key == 'view' ? 'view--' . $name : $name;
-        $classes[] = $namespace . '--' . $key;
-        $classes[] = $namespace . '--' . $name;
+    if ($blazies->ui('wrapper_class')) {
+      $view_mode = $settings['current_view_mode'] ?? '';
+      foreach (['field', 'view'] as $key) {
+        $name = $settings[$key . '_name'] ?? '';
+        $name = $blazies->get($key . '.name', $name);
+        if ($name) {
+          $name = str_replace('_', '-', $name);
+          $name = $key == 'view' ? 'view--' . $name : $name;
+          $classes[] = $namespace . '--' . $key;
+          $classes[] = $namespace . '--' . $name;
 
-        $view_mode = $blazies->get($key . '.view_mode', $view_mode);
-        if ($view_mode) {
-          $view_mode = str_replace('_', '-', $view_mode);
-          $classes[] = $namespace . '--' . $name . '--' . $view_mode;
-        }
+          $view_mode = $blazies->get($key . '.view_mode', $view_mode);
+          if ($view_mode) {
+            $view_mode = str_replace('_', '-', $view_mode);
+            $classes[] = $namespace . '--' . $name . '--' . $view_mode;
+          }
 
-        // See BlazyAlter::blazySettingsAlter().
-        if ($id = $blazies->get('view.instance_id')) {
-          $classes[] = $namespace . '--view--' . $id;
+          // See BlazyAlter::blazySettingsAlter().
+          if ($id = $blazies->get('view.instance_id')) {
+            $classes[] = $namespace . '--view--' . $id;
+          }
         }
       }
     }

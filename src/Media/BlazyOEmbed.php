@@ -142,9 +142,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
   /**
    * {@inheritdoc}
-   *
-   * @todo should be at non-static BlazyMedia at 4.x, if too late for 3.x.
-   * @todo make it single param like the rest.
    */
   public function build(array &$build, $entity = NULL): void {
     // @todo remove old approach at 3.x after old VEF BlazyVideoTrait removed.

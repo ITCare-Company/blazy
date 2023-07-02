@@ -50,7 +50,11 @@ interface BlazyOEmbedInterface {
    *   Or just settings content for old deprecated approach.
    * @param object $entity
    *   The Media entity, File entity, ER, FieldItemList, etc., optional
-   *   to accomodate old approach (pre 2.10) and UGC.
+   *   to accommodate old approach (pre 2.10) and UGC.
+   *
+   * @todo should be at non-static BlazyMedia at 4.x, if too late for 3.x.
+   * @todo add a return to avoid potential issues with references at 3.x.
+   * @todo make it single param like the rest by 3.x.
    */
   public function build(array &$build, $entity = NULL): void;
 

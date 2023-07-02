@@ -2060,6 +2060,8 @@
    *   The HTML string to sanitize.
    * @param {Boolean} nodes
    *   If true, returns HTML nodes instead of a string.
+   * @param {Object|null} config
+   *   The DOMPurify config, if available.
    *
    * @return {String|NodeList}
    *   The sanitized string or nodes.
@@ -2067,17 +2069,24 @@
    * @see https://en.wikipedia.org/wiki/Cross-site_scripting
    * @see https://github.com/cure53/DOMPurify
    */
-  function sanitize(str, nodes) {
+  function sanitize(str, nodes, config) {
+    // Save for extra checks.
+    if (!str) {
+      return '';
+    }
 
     /**
      * Convert the string to an HTML document.
      *
+     * @param {String} altstr
+     *   The alternative string to sanitize.
+     *
      * @return {Node}
      *   An HTML document.
      */
-    function stringToHTML() {
+    function stringToHTML(altstr) {
       var parser = new DOMParser();
-      var doc = parser.parseFromString(str, 'text/html');
+      var doc = parser.parseFromString(altstr || str, 'text/html');
       return doc.body || _doc.createElement('body');
     }
 
@@ -2096,7 +2105,7 @@
       var val = value.replace(/\s+/g, '').toLowerCase();
       if (['src', 'href', 'xlink:href'].includes(name)) {
         // See https://github.com/eslint/eslint/issues/2530
-        if (val.includes('javascript:') || val.includes('data:text/html')) { // eslint-disable-line
+        if (val.includes('script:') || val.includes('data:text/html')) { // eslint-disable-line
           return true;
         }
       }
@@ -2139,10 +2148,19 @@
     }
 
     // Convert the string to HTML.
-    var html = stringToHTML();
+    var html;
 
     // Sanitize it.
-    clean(html);
+    if (typeof DOMPurify !== 'undefined') {
+      // @todo recheck if empty config is nullifying defaults, less likely, but.
+      // @todo use DOMPurify.sanitize(str, config || {}); after xchecks.
+      var check = config ? DOMPurify.sanitize(str, config) : DOMPurify.sanitize(str);
+      html = stringToHTML(check);
+    }
+    else {
+      html = stringToHTML();
+      clean(html);
+    }
 
     // If the user wants HTML nodes back, return them.
     // Otherwise, pass a sanitized string back.

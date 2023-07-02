@@ -49,6 +49,7 @@
 }
 
 .block-grid .grid__content {
+  max-width: 100%;
   position: relative;
 }
 

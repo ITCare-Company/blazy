@@ -76,7 +76,6 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     $item_id = $blazies->get('item.id');
 
     // Sub-modules always flag `vanilla` as required, -- configurable, or not.
-    // The "paragraphs_type" entity type did not specify a view_builder handler.
     if (!empty($settings['vanilla'])) {
       $data = [
         '#entity' => $entity,

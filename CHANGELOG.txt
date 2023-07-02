@@ -1,7 +1,14 @@
 
+Blazy 8.x-2.0-dev, 2023-07-02
+------------------------------
+- Added wrapper_class option to make blazy field/ views classes optional. Be
+  sure to re-save the Blazy UI form to enable/ disable it.
+- Fixed for local video image URI vs. file URI regressions.
+- Added supports for DOMPurify library for lightbox HTML contents.
+
 Blazy 8.x-2.0-dev, 2023-06-29
 ------------------------------
-- Fixed for BlazyEntity class not designed for multiple entities, but given 
+- Fixed for BlazyEntity class not designed for multiple entities, but given
   multiple entities upstream.
 - Added real supports for data URI for BlazyFilter to exercise frontend muscle
   memory a bit.

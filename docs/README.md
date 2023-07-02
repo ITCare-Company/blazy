@@ -227,6 +227,29 @@ Others might not.
   |local video), or (responsive|picture) image, fieldable captions, etc. which
   are not (fully) shipped/ supported by these modules.
 
+### <a name="dompurify"> </a> Lightbox captions with DOMPurify
+Blazy lightboxes allows you to place a caption within lightboxes.
+If you wish to use HTML in your captions, you must install the DOMPurify
+library. In your `libraries` folder, you will need, either one:
+* `DOMPurify/dist/purify.min.js`
+* `dompurify/dist/purify.min.js`
+
+If using Colorbox module, be sure to use their supported path to avoid dup
+folders. Blazy will pick up whichever available, no problem.
+
+You can install DOMPurify using composer:  
+* `composer require npm-asset/dompurify`, see [COMPOSER](#composer) section.
+* Or, if you prefer, you can download DOMPurify directly from:
+  [DOMPurify](https://github.com/cure53/DOMPurify/releases/latest)
+
+  From the above link, you can download a zip or tar.gz archive file.
+  To avoid security issues, please only install the dist directory, and
+  nothing else from the archive. The composer command above will install
+  the whole package.
+
+The DOMPurify library is optional. Without DOMPurify, Blazy (sub)-modules
+will just sanitize all captions server-side, or the very basic ones.
+
 ***
 ## <a name="features"> </a>FEATURES
 * Works absurdly fine at IE9 for Blazy 2.6.

@@ -52,6 +52,25 @@ class BlazySettingsForm extends BlazyConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('blazy.settings');
+    $exists = $this->manager->getLibraresPathAlternative('DOMPurify');
+
+    // Adapted from Colorbox module, thanks.
+    $dompurify_message = $exists ?
+      $this->t('Great! The DOMPurify library is installed to sanitize lightbox captions.')
+      :
+      $this->t('<strong>Warning!</strong> The <a href=":url">DOMPurify</a> library is not installed. This library is necessary if you want to use HTML in lightbox captions. Without it, all captions will be very minimally sanitized server-side, or very basic ones. Read more at <a href=":url2">Blazy UI help</a>.',
+        [
+          ':url' => 'https://github.com/cure53/DOMPurify/archive/main.zip',
+          ':url2' => '/admin/help/blazy_ui#dompurify',
+        ]);
+
+    $class = $exists ? 'info' : 'warning';
+    $form['dompurify_message'] = [
+      '#type' => 'markup',
+      '#prefix' => '<p class="messages messages--' . $class . '">',
+      '#suffix' => '</p>',
+      '#markup' => $dompurify_message,
+    ];
 
     $form['admin_css'] = [
       '#type'          => 'checkbox',
@@ -110,6 +129,13 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       '#title'         => $this->t('Add is-b-visible class'),
       '#default_value' => $config->get('visible_class'),
       '#description'   => $this->t('Add <code>is-b-visible</code> CSS class when entering the viewport. Only enable if any real use for animating anything, otherwise disable it. If enabled, IO is not destroyed so to keep watching the class changes.'),
+    ];
+
+    $form['wrapper_class'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Add field/ view wrapper classes'),
+      '#default_value' => $config->get('wrapper_class'),
+      '#description'   => $this->t("Useful for DOM diets when you can get rid of Field, Block, Views, etc. wrappers so you have context for styling. Other required classes: lightbox, grid, etc. are intact if so-configured."),
     ];
 
     $form['placeholder'] = [
@@ -297,6 +323,7 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       ->set('responsive_image', $form_state->getValue('responsive_image'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))
       ->set('visible_class', $form_state->getValue('visible_class'))
+      ->set('wrapper_class', $form_state->getValue('wrapper_class'))
       ->set('placeholder', $form_state->getValue('placeholder'))
       ->set('unstyled_extensions', $form_state->getValue('unstyled_extensions'))
       ->set('blazy.loadInvisible', $form_state->getValue([

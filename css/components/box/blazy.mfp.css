@@ -3,9 +3,44 @@
  * Provides Magnific Popup integration.
  */
 
+.mfp-title h2 {
+  font-size: 1.6rem;
+}
+
 .mfp-title h2,
 .mfp-title p {
+  line-height: 1.25rem;
   margin: 0;
+}
+
+.mfp-counter {
+  color: #777;
+  padding: 5px;
+}
+
+.mfp-title {
+  color: #333;
+  padding-left: 15px;
+}
+
+.mfp-content .mfp-figure figcaption {
+  padding: 0;
+}
+
+.mfp-content .mfp-figure figcaption {
+  margin-top: -30px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  cursor: auto;
+}
+
+.mfp-content .mfp-figure .mfp-bottom-bar {
+  margin: 0;
+  opacity: 1;
+  position: relative;
+  top: 0;
 }
 
 .mfp-content .media,
@@ -75,7 +110,7 @@
   opacity: 0;
 }
 
-.mfp-on .mfp-bottom-bar {
+.is-mfp .mfp-bottom-bar {
   opacity: 1;
 }
 

@@ -51,7 +51,7 @@
 
       $el.removeClass(_visualyHidden)
         .attr(_ariaHidden, false)
-        .find(_selContent).innerHTML = content;
+        .find(_selContent).innerHTML = $.sanitize(content);
 
       $.addClass(_doc.body, _isOpened);
 

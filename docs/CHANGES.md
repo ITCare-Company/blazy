@@ -1,12 +1,16 @@
 
 ***
-## <a name="changes"></a>NOTABLE CHANGES
+## <a name="changes"></a>NOTABLE CHANGES  
+Always check out release notes, if any issues with the latest changes.
+
 * _Blazy 2.17_, 2023/07/02:
-   Cold fixes for few minor regressions and self organizations.
+   + Cold fixes for few minor regressions and self organizations.
+   + Added additional config options at Blazy UI. Be sure to check out for
+     `visible_class` and `wrapper_class` options if using them.
 * _Blazy 2.16_, 2023/06/02:
-   Hotdamn fix for D10 breaking changes with formatter lightboxes.
+   + Hotdamn fix for D10 breaking changes with formatter lightboxes.
 * _Blazy 2.13_, 2022/05/31:
-   [#3282785](https://drupal.org/node/3282785), hotdamn fix.
+   + [#3282785](https://drupal.org/node/3282785), hotdamn fix.
 * _Blazy 2.12_, 2022/05/28:
   + Regression fixes for [Optimization](https://drupal.org/node/3257511).
 * _Blazy 2.11_, 2022/05/07:

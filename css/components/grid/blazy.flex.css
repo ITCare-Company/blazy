@@ -41,8 +41,9 @@
 }
 
 .block-flex .grid__content {
-  position: relative;
+  max-width: 100%;
   overflow: visible;
+  position: relative;
 }
 
 .block-flex.is-b-loading {

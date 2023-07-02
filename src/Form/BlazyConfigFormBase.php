@@ -2,10 +2,9 @@
 
 namespace Drupal\blazy\Form;
 
-use Drupal\Component\Utility\UrlHelper;
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\blazy\Utility\Sanitize;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -80,37 +79,13 @@ abstract class BlazyConfigFormBase extends ConfigFormBase {
         if ($form_state->hasValue($option)) {
           // Not effective, best is to validate output, yet better than misses.
           $value = $form_state->getValue($option);
-
           if ($value) {
-            if (is_string($value)) {
-              if ($this->stripTags) {
-                $value = strip_tags($value, $this->allowedTags);
-              }
-              if ($paths && in_array($option, $paths)) {
-                $value = UrlHelper::filterBadProtocol($value);
-              }
-              $value = Xss::filter($value, $this->allowedTags);
-            }
-            elseif (is_array($value)) {
-              if ($this->stripTags) {
-                $value = array_map(function ($val) {
-                  return $val ? strip_tags($val, $this->allowedTags) : '';
-                }, $value);
-              }
-
-              // $value = array_map(function ($val) {
-              // return $val ? Xss::filter($val, $this->allowedTags) : '';
-              // }, $value);
-              array_walk($value, function (&$val, $key) use ($option, $paths) {
-                if ($val) {
-                  $check = $paths && in_array($option, $paths);
-                  if ($check || $key == 'io_fallback') {
-                    $val = UrlHelper::filterBadProtocol($val);
-                  }
-                  Xss::filter($val, $this->allowedTags);
-                }
-              });
-            }
+            $info = [
+              'paths' => $paths,
+              'striptags' => $this->stripTags,
+              'tags' => $this->allowedTags ?: ['<em>'],
+            ];
+            $value = Sanitize::input($value, $option, $info);
           }
           $form_state->setValue($option, $value);
         }

@@ -32,7 +32,7 @@ class BlazySettings implements \Countable {
    * Counts total items.
    */
   public function count(): int {
-    return $this->get('count');
+    return $this->get('count', 0);
   }
 
   /**
@@ -72,11 +72,7 @@ class BlazySettings implements \Countable {
    *   The array of items inside the data key, or empty array.
    */
   public function data($key = NULL, array $default_value = []): array {
-    // For some reasons twig fails with the required $key although provided.
-    if (empty($key)) {
-      return $default_value;
-    }
-    return $this->get('data.' . $key, $default_value) ?: [];
+    return $this->getSafely('data', $key, $default_value) ?: [];
   }
 
   /**
@@ -93,11 +89,7 @@ class BlazySettings implements \Countable {
    *   A mixed value (array, string, bool, null, etc.).
    */
   public function filter($key = NULL, $default_value = NULL, $namespace = 'blazy') {
-    // For some reasons twig fails with the required $key although provided.
-    if (empty($key)) {
-      return $default_value;
-    }
-    return $this->get('filter.' . $namespace . '.' . $key, $default_value);
+    return $this->getSafely('filter', $namespace . '.' . $key, $default_value);
   }
 
   /**
@@ -112,11 +104,7 @@ class BlazySettings implements \Countable {
    *   Returns TRUE or FALSE.
    */
   public function form($key = NULL, $default_value = FALSE): bool {
-    // For some reasons twig fails with the required $key although provided.
-    if (empty($key)) {
-      return $default_value;
-    }
-    return $this->get('form.' . $key, $default_value) ?: FALSE;
+    return $this->getSafely('form', $key, $default_value) ?: FALSE;
   }
 
   /**
@@ -131,11 +119,7 @@ class BlazySettings implements \Countable {
    *   Returns TRUE or FALSE.
    */
   public function is($key = NULL, $default_value = FALSE): bool {
-    // For some reasons twig fails with the required $key although provided.
-    if (empty($key)) {
-      return $default_value;
-    }
-    return $this->get('is.' . $key, $default_value) ?: FALSE;
+    return $this->getSafely('is', $key, $default_value) ?: FALSE;
   }
 
   /**
@@ -150,11 +134,7 @@ class BlazySettings implements \Countable {
    *   Returns TRUE or FALSE.
    */
   public function no($key = NULL, $default_value = FALSE): bool {
-    // For some reasons twig fails with the required $key although provided.
-    if (empty($key)) {
-      return $default_value;
-    }
-    return $this->get('no.' . $key, $default_value) ?: FALSE;
+    return $this->getSafely('no', $key, $default_value) ?: FALSE;
   }
 
   /**
@@ -171,11 +151,7 @@ class BlazySettings implements \Countable {
    *   Returns TRUE or FALSE.
    */
   public function was($key = NULL, $default_value = FALSE): bool {
-    // For some reasons twig fails with the required $key although provided.
-    if (empty($key)) {
-      return $default_value;
-    }
-    return $this->get('was.' . $key, $default_value) ?: FALSE;
+    return $this->getSafely('was', $key, $default_value) ?: FALSE;
   }
 
   /**
@@ -190,11 +166,7 @@ class BlazySettings implements \Countable {
    *   Returns TRUE or FALSE.
    */
   public function use($key = NULL, $default_value = FALSE): bool {
-    // For some reasons twig fails with the required $key although provided.
-    if (empty($key)) {
-      return $default_value;
-    }
-    return $this->get('use.' . $key, $default_value) ?: FALSE;
+    return $this->getSafely('use', $key, $default_value) ?: FALSE;
   }
 
   /**
@@ -209,11 +181,7 @@ class BlazySettings implements \Countable {
    *   A mixed value (array, string, bool, null, etc.).
    */
   public function ui($key = NULL, $default_value = NULL) {
-    // For some reasons twig fails with the required $key although provided.
-    if (empty($key)) {
-      return $default_value;
-    }
-    return $this->get('ui.' . $key, $default_value);
+    return $this->getSafely('ui', $key, $default_value);
   }
 
   /**
@@ -340,10 +308,10 @@ class BlazySettings implements \Countable {
   public function reset(array &$settings, $key = 'blazies'): BlazySettings {
     $data = $this->storage;
 
-    if ($data && $this->is('debug')) {
-      $this->rksort($data);
-    }
-
+    // @todo re-check, or remove.
+    // if ($data && $this->is('debug')) {
+    // $this->rksort($data);
+    // }
     $instance = new BlazySettings($data);
     $settings[$key] = $instance;
     return $instance;
@@ -354,6 +322,27 @@ class BlazySettings implements \Countable {
    */
   public function storage(): array {
     return $this->storage;
+  }
+
+  /**
+   * Returns values from a child key within a parent key.
+   *
+   * @param string $parent
+   *   The parent key.
+   * @param string $key
+   *   The child key.
+   * @param string $default_value
+   *   The storage default_value.
+   *
+   * @return mixed
+   *   A mixed value (array, string, bool, null, etc.).
+   */
+  private function getSafely($parent = NULL, $key = NULL, $default_value = NULL) {
+    // For some reasons Twig fails with the required $key although provided.
+    if (empty($parent) || empty($key)) {
+      return $default_value;
+    }
+    return $this->get($parent . '.' . $key, $default_value);
   }
 
   /**

@@ -138,7 +138,7 @@
         // (Responsive|Picture) image, local video.
         if ('html' in media) {
           useWidth = boxType === 'video';
-          src = media.html;
+          src = $.sanitize(media.html);
           item.type = 'inline';
         }
         else if (boxType === 'iframe') {
@@ -156,7 +156,7 @@
 
           src = '<div class="mfp-html mfp-html--' + boxType + '"' + style + '><div class="mfp-inner">' + src;
           if (caption) {
-            src += '<div class="mfp-bottom-bar"><div class="mfp-title">' + caption.innerHTML + '</div>' + counter((i + 1) + '/' + total) + '</div>';
+            src += '<div class="mfp-bottom-bar"><div class="mfp-title">' + $.sanitize(caption.innerHTML) + '</div>' + counter((i + 1) + '/' + total) + '</div>';
           }
           src += '</div></div>';
         }
@@ -167,7 +167,7 @@
       }
 
       if (caption) {
-        item.title = caption.innerHTML;
+        item.title = $.sanitize(caption.innerHTML);
       }
 
       items.push(item);

@@ -42,8 +42,9 @@
 }
 
 .block-nativegrid .grid__content {
-  position: relative;
+  max-width: 100%;
   overflow: visible;
+  position: relative;
   width: 100%;
 }
 

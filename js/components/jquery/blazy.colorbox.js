@@ -35,7 +35,10 @@
       iframe: isMedia,
       title: function () {
         var $caption = $box.next('.litebox-caption');
-        return $caption.length ? $caption.html() : '';
+        if ($caption.length) {
+          return _d.sanitize($caption[0].innerHTML);
+        }
+        return '';
       },
       onComplete: function () {
         removeClasses();

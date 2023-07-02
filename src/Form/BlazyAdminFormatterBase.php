@@ -4,7 +4,6 @@ namespace Drupal\blazy\Form;
 
 use Drupal\Core\Url;
 use Drupal\Component\Utility\Unicode;
-use Drupal\blazy\Blazy;
 
 /**
  * A base for field formatter admin to have re-usable methods in one place.
@@ -177,15 +176,16 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
 
     // Fix for Views UI not recognizing Media bundles, unlike Formatters.
     if (empty($target_bundles)) {
-      $bundle_service = Blazy::service('entity_type.bundle.info');
-      $target_bundles = $bundle_service->getBundleInfo($entity_type);
+      if ($service = $this->blazyManager->service('entity_type.bundle.info')) {
+        $target_bundles = $service->getBundleInfo($entity_type);
+      }
     }
 
     // Declutters options from less relevant options.
     $excludes = $this->getExcludedFieldOptions();
 
     foreach ($target_bundles as $bundle => $label) {
-      if ($fields = $this->blazyManager()->loadByProperties([
+      if ($fields = $this->blazyManager->loadByProperties([
         'entity_type' => $entity_type,
         'bundle' => $bundle,
       ], 'field_config', FALSE)) {

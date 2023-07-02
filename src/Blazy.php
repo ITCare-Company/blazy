@@ -267,6 +267,10 @@ class Blazy {
 
   /**
    * Alias for Grid::itemAttributes() for sub-modules and easy organization.
+   *
+   * This method + self::gridAttributes() allows you to build grids with any
+   * themes having just DIV > DIVs without building it with self::grid() such as
+   * seen at IO Browser/Slick Browser by simply modifying existing attributes.
    */
   public static function gridItemAttributes(
     array &$attributes,
