@@ -14,6 +14,18 @@ class BlazyFormatterBlazy extends BlazyFileFormatterBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @see https://www.php.net/manual/en/reserved.keywords.php
+   */
+  protected $namespace = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $itemId = 'blazy';
+
+  /**
+   * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $files = $this->getEntitiesToView($items, $langcode);

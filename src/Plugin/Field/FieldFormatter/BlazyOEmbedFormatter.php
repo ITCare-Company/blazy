@@ -69,7 +69,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
     if (isset($element['background'])) {
       $element['background']['#weight'] = -99;
     }
-    return $element;
+    return parent::settingsForm($form, $form_state) + $element;
   }
 
   /**
@@ -92,26 +92,27 @@ class BlazyOEmbedFormatter extends FormatterBase {
    * Build the blazy elements.
    */
   protected function buildElements(array &$build, $items, $langcode) {
-    $settings   = &$build['settings'];
+    $settings   = $build['settings'];
     $field_name = $this->fieldDefinition->getName();
     $entity     = $items->getParent()->getEntity();
 
     foreach ($items as $delta => $item) {
+      $sets = $settings;
       $main_property = $item->getFieldDefinition()
         ->getFieldStorageDefinition()
         ->getMainPropertyName();
 
-      $value = $item->{$main_property};
+      $value = $item->{$main_property} ?? NULL;
 
       if (empty($value)) {
         continue;
       }
 
-      $blazies = $settings['blazies']->reset($settings);
+      $blazies = $sets['blazies']->reset($sets);
       $blazies->set('delta', $delta)
         ->set('media.input_url', $value);
 
-      $data = ['item' => NULL, 'settings' => $settings];
+      $data = ['item' => NULL, 'settings' => $sets];
 
       if ($entity->getEntityTypeId() == 'media'
             && $entity->hasField($field_name)
@@ -143,9 +144,11 @@ class BlazyOEmbedFormatter extends FormatterBase {
    */
   protected function getPluginScopes(): array {
     return [
+      'image_style_form'  => TRUE,
       'background'        => TRUE,
       'media_switch_form' => TRUE,
       'multimedia'        => TRUE,
+      'no_preload'        => TRUE,
       'responsive_image'  => TRUE,
     ];
   }

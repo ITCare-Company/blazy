@@ -28,7 +28,7 @@ trait BlazyFormatterViewBaseTrait {
 
     // Collects specific settings to this formatter.
     $defaults = $this->buildSettings();
-    $settings = $settings ? array_merge($defaults, $settings) : $defaults;
+    $settings = $this->formatter->merge($settings, $defaults);
 
     $this->preSettings($settings, $langcode);
 

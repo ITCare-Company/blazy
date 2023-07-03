@@ -91,13 +91,6 @@ abstract class BlazyBase implements BlazyInterface {
   protected $cachedOptions;
 
   /**
-   * The DOM purify path.
-   *
-   * @var string
-   */
-  protected $libraresPathAlt;
-
-  /**
    * Constructs a BlazyBase object.
    */
   public function __construct(
@@ -320,21 +313,6 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function getLibrariesPath($name, $base_path = FALSE): ?string {
     return Blazy::getLibrariesPath($name, $base_path);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getLibraresPathAlternative(
-    $base = 'DOMPurify',
-    $packagist = 'dompurify',
-    $absolute = FALSE
-  ): ?string {
-    if (!isset($this->libraresPathAlt[$base])) {
-      $this->libraresPathAlt[$base] = $this->getLibrariesPath($packagist, $absolute)
-        ?: $this->getLibrariesPath($base, $absolute);
-    }
-    return $this->libraresPathAlt[$base];
   }
 
   /**

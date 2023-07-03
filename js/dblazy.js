@@ -2046,6 +2046,31 @@
   }
 
   /**
+   * Check if the attribute is potentially dangerous.
+   *
+   * @param {String} name
+   *   The attribute name.
+   * @param {String} value
+   *   The attribute value.
+   *
+   * @return {Boolean}
+   *   If true, the attribute is potentially dangerous.
+   */
+  function isDangerous(name, value) {
+    var val = value.replace(/\s+/g, '').toLowerCase();
+    if (['src', 'href', 'xlink:href'].includes(name)) {
+      // See https://github.com/eslint/eslint/issues/2530
+      if (val.includes('script:') || val.includes('data:text/html')) { // eslint-disable-line
+        return true;
+      }
+    }
+    if (name.toLowerCase().startsWith('on')) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Sanitize an HTML string.
    *
    * A minimal DOMPurify for semi-trusted Drupal UI/ code outputs. The rest
@@ -2058,10 +2083,10 @@
    *
    * @param {String} str
    *   The HTML string to sanitize.
-   * @param {Boolean} nodes
-   *   If true, returns HTML nodes instead of a string.
    * @param {Object|null} config
    *   The DOMPurify config, if available.
+   * @param {Boolean} nodes
+   *   If true, returns HTML nodes instead of a string.
    *
    * @return {String|NodeList}
    *   The sanitized string or nodes.
@@ -2069,7 +2094,7 @@
    * @see https://en.wikipedia.org/wiki/Cross-site_scripting
    * @see https://github.com/cure53/DOMPurify
    */
-  function sanitize(str, nodes, config) {
+  function sanitize(str, config, nodes) {
     // Save for extra checks.
     if (!str) {
       return '';
@@ -2091,31 +2116,6 @@
     }
 
     /**
-     * Check if the attribute is potentially dangerous.
-     *
-     * @param {String} name
-     *   The attribute name.
-     * @param {String} value
-     *   The attribute value.
-     *
-     * @return {Boolean}
-     *   If true, the attribute is potentially dangerous.
-     */
-    function isPossiblyDangerous(name, value) {
-      var val = value.replace(/\s+/g, '').toLowerCase();
-      if (['src', 'href', 'xlink:href'].includes(name)) {
-        // See https://github.com/eslint/eslint/issues/2530
-        if (val.includes('script:') || val.includes('data:text/html')) { // eslint-disable-line
-          return true;
-        }
-      }
-      if (name.toLowerCase().startsWith('on')) {
-        return true;
-      }
-      return false;
-    }
-
-    /**
      * Remove potentially dangerous attributes from an element.
      *
      * @param {Node} el
@@ -2124,7 +2124,7 @@
     function removeAttributes(el) {
       var attrs = getNodeMap(el.attributes);
       each(attrs, function (value, name) {
-        if (!isPossiblyDangerous(name, value)) {
+        if (!isDangerous(name, value)) {
           return false;
         }
 
@@ -2179,6 +2179,7 @@
   db.prev = prev;
   db.index = index;
   db.keys = keys;
+  db.isDangerous = isDangerous;
   db.sanitize = sanitize;
 
   db.create = function (tagName, attrs, html) {

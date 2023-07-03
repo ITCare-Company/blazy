@@ -39,8 +39,7 @@ class BlazyViews {
 
       // Prevents dup [data-LIGHTBOX-gallery] if the Views style supports Grid.
       if (!$grid) {
-        $view->element['#attributes'] = empty($view->element['#attributes'])
-          ? [] : $view->element['#attributes'];
+        $view->element['#attributes'] = $view->element['#attributes'] ?? [];
         BlazyAttribute::container($view->element['#attributes'], $settings);
       }
     }
@@ -73,8 +72,7 @@ class BlazyViews {
     if ($lightbox && in_array($lightbox, $lightboxes)) {
       $settings['namespace'] = 'blazy';
       $settings['media_switch'] = $matches[1];
-      $variables['attributes'] = empty($variables['attributes'])
-        ? [] : $variables['attributes'];
+      $variables['attributes'] = $variables['attributes'] ?? [];
 
       BlazyAttribute::container($variables['attributes'], $settings);
     }

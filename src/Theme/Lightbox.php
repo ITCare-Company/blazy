@@ -133,8 +133,9 @@ class Lightbox {
         // Use responsive image if so-configured, unless rich content is given.
         if ($blazies->is('resimage') && empty($element['#lightbox_html'])) {
           $options = [
-            'uri' => $uri,
+            'blazies' => $blazies,
             'box_style' => $_box_style,
+            'uri' => $uri,
           ];
           $_resimage = self::responsiveImage($element, $options, $manager);
         }
@@ -328,8 +329,9 @@ class Lightbox {
    */
   private static function responsiveImage(array &$element, array $options, $manager): bool {
     [
-      'uri' => $uri,
+      'blazies' => $blazies,
       'box_style' => $box_style,
+      'uri' => $uri,
     ] = $options;
 
     // The _responsive_image_build_source_attributes is WSOD if missing.
@@ -337,10 +339,15 @@ class Lightbox {
     try {
       if ($resimage = $manager->load($box_style, 'responsive_image_style')) {
         $_resimage = TRUE;
+        $attrs = [
+          'alt' => $blazies->get('image.alt') ?: '',
+        ];
+
         $element['#lightbox_html'] = [
           '#theme' => 'responsive_image',
           '#responsive_image_style_id' => $resimage->id(),
           '#uri' => $uri,
+          '#attributes' => $attrs,
         ];
       }
     }

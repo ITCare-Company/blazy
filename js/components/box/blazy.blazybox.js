@@ -47,11 +47,19 @@
         data: settings
       });
 
+      var config = {
+        ADD_TAGS: ['iframe'],
+        ADD_ATTR: [
+          'allow',
+          'allowfullscreen'
+        ]
+      };
+
       Drupal.attachBehaviors($el[0]);
 
       $el.removeClass(_visualyHidden)
         .attr(_ariaHidden, false)
-        .find(_selContent).innerHTML = $.sanitize(content);
+        .find(_selContent).innerHTML = $.sanitize(content, config);
 
       $.addClass(_doc.body, _isOpened);
 
@@ -156,7 +164,7 @@
       }
     }
 
-    if ($.isStr(oembedUrl)) {
+    if ($.isStr(oembedUrl) && !$.isDangerous('src', oembedUrl)) {
       html += '<iframe src="' + oembedUrl + '" width="100%" height="100%" allowfullscreen></iframe>';
     }
 

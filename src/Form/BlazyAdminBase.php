@@ -246,7 +246,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $header = $this->t('Group individual items as block grid<small>Depends on the <strong>Display style</strong>.</small>');
       $form['grid_header'] = [
         '#type'   => 'markup',
-        '#markup' => '<h3 class="form__title form__title--grid">' . $header . '</h3>',
+        '#markup' => $header,
+        '#prefix' => '<h3 class="form__title form__title--grid">',
+        '#suffix' => '</h3>',
         '#access' => !$required,
       ];
     }
@@ -923,6 +925,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * Check scopes, a failsafe till sub-modules migrated.
    *
+   * Temporary re-definitions during migration after BlazyFormatterTrait
+   * ::getScopedFormElements() for sensible checks.
+   *
    * @todo remove most after sub-module migrations.
    */
   private function checkScopes(&$scopes, array &$definition): void {
@@ -961,6 +966,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $value = $scopes->is($bool) || !empty($definition[$bool]);
       $scopes->set('is.' . $bool, $value);
     }
+
     // Redefine for easy calls later due to sub-modules not migrated yet.
     // @todo remove after sub-modules migrations, and simplify all these at 3.x.
     $responsive = $is_responsive && $scopes->is('responsive_image');

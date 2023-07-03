@@ -20,6 +20,16 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   use PluginScopesTrait;
 
   /**
+   * {@inheritdoc}
+   */
+  protected $namespace = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $itemId = 'content';
+
+  /**
    * The blazy service manager.
    *
    * @var \Drupal\blazy\BlazyManagerInterface
@@ -123,7 +133,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * Defines the default values.
    */
-  public function getDefaultValues() {
+  protected function getDefaultValues() {
     return [
       'box_style'       => '',
       'box_media_style' => '',
@@ -173,7 +183,8 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
 
     $blazies->set('count', $count)
       ->set('css.id', $id)
-      ->set('namespace', 'blazy')
+      ->set('item.id', $this->itemId)
+      ->set('namespace', $this->namespace)
       ->set('view', $view_info, TRUE)
       ->set('is.view', TRUE)
       ->set('is.views_field', TRUE);
@@ -185,11 +196,11 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    * {@inheritdoc}
    */
   protected function getPluginScopes(): array {
+    $type = $this->view->getBaseEntityType();
     return [
-      'target_type' => !$this->view->getBaseEntityType()
-        ? ''
-        : $this->view->getBaseEntityType()->id(),
+      'target_type' => $type ? $type->id() : '',
       'thumbnail_style' => TRUE,
+      'no_preload' => TRUE,
     ];
   }
 

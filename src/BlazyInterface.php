@@ -204,39 +204,20 @@ interface BlazyInterface {
   /**
    * Alias for Blazy::getLibrariesPath() to get libraries path.
    *
-   * @param string $name
-   *   The library name.
-   * @param bool $base_path
-   *   Whether to prefix it with an a base path, deprecated.
-   *
-   * @return string|null
-   *   The path to library or NULL if not found.
-   */
-  public function getLibrariesPath($name, $base_path = FALSE): ?string;
-
-  /**
-   * Returns available double libraries, e.g.: DOMPurify vs. dompurify.
-   *
    * A few libraries have inconsistent namings, given different packagers:
    *   - splide x splidejs--splide
    *   - slick x slick-carousel
    *   - DOMPurify x dompurify, etc.
    *
-   * @param string $base
-   *   The regular download path for FTP.
-   * @param string $packagist
-   *   If using composer require npm-asset/LIBRARY_NAME.
-   * @param bool $absolute
-   *   Whether to use base path, or not.
+   * @param array|string $name
+   *   The library name(s), e.g.: 'colorbox', or ['DOMPurify', 'dompurify'].
+   * @param bool $base_path
+   *   Whether to prefix it with an a base path, deprecated.
    *
    * @return string|null
-   *   The path to the installed expected library, or NULL.
+   *   The path to the library, or NULL if not found.
    */
-  public function getLibraresPathAlternative(
-    $base = 'DOMPurify',
-    $packagist = 'dompurify',
-    $absolute = FALSE
-  ): ?string;
+  public function getLibrariesPath($name, $base_path = FALSE): ?string;
 
   /**
    * Alias for Blazy::getPath() to get module or theme path.
@@ -249,7 +230,7 @@ interface BlazyInterface {
    *   Whether to return an absolute path.
    *
    * @return string|null
-   *   The path to object or NULL if not found.
+   *   The path to object, or NULL if not found.
    */
   public function getPath($type, $name, $absolute = FALSE): ?string;
 

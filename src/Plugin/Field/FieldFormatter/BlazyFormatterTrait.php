@@ -127,13 +127,17 @@ trait BlazyFormatterTrait {
    * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().
    */
   public function getScopedFormElements() {
+    // Containing settings, blazies which must be intact, and the rest, which
+    // can be removed after migrations, are merged into scopes object.
+    $commons = $this->getCommonScopedFormElements();
+
     // Compat for BVEF till updated to adopt Blazy 2.10 BlazyVideoFormatter.
     $scopes = method_exists($this, 'getPluginScopes')
       ? $this->getPluginScopes() : [];
 
-    // @todo remove `$scopes +` at Blazy 3.x.
-    $definitions = $scopes + $this->getCommonScopedFormElements();
-    $definitions['scopes'] = $this->toPluginScopes($scopes);
+    // @todo remove `$scopes +` at Blazy 3.x, leaving only settings + blazies.
+    $definitions = $scopes + $commons;
+    $definitions['scopes'] = $this->toPluginScopes($scopes + $commons);
     return $definitions;
   }
 
@@ -163,7 +167,7 @@ trait BlazyFormatterTrait {
   protected function getCommonFieldDefinition() {
     $field = $this->fieldDefinition;
     $settings = [
-      'namespace'   => 'blazy',
+      'namespace'   => $this->namespace ?? 'blazy',
       'plugin_id'   => $this->getPluginId(),
     ];
 
@@ -195,7 +199,8 @@ trait BlazyFormatterTrait {
    * Defines the common scope for the form elements.
    */
   protected function getCommonScopedFormElements() {
-    return ['settings' => $this->getSettings()] + $this->getCommonFieldDefinition();
+    return ['settings' => $this->getSettings()]
+      + $this->getCommonFieldDefinition();
   }
 
   /**

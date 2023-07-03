@@ -30,6 +30,16 @@ class BlazyTextFormatter extends FormatterBase {
   /**
    * {@inheritdoc}
    */
+  protected $namespace = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $itemId = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     return self::injectServices($instance, $container, 'text');
@@ -77,17 +87,19 @@ class BlazyTextFormatter extends FormatterBase {
       ->set('is.text', TRUE)
       ->set('lazy', []);
 
-    $build += $this->getElements($items);
+    foreach ($this->getElements($items) as $element) {
+      $build[] = $element;
+    }
   }
 
   /**
    * Returns the Blazy elements, also for sub-modules to re-use.
    */
-  protected function getElements($items): array {
-    $elements = [];
+  protected function getElements($items): \Generator {
     // The ProcessedText element already handles cache context & tag bubbling.
     // @see \Drupal\filter\Element\ProcessedText::preRenderText()
     foreach ($items as $item) {
+      // @todo check $item class.
       if (empty($item->value)) {
         continue;
       }
@@ -95,15 +107,12 @@ class BlazyTextFormatter extends FormatterBase {
       $element = [
         '#type'     => 'processed_text',
         '#text'     => $item->value,
-        /* @phpstan-ignore-next-line */
-        '#format'   => $item->format,
-        /* @phpstan-ignore-next-line */
-        '#langcode' => $item->getLangcode(),
+        '#format'   => $item->format ?? NULL,
+        '#langcode' => method_exists($item, 'getLangcode') ? $item->getLangcode() : NULL,
       ];
 
-      $elements[] = $element;
+      yield $element;
     }
-    return $elements;
   }
 
   /**

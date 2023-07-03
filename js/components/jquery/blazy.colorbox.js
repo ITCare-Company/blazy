@@ -26,13 +26,14 @@
   function process(box) {
     var _cbox = drupalSettings.colorbox || {};
     var $box = $(box);
+    var url = box.href || 'x';
     var media = $box.data('media') || {};
-    var isMedia = media.type === 'video';
-    var isHtml = media.type === 'rich' && 'html' in media;
+    var isIframe = media.boxType === 'iframe' && !_d.isDangerous('href', url);
+    var isHtml = 'html' in media;
     var runtimeOptions = {
-      html: isHtml ? media.html : null,
+      html: isHtml ? _d.sanitize(media.html) : null,
       rel: media.rel || null,
-      iframe: isMedia,
+      iframe: isIframe,
       title: function () {
         var $caption = $box.next('.litebox-caption');
         if ($caption.length) {
@@ -44,9 +45,9 @@
         removeClasses();
         $body.addClass('colorbox-on colorbox-on--' + media.type);
 
-        if (isMedia || isHtml) {
+        if (isIframe || isHtml) {
           resizeBox();
-          $body.addClass(isMedia ? 'colorbox-on--media' : 'colorbox-on--html');
+          $body.addClass(isIframe ? 'colorbox-on--media' : 'colorbox-on--html');
         }
       },
       onClosed: function () {

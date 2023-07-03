@@ -39,8 +39,9 @@ trait PluginScopesTrait {
     }
 
     foreach ($current as $key => $value) {
+      // All array values are grouped inside `data key`.
       if (is_array($value)) {
-        // Do not put duplicate keys into $data, already processed.
+        // Do not put duplicate keys into $data, already processed below.
         if (in_array($key, ['data', 'form', 'is'])) {
           continue;
         }

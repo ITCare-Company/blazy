@@ -23,6 +23,16 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
   /**
    * {@inheritdoc}
    */
+  protected $namespace = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $itemId = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $entities = $this->getEntitiesToView($items, $langcode);
 

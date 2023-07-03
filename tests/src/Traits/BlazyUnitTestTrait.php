@@ -137,11 +137,12 @@ trait BlazyUnitTestTrait {
    * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().
    */
   public function getScopedFormElements() {
+    $commons = $this->getCommonScopedFormElements();
     $scopes = $this->getPluginScopes();
 
     // @todo remove `$scopes +` at Blazy 3.x.
-    $definitions = $scopes + $this->getCommonScopedFormElements();
-    $definitions['scopes'] = $this->toPluginScopes($scopes);
+    $definitions = $scopes + $commons;
+    $definitions['scopes'] = $this->toPluginScopes($scopes + $commons);
     return $definitions;
   }
 

@@ -52,11 +52,11 @@ class BlazySettingsForm extends BlazyConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('blazy.settings');
-    $exists = $this->manager->getLibraresPathAlternative('DOMPurify');
+    $exists = $this->manager->getLibrariesPath(['DOMPurify', 'dompurify']);
 
     // Adapted from Colorbox module, thanks.
     $dompurify_message = $exists ?
-      $this->t('Great! The DOMPurify library is installed to sanitize lightbox captions.')
+      $this->t('The DOMPurify library is installed to sanitize lightbox captions. Be sure to clear cache for library discoveries.')
       :
       $this->t('<strong>Warning!</strong> The <a href=":url">DOMPurify</a> library is not installed. This library is necessary if you want to use HTML in lightbox captions. Without it, all captions will be very minimally sanitized server-side, or very basic ones. Read more at <a href=":url2">Blazy UI help</a>.',
         [

@@ -19,6 +19,16 @@ class BlazyViews extends StylePluginBase implements BlazyViewsInterface {
   /**
    * {@inheritdoc}
    */
+  protected $namespace = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $itemId = 'content';
+
+  /**
+   * {@inheritdoc}
+   */
   protected $usesRowPlugin = TRUE;
 
   /**
@@ -79,8 +89,8 @@ class BlazyViews extends StylePluginBase implements BlazyViewsInterface {
     $settings = $this->buildSettings();
     $blazies = $settings['blazies'];
 
-    $blazies->set('namespace', 'blazy')
-      ->set('item.id', 'content')
+    $blazies->set('namespace', $this->namespace)
+      ->set('item.id', $this->itemId)
       ->set('is.grid', TRUE);
 
     $elements = [];

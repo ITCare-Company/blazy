@@ -41,6 +41,10 @@
     var title = $.attr(btn, _dataIFrameTitle);
     var newIframe;
 
+    if (url && $.isDangerous('src', url)) {
+      return;
+    }
+
     /**
      * Play the media.
      *
@@ -203,8 +207,8 @@
     return $.template(html, {
       md: _md,
       icon: _icon,
-      ariaClose: ariaClose,
-      ariaPlay: ariaPlay,
+      ariaClose: Drupal.checkPlain(ariaClose),
+      ariaPlay: Drupal.checkPlain(ariaPlay),
       idClass: idClass,
       player: player,
       pad: pad,

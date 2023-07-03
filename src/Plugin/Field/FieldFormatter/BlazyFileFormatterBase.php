@@ -70,8 +70,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   /**
    * Returns the Blazy elements, also for sub-modules to re-use.
    */
-  protected function getElements(array &$build, $files, $caption_id = 'captions'): array {
-    $elements = [];
+  protected function getElements(array $build, $files, $caption_id = 'captions'): \Generator {
     foreach ($files as $delta => $file) {
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
       $item  = $file->_referringItem;
@@ -95,9 +94,8 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       }
 
       // Image with grid, responsive image, lazyLoad, and lightbox supports.
-      $elements[] = $element;
+      yield $element;
     }
-    return $elements;
   }
 
   /**
@@ -105,8 +103,10 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    */
   protected function buildCaptions(array &$element, $caption_id): void {
     $settings = $element['settings'];
-    if (!empty($settings['caption']) && $item = ($element['item'] ?? NULL)) {
-      foreach ($settings['caption'] as $caption) {
+    $captions = $settings['caption'] ?? [];
+
+    if ($captions && $item = ($element['item'] ?? NULL)) {
+      foreach ($captions as $caption) {
         if ($content = ($item->{$caption} ?? NULL)) {
           $element[$caption_id][$caption] = [
             '#markup' => Xss::filterAdmin($content),

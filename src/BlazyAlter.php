@@ -77,7 +77,8 @@ class BlazyAlter {
 
     if ($extension === 'blazy') {
       if ($manager = Blazy::service('blazy.manager')) {
-        if ($path = $manager->getLibraresPathAlternative('DOMPurify')) {
+        $names = ['DOMPurify', 'dompurify'];
+        if ($path = $manager->getLibrariesPath($names)) {
           $js = [
             '/' . $path . '/dist/purify.min.js' => [
               'minified' => TRUE,
