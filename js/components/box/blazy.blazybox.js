@@ -43,6 +43,7 @@
     open: function (settings) {
       var me = Drupal.blazyBox;
       var $el = me.$el;
+      var elContent = $el.find(_selContent);
       var content = Drupal.theme('blazyBoxMedia', {
         data: settings
       });
@@ -58,8 +59,9 @@
       Drupal.attachBehaviors($el[0]);
 
       $el.removeClass(_visualyHidden)
-        .attr(_ariaHidden, false)
-        .find(_selContent).innerHTML = $.sanitize(content, config);
+        .attr(_ariaHidden, false);
+
+      elContent.innerHTML = $.sanitize(content, config);
 
       $.addClass(_doc.body, _isOpened);
 

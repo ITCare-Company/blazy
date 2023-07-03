@@ -2091,6 +2091,10 @@
    * @return {String|NodeList}
    *   The sanitized string or nodes.
    *
+   * @todo use native Sanitizer API when ready:
+   * @see https://web.dev/sanitizer/
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Sanitizer
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/HTML_Sanitizer_API
    * @see https://en.wikipedia.org/wiki/Cross-site_scripting
    * @see https://github.com/cure53/DOMPurify
    */
@@ -2152,10 +2156,14 @@
 
     // Sanitize it.
     if (typeof DOMPurify !== 'undefined') {
-      // @todo recheck if empty config is nullifying defaults, less likely, but.
-      // @todo use DOMPurify.sanitize(str, config || {}); after xchecks.
-      var check = config ? DOMPurify.sanitize(str, config) : DOMPurify.sanitize(str);
-      html = stringToHTML(check);
+      var check = DOMPurify.sanitize(str, config);
+      if (isObj(config) && config.RETURN_DOM) {
+        nodes = true;
+        html = check;
+      }
+      else {
+        html = stringToHTML(check);
+      }
     }
     else {
       html = stringToHTML();

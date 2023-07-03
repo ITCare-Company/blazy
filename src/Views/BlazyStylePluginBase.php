@@ -84,8 +84,8 @@ abstract class BlazyStylePluginBase extends StylePluginBase implements BlazyStyl
   /**
    * Renew settings per item.
    */
-  protected function reset(array &$settings) {
-    return Blazy::reset($settings);
+  protected function reset(array &$settings, $key = 'blazies') {
+    return Blazy::reset($settings, $key);
   }
 
 }

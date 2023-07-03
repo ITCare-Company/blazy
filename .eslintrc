@@ -12,7 +12,8 @@
     "Bio": true,
     "BioMedia": true,
     "cash": true,
-    "DOMPurify": true
+    "DOMPurify": true,
+    "Sanitizer": true
   },
   "rules": {
     "consistent-this": [0, "me"],
