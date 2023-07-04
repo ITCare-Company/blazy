@@ -61,7 +61,7 @@ class Grid {
       $sets = Blazy::merge($item_sets, $settings);
       $sets = Blazy::merge($item['#build']['settings'] ?? [], $sets);
 
-      $blazy = $blazies->reset($sets);
+      $blazy = $sets['blazies']->reset($sets);
       $sets['delta'] = $key;
       $blazy->set('delta', $key);
 

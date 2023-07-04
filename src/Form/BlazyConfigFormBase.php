@@ -83,7 +83,7 @@ abstract class BlazyConfigFormBase extends ConfigFormBase {
             $info = [
               'paths' => $paths,
               'striptags' => $this->stripTags,
-              'tags' => $this->allowedTags ?: ['<em>'],
+              'tags' => $this->allowedTags,
             ];
             $value = Sanitize::input($value, $option, $info);
           }

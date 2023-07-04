@@ -47,8 +47,6 @@
   var _html = 'html';
   var _dashAlphaRe = /-([a-z])/g;
   var _cssVariableRe = /^--/;
-  var _wsRe = /[\11\12\14\15\40]+/;
-  var _dataOnce = 'data-once';
   var _storage = _win.localStorage;
   var _events = {};
   // The largest integer that can be represented exactly.
@@ -525,7 +523,7 @@
    * @return {object}
    *   The simplified iterable object.
    */
-  function getNodeMap(obj, scope) {
+  function nodeMapAttr(obj, scope) {
     var info = {};
     if (obj && obj.length) {
       var arr = _aProto.slice.call(obj);
@@ -592,7 +590,7 @@
       }
 
       if (obj instanceof NamedNodeMap) {
-        var info = getNodeMap(obj, scope);
+        var info = nodeMapAttr(obj, scope);
         cb.call(scope, info, 0, obj);
       }
       else {
@@ -602,6 +600,7 @@
         }
         else {
           // Assumes array, at least non-expected objs were blacklisted above.
+          // [].forEach is unforgiving, that is why we filter out stupidity.
           obj.forEach(cb, scope);
         }
       }
@@ -694,7 +693,7 @@
 
     // Returns all available attributes, if any.
     if (isUnd(attr) && isElm(elm)) {
-      return getNodeMap(elm.attributes);
+      return nodeMapAttr(elm.attributes);
     }
 
     // No defValue defined, or withDefault set, means a getter.
@@ -1341,35 +1340,6 @@
   }
 
   /**
-   * Executes the function once.
-   *
-   * @private
-   *
-   * @author Daniel Lamb <dlamb.open.source@gmail.com>
-   * @link https://github.com/daniellmb/once.js
-   *
-   * @param {Function} cb
-   *   The executed function.
-   *
-   * @return {Object}
-   *   The function result.
-   */
-  function _once(cb) {
-    var result;
-    var ran = false;
-    return function proxy() {
-      if (ran) {
-        return result;
-      }
-      ran = true;
-      result = cb.apply(this, arguments);
-      // For garbage collection.
-      cb = null;
-      return result;
-    };
-  }
-
-  /**
    * Process arguments, query the DOM if necessary. Adapted from core/once.
    *
    * @private
@@ -1617,8 +1587,9 @@
   db.toArray = toArray;
 
   // Attribute methods.
-  db.hasAttr = hasAttr;
   db.attr = _attr.bind(db);
+  db.hasAttr = hasAttr;
+  db.nodeMapAttr = nodeMapAttr;
   db.removeAttr = removeAttr.bind(db);
 
   // Class name methods.
@@ -1710,47 +1681,6 @@
       img.onerror = reject();
     });
   };
-
-  /**
-   * A wrapper for core/once until D9.2 is a minimum.
-   *
-   * @param {Function} cb
-   *   The executed function.
-   * @param {string} id
-   *   The id of the once call.
-   * @param {NodeList|Array.<Element>|Element|string} selector
-   *   A NodeList, array of elements, single Element, or a string.
-   * @param {Document|Element} ctx
-   *   An element to use as context for querySelectorAll.
-   *
-   * @return {Array.<Element>}
-   *   An array of elements to process, or empty for old behavior.
-   */
-  function onceCompat(cb, id, selector, ctx) {
-    var els = [];
-
-    // If a string, assumes find once like core/once.
-    if (isStr(cb)) {
-      return findOnce(cb, id);
-    }
-
-    // Original once.
-    if (isUnd(selector)) {
-      _once(cb);
-    }
-    // If extra arguments are provided, assumes regular loop over elements.
-    else {
-      els = initOnce(id, selector, ctx);
-      if (els.length) {
-        // Already avoids loop for a single item.
-        each(els, cb);
-      }
-    }
-
-    return els;
-  }
-
-  db.once = onceCompat;
 
   /**
    * Pause a video element.
@@ -2045,136 +1975,6 @@
     return i;
   }
 
-  /**
-   * Check if the attribute is potentially dangerous.
-   *
-   * @param {String} name
-   *   The attribute name.
-   * @param {String} value
-   *   The attribute value.
-   *
-   * @return {Boolean}
-   *   If true, the attribute is potentially dangerous.
-   */
-  function isDangerous(name, value) {
-    var val = value.replace(/\s+/g, '').toLowerCase();
-    if (['src', 'href', 'xlink:href'].includes(name)) {
-      // See https://github.com/eslint/eslint/issues/2530
-      if (val.includes('script:') || val.includes('data:text/html')) { // eslint-disable-line
-        return true;
-      }
-    }
-    if (name.toLowerCase().startsWith('on')) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Sanitize an HTML string.
-   *
-   * A minimal DOMPurify for semi-trusted Drupal UI/ code outputs. The rest
-   * should be taken care of server-side.
-   *
-   * @private
-   *
-   * @author 2021 Chris Ferdinandi
-   * @link https://vanillajstoolkit.com/helpers/cleanhtml/
-   *
-   * @param {String} str
-   *   The HTML string to sanitize.
-   * @param {Object|null} config
-   *   The DOMPurify config, if available.
-   * @param {Boolean} nodes
-   *   If true, returns HTML nodes instead of a string.
-   *
-   * @return {String|NodeList}
-   *   The sanitized string or nodes.
-   *
-   * @todo use native Sanitizer API when ready:
-   * @see https://web.dev/sanitizer/
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Sanitizer
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/HTML_Sanitizer_API
-   * @see https://en.wikipedia.org/wiki/Cross-site_scripting
-   * @see https://github.com/cure53/DOMPurify
-   */
-  function sanitize(str, config, nodes) {
-    // Save for extra checks.
-    if (!str) {
-      return '';
-    }
-
-    /**
-     * Convert the string to an HTML document.
-     *
-     * @param {String} altstr
-     *   The alternative string to sanitize.
-     *
-     * @return {Node}
-     *   An HTML document.
-     */
-    function stringToHTML(altstr) {
-      var parser = new DOMParser();
-      var doc = parser.parseFromString(altstr || str, 'text/html');
-      return doc.body || _doc.createElement('body');
-    }
-
-    /**
-     * Remove potentially dangerous attributes from an element.
-     *
-     * @param {Node} el
-     *   The element.
-     */
-    function removeAttributes(el) {
-      var attrs = getNodeMap(el.attributes);
-      each(attrs, function (value, name) {
-        if (!isDangerous(name, value)) {
-          return false;
-        }
-
-        el.removeAttribute(name);
-      });
-    }
-
-    /**
-     * Remove dangerous stuff from the HTML document's nodes.
-     *
-     * @param {Node} html
-     *   The HTML document.
-     */
-    function clean(html) {
-      var children = html.children;
-
-      each(children, function (node) {
-        removeAttributes(node);
-        clean(node);
-      });
-    }
-
-    // Convert the string to HTML.
-    var html;
-
-    // Sanitize it.
-    if (typeof DOMPurify !== 'undefined') {
-      var check = DOMPurify.sanitize(str, config);
-      if (isObj(config) && config.RETURN_DOM) {
-        nodes = true;
-        html = check;
-      }
-      else {
-        html = stringToHTML(check);
-      }
-    }
-    else {
-      html = stringToHTML();
-      clean(html);
-    }
-
-    // If the user wants HTML nodes back, return them.
-    // Otherwise, pass a sanitized string back.
-    return nodes ? html.childNodes : html.innerHTML;
-  }
-
   db.context = context;
   db.toElm = toElm;
   db.camelCase = camelCase;
@@ -2187,32 +1987,7 @@
   db.prev = prev;
   db.index = index;
   db.keys = keys;
-  db.isDangerous = isDangerous;
-  db.sanitize = sanitize;
-
-  db.create = function (tagName, attrs, html) {
-    var el = _doc.createElement(tagName);
-
-    if (isStr(attrs) || isObj(attrs)) {
-      if (isStr(attrs)) {
-        el.className = attrs;
-      }
-      else {
-        _attr(el, attrs);
-      }
-    }
-
-    if (html) {
-      html = html.trim();
-
-      el.innerHTML = sanitize(html);
-      if (tagName === 'template') {
-        el = el.content.firstChild || el;
-      }
-    }
-
-    return el;
-  };
+  db._op = _op;
 
   // See https://caniuse.com/?search=localstorage
   db.storage = function (key, value, defValue, restore) {
@@ -2272,102 +2047,6 @@
   db.bindEvent = on.bind(db);
 
   db.unbindEvent = off.bind(db);
-
-  function _filter(selector, elements, apply) {
-    return elements.filter(function (el) {
-      var selected = is(el, selector);
-      if (selected && apply) {
-        apply(el);
-      }
-      return selected;
-    });
-  }
-
-  db.filter = _filter;
-
-  // @todo remove all these when min D9.2, or take the least minimum for BC.
-  // Be sure to make context Element, or patch it to work with [1,9,11] types
-  // which distinguish this from core/once as per 2022/2.
-  // When removed and context issue is fixed, it will be just:
-  // `db.once = extend(db.once, once);` + `db.once.removeSafely()`.
-  function elsOnce(selector, ctx) {
-    return findAll(ctx, selector);
-  }
-
-  function selOnce(id) {
-    return '[' + _dataOnce + '~="' + id + '"]';
-  }
-
-  function updateOnce(el, opts) {
-    var add = opts.add;
-    var remove = opts.remove;
-    var result = [];
-
-    if (hasAttr(el, _dataOnce)) {
-      var ids = _attr(el, _dataOnce).trim().split(_wsRe);
-      each(ids, function (id) {
-        if (!contains(result, id) && id !== remove) {
-          result.push(id);
-        }
-      });
-    }
-    if (add && !contains(result, add)) {
-      result.push(add);
-    }
-
-    var value = result.join(' ');
-    _op(el, value === '' ? _remove : _set, _dataOnce, value.trim());
-  }
-
-  // @todo BigPipe compat to avoid legacy approach with `processed` classes.
-  // See:
-  // - https://www.drupal.org/project/drupal/issues/1461322.
-  // - https://www.drupal.org/project/slick/issues/3340509.
-  // - https://www.drupal.org/project/slick/issues/3211873.
-  function initOnce(id, selector, ctx) {
-    return _filter(':not(' + selOnce(id) + ')', elsOnce(selector, ctx), function (el) {
-      updateOnce(el, {
-        add: id
-      });
-    });
-  }
-
-  function findOnce(id, ctx) {
-    return elsOnce(!id ? '[' + _dataOnce + ']' : selOnce(id), ctx);
-  }
-
-  if (!db.once.find) {
-    db.once.find = findOnce;
-    db.once.filter = function (id, selector, ctx) {
-      return _filter(selOnce(id), elsOnce(selector, ctx));
-    };
-
-    // @todo implement clear.
-    db.once.remove = function (id, selector, ctx, clear) {
-      return _filter(
-        selOnce(id),
-        elsOnce(selector, ctx),
-        function (el) {
-          updateOnce(el, {
-            remove: id
-          });
-        }
-      );
-    };
-    db.once.removeSafely = function (id, selector, ctx, clear) {
-      var me = this;
-      var jq = _win.jQuery;
-
-      if (me.find(id, ctx).length) {
-        me.remove(id, selector, ctx, clear);
-      }
-
-      // @todo remove BC for pre core/once when min D9.2:
-      if (_isJq && jq && jq.fn && isFun(jq.fn.removeOnce)) {
-        jq(selector, context(ctx)).removeOnce(id);
-      }
-    };
-  }
 
   if (typeof exports !== 'undefined') {
     // Node.js.

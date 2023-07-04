@@ -17,6 +17,7 @@
   var _element = '[' + _dataId + '-gallery]:not(.' + _mounted + ')';
   var _trigger = '[' + _dataId + '-trigger]';
   var _blazy = Drupal.blazy || {};
+  var _sanitizer = $.sanitizer;
   var _canZoom = true;
   var _elClicked;
   var _index = 0;
@@ -138,7 +139,7 @@
         // (Responsive|Picture) image, local video.
         if ('html' in media) {
           useWidth = boxType === 'video';
-          src = $.sanitize(media.html);
+          src = _sanitizer.sanitize(media.html);
           item.type = 'inline';
         }
         else if (boxType === 'iframe') {
@@ -156,7 +157,7 @@
 
           src = '<div class="mfp-html mfp-html--' + boxType + '"' + style + '><div class="mfp-inner">' + src;
           if (caption) {
-            src += '<div class="mfp-bottom-bar"><div class="mfp-title">' + $.sanitize(caption.innerHTML) + '</div>' + counter((i + 1) + '/' + total) + '</div>';
+            src += '<div class="mfp-bottom-bar"><div class="mfp-title">' + _sanitizer.sanitize(caption.innerHTML) + '</div>' + counter((i + 1) + '/' + total) + '</div>';
           }
           src += '</div></div>';
         }
@@ -167,7 +168,7 @@
       }
 
       if (caption) {
-        item.title = $.sanitize(caption.innerHTML);
+        item.title = _sanitizer.sanitize(caption.innerHTML);
       }
 
       items.push(item);

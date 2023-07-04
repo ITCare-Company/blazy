@@ -42,6 +42,7 @@ class Sanitize {
     foreach ($attributes as $key => $value) {
       // Since Blazy is lazyloading known URLs, sanitize attributes which
       // make no sense to stick around within IMG or IFRAME tags.
+      // The most obvious (HREF and SRC) are done downstream, not upstream.
       $key = trim($key);
       $key = Html::escape($key);
       $check = strtolower($key);
@@ -65,12 +66,12 @@ class Sanitize {
   }
 
   /**
-   * Returns the sanitized input for UGC.
+   * Returns the minimally sanitized input for UGC.
    *
    * @param array|string $input
    *   The given input to sanitize.
    * @param string $name
-   *   The given input name.
+   *   The given input name, or key, to check for protocols.
    * @param array $options
    *   The options: paths, striptags, tags.
    *
@@ -80,7 +81,15 @@ class Sanitize {
   public static function input($input, $name, array $options) {
     $paths = $options['paths'] ?? [];
     $striptags = $options['striptags'] ?? TRUE;
-    $tags = $options['tags'] ?? NULL;
+
+    // PHP8.0.0 allows nullable tags. PHP7.4.0 accepts array.
+    // The minimum D8.8 is PHP7.4, not recommended.
+    // Everything learns, even a widely used language.
+    // See https://www.php.net/manual/en/function.strip-tags.php
+    // See https://www.drupal.org/node/2891690
+    // When you see sumthing stupid like below, you know why.
+    $tags = ($options['tags'] ?? NULL) ?: [];
+    $xsstags = $tags ?: NULL;
     $value = $input;
 
     if (is_string($value)) {
@@ -90,7 +99,7 @@ class Sanitize {
       if ($paths && in_array($name, $paths)) {
         $value = UrlHelper::filterBadProtocol($value);
       }
-      $value = Xss::filter($value, $tags);
+      $value = Xss::filter($value, $xsstags);
     }
     elseif (is_array($value)) {
       if ($striptags) {
@@ -109,8 +118,8 @@ class Sanitize {
         }
       });
 
-      $value = array_map(function ($val) use ($tags) {
-        return $val ? Xss::filter($val, $tags) : $val;
+      $value = array_map(function ($val) use ($xsstags) {
+        return $val ? Xss::filter($val, $xsstags) : $val;
       }, $value);
     }
     return $value;
@@ -168,7 +177,7 @@ class Sanitize {
    * Returns the required URL relevant for UGC.
    *
    * The image itself can be a trojan horse, this is scratching the surface.
-   * Blazy is not managing, or uploading images. It just works with them.
+   * Blazy is not managing, nor uploading images. It just works with them.
    *
    * @param string $url
    *   The given url.

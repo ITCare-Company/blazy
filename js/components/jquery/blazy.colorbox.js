@@ -15,6 +15,7 @@
   var _mounted = 'is-' + _idOnce;
   var _element = '[data-' + _id + '-trigger]:not(.' + _mounted + ')';
   var _blazy = Drupal.blazy || {};
+  var _sanitizer = _d.sanitizer;
   var cboxTimer;
 
   /**
@@ -28,16 +29,16 @@
     var $box = $(box);
     var url = box.href || 'x';
     var media = $box.data('media') || {};
-    var isIframe = media.boxType === 'iframe' && !_d.isDangerous('href', url);
+    var isIframe = media.boxType === 'iframe' && !_sanitizer.isDangerous('href', url);
     var isHtml = 'html' in media;
     var runtimeOptions = {
-      html: isHtml ? _d.sanitize(media.html) : null,
+      html: isHtml ? _sanitizer.sanitize(media.html) : null,
       rel: media.rel || null,
       iframe: isIframe,
       title: function () {
         var $caption = $box.next('.litebox-caption');
         if ($caption.length) {
-          return _d.sanitize($caption[0].innerHTML);
+          return _sanitizer.sanitize($caption[0].innerHTML);
         }
         return '';
       },

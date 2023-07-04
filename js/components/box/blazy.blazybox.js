@@ -20,6 +20,7 @@
   var _isOpened = 'is-' + _id + '--open';
   var _visualyHidden = 'visually-hidden';
   var _ariaHidden = 'aria-hidden';
+  var _sanitizer = $.sanitizer;
 
   /**
    * Blazybox public methods.
@@ -61,7 +62,7 @@
       $el.removeClass(_visualyHidden)
         .attr(_ariaHidden, false);
 
-      elContent.innerHTML = $.sanitize(content, config);
+      elContent.innerHTML = _sanitizer.sanitize(content, config);
 
       $.addClass(_doc.body, _isOpened);
 
@@ -166,7 +167,7 @@
       }
     }
 
-    if ($.isStr(oembedUrl) && !$.isDangerous('src', oembedUrl)) {
+    if ($.isStr(oembedUrl) && !_sanitizer.isDangerous('src', oembedUrl)) {
       html += '<iframe src="' + oembedUrl + '" width="100%" height="100%" allowfullscreen></iframe>';
     }
 

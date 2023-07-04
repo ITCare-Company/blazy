@@ -3,7 +3,6 @@
 namespace Drupal\blazy\Views;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Render\Markup;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
@@ -204,6 +203,7 @@ trait BlazyStyleBaseTrait {
       'name'        => $view_name,
       'plugin_id'   => $plugin_id,
       'view_mode'   => $view_mode,
+      'count'       => $count,
     ];
 
     $blazies->set('cache.keys', [$id, $view_mode, $count], TRUE)
@@ -216,7 +216,7 @@ trait BlazyStyleBaseTrait {
       ->set('view', $view_info, TRUE);
 
     if (!empty($this->htmlSettings)) {
-      $settings = NestedArray::mergeDeep($settings, $this->htmlSettings);
+      $settings = $this->blazyManager->merge($this->htmlSettings, $settings);
     }
 
     $this->blazyManager->postSettings($settings);

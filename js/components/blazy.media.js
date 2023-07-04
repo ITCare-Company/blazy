@@ -41,7 +41,7 @@
     var title = $.attr(btn, _dataIFrameTitle);
     var newIframe;
 
-    if (url && $.isDangerous('src', url)) {
+    if (url && $.sanitizer.isDangerous('src', url)) {
       return;
     }
 

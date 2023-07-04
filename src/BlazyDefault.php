@@ -10,7 +10,7 @@ class BlazyDefault {
   /**
    * Defines constant for the supported text tags.
    */
-  const TAGS = ['a', 'em', 'strong', 'h2', 'p', 'span', 'ul', 'ol', 'li'];
+  const TAGS = ['a', 'em', 'strong', 'h2', 'h3', 'p', 'span', 'ul', 'ol', 'li'];
 
   /**
    * Defines constant for the supported media tags.

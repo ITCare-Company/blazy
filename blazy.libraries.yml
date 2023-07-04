@@ -5,6 +5,9 @@
 dblazy:
   js:
     js/dblazy.min.js: { minified: true, weight: -6 }
+    # The integrated basic plugins, separated for readability:
+    js/plugin/blazy.once.min.js: { minified: true, weight: -5.9 }
+    js/plugin/blazy.sanitizer.min.js: { minified: true, weight: -5.9 }
 
 dompurify:
   remote: https://github.com/cure53/DOMPurify

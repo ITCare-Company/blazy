@@ -31,7 +31,7 @@
         if ($.isElm(caption)) {
           var title = $.find(_doc, '#pbCaption .title');
           if ($.isElm(title)) {
-            title.innerHTML = $.sanitize(caption.innerHTML);
+            title.innerHTML = $.sanitizer.sanitize(caption.innerHTML);
           }
         }
       }
