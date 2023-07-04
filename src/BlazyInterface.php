@@ -85,6 +85,17 @@ interface BlazyInterface {
   public function config($key = NULL, $group = 'blazy.settings');
 
   /**
+   * Returns any config by the $group, alternative to ugly NULL key.
+   *
+   * @param string $group
+   *   The settings object group key.
+   *
+   * @return array
+   *   The config values, or empty array.
+   */
+  public function configMultiple($group = 'blazy.settings'): array;
+
+  /**
    * Implements hook_config_schema_info_alter().
    */
   public function configSchemaInfoAlter(

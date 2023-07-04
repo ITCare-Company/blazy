@@ -55,6 +55,13 @@ class Blazy {
   }
 
   /**
+   * Alias for BlazyFile::createUrl() for sub-modules.
+   */
+  public static function createUrl($uri, $relative = FALSE): string {
+    return BlazyFile::createUrl($uri, $relative);
+  }
+
+  /**
    * Alias for CheckItem::denied() for sub-modules.
    */
   public static function denied($entity): array {

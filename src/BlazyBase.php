@@ -198,6 +198,13 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function configMultiple($group = 'blazy.settings'): array {
+    return $this->config(NULL, $group) ?: [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function configSchemaInfoAlter(
     array &$definitions,
     $formatter = 'blazy_base',

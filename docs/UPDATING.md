@@ -16,7 +16,7 @@ Keep the `Performance` page open on a separate tab till the update is performed.
 This will be your last resort if updates have errors, never reload this page.
 
 1. Always test updates at DEV or STAGING environments like a pro so nothing
-   breaks your PRODUCTION site till everything is thoroughly reviewed.
+   breaks your PRODUCTION site until everything is thoroughly reviewed.
 
 2. [/admin/config/development/maintenance](/admin/config/development/maintenance)  
 
@@ -57,14 +57,18 @@ This will be your last resort if updates have errors, never reload this page.
    solutions.
 
 **Note the order!**  
-It is very important to follow as is for successful updates.
+It is very important to follow as is for successful updates. If you don't follow
+the above SOP, and stuck on a broken site, no need to uninstall modules which
+will remove all configuration, formatter, etc. Instead try downgrading the
+module versions, clear cache, and follow the SOP strictly before re-updating.
+
 
 ## BROKEN MODULES
 Alpha, Beta, DEV releases are for developers only. Beware of possible breakage.
 
-However if it is broken, running `drush updb` and `drush cr` during DEV releases
-should fix most issues as we add new services, or change things. If you don't
-drush, before any module update:
+However if it is broken, running `drush cr`, `drush updb` and `drush cr` during
+DEV releases should fix most issues as we add new services, or change things.
+If you don't drush, before any module update:
 
 1. Always open a separate tab:
 

@@ -29,37 +29,78 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
   public function getOptions($group = NULL, $property = NULL);
 
   /**
-   * Returns the array of settings.
-   *
-   * @param bool $ansich
-   *   Whether to return the settings as is.
-   *
-   * @return array
-   *   The array of settings.
-   */
-  public function getSettings($ansich = FALSE);
-
-  /**
    * Sets the array of settings.
    *
-   * @param array $settings
-   *   The new array of settings.
+   * @param array $options
+   *   The array of options to merge.
+   * @param bool $merged
+   *   Whether to merge, or replace.
    *
    * @return $this
    *   The class instance that this method is called on.
    */
-  public function setSettings(array $settings = []);
+  public function setOptions(array $options, $merged = TRUE): self;
+
+  /**
+   * Returns the value of an option group.
+   *
+   * @param string $group
+   *   The group name: settings, icon, etc.
+   *
+   * @return mixed
+   *   The option value merged with defaults.
+   */
+  public function getOption($group);
+
+  /**
+   * Sets the value of an option.
+   *
+   * @param string $name
+   *   The option name: settings, etc.
+   * @param string $value
+   *   The option value.
+   *
+   * @return $this
+   *   The class is being called.
+   */
+  public function setOption($name, $value): self;
+
+  /**
+   * Returns the array of settings.
+   *
+   * @param bool $ansich
+   *   Whether to return the settings as is, normally without defaults.
+   *
+   * @return array
+   *   The array of settings.
+   */
+  public function getSettings($ansich = FALSE): array;
+
+  /**
+   * Sets the array of settings.
+   *
+   * @param array $values
+   *   The new array of setting values.
+   * @param bool $merged
+   *   Whether to merge with default values.
+   *
+   * @return $this
+   *   The class instance that this method is called on.
+   */
+  public function setSettings(array $values, $merged = TRUE): self;
 
   /**
    * Returns the value of a setting.
    *
-   * @param string $setting_name
+   * @param string $name
    *   The setting name.
+   * @param bool|string|null $default
+   *   The default value.
    *
    * @return mixed
    *   The setting value.
    */
-  public function getSetting($setting_name);
+  public function getSetting($name, $default = NULL);
 
   /**
    * Sets the value of a setting.
@@ -72,6 +113,6 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
    * @return $this
    *   The class instance that this method is called on.
    */
-  public function setSetting($setting_name, $value);
+  public function setSetting($setting_name, $value): self;
 
 }
