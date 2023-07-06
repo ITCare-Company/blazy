@@ -118,11 +118,12 @@ class BlazyAlter {
 
       // Plugins extending dBlazy.
       foreach (BlazyDefault::plugins() as $id) {
+        // @todo remove css + dom post sub-module updates at 2.18+.
         $base = ['eventify', 'viewport', 'dataset', 'css', 'dom'];
         $base = in_array($id, $base);
         $deps = $base ? ['blazy/dblazy', 'blazy/base'] : ['blazy/xlazy'];
         if ($id == 'xlazy') {
-          $deps = ['blazy/viewport', 'blazy/dataset', 'blazy/dom'];
+          $deps = ['blazy/viewport', 'blazy/dataset'];
         }
 
         // @todo problematic weight, basically compat must be present.
@@ -130,6 +131,11 @@ class BlazyAlter {
           $deps[] = 'blazy/compat';
         }
         $weight = $base ? -5.6 : -5.5;
+
+        // @todo remove, integrated into dblazy since 2.17.
+        if ($id == 'dom') {
+          $weight = -5.9;
+        }
         $common = ['minified' => TRUE, 'weight' => $weight];
         $libraries[$id] = [
           'js' => [

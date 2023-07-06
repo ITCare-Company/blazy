@@ -57,7 +57,7 @@ trait BlazyStyleBaseTrait {
         $value = is_object($markup) ? trim(strip_tags($markup->__toString()) ?: '') : $value;
       }
 
-      if (is_string($value)) {
+      if ($value && is_string($value)) {
         // Only respects tags with default CSV, just too much to worry about.
         if (strpos($value, ',') !== FALSE) {
           $tags = explode(',', $value);
@@ -250,8 +250,9 @@ trait BlazyStyleBaseTrait {
 
     // Even if ignorantly multiple, thumbnails must be one only.
     if (!$tn_style && $build) {
-      $tn_style = $build['settings']['thumbnail_style']
-        ?? $build['settings']['image_style']
+      $subsets = $build['settings'] ?? [];
+      $tn_style = $subsets['thumbnail_style']
+        ?? $subsets['image_style']
         ?? NULL;
     }
 

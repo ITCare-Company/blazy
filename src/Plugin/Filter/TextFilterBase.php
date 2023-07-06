@@ -154,6 +154,17 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
+   * Return common definitions.
+   */
+  protected function getPluginScopes(): array {
+    return [
+      'caches'    => FALSE,
+      'filter'    => TRUE,
+      'plugin_id' => $this->getPluginId(),
+    ];
+  }
+
+  /**
    * Prepares the settings.
    */
   protected function preSettings(array &$settings, $text) {

@@ -79,16 +79,17 @@ class BlazyTextFormatter extends FormatterBase {
    * Build the grid text elements.
    */
   protected function buildElements(array &$build, $items, $langcode) {
-    $settings = &$build['settings'];
-    $blazies  = $settings['blazies'];
+    $settings = $build['settings'];
+    $blazies = $settings['blazies'];
 
     $blazies->set('is.grid', TRUE)
       ->set('is.unblazy', TRUE)
       ->set('is.text', TRUE)
       ->set('lazy', []);
 
+    // Since 2.17, match sub-modules `items` for easy swap later to DRY.
     foreach ($this->getElements($items) as $element) {
-      $build[] = $element;
+      $build['items'][] = $element;
     }
   }
 

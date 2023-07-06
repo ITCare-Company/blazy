@@ -43,9 +43,10 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
   public function imageStyleForm(array &$form, array $definition): void {
     $scopes = $this->toScopes($definition);
     $field_type = $scopes->get('field.type');
-    $plugin_id = $scopes->get('plugin_id');
+    $plugin_id = $scopes->get('plugin_id') ?: '';
     $use_image = !$scopes->is('no_image_style');
 
+    // Not all has defined plugin_id such as filters for now.
     if ($use_image && strpos($plugin_id, '_text') === FALSE) {
       $base = $this->baseForm($definition);
 

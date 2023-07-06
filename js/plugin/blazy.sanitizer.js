@@ -115,17 +115,15 @@
    *   If true, the attribute is potentially dangerous.
    */
   function isDangerous(name, value) {
+    var key = name.toLowerCase();
     var val = value.replace(/\s+/g, '').toLowerCase();
-    if (['src', 'href', 'xlink:href'].includes(name)) {
+    if (['src', 'href', 'xlink:href'].includes(key)) {
       // See https://github.com/eslint/eslint/issues/2530
       if (val.includes('script:') || val.includes('data:text/html')) { // eslint-disable-line
         return true;
       }
     }
-    if (name.toLowerCase().startsWith('on')) {
-      return true;
-    }
-    return false;
+    return key.startsWith('on');
   }
 
   /**
@@ -159,6 +157,7 @@
       html = html.trim();
 
       // @todo use el.setHTML(html) when Sanitizer API is available.
+      // Cannot blindly use .setHTML yet without knowing its behaviors.
       el.innerHTML = sanitize(html);
       if (tagName === 'template') {
         el = el.content.firstChild || el;

@@ -68,10 +68,11 @@ class BlazyEntity implements BlazyEntityInterface {
    */
   public function build(array $data, $entity = NULL, $fallback = ''): array {
     // Using hashed key to avoid render error with BVEF due to out of sync.
-    $entity = $data['#entity'] ?? $entity;
+    // @todo remove the second after migrations at/by 3.x.
+    $entity   = $data['#entity'] ?? $entity;
     $fallback = $data['fallback'] ?? $fallback;
     $settings = &$data['settings'];
-    $manager = $this->blazyManager;
+    $manager  = $this->blazyManager;
 
     if (!$entity instanceof EntityInterface) {
       return [];
@@ -139,7 +140,7 @@ class BlazyEntity implements BlazyEntityInterface {
    * {@inheritdoc}
    */
   public function prepare(array &$data): void {
-    $manager = $this->blazyManager;
+    $manager  = $this->blazyManager;
     $settings = &$data['settings'];
 
     Blazy::verify($settings);
@@ -168,6 +169,7 @@ class BlazyEntity implements BlazyEntityInterface {
       $entity = $entity['#entity'] ?? NULL;
     }
 
+    // Re-defined, needed downstream by local video, etc.
     $settings['view_mode'] = $settings['view_mode'] ?? 'default';
 
     // @todo remove $data as the single param after sub-modules.

@@ -55,9 +55,9 @@ class BlazyVideoFormatter extends BlazyVideoBase {
    * Build the blazy elements.
    */
   protected function buildElements(array &$build, $items, $langcode) {
-    $settings = &$build['settings'];
-    $blazies  = $settings['blazies'];
-    $entity   = $items->getEntity();
+    $settings = $build['settings'];
+    $blazies = $settings['blazies'];
+    $entity = $items->getEntity();
 
     if (!($vef = $this->vefProviderManager())) {
       return;
@@ -68,9 +68,10 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       ->set('media.source', 'video_embed_field');
 
     foreach ($items as $delta => $item) {
-      $input = strip_tags($item->value);
+      $input = strip_tags($item->value ?: '');
 
-      if (empty($input) || !($provider = $vef->loadProviderFromInput($input))) {
+      if (empty($input)
+        || !($provider = $vef->loadProviderFromInput($input))) {
         continue;
       }
 
@@ -78,7 +79,8 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       $provider->downloadThumbnail();
       $uri = $provider->getLocalThumbnailUri();
 
-      $blazy = $blazies->reset($settings);
+      $sets = $settings;
+      $blazy = $sets['blazies']->reset($sets);
       $blazy->set('delta', $delta)
         ->set('image.uri', $uri)
         ->set('media.input_url', $input);
@@ -95,8 +97,8 @@ class BlazyVideoFormatter extends BlazyVideoBase {
        */
       $data = [
         '#entity' => $entity,
+        'settings' => $sets,
         'item' => NULL,
-        'settings' => $settings,
       ];
       $this->blazyOembed->build($data);
 

@@ -163,7 +163,7 @@ trait BlazyStylePluginTrait {
   protected function getLayout(array &$settings, $index): void {
     $layout = $settings['layout'] ?? '';
     if (strpos($layout, 'field_') !== FALSE) {
-      $settings['layout'] = strip_tags($this->getField($index, $layout));
+      $settings['layout'] = strip_tags($this->getField($index, $layout) ?: '');
     }
   }
 

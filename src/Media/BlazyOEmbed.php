@@ -182,12 +182,12 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * @todo move it directly into ::build() after sub-modules.
    */
   private function fromMediaOrAny(array &$build): void {
-    $entity = $build['#entity'] ?? NULL;
+    $entity   = $build['#entity'] ?? NULL;
     $settings = &$build['settings'];
-    $blazies = $settings['blazies'];
-    $valid = $entity instanceof MediaInterface;
-    $stage = $settings['image'] ?? NULL;
-    $media = $valid ? $entity : NULL;
+    $blazies  = $settings['blazies'];
+    $valid    = $entity instanceof MediaInterface;
+    $stage    = $settings['image'] ?? NULL;
+    $media    = $valid ? $entity : NULL;
 
     // Two designated types of $stage: MediaInterface and FileInterface.
     // Since 2.10, Main stage is usable as the main display of a Paragraphs,
@@ -208,7 +208,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     if (!BlazyImage::isValidItem($build)) {
       $entity = $valid ? $media : $entity;
       /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $entity */
-      if ($item = BlazyImage::fromAny($entity, $build['settings'])) {
+      if ($item = BlazyImage::fromAny($entity, $settings)) {
         $build['item'] = $item;
       }
     }

@@ -197,11 +197,12 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     array $settings,
     array $attachments = []
   ): void {
-    $cache                = $this->getCacheMetadata($settings);
-    $attached             = $this->attach($settings);
-    $attachments          = $this->merge($attached, $attachments);
-    $element['#attached'] = $this->merge($attachments, $element, '#attached');
-    $element['#cache']    = $this->merge($cache, $element, '#cache');
+    $cache                 = $this->getCacheMetadata($settings);
+    $attached              = $this->attach($settings);
+    $attachments           = $this->merge($attached, $attachments);
+    $element['#attached']  = $this->merge($attachments, $element, '#attached');
+    $element['#cache']     = $this->merge($cache, $element, '#cache');
+    $element['#namespace'] = $settings['blazies']->get('namespace');
 
     $this->moduleHandler->alter('blazy_element', $element, $settings);
   }

@@ -71,9 +71,9 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * Build item contents.
    */
   protected function buildElement(array &$build, $entity, $langcode) {
-    $settings = &$build['settings'];
-    $blazies = $settings['blazies'];
-    $item_id = $blazies->get('item.id');
+    $settings = $build['settings'];
+    $blazies  = $settings['blazies'];
+    $item_id  = $blazies->get('item.id');
 
     // Sub-modules always flag `vanilla` as required, -- configurable, or not.
     if (!empty($settings['vanilla'])) {
@@ -132,7 +132,6 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
       ->set('language.code', $langcode)
       ->set('delta', $delta);
 
-    $build['settings'] = $settings;
     $this->buildElement($build, $entity, $langcode);
   }
 

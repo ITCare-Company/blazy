@@ -999,13 +999,16 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       'titles',
     ];
 
-    $check = $definition['thumb_captions'] ?? NULL;
-    if ($check == 'default') {
-      $value = [
-        'alt' => $this->t('Alt'),
-        'title' => $this->t('Title'),
-      ];
-      $scopes->set('data.thumb_captions', $value);
+    $captions = [
+      'alt' => $this->t('Alt'),
+      'title' => $this->t('Title'),
+    ];
+
+    foreach (['captions', 'thumb_captions'] as $key) {
+      $check = $definition[$key] ?? NULL;
+      if ($check == 'default') {
+        $scopes->set('data.' . $key, $captions);
+      }
     }
 
     foreach ($data as $key) {

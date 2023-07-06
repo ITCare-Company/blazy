@@ -175,8 +175,8 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
       $data = [
         '#entity' => $this->entity,
-        'item' => $item,
         'settings' => $settings,
+        'item' => $item,
       ];
 
       $this->blazyOembed->build($data);

@@ -38,9 +38,11 @@ trait BlazyFormatterViewBaseTrait {
     // BlazyFormatter::buildSettings() contains media, irrelevant for texts.
     $this->formatter->fieldSettings($build, $items);
 
-    // Build the elements.
-    /* @phpstan-ignore-next-line */
-    $this->buildElements($build, $items, $langcode);
+    // Build the elements, and satisfy phpstan.
+    // @todo convert to generators at/by 3.x.
+    if (method_exists($this, 'buildElements')) {
+      $this->buildElements($build, $items, $langcode);
+    }
 
     // Pass to manager for easy updates to all Blazy ecosystem formatters.
     $output = $this->manager->build($build);

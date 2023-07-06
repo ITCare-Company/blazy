@@ -71,10 +71,12 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    * Returns the Blazy elements, also for sub-modules to re-use.
    */
   protected function getElements(array $build, $files, $caption_id = 'captions'): \Generator {
+    $settings = $build['settings'];
+
     foreach ($files as $delta => $file) {
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
       $item  = $file->_referringItem;
-      $sets  = $build['settings'];
+      $sets  = $settings;
       $blazy = $sets['blazies']->reset($sets);
       $uri   = $sets['uri'] = $file->getFileUri();
 
@@ -121,11 +123,10 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    */
   protected function getPluginScopes(): array {
     $multiple = $this->isMultiple();
-    $captions = ['title' => $this->t('Title'), 'alt' => $this->t('Alt')];
 
     return [
       'background'        => TRUE,
-      'captions'          => $captions,
+      'captions'          => 'default',
       'grid_form'         => $multiple,
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,

@@ -52,10 +52,14 @@ trait BlazyFormatterViewTrait {
     // Build the elements.
     $this->formatter->preBuildElements($build, $items, $entities);
 
-    /* @phpstan-ignore-next-line */
-    $this->buildElements($build, $elements, $langcode);
+    // Satisfy phpstan.
+    // @todo convert to generators at/by 3.x.
+    if (method_exists($this, 'buildElements')) {
+      $this->buildElements($build, $elements, $langcode);
+    }
 
     // Modifies settings post building elements.
+    // @todo remove, hardly used by any sub-modules.
     $this->formatter->postBuildElements($build, $items, $entities);
 
     // Pass to manager for easy updates to all Blazy formatters.

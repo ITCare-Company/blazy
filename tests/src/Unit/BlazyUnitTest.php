@@ -228,7 +228,7 @@ class BlazyUnitTest extends UnitTestCase {
     $switch_css = str_replace('_', '-', $settings['media_switch']);
 
     foreach (['caption', 'media', 'wrapper'] as $key) {
-      $build['settings'][$key . '_attributes']['class'][] = $key . '-test';
+      $build[$key . '_attributes']['class'][] = $key . '-test';
     }
 
     $element = $this->doPreRenderImage($build);

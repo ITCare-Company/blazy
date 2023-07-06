@@ -203,7 +203,6 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     // otherwise we cannot see this figure, yet provide fallback.
     if ($item) {
       if ($text = $item->ownerDocument->saveXML($item)) {
-        $settings = &$build['settings'];
         $markup = Xss::filter(trim($text), BlazyDefault::TAGS);
 
         // Supports other caption source if not using Filter caption.
@@ -358,6 +357,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     // Runs after type, width and height set, if any, to not recheck them.
     $build['#entity'] = $media;
+    $build['settings'] = $settings;
     $this->blazyOembed->build($build);
   }
 

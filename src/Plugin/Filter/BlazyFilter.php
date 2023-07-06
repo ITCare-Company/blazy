@@ -169,10 +169,12 @@ class BlazyFilter extends BlazyFilterBase {
     $settings = parent::buildSettings($text);
 
     // Provides alter like formatters to modify at one go, even clumsy here.
+    // @todo convert to #settings at/by 3.x.
     $build = ['settings' => $settings];
     $this->blazyManager->moduleHandler()->alter('blazy_settings', $build, $this->settings);
 
     $settings = array_merge($settings, $build['settings']);
+
     $this->blazyManager->postSettingsAlter($settings);
     return $settings;
 
@@ -205,7 +207,7 @@ class BlazyFilter extends BlazyFilterBase {
       foreach ($node->attributes as $attribute) {
         $value = $attribute->nodeValue;
         $name = $attribute->nodeName;
-        if ($name == 'src') {
+        if ($name == 'src' || !$value) {
           continue;
         }
 
@@ -248,7 +250,7 @@ class BlazyFilter extends BlazyFilterBase {
    * @todo deprecate and remove for shortcodes at Blazy 3.x.
    */
   protected function cleanupImageCaption(array &$build, &$node, &$item) {
-    $settings = &$build['settings'];
+    $settings = $build['settings'];
     $blazies = $settings['blazies'];
 
     if (!$blazies->is('blazy_tag')) {
@@ -400,8 +402,14 @@ class BlazyFilter extends BlazyFilterBase {
         continue;
       }
 
-      $sets = $build['settings'];
-      $element = ['attributes' => [], 'item' => NULL, 'settings' => $sets];
+      $sets = $settings;
+      $element = [
+        // @todo also convert to #attributes at/by 3.x.
+        'attributes' => [],
+        'item' => NULL,
+        'settings' => $sets,
+      ];
+
       $content = $this->buildItem($element, $node, $delta)
         ?: ['#markup' => $dom->saveHtml($node)];
 
@@ -574,18 +582,20 @@ class BlazyFilter extends BlazyFilterBase {
    *
    * @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
    */
-  private function deprecatedGrid(array &$settings, $text) {
+  private function deprecatedGrid(array &$settings, $text = NULL) {
     $blazies = $settings['blazies'];
 
     // The data-grid and data-column are deprecated for [blazy] shortcode.
-    $grid = stristr($text, 'data-grid') !== FALSE;
-    $column = stristr($text, 'data-column') !== FALSE;
+    if ($text) {
+      $grid = stristr($text, 'data-grid') !== FALSE;
+      $column = stristr($text, 'data-column') !== FALSE;
 
-    if ($column || $grid) {
-      $settings['style'] = $column ? 'column' : 'grid';
+      if ($column || $grid) {
+        $settings['style'] = $column ? 'column' : 'grid';
 
-      $blazies->set('is.grid', TRUE)
-        ->set('is.deprecated_grid', TRUE);
+        $blazies->set('is.grid', TRUE)
+          ->set('is.deprecated_grid', TRUE);
+      }
     }
   }
 

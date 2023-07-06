@@ -4,6 +4,7 @@ namespace Drupal\Tests\blazy\Kernel;
 
 use Drupal\Core\Form\FormState;
 use Drupal\blazy\Media\BlazyMedia;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use GuzzleHttp\Exception\GuzzleException;
 
@@ -74,8 +75,8 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     // Verify it is not a theme_item_list() grid.
     $this->assertArrayNotHasKey('#build', $field);
 
-    $settings0 = $field[0]['#build']['settings'];
-    $settings1 = $field[1]['#build']['settings'];
+    $settings0 = Blazy::toSettings($field[0]['#build']);
+    $settings1 = Blazy::toSettings($field[1]['#build']);
 
     $blazies0 = $settings0['blazies'];
     $blazies1 = $settings1['blazies'];

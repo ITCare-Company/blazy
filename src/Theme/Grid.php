@@ -49,6 +49,7 @@ class Grid {
     $blazies->set('count', $count);
 
     foreach ($items as $key => $item) {
+      // @todo recheck if D9 Views outputs strings like D7, and adjust this.
       if (!is_array($item)) {
         continue;
       }
@@ -57,9 +58,10 @@ class Grid {
       // @todo remove the last two after migrations at 3.x.
       $wrapper_attrs = $item['#attributes'] ?? $item['attributes'] ?? [];
       $content_attrs = $item['#content_attributes'] ?? $item['content_attributes'] ?? [];
-      $item_sets = $item['#settings'] ?? $item['settings'] ?? [];
-      $sets = Blazy::merge($item_sets, $settings);
-      $sets = Blazy::merge($item['#build']['settings'] ?? [], $sets);
+      $sets = Blazy::toSettings($item);
+      $subs = $item['#build'] ?? [];
+      $sets = Blazy::merge(Blazy::toSettings($subs), $sets);
+      $sets += $settings;
 
       $blazy = $sets['blazies']->reset($sets);
       $sets['delta'] = $key;

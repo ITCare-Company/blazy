@@ -1,6 +1,6 @@
 /**
  * @file
- * Provides minimal sanitizer.
+ * Provides once compat for D8+.
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by

@@ -8,6 +8,8 @@ dblazy:
     # The integrated basic plugins, separated for readability:
     js/plugin/blazy.once.min.js: { minified: true, weight: -5.9 }
     js/plugin/blazy.sanitizer.min.js: { minified: true, weight: -5.9 }
+    # Can be ditched for Cash, or core DOM library, if any.
+    js/plugin/blazy.dom.min.js: { minified: true, weight: -5.9 }
 
 dompurify:
   remote: https://github.com/cure53/DOMPurify
@@ -37,6 +39,7 @@ bio:
   js:
     js/base/io/bio.min.js: { minified: true, weight: -5.01 }
   dependencies:
+    - blazy/dblazy
     - blazy/dataset
     - blazy/observer
 
@@ -129,7 +132,6 @@ media:
     js/components/blazy.media.min.js: { minified: true }
   dependencies:
     - blazy/drupal
-    - blazy/dom
     - blazy/ratio
 
 oembed:
@@ -206,7 +208,6 @@ blazybox:
     js/components/box/blazy.blazybox.min.js: { minified: true }
   dependencies:
     - blazy/drupal
-    - blazy/dom
     - blazy/lightbox
 
 colorbox:
@@ -260,7 +261,6 @@ admin:
     - core/jquery
     - blazy/drupal
     - blazy/dblazy
-    - blazy/dom
 
 # deprecated at 2.5 and removed at 3.+, unmaintained. Use PhotoSwipe, etc.
 photobox:

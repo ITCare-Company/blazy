@@ -7,7 +7,6 @@
 
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyAlter;
-use Drupal\blazy_test\BlazyTestAlter;
 
 /**
  * Implements hook_theme().
@@ -47,15 +46,6 @@ function blazy_test_blazy_attach_alter(array &$load, array $settings = []) {
  */
 function blazy_test_blazy_lightboxes_alter(array &$lightboxes) {
   $lightboxes[] = 'blazy_test';
-}
-
-/**
- * Implements hook_blazy_alter().
- */
-function blazy_test_blazy_alter(array &$image, array $settings = []) {
-  if (!empty($settings['media_switch']) && $settings['media_switch'] == 'blazy_test') {
-    $image['#pre_render'][] = [BlazyTestAlter::class, 'preRender'];
-  }
 }
 
 /**

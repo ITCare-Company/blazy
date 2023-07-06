@@ -57,7 +57,7 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
    *
    * @param string $name
    *   The option name: settings, etc.
-   * @param string $value
+   * @param array|bool|int|string|null $value
    *   The option value.
    *
    * @return $this
@@ -94,7 +94,7 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
    *
    * @param string $name
    *   The setting name.
-   * @param bool|string|null $default
+   * @param bool|int|string|null $default
    *   The default value.
    *
    * @return mixed
@@ -105,14 +105,14 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
   /**
    * Sets the value of a setting.
    *
-   * @param string $setting_name
+   * @param string $name
    *   The setting name.
-   * @param string $value
+   * @param bool|int|string|null $value
    *   The setting value.
    *
    * @return $this
    *   The class instance that this method is called on.
    */
-  public function setSetting($setting_name, $value): self;
+  public function setSetting($name, $value): self;
 
 }

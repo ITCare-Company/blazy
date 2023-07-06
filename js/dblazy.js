@@ -1622,7 +1622,7 @@
   db.activeWidth = activeWidth;
 
   // Event methods.
-  db.toEvent = toEvent;
+  // db.toEvent = toEvent;
   db.on = on;
   db.off = off;
   db.one = one;

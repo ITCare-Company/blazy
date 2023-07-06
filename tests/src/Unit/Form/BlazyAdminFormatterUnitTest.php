@@ -108,7 +108,7 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
    */
   public function testGetSettingsSummary($use_settings, $vanilla, $override, $responsive_image_style, $expected) {
     $definition = $this->getFormatterDefinition();
-    $settings = array_merge(BlazyDefault::gridSettings(), $definition['settings']);
+    $settings = array_merge(BlazyDefault::gridSettings(), $definition['settings'] ?? []);
 
     $settings['vanilla']                = $vanilla;
     $settings['image_syle']             = 'large';

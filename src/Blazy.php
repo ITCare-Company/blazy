@@ -179,6 +179,16 @@ class Blazy {
   }
 
   /**
+   * A helper to gradually convert settings to #settings to avoid render error.
+   *
+   * @todo refactor at 3.x, to solve out of sync module like BVEF, etc.
+   * No real problems found so far even with BVEF, just minimize issues.
+   */
+  public static function toSettings(array $data) {
+    return $data['#settings'] ?? $data['settings'] ?? [];
+  }
+
+  /**
    * Returns the translated entity if available.
    */
   public static function translated($entity, $langcode): object {
@@ -288,13 +298,6 @@ class Blazy {
   }
 
   /**
-   * Alias for BlazyFile::transformRelative() for sub-modules.
-   */
-  public static function transformRelative($uri, $style = NULL, array $options = []): string {
-    return BlazyFile::transformRelative($uri, $style, $options);
-  }
-
-  /**
    * Return TRUE if an url is a data URI.
    */
   public static function isDataUri($url) {
@@ -307,6 +310,13 @@ class Blazy {
    */
   public static function normalizeUri($path): string {
     return BlazyFile::normalizeUri($path);
+  }
+
+  /**
+   * Alias for BlazyFile::transformRelative() for sub-modules.
+   */
+  public static function transformRelative($uri, $style = NULL, array $options = []): string {
+    return BlazyFile::transformRelative($uri, $style, $options);
   }
 
   /**

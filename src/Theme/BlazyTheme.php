@@ -342,13 +342,15 @@ class BlazyTheme {
         $settings = $content['#blazy'] ?? [];
 
         // Blazy Grid settings:
-        if (!$settings) {
-          $settings = $content['#build']['settings'] ?? [];
-        }
+        if ($build = $content['#build'] ?? []) {
+          if (!$settings) {
+            $settings = $build['settings'] ?? [];
+          }
 
-        // @todo simplify ElevateZoomPlus build_alter overrides:
-        if (!$settings) {
-          $settings = $content['#build']['#build']['settings'] ?? [];
+          // @todo simplify ElevateZoomPlus build_alter overrides:
+          if (!$settings) {
+            $settings = $build['#build']['settings'] ?? [];
+          }
         }
       }
     }

@@ -232,8 +232,8 @@ trait BlazyUnitTestTrait {
    * @return array
    *   The pre_render element.
    */
-  protected function doPreRenderImage(array $build = []) {
-    $settings = &$build['settings'];
+  protected function doPreRenderImage(array $build) {
+    $settings = $build['settings'];
     $this->blazyManager->postSettings($settings);
 
     $image = $this->blazyManager->getBlazy($build);

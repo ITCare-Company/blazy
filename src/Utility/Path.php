@@ -118,22 +118,18 @@ class Path {
    */
   public static function getLibrariesPath($name, $base_path = FALSE): ?string {
     if ($finder = Blazy::service('library.libraries_directory_file_finder')) {
-      $func = function ($libraries, $base) use ($finder) {
+      $func = function ($libraries) use ($finder) {
         foreach ($libraries as $library) {
-          $result = '';
-          if ($path = $finder->find($library)) {
-            $result = $base ? \base_path() . $path : $path;
-          }
-          yield $result;
+          yield $finder->find($library);
         }
       };
     }
     // @todo remove when min D9.2.
     else {
       $dep = 'libraries_get_path';
-      $func = function ($libraries, $base) use ($dep) {
+      $func = function ($libraries) use ($dep) {
         foreach ($libraries as $library) {
-          $result = is_callable($dep) ? $dep($library, $base) : '';
+          $result = is_callable($dep) ? $dep($library) : '';
           yield $result;
         }
       };
@@ -141,9 +137,9 @@ class Path {
 
     $library = '';
     $names = is_array($name) ? $name : [$name];
-    foreach ($func($names, $base_path) as $path) {
+    foreach ($func($names) as $path) {
       if ($path) {
-        $library = $path;
+        $library = $base_path ? \base_path() . $path : $path;
         break;
       }
     }

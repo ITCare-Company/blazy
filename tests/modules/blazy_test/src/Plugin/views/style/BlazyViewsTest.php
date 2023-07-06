@@ -23,6 +23,16 @@ use Drupal\blazy\Views\BlazyStylePluginBase;
 class BlazyViewsTest extends BlazyStylePluginBase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected $namespace = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $itemId = 'content';
+
+  /**
    * Returns the blazy admin.
    */
   public function admin() {
@@ -102,17 +112,16 @@ class BlazyViewsTest extends BlazyStylePluginBase {
    * Returns blazy_test contents.
    */
   protected function buildElements(array $settings, $rows) {
-    $blazies = $settings['blazies'];
     $build   = [];
     $view    = $this->view;
-    $item_id = $blazies->get('item.id');
+    $item_id = $this->itemId;
 
     foreach ($rows as $index => $row) {
       $view->row_index = $index;
 
-      $box              = [];
-      $box[$item_id]    = [];
-      $box['#settings'] = $settings;
+      $box             = [];
+      $box[$item_id]   = [];
+      $box['settings'] = $settings;
 
       // Use Vanilla if so configured.
       if (!empty($settings['vanilla'])) {

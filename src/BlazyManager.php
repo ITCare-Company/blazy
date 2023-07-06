@@ -68,7 +68,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Prepare the main image.
     $this->prepareBlazy($element, $build);
 
-    // Fetch the newly modified settings.
+    // Fetch the newly modified settings with hashed key.
     $settings = $element['#settings'];
     $blazies = $settings['blazies'];
     $url = $blazies->get('entity.url');
@@ -96,8 +96,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    *   The alterable and renderable array of contents.
    */
   public function build(array $build): array {
-    $settings = &$build['settings'];
-    Blazy::verify($settings);
+    $settings = $this->getBlazySettings($build);
     $blazies = $settings['blazies'];
 
     // This #pre_render doesn't work if called from Views results, hence the
@@ -105,6 +104,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     if ($blazies->is('grid')) {
       // Take over theme_field() with a theme_item_list(), if so configured.
       // The reason: this is not only fed by field items, but also Views rows.
+      $build['settings'] = $settings;
       $content = [
         '#build'      => $build,
         '#pre_render' => [[$this, 'preRenderBuild']],
@@ -115,12 +115,12 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
     else {
       // If not a grid, pass items as regular index children to theme_field().
-      $settings = $this->getBlazySettings($build);
-
-      // Runs after ::getBlazySettings.
-      $this->toElementChildren($build);
+      // Runs after settings.
+      $build = $this->toElementChildren($build);
 
       // @todo refactor and move non-children out of here at 3.x.
+      // We don't use #settings here to avoid conflicts with others because
+      // theme_field() is not managed by blazy.
       $build['#blazy'] = $settings;
       $this->setAttachments($build, $settings);
     }
@@ -141,21 +141,21 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       ?? $element['#attributes'] ?? [];
 
     // Checks if we got some signaled attachments.
+    // @todo remove the second after migrations at/by 3.x.
     $attachments = $build['#attached'] ?? $build['attached'] ?? [];
     if ($attachments) {
       unset($build['#attached'], $build['attached']);
     }
 
-    $settings = $this->getBlazySettings($build);
+    $settings = $build['settings'];
 
-    // Runs after ::getBlazySettings.
-    $this->toElementChildren($build);
+    // Runs after settings.
+    $items = $this->toElementChildren($build);
 
     // Take over elements for a grid display as this is all we need, learned
     // from the issues such as: #2945524, or product variations.
     // We'll selectively pass or work out $attributes not so far below.
-    $element = $this->toGrid($build, $settings);
-    $this->setAttachments($element, $settings, $attachments);
+    $element = $this->toGrid($items, $settings);
 
     if ($attributes) {
       // Signals other modules if they want to use it.
@@ -172,6 +172,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       }
     }
 
+    $this->setAttachments($element, $settings, $attachments);
+    unset($build);
     return $element;
   }
 
@@ -243,7 +245,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    */
   private function buildMedia(array &$element, array &$build): void {
     $item = $build['item'];
-    $settings = &$build['settings'];
+    $settings = $build['settings'];
     $blazies = $settings['blazies'];
     $item_attributes = $build['item_attributes'] ?? [];
 
@@ -294,18 +296,16 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * lacks of settings may know if it should load/ display a lightbox, etc.
    * Lightbox should work without `Use field template` checked.
    */
-  private function getBlazySettings(array &$build) {
-    $settings = $build['settings'] ?? [];
-
+  private function getBlazySettings(array $build) {
+    $settings = Blazy::toSettings($build);
     Blazy::verify($settings);
-    $blazies = $settings['blazies'];
 
+    $blazies = $settings['blazies'];
     if ($data = $blazies->get('first.data')) {
       if (is_array($data)) {
         $this->isBlazy($settings, $data);
       }
     }
-
     return $settings;
   }
 
@@ -388,10 +388,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * where items may be stored as direct indices, or put into items property.
    * Actually the same issue happens at core where contents may be indexed or
    * grouped. Meaning not a problem at all, only a problem for consistency.
+   *
+   * @todo call directly items after migrations at/by 3.x.
    */
-  private function toElementChildren(array &$build): void {
+  private function toElementChildren(array $build): array {
     $build = $build['items'] ?? $build;
-    unset($build['#entity'], $build['items'], $build['settings']);
+    unset($build['#entity'], $build['#settings'], $build['items'], $build['settings']);
+    return $build;
   }
 
 }
