@@ -90,7 +90,7 @@ trait BlazyStylePluginTrait {
   /**
    * Checks if we can work with this formatter, otherwise no go if flattened.
    */
-  public function getImageArray($row, $index, $field_image = ''): array {
+  protected function getImageArray($row, $index, $field_image = ''): array {
     if (!empty($field_image)
       && $image = $this->getFieldRenderable($row, $index, $field_image)) {
 
@@ -129,49 +129,52 @@ trait BlazyStylePluginTrait {
    * Returns the caption element.
    */
   protected function getCaption($index, array $settings): array {
-    $items = [];
-    $keys = array_keys($this->view->field);
-    $keys = array_combine($keys, $keys);
+    $view     = $this->view;
+    $items    = [];
+    $keys     = array_keys($view->field);
+    $keys     = array_combine($keys, $keys);
+    $link     = $settings['link'] ?? NULL;
+    $title    = $settings['title'] ?? NULL;
+    $overlay  = $settings['overlay'] ?? NULL;
+    $captions = $settings['caption'] ?? [];
 
-    $items['link'] = empty($settings['link']) ? []
-      : $this->getFieldRendered($index, $settings['link']);
-
-    $items['title'] = empty($settings['title']) ? []
-      : $this->getFieldRendered($index, $settings['title'], TRUE);
-
-    $items['overlay'] = empty($settings['overlay']) ? []
-      : $this->getFieldRendered($index, $settings['overlay']);
+    $items['link']    = $this->getFieldRendered($index, $link);
+    $items['title']   = $this->getFieldRendered($index, $title, TRUE);
+    $items['overlay'] = $this->getFieldRendered($index, $overlay);
 
     // Exclude non-caption fields so that theme_views_view_fields() kicks in
     // and only render expected caption fields. As long as not-hidden, each
     // caption field should be wrapped with Views markups.
-    if ($captions = ($settings['caption'] ?? [])) {
+    if ($captions) {
       $excludes = array_diff_assoc($keys, $captions);
       foreach ($excludes as $field) {
-        $this->view->field[$field]->options['exclude'] = TRUE;
+        $view->field[$field]->options['exclude'] = TRUE;
       }
 
-      $items['data'] = $this->view->rowPlugin->render($this->view->result[$index]);
+      $items['data'] = $view->rowPlugin->render($view->result[$index]);
     }
 
     return $items;
   }
 
   /**
-   * Returns the rendered layout fields.
+   * Returns the rendered layout fields, normally just string.
    */
   protected function getLayout(array &$settings, $index): void {
     $layout = $settings['layout'] ?? '';
+    // Replacing useless field_NAME with its useful value.
     if (strpos($layout, 'field_') !== FALSE) {
-      $settings['layout'] = strip_tags($this->getField($index, $layout) ?: '');
+      if ($value = $this->getField($index, $layout)) {
+        $settings['layout'] = strip_tags($value);
+      }
     }
   }
 
   /**
    * Returns the rendered field, either string or array.
    */
-  protected function getFieldRendered($index, $field_name = '', $restricted = FALSE): array {
-    if (!empty($field_name) && $output = $this->getField($index, $field_name)) {
+  protected function getFieldRendered($index, $name, $restricted = FALSE): array {
+    if ($name && $output = $this->getField($index, $name)) {
       return is_array($output) ? $output : [
         '#markup' => ($restricted ? Xss::filterAdmin($output) : $output),
       ];

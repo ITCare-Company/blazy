@@ -25,7 +25,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
       $this->gridForm($form, $definition);
     }
 
-    if ($scopes->form('fieldable') && !isset($form['image'])) {
+    if ($scopes->form('fieldable')) {
       $this->fieldableForm($form, $definition);
     }
 
@@ -75,10 +75,11 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
    */
   public function fieldableForm(array &$form, array $definition): void {
     $scopes = $this->toScopes($definition);
-    $data = $scopes->get('data');
+    $data = $scopes->get('data', []);
+    $base_image = $this->baseForm($definition)['image'] ?? [];
 
-    if (isset($data['images'])) {
-      $form['image'] = $this->baseForm($definition)['image'];
+    if (isset($data['images']) && $base_image) {
+      $form['image'] = $base_image;
     }
 
     if (isset($data['thumbnails'])) {
@@ -86,7 +87,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
         '#type'        => 'select',
         '#title'       => $this->t('Thumbnail image'),
         '#options'     => $this->toOptions($data['thumbnails']),
-        '#description' => $this->t('Leave empty to not use thumbnail pager.'),
+        '#description' => $this->t('Leave empty to not use thumbnail/ pager.'),
       ];
     }
 
@@ -95,7 +96,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
         '#type'        => 'select',
         '#title'       => $this->t('Overlay media'),
         '#options'     => $this->toOptions($data['overlays']),
-        '#description' => $this->t('Overlay is displayed over the main stage.'),
+        '#description' => $this->t('Overlay is displayed over the main stage. Can be plain image, sliders, etc.'),
       ];
     }
 
@@ -109,7 +110,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
         '#type'        => 'select',
         '#title'       => $this->t('Title'),
         '#options'     => $this->toOptions($scopes->data('titles')),
-        '#description' => $this->t('If provided, it will be wrapped with H2. Also supported the basic non-field Image title'),
+        '#description' => $this->t('If provided, it will be wrapped with H2. Also supported the basic non-field Image title. If an entity, be sure its formatter is strings like ID or Label.'),
       ];
     }
 
@@ -118,7 +119,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
         '#type'        => 'select',
         '#title'       => $this->t('Link'),
         '#options'     => $this->toOptions($data['links']),
-        '#description' => $this->t('Link to content: Read more, View Case Study, etc.'),
+        '#description' => $this->t('Link to content: Read more, View Case Study, etc. If an entity, be sure its formatter is linkable strings like ID or Label.'),
       ];
     }
 

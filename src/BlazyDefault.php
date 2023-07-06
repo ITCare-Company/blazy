@@ -357,10 +357,18 @@ class BlazyDefault {
       'id' => '',
       'lazy'  => 'blazy',
       'sizes' => '',
-      'skin'  => '',
-      'style' => '',
       '_item' => '',
       '_uri' => '',
+    ];
+  }
+
+  /**
+   * Returns wrong room settings, since initialially copied from Slick.
+   */
+  public static function nonBlazySettings() {
+    return [
+      'skin' => '',
+      'optionset' => '',
     ];
   }
 

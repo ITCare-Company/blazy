@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-07-06
+------------------------------
+- Fixed for incorrect deprecated settings.
+
 Blazy 8.x-2.0-dev, 2023-07-03
 ------------------------------
 - Micro optimization: changed few loops to generators.

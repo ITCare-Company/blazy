@@ -34,6 +34,7 @@ class BlazyAlter {
       $mappings = &$definitions[$formatter]['mapping'];
       $settings = $settings ?: BlazyDefault::extendedSettings() + BlazyDefault::gridSettings();
       $settings += BlazyDefault::deprecatedSettings();
+      $settings += BlazyDefault::nonBlazySettings();
 
       foreach ($settings as $key => $value) {
         // Seems double is ignored, and causes a missing schema, unlike float.

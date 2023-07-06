@@ -614,6 +614,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $classes .= ' form--' . str_replace('_', '-', $field_type);
     }
 
+    // Prevents non-expected overrides.
     if (isset($form['grid'], $form['grid']['#description'])) {
       $description = $form['grid']['#description'];
       $form['grid']['#description'] = $description . $this->nativeGridDescription();
@@ -647,67 +648,85 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
     $this->blazyManager->moduleHandler()->alter('blazy_form_element', $form, $definition);
 
+    // Mostly babysitters to help few things out.
     foreach (Element::children($form) as $key) {
-      if (isset($form[$key]['#type']) && !in_array($form[$key]['#type'], $excludes)) {
-        if (!isset($form[$key]['#default_value']) && isset($settings[$key])) {
-          $value = is_array($settings[$key]) ? array_values((array) $settings[$key]) : $settings[$key];
+      $type = $form[$key]['#type'] ?? NULL;
+      if (!$type || in_array($type, $excludes)) {
+        continue;
+      }
 
-          // @todo remove babysitter.
-          if (!empty($definition['grid_required']) && $key == 'grid' && empty($settings[$key])) {
-            $value = 3;
-          }
-          $form[$key]['#default_value'] = $value;
+      // If no defined default values, set them from settings.
+      if (!isset($form[$key]['#default_value']) && isset($settings[$key])) {
+        $value = is_array($settings[$key])
+          ? array_values((array) $settings[$key])
+          : $settings[$key];
+
+        // @todo remove babysitter.
+        if ($scopes->is('grid_required')
+          && $key == 'grid'
+          && empty($settings[$key])) {
+          $value = 3;
         }
-        if (!isset($form[$key]['#attributes']) && isset($form[$key]['#description'])) {
-          $form[$key]['#attributes'] = ['class' => ['is-tooltip']];
+        $form[$key]['#default_value'] = $value;
+      }
+
+      // Trying to be nice with gazillion options.
+      if (!isset($form[$key]['#attributes'])
+        && isset($form[$key]['#description'])) {
+        $form[$key]['#attributes'] = ['class' => ['is-tooltip']];
+      }
+
+      // Trying to be compact with gazillion options.
+      if ($admin_css) {
+        if ($type == 'checkbox' && $type != 'checkboxes') {
+          $form[$key]['#field_suffix'] = '&nbsp;';
+          $form[$key]['#title_display'] = 'before';
         }
+        elseif ($type == 'checkboxes' && !empty($form[$key]['#options'])) {
+          $form[$key]['#attributes']['class'][] = 'form-wrapper--checkboxes';
+          $form[$key]['#attributes']['class'][] = 'form-wrapper--' . str_replace('_', '-', $key);
+          $count = count($form[$key]['#options']);
+          $form[$key]['#attributes']['class'][] = 'form-wrapper--count-' . ($count > 3 ? 'max' : $count);
 
-        if ($admin_css) {
-          if ($form[$key]['#type'] == 'checkbox' && $form[$key]['#type'] != 'checkboxes') {
-            $form[$key]['#field_suffix'] = '&nbsp;';
-            $form[$key]['#title_display'] = 'before';
-          }
-          elseif ($form[$key]['#type'] == 'checkboxes' && !empty($form[$key]['#options'])) {
-            $form[$key]['#attributes']['class'][] = 'form-wrapper--checkboxes';
-            $form[$key]['#attributes']['class'][] = 'form-wrapper--' . str_replace('_', '-', $key);
-            $count = count($form[$key]['#options']);
-            $form[$key]['#attributes']['class'][] = 'form-wrapper--count-' . ($count > 3 ? 'max' : $count);
-
-            foreach ($form[$key]['#options'] as $i => $option) {
-              $form[$key][$i]['#field_suffix'] = '&nbsp;';
-              $form[$key][$i]['#title_display'] = 'before';
-            }
+          foreach ($form[$key]['#options'] as $i => $option) {
+            $form[$key][$i]['#field_suffix'] = '&nbsp;';
+            $form[$key][$i]['#title_display'] = 'before';
           }
         }
+      }
 
-        if ($form[$key]['#type'] == 'select' && !in_array($key, $selects)) {
-          if (!isset($form[$key]['#empty_option']) && empty($form[$key]['#required'])) {
+      // Select option babysitters.
+      if ($type == 'select' && !in_array($key, $selects)) {
+        $required = $form[$key]['#required'] ?? FALSE;
+        if ($required) {
+          unset($form[$key]['#empty_option']);
+        }
+        else {
+          if (!isset($form[$key]['#empty_option'])) {
             $form[$key]['#empty_option'] = $this->t('- None -');
           }
-          if (!empty($form[$key]['#required'])) {
-            unset($form[$key]['#empty_option']);
-          }
         }
+      }
 
-        if (!isset($form[$key]['#enforced'])
-          && !empty($definition['vanilla']) && isset($form[$key]['#type'])) {
-          $states['visible'][':input[name*="[vanilla]"]'] = ['checked' => FALSE];
-          if (isset($form[$key]['#states'])) {
-            $form[$key]['#states']['visible'][':input[name*="[vanilla]"]'] = ['checked' => FALSE];
-          }
-          else {
-            $form[$key]['#states'] = $states;
-          }
+      // Vanilla states babysitters.
+      if ($scopes->is('vanilla') && !isset($form[$key]['#enforced'])) {
+        $states['visible'][':input[name*="[vanilla]"]'] = ['checked' => FALSE];
+        if (isset($form[$key]['#states'])) {
+          $form[$key]['#states']['visible'][':input[name*="[vanilla]"]'] = ['checked' => FALSE];
+        }
+        else {
+          $form[$key]['#states'] = $states;
         }
       }
 
       $form[$key]['#wrapper_attributes']['class'][] = 'form-item--' . str_replace('_', '-', $key);
 
-      if (isset($form[$key]['#access']) && $form[$key]['#access'] == FALSE) {
+      // Don't store values babysitters.
+      if (($form[$key]['#access'] ?? 'x') == FALSE) {
         unset($form[$key]['#default_value']);
       }
 
-      if (in_array($key, BlazyDefault::deprecatedSettings())) {
+      if (in_array($key, $scopes->data('deprecations'))) {
         unset($form[$key]['#default_value']);
       }
     }
@@ -985,6 +1004,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ->set('view_mode', $view_mode);
 
     $data = [
+      'deprecations',
       'captions',
       'classes',
       'images',
@@ -1018,6 +1038,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         $scopes->set('data.' . $key, $value);
       }
     }
+
+    // Merge deprecated settings.
+    $scopes->set('data.deprecations', BlazyDefault::deprecatedSettings(), TRUE);
 
     $forms = [
       'grid',
