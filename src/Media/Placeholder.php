@@ -194,7 +194,7 @@ class Placeholder {
     // Overrides placeholder with data URI based on configured thumbnail.
     $valid = self::derivative($blazies, $uri, $tn_uri, $style, 'blur');
     if ($valid) {
-      // Use client-side for better diet.
+      // Use client-side for better DOM diet.
       if (!$blazies->ui('blur_client')
         && $content = file_get_contents($tn_uri)) {
         $blur = 'data:image/' .
@@ -205,11 +205,10 @@ class Placeholder {
         $blazies->set('blur.data', $blur);
       }
 
-      $blazies->set('blur.uri', $tn_uri);
-      $blazies->set('blur.url', $tn_url);
-
       // Prevents double animations.
-      $blazies->set('use.loader', FALSE);
+      $blazies->set('use.loader', FALSE)
+        ->set('blur.uri', $tn_uri)
+        ->set('blur.url', $tn_url);
     }
   }
 

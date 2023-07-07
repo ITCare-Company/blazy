@@ -410,6 +410,7 @@ class Check {
         ->set('is.gallery', TRUE);
     }
 
+    // Only needed for lightbox captions with entity label and tokens.
     $blazies->set('entity.instance', $entity);
   }
 

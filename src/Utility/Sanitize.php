@@ -27,11 +27,13 @@ class Sanitize {
    *   The given attributes to sanitize.
    * @param bool $escaped
    *   Sets to FALSE to avoid double escapes, for further processing.
+   * @param bool $lowercase
+   *   Sets to TRUE to have the values lowercased, such as tags, titles, etc.
    *
    * @return array
    *   The sanitized $attributes suitable for UGC, such as Blazy filter.
    */
-  public static function attribute(array $attributes, $escaped = TRUE): array {
+  public static function attribute(array $attributes, $escaped = TRUE, $lowercase = FALSE): array {
     $output = [];
     $list = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];
 
@@ -43,23 +45,36 @@ class Sanitize {
       // Since Blazy is lazyloading known URLs, sanitize attributes which
       // make no sense to stick around within IMG or IFRAME tags.
       // The most obvious (HREF and SRC) are done downstream, not upstream.
+      // PHP8.0.0 numeric with whitespace ("42 ") will now return true.
+      $kid = FALSE;
       $key = trim($key);
-      $key = Html::escape($key);
-      $check = strtolower($key);
-      $kid = mb_substr($check, 0, 2) === 'on' || in_array($check, $list);
-      $key = $kid ? 'data-' . $key : $key;
+
+      // @todo use is_int() instead after another check.
+      if (!is_numeric($key)) {
+        $key = Html::escape($key);
+        $check = strtolower($key);
+        $kid = mb_substr($check, 0, 2) === 'on' || in_array($check, $list);
+        $key = $kid ? 'data-' . $key : $key;
+      }
 
       // Only key class is known as array.
       if (is_array($value)) {
         // Respects array item containing space delimited classes: aaa bbb ccc.
         $value = implode(' ', $value);
+        if ($lowercase) {
+          $value = mb_strtolower($value);
+        }
         $output[$key] = array_map('\Drupal\Component\Utility\Html::cleanCssIdentifier', explode(' ', $value));
       }
       else {
+        if ($lowercase) {
+          $value = mb_strtolower($value);
+        }
+
         $kid = $kid || self::kid($value);
         $escaped_value = $escaped ? Html::escape($value) : $value;
-        $output[$key] = $kid || in_array($key, ['class', 'id'])
-          ? Html::cleanCssIdentifier($value) : $escaped_value;
+        $clean = $kid || $lowercase || in_array($key, ['class', 'id']);
+        $output[$key] = $clean ? Html::cleanCssIdentifier($value) : $escaped_value;
       }
     }
     return $output;

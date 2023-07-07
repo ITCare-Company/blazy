@@ -23,16 +23,6 @@ use Drupal\blazy\Views\BlazyStylePluginBase;
 class BlazyViewsTest extends BlazyStylePluginBase {
 
   /**
-   * {@inheritdoc}
-   */
-  protected $namespace = 'blazy';
-
-  /**
-   * {@inheritdoc}
-   */
-  protected $itemId = 'content';
-
-  /**
    * Returns the blazy admin.
    */
   public function admin() {
@@ -70,16 +60,15 @@ class BlazyViewsTest extends BlazyStylePluginBase {
     $definition = $this->getDefinedFieldOptions($fields);
 
     $definition += [
-      'namespace' => 'blazy',
-      'settings'  => $this->options,
-      'style'     => TRUE,
+      'namespace'   => 'blazy',
+      'plugin_id'   => $this->getPluginId(),
+      'settings'    => $this->options,
+      'style'       => TRUE,
+      'grid_simple' => TRUE,
     ];
 
     // Build the form.
     $this->admin()->buildSettingsForm($form, $definition);
-
-    // Blazy doesn't need complex grid with multiple groups.
-    unset($form['layout'], $form['preserve_keys'], $form['grid_header'], $form['visible_items']);
   }
 
   /**
@@ -95,13 +84,17 @@ class BlazyViewsTest extends BlazyStylePluginBase {
 
     $elements = [];
     foreach ($this->renderGrouping($this->view->result, $settings['grouping']) as $rows) {
-      $items = $this->buildElements($settings, $rows);
+      $contents = [];
+      foreach ($this->buildElements($settings, $rows) as $item) {
+        $contents[] = $item;
+      }
 
       // Supports Blazy multi-breakpoint images if using Blazy formatter.
       if ($data = $this->getFirstImage($rows[0] ?? NULL)) {
         $blazies->set('first.data', $data);
       }
-      $build = ['items' => $items, 'settings' => $settings];
+
+      $build = ['items' => $contents, 'settings' => $settings];
       $elements = $this->blazyManager->build($build);
     }
 
@@ -111,8 +104,7 @@ class BlazyViewsTest extends BlazyStylePluginBase {
   /**
    * Returns blazy_test contents.
    */
-  protected function buildElements(array $settings, $rows) {
-    $build   = [];
+  protected function buildElements(array $settings, $rows): \Generator {
     $view    = $this->view;
     $item_id = $this->itemId;
 
@@ -133,12 +125,10 @@ class BlazyViewsTest extends BlazyStylePluginBase {
       }
 
       // Build blazy items.
-      $build[] = $box;
-      unset($box);
+      yield $box;
     }
 
     unset($view->row_index);
-    return $build;
   }
 
 }

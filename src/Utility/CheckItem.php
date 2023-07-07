@@ -80,7 +80,7 @@ class CheckItem {
   }
 
   /**
-   * Checks for essential settings: URI, delta, cache and initial delta.
+   * Checks for essential settings: URI, delta and initial delta.
    *
    * The initial delta related to option `Loading: slider`, the initial is not
    * lazyloaded, the rest are. Sometimes the initial delta is not always 0 as
@@ -103,24 +103,6 @@ class CheckItem {
     $uri     = $blazies->get('image.uri') ?: BlazyFile::uri($item, $settings);
     $delta   = $blazies->get('delta') ?: ($settings['delta'] ?? 0);
     $initial = $delta == $blazies->get('initial', -1);
-
-    // File cache tags.
-    // @todo move it out of here, but whereelse, the essentials are here.
-    if ($item) {
-      if ($file = ($item->entity ?? NULL)) {
-        $tags = $file->getCacheTags();
-        $blazies->set('cache.file.tags', $tags);
-      }
-
-      // Extracts alt from $item.
-      $alt = empty($item->alt) ? "" : trim($item->alt);
-      $blazies->set('image.alt', $alt);
-
-      // Do not output an empty 'title' attribute.
-      if (isset($item->title) && (mb_strlen($item->title) != 0)) {
-        $blazies->set('image.title', trim($item->title));
-      }
-    }
 
     // This means re-definition since URI can be fed from any sources uptream.
     $blazies->set('delta', $delta)

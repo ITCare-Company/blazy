@@ -17,6 +17,6 @@ interface BlazyStyleBaseInterface {
    *
    * @todo re-check this, or if any consistent way to retrieve string values.
    */
-  public function getFieldString($row, $field_name, $index, $clean = TRUE): array;
+  public function getFieldString($row, $name, $index, $clean = TRUE): array;
 
 }

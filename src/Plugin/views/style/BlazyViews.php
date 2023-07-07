@@ -3,28 +3,13 @@
 namespace Drupal\blazy\Plugin\views\style;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\views\Plugin\views\style\StylePluginBase;
-use Drupal\blazy\BlazyManager;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Views\BlazyStyleBaseTrait;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\blazy\Views\BlazyStyleBase;
 
 /**
  * Blazy style plugin.
  */
-class BlazyViews extends StylePluginBase implements BlazyViewsInterface {
-
-  use BlazyStyleBaseTrait;
-
-  /**
-   * {@inheritdoc}
-   */
-  protected $namespace = 'blazy';
-
-  /**
-   * {@inheritdoc}
-   */
-  protected $itemId = 'content';
+class BlazyViews extends BlazyStyleBase implements BlazyViewsInterface {
 
   /**
    * {@inheritdoc}
@@ -35,21 +20,6 @@ class BlazyViews extends StylePluginBase implements BlazyViewsInterface {
    * {@inheritdoc}
    */
   protected $usesGrouping = FALSE;
-
-  /**
-   * Constructs a BlazyManager object.
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, BlazyManager $blazy_manager) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->blazyManager = $blazy_manager;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($configuration, $plugin_id, $plugin_definition, $container->get('blazy.manager'));
-  }
 
   /**
    * {@inheritdoc}
@@ -63,9 +33,11 @@ class BlazyViews extends StylePluginBase implements BlazyViewsInterface {
    */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     $definition = [
+      'plugin_id'      => $this->getPluginId(),
       'namespace'      => 'blazy',
       'grid_form'      => TRUE,
       'grid_required'  => TRUE,
+      'grid_simple'    => TRUE,
       'no_image_style' => TRUE,
       'opening_class'  => 'form--views',
       'settings'       => $this->options,
@@ -77,9 +49,6 @@ class BlazyViews extends StylePluginBase implements BlazyViewsInterface {
     $this->admin()->openingForm($form, $definition);
     $this->admin()->gridForm($form, $definition);
     $this->admin()->finalizeForm($form, $definition);
-
-    // Blazy doesn't need complex grid with multiple groups.
-    unset($form['layout'], $form['preserve_keys'], $form['visible_items']);
   }
 
   /**

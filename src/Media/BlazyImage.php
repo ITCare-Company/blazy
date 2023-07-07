@@ -7,6 +7,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Utility\Sanitize;
 
@@ -326,11 +327,9 @@ class BlazyImage {
 
     // If we have added extensions.
     if ($unstyles = $blazies->ui('unstyled_extensions')) {
-      // @todo remove after another check.
-      $unstyles = strip_tags($unstyles);
-      $extensions = array_merge($extensions,
-      array_map('trim', explode(' ', mb_strtolower($unstyles))));
-      $extensions = array_unique($extensions);
+      $checks = array_map('trim', explode(' ', strtolower($unstyles)));
+      $checks = array_merge($checks, $extensions);
+      $extensions = array_unique($checks);
     }
 
     return $ext && in_array($ext, $extensions);
@@ -412,6 +411,23 @@ class BlazyImage {
     $url = self::url($settings, $style, $uri);
     $ratio = self::ratio($data);
 
+    // File cache tags.
+    if ($item) {
+      if ($file = ($item->entity ?? NULL)) {
+        $tags = $file->getCacheTags();
+        $blazies->set('cache.file.tags', $tags);
+      }
+
+      // Extracts alt from $item.
+      $alt = empty($item->alt) ? "" : trim($item->alt);
+      $blazies->set('image.alt', $alt);
+
+      // Do not output an empty 'title' attribute.
+      if (isset($item->title) && (mb_strlen($item->title) != 0)) {
+        $blazies->set('image.title', trim($item->title));
+      }
+    }
+
     $blazies->set('image.width', $data['width'])
       ->set('image.height', $data['height'])
       ->set('image.ratio', $ratio)
@@ -447,7 +463,7 @@ class BlazyImage {
   public static function styles(array &$settings, $multiple = FALSE): void {
     $blazies = $settings['blazies'];
     if ($manager = Blazy::service('blazy.manager')) {
-      foreach (['box', 'box_media', 'image', 'thumbnail'] as $key) {
+      foreach (BlazyDefault::imageStyles() as $key) {
         if (!$blazies->get($key . '.style') || $multiple) {
           if ($_style = ($settings[$key . '_style'] ?? '')) {
             if ($entity = $manager->load($_style, 'image_style')) {
@@ -468,6 +484,7 @@ class BlazyImage {
 
     // @todo remove the fallback after another check.
     $uri = $blazies->get('image.uri') ?: BlazyFile::uri($item, $settings);
+    $uri = $blazies->get('thumbnail.uri') ?: $uri;
     if ($uri) {
       // @todo remove the first two after moving the last check upstream due to
       // this thumbnail method is not aware of theme_blazy() checks.
@@ -479,7 +496,6 @@ class BlazyImage {
       return [
         '#theme'      => $unstyled ? 'image' : 'image_style',
         '#style_name' => $style ?: 'thumbnail',
-        // @todo recheck if any side effect/ double escape to cdn/ valid input.
         '#uri'        => UrlHelper::stripDangerousProtocols($uri),
         '#item'       => $item,
         '#alt'        => self::isImage($item) ? $item->getValue()['alt'] : '',
@@ -573,8 +589,7 @@ class BlazyImage {
    */
   public static function fakeFromSettings($blazies) {
     $item = new \stdClass();
-    $keys = ['uri', 'width', 'height', 'target_id', 'alt', 'title', 'entity'];
-    foreach ($keys as $key) {
+    foreach (BlazyDefault::imageProperties() as $key) {
       if ($value = $blazies->get('image.' . $key)) {
         $item->{$key} = $value;
       }
@@ -589,6 +604,7 @@ class BlazyImage {
     /** @var \Drupal\file\Entity\File $file */
     [$type] = explode('/', $file->getMimeType(), 2);
 
+    // Including image/svg+xml.
     if ($type == 'image' && $image->isValid()) {
       $data = [
         'uri'       => $file->getFileUri(),

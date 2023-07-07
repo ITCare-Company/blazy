@@ -21,13 +21,6 @@ use Drupal\blazy\Utility\Sanitize;
 class Lightbox {
 
   /**
-   * The blazy index within a views gallery.
-   *
-   * @var int
-   */
-  private static $blazyIndex = -1;
-
-  /**
    * Provides lightbox libraries.
    */
   public static function attach(array &$load, array &$attach = []): void {
@@ -174,14 +167,10 @@ class Lightbox {
     // @todo recheck $count given views gallery vs formatters vs formatters
     // inside views gallery, and add: && $count > 1.
     if ($box_id) {
-      // Always 0 when embedded inside a view since it is not aware of it.
-      // @todo figure out a better way than increments, no joy for IO/VIS alike.
-      // if ($delta == 0) {
-      // $delta = self::delta($blazies, $delta);
-      // }
+      // Always 0 when embedded inside a view since it is not aware of it,
+      // unless using blazy formatter for the images within Splide, Slick, etc.
       // Adds persistent delta, help fix for slide clones which screw up deltas.
-      // This is useless for views gallery, though, unless the above is correct.
-      if (!$blazies->get('view.count')) {
+      if ($blazies->is('gallery')) {
         $url_attributes['data-b-delta'] = $delta;
       }
 
@@ -336,32 +325,6 @@ class Lightbox {
     // Only strip if not already.
     $element['#url'] = $_escaped ? $url : UrlHelper::stripDangerousProtocols($url);
     $url_attributes['data-media'] = Json::encode($json);
-  }
-
-  /**
-   * Provides a corrected delta within a views gallery.
-   *
-   * @fixme, fine for plain galleries, no joy for IO/VIS alike.
-   */
-  private static function delta($blazies, $delta) {
-    if ($blazies->get('view.plugin_id') == 'blazy') {
-      // Only useful for non-ajax galleries:
-      // $function = 'views_get_current_view';
-      // if (is_callable($function) && $view = $function()) {
-      // $delta = $view->row_index;
-      // }.
-      $total = $blazies->get('view.count') ?: 0;
-      if ($total > 1 && self::$blazyIndex <= $total) {
-        self::$blazyIndex++;
-        $delta = self::$blazyIndex;
-      }
-
-      // Assumes one gallery per page, else irrelevant.
-      if (self::$blazyIndex > $total) {
-        self::$blazyIndex = -1;
-      }
-    }
-    return $delta;
   }
 
   /**

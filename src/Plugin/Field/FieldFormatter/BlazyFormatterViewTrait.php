@@ -53,7 +53,6 @@ trait BlazyFormatterViewTrait {
     $this->formatter->preBuildElements($build, $items, $entities);
 
     // Satisfy phpstan.
-    // @todo convert to generators at/by 3.x.
     if (method_exists($this, 'buildElements')) {
       $this->buildElements($build, $elements, $langcode);
     }

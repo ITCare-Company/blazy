@@ -2,15 +2,17 @@
 
 namespace Drupal\blazy\Views;
 
+use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Render\Markup;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Utility\Sanitize;
 
 /**
  * A Trait common for optional views style plugins.
  *
- * @todo move some into base classes unless clear like BlazyStyleOptionsTrait.
+ * @todo remove it into BlazyStyleBase after sub-modules extending it.
  */
 trait BlazyStyleBaseTrait {
 
@@ -45,19 +47,19 @@ trait BlazyStyleBaseTrait {
   /**
    * {@inheritdoc}
    */
-  public function getFieldString($row, $field_name, $index, $clean = TRUE): array {
+  public function getFieldString($row, $name, $index, $clean = TRUE): array {
     $values = [];
 
     // Content title/List/Text, either as link or plain text.
-    if ($value = $this->getFieldValue($index, $field_name)) {
+    if ($value = $this->getFieldValue($index, $name)) {
       $value = is_array($value) ? array_filter($value) : $value;
 
       // Entity reference label where the above $value can be term ID.
-      if ($markup = $this->getField($index, $field_name)) {
+      if ($markup = $this->getField($index, $name)) {
         $value = is_object($markup) ? trim(strip_tags($markup->__toString()) ?: '') : $value;
       }
 
-      if ($value && is_string($value)) {
+      if (is_string($value)) {
         // Only respects tags with default CSV, just too much to worry about.
         if (strpos($value, ',') !== FALSE) {
           $tags = explode(',', $value);
@@ -66,105 +68,25 @@ trait BlazyStyleBaseTrait {
             $tag = trim($tag ?: '');
             $rendered_tags[] = $clean ? Html::cleanCssIdentifier(mb_strtolower($tag)) : $tag;
           }
+          // Meant to have space delimited taxonomy values.
+          $clean = FALSE;
           $values[$index] = implode(' ', $rendered_tags);
         }
         else {
-          $values[$index] = $clean ? Html::cleanCssIdentifier(mb_strtolower($value)) : $value;
+          $values[$index] = $value;
         }
       }
       else {
-        $value = $value[0]['value'] ?? '';
-        if ($value) {
-          $values[$index] = $clean ? Html::cleanCssIdentifier(mb_strtolower($value)) : $value;
-        }
-      }
-    }
-
-    return $values;
-  }
-
-  /**
-   * Returns the first Blazy formatter found, to save image dimensions once.
-   *
-   * Given 100 images on a page, Blazy will call
-   * ImageStyle::transformDimensions() once rather than 100 times and let the
-   * 100 images inherit it as long as the image style has CROP in the name.
-   */
-  protected function getFirstImage($row): array {
-    if (!isset($this->firstImage)) {
-      $view = $this->view;
-      // Fixed for Undefined property: Drupal\views\ViewExecutable::$row_index
-      // by Drupal\views\Plugin\views\field\EntityField->prepareItemsByDelta.
-      if (!isset($view->row_index)) {
-        $view->row_index = 0;
-      }
-
-      $rendered = [];
-      if ($row && $view->rowPlugin->render($row)) {
-        if ($fields = $view->field ?? []) {
-          foreach ($fields as $field) {
-            $options = $field->options ?? [];
-            $id = $options['plugin_id'] ?? '';
-            $type = $options['type'] ?? $id;
-            $switch = isset($options['media_switch'])
-              || isset($options['settings']['media_switch']);
-
-            if (!$type) {
-              continue;
-            }
-
-            if (!empty($options['field'])
-              && $switch
-              && strpos($type, 'blazy') !== FALSE) {
-              $name = $options['field'];
-            }
-          }
-
-          if (isset($name)) {
-            // Blazy Views field plugins.
-            if (strpos($name, 'blazy_') !== FALSE
-            && $field = ($view->field[$name] ?? NULL)) {
-              $result['rendered'] = $field->render($row);
-            }
-            else {
-              // Blazy, Splide, Slick, etc. field formatters.
-              $result = $this->getFieldRenderable($row, 0, $name);
-            }
-
-            if ($result
-              && is_array($result)
-              && isset($result['rendered'])
-              && !($result['rendered'] instanceof Markup)) {
-              // D10/9.5.10 moves it into indices.
-              $rendered = $result['rendered'][0]['#build']
-                ?? $result['rendered']['#build'] ?? [];
-            }
+        // Normally link field values.
+        if (is_array($value)) {
+          if ($val = $value[0]['value'] ?? '') {
+            $values[$index] = $val;
           }
         }
       }
-
-      $this->firstImage = $rendered;
-    }
-    return $this->firstImage;
-  }
-
-  /**
-   * Returns the renderable array of field containing rendered and raw data.
-   */
-  protected function getFieldRenderable($row, $index, $field_name = '', $multiple = FALSE): array {
-    // Be sure to not check "Use field template" under "Style settings" to have
-    // renderable array to work with, otherwise flattened string!
-    /** @var \Drupal\views\Plugin\views\field\EntityField $field */
-    /* @phpstan-ignore-next-line */
-    if ($field = ($this->view->field[$field_name] ?? NULL)) {
-      if (method_exists($field, 'getItems')) {
-        $result = $field->getItems($row) ?: [];
-        $result = empty($result) ? [] : ($multiple ? $result : $result[0]);
-        return is_array($result) ? $result : [];
-      }
     }
 
-    return [];
+    return Sanitize::attribute($values, TRUE, $clean);
   }
 
   /**
@@ -227,6 +149,103 @@ trait BlazyStyleBaseTrait {
   }
 
   /**
+   * Returns the first Blazy formatter found, to save image dimensions once.
+   *
+   * Given 100 images on a page, Blazy will call
+   * ImageStyle::transformDimensions() once rather than 100 times and let the
+   * 100 images inherit it as long as the image style has CROP in the name.
+   */
+  protected function getFirstImage($row): array {
+    if (!isset($this->firstImage)) {
+      $view = $this->view;
+      // Fixed for Undefined property: Drupal\views\ViewExecutable::$row_index
+      // by Drupal\views\Plugin\views\field\EntityField->prepareItemsByDelta.
+      if (!isset($view->row_index)) {
+        $view->row_index = 0;
+      }
+
+      $rendered = [];
+      if ($row && $view->rowPlugin->render($row)) {
+        if ($fields = $view->field ?? []) {
+          foreach ($fields as $field) {
+            $options = $field->options ?? [];
+            $id = $options['plugin_id'] ?? '';
+            $type = $options['type'] ?? $id;
+            $switch = isset($options['media_switch'])
+              || isset($options['settings']['media_switch']);
+
+            if (!$type) {
+              continue;
+            }
+
+            if (!empty($options['field'])
+              && $switch
+              && strpos($type, 'blazy') !== FALSE) {
+              $name = $options['field'];
+            }
+          }
+
+          if (isset($name)) {
+            // Blazy Views field plugins: Blazy File and Media.
+            if (strpos($name, 'blazy_') !== FALSE
+            && $field = ($view->field[$name] ?? NULL)) {
+              $result['rendered'] = $field->render($row);
+            }
+            else {
+              // Blazy, Splide, Slick, etc. field formatters.
+              $result = $this->getFieldRenderable($row, 0, $name);
+            }
+
+            if ($result
+              && is_array($result)
+              && isset($result['rendered'])
+              && !($result['rendered'] instanceof Markup)) {
+              // D10/9.5.10 moves it into indices.
+              $rendered = $result['rendered'][0]['#build']
+                ?? $result['rendered']['#build'] ?? [];
+            }
+          }
+        }
+      }
+
+      $this->firstImage = $rendered;
+    }
+    return $this->firstImage;
+  }
+
+  /**
+   * Returns the renderable array of field containing rendered and raw data.
+   */
+  protected function getFieldRenderable($row, $index, $name, $multiple = FALSE): array {
+    // Be sure to not check "Use field template" under "Style settings" to have
+    // renderable array to work with, otherwise flattened string!
+    /** @var \Drupal\views\Plugin\views\field\EntityField $field */
+    /* @phpstan-ignore-next-line */
+    if ($name && $field = ($this->view->field[$name] ?? NULL)) {
+      if (method_exists($field, 'getItems')) {
+        $result = $field->getItems($row);
+        if ($result && is_array($result)) {
+          // @todo recheck the last: a plain array, rendered/raw, markup, etc.
+          return $multiple ? $result : ($result[0] ?? []);
+        }
+      }
+    }
+    return [];
+  }
+
+  /**
+   * Returns the rendered field, either string or array.
+   */
+  protected function getFieldRendered($index, $name, $restricted = FALSE): array {
+    if ($name && $output = $this->getField($index, $name)) {
+      return is_array($output) ? $output : [
+        '#markup' => ($restricted ? Xss::filterAdmin($output) : $output),
+      ];
+    }
+    return [];
+  }
+
+  /**
    * Returns the thumbnail if so configured.
    *
    * Be sure to reset settings before calling this method:
@@ -244,8 +263,12 @@ trait BlazyStyleBaseTrait {
     $blazies->set('is.reset', TRUE);
     $tn = $this->getFieldRenderable($row, 0, $name);
     $rendered = $tn['rendered'] ?? [];
+
+    // Core image formatter:
     $tn_style = $rendered['#image_style'] ?? NULL;
     $item = $rendered['#item'] ?? NULL;
+
+    // Blazy formatter, might be group_rows.
     $build = $rendered['#build'] ?? [];
 
     // Even if ignorantly multiple, thumbnails must be one only.
@@ -257,7 +280,8 @@ trait BlazyStyleBaseTrait {
     }
 
     if (!$item) {
-      $item = $build[0]['#item'] ?? $rendered['raw'] ?? NULL;
+      // Might be group_rows.
+      $item = $build['#item'] ?? $build[0]['#item'] ?? $rendered['raw'] ?? NULL;
     }
 
     if ($tn_style && is_object($item)) {
@@ -268,6 +292,8 @@ trait BlazyStyleBaseTrait {
         ->load($tn_style, 'image_style')
         ->buildUri($uri) : NULL;
 
+      // This allows a thumbnail different from the main stage, such as logos
+      // thumbnails, and company buildings for the main stage.
       if ($tn_uri) {
         $sets['thumbnail_uri'] = $tn_uri;
         $blazies->set('thumbnail.uri', $tn_uri);
@@ -298,6 +324,13 @@ trait BlazyStyleBaseTrait {
   protected function setHtmlSettings(array $settings = []) {
     $this->htmlSettings = $settings;
     return $this;
+  }
+
+  /**
+   * Renew settings per item.
+   */
+  protected function reset(array &$settings, $key = 'blazies') {
+    return Blazy::reset($settings, $key);
   }
 
 }

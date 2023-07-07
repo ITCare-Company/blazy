@@ -2,7 +2,7 @@
 
 namespace Drupal\blazy\Views;
 
-use Drupal\Component\Utility\Xss;
+use Drupal\Core\Url;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\blazy\BlazyInternal;
 
@@ -10,6 +10,7 @@ use Drupal\blazy\BlazyInternal;
  * A Trait common for optional views style plugins.
  *
  * @todo move some into base classes unless clear like BlazyStyleOptionsTrait.
+ * No sub-modules call this, safe to move it into BlazyStylePluginBase.
  */
 trait BlazyStylePluginTrait {
 
@@ -57,11 +58,20 @@ trait BlazyStylePluginTrait {
           // Reserves crucial blazy specific settings.
           BlazyInternal::preserve($settings, $blazy_settings);
 
+          // Each blazy delta is always 0 within a view, this makes it gallery.
           $settings['blazies'] = $blazy_settings['blazies'];
+          $settings['blazies']->set('delta', $index)
+            ->set('is.gallery', !empty($settings['media_switch']));
         }
         elseif ($theme == 'image_formatter') {
           // Deals with "link to content/image" by formatters.
           $url = $rendered['#url'] ?? '';
+
+          // Checks if an object.
+          if ($url instanceof Url) {
+            $url = $url->setAbsolute()->toString();
+          }
+
           $blazies->set('entity.url', $url);
 
           // Prevent images from having absurd height when being lazyloaded.
@@ -71,16 +81,14 @@ trait BlazyStylePluginTrait {
           if (empty($settings['media_switch']) && $url) {
             $settings['media_switch'] = 'content';
           }
+
+          $blazies->set('delta', $index);
+
+          // Rebuilds the image for the brand new richer Blazy.
+          // With the working Views cache, nothing to worry much.
+          $build = ['item' => $item, 'settings' => $settings];
+          $image['rendered'] = $this->blazyManager->getBlazy($build);
         }
-
-        // Rebuilds the image for the brand new richer Blazy.
-        // With the working Views cache, nothing to worry much.
-        // @todo remove $settings after another check.
-        $settings['delta'] = $index;
-        $blazies->set('delta', $index);
-
-        $build = ['item' => $item, 'settings' => $settings];
-        $image['rendered'] = $this->blazyManager->getBlazy($build);
       }
     }
 
@@ -90,7 +98,7 @@ trait BlazyStylePluginTrait {
   /**
    * Checks if we can work with this formatter, otherwise no go if flattened.
    */
-  protected function getImageArray($row, $index, $field_image = ''): array {
+  protected function getImageArray($row, $index, $field_image): array {
     if (!empty($field_image)
       && $image = $this->getFieldRenderable($row, $index, $field_image)) {
 
@@ -122,11 +130,11 @@ trait BlazyStylePluginTrait {
     }
 
     // Don't know other reasonable formatters to work with.
-    return is_object($item) ? $item : NULL;
+    return $item instanceof ImageItem ? $item : NULL;
   }
 
   /**
-   * Returns the caption element.
+   * Returns the caption elements.
    */
   protected function getCaption($index, array $settings): array {
     $view     = $this->view;
@@ -138,6 +146,7 @@ trait BlazyStylePluginTrait {
     $overlay  = $settings['overlay'] ?? NULL;
     $captions = $settings['caption'] ?? [];
 
+    // Caption items: link, title, overlay, and data, anything else selected.
     $items['link']    = $this->getFieldRendered($index, $link);
     $items['title']   = $this->getFieldRendered($index, $title, TRUE);
     $items['overlay'] = $this->getFieldRendered($index, $overlay);
@@ -168,18 +177,6 @@ trait BlazyStylePluginTrait {
         $settings['layout'] = strip_tags($value);
       }
     }
-  }
-
-  /**
-   * Returns the rendered field, either string or array.
-   */
-  protected function getFieldRendered($index, $name, $restricted = FALSE): array {
-    if ($name && $output = $this->getField($index, $name)) {
-      return is_array($output) ? $output : [
-        '#markup' => ($restricted ? Xss::filterAdmin($output) : $output),
-      ];
-    }
-    return [];
   }
 
 }

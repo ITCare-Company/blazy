@@ -280,6 +280,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *   The HTML DOM object.
    * @param string $src
    *   The corrected SRC value.
+   *
+   * @todo refactor to move ImageItem downstream, or remove it completely.
    */
   protected function getImageItemFromImageSrc(array &$build, $node, $src): void {
     $settings = &$build['settings'];
@@ -308,8 +310,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
       // @todo remove settings after migrations.
       $data = [];
-      $keys = ['uri', 'width', 'height', 'alt', 'title', 'entity'];
-      foreach ($keys as $key) {
+      foreach (BlazyDefault::imageProperties() as $key) {
         $default = $key == 'entity' ? $file : ($settings[$key] ?? NULL);
         if ($value = $blazies->get('image.' . $key) ?: $default) {
           $data[$key] = $value;

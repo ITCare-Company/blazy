@@ -3,7 +3,7 @@
 ## <a name="changes"></a>NOTABLE CHANGES  
 Always check out release notes, if any issues with the latest changes.
 
-* _Blazy 2.17_, 2023/07/02:
+* _Blazy 2.17_, 2023/07/09:
    + Cold fixes for few minor regressions and self organizations.
    + Added additional config options at Blazy UI. Be sure to check out for
      `visible_class` and `wrapper_class` options if using them.

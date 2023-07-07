@@ -73,7 +73,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $blazies = $settings['blazies'];
     $url = $blazies->get('entity.url');
 
-    if ($blazies->get('switch') == 'content' && $url) {
+    // Requires a string to strip, image_formatter has a Url object.
+    if ($blazies->get('switch') == 'content' && $url && is_string($url)) {
       $element['#url'] = UrlHelper::stripDangerousProtocols($url);
     }
     elseif ($blazies->is('lightbox')) {

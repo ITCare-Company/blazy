@@ -6,6 +6,9 @@ use Drupal\views\Views;
 
 /**
  * A Trait common for optional views style plugins.
+ *
+ * @todo remove it into BlazyStylePluginBase after sub-modules extending it.
+ * Called by OutlayerViewsBase.
  */
 trait BlazyStyleOptionsTrait {
 

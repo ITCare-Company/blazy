@@ -168,6 +168,20 @@ class BlazyDefault {
   }
 
   /**
+   * Returns common image properties.
+   */
+  public static function imageProperties() {
+    return ['uri', 'width', 'height', 'target_id', 'alt', 'title', 'entity'];
+  }
+
+  /**
+   * Returns common image styles.
+   */
+  public static function imageStyles() {
+    return ['box', 'box_media', 'image', 'thumbnail'];
+  }
+
+  /**
    * Returns shared global form settings which should be consumed at formatters.
    */
   public static function uiSettings() {

@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-07-07
 ------------------------------
+- Fixed for core image_formatter link to content with URL object.
 - Fixed for background image regressions given core image, not blazy formatter.
 
 Blazy 8.x-2.0-dev, 2023-07-06
