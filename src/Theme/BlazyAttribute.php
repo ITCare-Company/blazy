@@ -411,14 +411,14 @@ class BlazyAttribute {
       // Background is not supported by Native, cannot use unlazy, use undata:
       // - undata: no use of dataset (data-b-bg) like at AMP, or preview pages.
       // - unlazy: `No JavaScript: lazy` aka decoupled lazy loader + undata.
-      $style  = $blazies->get('image.style');
-      $width  = $blazies->get('image.width');
-      $unlazy = $blazies->is('undata');
-      $url    = $unlazy ? $url : $placeholder;
-
-      $blazies->set('image.url', $url)
-        ->set('is.unlazy', $unlazy);
-
+      $style = $blazies->get('image.style');
+      $width = $blazies->get('image.width');
+      // @fixme background is screwed up somehow, only when using core image as
+      // source image upstream, fine when given blazy image formatter.
+      // $unlazy = $blazies->is('undata');
+      // $url = $unlazy ? $url : $placeholder;
+      // $blazies->set('image.url', $url);
+      // ->set('is.unlazy', $unlazy);
       $blazies->set('bgs.' . $width, BlazyImage::background($settings, $style));
       self::lazy($attributes, $settings);
     }
