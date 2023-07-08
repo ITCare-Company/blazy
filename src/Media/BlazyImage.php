@@ -412,13 +412,8 @@ class BlazyImage {
     $url = self::url($settings, $style, $uri);
     $ratio = self::ratio($data);
 
-    // File cache tags.
+    // If any image item, fake or real, no biggies.
     if ($item) {
-      if ($file = ($item->entity ?? NULL)) {
-        $tags = $file->getCacheTags();
-        $blazies->set('cache.metadata.tags', $tags, TRUE);
-      }
-
       // Extracts alt from $item.
       $alt = empty($item->alt) ? "" : trim($item->alt);
       $blazies->set('image.alt', $alt);

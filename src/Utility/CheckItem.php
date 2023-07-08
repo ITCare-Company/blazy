@@ -104,6 +104,14 @@ class CheckItem {
     $delta   = $blazies->get('delta') ?: ($settings['delta'] ?? 0);
     $initial = $delta == $blazies->get('initial', -1);
 
+    // File cache tags, cannot be read by tests from #pre_render, must be here.
+    if ($item) {
+      if ($file = ($item->entity ?? NULL)) {
+        $tags = $file->getCacheTags();
+        $blazies->set('cache.metadata.tags', $tags, TRUE);
+      }
+    }
+
     // This means re-definition since URI can be fed from any sources uptream.
     $blazies->set('delta', $delta)
       ->set('is.initial', $initial)
