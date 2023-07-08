@@ -133,7 +133,7 @@ class CheckItem {
     $type      = $blazies->get('media.type') ?: $settings['type'] ?? 'image';
     $embed_url = $settings['embed_url'] ?? '';
     $embed_url = $blazies->get('media.embed_url') ?: $embed_url;
-    $is_vef    = $type == 'video';
+    $is_vef    = $type == 'video' || $blazies->is('playable');
     $is_remote = $embed_url && ($blazies->is('remote_video') || $is_vef);
     $is_iframe = $is_remote && empty($switch);
     $is_player = $is_remote && $switch == 'media';

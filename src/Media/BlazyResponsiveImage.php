@@ -154,7 +154,7 @@ class BlazyResponsiveImage {
     $styles = self::styles($resimage);
 
     $blazies->set('resimage.id', $id)
-      ->set('resimage.cache', $styles['caches'] ?? []);
+      ->set('cache.metadata.tags', $styles['caches'] ?? [], TRUE);
   }
 
   /**

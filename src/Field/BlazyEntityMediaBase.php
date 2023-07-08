@@ -206,7 +206,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       }
 
       // Only provides poster if media contains rich media.
-      $media = ['audio', 'remote_video', 'video', 'instagram', 'soundcloud'];
+      $media = BlazyDefault::imagePosters();
       if (count(array_intersect(array_keys($bundles), $media)) > 0) {
         $images['images'] = $this->getFieldOptions(['image']);
       }

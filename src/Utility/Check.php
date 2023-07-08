@@ -261,8 +261,8 @@ class Check {
       $blazies->set('lightbox.gallery_id', $gallery_id);
     }
 
-    $blazies->set('cache.keys', [$id, $count], TRUE)
-      ->set('cache.tags', [$entity_type_id . ':' . $entity_id], TRUE)
+    $blazies->set('cache.metadata.keys', [$id, $count], TRUE)
+      ->set('cache.metadata.tags', [$entity_type_id . ':' . $entity_id], TRUE)
       ->set('count', $count)
       ->set('css.id', $id)
       ->set('use.theme_field', $use_field)

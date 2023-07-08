@@ -2,10 +2,11 @@
 
 namespace Drupal\blazy\Media;
 
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\Theme\BlazyAttribute;
 use Drupal\blazy\Utility\CheckItem;
 
 /**
@@ -82,12 +83,9 @@ class BlazyMedia {
       $uri = $source->getMetadata($media, $attr);
     }
 
-    $data = [];
-    $translated = $media;
-    if ($info = CheckItem::entity($media, $langcode)) {
-      $data = $info['data'];
-      $translated = $info['entity'];
-    }
+    $info = CheckItem::entity($media, $langcode);
+    $data = $info['data'];
+    $translated = $info['entity'];
 
     $output = [
       'label'        => $media->label(),
@@ -123,12 +121,18 @@ class BlazyMedia {
     $is_remote = $source && in_array($source, $videos);
 
     // Embed url is not defined here, yet, provides basic media checks.
+    $contexts = Cache::mergeContexts(['languages', 'url.site'], $media->getCacheContexts());
     $blazies->set('media', $info)
-      ->set('media.cache.keys', [$id, $rid])
+      ->set('cache.metadata.contexts', $contexts, TRUE)
+      ->set('cache.metadata.keys', [$id, $rid], TRUE)
+      ->set('cache.metadata.max-age', $media->getCacheMaxAge())
+      ->set('cache.metadata.tags', $media->getCacheTags(), TRUE)
+      ->set('is.playable', $is_remote)
       ->set('is.multimedia', $is_media)
       ->set('is.local_media', $is_local)
       ->set('is.local_video', $source == 'video_file')
-      ->set('is.remote_video', $is_remote);
+      ->set('is.remote_video', $is_remote)
+      ->set('is.remote_unknown', !$is_media);
 
     return $media;
   }
@@ -157,10 +161,10 @@ class BlazyMedia {
    *   The array of the media item to be wrapped directly by theme_blazy().
    */
   private static function unfield(array $field): array {
-    $item     = $field[0];
-    $settings = &$field['#settings'];
-    $blazies  = $settings['blazies'];
-    $iframe   = ($item['#tag'] ?? NULL) == 'iframe';
+    $item      = $field[0];
+    $settings  = &$field['#settings'];
+    $blazies   = $settings['blazies'];
+    $is_iframe = ($item['#tag'] ?? NULL) == 'iframe';
 
     if (!isset($item['#attributes'])) {
       $item['#attributes'] = [];
@@ -177,11 +181,15 @@ class BlazyMedia {
     }
 
     // Converts iframes into lazyloaded ones.
-    // Iframes: Googledocs, SlideShare. Hardcoded: Soundcloud, Spotify.
+    // Iframes: Googledocs, SlideShare. Hardcoded: Spotify.
     // @todo recheck, likely everyone hardly uses iframes lately.
-    if ($iframe && $src = ($attributes['src'] ?? FALSE)) {
-      $blazies->set('media.embed_url', $src);
-      $attributes = Blazy::merge(BlazyAttribute::iframe($settings), $attributes);
+    // No longer per D9.5: Soundcloud.
+    if ($is_iframe && $src = ($attributes['src'] ?? FALSE)) {
+      $blazies->set('is.iframeable', TRUE)
+        ->set('is.playable', TRUE)
+        ->set('is.multimedia', TRUE)
+        ->set('media.embed_url', $src)
+        ->set('media.escaped', TRUE);
     }
     // Media with local files: video.
     elseif (isset($item['#files'])
@@ -192,6 +200,39 @@ class BlazyMedia {
       $blazies->set('media.uri', $file->getFileUri());
 
       self::videoItem($item, $settings);
+    }
+    elseif (isset($item['#theme'])) {
+      if ($oembed = Blazy::service('blazy.oembed')) {
+        $original = $item;
+        $content = $oembed->blazyManager()->renderer()->renderPlain($item);
+        $dom = Html::load($content);
+        $iframes = $dom->getElementsByTagName('iframe');
+
+        if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
+          $src = $iframe->getAttribute('src');
+          $blazies->set('is.iframeable', TRUE)
+            ->set('is.playable', TRUE)
+            ->set('is.multimedia', TRUE)
+            ->set('media.embed_url', $src)
+            ->set('media.escaped', TRUE);
+
+          if (strpos($src, '?url=') === FALSE) {
+            $embed_url = $oembed->toEmbedUrl($blazies, $src);
+            $blazies->set('media.embed_url', $embed_url);
+          }
+
+          // If ($source = $blazies->get('media.source')) {.
+          $blazies->set('media.type', $blazies->get('media.source'));
+          // }
+        }
+        else {
+          $settings['media_switch'] = '';
+          $blazies->set('switch', '')
+            ->set('is.lightbox', FALSE);
+        }
+
+        $item = $original;
+      }
     }
 
     // Clone relevant keys since field wrapper is no longer in use.

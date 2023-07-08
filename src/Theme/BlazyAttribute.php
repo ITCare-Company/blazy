@@ -41,6 +41,10 @@ class BlazyAttribute {
       $switch = str_replace('_', '-', $lightbox);
       $attributes['data-' . $switch . '-gallery'] = TRUE;
       $classes[] = 'blazy--' . $switch;
+
+      if ($extras = $blazies->data($switch)) {
+        $attributes['data-' . $switch] = Json::encode($extras);
+      }
     }
 
     // For CSS fixes.

@@ -103,6 +103,7 @@ class Lightbox {
         $url = Blazy::autoplay($embed, !$_escaped);
         $url_attributes['data-oembed-url'] = $url;
         $json['boxType'] = 'iframe';
+        $json['playable'] = $blazies->is('playable');
       }
 
       // This allows PhotoSwipe with videos still swipable.

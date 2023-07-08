@@ -39,15 +39,23 @@ class Blazy {
   }
 
   /**
-   * Provides autoplay URL, relevant for lightboxes to save another click.
+   * Provides autoplay URL for lightbox nested iframes to save another click.
    */
   public static function autoplay($url, $check = TRUE): string {
+    $func = function ($str, $key) {
+      $format1 = '%s&%s=1';
+      $first = sprintf($format1, $str, $key);
+      $format2 = '%s?%s=1';
+      $last = sprintf($format2, $str, $key);
+
+      return self::has($str, '?') ? $first : $last;
+    };
+
     // It doesn't cover all providers, but few, no biggies till needed.
     if (!self::has($url, 'autoplay')
       || self::has($url, 'autoplay=0')) {
-      return self::has($url, '?')
-        ? $url . '&autoplay=1'
-        : $url . '?autoplay=1';
+      $key = self::has($url, 'soundcloud') ? 'auto_play' : 'autoplay';
+      return $func($url, $key);
     }
 
     // @todo recheck if any side effect/ double escape to cdn/ valid input.

@@ -128,8 +128,8 @@ trait BlazyStyleBaseTrait {
       'count'       => $count,
     ];
 
-    $blazies->set('cache.keys', [$id, $view_mode, $count], TRUE)
-      ->set('cache.tags', $view->getCacheTags() ?: [], TRUE)
+    $blazies->set('cache.metadata.keys', [$id, $view_mode, $count], TRUE)
+      ->set('cache.metadata.tags', $view->getCacheTags() ?: [], TRUE)
       ->set('count', $count)
       ->set('css.id', $id)
       ->set('is.multiple', TRUE)

@@ -81,24 +81,28 @@
         playing.className = playing.className.replace(/(\S+)playing/, '');
       }
 
-      // Appends the iframe.
-      $.addClass(player, _isPlaying);
-
       // Remove the existing iframe on the current clicked iframe.
       $.remove(iframe);
 
-      // Cache iframe for the potential repeating clicks.
-      if (!newIframe) {
-        newIframe = $.create(_iFrame, _md + '__iframe ' + _md + '__element');
+      // DOM ready fix, for slow iframe removal.
+      window.setTimeout(function () {
+        $.addClass(player, _isPlaying);
 
-        $.attr(newIframe, {
-          src: url,
-          allowfullscreen: true,
-          title: title
-        });
-      }
+        // Cache iframe for the potential repeating clicks.
+        if (!newIframe) {
+          newIframe = $.create(_iFrame, _md + '__iframe ' + _md + '__element');
 
-      player.appendChild(newIframe);
+          // Saving another clicks for nested iframes.
+          $.attr(newIframe, {
+            src: url,
+            allow: 'autoplay; fullscreen',
+            title: Drupal.checkPlain(title)
+          });
+        }
+
+        // Appends the iframe.
+        player.appendChild(newIframe);
+      });
     }
 
     /**
@@ -182,7 +186,7 @@
       defClass + ' ' + settings.imgClass :
       defClass;
     var idClass = data.id ? ' ' + _md + '--' + data.id : '';
-    var player = data.type === 'video' ? ' ' + _player : '';
+    var player = data.playable || data.boxType === 'iframe' ? ' ' + _player : '';
     var ariaClose = Drupal.t('Stop and close the video');
     var ariaPlay = Drupal.t('Load and play the video');
     var html = '';

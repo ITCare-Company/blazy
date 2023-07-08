@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Media;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
@@ -397,7 +398,7 @@ class BlazyImage {
 
     // Provides image url based on the given settings.
     if ($style) {
-      $blazies->set('cache.tags', $style->getCacheTags(), TRUE);
+      $blazies->set('cache.metadata.tags', $style->getCacheTags(), TRUE);
 
       // Only re-calculate dimensions if not cropped, nor already set.
       if (!$blazies->is('dimensions')
@@ -415,7 +416,7 @@ class BlazyImage {
     if ($item) {
       if ($file = ($item->entity ?? NULL)) {
         $tags = $file->getCacheTags();
-        $blazies->set('cache.file.tags', $tags);
+        $blazies->set('cache.metadata.tags', $tags, TRUE);
       }
 
       // Extracts alt from $item.
@@ -492,13 +493,15 @@ class BlazyImage {
         || Blazy::isDataUri($uri)
         || $blazies->is('unstyled');
       $style = $settings['thumbnail_style'] ?? NULL;
+      $alt = self::isImage($item) ? $item->getValue()['alt'] : '';
+      $valid = BlazyFile::isValidUri($uri);
 
       return [
         '#theme'      => $unstyled ? 'image' : 'image_style',
         '#style_name' => $style ?: 'thumbnail',
-        '#uri'        => UrlHelper::stripDangerousProtocols($uri),
+        '#uri'        => $valid ? $uri : UrlHelper::stripDangerousProtocols($uri),
         '#item'       => $item,
-        '#alt'        => self::isImage($item) ? $item->getValue()['alt'] : '',
+        '#alt'        => $alt ? Html::escape($alt) : '',
       ];
     }
     return [];

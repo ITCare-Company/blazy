@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-07-08
+------------------------------
+- Fixed for media player DOM ready.
+- Fixed for soundcloud and other iframe-based media entity integrations.
+
 Blazy 8.x-2.0-dev, 2023-07-07
 ------------------------------
 - Fixed for core image_formatter link to content with URL object.

@@ -5,7 +5,6 @@ namespace Drupal\blazy;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
-use Drupal\blazy\Cache\BlazyCache;
 use Drupal\blazy\Theme\Lightbox;
 use Drupal\blazy\Utility\CheckItem;
 
@@ -258,26 +257,11 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       unset($item->_attributes);
     }
 
-    // @todo refine these caches.
     // See https://www.drupal.org/project/drupal/issues/2469277.
     if (!$blazies->is('cache_deferred')) {
-      // Provides media cache.
-      if ($caches = $blazies->get('media.cache', [])) {
+      // Provides all media cache.
+      if ($caches = $blazies->get('cache.metadata', [])) {
         $element['#cache'] = $caches;
-      }
-
-      // Responsive image integration, with/o CSS background so to work with.
-      if ($caches = $blazies->get('resimage.cache', [])) {
-        $element['#cache']['tags'] = $caches;
-      }
-      else {
-        // Provides caches for regular image, with/o CSS background.
-        if ($caches = BlazyCache::file($settings)) {
-          $element['#cache']['max-age'] = -1;
-          foreach ($caches as $key => $cache) {
-            $element['#cache'][$key] = $cache;
-          }
-        }
       }
     }
 

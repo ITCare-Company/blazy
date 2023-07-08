@@ -9,6 +9,11 @@
   visibility: hidden;
 }
 
+.media--rendered iframe {
+  opacity: 1;
+  visibility: visible;
+}
+
 .media__icon,
 .media--ratio iframe {
   transition: visibility 0s linear 0.5s, opacity 0.5s linear;

@@ -94,8 +94,10 @@ class Sanitize {
    *   The relatively sanitized $input suitable for UGC.
    */
   public static function input($input, $name, array $options) {
+    $admin = $options['admin'] ?? FALSE;
     $paths = $options['paths'] ?? [];
     $striptags = $options['striptags'] ?? TRUE;
+    $protocol = $paths && in_array($name, $paths);
 
     // PHP8.0.0 allows nullable tags. PHP7.4.0 accepts array.
     // The minimum D8.8 is PHP7.4, not recommended.
@@ -111,30 +113,32 @@ class Sanitize {
       if ($striptags) {
         $value = strip_tags($value, $tags);
       }
-      if ($paths && in_array($name, $paths)) {
+      if ($protocol) {
         $value = UrlHelper::filterBadProtocol($value);
       }
-      $value = Xss::filter($value, $xsstags);
+      $value = $admin ? Xss::filterAdmin($value) : Xss::filter($value, $xsstags);
     }
     elseif (is_array($value)) {
       if ($striptags) {
         $value = array_map(function ($val) use ($tags) {
-          return $val ? strip_tags($val, $tags) : $val;
+          return $val && is_string($val) ? strip_tags($val, $tags) : $val;
         }, $value);
       }
 
-      array_walk($value, function (&$val, $key) use ($name, $paths) {
-        if ($val && is_string($val)) {
-          $check = $paths && in_array($name, $paths);
-          // The last is just an exercise for now.
-          if ($check || $key == 'io_fallback') {
-            $val = UrlHelper::filterBadProtocol($val);
+      if ($protocol) {
+        $value = array_map(function ($val) {
+          if ($val && is_string($val)) {
+            return UrlHelper::filterBadProtocol($val);
           }
-        }
-      });
+          return $val;
+        }, $value);
+      }
 
-      $value = array_map(function ($val) use ($xsstags) {
-        return $val ? Xss::filter($val, $xsstags) : $val;
+      $value = array_map(function ($val) use ($xsstags, $admin) {
+        if ($val && is_string($val)) {
+          return $admin ? Xss::filterAdmin($val) : Xss::filter($val, $xsstags);
+        }
+        return $val;
       }, $value);
     }
     return $value;

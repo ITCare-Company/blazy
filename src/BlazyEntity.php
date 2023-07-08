@@ -210,7 +210,7 @@ class BlazyEntity implements BlazyEntityInterface {
       $id = $data['id'];
       $rid = $data['rid'];
 
-      $blazies->set('cache.keys', [$id, $rid], TRUE)
+      $blazies->set('cache.metadata.keys', [$id, $rid], TRUE)
         ->set('entity', $data, TRUE);
     }
   }

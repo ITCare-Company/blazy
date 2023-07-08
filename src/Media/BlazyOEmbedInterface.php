@@ -71,4 +71,19 @@ interface BlazyOEmbedInterface {
    */
   public function checkInputUrl(array &$settings, $input): ?string;
 
+  /**
+   * Converts input URL into embed URL.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies object.
+   * @param string $input
+   *   The input to modify.
+   * @param array $autoplay
+   *   The input to modify.
+   *
+   * @return string
+   *   The media oembed url.
+   */
+  public function toEmbedUrl($blazies, $input, array $autoplay = []): string;
+
 }

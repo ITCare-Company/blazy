@@ -177,6 +177,31 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function toEmbedUrl($blazies, $input, array $autoplay = []): string {
+    $query = [
+      'url' => $input,
+      'max_width' => 0,
+      'max_height' => 0,
+      'hash' => $this->iframeUrlHelper->getHash($input, 0, 0),
+      'blazy' => 1,
+    ] + $autoplay;
+
+    // @todo revisit if any issue with other resource types.
+    $url = Url::fromRoute('media.oembed_iframe', [], [
+      'query' => $query,
+    ]);
+
+    // The top level iframe url relative to the site, or iframe_domain.
+    if ($iframe_domain = $blazies->get('iframe_domain')) {
+      $url->setOption('base_url', $iframe_domain);
+    }
+
+    return $url->toString();
+  }
+
+  /**
    * Temporary method to be compatible with old approach pre 2.10.
    *
    * @todo move it directly into ::build() after sub-modules.
@@ -254,19 +279,20 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    *   The modified array containing: settings, and candidate video thumbnail.
    */
   private function fromMedia(array &$build): void {
-    // Prepare Media needed settings, and extract Media thumbnail.
+    // Prepare Media needed settings, and extract Media thumbnail, except type.
     $media = BlazyMedia::prepare($build);
     $settings = &$build['settings'];
     $blazies = $settings['blazies'];
 
     // @todo support local video/ audio file, and other media sources.
     // @todo check for Resource::TYPE_PHOTO, Resource::TYPE_RICH, etc.
-    switch ($blazies->get('media.source')) {
+    $input = $media->getSource()->getSourceFieldValue($media);
+    $source = $blazies->get('media.source');
+    switch ($source) {
       case 'oembed':
       case 'oembed:video':
       case 'video_embed_field':
         // Input url != embed url. For Youtube, /watch != /embed.
-        $input = $media->getSource()->getSourceFieldValue($media);
         if ($input) {
           $blazies->set('media.input_url', $input);
           $this->toEmbed($settings);
@@ -274,22 +300,24 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         break;
 
       case 'image':
-        // @todo remove settings.
-        $settings['type'] = 'image';
         $blazies->set('media.type', 'image');
         break;
 
-      // No special handling for anything else for now, pass through.
       default:
-        break;
-    }
+        // Local video has numeric value, skip.
+        if ($input && !is_numeric($input)) {
+          $blazies->set('media.input_url', $input);
+          $this->toEmbed($settings);
+        }
 
-    // Do not proceed if it has type, already managed by theme_blazy().
-    // Supports other Media entities: Facebook, Instagram, local video, etc.
-    if (!$blazies->get('media.type')) {
-      if ($result = BlazyMedia::build($media, $settings)) {
-        $build['content'][] = $result;
-      }
+        // Supports other Media entities: Facebook, Instagram, local video, etc.
+        // Attempts to enter the unknown here fearlessly.
+        if ($result = BlazyMedia::build($media, $settings)) {
+          if (!$blazies->is('iframeable')) {
+            $build['content'][] = $result;
+          }
+        }
+        break;
     }
   }
 
@@ -373,26 +401,10 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $input = $this->checkInputUrl($settings, $input);
     $autoplay = empty($settings['media_switch']) ? [] : ['autoplay' => 1];
 
-    $query = [
-      'url' => $input,
-      'max_width' => 0,
-      'max_height' => 0,
-      'hash' => $this->iframeUrlHelper->getHash($input, 0, 0),
-      'blazy' => 1,
-    ] + $autoplay;
-
-    // @todo revisit if any issue with other resource types.
-    $url = Url::fromRoute('media.oembed_iframe', [], [
-      'query' => $query,
-    ]);
-
-    if ($iframe_domain = $blazies->get('iframe_domain')) {
-      $url->setOption('base_url', $iframe_domain);
-    }
-
-    // The top level iframe url relative to the site, or iframe_domain.
     // @todo remove settings after sub-modules: zooming.
-    $settings['embed_url'] = $embed_url = $url->toString();
+    // Should be oembed_url, but embed_url is a fine legacy video_embed_field.
+    $embed_url = $this->toEmbedUrl($blazies, $input, $autoplay);
+    $settings['embed_url'] = $embed_url;
     $blazies->set('media.embed_url', $embed_url)
       ->set('media.escaped', TRUE);
 

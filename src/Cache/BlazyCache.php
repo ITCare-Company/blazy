@@ -11,32 +11,6 @@ use Drupal\blazy\Blazy;
 class BlazyCache {
 
   /**
-   * Build out image, or anything related, including cache, CSS background, etc.
-   *
-   * @todo refine against media, file and (responsive) image caches.
-   */
-  public static function file(array &$settings): array {
-    $blazies = $settings['blazies'];
-
-    if ($blazies->get('cache.disabled', FALSE)) {
-      return [];
-    }
-
-    $caches = [];
-    $tags   = $blazies->get('cache.file.tags', []);
-
-    foreach (['contexts', 'keys', 'tags'] as $key) {
-      if ($cache = $blazies->get('cache.' . $key)) {
-        if ($key == 'tags' && $tags) {
-          $cache = Cache::mergeTags($cache, $tags);
-        }
-        $caches[$key] = $cache;
-      }
-    }
-    return $caches;
-  }
-
-  /**
    * Return the available lightboxes, to be cached to avoid disk lookups.
    */
   public static function lightboxes($root): array {
@@ -83,11 +57,11 @@ class BlazyCache {
     $cache             = [];
     $suffixes[]        = $count;
     $cache['tags']     = Cache::buildTags($namespace . ':' . $id, $suffixes, '.');
-    $cache['contexts'] = ['languages'];
+    $cache['contexts'] = ['languages', 'url.site'];
     $cache['max-age']  = $max_age;
-    $cache['keys']     = $blazies->get('cache.keys', [$id]);
+    $cache['keys']     = $blazies->get('cache.metadata.keys', [$id]);
 
-    if ($tags = $blazies->get('cache.tags', [])) {
+    if ($tags = $blazies->get('cache.metadata.tags', [])) {
       $cache['tags'] = Cache::mergeTags($cache['tags'], $tags);
     }
 
