@@ -193,7 +193,7 @@ class Blazy {
    * No real problems found so far even with BVEF, just minimize issues.
    */
   public static function toSettings(array $data) {
-    return $data['#settings'] ?? $data['settings'] ?? [];
+    return $data['#settings'] ?? $data['#blazy'] ?? $data['settings'] ?? [];
   }
 
   /**
