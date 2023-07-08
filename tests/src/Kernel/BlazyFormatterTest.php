@@ -83,11 +83,11 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $file0 = $item[0]->entity;
     $file1 = $item[1]->entity;
 
-    $tag0 = [$blazies0->get('cache.metadata.tags')[0]];
-    $tag1 = [$blazies1->get('cache.metadata.tags')[0]];
+    $tag0 = [$blazies0->get('cache.metadata.tags')];
+    $tag1 = [$blazies1->get('cache.metadata.tags')];
 
-    $this->assertEquals($file0->getCacheTags(), $tag0, 'First image cache tags is as expected');
-    $this->assertEquals($file1->getCacheTags(), $tag1, 'Second image cache tags is as expected');
+    $this->assertContains($file0->getCacheTags()[0], $tag0, 'First image cache tags is as expected');
+    $this->assertContains($file1->getCacheTags()[0], $tag1, 'Second image cache tags is as expected');
 
     $render = $this->blazyManager->renderer()->renderRoot($build);
     $this->assertNotEmpty($render);

@@ -170,7 +170,9 @@ class BlazyFile {
     $uri = NULL;
     if ($item) {
       $file = $item->entity ?? NULL;
-      $uri = self::isFile($file) ? $file->getFileUri() : ($item->uri ?? NULL);
+      $uri = $item->uri ?? NULL;
+      // The ::getFileUri() may point to local video, not image URI.
+      $uri = $uri ?: (self::isFile($file) ? $file->getFileUri() : NULL);
     }
 
     // No file API with unmanaged files here: hard-coded UGC, legacy VEF.
