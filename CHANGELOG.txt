@@ -1,6 +1,8 @@
 
 Blazy 8.x-2.0-dev, 2023-07-08
 ------------------------------
+- Issue #3373309 by tmanhollan: Deprecated: Creation of dynamic property in
+  projects that extend Blazy.
 - Fixed for media player DOM ready.
 - Fixed for soundcloud and other iframe-based media entity integrations.
 
