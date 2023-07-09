@@ -213,6 +213,19 @@ interface BlazyInterface {
   public function getHtmlId($name = 'blazy', $id = ''): string;
 
   /**
+   * Alias for Blazy::getLibraries() to get library paths.
+   *
+   * @param array $names
+   *   The library names, e.g.: ['colorbox', 'slick', 'dompurify'].
+   * @param bool $base_path
+   *   Whether to prefix it with an a base path.
+   *
+   * @return array
+   *   The found libraries keyed by its name, or empty array.
+   */
+  public function getLibraries(array $names, $base_path = FALSE): array;
+
+  /**
    * Alias for Blazy::getLibrariesPath() to get libraries path.
    *
    * A few libraries have inconsistent namings, given different packagers:
@@ -223,10 +236,10 @@ interface BlazyInterface {
    * @param array|string $name
    *   The library name(s), e.g.: 'colorbox', or ['DOMPurify', 'dompurify'].
    * @param bool $base_path
-   *   Whether to prefix it with an a base path, deprecated.
+   *   Whether to prefix it with an a base path.
    *
    * @return string|null
-   *   The path to the library, or NULL if not found.
+   *   The first found path to the library, or NULL if not found.
    */
   public function getLibrariesPath($name, $base_path = FALSE): ?string;
 

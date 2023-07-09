@@ -226,7 +226,8 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       'no_image_style'    => FALSE,
       'responsive_image'  => TRUE,
       'thumbnail_style'   => TRUE,
-    ] + $images + parent::getPluginScopes();
+    ] + $images
+      + parent::getPluginScopes();
   }
 
 }

@@ -129,10 +129,13 @@ class BlazyField {
   }
 
   /**
-   * Provides field-related settings.
+   * Provides field-related settings, called by back-end and front-end.
    */
-  public static function settings(array &$settings, $field, array $data = []): void {
-    $settings['blazies'] = $blazies = $settings['blazies'] ?? Blazy::settings();
+  public static function settings(array &$settings, $field, array $data = []): array {
+    $settings['blazies'] = $settings['blazies'] ?? Blazy::settings();
+    $blazies = $settings['blazies'];
+    $bundles = self::getAvailableBundles($field);
+
     $info = [
       'cardinality'   => $field->getFieldStorageDefinition()->getCardinality(),
       'field_label'   => $field->getLabel(),
@@ -144,12 +147,23 @@ class BlazyField {
     ];
 
     if ($data) {
-      foreach ($data as $key => $value) {
-        $blazies->set('field.' . $key, $value);
-      }
+      $blazies->set('field', $data, TRUE);
     }
 
     $blazies->set('field.settings', $field->getSettings());
+    if (!$blazies->get('namespace')
+      && $namespace = $settings['namespace'] ?? NULL) {
+      $blazies->set('namespace', $namespace);
+    }
+
+    // Cannot use blazies.field.settings.handler_settings.target_bundles, since
+    // they are always empty at View UI.
+    if ($bundles) {
+      $blazies->set('field.target_bundles', $bundles);
+      // @todo remove settings after sub-modules: Splidebox.
+      $settings['target_bundles'] = $bundles;
+    }
+
     foreach ($info as $key => $value) {
       $k = str_replace('field_', '', $key);
       $blazies->set('field.' . $k, $value);
@@ -159,6 +173,7 @@ class BlazyField {
         $settings[$key] = $value;
       }
     }
+    return $settings;
   }
 
   /**

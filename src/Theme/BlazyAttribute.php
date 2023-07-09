@@ -3,8 +3,8 @@
 namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyImage;
@@ -42,7 +42,7 @@ class BlazyAttribute {
       $attributes['data-' . $switch . '-gallery'] = TRUE;
       $classes[] = 'blazy--' . $switch;
 
-      if ($extras = $blazies->data($switch)) {
+      if ($extras = $blazies->data($lightbox)) {
         $attributes['data-' . $switch] = Json::encode($extras);
       }
     }
@@ -190,7 +190,7 @@ class BlazyAttribute {
           $title = $blazies->get('image.alt');
         }
         if ($title) {
-          $translation_replacements = ['@label' => Xss::filter($title)];
+          $translation_replacements = ['@label' => Html::escape($title)];
           $attributes['title'] = self::videoTitle($translation_replacements);
         }
       }
@@ -332,17 +332,18 @@ class BlazyAttribute {
     $embed_url  = $blazies->get('media.embed_url');
     $width      = $blazies->get('image.width');
     $title      = $blazies->get('image.title') ?: $blazies->get('media.label');
-    $alt        = $attributes['alt'] ?? $blazies->get('image.alt');
+    $alt        = $attributes['alt'] ?? NULL;
+    $alt        = $alt ?: $blazies->get('image.alt');
 
     // Updates $title whether for video, or just image, and accounts for UGC.
     if ($title) {
-      $title = Xss::filter($title);
+      $title = Html::escape($title);
       $attributes['title'] = $title;
       $blazies->set('image.title', $title);
     }
 
     // Respects hand-coded image attributes, and accounts for UGC.
-    $attributes['alt'] = $alt = $alt ? Xss::filter($alt) : '';
+    $attributes['alt'] = $alt = $alt ? Html::escape($alt) : '';
     $blazies->set('image.alt', $alt);
 
     // Only output dimensions for non-svg. Respects hand-coded image attributes.

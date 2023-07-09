@@ -228,26 +228,25 @@ class Check {
       return;
     }
 
-    $field      = $items->getFieldDefinition();
-    $field_name = $field->getName();
-
     // @todo remove after sub-modules.
+    $field = $items->getFieldDefinition();
     if (!$blazies->get('field')) {
       BlazyField::settings($settings, $field);
     }
 
-    $count          = $blazies->get('count') ?: $items->count();
-    $field_clean    = str_replace("field_", '', $field_name);
-    $entity_type_id = $blazies->get('entity.type_id');
-    $entity_id      = $blazies->get('entity.id');
-    $bundle         = $blazies->get('entity.bundle');
-    $view_mode      = $blazies->get('field.view_mode', 'default');
-    $namespace      = $blazies->get('namespace') ?: $settings['namespace'] ?? 'blazy';
-    $id             = $blazies->get('css.id') ?: $settings['id'] ?? '';
-    $gallery_id     = "{$namespace}-{$entity_type_id}-{$bundle}-{$field_clean}-{$view_mode}";
-    $id             = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
-    $switch         = $settings['media_switch'] ?? NULL;
-    $switch         = $switch ?: $blazies->get('switch');
+    $count       = $blazies->get('count', $items->count());
+    $field_name  = $blazies->get('field.name');
+    $field_clean = str_replace('field_', '', $field_name);
+    $entity_type = $blazies->get('entity.type_id');
+    $entity_id   = $blazies->get('entity.id');
+    $bundle      = $blazies->get('entity.bundle');
+    $view_mode   = $blazies->get('field.view_mode', 'default');
+    $namespace   = $blazies->get('namespace', 'blazy');
+    $id          = $blazies->get('css.id', '');
+    $gallery_id  = "{$namespace}-{$entity_type}-{$bundle}-{$field_clean}-{$view_mode}";
+    $id          = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
+    $switch      = $settings['media_switch'] ?? NULL;
+    $switch      = $switch ?: $blazies->get('switch');
 
     // When alignment is mismatched, split them to satisfy linter.
     // Respects linked_field.module expectation.
@@ -267,7 +266,7 @@ class Check {
 
     // The total is the original unmodified count, tricked at slider grids.
     $blazies->set('cache.metadata.keys', [$id, $count], TRUE)
-      ->set('cache.metadata.tags', [$entity_type_id . ':' . $entity_id], TRUE)
+      ->set('cache.metadata.tags', [$entity_type . ':' . $entity_id], TRUE)
       ->set('count', $count)
       ->set('total', $count)
       ->set('css.id', $id)

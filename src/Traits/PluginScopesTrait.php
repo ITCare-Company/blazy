@@ -42,7 +42,7 @@ trait PluginScopesTrait {
       // All array values are grouped inside `data key`.
       if (is_array($value)) {
         // Do not put duplicate keys into $data, already processed below.
-        if (in_array($key, ['data', 'form', 'is'])) {
+        if (in_array($key, ['data', 'entity', 'field', 'form', 'is'])) {
           continue;
         }
 
@@ -62,6 +62,7 @@ trait PluginScopesTrait {
           $definitions[$group][$key] = $value;
         }
         else {
+          // @todo recheck and remove for blazies: field, and entity.
           if (Blazy::has($key, 'field_')) {
             $key = str_replace('field_', '', $key);
             $definitions['field'][$key] = $value;

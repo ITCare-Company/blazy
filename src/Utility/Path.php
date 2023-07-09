@@ -114,30 +114,25 @@ class Path {
   }
 
   /**
-   * Provides a wrapper to replace deprecated libraries_get_path() at ease.
+   * Returns multiple libraries keyed by its name.
+   */
+  public static function getLibraries(array $names, $base_path = FALSE): array {
+    $libraries = [];
+    foreach (self::libraries($names, TRUE) as $key => $path) {
+      if ($path) {
+        $libraries[$key] = $base_path ? \base_path() . $path : $path;
+      }
+    }
+    return $libraries;
+  }
+
+  /**
+   * Returns the first found library path.
    */
   public static function getLibrariesPath($name, $base_path = FALSE): ?string {
-    if ($finder = Blazy::service('library.libraries_directory_file_finder')) {
-      $func = function ($libraries) use ($finder) {
-        foreach ($libraries as $library) {
-          yield $finder->find($library);
-        }
-      };
-    }
-    // @todo remove when min D9.2.
-    else {
-      $dep = 'libraries_get_path';
-      $func = function ($libraries) use ($dep) {
-        foreach ($libraries as $library) {
-          $result = is_callable($dep) ? $dep($library) : '';
-          yield $result;
-        }
-      };
-    }
-
     $library = '';
     $names = is_array($name) ? $name : [$name];
-    foreach ($func($names) as $path) {
+    foreach (self::libraries($names) as $path) {
       if ($path) {
         $library = $base_path ? \base_path() . $path : $path;
         break;
@@ -188,6 +183,36 @@ class Path {
       self::$isSandboxed = $check;
     }
     return self::$isSandboxed;
+  }
+
+  /**
+   * Provides a wrapper to replace deprecated libraries_get_path() at ease.
+   */
+  private static function libraries(array $libraries, $keyed = FALSE): \Generator {
+    if ($finder = Blazy::service('library.libraries_directory_file_finder')) {
+      foreach ($libraries as $library) {
+        $result = $finder->find($library);
+        if ($keyed) {
+          yield $library => $result;
+        }
+        else {
+          yield $result;
+        }
+      }
+    }
+    else {
+      // @todo remove when min D9.2.
+      $dep = 'libraries_get_path';
+      foreach ($libraries as $library) {
+        $result = is_callable($dep) ? $dep($library) : '';
+        if ($keyed) {
+          yield $library => $result;
+        }
+        else {
+          yield $result;
+        }
+      }
+    }
   }
 
 }

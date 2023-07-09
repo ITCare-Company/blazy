@@ -160,39 +160,22 @@ trait BlazyFormatterTrait {
 
   /**
    * Defines the common scope for both front and admin.
-   *
-   * @todo convert all these into BlazySettings as well at 3.x after admin
-   * updated and sub-modules.
    */
   protected function getCommonFieldDefinition() {
     $field = $this->fieldDefinition;
     $settings = [
-      'namespace'   => $this->namespace ?? 'blazy',
-      'plugin_id'   => $this->getPluginId(),
+      'namespace' => $this->namespace ?? 'blazy',
     ];
 
     // Exposes few basic formatter settings w/o use_field.
     $data = [
       'label_display' => $this->label,
+      'plugin_id'     => $this->getPluginId(),
       'third_party'   => $this->getThirdPartySettings(),
       'view_mode'     => $this->viewMode,
     ];
 
-    foreach (array_keys($settings) as $key) {
-      $data[$key] = $settings[$key];
-    }
-
-    BlazyField::settings($settings, $field, $data);
-    $blazies = $settings['blazies'];
-
-    if (method_exists($this, 'getPluginScopes')
-      && $scopes = $this->getPluginScopes()) {
-      if (!empty($scopes['target_bundles'])) {
-        $blazies->set('field.target_bundles', $scopes['target_bundles']);
-      }
-    }
-
-    return $settings;
+    return BlazyField::settings($settings, $field, $data);
   }
 
   /**

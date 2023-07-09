@@ -36,10 +36,17 @@ class BlazySettings implements \Countable {
   }
 
   /**
-   * Counts total items.
+   * Counts total items, might be unreal, tweaked by slider grids.
    */
   public function count(): int {
     return $this->get('count', 0);
+  }
+
+  /**
+   * Returns total items, the untweakable count.
+   */
+  public function total(): int {
+    return $this->get('total', 0);
   }
 
   /**

@@ -180,6 +180,13 @@ class Blazy {
   }
 
   /**
+   * Alias for Path::getLibraries().
+   */
+  public static function getLibraries(array $names, $base_path = FALSE): array {
+    return Path::getLibraries($names, $base_path);
+  }
+
+  /**
    * Alias for Path::getLibrariesPath().
    */
   public static function getLibrariesPath($name, $base_path = FALSE): ?string {

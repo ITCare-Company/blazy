@@ -39,19 +39,18 @@ class BlazyCache {
    */
   public static function metadata(array $build = []): array {
     $manager  = Blazy::service('blazy.manager');
-    $settings = $build['settings'] ?? $build;
+    $settings = Blazy::toHashtag($build) ?: $build;
 
     // @todo renove after sub-modules, including some fallback settings.
     Blazy::verify($settings);
 
     $blazies   = $settings['blazies'];
-    $namespace = $settings['namespace'] ?? $blazies->get('namespace', 'blazy');
+    $namespace = $blazies->get('namespace', 'blazy');
+    $count     = $blazies->get('count', count($settings));
     $max_age   = $manager->config('cache.page.max_age', 'system.performance');
     $max_age   = empty($settings['cache']) ? $max_age : $settings['cache'];
-    $id        = $settings['id'] ?? Blazy::getHtmlId($namespace);
+    $id        = Blazy::getHtmlId($namespace . $count);
     $id        = $blazies->get('css.id', $id);
-    $count     = $settings['count'] ?? count($settings);
-    $count     = $blazies->get('count', $count);
 
     // Put them into cxahe.
     $cache             = [];

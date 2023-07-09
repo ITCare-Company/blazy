@@ -123,6 +123,7 @@ class BlazyMedia {
     // Embed url is not defined here, yet, provides basic media checks.
     $contexts = Cache::mergeContexts(['languages', 'url.site'], $media->getCacheContexts());
     $blazies->set('media', $info)
+      ->set('media.instance', $media)
       ->set('cache.metadata.contexts', $contexts, TRUE)
       ->set('cache.metadata.keys', [$id, $rid], TRUE)
       ->set('cache.metadata.max-age', $media->getCacheMaxAge())

@@ -318,6 +318,13 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function getLibraries(array $names, $base_path = FALSE): array {
+    return Blazy::getLibraries($names, $base_path);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getLibrariesPath($name, $base_path = FALSE): ?string {
     return Blazy::getLibrariesPath($name, $base_path);
   }
