@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Views;
 
+use Drupal\Component\Utility\Html;
 use Drupal\views\Views;
 
 /**
@@ -156,11 +157,12 @@ trait BlazyStyleOptionsTrait {
       $options = [];
 
       // Convert list of objects to options for the form.
-      foreach (Views::getEnabledViews() as $view_name => $view) {
+      foreach (Views::getEnabledViews() as $name => $view) {
         foreach ($view->get('display') as $id => $display) {
           $valid = ($display['display_options']['style']['type'] ?? NULL) == $plugin;
           if ($valid) {
-            $options[$view_name . ':' . $id] = $view->label() . ' (' . $display['display_title'] . ')';
+            $label = $view->label() . ' (' . $display['display_title'] . ')';
+            $options[$name . ':' . $id] = Html::escape($label);
           }
         }
       }

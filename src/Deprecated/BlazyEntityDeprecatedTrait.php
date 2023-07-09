@@ -18,7 +18,9 @@ use Drupal\blazy\Field\BlazyField;
 trait BlazyEntityDeprecatedTrait {
 
   /**
-   * Returns the entity renderable array, no more called by sub-modules.
+   * Deprecated method to return the entity renderable array.
+   *
+   * No more called by sub-modules.
    *
    * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
    *   self::view() instead.
@@ -29,7 +31,9 @@ trait BlazyEntityDeprecatedTrait {
   }
 
   /**
-   * Returns the field renderable array, no more called by sub-modules.
+   * Deprecated method to return the field renderable array.
+   *
+   * No more called by sub-modules.
    *
    * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
    *   BlazyField::view() instead.
@@ -40,7 +44,9 @@ trait BlazyEntityDeprecatedTrait {
   }
 
   /**
-   * Returns the string value of link, or text, no more called by sub-modules.
+   * Deprecated method to return the string value of link, or text.
+   *
+   * No more called by sub-modules.
    *
    * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
    *   BlazyField::getString() instead.
@@ -51,7 +57,9 @@ trait BlazyEntityDeprecatedTrait {
   }
 
   /**
-   * Returns the text or link value, no more called by sub-modules.
+   * Deprecated method to return the text or link value.
+   *
+   * No more called by sub-modules.
    *
    * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
    *   BlazyField::getTextOrLink() instead.
@@ -64,7 +72,9 @@ trait BlazyEntityDeprecatedTrait {
   }
 
   /**
-   * Returns the string value of link, or text, no more called by sub-modules.
+   * Deprecated method to return the string value of link, or text.
+   *
+   * No more called by sub-modules.
    *
    * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
    *   BlazyField::getValue() instead.
@@ -75,7 +85,7 @@ trait BlazyEntityDeprecatedTrait {
   }
 
   /**
-   * Returns file view or media due to being empty returned by view builder.
+   * Deprecated method to return file view or media.
    *
    * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
    *   BlazyField::getOrViewMedia() instead.

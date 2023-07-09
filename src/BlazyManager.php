@@ -282,7 +282,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Lightbox should work without `Use field template` checked.
    */
   private function getBlazySettings(array $build) {
-    $settings = Blazy::toSettings($build);
+    $settings = Blazy::toHashtag($build);
     Blazy::verify($settings);
 
     $blazies = $settings['blazies'];

@@ -22,6 +22,8 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $load = [];
     Check::attachments($load, $attach);
 
+    $this->attachments($load, $attach);
+
     $this->moduleHandler->alter('blazy_attach', $load, $attach);
     return $load;
   }
@@ -99,7 +101,13 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    * {@inheritdoc}
    */
   public function isBlazy(array &$settings, array $data = []): void {
+    $original = $data;
     Check::blazyOrNot($settings, $data);
+
+    // Allows lightboxes to inject options into `data-LIGHTBOX` attribute
+    // at any blazy/ sub-modules containers using:
+    // $blazies->set('data.LIGHTBOX', $options) only if needed.
+    $this->moduleHandler->alter('blazy_is_blazy', $settings, $original);
   }
 
   /**

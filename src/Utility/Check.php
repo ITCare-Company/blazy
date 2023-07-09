@@ -223,7 +223,11 @@ class Check {
 
     Blazy::entitySettings($settings, $entity);
 
-    $blazies    = $settings['blazies'];
+    $blazies = $settings['blazies'];
+    if ($blazies->was('field')) {
+      return;
+    }
+
     $field      = $items->getFieldDefinition();
     $field_name = $field->getName();
 
@@ -261,9 +265,11 @@ class Check {
       $blazies->set('lightbox.gallery_id', $gallery_id);
     }
 
+    // The total is the original unmodified count, tricked at slider grids.
     $blazies->set('cache.metadata.keys', [$id, $count], TRUE)
       ->set('cache.metadata.tags', [$entity_type_id . ':' . $entity_id], TRUE)
       ->set('count', $count)
+      ->set('total', $count)
       ->set('css.id', $id)
       ->set('use.theme_field', $use_field)
       ->set('was.field', TRUE);

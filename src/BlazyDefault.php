@@ -256,9 +256,9 @@ class BlazyDefault {
       'inited' => TRUE,
 
       // @todo remove after complete migrations:
-      'image_url' => '',
-      'height' => NULL,
-      'width' => NULL,
+      // 'image_url' => '',
+      // 'height' => NULL,
+      // 'width' => NULL,
       'WARNING' => new FormattableMarkup('Non-configurable settings are deprecated in @version. Use the BlazySettings object instead!', $params),
 
       // Configurable settings are dumped as they are as always.

@@ -262,6 +262,7 @@ class BlazyAlter {
         'plugin_id'   => $plugin_id,
         'view_mode'   => $view_mode,
         'count'       => count($view->result),
+        'embedded'    => TRUE,
       ];
 
       // @todo add `formatter` key if the above is proven right.

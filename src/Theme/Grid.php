@@ -17,15 +17,15 @@ class Grid {
   /**
    * Returns items wrapped by theme_item_list(), can be a grid, or plain list.
    *
-   * @param array $items
-   *   The grid items.
+   * @param array|\Generator $items
+   *   The grid items, can be plain array or generator.
    * @param array $settings
    *   The given settings.
    *
    * @return array
    *   The modified array of grid items.
    */
-  public static function build(array $items, array $settings): array {
+  public static function build($items, array $settings): array {
     // Might be called outside the workflow like Slick/ Splide list builders.
     Blazy::verify($settings);
 
@@ -36,63 +36,7 @@ class Grid {
     }
 
     $style = $settings['style'];
-    $is_grid = $blazies->is('grid');
-    $item_class = $is_grid ? 'grid' : 'blazy__item';
-    $contents = [];
-
-    // Slick/ Splide may trick count to disable grid slides when lacking,
-    // although not necessarily needed by flat grid like Blazy's.
-    $count = $settings['count'] ?? count($items);
-    $settings['count'] = $count = $blazies->get('count', $count);
-
-    // Update for the rest.
-    $blazies->set('count', $count);
-
-    foreach ($items as $key => $item) {
-      // @todo recheck if D9 Views outputs strings like D7, and adjust this.
-      if (!is_array($item)) {
-        continue;
-      }
-
-      // Support non-Blazy which normally uses item_id.
-      // @todo remove the last two after migrations at 3.x.
-      $wrapper_attrs = $item['#attributes'] ?? $item['attributes'] ?? [];
-      $content_attrs = $item['#content_attributes'] ?? $item['content_attributes'] ?? [];
-      $sets = Blazy::toSettings($item);
-      $subs = $item['#build'] ?? [];
-      $sets = Blazy::merge(Blazy::toSettings($subs), $sets);
-      $sets += $settings;
-
-      $blazy = $sets['blazies']->reset($sets);
-      $sets['delta'] = $key;
-      $blazy->set('delta', $key);
-
-      // Supports both single formatter field and complex fields such as Views.
-      $classes = (array) ($wrapper_attrs['class'] ?? []);
-      $wrapper_attrs['class'] = array_merge([$item_class], $classes);
-
-      self::itemAttributes($wrapper_attrs, $content_attrs, $sets);
-
-      // Good for Bootstrap .well/ .card class, must cast or BS will reset.
-      $classes = (array) ($content_attrs['class'] ?? []);
-      $content_attrs['class'] = array_merge(['grid__content'], $classes);
-
-      // Remove known unused array.
-      // @todo remove after 3.x refactors to use hashes instead.
-      unset($item['settings'], $item['attributes'], $item['content_attributes']);
-      if (is_object($item['item'] ?? NULL)) {
-        unset($item['item']);
-      }
-
-      $content['content'] = $is_grid ? [
-        '#theme'      => 'container',
-        '#children'   => $item,
-        '#attributes' => $content_attrs,
-      ] : $item;
-
-      $content['#wrapper_attributes'] = $wrapper_attrs;
-      $contents[] = $content;
-    }
+    $contents = self::content($items, $settings);
 
     $attrs = [];
     self::attributes($attrs, $settings);
@@ -114,14 +58,14 @@ class Grid {
   /**
    * Provides reusable container attributes.
    */
-  public static function attributes(array &$attributes, array $settings): void {
+  public static function attributes(array &$attrs, array $settings): void {
     $blazies    = $settings['blazies'];
     $gallery_id = $blazies->get('lightbox.gallery_id');
     $is_gallery = $blazies->is('gallery');
     $namespace  = $blazies->get('namespace');
 
     // Provides data-attributes to avoid conflict with original implementations.
-    BlazyAttribute::container($attributes, $settings);
+    BlazyAttribute::container($attrs, $settings);
 
     // Provides gallery ID, although Colorbox works without it, others may not.
     // Uniqueness is not crucial as a gallery needs to work across entities.
@@ -132,20 +76,82 @@ class Grid {
       if ($namespace != 'blazy') {
         $id = $id . Blazy::getHtmlId('-');
       }
-      $attributes['id'] = $id;
+      $attrs['id'] = $id;
     }
 
     // Limit to grid only, so to be usable for plain list.
     if ($blazies->is('grid')) {
-      self::containerAttributes($attributes, $settings, $blazies);
+      self::containerAttributes($attrs, $settings, $blazies);
     }
 
     // Listens to hook_blazy_settings_alter for minor alters.
-    if ($attrs_alter = ($blazies->get('grid.attributes') ?: [])) {
-      $attributes = Blazy::merge($attrs_alter, $attributes);
+    $dummy = [];
+    self::checkAttributes($attrs, $dummy, $blazies, TRUE);
+  }
+
+  /**
+   * Listens to signaled grid item attributes.
+   *
+   * Can be set via hook_blazy_settings_alter for minor alters, such as adding
+   * generic .card, etc. classes without extra legs.
+   */
+  public static function checkAttributes(
+    array &$attrs,
+    array &$content_attrs,
+    $blazies,
+    $root = FALSE
+  ): void {
+    if ($root) {
+      if ($attrs_alter = ($blazies->get('grid.attributes') ?: [])) {
+        $attrs = Blazy::merge($attrs_alter, $attrs);
+        $blazies->set('grid.attributes', $attrs);
+      }
+    }
+    else {
+      if ($attrs_alter = ($blazies->get('grid.item_attributes') ?: [])) {
+        $attrs = Blazy::merge($attrs_alter, $attrs);
+      }
+
+      if ($content_attrs_alter = ($blazies->get('grid.item_content_attributes') ?: [])) {
+        $content_attrs = Blazy::merge($content_attrs_alter, $content_attrs);
+      }
+
+      $blazies->set('grid.item_attributes', $attrs);
+      $blazies->get('grid.item_content_attributes', $content_attrs);
+    }
+  }
+
+  /**
+   * Provides grid item attributes, relevant for Native Grid.
+   */
+  public static function itemAttributes(
+    array &$attrs,
+    array &$content_attrs,
+    array $settings
+  ): void {
+    $blazies = $settings['blazies'];
+    if ($dim = $blazies->get('grid.large_dimensions', [])) {
+      $key = $blazies->get('delta');
+      if (isset($dim[$key])) {
+        $attrs['data-b-w'] = $dim[$key]['width'];
+        if (!empty($dim[$key]['height'])) {
+          $attrs['data-b-h'] = $dim[$key]['height'];
+        }
+      }
+      else {
+        // Supports a grid repeat for the lazy.
+        $height = $dim[0]['height'];
+        $width = $dim[0]['width'];
+        if ($blazies->get('count') > count($dim) && !empty($width)) {
+          $attrs['data-b-w'] = $width;
+          if (!empty($height)) {
+            $attrs['data-b-h'] = $height;
+          }
+        }
+      }
     }
 
-    $blazies->set('grid.attributes', $attributes);
+    self::checkAttributes($attrs, $content_attrs, $blazies, FALSE);
   }
 
   /**
@@ -214,15 +220,15 @@ class Grid {
   /**
    * Limit to grid only, so to be usable for plain list.
    */
-  private static function containerAttributes(array &$attributes, array $settings, $blazies): void {
+  private static function containerAttributes(array &$attrs, array $settings, $blazies): void {
     $style = $settings['style'] ?: 'grid';
-
     $format = 'blazy--grid block-%s block-count-%d';
-    $attributes['class'][] = sprintf($format, $style, $blazies->get('count'));
+
+    $attrs['class'][] = sprintf($format, $style, $blazies->get('count'));
 
     // If Native Grid style with numeric grid, assumed non-two-dimensional.
     if ($style == 'nativegrid') {
-      $attributes['class'][] = self::isNativeGridAsMasonry($settings)
+      $attrs['class'][] = self::isNativeGridAsMasonry($settings)
         ? 'is-b-masonry' : 'is-b-native';
     }
 
@@ -232,10 +238,80 @@ class Grid {
       foreach (['small', 'medium', 'large'] as $key) {
         $value = $settings['grid_' . $key] ?? NULL;
         if ($value && is_numeric($value)) {
-          $attributes['class'][] = $key . '-block-' . $style . '-' . $value;
+          $attrs['class'][] = $key . '-block-' . $style . '-' . $value;
         }
       }
     }
+  }
+
+  /**
+   * Returns items wrapped by theme_item_list(), can be a grid, or plain list.
+   *
+   * @param array|\Generator $items
+   *   The grid items, can be plain array or generator.
+   * @param array $settings
+   *   The given settings.
+   *
+   * @return array
+   *   The modified array of grid items.
+   */
+  private static function content($items, array &$settings): array {
+    $blazies    = $settings['blazies'];
+    $is_grid    = $blazies->is('grid');
+    $item_class = $is_grid ? 'grid' : 'blazy__item';
+    $contents   = [];
+
+    // Slick/ Splide may trick count to disable grid slides when lacking,
+    // although not necessarily needed by flat grid like Blazy's.
+    $count = $blazies->get('count') ?: $settings['count'] ?? 0;
+    $blazies->set('count', $count);
+
+    foreach ($items as $key => $item) {
+      // @todo recheck if D9 Views outputs strings like D7, and adjust this.
+      // Nobody report issues since 1.x, likely no more strings since D8+.
+      if (!is_array($item)) {
+        continue;
+      }
+
+      // Support non-Blazy which normally uses item_id.
+      $sets = Blazy::toHashtag($item);
+      $subs = Blazy::toHashtag($item['#build'] ?? []);
+      $sets = Blazy::merge($subs, $sets);
+      $sets += $settings;
+      $wrapper_attrs = Blazy::toHashtag($item, 'attributes');
+      $content_attrs = Blazy::toHashtag($item, 'content_attributes');
+
+      $blazy = $sets['blazies']->reset($sets);
+      $sets['delta'] = $key;
+      $blazy->set('delta', $key);
+
+      // Supports both single formatter field and complex fields such as Views.
+      $classes = (array) ($wrapper_attrs['class'] ?? []);
+      $wrapper_attrs['class'] = array_merge([$item_class], $classes);
+
+      self::itemAttributes($wrapper_attrs, $content_attrs, $sets);
+
+      // Good for Bootstrap .well/ .card class, must cast or BS will reset.
+      $classes = (array) ($content_attrs['class'] ?? []);
+      $content_attrs['class'] = array_merge(['grid__content'], $classes);
+
+      // Remove known unused array.
+      // @todo remove after 3.x refactors to use hashes instead.
+      unset($item['settings'], $item['attributes'], $item['content_attributes']);
+      if (is_object($item['item'] ?? NULL)) {
+        unset($item['item']);
+      }
+
+      $content['content'] = $is_grid ? [
+        '#theme'      => 'container',
+        '#children'   => $item,
+        '#attributes' => $content_attrs,
+      ] : $item;
+
+      $content['#wrapper_attributes'] = $wrapper_attrs;
+      $contents[] = $content;
+    }
+    return $contents;
   }
 
   /**
@@ -250,51 +326,6 @@ class Grid {
       $title = $label;
     }
     return $title;
-  }
-
-  /**
-   * Provides grid item attributes, relevant for Native Grid.
-   */
-  public static function itemAttributes(
-    array &$attributes,
-    array &$content_attributes,
-    array $settings
-  ): void {
-    $blazies = $settings['blazies'];
-
-    // Listens to hook_blazy_settings_alter for minor alters, such as adding
-    // generic .card, etc. classes without extra legs.
-    if ($attrs_alter = ($blazies->get('grid.item_attributes') ?: [])) {
-      $attributes = Blazy::merge($attrs_alter, $attributes);
-    }
-
-    if ($content_attrs_alter = ($blazies->get('grid.item_content_attributes') ?: [])) {
-      $content_attributes = Blazy::merge($content_attrs_alter, $content_attributes);
-    }
-
-    if ($dim = $blazies->get('grid.large_dimensions', [])) {
-      $key = $blazies->get('delta');
-      if (isset($dim[$key])) {
-        $attributes['data-b-w'] = $dim[$key]['width'];
-        if (!empty($dim[$key]['height'])) {
-          $attributes['data-b-h'] = $dim[$key]['height'];
-        }
-      }
-      else {
-        // Supports a grid repeat for the lazy.
-        $height = $dim[0]['height'];
-        $width = $dim[0]['width'];
-        if ($blazies->get('count') > count($dim) && !empty($width)) {
-          $attributes['data-b-w'] = $width;
-          if (!empty($height)) {
-            $attributes['data-b-h'] = $height;
-          }
-        }
-      }
-    }
-
-    $blazies->set('grid.item_attributes', $attributes);
-    $blazies->get('grid.item_content_attributes', $content_attributes);
   }
 
 }

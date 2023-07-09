@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-07-09
+------------------------------
+- Added hook_blazy_is_blazy_alter() for lightboxes to inject data-LIGHTBOX.
+- Added supports for grid items as generators.
+
 Blazy 8.x-2.0-dev, 2023-07-08
 ------------------------------
 - Issue #3373309 by tmanhollan: Deprecated: Creation of dynamic property in

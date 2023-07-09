@@ -29,6 +29,7 @@ class Sanitize {
    *   Sets to FALSE to avoid double escapes, for further processing.
    * @param bool $lowercase
    *   Sets to TRUE to have the values lowercased, such as tags, titles, etc.
+   *   This option doesn't respect space-delimited string value, use array.
    *
    * @return array
    *   The sanitized $attributes suitable for UGC, such as Blazy filter.
@@ -88,7 +89,7 @@ class Sanitize {
    * @param string $name
    *   The given input name, or key, to check for protocols.
    * @param array $options
-   *   The options: paths, striptags, tags.
+   *   The options: admin, paths, striptags, tags.
    *
    * @return array|string
    *   The relatively sanitized $input suitable for UGC.

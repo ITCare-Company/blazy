@@ -17,7 +17,7 @@ use Drupal\blazy\Media\BlazyResponsiveImage;
 trait BlazyManagerDeprecatedTrait {
 
   /**
-   * Returns the entity repository service.
+   * Deprecated method to return the entity repository service.
    *
    * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
    *   BlazyInterface::entityRepository() instead.
@@ -28,7 +28,7 @@ trait BlazyManagerDeprecatedTrait {
   }
 
   /**
-   * Returns the entity type manager.
+   * Deprecated method to return the entity type manager.
    *
    * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
    *   BlazyInterface::entityTypeManager() instead.
@@ -39,7 +39,7 @@ trait BlazyManagerDeprecatedTrait {
   }
 
   /**
-   * Returns the module handler.
+   * Deprecated method to return the module handler.
    *
    * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
    *   BlazyInterface::moduleHandler() instead.
@@ -50,7 +50,7 @@ trait BlazyManagerDeprecatedTrait {
   }
 
   /**
-   * Returns the renderer.
+   * Deprecated method to return the renderer.
    *
    * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
    *   BlazyInterface::renderer() instead.
@@ -61,7 +61,7 @@ trait BlazyManagerDeprecatedTrait {
   }
 
   /**
-   * Returns the config factory.
+   * Deprecated method to return the config factory.
    *
    * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
    *   BlazyInterface::configFactory() instead.
@@ -72,7 +72,7 @@ trait BlazyManagerDeprecatedTrait {
   }
 
   /**
-   * Returns the cache.
+   * Deprecated method to return the cache.
    *
    * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
    *   BlazyInterface::cache() instead.
@@ -83,7 +83,7 @@ trait BlazyManagerDeprecatedTrait {
   }
 
   /**
-   * Returns any config, or keyed by the $setting_name.
+   * Deprecated method to return any config, or keyed by the $setting_name.
    *
    * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
    *   BlazyInterface::config() instead.
@@ -94,7 +94,7 @@ trait BlazyManagerDeprecatedTrait {
   }
 
   /**
-   * Returns a shortcut for loading a config entity: image_style, slick, etc.
+   * Deprecated method to return a config entity: image_style, slick, etc.
    *
    * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
    *   BlazyInterface::load() instead.
@@ -105,7 +105,7 @@ trait BlazyManagerDeprecatedTrait {
   }
 
   /**
-   * Returns a shortcut for loading multiple configuration entities.
+   * Deprecated method to return multiple configuration entities.
    *
    * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
    *   BlazyInterface::loadMultiple() instead.
@@ -116,7 +116,7 @@ trait BlazyManagerDeprecatedTrait {
   }
 
   /**
-   * Collects defined skins as registered via hook_MODULE_NAME_skins_info().
+   * Deprecated method to return skins via hook_MODULE_NAME_skins_info().
    *
    * @todo remove for sub-modules own skins as plugins at blazy:8.x-2.1+.
    * @see https://www.drupal.org/node/2233261

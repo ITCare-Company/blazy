@@ -348,7 +348,7 @@ interface BlazyInterface {
    *
    * Alias for Blazy::grid() for sub-modules and easy organization later.
    *
-   * @param array $items
+   * @param array|\Generator $items
    *   The grid items.
    * @param array $settings
    *   The given settings.
@@ -356,7 +356,7 @@ interface BlazyInterface {
    * @return array
    *   The modified array of grid items.
    */
-  public function toGrid(array $items, array $settings): array;
+  public function toGrid($items, array $settings): array;
 
   /**
    * Returns escaped options.

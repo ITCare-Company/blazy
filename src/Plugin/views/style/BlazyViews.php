@@ -72,12 +72,11 @@ class BlazyViews extends BlazyStyleBase implements BlazyViewsInterface {
         $items[$index] = $view->rowPlugin->render($row);
       }
 
-      // Supports Blazy multi-breakpoint images if using Blazy formatter.
-      if ($data = $this->getFirstImage($rows[0] ?? NULL)) {
-        $blazies->set('first.data', $data);
-      }
+      // Supports lightbox gallery if using Blazy formatter.
+      $build = ['items' => $items];
+      $this->checkBlazy($settings, $build, $rows);
 
-      $build = ['items' => $items, 'settings' => $settings];
+      $build['settings'] = $settings;
       $elements = $this->blazyManager->build($build);
 
       unset($view->row_index, $items);

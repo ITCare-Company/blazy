@@ -126,11 +126,13 @@ trait BlazyStyleBaseTrait {
       'plugin_id'   => $plugin_id,
       'view_mode'   => $view_mode,
       'count'       => $count,
+      'embedded'    => FALSE,
     ];
 
     $blazies->set('cache.metadata.keys', [$id, $view_mode, $count], TRUE)
       ->set('cache.metadata.tags', $view->getCacheTags() ?: [], TRUE)
       ->set('count', $count)
+      ->set('total', $count)
       ->set('css.id', $id)
       ->set('is.multiple', TRUE)
       ->set('is.view', TRUE)
@@ -146,6 +148,21 @@ trait BlazyStyleBaseTrait {
     $this->blazyManager->moduleHandler()->alter('blazy_settings_views', $settings, $view);
     $this->blazyManager->postSettingsAlter($settings);
     return $settings;
+  }
+
+  /**
+   * Check Blazy formatter to build lightbox galleries.
+   */
+  protected function checkBlazy(array &$settings, array $build, array $rows = []) {
+    // Extracts Blazy formatter settings if available.
+    // @todo re-check and remove, first.data already takes care of this.
+    // if (empty($settings['vanilla']) && isset($build['items'][0])) {
+    // $this->blazyManager()->isBlazy($settings, $build['items'][0]);
+    // }
+    $blazies = $settings['blazies'];
+    if ($data = $this->getFirstImage($rows[0] ?? NULL)) {
+      $blazies->set('first.data', $data);
+    }
   }
 
   /**

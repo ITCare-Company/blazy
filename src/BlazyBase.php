@@ -411,7 +411,7 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function toGrid(array $items, array $settings): array {
+  public function toGrid($items, array $settings): array {
     return Blazy::grid($items, $settings);
   }
 
@@ -431,7 +431,7 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function view(array $data): array {
     $entity = $data['#entity'] ?? NULL;
-    $settings = $data['settings'] ?? [];
+    $settings = Blazy::toHashtag($data);
     $fallback = $data['fallback'] ?? '';
 
     // @todo remove after another check.
@@ -468,6 +468,13 @@ abstract class BlazyBase implements BlazyInterface {
       }
     }
     return $fallback ?: [];
+  }
+
+  /**
+   * Allows Blazy add return type hint to its attach() method after sub-modules.
+   */
+  protected function attachments(array &$load, array $attach): void {
+    // Do nothing for sub-modules to use.
   }
 
   /**
