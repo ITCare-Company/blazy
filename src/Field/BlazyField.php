@@ -161,7 +161,7 @@ class BlazyField {
     if ($bundles) {
       $blazies->set('field.target_bundles', $bundles);
       // @todo remove settings after sub-modules: Splidebox.
-      $settings['target_bundles'] = $bundles;
+      // $settings['target_bundles'] = $bundles;
     }
 
     foreach ($info as $key => $value) {
@@ -169,9 +169,9 @@ class BlazyField {
       $blazies->set('field.' . $k, $value);
 
       // @todo remove at/ by 3.x after migration and sub-modules.
-      if (!$blazies->is('field.migrated')) {
-        $settings[$key] = $value;
-      }
+      // if (!$blazies->is('field.migrated')) {
+      // $settings[$key] = $value;
+      // }
     }
     return $settings;
   }

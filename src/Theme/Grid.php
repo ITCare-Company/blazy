@@ -41,16 +41,17 @@ class Grid {
     $attrs = [];
     self::attributes($attrs, $settings);
 
-    $wrapper = ['item-list--blazy', 'item-list--blazy-' . $style];
-    $wrapper = $style ? $wrapper : ['item-list--blazy'];
-    $wrapper = array_merge(['item-list'], $wrapper);
+    $wrapper = ['item-list--blazy'];
+    if ($style) {
+      $wrapper[] = 'item-list--blazy-' . str_replace('_', '-', $style);
+    }
 
     return [
       '#theme'              => 'item_list',
       '#items'              => $contents,
       '#context'            => ['settings' => $settings],
       '#attributes'         => $attrs,
-      '#wrapper_attributes' => ['class' => $wrapper],
+      '#wrapper_attributes' => ['class' => array_merge(['item-list'], $wrapper)],
       '#title'              => self::label($blazies),
     ];
   }
@@ -117,7 +118,7 @@ class Grid {
       }
 
       $blazies->set('grid.item_attributes', $attrs);
-      $blazies->get('grid.item_content_attributes', $content_attrs);
+      $blazies->set('grid.item_content_attributes', $content_attrs);
     }
   }
 
@@ -130,21 +131,45 @@ class Grid {
     array $settings
   ): void {
     $blazies = $settings['blazies'];
+    $item_class = $blazies->get('grid.item_class', 'grid');
+
+    $classes = (array) ($attrs['class'] ?? []);
+    $attrs['class'] = array_merge([$item_class], $classes);
+
+    // Good for Bootstrap .well/ .card class, must cast or BS will reset.
+    $classes = (array) ($content_attrs['class'] ?? []);
+    $content_attrs['class'] = array_merge(['grid__content'], $classes);
+
+    // Count may be set as 2 even if it is 100 by sliders for their magic trick.
+    // However total, the new preserved count key, may not be set somewhere.
+    // @todo use just total after sub-modules provides it to avoid this check.
+    $count = $blazies->get('count', 0);
+    $total = $blazies->get('total', 0);
+    $total = $total > $count ? $total : $count;
+    $grid_count = $blazies->get('grid.count', 0);
+
     if ($dim = $blazies->get('grid.large_dimensions', [])) {
-      $key = $blazies->get('delta');
-      if (isset($dim[$key])) {
-        $attrs['data-b-w'] = $dim[$key]['width'];
-        if (!empty($dim[$key]['height'])) {
-          $attrs['data-b-h'] = $dim[$key]['height'];
+      $delta = $settings['delta'] ?? $blazies->get('delta');
+      if (isset($dim[$delta])) {
+        $attrs['data-b-w'] = $dim[$delta]['width'];
+        if ($height = $dim[$delta]['height'] ?? NULL) {
+          $attrs['data-b-h'] = $height;
         }
       }
       else {
         // Supports a grid repeat for the lazy.
-        $height = $dim[0]['height'];
-        $width = $dim[0]['width'];
-        if ($blazies->get('count') > count($dim) && !empty($width)) {
+        // @todo use loop instead.
+        $key = $delta - $grid_count;
+        if (!isset($dim[$key]['width'])) {
+          $key = $key - $grid_count;
+        }
+
+        $height = $dim[$key]['height'] ?? $dim[0]['height'] ?? NULL;
+        $width = $dim[$key]['width'] ?? $dim[0]['width'] ?? NULL;
+
+        if ($width && $total > $grid_count) {
           $attrs['data-b-w'] = $width;
-          if (!empty($height)) {
+          if ($height) {
             $attrs['data-b-h'] = $height;
           }
         }
@@ -211,8 +236,13 @@ class Grid {
       foreach (['small', 'medium', 'large'] as $key) {
         $value = empty($settings['grid_' . $key]) ? NULL : $settings['grid_' . $key];
         if ($dimensions = self::toDimensions($value)) {
-          $blazies->set('grid.' . $key . '_dimensions', $dimensions);
+          $blazies->set('grid.' . $key . '_dimensions', $dimensions)
+            ->set('grid.' . $key, $value);
         }
+      }
+
+      if ($dims = $blazies->get('grid.large_dimensions')) {
+        $blazies->set('grid.count', count($dims));
       }
     }
   }
@@ -265,6 +295,7 @@ class Grid {
     // although not necessarily needed by flat grid like Blazy's.
     $count = $blazies->get('count') ?: $settings['count'] ?? 0;
     $blazies->set('count', $count);
+    $blazies->set('grid.item_class', $item_class);
 
     foreach ($items as $key => $item) {
       // @todo recheck if D9 Views outputs strings like D7, and adjust this.
@@ -286,14 +317,7 @@ class Grid {
       $blazy->set('delta', $key);
 
       // Supports both single formatter field and complex fields such as Views.
-      $classes = (array) ($wrapper_attrs['class'] ?? []);
-      $wrapper_attrs['class'] = array_merge([$item_class], $classes);
-
       self::itemAttributes($wrapper_attrs, $content_attrs, $sets);
-
-      // Good for Bootstrap .well/ .card class, must cast or BS will reset.
-      $classes = (array) ($content_attrs['class'] ?? []);
-      $content_attrs['class'] = array_merge(['grid__content'], $classes);
 
       // Remove known unused array.
       // @todo remove after 3.x refactors to use hashes instead.
@@ -318,14 +342,11 @@ class Grid {
    * Returns field label via Field UI, unless use.theme_field takes place.
    */
   private static function label($blazies): ?string {
-    $title = '';
-    $label = $blazies->get('field.label');
     if (!$blazies->use('theme_field')
-      && $blazies->get('field.label_display') != 'hidden'
-      && $label) {
-      $title = $label;
+      && $blazies->get('field.label_display') != 'hidden') {
+      return $blazies->get('field.label') ?: '';
     }
-    return $title;
+    return '';
   }
 
 }

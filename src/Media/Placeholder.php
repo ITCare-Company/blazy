@@ -61,6 +61,14 @@ class Placeholder {
     if ($url == $blazies->get('thumbnail.url')) {
       $url = 'data-thumb';
     }
+
+    $dimensions = [];
+    $width = (int) $blazies->get('placeholder.width', 0);
+    if ($width > 1) {
+      $dimensions['#width'] = $width;
+      $dimensions['#height'] = $blazies->get('placeholder.height');
+    }
+
     $blur = [
       '#theme' => 'image',
       '#uri' => $blazies->get('placeholder.url'),
@@ -69,7 +77,7 @@ class Placeholder {
         'data-b-blur' => "$store::$id::$mime::$url",
         'decoding' => 'async',
       ],
-    ];
+    ] + $dimensions;
 
     // Preserves old behaviors.
     if (!$client) {
@@ -77,7 +85,7 @@ class Placeholder {
       $blur['#attributes']['data-src'] = $blazies->get('blur.data');
     }
 
-    $width = (int) ($settings['width'] ?? 0);
+    $width = (int) $blazies->get('image.width', 0);
     if ($width > 980) {
       $attributes['class'][] = 'media--fx-lg';
     }
@@ -239,9 +247,9 @@ class Placeholder {
     $style   = NULL;
     $width   = $height = 1;
     $uri     = $settings['uri'] ?? NULL;
-    $uri     = $uri ?: $blazies->get('image.uri');
+    $uri     = $blazies->get('image.uri') ?: $uri;
     $tn_uri  = $settings['thumbnail_uri'] ?? NULL;
-    $tn_uri  = $tn_uri ?: $blazies->get('thumbnail.uri');
+    $tn_uri  = $blazies->get('thumbnail.uri') ?: $tn_uri;
     $tn_url  = '';
 
     // Supports unique thumbnail different from main image, such as logo for
@@ -255,11 +263,8 @@ class Placeholder {
       if (!$blazies->is('external') && $style) {
         $tn_uri = $style->buildUri($uri);
         $tn_url = BlazyFile::transformRelative($uri, $style);
-
-        [
-          'width' => $width,
-          'height' => $height,
-        ] = BlazyImage::transformDimensions($style, $settings);
+        $width  = $blazies->get('thumbnail.width');
+        $height = $blazies->get('thumbnail.height');
       }
     }
 

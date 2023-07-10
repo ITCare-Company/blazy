@@ -12,8 +12,38 @@ use Drupal\blazy\Blazy;
  *
  * @todo checks for core equivalents, Xss::filter() is causing 404, etc.
  * @see https://www.drupal.org/project/drupal/issues/3109650
+ * @see https://www.drupal.org/node/2489544
  */
 class Sanitize {
+
+  /**
+   * All attributes that may contain URIs, copied from core Html.
+   *
+   * @var string[]
+   *
+   * - The attributes 'code' and 'codebase' are omitted, because they only exist
+   *   for the <applet> tag. The time of Java applets has passed.
+   * - The attribute 'icon' is omitted, because no browser implements the
+   *   <command> tag anymore.
+   *   See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/command.
+   * - The 'manifest' attribute is omitted because it only exists for the <html>
+   *   tag. That tag only makes sense in an HTML-served-as-HTML context, in
+   *   which case relative URLs are guaranteed to work.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes
+   * @see https://stackoverflow.com/questions/2725156/complete-list-of-html-tag-attributes-which-have-a-url-value
+   */
+  protected static $uriAttributes = [
+    'about',
+    'action',
+    'cite',
+    'data',
+    'formaction',
+    'href',
+    'poster',
+    'src',
+    'srcset',
+  ];
 
   /**
    * Returns the sanitized attributes for user-defined (UGC Blazy Filter).
@@ -35,8 +65,8 @@ class Sanitize {
    *   The sanitized $attributes suitable for UGC, such as Blazy filter.
    */
   public static function attribute(array $attributes, $escaped = TRUE, $lowercase = FALSE): array {
+    $list = static::$uriAttributes;
     $output = [];
-    $list = ['href', 'poster', 'src', 'about', 'data', 'action', 'formaction'];
 
     if (empty($attributes)) {
       return $output;
@@ -79,6 +109,13 @@ class Sanitize {
       }
     }
     return $output;
+  }
+
+  /**
+   * Returns all available attributes which may contain URI.
+   */
+  public static function getUriAttributes(): array {
+    return static::$uriAttributes;
   }
 
   /**

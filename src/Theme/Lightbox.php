@@ -8,7 +8,6 @@ use Drupal\Component\Utility\Xss;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Media\BlazyFile;
-use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Utility\Sanitize;
 
 /**
@@ -78,12 +77,6 @@ class Lightbox {
     $url_attributes['class'][] = 'blazy__' . $switch_css . ' litebox';
     $url_attributes['data-' . $switch_css . '-trigger'] = TRUE;
 
-    $dimensions = [
-      'width' => $box_width,
-      'height' => $box_height,
-      'uri' => $uri,
-    ];
-
     // Might not be present from BlazyFilter.
     $json = ['id' => $switch_css, 'count' => $count, 'boxType' => 'image'];
     foreach (['bundle', 'type'] as $key) {
@@ -108,14 +101,10 @@ class Lightbox {
 
       // This allows PhotoSwipe with videos still swipable.
       if ($styleable && $box_media_style = $blazies->get('box_media.style')) {
-        $dimensions = array_merge(
-          $dimensions,
-          BlazyImage::transformDimensions($box_media_style, $dimensions)
-        );
+        $box_width  = $blazies->get('box_media.width');
+        $box_height = $blazies->get('box_media.height');
 
         $box_url = Blazy::transformRelative($uri, $box_media_style);
-        $box_width = $dimensions['width'] ?: $box_width;
-        $box_height = $dimensions['height'] ?: $box_height;
 
         $blazies->set('lightbox.media_preview_url', $box_url);
         $data_box_url = TRUE;
@@ -143,15 +132,13 @@ class Lightbox {
 
         // Use non-responsive image if so-configured.
         if (!$_resimage && $box_style) {
-          $dimensions = array_merge($dimensions, BlazyImage::transformDimensions($box_style, $dimensions));
+          $box_width  = $blazies->get('box.width');
+          $box_height = $blazies->get('box.height');
           $box_url = $url = Blazy::transformRelative($uri, $box_style);
         }
       }
     }
 
-    // Can be original, or styled dimensions.
-    $box_width = $dimensions['width'];
-    $box_height = $dimensions['height'];
     $box_url = UrlHelper::stripDangerousProtocols($box_url);
 
     // Only needed by videos, the rest can just use $url set into HREF.

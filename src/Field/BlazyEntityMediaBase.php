@@ -4,6 +4,7 @@ namespace Drupal\blazy\Field;
 
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 
 /**
@@ -109,6 +110,12 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     else {
       // Otherwise Slick, GridStack, Mason, etc. may need more elements.
       $element[$item_id] = $blazy;
+
+      // Update with blazy processed settings such as unstyled extensions.
+      $item_build = $blazy['#build'] ?? [];
+      if ($blazysets = Blazy::toHashtag($item_build)) {
+        $element['settings']['blazies']->merge($blazysets['blazies']->storage());
+      }
 
       // Provides extra elements.
       $this->buildElementExtra($element, $entity, $langcode);

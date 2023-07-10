@@ -353,14 +353,16 @@ class Blazy {
   /**
    * Alias for Grid::itemAttributes() for sub-modules and easy organization.
    *
-   * This method + self::gridAttributes() allows you to build grids with any
-   * themes having just DIV > DIVs like theme_field(), media_library, etc.,
+   * This method + self::gridAttributes() allows you to build Native grids with
+   * any themes having just DIV > DIVs like theme_field(), media_library, etc.,
    * without re-building it with self::grid() such as seen at IO Browser/Slick
    * Browser by simply modifying existing attributes. The required:
-   *   - 4 settings from BlazyDefault::gridSettings(), and count.
+   *   - $settings contains BlazyDefault::gridSettings(), blazies, delta, count.
+   *   - Delta is updated in the loop via blazies or directly at child settings.
    *   - Library attachments like '#attached' => blazy()->attach($settings),
    *      at the container level, or merge with the existing ones.
    * See \Drupal\blazy\Theme\Grid for details.
+   * See \Drupal\io_browser\IoBrowserWidget::mediaLibraryItem().
    */
   public static function gridItemAttributes(
     array &$attrs,

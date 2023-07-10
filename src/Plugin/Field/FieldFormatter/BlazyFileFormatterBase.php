@@ -8,6 +8,7 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\field\FieldConfigInterface;
 use Drupal\file\Plugin\Field\FieldFormatter\FileFormatterBase;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyDependenciesTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -69,9 +70,23 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
   /**
    * Returns the Blazy elements, also for sub-modules to re-use.
+   *
+   * @todo replace namespace and item.id with properties post blazy:2.17.
    */
-  protected function getElements(array $build, $files, $caption_id = 'captions'): \Generator {
-    $settings = $build['settings'];
+  protected function getElements(array $build, $files, $options = NULL): \Generator {
+    $settings   = Blazy::toHashtag($build);
+    $blazies    = $settings['blazies'];
+    $namespace  = $blazies->get('namespace');
+    $item_id    = $blazies->get('item.id');
+    $caption_id = $options ?: 'captions';
+    $use_media  = FALSE;
+    $item_id    = NULL;
+
+    // Prepare for betterment with poorly-informed thumbnails.
+    if (is_array($options)) {
+      $caption_id = $options['caption_id'] ?? $caption_id;
+      $use_media  = $options['use_media'] ?? FALSE;
+    }
 
     foreach ($files as $delta => $file) {
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
@@ -85,14 +100,44 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
         ->set('media.type', 'image')
         ->set('image.uri', $uri);
 
-      $element = ['item' => $item, 'settings' => $sets];
+      $data = ['item' => $item, 'settings' => $sets];
 
-      // Build individual element.
-      $this->buildElement($element, $file);
+      // Build individual element, no real use here since VEF deprecated.
+      $this->buildElement($data, $file);
 
       // Build captions if so configured.
-      if ($caption_id) {
-        $this->buildCaptions($element, $caption_id);
+      $captions = $this->getCaptions($data);
+
+      // Split for different formatters with very minimal difference.
+      if ($namespace == 'blazy') {
+        if ($captions) {
+          $data[$caption_id] = $captions;
+        }
+
+        // @todo move it up after sub-modules.
+        $element = $this->formatter->getBlazy($data);
+      }
+      else {
+        $element = $data;
+
+        // @todo remove check after sub-modules.
+        if ($use_media) {
+          // @todo move it up after sub-modules.
+          $blazy = $this->formatter->getBlazy($data);
+          $element[$item_id] = $blazy;
+
+          // This is the only reason for the change. Thumbnails are
+          // poorly-informed like image without styles, etc.
+          // Update with blazy processed settings such as unstyled extensions.
+          $item_build = $blazy['#build'] ?? [];
+          if ($blazysets = Blazy::toHashtag($item_build)) {
+            $element['settings']['blazies']->merge($blazysets['blazies']->storage());
+          }
+        }
+
+        if ($captions) {
+          $element[$caption_id] = $captions;
+        }
       }
 
       // Image with grid, responsive image, lazyLoad, and lightbox supports.
@@ -103,19 +148,20 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   /**
    * Builds the captions.
    */
-  protected function buildCaptions(array &$element, $caption_id): void {
-    $settings = $element['settings'];
+  protected function getCaptions(array $data): array {
+    $settings = Blazy::toHashtag($data);
     $captions = $settings['caption'] ?? [];
-
-    if ($captions && $item = ($element['item'] ?? NULL)) {
+    $output   = [];
+    if ($captions && $item = Blazy::toHashtag($data, 'item')) {
       foreach ($captions as $caption) {
         if ($content = ($item->{$caption} ?? NULL)) {
-          $element[$caption_id][$caption] = [
+          $output[$caption] = [
             '#markup' => Xss::filterAdmin($content),
           ];
         }
       }
     }
+    return $output;
   }
 
   /**

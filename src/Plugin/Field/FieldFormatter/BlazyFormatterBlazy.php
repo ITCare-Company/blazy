@@ -42,9 +42,11 @@ class BlazyFormatterBlazy extends BlazyFileFormatterBase {
    * {@inheritdoc}
    */
   protected function buildElements(array &$build, $files, $langcode) {
-    foreach ($this->getElements($build, $files) as $element) {
+    $options = ['caption_id' => 'captions'];
+
+    foreach ($this->getElements($build, $files, $options) as $element) {
       // Since 2.17, match sub-modules `items` for easy swap later to DRY.
-      $build['items'][] = $this->formatter->getBlazy($element);
+      $build['items'][] = $element;
     }
   }
 

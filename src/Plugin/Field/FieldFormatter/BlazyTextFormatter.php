@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Field\FieldDefinitionInterface;
@@ -100,17 +101,23 @@ class BlazyTextFormatter extends FormatterBase {
     // The ProcessedText element already handles cache context & tag bubbling.
     // @see \Drupal\filter\Element\ProcessedText::preRenderText()
     foreach ($items as $item) {
-      // @todo check $item class.
-      if (empty($item->value)) {
-        continue;
-      }
+      $element = [];
+      if ($item instanceof FieldItemInterface) {
+        $class    = get_class($item);
+        $property = $class::mainPropertyName();
+        $value    = $item->{$property};
 
-      $element = [
-        '#type'     => 'processed_text',
-        '#text'     => $item->value,
-        '#format'   => $item->format ?? NULL,
-        '#langcode' => method_exists($item, 'getLangcode') ? $item->getLangcode() : NULL,
-      ];
+        if (!$value) {
+          continue;
+        }
+
+        $element = [
+          '#type'     => 'processed_text',
+          '#text'     => $value,
+          '#format'   => $item->format ?? NULL,
+          '#langcode' => $item->getLangcode(),
+        ];
+      }
 
       yield $element;
     }

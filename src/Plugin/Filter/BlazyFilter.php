@@ -511,7 +511,7 @@ class BlazyFilter extends BlazyFilterBase {
       return;
     }
 
-    $settings['_uri'] = $uri = $grid_items[0]['#build']['settings']['uri'] ?? '';
+    $uri = $grid_items[0]['#build']['settings']['uri'] ?? '';
     $blazies->set('first.uri', $uri);
 
     $first  = $grid_nodes[0];

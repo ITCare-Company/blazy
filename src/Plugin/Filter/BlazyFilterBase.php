@@ -109,9 +109,6 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
         $strings = ['link', 'string', 'string_long'];
         $texts = ['text', 'text_long', 'text_with_summary'];
 
-        // @todo remove after migrations, except image.
-        $settings['field_type'] = $field_type;
-        $settings['count'] = $count;
         $settings['image'] = $field_image;
 
         $blazies->set('bundles.' . $bundle, $bundle, TRUE)
@@ -398,19 +395,23 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   protected function buildItemSettings(array &$build, $node, $delta = 0) {
     $settings = &$build['settings'];
     $blazies = $settings['blazies'];
+    $ui_style = $settings['image_style'] ?? NULL;
+    $ui_restyle = $settings['responsive_image_style'] ?? NULL;
 
     // Set an image style based on node data properties.
     // See https://www.drupal.org/project/drupal/issues/2061377,
     // https://www.drupal.org/project/drupal/issues/2822389, and
     // https://www.drupal.org/project/inline_responsive_images.
     $update = FALSE;
-    if ($style = $node->getAttribute('data-image-style')) {
+    // Compare with UI if any difference before re-update.
+    $style = $node->getAttribute('data-image-style');
+    if ($style != $ui_style) {
       $update = TRUE;
       $settings['image_style'] = $style;
     }
 
-    if ($blazies->is('resimage')
-      && $style = $node->getAttribute('data-responsive-image-style')) {
+    $style = $node->getAttribute('data-responsive-image-style');
+    if ($blazies->is('resimage') && $style != $ui_restyle) {
       $update = TRUE;
       $settings['responsive_image_style'] = $style;
     }

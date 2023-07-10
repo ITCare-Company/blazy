@@ -124,7 +124,7 @@ class Preloader {
    * Also extract the found image for gallery/ zoom like, ElevateZoomPlus, etc.
    *
    * @todo merge urls here as well once puzzles are solved: URI may be fed by
-   * field formatters like this, blazy_filter, or manual call.
+   * field formatters like this one, blazy_filter, or manual call.
    */
   public static function prepare(array &$settings, $items, array $entities = []): void {
     $blazies = $settings['blazies'];
@@ -137,14 +137,12 @@ class Preloader {
       $options = ['entity' => $entity, 'settings' => $settings];
       $image = BlazyImage::item($item, $options);
       $uri = BlazyFile::uri($image);
-      $unstyled = $uri ? BlazyImage::isUnstyled($uri, $settings) : FALSE;
+      $unstyled = $uri ? BlazyImage::isUnstyled($settings, $uri) : FALSE;
       $style = $unstyled ? NULL : $style;
       $url = $uri ? BlazyFile::transformRelative($uri, $style) : NULL;
 
       // Only needed the first found image, no problem which with mixed media.
       if ($uri && !$blazies->get('first.uri')) {
-        $settings['_uri'] = $uri;
-
         $blazies->set('first.image_url', $url)
           ->set('first.item', $image)
           ->set('first.unstyled', $unstyled)

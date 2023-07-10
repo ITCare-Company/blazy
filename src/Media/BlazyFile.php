@@ -181,13 +181,9 @@ class BlazyFile {
       if ($blazies = ($settings['blazies'] ?? NULL)) {
         $uri = $blazies->get('image.uri') ?: $blazies->get('first.uri');
       }
-
-      // @todo remove settings once done migration, and after sub-modules.
-      $_uri = $settings['uri'] ?? $settings['_uri'] ?? NULL;
-      $uri = $uri ?: $_uri;
     }
 
-    return $uri ?: '';
+    return $uri;
   }
 
   /**

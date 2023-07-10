@@ -6,6 +6,7 @@ use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\BlazyImage;
 
 /**
  * Provides feature check methods at item level.
@@ -67,13 +68,15 @@ class CheckItem {
       }
     }
 
+    // Only eat what we can chew.
     $data = [
       'bundle' => $entity->bundle(),
       'id' => $entity->id(),
+      'label' => $entity->label(),
+      'path' => $internal_path,
       'rid' => $entity->getRevisionID(),
       'type_id' => $entity->getEntityTypeId(),
       'url' => $absolute_path,
-      'path' => $internal_path,
     ];
 
     return ['data' => $data, 'entity' => $entity];
@@ -104,11 +107,22 @@ class CheckItem {
     $delta   = $blazies->get('delta') ?: ($settings['delta'] ?? 0);
     $initial = $delta == $blazies->get('initial', -1);
 
-    // File cache tags, cannot be read by tests from #pre_render, must be here.
+    // Must be here:
     if ($item) {
+      // File cache tags, cannot be read by tests from #pre_render.
       if ($file = ($item->entity ?? NULL)) {
         $tags = $file->getCacheTags();
         $blazies->set('cache.metadata.tags', $tags, TRUE);
+      }
+
+      // Need by thumbnails if any image item, fake or real, no biggies.
+      // Extracts alt from $item.
+      $alt = empty($item->alt) ? "" : trim($item->alt);
+      $blazies->set('image.alt', $alt);
+
+      // Do not output an empty 'title' attribute.
+      if (isset($item->title) && (mb_strlen($item->title) != 0)) {
+        $blazies->set('image.title', trim($item->title));
       }
     }
 
@@ -118,9 +132,14 @@ class CheckItem {
       ->set('image.uri', $uri)
       ->set('was.essentials', TRUE);
 
+    // Checks images which cannot have image styles without extra legs.
+    if ($uri) {
+      BlazyImage::isUnstyled($settings, $uri, TRUE);
+    }
+
     // @todo remove after sub-modules.
-    $settings['delta'] = $delta;
-    $settings['uri'] = $uri;
+    // $settings['delta'] = $delta;
+    // $settings['uri'] = $uri;
   }
 
   /**

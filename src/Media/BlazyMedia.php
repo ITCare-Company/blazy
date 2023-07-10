@@ -78,24 +78,31 @@ class BlazyMedia {
     $source_id = $source->getPluginId();
     $uri = '';
 
-    // @todo recheck and replace if any direct method for URI.
-    if ($attr = ($definition['thumbnail_uri_metadata_attribute'] ?? '')) {
-      $uri = $source->getMetadata($media, $attr);
+    try {
+      // GuzzleHttp\Exception\ConnectException: cURL error 6:
+      // Could not resolve host: soundcloud.com.
+      // @todo recheck and replace if any direct method for URI.
+      if ($attr = ($definition['thumbnail_uri_metadata_attribute'] ?? '')) {
+        $uri = $source->getMetadata($media, $attr);
+      }
+    }
+    catch (\Exception $e) {
+      // No need to be harsh here, likely disconnected internet, we can always
+      // display stored thumbnails, if already.
     }
 
+    // Extracts common entity properties.
     $info = CheckItem::entity($media, $langcode);
-    $data = $info['data'];
-    $translated = $info['entity'];
 
+    // Extracts specific values for this media entity.
     $output = [
-      'label'        => $media->label(),
       'source'       => $source_id,
       'source_field' => $source->getConfiguration()['source_field'],
       'thumbnail'    => $uri,
       'view_mode'    => $view_mode ?: 'default',
-    ] + $data;
+    ] + $info['data'];
 
-    return ['data' => $output, 'entity' => $translated];
+    return ['data' => $output, 'entity' => $info['entity']];
   }
 
   /**
@@ -108,10 +115,10 @@ class BlazyMedia {
     $view_mode = $settings['view_mode'] ?? NULL;
     $langcode  = $blazies->get('language.current');
     $result    = self::extract($media, $view_mode, $langcode);
-    $media     = $result['entity'];
-    $info      = $result['data'];
-    $id        = $info['id'];
-    $rid       = $info['rid'];
+    $media     = $result['entity'] ?? NULL;
+    $info      = $result['data'] ?? [];
+    $id        = $info['id'] ?? NULL;
+    $rid       = $info['rid'] ?? NULL;
     $locals    = ['audio_file', 'video_file'];
     $videos    = ['oembed:video', 'video_embed_field'];
     $source    = $info['source'];
@@ -186,11 +193,7 @@ class BlazyMedia {
     // @todo recheck, likely everyone hardly uses iframes lately.
     // No longer per D9.5: Soundcloud.
     if ($is_iframe && $src = ($attributes['src'] ?? FALSE)) {
-      $blazies->set('is.iframeable', TRUE)
-        ->set('is.playable', TRUE)
-        ->set('is.multimedia', TRUE)
-        ->set('media.embed_url', $src)
-        ->set('media.escaped', TRUE);
+      self::toPlayable($blazies, $src);
     }
     // Media with local files: video.
     elseif (isset($item['#files'])
@@ -200,40 +203,13 @@ class BlazyMedia {
       // The poster or file image is set via settings.image option instead.
       $blazies->set('media.uri', $file->getFileUri());
 
-      self::videoItem($item, $settings);
+      self::toVideo($item, $settings);
     }
     elseif (isset($item['#theme'])) {
-      if ($oembed = Blazy::service('blazy.oembed')) {
-        $original = $item;
-        $content = $oembed->blazyManager()->renderer()->renderPlain($item);
-        $dom = Html::load($content);
-        $iframes = $dom->getElementsByTagName('iframe');
-
-        if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
-          $src = $iframe->getAttribute('src');
-          $blazies->set('is.iframeable', TRUE)
-            ->set('is.playable', TRUE)
-            ->set('is.multimedia', TRUE)
-            ->set('media.embed_url', $src)
-            ->set('media.escaped', TRUE);
-
-          if (strpos($src, '?url=') === FALSE) {
-            $embed_url = $oembed->toEmbedUrl($blazies, $src);
-            $blazies->set('media.embed_url', $embed_url);
-          }
-
-          // If ($source = $blazies->get('media.source')) {.
-          $blazies->set('media.type', $blazies->get('media.source'));
-          // }
-        }
-        else {
-          $settings['media_switch'] = '';
-          $blazies->set('switch', '')
-            ->set('is.lightbox', FALSE);
-        }
-
-        $item = $original;
-      }
+      self::toIframe($item, $settings);
+    }
+    else {
+      self::disableFeatures($settings);
     }
 
     // Clone relevant keys since field wrapper is no longer in use.
@@ -250,9 +226,61 @@ class BlazyMedia {
   }
 
   /**
+   * Disable fancy features with the unknown land.
+   */
+  private static function disableFeatures(array &$settings): void {
+    $blazies = $settings['blazies'];
+    $settings['media_switch'] = '';
+    $blazies->set('switch', '')
+      ->set('is.lightbox', FALSE);
+  }
+
+  /**
+   * Modifies item attributes for iframes if any.
+   */
+  private static function toIframe(array &$item, array &$settings): void {
+    $blazies = $settings['blazies'];
+    if ($oembed = Blazy::service('blazy.oembed')) {
+      $original = $item;
+      $content = $oembed->blazyManager()->renderer()->renderPlain($item);
+      $dom = Html::load($content);
+      $iframes = $dom->getElementsByTagName('iframe');
+
+      if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
+        if ($src = $iframe->getAttribute('src')) {
+          self::toPlayable($blazies, $src);
+
+          if (strpos($src, '?url=') === FALSE) {
+            $embed_url = $oembed->toEmbedUrl($blazies, $src);
+            $blazies->set('media.embed_url', $embed_url);
+          }
+
+          $blazies->set('media.type', $blazies->get('media.source'));
+        }
+      }
+      else {
+        self::disableFeatures($settings);
+      }
+
+      $item = $original;
+    }
+  }
+
+  /**
+   * Modifies settings to support iframes.
+   */
+  private static function toPlayable($blazies, $src): void {
+    $blazies->set('is.iframeable', TRUE)
+      ->set('is.playable', TRUE)
+      ->set('is.multimedia', TRUE)
+      ->set('media.embed_url', $src)
+      ->set('media.escaped', TRUE);
+  }
+
+  /**
    * Modifies item attributes for local video item.
    */
-  private static function videoItem(array &$item, array $settings): void {
+  private static function toVideo(array &$item, array $settings): void {
     // Do this as $item['#settings'] is not available as file_video variables.
     // @todo re-check, most likely just a single file here.
     foreach ($item['#files'] as &$files) {
