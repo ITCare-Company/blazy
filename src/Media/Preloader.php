@@ -143,7 +143,7 @@ class Preloader {
 
       // Only needed the first found image, no problem which with mixed media.
       if ($uri && !$blazies->get('first.uri')) {
-        $blazies->set('first.image_url', $url)
+        $blazies->set('first.url', $url)
           ->set('first.item', $image)
           ->set('first.unstyled', $unstyled)
           ->set('first.uri', $uri);

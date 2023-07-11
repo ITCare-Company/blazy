@@ -136,15 +136,19 @@ class BlazyField {
     $blazies = $settings['blazies'];
     $bundles = self::getAvailableBundles($field);
 
+    $submodules = [
+      'cardinality'    => $field->getFieldStorageDefinition()->getCardinality(),
+      'field_type'     => $field->getType(),
+      'target_bundles' => $bundles,
+      'target_type'    => $field->getSetting('target_type'),
+    ];
+
     $info = [
-      'cardinality'   => $field->getFieldStorageDefinition()->getCardinality(),
       'field_label'   => $field->getLabel(),
       'field_name'    => $field->getName(),
-      'field_type'    => $field->getType(),
       'entity_type'   => $field->getTargetEntityTypeId(),
       'target_bundle' => $field->getTargetBundle(),
-      'target_type'   => $field->getSetting('target_type'),
-    ];
+    ] + $submodules;
 
     if ($data) {
       $blazies->set('field', $data, TRUE);
@@ -156,23 +160,22 @@ class BlazyField {
       $blazies->set('namespace', $namespace);
     }
 
+    foreach ($info as $key => $value) {
+      $k = str_replace('field_', '', $key);
+      $blazies->set('field.' . $k, $value);
+    }
+
     // Cannot use blazies.field.settings.handler_settings.target_bundles, since
     // they are always empty at View UI.
     if ($bundles) {
       $blazies->set('field.target_bundles', $bundles);
-      // @todo remove settings after sub-modules: Splidebox.
-      // $settings['target_bundles'] = $bundles;
     }
 
-    foreach ($info as $key => $value) {
-      $k = str_replace('field_', '', $key);
-      $blazies->set('field.' . $k, $value);
-
-      // @todo remove at/ by 3.x after migration and sub-modules.
-      // if (!$blazies->is('field.migrated')) {
-      // $settings[$key] = $value;
-      // }
+    // @todo remove at/ by 3.x after migration and sub-modules: EZ, Splidebox.
+    foreach ($submodules as $key => $value) {
+      $settings[$key] = $value;
     }
+
     return $settings;
   }
 

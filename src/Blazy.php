@@ -6,6 +6,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\BlazyAttribute;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\CheckItem;
@@ -299,6 +300,13 @@ class Blazy {
       return $entity->getTranslation($langcode);
     }
     return $entity;
+  }
+
+  /**
+   * Alias for BlazyImage::transformDimensions() for sub-modules.
+   */
+  public static function transformDimensions($style, array $data = [], $initial = FALSE): array {
+    return BlazyImage::transformDimensions($style, $data, $initial);
   }
 
   /**

@@ -238,6 +238,7 @@ class BlazyImage {
       // Prepare image URL and its dimensions, including for rich-media content,
       // such as for local video poster image if a poster URI is provided.
       // Url needs to be defined here for file_video.
+      // @todo move it back to #pre_render, once file_video poster is resolved.
       self::prepare($settings, $output, $uri);
     }
 
@@ -414,7 +415,7 @@ class BlazyImage {
 
     // Define styles regardless unstyled so to have correct dimensions at
     // lightboxes, thumbnails, etc.
-    self::itemData($settings, $uri);
+    self::itemData($settings, $item, $uri);
 
     // SVG, APNG, etc. should not use image_style as they don't convert.
     self::unstyled($settings);
@@ -459,7 +460,7 @@ class BlazyImage {
    * URI is not available at container level, except for the first,
    * or when preload option is enabled, unless enforced in the far future.
    */
-  public static function itemData(array &$settings, $uri): void {
+  public static function itemData(array &$settings, $item, $uri): void {
     $blazies = $settings['blazies'];
     foreach (BlazyDefault::imageStyles() as $key) {
       if ($key == 'image') {
@@ -481,6 +482,7 @@ class BlazyImage {
           $url = BlazyFile::transformRelative($uri, $style);
           $blazies->set($key . '.url', $url);
         }
+        $blazies->set($key . '.item', $item);
       }
     }
   }
