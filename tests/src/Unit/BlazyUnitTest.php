@@ -3,6 +3,7 @@
 namespace Drupal\Tests\blazy\Unit;
 
 use Drupal\Tests\UnitTestCase;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Theme\BlazyAttribute;
 use Drupal\blazy\Theme\BlazyTheme;
@@ -40,12 +41,13 @@ class BlazyUnitTest extends UnitTestCase {
    *   The expected output.
    *
    * @covers ::buildIframe
+   * @covers \Drupal\blazy\Blazy::init
    * @covers \Drupal\blazy\BlazyDefault::entitySettings
    * @dataProvider providerTestBuildIframe
    */
   public function testBuildIframe(array $data, $expected) {
     $variables = ['attributes' => [], 'image' => []];
-    $settings  = BlazyDefault::htmlSettings();
+    $settings  = Blazy::init();
     $uri       = $settings['uri'] = 'public://example.jpg';
     $embed_url = '//www.youtube.com/watch?v=E03HFA923kw';
 
@@ -98,6 +100,7 @@ class BlazyUnitTest extends UnitTestCase {
    * @param bool $expected_iframe
    *   Whether to expect an iframe, or not.
    *
+   * @covers \Drupal\blazy\Blazy::init
    * @covers \Drupal\blazy\Theme\BlazyTheme::blazy
    * @covers \Drupal\blazy\Media\BlazyImage::prepare
    * @covers \Drupal\blazy\BlazyDefault::entitySettings
@@ -107,7 +110,7 @@ class BlazyUnitTest extends UnitTestCase {
     $variables = ['attributes' => []];
     $build     = $this->data;
     $settings  = array_merge($build['settings'], $settings);
-    $settings += BlazyDefault::htmlSettings();
+    $settings += Blazy::init();
     $blazies   = $settings['blazies'];
     $embed_url = $settings['embed_url'] ?? '';
 
@@ -213,7 +216,7 @@ class BlazyUnitTest extends UnitTestCase {
    */
   public function todoTestPreRenderImageLightbox(array $settings = []) {
     $build                       = $this->data;
-    $settings                   += BlazyDefault::htmlSettings();
+    $settings                   += Blazy::init();
     $blazies                     = $settings['blazies'];
     $settings['count']           = $this->maxItems;
     $settings['uri']             = $this->uri;

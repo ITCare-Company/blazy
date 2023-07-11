@@ -104,6 +104,7 @@ class CheckItem {
     // with old approach/ or direct call to theme_blazy() via settings.uri.
     // This issue do not happen at D7, since it consistently uses API.
     $uri     = $blazies->get('image.uri') ?: BlazyFile::uri($item, $settings);
+    $uri     = $uri ?: $settings['uri'] ?? NULL;
     $delta   = $blazies->get('delta') ?: ($settings['delta'] ?? 0);
     $initial = $delta == $blazies->get('initial', -1);
 

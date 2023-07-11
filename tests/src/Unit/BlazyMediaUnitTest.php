@@ -3,8 +3,8 @@
 namespace Drupal\Tests\blazy\Unit;
 
 use Drupal\Tests\UnitTestCase;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyMedia;
-use Drupal\blazy\BlazyDefault;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 
 /**
@@ -42,7 +42,7 @@ class BlazyMediaUnitTest extends UnitTestCase {
       'view_mode'    => 'default',
       'media_switch' => 'media',
       // @todo 'bundle' => 'entity_test',
-    ] + BlazyDefault::htmlSettings();
+    ] + Blazy::init();
 
     $blazies = $settings['blazies'];
     $info = [

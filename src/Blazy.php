@@ -213,6 +213,13 @@ class Blazy {
   }
 
   /**
+   * Initialize Blazy settings for convenience, and easy organization.
+   */
+  public static function init(): array {
+    return BlazyDefault::htmlSettings();
+  }
+
+  /**
    * Return TRUE if an url is a data URI.
    */
   public static function isDataUri($url) {
@@ -313,7 +320,7 @@ class Blazy {
    */
   public static function verify(array &$settings): void {
     if (!isset($settings['blazies']) && !isset($settings['inited'])) {
-      $settings += BlazyDefault::htmlSettings();
+      $settings += self::init();
     }
   }
 

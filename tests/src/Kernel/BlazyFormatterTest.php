@@ -5,7 +5,6 @@ namespace Drupal\Tests\blazy\Kernel;
 use Drupal\Core\Form\FormState;
 use Drupal\blazy\Media\BlazyMedia;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\BlazyDefault;
 use GuzzleHttp\Exception\GuzzleException;
 
 /**
@@ -212,7 +211,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
         'view_mode'       => 'default',
         'thumbnail_style' => 'thumbnail',
         'uri'             => $this->uri,
-      ] + BlazyDefault::htmlSettings();
+      ] + Blazy::init();
 
       $blazies = $settings['blazies'];
       $info = [

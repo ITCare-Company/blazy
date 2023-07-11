@@ -11,7 +11,6 @@ use Drupal\filter\FilterPluginCollection;
 use Drupal\filter\FilterProcessResult;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\BlazyDefault;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyCreationTestTrait;
 
@@ -90,7 +89,7 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
    */
   public function testFilterDisplay() {
     $image_path = $this->getImagePath(TRUE);
-    $settings = BlazyDefault::htmlSettings();
+    $settings = Blazy::init();
     $settings['extra_text'] = $text = $this->dummyText();
 
     $this->setUpContentTypeTest($this->bundle);

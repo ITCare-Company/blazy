@@ -234,12 +234,18 @@ class BlazyDefault {
    * Very few are adjusted into blazies for easy calls/overrides/alters.
    */
   public static function blazies() {
+    $ui = self::uiSettings();
+
+    // For convenience when by-passing the provided API.
+    if ($manager = Blazy::service('blazy.manager')) {
+      $ui = $manager->config();
+    }
     return [
       'initial' => 0,
       'is' => [],
       'lazy' => ['attribute' => 'src', 'class' => 'b-lazy'],
       'libs' => [],
-      'ui' => self::uiSettings(),
+      'ui' => $ui,
       'use' => [],
     ];
   }

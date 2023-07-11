@@ -16,45 +16,58 @@
  * Blazy may be configured using the web interface using formatters, or Views.
  * However below is a few sample coded ones.
  *
+ * Since blazy:2.6, non-configurable settings were moved into settings.blazies
+ * as the instance of \Drupal\blazy\BlazySettings. Should you need to build it
+ * from the scratch with theme_blazy(), not using the provided API, please
+ * create the object like so:
+ *
+ * @code
+ * $settings = \Drupal\blazy\Blazy::init();
+ * $blazies = $settings['blazies'];
+ * @endcode
+ *
+ * Now you can access settings.blazies, and set anything as needed.
+ *
  * A single image sample.
  * @code
  * function my_module_render_blazy() {
- *   $settings = [
- *     // URI is required to use BlazyManager::getBlazy().
- *     // URI is stored in #settings property so to allow traveling around video
- *     // and lightboxes before being passed into theme_blazy().
- *     'uri' => 'public://logo.jpg',
+ *   // Be sure to put the namespaces into `use` directives.
+ *   // The ::init() contains blazies object for convenience:
+ *   $settings = \Drupal\blazy\Blazy::init();
  *
- *     // Explicitly request for Blazy.
- *     // This allows Slick lazyLoad to not load Blazy.
- *     // May be ignored by your defined options at Blazy UI since 2.6+, unless
- *     // flagged by a bool `unlazy` in tandem with `loading` option.
- *     'lazy' => 'blazy',
+ *   // Pass configurable settings directly into $settings, see more in
+ *   \Drupal\blazy\BlazyDefault:
+ *   $settings['image_style'] = 'thumbnail';
  *
- *     // Optionally provide an image style. Valid URI is a must:
- *     'image_style' => 'thumbnail',
- *   ];
+ *   // Pass non-configurable into settings.blazies object:
+ *   $blazies = $settings['blazies'];
  *
+ *   // For multiple items, be sure to set delta in the loop accordingly:
+ *   $blazies->set('delta', $delta)
+ *     // Only valid URI can have image styles, the invalid is just printed.
+ *     ->set('image.uri', 'public://logo.png')
+ *     // ->set('image.url', '/logo.png') // <= image.url alone won't work!
+ *     // If you have no valid URI, simply change `url` to `uri` like below,
+ *     // invalid URI is just printed:
+ *     // ->set('image.uri', '/logo.png')
+ *     ->set('image.alt', $this->t('Preview'))
+ *     ->set('image.width', 140)
+ *     ->set('lazy.id', 'blazy');
+ *
+ *   // Passing #item_attributes was deprecated since 2.6, use blazies above.
+ *   // Since 2.6, theme_blazy() looks dead simple, yet more robust:
  *   $build = [
  *     '#theme'    => 'blazy',
  *     '#settings' => $settings,
  *
- *     // Or below for clarity:
- *     '#settings' => ['uri' => 'public://logo.jpg', 'lazy' => 'blazy'],
- *
- *     // Pass custom attributes into the same #item_attributes property as
- *     // Blazy formatters so to respect external modules like RDF, etc. without
- *     // extra property. The regular #attributes property is reserved by Blazy
- *     // container which holds either IMG, icons, or iFrame. Meaning Blazy is
- *     // not just IMG.
- *     '#item_attributes' => [
- *       'alt'   => t('Thumbnail'),
- *       'title' => t('Thumbnail title'),
- *       'width' => 120,
- *     ],
- *
  *     // Finally load the library, or include it into a parent container.
  *     '#attached' => ['library' => ['blazy/load']],
+ *
+ *     // Or more robust with BlazyManager::attach() as required:
+ *     '#attached' => blazy()->attach($settings),
+ *
+ *     // Or for defaults, affected by Blazy UI, simply leave it empty:
+ *     '#attached' => blazy()->attach(),
  *   ];
  *
  *   return $build;
@@ -79,10 +92,6 @@
  *   $manager = \Drupal::service('blazy.manager');
  *
  *   $settings = [
- *     // Explicitly request for Blazy library.
- *     // This allows Slick lazyLoad, or text formatter, to not load Blazy.
- *     'blazy' => TRUE,
- *
  *     // Supported media switcher options dependent on available modules:
  *     // colorbox, media (Image to iframe), photobox.
  *     'media_switch' => 'media',

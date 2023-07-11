@@ -31,7 +31,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     $settings = &$build['settings'];
-    $settings += BlazyDefault::htmlSettings();
+    $settings += Blazy::init();
     $item = $build['item'];
 
     // Prevents double checks.
