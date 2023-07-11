@@ -188,7 +188,9 @@ class BlazyAttribute {
         if (!$title) {
           $title = $blazies->get('image.alt');
         }
+
         if ($title) {
+          $title = strip_tags($title);
           $translation_replacements = ['@label' => Html::escape($title)];
           $attributes['title'] = self::videoTitle($translation_replacements);
         }
@@ -336,13 +338,21 @@ class BlazyAttribute {
 
     // Updates $title whether for video, or just image, and accounts for UGC.
     if ($title) {
-      $title = Html::escape($title);
+      // Might be abused to use HTML, fine for lightboxes, but not attributes.
+      // This should make both parties happier ever after, sort of.
+      $title = Html::escape(strip_tags($title));
       $attributes['title'] = $title;
       $blazies->set('image.title', $title);
     }
 
     // Respects hand-coded image attributes, and accounts for UGC.
-    $attributes['alt'] = $alt = $alt ? Html::escape($alt) : '';
+    if ($alt) {
+      // Might be abused to use HTML, fine for lightboxes, but not attributes.
+      // This should make both parties happier ever after, sort of.
+      $alt = Html::escape(strip_tags($alt));
+    }
+
+    $attributes['alt'] = $alt ?: '';
     $blazies->set('image.alt', $alt);
 
     // Only output dimensions for non-svg. Respects hand-coded image attributes.

@@ -5,7 +5,7 @@ namespace Drupal\blazy\Dejavu;
 use Drupal\blazy\Field\BlazyEntityMediaBase as EntityMediaBase;
 
 /**
- * Base class for Media entity reference formatters with field details.
+ * Deprecated in blazy:8.x-2.9.
  *
  * Not used by sub-modules, safe to delete.
  *

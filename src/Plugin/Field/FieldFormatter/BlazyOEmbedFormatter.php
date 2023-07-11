@@ -4,6 +4,7 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\media\Entity\MediaType;
@@ -97,14 +98,16 @@ class BlazyOEmbedFormatter extends FormatterBase {
     $entity     = $items->getParent()->getEntity();
 
     foreach ($items as $delta => $item) {
-      $sets = $settings;
-      $main_property = $item->getFieldDefinition()
-        ->getFieldStorageDefinition()
-        ->getMainPropertyName();
+      if (!$item instanceof FieldItemInterface) {
+        break;
+      }
 
-      $value = $item->{$main_property} ?? NULL;
+      $class    = get_class($item);
+      $property = $class::mainPropertyName();
+      $value    = $item->{$property};
+      $sets     = $settings;
 
-      if (empty($value)) {
+      if (!$value) {
         continue;
       }
 

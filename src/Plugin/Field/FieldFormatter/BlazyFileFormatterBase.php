@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
@@ -11,6 +10,7 @@ use Drupal\file\Plugin\Field\FieldFormatter\FileFormatterBase;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyDependenciesTrait;
+use Drupal\blazy\Utility\Sanitize;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -69,13 +69,22 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
+   * Returns available build options.
+   */
+  protected function buildOptions(array $settings): array {
+    return [];
+  }
+
+  /**
    * Returns the Blazy elements, also for sub-modules to re-use.
    *
    * @todo replace namespace and item.id with properties post blazy:2.17.
+   * @todo remove parameter $options for self::buildOptions().
    */
   protected function getElements(array $build, $files, $options = NULL): \Generator {
     $settings   = Blazy::toHashtag($build);
     $blazies    = $settings['blazies'];
+    $options    = $options ?: $this->buildOptions($settings);
     $namespace  = $blazies->get('namespace');
     $item_id    = $blazies->get('item.id');
     $caption_id = $options ?: 'captions';
@@ -152,11 +161,12 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     $settings = Blazy::toHashtag($data);
     $captions = $settings['caption'] ?? [];
     $output   = [];
+
     if ($captions && $item = Blazy::toHashtag($data, 'item')) {
       foreach ($captions as $caption) {
         if ($content = ($item->{$caption} ?? NULL)) {
           $output[$caption] = [
-            '#markup' => Xss::filterAdmin($content),
+            '#markup' => Sanitize::caption($content),
           ];
         }
       }

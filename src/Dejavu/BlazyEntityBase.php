@@ -5,7 +5,7 @@ namespace Drupal\blazy\Dejavu;
 use Drupal\blazy\Field\BlazyEntityVanillaBase;
 
 /**
- * Base class for entity reference formatters without field details.
+ * Deprecated in blazy:8.x-2.9.
  *
  * Used by sub-modules.
  *

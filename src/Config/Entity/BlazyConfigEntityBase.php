@@ -164,7 +164,7 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
     $optionset = self::load($name);
 
     // Ensures deleted optionset while being used doesn't screw up.
-    return empty($optionset) ? self::load('default') : $optionset;
+    return $optionset ?: self::load('default');
   }
 
   /**

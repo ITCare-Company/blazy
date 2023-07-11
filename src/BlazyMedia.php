@@ -5,7 +5,7 @@ namespace Drupal\blazy;
 use Drupal\blazy\Media\BlazyMedia as Media;
 
 /**
- * Provides extra utilities to work with core Media.
+ * Deprecated in blazy:8.x-2.9.
  *
  * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
  *   Drupal\blazy\Media\BlazyMedia instead.

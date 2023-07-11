@@ -31,45 +31,51 @@
  * A single image sample.
  * @code
  * function my_module_render_blazy() {
+ *   // Old behaviors will be very minimally preserved till 3.x.
  *   // Be sure to put the namespaces into `use` directives.
- *   // The ::init() contains blazies object for convenience:
+ *   // The ::init() contains empty blazies object for convenience:
  *   $settings = \Drupal\blazy\Blazy::init();
  *
  *   // Pass configurable settings directly into $settings, see more in
- *   \Drupal\blazy\BlazyDefault:
+ *   \Drupal\blazy\BlazyDefault::imageSettings():
  *   $settings['image_style'] = 'thumbnail';
  *
- *   // Pass non-configurable into settings.blazies object:
+ *   // Pass non-configurable ones into settings.blazies object:
  *   $blazies = $settings['blazies'];
  *
  *   // For multiple items, be sure to set delta in the loop accordingly:
  *   $blazies->set('delta', $delta)
- *     // Only valid URI can have image styles, the invalid is just printed.
+ *     // While the invalid URI is just printed, only valid URI can have image
+ *     // styles, or at least using a normal public URL: /sites/default/files/:
  *     ->set('image.uri', 'public://logo.png')
  *     // ->set('image.url', '/logo.png') // <= image.url alone won't work!
  *     // If you have no valid URI, simply change `url` to `uri` like below,
  *     // invalid URI is just printed:
  *     // ->set('image.uri', '/logo.png')
  *     ->set('image.alt', $this->t('Preview'))
+ *     // If you don't set `image_style`, provide a dimension in the least.
  *     ->set('image.width', 140)
  *     ->set('lazy.id', 'blazy');
  *
- *   // Passing #item_attributes was deprecated since 2.6, use blazies above.
+ *   // Passing width/height/alt/title to #item_attributes was deprecated since
+ *   // 2.6 when RDF was deprecated from D9. Use settings.blazies above instead.
+ *   // It is still usable for adding minor class attributes, etc., though.
  *   // Since 2.6, theme_blazy() looks dead simple, yet more robust:
  *   $build = [
  *     '#theme'    => 'blazy',
  *     '#settings' => $settings,
- *
- *     // Finally load the library, or include it into a parent container.
- *     '#attached' => ['library' => ['blazy/load']],
- *
- *     // Or more robust with BlazyManager::attach() as required:
- *     '#attached' => blazy()->attach($settings),
- *
- *     // Or for defaults, affected by Blazy UI, simply leave it empty.
- *     // Or even remove this line completely, we got you covered:
- *     '#attached' => blazy()->attach(),
  *   ];
+ *
+ *   // Optionally attach the supported libraries, or include/ merge it into a
+ *   // parent container:
+ *   $build['#attached'] = ['library' => ['blazy/load']];
+ *
+ *   // Or more robust with BlazyManager::attach() as required:
+ *   $build['#attached'] = blazy()->attach($settings);
+ *
+ *   // Or for defaults, affected by Blazy UI, simply leave it empty.
+ *   // Or even remove this line completely, we got you covered:
+ *   $build['#attached'] = blazy()->attach();
  *
  *   return $build;
  * }

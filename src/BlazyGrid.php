@@ -5,7 +5,7 @@ namespace Drupal\blazy;
 use Drupal\blazy\Theme\Grid;
 
 /**
- * Provides grid utilities, called by Slick, Splide, SlickBrowserWidget.
+ * Deprecated in blazy:8.x-2.9.
  *
  * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
  *   Drupal\blazy\Blazy::grid() instead.

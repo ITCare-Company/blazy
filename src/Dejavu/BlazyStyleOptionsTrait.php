@@ -5,7 +5,7 @@ namespace Drupal\blazy\Dejavu;
 use Drupal\blazy\Views\BlazyStyleOptionsTrait as StyleOptionsTrait;
 
 /**
- * A Trait common for optional views style plugins.
+ * Deprecated in blazy:8.x-2.14.
  *
  * Used by sub-modules.
  *

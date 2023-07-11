@@ -5,7 +5,7 @@ namespace Drupal\blazy\Deprecated;
 use Drupal\blazy\Media\BlazyResponsiveImage;
 
 /**
- * Deprecated methods for easy removal.
+ * Deprecated in blazy:8.x-2.16.
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by

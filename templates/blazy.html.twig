@@ -16,7 +16,7 @@
  * Good: postscript.cta, or postscript.widget (This extends postscript)
  * Bad: postscript = cta (This overrides/ nullifies other postscripts with cta)
  *
- * Unless that is expected, of course.
+ * Unless that is expected, of course. Beware! Blazy sub-modules may need them.
  *
  * Available variables:
  *   - captions: An optional renderable array of inline or lightbox captions.
@@ -55,11 +55,11 @@
 {%
   set classes = [
     content ? 'media--rendered',
-    blazies.namespace ? 'media--' ~ blazies.namespace,
+    blazies.namespace ? 'media--' ~ blazies.namespace|clean_class,
     settings.media_switch ? 'media--switch media--switch--' ~ settings.media_switch|clean_class,
     blazies.is.player ? 'media--player',
     blazies.media.bundle ? 'media--bundle--' ~ blazies.media.bundle|clean_class,
-    blazies.media.type ? 'media--' ~ blazies.media.type,
+    blazies.media.type ? 'media--' ~ blazies.media.type|clean_class,
     blazies.resimage.id ? 'media--responsive',
     settings.ratio ? 'media--ratio media--ratio--' ~ settings.ratio,
     settings.use_loading or blazies.use.loader ? 'is-b-loading',

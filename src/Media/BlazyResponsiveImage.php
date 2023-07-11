@@ -70,27 +70,30 @@ class BlazyResponsiveImage {
         $ratios[$width] = $data['ratio'];
       }
 
-      // Sort the srcset from small to large image width or multiplier.
-      ksort($srcset);
-      ksort($ratios);
+      if ($srcset) {
+        // Sort the srcset from small to large image width or multiplier.
+        ksort($srcset);
+        ksort($ratios);
 
-      // Prevents NestedArray from making these indices.
-      $blazies->set('bgs', (object) $srcset)
-        ->set('ratios', $ratios)
-        ->set('image.ratio', end($ratios));
+        // Prevents NestedArray from making these indices.
+        $blazies->set('bgs', (object) $srcset)
+          ->set('ratios', $ratios)
+          ->set('image.ratio', end($ratios));
 
-      // To make compatible with old bLazy (not Bio) which expects no 1px
-      // for [data-src], else error, provide a real smallest image. Bio will
-      // map it to the current breakpoint later.
-      $bg = reset($srcset);
-      $unlazy = $blazies->is('undata');
-      $old_url = $blazies->get('image.url');
-      $new_url = $unlazy ? $old_url : $bg['src'];
+        // To make compatible with old bLazy (not Bio) which expects no 1px
+        // for [data-src], else error, provide a real smallest image. Bio will
+        // map it to the current breakpoint later.
+        $bg = reset($srcset);
 
-      $blazies->set('is.unlazy', $unlazy)
-        ->set('image.url', $new_url);
+        $unlazy = $blazies->is('undata');
+        $old_url = $blazies->get('image.url');
+        $new_url = $unlazy ? $old_url : $bg['src'];
 
-      BlazyAttribute::lazy($attributes, $settings);
+        $blazies->set('is.unlazy', $unlazy)
+          ->set('image.url', $new_url);
+
+        BlazyAttribute::lazy($attributes, $settings);
+      }
     }
   }
 

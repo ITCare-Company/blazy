@@ -11,7 +11,7 @@ use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
 @trigger_error('The ' . __NAMESPACE__ . '\BlazyVideoBase is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
 
 /**
- * Base class for blazy video embed field formatters.
+ * Deprecated in blazy:8.x-2.0.
  *
  * This file is no longer used nor needed, and will be removed at 3.x.
  * VEF will continue working via BlazyOEmbed instead.

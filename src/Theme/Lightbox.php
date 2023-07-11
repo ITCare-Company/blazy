@@ -51,19 +51,18 @@ class Lightbox {
     $item       = $element['#item'];
     $settings   = &$element['#settings'];
     $blazies    = $settings['blazies'];
-    $uri        = $blazies->get('image.uri') ?: $settings['uri'] ?? '';
+    $uri        = $blazies->get('image.uri');
     $switch     = $blazies->get('lightbox.name');
     $switch_css = str_replace('_', '-', $switch);
     $valid      = BlazyFile::isValidUri($uri);
     $_box_style = $settings['box_style'] ?? NULL;
-    $box_style  = $blazies->get('box.style');
     $box_url    = $url = Blazy::transformRelative($uri);
     $colorbox   = $blazies->get('colorbox');
     $gallery_id = $blazies->get('lightbox.gallery_id');
     $box_id     = $blazies->is('gallery') ? $gallery_id : NULL;
     $box_width  = $blazies->get('image.original.width') ?: $item->width ?? NULL;
     $box_height = $blazies->get('image.original.height') ?: $item->height ?? NULL;
-    $count      = $blazies->get('count', 1);
+    $count      = $blazies->get('total', 0) ?: $blazies->get('count', 1);
     $delta      = $blazies->get('delta', 0);
     $multimedia = $blazies->is('multimedia') ?: $blazies->is('local_media');
     $svg        = $blazies->is('unstyled');
@@ -72,7 +71,7 @@ class Lightbox {
     $_fullsize  = $_box_style && $styleable;
     $_resimage  = FALSE;
 
-    // Provide relevant URL if it is a lightbox.
+    // Provide relevant URL since it is a lightbox.
     $url_attributes = &$element['#url_attributes'];
     $url_attributes['class'][] = 'blazy__' . $switch_css . ' litebox';
     $url_attributes['data-' . $switch_css . '-trigger'] = TRUE;
@@ -100,11 +99,10 @@ class Lightbox {
       }
 
       // This allows PhotoSwipe with videos still swipable.
-      if ($styleable && $box_media_style = $blazies->get('box_media.style')) {
+      if ($styleable && $check = $blazies->get('box_media.url')) {
         $box_width  = $blazies->get('box_media.width');
         $box_height = $blazies->get('box_media.height');
-
-        $box_url = Blazy::transformRelative($uri, $box_media_style);
+        $box_url    = $check;
 
         $blazies->set('lightbox.media_preview_url', $box_url);
         $data_box_url = TRUE;
@@ -131,10 +129,10 @@ class Lightbox {
         }
 
         // Use non-responsive image if so-configured.
-        if (!$_resimage && $box_style) {
+        if (!$_resimage && $check = $blazies->get('box.url')) {
           $box_width  = $blazies->get('box.width');
           $box_height = $blazies->get('box.height');
-          $box_url = $url = Blazy::transformRelative($uri, $box_style);
+          $box_url    = $url = $check;
         }
       }
     }
@@ -361,10 +359,12 @@ class Lightbox {
    */
   private static function buildCaptions($item, array $settings = []): array {
     $blazies = $settings['blazies'];
-    $title   = $blazies->get('image.title');
-    $alt     = $blazies->get('image.alt');
+    $title   = Sanitize::caption($blazies->get('image.title'));
+    $alt     = Sanitize::caption($blazies->get('image.alt'));
     $delta   = $blazies->get('delta', 0);
     $object  = NULL;
+    $option  = $settings['box_caption'];
+    $custom  = $settings['box_caption_custom'] ?? NULL;
     $caption = '';
 
     // @todo re-check this if any issues, might be a fake stdClass image item.
@@ -375,7 +375,7 @@ class Lightbox {
 
     $entity = $blazies->get('entity.instance') ?: $object;
 
-    switch ($settings['box_caption']) {
+    switch ($option) {
       case 'auto':
         $caption = $alt ?: $title;
         break;
@@ -392,7 +392,7 @@ class Lightbox {
       case 'title_alt':
         $alt     = $alt ? '<p>' . $alt . '</p>' : '';
         $title   = $title ? '<h2>' . $title . '</h2>' : '';
-        $caption = $settings['box_caption'] == 'alt_title' ? $alt . $title : $title . $alt;
+        $caption = $option == 'alt_title' ? $alt . $title : $title . $alt;
         break;
 
       case 'entity_title':
@@ -403,9 +403,9 @@ class Lightbox {
       case 'custom':
         $caption = '';
 
-        if (!empty($settings['box_caption_custom']) && $object) {
+        if ($custom && $object) {
           $options = ['clear' => TRUE];
-          $caption = \Drupal::token()->replace($settings['box_caption_custom'], [
+          $caption = \Drupal::token()->replace($custom, [
             $object->getEntityTypeId() => $object,
           ], $options);
 
@@ -419,7 +419,7 @@ class Lightbox {
         break;
 
       default:
-        $caption = $settings['box_caption'] == 'inline' ? '' : $settings['box_caption'];
+        $caption = $option == 'inline' ? '' : $option;
     }
 
     return empty($caption)

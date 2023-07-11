@@ -112,6 +112,42 @@ class Sanitize {
   }
 
   /**
+   * Returns the supported caption to avoid broken HTML against containers.
+   *
+   * @param string $input
+   *   The given string input.
+   * @param array $options
+   *   The options relevant to common caption container HTML tags.
+   *
+   * @return string
+   *   The relatively non-broken $input.
+   */
+  public static function caption($input, array $options = []): string {
+    if (!$input) {
+      return '';
+    }
+
+    $containers = $options['containers'] ?? ['h2', 'p', 'div'];
+    $check = $input;
+
+    // Image alt and title might be abused, check them:
+    preg_match("/<[^<]+>/", $check, $matches);
+
+    if ($match = $matches[0] ?? NULL) {
+      $match = strtolower($match);
+      $match = explode(' ', $match);
+      $match = str_replace(['<', '>'], '', $match[0]);
+
+      // To avoid broken HTML if anything match containers.
+      // Few were preserved for blazy and its sub-modules caption containers.
+      if (in_array($match, $containers)) {
+        $check = strip_tags($check);
+      }
+    }
+    return Xss::filterAdmin($check);
+  }
+
+  /**
    * Returns all available attributes which may contain URI.
    */
   public static function getUriAttributes(): array {

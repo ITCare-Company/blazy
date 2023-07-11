@@ -5,7 +5,7 @@ namespace Drupal\blazy\Dejavu;
 use Drupal\blazy\Views\BlazyStylePluginBase as StylePluginBase;
 
 /**
- * A base for blazy views integration to have re-usable methods in one place.
+ * Deprecated in blazy:8.x-2.14.
  *
  * Used by sub-modules.
  *

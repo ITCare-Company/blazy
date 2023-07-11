@@ -5,7 +5,7 @@ namespace Drupal\blazy\Deprecated;
 use Drupal\blazy\Field\BlazyField;
 
 /**
- * A Trait common for deprecated methods for easy removal and declutter.
+ * Deprecated in blazy:8.x-2.9.
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by

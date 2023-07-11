@@ -164,15 +164,15 @@ class BlazyImage {
     if ($initial) {
       $blazies->set('image.width', $data['width'])
         ->set('image.height', $data['height'])
-        ->set('image.ratio', $ratio)
-        ->set('first.width', $data['width'])
-        ->set('first.height', $data['height'])
-        ->set('first.ratio', $ratio);
+        ->set('image.ratio', $ratio);
     }
 
     // In case `image_style` is not provided.
     $blazies->set('image.original', $data, TRUE)
-      ->set('image.original.ratio', $ratio);
+      ->set('image.original.ratio', $ratio)
+      ->set('first.width', $data['width'])
+      ->set('first.height', $data['height'])
+      ->set('first.ratio', $ratio);
   }
 
   /**
@@ -414,7 +414,7 @@ class BlazyImage {
 
     // Define styles regardless unstyled so to have correct dimensions at
     // lightboxes, thumbnails, etc.
-    self::itemDimensions($settings, $uri);
+    self::itemData($settings, $uri);
 
     // SVG, APNG, etc. should not use image_style as they don't convert.
     self::unstyled($settings);
@@ -459,7 +459,7 @@ class BlazyImage {
    * URI is not available at container level, except for the first,
    * or when preload option is enabled, unless enforced in the far future.
    */
-  public static function itemDimensions(array &$settings, $uri): void {
+  public static function itemData(array &$settings, $uri): void {
     $blazies = $settings['blazies'];
     foreach (BlazyDefault::imageStyles() as $key) {
       if ($key == 'image') {
@@ -476,6 +476,11 @@ class BlazyImage {
         ];
         $data = self::transformDimensions($style, $info);
         $blazies->set($key, $data, TRUE);
+
+        if ($uri) {
+          $url = BlazyFile::transformRelative($uri, $style);
+          $blazies->set($key . '.url', $url);
+        }
       }
     }
   }
@@ -561,7 +566,7 @@ class BlazyImage {
       '#style_name' => $style ?: 'thumbnail',
       '#uri'        => $valid ? $uri : UrlHelper::stripDangerousProtocols($uri),
       '#item'       => $item,
-      '#alt'        => $alt ? Html::escape($alt) : '',
+      '#alt'        => $alt ? Html::escape(strip_tags($alt)) : '',
     ] + $dimensions;
   }
 

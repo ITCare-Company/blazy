@@ -73,6 +73,7 @@ class Placeholder {
       '#theme' => 'image',
       '#uri' => $blazies->get('placeholder.url'),
       '#attributes' => [
+        'alt' => t('Preview'),
         'class' => ['b-blur'],
         'data-b-blur' => "$store::$id::$mime::$url",
         'decoding' => 'async',
