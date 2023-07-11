@@ -135,162 +135,162 @@
 
 /** 641px with 16px base font. */
 @media only screen and (min-width: 40.063em) {
-  .b-grid--sm-1 > .grid {
+  .b-grid--md-1 > .grid {
     width: 100%;
   }
 
-  .b-grid--sm-2 > .grid {
+  .b-grid--md-2 > .grid {
     width: 50%;
   }
 
-  .b-grid--sm-3 > .grid {
+  .b-grid--md-3 > .grid {
     width: 33.33333%;
   }
 
-  .b-grid--sm-4 > .grid {
+  .b-grid--md-4 > .grid {
     width: 25%;
   }
 
-  .b-grid--sm-5 > .grid {
+  .b-grid--md-5 > .grid {
     width: 20%;
   }
 
-  .b-grid--sm-6 > .grid {
+  .b-grid--md-6 > .grid {
     width: 16.66667%;
   }
 
-  .b-grid--sm-7 > .grid {
+  .b-grid--md-7 > .grid {
     width: 14.28571%;
   }
 
-  .b-grid--sm-8 > .grid {
+  .b-grid--md-8 > .grid {
     width: 12.5%;
   }
 
-  .b-grid--sm-9 > .grid {
+  .b-grid--md-9 > .grid {
     width: 11.11111%;
   }
 
-  .b-grid--sm-10 > .grid {
+  .b-grid--md-10 > .grid {
     width: 10%;
   }
 
-  .b-grid--sm-11 > .grid {
+  .b-grid--md-11 > .grid {
     width: 9.09091%;
   }
 
-  .b-grid--sm-12 > .grid {
+  .b-grid--md-12 > .grid {
     width: 8.33333%;
   }
 
-  .b-grid--sm-1 > .grid:nth-of-type(1n),
-  .b-grid--sm-2 > .grid:nth-of-type(1n),
-  .b-grid--sm-3 > .grid:nth-of-type(1n),
-  .b-grid--sm-4 > .grid:nth-of-type(1n),
-  .b-grid--sm-5 > .grid:nth-of-type(1n),
-  .b-grid--sm-6 > .grid:nth-of-type(1n),
-  .b-grid--sm-7 > .grid:nth-of-type(1n),
-  .b-grid--sm-8 > .grid:nth-of-type(1n),
-  .b-grid--sm-9 > .grid:nth-of-type(1n),
-  .b-grid--sm-10 > .grid:nth-of-type(1n),
-  .b-grid--sm-11 > .grid:nth-of-type(1n),
-  .b-grid--sm-12 > .grid:nth-of-type(1n) {
+  .b-grid--md-1 > .grid:nth-of-type(1n),
+  .b-grid--md-2 > .grid:nth-of-type(1n),
+  .b-grid--md-3 > .grid:nth-of-type(1n),
+  .b-grid--md-4 > .grid:nth-of-type(1n),
+  .b-grid--md-5 > .grid:nth-of-type(1n),
+  .b-grid--md-6 > .grid:nth-of-type(1n),
+  .b-grid--md-7 > .grid:nth-of-type(1n),
+  .b-grid--md-8 > .grid:nth-of-type(1n),
+  .b-grid--md-9 > .grid:nth-of-type(1n),
+  .b-grid--md-10 > .grid:nth-of-type(1n),
+  .b-grid--md-11 > .grid:nth-of-type(1n),
+  .b-grid--md-12 > .grid:nth-of-type(1n) {
     clear: none;
   }
 
-  .b-grid--sm-1 > .grid:nth-of-type(1n+1),
-  .b-grid--sm-2 > .grid:nth-of-type(2n+1),
-  .b-grid--sm-3 > .grid:nth-of-type(3n+1),
-  .b-grid--sm-4 > .grid:nth-of-type(4n+1),
-  .b-grid--sm-5 > .grid:nth-of-type(5n+1),
-  .b-grid--sm-6 > .grid:nth-of-type(6n+1),
-  .b-grid--sm-7 > .grid:nth-of-type(7n+1),
-  .b-grid--sm-8 > .grid:nth-of-type(8n+1),
-  .b-grid--sm-9 > .grid:nth-of-type(9n+1),
-  .b-grid--sm-10 > .grid:nth-of-type(10n+1),
-  .b-grid--sm-11 > .grid:nth-of-type(11n+1),
-  .b-grid--sm-12 > .grid:nth-of-type(12n+1) {
+  .b-grid--md-1 > .grid:nth-of-type(1n+1),
+  .b-grid--md-2 > .grid:nth-of-type(2n+1),
+  .b-grid--md-3 > .grid:nth-of-type(3n+1),
+  .b-grid--md-4 > .grid:nth-of-type(4n+1),
+  .b-grid--md-5 > .grid:nth-of-type(5n+1),
+  .b-grid--md-6 > .grid:nth-of-type(6n+1),
+  .b-grid--md-7 > .grid:nth-of-type(7n+1),
+  .b-grid--md-8 > .grid:nth-of-type(8n+1),
+  .b-grid--md-9 > .grid:nth-of-type(9n+1),
+  .b-grid--md-10 > .grid:nth-of-type(10n+1),
+  .b-grid--md-11 > .grid:nth-of-type(11n+1),
+  .b-grid--md-12 > .grid:nth-of-type(12n+1) {
     clear: both;
   }
 }
 
 /** 1025px with 16px base font. */
 @media only screen and (min-width: 64.063em) {
-  .b-grid--sm-1 > .grid {
+  .b-grid--lg-1 > .grid {
     width: 100%;
   }
 
-  .b-grid--sm-2 > .grid {
+  .b-grid--lg-2 > .grid {
     width: 50%;
   }
 
-  .b-grid--sm-3 > .grid {
+  .b-grid--lg-3 > .grid {
     width: 33.33333%;
   }
 
-  .b-grid--sm-4 > .grid {
+  .b-grid--lg-4 > .grid {
     width: 25%;
   }
 
-  .b-grid--sm-5 > .grid {
+  .b-grid--lg-5 > .grid {
     width: 20%;
   }
 
-  .b-grid--sm-6 > .grid {
+  .b-grid--lg-6 > .grid {
     width: 16.66667%;
   }
 
-  .b-grid--sm-7 > .grid {
+  .b-grid--lg-7 > .grid {
     width: 14.28571%;
   }
 
-  .b-grid--sm-8 > .grid {
+  .b-grid--lg-8 > .grid {
     width: 12.5%;
   }
 
-  .b-grid--sm-9 > .grid {
+  .b-grid--lg-9 > .grid {
     width: 11.11111%;
   }
 
-  .b-grid--sm-10 > .grid {
+  .b-grid--lg-10 > .grid {
     width: 10%;
   }
 
-  .b-grid--sm-11 > .grid {
+  .b-grid--lg-11 > .grid {
     width: 9.09091%;
   }
 
-  .b-grid--sm-12 > .grid {
+  .b-grid--lg-12 > .grid {
     width: 8.33333%;
   }
 
-  .b-grid--sm-1 > .grid:nth-of-type(1n),
-  .b-grid--sm-2 > .grid:nth-of-type(1n),
-  .b-grid--sm-3 > .grid:nth-of-type(1n),
-  .b-grid--sm-4 > .grid:nth-of-type(1n),
-  .b-grid--sm-5 > .grid:nth-of-type(1n),
-  .b-grid--sm-6 > .grid:nth-of-type(1n),
-  .b-grid--sm-7 > .grid:nth-of-type(1n),
-  .b-grid--sm-8 > .grid:nth-of-type(1n),
-  .b-grid--sm-9 > .grid:nth-of-type(1n),
-  .b-grid--sm-10 > .grid:nth-of-type(1n),
-  .b-grid--sm-11 > .grid:nth-of-type(1n),
-  .b-grid--sm-12 > .grid:nth-of-type(1n) {
+  .b-grid--lg-1 > .grid:nth-of-type(1n),
+  .b-grid--lg-2 > .grid:nth-of-type(1n),
+  .b-grid--lg-3 > .grid:nth-of-type(1n),
+  .b-grid--lg-4 > .grid:nth-of-type(1n),
+  .b-grid--lg-5 > .grid:nth-of-type(1n),
+  .b-grid--lg-6 > .grid:nth-of-type(1n),
+  .b-grid--lg-7 > .grid:nth-of-type(1n),
+  .b-grid--lg-8 > .grid:nth-of-type(1n),
+  .b-grid--lg-9 > .grid:nth-of-type(1n),
+  .b-grid--lg-10 > .grid:nth-of-type(1n),
+  .b-grid--lg-11 > .grid:nth-of-type(1n),
+  .b-grid--lg-12 > .grid:nth-of-type(1n) {
     clear: none;
   }
 
-  .b-grid--sm-1 > .grid:nth-of-type(1n+1),
-  .b-grid--sm-2 > .grid:nth-of-type(2n+1),
-  .b-grid--sm-3 > .grid:nth-of-type(3n+1),
-  .b-grid--sm-4 > .grid:nth-of-type(4n+1),
-  .b-grid--sm-5 > .grid:nth-of-type(5n+1),
-  .b-grid--sm-6 > .grid:nth-of-type(6n+1),
-  .b-grid--sm-7 > .grid:nth-of-type(7n+1),
-  .b-grid--sm-8 > .grid:nth-of-type(8n+1),
-  .b-grid--sm-9 > .grid:nth-of-type(9n+1),
-  .b-grid--sm-10 > .grid:nth-of-type(10n+1),
-  .b-grid--sm-11 > .grid:nth-of-type(11n+1),
-  .b-grid--sm-12 > .grid:nth-of-type(12n+1) {
+  .b-grid--lg-1 > .grid:nth-of-type(1n+1),
+  .b-grid--lg-2 > .grid:nth-of-type(2n+1),
+  .b-grid--lg-3 > .grid:nth-of-type(3n+1),
+  .b-grid--lg-4 > .grid:nth-of-type(4n+1),
+  .b-grid--lg-5 > .grid:nth-of-type(5n+1),
+  .b-grid--lg-6 > .grid:nth-of-type(6n+1),
+  .b-grid--lg-7 > .grid:nth-of-type(7n+1),
+  .b-grid--lg-8 > .grid:nth-of-type(8n+1),
+  .b-grid--lg-9 > .grid:nth-of-type(9n+1),
+  .b-grid--lg-10 > .grid:nth-of-type(10n+1),
+  .b-grid--lg-11 > .grid:nth-of-type(11n+1),
+  .b-grid--lg-12 > .grid:nth-of-type(12n+1) {
     clear: both;
   }
 }
