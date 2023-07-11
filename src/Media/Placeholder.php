@@ -247,8 +247,7 @@ class Placeholder {
     $blazies = $settings['blazies'];
     $style   = NULL;
     $width   = $height = 1;
-    $uri     = $settings['uri'] ?? NULL;
-    $uri     = $blazies->get('image.uri') ?: $uri;
+    $uri     = $blazies->get('image.uri');
     $tn_uri  = $settings['thumbnail_uri'] ?? NULL;
     $tn_uri  = $blazies->get('thumbnail.uri') ?: $tn_uri;
     $tn_url  = '';

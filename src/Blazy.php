@@ -4,7 +4,6 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\BlazyAttribute;
@@ -16,6 +15,9 @@ use Drupal\blazy\Deprecated\BlazyDeprecatedTrait;
 
 /**
  * Provides common public blazy utility and a few aliases for frequent methods.
+ *
+ * Using aliases allow Blazy to self-organize, or improve as needed. A good
+ * sample is BlazyGrid relocation, or likely BlazySettings, etc.
  */
 class Blazy {
 
@@ -98,31 +100,14 @@ class Blazy {
   }
 
   /**
-   * Provides autoplay URL for lightbox nested iframes to save another click.
+   * Alias for CheckItem::autoplay().
    */
   public static function autoplay($url, $check = TRUE): string {
-    $func = function ($str, $key) {
-      $format1 = '%s&%s=1';
-      $first = sprintf($format1, $str, $key);
-      $format2 = '%s?%s=1';
-      $last = sprintf($format2, $str, $key);
-
-      return self::has($str, '?') ? $first : $last;
-    };
-
-    // It doesn't cover all providers, but few, no biggies till needed.
-    if (!self::has($url, 'autoplay')
-      || self::has($url, 'autoplay=0')) {
-      $key = self::has($url, 'soundcloud') ? 'auto_play' : 'autoplay';
-      return $func($url, $key);
-    }
-
-    // @todo recheck if any side effect/ double escape to cdn/ valid input.
-    return $check ? UrlHelper::stripDangerousProtocols($url) : $url;
+    return CheckItem::autoplay($url, $check);
   }
 
   /**
-   * Alias for hook_config_schema_info_alter() for sub-modules.
+   * Alias for hook_config_schema_info_alter().
    */
   public static function configSchemaInfoAlter(
     array &$definitions,
@@ -133,28 +118,28 @@ class Blazy {
   }
 
   /**
-   * Alias for BlazyAttribute::container() for sub-modules.
+   * Alias for BlazyAttribute::container().
    */
   public static function containerAttributes(array &$attributes, array $settings): void {
     BlazyAttribute::container($attributes, $settings);
   }
 
   /**
-   * Alias for BlazyFile::createUrl() for sub-modules.
+   * Alias for BlazyFile::createUrl().
    */
   public static function createUrl($uri, $relative = FALSE): string {
     return BlazyFile::createUrl($uri, $relative);
   }
 
   /**
-   * Alias for CheckItem::denied() for sub-modules.
+   * Alias for CheckItem::denied().
    */
   public static function denied($entity): array {
     return CheckItem::denied($entity);
   }
 
   /**
-   * Alias for BlazyEntity::settings() for sub-modules.
+   * Alias for BlazyEntity::settings().
    */
   public static function entitySettings(array &$settings, $entity): void {
     BlazyEntity::settings($settings, $entity);
@@ -202,19 +187,14 @@ class Blazy {
   }
 
   /**
-   * A simple wrapper for stripos().
+   * Alias for CheckItem::has().
    */
   public static function has($content, $needle) {
-    if ($content && $needle = trim($needle ?: '')) {
-      // stripos() won't work with diacritical signs.
-      $needle = strtolower($needle);
-      return strpos($content, $needle) !== FALSE;
-    }
-    return FALSE;
+    return CheckItem::has($content, $needle);
   }
 
   /**
-   * Initialize Blazy settings for convenience, and easy organization.
+   * Initialize Blazy settings for convenience.
    */
   public static function init(): array {
     return BlazyDefault::htmlSettings();
@@ -241,7 +221,7 @@ class Blazy {
   }
 
   /**
-   * Alias for BlazyFile::normalizeUri() for sub-modules.
+   * Alias for BlazyFile::normalizeUri().
    */
   public static function normalizeUri($path): string {
     return BlazyFile::normalizeUri($path);
@@ -265,14 +245,14 @@ class Blazy {
   }
 
   /**
-   * Alias for Sanitize::attribute() for sub-modules.
+   * Alias for Sanitize::attribute().
    */
   public static function sanitize(array $attributes, $escaped = TRUE, $lowercase = FALSE): array {
     return Sanitize::attribute($attributes, $escaped, $lowercase);
   }
 
   /**
-   * Initialize BlazySettings object for convenience, and easy organization.
+   * Alias for BlazySettings().
    */
   public static function settings(array $data = []): BlazySettings {
     return new BlazySettings($data);
@@ -303,21 +283,21 @@ class Blazy {
   }
 
   /**
-   * Alias for BlazyImage::transformDimensions() for sub-modules.
+   * Alias for BlazyImage::transformDimensions().
    */
   public static function transformDimensions($style, array $data = [], $initial = FALSE): array {
     return BlazyImage::transformDimensions($style, $data, $initial);
   }
 
   /**
-   * Alias for BlazyFile::transformRelative() for sub-modules.
+   * Alias for BlazyFile::transformRelative().
    */
   public static function transformRelative($uri, $style = NULL, array $options = []): string {
     return BlazyFile::transformRelative($uri, $style, $options);
   }
 
   /**
-   * Alias for BlazyFile::uri() for sub-modules.
+   * Alias for BlazyFile::uri().
    */
   public static function uri($item, array $settings = []): string {
     return BlazyFile::uri($item, $settings);
@@ -333,28 +313,28 @@ class Blazy {
   }
 
   /**
-   * Alias for CheckItem::which() for sub-modules.
+   * Alias for CheckItem::which().
    */
   public static function which(array &$settings, $lazy, $class, $attribute): void {
     CheckItem::which($settings, $lazy, $class, $attribute);
   }
 
   /**
-   * Alias for Grid::build() for sub-modules and easy organization.
+   * Alias for Grid::build().
    */
   public static function grid($items, array $settings): array {
     return Grid::build($items, $settings);
   }
 
   /**
-   * Alias for Grid::attributes() for sub-modules and easy organization.
+   * Alias for Grid::attributes().
    */
   public static function gridAttributes(array &$attrs, array $settings): void {
     Grid::attributes($attrs, $settings);
   }
 
   /**
-   * Alias for Grid::checkAttributes() for sub-modules and easy organization.
+   * Alias for Grid::checkAttributes().
    */
   public static function gridCheckAttributes(
     array &$attrs,
@@ -366,7 +346,7 @@ class Blazy {
   }
 
   /**
-   * Alias for Grid::itemAttributes() for sub-modules and easy organization.
+   * Alias for Grid::itemAttributes().
    *
    * This method + self::gridAttributes() allows you to build Native grids with
    * any themes having just DIV > DIVs like theme_field(), media_library, etc.,

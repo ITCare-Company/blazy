@@ -48,7 +48,7 @@ class BlazyUnitTest extends UnitTestCase {
   public function testBuildIframe(array $data, $expected) {
     $variables = ['attributes' => [], 'image' => []];
     $settings  = Blazy::init();
-    $uri       = $settings['uri'] = 'public://example.jpg';
+    $uri       = 'public://example.jpg';
     $embed_url = '//www.youtube.com/watch?v=E03HFA923kw';
 
     $blazies = $settings['blazies'];
@@ -218,14 +218,14 @@ class BlazyUnitTest extends UnitTestCase {
     $build                       = $this->data;
     $settings                   += Blazy::init();
     $blazies                     = $settings['blazies'];
-    $settings['count']           = $this->maxItems;
-    $settings['uri']             = $this->uri;
     $settings['box_style']       = '';
     $settings['box_media_style'] = '';
 
-    $blazies->set('entity.url', $settings['content_url'] ?? '');
-    $blazies->set('media.embed_url', $settings['embed_url'] ?? '');
-    $blazies->set('media.type', $settings['type'] ?? '');
+    $blazies->set('entity.url', $settings['content_url'] ?? '')
+      ->set('media.embed_url', $settings['embed_url'] ?? '')
+      ->set('media.type', $settings['type'] ?? '')
+      ->set('image.uri', $this->uri)
+      ->set('count', $this->maxItems);
 
     $build['settings'] = array_merge($build['settings'], $settings);
     $switch_css = str_replace('_', '-', $settings['media_switch']);

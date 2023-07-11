@@ -167,7 +167,6 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
       // Supports hard-coded image url without file API.
       if ($uri = BlazyFile::uri($item)) {
-        $settings['uri'] = $uri;
         $blazies->set('image.uri', $uri);
 
         // @todo remove.
@@ -285,9 +284,11 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $blazies = $settings['blazies'];
 
     // Attempts to get the correct URI with hard-coded URL if applicable.
-    $uri = $settings['uri'] = BlazyFile::buildUri($src);
+    $uri = BlazyFile::buildUri($src);
     $uuid = $node->getAttribute('data-entity-uuid');
-    $blazies->set('entity.uuid', $uuid);
+
+    $blazies->set('entity.uuid', $uuid)
+      ->set('image.uri', $uri);
 
     $file = BlazyFile::item(NULL, $settings);
 
@@ -303,9 +304,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     else {
       // Manually hard-coded image has no UUID, nor file API.
       // URI validity is not crucial, URL is the bare minimum for Blazy to work.
-      $settings['uri'] = $uri = $uri ?: $src;
+      $uri = $uri ?: $src;
 
-      // @todo remove settings after migrations.
       $data = [];
       foreach (BlazyDefault::imageProperties() as $key) {
         $default = $key == 'entity' ? $file : ($settings[$key] ?? NULL);
@@ -320,7 +320,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       }
       else {
         // At least provide root URI to figure out image dimensions.
-        $settings['uri_root'] = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
+        $settings['uri_root'] = $uri = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
+        $blazies->set('image.uri_root', $uri);
       }
     }
   }

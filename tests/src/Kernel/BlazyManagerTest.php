@@ -60,7 +60,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
       ->set('image.uri', $this->uri);
 
     $settings['count'] = $this->maxItems;
-    $settings['uri'] = $this->uri;
 
     $build['settings'] = array_merge($build['settings'], $settings);
     $switch_css = str_replace('_', '-', $settings['media_switch']);
@@ -157,11 +156,11 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     $blazies->set('item.id', $id)
       ->set('is.blazy', TRUE)
-      ->set('lazy.id', $id);
+      ->set('lazy.id', $id)
+      ->set('image.uri', $use_uri ? $this->uri : '');
 
     $settings['image_style']     = 'blazy_crop';
     $settings['thumbnail_style'] = 'thumbnail';
-    $settings['uri']             = $use_uri ? $this->uri : '';
 
     if ($input_url) {
       $settings = array_merge(BlazyDefault::entitySettings(), $settings);

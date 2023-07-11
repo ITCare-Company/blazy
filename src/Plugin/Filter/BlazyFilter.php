@@ -463,8 +463,7 @@ class BlazyFilter extends BlazyFilterBase {
 
     // Marks invalid, unknown, missing IMG or IFRAME for removal.
     // Be sure to not affect external images, only strip missing local URI.
-    $uri = $settings['uri'] ?? '';
-    $uri = $blazies->get('image.uri') ?: $uri;
+    $uri = $blazies->get('image.uri');
     $missing = FALSE;
     if ($uri && !BlazyFile::isExternal($uri)) {
       $missing = BlazyFile::isValidUri($uri) && !is_file($uri);

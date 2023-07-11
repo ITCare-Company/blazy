@@ -229,8 +229,8 @@ class BlazyImage {
       $output = self::fromContent($options);
     }
 
-    // @todo remove after sub-modules, required by thumbnails till updated.
-    $uri = $settings['uri'] = $uri ?: BlazyFile::uri($output, $settings);
+    // Final URI check.
+    $uri = $uri ?: BlazyFile::uri($output, $settings);
 
     if ($uri) {
       $blazies->set('image.uri', $uri);

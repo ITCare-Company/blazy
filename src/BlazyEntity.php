@@ -93,18 +93,21 @@ class BlazyEntity implements BlazyEntityInterface {
     // Individual entity settings.
     self::settings($settings, $entity);
     $blazies = $settings['blazies']->reset($settings);
-    $blazies->set('delta', $delta);
+
+    $blazies->set('delta', $delta)
+      ->set('is.denied', FALSE);
 
     $manager->postSettingsAlter($settings, $entity);
 
     // Build the Media item.
     $this->oembed->build($data);
+
     $settings = $data['settings'];
-    $blazies = $settings['blazies'];
+    $blazies  = $settings['blazies'];
 
     // @todo remove for $data after single param implemented.
     $view = [
-      '#entity' => $entity,
+      '#entity'  => $entity,
       'settings' => $settings,
       'fallback' => $fallback,
     ];
@@ -164,9 +167,9 @@ class BlazyEntity implements BlazyEntityInterface {
    */
   public function view($entity, array $settings = [], $fallback = ''): array {
     if (is_array($entity)) {
-      $settings = $entity['settings'] ?? [];
+      $settings = Blazy::toHashtag($entity);
       $fallback = $entity['fallback'] ?? '';
-      $entity = $entity['#entity'] ?? NULL;
+      $entity   = $entity['#entity'] ?? NULL;
     }
 
     // Re-defined, needed downstream by local video, etc.
@@ -174,7 +177,7 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // @todo remove $data as the single param after sub-modules.
     $data = [
-      '#entity' => $entity,
+      '#entity'  => $entity,
       'settings' => $settings,
       'fallback' => $fallback,
     ];
@@ -202,13 +205,13 @@ class BlazyEntity implements BlazyEntityInterface {
   public static function settings(array &$settings, $entity): void {
     // Might be accessed by tests, or anywhere outside the workflow.
     Blazy::verify($settings);
-    $blazies = $settings['blazies'];
+    $blazies  = $settings['blazies'];
     $langcode = $blazies->get('language.current');
 
     if ($info = CheckItem::entity($entity, $langcode)) {
       $data = $info['data'];
-      $id = $data['id'];
-      $rid = $data['rid'];
+      $id   = $data['id'];
+      $rid  = $data['rid'];
 
       $blazies->set('cache.metadata.keys', [$id, $rid], TRUE)
         ->set('entity', $data, TRUE);

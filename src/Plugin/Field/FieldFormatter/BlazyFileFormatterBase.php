@@ -102,7 +102,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       $item  = $file->_referringItem;
       $sets  = $settings;
       $blazy = $sets['blazies']->reset($sets);
-      $uri   = $sets['uri'] = $file->getFileUri();
+      $uri   = $file->getFileUri();
 
       // @todo update tests and move it out of here.
       $blazy->set('delta', $delta)
