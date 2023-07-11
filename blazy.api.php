@@ -66,7 +66,8 @@
  *     // Or more robust with BlazyManager::attach() as required:
  *     '#attached' => blazy()->attach($settings),
  *
- *     // Or for defaults, affected by Blazy UI, simply leave it empty:
+ *     // Or for defaults, affected by Blazy UI, simply leave it empty.
+ *     // Or even remove this line completely, we got you covered:
  *     '#attached' => blazy()->attach(),
  *   ];
  *
