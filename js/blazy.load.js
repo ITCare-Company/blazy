@@ -161,7 +161,7 @@
   function process(elm) {
     var me = this;
     var opts = $.parse($.attr(elm, 'data-' + _id));
-    var isUniform = $.hasClass(elm, _id + '--field block-grid ' + _id + '--uniform');
+    var isUniform = $.hasClass(elm, _id + '--field b-grid ' + _id + '--uniform');
     var instance = (Math.random() * 10000).toFixed(0);
     var eventId = _id + '.uniform' + instance;
     var localItems = $.findAll(elm, '.media--ratio');

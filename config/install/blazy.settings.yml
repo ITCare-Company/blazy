@@ -13,7 +13,8 @@ noscript: false
 responsive_image: false
 one_pixel: true
 visible_class: false
-wrapper_class: true
+wrapper_class: false
+deprecated_class: false
 placeholder: ''
 unstyled_extensions: ''
 extras: {}

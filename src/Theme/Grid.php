@@ -251,10 +251,18 @@ class Grid {
    * Limit to grid only, so to be usable for plain list.
    */
   private static function containerAttributes(array &$attrs, array $settings, $blazies): void {
-    $style = $settings['style'] ?: 'grid';
-    $format = 'blazy--grid block-%s block-count-%d';
+    $remove = $blazies->ui('deprecated_class', FALSE);
+    $style  = $settings['style'] ?: 'grid';
+    $format = 'b-%s b-count-%d';
 
+    $attrs['class'][] = 'blazy--grid';
     $attrs['class'][] = sprintf($format, $style, $blazies->get('count'));
+
+    // Deprecated since 2.17, use the latest instead.
+    if (!$remove) {
+      $format2 = 'block-%s';
+      $attrs['class'][] = sprintf($format2, $style);
+    }
 
     // If Native Grid style with numeric grid, assumed non-two-dimensional.
     if ($style == 'nativegrid') {
@@ -268,7 +276,24 @@ class Grid {
       foreach (['small', 'medium', 'large'] as $key) {
         $value = $settings['grid_' . $key] ?? NULL;
         if ($value && is_numeric($value)) {
-          $attrs['class'][] = $key . '-block-' . $style . '-' . $value;
+          $value = (int) $value;
+          if ($key == 'small') {
+            $nick = 'sm';
+          }
+          elseif ($key == 'medium') {
+            $nick = 'md';
+          }
+          else {
+            $nick = 'lg';
+          }
+
+          // Deprecated since 2.17, use the latest instead.
+          if (!$remove) {
+            $attrs['class'][] = $key . '-block-' . $style . '-' . $value;
+          }
+
+          $format3 = 'b-%s--%s-%d';
+          $attrs['class'][] = sprintf($format3, $style, $nick, $value);
         }
       }
     }

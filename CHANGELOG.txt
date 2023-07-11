@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-07-11
+------------------------------
+- Renamed legacy Foundation block-NATIVEGRID to b-nativegrid, etc. to avoid
+  conflict with core block.
+
 Blazy 8.x-2.0-dev, 2023-07-10
 ------------------------------
 - Improved Native Grid repeat.

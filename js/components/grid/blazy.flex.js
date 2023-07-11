@@ -12,8 +12,8 @@
 
   'use strict';
 
-  var _id = 'block-flex';
-  var _idOnce = 'b-flex';
+  var _id = 'b-flex';
+  var _idOnce = _id;
   var _isLoading = 'is-b-loading';
   var _mounted = 'is-' + _idOnce;
   var _element = '.' + _id + ':not(.' + _mounted + ')';
@@ -152,7 +152,7 @@
   }
 
   /**
-   * Attaches Blazy behavior to HTML element identified by .block-flex.
+   * Attaches Blazy behavior to HTML element identified by .b-flex.
    *
    * @type {Drupal~behavior}
    */

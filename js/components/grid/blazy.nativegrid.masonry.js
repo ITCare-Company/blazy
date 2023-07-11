@@ -12,7 +12,7 @@
 
   'use strict';
 
-  var _id = 'block-nativegrid';
+  var _id = 'b-nativegrid';
   var _idOnce = 'b-masonry';
   var _isMasonry = 'is-' + _idOnce;
   var _mounted = _isMasonry + '-mounted';
@@ -128,16 +128,16 @@
     setTimeout(init, _unload ? 110 : 0);
     _opts.$el = elm;
 
-    // $.addClass(elm, _isMounted);
     if (_unload) {
       $.addClass(elm, _isUnload);
     }
+
     _unload = false;
     $.addClass(elm, _mounted);
   }
 
   /**
-   * Attaches Blazy behavior to HTML element identified by .block-nativegrid.
+   * Attaches Blazy behavior to HTML element identified by .b-nativegrid.
    *
    * @type {Drupal~behavior}
    */

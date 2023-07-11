@@ -34,7 +34,10 @@ blazy.settings:
       label: 'Add is-b-visible class'
     wrapper_class:
       type: boolean
-      label: 'Add field/ view wrapper classes'
+      label: 'Remove field/ view wrapper classes'
+    deprecated_class:
+      type: boolean
+      label: 'Remove deprecated classes'
     placeholder:
       type: string
       label: Placeholder

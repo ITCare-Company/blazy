@@ -3,10 +3,18 @@
 ## <a name="changes"></a>NOTABLE CHANGES  
 Always check out release notes, if any issues with the latest changes.
 
-* _Blazy 2.17_, 2023/07/09:
+* _Blazy 2.17_, 2023/07/16:
    + Cold fixes for few minor regressions and self organizations.
    + Added additional config options at Blazy UI. Be sure to check out for
-     `visible_class` and `wrapper_class` options if using them.
+     `visible_class`, `wrapper_class`, `deprecated_class` options if using them.
+   + Renamed legacy Foundation grid CSS classes to avoid conflicts with core
+    `block` CSS classes:
+     * `block-GRIDSTYLE` to `b-GRIDSTYLE`, e.g.: `block-nativegrid` to
+       `b-nativegrid`, `block-grid` to `b-grid`, etc.
+     * `block-count-N` to `b-count-N`
+     * `LONGSIZE-block-GRIDSTYLE-N` to `b-GRIDSTYLE--SHORTSIZE-N`, e.g.:
+       `small-block-nativegrid-2` to `b-nativegrid--sm-2`, etc.
+
 * _Blazy 2.16_, 2023/06/02:
    + Hotdamn fix for D10 breaking changes with formatter lightboxes.
 * _Blazy 2.13_, 2022/05/31:

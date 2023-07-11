@@ -133,9 +133,18 @@ class BlazySettingsForm extends BlazyConfigFormBase {
 
     $form['wrapper_class'] = [
       '#type'          => 'checkbox',
-      '#title'         => $this->t('Add field/ view wrapper classes'),
+      '#title'         => $this->t('Remove field/ view wrapper classes'),
       '#default_value' => $config->get('wrapper_class'),
-      '#description'   => $this->t("Useful for DOM diets when you can get rid of Field, Block, Views, etc. wrappers so you have context for styling. Other required classes: lightbox, grid, etc. are intact if so-configured."),
+      '#description'   => $this->t("Remove useful classes for DOM diets when you can get rid of Field, Block, Views, etc. wrappers so you have context for styling. Other required classes: lightbox, grid, etc. are intact if so-configured."),
+    ];
+
+    $form['deprecated_class'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Remove deprecated classes'),
+      '#default_value' => $config->get('deprecated_class'),
+      '#description'   => $this->t("Remove some legacy Foundation CSS grid classes to avoid conflict with core block, e.g: block-nativegrid for b-nativegrid, etc. CHECK if not using those classes, or to avoid themers using them. Leave it UNCHECKED if using them till you update them. See <a href=':url'>Notable changes</a> for details. Be sure to clear cache!", [
+        ':url' => '/admin/help/blazy_ui#changes',
+      ]),
     ];
 
     $form['placeholder'] = [
@@ -324,6 +333,7 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       ->set('one_pixel', $form_state->getValue('one_pixel'))
       ->set('visible_class', $form_state->getValue('visible_class'))
       ->set('wrapper_class', $form_state->getValue('wrapper_class'))
+      ->set('deprecated_class', $form_state->getValue('deprecated_class'))
       ->set('placeholder', $form_state->getValue('placeholder'))
       ->set('unstyled_extensions', $form_state->getValue('unstyled_extensions'))
       ->set('blazy.loadInvisible', $form_state->getValue([
