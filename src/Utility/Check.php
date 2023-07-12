@@ -5,6 +5,7 @@ namespace Drupal\blazy\Utility;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyInternal;
+use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Media\Preloader;
 use Drupal\blazy\Theme\BlazyViews;
@@ -28,14 +29,14 @@ class Check {
    *
    * @todo move it out of here for all attachments, what folder, Asset?
    */
-  public static function attachments(array &$load, array &$attach = []): void {
+  public static function attachments(array &$load, array &$attach = []): BlazySettings {
     BlazyInternal::postSettings($attach);
+    $blazies = $attach['blazies'];
 
     if (!($manager = Blazy::service('blazy.manager'))) {
-      return;
+      return $blazies;
     }
 
-    $blazies = $attach['blazies'];
     $unblazy = $blazies->is('unblazy', FALSE);
     $unload  = $blazies->ui('nojs.lazy', FALSE);
 
@@ -100,6 +101,8 @@ class Check {
     if (!empty($attach['preload'])) {
       Preloader::preload($load, $attach);
     }
+
+    return $blazies;
   }
 
   /**

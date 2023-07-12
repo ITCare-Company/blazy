@@ -298,6 +298,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
       if ($item = BlazyImage::fromAny($file, $settings)) {
         $blazies->set('entity.uuid', $uuid);
+
         $build['item'] = $item;
       }
     }
@@ -309,6 +310,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       $data = [];
       foreach (BlazyDefault::imageProperties() as $key) {
         $default = $key == 'entity' ? $file : ($settings[$key] ?? NULL);
+        $default = $key == 'uri' ? $uri : $default;
         if ($value = $blazies->get('image.' . $key) ?: $default) {
           $data[$key] = $value;
         }

@@ -20,11 +20,11 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    */
   public function attach(array $attach = []) {
     $load = [];
-    Check::attachments($load, $attach);
+    $blazies = Check::attachments($load, $attach);
 
-    $this->attachments($load, $attach);
+    $this->attachments($load, $attach, $blazies);
 
-    $this->moduleHandler->alter('blazy_attach', $load, $attach);
+    $this->moduleHandler->alter('blazy_attach', $load, $attach, $blazies);
     return $load;
   }
 

@@ -78,6 +78,12 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $this->filterFormatFull = FilterFormat::load('full_html');
     $this->filterFormatFull->setFilterConfig('blazy_filter', [
       'status' => TRUE,
+      'settings' => [
+        'filter_tags' => [
+          'img' => 'img',
+          'iframe' => 'iframe',
+        ],
+      ],
     ]);
     $this->filterFormatFull->save();
 
@@ -116,6 +122,13 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     // Verifies that our filter works identified by media-wrapper--blazy class.
     $this->assertSession()->elementExists('css', '.media-wrapper--blazy');
     $this->assertSession()->elementContains('css', '.media-wrapper--blazy', 'b-lazy');
+
+    // Verfies attributes and URIs are cleaned out.
+    $this->assertSession()->elementExists('css', 'img[data-onmouseover]');
+    $this->assertSession()->elementNotExists('css', 'img[onmouseover]');
+
+    $this->assertSession()->elementExists('css', 'img[data-src^=alert]');
+    $this->assertSession()->elementNotExists('css', 'img[data-src^=javascript]');
 
     // Also verifies that [data-unblazy] should not be touched, nor lazyloaded.
     $this->assertSession()->elementNotContains('css', '.media-wrapper--blazy', 'data-unblazy');
@@ -209,11 +222,36 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
   protected function dummyText(): string {
     $uuid = $this->dummyItem->uuid();
     $text = '<div style="width: 640px;">';
-    $text .= '<img data-unblazy src="' . $this->url . '" width="320" height="320" />';
     $text .= '<iframe src="https://www.youtube.com/watch?v=uny9kbh4iOEd" width="640" height="360"></iframe>';
     $text .= '<img src="' . $this->url . '" width="320" height="320" />';
     $text .= '<img src="' . $this->dummyUrl . '" width="320" height="320" data-entity-type="file" data-entity-uuid="' . $uuid . '"/>';
     $text .= '<img src="https://www.drupal.org/files/project-images/slick-carousel-drupal.png" width="215" height="162" />';
+    $text .= '<img data-unblazy src="' . $this->url . '" width="320" height="320" />';
+    $text .= '<IMG SRC="javascript:alert(\'XSS B\');">';
+    $text .= '<IMG SRC=javascript:alert(\'XSS C\')>';
+    $text .= '<IMG SRC=JaVaScRiPt:alert(\'XSS D\')>';
+    $text .= '<IMG SRC=javascript:alert("XSS E")>';
+    $text .= '<IMG SRC=`javascript:alert("RSnake says, \'XSS F\'")`>';
+    $text .= '<IMG SRC=javascript:alert(String.fromCharCode(88,83,83))>';
+    $text .= '<IMG SRC=# onmouseover="alert(\'xxs G\')">';
+    $text .= '<IMG SRC= onmouseover="alert(\'xxs H\')">';
+    $text .= '<IMG onmouseover="alert(\'xxs I\')">';
+    $text .= '<IMG SRC=/ onerror="alert(String.fromCharCode(88,83,83))"></img>';
+    $text .= '<IMG SRC=&#106;&#97;&#118;&#97;&#115;&#99;&#114;&#105;&#112;&#116;&#58;&#97;&#108;&#101;&#114;&#116;&#40;
+&#39;&#88;&#83;&#83;&#39;&#41;>';
+    $text .= '<IMG SRC=&#0000106&#0000097&#0000118&#0000097&#0000115&#0000099&#0000114&#0000105&#0000112&#0000116&#0000058&#0000097&
+#0000108&#0000101&#0000114&#0000116&#0000040&#0000039&#0000088&#0000083&#0000083&#0000039&#0000041>';
+    $text .= '<IMG SRC=&#x6A&#x61&#x76&#x61&#x73&#x63&#x72&#x69&#x70&#x74&#x3A&#x61&#x6C&#x65&#x72&#x74&#x28&#x27&#x58&#x53&#x53&#x27&#x29>';
+    $text .= '#"><img src=M onerror=alert(\'XSS R\');>';
+    $text .= '<IMG SRC="jav	ascript:alert(\'XSS J\');">';
+    $text .= '<IMG SRC="jav&#x09;ascript:alert(\'XSS K\');">';
+    $text .= '<IMG SRC="jav&#x0A;ascript:alert(\'XSS L\');">';
+    $text .= '<IMG SRC="jav&#x0D;ascript:alert(\'XSS M\');">';
+    $text .= '<IMG SRC=" &#14;  javascript:alert(\'XSS N\');">';
+    $text .= '<IMG DYNSRC="javascript:alert(\'XSS O\')">\';';
+    $text .= '<IMG LOWSRC="javascript:alert(\'XSS P\')">';
+    $text .= '<IMG SRC=\'vbscript:msgbox("XSS Q")\'>';
+    $text .= '<IMG SRC="livescript:[code]">';
     $text .= '</div>';
 
     return $text;

@@ -72,6 +72,14 @@ interface BlazyInterface {
   public function languageManager();
 
   /**
+   * Retrieves the currently active route match object.
+   *
+   * @return \Drupal\Core\Routing\RouteMatchInterface
+   *   The currently active route match object.
+   */
+  public function routeMatch();
+
+  /**
    * Returns any config, or keyed by the $setting_name.
    *
    * @param string $key

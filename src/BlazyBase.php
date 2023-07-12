@@ -188,6 +188,13 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function routeMatch() {
+    return Blazy::service('current_route_match');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function config($key = NULL, $group = 'blazy.settings') {
     $config  = $this->configFactory->get($group);
     $configs = $config->get();
@@ -480,7 +487,7 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * Allows Blazy add return type hint to its attach() method after sub-modules.
    */
-  protected function attachments(array &$load, array $attach): void {
+  protected function attachments(array &$load, array $attach, $blazies): void {
     // Do nothing for sub-modules to use.
   }
 

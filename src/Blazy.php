@@ -56,8 +56,6 @@ class Blazy {
    *
    * @return \Drupal\Core\Routing\RouteMatchInterface
    *   The currently active route match object.
-   *
-   * @todo remove for Path::routeMatch() after sub-modules, if any.
    */
   public static function routeMatch() {
     return self::service('current_route_match');
