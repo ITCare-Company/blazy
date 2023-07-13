@@ -242,9 +242,9 @@ class BlazyMedia {
     $blazies = $settings['blazies'];
     if ($oembed = Blazy::service('blazy.oembed')) {
       $original = $item;
-      $content = $oembed->blazyManager()->renderer()->renderPlain($item);
-      $dom = Html::load($content);
-      $iframes = $dom->getElementsByTagName('iframe');
+      $content  = $oembed->blazyManager()->renderer()->renderPlain($item);
+      $dom      = Html::load($content);
+      $iframes  = $dom->getElementsByTagName('iframe');
 
       if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
         if ($src = $iframe->getAttribute('src')) {

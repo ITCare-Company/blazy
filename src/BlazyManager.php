@@ -27,12 +27,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    */
   public function getBlazy(array $build, $delta = -1): array {
     foreach (BlazyDefault::themeProperties() as $key => $default) {
-      $build[$key] = $build[$key] ?? $default;
+      $build[$key] = $this->toHashtag($build, $key, $default);
     }
 
-    $settings = &$build['settings'];
+    // Temporary checks till final migration at/by 3.x.
+    $item      = $this->toHashtag($build, 'item');
+    $settings  = &$build['settings'];
     $settings += Blazy::init();
-    $item = $build['item'];
 
     // Prevents double checks.
     // BlazySettings is a self containing object, initialized at container level
@@ -141,13 +142,12 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       ?? $element['#attributes'] ?? [];
 
     // Checks if we got some signaled attachments.
-    // @todo remove the second after migrations at/by 3.x.
-    $attachments = $build['#attached'] ?? $build['attached'] ?? [];
+    $attachments = $this->toHashtag($build, 'attached');
     if ($attachments) {
       unset($build['#attached'], $build['attached']);
     }
 
-    $settings = $build['settings'];
+    $settings = $this->toHashtag($build);
 
     // Runs after settings.
     $items = $this->toElementChildren($build);
@@ -172,6 +172,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       }
     }
 
+    // Sets attachments/ libraries, and container caches.
     $this->setAttachments($element, $settings, $attachments);
     unset($build);
     return $element;
@@ -207,7 +208,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    */
   private function buildContent(array &$element, array &$build) {
     $settings = &$build['settings'];
-    $blazies = $settings['blazies'];
+    $blazies  = $settings['blazies'];
 
     if (empty($build['content'])) {
       return;
@@ -234,6 +235,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       // Overrides the overriden settings with original formatter settings.
       $settings = $this->merge($blazy->storage(), $settings);
       $element['#lightbox_html'] = $build['content'];
+
+      // This allows theme_blazy() to process it as workable media elements.
       $build['content'] = [];
     }
   }
@@ -244,10 +247,10 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Since 2.9, many were moved into BlazyTheme to support custom work better.
    */
   private function buildMedia(array &$element, array &$build): void {
-    $item = $build['item'];
-    $settings = $build['settings'];
+    $item = $this->toHashtag($build, 'item', NULL);
+    $settings = $this->toHashtag($build);
     $blazies = $settings['blazies'];
-    $item_attributes = $build['item_attributes'] ?? [];
+    $item_attributes = $this->toHashtag($build, 'item_attributes');
 
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
@@ -257,9 +260,9 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       unset($item->_attributes);
     }
 
+    // Provides all media cache.
     // See https://www.drupal.org/project/drupal/issues/2469277.
     if (!$blazies->is('cache_deferred')) {
-      // Provides all media cache.
       if ($caches = $blazies->get('cache.metadata', [])) {
         $element['#cache'] = $caches;
       }
@@ -282,7 +285,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Lightbox should work without `Use field template` checked.
    */
   private function getBlazySettings(array $build) {
-    $settings = Blazy::toHashtag($build);
+    $settings = $this->toHashtag($build);
     Blazy::verify($settings);
 
     $blazies = $settings['blazies'];
@@ -304,8 +307,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    *   object, settings, optional container attributes.
    */
   private function prepareBlazy(array &$element, array $build) {
-    $item = $build['item'] ?? NULL;
-    $settings = $build['settings'];
+    $item = $this->toHashtag($build, 'item', NULL);
+    $settings = $this->toHashtag($build);
     $blazies = $settings['blazies'];
     $attributes = &$build['attributes'];
 
@@ -314,7 +317,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $theme_attributes = BlazyDefault::themeAttributes();
     foreach ($theme_attributes as $key) {
       $key = $key . '_attributes';
-      $build[$key] = $build[$key] ?? [];
+      // @todo prefix it with # post migration at/ by 3.x.
+      $build[$key] = $this->toHashtag($build, $key);
     }
 
     // Initial feature checks, URI, delta, media features, etc.
@@ -336,14 +340,15 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // theme_gridstack_box(), theme_slick_slide(), etc. Likely for Blazy 3.x+.
     // The supported: 'caption', 'media', 'url', 'wrapper'.
     foreach ($theme_attributes as $key) {
-      $attrs = $build[$key . '_attributes'] ?? [];
+      $key = $key . '_attributes';
+      $attrs = $this->toHashtag($build, $key);
       // Sanitize potential user-defined attributes such as from BlazyFilter.
-      $element["#$key" . '_attributes'] = Blazy::sanitize($attrs);
+      $element["#$key"] = Blazy::sanitize($attrs);
     }
 
     // Provides captions, if so configured.
     $id = $blazies->get('item.id', 'blazy');
-    $content = $build['captions'] ?? '';
+    $content = $this->toHashtag($build, 'captions');
     if ($content && ($captions = $this->buildCaption($content, $settings, $id))) {
       $element['#captions'] = $captions;
       $element['#caption_attributes']['class'][] = $id . '__caption';
@@ -358,7 +363,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // or lightbox links or iframe over image or CSS background over noscript
     // which cannot be simply dumped as array without elaborate arrangements).
     foreach (['content', 'icon', 'overlay', 'preface', 'postscript'] as $key) {
-      $element["#$key"] = $this->merge($build[$key] ?? [], $element, "#$key");
+      $values = $this->toHashtag($build, $key);
+      $element["#$key"] = $this->merge($values, $element, "#$key");
       if (isset($build[$key])) {
         unset($build[$key]);
       }
@@ -378,7 +384,12 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    */
   private function toElementChildren(array $build): array {
     $build = $build['items'] ?? $build;
-    unset($build['#entity'], $build['#settings'], $build['items'], $build['settings']);
+    unset(
+      $build['#entity'],
+      $build['#settings'],
+      $build['items'],
+      $build['settings']
+    );
     return $build;
   }
 

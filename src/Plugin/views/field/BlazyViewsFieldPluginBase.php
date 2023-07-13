@@ -164,7 +164,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
       $settings[$key] = $this->options[$key] ?? $default;
     }
 
-    // @todo convert some to blazies, and remove tese settings.
+    // @todo convert some to blazies, and remove these settings.
     $settings['count'] = $count;
     $settings['view_name'] = $view_name;
     $settings['view_plugin_id'] = $plugin_id;

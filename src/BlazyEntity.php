@@ -69,10 +69,10 @@ class BlazyEntity implements BlazyEntityInterface {
   public function build(array $data, $entity = NULL, $fallback = ''): array {
     // Using hashed key to avoid render error with BVEF due to out of sync.
     // @todo remove the second after migrations at/by 3.x.
+    $manager  = $this->blazyManager;
     $entity   = $data['#entity'] ?? $entity;
     $fallback = $data['fallback'] ?? $fallback;
     $settings = &$data['settings'];
-    $manager  = $this->blazyManager;
 
     if (!$entity instanceof EntityInterface) {
       return [];
@@ -102,14 +102,14 @@ class BlazyEntity implements BlazyEntityInterface {
     // Build the Media item.
     $this->oembed->build($data);
 
-    $settings = $data['settings'];
+    $settings = $manager->toHashtag($data);
     $blazies  = $settings['blazies'];
 
     // @todo remove for $data after single param implemented.
     $view = [
-      '#entity'  => $entity,
-      'settings' => $settings,
-      'fallback' => $fallback,
+      '#entity'   => $entity,
+      '#settings' => $settings,
+      'fallback'  => $fallback,
     ];
 
     // Only pass to Blazy for known entities related to File or Media.
@@ -166,8 +166,10 @@ class BlazyEntity implements BlazyEntityInterface {
    * @todo make it single param after sub-modules for easy updates.
    */
   public function view($entity, array $settings = [], $fallback = ''): array {
+    $manager = $this->blazyManager;
+
     if (is_array($entity)) {
-      $settings = Blazy::toHashtag($entity);
+      $settings = $manager->toHashtag($entity);
       $fallback = $entity['fallback'] ?? '';
       $entity   = $entity['#entity'] ?? NULL;
     }
@@ -177,13 +179,13 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // @todo remove $data as the single param after sub-modules.
     $data = [
-      '#entity'  => $entity,
-      'settings' => $settings,
-      'fallback' => $fallback,
+      '#entity'   => $entity,
+      '#settings' => $settings,
+      'fallback'  => $fallback,
     ];
 
     if ($entity instanceof EntityInterface) {
-      $build = $this->blazyManager->view($data);
+      $build = $manager->view($data);
 
       // @todo figure out why video_file empty, this is blatant assumption.
       if ($entity->getEntityTypeId() == 'file') {

@@ -334,13 +334,48 @@ interface BlazyInterface {
 
   /**
    * Provides a shortcut to parse the markdown string for better hook_help().
+   *
+   * @param string $string
+   *   The markdown string.
+   * @param bool $help
+   *   True for admin help page.
+   *
+   * @return string
+   *   The HTML string.
    */
   public function markdown($string, $help = TRUE): string;
 
   /**
    * Merge data with a new one with an optional key.
+   *
+   * The parameters are reversed from regular merging methods.
+   *
+   * @param array $data
+   *   A replacing array data, or defaults.
+   * @param array $element
+   *   A replaced element to be prepended to data, expected to be empty.
+   * @param string $key
+   *   An optional $element key.
+   *
+   * @return array
+   *   The merged array.
    */
   public function merge(array $data, array $element, $key = NULL): array;
+
+  /**
+   * Merge multiple BlazySettings objects.
+   *
+   * @param array $keys
+   *   An array of config keys, e.g.: ['blazies', 'gridstacks', 'slicks'].
+   * @param array $defaults
+   *   An array containing old data.
+   * @param array $configs
+   *   An array containing new data.
+   *
+   * @return array
+   *   The merged configuration object as a new array.
+   */
+  public function mergeSettings(array $keys, array $defaults, array $configs): array;
 
   /**
    * A wrapper for \Drupal\Core\Extension\ModuleHandlerInterface::moduleExists.
@@ -378,6 +413,25 @@ interface BlazyInterface {
    *   The modified array of grid items.
    */
   public function toGrid($items, array $settings): array;
+
+  /**
+   * A helper to gradually convert things to #things to avoid render error.
+   *
+   * @param array $data
+   *   The source data.
+   * @param string $key
+   *   The given key.
+   * @param array|bool|null|string $default
+   *   The default value.
+   *
+   * @return mixed
+   *   The checked value.
+   *
+   * @todo refactor at 3.x, to solve out of sync module like BVEF, etc.
+   * No real problems found so far even with BVEF, just minimize issues.
+   * Alias for Blazy::grid() for sub-modules and easy organization later.
+   */
+  public function toHashtag(array $data, $key = 'settings', $default = []);
 
   /**
    * Returns escaped options.

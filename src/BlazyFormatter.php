@@ -20,7 +20,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   /**
    * {@inheritdoc}
    *
-   * @todo make it protected after sub-modules, mostly are just tests.
+   * @todo make it protected after sub-modules, mostly are just tests + BVEF.
    */
   public function buildSettings(array &$build, $items) {
     $settings = &$build['settings'];

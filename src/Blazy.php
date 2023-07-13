@@ -219,6 +219,28 @@ class Blazy {
   }
 
   /**
+   * Merge multiple BlazySettings objects.
+   */
+  public static function mergeSettings(array $keys, array $defaults, array $configs): array {
+    foreach ($keys as $key) {
+      $object = $defaults[$key] ?? NULL;
+      $oldies = $object ? $object->storage() : [];
+
+      if (!isset($configs[$key]) && $object) {
+        $configs[$key] = $object;
+      }
+
+      if ($newbies = $configs[$key] ?? NULL) {
+        $data = $newbies->storage();
+        $data = $oldies ? NestedArray::mergeDeepArray([$oldies, $data], TRUE) : $data;
+        $configs[$key]->setData($data);
+      }
+    }
+
+    return $configs;
+  }
+
+  /**
    * Alias for BlazyFile::normalizeUri().
    */
   public static function normalizeUri($path): string {
@@ -258,14 +280,11 @@ class Blazy {
 
   /**
    * A helper to gradually convert things to #things to avoid render error.
-   *
-   * @todo refactor at 3.x, to solve out of sync module like BVEF, etc.
-   * No real problems found so far even with BVEF, just minimize issues.
    */
-  public static function toHashtag(array $data, $key = 'settings') {
-    $result = $data["#$key"] ?? $data[$key] ?? [];
+  public static function toHashtag(array $data, $key = 'settings', $default = []) {
+    $result = $data["#$key"] ?? $data[$key] ?? $default;
     if (!$result && $key == 'settings') {
-      $result = $data["#blazy"] ?? [];
+      $result = $data["#blazy"] ?? $default;
     }
     return $result;
   }

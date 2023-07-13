@@ -411,6 +411,13 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function mergeSettings(array $keys, array $defaults, array $configs): array {
+    return Blazy::mergeSettings($keys, $defaults, $configs);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function moduleExists($name): bool {
     return $this->moduleHandler->moduleExists($name);
   }
@@ -430,6 +437,13 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
+   * A helper to gradually convert things to #things to avoid render error.
+   */
+  public function toHashtag(array $data, $key = 'settings', $default = []) {
+    return Blazy::toHashtag($data, $key, $default);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function toOptions(array $options): array {
@@ -444,8 +458,8 @@ abstract class BlazyBase implements BlazyInterface {
    * {@inheritdoc}
    */
   public function view(array $data): array {
-    $entity = $data['#entity'] ?? NULL;
-    $settings = Blazy::toHashtag($data);
+    $entity   = $data['#entity'] ?? NULL;
+    $settings = $this->toHashtag($data);
     $fallback = $data['fallback'] ?? '';
 
     // @todo remove after another check.
@@ -460,10 +474,10 @@ abstract class BlazyBase implements BlazyInterface {
         return $denied;
       }
 
-      $type = $entity->getEntityTypeId();
-      $langcode = $entity->language()->getId();
+      $type      = $entity->getEntityTypeId();
+      $langcode  = $entity->language()->getId();
       $view_mode = $settings['view_mode'] ?? 'default';
-      $manager = $this->entityTypeManager;
+      $manager   = $this->entityTypeManager;
 
       // If entity has view_builder handler.
       if ($manager->hasHandler($type, 'view_builder')) {

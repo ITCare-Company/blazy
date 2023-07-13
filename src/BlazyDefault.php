@@ -259,12 +259,7 @@ class BlazyDefault {
     ];
     return [
       'blazies' => Blazy::settings(self::blazies()),
-      'inited' => TRUE,
-
-      // @todo remove after complete migrations:
-      // 'image_url' => '',
-      // 'height' => NULL,
-      // 'width' => NULL,
+      'inited'  => TRUE,
       'WARNING' => new FormattableMarkup('Non-configurable settings are deprecated in @version. Use the BlazySettings object instead!', $params),
 
       // Configurable settings are dumped as they are as always.
@@ -280,6 +275,12 @@ class BlazyDefault {
    * Consider other bonuses: title and content attributes at a later stage.
    * layering is crucial for mixed media, cannot be simply dumped as
    * indexed children, must have clear properties indentifying their functions.
+   *
+   * @todo prefix non-renderable with # at/by 3.x to minimize render errors.
+   * The first error was identified with BVEF due to being out of sync when
+   * given an extra property `entity` as seen at BlazyEntity::build().
+   * No issues so far with all these, yet conversions will eliminate any.
+   * Initial effort was via Blazy::toHashtag() chekpoint till full migration.
    */
   public static function themeProperties() {
     return [

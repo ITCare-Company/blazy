@@ -43,6 +43,7 @@
   var _scroll = 'scroll';
   var _iterator = 'iterator';
   var _observer = 'Observer';
+  var _eListener = 'EventListener';
   var _body = 'body';
   var _html = 'html';
   var _dashAlphaRe = /-([a-z])/g;
@@ -76,7 +77,7 @@
 
       var els = selector;
       if (isStr(selector)) {
-        els = findAll(ctx, selector);
+        els = findAll(context(ctx, selector), selector);
         if (!els.length) {
           return;
         }
@@ -1084,6 +1085,7 @@
    */
   function find(el, selector, asArray) {
     el = el || _doc;
+
     if (isStr(el)) {
       el = toElm(el);
     }
@@ -1396,8 +1398,18 @@
   function toEvent(els, eventName, selector, cb, params, isCustom, op) {
     var _cbt = cb;
     var _ie = ie();
-    // Event delegation like on/off.
-    if (isStr(selector)) {
+    // var _onoff = false;
+    // Assumes window events if no elements: $.on('scroll', cb, params);
+    // Shift one argument if no real elements are provided.
+    if (isStr(els) && isFun(eventName)) {
+      params = selector;
+      cb = eventName;
+      eventName = els;
+      els = [_win];
+    }
+    // Delegated events like on/off: $.on(el, 'click', '.btn', cb, params);
+    else if (isStr(selector)) {
+      // _onoff = true;
       var shouldPassive = contains(eventName, ['touchstart', _scroll, 'wheel']);
       if (isUnd(params)) {
         params = _ie ? false : {
@@ -1406,7 +1418,11 @@
         };
       }
 
-      var onEvent = function (e) {
+      // @todo compare with direct querySelectorAll:
+      // - Assumed/ make els single? Unless moved to the chain, but complicated.
+      // - Replace els with els children identified by selector.
+      // - Remove this onoffEvent callback. Any taker, please?
+      var onoffEvent = function (e) {
         // @todo handle automatically by its return value.
         // e.preventDefault();
         // e.stopPropagation();
@@ -1426,13 +1442,16 @@
         }
       };
 
-      cb = onEvent;
+      cb = onoffEvent;
     }
+    // Non-delegated events: $.on(el, 'click', cb, params);
+    // Shift one argument if selector is expected as a callback function.
     else {
-      // Shift one argument if selector is expected as a callback function.
-      isCustom = params;
-      params = _cbt;
-      cb = selector;
+      if (isFun(selector)) {
+        isCustom = params;
+        params = _cbt;
+        cb = selector;
+      }
     }
 
     var chainCallback = function (el) {
@@ -1463,14 +1482,19 @@
           // See https://caniuse.com/once-event-listener.
           if (_one && add && _ie) {
             var cbone = function cbone() {
-              el.removeEventListener(type, cbone, options);
+              el[_remove + _eListener](type, cbone, options);
               _cb.apply(this, arguments);
             };
             cb = cbone;
             add = false;
           }
 
-          el[op + 'EventListener'](type, cb, options);
+          // Remove existing listeners, if any.
+          if (add && _events[e] === cb) {
+            el[_remove + _eListener](type, _events[e], options);
+          }
+
+          el[op + _eListener](type, cb, options);
         }
 
         // @todo store as namespace to allow easy removal by namespaces.
@@ -1478,7 +1502,9 @@
           _events[e] = cb;
         }
         else {
-          delete _events[e];
+          if (_events[e]) {
+            delete _events[e];
+          }
         }
       };
 
