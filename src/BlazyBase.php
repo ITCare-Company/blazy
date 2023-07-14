@@ -353,6 +353,24 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function gridItemAttributes(
+    array &$attrs,
+    array &$content_attrs,
+    array $settings
+  ): void {
+    Blazy::gridItemAttributes($attrs, $content_attrs, $settings);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function initNativeGrid(array $options): array {
+    return Blazy::initNativeGrid($options);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function load($id, $type = 'image_style') {
     if (strpos($type, '.settings') !== FALSE) {
       return $this->config($id, $type);

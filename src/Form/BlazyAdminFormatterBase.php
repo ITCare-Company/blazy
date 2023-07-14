@@ -80,11 +80,12 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
         '#options'     => $options,
         '#description' => $this->t('Responsive image style for the main stage image is more reasonable for large images. Works with multi-serving IMG, or PICTURE element. Leave empty to disable. <a href=":url" target="_blank">Manage responsive image styles</a>.', [':url' => $url]),
         '#access'      => count($options) > 0,
-        '#weight'      => -100,
+        '#weight'      => -108,
       ];
     }
 
-    if ($effects = $scopes->data('thumbnail_effect')) {
+    // @todo remove after sub-modules: Splide. Slick.
+    if (!$scopes->is('no_thumb_effects') && $effects = $scopes->data('thumbnail_effect')) {
       $form['thumbnail_effect'] = [
         '#type'    => 'select',
         '#title'   => $this->t('Thumbnail effect'),

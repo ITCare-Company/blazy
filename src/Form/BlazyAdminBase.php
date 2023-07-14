@@ -177,6 +177,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           'class' => [
             'form-item--style',
             'form-item--tooltip-bottom',
+            'form-item--tooltip-wide',
           ],
         ],
       ];
@@ -243,13 +244,24 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $required = $scopes->is('grid_required');
 
     if (!$scopes->is('no_grid_header')) {
-      $header = $this->t('Group individual items as block grid<small>Depends on the <strong>Display style</strong>.</small>');
+      $header  = $this->t('Group individual items as block grid?');
+      $desc    = $definition['grid_header_desc'] ?? $this->gridHeaderDescription();
+      $texts[] = ['#markup' => '<h3>' . $header . '</h3>'];
+      $texts[] = ['#markup' => '<p>' . $desc . '</p>'];
+
       $form['grid_header'] = [
-        '#type'   => 'markup',
-        '#markup' => $header,
-        '#prefix' => '<h3 class="form__title form__title--grid">',
-        '#suffix' => '</h3>',
+        '#type' => 'container',
+        'items' => $texts,
         '#access' => !$required,
+        '#attributes' => [
+          'class' => [
+            'form__title',
+            'form__title--grids',
+            'form-item',
+            'form-item--subheader',
+            'form-item--fullwidth',
+          ],
+        ],
       ];
     }
 
@@ -269,6 +281,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         'class' => [
           'form-item--full',
           'form-item--tooltip-bottom',
+          'form-item--tooltip-wide',
         ],
       ],
     ];
@@ -282,7 +295,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $form['grid_small'] = [
       '#type'        => 'textfield',
       '#title'       => $this->t('Grid small'),
-      '#description' => $this->t('Only accepts uniform columns (1 - 2, or empty) for small devices 0 - 40em (640px) up due to small real estate, even for Native Grid due to being pure CSS without JS. Below this is alway one column.'),
+      '#description' => $this->t('Only accepts uniform columns (1 - 2, or empty) for small devices 0 - 40em (640px) up due to small real estate, even for Native Grid due to being pure CSS without JS. Below this value, always one column.'),
     ];
 
     if (!$scopes->is('grid_simple')) {
@@ -391,7 +404,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'select',
         '#title'       => $this->t('Image style'),
         '#options'     => $this->getEntityAsOptions('image_style'),
-        '#weight'      => -100,
+        '#weight'      => -108,
         '#description' => $this->t('The content image style. This will be treated as the fallback image to override the global option <a href=":url">Responsive image 1px placeholder</a>, which is normally smaller, if Responsive image are provided. Shortly, leave it empty to make Responsive image fallback respected. Otherwise this is the only image displayed. This image style is also used to provide dimensions not only for image/iframe but also any media entity like local video, where no images are even associated with, to have the designated dimensions in tandem with aspect ratio as otherwise no UI to customize for.', [':url' => $ui_url]),
         '#wrapper_attributes' => [
           'class' => [
@@ -493,7 +506,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#options'     => $this->getViewModeOptions($target_type),
         '#title'       => $this->t('View mode'),
         '#description' => $this->t('Required to grab the fields, or to have custom entity display as fallback display. If it has fields, be sure the selected "View mode" is enabled, and the enabled fields here are not hidden there.'),
-        '#weight'      => -94,
+        '#weight'      => -106,
         '#enforced'    => TRUE,
       ];
 
@@ -508,7 +521,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#title'       => $this->t('Thumbnail style'),
         '#options'     => $this->getEntityAsOptions('image_style'),
         '#description' => $this->t('Usages: Placeholder replacement for image effects (blur, etc.), Photobox/PhotoSwipe thumbnail, or custom work with thumbnails. Be sure to have similar aspect ratio for the best blur effect. Leave empty to not use thumbnails.'),
-        '#weight'      => -96,
+        '#weight'      => -107,
       ];
     }
 
@@ -519,7 +532,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#title'       => $this->t('Main stage'),
         '#options'     => $this->toOptions($data['images'] ?: []),
         '#description' => $this->t('Main background/stage/poster image field with the only supported field types: <b>Image</b> or <b>Media</b> containing Image field. You may want to add a new Image field to this entity. Be sure to reuse the exact same image field across various entitiy types (Image, Remote video, Local video, etc.) within this particular entity (says, Media).'),
-        '#prefix'      => '<h3 class="form__title form__title--fields">' . $this->t('Fields') . '</h3>',
+        '#prefix'      => '<h3 class="form__title form__title--fields form-item--subheader form-item--fullwidth">' . $this->t('Fields') . '</h3>',
       ];
     }
 
@@ -540,7 +553,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       if ($element = $base_form[$key] ?? []) {
         $form[$key] = $element;
         if ($key == 'media_switch') {
-          $form[$key]['#prefix'] = '<h3 class="form__title form__title--media-switch">' . $this->t('Media switcher') . '</h3>';
+          $form[$key]['#prefix'] = '<h3 class="form__title form__title--media-switch form-item--subheader form-item--fullwidth">' . $this->t('Media switcher') . '</h3>';
         }
       }
     }
@@ -594,30 +607,48 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function finalizeForm(array &$form, array $definition): void {
-    $scopes = $this->toScopes($definition);
-    $namespace = $scopes->get('namespace', 'blazy');
-    $settings = $definition['settings'] ?? [];
-    $vanilla = $scopes->is('vanilla') ? ' form--vanilla' : '';
-    $grid = $scopes->is('grid_required') ? ' form--grid-required' : '';
-    $plugin_id = $scopes->get('plugin_id');
-    $plugin_id = $plugin_id ? ' form--plugin-' . str_replace('_', '-', $plugin_id) : '';
-    $captions = $scopes->data('captions');
-    $count = $captions ? count($captions) : 0;
-    $count = $scopes->get('captions_count') ?: $count;
-    $wide = $count > 2 ? ' form--wide form--caption-' . $count : ' form--caption-' . $count;
-    $fallback = $namespace == 'slick' ? 'form--slick' : 'form--' . $namespace . ' form--slick';
-    $plugins = ' form--namespace-' . $namespace;
-    $custom = $scopes->get('opening_class') ?: '';
-    $classes = ($fallback . ' form--half has-tooltip' . $wide . $vanilla . $grid . $plugin_id . ' ' . $custom . $plugins);
+    $scopes    = $this->toScopes($definition);
+    $settings  = $definition['settings'] ?? [];
+    $admin_css = $scopes->is('admin_css');
+    $admin_css = $admin_css ?: $this->blazyManager->config('admin_css', 'blazy.settings');
+    $classes   = $this->getOpeningClasses($scopes);
+    $excludes  = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
+    $selects   = ['cache', 'optionset', 'view_mode'];
 
-    if ($field_type = $scopes->get('field.type')) {
-      $classes .= ' form--' . str_replace('_', '-', $field_type);
+    // Disable the admin css in the off canvas menu, to avoid conflicts with
+    // the active frontend theme.
+    if ($admin_css && $router = Path::requestStack()) {
+      $wrapper_format = $router->getCurrentRequest()->query->get('_wrapper_format');
+
+      if ($wrapper_format && $wrapper_format === "drupal_dialog.off_canvas") {
+        $admin_css = FALSE;
+      }
     }
 
     // Prevents non-expected overrides.
     if (isset($form['grid'], $form['grid']['#description'])) {
       $description = $form['grid']['#description'];
       $form['grid']['#description'] = $description . $this->nativeGridDescription();
+    }
+
+    $this->blazyManager->moduleHandler()->alter('blazy_form_element', $form, $definition);
+
+    // Accounts for hook_alter additions.
+    $children  = Element::children($form);
+    $grid_sets = [];
+    $total     = count($children);
+
+    if ($admin_css) {
+      $classes[] = 'b-nativegrid--form';
+      $options = [
+        'count'   => $total,
+        'classes' => $classes,
+      ];
+
+      $check      = $this->blazyManager->initNativeGrid($options);
+      $grid_attrs = $check['attributes'];
+      $grid_sets  = $check['settings'];
+      $classes    = implode(' ', $grid_attrs['class']);
     }
 
     $form['opening'] = [
@@ -630,26 +661,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       '#weight' => 120,
     ];
 
-    // @todo Check if needed: 'button', 'container', 'submit'.
-    $admin_css = $scopes->is('admin_css');
-    $admin_css = $admin_css ?: $this->blazyManager->config('admin_css', 'blazy.settings');
-    $excludes = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
-    $selects = ['cache', 'optionset', 'view_mode'];
-
-    // Disable the admin css in the off canvas menu, to avoid conflicts with
-    // the active frontend theme.
-    if ($admin_css && $router = Path::requestStack()) {
-      $wrapper_format = $router->getCurrentRequest()->query->get('_wrapper_format');
-
-      if ($wrapper_format && $wrapper_format === "drupal_dialog.off_canvas") {
-        $admin_css = FALSE;
-      }
-    }
-
-    $this->blazyManager->moduleHandler()->alter('blazy_form_element', $form, $definition);
-
     // Mostly babysitters to help few things out.
-    foreach (Element::children($form) as $key) {
+    foreach ($children as $delta => $key) {
       $type = $form[$key]['#type'] ?? NULL;
       if (!$type || in_array($type, $excludes)) {
         continue;
@@ -671,29 +684,60 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
 
       // Trying to be nice with gazillion options.
-      if (!isset($form[$key]['#attributes'])
-        && isset($form[$key]['#description'])) {
-        $form[$key]['#attributes'] = ['class' => ['is-tooltip']];
+      foreach (['attributes', 'wrapper_attributes'] as $attribute) {
+        if (!isset($form[$key]["#$attribute"])) {
+          $form[$key]["#$attribute"] = [];
+        }
+      }
+
+      $attrs = &$form[$key]['#attributes'];
+      $wrapper_attrs = &$form[$key]['#wrapper_attributes'];
+      $content_attrs = [];
+
+      if (isset($form[$key]['#description'])) {
+        $attrs['class'][] = 'is-tooltip';
       }
 
       // Trying to be compact with gazillion options.
       if ($admin_css) {
+        if ($grid_sets) {
+          $blazy = $grid_sets['blazies']->reset($grid_sets);
+          $blazy->set('delta', $delta);
+        }
+
+        // $form[$key]['#wrapper_attributes']['class'][] = 'grid';
         if ($type == 'checkbox' && $type != 'checkboxes') {
-          $form[$key]['#field_suffix'] = '&nbsp;';
+          // $form[$key]['#field_suffix'] = '&nbsp;';
           $form[$key]['#title_display'] = 'before';
         }
         elseif ($type == 'checkboxes' && !empty($form[$key]['#options'])) {
-          $form[$key]['#attributes']['class'][] = 'form-wrapper--checkboxes';
-          $form[$key]['#attributes']['class'][] = 'form-wrapper--' . str_replace('_', '-', $key);
+          $attrs['class'][] = 'form-wrapper--checkboxes';
+          $attrs['class'][] = 'form-wrapper--' . str_replace('_', '-', $key);
           $count = count($form[$key]['#options']);
-          $form[$key]['#attributes']['class'][] = 'form-wrapper--count-' . ($count > 3 ? 'max' : $count);
+          $attrs['class'][] = 'form-wrapper--count-' . ($count > 3 ? 'max' : $count);
 
           foreach ($form[$key]['#options'] as $i => $option) {
-            $form[$key][$i]['#field_suffix'] = '&nbsp;';
+            // $form[$key][$i]['#field_suffix'] = '&nbsp;';
             $form[$key][$i]['#title_display'] = 'before';
           }
+
+          $box_count = count(Element::children($form[$key]));
+          $attrs['data-b-w'][] = 12;
+          $attrs['data-b-h'][] = $box_count > 6 ? (int) (($box_count / 2) + 1) : 3;
+          $attrs['class'][] = 'grid';
+        }
+
+        $dummies['class'] = [];
+        $this->blazyManager->gridItemAttributes($dummies, $content_attrs, $grid_sets);
+        $wrapper_attrs = $this->blazyManager->merge($wrapper_attrs, $dummies);
+        $wrapper_attrs['class'][] = 'grid--admin';
+
+        if ($key == 'grid' || $key == 'style' && $scopes->is('grid_required')) {
+          $wrapper_attrs['data-b-w'] = 12;
         }
       }
+
+      $wrapper_attrs['class'][] = 'form-item--' . str_replace('_', '-', $key);
 
       // Select option babysitters.
       if ($type == 'select' && !in_array($key, $selects)) {
@@ -718,8 +762,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           $form[$key]['#states'] = $states;
         }
       }
-
-      $form[$key]['#wrapper_attributes']['class'][] = 'form-item--' . str_replace('_', '-', $key);
 
       // Don't store values babysitters.
       if (($form[$key]['#access'] ?? 'x') == FALSE) {
@@ -942,6 +984,48 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
+   * Returns grid header description.
+   */
+  protected function gridHeaderDescription() {
+    return $this->t('Depends on the <strong>Display style</strong>.');
+  }
+
+  /**
+   * Returns form opening classes.
+   */
+  protected function getOpeningClasses($scopes): array {
+    $namespace = $scopes->get('namespace', 'blazy');
+    $classes = [];
+
+    $items = ['blazy', 'slick', $namespace, 'half'];
+
+    if ($scopes->is('_views')) {
+      $items[] = 'views';
+    }
+    if ($scopes->is('vanilla')) {
+      $items[] = 'vanilla';
+    }
+    if ($scopes->is('grid_required')) {
+      $items[] = 'grid-required';
+    }
+    if ($plugin_id = $scopes->get('plugin_id')) {
+      $items[] = 'plugin-' . str_replace('_', '-', $plugin_id);
+    }
+    if ($field_type = $scopes->get('field.type')) {
+      $items[] = str_replace('_', '-', $field_type);
+    }
+
+    foreach ($items as $class) {
+      $classes[] = 'form--' . $class;
+    }
+
+    $classes[] = 'b-tooltip';
+    $classes[] = 'b-tooltip--lg';
+
+    return $classes;
+  }
+
+  /**
    * Check scopes, a failsafe till sub-modules migrated.
    *
    * Temporary re-definitions during migration after BlazyFormatterTrait
@@ -975,6 +1059,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       'no_lightboxes',
       'no_loading',
       'no_preload',
+      'no_thumb_effects',
       'responsive_image',
       'style',
       'thumbnail_style',

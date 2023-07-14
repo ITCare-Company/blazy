@@ -278,6 +278,62 @@ interface BlazyInterface {
   public function getStorage($type = 'media');
 
   /**
+   * Alias for Grid::itemAttributes().
+   *
+   * This method + self::initNativeGrid() allows you to build Native grids with
+   * any themes having just DIV > DIVs like theme_field(), media_library, etc.,
+   * without re-building it with self::toGrid() such as seen at IO Browser/Slick
+   * Browser by simply modifying existing attributes. The required:
+   *   - $settings contains delta, count + self::initNativeGrid() settings.
+   *   - Delta is updated in the loop via blazies or directly at child settings.
+   *
+   * @param array $attrs
+   *   The container attributes to add into .grid, normally #wrapper_attributes
+   *   for form items.
+   * @param array $content_attrs
+   *   The content attributes, if any to add into .grid__content.
+   * @param array $settings
+   *   The settings grabbed from self::initNativeGrid() returned settings.
+   *
+   * @see \Drupal\blazy\Theme\Grid
+   * @see \Drupal\io_browser\IoBrowserWidget::mediaLibraryItem()
+   * @see \Drupal\blazy\Form\BlazyAdminBase
+   * @see \Drupal\blazy\Form\BlazyEntityFormBase
+   */
+  public function gridItemAttributes(
+    array &$attrs,
+    array &$content_attrs,
+    array $settings
+  ): void;
+
+  /**
+   * Initialize Native Grid at any containers containing DIV > DIVs.
+   *
+   * @param array $options
+   *   The options:
+   *   - count: total items.
+   *   - grid: the largest, nomally like 4x2 2x2 3x4, etc.
+   *   - grid_medium: only integer from 1-12 due to pure CSS, no JavaScript.
+   *   - grid_small: only integer, at max 2 from 1-12.
+   *   - classes: existing classes to merge, string or array.
+   *   - gapless: bool to remove default gap 15px, default to TRUE.
+   *   - is_form: bool for forms, default to TRUE, requires blazy/admin.grid.
+   *   - blazies: BlazySettings object. If none, will create an ampty one.
+   *
+   * @requires:
+   *  - self::gridItemAttributes() for individual items.
+   *  - Library attachments like '#attached' => blazy()->attach($settings),
+   *      at the container level, or merge with the existing ones. Or just call:
+   *      blazy/nativegrid for frontend, or blazy/admin or blazy/admin.grid
+   *      libraries for form usages.
+   *
+   * @return array
+   *   - attributes: to apply into existing containers,
+   *   - settings: to use for self::gridItemAttributes() parameters.
+   */
+  public function initNativeGrid(array $options): array;
+
+  /**
    * Returns a shortcut for loading an entity: image_style, slick, etc.
    *
    * @param string $id

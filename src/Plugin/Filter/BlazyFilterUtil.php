@@ -4,7 +4,6 @@ namespace Drupal\blazy\Plugin\Filter;
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\Theme\Grid;
 
 /**
  * Provides shared filter utilities.
@@ -248,7 +247,7 @@ class BlazyFilterUtil {
           if ($settings['style'] == 'flexbox') {
             $settings['style'] = 'flex';
           }
-          Grid::toNativeGrid($settings);
+          Blazy::toNativeGrid($settings);
         }
       }
     }

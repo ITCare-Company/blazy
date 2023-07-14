@@ -162,20 +162,6 @@
   }
 
   /**
-   * Blazy admin checkbox function.
-   *
-   * @param {HTMLElement} elm
-   *   The Blazy form item checkbox HTML element.
-   */
-  function blazyCheckbox(elm) {
-    var $elm = $(elm);
-
-    if (!$elm.next('.field-suffix').length) {
-      $elm.after('<span class="field-suffix"></span>');
-    }
-  }
-
-  /**
    * Attaches Blazy form behavior to HTML element.
    *
    * @type {Drupal~behavior}
@@ -183,7 +169,6 @@
   Drupal.behaviors.blazyAdmin = {
     attach: function (context) {
       _d.once(blazyTooltip, _idTooltip, _elTootip, context);
-      _d.once(blazyCheckbox, _idCheckbox, _elCheckbox, context);
       _d.once(blazyForm, _idForm, _elForm, context);
     },
     detach: function (context, setting, trigger) {

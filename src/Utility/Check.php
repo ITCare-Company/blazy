@@ -9,7 +9,6 @@ use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Media\Preloader;
 use Drupal\blazy\Theme\BlazyViews;
-use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Theme\Lightbox;
 
 /**
@@ -305,7 +304,7 @@ class Check {
       }
 
       // Formatters, Views style, not Filters.
-      Grid::toNativeGrid($settings);
+      Blazy::toNativeGrid($settings);
     }
 
     $blazies->set('was.grid', TRUE);

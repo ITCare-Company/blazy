@@ -33,6 +33,8 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     $blazies  = $this->reset($settings);
     $item_id  = $blazies->get('item.id') ?: 'box';
 
+    $blazies->set('delta', $index);
+
     // Add main image fields if so configured.
     if (!empty($settings['image'])) {
       // Supports individual grid/box image style either inline IMG, or CSS.

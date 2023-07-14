@@ -302,8 +302,8 @@ class Blazy {
   /**
    * Alias for BlazyImage::transformDimensions().
    */
-  public static function transformDimensions($style, array $data = [], $initial = FALSE): array {
-    return BlazyImage::transformDimensions($style, $data, $initial);
+  public static function transformDimensions($style, $data, $uri = NULL): array {
+    return BlazyImage::transformDimensions($style, $data, $uri);
   }
 
   /**
@@ -364,17 +364,6 @@ class Blazy {
 
   /**
    * Alias for Grid::itemAttributes().
-   *
-   * This method + self::gridAttributes() allows you to build Native grids with
-   * any themes having just DIV > DIVs like theme_field(), media_library, etc.,
-   * without re-building it with self::grid() such as seen at IO Browser/Slick
-   * Browser by simply modifying existing attributes. The required:
-   *   - $settings contains BlazyDefault::gridSettings(), blazies, delta, count.
-   *   - Delta is updated in the loop via blazies or directly at child settings.
-   *   - Library attachments like '#attached' => blazy()->attach($settings),
-   *      at the container level, or merge with the existing ones.
-   * See \Drupal\blazy\Theme\Grid for details.
-   * See \Drupal\io_browser\IoBrowserWidget::mediaLibraryItem().
    */
   public static function gridItemAttributes(
     array &$attrs,
@@ -382,6 +371,20 @@ class Blazy {
     array $settings
   ): void {
     Grid::itemAttributes($attrs, $content_attrs, $settings);
+  }
+
+  /**
+   * Alias for Grid::initNativeGrid().
+   */
+  public static function initNativeGrid(array $options): array {
+    return Grid::initNativeGrid($options);
+  }
+
+  /**
+   * Checks for Native Grid.
+   */
+  public static function toNativeGrid(array &$settings): void {
+    Grid::toNativeGrid($settings);
   }
 
 }

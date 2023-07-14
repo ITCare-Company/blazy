@@ -104,22 +104,67 @@ class Grid {
   ): void {
     if ($root) {
       if ($attrs_alter = ($blazies->get('grid.attributes') ?: [])) {
-        $attrs = Blazy::merge($attrs_alter, $attrs);
+        $attrs = array_merge($attrs, $attrs_alter);
         $blazies->set('grid.attributes', $attrs);
       }
     }
     else {
       if ($attrs_alter = ($blazies->get('grid.item_attributes') ?: [])) {
-        $attrs = Blazy::merge($attrs_alter, $attrs);
+        $attrs = array_merge($attrs, $attrs_alter);
       }
 
       if ($content_attrs_alter = ($blazies->get('grid.item_content_attributes') ?: [])) {
-        $content_attrs = Blazy::merge($content_attrs_alter, $content_attrs);
+        $content_attrs = array_merge($content_attrs, $content_attrs_alter);
       }
 
       $blazies->set('grid.item_attributes', $attrs);
       $blazies->set('grid.item_content_attributes', $content_attrs);
     }
+  }
+
+  /**
+   * Initialize Native Grid at any containers containing DIV > DIVs.
+   */
+  public static function initNativeGrid(array $options): array {
+    $attrs   = [];
+    $count   = $options['count'] ?? 1;
+    $large   = $options['grid'] ?? '6x1';
+    $medium  = $options['grid_medium'] ?? 2;
+    $small   = $options['grid_small'] ?? 1;
+    $classes = $options['classes'] ?? '';
+    $gapless = $options['gapless'] ?? TRUE;
+    $is_form = $options['is_form'] ?? TRUE;
+    $blazies = $options['blazies'] ?? Blazy::settings();
+    $blazies->set('count', $count)
+      ->set('is.grid', TRUE)
+      ->set('ui.deprecated_class', TRUE);
+
+    $sets = [
+      'grid'        => $large,
+      'grid_medium' => $medium,
+      'grid_small'  => $small,
+      'style'       => 'nativegrid',
+      'blazies'     => $blazies,
+    ];
+
+    if (is_string($classes)) {
+      $classes = explode(' ', $classes);
+    }
+
+    if ($is_form) {
+      $classes[] = 'b-nativegrid--form';
+    }
+    if ($gapless) {
+      $classes[] = 'is-b-gapless';
+    }
+
+    self::toNativeGrid($sets);
+    self::attributes($attrs, $sets);
+
+    $attrs['class'] = array_merge($attrs['class'], $classes);
+    $attrs['class'] = array_unique(array_filter($attrs['class']));
+
+    return ['attributes' => $attrs, 'settings' => $sets];
   }
 
   /**
@@ -251,23 +296,19 @@ class Grid {
    * Limit to grid only, so to be usable for plain list.
    */
   private static function containerAttributes(array &$attrs, array $settings, $blazies): void {
-    $remove = $blazies->ui('deprecated_class', FALSE);
-    $style  = $settings['style'] ?: 'grid';
-    $format = 'b-%s b-count-%d';
+    $remove  = $blazies->ui('deprecated_class', FALSE);
+    $style   = $settings['style'] ?: 'grid';
+    $format1 = 'b-%s';
+    $format2 = 'b-count-%d';
 
     $attrs['class'][] = 'blazy--grid';
-    $attrs['class'][] = sprintf($format, $style, $blazies->get('count'));
+    $attrs['class'][] = sprintf($format1, $style);
+    $attrs['class'][] = sprintf($format2, $blazies->get('count'));
 
     // Deprecated since 2.17, use the latest instead.
     if (!$remove) {
-      $format2 = 'block-%s';
-      $attrs['class'][] = sprintf($format2, $style);
-    }
-
-    // If Native Grid style with numeric grid, assumed non-two-dimensional.
-    if ($style == 'nativegrid') {
-      $attrs['class'][] = self::isNativeGridAsMasonry($settings)
-        ? 'is-b-masonry' : 'is-b-native';
+      $format3 = 'block-%s';
+      $attrs['class'][] = sprintf($format3, $style);
     }
 
     // Adds common grid attributes for CSS3 column, Foundation, etc.
@@ -296,6 +337,12 @@ class Grid {
           $attrs['class'][] = sprintf($format3, $style, $nick, $value);
         }
       }
+    }
+
+    // If Native Grid style with numeric grid, assumed non-two-dimensional.
+    if ($style == 'nativegrid') {
+      $attrs['class'][] = self::isNativeGridAsMasonry($settings)
+        ? 'is-b-masonry' : 'is-b-native';
     }
   }
 

@@ -11,6 +11,8 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
    * {@inheritdoc}
    */
   public function buildSettingsForm(array &$form, array $definition): void {
+    parent::buildSettingsForm($form, $definition);
+
     $scopes = $this->toScopes($definition);
 
     $this->openingForm($form, $definition);
@@ -36,7 +38,9 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
    * {@inheritdoc}
    */
   public function openingForm(array &$form, array &$definition): void {
-    $scopes    = $this->toScopes($definition);
+    parent::openingForm($form, $definition);
+
+    $scopes = $this->toScopes($definition);
     $namespace = $scopes->get('namespace', 'blazy');
 
     if ($scopes->is('vanilla')) {
@@ -44,13 +48,14 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
         '#type'        => 'checkbox',
         '#title'       => $this->t('Vanilla @namespace', ['@namespace' => $namespace]),
         '#description' => $this->t('<strong>Check</strong>:<ul><li>To render individual item as is as without extra logic.</li><li>To disable 99% @module features, and most of the mentioned options here, such as layouts, et al.</li><li>When the @module features can not satisfy the need.</li><li>Things may be broken! You are on your own.</li></ul><strong>Uncheck</strong>:<ul><li>To get consistent markups and its advanced features -- relevant for the provided options as @module needs to know what to style/work with.</li></ul>', ['@module' => $namespace]),
-        '#weight'      => -112,
+        '#weight'      => -113,
         '#enforced'    => TRUE,
         '#attributes'  => ['class' => ['form-checkbox--vanilla']],
         '#wrapper_attributes' => [
           'class' => [
             'form-item--full',
             'form-item--tooltip-bottom',
+            'form-item--tooltip-wide',
           ],
         ],
       ];
@@ -66,14 +71,14 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
         '#weight'      => -108,
       ];
     }
-
-    parent::openingForm($form, $definition);
   }
 
   /**
    * {@inheritdoc}
    */
   public function fieldableForm(array &$form, array $definition): void {
+    parent::fieldableForm($form, $definition);
+
     $scopes = $this->toScopes($definition);
     $data = $scopes->get('data', []);
     $base_image = $this->baseForm($definition)['image'] ?? [];

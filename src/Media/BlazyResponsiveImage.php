@@ -49,14 +49,8 @@ class BlazyResponsiveImage {
     if ($styles = self::styles($resimage)) {
       $srcset = $ratios = [];
       $ratios = $blazies->get('ratios', []);
-      $info = [
-        'width'  => $blazies->get('image.width') ?: $blazies->get('first.width'),
-        'height' => $blazies->get('image.height') ?: $blazies->get('first.height'),
-        'uri'    => $blazies->get('image.uri') ?: $blazies->get('first.uri'),
-      ];
-
       foreach (array_values($styles['styles']) as $style) {
-        $dims = BlazyImage::transformDimensions($style, $info);
+        $dims = BlazyImage::transformDimensions($style, $blazies);
         $width = $dims['width'];
 
         if (!$width) {
@@ -119,17 +113,10 @@ class BlazyResponsiveImage {
 
     $styles = self::styles($resimage);
     $names = $ratios = [];
-
-    $info = [
-      'width'  => $blazies->get('image.width') ?: $blazies->get('first.width'),
-      'height' => $blazies->get('image.height') ?: $blazies->get('first.height'),
-      'uri'    => $blazies->get('image.uri') ?: $blazies->get('first.uri'),
-    ];
-
     foreach (array_values($styles['styles']) as $style) {
       // In order to avoid layout reflow, we get dimensions beforehand.
       // @fixme $initial.
-      $data = BlazyImage::transformDimensions($style, $info);
+      $data = BlazyImage::transformDimensions($style, $blazies);
       $width = $data['width'];
 
       if (!$width) {
@@ -224,6 +211,7 @@ class BlazyResponsiveImage {
     $blazies = $settings['blazies'];
     $id = '_empty image_';
     $width = $height = 1;
+    $ratio = NULL;
     $data_src = $placeholder;
 
     // If not enabled via UI, by default, always 1px, or the custom Placeholder.
@@ -254,7 +242,8 @@ class BlazyResponsiveImage {
             [
               'width' => $width,
               'height' => $height,
-            ] = BlazyImage::transformDimensions($style, $settings);
+              'ratio' => $ratio,
+            ] = BlazyImage::transformDimensions($style, $blazies, $tn_uri);
 
             $blazies->set('resimage.fallback.style', $style);
             $blazies->set('resimage.fallback.uri', $tn_uri);
@@ -279,7 +268,8 @@ class BlazyResponsiveImage {
         ->set('placeholder.id', $id)
         ->set('placeholder.url', $placeholder)
         ->set('placeholder.width', $width)
-        ->set('placeholder.height', $height);
+        ->set('placeholder.height', $height)
+        ->set('placeholder.ratio', $ratio);
     }
   }
 

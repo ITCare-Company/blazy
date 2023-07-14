@@ -34,13 +34,6 @@ class BlazyImage {
   private static $isCropSet;
 
   /**
-   * The image style ID.
-   *
-   * @var array
-   */
-  private static $styleId;
-
-  /**
    * Prepares CSS background image.
    *
    * @todo refactor this, to get rid of settings for blazies object at/ by 3.x.
@@ -94,17 +87,15 @@ class BlazyImage {
       // If image style contains crop, sets dimension once, and let all inherit.
       if ($crop = self::getCrop($style)) {
         $blazies = $settings['blazies'];
-        $info = [
-          '_width'  => $blazies->get('first.width'),
-          '_height' => $blazies->get('first.height'),
-          '_uri'    => $blazies->get('first.uri'),
-        ];
-
-        $data = self::transformDimensions($crop, $info, TRUE);
+        $data = self::transformDimensions($crop, $blazies);
 
         // Informs individual images that dimensions are already set once.
-        $blazies->set('image', $data, TRUE)
-          ->set('is.dimensions', TRUE);
+        // Do not let the first broken image screw up the rest, likely
+        // non-trasliterated file names, SVG, missing ones, etc.
+        if ($data['width']) {
+          $blazies->set('image', $data, TRUE)
+            ->set('is.dimensions', TRUE);
+        }
       }
 
       self::$isCropSet[$id] = TRUE;
@@ -117,8 +108,10 @@ class BlazyImage {
    * This one is original image, not styled like self:transformDimensions().
    * Sources: formatters, filters or any hard-coded unmanaged files like VEF.
    */
-  public static function dimensions(array &$settings, $item = NULL, $initial = FALSE): void {
+  public static function dimensions(array &$settings, $item = NULL, $initial = FALSE): array {
     $blazies = $settings['blazies'];
+
+    // @todo remove remaining settings references:
     $_width  = $initial ? '_width' : 'width';
     $_height = $initial ? '_height' : 'height';
     $_uri    = $initial ? '_uri' : 'uri';
@@ -126,14 +119,23 @@ class BlazyImage {
     $height  = $settings[$_height] ?? NULL;
     $uri     = $settings[$_uri] ?? '';
 
-    if ($item && (!$height || !$width)) {
-      $width = $item->width ?? $width;
-      $height = $item->height ?? $height;
+    // @todo remove fallback.
+    $which  = $initial ? 'first' : 'image';
+    $height = $blazies->get($which . '.height') ?: $width;
+    $width  = $blazies->get($which . '.width') ?: $width;
+    $uri    = $blazies->get($which . '.uri') ?: $uri;
+
+    if ($item) {
+      if ((!$height || !$width)) {
+        $width = $item->width ?? $width;
+        $height = $item->height ?? $height;
+      }
+      $blazies->set('image.item', $item);
     }
 
     // Only applies when Image style is empty, no file API, no $item,
     // with unmanaged VEF/ WYSIWG/ filter image without image_style.
-    if ($uri && empty($settings['image_style']) && !$height) {
+    if ($uri && empty($settings['image_style']) && (!$height || !$width)) {
       $abs = empty($settings['uri_root']) ? $uri : $settings['uri_root'];
       // Must be valid URI, or web-accessible url, not: /modules|themes/...
       if (!BlazyFile::isValidUri($abs) && mb_substr($abs, 0, 1) == '/') {
@@ -158,21 +160,14 @@ class BlazyImage {
 
     // Defines original dimensions.
     $data = ['width' => $check[$_width], 'height' => $check[$_height]];
-    $ratio = self::ratio($data);
-
-    // If an initial call.
-    if ($initial) {
-      $blazies->set('image.width', $data['width'])
-        ->set('image.height', $data['height'])
-        ->set('image.ratio', $ratio);
-    }
+    $data['ratio'] = self::ratio($data);
 
     // In case `image_style` is not provided.
     $blazies->set('image.original', $data, TRUE)
-      ->set('image.original.ratio', $ratio)
-      ->set('first.width', $data['width'])
-      ->set('first.height', $data['height'])
-      ->set('first.ratio', $ratio);
+      ->set('first', $data, TRUE)
+      ->set('image', $data, TRUE);
+
+    return $data;
   }
 
   /**
@@ -233,7 +228,8 @@ class BlazyImage {
     $uri = $uri ?: BlazyFile::uri($output, $settings);
 
     if ($uri) {
-      $blazies->set('image.uri', $uri);
+      $blazies->set('image.uri', $uri)
+        ->set('image.output', $output);
 
       // Prepare image URL and its dimensions, including for rich-media content,
       // such as for local video poster image if a poster URI is provided.
@@ -415,7 +411,7 @@ class BlazyImage {
 
     // Define styles regardless unstyled so to have correct dimensions at
     // lightboxes, thumbnails, etc.
-    self::itemData($settings, $item, $uri);
+    self::styleData($settings, $uri);
 
     // SVG, APNG, etc. should not use image_style as they don't convert.
     self::unstyled($settings);
@@ -425,16 +421,10 @@ class BlazyImage {
       $blazies->set('cache.metadata.tags', $style->getCacheTags(), TRUE);
 
       // Only re-calculate dimensions if not cropped, nor already set.
-      if (!$blazies->is('dimensions')
-        && empty($settings['responsive_image_style'])) {
+      $resimage = $settings['responsive_image_style'] ?? NULL;
+      if (!$blazies->is('dimensions') && !$resimage) {
+        $data = self::transformDimensions($style, $blazies, $uri);
 
-        $info = [
-          'width'  => $blazies->get('image.width'),
-          'height' => $blazies->get('image.height'),
-          'uri'    => $uri,
-        ];
-
-        $data = self::transformDimensions($style, $info);
         $blazies->set('image', $data, TRUE);
       }
     }
@@ -460,29 +450,22 @@ class BlazyImage {
    * URI is not available at container level, except for the first,
    * or when preload option is enabled, unless enforced in the far future.
    */
-  public static function itemData(array &$settings, $item, $uri): void {
+  public static function styleData(array &$settings, $uri): void {
     $blazies = $settings['blazies'];
     foreach (BlazyDefault::imageStyles() as $key) {
-      if ($key == 'image') {
-        continue;
-      }
-
+      // @todo re-enable the skip if any issues with Responsive image.
+      // The skip limits SVG dimension checks, ratio, url, etc.
+      // if ($key == 'image') {
+      // continue;
+      // }
       if ($style = $blazies->get($key . '.style')) {
-        $width = $blazies->get('image.width') ?: $blazies->get('first.width');
-        $height = $blazies->get('image.height') ?: $blazies->get('first.height');
-        $info = [
-          'width'  => $width,
-          'height' => $height,
-          'uri'    => $uri,
-        ];
-        $data = self::transformDimensions($style, $info);
+        $data = self::transformDimensions($style, $blazies, $uri);
         $blazies->set($key, $data, TRUE);
 
         if ($uri) {
           $url = BlazyFile::transformRelative($uri, $style);
           $blazies->set($key . '.url', $url);
         }
-        $blazies->set($key . '.item', $item);
       }
     }
   }
@@ -577,42 +560,40 @@ class BlazyImage {
    *
    * @param object $style
    *   The given image style.
-   * @param array $data
-   *   The data settings: _width, _height, _uri, width, height, and uri.
-   *   The `_` prefix identifies it as the initial call at container level.
-   * @param bool $initial
-   *   Whether particularly transforms once for all, or individually.
+   * @param array|object $config
+   *   The data config: width, height, and uri, or $blazies as config source.
+   * @param string $uri
+   *   The optional URI if differs from main image, such as thumbnail URI.
    */
-  public static function transformDimensions($style, array $data = [], $initial = FALSE): array {
-    $_uri = $initial ? '_uri' : 'uri';
-    $uri  = $data[$_uri] ?? '';
-    $key  = hash('md2', ($style->id() . $uri . $initial));
-
-    if (!isset(self::$styleId[$key])) {
-      $_width  = $initial ? '_width' : 'width';
-      $_height = $initial ? '_height' : 'height';
-      $width   = $data[$_width] ?? NULL;
-      $height  = $data[$_height] ?? NULL;
-      $dim     = ['width' => $width, 'height' => $height];
-
-      // Funnily $uri is ignored at all core image effects.
-      $style->transformDimensions($dim, $uri);
-
-      // Sometimes they are string, cast them integer to reduce JS logic.
-      self::toInt($dim, 'width', 'height');
-
-      // Keys here are hard-coded, so to be inherited by children as intended.
-      // The underscore prefix is to identify the source/ original unstyled
-      // image properties, not related to the final output printed here.
-      // See self::dimensions().
-      // @todo re-check if the container needs image style dimensions.
-      self::$styleId[$key] = [
-        'width'  => $dim['width'],
-        'height' => $dim['height'],
-        'ratio'  => self::ratio($dim),
-      ];
+  public static function transformDimensions($style, $config, $uri = NULL): array {
+    // Default non-API source:
+    if (is_array($config)) {
+      $uri    = $uri ?: ($config['uri'] ?? '');
+      $width  = $config['width'] ?? NULL;
+      $height = $config['height'] ?? NULL;
     }
-    return self::$styleId[$key];
+    // A convenient API source:
+    else {
+      $uri    = $uri ?: ($config->get('image.uri') ?: $config->get('first.uri'));
+      $width  = $config->get('image.width') ?: $config->get('first.width');
+      $height = $config->get('image.height') ?: $config->get('first.height');
+    }
+
+    $dim = ['width' => $width, 'height' => $height];
+
+    // Funnily $uri is ignored at all core image effects.
+    $style->transformDimensions($dim, $uri);
+
+    // Sometimes they are string, cast them integer to reduce JS logic.
+    self::toInt($dim, 'width', 'height');
+
+    // Keys here are hard-coded, so to be inherited by children as intended.
+    // See self::dimensions().
+    return [
+      'width'  => $dim['width'],
+      'height' => $dim['height'],
+      'ratio'  => self::ratio($dim),
+    ];
   }
 
   /**

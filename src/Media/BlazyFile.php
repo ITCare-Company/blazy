@@ -63,7 +63,9 @@ class BlazyFile {
     if ($gen = Path::fileUrlGenerator()) {
       // @todo recheck ::generateAbsoluteString doesn't return web-accessible
       // protocol as expected, required by getimagesize to work correctly.
-      return $relative ? $gen->generateString($uri) : $gen->generateAbsoluteString($uri);
+      return $relative
+        ? $gen->generateString($uri)
+        : $gen->generateAbsoluteString($uri);
     }
 
     $function = 'file_create_url';

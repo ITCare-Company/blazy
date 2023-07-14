@@ -134,6 +134,7 @@ class BlazyAttribute {
 
     // Only provide iframe if not for lightboxes, identified by URL.
     if (empty($variables['url'])) {
+      // Also empty the image to not get in the way, unless player enabled.
       $variables['image'] = empty($settings['media_switch']) ? [] : $variables['image'];
 
       // Pass iframe attributes to template.
@@ -149,6 +150,7 @@ class BlazyAttribute {
       }
 
       // Iframe is removed on lazyloaded, puts data at non-removable storage.
+      // @todo remove, no real use this far.
       $type = $blazies->get('media.type');
       $variables['attributes']['data-media'] = Json::encode(['type' => $type]);
     }
@@ -202,7 +204,7 @@ class BlazyAttribute {
     }
 
     // Prepare iframe, and allow a tiny video preview without iframe.
-    $disabled = $settings['_noiframe'] ?? '';
+    $disabled = $settings['_noiframe'] ?? FALSE;
     if ($blazies->is('iframe') && !$blazies->is('noiframe', $disabled)) {
       self::buildIframe($variables);
     }
@@ -527,6 +529,7 @@ class BlazyAttribute {
    * Provides legacy minimal item attributes.
    *
    * @todo deprecated and remove supporting passing data via item_attributes.
+   * @see blazy.api.php
    */
   private static function item(array $attributes, $blazies): void {
     if (!$blazies->get('image.width')) {

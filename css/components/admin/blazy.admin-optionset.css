@@ -1,0 +1,31 @@
+/**
+ * @file
+ * Common optionset utilities.
+ */
+
+.js .form--blazy .vertical-tabs .vertical-tabs__item {
+  clear: none;
+}
+
+@media screen and (min-width: 760px) {
+
+  /** Needs more room with gazillion options. */
+  .form--optionset .vertical-tabs .claro-details__content--vertical-tabs-item {
+    margin: 0;
+  }
+
+  .form--optionset .vertical-tabs .details-wrapper,
+  .form--optionset .vertical-tabs .details--responsive .details-wrapper {
+    margin-left: 1rem;
+    margin-right: 0;
+  }
+
+  .form--optionset .vertical-tabs .claro-details__description {
+    margin-top: 1rem;
+  }
+
+  .form--optionset .vertical-tabs .details--settings .details-wrapper {
+    margin-left: 0;
+  }
+
+}

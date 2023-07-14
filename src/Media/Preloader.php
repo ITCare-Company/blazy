@@ -121,6 +121,8 @@ class Preloader {
   /**
    * Extracts uris from file/ media entity, relevant for the new option Preload.
    *
+   * @requires image styles defined.
+   *
    * Also extract the found image for gallery/ zoom like, ElevateZoomPlus, etc.
    *
    * @todo merge urls here as well once puzzles are solved: URI may be fed by
@@ -133,13 +135,13 @@ class Preloader {
     }
 
     $style = $blazies->get('image.style');
-    $func = function ($item, $entity = NULL) use (&$settings, $blazies, $style) {
-      $options = ['entity' => $entity, 'settings' => $settings];
-      $image = BlazyImage::item($item, $options);
-      $uri = BlazyFile::uri($image);
+    $func = function ($item, $entity = NULL, $delta = 0) use (&$settings, $blazies, $style) {
+      $options  = ['entity' => $entity, 'settings' => $settings];
+      $image    = BlazyImage::item($item, $options);
+      $uri      = BlazyFile::uri($image);
       $unstyled = $uri ? BlazyImage::isUnstyled($settings, $uri) : FALSE;
-      $style = $unstyled ? NULL : $style;
-      $url = $uri ? BlazyFile::transformRelative($uri, $style) : NULL;
+      $style    = $unstyled ? NULL : $style;
+      $url      = $uri ? BlazyFile::transformRelative($uri, $style) : NULL;
 
       // Only needed the first found image, no problem which with mixed media.
       if ($uri && !$blazies->get('first.uri')) {
@@ -152,7 +154,9 @@ class Preloader {
         BlazyImage::dimensions($settings, $image, TRUE);
       }
 
+      // @todo aslo pass $style + $image when all sources covered.
       return $uri ? [
+        'delta' => $delta,
         'uri' => $uri,
         'url' => $url,
         'unstyled' => $unstyled,
@@ -162,7 +166,7 @@ class Preloader {
     $empties = $images = [];
     foreach ($items as $key => $item) {
       // Respects empty URI to keep indices intact for correct mixed media.
-      $image = $func($item, $entities[$key] ?? NULL);
+      $image = $func($item, $entities[$key] ?? NULL, $key);
       $images[] = $image;
 
       if (empty($image['uri'])) {
@@ -186,7 +190,7 @@ class Preloader {
         if ($resimage) {
           BlazyResponsiveImage::dimensions($settings, $resimage, TRUE);
         }
-        elseif ($style = $blazies->get('image.style')) {
+        elseif ($style) {
           BlazyImage::cropDimensions($settings, $style);
         }
       }
