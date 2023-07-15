@@ -62,7 +62,7 @@ trait BlazyStyleBaseTrait {
       if (is_string($value)) {
         // Only respects tags with default CSV, just too much to worry about.
         if (strpos($value, ',') !== FALSE) {
-          $tags = explode(',', $value);
+          $tags = array_map('trim', explode(',', $value));
           $rendered_tags = [];
           foreach ($tags as $tag) {
             $tag = trim($tag ?: '');

@@ -104,17 +104,17 @@ class Grid {
   ): void {
     if ($root) {
       if ($attrs_alter = ($blazies->get('grid.attributes') ?: [])) {
-        $attrs = array_merge($attrs, $attrs_alter);
+        $attrs = Blazy::merge($attrs_alter, $attrs);
         $blazies->set('grid.attributes', $attrs);
       }
     }
     else {
       if ($attrs_alter = ($blazies->get('grid.item_attributes') ?: [])) {
-        $attrs = array_merge($attrs, $attrs_alter);
+        $attrs = Blazy::merge($attrs_alter, $attrs);
       }
 
       if ($content_attrs_alter = ($blazies->get('grid.item_content_attributes') ?: [])) {
-        $content_attrs = array_merge($content_attrs, $content_attrs_alter);
+        $content_attrs = Blazy::merge($content_attrs_alter, $content_attrs);
       }
 
       $blazies->set('grid.item_attributes', $attrs);

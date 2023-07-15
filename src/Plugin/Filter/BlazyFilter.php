@@ -186,9 +186,8 @@ class BlazyFilter extends BlazyFilterBase {
   protected function buildImageItem(array &$build, &$node, $delta = 0) {
     parent::buildImageItem($build, $node, $delta);
 
-    $item = $build['item'] ?? NULL;
     $settings = $build['settings'];
-    $blazies = $settings['blazies'];
+    $blazies  = $settings['blazies'];
 
     // @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
     if ($blazies->is('grid') || $blazies->no('item_container')) {
@@ -203,37 +202,31 @@ class BlazyFilter extends BlazyFilterBase {
     ];
 
     // Copy all attributes of the original node to the item_attributes.
-    if ($node->attributes->length) {
-      foreach ($node->attributes as $attribute) {
-        $value = $attribute->nodeValue;
-        $name = $attribute->nodeName;
+    if ($attrs = $blazies->get('item.attributes', [])) {
+      foreach ($attrs as $name => $value) {
         if ($name == 'src' || !$value) {
           continue;
         }
 
-        // Move classes (align-BLAH,etc) to Blazy container, not image so to
-        // work with alignments and aspect ratio. Sanitization is performed at
-        // BlazyManager::prepareBlazy() to avoid double escapes.
-        if ($name == 'class') {
-          if (strpos($value, 'b-lazy') === FALSE) {
-            $build['media_attributes']['class'][] = $value;
-          }
-        }
-        // Uploaded IMG has target_id in the least, respect hard-coded IMG.
-        // @todo decide to remove as this is being too risky.
-        elseif ($item && !isset($item->target_id)) {
-          $build['item_attributes'][$name] = $value;
-        }
-
         // Add classes for alignment.
-        if ($name == 'align' || $name == 'style') {
-          if ($value == 'left' || $value == 'float:left') {
-            $build['media_attributes']['class'][] = 'alignment-left';
-          }
-          elseif ($value == 'right' || $value == 'float:right') {
-            $build['media_attributes']['class'][] = 'alignment-right';
+        // Move classes (align-BLAH,etc) to Blazy container, not image so to
+        // work with alignments and aspect ratio.
+        if (is_string($value)) {
+          if ($name == 'align' || $name == 'style') {
+            if (strpos($value, 'left') !== FALSE) {
+              $build['media_attributes']['class'][] = 'alignment-left';
+            }
+            elseif (strpos($value, 'right') !== FALSE) {
+              $build['media_attributes']['class'][] = 'alignment-right';
+            }
           }
         }
+        // @todo recheck againts the newly created self::buildMediaAttributes().
+        // else if ($name == 'class') {
+        // if (strpos($value, 'b-lazy') === FALSE) {
+        // $build['media_attributes']['class'][] = $value;
+        // }
+        // }.
       }
 
       $build['media_attributes']['class'] = array_unique($build['media_attributes']['class']);
@@ -436,7 +429,7 @@ class BlazyFilter extends BlazyFilterBase {
     $blazies->set('delta', $delta)
       ->set('thumbnail.uri', $tn_uri);
 
-    // If using grid, node is grid item, else img or iframe.
+    // If using grid, node is grid item.
     if ($node->tagName == 'item') {
       $this->buildItemAttributes($build, $node, $delta);
       $text = Util::getHtml($node);
@@ -450,6 +443,7 @@ class BlazyFilter extends BlazyFilterBase {
         }
       }
     }
+    // Else just img or iframe.
     else {
       $media = $node;
     }
@@ -458,16 +452,18 @@ class BlazyFilter extends BlazyFilterBase {
       return [];
     }
 
-    // Build item settings, image, and caption.
+    // Build item settings, image, and caption, including URI here.
     $this->buildItemContent($build, $media, $delta);
 
     // Marks invalid, unknown, missing IMG or IFRAME for removal.
     // Be sure to not affect external images, only strip missing local URI.
     $uri = $blazies->get('image.uri');
+
     $missing = FALSE;
     if ($uri && !BlazyFile::isExternal($uri)) {
       $missing = BlazyFile::isValidUri($uri) && !is_file($uri);
     }
+
     if (empty($uri) || $missing) {
       $media->setAttribute('class', 'blazy-removed');
       return [];

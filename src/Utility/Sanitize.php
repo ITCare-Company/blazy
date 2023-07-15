@@ -98,6 +98,8 @@ class Sanitize {
         $output[$key] = array_map('\Drupal\Component\Utility\Html::cleanCssIdentifier', explode(' ', $value));
       }
       else {
+        // Makes abused IMG title/ alt HTML usable for captions and attributes.
+        $value = strip_tags($value);
         if ($lowercase) {
           $value = mb_strtolower($value);
         }
@@ -135,7 +137,7 @@ class Sanitize {
 
     if ($match = $matches[0] ?? NULL) {
       $match = strtolower($match);
-      $match = explode(' ', $match);
+      $match = array_map('trim', explode(' ', $match));
       $match = str_replace(['<', '>'], '', $match[0]);
 
       // To avoid broken HTML if anything match containers.

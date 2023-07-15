@@ -155,7 +155,6 @@ class BlazyFilterUtil {
    * Returns a image/ iframe src.
    *
    * Checks if we have a valid file entity, not hard-coded image URL.
-   * Prioritize data-src for sub-module filters after Blazy.
    */
   public static function getValidSrc($node, $use_data_uri = FALSE) {
     $url = '';
@@ -164,18 +163,16 @@ class BlazyFilterUtil {
     $func = function ($input, $key) use ($use_data_uri) {
       if ($input) {
         $data_uri = Blazy::isDataUri($input);
-        if (!$data_uri) {
+        // @todo recheck against sub-modules priority order in Filter admin.
+        // The SRC might be 1px, but DATA-SRC is the real data URI.
+        if (!$data_uri || ($data_uri && $use_data_uri)) {
           return $input;
-        }
-        else {
-          if ($key == 'src' && $use_data_uri) {
-            return $input;
-          }
         }
       }
       return '';
     };
 
+    // Prioritize data-src for sub-module filters after Blazy.
     foreach (['data-src', 'src'] as $key) {
       $src = $node->getAttribute($key);
       $check = $func($src, $key);
@@ -217,10 +214,16 @@ class BlazyFilterUtil {
         if ($excludes && in_array($name, $excludes)) {
           continue;
         }
-        $attributes[$name] = ($name == 'class') ? [$value] : $value;
+
+        if ($name == 'class') {
+          $value = array_map('trim', explode(' ', $value));
+        }
+
+        $attributes[$name] = $value;
       }
     }
-    return Blazy::sanitize($attributes);
+    // Sanitization is done downstream, not here.
+    return $attributes;
   }
 
   /**

@@ -764,6 +764,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
     if ($admin_css) {
       $form['closing']['#attached']['library'][] = 'blazy/admin';
+
+      if ($libraries = $scopes->data('libraries')) {
+        foreach ($libraries as $key) {
+          $form['closing']['#attached']['library'][] = $key;
+        }
+      }
     }
 
     $this->blazyManager->moduleHandler()->alter('blazy_complete_form_element', $form, $definition);
@@ -1082,6 +1088,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       'classes',
       'images',
       'layouts',
+      'libraries',
       'links',
       'optionsets',
       'overlays',

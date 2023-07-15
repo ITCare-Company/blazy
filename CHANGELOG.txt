@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-07-15
+------------------------------
+- Issue #3374519 by rex.barkdoll: Keeping Custom Attributes in CKEditor.
+
 Blazy 8.x-2.0-dev, 2023-07-14
 ------------------------------
 - Removed and cleaned out stone-age admin CSS for modern nativegrid.

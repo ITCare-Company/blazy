@@ -220,7 +220,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     // @todo figure out a more efficient way than blacklisting.
     // Do not exclude field_media_image  as needed for Main stage.
     $fields = 'document_size media_file id media_in_library mime_type source tweet_author tweet_id tweet_url media_video_embed_field instagram_shortcode instagram_url media_soundcloud media_oembed_video media_audio_file media_video_file media_facebook media_flickr file_url external_thumbnail local_thumbnail local_thumbnail_uri media_unsplash';
-    $fields = explode(' ', $fields);
+    $fields = array_map('trim', explode(' ', $fields));
 
     $excludes = [];
     foreach ($fields as $exclude) {

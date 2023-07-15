@@ -16,6 +16,28 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 abstract class TextFilterBase extends FilterBase implements ContainerFactoryPluginInterface {
 
   /**
+   * Defines the module namespace.
+   *
+   * @var string
+   * @see https://www.php.net/manual/en/reserved.keywords.php
+   */
+  protected $namespace = 'blazy';
+
+  /**
+   * The item identifier for captions: .blazy__caption, .slide__caption, etc.
+   *
+   * @var string
+   */
+  protected $itemId = 'blazy';
+
+  /**
+   * The shortcode item identifier for grid, or slide, etc.: [item] or [slide].
+   *
+   * @var string
+   */
+  protected $shortcode = 'item';
+
+  /**
    * The app root.
    *
    * @var string
