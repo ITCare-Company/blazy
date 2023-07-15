@@ -311,14 +311,14 @@ interface BlazyInterface {
    *
    * @param array $options
    *   The options:
-   *   - count: total items.
-   *   - grid: the largest, nomally like 4x2 2x2 3x4, etc.
-   *   - grid_medium: only integer from 1-12 due to pure CSS, no JavaScript.
-   *   - grid_small: only integer, at max 2 from 1-12.
-   *   - classes: existing classes to merge, string or array.
-   *   - gapless: bool to remove default gap 15px, default to TRUE.
-   *   - is_form: bool for forms, default to TRUE, requires blazy/admin.grid.
-   *   - blazies: BlazySettings object. If none, will create an ampty one.
+   *   - count, int: total items.
+   *   - grid, string: like 4x2 2x2 3x4, etc. Default: 6x1 (wo columns).
+   *   - grid_medium, int: 1-12 due to pure CSS. Default: 2.
+   *   - grid_small, int: at max 2 from 1-12. Default: 1.
+   *   - classes, string|array: classes to merge. Default: gapless + is_form.
+   *   - gapless, bool: remove default gap 15px. Default: TRUE.
+   *   - is_form, bool: for forms, equires blazy/admin.grid. Default: TRUE.
+   *   - blazies, BlazySettings: If none, will create an empty object.
    *
    * @requires:
    *  - self::gridItemAttributes() for individual items.
@@ -328,7 +328,7 @@ interface BlazyInterface {
    *      libraries for form usages.
    *
    * @return array
-   *   - attributes: to apply into existing containers,
+   *   - attributes: to apply/ merge into existing containers,
    *   - settings: to use for self::gridItemAttributes() parameters.
    */
   public function initNativeGrid(array $options): array;

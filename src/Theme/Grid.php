@@ -147,22 +147,21 @@ class Grid {
       'blazies'     => $blazies,
     ];
 
-    if (is_string($classes)) {
-      $classes = explode(' ', $classes);
-    }
+    self::toNativeGrid($sets);
+    self::attributes($attrs, $sets);
 
-    if ($is_form) {
-      $classes[] = 'b-nativegrid--form';
+    if (is_string($classes)) {
+      $classes = array_map('trim', explode(' ', $classes));
     }
     if ($gapless) {
       $classes[] = 'is-b-gapless';
     }
+    if ($is_form) {
+      $attrs['class'][] = 'b-nativegrid--form';
+    }
 
-    self::toNativeGrid($sets);
-    self::attributes($attrs, $sets);
-
-    $attrs['class'] = array_merge($attrs['class'], $classes);
-    $attrs['class'] = array_unique(array_filter($attrs['class']));
+    $classes = array_merge($attrs['class'], $classes);
+    $attrs['class'] = array_unique(array_filter($classes));
 
     return ['attributes' => $attrs, 'settings' => $sets];
   }

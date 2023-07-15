@@ -639,7 +639,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $total     = count($children);
 
     if ($admin_css) {
-      $classes[] = 'b-nativegrid--form';
       $options = [
         'count'   => $total,
         'classes' => $classes,
@@ -1045,7 +1044,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $target_type = $scopes->get('target_type') ?: ($definition['target_type'] ?? NULL);
     $entity_type = $scopes->get('entity.type') ?: ($definition['entity_type'] ?? NULL);
     $view_mode = $scopes->get('view_mode') ?: ($definition['view_mode'] ?? NULL);
-    $vanilla = $scopes->isset('vanilla') || isset($definition['vanilla']);
     $switch = !$scopes->is('no_lightboxes') && isset($settings['media_switch']);
 
     $bools = [
@@ -1066,6 +1064,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       'responsive_image',
       'style',
       'thumbnail_style',
+      'vanilla',
       '_views',
     ];
 
@@ -1084,7 +1083,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ->set('is.responsive_image', $responsive)
       ->set('is.slider', $scopes->is('slider') ?: $sliders)
       ->set('is.switch', $switch)
-      ->set('is.vanilla', $vanilla && isset($settings['vanilla']))
       ->set('entity.type', $entity_type)
       ->set('namespace', $namespace)
       ->set('plugin_id', $plugin_id)
