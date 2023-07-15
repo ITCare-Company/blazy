@@ -650,6 +650,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $grid_sets  = $check['settings'];
       $classes    = implode(' ', $grid_attrs['class']);
     }
+    else {
+      $classes = implode(' ', $classes);
+    }
 
     $form['opening'] = [
       '#markup' => '<div class="' . $classes . '">',

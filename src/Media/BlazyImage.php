@@ -228,8 +228,7 @@ class BlazyImage {
     $uri = $uri ?: BlazyFile::uri($output, $settings);
 
     if ($uri) {
-      $blazies->set('image.uri', $uri)
-        ->set('image.output', $output);
+      $blazies->set('image.uri', $uri);
 
       // Prepare image URL and its dimensions, including for rich-media content,
       // such as for local video poster image if a poster URI is provided.
