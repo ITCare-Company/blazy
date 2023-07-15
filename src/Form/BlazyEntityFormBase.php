@@ -54,6 +54,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
    */
   protected $formGrids = [
     'settings',
+    ['options', 'layout'],
     ['options', 'settings'],
     ['respond', 'settings'],
     ['breakpoints', 'responsive'],
@@ -116,12 +117,11 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
     }
 
     // Prevent leading and trailing spaces in entity names.
-    $entity->set('label', Html::escape(trim($entity->label())))
+    $label = Html::escape(trim($entity->label()));
+    $entity->set('label', $label)
       ->set('id', $entity->id());
 
     $status        = $entity->save();
-    $label         = $entity->label();
-    $edit_link     = $entity->toLink($this->t('Edit'), 'edit-form')->toString();
     $entity_type   = $entity->getEntityType();
     $config_prefix = '';
 
@@ -134,7 +134,6 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
     $notice  = [
       '@config_prefix' => $config_prefix,
       '%label' => $label,
-      'link' => $edit_link,
     ];
 
     if ($status == SAVED_UPDATED) {
@@ -161,6 +160,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
     if ($admin_css) {
       $this->toGrid($form);
       $form['#attached']['library'][] = 'blazy/admin';
+      $form['#attached']['library'][] = 'blazy/admin.optionset';
     }
   }
 
@@ -184,20 +184,19 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
     $classes[] = 'b-tooltip';
 
     // Add some BEM orders for consistency.
-    if (isset($attrs['class'])) {
-      $attrs['class'] = array_merge($classes, $attrs['class']);
-    }
+    $attrs['class'] = array_merge($classes, (array) ($attrs['class'] ?? []));
   }
 
   /**
    * Setup form grids.
    */
-  protected function toGrid(array &$form): void {
+  protected function toGrid(array &$form): array {
+    $result = [];
     if ($grids = $this->formGrids) {
       foreach ($grids as $keys) {
         if (is_string($keys)) {
           if (isset($form[$keys])) {
-            $this->toNativeGrid($form[$keys]);
+            $result = $this->toNativeGrid($form[$keys]);
           }
         }
         else {
@@ -216,7 +215,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
                   foreach ($children as $k) {
                     if (isset($form[$key][$child][$k]['settings'])) {
                       $formsets = &$form[$key][$child][$k]['settings'];
-                      $this->toNativeGrid($formsets);
+                      $result = $this->toNativeGrid($formsets);
                       $check = TRUE;
                     }
                   }
@@ -227,13 +226,14 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
             if (!$check) {
               if (isset($form[$key1][$key2])) {
                 $formsets = &$form[$key1][$key2];
-                $this->toNativeGrid($formsets);
+                $result = $this->toNativeGrid($formsets);
               }
             }
           }
         }
       }
     }
+    return $result;
   }
 
   /**
@@ -242,19 +242,11 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
   private function toNativeGrid(array &$form): array {
     $children = Element::children($form);
     $total    = count($children);
-    $options  = [
-      'count'   => $total,
-      'classes' => 'b-nativegrid--form',
-    ];
-
-    $check   = $this->manager->initNativeGrid($options);
-    $attrs   = $check['attributes'];
-    $sets    = $check['settings'];
-    $classes = implode(' ', $attrs['class']);
-
-    foreach ($attrs['class'] as $key => $value) {
-      $form['#attributes']['class'][] = $value;
-    }
+    $options  = ['count' => $total];
+    $check    = $this->manager->initNativeGrid($options);
+    $attrs    = $check['attributes'];
+    $sets     = $check['settings'];
+    $classes  = implode(' ', $attrs['class']);
 
     foreach ($children as $delta => $key) {
       if (!isset($form[$key]['#wrapper_attributes']['class'])) {

@@ -3,11 +3,15 @@
  * Common optionset utilities.
  */
 
-.js .form--blazy .vertical-tabs .vertical-tabs__item {
+.js .form--optionset .vertical-tabs .vertical-tabs__item {
   clear: none;
 }
 
 @media screen and (min-width: 760px) {
+
+  .vertical-tabs .b-nativegrid {
+    border: 0;
+  }
 
   /** Needs more room with gazillion options. */
   .form--optionset .vertical-tabs .claro-details__content--vertical-tabs-item {

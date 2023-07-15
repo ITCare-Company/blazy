@@ -297,12 +297,18 @@ class Grid {
   private static function containerAttributes(array &$attrs, array $settings, $blazies): void {
     $remove  = $blazies->ui('deprecated_class', FALSE);
     $style   = $settings['style'] ?: 'grid';
+    $count   = $blazies->get('total', 0) ?: $blazies->get('count', 0);
     $format1 = 'b-%s';
     $format2 = 'b-count-%d';
 
     $attrs['class'][] = 'blazy--grid';
     $attrs['class'][] = sprintf($format1, $style);
-    $attrs['class'][] = sprintf($format2, $blazies->get('count'));
+    $attrs['class'][] = sprintf($format2, $count);
+
+    // To remove border of the last odd item.
+    if ($count % 2 != 0) {
+      $attrs['class'][] = 'b-odd';
+    }
 
     // Deprecated since 2.17, use the latest instead.
     if (!$remove) {

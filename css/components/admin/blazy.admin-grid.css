@@ -11,18 +11,26 @@
 .b-nativegrid--form {
   align-items: center;
   border: 1px solid #dbe1e9;
+  gap: 0;
+}
+
+.form--blazy.b-nativegrid--form {
   background-color: #f9f9f9;
-  box-shadow: 0 0 0 4px #f9f9f9;
+  box-shadow: 0 0 0 4px #dadada;
   margin: 30px auto;
 }
 
-.b-nativegrid--form.b-tooltip,
-.form--blazy.b-nativegrid--form.b-tooltip {
+.b-nativegrid--form.b-tooltip {
   overflow: visible;
 }
 
 .b-nativegrid--form fieldset > div {
+  border-bottom: 1px solid #dbe1e9;
   width: inherit;
+}
+
+.b-nativegrid--form fieldset:last-child > div {
+  padding-bottom: 15px;
 }
 
 .b-nativegrid--form .form__title,
@@ -39,34 +47,25 @@
   height: auto;
 }
 
-.b-nativegrid--form .grid.form-item {
-  box-sizing: border-box;
+.b-nativegrid--auto .form-item,
+.b-nativegrid--form .grid.form-item,
+.b-nativegrid--form .form-checkboxes .form-item {
   border-bottom: 1px solid #dadada;
-  border-top: 0;
-  font-size: 13px;
-  font-size: 0.8125rem;
-  line-height: 32px;
   position: relative;
-  margin: 0 auto;
+  margin: 0 auto -2px;
   padding: 0;
 }
 
-/* .form--blazy .form-item--fullwidth, */
+.b-odd .form-item:last-child {
+  border-bottom: 0;
+}
+
+.b-nativegrid--auto,
 .b-nativegrid--form .form-checkboxes {
-  align-content: space-evenly;
   border-bottom: 1px solid #dadada;
   border-top: 2px solid #dadada;
   clear: both;
-  grid-auto-rows: 72px;
-  grid-gap: 0;
-  justify-items: center;
   margin: 0;
-  width: 100%;
-}
-
-/* .form--blazy .form-item--fullwidth > .form-item, */
-.b-nativegrid--form .form-wrapper--checkboxes .form-item {
-  padding: 15px 0;
   width: 100%;
 }
 
@@ -78,8 +77,20 @@
   clear: both;
 }
 
-@media screen and (min-width: 768px) {
-  /* .form--blazy .form-item--fullwidth > .form-item, */
+/** 641px with 16px base font. */
+@media only screen and (min-width: 40.063em) {
+  .b-nativegrid--auto,
+  .b-nativegrid--form .form-checkboxes {
+    align-content: space-evenly;
+    display: grid;
+    grid-auto-rows: 80px;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 0;
+    justify-items: center;
+  }
+
+  .b-nativegrid--auto .form-item,
+  .b-nativegrid--form .form-checkboxes .form-item,
   .b-nativegrid--form .grid.form-item {
     align-self: center;
     display: flex;
@@ -87,7 +98,7 @@
     width: 100%;
   }
 
-  .b-nativegrid--form .grid.form-item label {
+  .b-nativegrid--form .form-item label {
     align-self: center;
     margin-right: 10px;
     text-align: right;
@@ -95,14 +106,26 @@
     width: 180px;
   }
 
+  /*
+  .b-nativegrid--form .form-checkboxes .form-item > div,
+  .b-nativegrid--form .form-checkboxes .form-item > input,
+  .b-nativegrid--form .form-checkboxes .form-item > select,
   .b-nativegrid--form .grid.form-item > div,
   .b-nativegrid--form .grid.form-item > input,
   .b-nativegrid--form .grid.form-item > select {
     align-self: center;
   }
+  */
 
-  .b-nativegrid--form .grid.form-item input:not(.form-checkbox),
-  .b-nativegrid--form .grid.form-item select {
+  .b-nativegrid--form .form-item > div,
+  .b-nativegrid--form .form-item > input,
+  .b-nativegrid--form .form-item > select,
+  .b-nativegrid--form .form-item > span {
+    align-self: center;
+  }
+
+  .b-nativegrid--form .form-item input:not(.form-checkbox),
+  .b-nativegrid--form .form-item select {
     width: 47%;
     max-width: 82%;
   }
@@ -111,7 +134,7 @@
     width: 73%;
   }
 
-  .b-nativegrid--form .grid.form-item .form-item__suffix {
+  .b-nativegrid--form .form-item .form-item__suffix {
     margin-top: 2px;
   }
 
@@ -119,23 +142,8 @@
     max-width: 52%;
   }
 
-  /* .form--blazy .form-item--fullwidth, */
-  .b-nativegrid--form .form-checkboxes {
-    display: grid;
-    grid-template-columns: auto auto;
-  }
-
-  /* .form--blazy .form-item--fullwidth > .form-item, */
-  .b-nativegrid--form .form-wrapper--checkboxes .form-item {
-    display: flex;
-    align-items: center;
-    flex-flow: column wrap;
-    align-content: flex-start;
-    justify-content: center;
-  }
-
   .b-nativegrid--form .form-item .form-boolean {
-    left: 28px;
+    margin-left: 0;
   }
 
   .b-nativegrid--form .form__header .form-item label {
@@ -151,6 +159,9 @@
   .b-nativegrid--form fieldset > legend {
     box-sizing: border-box;
     background-color: #dadada;
+    font-size: 1.602rem;
+    font-weight: bold;
+    line-height: 1.3;
     padding: 8px;
     text-align: center;
   }
@@ -190,6 +201,17 @@
     padding-right: 15px;
   }
 
+  .b-nativegrid--form fieldset {
+    display: flex;
+    align-items: start;
+    align-self: center;
+    grid-row: span 4;
+    grid-column: span 12;
+    justify-content: start;
+    height: 100%;
+    width: 100%;
+  }
+
   .b-nativegrid--form fieldset > legend {
     clear: both;
     display: block;
@@ -205,13 +227,27 @@
 
 }
 
-@media screen and (min-width: 1200px) {
+/** 1025px with 16px base font. */
+@media only screen and (min-width: 64.063em) {
   .b-nativegrid--form.form--half {
     max-width: 960px;
     min-width: 760px;
   }
 
+  .b-nativegrid--3,
   .b-nativegrid--form .form-checkboxes {
-    grid-template-columns: auto auto auto;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .b-nativegrid--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .b-nativegrid--5 {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .b-nativegrid--6 {
+    grid-template-columns: repeat(6, 1fr);
   }
 }

@@ -1971,18 +1971,18 @@
 
   function index(el, parents) {
     var i = 0;
-    var loop = false;
+    var loop = true;
     if (isElm(el)) {
       if (!isUnd(parents)) {
         each(toArray(parents), function (sel, idx) {
           if (isElm(sel)) {
+            loop = false;
             if (is(el, sel)) {
               i = idx;
               return false;
             }
           }
           else if (isStr(sel)) {
-            loop = true;
             var check = closest(el, sel);
             if (isElm(check)) {
               el = check;

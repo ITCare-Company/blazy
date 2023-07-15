@@ -707,26 +707,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           $blazy->set('delta', $delta);
         }
 
-        // $form[$key]['#wrapper_attributes']['class'][] = 'grid';
         if ($type == 'checkbox' && $type != 'checkboxes') {
-          // $form[$key]['#field_suffix'] = '&nbsp;';
           $form[$key]['#title_display'] = 'before';
         }
         elseif ($type == 'checkboxes' && !empty($form[$key]['#options'])) {
-          $attrs['class'][] = 'form-wrapper--checkboxes';
-          $attrs['class'][] = 'form-wrapper--' . str_replace('_', '-', $key);
-          $count = count($form[$key]['#options']);
-          $attrs['class'][] = 'form-wrapper--count-' . ($count > 3 ? 'max' : $count);
-
           foreach ($form[$key]['#options'] as $i => $option) {
-            // $form[$key][$i]['#field_suffix'] = '&nbsp;';
             $form[$key][$i]['#title_display'] = 'before';
           }
-
-          $box_count = count(Element::children($form[$key]));
-          $attrs['data-b-w'][] = 12;
-          $attrs['data-b-h'][] = $box_count > 6 ? (int) (($box_count / 2) + 1) : 3;
-          $attrs['class'][] = 'grid';
         }
 
         $dummies['class'] = [];
