@@ -165,6 +165,9 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     if ($captions && $item = Blazy::toHashtag($data, 'item')) {
       foreach ($captions as $caption) {
         if ($content = ($item->{$caption} ?? NULL)) {
+          if ($caption == 'alt') {
+            $content = '<p>' . $content . '</p>';
+          }
           $output[$caption] = [
             '#markup' => Sanitize::caption($content),
           ];

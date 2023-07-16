@@ -2,6 +2,8 @@
 
 namespace Drupal\blazy\Form;
 
+use Drupal\blazy\BlazyDefault;
+
 /**
  * Provides admin form specific to Blazy admin formatter.
  */
@@ -135,7 +137,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
         '#title'       => $this->t('Item class'),
         '#options'     => $this->toOptions($data['classes']),
         '#description' => $this->t('If provided, individual item will have this class, e.g.: to have different background with transparent images. Be sure its formatter is Key or Label. Accepted field types: list text, string (e.g.: node title), term/entity reference label.'),
-        '#weight'      => 6,
+        // '#weight'      => 6,
       ];
     }
 
@@ -151,6 +153,13 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
     else {
       if (isset($form['caption'])) {
         $form['caption']['#description'] .= ' ' . $this->t('Be sure to make them visible at their relevant Manage display.');
+      }
+    }
+
+    $weight = -90;
+    foreach (BlazyDefault::viewsSettings() as $key) {
+      if (isset($form[$key]) && !isset($form[$key]['#weight'])) {
+        $form[$key]['#weight'] = --$weight;
       }
     }
   }

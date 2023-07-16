@@ -346,8 +346,8 @@ class Blazy {
   /**
    * Alias for Grid::attributes().
    */
-  public static function gridAttributes(array &$attrs, array $settings): array {
-    return Grid::attributes($attrs, $settings);
+  public static function gridAttributes(array &$attrs, array $settings): void {
+    Grid::attributes($attrs, $settings);
   }
 
   /**

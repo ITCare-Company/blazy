@@ -125,27 +125,29 @@ class Sanitize {
    *   The relatively non-broken $input.
    */
   public static function caption($input, array $options = []): string {
-    if (!$input) {
+    $check = $input;
+    if (!$check) {
       return '';
     }
 
+    /*
+    // @todo recheck in case a breaking change.
     $containers = $options['containers'] ?? ['h2', 'p', 'div'];
-    $check = $input;
-
     // Image alt and title might be abused, check them:
     preg_match("/<[^<]+>/", $check, $matches);
 
     if ($match = $matches[0] ?? NULL) {
-      $match = strtolower($match);
-      $match = array_map('trim', explode(' ', $match));
-      $match = str_replace(['<', '>'], '', $match[0]);
+    $match = strtolower($match);
+    $match = array_map('trim', explode(' ', $match));
+    $match = str_replace(['<', '>'], '', $match[0]);
 
-      // To avoid broken HTML if anything match containers.
-      // Few were preserved for blazy and its sub-modules caption containers.
-      if (in_array($match, $containers)) {
-        $check = strip_tags($check);
-      }
+    // To avoid broken HTML if anything match containers.
+    // Few were preserved for blazy and its sub-modules caption containers.
+    if (in_array($match, $containers)) {
+    $check = strip_tags($check);
     }
+    }
+     */
     return Xss::filterAdmin($check);
   }
 

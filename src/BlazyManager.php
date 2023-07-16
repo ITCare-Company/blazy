@@ -180,21 +180,56 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
 
   /**
    * Build captions for both old image, or media entity.
+   *
+   * Was planned above years ago to replace sub-modules if any similarity.
+   * The only blocking is blazy has no dedicated CSS classes for link and
+   * overlay, etc. other than the field_NAME without field, almost close.
    */
   protected function buildCaption(array $captions, array $settings, $id = 'blazy') {
-    $blazies = $settings['blazies'];
-    $content = [];
+    $blazies  = $settings['blazies'];
+    $content  = $title = $descriptions = [];
+    $is_blazy = $id == 'blazy';
+    $prefix   = $is_blazy ? $id . '__caption--' : $id . '__';
+    $_title   = $prefix . 'title';
+    $_desc    = $prefix . 'description';
 
-    foreach ($captions as $key => $caption_content) {
-      if ($caption_content) {
-        $content[$key]['content'] = $caption_content;
-        $content[$key]['tag'] = strpos($key, 'title') !== FALSE ? 'h2' : 'div';
-        $class = $key == 'alt' ? 'description' : str_replace('field_', '', $key);
+    // Supports multiple description fields.
+    foreach ($captions as $key => $caption) {
+      if ($caption) {
+        $is_title = strpos($key, 'title') !== FALSE;
+        if ($is_title) {
+          $content[$key]['content'] = $caption;
+          $content[$key]['tag'] = 'h2';
 
-        $attrs = new Attribute();
-        $attrs->addClass($id . '__caption--' . str_replace('_', '-', $class));
-        $content[$key]['attributes'] = $attrs;
+          $attrs = new Attribute();
+          $attrs->addClass($_title);
+          $content[$key]['attributes'] = $attrs;
+        }
+        else {
+          // Preserve old behaviors, but prevents similar classes.
+          $key = str_replace('field_', '', $key);
+          if ($key == 'description') {
+            $key = 'item';
+          }
+          $subattrs['class'] = [$id . '__caption--' . $key];
+          $descriptions[$key] = isset($caption['#markup'])
+            ? $caption : [
+              '#theme'      => 'container',
+              '#children'   => $caption,
+              '#attributes' => $subattrs,
+            ];
+        }
       }
+    }
+
+    // Allows multiple fields with link, etc. without too many siblings.
+    if ($descriptions) {
+      $key = 'description';
+      $content[$key]['content'] = $descriptions;
+      $content[$key]['tag'] = 'div';
+      $attrs = new Attribute();
+      $attrs->addClass($_desc);
+      $content[$key]['attributes'] = $attrs;
     }
 
     // Figcaption is more relevant for core filter captions under Figure.
@@ -307,9 +342,9 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    *   object, settings, optional container attributes.
    */
   private function prepareBlazy(array &$element, array $build) {
-    $item = $this->toHashtag($build, 'item', NULL);
-    $settings = $this->toHashtag($build);
-    $blazies = $settings['blazies'];
+    $item       = $this->toHashtag($build, 'item', NULL);
+    $settings   = $this->toHashtag($build);
+    $blazies    = $settings['blazies'];
     $attributes = &$build['attributes'];
 
     // Blazy has these 3 attributes, yet provides optional ones far below.

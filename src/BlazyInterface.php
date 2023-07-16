@@ -282,7 +282,7 @@ interface BlazyInterface {
    *
    * This method + self::initGrid() allows you to build grids with any themes
    * having just DIV > DIVs like theme_field(), media_library, etc., without
-   * re-building it with self::toGrid() such as seen at Blazy formatters, Views,
+   * re-building it like self::toGrid() such as seen at Blazy formatters, Views,
    * Optionset forms, IO Browser/Slick Browser by simply modifying existing
    * attributes. The required:
    *   - $settings contains delta, count + self::initGrid() settings.
@@ -331,7 +331,7 @@ interface BlazyInterface {
    *
    * @return array
    *   - attributes: to apply/ merge into existing containers,
-   *   - settings: to use for self::gridItemAttributes() parameters.
+   *   - settings: to use for self::gridItemAttributes() last parameter.
    */
   public function initGrid(array $options): array;
 
@@ -461,6 +461,7 @@ interface BlazyInterface {
    * Returns items wrapped by theme_item_list(), can be a grid, or plain list.
    *
    * Alias for Blazy::grid() for sub-modules and easy organization later.
+   * UNlike self::initGrid(), this requires item contents to process.
    *
    * @param array|\Generator $items
    *   The grid items.
@@ -469,6 +470,12 @@ interface BlazyInterface {
    *
    * @return array
    *   The modified array of grid items.
+   *
+   * @see \Drupal\blazy\BlazyManager::preRenderBuild()
+   * @see \Drupal\slick\SlickManager::buildGridItem()
+   * @see \Drupal\slick_ui\Controller\SlickListBuilder::render()
+   * @see \Drupal\splide\SplideManager::buildGridItem()
+   * @see \Drupal\splide_ui\Controller\SplideListBuilder::render()
    */
   public function toGrid($items, array $settings): array;
 

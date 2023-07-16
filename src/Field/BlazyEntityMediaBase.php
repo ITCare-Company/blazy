@@ -151,34 +151,66 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     $settings  = $element['settings'];
     $blazies   = $settings['blazies'];
     $view_mode = $settings['view_mode'] ?? 'full';
+    $is_blazy  = $blazies->get('namespace') == 'blazy';
+    $weights   = $caption_items = [];
 
-    // The caption fields common to all entity formatters, if so configured.
-    if (empty($settings['caption'])) {
-      return;
-    }
-
-    $caption_items = $weights = [];
-    foreach ($settings['caption'] as $name => $field_caption) {
-      /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-      if ($item = ($element['item'] ?? NULL)) {
-        // Provides basic captions based on image attributes (Alt, Title).
-        foreach (['title', 'alt'] as $key => $attribute) {
-          $value = $item->{$attribute} ?? '';
-          if ($name == $attribute && $caption = trim($value)) {
-            $markup = Xss::filter($caption, BlazyDefault::TAGS);
-            $caption_items[$name] = ['#markup' => $markup];
-            $weights[] = $key;
+    // Title can be plain text, or link field.
+    if ($_title = $settings['title'] ?? NULL) {
+      $output = [];
+      // If title is available as a field.
+      if (isset($entity->{$_title})) {
+        $output = BlazyField::getTextOrLink($entity, $_title, $view_mode, $langcode);
+      }
+      // Else fallback to image title property.
+      elseif ($item = ($element['item'] ?? NULL)) {
+        if ($_title == 'title') {
+          // Respects both fake and real image item.
+          if ($caption = ($item->title ?? NULL)) {
+            $caption = Xss::filter($caption, BlazyDefault::TAGS);
+            $output = ['#markup' => trim($caption)];
           }
         }
       }
 
-      // Provides fieldable captions.
-      if ($caption = BlazyField::view($entity, $field_caption, $view_mode)) {
-        if (isset($caption['#weight'])) {
-          $weights[] = $caption['#weight'];
+      if ($output) {
+        // @todo recheck to make it similar to sub-modules.
+        if ($is_blazy) {
+          $weights[] = 0;
+          $caption_items['title'] = $output;
+        }
+        else {
+          $element['caption']['title'] = $output;
+        }
+      }
+    }
+
+    // The caption fields common to all entity formatters, if so configured.
+    if ($field_captions = $settings['caption'] ?? []) {
+      foreach ($field_captions as $name => $field_caption) {
+        /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+        if ($item = ($element['item'] ?? NULL)) {
+          // Provides basic captions based on image attributes (Alt, Title).
+          foreach (['title', 'alt'] as $key => $attribute) {
+            $value = $item->{$attribute} ?? '';
+            if ($name == $attribute && $caption = trim($value)) {
+              $markup = Xss::filter($caption, BlazyDefault::TAGS);
+              if ($name == 'alt') {
+                $markup = '<p>' . $markup . '</p>';
+              }
+              $caption_items[$name] = ['#markup' => $markup];
+              $weights[] = $key;
+            }
+          }
         }
 
-        $caption_items[$name] = $caption;
+        // Provides fieldable captions.
+        if ($markup = BlazyField::view($entity, $field_caption, $view_mode)) {
+          if (isset($markup['#weight'])) {
+            $weights[] = $markup['#weight'];
+          }
+
+          $caption_items[$name] = $markup;
+        }
       }
     }
 
@@ -187,8 +219,10 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
         array_multisort($weights, SORT_ASC, $caption_items);
       }
 
-      // Differenciate Blazy from Slick, GridStack, etc. to avoid collisions.
-      if ($blazies->get('namespace') == 'blazy') {
+      // @todo recheck to make it similar to sub-modules if any issues at 3.x.
+      // The most obvious was seen at BlazyFileFormatterBase where sub-modules
+      // don't want to pass captions to theme_blazy() for their own markups.
+      if ($is_blazy) {
         $element['captions'] = $caption_items;
       }
       else {
@@ -203,12 +237,14 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   protected function getPluginScopes(): array {
     $bundles  = $this->getAvailableBundles();
     $captions = $this->getFieldOptions();
+    $_texts   = ['text', 'text_long', 'string', 'string_long', 'link'];
+    $titles   = $this->getFieldOptions($_texts);
     $images   = [];
 
     if ($bundles) {
       // @todo figure out to not hard-code stock bundle image.
       if (in_array('image', array_keys($bundles))) {
-        $captions['title'] = $this->t('Image Title');
+        $captions['title'] = $titles['title'] = $this->t('Image Title');
         $captions['alt'] = $this->t('Image Alt');
       }
 
@@ -233,6 +269,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       'no_image_style'    => FALSE,
       'responsive_image'  => TRUE,
       'thumbnail_style'   => TRUE,
+      'titles'            => $titles,
     ] + $images
       + parent::getPluginScopes();
   }

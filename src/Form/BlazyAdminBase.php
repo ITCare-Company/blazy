@@ -227,13 +227,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     if ($element = $base_form['view_mode'] ?? []) {
       $form['view_mode'] = $element;
     }
-
-    $weight = -99;
-    foreach (Element::children($form) as $key) {
-      if (!isset($form[$key]['#weight'])) {
-        $form[$key]['#weight'] = ++$weight;
-      }
-    }
   }
 
   /**
@@ -277,6 +270,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       '#description' => $description,
       '#enforced'    => TRUE,
       '#required'    => $required,
+      '#weight'      => 60,
       '#wrapper_attributes' => [
         'class' => [
           'form-item--full',
@@ -325,6 +319,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     foreach ($grids as $key) {
       if (isset($form[$key])) {
         $form[$key]['#enforced'] = TRUE;
+        $form[$key]['#weight'] = $key == 'grid_header' ? 50 : 61;
         $form[$key]['#states'] = [
           'visible' => [
             'input[name$="[grid]"]' => ['!value' => ''],

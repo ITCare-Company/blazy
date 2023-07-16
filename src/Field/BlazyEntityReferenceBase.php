@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy\Field;
 
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\BlazyDefault;
 
@@ -78,27 +77,6 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
     $view_mode = $settings['view_mode'] ?? 'full';
     $_link     = $settings['link'];
     $_overlay  = $settings['overlay'];
-    $_title    = $settings['title'];
-
-    // Title can be plain text, or link field.
-    if (!empty($_title)) {
-      $output = [];
-      // If title is available as a field.
-      if (isset($entity->{$_title})) {
-        $output = BlazyField::getTextOrLink($entity, $_title, $view_mode, $langcode);
-      }
-      // Else fallback to image title property.
-      elseif ($item = ($element['item'] ?? NULL)) {
-        if ($_title == 'title') {
-          // Respects both fake and real image item.
-          if ($caption = ($item->title ?? NULL)) {
-            $caption = Xss::filter($caption, BlazyDefault::TAGS);
-            $output = ['#markup' => trim($caption)];
-          }
-        }
-      }
-      $element['caption']['title'] = $output;
-    }
 
     // Link, if so configured.
     if (!empty($_link) && isset($entity->{$_link})) {
@@ -131,22 +109,13 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
     $parent   = parent::getPluginScopes();
     $_strings = ['text', 'string', 'list_string'];
     $strings  = $this->getFieldOptions($_strings);
-    $_texts   = ['text', 'text_long', 'string', 'string_long', 'link'];
-    $texts    = $this->getFieldOptions($_texts);
     $_links   = ['text', 'string', 'link'];
-    $title    = $parent['captions']['title'] ?? NULL;
-    $titles   = $texts;
-
-    if ($title) {
-      $titles['title'] = $title;
-    }
 
     return [
       'classes' => $strings,
       'images'  => $this->getFieldOptions(['image']),
       'layouts' => $strings,
       'links'   => $this->getFieldOptions($_links),
-      'titles'  => $titles,
       'vanilla' => TRUE,
     ] + $parent;
   }

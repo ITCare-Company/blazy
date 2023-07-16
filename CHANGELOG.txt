@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-07-16
+------------------------------
+- Added a dedicated title field to BlazyMediaFormatter to differ from attribute.
+
 Blazy 8.x-2.0-dev, 2023-07-15
 ------------------------------
 - Issue #3374519 by rex.barkdoll: Keeping Custom Attributes in CKEditor.
