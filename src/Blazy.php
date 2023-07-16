@@ -346,8 +346,8 @@ class Blazy {
   /**
    * Alias for Grid::attributes().
    */
-  public static function gridAttributes(array &$attrs, array $settings): void {
-    Grid::attributes($attrs, $settings);
+  public static function gridAttributes(array &$attrs, array $settings): array {
+    return Grid::attributes($attrs, $settings);
   }
 
   /**
@@ -374,10 +374,10 @@ class Blazy {
   }
 
   /**
-   * Alias for Grid::initNativeGrid().
+   * Alias for Grid::initGrid().
    */
-  public static function initNativeGrid(array $options): array {
-    return Grid::initNativeGrid($options);
+  public static function initGrid(array $options): array {
+    return Grid::initGrid($options);
   }
 
   /**

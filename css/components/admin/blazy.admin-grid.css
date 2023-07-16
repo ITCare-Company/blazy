@@ -106,17 +106,6 @@
     width: 180px;
   }
 
-  /*
-  .b-nativegrid--form .form-checkboxes .form-item > div,
-  .b-nativegrid--form .form-checkboxes .form-item > input,
-  .b-nativegrid--form .form-checkboxes .form-item > select,
-  .b-nativegrid--form .grid.form-item > div,
-  .b-nativegrid--form .grid.form-item > input,
-  .b-nativegrid--form .grid.form-item > select {
-    align-self: center;
-  }
-  */
-
   .b-nativegrid--form .form-item > div,
   .b-nativegrid--form .form-item > input,
   .b-nativegrid--form .form-item > select,
@@ -187,6 +176,7 @@
 
   .b-nativegrid--form p {
     font-size: 12px;
+    font-weight: 400;
     text-align: left;
     text-transform: none;
   }

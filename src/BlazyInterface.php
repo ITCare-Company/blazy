@@ -280,11 +280,12 @@ interface BlazyInterface {
   /**
    * Alias for Grid::itemAttributes().
    *
-   * This method + self::initNativeGrid() allows you to build Native grids with
-   * any themes having just DIV > DIVs like theme_field(), media_library, etc.,
-   * without re-building it with self::toGrid() such as seen at IO Browser/Slick
-   * Browser by simply modifying existing attributes. The required:
-   *   - $settings contains delta, count + self::initNativeGrid() settings.
+   * This method + self::initGrid() allows you to build grids with any themes
+   * having just DIV > DIVs like theme_field(), media_library, etc., without
+   * re-building it with self::toGrid() such as seen at Blazy formatters, Views,
+   * Optionset forms, IO Browser/Slick Browser by simply modifying existing
+   * attributes. The required:
+   *   - $settings contains delta, count + self::initGrid() settings.
    *   - Delta is updated in the loop via blazies or directly at child settings.
    *
    * @param array $attrs
@@ -293,7 +294,7 @@ interface BlazyInterface {
    * @param array $content_attrs
    *   The content attributes, if any to add into .grid__content.
    * @param array $settings
-   *   The settings grabbed from self::initNativeGrid() returned settings.
+   *   The settings grabbed from self::initGrid() returned settings.
    *
    * @see \Drupal\blazy\Theme\Grid
    * @see \Drupal\io_browser\IoBrowserWidget::mediaLibraryItem()
@@ -307,17 +308,18 @@ interface BlazyInterface {
   ): void;
 
   /**
-   * Initialize Native Grid at any containers containing DIV > DIVs.
+   * Initialize Grid at any containers with DIV > DIVs without passing contents.
    *
    * @param array $options
    *   The options:
-   *   - count, int: total items.
-   *   - grid, string: like 4x2 2x2 3x4, etc. Default: 6x1 (wo columns).
+   *   - count, int: total items. Default: 1, must be overriden.
+   *   - grid, string: like 4x2 2x2 3x4, etc. Default: 6x1 (two columns).
    *   - grid_medium, int: 1-12 due to pure CSS. Default: 2.
    *   - grid_small, int: at max 2 from 1-12. Default: 1.
    *   - classes, string|array: classes to merge. Default: gapless + is_form.
    *   - gapless, bool: remove default gap 15px. Default: TRUE.
-   *   - is_form, bool: for forms, equires blazy/admin.grid. Default: TRUE.
+   *   - is_form, bool: for forms, requires blazy/admin.grid. Default: TRUE.
+   *   - style, string: column, flex, grid, nativegrid. Default: nativegrid.
    *   - blazies, BlazySettings: If none, will create an empty object.
    *
    * @requires:
@@ -331,7 +333,7 @@ interface BlazyInterface {
    *   - attributes: to apply/ merge into existing containers,
    *   - settings: to use for self::gridItemAttributes() parameters.
    */
-  public function initNativeGrid(array $options): array;
+  public function initGrid(array $options): array;
 
   /**
    * Returns a shortcut for loading an entity: image_style, slick, etc.
@@ -445,7 +447,7 @@ interface BlazyInterface {
   public function moduleExists($name): bool;
 
   /**
-   * A wrapper for Blazy::service()
+   * An alias for Blazy::service().
    *
    * @param string $name
    *   The service name.
@@ -485,7 +487,7 @@ interface BlazyInterface {
    *
    * @todo refactor at 3.x, to solve out of sync module like BVEF, etc.
    * No real problems found so far even with BVEF, just minimize issues.
-   * Alias for Blazy::grid() for sub-modules and easy organization later.
+   * Alias for Blazy::toHashtag() for sub-modules and easy organization later.
    */
   public function toHashtag(array $data, $key = 'settings', $default = []);
 

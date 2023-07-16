@@ -35,15 +35,14 @@ class Grid {
       Check::grids($settings);
     }
 
-    $style = $settings['style'];
     $contents = self::content($items, $settings);
-
     $attrs = [];
-    self::attributes($attrs, $settings);
 
-    $wrapper = ['item-list--blazy'];
-    if ($style) {
-      $wrapper[] = 'item-list--blazy-' . str_replace('_', '-', $style);
+    self::attributes($attrs, $settings);
+    $wrappers = ['item-list--blazy'];
+
+    if ($style = $settings['style'] ?? NULL) {
+      $wrappers[] = 'item-list--blazy-' . str_replace('_', '-', $style);
     }
 
     return [
@@ -51,7 +50,7 @@ class Grid {
       '#items'              => $contents,
       '#context'            => ['settings' => $settings],
       '#attributes'         => $attrs,
-      '#wrapper_attributes' => ['class' => array_merge(['item-list'], $wrapper)],
+      '#wrapper_attributes' => ['class' => array_merge(['item-list'], $wrappers)],
       '#title'              => self::label($blazies),
     ];
   }
@@ -123,41 +122,51 @@ class Grid {
   }
 
   /**
-   * Initialize Native Grid at any containers containing DIV > DIVs.
+   * Initialize Grid at any containers with DIV > DIVs without passing contents.
    */
-  public static function initNativeGrid(array $options): array {
-    $attrs   = [];
+  public static function initGrid(array $options): array {
+    $attrs   = ['class' => []];
     $count   = $options['count'] ?? 1;
-    $large   = $options['grid'] ?? '6x1';
-    $medium  = $options['grid_medium'] ?? 2;
-    $small   = $options['grid_small'] ?? 1;
     $classes = $options['classes'] ?? '';
     $gapless = $options['gapless'] ?? TRUE;
     $is_form = $options['is_form'] ?? TRUE;
+    $style   = $options['style'] ?? 'nativegrid';
     $blazies = $options['blazies'] ?? Blazy::settings();
+
     $blazies->set('count', $count)
       ->set('is.grid', TRUE)
       ->set('ui.deprecated_class', TRUE);
 
     $sets = [
-      'grid'        => $large,
-      'grid_medium' => $medium,
-      'grid_small'  => $small,
-      'style'       => 'nativegrid',
+      'grid'        => $options['grid'] ?? '6x1',
+      'grid_medium' => $options['grid_medium'] ?? 2,
+      'grid_small'  => $options['grid_small'] ?? 1,
+      'style'       => $style,
       'blazies'     => $blazies,
     ];
 
-    self::toNativeGrid($sets);
+    if ($style == 'nativegrid') {
+      self::toNativeGrid($sets);
+    }
+
     self::attributes($attrs, $sets);
 
-    if (is_string($classes)) {
-      $classes = array_map('trim', explode(' ', $classes));
+    if (!$classes) {
+      $classes = [];
     }
-    if ($gapless) {
-      $classes[] = 'is-b-gapless';
+    else {
+      if (is_string($classes)) {
+        $classes = array_map('trim', explode(' ', $classes));
+      }
     }
-    if ($is_form) {
-      $attrs['class'][] = 'b-nativegrid--form';
+
+    if ($style == 'nativegrid') {
+      if ($gapless) {
+        $classes[] = 'is-b-gapless';
+      }
+      if ($is_form) {
+        $attrs['class'][] = 'b-nativegrid--form';
+      }
     }
 
     $classes = array_merge($attrs['class'], $classes);

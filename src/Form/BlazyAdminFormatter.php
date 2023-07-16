@@ -68,7 +68,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
         '#options'     => $optionsets,
         '#enforced'    => TRUE,
         '#description' => $this->t('Enable the optionset UI module to manage the optionsets.'),
-        '#weight'      => -108,
+        '#weight'      => -110,
       ];
     }
   }

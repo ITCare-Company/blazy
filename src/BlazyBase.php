@@ -364,8 +364,8 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function initNativeGrid(array $options): array {
-    return Blazy::initNativeGrid($options);
+  public function initGrid(array $options): array {
+    return Blazy::initGrid($options);
   }
 
   /**
@@ -455,7 +455,7 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
-   * A helper to gradually convert things to #things to avoid render error.
+   * {@inheritdoc}
    */
   public function toHashtag(array $data, $key = 'settings', $default = []) {
     return Blazy::toHashtag($data, $key, $default);
@@ -480,11 +480,9 @@ abstract class BlazyBase implements BlazyInterface {
     $settings = $this->toHashtag($data);
     $fallback = $data['fallback'] ?? '';
 
-    // @todo remove after another check.
     if ($fallback && is_string($fallback)) {
-      $fallback = [
-        '#markup' => '<span class="b-fallback">' . $fallback . '</span>',
-      ];
+      $markup = '<span class="b-fallback">' . $fallback . '</span>';
+      $fallback = ['#markup' => $markup];
     }
 
     if ($entity instanceof EntityInterface) {

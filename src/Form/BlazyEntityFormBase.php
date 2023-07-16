@@ -243,7 +243,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
     $children = Element::children($form);
     $total    = count($children);
     $options  = ['count' => $total];
-    $check    = $this->manager->initNativeGrid($options);
+    $check    = $this->manager->initGrid($options);
     $attrs    = $check['attributes'];
     $sets     = $check['settings'];
     $classes  = implode(' ', $attrs['class']);

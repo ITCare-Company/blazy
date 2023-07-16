@@ -190,7 +190,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#options'     => $this->toOptions($skins),
         '#enforced'    => TRUE,
         '#description' => $this->t('Skins allow various layouts with just CSS. Some options below depend on a skin. Leave empty to DIY. Or use the provided hook_info() and implement the skin interface to register ones.'),
-        '#weight'      => -107,
+        '#weight'      => -109,
       ];
     }
 
@@ -199,7 +199,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'checkbox',
         '#title'       => $this->t('Use CSS background'),
         '#description' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires an Aspect ratio, otherwise collapsed containers. Unless explicitly removed such as for GridStack which manages its own problem, or a min-height is added manually to <strong>.b-bg</strong> selector.'),
-        '#weight'      => -98,
+        '#weight'      => -100,
       ];
     }
 
@@ -404,7 +404,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#type'        => 'select',
         '#title'       => $this->t('Image style'),
         '#options'     => $this->getEntityAsOptions('image_style'),
-        '#weight'      => -108,
+        '#weight'      => -106,
         '#description' => $this->t('The content image style. This will be treated as the fallback image to override the global option <a href=":url">Responsive image 1px placeholder</a>, which is normally smaller, if Responsive image are provided. Shortly, leave it empty to make Responsive image fallback respected. Otherwise this is the only image displayed. This image style is also used to provide dimensions not only for image/iframe but also any media entity like local video, where no images are even associated with, to have the designated dimensions in tandem with aspect ratio as otherwise no UI to customize for.', [':url' => $ui_url]),
         '#wrapper_attributes' => [
           'class' => [
@@ -493,7 +493,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           '@follow'      => '//en.wikipedia.org/wiki/Aspect_ratio_%28image%29',
           '@link'        => '//www.smashingmagazine.com/2014/02/27/making-embedded-content-work-in-responsive-design/',
         ]),
-        '#weight'        => -95,
+        '#weight'        => -101,
       ];
     }
 
@@ -506,7 +506,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#options'     => $this->getViewModeOptions($target_type),
         '#title'       => $this->t('View mode'),
         '#description' => $this->t('Required to grab the fields, or to have custom entity display as fallback display. If it has fields, be sure the selected "View mode" is enabled, and the enabled fields here are not hidden there.'),
-        '#weight'      => -106,
+        '#weight'      => -101,
         '#enforced'    => TRUE,
       ];
 
@@ -521,7 +521,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#title'       => $this->t('Thumbnail style'),
         '#options'     => $this->getEntityAsOptions('image_style'),
         '#description' => $this->t('Usages: Placeholder replacement for image effects (blur, etc.), Photobox/PhotoSwipe thumbnail, or custom work with thumbnails. Be sure to have similar aspect ratio for the best blur effect. Leave empty to not use thumbnails.'),
-        '#weight'      => -107,
+        '#weight'      => -104,
       ];
     }
 
@@ -614,6 +614,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $classes   = $this->getOpeningClasses($scopes);
     $excludes  = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
     $selects   = ['cache', 'optionset', 'view_mode'];
+    $fullwidth = $scopes->data('fullwidth', []);
 
     // Disable the admin css in the off canvas menu, to avoid conflicts with
     // the active frontend theme.
@@ -625,29 +626,23 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
     }
 
+    $this->blazyManager->moduleHandler()->alter('blazy_form_element', $form, $definition);
+
     // Prevents non-expected overrides.
     if (isset($form['grid'], $form['grid']['#description'])) {
       $description = $form['grid']['#description'];
       $form['grid']['#description'] = $description . $this->nativeGridDescription();
     }
 
-    $this->blazyManager->moduleHandler()->alter('blazy_form_element', $form, $definition);
-
     // Accounts for hook_alter additions.
-    $children  = Element::children($form);
-    $grid_sets = [];
-    $total     = count($children);
+    $children = Element::children($form);
+    $gridsets = [];
+    $total    = count($children);
 
     if ($admin_css) {
-      $options = [
-        'count'   => $total,
-        'classes' => $classes,
-      ];
-
-      $check      = $this->blazyManager->initNativeGrid($options);
-      $grid_attrs = $check['attributes'];
-      $grid_sets  = $check['settings'];
-      $classes    = implode(' ', $grid_attrs['class']);
+      $grids    = $this->initGrid($total, $classes);
+      $classes  = $grids['classes'];
+      $gridsets = $grids['settings'];
     }
     else {
       $classes = implode(' ', $classes);
@@ -676,12 +671,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           ? array_values((array) $settings[$key])
           : $settings[$key];
 
-        // @todo remove babysitter.
-        if ($scopes->is('grid_required')
-          && $key == 'grid'
-          && empty($settings[$key])) {
-          $value = 3;
-        }
         $form[$key]['#default_value'] = $value;
       }
 
@@ -702,26 +691,28 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
       // Trying to be compact with gazillion options.
       if ($admin_css) {
-        if ($grid_sets) {
-          $blazy = $grid_sets['blazies']->reset($grid_sets);
+        if ($gridsets) {
+          $blazy = $gridsets['blazies']->reset($gridsets);
           $blazy->set('delta', $delta);
         }
 
-        if ($type == 'checkbox' && $type != 'checkboxes') {
+        if ($type == 'checkbox') {
           $form[$key]['#title_display'] = 'before';
         }
         elseif ($type == 'checkboxes' && !empty($form[$key]['#options'])) {
-          foreach ($form[$key]['#options'] as $i => $option) {
-            $form[$key][$i]['#title_display'] = 'before';
+          // Cannot set wrapper classes here since they leak to each input.
+          foreach ($form[$key]['#options'] as $name => $option) {
+            $form[$key][$name]['#title_display'] = 'before';
           }
         }
 
         $dummies['class'] = [];
-        $this->blazyManager->gridItemAttributes($dummies, $content_attrs, $grid_sets);
+        $this->blazyManager->gridItemAttributes($dummies, $content_attrs, $gridsets);
         $wrapper_attrs = $this->blazyManager->merge($wrapper_attrs, $dummies);
         $wrapper_attrs['class'][] = 'grid--admin';
 
-        if ($key == 'grid' || $key == 'style' && $scopes->is('grid_required')) {
+        $grid = $key == 'grid' || ($scopes->is('grid_required') && $key == 'style');
+        if ($grid || ($fullwidth && in_array($key, $fullwidth))) {
           $wrapper_attrs['data-b-w'] = 12;
         }
       }
@@ -1086,6 +1077,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       'deprecations',
       'captions',
       'classes',
+      'fullwidth',
       'images',
       'layouts',
       'libraries',
@@ -1148,6 +1140,25 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    */
   private function getScopes(array &$definition): BlazySettings {
     return $this->toPluginScopes($definition);
+  }
+
+  /**
+   * Initialize the grid.
+   */
+  private function initGrid($total, $classes): array {
+    $options = [
+      'count'   => $total,
+      'classes' => $classes,
+    ];
+
+    $grids      = $this->blazyManager->initGrid($options);
+    $grid_attrs = $grids['attributes'];
+    $classes    = implode(' ', $grid_attrs['class']);
+
+    return [
+      'classes'  => $classes,
+      'settings' => $grids['settings'],
+    ];
   }
 
 }
