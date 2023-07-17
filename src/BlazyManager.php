@@ -211,6 +211,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
           if ($key == 'description') {
             $key = 'item';
           }
+
           $subattrs['class'] = [$id . '__caption--' . $key];
           $descriptions[$key] = isset($caption['#markup'])
             ? $caption : [

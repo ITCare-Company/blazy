@@ -14,12 +14,12 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    * Returns array of needed assets suitable for #attached property.
    *
    * @param array $attach
-   *   The settings which determine what library to attach.
+   *   The settings which determine what library to attach, empty to defaults.
    *
    * @return array
    *   The supported libraries.
    *
-   * @todo add return type hint :array at 3.x after sub-modules.
+   * @todo add return type hint :array at/by 3.x after sub-modules.
    */
   public function attach(array $attach = []);
 

@@ -156,6 +156,7 @@ class CheckItem {
     $blazies->set('delta', $delta)
       ->set('is.initial', $initial)
       ->set('image.uri', $uri)
+      ->set('image.valid', BlazyFile::isValidUri($uri))
       ->set('was.essentials', TRUE);
 
     // Checks images which cannot have image styles without extra legs.

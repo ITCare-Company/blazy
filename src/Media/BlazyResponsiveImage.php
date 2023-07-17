@@ -236,7 +236,7 @@ class BlazyResponsiveImage {
 
           // @todo use dimensions based on the chosen fallback.
           if ($uri && $style = $blazy->load($id, 'image_style')) {
-            $data_src = BlazyFile::transformRelative($uri, $style);
+            $data_src = BlazyImage::url($settings, $style, $uri);
             $tn_uri = $style->buildUri($uri);
 
             [
@@ -323,26 +323,32 @@ class BlazyResponsiveImage {
       return [];
     }
 
-    $func = function ($uri) use ($manager, $settings, $blazies, $style) {
-      $fallback = NULL;
-      $sources = $variables = [];
+    $func = function ($image) use ($manager, $blazies, $style) {
+      $uri        = $image['uri'];
+      $fallback   = NULL;
+      $sources    = $variables = [];
       $dimensions = $blazies->get('resimage.dimensions', []);
-      $end = end($dimensions);
+      $end        = end($dimensions);
 
       $variables['uri'] = $uri;
       foreach (['width', 'height'] as $key) {
-        $variables[$key] = $end[$key] ?? $settings[$key] ?? NULL;
+        $variables[$key] = $end[$key] ?? $blazies->get('image.' . $key);
       }
 
       $id = $style->getFallbackImageStyle();
       $breakpoints = array_reverse($manager
         ->getBreakpointsByGroup($style->getBreakpointGroup()));
-      $function = '_responsive_image_build_source_attributes';
-      if (is_callable($function)) {
-        $fallback = \_responsive_image_image_style_url($id, $variables['uri']);
+
+      // @todo recheck if any converted to services, bad if also private.
+      $func1 = '_responsive_image_build_source_attributes';
+      $func2 = '_responsive_image_image_style_url';
+
+      if (is_callable($func1) && is_callable($func2)) {
+        $fallback = $func2($id, $variables['uri']);
+
         foreach ($style->getKeyedImageStyleMappings() as $bid => $multipliers) {
           if (isset($breakpoints[$bid])) {
-            $sources[] = $function($variables, $breakpoints[$bid], $multipliers);
+            $sources[] = $func1($variables, $breakpoints[$bid], $multipliers);
           }
         }
       }
@@ -351,18 +357,19 @@ class BlazyResponsiveImage {
         ->set('resimage.fallback.url', $fallback);
 
       return empty($sources) ? [] : [
-        'items' => $sources,
         'fallback' => $fallback,
-      ];
+        'items'    => $sources,
+      ] + $image;
     };
 
     $output = [];
     // The URIs are extracted by Preloader::prepare().
-    if ($images = $blazies->get('images')) {
+    if ($images = $blazies->get('images', [])) {
       // Preserves indices even if empty to have correct mixed media elsewhere.
       foreach ($images as $image) {
-        $uri = $image['uri'] ?? NULL;
-        $output[] = $uri ? $func($uri) : [];
+        $uri      = $image['uri'] ?? NULL;
+        $url      = $image['url'] ?? NULL;
+        $output[] = $uri && $url ? $func($image) : [];
       }
     }
 

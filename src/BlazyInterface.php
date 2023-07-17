@@ -281,10 +281,10 @@ interface BlazyInterface {
    * Alias for Grid::itemAttributes().
    *
    * This method + self::initGrid() allows you to build grids with any themes
-   * having just DIV > DIVs like theme_field(), media_library, etc., without
-   * re-building it like self::toGrid() such as seen at Blazy formatters, Views,
-   * Optionset forms, IO Browser/Slick Browser by simply modifying existing
-   * attributes. The required:
+   * having just DIV > DIVs or UL > LIs like theme_field(), media_library, etc.,
+   * without re-building it like self::toGrid() such as seen at Blazy
+   * formatters, Views, Optionset forms, IO Browser/Slick Browser by simply
+   * modifying existing attributes. The required:
    *   - $settings contains delta, count + self::initGrid() settings.
    *   - Delta is updated in the loop via blazies or directly at child settings.
    *
@@ -292,7 +292,8 @@ interface BlazyInterface {
    *   The container attributes to add into .grid, normally #wrapper_attributes
    *   for form items.
    * @param array $content_attrs
-   *   The content attributes, if any to add into .grid__content.
+   *   The content attributes, if any to add into .grid__content. Bootstrap
+   *   CSS .card/ .well is best here.
    * @param array $settings
    *   The settings grabbed from self::initGrid() returned settings.
    *
@@ -313,7 +314,7 @@ interface BlazyInterface {
    * @param array $options
    *   The options:
    *   - count, int: total items. Default: 1, must be overriden.
-   *   - grid, string: like 4x2 2x2 3x4, etc. Default: 6x1 (two columns).
+   *   - grid, string: 4x2 2x2 3x4, etc. Default: 6x1 (two columns).
    *   - grid_medium, int: 1-12 due to pure CSS. Default: 2.
    *   - grid_small, int: at max 2 from 1-12. Default: 1.
    *   - classes, string|array: classes to merge. Default: gapless + is_form.
@@ -354,7 +355,7 @@ interface BlazyInterface {
    * @param string $type
    *   The entity type.
    * @param array|string $ids
-   *   The entity ID(s) as fiters.
+   *   The entity ID(s) as filters.
    *
    * @return array
    *   The entities, or empty array.
@@ -421,7 +422,10 @@ interface BlazyInterface {
   public function merge(array $data, array $element, $key = NULL): array;
 
   /**
-   * Merge multiple BlazySettings objects.
+   * Merge multiple unique BlazySettings objects.
+   *
+   * It doesn't merge `blazies` with `gridstacks`, just old with new data of the
+   * same instance.
    *
    * @param array $keys
    *   An array of config keys, e.g.: ['blazies', 'gridstacks', 'slicks'].
@@ -431,7 +435,7 @@ interface BlazyInterface {
    *   An array containing new data.
    *
    * @return array
-   *   The merged configuration object as a new array.
+   *   The merged configuration inside $configs.
    */
   public function mergeSettings(array $keys, array $defaults, array $configs): array;
 
@@ -461,7 +465,7 @@ interface BlazyInterface {
    * Returns items wrapped by theme_item_list(), can be a grid, or plain list.
    *
    * Alias for Blazy::grid() for sub-modules and easy organization later.
-   * UNlike self::initGrid(), this requires item contents to process.
+   * Unlike self::initGrid(), this requires item contents to process.
    *
    * @param array|\Generator $items
    *   The grid items.

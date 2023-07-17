@@ -314,6 +314,13 @@ class Blazy {
   }
 
   /**
+   * Alias for BlazyImage::url().
+   */
+  public static function url(array $settings, $style = NULL, $uri = NULL): string {
+    return BlazyImage::url($settings, $style, $uri);
+  }
+
+  /**
    * Alias for BlazyFile::uri().
    */
   public static function uri($item, array $settings = []): string {
@@ -327,6 +334,18 @@ class Blazy {
     if (!isset($settings['blazies']) && !isset($settings['inited'])) {
       $settings += self::init();
     }
+  }
+
+  /**
+   * Returns a module installed version based on `hook_update_VERSION`.
+   *
+   * @requires drupal:9.3.0, no need a fallback.
+   */
+  public static function version($module): int {
+    if ($service = self::service('update.update_hook_registry')) {
+      return (int) $service->getInstalledVersion((string) $module);
+    }
+    return 0;
   }
 
   /**

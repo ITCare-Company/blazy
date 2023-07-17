@@ -55,8 +55,9 @@ class Lightbox {
     $switch     = $blazies->get('lightbox.name');
     $switch_css = str_replace('_', '-', $switch);
     $valid      = BlazyFile::isValidUri($uri);
+    $box_style  = $blazies->get('box.style');
     $_box_style = $settings['box_style'] ?? NULL;
-    $box_url    = $url = Blazy::transformRelative($uri);
+    $box_url    = $url = Blazy::url($settings, $box_style, $uri);
     $colorbox   = $blazies->get('colorbox');
     $gallery_id = $blazies->get('lightbox.gallery_id');
     $box_id     = $blazies->is('gallery') ? $gallery_id : NULL;

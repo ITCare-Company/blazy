@@ -162,9 +162,12 @@ class BlazyImage {
     $data = ['width' => $check[$_width], 'height' => $check[$_height]];
     $data['ratio'] = self::ratio($data);
 
+    if ($initial || !$blazies->get('first.width')) {
+      $blazies->set('first', $data, TRUE);
+    }
+
     // In case `image_style` is not provided.
     $blazies->set('image.original', $data, TRUE)
-      ->set('first', $data, TRUE)
       ->set('image', $data, TRUE);
 
     return $data;
@@ -462,7 +465,7 @@ class BlazyImage {
         $blazies->set($key, $data, TRUE);
 
         if ($uri) {
-          $url = BlazyFile::transformRelative($uri, $style);
+          $url = self::url($settings, $style, $uri);
           $blazies->set($key . '.url', $url);
         }
       }

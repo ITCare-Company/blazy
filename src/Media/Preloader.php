@@ -18,102 +18,22 @@ class Preloader {
    * @see https://caniuse.com/?search=preload
    * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preload
    * @see https://developer.chrome.com/blog/new-in-chrome-73/#more
-   * @todo support multiple hero images like carousels.
+   * @nottodo support multiple hero images like carousels.
    */
   public static function preload(array &$load, array $settings): void {
     $blazies = $settings['blazies'];
-    $images = array_filter($blazies->get('images', []));
+    $images  = array_filter($blazies->get('images', []));
+    $sources = $blazies->get('resimage.sources', []);
 
     if (empty($images) || empty($images[0]['uri'])) {
       return;
     }
 
-    // Suppress useless warning of likely failing initial image generation.
-    // Better than checking file exists.
-    $mime = @mime_content_type($images[0]['uri']);
-    [$type] = array_map('trim', explode('/', $mime, 2));
-
-    $link = function ($url, $uri = NULL, $item = NULL) use ($mime, $type): array {
-      // Each field may have different mime types for each image just like URIs.
-      $mime = $uri ? @mime_content_type($uri) : $mime;
-      if ($item) {
-        $item_type = $item['type'] ?? NULL;
-        $mime = $item_type ? $item_type->value() : $mime;
-      }
-
-      [$type] = array_map('trim', explode('/', $mime, 2));
-      $key = hash('md2', $url);
-
-      $attrs = [
-        'rel' => 'preload',
-        'as' => $type,
-        'href' => $url,
-        'type' => $mime,
-      ];
-
-      $suffix = '';
-      if ($srcset = ($item['srcset'] ?? NULL)) {
-        $suffix = '_responsive';
-        $attrs['imagesrcset'] = $srcset->value();
-
-        if ($sizes = ($item['sizes'] ?? NULL)) {
-          $attrs['imagesizes'] = $sizes->value();
-        }
-      }
-
-      // Checks for external URI.
-      if (UrlHelper::isExternal($uri ?: $url)) {
-        $attrs['crossorigin'] = TRUE;
-      }
-
-      return [
-        [
-          '#tag' => 'link',
-          '#attributes' => $attrs,
-        ],
-        'blazy' . $suffix . '_' . $type . $key,
-      ];
-    };
-
-    $links = [];
-
-    // Responsive image with multiple sources.
-    if ($sources = $blazies->get('resimage.sources', [])) {
-      foreach ($sources as $index => $source) {
-        $url = $source['fallback'];
-
-        // Preloading 1px data URI makes no sense, see if image_url exists.
-        $data_uri = $url && mb_substr($url, 0, 10) === 'data:image';
-        if ($data_uri && ($image_url = $images[$index]['url'] ?? NULL)) {
-          $url = $image_url;
-        }
-
-        foreach ($source['items'] as $key => $item) {
-          if (!empty($item['srcset'])) {
-            $links[] = $link($url, NULL, $item);
-          }
-        }
-      }
-    }
-    else {
-      // Regular plain old images.
-      $style = $blazies->get('image.style');
-      foreach ($images as $image) {
-        $uri = $image['uri'] ?? NULL;
-        $unstyled = $image['unstyled'] ?? FALSE;
-        $style = $unstyled ? NULL : $style;
-        $url = $uri ? BlazyFile::transformRelative($uri, $style) : NULL;
-
-        // URI might be empty with mixed media, but indices are preserved.
-        if ($uri && $url) {
-          $links[] = $link($url, $uri);
-        }
-      }
-    }
-
-    if ($links) {
+    if ($links = self::generate($images, $sources, $blazies)) {
       foreach ($links as $key => $value) {
-        $load['html_head'][$key] = $value;
+        if ($value) {
+          $load['html_head'][$key] = $value;
+        }
       }
     }
   }
@@ -139,9 +59,9 @@ class Preloader {
       $options  = ['entity' => $entity, 'settings' => $settings];
       $image    = BlazyImage::item($item, $options);
       $uri      = BlazyFile::uri($image);
+      $valid    = BlazyFile::isValidUri($uri);
       $unstyled = $uri ? BlazyImage::isUnstyled($settings, $uri) : FALSE;
-      $style    = $unstyled ? NULL : $style;
-      $url      = $uri ? BlazyFile::transformRelative($uri, $style) : NULL;
+      $url      = BlazyImage::url($settings, $style, $uri);
 
       // Only needed the first found image, no problem which with mixed media.
       if ($uri && !$blazies->get('first.uri')) {
@@ -154,12 +74,13 @@ class Preloader {
         BlazyImage::dimensions($settings, $image, TRUE);
       }
 
-      // @todo aslo pass $style + $image when all sources covered.
+      // @todo also pass $style + $image when all sources covered.
       return $uri ? [
-        'delta' => $delta,
-        'uri' => $uri,
-        'url' => $url,
+        'delta'    => $delta,
         'unstyled' => $unstyled,
+        'uri'      => $uri,
+        'url'      => $url,
+        'valid'    => $valid,
       ] : [];
     };
 
@@ -195,6 +116,89 @@ class Preloader {
         }
       }
       $blazies->set('was.dimensions', TRUE);
+    }
+  }
+
+  /**
+   * Generates preload urls.
+   */
+  private static function generate(array $images, array $sources, $blazies): \Generator {
+    // Suppress useless warning of likely failing initial image generation.
+    // Better than checking file exists.
+    $mime = @mime_content_type($images[0]['uri']);
+    [$type] = array_map('trim', explode('/', $mime, 2));
+
+    $link = function ($url, $uri, $item = NULL, $valid = FALSE) use ($mime, $type): array {
+      // Each field may have different mime types for each image just like URIs.
+      $mime = @mime_content_type($uri) ?: $mime;
+      if ($item) {
+        $item_type = $item['type'] ?? NULL;
+        $mime = $item_type ? $item_type->value() : $mime;
+      }
+
+      [$type] = array_map('trim', explode('/', $mime, 2));
+      $key = hash('md2', $url);
+
+      $attrs = [
+        'rel'  => 'preload',
+        'as'   => $type,
+        'href' => $valid ? $url : UrlHelper::stripDangerousProtocols($url),
+        'type' => $mime,
+      ];
+
+      $suffix = '';
+      if ($srcset = ($item['srcset'] ?? NULL)) {
+        $suffix = '_responsive';
+        $attrs['imagesrcset'] = $srcset->value();
+
+        if ($sizes = ($item['sizes'] ?? NULL)) {
+          $attrs['imagesizes'] = $sizes->value();
+        }
+      }
+
+      // Checks for external URI.
+      if (UrlHelper::isExternal($uri ?: $url)) {
+        $attrs['crossorigin'] = TRUE;
+      }
+
+      return [
+        [
+          '#tag' => 'link',
+          '#attributes' => $attrs,
+        ],
+        'blazy' . $suffix . '_' . $type . $key,
+      ];
+    };
+
+    // Responsive image with multiple sources.
+    if ($sources) {
+      foreach ($sources as $source) {
+        $uri   = $source['uri'];
+        $url   = $source['fallback'];
+        $valid = $source['valid'];
+
+        // Preloading 1px data URI makes no sense, see if image_url exists.
+        $data_uri = $url && mb_substr($url, 0, 10) === 'data:image';
+        if ($data_uri && $url2 = $source['url'] ?? NULL) {
+          $url = $url2;
+        }
+
+        foreach ($source['items'] as $item) {
+          yield empty($item['srcset']) ? NULL : $link($url, $uri, $item, $valid);
+        }
+      }
+    }
+    else {
+      // Regular plain old images.
+      foreach ($images as $image) {
+        // Indices might be preserved even empty/ failing URI, etc.
+        $uri   = $image['uri'] ?? NULL;
+        $url   = $image['url'] ?? NULL;
+        $valid = $image['valid'] ?? FALSE;
+
+        // URI might be empty with mixed media, but indices are preserved.
+        yield $uri && $url ? $link($url, $uri, NULL, $valid) : NULL;
+      }
     }
   }
 

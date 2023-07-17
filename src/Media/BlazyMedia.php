@@ -273,6 +273,7 @@ class BlazyMedia {
     $blazies->set('is.iframeable', TRUE)
       ->set('is.playable', TRUE)
       ->set('is.multimedia', TRUE)
+      ->set('libs.media', TRUE)
       ->set('media.embed_url', $src)
       ->set('media.escaped', TRUE);
   }

@@ -185,7 +185,8 @@ class Placeholder {
    * Blur and hook_alter for Views rewrite issues, unless global UI is set
    * which was already warned about anyway.
    */
-  private static function dataImage(&$blazies, $uri, $tn_uri, $tn_url, $style): void {
+  private static function dataImage(array &$settings, $uri, $tn_uri, $tn_url, $style): void {
+    $blazies = $settings['blazies'];
     if (!$blazies->is('blazy') || !$blazies->is('blur')) {
       return;
     }
@@ -197,7 +198,7 @@ class Placeholder {
 
     if (empty($tn_uri) && $style && BlazyFile::isValidUri($uri)) {
       $tn_uri = $style->buildUri($uri);
-      $tn_url = BlazyFile::transformRelative($uri, $style);
+      $tn_url = BlazyImage::url($settings, $style, $uri);
     }
 
     // Overrides placeholder with data URI based on configured thumbnail.
@@ -255,14 +256,14 @@ class Placeholder {
     // Supports unique thumbnail different from main image, such as logo for
     // thumbnail and main image for company profile.
     if ($tn_uri) {
-      $tn_url = BlazyFile::transformRelative($tn_uri);
+      $tn_url = BlazyImage::url($settings, $style, $tn_uri);
     }
     else {
       // This one uses non-unique image, similar to the main stage image.
       $style = $blazies->get('thumbnail.style');
       if (!$blazies->is('external') && $style) {
         $tn_uri = $style->buildUri($uri);
-        $tn_url = BlazyFile::transformRelative($uri, $style);
+        $tn_url = BlazyImage::url($settings, $style, $uri);
         $width  = $blazies->get('thumbnail.width');
         $height = $blazies->get('thumbnail.height');
       }
@@ -295,7 +296,7 @@ class Placeholder {
     }
 
     // Creates `data:image` for blur effect if so configured and applicable.
-    self::dataImage($blazies, $uri, $tn_uri, $tn_url, $style);
+    self::dataImage($settings, $uri, $tn_uri, $tn_url, $style);
   }
 
 }

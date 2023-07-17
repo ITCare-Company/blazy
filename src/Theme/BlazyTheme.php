@@ -67,10 +67,10 @@ class BlazyTheme {
       $variables[$key] = empty($element["#$key"]) ? [] : new Attribute($element["#$key"]);
     }
 
-    // Provides sensible default html settings to shutup notices when lacking.
     $attributes = &$variables['attributes'];
     $settings = &$variables['settings'];
 
+    // With BlazySettings, no longer needed to shutup notices when lacking.
     Blazy::verify($settings);
 
     $blazies = $settings['blazies'];
@@ -144,7 +144,7 @@ class BlazyTheme {
       $use_dataset = empty($attributes['data-b-undata']);
 
       // Adds a poster image if so configured.
-      if ($blazy = ($files[0]['#blazy'] ?? FALSE)) {
+      if ($blazy = ($files[0]['#blazy'] ?? NULL)) {
         $settings = $blazy->storage();
         $blazies = $settings['blazies'];
 

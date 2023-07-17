@@ -422,7 +422,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       unset($attrs['src'], $attrs['width'], $attrs['height']);
 
       // Pass anything else even dangerous attributes.
-      $build['item_attributes'] = $attrs;
+      $build['#item_attributes'] = $attrs;
     }
   }
 

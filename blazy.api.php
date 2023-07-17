@@ -96,7 +96,7 @@
  * @code
  * function my_module_render_blazy_multiple() {
  *   // Invoke the plugin class, or use a DI service container accordingly.
- *   $manager = \Drupal::service('blazy.manager');
+ *   $manager = blazy(), or \Drupal::service('blazy.manager');
  *
  *   $settings = [
  *     // Supported media switcher options dependent on available modules:
@@ -376,9 +376,28 @@ function hook_blazy_item_alter(array &$settings, array &$attributes, $item = NUL
  * @ingroup blazy_api
  */
 function hook_blazy_form_element_alter(array &$form, array $definition) {
+  // For pre 2.6, please use $definition['NAME'] directly, removed at 3.x.
+  $namespace = $definition['namespace'] ?? FALSE;
+
+  // Since 2.6, non-configurable settings are mostly grouped under `blazies`,
+  // and form scopes under `scopes`. Both are BlazySettings objects with some
+  // temporary overlaps since `blazies` are also visible at front-end.
+  // Prioritize on `blazies` if any dups as `scopes` subject to cleaning out
+  // from dups during migration process while `blazies` will always be intact
+  // as also required by front-end.
+  $blazies   = $definition['blazies'] ?? NULL;
+  $scopes    = $definition['scopes'] ?? NULL;
+  $namespace = $blazies ? $blazies->get('namespace') : $namespace;
+
+  // At forms, configurable settings are grouped under `settings` since 1.x.
+  $settings = $definition['settings'] ?? [];
+
   // Scope to splide formatters, blazy, gridstack, slick, etc. Or swap em all.
-  if (($definition['namespace'] ?? FALSE) == 'splide') {
-    // Extend the formatter form elements as needed.
+  if ($namespace == 'splide' && isset($settings['BLAH'])) {
+    // Skip Splide text formatter.
+    if ($scopes && !$scopes->is('no_image_style')) {
+      // Extend the formatter form elements as needed.
+    }
   }
 }
 
@@ -398,9 +417,28 @@ function hook_blazy_form_element_alter(array &$form, array $definition) {
  * @ingroup blazy_api
  */
 function hook_blazy_complete_form_element_alter(array &$form, array $definition) {
+  // For pre 2.6, please use $definition['NAME'] directly, removed at 3.x.
+  $namespace = $definition['namespace'] ?? FALSE;
+
+  // Since 2.6, non-configurable settings are mostly grouped under `blazies`,
+  // and form scopes under `scopes`. Both are BlazySettings objects with some
+  // temporary overlaps since `blazies` are also visible at front-end.
+  // Prioritize on `blazies` if any dups as `scopes` subject to cleaning out
+  // from dups during migration process while `blazies` will always be intact
+  // as also required by front-end.
+  $blazies   = $definition['blazies'] ?? NULL;
+  $scopes    = $definition['scopes'] ?? NULL;
+  $namespace = $blazies ? $blazies->get('namespace') : $namespace;
+
+  // At forms, configurable settings are grouped under `settings` since 1.x.
+  $settings = $definition['settings'] ?? [];
+
   // Scope to splide formatters, blazy, gridstack, slick, etc. Or swap em all.
-  if (($definition['namespace'] ?? FALSE) == 'splide') {
-    // Extend the formatter form elements as needed.
+  if ($namespace == 'splide' && isset($settings['BLAH'])) {
+    // Skip Splide text formatter.
+    if ($scopes && !$scopes->is('no_image_style')) {
+      // Extend the formatter form elements as needed.
+    }
   }
 }
 

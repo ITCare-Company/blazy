@@ -137,6 +137,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $lightboxes = $blazies->get('lightbox.plugins') ?: $lightboxes;
     $is_blur = $fx == 'blur';
     $is_resimage = $this->moduleExists('responsive_image');
+    $namespace = $blazies->get('namespace');
 
     $blazies->set('fx', $fx)
       ->set('iframe_domain', $iframe_domain)
@@ -148,7 +149,14 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
       ->set('libs.animate', $fx)
       ->set('libs.blur', $is_blur)
       ->set('lightbox.plugins', $lightboxes)
-      ->set('ui', $ui);
+      ->set('ui', $ui)
+      ->set('version.blazy', Blazy::version('blazy'));
+
+    if ($namespace && $namespace != 'blazy') {
+      if ($this->moduleExists($namespace)) {
+        $blazies->set('version.' . $namespace, Blazy::version($namespace));
+      }
+    }
 
     if ($router = Path::routeMatch()) {
       $route_name = $router->getRouteName();

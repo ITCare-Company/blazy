@@ -407,7 +407,12 @@ class Grid {
 
       // Remove known unused array.
       // @todo remove after 3.x refactors to use hashes instead.
-      unset($item['settings'], $item['attributes'], $item['content_attributes']);
+      unset(
+        $item['settings'],
+        $item['attributes'],
+        $item['content_attributes'],
+        $item['item_attributes'],
+      );
       if (is_object($item['item'] ?? NULL)) {
         unset($item['item']);
       }

@@ -100,3 +100,10 @@ function blazy_update_8208() {
   $config->clear('native');
   $config->save(TRUE);
 }
+
+/**
+ * Matching a more relevant module version.
+ */
+function blazy_update_8217() {
+  // Do nothing to clear cache.
+}
