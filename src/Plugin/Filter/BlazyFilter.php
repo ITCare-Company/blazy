@@ -24,7 +24,6 @@ use Drupal\blazy\Plugin\Filter\BlazyFilterUtil as Util;
  *     "box_style" = "",
  *     "box_media_style" = "",
  *     "hybrid_style" = "",
- *     "ratio" = "fluid",
  *     "use_data_uri" = "0",
  *   },
  *   weight = 3
