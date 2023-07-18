@@ -487,6 +487,18 @@ interface BlazyInterface {
    * A helper to gradually convert things to #things to avoid render error.
    *
    * @param array $data
+   *   The source data being modified.
+   * @param string $key
+   *   The given key.
+   * @param bool $unset
+   *   Whether to unset original data, default to FALSE till fully migrated.
+   */
+  public function hashtag(array &$data, $key = 'settings', $unset = FALSE): void;
+
+  /**
+   * A helper to gradually convert things to #things to avoid render error.
+   *
+   * @param array $data
    *   The source data.
    * @param string $key
    *   The given key.

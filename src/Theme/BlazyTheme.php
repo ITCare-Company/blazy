@@ -344,12 +344,12 @@ class BlazyTheme {
         // Blazy Grid settings:
         if ($build = $content['#build'] ?? []) {
           if (!$settings) {
-            $settings = $build['settings'] ?? [];
+            $settings = Blazy::toHashtag($build);
           }
 
           // @todo simplify ElevateZoomPlus build_alter overrides:
           if (!$settings) {
-            $settings = $build['#build']['settings'] ?? [];
+            $settings = Blazy::toHashtag($build['#build'] ?? []);
           }
         }
       }

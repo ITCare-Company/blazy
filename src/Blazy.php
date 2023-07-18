@@ -281,6 +281,30 @@ class Blazy {
   /**
    * A helper to gradually convert things to #things to avoid render error.
    */
+  public static function hashtag(array &$data, $key = 'settings', $unset = FALSE): void {
+    if (!isset($data["#$key"])) {
+      $data["#$key"] = $data[$key] ?? [];
+    }
+
+    // Temporary failsafe.
+    if ($unset) {
+      unset($data[$key]);
+    }
+
+    $blazy = "#blazy";
+    if ($key == 'settings' && isset($data[$blazy])) {
+      $data["#$key"] = $data[$blazy];
+
+      // Temporary failsafe.
+      if ($unset) {
+        unset($data[$blazy]);
+      }
+    }
+  }
+
+  /**
+   * A helper to gradually convert things to #things to avoid render error.
+   */
   public static function toHashtag(array $data, $key = 'settings', $default = []) {
     $result = $data["#$key"] ?? $data[$key] ?? $default;
     if (!$result && $key == 'settings') {
@@ -318,6 +342,13 @@ class Blazy {
    */
   public static function url(array $settings, $style = NULL, $uri = NULL): string {
     return BlazyImage::url($settings, $style, $uri);
+  }
+
+  /**
+   * Alias for BlazyFile::isValidUri().
+   */
+  public static function isValidUri($uri): bool {
+    return BlazyFile::isValidUri($uri);
   }
 
   /**

@@ -161,12 +161,13 @@ class BlazyFilterUtil {
 
     // Prevents data URI from screwing up, unless consciously required.
     $func = function ($input, $key) use ($use_data_uri) {
-      if ($input) {
-        $data_uri = Blazy::isDataUri($input);
+      $check = trim($input ?: '');
+      if ($check) {
+        $data_uri = Blazy::isDataUri($check);
         // @todo recheck against sub-modules priority order in Filter admin.
         // The SRC might be 1px, but DATA-SRC is the real data URI.
         if (!$data_uri || ($data_uri && $use_data_uri)) {
-          return $input;
+          return $check;
         }
       }
       return '';

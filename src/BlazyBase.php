@@ -457,6 +457,13 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function hashtag(array &$data, $key = 'settings', $unset = FALSE): void {
+    Blazy::hashtag($data, $key, $unset);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function toHashtag(array $data, $key = 'settings', $default = []) {
     return Blazy::toHashtag($data, $key, $default);
   }
@@ -476,6 +483,7 @@ abstract class BlazyBase implements BlazyInterface {
    * {@inheritdoc}
    */
   public function view(array $data): array {
+    $access   = $data['#access'] ?? FALSE;
     $entity   = $data['#entity'] ?? NULL;
     $settings = $this->toHashtag($data);
     $fallback = $data['fallback'] ?? '';
@@ -486,7 +494,7 @@ abstract class BlazyBase implements BlazyInterface {
     }
 
     if ($entity instanceof EntityInterface) {
-      if ($denied = $this->denied($entity)) {
+      if (!$access && $denied = $this->denied($entity)) {
         return $denied;
       }
 

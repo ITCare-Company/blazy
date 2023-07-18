@@ -242,7 +242,7 @@ class BlazyAlter {
    * preserved by Blazy containing Views style since 2.x.
    */
   public static function blazySettingsAlter(array &$build, $items): void {
-    $settings = &$build['settings'];
+    $settings = &$build['#settings'];
     $blazies = $settings['blazies'];
 
     // Sniffs for Views to allow block__no_wrapper, views_no_wrapper, etc.

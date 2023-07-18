@@ -13,8 +13,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   /**
    * {@inheritdoc}
    */
-  public function fieldSettings(array &$build, $items) {
-    Check::fields($build, $items);
+  public function fieldSettings(array &$settings, $items) {
+    Check::fields($settings, $items);
   }
 
   /**
@@ -23,7 +23,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    * @todo make it protected after sub-modules, mostly are just tests + BVEF.
    */
   public function buildSettings(array &$build, $items) {
-    $settings = &$build['settings'];
+    $this->hashtag($build);
+    $settings = &$build['#settings'];
 
     // BC for mismatched minor versions.
     Blazy::verify($settings);
@@ -51,7 +52,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     $build['#entity'] = $entity;
     $this->prepareData($build);
-    $this->fieldSettings($build, $items);
+    $this->fieldSettings($settings, $items);
 
     // Minor byte saving.
     if (!empty($settings['caption'])) {
@@ -63,7 +64,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    * {@inheritdoc}
    */
   public function preBuildElements(array &$build, $items, array $entities = []) {
-    $settings = &$build['settings'];
+    $this->hashtag($build);
+    $settings = &$build['#settings'];
 
     // BC for mismatched minor versions.
     Blazy::verify($settings);
@@ -90,6 +92,9 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     // Extracts (Responsive) image dimensions, requires first.uri above.
     $this->postSettings($settings);
+
+    // @todo remove after sub-modules hook_alters at 3.x.
+    $build['settings'] = &$settings;
 
     // Extended by sub-modules with data massaged above.
     $this->buildSettings($build, $items);

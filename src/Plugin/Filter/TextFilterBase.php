@@ -59,16 +59,18 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   protected $filterManager;
 
   /**
-   * The blazy manager service.
+   * The blazy formatter service.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface
+   * @var \Drupal\blazy\BlazyFormatterInterface
+   *
+   * @todo remove for $manager to get consistent with sub-mdoules.
    */
   protected $blazyManager;
 
   /**
    * The sub-modules manager service.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface
+   * @var \Drupal\blazy\BlazyFormatterInterface
    */
   protected $manager;
 
@@ -116,7 +118,8 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
     $instance->root = Blazy::root($container);
     $instance->entityFieldManager = $container->get('entity_field.manager');
     $instance->filterManager = $container->get('plugin.manager.filter');
-    $instance->blazyManager = $container->get('blazy.manager');
+    $instance->admin = $container->get('blazy.admin.formatter');
+    $instance->blazyManager = $instance->manager = $container->get('blazy.formatter');
 
     return $instance;
   }
@@ -220,7 +223,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
    */
   protected function render(\DOMElement $node, array $output) {
     $dom = $node->ownerDocument;
-    $altered_html = $this->blazyManager->renderer()->render($output);
+    $altered_html = $this->manager->renderer()->render($output);
 
     // Load the altered HTML into a new DOMDocument, retrieve element.
     $updated_nodes = Html::load($altered_html)->getElementsByTagName('body')

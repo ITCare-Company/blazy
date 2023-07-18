@@ -283,7 +283,9 @@ function hook_blazy_base_settings_alter(array &$settings, array $context) {
  */
 function hook_blazy_settings_alter(array &$build, $items) {
   // Most configurable settings are put as direct key-value pairs.
-  $settings = &$build['settings'];
+  // Since blazy:2.17, the settings key is hashed to avoid leaks/ render errors.
+  $settings = &$build['#settings'];
+
   // Since 2.6, non-configurable settings are mostly grouped under `blazies`.
   // For pre 2.6, please use $settings['NAME'] directly.
   $blazies = $settings['blazies'];

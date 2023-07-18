@@ -72,14 +72,14 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       ->set('namespace', $namespace);
 
     $this->preSettings($settings, $text);
-    $this->blazyManager->preSettings($settings);
+    $this->manager->preSettings($settings);
 
     $unwrap = $blazies->no('item_container') || !empty($settings['no_item_container']);
     $blazies->set('lightbox.gallery_id', $id)
       ->set('no.item_container', $unwrap);
 
     $this->postSettings($settings);
-    $this->blazyManager->postSettings($settings);
+    $this->manager->postSettings($settings);
 
     return $settings;
   }
@@ -95,14 +95,14 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       return $list;
     }
 
-    $entity = $this->blazyManager->load($id, $entity_type);
+    $entity  = $this->manager->load($id, $entity_type);
     $blazies = $settings['blazies'];
-    $id = (int) $id;
+    $id      = (int) $id;
 
     if ($entity && $entity->hasField($field_name)) {
       $bundle = $entity->bundle();
-      $list = $entity->get($field_name);
-      $count = count($list);
+      $list   = $entity->get($field_name);
+      $count  = count($list);
 
       if ($list && $count > 0) {
         $definition = $list->getFieldDefinition();
@@ -117,6 +117,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
         // @todo extract media info, or remove most of these.
         $blazies->set('bundles.' . $bundle, $bundle, TRUE)
           ->set('count', $count)
+          ->set('total', $count)
           ->set('entity.bundle', $bundle)
           ->set('entity.id', $id)
           ->set('entity.type_id', $entity_type)
@@ -143,7 +144,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *   The item index.
    */
   protected function buildImageItem(array &$build, &$node, $delta = 0) {
-    $settings = &$build['settings'];
+    $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
     $attrs    = $blazies->get('item.attributes', []);
 
@@ -154,7 +155,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       elseif ($node->tagName == 'iframe') {
         try {
           // Prevents invalid video URL (404, etc.) from screwing up.
-          $this->getImageItemFromIframeSrc($build, $node, $src);
+          $this->getImageItemFromIframeSrc($build, $node, $src, $delta);
         }
         catch (\Exception $ignore) {
           // Do nothing, likely local work without internet, or the site is
@@ -163,7 +164,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       }
     }
 
-    $item = $build['item'] ?? NULL;
+    $item = $this->manager->toHashtag($build, 'item', NULL);
     if ($item) {
       // @todo remove after another check at BlazyOEmbed.
       foreach (['width', 'height', 'alt', 'title'] as $key) {
@@ -180,7 +181,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       }
     }
 
-    $build['item'] = $item;
+    $build['#item'] = $item;
   }
 
   /**
@@ -195,7 +196,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *   The HTML DOM object.
    */
   protected function buildImageCaption(array &$build, &$node) {
-    $settings = &$build['settings'];
+    $settings = &$build['#settings'];
     $blazies = $settings['blazies'];
     $item = $this->getCaptionElement($node);
 
@@ -284,7 +285,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    * @todo refactor to move ImageItem downstream, or remove it completely.
    */
   protected function getImageItemFromImageSrc(array &$build, $node, $src): void {
-    $settings = &$build['settings'];
+    $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
     $attrs    = $blazies->get('item.attributes', []);
 
@@ -304,7 +305,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       if ($item = BlazyImage::fromAny($file, $settings)) {
         $blazies->set('entity.uuid', $uuid);
 
-        $build['item'] = $item;
+        $build['#item'] = $item;
       }
     }
     else {
@@ -315,7 +316,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       if ($uri) {
         $data = ['uri' => $uri, 'entity' => $file];
         $blazies->set('image', $data, TRUE);
-        $build['item'] = BlazyImage::fakeFromSettings($blazies);
+        $build['#item'] = BlazyImage::fakeFromSettings($blazies);
       }
       else {
         // At least provide root URI to figure out image dimensions.
@@ -334,9 +335,11 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *   The HTML DOM object.
    * @param string $src
    *   The corrected SRC value.
+   * @param int $delta
+   *   The delta.
    */
-  protected function getImageItemFromIframeSrc(array &$build, &$node, $src): void {
-    $settings = &$build['settings'];
+  protected function getImageItemFromIframeSrc(array &$build, &$node, $src, $delta = 0): void {
+    $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
 
     // Iframe with data: alike scheme is a serious kidding, strip it earlier.
@@ -346,7 +349,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     // @todo figure out to not hard-code `field_media_oembed_video`.
     $media = NULL;
     if ($src && $blazies->is('media_library')) {
-      $media = $this->blazyManager->loadByProperties([
+      $media = $this->manager->loadByProperties([
         'field_media_oembed_video' => $src,
       ], 'media', TRUE);
 
@@ -355,8 +358,10 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     // Runs after type, width and height set, if any, to not recheck them.
     if ($media) {
-      $build['#entity'] = $media;
-      $build['settings'] = $settings;
+      $build['#delta']    = $delta;
+      $build['#entity']   = $media;
+      $build['#settings'] = $settings;
+
       $this->blazyOembed->build($build);
     }
   }
@@ -365,7 +370,9 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    * Provides the shortcode ITEM|SLIDE attributes, and caption. Not IMG/IFRAME.
    */
   protected function buildItemAttributes(array &$build, $node, $delta = 0) {
-    $sets    = &$build['settings'];
+    $this->manager->hashtag($build);
+
+    $sets    = $build['#settings'];
     $blazies = $sets['blazies'];
 
     // In case we forgot what we were talking about, add a reminder.
@@ -381,10 +388,10 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       if ($attrs = Util::getAttribute($node)) {
         // Move it to .grid__content for better displays like .well/ .card.
         if ($classes = $attrs['class'] ?? '') {
-          $build['content_attributes']['class'] = $classes;
+          $build['#content_attributes']['class'] = $classes;
           unset($attrs['class']);
         }
-        $build['attributes'] = $attrs;
+        $build['#attributes'] = $attrs;
       }
     }
   }
@@ -393,7 +400,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    * Provides the media IMG|IFRAME attributes w/o shortcodes ITEM|SLIDE.
    */
   protected function buildMediaAttributes(array &$build, $node, $delta = 0) {
-    $settings = &$build['settings'];
+    $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
 
     if ($attrs = Util::getAttribute($node)) {
@@ -437,7 +444,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *   The item index.
    */
   protected function buildItemSettings(array &$build, $node, $delta = 0) {
-    $settings   = &$build['settings'];
+    $settings   = &$build['#settings'];
     $blazies    = $settings['blazies'];
     $ui_style   = $settings['image_style'] ?? NULL;
     $ui_restyle = $settings['responsive_image_style'] ?? NULL;
@@ -483,6 +490,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *   The item index.
    */
   protected function buildItemContent(array &$build, $node, $delta = 0) {
+    $this->manager->hashtag($build);
 
     // Provides IMG/IFRAME attributes.
     $this->buildMediaAttributes($build, $node, $delta);
@@ -501,7 +509,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    * Provides media switch form.
    */
   protected function mediaSwitchForm(array &$form) {
-    $lightboxes = $this->blazyManager->getLightboxes();
+    $lightboxes = $this->manager->getLightboxes();
 
     $form['media_switch'] = [
       '#type' => 'select',

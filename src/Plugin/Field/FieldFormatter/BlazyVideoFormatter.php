@@ -55,9 +55,9 @@ class BlazyVideoFormatter extends BlazyVideoBase {
    * Build the blazy elements.
    */
   protected function buildElements(array &$build, $items, $langcode) {
-    $settings = $build['settings'];
-    $blazies = $settings['blazies'];
-    $entity = $items->getEntity();
+    $settings = $this->formatter->toHashtag($build);
+    $blazies  = $settings['blazies'];
+    $entity   = $items->getEntity();
 
     if (!($vef = $this->vefProviderManager())) {
       return;
@@ -97,8 +97,8 @@ class BlazyVideoFormatter extends BlazyVideoBase {
        */
       $data = [
         '#entity' => $entity,
-        'settings' => $sets,
-        'item' => NULL,
+        '#settings' => $sets,
+        '#item' => NULL,
       ];
       $this->blazyOembed->build($data);
 

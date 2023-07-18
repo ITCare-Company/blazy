@@ -94,7 +94,7 @@ class BlazyViewsTest extends BlazyStylePluginBase {
         $blazies->set('first.data', $data);
       }
 
-      $build = ['items' => $contents, 'settings' => $settings];
+      $build = ['items' => $contents, '#settings' => $settings];
       $elements = $this->blazyManager->build($build);
     }
 
@@ -111,9 +111,9 @@ class BlazyViewsTest extends BlazyStylePluginBase {
     foreach ($rows as $index => $row) {
       $view->row_index = $index;
 
-      $box             = [];
-      $box[$item_id]   = [];
-      $box['settings'] = $settings;
+      $box              = [];
+      $box[$item_id]    = [];
+      $box['#settings'] = $settings;
 
       // Use Vanilla if so configured.
       if (!empty($settings['vanilla'])) {

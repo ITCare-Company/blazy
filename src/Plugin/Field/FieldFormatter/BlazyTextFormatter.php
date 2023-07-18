@@ -80,8 +80,8 @@ class BlazyTextFormatter extends FormatterBase {
    * Build the grid text elements.
    */
   protected function buildElements(array &$build, $items, $langcode) {
-    $settings = $build['settings'];
-    $blazies = $settings['blazies'];
+    $settings = $this->formatter->toHashtag($build);
+    $blazies  = $settings['blazies'];
 
     $blazies->set('is.grid', TRUE)
       ->set('is.unblazy', TRUE)

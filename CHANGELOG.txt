@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-07-18
+------------------------------
+- Changed settings key to #settings, etc. to avoid leaks/ render errors, see CR:
+  https://www.drupal.org/node/3375158.
+
 Blazy 8.x-2.0-dev, 2023-07-16
 ------------------------------
 - Added a dedicated title field to BlazyMediaFormatter to differ from attribute.

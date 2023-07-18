@@ -109,7 +109,7 @@ class BlazyUnitTest extends UnitTestCase {
   public function testPreprocessBlazy(array $settings, $item, $expected_image, $expected_iframe) {
     $variables = ['attributes' => []];
     $build     = $this->data;
-    $settings  = array_merge($build['settings'], $settings);
+    $settings  = array_merge($build['#settings'], $settings);
     $settings += Blazy::init();
     $blazies   = $settings['blazies'];
     $embed_url = $settings['embed_url'] ?? '';
@@ -227,7 +227,7 @@ class BlazyUnitTest extends UnitTestCase {
       ->set('image.uri', $this->uri)
       ->set('count', $this->maxItems);
 
-    $build['settings'] = array_merge($build['settings'], $settings);
+    $build['#settings'] = array_merge($build['#settings'], $settings);
     $switch_css = str_replace('_', '-', $settings['media_switch']);
 
     foreach (['caption', 'media', 'wrapper'] as $key) {
@@ -236,7 +236,7 @@ class BlazyUnitTest extends UnitTestCase {
 
     $element = $this->doPreRenderImage($build);
 
-    $blazies = $build['settings']['blazies'];
+    $blazies = $build['#settings']['blazies'];
     if ($settings['media_switch'] == 'content') {
       $this->assertEquals($blazies->get('entity.url'), $element['#url']);
       $this->assertArrayHasKey('#url', $element);

@@ -24,6 +24,7 @@ use Drupal\blazy\Plugin\Filter\BlazyFilterUtil as Util;
  *     "box_style" = "",
  *     "box_media_style" = "",
  *     "hybrid_style" = "",
+ *     "ratio" = "fluid",
  *     "use_data_uri" = "0",
  *   },
  *   weight = 3
@@ -102,7 +103,7 @@ class BlazyFilter extends BlazyFilterBase {
 
     // Adds the attachments.
     $attach = Util::attach($settings);
-    $attachments = $this->blazyManager->attach($attach);
+    $attachments = $this->manager->attach($attach);
 
     // Cleans up invalid, or moved nodes.
     $this->cleanupNodes($dom);
@@ -168,14 +169,9 @@ class BlazyFilter extends BlazyFilterBase {
   public function buildSettings($text) {
     $settings = parent::buildSettings($text);
 
-    // Provides alter like formatters to modify at one go, even clumsy here.
-    // @todo convert to #settings at/by 3.x.
-    $build = ['settings' => $settings];
-    $this->blazyManager->moduleHandler()->alter('blazy_settings', $build, $this->settings);
+    $this->manager->moduleHandler()->alter('blazy_filter_settings', $settings, $this->settings);
+    $this->manager->postSettingsAlter($settings);
 
-    $settings = array_merge($settings, $build['settings']);
-
-    $this->blazyManager->postSettingsAlter($settings);
     return $settings;
 
   }
@@ -186,7 +182,7 @@ class BlazyFilter extends BlazyFilterBase {
   protected function buildImageItem(array &$build, &$node, $delta = 0) {
     parent::buildImageItem($build, $node, $delta);
 
-    $settings = $build['settings'];
+    $settings = $build['#settings'];
     $blazies  = $settings['blazies'];
 
     // @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
@@ -196,7 +192,7 @@ class BlazyFilter extends BlazyFilterBase {
 
     // Responsive image with aspect ratio requires an extra container to work
     // with Align/ Caption images filters.
-    $build['media_attributes']['class'] = [
+    $build['#media_attributes']['class'] = [
       'media-wrapper',
       'media-wrapper--blazy',
     ];
@@ -214,26 +210,26 @@ class BlazyFilter extends BlazyFilterBase {
         if (is_string($value)) {
           if ($name == 'align' || $name == 'style') {
             if (strpos($value, 'left') !== FALSE) {
-              $build['media_attributes']['class'][] = 'alignment-left';
+              $build['#media_attributes']['class'][] = 'alignment-left';
             }
             elseif (strpos($value, 'right') !== FALSE) {
-              $build['media_attributes']['class'][] = 'alignment-right';
+              $build['#media_attributes']['class'][] = 'alignment-right';
             }
           }
         }
         // @todo recheck againts the newly created self::buildMediaAttributes().
         // else if ($name == 'class') {
         // if (strpos($value, 'b-lazy') === FALSE) {
-        // $build['media_attributes']['class'][] = $value;
+        // $build['#media_attributes']['class'][] = $value;
         // }
         // }.
       }
 
-      $build['media_attributes']['class'] = array_unique($build['media_attributes']['class']);
+      $build['#media_attributes']['class'] = array_unique($build['#media_attributes']['class']);
     }
 
-    if (!empty($settings['type'])) {
-      $build['media_attributes']['class'][] = 'media-wrapper--' . $settings['type'];
+    if ($type = $blazies->get('media.type')) {
+      $build['#media_attributes']['class'][] = 'media-wrapper--' . str_replace('_', '-', $type);
     }
   }
 
@@ -243,7 +239,7 @@ class BlazyFilter extends BlazyFilterBase {
    * @todo deprecate and remove for shortcodes at Blazy 3.x.
    */
   protected function cleanupImageCaption(array &$build, &$node, &$item) {
-    $settings = $build['settings'];
+    $settings = $build['#settings'];
     $blazies = $settings['blazies'];
 
     if (!$blazies->is('blazy_tag')) {
@@ -277,7 +273,7 @@ class BlazyFilter extends BlazyFilterBase {
       // @todo move it out of here due to requiring URI to determine style.
       if ($blazies->is('resimage')) {
         try {
-          if ($resimage = $this->blazyManager->load($style, 'responsive_image_style')) {
+          if ($resimage = $this->manager->load($style, 'responsive_image_style')) {
             $settings['responsive_image_style'] = $style;
             $blazies->set('resimage.style', $resimage);
           }
@@ -319,7 +315,7 @@ class BlazyFilter extends BlazyFilterBase {
       return $this->byDom($node, $settings);
     }
 
-    $build = ['settings' => $settings, 'item' => NULL];
+    $build = ['#settings' => $settings, '#item' => NULL];
     return $this->buildItem($build, $node, $delta);
   }
 
@@ -388,7 +384,7 @@ class BlazyFilter extends BlazyFilterBase {
 
     $blazies->set('count', $count);
 
-    $build = ['settings' => $settings];
+    $build = ['#settings' => $settings];
 
     foreach ($nodes as $delta => $node) {
       if (!($node instanceof \DOMElement)) {
@@ -397,10 +393,9 @@ class BlazyFilter extends BlazyFilterBase {
 
       $sets = $settings;
       $element = [
-        // @todo also convert to #attributes at/by 3.x.
-        'attributes' => [],
-        'item' => NULL,
-        'settings' => $sets,
+        '#attributes' => [],
+        '#item' => NULL,
+        '#settings' => $sets,
       ];
 
       $content = $this->buildItem($element, $node, $delta)
@@ -412,7 +407,7 @@ class BlazyFilter extends BlazyFilterBase {
       $build[$delta] = $element;
     }
 
-    return $this->blazyManager->build($build);
+    return $this->manager->build($build);
   }
 
   /**
@@ -420,7 +415,7 @@ class BlazyFilter extends BlazyFilterBase {
    */
   private function buildItem(array &$build, $node, $delta = 0) {
     $media    = NULL;
-    $settings = &$build['settings'];
+    $settings = &$build['#settings'];
     $blazies  = $settings['blazies']->reset($settings);
 
     /* @phpstan-ignore-next-line */
@@ -469,7 +464,7 @@ class BlazyFilter extends BlazyFilterBase {
       return [];
     }
 
-    return $this->blazyManager->getBlazy($build);
+    return $this->manager->getBlazy($build);
   }
 
   /**
@@ -506,7 +501,9 @@ class BlazyFilter extends BlazyFilterBase {
       return;
     }
 
-    $uri = $grid_items[0]['#build']['settings']['uri'] ?? '';
+    $build = $grid_items[0]['#build'] ?? [];
+    $subsets = $this->manager->toHashtag($build);
+    $uri = $subsets['uri'] ?? '';
     $blazies->set('first.uri', $uri);
 
     $first  = $grid_nodes[0];
@@ -538,11 +535,11 @@ class BlazyFilter extends BlazyFilterBase {
 
       $build = [
         'items' => $grid_items,
-        'settings' => $settings,
+        '#settings' => $settings,
       ];
 
-      $output = $this->blazyManager->build($build);
-      $altered_html = $this->blazyManager->renderer()->render($output);
+      $output = $this->manager->build($build);
+      $altered_html = $this->manager->renderer()->render($output);
 
       // Checks if the IMG is managed by caption filter identified by figure.
       if ($first->parentNode && $first->parentNode->tagName == 'figure') {

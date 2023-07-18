@@ -397,6 +397,7 @@ class Grid {
       $sets += $settings;
       $wrapper_attrs = Blazy::toHashtag($item, 'attributes');
       $content_attrs = Blazy::toHashtag($item, 'content_attributes');
+      $image = Blazy::toHashtag($item, 'item', NULL);
 
       $blazy = $sets['blazies']->reset($sets);
       $sets['delta'] = $key;
@@ -406,15 +407,15 @@ class Grid {
       self::itemAttributes($wrapper_attrs, $content_attrs, $sets);
 
       // Remove known unused array.
-      // @todo remove after 3.x refactors to use hashes instead.
+      // @todo remove at/by 3.x refactors to use hashes instead.
       unset(
         $item['settings'],
         $item['attributes'],
         $item['content_attributes'],
-        $item['item_attributes'],
+        $item['item_attributes']
       );
-      if (is_object($item['item'] ?? NULL)) {
-        unset($item['item']);
+      if (is_object($image)) {
+        unset($item['#item'], $item['item']);
       }
 
       $content['content'] = $is_grid ? [

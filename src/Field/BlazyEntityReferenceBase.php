@@ -48,7 +48,9 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
   protected function buildElementExtra(array &$element, $entity, $langcode) {
     parent::buildElementExtra($element, $entity, $langcode);
 
-    $settings = &$element['settings'];
+    $this->formatter->hashtag($element);
+
+    $settings = &$element['#settings'];
     $_class   = $settings['class'];
     $_layout  = $settings['layout'];
 
@@ -73,7 +75,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
   protected function getCaption(array &$element, $entity, $langcode) {
     parent::getCaption($element, $entity, $langcode);
 
-    $settings  = $element['settings'];
+    $settings  = $this->formatter->toHashtag($element);
     $view_mode = $settings['view_mode'] ?? 'full';
     $_link     = $settings['link'];
     $_overlay  = $settings['overlay'];

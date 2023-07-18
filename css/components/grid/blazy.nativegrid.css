@@ -129,10 +129,11 @@
 
   /* For some reason, unlike video, etc., iframe refuses to show when static. */
   .b-nativegrid.is-b-native .grid iframe {
+    height: 100%;
     position: absolute;
   }
 
-  /* To avoid initial confusion due to being hidden, adjust it. */
+  /* To avoid initial confusion due to being overflow: hidden, adjust it. */
   .b-nativegrid.is-b-native .blazy__caption,
   .b-nativegrid.is-b-native .slide__caption {
     bottom: 0;

@@ -52,7 +52,8 @@ trait BlazyStylePluginTrait {
           // This allows richer contents such as multimedia/ lightbox for free.
           // Yet, ensures the Views style plugin wins over Blazy formatter,
           // such as with GridStack which may have its own breakpoints.
-          $blazy_settings = array_filter($rendered['#build']['settings']);
+          $newbies = $this->blazyManager->toHashtag($rendered['#build']);
+          $blazy_settings = array_filter($newbies);
           $settings = array_merge($blazy_settings, array_filter($settings));
 
           // Reserves crucial blazy specific settings.
@@ -86,7 +87,7 @@ trait BlazyStylePluginTrait {
 
           // Rebuilds the image for the brand new richer Blazy.
           // With the working Views cache, nothing to worry much.
-          $build = ['item' => $item, 'settings' => $settings];
+          $build = ['#item' => $item, '#settings' => $settings];
           $image['rendered'] = $this->blazyManager->getBlazy($build);
         }
       }
@@ -125,7 +126,8 @@ trait BlazyStylePluginTrait {
 
       // Blazy formatter, also supports multiple, `group_rows`.
       if ($build = ($rendered['#build'] ?? [])) {
-        $item = $build['item'] ?? $build[0]['#item'] ?? $item;
+        $item = $this->blazyManager->toHashtag($build, 'item') ?: $item;
+        $item = $build[0]['#item'] ?? $item;
       }
     }
 

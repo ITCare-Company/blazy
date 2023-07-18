@@ -10,12 +10,12 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
   /**
    * Modifies the field formatter base settings inherited by child elements.
    *
-   * @param array $build
+   * @param array $settings
    *   The array containing: field-related settings.
    * @param object $items
    *   The Drupal\Core\Field\FieldItemListInterface items.
    */
-  public function fieldSettings(array &$build, $items);
+  public function fieldSettings(array &$settings, $items);
 
   /**
    * Modifies the field formatter prepared settings inherited by child elements.

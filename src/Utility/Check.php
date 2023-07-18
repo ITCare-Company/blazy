@@ -190,7 +190,7 @@ class Check {
     }
 
     // 1. Blazy formatter within Views styles by supported modules.
-    $blazy   = $data['settings'] ?? [];
+    $blazy   = Blazy::toHashtag($data);
     $item_id = $blazies->get('item.id');
     $content = $data[$item_id] ?? $data;
 
@@ -219,9 +219,8 @@ class Check {
    *
    * @todo remove fallback settings after migration and sub-modules.
    */
-  public static function fields(array &$build, $items): void {
-    $settings = &$build['settings'];
-    $entity   = $items->getEntity();
+  public static function fields(array &$settings, $items): void {
+    $entity = $items->getEntity();
 
     Blazy::entitySettings($settings, $entity);
 

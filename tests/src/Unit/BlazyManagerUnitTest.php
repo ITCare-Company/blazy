@@ -110,9 +110,9 @@ class BlazyManagerUnitTest extends UnitTestCase {
    */
   public function testGetBlazy($uri, $content, $expected_image, $expected_render) {
     $build = [];
-    $build['item'] = NULL;
+    $build['#item'] = NULL;
     $build['content'] = $content;
-    $build['settings']['uri'] = $uri;
+    $build['#settings']['uri'] = $uri;
 
     $theme = ['#theme' => 'blazy', '#build' => []];
 

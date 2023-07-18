@@ -507,8 +507,8 @@ trait BlazyCreationTestTrait {
     $this->testItem = $this->image = $item;
 
     $this->data = [
-      'settings' => $this->getFormatterSettings(),
-      'item'     => $item,
+      '#settings' => $this->getFormatterSettings(),
+      '#item'     => $item,
     ];
   }
 
@@ -521,8 +521,8 @@ trait BlazyCreationTestTrait {
     $this->dummyUrl  = Blazy::transformRelative($this->dummyUri);
     $this->dummyItem = $item;
     $this->dummyData = [
-      'settings' => $this->getFormatterSettings(),
-      'item' => $item,
+      '#settings' => $this->getFormatterSettings(),
+      '#item' => $item,
     ];
 
     return $is_dir ? $path : $this->dummyUri;

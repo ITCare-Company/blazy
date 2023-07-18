@@ -284,18 +284,29 @@ class BlazyDefault {
    */
   public static function themeProperties() {
     return [
-      'attributes' => [],
       'captions' => [],
       'content' => [],
       'iframe' => [],
       'image' => [],
       'icon' => [],
-      'item' => NULL,
-      'item_attributes' => [],
       'noscript' => [],
       'overlay' => [],
       'preface' => [],
       'postscript' => [],
+    ] + self::hashedProperties();
+  }
+
+  /**
+   * Returns non-renderable blazy theme properties to avoid render errors.
+   *
+   * No issues when all these were passed into theme_blazy() since 1.x, except
+   * when they enter theme_item_list() or theme_field() as a leak or by mistake.
+   */
+  public static function hashedProperties() {
+    return [
+      'attributes' => [],
+      'item' => NULL,
+      'item_attributes' => [],
       'settings' => [],
       'url' => NULL,
     ];
@@ -412,7 +423,7 @@ class BlazyDefault {
   }
 
   /**
-   * Returns wrong room settings, since initialially copied from Slick.
+   * Returns wrong room settings, since initially copied from Slick.
    */
   public static function nonBlazySettings() {
     return [

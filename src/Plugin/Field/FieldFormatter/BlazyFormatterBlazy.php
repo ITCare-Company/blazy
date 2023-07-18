@@ -27,6 +27,11 @@ class BlazyFormatterBlazy extends BlazyFileFormatterBase {
   /**
    * {@inheritdoc}
    */
+  protected $captionId = 'captions';
+
+  /**
+   * {@inheritdoc}
+   */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $files = $this->getEntitiesToView($items, $langcode);
 
@@ -46,13 +51,6 @@ class BlazyFormatterBlazy extends BlazyFileFormatterBase {
       // Since 2.17, match sub-modules `items` for easy swap later to DRY.
       $build['items'][] = $element;
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function buildOptions(array $settings): array {
-    return ['caption_id' => 'captions'];
   }
 
 }

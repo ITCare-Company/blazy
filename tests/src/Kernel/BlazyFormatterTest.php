@@ -74,8 +74,8 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     // Verify it is not a theme_item_list() grid.
     $this->assertArrayNotHasKey('#build', $field);
 
-    $settings0 = Blazy::toHashtag($field[0]['#build']);
-    $settings1 = Blazy::toHashtag($field[1]['#build']);
+    $settings0 = $this->blazyManager->toHashtag($field[0]['#build']);
+    $settings1 = $this->blazyManager->toHashtag($field[1]['#build']);
 
     $blazies0 = $settings0['blazies'];
     $blazies1 = $settings1['blazies'];
@@ -133,9 +133,9 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $this->assertEquals($this->testPluginId, $component['type']);
     $this->assertEquals($this->testPluginId, $build[$this->testFieldName]['#formatter']);
 
-    $format['settings'] = array_merge($this->getFormatterSettings(), $formatter_settings);
+    $format['#settings'] = array_merge($this->getFormatterSettings(), $formatter_settings);
 
-    $settings = &$format['settings'];
+    $settings = &$format['#settings'];
 
     $this->assertArrayHasKey('blazies', $settings);
 

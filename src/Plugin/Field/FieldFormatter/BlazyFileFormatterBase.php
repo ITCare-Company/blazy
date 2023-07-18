@@ -7,7 +7,6 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\field\FieldConfigInterface;
 use Drupal\file\Plugin\Field\FieldFormatter\FileFormatterBase;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyDependenciesTrait;
 use Drupal\blazy\Utility\Sanitize;
@@ -32,6 +31,28 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     getScopedFormElements as traitGetScopedFormElements;
   }
   use BlazyDependenciesTrait;
+
+  /**
+   * The module namsepace.
+   *
+   * @var string
+   * @see https://www.php.net/manual/en/reserved.keywords.php
+   */
+  protected $namespace = 'blazy';
+
+  /**
+   * The item id.
+   *
+   * @var string
+   */
+  protected $itemId = 'blazy';
+
+  /**
+   * The caption id.
+   *
+   * @var string
+   */
+  protected $captionId = 'caption';
 
   /**
    * {@inheritdoc}
@@ -82,20 +103,10 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    * @todo remove parameter $options for self::buildOptions().
    */
   protected function getElements(array $build, $files, $options = NULL): \Generator {
-    $settings   = Blazy::toHashtag($build);
-    $blazies    = $settings['blazies'];
-    $options    = $options ?: $this->buildOptions($settings);
-    $namespace  = $blazies->get('namespace');
-    $item_id    = $blazies->get('item.id');
-    $caption_id = $options ?: 'captions';
-    $use_media  = FALSE;
-    $item_id    = NULL;
-
-    // Prepare for betterment with poorly-informed thumbnails.
-    if (is_array($options)) {
-      $caption_id = $options['caption_id'] ?? $caption_id;
-      $use_media  = $options['use_media'] ?? FALSE;
-    }
+    $settings   = $this->formatter->toHashtag($build);
+    $namespace  = $this->namespace;
+    $item_id    = $this->itemId;
+    $caption_id = $this->captionId;
 
     foreach ($files as $delta => $file) {
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
@@ -109,7 +120,13 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
         ->set('media.type', 'image')
         ->set('image.uri', $uri);
 
-      $data = ['item' => $item, 'settings' => $sets];
+      // @todo make it hashtag after sub-modules ready.
+      $data = [
+        '#delta'    => $delta,
+        '#entity'   => $file,
+        '#item'     => $item,
+        '#settings' => $sets,
+      ];
 
       // Build individual element, no real use here since VEF deprecated.
       $this->buildElement($data, $file);
@@ -117,35 +134,25 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       // Build captions if so configured.
       $captions = $this->getCaptions($data);
 
+      // @todo merge all these into theme_blazy() at 3.x after sub-modules.
       // Split for different formatters with very minimal difference.
       if ($namespace == 'blazy') {
-        if ($captions) {
-          $data[$caption_id] = $captions;
-        }
-
-        // @todo move it up after sub-modules.
+        $data[$caption_id] = $captions;
         $element = $this->formatter->getBlazy($data);
       }
       else {
+        $blazy = $this->formatter->getBlazy($data);
         $element = $data;
 
-        // @todo remove check after sub-modules.
-        if ($use_media) {
-          // @todo move it up after sub-modules.
-          $blazy = $this->formatter->getBlazy($data);
-          $element[$item_id] = $blazy;
+        $element[$item_id] = $blazy;
+        $element[$caption_id] = $captions;
 
-          // This is the only reason for the change. Thumbnails are
-          // poorly-informed like image without styles, etc.
-          // Update with blazy processed settings such as unstyled extensions.
-          $item_build = $blazy['#build'] ?? [];
-          if ($blazysets = Blazy::toHashtag($item_build)) {
-            $element['settings']['blazies']->merge($blazysets['blazies']->storage());
-          }
-        }
-
-        if ($captions) {
-          $element[$caption_id] = $captions;
+        // This is the only reason for the change. Thumbnails are
+        // poorly-informed like image without styles, etc.
+        // Update with blazy processed settings such as unstyled extensions.
+        $item_build = $blazy['#build'] ?? [];
+        if ($blazysets = $this->formatter->toHashtag($item_build)) {
+          $element['#settings']['blazies']->merge($blazysets['blazies']->storage());
         }
       }
 
@@ -158,11 +165,12 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    * Builds the captions.
    */
   protected function getCaptions(array $data): array {
-    $settings = Blazy::toHashtag($data);
+    $settings = $this->formatter->toHashtag($data);
+    $item     = $this->formatter->toHashtag($data, 'item');
     $captions = $settings['caption'] ?? [];
     $output   = [];
 
-    if ($captions && $item = Blazy::toHashtag($data, 'item')) {
+    if ($captions && $item) {
       foreach ($captions as $caption) {
         if ($content = ($item->{$caption} ?? NULL)) {
           if ($caption == 'alt') {

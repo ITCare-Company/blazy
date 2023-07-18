@@ -25,8 +25,8 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
       // Due to minimal settings, assumed core fields are in use.
       $settings['image'] = 'field_media_image';
       $data['#entity']   = $entity;
-      $data['settings']  = $this->mergedSettings = $settings;
-      $data['delta']     = $values->index;
+      $data['#settings'] = $this->mergedSettings = $settings;
+      $data['#delta']    = $values->index;
       $data['fallback']  = $entity->label();
 
       // Pass results to \Drupal\blazy\BlazyEntity.

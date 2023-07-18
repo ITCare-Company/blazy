@@ -76,7 +76,7 @@ class BlazyViews extends BlazyStyleBase implements BlazyViewsInterface {
       $build = ['items' => $items];
       $this->checkBlazy($settings, $build, $rows);
 
-      $build['settings'] = $settings;
+      $build['#settings'] = $settings;
       $elements = $this->blazyManager->build($build);
 
       unset($view->row_index, $items);

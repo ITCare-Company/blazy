@@ -47,7 +47,8 @@ trait BlazyFormatterViewTrait {
     $this->preSettings($settings, $langcode);
 
     // Build the settings.
-    $build = ['settings' => $settings];
+    // @todo make it hashtag after sub-modules ready.
+    $build = ['#settings' => $settings];
 
     // Build the elements.
     $this->formatter->preBuildElements($build, $items, $entities);
@@ -63,10 +64,11 @@ trait BlazyFormatterViewTrait {
 
     // Pass to manager for easy updates to all Blazy formatters.
     $output = $this->manager->build($build);
+    $settings = $this->manager->toHashtag($build);
 
     // Return without field markup, if not so configured, else field.html.twig.
     // @fixme this no longer works as expected since D9.5.10-D10.
-    return empty($build['settings']['use_theme_field']) ? $output : [$output];
+    return empty($settings['use_theme_field']) ? $output : [$output];
   }
 
 }

@@ -145,7 +145,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   public function build(array &$build, $entity = NULL): void {
     // @todo remove old approach at 3.x after old VEF BlazyVideoTrait removed.
-    if (!isset($build['settings'])) {
+    if (isset($build['input_url'])) {
       $this->toEmbed($build);
       return;
     }
@@ -207,8 +207,11 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * @todo move it directly into ::build() after sub-modules.
    */
   private function fromMediaOrAny(array &$build): void {
+    $this->blazyManager->hashtag($build);
+
+    $access   = $build['#access'] ?? FALSE;
     $entity   = $build['#entity'] ?? NULL;
-    $settings = &$build['settings'];
+    $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
     $valid    = $entity instanceof MediaInterface;
     $stage    = $settings['image'] ?? NULL;
@@ -234,12 +237,12 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       $entity = $valid ? $media : $entity;
       /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $entity */
       if ($item = BlazyImage::fromAny($entity, $settings)) {
-        $build['item'] = $item;
+        $build['#item'] = $item;
       }
     }
 
     // Checks for access.
-    if ($denied = $this->blazyManager->denied($entity)) {
+    if (!$access && $denied = $this->blazyManager->denied($entity)) {
       $build['content'][] = $denied;
       return;
     }
@@ -264,7 +267,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     else {
       // Failsafe, BlazyFilter/ VEF without file upload [data-entity-uuid].
       try {
-        $build['item'] = $this->getExternalImageItem($settings);
+        $build['#item'] = $this->getExternalImageItem($settings);
       }
       catch (\Exception $ignore) {
         // Silently failed likely local works without internet.
@@ -280,9 +283,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   private function fromMedia(array &$build): void {
     // Prepare Media needed settings, and extract Media thumbnail, except type.
-    $media = BlazyMedia::prepare($build);
-    $settings = &$build['settings'];
-    $blazies = $settings['blazies'];
+    $media    = BlazyMedia::prepare($build);
+    $settings = &$build['#settings'];
+    $blazies  = $settings['blazies'];
 
     // @todo support local video/ audio file, and other media sources.
     // @todo check for Resource::TYPE_PHOTO, Resource::TYPE_RICH, etc.
@@ -390,8 +393,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   private function toEmbed(array &$settings): void {
     $blazies = $settings['blazies'];
-    $input = $settings['input_url'] ?? NULL;
-    $input = $blazies->get('media.input_url') ?: $input;
+    $input   = $settings['input_url'] ?? NULL;
+    $input   = $blazies->get('media.input_url') ?: $input;
 
     if (empty($input)) {
       return;

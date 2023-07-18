@@ -26,13 +26,17 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * {@inheritdoc}
    */
   public function getBlazy(array $build, $delta = -1): array {
+    $hashtags = array_keys(BlazyDefault::hashedProperties());
     foreach (BlazyDefault::themeProperties() as $key => $default) {
-      $build[$key] = $this->toHashtag($build, $key, $default);
+      $k = in_array($key, $hashtags) ? "#$key" : $key;
+      $build[$k] = $this->toHashtag($build, $key, $default);
     }
 
     // Temporary checks till final migration at/by 3.x.
-    $item      = $this->toHashtag($build, 'item');
-    $settings  = &$build['settings'];
+    $this->hashtag($build);
+
+    $item      = $this->toHashtag($build, 'item', NULL);
+    $settings  = &$build['#settings'];
     $settings += Blazy::init();
 
     // Prevents double checks.
@@ -98,14 +102,14 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    */
   public function build(array $build): array {
     $settings = $this->getBlazySettings($build);
-    $blazies = $settings['blazies'];
+    $blazies  = $settings['blazies'];
 
     // This #pre_render doesn't work if called from Views results, hence the
     // output is split either as theme_field() or theme_item_list().
     if ($blazies->is('grid')) {
       // Take over theme_field() with a theme_item_list(), if so configured.
       // The reason: this is not only fed by field items, but also Views rows.
-      $build['settings'] = $settings;
+      $build['#settings'] = $settings;
       $content = [
         '#build'      => $build,
         '#pre_render' => [[$this, 'preRenderBuild']],
@@ -147,7 +151,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       unset($build['#attached'], $build['attached']);
     }
 
-    $settings = $this->toHashtag($build);
+    $settings = $build['#settings'];
 
     // Runs after settings.
     $items = $this->toElementChildren($build);
@@ -243,7 +247,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Build out (rich media) content.
    */
   private function buildContent(array &$element, array &$build) {
-    $settings = &$build['settings'];
+    $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
 
     if (empty($build['content'])) {
@@ -283,16 +287,17 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Since 2.9, many were moved into BlazyTheme to support custom work better.
    */
   private function buildMedia(array &$element, array &$build): void {
-    $item = $this->toHashtag($build, 'item', NULL);
-    $settings = $this->toHashtag($build);
-    $blazies = $settings['blazies'];
-    $item_attributes = $this->toHashtag($build, 'item_attributes');
+    $item     = $build['#item'];
+    $settings = $build['#settings'];
+    $blazies  = $settings['blazies'];
+    $attrs    = $this->toHashtag($build, 'item_attributes');
 
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
     // (Responsive) image with item attributes, might be RDF.
+    // @todo remove after another check.
     if ($item && isset($item->_attributes)) {
-      $item_attributes += $item->_attributes;
+      $attrs += $item->_attributes;
       unset($item->_attributes);
     }
 
@@ -305,7 +310,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Pass non-rich-media elements to theme_blazy().
-    $element['#item_attributes'] = Blazy::sanitize($item_attributes);
+    $element['#item_attributes'] = Blazy::sanitize($attrs);
     unset($build['item_attributes']);
   }
 
@@ -343,18 +348,18 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    *   object, settings, optional container attributes.
    */
   private function prepareBlazy(array &$element, array $build) {
-    $item       = $this->toHashtag($build, 'item', NULL);
-    $settings   = $this->toHashtag($build);
+    $item       = $build['#item'];
+    $settings   = $build['#settings'];
     $blazies    = $settings['blazies'];
-    $attributes = &$build['attributes'];
+    $attributes = &$build['#attributes'];
 
     // Blazy has these 3 attributes, yet provides optional ones far below.
     // The supported: 'caption', 'media', 'url', 'wrapper'.
+    // No defaults are provided for all these attributes.
     $theme_attributes = BlazyDefault::themeAttributes();
     foreach ($theme_attributes as $key) {
       $key = $key . '_attributes';
-      // @todo prefix it with # post migration at/ by 3.x.
-      $build[$key] = $this->toHashtag($build, $key);
+      $build["#$key"] = $this->toHashtag($build, $key);
     }
 
     // Initial feature checks, URI, delta, media features, etc.
@@ -419,13 +424,16 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * @todo call directly items after migrations at/by 3.x.
    */
   private function toElementChildren(array $build): array {
-    $build = $build['items'] ?? $build;
+    $build = $build['items']
+      ?? array_filter($build, fn($k) => is_int($k), ARRAY_FILTER_USE_KEY);
+
     unset(
       $build['#entity'],
       $build['#settings'],
       $build['items'],
       $build['settings']
     );
+
     return $build;
   }
 

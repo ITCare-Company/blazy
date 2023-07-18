@@ -29,7 +29,9 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
    * {@inheritdoc}
    */
   protected function buildElement(array &$element, $row, $index) {
-    $settings = &$element['settings'];
+    $this->blazyManager->hashtag($element);
+
+    $settings = &$element['#settings'];
     $blazies  = $this->reset($settings);
     $item_id  = $blazies->get('item.id') ?: 'box';
 
@@ -39,7 +41,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     if (!empty($settings['image'])) {
       // Supports individual grid/box image style either inline IMG, or CSS.
       $image             = $this->getImageRenderable($settings, $row, $index);
-      $element['item']   = $this->getImageItem($image);
+      $element['#item']  = $this->getImageItem($image);
       $element[$item_id] = $image['rendered'] ?? [];
     }
 

@@ -233,13 +233,13 @@ trait BlazyUnitTestTrait {
    *   The pre_render element.
    */
   protected function doPreRenderImage(array $build) {
-    $settings = $build['settings'];
+    $settings = $this->blazyManager->toHashtag($build);
     $this->blazyManager->postSettings($settings);
 
     $image = $this->blazyManager->getBlazy($build);
 
-    $image['#build']['item'] = empty($image['#build']['item'])
-      ? $build['item'] : $image['#build']['item'];
+    $image['#build']['#item'] = empty($image['#build']['#item'])
+      ? $build['#item'] : $image['#build']['#item'];
     return $this->blazyManager->preRenderBlazy($image);
   }
 
@@ -300,8 +300,8 @@ trait BlazyUnitTestTrait {
     $this->uri = $settings['uri'] = $item->uri;
 
     $this->data = [
-      'settings' => $settings,
-      'item' => $item,
+      '#settings' => $settings,
+      '#item' => $item,
     ];
 
     $this->testItem = $item;
@@ -333,7 +333,7 @@ trait BlazyUnitTestTrait {
     $this->setUpUnitImages();
 
     $this->testItem = $item;
-    $this->data['item'] = $item;
+    $this->data['#item'] = $item;
     $item->entity = $entity;
   }
 

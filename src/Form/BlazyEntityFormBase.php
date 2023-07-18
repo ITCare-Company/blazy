@@ -262,7 +262,6 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
 
       $this->manager->gridItemAttributes($dummies, $content_attrs, $sets);
       $wrapper_attrs = $this->manager->merge($wrapper_attrs, $dummies);
-      $wrapper_attrs['class'][] = 'grid--admin';
     }
 
     $form['grid_start'] = [

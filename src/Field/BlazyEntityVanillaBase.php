@@ -71,15 +71,16 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * Build item contents.
    */
   protected function buildElement(array &$build, $entity, $langcode) {
-    $settings = $build['settings'];
+    $settings = $this->formatter->toHashtag($build);
     $blazies  = $settings['blazies'];
     $item_id  = $blazies->get('item.id');
 
     // Sub-modules always flag `vanilla` as required, -- configurable, or not.
     if (!empty($settings['vanilla'])) {
       $data = [
-        '#entity' => $entity,
-        'settings' => $settings,
+        '#entity'   => $entity,
+        '#settings' => $settings,
+        '#delta'    => $blazies->get('delta', $settings['delta'] ?? 0),
       ];
 
       if ($output = $this->blazyEntity->view($data)) {
@@ -120,13 +121,11 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * Alternative for self::buildElement() with extra params for convenient.
    */
   protected function prepareElement(array &$build, $entity, $langcode, $delta): void {
-    $settings = &$build['settings'];
+    $this->formatter->hashtag($build);
+
+    $settings = &$build['#settings'];
     $blazies  = $settings['blazies']->reset($settings);
     $bundle   = $entity->bundle();
-
-    // @todo remove after sub-modules.
-    $settings['delta'] = $delta;
-    $settings['langcode'] = $langcode;
 
     $blazies->set('bundles.' . $bundle, $bundle, TRUE)
       ->set('language.code', $langcode)

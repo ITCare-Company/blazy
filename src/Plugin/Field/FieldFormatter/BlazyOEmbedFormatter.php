@@ -93,7 +93,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
    * Build the blazy elements.
    */
   protected function buildElements(array &$build, $items, $langcode) {
-    $settings   = $build['settings'];
+    $settings   = $this->formatter->toHashtag($build);
     $field_name = $this->fieldDefinition->getName();
     $entity     = $items->getParent()->getEntity();
 
@@ -115,7 +115,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
       $blazies->set('delta', $delta)
         ->set('media.input_url', $value);
 
-      $data = ['item' => NULL, 'settings' => $sets];
+      $data = ['#item' => NULL, '#settings' => $sets];
 
       if ($entity->getEntityTypeId() == 'media'
             && $entity->hasField($field_name)
@@ -134,6 +134,8 @@ class BlazyOEmbedFormatter extends FormatterBase {
 
       if ($media) {
         $data['#entity'] = $media;
+        $data['#delta']  = $delta;
+
         $this->blazyOembed->build($data);
       }
 

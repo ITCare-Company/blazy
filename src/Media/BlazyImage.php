@@ -110,33 +110,23 @@ class BlazyImage {
    */
   public static function dimensions(array &$settings, $item = NULL, $initial = FALSE): array {
     $blazies = $settings['blazies'];
-
-    // @todo remove remaining settings references:
-    $_width  = $initial ? '_width' : 'width';
-    $_height = $initial ? '_height' : 'height';
-    $_uri    = $initial ? '_uri' : 'uri';
-    $width   = $settings[$_width] ?? NULL;
-    $height  = $settings[$_height] ?? NULL;
-    $uri     = $settings[$_uri] ?? '';
-
-    // @todo remove fallback.
-    $which  = $initial ? 'first' : 'image';
-    $height = $blazies->get($which . '.height') ?: $width;
-    $width  = $blazies->get($which . '.width') ?: $width;
-    $uri    = $blazies->get($which . '.uri') ?: $uri;
+    $_width  = 'width';
+    $_height = 'height';
+    $which   = $initial ? 'first' : 'image';
+    $height  = $blazies->get($which . '.height');
+    $width   = $blazies->get($which . '.width');
+    $uri     = $blazies->get($which . '.uri');
 
     if ($item) {
-      if ((!$height || !$width)) {
-        $width = $item->width ?? $width;
-        $height = $item->height ?? $height;
-      }
+      $width = $item->width ?? $width;
+      $height = $item->height ?? $height;
       $blazies->set('image.item', $item);
     }
 
     // Only applies when Image style is empty, no file API, no $item,
     // with unmanaged VEF/ WYSIWG/ filter image without image_style.
     if ($uri && empty($settings['image_style']) && (!$height || !$width)) {
-      $abs = empty($settings['uri_root']) ? $uri : $settings['uri_root'];
+      $abs = $blazies->get('image.uri_root', $uri);
       // Must be valid URI, or web-accessible url, not: /modules|themes/...
       if (!BlazyFile::isValidUri($abs) && mb_substr($abs, 0, 1) == '/') {
         if ($request = Path::requestStack()) {
@@ -162,13 +152,18 @@ class BlazyImage {
     $data = ['width' => $check[$_width], 'height' => $check[$_height]];
     $data['ratio'] = self::ratio($data);
 
+    // If initial call, used by EZ, etc.
     if ($initial || !$blazies->get('first.width')) {
       $blazies->set('first', $data, TRUE);
     }
 
+    // Only if not cropped uniformly.
+    if (!$blazies->is('dimensions')) {
+      $blazies->set('image', $data, TRUE);
+    }
+
     // In case `image_style` is not provided.
-    $blazies->set('image.original', $data, TRUE)
-      ->set('image', $data, TRUE);
+    $blazies->set('image.original', $data, TRUE);
 
     return $data;
   }
@@ -268,7 +263,7 @@ class BlazyImage {
    * ::fromMedia(), already gone. Can be better.
    */
   public static function fromContent(array $options, $name = NULL): ?object {
-    $settings = $options['settings'] ?? [];
+    $settings = Blazy::toHashtag($options);
     $blazies  = $settings['blazies'] ?? NULL;
     $poster   = $settings['image'] ?? NULL;
     $name     = $name ?: $poster;
@@ -360,7 +355,7 @@ class BlazyImage {
    * Both ImageItem and fake stdClass are valid, no problem.
    */
   public static function isValidItem($item): bool {
-    $item = is_array($item) ? ($item['item'] ?? NULL) : $item;
+    $item = is_array($item) ? Blazy::toHashtag($item, 'item', NULL) : $item;
     return is_object($item) && (isset($item->uri) || isset($item->target_id));
   }
 
@@ -457,9 +452,9 @@ class BlazyImage {
     foreach (BlazyDefault::imageStyles() as $key) {
       // @todo re-enable the skip if any issues with Responsive image.
       // The skip limits SVG dimension checks, ratio, url, etc.
-      // if ($key == 'image') {
-      // continue;
-      // }
+      if ($key == 'image') {
+        continue;
+      }
       if ($style = $blazies->get($key . '.style')) {
         $data = self::transformDimensions($style, $blazies, $uri);
         $blazies->set($key, $data, TRUE);

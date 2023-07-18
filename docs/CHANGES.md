@@ -3,8 +3,10 @@
 ## <a name="changes"></a>NOTABLE CHANGES  
 Always check out release notes, if any issues with the latest changes.
 
-* _Blazy 2.17_, 2023/07/16:
+* _Blazy 2.17_, 2023/07/18:
    + Cold fixes for few minor regressions and self organizations.
+   + **Breaking change**: changed `settings` to `#settings`, etc. Check out CR:
+     [Blazy ecosystem breaking change](https://www.drupal.org/node/3375158).
    + Added additional config options at Blazy UI. Be sure to check out for
      `visible_class`, `wrapper_class`, `deprecated_class` options if using them.
    + Renamed legacy Foundation grid CSS classes to avoid conflicts with core

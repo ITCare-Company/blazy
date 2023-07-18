@@ -109,8 +109,10 @@ class BlazyMedia {
    * Prepares media item data to provide image item.
    */
   public static function prepare(array &$data) {
+    Blazy::hashtag($data);
+
     $media     = $data['#entity'];
-    $settings  = &$data['settings'];
+    $settings  = &$data['#settings'];
     $blazies   = $settings['blazies'];
     $view_mode = $settings['view_mode'] ?? NULL;
     $langcode  = $blazies->get('language.current');
@@ -182,8 +184,7 @@ class BlazyMedia {
 
     // Update iframe/video dimensions based on configurable image style, if any.
     foreach (['width', 'height'] as $key) {
-      $default = $settings[$key] ?? NULL;
-      if ($dimension = ($blazies->get('image.' . $key) ?: $default)) {
+      if ($dimension = ($blazies->get('image.' . $key))) {
         $attributes[$key] = $dimension;
       }
     }
@@ -240,6 +241,7 @@ class BlazyMedia {
    */
   private static function toIframe(array &$item, array &$settings): void {
     $blazies = $settings['blazies'];
+
     if ($oembed = Blazy::service('blazy.oembed')) {
       $original = $item;
       $content  = $oembed->blazyManager()->renderer()->renderPlain($item);

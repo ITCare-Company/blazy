@@ -33,10 +33,10 @@ trait BlazyFormatterViewBaseTrait {
     $this->preSettings($settings, $langcode);
 
     // Build the settings.
-    $build = ['settings' => $settings];
+    $build = ['#settings' => $settings];
 
     // BlazyFormatter::buildSettings() contains media, irrelevant for texts.
-    $this->formatter->fieldSettings($build, $items);
+    $this->formatter->fieldSettings($settings, $items);
 
     // Build the elements, and satisfy phpstan.
     if (method_exists($this, 'buildElements')) {
@@ -45,9 +45,10 @@ trait BlazyFormatterViewBaseTrait {
 
     // Pass to manager for easy updates to all Blazy ecosystem formatters.
     $output = $this->manager->build($build);
+    $settings = $this->manager->toHashtag($build);
 
     // Return without field markup, if not so configured, else field.html.twig.
-    return empty($build['settings']['use_theme_field']) ? $output : [$output];
+    return empty($settings['use_theme_field']) ? $output : [$output];
   }
 
   /**

@@ -3,11 +3,11 @@
 namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Utility\Sanitize;
 
 /**
@@ -22,7 +22,7 @@ class Lightbox {
   /**
    * Provides lightbox libraries.
    */
-  public static function attach(array &$load, array &$attach = []): void {
+  public static function attach(array &$load, array &$attach): void {
     $blazies = $attach['blazies'];
 
     if ($name = $blazies->get('lightbox.name')) {
@@ -46,18 +46,19 @@ class Lightbox {
    * @param array $element
    *   The element being modified.
    */
-  public static function build(array &$element = []): void {
+  public static function build(array &$element): void {
     $manager    = Blazy::service('blazy.manager');
-    $item       = $element['#item'];
     $settings   = &$element['#settings'];
     $blazies    = $settings['blazies'];
-    $uri        = $blazies->get('image.uri');
     $switch     = $blazies->get('lightbox.name');
     $switch_css = str_replace('_', '-', $switch);
-    $valid      = BlazyFile::isValidUri($uri);
-    $box_style  = $blazies->get('box.style');
+    $item       = $blazies->get('image.item');
+    $uri        = $blazies->get('image.uri');
+    $valid      = $blazies->get('image.valid') ?: Blazy::isValidUri($uri);
     $_box_style = $settings['box_style'] ?? NULL;
-    $box_url    = $url = Blazy::url($settings, $box_style, $uri);
+    $box_style  = $blazies->get('box.style');
+    $box_url    = $blazies->get('box.url');
+    $box_url    = $url = $box_url ?: Blazy::url($settings, $box_style, $uri);
     $colorbox   = $blazies->get('colorbox');
     $gallery_id = $blazies->get('lightbox.gallery_id');
     $box_id     = $blazies->is('gallery') ? $gallery_id : NULL;
@@ -70,12 +71,13 @@ class Lightbox {
     $styleable  = $valid && !$svg;
     $_escaped   = $blazies->get('media.escaped');
     $_fullsize  = $_box_style && $styleable;
+    $format     = 'blazy__%s litebox';
     $_resimage  = FALSE;
 
     // Provide relevant URL since it is a lightbox.
-    $url_attributes = &$element['#url_attributes'];
-    $url_attributes['class'][] = 'blazy__' . $switch_css . ' litebox';
-    $url_attributes['data-' . $switch_css . '-trigger'] = TRUE;
+    $attrs = &$element['#url_attributes'];
+    $attrs['class'][] = sprintf($format, $switch_css);
+    $attrs['data-' . $switch_css . '-trigger'] = TRUE;
 
     // Might not be present from BlazyFilter.
     $json = ['id' => $switch_css, 'count' => $count, 'boxType' => 'image'];
@@ -94,7 +96,7 @@ class Lightbox {
         // Force autoplay for media URL on lightboxes, saving another click.
         // BC for non-oembed such as Video Embed Field without Media migration.
         $url = Blazy::autoplay($embed, !$_escaped);
-        $url_attributes['data-oembed-url'] = $url;
+        $attrs['data-oembed-url'] = $url;
         $json['boxType'] = 'iframe';
         $json['playable'] = $blazies->is('playable');
       }
@@ -110,7 +112,7 @@ class Lightbox {
       }
 
       if ($blazies->get('photobox')) {
-        $url_attributes['rel'] = 'video';
+        $attrs['rel'] = 'video';
       }
     }
     else {
@@ -138,15 +140,15 @@ class Lightbox {
       }
     }
 
+    // @todo recheck if $valid tweakable.
+    // if (!$valid) {
     $box_url = UrlHelper::stripDangerousProtocols($box_url);
-
+    // }
     // Only needed by videos, the rest can just use $url set into HREF.
     if (isset($data_box_url)) {
-      $url_attributes['data-box-url'] = $box_url;
+      $attrs['data-box-url'] = $box_url;
     }
 
-    // @todo remove after sub-modules.
-    $settings['box_url'] = $box_url;
     $blazies->set('lightbox.url', $box_url)
       ->set('lightbox.width', (int) $box_width)
       ->set('lightbox.height', (int) $box_height);
@@ -158,7 +160,7 @@ class Lightbox {
       // unless using blazy formatter for the images within Splide, Slick, etc.
       // Adds persistent delta, help fix for slide clones which screw up deltas.
       if ($blazies->is('gallery')) {
-        $url_attributes['data-b-delta'] = $delta;
+        $attrs['data-b-delta'] = $delta;
       }
 
       // @todo make Blazy Grid without Blazy Views fields support multiple
@@ -186,7 +188,7 @@ class Lightbox {
     self::content(
       $element,
       $json,
-      $url_attributes,
+      $attrs,
       $options,
       $settings,
       $manager
@@ -213,7 +215,7 @@ class Lightbox {
   private static function content(
     array &$element,
     array &$json,
-    array &$url_attributes,
+    array &$attrs,
     array $options,
     array $settings,
     $manager
@@ -311,7 +313,7 @@ class Lightbox {
 
     // Only strip if not already.
     $element['#url'] = $_escaped ? $url : UrlHelper::stripDangerousProtocols($url);
-    $url_attributes['data-media'] = Json::encode($json);
+    $attrs['data-media'] = Json::encode($json);
   }
 
   /**
@@ -329,9 +331,9 @@ class Lightbox {
     try {
       if ($resimage = $manager->load($box_style, 'responsive_image_style')) {
         $_resimage = TRUE;
-        $attrs = [
-          'alt' => $blazies->get('image.alt') ?: '',
-        ];
+        $alt = $blazies->get('image.alt');
+        $alt = $alt ? Html::escape(strip_tags($alt)) : '';
+        $attrs = ['alt' => $alt];
 
         $element['#lightbox_html'] = [
           '#theme' => 'responsive_image',

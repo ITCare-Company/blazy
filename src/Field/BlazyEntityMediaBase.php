@@ -4,7 +4,6 @@ namespace Drupal\blazy\Field;
 
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 
 /**
@@ -44,7 +43,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   protected function buildElements(array &$build, $entities, $langcode) {
     parent::buildElements($build, $entities, $langcode);
 
-    $settings = $build['settings'];
+    $settings = $this->formatter->toHashtag($build);
     $blazies  = $settings['blazies'];
     $item_id  = $blazies->get('item.id');
 
@@ -67,7 +66,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   protected function prepareElement(array &$build, $entity, $langcode, $delta): void {
     parent::prepareElement($build, $entity, $langcode, $delta);
 
-    $settings  = $build['settings'];
+    $settings  = $this->formatter->toHashtag($build);
     $blazies   = $settings['blazies'];
     $item_id   = $blazies->get('item.id');
     $view_mode = $settings['view_mode'] ?? 'full';
@@ -81,9 +80,10 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
     // Otherwise hard work which is meant to reduce custom code at theme level.
     $element = [
-      '#entity' => $entity,
-      'item' => NULL,
-      'settings' => $settings,
+      '#entity'   => $entity,
+      '#settings' => $settings,
+      '#delta'    => $delta,
+      '#item'      => NULL,
     ];
 
     // Build media item including custom highres video thumbnail.
@@ -113,8 +113,8 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
       // Update with blazy processed settings such as unstyled extensions.
       $item_build = $blazy['#build'] ?? [];
-      if ($blazysets = Blazy::toHashtag($item_build)) {
-        $element['settings']['blazies']->merge($blazysets['blazies']->storage());
+      if ($blazysets = $this->formatter->toHashtag($item_build)) {
+        $element['#settings']['blazies']->merge($blazysets['blazies']->storage());
       }
 
       // Provides extra elements.
@@ -148,11 +148,13 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
    * Builds captions with possible multi-value fields.
    */
   protected function getCaption(array &$element, $entity, $langcode) {
-    $settings  = $element['settings'];
+    $settings  = $this->formatter->toHashtag($element);
+    $item      = $this->formatter->toHashtag($element, 'item', NULL);
     $blazies   = $settings['blazies'];
     $view_mode = $settings['view_mode'] ?? 'full';
     $is_blazy  = $blazies->get('namespace') == 'blazy';
     $weights   = $caption_items = [];
+    $_weight   = FALSE;
 
     // Title can be plain text, or link field.
     if ($_title = $settings['title'] ?? NULL) {
@@ -162,19 +164,18 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
         $output = BlazyField::getTextOrLink($entity, $_title, $view_mode, $langcode);
       }
       // Else fallback to image title property.
-      elseif ($item = ($element['item'] ?? NULL)) {
-        if ($_title == 'title') {
-          // Respects both fake and real image item.
-          if ($caption = ($item->title ?? NULL)) {
-            $caption = Xss::filter($caption, BlazyDefault::TAGS);
-            $output = ['#markup' => trim($caption)];
-          }
+      elseif ($item && $_title == 'title') {
+        // Respects both fake and real image item.
+        if ($caption = ($item->title ?? NULL)) {
+          $caption = Xss::filter($caption, BlazyDefault::TAGS);
+          $output = ['#markup' => trim($caption)];
         }
       }
 
       if ($output) {
         // @todo recheck to make it similar to sub-modules.
         if ($is_blazy) {
+          $_weight = TRUE;
           $weights[] = 0;
           $caption_items['title'] = $output;
         }
@@ -188,7 +189,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     if ($field_captions = $settings['caption'] ?? []) {
       foreach ($field_captions as $name => $field_caption) {
         /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-        if ($item = ($element['item'] ?? NULL)) {
+        if ($item) {
           // Provides basic captions based on image attributes (Alt, Title).
           foreach (['title', 'alt'] as $key => $attribute) {
             $value = $item->{$attribute} ?? '';
@@ -198,7 +199,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
                 $markup = '<p>' . $markup . '</p>';
               }
               $caption_items[$name] = ['#markup' => $markup];
-              $weights[] = $key;
+              $weights[] = $_weight ? ($key + 1) : $key;
             }
           }
         }
@@ -215,10 +216,10 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     }
 
     if ($caption_items) {
+      // @fixme broken sometimes.
       if ($weights) {
         array_multisort($weights, SORT_ASC, $caption_items);
       }
-
       // @todo recheck to make it similar to sub-modules if any issues at 3.x.
       // The most obvious was seen at BlazyFileFormatterBase where sub-modules
       // don't want to pass captions to theme_blazy() for their own markups.

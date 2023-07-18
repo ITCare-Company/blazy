@@ -22,10 +22,10 @@ class BlazyViewsFieldFile extends BlazyViewsFieldPluginBase {
     if ($entity instanceof File) {
       $settings = $this->mergedViewsSettings();
 
-      $data['#entity']  = $entity;
-      $data['settings'] = $this->mergedSettings = $settings;
-      $data['delta']    = $values->index;
-      $data['fallback'] = $entity->getFilename();
+      $data['#entity']   = $entity;
+      $data['#settings'] = $this->mergedSettings = $settings;
+      $data['#delta']    = $values->index;
+      $data['fallback']  = $entity->getFilename();
 
       // Pass results to \Drupal\blazy\BlazyEntity.
       return $this->blazyEntity->build($data);

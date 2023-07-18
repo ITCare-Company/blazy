@@ -61,12 +61,12 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     $settings['count'] = $this->maxItems;
 
-    $build['settings'] = array_merge($build['settings'], $settings);
+    $build['#settings'] = array_merge($build['#settings'], $settings);
     $switch_css = str_replace('_', '-', $settings['media_switch']);
 
     $element = $this->doPreRenderImage($build);
 
-    $blazies = $build['settings']['blazies'];
+    $blazies = $build['#settings']['blazies'];
     if ($url && $blazies->get('switch') == 'content') {
       $this->assertEquals($blazies->get('entity.url'), $element['#url']);
       $this->assertArrayHasKey('#url', $element);
@@ -175,13 +175,13 @@ class BlazyManagerTest extends BlazyKernelTestBase {
         ->set('media.source', 'oembed:video');
 
       $data = [
-        '#entity' => $this->entity,
-        'settings' => $settings,
-        'item' => $item,
+        '#entity'   => $this->entity,
+        '#settings' => $settings,
+        '#item'     => $item,
       ];
 
       $this->blazyOembed->build($data);
-      $settings = $data['settings'];
+      $settings = $data['#settings'];
     }
 
     $variables['element']['#item'] = $item;

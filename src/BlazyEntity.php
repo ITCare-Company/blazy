@@ -69,10 +69,12 @@ class BlazyEntity implements BlazyEntityInterface {
   public function build(array $data, $entity = NULL, $fallback = ''): array {
     // Using hashed key to avoid render error with BVEF due to out of sync.
     // @todo remove the second after migrations at/by 3.x.
-    $manager  = $this->blazyManager;
+    $manager = $this->blazyManager;
+    $manager->hashtag($data);
+
     $entity   = $data['#entity'] ?? $entity;
     $fallback = $data['fallback'] ?? $fallback;
-    $settings = &$data['settings'];
+    $settings = &$data['#settings'];
 
     if (!$entity instanceof EntityInterface) {
       return [];
@@ -83,7 +85,7 @@ class BlazyEntity implements BlazyEntityInterface {
     }
 
     // @todo remove $settings after sub-modules: gridstack, slick_browser.
-    $delta = $settings['delta'] = $data['delta'] ?? ($settings['delta'] ?? -1);
+    $delta = $data['#delta'] ?? ($settings['delta'] ?? -1);
 
     // Prepare container settings.
     // This class was designed for a single entity, not multiple.
@@ -109,13 +111,15 @@ class BlazyEntity implements BlazyEntityInterface {
     $view = [
       '#entity'   => $entity,
       '#settings' => $settings,
+      '#access'   => TRUE,
       'fallback'  => $fallback,
     ];
 
     // Only pass to Blazy for known entities related to File or Media.
     if (in_array($entity->getEntityTypeId(), ['file', 'media'])) {
-      /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $data['item'] */
-      if (empty($data['item'])) {
+      /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+      $item = $manager->toHashtag($data, 'item', NULL);
+      if (!$item) {
         $data['content'][] = $this->view($view);
       }
 
@@ -143,8 +147,10 @@ class BlazyEntity implements BlazyEntityInterface {
    * {@inheritdoc}
    */
   public function prepare(array &$data): void {
-    $manager  = $this->blazyManager;
-    $settings = &$data['settings'];
+    $manager = $this->blazyManager;
+
+    $manager->hashtag($data);
+    $settings = &$data['#settings'];
 
     Blazy::verify($settings);
 
@@ -167,10 +173,12 @@ class BlazyEntity implements BlazyEntityInterface {
    */
   public function view($entity, array $settings = [], $fallback = ''): array {
     $manager = $this->blazyManager;
+    $access  = FALSE;
 
     if (is_array($entity)) {
       $settings = $manager->toHashtag($entity);
       $fallback = $entity['fallback'] ?? '';
+      $access   = $entity['#access'] ?? FALSE;
       $entity   = $entity['#entity'] ?? NULL;
     }
 
@@ -179,6 +187,7 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // @todo remove $data as the single param after sub-modules.
     $data = [
+      '#access'   => $access,
       '#entity'   => $entity,
       '#settings' => $settings,
       'fallback'  => $fallback,
@@ -207,6 +216,7 @@ class BlazyEntity implements BlazyEntityInterface {
   public static function settings(array &$settings, $entity): void {
     // Might be accessed by tests, or anywhere outside the workflow.
     Blazy::verify($settings);
+
     $blazies  = $settings['blazies'];
     $langcode = $blazies->get('language.current');
 

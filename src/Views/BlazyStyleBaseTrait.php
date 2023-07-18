@@ -290,7 +290,7 @@ trait BlazyStyleBaseTrait {
 
     // Even if ignorantly multiple, thumbnails must be one only.
     if (!$tn_style && $build) {
-      $subsets = $build['settings'] ?? [];
+      $subsets = Blazy::toHashtag($build);
       $tn_style = $subsets['thumbnail_style']
         ?? $subsets['image_style']
         ?? NULL;

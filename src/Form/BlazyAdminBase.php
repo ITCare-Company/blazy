@@ -704,7 +704,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         $dummies['class'] = [];
         $this->blazyManager->gridItemAttributes($dummies, $content_attrs, $gridsets);
         $wrapper_attrs = $this->blazyManager->merge($wrapper_attrs, $dummies);
-        $wrapper_attrs['class'][] = 'grid--admin';
 
         $grid = $key == 'grid' || ($scopes->is('grid_required') && $key == 'style');
         if ($grid || ($fullwidth && in_array($key, $fullwidth))) {
@@ -1146,9 +1145,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       'classes' => $classes,
     ];
 
-    $grids      = $this->blazyManager->initGrid($options);
-    $grid_attrs = $grids['attributes'];
-    $classes    = implode(' ', $grid_attrs['class']);
+    $grids   = $this->blazyManager->initGrid($options);
+    $attrs   = $grids['attributes'];
+    $classes = implode(' ', $attrs['class']);
 
     return [
       'classes'  => $classes,
