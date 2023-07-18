@@ -77,9 +77,8 @@ class BlazyResponsiveImage {
         // To make compatible with old bLazy (not Bio) which expects no 1px
         // for [data-src], else error, provide a real smallest image. Bio will
         // map it to the current breakpoint later.
-        $bg = reset($srcset);
-
-        $unlazy = $blazies->is('undata');
+        $bg      = reset($srcset);
+        $unlazy  = $blazies->is('undata');
         $old_url = $blazies->get('image.url');
         $new_url = $unlazy ? $old_url : $bg['src'];
 
@@ -208,10 +207,10 @@ class BlazyResponsiveImage {
    * to reduce complication at Blazy UI, and here.
    */
   public static function fallback(array &$settings, $placeholder): void {
-    $blazies = $settings['blazies'];
-    $id = '_empty image_';
-    $width = $height = 1;
-    $ratio = NULL;
+    $blazies  = $settings['blazies'];
+    $id       = '_empty image_';
+    $width    = $height = 1;
+    $ratio    = NULL;
     $data_src = $placeholder;
 
     // If not enabled via UI, by default, always 1px, or the custom Placeholder.
@@ -240,9 +239,9 @@ class BlazyResponsiveImage {
             $tn_uri = $style->buildUri($uri);
 
             [
-              'width' => $width,
+              'width'  => $width,
               'height' => $height,
-              'ratio' => $ratio,
+              'ratio'  => $ratio,
             ] = BlazyImage::transformDimensions($style, $blazies, $tn_uri);
 
             $blazies->set('resimage.fallback.style', $style);
@@ -343,8 +342,10 @@ class BlazyResponsiveImage {
       $func1 = '_responsive_image_build_source_attributes';
       $func2 = '_responsive_image_image_style_url';
 
-      if (is_callable($func1) && is_callable($func2)) {
-        $fallback = $func2($id, $variables['uri']);
+      if (is_callable($func1)) {
+        if (is_callable($func2)) {
+          $fallback = $func2($id, $uri);
+        }
 
         foreach ($style->getKeyedImageStyleMappings() as $bid => $multipliers) {
           if (isset($breakpoints[$bid])) {

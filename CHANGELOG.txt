@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-07-18
 ------------------------------
+- Added micro optimization for aspect ratio fluid to use non JS, if possible.
 - Changed settings key to #settings, etc. to avoid leaks/ render errors, see CR:
   https://www.drupal.org/node/3375158.
 

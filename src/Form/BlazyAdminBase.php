@@ -476,17 +476,18 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
 
     // https://en.wikipedia.org/wiki/List_of_common_resolutions
-    $ratio = ['1:1', '3:2', '4:3', '8:5', '16:9', 'fluid'];
+    $ratio = array_merge(BlazyDefault::RATIO, ['fluid']);
     if (!$scopes->is('no_ratio')) {
       $form['ratio'] = [
         '#type'         => 'select',
         '#title'        => $this->t('Aspect ratio'),
         '#options'      => array_combine($ratio, $ratio),
         '#empty_option' => $this->t('- None -'),
-        '#description'  => $this->t('Aspect ratio to get consistently responsive images and iframes. Coupled with Image style. And to fix layout reflow, excessive height issues, whitespace below images, collapsed container, no-js users, etc. <a href="@dimensions" target="_blank">Image styles and video dimensions</a> must <a href="@follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. <a href="@link" target="_blank">Learn more</a>. <ul><li><b>Fixed ratio:</b> all images use the same aspect ratio mobile up. Use it to avoid JS works, or if it fails Responsive image. </li><li><b>Fluid:</b> aka dynamic, dimensions are calculated and JS works are attempted to fix it.</li><li><b>Leave empty:</b> to DIY (such as using CSS mediaquery), or when working with multi-image-style plugin like GridStack.</li></ul>', [
-          '@dimensions'  => '//size43.com/jqueryVideoTool.html',
-          '@follow'      => '//en.wikipedia.org/wiki/Aspect_ratio_%28image%29',
-          '@link'        => '//www.smashingmagazine.com/2014/02/27/making-embedded-content-work-in-responsive-design/',
+        '#description'  => $this->t('Aspect ratio to get consistently responsive images and iframes. Coupled with Image style. And to fix layout reflow, excessive height issues, whitespace below images, collapsed container, no-js users, etc. <a href=":dimensions" target="_blank">Image styles and video dimensions</a> must <a href=":follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. <a href=":link" target="_blank">Learn more</a>. <ul><li><b>Fixed ratio:</b> all images use the same aspect ratio mobile up. Use it to avoid JS works, or if it fails Responsive image. </li><li><b>Fluid:</b> aka dynamic, dimensions are calculated. First specific for non-responsive images, using PHP for pure CSS if any matching the fixed ones (1:1, 2:3, etc.), <a href=":ratio">read more</a>. If none found, JS works are attempted to fix it.</li><li><b>Leave empty:</b> to DIY (such as using CSS mediaquery), or when working with gapless grids like GridStack, or Blazy Native Grid.</li></ul>', [
+          ':dimensions'  => '//size43.com/jqueryVideoTool.html',
+          ':follow'      => '//en.wikipedia.org/wiki/Aspect_ratio_%28image%29',
+          ':link'        => '//www.smashingmagazine.com/2014/02/27/making-embedded-content-work-in-responsive-design/',
+          ':ratio'       => '/admin/help/blazy_ui#aspect-ratio',
         ]),
         '#weight'        => -101,
       ];

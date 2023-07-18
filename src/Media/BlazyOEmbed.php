@@ -326,17 +326,16 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
   /**
    * Returns external image item from resource for BlazyFilter or VEF.
-   *
-   * @todo remove settings after migration, and sub-modules.
    */
   private function getExternalImageItem(array &$settings): ?object {
     $blazies = $settings['blazies'];
     $input   = $blazies->get('media.input_url');
     $uri     = $settings['uri'] ?? NULL;
     $uri     = $blazies->get('image.uri') ?: $uri;
-    $height  = $blazies->get('image.height') ?: ($settings['height'] ?? NULL);
-    $width   = $blazies->get('image.width') ?: ($settings['width'] ?? NULL);
-    $title   = $blazies->get('image.title') ?: $blazies->get('media.label');
+    $height  = $blazies->get('image.height');
+    $width   = $blazies->get('image.width');
+    $label   = $blazies->get('media.label');
+    $title   = $blazies->get('image.title') ?: $label;
     $type    = $blazies->get('media.type');
 
     // Iframe URL may be valid, but not stored as a Media entity.
@@ -362,19 +361,16 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       }
     }
 
-    // @todo remove settings.
-    // $settings['type'] = $type;
-    // $settings['uri'] = $uri;
     $blazies->set('media.label', $title)
       ->set('media.type', $type);
 
     // VEF has just URI, the rest are fetched from resource.
     $data = [
-      'uri' => $uri,
-      'width' => $width,
+      'uri'    => $uri,
+      'width'  => $width,
       'height' => $height,
-      'alt' => $title,
-      'title' => $title,
+      'alt'    => $title,
+      'title'  => $label ?: $title,
     ];
 
     if ($uri) {
@@ -395,22 +391,22 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $blazies = $settings['blazies'];
     $input   = $settings['input_url'] ?? NULL;
     $input   = $blazies->get('media.input_url') ?: $input;
+    $switch  = $settings['media_switch'] ?? NULL;
 
     if (empty($input)) {
       return;
     }
 
     $input = $this->checkInputUrl($settings, $input);
-    $autoplay = empty($settings['media_switch']) ? [] : ['autoplay' => 1];
+    $autoplay = $switch ? ['autoplay' => 1] : [];
 
-    // @todo remove settings after sub-modules: zooming.
     // Should be oembed_url, but embed_url is a fine legacy video_embed_field.
     $embed_url = $this->toEmbedUrl($blazies, $input, $autoplay);
-    $settings['embed_url'] = $embed_url;
     $blazies->set('media.embed_url', $embed_url)
       ->set('media.escaped', TRUE);
 
     // In order to make local video kick in, defer type here, not upstream.
+    // @todo move it up back upstream since 2.17 supports more media types.
     if ($source = $blazies->get('media.source')) {
       $videos = in_array($source, ['oembed:video', 'video_embed_field']);
       $settings['type'] = $type = $videos ? 'video' : $source;

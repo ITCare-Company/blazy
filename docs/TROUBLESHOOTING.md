@@ -113,7 +113,20 @@ Currently only works with a proper `Aspect ratio` as otherwise collapsed image.
 Be sure to add one. If not, add regular CSS `width: 100%` to the blurred
 image if doable with your design.
 
-### 8. ASPECT RATIO
+### <a name="aspect-ratio"></a> 8. ASPECT RATIO
+**UPDATE 18/07/2023**:
+Aspect ratio **Fluid** will now calculate dimensions to match the fixed ones
+(1:1, 2:3, etc.) automatically to avoid JS works specific for non-responsive
+images. Useful if you are not sure. To add more aspect ratios:
++ Set yours via `blazies` object in the `hook_blazy_settings_alter`, like so:
+
+  ``$blazies->set('css.ratio', ['7:8', '6:5'], TRUE);``
+
+  The `TRUE` flag ensures to append, not nullify the existing ones:
+  ``['1:1', '3:2', '4:3', '8:5', '16:9']``
++ Add the relevant CSS rules in your theme CSS using the convention as seen at
+  `blazy.ratio.css`.
+
 **UPDATE 05/02/2020**:
 Blazy RC7+ is 99% integrated with Responsive image, including
 CSS background and the notorious aspect ratio **Fluid**. The remaining 1% is
@@ -147,8 +160,9 @@ However it doesn't fix everything. Please bear with it.
 
 Depending on your particular issue, **enable or disable**, either way, is your
 potential solution. One good sample when Aspect ratio makes no sense is
-GridStack gapless grids. Image sizes, hence Aspect ratio, cannot be applied
-to gapless grids. Aspect ratio is based on image sizes, not grid sizes.
+GridStack gapless grids, or Blazy `Native Grid`. Image sizes, hence Aspect
+ratio, cannot be applied to gapless grids. Aspect ratio is based on image sizes,
+not grid sizes.
 
 
 ### 9. BLAZY WITHIN SCROLLING CONTAINER DOES NOT LOAD

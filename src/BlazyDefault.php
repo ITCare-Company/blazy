@@ -10,6 +10,11 @@ use Drupal\Component\Render\FormattableMarkup;
 class BlazyDefault {
 
   /**
+   * Defines constant for the supported fixed aspect ratios.
+   */
+  const RATIO = ['1:1', '3:2', '4:3', '8:5', '16:9'];
+
+  /**
    * Defines constant for the supported text tags.
    */
   const TAGS = ['a', 'em', 'strong', 'h2', 'h3', 'p', 'span', 'ul', 'ol', 'li'];

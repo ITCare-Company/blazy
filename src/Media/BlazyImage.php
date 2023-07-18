@@ -112,6 +112,8 @@ class BlazyImage {
     $blazies = $settings['blazies'];
     $_width  = 'width';
     $_height = 'height';
+    $fluid   = $blazies->is('fluid');
+    $ratios  = $blazies->get('css.ratio');
     $which   = $initial ? 'first' : 'image';
     $height  = $blazies->get($which . '.height');
     $width   = $blazies->get($which . '.width');
@@ -150,6 +152,13 @@ class BlazyImage {
 
     // Defines original dimensions.
     $data = ['width' => $check[$_width], 'height' => $check[$_height]];
+
+    if ($fluid) {
+      $dim = $data;
+      $dim['ratios'] = $ratios;
+      $data['fluid'] = self::fluid($dim);
+    }
+
     $data['ratio'] = self::ratio($data);
 
     // If initial call, used by EZ, etc.
@@ -452,9 +461,9 @@ class BlazyImage {
     foreach (BlazyDefault::imageStyles() as $key) {
       // @todo re-enable the skip if any issues with Responsive image.
       // The skip limits SVG dimension checks, ratio, url, etc.
-      if ($key == 'image') {
-        continue;
-      }
+      // if ($key == 'image') {
+      // continue;
+      // }
       if ($style = $blazies->get($key . '.style')) {
         $data = self::transformDimensions($style, $blazies, $uri);
         $blazies->set($key, $data, TRUE);
@@ -465,6 +474,40 @@ class BlazyImage {
         }
       }
     }
+  }
+
+  /**
+   * Provides a computed image ratio aka fluid ratio.
+   */
+  public static function fluid(array $data): ?string {
+    $width  = $data['width'];
+    $height = $data['height'];
+    $ratios = $data['ratios'] ?? BlazyDefault::RATIO;
+    $output = NULL;
+
+    if (empty($width) || empty($height)) {
+      return $output;
+    }
+
+    $width  = (int) $width;
+    $height = (int) $height;
+
+    try {
+      $check  = self::toRatio($width, $height);
+      $result = ($width / $check) . ':' . ($height / $check);
+
+      if (in_array($result, $ratios)) {
+        $output = $result;
+      }
+    }
+    catch (\DivisionByZeroError $e) {
+      // Do nothing, optional features should not mess up the rest.
+    }
+    catch (\Exception $e) {
+      // Do nothing also.
+    }
+
+    return $output;
   }
 
   /**
@@ -563,6 +606,9 @@ class BlazyImage {
    *   The optional URI if differs from main image, such as thumbnail URI.
    */
   public static function transformDimensions($style, $config, $uri = NULL): array {
+    $fluid  = FALSE;
+    $ratios = [];
+
     // Default non-API source:
     if (is_array($config)) {
       $uri    = $uri ?: ($config['uri'] ?? '');
@@ -571,6 +617,8 @@ class BlazyImage {
     }
     // A convenient API source:
     else {
+      $fluid  = $config->is('fluid');
+      $ratios = $config->get('css.ratio');
       $uri    = $uri ?: ($config->get('image.uri') ?: $config->get('first.uri'));
       $width  = $config->get('image.width') ?: $config->get('first.width');
       $height = $config->get('image.height') ?: $config->get('first.height');
@@ -584,12 +632,18 @@ class BlazyImage {
     // Sometimes they are string, cast them integer to reduce JS logic.
     self::toInt($dim, 'width', 'height');
 
+    if ($fluid) {
+      $dim['ratios'] = $ratios;
+      $fluid = self::fluid($dim);
+    }
+
     // Keys here are hard-coded, so to be inherited by children as intended.
     // See self::dimensions().
     return [
       'width'  => $dim['width'],
       'height' => $dim['height'],
       'ratio'  => self::ratio($dim),
+      'fluid'  => $fluid,
     ];
   }
 
@@ -716,6 +770,18 @@ class BlazyImage {
         BlazyResponsiveImage::dimensions($settings, $style, FALSE);
       }
     }
+  }
+
+  /**
+   * Provides a computed image ratio aka fluid ratio.
+   */
+  private static function toRatio($width, $height) {
+    if ($width == 0 || $height == 0) {
+      return abs(max(abs($width), abs($height)));
+    }
+
+    $result = $width % $height;
+    return ($result != 0) ? self::toRatio($height, $result) : abs($height);
   }
 
 }

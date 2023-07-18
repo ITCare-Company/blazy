@@ -282,13 +282,16 @@ function hook_blazy_base_settings_alter(array &$settings, array $context) {
  * @ingroup blazy_api
  */
 function hook_blazy_settings_alter(array &$build, $items) {
-  // Most configurable settings are put as direct key-value pairs.
   // Since blazy:2.17, the settings key is hashed to avoid leaks/ render errors.
   $settings = &$build['#settings'];
 
+  // Most configurable settings are put as direct key-value pairs.
   // Since 2.6, non-configurable settings are mostly grouped under `blazies`.
   // For pre 2.6, please use $settings['NAME'] directly.
   $blazies = $settings['blazies'];
+
+  // Add more custom CSS aspect ratios, see /admin/help/blazy_ui#aspect-ratio:
+  $blazies->set('css.ratio', ['7:8', '6:5'], TRUE);
 
   // Overrides one pixel placeholder on particular pages relevant if using Views
   // rewrite results which may strip out Data URI.

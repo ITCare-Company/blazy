@@ -166,6 +166,7 @@ class Check {
       ->set('libs.background', $is_bg)
       ->set('libs.compat', $is_compat)
       ->set('libs.ratio', !empty($settings['ratio']))
+      ->set('css.ratio', BlazyDefault::RATIO)
       ->set('use.dataset', $is_bg || $is_video)
       ->set('use.loader', !$is_nojs)
       ->set('was.container', TRUE);
