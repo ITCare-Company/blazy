@@ -5,6 +5,7 @@ namespace Drupal\blazy\Theme;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyImage;
@@ -133,7 +134,7 @@ class BlazyAttribute {
    *
    * Prepares a media player, and allows a tiny video preview without iframe.
    * image : If iframe switch disabled, fallback to iframe, remove image.
-   * player: If no ightboxes, it is an image to iframe switcher.
+   * player: If no lightboxes, it is an image to iframe switcher.
    * data- : Gets consistent with lightboxes to share JS manipulation.
    *
    * @param array $variables
@@ -141,7 +142,6 @@ class BlazyAttribute {
    */
   public static function buildIframe(array &$variables): void {
     $settings = &$variables['settings'];
-    $blazies = $settings['blazies'];
 
     // Only provide iframe if not for lightboxes, identified by URL.
     if (empty($variables['url'])) {
@@ -159,11 +159,6 @@ class BlazyAttribute {
       if (empty($variables['image']) && isset($variables['preface']['blur'])) {
         $variables['preface']['blur'] = [];
       }
-
-      // Iframe is removed on lazyloaded, puts data at non-removable storage.
-      // @todo remove, no real use this far.
-      $type = $blazies->get('media.type');
-      $variables['attributes']['data-media'] = Json::encode(['type' => $type]);
     }
   }
 
@@ -178,9 +173,6 @@ class BlazyAttribute {
     $settings   = &$variables['settings'];
     $blazies    = $settings['blazies'];
 
-    // Minimal attributes extracted from ImageItem.
-    self::item($variables['item_attributes'], $blazies);
-
     // (Responsive) image is optional for Video, or image as CSS background.
     if ($blazies->get('resimage.id')) {
       self::buildResponsiveImage($variables);
@@ -190,28 +182,9 @@ class BlazyAttribute {
     }
 
     // The settings.bgs is output specific for CSS background purposes with BC.
+    // This is applied to both Responsive and plain old images.
     if ($bgs = $blazies->get('bgs')) {
-      $attributes['class'][] = 'b-bg';
-      $attributes['data-b-bg'] = Json::encode($bgs);
-      $url = $blazies->get('image.url');
-
-      // If using BG, store it in the permanent container.
-      if ($blazies->is('multimedia')) {
-        $title = $blazies->get('image.title') ?: $blazies->get('media.label');
-        if (!$title) {
-          $title = $blazies->get('image.alt');
-        }
-
-        if ($title) {
-          $title = strip_tags($title);
-          $translation_replacements = ['@label' => Html::escape($title)];
-          $attributes['title'] = self::videoTitle($translation_replacements);
-        }
-      }
-
-      if ($blazies->is('static') && $url) {
-        self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
-      }
+      self::background($attributes, $blazies, $bgs);
     }
 
     // Prepare iframe, and allow a tiny video preview without iframe.
@@ -235,6 +208,7 @@ class BlazyAttribute {
     // Multi-breakpoint aspect ratio only applies if lazyloaded.
     // These may be set once at formatter level, or per breakpoint above.
     // Only relevant if Fluid is selected for Aspect ratio, else a leak.
+    // @todo rename it to data-b-ratios at/by 3.x.
     if ($blazies->is('fluid')) {
       if (!$blazies->is('undata') && $ratios = $blazies->get('ratios', [])) {
         $attributes['data-ratios'] = Json::encode($ratios);
@@ -253,7 +227,7 @@ class BlazyAttribute {
    */
   public static function iframe(array &$settings): array {
     $blazies = $settings['blazies'];
-    $attributes['class'] = ['b-lazy', 'media__iframe'];
+    $attributes['class'] = ['b-lazy'];
     $attributes['allowfullscreen'] = TRUE;
     $is_escaped = $blazies->get('media.escaped');
 
@@ -283,7 +257,7 @@ class BlazyAttribute {
       $attributes['src'] = 'about:blank';
     }
 
-    self::common($attributes, $settings, $blazies->get('image.width'));
+    self::common($attributes, $blazies);
     return $attributes;
   }
 
@@ -303,14 +277,10 @@ class BlazyAttribute {
    *
    * @param array $attributes
    *   The attributes being modified.
-   * @param array $settings
-   *   The given settings.
-   *
-   * @todo remove settings.
+   * @param object $blazies
+   *   The given $blazies.
    */
-  public static function lazy(array &$attributes, array $settings): void {
-    $blazies = $settings['blazies'];
-
+  public static function lazy(array &$attributes, $blazies): void {
     // For consistent CSS fix, and w/o Native.
     $attributes['class'][] = $blazies->get('lazy.class', 'b-lazy');
 
@@ -323,15 +293,44 @@ class BlazyAttribute {
   }
 
   /**
-   * Provide common attributes for IMG, IFRAME, VIDEO, DIV, etc. elements.
+   * Provide common attributes for IMG, IFRAME, VIDEO, etc. elements.
    */
-  private static function common(array &$attributes, array $settings, $width = NULL): void {
+  private static function common(array &$attributes, $blazies): void {
     $attributes['class'][] = 'media__element';
+    $loading = $blazies->get('image.loading', 'lazy');
 
     // @todo at 2022/2 core has no loading Responsive.
-    $excludes = in_array($settings['loading'], ['slider', 'unlazy']);
-    if ($width && !$excludes) {
-      $attributes['loading'] = $settings['loading'] ?: 'lazy';
+    $excludes = in_array($loading, ['slider', 'unlazy']);
+    if ($blazies->get('image.width') && !$excludes) {
+      $attributes['loading'] = $loading;
+    }
+  }
+
+  /**
+   * Modifies $variables to provide background (Responsive) image attributes.
+   */
+  private static function background(array &$attributes, $blazies, $bgs): void {
+    $attributes['class'][] = 'b-bg';
+    $attributes['data-b-bg'] = Json::encode($bgs);
+    $url = $blazies->get('image.url');
+
+    // If using BG, store it in the permanent container.
+    if ($blazies->is('multimedia')) {
+      $title = $blazies->get('image.title') ?: $blazies->get('media.label');
+      if (!$title) {
+        $title = $blazies->get('image.alt');
+      }
+
+      if ($title) {
+        $title = strip_tags($title);
+        $translation_replacements = ['@label' => Html::escape($title)];
+        $attributes['title'] = self::videoTitle($translation_replacements);
+      }
+    }
+
+    if ($blazies->is('static') && $url) {
+      $url = Xss::stripDangerousProtocols($url);
+      self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
     }
   }
 
@@ -346,9 +345,11 @@ class BlazyAttribute {
     $embed_url  = $blazies->get('media.embed_url');
     $width      = $blazies->get('image.width');
     $title      = $blazies->get('image.title') ?: $blazies->get('media.label');
+    $title      = $attributes['title'] ?? $title;
     $alt        = $attributes['alt'] ?? NULL;
     $alt        = $alt ?: $blazies->get('image.alt');
 
+    // $extra_attrs = $blazies->get('item.safe_attributes', []);
     // Updates $title whether for video, or just image, and accounts for UGC.
     if ($title) {
       // Might be abused to use HTML, fine for lightboxes, but not attributes.
@@ -392,7 +393,6 @@ class BlazyAttribute {
       }
     }
 
-    $attributes['class'][] = 'media__image';
     // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode.
     $attributes['decoding'] = 'async';
 
@@ -402,9 +402,15 @@ class BlazyAttribute {
     }
 
     // Apply common shared attributes.
-    self::common($attributes, $variables['settings'], $width);
+    self::common($attributes, $blazies);
     $image['#attributes'] = Blazy::merge($attributes, $image, '#attributes');
 
+    // @fixme, this causes SRC set discretely, even if none provided.
+    // if ($extra_attrs) {
+    // foreach ($extra_attrs as $key => $value) {
+    // $image['#attributes'][$key] = $value;
+    // }
+    // }
     // Provides a noscript if so configured, before any lazy defined.
     // Not needed at preview mode, or when native lazyload takes over.
     if ($blazies->ui('noscript') && !$blazies->is('unlazy')) {
@@ -412,7 +418,7 @@ class BlazyAttribute {
     }
 
     // Provides [data-(src|lazy)] for (Responsive) image, after noscript.
-    self::lazy($image['#attributes'], $settings);
+    self::lazy($image['#attributes'], $blazies);
     self::unloading($image['#attributes'], $blazies);
   }
 
@@ -450,7 +456,7 @@ class BlazyAttribute {
       $data['width'] = $width;
       $data['height'] = $blazies->get('image.height');
       $blazies->set('bgs.' . $width, BlazyImage::background($data, $style));
-      self::lazy($attributes, $settings);
+      self::lazy($attributes, $blazies);
     }
   }
 
@@ -533,22 +539,6 @@ class BlazyAttribute {
 
     if ($flag) {
       $attributes['data-b-unloading'] = TRUE;
-    }
-  }
-
-  /**
-   * Provides legacy minimal item attributes.
-   *
-   * @todo deprecated and remove supporting passing data via item_attributes.
-   * @see blazy.api.php
-   */
-  private static function item(array $attributes, $blazies): void {
-    if (!$blazies->get('image.width')) {
-      foreach (['width', 'height'] as $key) {
-        if (!empty($attributes[$key])) {
-          $blazies->set('image.' . $key, $attributes[$key]);
-        }
-      }
     }
   }
 

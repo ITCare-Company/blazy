@@ -197,7 +197,7 @@ class BlazyFilter extends BlazyFilterBase {
     ];
 
     // Copy all attributes of the original node to the item_attributes.
-    if ($attrs = $blazies->get('item.attributes', [])) {
+    if ($attrs = $blazies->get('item.raw_attributes', [])) {
       foreach ($attrs as $name => $value) {
         if ($name == 'src' || !$value) {
           continue;

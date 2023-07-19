@@ -60,6 +60,7 @@
  *   // Passing width/height/alt/title to #item_attributes was deprecated since
  *   // 2.6 when RDF was deprecated from D9. Use settings.blazies above instead.
  *   // It is still usable for adding minor class attributes, etc., though.
+ *   // You are on your own other than the above-mentioned supported attributes.
  *   // Since 2.6, theme_blazy() looks dead simple, yet more robust:
  *   $build = [
  *     '#theme'    => 'blazy',
@@ -344,12 +345,14 @@ function hook_blazy_settings_alter(array &$build, $items) {
  *   The array settings being modified.
  * @param array $attributes
  *   The .media element attributes being modified.
+ * @param array $item_attributes
+ *   The IMG element attributes being modified.
  * @param object $item
  *   The nullable image item, or stdClass.
  *
  * @ingroup blazy_api
  */
-function hook_blazy_item_alter(array &$settings, array &$attributes, $item = NULL) {
+function hook_blazy_item_alter(array &$settings, array &$attributes, array &$item_attributes, $item = NULL) {
   $blazies = $settings['blazies'];
 
   // If it has a media embed url and a lightbox with unwanted implementations,
@@ -362,6 +365,22 @@ function hook_blazy_item_alter(array &$settings, array &$attributes, $item = NUL
       ->set('is.player', TRUE)
       ->set('is.lightbox', FALSE);
   }
+
+  // Modifies IMG attributes, relevant for BlazyFilter here, see
+  // https://www.drupal.org/project/blazy/issues/3374519:
+  // - item.raw_attributes should not be used as not only raw, but also cause
+  //   lazy load, aspect ratio, image style, etc. failed.
+  // - item.safe_attributes are cleaned out from most troubles, yet, not fully.
+  $safe_attrs = $blazies->get('item.safe_attributes');
+
+  // Override $item_attributes selectively to avoid unidentified troubles,
+  // hence only when I need `usemap` badly:
+  if (isset($safe_attrs['usemap'])) {
+    // The ::merge method reverses arguments from normal merge, be warned!
+    // Hence prioritizing the module-managed $item_attributes as the replacer.
+    $item_attributes = blazy()->merge($item_attributes, $safe_attrs);
+  }
+
 }
 
 /**

@@ -85,7 +85,7 @@ class BlazyResponsiveImage {
         $blazies->set('is.unlazy', $unlazy)
           ->set('image.url', $new_url);
 
-        BlazyAttribute::lazy($attributes, $settings);
+        BlazyAttribute::lazy($attributes, $blazies);
       }
     }
   }

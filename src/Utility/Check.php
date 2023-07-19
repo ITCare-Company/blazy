@@ -149,7 +149,8 @@ class Check {
 
     // Some should be refined per item against potential mixed media items.
     // @todo move some into Blazy::prepare() as might be called per item.
-    $blazies->set('is.amp', $is_amp)
+    $blazies->set('image.loading', $loading)
+      ->set('is.amp', $is_amp)
       ->set('is.bg', $is_bg)
       ->set('is.fluid', $is_fluid)
       ->set('is.nojs', $is_nojs)

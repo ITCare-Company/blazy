@@ -68,6 +68,7 @@ class BlazyTheme {
     }
 
     $attributes = &$variables['attributes'];
+    $item_attributes = &$variables['item_attributes'];
     $settings = &$variables['settings'];
 
     // With BlazySettings, no longer needed to shutup notices when lacking.
@@ -92,7 +93,7 @@ class BlazyTheme {
     // URL and dimensions are built out at BlazyManager::preRenderBlazy().
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
-      BlazyInternal::prepared($attributes, $settings, $item);
+      BlazyInternal::prepared($attributes, $item_attributes, $settings, $item);
     }
 
     // Allows rich Media entities stored within `content` to take over.

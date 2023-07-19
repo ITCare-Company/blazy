@@ -29,7 +29,7 @@ class BlazyInternal {
   /**
    * Blazy is prepared with an URI, provides few attributes as needed.
    */
-  public static function prepared(array &$attributes, array &$settings, $item = NULL): void {
+  public static function prepared(array &$attributes, array &$item_attributes, array &$settings, $item = NULL): void {
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
     BlazyImage::prepare($settings, $item);
@@ -38,7 +38,7 @@ class BlazyInternal {
     Placeholder::prepare($attributes, $settings);
 
     if ($manager = Blazy::service('blazy.manager')) {
-      $manager->moduleHandler()->alter('blazy_item', $settings, $attributes, $item);
+      $manager->moduleHandler()->alter('blazy_item', $settings, $attributes, $item_attributes, $item);
     }
   }
 

@@ -309,8 +309,10 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       }
     }
 
-    // Pass non-rich-media elements to theme_blazy().
+    // Pass item_attributes to theme_blazy(), see if any issues:
+    // https://www.drupal.org/project/blazy/issues/3374519.
     $element['#item_attributes'] = Blazy::sanitize($attrs);
+    // @todo remove after xchecks, no longer provided, nor supported.
     unset($build['item_attributes']);
   }
 
@@ -368,7 +370,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Build thumbnail and optional placeholder based on thumbnail.
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
-    BlazyInternal::prepared($attributes, $settings, $item);
+    $item_attributes = &$build['#item_attributes'];
+    BlazyInternal::prepared($attributes, $item_attributes, $settings, $item);
 
     // Only process (Responsive) image/ video if no rich-media are provided.
     $this->buildContent($element, $build);

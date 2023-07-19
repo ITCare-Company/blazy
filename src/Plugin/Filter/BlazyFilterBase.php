@@ -11,6 +11,7 @@ use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 // @todo use Drupal\blazy\Media\BlazyMedia;
 use Drupal\blazy\Plugin\Filter\BlazyFilterUtil as Util;
+use Drupal\blazy\Utility\Sanitize;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -146,7 +147,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   protected function buildImageItem(array &$build, &$node, $delta = 0) {
     $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
-    $attrs    = $blazies->get('item.attributes', []);
+    $attrs    = $blazies->get('item.raw_attributes', []);
 
     if ($src = $attrs['src'] ?? NULL) {
       if ($node->tagName == 'img') {
@@ -159,7 +160,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
         }
         catch (\Exception $ignore) {
           // Do nothing, likely local work without internet, or the site is
-          // down. No need to be chatty on this.
+          // down. No need to be chatty or harsh on this. Thumbnails will do.
         }
       }
     }
@@ -287,7 +288,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   protected function getImageItemFromImageSrc(array &$build, $node, $src): void {
     $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
-    $attrs    = $blazies->get('item.attributes', []);
+    $attrs    = $blazies->get('item.raw_attributes', []);
 
     // Attempts to get the correct URI with hard-coded URL if applicable.
     $uri  = BlazyFile::buildUri($src);
@@ -413,7 +414,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       }
 
       // Put raw attributes into a pandora box.
-      $blazies->set('item.attributes', $attrs);
+      $blazies->set('item.raw_attributes', $attrs);
 
       // Normally consumed default IMG attributes, ignoring IFRAME, no problem.
       // These dups are required to build image styles, ratio, etc.
@@ -426,10 +427,19 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       // Do not pass SRC into theme_image() so that lazy load works.
       // Also the width and height so to make data-responsive|image-style works.
       // @todo recheck anything against the grand design.
-      unset($attrs['src'], $attrs['width'], $attrs['height']);
+      $keys = ['data-src', 'src', 'width', 'height', 'loading'];
+      foreach ($keys as $key) {
+        // Who knows unsetting NULL would be deprecated.
+        if (isset($attrs[$key])) {
+          unset($attrs[$key]);
+        }
+      }
 
       // Pass anything else even dangerous attributes.
-      $build['#item_attributes'] = $attrs;
+      // @fixme this causes SRC set, lazy load failed, even SRC was unset.
+      // $build['#item_attributes'] = $attrs;
+      // Provide a temporary storage in the least till further fixes.
+      $blazies->set('item.safe_attributes', Sanitize::attribute($attrs));
     }
   }
 
@@ -448,7 +458,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $blazies    = $settings['blazies'];
     $ui_style   = $settings['image_style'] ?? NULL;
     $ui_restyle = $settings['responsive_image_style'] ?? NULL;
-    $attrs      = $blazies->get('item.attributes', []);
+    $attrs      = $blazies->get('item.raw_attributes', []);
 
     // Set an image style based on node data properties.
     // See https://www.drupal.org/project/drupal/issues/2061377,
