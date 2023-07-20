@@ -57,10 +57,10 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
       $this->prepareElement($build, $entity, $langcode, $delta);
 
       // Add the entity to cache dependencies so to clear when it is updated.
-      if (!empty($build['items'][$delta])) {
+      if ($item = $build['items'][$delta] ?? []) {
         $this->formatter
           ->renderer()
-          ->addCacheableDependency($build['items'][$delta], $entity);
+          ->addCacheableDependency($item, $entity);
       }
 
       $depth = 0;
@@ -80,7 +80,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
       $data = [
         '#entity'   => $entity,
         '#settings' => $settings,
-        '#delta'    => $blazies->get('delta', $settings['delta'] ?? 0),
+        '#delta'    => $blazies->get('delta', 0),
       ];
 
       if ($output = $this->blazyEntity->view($data)) {

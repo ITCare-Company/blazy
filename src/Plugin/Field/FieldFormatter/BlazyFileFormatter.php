@@ -30,7 +30,12 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(
+    ContainerInterface $container,
+    array $configuration,
+    $plugin_id,
+    $plugin_definition
+  ) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     return self::injectServices($instance, $container, 'entity');
   }
@@ -46,7 +51,7 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
    * {@inheritdoc}
    */
   protected function buildElement(array &$element, $entity) {
-    $element['#entity'] = $entity;
+    // @todo remove, already set upstream: $element['#entity'] = $entity;
     $this->blazyOembed->build($element);
   }
 

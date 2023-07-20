@@ -43,7 +43,7 @@ class BlazyField {
         ], 'media', TRUE);
 
         if ($media = reset($media)) {
-          return $rendered ? BlazyMedia::build($media, $settings) : $media;
+          return $rendered ? BlazyMedia::view($media, $settings) : $media;
         }
       }
     }

@@ -315,7 +315,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
         // Supports other Media entities: Facebook, Instagram, local video, etc.
         // Attempts to enter the unknown here fearlessly.
-        if ($result = BlazyMedia::build($media, $settings)) {
+        if ($result = BlazyMedia::view($media, $settings)) {
           if (!$blazies->is('iframeable')) {
             $build['content'][] = $result;
           }

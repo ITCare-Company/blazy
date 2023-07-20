@@ -57,7 +57,12 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(
+    ContainerInterface $container,
+    array $configuration,
+    $plugin_id,
+    $plugin_definition
+  ) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     return self::injectServices($instance, $container, 'image');
   }
@@ -148,7 +153,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
         $element[$caption_id] = $captions;
 
         // This is the only reason for the change. Thumbnails are
-        // poorly-informed like image without styles, etc.
+        // poorly-informed like image without styles, SVG, etc.
         // Update with blazy processed settings such as unstyled extensions.
         $item_build = $blazy['#build'] ?? [];
         if ($blazysets = $this->formatter->toHashtag($item_build)) {

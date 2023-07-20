@@ -331,14 +331,14 @@ trait BlazyStyleBaseTrait {
   /**
    * Prepares commons settings for the style plugins.
    */
-  protected function prepareSettings(array &$settings = []) {
+  protected function prepareSettings(array &$settings) {
     // Do nothing to let extenders modify.
   }
 
   /**
    * Sets dynamic html settings.
    */
-  protected function setHtmlSettings(array $settings = []) {
+  protected function setHtmlSettings(array $settings) {
     $this->htmlSettings = $settings;
     return $this;
   }

@@ -26,6 +26,11 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
   /**
    * {@inheritdoc}
    */
+  protected $captionId = 'captions';
+
+  /**
+   * {@inheritdoc}
+   */
   public static function create(
     ContainerInterface $container,
     array $configuration,

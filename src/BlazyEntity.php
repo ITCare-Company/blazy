@@ -116,6 +116,7 @@ class BlazyEntity implements BlazyEntityInterface {
     ];
 
     // Only pass to Blazy for known entities related to File or Media.
+    // @todo move it to BlazyMedia::build() after being a non-static at/by 3.x.
     if (in_array($entity->getEntityTypeId(), ['file', 'media'])) {
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
       $item = $manager->toHashtag($data, 'item', NULL);

@@ -32,6 +32,26 @@ class BlazyMedia {
   /**
    * Builds the media field which is not understood by theme_blazy().
    *
+   * Do not use this method for now, use self::view() instead.
+   *
+   * @param object $media
+   *   The media being rendered.
+   * @param array $settings
+   *   The contextual settings array.
+   *
+   * @return array
+   *   The renderable array of the media field, or empty if not applicable.
+   *
+   * @todo make it non-static and rework at/ by 3.x.
+   */
+  public static function build($media, array &$settings): array {
+    // Temporary BC till the rework is done.
+    return self::view($build);
+  }
+
+  /**
+   * Returns the media field which is partly not understood by theme_blazy().
+   *
    * @param object $media
    *   The media being rendered.
    * @param array $settings
@@ -40,7 +60,7 @@ class BlazyMedia {
    * @return array
    *   The renderable array of the media field, or empty if not applicable.
    */
-  public static function build($media, array &$settings): array {
+  public static function view($media, array &$settings): array {
     Blazy::verify($settings);
     $blazies = $settings['blazies'];
 

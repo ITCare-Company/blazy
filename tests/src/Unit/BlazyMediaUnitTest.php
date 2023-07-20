@@ -27,7 +27,7 @@ class BlazyMediaUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests \Drupal\blazy\BlazyMedia::build().
+   * Tests \Drupal\blazy\BlazyMedia::view().
    *
    * @covers ::build
    * @covers ::wrap
@@ -86,7 +86,7 @@ class BlazyMediaUnitTest extends UnitTestCase {
       ->with($source_field)
       ->will($this->returnValue($items));
 
-    $render = BlazyMedia::build($entity, $settings);
+    $render = BlazyMedia::view($entity, $settings);
     $this->assertArrayHasKey('#settings', $render);
   }
 

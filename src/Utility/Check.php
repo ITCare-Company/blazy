@@ -184,9 +184,8 @@ class Check {
 
     // Retrieves Blazy formatter related settings from within Views style.
     $blazies = $settings['blazies'];
-    // Allows to remove second parameter later.
-    $deprecated = $settings['first_image'] ?? [];
-    $data = $data ?: $blazies->get('first.data', $deprecated);
+    $data = $data ?: $blazies->get('first.data');
+
     if (empty($data) || !is_array($data)) {
       return;
     }
