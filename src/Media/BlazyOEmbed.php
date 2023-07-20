@@ -404,14 +404,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $embed_url = $this->toEmbedUrl($blazies, $input, $autoplay);
     $blazies->set('media.embed_url', $embed_url)
       ->set('media.escaped', TRUE);
-
-    // In order to make local video kick in, defer type here, not upstream.
-    // @todo move it up back upstream since 2.17 supports more media types.
-    if ($source = $blazies->get('media.source')) {
-      $videos = in_array($source, ['oembed:video', 'video_embed_field']);
-      $settings['type'] = $type = $videos ? 'video' : $source;
-      $blazies->set('media.type', $type);
-    }
   }
 
   /**

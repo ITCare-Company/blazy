@@ -95,13 +95,13 @@ class CheckItem {
 
     // Only eat what we can chew.
     $data = [
-      'bundle' => $entity->bundle(),
-      'id' => $entity->id(),
-      'label' => $entity->label(),
-      'path' => $internal_path,
-      'rid' => $entity->getRevisionID(),
+      'bundle'  => $entity->bundle(),
+      'id'      => $entity->id(),
+      'label'   => $entity->label(),
+      'path'    => $internal_path,
+      'rid'     => $entity->getRevisionID(),
       'type_id' => $entity->getEntityTypeId(),
-      'url' => $absolute_path,
+      'url'     => $absolute_path,
     ];
 
     return ['data' => $data, 'entity' => $entity];
@@ -191,6 +191,7 @@ class CheckItem {
    *
    * @todo remove $type, a legacy VEF period, which knew no bundles, or sources.
    * @todo recheck BlazyFilter multimedia after moving some into BlazyMedia.
+   * @todo remove $settings['type'], only after BVEF synced/ updated, or at 3.x.
    */
   public static function multimedia(array &$settings): void {
     $blazies   = $settings['blazies'];
@@ -217,8 +218,8 @@ class CheckItem {
     // Addresses mixed media unique per item, aside from convenience.
     // Also compat with BVEF till they are updated to adopt 2.10 changes.
     $blazies->set('is.iframe', $is_iframe)
-      ->set('is.remote_video', $is_remote)
       ->set('is.player', $is_player)
+      ->set('is.remote_video', $is_remote)
       ->set('media.embed_url', $embed_url)
       ->set('media.type', $type)
       ->set('switch', $switch);
@@ -259,7 +260,7 @@ class CheckItem {
     $is_fluid = $blazies->is('fluid') ?: $ratio == 'fluid';
 
     // @todo better logic to support loader as required, must decouple loader.
-    // @todo $lazy = $settings['loading'] == 'lazy';
+    // @todo $lazy = $blazies->get('image.loading') == 'lazy';
     // @todo $lazy = $blazies->is('blazy') && ($blazies->get('libs.compat') || $lazy);
     // Redefines some since this can be fed by anyone, including custom works.
     $blazies->set('is.fluid', $is_fluid)

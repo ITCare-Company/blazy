@@ -46,7 +46,7 @@ class BlazyMedia {
    */
   public static function build($media, array &$settings): array {
     // Temporary BC till the rework is done.
-    return self::view($build);
+    return self::view($media, $settings);
   }
 
   /**
@@ -92,7 +92,7 @@ class BlazyMedia {
   /**
    * Extracts needed info from a media.
    */
-  public static function extract(MediaInterface $media, $view_mode = NULL, $langcode = NULL): array {
+  public static function extract(MediaInterface $media, $view_mode, $langcode): array {
     $source = $media->getSource();
     $definition = $source->getPluginDefinition();
     $source_id = $source->getPluginId();
@@ -115,10 +115,13 @@ class BlazyMedia {
     $info = CheckItem::entity($media, $langcode);
 
     // Extracts specific values for this media entity.
+    // Type is a legacy VEF of source plugin ID to make videos pronounced.
+    $videos = in_array($source_id, ['oembed:video', 'video_embed_field']);
     $output = [
       'source'       => $source_id,
       'source_field' => $source->getConfiguration()['source_field'],
       'thumbnail'    => $uri,
+      'type'         => $videos ? 'video' : $source_id,
       'view_mode'    => $view_mode ?: 'default',
     ] + $info['data'];
 
@@ -134,20 +137,20 @@ class BlazyMedia {
     $media     = $data['#entity'];
     $settings  = &$data['#settings'];
     $blazies   = $settings['blazies'];
-    $view_mode = $settings['view_mode'] ?? NULL;
+    $view_mode = $settings['view_mode'] ?? 'default';
     $langcode  = $blazies->get('language.current');
     $result    = self::extract($media, $view_mode, $langcode);
-    $media     = $result['entity'] ?? NULL;
-    $info      = $result['data'] ?? [];
-    $id        = $info['id'] ?? NULL;
-    $rid       = $info['rid'] ?? NULL;
+    $media     = $result['entity'] ?? $media;
+    $info      = $result['data'];
+    $id        = $info['id'];
+    $rid       = $info['rid'];
+    $source    = $info['source'];
     $locals    = ['audio_file', 'video_file'];
     $videos    = ['oembed:video', 'video_embed_field'];
-    $source    = $info['source'];
     $medias    = array_merge($locals, $videos);
-    $is_local  = $source && in_array($source, $locals);
-    $is_media  = $source && in_array($source, $medias);
-    $is_remote = $source && in_array($source, $videos);
+    $is_local  = in_array($source, $locals);
+    $is_media  = in_array($source, $medias);
+    $is_remote = $info['type'] == 'video';
 
     // Embed url is not defined here, yet, provides basic media checks.
     $contexts = Cache::mergeContexts(['languages', 'url.site'], $media->getCacheContexts());
@@ -157,6 +160,10 @@ class BlazyMedia {
       ->set('cache.metadata.keys', [$id, $rid], TRUE)
       ->set('cache.metadata.max-age', $media->getCacheMaxAge())
       ->set('cache.metadata.tags', $media->getCacheTags(), TRUE)
+      // @todo refine the overlaps, playable should accept local files, etc.
+      // The clearest so far are iframeable vs. iframe, multimedia, local_video.
+      // OK for 2.17 since no real usages except for few.
+      // See CheckItem::multimedia() for current usage definitions.
       ->set('is.playable', $is_remote)
       ->set('is.multimedia', $is_media)
       ->set('is.local_media', $is_local)
