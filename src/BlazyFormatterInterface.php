@@ -40,6 +40,22 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
   public function preBuildElements(array &$build, $items, array $entities = []);
 
   /**
+   * Modifies the field formatter settings inherited by child elements.
+   *
+   * This method should NOT be used by sub-modules to allow
+   * hook_blazy_settings_alter once for the entire ecosystem rather than each
+   * hook_alter for every modules.
+   *
+   * @param array $build
+   *   The array containing: settings, or potential optionset for extensions.
+   * @param object $items
+   *   The Drupal\Core\Field\FieldItemListInterface items.
+   * @param array $entities
+   *   The optional entities array, not available for non-entities: text, image.
+   */
+  public function preElements(array &$build, $items, array $entities = []): void;
+
+  /**
    * Modifies the field formatter settings not inherited by child elements.
    *
    * @param array $build

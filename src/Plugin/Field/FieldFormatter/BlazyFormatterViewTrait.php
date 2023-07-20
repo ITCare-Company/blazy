@@ -50,9 +50,10 @@ trait BlazyFormatterViewTrait {
     // @todo make it hashtag after sub-modules ready.
     $build = ['#settings' => $settings];
 
-    // Build the elements.
-    $this->formatter->preBuildElements($build, $items, $entities);
+    // Modifies settings before building elements.
+    $this->formatter->preElements($build, $items, $entities);
 
+    // Build the elements.
     // Satisfy phpstan.
     if (method_exists($this, 'buildElements')) {
       $this->buildElements($build, $elements, $langcode);

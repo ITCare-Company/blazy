@@ -60,8 +60,8 @@ class BlazyFilter extends BlazyFilterBase {
       $nodes = Util::validNodes($dom, $allowed_tags, 'data-unblazy');
       if (count($nodes) > 0) {
         foreach ($nodes as $delta => $node) {
-          $sets = $settings;
-          $blazy = $blazies->reset($sets);
+          $sets  = $settings;
+          $blazy = $sets['blazies']->reset($sets);
 
           $blazy->set('delta', $delta);
 
@@ -83,8 +83,8 @@ class BlazyFilter extends BlazyFilterBase {
     $nodes = Util::validNodes($dom, ['blazy']);
     if (count($nodes) > 0) {
       foreach ($nodes as $delta => $node) {
-        $sets = $settings;
-        $blazy = $blazies->reset($sets);
+        $sets  = $settings;
+        $blazy = $sets['blazies']->reset($sets);
 
         $blazy->set('delta', $delta);
 
@@ -97,7 +97,7 @@ class BlazyFilter extends BlazyFilterBase {
     // Builds the grids if so provided via [data-column], or [data-grid].
     // @todo deprecated for grid shortcode.
     if ($blazies->is('deprecated_grid')) {
-      $this->buildGrid($settings, $grid_nodes, $grid_items);
+      $this->buildDeprecatedGrid($settings, $grid_nodes, $grid_items);
     }
 
     // Adds the attachments.
@@ -119,7 +119,8 @@ class BlazyFilter extends BlazyFilterBase {
    */
   public function tips($long = FALSE) {
     if ($long) {
-      return file_get_contents(dirname(__FILE__) . "/FILTER_TIPS.txt");
+      $text = file_get_contents(dirname(__FILE__) . "/FILTER_TIPS.md");
+      return $this->manager->markdown($text);
     }
     else {
       return $this->t('<b>Blazy</b>: <ul><li>With HTML: <code>[blazy]..[item]IMG[/item]..[/blazy]</code></li><li>With self-closing using data entity, <code>data=ENTITY_TYPE:ID:FIELD_NAME:FIELD_IMAGE</code>:<br><code>[blazy data="node:44:field_media" /]</code>. <code>FIELD_IMAGE</code> is optional for video poster, or hires, normally <code>field_media_image</code>.<li>Grid format:
@@ -160,19 +161,6 @@ class BlazyFilter extends BlazyFilterBase {
     ];
 
     return $form;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function buildSettings($text) {
-    $settings = parent::buildSettings($text);
-
-    $this->manager->moduleHandler()->alter('blazy_filter_settings', $settings, $this->settings);
-    $this->manager->postSettingsAlter($settings);
-
-    return $settings;
-
   }
 
   /**
@@ -258,7 +246,7 @@ class BlazyFilter extends BlazyFilterBase {
    */
   protected function preSettings(array &$settings, $text) {
     // @todo remove at 3.x or so.
-    $this->deprecatedGrid($settings, $text);
+    $this->deprecatedGridSettings($settings, $text);
 
     parent::preSettings($settings, $text);
   }
@@ -493,7 +481,7 @@ class BlazyFilter extends BlazyFilterBase {
    * @todo deprecate and remove for shortcodes at Blazy 4.x due to being
    * too catch-all, not selective like field formatters.
    */
-  private function buildGrid(array &$settings, array $grid_nodes, array $grid_items = []) {
+  private function buildDeprecatedGrid(array &$settings, array $grid_nodes, array $grid_items = []) {
     $blazies = $settings['blazies'];
 
     if (!$blazies->is('deprecated_grid') || empty($grid_items[0])) {
@@ -573,7 +561,7 @@ class BlazyFilter extends BlazyFilterBase {
    *
    * @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
    */
-  private function deprecatedGrid(array &$settings, $text = NULL) {
+  private function deprecatedGridSettings(array &$settings, $text = NULL) {
     $blazies = $settings['blazies'];
 
     // The data-grid and data-column are deprecated for [blazy] shortcode.

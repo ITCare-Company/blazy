@@ -123,14 +123,37 @@ images. Useful if you are not sure. To add more aspect ratios:
   ``$blazies->set('css.ratio', ['7:8', '6:5'], TRUE);``
 
   The `TRUE` flag ensures to append, not nullify the existing ones:
-  ``['1:1', '3:2', '4:3', '8:5', '16:9']``
+  ``['1:1', '3:2', '4:3', '8:5', '16:9']``  
+  See `blazy.api.php` for the available `hook_alter`.
 + Add the relevant CSS rules in your theme CSS using the convention as seen at
-  `blazy.ratio.css`.
+  `css/components/blazy.ratio.css`.
++ Create image styles that stick to some aspect ratios you defined:
+  * `/admin/config/media/image-styles`
+  * `/admin/help/blazy_ui#aspect-ratio-template`
+
+
+Relevant to make aspect ratio `Fluid` option prioritize these ratios for pure
+CSS, and not using JavaScript. Only if a matching aspect ratio is found.
+None of these options, other than defaults, will be visible at admin forms.
+
+#### What is the fuss about aspect ratio?
+Aspect ratio fixes many issues with lazyloaded elements -- collapsed, distorted,
+excessive height, layout reflow, etc., including making iframe fully responsive.
+However it doesn't fix everything. Please bear with it.
+
+**If you have display issues, the correct Aspect ratio is your first best bet.**
+
+Depending on your particular issue, **enable or disable**, either way, is your
+potential solution. One good sample when Aspect ratio makes no sense is
+GridStack gapless grids, or Blazy `Native Grid`. Image sizes, hence aspect
+ratio, cannot be applied to gapless grids. Aspect ratio is based on image sizes,
+not grid sizes. The Native lazy load might not need aspect ratios, either,
+except for iframes so to be responsive without installing jQuery fitVids, etc.
 
 **UPDATE 05/02/2020**:
 Blazy RC7+ is 99% integrated with Responsive image, including
 CSS background and the notorious aspect ratio **Fluid**. The remaining 1% is
-some unknown glicthes.
+some unknown glitches.
 
 Aspect ratio was never supported for Responsive image till Blazy 2.rc7+, <s>not
 fully though. One remaining issue is to make Aspect ratio `Fluid` work for:
@@ -151,18 +174,6 @@ technique, or Picture element. [Check out few aspect ratio samples](https://cgit
 Temporary workaround is to add regular CSS `width: 100%` to the controlling
 image if doable with your design. And a `min-height` per breakpoint via CSS
 mediaqueries.
-
-Aspect ratio fixes many issues with lazyloaded element -- collapsed, distorted,
-excessive height, layout reflow, etc., including making iframe fully responsive.
-However it doesn't fix everything. Please bear with it.
-
-**If you have display issues, the correct Aspect ratio is your first best bet.**
-
-Depending on your particular issue, **enable or disable**, either way, is your
-potential solution. One good sample when Aspect ratio makes no sense is
-GridStack gapless grids, or Blazy `Native Grid`. Image sizes, hence Aspect
-ratio, cannot be applied to gapless grids. Aspect ratio is based on image sizes,
-not grid sizes.
 
 
 ### 9. BLAZY WITHIN SCROLLING CONTAINER DOES NOT LOAD

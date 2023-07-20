@@ -243,7 +243,7 @@ class BlazyAlter {
    */
   public static function blazySettingsAlter(array &$build, $items): void {
     $settings = &$build['#settings'];
-    $blazies = $settings['blazies'];
+    $blazies  = $settings['blazies'];
 
     // Sniffs for Views to allow block__no_wrapper, views_no_wrapper, etc.
     $function = 'views_get_current_view';

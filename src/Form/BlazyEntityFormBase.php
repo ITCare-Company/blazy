@@ -256,11 +256,13 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
       $wrapper_attrs = &$form[$key]['#wrapper_attributes'];
       $content_attrs = [];
 
-      $blazy = $sets['blazies']->reset($sets);
+      $subsets = $sets;
+      $blazy   = $subsets['blazies']->reset($subsets);
+
       $blazy->set('delta', $delta);
       $dummies['class'] = [];
 
-      $this->manager->gridItemAttributes($dummies, $content_attrs, $sets);
+      $this->manager->gridItemAttributes($dummies, $content_attrs, $subsets);
       $wrapper_attrs = $this->manager->merge($wrapper_attrs, $dummies);
     }
 

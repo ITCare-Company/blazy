@@ -276,7 +276,7 @@ function hook_blazy_base_settings_alter(array &$settings, array $context) {
  * Alters blazy settings inherited by all child elements.
  *
  * @param array $build
- *   The array containing: settings, or potential optionset for extensions.
+ *   The array containing: #settings, or potential #optionset for sub-modules.
  * @param object $items
  *   The Drupal\Core\Field\FieldItemListInterface items.
  *
@@ -284,6 +284,13 @@ function hook_blazy_base_settings_alter(array &$settings, array $context) {
  */
 function hook_blazy_settings_alter(array &$build, $items) {
   // Since blazy:2.17, the settings key is hashed to avoid leaks/ render errors.
+  // Pre blazy:2.17 $build['settings'] will continue working till 3.x.
+  // @todo remove check post blazy:2.17, only needed for mismatched versions.
+  $key = 'settings';
+  if (!isset($build["#$key"]) && isset($build[$key])) {
+    $build["#$key"] = $build[$key];
+  }
+
   $settings = &$build['#settings'];
 
   // Most configurable settings are put as direct key-value pairs.
@@ -371,13 +378,17 @@ function hook_blazy_item_alter(array &$settings, array &$attributes, array &$ite
   // - item.raw_attributes should not be used as not only raw, but also cause
   //   lazy load, aspect ratio, image style, etc. failed.
   // - item.safe_attributes are cleaned out from most troubles, yet, not fully.
-  $safe_attrs = $blazies->get('item.safe_attributes');
+  $safe_attrs = $blazies->get('item.safe_attributes', []);
 
   // Override $item_attributes selectively to avoid unidentified troubles,
   // hence only when I need `usemap` badly:
   if (isset($safe_attrs['usemap'])) {
     // The ::merge method reverses arguments from normal merge, be warned!
     // Hence prioritizing the module-managed $item_attributes as the replacer.
+    // so that you can still have abused ALT and TITLE for captions, yet cleaned
+    // out for attributes, having cakes and eat them too thingies. If reversed,
+    // you can only choose one. No abuses recommended, just so well-informed.
+    // You can have fieldable captions with core Media without any abuses.
     $item_attributes = blazy()->merge($item_attributes, $safe_attrs);
   }
 

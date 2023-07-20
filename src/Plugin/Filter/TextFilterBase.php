@@ -112,7 +112,12 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(
+    ContainerInterface $container,
+    array $configuration,
+    $plugin_id,
+    $plugin_definition
+  ) {
     $instance = new static($configuration, $plugin_id, $plugin_definition);
 
     $instance->root = Blazy::root($container);

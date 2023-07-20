@@ -325,10 +325,14 @@ interface BlazyInterface {
    *
    * @requires:
    *  - self::gridItemAttributes() for individual items.
-   *  - Library attachments like '#attached' => blazy()->attach($settings),
-   *      at the container level, or merge with the existing ones. Or just call:
-   *      blazy/nativegrid for frontend, or blazy/admin or blazy/admin.grid
-   *      libraries for form usages.
+   *  - Library attachments, any will do:
+   *      - '#attached' => blazy()->attach($settings), at the container level,
+   *        or merge with the existing ones.
+   *      - blazy/nativegrid for frontend, or blazy/admin or blazy/admin.grid
+   *        libraries for form usages.
+   *      - `hook_blazy_settings_alter`: $blazies->set('libs.LIBRARY_NAME');
+   *      See \Drupal\blazy\BlazyDefault::grids(), or blazy.libraries.yml, and
+   *      load it `blazy/LIBRARY_NAME`.
    *
    * @return array
    *   - attributes: to apply/ merge into existing containers,

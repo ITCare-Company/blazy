@@ -96,11 +96,26 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     // @todo remove after sub-modules hook_alters at 3.x.
     $build['settings'] = &$settings;
 
+    // Allows altering the presettings once for the entire ecosystem.
+    // Has the needed settings above to modify sub-modules ::buildSettings().
+    $this->moduleHandler->alter('blazy_presettings', $settings, $items, $entities);
+
     // Extended by sub-modules with data massaged above.
     $this->buildSettings($build, $items);
+  }
 
-    // Allows altering the settings.
-    $this->moduleHandler->alter('blazy_settings', $build, $items);
+  /**
+   * {@inheritdoc}
+   */
+  public function preElements(array &$build, $items, array $entities = []): void {
+    $this->preBuildElements($build, $items, $entities);
+
+    $settings = &$build['#settings'];
+
+    // Since 2.17, allows altering the settings once for the entire ecosystem,
+    // rather than each hook_alter for every modules.
+    // The $build contains #settings, or potential #optionset for sub-modules.
+    $this->moduleHandler->alter('blazy_settings', $build, $items, $entities);
 
     // Combines settings with the provided hook_alter().
     $this->postSettingsAlter($settings, $items->getEntity());

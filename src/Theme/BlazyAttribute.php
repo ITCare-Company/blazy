@@ -5,7 +5,6 @@ namespace Drupal\blazy\Theme;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyImage;
@@ -329,7 +328,7 @@ class BlazyAttribute {
     }
 
     if ($blazies->is('static') && $url) {
-      $url = Xss::stripDangerousProtocols($url);
+      $url = UrlHelper::stripDangerousProtocols($url);
       self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
     }
   }

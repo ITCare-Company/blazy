@@ -36,7 +36,12 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(
+    ContainerInterface $container,
+    array $configuration,
+    $plugin_id,
+    $plugin_definition
+  ) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
 
     $instance->blazyAdmin = $instance->blazyAdmin ?? $container->get('blazy.admin');
@@ -81,6 +86,9 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     $this->postSettings($settings);
     $this->manager->postSettings($settings);
+
+    $this->manager->moduleHandler()->alter($plugin_id . '_settings', $settings, $this->settings);
+    $this->manager->postSettingsAlter($settings);
 
     return $settings;
   }
@@ -426,10 +434,13 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
       // Do not pass SRC into theme_image() so that lazy load works.
       // Also the width and height so to make data-responsive|image-style works.
+      // BlazyFilter doen't offer UI for loading attribute, sub-modules do,
+      // yet respect the editor textarea as the only UI better than global UI.
+      // Might work agaisnt the offered UI, but no biggies for now.
       // @todo recheck anything against the grand design.
-      $keys = ['data-src', 'src', 'width', 'height', 'loading'];
+      $keys = ['data-src', 'src', 'width', 'height'];
       foreach ($keys as $key) {
-        // Who knows unsetting NULL would be deprecated.
+        // Who knows unsetting NULL would be deprecated, like trim(), etc.
         if (isset($attrs[$key])) {
           unset($attrs[$key]);
         }

@@ -9,6 +9,7 @@ use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\BlazyAttribute;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\CheckItem;
+use Drupal\blazy\Utility\BlazyMarkdown;
 use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Utility\Sanitize;
 use Drupal\blazy\Deprecated\BlazyDeprecatedTrait;
@@ -262,6 +263,13 @@ class Blazy {
     }
 
     return $blazies;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function markdown($string, $help = TRUE): string {
+    return BlazyMarkdown::parse($string, $help);
   }
 
   /**

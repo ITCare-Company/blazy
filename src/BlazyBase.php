@@ -15,7 +15,6 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\blazy\Cache\BlazyCache;
-use Drupal\blazy\Utility\BlazyMarkdown;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -416,7 +415,7 @@ abstract class BlazyBase implements BlazyInterface {
    * {@inheritdoc}
    */
   public function markdown($string, $help = TRUE): string {
-    return BlazyMarkdown::parse($string, $help);
+    return Blazy::markdown($string, $help);
   }
 
   /**
@@ -489,7 +488,7 @@ abstract class BlazyBase implements BlazyInterface {
     $fallback = $data['fallback'] ?? '';
 
     if ($fallback && is_string($fallback)) {
-      $markup = '<span class="b-fallback">' . $fallback . '</span>';
+      $markup   = '<span class="b-fallback">' . $fallback . '</span>';
       $fallback = ['#markup' => $markup];
     }
 
