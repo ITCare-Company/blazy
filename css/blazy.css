@@ -24,7 +24,9 @@ html:not(.js) [data-b-blur] {
   display: none;
 }
 
+/* The .b-bg-static is to not interfere with lazyloaded .b-bg. */
 .b-bg,
+.b-bg-static,
 /* Tricking IE and other oldies to fix aspect ratio. */
 .media--ratio .is-b-ie {
   background-size: cover;

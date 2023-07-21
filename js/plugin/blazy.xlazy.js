@@ -156,7 +156,7 @@
     return _erCounted;
   };
 
-  $.loadVideo = function (el, ok, opts) {
+  $.loadLocalMedia = function (el, ok, opts) {
     // Native doesn't support video, fix it.
     $.mapSource(el, _src, true);
     el.load();

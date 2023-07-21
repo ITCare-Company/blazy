@@ -78,6 +78,7 @@
     var isBg = $.isBg(el);
     var isPicture = $.equal(parent, 'picture');
     var isImage = $.equal(el, 'img');
+    var isAudio = $.equal(el, 'audio');
     var isVideo = $.equal(el, 'video');
     var isDataset = $.hasAttr(el, _dataSrc);
 
@@ -98,8 +99,12 @@
       _erCounted = defer(me, el, true, opts);
     }
     // VIDEO elements.
-    else if (isVideo) {
-      _erCounted = $.loadVideo(el, true, opts);
+    else if (isVideo || isAudio) {
+      if ($.isBg(parent)) {
+        me.loadImage(parent, true, winData);
+      }
+
+      _erCounted = $.loadLocalMedia(el, true, opts);
     }
     else {
       // IMG or DIV/ block elements got preloaded for better UX with loading.

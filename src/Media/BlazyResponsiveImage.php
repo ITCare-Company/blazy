@@ -39,10 +39,11 @@ class BlazyResponsiveImage {
    * and Picture are checked with its multiple dimensions aka art direction.
    */
   public static function background(array &$attributes, array &$settings): void {
-    $blazies = $settings['blazies'];
-    $resimage = $blazies->get('resimage.style');
+    $blazies    = $settings['blazies'];
+    $resimage   = $blazies->get('resimage.style');
+    $background = $blazies->is('bg', !empty($settings['background']));
 
-    if (empty($settings['background']) || !$resimage) {
+    if (!$background || !$resimage) {
       return;
     }
 

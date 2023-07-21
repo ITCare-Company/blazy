@@ -73,3 +73,10 @@ a .media--switch img.media__element {
   opacity: 1;
   visibility: visible;
 }
+
+.media--boxtype-audio audio {
+  bottom: auto;
+  height: auto;
+  top: 50%;
+  transform: translateY(-50%);
+}

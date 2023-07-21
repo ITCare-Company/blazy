@@ -98,7 +98,8 @@ class BlazyTheme {
 
     // Allows rich Media entities stored within `content` to take over.
     // Rich media are things Blazy don't understand: Instagram, Facebook, etc.
-    if (empty($variables['content'])) {
+    // Multicontent is currently audio with background cover.
+    if (empty($variables['content']) || $blazies->is('multicontent')) {
       BlazyAttribute::buildMedia($variables);
     }
 
@@ -137,9 +138,9 @@ class BlazyTheme {
   }
 
   /**
-   * Overrides variables for file-video.html.twig templates.
+   * Overrides variables for file-audio|video.html.twig templates.
    */
-  public static function fileVideo(array &$variables): void {
+  public static function fileLocal(array &$variables): void {
     $attributes = &$variables['attributes'];
     if ($files = $variables['files']) {
       $use_dataset = empty($attributes['data-b-undata']);
@@ -147,7 +148,8 @@ class BlazyTheme {
       // Adds a poster image if so configured.
       if ($blazy = ($files[0]['#blazy'] ?? NULL)) {
         $settings = $blazy->storage();
-        $blazies = $settings['blazies'];
+        $blazies  = $settings['blazies'];
+        $video    = $blazies->is('local_video');
 
         if ($url = $blazies->get('image.url')) {
           $url = UrlHelper::stripDangerousProtocols($url);
@@ -155,7 +157,11 @@ class BlazyTheme {
             $blazies->set('use.loader', TRUE);
           }
           $blazies->set('is.dimensions', TRUE);
-          $attributes->setAttribute('poster', $url);
+
+          // Only video has poster, not audio.
+          if ($video) {
+            $attributes->setAttribute('poster', $url);
+          }
         }
       }
 

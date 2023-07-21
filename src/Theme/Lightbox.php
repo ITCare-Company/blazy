@@ -92,7 +92,11 @@ class Lightbox {
       $box_width = 640;
       $box_height = 360;
 
-      if ($embed = $blazies->get('media.embed_url')) {
+      if ($blazies->is('local_audio')) {
+        $json['boxType'] = 'audio';
+        $json['playable'] = $blazies->is('playable');
+      }
+      elseif ($embed = $blazies->get('media.embed_url')) {
         // Force autoplay for media URL on lightboxes, saving another click.
         // BC for non-oembed such as Video Embed Field without Media migration.
         $url = Blazy::autoplay($embed, !$_escaped);
@@ -177,6 +181,7 @@ class Lightbox {
 
     // Provides the content and its attributes.
     $options = [
+      'box_url' => $box_url,
       'url' => $url,
       'item' => $item,
       'box_width' => $box_width,
@@ -221,6 +226,7 @@ class Lightbox {
     $manager
   ): void {
     [
+      'box_url' => $box_url,
       'url' => $url,
       'item' => $item,
       'box_width' => $box_width,
@@ -241,6 +247,7 @@ class Lightbox {
 
     // Currently: Responsive/Picture image, not plain, and Local video.
     if ($box_html = ($element['#lightbox_html'] ?? [])) {
+      $type = str_replace('_', '-', $json['boxType']);
       // Local video ($html) is wrapped, but not Responsive image ($box_html).
       // Reasons: video displayed as is, image is disassembled for zoom, etc.,
       // or just dumped as is, depending on the supportive lightbox capability.
@@ -249,7 +256,7 @@ class Lightbox {
         '#children' => $box_html,
         '#attributes' => [
           // @todo make it flexible for regular non-media HTML.
-          'class' => ['media', 'media--ratio'],
+          'class' => ['media', 'media--boxtype-' . $type],
         ],
       ];
 
@@ -257,9 +264,22 @@ class Lightbox {
       $style = '';
       if ($has_dim) {
         $pad = round((($json['height'] / $json['width']) * 100), 2);
-        $style = 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;';
+        $style .= 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;';
+      }
+
+      // Currently only audio with background cover.
+      if ($box_url && $blazies->is('multicontent')) {
+        $style .= 'background-image: url(' . $box_url . ');';
+        $html['#attributes']['class'][] = 'b-bg-static';
+      }
+
+      if ($style) {
         $html['#attributes']['style'] = $style;
       }
+
+      // Do not add more classes after media--ratio. This is the only style
+      // identifier/ prefix, must come last, else inline style is removed.
+      $html['#attributes']['class'][] = 'media--ratio';
 
       // Responsive image is unwrapped. Local videos wrapped.
       $content = $_resimage ? $box_html : $html;

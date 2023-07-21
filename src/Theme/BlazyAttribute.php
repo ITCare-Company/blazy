@@ -40,6 +40,7 @@ class BlazyAttribute {
     if ($lightbox) {
       $switch = str_replace('_', '-', $lightbox);
       $attributes['data-' . $switch . '-gallery'] = TRUE;
+      $classes[] = 'blazy--lightbox';
       $classes[] = 'blazy--' . $switch;
 
       if ($extras = $blazies->data($lightbox)) {
@@ -430,15 +431,10 @@ class BlazyAttribute {
     $blazies     = $settings['blazies'];
     $url         = $blazies->get('image.url');
     $placeholder = $blazies->get('placeholder.url');
+    $background  = $blazies->is('bg', !empty($settings['background']));
 
     // Supports either lazy loaded image, or not.
-    if (empty($settings['background'])) {
-      $variables['image'] += [
-        '#theme' => 'image',
-        '#uri' => $blazies->is('unlazy') ? $url : $placeholder,
-      ];
-    }
-    else {
+    if ($background) {
       // Attach BG data attributes to a DIV container.
       // Background is not supported by Native, cannot use unlazy, use undata:
       // - undata: no use of dataset (data-b-bg) like at AMP, or preview pages.
@@ -456,6 +452,12 @@ class BlazyAttribute {
       $data['height'] = $blazies->get('image.height');
       $blazies->set('bgs.' . $width, BlazyImage::background($data, $style));
       self::lazy($attributes, $blazies);
+    }
+    else {
+      $variables['image'] += [
+        '#theme' => 'image',
+        '#uri' => $blazies->is('unlazy') ? $url : $placeholder,
+      ];
     }
   }
 
@@ -495,10 +497,16 @@ class BlazyAttribute {
    *   The variables being modified.
    */
   private static function buildResponsiveImage(array &$variables): void {
-    $settings = &$variables['settings'];
-    $blazies = $settings['blazies'];
+    $settings   = &$variables['settings'];
+    $blazies    = $settings['blazies'];
+    $background = $blazies->is('bg', !empty($settings['background']));
 
-    if (empty($settings['background'])) {
+    if ($background) {
+      // Attach BG data attributes to a DIV container.
+      $attributes = &$variables['attributes'];
+      BlazyResponsiveImage::background($attributes, $settings);
+    }
+    else {
       $natives = ['decoding' => 'async'];
       $attributes = ($blazies->is('unlazy')
         ? $natives
@@ -514,11 +522,6 @@ class BlazyAttribute {
         '#uri' => $blazies->get('image.uri'),
         '#attributes' => $attributes,
       ];
-    }
-    else {
-      // Attach BG data attributes to a DIV container.
-      $attributes = &$variables['attributes'];
-      BlazyResponsiveImage::background($attributes, $settings);
     }
   }
 

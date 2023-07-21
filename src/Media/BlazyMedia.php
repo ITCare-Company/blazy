@@ -79,11 +79,9 @@ class BlazyMedia {
     // can be refined later when Blazy supports more media types better.
     $blazies->set('media.type', 'rich');
 
-    $view_mode = $blazies->get('media.view_mode') ?: $settings['view_mode'] ?? 'default';
+    $view_mode = $blazies->get('media.view_mode', 'default');
     $source_field = $blazies->get('media.source_field');
-    $options = $blazies->is('local_video') ? ['type' => 'file_video'] : $view_mode;
-
-    $build = $media->get($source_field)->view($options);
+    $build = $media->get($source_field)->view($view_mode);
     $build['#settings'] = $settings;
 
     return isset($build[0]) ? self::unfield($build) : $build;
@@ -167,6 +165,7 @@ class BlazyMedia {
       ->set('is.playable', $is_remote)
       ->set('is.multimedia', $is_media)
       ->set('is.local_media', $is_local)
+      ->set('is.local_audio', $source == 'audio_file')
       ->set('is.local_video', $source == 'video_file')
       ->set('is.remote_video', $is_remote)
       ->set('is.remote_unknown', !$is_media);
@@ -231,7 +230,13 @@ class BlazyMedia {
       // The poster or file image is set via settings.image option instead.
       $blazies->set('media.uri', $file->getFileUri());
 
-      self::toVideo($item, $settings);
+      // Only local video has poster, audio uses background via settings.image.
+      if ($blazies->is('local_audio') && !empty($settings['image'])) {
+        $blazies->set('is.bg', TRUE)
+          ->set('is.multicontent', TRUE);
+      }
+
+      self::toLocal($item, $settings);
     }
     elseif (isset($item['#theme'])) {
       self::toIframe($item, $settings);
@@ -272,23 +277,30 @@ class BlazyMedia {
     if ($oembed = Blazy::service('blazy.oembed')) {
       $original = $item;
       $content  = $oembed->blazyManager()->renderer()->renderPlain($item);
-      $dom      = Html::load($content);
-      $iframes  = $dom->getElementsByTagName('iframe');
 
-      if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
-        if ($src = $iframe->getAttribute('src')) {
-          self::toPlayable($blazies, $src);
+      if ($content) {
+        // Prior to PHP 8.0.0 this method could be called statically, but would
+        // issue an E_DEPRECATED error. As of PHP 8.0.0 calling this method
+        // statically throws an Error exception.
+        // See https://www.php.net/manual/en/domdocument.loadhtml.php.
+        $dom     = Html::load($content);
+        $iframes = $dom->getElementsByTagName('iframe');
 
-          if (strpos($src, '?url=') === FALSE) {
-            $embed_url = $oembed->toEmbedUrl($blazies, $src);
-            $blazies->set('media.embed_url', $embed_url);
+        if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
+          if ($src = $iframe->getAttribute('src')) {
+            self::toPlayable($blazies, $src);
+
+            if (strpos($src, '?url=') === FALSE) {
+              $embed_url = $oembed->toEmbedUrl($blazies, $src);
+              $blazies->set('media.embed_url', $embed_url);
+            }
+            // @todo remove, no longer relevant since upstream definitions.
+            $blazies->set('media.type', $blazies->get('media.source'));
           }
-
-          $blazies->set('media.type', $blazies->get('media.source'));
         }
-      }
-      else {
-        self::disableFeatures($settings);
+        else {
+          self::disableFeatures($settings);
+        }
       }
 
       $item = $original;
@@ -310,7 +322,7 @@ class BlazyMedia {
   /**
    * Modifies item attributes for local video item.
    */
-  private static function toVideo(array &$item, array $settings): void {
+  private static function toLocal(array &$item, array $settings): void {
     // Do this as $item['#settings'] is not available as file_video variables.
     // @todo re-check, most likely just a single file here.
     foreach ($item['#files'] as &$files) {

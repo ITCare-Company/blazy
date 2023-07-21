@@ -67,7 +67,16 @@ function blazy_preprocess_responsive_image(array &$variables) {
  */
 function blazy_preprocess_file_video(array &$variables) {
   if (isset($variables['attributes']['data-b-lazy'])) {
-    BlazyTheme::fileVideo($variables);
+    BlazyTheme::fileLocal($variables);
+  }
+}
+
+/**
+ * Overrides variables for file-audio.html.twig templates.
+ */
+function blazy_preprocess_file_audio(array &$variables) {
+  if (isset($variables['attributes']['data-b-lazy'])) {
+    BlazyTheme::fileLocal($variables);
   }
 }
 

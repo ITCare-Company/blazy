@@ -127,6 +127,7 @@ class Check {
     $is_undata    = $is_static || $is_unloading;
     $is_nojs      = $is_unload || $is_undata;
     $bundles      = $blazies->get('field.target_bundles', []);
+    $is_audio     = $bundles && in_array('audio', $bundles);
     $is_video     = $bundles && in_array('video', $bundles);
     $item_id      = $settings['item_id'] ?? $blazies->get('item.id', 'blazy');
     $namespace    = $settings['namespace'] ?? $blazies->get('namespace', 'blazy');
@@ -142,6 +143,7 @@ class Check {
     // Compat is anything that Native lazy doesn't support.
     $is_compat = $is_bg
       || $is_fluid
+      || $is_audio
       || $is_video
       || $is_defer
       || $blazies->get('fx')
@@ -164,7 +166,7 @@ class Check {
       ->set('is.unloading', $is_unloading)
       ->set('item.id', $item_id)
       ->set('namespace', $namespace)
-      ->set('libs.background', $is_bg)
+      ->set('libs.background', $is_bg || $is_audio)
       ->set('libs.compat', $is_compat)
       ->set('libs.ratio', !empty($settings['ratio']))
       ->set('css.ratio', BlazyDefault::RATIO)

@@ -314,8 +314,8 @@ class CheckItem {
     // @todo local video, iframe, etc. are not covered at container level.
     $use_blazy = $lazy == 'blazy'
       || !empty($settings['blazy'])
-      || !empty($settings['background'])
       || !empty($settings['responsive_image_style'])
+      || $blazies->is('bg', !empty($settings['background']))
       || $blazies->is('blazy')
       || $blazies->is('blur');
 

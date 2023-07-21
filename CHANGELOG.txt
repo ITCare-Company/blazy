@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-07-21
+------------------------------
+- Added supports for local audio with background cover via settings.image.
+- Remove unused abundant CSS classes: media__image, media__iframe.
+
 Blazy 8.x-2.0-dev, 2023-07-18
 ------------------------------
 - Added micro optimization for aspect ratio fluid to use non JS, if possible.
