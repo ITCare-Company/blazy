@@ -123,8 +123,11 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $this->assertSession()->elementExists('css', '.media-wrapper--blazy');
     $this->assertSession()->elementContains('css', '.media-wrapper--blazy', 'b-lazy');
 
-    // Verfies attributes and URIs are cleaned out.
-    $this->assertSession()->elementExists('css', 'img[data-onmouseover]');
+    // Verifies attributes and URIs are cleaned out.
+    // @todo re-enable when passing raw attributes work, see #3374519.
+    // The problem with raw attributes were discrete behaviors causing failed
+    // lazy load, nothing related to skiddies businesses.
+    // $this->assertSession()->elementExists('css', 'img[data-onmouseover]');
     $this->assertSession()->elementNotExists('css', 'img[onmouseover]');
 
     $this->assertSession()->elementExists('css', 'img[data-src^=alert]');

@@ -333,6 +333,7 @@ class Lightbox {
 
     // Only strip if not already.
     $element['#url'] = $_escaped ? $url : UrlHelper::stripDangerousProtocols($url);
+    // @todo replace with data-b-media at 3.x to avoid potential conflicts.
     $attrs['data-media'] = Json::encode($json);
   }
 

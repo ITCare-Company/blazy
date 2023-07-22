@@ -144,6 +144,7 @@ class Placeholder {
     // Apply attributes related to Blur and Thumbnail image style.
     $blazies = $settings['blazies'];
     if ($tn_url = $blazies->get('thumbnail.url')) {
+      // @todo replace with data-b-thumb at 3.x to avoid potential conflicts.
       $attributes['data-thumb'] = $tn_url;
     }
 
@@ -151,6 +152,7 @@ class Placeholder {
     // Slick/ Splide lazy loads won't work, needs Blazy to make animation.
     if ($blazies->is('blazy') && $fx = $blazies->get('fx')) {
       $attributes['class'][] = 'media--fx';
+      // @todo replace with data-b-animation at 3.x to avoid conflicts.
       $attributes['data-animation'] = $fx;
     }
   }

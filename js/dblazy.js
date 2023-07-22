@@ -659,6 +659,9 @@
    *   The resulting array.
    */
   function toArray(x) {
+    if (isStr(x) && /\s/.test(x)) {
+      return x.trim().split(' ');
+    }
     return isArr(x) ? x : [x];
   }
 
@@ -698,11 +701,19 @@
     }
 
     // No defValue defined, or withDefault set, means a getter.
-    if (_getter) {
+    if (_getter && isStr(attr)) {
       if (_undefined) {
         defValue = '';
       }
-      return hasAttr(elm, attr) ? _op(elm, _get, attr) : defValue;
+
+      // Ambiguous space delimited attributes: 'data-src data-lazy', etc.
+      var value = defValue;
+      each(toArray(attr), function (key) {
+        if (hasAttr(elm, key)) {
+          value = _op(elm, _get, key);
+        }
+      });
+      return value;
     }
 
     var chainCallback = function (el) {
@@ -814,7 +825,7 @@
         }
       };
 
-      each(names.trim().split(' '), verify);
+      each(toArray(names), verify);
     }
     return found > 0;
   }
@@ -844,7 +855,7 @@
         }
 
         if (_list && isStr(name)) {
-          var names = name.trim().split(' ');
+          var names = toArray(name);
           if (isUnd(op)) {
             names.map(function (value) {
               _list.toggle(value);
@@ -1507,7 +1518,7 @@
         }
       };
 
-      each(eventName.trim().split(' '), process);
+      each(toArray(eventName), process);
     };
 
     return chain.call(els, chainCallback);

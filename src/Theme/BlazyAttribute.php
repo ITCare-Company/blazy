@@ -122,6 +122,7 @@ class BlazyAttribute {
 
       // Views rewrite results or Twig inline_template may strip out `style`
       // attributes, provide hint to JS.
+      // @todo replace with data-b-ratio by 3.x to avoid potential conflicts.
       $attributes['data-ratio'] = $padding;
     }
 
@@ -215,6 +216,7 @@ class BlazyAttribute {
     // @todo rename it to data-b-ratios at/by 3.x.
     if ($blazies->is('fluid')) {
       if (!$blazies->is('undata') && $ratios = $blazies->get('ratios', [])) {
+        // @todo replace with data-b-ratio by 3.x to avoid potential conflicts.
         $attributes['data-ratios'] = Json::encode($ratios);
       }
     }

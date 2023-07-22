@@ -155,8 +155,9 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       // Plus thumbnails, already managed by themselves, not blazy's business.
       // Mergers allow improvements as seen with thumbnail below at one go.
       // Split for different formatters with very minimal difference.
-      // Implement when merged:
-      // $data['#media_attributes']['class'][] = static::$itemId . '__media';
+      // @todo implement when merged at 3.x, not before, of course:
+      // $data['#media_attributes']['class'][] =
+      // static::$itemPrefix . '__media';
       if (static::$namespace == 'blazy') {
         $data[static::$captionId] = $captions;
         $element = $this->formatter->getBlazy($data);
