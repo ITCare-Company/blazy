@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\field\FieldConfigInterface;
@@ -17,11 +18,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * Defines one base class to extend for both image and file ER formatters as
  * otherwise different base classes: ImageFormatterBase or FileFormatterBase.
+ * All blazy sub-modules image/file related formatters extend this class.
  *
- * @see Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatter.
- * @see Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter.
- * @see Drupal\slick\Plugin\Field\FieldFormatter\SlickImageFormatter.
- * @see Drupal\slick\Plugin\Field\FieldFormatter\SlickFileFormatter.
+ * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatter.
+ * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter.
  *
  * @todo remove no longer in use: ImageFactory at blazy:3.x.
  */
@@ -33,26 +33,33 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   use BlazyDependenciesTrait;
 
   /**
-   * The module namsepace.
+   * The main module namespace.
    *
    * @var string
    * @see https://www.php.net/manual/en/reserved.keywords.php
    */
-  protected $namespace = 'blazy';
+  protected static $namespace = 'blazy';
 
   /**
-   * The item id.
+   * The item id: content, slide, box, etc.
+   *
+   * Prioritize sub-modules in case mismatched versions.
    *
    * @var string
    */
-  protected $itemId = 'blazy';
+  protected static $itemId = 'slide';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemPrefix = 'slide';
 
   /**
    * The caption id.
    *
    * @var string
    */
-  protected $captionId = 'caption';
+  protected static $captionId = 'caption';
 
   /**
    * {@inheritdoc}
@@ -88,6 +95,20 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function viewElements(FieldItemListInterface $items, $langcode) {
+    $entities = $this->getEntitiesToView($items, $langcode);
+
+    // Early opt-out if the field is empty.
+    if (empty($entities)) {
+      return [];
+    }
+
+    return $this->commonViewElements($items, $langcode, $entities);
+  }
+
+  /**
    * Build individual item if so configured such as for file ER goodness.
    */
   protected function buildElement(array &$element, $entity) {
@@ -95,23 +116,12 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * Returns available build options.
-   */
-  protected function buildOptions(array $settings): array {
-    return [];
-  }
-
-  /**
    * Returns the Blazy elements, also for sub-modules to re-use.
    *
-   * @todo replace namespace and item.id with properties post blazy:2.17.
-   * @todo remove parameter $options for self::buildOptions().
+   * @todo remove parameter $options for properties after sub-modules.
    */
   protected function getElements(array $build, $files, $options = NULL): \Generator {
-    $settings   = $this->formatter->toHashtag($build);
-    $namespace  = $this->namespace;
-    $item_id    = $this->itemId;
-    $caption_id = $this->captionId;
+    $settings = $this->formatter->toHashtag($build);
 
     foreach ($files as $delta => $file) {
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
@@ -125,7 +135,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
         ->set('media.type', 'image')
         ->set('image.uri', $uri);
 
-      // @todo make it hashtag after sub-modules ready.
+      // Hashtags to avoid render errors with some potential leaks.
       $data = [
         '#delta'    => $delta,
         '#entity'   => $file,
@@ -140,17 +150,23 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       $captions = $this->getCaptions($data);
 
       // @todo merge all these into theme_blazy() at 3.x after sub-modules.
+      // We all have similar IMAGE + CAPTION constructs. The only difference is
+      // sub-modules separate blazy image from captions while Blazy merges them.
+      // Plus thumbnails, already managed by themselves, not blazy's business.
+      // Mergers allow improvements as seen with thumbnail below at one go.
       // Split for different formatters with very minimal difference.
-      if ($namespace == 'blazy') {
-        $data[$caption_id] = $captions;
+      // Implement when merged:
+      // $data['#media_attributes']['class'][] = static::$itemId . '__media';
+      if (static::$namespace == 'blazy') {
+        $data[static::$captionId] = $captions;
         $element = $this->formatter->getBlazy($data);
       }
       else {
         $blazy = $this->formatter->getBlazy($data);
         $element = $data;
 
-        $element[$item_id] = $blazy;
-        $element[$caption_id] = $captions;
+        $element[static::$itemId] = $blazy;
+        $element[static::$captionId] = $captions;
 
         // This is the only reason for the change. Thumbnails are
         // poorly-informed like image without styles, SVG, etc.
@@ -211,7 +227,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * Overrides parent::needsEntityLoad().
+   * {@inheritdoc}
    *
    * One step back to have both image and file ER plugins extend this, because
    * EntityReferenceItem::isDisplayed() doesn't exist, except for ImageItem

@@ -372,6 +372,7 @@ class BlazyDefault {
       'dataset',
       'background',
       'observer',
+      'multimedia',
     ];
   }
 

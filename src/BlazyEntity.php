@@ -90,6 +90,7 @@ class BlazyEntity implements BlazyEntityInterface {
     // Prepare container settings.
     // This class was designed for a single entity, not multiple.
     // Call this method at the container level if multiple.
+    // @todo re-arrange, this needs media metadata from ::oembed() below
     $this->prepare($data);
 
     // Individual entity settings.
@@ -103,9 +104,8 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // Build the Media item.
     $this->oembed->build($data);
-
-    $settings = $manager->toHashtag($data);
-    $blazies  = $settings['blazies'];
+    // $settings = $manager->toHashtag($data);
+    $blazies = $settings['blazies'];
 
     // @todo remove for $data after single param implemented.
     $view = [
@@ -170,7 +170,7 @@ class BlazyEntity implements BlazyEntityInterface {
   /**
    * {@inheritdoc}
    *
-   * @todo make it single param after sub-modules for easy updates.
+   * @todo make it single param after sub-modules for easy updates like #access.
    */
   public function view($entity, array $settings = [], $fallback = ''): array {
     $manager = $this->blazyManager;

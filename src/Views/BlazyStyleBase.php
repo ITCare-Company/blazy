@@ -16,17 +16,22 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
   /**
    * {@inheritdoc}
    */
-  protected $namespace = 'blazy';
+  protected static $namespace = 'blazy';
 
   /**
    * {@inheritdoc}
    */
-  protected $itemId = 'content';
+  protected static $itemId = 'slide';
 
   /**
    * {@inheritdoc}
    */
-  protected $captionId = 'captions';
+  protected static $itemPrefix = 'slide';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $captionId = 'caption';
 
   /**
    * {@inheritdoc}

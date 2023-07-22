@@ -20,16 +20,6 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
   /**
    * {@inheritdoc}
    */
-  protected $namespace = 'blazy';
-
-  /**
-   * {@inheritdoc}
-   */
-  protected $itemId = 'blazy';
-
-  /**
-   * {@inheritdoc}
-   */
   public static function create(
     ContainerInterface $container,
     array $configuration,

@@ -307,7 +307,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         break;
 
       default:
-        // Local video has numeric value, skip.
+        // Local audio/video has numeric value, skip.
         if ($input && !is_numeric($input)) {
           $blazies->set('media.input_url', $input);
           $this->toEmbed($settings);

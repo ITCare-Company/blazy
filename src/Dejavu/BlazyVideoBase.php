@@ -29,6 +29,26 @@ abstract class BlazyVideoBase extends FormatterBase {
   /**
    * {@inheritdoc}
    */
+  protected static $namespace = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemId = 'content';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemPrefix = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $captionId = 'captions';
+
+  /**
+   * {@inheritdoc}
+   */
   public static function defaultSettings() {
     return BlazyDefault::extendedSettings();
   }

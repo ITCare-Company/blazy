@@ -99,12 +99,16 @@ class BlazyInternal {
     Blazy::verify($settings);
 
     $blazies = $settings['blazies'];
+
+    // Checks for basic features, here for both formatters and views fields.
+    // To detect available media bundles from views field when
+    // BlazyEntity::prepare() was called too early before media data set.
+    // @todo move it back after initialized after both are synced.
+    Check::container($settings);
+
     if ($blazies->was('initialized')) {
       return;
     }
-
-    // Checks for basic features.
-    Check::container($settings);
 
     // Checks for lightboxes.
     Check::lightboxes($settings);

@@ -33,6 +33,21 @@ class BlazyFilter extends BlazyFilterBase {
 
   /**
    * {@inheritdoc}
+   */
+  protected static $itemId = 'content';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemPrefix = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $captionId = 'captions';
+
+  /**
+   * {@inheritdoc}
    *
    * @todo to support preload, split into two phases: collect uris and render.
    */

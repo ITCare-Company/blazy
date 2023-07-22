@@ -22,12 +22,22 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
-  protected $namespace = 'blazy';
+  protected static $namespace = 'blazy';
 
   /**
    * {@inheritdoc}
    */
-  protected $itemId = 'content';
+  protected static $itemId = 'content';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemPrefix = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $captionId = 'captions';
 
   /**
    * The blazy service manager.
@@ -183,8 +193,8 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
 
     $blazies->set('count', $count)
       ->set('css.id', $id)
-      ->set('item.id', $this->itemId)
-      ->set('namespace', $this->namespace)
+      ->set('item.id', static::$itemId)
+      ->set('namespace', static::$namespace)
       ->set('view', $view_info, TRUE)
       ->set('is.view', TRUE)
       ->set('is.views_field', TRUE);

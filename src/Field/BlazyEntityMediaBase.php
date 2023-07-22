@@ -45,13 +45,12 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
     $settings = $this->formatter->toHashtag($build);
     $blazies  = $settings['blazies'];
-    $item_id  = $blazies->get('item.id');
 
     // Some formatter has a toggle Vanilla.
     if (empty($settings['vanilla'])) {
       // Supports Blazy formatter multi-breakpoint images if available.
       if ($item = ($build['items'][0] ?? NULL)) {
-        $fallback = $item[$item_id]['#build'] ?? [];
+        $fallback = $item[static::$itemId]['#build'] ?? [];
         $data = $item['#build'] ?? $fallback;
         if ($data) {
           $blazies->set('first.data', $data);
@@ -68,10 +67,11 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
     $settings  = $this->formatter->toHashtag($build);
     $blazies   = $settings['blazies'];
-    $item_id   = $blazies->get('item.id');
     $view_mode = $settings['view_mode'] ?? 'full';
     $is_nav    = $blazies->is('nav') || !empty($settings['nav']);
+    $is_blazy  = static::$namespace == 'blazy';
     $switch    = $settings['media_switch'] ?? NULL;
+    $_image    = $settings['image'] ?? NULL;
 
     // Bail out if vanilla (rendered entity) is required.
     if (!empty($settings['vanilla'])) {
@@ -79,7 +79,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     }
 
     // Otherwise hard work which is meant to reduce custom code at theme level.
-    $element = [
+    $data = [
       '#entity'   => $entity,
       '#settings' => $settings,
       '#delta'    => $delta,
@@ -87,29 +87,31 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     ];
 
     // Build media item including custom highres video thumbnail.
-    $this->blazyOembed->build($element);
+    $this->blazyOembed->build($data);
 
     // Captions if so configured, including Blazy formatters.
-    $this->getCaption($element, $entity, $langcode);
+    $this->getCaption($data, $entity, $langcode);
 
     // If `Image rendered` is picked, render image as is. Might not be Blazy's
     // formatter, yet has awesomeness that Blazy doesn't, but still wants to be
     // embedded in Blazy ecosytem mostly for Grid, Slider, Mason, GridStack etc.
-    if (!empty($settings['image']) && $switch == 'rendered') {
-      $element['content'][] = BlazyField::view($entity, $settings['image'], $view_mode);
+    if ($is_blazy && $_image && $switch == 'rendered') {
+      $data['content'][] = BlazyField::view($entity, $_image, $view_mode);
     }
 
     // Optional image with responsive image, lazyLoad, and lightbox supports.
     // Including potential rich Media contents: local video, Facebook, etc.
-    $blazy = $this->formatter->getBlazy($element);
+    $blazy = $this->formatter->getBlazy($data);
 
     // If the caller is Blazy, provides simple index elements.
-    if ($blazies->get('namespace') == 'blazy') {
+    if ($is_blazy) {
       $build['items'][$delta] = $blazy;
     }
     else {
+      $element = $data;
+
       // Otherwise Slick, GridStack, Mason, etc. may need more elements.
-      $element[$item_id] = $blazy;
+      $element[static::$itemId] = $blazy;
 
       // Update with blazy processed settings such as unstyled extensions.
       $item_build = $blazy['#build'] ?? [];
@@ -150,9 +152,8 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   protected function getCaption(array &$element, $entity, $langcode) {
     $settings  = $this->formatter->toHashtag($element);
     $item      = $this->formatter->toHashtag($element, 'item', NULL);
-    $blazies   = $settings['blazies'];
     $view_mode = $settings['view_mode'] ?? 'full';
-    $is_blazy  = $blazies->get('namespace') == 'blazy';
+    $is_blazy  = static::$namespace == 'blazy';
     $weights   = $caption_items = [];
     $_weight   = FALSE;
 
@@ -180,7 +181,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
           $caption_items['title'] = $output;
         }
         else {
-          $element['caption']['title'] = $output;
+          $element[static::$captionId]['title'] = $output;
         }
       }
     }
@@ -220,14 +221,15 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       if ($weights) {
         array_multisort($weights, SORT_ASC, $caption_items);
       }
+
       // @todo recheck to make it similar to sub-modules if any issues at 3.x.
       // The most obvious was seen at BlazyFileFormatterBase where sub-modules
       // don't want to pass captions to theme_blazy() for their own markups.
       if ($is_blazy) {
-        $element['captions'] = $caption_items;
+        $element[static::$captionId] = $caption_items;
       }
       else {
-        $element['caption']['data'] = $caption_items;
+        $element[static::$captionId]['data'] = $caption_items;
       }
     }
   }

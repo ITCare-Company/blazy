@@ -142,6 +142,7 @@ class BlazyMedia {
     $info      = $result['data'];
     $id        = $info['id'];
     $rid       = $info['rid'];
+    $bundle    = $info['bundle'];
     $source    = $info['source'];
     $locals    = ['audio_file', 'video_file'];
     $videos    = ['oembed:video', 'video_embed_field'];
@@ -168,7 +169,8 @@ class BlazyMedia {
       ->set('is.local_audio', $source == 'audio_file')
       ->set('is.local_video', $source == 'video_file')
       ->set('is.remote_video', $is_remote)
-      ->set('is.remote_unknown', !$is_media);
+      ->set('is.remote_unknown', !$is_media)
+      ->set('field.target_bundles.' . $bundle, $bundle, TRUE);
 
     return $media;
   }
@@ -225,18 +227,7 @@ class BlazyMedia {
     // Media with local files: video.
     elseif (isset($item['#files'])
       && $file = ($item['#files'][0]['file'] ?? NULL)) {
-      // @todo multiple sources, not crucial for now.
-      // This is not an image URI, but file video URI.
-      // The poster or file image is set via settings.image option instead.
-      $blazies->set('media.uri', $file->getFileUri());
-
-      // Only local video has poster, audio uses background via settings.image.
-      if ($blazies->is('local_audio') && !empty($settings['image'])) {
-        $blazies->set('is.bg', TRUE)
-          ->set('is.multicontent', TRUE);
-      }
-
-      self::toLocal($item, $settings);
+      self::toLocal($item, $settings, $file);
     }
     elseif (isset($item['#theme'])) {
       self::toIframe($item, $settings);
@@ -322,7 +313,24 @@ class BlazyMedia {
   /**
    * Modifies item attributes for local video item.
    */
-  private static function toLocal(array &$item, array $settings): void {
+  private static function toLocal(array &$item, array &$settings, $file): void {
+    $blazies = $settings['blazies'];
+
+    // @todo multiple sources, not crucial for now.
+    // This is not an image URI, but file video URI.
+    // The poster or file image is set via settings.image option instead.
+    $blazies->set('media.uri', $file->getFileUri());
+
+    // Only local video has poster, audio uses background via settings.image.
+    if ($blazies->is('local_audio') && !empty($settings['image'])) {
+      // @todo remove once preSettings sync both formatters and views fields.
+      // @fixme views field blazy_media is out of synced for libraries.
+      $item['#attached']['library'][] = 'blazy/background';
+      $blazies->set('is.bg', TRUE)
+        ->set('is.multicontent', TRUE)
+        ->set('libs.background', TRUE);
+    }
+
     // Do this as $item['#settings'] is not available as file_video variables.
     // @todo re-check, most likely just a single file here.
     foreach ($item['#files'] as &$files) {
@@ -330,11 +338,10 @@ class BlazyMedia {
     }
 
     $item['#attributes']->setAttribute('data-b-lazy', TRUE);
-    if ($blazies = ($settings['blazies'] ?? NULL)) {
-      // Disable [data-src] lazy if undata, or richbox is supported.
-      if ($blazies->is('undata') || $blazies->is('richbox')) {
-        $item['#attributes']->setAttribute('data-b-undata', TRUE);
-      }
+
+    // Disable [data-src] lazy if undata, or richbox is supported.
+    if ($blazies->is('undata') || $blazies->is('richbox')) {
+      $item['#attributes']->setAttribute('data-b-undata', TRUE);
     }
   }
 

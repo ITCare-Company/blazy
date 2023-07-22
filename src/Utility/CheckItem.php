@@ -112,7 +112,7 @@ class CheckItem {
    *
    * The initial delta related to option `Loading: slider`, the initial is not
    * lazyloaded, the rest are. Sometimes the initial delta is not always 0 as
-   * normally seen at slider option name: `initial slide` or `start`.
+   * normally seen at slider option name: `initialSlide` or `start`.
    *
    * Image URI might be NULL given rich media like Facebook, etc., no problem.
    * That is why this is called twice. Once to check, another to re-check.

@@ -110,7 +110,13 @@ class Check {
    * @todo remove some settings after sub-modules.
    */
   public static function container(array &$settings): void {
-    $blazies      = $settings['blazies'];
+    $blazies = $settings['blazies'];
+    $bundles = $blazies->get('field.target_bundles', []);
+
+    // @todo enable after xchecks, needed by formatters and views fields.
+    // if ($bundles) {
+    // return;
+    // }
     $ui           = $blazies->get('ui');
     $_loading     = $settings['loading'] ?? '';
     $loading      = $settings['loading'] = $_loading ?: 'lazy';
@@ -126,11 +132,10 @@ class Check {
     $is_static    = $is_preview || $is_amp || $is_sandboxed;
     $is_undata    = $is_static || $is_unloading;
     $is_nojs      = $is_unload || $is_undata;
-    $bundles      = $blazies->get('field.target_bundles', []);
     $is_audio     = $bundles && in_array('audio', $bundles);
     $is_video     = $bundles && in_array('video', $bundles);
-    $item_id      = $settings['item_id'] ?? $blazies->get('item.id', 'blazy');
-    $namespace    = $settings['namespace'] ?? $blazies->get('namespace', 'blazy');
+    $item_id      = $blazies->get('item.id', $settings['item_id'] ?? 'blazy');
+    $namespace    = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
     $is_resimage  = $blazies->is('resimage')
       || is_callable('responsive_image_get_mime_type');
 

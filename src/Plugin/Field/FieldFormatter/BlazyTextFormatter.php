@@ -31,12 +31,17 @@ class BlazyTextFormatter extends FormatterBase {
   /**
    * {@inheritdoc}
    */
-  protected $namespace = 'blazy';
+  protected static $namespace = 'blazy';
 
   /**
    * {@inheritdoc}
    */
-  protected $itemId = 'blazy';
+  protected static $itemId = 'content';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemPrefix = 'blazy';
 
   /**
    * {@inheritdoc}
@@ -80,15 +85,6 @@ class BlazyTextFormatter extends FormatterBase {
    * Build the grid text elements.
    */
   protected function buildElements(array &$build, $items, $langcode) {
-    $settings = $this->formatter->toHashtag($build);
-    $blazies  = $settings['blazies'];
-
-    $blazies->set('is.grid', TRUE)
-      ->set('is.unblazy', TRUE)
-      ->set('is.text', TRUE)
-      ->set('lazy', []);
-
-    // Since 2.17, match sub-modules `items` for easy swap later to DRY.
     foreach ($this->getElements($items) as $element) {
       $build['items'][] = $element;
     }
@@ -102,21 +98,19 @@ class BlazyTextFormatter extends FormatterBase {
     // @see \Drupal\filter\Element\ProcessedText::preRenderText()
     foreach ($items as $item) {
       $element = [];
+
       if ($item instanceof FieldItemInterface) {
         $class    = get_class($item);
         $property = $class::mainPropertyName();
-        $value    = $item->{$property};
 
-        if (!$value) {
-          continue;
+        if ($value = $item->{$property}) {
+          $element = [
+            '#type'     => 'processed_text',
+            '#text'     => $value,
+            '#format'   => $item->format ?? NULL,
+            '#langcode' => $item->getLangcode(),
+          ];
         }
-
-        $element = [
-          '#type'     => 'processed_text',
-          '#text'     => $value,
-          '#format'   => $item->format ?? NULL,
-          '#langcode' => $item->getLangcode(),
-        ];
       }
 
       yield $element;
@@ -136,6 +130,18 @@ class BlazyTextFormatter extends FormatterBase {
       'style'            => TRUE,
       'multiple'         => $this->isMultiple(),
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function preSettings(array &$settings, $langcode = NULL): void {
+    $blazies = $settings['blazies'];
+
+    $blazies->set('is.grid', TRUE)
+      ->set('is.unblazy', TRUE)
+      ->set('is.text', TRUE)
+      ->set('lazy', []);
   }
 
 }

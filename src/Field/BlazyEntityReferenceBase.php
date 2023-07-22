@@ -92,7 +92,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
           $links[] = $link->view($view_mode);
         }
       }
-      $element['caption']['link'] = $links;
+      $element[static::$captionId]['link'] = $links;
     }
 
     // Overlay, like slider or video over slider, if so configured.
@@ -100,7 +100,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
       // @todo remove after another check, if not needed down here.
       $denied = $this->formatter->denied($entity);
       $overlay = $entity->get($_overlay)->view($view_mode);
-      $element['caption']['overlay'] = $denied ?: $overlay;
+      $element[static::$captionId]['overlay'] = $denied ?: $overlay;
     }
   }
 

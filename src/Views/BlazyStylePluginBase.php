@@ -33,16 +33,15 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
 
     $settings = &$element['#settings'];
     $blazies  = $this->reset($settings);
-    $item_id  = $blazies->get('item.id') ?: 'box';
 
     $blazies->set('delta', $index);
 
     // Add main image fields if so configured.
     if (!empty($settings['image'])) {
       // Supports individual grid/box image style either inline IMG, or CSS.
-      $image             = $this->getImageRenderable($settings, $row, $index);
-      $element['#item']  = $this->getImageItem($image);
-      $element[$item_id] = $image['rendered'] ?? [];
+      $image                    = $this->getImageRenderable($settings, $row, $index);
+      $element['#item']         = $this->getImageItem($image);
+      $element[static::$itemId] = $image['rendered'] ?? [];
     }
 
     // Add layout field, may be a list field, or builtin layout options.
@@ -51,7 +50,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     }
 
     // Add caption fields if so configured.
-    $element['caption'] = $this->getCaption($index, $settings);
+    $element[static::$captionId] = $this->getCaption($index, $settings);
   }
 
 }

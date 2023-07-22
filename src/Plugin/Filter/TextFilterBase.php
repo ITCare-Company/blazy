@@ -21,21 +21,33 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
    * @var string
    * @see https://www.php.net/manual/en/reserved.keywords.php
    */
-  protected $namespace = 'blazy';
+  protected static $namespace = 'blazy';
+
+  /**
+   * The item identifier for content: content, slide, box, etc.
+   *
+   * @var string
+   */
+  protected static $itemId = 'content';
 
   /**
    * The item identifier for captions: .blazy__caption, .slide__caption, etc.
    *
    * @var string
    */
-  protected $itemId = 'blazy';
+  protected static $itemPrefix = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $captionId = 'caption';
 
   /**
    * The shortcode item identifier for grid, or slide, etc.: [item] or [slide].
    *
    * @var string
    */
-  protected $shortcode = 'item';
+  protected static $shortcode = 'item';
 
   /**
    * The app root.

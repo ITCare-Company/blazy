@@ -40,7 +40,11 @@ class BlazyAttribute {
     if ($lightbox) {
       $switch = str_replace('_', '-', $lightbox);
       $attributes['data-' . $switch . '-gallery'] = TRUE;
-      $classes[] = 'blazy--lightbox';
+
+      if ($blazies->is('lightbox')) {
+        $classes[] = 'blazy--lightbox';
+      }
+
       $classes[] = 'blazy--' . $switch;
 
       if ($extras = $blazies->data($lightbox)) {

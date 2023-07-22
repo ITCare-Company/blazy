@@ -48,8 +48,8 @@ class Sanitize {
   /**
    * Returns the sanitized attributes for user-defined (UGC Blazy Filter).
    *
-   * Currently only concerns about UCG, not TCG nor DGC.
-   *
+   * This is just scratching the surface. Only concerns about UCG. Not AGC, TCG
+   * nor DGC, who can always hack their own websites for fun, or profit.
    * When IMG and IFRAME are allowed for untrusted users, trojan horses are
    * welcome. Hence sanitize attributes relevant for BlazyFilter. The rest
    * should be taken care of by HTML filters before/ after Blazy. Blazy is not

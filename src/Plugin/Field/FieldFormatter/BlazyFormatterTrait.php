@@ -164,7 +164,7 @@ trait BlazyFormatterTrait {
   protected function getCommonFieldDefinition() {
     $field = $this->fieldDefinition;
     $settings = [
-      'namespace' => $this->namespace ?? 'blazy',
+      'namespace' => static::$namespace ?? 'blazy',
     ];
 
     // Exposes few basic formatter settings w/o use_field.

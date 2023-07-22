@@ -20,6 +20,33 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   }
 
   /**
+   * The module namespace.
+   *
+   * @var string
+   * @see https://www.php.net/manual/en/reserved.keywords.php
+   */
+  protected static $namespace = 'blazy';
+
+  /**
+   * The item id.
+   *
+   * @var string
+   */
+  protected static $itemId = 'slide';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemPrefix = 'slide';
+
+  /**
+   * The caption id.
+   *
+   * @var string
+   */
+  protected static $captionId = 'caption';
+
+  /**
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
@@ -73,7 +100,6 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   protected function buildElement(array &$build, $entity, $langcode) {
     $settings = $this->formatter->toHashtag($build);
     $blazies  = $settings['blazies'];
-    $item_id  = $blazies->get('item.id');
 
     // Sub-modules always flag `vanilla` as required, -- configurable, or not.
     if (!empty($settings['vanilla'])) {
@@ -83,12 +109,13 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
         '#delta'    => $blazies->get('delta', 0),
       ];
 
+      // @todo merge all these after sub-modules use theme_blazy() at/ by 3.x.
       if ($output = $this->blazyEntity->view($data)) {
         if ($blazies->get('namespace') == 'blazy') {
           $build['items'][] = $output;
         }
         else {
-          $build['items'][] = [$item_id => $output];
+          $build['items'][] = [static::$itemId => $output];
         }
       }
     }

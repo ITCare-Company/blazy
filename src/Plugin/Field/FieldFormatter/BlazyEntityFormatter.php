@@ -25,12 +25,22 @@ class BlazyEntityFormatter extends BlazyEntityVanillaBase {
   /**
    * {@inheritdoc}
    */
-  protected $namespace = 'blazy';
+  protected static $namespace = 'blazy';
 
   /**
    * {@inheritdoc}
    */
-  protected $itemId = 'blazy';
+  protected static $itemId = 'content';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemPrefix = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $captionId = 'captions';
 
   /**
    * {@inheritdoc}

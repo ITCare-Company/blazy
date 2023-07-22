@@ -2,8 +2,6 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Field\FieldItemListInterface;
-
 /**
  * Plugin for blazy media formatter.
  *
@@ -23,26 +21,24 @@ class BlazyMediaFormatter extends BlazyMediaFormatterBase {
   /**
    * {@inheritdoc}
    */
-  protected $namespace = 'blazy';
+  protected static $namespace = 'blazy';
 
   /**
    * {@inheritdoc}
    */
-  protected $itemId = 'blazy';
+  protected static $itemId = 'content';
 
   /**
    * {@inheritdoc}
    */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
-    $entities = $this->getEntitiesToView($items, $langcode);
+  protected static $itemPrefix = 'blazy';
 
-    // Early opt-out if the field is empty.
-    if (empty($entities)) {
-      return [];
-    }
-
-    return $this->commonViewElements($items, $langcode, $entities);
-  }
+  /**
+   * {@inheritdoc}
+   *
+   * @todo make it caption similar to sub-modules for easy 3.x migrations.
+   */
+  protected static $captionId = 'captions';
 
   /**
    * {@inheritdoc}

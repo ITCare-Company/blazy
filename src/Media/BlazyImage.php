@@ -615,13 +615,13 @@ class BlazyImage {
       $width  = $config['width'] ?? NULL;
       $height = $config['height'] ?? NULL;
     }
-    // A convenient API source:
+    // A convenient API source, must be original sizes:
     else {
       $fluid  = $config->is('fluid');
       $ratios = $config->get('css.ratio');
       $uri    = $uri ?: ($config->get('image.uri') ?: $config->get('first.uri'));
-      $width  = $config->get('image.width') ?: $config->get('first.width');
-      $height = $config->get('image.height') ?: $config->get('first.height');
+      $width  = $config->get('image.original.width') ?: $config->get('first.width');
+      $height = $config->get('image.original.height') ?: $config->get('first.height');
     }
 
     $dim = ['width' => $width, 'height' => $height];
@@ -633,8 +633,9 @@ class BlazyImage {
     self::toInt($dim, 'width', 'height');
 
     if ($fluid) {
-      $dim['ratios'] = $ratios;
-      $fluid = self::fluid($dim);
+      $info = $dim;
+      $info['ratios'] = $ratios;
+      $fluid = self::fluid($info);
     }
 
     // Keys here are hard-coded, so to be inherited by children as intended.

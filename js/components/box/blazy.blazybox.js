@@ -21,6 +21,7 @@
   var _visualyHidden = 'visually-hidden';
   var _ariaHidden = 'aria-hidden';
   var _sanitizer = $.sanitizer;
+  var _multimedia = $.multimedia || false;
 
   /**
    * Blazybox public methods.
@@ -66,8 +67,10 @@
 
       $.addClass(_doc.body, _isOpened);
 
-      // First, reset any (local) video to avoid multiple videos from playing.
-      $.pauseVideo();
+      // Reset any (local) video/ audio to avoid multiple elements from playing.
+      if (_multimedia) {
+        _multimedia.pause();
+      }
 
       me.check();
     },

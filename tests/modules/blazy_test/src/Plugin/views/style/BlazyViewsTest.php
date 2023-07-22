@@ -23,6 +23,26 @@ use Drupal\blazy\Views\BlazyStylePluginBase;
 class BlazyViewsTest extends BlazyStylePluginBase {
 
   /**
+   * {@inheritdoc}
+   */
+  protected static $namespace = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemId = 'box';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemPrefix = 'box';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $captionId = 'caption';
+
+  /**
    * Returns the blazy admin.
    */
   public function admin() {
@@ -105,19 +125,18 @@ class BlazyViewsTest extends BlazyStylePluginBase {
    * Returns blazy_test contents.
    */
   protected function buildElements(array $settings, $rows): \Generator {
-    $view    = $this->view;
-    $item_id = $this->itemId;
+    $view = $this->view;
 
     foreach ($rows as $index => $row) {
       $view->row_index = $index;
 
-      $box              = [];
-      $box[$item_id]    = [];
+      $box = [];
+      $box[static::$itemId] = [];
       $box['#settings'] = $settings;
 
       // Use Vanilla if so configured.
       if (!empty($settings['vanilla'])) {
-        $box[$item_id] = $view->rowPlugin->render($row);
+        $box[static::$itemId] = $view->rowPlugin->render($row);
       }
       else {
         // Build individual row/ element contents.

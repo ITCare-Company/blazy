@@ -20,6 +20,7 @@
   var _isPlaying = 'is-playing';
   var _dataIFrameTitle = 'data-' + _iFrame + '-title';
   var _dataUrl = 'data-url';
+  var _multimedia = $.multimedia || false;
 
   /**
    * Blazy media utility functions.
@@ -70,8 +71,10 @@
       url = $.attr(target, _dataUrl);
       title = $.attr(target, _dataIFrameTitle);
 
-      // First, reset any (local) video to avoid multiple videos from playing.
-      $.pauseVideo();
+      // Reset any (local) video/ audio to avoid multiple elements from playing.
+      if (_multimedia) {
+        _multimedia.pause();
+      }
 
       // Remove other playing remote videos.
       if ($.isElm(playing)) {

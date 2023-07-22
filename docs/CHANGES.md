@@ -3,8 +3,9 @@
 ## <a name="changes"></a>NOTABLE CHANGES  
 Always check out release notes, if any issues with the latest changes.
 
-* _Blazy 2.17_, 2023/07/18:
+* _Blazy 2.17_, 2023/07/23:
    + Cold fixes for few minor regressions and self organizations.
+   + **New features**: audio with BG cover, soundcloud, smarter Fluid ratio.
    + **Breaking change**: changed `settings` to `#settings`, etc. Check out CR:
      [Blazy ecosystem breaking change](https://www.drupal.org/node/3375158).
    + Added additional config options at Blazy UI. Be sure to check out for

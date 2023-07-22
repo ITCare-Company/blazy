@@ -35,6 +35,33 @@ class BlazyOEmbedFormatter extends FormatterBase {
   use BlazyFormatterTrait;
 
   /**
+   * The module namespace.
+   *
+   * @var string
+   * @see https://www.php.net/manual/en/reserved.keywords.php
+   */
+  protected static $namespace = 'blazy';
+
+  /**
+   * The item id: blazy, slide, box, etc.
+   *
+   * @var string
+   */
+  protected static $itemId = 'content';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemPrefix = 'blazy';
+
+  /**
+   * The caption id.
+   *
+   * @var string
+   */
+  protected static $captionId = 'captions';
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -90,57 +117,68 @@ class BlazyOEmbedFormatter extends FormatterBase {
   }
 
   /**
-   * Build the blazy elements.
+   * Provides the blazy elements.
    */
   protected function buildElements(array &$build, $items, $langcode) {
+    foreach ($this->getElements($build, $items) as $element) {
+      $build['items'][] = $element;
+    }
+  }
+
+  /**
+   * Generates the Blazy elements.
+   */
+  protected function getElements(array $build, $items): \Generator {
     $settings   = $this->formatter->toHashtag($build);
     $field_name = $this->fieldDefinition->getName();
     $entity     = $items->getParent()->getEntity();
 
     foreach ($items as $delta => $item) {
-      if (!$item instanceof FieldItemInterface) {
-        break;
+      $element = [];
+
+      if ($item instanceof FieldItemInterface) {
+        $class    = get_class($item);
+        $property = $class::mainPropertyName();
+        $sets     = $settings;
+
+        if ($value = $item->{$property}) {
+          $blazies = $sets['blazies']->reset($sets);
+          $blazies->set('delta', $delta)
+            ->set('media.input_url', $value);
+
+          $data = [
+            '#delta'    => $delta,
+            '#item'     => NULL,
+            '#settings' => $sets,
+          ];
+
+          if ($entity->getEntityTypeId() == 'media'
+                && $entity->hasField($field_name)
+                && $entity->get($field_name)->getString() == $value) {
+            // We are on the right media entity.
+            $media = $entity;
+          }
+          else {
+            // Attempts to fetch media entity.
+            $media = $this->formatter
+              ->loadByProperties([
+                $field_name => $value,
+              ], 'media', TRUE);
+            $media = reset($media);
+          }
+
+          if ($media) {
+            $data['#entity'] = $media;
+
+            $this->blazyOembed->build($data);
+          }
+
+          // Media OEmbed with lazyLoad and lightbox supports.
+          $element = $this->formatter->getBlazy($data);
+        }
       }
 
-      $class    = get_class($item);
-      $property = $class::mainPropertyName();
-      $value    = $item->{$property};
-      $sets     = $settings;
-
-      if (!$value) {
-        continue;
-      }
-
-      $blazies = $sets['blazies']->reset($sets);
-      $blazies->set('delta', $delta)
-        ->set('media.input_url', $value);
-
-      $data = ['#item' => NULL, '#settings' => $sets];
-
-      if ($entity->getEntityTypeId() == 'media'
-            && $entity->hasField($field_name)
-            && $entity->get($field_name)->getString() == $value) {
-        // We are on the right media entity.
-        $media = $entity;
-      }
-      else {
-        // Attempts to fetch media entity.
-        $media = $this->formatter
-          ->loadByProperties([
-            $field_name => $value,
-          ], 'media', TRUE);
-        $media = reset($media);
-      }
-
-      if ($media) {
-        $data['#entity'] = $media;
-        $data['#delta']  = $delta;
-
-        $this->blazyOembed->build($data);
-      }
-
-      // Media OEmbed with lazyLoad and lightbox supports.
-      $build[$delta] = $this->formatter->getBlazy($data);
+      yield $element;
     }
   }
 

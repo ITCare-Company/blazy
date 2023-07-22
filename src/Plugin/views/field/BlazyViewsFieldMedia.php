@@ -4,6 +4,7 @@ namespace Drupal\blazy\Plugin\views\field;
 
 use Drupal\media\Entity\Media;
 use Drupal\views\ResultRow;
+use Drupal\blazy\Media\BlazyMedia;
 
 /**
  * Defines a custom field that renders a preview of a media.
@@ -27,7 +28,13 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
       $data['#entity']   = $entity;
       $data['#settings'] = $this->mergedSettings = $settings;
       $data['#delta']    = $values->index;
-      $data['fallback']  = $entity->label();
+
+      // Populate media metadata earlier for their relevant libraries.
+      // Need field.target_bundles, since this views field has none.
+      // @todo remove once formatters and views fields are synced downstream.
+      BlazyMedia::prepare($data);
+
+      $data['fallback'] = $entity->label();
 
       // Pass results to \Drupal\blazy\BlazyEntity.
       return $this->blazyEntity->build($data);

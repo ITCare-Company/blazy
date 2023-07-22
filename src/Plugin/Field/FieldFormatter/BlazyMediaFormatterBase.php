@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyEntityMediaBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -35,6 +36,20 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityMediaBase {
    */
   public static function isApplicable(FieldDefinitionInterface $field_definition) {
     return $field_definition->getFieldStorageDefinition()->getSetting('target_type') == 'media';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function viewElements(FieldItemListInterface $items, $langcode) {
+    $entities = $this->getEntitiesToView($items, $langcode);
+
+    // Early opt-out if the field is empty.
+    if (empty($entities)) {
+      return [];
+    }
+
+    return $this->commonViewElements($items, $langcode, $entities);
   }
 
 }

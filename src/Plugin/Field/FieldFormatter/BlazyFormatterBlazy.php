@@ -2,10 +2,12 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Field\FieldItemListInterface;
-
 /**
- * Plugin implementation of the `Blazy File` or `Blazy Image` for Blazy only.
+ * Plugin implementation of the `Blazy File` or `Blazy Image`.
+ *
+ * Since 2.17, sub-modules can re-use this if similar to ::buildElements():
+ * \Drupal\gridstack\Plugin\Field\FieldFormatter\GridStackFileFormatterBase
+ * \Drupal\mason\Plugin\Field\FieldFormatter\MasonFileFormatterBase.
  *
  * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter
  * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyImageFormatter
@@ -14,34 +16,25 @@ class BlazyFormatterBlazy extends BlazyFileFormatterBase {
 
   /**
    * {@inheritdoc}
+   */
+  protected static $namespace = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemId = 'content';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemPrefix = 'blazy';
+
+  /**
+   * {@inheritdoc}
    *
-   * @see https://www.php.net/manual/en/reserved.keywords.php
+   * @todo make it caption similar to sub-modules for easy 3.x migrations.
    */
-  protected $namespace = 'blazy';
-
-  /**
-   * {@inheritdoc}
-   */
-  protected $itemId = 'blazy';
-
-  /**
-   * {@inheritdoc}
-   */
-  protected $captionId = 'captions';
-
-  /**
-   * {@inheritdoc}
-   */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
-    $files = $this->getEntitiesToView($items, $langcode);
-
-    // Early opt-out if the field is empty.
-    if (empty($files)) {
-      return [];
-    }
-
-    return $this->commonViewElements($items, $langcode, $files);
-  }
+  protected static $captionId = 'captions';
 
   /**
    * {@inheritdoc}

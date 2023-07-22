@@ -1358,8 +1358,7 @@
     // Assume selector is an array-like element unless a string.
     var elements = toArray(selector);
     if (isStr(selector)) {
-      var check = ctx.querySelector(selector);
-      elements = isNull(check) ? [] : ctx.querySelectorAll(selector);
+      elements = ctx.querySelectorAll(selector);
     }
 
     // Ensures an array is returned and not a NodeList or an Array-like object.
@@ -1707,35 +1706,6 @@
       img.onerror = reject();
     });
   };
-
-  /**
-   * Pause a video element.
-   *
-   * @param {Document|Element} ctx
-   *   An element to use as context for querySelectorAll.
-   *
-   * @return {Object}
-   *   The current dBlazy collection object.
-   */
-  function pauseVideo(ctx) {
-    var els = findAll(ctx, 'video');
-    var chainCallback = function (el) {
-      if (isElm(el)) {
-        var playing = !!(el.currentTime > 0
-          && !el.paused
-          && !el.ended
-          && el.readyState > 2);
-
-        if (playing) {
-          el.pause();
-        }
-      }
-    };
-
-    return chain.call(els, chainCallback);
-  }
-
-  db.pauseVideo = pauseVideo;
 
   /**
    * A simple wrapper to delay callback function, taken out of blazy library.
