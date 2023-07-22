@@ -32,6 +32,7 @@ class BlazyInternal {
   public static function prepared(array &$attributes, array &$item_attributes, array &$settings, $item = NULL): void {
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
+    // @todo move it up, too late here for thumbnails, audio, video, etc.
     BlazyImage::prepare($settings, $item);
 
     // Build thumbnail and optional placeholder based on thumbnail.

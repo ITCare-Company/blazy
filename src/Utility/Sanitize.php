@@ -71,7 +71,7 @@ class Sanitize {
     $output = [];
 
     if (empty($attributes)) {
-      return $attributes;
+      return $output;
     }
 
     foreach ($attributes as $key => $value) {

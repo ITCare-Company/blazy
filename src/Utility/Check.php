@@ -177,6 +177,7 @@ class Check {
       ->set('css.ratio', BlazyDefault::RATIO)
       ->set('use.dataset', $is_bg || $is_video)
       ->set('use.loader', !$is_nojs)
+      ->set('use.svg_dimensions', TRUE)
       ->set('was.container', TRUE);
   }
 

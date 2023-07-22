@@ -161,9 +161,11 @@ class CheckItem {
 
     // Checks images which cannot have image styles without extra legs.
     if ($uri) {
-      BlazyImage::isUnstyled($settings, $uri, TRUE);
+      BlazyImage::checkUnstyled($settings, $uri, TRUE);
     }
 
+    // Required by thumbnails here, but conflict with audio thumbnail.
+    // BlazyImage::prepare($settings, $item);.
     // @todo remove after sub-modules.
     // $settings['delta'] = $delta;
     // $settings['uri'] = $uri;

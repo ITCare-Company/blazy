@@ -260,9 +260,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       }
     }
 
-    // Marks a hires if valid and so configured.
+    // Marks a hires if valid and so configured, normally field_media_image.
     if (BlazyImage::isValidItem($build)) {
-      $blazies->set('is.hires', !empty($settings['image']));
+      $blazies->set('is.hires', !empty($stage));
     }
     else {
       // Failsafe, BlazyFilter/ VEF without file upload [data-entity-uuid].
@@ -286,11 +286,11 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $media    = BlazyMedia::prepare($build);
     $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
+    $input    = $blazies->get('media.value');
+    $source   = $blazies->get('media.source');
 
     // @todo support local video/ audio file, and other media sources.
     // @todo check for Resource::TYPE_PHOTO, Resource::TYPE_RICH, etc.
-    $input = $media->getSource()->getSourceFieldValue($media);
-    $source = $blazies->get('media.source');
     switch ($source) {
       case 'oembed':
       case 'oembed:video':
@@ -316,6 +316,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         // Supports other Media entities: Facebook, Instagram, local video, etc.
         // Attempts to enter the unknown here fearlessly.
         if ($result = BlazyMedia::view($media, $settings)) {
+          // Iframe, like image, can be handled by theme_blazy(). The rest
+          // that Blazy doesn't understand should be respected as is as content.
           if (!$blazies->is('iframeable')) {
             $build['content'][] = $result;
           }

@@ -143,10 +143,9 @@ class BlazyResponsiveImage {
       ->set('resimage.ids', array_values($names));
 
     // Only needed the last one.
-    if (!$blazies->get('image.width')) {
-      $blazies->set('image', end($dimensions), TRUE);
-    }
-
+    // if (!$blazies->get('image.width')) {.
+    $blazies->set('image', end($dimensions), TRUE);
+    // }
     // Currently only needed by Preload.
     if ($initial && $resimage && !empty($settings['preload'])) {
       self::sources($settings, $resimage);

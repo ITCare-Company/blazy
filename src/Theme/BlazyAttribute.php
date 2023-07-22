@@ -299,6 +299,56 @@ class BlazyAttribute {
   }
 
   /**
+   * Return the image alt and title, also accounts for multimedia.
+   */
+  public static function altTitle($blazies, array $attributes = []): array {
+    $title = $blazies->get('image.title') ?: $blazies->get('media.label');
+    $title = $attributes['title'] ?? $title;
+    $alt   = $attributes['alt'] ?? $blazies->get('image.alt');
+
+    // $extra_attrs = $blazies->get('item.safe_attributes', []);
+    // Respects hand-coded image attributes, and accounts for UGC.
+    // Updates $title whether for audio/ video, or just image.
+    // Might be abused to use HTML, fine for lightboxes, but not attributes.
+    // This should make both parties happier ever after, sort of.
+    if ($title) {
+      $title = Html::escape(strip_tags($title));
+    }
+
+    if ($alt) {
+      $alt = Html::escape(strip_tags($alt));
+    }
+
+    // Overrides title if to be used as a placeholder for lazyloaded video.
+    if ($blazies->is('multimedia') && $title) {
+      $bundle = $blazies->get('media.bundle');
+      $bundle = str_replace('remote_', '', $bundle);
+      $bundle = str_replace('_', ' ', $bundle);
+
+      // Prioritize editable user inputs rather than external sites'.
+      $blazies->set('media.label', $title);
+
+      $translation_replacements = ['@bundle' => $bundle, '@label' => $title];
+      $title = self::mediaTitle($translation_replacements);
+
+      if ($alt) {
+        $translation_replacements['@alt'] = $alt;
+        $alt = new TranslatableMarkup('Preview image for the @bundle "@label" - @alt.', $translation_replacements);
+      }
+      else {
+        $alt = $title;
+      }
+    }
+
+    $blazies->set('image.alt', $alt);
+    if ($title) {
+      $blazies->set('image.title', $title);
+    }
+
+    return ['alt' => $alt ?: '', 'title' => $title];
+  }
+
+  /**
    * Provide common attributes for IMG, IFRAME, VIDEO, etc. elements.
    */
   private static function common(array &$attributes, $blazies): void {
@@ -320,18 +370,9 @@ class BlazyAttribute {
     $attributes['data-b-bg'] = Json::encode($bgs);
     $url = $blazies->get('image.url');
 
-    // If using BG, store it in the permanent container.
-    if ($blazies->is('multimedia')) {
-      $title = $blazies->get('image.title') ?: $blazies->get('media.label');
-      if (!$title) {
-        $title = $blazies->get('image.alt');
-      }
-
-      if ($title) {
-        $title = strip_tags($title);
-        $translation_replacements = ['@label' => Html::escape($title)];
-        $attributes['title'] = self::videoTitle($translation_replacements);
-      }
+    // If using BG, store title in the permanent container.
+    if ($blazies->is('multimedia') && $title = self::altTitle($blazies)['title']) {
+      $attributes['title'] = $title;
     }
 
     if ($blazies->is('static') && $url) {
@@ -348,55 +389,13 @@ class BlazyAttribute {
     $image      = &$variables['image'];
     $attributes = &$variables['item_attributes'];
     $blazies    = $settings['blazies'];
-    $embed_url  = $blazies->get('media.embed_url');
-    $width      = $blazies->get('image.width');
-    $title      = $blazies->get('image.title') ?: $blazies->get('media.label');
-    $title      = $attributes['title'] ?? $title;
-    $alt        = $attributes['alt'] ?? NULL;
-    $alt        = $alt ?: $blazies->get('image.alt');
 
-    // $extra_attrs = $blazies->get('item.safe_attributes', []);
-    // Updates $title whether for video, or just image, and accounts for UGC.
-    if ($title) {
-      // Might be abused to use HTML, fine for lightboxes, but not attributes.
-      // This should make both parties happier ever after, sort of.
-      $title = Html::escape(strip_tags($title));
+    // Provides image alt and title, and also accounts for multimedia.
+    $result = self::altTitle($blazies, $attributes);
+    $attributes['alt'] = $result['alt'];
+
+    if ($title = $result['title']) {
       $attributes['title'] = $title;
-      $blazies->set('image.title', $title);
-    }
-
-    // Respects hand-coded image attributes, and accounts for UGC.
-    if ($alt) {
-      // Might be abused to use HTML, fine for lightboxes, but not attributes.
-      // This should make both parties happier ever after, sort of.
-      $alt = Html::escape(strip_tags($alt));
-    }
-
-    $attributes['alt'] = $alt ?: '';
-    $blazies->set('image.alt', $alt);
-
-    // Only output dimensions for non-svg. Respects hand-coded image attributes.
-    // Do not pass it to $attributes to also respect both (Responsive) image.
-    if (!isset($attributes['width']) && !$blazies->is('unstyled')) {
-      $image['#height'] = $blazies->get('image.height');
-      $image['#width'] = $width;
-    }
-
-    // Overrides title if to be used as a placeholder for lazyloaded video.
-    if ($embed_url && $title) {
-      // Prioritize editable user inputs rather than external sites'.
-      $blazies->set('media.label', $title);
-
-      $translation_replacements = ['@label' => $title];
-      $attributes['title'] = self::videoTitle($translation_replacements);
-
-      if ($alt) {
-        $translation_replacements['@alt'] = $alt;
-        $attributes['alt'] = new TranslatableMarkup('Preview image for the video "@label" - @alt.', $translation_replacements);
-      }
-      else {
-        $attributes['alt'] = $attributes['title'];
-      }
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode.
@@ -405,6 +404,14 @@ class BlazyAttribute {
     // Preserves UUID for sub-module lookups, relevant for BlazyFilter.
     if ($uuid = $blazies->get('entity.uuid')) {
       $attributes['data-entity-uuid'] = $uuid;
+    }
+
+    // Only output dimensions for non-svg. Respects hand-coded image attributes.
+    // Do not pass it to $attributes to also respect both (Responsive) image.
+    // Also supports svg dimensions, if any.
+    if (!isset($attributes['width']) && $width = $blazies->get('image.width')) {
+      $image['#height'] = $blazies->get('image.height');
+      $image['#width']  = $width;
     }
 
     // Apply common shared attributes.
@@ -472,8 +479,9 @@ class BlazyAttribute {
    */
   private static function buildNoscriptImage(array &$variables): void {
     $settings = $variables['settings'];
-    $blazies = $settings['blazies'];
+    $blazies  = $settings['blazies'];
     $noscript = $variables['image'];
+
     $noscript['#uri'] = $blazies->get('resimage.id')
       ? $blazies->get('image.uri')
       : $blazies->get('image.url');
@@ -534,8 +542,8 @@ class BlazyAttribute {
   /**
    * Return the image title.
    */
-  private static function videoTitle($translation_replacements): TranslatableMarkup {
-    return new TranslatableMarkup('Preview image for the video "@label".', $translation_replacements);
+  private static function mediaTitle($translation_replacements): TranslatableMarkup {
+    return new TranslatableMarkup('Preview image for the @bundle "@label".', $translation_replacements);
   }
 
   /**

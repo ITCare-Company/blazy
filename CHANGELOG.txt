@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-07-22
+------------------------------
+- Added supports for SVG image dimensions.
+
 Blazy 8.x-2.0-dev, 2023-07-21
 ------------------------------
 - Added supports for local audio with background cover via settings.image.

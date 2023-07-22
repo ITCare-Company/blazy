@@ -62,8 +62,8 @@ interface BlazyOEmbedInterface {
    * Checks the given input URL.
    *
    * @param array $settings
-   *   The settings to modify.
-   * @param array $input
+   *   The settings being modified.
+   * @param string $input
    *   The input to modify.
    *
    * @return string
@@ -74,12 +74,12 @@ interface BlazyOEmbedInterface {
   /**
    * Converts input URL into embed URL.
    *
-   * @param \Drupal\blazy\BlazySettings $blazies
-   *   The blazies object.
+   * @param object $blazies
+   *   The \Drupal\blazy\BlazySettings object.
    * @param string $input
    *   The input to modify.
    * @param array $autoplay
-   *   The input to modify.
+   *   The optional autoplay.
    *
    * @return string
    *   The media oembed url.

@@ -108,8 +108,9 @@
   {% block blazy_media %}
     <div{{ attributes.addClass(classes) }}>
       {{- preface -}}
-      {{- content -}}
       {{- image -}}
+      {# Audio above image in case image is not a background. #}
+      {{- content -}}
       {# Above image, to minimize CSS works. #}
       {{- noscript -}}
       {{- overlay -}}

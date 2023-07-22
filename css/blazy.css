@@ -106,6 +106,10 @@ absolute position and fixed dimensions. */
   object-fit: cover;
 }
 
+.media--ratio audio.media__element {
+  z-index: 1;
+}
+
 .animated img,
 .b-bg.is-b-animated {
   opacity: 1;

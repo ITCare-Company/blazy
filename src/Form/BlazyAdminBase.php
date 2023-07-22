@@ -881,7 +881,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * Returns escaped options.
    */
-  protected function toOptions(array $data) {
+  protected function toOptions(array $data): array {
     return $this->blazyManager->toOptions($data);
   }
 
@@ -917,7 +917,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * @return array
    *   A corresponding form API state.
    */
-  protected function getState($state, $scopes): array {
+  protected function getState($state, BlazySettings $scopes): array {
     $lightboxes = [];
 
     // @todo remove the second after complete migrations.

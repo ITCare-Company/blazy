@@ -328,8 +328,10 @@ class BlazyImage {
    * Disable image style if so configured.
    *
    * Extensions without image styles: animated GIF, APNG, SVG, etc.
+   *
+   * @requires CheckItem::essentials()
    */
-  public static function isUnstyled(array &$settings, $uri, $first_time = FALSE): bool {
+  public static function checkUnstyled(array &$settings, $uri, $first_time = FALSE): bool {
     $blazies = $settings['blazies'];
     $ext = pathinfo($uri, PATHINFO_EXTENSION);
     $external = UrlHelper::isExternal($uri);
@@ -388,7 +390,7 @@ class BlazyImage {
    * @param string $uri
    *   The image uri.
    *
-   * @requires self::unstyled()
+   * @requires self::checkUnstyled()
    */
   public static function prepare(array &$settings, $item = NULL, $uri = NULL): void {
     // @fixme figure out why another reset is required here to get correct item,
@@ -417,13 +419,14 @@ class BlazyImage {
 
     // Define styles regardless unstyled so to have correct dimensions at
     // lightboxes, thumbnails, etc.
-    self::styleData($settings, $uri);
+    if ($uri) {
+      self::styleData($settings, $uri);
+    }
 
     // SVG, APNG, etc. should not use image_style as they don't convert.
-    self::unstyled($settings);
-
+    // @todo remove self::unstyled($settings);
     // Provides image url based on the given settings.
-    if ($style) {
+    if ($style && !$blazies->is('unstyled')) {
       $blazies->set('cache.metadata.tags', $style->getCacheTags(), TRUE);
 
       // Only re-calculate dimensions if not cropped, nor already set.
@@ -457,7 +460,9 @@ class BlazyImage {
    * or when preload option is enabled, unless enforced in the far future.
    */
   public static function styleData(array &$settings, $uri): void {
-    $blazies = $settings['blazies'];
+    $blazies  = $settings['blazies'];
+    $unstyled = $blazies->is('unstyled');
+
     foreach (BlazyDefault::imageStyles() as $key) {
       // @todo re-enable the skip if any issues with Responsive image.
       // The skip limits SVG dimension checks, ratio, url, etc.
@@ -468,10 +473,43 @@ class BlazyImage {
         $data = self::transformDimensions($style, $blazies, $uri);
         $blazies->set($key, $data, TRUE);
 
-        if ($uri) {
-          $url = self::url($settings, $style, $uri);
-          $blazies->set($key . '.url', $url);
+        $url = self::url($settings, $style, $uri);
+        $blazies->set($key . '.url', $url);
+      }
+    }
+
+    // ResponsiveImage is the most temperamental module. Unlike plain old Image,
+    // it explodes when the image is missing as much as when fed wrong URI, etc.
+    // Do not let SVG alike mess up with ResponsiveImage, else fatal.
+    if ($style = BlazyResponsiveImage::toStyle($settings, $unstyled)) {
+      $blazies->set('resimage.style', $style);
+
+      // Might be set via BlazyFilter, but not enough data passed.
+      $multiple = $blazies->is('multistyle');
+      if (!$blazies->get('resimage.id') || $multiple) {
+        BlazyResponsiveImage::define($blazies, $style);
+      }
+
+      // We'll bail out internally if already set once at container level.
+      BlazyResponsiveImage::dimensions($settings, $style, FALSE);
+    }
+
+    // Checks SVG dimensions, if any.
+    if (BlazyFile::isValidUri($uri) && $blazies->get('image.extension') == 'svg') {
+      if ($blazies->use('svg_dimensions')) {
+        $svg = simplexml_load_file($uri);
+        if ($svg && isset($svg['viewBox'])) {
+          [,, $width, $height] = array_map('trim', explode(' ', $svg['viewBox']));
+
+          if ($width && $height) {
+            $blazies->set('image.width', ceil($width))
+              ->set('image.height', ceil($height));
+          }
         }
+      }
+      else {
+        $blazies->set('image.width', NULL)
+          ->set('image.height', NULL);
       }
     }
   }
@@ -568,22 +606,15 @@ class BlazyImage {
     }
 
     $unstyled = $blazies->is('unstyled');
-    $style    = $settings['thumbnail_style'] ?? NULL;
+    $style    = $blazies->get('thumbnail.id') ?: $settings['thumbnail_style'] ?? NULL;
     $alt      = $blazies->get('image.alt');
-    $valid    = BlazyFile::isValidUri($uri);
-    $width    = $blazies->get('thumbnail.width', 1);
+    $valid    = $blazies->get('image.valid') ?: BlazyFile::isValidUri($uri);
 
     // Thumbnails can use image styles, except for SVG for now.
-    // @todo check for any modules which support SVG image styles, and
-    // disable this check if present, leaving it for external URL + data URI.
+    // @todo check for any modules (ImageMagick) which convert SVG to image,
+    // and remove this check if present, leaving it for external URL + data URI.
     if ($valid && $blazies->get('image.extension') != 'svg') {
       $unstyled = FALSE;
-    }
-
-    $dimensions = [];
-    if ($unstyled && $width > 1) {
-      $dimensions['#width']  = $width;
-      $dimensions['#height'] = $blazies->get('thumbnail.height');
     }
 
     return [
@@ -592,7 +623,7 @@ class BlazyImage {
       '#uri'        => $valid ? $uri : UrlHelper::stripDangerousProtocols($uri),
       '#item'       => $item,
       '#alt'        => $alt ? Html::escape(strip_tags($alt)) : '',
-    ] + $dimensions;
+    ];
   }
 
   /**
@@ -731,46 +762,6 @@ class BlazyImage {
   private static function toInt(array &$data, $width, $height): void {
     $data[$width] = empty($data[$width]) ? NULL : (int) $data[$width];
     $data[$height] = empty($data[$height]) ? NULL : (int) $data[$height];
-  }
-
-  /**
-   * Checks if an extension should not use image style: apng svg gif, etc.
-   *
-   * @requires CheckItem::essentials(), CheckItem::multimedia()
-   */
-  private static function unstyled(array &$settings) {
-    $blazies = $settings['blazies'];
-    $unstyled = $blazies->is('unstyled');
-
-    // Disable image style if so configured.
-    // Extensions without image styles: animated GIF, APNG, SVG, etc.
-    // Do this downstream, and only these, so that at least dimensions are set.
-    // Do not nullify thumbnail, width, height, id for other useful purposes,
-    // e.g.: animated GIF can still have thumbnails, and still need dimensions.
-    if ($unstyled) {
-      $images = ['box', 'box_media', 'image', 'responsive_image'];
-      foreach ($images as $key) {
-        $settings[$key . '_style'] = '';
-        $blazies->set($key . '.style', NULL);
-      }
-    }
-    // ResponsiveImage is the most temperamental module. Unlike plain old Image,
-    // it explodes when the image is missing as much as when fed wrong URI, etc.
-    // Do not let SVG alike mess up with ResponsiveImage, else fatal.
-    else {
-      if ($style = BlazyResponsiveImage::toStyle($settings, $unstyled)) {
-        $blazies->set('resimage.style', $style);
-
-        // Might be set via BlazyFilter, but not enough data passed.
-        $multiple = $blazies->is('multistyle');
-        if (!$blazies->get('resimage.id') || $multiple) {
-          BlazyResponsiveImage::define($blazies, $style);
-        }
-
-        // We'll bail out internally if already set once at container level.
-        BlazyResponsiveImage::dimensions($settings, $style, FALSE);
-      }
-    }
   }
 
   /**

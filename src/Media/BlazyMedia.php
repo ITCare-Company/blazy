@@ -120,6 +120,7 @@ class BlazyMedia {
       'source_field' => $source->getConfiguration()['source_field'],
       'thumbnail'    => $uri,
       'type'         => $videos ? 'video' : $source_id,
+      'value'        => $source->getSourceFieldValue($media),
       'view_mode'    => $view_mode ?: 'default',
     ] + $info['data'];
 
