@@ -33,16 +33,18 @@ interface BlazyEntityInterface {
    * Build image/video preview either using theme_blazy(), or view builder.
    *
    * @param array $data
-   *   An array of data containing settings, image item, entity, and fallback.
-   * @param object $entity
-   *   The media, else file entity to be associated to media.
-   * @param string $fallback
-   *   The deprecated fallback string such as file name or entity label.
+   *   The data containing:
+   *     - #access, if already checked upstream, otherwise leave it undefined.
+   *     - #entity, media, file entity, etc. to be associated to media.
+   *     - #item, the ImageItem or fake one for video/audio cover, etc.
+   *     - #settings, with view_mode, and anything else to work with, depending
+   *       whether to have vanilla, or selective/ fieldable renderable array.
+   *     - fallback, when all fails, probably just entity label.
    *
    * @return array
    *   The renderable array of theme_blazy(), or view builder, else empty array.
    */
-  public function build(array $data, $entity = NULL, $fallback = ''): array;
+  public function build(array $data): array;
 
   /**
    * Prepare entity once.
@@ -58,16 +60,16 @@ interface BlazyEntityInterface {
   /**
    * Returns the entity view, if available.
    *
-   * @param object $entity
-   *   The entity being rendered.
-   * @param array $settings
-   *   The settings containing view_mode.
-   * @param string $fallback
-   *   The fallback content when all fails, probably just entity label.
+   * @param array $data
+   *   The data containing:
+   *     - #access, if already checked upstream, otherwise leave it undefined.
+   *     - #entity, the media, else file entity, to be associated to media.
+   *     - #settings, with view_mode, and any/nothing else.
+   *     - fallback, when all fails, probably just entity label.
    *
    * @return array
    *   The renderable array of the view builder, or empty if not applicable.
    */
-  public function view($entity, array $settings = [], $fallback = ''): array;
+  public function view(array $data): array;
 
 }

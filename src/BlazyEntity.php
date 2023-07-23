@@ -3,7 +3,9 @@
 namespace Drupal\blazy;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\media\MediaInterface;
 use Drupal\blazy\Field\BlazyField;
+use Drupal\blazy\Media\BlazyMedia;
 use Drupal\blazy\Media\BlazyOEmbedInterface;
 use Drupal\blazy\Utility\CheckItem;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -63,34 +65,38 @@ class BlazyEntity implements BlazyEntityInterface {
 
   /**
    * {@inheritdoc}
-   *
-   * @todo make it single param after sub-modules for easy updates.
    */
-  public function build(array $data, $entity = NULL, $fallback = ''): array {
-    // Using hashed key to avoid render error with BVEF due to out of sync.
-    // @todo remove the second after migrations at/by 3.x.
+  public function build(array $data): array {
     $manager = $this->blazyManager;
     $manager->hashtag($data);
 
-    $entity   = $data['#entity'] ?? $entity;
-    $fallback = $data['fallback'] ?? $fallback;
+    $access   = $data['#access'] ?? FALSE;
+    $entity   = $data['#entity'] ?? NULL;
     $settings = &$data['#settings'];
 
     if (!$entity instanceof EntityInterface) {
       return [];
     }
 
-    if ($denied = $manager->denied($entity)) {
+    if (!$access && $denied = $manager->denied($entity)) {
       return $denied;
     }
 
     // @todo remove $settings after sub-modules: gridstack, slick_browser.
+    $data['#access'] = TRUE;
     $delta = $data['#delta'] ?? ($settings['delta'] ?? -1);
 
+    // Extract media data with translated one, dup required by self::prepare().
+    if ($entity instanceof MediaInterface) {
+      $entity = BlazyMedia::prepare($data);
+    }
+
+    // Build the Media item.
+    // No joy here: $this->oembed->build($data);
     // Prepare container settings.
     // This class was designed for a single entity, not multiple.
     // Call this method at the container level if multiple.
-    // @todo re-arrange, this needs media metadata from ::oembed() below
+    // @todo re-arrange, this needs media metadata from ::oembed() below.
     $this->prepare($data);
 
     // Individual entity settings.
@@ -104,16 +110,7 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // Build the Media item.
     $this->oembed->build($data);
-    // $settings = $manager->toHashtag($data);
     $blazies = $settings['blazies'];
-
-    // @todo remove for $data after single param implemented.
-    $view = [
-      '#entity'   => $entity,
-      '#settings' => $settings,
-      '#access'   => TRUE,
-      'fallback'  => $fallback,
-    ];
 
     // Only pass to Blazy for known entities related to File or Media.
     // @todo move it to BlazyMedia::build() after being a non-static at/by 3.x.
@@ -121,7 +118,7 @@ class BlazyEntity implements BlazyEntityInterface {
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
       $item = $manager->toHashtag($data, 'item', NULL);
       if (!$item) {
-        $data['content'][] = $this->view($view);
+        $data['content'][] = $this->view($data);
       }
 
       // Pass it to Blazy for consistent markups.
@@ -130,14 +127,13 @@ class BlazyEntity implements BlazyEntityInterface {
 
       // Allows top level elements to load Blazy once rather than per field.
       // This is still here for non-supported Views style plugins, etc.
-      $detached = $blazies->is('detached') ?: $settings['_detached'] ?? FALSE;
-      if (!$detached) {
+      if (!$blazies->is('detached')) {
         $load = $manager->attach($settings);
         $build['#attached'] = $manager->merge($load, $build, '#attached');
       }
     }
     else {
-      $build = $this->view($view);
+      $build = $this->view($data);
     }
 
     $manager->moduleHandler()->alter('blazy_build_entity', $build, $entity, $settings);
@@ -149,7 +145,6 @@ class BlazyEntity implements BlazyEntityInterface {
    */
   public function prepare(array &$data): void {
     $manager = $this->blazyManager;
-
     $manager->hashtag($data);
     $settings = &$data['#settings'];
 
@@ -169,30 +164,14 @@ class BlazyEntity implements BlazyEntityInterface {
 
   /**
    * {@inheritdoc}
-   *
-   * @todo make it single param after sub-modules for easy updates like #access.
    */
-  public function view($entity, array $settings = [], $fallback = ''): array {
-    $manager = $this->blazyManager;
-    $access  = FALSE;
-
-    if (is_array($entity)) {
-      $settings = $manager->toHashtag($entity);
-      $fallback = $entity['fallback'] ?? '';
-      $access   = $entity['#access'] ?? FALSE;
-      $entity   = $entity['#entity'] ?? NULL;
-    }
+  public function view(array $data): array {
+    $manager  = $this->blazyManager;
+    $settings = $manager->toHashtag($data);
+    $entity   = $data['#entity'] ?? NULL;
 
     // Re-defined, needed downstream by local video, etc.
     $settings['view_mode'] = $settings['view_mode'] ?? 'default';
-
-    // @todo remove $data as the single param after sub-modules.
-    $data = [
-      '#access'   => $access,
-      '#entity'   => $entity,
-      '#settings' => $settings,
-      'fallback'  => $fallback,
-    ];
 
     if ($entity instanceof EntityInterface) {
       $build = $manager->view($data);

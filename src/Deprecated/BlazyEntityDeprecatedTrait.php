@@ -27,7 +27,12 @@ trait BlazyEntityDeprecatedTrait {
    * @see https://www.drupal.org/node/3103018
    */
   public function getEntityView($entity, array $settings = [], $fallback = '') {
-    return $this->view($entity, $settings, $fallback);
+    $data = [
+      '#entity'   => $entity,
+      '#settings' => $settings,
+      'fallback'  => $fallback,
+    ];
+    return $this->view($data);
   }
 
   /**

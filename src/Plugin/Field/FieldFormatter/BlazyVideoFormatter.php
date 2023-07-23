@@ -83,7 +83,8 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       $blazy = $sets['blazies']->reset($sets);
       $blazy->set('delta', $delta)
         ->set('image.uri', $uri)
-        ->set('media.input_url', $input);
+        ->set('media.input_url', $input)
+        ->set('media.type', 'video');
 
       /*
       // Too risky, but if you got lucky.
@@ -100,6 +101,7 @@ class BlazyVideoFormatter extends BlazyVideoBase {
         '#settings' => $sets,
         '#item' => NULL,
       ];
+
       $this->blazyOembed->build($data);
 
       // Image with responsive image, lazyLoad, and lightbox supports.

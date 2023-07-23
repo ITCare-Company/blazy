@@ -10,6 +10,7 @@ use Drupal\media\IFrameUrlHelper;
 use Drupal\media\MediaInterface;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
 use Drupal\media\OEmbed\UrlResolverInterface;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyManager;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -146,6 +147,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   public function build(array &$build, $entity = NULL): void {
     // @todo remove old approach at 3.x after old VEF BlazyVideoTrait removed.
     if (isset($build['input_url'])) {
+      Blazy::verify($build);
       $this->toEmbed($build);
       return;
     }
@@ -328,27 +330,28 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
   /**
    * Returns external image item from resource for BlazyFilter or VEF.
+   *
+   * The settings fallbacks are preserved for minimal BVEF compat.
    */
   private function getExternalImageItem(array &$settings): ?object {
     $blazies = $settings['blazies'];
-    $input   = $blazies->get('media.input_url');
-    $uri     = $settings['uri'] ?? NULL;
-    $uri     = $blazies->get('image.uri') ?: $uri;
+    $input   = $blazies->get('media.input_url', $settings['input_url'] ?? NULL);
+    $uri     = $blazies->get('image.uri', $settings['uri'] ?? NULL);
     $height  = $blazies->get('image.height');
     $width   = $blazies->get('image.width');
     $label   = $blazies->get('media.label');
     $title   = $blazies->get('image.title') ?: $label;
-    $type    = $blazies->get('media.type');
+    $type    = $blazies->get('media.type', $settings['type'] ?? NULL);
 
     // Iframe URL may be valid, but not stored as a Media entity.
     if ($input && $resource = $this->getResource($input)) {
       // PHP-stan always assumes it an array.
       if (is_object($resource)) {
         $title = $resource->getTitle() ?: $title;
-        $type = $resource->getType();
 
         // VEF has valid local URI, other hard-coded unmanaged files might not.
         if (!BlazyFile::isValidUri($uri)) {
+          $type = $resource->getType();
           // All we have here is external images. URI validity is not crucial.
           if (!empty($resource->getThumbnailUrl())) {
             $uri = $resource->getThumbnailUrl()->getUri();
@@ -356,7 +359,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         }
 
         // Respect hard-coded width and height since no UI for all these here.
-        if (!$height) {
+        if (!$width || !$height) {
           $width = $resource->getThumbnailWidth() ?: $resource->getWidth();
           $height = $resource->getThumbnailHeight() ?: $resource->getHeight();
         }
@@ -391,8 +394,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   private function toEmbed(array &$settings): void {
     $blazies = $settings['blazies'];
-    $input   = $settings['input_url'] ?? NULL;
-    $input   = $blazies->get('media.input_url') ?: $input;
+    $input   = $blazies->get('media.input_url', $settings['input_url'] ?? NULL);
     $switch  = $settings['media_switch'] ?? NULL;
 
     if (empty($input)) {

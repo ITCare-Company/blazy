@@ -152,7 +152,6 @@ class BlazyTheme {
         $video    = $blazies->is('local_video');
 
         if ($url = $blazies->get('image.url')) {
-          $url = UrlHelper::stripDangerousProtocols($url);
           if (!$blazies->use('loader') && $use_dataset) {
             $blazies->set('use.loader', TRUE);
           }
@@ -160,6 +159,12 @@ class BlazyTheme {
 
           // Only video has poster, not audio.
           if ($video) {
+            if ($blazies->is('lightbox')
+              && $box_url = $blazies->get('box_media.url')) {
+              $url = $box_url;
+            }
+
+            $url = UrlHelper::stripDangerousProtocols($url);
             $attributes->setAttribute('poster', $url);
           }
         }
