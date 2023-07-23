@@ -71,12 +71,13 @@ class Lightbox {
     $styleable  = $valid && !$svg;
     $_escaped   = $blazies->get('media.escaped');
     $_fullsize  = $_box_style && $styleable;
-    $format     = 'blazy__%s litebox';
+    $format1    = 'blazy__%s litebox';
+    $format2    = 'blazy__%s litebox litebox--multimedia';
     $_resimage  = FALSE;
 
     // Provide relevant URL since it is a lightbox.
     $attrs = &$element['#url_attributes'];
-    $attrs['class'][] = sprintf($format, $switch_css);
+    $attrs['class'][] = sprintf($multimedia ? $format2 : $format1, $switch_css);
     $attrs['data-' . $switch_css . '-trigger'] = TRUE;
 
     // Might not be present from BlazyFilter.
@@ -235,6 +236,7 @@ class Lightbox {
       '_resimage' => $_resimage,
     ] = $options;
 
+    $is_html = FALSE;
     $blazies = $settings['blazies'];
 
     // Do not output NULL dimensions.
@@ -247,6 +249,7 @@ class Lightbox {
 
     // Currently: Responsive/Picture image, not plain, and Local video.
     if ($box_html = ($element['#lightbox_html'] ?? [])) {
+      $is_html = TRUE;
       $type = str_replace('_', '-', $json['boxType']);
       // Local video ($html) is wrapped, but not Responsive image ($box_html).
       // Reasons: video displayed as is, image is disassembled for zoom, etc.,
@@ -335,6 +338,10 @@ class Lightbox {
     $element['#url'] = $_escaped ? $url : UrlHelper::stripDangerousProtocols($url);
     // @todo replace with data-b-media at 3.x to avoid potential conflicts.
     $attrs['data-media'] = Json::encode($json);
+
+    if ($is_html) {
+      $attrs['class'][] = 'litebox--html';
+    }
   }
 
   /**

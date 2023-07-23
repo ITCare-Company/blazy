@@ -98,8 +98,9 @@
 
       _erCounted = defer(me, el, true, opts);
     }
-    // VIDEO elements.
+    // AUDIO/ VIDEO elements.
     else if (isVideo || isAudio) {
+      // Multi contents: BG + real elements, just audio since it has no poster.
       if ($.isBg(parent)) {
         me.loadImage(parent, true, winData);
       }

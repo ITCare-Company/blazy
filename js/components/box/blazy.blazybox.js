@@ -155,21 +155,34 @@
   Drupal.theme.blazyBoxMedia = function (settings) {
     var data = settings.data;
     var oembedUrl = data;
+    var dataset;
     var el;
-    var $el;
-    var href;
-    var html = '<div class="media media--fullscreen">';
+    var width = '';
+    var html = '<div class="blazybox__fullscreen">';
 
     // For future betterment, allows more complex data object than just url.
     if ($.isObj(data)) {
       el = data.el || data.element;
-      if ($.isElm(el)) {
-        $el = $(el);
-        href = $el.attr('href');
-        oembedUrl = $el.attr('data-oembed-url', href, true);
+    }
+    else {
+      el = data;
+    }
+
+    if ($.isElm(el)) {
+      dataset = $.parse($.attr(el, 'data-b-media data-media'));
+      oembedUrl = $.attr(el, 'data-oembed-url');
+
+      // Video|Audio|Responsive|Picture elements.
+      if (dataset && dataset.html) {
+        if (dataset.width) {
+          width = ' style="width:' + dataset.width + 'px"';
+        }
+
+        html += '<div class="blazybox__html"' + width + '>' + dataset.html + '</div>';
       }
     }
 
+    // Iframe element.
     if ($.isStr(oembedUrl) && !_sanitizer.isDangerous('src', oembedUrl)) {
       html += '<iframe src="' + oembedUrl + '" width="100%" height="100%" allowfullscreen></iframe>';
     }
