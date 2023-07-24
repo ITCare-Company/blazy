@@ -530,6 +530,14 @@ interface BlazyInterface {
   public function toOptions(array $options): array;
 
   /**
+   * Verifies BlazySettings exists since few may be called outside the workflow.
+   *
+   * @param array $settings
+   *   The settings being modified.
+   */
+  public function verify(array &$settings): void;
+
+  /**
    * A wrapper for the entity view with access check.
    *
    * @param array $data

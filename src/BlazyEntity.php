@@ -146,9 +146,9 @@ class BlazyEntity implements BlazyEntityInterface {
   public function prepare(array &$data): void {
     $manager = $this->blazyManager;
     $manager->hashtag($data);
-    $settings = &$data['#settings'];
 
-    Blazy::verify($settings);
+    $settings = &$data['#settings'];
+    $manager->verify($settings);
 
     $blazies = $settings['blazies'];
     if ($blazies->was('entity_prepared')) {

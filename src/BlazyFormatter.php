@@ -27,7 +27,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings = &$build['#settings'];
 
     // BC for mismatched minor versions.
-    Blazy::verify($settings);
+    $this->verify($settings);
 
     $blazies = $settings['blazies'];
     $entity  = $items->getEntity();
@@ -68,7 +68,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings = &$build['#settings'];
 
     // BC for mismatched minor versions.
-    Blazy::verify($settings);
+    $this->verify($settings);
 
     $blazies   = $settings['blazies'];
     $plugin_id = $blazies->get('field.plugin_id');

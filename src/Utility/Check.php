@@ -28,7 +28,7 @@ class Check {
    *
    * @todo move it out of here for all attachments, what folder, Asset?
    */
-  public static function attachments(array &$load, array &$attach = []): BlazySettings {
+  public static function attachments(array &$load, array &$attach): BlazySettings {
     BlazyInternal::postSettings($attach);
     $blazies = $attach['blazies'];
 

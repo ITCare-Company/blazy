@@ -10,7 +10,6 @@ use Drupal\media\IFrameUrlHelper;
 use Drupal\media\MediaInterface;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
 use Drupal\media\OEmbed\UrlResolverInterface;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyManager;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -147,7 +146,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   public function build(array &$build, $entity = NULL): void {
     // @todo remove old approach at 3.x after old VEF BlazyVideoTrait removed.
     if (isset($build['input_url'])) {
-      Blazy::verify($build);
+      $this->blazyManager->verify($build);
       $this->toEmbed($build);
       return;
     }

@@ -114,6 +114,10 @@
     align-self: center;
   }
 
+  .b-nativegrid--form fieldset.form-item > div {
+    align-self: flex-start;
+  }
+
   .b-nativegrid--form .form-item input:not(.form-checkbox),
   .b-nativegrid--form .form-item select {
     width: 47%;

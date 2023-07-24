@@ -174,13 +174,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
       $settings[$key] = $this->options[$key] ?? $default;
     }
 
-    // @todo convert some to blazies, and remove these settings.
-    $settings['count'] = $count;
-    $settings['view_name'] = $view_name;
-    $settings['view_plugin_id'] = $plugin_id;
-    $settings['namespace'] = 'blazy';
-
-    $this->blazyManager->preSettings($settings);
+    $this->blazyManager->verify($settings);
     $blazies = $settings['blazies'];
 
     $view_info = [
@@ -189,9 +183,13 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
       'name'           => $view_name,
       'plugin_id'      => $plugin_id,
       'view_mode'      => $view_mode,
+      'field'          => [
+        'plugin_id' => $this->getPluginId(),
+      ],
     ];
 
     $blazies->set('count', $count)
+      ->set('total', $count)
       ->set('css.id', $id)
       ->set('item.id', static::$itemId)
       ->set('namespace', static::$namespace)
@@ -199,6 +197,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
       ->set('is.view', TRUE)
       ->set('is.views_field', TRUE);
 
+    $this->blazyManager->preSettings($settings);
     return $settings;
   }
 

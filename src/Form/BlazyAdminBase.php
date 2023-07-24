@@ -695,8 +695,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         $this->blazyManager->gridItemAttributes($dummies, $content_attrs, $gridsets);
         $wrapper_attrs = $this->blazyManager->merge($wrapper_attrs, $dummies);
 
-        $grid = $key == 'grid' || ($scopes->is('grid_required') && $key == 'style');
-        if ($grid || ($fullwidth && in_array($key, $fullwidth))) {
+        $wide = in_array($key, ['grid', 'box_caption_custom'])
+          || ($scopes->is('grid_required') && $key == 'style');
+        if ($wide || ($fullwidth && in_array($key, $fullwidth))) {
           $wrapper_attrs['data-b-w'] = 12;
         }
       }

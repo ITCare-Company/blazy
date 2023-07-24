@@ -25,8 +25,9 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   /**
    * {@inheritdoc}
    */
-  public function getBlazy(array $build, $delta = -1): array {
+  public function getBlazy(array $build): array {
     $hashtags = array_keys(BlazyDefault::hashedProperties());
+
     foreach (BlazyDefault::themeProperties() as $key => $default) {
       $k = in_array($key, $hashtags) ? "#$key" : $key;
       $build[$k] = $this->toHashtag($build, $key, $default);
@@ -43,7 +44,10 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // BlazySettings is a self containing object, initialized at container level
     // and must be renewed at item level to get correct delta, see #3278525.
     $blazies = $settings['blazies']->reset($settings);
-    $blazies->set('is.api', TRUE);
+    $delta = $blazies->get('delta', $build['#delta'] ?? 0);
+
+    $blazies->set('is.api', TRUE)
+      ->set('delta', $delta);
 
     CheckItem::essentials($settings, $item);
 
@@ -329,7 +333,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    */
   private function getBlazySettings(array $build) {
     $settings = $this->toHashtag($build);
-    Blazy::verify($settings);
+    $this->verify($settings);
 
     $blazies = $settings['blazies'];
     if ($data = $blazies->get('first.data')) {

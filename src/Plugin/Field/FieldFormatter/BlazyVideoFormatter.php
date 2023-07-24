@@ -56,16 +56,11 @@ class BlazyVideoFormatter extends BlazyVideoBase {
    */
   protected function buildElements(array &$build, $items, $langcode) {
     $settings = $this->formatter->toHashtag($build);
-    $blazies  = $settings['blazies'];
     $entity   = $items->getEntity();
 
     if (!($vef = $this->vefProviderManager())) {
       return;
     }
-
-    // Update the settings, hard-coded, terracota.
-    $blazies->set('media.bundle', 'remote_video')
-      ->set('media.source', 'video_embed_field');
 
     foreach ($items as $delta => $item) {
       $input = strip_tags($item->value ?: '');
@@ -84,7 +79,10 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       $blazy->set('delta', $delta)
         ->set('image.uri', $uri)
         ->set('media.input_url', $input)
-        ->set('media.type', 'video');
+        ->set('media.type', 'video')
+        // Update the settings, hard-coded, terracota.
+        ->set('media.bundle', 'remote_video')
+        ->set('media.source', 'video_embed_field');
 
       /*
       // Too risky, but if you got lucky.
@@ -97,9 +95,10 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       // }
        */
       $data = [
-        '#entity' => $entity,
+        '#delta'    => $delta,
+        '#entity'   => $entity,
         '#settings' => $sets,
-        '#item' => NULL,
+        '#item'     => NULL,
       ];
 
       $this->blazyOembed->build($data);

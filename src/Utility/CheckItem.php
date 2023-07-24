@@ -167,9 +167,6 @@ class CheckItem {
 
     // Required by thumbnails here, but conflict with audio thumbnail.
     // BlazyImage::prepare($settings, $item);.
-    // @todo remove after sub-modules.
-    // $settings['delta'] = $delta;
-    // $settings['uri'] = $uri;
   }
 
   /**

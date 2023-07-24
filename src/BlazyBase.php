@@ -481,6 +481,13 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function verify(array &$settings): void {
+    Blazy::verify($settings);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function view(array $data): array {
     $access   = $data['#access'] ?? FALSE;
     $entity   = $data['#entity'] ?? NULL;

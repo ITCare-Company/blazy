@@ -15,16 +15,13 @@ interface BlazyManagerInterface extends BlazyManagerBaseInterface {
    *
    * @param array $build
    *   The array containing: item, content, settings, or optional captions.
-   * @param int $delta
-   *   The optional delta after sub-modules.
    *
    * @return array
    *   The alterable and renderable array of enforced content, or theme_blazy().
    *
-   * @todo remove the optional delta after sub-modules.
    * @todo remove/ unify ImageItem, or fake one, as plain array at 3.x.
    */
-  public function getBlazy(array $build, $delta = -1): array;
+  public function getBlazy(array $build): array;
 
   /**
    * Builds the Blazy image as a structured array ready for ::renderer().
@@ -66,7 +63,7 @@ interface BlazyManagerInterface extends BlazyManagerBaseInterface {
    * Returns drupalSettings for IO.
    *
    * @param array $attach
-   *   The settings which determine what library to attach.
+   *   The settings which determine what library to attach, empty for defaults.
    *
    * @return object
    *   The supported IO drupalSettings.

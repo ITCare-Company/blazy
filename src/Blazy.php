@@ -369,9 +369,9 @@ class Blazy {
   /**
    * Verify `blazies` exists, in case accessed outside the workflow.
    */
-  public static function verify(array &$settings): void {
-    if (!isset($settings['blazies']) && !isset($settings['inited'])) {
-      $settings += self::init();
+  public static function verify(array &$settings, $key = 'blazies', array $defaults = []): void {
+    if (!isset($settings[$key])) {
+      $settings += $defaults ?: self::init();
     }
   }
 

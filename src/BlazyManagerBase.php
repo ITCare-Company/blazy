@@ -121,7 +121,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    * {@inheritdoc}
    */
   public function preSettings(array &$settings): void {
-    Blazy::verify($settings);
+    $this->verify($settings);
 
     $blazies = $settings['blazies'];
     $ui = $this->config();
@@ -237,7 +237,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    *
    * @todo remove at/by 3.x after subs extending BlazyManagerBaseInterface.
    */
-  public function getBlazy(array $build, $delta = -1): array {
+  public function getBlazy(array $build): array {
     return [];
   }
 
