@@ -212,21 +212,21 @@ class CheckItem {
     // @todo remove once BVEF adopted Blazy:2.17+ BlazyVideoFormatter.
     if ($is_remote && strpos($embed_url, 'media/oembed') === FALSE) {
       $type = 'video';
-      $input_url = $settings['input_url'] ?? NULL;
-      if ($input = $blazies->get('media.input_url', $input_url)) {
+      if ($oembed = Blazy::service('blazy.oembed')) {
         $options = [
           'embed_url' => $embed_url,
-          'input_url' => $input,
           'is_player' => $is_player,
         ];
 
-        $embed_url = self::fromVefWithLove($blazies, $options);
+        $embed_url = self::fromVefWithLove($settings, $options, $oembed);
       }
     }
 
     // Addresses mixed media unique per item, aside from convenience.
     // Also compat with BVEF till they are updated to adopt 2.10 changes.
+    $multimedia = $blazies->is('multimedia', $is_remote);
     $blazies->set('is.iframe', $is_iframe)
+      ->set('is.multimedia', $multimedia)
       ->set('is.player', $is_player)
       ->set('is.remote_video', $is_remote)
       ->set('media.embed_url', $embed_url)
@@ -352,19 +352,24 @@ class CheckItem {
    *
    * @todo remove at 3.x, and or after BVEF adopted BlazyVideoFormatter.
    */
-  private static function fromVefWithLove($blazies, array $options): string {
+  private static function fromVefWithLove(array &$settings, array $options, $oembed): string {
+    $blazies   = $settings['blazies'];
     $embed_url = $options['embed_url'];
-    $input_url = $options['input_url'];
     $is_player = $options['is_player'];
-    $oembed    = Blazy::service('blazy.oembed');
+
+    // VEF has no TITLE, nor ALT, for images provide them.
+    $oembed->getThumbnail($settings);
 
     // For consistency and security, yet ensure to not mess up url.
-    if ($oembed && strpos($embed_url, '?url') === FALSE) {
-      $autoplay  = $is_player ? ['autoplay' => 1] : [];
-      $embed_url = $oembed->toEmbedUrl($blazies, $input_url, $autoplay);
-    }
-    elseif ($is_player) {
-      $embed_url = Blazy::autoplay($embed_url);
+    $input_url = $blazies->get('media.input_url');
+    if ($input_url) {
+      if (strpos($embed_url, '?url') === FALSE) {
+        $autoplay  = $is_player ? ['autoplay' => 1] : [];
+        $embed_url = $oembed->toEmbedUrl($blazies, $input_url, $autoplay);
+      }
+      elseif ($is_player) {
+        $embed_url = Blazy::autoplay($embed_url);
+      }
     }
 
     // The multimedia is defined for core Media, not VEF, so set it here.

@@ -146,10 +146,8 @@ class BlazyTheme {
       $use_dataset = empty($attributes['data-b-undata']);
 
       // Adds a poster image if so configured.
-      if ($blazy = ($files[0]['#blazy'] ?? NULL)) {
-        $settings = $blazy->storage();
-        $blazies  = $settings['blazies'];
-        $video    = $blazies->is('local_video');
+      if ($blazy = Blazy::toHashtag($files[0])) {
+        $blazies = $blazy->get('blazies');
 
         if ($url = $blazies->get('image.url')) {
           if (!$blazies->use('loader') && $use_dataset) {
@@ -158,7 +156,8 @@ class BlazyTheme {
           $blazies->set('is.dimensions', TRUE);
 
           // Only video has poster, not audio.
-          if ($video) {
+          if ($blazies->is('local_video')) {
+            // In lightboxes, provide a dedicated image style url, if any.
             if ($blazies->is('lightbox')
               && $box_url = $blazies->get('box_media.url')) {
               $url = $box_url;

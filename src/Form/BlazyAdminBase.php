@@ -605,22 +605,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   public function finalizeForm(array &$form, array $definition): void {
     $scopes    = $this->toScopes($definition);
     $settings  = $definition['settings'] ?? [];
-    $admin_css = $scopes->is('admin_css');
-    $admin_css = $admin_css ?: $this->blazyManager->config('admin_css', 'blazy.settings');
+    $admin_css = $this->isAdminCss();
     $classes   = $this->getOpeningClasses($scopes);
     $excludes  = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
     $selects   = ['cache', 'optionset', 'view_mode'];
     $fullwidth = $scopes->data('fullwidth', []);
-
-    // Disable the admin css in the off canvas menu, to avoid conflicts with
-    // the active frontend theme.
-    if ($admin_css && $router = Path::requestStack()) {
-      $wrapper_format = $router->getCurrentRequest()->query->get('_wrapper_format');
-
-      if ($wrapper_format && $wrapper_format === "drupal_dialog.off_canvas") {
-        $admin_css = FALSE;
-      }
-    }
 
     $this->blazyManager->moduleHandler()->alter('blazy_form_element', $form, $definition);
 
@@ -735,6 +724,14 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         }
         else {
           $form[$key]['#states'] = $states;
+        }
+      }
+
+      // To minimize CSS rules for common lightbox items.
+      foreach (['style', 'media_style', 'caption'] as $k) {
+        $k = 'box_' . $k;
+        if (isset($form[$k]) && $k == $key) {
+          $wrapper_attrs['class'][] = 'form-item--litebox';
         }
       }
 
@@ -1004,6 +1001,23 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $classes[] = 'b-tooltip--lg';
 
     return $classes;
+  }
+
+  /**
+   * Returns TRUE if admin_css option enabled, else FALSE.
+   */
+  protected function isAdminCss(): bool {
+    $admin_css = $this->blazyManager->config('admin_css', 'blazy.settings') ?: FALSE;
+    // Disable the admin css in the off canvas menu, to avoid conflicts with
+    // the active frontend theme.
+    if ($admin_css && $router = Path::requestStack()) {
+      $wrapper_format = $router->getCurrentRequest()->query->get('_wrapper_format');
+
+      if ($wrapper_format && $wrapper_format === "drupal_dialog.off_canvas") {
+        $admin_css = FALSE;
+      }
+    }
+    return $admin_css;
   }
 
   /**

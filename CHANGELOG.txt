@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-07-24
+------------------------------
+- Added image ALT and TITLE for VEF which has none.
+
 Blazy 8.x-2.0-dev, 2023-07-23
 ------------------------------
 - Fixed for deprecated VEF regressions.

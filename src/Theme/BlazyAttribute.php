@@ -193,8 +193,7 @@ class BlazyAttribute {
     }
 
     // Prepare iframe, and allow a tiny video preview without iframe.
-    $disabled = $settings['_noiframe'] ?? FALSE;
-    if ($blazies->is('iframe') && !$blazies->is('noiframe', $disabled)) {
+    if ($blazies->is('iframe') && !$blazies->is('noiframe')) {
       self::buildIframe($variables);
     }
 
@@ -216,7 +215,7 @@ class BlazyAttribute {
     // @todo rename it to data-b-ratios at/by 3.x.
     if ($blazies->is('fluid')) {
       if (!$blazies->is('undata') && $ratios = $blazies->get('ratios', [])) {
-        // @todo replace with data-b-ratio by 3.x to avoid potential conflicts.
+        // @todo replace with data-b-ratios by 3.x to avoid potential conflicts.
         $attributes['data-ratios'] = Json::encode($ratios);
       }
     }
@@ -304,7 +303,7 @@ class BlazyAttribute {
   public static function altTitle($blazies, array $attributes = []): array {
     $title = $blazies->get('image.title') ?: $blazies->get('media.label');
     $title = $attributes['title'] ?? $title;
-    $alt   = $attributes['alt'] ?? $blazies->get('image.alt');
+    $alt   = $blazies->get('image.alt', $attributes['alt'] ?? '');
 
     // $extra_attrs = $blazies->get('item.safe_attributes', []);
     // Respects hand-coded image attributes, and accounts for UGC.
@@ -313,14 +312,21 @@ class BlazyAttribute {
     // This should make both parties happier ever after, sort of.
     if ($title) {
       $title = Html::escape(strip_tags($title));
+      // Twig will escape Can't to Can&#039;t, else doubles: Can&amp;#039;t.
+      // @todo recheck if the world is ended with this, and so remove this.
+      $title = str_replace('&#039;', "'", $title);
     }
 
     if ($alt) {
       $alt = Html::escape(strip_tags($alt));
+      // Twig will escape Can't to Can&#039;t, else doubles: Can&amp;#039;t.
+      // @todo recheck if the world is ended with this, and so remove this.
+      $alt = str_replace('&#039;', "'", $alt);
     }
 
     // Overrides title if to be used as a placeholder for lazyloaded video.
     if ($blazies->is('multimedia') && $title) {
+      $_title = $title;
       $bundle = $blazies->get('media.bundle');
       $bundle = str_replace('remote_', '', $bundle);
       $bundle = str_replace('_', ' ', $bundle);
@@ -328,22 +334,26 @@ class BlazyAttribute {
       // Prioritize editable user inputs rather than external sites'.
       $blazies->set('media.label', $title);
 
-      $translation_replacements = ['@bundle' => $bundle, '@label' => $title];
-      $title = self::mediaTitle($translation_replacements);
+      $translation = ['@bundle' => $bundle, '@label' => $title];
+      $title = self::mediaTitle($translation);
 
       if ($alt) {
-        $translation_replacements['@alt'] = $alt;
-        $alt = new TranslatableMarkup('Preview image for the @bundle "@label" - @alt.', $translation_replacements);
+        if ($alt == $_title) {
+          $alt = $title;
+        }
+        else {
+          $translation['@alt'] = $alt;
+          $alt = new TranslatableMarkup('Preview image for the @bundle "@label" - @alt.', $translation);
+        }
       }
       else {
         $alt = $title;
       }
     }
 
-    $blazies->set('image.alt', $alt);
-    if ($title) {
-      $blazies->set('image.title', $title);
-    }
+    // Redefine for good reasons.
+    $blazies->set('image.alt', $alt)
+      ->set('image.title', $title);
 
     return ['alt' => $alt ?: '', 'title' => $title];
   }
@@ -542,8 +552,8 @@ class BlazyAttribute {
   /**
    * Return the image title.
    */
-  private static function mediaTitle($translation_replacements): TranslatableMarkup {
-    return new TranslatableMarkup('Preview image for the @bundle "@label".', $translation_replacements);
+  private static function mediaTitle($translation): TranslatableMarkup {
+    return new TranslatableMarkup('Preview image for the @bundle "@label".', $translation);
   }
 
   /**

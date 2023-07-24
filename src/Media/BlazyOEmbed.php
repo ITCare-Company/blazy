@@ -181,6 +181,73 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * {@inheritdoc}
    */
+  public function getThumbnail(array &$settings): ?object {
+    $blazies = $settings['blazies'];
+    $input   = $blazies->get('media.input_url', $settings['input_url'] ?? NULL);
+    $uri     = $blazies->get('image.uri', $settings['uri'] ?? NULL);
+    $height  = $blazies->get('image.height');
+    $width   = $blazies->get('image.width');
+    $label   = $blazies->get('media.label');
+    $title   = $blazies->get('image.title') ?: $label;
+    $type    = $blazies->get('media.type', $settings['type'] ?? NULL);
+
+    // Failsafe, BlazyFilter/ VEF without file upload [data-entity-uuid].
+    try {
+      // Iframe URL may be valid, but not stored as a Media entity.
+      if ($input && $resource = $this->getResource($input)) {
+        // PHP-stan always assumes it an array.
+        if (is_object($resource)) {
+          $title = $resource->getTitle() ?: $title;
+
+          // VEF has valid URI, other hard-coded unmanaged files might not.
+          if (!BlazyFile::isValidUri($uri)) {
+            $type = $resource->getType();
+            // All we have here is external images. URI validity is not crucial.
+            if (!empty($resource->getThumbnailUrl())) {
+              $uri = $resource->getThumbnailUrl()->getUri();
+            }
+          }
+
+          // Respect hard-coded width and height since no UI for all these here.
+          if (!$width || !$height) {
+            $width = $resource->getThumbnailWidth() ?: $resource->getWidth();
+            $height = $resource->getThumbnailHeight() ?: $resource->getHeight();
+          }
+        }
+      }
+    }
+    catch (\Exception $ignore) {
+      // Silently failed likely local works without internet.
+    }
+
+    // Redefines for sure.
+    $blazies->set('media.input_url', $input)
+      ->set('media.label', $title)
+      ->set('media.type', $type);
+
+    // VEF has just URI, the rest are fetched from resource.
+    $data = [
+      'uri'    => $uri,
+      'width'  => $width,
+      'height' => $height,
+      'alt'    => $title,
+      'title'  => $label ?: $title,
+    ];
+
+    if ($uri) {
+      $blazies->set('image', $data, TRUE);
+      $item = BlazyImage::fakeFromSettings($blazies);
+      $blazies->set('image.item', $item);
+
+      return $item;
+    }
+
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function toEmbedUrl($blazies, $input, array $autoplay = []): string {
     $query = [
       'url' => $input,
@@ -267,13 +334,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       $blazies->set('is.hires', !empty($stage));
     }
     else {
-      // Failsafe, BlazyFilter/ VEF without file upload [data-entity-uuid].
-      try {
-        $build['#item'] = $this->getExternalImageItem($settings);
-      }
-      catch (\Exception $ignore) {
-        // Silently failed likely local works without internet.
-      }
+      // BlazyFilter/ VEF without file upload [data-entity-uuid].
+      $build['#item'] = $this->getThumbnail($settings);
     }
   }
 
@@ -326,64 +388,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         }
         break;
     }
-  }
-
-  /**
-   * Returns external image item from resource for BlazyFilter or VEF.
-   *
-   * The settings fallbacks are preserved for minimal BVEF compat.
-   */
-  private function getExternalImageItem(array &$settings): ?object {
-    $blazies = $settings['blazies'];
-    $input   = $blazies->get('media.input_url', $settings['input_url'] ?? NULL);
-    $uri     = $blazies->get('image.uri', $settings['uri'] ?? NULL);
-    $height  = $blazies->get('image.height');
-    $width   = $blazies->get('image.width');
-    $label   = $blazies->get('media.label');
-    $title   = $blazies->get('image.title') ?: $label;
-    $type    = $blazies->get('media.type', $settings['type'] ?? NULL);
-
-    // Iframe URL may be valid, but not stored as a Media entity.
-    if ($input && $resource = $this->getResource($input)) {
-      // PHP-stan always assumes it an array.
-      if (is_object($resource)) {
-        $title = $resource->getTitle() ?: $title;
-
-        // VEF has valid local URI, other hard-coded unmanaged files might not.
-        if (!BlazyFile::isValidUri($uri)) {
-          $type = $resource->getType();
-          // All we have here is external images. URI validity is not crucial.
-          if (!empty($resource->getThumbnailUrl())) {
-            $uri = $resource->getThumbnailUrl()->getUri();
-          }
-        }
-
-        // Respect hard-coded width and height since no UI for all these here.
-        if (!$width || !$height) {
-          $width = $resource->getThumbnailWidth() ?: $resource->getWidth();
-          $height = $resource->getThumbnailHeight() ?: $resource->getHeight();
-        }
-      }
-    }
-
-    $blazies->set('media.label', $title)
-      ->set('media.type', $type);
-
-    // VEF has just URI, the rest are fetched from resource.
-    $data = [
-      'uri'    => $uri,
-      'width'  => $width,
-      'height' => $height,
-      'alt'    => $title,
-      'title'  => $label ?: $title,
-    ];
-
-    if ($uri) {
-      $blazies->set('image', $data, TRUE);
-      return BlazyImage::fakeFromSettings($blazies);
-    }
-
-    return NULL;
   }
 
   /**

@@ -20,7 +20,8 @@
   margin: 30px auto;
 }
 
-.b-nativegrid--form.b-tooltip {
+.b-nativegrid--form.b-tooltip,
+.b-nativegrid.b-nativegrid--form {
   overflow: visible;
 }
 

@@ -72,6 +72,16 @@ interface BlazyOEmbedInterface {
   public function checkInputUrl(array &$settings, $input): ?string;
 
   /**
+   * Returns external image item from resource for BlazyFilter or VEF.
+   *
+   * The settings fallbacks are preserved for minimal BVEF compat.
+   *
+   * @param array $settings
+   *   The settings being modified.
+   */
+  public function getThumbnail(array &$settings): ?object;
+
+  /**
    * Converts input URL into embed URL.
    *
    * @param object $blazies

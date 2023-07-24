@@ -1,9 +1,6 @@
 
 ***
 ## <a name="updating"></a>UPDATE SOP
-Check [this](https://drupal.org/node/3263027#comment-14402693) out for hints
-on testing updates against Blazy ecosystem.
-
 Please ignore any documentation if already aware of Drupal site building. This
 is for the sake of completed documentation for those who may need it.
 
@@ -11,12 +8,14 @@ If using drush, running  `drush cr`, `drush updb` and `drush cr` should be
 enough. If not, and or there are still remaining errors, the following will
 help.
 
-Visit any of the following URLs before updating Blazy, or its related modules.
+Visit any of the following URLs **before** updating Blazy, or its sub-modules.
 Keep the `Performance` page open on a separate tab till the update is performed.
-This will be your last resort if updates have errors, never reload this page.
+This will be your last resort if updates have errors. Never reload this page.
 
 1. Always test updates at DEV or STAGING environments like a pro so nothing
    breaks your PRODUCTION site until everything is thoroughly reviewed.
+   Have a restore point aka backup with
+   [backup_migrate](https://drupal.org/project/backup_migrate) module, etc.
 
 2. [/admin/config/development/maintenance](/admin/config/development/maintenance)  
 
@@ -53,7 +52,9 @@ This will be your last resort if updates have errors, never reload this page.
 5. If Twig templates are customized, compare against the latest. If having lots
    of customized works, review the latest `blazy.api.php`, if any new changes.
 
-6. Read more the [TROUBLESHOOTING](#troubleshooting) section for common trouble
+6. Put your site back online.
+
+7. Read more the [TROUBLESHOOTING](#troubleshooting) section for common trouble
    solutions.
 
 **Note the order!**  
@@ -61,7 +62,8 @@ It is very important to follow as is for successful updates. If you don't follow
 the above SOP, and stuck on a broken site, no need to uninstall modules which
 will remove all configuration, formatter, etc. Instead try downgrading the
 module versions, clear cache, and follow the SOP strictly before re-updating.
-
+Check [this](https://drupal.org/node/3263027#comment-14402693) out for hints
+on testing updates against Blazy ecosystem.
 
 ## BROKEN MODULES
 Alpha, Beta, DEV releases are for developers only. Beware of possible breakage.

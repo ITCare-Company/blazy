@@ -9,7 +9,6 @@ use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Utility\Sanitize;
 
 /**
@@ -120,9 +119,13 @@ class BlazyImage {
     $uri     = $blazies->get($which . '.uri');
 
     // Original image sizes are stored within ImageItem, or fake one.
-    if ($item) {
+    // The given item might also be VideoEmbedField, unless converted at
+    // CheckItem::fromVefWithLove().
+    if ($item = $blazies->get('image.item', $item)) {
       $width = $item->width ?? $width;
       $height = $item->height ?? $height;
+
+      // Ensures the correct image item is set here on.
       $blazies->set('image.item', $item);
     }
 
@@ -130,11 +133,10 @@ class BlazyImage {
     // filter image, and when image_style even failed.
     if ($uri && (!$height || !$width)) {
       $abs = $blazies->get('image.uri_root', $uri);
-      // Must be valid URI, or web-accessible url, not: /modules|themes/...
-      if (!BlazyFile::isValidUri($abs) && mb_substr($abs, 0, 1) == '/') {
-        if ($request = Path::requestStack()) {
-          $abs = $request->getCurrentRequest()->getSchemeAndHttpHost() . $abs;
-        }
+      $abs = BlazyFile::toAccessibleUri($abs);
+
+      if (BlazyFile::isValidUri($abs) && !$blazies->get('image.valid')) {
+        $blazies->set('image.uri', $abs);
       }
 
       // Prevents 404 warning when video thumbnail missing for a reason.

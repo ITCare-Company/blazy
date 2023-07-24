@@ -188,11 +188,18 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
   }
 
   /**
-   * Setup form grids.
+   * Returns the keys of form item parents which should be wrapped as a grid.
+   */
+  protected function formGrids(): array {
+    return $this->formGrids;
+  }
+
+  /**
+   * Converts form items to grids started at the found parent form keys.
    */
   protected function toGrid(array &$form): array {
     $result = [];
-    if ($grids = $this->formGrids) {
+    if ($grids = $this->formGrids()) {
       foreach ($grids as $keys) {
         if (is_string($keys)) {
           if (isset($form[$keys])) {
@@ -237,7 +244,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
   }
 
   /**
-   * Setup form grids.
+   * Wraps form items inside a grid container.
    */
   private function toNativeGrid(array &$form): array {
     $children = Element::children($form);

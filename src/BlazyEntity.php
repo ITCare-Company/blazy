@@ -170,24 +170,25 @@ class BlazyEntity implements BlazyEntityInterface {
     $settings = $manager->toHashtag($data);
     $entity   = $data['#entity'] ?? NULL;
 
-    // Re-defined, needed downstream by local video, etc.
-    $settings['view_mode'] = $settings['view_mode'] ?? 'default';
-
-    if ($entity instanceof EntityInterface) {
-      $build = $manager->view($data);
-
-      // @todo figure out why video_file empty, this is blatant assumption.
-      if ($entity->getEntityTypeId() == 'file') {
-        try {
-          $build = BlazyField::getOrViewMedia($entity, $settings, TRUE) ?: $build;
-        }
-        catch (\Exception $ignore) {
-          // Do nothing, no need to be chatty in mischievous deeds.
-        }
-      }
-      return $build;
+    if (!$entity instanceof EntityInterface) {
+      return [];
     }
-    return [];
+
+    // Provides vanilla entity view.
+    $build = $manager->view($data);
+
+    // @todo figure out why video_file empty, this is blatant assumption.
+    if ($entity->getEntityTypeId() == 'file') {
+      try {
+        // Re-defined, needed downstream by local video, etc.
+        $settings['view_mode'] = $settings['view_mode'] ?? 'default';
+        $build = BlazyField::getOrViewMedia($entity, $settings, TRUE) ?: $build;
+      }
+      catch (\Exception $ignore) {
+        // Do nothing, no need to be chatty in mischievous deeds.
+      }
+    }
+    return $build;
   }
 
   /**

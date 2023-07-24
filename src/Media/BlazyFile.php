@@ -87,7 +87,7 @@ class BlazyFile {
    * @return string
    *   Returns an absolute URL of a local file to a relative one.
    *
-   * @see BlazyOEmbed::getExternalImageItem()
+   * @see BlazyOEmbed::getThumbnail()
    * @see BlazyFilter::getImageItemFromImageSrc()
    */
   public static function transformRelative($uri, $style = NULL, array $options = []): string {
@@ -163,6 +163,20 @@ class BlazyFile {
       }
     }
     return $uri;
+  }
+
+  /**
+   * Returns web-accessible URI if an invalid is given.
+   */
+  public static function toAccessibleUri($uri): string {
+    $abs = $uri;
+    // Must be valid URI, or web-accessible url, not: /modules|themes/...
+    if (!self::isValidUri($abs) && mb_substr($abs, 0, 1) == '/') {
+      if ($request = Path::requestStack()) {
+        $abs = $request->getCurrentRequest()->getSchemeAndHttpHost() . $abs;
+      }
+    }
+    return $abs;
   }
 
   /**

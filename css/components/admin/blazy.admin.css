@@ -14,16 +14,12 @@
 
 /** Fixed for things beyond Blazy. */
 .form--blazy .form-item--ajax-link,
-.form--blazy .form-item--box-style,
-.form--blazy .form-item--box-media-style,
-.form--blazy .form-item--box-caption {
+.form--blazy .form-item--litebox {
   display: none !important; /* csslint allow: known-properties, important */
 }
 
 .form--media-switch-on .form-item--media-switch,
-.form--media-switch-lightbox .form-item--box-style,
-.form--media-switch-lightbox .form-item--box-media-style,
-.form--media-switch-lightbox .form-item--box-caption,
+.form--media-switch-lightbox .form-item--litebox,
 .form--media-switch-splidebox .form-item--ajax-link,
 .form--vanilla-off .form-item--media-switch {
   display: flex !important; /* csslint allow: known-properties, important */
