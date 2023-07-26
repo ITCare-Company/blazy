@@ -377,7 +377,7 @@ class Grid {
 
     // Slick/ Splide may trick count to disable grid slides when lacking,
     // although not necessarily needed by flat grid like Blazy's.
-    $count = (int) $settings['count'] ?? 0;
+    $count = count($items);
     $count = Blazy::count($blazies, $count);
     $blazies->set('count', $count)
       ->set('total', $count);
