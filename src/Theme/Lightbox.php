@@ -65,8 +65,7 @@ class Lightbox {
     $box_id     = $blazies->is('gallery') ? $gallery_id : NULL;
     $box_width  = $blazies->get('image.original.width') ?: $item->width ?? NULL;
     $box_height = $blazies->get('image.original.height') ?: $item->height ?? NULL;
-    $count      = $blazies->get('total', 0) ?: $blazies->get('count', 1);
-    $count      = $blazies->get('view.count', 0) ?: $count;
+    $count      = Blazy::count($blazies);
     $delta      = $blazies->get('delta', 0);
     $multimedia = $blazies->is('multimedia');
     $svg        = $blazies->is('unstyled');
@@ -384,15 +383,14 @@ class Lightbox {
    *
    * @param array $settings
    *   The settings to work with.
-   * @param object|mixed $item
-   *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item.
+   * @param object $item
+   *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item or \stdClass.
    *
    * @return array
    *   The renderable array of caption, or empty array.
    */
   private static function buildCaptions(array $settings, $item): array {
     $blazies = $settings['blazies'];
-    $item    = $blazies->get('image.item', $item);
     $title   = $blazies->get('image.title');
     $alt     = $blazies->get('image.alt');
     $delta   = $blazies->get('delta', 0);

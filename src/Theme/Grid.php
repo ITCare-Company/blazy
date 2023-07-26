@@ -196,9 +196,7 @@ class Grid {
     // Count may be set as 2 even if it is 100 by sliders for their magic trick.
     // However total, the new preserved count key, may not be set somewhere.
     // @todo use just total after sub-modules provides it to avoid this check.
-    $count = $blazies->get('count', 0);
-    $total = $blazies->get('total', 0);
-    $total = $total > $count ? $total : $count;
+    $total = Blazy::count($blazies);
     $grid_count = $blazies->get('grid.count', 0);
 
     if ($dim = $blazies->get('grid.large_dimensions', [])) {
@@ -306,7 +304,7 @@ class Grid {
   private static function containerAttributes(array &$attrs, array $settings, $blazies): void {
     $remove  = $blazies->ui('deprecated_class', FALSE);
     $style   = $settings['style'] ?: 'grid';
-    $count   = $blazies->get('total', 0) ?: $blazies->get('count', 0);
+    $count   = Blazy::count($blazies);
     $format1 = 'b-%s';
     $format2 = 'b-count-%d';
 
@@ -379,8 +377,11 @@ class Grid {
 
     // Slick/ Splide may trick count to disable grid slides when lacking,
     // although not necessarily needed by flat grid like Blazy's.
-    $count = $blazies->get('count') ?: $settings['count'] ?? 0;
-    $blazies->set('count', $count);
+    $count = (int) $settings['count'] ?? 0;
+    $count = Blazy::count($blazies, $count);
+    $blazies->set('count', $count)
+      ->set('total', $count);
+
     $blazies->set('grid.item_class', $item_class);
 
     foreach ($items as $key => $item) {

@@ -481,6 +481,16 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function toSettings(array &$settings, array $data, $key = 'blazies', array $defaults = []): array {
+    $object = Blazy::reset($settings, $key, $defaults);
+    $object->set($data);
+
+    return $settings;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function verify(array &$settings): void {
     Blazy::verify($settings);
   }

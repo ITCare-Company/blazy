@@ -6,7 +6,6 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Theme\Lightbox;
-use Drupal\blazy\Utility\CheckItem;
 
 /**
  * Implements a public facing blazy manager.
@@ -33,23 +32,9 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       $build[$k] = $this->toHashtag($build, $key, $default);
     }
 
-    // Temporary checks till final migration at/by 3.x.
-    $this->hashtag($build);
-
-    $item      = $this->toHashtag($build, 'item', NULL);
-    $settings  = &$build['#settings'];
-    $settings += Blazy::init();
-
-    // Prevents double checks.
-    // BlazySettings is a self containing object, initialized at container level
-    // and must be renewed at item level to get correct delta, see #3278525.
-    $blazies = $settings['blazies']->reset($settings);
-    $delta = $blazies->get('delta', $build['#delta'] ?? 0);
-
-    $blazies->set('is.api', TRUE)
-      ->set('delta', $delta);
-
-    CheckItem::essentials($settings, $item);
+    $item     = $this->toHashtag($build, 'item', NULL);
+    $blazies  = $this->preBlazy($build, $item);
+    $settings = $build['#settings'];
 
     // Respects content not handled by theme_blazy(), but passed through.
     // Yet allows rich contents which might still be processed by theme_blazy().

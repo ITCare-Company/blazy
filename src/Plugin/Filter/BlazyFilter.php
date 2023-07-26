@@ -418,13 +418,16 @@ class BlazyFilter extends BlazyFilterBase {
   private function buildItem(array &$build, $node, $delta = 0) {
     $media    = NULL;
     $settings = &$build['#settings'];
-    $blazies  = $settings['blazies']->reset($settings);
 
     /* @phpstan-ignore-next-line */
     $tn_uri = $node->getAttribute('data-thumb');
+    $info = [
+      'delta' => $delta,
+      'thumbnail.uri' => $tn_uri,
+    ];
 
-    $blazies->set('delta', $delta)
-      ->set('thumbnail.uri', $tn_uri);
+    $this->manager->toSettings($settings, $info);
+    $blazies = $settings['blazies'];
 
     // If using grid, node is grid item.
     if ($node->tagName == 'item') {

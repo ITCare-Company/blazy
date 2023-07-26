@@ -105,7 +105,7 @@ class Check {
   }
 
   /**
-   * Checks for root/ container stuffs.
+   * Checks for container stuffs, mostly re-definition in case set earlier.
    *
    * @todo remove some settings after sub-modules.
    */
@@ -133,8 +133,10 @@ class Check {
     $item_caption = $blazies->get('item.caption', 'captions');
     $item_prefix  = $blazies->get('item.prefix', 'blazy');
     $namespace    = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
-    $is_resimage  = $blazies->is('resimage')
-      || is_callable('responsive_image_get_mime_type');
+    $ratios       = $blazies->get('css.ratio', BlazyDefault::RATIO);
+    $medias       = $blazies->get('media.defaults', BlazyDefault::mediaDefaults());
+    $is_resimage  = is_callable('responsive_image_get_mime_type');
+    $is_resimage  = $blazies->is('resimage', $is_resimage);
 
     // When `defer` is chosen, overrides global `No JavaScript: lazy`, ensures
     // to not affect AMP, CKEditor, or other preview pages where nojs is a must.
@@ -173,8 +175,8 @@ class Check {
       ->set('libs.background', $is_bg || $is_audio)
       ->set('libs.compat', $is_compat)
       ->set('libs.ratio', !empty($settings['ratio']))
-      ->set('css.ratio', BlazyDefault::RATIO)
-      ->set('media.defaults', BlazyDefault::mediaDefaults())
+      ->set('css.ratio', $ratios, TRUE)
+      ->set('media.defaults', $medias)
       ->set('use.dataset', $is_bg || $is_video)
       ->set('use.loader', !$is_nojs)
       ->set('use.svg_dimensions', TRUE)

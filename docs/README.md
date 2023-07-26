@@ -37,10 +37,11 @@ Blazy and its sub-modules are tightly coupled. Be sure to have the latest
 release date or matching versions in the least. DEV for DEV, Beta for Beta/RC,
 etc. Mismatched versions (DEV vs. Full release) may lead to errors, except for
 minor versions like Beta vs. RC. Mismatched branches (1.x vs. 2.x) will surely
-be errors. What is `coupled`? Blazy sub-modules are dependent on Blazy, just
-like Blazy depends on core Media. If core Media is not installed, Blazy is not
-usable. In the case of Blazy, it is a bit `tighter` since it also acts as a DRY
-buster for many similar sub-modules with some degree of difference.
+be errors, unless declared clearly as supported. What is `coupled`? Blazy
+sub-modules are dependent on Blazy, just like Blazy depends on core Media.
+If core Media is not installed, Blazy is not usable. In the case of Blazy, it is
+a bit `tighter` since it also acts as a DRY buster for many similar sub-modules
+with some degree of difference. If confusing, just match the latest releases.
 We tried to minimize this issue, but if that happens you are well informed.
 
 ***

@@ -204,24 +204,12 @@ class BlazySettings implements \Countable {
   public function set($key, $value = NULL, $merge = FALSE): self {
     if (is_array($key) && !isset($value)) {
       foreach ($key as $k => $v) {
-        $this->storage[$k] = $v;
+        $this->setInternal($k, $v, $merge);
       }
       return $this;
     }
 
-    $parts = array_map('trim', explode('.', $key));
-
-    if (is_array($value) && $merge) {
-      $value = array_merge((array) $this->get($key, []), $value);
-    }
-
-    if (count($parts) == 1) {
-      $this->storage[$key] = $value;
-    }
-    else {
-      NestedArray::setValue($this->storage, $parts, $value);
-    }
-    return $this;
+    return $this->setInternal($key, $value, $merge);
   }
 
   /**
@@ -345,6 +333,25 @@ class BlazySettings implements \Countable {
    */
   public function storage(): array {
     return $this->storage;
+  }
+
+  /**
+   * Sets values for a key.
+   */
+  private function setInternal($key, $value = NULL, $merge = FALSE): self {
+    $parts = array_map('trim', explode('.', $key));
+
+    if (is_array($value) && $merge) {
+      $value = array_merge((array) $this->get($key, []), $value);
+    }
+
+    if (count($parts) == 1) {
+      $this->storage[$key] = $value;
+    }
+    else {
+      NestedArray::setValue($this->storage, $parts, $value);
+    }
+    return $this;
   }
 
   /**

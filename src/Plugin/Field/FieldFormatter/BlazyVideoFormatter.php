@@ -74,15 +74,18 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       $provider->downloadThumbnail();
       $uri = $provider->getLocalThumbnailUri();
 
+      // Update the settings, hard-coded, terracota.
       $sets = $settings;
-      $blazy = $sets['blazies']->reset($sets);
-      $blazy->set('delta', $delta)
-        ->set('image.uri', $uri)
-        ->set('media.input_url', $input)
-        ->set('media.type', 'video')
-        // Update the settings, hard-coded, terracota.
-        ->set('media.bundle', 'remote_video')
-        ->set('media.source', 'video_embed_field');
+      $info = [
+        'delta' => $delta,
+        'image.uri' => $uri,
+        'media' => [
+          'bundle' => 'remote_video',
+          'input_url' => $input,
+          'source' => 'video_embed_field',
+          'type' => 'video',
+        ],
+      ];
 
       /*
       // Too risky, but if you got lucky.
@@ -97,12 +100,13 @@ class BlazyVideoFormatter extends BlazyVideoBase {
       $data = [
         '#delta'    => $delta,
         '#entity'   => $entity,
-        '#settings' => $sets,
+        '#settings' => $this->formatter->toSettings($sets, $info),
         '#item'     => NULL,
       ];
 
       $this->blazyOembed->build($data);
 
+      // $blazies = $this->formatter->preBlazy($data);
       // Image with responsive image, lazyLoad, and lightbox supports.
       $build[$delta] = $this->formatter->getBlazy($data);
       unset($data);

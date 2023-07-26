@@ -177,7 +177,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
     }
 
     if (isset($settings['count'])) {
-      $blazies->set('count', $settings['count']);
+      $blazies->set('count', (int) $settings['count']);
     }
 
     BlazyFilterUtil::toGrid($node, $settings);

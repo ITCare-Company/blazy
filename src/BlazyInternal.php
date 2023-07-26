@@ -130,7 +130,7 @@ class BlazyInternal {
   /**
    * Modifies the common UI settings inherited down to each item.
    */
-  public static function postSettings(array &$settings = []): void {
+  public static function postSettings(array &$settings): void {
     // Failsafe, might be called directly at ::attach() outside the workflow.
     Blazy::verify($settings);
 

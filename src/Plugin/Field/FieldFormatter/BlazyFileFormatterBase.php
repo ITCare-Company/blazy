@@ -125,22 +125,21 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
     foreach ($files as $delta => $file) {
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-      $item  = $file->_referringItem;
-      $sets  = $settings;
-      $blazy = $sets['blazies']->reset($sets);
-      $uri   = $file->getFileUri();
-
-      // @todo update tests and move it out of here.
-      $blazy->set('delta', $delta)
-        ->set('media.type', 'image')
-        ->set('image.uri', $uri);
+      $item = $file->_referringItem;
+      $sets = $settings;
+      $uri  = $file->getFileUri();
+      $info = [
+        'delta'      => $delta,
+        'image.uri'  => $uri,
+        'media.type' => 'image',
+      ];
 
       // Hashtags to avoid render errors with some potential leaks.
       $data = [
         '#delta'    => $delta,
         '#entity'   => $file,
         '#item'     => $item,
-        '#settings' => $sets,
+        '#settings' => $this->formatter->toSettings($sets, $info),
       ];
 
       // Build individual element, no real use here since VEF deprecated.
@@ -158,6 +157,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       // @todo implement when merged at 3.x, not before, of course:
       // $data['#media_attributes']['class'][] =
       // static::$itemPrefix . '__media';
+      // $blazies = $this->formatter->preBlazy($data, $item);
       if (static::$namespace == 'blazy') {
         $data[static::$captionId] = $captions;
         $element = $this->formatter->getBlazy($data);

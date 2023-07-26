@@ -124,6 +124,22 @@ class Blazy {
   }
 
   /**
+   * Returns the highest views rows, or field items count to determine gallery.
+   *
+   * Sliders may trick count 100 into just 2 for their magic chunk trick.
+   */
+  public static function count($blazies, $default = 0): int {
+    $field = $blazies->get('total', 0) ?: $blazies->get('count', 1);
+    $views = $blazies->get('view.count', 0);
+    $count = $views > $field ? $views : $field;
+    $total = $count > $default ? $count : $default;
+
+    // Store it an undisturbed location.
+    $blazies->set('item.count', $total);
+    return $total;
+  }
+
+  /**
    * Alias for BlazyFile::createUrl().
    */
   public static function createUrl($uri, $relative = FALSE): string {

@@ -84,7 +84,7 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // @todo remove $settings after sub-modules: gridstack, slick_browser.
     $data['#access'] = TRUE;
-    $delta = $data['#delta'] ?? ($settings['delta'] ?? -1);
+    $data['#delta']  = $delta = $data['#delta'] ?? ($settings['delta'] ?? -1);
 
     // Extract media data with translated one, dup required by self::prepare().
     if ($entity instanceof MediaInterface) {
@@ -101,16 +101,11 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // Individual entity settings.
     self::settings($settings, $entity);
-    $blazies = $settings['blazies']->reset($settings);
-
-    $blazies->set('delta', $delta)
-      ->set('is.denied', FALSE);
-
+    // $manager->toSettings($settings, $info);
     $manager->postSettingsAlter($settings, $entity);
 
     // Build the Media item.
     $this->oembed->build($data);
-    $blazies = $settings['blazies'];
 
     // Only pass to Blazy for known entities related to File or Media.
     // @todo move it to BlazyMedia::build() after being a non-static at/by 3.x.
@@ -120,6 +115,9 @@ class BlazyEntity implements BlazyEntityInterface {
       if (!$item) {
         $data['content'][] = $this->view($data);
       }
+
+      $blazies = $manager->preBlazy($data, $item);
+      $blazies->set('is.denied', FALSE);
 
       // Pass it to Blazy for consistent markups.
       unset($data['delta'], $data['fallback']);

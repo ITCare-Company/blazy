@@ -530,6 +530,23 @@ interface BlazyInterface {
   public function toOptions(array $options): array;
 
   /**
+   * Reset blazies object with the added data.
+   *
+   * @param array $settings
+   *   The settings to add data.
+   * @param array $data
+   *   The data to be added into $key object.
+   * @param string $key
+   *   The key in the settings object.
+   * @param array $defaults
+   *   The defaults containing object other than blazies, if not initialized.
+   *
+   * @return array
+   *   The modified settings.
+   */
+  public function toSettings(array &$settings, array $data, $key = 'blazies', array $defaults = []): array;
+
+  /**
    * Verifies BlazySettings exists since few may be called outside the workflow.
    *
    * @param array $settings

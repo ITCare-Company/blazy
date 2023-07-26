@@ -150,16 +150,6 @@ class BlazyOEmbedFormatter extends FormatterBase {
         $sets     = $settings;
 
         if ($value = $item->{$property}) {
-          $blazies = $sets['blazies']->reset($sets);
-          $blazies->set('delta', $delta)
-            ->set('media.input_url', $value);
-
-          $data = [
-            '#delta'    => $delta,
-            '#item'     => NULL,
-            '#settings' => $sets,
-          ];
-
           if ($entity->getEntityTypeId() == 'media'
             && $entity->hasField($field_name)
             && $entity->get($field_name)->getString() == $value) {
@@ -175,12 +165,24 @@ class BlazyOEmbedFormatter extends FormatterBase {
             $media = reset($media);
           }
 
+          $info = [
+            'delta' => $delta,
+            'media.input_url' => $value,
+          ];
+
+          $data = [
+            '#delta'    => $delta,
+            '#item'     => NULL,
+            '#settings' => $this->formatter->toSettings($sets, $info),
+          ];
+
           if ($media) {
             $data['#entity'] = $media;
 
             $this->blazyOembed->build($data);
           }
 
+          // $blazies = $this->formatter->preBlazy($data);
           // Media OEmbed with lazyLoad and lightbox supports.
           $element = $this->formatter->getBlazy($data);
         }
