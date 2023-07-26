@@ -8,6 +8,7 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Utility\Sanitize;
 
 /**
@@ -58,15 +59,16 @@ class Lightbox {
     $_box_style = $settings['box_style'] ?? NULL;
     $box_style  = $blazies->get('box.style');
     $box_url    = $blazies->get('box.url');
-    $box_url    = $url = $box_url ?: Blazy::url($settings, $box_style, $uri);
+    $box_url    = $url = $box_url ?: Blazy::toUrl($settings, $box_style, $uri);
     $colorbox   = $blazies->get('colorbox');
     $gallery_id = $blazies->get('lightbox.gallery_id');
     $box_id     = $blazies->is('gallery') ? $gallery_id : NULL;
     $box_width  = $blazies->get('image.original.width') ?: $item->width ?? NULL;
     $box_height = $blazies->get('image.original.height') ?: $item->height ?? NULL;
     $count      = $blazies->get('total', 0) ?: $blazies->get('count', 1);
+    $count      = $blazies->get('view.count', 0) ?: $count;
     $delta      = $blazies->get('delta', 0);
-    $multimedia = $blazies->is('multimedia') ?: $blazies->is('local_media');
+    $multimedia = $blazies->is('multimedia');
     $svg        = $blazies->is('unstyled');
     $styleable  = $valid && !$svg;
     $_escaped   = $blazies->get('media.escaped');
@@ -160,7 +162,7 @@ class Lightbox {
 
     // @todo recheck $count given views gallery vs formatters vs formatters
     // inside views gallery, and add: && $count > 1.
-    if ($box_id) {
+    if ($box_id && $count > 1) {
       // Always 0 when embedded inside a view since it is not aware of it,
       // unless using blazy formatter for the images within Splide, Slick, etc.
       // Adds persistent delta, help fix for slide clones which screw up deltas.
@@ -317,7 +319,7 @@ class Lightbox {
 
     // Provides captions if so configured.
     if (!empty($settings['box_caption'])) {
-      $element['#captions']['lightbox'] = self::buildCaptions($item, $settings);
+      $element['#captions']['lightbox'] = self::buildCaptions($settings, $item);
     }
 
     // Do not show icon for local video file unless supported.
@@ -380,28 +382,33 @@ class Lightbox {
   /**
    * Builds lightbox captions.
    *
-   * @param object|mixed $item
-   *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item.
    * @param array $settings
    *   The settings to work with.
+   * @param object|mixed $item
+   *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item.
    *
    * @return array
    *   The renderable array of caption, or empty array.
    */
-  private static function buildCaptions($item, array $settings = []): array {
+  private static function buildCaptions(array $settings, $item): array {
     $blazies = $settings['blazies'];
-    $title   = Sanitize::caption($blazies->get('image.title'));
-    $alt     = Sanitize::caption($blazies->get('image.alt'));
+    $item    = $blazies->get('image.item', $item);
+    $title   = $blazies->get('image.title');
+    $alt     = $blazies->get('image.alt');
     $delta   = $blazies->get('delta', 0);
-    $object  = NULL;
+    $object  = $blazies->get('media.instance');
+    $file    = NULL;
     $option  = $settings['box_caption'];
-    $custom  = $settings['box_caption_custom'] ?? NULL;
+    $custom  = trim($settings['box_caption_custom'] ?? '');
     $caption = '';
 
     // @todo re-check this if any issues, might be a fake stdClass image item.
     if ($item) {
-      $object = method_exists($item, 'getEntity')
-        ? $item->getEntity() : ($item->entity ?? NULL);
+      $file = $item->entity ?? NULL;
+      if (!$object) {
+        $object = method_exists($item, 'getEntity')
+          ? $item->getEntity() : $file;
+      }
     }
 
     $entity = $blazies->get('entity.instance') ?: $object;
@@ -436,9 +443,11 @@ class Lightbox {
 
         if ($custom && $object) {
           $options = ['clear' => TRUE];
+          $files   = BlazyFile::isFile($file) ? ['file' => $file] : [];
           $caption = \Drupal::token()->replace($custom, [
             $object->getEntityTypeId() => $object,
-          ], $options);
+            // 'node' => $entity,
+          ] + $files, $options);
 
           // Checks for multi-value text fields, and maps its delta to image.
           if (Blazy::has($caption, ", <p>")) {
@@ -455,7 +464,7 @@ class Lightbox {
 
     return empty($caption)
       ? []
-      : ['#markup' => Xss::filter($caption, BlazyDefault::TAGS)];
+      : ['#markup' => Sanitize::caption($caption)];
   }
 
 }

@@ -9,6 +9,7 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManager;
 use Drupal\blazy\BlazyEntityInterface;
+use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Traits\PluginScopesTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -63,7 +64,13 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * Constructs a BlazyViewsFieldPluginBase object.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, BlazyManager $blazy_manager, BlazyEntityInterface $blazy_entity) {
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    BlazyManager $blazy_manager,
+    BlazyEntityInterface $blazy_entity
+  ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->blazyManager = $blazy_manager;
     $this->blazyEntity = $blazy_entity;
@@ -72,8 +79,19 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($configuration, $plugin_id, $plugin_definition, $container->get('blazy.manager'), $container->get('blazy.entity'));
+  public static function create(
+    ContainerInterface $container,
+    array $configuration,
+    $plugin_id,
+    $plugin_definition
+  ) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('blazy.manager'),
+      $container->get('blazy.entity')
+    );
   }
 
   /**
@@ -158,46 +176,43 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * Merges the settings.
    */
-  public function mergedViewsSettings() {
-    $settings  = $this->mergedSettings + BlazyDefault::entitySettings();
-    $view      = $this->view;
-    $view_name = $view->storage->id();
-    $view_mode = $view->current_display;
-    $plugin_id = $view->style_plugin->getPluginId();
-    $display   = $view->style_plugin->displayHandler->getPluginId();
-    $instance  = str_replace('_', '-', "{$view_name}-{$display}-{$view_mode}");
-    $id        = Blazy::getHtmlId("{$plugin_id}-views-field-{$instance}");
-    $count     = count($view->result);
+  public function mergedViewsSettings(array $data = []) {
+    $settings = $this->mergedSettings + BlazyDefault::entitySettings();
+    $config   = [];
+    $view     = $this->view;
+    $style    = $view->style_plugin;
+    $style_id = is_null($style) ? '' : $style->getPluginId();
 
     // Only fetch what we already asked for.
     foreach ($this->getDefaultValues() as $key => $default) {
-      $settings[$key] = $this->options[$key] ?? $default;
+      $settings[$key] = $config[$key] = $this->options[$key] ?? $default;
     }
 
-    $this->blazyManager->verify($settings);
-    $blazies = $settings['blazies'];
-
-    $view_info = [
-      'display'        => $display,
-      'instance_id'    => $instance,
-      'name'           => $view_name,
-      'plugin_id'      => $plugin_id,
-      'view_mode'      => $view_mode,
-      'field'          => [
-        'plugin_id' => $this->getPluginId(),
+    $info = [
+      'embedded'  => FALSE,
+      'is_field'  => TRUE,
+      'is_view'   => TRUE,
+      'plugin_id' => $style_id,
+      'extras' => [
+        'field'     => [
+          'config'    => Blazy::arrayFilter($config),
+          'plugin_id' => $this->getPluginId(),
+        ],
       ],
     ];
 
-    $blazies->set('count', $count)
-      ->set('total', $count)
-      ->set('css.id', $id)
-      ->set('item.id', static::$itemId)
-      ->set('namespace', static::$namespace)
-      ->set('view', $view_info, TRUE)
-      ->set('is.view', TRUE)
-      ->set('is.views_field', TRUE);
+    $settings = BlazyViews::settings($view, $settings, $info);
+    $blazies  = $settings['blazies'];
 
-    $this->blazyManager->preSettings($settings);
+    $blazies->set('item.id', static::$itemId)
+      ->set('item.prefix', static::$itemPrefix)
+      ->set('item.caption', static::$captionId)
+      ->set('namespace', static::$namespace);
+
+    // Be sure after item setup, and only not deferred.
+    if (!isset($data['defer'])) {
+      $this->blazyManager->preSettings($settings);
+    }
     return $settings;
   }
 

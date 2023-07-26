@@ -261,12 +261,12 @@ abstract class BlazyBase implements BlazyInterface {
         $this->cachedOptions[$cid] = $data;
       }
       else {
-        $alter = $info['alter'] ?? NULL;
+        $alter = $info['alter'] ?? $cid;
         $context = $info['context'] ?? [];
 
         // Allows empty array to trigger hook_alter.
         if (is_array($data)) {
-          $this->moduleHandler->alter($alter ?: $cid, $data, $context);
+          $this->moduleHandler->alter($alter, $data, $context);
         }
 
         // Only if we have data, cache them.

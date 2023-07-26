@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-07-26
+------------------------------
+- Fixed for lightbox caption token regression.
+- Added minimal default settings for Blazy OEmbed formatter within Views UI.
+
 Blazy 8.x-2.0-dev, 2023-07-24
 ------------------------------
 - Added image ALT and TITLE for VEF which has none.

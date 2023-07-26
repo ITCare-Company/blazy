@@ -66,7 +66,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
     $is_media_library = $definitions && isset($definitions['field_media_oembed_video']);
 
-    $namespace = $this->provider;
+    $namespace = static::$namespace ?? $this->provider;
     $blazies = $settings['blazies'];
     $blazies->set('css.id', $id)
       ->set('is.filter', TRUE)
@@ -75,6 +75,9 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       ->set('libs.filter', TRUE)
       ->set('filter.' . $namespace, $config)
       ->set('filter.plugin_id', $plugin_id)
+      ->set('item.id', static::$itemId)
+      ->set('item.prefix', static::$itemPrefix)
+      ->set('item.caption', static::$captionId)
       ->set('namespace', $namespace);
 
     $this->preSettings($settings, $text);
@@ -123,7 +126,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
         $settings['image'] = $field_image;
 
-        // @todo extract media info, or remove most of these.
+        // @todo remove most of these, except few.
         $blazies->set('bundles.' . $bundle, $bundle, TRUE)
           ->set('count', $count)
           ->set('total', $count)

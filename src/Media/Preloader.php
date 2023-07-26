@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\blazy\Utility\CheckItem;
 
 /**
  * Provides preload utility.
@@ -60,8 +61,8 @@ class Preloader {
       $image    = BlazyImage::item($item, $options);
       $uri      = BlazyFile::uri($image);
       $valid    = BlazyFile::isValidUri($uri);
-      $unstyled = $uri ? BlazyImage::checkUnstyled($settings, $uri) : FALSE;
-      $url      = BlazyImage::url($settings, $style, $uri);
+      $unstyled = $uri ? CheckItem::unstyled($settings, $uri) : FALSE;
+      $url      = BlazyImage::toUrl($settings, $style, $uri);
 
       // Only needed the first found image, no problem which with mixed media.
       if ($uri && !$blazies->get('first.uri')) {

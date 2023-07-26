@@ -47,7 +47,6 @@ trait BlazyFormatterViewTrait {
     $this->preSettings($settings, $langcode);
 
     // Build the settings.
-    // @todo make it hashtag after sub-modules ready.
     $build = ['#settings' => $settings];
 
     // Modifies settings before building elements.

@@ -23,14 +23,14 @@ class BlazyImage {
    *
    * @var array
    */
-  private static $crop;
+  protected static $crop;
 
   /**
    * Checks if image dimensions are set.
    *
    * @var array
    */
-  private static $isCropSet;
+  protected static $isCropSet;
 
   /**
    * Prepares CSS background image.
@@ -40,35 +40,9 @@ class BlazyImage {
   public static function background(array $settings, $style = NULL) {
     // @tbd replace src with URL before 3.x, or keep it.
     return [
-      'src' => self::url($settings, $style),
-      'ratio' => self::ratio($settings),
+      'src' => self::toUrl($settings, $style),
+      'ratio' => Ratio::compute($settings),
     ];
-  }
-
-  /**
-   * Returns the image style if it contains crop effect.
-   *
-   * @param object $style
-   *   The image style to check for.
-   *
-   * @return object
-   *   Returns the image style instance if it contains crop effect, else NULL.
-   */
-  public static function getCrop($style): ?object {
-    $id = $style->id();
-
-    if (!isset(self::$crop[$id])) {
-      $output = NULL;
-
-      foreach ($style->getEffects() as $effect) {
-        if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
-          $output = $style;
-          break;
-        }
-      }
-      self::$crop[$id] = $output;
-    }
-    return self::$crop[$id];
   }
 
   /**
@@ -82,7 +56,7 @@ class BlazyImage {
   public static function cropDimensions(array &$settings, $style): void {
     $id = $style->id();
 
-    if ($style && !isset(self::$isCropSet[$id])) {
+    if ($style && !isset(static::$isCropSet[$id])) {
       // If image style contains crop, sets dimension once, and let all inherit.
       if ($crop = self::getCrop($style)) {
         $blazies = $settings['blazies'];
@@ -97,7 +71,7 @@ class BlazyImage {
         }
       }
 
-      self::$isCropSet[$id] = TRUE;
+      static::$isCropSet[$id] = TRUE;
     }
   }
 
@@ -112,7 +86,6 @@ class BlazyImage {
     $_width  = 'width';
     $_height = 'height';
     $fluid   = $blazies->is('fluid');
-    $ratios  = $blazies->get('css.ratio');
     $which   = $initial ? 'first' : 'image';
     $height  = $blazies->get($which . '.height');
     $width   = $blazies->get($which . '.width');
@@ -120,7 +93,7 @@ class BlazyImage {
 
     // Original image sizes are stored within ImageItem, or fake one.
     // The given item might also be VideoEmbedField, unless converted at
-    // CheckItem::fromVefWithLove().
+    // Vef::toEmbedUrl().
     if ($item = $blazies->get('image.item', $item)) {
       $width = $item->width ?? $width;
       $height = $item->height ?? $height;
@@ -145,8 +118,8 @@ class BlazyImage {
       }
     }
 
-    // These were the last two standing settings along with URI, now gone
-    // for good into blazies object.
+    // Since 2.17, the last two standing settings along with URI, now gone for
+    // good into blazies object.
     $check[$_width] = $width;
     $check[$_height] = $height;
 
@@ -157,16 +130,16 @@ class BlazyImage {
     $data = ['width' => $check[$_width], 'height' => $check[$_height]];
 
     // Image styles might be left empty, and aspect ratio is used.
-    if ($fluid) {
+    if ($fluid && !$blazies->is('unstyled')) {
       $dims = $data;
-      $dims['ratios'] = $ratios;
+      $dims['ratios'] = $blazies->get('css.ratio');
 
       // The result is normally used for non-inline style, via CSS rules.
-      $data['fluid'] = self::fluid($dims);
+      $data['fluid'] = Ratio::fluid($dims);
     }
 
     // The result is normally used for inline style via padding hacks.
-    $data['ratio'] = self::ratio($data);
+    $data['ratio'] = Ratio::compute($data);
 
     // If initial call, used by EZ, etc.
     if ($initial || !$blazies->get('first.width')) {
@@ -331,42 +304,6 @@ class BlazyImage {
   }
 
   /**
-   * Disable image style if so configured.
-   *
-   * Extensions without image styles: animated GIF, APNG, SVG, etc.
-   *
-   * @requires CheckItem::essentials()
-   */
-  public static function checkUnstyled(array &$settings, $uri, $first_time = FALSE): bool {
-    $blazies = $settings['blazies'];
-    $ext = pathinfo($uri, PATHINFO_EXTENSION);
-    $external = UrlHelper::isExternal($uri);
-    $extensions = ['svg'];
-
-    // If we have added extensions.
-    if ($unstyles = $blazies->ui('unstyled_extensions')) {
-      $checks = array_map('trim', explode(' ', strtolower($unstyles)));
-      $checks = array_merge($checks, $extensions);
-      $extensions = array_unique($checks);
-    }
-
-    $unstyled = $ext && in_array($ext, $extensions);
-    if (!$unstyled) {
-      // @todo recheck if anything against this at all.
-      $unstyled = $external || Blazy::isDataUri($uri);
-    }
-
-    // Re-define, if the provided API by-passed, or different/ altered per item.
-    if ($first_time) {
-      $blazies->set('is.external', $external)
-        ->set('is.unstyled', $unstyled)
-        ->set('image.extension', $ext);
-    }
-
-    return $unstyled;
-  }
-
-  /**
    * Checks if we have image item.
    *
    * Both ImageItem and fake stdClass are valid, no problem.
@@ -396,7 +333,8 @@ class BlazyImage {
    * @param string $uri
    *   The image uri.
    *
-   * @requires self::checkUnstyled()
+   * @requires CheckItem::unstyled()
+   * @requires self::styles()
    */
   public static function prepare(array &$settings, $item = NULL, $uri = NULL): void {
     // EZ, Zooming want a reset due to minimal settings, no biggies.
@@ -412,164 +350,18 @@ class BlazyImage {
     // if ($blazies->was('url') && $blazies->get('image.url')) {
     // return;
     // }
-    // Since Blazy:2.9, image style entity is loaded once at container level,
-    // but might still be needed for adopted Image formatter by a Views style.
-    // @todo since done at container, it might also truble the unstyled per URI.
-    $style = $blazies->get('image.style');
-
-    // BlazyFilter, or image style with crop, may already set these.
+    // Provides original image dimensions.
     self::dimensions($settings, $item, FALSE);
 
-    // Define styles regardless unstyled so to have correct dimensions at
-    // lightboxes, thumbnails, etc.
-    self::styleData($settings, $uri);
+    // Provides transformed image dimensions regardless unstyled so to have
+    // correct dimensions at lightboxes, thumbnails, etc.
+    self::transformed($settings, $uri);
 
-    // SVG, APNG, etc. should not use image_style as they don't convert.
-    // @todo remove self::unstyled($settings);
-    // Provides image url based on the given settings.
-    // @todo remove for self::styleData(), or re-enable if issues.
-    // if ($style && !$blazies->is('unstyled')) {
-    // $blazies->set('cache.metadata.tags', $style->getCacheTags(), TRUE);
-    // Only re-calculate dimensions if not cropped, nor already set.
-    // $resimage = $settings['responsive_image_style'] ?? NULL;
-    // if (!$blazies->is('dimensions') && !$resimage) {
-    // $data = self::transformDimensions($style, $blazies, $uri);
-    // $blazies->set('image', $data, TRUE);
-    // }
-    // }
-    // Currently doesn't affect option.ratio, a failsafe for BG, else collapsed.
-    $url = self::url($settings, $style, $uri);
-    $blazies->set('image.url', $url)
-      ->set('was.url', TRUE);
-  }
+    // Provides ResponsiveImage dimensions and styles, if any.
+    BlazyResponsiveImage::transformed($settings);
 
-  /**
-   * Checks defined image styles at one place.
-   *
-   * @requires \Drupal\blazy\Media\BlazyImage::styles()
-   *
-   * Image styles were provided once at the container level, but not dimensions
-   * which may require URIs at item level. Previously these are scattered around
-   * as required, now called once for all. Nothing loaded if not so configured.
-   *
-   * @todo remove `image` check after another check. Was needed to be undefined
-   * to not conflict with Responsive image last time, till required. Also image
-   * may be set once if cropped at self::cropDimensions().
-   * URI is not available at container level, except for the first,
-   * or when preload option is enabled, unless enforced in the far future.
-   */
-  public static function styleData(array &$settings, $uri): void {
-    $blazies  = $settings['blazies'];
-    $unstyled = $blazies->is('unstyled');
-
-    foreach (BlazyDefault::imageStyles() as $key) {
-      // @todo re-enable the skip if any issues with Responsive image.
-      // The skip limits SVG dimension checks, ratio, url, etc.
-      // if ($key == 'image') {
-      // continue;
-      // }
-      if (!$blazies->get($key . '.transformed')
-        && $style = $blazies->get($key . '.style')) {
-        $data = self::transformDimensions($style, $blazies, $uri);
-        $blazies->set($key, $data, TRUE);
-
-        $url = self::url($settings, $style, $uri);
-        $blazies->set($key . '.url', $url)
-          ->set($key . '.transformed', TRUE);
-
-        // To avoid double checks.
-        if ($key == 'image') {
-          $blazies->set('cache.metadata.tags', $style->getCacheTags(), TRUE)
-            ->set('is.dimensions', TRUE);
-        }
-      }
-    }
-
-    // ResponsiveImage is the most temperamental module. Unlike plain old Image,
-    // it explodes when the image is missing as much as when fed wrong URI, etc.
-    // Do not let SVG alike mess up with ResponsiveImage, else fatal.
-    if (!$blazies->get('resimage.transformed')
-      && $style = BlazyResponsiveImage::toStyle($settings, $unstyled)) {
-      $blazies->set('resimage.style', $style);
-
-      // Might be set via BlazyFilter, but not enough data passed.
-      $multiple = $blazies->is('multistyle');
-      if (!$blazies->get('resimage.id') || $multiple) {
-        BlazyResponsiveImage::define($blazies, $style);
-      }
-
-      // We'll bail out internally if already set once at container level.
-      BlazyResponsiveImage::dimensions($settings, $style, FALSE);
-      $blazies->set('resimage.transformed', TRUE);
-    }
-
-    // Checks SVG dimensions, if any.
-    if (BlazyFile::isValidUri($uri)
-      && $blazies->get('image.extension') == 'svg') {
-      if ($blazies->use('svg_dimensions')) {
-        $svg = simplexml_load_file($uri);
-        if ($svg && isset($svg['viewBox'])) {
-          [,, $width, $height] = array_map('trim', explode(' ', $svg['viewBox']));
-
-          if ($width && $height) {
-            $blazies->set('image.width', ceil($width))
-              ->set('image.height', ceil($height));
-          }
-        }
-      }
-      else {
-        $blazies->set('image.width', NULL)
-          ->set('image.height', NULL);
-      }
-    }
-  }
-
-  /**
-   * Provides a computed image ratio aka fluid ratio.
-   */
-  public static function fluid(array $data): ?string {
-    $width  = $data['width'];
-    $height = $data['height'];
-    $ratios = $data['ratios'] ?? BlazyDefault::RATIO;
-    $output = NULL;
-
-    if (empty($width) || empty($height)) {
-      return $output;
-    }
-
-    $width  = (int) $width;
-    $height = (int) $height;
-
-    try {
-      $check  = self::toRatio($width, $height);
-      $result = ($width / $check) . ':' . ($height / $check);
-
-      if (in_array($result, $ratios)) {
-        $output = $result;
-      }
-    }
-    catch (\DivisionByZeroError $e) {
-      // Do nothing, optional features should not mess up the rest.
-    }
-    catch (\Exception $e) {
-      // Do nothing also.
-    }
-
-    return $output;
-  }
-
-  /**
-   * Provides a computed image ratio aka fluid ratio.
-   *
-   * Addresses multi-image-style Responsive image or, plain old one.
-   * A failsafe for BG, else collapsed.
-   *
-   * @todo decide if to provide NULL or 0 instead.
-   * @todo converts to blazies at/by 3.x.
-   */
-  public static function ratio(array $data) {
-    $no_dims = empty($data['height']) || empty($data['width']);
-    return $no_dims ? 100 : round((($data['height'] / $data['width']) * 100), 2);
+    // Provides SVG dimensions, if any.
+    Svg::dimensions($settings, $uri);
   }
 
   /**
@@ -623,7 +415,7 @@ class BlazyImage {
     // Thumbnails can use image styles, except for SVG for now.
     // @todo check for any modules (ImageMagick) which convert SVG to image,
     // and remove this check if present, leaving it for external URL + data URI.
-    if ($valid && $blazies->get('image.extension') != 'svg') {
+    if ($valid && !$blazies->is('svg')) {
       $unstyled = FALSE;
     }
 
@@ -676,7 +468,7 @@ class BlazyImage {
     if ($fluid) {
       $info = $dim;
       $info['ratios'] = $ratios;
-      $fluid = self::fluid($info);
+      $fluid = Ratio::fluid($info);
     }
 
     // Keys here are hard-coded, so to be inherited by children as intended.
@@ -684,7 +476,7 @@ class BlazyImage {
     return [
       'width'  => $dim['width'],
       'height' => $dim['height'],
-      'ratio'  => self::ratio($dim),
+      'ratio'  => Ratio::compute($dim),
       'fluid'  => $fluid,
     ];
   }
@@ -705,26 +497,38 @@ class BlazyImage {
    *
    * @todo remove fallbacks after another check, also settings after migration.
    */
-  public static function url(array $settings, $style = NULL, $uri = NULL) {
+  public static function toUrl(array $settings, $style = NULL, $uri = NULL): string {
     $blazies = $settings['blazies'];
-    $uri     = $uri ?: $blazies->get('image.uri');
+    $uri     = $uri ?: $blazies->get('image.uri', $settings['uri'] ?? '');
     $valid   = BlazyFile::isValidUri($uri);
     $styled  = $valid && !$blazies->is('unstyled');
     $style   = $styled ? $style : NULL;
     $url     = $settings['image_url'] ?? '';
     $url     = $blazies->get('image.url') ?: $url;
-    $options = ['url' => $url];
 
-    $url = BlazyFile::transformRelative($uri, $style, $options);
+    $options = [
+      'unsafe' => $blazies->is('unsafe'),
+      'url' => $url,
+      'use_data_uri' => $blazies->filter('use_data_uri'),
+    ];
+    return self::url($uri, $style, $options);
+  }
+
+  /**
+   * Returns image URL with an optional image style.
+   */
+  public static function url($uri, $style, array $options = []): string {
+    $unsafe   = $options['unsafe'] ?? TRUE;
+    $data_uri = $options['use_data_uri'] ?? FALSE;
+    $url      = BlazyFile::transformRelative($uri, $style, $options);
 
     // Just in case, an attempted kidding gets in the way, relevant for UGC.
     // @todo re-check to completely remove data URI.
-    if ($url && $blazies->is('unsafe')) {
-      $use_data_uri = $blazies->filter('use_data_uri');
-      $url = Sanitize::url($url, $use_data_uri);
+    if ($url && $unsafe) {
+      $url = Sanitize::url($url, $data_uri);
     }
 
-    return $url;
+    return $url ?: '';
   }
 
   /**
@@ -767,6 +571,32 @@ class BlazyImage {
   }
 
   /**
+   * Returns the image style if it contains crop effect.
+   *
+   * @param object $style
+   *   The image style to check for.
+   *
+   * @return object
+   *   Returns the image style instance if it contains crop effect, else NULL.
+   */
+  private static function getCrop($style): ?object {
+    $id = $style->id();
+
+    if (!isset(static::$crop[$id])) {
+      $output = NULL;
+
+      foreach ($style->getEffects() as $effect) {
+        if (strpos($effect->getPluginId(), 'crop') !== FALSE) {
+          $output = $style;
+          break;
+        }
+      }
+      static::$crop[$id] = $output;
+    }
+    return static::$crop[$id];
+  }
+
+  /**
    * Converts dimensions to integer unless empty.
    */
   private static function toInt(array &$data, $width, $height): void {
@@ -775,15 +605,72 @@ class BlazyImage {
   }
 
   /**
-   * Provides a computed image ratio aka fluid ratio.
+   * Provides result of self::transformDimensions().
+   *
+   * Image styles were provided once at the container level, but not dimensions
+   * which may require URIs at item level. Previously these are scattered around
+   * as required, now called once for all. Nothing loaded if not so configured.
+   * Since Blazy:2.9, image style entity is loaded once at container level,
+   * but might still be needed for adopted Image formatter by a Views style.
+   *
+   * @todo since done at container, it might also truble the unstyled per URI.
+   * @todo remove `image` check after another check. Was needed to be undefined
+   * to not conflict with Responsive image last time, till required. Also image
+   * may be set once if cropped at self::cropDimensions().
+   * URI is not available at container level, except for the first,
+   * or when preload option is enabled, unless enforced in the far future.
+   *
+   * @requires self::styles()
    */
-  private static function toRatio($width, $height) {
-    if ($width == 0 || $height == 0) {
-      return abs(max(abs($width), abs($height)));
+  private static function transformed(array &$settings, $uri): void {
+    $blazies = $settings['blazies'];
+
+    // Only transform internal urls, not external nor SVG as they don't convert.
+    // However GIF, etc. can still be converted. We'll refine SVG down below.
+    if (!$blazies->is('svg') || !$blazies->is('external')) {
+      self::transformedInternal($settings, $blazies, $uri);
     }
 
-    $result = $width % $height;
-    return ($result != 0) ? self::toRatio($height, $result) : abs($height);
+    // External and unstyled image urls.
+    if (!$blazies->get('image.url')) {
+      $style = $blazies->get('image.style');
+      $url = self::toUrl($settings, $style, $uri);
+      $blazies->set('image.url', $url);
+    }
+  }
+
+  /**
+   * Provides result of self::transformDimensions() for internal urls.
+   */
+  private static function transformedInternal(array $settings, $blazies, $uri): void {
+    foreach (BlazyDefault::imageStyles() as $key) {
+      // @todo re-enable the skip if any issues with Responsive image.
+      // The skip limits SVG dimension checks, ratio, url, etc.
+      // if ($key == 'image') {
+      // continue;
+      // }
+      if (!$blazies->get($key . '.transformed')
+        && $style = $blazies->get($key . '.style')) {
+        $skip = $key == 'image' && $blazies->is('dimensions');
+
+        // Only re-calculate dimensions if not cropped, nor already set.
+        if (!$skip) {
+          $data = self::transformDimensions($style, $blazies, $uri);
+          $blazies->set($key, $data, TRUE);
+        }
+
+        // Different urls for different image styles.
+        $url = self::toUrl($settings, $style, $uri);
+        $blazies->set($key . '.url', $url)
+          ->set($key . '.transformed', TRUE);
+
+        // To avoid double checks.
+        if ($key == 'image') {
+          $blazies->set('cache.metadata.tags', $style->getCacheTags(), TRUE)
+            ->set('is.dimensions', TRUE);
+        }
+      }
+    }
   }
 
 }

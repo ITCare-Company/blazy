@@ -10,6 +10,7 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\BlazyResponsiveImage;
 use Drupal\blazy\Media\Placeholder;
+use Drupal\blazy\Media\Ratio;
 
 /**
  * Provides non-reusable blazy attribute static methods.
@@ -97,25 +98,15 @@ class BlazyAttribute {
 
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
-    // Prevents double padding hacks with AMP which also uses similar technique.
-    $disabled = !$blazies->get('image.height') || $blazies->is('amp');
-    $fluid    = $blazies->is('fluid');
-    $ratio    = $disabled ? '' : $settings['ratio'];
-    $computed = $ratio && $fluid;
-    $resimage = $blazies->get('resimage.id');
-
-    // Skip padding hacks if fluid is supported by plain CSS, to avoid JS.
-    // Do not mess up with responsive image for now, or you'll be sorry.
-    if (!$resimage && $computed && $check = $blazies->get('image.fluid')) {
-      $ratio = $check;
-      $computed = FALSE;
-    }
+    $hacks = Ratio::hack($settings);
+    $hack  = $hacks['hack'];
+    $ratio = $hacks['ratio'];
 
     $settings['ratio'] = $ratio ? str_replace(':', '', $ratio) : '';
 
     // Fixed aspect ratio is taken care of by pure CSS. Fluid means dynamic.
     // Unless the computed result above is supported by current CSS rules.
-    if ($computed && $padding = $blazies->get('image.ratio')) {
+    if ($hack && $padding = $blazies->get('image.ratio')) {
       // If "lucky", Blazy/ Slick Views galleries may already set this once.
       // Lucky when you don't flatten out the Views output earlier.
       self::inlineStyle($attributes, 'padding-bottom: ' . $padding . '%;');

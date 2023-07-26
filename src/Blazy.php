@@ -30,7 +30,7 @@ class Blazy {
    *
    * @var int
    */
-  private static $blazyId;
+  protected static $blazyId;
 
   /**
    * Retrieves the request stack.
@@ -155,12 +155,12 @@ class Blazy {
    * Returns the trusted HTML ID of a single instance.
    */
   public static function getHtmlId($string = 'blazy', $id = ''): string {
-    if (!isset(self::$blazyId)) {
-      self::$blazyId = 0;
+    if (!isset(static::$blazyId)) {
+      static::$blazyId = 0;
     }
 
     // Do not use dynamic Html::getUniqueId, otherwise broken AJAX.
-    $id = empty($id) ? ($string . '-' . ++self::$blazyId) : $id;
+    $id = empty($id) ? ($string . '-' . ++static::$blazyId) : $id;
     return Html::getId($id);
   }
 
@@ -251,18 +251,18 @@ class Blazy {
   /**
    * Reset the BlazySettings per item to have unique URI, delta, style, etc.
    */
-  public static function reset(array &$settings, $key = 'blazies'): BlazySettings {
+  public static function reset(array &$settings, $key = 'blazies', array $defaults = []): BlazySettings {
     // Other implementors should verify the $key prior to calling this.
-    self::verify($settings);
+    self::verify($settings, $key, $defaults);
 
     // The settings instance must be unique per item.
-    $blazies = &$settings[$key];
-    if (!$blazies->was('reset')) {
-      $blazies->reset($settings, $key);
-      $blazies->set('was.reset', TRUE);
+    $config = &$settings[$key];
+    if (!$config->was('reset')) {
+      $config->reset($settings, $key);
+      $config->set('was.reset', TRUE);
     }
 
-    return $blazies;
+    return $config;
   }
 
   /**
@@ -284,41 +284,6 @@ class Blazy {
    */
   public static function settings(array $data = []): BlazySettings {
     return new BlazySettings($data);
-  }
-
-  /**
-   * A helper to gradually convert things to #things to avoid render error.
-   */
-  public static function hashtag(array &$data, $key = 'settings', $unset = FALSE): void {
-    if (!isset($data["#$key"])) {
-      $data["#$key"] = $data[$key] ?? [];
-    }
-
-    // Temporary failsafe.
-    if ($unset) {
-      unset($data[$key]);
-    }
-
-    $blazy = "#blazy";
-    if ($key == 'settings' && isset($data[$blazy])) {
-      $data["#$key"] = $data[$blazy];
-
-      // Temporary failsafe.
-      if ($unset) {
-        unset($data[$blazy]);
-      }
-    }
-  }
-
-  /**
-   * A helper to gradually convert things to #things to avoid render error.
-   */
-  public static function toHashtag(array $data, $key = 'settings', $default = []) {
-    $result = $data["#$key"] ?? $data[$key] ?? $default;
-    if (!$result && $key == 'settings') {
-      $result = $data["#blazy"] ?? $default;
-    }
-    return $result;
   }
 
   /**
@@ -346,10 +311,17 @@ class Blazy {
   }
 
   /**
+   * Alias for BlazyImage::toUrl().
+   */
+  public static function toUrl(array $settings, $style = NULL, $uri = NULL): string {
+    return BlazyImage::toUrl($settings, $style, $uri);
+  }
+
+  /**
    * Alias for BlazyImage::url().
    */
-  public static function url(array $settings, $style = NULL, $uri = NULL): string {
-    return BlazyImage::url($settings, $style, $uri);
+  public static function url($uri, $style, array $options = []): string {
+    return BlazyImage::url($uri, $style, $options);
   }
 
   /**
@@ -443,6 +415,41 @@ class Blazy {
    */
   public static function toNativeGrid(array &$settings): void {
     Grid::toNativeGrid($settings);
+  }
+
+  /**
+   * A helper to gradually convert things to #things to avoid render error.
+   */
+  public static function hashtag(array &$data, $key = 'settings', $unset = FALSE): void {
+    if (!isset($data["#$key"])) {
+      $data["#$key"] = $data[$key] ?? [];
+    }
+
+    // Temporary failsafe.
+    if ($unset) {
+      unset($data[$key]);
+    }
+
+    $blazy = "#blazy";
+    if ($key == 'settings' && isset($data[$blazy])) {
+      $data["#$key"] = $data[$blazy];
+
+      // Temporary failsafe.
+      if ($unset) {
+        unset($data[$blazy]);
+      }
+    }
+  }
+
+  /**
+   * A helper to gradually convert things to #things to avoid render error.
+   */
+  public static function toHashtag(array $data, $key = 'settings', $default = []) {
+    $result = $data["#$key"] ?? $data[$key] ?? $default;
+    if (!$result && $key == 'settings') {
+      $result = $data["#blazy"] ?? $default;
+    }
+    return $result;
   }
 
 }

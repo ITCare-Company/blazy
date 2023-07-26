@@ -97,7 +97,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
     if (isset($element['background'])) {
       $element['background']['#weight'] = -99;
     }
-    return parent::settingsForm($form, $form_state) + $element;
+    return $element + parent::settingsForm($form, $form_state);
   }
 
   /**
@@ -128,10 +128,18 @@ class BlazyOEmbedFormatter extends FormatterBase {
   /**
    * Generates the Blazy elements.
    */
-  protected function getElements(array $build, $items): \Generator {
+  protected function getElements(array &$build, $items): \Generator {
     $settings   = $this->formatter->toHashtag($build);
+    $blazies    = $settings['blazies'];
     $field_name = $this->fieldDefinition->getName();
     $entity     = $items->getParent()->getEntity();
+
+    // The form is not loaded at views UI, provides the minimum.
+    // @todo remove when the form is loaded at Views UI.
+    if ($blazies->get('view.embedded')
+      && $defaults = $blazies->get('media.defaults', [])) {
+      $settings = array_merge($settings, $defaults);
+    }
 
     foreach ($items as $delta => $item) {
       $element = [];
@@ -153,8 +161,8 @@ class BlazyOEmbedFormatter extends FormatterBase {
           ];
 
           if ($entity->getEntityTypeId() == 'media'
-                && $entity->hasField($field_name)
-                && $entity->get($field_name)->getString() == $value) {
+            && $entity->hasField($field_name)
+            && $entity->get($field_name)->getString() == $value) {
             // We are on the right media entity.
             $media = $entity;
           }

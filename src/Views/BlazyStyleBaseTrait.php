@@ -6,7 +6,7 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Render\Markup;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Utility\Sanitize;
 
 /**
@@ -93,52 +93,33 @@ trait BlazyStyleBaseTrait {
    * Provides commons settings for the style plugins.
    */
   protected function buildSettings() {
-    $view      = $this->view;
-    $count     = count($view->result);
-    $settings  = $this->options;
-    $view_name = $view->storage->id();
-    $view_mode = $view->current_display;
-    $plugin_id = $this->getPluginId();
-    $display   = $view->style_plugin->displayHandler->getPluginId();
-    $instance  = str_replace('_', '-', "{$view_name}-{$display}-{$view_mode}");
-    $id        = empty($settings['id']) ? '' : $settings['id'];
-    $id        = Blazy::getHtmlId("{$plugin_id}-views-{$instance}", $id);
-    $settings += BlazyDefault::lazySettings();
+    $view    = $this->view;
+    $options = $this->options;
 
-    $this->blazyManager->preSettings($settings);
-    $this->prepareSettings($settings);
-    $blazies = $settings['blazies'];
-
-    // Prepare needed settings to work with.
-    // @todo convert some to blazies, and remove these after sub-modules.
-    $settings['id']           = $id;
-    $settings['count']        = $count;
-    $settings['instance_id']  = $instance;
-    $settings['multiple']     = TRUE;
-    $settings['plugin_id']    = $settings['view_plugin_id'] = $plugin_id;
-    $settings['view_name']    = $view_name;
-    $settings['view_display'] = $display;
-
-    $view_info = [
-      'display'     => $display,
-      'instance_id' => $instance,
-      'name'        => $view_name,
-      'plugin_id'   => $plugin_id,
-      'view_mode'   => $view_mode,
-      'count'       => $count,
-      'embedded'    => FALSE,
+    $data = [
+      'embedded'  => FALSE,
+      'is_view'   => TRUE,
+      'plugin_id' => $this->getPluginId(),
     ];
 
-    $blazies->set('cache.metadata.keys', [$id, $view_mode, $count], TRUE)
-      ->set('cache.metadata.tags', $view->getCacheTags() ?: [], TRUE)
-      ->set('count', $count)
-      ->set('total', $count)
-      ->set('css.id', $id)
-      ->set('is.multiple', TRUE)
-      ->set('is.view', TRUE)
-      ->set('use.ajax', $view->ajaxEnabled())
-      ->set('view', $view_info, TRUE);
+    // Prepare needed settings to work with.
+    $settings = BlazyViews::settings($view, $options, $data);
+    $blazies  = $settings['blazies'];
+    $is_grid  = !empty($settings['style']) && !empty($settings['grid']);
 
+    // Since 2.17, the item array was to replace all sub-modules theme_ITEM() by
+    // theme_blazy() for easy improvements at 3.x. Not implemented at 2.x, yet.
+    $blazies->set('namespace', static::$namespace ?? 'blazy')
+      ->set('is.grid', $is_grid && $blazies->is('multiple'))
+      ->set('item.id', static::$itemId ?? 'slide')
+      ->set('item.prefix', static::$itemPrefix ?? 'slide')
+      ->set('item.caption', static::$captionId ?? 'caption');
+
+    // Be sure to run after item setup.
+    $this->blazyManager->preSettings($settings);
+    $this->prepareSettings($settings);
+
+    // @todo remove, used by outlayer.
     if (!empty($this->htmlSettings)) {
       $settings = $this->blazyManager->merge($this->htmlSettings, $settings);
     }
@@ -152,16 +133,30 @@ trait BlazyStyleBaseTrait {
 
   /**
    * Check Blazy formatter to build lightbox galleries.
+   *
+   * Make this view container aware of Blazy formatters, normally to inject
+   * relevant lightbox info about which it is not aware of due to such info is
+   * not provided at view style level, but field formatter one.
    */
   protected function checkBlazy(array &$settings, array $build, array $rows = []) {
     // Extracts Blazy formatter settings if available.
     // @todo re-check and remove, first.data already takes care of this.
+    // The ::isBlazy() is still needed for Views fields, not just this view,
+    // but not here, normally at modules' managers.
+    // However if any issues, re-enable this check, and refine downstream more.
     // if (empty($settings['vanilla']) && isset($build['items'][0])) {
     // $this->blazyManager()->isBlazy($settings, $build['items'][0]);
     // }
     $blazies = $settings['blazies'];
     if ($data = $this->getFirstImage($rows[0] ?? NULL)) {
       $blazies->set('first.data', $data);
+      if ($subsets = $this->blazyManager->toHashtag($data)) {
+        if ($blazy = $subsets['blazies']) {
+          $field = $blazy->get('field', []);
+          $field['count'] = $blazy->get('count');
+          $blazies->set('view.formatter', $field);
+        }
+      }
     }
   }
 
@@ -290,7 +285,7 @@ trait BlazyStyleBaseTrait {
 
     // Even if ignorantly multiple, thumbnails must be one only.
     if (!$tn_style && $build) {
-      $subsets = Blazy::toHashtag($build);
+      $subsets = $this->blazyManager->toHashtag($build);
       $tn_style = $subsets['thumbnail_style']
         ?? $subsets['image_style']
         ?? NULL;
@@ -337,6 +332,8 @@ trait BlazyStyleBaseTrait {
 
   /**
    * Sets dynamic html settings.
+   *
+   * @todo remove post blazy:2.17 after outlayer.
    */
   protected function setHtmlSettings(array $settings) {
     $this->htmlSettings = $settings;
@@ -346,8 +343,8 @@ trait BlazyStyleBaseTrait {
   /**
    * Renew settings per item.
    */
-  protected function reset(array &$settings, $key = 'blazies') {
-    return Blazy::reset($settings, $key);
+  protected function reset(array &$settings, $key = 'blazies', array $defaults = []) {
+    return Blazy::reset($settings, $key, $defaults);
   }
 
 }

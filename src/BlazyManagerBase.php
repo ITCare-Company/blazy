@@ -127,8 +127,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $ui = $this->config();
     $iframe_domain = $this->config('iframe_domain', 'media.settings');
     $is_debug = !$this->config('css.preprocess', 'system.performance');
-    $ui['fx'] = $ui['fx'] ?? '';
-    $ui['fx'] = empty($settings['fx']) ? $ui['fx'] : $settings['fx'];
+    $ui['fx'] = $settings['fx'] ?? $ui['fx'] ?? '';
     $ui['blur_minwidth'] = (int) ($ui['blur_minwidth'] ?? 0);
     $fx = $settings['_fx'] ?? $ui['fx'];
     $fx = $blazies->get('fx') ?: $fx;

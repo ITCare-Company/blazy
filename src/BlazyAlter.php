@@ -235,11 +235,11 @@ class BlazyAlter {
   /**
    * Implements hook_blazy_settings_alter().
    *
-   * @todo remove, likely no-longer relevant since sub-modules re-use the same
-   * Blazy::containerAttributes() without being exclusive to `blazy` namespace
-   * which was at 1.x, but not 2.x. At 2.x `blazy` is merged into the embedding
-   * parent automatically making this irrelevant. Meaning CSS classes are
-   * preserved by Blazy containing Views style since 2.x.
+   * Provides minimal flags for Blazy field formatters embedded inside a view.
+   * With this limited info, sub-modules like Splidebox can correctly inject
+   * its options via [data-splidebox] to the correct container, etc., and avoid
+   * duplicating injections at both embedded Blazy formatter and Blazy Grid view
+   * style. And the same principle applies to all sub-modules.
    */
   public static function blazySettingsAlter(array &$build, $items): void {
     $settings = &$build['#settings'];
@@ -248,31 +248,36 @@ class BlazyAlter {
     // Sniffs for Views to allow block__no_wrapper, views_no_wrapper, etc.
     $function = 'views_get_current_view';
     if (is_callable($function) && $view = $function()) {
-      $style = $view->style_plugin;
-      $display = is_null($style) ? '' : $style->displayHandler->getPluginId();
-
-      $name = $view->storage->id();
+      $name      = $view->storage->id();
       $view_mode = $view->current_display;
+      $style     = $view->style_plugin;
+      $display   = is_null($style) ? '' : $style->displayHandler->getPluginId();
       $plugin_id = is_null($style) ? '' : $style->getPluginId();
 
+      // Not needed, can be just accessed via $blazies directly:
+      // $field = $blazies->get('field', []);
+      // $field['count'] = $blazies->get('count');
+      // Only eat what we can chew:
       $current = [
+        'count'       => count($view->result),
         'display'     => $display,
+        'embedded'    => TRUE,
         'instance_id' => str_replace('_', '-', "{$name}-{$display}-{$view_mode}"),
         'name'        => $name,
         'plugin_id'   => $plugin_id,
         'view_mode'   => $view_mode,
-        'count'       => count($view->result),
-        'embedded'    => TRUE,
+        // 'formatter' => $field,
       ];
 
-      // @todo add `formatter` key if the above is proven right.
-      $blazies->set('view', $current, TRUE);
-      $blazies->set('is.view', FALSE);
+      // Collects view info for the embedded Blazy, and this is not a view.
+      $blazies->set('view', $current, TRUE)
+        ->set('is.view', FALSE);
 
       // @todo remove when Blazy has use_theme_field option. This is so to avoid
       // emptiness when enabling Views `Display all values in the same row`, and
       // Blazy is embedded inside sub-modules.
       // @fixme this breaks theme_field() item wrappers when embedded as Views.
+      // Fixing one problem breaks others thingies, doh.
       /*
       if ($name = $blazies->get('field.name')) {
       if ($field = ($view->field[$name] ?? NULL)) {

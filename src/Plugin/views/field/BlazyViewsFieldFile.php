@@ -17,13 +17,14 @@ class BlazyViewsFieldFile extends BlazyViewsFieldPluginBase {
    */
   public function render(ResultRow $values) {
     /** @var \Drupal\file\Entity\File $entity */
-    $entity = $values->_entity;
+    // @todo recheck relationship and remove this $entity = $values->_entity;
+    $entity = $this->getEntity($values);
 
     if ($entity instanceof File) {
       $settings = $this->mergedViewsSettings();
 
       $data['#entity']   = $entity;
-      $data['#settings'] = $this->mergedSettings = $settings;
+      $data['#settings'] = $settings;
       $data['#delta']    = $values->index;
       $data['fallback']  = $entity->getFilename();
 

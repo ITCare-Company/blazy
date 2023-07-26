@@ -79,7 +79,7 @@ class BlazyMedia {
     // can be refined later when Blazy supports more media types better.
     $blazies->set('media.type', 'rich');
 
-    $view_mode = $blazies->get('media.view_mode', 'default');
+    $view_mode = $blazies->get('media.view_mode', $settings['view_mode'] ?? 'default');
     $source_field = $blazies->get('media.source_field');
     $build = $media->get($source_field)->view($view_mode);
     $build['#settings'] = $settings;
@@ -312,7 +312,7 @@ class BlazyMedia {
   }
 
   /**
-   * Modifies item attributes for local video item.
+   * Modifies item attributes for local audio/video item.
    */
   private static function toLocal(array &$item, array &$settings, $file): void {
     $blazies = $settings['blazies'];
@@ -325,8 +325,8 @@ class BlazyMedia {
     // Only local video has poster, audio uses background via settings.image.
     if ($blazies->is('local_audio') && !empty($settings['image'])) {
       // @todo remove once preSettings sync both formatters and views fields.
-      // @fixme views field blazy_media is out of synced for libraries.
-      $item['#attached']['library'][] = 'blazy/background';
+      // @fixed views field blazy_media is out of synced for libraries.
+      // $item['#attached']['library'][] = 'blazy/background';
       $blazies->set('is.bg', TRUE)
         ->set('is.multicontent', TRUE)
         ->set('libs.background', TRUE);
@@ -334,8 +334,8 @@ class BlazyMedia {
 
     // Do this as $item['#settings'] is not available as file_video variables.
     // @todo re-check, most likely just a single file here.
-    foreach ($item['#files'] as &$files) {
-      $files['#blazy'] = Blazy::settings($settings);
+    foreach ($item['#files'] as &$file) {
+      $file['#blazy'] = Blazy::settings($settings);
     }
 
     $item['#attributes']->setAttribute('data-b-lazy', TRUE);

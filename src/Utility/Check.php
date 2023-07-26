@@ -110,13 +110,8 @@ class Check {
    * @todo remove some settings after sub-modules.
    */
   public static function container(array &$settings): void {
-    $blazies = $settings['blazies'];
-    $bundles = $blazies->get('field.target_bundles', []);
-
-    // @todo enable after xchecks, needed by formatters and views fields.
-    // if ($bundles) {
-    // return;
-    // }
+    $blazies      = $settings['blazies'];
+    $bundles      = $blazies->get('field.target_bundles', []);
     $ui           = $blazies->get('ui');
     $_loading     = $settings['loading'] ?? '';
     $loading      = $settings['loading'] = $_loading ?: 'lazy';
@@ -135,6 +130,8 @@ class Check {
     $is_audio     = $bundles && in_array('audio', $bundles);
     $is_video     = $bundles && in_array('video', $bundles);
     $item_id      = $blazies->get('item.id', $settings['item_id'] ?? 'blazy');
+    $item_caption = $blazies->get('item.caption', 'captions');
+    $item_prefix  = $blazies->get('item.prefix', 'blazy');
     $namespace    = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
     $is_resimage  = $blazies->is('resimage')
       || is_callable('responsive_image_get_mime_type');
@@ -170,11 +167,14 @@ class Check {
       ->set('is.unload', $is_unload)
       ->set('is.unloading', $is_unloading)
       ->set('item.id', $item_id)
+      ->set('item.caption', $item_caption)
+      ->set('item.prefix', $item_prefix)
       ->set('namespace', $namespace)
       ->set('libs.background', $is_bg || $is_audio)
       ->set('libs.compat', $is_compat)
       ->set('libs.ratio', !empty($settings['ratio']))
       ->set('css.ratio', BlazyDefault::RATIO)
+      ->set('media.defaults', BlazyDefault::mediaDefaults())
       ->set('use.dataset', $is_bg || $is_video)
       ->set('use.loader', !$is_nojs)
       ->set('use.svg_dimensions', TRUE)

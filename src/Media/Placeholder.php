@@ -200,7 +200,7 @@ class Placeholder {
 
     if (empty($tn_uri) && $style && BlazyFile::isValidUri($uri)) {
       $tn_uri = $style->buildUri($uri);
-      $tn_url = BlazyImage::url($settings, $style, $uri);
+      $tn_url = BlazyImage::toUrl($settings, $style, $uri);
     }
 
     // Overrides placeholder with data URI based on configured thumbnail.
@@ -258,14 +258,17 @@ class Placeholder {
     // Supports unique thumbnail different from main image, such as logo for
     // thumbnail and main image for company profile.
     if ($tn_uri) {
-      $tn_url = BlazyImage::url($settings, $style, $tn_uri);
+      // $tn_url = BlazyImage::toUrl($settings, $style, $tn_uri);
+      $tn_url = BlazyImage::url($tn_uri, $style);
     }
     else {
       // This one uses non-unique image, similar to the main stage image.
       $style = $blazies->get('thumbnail.style');
-      if (!$blazies->is('external') && $style) {
+      $disabled = $blazies->is('external') || $blazies->is('svg');
+      if (!$disabled && $style) {
         $tn_uri = $style->buildUri($uri);
-        $tn_url = BlazyImage::url($settings, $style, $uri);
+        // $tn_url = BlazyImage::toUrl($settings, $style, $uri);
+        $tn_url = BlazyImage::url($uri, $style);
         $width  = $blazies->get('thumbnail.width');
         $height = $blazies->get('thumbnail.height');
       }

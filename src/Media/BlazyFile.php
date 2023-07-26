@@ -102,8 +102,7 @@ class BlazyFile {
       $url = $uri;
     }
     else {
-      // @todo re-check this based on the need.
-      if ((empty($url) || $style) && self::isValidUri($uri)) {
+      if (self::isValidUri($uri) && ($style || !$url)) {
         $url = $style ? $style->buildUrl($uri) : self::createUrl($uri);
 
         if ($gen = Path::fileUrlGenerator()) {

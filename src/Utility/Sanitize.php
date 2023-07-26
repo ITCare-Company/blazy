@@ -6,6 +6,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyDefault;
 
 /**
  * Provides very few common sanitization wrapper methods.
@@ -127,6 +128,7 @@ class Sanitize {
    *   The relatively non-broken $input.
    */
   public static function caption($input, array $options = []): string {
+    $admin = $options['admin'] ?? FALSE;
     $check = $input;
     if (!$check) {
       return '';
@@ -150,7 +152,8 @@ class Sanitize {
     }
     }
      */
-    return Xss::filterAdmin($check);
+    $tags = array_merge(BlazyDefault::TAGS, Xss::getHtmlTagList());
+    return $admin ? Xss::filterAdmin($check) : Xss::filter($check, $tags);
   }
 
   /**

@@ -76,12 +76,10 @@ class BlazyViews extends BlazyStyleBase implements BlazyViewsInterface {
    */
   public function render() {
     $settings = $this->buildSettings();
-    $blazies = $settings['blazies'];
-    $view = $this->view;
+    $blazies  = $settings['blazies'];
+    $view     = $this->view;
 
-    $blazies->set('namespace', static::$namespace)
-      ->set('item.id', static::$itemId)
-      ->set('is.grid', TRUE);
+    $blazies->set('is.grid', TRUE);
 
     $elements = [];
     foreach ($this->renderGrouping($view->result, $settings['grouping']) as $rows) {

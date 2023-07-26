@@ -7,7 +7,7 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyFile;
-use Drupal\blazy\Media\BlazyImage;
+use Drupal\blazy\Media\Vef;
 
 /**
  * Provides feature check methods at item level.
@@ -162,7 +162,7 @@ class CheckItem {
 
     // Checks images which cannot have image styles without extra legs.
     if ($uri) {
-      BlazyImage::checkUnstyled($settings, $uri, TRUE);
+      self::unstyled($settings, $uri, TRUE);
     }
 
     // Required by thumbnails here, but conflict with audio thumbnail.
@@ -215,7 +215,7 @@ class CheckItem {
           'is_player' => $is_player,
         ];
 
-        $embed_url = self::fromVefWithLove($settings, $options, $oembed);
+        $embed_url = Vef::toEmbedUrl($settings, $options, $oembed);
       }
     }
 
@@ -290,6 +290,43 @@ class CheckItem {
   }
 
   /**
+   * Disable image style if so configured.
+   *
+   * Extensions without image styles: animated GIF, APNG, SVG, etc.
+   *
+   * @requires CheckItem::essentials()
+   */
+  public static function unstyled(array &$settings, $uri, $first_time = FALSE): bool {
+    $blazies = $settings['blazies'];
+    $ext = pathinfo($uri, PATHINFO_EXTENSION);
+    $external = UrlHelper::isExternal($uri);
+    $extensions = ['svg'];
+
+    // If we have added extensions.
+    if ($unstyles = $blazies->ui('unstyled_extensions')) {
+      $checks = array_map('trim', explode(' ', strtolower($unstyles)));
+      $checks = array_merge($checks, $extensions);
+      $extensions = array_unique($checks);
+    }
+
+    $unstyled = $ext && in_array($ext, $extensions);
+    if (!$unstyled) {
+      // @todo recheck if anything against this at all.
+      $unstyled = $external || Blazy::isDataUri($uri);
+    }
+
+    // Re-define, if the provided API by-passed, or different/ altered per item.
+    if ($first_time) {
+      $blazies->set('is.external', $external)
+        ->set('is.svg', $ext == 'svg')
+        ->set('is.unstyled', $unstyled)
+        ->set('image.extension', $ext);
+    }
+
+    return $unstyled;
+  }
+
+  /**
    * Determines which lazyload to use for Slick and Splide.
    *
    * Moved it here to avoid similar issues like `is_preview` complication,
@@ -342,40 +379,6 @@ class CheckItem {
     $settings['lazy'] = $lazy;
 
     $blazies->set('lazy.id', $lazy);
-  }
-
-  /**
-   * Returns modified embed url from VEF.
-   *
-   * @todo remove at 3.x, and or after BVEF adopted BlazyVideoFormatter.
-   */
-  private static function fromVefWithLove(array &$settings, array $options, $oembed): string {
-    $blazies   = $settings['blazies'];
-    $embed_url = $options['embed_url'];
-    $is_player = $options['is_player'];
-
-    // VEF has no TITLE, nor ALT, for images provide them.
-    $oembed->getThumbnail($settings);
-
-    // For consistency and security, yet ensure to not mess up url.
-    $input_url = $blazies->get('media.input_url');
-    if ($input_url) {
-      if (strpos($embed_url, '?url') === FALSE) {
-        $autoplay  = $is_player ? ['autoplay' => 1] : [];
-        $embed_url = $oembed->toEmbedUrl($blazies, $input_url, $autoplay);
-      }
-      elseif ($is_player) {
-        $embed_url = Blazy::autoplay($embed_url);
-      }
-    }
-
-    // The multimedia is defined for core Media, not VEF, so set it here.
-    $blazies->set('is.multimedia', TRUE)
-      ->set('media.input_url', $input_url)
-      ->set('media.bundle', 'remote_video')
-      ->set('media.source', 'video_embed_field');
-
-    return $embed_url;
   }
 
 }

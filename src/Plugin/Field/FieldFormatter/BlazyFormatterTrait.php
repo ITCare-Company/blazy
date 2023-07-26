@@ -111,10 +111,18 @@ trait BlazyFormatterTrait {
   public function buildSettings() {
     $settings = array_merge($this->getCommonFieldDefinition(), $this->getSettings());
     $blazies  = $settings['blazies'];
+    $multiple = $this->isMultiple();
     $is_grid  = !empty($settings['style']) && !empty($settings['grid']);
 
-    $blazies->set('is.grid', $is_grid);
-    $blazies->set('is.multiple', $this->isMultiple());
+    // Since 2.17, the item array was to replace all sub-modules theme_ITEM() by
+    // theme_blazy() for easy improvements at 3.x. Not implemented at 2.x, yet.
+    $namespace = static::$namespace ?? 'blazy';
+    $blazies->set('is.grid', $is_grid && $multiple)
+      ->set('is.multiple', $multiple)
+      ->set('item.id', static::$itemId ?? 'slide')
+      ->set('item.prefix', static::$itemPrefix ?? 'slide')
+      ->set('item.caption', static::$captionId ?? 'caption')
+      ->set('namespace', $blazies->get('namespace', $namespace));
 
     $this->pluginSettings($blazies, $settings);
 
@@ -173,6 +181,7 @@ trait BlazyFormatterTrait {
       'plugin_id'     => $this->getPluginId(),
       'third_party'   => $this->getThirdPartySettings(),
       'view_mode'     => $this->viewMode,
+      'formatter'     => array_filter($this->getSettings()),
     ];
 
     return BlazyField::settings($settings, $field, $data);

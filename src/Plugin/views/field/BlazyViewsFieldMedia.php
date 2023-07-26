@@ -18,15 +18,17 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
    */
   public function render(ResultRow $values) {
     /** @var \Drupal\media\Entity\Media $entity */
-    $entity = $values->_entity;
+    // @todo recheck relationship and remove this $entity = $values->_entity;
+    $entity = $this->getEntity($values);
 
     if ($entity instanceof Media) {
-      $settings = $this->mergedViewsSettings();
+      $options['defer'] = TRUE;
+      $settings = $this->mergedViewsSettings($options);
 
       // Due to minimal settings, assumed core fields are in use.
       $settings['image'] = 'field_media_image';
       $data['#entity']   = $entity;
-      $data['#settings'] = $this->mergedSettings = $settings;
+      $data['#settings'] = $settings;
       $data['#delta']    = $values->index;
 
       // Populate media metadata earlier for their relevant libraries.
@@ -34,6 +36,8 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
       // @todo remove once formatters and views fields are synced downstream.
       BlazyMedia::prepare($data);
 
+      // Be sure after item setup.
+      $this->blazyManager->preSettings($data['#settings']);
       $data['fallback'] = $entity->label();
 
       // Pass results to \Drupal\blazy\BlazyEntity.

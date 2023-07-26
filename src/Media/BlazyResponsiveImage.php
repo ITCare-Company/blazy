@@ -31,6 +31,34 @@ class BlazyResponsiveImage {
   }
 
   /**
+   * Initialize the Responsive image definition.
+   *
+   * ResponsiveImage is the most temperamental module. Unlike plain old Image,
+   * it explodes when the image is missing as much as when fed wrong URI, etc.
+   * Do not let SVG alike mess up with ResponsiveImage, else fatal.
+   */
+  public static function transformed(array &$settings): void {
+    $blazies = $settings['blazies'];
+    $unstyled = $blazies->is('unstyled');
+
+    // Only if not transformed.
+    if (!$blazies->get('resimage.transformed')
+      && $style = self::toStyle($settings, $unstyled)) {
+      $blazies->set('resimage.style', $style);
+
+      // Might be set via BlazyFilter, but not enough data passed.
+      $multiple = $blazies->is('multistyle');
+      if (!$blazies->get('resimage.id') || $multiple) {
+        self::define($blazies, $style);
+      }
+
+      // We'll bail out internally if already set once at container level.
+      self::dimensions($settings, $style, FALSE);
+      $blazies->set('resimage.transformed', TRUE);
+    }
+  }
+
+  /**
    * Makes Responsive image usable as CSS background image sources.
    *
    * This is per item dependent on URI, the self::dimensions() is global.
@@ -235,7 +263,7 @@ class BlazyResponsiveImage {
 
           // @todo use dimensions based on the chosen fallback.
           if ($uri && $style = $blazy->load($id, 'image_style')) {
-            $data_src = BlazyImage::url($settings, $style, $uri);
+            $data_src = BlazyImage::toUrl($settings, $style, $uri);
             $tn_uri = $style->buildUri($uri);
 
             [

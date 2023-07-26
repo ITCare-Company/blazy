@@ -126,7 +126,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       $build['items'][$delta] = $element;
 
       // Build the thumbnail item.
-      if ($is_nav) {
+      if ($is_nav && method_exists($this, 'buildElementThumbnail')) {
         $this->buildElementThumbnail($build, $element, $entity, $delta);
       }
     }
@@ -141,10 +141,14 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
   /**
    * Build thumbnail navigation such as for Slick asnavfor.
+   *
+   * @todo re-enable after sub-modules corrected params.
+   *
+   * Protected function buildElementThumbnail(array &$build, array $element,
+   * $entity, $delta) {
+   * Do nothing, let extenders do their jobs.
+   * }
    */
-  protected function buildElementThumbnail(array &$build, $element, $entity, $delta) {
-    // Do nothing, let extenders do their jobs.
-  }
 
   /**
    * Builds captions with possible multi-value fields.

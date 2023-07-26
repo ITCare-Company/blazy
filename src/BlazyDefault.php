@@ -17,7 +17,19 @@ class BlazyDefault {
   /**
    * Defines constant for the supported text tags.
    */
-  const TAGS = ['a', 'em', 'strong', 'h2', 'h3', 'p', 'span', 'ul', 'ol', 'li'];
+  const TAGS = [
+    'a',
+    'em',
+    'strong',
+    'h2',
+    'h3',
+    'p',
+    'small',
+    'span',
+    'ul',
+    'ol',
+    'li',
+  ];
 
   /**
    * Defines constant for the supported media tags.
@@ -133,14 +145,24 @@ class BlazyDefault {
   }
 
   /**
+   * Returns sensible default options common for OEmbed within views.
+   */
+  public static function mediaDefaults() {
+    return [
+      'media_switch' => 'media',
+      'ratio' => 'fluid',
+      'view_mode' => 'default',
+    ];
+  }
+
+  /**
    * Returns sensible default options common for Views lacking of UI.
    */
   public static function lazySettings() {
     return [
       'blazy' => TRUE,
       'lazy'  => 'blazy',
-      'ratio' => 'fluid',
-    ];
+    ] + self::mediaDefaults();
   }
 
   /**
@@ -148,9 +170,7 @@ class BlazyDefault {
    */
   public static function entitySettings() {
     return [
-      'media_switch' => 'media',
       'rendered'     => FALSE,
-      'view_mode'    => 'default',
       '_detached'    => TRUE,
     ] + self::lazySettings();
   }
