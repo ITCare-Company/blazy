@@ -127,15 +127,20 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     // The problem with raw attributes were discrete behaviors causing failed
     // lazy load, nothing related to skiddies businesses. It appears fixed since
     // blazy:2.17-beta1+, see #3374519.
+    // See https://www.drupal.org/node/3129738.
+    // See https://mink.behat.org/en/latest/guides/traversing-pages.html#css-selector.
     $this->assertSession()->elementExists('css', 'img[usemap]');
     $this->assertSession()->elementExists('css', 'img[data-onmouseover]');
 
     $this->assertSession()->elementNotExists('css', 'img[onmouseover]');
     $this->assertSession()->elementNotExists('css', 'img[alt*=strong]');
 
-    $this->assertSession()->elementExists('css', 'img[src^=data:image]');
+    $this->assertSession()->elementExists('css', 'img[src^=data]');
     $this->assertSession()->elementExists('css', 'img[data-src^=alert]');
     $this->assertSession()->elementNotExists('css', 'img[data-src^=javascript]');
+
+    $this->assertSession()->elementExists('xpath', '//img[contains(@src, "data:image")]');
+    $this->assertSession()->elementExists('xpath', '//img[contains(@class, "width-full")]');
 
     // Also verifies that [data-unblazy] should not be touched, nor lazyloaded.
     $this->assertSession()->elementNotContains('css', '.media-wrapper--blazy', 'data-unblazy');
