@@ -131,7 +131,7 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $this->assertSession()->elementExists('css', 'img[data-onmouseover]');
 
     $this->assertSession()->elementNotExists('css', 'img[onmouseover]');
-    $this->assertSession()->elementNotExists('css', 'img[alt^=<strong]');
+    $this->assertSession()->elementNotExists('css', 'img[alt*=strong]');
 
     $this->assertSession()->elementExists('css', 'img[src^=data:image]');
     $this->assertSession()->elementExists('css', 'img[data-src^=alert]');
