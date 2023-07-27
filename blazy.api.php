@@ -373,25 +373,25 @@ function hook_blazy_item_alter(array &$settings, array &$attributes, array &$ite
       ->set('is.lightbox', FALSE);
   }
 
+  // Since > 2.17-beta1, below is no longer needed, already merged.
   // Modifies IMG attributes, relevant for BlazyFilter here, see
   // https://www.drupal.org/project/blazy/issues/3374519:
   // - item.raw_attributes should not be used as not only raw, but also cause
   //   lazy load, aspect ratio, image style, etc. failed.
   // - item.safe_attributes are cleaned out from most troubles, yet, not fully.
-  $safe_attrs = $blazies->get('item.safe_attributes', []);
-
+  // $safe_attrs = $blazies->get('item.safe_attributes', []);
   // Override $item_attributes selectively to avoid unidentified troubles,
   // hence only when I need `usemap` badly:
-  if (isset($safe_attrs['usemap'])) {
-    // The ::merge method reverses arguments from normal merge, be warned!
-    // Hence prioritizing the module-managed $item_attributes as the replacer.
-    // so that you can still have abused ALT and TITLE for captions, yet cleaned
-    // out for attributes, having cakes and eat them too thingies. If reversed,
-    // you can only choose one. No abuses recommended, just so well-informed.
-    // You can have fieldable captions with core Media without any abuses.
-    $item_attributes = blazy()->merge($item_attributes, $safe_attrs);
-  }
-
+  // if (isset($safe_attrs['usemap'])) {
+  // The ::merge method reverses arguments from normal merge, be warned!
+  // Hence prioritizing the module-managed $item_attributes as the replacer.
+  // so that you can still have abused ALT and TITLE for captions, yet cleaned
+  // out for attributes, having cakes and eat them too thingies. If reversed,
+  // you can only choose one. No abuses recommended, just so well-informed.
+  // You can have fieldable captions with core Media without any abuses.
+  // $item_attributes = blazy()->merge($item_attributes, $safe_attrs);
+  // }
+  // Inline comments must end in full-stops, etc.
 }
 
 /**

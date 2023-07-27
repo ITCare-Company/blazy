@@ -74,6 +74,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       Lightbox::build($element);
     }
 
+    unset($build);
     return $element;
   }
 

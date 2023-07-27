@@ -450,9 +450,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       }
 
       // Pass anything else even dangerous attributes.
-      // @fixme this causes SRC set, lazy load failed, even SRC was unset.
-      // $build['#item_attributes'] = $attrs;
-      // Provide a temporary storage in the least till further fixes.
+      // @todo re-disable if this caused SRC set, lazy load failed, even unset.
+      $build['#item_attributes'] = $attrs;
       $blazies->set('item.safe_attributes', Sanitize::attribute($attrs));
     }
   }

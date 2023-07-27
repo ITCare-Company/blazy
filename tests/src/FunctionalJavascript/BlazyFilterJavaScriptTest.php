@@ -124,12 +124,16 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $this->assertSession()->elementContains('css', '.media-wrapper--blazy', 'b-lazy');
 
     // Verifies attributes and URIs are cleaned out.
-    // @todo re-enable when passing raw attributes work, see #3374519.
     // The problem with raw attributes were discrete behaviors causing failed
-    // lazy load, nothing related to skiddies businesses.
-    // $this->assertSession()->elementExists('css', 'img[data-onmouseover]');
-    $this->assertSession()->elementNotExists('css', 'img[onmouseover]');
+    // lazy load, nothing related to skiddies businesses. It appears fixed since
+    // blazy:2.17-beta1+, see #3374519.
+    $this->assertSession()->elementExists('css', 'img[usemap]');
+    $this->assertSession()->elementExists('css', 'img[data-onmouseover]');
 
+    $this->assertSession()->elementNotExists('css', 'img[onmouseover]');
+    $this->assertSession()->elementNotExists('css', 'img[alt^=<strong]');
+
+    $this->assertSession()->elementExists('css', 'img[src^=data:image]');
     $this->assertSession()->elementExists('css', 'img[data-src^=alert]');
     $this->assertSession()->elementNotExists('css', 'img[data-src^=javascript]');
 
@@ -255,6 +259,11 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $text .= '<IMG LOWSRC="javascript:alert(\'XSS P\')">';
     $text .= '<IMG SRC=\'vbscript:msgbox("XSS Q")\'>';
     $text .= '<IMG SRC="livescript:[code]">';
+    $text .= '<img onmouseover="JaVaScRiPt:alert(\'XSS D\')" class="width-full" width="900" height="1600" alt="<strong>The dosage probation roadmap, shows 4 phases described in a set of shapes</strong>" src="' . $this->url . '" usemap="#image_map2">
+<map name="image_map2">
+<area alt="Step 1" href="/node/1" coords="158,224,314,317,315,377,156,469,109,346,0" shape="polygon">
+<area alt="Step 2" href="/node/2" coords="377,85,380,268,327,299,168,208,241,100,0" shape="polygon">
+</map>';
     $text .= '</div>';
 
     return $text;

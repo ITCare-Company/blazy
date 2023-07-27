@@ -144,11 +144,13 @@ class CheckItem {
       // Needed by thumbnails if any image item, fake or real, no biggies.
       // Extracts alt from $item.
       $alt = empty($item->alt) ? "" : trim($item->alt);
+      $alt = $blazies->get('image.alt', $alt);
       $blazies->set('image.alt', $alt);
 
       // Do not output an empty 'title' attribute.
       if (isset($item->title) && (mb_strlen($item->title) != 0)) {
-        $blazies->set('image.title', trim($item->title));
+        $title = $blazies->get('image.title', trim($item->title));
+        $blazies->set('image.title', $title);
       }
     }
 

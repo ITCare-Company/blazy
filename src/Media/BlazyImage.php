@@ -553,13 +553,14 @@ class BlazyImage {
 
     // Including image/svg+xml.
     if ($type == 'image' && $image->isValid()) {
+      $name = $file->getFilename();
       $data = [
         'uri'       => $file->getFileUri(),
         'target_id' => $file->id(),
         'width'     => $image->getWidth(),
         'height'    => $image->getHeight(),
-        'alt'       => $file->getFilename(),
-        'title'     => $file->getFilename(),
+        'alt'       => $blazies->get('image.alt', $name),
+        'title'     => $blazies->get('image.title', $name),
         'type'      => 'image',
         'entity'    => $file,
       ];
