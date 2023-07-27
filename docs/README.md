@@ -291,8 +291,9 @@ will just sanitize all captions server-side, or the very basic ones.
 
 
 ### OPTIONAL FEATURES
-* Views fields for File Entity and Media integration, see
-  [Slick Browser](https://www.drupal.org/project/slick_browser).
+* Views fields for File Entity and Media integration, see:
+  + [IO Browser](https://www.drupal.org/project/io)
+  + [Slick Browser](https://www.drupal.org/project/slick_browser).
 * Views style plugin `Blazy Grid` for CSS3 Columns, Grid Foundation, Flexbox,
   and Native Grid.
 
@@ -307,7 +308,7 @@ will just sanitize all captions server-side, or the very basic ones.
 
 
 ## READ MORE
-See the project page on drupal.org:
+See the project page on drupal.org for more updated info:
 
 * [Blazy module](https://www.drupal.org/project/blazy)
 

@@ -134,7 +134,7 @@ class Blazy {
     $count = $views > $field ? $views : $field;
     $total = $count > $default ? $count : $default;
 
-    // Store it an undisturbed location.
+    // Store it in an undisturbed location.
     $blazies->set('item.count', $total);
     return $total;
   }

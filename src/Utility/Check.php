@@ -159,6 +159,7 @@ class Check {
       ->set('is.amp', $is_amp)
       ->set('is.bg', $is_bg)
       ->set('is.fluid', $is_fluid)
+      ->set('is.hires', !empty($settings['image']))
       ->set('is.nojs', $is_nojs)
       ->set('is.preview', $is_preview)
       ->set('is.resimage', $is_resimage)
@@ -359,7 +360,7 @@ class Check {
    */
   public static function lightboxes(array &$settings): void {
     $blazies = $settings['blazies'];
-    $switch = $settings['media_switch'] ?? $blazies->get('switch');
+    $switch  = $blazies->get('switch', $settings['media_switch'] ?? NULL);
 
     // Bail out early if not so configured.
     if (!$switch) {
@@ -391,7 +392,7 @@ class Check {
     $blazies->set('switch', $switch)
       ->set('libs.media', $switch == 'media')
       ->set('is.lightbox', !empty($lightbox))
-      ->set('is.richbox', $richbox)
+      ->set('is.richbox', !empty($richbox))
       ->set('was.lightbox', TRUE);
   }
 

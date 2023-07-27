@@ -5,11 +5,12 @@
   `No JavaScript lazy` enabled. Unless the exceptions, things that Native
   doesn't support (Blur, BG, Video, etc.) are met, or for those who still
   support old IEs, and cannot ditch lazyloader script, yet.
-* Switch to core Bartik for a mo, in case your custom theme is the culprit.
+* Switch to core themes for a mo, in case your custom theme is the culprit.
 * Blazy and its sub-modules -- Slick, GridStack, etc. are tightly coupled.
   Be sure to have the latest release date or matching versions in the least.
   DEV for DEV, Beta for Beta, etc. Mismatched versions may lead to errors
-  especially before having RCs. Mismatched branches will surely be errors.
+  especially before having RCs. Mismatched branches will surely be errors,
+  unless clearly declared as supported or required.
 * Resizing is not supported. Just reload the page. **The main reason**:
   When being resized, the browser gave no data about pixel ratio from desktop
   to mobile, not vice versa. Unless delayed for 4s+, not less, which is of
@@ -28,13 +29,13 @@
 ### 1. JavaScript Errors
 Any references to bLazy library is no longer required for forked version at 2.6.  
 **Symptons**:  
-Blazy is not defined. Images are gone, only eternal blue loader is
-flipping like a drunk butterfly.
+Blazy is not defined. Images are gone, only eternal blue loader is flipping like
+a drunk butterfly.
 
 **Solution**:  
-Ensure that no extras errors. Steps:  
+Ensure that there are no extra errors. Steps:  
 
-* Switch to core Bartik for a moment in case your theme is the culprit. Any
+* Switch to core themes for a moment in case your theme is the culprit. Any
   theme JS errors might break Blazy. Press F12 at browsers to fix them one by
   one.
 * Try disabling `Disconnect` option under IO.  
@@ -55,7 +56,7 @@ Non-floating image parent containers aren't affected.
 ### 4. MIN-HEIGHT
 Add a min-height CSS to individual element to avoid layout reflow if not using
 **Aspect ratio** or when **Aspect ratio** is not supported such as with
-Responsive image. Otherwise some collapsed image containers will defeat the
+Native Grid, etc. Otherwise some collapsed image containers will defeat the
 purpose of lazyloading. When using CSS background, the container may also be
 collapsed.
 

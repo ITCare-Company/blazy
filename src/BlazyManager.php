@@ -256,7 +256,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Only possible if having hires image via `Main stage` aka cross image.
     $hires     = $blazies->is('hires', !empty($settings['image']));
     $litebox   = $blazies->is('lightbox');
-    $supported = $blazies->is('richbox') ?: $settings['_richbox'] ?? FALSE;
+    $supported = $blazies->is('richbox');
     $supported = $blazies->is('local_media') && $litebox && $supported;
     $blazy     = ($build['content'][0]['#settings'] ?? NULL);
 
@@ -284,7 +284,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
     // (Responsive) image with item attributes, might be RDF.
-    // @todo remove after another check.
     if ($item && isset($item->_attributes)) {
       $attrs += $item->_attributes;
       unset($item->_attributes);
@@ -301,8 +300,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Pass item_attributes to theme_blazy(), see if any issues:
     // https://www.drupal.org/project/blazy/issues/3374519.
     $element['#item_attributes'] = Blazy::sanitize($attrs);
-    // @todo remove after xchecks, no longer provided, nor supported.
-    unset($build['item_attributes']);
   }
 
   /**
@@ -398,9 +395,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     foreach (['content', 'icon', 'overlay', 'preface', 'postscript'] as $key) {
       $values = $this->toHashtag($build, $key);
       $element["#$key"] = $this->merge($values, $element, "#$key");
-      if (isset($build[$key])) {
-        unset($build[$key]);
-      }
     }
   }
 

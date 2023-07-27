@@ -109,8 +109,8 @@ class Lightbox {
 
       // This allows PhotoSwipe with videos still swipable.
       if ($styleable && $check = $blazies->get('box_media.url')) {
-        $box_width  = $blazies->get('box_media.width');
-        $box_height = $blazies->get('box_media.height');
+        $box_width  = $blazies->get('box_media.width') ?: $box_width;
+        $box_height = $blazies->get('box_media.height') ?: $box_height;
         $box_url    = $check;
 
         $blazies->set('lightbox.media_preview_url', $box_url);
@@ -139,8 +139,8 @@ class Lightbox {
 
         // Use non-responsive image if so-configured.
         if (!$_resimage && $check = $blazies->get('box.url')) {
-          $box_width  = $blazies->get('box.width');
-          $box_height = $blazies->get('box.height');
+          $box_width  = $blazies->get('box.width') ?: $box_width;
+          $box_height = $blazies->get('box.height') ?: $box_height;
           $box_url    = $url = $check;
         }
       }

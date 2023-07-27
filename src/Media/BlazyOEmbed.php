@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy\Media;
 
-// @todo revert use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Url;
 use Drupal\Core\Image\ImageFactory;
@@ -69,7 +68,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   protected $imageFactory;
 
   /**
-   * Constructs a BlazyManager object.
+   * Constructs a Blazy oEmbed object.
    *
    * @todo remove ::imageFactory (was for UGC), not used anywhere since 2.6.
    */
