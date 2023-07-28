@@ -137,6 +137,7 @@ class Check {
     $medias       = $blazies->get('media.defaults', BlazyDefault::mediaDefaults());
     $is_resimage  = is_callable('responsive_image_get_mime_type');
     $is_resimage  = $blazies->is('resimage', $is_resimage);
+    $svg_exist    = class_exists('\enshrined\svgSanitize\Sanitizer');
 
     // When `defer` is chosen, overrides global `No JavaScript: lazy`, ensures
     // to not affect AMP, CKEditor, or other preview pages where nojs is a must.
@@ -169,6 +170,7 @@ class Check {
       ->set('is.undata', $is_undata)
       ->set('is.unload', $is_unload)
       ->set('is.unloading', $is_unloading)
+      ->set('is.svg_sanitizer', $svg_exist)
       ->set('item.id', $item_id)
       ->set('item.caption', $item_caption)
       ->set('item.prefix', $item_prefix)

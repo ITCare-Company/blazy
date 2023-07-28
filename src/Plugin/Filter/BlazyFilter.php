@@ -338,14 +338,17 @@ class BlazyFilter extends BlazyFilterBase {
       $formatter = NULL;
       $handler = $blazies->get('field.handler');
 
+      if ($type == 'image') {
+        $formatter = 'blazy';
+      }
+      elseif ($type == 'file') {
+        $formatter = 'blazy_file';
+      }
       // @todo refine for main stage, etc.
-      if ($type == 'entity_reference' || $type == 'entity_reference_revisions') {
+      elseif ($type == 'entity_reference' || $type == 'entity_reference_revisions') {
         if ($handler == 'default:media') {
           $formatter = 'blazy_media';
         }
-      }
-      elseif ($type == 'image') {
-        $formatter = 'blazy';
       }
       elseif ($blazies->is('string')) {
         $formatter = 'blazy_oembed';

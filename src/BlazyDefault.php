@@ -112,6 +112,34 @@ class BlazyDefault {
   }
 
   /**
+   * Returns svg-related field formatter settings.
+   */
+  public static function svgSettings() {
+    return [
+      'svg_inline' => FALSE,
+      'svg_fill' => FALSE,
+      'svg_sanitize' => TRUE,
+      'svg_sanitize_remote' => FALSE,
+      'svg_hide_caption' => FALSE,
+      'svg_attributes' => '',
+    ];
+  }
+
+  /**
+   * Returns non-prefixed svg-related options.
+   */
+  public static function toSvgOptions(array $settings) {
+    $options = [];
+    foreach (array_keys(self::svgSettings()) as $key) {
+      if (isset($settings[$key])) {
+        $k = str_replace('svg_', '', $key);
+        $options[$k] = $settings[$key];
+      }
+    }
+    return $options;
+  }
+
+  /**
    * Returns Views specific settings.
    */
   public static function viewsSettings() {

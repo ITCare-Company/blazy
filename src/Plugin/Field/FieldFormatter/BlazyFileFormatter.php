@@ -3,31 +3,43 @@
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-
-@trigger_error('The ' . __NAMESPACE__ . '\BlazyFileFormatter is deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+use Drupal\blazy\BlazyDefault;
 
 /**
- * Plugin implementation of the 'Blazy File' to get VEF/VEM within images/files.
+ * Plugin implementation of the 'Blazy File' to get image/ SVG from files.
  *
- * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
- *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter instead.
- * @todo re-check if to keep it as this can be useful for SickBrowser EB.
- * @see https://www.drupal.org/node/3103018
+ * This was previously for deprecated VEF, since 2.17 re-purposed for SVG, WIP!
+ *
+ * @FieldFormatter(
+ *   id = "blazy_file",
+ *   label = @Translation("Blazy File/SVG"),
+ *   field_types = {
+ *     "entity_reference",
+ *     "file",
+ *     "image",
+ *     "svg_image_field",
+ *   }
+ * )
+ *
+ * @todo remove `image` at 3.x, unless dedicated for SVG (forms and displays).
  */
 class BlazyFileFormatter extends BlazyFormatterBlazy {
 
   /**
    * {@inheritdoc}
    */
-  public static function create(
-    ContainerInterface $container,
-    array $configuration,
-    $plugin_id,
-    $plugin_definition
-  ) {
-    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
-    return self::injectServices($instance, $container, 'entity');
+  protected static $fieldType = 'entity';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $useSvg = TRUE;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function defaultSettings() {
+    return BlazyDefault::svgSettings() + parent::defaultSettings();
   }
 
   /**
@@ -41,18 +53,17 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
    * {@inheritdoc}
    */
   protected function buildElement(array &$element, $entity) {
-    // @todo remove, already set upstream: $element['#entity'] = $entity;
     $this->blazyOembed->build($element);
+
+    // Might need image item from OEmbed service.
+    parent::buildElement($element, $entity);
   }
 
   /**
    * {@inheritdoc}
    */
   protected function getPluginScopes(): array {
-    return [
-      'fieldable_form' => TRUE,
-      'multimedia'     => TRUE,
-    ] + parent::getPluginScopes();
+    return $this->getEntityScopes() + parent::getPluginScopes();
   }
 
 }

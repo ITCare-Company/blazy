@@ -149,6 +149,20 @@ class BlazyFile {
   }
 
   /**
+   * Returns a file object from an URI.
+   */
+  public static function fromUri($uri, $manager = NULL): ?object {
+    $file = NULL;
+    $manager = $manager ?: Blazy::service('blazy.manager');
+    if ($manager && self::isValidUri($uri)) {
+      if ($files = $manager->loadByProperties(['uri' => $uri], 'file', TRUE)) {
+        $file = reset($files);
+      }
+    }
+    return $file;
+  }
+
+  /**
    * Normalizes URI for sub-modules.
    */
   public static function normalizeUri($path): string {
@@ -299,10 +313,8 @@ class BlazyFile {
       $uuid = $blazies ? $blazies->get('entity.uuid') : NULL;
       $file = $uuid ? $manager->loadByUuid($uuid, 'file') : NULL;
 
-      if (!$file && self::isValidUri($uri)) {
-        if ($files = $manager->loadByProperties(['uri' => $uri], 'file', TRUE)) {
-          $file = reset($files);
-        }
+      if (!$file) {
+        $file = self::fromUri($uri, $manager);
       }
     }
     return $file;

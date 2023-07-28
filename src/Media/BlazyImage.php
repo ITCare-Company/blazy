@@ -361,7 +361,7 @@ class BlazyImage {
     BlazyResponsiveImage::transformed($settings);
 
     // Provides SVG dimensions, if any.
-    Svg::dimensions($settings, $uri);
+    BlazySvg::dimensions($settings, $uri);
   }
 
   /**

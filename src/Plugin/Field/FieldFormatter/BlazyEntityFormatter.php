@@ -45,9 +45,14 @@ class BlazyEntityFormatter extends BlazyEntityVanillaBase {
   /**
    * {@inheritdoc}
    */
+  protected static $fieldType = 'entity';
+
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
-    return self::injectServices($instance, $container, 'entity');
+    return self::injectServices($instance, $container, static::$fieldType);
   }
 
   /**
@@ -86,6 +91,7 @@ class BlazyEntityFormatter extends BlazyEntityVanillaBase {
       'grid_form'     => TRUE,
       'grid_required' => TRUE,
       'style'         => TRUE,
+      'vanilla'       => FALSE,
     ] + parent::getPluginScopes();
   }
 

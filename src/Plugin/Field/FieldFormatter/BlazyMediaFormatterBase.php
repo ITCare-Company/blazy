@@ -19,9 +19,14 @@ abstract class BlazyMediaFormatterBase extends BlazyEntityMediaBase {
   /**
    * {@inheritdoc}
    */
+  protected static $fieldType = 'entity';
+
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
-    return self::injectServices($instance, $container, 'entity');
+    return self::injectServices($instance, $container, static::$fieldType);
   }
 
   /**

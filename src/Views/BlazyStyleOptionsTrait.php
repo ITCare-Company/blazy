@@ -51,6 +51,7 @@ trait BlazyStyleOptionsTrait {
           case 'media_thumbnail':
           case 'intense':
           case 'responsive_image':
+          case 'svg_image_field_formatter':
           case 'video_embed_field_thumbnail':
           case 'video_embed_field_colorbox':
           case 'youtube_thumbnail':

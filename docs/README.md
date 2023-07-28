@@ -10,6 +10,7 @@
  * [Installing libraries via Composer](#composer)
  * [Configuration](#configuration)
  * [Lightboxes](#lightboxes)
+ * [SVG](#svg)
  * [Features](#features)
  * [Troubleshooting](#troubleshooting)
  * [Aspect ratio](#aspect-ratio)
@@ -263,6 +264,42 @@ You can install DOMPurify using composer:
 
 The DOMPurify library is optional. Without DOMPurify, Blazy (sub)-modules
 will just sanitize all captions server-side, or the very basic ones.
+
+***
+## <a name="svg"> </a>SVG
+Since 2.17, the formatter **Blazy Image with VEF (deprecated)** was re-purposed
+to support SVG files, instead. The name is now **Blazy File**.
+Core **Image** widget doesn't support SVG files, to upload SVG use **File**:
+* [/admin/structure/types/manage/page/fields](/admin/structure/types/manage/page/fields)
+  + *Add a new field > Reference > File* for simple needs.
+  + Enable *Description field* for SVG captions.
+  + Alternatively, choose *Reference > Other > File* for more complex needs.
+* [/admin/structure/types/manage/page/fields](/admin/structure/types/manage/project/page)
+  + Choose **Blazy File**, and adjust anything accordingly.
+
+The **Blazy File** can also be used for Image when SVG extension is available,
+otherwise just use **Blazy Image** instead. It is kept distinct so to have
+relevant form items specific for SVG files.
+
+This is the most basic SVG in core without installing another module, and
+Blazy can display it just fine either as inline SVG, or embedded SVG in IMG.
+
+For more robust solutions, consider: SVG Image Field, SVG Image, etc.
+
+**FYI**
+* The latter will override all core formatters and widgets which makes it hard
+  to uninstall without deleting many things when you have images anywhere.
+  Blazy works fine with this module all along.
+* The SVG form options owe credits to SVG Image Field module. And to honor it,
+  **Blazy File** provides supports for its field type so to have Grid, and
+  various Blazy features, including SVG carousels, etc. It is still WIP, but
+  just fine.
+* For inline SVG, be sure to install the SVG Sanitizer, if not already:  
+  `composer require enshrined/svg-sanitize`  
+  [Read more](https://github.com/darylldoyle/svg-sanitizer)  
+  Blazy does not want to ship it in its `composer.json` for serious reasons,
+  and will just disable the option for Inline SVG if not installed.
+
 
 ***
 ## <a name="features"> </a>FEATURES

@@ -161,6 +161,13 @@ class Blazy {
   }
 
   /**
+   * Alias for BlazyFile::fromUri().
+   */
+  public static function fileFromUri($uri, $manager = NULL): ?object {
+    return BlazyFile::fromUri($uri, $manager);
+  }
+
+  /**
    * Filters out empty string value to avoid JSON.parse error.
    */
   public static function filterEmpty($config): bool {

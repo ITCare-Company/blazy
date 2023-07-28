@@ -19,6 +19,10 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
 
     $this->imageStyleForm($form, $definition);
 
+    if ($scopes->form('svg')) {
+      $this->svgForm($form, $definition);
+    }
+
     if ($scopes->form('media_switch') && !isset($form['media_switch'])) {
       $this->mediaSwitchForm($form, $definition);
     }

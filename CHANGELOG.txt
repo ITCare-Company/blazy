@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-07-28
+------------------------------
+- Added supports for SVG Image Field module.
+- Re-purposed Blazy Image with VEF (deprecated) formatter for SVG (WIP).
+
 Blazy 8.x-2.0-dev, 2023-07-26
 ------------------------------
 - Fixed for lightbox caption token regression.

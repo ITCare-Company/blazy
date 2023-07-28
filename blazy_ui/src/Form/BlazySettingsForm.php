@@ -52,24 +52,67 @@ class BlazySettingsForm extends BlazyConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('blazy.settings');
-    $exists = $this->manager->getLibrariesPath(['DOMPurify', 'dompurify']);
+    $doms = ['DOMPurify', 'dompurify'];
+    $dom_exists = $exists = $this->manager->getLibrariesPath($doms);
+    $svg_exists = $exists = class_exists('\enshrined\svgSanitize\Sanitizer');
+    $svg_sanitizer = 'https://github.com/darylldoyle/svg-sanitizer';
+    $class = $exists ? 'info' : 'warning';
+    $hints = [];
 
     // Adapted from Colorbox module, thanks.
-    $dompurify_message = $exists ?
-      $this->t('The DOMPurify library is installed to sanitize lightbox captions. Be sure to clear cache for library discoveries.')
+    $dom_text = $dom_exists ?
+      '[v] ' . $this->t('The DOMPurify library is installed to sanitize lightbox captions. Be sure to clear cache for library discoveries. [<a href=":ui">Blazy UI help</a>]', [
+        ':ui' => '/admin/help/blazy_ui#dompurify',
+      ])
       :
-      $this->t('<strong>Warning!</strong> The <a href=":url">DOMPurify</a> library is not installed. This library is necessary if you want to use HTML in lightbox captions. Without it, all captions will be very minimally sanitized server-side, or very basic ones. Read more at <a href=":url2">Blazy UI help</a>.',
+      '[x] ' . $this->t('<strong>Warning!</strong> The <a href=":url">DOMPurify</a> library is not installed. It is necessary for HTML in lightbox captions. Without it, they are only sanitized server-side, or builtin. [<a href=":ui">Blazy UI help</a>].',
         [
           ':url' => 'https://github.com/cure53/DOMPurify/archive/main.zip',
-          ':url2' => '/admin/help/blazy_ui#dompurify',
+          ':ui' => '/admin/help/blazy_ui#dompurify',
         ]);
 
-    $class = $exists ? 'info' : 'warning';
-    $form['dompurify_message'] = [
-      '#type' => 'markup',
-      '#prefix' => '<p class="messages messages--' . $class . '">',
-      '#suffix' => '</p>',
-      '#markup' => $dompurify_message,
+    $hints[] = [
+      '#theme' => 'container',
+      '#children'   => ['#markup' => $dom_text],
+      // '#attributes' => [
+      // 'class' => ['messages', 'messages--' .
+      // ($dom_exists ? 'info' : 'warning')],
+      // ],
+    ];
+
+    $svg_text = $svg_exists ?
+      '[v] ' . $this->t('The SVG Sanitizer library is installed to sanitize inline SVG. [<a href=":ui">Blazy UI help</a>]', [
+        ':ui' => '/admin/help/blazy_ui#svg',
+      ])
+      :
+      '[x] ' . $this->t('<strong>Warning!</strong> The <a href=":url">SVG Sanitizer</a> library is not installed. This library is necessary if you want to use SVG inline. Without it, the world would be ended. [<a href=":ui">Blazy UI help</a>].',
+        [
+          ':url' => $svg_sanitizer,
+          ':ui' => '/admin/help/blazy_ui#svg',
+        ]);
+
+    $hints[] = [
+      '#theme' => 'container',
+      '#children'   => ['#markup' => $svg_text],
+      // '#attributes' => [
+      // 'class' => ['messages', 'messages--' .
+      // ($svg_exists ? 'info' : 'warning')],
+      // ],
+    ];
+
+    $form['library_hints'] = [
+      // '#theme' => 'item_list',
+      // '#items' => $hints,
+      '#type' => 'container',
+      'items' => $hints,
+      '#attributes' => [
+        'class' => [
+          'messages-list__item ',
+          'messages',
+          'messages--' . $class,
+        ],
+      ],
+      '#wrapper_attributes' => ['class' => ['messages-list']],
     ];
 
     $form['admin_css'] = [

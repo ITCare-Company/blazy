@@ -155,10 +155,10 @@ trait BlazyFormatterTrait {
   protected static function injectServices($instance, ContainerInterface $container, $type = '') {
     // Blazy has sequential inheritance, its sub-modules deviate.
     $instance->formatter = $instance->blazyManager = $instance->manager = $container->get('blazy.formatter');
+    $instance->loggerFactory = $instance->loggerFactory ?? $container->get('logger.factory');
 
     // Provides optional services.
     if ($type == 'entity') {
-      $instance->loggerFactory = $instance->loggerFactory ?? $container->get('logger.factory');
       $instance->blazyEntity = $instance->blazyEntity ?? $container->get('blazy.entity');
       $instance->blazyOembed = $instance->blazyOembed ?? $instance->blazyEntity->oembed();
     }

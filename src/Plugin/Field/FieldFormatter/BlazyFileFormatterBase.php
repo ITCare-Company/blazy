@@ -6,10 +6,13 @@ use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\field\FieldConfigInterface;
 use Drupal\file\Plugin\Field\FieldFormatter\FileFormatterBase;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyDependenciesTrait;
+use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Utility\Sanitize;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -62,6 +65,27 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   protected static $captionId = 'caption';
 
   /**
+   * The field type identifier for service injection.
+   *
+   * @var string
+   */
+  protected static $fieldType = 'image';
+
+  /**
+   * Whether using the SVG.
+   *
+   * @var bool
+   */
+  protected static $useSvg = FALSE;
+
+  /**
+   * The blazy manager service.
+   *
+   * @var \Drupal\blazy\Media\Svg\SvgInterface
+   */
+  protected $svgManager;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(
@@ -71,7 +95,8 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     $plugin_definition
   ) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
-    return self::injectServices($instance, $container, 'image');
+    $instance->svgManager = $container->get('blazy.svg');
+    return self::injectServices($instance, $container, static::$fieldType);
   }
 
   /**
@@ -112,7 +137,31 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    * Build individual item if so configured such as for file ER goodness.
    */
   protected function buildElement(array &$element, $entity) {
-    // Do nothing.
+    $this->viewSvg($element, $entity);
+  }
+
+  /**
+   * Provides inline SVG if so-configured.
+   */
+  protected function viewSvg(array &$element, $entity) {
+    $settings = $this->formatter->toHashtag($element);
+    $blazies  = $settings['blazies'];
+
+    if (!static::$useSvg) {
+      return;
+    }
+
+    $inline = $settings['svg_inline'] ?? FALSE;
+    $bg     = $settings['background'] ?? FALSE;
+    $exist  = $blazies->is('svg_sanitizer');
+    $valid  = $inline && $exist && !$bg;
+
+    if ($valid && $uri = $blazies->get('image.uri')) {
+      $options = BlazyDefault::toSvgOptions($settings);
+      if ($output = $this->svgManager->view($uri, $options)) {
+        $element['content'][] = ['#markup' => Markup::create($output)];
+      }
+    }
   }
 
   /**
@@ -124,7 +173,9 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     $settings = $this->formatter->toHashtag($build);
 
     foreach ($files as $delta => $file) {
+      /** @var \Drupal\file\Plugin\Field\FieldType\FileItem $item */
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+      /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
       $item = $file->_referringItem;
       $sets = $settings;
       $uri  = $file->getFileUri();
@@ -141,6 +192,13 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
         '#item'     => $item,
         '#settings' => $this->formatter->toSettings($sets, $info),
       ];
+
+      if ($item instanceof EntityReferenceItem) {
+        $parent = $item->getParent();
+        if (method_exists($parent, 'getEntity')) {
+          $data['#parent'] = $parent->getEntity();
+        }
+      }
 
       // Build individual element, no real use here since VEF deprecated.
       $this->buildElement($data, $file);
@@ -189,18 +247,44 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   protected function getCaptions(array $data): array {
     $settings = $this->formatter->toHashtag($data);
     $item     = $this->formatter->toHashtag($data, 'item');
+    $blazies  = $settings['blazies'];
     $captions = $settings['caption'] ?? [];
+    $display  = empty($settings['svg_hide_caption']);
+    $type     = $blazies->get('field.type');
     $output   = [];
 
-    if ($captions && $item) {
-      foreach ($captions as $caption) {
-        if ($content = ($item->{$caption} ?? NULL)) {
-          if ($caption == 'alt') {
-            $content = '<p>' . $content . '</p>';
+    if ($captions) {
+      // Provides default image captions.
+      if ($item) {
+        foreach ($captions as $name) {
+          if ($content = ($item->{$name} ?? NULL)) {
+            $caption = Sanitize::caption($content);
+
+            // Entity file with description_field enabled, useful for SVG:
+            if ($name == 'description') {
+              $blazies->set('image.description', $caption);
+            }
+            // SVG image field, or plain old image:
+            elseif ($name == 'alt' || $name == 'title') {
+              if ($name == 'alt') {
+                $caption = '<p>' . $caption . '</p>';
+              }
+              $blazies->set('image.' . $name, $caption);
+            }
+
+            if ($display) {
+              $output[$name] = ['#markup' => $caption];
+            }
           }
-          $output[$caption] = [
-            '#markup' => Sanitize::caption($content),
-          ];
+        }
+      }
+
+      // Provides fieldable captions.
+      if ($type == 'entity_reference' && $entity = $data['#parent'] ?? NULL) {
+        foreach ($captions as $name) {
+          if ($markup = BlazyField::view($entity, $name, [])) {
+            $output[$name] = $markup;
+          }
         }
       }
     }
@@ -210,21 +294,91 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   /**
    * {@inheritdoc}
    */
+  protected function getEntityScopes(): array {
+    return [
+      'fieldable_form'   => TRUE,
+      'multimedia'       => TRUE,
+      'no_loading'       => TRUE,
+      'no_preload'       => TRUE,
+      'responsive_image' => FALSE,
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function getPluginScopes(): array {
     $multiple = $this->isMultiple();
+    $is_image = $this->fieldDefinition->getType() == 'image';
 
     return [
       'background'        => TRUE,
-      'captions'          => 'default',
+      'captions'          => $this->getCaptionOptions(),
       'grid_form'         => $multiple,
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,
+      'svg_form'          => static::$useSvg,
       'style'             => $multiple,
       'thumbnail_style'   => TRUE,
       'no_image_style'    => FALSE,
       'responsive_image'  => TRUE,
       'multiple'          => $multiple,
+      'view_mode'         => $is_image ? NULL : $this->viewMode,
     ];
+  }
+
+  /**
+   * Returns available bundles.
+   */
+  protected function getAvailableBundles(): array {
+    $field = $this->fieldDefinition;
+    if (method_exists($field, 'get')) {
+      $bundle = $field->get('bundle');
+      return $bundle ? [$bundle => $bundle] : [];
+    }
+    return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getCaptionOptions() {
+    $field    = $this->fieldDefinition;
+    $type     = $field->getType();
+    $_texts   = ['text', 'text_long', 'string', 'string_long', 'link'];
+    $captions = [];
+
+    if ($field->getSetting('description_field')) {
+      $captions['description'] = $this->t('Description');
+    }
+    elseif ($type == 'image' || $type == 'svg_image_field') {
+      $captions = 'default';
+    }
+    else {
+      if (method_exists($field, 'get')) {
+        $captions = $this->getFieldOptions($_texts, $field->get('entity_type'));
+      }
+    }
+    return $captions;
+  }
+
+  /**
+   * Returns fields as options. Passing empty array will return them all.
+   *
+   * @return array
+   *   The available fields as options.
+   */
+  protected function getFieldOptions(array $names = [], $target_type = NULL): array {
+    $field       = $this->fieldDefinition;
+    $target_type = $target_type ?: $this->getFieldSetting('target_type');
+    $bundles     = $this->getAvailableBundles();
+    $type        = method_exists($field, 'get') ? $field->get('entity_type') : NULL;
+
+    if (!$bundles && $type && $service = Blazy::service('entity_type.bundle.info')) {
+      $bundles = $service->getBundleInfo($type);
+    }
+
+    return $this->admin()->getFieldOptions($bundles, $names, $target_type);
   }
 
   /**

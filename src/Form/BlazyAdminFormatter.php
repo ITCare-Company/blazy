@@ -152,7 +152,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
     }
     else {
       if (isset($form['caption'])) {
-        $form['caption']['#description'] .= ' ' . $this->t('Be sure to make them visible at their relevant Manage display.');
+        $form['caption']['#description'] .= ' ' . $this->t('Be sure to make them visible at their relevant Manage display if View Mode option is provided.');
       }
     }
 

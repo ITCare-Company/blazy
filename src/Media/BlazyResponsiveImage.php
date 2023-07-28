@@ -38,7 +38,7 @@ class BlazyResponsiveImage {
    * Do not let SVG alike mess up with ResponsiveImage, else fatal.
    */
   public static function transformed(array &$settings): void {
-    $blazies = $settings['blazies'];
+    $blazies  = $settings['blazies'];
     $unstyled = $blazies->is('unstyled');
 
     // Only if not transformed.
@@ -131,9 +131,9 @@ class BlazyResponsiveImage {
     $resimage = NULL,
     $initial = FALSE
   ): void {
-    $blazies = $settings['blazies'];
+    $blazies    = $settings['blazies'];
     $dimensions = $blazies->get('resimage.dimensions', []);
-    $resimage = $resimage ?: $blazies->get('resimage.style');
+    $resimage   = $resimage ?: $blazies->get('resimage.style');
 
     if ($dimensions || !$resimage) {
       return;
@@ -171,24 +171,13 @@ class BlazyResponsiveImage {
       ->set('resimage.ids', array_values($names));
 
     // Only needed the last one.
-    // if (!$blazies->get('image.width')) {.
+    // Overrides plain old image dimensions.
     $blazies->set('image', end($dimensions), TRUE);
-    // }
+
     // Currently only needed by Preload.
     if ($initial && $resimage && !empty($settings['preload'])) {
       self::sources($settings, $resimage);
     }
-  }
-
-  /**
-   * Defines the Responsive image id, styles and caches tags.
-   */
-  public static function define(&$blazies, $resimage) {
-    $id = $resimage->id();
-    $styles = self::styles($resimage);
-
-    $blazies->set('resimage.id', $id)
-      ->set('cache.metadata.tags', $styles['caches'] ?? [], TRUE);
   }
 
   /**
@@ -328,6 +317,17 @@ class BlazyResponsiveImage {
     }
 
     return $style;
+  }
+
+  /**
+   * Defines the Responsive image id, styles and caches tags.
+   */
+  private static function define(&$blazies, $resimage) {
+    $id = $resimage->id();
+    $styles = self::styles($resimage);
+
+    $blazies->set('resimage.id', $id)
+      ->set('cache.metadata.tags', $styles['caches'] ?? [], TRUE);
   }
 
   /**

@@ -143,8 +143,14 @@ class CheckItem {
 
       // Needed by thumbnails if any image item, fake or real, no biggies.
       // Extracts alt from $item.
-      $alt = empty($item->alt) ? "" : trim($item->alt);
-      $alt = $blazies->get('image.alt', $alt);
+      $alt  = empty($item->alt) ? "" : trim($item->alt);
+      $alt  = $blazies->get('image.alt', $alt);
+      $desc = $item->description ?? NULL;
+
+      // File SVG with description_field enabled.
+      if (!$alt && $desc = $blazies->get('image.description', $desc)) {
+        $alt = $desc;
+      }
       $blazies->set('image.alt', $alt);
 
       // Do not output an empty 'title' attribute.
@@ -301,6 +307,7 @@ class CheckItem {
   public static function unstyled(array &$settings, $uri, $first_time = FALSE): bool {
     $blazies = $settings['blazies'];
     $ext = pathinfo($uri, PATHINFO_EXTENSION);
+    $ext = strtolower($ext);
     $external = UrlHelper::isExternal($uri);
     $extensions = ['svg'];
 

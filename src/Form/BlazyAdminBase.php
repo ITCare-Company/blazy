@@ -656,6 +656,10 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           ? array_values((array) $settings[$key])
           : $settings[$key];
 
+        if ($value && is_string($value)) {
+          $value = trim($value);
+        }
+
         $form[$key]['#default_value'] = $value;
       }
 
@@ -874,6 +878,57 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    */
   public function getSettingsSummary(array $definition): array {
     return [];
+  }
+
+  /**
+   * Provides SVG options.
+   */
+  protected function svgForm(array &$form, array $definition): void {
+    $scopes = $this->toScopes($definition);
+
+    foreach (BlazyDefault::svgSettings() as $key => $value) {
+      $base  = str_replace('svg_', '', $key);
+      $name  = str_replace('_', ' ', $base);
+      $title = Unicode::ucfirst($name);
+      $exist = class_exists('\enshrined\svgSanitize\Sanitizer');
+      $desc  = $this->svgDescriptions()[$base] ?? '';
+
+      $form[$key] = [
+        '#type'        => is_bool($value) ? 'checkbox' : 'textfield',
+        '#title'       => $this->t('@title', ['@title' => $title]),
+        '#enforced'    => !$scopes->is('vanilla'),
+        '#description' => $desc,
+        '#weight'      => -100,
+      ];
+
+      if ($base == 'inline') {
+        $form[$key]['#disabled'] = !$exist;
+        $form[$key]['#prefix'] = '<h3 class="form__title form__title--fields form-item--subheader form-item--fullwidth">' . $this->t('SVG') . '</h3>';
+      }
+      if ($base == 'fill') {
+        $form[$key]['#states']['visible'][':input[name*="[svg_inline]"]'] = ['checked' => TRUE];
+      }
+    }
+  }
+
+  /**
+   * Returns SVG description, from SVG image field to support it in Blazy.
+   */
+  protected function svgDescriptions(): array {
+    $sanitizer = 'https://github.com/darylldoyle/svg-sanitizer';
+    return [
+      'inline' => $this->t('If checked, SVG is not embedded in the IMG tag. Ignored if CSS background option enabled. Only enable for CSS and JavaScript manipulations, and trusted users, due to <a href=":url1">inline SVG security</a>. Required <a href=":url2">SVG Sanitizer</a>.', [
+        ':url1' => 'https://www.w3.org/wiki/SVG_Security',
+        ':url2' => $sanitizer,
+      ]),
+      'sanitize' => $this->t('Sanitize the SVG XML code to prevent XSS attacks. Required <a href=":url">SVG Sanitizer</a>.', [
+        ':url' => $sanitizer,
+      ]),
+      'sanitize_remote' => $this->t('Remove attributes that reference remote files, this will stop HTTP leaks but will add an overhead to the sanitizer.'),
+      'fill' => $this->t('Force the fill to currentColor to allow the SVG inherit coloring from the enclosing tag, such as a link tag.'),
+      'hide_caption' => $this->t('Unlike images, SVG has no ALT and TITLE attributes, except for SVG Image Field, or core file Description field. This option will hide captions, and put them into image attributes instead. Relevant if Inline option is disabled aka using IMG tag. Be sure to enable them under the Caption fields.'),
+      'attributes' => $this->t('Input one of SVG dimension sources: <code>none, image_style, or WIDTHxHEIGHT</code>. To disable, input: <strong>none</strong>. The <strong>image_style</strong> ansich will use the provided Image style. The <strong>WIDTHxHEIGHT</strong>, e.g.: 800x400, for custom defined dimensions. Default or fallback to extract from SVG attributes, unless <strong>none</strong> is set. Only width and height are supported.'),
+    ];
   }
 
   /**

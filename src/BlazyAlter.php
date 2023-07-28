@@ -33,6 +33,7 @@ class BlazyAlter {
     if (isset($definitions[$formatter])) {
       $mappings = &$definitions[$formatter]['mapping'];
       $settings = $settings ?: BlazyDefault::extendedSettings() + BlazyDefault::gridSettings();
+      $settings += BlazyDefault::svgSettings();
       $settings += BlazyDefault::deprecatedSettings();
       $settings += BlazyDefault::nonBlazySettings();
 
@@ -223,11 +224,24 @@ class BlazyAlter {
   /**
    * Implements hook_field_formatter_settings_summary_alter().
    */
-  public static function fieldFormatterSettingsSummaryAlter(&$summary, $context): void {
+  public static function fieldFormatterSettingsSummaryAlter(array &$summary, $context): void {
     if ($formatter = $context['formatter']) {
       $on = $formatter->getThirdPartySetting('blazy', 'blazy', FALSE);
       if ($on && in_array($formatter->getPluginId(), self::thirdPartyFormatters())) {
         $summary[] = 'Blazy';
+      }
+
+      // In case still in use, provide removal message.
+      if ($formatter->getPluginId() == 'blazy_file') {
+        $definition = $context['field_definition'];
+        $settings = $definition->getSettings();
+        $extensions = $settings['file_extensions'] ?? '';
+
+        if (!Blazy::has($extensions, 'svg')) {
+          if ($definition->getType() == 'image') {
+            $summary[] = t('<h5>No SVG file extensions, use Blazy Image instead.</h5>');
+          }
+        }
       }
     }
   }

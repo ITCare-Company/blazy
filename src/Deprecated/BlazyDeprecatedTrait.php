@@ -33,13 +33,13 @@ trait BlazyDeprecatedTrait {
     ];
 
     // @todo re-check if to keep it as this can be useful for SickBrowser EB.
-    $info['blazy_file'] = $common + [
-      'id'          => 'blazy_file',
-      'label'       => new TranslatableMarkup('Blazy Image with VEF (deprecated)'),
-      'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter',
-      'field_types' => ['entity_reference', 'image'],
-    ];
-
+    // $info['blazy_file'] = $common + [
+    // 'id' => 'blazy_file',
+    // 'label' => new TranslatableMarkup('Blazy Image with VEF (deprecated)'),
+    // 'class' => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter',
+    // 'field_types' => ['entity_reference', 'image', 'file'],
+    // ];
+    // Inline comments must end in full-stops, etc.
     $info['blazy_video'] = $common + [
       'id'          => 'blazy_video',
       'label'       => new TranslatableMarkup('Blazy VEF (deprecated)'),
