@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Form;
 
 use Drupal\blazy\Utility\Path;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Traits\PluginScopesTrait;
@@ -53,8 +54,6 @@ trait TraitAdminBase {
    * @todo remove most after sub-module migrations.
    */
   protected function checkScopes(&$scopes, array &$definition): void {
-    $this->blazyManager->verify($definition);
-
     $settings = $definition['settings'] ?? [];
     $blazies = $definition['blazies'];
     $lightboxes = $this->blazyManager->getLightboxes();
@@ -62,7 +61,7 @@ trait TraitAdminBase {
     $namespace = $blazies->get('namespace') ?: ($definition['namespace'] ?? NULL);
     $plugin_id = $blazies->get('field.plugin_id') ?: ($definition['plugin_id'] ?? NULL);
     $target_type = $blazies->get('field.target_type') ?: ($definition['target_type'] ?? NULL);
-    $entity_type = $blazies->get('entity.type') ?: ($definition['entity_type'] ?? NULL);
+    $entity_type = $blazies->get('field.entity_type') ?: ($definition['entity_type'] ?? NULL);
     $view_mode = $blazies->get('field.view_mode') ?: ($definition['view_mode'] ?? NULL);
     $switch = !$scopes->is('no_lightboxes') && isset($settings['media_switch']);
 
@@ -103,9 +102,9 @@ trait TraitAdminBase {
       ->set('is.responsive_image', $responsive)
       ->set('is.slider', $scopes->is('slider') ?: $sliders)
       ->set('is.switch', $switch)
+      ->set('namespace', $namespace)
       // @todo remove dups for $blazies object.
       ->set('entity.type', $entity_type)
-      ->set('namespace', $namespace)
       ->set('plugin_id', $plugin_id)
       ->set('target_type', $target_type)
       ->set('view_mode', $view_mode);
@@ -286,7 +285,8 @@ trait TraitAdminBase {
    * Verify the plugin scopes is initialized downstream.
    */
   protected function toScopes(array &$definition): BlazySettings {
-    $this->blazyManager->verify($definition);
+    // Looks like unit test failed with manager methods given a Trait.
+    $definition += Blazy::init();
 
     $scopes = $definition['scopes'] ?? $this->toPluginScopes();
     if (!$scopes->get('initializer')) {
