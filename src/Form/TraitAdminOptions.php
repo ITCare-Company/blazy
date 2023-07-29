@@ -12,36 +12,6 @@ use Drupal\blazy\BlazySettings;
 trait TraitAdminOptions {
 
   /**
-   * A state that represents the responsive image style is disabled.
-   */
-  const STATE_RESPONSIVE_IMAGE_STYLE_DISABLED = 0;
-
-  /**
-   * A state that represents the media switch lightbox is enabled.
-   */
-  const STATE_LIGHTBOX_ENABLED = 1;
-
-  /**
-   * A state that represents the media switch iframe is enabled.
-   */
-  const STATE_IFRAME_ENABLED = 2;
-
-  /**
-   * A state that represents the thumbnail style is enabled.
-   */
-  const STATE_THUMBNAIL_STYLE_ENABLED = 3;
-
-  /**
-   * A state that represents the custom lightbox caption is enabled.
-   */
-  const STATE_LIGHTBOX_CUSTOM = 4;
-
-  /**
-   * A state that represents the image rendered switch is enabled.
-   */
-  const STATE_IMAGE_RENDERED_ENABLED = 5;
-
-  /**
    * The date formatter service.
    *
    * @var \Drupal\Core\Datetime\DateFormatterInterface
@@ -203,11 +173,15 @@ trait TraitAdminOptions {
     $lightboxes = [];
 
     // @todo remove the second after complete migrations.
-    $options = $scopes->data('lightboxes') ?: $this->blazyManager->getLightboxes();
+    // @todo $options = $scopes->data('lightboxes')
+    // ?: $this->blazyManager->getLightboxes();
+    $options = ['content', 'media', 'rendered', ''];
 
-    // @fixme this appears to be broken at some point of Drupal.
+    // @fixme this appears to be broken at some point of Drupal, seen
+    // inconsistent between field formatters and Views field UI. Works at field
+    // formatters, but broken at Views field UI.
     foreach ($options as $key => $lightbox) {
-      $lightboxes[$key]['value'] = $lightbox;
+      $lightboxes[$key]['!value'] = $lightbox;
     }
 
     $states = [
@@ -223,13 +197,14 @@ trait TraitAdminOptions {
       ],
       static::STATE_LIGHTBOX_CUSTOM => [
         'visible' => [
+          'select[name$="[media_switch]"]' => ['!value' => ''],
           'select[name$="[box_caption]"]' => ['value' => 'custom'],
           // @fixme 'select[name*="[media_switch]"]' => $lightboxes,
         ],
       ],
       static::STATE_IFRAME_ENABLED => [
         'visible' => [
-          'select[name*="[media_switch]"]' => ['value' => 'media'],
+          'select[name$="[media_switch]"]' => ['value' => 'media'],
         ],
       ],
       static::STATE_THUMBNAIL_STYLE_ENABLED => [

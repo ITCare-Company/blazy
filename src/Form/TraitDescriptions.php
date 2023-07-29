@@ -49,6 +49,8 @@ trait TraitDescriptions {
         ':url2' => 'https:drupal.org/project/slick_lightbox',
         ':url3' => 'https:drupal.org/project/splidebox',
       ]),
+      'box_caption' => $this->t('Automatic will search for Alt text first, then Title text. Try selecting <strong>- None -</strong> first when changing if trouble with form states.'),
+      'box_caption_custom' => $this->t('Multi-value rich text field will be mapped to each image by its delta.'),
       'ratio' => $this->t('Aspect ratio to get consistently responsive images and iframes. Coupled with Image style. And to fix layout reflow, excessive height issues, whitespace below images, collapsed container, no-js users, etc. <a href=":dimensions" target="_blank">Image styles and video dimensions</a> must <a href=":follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. <a href=":link" target="_blank">Learn more</a>. <ul><li><b>Fixed ratio:</b> all images use the same aspect ratio mobile up. Use it to avoid JS works, or if it fails Responsive image. </li><li><b>Fluid:</b> aka dynamic, dimensions are calculated. First specific for non-responsive images, using PHP for pure CSS if any matching the fixed ones (1:1, 2:3, etc.), <a href=":ratio">read more</a>. If none found, JS works are attempted to fix it.</li><li><b>Leave empty:</b> to DIY (such as using CSS mediaquery), or when working with gapless grids like GridStack, or Blazy Native Grid.</li></ul>', [
         ':dimensions'  => '//size43.com/jqueryVideoTool.html',
         ':follow'      => '//en.wikipedia.org/wiki/Aspect_ratio_%28image%29',
@@ -58,7 +60,6 @@ trait TraitDescriptions {
       'view_mode' => $view_mode,
       'thumbnail_style' => $this->t('Usages: Placeholder replacement for image effects (blur, etc.), Photobox/PhotoSwipe thumbnail, or custom work with thumbnails. Be sure to have similar aspect ratio for the best blur effect. Leave empty to not use thumbnails.'),
       'image' => $this->t('Main background/stage/poster image field with the only supported field types: <b>Image</b> or <b>Media</b> containing Image field. You may want to add a new Image field to this entity. Be sure to reuse the exact same image field (normally field_media_image) across various entitiy types (Image, Remote video, Local audio/video, etc.) within this particular entity (says, Media).'),
-
     ];
   }
 
@@ -76,16 +77,6 @@ trait TraitDescriptions {
       'grid_small' => $this->t('Only accepts uniform columns (1 - 2, or empty) for small devices 0 - 40em (640px) up due to small real estate, even for Native Grid due to being pure CSS without JS. Below this value, always one column.'),
       'visible_items' => $this->t('How many items per display at a time.'),
       'preserve_keys' => $this->t('If checked, keys will be preserved. Default is FALSE which will reindex the grid chunk numerically.'),
-    ];
-  }
-
-  /**
-   * Returns media switch descriptions.
-   */
-  protected function mediaSwitchDescriptions($scopes): array {
-    return [
-      'box_caption' => $this->t('Automatic will search for Alt text first, then Title text. Try selecting <strong>- None -</strong> first when changing if trouble with form states.'),
-      'box_caption_custom' => $this->t('Multi-value rich text field will be mapped to each image by its delta.'),
     ];
   }
 

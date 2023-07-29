@@ -127,12 +127,12 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
     $definitions = $this->getScopedFormElements();
 
     $form += $this->blazyAdmin()->baseForm($definitions);
-
     foreach ($this->getDefaultValues() as $key => $default) {
       if (isset($form[$key])) {
         $form[$key]['#default_value'] = $this->options[$key] ?? $default;
         $form[$key]['#weight'] = 0;
-        if (in_array($key, ['box_style', 'box_media_style'])) {
+
+        if (in_array($key, ['box_style', 'box_media_style', 'media_switch'])) {
           $form[$key]['#empty_option'] = $this->t('- None -');
         }
       }
@@ -163,13 +163,15 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    */
   protected function getDefaultValues() {
     return [
-      'box_style'       => '',
-      'box_media_style' => '',
-      'image_style'     => '',
-      'media_switch'    => 'media',
-      'ratio'           => 'fluid',
-      'thumbnail_style' => '',
-      'view_mode'       => 'default',
+      'box_style'          => '',
+      'box_media_style'    => '',
+      'box_caption'        => '',
+      'box_caption_custom' => '',
+      'image_style'        => '',
+      'media_switch'       => 'media',
+      'ratio'              => 'fluid',
+      'thumbnail_style'    => '',
+      'view_mode'          => 'default',
     ];
   }
 
@@ -222,8 +224,10 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   protected function getPluginScopes(): array {
     $type = $this->view->getBaseEntityType();
     return [
+      'base_form' => TRUE,
       'target_type' => $type ? $type->id() : '',
       'thumbnail_style' => TRUE,
+      'no_loading' => TRUE,
       'no_preload' => TRUE,
     ];
   }
@@ -234,12 +238,29 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().
    */
   public function getScopedFormElements() {
-    $scopes = $this->getPluginScopes();
+    $scopes   = $this->getPluginScopes();
+    $scopes  += Blazy::init();
+    $blazies  = $scopes['blazies'];
+    $settings = $this->options;
+
+    // Mimick field formatters for consistency.
+    foreach (['target_type', 'view_mode'] as $key) {
+      if (isset($scopes[$key])) {
+        $blazies->set('field.' . $key, $scopes[$key]);
+      }
+    }
+    foreach (['entity_type', 'plugin_id'] as $key) {
+      if (isset($settings[$key])) {
+        $blazies->set('field.' . $key, $settings[$key]);
+      }
+    }
 
     // @todo remove `$scopes +` at Blazy 3.x.
     $definitions = $scopes;
     $definitions['scopes'] = $this->toPluginScopes($scopes);
-    $definitions['settings'] = $this->options;
+    $definitions['settings'] = $settings;
+    $definitions['blazies'] = $blazies;
+
     return $definitions;
   }
 

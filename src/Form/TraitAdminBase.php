@@ -54,6 +54,9 @@ trait TraitAdminBase {
    * @todo remove most after sub-module migrations.
    */
   protected function checkScopes(&$scopes, array &$definition): void {
+    if ($scopes->was('scoped')) {
+      return;
+    }
     $settings = $definition['settings'] ?? [];
     $blazies = $definition['blazies'];
     $lightboxes = $this->blazyManager->getLightboxes();
@@ -169,6 +172,8 @@ trait TraitAdminBase {
       $definition['scopes'] = $definition['scopes']->merge($scopes->storage());
       $scopes->set('is.scopes_merged', TRUE);
     }
+
+    $scopes->set('was.scoped', TRUE);
   }
 
   /**

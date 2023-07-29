@@ -24,6 +24,36 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   use TraitAdminBase;
 
   /**
+   * A state that represents the responsive image style is disabled.
+   */
+  const STATE_RESPONSIVE_IMAGE_STYLE_DISABLED = 0;
+
+  /**
+   * A state that represents the media switch lightbox is enabled.
+   */
+  const STATE_LIGHTBOX_ENABLED = 1;
+
+  /**
+   * A state that represents the media switch iframe is enabled.
+   */
+  const STATE_IFRAME_ENABLED = 2;
+
+  /**
+   * A state that represents the thumbnail style is enabled.
+   */
+  const STATE_THUMBNAIL_STYLE_ENABLED = 3;
+
+  /**
+   * A state that represents the custom lightbox caption is enabled.
+   */
+  const STATE_LIGHTBOX_CUSTOM = 4;
+
+  /**
+   * A state that represents the image rendered switch is enabled.
+   */
+  const STATE_IMAGE_RENDERED_ENABLED = 5;
+
+  /**
    * Constructs a BlazyAdminBase object.
    *
    * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository
@@ -231,47 +261,55 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function baseForm(array &$definition): array {
-    $scopes     = $this->toScopes($definition);
+    $scopes = $this->toScopes($definition);
+
+    // Might be called directly without calling self::buildSettingsForm(), such
+    // as \Drupal\blazy\Plugin\views\field\BlazyViewsFieldPluginBase.
+    $this->checkScopes($scopes, $definition);
+
+    $blazies    = $definition['blazies'];
     $data       = $scopes->get('data');
     $form       = [];
-    $use_image  = !$scopes->is('no_image_style');
+    $no_image   = $scopes->is('no_image_style');
     $multimedia = $scopes->is('multimedia');
 
-    if ($use_image) {
-      if (!$scopes->is('no_preload')) {
-        $form['preload'] = [
-          '#type'   => 'checkbox',
-          '#title'  => $this->t('Preload'),
-          '#weight' => -111,
-          '#wrapper_attributes' => $this->getTooltipClasses(),
-        ];
-      }
+    if ($no_image) {
+      return [];
+    }
 
-      if (!$scopes->is('no_loading')) {
-        $loadings = ['auto', 'defer', 'eager', 'unlazy'];
-
-        // It is defined in sub-modules, not Blazy.
-        if ($scopes->is('slider')) {
-          $loadings[] = 'slider';
-        }
-        $form['loading'] = [
-          '#type'         => 'select',
-          '#title'        => $this->t('Loading priority'),
-          '#options'      => array_combine($loadings, $loadings),
-          '#empty_option' => $this->t('lazy'),
-          '#weight'       => -111,
-          '#wrapper_attributes' => $this->getTooltipClasses(),
-        ];
-      }
-
-      $form['image_style'] = [
-        '#type'    => 'select',
-        '#title'   => $this->t('Image style'),
-        '#options' => $this->getEntityAsOptions('image_style'),
-        '#weight'  => -106,
+    if (!$scopes->is('no_preload')) {
+      $form['preload'] = [
+        '#type'   => 'checkbox',
+        '#title'  => $this->t('Preload'),
+        '#weight' => -111,
         '#wrapper_attributes' => $this->getTooltipClasses(),
       ];
     }
+
+    if (!$scopes->is('no_loading')) {
+      $loadings = ['auto', 'defer', 'eager', 'unlazy'];
+
+      // It is defined in sub-modules, not Blazy.
+      if ($scopes->is('slider')) {
+        $loadings[] = 'slider';
+      }
+      $form['loading'] = [
+        '#type'         => 'select',
+        '#title'        => $this->t('Loading priority'),
+        '#options'      => array_combine($loadings, $loadings),
+        '#empty_option' => $this->t('lazy'),
+        '#weight'       => -111,
+        '#wrapper_attributes' => $this->getTooltipClasses(),
+      ];
+    }
+
+    $form['image_style'] = [
+      '#type'    => 'select',
+      '#title'   => $this->t('Image style'),
+      '#options' => $this->getEntityAsOptions('image_style'),
+      '#weight'  => -106,
+      '#wrapper_attributes' => $this->getTooltipClasses(),
+    ];
 
     if ($scopes->is('switch')) {
       $form['media_switch'] = [
@@ -283,45 +321,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         ],
       ];
 
-      // Optional lightbox integration.
-      if ($lightboxes = $scopes->data('lightboxes')) {
-        foreach ($lightboxes as $lightbox) {
-          $name = Unicode::ucwords(str_replace('_', ' ', $lightbox));
-          if ($lightbox == 'photobox') {
-            $name .= ' (Deprecated)';
-          }
-          if ($lightbox == 'mfp') {
-            $name = 'Magnific Popup';
-          }
-          $form['media_switch']['#options'][$lightbox] = $this->t('Image to @lightbox', ['@lightbox' => $name]);
-        }
-
-        // Re-use the same image style for both lightboxes.
-        $box_styles = $this->getResponsiveImageOptions()
-          + $this->getEntityAsOptions('image_style');
-        $form['box_style'] = [
-          '#type'    => 'select',
-          '#title'   => $this->t('Lightbox image style'),
-          '#options' => $box_styles,
-          '#weight'  => -97,
-        ];
-
-        if ($multimedia) {
-          $form['box_media_style'] = [
-            '#type'    => 'select',
-            '#title'   => $this->t('Lightbox video style'),
-            '#options' => $this->getEntityAsOptions('image_style'),
-            '#weight'  => -96,
-          ];
-        }
-
-        if (!$scopes->is('box_stateless')) {
-          foreach (['box_caption', 'box_style', 'box_media_style'] as $key) {
-            if (isset($form[$key])) {
-              $form[$key]['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $scopes);
-            }
-          }
-        }
+      if ($scopes->is('lightbox')) {
+        $this->lightboxForm($form, $definition);
       }
 
       // Adds common supported entities for media integration.
@@ -342,8 +343,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
 
     $disabled = $scopes->is('no_view_mode');
-    $target_type = $scopes->get('target_type');
-    $is_fieldable = $target_type && $scopes->get('view_mode');
+    $target_type = $blazies->get('field.target_type');
+    $is_fieldable = $target_type && $blazies->get('field.view_mode');
 
     if ($is_fieldable && !$disabled) {
       $form['view_mode'] = [
@@ -355,7 +356,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
     }
 
-    if ($use_image || $scopes->is('thumbnail_style')) {
+    if ($scopes->is('thumbnail_style')) {
       $form['thumbnail_style'] = [
         '#type'    => 'select',
         '#title'   => $this->t('Thumbnail style'),
@@ -391,64 +392,24 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function mediaSwitchForm(array &$form, array $definition): void {
-    $scopes    = $this->toScopes($definition);
-    $is_token  = $this->blazyManager->moduleExists('token');
+    // @todo remove $scopes = $this->toScopes($definition);
     $base_form = $this->baseForm($definition);
     $classes   = $this->getTitleClasses(['media-switch'], TRUE);
+    $options   = [
+      'media_switch',
+      'ratio',
+      'box_style',
+      'box_media_style',
+      'box_caption',
+      'box_caption_custom',
+    ];
 
-    foreach (['media_switch', 'ratio'] as $key) {
+    foreach ($options as $key) {
       if ($element = $base_form[$key] ?? []) {
         $form[$key] = $element;
         if ($key == 'media_switch') {
           $form[$key]['#prefix'] = '<h3 class="' . $classes . '">' . $this->t('Media switcher') . '</h3>';
         }
-      }
-    }
-
-    // Optional lightbox integration.
-    if ($scopes->is('switch') && $scopes->is('lightbox')) {
-      foreach (['box_style', 'box_media_style'] as $key) {
-        if ($element = $base_form[$key] ?? []) {
-          $form[$key] = $element;
-        }
-      }
-
-      if (!$scopes->is('no_box_captions')) {
-        $form['box_caption'] = [
-          '#type'    => 'select',
-          '#title'   => $this->t('Lightbox caption'),
-          '#options' => $this->getLightboxCaptionOptions(),
-          '#weight'  => -95,
-        ];
-
-        $form['box_caption_custom'] = [
-          '#title'  => $this->t('Lightbox custom caption'),
-          '#type'   => 'textfield',
-          '#weight' => -94,
-          '#states' => $this->getState(static::STATE_LIGHTBOX_CUSTOM, $scopes),
-        ];
-
-        if ($is_token) {
-          $entity_type = $scopes->get('entity.type');
-          $target_type = $scopes->get('target_type');
-          $types = $entity_type ? [$entity_type] : [];
-          $types = $target_type ? array_merge($types, [$target_type]) : $types;
-
-          if ($types) {
-            $form['box_caption_custom']['#field_suffix'] = [
-              '#theme'       => 'token_tree_link',
-              '#text'        => $this->t('Tokens'),
-              '#token_types' => $types,
-            ];
-          }
-        }
-      }
-    }
-
-    // Add descriptions, if applicable.
-    foreach ($this->mediaSwitchDescriptions($scopes) as $key => $description) {
-      if (isset($form[$key])) {
-        $form[$key]['#description'] = $description;
       }
     }
 
@@ -617,6 +578,88 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
 
     $this->blazyManager->moduleHandler()->alter('blazy_complete_form_element', $form, $definition);
+  }
+
+  /**
+   * Provides lightbox options.
+   */
+  protected function lightboxForm(array &$form, array $definition): void {
+    $scopes     = $this->toScopes($definition);
+    $blazies    = $definition['blazies'];
+    $multimedia = $scopes->is('multimedia');
+    $is_token   = $this->blazyManager->moduleExists('token');
+
+    // Optional lightbox integration.
+    if ($lightboxes = $scopes->data('lightboxes')) {
+      foreach ($lightboxes as $lightbox) {
+        $name = Unicode::ucwords(str_replace('_', ' ', $lightbox));
+        if ($lightbox == 'photobox') {
+          $name .= ' (Deprecated)';
+        }
+        if ($lightbox == 'mfp') {
+          $name = 'Magnific Popup';
+        }
+        $form['media_switch']['#options'][$lightbox] = $this->t('Image to @lightbox', ['@lightbox' => $name]);
+      }
+
+      // Re-use the same image style for both lightboxes.
+      $box_styles = $this->getResponsiveImageOptions()
+        + $this->getEntityAsOptions('image_style');
+      $form['box_style'] = [
+        '#type'    => 'select',
+        '#title'   => $this->t('Lightbox image style'),
+        '#options' => $box_styles,
+        '#weight'  => -97,
+      ];
+
+      if ($multimedia) {
+        $form['box_media_style'] = [
+          '#type'    => 'select',
+          '#title'   => $this->t('Lightbox video style'),
+          '#options' => $this->getEntityAsOptions('image_style'),
+          '#weight'  => -96,
+        ];
+      }
+
+      if (!$scopes->is('no_box_captions')) {
+        $form['box_caption'] = [
+          '#type'    => 'select',
+          '#title'   => $this->t('Lightbox caption'),
+          '#options' => $this->getLightboxCaptionOptions(),
+          '#weight'  => -95,
+        ];
+
+        $form['box_caption_custom'] = [
+          '#title'  => $this->t('Lightbox custom caption'),
+          '#type'   => 'textfield',
+          '#weight' => -94,
+          '#states' => $this->getState(static::STATE_LIGHTBOX_CUSTOM, $scopes),
+        ];
+
+        if ($is_token) {
+          $entity_type = $blazies->get('field.entity_type');
+          $target_type = $blazies->get('field.target_type');
+          $types = $entity_type ? [$entity_type] : [];
+          $types = $target_type ? array_merge($types, [$target_type]) : $types;
+
+          if ($types) {
+            $form['box_caption_custom']['#field_suffix'] = [
+              '#theme'       => 'token_tree_link',
+              '#text'        => $this->t('Tokens'),
+              '#token_types' => $types,
+            ];
+          }
+        }
+      }
+
+      if (!$scopes->is('box_stateless')) {
+        foreach (['box_caption', 'box_style', 'box_media_style'] as $key) {
+          if (isset($form[$key])) {
+            $form[$key]['#states'] = $this->getState(static::STATE_LIGHTBOX_ENABLED, $scopes);
+          }
+        }
+      }
+    }
   }
 
   /**

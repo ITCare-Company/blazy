@@ -324,6 +324,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       'responsive_image'  => TRUE,
       'multiple'          => $multiple,
       'view_mode'         => $is_image ? NULL : $this->viewMode,
+      'no_view_mode'      => $is_image,
     ];
   }
 
