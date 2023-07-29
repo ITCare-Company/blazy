@@ -54,6 +54,8 @@ trait TraitAdminBase {
    */
   protected function checkScopes(&$scopes, array &$definition): void {
     $settings = $definition['settings'] ?? [];
+    $this->blazyManager->verify($settings);
+
     $blazies = $definition['blazies'];
     $lightboxes = $this->blazyManager->getLightboxes();
     $is_responsive = function_exists('responsive_image_get_image_dimensions');

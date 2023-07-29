@@ -19,10 +19,6 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
 
     $this->imageStyleForm($form, $definition);
 
-    if ($scopes->form('svg')) {
-      $this->svgForm($form, $definition);
-    }
-
     if ($scopes->form('media_switch') && !isset($form['media_switch'])) {
       $this->mediaSwitchForm($form, $definition);
     }
@@ -37,35 +33,37 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    * {@inheritdoc}
    */
   public function imageStyleForm(array &$form, array $definition): void {
-    $scopes = $this->toScopes($definition);
-    $blazies = $definition['blazies'];
-    $field_type = $blazies->get('field.type');
-    $plugin_id = $blazies->get('field.plugin_id', '');
-    $use_image = !$scopes->is('no_image_style');
+    $scopes       = $this->toScopes($definition);
+    $blazies      = $definition['blazies'];
+    $field_type   = $blazies->get('field.type');
+    $plugin_id    = $blazies->get('field.plugin_id', '');
+    $no_image     = $scopes->is('no_image_style');
     $descriptions = $this->formatterBaseDescriptions($scopes);
 
     // Not all has defined plugin_id such as filters for now.
-    if ($use_image && strpos($plugin_id, '_text') === FALSE) {
-      $base = $this->baseForm($definition);
+    if ($no_image || strpos($plugin_id, '_text') !== FALSE) {
+      return;
+    }
 
-      // Excludes VEF which has no File API to work with.
-      $disabled = ($field_type && $field_type == 'video_embed_field')
-        || $plugin_id == 'blazy_vef_default';
+    $base = $this->baseForm($definition);
 
-      if (!$disabled && isset($base['preload'])) {
-        $form['preload'] = $base['preload'];
+    // Excludes VEF which has no File API to work with.
+    $disabled = ($field_type && $field_type == 'video_embed_field')
+      || $plugin_id == 'blazy_vef_default';
+
+    if (!$disabled && isset($base['preload'])) {
+      $form['preload'] = $base['preload'];
+    }
+
+    foreach (['image_style', 'loading'] as $key) {
+      if (isset($base[$key])) {
+        $form[$key] = $base[$key];
       }
+    }
 
-      foreach (['image_style', 'loading'] as $key) {
-        if (isset($base[$key])) {
-          $form[$key] = $base[$key];
-        }
-      }
-
-      if ($scopes->is('thumbnail_style')) {
-        if (isset($base['thumbnail_style'])) {
-          $form['thumbnail_style'] = $base['thumbnail_style'];
-        }
+    if ($scopes->is('thumbnail_style')) {
+      if (isset($base['thumbnail_style'])) {
+        $form['thumbnail_style'] = $base['thumbnail_style'];
       }
     }
 
@@ -81,15 +79,8 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       ];
     }
 
-    // @todo remove after sub-modules: Splide. Slick.
-    if (!$scopes->is('no_thumb_effects')
-      && $effects = $scopes->data('thumbnail_effect')) {
-      $form['thumbnail_effect'] = [
-        '#type'    => 'select',
-        '#title'   => $this->t('Thumbnail effect'),
-        '#options' => $this->toOptions($effects),
-        '#weight'  => -100,
-      ];
+    if ($scopes->form('svg')) {
+      $this->svgForm($form, $definition);
     }
   }
 
