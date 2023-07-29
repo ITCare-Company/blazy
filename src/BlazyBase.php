@@ -410,7 +410,7 @@ abstract class BlazyBase implements BlazyInterface {
   public function loadByProperty($porperty, $value, $type): ?object {
     $entity = NULL;
     if ($value && $entities = $this->loadByProperties([$porperty => $value], $type, TRUE)) {
-      $entity = reset($entities);
+      $entity = reset($entities) ?: NULL;
     }
     return $entity;
   }

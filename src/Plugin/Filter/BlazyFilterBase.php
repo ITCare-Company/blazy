@@ -450,7 +450,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       // Ensures iframe attributes are not passed through since item_attributes
       // is dedicated for image. No biggies, just irrelevant for now.
       $tag = $node->nodeName;
-      if ($tag == 'image') {
+      if ($tag == 'img') {
+        $tag = 'image';
         // Pass anything else even dangerous attributes.
         // @todo re-disable if this caused SRC set, lazy load failed, even unset.
         $build['#item_attributes'] = $attrs;
