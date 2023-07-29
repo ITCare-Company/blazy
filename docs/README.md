@@ -295,6 +295,7 @@ For more robust solutions, consider: SVG Image Field, SVG Image, etc.
   **Blazy File** provides supports for its field type so to have Grid, and
   various Blazy features, including SVG carousels, etc. It is still WIP, but
   just fine.
+* If the SVG is smaller than the expected, try adding `width: 100%` to it.  
 * For inline SVG, be sure to install the SVG Sanitizer, if not already:  
   `composer require enshrined/svg-sanitize`  
   [Read more](https://github.com/darylldoyle/svg-sanitizer)  
