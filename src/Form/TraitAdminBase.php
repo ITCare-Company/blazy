@@ -53,9 +53,9 @@ trait TraitAdminBase {
    * @todo remove most after sub-module migrations.
    */
   protected function checkScopes(&$scopes, array &$definition): void {
-    $settings = $definition['settings'] ?? [];
-    $this->blazyManager->verify($settings);
+    $this->blazyManager->verify($definition);
 
+    $settings = $definition['settings'] ?? [];
     $blazies = $definition['blazies'];
     $lightboxes = $this->blazyManager->getLightboxes();
     $is_responsive = function_exists('responsive_image_get_image_dimensions');
