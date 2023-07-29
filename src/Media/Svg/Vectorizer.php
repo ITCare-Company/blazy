@@ -4,8 +4,12 @@ namespace Drupal\blazy\Media\Svg;
 
 /**
  * Provides image to svg converter.
+ *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
  */
-class ImageToSvg implements ImageToSvgInterface {
+class Vectorizer implements VectorizerInterface {
 
   /**
    * Image source path.
@@ -54,7 +58,7 @@ class ImageToSvg implements ImageToSvgInterface {
   protected $threshold = 0;
 
   /**
-   * Constructs a ImageToSvg object.
+   * Constructs a Vectorizer object.
    */
   public function __construct($path, array $options = []) {
     if (!is_readable($path) && !filter_var($path, FILTER_VALIDATE_URL)) {

@@ -13,6 +13,10 @@ use Drupal\blazy\Utility\Path;
 /**
  * Provides file_BLAH BC for D8 - D10+ till D11 rules.
  *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
+ *
  * @todo recap similiraties and make them plugins.
  * @todo remove deprecated functions post D11, not D10, and when D8 is dropped.
  */
@@ -152,14 +156,7 @@ class BlazyFile {
    * Returns a file object from an URI.
    */
   public static function fromUri($uri, $manager = NULL): ?object {
-    $file = NULL;
-    $manager = $manager ?: Blazy::service('blazy.manager');
-    if ($manager && self::isValidUri($uri)) {
-      if ($files = $manager->loadByProperties(['uri' => $uri], 'file', TRUE)) {
-        $file = reset($files);
-      }
-    }
-    return $file;
+    return Blazy::loadByProperty('uri', $uri, 'file', $manager);
   }
 
   /**
@@ -305,18 +302,16 @@ class BlazyFile {
    * Returns the File entity from settings, if applicable, relevant for Filter.
    */
   private static function fromSettings(array $settings): ?object {
-    $file = NULL;
+    $file    = NULL;
     $blazies = $settings['blazies'] ?? NULL;
+    $uri     = self::uri(NULL, $settings);
+    $uuid    = $blazies ? $blazies->get('entity.uuid') : NULL;
+    $file    = $uuid ? Blazy::loadByUuid($uuid, 'file') : NULL;
 
-    if ($manager = Blazy::service('blazy.manager')) {
-      $uri = self::uri(NULL, $settings);
-      $uuid = $blazies ? $blazies->get('entity.uuid') : NULL;
-      $file = $uuid ? $manager->loadByUuid($uuid, 'file') : NULL;
-
-      if (!$file) {
-        $file = self::fromUri($uri, $manager);
-      }
+    if (!$file) {
+      $file = self::fromUri($uri);
     }
+
     return $file;
   }
 

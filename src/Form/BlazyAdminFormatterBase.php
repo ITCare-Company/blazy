@@ -31,14 +31,6 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       $form['image'] = $this->baseForm($definition)['image'];
       $form['image']['#prefix'] = '';
     }
-
-    if (isset($form['responsive_image_style'])) {
-      $form['responsive_image_style']['#description'] = $this->t('Be sure to enable <strong>Responsive image</strong> option via Blazy UI. Leave empty to disable.');
-
-      if ($this->blazyManager()->moduleExists('blazy_ui')) {
-        $form['responsive_image_style']['#description'] .= ' ' . $this->t('<a href=":url" target="_blank">Enable lazyloading Responsive image</a>.', [':url' => Url::fromRoute('blazy.settings')->toString()]);
-      }
-    }
   }
 
   /**
@@ -46,9 +38,11 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    */
   public function imageStyleForm(array &$form, array $definition): void {
     $scopes = $this->toScopes($definition);
-    $field_type = $scopes->get('field.type');
-    $plugin_id = $scopes->get('plugin_id') ?: '';
+    $blazies = $definition['blazies'];
+    $field_type = $blazies->get('field.type');
+    $plugin_id = $blazies->get('field.plugin_id', '');
     $use_image = !$scopes->is('no_image_style');
+    $descriptions = $this->formatterBaseDescriptions($scopes);
 
     // Not all has defined plugin_id such as filters for now.
     if ($use_image && strpos($plugin_id, '_text') === FALSE) {
@@ -76,20 +70,20 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     }
 
     if ($scopes->is('responsive_image')) {
-      $url = Url::fromRoute('entity.responsive_image_style.collection')->toString();
       $options = $this->getResponsiveImageOptions();
       $form['responsive_image_style'] = [
         '#type'        => 'select',
         '#title'       => $this->t('Responsive image'),
         '#options'     => $options,
-        '#description' => $this->t('Responsive image style for the main stage image is more reasonable for large images. Works with multi-serving IMG, or PICTURE element. Leave empty to disable. <a href=":url" target="_blank">Manage responsive image styles</a>.', [':url' => $url]),
+        '#description' => $descriptions['responsive_image_style'],
         '#access'      => count($options) > 0,
         '#weight'      => -105,
       ];
     }
 
     // @todo remove after sub-modules: Splide. Slick.
-    if (!$scopes->is('no_thumb_effects') && $effects = $scopes->data('thumbnail_effect')) {
+    if (!$scopes->is('no_thumb_effects')
+      && $effects = $scopes->data('thumbnail_effect')) {
       $form['thumbnail_effect'] = [
         '#type'    => 'select',
         '#title'   => $this->t('Thumbnail effect'),
@@ -97,6 +91,24 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
         '#weight'  => -100,
       ];
     }
+  }
+
+  /**
+   * Returns formatter base descriptions.
+   */
+  protected function formatterBaseDescriptions($scopes): array {
+    $url = Url::fromRoute('entity.responsive_image_style.collection')->toString();
+    $description = $this->t('Responsive image style for the main stage image is more reasonable for large images. Works with multi-serving IMG, or PICTURE element. Leave empty to disable. <a href=":url" target="_blank">Manage responsive image styles</a>.', [
+      ':url' => $url,
+    ]);
+    if ($this->blazyManager->moduleExists('blazy_ui')) {
+      $description .= ' ' . $this->t('<a href=":url2">Enable lazyloading Responsive image</a>.', [
+        ':url2' => Url::fromRoute('blazy.settings')->toString(),
+      ]);
+    }
+    return [
+      'responsive_image_style' => $description,
+    ];
   }
 
   /**
@@ -167,72 +179,6 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
       }
     }
     return $summary;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFieldOptions(
-    array $target_bundles = [],
-    array $allowed_field_types = [],
-    $entity_type = 'media',
-    $target_type = ''
-  ): array {
-    $options = [];
-
-    // Fix for Views UI not recognizing Media bundles, unlike Formatters.
-    if (empty($target_bundles)) {
-      if ($service = $this->blazyManager->service('entity_type.bundle.info')) {
-        $target_bundles = $service->getBundleInfo($entity_type);
-      }
-    }
-
-    // Declutters options from less relevant options.
-    $excludes = $this->getExcludedFieldOptions();
-
-    foreach ($target_bundles as $bundle => $label) {
-      if ($fields = $this->blazyManager->loadByProperties([
-        'entity_type' => $entity_type,
-        'bundle' => $bundle,
-      ], 'field_config', FALSE)) {
-        foreach ((array) $fields as $field) {
-          if (in_array($field->getName(), $excludes)) {
-            continue;
-          }
-          if (empty($allowed_field_types)) {
-            $options[$field->getName()] = $field->getLabel();
-          }
-          elseif (in_array($field->getType(), $allowed_field_types)) {
-            $options[$field->getName()] = $field->getLabel();
-          }
-
-          if (!empty($target_type)
-            && ($field->getSetting('target_type') == $target_type)) {
-            $options[$field->getName()] = $field->getLabel();
-          }
-        }
-      }
-    }
-
-    return $options;
-  }
-
-  /**
-   * Declutters options from less relevant options, specific to captions.
-   */
-  protected function getExcludedFieldOptions(): array {
-    // @todo figure out a more efficient way than blacklisting.
-    // Do not exclude field_media_image  as needed for Main stage.
-    $fields = 'media media_document document_size media_file id media_in_library mime_type source media_twitter tweet_author tweet_id tweet_url media_video_embed_field instagram_shortcode instagram_url media_oembed_instagram media_soundcloud media_oembed_video media_audio_file media_video_file media_facebook media_flickr file_url external_thumbnail local_thumbnail local_thumbnail_uri media_unsplash';
-    $fields = array_map('trim', explode(' ', $fields));
-
-    $excludes = [];
-    foreach ($fields as $exclude) {
-      $excludes['field_' . $exclude] = 'field_' . $exclude;
-    }
-
-    $this->blazyManager->moduleHandler()->alter('blazy_excluded_field_options', $excludes);
-    return $excludes;
   }
 
   /**

@@ -383,6 +383,21 @@ interface BlazyInterface {
   ): array;
 
   /**
+   * Returns a single entity object by a property.
+   *
+   * @param string $porperty
+   *   The entity porperty.
+   * @param string|array $value
+   *   The porperty value(s).
+   * @param string $type
+   *   The entity type.
+   *
+   * @return object|null
+   *   The entity, else NULL.
+   */
+  public function loadByProperty($porperty, $value, $type): ?object;
+
+  /**
    * Returns a shortcut for loading entity by its UUID.
    *
    * @param string $uuid

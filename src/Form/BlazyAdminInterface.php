@@ -113,4 +113,30 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
     $target_type = ''
   ): array;
 
+  /**
+   * Returns common form item title or header classes.
+   *
+   * @param array $options
+   *   The optional additional classes.
+   * @param bool $flatten
+   *   Whether to flatten the array.
+   *
+   * @return string|array
+   *   The title classes.
+   */
+  public function getTitleClasses(array $options = [], $flatten = FALSE);
+
+  /**
+   * Returns common tooltip classes, normally when bottom position is needed.
+   *
+   * @param array $options
+   *   The optional additional classes.
+   * @param bool $flatten
+   *   Whether to flatten the array.
+   *
+   * @return string|array
+   *   The tooltip classes.
+   */
+  public function getTooltipClasses(array $options = [], $flatten = FALSE);
+
 }

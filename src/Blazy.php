@@ -18,7 +18,11 @@ use Drupal\blazy\Deprecated\BlazyDeprecatedTrait;
  * Provides common public blazy utility and a few aliases for frequent methods.
  *
  * Using aliases allow Blazy to self-organize, or improve as needed. A good
- * sample is BlazyGrid relocation, or likely BlazySettings, etc.
+ * sample is BlazyGrid relocation, or likely BlazySettings, etc. If you are
+ * calling global methods marked as @internal, consider changing them to the
+ * replacements below, if any. If not, and potential frequent methods, propose
+ * one in an issue to put them in the public facing class like this one. Mostly
+ * for conveniences, and a good night sleep.
  */
 class Blazy {
 
@@ -161,10 +165,19 @@ class Blazy {
   }
 
   /**
-   * Alias for BlazyFile::fromUri().
+   * Returns a entity object by a property.
    */
-  public static function fileFromUri($uri, $manager = NULL): ?object {
-    return BlazyFile::fromUri($uri, $manager);
+  public static function loadByProperty($property, $value, $type, $manager = NULL): ?object {
+    $manager = $manager ?: self::service('blazy.manager');
+    return $manager ? $manager->loadByProperty($property, $value, $type) : NULL;
+  }
+
+  /**
+   * Returns a entity object by a UUID.
+   */
+  public static function loadByUuid($uuid, $type, $manager = NULL): ?object {
+    $manager = $manager ?: self::service('blazy.manager');
+    return $manager ? $manager->loadByUuid($uuid, $type) : NULL;
   }
 
   /**
@@ -343,7 +356,7 @@ class Blazy {
   /**
    * Alias for BlazyImage::url().
    */
-  public static function url($uri, $style, array $options = []): string {
+  public static function url($uri, $style = NULL, array $options = []): string {
     return BlazyImage::url($uri, $style, $options);
   }
 
@@ -434,7 +447,7 @@ class Blazy {
   }
 
   /**
-   * Checks for Native Grid.
+   * Alias for Grid::toNativeGrid().
    */
   public static function toNativeGrid(array &$settings): void {
     Grid::toNativeGrid($settings);

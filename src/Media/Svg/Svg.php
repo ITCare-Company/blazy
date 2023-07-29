@@ -113,46 +113,8 @@ class Svg implements SvgInterface {
   /**
    * {@inheritdoc}
    */
-  public function attributes($svg, array $options): string {
-    $fill   = $options['fill'] ?? FALSE;
-    $width  = $height = NULL;
-    $output = $svg;
-
-    if ($attributes = $options['attributes'] ?? NULL) {
-      $attributes = strip_tags($attributes);
-      [$width, $height] = array_map('trim', explode('x', $attributes));
-    }
-
-    if ($fill || ($width && $height)) {
-      $dom = new \DOMDocument();
-      libxml_use_internal_errors(TRUE);
-      $dom->loadXML($svg);
-
-      if (isset($dom->documentElement)) {
-        if ($fill) {
-          $dom->documentElement->setAttribute('fill', 'currentColor');
-        }
-
-        if ($width && $height) {
-          $dom->documentElement->setAttribute('height', (int) $height);
-          $dom->documentElement->setAttribute('width', (int) $width);
-        }
-
-        $output = $dom->saveXML($dom->documentElement);
-      }
-      else {
-        $output = $dom->saveXML();
-      }
-    }
-
-    return $output;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function imageToSvg($url, array $options = []): string {
-    $converter = new ImageToSvg($url, $options);
+  public function vectorize($url, array $options = []): string {
+    $converter = new Vectorizer($url, $options);
     return $converter->generateSvg();
   }
 
@@ -276,7 +238,7 @@ class Svg implements SvgInterface {
     // Set standard file permissions for webserver-generated files.
     if ($res) {
       // @todo update database.
-      // if ($file = Blazy::fileFromUri($uri)) {
+      // if ($file = Blazy::loadByProperty('uri', $uri, 'file')) {
       // $this->fileRepository->move($file, $dest,
       // FileSystemInterface::EXISTS_REPLACE);
       // }
@@ -295,6 +257,52 @@ class Svg implements SvgInterface {
    */
   public function view($uri, array $options = []): ?string {
     return $this->sanitize($uri, $options);
+  }
+
+  /**
+   * Returns the modified SVG attributes based on the options.
+   *
+   * @param string $svg
+   *   The SVG string.
+   * @param array $options
+   *   The attribute options.
+   *
+   * @return string
+   *   The modified SVG string, or original.
+   */
+  protected function attributes($svg, array $options): string {
+    $fill   = $options['fill'] ?? FALSE;
+    $width  = $height = NULL;
+    $output = $svg;
+
+    if ($attributes = $options['attributes'] ?? NULL) {
+      $attributes = strip_tags($attributes);
+      [$width, $height] = array_map('trim', explode('x', $attributes));
+    }
+
+    if ($fill || ($width && $height)) {
+      $dom = new \DOMDocument();
+      libxml_use_internal_errors(TRUE);
+      $dom->loadXML($svg);
+
+      if (isset($dom->documentElement)) {
+        if ($fill) {
+          $dom->documentElement->setAttribute('fill', 'currentColor');
+        }
+
+        if ($width && $height) {
+          $dom->documentElement->setAttribute('height', (int) $height);
+          $dom->documentElement->setAttribute('width', (int) $width);
+        }
+
+        $output = $dom->saveXML($dom->documentElement);
+      }
+      else {
+        $output = $dom->saveXML();
+      }
+    }
+
+    return $output;
   }
 
   /**

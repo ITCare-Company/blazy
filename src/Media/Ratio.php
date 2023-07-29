@@ -6,6 +6,10 @@ use Drupal\blazy\BlazyDefault;
 
 /**
  * Provides aspect ratio insanity.
+ *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
  */
 class Ratio {
 

@@ -58,7 +58,7 @@ class BlazyTextFormatter extends FormatterBase {
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
-    return self::injectServices($instance, $container, static::$fieldType);
+    return static::injectServices($instance, $container, static::$fieldType);
   }
 
   /**

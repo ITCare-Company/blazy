@@ -407,6 +407,17 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function loadByProperty($porperty, $value, $type): ?object {
+    $entity = NULL;
+    if ($value && $entities = $this->loadByProperties([$porperty => $value], $type, TRUE)) {
+      $entity = reset($entities);
+    }
+    return $entity;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function loadByUuid($uuid, $type = 'file'): ?object {
     return $this->entityRepository->loadEntityByUuid($type, $uuid);
   }

@@ -318,7 +318,7 @@ class BlazyAttribute {
     // Overrides title if to be used as a placeholder for lazyloaded video.
     if ($blazies->is('multimedia') && $title) {
       $_title = $title;
-      $bundle = $blazies->get('media.bundle');
+      $bundle = $blazies->get('media.bundle', 'remote_video');
       $bundle = str_replace('remote_', '', $bundle);
       $bundle = str_replace('_', ' ', $bundle);
 

@@ -5,8 +5,12 @@ namespace Drupal\blazy\Media\Svg;
 /**
  * Raster to SVG converter based on Flaming Shame.
  *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
+ *
  * @code
- * $converter = new ImageToSvg();
+ * $converter = new Vectorizer();
  * $converter->loadImage('/path/to/my/image.gif');
  * // $converter->setThreshold(80);
  * // header('Content-Type: text/xml');
@@ -16,7 +20,7 @@ namespace Drupal\blazy\Media\Svg;
  * Converting a Image into a SVG and saving the SVG to a file
  *
  * @code
- * $converter = new ImageToSvg();
+ * $converter = new Vectorizer();
  * $converter->loadImage('/path/to/my/image.gif');
  * // $converter->setThreshold(80);
  * $res = $converter->saveSvg('/path/to/the/save.svg');
@@ -26,7 +30,7 @@ namespace Drupal\blazy\Media\Svg;
  * This method will return a PHP `DOMDocument` object.
  *
  * @code
- * $converter = new ImageToSvg();
+ * $converter = new Vectorizer();
  * $converter->loadImage('/path/to/my/image.gif');
  * // $converter->setThreshold(80);
  * $res = $converter->toXml();
@@ -39,7 +43,7 @@ namespace Drupal\blazy\Media\Svg;
  * @link https://github.com/meyerweb/flaming-shame/
  * @link https://github.com/meyerweb/px2svg
  */
-interface ImageToSvgInterface {
+interface VectorizerInterface {
 
   /**
    * Defines constant direction horizontal.

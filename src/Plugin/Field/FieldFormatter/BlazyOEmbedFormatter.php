@@ -71,7 +71,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
-    return self::injectServices($instance, $container, static::$fieldType);
+    return static::injectServices($instance, $container, static::$fieldType);
   }
 
   /**
@@ -163,11 +163,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
           }
           else {
             // Attempts to fetch media entity.
-            $media = $this->formatter
-              ->loadByProperties([
-                $field_name => $value,
-              ], 'media', TRUE);
-            $media = reset($media);
+            $media = $this->formatter->loadByProperty($field_name, $value, 'media');
           }
 
           $info = [

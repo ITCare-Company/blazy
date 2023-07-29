@@ -23,28 +23,23 @@ class BlazyField {
     Blazy::verify($settings);
     $blazies = $settings['blazies'];
 
-    if ($manager = Blazy::service('blazy.manager')) {
-      [$type] = explode('/', $file->getMimeType(), 2);
+    [$type] = explode('/', $file->getMimeType(), 2);
 
-      // As long as you are not being too creative by renaming, or changing
-      // fields provided by core, this should be your good friend.
-      foreach (['audio', 'video'] as $key) {
-        if ($type == $key) {
-          $skey = $key . '_file';
-          $blazies->set('media.source', $skey);
-          $blazies->set('media.source_field', 'field_media_' . $skey);
-        }
+    // As long as you are not being too creative by renaming, or changing
+    // fields provided by core, this should be your good friend.
+    foreach (['audio', 'video'] as $key) {
+      if ($type == $key) {
+        $skey = $key . '_file';
+        $blazies->set('media.source', $skey);
+        $blazies->set('media.source_field', 'field_media_' . $skey);
       }
+    }
 
-      $source_field = $blazies->get('media.source_field');
-      if ($blazies->get('media.source') && $source_field) {
-        $media = $manager->loadByProperties([
-          $source_field => ['fid' => $file->id()],
-        ], 'media', TRUE);
-
-        if ($media = reset($media)) {
-          return $rendered ? BlazyMedia::view($media, $settings) : $media;
-        }
+    $source_field = $blazies->get('media.source_field');
+    if ($blazies->get('media.source') && $source_field) {
+      $media = Blazy::loadByProperty($source_field, ['fid' => $file->id()], 'media');
+      if ($media) {
+        return $rendered ? BlazyMedia::view($media, $settings) : $media;
       }
     }
 

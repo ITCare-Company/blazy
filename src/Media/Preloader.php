@@ -8,6 +8,10 @@ use Drupal\blazy\Utility\CheckItem;
 /**
  * Provides preload utility.
  *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
+ *
  * @todo recap similiraties and make them plugins.
  */
 class Preloader {

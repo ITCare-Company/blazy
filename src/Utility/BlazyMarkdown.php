@@ -8,6 +8,10 @@ use League\CommonMark\CommonMarkConverter;
 
 /**
  * Provides markdown utilities only useful for the help text.
+ *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
  */
 class BlazyMarkdown {
 

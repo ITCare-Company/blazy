@@ -7,6 +7,10 @@ use Drupal\blazy\Blazy;
 /**
  * Provides placeholder thumbnail image.
  *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
+ *
  * @todo recap similiraties and make them plugins.
  */
 class Placeholder {

@@ -7,8 +7,11 @@ use Drupal\blazy\Theme\Grid;
 /**
  * Deprecated in blazy:8.x-2.9.
  *
- * @todo trigger error post slick_browser: 8.x-2.4.
- * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
+ *
+ * @deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
  *   Drupal\blazy\Blazy::grid() or Drupal\blazy\BlazyManager::toGrid() instead.
  * @see https://www.drupal.org/node/3367304
  */

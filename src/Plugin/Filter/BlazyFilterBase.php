@@ -357,25 +357,23 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     // Iframe with data: alike scheme is a serious kidding, strip it earlier.
     $blazies->set('media.input_url', $src);
     $this->blazyOembed->checkInputUrl($settings, $src);
+    $src = $blazies->get('media.input_url');
 
     // @todo figure out to not hard-code `field_media_oembed_video`.
     $media = NULL;
     if ($src && $blazies->is('media_library')) {
-      $media = $this->manager->loadByProperties([
-        'field_media_oembed_video' => $src,
-      ], 'media', TRUE);
-
-      $media = reset($media);
+      $media = $this->manager->loadByProperty(
+        'field_media_oembed_video.value',
+        $src,
+        'media'
+      );
     }
 
     // Runs after type, width and height set, if any, to not recheck them.
-    if ($media) {
-      $build['#delta']    = $delta;
-      $build['#entity']   = $media;
-      $build['#settings'] = $settings;
-
-      $this->blazyOembed->build($build);
-    }
+    $build['#delta']    = $delta;
+    $build['#entity']   = $media;
+    $build['#settings'] = $settings;
+    $this->blazyOembed->build($build);
   }
 
   /**
@@ -449,10 +447,23 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
         }
       }
 
-      // Pass anything else even dangerous attributes.
-      // @todo re-disable if this caused SRC set, lazy load failed, even unset.
-      $build['#item_attributes'] = $attrs;
-      $blazies->set('item.safe_attributes', Sanitize::attribute($attrs));
+      // Ensures iframe attributes are not passed through since item_attributes
+      // is dedicated for image. No biggies, just irrelevant for now.
+      $tag = $node->nodeName;
+      if ($tag == 'image') {
+        // Pass anything else even dangerous attributes.
+        // @todo re-disable if this caused SRC set, lazy load failed, even unset.
+        $build['#item_attributes'] = $attrs;
+      }
+      elseif ($tag == 'iframe') {
+        $tag = 'video';
+        $blazies->set('is.iframeable', TRUE)
+          ->set('is.multimedia', TRUE)
+          ->set('media.bundle', 'remote_video');
+      }
+
+      $blazies->set('item.safe_attributes', Sanitize::attribute($attrs))
+        ->set('media.type', $tag);
     }
   }
 

@@ -17,7 +17,7 @@ use Drupal\blazy\Media\BlazyImage;
  * @see Drupal\blazy\Plugin\views\field\BlazyViewsFieldPluginBase
  * @see Drupal\slick_browser\SlickBrowser::widgetEntityBrowserFileFormAlter()
  * @see Drupal\slick_browser\Plugin\EntityBrowser\FieldWidgetDisplay\...
- * @todo deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
+ * @deprecated in blazy:8.x-2.0 and is removed from blazy:8.x-3.0. Use
  *   Drupal\blazy\Media\BlazyOEmbed instead.
  * @see https://www.drupal.org/node/3103018
  */

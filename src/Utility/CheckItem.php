@@ -306,7 +306,7 @@ class CheckItem {
    */
   public static function unstyled(array &$settings, $uri, $first_time = FALSE): bool {
     $blazies = $settings['blazies'];
-    $ext = pathinfo($uri, PATHINFO_EXTENSION);
+    $ext = pathinfo($uri, PATHINFO_EXTENSION) ?: 'x';
     $ext = strtolower($ext);
     $external = UrlHelper::isExternal($uri);
     $extensions = ['svg'];

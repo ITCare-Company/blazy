@@ -14,6 +14,10 @@ use Drupal\blazy\Utility\Sanitize;
 /**
  * Provides image-related methods.
  *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
+ *
  * @todo recap similiraties and make them plugins.
  */
 class BlazyImage {
@@ -517,7 +521,7 @@ class BlazyImage {
   /**
    * Returns image URL with an optional image style.
    */
-  public static function url($uri, $style, array $options = []): string {
+  public static function url($uri, $style = NULL, array $options = []): string {
     $unsafe   = $options['unsafe'] ?? TRUE;
     $data_uri = $options['use_data_uri'] ?? FALSE;
     $url      = BlazyFile::transformRelative($uri, $style, $options);

@@ -54,19 +54,6 @@ interface SvgInterface {
   public function image($source = NULL, $toolkit_id = NULL): ImageInterface;
 
   /**
-   * Returns the modified SVG attributes based on the options.
-   *
-   * @param string $svg
-   *   The SVG string.
-   * @param array $options
-   *   The attribute options.
-   *
-   * @return string
-   *   The modified SVG string, or original.
-   */
-  public function attributes($svg, array $options): string;
-
-  /**
    * Generates SVG from raster.
    *
    * Warning! This is not for large images, only thumbnails or blur images.
@@ -80,7 +67,7 @@ interface SvgInterface {
    * @return string
    *   The SVG markup.
    */
-  public function imageToSvg($url, array $options = []): string;
+  public function vectorize($url, array $options = []): string;
 
   /**
    * Checks if the current file mime type is SVG.

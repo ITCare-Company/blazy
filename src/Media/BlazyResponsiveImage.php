@@ -9,6 +9,10 @@ use Drupal\blazy\Theme\BlazyAttribute;
 /**
  * Provides responsive image utilities.
  *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
+ *
  * @todo recap similiraties and make them plugins.
  */
 class BlazyResponsiveImage {

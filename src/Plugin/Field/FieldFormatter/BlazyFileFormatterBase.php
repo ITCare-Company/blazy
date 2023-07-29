@@ -96,7 +96,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   ) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     $instance->svgManager = $container->get('blazy.svg');
-    return self::injectServices($instance, $container, static::$fieldType);
+    return static::injectServices($instance, $container, static::$fieldType);
   }
 
   /**

@@ -97,7 +97,8 @@
  * @code
  * function my_module_render_blazy_multiple() {
  *   // Invoke the plugin class, or use a DI service container accordingly.
- *   $manager = blazy(), or \Drupal::service('blazy.manager');
+ *   // $manager = \Drupal::service('blazy.manager');
+ *   $manager = blazy();
  *
  *   $settings = [
  *     // Supported media switcher options dependent on available modules:
