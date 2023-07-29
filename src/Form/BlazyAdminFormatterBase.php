@@ -88,6 +88,9 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    * Returns formatter base descriptions.
    */
   protected function formatterBaseDescriptions($scopes): array {
+    if (!$scopes->is('responsive_image')) {
+      return [];
+    }
     $url = Url::fromRoute('entity.responsive_image_style.collection')->toString();
     $description = $this->t('Responsive image style for the main stage image is more reasonable for large images. Works with multi-serving IMG, or PICTURE element. Leave empty to disable. <a href=":url" target="_blank">Manage responsive image styles</a>.', [
       ':url' => $url,
