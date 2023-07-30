@@ -79,7 +79,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   protected static $useSvg = FALSE;
 
   /**
-   * The blazy manager service.
+   * The svg manager service.
    *
    * @var \Drupal\blazy\Media\Svg\SvgInterface
    */
@@ -142,8 +142,10 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
   /**
    * Provides inline SVG if so-configured.
+   *
+   * @todo move it into BlazyFileSvgFormatterBase after sub-modules.
    */
-  protected function viewSvg(array &$element, $entity) {
+  protected function viewSvg(array &$element, $entity): void {
     $settings = $this->formatter->toHashtag($element);
     $blazies  = $settings['blazies'];
 
@@ -171,6 +173,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    */
   protected function getElements(array $build, $files, $options = NULL): \Generator {
     $settings = $this->formatter->toHashtag($build);
+    $blazies  = $settings['blazies'];
 
     foreach ($files as $delta => $file) {
       /** @var \Drupal\file\Plugin\Field\FieldType\FileItem $item */
@@ -193,6 +196,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
         '#settings' => $this->formatter->toSettings($sets, $info),
       ];
 
+      // Provide parent context for fieldable captions with entity_reference.
       if ($item instanceof EntityReferenceItem) {
         $parent = $item->getParent();
         if (method_exists($parent, 'getEntity')) {
@@ -201,43 +205,42 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       }
 
       // Build individual element, no real use here since VEF deprecated.
+      // Except for SVG since 2.17.
       $this->buildElement($data, $file);
 
       // Build captions if so configured.
       $captions = $this->getCaptions($data);
 
       // @todo merge all these into theme_blazy() at 3.x after sub-modules.
-      // We all have similar IMAGE + CAPTION constructs. The only difference is
-      // sub-modules separate blazy image from captions while Blazy merges them.
-      // Plus thumbnails, already managed by themselves, not blazy's business.
-      // Mergers allow improvements as seen with thumbnail below at one go.
-      // Split for different formatters with very minimal difference.
-      // @todo implement when merged at 3.x, not before, of course:
-      // $data['#media_attributes']['class'][] =
-      // static::$itemPrefix . '__media';
-      // $blazies = $this->formatter->preBlazy($data, $item);
-      if (static::$namespace == 'blazy') {
-        $data[static::$captionId] = $captions;
-        $element = $this->formatter->getBlazy($data);
+      // @todo use $blazies = $this->formatter->preBlazy($data, $item);
+      if ($blazies->use('theme_blazy')) {
+        $element = $this->themeBlazy($data, $captions, $delta);
       }
       else {
-        $blazy = $this->formatter->getBlazy($data);
-        $element = $data;
-
-        $element[static::$itemId] = $blazy;
-        $element[static::$captionId] = $captions;
-
-        // This is the only reason for the change. Thumbnails are
-        // poorly-informed like image without styles, SVG, etc.
-        // Update with blazy processed settings such as unstyled extensions.
-        $item_build = $blazy['#build'] ?? [];
-        if ($blazysets = $this->formatter->toHashtag($item_build)) {
-          $element['#settings']['blazies']->merge($blazysets['blazies']->storage());
-        }
+        // @todo remove at 3.x.
+        $element = $this->themeItem($data, $captions, $delta);
       }
 
       // Image with grid, responsive image, lazyLoad, and lightbox supports.
       yield $element;
+    }
+  }
+
+  /**
+   * Provides relevant attributes to feed into theme_blazy().
+   */
+  protected function toBlazy(array &$data, array &$captions, $delta): void {
+    $this->manager->toBlazy($data, $captions, $delta);
+  }
+
+  /**
+   * Update with blazy processed settings such as unstyled extensions, SVG, etc.
+   */
+  protected function updateSettings(array &$element, array $blazy): void {
+    $item_build = $blazy['#build'] ?? [];
+
+    if ($blazysets = $this->formatter->toHashtag($item_build)) {
+      $element['#settings']['blazies']->merge($blazysets['blazies']->storage());
     }
   }
 
@@ -248,51 +251,59 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     $settings = $this->formatter->toHashtag($data);
     $item     = $this->formatter->toHashtag($data, 'item');
     $blazies  = $settings['blazies'];
-    $captions = $settings['caption'] ?? [];
+    $options  = $settings['caption'] ?? [];
+    $options  = array_filter($options);
     $display  = empty($settings['svg_hide_caption']);
     $type     = $blazies->get('field.type');
     $output   = [];
 
-    if ($captions) {
-      // Provides default image captions.
-      if ($item) {
-        foreach ($captions as $name) {
-          if ($content = ($item->{$name} ?? NULL)) {
-            $caption = Sanitize::caption($content);
+    if (!$options) {
+      return [];
+    }
 
-            // Entity file with description_field enabled, useful for SVG:
-            if ($name == 'description') {
-              $blazies->set('image.description', $caption);
-            }
-            // SVG image field, or plain old image:
-            elseif ($name == 'alt' || $name == 'title') {
-              if ($name == 'alt') {
-                $caption = '<p>' . $caption . '</p>';
-              }
-              $blazies->set('image.' . $name, $caption);
-            }
+    // Provides default image captions.
+    if ($item) {
+      foreach ($options as $name) {
+        if ($content = ($item->{$name} ?? NULL)) {
+          $caption = Sanitize::caption($content);
 
-            if ($display) {
-              $output[$name] = ['#markup' => $caption];
-            }
+          // Entity file with description_field enabled, useful for SVG:
+          if ($name == 'description') {
+            $blazies->set('image.description', $caption);
           }
-        }
-      }
+          // SVG image field, or plain old image:
+          elseif ($name == 'alt' || $name == 'title') {
+            // Conflict with sub-modules' markups, not blazy's.
+            // @todo enable at 3,x when they use theme_blazy().
+            // if ($caption  && $name == 'alt') {
+            // $caption = '<p>' . $caption . '</p>';
+            // }.
+            $blazies->set('image.' . $name, $caption);
+          }
 
-      // Provides fieldable captions.
-      if ($type == 'entity_reference' && $entity = $data['#parent'] ?? NULL) {
-        foreach ($captions as $name) {
-          if ($markup = BlazyField::view($entity, $name, [])) {
-            $output[$name] = $markup;
+          if ($display) {
+            $output[$name] = ['#markup' => $caption];
           }
         }
       }
     }
+
+    // Provides fieldable captions.
+    if ($type == 'entity_reference' && $entity = $data['#parent'] ?? NULL) {
+      foreach ($options as $name) {
+        if ($markup = BlazyField::view($entity, $name, [])) {
+          $output[$name] = $markup;
+        }
+      }
+    }
+
     return $output;
   }
 
   /**
    * {@inheritdoc}
+   *
+   * @todo move it into BlazyFileSvgFormatterBase after sub-modules.
    */
   protected function getEntityScopes(): array {
     return [
@@ -330,6 +341,8 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
   /**
    * Returns available bundles.
+   *
+   * @todo move it into BlazyFileSvgFormatterBase after sub-modules.
    */
   protected function getAvailableBundles(): array {
     $field = $this->fieldDefinition;
@@ -342,6 +355,8 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo move some into BlazyFileSvgFormatterBase after sub-modules.
    */
   protected function getCaptionOptions() {
     $field    = $this->fieldDefinition;
@@ -368,6 +383,8 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    *
    * @return array
    *   The available fields as options.
+   *
+   * @todo move it into BlazyFileSvgFormatterBase after sub-modules.
    */
   protected function getFieldOptions(array $names = [], $target_type = NULL): array {
     $field       = $this->fieldDefinition;
@@ -428,6 +445,68 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     }
 
     return parent::getEntitiesToView($items, $langcode);
+  }
+
+  /**
+   * Builds the item using theme_blazy(), if so-configured.
+   *
+   * This is the future implementation after mergers at/by 3.x.
+   *
+   * This is a preliminary exercise for 3.x mergers. Basically, replacing
+   * sub-modules theme_ITEM() with theme_blazy() identified by merged captions.
+   * We all have similar IMAGE + CAPTION constructs. The only difference is
+   * sub-modules separate blazy image from captions while Blazy merges them.
+   * Plus thumbnails, already managed by themselves, not blazy's business.
+   * Mergers allow improvements as seen with thumbnail below at one go.
+   */
+  private function themeBlazy(array &$data, array $captions, $delta): array {
+    $is_blazy = static::$namespace == 'blazy';
+    $internal = $data;
+
+    // Allows sub-modules to use theme_blazy() as their theme_ITEM() contents.
+    if (!$is_blazy) {
+      $this->toBlazy($internal, $captions, $delta);
+    }
+
+    $internal['captions'] = $captions;
+    $blazy = $this->formatter->getBlazy($internal);
+
+    if ($is_blazy) {
+      $element = $blazy;
+    }
+    else {
+      // This also might be just removed at 3.x, so to leave it all to blazy.
+      // Currently still needed as fallback due to being optional.
+      $element = $data;
+      $element[static::$itemId] = $blazy;
+      $this->updateSettings($element, $blazy);
+    }
+    return $element;
+  }
+
+  /**
+   * This is the current implementation before mergers at 3.x.
+   *
+   * Looks simpler, yet it has lots of dup efforts downstream.
+   */
+  private function themeItem(array &$data, array $captions, $delta): array {
+    $internal = $data;
+
+    // Split for different formatters with very minimal difference.
+    if (static::$namespace == 'blazy') {
+      $internal[static::$captionId] = $captions;
+      $element = $this->formatter->getBlazy($internal);
+    }
+    else {
+      $blazy = $this->formatter->getBlazy($internal);
+      $element = $data;
+
+      $element[static::$itemId] = $blazy;
+      $element[static::$captionId] = $captions;
+
+      $this->updateSettings($element, $blazy);
+    }
+    return $element;
   }
 
 }

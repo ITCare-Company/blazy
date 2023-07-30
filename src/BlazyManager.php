@@ -4,7 +4,6 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Security\TrustedCallbackInterface;
-use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Theme\Lightbox;
 
 /**
@@ -179,64 +178,83 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * The only blocking is blazy has no dedicated CSS classes for link and
    * overlay, etc. other than the field_NAME without field, almost close.
    */
-  protected function buildCaption(array $captions, array $settings, $id = 'blazy') {
-    $blazies  = $settings['blazies'];
-    $content  = $title = $descriptions = [];
+  protected function buildCaption(array &$element, array $captions, $blazies, $id = 'blazy') {
+    $content  = $descriptions = $overlays = [];
     $is_blazy = $id == 'blazy';
     $prefix   = $is_blazy ? $id . '__caption--' : $id . '__';
-    $_title   = $prefix . 'title';
     $_desc    = $prefix . 'description';
+    $keys     = array_keys($captions);
+    $keys     = array_combine($keys, $keys);
+    $keys     = array_filter($keys, fn($k) => strpos($k, 'title') === FALSE, ARRAY_FILTER_USE_KEY);
+    $single   = count($keys) == 1;
 
     // Supports multiple description fields.
     foreach ($captions as $key => $caption) {
-      if ($caption) {
-        $is_title = strpos($key, 'title') !== FALSE;
-        if ($is_title) {
-          $content[$key]['content'] = $caption;
-          $content[$key]['tag'] = 'h2';
+      if (strpos($key, 'title') !== FALSE) {
+        $content[$key] = $this->toCaption($caption, 'h2', $prefix . 'title');
+      }
+      elseif ($key == 'overlay') {
+        $overlays[$key] = $this->toCaption($caption, 'div', $prefix . 'overlay');
+      }
+      else {
+        // Preserve old behaviors, but prevents similar classes.
+        $key = str_replace('field_', '', $key);
+        $css = str_replace('_', '-', $key);
+        $css = $prefix . $css;
 
-          $attrs = new Attribute();
-          $attrs->addClass($_title);
-          $content[$key]['attributes'] = $attrs;
+        // @todo recheck against sub-modules conventions: data + link here.
+        // They are siblings, not contained in one description.
+        if (in_array($key, ['alt', 'data', 'description'])) {
+          // @todo remove $css = 'blazy__caption--description-item';
+          // @todo remove $css = 'slide__description--item';
+          $css = $is_blazy ? $_desc . '-item' : $_desc . '--item';
         }
-        else {
-          // Preserve old behaviors, but prevents similar classes.
-          $key = str_replace('field_', '', $key);
-          if ($key == 'description') {
-            $key = 'item';
-          }
 
-          $subattrs['class'] = [$id . '__caption--' . $key];
-          $descriptions[$key] = isset($caption['#markup'])
-            ? $caption : [
-              '#theme'      => 'container',
-              '#children'   => $caption,
-              '#attributes' => $subattrs,
-            ];
-        }
+        $descriptions[$key] = $single && isset($caption['#markup'])
+          ? $caption : $this->toCaption($caption, 'div', $css);
       }
     }
 
     // Allows multiple fields with link, etc. without too many siblings.
     if ($descriptions) {
-      $key = 'description';
-      $content[$key]['content'] = $descriptions;
-      $content[$key]['tag'] = 'div';
-      $attrs = new Attribute();
-      $attrs->addClass($_desc);
-      $content[$key]['attributes'] = $attrs;
+      $content['description'] = $this->toCaption($descriptions, 'div', $_desc);
     }
 
-    // Figcaption is more relevant for core filter captions under Figure.
-    $tag = $blazies->is('figcaption') ? 'figcaption' : 'div';
+    $output = [];
+    if ($content) {
+      // Figcaption is more relevant for core filter captions under Figure.
+      $tag = $blazies->is('figcaption') ? 'figcaption' : 'div';
+      $output = ['inline' => $content, 'tag' => $tag];
+    }
+    if ($overlays) {
+      $output += $overlays;
+    }
 
-    return $content ? ['inline' => $content, 'tag' => $tag] : [];
+    if ($output) {
+      $element['#captions'] = $output;
+      $element['#caption_attributes']['class'][] = $id . '__caption';
+      if (!empty($content['overlay'])) {
+        $element['#caption_content_attributes']['class'][] = $prefix . 'data';
+      }
+    }
+  }
+
+  /**
+   * Returns the caption item.
+   */
+  private function toCaption($caption, $tag, $css): array {
+    return [
+      '#type' => 'html_tag',
+      '#tag' => $tag,
+      '#attributes' => ['class' => [$css]],
+      'content' => $caption,
+    ];
   }
 
   /**
    * Build out (rich media) content.
    */
-  private function buildContent(array &$element, array &$build) {
+  private function buildContent(array &$element, array &$build): void {
     $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
 
@@ -379,10 +397,10 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
 
     // Provides captions, if so configured.
     $id = $blazies->get('item.id', 'blazy');
-    $content = $this->toHashtag($build, 'captions');
-    if ($content && ($captions = $this->buildCaption($content, $settings, $id))) {
-      $element['#captions'] = $captions;
-      $element['#caption_attributes']['class'][] = $id . '__caption';
+    if ($captions = $this->toHashtag($build, 'captions')) {
+      if ($captions = array_filter($captions)) {
+        $this->buildCaption($element, $captions, $blazies, $id);
+      }
     }
 
     // Pass common elements to theme_blazy().

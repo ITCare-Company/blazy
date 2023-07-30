@@ -355,6 +355,8 @@ class CheckItem {
 
     // Bail out if lazy load is disabled, or in sandbox mode.
     if ($blazies->is('nojs') || $blazies->is('sandboxed')) {
+      // @todo remove $settings after slick:2.10.
+      $settings['lazy'] = $lazy;
       return;
     }
 

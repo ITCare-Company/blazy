@@ -277,12 +277,12 @@ class BlazyAttribute {
    *   The given $blazies.
    */
   public static function lazy(array &$attributes, $blazies): void {
-    // For consistent CSS fix, and w/o Native.
-    $attributes['class'][] = $blazies->get('lazy.class', 'b-lazy');
-
     // Slick has its own class and methods: ondemand, anticipative, progressive.
     // The data-[SRC|SCRSET|LAZY] is if `nojs` disabled, background, or video.
     if (!$blazies->is('unlazy')) {
+      // Native, or unlazy, has .blazy--nojs at container to fix issues, if any.
+      // @todo put it back up above if any issues.
+      $attributes['class'][] = $blazies->get('lazy.class', 'b-lazy');
       $attribute = $blazies->get('lazy.attribute');
       $attributes['data-' . $attribute] = $blazies->get('image.url');
     }

@@ -116,18 +116,19 @@ trait BlazyStyleBaseTrait {
       ->set('item.caption', static::$captionId ?? 'caption');
 
     // Be sure to run after item setup.
-    $this->blazyManager->preSettings($settings);
+    $this->manager->verify($settings);
+    $this->manager->preSettings($settings);
     $this->prepareSettings($settings);
 
     // @todo remove, used by outlayer.
     if (!empty($this->htmlSettings)) {
-      $settings = $this->blazyManager->merge($this->htmlSettings, $settings);
+      $settings = $this->manager->merge($this->htmlSettings, $settings);
     }
 
-    $this->blazyManager->postSettings($settings);
+    $this->manager->postSettings($settings);
 
-    $this->blazyManager->moduleHandler()->alter('blazy_settings_views', $settings, $view);
-    $this->blazyManager->postSettingsAlter($settings);
+    $this->manager->moduleHandler()->alter('blazy_settings_views', $settings, $view);
+    $this->manager->postSettingsAlter($settings);
     return $settings;
   }
 
@@ -145,12 +146,12 @@ trait BlazyStyleBaseTrait {
     // but not here, normally at modules' managers.
     // However if any issues, re-enable this check, and refine downstream more.
     // if (empty($settings['vanilla']) && isset($build['items'][0])) {
-    // $this->blazyManager()->isBlazy($settings, $build['items'][0]);
+    // $this->manager()->isBlazy($settings, $build['items'][0]);
     // }
     $blazies = $settings['blazies'];
     if ($data = $this->getFirstImage($rows[0] ?? NULL)) {
       $blazies->set('first.data', $data);
-      if ($subsets = $this->blazyManager->toHashtag($data)) {
+      if ($subsets = $this->manager->toHashtag($data)) {
         if ($blazy = $subsets['blazies']) {
           $field = $blazy->get('field', []);
           $field['count'] = $blazy->get('count');
@@ -285,7 +286,7 @@ trait BlazyStyleBaseTrait {
 
     // Even if ignorantly multiple, thumbnails must be one only.
     if (!$tn_style && $build) {
-      $subsets = $this->blazyManager->toHashtag($build);
+      $subsets = $this->manager->toHashtag($build);
       $tn_style = $subsets['thumbnail_style']
         ?? $subsets['image_style']
         ?? NULL;
@@ -300,7 +301,7 @@ trait BlazyStyleBaseTrait {
       $uri = Blazy::uri($item);
       $sets['thumbnail_style'] = $tn_style;
 
-      $tn_uri = $uri ? $this->blazyManager
+      $tn_uri = $uri ? $this->manager
         ->load($tn_style, 'image_style')
         ->buildUri($uri) : NULL;
 
@@ -314,7 +315,7 @@ trait BlazyStyleBaseTrait {
 
     // If multiple, only one thumbnail can exist.
     if (isset($build[1])) {
-      $tn = $this->blazyManager->getThumbnail($sets, $item);
+      $tn = $this->manager->getThumbnail($sets, $item);
     }
     else {
       /* @phpstan-ignore-next-line */

@@ -12,7 +12,7 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
  * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFileFormatter
  * @see \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyImageFormatter
  */
-class BlazyFormatterBlazy extends BlazyFileFormatterBase {
+class BlazyFormatterBlazy extends BlazyFileSvgFormatterBase {
 
   /**
    * {@inheritdoc}

@@ -29,7 +29,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
    * {@inheritdoc}
    */
   protected function buildElement(array &$element, $row, $index) {
-    $this->blazyManager->hashtag($element);
+    $this->manager->hashtag($element);
 
     $settings = &$element['#settings'];
     $blazies  = $this->reset($settings);

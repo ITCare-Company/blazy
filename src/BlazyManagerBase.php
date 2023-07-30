@@ -215,6 +215,13 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function toBlazy(array &$data, array &$captions, $delta): void {
+    // Do nothing for sub-modules to use.
+  }
+
+  /**
    * Provides data to be consumed by Blazy::preSettings().
    *
    * Such as to provide lazy attribute and class for Slick or Splide, etc.

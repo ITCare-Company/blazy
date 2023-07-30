@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-07-30
+------------------------------
+- Updated theme_blazy() to replace sub-modules theme_ITEM() contents at 3.x.
+
 Blazy 8.x-2.0-dev, 2023-07-28
 ------------------------------
 - Added supports for SVG Image Field module.

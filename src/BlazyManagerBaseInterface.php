@@ -147,4 +147,18 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    */
   public function postSettingsAlter(array &$settings, $entity = NULL): void;
 
+  /**
+   * Provides relevant attributes to feed into theme_blazy().
+   *
+   * To replace all sub-modules theme_ITEM() content with theme_blazy() at 3.x.
+   *
+   * @param array $data
+   *   The data being modified containing: #settings, #item, #entity, etc.
+   * @param array $captions
+   *   The captions being modified.
+   * @param int $delta
+   *   The current delta for convenience.
+   */
+  public function toBlazy(array &$data, array &$captions, $delta): void;
+
 }

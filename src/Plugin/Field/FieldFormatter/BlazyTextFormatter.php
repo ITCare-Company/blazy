@@ -148,8 +148,7 @@ class BlazyTextFormatter extends FormatterBase {
   protected function preSettings(array &$settings, $langcode = NULL): void {
     $blazies = $settings['blazies'];
 
-    $blazies->set('is.grid', TRUE)
-      ->set('is.unblazy', TRUE)
+    $blazies->set('is.unblazy', TRUE)
       ->set('is.text', TRUE)
       ->set('lazy', []);
   }

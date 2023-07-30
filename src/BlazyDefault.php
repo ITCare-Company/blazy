@@ -372,7 +372,14 @@ class BlazyDefault {
    * might be an empty array, not instanceof \Drupal\Core\Template\Attribute.
    */
   public static function themeAttributes() {
-    return ['caption', 'media', 'url', 'wrapper'];
+    return [
+      'caption',
+      'caption_wrapper',
+      'caption_content',
+      'media',
+      'url',
+      'wrapper',
+    ];
   }
 
   /**
