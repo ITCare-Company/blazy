@@ -192,7 +192,7 @@ interface BlazyInterface {
    * @return array
    *   The cache metadata.
    */
-  public function getCacheMetadata(array $build);
+  public function getCacheMetadata(array $build): array;
 
   /**
    * Returns available entities for select options.

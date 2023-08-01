@@ -190,6 +190,13 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       ]),
     ];
 
+    $form['use_theme_blazy'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Use theme_blazy()'),
+      '#description'   => $this->t('Check to use theme_blazy() specific for sub-modules theme_ITEM() (theme_slick_slide(), theme_splide_slide(), theme_gridstack_box(), etc.) contents with images/media. This will be forced at blazy:3.x. You can help starting the migrations by enabling this to spot problems. Currently WIP. If any issues, please disable and report for fixes.'),
+      '#default_value' => $config->get('use_theme_blazy'),
+    ];
+
     $form['placeholder'] = [
       '#type'          => 'textfield',
       '#title'         => $this->t('Placeholder'),
@@ -379,6 +386,7 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       ->set('deprecated_class', $form_state->getValue('deprecated_class'))
       ->set('placeholder', $form_state->getValue('placeholder'))
       ->set('unstyled_extensions', $form_state->getValue('unstyled_extensions'))
+      ->set('use_theme_blazy', $form_state->getValue('use_theme_blazy'))
       ->set('blazy.loadInvisible', $form_state->getValue([
         'blazy',
         'loadInvisible',

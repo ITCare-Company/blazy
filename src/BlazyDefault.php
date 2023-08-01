@@ -312,7 +312,6 @@ class BlazyDefault {
     ];
     return [
       'blazies' => Blazy::settings(self::blazies()),
-      'inited'  => TRUE,
       'WARNING' => new FormattableMarkup('Non-configurable settings are deprecated in @version. Use the BlazySettings object instead!', $params),
 
       // Configurable settings are dumped as they are as always.
@@ -329,7 +328,7 @@ class BlazyDefault {
    * layering is crucial for mixed media, cannot be simply dumped as
    * indexed children, must have clear properties indentifying their functions.
    *
-   * @todo prefix non-renderable with # at/by 3.x to minimize render errors.
+   * @done prefix non-renderable with # at/by 3.x to minimize render errors.
    * The first error was identified with BVEF due to being out of sync when
    * given an extra property `entity` as seen at BlazyEntity::build().
    * No issues so far with all these, yet conversions will eliminate any.
@@ -338,15 +337,24 @@ class BlazyDefault {
   public static function themeProperties() {
     return [
       'captions' => [],
-      'content' => [],
       'iframe' => [],
       'image' => [],
-      'icon' => [],
       'noscript' => [],
+    ] + self::themeContents()
+      + self::hashedProperties();
+  }
+
+  /**
+   * Returns optional extra content variables other than the basic above.
+   */
+  public static function themeContents() {
+    return [
+      'content' => [],
+      'icon' => [],
       'overlay' => [],
-      'preface' => [],
       'postscript' => [],
-    ] + self::hashedProperties();
+      'preface' => [],
+    ];
   }
 
   /**
@@ -370,6 +378,7 @@ class BlazyDefault {
    *
    * The attributes mentioned here are only instantiated at theme_blazy() and
    * might be an empty array, not instanceof \Drupal\Core\Template\Attribute.
+   * All will be suffixed with "_attributes", e.g.: caption_attributes, etc.
    */
   public static function themeAttributes() {
     return [

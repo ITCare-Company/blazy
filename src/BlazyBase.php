@@ -296,7 +296,7 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCacheMetadata(array $build) {
+  public function getCacheMetadata(array $build): array {
     return BlazyCache::metadata($build);
   }
 

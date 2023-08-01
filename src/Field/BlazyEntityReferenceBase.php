@@ -51,11 +51,12 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
     $this->formatter->hashtag($element);
 
     $settings = &$element['#settings'];
-    $_class   = $settings['class'];
-    $_layout  = $settings['layout'];
+    $_class   = $settings['class'] ?? NULL;
+    $_layout  = $settings['layout'] ?? NULL;
 
+    // Anything below basically replacing useless field_NAME with its value.
     // Layouts can be builtin, or field, if so configured.
-    if (!empty($_layout)) {
+    if ($_layout) {
       $layout = $_layout;
       if (strpos($layout, 'field_') !== FALSE && isset($entity->{$layout})) {
         $layout = BlazyField::getString($entity, $layout, $langcode);
@@ -64,24 +65,23 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
     }
 
     // Classes, if so configured.
-    if (!empty($_class) && isset($entity->{$_class})) {
+    if ($_class && isset($entity->{$_class})) {
       $settings['class'] = BlazyField::getString($entity, $_class, $langcode);
     }
   }
 
   /**
-   * {@inheritdoc}
+   * Builds the captions.
    */
-  protected function getCaption(array &$element, $entity, $langcode) {
-    parent::getCaption($element, $entity, $langcode);
-
+  protected function getCaptions(array $element, $entity, $langcode): array {
+    $captions  = parent::getCaptions($element, $entity, $langcode);
     $settings  = $this->formatter->toHashtag($element);
     $view_mode = $settings['view_mode'] ?? 'full';
-    $_link     = $settings['link'];
-    $_overlay  = $settings['overlay'];
+    $_link     = $settings['link'] ?? NULL;
+    $_overlay  = $settings['overlay'] ?? NULL;
 
     // Link, if so configured.
-    if (!empty($_link) && isset($entity->{$_link})) {
+    if ($_link && isset($entity->{$_link})) {
       $links = BlazyField::view($entity, $_link, $view_mode);
       $formatter = $links['#formatter'] ?? 'x';
 
@@ -92,16 +92,18 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
           $links[] = $link->view($view_mode);
         }
       }
-      $element[static::$captionId]['link'] = $links;
+      $captions['link'] = $links;
     }
 
     // Overlay, like slider or video over slider, if so configured.
-    if (!empty($_overlay) && isset($entity->{$_overlay})) {
+    if ($_overlay && isset($entity->{$_overlay})) {
       // @todo remove after another check, if not needed down here.
       $denied = $this->formatter->denied($entity);
       $overlay = $entity->get($_overlay)->view($view_mode);
-      $element[static::$captionId]['overlay'] = $denied ?: $overlay;
+      $captions['overlay'] = $denied ?: $overlay;
     }
+
+    return $captions;
   }
 
   /**

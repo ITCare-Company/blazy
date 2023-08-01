@@ -24,6 +24,7 @@ trait BlazyManagerDeprecatedTrait {
    * @see https://www.drupal.org/node/3367291
    */
   public function getEntityRepository() {
+    @trigger_error('getEntityRepository is deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::entityRepository() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return $this->entityRepository;
   }
 
@@ -35,6 +36,7 @@ trait BlazyManagerDeprecatedTrait {
    * @see https://www.drupal.org/node/3367291
    */
   public function getEntityTypeManager() {
+    @trigger_error('getEntityTypeManager is deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::entityTypeManager() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return $this->entityTypeManager;
   }
 
@@ -46,6 +48,7 @@ trait BlazyManagerDeprecatedTrait {
    * @see https://www.drupal.org/node/3367291
    */
   public function getModuleHandler() {
+    @trigger_error('getModuleHandler is deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::moduleHandler() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return $this->moduleHandler;
   }
 
@@ -57,6 +60,7 @@ trait BlazyManagerDeprecatedTrait {
    * @see https://www.drupal.org/node/3367291
    */
   public function getRenderer() {
+    @trigger_error('getRenderer is deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::renderer() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return $this->renderer;
   }
 
@@ -68,6 +72,7 @@ trait BlazyManagerDeprecatedTrait {
    * @see https://www.drupal.org/node/3367291
    */
   public function getConfigFactory() {
+    @trigger_error('getConfigFactory is deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::configFactory() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return $this->configFactory;
   }
 
@@ -79,6 +84,7 @@ trait BlazyManagerDeprecatedTrait {
    * @see https://www.drupal.org/node/3367291
    */
   public function getCache() {
+    @trigger_error('getCache is deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::cache() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return $this->cache;
   }
 
@@ -90,6 +96,7 @@ trait BlazyManagerDeprecatedTrait {
    * @see https://www.drupal.org/node/3367291
    */
   public function configLoad($setting_name = '', $settings = 'blazy.settings') {
+    @trigger_error('configLoad is deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::config() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return $this->config($setting_name, $settings);
   }
 
@@ -101,6 +108,7 @@ trait BlazyManagerDeprecatedTrait {
    * @see https://www.drupal.org/node/3367291
    */
   public function entityLoad($id, $type = 'image_style') {
+    @trigger_error('entityLoad is deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::load() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return $this->load($id, $type);
   }
 
@@ -112,6 +120,7 @@ trait BlazyManagerDeprecatedTrait {
    * @see https://www.drupal.org/node/3367291
    */
   public function entityLoadMultiple($type = 'image_style', $ids = NULL) {
+    @trigger_error('entityLoadMultiple is deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::loadMultiple() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return $this->loadMultiple($type, $ids);
   }
 
@@ -123,6 +132,7 @@ trait BlazyManagerDeprecatedTrait {
    * @see https://www.drupal.org/node/3105670
    */
   public function buildSkins($namespace, $skin_class, $methods = []) {
+    @trigger_error('buildSkins is deprecated in blazy:8.x-2.1 and is removed from blazy:3.0.0. Use sub-module skin plugins instead. See https://www.drupal.org/node/2233261', E_USER_DEPRECATED);
     return [];
   }
 
@@ -134,6 +144,7 @@ trait BlazyManagerDeprecatedTrait {
    * @see https://www.drupal.org/node/3103018
    */
   public function getResponsiveImageStyles($responsive) {
+    @trigger_error('getResponsiveImageStyles is deprecated in blazy:8.x-2.5 and is removed from blazy:3.0.0. Use \Drupal\blazy\Media\BlazyResponsiveImage::styles() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     return BlazyResponsiveImage::styles($responsive);
   }
 

@@ -223,7 +223,7 @@ class BlazyMedia {
     // @todo recheck, likely everyone hardly uses iframes lately.
     // No longer per D9.5: Soundcloud.
     if ($is_iframe && $src = ($attributes['src'] ?? FALSE)) {
-      self::toPlayable($blazies, $src);
+      Blazy::toPlayable($blazies, $src, TRUE);
     }
     // Media with local files: video.
     elseif (isset($item['#files'])
@@ -280,7 +280,7 @@ class BlazyMedia {
 
         if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
           if ($src = $iframe->getAttribute('src')) {
-            self::toPlayable($blazies, $src);
+            Blazy::toPlayable($blazies, $src, TRUE);
 
             if (strpos($src, '?url=') === FALSE) {
               $embed_url = $oembed->toEmbedUrl($blazies, $src);
@@ -297,18 +297,6 @@ class BlazyMedia {
 
       $item = $original;
     }
-  }
-
-  /**
-   * Modifies settings to support iframes.
-   */
-  private static function toPlayable($blazies, $src): void {
-    $blazies->set('is.iframeable', TRUE)
-      ->set('is.playable', TRUE)
-      ->set('is.multimedia', TRUE)
-      ->set('libs.media', TRUE)
-      ->set('media.embed_url', $src)
-      ->set('media.escaped', TRUE);
   }
 
   /**

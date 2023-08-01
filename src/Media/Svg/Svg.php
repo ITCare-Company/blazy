@@ -254,6 +254,10 @@ class Svg implements SvgInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * Was planned to have more elaborate SVG works than ::sanitize() method:
+   * transparentizing, vectorizing, rasterizing, blur, etc. via its options.
+   * Dups for now, but no dups if we can make it. Perhaps at 4.x or so.
    */
   public function view($uri, array $options = []): ?string {
     return $this->sanitize($uri, $options);

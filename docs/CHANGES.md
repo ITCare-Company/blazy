@@ -3,9 +3,17 @@
 ## <a name="changes"></a>NOTABLE CHANGES  
 Always check out release notes, if any issues with the latest changes.
 
-* _Blazy 2.17_, 2023/07/23:
+* _Blazy 2.17_, 2023/08/05:
    + Cold fixes for few minor regressions and self organizations.
-   + **New features**: audio with BG cover, soundcloud, smarter Fluid ratio.
+   + **New features**:  
+     * On your permissions at Blazy UI, theme_blazy() is now capable to replace
+       sub-modules theme_ITEM() content, e.g.: theme_slick_slide(), etc.
+     * Updated blazy.api.php.
+     * audio with BG cover, soundcloud, smarter Fluid ratio.
+     * Added supports for SVG Image Field module.
+     * Added image ALT and TITLE for VEF which has none.
+     * Added supports for local audio with background cover via settings.image.
+     * Re-purposed Blazy Image with VEF (deprecated) formatter for SVG (WIP).
    + **Breaking change**: changed `settings` to `#settings`, etc. Check out CR:
      [Blazy ecosystem breaking change](https://www.drupal.org/node/3375158).
    + Added additional config options at Blazy UI. Be sure to check out for

@@ -17,6 +17,7 @@ wrapper_class: false
 deprecated_class: false
 placeholder: ''
 unstyled_extensions: ''
+use_theme_blazy: false
 extras: {}
 blazy:
   loadInvisible: false

@@ -124,7 +124,6 @@ class CheckItem {
     if ($blazies->was('essentials')) {
       return;
     }
-
     // The first is for 2.6+ approach. The last to account for custom works
     // with old approach/ or direct call to theme_blazy() via settings.uri.
     // This issue do not happen at D7, since it consistently uses API.
@@ -151,6 +150,7 @@ class CheckItem {
       if (!$alt && $desc = $blazies->get('image.description', $desc)) {
         $alt = $desc;
       }
+
       $blazies->set('image.alt', $alt);
 
       // Do not output an empty 'title' attribute.
@@ -170,7 +170,7 @@ class CheckItem {
 
     // Checks images which cannot have image styles without extra legs.
     if ($uri) {
-      self::unstyled($settings, $uri, TRUE);
+      self::unstyled($settings, $uri);
     }
 
     // Required by thumbnails here, but conflict with audio thumbnail.
@@ -304,7 +304,7 @@ class CheckItem {
    *
    * @requires CheckItem::essentials()
    */
-  public static function unstyled(array &$settings, $uri, $first_time = FALSE): bool {
+  public static function unstyled(array &$settings, $uri): bool {
     $blazies = $settings['blazies'];
     $ext = pathinfo($uri, PATHINFO_EXTENSION) ?: 'x';
     $ext = strtolower($ext);
@@ -325,12 +325,11 @@ class CheckItem {
     }
 
     // Re-define, if the provided API by-passed, or different/ altered per item.
-    if ($first_time) {
-      $blazies->set('is.external', $external)
-        ->set('is.svg', $ext == 'svg')
-        ->set('is.unstyled', $unstyled)
-        ->set('image.extension', $ext);
-    }
+    $blazies->set('is.external', $external)
+      ->set('is.svg', $ext == 'svg')
+      ->set('is.unstyled', $unstyled)
+      ->set('image.extension', $ext)
+      ->set('was.unstyled', TRUE);
 
     return $unstyled;
   }

@@ -244,7 +244,6 @@
       return [];
     }
 
-    // ::findAll is already optimized with a single null check, no extra checks.
     // The `a` keyword found in `auto, eager, lazy`, not `defer`.
     key = key || 'a';
     var dataset = $.selector(opts, '[data-src][loading*="' + key + '"]:not(.b-blur)');

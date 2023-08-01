@@ -117,22 +117,23 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   public function preBlazy(array &$build, $item = NULL): BlazySettings {
     $this->hashtag($build);
 
-    $item      = $item ?: $this->toHashtag($build, 'item', NULL);
-    $settings  = &$build['#settings'];
-    $settings += Blazy::init();
-    $blazies   = $settings['blazies'];
-    $delta     = $blazies->get('delta', $build['#delta'] ?? 0);
+    $item     = $item ?: $this->toHashtag($build, 'item', NULL);
+    $settings = &$build['#settings'];
+
+    $this->verify($settings);
+
+    $blazies = $settings['blazies'];
+    $delta   = $blazies->get('delta', $build['#delta'] ?? 0);
 
     // Prevents double checks.
     // BlazySettings is a self containing object, initialized at container level
     // and must be renewed at item level to get correct delta, see #3278525.
     $blazies = $settings['blazies']->reset($settings);
-    if (!$blazies->is('api')) {
-      $blazies->set('is.api', TRUE)
-        ->set('delta', $delta);
+    $blazies->set('is.api', TRUE)
+      ->set('delta', $delta);
 
-      CheckItem::essentials($settings, $item);
-    }
+    CheckItem::essentials($settings, $item);
+
     return $blazies;
   }
 

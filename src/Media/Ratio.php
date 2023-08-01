@@ -20,7 +20,7 @@ class Ratio {
    */
   public static function hack(array $settings): array {
     $blazies  = $settings['blazies'];
-    $disabled = !$blazies->get('image.height') || $blazies->is('amp');
+    $disabled = $blazies->is('amp');
     $fluid    = $blazies->is('fluid');
     $unstyled = $blazies->is('svg');
     $ratio    = $disabled ? '' : $settings['ratio'] ?? NULL;

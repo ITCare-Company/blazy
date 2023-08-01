@@ -2,13 +2,13 @@
 
 namespace Drupal\blazy\Media;
 
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Url;
 use Drupal\Core\Image\ImageFactory;
 use Drupal\media\IFrameUrlHelper;
 use Drupal\media\MediaInterface;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
 use Drupal\media\OEmbed\UrlResolverInterface;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyManager;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -160,18 +160,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   public function checkInputUrl(array &$settings, $input): ?string {
     $blazies = $settings['blazies'];
-    if ($input) {
-      // OEmbed Resource doesn't accept `/embed`, provides a conversion helper,
-      // normally seen at BlazyFilter with youtube embed copy/paste, without
-      // creating media entities.
-      if (strpos($input, 'youtube.com/embed') !== FALSE) {
-        $search = '/youtube\.com\/embed\/([a-zA-Z0-9]+)/smi';
-        $replace = "youtube.com/watch?v=$1";
-        $input = preg_replace($search, $replace, $input);
-      }
-    }
-    // @todo recheck if any side effect/ double escape to cdn/ valid input.
-    $input = UrlHelper::stripDangerousProtocols($input);
+    $input = Blazy::sanitizeInputUrl($input);
     $blazies->set('media.input_url', $input);
     return $input;
   }
@@ -365,6 +354,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         break;
 
       case 'image':
+      case 'svg':
         $blazies->set('media.type', 'image');
         break;
 

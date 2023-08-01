@@ -57,9 +57,13 @@ html:not(.js) [data-b-blur] {
   z-index: 1;
 }
 
+.blazy svg,
+.media-wrapper--inline {
+  max-width: 100%;
+}
+
 .media-wrapper--inline {
   margin: auto;
-  max-width: 100%;
 }
 
 /** Fix for conflict with Bootstrap CSS if not using aspect ratio. */

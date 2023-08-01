@@ -228,6 +228,31 @@ class Sanitize {
   }
 
   /**
+   * Returns the media input URL relevant for UGC.
+   *
+   * @param string $input
+   *   The given url.
+   *
+   * @return string
+   *   The sanitized input url.
+   */
+  public static function inputUrl($input): ?string {
+    if ($input) {
+      // OEmbed Resource doesn't accept `/embed`, provides a conversion helper,
+      // normally seen at BlazyFilter with youtube embed copy/paste, without
+      // creating media entities.
+      if (strpos($input, 'youtube.com/embed') !== FALSE) {
+        $search  = '/youtube\.com\/embed\/([a-zA-Z0-9]+)/smi';
+        $replace = "youtube.com/watch?v=$1";
+        $input   = preg_replace($search, $replace, $input);
+      }
+
+      $input = self::url($input);
+    }
+    return $input;
+  }
+
+  /**
    * Returns the unstripped content after being stripped.
    *
    * Xss::filter() stripped a few useful and assumed safe attributes and its

@@ -42,7 +42,9 @@ class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase {
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return BlazyDefault::extendedSettings() + BlazyDefault::gridSettings();
+    return BlazyDefault::extendedSettings()
+      + BlazyDefault::gridSettings()
+      + parent::defaultSettings();
   }
 
   /**

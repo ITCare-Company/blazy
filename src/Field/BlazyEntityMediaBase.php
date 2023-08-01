@@ -5,6 +5,7 @@ namespace Drupal\blazy\Field;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\BlazyDefault;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Base class for Media entity reference formatters with field details.
@@ -14,6 +15,28 @@ use Drupal\blazy\BlazyDefault;
 abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
   use BlazyDependenciesTrait;
+  use BlazyElementTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(
+    ContainerInterface $container,
+    array $configuration,
+    $plugin_id,
+    $plugin_definition
+  ) {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $instance->svgManager = $container->get('blazy.svg');
+    return static::injectServices($instance, $container, static::$fieldType);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function defaultSettings() {
+    return BlazyDefault::svgSettings() + parent::defaultSettings();
+  }
 
   /**
    * {@inheritdoc}
@@ -48,11 +71,11 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
     // Some formatter has a toggle Vanilla.
     if (empty($settings['vanilla'])) {
-      // Supports Blazy formatter multi-breakpoint images if available.
+      // Supports lightbox gallery if using Blazy formatter.
       if ($item = ($build['items'][0] ?? NULL)) {
         $fallback = $item[static::$itemId]['#build'] ?? [];
         $data = $item['#build'] ?? $fallback;
-        if ($data) {
+        if ($data = array_filter($data)) {
           $blazies->set('first.data', $data);
         }
       }
@@ -65,18 +88,37 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   protected function prepareElement(array &$build, $entity, $langcode, $delta): void {
     parent::prepareElement($build, $entity, $langcode, $delta);
 
-    $settings  = $this->formatter->toHashtag($build);
-    $blazies   = $settings['blazies'];
-    $view_mode = $settings['view_mode'] ?? 'full';
-    $is_nav    = $blazies->is('nav') || !empty($settings['nav']);
-    $is_blazy  = static::$namespace == 'blazy';
-    $switch    = $settings['media_switch'] ?? NULL;
-    $_image    = $settings['image'] ?? NULL;
+    $settings = $this->formatter->toHashtag($build);
 
     // Bail out if vanilla (rendered entity) is required.
     if (!empty($settings['vanilla'])) {
       return;
     }
+
+    $options = [
+      'delta'    => $delta,
+      'entity'   => $entity,
+      'langcode' => $langcode,
+    ];
+
+    $this->toElement($build, $settings, $options);
+  }
+
+  /**
+   * Provides the item elements.
+   */
+  protected function toElement(array &$build, array &$settings, array $options) {
+    [
+      'delta'    => $delta,
+      'entity'   => $entity,
+      'langcode' => $langcode,
+    ] = $options;
+
+    $blazies   = $settings['blazies'];
+    $view_mode = $settings['view_mode'] ?? 'full';
+    $is_blazy  = static::$namespace == 'blazy';
+    $switch    = $settings['media_switch'] ?? NULL;
+    $_image    = $settings['image'] ?? NULL;
 
     // Otherwise hard work which is meant to reduce custom code at theme level.
     $data = [
@@ -90,47 +132,36 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     $this->blazyOembed->build($data);
 
     // Captions if so configured, including Blazy formatters.
+    $captions = $this->getCaptions($data, $entity, $langcode);
+
+    // @todo remove BC at blazy:3.x.
     $this->getCaption($data, $entity, $langcode);
+    if (isset($data[static::$captionId])) {
+      @trigger_error('getCaption is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Field\BlazyEntityMediaBase::getCaptions() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+      $captions = array_merge($captions, $data[static::$captionId]);
+      unset($data[static::$captionId]);
+    }
 
     // If `Image rendered` is picked, render image as is. Might not be Blazy's
     // formatter, yet has awesomeness that Blazy doesn't, but still wants to be
     // embedded in Blazy ecosytem mostly for Grid, Slider, Mason, GridStack etc.
     if ($is_blazy && $_image && $switch == 'rendered') {
-      $data['content'][] = BlazyField::view($entity, $_image, $view_mode);
+      if ($output = BlazyField::view($entity, $_image, $view_mode)) {
+        $data['content'][] = $output;
+      }
     }
 
-    // Optional image with responsive image, lazyLoad, and lightbox supports.
-    // Including potential rich Media contents: local video, Facebook, etc.
-    // $blazies = $this->formatter->preBlazy($data);
-    $blazy = $this->formatter->getBlazy($data);
-
-    // If the caller is Blazy, provides simple index elements.
-    if ($is_blazy) {
-      $build['items'][$delta] = $blazy;
+    // @todo merge all these into theme_blazy() at 3.x after sub-modules.
+    // @todo use $blazies = $this->formatter->preBlazy($data, $item);
+    if ($blazies->use('theme_blazy')) {
+      $element = $this->themeBlazy($data, $captions, $delta);
     }
     else {
-      $element = $data;
-
-      // Otherwise Slick, GridStack, Mason, etc. may need more elements.
-      $element[static::$itemId] = $blazy;
-
-      // Update with blazy processed settings such as unstyled extensions.
-      $item_build = $blazy['#build'] ?? [];
-      if ($blazysets = $this->formatter->toHashtag($item_build)) {
-        $element['#settings']['blazies']->merge($blazysets['blazies']->storage());
-      }
-
-      // Provides extra elements.
-      $this->buildElementExtra($element, $entity, $langcode);
-
-      // Build the main item.
-      $build['items'][$delta] = $element;
-
-      // Build the thumbnail item.
-      if ($is_nav && method_exists($this, 'buildElementThumbnail')) {
-        $this->buildElementThumbnail($build, $element, $entity, $delta);
-      }
+      // @todo remove at 3.x.
+      $element = $this->themeItem($data, $captions, $delta);
     }
+
+    $this->splitElement($build, $element, $settings, $options);
   }
 
   /**
@@ -152,18 +183,20 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
    */
 
   /**
-   * Builds captions with possible multi-value fields.
+   * Returns the captions, if any.
    */
-  protected function getCaption(array &$element, $entity, $langcode) {
-    $settings  = $this->formatter->toHashtag($element);
-    $item      = $this->formatter->toHashtag($element, 'item', NULL);
+  protected function getCaptions(array $element, $entity, $langcode): array {
+    $settings  = $element['#settings'];
+    $item      = $element['#item'];
     $view_mode = $settings['view_mode'] ?? 'full';
-    $is_blazy  = static::$namespace == 'blazy';
-    $weights   = $caption_items = [];
-    $_weight   = FALSE;
+    $captions  = $items = $weights = [];
+    $fields    = $settings['caption'] ?? [];
+    $fields    = array_filter($fields);
+    $_title    = $settings['title'] ?? NULL;
+    $output    = [];
 
     // Title can be plain text, or link field.
-    if ($_title = $settings['title'] ?? NULL) {
+    if ($_title) {
       $output = [];
       // If title is available as a field.
       if (isset($entity->{$_title})) {
@@ -172,28 +205,20 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       // Else fallback to image title property.
       elseif ($item && $_title == 'title') {
         // Respects both fake and real image item.
-        if ($caption = ($item->title ?? NULL)) {
+        if ($caption = trim($item->title ?? '')) {
           $caption = Xss::filter($caption, BlazyDefault::TAGS);
-          $output = ['#markup' => trim($caption)];
+          $output = ['#markup' => $caption];
         }
       }
 
       if ($output) {
-        // @todo recheck to make it similar to sub-modules.
-        if ($is_blazy) {
-          $_weight = TRUE;
-          $weights[] = 0;
-          $caption_items['title'] = $output;
-        }
-        else {
-          $element[static::$captionId]['title'] = $output;
-        }
+        $captions['title'] = $output;
       }
     }
 
     // The caption fields common to all entity formatters, if so configured.
-    if ($field_captions = $settings['caption'] ?? []) {
-      foreach ($field_captions as $name => $field_caption) {
+    if ($fields) {
+      foreach ($fields as $name => $field_caption) {
         /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
         if ($item) {
           // Provides basic captions based on image attributes (Alt, Title).
@@ -204,8 +229,8 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
               if ($name == 'alt') {
                 $markup = '<p>' . $markup . '</p>';
               }
-              $caption_items[$name] = ['#markup' => $markup];
-              $weights[] = $_weight ? ($key + 1) : $key;
+              $items[$name] = ['#markup' => $markup];
+              $weights[] = $key;
             }
           }
         }
@@ -216,27 +241,20 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
             $weights[] = $markup['#weight'];
           }
 
-          $caption_items[$name] = $markup;
+          $items[$name] = $markup;
         }
       }
     }
 
-    if ($caption_items) {
-      // @fixme broken sometimes.
+    if ($items) {
       if ($weights) {
-        array_multisort($weights, SORT_ASC, $caption_items);
+        array_multisort($weights, SORT_ASC, $items);
       }
 
-      // @todo recheck to make it similar to sub-modules if any issues at 3.x.
-      // The most obvious was seen at BlazyFileFormatterBase where sub-modules
-      // don't want to pass captions to theme_blazy() for their own markups.
-      if ($is_blazy) {
-        $element[static::$captionId] = $caption_items;
-      }
-      else {
-        $element[static::$captionId]['data'] = $caption_items;
-      }
+      $captions['data'] = $items;
     }
+
+    return $captions;
   }
 
   /**
@@ -248,17 +266,21 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     $_texts   = ['text', 'text_long', 'string', 'string_long', 'link'];
     $titles   = $this->getFieldOptions($_texts);
     $images   = [];
+    $svg_form = static::$useSvg;
 
     if ($bundles) {
-      // @todo figure out to not hard-code stock bundle image.
-      if (in_array('image', array_keys($bundles))) {
+      $keys = array_keys($bundles);
+      static::$useSvg = $svg_form || in_array('vector_image', $keys);
+
+      // @todo figure out to not hard-code stock bundle image, vector_image.
+      if (count(array_intersect($keys, ['image', 'vector_image'])) > 0) {
         $captions['title'] = $titles['title'] = $this->t('Image Title');
         $captions['alt'] = $this->t('Image Alt');
       }
 
       // Only provides poster if media contains rich media.
       $media = BlazyDefault::imagePosters();
-      if (count(array_intersect(array_keys($bundles), $media)) > 0) {
+      if (count(array_intersect($keys, $media)) > 0) {
         $images['images'] = $this->getFieldOptions(['image']);
       }
     }
@@ -272,6 +294,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       'fieldable_form'    => TRUE,
       'image_style_form'  => TRUE,
       'media_switch_form' => TRUE,
+      'svg_form'          => static::$useSvg,
       'multimedia'        => TRUE,
       'no_layouts'        => FALSE,
       'no_image_style'    => FALSE,
@@ -280,6 +303,52 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       'titles'            => $titles,
     ] + $images
       + parent::getPluginScopes();
+  }
+
+  /**
+   * Split the elements based on the modules.
+   */
+  private function splitElement(array &$build, array &$element, array &$settings, array $options) {
+    [
+      'delta'    => $delta,
+      'entity'   => $entity,
+      'langcode' => $langcode,
+    ] = $options;
+
+    $blazies = $settings['blazies'];
+    $is_nav  = $blazies->is('nav') || !empty($settings['nav']);
+
+    // Optional image with responsive image, lazyLoad, and lightbox supports.
+    // Including potential rich Media contents: local video, Facebook, etc.
+    // If the caller is Blazy, provides simple index elements.
+    if (static::$namespace == 'blazy') {
+      $build['items'][$delta] = $element;
+    }
+    else {
+      // Provides extra elements.
+      $this->buildElementExtra($element, $entity, $langcode);
+
+      // Build the main item.
+      $build['items'][$delta] = $element;
+
+      // Build the thumbnail item.
+      if ($is_nav && method_exists($this, 'buildElementThumbnail')) {
+        $this->buildElementThumbnail($build, $element, $entity, $delta);
+      }
+    }
+  }
+
+  /**
+   * Deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0.
+   *
+   * @todo enable post blazy:2.17.
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use
+   *   self::getCaptions() instead.
+   * @see https://www.drupal.org/node/3103018
+   */
+  protected function getCaption(array &$element, $entity, $langcode) {
+    // @todo enable @trigger_error('getCaption is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Field\BlazyEntityMediaBase::getCaptions() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+    // Do nothing.
   }
 
 }

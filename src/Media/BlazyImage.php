@@ -649,14 +649,8 @@ class BlazyImage {
    */
   private static function transformedInternal(array $settings, $blazies, $uri): void {
     foreach (BlazyDefault::imageStyles() as $key) {
-      // @todo re-enable the skip if any issues with Responsive image.
-      // The skip limits SVG dimension checks, ratio, url, etc.
-      // if ($key == 'image') {
-      // continue;
-      // }
-      if (!$blazies->get($key . '.transformed')
-        && $style = $blazies->get($key . '.style')) {
-        $skip = $key == 'image' && $blazies->is('dimensions');
+      if ($style = $blazies->get($key . '.style')) {
+        $skip = $key == 'image' && $blazies->is('dimensions') && $blazies->get('image.height');
 
         // Only re-calculate dimensions if not cropped, nor already set.
         if (!$skip) {
@@ -666,11 +660,10 @@ class BlazyImage {
 
         // Different urls for different image styles.
         $url = self::toUrl($settings, $style, $uri);
-        $blazies->set($key . '.url', $url)
-          ->set($key . '.transformed', TRUE);
+        $blazies->set($key . '.url', $url);
 
         // To avoid double checks.
-        if ($key == 'image') {
+        if ($key == 'image' && $blazies->get('image.height')) {
           $blazies->set('cache.metadata.tags', $style->getCacheTags(), TRUE)
             ->set('is.dimensions', TRUE);
         }

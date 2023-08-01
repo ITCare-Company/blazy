@@ -4,8 +4,7 @@
  */
 
 /** Declutter form when Vanilla is enabled coz table form states are broken. */
-.form--vanilla-on .form__title--media-switch,
-.form--vanilla-on .form__title--fields,
+.form--vanilla-on .form__title--hideable,
 .form--media-switch-rendered .form-item--background,
 .form--media-switch-rendered .form-item--image-style,
 .form--media-switch-rendered .form-item--ratio {

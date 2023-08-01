@@ -30,7 +30,7 @@ class BlazySvg {
     $applicable = $attrs != 'none' && $blazies->use('svg_dimensions');
 
     // Checks for optional SVG dimensions, if any.
-    if ($applicable && $svg = simplexml_load_file($uri)) {
+    if ($applicable && $svg = @simplexml_load_file($uri)) {
       [
         'width'  => $width,
         'height' => $height,

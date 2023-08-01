@@ -27,6 +27,7 @@ trait BlazyEntityDeprecatedTrait {
    * @see https://www.drupal.org/node/3103018
    */
   public function getEntityView($entity, array $settings = [], $fallback = '') {
+    @trigger_error('getEntityView is deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use self::view() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     $data = [
       '#entity'   => $entity,
       '#settings' => $settings,
@@ -45,6 +46,7 @@ trait BlazyEntityDeprecatedTrait {
    * @see https://www.drupal.org/node/3103018
    */
   public function getFieldRenderable($entity, $field_name, $view_mode, $multiple = TRUE) {
+    @trigger_error('getFieldRenderable is deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use \Drupal\blazy\Field\BlazyField::view() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     return BlazyField::view($entity, $field_name, $view_mode, $multiple);
   }
 
@@ -58,6 +60,7 @@ trait BlazyEntityDeprecatedTrait {
    * @see https://www.drupal.org/node/3103018
    */
   public function getFieldString($entity, $field_name, $langcode, $clean = TRUE) {
+    @trigger_error('getFieldString is deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use \Drupal\blazy\Field\BlazyField::getString() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     return BlazyField::getString($entity, $field_name, $langcode, $clean);
   }
 
@@ -71,6 +74,7 @@ trait BlazyEntityDeprecatedTrait {
    * @see https://www.drupal.org/node/3103018
    */
   public function getFieldTextOrLink($entity, $field_name, $settings, $multiple = TRUE) {
+    @trigger_error('getFieldTextOrLink is deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use \Drupal\blazy\Field\BlazyField::getTextOrLink() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     $langcode  = $settings['langcode'] ?? '';
     $view_mode = $settings['view_mode'] ?? 'default';
     return BlazyField::getTextOrLink($entity, $field_name, $view_mode, $langcode, $multiple);
@@ -86,6 +90,7 @@ trait BlazyEntityDeprecatedTrait {
    * @see https://www.drupal.org/node/3103018
    */
   public function getFieldValue($entity, $field_name, $langcode) {
+    @trigger_error('getFieldValue is deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use \Drupal\blazy\Field\BlazyField::getValue() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     return BlazyField::getValue($entity, $field_name, $langcode);
   }
 
@@ -97,6 +102,7 @@ trait BlazyEntityDeprecatedTrait {
    * @see https://www.drupal.org/node/3103018
    */
   public function getFileOrMedia($file, array $settings, $rendered = TRUE) {
+    @trigger_error('getFileOrMedia is deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use \Drupal\blazy\Field\BlazyField::getOrViewMedia() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     return BlazyField::getOrViewMedia($file, $settings, $rendered);
   }
 

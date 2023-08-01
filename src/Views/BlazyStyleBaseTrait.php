@@ -107,17 +107,24 @@ trait BlazyStyleBaseTrait {
     $blazies  = $settings['blazies'];
     $is_grid  = !empty($settings['style']) && !empty($settings['grid']);
 
+    $settings['caption'] = empty($settings['caption'])
+      ? [] : array_filter($settings['caption']);
+
     // Since 2.17, the item array was to replace all sub-modules theme_ITEM() by
     // theme_blazy() for easy improvements at 3.x. Not implemented at 2.x, yet.
-    $blazies->set('namespace', static::$namespace ?? 'blazy')
+    $blazies->set('namespace', static::$namespace)
       ->set('is.grid', $is_grid && $blazies->is('multiple'))
-      ->set('item.id', static::$itemId ?? 'slide')
-      ->set('item.prefix', static::$itemPrefix ?? 'slide')
-      ->set('item.caption', static::$captionId ?? 'caption');
+      ->set('item.id', static::$itemId)
+      ->set('item.prefix', static::$itemPrefix)
+      ->set('item.caption', static::$captionId)
+      ->set('use.theme_blazy', $blazies->ui('use_theme_blazy'));
 
     // Be sure to run after item setup.
-    $this->manager->verify($settings);
-    $this->manager->preSettings($settings);
+    if (method_exists($this->manager, 'verify')) {
+      $this->manager->verify($settings);
+      $this->manager->preSettings($settings);
+    }
+
     $this->prepareSettings($settings);
 
     // @todo remove, used by outlayer.

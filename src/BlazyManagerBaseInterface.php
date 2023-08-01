@@ -11,6 +11,9 @@ namespace Drupal\blazy;
 interface BlazyManagerBaseInterface extends BlazyInterface {
 
   /**
+   * Warning! Do not override this method, use self::attachments() instead.
+   *
+   * So we can add return type at/ by 3.x without breaking your codes.
    * Returns array of needed assets suitable for #attached property.
    *
    * @param array $attach
@@ -150,10 +153,15 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
   /**
    * Provides relevant attributes to feed into theme_blazy().
    *
-   * To replace all sub-modules theme_ITEM() content with theme_blazy() at 3.x.
+   * To replace all sub-modules theme_ITEM() contents with theme_blazy() at 3.x.
    *
    * @param array $data
    *   The data being modified containing: #settings, #item, #entity, etc.
+   *   What is needed is only to pass BlazyDefault::themeAttributes() to convert
+   *   sub-modules' theme_ITEM() contents, e.g.: theme_splide_slide(),
+   *   theme_slick_slide(), theme_gridstack_box(), etc. with theme_blazy() to
+   *   minimize dups and have improvement at one go. Normally image/ media
+   *   related. Repeat, only replace their contents, not their theme_ITEM().
    * @param array $captions
    *   The captions being modified.
    * @param int $delta

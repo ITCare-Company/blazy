@@ -80,7 +80,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
     }
 
     if ($scopes->form('svg')) {
-      $this->svgForm($form, $definition);
+      $this->svgForm($form, $definition, $scopes);
     }
   }
 

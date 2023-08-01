@@ -58,7 +58,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $settings = &$this->settings;
     $settings += Defaults::lazySettings();
 
-    Blazy::verify($settings);
+    $this->manager->verify($settings);
 
     $settings['plugin_id'] = $plugin_id = $this->getPluginId();
     $settings['id'] = $id = Util::getId($plugin_id);
@@ -78,6 +78,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       ->set('item.id', static::$itemId)
       ->set('item.prefix', static::$itemPrefix)
       ->set('item.caption', static::$captionId)
+      ->set('item.shortcode', static::$shortcode)
       ->set('namespace', $namespace);
 
     $this->preSettings($settings, $text);
@@ -160,11 +161,12 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $blazies  = $settings['blazies'];
     $attrs    = $blazies->get('item.raw_attributes', []);
 
-    if ($src = $attrs['src'] ?? NULL) {
-      if ($node->tagName == 'img') {
+    $build['#delta'] = $delta;
+    if ($src = trim($attrs['src'] ?? '')) {
+      if ($node->nodeName == 'img') {
         $this->getImageItemFromImageSrc($build, $node, $src);
       }
-      elseif ($node->tagName == 'iframe') {
+      elseif ($node->nodeName == 'iframe') {
         try {
           // Prevents invalid video URL (404, etc.) from screwing up.
           $this->getImageItemFromIframeSrc($build, $node, $src, $delta);
@@ -179,6 +181,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $item = $this->manager->toHashtag($build, 'item', NULL);
     if ($item) {
       // @todo remove after another check at BlazyOEmbed.
+      // Hardcoded values are the only sources at filter when all fails.
       foreach (['width', 'height', 'alt', 'title'] as $key) {
         if (!isset($item->{$key}) && isset($attrs[$key])) {
           $item->{$key} = $attrs[$key];
@@ -330,9 +333,10 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
         $blazies->set('image', $data, TRUE);
         $build['#item'] = BlazyImage::fakeFromSettings($blazies);
       }
-      else {
+
+      if (!BlazyFile::isValidUri($uri)) {
         // At least provide root URI to figure out image dimensions.
-        $settings['uri_root'] = $uri = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
+        $uri = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
         $blazies->set('image.uri_root', $uri);
       }
     }
@@ -354,14 +358,9 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
 
-    // Iframe with data: alike scheme is a serious kidding, strip it earlier.
-    $blazies->set('media.input_url', $src);
-    $this->blazyOembed->checkInputUrl($settings, $src);
-    $src = $blazies->get('media.input_url');
-
     // @todo figure out to not hard-code `field_media_oembed_video`.
     $media = NULL;
-    if ($src && $blazies->is('media_library')) {
+    if ($blazies->is('media_library')) {
       $media = $this->manager->loadByProperty(
         'field_media_oembed_video.value',
         $src,
@@ -412,6 +411,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   protected function buildMediaAttributes(array &$build, $node, $delta = 0) {
     $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
+    $tag      = $node->nodeName;
 
     if ($attrs = Util::getAttribute($node)) {
       $src = $attrs['src'] ?? NULL;
@@ -419,7 +419,13 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       // Prevents blur IMG from screwing up the expected image SRC.
       if ($src) {
         $use_data_uri = $this->settings['use_data_uri'] ?? FALSE;
-        $attrs['src'] = Util::getValidSrc($node, $use_data_uri);
+        $src = Util::getValidSrc($node, $use_data_uri);
+
+        // Iframe with data: alike scheme is a serious kidding, strip it early.
+        if ($tag == 'iframe') {
+          $src = $this->blazyOembed->checkInputUrl($settings, $src);
+        }
+        $attrs['src'] = $src;
       }
 
       // Put raw attributes into a pandora box.
@@ -449,22 +455,21 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
       // Ensures iframe attributes are not passed through since item_attributes
       // is dedicated for image. No biggies, just irrelevant for now.
-      $tag = $node->nodeName;
+      $type = 'image';
+      $safe_attrs = Sanitize::attribute($attrs);
       if ($tag == 'img') {
-        $tag = 'image';
         // Pass anything else even dangerous attributes.
-        // @todo re-disable if this caused SRC set, lazy load failed, even unset.
+        // @todo redisable if this caused SRC set, lazy load failed, even unset.
         $build['#item_attributes'] = $attrs;
+        $blazies->set('item.safe_attributes', $safe_attrs);
       }
       elseif ($tag == 'iframe') {
-        $tag = 'video';
-        $blazies->set('is.iframeable', TRUE)
-          ->set('is.multimedia', TRUE)
+        $type = 'video';
+        Blazy::toPlayable($blazies)
           ->set('media.bundle', 'remote_video');
+        $blazies->set('item.iframe_attributes', $safe_attrs);
       }
-
-      $blazies->set('item.safe_attributes', Sanitize::attribute($attrs))
-        ->set('media.type', $tag);
+      $blazies->set('media.type', $type);
     }
   }
 
@@ -606,11 +611,9 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
   /**
    * Extracts setting from attributes.
-   *
-   * @todo deprecated at 2.9 and removed from 3.x. Use
-   * self::extractSettings() instead.
    */
   protected function prepareSettings(\DOMElement $node, array &$settings) {
+    @trigger_error('prepareSettings is deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use self::extractSettings() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     $this->extractSettings($node, $settings);
   }
 

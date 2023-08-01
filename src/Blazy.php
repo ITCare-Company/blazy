@@ -190,13 +190,13 @@ class Blazy {
   /**
    * Returns the trusted HTML ID of a single instance.
    */
-  public static function getHtmlId($string = 'blazy', $id = ''): string {
+  public static function getHtmlId($namespace = 'blazy', $id = ''): string {
     if (!isset(static::$blazyId)) {
       static::$blazyId = 0;
     }
 
     // Do not use dynamic Html::getUniqueId, otherwise broken AJAX.
-    $id = empty($id) ? ($string . '-' . ++static::$blazyId) : $id;
+    $id = empty($id) ? ($namespace . '-' . ++static::$blazyId) : $id;
     return Html::getId($id);
   }
 
@@ -320,6 +320,33 @@ class Blazy {
    */
   public static function settings(array $data = []): BlazySettings {
     return new BlazySettings($data);
+  }
+
+  /**
+   * Sanitize media input URL.
+   */
+  public static function sanitizeInputUrl($input): ?string {
+    return Sanitize::inputUrl($input);
+  }
+
+  /**
+   * Modifies settings to support iframes.
+   */
+  public static function toPlayable($blazies, $src = NULL, $sanitized = FALSE): BlazySettings {
+    if ($src) {
+      if (!$sanitized) {
+        $src = Sanitize::url($src);
+        $sanitized = TRUE;
+      }
+
+      $blazies->set('media.embed_url', $src)
+        ->set('media.escaped', $sanitized);
+    }
+
+    return $blazies->set('is.iframeable', TRUE)
+      ->set('is.playable', TRUE)
+      ->set('is.multimedia', TRUE)
+      ->set('libs.media', TRUE);
   }
 
   /**

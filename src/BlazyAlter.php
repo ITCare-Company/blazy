@@ -231,15 +231,21 @@ class BlazyAlter {
         $summary[] = 'Blazy';
       }
 
-      // In case still in use, provide removal message.
-      if ($formatter->getPluginId() == 'blazy_file') {
-        $definition = $context['field_definition'];
-        $settings = $definition->getSettings();
-        $extensions = $settings['file_extensions'] ?? '';
+      // Provide removal message, applicable to all Blazy ecosystem.
+      $plugin_id = $formatter->getPluginId();
+      if (strpos($plugin_id, '_file') !== FALSE) {
+        $config = $formatter->getSettings();
+        // All blazy file ecosystem has this unique option.
+        if (isset($config['svg_hide_caption'])) {
+          $definition = $context['field_definition'];
+          $settings   = $definition->getSettings();
+          $extensions = $settings['file_extensions'] ?? '';
+          $plugin     = $formatter->getPluginDefinition();
 
-        if (!Blazy::has($extensions, 'svg')) {
-          if ($definition->getType() == 'image') {
-            $summary[] = t('<h5>No SVG file extensions, use Blazy Image instead.</h5>');
+          if (!Blazy::has($extensions, 'svg') && $definition->getType() == 'image') {
+            $summary[] = t('<h5>No SVG file extensions, use @provider Image instead.</h5>', [
+              '@provider' => Unicode::ucfirst($plugin['provider']),
+            ]);
           }
         }
       }

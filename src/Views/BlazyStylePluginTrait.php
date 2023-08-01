@@ -3,7 +3,6 @@
 namespace Drupal\blazy\Views;
 
 use Drupal\Core\Url;
-use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\blazy\BlazyInternal;
 
 /**
@@ -18,9 +17,10 @@ trait BlazyStylePluginTrait {
    * Returns the modified renderable image_formatter to support lazyload.
    */
   protected function getImageRenderable(array &$settings, $row, $index): array {
-    $blazies = $settings['blazies'];
-    $image = $this->getImageArray($row, $index, $settings['image']);
+    $blazies  = $settings['blazies'];
+    $image    = $this->getImageArray($row, $index, $settings['image']);
     $rendered = $image['rendered'] ?? [];
+    $item     = $image['raw'] ?? NULL;
 
     // Supports 'group_rows' option.
     // @todo recheck if any side issues for not having raw key.
@@ -33,7 +33,9 @@ trait BlazyStylePluginTrait {
     // gridstack, mason, with multimedia/ lightboxes for free.
     /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
     /* @phpstan-ignore-next-line */
-    if ($item = $this->getImageItem($image)) {
+    if ($this->isValidImageItem($item)) {
+      $image['raw'] = $item;
+
       // Supports multiple image styles within a single view such as GridStack,
       // else fallbacks to the defined image style if available.
       if (empty($settings['image_style'])) {
@@ -84,11 +86,6 @@ trait BlazyStylePluginTrait {
           }
 
           $blazies->set('delta', $index);
-
-          // Rebuilds the image for the brand new richer Blazy.
-          // With the working Views cache, nothing to worry much.
-          $build = ['#item' => $item, '#settings' => $settings];
-          $image['rendered'] = $this->blazyManager->getBlazy($build);
         }
       }
     }
@@ -103,9 +100,14 @@ trait BlazyStylePluginTrait {
     if (!empty($field_image)
       && $image = $this->getFieldRenderable($row, $index, $field_image)) {
 
+      // Just to be sure, replace raw with the found image item.
+      if ($item = $this->getImageItem($image)) {
+        $image['raw'] = $item;
+      }
+
       // Known image formatters: Blazy, Image, etc. which provides ImageItem.
       // Else dump Video embed thumbnail/video/colorbox as is.
-      if ($this->getImageItem($image) || isset($image['rendered'])) {
+      if ($item || isset($image['rendered'])) {
         return $image;
       }
     }
@@ -117,7 +119,7 @@ trait BlazyStylePluginTrait {
    *
    * All this mess is because Views may render/flatten images earlier.
    */
-  protected function getImageItem($image): ?ImageItem {
+  protected function getImageItem($image): ?object {
     $item = NULL;
 
     if ($rendered = ($image['rendered'] ?? [])) {
@@ -132,7 +134,7 @@ trait BlazyStylePluginTrait {
     }
 
     // Don't know other reasonable formatters to work with.
-    return $item instanceof ImageItem ? $item : NULL;
+    return $this->isValidImageItem($item) ? $item : NULL;
   }
 
   /**
@@ -143,26 +145,28 @@ trait BlazyStylePluginTrait {
     $items    = [];
     $keys     = array_keys($view->field);
     $keys     = array_combine($keys, $keys);
-    $link     = $settings['link'] ?? NULL;
-    $title    = $settings['title'] ?? NULL;
-    $overlay  = $settings['overlay'] ?? NULL;
-    $captions = $settings['caption'] ?? [];
+    $_link    = $settings['link'] ?? NULL;
+    $_title   = $settings['title'] ?? NULL;
+    $_overlay = $settings['overlay'] ?? NULL;
+    $_caption = $settings['caption'] ?? [];
 
     // Caption items: link, title, overlay, and data, anything else selected.
-    $items['link']    = $this->getFieldRendered($index, $link);
-    $items['title']   = $this->getFieldRendered($index, $title, TRUE);
-    $items['overlay'] = $this->getFieldRendered($index, $overlay);
+    $items['title']   = $this->getFieldRendered($index, $_title, TRUE);
+    $items['link']    = $this->getFieldRendered($index, $_link);
+    $items['overlay'] = $this->getFieldRendered($index, $_overlay);
 
     // Exclude non-caption fields so that theme_views_view_fields() kicks in
     // and only render expected caption fields. As long as not-hidden, each
     // caption field should be wrapped with Views markups.
-    if ($captions) {
-      $excludes = array_diff_assoc($keys, $captions);
+    if ($_caption) {
+      $excludes = array_diff_assoc($keys, $_caption);
       foreach ($excludes as $field) {
         $view->field[$field]->options['exclude'] = TRUE;
       }
 
-      $items['data'] = $view->rowPlugin->render($view->result[$index]);
+      if ($output = $view->rowPlugin->render($view->result[$index])) {
+        $items['data'][$index] = $output;
+      }
     }
 
     return $items;
@@ -179,6 +183,13 @@ trait BlazyStylePluginTrait {
         $settings['layout'] = strip_tags($value);
       }
     }
+  }
+
+  /**
+   * Returns TRUE if a valid image item, else FALSE.
+   */
+  protected function isValidImageItem($item): bool {
+    return is_object($item) && (isset($item->uri) || isset($item->target_id));
   }
 
 }

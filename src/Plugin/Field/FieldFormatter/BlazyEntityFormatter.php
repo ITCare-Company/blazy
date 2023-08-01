@@ -2,11 +2,9 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\blazy\Field\BlazyEntityVanillaBase;
 use Drupal\blazy\BlazyDefault;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides blazy grid for entity references.
@@ -45,21 +43,8 @@ class BlazyEntityFormatter extends BlazyEntityVanillaBase {
   /**
    * {@inheritdoc}
    */
-  protected static $fieldType = 'entity';
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
-    return static::injectServices($instance, $container, static::$fieldType);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public static function defaultSettings() {
-    return BlazyDefault::gridEntitySettings();
+    return BlazyDefault::gridEntitySettings() + parent::defaultSettings();
   }
 
   /**
@@ -67,20 +52,6 @@ class BlazyEntityFormatter extends BlazyEntityVanillaBase {
    */
   public static function isApplicable(FieldDefinitionInterface $field_definition) {
     return $field_definition->getFieldStorageDefinition()->isMultiple();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function viewElements(FieldItemListInterface $items, $langcode) {
-    $entities = $this->getEntitiesToView($items, $langcode);
-
-    // Early opt-out if the field is empty.
-    if (empty($entities)) {
-      return [];
-    }
-
-    return $this->commonViewElements($items, $langcode, $entities);
   }
 
   /**

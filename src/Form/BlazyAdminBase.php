@@ -322,7 +322,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
 
       if ($scopes->is('lightbox')) {
-        $this->lightboxForm($form, $definition);
+        $this->lightboxForm($form, $definition, $scopes);
       }
 
       // Adds common supported entities for media integration.
@@ -367,7 +367,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
     // @todo this can also be used for local video poster image option.
     if (isset($data['images'])) {
-      $classes = $this->getTitleClasses(['fields'], TRUE);
+      $classes = $this->getTitleClasses(['fields', 'hideable'], TRUE);
       $form['image'] = [
         '#type'    => 'select',
         '#title'   => $this->t('Main stage'),
@@ -394,7 +394,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   public function mediaSwitchForm(array &$form, array $definition): void {
     // @todo remove $scopes = $this->toScopes($definition);
     $base_form = $this->baseForm($definition);
-    $classes   = $this->getTitleClasses(['media-switch'], TRUE);
+    $classes   = $this->getTitleClasses(['media-switch', 'hideable'], TRUE);
     $options   = [
       'media_switch',
       'ratio',
@@ -558,7 +558,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
 
       // Don't store values babysitters.
-      if (($form[$key]['#access'] ?? 'x') == FALSE) {
+      if (!empty($form[$key]['#unset']) || ($form[$key]['#access'] ?? 'x') == FALSE) {
         unset($form[$key]['#default_value']);
       }
 
@@ -583,8 +583,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * Provides lightbox options.
    */
-  protected function lightboxForm(array &$form, array $definition): void {
-    $scopes     = $this->toScopes($definition);
+  protected function lightboxForm(array &$form, array $definition, $scopes): void {
     $blazies    = $definition['blazies'];
     $multimedia = $scopes->is('multimedia');
     $is_token   = $this->blazyManager->moduleExists('token');
@@ -665,9 +664,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * Provides SVG options.
    */
-  protected function svgForm(array &$form, array $definition): void {
-    $scopes = $this->toScopes($definition);
-
+  protected function svgForm(array &$form, array $definition, $scopes): void {
     foreach (BlazyDefault::svgSettings() as $key => $value) {
       $base  = str_replace('svg_', '', $key);
       $name  = str_replace('_', ' ', $base);
@@ -678,14 +675,15 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form[$key] = [
         '#type'        => is_bool($value) ? 'checkbox' : 'textfield',
         '#title'       => $this->t('@title', ['@title' => $title]),
-        '#enforced'    => !$scopes->is('vanilla'),
+        // @todo recheck '#enforced' => !$scopes->is('vanilla'),
         '#description' => $desc,
         '#weight'      => -100,
       ];
 
       if ($base == 'inline') {
-        $classes = $this->getTitleClasses(['svg'], TRUE);
+        $classes = $this->getTitleClasses(['svg', 'hideable'], TRUE);
         $form[$key]['#disabled'] = !$exist;
+        $form[$key]['#unset'] = !$exist;
         $form[$key]['#prefix'] = '<h3 class="' . $classes . '">' . $this->t('SVG') . '</h3>';
       }
       if ($base == 'fill') {

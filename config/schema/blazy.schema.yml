@@ -44,6 +44,9 @@ blazy.settings:
     unstyled_extensions:
       type: string
       label: 'Extensions without image styles'
+    use_theme_blazy:
+      type: boolean
+      label: 'Use theme_blazy()'
     responsive_image:
       type: boolean
       label: 'Support Responsive image'

@@ -34,9 +34,9 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
   protected static $captionId = 'caption';
 
   /**
-   * The blazy service manager.
+   * The blazy formatter service manager.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface
+   * @var \Drupal\blazy\BlazyFormatterInterface
    */
   protected $manager;
 
@@ -51,7 +51,7 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
   ) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     // To get consistent calls with sub-modules for most shared methods.
-    $instance->blazyManager = $instance->manager = $container->get('blazy.manager');
+    $instance->blazyManager = $instance->manager = $container->get('blazy.formatter');
 
     return $instance;
   }

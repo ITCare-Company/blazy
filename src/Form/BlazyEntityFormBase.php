@@ -77,6 +77,9 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
 
   /**
    * {@inheritdoc}
+   *
+   * If you are overriding this, be sure to put parent at the bottom like below.
+   * So that grids know your new form items to work with.
    */
   public function form(array $form, FormStateInterface $form_state) {
     $this->attributes($form);
@@ -189,6 +192,8 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
 
   /**
    * Returns the keys of form item parents which should be wrapped as a grid.
+   *
+   * If you are overriding this, be sure to merge, not add (+), nor nullify.
    */
   protected function formGrids(): array {
     return $this->formGrids;

@@ -2,9 +2,11 @@
 
 namespace Drupal\blazy\Field;
 
-use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Base class for entity reference formatters without field details.
@@ -49,6 +51,26 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   /**
    * {@inheritdoc}
    */
+  protected static $fieldType = 'entity';
+
+  /**
+   * Whether using the SVG.
+   *
+   * @var bool
+   */
+  protected static $useSvg = FALSE;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    return static::injectServices($instance, $container, static::$fieldType);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $element    = [];
     $definition = $this->getScopedFormElements();
@@ -62,6 +84,20 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
 
     $this->admin()->buildSettingsForm($element, $definition);
     return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function viewElements(FieldItemListInterface $items, $langcode) {
+    $entities = $this->getEntitiesToView($items, $langcode);
+
+    // Early opt-out if the field is empty.
+    if (empty($entities)) {
+      return [];
+    }
+
+    return $this->commonViewElements($items, $langcode, $entities);
   }
 
   /**
@@ -111,7 +147,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
 
       // @todo merge all these after sub-modules use theme_blazy() at/ by 3.x.
       if ($output = $this->blazyEntity->view($data)) {
-        if ($blazies->get('namespace') == 'blazy') {
+        if (static::$namespace == 'blazy') {
           $build['items'][] = $output;
         }
         else {

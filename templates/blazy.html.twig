@@ -19,7 +19,12 @@
  * Unless that is expected, of course. Beware! Blazy sub-modules may need them.
  * The bad guy may break Slick, and all sub-modules, at 3.x! If any issues,
  * it is recommended to adjust, or re-layering, than nullifying. At least,
- * conditionally like seen below with any IFs.
+ * conditionally like seen below with any IFs. CSS overrides are the safest.
+ *
+ * Should you override this template drastically, it will be safer to use
+ * hook_theme_suggestions_alter(), and conditionally override per (sub)-module
+ * since this theme is also used by Slick, Splide, etc. for their theme_ITEM()
+ * contents. All info is available in element.#settings for granular controls.
  *
  * Available variables:
  *   - captions: An optional renderable array of inline or lightbox captions.
@@ -141,26 +146,34 @@
     {%- if media_attributes -%}</div>{%- endif -%}
   {%- endblock %}
 
-  {# Since 2.17, this should replace sub-modules theme_ITEM() contents decently. #}
-  {%- if captions and (captions.inline is defined or captions.overlay is defined) -%}
+  {#
+     Since 2.17, this will replace sub-modules theme_ITEM() contents at 3.x.
+     To test it out, enable the option `Use theme_blazy()` at Blazy UI.
+     It opens up the door for hoverable effects, etc. at ease and reduce dups.
+  #}
+  {%- set IS_INLINE = captions.inline is not empty -%}
+  {%- set IS_OVERLAY = captions.overlay is not empty -%}
+
+  {%- if IS_INLINE or IS_OVERLAY -%}
     {%- block blazy_caption %}
       {%- set caption_tag = captions.tag ?? 'div' -%}
-      {%- set caption_inline = captions.inline is not empty -%}
-      {%- set caption_overlay = captions.overlay is not empty -%}
+      {%- set IS_CATEGORY = captions.category is not empty -%}
 
       {%- if caption_wrapper_attributes -%}<div{{- caption_wrapper_attributes -}}>{%- endif -%}
-        <{{ caption_tag }}{{ caption_attributes }}>
 
-          {%- if caption_overlay -%}
+        <{{ caption_tag }}{{ caption_attributes }}>
+          {%- if IS_OVERLAY -%}
             captions.overlay
-            {%- if caption_inline -%}<div{{ caption_content_attributes }}>{%- endif -%}
+            {%- if IS_INLINE -%}<div{{ caption_content_attributes }}>{%- endif -%}
           {%- endif -%}
 
-          {%- if caption_inline -%}{{- captions.inline -}}{%- endif -%}
+          {%- if IS_INLINE -%}{{- captions.inline -}}{%- endif -%}
 
-          {%- if caption_overlay and caption_inline -%}</div>{%- endif -%}
-
+          {%- if IS_OVERLAY and IS_INLINE -%}</div>{%- endif -%}
         </{{ caption_tag }}>
+
+        {%- if IS_CATEGORY -%}{{- captions.category -}}{%- endif -%}
+
       {%- if caption_wrapper_attributes -%}</div>{%- endif -%}
 
     {%- endblock %}
@@ -168,9 +181,10 @@
   {{- postscript -}}
 {% endset %}
 {%- if wrapper_attributes -%}
-  <div{{ wrapper_attributes }}>
+  {%- set wrapper_tag = blazies.item.wrapper_tag ?? 'div' -%}
+  <{{ wrapper_tag }}{{ wrapper_attributes }}>
     {{- blazy -}}
-  </div>
+  </{{ wrapper_tag }}>
 {% else %}
   {{- blazy -}}
 {%- endif -%}
