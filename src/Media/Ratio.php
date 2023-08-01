@@ -56,7 +56,7 @@ class Ratio {
    */
   public static function compute(array $data) {
     $no_dims = empty($data['height']) || empty($data['width']);
-    return $no_dims ? 100 : round((($data['height'] / $data['width']) * 100), 2);
+    return $no_dims ? 0 : round((($data['height'] / $data['width']) * 100), 2);
   }
 
   /**

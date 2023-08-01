@@ -275,16 +275,27 @@ class BlazyAttribute {
    *   The attributes being modified.
    * @param object $blazies
    *   The given $blazies.
+   * @param bool $bg
+   *   If a background image.
    */
-  public static function lazy(array &$attributes, $blazies): void {
+  public static function lazy(array &$attributes, $blazies, $bg = FALSE): void {
     // Slick has its own class and methods: ondemand, anticipative, progressive.
     // The data-[SRC|SCRSET|LAZY] is if `nojs` disabled, background, or video.
-    if (!$blazies->is('unlazy')) {
+    if ($url = $blazies->get('image.url')) {
+      $url = UrlHelper::stripDangerousProtocols($url);
+      $unlazy = self::isUnlazy($blazies);
+
       // Native, or unlazy, has .blazy--nojs at container to fix issues, if any.
-      // @todo put it back up above if any issues.
-      $attributes['class'][] = $blazies->get('lazy.class', 'b-lazy');
-      $attribute = $blazies->get('lazy.attribute');
-      $attributes['data-' . $attribute] = $blazies->get('image.url');
+      if (!$unlazy) {
+        // @todo put it back up above if any issues.
+        $attributes['class'][] = $blazies->get('lazy.class', 'b-lazy');
+        $attribute = $blazies->get('lazy.attribute');
+        $attributes['data-' . $attribute] = $url;
+      }
+
+      if ($bg && $unlazy) {
+        self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
+      }
     }
   }
 
@@ -369,17 +380,17 @@ class BlazyAttribute {
   private static function background(array &$attributes, $blazies, $bgs): void {
     $attributes['class'][] = 'b-bg';
     $attributes['data-b-bg'] = Json::encode($bgs);
-    $url = $blazies->get('image.url');
-
+    // @todo remove $url = $blazies->get('image.url');
     // If using BG, store title in the permanent container.
     if ($blazies->is('multimedia') && $title = self::altTitle($blazies)['title']) {
       $attributes['title'] = $title;
     }
 
-    if ($blazies->is('static') && $url) {
-      $url = UrlHelper::stripDangerousProtocols($url);
-      self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
-    }
+    // @todo remove for self::lazy().
+    // if (($blazies->is('static') || self::isUnlazy($blazies)) && $url) {
+    // $url = UrlHelper::stripDangerousProtocols($url);
+    // self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
+    // }
   }
 
   /**
@@ -465,7 +476,7 @@ class BlazyAttribute {
       $data['width'] = $width;
       $data['height'] = $blazies->get('image.height');
       $blazies->set('bgs.' . $width, BlazyImage::background($data, $style));
-      self::lazy($attributes, $blazies);
+      self::lazy($attributes, $blazies, TRUE);
     }
     else {
       $variables['image'] += [
@@ -552,11 +563,25 @@ class BlazyAttribute {
    */
   private static function unloading(array &$attributes, $blazies): void {
     $flag = $blazies->is('unloading');
-    $flag = $flag || $blazies->is('slider') && $blazies->is('initial');
+    $flag = $flag || self::isUnlazy($blazies);
 
     if ($flag) {
       $attributes['data-b-unloading'] = TRUE;
     }
+  }
+
+  /**
+   * Disable lazyload as required.
+   *
+   * The following will disable lazyload:
+   * - if loading:slider is chosen for the initial slide, normally delta 0.
+   * - If unlazy: globally disabled via `No JavaScript` option.
+   * - If static: CK Editor/ preview mode, AMP, and sandboxed mode.
+   */
+  private static function isUnlazy($blazies): bool {
+    return $blazies->is('unlazy')
+      || $blazies->is('static')
+      || $blazies->is('slider') && $blazies->is('initial');
   }
 
 }

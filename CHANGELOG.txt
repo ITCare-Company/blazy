@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-08-01
 ------------------------------
+- Fixed for background image with loading slider option.
 - Added option to use theme_blazy() to replace sub-modules theme_ITEM() content.
 - Triggered few more deprecation errors.
 

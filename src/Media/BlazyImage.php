@@ -650,22 +650,19 @@ class BlazyImage {
   private static function transformedInternal(array $settings, $blazies, $uri): void {
     foreach (BlazyDefault::imageStyles() as $key) {
       if ($style = $blazies->get($key . '.style')) {
-        $skip = $key == 'image' && $blazies->is('dimensions') && $blazies->get('image.height');
-
+        // @todo enable $skip = $key == 'image' && $blazies->is('dimensions') && $blazies->get('image.height');
         // Only re-calculate dimensions if not cropped, nor already set.
-        if (!$skip) {
-          $data = self::transformDimensions($style, $blazies, $uri);
-          $blazies->set($key, $data, TRUE);
-        }
-
+        // if (!$skip) {
+        $data = self::transformDimensions($style, $blazies, $uri);
+        $blazies->set($key, $data, TRUE);
+        // }
         // Different urls for different image styles.
         $url = self::toUrl($settings, $style, $uri);
         $blazies->set($key . '.url', $url);
 
         // To avoid double checks.
-        if ($key == 'image' && $blazies->get('image.height')) {
-          $blazies->set('cache.metadata.tags', $style->getCacheTags(), TRUE)
-            ->set('is.dimensions', TRUE);
+        if ($key == 'image') {
+          $blazies->set('cache.metadata.tags', $style->getCacheTags(), TRUE);
         }
       }
     }
