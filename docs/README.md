@@ -65,7 +65,7 @@ Any references to bLazy library is no longer relevant for forked version at 2.6.
   + **/libraries/blazy/blazy.min.js**
 
 ***
-## <a name="recommended-modules"> </a>RECOMMENDED MODULES
+## <a name="recommended-modules"> </a>RECOMMENDED LIBRARIES/ MODULES
 For better admin help page, either way will do, ordered by recommendation:  
 
 * `composer require league/commonmark`
@@ -145,7 +145,7 @@ least 7 lightboxes, and likely more.
 ## <a name="configuration"> </a>CONFIGURATION
 Visit the following to configure and make use of Blazy:
 
-1. `/admin/config/media/blazy`
+1. [/admin/config/media/blazy](/admin/config/media/blazy)
 
    Enable Blazy UI sub-module first, otherwise regular **Access denied**.
    Contains few global options, including enabling support to bring core
@@ -154,8 +154,8 @@ Visit the following to configure and make use of Blazy:
 
 2. Visit any entity types:  
 
-   + `/admin/structure/types`
-   + `/admin/structure/block/block-content/types`
+   + [Content types](/admin/structure/types)
+   + [Block types](/admin/structure/block/block-content/types)
    + `/admin/structure/paragraphs_type`
    + etc.
 
@@ -175,8 +175,8 @@ At 3.x, we'll no longer ask for permissions, so be sure to test it out to spot
 the problems earlier, or migrate your overrides earlier. Repeat, not replacing
 their established `theme_ITEM()`, just their contents when we all have dups with
 IMAGE/MEDIA + CAPTIONS contructs. It is not a novel thing, see `block.html.twig`
-variants, etc.
-Not a sudden course of action, it was carefully planned since
+with its variants, etc.
+Not a sudden course of actions, it was carefully planned since
 [2.x-RC1](https://git.drupalcode.org/project/blazy/-/blob/8.x-2.0-rc1/src/BlazyManager.php#L180), 4 years ago, and never made it till 2.17.
 
 #### Profits:

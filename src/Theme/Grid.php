@@ -30,8 +30,10 @@ class Grid {
     Blazy::verify($settings);
 
     // If the workflow is by-passed, by calling this directly, re-check grids.
+    // If grid chunks with destroyed un(slick|splide), refresh with libraries.
     $blazies = $settings['blazies'];
-    if (!$blazies->get('namespace')) {
+    $refresh = $blazies->is('grid_refresh');
+    if (!$blazies->get('namespace') || $refresh) {
       Check::grids($settings);
     }
 
@@ -52,6 +54,7 @@ class Grid {
       '#attributes'         => $attrs,
       '#wrapper_attributes' => ['class' => array_merge(['item-list'], $wrappers)],
       '#title'              => self::label($blazies),
+      '#attached'           => $refresh ? \blazy()->attach($settings) : [],
     ];
   }
 
@@ -104,7 +107,6 @@ class Grid {
     if ($root) {
       if ($attrs_alter = ($blazies->get('grid.attributes') ?: [])) {
         $attrs = Blazy::merge($attrs_alter, $attrs);
-        $blazies->set('grid.attributes', $attrs);
       }
     }
     else {
@@ -116,8 +118,9 @@ class Grid {
         $content_attrs = Blazy::merge($content_attrs_alter, $content_attrs);
       }
 
-      $blazies->set('grid.item_attributes', $attrs);
-      $blazies->set('grid.item_content_attributes', $content_attrs);
+      // @todo remove, do not re-define, it causes dup classes.
+      // $blazies->set('grid.item_attributes', $attrs);
+      // $blazies->set('grid.item_content_attributes', $content_attrs);
     }
   }
 
@@ -383,6 +386,7 @@ class Grid {
       ->set('total', $count);
 
     $blazies->set('grid.item_class', $item_class);
+    $grids = $blazies->get('grid', []);
 
     foreach ($items as $key => $item) {
       // @todo recheck if D9 Views outputs strings like D7, and adjust this.
@@ -402,7 +406,10 @@ class Grid {
 
       $blazy = $sets['blazies']->reset($sets);
       $sets['delta'] = $key;
-      $blazy->set('delta', $key);
+
+      // Also update chunked grids like carousel sliders.
+      $blazy->set('delta', $key)
+        ->set('grid', $grids, TRUE);
 
       // Supports both single formatter field and complex fields such as Views.
       self::itemAttributes($wrapper_attrs, $content_attrs, $sets);

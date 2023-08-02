@@ -295,10 +295,10 @@ class Check {
   public static function grids(array &$settings): void {
     $blazies  = $settings['blazies'];
     $has_grid = !empty($settings['grid']);
-    $is_grid  = $has_grid && !empty($settings['visible_items']);
+    $sub_grid = $has_grid && !empty($settings['visible_items']);
     $style    = $settings['style'] ?? NULL;
-    $style    = $style ?: ($is_grid ? 'grid' : NULL);
-    $is_grid  = $is_grid ?: ($style && $has_grid);
+    $style    = $style ?: ($sub_grid ? 'grid' : NULL);
+    $is_grid  = $sub_grid ?: ($style && $has_grid);
     $is_grid  = $settings['_grid'] ?? $blazies->is('grid', $is_grid);
 
     // Bail out early if not so configured.
