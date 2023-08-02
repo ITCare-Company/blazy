@@ -21,7 +21,9 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return BlazyDefault::extendedSettings() + BlazyDefault::gridSettings();
+    return BlazyDefault::extendedSettings()
+      + BlazyDefault::gridSettings()
+      + parent::defaultSettings();
   }
 
   /**

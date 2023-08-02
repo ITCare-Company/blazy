@@ -49,7 +49,7 @@ trait BlazyElementTrait {
    *
    * This is the future implementation after mergers at/by 3.x.
    */
-  protected function themeBlazy(array &$data, array $captions, $delta): array {
+  protected function themeBlazy(array $data, array $captions, $delta): array {
     $internal = $data;
 
     // Allows sub-modules to use theme_blazy() as their theme_ITEM() contents.
@@ -83,7 +83,7 @@ trait BlazyElementTrait {
    *
    * Looks simpler, yet it has lots of dup efforts downstream.
    */
-  protected function themeItem(array &$data, array $captions, $delta): array {
+  protected function themeItem(array $data, array $captions, $delta): array {
     $internal = $data;
 
     // Provides inline SVG if applicable.

@@ -30,26 +30,30 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   protected static $namespace = 'blazy';
 
   /**
-   * The item id.
+   * The item property to store image or media: content, slide, box, etc.
    *
    * @var string
    */
   protected static $itemId = 'slide';
 
   /**
-   * {@inheritdoc}
+   * The item prefix for captions, e.g.: blazy__caption, slide__caption, etc.
+   *
+   * @var string
    */
   protected static $itemPrefix = 'slide';
 
   /**
-   * The caption id.
+   * The caption property to store captions.
    *
    * @var string
    */
   protected static $captionId = 'caption';
 
   /**
-   * {@inheritdoc}
+   * The fake field type identifier for service DI, e.g: entity, image, text.
+   *
+   * @var string
    */
   protected static $fieldType = 'entity';
 

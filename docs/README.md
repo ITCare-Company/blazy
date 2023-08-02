@@ -171,11 +171,12 @@ Visit the following to configure and make use of Blazy:
 Since 2.17, on your permissions at [Blazy UI Use theme_blazy()](/admin/help/blazy_ui),
 `theme_blazy()` is now capable to replace sub-modules `theme_ITEM()` contents,
 e.g.: `theme_slick_slide()`, `theme_splide_slide()`, `theme_mason_box()`, etc.
-At 3.x, we'll no longer ask for permissions, so be sure to test it out to spot
-the problems earlier, or migrate your overrides earlier. Repeat, not replacing
-their established `theme_ITEM()`, just their contents when we all have dups with
-IMAGE/MEDIA + CAPTIONS contructs. It is not a novel thing, see `block.html.twig`
-with its variants, etc.
+At 3.x, we'll no longer ask for permissions, please be sure to test it out to
+spot the problems earlier, or migrate your overrides earlier.
+
+Repeat, not replacing their established `theme_ITEM()`, just their contents when
+we all have dups with IMAGE/MEDIA + CAPTIONS contructs. It is not a novel thing,
+see `block.html.twig` with its variants, etc.
 Not a sudden course of actions, it was carefully planned since
 [2.x-RC1](https://git.drupalcode.org/project/blazy/-/blob/8.x-2.0-rc1/src/BlazyManager.php#L180), 4 years ago, and never made it till 2.17.
 

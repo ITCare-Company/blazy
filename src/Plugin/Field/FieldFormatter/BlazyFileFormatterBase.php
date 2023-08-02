@@ -45,7 +45,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   protected static $namespace = 'blazy';
 
   /**
-   * The item id: content, slide, box, etc.
+   * The item property to store image or media: content, slide, box, etc.
    *
    * Prioritize sub-modules in case mismatched versions.
    *
@@ -54,19 +54,21 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   protected static $itemId = 'slide';
 
   /**
-   * {@inheritdoc}
+   * The item prefix for captions, e.g.: blazy__caption, slide__caption, etc.
+   *
+   * @var string
    */
   protected static $itemPrefix = 'slide';
 
   /**
-   * The caption id.
+   * The caption property to store captions.
    *
    * @var string
    */
   protected static $captionId = 'caption';
 
   /**
-   * The field type identifier for service injection.
+   * The fake field type identifier for service DI, e.g: entity, image, text.
    *
    * @var string
    */

@@ -188,14 +188,15 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
 
     // Supports multiple description fields.
     foreach ($captions as $key => $caption) {
+      $css = $prefix . $key;
       if (strpos($key, 'title') !== FALSE) {
         $inline[$key] = $this->caption($caption, 'h2', $prefix . 'title');
       }
       elseif ($key == 'overlay') {
-        $overlays[$key] = $this->caption($caption, 'div', $prefix . $key);
+        $overlays[$key] = $this->caption($caption, 'div', $css);
       }
       elseif ($key == 'category') {
-        $categories[$key] = $this->caption($caption, 'div', $prefix . $key);
+        $categories[$key] = $this->caption($caption, 'div', $css);
       }
       else {
         $key = str_replace('field_', '', $key);

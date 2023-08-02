@@ -5,6 +5,9 @@ Always check out release notes, if any issues with the latest changes.
 
 * _Blazy 2.17_, 2023/08/05:
    + Cold fixes for few minor regressions and self organizations.
+   + Please bear with frequent releases, it was for sub-modules tests. Their
+     tests help spot many regressions, reducing one at a time every releases.
+     We normally release some 3 months or years periods. It is special for 3.x.
    + **New features**:  
      * On your permissions at Blazy UI, theme_blazy() is now capable to replace
        sub-modules theme_ITEM() content, e.g.: theme_slick_slide(), etc.

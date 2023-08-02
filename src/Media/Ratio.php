@@ -22,23 +22,24 @@ class Ratio {
     $blazies  = $settings['blazies'];
     $disabled = $blazies->is('amp');
     $fluid    = $blazies->is('fluid');
-    $unstyled = $blazies->is('svg');
+    $_svg     = $blazies->is('svg');
+    $_none    = ($settings['svg_attributes'] ?? NULL) == 'none';
     $ratio    = $disabled ? '' : $settings['ratio'] ?? NULL;
     $hack     = $ratio && $fluid;
     $resimage = $blazies->get('resimage.id');
 
     // Skip padding hacks if fluid is supported by plain CSS, to avoid JS.
     if ($hack) {
-      $check = $blazies->get('image.fluid');
-
-      // @todo recheck against esponsive image, gif, apng, alike.
-      if (!$check && $unstyled) {
-        $ratio = NULL;
+      // Do not mess up with responsive image for now, or you'll be sorry.
+      if (!$resimage && $check = $blazies->get('image.fluid')) {
+        $ratio = $check;
         $hack = FALSE;
       }
-      // Do not mess up with responsive image for now, or you'll be sorry.
-      elseif ($check && !$resimage) {
-        $ratio = $check;
+      // If using image_style or defaults, even SVG can be padding-hacked for
+      // consistency. If using none, then disable aspect ratio altogether.
+      // @todo recheck against responsive image, gif, apng, alike.
+      if ($_svg && $_none) {
+        $ratio = NULL;
         $hack = FALSE;
       }
     }
