@@ -113,7 +113,7 @@ trait TraitDescriptions {
   protected function svgDescriptions(): array {
     $sanitizer = 'https://github.com/darylldoyle/svg-sanitizer';
     return [
-      'inline' => $this->t('If checked, SVG is not embedded in the IMG tag. Ignored if CSS background option enabled. Only enable for CSS and JavaScript manipulations, and trusted users, due to <a href=":url1">inline SVG security</a>. Required <a href=":url2">SVG Sanitizer</a>.', [
+      'inline' => $this->t('If checked, SVG is not embedded in the IMG tag. Be sure to disable CSS background option. Only enable for CSS and JavaScript manipulations, and trusted users, due to <a href=":url1">inline SVG security</a>. Required <a href=":url2">SVG Sanitizer</a>.', [
         ':url1' => 'https://www.w3.org/wiki/SVG_Security',
         ':url2' => $sanitizer,
       ]),

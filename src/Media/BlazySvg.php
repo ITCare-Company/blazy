@@ -34,7 +34,7 @@ class BlazySvg {
       [
         'width'  => $width,
         'height' => $height,
-      ] = self::extract($settings, $svg);
+      ] = self::extract($blazies, $svg, $attrs);
 
       if ($fluid && ($width && $height)) {
         // Image styles might be left empty, and aspect ratio is used.
@@ -60,14 +60,11 @@ class BlazySvg {
    * contents of <svg> element by a factor of 5
    * (1500 / 300 = 5 and 1000 / 200 = 5) and the contents will be 1/5 the size
    * they would be without the viewBox but the <svg>.
-   *
-   * @todo make this fallback once blazy_file has options.
    */
-  private static function extract(array $settings, \SimpleXMLElement $svg): array {
-    $blazies = $settings['blazies'];
-    $width   = $height = NULL;
+  private static function extract($blazies, \SimpleXMLElement $svg, $attrs): array {
+    $width = $height = NULL;
 
-    if ($attrs = $settings['svg_attributes'] ?? NULL) {
+    if ($attrs) {
       $attrs = strip_tags($attrs);
       // Format WIDTHxHEIGHT:
       if (strpos($attrs, 'x') !== FALSE) {

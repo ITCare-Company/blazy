@@ -108,7 +108,8 @@ interface SvgInterface {
    * Makes transparent background via shell command, or GD library.
    *
    * This is only useful to remove white or black backgrounds so to have
-   * transparent SVG for blur or thumbnails.
+   * transparent SVG for blur, or thumbnails. This might be removed once we
+   * found existing solutions. Imagick sounds cool.
    *
    * Steps:
    *   - Convert to PNG, or WEBP, might be internally.
@@ -131,7 +132,9 @@ interface SvgInterface {
    *
    * @todo make it an ImageEffect, and ignore the rest of @todos.
    * @todo use ImagemagickExecManagerInterface::execute|runOsShell for cross-os.
-   * @todo check for modulesImagick, Imagemagick and ImageEffects, etc.
+   * @todo check for modules Imagick, Imagemagick and ImageEffects, etc.
+   *   - ImageEffects only support GIF.
+   *   - Imagick looks more versatile, at least no validations.
    * @todo use Symfony Process with Timer.
    * @see https://imagemagick.org/Usage/color_basics/#fuzz_distance
    * @see https://imagemagick.org/script/formats.php

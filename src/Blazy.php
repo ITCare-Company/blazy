@@ -405,7 +405,7 @@ class Blazy {
    * Verify `blazies` exists, in case accessed outside the workflow.
    */
   public static function verify(array &$settings, $key = 'blazies', array $defaults = []): void {
-    if (!isset($settings[$key])) {
+    if (!isset($settings[$key]) || !isset($settings['image_style'])) {
       $settings += $defaults ?: self::init();
     }
   }

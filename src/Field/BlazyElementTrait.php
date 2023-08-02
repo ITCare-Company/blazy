@@ -15,9 +15,10 @@ use Drupal\blazy\BlazyDefault;
  *
  * Normally required as separate element.caption by sub-modules. This allows
  * improvements at one go, seen like below issues with poorly informed
- * thumbnails. With the integrated captions inside Blazy, this opens up some fun
- * or cool kids like hoverable effects between image and captions, etc. in
- * one place for the entire ecosystem rather than working with each sub-modules.
+ * thumbnails, or the new addition of SVG File description. With the integrated
+ * captions inside Blazy, this opens up some fun or cool kids like hoverable
+ * effects between image and captions, etc. in one place for the entire
+ * ecosystem rather than working with each sub-modules.
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by

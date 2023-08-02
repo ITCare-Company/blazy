@@ -41,7 +41,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       '#theme'       => 'blazy',
       '#delta'       => $blazies->get('delta'),
       '#item'        => $item,
-      '#image_style' => $settings['image_style'] ?? NULL,
+      '#image_style' => $settings['image_style'],
       '#build'       => $build,
       '#pre_render'  => [[$this, 'preRenderBlazy']],
     ];
