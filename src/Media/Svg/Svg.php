@@ -281,7 +281,9 @@ class Svg implements SvgInterface {
 
     if ($attributes = $options['attributes'] ?? NULL) {
       $attributes = strip_tags($attributes);
-      [$width, $height] = array_map('trim', explode('x', $attributes));
+      if (strpos($attributes, 'x') !== FALSE) {
+        [$width, $height] = array_map('trim', explode('x', $attributes));
+      }
     }
 
     if ($fill || ($width && $height)) {

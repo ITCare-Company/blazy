@@ -226,7 +226,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     $output = [];
-    if ($inline) {
+    if ($inline = array_filter($inline)) {
       // Link is normally at the end of the day.
       if ($item = $inline['link'] ?? []) {
         unset($inline['link']);

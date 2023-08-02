@@ -169,7 +169,7 @@
 
           {%- if IS_INLINE -%}{{- captions.inline -}}{%- endif -%}
 
-          {%- if IS_OVERLAY and IS_INLINE -%}</div>{%- endif -%}
+          {%- if IS_INLINE and IS_OVERLAY -%}</div>{%- endif -%}
         </{{ caption_tag }}>
 
         {%- if IS_CATEGORY -%}{{- captions.category -}}{%- endif -%}

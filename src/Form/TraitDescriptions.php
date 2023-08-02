@@ -123,7 +123,7 @@ trait TraitDescriptions {
       'sanitize_remote' => $this->t('Remove attributes that reference remote files, this will stop HTTP leaks but will add an overhead to the sanitizer.'),
       'fill' => $this->t('Force the fill to currentColor to allow the SVG inherit coloring from the enclosing tag, such as a link tag.'),
       'hide_caption' => $this->t('Unlike images, SVG has no ALT and TITLE attributes, except for SVG Image Field, or core file Description field. This option will hide captions, and put them into image attributes instead. Relevant if Inline option is disabled aka using IMG tag. Be sure to enable them under the Caption fields.'),
-      'attributes' => $this->t('Input one of SVG dimension sources: <code>none, image_style, or WIDTHxHEIGHT</code>. To disable, input: <strong>none</strong>, and will also disable Aspect ratio option. The <strong>image_style</strong> ansich will use the provided Image style. The <strong>WIDTHxHEIGHT</strong>, e.g.: 800x400, for custom defined dimensions. Default or fallback to extract from SVG attributes, unless <strong>none</strong> is set. Only width and height are supported.'),
+      'attributes' => $this->t('Input one of SVG dimension sources: <code>none, image_style, or WIDTHxHEIGHT</code>. To disable, input: <strong>none</strong>, and will also disable Aspect ratio option. The <strong>image_style</strong> ansich will use the provided Image style. The <strong>WIDTHxHEIGHT</strong>, e.g.: 800x400, for custom defined dimensions. Default or fallback to extract from SVG attributes, unless <strong>none</strong> is set. Only width and height are supported. Affected by Aspect ratio option.'),
     ];
   }
 

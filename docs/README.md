@@ -183,6 +183,9 @@ Not a sudden course of actions, it was carefully planned since
 #### Profits:
 + Tons of dups are reduced which is part of Blazy's job descriptions.
 + More cool kid features like hoverable effects, etc. will be easier to apply.
++ When Blazy supports extra captions like File description, it will be available
+  immediately to all once, rather than updating each modules to support it
+  due their hard-coded natures.
 
 #### Non-profits:
 + Overrides should be taken seriously from now on, or as always. Perhaps CSS

@@ -96,6 +96,7 @@ html:not(.js) [data-b-blur] {
 The best things we can do to minimize layout/ reflows with dynamic DOM:
 absolute position and fixed dimensions. */
 .media--ratio .media__element,
+.media--ratio svg,
 .media--fx .b-blur {
   bottom: 0;
   height: 100%;
