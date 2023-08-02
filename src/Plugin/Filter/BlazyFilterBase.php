@@ -388,9 +388,12 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     if (in_array($node->tagName, ['item', 'slide'])) {
       $blazies->set('is.blazy_tag', TRUE);
 
-      if ($caption = $node->getAttribute('caption')) {
-        $build['captions']['alt'] = ['#markup' => $this->filterHtml($caption)];
-        $node->removeAttribute('caption');
+      foreach (['title', 'caption'] as $key) {
+        if ($caption = $node->getAttribute($key)) {
+          $k = $key == 'caption' ? 'alt' : $key;
+          $build['captions'][$k] = ['#markup' => $this->filterHtml($caption)];
+          $node->removeAttribute($key);
+        }
       }
 
       // These are shortcode attributes for grid ITEM or SLIDE.

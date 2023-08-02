@@ -116,14 +116,15 @@ trait BlazyStyleBaseTrait {
       ->set('is.grid', $is_grid && $blazies->is('multiple'))
       ->set('item.id', static::$itemId)
       ->set('item.prefix', static::$itemPrefix)
-      ->set('item.caption', static::$captionId)
-      ->set('use.theme_blazy', $blazies->ui('use_theme_blazy'));
+      ->set('item.caption', static::$captionId);
 
     // Be sure to run after item setup.
-    if (method_exists($this->manager, 'verify')) {
-      $this->manager->verify($settings);
-      $this->manager->preSettings($settings);
+    if (!method_exists($this->manager, 'verify')) {
+      return $settings;
     }
+
+    $this->manager->verify($settings);
+    $this->manager->preSettings($settings);
 
     $this->prepareSettings($settings);
 

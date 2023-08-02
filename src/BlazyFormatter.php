@@ -32,8 +32,6 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $blazies = $settings['blazies'];
     $entity  = $items->getEntity();
 
-    $blazies->set('use.theme_blazy', $blazies->ui('use_theme_blazy'));
-
     // @todo remove after sub-modules.
     if (!empty($settings['item_id'])) {
       foreach (['item_id', 'namespace'] as $key) {

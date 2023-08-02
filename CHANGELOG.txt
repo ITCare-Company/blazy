@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-08-02
 ------------------------------
+- Added supports for title for BlazyFilter shortcodes.
 - Added hook_blazy_settings_grid_alter().
 - Added supports for Media SVG for sub-modules inheritance.
 - Fixed for Native Grid with grid chunks ala sliders.

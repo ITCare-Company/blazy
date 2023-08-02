@@ -176,6 +176,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
       ->set('libs.blur', $is_blur)
       ->set('lightbox.plugins', $lightboxes)
       ->set('ui', $ui)
+      ->set('use.theme_blazy', $ui['use_theme_blazy'] ?? FALSE)
       ->set('version.blazy', Blazy::version('blazy'));
 
     if ($namespace && $namespace != 'blazy') {

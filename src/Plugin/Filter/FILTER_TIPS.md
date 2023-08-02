@@ -28,9 +28,11 @@ slashes, colons, single and double quotes:
 4. **Attributes**: The `[item]` can have class and caption attributes, e.g.:  
    `[item
    class="grid--card card"
-   caption='Read <a href="https://mysite.com">more<a>']`  
+   caption='Read <a href="https://mysite.com">more<a>'
+   title="Awesome title"]`  
    The classes will be moved into `grid__content` to make it usable
-   such as for Bootstrap well/ card. The caption into regular `blazy__caption`.  
+   such as for Bootstrap well/ card. The caption and title into regular
+   `blazy__caption`.  
    Use enclosing *single* quotes for HTML caption so you can have double
    quotes inside such as enclosing link HREF quotes, else broken. The link is
    normally converted automatically when using WYSIWYG. This will replace Filter

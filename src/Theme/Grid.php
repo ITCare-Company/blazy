@@ -118,9 +118,8 @@ class Grid {
         $content_attrs = Blazy::merge($content_attrs_alter, $content_attrs);
       }
 
-      // @todo remove, do not re-define, it causes dup classes.
-      // $blazies->set('grid.item_attributes', $attrs);
-      // $blazies->set('grid.item_content_attributes', $content_attrs);
+      $attrs = Blazy::sanitize($attrs);
+      $content_attrs = Blazy::sanitize($content_attrs);
     }
   }
 
