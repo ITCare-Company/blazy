@@ -173,10 +173,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
 
   /**
    * Build captions for both old image, or media entity.
-   *
-   * Was planned above years ago to replace sub-modules if any similarity.
-   * The only blocking is blazy has no dedicated CSS classes for link and
-   * overlay, etc. other than the field_NAME without field, almost close.
    */
   protected function buildCaption(array $captions, $blazies, $prefix, $id = 'blazy'): array {
     $inline = $categories = $descriptions = $overlays = [];
@@ -373,9 +369,9 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // No defaults are provided for all these attributes.
     $theme_attributes = BlazyDefault::themeAttributes();
     foreach ($theme_attributes as $key) {
-      $key = $key . '_attributes';
-      $defaults = $this->toHashtag($build, $key);
-      $programs = $blazies->get('item.' . $key, []);
+      $key            = $key . '_attributes';
+      $defaults       = $this->toHashtag($build, $key);
+      $programs       = $blazies->get('item.' . $key, []);
       $build["#$key"] = $this->merge($programs, $defaults);
     }
 

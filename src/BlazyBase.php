@@ -461,6 +461,8 @@ abstract class BlazyBase implements BlazyInterface {
    * {@inheritdoc}
    */
   public function toGrid($items, array $settings): array {
+    // Might be called outside Blazy workflows, allows altering settings once.
+    $this->moduleHandler->alter('blazy_settings_grid', $settings);
     return Blazy::grid($items, $settings);
   }
 
