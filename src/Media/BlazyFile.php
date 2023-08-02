@@ -107,7 +107,8 @@ class BlazyFile {
     }
     else {
       if (self::isValidUri($uri) && ($style || !$url)) {
-        $url = $style ? $style->buildUrl($uri) : self::createUrl($uri);
+        $stylable = $style && !self::isSvg($uri);
+        $url = $stylable ? $style->buildUrl($uri) : self::createUrl($uri);
 
         if ($gen = Path::fileUrlGenerator()) {
           $url = $gen->transformRelative($url);
@@ -157,6 +158,15 @@ class BlazyFile {
    */
   public static function fromUri($uri, $manager = NULL): ?object {
     return Blazy::loadByProperty('uri', $uri, 'file', $manager);
+  }
+
+  /**
+   * Returns TRUE if an SVG URI.
+   */
+  public static function isSvg($uri): bool {
+    $ext = pathinfo($uri, PATHINFO_EXTENSION);
+    $ext = strtolower($ext);
+    return $ext == 'svg';
   }
 
   /**

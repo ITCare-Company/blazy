@@ -386,7 +386,6 @@ class Grid {
       ->set('total', $count);
 
     $blazies->set('grid.item_class', $item_class);
-    $grids = $blazies->get('grid', []);
 
     foreach ($items as $key => $item) {
       // @todo recheck if D9 Views outputs strings like D7, and adjust this.
@@ -396,20 +395,19 @@ class Grid {
       }
 
       // Support non-Blazy which normally uses item_id.
+      // Also update chunked grids like carousel sliders.
       $sets = Blazy::toHashtag($item);
       $subs = Blazy::toHashtag($item['#build'] ?? []);
       $sets = Blazy::merge($subs, $sets);
-      $sets += $settings;
+      $sets = Blazy::mergeSettings(['blazies'], $settings, $sets);
       $wrapper_attrs = Blazy::toHashtag($item, 'attributes');
       $content_attrs = Blazy::toHashtag($item, 'content_attributes');
       $image = Blazy::toHashtag($item, 'item', NULL);
 
-      $blazy = $sets['blazies']->reset($sets);
+      $blazy = $sets['blazies'];
       $sets['delta'] = $key;
 
-      // Also update chunked grids like carousel sliders.
-      $blazy->set('delta', $key)
-        ->set('grid', $grids, TRUE);
+      $blazy->set('delta', $key);
 
       // Supports both single formatter field and complex fields such as Views.
       self::itemAttributes($wrapper_attrs, $content_attrs, $sets);
