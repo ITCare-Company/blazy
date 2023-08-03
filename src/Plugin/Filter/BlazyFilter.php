@@ -34,6 +34,11 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * {@inheritdoc}
    */
+  protected static $namespace = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $itemId = 'content';
 
   /**
@@ -45,6 +50,11 @@ class BlazyFilter extends BlazyFilterBase {
    * {@inheritdoc}
    */
   protected static $captionId = 'captions';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $shortcode = 'item';
 
   /**
    * {@inheritdoc}
@@ -64,8 +74,8 @@ class BlazyFilter extends BlazyFilterBase {
     $settings = $this->buildSettings($text);
     $blazies = $settings['blazies'];
 
-    if (stristr($text, '[blazy') !== FALSE) {
-      $text = Util::unwrap($text, 'blazy', 'item');
+    if (stristr($text, '[' . static::$namespace) !== FALSE) {
+      $text = Util::unwrap($text, static::$namespace, static::$shortcode);
     }
 
     $dom = Html::load($text);
@@ -95,7 +105,7 @@ class BlazyFilter extends BlazyFilterBase {
     }
 
     // Works with grids and entities, not always images or iframes.
-    $nodes = Util::validNodes($dom, ['blazy']);
+    $nodes = Util::validNodes($dom, [static::$namespace]);
     if (count($nodes) > 0) {
       foreach ($nodes as $delta => $node) {
         $sets  = $settings;
@@ -298,7 +308,7 @@ class BlazyFilter extends BlazyFilterBase {
    */
   private function build(\DOMElement $node, array &$settings, $delta = 0) {
     $blazies = $settings['blazies'];
-    if ($node->tagName == 'blazy') {
+    if ($node->tagName == static::$namespace) {
       /* @phpstan-ignore-next-line */
       $dataset = $node->getAttribute('data');
 
@@ -509,9 +519,10 @@ class BlazyFilter extends BlazyFilterBase {
       return;
     }
 
-    $build = $grid_items[0]['#build'] ?? [];
+    $build   = $grid_items[0]['#build'] ?? [];
     $subsets = $this->manager->toHashtag($build);
-    $uri = $subsets['uri'] ?? '';
+    $uri     = $subsets['uri'] ?? '';
+
     $blazies->set('first.uri', $uri);
 
     $first  = $grid_nodes[0];

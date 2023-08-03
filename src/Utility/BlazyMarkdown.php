@@ -11,7 +11,7 @@ use League\CommonMark\CommonMarkConverter;
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
- *   blazy-related code in Blazy module.
+ *   blazy-related code in Blazy module. Please use the public intead instead.
  */
 class BlazyMarkdown {
 

@@ -8,6 +8,10 @@ use Drupal\views\Views;
 /**
  * A Trait common for optional views style plugins.
  *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module. Please extend base classes intead.
+ *
  * @todo remove it into BlazyStylePluginBase after sub-modules extending it.
  * Called by OutlayerViewsBase.
  */

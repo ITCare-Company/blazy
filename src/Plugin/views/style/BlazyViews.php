@@ -7,7 +7,7 @@ use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Views\BlazyStyleBase;
 
 /**
- * Blazy style plugin.
+ * Provides Blazy Grid style plugin.
  */
 class BlazyViews extends BlazyStyleBase implements BlazyViewsInterface {
 
@@ -66,9 +66,7 @@ class BlazyViews extends BlazyStyleBase implements BlazyViewsInterface {
     ];
 
     // Build the form.
-    $this->admin()->openingForm($form, $definition);
-    $this->admin()->gridForm($form, $definition);
-    $this->admin()->finalizeForm($form, $definition);
+    $this->admin()->gridOnlyForm($form, $definition);
   }
 
   /**
@@ -95,7 +93,7 @@ class BlazyViews extends BlazyStyleBase implements BlazyViewsInterface {
       $this->checkBlazy($settings, $build, $rows);
 
       $build['#settings'] = $settings;
-      $elements = $this->blazyManager->build($build);
+      $elements = $this->manager->build($build);
 
       unset($view->row_index, $items);
     }

@@ -251,6 +251,11 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
         array_multisort($weights, SORT_ASC, $items);
       }
 
+      // For better markups, when Title option is not available at filters.
+      if (empty($captions['title']) && isset($items['title'])) {
+        $captions['title'] = $items['title'];
+        unset($items['title']);
+      }
       $captions['data'] = $items;
     }
 

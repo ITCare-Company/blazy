@@ -56,7 +56,6 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
       $element['#item'] = $image['raw'] ?? NULL;
 
       // @todo merge all these into theme_blazy() at 3.x after sub-modules.
-      // @todo use $blazies = $this->manager->preBlazy($data, $item);
       if ($blazies->use('theme_blazy')) {
         $this->themeBlazy($element, $captions, $delta);
       }
@@ -69,10 +68,12 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
 
   /**
    * Provides relevant attributes to feed into theme_blazy().
+   *
+   * @todo remove for BlazyElementTrait if similar to field formatters.
    */
-  private function toBlazy(array &$data, array &$captions, $delta): bool {
-    // Call manager not blazyManager due to sub-module deviations.
+  protected function toBlazy(array &$data, array &$captions, $delta): bool {
     if ($captions = array_filter($captions)) {
+      // Call manager not formatter due to sub-module deviations.
       $this->manager->toBlazy($data, $captions, $delta);
       return TRUE;
     }
@@ -83,8 +84,10 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
    * Builds the item using theme_blazy(), if so-configured.
    *
    * This is the future implementation after mergers at/by 3.x.
+   *
+   * @todo remove for BlazyElementTrait if similar to field formatters.
    */
-  private function themeBlazy(array &$element, array $captions, $delta): void {
+  protected function themeBlazy(array &$element, array $captions, $delta): void {
     $internal = $element;
 
     // Allows sub-modules to use theme_blazy() as their theme_ITEM() contents.
@@ -92,9 +95,9 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
       $internal['captions'] = $captions;
     }
 
-    if ($blazy = $this->blazyManager->getBlazy($internal)) {
+    if ($blazy = $this->formatter->getBlazy($internal)) {
       $element[static::$itemId] = $blazy;
-      $this->updateSettings($element, $blazy);
+      $this->formatter->postBlazy($element, $blazy);
     }
     else {
       $element[static::$captionId] = $captions;
@@ -105,28 +108,18 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
    * This is the current implementation before mergers at 3.x.
    *
    * Looks simpler, yet it has lots of dup efforts downstream.
+   *
+   * @todo remove for BlazyElementTrait if similar to field formatters.
    */
-  private function themeItem(array &$element, array $captions, $delta): void {
+  protected function themeItem(array &$element, array $captions, $delta): void {
     $internal = $element;
 
-    if ($blazy = $this->blazyManager->getBlazy($internal)) {
+    if ($blazy = $this->formatter->getBlazy($internal)) {
       $element[static::$itemId] = $blazy;
-      $this->updateSettings($element, $blazy);
+      $this->formatter->postBlazy($element, $blazy);
     }
 
     $element[static::$captionId] = $captions;
-  }
-
-  /**
-   * Thumbnails are poorly-informed, provide relevant information.
-   */
-  private function updateSettings(array &$element, array $blazy): void {
-    $item_build = $blazy['#build'] ?? [];
-
-    // Update with blazy processed settings: unstyled extensions, SVG, etc.
-    if ($blazysets = $this->manager->toHashtag($item_build)) {
-      $element['#settings']['blazies']->merge($blazysets['blazies']->storage());
-    }
   }
 
 }

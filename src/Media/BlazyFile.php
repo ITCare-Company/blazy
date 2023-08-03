@@ -318,7 +318,7 @@ class BlazyFile {
     $uuid    = $blazies ? $blazies->get('entity.uuid') : NULL;
     $file    = $uuid ? Blazy::loadByUuid($uuid, 'file') : NULL;
 
-    if (!$file) {
+    if (!$file && $uri) {
       $file = self::fromUri($uri);
     }
 

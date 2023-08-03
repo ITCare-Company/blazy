@@ -253,6 +253,15 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * {@inheritdoc}
    */
+  public function gridOnlyForm(array &$form, array &$definition): void {
+    $this->openingForm($form, $definition);
+    $this->gridForm($form, $definition);
+    $this->finalizeForm($form, $definition);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function closingForm(array &$form, array $definition): void {
     $this->finalizeForm($form, $definition);
   }

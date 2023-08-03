@@ -139,4 +139,9 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    */
   public function getTooltipClasses(array $options = [], $flatten = FALSE);
 
+  /**
+   * Modifies the grid only form elements.
+   */
+  public function gridOnlyForm(array &$form, array &$definition): void;
+
 }

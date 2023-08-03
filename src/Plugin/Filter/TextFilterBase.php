@@ -71,13 +71,20 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   protected $filterManager;
 
   /**
-   * The blazy formatter service.
+   * Deprecated in blazy:2.17, removed from blazy:3.0.0. Use self::formatter.
    *
    * @var \Drupal\blazy\BlazyFormatterInterface
    *
-   * @todo remove for $manager to get consistent with sub-mdoules.
+   * @todo remove for $formatter to get consistent with sub-modules.
    */
   protected $blazyManager;
+
+  /**
+   * The blazy formatter.
+   *
+   * @var \Drupal\blazy\BlazyFormatterInterface
+   */
+  protected $formatter;
 
   /**
    * The sub-modules manager service.
@@ -136,7 +143,13 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
     $instance->entityFieldManager = $container->get('entity_field.manager');
     $instance->filterManager = $container->get('plugin.manager.filter');
     $instance->admin = $container->get('blazy.admin.formatter');
-    $instance->blazyManager = $instance->manager = $container->get('blazy.formatter');
+
+    // For consistent call against ecosystem shared methods, Blazy has straight
+    // inheritance, sub-modules deviate:
+    $instance->manager = $instance->formatter = $container->get('blazy.formatter');
+
+    // @todo remove for consistent call against ecosystem shared methods:
+    $instance->blazyManager = $instance->manager;
 
     return $instance;
   }

@@ -110,6 +110,16 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
   public function preBlazy(array &$build, $item = NULL): BlazySettings;
 
   /**
+   * Thumbnails are poorly-informed, provide relevant information.
+   *
+   * @param array $build
+   *   The build array being modified.
+   * @param array $blazy
+   *   The blazy renderable array available after ::getBlazy() called.
+   */
+  public function postBlazy(array &$build, array $blazy): void;
+
+  /**
    * Prepares shared data common between field formatter and views field.
    *
    * This is to overcome the limitation of self::postSettings().

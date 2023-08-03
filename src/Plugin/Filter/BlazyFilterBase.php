@@ -66,7 +66,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
     $is_media_library = $definitions && isset($definitions['field_media_oembed_video']);
 
-    $namespace = static::$namespace ?? $this->provider;
+    $namespace = static::$namespace;
     $blazies = $settings['blazies'];
     $blazies->set('css.id', $id)
       ->set('is.filter', TRUE)
@@ -98,7 +98,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   }
 
   /**
-   * Build the blazy using the node ID and field_name.
+   * Build the field item list using the node ID and field_name.
    */
   protected function formatterSettings(array &$settings, $attribute) {
     [$entity_type, $id, $field_name, $field_image] = array_pad(array_map('trim', explode(":", $attribute, 4)), 4, NULL);
@@ -304,7 +304,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $blazies  = $settings['blazies'];
     $attrs    = $blazies->get('item.raw_attributes', []);
 
-    // Attempts to get the correct URI with hard-coded URL if applicable.
+    // Attempts to get the correct URI with hard-coded URL if applicable, e.g:
+    // /site/default/files/image.jpg into public://image.jpg.
     $uri  = BlazyFile::buildUri($src);
     $uuid = $attrs['data-entity-uuid'] ?? NULL;
 
@@ -316,10 +317,9 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     // Uploaded image has UUID with file API.
     if (BlazyFile::isFile($file)) {
       $uuid = $uuid ?: $file->uuid();
+      $blazies->set('entity.uuid', $uuid);
 
       if ($item = BlazyImage::fromAny($file, $settings)) {
-        $blazies->set('entity.uuid', $uuid);
-
         $build['#item'] = $item;
       }
     }

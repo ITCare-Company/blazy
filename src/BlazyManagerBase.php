@@ -26,6 +26,8 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $this->attachments($load, $attach, $blazies);
 
     $this->moduleHandler->alter('blazy_attach', $load, $attach, $blazies);
+    $load['library'] = isset($load['library'])
+      ? array_unique($load['library']) : [];
     return $load;
   }
 
@@ -135,6 +137,18 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     CheckItem::essentials($settings, $item);
 
     return $blazies;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postBlazy(array &$build, array $blazy): void {
+    $item_build = $blazy['#build'] ?? [];
+
+    // Update with blazy processed settings: unstyled extensions, SVG, etc.
+    if ($blazysets = $this->toHashtag($item_build)) {
+      $build['#settings']['blazies']->merge($blazysets['blazies']->storage());
+    }
   }
 
   /**

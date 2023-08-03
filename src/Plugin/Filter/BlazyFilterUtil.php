@@ -243,7 +243,7 @@ class BlazyFilterUtil {
           $settings['grid'],
         ] = array_pad(array_map('trim', explode("-", $grid, 3)), 3, NULL);
 
-        $settings['_grid'] = $is_grid = !empty($settings['style']) && !empty($settings['grid']);
+        $is_grid = !empty($settings['style']) && !empty($settings['grid']);
         $blazies->set('is.grid', $is_grid);
 
         if (!empty($settings['style'])) {

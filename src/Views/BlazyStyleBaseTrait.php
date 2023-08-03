@@ -12,6 +12,10 @@ use Drupal\blazy\Utility\Sanitize;
 /**
  * A Trait common for optional views style plugins.
  *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module. Please extend base classes intead.
+ *
  * @todo remove it into BlazyStyleBase after sub-modules extending it.
  */
 trait BlazyStyleBaseTrait {

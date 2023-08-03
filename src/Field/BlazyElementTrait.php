@@ -37,8 +37,8 @@ trait BlazyElementTrait {
    * Provides relevant attributes to feed into theme_blazy().
    */
   protected function toBlazy(array &$data, array &$captions, $delta): bool {
-    // Call manager not formatter due to sub-module deviations.
     if ($captions = array_filter($captions)) {
+      // Call manager not formatter due to sub-module deviations.
       $this->manager->toBlazy($data, $captions, $delta);
       return TRUE;
     }
@@ -74,7 +74,7 @@ trait BlazyElementTrait {
       // Currently still needed as fallback due to being optional.
       $element = $data;
       $element[static::$itemId] = $blazy;
-      $this->updateSettings($element, $blazy);
+      $this->formatter->postBlazy($element, $blazy);
     }
     return $element;
   }
@@ -105,21 +105,9 @@ trait BlazyElementTrait {
       $element[static::$itemId] = $blazy;
       $element[static::$captionId] = $captions;
 
-      $this->updateSettings($element, $blazy);
+      $this->formatter->postBlazy($element, $blazy);
     }
     return $element;
-  }
-
-  /**
-   * Thumbnails are poorly-informed, provide relevant information.
-   */
-  protected function updateSettings(array &$element, array $blazy): void {
-    $item_build = $blazy['#build'] ?? [];
-
-    // Update with blazy processed settings: unstyled extensions, SVG, etc.
-    if ($blazysets = $this->formatter->toHashtag($item_build)) {
-      $element['#settings']['blazies']->merge($blazysets['blazies']->storage());
-    }
   }
 
   /**

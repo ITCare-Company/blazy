@@ -366,6 +366,7 @@ class BlazyDefault {
   public static function hashedProperties() {
     return [
       'attributes' => [],
+      'delta' => 0,
       'item' => NULL,
       'item_attributes' => [],
       'settings' => [],
