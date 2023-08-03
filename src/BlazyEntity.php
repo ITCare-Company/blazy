@@ -116,6 +116,7 @@ class BlazyEntity implements BlazyEntityInterface {
         $data['content'][] = $this->view($data);
       }
 
+      $blazies = $settings['blazies'];
       $blazies->set('is.denied', FALSE);
 
       // Pass it to Blazy for consistent markups.
