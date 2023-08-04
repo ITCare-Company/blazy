@@ -37,6 +37,11 @@ class Grid {
       Check::grids($settings);
     }
 
+    // Might be called outside Blazy workflows, allows altering settings once.
+    if ($manager = Blazy::service('blazy.manager')) {
+      $manager->moduleHandler()->alter('blazy_settings_grid', $settings);
+    }
+
     $contents = self::content($items, $settings);
     $attrs = [];
 
@@ -117,9 +122,6 @@ class Grid {
       if ($content_attrs_alter = ($blazies->get('grid.item_content_attributes') ?: [])) {
         $content_attrs = Blazy::merge($content_attrs_alter, $content_attrs);
       }
-
-      $attrs = Blazy::sanitize($attrs);
-      $content_attrs = Blazy::sanitize($content_attrs);
     }
   }
 

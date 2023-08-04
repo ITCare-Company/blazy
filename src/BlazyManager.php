@@ -367,6 +367,14 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $blazies    = $settings['blazies'];
     $attributes = &$build['#attributes'];
 
+    // Only add figure for grid if using Blazy Filter [caption] shortcode mixed
+    // with core [data-caption]. The rest should just have figure tags, either
+    // standalone images, or sliders.
+    if ($blazies->is('figcaption') && $blazies->is('grid')) {
+      $blazies->set('item.wrapper_tag', 'figure')
+        ->set('item.wrapper_attributes.class', ['blazy__content']);
+    }
+
     // Blazy has these 3 attributes, yet provides optional ones far below.
     // No defaults are provided for all these attributes.
     $theme_attributes = BlazyDefault::themeAttributes();
@@ -431,6 +439,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    */
   private function toCaption(array &$element, $captions, $blazies): void {
     $id     = $blazies->get('item.id', 'blazy');
+    $id     = $id == 'content' ? 'blazy' : $id;
     $self   = $id == 'blazy';
     $prefix = $self ? $id . '__caption--' : $id . '__';
 

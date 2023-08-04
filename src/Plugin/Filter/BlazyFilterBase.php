@@ -428,6 +428,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
       // These are shortcode attributes for grid ITEM, or SLIDE.
       if ($attrs = Util::getAttribute($node)) {
+        // Might be consumed directly by sub-modules.
+        $attrs = Blazy::sanitize($attrs);
         $this->shortcodeItemAttributes($build, $node, $blazies, $attrs);
       }
     }
@@ -439,9 +441,6 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    * @todo refine all these against sub-modules.
    */
   protected function shortcodeItemAttributes(array &$build, $node, $blazies, array $attrs): void {
-    // Might be consumed directly by sub-modules.
-    $attrs = Blazy::sanitize($attrs);
-
     // Move it to .grid__content for better displays like .well/ .card.
     if ($classes = $attrs['class'] ?? '') {
       // This is blazy .grid__content since theme_blazy() has none:
@@ -455,7 +454,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
           $blazies->set('item.wrapper_attributes.class', $classes);
         }
         else {
-          // @todo remove at 3.x, sub-modules no longer has this:
+          // @todo remove at 3.x, sub-modules no longer has this, nor blazy:
           $build['#content_attributes']['class'] = $classes;
         }
       }

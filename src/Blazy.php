@@ -337,9 +337,7 @@ class Blazy {
   }
 
   /**
-   * Returns TRUE if SVG Sanitizer exists.
-   *
-   * In case we have alternatives, provide one door check.
+   * In case we have SVG Sanitizer alternatives, provide one door check.
    */
   public static function svgSanitizerExists(): bool {
     return class_exists('\enshrined\svgSanitize\Sanitizer');

@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-08-04
 ------------------------------
+- Fixed for BlazyFilter figure mixed with [data-caption], specific to grids.
 - Added theme_blazy() to replace sub-modules theme_ITEM() content for filters.
 
 Blazy 8.x-2.0-dev, 2023-08-02

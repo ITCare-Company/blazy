@@ -467,6 +467,9 @@ class Lightbox {
         break;
 
       default:
+        // Inline is using [data-caption] filter at Blazy Filter. If equals to
+        // inline an sich, no captions available, otherwise print it as is.
+        // See \Drupal\blazy\Plugin\Filter\BlazyFilterBase\buildImageCaption().
         $caption = $option == 'inline' ? '' : $option;
     }
 
