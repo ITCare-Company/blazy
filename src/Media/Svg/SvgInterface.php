@@ -54,22 +54,6 @@ interface SvgInterface {
   public function image($source = NULL, $toolkit_id = NULL): ImageInterface;
 
   /**
-   * Generates SVG from raster.
-   *
-   * Warning! This is not for large images, only thumbnails or blur images.
-   * It choked 12GB machine given just 1MB file size. Not implemented, yet.
-   *
-   * @param string $url
-   *   The image URL to be converted into an SVG file.
-   * @param array $options
-   *   The options for conversion.
-   *
-   * @return string
-   *   The SVG markup.
-   */
-  public function vectorize($url, array $options = []): string;
-
-  /**
    * Checks if the current file mime type is SVG.
    *
    * @param \Drupal\file\Entity\File $file
@@ -103,6 +87,14 @@ interface SvgInterface {
    *   File content, or empty string if not applicable.
    */
   public function sanitize($uri, array $options = []): ?string;
+
+  /**
+   * Returns the Sanitizer instance.
+   *
+   * @return object|null
+   *   The Sanitizer instance if installed, else NULL.
+   */
+  public function sanitizer(): ?object;
 
   /**
    * Makes transparent background via shell command, or GD library.
@@ -159,5 +151,21 @@ interface SvgInterface {
    *   The SVG markup, or empty string if not applicable.
    */
   public function view($uri, array $options = []): ?string;
+
+  /**
+   * Generates SVG from raster.
+   *
+   * Warning! This is not for large images, only thumbnails or blur images.
+   * It choked 12GB machine given just 1MB file size. Not implemented, yet.
+   *
+   * @param string $url
+   *   The image URL to be converted into an SVG file.
+   * @param array $options
+   *   The options for conversion.
+   *
+   * @return string
+   *   The SVG markup.
+   */
+  public function vectorize($url, array $options = []): string;
 
 }

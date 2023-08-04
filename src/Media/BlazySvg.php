@@ -43,8 +43,12 @@ class BlazySvg {
 
         // The result is normally used for non-inline style, via CSS rules.
         $data = Ratio::fluid($dims);
-        $blazies->set('image.fluid', $data);
+        $blazies->set('image.fluid', $data)
+          ->set('svg.fluid', $data);
       }
+
+      $blazies->set('svg.width', $width)
+        ->set('svg.height', $height);
     }
 
     $blazies->set('image.width', $width)

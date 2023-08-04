@@ -96,7 +96,8 @@ class BlazyViews {
     $display   = is_null($style) ? 'xd' : $style->displayHandler->getPluginId();
     $instance  = "{$view_name}-{$display}-{$view_mode}";
     $which     = $is_field ? 'views-field' : 'views';
-    $id        = "{$plugin_id}-{$which}-{$instance}";
+    $id        = "{$which}-{$instance}";
+    $id        = $plugin_id . '--' . substr(md5($id), 0, 11);
     $id        = str_replace('_', '-', $id);
     $id        = Blazy::getHtmlId($id);
     $settings += BlazyDefault::lazySettings();

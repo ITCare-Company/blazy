@@ -1,11 +1,10 @@
 ### Blazy
 If you copy paste the lines here into CKEditor, be sure to view CKEditor
-source and remove the surrounding `<code>...</code>`,
-in case mistakenly copied over.  
-Image or iframe is lazyloaded automatically unless
-disabled, no shortcodes required. Usages for shortcodes: grid, customizing
-settings, embedding a known entity. Pay attention to attributes,
-slashes, colons, single and double quotes:
+source and remove the surrounding `<code>...</code>`, in case mistakenly copied
+over.  
+Image or iframe is lazyloaded automatically unless disabled, no shortcodes
+required. Usages for shortcodes: grid, customizing settings, embedding a known
+entity. Pay attention to attributes, slashes, colons, single and double quotes:
 
 1. **Basic**, with inline HTML:   
    `[blazy]...[item]...[/item]... [/blazy]`  

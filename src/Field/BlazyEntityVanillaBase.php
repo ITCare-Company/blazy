@@ -51,6 +51,13 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   protected static $captionId = 'caption';
 
   /**
+   * Tne navigation ID.
+   *
+   * @var string
+   */
+  protected static $navId = 'thumb';
+
+  /**
    * The fake field type identifier for service DI, e.g: entity, image, text.
    *
    * @var string
@@ -121,6 +128,9 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
         return $build;
       }
 
+      $build['#delta']    = $delta;
+      $build['#entity']   = $entity;
+      $build['#langcode'] = $langcode;
       $this->prepareElement($build, $entity, $langcode, $delta);
 
       // Add the entity to cache dependencies so to clear when it is updated.
@@ -136,17 +146,18 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
 
   /**
    * Build item contents.
+   *
+   * @todo remove extra params at 3 for destructured properties from $build.
    */
   protected function buildElement(array &$build, $entity, $langcode) {
     $settings = $this->formatter->toHashtag($build);
-    $blazies  = $settings['blazies'];
 
     // Sub-modules always flag `vanilla` as required, -- configurable, or not.
     if (!empty($settings['vanilla'])) {
       $data = [
         '#entity'   => $entity,
         '#settings' => $settings,
-        '#delta'    => $blazies->get('delta', 0),
+        '#delta'    => $build['#delta'],
       ];
 
       // @todo merge all these after sub-modules use theme_blazy() at/ by 3.x.
@@ -185,7 +196,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   /**
    * Prepare item contents.
    *
-   * Alternative for self::buildElement() with extra params for convenient.
+   * @todo remove extra params at 3 for destructured properties from $build.
    */
   protected function prepareElement(array &$build, $entity, $langcode, $delta): void {
     $this->formatter->hashtag($build);

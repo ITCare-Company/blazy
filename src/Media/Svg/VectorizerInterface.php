@@ -14,7 +14,7 @@ namespace Drupal\blazy\Media\Svg;
  * $converter->loadImage('/path/to/my/image.gif');
  * // $converter->setThreshold(80);
  * // header('Content-Type: text/xml');
- * $res = $converter->generateSvg();
+ * $res = $converter->vectorize();
  * @endcode
  *
  * Converting a Image into a SVG and saving the SVG to a file
@@ -99,7 +99,7 @@ interface VectorizerInterface {
    * @return string
    *   The generated SVG.
    */
-  public function generateSvg(): string;
+  public function vectorize(): string;
 
   /**
    * Generates svg from raster and save to a given file.

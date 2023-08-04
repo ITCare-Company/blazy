@@ -68,6 +68,13 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   protected static $captionId = 'caption';
 
   /**
+   * Tne navigation ID.
+   *
+   * @var string
+   */
+  protected static $navId = 'thumb';
+
+  /**
    * The fake field type identifier for service DI, e.g: entity, image, text.
    *
    * @var string
@@ -143,7 +150,6 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    */
   protected function getElements(array $build, $files, $options = NULL): \Generator {
     $settings = $this->formatter->toHashtag($build);
-    $blazies  = $settings['blazies'];
 
     foreach ($files as $delta => $file) {
       /** @var \Drupal\file\Plugin\Field\FieldType\FileItem $item */
@@ -181,36 +187,29 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       // Build captions if so configured.
       $captions = $this->getCaptions($data);
 
-      // @todo merge all these into theme_blazy() at 3.x after sub-modules.
-      // @todo use $blazies = $this->formatter->preBlazy($data, $item);
-      if ($blazies->use('theme_blazy')) {
-        $element = $this->themeBlazy($data, $captions, $delta);
-      }
-      else {
-        // @todo remove at 3.x.
-        $element = $this->themeItem($data, $captions, $delta);
-      }
-
-      // Image with grid, responsive image, lazyLoad, and lightbox supports.
-      yield $element;
+      // Provides the relevant elements based on the configuration.
+      yield $this->toElement($sets['blazies'], $data, $captions);
     }
   }
 
   /**
-   * Builds the captions.
+   * Returns the captions, if any.
    */
   protected function getCaptions(array $data): array {
-    $settings = $this->formatter->toHashtag($data);
-    $item     = $this->formatter->toHashtag($data, 'item');
+    [
+      '#settings' => $settings,
+      '#item'     => $item,
+    ] = $data;
+
     $blazies  = $settings['blazies'];
     $options  = $settings['caption'] ?? [];
     $options  = array_filter($options);
     $display  = empty($settings['svg_hide_caption']);
     $type     = $blazies->get('field.type');
-    $output   = [];
+    $captions = [];
 
     if (!$options) {
-      return [];
+      return $captions;
     }
 
     // Provides default image captions.
@@ -222,7 +221,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
           // SVG image field, or plain old image:
           // if ($name == 'alt' || $name == 'title') {
           // Conflict with sub-modules' markups, not blazy's.
-          // @todo enable at 3,x when they use theme_blazy().
+          // @todo enable at 3.x when they use theme_blazy().
           // if ($caption  && $name == 'alt') {
           // $caption = '<p>' . $caption . '</p>';
           // }
@@ -234,7 +233,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
           }
 
           if ($display) {
-            $output[$name] = ['#markup' => $caption];
+            $captions[$name] = ['#markup' => $caption];
           }
         }
       }
@@ -244,12 +243,12 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     if ($type == 'entity_reference' && $entity = $data['#parent'] ?? NULL) {
       foreach ($options as $name) {
         if ($markup = BlazyField::view($entity, $name, [])) {
-          $output[$name] = $markup;
+          $captions[$name] = $markup;
         }
       }
     }
 
-    return $output;
+    return array_filter($captions);
   }
 
   /**

@@ -247,27 +247,6 @@ class BlazyFilter extends BlazyFilterBase {
 
   /**
    * {@inheritdoc}
-   *
-   * @todo deprecate and remove for shortcodes at Blazy 3.x.
-   */
-  protected function cleanupImageCaption(array &$build, &$node, &$item) {
-    $settings = $build['#settings'];
-    $blazies = $settings['blazies'];
-
-    if (!$blazies->is('blazy_tag')) {
-      // Mark the FIGCAPTION for deletion because the caption moved into Blazy.
-      $item->setAttribute('class', 'blazy-removed');
-
-      // Marks figures for removal as its contents are moved into grids.
-      // @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
-      if ($blazies->is('grid') && $node->parentNode) {
-        $node->parentNode->setAttribute('class', 'blazy-removed');
-      }
-    }
-  }
-
-  /**
-   * {@inheritdoc}
    */
   protected function preSettings(array &$settings, $text) {
     // @todo remove at 3.x or so.
@@ -321,20 +300,20 @@ class BlazyFilter extends BlazyFilterBase {
       if (!empty($dataset) && mb_strpos($dataset, ":") !== FALSE) {
         $dataset = strip_tags($dataset);
         $node->setAttribute('data', '');
-        return $this->byEntity($settings, $dataset);
+        return $this->byEntityShortcode($settings, $dataset);
       }
 
-      return $this->byDom($node, $settings);
+      return $this->byDomShortcode($node, $settings);
     }
 
     $build = ['#settings' => $settings, '#item' => NULL];
-    return $this->buildItem($build, $node, $delta);
+    return $this->domToElement($build, $node, $delta);
   }
 
   /**
    * Build the blazy using the node ID and field_name.
    */
-  private function byEntity(array &$settings, $attribute) {
+  private function byEntityShortcode(array &$settings, $attribute) {
     $list = $this->formatterSettings($settings, $attribute);
 
     if (!$list) {
@@ -381,7 +360,7 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * Build the blazy using the DOM lookups.
    */
-  private function byDom(\DOMElement $object, array &$settings) {
+  private function byDomShortcode(\DOMElement $object, array &$settings) {
     $text = Util::getHtml($object);
     if (empty($text)) {
       return [];
@@ -413,7 +392,7 @@ class BlazyFilter extends BlazyFilterBase {
         '#settings' => $sets,
       ];
 
-      $content = $this->buildItem($element, $node, $delta)
+      $content = $this->domToElement($element, $node, $delta)
         ?: ['#markup' => $dom->saveHtml($node)];
 
       $element['content'] = $content;
@@ -428,7 +407,7 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * Build the individual item.
    */
-  private function buildItem(array &$build, $node, $delta = 0) {
+  private function domToElement(array &$build, $node, $delta): array {
     $media    = NULL;
     $settings = &$build['#settings'];
 
@@ -443,7 +422,7 @@ class BlazyFilter extends BlazyFilterBase {
     $blazies = $settings['blazies'];
 
     // If using grid, node is grid item.
-    if ($node->tagName == 'item') {
+    if ($node->tagName == static::$shortcode) {
       $this->buildItemAttributes($build, $node, $delta);
       $text = Util::getHtml($node);
 
@@ -482,7 +461,9 @@ class BlazyFilter extends BlazyFilterBase {
       return [];
     }
 
-    return $this->manager->getBlazy($build);
+    // @todo remove return $this->manager->getBlazy($build);
+    // Provides the relevant elements based on the configuration.
+    return $this->toElement($blazies, $build);
   }
 
   /**
@@ -491,11 +472,32 @@ class BlazyFilter extends BlazyFilterBase {
    * @param \DOMDocument $dom
    *   The HTML DOM object being modified.
    */
-  private function cleanupNodes(\DOMDocument $dom) {
+  private function cleanupNodes(\DOMDocument $dom): void {
     $xpath = new \DOMXPath($dom);
     $nodes = $xpath->query("//*[contains(@class, 'blazy-removed')]");
     if ($nodes->length > 0) {
       Util::removeNodes($nodes);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @todo deprecate and remove for shortcodes at Blazy 3.x.
+   */
+  protected function cleanupImageCaption(array &$build, &$node, &$item): void {
+    $settings = $build['#settings'];
+    $blazies = $settings['blazies'];
+
+    if (!$blazies->is('blazy_tag')) {
+      // Mark the FIGCAPTION for deletion because the caption moved into Blazy.
+      $item->setAttribute('class', 'blazy-removed');
+
+      // Marks figures for removal as its contents are moved into grids.
+      // @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
+      if ($blazies->is('grid') && $node->parentNode) {
+        $node->parentNode->setAttribute('class', 'blazy-removed');
+      }
     }
   }
 
@@ -512,7 +514,7 @@ class BlazyFilter extends BlazyFilterBase {
    * @todo deprecate and remove for shortcodes at Blazy 4.x due to being
    * too catch-all, not selective like field formatters.
    */
-  private function buildDeprecatedGrid(array &$settings, array $grid_nodes, array $grid_items = []) {
+  private function buildDeprecatedGrid(array &$settings, array $grid_nodes, array $grid_items = []): void {
     $blazies = $settings['blazies'];
 
     if (!$blazies->is('deprecated_grid') || empty($grid_items[0])) {
@@ -593,7 +595,7 @@ class BlazyFilter extends BlazyFilterBase {
    *
    * @todo remove deprecated too-catch-all grid for shortcode at 3.x+.
    */
-  private function deprecatedGridSettings(array &$settings, $text = NULL) {
+  private function deprecatedGridSettings(array &$settings, $text = NULL): void {
     $blazies = $settings['blazies'];
 
     // The data-grid and data-column are deprecated for [blazy] shortcode.

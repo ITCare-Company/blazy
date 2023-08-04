@@ -55,29 +55,30 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
       $image = $this->getImageRenderable($settings, $row, $delta);
       $element['#item'] = $image['raw'] ?? NULL;
 
-      // @todo merge all these into theme_blazy() at 3.x after sub-modules.
-      if ($blazies->use('theme_blazy')) {
-        $this->themeBlazy($element, $captions, $delta);
-      }
-      else {
-        // @todo remove at 3.x.
-        $this->themeItem($element, $captions, $delta);
-      }
+      // Provides the relevant elements based on the configuration.
+      $this->toElement($blazies, $element, $captions);
     }
   }
 
   /**
-   * Provides relevant attributes to feed into theme_blazy().
+   * Returns the relevant elements based on the configuration.
    *
+   * @todo call self::themeBlazy() directly at 3.x after sub-modules.
    * @todo remove for BlazyElementTrait if similar to field formatters.
    */
-  protected function toBlazy(array &$data, array &$captions, $delta): bool {
-    if ($captions = array_filter($captions)) {
-      // Call manager not formatter due to sub-module deviations.
-      $this->manager->toBlazy($data, $captions, $delta);
-      return TRUE;
+  protected function toElement($blazies, array &$data, array $captions): void {
+    $delta    = $data['#delta'] ?? 0;
+    $captions = array_filter($captions);
+
+    // Provides inline SVG if applicable.
+    // @todo recheck $this->viewSvg($data);
+    if ($blazies->use('theme_blazy')) {
+      $this->themeBlazy($data, $captions, $delta);
     }
-    return FALSE;
+    else {
+      // @todo remove at 3.x.
+      $this->themeItem($data, $captions, $delta);
+    }
   }
 
   /**
@@ -87,7 +88,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
    *
    * @todo remove for BlazyElementTrait if similar to field formatters.
    */
-  protected function themeBlazy(array &$element, array $captions, $delta): void {
+  private function themeBlazy(array &$element, array $captions, $delta): void {
     $internal = $element;
 
     // Allows sub-modules to use theme_blazy() as their theme_ITEM() contents.
@@ -99,9 +100,6 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
       $element[static::$itemId] = $blazy;
       $this->formatter->postBlazy($element, $blazy);
     }
-    else {
-      $element[static::$captionId] = $captions;
-    }
   }
 
   /**
@@ -110,8 +108,9 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
    * Looks simpler, yet it has lots of dup efforts downstream.
    *
    * @todo remove for BlazyElementTrait if similar to field formatters.
+   * @todo remove regardless at 3.x.
    */
-  protected function themeItem(array &$element, array $captions, $delta): void {
+  private function themeItem(array &$element, array $captions, $delta): void {
     $internal = $element;
 
     if ($blazy = $this->formatter->getBlazy($internal)) {
@@ -120,6 +119,20 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     }
 
     $element[static::$captionId] = $captions;
+  }
+
+  /**
+   * Provides relevant attributes to feed into theme_blazy().
+   *
+   * @todo remove for BlazyElementTrait if similar to field formatters.
+   */
+  private function toBlazy(array &$data, array &$captions, $delta): bool {
+    if ($captions = array_filter($captions)) {
+      // Call manager not formatter due to sub-module deviations.
+      $this->manager->toBlazy($data, $captions, $delta);
+      return TRUE;
+    }
+    return FALSE;
   }
 
 }

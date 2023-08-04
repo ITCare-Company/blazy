@@ -125,7 +125,7 @@ class Vectorizer implements VectorizerInterface {
   /**
    * {@inheritdoc}
    */
-  public function generateSvg(): string {
+  public function vectorize(): string {
     $svg = $this->toXml();
     return $svg->saveXml($svg->documentElement);
   }
@@ -143,8 +143,8 @@ class Vectorizer implements VectorizerInterface {
   public function toXml(): \DOMDocument {
     $this->setImageSettings();
 
-    $svgh = $this->generateSvgFromRaster(self::DIRECTION_HORIZONTAL);
-    $svg  = $this->generateSvgFromRaster(self::DIRECTION_VERTICAL);
+    $svgh = $this->vectorizeFromRaster(self::DIRECTION_HORIZONTAL);
+    $svg  = $this->vectorizeFromRaster(self::DIRECTION_VERTICAL);
 
     if ($svgh->getElementsByTagName('rect')->length < $svg->getElementsByTagName('rect')->length) {
       $svg = $svgh;
@@ -193,7 +193,7 @@ class Vectorizer implements VectorizerInterface {
    * @return \DOMDocument
    *   The DOM document object.
    */
-  protected function generateSvgFromRaster($direction): \DOMDocument {
+  protected function vectorizeFromRaster($direction): \DOMDocument {
     $svg = $this->createSvgDocument();
     if ($direction == self::DIRECTION_HORIZONTAL) {
       for ($y = 0; $y < $this->height; ++$y) {

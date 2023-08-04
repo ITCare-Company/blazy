@@ -404,6 +404,8 @@ class BlazyImage {
    * @see https://www.drupal.org/node/2489544
    */
   public static function thumbnail(array $settings, $item = NULL): array {
+    Blazy::verify($settings);
+
     $blazies = $settings['blazies'];
     $uri     = $blazies->get('thumbnail.uri') ?: $blazies->get('image.uri');
 

@@ -40,6 +40,8 @@ class BlazyFormatterBlazy extends BlazyFileSvgFormatterBase {
    * {@inheritdoc}
    */
   protected function buildElements(array &$build, $files, $langcode) {
+    $this->formatter->hashtag($build);
+
     foreach ($this->getElements($build, $files) as $element) {
       // Since 2.17, match sub-modules `items` for easy swap later to DRY.
       $build['items'][] = $element;

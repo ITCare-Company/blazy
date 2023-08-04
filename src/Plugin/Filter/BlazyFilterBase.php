@@ -7,17 +7,19 @@ use Drupal\Component\Utility\Xss;
 // @todo use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault as Defaults;
+use Drupal\blazy\Field\BlazyElementTrait;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 // @todo use Drupal\blazy\Media\BlazyMedia;
 use Drupal\blazy\Plugin\Filter\BlazyFilterUtil as Util;
-use Drupal\blazy\Utility\Sanitize;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides base filter class.
  */
 abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInterface {
+
+  use BlazyElementTrait;
 
   /**
    * The blazy admin service.
@@ -46,6 +48,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     $instance->blazyAdmin = $instance->blazyAdmin ?? $container->get('blazy.admin');
     $instance->blazyOembed = $instance->blazyOembed ?? $container->get('blazy.oembed');
+    $instance->svgManager = $container->get('blazy.svg');
 
     return $instance;
   }
@@ -182,9 +185,17 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     if ($item) {
       // @todo remove after another check at BlazyOEmbed.
       // Hardcoded values are the only sources at filter when all fails.
-      foreach (['width', 'height', 'alt', 'title'] as $key) {
+      // Dimensions are more reliable from Imagefactory than hardcoded ones.
+      foreach (['width', 'height'] as $key) {
         if (!isset($item->{$key}) && isset($attrs[$key])) {
           $item->{$key} = $attrs[$key];
+        }
+      }
+
+      // Alt and title are more reliable from users than Imagefactory.
+      foreach (['alt', 'title'] as $key) {
+        if ($value = $attrs[$key] ?? NULL) {
+          $item->{$key} = $value;
         }
       }
 
@@ -207,8 +218,10 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    * @param object $node
    *   The HTML DOM object.
    *
-   * @return object
-   *   The HTML DOM object.
+   * @return \DOMElement|null
+   *   The HTML DOM object, or null if not found.
+   *
+   * @todo add return type after sub-modules: ?\DOMElement.
    */
   protected function buildImageCaption(array &$build, &$node) {
     $settings = &$build['#settings'];
@@ -226,6 +239,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
           $build['captions']['alt'] = ['#markup' => $markup];
         }
 
+        // Tells lightboxes to use this as is.
         if (($settings['box_caption'] ?? '') == 'inline') {
           $settings['box_caption'] = $markup;
         }
@@ -240,39 +254,55 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
   /**
    * Returns the expected caption DOMElement.
+   *
+   * @param object $node
+   *   The HTML DOM object.
+   *
+   * @return \DOMElement|null
+   *   The HTML DOM object, or null if not found.
+   *
+   * @todo add return type after sub-modules: ?\DOMElement.
    */
   protected function getCaptionElement($node) {
-    if ($node->parentNode && $node->parentNode->tagName === 'figure') {
-      $caption = $node->parentNode->getElementsByTagName('figcaption');
-      return ($caption && $caption->item(0)) ? $caption->item(0) : NULL;
+    if ($node->parentNode) {
+      if ($node->parentNode->tagName === 'figure') {
+        $caption = $node->parentNode->getElementsByTagName('figcaption');
+        return ($caption && $caption->item(0)) ? $caption->item(0) : NULL;
+      }
+
+      return $this->getCaptionFallback($node);
     }
     return NULL;
   }
 
   /**
    * Returns the fallback caption DOMElement for Splide/ Slick, etc.
+   *
+   * @param object $node
+   *   The HTML DOM object.
+   *
+   * @return \DOMElement|null
+   *   The HTML DOM object, or null if not found.
    */
-  protected function getCaptionFallback($node) {
+  protected function getCaptionFallback($node): ?\DOMElement {
     $caption = NULL;
 
     // @todo figure out better traversal with DOM.
-    if ($node->parentNode) {
-      $parent = $node->parentNode->parentNode;
-      if ($parent && $grandpa = $parent->parentNode) {
-        if ($grandpa->parentNode) {
-          $divs = $grandpa->parentNode->getElementsByTagName('div');
-        }
-        else {
-          $divs = $grandpa->getElementsByTagName('div');
-        }
+    $parent = $node->parentNode->parentNode;
+    if ($parent && $grandpa = $parent->parentNode) {
+      if ($grandpa->parentNode) {
+        $divs = $grandpa->parentNode->getElementsByTagName('div');
+      }
+      else {
+        $divs = $grandpa->getElementsByTagName('div');
+      }
 
-        if ($divs) {
-          foreach ($divs as $div) {
-            $class = $div->getAttribute('class');
-            if ($class == 'blazy__caption') {
-              $caption = $div;
-              break;
-            }
+      if ($divs) {
+        foreach ($divs as $div) {
+          $class = $div->getAttribute('class');
+          if ($class == 'blazy__caption') {
+            $caption = $div;
+            break;
           }
         }
       }
@@ -283,7 +313,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * Cleanups image caption.
    */
-  protected function cleanupImageCaption(array &$build, &$node, &$item) {
+  protected function cleanupImageCaption(array &$build, &$node, &$item): void {
     // Do nothing.
   }
 
@@ -378,7 +408,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * Provides the shortcode ITEM|SLIDE attributes, and caption. Not IMG/IFRAME.
    */
-  protected function buildItemAttributes(array &$build, $node, $delta = 0) {
+  protected function buildItemAttributes(array &$build, $node, $delta = 0): void {
     $this->manager->hashtag($build);
 
     $sets    = $build['#settings'];
@@ -396,13 +426,55 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
         }
       }
 
-      // These are shortcode attributes for grid ITEM or SLIDE.
+      // These are shortcode attributes for grid ITEM, or SLIDE.
       if ($attrs = Util::getAttribute($node)) {
-        // Move it to .grid__content for better displays like .well/ .card.
-        if ($classes = $attrs['class'] ?? '') {
-          $build['#content_attributes']['class'] = $classes;
-          unset($attrs['class']);
+        $this->shortcodeItemAttributes($build, $node, $blazies, $attrs);
+      }
+    }
+  }
+
+  /**
+   * Provides the shortcode ITEM|SLIDE attributes, and caption. Not IMG/IFRAME.
+   *
+   * @todo refine all these against sub-modules.
+   */
+  protected function shortcodeItemAttributes(array &$build, $node, $blazies, array $attrs): void {
+    // Might be consumed directly by sub-modules.
+    $attrs = Blazy::sanitize($attrs);
+
+    // Move it to .grid__content for better displays like .well/ .card.
+    if ($classes = $attrs['class'] ?? '') {
+      // This is blazy .grid__content since theme_blazy() has none:
+      if ($node->tagName == 'item') {
+        $blazies->set('grid.item_content_attributes.class', $classes);
+      }
+      else {
+        // At 3.x, with use_theme_blazy option.
+        if ($blazies->use('theme_blazy')) {
+          // Consumed at $manager::toBlazy() to pass back to theme_blazy().
+          $blazies->set('item.wrapper_attributes.class', $classes);
         }
+        else {
+          // @todo remove at 3.x, sub-modules no longer has this:
+          $build['#content_attributes']['class'] = $classes;
+        }
+      }
+
+      unset($attrs['class']);
+    }
+
+    // This is for blazy .grid attributes, not .grid__content:
+    if ($node->tagName == 'item') {
+      $blazies->set('grid.item_attributes', $attrs);
+    }
+    else {
+      // At 3.x, with use_theme_blazy option, but processed at
+      // [slick|splide]_slide for their .slide element.
+      if ($blazies->use('theme_blazy')) {
+        $blazies->set('item.attributes', $attrs);
+      }
+      else {
+        // @todo remove old approach at 3.x:
         $build['#attributes'] = $attrs;
       }
     }
@@ -411,69 +483,70 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * Provides the media IMG|IFRAME attributes w/o shortcodes ITEM|SLIDE.
    */
-  protected function buildMediaAttributes(array &$build, $node, $delta = 0) {
+  protected function buildMediaAttributes(array &$build, $node, $delta = 0): void {
     $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
     $tag      = $node->nodeName;
+    $attrs    = Util::getAttribute($node);
 
-    if ($attrs = Util::getAttribute($node)) {
-      $src = $attrs['src'] ?? NULL;
-
-      // Prevents blur IMG from screwing up the expected image SRC.
-      if ($src) {
-        $use_data_uri = $this->settings['use_data_uri'] ?? FALSE;
-        $src = Util::getValidSrc($node, $use_data_uri);
-
-        // Iframe with data: alike scheme is a serious kidding, strip it early.
-        if ($tag == 'iframe') {
-          $src = $this->blazyOembed->checkInputUrl($settings, $src);
-        }
-        $attrs['src'] = $src;
-      }
-
-      // Put raw attributes into a pandora box.
-      $blazies->set('item.raw_attributes', $attrs);
-
-      // Normally consumed default IMG attributes, ignoring IFRAME, no problem.
-      // These dups are required to build image styles, ratio, etc.
-      foreach (['width', 'height', 'alt', 'title'] as $key) {
-        if ($value = $attrs[$key] ?? NULL) {
-          $blazies->set('image.' . $key, $value);
-        }
-      }
-
-      // Do not pass SRC into theme_image() so that lazy load works.
-      // Also the width and height so to make data-responsive|image-style works.
-      // BlazyFilter doen't offer UI for loading attribute, sub-modules do,
-      // yet respect the editor textarea as the only UI better than global UI.
-      // Might work agaisnt the offered UI, but no biggies for now.
-      // @todo recheck anything against the grand design.
-      $keys = ['data-src', 'src', 'width', 'height'];
-      foreach ($keys as $key) {
-        // Who knows unsetting NULL would be deprecated, like trim(), etc.
-        if (isset($attrs[$key])) {
-          unset($attrs[$key]);
-        }
-      }
-
-      // Ensures iframe attributes are not passed through since item_attributes
-      // is dedicated for image. No biggies, just irrelevant for now.
-      $type = 'image';
-      $safe_attrs = Sanitize::attribute($attrs);
-      if ($tag == 'img') {
-        // Pass anything else even dangerous attributes.
-        // @todo redisable if this caused SRC set, lazy load failed, even unset.
-        $build['#item_attributes'] = $attrs;
-        $blazies->set('item.safe_attributes', $safe_attrs);
-      }
-      elseif ($tag == 'iframe') {
-        $type = 'video';
-        Blazy::toPlayable($blazies)
-          ->set('media.bundle', 'remote_video');
-        $blazies->set('item.iframe_attributes', $safe_attrs);
-      }
-      $blazies->set('media.type', $type);
+    if (!$attrs) {
+      return;
     }
+
+    // Prevents blur IMG from screwing up the expected image SRC.
+    if ($src = $attrs['src'] ?? NULL) {
+      $use_data_uri = $this->settings['use_data_uri'] ?? FALSE;
+      $src = Util::getValidSrc($node, $use_data_uri);
+
+      // Iframe with data: alike scheme is a serious kidding, strip it early.
+      if ($tag == 'iframe') {
+        $src = $this->blazyOembed->checkInputUrl($settings, $src);
+      }
+      $attrs['src'] = $src;
+    }
+
+    // Put raw attributes into a pandora box.
+    $blazies->set('item.raw_attributes', $attrs);
+
+    // Normally consumed default IMG attributes, ignoring IFRAME, no problem.
+    // These dups are required to build image styles, ratio, etc.
+    foreach (['width', 'height', 'alt', 'title'] as $key) {
+      if ($value = $attrs[$key] ?? NULL) {
+        $blazies->set('image.' . $key, $value);
+      }
+    }
+
+    // Do not pass SRC into theme_image() so that lazy load works.
+    // Also the width and height so to make data-responsive|image-style works.
+    // BlazyFilter doen't offer UI for loading attribute, sub-modules do,
+    // yet respect the editor textarea as the only UI better than global UI.
+    // Might work agaisnt the offered UI, but no biggies for now.
+    // @todo recheck anything against the grand design.
+    $keys = ['data-src', 'src', 'width', 'height'];
+    foreach ($keys as $key) {
+      // Who knows unsetting NULL would be deprecated, like trim(), etc.
+      if (isset($attrs[$key])) {
+        unset($attrs[$key]);
+      }
+    }
+
+    // Ensures iframe attributes are not passed through since item_attributes
+    // is dedicated for image. No biggies, just irrelevant for now.
+    $type = 'image';
+    $safe_attrs = Blazy::sanitize($attrs);
+    if ($tag == 'img') {
+      // Pass anything else even dangerous attributes.
+      // @todo redisable if this caused SRC set, lazy load failed, even unset.
+      $build['#item_attributes'] = $attrs;
+      $blazies->set('item.safe_attributes', $safe_attrs);
+    }
+    elseif ($tag == 'iframe') {
+      $type = 'video';
+      Blazy::toPlayable($blazies)
+        ->set('media.bundle', 'remote_video');
+      $blazies->set('item.iframe_attributes', $safe_attrs);
+    }
+    $blazies->set('media.type', $type);
   }
 
   /**
@@ -486,7 +559,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    * @param int $delta
    *   The item index.
    */
-  protected function buildItemSettings(array &$build, $node, $delta = 0) {
+  protected function buildItemSettings(array &$build, $node, $delta = 0): void {
     $settings   = &$build['#settings'];
     $blazies    = $settings['blazies'];
     $ui_style   = $settings['image_style'] ?? NULL;
@@ -532,7 +605,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    * @param int $delta
    *   The item index.
    */
-  protected function buildItemContent(array &$build, $node, $delta = 0) {
+  protected function buildItemContent(array &$build, $node, $delta = 0): void {
     $this->manager->hashtag($build);
 
     // Provides IMG/IFRAME attributes.
@@ -551,7 +624,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * Provides media switch form.
    */
-  protected function mediaSwitchForm(array &$form) {
+  protected function mediaSwitchForm(array &$form): void {
     $lightboxes = $this->manager->getLightboxes();
 
     $form['media_switch'] = [

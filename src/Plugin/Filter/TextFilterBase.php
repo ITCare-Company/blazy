@@ -28,14 +28,14 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
    *
    * @var string
    */
-  protected static $itemId = 'content';
+  protected static $itemId = 'slide';
 
   /**
    * The item identifier for captions: .blazy__caption, .slide__caption, etc.
    *
    * @var string
    */
-  protected static $itemPrefix = 'blazy';
+  protected static $itemPrefix = 'slide';
 
   /**
    * {@inheritdoc}
@@ -47,7 +47,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
    *
    * @var string
    */
-  protected static $shortcode = 'item';
+  protected static $shortcode = 'slide';
 
   /**
    * The app root.

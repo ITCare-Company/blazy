@@ -75,9 +75,14 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
   /**
    * Builds the captions.
    */
-  protected function getCaptions(array $element, $entity, $langcode): array {
-    $captions  = parent::getCaptions($element, $entity, $langcode);
-    $settings  = $this->formatter->toHashtag($element);
+  protected function getCaptions(array $element): array {
+    $captions = parent::getCaptions($element);
+
+    [
+      '#settings' => $settings,
+      '#entity'   => $entity,
+    ] = $element;
+
     $view_mode = $settings['view_mode'] ?? 'full';
     $_link     = $settings['link'] ?? NULL;
     $_overlay  = $settings['overlay'] ?? NULL;
@@ -105,7 +110,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
       $captions['overlay'] = $denied ?: $overlay;
     }
 
-    return $captions;
+    return array_filter($captions);
   }
 
   /**

@@ -205,6 +205,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
           // Preserve old behaviors, but prevents similar classes.
           $key = $key == 'description' ? 'item' : $key;
           $css = $id == 'blazy' ? $_desc . '-' . $key : $_desc . '--' . $key;
+
+          // @todo remove, might all be just NULL here.
           $css = $nowrap || $key == 'data' ? NULL : $css;
 
           $descriptions[$key] = $this->caption($caption, 'div', $css);
@@ -261,8 +263,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Only possible if having hires image via `Main stage` aka cross image.
     $hires     = $blazies->is('hires', !empty($settings['image']));
     $litebox   = $blazies->is('lightbox');
-    $supported = $blazies->is('richbox');
-    $supported = $blazies->is('local_media') && $litebox && $supported;
+    $richbox   = $blazies->is('richbox');
+    $supported = $blazies->is('local_media') && $litebox && $richbox;
     $blazy     = $build['content'][0]['#settings'] ?? NULL;
 
     if ($supported && $hires && $blazy instanceof BlazySettings) {
@@ -395,7 +397,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // theme_gridstack_box(), theme_slick_slide(), etc. Likely for Blazy 3.x+.
     // Since 2.17, it is optional at Blazy UI under `Use theme_blazy()` option.
     foreach ($theme_attributes as $key) {
-      $key = $key . '_attributes';
+      $key   = $key . '_attributes';
       $attrs = $this->toHashtag($build, $key);
       // Sanitize potential user-defined attributes such as from BlazyFilter.
       $element["#$key"] = $attrs ? Blazy::sanitize($attrs) : [];
@@ -420,6 +422,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
 
     // Pass common elements to theme_blazy().
     $element['#attributes'] = Blazy::sanitize($attributes);
+    $element['#item'] = $build['#item'];
     $element['#settings'] = $settings;
   }
 

@@ -101,7 +101,7 @@ trait BlazyStylePluginTrait {
    * Checks if we can work with this formatter, otherwise no go if flattened.
    */
   protected function getImageArray($row, $index, $field_image): array {
-    if (!empty($field_image)
+    if ($field_image
       && $image = $this->getFieldRenderable($row, $index, $field_image)) {
 
       // Just to be sure, replace raw with the found image item.
@@ -146,7 +146,7 @@ trait BlazyStylePluginTrait {
    */
   protected function getCaption($index, array $settings): array {
     $view     = $this->view;
-    $items    = [];
+    $captions = [];
     $keys     = array_keys($view->field);
     $keys     = array_combine($keys, $keys);
     $_link    = $settings['link'] ?? NULL;
@@ -155,9 +155,9 @@ trait BlazyStylePluginTrait {
     $_caption = $settings['caption'] ?? [];
 
     // Caption items: link, title, overlay, and data, anything else selected.
-    $items['title']   = $this->getFieldRendered($index, $_title, TRUE);
-    $items['link']    = $this->getFieldRendered($index, $_link);
-    $items['overlay'] = $this->getFieldRendered($index, $_overlay);
+    $captions['title']   = $this->getFieldRendered($index, $_title, TRUE);
+    $captions['link']    = $this->getFieldRendered($index, $_link);
+    $captions['overlay'] = $this->getFieldRendered($index, $_overlay);
 
     // Exclude non-caption fields so that theme_views_view_fields() kicks in
     // and only render expected caption fields. As long as not-hidden, each
@@ -169,11 +169,11 @@ trait BlazyStylePluginTrait {
       }
 
       if ($output = $view->rowPlugin->render($view->result[$index])) {
-        $items['data'][$index] = $output;
+        $captions['data'][$index] = $output;
       }
     }
 
-    return $items;
+    return array_filter($captions);
   }
 
   /**

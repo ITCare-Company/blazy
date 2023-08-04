@@ -86,6 +86,13 @@ class Blazy {
   }
 
   /**
+   * Returns the safely processed image ALT and TITLE attributes.
+   */
+  public static function altTitle($blazies, array $attributes = []): array {
+    return BlazyAttribute::altTitle($blazies, $attributes);
+  }
+
+  /**
    * Filters out empty string value to avoid JSON.parse error.
    */
   public static function arrayFilter(array $config): array {
@@ -330,6 +337,15 @@ class Blazy {
   }
 
   /**
+   * Returns TRUE if SVG Sanitizer exists.
+   *
+   * In case we have alternatives, provide one door check.
+   */
+  public static function svgSanitizerExists(): bool {
+    return class_exists('\enshrined\svgSanitize\Sanitizer');
+  }
+
+  /**
    * Modifies settings to support iframes.
    */
   public static function toPlayable($blazies, $src = NULL, $sanitized = FALSE): BlazySettings {
@@ -405,8 +421,15 @@ class Blazy {
    * Verify `blazies` exists, in case accessed outside the workflow.
    */
   public static function verify(array &$settings, $key = 'blazies', array $defaults = []): void {
-    if (!isset($settings[$key]) || !isset($settings['image_style'])) {
+    if (!isset($settings[$key])) {
       $settings += $defaults ?: self::init();
+    }
+
+    // In case overriden above without extending self::init().
+    if ($key == 'blazies'
+      && (!isset($settings['WARNING'])
+      || !isset($settings['image_style']))) {
+      $settings += self::init();
     }
   }
 

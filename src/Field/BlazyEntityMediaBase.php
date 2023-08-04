@@ -84,6 +84,8 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo remove extra params at 3 for destructured properties from $build.
    */
   protected function prepareElement(array &$build, $entity, $langcode, $delta): void {
     parent::prepareElement($build, $entity, $langcode, $delta);
@@ -91,28 +93,21 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     $settings = $this->formatter->toHashtag($build);
 
     // Bail out if vanilla (rendered entity) is required.
-    if (!empty($settings['vanilla'])) {
-      return;
+    if (empty($settings['vanilla'])) {
+      $this->toElements($build);
     }
-
-    $options = [
-      'delta'    => $delta,
-      'entity'   => $entity,
-      'langcode' => $langcode,
-    ];
-
-    $this->toElement($build, $settings, $options);
   }
 
   /**
-   * Provides the item elements.
+   * Hard works here meant to reduce custom code at theme level.
    */
-  protected function toElement(array &$build, array &$settings, array $options) {
+  protected function toElements(array &$build): void {
     [
-      'delta'    => $delta,
-      'entity'   => $entity,
-      'langcode' => $langcode,
-    ] = $options;
+      '#delta'    => $delta,
+      '#settings' => $settings,
+      '#entity'   => $entity,
+      '#langcode' => $langcode,
+    ] = $build;
 
     $blazies   = $settings['blazies'];
     $view_mode = $settings['view_mode'] ?? 'full';
@@ -120,19 +115,20 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     $switch    = $settings['media_switch'] ?? NULL;
     $_image    = $settings['image'] ?? NULL;
 
-    // Otherwise hard work which is meant to reduce custom code at theme level.
+    // Do not pass $build directly, even if easier, too early render errors.
     $data = [
-      '#entity'   => $entity,
-      '#settings' => $settings,
       '#delta'    => $delta,
-      '#item'      => NULL,
+      '#settings' => $settings,
+      '#entity'   => $entity,
+      '#langcode' => $langcode,
+      '#item'     => NULL,
     ];
 
     // Build media item including custom highres video thumbnail.
     $this->blazyOembed->build($data);
 
     // Captions if so configured, including Blazy formatters.
-    $captions = $this->getCaptions($data, $entity, $langcode);
+    $captions = $this->getCaptions($data);
 
     // @todo remove BC at blazy:3.x.
     $this->getCaption($data, $entity, $langcode);
@@ -151,21 +147,17 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       }
     }
 
-    // @todo merge all these into theme_blazy() at 3.x after sub-modules.
-    // @todo use $blazies = $this->formatter->preBlazy($data, $item);
-    if ($blazies->use('theme_blazy')) {
-      $element = $this->themeBlazy($data, $captions, $delta);
-    }
-    else {
-      // @todo remove at 3.x.
-      $element = $this->themeItem($data, $captions, $delta);
-    }
+    // Provides the relevant elements based on the configuration.
+    $element = $this->toElement($blazies, $data, $captions);
 
-    $this->splitElement($build, $element, $settings, $options);
+    // Splide the elements based on the calling modules.
+    $this->splitElement($build, $element);
   }
 
   /**
    * Build extra elements.
+   *
+   * @todo remove extra params at 3 for destructured properties from $build.
    */
   protected function buildElementExtra(array &$element, $entity, $langcode) {
     // Do nothing, let extenders do their jobs.
@@ -185,9 +177,14 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   /**
    * Returns the captions, if any.
    */
-  protected function getCaptions(array $element, $entity, $langcode): array {
-    $settings  = $element['#settings'];
-    $item      = $element['#item'];
+  protected function getCaptions(array $element): array {
+    [
+      '#settings' => $settings,
+      '#entity'   => $entity,
+      '#langcode' => $langcode,
+      '#item'     => $item,
+    ] = $element;
+
     $view_mode = $settings['view_mode'] ?? 'full';
     $captions  = $items = $weights = [];
     $fields    = $settings['caption'] ?? [];
@@ -259,7 +256,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       $captions['data'] = $items;
     }
 
-    return $captions;
+    return array_filter($captions);
   }
 
   /**
@@ -313,12 +310,13 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   /**
    * Split the elements based on the modules.
    */
-  private function splitElement(array &$build, array &$element, array &$settings, array $options) {
+  private function splitElement(array &$build, array &$element): void {
     [
-      'delta'    => $delta,
-      'entity'   => $entity,
-      'langcode' => $langcode,
-    ] = $options;
+      '#settings' => $settings,
+      '#entity'   => $entity,
+      '#delta'    => $delta,
+      '#langcode' => $langcode,
+    ] = $build;
 
     $blazies = $settings['blazies'];
     $is_nav  = $blazies->is('nav') || !empty($settings['nav']);

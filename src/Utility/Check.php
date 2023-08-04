@@ -137,7 +137,7 @@ class Check {
     $medias       = $blazies->get('media.defaults', BlazyDefault::mediaDefaults());
     $is_resimage  = is_callable('responsive_image_get_mime_type');
     $is_resimage  = $blazies->is('resimage', $is_resimage);
-    $svg_exist    = class_exists('\enshrined\svgSanitize\Sanitizer');
+    $svg_exist    = Blazy::svgSanitizerExists();
 
     // When `defer` is chosen, overrides global `No JavaScript: lazy`, ensures
     // to not affect AMP, CKEditor, or other preview pages where nojs is a must.

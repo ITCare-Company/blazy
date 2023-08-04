@@ -7,6 +7,7 @@ use Drupal\Core\Render\Element;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Component\Utility\Unicode;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -629,6 +630,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         ];
       }
 
+      // @todo remove check after another check.
+      // Was meant for Blazy Views fields lacking of field info needed here.
       if (!$scopes->is('no_box_captions')) {
         $form['box_caption'] = [
           '#type'    => 'select',
@@ -678,7 +681,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $base  = str_replace('svg_', '', $key);
       $name  = str_replace('_', ' ', $base);
       $title = Unicode::ucfirst($name);
-      $exist = class_exists('\enshrined\svgSanitize\Sanitizer');
+      $exist = Blazy::svgSanitizerExists();
       $desc  = $this->svgDescriptions()[$base] ?? '';
 
       $form[$key] = [

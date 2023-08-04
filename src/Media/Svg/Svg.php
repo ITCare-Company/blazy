@@ -9,7 +9,7 @@ use Drupal\Core\Image\ImageInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\file\Entity\File;
 use Drupal\file\FileRepository;
-// @todo use Drupal\blazy\Blazy;
+use Drupal\blazy\Blazy;
 use enshrined\svgSanitize\Sanitizer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -113,14 +113,6 @@ class Svg implements SvgInterface {
   /**
    * {@inheritdoc}
    */
-  public function vectorize($url, array $options = []): string {
-    $converter = new Vectorizer($url, $options);
-    return $converter->generateSvg();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function isSvg(File $file): bool {
     return $file->getMimeType() === 'image/svg+xml';
   }
@@ -150,8 +142,7 @@ class Svg implements SvgInterface {
       if ($cleaned = $this->clean($tmp)) {
         $cleaned = $this->attributes($cleaned, $options);
 
-        if ($sanitize && class_exists('\enshrined\svgSanitize\Sanitizer')) {
-          $sanitizer = new Sanitizer();
+        if ($sanitize && $sanitizer = $this->sanitizer()) {
           if ($sanitize_remote) {
             $sanitizer->removeRemoteReferences(TRUE);
           }
@@ -163,6 +154,13 @@ class Svg implements SvgInterface {
       }
     }
     return $svg;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function sanitizer(): ?object {
+    return Blazy::svgSanitizerExists() ? new Sanitizer() : NULL;
   }
 
   /**
@@ -264,6 +262,14 @@ class Svg implements SvgInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function vectorize($url, array $options = []): string {
+    $converter = new Vectorizer($url, $options);
+    return $converter->vectorize();
+  }
+
+  /**
    * Returns the modified SVG attributes based on the options.
    *
    * @param string $svg
@@ -276,6 +282,7 @@ class Svg implements SvgInterface {
    */
   protected function attributes($svg, array $options): string {
     $fill   = $options['fill'] ?? FALSE;
+    $_title = $options['title'] ?? NULL;
     $width  = $height = NULL;
     $output = $svg;
 
@@ -286,12 +293,13 @@ class Svg implements SvgInterface {
       }
     }
 
-    if ($fill || ($width && $height)) {
+    if ($fill || $_title || ($width && $height)) {
       $dom = new \DOMDocument();
       libxml_use_internal_errors(TRUE);
       $dom->loadXML($svg);
 
       if (isset($dom->documentElement)) {
+        // Credits: svg_image_field module.
         if ($fill) {
           $dom->documentElement->setAttribute('fill', 'currentColor');
         }
@@ -299,6 +307,15 @@ class Svg implements SvgInterface {
         if ($width && $height) {
           $dom->documentElement->setAttribute('height', (int) $height);
           $dom->documentElement->setAttribute('width', (int) $width);
+        }
+
+        // Credits: svg_formatter module.
+        if ($_title) {
+          $title = $dom->createElement('title', $_title);
+          $title_id = Blazy::getHtmlId('b-svg-' . substr(md5($_title), 0, 11));
+          $title->setAttribute('id', $title_id);
+          $dom->documentElement->insertBefore($title, $dom->documentElement->firstChild);
+          $dom->documentElement->setAttribute('aria-labelledby', $title_id);
         }
 
         $output = $dom->saveXML($dom->documentElement);

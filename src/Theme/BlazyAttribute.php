@@ -34,11 +34,14 @@ class BlazyAttribute {
     $blazies   = $settings['blazies'];
     $classes   = (array) ($attributes['class'] ?? []);
     $data      = $blazies->get('data.blazy');
-    $namespace = $blazies->get('namespace') ?: $settings['namespace'] ?? 'blazy';
     $lightbox  = $blazies->get('lightbox.name') ?: $settings['media_switch'] ?? NULL;
+    $namespace = $blazies->get('namespace') ?: $settings['namespace'] ?? 'blazy';
+    $nested    = $blazies->is('grid_nested');
 
     // Provides data-LIGHTBOX-gallery to not conflict with original modules.
-    if ($lightbox) {
+    // Prevents nested grids from having similar lightbox attributes.
+    // Nested grids are seen at Slick|Splide nested grids carousels.
+    if ($lightbox && !$nested) {
       $switch = str_replace('_', '-', $lightbox);
       $attributes['data-' . $switch . '-gallery'] = TRUE;
 
@@ -48,42 +51,19 @@ class BlazyAttribute {
 
       $classes[] = 'blazy--' . $switch;
 
+      // Prevents nested attributes if a chunked grid like grid sliders.
       if ($extras = $blazies->data($lightbox)) {
         $attributes['data-' . $switch] = Json::encode($extras);
       }
     }
 
-    // For CSS fixes.
-    if ($blazies->is('unlazy')) {
-      $classes[] = 'blazy--nojs';
-    }
-
     // Provides contextual classes relevant to the container: .field, or .view.
     // Sniffs for Views to allow block__no_wrapper, views__no_wrapper, etc.
-    $add_class = !$blazies->ui('wrapper_class');
-    foreach (['field', 'view'] as $key) {
-      if ($name = $blazies->get($key . '.name')) {
-        $classes[] = $namespace . '--' . $key;
-
-        if ($add_class) {
-          $name = str_replace('_', '-', $name);
-          $name = $key == 'view' ? 'view--' . $name : $name;
-          $classes[] = $namespace . '--' . $name;
-
-          $view_mode = $blazies->get($key . '.view_mode');
-          if ($view_mode) {
-            $view_mode = str_replace('_', '-', $view_mode);
-            $classes[] = $namespace . '--' . $name . '--' . $view_mode;
-          }
-
-          // See BlazyAlter::blazySettingsAlter().
-          if ($id = $blazies->get('view.instance_id')) {
-            $classes[] = $namespace . '--view--' . $id;
-          }
-        }
-      }
+    if (!$nested && $extras = self::firstContainer($blazies, $namespace)) {
+      $classes = array_merge($classes, $extras);
     }
 
+    // Needed for nested grids as well.
     $attributes['class'] = array_merge(['blazy'], $classes);
     $attributes['data-blazy'] = $data && is_array($data) ? Json::encode($data) : '';
   }
@@ -301,6 +281,8 @@ class BlazyAttribute {
 
   /**
    * Return the image alt and title, also accounts for multimedia.
+   *
+   * @todo make it available earlier outside #pre_render/ theme for more access.
    */
   public static function altTitle($blazies, array $attributes = []): array {
     $title = $blazies->get('image.title') ?: $blazies->get('media.label');
@@ -354,10 +336,12 @@ class BlazyAttribute {
     }
 
     // Redefine for good reasons.
+    $output = ['alt' => $alt ?: '', 'title' => $title];
     $blazies->set('image.alt', $alt)
-      ->set('image.title', $title);
+      ->set('image.title', $title)
+      ->set('image.safe', TRUE);
 
-    return ['alt' => $alt ?: '', 'title' => $title];
+    return $output;
   }
 
   /**
@@ -549,6 +533,42 @@ class BlazyAttribute {
         '#attributes' => $attributes,
       ];
     }
+  }
+
+  /**
+   * Returns the classes applicable only to the first, not nested containers.
+   */
+  private static function firstContainer($blazies, $namespace): array {
+    $classes   = [];
+    $add_class = !$blazies->ui('wrapper_class');
+
+    // For CSS fixes.
+    if ($blazies->is('unlazy')) {
+      $classes[] = 'blazy--nojs';
+    }
+
+    foreach (['field', 'view'] as $key) {
+      if ($name = $blazies->get($key . '.name')) {
+        $classes[] = $namespace . '--' . $key;
+
+        if ($add_class) {
+          $name = str_replace('_', '-', $name);
+          $name = $key == 'view' ? 'view--' . $name : $name;
+          $classes[] = $namespace . '--' . $name;
+
+          if ($view_mode = $blazies->get($key . '.view_mode')) {
+            $view_mode = str_replace('_', '-', $view_mode);
+            $classes[] = $namespace . '--' . $name . '--' . $view_mode;
+          }
+
+          // See BlazyAlter::blazySettingsAlter().
+          if ($id = $blazies->get('view.instance_id')) {
+            $classes[] = $namespace . '--view--' . $id;
+          }
+        }
+      }
+    }
+    return $classes;
   }
 
   /**

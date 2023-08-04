@@ -319,16 +319,17 @@ For more robust solutions, consider: SVG Image Field, SVG Image, etc.
 * The latter will override all core formatters and widgets which makes it hard
   to uninstall without deleting many things when you have images anywhere.
   Blazy works fine with this module all along.
-* The SVG form options owe credits to SVG Image Field module. And to honor it,
+* The SVG form options owe credits to `SVG Image Field` module. And to honor it,
   **Blazy File** provides supports for its field type so to have Grid, and
   various Blazy features, including SVG carousels, etc. It is still WIP, but
   just fine.
+* The SVG title element owes credits to `SVG Formatter`.
 * If the SVG is smaller than the expected, try adding `width: 100%` to it.  
 * For inline SVG, be sure to install the SVG Sanitizer, if not already:  
   `composer require enshrined/svg-sanitize`  
   [Read more](https://github.com/darylldoyle/svg-sanitizer)  
   Blazy does not want to ship it in its `composer.json` for serious reasons,
-  and will just disable the option for Inline SVG if not installed.
+  and will disable the option for Inline SVG if not installed.
 
 ***
 ## <a name="features"> </a>FEATURES

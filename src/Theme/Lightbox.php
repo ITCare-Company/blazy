@@ -318,7 +318,7 @@ class Lightbox {
 
     // Provides captions if so configured.
     if (!empty($settings['box_caption'])) {
-      $element['#captions']['lightbox'] = self::buildCaptions($settings, $item);
+      $element['#captions']['lightbox'] = self::getCaptions($settings, $item, $manager);
     }
 
     // Do not show icon for local video file unless supported.
@@ -385,16 +385,19 @@ class Lightbox {
    *   The settings to work with.
    * @param object $item
    *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item or \stdClass.
+   * @param object $manager
+   *   The \Drupal\blazy\BlazyManager service.
    *
    * @return array
    *   The renderable array of caption, or empty array.
    */
-  private static function buildCaptions(array $settings, $item): array {
+  private static function getCaptions(array $settings, $item, $manager): array {
     $blazies = $settings['blazies'];
     $title   = $blazies->get('image.title');
     $alt     = $blazies->get('image.alt');
     $delta   = $blazies->get('delta', 0);
     $object  = $blazies->get('media.instance');
+    $node    = $blazies->get('entity.instance');
     $file    = NULL;
     $option  = $settings['box_caption'];
     $custom  = trim($settings['box_caption_custom'] ?? '');
@@ -409,7 +412,7 @@ class Lightbox {
       }
     }
 
-    $entity = $blazies->get('entity.instance') ?: $object;
+    $entity = $node ?: $object;
 
     switch ($option) {
       case 'auto':
@@ -439,13 +442,20 @@ class Lightbox {
       case 'custom':
         $caption = '';
 
+        // $object can be file or media for plain images, or media entities.
         if ($custom && $object) {
           $options = ['clear' => TRUE];
-          $files   = BlazyFile::isFile($file) ? ['file' => $file] : [];
-          $caption = \Drupal::token()->replace($custom, [
-            $object->getEntityTypeId() => $object,
-            // 'node' => $entity,
-          ] + $files, $options);
+          $repo    = $manager->entityRepository();
+          $params  = [$object->getEntityTypeId() => $repo->getTranslationFromContext($object)];
+
+          if (BlazyFile::isFile($file) && $file != $object) {
+            $params += ['file' => $repo->getTranslationFromContext($file)];
+          }
+          if ($node && $node != $object) {
+            $params += [$node->getEntityTypeId() => $repo->getTranslationFromContext($node)];
+          }
+
+          $caption = \Drupal::token()->replace($custom, $params, $options);
 
           // Checks for multi-value text fields, and maps its delta to image.
           if (Blazy::has($caption, ", <p>")) {
