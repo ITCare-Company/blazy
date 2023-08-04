@@ -191,7 +191,7 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * {@inheritdoc}
    */
-  protected function buildImageItem(array &$build, &$node, $delta = 0) {
+  protected function buildImageItem(array &$build, &$node, $delta = 0): void {
     parent::buildImageItem($build, $node, $delta);
 
     $settings = $build['#settings'];
@@ -248,17 +248,17 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * {@inheritdoc}
    */
-  protected function preSettings(array &$settings, $text) {
+  protected function init(array &$settings, $text): void {
     // @todo remove at 3.x or so.
     $this->deprecatedGridSettings($settings, $text);
 
-    parent::preSettings($settings, $text);
+    parent::init($settings, $text);
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function postSettings(array &$settings) {
+  protected function postSettings(array &$settings): void {
     $blazies = $settings['blazies'];
     if ($style = ($settings['hybrid_style'] ?? NULL)) {
       // @todo move it out of here due to requiring URI to determine style.
@@ -285,7 +285,7 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * Build the blazy, the node might be grid, or direct img/ iframe.
    */
-  private function build(\DOMElement $node, array &$settings, $delta = 0) {
+  private function build(\DOMElement $node, array &$settings, $delta = 0): array {
     $blazies = $settings['blazies'];
     if ($node->tagName == static::$namespace) {
       /* @phpstan-ignore-next-line */
@@ -300,20 +300,20 @@ class BlazyFilter extends BlazyFilterBase {
       if (!empty($dataset) && mb_strpos($dataset, ":") !== FALSE) {
         $dataset = strip_tags($dataset);
         $node->setAttribute('data', '');
-        return $this->byEntityShortcode($settings, $dataset);
+        return $this->withEntityShortcode($settings, $dataset);
       }
 
-      return $this->byDomShortcode($node, $settings);
+      return $this->withDomShortcode($node, $settings);
     }
 
     $build = ['#settings' => $settings, '#item' => NULL];
-    return $this->domToElement($build, $node, $delta);
+    return $this->withDomElement($build, $node, $delta);
   }
 
   /**
    * Build the blazy using the node ID and field_name.
    */
-  private function byEntityShortcode(array &$settings, $attribute) {
+  private function withEntityShortcode(array &$settings, $attribute): array {
     $list = $this->formatterSettings($settings, $attribute);
 
     if (!$list) {
@@ -360,7 +360,7 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * Build the blazy using the DOM lookups.
    */
-  private function byDomShortcode(\DOMElement $object, array &$settings) {
+  private function withDomShortcode(\DOMElement $object, array &$settings): array {
     $text = Util::getHtml($object);
     if (empty($text)) {
       return [];
@@ -392,7 +392,7 @@ class BlazyFilter extends BlazyFilterBase {
         '#settings' => $sets,
       ];
 
-      $content = $this->domToElement($element, $node, $delta)
+      $content = $this->withDomElement($element, $node, $delta)
         ?: ['#markup' => $dom->saveHtml($node)];
 
       $element['content'] = $content;
@@ -407,7 +407,7 @@ class BlazyFilter extends BlazyFilterBase {
   /**
    * Build the individual item.
    */
-  private function domToElement(array &$build, $node, $delta): array {
+  private function withDomElement(array &$build, $node, $delta): array {
     $media    = NULL;
     $settings = &$build['#settings'];
 

@@ -16,6 +16,21 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   /**
    * {@inheritdoc}
    */
+  protected static $namespace = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemId = 'content';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected static $itemPrefix = 'blazy';
+
+  /**
+   * {@inheritdoc}
+   */
   public static function trustedCallbacks() {
     return ['preRenderBlazy', 'preRenderBuild'];
   }

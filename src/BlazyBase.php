@@ -90,6 +90,28 @@ abstract class BlazyBase implements BlazyInterface {
   protected $cachedOptions;
 
   /**
+   * The main module namespace.
+   *
+   * @var string
+   * @see https://www.php.net/manual/en/reserved.keywords.php
+   */
+  protected static $namespace = 'blazy';
+
+  /**
+   * The item property to store image or media: content, slide, box, etc.
+   *
+   * @var string
+   */
+  protected static $itemId = 'content';
+
+  /**
+   * The item prefix for captions, e.g.: blazy__caption, slide__caption, etc.
+   *
+   * @var string
+   */
+  protected static $itemPrefix = 'blazy';
+
+  /**
    * Constructs a BlazyBase object.
    */
   public function __construct(

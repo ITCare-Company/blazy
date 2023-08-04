@@ -35,8 +35,8 @@ info.
 
 ***
 ## <a name="first"> </a>FIRST THINGS FIRST!
-Blazy and its sub-modules are tightly coupled. Be sure to have the latest
-release date or matching versions in the least. DEV for DEV, Beta for Beta/RC,
+Blazy and its sub-modules are tightly coupled. Be sure to have matching versions
+or the latest release date in the least. DEV for DEV, Beta for Beta/RC,
 etc. Mismatched versions (DEV vs. Full release) may lead to errors, except for
 minor versions like Beta vs. RC. Mismatched branches (1.x vs. 2.x) will surely
 be errors, unless declared clearly as supported. What is `coupled`? Blazy
@@ -59,7 +59,7 @@ see [#3257511](https://drupal.org/node/3257511).
 Any references to bLazy library is no longer relevant for forked version at 2.6.  
 
 * [Download bLazy](https://github.com/dinbror/blazy)  
-* Extract it as is, rename **blazy-master** to **blazy**, so the assets are:  
+* Extract it as is, rename **blazy-master** to **blazy**, so both assets are:  
 
   + **/libraries/blazy/blazy.js**
   + **/libraries/blazy/blazy.min.js**
@@ -148,9 +148,8 @@ Visit the following to configure and make use of Blazy:
 1. [/admin/config/media/blazy](/admin/config/media/blazy)
 
    Enable Blazy UI sub-module first, otherwise regular **Access denied**.
-   Contains few global options, including enabling support to bring core
-   Responsive image into blazy-related formatters.
-   Blazy UI can be uninstalled at production later without problems.
+   Contains few global options. Blazy UI can be uninstalled at production later
+   without problems.
 
 2. Visit any entity types:  
 
@@ -183,9 +182,9 @@ Not a sudden course of actions, it was carefully planned since
 #### Profits:
 + Tons of dups are reduced which is part of Blazy's job descriptions.
 + More cool kid features like hoverable effects, etc. will be easier to apply.
-+ When Blazy supports extra captions like File description, it will be available
-  immediately to all once, rather than updating each modules to support it
-  due their hard-coded natures.
++ When Blazy supports extra captions like File description for SVG, it will be
+  available immediately to all once, rather than updating each modules to
+  support it due their hard-coded natures.
 
 #### Non-profits:
 + Overrides should be taken seriously from now on, or as always. Perhaps CSS
@@ -234,6 +233,9 @@ etc., try the following:
   to display them directly on the same page as ajaxified lightboxes.
 * With [IO](https://drupal.org/project/io), this can be used to have simple
   and modern Views infinite pagers as grid displays.
+* With the new 2.17 `theme_blazy()` as a replacement for sub-modules
+  `theme_ITEM()` contents, it will easier to have hoverable product effects like
+  seen at many commercial themes.
 
 
 #### <a name="views-gotchas"> </a>VIEWS GOTCHAS
@@ -254,11 +256,11 @@ libraries are not present, nothing will show up under `Media switch` option.
 Clear cache if they do not appear as options due to being permanently cached.
 
 Most lightboxes, not all, supports (responsive) image, (local|remote) video.
-Known lightboxes which has supports for Responsive image:
-Colorbox, Magnific popup, Slick Lightbox, Splidebox, Blazy PhotoSwipe.
-Magnific Popup/ Splidebox also supports picture.
-Splidebox also supports AJAX contents.
-Others might not.
+Known lightboxes which has supports for Responsive image:  
+* Colorbox, Magnific popup, Slick Lightbox, Splidebox, Blazy PhotoSwipe.
+* Magnific Popup/ Splidebox also supports picture.
+* Splidebox also supports AJAX contents.
+* Others might not.
 
 ### Lightbox requirements
 * Colorbox, PhotoSwipe, etc. requires both modules and their libraries present.
@@ -345,7 +347,7 @@ For more robust solutions, consider: SVG Image Field, SVG Image, etc.
   multimedia lightboxes.
 * Multi-serving lazyloaded images, including multi-breakpoint CSS backgrounds.
 * Field formatters: Blazy with Media integration.
-* Blazy Grid formatter for Image, Media and Text with multi-value:
+* Blazy Grid formatter and Views style for multi-value Image, Media and Text:
   CSS3 Columns, Grid Foundation, Flexbox, Native Grid.
 * Supports inline galleries, and grid or CSS3 Masonry via Blazy Filter.
   Enable Blazy Filter at **/admin/config/content/formats**.

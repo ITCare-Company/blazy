@@ -13,14 +13,14 @@ class BlazyFilterUtil {
   /**
    * Returns a randomized id.
    */
-  public static function getId($id = 'blazy-filter') {
+  public static function getId($id = 'blazy-filter'): string {
     return Blazy::getHtmlId(str_replace('_', '-', $id) . '-' . Crypt::randomBytesBase64(8));
   }
 
   /**
    * Returns settings for attachments.
    */
-  public static function attach(array $settings = []) {
+  public static function attach(array $settings = []): array {
     $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE] + $settings;
     $all['media_switch'] = $switch = $settings['media_switch'];
 
@@ -34,7 +34,7 @@ class BlazyFilterUtil {
   /**
    * Returns string between delimiters, or empty if not found.
    */
-  public static function getStringBetween($string, $start = '[', $end = ']') {
+  public static function getStringBetween($string, $start = '[', $end = ']'): ?string {
     $string = ' ' . $string;
     $ini = mb_strpos($string, $start);
 
@@ -52,7 +52,7 @@ class BlazyFilterUtil {
    *
    * See https://www.php.net/manual/en/class.domelement.php#101243
    */
-  public static function getHtml(\DOMElement $node) {
+  public static function getHtml(\DOMElement $node): ?string {
     $text = '';
     foreach ($node->childNodes as $child) {
       if ($child instanceof \DOMElement) {
@@ -65,7 +65,7 @@ class BlazyFilterUtil {
   /**
    * Remove HTML tags from a string.
    */
-  public static function unwrap($string, $container = 'blazy', $item = 'item') {
+  public static function unwrap($string, $container = 'blazy', $item = 'item'): string {
     // Might not be available with self-closing [TAG data="BLAH" /].
     if (mb_strpos($string, "[$item") !== FALSE) {
       $string = self::unwrapItem($string, $item);
@@ -79,7 +79,7 @@ class BlazyFilterUtil {
    *
    * @todo recheck any reliable regex.
    */
-  public static function unwrapItem($string, $item) {
+  public static function unwrapItem($string, $item): string {
     $patterns = [
       // Not supported, but for completion [TAG data="BLAH"]A.B.C[/TAG].
       "~(<p\>)\[$item?(.*?)\](.*?)\[/$item\](<\/p>)~",
@@ -107,7 +107,7 @@ class BlazyFilterUtil {
   /**
    * Removes nodes.
    */
-  public static function removeNodes(&$nodes) {
+  public static function removeNodes(&$nodes): void {
     foreach ($nodes as $node) {
       if ($node->parentNode) {
         $node->parentNode->removeChild($node);
@@ -118,7 +118,7 @@ class BlazyFilterUtil {
   /**
    * Return valid nodes based on the allowed tags.
    */
-  public static function validNodes(\DOMDocument $dom, array $allowed_tags = [], $exclude = '') {
+  public static function validNodes(\DOMDocument $dom, array $allowed_tags = [], $exclude = ''): array {
     $valid_nodes = [];
     foreach ($allowed_tags as $allowed_tag) {
       $nodes = $dom->getElementsByTagName($allowed_tag);
@@ -156,7 +156,7 @@ class BlazyFilterUtil {
    *
    * Checks if we have a valid file entity, not hard-coded image URL.
    */
-  public static function getValidSrc($node, $use_data_uri = FALSE) {
+  public static function getValidSrc($node, $use_data_uri = FALSE): ?string {
     $url = '';
 
     // Prevents data URI from screwing up, unless consciously required.
@@ -205,7 +205,7 @@ class BlazyFilterUtil {
   /**
    * Returns attributes extracted from a DOMElement if any.
    */
-  public static function getAttribute(\DOMElement $node, array $excludes = []) {
+  public static function getAttribute(\DOMElement $node, array $excludes = []): array {
     $attributes = [];
     /* @phpstan-ignore-next-line */
     if ($node && $node->attributes->length) {
@@ -230,7 +230,7 @@ class BlazyFilterUtil {
   /**
    * Extract grids from the node attribute.
    */
-  public static function toGrid(\DOMElement $node, array &$settings) {
+  public static function toGrid(\DOMElement $node, array &$settings): void {
     if ($check = $node->getAttribute('grid')) {
       $blazies = $settings['blazies'];
       [$settings['style'], $grid, $settings['visible_items']] = array_pad(array_map('trim', explode(":", $check, 3)), 3, NULL);

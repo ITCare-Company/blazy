@@ -27,7 +27,9 @@ Always check out release notes, if any issues with the latest changes.
        `b-nativegrid`, `block-grid` to `b-grid`, etc.
      * `block-count-N` to `b-count-N`
      * `LONGSIZE-block-GRIDSTYLE-N` to `b-GRIDSTYLE--SHORTSIZE-N`, e.g.:
-       `small-block-nativegrid-2` to `b-nativegrid--sm-2`, etc.
+       `small-block-nativegrid-2` to `b-nativegrid--sm-2`, etc.  
+
+      Your CSS overrides, if any, will continue working till 3.x, no rushes.
 
 * _Blazy 2.16_, 2023/06/02:
    + Hotdamn fix for D10 breaking changes with formatter lightboxes.

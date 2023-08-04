@@ -84,7 +84,13 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       ->set('item.shortcode', static::$shortcode)
       ->set('namespace', $namespace);
 
-    $this->preSettings($settings, $text);
+    $this->init($settings, $text);
+
+    // Allows sub-modules to add return type hints.
+    if (method_exists($this, 'preSettings')) {
+      $this->preSettings($settings, $text);
+    }
+
     $this->manager->preSettings($settings);
 
     $unwrap = $blazies->no('item_container') || !empty($settings['no_item_container']);
@@ -103,7 +109,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * Build the field item list using the node ID and field_name.
    */
-  protected function formatterSettings(array &$settings, $attribute) {
+  protected function formatterSettings(array &$settings, $attribute): ?object {
     [$entity_type, $id, $field_name, $field_image] = array_pad(array_map('trim', explode(":", $attribute, 4)), 4, NULL);
 
     $list = NULL;
@@ -159,7 +165,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    * @param int $delta
    *   The item index.
    */
-  protected function buildImageItem(array &$build, &$node, $delta = 0) {
+  protected function buildImageItem(array &$build, &$node, $delta = 0): void {
     $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
     $attrs    = $blazies->get('item.raw_attributes', []);

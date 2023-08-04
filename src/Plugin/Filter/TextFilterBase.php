@@ -157,7 +157,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   /**
    * Extracts setting from attributes.
    */
-  protected function extractSettings(\DOMElement $node, array &$settings) {
+  protected function extractSettings(\DOMElement $node, array &$settings): void {
     $blazies = $settings['blazies'];
 
     // Ensures these settings are re-checked.
@@ -199,7 +199,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   /**
    * Return sanitized caption, stolen from Filter caption.
    */
-  protected function filterHtml($text) {
+  protected function filterHtml($text): string {
     // Read the data-caption attribute's value, then delete it.
     $caption = Html::escape($text);
 
@@ -227,9 +227,9 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Prepares the settings.
+   * Initialize the settings.
    */
-  protected function preSettings(array &$settings, $text) {
+  protected function init(array &$settings, $text): void {
     if (!isset($this->htmlFilter)) {
       $this->htmlFilter = $this->filterManager->createInstance('filter_html', [
         'settings' => [
@@ -242,16 +242,25 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
+   * Prepares the settings.
+   *
+   * @todo disable after sub-modules remove ::parent, add a return type hint.
+   */
+  protected function preSettings(array &$settings, $text) {
+    // Do nothing.
+  }
+
+  /**
    * Modifies the settings.
    */
-  protected function postSettings(array &$settings) {
+  protected function postSettings(array &$settings): void {
     // Do nothing.
   }
 
   /**
    * Render the output.
    */
-  protected function render(\DOMElement $node, array $output) {
+  protected function render(\DOMElement $node, array $output): void {
     $dom = $node->ownerDocument;
     $altered_html = $this->manager->renderer()->render($output);
 
