@@ -375,8 +375,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
         ->set('item.wrapper_attributes.class', ['blazy__content']);
     }
 
-    // Blazy has these 3 attributes, yet provides optional ones far below.
-    // No defaults are provided for all these attributes.
+    // Blazy has 3 attributes: attributes, item_attributes, url_attributes, yet
+    // provides optional ones. No defaults are provided for all these.
     $theme_attributes = BlazyDefault::themeAttributes();
     foreach ($theme_attributes as $key) {
       $key            = $key . '_attributes';

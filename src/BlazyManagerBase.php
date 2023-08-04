@@ -26,8 +26,11 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $this->attachments($load, $attach, $blazies);
 
     $this->moduleHandler->alter('blazy_attach', $load, $attach, $blazies);
-    $load['library'] = isset($load['library'])
-      ? array_unique($load['library']) : [];
+
+    // No blazy libraries are loaded when `No JavaScript`, etc. enabled.
+    if (isset($load['library'])) {
+      $load['library'] = array_unique($load['library']);
+    }
     return $load;
   }
 
@@ -171,10 +174,10 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $ui['fx'] = $settings['fx'] ?? $ui['fx'] ?? '';
     $ui['blur_minwidth'] = (int) ($ui['blur_minwidth'] ?? 0);
     $fx = $settings['_fx'] ?? $ui['fx'];
-    $fx = $blazies->get('fx') ?: $fx;
+    $fx = $blazies->get('fx', $fx);
     $language = $this->languageManager->getCurrentLanguage()->getId();
     $lightboxes = $this->getLightboxes();
-    $lightboxes = $blazies->get('lightbox.plugins') ?: $lightboxes;
+    $lightboxes = $blazies->get('lightbox.plugins', $lightboxes);
     $is_blur = $fx == 'blur';
     $is_resimage = $this->moduleExists('responsive_image');
     $namespace = $blazies->get('namespace');

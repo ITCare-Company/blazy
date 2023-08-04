@@ -37,7 +37,7 @@ class Check {
     }
 
     $unblazy = $blazies->is('unblazy', FALSE);
-    $unload  = $blazies->ui('nojs.lazy', FALSE);
+    $unload  = $blazies->ui('nojs.lazy', FALSE) || $blazies->is('unlazy');
 
     if ($blazies->is('lightbox')) {
       Lightbox::attach($load, $attach);
@@ -72,9 +72,6 @@ class Check {
       }
     }
 
-    $load['drupalSettings']['blazy'] = $config;
-    $load['drupalSettings']['blazyIo'] = $manager->getIoSettings($attach);
-
     if ($libs = array_filter($blazies->get('libs', []))) {
       foreach (array_keys($libs) as $lib) {
         $key = str_replace('__', '.', $lib);
@@ -101,6 +98,13 @@ class Check {
       Preloader::preload($load, $attach);
     }
 
+    // No blazy libraries are loaded when `No JavaScript`, etc. enabled.
+    // And the drupalSettings should not be, either. So quiet here.
+    if (isset($load['library'])) {
+      $load['drupalSettings']['blazy'] = $config;
+      $load['drupalSettings']['blazyIo'] = $manager->getIoSettings($attach);
+      $load['library'] = array_unique($load['library']);
+    }
     return $blazies;
   }
 
