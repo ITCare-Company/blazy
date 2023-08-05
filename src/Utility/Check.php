@@ -208,6 +208,7 @@ class Check {
     }
 
     // 1. Blazy formatter within Views styles by supported modules.
+    // $item_id might be slide, box, etc.
     $blazy   = Blazy::toHashtag($data);
     $item_id = $blazies->get('item.id');
     $content = $data[$item_id] ?? $data;
@@ -215,6 +216,7 @@ class Check {
     // 2. Blazy Views fields by supported modules.
     // Prevents edge case with unexpected flattened Views results which is
     // normally triggered by checking "Use field template" option.
+    // Flattenings were seen at D7, but no longer seen at D9, however...
     if (is_array($content) && ($view = ($content['#view'] ?? NULL))) {
       if ($blazy_field = BlazyViews::viewsField($view)) {
         $blazy = $blazy_field->mergedViewsSettings();
@@ -222,12 +224,18 @@ class Check {
       }
     }
 
-    // Makes this container aware of Blazy formatter it might contain.
+    // 3. Makes this container aware of Blazy formatter it might contain.
     if ($blazy) {
       BlazyInternal::preserve($settings, $blazy);
+
+      // Rechecks container, etc. since we have $blazy.
+      if ($manager = Blazy::service('blazy.manager')) {
+        $blazies->set('was.initialized', FALSE);
+        $manager->preSettings($settings);
+      }
     }
 
-    // No longer needed once extracted above, remove.
+    // 4. No longer needed once extracted above, remove.
     $blazies->unset('first.data')
       ->set('was.blazy', TRUE);
   }
@@ -373,7 +381,7 @@ class Check {
       return;
     }
 
-    $lightboxes = $blazies->get('lightbox.plugins', []);
+    $lightboxes = $blazies->get('lightbox.plugins', blazy()->getLightboxes());
     $lightbox   = in_array($switch, $lightboxes) ? $switch : FALSE;
     $optionset  = empty($settings[$switch]) ? $switch : $settings[$switch];
 

@@ -43,14 +43,10 @@
   function onceCompat(cb, id, selector, ctx) {
     var els = [];
 
-    // If cb is a string:
-    if ($.isStr(cb)) {
-      if ($.isUnd(ctx) && selector) {
-        // Assumes once(id, selector, context), by shifting one argument.
-        return initOnce(cb, id, selector);
-      }
-      // @todo remove, assumes once.find(id, context).
-      return findOnce(cb, id);
+    // If cb is a string, allow empty selector/ context for document.
+    // Assumes once(id, selector, context), by shifting one argument.
+    if ($.isStr(cb) && $.isUnd(ctx)) {
+      return initOnce(cb, id, selector);
     }
 
     // Original once.

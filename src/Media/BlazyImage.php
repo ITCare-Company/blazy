@@ -634,7 +634,9 @@ class BlazyImage {
 
     // Only transform internal urls, not external nor SVG as they don't convert.
     // However GIF, etc. can still be converted. We'll refine SVG down below.
-    if (!$blazies->is('svg') || !$blazies->is('external')) {
+    if (!$blazies->is('svg')
+      && !$blazies->is('external')
+      && !$blazies->is('data_uri')) {
       self::transformedInternal($settings, $blazies, $uri);
     }
 

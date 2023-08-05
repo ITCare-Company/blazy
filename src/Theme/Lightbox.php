@@ -70,7 +70,7 @@ class Lightbox {
     $multimedia = $blazies->is('multimedia');
     $svg        = $blazies->is('unstyled');
     $styleable  = $valid && !$svg;
-    $_escaped   = $blazies->get('media.escaped');
+    $_trusted   = $blazies->get('media.escaped') || $blazies->get('image.trusted');
     $_fullsize  = $_box_style && $styleable;
     $format1    = 'blazy__%s litebox';
     $format2    = 'blazy__%s litebox litebox--multimedia';
@@ -101,7 +101,7 @@ class Lightbox {
       elseif ($embed = $blazies->get('media.embed_url')) {
         // Force autoplay for media URL on lightboxes, saving another click.
         // BC for non-oembed such as Video Embed Field without Media migration.
-        $url = Blazy::autoplay($embed, !$_escaped);
+        $url = Blazy::autoplay($embed, !$_trusted);
         $attrs['data-oembed-url'] = $url;
         $json['boxType'] = 'iframe';
         $json['playable'] = $blazies->is('playable');
@@ -188,7 +188,7 @@ class Lightbox {
       'item' => $item,
       'box_width' => $box_width,
       'box_height' => $box_height,
-      '_escaped' => $_escaped,
+      '_trusted' => $_trusted,
       '_resimage' => $_resimage,
     ];
 
@@ -233,7 +233,7 @@ class Lightbox {
       'item' => $item,
       'box_width' => $box_width,
       'box_height' => $box_height,
-      '_escaped' => $_escaped,
+      '_trusted' => $_trusted,
       '_resimage' => $_resimage,
     ] = $options;
 
@@ -329,14 +329,8 @@ class Lightbox {
       $element['#icon']['lightbox']['#markup'] = $icon;
     }
 
-    // @todo re-check to completely remove data URI.
-    if ($url && $blazies->is('unsafe')) {
-      $_escaped = $blazies->filter('use_data_uri');
-      $url = Sanitize::url($url, $_escaped);
-    }
-
     // Only strip if not already.
-    $element['#url'] = $_escaped ? $url : UrlHelper::stripDangerousProtocols($url);
+    $element['#url'] = $_trusted ? $url : UrlHelper::stripDangerousProtocols($url);
     // @todo replace with data-b-media at 3.x to avoid potential conflicts.
     $attrs['data-media'] = Json::encode($json);
 

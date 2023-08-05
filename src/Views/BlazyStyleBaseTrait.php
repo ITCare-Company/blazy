@@ -163,6 +163,8 @@ trait BlazyStyleBaseTrait {
     $blazies = $settings['blazies'];
     if ($data = $this->getFirstImage($rows[0] ?? NULL)) {
       $blazies->set('first.data', $data);
+
+      // @todo recheck $this->manager->preSettings($settings);
       if ($subsets = $this->manager->toHashtag($data)) {
         if ($blazy = $subsets['blazies']) {
           $field = $blazy->get('field', []);

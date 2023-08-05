@@ -659,8 +659,14 @@
    *   The resulting array.
    */
   function toArray(x) {
-    if (isStr(x) && /\s/.test(x)) {
-      return x.trim().split(' ');
+    if (isStr(x)) {
+      x = x.trim();
+      if (x.indexOf(',') !== -1) {
+        return x.split(',');
+      }
+      if (/\s/.test(x)) {
+        return x.split(' ');
+      }
     }
     return isArr(x) ? x : [x];
   }
@@ -928,12 +934,14 @@
     }
 
     if (isArr(str)) {
+      // @todo use when IE11 gone: str.includes(substr);
       return str.indexOf(substr) !== -1;
     }
 
     if (isStr(str) && isStr(substr)) {
       str = str.toLowerCase();
       substr = substr.toLowerCase();
+      // @todo use when IE11 gone: str.includes(substr);
       each(toArray(substr), function (value) {
         if (str.indexOf(value) !== -1) {
           found++;

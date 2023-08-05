@@ -227,7 +227,7 @@ class BlazyFile {
    *
    * Should be named entity, but for consistency with BlazyImage:item().
    */
-  public static function item($object = NULL, array $settings = []): ?object {
+  public static function item($object = NULL, array $settings = [], $uri = NULL): ?object {
     $file = $object;
     Blazy::verify($settings);
 
@@ -264,7 +264,7 @@ class BlazyFile {
       // BlazyFilter without any entity/ formatters associated with.
       // Or legacy VEF with hard-coded image URL without file API.
       if (!self::isFile($file)) {
-        $file = self::fromSettings($settings);
+        $file = self::fromSettings($settings, $uri);
       }
     }
 
@@ -311,17 +311,15 @@ class BlazyFile {
   /**
    * Returns the File entity from settings, if applicable, relevant for Filter.
    */
-  private static function fromSettings(array $settings): ?object {
-    $file    = NULL;
+  private static function fromSettings(array $settings, $uri = NULL): ?object {
     $blazies = $settings['blazies'] ?? NULL;
-    $uri     = self::uri(NULL, $settings);
+    $uri     = $uri ?: self::uri(NULL, $settings);
     $uuid    = $blazies ? $blazies->get('entity.uuid') : NULL;
     $file    = $uuid ? Blazy::loadByUuid($uuid, 'file') : NULL;
 
     if (!$file && $uri) {
       $file = self::fromUri($uri);
     }
-
     return $file;
   }
 

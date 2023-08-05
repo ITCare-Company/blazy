@@ -11,6 +11,7 @@ use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\BlazyResponsiveImage;
 use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Media\Ratio;
+use Drupal\blazy\Utility\Check;
 
 /**
  * Provides non-reusable blazy attribute static methods.
@@ -31,39 +32,39 @@ class BlazyAttribute {
   public static function container(array &$attributes, array $settings): void {
     Blazy::verify($settings);
 
-    $blazies   = $settings['blazies'];
-    $classes   = (array) ($attributes['class'] ?? []);
-    $data      = $blazies->get('data.blazy');
-    $lightbox  = $blazies->get('lightbox.name') ?: $settings['media_switch'] ?? NULL;
-    $namespace = $blazies->get('namespace') ?: $settings['namespace'] ?? 'blazy';
+    $blazies  = $settings['blazies'];
+    $classes  = (array) ($attributes['class'] ?? []);
+    $data     = $blazies->get('data.blazy');
+    $switcher = $blazies->get('lightbox.name') ?: $settings['media_switch'] ?? NULL;
+
+    // Might be by-passed due to minimal settings, or outside the workflow.
+    // See \Drupal\blazy\Theme\BlazyViews::preprocessViewsView().
+    if ($switcher && !$blazies->was('lightbox')) {
+      Check::lightboxes($settings);
+    }
+
+    $lightbox  = $blazies->get('lightbox.name', $switcher);
+    $namespace = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');
     $nested    = $blazies->is('grid_nested');
 
     // Provides data-LIGHTBOX-gallery to not conflict with original modules.
     // Prevents nested grids from having similar lightbox attributes.
-    // Nested grids are seen at Slick|Splide nested grids carousels.
-    if ($lightbox && !$nested) {
-      $switch = str_replace('_', '-', $lightbox);
-      $attributes['data-' . $switch . '-gallery'] = TRUE;
+    // Nested grids are seen at Slick|Splide nested/ chunked grids carousels.
+    if (!$nested) {
+      $options = [
+        'namespace' => $namespace,
+        'lightbox'  => $lightbox,
+        'switcher'  => $switcher,
+      ];
 
-      if ($blazies->is('lightbox')) {
-        $classes[] = 'blazy--lightbox';
-      }
-
-      $classes[] = 'blazy--' . $switch;
-
-      // Prevents nested attributes if a chunked grid like grid sliders.
-      if ($extras = $blazies->data($lightbox)) {
-        $attributes['data-' . $switch] = Json::encode($extras);
+      // Provides contextual classes relevant to containers: .field, or .view.
+      // Sniffs for Views to allow block__no_wrapper, views__no_wrapper, etc.
+      if ($extras = self::firstClasses($attributes, $blazies, $options)) {
+        $classes = array_merge($classes, $extras);
       }
     }
 
-    // Provides contextual classes relevant to the container: .field, or .view.
-    // Sniffs for Views to allow block__no_wrapper, views__no_wrapper, etc.
-    if (!$nested && $extras = self::firstContainer($blazies, $namespace)) {
-      $classes = array_merge($classes, $extras);
-    }
-
-    // Needed for nested grids as well.
+    // Needed for nested grids as well: blazy blazy--grid b-nativegrid, etc.
     $attributes['class'] = array_merge(['blazy'], $classes);
     $attributes['data-blazy'] = $data && is_array($data) ? Json::encode($data) : '';
   }
@@ -261,8 +262,9 @@ class BlazyAttribute {
   public static function lazy(array &$attributes, $blazies, $bg = FALSE): void {
     // Slick has its own class and methods: ondemand, anticipative, progressive.
     // The data-[SRC|SCRSET|LAZY] is if `nojs` disabled, background, or video.
+    $trusted = $blazies->get('image.trusted');
     if ($url = $blazies->get('image.url')) {
-      $url = UrlHelper::stripDangerousProtocols($url);
+      $url = $trusted ? $url : UrlHelper::stripDangerousProtocols($url);
       $unlazy = self::isUnlazy($blazies);
 
       // Native, or unlazy, has .blazy--nojs at container to fix issues, if any.
@@ -339,7 +341,7 @@ class BlazyAttribute {
     $output = ['alt' => $alt ?: '', 'title' => $title];
     $blazies->set('image.alt', $alt)
       ->set('image.title', $title)
-      ->set('image.safe', TRUE);
+      ->set('image.safe_alt_title', TRUE);
 
     return $output;
   }
@@ -369,12 +371,6 @@ class BlazyAttribute {
     if ($blazies->is('multimedia') && $title = self::altTitle($blazies)['title']) {
       $attributes['title'] = $title;
     }
-
-    // @todo remove for self::lazy().
-    // if (($blazies->is('static') || self::isUnlazy($blazies)) && $url) {
-    // $url = UrlHelper::stripDangerousProtocols($url);
-    // self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
-    // }
   }
 
   /**
@@ -538,13 +534,38 @@ class BlazyAttribute {
   /**
    * Returns the classes applicable only to the first, not nested containers.
    */
-  private static function firstContainer($blazies, $namespace): array {
+  private static function firstClasses(array &$attributes, $blazies, array $options): array {
+    [
+      'namespace' => $namespace,
+      'lightbox'  => $lightbox,
+      'switcher'  => $switcher,
+    ] = $options;
+
     $classes   = [];
     $add_class = !$blazies->ui('wrapper_class');
 
     // For CSS fixes.
     if ($blazies->is('unlazy')) {
       $classes[] = 'blazy--nojs';
+    }
+
+    // Specific for media switcher, lightbox or not.
+    if ($switcher) {
+      $switch = str_replace('_', '-', $switcher);
+      $attributes['data-' . $switch . '-gallery'] = TRUE;
+
+      $classes[] = 'blazy--' . $switch;
+
+      if ($blazies->is('lightbox')) {
+        $classes[] = 'blazy--lightbox';
+        $classes[] = 'blazy--' . $switch . '-gallery';
+
+        // Allows lightboxes to inject their optionset, if any.
+        // More accessible and contextual than in the <HEAD> or <SCRIPT> tags.
+        if ($extras = $blazies->data($lightbox)) {
+          $attributes['data-' . $switch] = Json::encode($extras);
+        }
+      }
     }
 
     foreach (['field', 'view'] as $key) {

@@ -19,10 +19,11 @@ class BlazyViews {
    */
   public static function viewsPreRender($view): void {
     $loads = [];
+    $ajax  = $view->ajaxEnabled();
 
     // At least, less aggressive than sitewide hook_library_info_alter().
     // @todo remove when VIS alike added `Drupal.detachBehaviors()` to their JS.
-    if ($view->ajaxEnabled()) {
+    if ($ajax) {
       $loads['library'][] = 'blazy/bio.ajax';
     }
 
@@ -30,9 +31,13 @@ class BlazyViews {
     if ($blazy = self::viewsField($view)) {
       $plugin_id = $view->getStyle()->getPluginId();
       $settings  = $blazy->mergedViewsSettings();
-      $load      = $blazy->blazyManager()->attach($settings);
-      $loads     = Blazy::merge($load, $loads);
-      $grid      = $plugin_id == 'blazy';
+      $blazies   = $settings['blazies'];
+
+      $blazies->set('unlazy', FALSE);
+
+      $load  = $blazy->blazyManager()->attach($settings);
+      $loads = Blazy::merge($load, $loads);
+      $grid  = $plugin_id == 'blazy';
 
       if ($options = $view->getStyle()->options) {
         $grid = empty($options['grid']) ? $grid : TRUE;
@@ -71,9 +76,9 @@ class BlazyViews {
 
     // Given blazy--photoswipe-gallery, adds the [data-photoswipe-gallery], etc.
     if ($lightbox && in_array($lightbox, $lightboxes)) {
-      $settings['namespace'] = 'blazy';
-      $settings['media_switch'] = $matches[1];
-      $variables['attributes'] = $variables['attributes'] ?? [];
+      $settings['namespace']    = 'blazy';
+      $settings['media_switch'] = $lightbox;
+      $variables['attributes']  = $variables['attributes'] ?? [];
 
       BlazyAttribute::container($variables['attributes'], $settings);
     }

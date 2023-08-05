@@ -305,11 +305,12 @@ class CheckItem {
    * @requires CheckItem::essentials()
    */
   public static function unstyled(array &$settings, $uri): bool {
-    $blazies = $settings['blazies'];
-    $ext = pathinfo($uri, PATHINFO_EXTENSION) ?: 'x';
-    $ext = strtolower($ext);
-    $external = UrlHelper::isExternal($uri);
+    $blazies    = $settings['blazies'];
+    $ext        = pathinfo($uri, PATHINFO_EXTENSION) ?: 'x';
+    $ext        = strtolower($ext);
+    $external   = UrlHelper::isExternal($uri);
     $extensions = ['svg'];
+    $data_uri   = $blazies->is('data_uri', Blazy::isDataUri($uri));
 
     // If we have added extensions.
     if ($unstyles = $blazies->ui('unstyled_extensions')) {
@@ -321,13 +322,14 @@ class CheckItem {
     $unstyled = $ext && in_array($ext, $extensions);
     if (!$unstyled) {
       // @todo recheck if anything against this at all.
-      $unstyled = $external || Blazy::isDataUri($uri);
+      $unstyled = $external || $data_uri;
     }
 
     // Re-define, if the provided API by-passed, or different/ altered per item.
     $blazies->set('is.external', $external)
       ->set('is.svg', $ext == 'svg')
       ->set('is.unstyled', $unstyled)
+      ->set('is.data_uri', $data_uri)
       ->set('image.extension', $ext)
       ->set('was.unstyled', TRUE);
 
