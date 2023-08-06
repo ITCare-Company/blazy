@@ -121,10 +121,16 @@ class CheckItem {
   public static function essentials(array &$attributes, array &$settings, $item = NULL): void {
     $blazies = $settings['blazies'];
 
+    // Define the multimedia, needed for media ALT and TITLE checks below.
+    // Also VEF will convert its video_embed_field into a fake image item here.
+    self::multimedia($settings);
+
     // Bail out early if already processed.
+    // @todo disable if any issues given various sources.
     if ($blazies->was('essentials')) {
       return;
     }
+
     // The first is for 2.6+ approach. The last to account for custom works
     // with old approach/ or direct call to theme_blazy() via settings.uri.
     // This issue do not happen at D7, since it consistently uses API.
@@ -133,15 +139,11 @@ class CheckItem {
     $delta   = $blazies->get('delta') ?: ($settings['delta'] ?? 0);
     $initial = $delta == $blazies->get('initial', -1);
 
-    // Define the multimedia, needed for media ALT and TITLE checks below.
-    // Also VEF will convert its video_embed_field into a fake image item here.
-    self::multimedia($settings);
-
     // Accounts for VEF conversion from video_embed_field into faked image item.
     $item = $blazies->get('image.item', $item);
 
     // Must be here for tests to pass file cache checks:
-    // Sanitize available ALT and TITLE.
+    // Must be placed after self::multimedia() to get different ALT/ TITLE.
     BlazyAttribute::altTitle($blazies, $item, $attributes);
 
     // This means re-definition since URI can be fed from any sources uptream.
@@ -156,9 +158,6 @@ class CheckItem {
     if ($uri) {
       self::unstyled($settings, $uri);
     }
-
-    // Required by thumbnails here, but conflict with audio thumbnail.
-    // BlazyImage::prepare($settings, $item);.
   }
 
   /**
@@ -351,6 +350,10 @@ class CheckItem {
     $is_iframe = $is_remote && empty($switch);
     $is_player = $is_remote && $switch == 'media';
 
+    // Only video has poster, audio can only have a multi content.
+    if ($blazies->is('local_audio') && !empty($settings['image'])) {
+      $blazies->set('is.multicontent', TRUE);
+    }
     // BVEF compat without core OEmbed security feature.
     // @todo remove once BVEF adopted Blazy:2.17+ BlazyVideoFormatter.
     if ($is_remote && strpos($embed_url, 'media/oembed') === FALSE) {

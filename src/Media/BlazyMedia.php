@@ -45,7 +45,7 @@ class BlazyMedia {
    *
    * @todo make it non-static and rework at/ by 3.x.
    */
-  public static function build($media, array &$settings): array {
+  public static function build($media, array $settings): array {
     $data = [
       '#entity'   => $media,
       '#settings' => $settings,
@@ -68,9 +68,14 @@ class BlazyMedia {
   public static function view(array $build): array {
     $media    = $build['#entity'];
     $settings = $build['#settings'];
+    $item     = $build['#item'] ?? NULL;
 
     Blazy::verify($settings);
     $blazies = $settings['blazies'];
+
+    // Image styles, dimesions, etc. must be set here since they may enter
+    // theme_blazy() as non-workable content, printed as is once setup.
+    BlazyImage::prepare($settings, $item);
 
     // Prevents fatal error with disconnected internet when having ME Facebook,
     // ME SlideShare, resorted to static thumbnails to avoid broken displays.
@@ -315,16 +320,6 @@ class BlazyMedia {
     // This is not an image URI, but file video URI.
     // The poster or file image URI is set via settings.image option instead.
     $blazies->set('media.uri', $file->getFileUri());
-
-    // Only local video has poster, audio uses background via settings.image.
-    if ($blazies->is('local_audio') && !empty($settings['image'])) {
-      // @todo remove once preSettings sync both formatters and views fields.
-      // @fixed views field blazy_media is out of synced for libraries.
-      // $item['#attached']['library'][] = 'blazy/background';
-      $blazies->set('is.bg', TRUE)
-        ->set('is.multicontent', TRUE)
-        ->set('libs.background', TRUE);
-    }
 
     // Do this as $item['#settings'] is not available as file_video variables.
     // @todo re-check, most likely just a single file here.

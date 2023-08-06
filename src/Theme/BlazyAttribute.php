@@ -432,12 +432,6 @@ class BlazyAttribute {
     self::common($attributes, $blazies);
     $image['#attributes'] = Blazy::merge($attributes, $image, '#attributes');
 
-    // @fixme, this causes SRC set discretely, even if none provided.
-    // if ($extra_attrs) {
-    // foreach ($extra_attrs as $key => $value) {
-    // $image['#attributes'][$key] = $value;
-    // }
-    // }
     // Provides a noscript if so configured, before any lazy defined.
     // Not needed at preview mode, or when native lazyload takes over.
     if ($blazies->ui('noscript') && !$blazies->is('unlazy')) {

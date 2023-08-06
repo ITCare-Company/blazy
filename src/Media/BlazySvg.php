@@ -26,7 +26,9 @@ class BlazySvg {
     }
 
     // Sets default fluid to NULL.
-    $blazies->set('image.fluid', NULL);
+    $blazies->set('image.fluid', NULL)
+      // @todo move it out of here:
+      ->set('image.url', BlazyImage::url($uri));
     $applicable = $attrs != 'none' && $blazies->use('svg_dimensions');
 
     // Checks for optional SVG dimensions, if any.

@@ -217,12 +217,7 @@ class BlazyImage {
 
     if ($uri) {
       $blazies->set('image.uri', $uri);
-
-      // Prepare image URL and its dimensions, including for rich-media content,
-      // such as for local video poster image if a poster URI is provided.
-      // Url needs to be defined here for file_video.
-      // @todo move it back to #pre_render, once file_video poster is resolved.
-      self::prepare($settings, $output, $uri);
+      // @todo remove, already fixed, self::prepare($settings, $output, $uri);
     }
 
     return $output;
@@ -339,19 +334,13 @@ class BlazyImage {
    * @requires self::styles()
    */
   public static function prepare(array &$settings, $item = NULL, $uri = NULL): void {
-    // EZ, Zooming want a reset due to minimal settings, no biggies.
-    $blazies = $settings['blazies']->reset($settings);
+    // Problems: the audio/ video poster is not synced. The root cause, local
+    // media is not directly managed by theme_blazy() aka outside the workflow,
+    // it is an embedded field. The correct solution is to call this method
+    // before working with local media. They won't re-enter this method again.
+    $blazies = $settings['blazies'];
     $uri = $blazies->get('image.uri') ?: $uri;
 
-    // @fixme called once for the entire items, not just this context, unless
-    // blazies is reset, see dup zooming/ EZ samples. Only some edge cases,
-    // though. Different sources (VEF, filter, formatters, views, ) with
-    // different supplied data and orders make this bailout block some.
-    // @todo re-enable once the issue is solved.
-    // Temporary solution is contextual checks down below methods.
-    // if ($blazies->was('url') && $blazies->get('image.url')) {
-    // return;
-    // }
     // Provides original image dimensions.
     self::dimensions($settings, $item, FALSE);
 
@@ -476,6 +465,7 @@ class BlazyImage {
       'url' => $url,
       'use_data_uri' => $blazies->filter('use_data_uri'),
     ];
+
     return self::url($uri, $style, $options);
   }
 

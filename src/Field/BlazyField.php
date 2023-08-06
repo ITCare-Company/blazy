@@ -47,7 +47,7 @@ class BlazyField {
       }
     }
 
-    return [];
+    return $rendered ? [] : NULL;
   }
 
   /**

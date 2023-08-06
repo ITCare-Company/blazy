@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-08-06
+------------------------------
+- Fixed for out of synced local media.
+
 Blazy 8.x-2.0-dev, 2023-08-04
 ------------------------------
 - Fixed for BlazyFilter figure mixed with [data-caption], specific to grids.

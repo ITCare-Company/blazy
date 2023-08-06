@@ -9,8 +9,8 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault as Defaults;
 use Drupal\blazy\BlazyInternal;
 use Drupal\blazy\Field\BlazyElementTrait;
-use Drupal\blazy\Media\BlazyFile;
-use Drupal\blazy\Media\BlazyImage;
+use Drupal\blazy\Media\BlazyFile as File;
+use Drupal\blazy\Media\BlazyImage as Image;
 // @todo use Drupal\blazy\Media\BlazyMedia;
 use Drupal\blazy\Plugin\Filter\BlazyFilterUtil as Util;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -208,7 +208,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
       // Supports hard-coded image url without file API.
       if (!$blazies->get('image.uri')) {
-        if ($uri = BlazyFile::uri($item)) {
+        if ($uri = File::uri($item)) {
           $blazies->set('image.uri', $uri);
         }
       }
@@ -357,21 +357,21 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     }
     else {
       // 2. Uploaded files.
-      $uri = BlazyFile::buildUri($src);
+      $uri = File::buildUri($src);
 
       $blazies->set('entity.uuid', $uuid)
         ->set('image.uri', $uri);
-      $file = BlazyFile::item(NULL, $settings, $uri);
+      $file = File::item(NULL, $settings, $uri);
     }
 
     // 3. Uploaded image has UUID with file API.
-    if (BlazyFile::isFile($file)) {
+    if (File::isFile($file)) {
       $uuid = $uuid ?: $file->uuid();
 
       $blazies->set('entity.uuid', $uuid)
         ->set('image.trusted', TRUE);
 
-      if ($item = BlazyImage::fromAny($file, $settings)) {
+      if ($item = Image::fromAny($file, $settings)) {
         $build['#item'] = $item;
       }
     }
@@ -383,11 +383,11 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       if ($uri) {
         $data = ['uri' => $uri, 'entity' => $file];
         $blazies->set('image', $data, TRUE);
-        $build['#item'] = BlazyImage::fakeFromSettings($blazies);
+        $build['#item'] = Image::fakeFromSettings($blazies);
       }
 
       // 5. External URL, or unmanaged file URL, excluding data URI.
-      if (!$data_uri && !BlazyFile::isValidUri($uri)) {
+      if (!$data_uri && !File::isValidUri($uri)) {
         // At least provide root URI to figure out image dimensions.
         $uri = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
         $blazies->set('image.uri_root', $uri);
@@ -650,7 +650,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       $blazies  = $settings['blazies'];
 
       $blazies->set('is.multistyle', TRUE);
-      BlazyImage::styles($settings, TRUE);
+      Image::styles($settings, TRUE);
     }
   }
 

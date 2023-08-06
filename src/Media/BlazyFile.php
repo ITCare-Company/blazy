@@ -105,18 +105,16 @@ class BlazyFile {
     if (self::isExternal($uri)) {
       $url = $uri;
     }
-    else {
-      if (self::isValidUri($uri) && ($style || !$url)) {
-        $stylable = $style && !self::isSvg($uri);
-        $url = $stylable ? $style->buildUrl($uri) : self::createUrl($uri);
+    elseif (self::isValidUri($uri)) {
+      $stylable = $style && !self::isSvg($uri);
+      $url = $stylable ? $style->buildUrl($uri) : self::createUrl($uri);
 
-        if ($gen = Path::fileUrlGenerator()) {
-          $url = $gen->transformRelative($url);
-        }
-        else {
-          $function = 'file_url_transform_relative';
-          $url = is_callable($function) ? $function($url) : $url;
-        }
+      if ($gen = Path::fileUrlGenerator()) {
+        $url = $gen->transformRelative($url);
+      }
+      else {
+        $function = 'file_url_transform_relative';
+        $url = is_callable($function) ? $function($url) : $url;
       }
     }
 

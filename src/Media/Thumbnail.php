@@ -44,6 +44,9 @@ class Thumbnail {
       if ($captions) {
         $output[$caption] = Blazy::content($captions, 'div', $caption_class);
       }
+
+      // @todo remove or keep it after another check.
+      $output['#settings'] = $settings;
       return $output;
     }
     return self::image($settings, $item);
