@@ -64,6 +64,7 @@ trait BlazyElementTrait {
    */
   protected function viewSvg(array &$element): void {
     $settings = $this->formatter->toHashtag($element);
+    $item     = $this->formatter->toHashtag($element, 'item', NULL);
     $blazies  = $settings['blazies'];
     $inline   = $settings['svg_inline'] ?? FALSE;
     $bg       = $settings['background'] ?? FALSE;
@@ -74,7 +75,7 @@ trait BlazyElementTrait {
       $options = BlazyDefault::toSvgOptions($settings);
 
       // @todo call $blazies->get('image.title'); after being moved.
-      if ($title = Blazy::altTitle($blazies)['title']) {
+      if ($title = Blazy::altTitle($blazies, $item)['title']) {
         $options['title'] = $title;
       }
 

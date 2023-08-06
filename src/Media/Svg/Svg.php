@@ -160,7 +160,7 @@ class Svg implements SvgInterface {
    * {@inheritdoc}
    */
   public function sanitizer(): ?object {
-    return Blazy::svgSanitizerExists() ? new Sanitizer() : NULL;
+    return class_exists('\enshrined\svgSanitize\Sanitizer') ? new Sanitizer() : NULL;
   }
 
   /**

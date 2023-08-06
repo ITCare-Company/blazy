@@ -36,15 +36,20 @@ class BlazySvg {
         'height' => $height,
       ] = self::extract($blazies, $svg, $attrs);
 
-      if ($fluid && ($width && $height)) {
+      if ($width && $height) {
         // Image styles might be left empty, and aspect ratio is used.
         $dims = ['width' => $width, 'height' => $height];
-        $dims['ratios'] = $blazies->get('css.ratio');
 
-        // The result is normally used for non-inline style, via CSS rules.
-        $data = Ratio::fluid($dims);
-        $blazies->set('image.fluid', $data)
-          ->set('svg.fluid', $data);
+        if ($fluid) {
+          $dims['ratios'] = $blazies->get('css.ratio');
+
+          // The result is normally used for non-inline style, via CSS rules.
+          $data = Ratio::fluid($dims);
+          $blazies->set('image.fluid', $data)
+            ->set('svg.fluid', $data);
+        }
+
+        $blazies->set('image.ratio', Ratio::compute($dims));
       }
 
       $blazies->set('svg.width', $width)

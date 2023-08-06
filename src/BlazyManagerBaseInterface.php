@@ -51,17 +51,19 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
   public function getStyles(): array;
 
   /**
-   * Alias for BlazyImage::thumbnail() to forget looking up unknown classes.
+   * Alias for Thumbnail::view() to forget looking up unknown classes.
    *
    * @param array $settings
    *   The given settings.
    * @param object $item
    *   The optional image item.
+   * @param array $captions
+   *   The optional thumbnail captions.
    *
    * @return array
    *   The thumbnail image style, or empty.
    */
-  public function getThumbnail(array $settings, $item = NULL): array;
+  public function getThumbnail(array $settings, $item = NULL, array $captions = []): array;
 
   /**
    * Checks for Blazy formatter such as from within a Views style plugin.
@@ -95,19 +97,6 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    * @todo change the second param back to array at 3.x when BVEF is dropped.
    */
   public function isBlazy(array &$settings, array $data = []): void;
-
-  /**
-   * Checks for essential blazy features.
-   *
-   * @param array $build
-   *   The build array being modified.
-   * @param object $item
-   *   The optional image item.
-   *
-   * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings object.
-   */
-  public function preBlazy(array &$build, $item = NULL): BlazySettings;
 
   /**
    * Thumbnails are poorly-informed, provide relevant information.

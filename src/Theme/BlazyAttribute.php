@@ -79,15 +79,17 @@ class BlazyAttribute {
 
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
-    $hacks = Ratio::hack($settings);
-    $hack  = $hacks['hack'];
-    $ratio = $hacks['ratio'];
+    $hacks   = Ratio::hack($settings);
+    $hack    = $hacks['hack'];
+    $ratio   = $hacks['ratio'];
+    $padding = $blazies->get('image.ratio');
 
-    $settings['ratio'] = $ratio ? str_replace(':', '', $ratio) : '';
+    // @todo recheck for 0 padding SVG.
+    $settings['ratio'] = $ratio && $padding ? str_replace(':', '', $ratio) : '';
 
     // Fixed aspect ratio is taken care of by pure CSS. Fluid means dynamic.
     // Unless the computed result above is supported by current CSS rules.
-    if ($hack && $padding = $blazies->get('image.ratio')) {
+    if ($hack && $padding) {
       // If "lucky", Blazy/ Slick Views galleries may already set this once.
       // Lucky when you don't flatten out the Views output earlier.
       self::inlineStyle($attributes, 'padding-bottom: ' . $padding . '%;');
@@ -271,7 +273,7 @@ class BlazyAttribute {
       if (!$unlazy) {
         // @todo put it back up above if any issues.
         $attributes['class'][] = $blazies->get('lazy.class', 'b-lazy');
-        $attribute = $blazies->get('lazy.attribute');
+        $attribute = $blazies->get('lazy.attribute', 'src');
         $attributes['data-' . $attribute] = $url;
       }
 
@@ -282,14 +284,35 @@ class BlazyAttribute {
   }
 
   /**
-   * Return the image alt and title, also accounts for multimedia.
-   *
-   * @todo make it available earlier outside #pre_render/ theme for more access.
+   * Return the image alt and title, also accounts for multimedia and UGC.
    */
-  public static function altTitle($blazies, array $attributes = []): array {
+  public static function altTitle(&$blazies, $item = NULL, array $attributes = []): array {
     $title = $blazies->get('image.title') ?: $blazies->get('media.label');
     $title = $attributes['title'] ?? $title;
     $alt   = $blazies->get('image.alt', $attributes['alt'] ?? '');
+
+    if ($item) {
+      // File cache tags, cannot be read by tests from #pre_render.
+      if ($file = ($item->entity ?? NULL)) {
+        $tags = $file->getCacheTags();
+        $blazies->set('cache.metadata.tags', $tags, TRUE);
+      }
+
+      // Needed by thumbnails if any image item, fake or real, no biggies.
+      // Extracts alt from $item.
+      $alt  = empty($item->alt) ? $alt : trim($item->alt);
+      $desc = $item->description ?? NULL;
+
+      // File SVG with description_field enabled.
+      if (!$alt && $desc = $blazies->get('image.description', $desc)) {
+        $alt = $desc;
+      }
+
+      // Do not output an empty 'title' attribute.
+      if (isset($item->title) && (mb_strlen($item->title) != 0)) {
+        $title = trim($item->title);
+      }
+    }
 
     // $extra_attrs = $blazies->get('item.safe_attributes', []);
     // Respects hand-coded image attributes, and accounts for UGC.
@@ -383,10 +406,9 @@ class BlazyAttribute {
     $blazies    = $settings['blazies'];
 
     // Provides image alt and title, and also accounts for multimedia.
-    $result = self::altTitle($blazies, $attributes);
-    $attributes['alt'] = $result['alt'];
+    $attributes['alt'] = $blazies->get('image.alt');
 
-    if ($title = $result['title']) {
+    if ($title = $blazies->get('image.title')) {
       $attributes['title'] = $title;
     }
 

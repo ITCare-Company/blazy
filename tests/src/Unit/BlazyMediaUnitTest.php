@@ -86,7 +86,11 @@ class BlazyMediaUnitTest extends UnitTestCase {
       ->with($source_field)
       ->will($this->returnValue($items));
 
-    $render = BlazyMedia::view($entity, $settings);
+    $data = [
+      '#entity' => $entity,
+      '#settings' => $settings,
+    ];
+    $render = BlazyMedia::view($data);
     $this->assertArrayHasKey('#settings', $render);
   }
 

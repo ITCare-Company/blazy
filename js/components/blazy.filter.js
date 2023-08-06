@@ -27,6 +27,14 @@
     }
 
     var $cn = $(cn);
+    var $nonShortcode = $cn.find('.media-wrapper--blazy');
+
+    // Only enable for non-shotcode due to not having a container. With
+    // shortcodes, the required .blazy container is there.
+    if (!$.isElm($nonShortcode)) {
+      return;
+    }
+
     $cn.addClass(_id)
       .attr(_data + _id, '');
 

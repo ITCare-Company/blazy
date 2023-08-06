@@ -278,7 +278,7 @@ trait BlazyStyleBaseTrait {
    * Be sure to reset settings before calling this method:
    * $this->reset($sets);
    */
-  protected function getThumbnail(array &$sets, $row, $index): array {
+  protected function getThumbnail(array &$sets, $row, $index, $field_caption = NULL): array {
     $name = $sets['thumbnail'] ?? NULL;
 
     if (empty($name)) {
@@ -286,7 +286,10 @@ trait BlazyStyleBaseTrait {
     }
 
     // Provides a potential unique thumbnail different from the main image.
-    $blazies = $sets['blazies'];
+    $blazies   = $sets['blazies'];
+    $use_blazy = $blazies->use('theme_thumbnail');
+    $doable    = FALSE;
+
     $blazies->set('is.reset', TRUE);
     $tn = $this->getFieldRenderable($row, 0, $name);
     $rendered = $tn['rendered'] ?? [];
@@ -307,13 +310,17 @@ trait BlazyStyleBaseTrait {
     }
 
     if (!$item) {
-      // Might be group_rows.
+      // Might be group_rows, the first two are blazy, the last image_formatter.
       $item = $build['#item'] ?? $build[0]['#item'] ?? $rendered['raw'] ?? NULL;
     }
 
     if ($tn_style && is_object($item)) {
       $uri = Blazy::uri($item);
       $sets['thumbnail_style'] = $tn_style;
+
+      if (!$blazies->get('image.uri')) {
+        $blazies->set('image.uri', $uri);
+      }
 
       $tn_uri = $uri ? $this->manager
         ->load($tn_style, 'image_style')
@@ -322,19 +329,40 @@ trait BlazyStyleBaseTrait {
       // This allows a thumbnail different from the main stage, such as logos
       // thumbnails, and company buildings for the main stage.
       if ($tn_uri) {
+        // @todo remove the first here.
         $sets['thumbnail_uri'] = $tn_uri;
         $blazies->set('thumbnail.uri', $tn_uri);
+        $doable = TRUE;
+      }
+      else {
+        $doable = $blazies->get('image.uri') != NULL;
       }
     }
 
+    $caption = [];
+    if ($field_caption) {
+      $caption = $this->getFieldRendered($index, $field_caption);
+    }
+
     // If multiple, only one thumbnail can exist.
-    if (isset($build[1])) {
-      $tn = $this->manager->getThumbnail($sets, $item);
+    if ($doable) {
+      $tn = $this->manager->getThumbnail($sets, $item, $caption);
     }
     else {
       /* @phpstan-ignore-next-line */
-      $tn = $this->getFieldRendered($index, $name);
+      $tmp = $this->getFieldRendered($index, $name);
+
+      // @todo remove check at 3.x.
+      if ($use_blazy) {
+        $tn[static::$itemId] = $tmp;
+        $tn[static::$captionId] = $caption;
+      }
+      // @todo remove this at 3.x.
+      else {
+        $tn = $tmp;
+      }
     }
+
     return is_array($tn) ? $tn : [$tn];
   }
 

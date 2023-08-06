@@ -222,6 +222,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     ];
 
     if ($uri) {
+      // We are here from BlazyFilter, VEF, or where no File API available.
       $blazies->set('image', $data, TRUE);
       $item = BlazyImage::fakeFromSettings($blazies);
       $blazies->set('image.item', $item);
@@ -340,6 +341,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $input    = $blazies->get('media.value');
     $source   = $blazies->get('media.source');
 
+    // Overrides entity with the translated version.
+    $build['#entity'] = $media;
+
     // @todo support local video/ audio file, and other media sources.
     // @todo check for Resource::TYPE_PHOTO, Resource::TYPE_RICH, etc.
     switch ($source) {
@@ -367,7 +371,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
         // Supports other Media entities: Facebook, Instagram, local video, etc.
         // Attempts to enter the unknown here fearlessly.
-        if ($result = BlazyMedia::view($media, $settings)) {
+        if ($result = BlazyMedia::view($build)) {
           // Iframe, like image, can be handled by theme_blazy(). The rest
           // that Blazy doesn't understand should be respected as is as content.
           if (!$blazies->is('iframeable')) {

@@ -39,7 +39,11 @@ class BlazyField {
     if ($blazies->get('media.source') && $source_field) {
       $media = Blazy::loadByProperty($source_field, ['fid' => $file->id()], 'media');
       if ($media) {
-        return $rendered ? BlazyMedia::view($media, $settings) : $media;
+        $data = [
+          '#entity' => $media,
+          '#settings' => $settings,
+        ];
+        return $rendered ? BlazyMedia::view($data) : $media;
       }
     }
 

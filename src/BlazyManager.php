@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\blazy\Theme\Lightbox;
+use Drupal\blazy\Utility\CheckItem;
 
 /**
  * Implements a public facing blazy manager.
@@ -201,13 +202,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     foreach ($captions as $key => $caption) {
       $css = $prefix . $key;
       if (strpos($key, 'title') !== FALSE) {
-        $inline[$key] = $this->caption($caption, 'h2', $prefix . 'title');
+        $inline[$key] = Blazy::content($caption, 'h2', $prefix . 'title');
       }
       elseif ($key == 'overlay') {
-        $overlays[$key] = $this->caption($caption, 'div', $css);
+        $overlays[$key] = Blazy::content($caption, 'div', $css);
       }
       elseif ($key == 'category') {
-        $categories[$key] = $this->caption($caption, 'div', $css);
+        $categories[$key] = Blazy::content($caption, 'div', $css);
       }
       else {
         $key = str_replace('field_', '', $key);
@@ -224,18 +225,18 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
           // @todo remove, might all be just NULL here.
           $css = $nowrap || $key == 'data' ? NULL : $css;
 
-          $descriptions[$key] = $this->caption($caption, 'div', $css);
+          $descriptions[$key] = Blazy::content($caption, 'div', $css);
         }
         else {
           // Might be link, etc. here on.
-          $inline[$key] = $this->caption($caption, 'div', $css);
+          $inline[$key] = Blazy::content($caption, 'div', $css);
         }
       }
     }
 
     // Merge multiple decsriptions to avoid too many siblings.
     if ($descriptions) {
-      $inline['description'] = $this->caption($descriptions, 'div', $_desc);
+      $inline['description'] = Blazy::content($descriptions, 'div', $_desc);
     }
 
     $output = [];
@@ -329,21 +330,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   }
 
   /**
-   * Returns the caption item.
-   */
-  private function caption($caption, $tag, $css = NULL): array {
-    if ($css) {
-      return [
-        '#type' => 'html_tag',
-        '#tag' => $tag,
-        '#attributes' => ['class' => [$css]],
-        'content' => $caption,
-      ];
-    }
-    return $caption;
-  }
-
-  /**
    * Prepares Blazy settings.
    *
    * Supports galeries if provided, updates $settings.
@@ -365,6 +351,39 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       }
     }
     return $settings;
+  }
+
+  /**
+   * Checks for essential blazy features.
+   *
+   * @param array $build
+   *   The build array being modified.
+   * @param object $item
+   *   The optional image item.
+   *
+   * @return \Drupal\blazy\BlazySettings
+   *   The BlazySettings object.
+   */
+  private function preBlazy(array &$build, $item = NULL): BlazySettings {
+    $this->hashtag($build);
+    $settings = &$build['#settings'];
+
+    $this->verify($settings);
+
+    $blazies = $settings['blazies'];
+    $delta   = $blazies->get('delta', $build['#delta'] ?? 0);
+
+    // Prevents double checks.
+    // BlazySettings is a self containing object, initialized at container level
+    // and must be renewed at item level to get correct delta, see #3278525.
+    $blazies = $settings['blazies']->reset($settings);
+    $blazies->set('is.api', TRUE)
+      ->set('delta', $delta);
+
+    $attributes = &$build['#item_attributes'];
+    CheckItem::essentials($attributes, $settings, $item);
+
+    return $blazies;
   }
 
   /**
@@ -401,12 +420,12 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Initial feature checks, URI, delta, media features, etc.
-    BlazyInternal::prepare($settings, $item);
+    $item_attributes = &$build['#item_attributes'];
+    BlazyInternal::prepare($item_attributes, $settings, $item);
 
     // Build thumbnail and optional placeholder based on thumbnail.
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
-    $item_attributes = &$build['#item_attributes'];
     BlazyInternal::prepared($attributes, $item_attributes, $settings, $item);
 
     // Only process (Responsive) image/ video if no rich-media are provided.

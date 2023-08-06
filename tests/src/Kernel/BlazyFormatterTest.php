@@ -227,7 +227,12 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
       $build = $this->display->build($entity);
 
-      $render = BlazyMedia::view($entity, $settings);
+      $data = [
+        '#entity' => $entity,
+        '#settings' => $settings,
+      ];
+
+      $render = BlazyMedia::view($data);
 
       if ($expected && $render) {
         $this->assertNotEmpty($render);

@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Theme;
 
 use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyInternal;
 use Drupal\blazy\Utility\Check;
 
 /**
@@ -200,7 +201,7 @@ class Grid {
     // Count may be set as 2 even if it is 100 by sliders for their magic trick.
     // However total, the new preserved count key, may not be set somewhere.
     // @todo use just total after sub-modules provides it to avoid this check.
-    $total = Blazy::count($blazies);
+    $total = BlazyInternal::count($blazies);
     $grid_count = $blazies->get('grid.count', 0);
 
     if ($dim = $blazies->get('grid.large_dimensions', [])) {
@@ -308,7 +309,7 @@ class Grid {
   private static function containerAttributes(array &$attrs, array $settings, $blazies): void {
     $remove  = $blazies->ui('deprecated_class', FALSE);
     $style   = $settings['style'] ?: 'grid';
-    $count   = Blazy::count($blazies);
+    $count   = BlazyInternal::count($blazies);
     $format1 = 'b-%s';
     $format2 = 'b-count-%d';
 
@@ -382,7 +383,7 @@ class Grid {
     // Slick/ Splide may trick count to disable grid slides when lacking,
     // although not necessarily needed by flat grid like Blazy's.
     $count = is_array($items) ? count($items) : ($settings['count'] ?? 0);
-    $count = Blazy::count($blazies, $count);
+    $count = BlazyInternal::count($blazies, $count);
     $blazies->set('count', $count)
       ->set('total', $count);
 

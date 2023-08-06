@@ -204,7 +204,7 @@ class BlazyFilter extends BlazyFilterBase {
 
     // Responsive image with aspect ratio requires an extra container to work
     // with Align/ Caption images filters.
-    $build['#media_attributes']['class'] = [
+    $classes = [
       'media-wrapper',
       'media-wrapper--blazy',
     ];
@@ -222,27 +222,21 @@ class BlazyFilter extends BlazyFilterBase {
         if (is_string($value)) {
           if ($name == 'align' || $name == 'style') {
             if (strpos($value, 'left') !== FALSE) {
-              $build['#media_attributes']['class'][] = 'alignment-left';
+              $classes[] = 'alignment-left';
             }
             elseif (strpos($value, 'right') !== FALSE) {
-              $build['#media_attributes']['class'][] = 'alignment-right';
+              $classes[] = 'alignment-right';
             }
           }
         }
-        // @todo recheck againts the newly created self::buildMediaAttributes().
-        // else if ($name == 'class') {
-        // if (strpos($value, 'b-lazy') === FALSE) {
-        // $build['#media_attributes']['class'][] = $value;
-        // }
-        // }.
       }
-
-      $build['#media_attributes']['class'] = array_unique($build['#media_attributes']['class']);
     }
 
     if ($type = $blazies->get('media.type')) {
-      $build['#media_attributes']['class'][] = 'media-wrapper--' . str_replace('_', '-', $type);
+      $classes[] = 'media-wrapper--' . str_replace('_', '-', $type);
     }
+
+    $build['#media_attributes']['class'] = array_unique($classes);
   }
 
   /**
@@ -287,11 +281,12 @@ class BlazyFilter extends BlazyFilterBase {
    */
   private function build(\DOMElement $node, array &$settings, $delta = 0): array {
     $blazies = $settings['blazies'];
+
     if ($node->tagName == static::$namespace) {
       /* @phpstan-ignore-next-line */
       $dataset = $node->getAttribute('data');
 
-      $blazies->set('is.blazy_tag', TRUE);
+      $blazies->set('is.shortcode', TRUE);
 
       // Extract settings from attributes.
       $blazies->set('was.initialized', FALSE);
@@ -387,6 +382,7 @@ class BlazyFilter extends BlazyFilterBase {
 
       $sets = $settings;
       $element = [
+        '#delta' => $delta,
         '#attributes' => [],
         '#item' => NULL,
         '#settings' => $sets,
@@ -424,9 +420,8 @@ class BlazyFilter extends BlazyFilterBase {
     // If using grid, node is grid item.
     if ($node->tagName == static::$shortcode) {
       $this->buildItemAttributes($build, $node, $delta);
-      $text = Util::getHtml($node);
 
-      if (!empty($text)) {
+      if ($text = Util::getHtml($node)) {
         $dom = Html::load($text);
         $items = Util::getNodes($dom, '//iframe | //img');
 
@@ -461,7 +456,6 @@ class BlazyFilter extends BlazyFilterBase {
       return [];
     }
 
-    // @todo remove return $this->manager->getBlazy($build);
     // Provides the relevant elements based on the configuration.
     return $this->toElement($blazies, $build);
   }
@@ -489,7 +483,7 @@ class BlazyFilter extends BlazyFilterBase {
     $settings = $build['#settings'];
     $blazies = $settings['blazies'];
 
-    if (!$blazies->is('blazy_tag')) {
+    if (!$blazies->is('shortcode')) {
       // Mark the FIGCAPTION for deletion because the caption moved into Blazy.
       $item->setAttribute('class', 'blazy-removed');
 

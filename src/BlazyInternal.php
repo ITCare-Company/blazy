@@ -3,9 +3,10 @@
 namespace Drupal\blazy;
 
 use Drupal\blazy\Media\BlazyImage;
+use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\CheckItem;
-use Drupal\blazy\Media\Placeholder;
+use Drupal\blazy\Utility\Sanitize;
 
 /**
  * Provides internal non-reusable blazy utilities.
@@ -17,12 +18,27 @@ use Drupal\blazy\Media\Placeholder;
 class BlazyInternal {
 
   /**
+   * Returns the highest views rows, or field items count to determine gallery.
+   *
+   * Sliders may trick count 100 into just 2 for their magic chunk trick.
+   */
+  public static function count($blazies, $default = 0): int {
+    $field = $blazies->get('total', 0) ?: $blazies->get('count', 1);
+    $views = $blazies->get('view.count', 0);
+    $count = $views > $field ? $views : $field;
+    $total = $count > $default ? $count : $default;
+
+    // Store it in an undisturbed location.
+    $blazies->set('item.count', $total);
+    return $total;
+  }
+
+  /**
    * Prepares the essential settings, URI, delta, etc.
    */
-  public static function prepare(array &$settings, $item = NULL): void {
+  public static function prepare(array &$attributes, array &$settings, $item = NULL): void {
     // Checks for essential settings: URI, delta, cache and initial delta.
-    CheckItem::essentials($settings, $item);
-    CheckItem::multimedia($settings);
+    CheckItem::essentials($attributes, $settings, $item);
     CheckItem::insanity($settings);
   }
 
@@ -144,6 +160,26 @@ class BlazyInternal {
     if (!$blazies->was('initialized')) {
       self::preSettings($settings);
     }
+  }
+
+  /**
+   * Modifies settings to support iframes.
+   */
+  public static function toPlayable($blazies, $src = NULL, $sanitized = FALSE): BlazySettings {
+    if ($src) {
+      if (!$sanitized) {
+        $src = Sanitize::url($src);
+        $sanitized = TRUE;
+      }
+
+      $blazies->set('media.embed_url', $src)
+        ->set('media.escaped', $sanitized);
+    }
+
+    return $blazies->set('is.iframeable', TRUE)
+      ->set('is.playable', TRUE)
+      ->set('is.multimedia', TRUE)
+      ->set('libs.media', TRUE);
   }
 
 }

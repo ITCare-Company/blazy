@@ -2,8 +2,6 @@
 
 namespace Drupal\blazy\Media;
 
-use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\media\MediaInterface;
@@ -393,45 +391,6 @@ class BlazyImage {
         }
       }
     }
-  }
-
-  /**
-   * Returns the thumbnail image using theme_image(), or theme_image_style().
-   *
-   * Alt and SRC will be auto-escaped when entering Twig, this is just to make
-   * sure no unknown edge cases get in the way.
-   *
-   * @see https://www.drupal.org/node/2489544
-   */
-  public static function thumbnail(array $settings, $item = NULL): array {
-    Blazy::verify($settings);
-
-    $blazies = $settings['blazies'];
-    $uri     = $blazies->get('thumbnail.uri') ?: $blazies->get('image.uri');
-
-    if (!$uri) {
-      return [];
-    }
-
-    $unstyled = $blazies->is('unstyled');
-    $style    = $blazies->get('thumbnail.id') ?: $settings['thumbnail_style'] ?? NULL;
-    $alt      = $blazies->get('image.alt');
-    $valid    = $blazies->get('image.valid') ?: BlazyFile::isValidUri($uri);
-
-    // Thumbnails can use image styles, except for SVG for now.
-    // @todo check for any modules (ImageMagick) which convert SVG to image,
-    // and remove this check if present, leaving it for external URL + data URI.
-    if ($valid && !$blazies->is('svg')) {
-      $unstyled = FALSE;
-    }
-
-    return [
-      '#theme'      => $unstyled ? 'image' : 'image_style',
-      '#style_name' => $style ?: 'thumbnail',
-      '#uri'        => $valid ? $uri : UrlHelper::stripDangerousProtocols($uri),
-      '#item'       => $item,
-      '#alt'        => $alt ? Html::escape(strip_tags($alt)) : '',
-    ];
   }
 
   /**

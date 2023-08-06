@@ -7,6 +7,7 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyInternal;
 use Drupal\blazy\Utility\CheckItem;
 
 /**
@@ -45,22 +46,29 @@ class BlazyMedia {
    * @todo make it non-static and rework at/ by 3.x.
    */
   public static function build($media, array &$settings): array {
+    $data = [
+      '#entity'   => $media,
+      '#settings' => $settings,
+    ];
     // Temporary BC till the rework is done.
-    return self::view($media, $settings);
+    return self::view($data);
   }
 
   /**
    * Returns the media field which is partly not understood by theme_blazy().
    *
-   * @param object $media
-   *   The media being rendered.
-   * @param array $settings
-   *   The contextual settings array.
+   * @param array $build
+   *   The array containing:
+   *     - #entity the Media entity.
+   *     - #settings array.
    *
    * @return array
    *   The renderable array of the media field, or empty if not applicable.
    */
-  public static function view($media, array &$settings): array {
+  public static function view(array $build): array {
+    $media    = $build['#entity'];
+    $settings = $build['#settings'];
+
     Blazy::verify($settings);
     $blazies = $settings['blazies'];
 
@@ -81,10 +89,10 @@ class BlazyMedia {
 
     $view_mode = $blazies->get('media.view_mode', $settings['view_mode'] ?? 'default');
     $source_field = $blazies->get('media.source_field');
-    $build = $media->get($source_field)->view($view_mode);
-    $build['#settings'] = $settings;
+    $view = $media->get($source_field)->view($view_mode);
+    $view['#settings'] = $settings;
 
-    return isset($build[0]) ? self::unfield($build) : $build;
+    return isset($view[0]) ? self::unfield($view) : $view;
   }
 
   /**
@@ -131,8 +139,6 @@ class BlazyMedia {
    * Prepares media item data to provide image item.
    */
   public static function prepare(array &$data) {
-    Blazy::hashtag($data);
-
     $media     = $data['#entity'];
     $settings  = &$data['#settings'];
     $blazies   = $settings['blazies'];
@@ -150,7 +156,7 @@ class BlazyMedia {
     $medias    = array_merge($locals, $videos);
     $is_local  = in_array($source, $locals);
     $is_media  = in_array($source, $medias);
-    $is_remote = $info['type'] == 'video';
+    $is_remote = $info['type'] == 'video' || in_array($source, $videos);
 
     // Embed url is not defined here, yet, provides basic media checks.
     $contexts = Cache::mergeContexts(['languages', 'url.site'], $media->getCacheContexts());
@@ -164,7 +170,7 @@ class BlazyMedia {
       // The clearest so far are iframeable vs. iframe, multimedia, local_video.
       // OK for 2.17 since no real usages except for few.
       // See CheckItem::multimedia() for current usage definitions.
-      ->set('is.playable', $is_remote)
+      ->set('is.playable', $is_remote || $is_local)
       ->set('is.multimedia', $is_media)
       ->set('is.local_media', $is_local)
       ->set('is.local_audio', $source == 'audio_file')
@@ -179,10 +185,10 @@ class BlazyMedia {
   /**
    * Returns a media entity from a field, if any.
    */
-  public static function fromField($entity, $stage): ?object {
+  public static function fromField($entity, $field_name): ?object {
     $media = NULL;
-    if (isset($entity->{$stage})
-      && $reference = $entity->get($stage)->first()) {
+    if (isset($entity->{$field_name})
+      && $reference = $entity->get($field_name)->first()) {
       if ($reference instanceof EntityReferenceItem) {
         $media = $reference->entity;
       }
@@ -220,10 +226,10 @@ class BlazyMedia {
 
     // Converts iframes into lazyloaded ones.
     // Iframes: Googledocs, SlideShare. Hardcoded: Spotify.
-    // @todo recheck, likely everyone hardly uses iframes lately.
+    // @todo recheck, likely everyone hardly uses iframes #html_tag lately.
     // No longer per D9.5: Soundcloud.
     if ($is_iframe && $src = ($attributes['src'] ?? FALSE)) {
-      Blazy::toPlayable($blazies, $src, TRUE);
+      BlazyInternal::toPlayable($blazies, $src, TRUE);
     }
     // Media with local files: video.
     elseif (isset($item['#files'])
@@ -280,12 +286,12 @@ class BlazyMedia {
 
         if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
           if ($src = $iframe->getAttribute('src')) {
-            Blazy::toPlayable($blazies, $src, TRUE);
-
             if (strpos($src, '?url=') === FALSE) {
-              $embed_url = $oembed->toEmbedUrl($blazies, $src);
-              $blazies->set('media.embed_url', $embed_url);
+              $src = $oembed->toEmbedUrl($blazies, $src);
             }
+
+            BlazyInternal::toPlayable($blazies, $src, TRUE);
+
             // @todo remove, no longer relevant since upstream definitions.
             $blazies->set('media.type', $blazies->get('media.source'));
           }
@@ -307,7 +313,7 @@ class BlazyMedia {
 
     // @todo multiple sources, not crucial for now.
     // This is not an image URI, but file video URI.
-    // The poster or file image is set via settings.image option instead.
+    // The poster or file image URI is set via settings.image option instead.
     $blazies->set('media.uri', $file->getFileUri());
 
     // Only local video has poster, audio uses background via settings.image.

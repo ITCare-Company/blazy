@@ -179,11 +179,11 @@ class BlazyOEmbedFormatter extends FormatterBase {
 
           if ($media) {
             $data['#entity'] = $media;
+            $data['#parent'] = $entity;
 
             $this->blazyOembed->build($data);
           }
 
-          // $blazies = $this->formatter->preBlazy($data);
           // Media OEmbed with lazyLoad and lightbox supports.
           $element = $this->formatter->getBlazy($data);
         }

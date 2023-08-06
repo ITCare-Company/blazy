@@ -3,9 +3,8 @@
 namespace Drupal\blazy;
 
 use Drupal\blazy\Cache\BlazyCache;
-use Drupal\blazy\Media\BlazyImage;
+use Drupal\blazy\Media\Thumbnail;
 use Drupal\blazy\Utility\Check;
-use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Deprecated\BlazyManagerDeprecatedTrait;
 
@@ -99,8 +98,8 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   /**
    * {@inheritdoc}
    */
-  public function getThumbnail(array $settings, $item = NULL): array {
-    return BlazyImage::thumbnail($settings, $item);
+  public function getThumbnail(array $settings, $item = NULL, array $captions = []): array {
+    return Thumbnail::view($settings, $item, $captions);
   }
 
   /**
@@ -114,32 +113,6 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     // at any blazy/ sub-modules containers using:
     // $blazies->set('data.LIGHTBOX_NAME', $options) only if needed.
     $this->moduleHandler->alter('blazy_is_blazy', $settings, $original);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function preBlazy(array &$build, $item = NULL): BlazySettings {
-    $this->hashtag($build);
-
-    $item     = $item ?: $this->toHashtag($build, 'item', NULL);
-    $settings = &$build['#settings'];
-
-    $this->verify($settings);
-
-    $blazies = $settings['blazies'];
-    $delta   = $blazies->get('delta', $build['#delta'] ?? 0);
-
-    // Prevents double checks.
-    // BlazySettings is a self containing object, initialized at container level
-    // and must be renewed at item level to get correct delta, see #3278525.
-    $blazies = $settings['blazies']->reset($settings);
-    $blazies->set('is.api', TRUE)
-      ->set('delta', $delta);
-
-    CheckItem::essentials($settings, $item);
-
-    return $blazies;
   }
 
   /**
@@ -181,6 +154,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $is_blur = $fx == 'blur';
     $is_resimage = $this->moduleExists('responsive_image');
     $namespace = $blazies->get('namespace');
+    $use_blazy = $ui['use_theme_blazy'] ?? FALSE;
 
     $blazies->set('fx', $fx)
       ->set('iframe_domain', $iframe_domain)
@@ -193,8 +167,11 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
       ->set('libs.blur', $is_blur)
       ->set('lightbox.plugins', $lightboxes)
       ->set('ui', $ui)
-      ->set('use.theme_blazy', $ui['use_theme_blazy'] ?? FALSE)
+      ->set('use.theme_blazy', $use_blazy)
       ->set('version.blazy', Blazy::version('blazy'));
+
+    // @todo enable when sub-modules ready: Slick/ Splide.
+    $blazies->set('use.theme_thumbnail', $use_blazy);
 
     if ($namespace && $namespace != 'blazy') {
       if ($this->moduleExists($namespace)) {

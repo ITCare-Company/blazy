@@ -9,7 +9,7 @@ use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\BlazyAttribute;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\CheckItem;
-use Drupal\blazy\Utility\BlazyMarkdown;
+use Drupal\blazy\Utility\Markdown;
 use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Utility\Sanitize;
 use Drupal\blazy\Deprecated\BlazyDeprecatedTrait;
@@ -20,9 +20,7 @@ use Drupal\blazy\Deprecated\BlazyDeprecatedTrait;
  * Using aliases allow Blazy to self-organize, or improve as needed. A good
  * sample is BlazyGrid relocation, or likely BlazySettings, etc. If you are
  * calling global methods marked as @internal, consider changing them to the
- * replacements below, if any. If not, and potential frequent methods, propose
- * one in an issue to put them in the public facing class like this one. Mostly
- * for conveniences, and a good night sleep.
+ * replacements below, if any.
  */
 class Blazy {
 
@@ -88,8 +86,8 @@ class Blazy {
   /**
    * Returns the safely processed image ALT and TITLE attributes.
    */
-  public static function altTitle($blazies, array $attributes = []): array {
-    return BlazyAttribute::altTitle($blazies, $attributes);
+  public static function altTitle($blazies, $item = NULL, array $attributes = []): array {
+    return BlazyAttribute::altTitle($blazies, $item, $attributes);
   }
 
   /**
@@ -135,19 +133,19 @@ class Blazy {
   }
 
   /**
-   * Returns the highest views rows, or field items count to determine gallery.
-   *
-   * Sliders may trick count 100 into just 2 for their magic chunk trick.
+   * Returns the common content item.
    */
-  public static function count($blazies, $default = 0): int {
-    $field = $blazies->get('total', 0) ?: $blazies->get('count', 1);
-    $views = $blazies->get('view.count', 0);
-    $count = $views > $field ? $views : $field;
-    $total = $count > $default ? $count : $default;
-
-    // Store it in an undisturbed location.
-    $blazies->set('item.count', $total);
-    return $total;
+  public static function content(array $content, $tag = 'div', $class = NULL): array {
+    if ($class) {
+      $attributes = is_array($class) ? $class : ['class' => [$class]];
+      return [
+        '#type' => 'html_tag',
+        '#tag' => $tag,
+        '#attributes' => $attributes,
+        'content' => $content,
+      ];
+    }
+    return $content;
   }
 
   /**
@@ -312,7 +310,7 @@ class Blazy {
    * {@inheritdoc}
    */
   public static function markdown($string, $help = TRUE): string {
-    return BlazyMarkdown::parse($string, $help);
+    return Markdown::parse($string, $help);
   }
 
   /**
@@ -341,26 +339,6 @@ class Blazy {
    */
   public static function svgSanitizerExists(): bool {
     return class_exists('\enshrined\svgSanitize\Sanitizer');
-  }
-
-  /**
-   * Modifies settings to support iframes.
-   */
-  public static function toPlayable($blazies, $src = NULL, $sanitized = FALSE): BlazySettings {
-    if ($src) {
-      if (!$sanitized) {
-        $src = Sanitize::url($src);
-        $sanitized = TRUE;
-      }
-
-      $blazies->set('media.embed_url', $src)
-        ->set('media.escaped', $sanitized);
-    }
-
-    return $blazies->set('is.iframeable', TRUE)
-      ->set('is.playable', TRUE)
-      ->set('is.multimedia', TRUE)
-      ->set('libs.media', TRUE);
   }
 
   /**

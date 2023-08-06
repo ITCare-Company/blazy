@@ -7,6 +7,7 @@ use Drupal\Component\Utility\Xss;
 // @todo use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault as Defaults;
+use Drupal\blazy\BlazyInternal;
 use Drupal\blazy\Field\BlazyElementTrait;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
@@ -93,7 +94,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     $this->manager->preSettings($settings);
 
-    $unwrap = $blazies->no('item_container') || !empty($settings['no_item_container']);
+    $unwrap = static::$namespace != 'blazy';
     $blazies->set('lightbox.gallery_id', $id)
       ->set('no.item_container', $unwrap);
 
@@ -341,6 +342,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $attrs    = $blazies->get('item.raw_attributes', []);
     $file     = NULL;
     $data_uri = FALSE;
+    $uuid     = $attrs['data-entity-uuid'] ?? NULL;
 
     // Attempts to get the correct URI with hard-coded URL if applicable, e.g:
     // /site/default/files/image.jpg into public://image.jpg.
@@ -355,8 +357,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     }
     else {
       // 2. Uploaded files.
-      $uri  = BlazyFile::buildUri($src);
-      $uuid = $attrs['data-entity-uuid'] ?? NULL;
+      $uri = BlazyFile::buildUri($src);
 
       $blazies->set('entity.uuid', $uuid)
         ->set('image.uri', $uri);
@@ -438,7 +439,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     // In case we forgot what we were talking about, add a reminder.
     if (in_array($node->tagName, ['item', 'slide'])) {
-      $blazies->set('is.blazy_tag', TRUE);
+      $blazies->set('is.shortcode', TRUE);
 
       foreach (['title', 'caption'] as $key) {
         if ($caption = $node->getAttribute($key)) {
@@ -563,7 +564,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     }
     elseif ($tag == 'iframe') {
       $type = 'video';
-      Blazy::toPlayable($blazies)
+      BlazyInternal::toPlayable($blazies)
         ->set('media.bundle', 'remote_video');
       $blazies->set('item.iframe_attributes', $safe_attrs);
     }
@@ -579,20 +580,22 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *   The HTML DOM object.
    * @param int $delta
    *   The item index.
+   *
+   * @return bool
+   *   TRUE if it has different image style from the selected option.
    */
-  protected function buildItemSettings(array &$build, $node, $delta = 0): void {
+  protected function buildItemSettings(array &$build, $node, $delta = 0): bool {
     $settings   = &$build['#settings'];
     $blazies    = $settings['blazies'];
     $ui_style   = $settings['image_style'] ?? NULL;
     $ui_restyle = $settings['responsive_image_style'] ?? NULL;
     $attrs      = $blazies->get('item.raw_attributes', []);
+    $update     = FALSE;
 
     // Set an image style based on node data properties.
     // See https://www.drupal.org/project/drupal/issues/2061377,
     // https://www.drupal.org/project/drupal/issues/2822389, and
     // https://www.drupal.org/project/inline_responsive_images.
-    $update = FALSE;
-
     // Compare with UI if any difference before re-updating.
     if ($style = $attrs['data-image-style'] ?? NULL) {
       if ($style != $ui_style) {
@@ -608,12 +611,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       }
     }
 
-    // Checks for image styles at individual items, normally set at container.
-    // Responsive image is at item level due to requiring URI detection.
-    if ($update) {
-      $blazies->set('is.multistyle', TRUE);
-      BlazyImage::styles($settings, TRUE);
-    }
+    return $update;
   }
 
   /**
@@ -629,17 +627,31 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   protected function buildItemContent(array &$build, $node, $delta = 0): void {
     $this->manager->hashtag($build);
 
+    // To minimize dups, or misses, for something obvious.
+    $build['#delta'] = $delta;
+
     // Provides IMG/IFRAME attributes.
     $this->buildMediaAttributes($build, $node, $delta);
 
     // Provides individual item settings.
-    $this->buildItemSettings($build, $node, $delta);
+    $update = $this->buildItemSettings($build, $node, $delta);
 
     // Extracts image item from SRC attribute.
     $this->buildImageItem($build, $node, $delta);
 
     // Extracts image caption if available.
     $this->buildImageCaption($build, $node);
+
+    // Checks for image styles at individual items, normally set at container.
+    // Responsive image is at item level due to requiring URI detection.
+    // Must have an URI set above.
+    if ($update) {
+      $settings = &$build['#settings'];
+      $blazies  = $settings['blazies'];
+
+      $blazies->set('is.multistyle', TRUE);
+      BlazyImage::styles($settings, TRUE);
+    }
   }
 
   /**

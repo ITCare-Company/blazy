@@ -33,14 +33,14 @@ class Ratio {
       // Do not mess up with responsive image for now, or you'll be sorry.
       if (!$resimage && $check = $blazies->get('image.fluid')) {
         $ratio = $check;
-        $hack = FALSE;
+        $hack  = FALSE;
       }
       // If using image_style or defaults, even SVG can be padding-hacked for
       // consistency. If using none, then disable aspect ratio altogether.
       // @todo recheck against responsive image, gif, apng, alike.
       if ($_svg && $_none) {
         $ratio = NULL;
-        $hack = FALSE;
+        $hack  = FALSE;
       }
     }
     return ['ratio' => $ratio, 'hack' => $hack];

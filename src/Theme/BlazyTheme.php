@@ -81,7 +81,7 @@ class BlazyTheme {
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
       BlazyInternal::preSettings($settings);
-      BlazyInternal::prepare($settings, $item);
+      BlazyInternal::prepare($item_attributes, $settings, $item);
     }
 
     // Do not proceed if no URI is provided. URI is not Blazy theme property.
