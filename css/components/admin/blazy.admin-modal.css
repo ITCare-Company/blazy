@@ -1,6 +1,9 @@
 /**
  * @file
  * Common modal utilities.
+ *
+ * May God forgive our sins and souls, and make our lives easier ever after.
+ * @see https://www.drupal.org/node/3305664
  */
 
 /* csslint ignore:start */
@@ -15,152 +18,140 @@
     min-height: 82px;
   }
 
-  #drupal-off-canvas .form--half {
+  .ui-dialog-off-canvas .form--blazy.form--half {
     background: none;
-    border: 0;
-    box-shadow: 0 0 0 4px #777;
     max-width: 100%;
     min-width: 100%;
+    border: 0;
+    box-shadow: 0 0 0 4px #777;
     padding: 0;
   }
 
-  #drupal-off-canvas .form--half .form-item--style > .description {
-    min-width: 90%;
-  }
-
-  #drupal-off-canvas .form__half,
-  #drupal-off-canvas .form--half .form-item {
-    width: 100%;
-  }
-
-  #drupal-off-canvas .form--half .form-item {
-    padding: 8px;
+  .ui-dialog-off-canvas .form--blazy.form--half .form-item {
     position: relative;
+    padding: 8px;
     border-top: 0;
     border-right: 0;
     border-color: #777;
     height: auto;
     margin: 0;
-    min-height: 32px;
+    min-height: 42px;
   }
 
-  #drupal-off-canvas .form--half fieldset.form-item {
+  .ui-dialog-off-canvas .form--blazy.form--half fieldset.form-item {
     box-sizing: border-box;
     display: block;
     padding: 0;
   }
 
-  #drupal-off-canvas .b-tooltip .form-item > .description,
-  #drupal-off-canvas .b-tooltip .form-composite > .fieldset-wrapper > .description {
+  .ui-dialog-off-canvas .b-tooltip .form-item > .description,
+  .ui-dialog-off-canvas .b-tooltip .form-composite > .fieldset-wrapper > .description {
     background: #000;
     min-width: 100%;
     max-width: 100%;
   }
 
-  #drupal-off-canvas .b-tooltip .form-item > .description {
-    z-index: -1;
-    display: none;
+  .ui-dialog-off-canvas .b-tooltip .form-item > .description {
+    z-index: -1 !important; /* csslint allow: known-properties, important */
+    display: none !important; /* csslint allow: known-properties, important */
   }
 
-  #drupal-off-canvas .form--media-switch-on .form-item--media-switch,
-  #drupal-off-canvas .form--media-switch-lightbox .form-item--litebox,
-  #drupal-off-canvas .form--media-switch-splidebox .form-item--ajax-link,
-  #drupal-off-canvas .form--vanilla-off .form-item--media-switch {
-    display: block !important;
+  .ui-dialog-off-canvas .form--media-switch-on .form-item--media-switch,
+  .ui-dialog-off-canvas .form--media-switch-lightbox .form-item--litebox,
+  .ui-dialog-off-canvas .form--media-switch-splidebox .form-item--ajax-link,
+  .ui-dialog-off-canvas .form--vanilla-off .form-item--media-switch {
+    display: block !important; /* csslint allow: known-properties, important */
   }
 
-  #drupal-off-canvas .b-tooltip select,
-  #drupal-off-canvas .b-tooltip input:not(.form-checkbox) {
-    min-width: 140px;
+  .ui-dialog-off-canvas .b-tooltip select,
+  .ui-dialog-off-canvas .b-tooltip input:not(.form-checkbox),
+  .ui-dialog-off-canvas .b-tooltip .form-type-boolean label {
+    min-width: 140px !important; /* csslint allow: known-properties, important */
   }
 
-  #drupal-off-canvas .b-tooltip select,
-  #drupal-off-canvas .b-tooltip input {
+  .ui-dialog-off-canvas .b-tooltip .form-type-boolean label {
+    display: inline-block !important; /* csslint allow: known-properties, important */
+    text-align: right !important; /* csslint allow: known-properties, important */
+    vertical-align: middle;
+  }
+
+  .ui-dialog-off-canvas .b-tooltip select,
+  .ui-dialog-off-canvas .b-tooltip input {
     height: auto;
     position: relative;
-    z-index: 7;
+    z-index: 7 !important; /* csslint allow: known-properties, important */
   }
 
-  #drupal-off-canvas .b-tooltip .form-item.is-hovered,
-  #drupal-off-canvas .b-tooltip .form-item.is-selected {
-    z-index: 10;
+  .ui-dialog-off-canvas .b-tooltip .form-item.is-hovered,
+  .ui-dialog-off-canvas .b-tooltip .form-item.is-selected {
+    z-index: 10 !important; /* csslint allow: known-properties, important */
   }
 
-  #drupal-off-canvas .b-tooltip .form-item.is-hovered > .description,
-  #drupal-off-canvas .b-tooltip .form-item.is-selected > .description {
-    display: block;
-    z-index: 12;
+  .ui-dialog-off-canvas .b-tooltip .form-item.is-hovered > .description,
+  .ui-dialog-off-canvas .b-tooltip .form-item.is-selected > .description {
+    display: block !important; /* csslint allow: known-properties, important */
+    z-index: 12 !important; /* csslint allow: known-properties, important */
   }
 
-  #drupal-off-canvas .b-hint {
-    background: #777;
-    border-radius: 50%;
-    display: inline-block;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 16px;
-    width: 16px;
-    height: 16px;
-    text-align: center;
-    line-height: 16px;
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    z-index: 7;
+  .ui-dialog-off-canvas .b-tooltip .b-hint {
+    background: #777 !important; /* csslint allow: known-properties, important */
+    border-radius: 50% !important; /* csslint allow: known-properties, important */
+    width: 16px !important; /* csslint allow: known-properties, important */
+    height: 16px !important; /* csslint allow: known-properties, important */
+    text-align: center !important; /* csslint allow: known-properties, important */
+    position: absolute !important; /* csslint allow: known-properties, important */
+    top: 8px !important; /* csslint allow: known-properties, important */
+    right: 8px !important; /* csslint allow: known-properties, important */
+    z-index: 7 !important; /* csslint allow: known-properties, important */
   }
 
-  #drupal-off-canvas .b-nativegrid--form legend {
-    width: 100%;
+  .ui-dialog-off-canvas .b-nativegrid--form legend {
+    width: 100% !important; /* csslint allow: known-properties, important */
     max-width: 100%;
-    padding: 0 !important;
+    padding: 0 !important; /* csslint allow: known-properties, important */
   }
 
-  #drupal-off-canvas .b-nativegrid--form .form__title,
-  #drupal-off-canvas .b-nativegrid--form legend span {
-    background-color: #2d2d2d;
+  .ui-dialog-off-canvas .b-nativegrid--form .form__title,
+  .ui-dialog-off-canvas .b-nativegrid--form legend span {
+    background-color: #2d2d2d !important; /* csslint allow: known-properties, important */
   }
 
-  #drupal-off-canvas .b-nativegrid--form legend span,
-  #drupal-off-canvas .b-nativegrid--form h3,
-  #drupal-off-canvas .b-nativegrid--form p {
-    display: block;
-    font-size: 1.125rem;
-    font-weight: bold;
-    line-height: 1.3;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    text-align: center;
+  .ui-dialog-off-canvas .b-nativegrid--form legend span,
+  .ui-dialog-off-canvas .b-nativegrid--form h3,
+  .ui-dialog-off-canvas .b-nativegrid--form p {
+    display: block !important; /* csslint allow: known-properties, important */
+    font-size: 1.125rem !important; /* csslint allow: known-properties, important */
+    width: 100% !important; /* csslint allow: known-properties, important */
+    text-align: center !important; /* csslint allow: known-properties, important */
   }
 
-  #drupal-off-canvas .b-nativegrid--form > h3,
-  #drupal-off-canvas .b-nativegrid--form legend span {
-    padding: 10px 0;
+  .ui-dialog-off-canvas .b-nativegrid--form > h3,
+  .ui-dialog-off-canvas .b-nativegrid--form legend span {
+    padding: 10px 0 !important; /* csslint allow: known-properties, important */
   }
 
-  #drupal-off-canvas .b-nativegrid--form p {
-    font-size: 12px;
-    font-weight: 400;
-  }
-
-  #drupal-off-canvas .form--half .fieldset__wrapper {
+  .ui-dialog-off-canvas .form--blazy.form--half .fieldset__wrapper {
     padding: 5px;
   }
 
-  #drupal-off-canvas .form--half .form-item--style {
+  .ui-dialog-off-canvas .form--blazy.form--half .form-item--style {
     height: auto;
     min-width: 0;
     top: 0;
   }
+  .ui-dialog-off-canvas .b-nativegrid--form p {
+    font-size: 12px;
+    font-weight: 400;
+  }
 
-  #drupal-off-canvas .form--half fieldset .form-type-boolean {
-    min-height: 32px;
+  .ui-dialog-off-canvas .form--blazy.form--half fieldset .form-type-boolean {
+    min-height: 42px;
     text-align: right;
   }
 
-  #drupal-off-canvas .b-nativegrid--auto,
-  #drupal-off-canvas .b-nativegrid--form .form-checkboxes,
-  #drupal-off-canvas .form--half fieldset > div {
+  .ui-dialog-off-canvas .b-nativegrid--auto,
+  .ui-dialog-off-canvas .b-nativegrid--form .form-checkboxes,
+  .ui-dialog-off-canvas .form--blazy.form--half fieldset > div {
     border: 0;
   }
 

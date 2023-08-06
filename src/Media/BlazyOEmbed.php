@@ -322,7 +322,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       $blazies->set('is.hires', !empty($stage));
     }
     else {
-      // BlazyFilter/ VEF without file upload [data-entity-uuid].
+      // BlazyFilter/ VEF without file upload [data-entity-uuid], nor File API.
       $build['#item'] = $this->getThumbnail($settings);
     }
   }
@@ -359,6 +359,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
       case 'image':
       case 'svg':
+        // The media.type is a legacy 1.x with VEF, not official Media property.
+        // Just to simplify usage, or complex application downstream. Similar
+        // to oembed:video and video_embed_field which are set as just video.
         $blazies->set('media.type', 'image');
         break;
 
@@ -369,7 +372,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
           $this->toEmbed($settings);
         }
 
-        // Supports other Media entities: Facebook, Instagram, local video, etc.
+        // Supports other Media entities: Facebook, Instagram, local media, etc.
         // Attempts to enter the unknown here fearlessly.
         if ($result = BlazyMedia::view($build)) {
           // Iframe, like image, can be handled by theme_blazy(). The rest
@@ -409,9 +412,12 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * Returns the image factory.
    *
-   * @todo remove ::imageFactory (was for UGC), not used anywhere since 2.6.
+   * @deprecated in blazy:8.x-2.6 and is removed from blazy:3.0.0. Use none
+   *   instead.
+   * @see https://www.drupal.org/node/3103018
    */
   public function imageFactory() {
+    @trigger_error('imageFactory is deprecated in blazy:8.x-2.6 and is removed from blazy:3.0.0. Use none instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     return $this->imageFactory;
   }
 

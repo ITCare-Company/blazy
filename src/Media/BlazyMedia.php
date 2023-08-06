@@ -73,7 +73,7 @@ class BlazyMedia {
     Blazy::verify($settings);
     $blazies = $settings['blazies'];
 
-    // Image styles, dimesions, etc. must be set here since they may enter
+    // Image styles, dimensions, etc. must be set here since they may enter
     // theme_blazy() as non-workable content, printed as is once setup.
     BlazyImage::prepare($settings, $item);
 
