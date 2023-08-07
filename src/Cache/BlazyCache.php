@@ -12,6 +12,8 @@ class BlazyCache {
 
   /**
    * Return the available lightboxes, to be cached to avoid disk lookups.
+   *
+   * @todo remove for \Drupal\blazy\Asset\Libraries::getLightboxes() at 3.x.
    */
   public static function lightboxes($root): array {
     $lightboxes = [];
@@ -41,7 +43,7 @@ class BlazyCache {
     $manager  = Blazy::service('blazy.manager');
     $settings = Blazy::toHashtag($build) ?: $build;
 
-    // @todo renove after sub-modules, including some fallback settings.
+    // @todo remove after sub-modules, including some fallback settings.
     Blazy::verify($settings);
 
     $blazies   = $settings['blazies'];

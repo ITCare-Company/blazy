@@ -6,7 +6,6 @@
  */
 
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyAlter;
 
 /**
  * Implements hook_theme().
@@ -53,5 +52,5 @@ function blazy_test_blazy_lightboxes_alter(array &$lightboxes) {
  */
 function blazy_test_config_schema_info_alter(array &$definitions) {
   $extra = ['thumbnail' => ''] + BlazyDefault::gridSettings();
-  BlazyAlter::configSchemaInfoAlter($definitions, 'blazy_base', BlazyDefault::extendedSettings() + $extra);
+  blazy()->configSchemaInfoAlter($definitions, 'blazy_base', BlazyDefault::extendedSettings() + $extra);
 }

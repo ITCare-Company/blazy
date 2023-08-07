@@ -77,7 +77,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $this->prepareBlazy($element, $build);
 
     // Fetch the newly modified settings with hashed key.
-    $settings = $element['#settings'];
+    $settings = &$element['#settings'];
     $blazies = $settings['blazies'];
     $url = $blazies->get('entity.url');
 
@@ -202,13 +202,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     foreach ($captions as $key => $caption) {
       $css = $prefix . $key;
       if (strpos($key, 'title') !== FALSE) {
-        $inline[$key] = Blazy::content($caption, 'h2', $prefix . 'title');
+        $inline[$key] = $this->toHtml($caption, 'h2', $prefix . 'title');
       }
       elseif ($key == 'overlay') {
-        $overlays[$key] = Blazy::content($caption, 'div', $css);
+        $overlays[$key] = $this->toHtml($caption, 'div', $css);
       }
       elseif ($key == 'category') {
-        $categories[$key] = Blazy::content($caption, 'div', $css);
+        $categories[$key] = $this->toHtml($caption, 'div', $css);
       }
       else {
         $key = str_replace('field_', '', $key);
@@ -225,18 +225,18 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
           // @todo remove, might all be just NULL here.
           $css = $nowrap || $key == 'data' ? NULL : $css;
 
-          $descriptions[$key] = Blazy::content($caption, 'div', $css);
+          $descriptions[$key] = $this->toHtml($caption, 'div', $css);
         }
         else {
           // Might be link, etc. here on.
-          $inline[$key] = Blazy::content($caption, 'div', $css);
+          $inline[$key] = $this->toHtml($caption, 'div', $css);
         }
       }
     }
 
     // Merge multiple decsriptions to avoid too many siblings.
     if ($descriptions) {
-      $inline['description'] = Blazy::content($descriptions, 'div', $_desc);
+      $inline['description'] = $this->toHtml($descriptions, 'div', $_desc);
     }
 
     $output = [];
@@ -427,6 +427,10 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
     BlazyInternal::prepared($attributes, $item_attributes, $settings, $item);
+
+    // Allows altering the settings for individual items.
+    // Such as disabling lightbox for inline media player.
+    $this->moduleHandler->alter('blazy_item', $settings, $attributes, $item_attributes);
 
     // Only process (Responsive) image/ video if no rich-media are provided.
     $this->buildContent($element, $build);

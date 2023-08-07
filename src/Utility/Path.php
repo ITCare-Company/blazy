@@ -6,6 +6,10 @@ use Drupal\blazy\Blazy;
 
 /**
  * Provides url, route, request, stream, or any path-related methods.
+ *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module. Please use the public method instead.
  */
 class Path {
 
@@ -14,21 +18,21 @@ class Path {
    *
    * @var bool
    */
-  private static $isAmp;
+  protected static $isAmp;
 
   /**
    * The preview mode to disable Blazy where JS is not available, or useless.
    *
    * @var bool
    */
-  private static $isPreview;
+  protected static $isPreview;
 
   /**
    * The preview mode to disable interactive elements.
    *
    * @var bool
    */
-  private static $isSandboxed;
+  protected static $isSandboxed;
 
   /**
    * Retrieves the file url generator service.
@@ -114,7 +118,53 @@ class Path {
   }
 
   /**
+   * Checks if Blazy is in CKEditor preview mode where no JS assets are loaded.
+   */
+  public static function isPreview(): bool {
+    if (!isset(static::$isPreview)) {
+      static::$isPreview = self::isAmp() || self::isSandboxed();
+    }
+    return static::$isPreview;
+  }
+
+  /**
+   * Checks if Blazy is in AMP pages.
+   */
+  public static function isAmp(): bool {
+    if (!isset(static::$isAmp)) {
+      $request = self::request();
+      static::$isAmp = $request && $request->query->get('amp');
+    }
+    return static::$isAmp;
+  }
+
+  /**
+   * In CKEditor without JS assets, interactive elements must be sandboxed.
+   */
+  public static function isSandboxed(): bool {
+    if (!isset(static::$isSandboxed)) {
+      $check = FALSE;
+      if ($router = self::routeMatch()) {
+        if ($route = $router->getRouteName()) {
+          $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
+          foreach ($edits as $key) {
+            if (Blazy::has($route, $key)) {
+              $check = TRUE;
+              break;
+            }
+          }
+        }
+      }
+
+      static::$isSandboxed = $check;
+    }
+    return static::$isSandboxed;
+  }
+
+  /**
    * Returns multiple libraries keyed by its name.
+   *
+   * @todo remove for \Drupal\blazy\Asset\Libraries::getLibraries() at 3.x.
    */
   public static function getLibraries(array $names, $base_path = FALSE): array {
     $libraries = [];
@@ -128,6 +178,8 @@ class Path {
 
   /**
    * Returns the first found library path.
+   *
+   * @todo remove for \Drupal\blazy\Asset\Libraries::getPath() at 3.x.
    */
   public static function getLibrariesPath($name, $base_path = FALSE): ?string {
     $library = '';
@@ -142,51 +194,9 @@ class Path {
   }
 
   /**
-   * Checks if Blazy is in CKEditor preview mode where no JS assets are loaded.
-   */
-  public static function isPreview(): bool {
-    if (!isset(self::$isPreview)) {
-      self::$isPreview = self::isAmp() || self::isSandboxed();
-    }
-    return self::$isPreview;
-  }
-
-  /**
-   * Checks if Blazy is in AMP pages.
-   */
-  public static function isAmp(): bool {
-    if (!isset(self::$isAmp)) {
-      $request = self::request();
-      self::$isAmp = $request && $request->query->get('amp');
-    }
-    return self::$isAmp;
-  }
-
-  /**
-   * In CKEditor without JS assets, interactive elements must be sandboxed.
-   */
-  public static function isSandboxed(): bool {
-    if (!isset(self::$isSandboxed)) {
-      $check = FALSE;
-      if ($router = self::routeMatch()) {
-        if ($route = $router->getRouteName()) {
-          $edits = ['entity_browser.', 'edit_form', 'add_form', '.preview'];
-          foreach ($edits as $key) {
-            if (Blazy::has($route, $key)) {
-              $check = TRUE;
-              break;
-            }
-          }
-        }
-      }
-
-      self::$isSandboxed = $check;
-    }
-    return self::$isSandboxed;
-  }
-
-  /**
    * Provides a wrapper to replace deprecated libraries_get_path() at ease.
+   *
+   * @todo remove for \Drupal\blazy\Asset\Libraries methods at 3.x.
    */
   private static function libraries(array $libraries, $keyed = FALSE): \Generator {
     if ($finder = Blazy::service('library.libraries_directory_file_finder')) {
@@ -201,7 +211,7 @@ class Path {
       }
     }
     else {
-      // @todo remove when min D9.2.
+      // @todo remove when min D9.2, and make libraries a service at 3.x.
       $dep = 'libraries_get_path';
       foreach ($libraries as $library) {
         $result = is_callable($dep) ? $dep($library) : '';

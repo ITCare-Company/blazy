@@ -42,7 +42,7 @@ class Thumbnail {
         $output[$prefix] = $thumbnail;
       }
       if ($captions) {
-        $output[$caption] = Blazy::content($captions, 'div', $caption_class);
+        $output[$caption] = Blazy::toHtml($captions, 'div', $caption_class);
       }
 
       // @todo remove or keep it after another check.
@@ -85,7 +85,7 @@ class Thumbnail {
       '#alt'        => $alt ? Html::escape(strip_tags($alt)) : '',
     ];
 
-    return Blazy::content($content, 'div', $class);
+    return Blazy::toHtml($content, 'div', $class);
   }
 
 }

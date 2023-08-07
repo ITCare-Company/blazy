@@ -6,6 +6,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyInternal;
@@ -24,8 +25,9 @@ class Lightbox {
   /**
    * Provides lightbox libraries.
    */
-  public static function attach(array &$load, array &$attach): void {
-    $blazies = $attach['blazies'];
+  public static function attach(array &$load, array &$attach, $blazies = NULL): void {
+    // @todo remove NULL check at 3.x.
+    $blazies = $blazies ?: $attach['blazies'];
 
     if ($name = $blazies->get('lightbox.name')) {
       $load['library'][] = 'blazy/lightbox';
@@ -356,7 +358,12 @@ class Lightbox {
       if ($resimage = $manager->load($box_style, 'responsive_image_style')) {
         $_resimage = TRUE;
         $alt = $blazies->get('image.alt');
-        $alt = $alt ? Html::escape(strip_tags($alt)) : '';
+
+        // Check for image.escaped to avoid unecessary double escapes.
+        if (!$blazies->get('image.escaped')) {
+          $alt = $alt ? Html::escape(strip_tags($alt)) : t('Preview');
+        }
+
         $attrs = ['alt' => $alt];
 
         $element['#lightbox_html'] = [
@@ -388,8 +395,8 @@ class Lightbox {
    */
   private static function getCaptions(array $settings, $item, $manager): array {
     $blazies = $settings['blazies'];
-    $title   = $blazies->get('image.title');
-    $alt     = $blazies->get('image.alt');
+    $title   = $blazies->get('image.raw.title');
+    $alt     = $blazies->get('image.raw.alt');
     $delta   = $blazies->get('delta', 0);
     $object  = $blazies->get('media.instance');
     $node    = $blazies->get('entity.instance');
@@ -438,16 +445,15 @@ class Lightbox {
         $caption = '';
 
         // $object can be file or media for plain images, or media entities.
-        if ($custom && $object) {
+        if ($custom && $object instanceof EntityInterface) {
           $options = ['clear' => TRUE];
-          $repo    = $manager->entityRepository();
-          $params  = [$object->getEntityTypeId() => $repo->getTranslationFromContext($object)];
+          $params  = [$object->getEntityTypeId() => $manager->getTranslatedEntity($object)];
 
           if (BlazyFile::isFile($file) && $file != $object) {
-            $params += ['file' => $repo->getTranslationFromContext($file)];
+            $params += ['file' => $manager->getTranslatedEntity($file)];
           }
           if ($node && $node != $object) {
-            $params += [$node->getEntityTypeId() => $repo->getTranslationFromContext($node)];
+            $params += [$node->getEntityTypeId() => $manager->getTranslatedEntity($node)];
           }
 
           $caption = \Drupal::token()->replace($custom, $params, $options);

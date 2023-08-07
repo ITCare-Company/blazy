@@ -27,6 +27,16 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
   public function attach(array $attach = []);
 
   /**
+   * Alias for Blazy::containerAttributes().
+   *
+   * @param array $attributes
+   *   The container attributes being modified.
+   * @param array $settings
+   *   The given settings.
+   */
+  public function containerAttributes(array &$attributes, array $settings): void;
+
+  /**
    * Returns the supported image effects.
    *
    * @return array

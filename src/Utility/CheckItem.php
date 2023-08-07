@@ -125,6 +125,18 @@ class CheckItem {
     // Also VEF will convert its video_embed_field into a fake image item here.
     self::multimedia($settings);
 
+    if ($item) {
+      // File cache tags, cannot be read by tests from #pre_render.
+      if ($file = ($item->entity ?? NULL)) {
+        $tags = $file->getCacheTags();
+        $blazies->set('cache.metadata.tags', $tags, TRUE);
+      }
+    }
+
+    // Must be here for tests to pass file cache checks:
+    // Must be placed after self::multimedia() to get different ALT/ TITLE.
+    BlazyAttribute::altTitle($blazies, $item, $attributes);
+
     // Bail out early if already processed.
     // @todo disable if any issues given various sources.
     if ($blazies->was('essentials')) {
@@ -141,10 +153,6 @@ class CheckItem {
 
     // Accounts for VEF conversion from video_embed_field into faked image item.
     $item = $blazies->get('image.item', $item);
-
-    // Must be here for tests to pass file cache checks:
-    // Must be placed after self::multimedia() to get different ALT/ TITLE.
-    BlazyAttribute::altTitle($blazies, $item, $attributes);
 
     // This means re-definition since URI can be fed from any sources uptream.
     // URI might be NULL when no associated image to work with, no problem.

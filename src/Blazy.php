@@ -133,22 +133,6 @@ class Blazy {
   }
 
   /**
-   * Returns the common content item.
-   */
-  public static function content(array $content, $tag = 'div', $class = NULL): array {
-    if ($class) {
-      $attributes = is_array($class) ? $class : ['class' => [$class]];
-      return [
-        '#type' => 'html_tag',
-        '#tag' => $tag,
-        '#attributes' => $attributes,
-        'content' => $content,
-      ];
-    }
-    return $content;
-  }
-
-  /**
    * Alias for BlazyFile::createUrl().
    */
   public static function createUrl($uri, $relative = FALSE): string {
@@ -206,16 +190,10 @@ class Blazy {
   }
 
   /**
-   * Alias for Path::getLibraries().
-   */
-  public static function getLibraries(array $names, $base_path = FALSE): array {
-    return Path::getLibraries($names, $base_path);
-  }
-
-  /**
    * Alias for Path::getLibrariesPath().
    */
   public static function getLibrariesPath($name, $base_path = FALSE): ?string {
+    // @todo at 3.x: $libraries->getPath($name, $base_path);
     return Path::getLibrariesPath($name, $base_path);
   }
 
@@ -339,6 +317,22 @@ class Blazy {
    */
   public static function svgSanitizerExists(): bool {
     return class_exists('\enshrined\svgSanitize\Sanitizer');
+  }
+
+  /**
+   * Returns the common content item.
+   */
+  public static function toHtml(array $content, $tag = 'div', $class = NULL): array {
+    if ($class) {
+      $attributes = is_array($class) ? $class : ['class' => [$class]];
+      return [
+        '#type' => 'html_tag',
+        '#tag' => $tag,
+        '#attributes' => $attributes,
+        'content' => $content,
+      ];
+    }
+    return $content;
   }
 
   /**

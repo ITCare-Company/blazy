@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-08-07
+------------------------------
+- Fixed for lightbox caption regressions.
+- Added non-functional blazy.libraries service for blazy:3.x and BC.
+
 Blazy 8.x-2.0-dev, 2023-08-06
 ------------------------------
 - Fixed for out of synced local media.

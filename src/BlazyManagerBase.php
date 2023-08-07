@@ -13,12 +13,15 @@ use Drupal\blazy\Deprecated\BlazyManagerDeprecatedTrait;
  */
 abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInterface {
 
+  // @todo remove at 3.x:
   use BlazyManagerDeprecatedTrait;
 
   /**
    * {@inheritdoc}
    */
   public function attach(array $attach = []) {
+    // @todo enable at 3.x: $load = $this->libraries->attach($attach);
+    // $blazies = $attach['blazies'];
     $load = [];
     $blazies = Check::attachments($load, $attach);
 
@@ -31,6 +34,13 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
       $load['library'] = array_unique($load['library']);
     }
     return $load;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function containerAttributes(array &$attributes, array $settings): void {
+    Blazy::containerAttributes($attributes, $settings);
   }
 
   /**
@@ -59,7 +69,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
       $value = $key == 'threshold' ? $formatted : $this->config('io.' . $key);
       $io[$key] = $attach['io.' . $key] ?? ($value ?: $default);
     }
-
+    // @todo enable at 3.x: return $this->libraries->getIoSettings($attach);
     return (object) $io;
   }
 
@@ -77,6 +87,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    */
   public function getLightboxes(): array {
     $cid = 'blazy_lightboxes';
+    // @todo at 3.x: $this->libraries->getLightboxes();
     $data = BlazyCache::lightboxes($this->root);
     return $this->getCachedOptions($cid, $data);
   }

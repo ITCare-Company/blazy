@@ -2,6 +2,8 @@ services:
   blazy.base:
     abstract: true
     class: Drupal\blazy\BlazyBase
+    # @todo replace dups with @blazy.libraries at 3.x as the first argument.
+    # @todo enable at 3.x: arguments: ['@blazy.libraries', '@entity.repository', '@entity_type.manager', '@renderer', '@language_manager']
     arguments: ['%app.root%', '@entity.repository', '@entity_type.manager', '@module_handler', '@renderer', '@config.factory', '@cache.default', '@language_manager']
 
   blazy.manager.base:
@@ -25,6 +27,12 @@ services:
   blazy.entity:
     class: Drupal\blazy\BlazyEntity
     arguments: ['@blazy.oembed']
+
+  # @todo enable at 3.x when min D9.3:
+  # blazy.libraries:
+  #   class: Drupal\blazy\Asset\Libraries
+  # @todo recheck deprecated at D10: '@request_stack',
+  #   arguments: ['%app.root%', '@cache.default', '@config.factory', '@library.discovery', '@library.libraries_directory_file_finder', '@module_handler', '@current_route_match']
 
   blazy.svg:
     class: Drupal\blazy\Media\Svg\Svg

@@ -75,6 +75,9 @@ class BlazyMedia {
 
     // Image styles, dimensions, etc. must be set here since they may enter
     // theme_blazy() as non-workable content, printed as is once setup.
+    // @todo refine all these since this view is not workable at theme_blazy().
+    $attributes = [];
+    CheckItem::essentials($attributes, $settings, $item);
     BlazyImage::prepare($settings, $item);
 
     // Prevents fatal error with disconnected internet when having ME Facebook,

@@ -286,33 +286,11 @@ class BlazyAttribute {
   /**
    * Return the image alt and title, also accounts for multimedia and UGC.
    */
-  public static function altTitle(&$blazies, $item = NULL, array $attributes = []): array {
-    $title = $blazies->get('image.title') ?: $blazies->get('media.label');
-    $title = $attributes['title'] ?? $title;
-    $alt   = $blazies->get('image.alt', $attributes['alt'] ?? '');
-
-    if ($item) {
-      // File cache tags, cannot be read by tests from #pre_render.
-      if ($file = ($item->entity ?? NULL)) {
-        $tags = $file->getCacheTags();
-        $blazies->set('cache.metadata.tags', $tags, TRUE);
-      }
-
-      // Needed by thumbnails if any image item, fake or real, no biggies.
-      // Extracts alt from $item.
-      $alt  = empty($item->alt) ? $alt : trim($item->alt);
-      $desc = $item->description ?? NULL;
-
-      // File SVG with description_field enabled.
-      if (!$alt && $desc = $blazies->get('image.description', $desc)) {
-        $alt = $desc;
-      }
-
-      // Do not output an empty 'title' attribute.
-      if (isset($item->title) && (mb_strlen($item->title) != 0)) {
-        $title = trim($item->title);
-      }
-    }
+  public static function altTitle($blazies, $item = NULL, array $attributes = []): array {
+    [
+      'alt' => $alt,
+      'title' => $title,
+    ] = self::altTitleRaw($blazies, $item, $attributes);
 
     // $extra_attrs = $blazies->get('item.safe_attributes', []);
     // Respects hand-coded image attributes, and accounts for UGC.
@@ -320,14 +298,14 @@ class BlazyAttribute {
     // Might be abused to use HTML, fine for lightboxes, but not attributes.
     // This should make both parties happier ever after, sort of.
     if ($title) {
-      $title = Html::escape(strip_tags($title));
+      $title = Html::escape($title);
       // Twig will escape Can't to Can&#039;t, else doubles: Can&amp;#039;t.
       // @todo recheck if the world is ended with this, and so remove this.
       $title = str_replace('&#039;', "'", $title);
     }
 
     if ($alt) {
-      $alt = Html::escape(strip_tags($alt));
+      $alt = Html::escape($alt);
       // Twig will escape Can't to Can&#039;t, else doubles: Can&amp;#039;t.
       // @todo recheck if the world is ended with this, and so remove this.
       $alt = str_replace('&#039;', "'", $alt);
@@ -364,9 +342,53 @@ class BlazyAttribute {
     $output = ['alt' => $alt ?: '', 'title' => $title];
     $blazies->set('image.alt', $alt)
       ->set('image.title', $title)
-      ->set('image.safe_alt_title', TRUE);
+      ->set('image.escaped', TRUE);
 
     return $output;
+  }
+
+  /**
+   * Return the raw image alt and title, also accounts for multimedia and UGC.
+   */
+  public static function altTitleRaw($blazies, $item = NULL, array $attributes = []): array {
+    $title = $blazies->get('image.title') ?: $blazies->get('media.label');
+    $title = $attributes['title'] ?? $title;
+    $alt   = $blazies->get('image.alt', $attributes['alt'] ?? '');
+
+    if ($item) {
+      // Needed by thumbnails if any image item, fake or real, no biggies.
+      // Extracts alt from $item.
+      $alt  = empty($item->alt) ? $alt : trim($item->alt);
+      $desc = $item->description ?? NULL;
+
+      // File SVG with description_field enabled.
+      if (!$alt && $desc = $blazies->get('image.description', $desc)) {
+        $alt = $desc;
+      }
+
+      // Do not output an empty 'title' attribute.
+      if (isset($item->title) && (mb_strlen($item->title) != 0)) {
+        $title = trim($item->title);
+      }
+    }
+
+    // $extra_attrs = $blazies->get('item.safe_attributes', []);
+    // Respects hand-coded image attributes, and accounts for UGC.
+    // Updates $title whether for audio/ video, or just image.
+    // Might be abused to use HTML, fine for lightboxes, but not attributes.
+    // This should make both parties happier ever after, sort of.
+    if ($title) {
+      $title = strip_tags($title);
+    }
+
+    if ($alt) {
+      $alt = strip_tags($alt);
+    }
+
+    $blazies->set('image.raw.alt', $alt ?: '')
+      ->set('image.raw.title', $title);
+
+    return ['alt' => $alt ?: '', 'title' => $title];
   }
 
   /**

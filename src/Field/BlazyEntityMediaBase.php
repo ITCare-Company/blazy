@@ -118,7 +118,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     // Do not pass $build directly, even if easier, too early render errors.
     $data = [
       '#delta'    => $delta,
-      '#settings' => $settings,
+      '#settings' => $this->manager->toSettings($settings, []),
       '#entity'   => $entity,
       '#langcode' => $langcode,
       '#item'     => NULL,

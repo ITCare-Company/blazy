@@ -26,7 +26,7 @@ class Check {
   /**
    * Modifies asset attachments.
    *
-   * @todo move it out of here for all attachments, what folder, Asset?
+   * @todo remove for \Drupal\blazy\Asset\Libraries::attach() at 3.x.
    */
   public static function attachments(array &$load, array &$attach): BlazySettings {
     BlazyInternal::postSettings($attach);
@@ -40,7 +40,7 @@ class Check {
     $unload  = $blazies->ui('nojs.lazy', FALSE) || $blazies->is('unlazy');
 
     if ($blazies->is('lightbox')) {
-      Lightbox::attach($load, $attach);
+      Lightbox::attach($load, $attach, $blazies);
     }
 
     // Always keep Drupal UI config to support dynamic compat features.

@@ -11,6 +11,10 @@ use Drupal\blazy\BlazyDefault;
 /**
  * Provides very few common sanitization wrapper methods.
  *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module. Please use the public method instead.
+ *
  * @todo checks for core equivalents, Xss::filter() is causing 404, etc.
  * @see https://www.drupal.org/project/drupal/issues/3109650
  * @see https://www.drupal.org/node/2489544

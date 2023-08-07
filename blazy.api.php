@@ -355,12 +355,10 @@ function hook_blazy_settings_alter(array &$build, $items) {
  *   The .media element attributes being modified.
  * @param array $item_attributes
  *   The IMG element attributes being modified.
- * @param object $item
- *   The nullable image item, or stdClass.
  *
  * @ingroup blazy_api
  */
-function hook_blazy_item_alter(array &$settings, array &$attributes, array &$item_attributes, $item = NULL) {
+function hook_blazy_item_alter(array &$settings, array &$attributes, array &$item_attributes) {
   $blazies = $settings['blazies'];
 
   // If it has a media embed url and a lightbox with unwanted implementations,

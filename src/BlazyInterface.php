@@ -221,19 +221,6 @@ interface BlazyInterface {
   public function getHtmlId($name = 'blazy', $id = ''): string;
 
   /**
-   * Alias for Blazy::getLibraries() to get library paths.
-   *
-   * @param array $names
-   *   The library names, e.g.: ['colorbox', 'slick', 'dompurify'].
-   * @param bool $base_path
-   *   Whether to prefix it with an a base path.
-   *
-   * @return array
-   *   The found libraries keyed by its name, or empty array.
-   */
-  public function getLibraries(array $names, $base_path = FALSE): array;
-
-  /**
    * Alias for Blazy::getLibrariesPath() to get libraries path.
    *
    * A few libraries have inconsistent namings, given different packagers:
@@ -276,6 +263,17 @@ interface BlazyInterface {
    *   The entity type storage object.
    */
   public function getStorage($type = 'media');
+
+  /**
+   * A shortcut for EntityRepositoryInterface::getTranslationFromContext().
+   *
+   * @param object $object
+   *   The entity object.
+   *
+   * @return object
+   *   The translated entity if available.
+   */
+  public function getTranslatedEntity($object);
 
   /**
    * Alias for Grid::itemAttributes().
@@ -501,6 +499,22 @@ interface BlazyInterface {
    * @see \Drupal\splide_ui\Controller\SplideListBuilder::render()
    */
   public function toGrid($items, array $settings): array;
+
+  /**
+   * Returns the common content item.
+   *
+   * @param array $content
+   *   The content.
+   * @param string $tag
+   *   The HTML tag.
+   * @param string|array $class
+   *   If provided, will be wrapped with #html_tag, else returned as is.
+   *   It can a string of class, or an array of attributes.
+   *
+   * @return array
+   *   The content to be wrapped with #html_tag, or as is if no class provided.
+   */
+  public function toHtml(array $content, $tag = 'div', $class = NULL): array;
 
   /**
    * A helper to gradually convert things to #things to avoid render error.

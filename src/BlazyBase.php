@@ -113,6 +113,8 @@ abstract class BlazyBase implements BlazyInterface {
 
   /**
    * Constructs a BlazyBase object.
+   *
+   * @todo replace dups with blazy.libraries at 3.x.
    */
   public function __construct(
     $root,
@@ -124,6 +126,11 @@ abstract class BlazyBase implements BlazyInterface {
     CacheBackendInterface $cache,
     LanguageManager $language_manager
   ) {
+    // @todo enable at 3.x: $this->libraries = $libraries;
+    // $this->root = $libraries->root();
+    // $this->cache = $libraries->cache();
+    // $this->configFactory = $libraries->configFactory();
+    // $this->moduleHandler = $libraries->moduleHandler();
     $this->root              = $root;
     $this->entityRepository  = $entity_repository;
     $this->entityTypeManager = $entity_type_manager;
@@ -136,9 +143,12 @@ abstract class BlazyBase implements BlazyInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo replace dups with blazy.libraries at 3.x.
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      // @todo enable at 3.x: $container->get('blazy.libraries'),
       Blazy::root($container),
       $container->get('entity.repository'),
       $container->get('entity_type.manager'),
@@ -210,6 +220,7 @@ abstract class BlazyBase implements BlazyInterface {
    * {@inheritdoc}
    */
   public function routeMatch() {
+    // @todo at 3.x: return $this->libraries->routeMatch();
     return Blazy::service('current_route_match');
   }
 
@@ -220,6 +231,7 @@ abstract class BlazyBase implements BlazyInterface {
     $config  = $this->configFactory->get($group);
     $configs = $config->get();
     unset($configs['_core']);
+    // @todo at 3.x: return $this->libraries->config($key, $group);
     return empty($key) ? $configs : $config->get($key);
   }
 
@@ -227,6 +239,7 @@ abstract class BlazyBase implements BlazyInterface {
    * {@inheritdoc}
    */
   public function configMultiple($group = 'blazy.settings'): array {
+    // @todo at 3.x: return $this->libraries->configMultiple($group);
     return $this->config(NULL, $group) ?: [];
   }
 
@@ -238,7 +251,7 @@ abstract class BlazyBase implements BlazyInterface {
     $formatter = 'blazy_base',
     array $settings = []
   ): void {
-    BlazyAlter::configSchemaInfoAlter($definitions, $formatter, $settings);
+    Blazy::configSchemaInfoAlter($definitions, $formatter, $settings);
   }
 
   /**
@@ -312,6 +325,7 @@ abstract class BlazyBase implements BlazyInterface {
         $this->cachedOptions[$cid] = $data;
       }
     }
+    // @todo at 3.x: return $this->libraries->getCachedData();
     return $this->cachedOptions[$cid] ?: [];
   }
 
@@ -346,14 +360,8 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function getLibraries(array $names, $base_path = FALSE): array {
-    return Blazy::getLibraries($names, $base_path);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getLibrariesPath($name, $base_path = FALSE): ?string {
+    // @todo at 3.x: return $this->libraries->getPath($name, $base_path);
     return Blazy::getLibrariesPath($name, $base_path);
   }
 
@@ -369,6 +377,16 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function getStorage($type = 'media') {
     return $this->entityTypeManager->getStorage($type);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTranslatedEntity($object) {
+    if ($object instanceof EntityInterface) {
+      return $this->entityRepository->getTranslationFromContext($object);
+    }
+    return $object;
   }
 
   /**
@@ -489,6 +507,13 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function toHtml(array $content, $tag = 'div', $class = NULL): array {
+    return Blazy::toHtml($content, $tag, $class);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function hashtag(array &$data, $key = 'settings', $unset = FALSE): void {
     Blazy::hashtag($data, $key, $unset);
   }
@@ -508,6 +533,7 @@ abstract class BlazyBase implements BlazyInterface {
       $options = array_map('\Drupal\Component\Utility\Html::escape', $options);
       uasort($options, 'strnatcasecmp');
     }
+    // @todo at 3.x: return $this->libraries->toOptions($options);
     return $options;
   }
 
@@ -516,8 +542,9 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function toSettings(array &$settings, array $data, $key = 'blazies', array $defaults = []): array {
     $object = Blazy::reset($settings, $key, $defaults);
-    $object->set($data);
-
+    if ($data) {
+      $object->set($data);
+    }
     return $settings;
   }
 
