@@ -176,7 +176,7 @@ class BlazyImage {
    * @todo simplify this, like everything else. An obvious confusion here.
    * @todo return image item directly without settings.
    */
-  public static function fromAny($object = NULL, array &$settings = []): ?object {
+  public static function fromAny($object, array &$settings = []): ?object {
     // @todo remove check at 3.x after sub-modules and VEF removed.
     Blazy::verify($settings);
     $blazies = $settings['blazies'];
@@ -189,26 +189,32 @@ class BlazyImage {
     else {
       // Extracts File entity from any object or settings, if applicable.
       // Node, EntityReferenceRevisionsItem, etc.
+      // We do not come from BlazyFileFormatter, and co, here on. Instead
+      // called by BlazyFilter file upload and legacy BlazyViewsFieldFile.
       $entity = BlazyFile::item($object, $settings);
 
-      // Called by BlazyFilter file upload and legacy BlazyViewsFieldFile.
       if (BlazyFile::isFile($entity)
         && $factory = Blazy::service('image.factory')) {
         // Might be a video/ audio file URI, not just image.
+        // @todo recheck not available beyond formatters, such as View Fields:
+        // $item = $entity->_referringItem;
         $check = $entity->getFileUri();
 
         if ($image = $factory->get($check)) {
           $output = self::fakeFromFactory($blazies, $entity, $image);
-          $uri = $output ? ($output->uri ?? NULL) : NULL;
+          if ($output) {
+            $uri = $output->uri;
+            $blazies->set('image.item', $output);
+          }
         }
       }
     }
 
-    // Called by formatters.
+    // Called by entity formatters, excluding file.
     if (empty($output)) {
       $options = [
-        'entity' => $entity,
-        'source' => $entity == $object ? NULL : $object,
+        'entity'   => $entity,
+        'source'   => $entity == $object ? NULL : $object,
         'settings' => $settings,
       ];
 
@@ -240,7 +246,7 @@ class BlazyImage {
    * PHP 7.2 accepts object. D8 >= PHP 7.3. Not good for D7 backport.
    */
   public static function item($item = NULL, array $options = [], $name = NULL): ?object {
-    return self::isImage($item) ? $item : self::fromContent($options, $name);
+    return self::isValidItem($item) ? $item : self::fromContent($options, $name);
   }
 
   /**
@@ -362,27 +368,11 @@ class BlazyImage {
   /**
    * Checks for Image styles at container level once, except for multi-styles.
    *
-   * Specific for lightbox, it can also be Responsive image, but not here.
-   *
-   * @param array $settings
-   *   The modified settings.
-   * @param bool $multiple
-   *   A flag for various Image styles: Blazy Filter, etc., old GridStack.
-   *   While most field formatters can only have one image style per field.
+   * @todo remove for BlazyManager::imageStyles().
    */
   public static function styles(array &$settings, $multiple = FALSE): void {
-    $blazies = $settings['blazies'];
     if ($manager = Blazy::service('blazy.manager')) {
-      foreach (BlazyDefault::imageStyles() as $key) {
-        if (!$blazies->get($key . '.style') || $multiple) {
-          if ($_style = ($settings[$key . '_style'] ?? '')) {
-            if ($entity = $manager->load($_style, 'image_style')) {
-              $blazies->set($key . '.style', $entity)
-                ->set($key . '.id', $entity->id());
-            }
-          }
-        }
-      }
+      $manager->imageStyles($settings, $multiple);
     }
   }
 
@@ -492,8 +482,11 @@ class BlazyImage {
 
   /**
    * Returns fake image item based on the given $blazies.
+   *
+   * @todo remove ImageItem, fake or real, at 3.x. No longer neccessary with
+   * $blazies as object as planned at BlazyMedia since 2.6.
    */
-  public static function fakeFromSettings($blazies) {
+  public static function fakeFromSettings($blazies): object {
     $item = new \stdClass();
     foreach (BlazyDefault::imageProperties() as $key) {
       if ($value = $blazies->get('image.' . $key)) {
@@ -505,6 +498,9 @@ class BlazyImage {
 
   /**
    * Returns data to provide fake image item of file entity via ImageFactory.
+   *
+   * @todo remove ImageItem, fake or real, at 3.x. No longer neccessary with
+   * $blazies as object as planned at BlazyMedia since 2.6.
    */
   private static function fakeFromFactory(&$blazies, $file, $image): ?object {
     /** @var \Drupal\file\Entity\File $file */
@@ -514,18 +510,23 @@ class BlazyImage {
     // ALT and TITLE might be hand-coded from BlazyFilter, and so meaningful.
     if ($type == 'image' && $image->isValid()) {
       $name = $file->getFilename();
+      $dims = [
+        'width'  => $image->getWidth(),
+        'height' => $image->getHeight(),
+      ];
+
       $data = [
         'uri'       => $file->getFileUri(),
         'target_id' => $file->id(),
-        'width'     => $image->getWidth(),
-        'height'    => $image->getHeight(),
         'alt'       => $blazies->get('image.alt', $name),
         'title'     => $blazies->get('image.title', $name),
         'type'      => 'image',
         'entity'    => $file,
-      ];
+      ] + $dims;
 
-      $blazies->set('image', $data, TRUE);
+      $blazies->set('image', $data, TRUE)
+        ->set('image.original', $dims, TRUE);
+
       return self::fakeFromSettings($blazies);
     }
     return NULL;
@@ -586,11 +587,9 @@ class BlazyImage {
   private static function transformed(array &$settings, $uri): void {
     $blazies = $settings['blazies'];
 
-    // Only transform internal urls, not external nor SVG as they don't convert.
-    // However GIF, etc. can still be converted. We'll refine SVG down below.
-    if (!$blazies->is('svg')
-      && !$blazies->is('external')
-      && !$blazies->is('data_uri')) {
+    // GIF, etc. can be converted. We'll refine SVG, external URL down below.
+    // For now, only data URI is out of question.
+    if (!$blazies->is('data_uri')) {
       self::transformedInternal($settings, $uri);
     }
 
@@ -609,15 +608,16 @@ class BlazyImage {
     $blazies = $settings['blazies'];
     foreach (BlazyDefault::imageStyles() as $key) {
       if ($style = $blazies->get($key . '.style')) {
-        // @todo enable $skip = $key == 'image' && $blazies->is('dimensions') && $blazies->get('image.height');
-        // Only re-calculate dimensions if not cropped, nor already set.
-        // if (!$skip) {
+
+        // @todo recheck if to disable for external URL upstream.
         $data = self::transformDimensions($style, $blazies, $uri);
         $blazies->set($key, $data, TRUE);
-        // }
+
         // Different urls for different image styles.
-        $url = self::toUrl($settings, $style, $uri);
-        $blazies->set($key . '.url', $url);
+        if (!$blazies->is('svg') && !$blazies->is('external')) {
+          $url = self::toUrl($settings, $style, $uri);
+          $blazies->set($key . '.url', $url);
+        }
 
         // To avoid double checks.
         if ($key == 'image') {

@@ -344,24 +344,28 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $data_uri = FALSE;
     $uuid     = $attrs['data-entity-uuid'] ?? NULL;
 
-    // Attempts to get the correct URI with hard-coded URL if applicable, e.g:
-    // /site/default/files/image.jpg into public://image.jpg.
     // 1. Data URI can only be seen if `Trust data URI` enabled, else empty.
     if (Blazy::isDataUri($src)) {
       $uri = $src;
       $data_uri = TRUE;
+
+      // Data URI is just an URI, only monstrous.
       $blazies->set('image.uri', $uri)
         ->set('image.url', $uri)
         ->set('is.data_uri', TRUE)
         ->set('image.trusted', TRUE);
     }
     else {
-      // 2. Uploaded files.
+      // 2. Uploaded files, external, etc. Might be NULL.
+      // Attempts to get the correct URI with hard-coded URL if applicable, e.g:
+      // /site/default/files/image.jpg into public://image.jpg.
       $uri = File::buildUri($src);
 
-      $blazies->set('entity.uuid', $uuid)
-        ->set('image.uri', $uri);
-      $file = File::item(NULL, $settings, $uri);
+      if ($uri) {
+        $blazies->set('entity.uuid', $uuid)
+          ->set('image.uri', $uri);
+        $file = File::item(NULL, $settings, $uri);
+      }
     }
 
     // 3. Uploaded image has UUID with file API.
@@ -376,7 +380,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       }
     }
     else {
-      // 4. Manually hard-coded image has no UUID, nor file API.
+      // 4. Manually hard-coded URL, external, has no UUID, nor file API.
       // URI validity is not crucial, URL is the bare minimum for Blazy to work.
       $uri = $uri ?: $src;
 
@@ -422,9 +426,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     }
 
     // Runs after type, width and height set, if any, to not recheck them.
-    $build['#delta']    = $delta;
-    $build['#entity']   = $media;
-    $build['#settings'] = $settings;
+    $build['#entity'] = $media;
     $this->blazyOembed->build($build);
   }
 
@@ -434,7 +436,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   protected function buildItemAttributes(array &$build, $node, $delta = 0): void {
     $this->manager->hashtag($build);
 
-    $sets    = $build['#settings'];
+    $sets    = &$build['#settings'];
     $blazies = $sets['blazies'];
 
     // In case we forgot what we were talking about, add a reminder.
@@ -445,6 +447,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
         if ($caption = $node->getAttribute($key)) {
           $k = $key == 'caption' ? 'alt' : $key;
           $build['captions'][$k] = ['#markup' => $this->filterHtml($caption)];
+          $blazies->set('image.' . $k, strip_tags($caption))
+            ->set('image.shortcode', TRUE);
           $node->removeAttribute($key);
         }
       }
@@ -534,7 +538,10 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     // These dups are required to build image styles, ratio, etc.
     foreach (['width', 'height', 'alt', 'title'] as $key) {
       if ($value = $attrs[$key] ?? NULL) {
-        $blazies->set('image.' . $key, $value);
+        // Might be set by shortcode which has more meaningful intentions.
+        if (!$blazies->get('image.' . $key)) {
+          $blazies->set('image.' . $key, $value);
+        }
       }
       // Who knows unsetting NULL would be deprecated, like trim(), etc.
       unset($attrs[$key]);
@@ -542,7 +549,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     // Do not pass SRC into theme_image() so that lazy load works.
     // Also the width and height so to make data-responsive|image-style works.
-    // BlazyFilter doen't offer UI for loading attribute, sub-modules do,
+    // BlazyFilter doesn't offer UI for loading attribute, sub-modules do,
     // yet respect the editor textarea as the only UI better than global UI.
     // Might work agaisnt the offered UI, but no biggies for now.
     // @todo recheck anything against the grand design.
@@ -649,7 +656,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       $blazies  = $settings['blazies'];
 
       $blazies->set('is.multistyle', TRUE);
-      Image::styles($settings, TRUE);
+      $this->manager->imageStyles($settings, TRUE);
     }
   }
 

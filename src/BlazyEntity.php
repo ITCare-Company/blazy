@@ -97,6 +97,7 @@ class BlazyEntity implements BlazyEntityInterface {
     // This class was designed for a single entity, not multiple.
     // Call this method at the container level if multiple.
     // @todo re-arrange, this needs media metadata from ::oembed() below.
+    // Temporary, extracted separately via BlazyMedia::prepare() above.
     $this->prepare($data);
 
     // Individual entity settings.

@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\Utility\CheckItem;
 
 /**
@@ -46,7 +47,7 @@ class Preloader {
   /**
    * Extracts uris from file/ media entity, relevant for the new option Preload.
    *
-   * @requires image styles defined.
+   * @requires image styles defined via BlazyImage::styles().
    *
    * Also extract the found image for gallery/ zoom like, ElevateZoomPlus, etc.
    *
@@ -183,7 +184,7 @@ class Preloader {
         $valid = $source['valid'];
 
         // Preloading 1px data URI makes no sense, see if image_url exists.
-        $data_uri = $url && mb_substr($url, 0, 10) === 'data:image';
+        $data_uri = Blazy::isDataUri($url);
         if ($data_uri && $url2 = $source['url'] ?? NULL) {
           $url = $url2;
         }

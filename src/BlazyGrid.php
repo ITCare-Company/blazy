@@ -4,6 +4,8 @@ namespace Drupal\blazy;
 
 use Drupal\blazy\Theme\Grid;
 
+@trigger_error('The ' . __NAMESPACE__ . '\BlazyGrid is deprecated in blazy:8.x-2.9 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Blazy::grid() or \Drupal\blazy\BlazyManager::toGrid() instead. See https://www.drupal.org/node/3367304', E_USER_DEPRECATED);
+
 /**
  * Deprecated in blazy:8.x-2.9.
  *

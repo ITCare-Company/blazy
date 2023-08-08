@@ -76,6 +76,28 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
   public function getThumbnail(array $settings, $item = NULL, array $captions = []): array;
 
   /**
+   * Checks for Image styles at container level once, except for multi-styles.
+   *
+   * Specific for lightbox, it can also be Responsive image, but not here.
+   * The output is stored in blazies under each key of the provided styles
+   * defined by the respective key under $settings, e.g.: image_style to
+   * blazies.image.style, etc. Nothing is loaded if no setting is provided.
+   *
+   * @param array $settings
+   *   The modified settings.
+   * @param bool $multiple
+   *   A flag for various Image styles: Blazy Filter, etc., old GridStack.
+   *   While most field formatters can only have one image style per field.
+   * @param array $styles
+   *   The image styles, default to BlazyDefault::imageStyles().
+   *   If more to be added, the convention is to not suffix it with _style,
+   *   e.g.: image will be auto-suffixed as image_style, etc.
+   *
+   * @see \Drupal\blazy\BlazyDefault::imageStyles()
+   */
+  public function imageStyles(array &$settings, $multiple = FALSE, array $styles = []): void;
+
+  /**
    * Checks for Blazy formatter such as from within a Views style plugin.
    *
    * Ensures the settings traverse up to the container where Blazy is clueless.

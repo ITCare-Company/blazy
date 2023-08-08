@@ -18,10 +18,12 @@ class Thumbnail {
   /**
    * Returns the thumbnail image using theme_image(), or theme_image_style().
    *
-   * Alt and SRC will be auto-escaped when entering Twig, this is just to make
-   * sure no unknown edge cases get in the way.
-   *
-   * @see https://www.drupal.org/node/2489544
+   * Since 2.17, thumbnail approaches are changed too for compelling reasons:
+   *   - Thumbnails are poorly informed given the new SVG, or unstyled URIs.
+   *   - Captions can already be merged as part of theme_blazy().
+   *   - Adding caption fields, such as File description, are easier to update
+   *     than walking through each sub-modules due to their hard-coded natures.
+   *   - Shortly, economy maintenance.
    */
   public static function view(array $settings, $item = NULL, array $captions = []): array {
     Blazy::verify($settings);
@@ -49,6 +51,8 @@ class Thumbnail {
       $output['#settings'] = $settings;
       return $output;
     }
+
+    // @todo remove at 3.x:
     return self::image($settings, $item);
   }
 
@@ -56,6 +60,10 @@ class Thumbnail {
    * Returns the thumbnail image using theme_image(), or theme_image_style().
    *
    * Given SVG and co, data URI, UGC, even thumbnails are no longer peaceful.
+   * Alt and SRC will be auto-escaped when entering Twig, this is just to make
+   * sure no unknown edge cases get in the way.
+   *
+   * @see https://www.drupal.org/node/2489544
    */
   private static function image(array $settings, $item = NULL, $class = NULL): array {
     $blazies = $settings['blazies'];

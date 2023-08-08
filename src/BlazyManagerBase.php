@@ -86,6 +86,25 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   /**
    * {@inheritdoc}
    */
+  public function imageStyles(array &$settings, $multiple = FALSE, array $styles = []): void {
+    $blazies = $settings['blazies'];
+    $styles  = $styles ?: BlazyDefault::imageStyles();
+
+    foreach ($styles as $key) {
+      if (!$blazies->get($key . '.style') || $multiple) {
+        if ($_style = ($settings[$key . '_style'] ?? '')) {
+          if ($entity = $this->load($_style, 'image_style')) {
+            $blazies->set($key . '.style', $entity)
+              ->set($key . '.id', $entity->id());
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getLightboxes(): array {
     $cid = 'blazy_lightboxes';
     // @todo at 3.x: $this->libraries->getLightboxes();
