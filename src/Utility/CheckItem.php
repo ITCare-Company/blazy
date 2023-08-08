@@ -7,6 +7,7 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Vef;
 use Drupal\blazy\Theme\BlazyAttribute;
 
@@ -118,30 +119,32 @@ class CheckItem {
    * Image URI might be NULL given rich media like Facebook, etc., no problem.
    * That is why this is called twice. Once to check, another to re-check.
    */
-  public static function essentials(array &$attributes, array &$settings, $item = NULL): void {
+  public static function essentials(array &$settings, $item, $called = FALSE): void {
+    // Bail out early if already called/ processed.
+    if ($called) {
+      return;
+    }
+
     $blazies = $settings['blazies'];
 
     // Define the multimedia, needed for media ALT and TITLE checks below.
     // Also VEF will convert its video_embed_field into a fake image item here.
     self::multimedia($settings);
 
-    if ($item) {
-      // File cache tags, cannot be read by tests from #pre_render.
-      if ($file = ($item->entity ?? NULL)) {
-        $tags = $file->getCacheTags();
-        $blazies->set('cache.metadata.tags', $tags, TRUE);
+    // Must be here for tests to pass file cache checks.
+    // File cache tags cannot be read by tests from #pre_render.
+    if ($item && $file = ($item->entity ?? NULL)) {
+      $tags = $file->getCacheTags();
+      $blazies->set('cache.metadata.tags', $tags, TRUE);
+
+      // Trusted here is more to separate unknown from known sources of URIs.
+      if (!$blazies->get('image.trusted')) {
+        $blazies->set('image.trusted', BlazyImage::isImage($item));
       }
     }
 
-    // Must be here for tests to pass file cache checks:
     // Must be placed after self::multimedia() to get different ALT/ TITLE.
-    BlazyAttribute::altTitle($blazies, $item, $attributes);
-
-    // Bail out early if already processed.
-    // @todo disable if any issues given various sources.
-    if ($blazies->was('essentials')) {
-      return;
-    }
+    BlazyAttribute::altTitle($blazies, $item);
 
     // The first is for 2.6+ approach. The last to account for custom works
     // with old approach/ or direct call to theme_blazy() via settings.uri.

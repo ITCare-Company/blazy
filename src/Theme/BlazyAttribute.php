@@ -152,7 +152,11 @@ class BlazyAttribute {
     $settings   = &$variables['settings'];
     $blazies    = $settings['blazies'];
 
-    // (Responsive) image is optional for Video, or image as CSS background.
+    // 1. Prepares thumbnail and optional placeholder based on thumbnail.
+    // Do not place this any lower, else breaking some logic below.
+    Placeholder::prepare($attributes, $settings);
+
+    // 2. (Responsive) image is optional for Video, or image as CSS background.
     if ($blazies->get('resimage.id')) {
       self::buildResponsiveImage($variables);
     }
@@ -160,35 +164,35 @@ class BlazyAttribute {
       self::buildImage($variables);
     }
 
-    // The settings.bgs is output specific for CSS background purposes with BC.
+    // 3. The bgs is output specific for CSS background purposes with BC.
     // This is applied to both Responsive and plain old images.
     if ($bgs = $blazies->get('bgs')) {
       self::background($attributes, $blazies, $bgs);
     }
 
-    // Prepare iframe, and allow a tiny video preview without iframe.
+    // 4. Prepare iframe, and allow a tiny video preview without iframe.
     if ($blazies->is('iframe') && !$blazies->is('noiframe')) {
       self::buildIframe($variables);
     }
 
-    // (Responsive) image is optional for Video, or image as CSS background.
+    // 5. (Responsive) image is optional for Video, or image as CSS background.
     if ($variables['image'] || $bgs) {
       if ($variables['image']) {
         self::image($variables);
       }
 
-      // Only blur if it has an image, or BG, including the media player.
+      // 6. Only blur if it has an image, or BG, including the media player.
       if ($blazies->is('blur')) {
         Placeholder::blur($variables, $settings);
       }
     }
 
-    // Multi-breakpoint aspect ratio only applies if lazyloaded.
+    // 7. Multi-breakpoint aspect ratio only applies if lazyloaded.
     // These may be set once at formatter level, or per breakpoint above.
     // Only relevant if Fluid is selected for Aspect ratio, else a leak.
     // @todo rename it to data-b-ratios at/by 3.x.
-    if ($blazies->is('fluid')) {
-      if (!$blazies->is('undata') && $ratios = $blazies->get('ratios', [])) {
+    if ($blazies->is('fluid') && !$blazies->is('undata')) {
+      if ($ratios = $blazies->get('ratios', [])) {
         // @todo replace with data-b-ratios by 3.x to avoid potential conflicts.
         $attributes['data-ratios'] = Json::encode($ratios);
       }
@@ -206,15 +210,11 @@ class BlazyAttribute {
    */
   public static function iframe(array &$settings): array {
     $blazies = $settings['blazies'];
-    $attributes['class'] = ['b-lazy'];
     $attributes['allowfullscreen'] = TRUE;
-    $is_escaped = $blazies->get('media.escaped');
 
     // Already escaped upstream for core, except for contribs.
     $embed_url = $blazies->get('media.embed_url');
-
-    // @todo recheck if any side effect/ double escape to cdn/ valid input.
-    if (!$is_escaped) {
+    if (!$blazies->get('media.escaped')) {
       $embed_url = UrlHelper::stripDangerousProtocols($embed_url);
     }
 
@@ -232,6 +232,7 @@ class BlazyAttribute {
     // Non-native lazyload for oldies to avoid loading src, the most efficient.
     // No cookies are loaded from external sites till the play button clicked.
     else {
+      $attributes['class'] = ['b-lazy'];
       $attributes['data-src'] = $embed_url;
       $attributes['src'] = 'about:blank';
     }
@@ -286,17 +287,18 @@ class BlazyAttribute {
   /**
    * Return the image alt and title, also accounts for multimedia and UGC.
    */
-  public static function altTitle($blazies, $item = NULL, array $attributes = []): array {
+  public static function altTitle($blazies, $item = NULL): array {
     [
       'alt' => $alt,
       'title' => $title,
-    ] = self::altTitleRaw($blazies, $item, $attributes);
+    ] = self::altTitleRaw($blazies, $item);
 
-    // $extra_attrs = $blazies->get('item.safe_attributes', []);
-    // Respects hand-coded image attributes, and accounts for UGC.
+    // Ensures no double escapes since it might called anywhere.
+    if ($blazies->get('image.escaped')) {
+      return ['alt' => $alt ?: '', 'title' => $title];
+    }
+
     // Updates $title whether for audio/ video, or just image.
-    // Might be abused to use HTML, fine for lightboxes, but not attributes.
-    // This should make both parties happier ever after, sort of.
     if ($title) {
       $title = Html::escape($title);
       // Twig will escape Can't to Can&#039;t, else doubles: Can&amp;#039;t.
@@ -339,26 +341,34 @@ class BlazyAttribute {
     }
 
     // Redefine for good reasons.
-    $output = ['alt' => $alt ?: '', 'title' => $title];
     $blazies->set('image.alt', $alt)
       ->set('image.title', $title)
       ->set('image.escaped', TRUE);
 
-    return $output;
+    return ['alt' => $alt ?: '', 'title' => $title];
   }
 
   /**
-   * Return the raw image alt and title, also accounts for multimedia and UGC.
+   * Return the raw image alt and title, normally for captions, not attributes.
    */
-  public static function altTitleRaw($blazies, $item = NULL, array $attributes = []): array {
-    $title = $blazies->get('image.title') ?: $blazies->get('media.label');
-    $title = $attributes['title'] ?? $title;
-    $alt   = $blazies->get('image.alt', $attributes['alt'] ?? '');
+  private static function altTitleRaw($blazies, $item = NULL): array {
+    $title = $blazies->get('image.raw.title');
+    $alt   = $blazies->get('image.raw.alt');
 
+    // Ensures no double processes.
+    if ($blazies->get('image.raw.processed')) {
+      return ['alt' => $alt ?: '', 'title' => $title];
+    }
+
+    $title = $blazies->get('image.title') ?: $blazies->get('media.label');
+    $alt   = $blazies->get('image.alt');
+
+    // @todo remove this item check at 3.x, once they are all in $blazies.
     if ($item) {
+      // Title from fake item might be just file name, except from BlazyFilter.
       // Needed by thumbnails if any image item, fake or real, no biggies.
-      // Extracts alt from $item.
-      $alt  = empty($item->alt) ? $alt : trim($item->alt);
+      // @todo recheck, alt from fake image factory might be just file name.
+      $alt = empty($item->alt) ? $alt : trim($item->alt);
       $desc = $item->description ?? NULL;
 
       // File SVG with description_field enabled.
@@ -372,23 +382,20 @@ class BlazyAttribute {
       }
     }
 
-    // $extra_attrs = $blazies->get('item.safe_attributes', []);
-    // Respects hand-coded image attributes, and accounts for UGC.
-    // Updates $title whether for audio/ video, or just image.
-    // Might be abused to use HTML, fine for lightboxes, but not attributes.
+    // Might be abused to use HTML, fine for captions, but not attributes.
     // This should make both parties happier ever after, sort of.
     if ($title) {
       $title = strip_tags($title);
     }
 
-    if ($alt) {
-      $alt = strip_tags($alt);
-    }
+    $alt = strip_tags($alt ?: '');
 
-    $blazies->set('image.raw.alt', $alt ?: '')
-      ->set('image.raw.title', $title);
+    // Ensures called once, else filled up even when it should be empty.
+    $blazies->set('image.raw.alt', $alt)
+      ->set('image.raw.title', $title)
+      ->set('image.raw.processed', TRUE);
 
-    return ['alt' => $alt ?: '', 'title' => $title];
+    return ['alt' => $alt, 'title' => $title];
   }
 
   /**
@@ -411,7 +418,7 @@ class BlazyAttribute {
   private static function background(array &$attributes, $blazies, $bgs): void {
     $attributes['class'][] = 'b-bg';
     $attributes['data-b-bg'] = Json::encode($bgs);
-    // @todo remove $url = $blazies->get('image.url');
+
     // If using BG, store title in the permanent container.
     if ($blazies->is('multimedia') && $title = self::altTitle($blazies)['title']) {
       $attributes['title'] = $title;
@@ -428,7 +435,7 @@ class BlazyAttribute {
     $blazies    = $settings['blazies'];
 
     // Provides image alt and title, and also accounts for multimedia.
-    $attributes['alt'] = $blazies->get('image.alt');
+    $attributes['alt'] = $blazies->get('image.alt', '');
 
     if ($title = $blazies->get('image.title')) {
       $attributes['title'] = $title;

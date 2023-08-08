@@ -83,7 +83,7 @@ class BlazyImage {
    * This one is original image, not styled like self:transformDimensions().
    * Sources: formatters, filters or any hard-coded unmanaged files like VEF.
    */
-  public static function dimensions(array &$settings, $item = NULL, $initial = FALSE): array {
+  public static function dimensions(array &$settings, $item, $uri, $initial = FALSE): array {
     $blazies = $settings['blazies'];
     $_width  = 'width';
     $_height = 'height';
@@ -91,12 +91,16 @@ class BlazyImage {
     $which   = $initial ? 'first' : 'image';
     $height  = $blazies->get($which . '.height');
     $width   = $blazies->get($which . '.width');
-    $uri     = $blazies->get($which . '.uri');
+    $uri     = $uri ?: $blazies->get($which . '.uri');
 
     // Original image sizes are stored within ImageItem, or fake one.
-    // The given item might also be VideoEmbedField, unless converted at
-    // Vef::toEmbedUrl().
-    if ($item = $blazies->get('image.item', $item)) {
+    if ($item) {
+      // The given item might also be VideoEmbedField, unless converted at
+      // Vef::toEmbedUrl(). Ensures it is not screwing up.
+      if (!isset($item->width)) {
+        $item = $blazies->get('image.item');
+      }
+
       $width = $item->width ?? $width;
       $height = $item->height ?? $height;
 
@@ -338,11 +342,11 @@ class BlazyImage {
     // media is not directly managed by theme_blazy() aka outside the workflow,
     // it is an embedded field. The correct solution is to call this method
     // before working with local media. They won't re-enter this method again.
-    $blazies = $settings['blazies'];
-    $uri = $blazies->get('image.uri') ?: $uri;
+    $blazies = $settings['blazies']->reset($settings);
+    $uri = $uri ?: $blazies->get('image.uri');
 
     // Provides original image dimensions.
-    self::dimensions($settings, $item, FALSE);
+    self::dimensions($settings, $item, $uri, FALSE);
 
     // Provides transformed image dimensions regardless unstyled so to have
     // correct dimensions at lightboxes, thumbnails, etc.
@@ -507,6 +511,7 @@ class BlazyImage {
     [$type] = explode('/', $file->getMimeType(), 2);
 
     // Including image/svg+xml.
+    // ALT and TITLE might be hand-coded from BlazyFilter, and so meaningful.
     if ($type == 'image' && $image->isValid()) {
       $name = $file->getFilename();
       $data = [
@@ -586,7 +591,7 @@ class BlazyImage {
     if (!$blazies->is('svg')
       && !$blazies->is('external')
       && !$blazies->is('data_uri')) {
-      self::transformedInternal($settings, $blazies, $uri);
+      self::transformedInternal($settings, $uri);
     }
 
     // External and unstyled image urls.
@@ -600,7 +605,8 @@ class BlazyImage {
   /**
    * Provides result of self::transformDimensions() for internal urls.
    */
-  private static function transformedInternal(array $settings, $blazies, $uri): void {
+  private static function transformedInternal(array &$settings, $uri): void {
+    $blazies = $settings['blazies'];
     foreach (BlazyDefault::imageStyles() as $key) {
       if ($style = $blazies->get($key . '.style')) {
         // @todo enable $skip = $key == 'image' && $blazies->is('dimensions') && $blazies->get('image.height');

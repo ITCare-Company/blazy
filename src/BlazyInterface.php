@@ -444,8 +444,8 @@ interface BlazyInterface {
    * It doesn't merge `blazies` with `gridstacks`, just old with new data of the
    * same instance.
    *
-   * @param array $keys
-   *   An array of config keys, e.g.: ['blazies', 'gridstacks', 'slicks'].
+   * @param array|string $keys
+   *   A string, or array of keys, e.g.: ['blazies', 'gridstacks', 'slicks'].
    * @param array $defaults
    *   An array containing old data.
    * @param array $configs
@@ -454,7 +454,7 @@ interface BlazyInterface {
    * @return array
    *   The merged configuration inside $configs.
    */
-  public function mergeSettings(array $keys, array $defaults, array $configs): array;
+  public function mergeSettings($keys, array $defaults, array $configs): array;
 
   /**
    * A wrapper for \Drupal\Core\Extension\ModuleHandlerInterface::moduleExists.

@@ -50,12 +50,18 @@ class BlazyMedia {
       '#entity'   => $media,
       '#settings' => $settings,
     ];
+    // @todo remove at 3.x reworks.
+    @trigger_error('build is deprecated in blazy:8.x-2.17 and is reworked in blazy:3.0.0. Use self::view() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
     // Temporary BC till the rework is done.
     return self::view($data);
   }
 
   /**
    * Returns the media field which is partly not understood by theme_blazy().
+   *
+   * When this output arrives at theme_blazy() as content property, Blazy can no
+   * longer work with it. That's why we need to do a relatively similar routine
+   * to BlazyManager::preRenderBlazy(), only to a bare mimimum.
    *
    * @param array $build
    *   The array containing:
@@ -67,18 +73,18 @@ class BlazyMedia {
    */
   public static function view(array $build): array {
     $media    = $build['#entity'];
-    $settings = $build['#settings'];
+    $settings = &$build['#settings'];
     $item     = $build['#item'] ?? NULL;
+    $manager  = Blazy::service('blazy.manager');
 
-    Blazy::verify($settings);
-    $blazies = $settings['blazies'];
+    if (!$manager) {
+      return [];
+    }
 
-    // Image styles, dimensions, etc. must be set here since they may enter
-    // theme_blazy() as non-workable content, printed as is once setup.
-    // @todo refine all these since this view is not workable at theme_blazy().
-    $attributes = [];
-    CheckItem::essentials($attributes, $settings, $item);
-    BlazyImage::prepare($settings, $item);
+    // Ensures the essentials setup early here since it enters theme_blazy() as
+    // non-workable content.
+    $blazies = $manager->preBlazy($build, $item);
+    $settings['blazies'] = $blazies;
 
     // Prevents fatal error with disconnected internet when having ME Facebook,
     // ME SlideShare, resorted to static thumbnails to avoid broken displays.
@@ -97,10 +103,12 @@ class BlazyMedia {
 
     $view_mode = $blazies->get('media.view_mode', $settings['view_mode'] ?? 'default');
     $source_field = $blazies->get('media.source_field');
-    $view = $media->get($source_field)->view($view_mode);
-    $view['#settings'] = $settings;
 
-    return isset($view[0]) ? self::unfield($view) : $view;
+    // Reset $build, except for #settings, we'll unwrap theme_field() here:
+    $build = $media->get($source_field)->view($view_mode);
+    $build['#settings'] = $settings;
+
+    return isset($build[0]) ? self::unfield($build) : $build;
   }
 
   /**
@@ -213,7 +221,7 @@ class BlazyMedia {
    * @return array
    *   The array of the media item to be wrapped directly by theme_blazy().
    */
-  private static function unfield(array $field): array {
+  private static function unfield(array &$field): array {
     $item      = $field[0];
     $settings  = &$field['#settings'];
     $blazies   = $settings['blazies'];

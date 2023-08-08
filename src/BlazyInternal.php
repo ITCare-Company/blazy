@@ -3,7 +3,6 @@
 namespace Drupal\blazy;
 
 use Drupal\blazy\Media\BlazyImage;
-use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Sanitize;
@@ -34,25 +33,18 @@ class BlazyInternal {
   }
 
   /**
-   * Prepares the essential settings, URI, delta, etc.
+   * Prepares the essential settings, URI, delta, cache , etc.
    */
-  public static function prepare(array &$attributes, array &$settings, $item = NULL): void {
-    // Checks for essential settings: URI, delta, cache and initial delta.
-    CheckItem::essentials($attributes, $settings, $item);
+  public static function prepare(array &$settings, $item, $called = FALSE): void {
+    CheckItem::essentials($settings, $item, $called);
     CheckItem::insanity($settings);
   }
 
   /**
-   * Blazy is prepared with an URI, provides few attributes as needed.
+   * Blazy is prepared with an URI.
    */
-  public static function prepared(array &$attributes, array &$item_attributes, array &$settings, $item = NULL): void {
-    // Prepare image URL and its dimensions, including for rich-media content,
-    // such as for local video poster image if a poster URI is provided.
-    // @todo move it up, too late here for thumbnails, audio, video, etc.
+  public static function prepared(array &$settings, $item): void {
     BlazyImage::prepare($settings, $item);
-
-    // Build thumbnail and optional placeholder based on thumbnail.
-    Placeholder::prepare($attributes, $settings);
   }
 
   /**
@@ -113,8 +105,10 @@ class BlazyInternal {
 
   /**
    * Preliminary settings, normally at container/ global level.
+   *
+   * @todo refine to separate container from item level. At least move grid out.
    */
-  public static function preSettings(array &$settings): void {
+  public static function preSettings(array &$settings, $root = TRUE): void {
     Blazy::verify($settings);
 
     $blazies = $settings['blazies'];
@@ -133,7 +127,9 @@ class BlazyInternal {
     Check::lightboxes($settings);
 
     // Checks for grids.
-    Check::grids($settings);
+    if ($root) {
+      Check::grids($settings);
+    }
 
     // Checks for Image styles, excluding Responsive image.
     BlazyImage::styles($settings);

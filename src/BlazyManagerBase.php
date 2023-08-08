@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\blazy\Cache\BlazyCache;
 use Drupal\blazy\Media\Thumbnail;
 use Drupal\blazy\Utility\Check;
+use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Deprecated\BlazyManagerDeprecatedTrait;
 
@@ -124,6 +125,30 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     // at any blazy/ sub-modules containers using:
     // $blazies->set('data.LIGHTBOX_NAME', $options) only if needed.
     $this->moduleHandler->alter('blazy_is_blazy', $settings, $original);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preBlazy(array &$build, $item = NULL): BlazySettings {
+    $this->hashtag($build);
+    $settings = &$build['#settings'];
+
+    $this->verify($settings);
+    $blazies = $settings['blazies'];
+
+    // Prevents double checks.
+    // BlazySettings is a self containing object, initialized at container level
+    // and must be renewed at item level to get correct delta, see #3278525.
+    $delta   = $blazies->get('delta', $build['#delta'] ?? 0);
+    $blazies = $settings['blazies']->reset($settings);
+
+    $blazies->set('delta', $delta)
+      ->set('is.api', TRUE);
+
+    CheckItem::essentials($settings, $item);
+
+    return $blazies;
   }
 
   /**

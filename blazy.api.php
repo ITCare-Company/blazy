@@ -48,11 +48,15 @@
  *     // While the invalid URI is just printed, only valid URI can have image
  *     // styles, or at least using a normal public URL: /sites/default/files/:
  *     ->set('image.uri', 'public://logo.png')
+ *
  *     // ->set('image.url', '/logo.png') // <= image.url alone won't work!
+ *
  *     // If you have no valid URI, simply change `url` to `uri` like below,
  *     // invalid URI is just printed:
  *     // ->set('image.uri', '/logo.png')
- *     ->set('image.alt', $this->t('Preview'))
+ *
+ *     ->set('image.alt', t('Preview'))
+ *
  *     // If you don't set `image_style`, provide a dimension in the least.
  *     ->set('image.width', 140)
  *     ->set('lazy.id', 'blazy');

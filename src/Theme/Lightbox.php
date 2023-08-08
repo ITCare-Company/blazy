@@ -108,15 +108,18 @@ class Lightbox {
         $attrs['data-oembed-url'] = $url;
         $json['boxType'] = 'iframe';
         $json['playable'] = $blazies->is('playable');
+
+        // Supports external URL when hard-coded iframe at BlazyFilter.
+        if ($blazies->get('image.url')) {
+          $data_box_url = TRUE;
+        }
       }
 
       // This allows PhotoSwipe with videos still swipable.
       if ($styleable && $check = $blazies->get('box_media.url')) {
-        $box_width  = $blazies->get('box_media.width') ?: $box_width;
-        $box_height = $blazies->get('box_media.height') ?: $box_height;
-        $box_url    = $check;
-
-        $blazies->set('lightbox.media_preview_url', $box_url);
+        $box_width    = $blazies->get('box_media.width') ?: $box_width;
+        $box_height   = $blazies->get('box_media.height') ?: $box_height;
+        $box_url      = $check;
         $data_box_url = TRUE;
       }
 
@@ -156,6 +159,7 @@ class Lightbox {
     // Only needed by videos, the rest can just use $url set into HREF.
     if (isset($data_box_url)) {
       $attrs['data-box-url'] = $box_url;
+      $blazies->set('lightbox.media_preview_url', $box_url);
     }
 
     $blazies->set('lightbox.url', $box_url)

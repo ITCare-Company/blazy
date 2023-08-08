@@ -375,13 +375,14 @@ class Check {
   public static function lightboxes(array &$settings): void {
     $blazies = $settings['blazies'];
     $switch  = $blazies->get('switch', $settings['media_switch'] ?? NULL);
+    $manager = Blazy::service('blazy.manager');
 
     // Bail out early if not so configured.
-    if (!$switch) {
+    if (!$switch || !$manager) {
       return;
     }
 
-    $lightboxes = $blazies->get('lightbox.plugins', blazy()->getLightboxes());
+    $lightboxes = $blazies->get('lightbox.plugins', $manager->getLightboxes());
     $lightbox   = in_array($switch, $lightboxes) ? $switch : FALSE;
     $optionset  = empty($settings[$switch]) ? $switch : $settings[$switch];
 

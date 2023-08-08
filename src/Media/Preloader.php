@@ -76,7 +76,7 @@ class Preloader {
           ->set('first.uri', $uri);
 
         // The first image dimensions to differ from individual item dimensions.
-        BlazyImage::dimensions($settings, $image, TRUE);
+        BlazyImage::dimensions($settings, $image, $uri, TRUE);
       }
 
       // @todo also pass $style + $image when all sources covered.

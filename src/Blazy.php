@@ -86,8 +86,8 @@ class Blazy {
   /**
    * Returns the safely processed image ALT and TITLE attributes.
    */
-  public static function altTitle($blazies, $item = NULL, array $attributes = []): array {
-    return BlazyAttribute::altTitle($blazies, $item, $attributes);
+  public static function altTitle($blazies, $item = NULL): array {
+    return BlazyAttribute::altTitle($blazies, $item);
   }
 
   /**
@@ -241,7 +241,8 @@ class Blazy {
   /**
    * Merge multiple BlazySettings objects.
    */
-  public static function mergeSettings(array $keys, array $defaults, array $configs): array {
+  public static function mergeSettings($keys, array $defaults, array $configs): array {
+    $keys = is_string($keys) ? [$keys] : $keys;
     foreach ($keys as $key) {
       $object = $defaults[$key] ?? NULL;
       $oldies = $object ? $object->storage() : [];

@@ -39,16 +39,16 @@ class Grid {
     }
 
     // Might be called outside Blazy workflows, allows altering settings once.
+    $attachments = $attrs = [];
     if ($manager = Blazy::service('blazy.manager')) {
       $manager->moduleHandler()->alter('blazy_settings_grid', $settings);
+      $attachments = $refresh ? $manager->attach($settings) : [];
     }
 
     $contents = self::content($items, $settings);
-    $attrs = [];
-
     self::attributes($attrs, $settings);
-    $wrappers = ['item-list--blazy'];
 
+    $wrappers = ['item-list--blazy'];
     if ($style = $settings['style'] ?? NULL) {
       $wrappers[] = 'item-list--blazy-' . str_replace('_', '-', $style);
     }
@@ -60,7 +60,7 @@ class Grid {
       '#attributes'         => $attrs,
       '#wrapper_attributes' => ['class' => array_merge(['item-list'], $wrappers)],
       '#title'              => self::label($blazies),
-      '#attached'           => $refresh ? \blazy()->attach($settings) : [],
+      '#attached'           => $attachments,
     ];
   }
 
@@ -401,7 +401,7 @@ class Grid {
       $sets = Blazy::toHashtag($item);
       $subs = Blazy::toHashtag($item['#build'] ?? []);
       $sets = Blazy::merge($subs, $sets);
-      $sets = Blazy::mergeSettings(['blazies'], $settings, $sets);
+      $sets = Blazy::mergeSettings('blazies', $settings, $sets);
       $wrapper_attrs = Blazy::toHashtag($item, 'attributes');
       $content_attrs = Blazy::toHashtag($item, 'content_attributes');
       $image = Blazy::toHashtag($item, 'item', NULL);

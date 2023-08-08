@@ -67,11 +67,8 @@ class BlazyTheme {
       $variables[$key] = empty($element["#$key"]) ? [] : new Attribute($element["#$key"]);
     }
 
-    $attributes = &$variables['attributes'];
-    $item_attributes = &$variables['item_attributes'];
-    $settings = &$variables['settings'];
-
     // With BlazySettings, no longer needed to shutup notices when lacking.
+    $settings = &$variables['settings'];
     Blazy::verify($settings);
 
     $blazies = $settings['blazies'];
@@ -80,8 +77,8 @@ class BlazyTheme {
 
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
-      BlazyInternal::preSettings($settings);
-      BlazyInternal::prepare($item_attributes, $settings, $item);
+      BlazyInternal::preSettings($settings, FALSE);
+      BlazyInternal::prepare($settings, $item);
     }
 
     // Do not proceed if no URI is provided. URI is not Blazy theme property.
@@ -93,7 +90,7 @@ class BlazyTheme {
     // URL and dimensions are built out at BlazyManager::preRenderBlazy().
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
-      BlazyInternal::prepared($attributes, $item_attributes, $settings, $item);
+      BlazyInternal::prepared($settings, $item);
     }
 
     // Allows rich Media entities stored within `content` to take over.

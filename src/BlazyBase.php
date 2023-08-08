@@ -479,7 +479,7 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function mergeSettings(array $keys, array $defaults, array $configs): array {
+  public function mergeSettings($keys, array $defaults, array $configs): array {
     return Blazy::mergeSettings($keys, $defaults, $configs);
   }
 

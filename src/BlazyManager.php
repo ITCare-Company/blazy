@@ -5,7 +5,6 @@ namespace Drupal\blazy;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\blazy\Theme\Lightbox;
-use Drupal\blazy\Utility\CheckItem;
 
 /**
  * Implements a public facing blazy manager.
@@ -266,12 +265,21 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       return;
     }
 
+    // Update with the processed settings, only needed for video posters so far.
+    // Since 2.17, replacing the current $settings was moved upstream at
+    // \Drupal\blazy\Media\BlazyOEmbed::fromMedia(), not here.
+    // What we do here is filling up $blazy with the processed image URL, etc.
+    $blazy = $build['content'][0]['#settings'] ?? NULL;
+    if ($blazy instanceof BlazySettings) {
+      $this->mergeSettings('blazies', $settings, $blazy->storage());
+    }
+
     // Prevents complication for now, such as lightbox for Facebook, etc.
     // Either makes no sense, or not currently supported without extra legs.
     // Original formatter settings can still be accessed via content variable.
     $blazies->set('placeholder', [])
-      ->set('is.bg', FALSE)
-      ->set('is.unlazy', TRUE)
+      // @todo recheck ->set('is.bg', FALSE)
+      // ->set('is.unlazy', TRUE)
       ->set('use.loader', FALSE);
 
     // Supports HTML content for lightboxes as long as having image trigger.
@@ -281,15 +289,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $litebox   = $blazies->is('lightbox');
     $richbox   = $blazies->is('richbox');
     $supported = $blazies->is('local_media') && $litebox && $richbox;
-    $blazy     = $build['content'][0]['#settings'] ?? NULL;
 
-    if ($supported && $hires && $blazy instanceof BlazySettings) {
-      // Overrides the overriden settings with original formatter settings.
-      // Might be confusing, but $blazy ($settings as object) was what we wanted
-      // since 2 RCs, only never succedded even at 3.x to anything other than
-      // these media entities. That is why re-dumped/ normalized as an array.
-      // And we only concerned about configurable settings, not objects here on.
-      $settings = $this->merge($blazy->storage(), $settings);
+    if ($supported && $hires) {
       $element['#lightbox_html'] = $build['content'];
 
       // This allows theme_blazy() to process it as workable media elements.
@@ -354,39 +355,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   }
 
   /**
-   * Checks for essential blazy features.
-   *
-   * @param array $build
-   *   The build array being modified.
-   * @param object $item
-   *   The optional image item.
-   *
-   * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings object.
-   */
-  private function preBlazy(array &$build, $item = NULL): BlazySettings {
-    $this->hashtag($build);
-    $settings = &$build['#settings'];
-
-    $this->verify($settings);
-
-    $blazies = $settings['blazies'];
-    $delta   = $blazies->get('delta', $build['#delta'] ?? 0);
-
-    // Prevents double checks.
-    // BlazySettings is a self containing object, initialized at container level
-    // and must be renewed at item level to get correct delta, see #3278525.
-    $blazies = $settings['blazies']->reset($settings);
-    $blazies->set('is.api', TRUE)
-      ->set('delta', $delta);
-
-    $attributes = &$build['#item_attributes'];
-    CheckItem::essentials($attributes, $settings, $item);
-
-    return $blazies;
-  }
-
-  /**
    * Prepares the Blazy output as a structured array ready for ::renderer().
    *
    * @param array $element
@@ -421,12 +389,14 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
 
     // Initial feature checks, URI, delta, media features, etc.
     $item_attributes = &$build['#item_attributes'];
-    BlazyInternal::prepare($item_attributes, $settings, $item);
+
+    // Ensures CheckItem::essentials() called once.
+    BlazyInternal::prepare($settings, $item, TRUE);
 
     // Build thumbnail and optional placeholder based on thumbnail.
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
-    BlazyInternal::prepared($attributes, $item_attributes, $settings, $item);
+    BlazyInternal::prepared($settings, $item);
 
     // Allows altering the settings for individual items.
     // Such as disabling lightbox for inline media player.

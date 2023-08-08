@@ -536,6 +536,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       if ($value = $attrs[$key] ?? NULL) {
         $blazies->set('image.' . $key, $value);
       }
+      // Who knows unsetting NULL would be deprecated, like trim(), etc.
+      unset($attrs[$key]);
     }
 
     // Do not pass SRC into theme_image() so that lazy load works.
@@ -544,12 +546,9 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     // yet respect the editor textarea as the only UI better than global UI.
     // Might work agaisnt the offered UI, but no biggies for now.
     // @todo recheck anything against the grand design.
-    $keys = ['data-src', 'src', 'width', 'height'];
-    foreach ($keys as $key) {
+    foreach (['data-src', 'src'] as $key) {
       // Who knows unsetting NULL would be deprecated, like trim(), etc.
-      if (isset($attrs[$key])) {
-        unset($attrs[$key]);
-      }
+      unset($attrs[$key]);
     }
 
     // Ensures iframe attributes are not passed through since item_attributes

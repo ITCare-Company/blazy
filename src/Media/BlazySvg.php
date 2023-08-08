@@ -31,6 +31,11 @@ class BlazySvg {
       ->set('image.url', BlazyImage::url($uri));
     $applicable = $attrs != 'none' && $blazies->use('svg_dimensions');
 
+    if ($fluid && !$attrs && $blazies->get('image.style')) {
+      $applicable = TRUE;
+      $attrs = 'image_style';
+    }
+
     // Checks for optional SVG dimensions, if any.
     if ($applicable && $svg = @simplexml_load_file($uri)) {
       [
