@@ -40,13 +40,16 @@ trait BlazyElementTrait {
    * @todo call self::themeBlazy() directly at 3.x after sub-modules.
    * @todo remove caption for captions at 3.x.
    */
-  protected function toElement($blazies, array $data, array $captions = []): array {
+  protected function toElement($blazies, array &$data, array $captions = []): array {
     $delta    = $data['#delta'] ?? 0;
     $captions = $captions ?: ($data['captions'] ?? $data['caption'] ?? []);
     $captions = array_filter($captions);
 
     // @todo remove caption for captions at 3.x.
     unset($data['captions'], $data['caption']);
+
+    // Call manager not formatter due to sub-module deviations.
+    $this->manager->verifyItem($data, $delta);
 
     // Provides inline SVG if applicable.
     $this->viewSvg($data);
@@ -94,8 +97,8 @@ trait BlazyElementTrait {
     $internal = $data;
 
     // Allows sub-modules to use theme_blazy() as their theme_ITEM() contents.
-    if ($this->toBlazy($internal, $captions, $delta)) {
-      $internal['captions'] = $captions;
+    if ($texts = $this->toBlazy($internal, $captions, $delta)) {
+      $internal['captions'] = $texts;
     }
 
     $blazy = $this->formatter->getBlazy($internal);
@@ -151,13 +154,10 @@ trait BlazyElementTrait {
   /**
    * Provides relevant attributes to feed into theme_blazy().
    */
-  private function toBlazy(array &$data, array &$captions, $delta): bool {
-    if ($captions = array_filter($captions)) {
-      // Call manager not formatter due to sub-module deviations.
-      $this->manager->toBlazy($data, $captions, $delta);
-      return TRUE;
-    }
-    return FALSE;
+  private function toBlazy(array &$data, array &$captions, $delta): array {
+    // Call manager not formatter due to sub-module deviations.
+    $this->manager->toBlazy($data, $captions, $delta);
+    return $captions;
   }
 
 }

@@ -22,7 +22,7 @@ services:
 
   blazy.oembed:
     class: Drupal\blazy\Media\BlazyOEmbed
-    arguments: ['@request_stack', '@media.oembed.resource_fetcher', '@media.oembed.url_resolver', '@media.oembed.iframe_url_helper', '@image.factory', '@blazy.manager']
+    arguments: ['@blazy.media', '@media.oembed.resource_fetcher', '@media.oembed.url_resolver']
 
   blazy.entity:
     class: Drupal\blazy\BlazyEntity
@@ -33,6 +33,9 @@ services:
   #   class: Drupal\blazy\Asset\Libraries
   # @todo recheck deprecated at D10: '@request_stack',
   #   arguments: ['%app.root%', '@cache.default', '@config.factory', '@library.discovery', '@library.libraries_directory_file_finder', '@module_handler', '@current_route_match']
+  blazy.media:
+    class: Drupal\blazy\Media\BlazyMedia
+    arguments: ['@blazy.manager', '@http_client', '@media.oembed.iframe_url_helper']
 
   blazy.svg:
     class: Drupal\blazy\Media\Svg\Svg

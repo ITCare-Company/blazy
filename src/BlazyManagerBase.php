@@ -223,6 +223,8 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
       ->set('lightbox.plugins', $lightboxes)
       ->set('ui', $ui)
       ->set('use.theme_blazy', $use_blazy)
+      // @todo enable at 3.x after conversion from data-BLAH to data-b-BLAH.
+      ->set('use.data_b', FALSE)
       ->set('version.blazy', Blazy::version('blazy'));
 
     // @todo enable when sub-modules ready: Slick/ Splide.

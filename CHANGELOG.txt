@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-08-09
+------------------------------
+- Updated BlazyOEmbed service parameters.
+- Changed BlazyMedia into a service as planned.
+
 Blazy 8.x-2.0-dev, 2023-08-07
 ------------------------------
 - Fixed for lightbox caption regressions.

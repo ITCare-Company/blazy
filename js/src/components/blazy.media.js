@@ -19,7 +19,7 @@
   var _iFrame = 'iframe';
   var _isPlaying = 'is-playing';
   var _dataIFrameTitle = 'data-' + _iFrame + '-title';
-  var _dataUrl = 'data-url';
+  var _dataUrl = 'data-url data-b-url';
   var _multimedia = $.multimedia || false;
 
   /**
@@ -200,10 +200,10 @@
 
     if (player) {
       html += '<span class="$icon $icon--close" aria-label="$ariaClose"></span>';
-      html += '<span class="$icon $icon--play" data-url="$oembed" data-iframe-title="$alt" aria-label="$ariaPlay"></span>';
+      html += '<span class="$icon $icon--play" data-b-url="$oembed" data-iframe-title="$alt" aria-label="$ariaPlay"></span>';
     }
 
-    html = '<div class="$md $idClass $md--switch $player $md--ratio $md--ratio--fluid" style="padding-bottom: $pad%">' + html + '</div>';
+    html = '<div class="$md $idClass $md--switch $player $md--ratio $md--ratio--fluid" aria-live="polite" style="padding-bottom: $pad%">' + html + '</div>';
 
     if (!settings.unwrap) {
       html = '<div class="$wrapper $wrapper--inline" style="width: $widthpx">' +

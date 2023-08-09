@@ -62,28 +62,6 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
   /**
    * {@inheritdoc}
-   */
-  protected function buildElements(array &$build, $entities, $langcode) {
-    parent::buildElements($build, $entities, $langcode);
-
-    $settings = $this->formatter->toHashtag($build);
-    $blazies  = $settings['blazies'];
-
-    // Some formatter has a toggle Vanilla.
-    if (empty($settings['vanilla'])) {
-      // Supports lightbox gallery if using Blazy formatter.
-      if ($item = ($build['items'][0] ?? NULL)) {
-        $fallback = $item[static::$itemId]['#build'] ?? [];
-        $data = $item['#build'] ?? $fallback;
-        if ($data = array_filter($data)) {
-          $blazies->set('first.data', $data);
-        }
-      }
-    }
-  }
-
-  /**
-   * {@inheritdoc}
    *
    * @todo remove extra params at 3 for destructured properties from $build.
    */

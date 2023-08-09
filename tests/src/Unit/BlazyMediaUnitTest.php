@@ -4,7 +4,6 @@ namespace Drupal\Tests\blazy\Unit;
 
 use Drupal\Tests\UnitTestCase;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\Media\BlazyMedia;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 
 /**
@@ -27,15 +26,12 @@ class BlazyMediaUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests \Drupal\blazy\BlazyMedia::view().
+   * Tests \Drupal\blazy\Media\BlazyMedia::view().
    *
-   * @covers ::build
-   * @covers ::wrap
+   * @covers ::view
    * @dataProvider providerTestBlazyMediaBuild
-   *
-   * @todo enable after converted to non-static, failed due to DI.
    */
-  public function todoTestBlazyMediaBuild($markup) {
+  public function testBlazyMediaBuild($markup) {
     $source_field = $this->randomMachineName();
     $view_mode = 'default';
     $settings = [
@@ -66,6 +62,9 @@ class BlazyMediaUnitTest extends UnitTestCase {
 
     $items = $this->createMock('\Drupal\Core\Field\FieldItemListInterface');
 
+    // Since 2.17.
+    $this->blazyMedia = $this->createMock('\Drupal\blazy\Media\BlazyMediaInterface');
+
     /* @phpstan-ignore-next-line */
     $items->expects($this->any())
       ->method('getFieldDefinition')
@@ -83,7 +82,7 @@ class BlazyMediaUnitTest extends UnitTestCase {
       ->willReturn($entity);
 
     /* @phpstan-ignore-next-line */
-    $entity->expects($this->once())
+    $entity->expects($this->any())
       ->method('get')
       ->with($source_field)
       ->will($this->returnValue($items));
@@ -92,7 +91,14 @@ class BlazyMediaUnitTest extends UnitTestCase {
       '#entity' => $entity,
       '#settings' => $settings,
     ];
-    $render = BlazyMedia::view($data);
+
+    /* @phpstan-ignore-next-line */
+    $this->blazyMedia->expects($this->any())
+      ->method('view')
+      ->with($data)
+      ->willReturn($markup);
+
+    $render = $this->blazyMedia->view($data);
     $this->assertArrayHasKey('#settings', $render);
   }
 

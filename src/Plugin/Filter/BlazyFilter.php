@@ -408,7 +408,11 @@ class BlazyFilter extends BlazyFilterBase {
     $settings = &$build['#settings'];
 
     /* @phpstan-ignore-next-line */
-    $tn_uri = $node->getAttribute('data-thumb');
+    $tn_uri = $node->getAttribute('data-b-thumb');
+    // @todo remove for data-b-thumb at 3.x.
+    if (!$tn_uri) {
+      $tn_uri = $node->getAttribute('data-thumb');
+    }
     $info = [
       'delta' => $delta,
       'thumbnail.uri' => $tn_uri,

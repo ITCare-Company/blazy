@@ -23,7 +23,7 @@ class Vef {
     $embed_url = $options['embed_url'];
     $is_player = $options['is_player'];
 
-    // VEF has no TITLE, nor ALT, for images provide them.
+    // VEF has no TITLE, nor ALT, for images, provide them.
     $oembed->getThumbnail($settings);
 
     // For consistency and security, yet ensure to not mess up url.

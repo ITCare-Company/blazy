@@ -61,6 +61,9 @@ class BlazyInternal {
    * @see \Drupa\blazy\BlazyManagerBase::isBlazy()
    */
   public static function preserve(array &$parentsets, array &$childsets): void {
+    Blazy::verify($parentsets);
+    Blazy::verify($childsets);
+
     // @todo add more formatter related settings where Views styles have none.
     $cherries = BlazyDefault::cherrySettings();
 
@@ -72,35 +75,33 @@ class BlazyInternal {
         : $fallback;
     }
 
-    $parent = $parentsets['blazies'] ?? NULL;
-    $child  = $childsets['blazies'] ?? NULL;
+    $parent = $parentsets['blazies'];
+    $child  = $childsets['blazies'];
 
-    if ($parent && $child) {
-      // $parent->set('first.settings', array_filter($child));
-      // $parent->set('first.item_id', $child->get('item.id'));
-      // Hints containers to build relevant lightbox gallery attributes.
-      $childbox  = $child->get('lightbox.name');
-      $parentbox = $parent->get('lightbox.name');
+    // $parent->set('first.settings', array_filter($child));
+    // $parent->set('first.item_id', $child->get('item.id'));
+    // Hints containers to build relevant lightbox gallery attributes.
+    $childbox  = $child->get('lightbox.name');
+    $parentbox = $parent->get('lightbox.name');
 
-      // Ensures to respect parent formatter or Views style if provided.
-      // The moral of this method is only if parent lacks of settings like Grid.
-      // Other settings are not parents' business. Only concerns about those
-      // needed by the container, e.g. LIGHTBOX for [data-LIGHTBOX-gallery].
-      if ($childbox && !$parentbox) {
-        // @todo use Check::lightboxes($settings);
-        $optionset = $child->get('lightbox.optionset', $childbox) ?: $childbox;
-        $parent->set('lightbox.name', $childbox)
-          ->set($childbox, $optionset)
-          ->set('is.lightbox', TRUE)
-          ->set('switch', $child->get('switch'));
+    // Ensures to respect parent formatter or Views style if provided.
+    // The moral of this method is only if parent lacks of settings like Grid.
+    // Other settings are not parents' business. Only concerns about those
+    // needed by the container, e.g. LIGHTBOX for [data-LIGHTBOX-gallery].
+    if ($childbox && !$parentbox) {
+      // @todo use Check::lightboxes($settings);
+      $optionset = $child->get('lightbox.optionset', $childbox) ?: $childbox;
+      $parent->set('lightbox.name', $childbox)
+        ->set($childbox, $optionset)
+        ->set('is.lightbox', TRUE)
+        ->set('switch', $child->get('switch'));
 
-        // Now that we got a child lightbox, overrides parent for sure.
-        $parentsets['media_switch'] = $childbox;
-      }
-
-      $parent->set('first', $child->get('first'), TRUE)
-        ->set('was.preserve', TRUE);
+      // Now that we got a child lightbox, overrides parent for sure.
+      $parentsets['media_switch'] = $childbox;
     }
+
+    $parent->set('first', $child->get('first', []), TRUE)
+      ->set('was.preserve', TRUE);
   }
 
   /**

@@ -55,6 +55,13 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   protected $blazyEntity;
 
   /**
+   * The blazy media service.
+   *
+   * @var \Drupal\blazy\Media\BlazyMediaInterface
+   */
+  protected $blazyMedia;
+
+  /**
    * The blazy merged settings.
    *
    * @var array
@@ -74,6 +81,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->blazyManager = $blazy_manager;
     $this->blazyEntity = $blazy_entity;
+    $this->blazyMedia = $blazy_entity->blazyMedia();
   }
 
   /**

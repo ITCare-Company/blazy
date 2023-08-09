@@ -129,6 +129,13 @@ trait BlazyPropertiesTestTrait {
   protected $blazyEntity;
 
   /**
+   * The blazy media service.
+   *
+   * @var \Drupal\blazy\Media\BlazyMedia
+   */
+  protected $blazyMedia;
+
+  /**
    * The entity manager.
    *
    * @var \Drupal\Core\Entity\EntityFieldManagerInterface

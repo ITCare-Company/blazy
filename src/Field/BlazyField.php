@@ -6,7 +6,6 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Render\Element;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Media\BlazyMedia;
 
 /**
  * Provides common field API operation methods.
@@ -43,7 +42,9 @@ class BlazyField {
           '#entity' => $media,
           '#settings' => $settings,
         ];
-        return $rendered ? BlazyMedia::view($data) : $media;
+        if ($manager = Blazy::service('blazy.media')) {
+          return $rendered ? $manager->view($data) : $media;
+        }
       }
     }
 

@@ -70,6 +70,9 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     $delta    = $data['#delta'] ?? 0;
     $captions = array_filter($captions);
 
+    // Call manager not formatter due to sub-module deviations.
+    $this->manager->verifyItem($data, $delta);
+
     // Provides inline SVG if applicable.
     // @todo recheck $this->viewSvg($data);
     if ($blazies->use('theme_blazy')) {
@@ -92,8 +95,8 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     $internal = $element;
 
     // Allows sub-modules to use theme_blazy() as their theme_ITEM() contents.
-    if ($this->toBlazy($internal, $captions, $delta)) {
-      $internal['captions'] = $captions;
+    if ($texts = $this->toBlazy($internal, $captions, $delta)) {
+      $internal['captions'] = $texts;
     }
 
     if ($blazy = $this->formatter->getBlazy($internal)) {
@@ -126,13 +129,10 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
    *
    * @todo remove for BlazyElementTrait if similar to field formatters.
    */
-  private function toBlazy(array &$data, array &$captions, $delta): bool {
-    if ($captions = array_filter($captions)) {
-      // Call manager not formatter due to sub-module deviations.
-      $this->manager->toBlazy($data, $captions, $delta);
-      return TRUE;
-    }
-    return FALSE;
+  private function toBlazy(array &$data, array &$captions, $delta): array {
+    // Call manager not formatter due to sub-module deviations.
+    $this->manager->toBlazy($data, $captions, $delta);
+    return $captions;
   }
 
 }

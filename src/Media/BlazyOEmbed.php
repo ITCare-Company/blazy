@@ -2,15 +2,10 @@
 
 namespace Drupal\blazy\Media;
 
-use Drupal\Core\Url;
-use Drupal\Core\Image\ImageFactory;
-use Drupal\media\IFrameUrlHelper;
 use Drupal\media\MediaInterface;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
 use Drupal\media\OEmbed\UrlResolverInterface;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\BlazyManager;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -33,18 +28,18 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   protected $resourceFetcher;
 
   /**
-   * Core Media oEmbed iframe url helper.
-   *
-   * @var \Drupal\media\IFrameUrlHelper
-   */
-  protected $iframeUrlHelper;
-
-  /**
    * The blazy manager service.
    *
    * @var \Drupal\blazy\BlazyManagerInterface
    */
   protected $blazyManager;
+
+  /**
+   * The blazy manager service.
+   *
+   * @var \Drupal\blazy\Media\BlazyMediaInterface
+   */
+  protected $blazyMedia;
 
   /**
    * The Media oEmbed Resource.
@@ -54,39 +49,17 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   protected $resource;
 
   /**
-   * The request service.
-   *
-   * @var \Symfony\Component\HttpFoundation\RequestStack
-   */
-  protected $request;
-
-  /**
-   * The image factory service.
-   *
-   * @var \Drupal\Core\Image\ImageFactory
-   */
-  protected $imageFactory;
-
-  /**
    * Constructs a Blazy oEmbed object.
-   *
-   * @todo remove ::imageFactory (was for UGC), not used anywhere since 2.6.
    */
   public function __construct(
-    RequestStack $request,
+    BlazyMediaInterface $blazy_media,
     ResourceFetcherInterface $resource_fetcher,
-    UrlResolverInterface $url_resolver,
-    IFrameUrlHelper $iframe_url_helper,
-    ImageFactory $image_factory,
-    BlazyManager $blazy_manager
+    UrlResolverInterface $url_resolver
   ) {
-    $this->request = $request;
+    $this->blazyMedia = $blazy_media;
     $this->resourceFetcher = $resource_fetcher;
     $this->urlResolver = $url_resolver;
-    $this->iframeUrlHelper = $iframe_url_helper;
-    // @todo remove before 3.x, no longer in use.
-    $this->imageFactory = $image_factory;
-    $this->blazyManager = $blazy_manager;
+    $this->blazyManager = $blazy_media->manager();
   }
 
   /**
@@ -94,12 +67,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('request_stack'),
+      $container->get('blazy.media'),
       $container->get('media.oembed.resource_fetcher'),
-      $container->get('media.oembed.url_resolver'),
-      $container->get('media.oembed.iframe_url_helper'),
-      $container->get('image.factory'),
-      $container->get('blazy.manager')
+      $container->get('media.oembed.url_resolver')
     );
   }
 
@@ -120,15 +90,15 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * {@inheritdoc}
    */
-  public function getIframeUrlHelper() {
-    return $this->iframeUrlHelper;
+  public function blazyManager() {
+    return $this->blazyManager;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function blazyManager() {
-    return $this->blazyManager;
+  public function blazyMedia() {
+    return $this->blazyMedia;
   }
 
   /**
@@ -240,25 +210,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * {@inheritdoc}
    */
   public function toEmbedUrl($blazies, $input, array $autoplay = []): string {
-    $query = [
-      'url' => $input,
-      'max_width' => 0,
-      'max_height' => 0,
-      'hash' => $this->iframeUrlHelper->getHash($input, 0, 0),
-      'blazy' => 1,
-    ] + $autoplay;
+    $iframe_domain = $blazies->get('iframe_domain');
 
-    // @todo revisit if any issue with other resource types.
-    $url = Url::fromRoute('media.oembed_iframe', [], [
-      'query' => $query,
-    ]);
-
-    // The top level iframe url relative to the site, or iframe_domain.
-    if ($iframe_domain = $blazies->get('iframe_domain')) {
-      $url->setOption('base_url', $iframe_domain);
-    }
-
-    return $url->toString();
+    return $this->blazyMedia->toEmbedUrl($input, $iframe_domain, $autoplay);
   }
 
   /**
@@ -286,7 +240,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     // Before 2.10, the stage was always made an Image, and required Overlay
     // to have a video player or iframe on top of the stage as an Image.
     if (!$valid && $entity && $stage && empty($settings['overlay'])) {
-      if ($object = BlazyMedia::fromField($entity, $stage)) {
+      if ($object = $this->blazyMedia->fromField($entity, $stage)) {
         $media = $object;
         $valid = TRUE;
       }
@@ -338,7 +292,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   private function fromMedia(array &$build): void {
     // Prepare Media needed settings, and extract Media thumbnail, except type.
-    $media    = BlazyMedia::prepare($build);
+    $media    = $this->blazyMedia->prepare($build);
     $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
     $input    = $blazies->get('media.value');
@@ -377,7 +331,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
         // Supports other Media entities: Facebook, Instagram, local media, etc.
         // Attempts to enter the unknown here fearlessly.
-        if ($result = BlazyMedia::view($build)) {
+        if ($result = $this->blazyMedia->view($build)) {
           // Update with the processed settings.
           $newbies  = $build['#settings'];
           $settings = $this->blazyManager->mergeSettings('blazies', $settings, $newbies);
@@ -420,7 +374,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
-   * Returns the image factory.
+   * Deprecated method ::imageFactory().
    *
    * @deprecated in blazy:8.x-2.6 and is removed from blazy:3.0.0. Use none
    *   instead.
@@ -428,7 +382,19 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   public function imageFactory() {
     @trigger_error('imageFactory is deprecated in blazy:8.x-2.6 and is removed from blazy:3.0.0. Use none instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    return $this->imageFactory;
+    return Blazy::service('image.factory');
+  }
+
+  /**
+   * Deprecated method ::getIframeUrlHelper().
+   *
+   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use none
+   *   instead.
+   * @see https://www.drupal.org/node/3103018
+   */
+  public function getIframeUrlHelper() {
+    @trigger_error('getIframeUrlHelper is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use none instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+    return Blazy::service('media.oembed.iframe_url_helper');
   }
 
 }

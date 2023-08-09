@@ -140,7 +140,22 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    * {@inheritdoc}
    */
   public function postBuildElements(array &$build, $items, array $entities = []) {
-    // Do nothing.
+    $settings = &$build['#settings'];
+    $blazies  = $settings['blazies'];
+
+    // Some formatter has a toggle Vanilla.
+    if (empty($settings['vanilla']) && isset($settings['image_style'])) {
+      // Supports lightbox gallery if using Blazy formatter.
+      if ($item = ($build['items'][0] ?? NULL)) {
+        $fallback = $item[static::$itemId]['#build'] ?? [];
+        $data = $item['#build'] ?? $fallback;
+        if ($data = array_filter($data)) {
+          $blazy = $data['#settings']['blazies'];
+          $blazies->set('first.data', $data)
+            ->set('first.uri', $blazy->get('image.uri'));
+        }
+      }
+    }
   }
 
 }

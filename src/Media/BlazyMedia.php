@@ -3,12 +3,16 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\media\MediaInterface;
-use Drupal\blazy\Blazy;
+use Drupal\media\IFrameUrlHelper;
 use Drupal\blazy\BlazyInternal;
+use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\Utility\CheckItem;
+use GuzzleHttp\Client;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides extra utilities to work with core Media.
@@ -28,7 +32,66 @@ use Drupal\blazy\Utility\CheckItem;
  * Not urgent, the important is to make it just work with minimal regressions.
  * @todo recap similiraties and make them plugins.
  */
-class BlazyMedia {
+class BlazyMedia implements BlazyMediaInterface {
+
+  /**
+   * The http client service.
+   *
+   * @var \GuzzleHttp\Client
+   */
+  protected $httpClient;
+
+  /**
+   * The blazy manager service.
+   *
+   * @var \Drupal\blazy\BlazyManagerInterface
+   */
+  protected $manager;
+
+  /**
+   * The iFrame URL helper service.
+   *
+   * @var \Drupal\media\IFrameUrlHelper
+   */
+  protected $iFrameUrlHelper;
+
+  /**
+   * Constructs a BlazyFormatter instance.
+   */
+  public function __construct(
+    BlazyManagerInterface $manager,
+    Client $http_client,
+    IFrameUrlHelper $iframe_url_helper
+  ) {
+    $this->manager = $manager;
+    $this->httpClient = $http_client;
+    $this->iFrameUrlHelper = $iframe_url_helper;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('blazy.manager'),
+      $container->get('http_client'),
+      $container->get('media.oembed.iframe_url_helper')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function httpClient(): Client {
+    return $this->httpClient;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function manager(): BlazyManagerInterface {
+    return $this->manager;
+  }
 
   /**
    * Builds the media field which is not understood by theme_blazy().
@@ -46,51 +109,29 @@ class BlazyMedia {
    * @todo make it non-static and rework at/ by 3.x.
    */
   public static function build($media, array $settings): array {
-    $data = [
-      '#entity'   => $media,
-      '#settings' => $settings,
-    ];
     // @todo remove at 3.x reworks.
     @trigger_error('build is deprecated in blazy:8.x-2.17 and is reworked in blazy:3.0.0. Use self::view() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    // Temporary BC till the rework is done.
-    return self::view($data);
+    return [];
   }
 
   /**
-   * Returns the media field which is partly not understood by theme_blazy().
-   *
-   * When this output arrives at theme_blazy() as content property, Blazy can no
-   * longer work with it. That's why we need to do a relatively similar routine
-   * to BlazyManager::preRenderBlazy(), only to a bare mimimum.
-   *
-   * @param array $build
-   *   The array containing:
-   *     - #entity the Media entity.
-   *     - #settings array.
-   *
-   * @return array
-   *   The renderable array of the media field, or empty if not applicable.
+   * {@inheritdoc}
    */
-  public static function view(array $build): array {
+  public function view(array $build): array {
     $media    = $build['#entity'];
     $settings = &$build['#settings'];
     $item     = $build['#item'] ?? NULL;
-    $manager  = Blazy::service('blazy.manager');
-
-    if (!$manager) {
-      return [];
-    }
 
     // Ensures the essentials setup early here since it enters theme_blazy() as
     // non-workable content.
-    $blazies = $manager->preBlazy($build, $item);
+    $blazies = $this->manager->preBlazy($build, $item);
     $settings['blazies'] = $blazies;
 
     // Prevents fatal error with disconnected internet when having ME Facebook,
     // ME SlideShare, resorted to static thumbnails to avoid broken displays.
     if ($input = $blazies->get('media.input_url')) {
       try {
-        \Drupal::httpClient()->get($input, ['timeout' => 3]);
+        $this->httpClient->get($input, ['timeout' => 3]);
       }
       catch (\Exception $e) {
         return [];
@@ -108,53 +149,27 @@ class BlazyMedia {
     $build = $media->get($source_field)->view($view_mode);
     $build['#settings'] = $settings;
 
-    return isset($build[0]) ? self::unfield($build) : $build;
+    return isset($build[0]) ? $this->unfield($build) : $build;
   }
 
   /**
-   * Extracts needed info from a media.
+   * Returns a media entity from a field, if any.
    */
-  public static function extract(MediaInterface $media, $view_mode, $langcode): array {
-    $source = $media->getSource();
-    $definition = $source->getPluginDefinition();
-    $source_id = $source->getPluginId();
-    $uri = '';
-
-    try {
-      // GuzzleHttp\Exception\ConnectException: cURL error 6:
-      // Could not resolve host: soundcloud.com.
-      // @todo recheck and replace if any direct method for URI.
-      if ($attr = ($definition['thumbnail_uri_metadata_attribute'] ?? '')) {
-        $uri = $source->getMetadata($media, $attr);
+  public function fromField($entity, $field_name): ?object {
+    $media = NULL;
+    if (isset($entity->{$field_name})
+      && $reference = $entity->get($field_name)->first()) {
+      if ($reference instanceof EntityReferenceItem) {
+        $media = $reference->entity;
       }
     }
-    catch (\Exception $e) {
-      // No need to be harsh here, likely disconnected internet, we can always
-      // display stored thumbnails, if already.
-    }
-
-    // Extracts common entity properties.
-    $info = CheckItem::entity($media, $langcode);
-
-    // Extracts specific values for this media entity.
-    // Type is a legacy VEF of source plugin ID to make videos pronounced.
-    $videos = in_array($source_id, ['oembed:video', 'video_embed_field']);
-    $output = [
-      'source'       => $source_id,
-      'source_field' => $source->getConfiguration()['source_field'],
-      'thumbnail'    => $uri,
-      'type'         => $videos ? 'video' : $source_id,
-      'value'        => $source->getSourceFieldValue($media),
-      'view_mode'    => $view_mode ?: 'default',
-    ] + $info['data'];
-
-    return ['data' => $output, 'entity' => $info['entity']];
+    return $media instanceof MediaInterface ? $media : NULL;
   }
 
   /**
    * Prepares media item data to provide image item.
    */
-  public static function prepare(array &$data) {
+  public function prepare(array &$data): MediaInterface {
     $media     = $data['#entity'];
     $settings  = &$data['#settings'];
     $blazies   = $settings['blazies'];
@@ -199,17 +214,70 @@ class BlazyMedia {
   }
 
   /**
-   * Returns a media entity from a field, if any.
+   * {@inheritdoc}
    */
-  public static function fromField($entity, $field_name): ?object {
-    $media = NULL;
-    if (isset($entity->{$field_name})
-      && $reference = $entity->get($field_name)->first()) {
-      if ($reference instanceof EntityReferenceItem) {
-        $media = $reference->entity;
+  public function toEmbedUrl($input, $iframe_domain, array $autoplay = []): string {
+    $query = [
+      'url' => $input,
+      'max_width' => 0,
+      'max_height' => 0,
+      'hash' => $this->iFrameUrlHelper->getHash($input, 0, 0),
+      'blazy' => 1,
+    ] + $autoplay;
+
+    // @todo revisit if any issue with other resource types.
+    $url = Url::fromRoute('media.oembed_iframe', [], [
+      'query' => $query,
+    ]);
+
+    // The top level iframe url relative to the site, or iframe_domain.
+    if ($iframe_domain) {
+      $url->setOption('base_url', $iframe_domain);
+    }
+
+    return $url->toString();
+  }
+
+  /**
+   * Extracts needed info from a media.
+   *
+   * @tbd keep it static, or change it.
+   */
+  public static function extract(MediaInterface $media, $view_mode, $langcode): array {
+    $source = $media->getSource();
+    $definition = $source->getPluginDefinition();
+    $source_id = $source->getPluginId();
+    $uri = '';
+
+    try {
+      // GuzzleHttp\Exception\ConnectException: cURL error 6:
+      // Could not resolve host: soundcloud.com.
+      // @todo recheck and replace if any direct method for URI.
+      if ($attr = ($definition['thumbnail_uri_metadata_attribute'] ?? '')) {
+        $uri = $source->getMetadata($media, $attr);
       }
     }
-    return $media instanceof MediaInterface ? $media : NULL;
+    catch (\Exception $e) {
+      // No need to be harsh here, likely disconnected internet, we can always
+      // display stored thumbnails, if already.
+    }
+
+    // Extracts common entity properties.
+    $info = CheckItem::entity($media, $langcode);
+
+    // Extracts specific values for this media entity.
+    // Type is a legacy VEF of source plugin ID to make videos pronounced.
+    $videos = in_array($source_id, ['oembed:video', 'video_embed_field']);
+    $output = [
+      'source'       => $source_id,
+      'source_field' => $source->getConfiguration()['source_field'],
+      'thumbnail'    => $uri,
+      'type'         => $videos ? 'video' : $source_id,
+      'value'        => $source->getSourceFieldValue($media),
+      'view_mode'    => $view_mode ?: 'default',
+    ] + $info['data'];
+
+    return ['data' => $output, 'entity' => $info['entity']];
   }
 
   /**
@@ -221,7 +289,7 @@ class BlazyMedia {
    * @return array
    *   The array of the media item to be wrapped directly by theme_blazy().
    */
-  private static function unfield(array &$field): array {
+  private function unfield(array &$field): array {
     $item      = $field[0];
     $settings  = &$field['#settings'];
     $blazies   = $settings['blazies'];
@@ -250,24 +318,24 @@ class BlazyMedia {
     // Media with local files: video.
     elseif (isset($item['#files'])
       && $file = ($item['#files'][0]['file'] ?? NULL)) {
-      self::toLocal($item, $settings, $file);
+      $this->toLocal($item, $settings, $file);
     }
     elseif (isset($item['#theme'])) {
-      self::toIframe($item, $settings);
+      $this->toIframe($item, $settings);
     }
     else {
-      self::disableFeatures($settings);
+      $this->disableFeatures($settings);
     }
 
     // Clone relevant keys since field wrapper is no longer in use.
     foreach (['attached', 'cache', 'third_party_settings'] as $key) {
       if ($data = $field["#$key"] ?? []) {
-        $item["#$key"] = Blazy::merge($data, $item, "#$key");
+        $item["#$key"] = $this->manager->merge($data, $item, "#$key");
       }
     }
     // Keep original formatter configurations intact here for custom works.
     // Non-accessible at file_video preprocess, but required by theme_blazy().
-    $item['#settings'] = Blazy::settings($settings);
+    $item['#settings'] = $this->manager->settings($settings);
 
     return $item;
   }
@@ -275,7 +343,7 @@ class BlazyMedia {
   /**
    * Disable fancy features with the unknown land.
    */
-  private static function disableFeatures(array &$settings): void {
+  private function disableFeatures(array &$settings): void {
     $blazies = $settings['blazies'];
     $settings['media_switch'] = '';
     $blazies->set('switch', '')
@@ -285,36 +353,33 @@ class BlazyMedia {
   /**
    * Modifies item attributes for iframes if any.
    */
-  private static function toIframe(array &$item, array &$settings): void {
-    $blazies = $settings['blazies'];
+  private function toIframe(array &$item, array &$settings): void {
+    $blazies  = $settings['blazies'];
+    $original = $item;
 
-    if ($oembed = Blazy::service('blazy.oembed')) {
-      $original = $item;
-      $content  = $oembed->blazyManager()->renderer()->renderPlain($item);
+    if ($content = $this->manager->renderer()->renderPlain($item)) {
+      // Prior to PHP 8.0.0 this method could be called statically, but would
+      // issue an E_DEPRECATED error. As of PHP 8.0.0 calling this method
+      // statically throws an Error exception.
+      // See https://www.php.net/manual/en/domdocument.loadhtml.php.
+      $dom     = Html::load($content);
+      $iframes = $dom->getElementsByTagName('iframe');
 
-      if ($content) {
-        // Prior to PHP 8.0.0 this method could be called statically, but would
-        // issue an E_DEPRECATED error. As of PHP 8.0.0 calling this method
-        // statically throws an Error exception.
-        // See https://www.php.net/manual/en/domdocument.loadhtml.php.
-        $dom     = Html::load($content);
-        $iframes = $dom->getElementsByTagName('iframe');
-
-        if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
-          if ($src = $iframe->getAttribute('src')) {
-            if (strpos($src, '?url=') === FALSE) {
-              $src = $oembed->toEmbedUrl($blazies, $src);
-            }
-
-            BlazyInternal::toPlayable($blazies, $src, TRUE);
-
-            // @todo remove, no longer relevant since upstream definitions.
-            $blazies->set('media.type', $blazies->get('media.source'));
+      if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
+        if ($src = $iframe->getAttribute('src')) {
+          if (strpos($src, '?url=') === FALSE) {
+            $iframe_domain = $blazies->get('iframe_domain');
+            $src = $this->toEmbedUrl($src, $iframe_domain);
           }
+
+          BlazyInternal::toPlayable($blazies, $src, TRUE);
+
+          // @todo remove, no longer relevant since upstream definitions.
+          $blazies->set('media.type', $blazies->get('media.source'));
         }
-        else {
-          self::disableFeatures($settings);
-        }
+      }
+      else {
+        $this->disableFeatures($settings);
       }
 
       $item = $original;
@@ -324,7 +389,7 @@ class BlazyMedia {
   /**
    * Modifies item attributes for local audio/video item.
    */
-  private static function toLocal(array &$item, array &$settings, $file): void {
+  private function toLocal(array &$item, array &$settings, $file): void {
     $blazies = $settings['blazies'];
 
     // @todo multiple sources, not crucial for now.
@@ -335,7 +400,7 @@ class BlazyMedia {
     // Do this as $item['#settings'] is not available as file_video variables.
     // @todo re-check, most likely just a single file here.
     foreach ($item['#files'] as &$file) {
-      $file['#blazy'] = Blazy::settings($settings);
+      $file['#blazy'] = $this->manager->settings($settings);
     }
 
     $item['#attributes']->setAttribute('data-b-lazy', TRUE);

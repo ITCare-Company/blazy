@@ -18,14 +18,20 @@ interface BlazyOEmbedInterface {
   public function getUrlResolver();
 
   /**
-   * Returns the Media oEmbed url resolver fecthers.
-   */
-  public function getIframeUrlHelper();
-
-  /**
-   * Returns the blazy manager.
+   * Returns the blazy manager service.
+   *
+   * @return \Drupal\blazy\BlazyManagerInterface
+   *   The blazy manager.
    */
   public function blazyManager();
+
+  /**
+   * Returns the blazy media.
+   *
+   * @return \Drupal\blazy\Media\BlazyMediaInterface
+   *   The blazy manager.
+   */
+  public function blazyMedia();
 
   /**
    * Returns the oEmbed Resource based on the given media input url.

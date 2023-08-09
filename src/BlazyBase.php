@@ -500,6 +500,13 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function settings(array $data = []): BlazySettings {
+    return Blazy::settings($data);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function toGrid($items, array $settings): array {
     return Blazy::grid($items, $settings);
   }
@@ -553,6 +560,13 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function verify(array &$settings): void {
     Blazy::verify($settings);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function verifyItem(array &$element, $delta): void {
+    // Do nothing.
   }
 
   /**

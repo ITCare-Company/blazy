@@ -52,6 +52,9 @@ trait BlazyFormatterViewTrait {
     // Modifies settings before building elements.
     $this->formatter->preElements($build, $items, $entities);
 
+    // Internal overrides after enough data is populated above.
+    $this->postSettings($build['#settings'], $langcode);
+
     // Build the elements.
     // Satisfy phpstan.
     if (method_exists($this, 'buildElements')) {
@@ -64,7 +67,6 @@ trait BlazyFormatterViewTrait {
     }
 
     // Modifies settings post building elements.
-    // @todo remove, hardly used by any sub-modules.
     $this->formatter->postBuildElements($build, $items, $entities);
 
     // Pass to manager for easy updates to all Blazy formatters.

@@ -5,7 +5,6 @@ namespace Drupal\blazy;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Field\BlazyField;
-use Drupal\blazy\Media\BlazyMedia;
 use Drupal\blazy\Media\BlazyOEmbedInterface;
 use Drupal\blazy\Utility\CheckItem;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -33,11 +32,19 @@ class BlazyEntity implements BlazyEntityInterface {
   protected $blazyManager;
 
   /**
+   * The blazy manager service.
+   *
+   * @var \Drupal\blazy\Media\BlazyMediaInterface
+   */
+  protected $blazyMedia;
+
+  /**
    * Constructs a BlazyFormatter instance.
    */
   public function __construct(BlazyOEmbedInterface $oembed) {
     $this->oembed = $oembed;
     $this->blazyManager = $oembed->blazyManager();
+    $this->blazyMedia = $oembed->blazyMedia();
   }
 
   /**
@@ -66,6 +73,13 @@ class BlazyEntity implements BlazyEntityInterface {
   /**
    * {@inheritdoc}
    */
+  public function blazyMedia() {
+    return $this->blazyMedia;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function build(array $data): array {
     $manager = $this->blazyManager;
     $manager->hashtag($data);
@@ -88,7 +102,7 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // Extract media data with translated one, dup required by self::prepare().
     if ($entity instanceof MediaInterface) {
-      $entity = BlazyMedia::prepare($data);
+      $entity = $this->blazyMedia->prepare($data);
     }
 
     // Build the Media item.

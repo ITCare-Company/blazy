@@ -134,17 +134,9 @@ class BlazyOEmbedFormatter extends FormatterBase {
    * Generates the Blazy elements.
    */
   protected function getElements(array &$build, $items): \Generator {
-    $settings   = $this->formatter->toHashtag($build);
-    $blazies    = $settings['blazies'];
+    $settings   = &$build['#settings'];
     $field_name = $this->fieldDefinition->getName();
     $entity     = $items->getParent()->getEntity();
-
-    // The form is not loaded at views UI, provides the minimum.
-    // @todo remove when the form is loaded at Views UI.
-    if ($blazies->get('view.embedded')
-      && $defaults = $blazies->get('media.defaults', [])) {
-      $settings = array_merge($settings, $defaults);
-    }
 
     foreach ($items as $delta => $item) {
       $element = [];
@@ -205,6 +197,21 @@ class BlazyOEmbedFormatter extends FormatterBase {
       'no_preload'        => TRUE,
       'responsive_image'  => TRUE,
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function postSettings(array &$settings, $langcode = NULL): void {
+    $blazies = $settings['blazies'];
+    $blazies->set('language.code', $langcode);
+    // The form is not loaded at views UI, provides the minimum.
+    // @todo remove when the form is loaded at Views UI.
+    if ($blazies->get('view.embedded')
+      && $defaults = $blazies->get('media.defaults', [])) {
+      $settings = array_merge($settings, $defaults);
+      $blazies->set('libs.media', TRUE);
+    }
   }
 
 }

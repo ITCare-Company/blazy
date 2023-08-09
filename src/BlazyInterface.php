@@ -479,6 +479,17 @@ interface BlazyInterface {
   public function service($name): ?object;
 
   /**
+   * An alias for Blazy::settings().
+   *
+   * @param array $data
+   *   The optional initial data array.
+   *
+   * @return \Drupal\blazy\BlazySettings
+   *   The BlazySettings object.
+   */
+  public function settings(array $data = []): BlazySettings;
+
+  /**
    * Returns items wrapped by theme_item_list(), can be a grid, or plain list.
    *
    * Alias for Blazy::grid() for sub-modules and easy organization later.
@@ -582,6 +593,16 @@ interface BlazyInterface {
    *   The settings being modified.
    */
   public function verify(array &$settings): void;
+
+  /**
+   * Verifies item settings.
+   *
+   * @param array $element
+   *   The element being modified containing: #settings, #item, #entity, etc.
+   * @param int $delta
+   *   The current item delta.
+   */
+  public function verifyItem(array &$element, $delta): void;
 
   /**
    * A wrapper for the entity view with access check.

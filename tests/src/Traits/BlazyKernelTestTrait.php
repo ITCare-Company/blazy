@@ -67,6 +67,7 @@ trait BlazyKernelTestTrait {
     $this->blazyManager           = $this->container->get('blazy.manager');
     $this->blazyOembed            = $this->container->get('blazy.oembed');
     $this->blazyEntity            = $this->container->get('blazy.entity');
+    $this->blazyMedia             = $this->container->get('blazy.media');
     $this->blazyFormatter         = $this->container->get('blazy.formatter');
     $this->blazyAdminFormatter    = $this->container->get('blazy.admin.formatter');
     $this->blazyAdmin             = $this->container->get('blazy.admin');

@@ -30,6 +30,14 @@ interface BlazyEntityInterface {
   public function blazyManager();
 
   /**
+   * Returns the blazy media.
+   *
+   * @return \Drupal\blazy\Media\BlazyMediaInterface
+   *   The blazy manager.
+   */
+  public function blazyMedia();
+
+  /**
    * Build image/video preview either using theme_blazy(), or view builder.
    *
    * @param array $data

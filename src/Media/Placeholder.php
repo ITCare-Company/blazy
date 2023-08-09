@@ -147,9 +147,11 @@ class Placeholder {
 
     // Apply attributes related to Blur and Thumbnail image style.
     $blazies = $settings['blazies'];
+    $data_b = $blazies->use('data_b');
     if ($tn_url = $blazies->get('thumbnail.url')) {
       // @todo replace with data-b-thumb at 3.x to avoid potential conflicts.
-      $attributes['data-thumb'] = $tn_url;
+      $prefix = $data_b ? 'data-b-' : 'data-';
+      $attributes[$prefix . 'thumb'] = $tn_url;
     }
 
     // Provides image effect if so configured unless being sandboxed.
@@ -157,7 +159,8 @@ class Placeholder {
     if ($blazies->is('blazy') && $fx = $blazies->get('fx')) {
       $attributes['class'][] = 'media--fx';
       // @todo replace with data-b-animation at 3.x to avoid conflicts.
-      $attributes['data-animation'] = $fx;
+      $prefix = $data_b ? 'data-b-' : 'data-';
+      $attributes[$prefix . 'animation'] = $fx;
     }
   }
 

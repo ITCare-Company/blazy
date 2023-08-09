@@ -3,7 +3,6 @@
 namespace Drupal\Tests\blazy\Kernel;
 
 use Drupal\Core\Form\FormState;
-use Drupal\blazy\Media\BlazyMedia;
 use Drupal\blazy\Blazy;
 use GuzzleHttp\Exception\GuzzleException;
 
@@ -186,13 +185,14 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
   }
 
   /**
-   * Tests the Blazy formatter faked Media integration.
+   * Tests \Drupal\blazy\Media\BlazyMedia::view().
    *
    * @param mixed|string|bool $input_url
    *   Input URL, else empty.
    * @param bool $expected
    *   The expected output.
    *
+   * @covers ::view
    * @dataProvider providerTestBlazyMedia
    */
   public function testBlazyMedia($input_url, $expected) {
@@ -232,7 +232,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
         '#settings' => $settings,
       ];
 
-      $render = BlazyMedia::view($data);
+      $render = $this->blazyMedia->view($data);
 
       if ($expected && $render) {
         $this->assertNotEmpty($render);

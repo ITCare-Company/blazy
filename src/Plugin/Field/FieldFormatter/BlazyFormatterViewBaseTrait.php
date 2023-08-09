@@ -32,14 +32,21 @@ trait BlazyFormatterViewBaseTrait {
 
     $this->preSettings($settings, $langcode);
 
-    // Build the settings.
-    $build = ['#settings' => $settings];
-
     // BlazyFormatter::buildSettings() contains media, irrelevant for texts.
     $this->formatter->fieldSettings($settings, $items);
 
+    // Internal overrides after enough data is populated above.
+    $this->postSettings($settings, $langcode);
+
+    // Build the settings.
+    $build = ['#settings' => $settings];
+
     // Build the elements, and satisfy phpstan.
     if (method_exists($this, 'buildElements')) {
+      // BC hook_alters upstream are happy, ensures no more leaks downstream.
+      // @todo recheck if any misses downstream.
+      unset($build['settings']);
+
       $this->buildElements($build, $items, $langcode);
     }
 
@@ -57,6 +64,13 @@ trait BlazyFormatterViewBaseTrait {
   protected function preSettings(array &$settings, $langcode = NULL): void {
     $blazies = $settings['blazies'];
     $blazies->set('language.code', $langcode);
+  }
+
+  /**
+   * Overrides the settings, allows sub-modules to re-use and override.
+   */
+  protected function postSettings(array &$settings, $langcode = NULL): void {
+    // Do nothing.
   }
 
 }
