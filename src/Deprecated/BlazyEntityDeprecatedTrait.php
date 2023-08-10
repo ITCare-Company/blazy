@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Deprecated;
 
+use Drupal\blazy\Blazy;
 use Drupal\blazy\Field\BlazyField;
 
 /**
@@ -98,12 +99,19 @@ trait BlazyEntityDeprecatedTrait {
    * Deprecated method to return file view or media.
    *
    * @todo deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use
-   *   BlazyField::getOrViewMedia() instead.
+   *   none instead.
    * @see https://www.drupal.org/node/3103018
    */
   public function getFileOrMedia($file, array $settings, $rendered = TRUE) {
-    @trigger_error('getFileOrMedia is deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use \Drupal\blazy\Field\BlazyField::getOrViewMedia() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    return BlazyField::getOrViewMedia($file, $settings, $rendered);
+    @trigger_error('getFileOrMedia is deprecated in blazy:8.x-2.9 and is removed from blazy:3.0.0. Use BlazyMedia::view() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+    $data = [
+      '#entity' => $file,
+      '#settings' => $settings,
+    ];
+    if ($manager = Blazy::service('blazy.media')) {
+      return $rendered ? $manager->view($data) : $manager->fromFile($data);
+    }
+    return $rendered ? [] : NULL;
   }
 
 }

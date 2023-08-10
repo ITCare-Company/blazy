@@ -2,13 +2,47 @@
  * @file
  */
 
-.b-tooltip .form-item,
-.b-tooltip .form-composite > .fieldset-wrapper {
+.b-hint {
+  display: none;
+}
+
+.b-tooltip .b-hint {
+  background: #828282;
+  border-radius: 50%;
+  color: #fff;
+  content: '?';
+  cursor: default;
+  display: none;
+  font-family: sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  margin: 0;
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  right: 5px;
+  text-align: center;
+  top: 5px;
+  z-index: 8;
+}
+
+.b-tooltip .form-item.is-selected > .b-hint,
+.b-tooltip .form-item.is-hovered > .b-hint,
+.b-tooltip .form-item:hover > .b-hint {
+  display: block;
+}
+
+.form__header .form-item .b-hint {
+  top: 16px;
+  right: -5px;
+}
+
+.b-tooltip .form-item {
   position: relative;
 }
 
-.b-tooltip .form-item > .description,
-.b-tooltip .form-composite > .fieldset-wrapper > .description {
+.b-tooltip .form-item > .description {
   background: #000;
   background: rgba(0, 0, 0, 0.9);
   border-radius: 2px;
@@ -16,11 +50,11 @@
   box-shadow: 0 2px 10px -2px #000;
   color: #dadada !important; /* csslint allow: known-properties, important */
   display: block;
-  font-size: 12px;
-  font-size: 0.75rem;
-  line-height: 1.2;
+  font-size: 14px;
+  font-size: 0.875rem;
+  line-height: 1.3;
   min-height: 40px;
-  max-width: 240px;
+  max-width: 320px;
   min-width: 240px;
   position: absolute !important; /* csslint allow: known-properties, important */
   padding: 12px !important; /* csslint allow: known-properties, important */
@@ -35,8 +69,7 @@
   z-index: 99;
 }
 
-.b-tooltip--lg .form-item > .description,
-.b-tooltip--lg .form-composite > .fieldset-wrapper > .description {
+.b-tooltip--lg .form-item > .description {
   max-width: 640px;
 }
 
@@ -50,14 +83,12 @@
   padding-left: 1em;
 }
 
-.b-tooltip .form-item > .description a,
-.b-tooltip .form-composite > .fieldset-wrapper > .description a {
+.b-tooltip .form-item > .description a {
   color: #fff;
   font-weight: 600;
 }
 
-.b-tooltip .form-item > .description:after,
-.b-tooltip .form-composite > .fieldset-wrapper > .description:after {
+.b-tooltip .form-item > .description::after {
   border: 10px solid transparent;
   border-right: 10px solid #000;
   border-top: 0;
@@ -72,24 +103,8 @@
   z-index: 99;
 }
 
-.b-tooltip .form-item.form-composite > .description,
-.b-tooltip .form-item.form-type-textarea > .description,
-.b-tooltip .form-composite > .fieldset-wrapper.form-composite > .description,
-.b-tooltip .form-composite > .fieldset-wrapper.form-type-textarea > .description {
-  margin-left: -30% !important; /* csslint allow: known-properties, important */
-  max-width: 60% !important; /* csslint allow: known-properties, important */
-  min-width: 60% !important; /* csslint allow: known-properties, important */
-  width: 60% !important; /* csslint allow: known-properties, important */
-}
-
 .b-tooltip .form-item.is-selected > .description,
-.b-tooltip .form-item.is-hovered > .description,
-.b-tooltip .form-item.is-selected > .fieldset-wrapper > .description,
-.b-tooltip .form-item.is-hovered > .fieldset-wrapper > .description,
-.b-tooltip .form-composite > .fieldset-wrapper.is-selected > .description,
-.b-tooltip .form-composite > .fieldset-wrapper.is-hovered > .description,
-.b-tooltip .form-composite > .fieldset-wrapper.is-selected > .fieldset-wrapper > .description,
-.b-tooltip .form-composite > .fieldset-wrapper.is-hovered > .fieldset-wrapper > .description {
+.b-tooltip .form-item.is-hovered > .description {
   bottom: 100%;
   display: block;
   opacity: 1 !important; /* csslint allow: known-properties, important */
@@ -97,28 +112,11 @@
   overflow: visible !important; /* csslint allow: known-properties, important */
 }
 
-.b-tooltip .form-item.is-selected > .b-hint,
-.b-tooltip .form-item.is-hovered > .b-hint,
-.b-tooltip .form-item.is-selected > .fieldset-wrapper > .b-hint,
-.b-tooltip .form-item.is-hovered > .fieldset-wrapper > .b-hint,
-.b-tooltip .form-composite > .fieldset-wrapper.is-selected > .b-hint,
-.b-tooltip .form-composite > .fieldset-wrapper.is-hovered > .b-hint,
-.b-tooltip .form-composite > .fieldset-wrapper.is-selected > .fieldset-wrapper > .b-hint,
-.b-tooltip .form-composite > .fieldset-wrapper.is-hovered > .fieldset-wrapper > .b-hint {
-  display: block;
-}
-
-.b-tooltip .form-item.is-selected > .description,
-.b-tooltip .form-item.is-selected > .fieldset-wrapper > .description,
-.b-tooltip .form-composite > .fieldset-wrapper.is-selected > .description,
-.b-tooltip .form-composite > .fieldset-wrapper.is-selected > .fieldset-wrapper > .description {
+.b-tooltip .form-item.is-selected > .description {
   padding-left: 20px !important; /* csslint allow: known-properties, important */
 }
 
-.b-tooltip .form-item.is-selected > .description:before,
-.b-tooltip .form-item.is-selected > .fieldset-wrapper > .description:before,
-.b-tooltip .form-composite > .fieldset-wrapper.is-selected > .description:before,
-.b-tooltip .form-composite > .fieldset-wrapper.is-selected > .fieldset-wrapper > .description:before {
+.b-tooltip .form-item.is-selected > .description::before {
   color: #dadada;
   content: "x";
   display: block;
@@ -149,41 +147,10 @@
   top: -20px;
 }
 
-.no-js .b-tooltip .form-item:hover > .fieldset-wrapper > .description,
 .no-js .b-tooltip .form-item:hover > .description {
   bottom: 100%;
   display: block;
   opacity: 1 !important; /* csslint allow: known-properties, important */
   visibility: visible;
   overflow: visible !important; /* csslint allow: known-properties, important */
-}
-
-.form-item .b-hint {
-  background: #828282;
-  border-radius: 50%;
-  color: #fff;
-  content: '?';
-  cursor: default;
-  display: none;
-  font-family: sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 16px;
-  margin: 0;
-  width: 16px;
-  height: 16px;
-  position: absolute;
-  right: 5px;
-  text-align: center;
-  top: 5px;
-  z-index: 8;
-}
-
-.form__header .form-item .b-hint {
-  top: 16px;
-  right: -5px;
-}
-
-.form-item:hover > .b-hint {
-  display: block;
 }

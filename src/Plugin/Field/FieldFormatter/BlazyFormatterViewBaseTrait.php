@@ -43,10 +43,6 @@ trait BlazyFormatterViewBaseTrait {
 
     // Build the elements, and satisfy phpstan.
     if (method_exists($this, 'buildElements')) {
-      // BC hook_alters upstream are happy, ensures no more leaks downstream.
-      // @todo recheck if any misses downstream.
-      unset($build['settings']);
-
       $this->buildElements($build, $items, $langcode);
     }
 

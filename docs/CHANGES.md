@@ -17,6 +17,7 @@ Always check out release notes, if any issues with the latest changes.
      * Added supports for `SVG Image Field` module.
      * Added image ALT and TITLE for VEF which has none.
      * Re-purposed `Blazy Image with VEF (deprecated)` formatter for SVG (WIP).
+     * Removed stone-aged admin CSS for modern Native Grid.
    + **Breaking change**: changed `settings` to `#settings`, etc. Check out CR:
      [Blazy ecosystem breaking change](https://www.drupal.org/node/3375158).
    + Added additional config options at Blazy UI. Be sure to check out for

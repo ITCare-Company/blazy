@@ -147,16 +147,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
         $sets     = $settings;
 
         if ($value = $item->{$property}) {
-          if ($entity->getEntityTypeId() == 'media'
-            && $entity->hasField($field_name)
-            && $entity->get($field_name)->getString() == $value) {
-            // We are on the right media entity.
-            $media = $entity;
-          }
-          else {
-            // Attempts to fetch media entity.
-            $media = $this->formatter->loadByProperty($field_name, $value, 'media');
-          }
+          $media = $this->blazyMedia->fromField($entity, $field_name, $value);
 
           $info = [
             'delta' => $delta,

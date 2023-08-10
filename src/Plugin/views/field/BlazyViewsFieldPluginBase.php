@@ -111,6 +111,8 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
 
   /**
    * Returns the blazy manager.
+   *
+   * @todo remove, hardly called outside the formatters.
    */
   public function blazyManager() {
     return $this->blazyManager;

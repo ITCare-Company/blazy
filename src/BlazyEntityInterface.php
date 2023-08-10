@@ -33,7 +33,7 @@ interface BlazyEntityInterface {
    * Returns the blazy media.
    *
    * @return \Drupal\blazy\Media\BlazyMediaInterface
-   *   The blazy manager.
+   *   The blazy media.
    */
   public function blazyMedia();
 
@@ -66,12 +66,12 @@ interface BlazyEntityInterface {
   public function prepare(array &$data): void;
 
   /**
-   * Returns the entity view, if available.
+   * Provides an entity.get.view output, or vanilla entity view.
    *
    * @param array $data
    *   The data containing:
    *     - #access, if already checked upstream, otherwise leave it undefined.
-   *     - #entity, the media, else file entity, to be associated to media.
+   *     - #entity, media or file entity, to be associated to media, or any.
    *     - #settings, with view_mode, and any/nothing else.
    *     - fallback, when all fails, probably just entity label.
    *

@@ -149,6 +149,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
       if ($item = ($build['items'][0] ?? NULL)) {
         $fallback = $item[static::$itemId]['#build'] ?? [];
         $data = $item['#build'] ?? $fallback;
+
         if ($data = array_filter($data)) {
           $blazy = $data['#settings']['blazies'];
           $blazies->set('first.data', $data)

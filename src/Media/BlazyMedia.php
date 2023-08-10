@@ -94,31 +94,42 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * Builds the media field which is not understood by theme_blazy().
-   *
-   * Do not use this method for now, use self::view() instead.
-   *
-   * @param object $media
-   *   The media being rendered.
-   * @param array $settings
-   *   The contextual settings array.
-   *
-   * @return array
-   *   The renderable array of the media field, or empty if not applicable.
-   *
-   * @todo make it non-static and rework at/ by 3.x.
+   * {@inheritdoc}
    */
-  public static function build($media, array $settings): array {
-    // @todo remove at 3.x reworks.
-    @trigger_error('build is deprecated in blazy:8.x-2.17 and is reworked in blazy:3.0.0. Use self::view() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    return [];
+  public function build(array $data): array {
+    $manager  = $this->manager;
+    $settings = &$data['#settings'];
+
+    /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+    $item = $manager->toHashtag($data, 'item', NULL);
+
+    // @todo recheck BlazyOEmbed::fromMedia() if already covered since 2.17.
+    if (!$item) {
+      // Re-defined, needed downstream by local video, etc.
+      $settings['view_mode'] = $settings['view_mode'] ?? 'default';
+      $data['content'][] = $this->view($data);
+    }
+
+    $blazies = $settings['blazies'];
+    $blazies->set('is.denied', empty($data['#access']));
+
+    // Pass it to Blazy for consistent markups.
+    unset($data['delta'], $data['fallback']);
+    $build = $manager->getBlazy($data);
+
+    // Allows top level elements to load Blazy once rather than per field.
+    // This is still here for non-supported Views style plugins, etc.
+    if (!$blazies->is('detached') && $load = $manager->attach($settings)) {
+      $build['#attached'] = $manager->merge($load, $build, '#attached');
+    }
+    return $build;
   }
 
   /**
    * {@inheritdoc}
    */
   public function view(array $build): array {
-    $media    = $build['#entity'];
+    $entity   = $build['#entity'];
     $settings = &$build['#settings'];
     $item     = $build['#item'] ?? NULL;
 
@@ -138,36 +149,129 @@ class BlazyMedia implements BlazyMediaInterface {
       }
     }
 
+    // Checks if a file is given, and so convert it to a media entity.
+    // video_file is empty from view builder, resorts to entity.get.view.
+    if ($entity->getEntityTypeId() == 'file'
+      && $media = $this->fromFile($build)) {
+      $entity = $media;
+    }
+
     // Local video, FB, Twitter, etc. is rich to be simple due to terracota,
     // can be refined later when Blazy supports more media types better.
-    $blazies->set('media.type', 'rich');
+    if ($entity instanceof MediaInterface) {
+      $type = $blazies->get('media.type', 'rich');
+      $blazies->set('media.type', $type);
+      $view_mode = $settings['view_mode'] ?? 'default';
+      $view_mode = $blazies->get('media.view_mode', $view_mode);
+      $source_field = $blazies->get('media.source_field');
 
-    $view_mode = $blazies->get('media.view_mode', $settings['view_mode'] ?? 'default');
-    $source_field = $blazies->get('media.source_field');
+      // Reset $build, except for #settings, we'll unwrap theme_field() here:
+      $build = $entity->get($source_field)->view($view_mode);
+      $build['#settings'] = $settings;
 
-    // Reset $build, except for #settings, we'll unwrap theme_field() here:
-    $build = $media->get($source_field)->view($view_mode);
-    $build['#settings'] = $settings;
-
-    return isset($build[0]) ? $this->unfield($build) : $build;
+      return isset($build[0]) ? $this->unfield($build) : $build;
+    }
+    return [];
   }
 
   /**
-   * Returns a media entity from a field, if any.
+   * {@inheritdoc}
    */
-  public function fromField($entity, $field_name): ?object {
+  public function fromFile(array $data): ?object {
+    $file     = $data['#entity'];
+    $settings = &$data['#settings'];
+
+    // In case called outside the workflow.
+    $this->manager->verify($settings);
+    $blazies = $settings['blazies'];
+
+    // Seen at IO/Slick Entity Browser specific with file lacking of media data.
+    if ($source = $this->getSource($file)) {
+      $source = $blazies->get('media.source', $source);
+      $source_field = $blazies->get('media.source_field', 'field_media_' . $source);
+      $blazies->set('media.source', $source);
+      $blazies->set('media.source_field', $source_field);
+    }
+
+    if ($name = $blazies->get('media.source_field')) {
+      $values = ['fid' => $file->id()];
+      return $this->fromField($file, $name, $values);
+    }
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fromField($entity, $field_name, $value = NULL): ?object {
     $media = NULL;
-    if (isset($entity->{$field_name})
-      && $reference = $entity->get($field_name)->first()) {
-      if ($reference instanceof EntityReferenceItem) {
-        $media = $reference->entity;
+    if ($value) {
+      // See BlazyOEmbedFormatter::getElements().
+      if ($entity->getEntityTypeId() == 'media'
+        && $entity->hasField($field_name)) {
+        $valid = FALSE;
+        $field = $entity->get($field_name);
+        if (is_string($value)) {
+          $valid = $field->getString() == $value;
+        }
+        else {
+          $valid = $field->getValue() == $value;
+        }
+        // We are on the right media entity.
+        if ($valid) {
+          $media = $entity;
+        }
+      }
+      else {
+        // Attempts to fetch the media entity.
+        // See self::fromFile().
+        $media = $this->manager->loadByProperty($field_name, $value, 'media');
       }
     }
+    // At node, paragraphs, etc, having a field which references:
+    // two designated types of $stage: MediaInterface and FileInterface.
+    // Since 2.10, Main stage is usable as the main display of a Paragraphs,
+    // only if the stage is a Media entity and Overlay is left empty. Basically
+    // render the Media and replace its parent $entity. This way if it is a
+    // video, Media switch will kick in as a Media player or simply an iframe.
+    // Old behavior is intact if Overlay is provided as previously designed.
+    // Before 2.10, the stage was always made an Image, and required Overlay
+    // to have a video player or iframe on top of the stage as an Image.
+    // See BlazyOEmbed::fromMediaOrAny().
+    elseif (isset($entity->{$field_name})) {
+      if ($reference = $entity->get($field_name)->first()) {
+        if ($reference instanceof EntityReferenceItem) {
+          $media = $reference->entity;
+        }
+      }
+    }
+
     return $media instanceof MediaInterface ? $media : NULL;
   }
 
   /**
-   * Prepares media item data to provide image item.
+   * {@inheritdoc}
+   *
+   * @todo recheck other local file-related media sources.
+   */
+  public function getSource($file): ?string {
+    $mime = $file->getMimeType();
+    [$type] = explode('/', $mime, 2);
+    $source = NULL;
+
+    if ($mime === 'image/svg+xml') {
+      $source = 'svg';
+    }
+    foreach (['audio', 'video'] as $key) {
+      if ($type == $key) {
+        $source = $key . '_file';
+      }
+    }
+    return $source;
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function prepare(array &$data): MediaInterface {
     $media     = $data['#entity'];

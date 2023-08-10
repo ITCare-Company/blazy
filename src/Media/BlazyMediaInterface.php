@@ -28,7 +28,20 @@ interface BlazyMediaInterface {
   public function manager(): BlazyManagerInterface;
 
   /**
-   * Returns the media field which is partly not understood by theme_blazy().
+   * Builds the media render which is mostly understood by theme_blazy().
+   *
+   * @param array $data
+   *   The array containing:
+   *     - #entity the Media or File entity.
+   *     - #settings array.
+   *
+   * @return array
+   *   The renderable array of the media field, or empty if not applicable.
+   */
+  public function build(array $data): array;
+
+  /**
+   * Returns the media render which is partly not understood by theme_blazy().
    *
    * When this output arrives at theme_blazy() as content property, Blazy can no
    * longer work with it. That's why we need to do a relatively similar routine
@@ -36,7 +49,7 @@ interface BlazyMediaInterface {
    *
    * @param array $build
    *   The array containing:
-   *     - #entity the Media entity.
+   *     - #entity the Media or File entity.
    *     - #settings array.
    *
    * @return array
@@ -45,14 +58,48 @@ interface BlazyMediaInterface {
   public function view(array $build): array;
 
   /**
+   * Returns a media entity from a file entity.
+   *
+   * This was normally called by Views field file lacking of Media data, unlike
+   * field formatters which are abundant of. Guess works here.
+   *
+   * @param array $data
+   *   The array containing:
+   *     - #entity, the File entity.
+   *     - #settings array.
+   *
+   * @return object
+   *   The media, or NULL if not applicable.
+   */
+  public function fromFile(array $data): ?object;
+
+  /**
    * Returns a media entity from a field name.
    *
    * @param object $entity
    *   The entity.
    * @param string $field_name
    *   The field_name to query by.
+   * @param array|string $values
+   *   The optional values of field_name.
    */
-  public function fromField($entity, $field_name): ?object;
+  public function fromField($entity, $field_name, $values = NULL): ?object;
+
+  /**
+   * Returns a guessed source from a file, normally called by Views field file.
+   *
+   * As long as you are not being too creative by renaming, or changing
+   * fields provided by core, this should be your good friend.
+   * This guess work is only needed by Views fields lacking of Media data, as
+   * seen at IO/Slick Entity Browser specific with file entities.
+   *
+   * @param object $file
+   *   The file entity.
+   *
+   * @return string
+   *   The media source, limited to some known.
+   */
+  public function getSource($file): ?string;
 
   /**
    * Prepares media item data to provide image item.

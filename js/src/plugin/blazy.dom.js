@@ -182,7 +182,14 @@
 
   // Node.appendChild(), same effect as beforeend.
   function append(target, el) {
-    insert(target, el, _before + _end);
+    if ($.isElm(target)) {
+      if ($.isElm(el)) {
+        target.appendChild(el);
+      }
+      else {
+        insert(target, el, _before + _end);
+      }
+    }
   }
 
   function prepend(target, el) {

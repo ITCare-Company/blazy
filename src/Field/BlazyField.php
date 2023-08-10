@@ -13,45 +13,6 @@ use Drupal\blazy\BlazyDefault;
 class BlazyField {
 
   /**
-   * Returns file view or media due to being empty returned by view builder.
-   *
-   * @todo make it usable for other file-related entities.
-   */
-  public static function getOrViewMedia($file, array $settings, $rendered = TRUE) {
-    // Might be accessed by tests, or anywhere outside the workflow.
-    Blazy::verify($settings);
-    $blazies = $settings['blazies'];
-
-    [$type] = explode('/', $file->getMimeType(), 2);
-
-    // As long as you are not being too creative by renaming, or changing
-    // fields provided by core, this should be your good friend.
-    foreach (['audio', 'video'] as $key) {
-      if ($type == $key) {
-        $skey = $key . '_file';
-        $blazies->set('media.source', $skey);
-        $blazies->set('media.source_field', 'field_media_' . $skey);
-      }
-    }
-
-    $source_field = $blazies->get('media.source_field');
-    if ($blazies->get('media.source') && $source_field) {
-      $media = Blazy::loadByProperty($source_field, ['fid' => $file->id()], 'media');
-      if ($media) {
-        $data = [
-          '#entity' => $media,
-          '#settings' => $settings,
-        ];
-        if ($manager = Blazy::service('blazy.media')) {
-          return $rendered ? $manager->view($data) : $media;
-        }
-      }
-    }
-
-    return $rendered ? [] : NULL;
-  }
-
-  /**
    * Returns the string value of the fields: link, or text.
    */
   public static function getString($entity, $field_name, $langcode, $clean = TRUE): string {
@@ -211,6 +172,24 @@ class BlazyField {
     }
 
     return [];
+  }
+
+  /**
+   * Returns file view or media due to being empty returned by view builder.
+   *
+   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   *   BlazyMedia::view() instead.
+   * @see https://www.drupal.org/node/3103018
+   */
+  public static function getOrViewMedia($file, array $settings, $rendered = TRUE) {
+    $data = [
+      '#entity' => $file,
+      '#settings' => $settings,
+    ];
+    if ($manager = Blazy::service('blazy.media')) {
+      return $rendered ? $manager->view($data) : $manager->fromFile($data);
+    }
+    return $rendered ? [] : NULL;
   }
 
 }

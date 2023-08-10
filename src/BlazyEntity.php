@@ -4,7 +4,6 @@ namespace Drupal\blazy;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\media\MediaInterface;
-use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Media\BlazyOEmbedInterface;
 use Drupal\blazy\Utility\CheckItem;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -123,27 +122,9 @@ class BlazyEntity implements BlazyEntityInterface {
     $this->oembed->build($data);
 
     // Only pass to Blazy for known entities related to File or Media.
-    // @todo move it to BlazyMedia::build() after being a non-static at/by 3.x.
     if (in_array($entity->getEntityTypeId(), ['file', 'media'])) {
-      /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-      $item = $manager->toHashtag($data, 'item', NULL);
-      if (!$item) {
-        $data['content'][] = $this->view($data);
-      }
-
-      $blazies = $settings['blazies'];
-      $blazies->set('is.denied', FALSE);
-
-      // Pass it to Blazy for consistent markups.
-      unset($data['delta'], $data['fallback']);
-      $build = $manager->getBlazy($data);
-
-      // Allows top level elements to load Blazy once rather than per field.
-      // This is still here for non-supported Views style plugins, etc.
-      if (!$blazies->is('detached')) {
-        $load = $manager->attach($settings);
-        $build['#attached'] = $manager->merge($load, $build, '#attached');
-      }
+      unset($data['fallback']);
+      $build = $this->blazyMedia->build($data);
     }
     else {
       $build = $this->view($data);
@@ -182,26 +163,30 @@ class BlazyEntity implements BlazyEntityInterface {
     $manager  = $this->blazyManager;
     $settings = $manager->toHashtag($data);
     $entity   = $data['#entity'] ?? NULL;
+    $build    = [];
 
     if (!$entity instanceof EntityInterface) {
       return [];
     }
 
-    // Provides vanilla entity view.
-    $build = $manager->view($data);
+    // Re-defined, needed downstream by local video, etc.
+    $data['#settings']['view_mode'] = $settings['view_mode'] ?? 'default';
 
-    // @todo figure out why video_file empty, this is blatant assumption.
-    if ($entity->getEntityTypeId() == 'file') {
+    // Provides a convenient one view call for any entities, mostly guess works,
+    // if accessed outside self::build() which already took care of this.
+    if (in_array($entity->getEntityTypeId(), ['file', 'media'])) {
       try {
-        // Re-defined, needed downstream by local video, etc.
-        $settings['view_mode'] = $settings['view_mode'] ?? 'default';
-        $build = BlazyField::getOrViewMedia($entity, $settings, TRUE) ?: $build;
+        // @todo recheck if doable with BlazyMedia::build().
+        unset($data['fallback']);
+        $build = $this->blazyMedia->view($data);
       }
       catch (\Exception $ignore) {
         // Do nothing, no need to be chatty in mischievous deeds.
       }
     }
-    return $build;
+
+    // Provides an entity.get.view output, or vanilla entity view.
+    return $build ?: $manager->view($data);
   }
 
   /**

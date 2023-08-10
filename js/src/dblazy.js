@@ -813,22 +813,24 @@
     var found = 0;
 
     if (isQsa(el) && isStr(names)) {
+      // var _list = el.classList;
       names = names.trim();
-      var _list = el.classList;
+      var checks = _attr(el, _class);
 
       var verify = function (name) {
-        if (_list) {
-          if (_list.contains(name)) {
+        // if (_list) {
+        // if (_list.contains(name)) {
+        // found++;
+        // }
+        // }
+        // SVG may fail classList here.
+        // classList.contains fails distiguishing splide from splide-wrapper.
+        // You'll never know.
+        each(toArray(checks), function (check) {
+          if (check && check === name) {
             found++;
           }
-        }
-        if (found === 0) {
-          // SVG may fail classList here.
-          var check = _attr(el, _class);
-          if (check && check.match(name)) {
-            found++;
-          }
-        }
+        });
       };
 
       each(toArray(names), verify);
