@@ -69,6 +69,7 @@
 
 /* Ensures to not conflict with blazy.media.css. */
 .media:hover .media__icon--litebox,
+a:hover .media__icon--litebox,
 a .media--switch img.media__element {
   opacity: 1;
   visibility: visible;

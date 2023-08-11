@@ -274,72 +274,25 @@ trait BlazyStyleBaseTrait {
   }
 
   /**
-   * Returns the thumbnail if so configured.
+   * Provides a potential unique thumbnail different from the main image.
    *
    * Be sure to reset settings before calling this method:
    * $this->reset($sets);
    */
   protected function getThumbnail(array &$sets, $row, $index, $field_caption = NULL): array {
-    $name = $sets['thumbnail'] ?? NULL;
-
-    if (empty($name)) {
-      return [];
-    }
-
-    // Provides a potential unique thumbnail different from the main image.
+    $name      = $sets['thumbnail'] ?? NULL;
     $blazies   = $sets['blazies'];
     $use_blazy = $blazies->use('theme_thumbnail');
-    $doable    = FALSE;
 
     $blazies->set('is.reset', TRUE);
-    $tn = $this->getFieldRenderable($row, 0, $name);
-    $rendered = $tn['rendered'] ?? [];
 
-    // Core image formatter:
-    $tn_style = $rendered['#image_style'] ?? NULL;
-    $item = $rendered['#item'] ?? NULL;
+    // Thumbnail image is optional for tab navigation like.
+    [
+      'doable' => $doable,
+      'item' => $item,
+    ] = $this->getWorkableThumbnail($sets, $row, $name);
 
-    // Blazy formatter, might be group_rows.
-    $build = $rendered['#build'] ?? [];
-
-    // Even if ignorantly multiple, thumbnails must be one only.
-    if (!$tn_style && $build) {
-      $subsets = $this->manager->toHashtag($build);
-      $tn_style = $subsets['thumbnail_style']
-        ?? $subsets['image_style']
-        ?? NULL;
-    }
-
-    if (!$item) {
-      // Might be group_rows, the first two are blazy, the last image_formatter.
-      $item = $build['#item'] ?? $build[0]['#item'] ?? $rendered['raw'] ?? NULL;
-    }
-
-    if ($tn_style && is_object($item)) {
-      $uri = Blazy::uri($item);
-      $sets['thumbnail_style'] = $tn_style;
-
-      if (!$blazies->get('image.uri')) {
-        $blazies->set('image.uri', $uri);
-      }
-
-      $tn_uri = $uri ? $this->manager
-        ->load($tn_style, 'image_style')
-        ->buildUri($uri) : NULL;
-
-      // This allows a thumbnail different from the main stage, such as logos
-      // thumbnails, and company buildings for the main stage.
-      if ($tn_uri) {
-        // @todo remove the first here.
-        $sets['thumbnail_uri'] = $tn_uri;
-        $blazies->set('thumbnail.uri', $tn_uri);
-        $doable = TRUE;
-      }
-      else {
-        $doable = $blazies->get('image.uri') != NULL;
-      }
-    }
-
+    // Caption is optional for thumbed navigation only.
     $caption = [];
     if ($field_caption) {
       $caption = $this->getFieldRendered($index, $field_caption);
@@ -351,7 +304,7 @@ trait BlazyStyleBaseTrait {
     }
     else {
       /* @phpstan-ignore-next-line */
-      $tmp = $this->getFieldRendered($index, $name);
+      $tmp = $name ? $this->getFieldRendered($index, $name) : [];
 
       // @todo remove check at 3.x.
       if ($use_blazy) {
@@ -389,6 +342,61 @@ trait BlazyStyleBaseTrait {
    */
   protected function reset(array &$settings, $key = 'blazies', array $defaults = []) {
     return Blazy::reset($settings, $key, $defaults);
+  }
+
+  /**
+   * Provides a workable thumbnail if any.
+   *
+   * Be sure to reset settings before calling this method:
+   * $this->reset($sets);
+   */
+  private function getWorkableThumbnail(array &$sets, $row, $name): array {
+    if (!$name) {
+      return ['doable' => FALSE, 'item' => NULL];
+    }
+
+    // Can only have one thumbnail even if multiple.
+    // Supports core image formatter, the most sensible, and Blazy formatter.
+    $blazies  = $sets['blazies'];
+    $doable   = FALSE;
+    $result   = $this->getFieldRenderable($row, 0, $name);
+    $rendered = $result['rendered'] ?? [];
+    $tn_style = $rendered['#image_style'] ?? NULL;
+    $item     = $rendered['#item'] ?? NULL;
+    $build    = $rendered['#build'] ?? [];
+
+    // Might be group_rows, the first two are blazy, the last image_formatter.
+    if (!$item) {
+      $item = $build['#item'] ?? $build[0]['#item'] ?? $rendered['raw'] ?? NULL;
+    }
+
+    // If we have image style and image item.
+    if ($tn_style && is_object($item)) {
+      $uri = Blazy::uri($item);
+      $sets['thumbnail_style'] = $tn_style;
+
+      if (!$blazies->get('image.uri')) {
+        $blazies->set('image.uri', $uri);
+      }
+
+      $tn_uri = $uri ? $this->manager
+        ->load($tn_style, 'image_style')
+        ->buildUri($uri) : NULL;
+
+      // This allows a thumbnail different from the main stage, such as logos
+      // thumbnails, and company buildings for the main stage.
+      if ($tn_uri) {
+        // @todo remove the first here.
+        $sets['thumbnail_uri'] = $tn_uri;
+        $blazies->set('thumbnail.uri', $tn_uri)
+          ->set('thumbnail.item', $item);
+        $doable = TRUE;
+      }
+      else {
+        $doable = $blazies->get('image.uri') != NULL;
+      }
+    }
+    return ['doable' => $doable, 'item' => $item];
   }
 
 }
