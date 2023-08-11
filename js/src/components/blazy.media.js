@@ -163,29 +163,6 @@
   }
 
   /**
-   * Returns the available alt.
-   *
-   * @param {Element} $el
-   *   The triggering link element.
-   *
-   * @return {string}
-   *   The alt.
-   */
-  function extractAlt($el) {
-    var img = $el.find('img:not(.b-blur)');
-    var alt = $.attr(img, 'alt');
-
-    // If using BG.
-    if (!alt) {
-      var cn = $el.find('.media');
-      alt = $.attr(cn, 'title');
-    }
-
-    // If nobody put the important info, add a fallback.
-    return alt ? Drupal.checkPlain(alt) : Drupal.t('Video preview');
-  }
-
-  /**
    * Theme function for a dynamic inline video.
    *
    * @param {Object} settings
@@ -199,15 +176,14 @@
     // PhotoSwipe5 has element, PhotoSwipe4 el, etc.
     var el = settings.el || settings.element;
     var $el = $(el);
-    var alt = extractAlt($el);
-    var data = $.parse($el.attr('data-' + _md));
+    var alt = $.image.alt(el);
+    var data = $.parse($el.attr('data-b-' + _md + ' data-' + _md));
     var width = data.width ? parseInt(data.width, 0) : 640;
-    var height = data.height ? parseInt(data.height, 0) : 360;
-    var pad = data ? ((height / width) * 100).toFixed(2) : 100;
+    var pad = $.image.ratio(data);
     var imgUrl = $el.attr('data-box-url');
     var href = el.href;
     var oembedUrl = $el.attr('data-oembed-url', href, true);
-    var defClass = _md + '__image ' + _md + '__element';
+    var defClass = _md + '__element';
     var imgClass = settings.imgClass ?
       defClass + ' ' + settings.imgClass :
       defClass;

@@ -8,6 +8,7 @@ https://size43.com/jqueryVideoTool.html
 https://en.wikipedia.org/wiki/List_of_common_resolutions
 
 ### Aspect ratio 4:3
+* 420x236
 * 640x480
 * 800x600
 * 1024x768

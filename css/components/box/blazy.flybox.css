@@ -1,0 +1,64 @@
+/**
+ * @file
+ * Provides flybox view based on blazybox.
+ */
+
+/** 641px with 16px base font. */
+@media only screen and (min-width: 40.063em) {
+  body.is-flybox--open {
+    overflow: visible;
+  }
+
+  .is-flybox--open .blazybox {
+    bottom: 2px;
+    left: auto;
+    right: 2px;
+    top: auto;
+  }
+
+  [dir="rtl"] .is-flybox--open .blazybox {
+    left: 2px;
+    right: auto;
+  }
+
+  .is-flybox--open .blazybox,
+  .is-flybox--open .blazybox iframe,
+  .is-flybox--open .blazybox video,
+  .is-flybox--open .blazybox .blazybox__fullscreen {
+    width: 420px;
+    height: 236px;
+  }
+
+  .is-flybox--open .blazybox__close {
+    border: 1px solid rgba(255, 255, 255, .8);
+    font-size: 12px;
+    position: absolute;
+    left: -8px;
+    top: -8px;
+    transform: none;
+    width: 22px;
+    height: 22px;
+  }
+
+  [dir="rtl"] .is-flybox--open .blazybox__close {
+    left: auto;
+    right: -8px;
+  }
+
+  .is-flybox--open .blazybox .blazybox__html,
+  .is-flybox--open .blazybox .blazybox__media,
+  .is-flybox--open .blazybox .media {
+    left: 0;
+    top: 0;
+    transform: none;
+    max-width: 100%;
+  }
+
+  .is-flybox--open .blazybox .media--boxtype-audio audio {
+    bottom: 0;
+    height: auto;
+    top: auto;
+    transform: none;
+  }
+
+}

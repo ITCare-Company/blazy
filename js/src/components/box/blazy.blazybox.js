@@ -22,6 +22,8 @@
   var _ariaHidden = 'aria-hidden';
   var _sanitizer = $.sanitizer;
   var _multimedia = $.multimedia || false;
+  var oClass;
+  var oBodyClass;
 
   /**
    * Blazybox public methods.
@@ -41,8 +43,10 @@
      *
      * @param {HTMLElement|string} settings
      *   The link HTMLElement to extract video/ media data, or video embed url.
+     * @param {Object} options
+     *   The optional options containing: class.
      */
-    open: function (settings) {
+    open: function (settings, options) {
       var me = Drupal.blazyBox;
       var $el = me.$el;
       var elContent = $el.find(_selContent);
@@ -66,6 +70,21 @@
       elContent.innerHTML = _sanitizer.sanitize(content, config);
 
       $.addClass(_doc.body, _isOpened);
+
+      if (options) {
+        me.options = $.extend({}, me.options, options);
+        var opts = me.options;
+
+        oClass = opts.class || '';
+        oBodyClass = opts.bodyClass || '';
+
+        if (oClass) {
+          $.addClass($el, oClass);
+        }
+        if (oBodyClass) {
+          $.addClass(_doc.body, oBodyClass);
+        }
+      }
 
       // Reset any (local) video/ audio to avoid multiple elements from playing.
       if (_multimedia) {
@@ -95,6 +114,13 @@
         .find(_selContent).innerHTML = '';
 
       $.removeClass(_doc.body, _isOpened);
+
+      if (oClass) {
+        $.removeClass($el, oClass);
+      }
+      if (oBodyClass) {
+        $.removeClass(_doc.body, oBodyClass);
+      }
 
       Drupal.detachBehaviors($el[0]);
     },
@@ -133,7 +159,7 @@
   Drupal.theme.blazyBox = function () {
     var html;
 
-    html = '<div id="$id" class="$id visually-hidden" tabindex="-1" role="dialog" aria-hidden="true" aria-label="$id">';
+    html = '<div class="$id visually-hidden" tabindex="-1" role="dialog" aria-hidden="true" aria-label="$id">';
     html += '<div class="$id__content"></div>';
     html += '<button class="$id__close" data-role="none">&times;</button>';
     html += '</div>';
@@ -155,8 +181,13 @@
   Drupal.theme.blazyBoxMedia = function (settings) {
     var data = settings.data;
     var oembedUrl = data;
+    var alt;
     var dataset;
     var el;
+    var href;
+    var url;
+    var img;
+    var pad;
     var width = '';
     var html = '<div class="blazybox__fullscreen">';
 
@@ -173,12 +204,25 @@
       oembedUrl = $.attr(el, 'data-oembed-url');
 
       // Video|Audio|Responsive|Picture elements.
-      if (dataset && dataset.html) {
-        if (dataset.width) {
-          width = ' style="width:' + dataset.width + 'px"';
+      if (dataset) {
+        var wdth = dataset.width ? parseInt(dataset.width, 0) : 640;
+        if (wdth) {
+          width = ' style="width:' + wdth + 'px"';
         }
 
-        html += '<div class="blazybox__html"' + width + '>' + dataset.html + '</div>';
+        if (dataset.html) {
+          html += '<div class="blazybox__html"' + width + '>' + dataset.html + '</div>';
+        }
+        else if (dataset.boxType === 'image') {
+          alt = $.image.alt(el, '');
+          href = el.href;
+          url = $.attr(el, 'data-box-url', href, true);
+          pad = $.image.ratio(dataset);
+          img = '<img class="media__element" src="' + url + '" decoding="async" loading="eager" alt="' + alt + '" />';
+          html += '<div class="blazybox__media"' + width + '>';
+          html += '<div class="media media--ratio media--ratio--fluid" aria-live="polite" style="padding-bottom: ' + pad + '%">' + img + '</div>';
+          html += '</div>';
+        }
       }
     }
 

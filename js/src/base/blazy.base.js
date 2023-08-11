@@ -28,4 +28,29 @@
     return false;
   };
 
+  $.image = {
+
+    alt: function (el, fallback) {
+      var img = $.find(el, 'img:not(.b-blur)');
+      var alt = $.attr(img, 'alt');
+
+      fallback = fallback || 'Video preview';
+
+      // If using BG.
+      if (!alt) {
+        var cn = $.find(el, '.media');
+        alt = $.attr(cn, 'title');
+      }
+
+      // If nobody put the important info, add a fallback.
+      return alt ? Drupal.checkPlain(alt) : Drupal.t(fallback);
+    },
+
+    ratio: function (data) {
+      var width = data.width ? parseInt(data.width, 0) : 640;
+      var height = data.height ? parseInt(data.height, 0) : 360;
+      return data ? ((height / width) * 100).toFixed(2) : 100;
+    }
+  };
+
 })(dBlazy, Drupal, this);

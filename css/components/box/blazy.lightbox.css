@@ -75,7 +75,7 @@ a .media--switch img.media__element {
   visibility: visible;
 }
 
-.media--boxtype-audio audio {
+.media.media--boxtype-audio audio {
   bottom: auto;
   height: auto;
   top: 50%;

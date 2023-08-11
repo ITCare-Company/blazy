@@ -386,7 +386,7 @@ class Libraries implements LibrariesInterface {
    * {@inheritdoc}
    */
   public function getLightboxes(): array {
-    $lightboxes = [];
+    $lightboxes = ['flybox'];
     if (function_exists('colorbox_theme')) {
       $lightboxes[] = 'colorbox';
     }

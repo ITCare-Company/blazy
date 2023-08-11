@@ -36,7 +36,7 @@ class Lightbox {
       if ($name == 'colorbox') {
         self::attachColorbox($load);
       }
-      foreach (['colorbox', 'mfp', 'photobox'] as $key) {
+      foreach (['colorbox', 'flybox', 'mfp', 'photobox'] as $key) {
         if ($name == $key) {
           $blazies->set('libs.' . $key, TRUE);
         }

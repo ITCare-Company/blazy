@@ -3,7 +3,7 @@
 ## <a name="changes"></a>NOTABLE CHANGES  
 Always check out release notes, if any issues with the latest changes.
 
-* _Blazy 2.17_, 2023/08/05:
+* _Blazy 2.17_, 2023/08/13:
    + Cold fixes for few minor regressions and self organizations.
    + Please bear with frequent releases, it was for sub-modules tests. Their
      tests help spot many regressions, reducing one at a time every releases.
@@ -12,6 +12,7 @@ Always check out release notes, if any issues with the latest changes.
      * On your permissions at Blazy UI, `theme_blazy()` is now capable to
        replace sub-modules theme_ITEM() content, e.g.: theme_slick_slide(), etc.
      * Updated blazy.api.php.
+     * Added a Flybox, a non-disruptive lightbox.
      * audio with BG cover, soundcloud, smarter Fluid ratio.
      * Added supports for local audio with background cover via settings.image.
      * Added supports for `SVG Image Field` module.

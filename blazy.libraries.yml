@@ -211,6 +211,16 @@ blazybox:
     - blazy/drupal
     - blazy/lightbox
     - blazy/multimedia
+    - blazy/ratio
+
+flybox:
+  css:
+    component:
+      css/components/box/blazy.flybox.css: {}
+  js:
+    js/components/box/blazy.flybox.min.js: { minified: true }
+  dependencies:
+    - blazy/blazybox
 
 colorbox:
   css:

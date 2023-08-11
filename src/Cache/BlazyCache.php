@@ -22,7 +22,7 @@ class BlazyCache {
    * @todo remove for \Drupal\blazy\Asset\Libraries::getLightboxes() at 3.x.
    */
   public static function lightboxes($root): array {
-    $lightboxes = [];
+    $lightboxes = ['flybox'];
     if (function_exists('colorbox_theme')) {
       $lightboxes[] = 'colorbox';
     }

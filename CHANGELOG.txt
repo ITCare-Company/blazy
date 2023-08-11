@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-08-11
 ------------------------------
+- Added a Flybox, a non-disruptive lightbox.
 - Finalized BlazyMedia conversion from static into non-static class.
 - Fixed for ambiguous space delimited attributes.
 - Fixed for thirdPartyFormatters.

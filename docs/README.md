@@ -262,6 +262,12 @@ Known lightboxes which has supports for Responsive image:
 * Splidebox also supports AJAX contents.
 * Others might not.
 
+Blazy has two builtin minimal lightboxes:
+* Blazybox, seen at Intense, IO Browser, Slick Browser, ElevateZoomPlus, etc.
+* Flybox, a non-disruptive lightbox, as an option under Media Switcher since
+  2.17. It was meant for (remote) video, audio, soundcloud, not images.
+
+
 ### Lightbox requirements
 * Colorbox, PhotoSwipe, etc. requires both modules and their libraries present.
 * Photobox, Magnific Popup, requires only libraries to be present:  

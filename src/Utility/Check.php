@@ -413,7 +413,10 @@ class Check {
 
     // Richbox is local video inside lightboxes by supported lightboxes.
     $_richbox = $blazies->is('richbox') ?: ($settings['_richbox'] ?? FALSE);
-    $richbox  = $blazies->get('colorbox') || $blazies->get('mfp') || $_richbox;
+    $richbox  = $blazies->get('colorbox')
+      || $blazies->get('flybox')
+      || $blazies->get('mfp')
+      || $_richbox;
 
     // (Non-)lightboxes: media player, link to content, image rendered, etc.
     $blazies->set('switch', $switch)
