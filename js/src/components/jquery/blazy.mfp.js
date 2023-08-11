@@ -119,7 +119,7 @@
     var total = elms.length;
 
     $.each(elms, function (el, i) {
-      var media = $.parse($.attr(el, 'data-media'));
+      var media = $.parse($.attr(el, 'data-b-media data-media'));
       var caption = el.nextElementSibling;
       var url = $.attr(el, 'href');
       var item = {

@@ -3,7 +3,7 @@
 namespace Drupal\blazy\Views;
 
 use Drupal\Core\Url;
-use Drupal\blazy\BlazyInternal;
+use Drupal\blazy\internals\Internals;
 
 /**
  * A Trait common for optional views style plugins.
@@ -63,7 +63,7 @@ trait BlazyStylePluginTrait {
           $settings = array_merge($blazy_settings, array_filter($settings));
 
           // Reserves crucial blazy specific settings.
-          BlazyInternal::preserve($settings, $blazy_settings);
+          Internals::preserve($settings, $blazy_settings);
 
           // Each blazy delta is always 0 within a view, this makes it gallery.
           $settings['blazies'] = $blazy_settings['blazies'];
@@ -79,17 +79,17 @@ trait BlazyStylePluginTrait {
             $url = $url->setAbsolute()->toString();
           }
 
-          $blazies->set('entity.url', $url);
-
           // Prevent images from having absurd height when being lazyloaded.
           // Allows to disable it by _noratio such as enforced CSS background.
           $noratio = $settings['_noratio'] ?? '';
           $settings['ratio'] = $blazies->get('is.noratio', $noratio) ? '' : 'fluid';
           if (empty($settings['media_switch']) && $url) {
             $settings['media_switch'] = 'content';
+            $blazies->set('switch', 'content');
           }
 
-          $blazies->set('delta', $index);
+          $blazies->set('delta', $index)
+            ->set('entity.url', $url);
         }
       }
     }

@@ -28,7 +28,8 @@
     var _cbox = drupalSettings.colorbox || {};
     var $box = $(box);
     var url = box.href || 'x';
-    var media = $box.data('media') || {};
+    // @todo remove the second at 3.x:
+    var media = $box.data('bMedia') || $box.data('media') || {};
     var isIframe = media.boxType === 'iframe' && !_sanitizer.isDangerous('href', url);
     var isHtml = 'html' in media;
     var runtimeOptions = {
@@ -36,7 +37,7 @@
       rel: media.rel || null,
       iframe: isIframe,
       title: function () {
-        var $caption = $box.next('.litebox-caption');
+        var $caption = $box.next('.litebox__caption');
         if ($caption.length) {
           return _sanitizer.sanitize($caption[0].innerHTML);
         }

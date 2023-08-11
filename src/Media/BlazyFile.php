@@ -202,7 +202,7 @@ class BlazyFile {
    */
   public static function uri($item, array $settings = []): ?string {
     $uri = NULL;
-    if ($item) {
+    if ($item && BlazyImage::isValidItem($item)) {
       $file = $item->entity ?? NULL;
       $uri = $item->uri ?? NULL;
       // The ::getFileUri() may point to local video, not image URI.
@@ -210,14 +210,13 @@ class BlazyFile {
     }
 
     // No file API with unmanaged files here: hard-coded UGC, legacy VEF.
-    if (empty($uri) && $settings) {
-      // Respects first.uri without image_url such as colorbox/zoom-like.
-      if ($blazies = ($settings['blazies'] ?? NULL)) {
-        $uri = $blazies->get('image.uri') ?: $blazies->get('first.uri');
+    if (!$uri && $settings) {
+      if ($blazies = $settings['blazies'] ?? NULL) {
+        $uri = $blazies->get('image.uri');
       }
     }
 
-    return $uri;
+    return $uri ?: $settings['uri'] ?? NULL;
   }
 
   /**

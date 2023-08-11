@@ -128,7 +128,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     // Provides the relevant elements based on the configuration.
     $element = $this->toElement($blazies, $data, $captions);
 
-    // Splide the elements based on the calling modules.
+    // Split the elements based on the calling modules.
     $this->splitElement($build, $element);
   }
 

@@ -42,6 +42,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings = &$build['#settings'];
 
     // BC for mismatched minor versions.
+    // @todo replace at 3.x with $blazies = $this->verifySafely($settings);
     $this->verify($settings);
 
     $blazies = $settings['blazies'];
@@ -83,6 +84,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings = &$build['#settings'];
 
     // BC for mismatched minor versions.
+    // @todo replace at 3.x with $blazies = $this->verifySafely($settings);
     $this->verify($settings);
 
     $blazies   = $settings['blazies'];

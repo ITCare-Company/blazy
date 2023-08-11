@@ -217,8 +217,9 @@ function blazy_filter_cleanup($module = 'blazy') {
 /**
  * Provides a shortcut to parse the markdown string for better hook_help().
  *
- * @todo deprecated in blazy:2.16 and is removed from blazy:3.x. Use
+ * @todo deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
  * blazy()->markdown() instead.
+ * @see https://www.drupal.org/node/3367291
  */
 function blazy_parse_markdown($string) {
   return blazy()->markdown($string);
@@ -227,8 +228,9 @@ function blazy_parse_markdown($string) {
 /**
  * Provides a wrapper to replace deprecated libraries_get_path() at ease.
  *
- * @todo deprecated in blazy:2.16 and is removed from blazy:3.x. Use
+ * @deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use
  * blazy()->getLibrariesPath() instead.
+ * @see https://www.drupal.org/node/3367291
  */
 function blazy_libraries_get_path($name, $base_path = FALSE) {
   return blazy()->getLibrariesPath($name, $base_path);

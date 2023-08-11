@@ -31,7 +31,7 @@ class BlazyEntity implements BlazyEntityInterface {
   protected $blazyManager;
 
   /**
-   * The blazy manager service.
+   * The blazy media service.
    *
    * @var \Drupal\blazy\Media\BlazyMediaInterface
    */
@@ -142,9 +142,7 @@ class BlazyEntity implements BlazyEntityInterface {
     $manager->hashtag($data);
 
     $settings = &$data['#settings'];
-    $manager->verify($settings);
-
-    $blazies = $settings['blazies'];
+    $blazies = $manager->verifySafely($settings);
     if ($blazies->was('entity_prepared')) {
       return;
     }
@@ -194,9 +192,7 @@ class BlazyEntity implements BlazyEntityInterface {
    */
   public static function settings(array &$settings, $entity): void {
     // Might be accessed by tests, or anywhere outside the workflow.
-    Blazy::verify($settings);
-
-    $blazies  = $settings['blazies'];
+    $blazies  = Blazy::verify($settings);
     $langcode = $blazies->get('language.current');
 
     if ($info = CheckItem::entity($entity, $langcode)) {

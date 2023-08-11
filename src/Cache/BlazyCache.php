@@ -7,6 +7,12 @@ use Drupal\blazy\Blazy;
 
 /**
  * Provides common cache utility static methods.
+ *
+ * @internal
+ *   This is an internal part of the Blazy system and should only be used by
+ *   blazy-related code in Blazy module.
+ *
+ * @todo remove for \Drupal\blazy\Asset\Libraries methods at 3.x.
  */
 class BlazyCache {
 
@@ -38,21 +44,20 @@ class BlazyCache {
 
   /**
    * Return the cache metadata common for all blazy-related modules.
+   *
+   * @todo remove for \Drupal\blazy\Asset\Libraries::getCacheMetadata() at 3.x.
    */
   public static function metadata(array $build = []): array {
-    $manager  = Blazy::service('blazy.manager');
-    $settings = Blazy::toHashtag($build) ?: $build;
-
-    // @todo remove after sub-modules, including some fallback settings.
-    Blazy::verify($settings);
-
-    $blazies   = $settings['blazies'];
+    $manager   = Blazy::service('blazy.manager');
+    $settings  = Blazy::toHashtag($build) ?: $build;
+    $blazies   = Blazy::verify($settings);
     $namespace = $blazies->get('namespace', 'blazy');
-    $count     = $blazies->get('count', count($settings));
+    $count     = $blazies->total() ?: $blazies->get('count', count($settings));
     $max_age   = $manager->config('cache.page.max_age', 'system.performance');
     $max_age   = empty($settings['cache']) ? $max_age : $settings['cache'];
     $id        = Blazy::getHtmlId($namespace . $count);
     $id        = $blazies->get('css.id', $id);
+    $id        = substr(md5($id), 0, 11);
 
     // Put them into cxahe.
     $cache             = [];

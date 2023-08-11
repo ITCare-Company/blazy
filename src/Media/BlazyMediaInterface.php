@@ -86,6 +86,21 @@ interface BlazyMediaInterface {
   public function fromField($entity, $field_name, $values = NULL): ?object;
 
   /**
+   * Extracts needed info from a media.
+   *
+   * @param \Drupal\media\MediaInterface $media
+   *   The media entity.
+   * @param string $view_mode
+   *   The view_mode.
+   * @param string $langcode
+   *   The langcode.
+   *
+   * @return array
+   *   The media info containing metadata and translated entity.
+   */
+  public function getMetadata(MediaInterface $media, $view_mode, $langcode): array;
+
+  /**
    * Returns a guessed source from a file, normally called by Views field file.
    *
    * As long as you are not being too creative by renaming, or changing

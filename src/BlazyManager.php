@@ -4,6 +4,7 @@ namespace Drupal\blazy;
 
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Security\TrustedCallbackInterface;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Theme\Lightbox;
 
 /**
@@ -83,6 +84,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Requires a string to strip, image_formatter has a Url object.
     if ($blazies->get('switch') == 'content' && $url && is_string($url)) {
       $element['#url'] = UrlHelper::stripDangerousProtocols($url);
+      $element['#url_attributes']['class'][] = 'b-link';
     }
     elseif ($blazies->is('lightbox')) {
       Lightbox::build($element);
@@ -251,7 +253,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       $output  = ['inline' => $inline, 'tag' => $tag];
       $output += $categories;
     }
-    return $output + $overlays;
+
+    // Allows altering the captions to minimize Twig works for minor needs.
+    $result  = $output + $overlays;
+    $context = ['prefix' => $prefix, 'id' => $id];
+    $this->moduleHandler->alter('blazy_caption', $result, $blazies, $context);
+
+    return array_filter($result);
   }
 
   /**
@@ -283,12 +291,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       ->set('use.loader', FALSE);
 
     // Supports HTML content for lightboxes as long as having image trigger.
-    // Local media to not conflict with Image rendered by its formatter option.
-    // Only possible if having hires image via `Main stage` aka cross image.
+    // Only limit to local media to not conflict with Image rendered by its
+    // formatter option, Facebook, Twitter, etc.
+    // Only possible if having hires image via `Main stage` aka cross image,
+    // and the lightbox is capable to display it.
     $hires     = $blazies->is('hires', !empty($settings['image']));
-    $litebox   = $blazies->is('lightbox');
-    $richbox   = $blazies->is('richbox');
-    $supported = $blazies->is('local_media') && $litebox && $richbox;
+    $richbox   = $blazies->is('lightbox') && $blazies->is('richbox');
+    $supported = $blazies->is('local_media') && $richbox;
 
     if ($supported && $hires) {
       $element['#lightbox_html'] = $build['content'];
@@ -343,9 +352,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    */
   private function getBlazySettings(array $build) {
     $settings = $this->toHashtag($build);
-    $this->verify($settings);
+    $blazies  = $this->verifySafely($settings);
 
-    $blazies = $settings['blazies'];
     if ($data = $blazies->get('first.data')) {
       if (is_array($data)) {
         $this->isBlazy($settings, $data);
@@ -391,12 +399,12 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $item_attributes = &$build['#item_attributes'];
 
     // Ensures CheckItem::essentials() called once.
-    BlazyInternal::prepare($settings, $item, TRUE);
+    Internals::prepare($settings, $item, TRUE);
 
     // Build thumbnail and optional placeholder based on thumbnail.
     // Prepare image URL and its dimensions, including for rich-media content,
     // such as for local video poster image if a poster URI is provided.
-    BlazyInternal::prepared($settings, $item);
+    Internals::prepared($settings, $item);
 
     // Allows altering the settings for individual items.
     // Such as disabling lightbox for inline media player.
@@ -445,7 +453,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   /**
    * Provides captions, if any.
    */
-  private function toCaption(array &$element, $captions, $blazies): void {
+  private function toCaption(array &$element, array $captions, $blazies): void {
     $id     = $blazies->get('item.id', 'blazy');
     $id     = $id == 'content' ? 'blazy' : $id;
     $self   = $id == 'blazy';

@@ -11,7 +11,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyInternal;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\Preloader;
 use Drupal\blazy\Theme\Lightbox;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -162,7 +162,7 @@ class Libraries implements LibrariesInterface {
    */
   public function attach(array $attach = []): array {
     $load = [];
-    BlazyInternal::postSettings($attach);
+    Internals::postSettings($attach);
 
     $blazies = $attach['blazies'];
     $unblazy = $blazies->is('unblazy', FALSE);
@@ -313,6 +313,35 @@ class Libraries implements LibrariesInterface {
   /**
    * {@inheritdoc}
    */
+  public function getCacheMetadata(array $build): array {
+    $settings  = Blazy::toHashtag($build) ?: $build;
+    $blazies   = Blazy::verify($settings);
+    $namespace = $blazies->get('namespace', 'blazy');
+    $count     = $blazies->total() ?: $blazies->get('count', count($settings));
+    $max_age   = $this->config('cache.page.max_age', 'system.performance');
+    $max_age   = empty($settings['cache']) ? $max_age : $settings['cache'];
+    $id        = Blazy::getHtmlId($namespace . $count);
+    $id        = $blazies->get('css.id', $id);
+    $id        = substr(md5($id), 0, 11);
+
+    // Put them into cxahe.
+    $cache             = [];
+    $suffixes[]        = $count;
+    $cache['tags']     = Cache::buildTags($namespace . ':' . $id, $suffixes, '.');
+    $cache['contexts'] = ['languages', 'url.site'];
+    $cache['max-age']  = $max_age;
+    $cache['keys']     = $blazies->get('cache.metadata.keys', [$id]);
+
+    if ($tags = $blazies->get('cache.metadata.tags', [])) {
+      $cache['tags'] = Cache::mergeTags($cache['tags'], $tags);
+    }
+
+    return $cache;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getIoSettings(array $attach = []): object {
     $io = [];
     $thold = $this->config('io.threshold');
@@ -354,7 +383,7 @@ class Libraries implements LibrariesInterface {
   }
 
   /**
-   * Return the available lightboxes, to be cached to avoid disk lookups.
+   * {@inheritdoc}
    */
   public function getLightboxes(): array {
     $lightboxes = [];

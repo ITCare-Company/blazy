@@ -6,7 +6,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
-use Drupal\blazy\Theme\BlazyAttribute;
+use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Markdown;
@@ -87,7 +87,7 @@ class Blazy {
    * Returns the safely processed image ALT and TITLE attributes.
    */
   public static function altTitle($blazies, $item = NULL): array {
-    return BlazyAttribute::altTitle($blazies, $item);
+    return Attributes::altTitle($blazies, $item);
   }
 
   /**
@@ -126,10 +126,10 @@ class Blazy {
   }
 
   /**
-   * Alias for BlazyAttribute::container().
+   * Alias for Attributes::container().
    */
   public static function containerAttributes(array &$attributes, array $settings): void {
-    BlazyAttribute::container($attributes, $settings);
+    Attributes::container($attributes, $settings);
   }
 
   /**
@@ -340,8 +340,8 @@ class Blazy {
    * Returns the translated entity if available.
    */
   public static function translated($entity, $langcode): object {
-    if ($langcode && $entity->hasTranslation($langcode)) {
-      return $entity->getTranslation($langcode);
+    if ($manager = Blazy::service('blazy.manager')) {
+      $entity = $manager->getTranslatedEntity($entity, $langcode);
     }
     return $entity;
   }
@@ -391,17 +391,22 @@ class Blazy {
   /**
    * Verify `blazies` exists, in case accessed outside the workflow.
    */
-  public static function verify(array &$settings, $key = 'blazies', array $defaults = []): void {
+  public static function verify(array &$settings, $key = 'blazies', array $defaults = []): BlazySettings {
     if (!isset($settings[$key])) {
       $settings += $defaults ?: self::init();
+
+      // A failsafe for edge cases:
+      if (!isset($settings[$key])) {
+        $settings[$key] = self::settings();
+      }
     }
 
     // In case overriden above without extending self::init().
-    if ($key == 'blazies'
-      && (!isset($settings['WARNING'])
-      || !isset($settings['image_style']))) {
+    if (!isset($settings['WARNING']) || !isset($settings['image_style'])) {
       $settings += self::init();
     }
+
+    return $settings[$key];
   }
 
   /**

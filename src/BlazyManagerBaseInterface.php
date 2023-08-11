@@ -195,6 +195,25 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
   public function postSettingsAlter(array &$settings, $entity = NULL): void;
 
   /**
+   * Provides the third party formatters where full blown Blazy is not worthy.
+   *
+   * The module doesn't automatically convert the relevant theme to use Blazy,
+   * however two attributes are provided: `data-b-lazy` and `data-b-preview`
+   * which can be used to override a particular theme to use Blazy.
+   *
+   * The `data-b-lazy`is a flag indicating Blazy is enabled.
+   * The `data-b-preview` is a flag indicating Blazy in CKEditor preview mode
+   * via Entity/Media Embed which normally means Blazy should be disabled
+   * due to CKEditor not supporting JS assets.
+   *
+   * @see \Drupal\blazy\Theme\BlazyTheme::blazy()
+   * @see \Drupal\blazy\Theme\BlazyTheme::field()
+   * @see \Drupal\blazy\Theme\BlazyTheme::fileVideo()
+   * @see blazy_preprocess_file_video()
+   */
+  public function thirdPartyFormatters(): array;
+
+  /**
    * Provides relevant attributes to feed into theme_blazy().
    *
    * To replace all sub-modules theme_ITEM() contents with theme_blazy() at 3.x.

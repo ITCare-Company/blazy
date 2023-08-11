@@ -8,8 +8,8 @@ use Drupal\Core\Cache\Cache;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\media\MediaInterface;
 use Drupal\media\IFrameUrlHelper;
-use Drupal\blazy\BlazyInternal;
 use Drupal\blazy\BlazyManagerInterface;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Utility\CheckItem;
 use GuzzleHttp\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -119,6 +119,7 @@ class BlazyMedia implements BlazyMediaInterface {
 
     // Allows top level elements to load Blazy once rather than per field.
     // This is still here for non-supported Views style plugins, etc.
+    // The detached flag just means do not attach libraries.
     if (!$blazies->is('detached') && $load = $manager->attach($settings)) {
       $build['#attached'] = $manager->merge($load, $build, '#attached');
     }
@@ -182,8 +183,7 @@ class BlazyMedia implements BlazyMediaInterface {
     $settings = &$data['#settings'];
 
     // In case called outside the workflow.
-    $this->manager->verify($settings);
-    $blazies = $settings['blazies'];
+    $blazies = $this->manager->verifySafely($settings);
 
     // Seen at IO/Slick Entity Browser specific with file lacking of media data.
     if ($source = $this->getSource($file)) {
@@ -251,6 +251,44 @@ class BlazyMedia implements BlazyMediaInterface {
 
   /**
    * {@inheritdoc}
+   */
+  public function getMetadata(MediaInterface $media, $view_mode, $langcode): array {
+    $source     = $media->getSource();
+    $definition = $source->getPluginDefinition();
+    $source_id  = $source->getPluginId();
+    $uri        = '';
+
+    try {
+      // GuzzleHttp\Exception\ConnectException: cURL error 6:
+      // Could not resolve host: soundcloud.com.
+      // @todo recheck and replace if any direct method for URI.
+      if ($attr = ($definition['thumbnail_uri_metadata_attribute'] ?? '')) {
+        $uri = $source->getMetadata($media, $attr);
+      }
+    }
+    catch (\Exception $e) {
+      // No need to be harsh here, likely disconnected internet, we can always
+      // display stored thumbnails, if already.
+    }
+
+    // Extracts common entity properties.
+    $info = CheckItem::entity($media, $langcode);
+
+    // Only eat what we can chew.
+    $output = [
+      'source'       => $source_id,
+      'source_field' => $source->getConfiguration()['source_field'],
+      'thumbnail'    => $uri,
+      'type'         => $this->getType($source_id),
+      'value'        => $source->getSourceFieldValue($media),
+      'view_mode'    => $view_mode ?: 'default',
+    ] + $info['data'];
+
+    return ['data' => $output, 'entity' => $info['entity']];
+  }
+
+  /**
+   * {@inheritdoc}
    *
    * @todo recheck other local file-related media sources.
    */
@@ -279,7 +317,7 @@ class BlazyMedia implements BlazyMediaInterface {
     $blazies   = $settings['blazies'];
     $view_mode = $settings['view_mode'] ?? 'default';
     $langcode  = $blazies->get('language.current');
-    $result    = self::extract($media, $view_mode, $langcode);
+    $result    = $this->getMetadata($media, $view_mode, $langcode);
     $media     = $result['entity'] ?? $media;
     $info      = $result['data'];
     $id        = $info['id'];
@@ -343,105 +381,24 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * Extracts needed info from a media.
+   * The media.type is a legacy 1.x with VEF, not official Media property.
    *
-   * @tbd keep it static, or change it.
+   * Just to simplify usage, or complex application downstream.
    */
-  public static function extract(MediaInterface $media, $view_mode, $langcode): array {
-    $source = $media->getSource();
-    $definition = $source->getPluginDefinition();
-    $source_id = $source->getPluginId();
-    $uri = '';
-
-    try {
-      // GuzzleHttp\Exception\ConnectException: cURL error 6:
-      // Could not resolve host: soundcloud.com.
-      // @todo recheck and replace if any direct method for URI.
-      if ($attr = ($definition['thumbnail_uri_metadata_attribute'] ?? '')) {
-        $uri = $source->getMetadata($media, $attr);
-      }
-    }
-    catch (\Exception $e) {
-      // No need to be harsh here, likely disconnected internet, we can always
-      // display stored thumbnails, if already.
-    }
-
-    // Extracts common entity properties.
-    $info = CheckItem::entity($media, $langcode);
-
-    // Extracts specific values for this media entity.
-    // Type is a legacy VEF of source plugin ID to make videos pronounced.
+  private function getType($source_id): string {
+    $images = in_array($source_id, ['image', 'svg']);
     $videos = in_array($source_id, ['oembed:video', 'video_embed_field']);
-    $output = [
-      'source'       => $source_id,
-      'source_field' => $source->getConfiguration()['source_field'],
-      'thumbnail'    => $uri,
-      'type'         => $videos ? 'video' : $source_id,
-      'value'        => $source->getSourceFieldValue($media),
-      'view_mode'    => $view_mode ?: 'default',
-    ] + $info['data'];
 
-    return ['data' => $output, 'entity' => $info['entity']];
-  }
-
-  /**
-   * Returns a field item/ content to be wrapped by theme_blazy().
-   *
-   * @param array $field
-   *   The source renderable array to remove field markups from for DOM diet.
-   *
-   * @return array
-   *   The array of the media item to be wrapped directly by theme_blazy().
-   */
-  private function unfield(array &$field): array {
-    $item      = $field[0];
-    $settings  = &$field['#settings'];
-    $blazies   = $settings['blazies'];
-    $is_iframe = ($item['#tag'] ?? NULL) == 'iframe';
-
-    if (!isset($item['#attributes'])) {
-      $item['#attributes'] = [];
+    if ($images) {
+      $type = 'image';
     }
-
-    $attributes = &$item['#attributes'];
-
-    // Update iframe/video dimensions based on configurable image style, if any.
-    foreach (['width', 'height'] as $key) {
-      if ($dimension = ($blazies->get('image.' . $key))) {
-        $attributes[$key] = $dimension;
-      }
-    }
-
-    // Converts iframes into lazyloaded ones.
-    // Iframes: Googledocs, SlideShare. Hardcoded: Spotify.
-    // @todo recheck, likely everyone hardly uses iframes #html_tag lately.
-    // No longer per D9.5: Soundcloud.
-    if ($is_iframe && $src = ($attributes['src'] ?? FALSE)) {
-      BlazyInternal::toPlayable($blazies, $src, TRUE);
-    }
-    // Media with local files: video.
-    elseif (isset($item['#files'])
-      && $file = ($item['#files'][0]['file'] ?? NULL)) {
-      $this->toLocal($item, $settings, $file);
-    }
-    elseif (isset($item['#theme'])) {
-      $this->toIframe($item, $settings);
+    elseif ($videos) {
+      $type = 'video';
     }
     else {
-      $this->disableFeatures($settings);
+      $type = $source_id;
     }
-
-    // Clone relevant keys since field wrapper is no longer in use.
-    foreach (['attached', 'cache', 'third_party_settings'] as $key) {
-      if ($data = $field["#$key"] ?? []) {
-        $item["#$key"] = $this->manager->merge($data, $item, "#$key");
-      }
-    }
-    // Keep original formatter configurations intact here for custom works.
-    // Non-accessible at file_video preprocess, but required by theme_blazy().
-    $item['#settings'] = $this->manager->settings($settings);
-
-    return $item;
+    return $type;
   }
 
   /**
@@ -476,7 +433,7 @@ class BlazyMedia implements BlazyMediaInterface {
             $src = $this->toEmbedUrl($src, $iframe_domain);
           }
 
-          BlazyInternal::toPlayable($blazies, $src, TRUE);
+          Internals::toPlayable($blazies, $src, TRUE);
 
           // @todo remove, no longer relevant since upstream definitions.
           $blazies->set('media.type', $blazies->get('media.source'));
@@ -513,6 +470,67 @@ class BlazyMedia implements BlazyMediaInterface {
     if ($blazies->is('undata') || $blazies->is('richbox')) {
       $item['#attributes']->setAttribute('data-b-undata', TRUE);
     }
+  }
+
+  /**
+   * Returns a field item/ content to be wrapped by theme_blazy().
+   *
+   * @param array $field
+   *   The source renderable array to remove field markups from for DOM diet.
+   *
+   * @return array
+   *   The array of the media item to be wrapped directly by theme_blazy().
+   */
+  private function unfield(array &$field): array {
+    $item      = $field[0];
+    $settings  = &$field['#settings'];
+    $blazies   = $settings['blazies'];
+    $is_iframe = ($item['#tag'] ?? NULL) == 'iframe';
+
+    if (!isset($item['#attributes'])) {
+      $item['#attributes'] = [];
+    }
+
+    $attributes = &$item['#attributes'];
+
+    // Update iframe/video dimensions based on configurable image style, if any.
+    foreach (['width', 'height'] as $key) {
+      if ($dimension = ($blazies->get('image.' . $key))) {
+        $attributes[$key] = $dimension;
+      }
+    }
+
+    // Converts iframes into lazyloaded ones.
+    // Iframes: Googledocs, SlideShare. Hardcoded: Spotify.
+    // @todo recheck, likely everyone hardly uses iframes #html_tag lately.
+    // No longer per D9.5: Soundcloud.
+    if ($is_iframe && $src = ($attributes['src'] ?? FALSE)) {
+      Internals::toPlayable($blazies, $src, TRUE);
+    }
+    // Media with local files: video.
+    elseif (isset($item['#files'])
+      && $file = ($item['#files'][0]['file'] ?? NULL)) {
+      $this->toLocal($item, $settings, $file);
+    }
+    elseif (isset($item['#theme'])) {
+      $this->toIframe($item, $settings);
+    }
+    else {
+      $this->disableFeatures($settings);
+    }
+
+    // Clone relevant keys since field wrapper is no longer in use.
+    foreach (['attached', 'cache', 'third_party_settings'] as $key) {
+      if ($data = $field["#$key"] ?? []) {
+        $item["#$key"] = $this->manager->merge($data, $item, "#$key");
+      }
+    }
+
+    // Keep original formatter configurations intact here for custom works.
+    // Non-accessible at file_video preprocess, but required by theme_blazy().
+    $item['#settings'] = $this->manager->settings($settings);
+
+    return $item;
   }
 
 }

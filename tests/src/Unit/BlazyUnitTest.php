@@ -5,7 +5,7 @@ namespace Drupal\Tests\blazy\Unit;
 use Drupal\Tests\UnitTestCase;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Theme\BlazyAttribute;
+use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Theme\BlazyTheme;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;
@@ -33,7 +33,7 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests \Drupal\blazy\Theme\BlazyAttribute::buildIframe.
+   * Tests \Drupal\blazy\Theme\Attributes::buildIframe.
    *
    * @param array $data
    *   The input data which can be string, or integer.
@@ -59,7 +59,7 @@ class BlazyUnitTest extends UnitTestCase {
 
     $variables['settings'] = array_merge($settings, $data);
     $variables['image'] = 'x';
-    BlazyAttribute::buildIframe($variables);
+    Attributes::buildIframe($variables);
 
     $this->assertNotEmpty($variables[$expected]);
   }

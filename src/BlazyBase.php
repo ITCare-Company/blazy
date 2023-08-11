@@ -333,6 +333,7 @@ abstract class BlazyBase implements BlazyInterface {
    * {@inheritdoc}
    */
   public function getCacheMetadata(array $build): array {
+    // @todo at 3.x: return $this->libraries->getCacheMetadata($build);
     return BlazyCache::metadata($build);
   }
 
@@ -382,9 +383,9 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTranslatedEntity($object) {
+  public function getTranslatedEntity($object, $langcode = NULL) {
     if ($object instanceof EntityInterface) {
-      return $this->entityRepository->getTranslationFromContext($object);
+      return $this->entityRepository->getTranslationFromContext($object, $langcode);
     }
     return $object;
   }
@@ -560,6 +561,13 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function verify(array &$settings): void {
     Blazy::verify($settings);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function verifySafely(array &$settings, $key = 'blazies', array $defaults = []) {
+    return Blazy::verify($settings, $key, $defaults);
   }
 
   /**

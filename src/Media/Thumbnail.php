@@ -26,9 +26,7 @@ class Thumbnail {
    *   - Shortly, economy maintenance.
    */
   public static function view(array $settings, $item = NULL, array $captions = []): array {
-    Blazy::verify($settings);
-
-    $blazies       = $settings['blazies'];
+    $blazies       = Blazy::verify($settings);
     $prefix        = $blazies->get('item.prefix', 'slide');
     $caption       = $blazies->get('item.caption', 'caption');
     $thumb_class   = $prefix . '__thumbnail';

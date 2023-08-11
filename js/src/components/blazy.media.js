@@ -3,7 +3,7 @@
  * Provides Media module integration.
  */
 
-(function ($, Drupal, _doc) {
+(function ($, Drupal, _win, _doc) {
 
   'use strict';
 
@@ -18,6 +18,7 @@
   var _elIconClose = '.' + _icon + '--close';
   var _iFrame = 'iframe';
   var _isPlaying = 'is-playing';
+  var _isBodyPlaying = 'is-b-player-playing';
   var _dataIFrameTitle = 'data-' + _iFrame + '-title';
   var _dataUrl = 'data-url data-b-url';
   var _multimedia = $.multimedia || false;
@@ -105,6 +106,16 @@
 
         // Appends the iframe.
         player.appendChild(newIframe);
+
+        $.addClass(_doc.body, _isBodyPlaying);
+
+        // Be sure to detach on your destroy method, or Drupal..detach:
+        // $.off(_win, 'blazy.mediaPlaying', onPlaying);
+        // After calling:
+        // $.on(_win, 'blazy.mediaPlaying', onPlaying);
+        $.trigger(_win, 'blazy.mediaPlaying', {
+          player: player
+        });
       });
     }
 
@@ -126,6 +137,16 @@
       }
 
       $.remove(iframe);
+
+      $.removeClass(_doc.body, _isBodyPlaying);
+
+      // Be sure to detach on your destroy method, or Drupal..detach:
+      // $.off(_win, 'blazy.mediaStopped', onStopped);
+      // After calling:
+      // $.on(_win, 'blazy.mediaStopped', onStopped);
+      $.trigger(_win, 'blazy.mediaStopped', {
+        player: player
+      });
     }
 
     // Remove iframe if any to avoid browser requesting them till clicked.
@@ -136,6 +157,8 @@
 
     // Closes the video.
     $el.on('click.' + _id, _elIconClose, stop);
+
+    $.removeClass(_doc.body, _isBodyPlaying);
     $el.addClass(_mounted);
   }
 
@@ -239,9 +262,10 @@
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
+        $.removeClass(_doc.body, _isBodyPlaying);
         $.once.removeSafely(_idOnce, _element, context);
       }
     }
   };
 
-})(dBlazy, Drupal, this.document);
+})(dBlazy, Drupal, this, this.document);

@@ -46,7 +46,7 @@ class BlazyViews {
       // Prevents dup [data-LIGHTBOX-gallery] if the Views style supports Grid.
       if (!$grid) {
         $view->element['#attributes'] = $view->element['#attributes'] ?? [];
-        BlazyAttribute::container($view->element['#attributes'], $settings);
+        Attributes::container($view->element['#attributes'], $settings);
       }
     }
 
@@ -80,7 +80,7 @@ class BlazyViews {
       $settings['media_switch'] = $lightbox;
       $variables['attributes']  = $variables['attributes'] ?? [];
 
-      BlazyAttribute::container($variables['attributes'], $settings);
+      Attributes::container($variables['attributes'], $settings);
     }
   }
 
@@ -106,9 +106,7 @@ class BlazyViews {
     $id        = str_replace('_', '-', $id);
     $id        = Blazy::getHtmlId($id);
     $settings += BlazyDefault::lazySettings();
-
-    Blazy::verify($settings);
-    $blazies = $settings['blazies'];
+    $blazies   = Blazy::verify($settings);
 
     // Prepare needed settings to work with.
     // @todo convert some to blazies, and remove these after sub-modules.

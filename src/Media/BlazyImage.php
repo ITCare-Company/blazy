@@ -177,10 +177,8 @@ class BlazyImage {
    * @todo return image item directly without settings.
    */
   public static function fromAny($object, array &$settings = []): ?object {
-    // @todo remove check at 3.x after sub-modules and VEF removed.
-    Blazy::verify($settings);
-    $blazies = $settings['blazies'];
-    $output = $uri = NULL;
+    $blazies = Blazy::verify($settings);
+    $output  = $uri = NULL;
 
     // If Media entity, we must have a File entity, and likely ImageItem.
     if ($object instanceof MediaInterface) {
@@ -437,7 +435,7 @@ class BlazyImage {
    * - UGC image URL, with likely invalid URI due to hard-coded markdown, etc.
    * - Responsive image vs. regular image style.
    *
-   * @requires \Drupal\blazy\BlazyInternal::prepare()
+   * @requires \Drupal\blazy\internals\Internals::prepare()
    *
    * @see self::prepare()
    * @see self::background()

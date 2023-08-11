@@ -7,8 +7,9 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyInternal;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\Placeholder;
+use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\Path;
 
 /**
@@ -69,16 +70,14 @@ class BlazyTheme {
 
     // With BlazySettings, no longer needed to shutup notices when lacking.
     $settings = &$variables['settings'];
-    Blazy::verify($settings);
-
-    $blazies = $settings['blazies'];
-    $item = $variables['item'];
-    $api = $blazies->is('api');
+    $blazies  = Blazy::verify($settings);
+    $item     = $variables['item'];
+    $api      = $blazies->is('api');
 
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
-      BlazyInternal::preSettings($settings, FALSE);
-      BlazyInternal::prepare($settings, $item);
+      Internals::preSettings($settings, FALSE);
+      Internals::prepare($settings, $item);
     }
 
     // Do not proceed if no URI is provided. URI is not Blazy theme property.
@@ -90,20 +89,20 @@ class BlazyTheme {
     // URL and dimensions are built out at BlazyManager::preRenderBlazy().
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
-      BlazyInternal::prepared($settings, $item);
+      Internals::prepared($settings, $item);
     }
 
     // Allows rich Media entities stored within `content` to take over.
     // Rich media are things Blazy don't understand: Instagram, Facebook, etc.
     // Multicontent is currently audio with background cover.
     if (empty($variables['content']) || $blazies->is('multicontent')) {
-      BlazyAttribute::buildMedia($variables);
+      Attributes::buildMedia($variables);
     }
 
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
     // Prevents double padding hacks with AMP which also uses similar technique.
-    BlazyAttribute::finalize($variables);
+    Attributes::finalize($variables);
 
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
@@ -129,7 +128,7 @@ class BlazyTheme {
     // things changed, as seen at self::formatterSettings().
     if ($blazies = $settings['blazies'] ?? NULL) {
       if (!$blazies->is('grid')) {
-        BlazyAttribute::container($variables['attributes'], $settings);
+        Attributes::container($variables['attributes'], $settings);
       }
     }
   }
@@ -143,6 +142,7 @@ class BlazyTheme {
       $use_dataset = empty($attributes['data-b-undata']);
 
       // Adds a poster image if so configured.
+      // Accessed only by BlazyMedia::build().
       if ($blazy = Blazy::toHashtag($files[0])) {
         $blazies = $blazy->get('blazies');
 
@@ -167,6 +167,7 @@ class BlazyTheme {
       }
 
       // If using lazy [data-src].
+      // Accessed by thirdPartyFormatters, and BlazyMedia::build().
       if ($use_dataset) {
         foreach ($files as $file) {
           $source_attributes = &$file['source_attributes'];
@@ -230,7 +231,7 @@ class BlazyTheme {
         $image['#uri'] = $placeholder;
       }
 
-      // More shared-with-image attributes are set at BlazyAttribute::image().
+      // More shared-with-image attributes are set at Attributes::image().
       $image['#attributes']['class'][] = 'b-responsive';
     }
 
@@ -298,20 +299,22 @@ class BlazyTheme {
    */
   private static function thirdPartyField(array &$variables): void {
     $element = $variables['element'];
-    $settings = self::formatterSettings($variables);
+    $settings = self::formatterSettings($variables, TRUE);
 
     if (!isset($settings['blazies'])) {
       return;
     }
 
     $blazies = $settings['blazies'];
+    if ($bundle = $element['#bundle'] ?? NULL) {
+      $blazies->set('field.target_bundles.' . $bundle, $bundle);
+    }
+
+    // Check for available UI definitions.
+    Check::uiContainer($settings);
+
     // @todo re-check at CKEditor.
     $is_undata = $blazies->is('undata');
-
-    // @todo remove.
-    $third_party = $element['#third_party_settings'] ?? [];
-    $blazies->set('field.third_party', $third_party, TRUE);
-
     foreach ($variables['items'] as &$item) {
       if (empty($item['content'])) {
         continue;
@@ -337,7 +340,7 @@ class BlazyTheme {
   /**
    * Returns formatter settings, needed for lightbox + container classes.
    */
-  private static function formatterSettings(array &$variables): array {
+  private static function formatterSettings(array &$variables, $third_party = FALSE): array {
     $element = $variables['element'];
     $settings = $element['#blazy'] ?? [];
 
@@ -363,7 +366,7 @@ class BlazyTheme {
       }
     }
 
-    if ($settings) {
+    if ($settings || $third_party) {
       Blazy::verify($settings);
     }
 

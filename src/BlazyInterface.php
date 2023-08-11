@@ -147,7 +147,7 @@ interface BlazyInterface {
    *   The optional info containing:
    *   - reset: Whether to bypass cache.
    *   - alter: key for the hook_alter, otherwise $cid.
-   *   - context: additional data to be altered or as contextual info.
+   *   - context: additional data or contextual info for the hook_alter.
    *
    * @return array
    *   The cache data.
@@ -171,7 +171,7 @@ interface BlazyInterface {
    *   The optional info containing:
    *   - reset: Whether to bypass cache,
    *   - alter: key for the hook_alter, otherwise $cid.
-   *   - context: additional data to be altered or as contextual info.
+   *   - context: additional data or contextual info for the hook_alter.
    *
    * @return array
    *   The cache data/ options.
@@ -269,11 +269,14 @@ interface BlazyInterface {
    *
    * @param object $object
    *   The entity object.
+   * @param string $langcode
+   *   (optional) The language of the current context. Defaults to the current
+   *   content language.
    *
    * @return object
-   *   The translated entity if available.
+   *   The translated entity, if available.
    */
-  public function getTranslatedEntity($object);
+  public function getTranslatedEntity($object, $langcode = NULL);
 
   /**
    * Alias for Grid::itemAttributes().
@@ -591,8 +594,30 @@ interface BlazyInterface {
    *
    * @param array $settings
    *   The settings being modified.
+   *
+   * @todo deprecated for self::verifySafely() for the returned values.
    */
   public function verify(array &$settings): void;
+
+  /**
+   * Verifies BlazySettings exists since few may be called outside the workflow.
+   *
+   * @param array $settings
+   *   The settings being modified.
+   * @param string $key
+   *   The object key within the settings, normally stupid plural keys: blazies,
+   *   gridstacks, masons, slicks, splides, etc. just to stay unique.
+   *   If extending this class, it is imperative to leave it as is, and only
+   *   override it within the method body, so to keep the default integrity.
+   *   Non-default key is only useful when calling it anywhere, not extending.
+   * @param array $defaults
+   *   The default values to initialize the object.
+   *
+   * @return object
+   *   The \Drupal\blazy\BlazySettings object identified by $key.
+   *   We do not add return type BlazySettings for easy relocation at 3.x.
+   */
+  public function verifySafely(array &$settings, $key = 'blazies', array $defaults = []);
 
   /**
    * Verifies item settings.
@@ -608,10 +633,10 @@ interface BlazyInterface {
    * A wrapper for the entity view with access check.
    *
    * @param array $data
-   *   The data containing: entity, settings, and fallback.
+   *   The data containing: #entity, #settings, and fallback (string|array).
    *
    * @return array
-   *   The renderable array of the view builder, or empty if not applicable.
+   *   The renderable array of the view builder, fallback, or empty array.
    *
    * @see https://www.drupal.org/node/3033656
    */

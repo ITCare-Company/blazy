@@ -64,6 +64,8 @@ trait BlazyElementTrait {
 
   /**
    * Provides inline SVG if so-configured.
+   *
+   * @todo move it into ::getBlazy() for more available data, like title, etc.
    */
   protected function viewSvg(array &$element): void {
     $settings = $this->formatter->toHashtag($element);

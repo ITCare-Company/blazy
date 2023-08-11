@@ -109,8 +109,9 @@
   }
 
   /* Add more relevant selectors accordingly to make gapless grids.
-  Remove .is-b-native to make it fit height-width for Masonry. */
+  Remove .is-b-native to make it fit height-width for Masonry as well, if needed. */
   .b-nativegrid.is-b-native .grid .b-cover,
+  .b-nativegrid.is-b-native .grid .b-link,
   .b-nativegrid.is-b-native .grid .litebox,
   .b-nativegrid.is-b-native .grid .b-bg,
   .b-nativegrid.is-b-native .grid iframe,

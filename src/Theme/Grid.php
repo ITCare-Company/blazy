@@ -3,7 +3,7 @@
 namespace Drupal\blazy\Theme;
 
 use Drupal\blazy\Blazy;
-use Drupal\blazy\BlazyInternal;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Utility\Check;
 
 /**
@@ -28,11 +28,10 @@ class Grid {
    */
   public static function build($items, array $settings): array {
     // Might be called outside the workflow like Slick/ Splide list builders.
-    Blazy::verify($settings);
+    $blazies = Blazy::verify($settings);
 
     // If the workflow is by-passed, by calling this directly, re-check grids.
     // If grid chunks with destroyed un(slick|splide), refresh with libraries.
-    $blazies = $settings['blazies'];
     $refresh = $blazies->is('grid_refresh');
     if (!$blazies->get('namespace') || $refresh) {
       Check::grids($settings);
@@ -74,7 +73,7 @@ class Grid {
     $namespace  = $blazies->get('namespace');
 
     // Provides data-attributes to avoid conflict with original implementations.
-    BlazyAttribute::container($attrs, $settings);
+    Attributes::container($attrs, $settings);
 
     // Provides gallery ID, although Colorbox works without it, others may not.
     // Uniqueness is not crucial as a gallery needs to work across entities.
@@ -201,7 +200,7 @@ class Grid {
     // Count may be set as 2 even if it is 100 by sliders for their magic trick.
     // However total, the new preserved count key, may not be set somewhere.
     // @todo use just total after sub-modules provides it to avoid this check.
-    $total = BlazyInternal::count($blazies);
+    $total = Internals::count($blazies);
     $grid_count = $blazies->get('grid.count', 0);
 
     if ($dim = $blazies->get('grid.large_dimensions', [])) {
@@ -309,7 +308,7 @@ class Grid {
   private static function containerAttributes(array &$attrs, array $settings, $blazies): void {
     $remove  = $blazies->ui('deprecated_class', FALSE);
     $style   = $settings['style'] ?: 'grid';
-    $count   = BlazyInternal::count($blazies);
+    $count   = Internals::count($blazies);
     $format1 = 'b-%s';
     $format2 = 'b-count-%d';
 
@@ -383,7 +382,7 @@ class Grid {
     // Slick/ Splide may trick count to disable grid slides when lacking,
     // although not necessarily needed by flat grid like Blazy's.
     $count = is_array($items) ? count($items) : ($settings['count'] ?? 0);
-    $count = BlazyInternal::count($blazies, $count);
+    $count = Internals::count($blazies, $count);
     $blazies->set('count', $count)
       ->set('total', $count);
 

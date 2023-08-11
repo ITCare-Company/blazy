@@ -712,12 +712,19 @@
         defValue = '';
       }
 
-      // Ambiguous space delimited attributes: 'data-src data-lazy', etc.
       var value = defValue;
-      each(toArray(attr), function (key) {
+      // Ambiguous space delimited attributes: 'data-src data-lazy', etc.
+      // $.attr(el, 'data-src data-lazy'); returns the first found.
+      // $.attr(el, 'data-src', defaultValue, true); returns with default.
+      // See https://caniuse.com/?search=every.
+      toArray(attr).every(function (key) {
         if (hasAttr(elm, key)) {
           value = _op(elm, _get, key);
+          // return false is equivalent to a break.
+          return false;
         }
+        // return true is equivalent to a continue.
+        return true;
       });
       return value;
     }

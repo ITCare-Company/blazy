@@ -9,14 +9,14 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Vef;
-use Drupal\blazy\Theme\BlazyAttribute;
+use Drupal\blazy\Theme\Attributes;
 
 /**
  * Provides feature check methods at item level.
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
- *   blazy-related code in Blazy module.
+ *   blazy-related code in Blazy module. Please use the public method instead.
  *
  * @todo remove most $settings once migrated and after sub-modules and tests.
  */
@@ -70,7 +70,7 @@ class CheckItem {
   }
 
   /**
-   * Returns a message if access to view the entity is denied.
+   * Returns entity data.
    */
   public static function entity($entity, $langcode): array {
     if (!$entity instanceof EntityInterface) {
@@ -133,6 +133,8 @@ class CheckItem {
 
     // Must be here for tests to pass file cache checks.
     // File cache tags cannot be read by tests from #pre_render.
+    // Accounts for VEF conversion from video_embed_field into faked image item.
+    $item = $blazies->get('image.item', $item);
     if ($item && $file = ($item->entity ?? NULL)) {
       $tags = $file->getCacheTags();
       $blazies->set('cache.metadata.tags', $tags, TRUE);
@@ -144,18 +146,14 @@ class CheckItem {
     }
 
     // Must be placed after self::multimedia() to get different ALT/ TITLE.
-    BlazyAttribute::altTitle($blazies, $item);
+    Attributes::altTitle($blazies, $item);
 
     // The first is for 2.6+ approach. The last to account for custom works
     // with old approach/ or direct call to theme_blazy() via settings.uri.
     // This issue do not happen at D7, since it consistently uses API.
     $uri     = $blazies->get('image.uri') ?: BlazyFile::uri($item, $settings);
-    $uri     = $uri ?: $settings['uri'] ?? NULL;
     $delta   = $blazies->get('delta') ?: ($settings['delta'] ?? 0);
     $initial = $delta == $blazies->get('initial', -1);
-
-    // Accounts for VEF conversion from video_embed_field into faked image item.
-    $item = $blazies->get('image.item', $item);
 
     // This means re-definition since URI can be fed from any sources uptream.
     // URI might be NULL when no associated image to work with, no problem.
@@ -295,8 +293,7 @@ class CheckItem {
       return;
     }
 
-    Blazy::verify($settings);
-    $blazies = $settings['blazies'];
+    $blazies = Blazy::verify($settings);
 
     // Bail out if lazy load is disabled, or in sandbox mode.
     if ($blazies->is('nojs') || $blazies->is('sandboxed')) {

@@ -115,7 +115,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   public function build(array &$build, $entity = NULL): void {
     // @todo remove old approach at 3.x after old VEF BlazyVideoTrait removed.
     if (isset($build['input_url'])) {
-      $this->blazyManager->verify($build);
+      $this->blazyManager->verifySafely($build);
       $this->toEmbed($build);
       return;
     }
@@ -301,8 +301,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     // Overrides entity with the translated version.
     $build['#entity'] = $media;
 
-    // @todo support local video/ audio file, and other media sources.
-    // @todo check for Resource::TYPE_PHOTO, Resource::TYPE_RICH, etc.
+    // Local video/ audio file were fully supported since 2.17.
+    // @todo support other media sources: Resource::TYPE_PHOTO,
+    // Resource::TYPE_RICH, etc.
     switch ($source) {
       case 'oembed':
       case 'oembed:video':
@@ -316,9 +317,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
       case 'image':
       case 'svg':
-        // The media.type is a legacy 1.x with VEF, not official Media property.
-        // Just to simplify usage, or complex application downstream. Similar
-        // to oembed:video and video_embed_field which are set as just video.
+        // Let's keep it for switch purposes.
         $blazies->set('media.type', 'image');
         break;
 

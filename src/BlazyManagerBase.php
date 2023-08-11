@@ -3,6 +3,7 @@
 namespace Drupal\blazy;
 
 use Drupal\blazy\Cache\BlazyCache;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\Thumbnail;
 use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\CheckItem;
@@ -28,6 +29,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
 
     $this->attachments($load, $attach, $blazies);
 
+    // Since 2.17 with self::attachments(), allows altering the ecosystem once.
     $this->moduleHandler->alter('blazy_attach', $load, $attach, $blazies);
 
     // No blazy libraries are loaded when `No JavaScript`, etc. enabled.
@@ -153,14 +155,13 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $this->hashtag($build);
     $settings = &$build['#settings'];
 
-    $this->verify($settings);
-    $blazies = $settings['blazies'];
+    $this->verifySafely($settings);
 
     // Prevents double checks.
     // BlazySettings is a self containing object, initialized at container level
     // and must be renewed at item level to get correct delta, see #3278525.
-    $delta   = $blazies->get('delta', $build['#delta'] ?? 0);
     $blazies = $settings['blazies']->reset($settings);
+    $delta   = $blazies->get('delta', $build['#delta'] ?? 0);
 
     $blazies->set('delta', $delta)
       ->set('is.api', TRUE);
@@ -193,9 +194,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    * {@inheritdoc}
    */
   public function preSettings(array &$settings): void {
-    $this->verify($settings);
-
-    $blazies = $settings['blazies'];
+    $blazies = $this->verifySafely($settings);
     $ui = $this->config();
     $iframe_domain = $this->config('iframe_domain', 'media.settings');
     $is_debug = !$this->config('css.preprocess', 'system.performance');
@@ -247,14 +246,14 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $this->preSettingsData($settings);
 
     // Preliminary globals when using the provided API.
-    BlazyInternal::preSettings($settings);
+    Internals::preSettings($settings);
   }
 
   /**
    * {@inheritdoc}
    */
   public function postSettings(array &$settings): void {
-    BlazyInternal::postSettings($settings);
+    Internals::postSettings($settings);
 
     // Sub-modules may need to override Blazy definitions.
     $this->postSettingsData($settings);
@@ -306,6 +305,15 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $element['#namespace'] = $settings['blazies']->get('namespace');
 
     $this->moduleHandler->alter('blazy_element', $element, $settings);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function thirdPartyFormatters(): array {
+    $formatters = ['file_audio', 'file_video'];
+    $this->moduleHandler->alter('blazy_third_party_formatters', $formatters);
+    return array_unique($formatters);
   }
 
   /**

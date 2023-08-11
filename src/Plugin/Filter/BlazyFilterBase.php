@@ -7,8 +7,8 @@ use Drupal\Component\Utility\Xss;
 // @todo use Drupal\media\MediaInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault as Defaults;
-use Drupal\blazy\BlazyInternal;
 use Drupal\blazy\Field\BlazyElementTrait;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\BlazyFile as File;
 use Drupal\blazy\Media\BlazyImage as Image;
 // @todo use Drupal\blazy\Media\BlazyMedia;
@@ -62,6 +62,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $settings = &$this->settings;
     $settings += Defaults::lazySettings();
 
+    // @todo replace at 3.x with $blazies = $this->manager->verifySafely($settings);
     $this->manager->verify($settings);
 
     $settings['plugin_id'] = $plugin_id = $this->getPluginId();
@@ -570,7 +571,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     }
     elseif ($tag == 'iframe') {
       $type = 'video';
-      BlazyInternal::toPlayable($blazies)
+      Internals::toPlayable($blazies)
         ->set('media.bundle', 'remote_video');
       $blazies->set('item.iframe_attributes', $safe_attrs);
     }

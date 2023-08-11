@@ -9,7 +9,7 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyInternal;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Utility\Sanitize;
 
@@ -68,7 +68,7 @@ class Lightbox {
     $box_id     = $blazies->is('gallery') ? $gallery_id : NULL;
     $box_width  = $blazies->get('image.original.width') ?: $item->width ?? NULL;
     $box_height = $blazies->get('image.original.height') ?: $item->height ?? NULL;
-    $count      = BlazyInternal::count($blazies);
+    $count      = Internals::count($blazies);
     $delta      = $blazies->get('delta', 0);
     $multimedia = $blazies->is('multimedia');
     $svg        = $blazies->is('unstyled');

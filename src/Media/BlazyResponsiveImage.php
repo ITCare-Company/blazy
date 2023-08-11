@@ -4,7 +4,7 @@ namespace Drupal\blazy\Media;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\Theme\BlazyAttribute;
+use Drupal\blazy\Theme\Attributes;
 
 /**
  * Provides responsive image utilities.
@@ -118,7 +118,7 @@ class BlazyResponsiveImage {
         $blazies->set('is.unlazy', $unlazy)
           ->set('image.url', $new_url);
 
-        BlazyAttribute::lazy($attributes, $blazies, TRUE);
+        Attributes::lazy($attributes, $blazies, TRUE);
       }
     }
   }

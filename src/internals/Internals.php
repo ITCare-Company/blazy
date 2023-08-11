@@ -1,7 +1,10 @@
 <?php
 
-namespace Drupal\blazy;
+namespace Drupal\blazy\internals;
 
+use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\CheckItem;
@@ -14,7 +17,7 @@ use Drupal\blazy\Utility\Sanitize;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
  */
-class BlazyInternal {
+class Internals {
 
   /**
    * Returns the highest views rows, or field items count to determine gallery.
@@ -110,9 +113,7 @@ class BlazyInternal {
    * @todo refine to separate container from item level. At least move grid out.
    */
   public static function preSettings(array &$settings, $root = TRUE): void {
-    Blazy::verify($settings);
-
-    $blazies = $settings['blazies'];
+    $blazies = Blazy::verify($settings);
 
     // Checks for basic features, here for both formatters and views fields.
     // To detect available media bundles from views field when
@@ -147,9 +148,7 @@ class BlazyInternal {
    */
   public static function postSettings(array &$settings): void {
     // Failsafe, might be called directly at ::attach() outside the workflow.
-    Blazy::verify($settings);
-
-    $blazies = $settings['blazies'];
+    $blazies = Blazy::verify($settings);
     if (!$blazies->was('initialized')) {
       self::preSettings($settings);
     }

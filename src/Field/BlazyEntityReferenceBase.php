@@ -104,10 +104,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
 
     // Overlay, like slider or video over slider, if so configured.
     if ($_overlay && isset($entity->{$_overlay})) {
-      // @todo remove after another check, if not needed down here.
-      $denied = $this->formatter->denied($entity);
-      $overlay = $entity->get($_overlay)->view($view_mode);
-      $captions['overlay'] = $denied ?: $overlay;
+      $captions['overlay'] = $entity->get($_overlay)->view($view_mode);
     }
 
     return array_filter($captions);
