@@ -264,8 +264,13 @@ Known lightboxes which has supports for Responsive image:
 
 Blazy has two builtin minimal lightboxes:
 * Blazybox, seen at Intense, IO Browser, Slick Browser, ElevateZoomPlus, etc.
-* Flybox, a non-disruptive lightbox, as an option under Media Switcher since
-  2.17. It was meant for (remote) video, audio, soundcloud, not images.
+  Normally used as a fallback when the lightbox does not support multimedia.
+* Flybox, a non-disruptive lightbox aka picture in picture window, as an option
+  under Media Switcher since 2.17. It was meant for (remote) video, audio,
+  soundcloud, not images. Best with non grid elements to allow viewers browsing
+  the rest of page while watching videos, or listening to audios, as in picture
+  in picture mode. To auto-flyout the flybox for ads, etc, when the element is
+  visible, etc., please get in touch for 2-3 hours sponsorships.
 
 
 ### Lightbox requirements

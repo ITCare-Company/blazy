@@ -13,6 +13,7 @@
   var _isId = 'is-' + _id;
   var _selfClass = 'b-' + _id;
   var _bodyClass = _isId + '--open';
+  var _bodyClosingClass = _isId + '--closing';
   var _idOnce = _id;
   var _mounted = _isId;
   var _dataId = 'data-' + _id;
@@ -44,6 +45,7 @@
         Drupal.blazyBox.open(link,
           {
             bodyClass: _bodyClass,
+            bodyClosingClass: _bodyClosingClass,
             class: _selfClass
           });
       }

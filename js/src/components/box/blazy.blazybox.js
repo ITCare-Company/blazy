@@ -24,6 +24,7 @@
   var _multimedia = $.multimedia || false;
   var oClass;
   var oBodyClass;
+  var oBodyClosingClass;
 
   /**
    * Blazybox public methods.
@@ -48,6 +49,7 @@
      */
     open: function (settings, options) {
       var me = Drupal.blazyBox;
+      var body = _doc.body;
       var $el = me.$el;
       var elContent = $el.find(_selContent);
       var content = Drupal.theme('blazyBoxMedia', {
@@ -69,29 +71,30 @@
 
       elContent.innerHTML = _sanitizer.sanitize(content, config);
 
-      $.addClass(_doc.body, _isOpened);
-
       if (options) {
         me.options = $.extend({}, me.options, options);
         var opts = me.options;
 
         oClass = opts.class || '';
         oBodyClass = opts.bodyClass || '';
+        oBodyClosingClass = opts.bodyClosingClass || '';
 
         if (oClass) {
           $el.addClass(oClass);
         }
 
         if (oBodyClass) {
-          $.removeClass(_doc.body, _isOpened);
-          $.removeClass(_doc.body, oBodyClass);
+          $.removeClass(body, oBodyClass);
         }
 
         setTimeout(function () {
           if (oBodyClass) {
-            $.addClass(_doc.body, oBodyClass);
+            $.addClass(body, oBodyClass);
           }
         }, 301);
+      }
+      else {
+        $.addClass(body, _isOpened);
       }
 
       // Reset any (local) video/ audio to avoid multiple elements from playing.
@@ -110,6 +113,7 @@
      */
     close: function (e) {
       var me = Drupal.blazyBox;
+      var body = _doc.body;
       var $el = me.$el;
 
       // Allows calling this directly.
@@ -117,18 +121,44 @@
         e.preventDefault();
       }
 
-      $el.addClass(_visualyHidden)
-        .attr(_ariaHidden, true)
-        .find(_selContent).innerHTML = '';
+      var closing = function () {
+        $el.addClass(_visualyHidden)
+          .attr(_ariaHidden, true)
+          .find(_selContent).innerHTML = '';
+      };
 
-      $.removeClass(_doc.body, _isOpened);
+      var transitioning = function () {
+        if (oBodyClosingClass) {
+          $.removeClass(body, oBodyClosingClass);
+        }
+        if (oClass) {
+          $el.removeClass(oClass);
+          closing();
+        }
 
-      if (oClass) {
-        $el.removeClass(oClass);
-      }
+        $el.off('transitionend', transitioning);
+      };
+
+      $.removeClass(body, _isOpened);
+
       if (oBodyClass) {
-        $.removeClass(_doc.body, oBodyClass);
+        $.removeClass(body, oBodyClass);
       }
+      if (oBodyClosingClass) {
+        $.addClass(body, oBodyClosingClass);
+      }
+      else {
+        closing();
+      }
+
+      $el.on('transitionend', transitioning);
+
+      // Failsafe incase transitionend is screwed up.
+      setTimeout(function () {
+        if ($el.hasClass(oClass)) {
+          transitioning();
+        }
+      }, 1000);
 
       Drupal.detachBehaviors($el[0]);
     },
