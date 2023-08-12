@@ -11,6 +11,7 @@
 
   var _id = 'flybox';
   var _isId = 'is-' + _id;
+  var _selfClass = 'b-' + _id;
   var _bodyClass = _isId + '--open';
   var _idOnce = _id;
   var _mounted = _isId;
@@ -42,7 +43,8 @@
       if ($.isElm(link)) {
         Drupal.blazyBox.open(link,
           {
-            bodyClass: _bodyClass
+            bodyClass: _bodyClass,
+            class: _selfClass
           });
       }
     }

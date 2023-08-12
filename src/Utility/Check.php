@@ -38,6 +38,8 @@ class Check {
 
     $unblazy = $blazies->is('unblazy', FALSE);
     $unload  = $blazies->ui('nojs.lazy', FALSE) || $blazies->is('unlazy');
+    $is_grid = $blazies->is('grid');
+    $visible = $blazies->ui('visible_class') && !$is_grid;
 
     if ($blazies->is('lightbox')) {
       Lightbox::attach($load, $attach, $blazies);
@@ -47,7 +49,7 @@ class Check {
     $config = $manager->config('blazy');
     $config['loader'] = !$unload;
     $config['unblazy'] = $unblazy;
-    $config['visibleClass'] = $blazies->ui('visible_class') ?: FALSE;
+    $config['visibleClass'] = $visible ?: FALSE;
 
     // One is enough due to various formatters negating each others.
     $compat = $blazies->get('libs.compat');

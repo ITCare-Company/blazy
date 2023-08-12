@@ -94,7 +94,7 @@
 
         // Cache iframe for the potential repeating clicks.
         if (!newIframe) {
-          newIframe = $.create(_iFrame, _md + '__iframe ' + _md + '__element');
+          newIframe = $.create(_iFrame, _md + '__element');
 
           // Saving another clicks for nested iframes.
           $.attr(newIframe, {

@@ -172,7 +172,7 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       '#type'          => 'checkbox',
       '#title'         => $this->t('Add is-b-visible class'),
       '#default_value' => $config->get('visible_class'),
-      '#description'   => $this->t('Add <code>is-b-visible</code> CSS class when entering the viewport. Only enable if any real use for animating anything, otherwise disable it. If enabled, IO is not destroyed so to keep watching the class changes.'),
+      '#description'   => $this->t('Add <code>is-b-visible</code> CSS class when entering the viewport. Only enable if any real use for animating anything, otherwise disable it. If enabled, IO is not destroyed so to keep watching the class changes. It will be disabled for grids due to useless behaviors within grids.'),
     ];
 
     $form['wrapper_class'] = [

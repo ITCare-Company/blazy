@@ -79,11 +79,19 @@
         oBodyClass = opts.bodyClass || '';
 
         if (oClass) {
-          $.addClass($el, oClass);
+          $el.addClass(oClass);
         }
+
         if (oBodyClass) {
-          $.addClass(_doc.body, oBodyClass);
+          $.removeClass(_doc.body, _isOpened);
+          $.removeClass(_doc.body, oBodyClass);
         }
+
+        setTimeout(function () {
+          if (oBodyClass) {
+            $.addClass(_doc.body, oBodyClass);
+          }
+        }, 301);
       }
 
       // Reset any (local) video/ audio to avoid multiple elements from playing.
@@ -116,7 +124,7 @@
       $.removeClass(_doc.body, _isOpened);
 
       if (oClass) {
-        $.removeClass($el, oClass);
+        $el.removeClass(oClass);
       }
       if (oBodyClass) {
         $.removeClass(_doc.body, oBodyClass);

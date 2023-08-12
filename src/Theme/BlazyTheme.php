@@ -254,12 +254,12 @@ class BlazyTheme {
     // Only needed to autoplay video, and make responsive iframe.
     try {
       // Blazy formatters with oEmbed provide contextual params to the query.
-      $is_blazy = $request->query->getInt('blazy');
-      $is_autoplay = $request->query->getInt('autoplay');
+      $_blazy = $request->query->getInt('blazy');
+      $_autoplay = $request->query->getInt('autoplay');
       $url = $request->query->get('url');
 
       // Only replace url if it is required by Blazy.
-      if ($url && $is_blazy == 1) {
+      if ($url && $_blazy == 1) {
         // Load iframe string as a DOMDocument as alternative to regex.
         $dom = Html::load($variables['media']);
         $iframes = $dom->getElementsByTagName('iframe');
@@ -267,12 +267,14 @@ class BlazyTheme {
         // Replace old oEmbed url with autoplay support, and save the DOM.
         if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
           // Autoplay url suitable for lightboxes, or custom video trigger.
-          $embed_url = $iframe->getAttribute('src');
+          if ($src = $iframe->getAttribute('src')) {
+            $src = str_replace('&amp;', '&', $src);
 
-          // Only replace if autoplay == 1 for Image to iframe, or lightboxes.
-          if ($is_autoplay == 1 && $embed_url) {
-            $autoplay_url = Blazy::autoplay($embed_url);
-            $iframe->setAttribute('src', $autoplay_url);
+            // Only replace if autoplay == 1 for Image to iframe, or lightboxes.
+            if ($_autoplay == 1) {
+              $autoplay_url = Blazy::autoplay($src);
+              $iframe->setAttribute('src', $autoplay_url);
+            }
           }
 
           // Make responsive iframe with/ without autoplay.
