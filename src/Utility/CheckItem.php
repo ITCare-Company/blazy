@@ -120,14 +120,8 @@ class CheckItem {
    * That is why this is called twice. Once to check, another to re-check.
    */
   public static function essentials(array &$settings, $item, $called = FALSE): void {
-    // Bail out early if already called/ processed.
-    // @fixme tests/src/Kernel/BlazyFormatterTest.php:88
-    if ($called) {
-      return;
-    }
-
-    // Inline comments must end in full-stops. If you forgot to remove it, boom!
-    $blazies = $settings['blazies'];
+    // @todo remove rest post tests.
+    $blazies = $settings['blazies']->reset($settings);
 
     // Define the multimedia, needed for media ALT and TITLE checks below.
     // Also VEF will convert its video_embed_field into a fake image item here.
@@ -145,6 +139,13 @@ class CheckItem {
       if (!$blazies->get('image.trusted')) {
         $blazies->set('image.trusted', BlazyImage::isImage($item));
       }
+    }
+
+    // Bail out late if already called/ processed.
+    // @fixme tests/src/Kernel/BlazyFormatterTest.php:88
+    // Inline comments must end in full-stops. If you forgot to remove it, boom!
+    if ($called) {
+      return;
     }
 
     // Must be placed after self::multimedia() to get different ALT/ TITLE.

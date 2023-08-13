@@ -93,7 +93,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     foreach (Element::children($field) as $key) {
       $settings = $this->blazyManager->toHashtag($field[$key]['#build']);
-      $blazies = $settings['blazies'];
+      $blazies = $settings['blazies']->reset($settings);
       $file = $item[$key]->entity;
       $tags = $blazies->get('cache.metadata.tags');
       $this->assertContains($file->getCacheTags()[0], $tags, 'Image cache tags is as expected');
