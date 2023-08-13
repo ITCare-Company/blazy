@@ -6,11 +6,16 @@ use Drupal\Component\Render\FormattableMarkup;
 
 /**
  * Defines shared plugin default settings for field formatter and Views style.
+ *
+ * Be informed! Even with these massive settings, it is just scratching the
+ * Media integration surfaces, many were left out for custom works.
  */
 class BlazyDefault {
 
   /**
-   * Defines constant for the supported fixed aspect ratios.
+   * Defines default constants for the supported fixed aspect ratios.
+   *
+   * These are related to convention in css/blazy.ratio.css.
    */
   const RATIO = ['1:1', '3:2', '4:3', '8:5', '16:9'];
 

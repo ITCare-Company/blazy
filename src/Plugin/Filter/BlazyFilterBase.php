@@ -189,32 +189,37 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       }
     }
 
+    // @todo remove all ImageItem references at 3.x for blazies as object.
     $item = $this->manager->toHashtag($build, 'item', NULL);
+
+    /*
     if ($item) {
-      // @todo remove after another check at BlazyOEmbed.
-      // Hardcoded values are the only sources at filter when all fails.
-      // Dimensions are more reliable from Imagefactory than hardcoded ones.
-      foreach (['width', 'height'] as $key) {
-        if (!isset($item->{$key}) && isset($attrs[$key])) {
-          $item->{$key} = $attrs[$key];
-        }
-      }
-
-      // Alt and title are more reliable from users than Imagefactory.
-      foreach (['alt', 'title'] as $key) {
-        if ($value = $attrs[$key] ?? NULL) {
-          $item->{$key} = $value;
-        }
-      }
-
-      // Supports hard-coded image url without file API.
-      if (!$blazies->get('image.uri')) {
-        if ($uri = File::uri($item)) {
-          $blazies->set('image.uri', $uri);
-        }
-      }
+    // @todo remove after another check at BlazyOEmbed.
+    // Hardcoded values are the only sources at filter when all fails.
+    // Dimensions are more reliable from Imagefactory than hardcoded ones.
+    foreach (['width', 'height'] as $key) {
+    if (!isset($item->{$key}) && isset($attrs[$key])) {
+    $item->{$key} = $attrs[$key];
+    }
     }
 
+    // Alt and title are more reliable from users than Imagefactory.
+    foreach (['alt', 'title'] as $key) {
+    if ($value = $attrs[$key] ?? NULL) {
+    $item->{$key} = $value;
+    }
+    }
+
+    // Supports hard-coded image url without file API.
+    if (!$blazies->get('image.uri')) {
+    if ($uri = File::uri($item)) {
+    $blazies->set('image.uri', $uri);
+    }
+    }
+    }
+     */
+
+    // @todo remove all ImageItem references at 3.x for blazies as object.
     $build['#item'] = $item;
   }
 
@@ -388,15 +393,19 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       if ($uri) {
         $data = ['uri' => $uri, 'entity' => $file];
         $blazies->set('image', $data, TRUE);
-        $build['#item'] = Image::fakeFromSettings($blazies);
+
+        $data = $blazies->get('image');
+        $build['#item'] = $blazies->toImage($data);
       }
 
       // 5. External URL, or unmanaged file URL, excluding data URI.
+      // Do not pass this file system URI into fake image item.
       if (!$data_uri && !File::isValidUri($uri)) {
         // At least provide root URI to figure out image dimensions.
         $uri = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
         $blazies->set('image.uri_root', $uri);
       }
+
     }
   }
 

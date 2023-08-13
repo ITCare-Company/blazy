@@ -210,8 +210,9 @@ class BlazyFilterUtil {
     /* @phpstan-ignore-next-line */
     if ($node && $node->attributes->length) {
       foreach ($node->attributes as $attribute) {
-        $name = $attribute->nodeName;
+        $name  = $attribute->nodeName;
         $value = $attribute->nodeValue;
+
         if ($excludes && in_array($name, $excludes)) {
           continue;
         }
@@ -223,6 +224,7 @@ class BlazyFilterUtil {
         $attributes[$name] = $value;
       }
     }
+
     // Sanitization is done downstream, not here.
     return $attributes;
   }

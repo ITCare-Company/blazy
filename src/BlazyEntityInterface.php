@@ -7,6 +7,8 @@ namespace Drupal\blazy;
  *
  * This is alternative to Drupal\blazy\BlazyFormatter used outside
  * field managers, such as Views field, or Slick/Entity Browser displays, etc.
+ * May be called by formatters expecting a mix of theme_blazy() and entity
+ * view builder aka vanilla in blazy ecosytem, or output as is as fallback.
  *
  * @see Drupal\blazy\Field\BlazyEntityReferenceBase
  * @see Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatterBase
@@ -40,13 +42,18 @@ interface BlazyEntityInterface {
   /**
    * Build image/video preview either using theme_blazy(), or view builder.
    *
+   * May be called by field formatters expecting OEmbed result to extract
+   * ImageItem from Media so that understood by theme_blazy(), else vanilla
+   * view by view builder as a fallback. A more optimitic approach saying that
+   * theme_blazy() may understand it given enough field info than self::view().
+   *
    * @param array $data
    *   The data containing:
    *     - #access, if already checked upstream, otherwise leave it undefined.
    *     - #entity, media, file entity, etc. to be associated to media.
    *     - #item, the ImageItem or fake one for video/audio cover, etc.
    *     - #settings, with view_mode, and anything else to work with, depending
-   *       whether to have vanilla, or selective/ fieldable renderable array.
+   *       on whether to have vanilla, or selective/ fieldable renderable array.
    *     - fallback, when all fails, probably just entity label.
    *
    * @return array
@@ -67,6 +74,13 @@ interface BlazyEntityInterface {
 
   /**
    * Provides an entity.get.view output, or vanilla entity view.
+   *
+   * Mostly called by non-field formatters lacking of field info such as
+   * BlazyViewsField[File|Media], sub-modules like IO|Slick Browsers, etc. A
+   * more pessimistic approach than self::build() saying that theme_blazy()
+   * won't understand this, better go with entity.get.view or vanilla entity
+   * view in the first place. This might be improved and passed to theme_blazy()
+   * or call self:: build() directly when we have field info upstream.
    *
    * @param array $data
    *   The data containing:

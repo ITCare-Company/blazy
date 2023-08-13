@@ -29,29 +29,23 @@ class Thumbnail {
     $blazies       = Blazy::verify($settings);
     $prefix        = $blazies->get('item.prefix', 'slide');
     $caption       = $blazies->get('item.caption', 'caption');
-    $thumb_class   = $prefix . '__thumbnail';
-    $caption_class = $prefix . '__caption';
+    $use_blazy     = $blazies->use('theme_thumbnail');
+    $thumb_class   = $use_blazy ? $prefix . '__thumbnail' : NULL;
+    $caption_class = $use_blazy ? $prefix . '__caption' : NULL;
     $output        = [];
 
     // At 3.x, to minimize more dups, not implemented, yet.
     // @todo make a theme_blazy_thumbnail(), if any worth.
-    if ($blazies->use('theme_thumbnail')) {
-      // @todo remove debug:
-      $thumb_class = 'blazy__thumbnail ' . $thumb_class;
-      if ($thumbnail = self::image($settings, $item, $thumb_class)) {
-        $output[$prefix] = $thumbnail;
-      }
-      if ($captions) {
-        $output[$caption] = Blazy::toHtml($captions, 'div', $caption_class);
-      }
-
-      // @todo remove or keep it after another check.
-      $output['#settings'] = $settings;
-      return $output;
+    if ($thumbnail = self::image($settings, $item, $thumb_class)) {
+      $output[$prefix] = $thumbnail;
+    }
+    if ($captions) {
+      $output[$caption] = Blazy::toHtml($captions, 'div', $caption_class);
     }
 
-    // @todo remove at 3.x:
-    return self::image($settings, $item);
+    // Needed by sub-modules for their routines, even useless since 2.17.
+    $output['#settings'] = $settings;
+    return $output;
   }
 
   /**
@@ -68,6 +62,10 @@ class Thumbnail {
     $uri     = $blazies->get('thumbnail.uri') ?: $blazies->get('image.uri');
 
     if (!$uri) {
+      // Only Views output, if not having image nor blazy formatters.
+      if ($item && is_array($item)) {
+        return Blazy::toHtml($item, 'div', $class);
+      }
       return [];
     }
 
@@ -75,6 +73,11 @@ class Thumbnail {
     $style    = $blazies->get('thumbnail.id') ?: $settings['thumbnail_style'] ?? NULL;
     $alt      = $blazies->get('image.alt');
     $valid    = $blazies->get('image.valid') ?: BlazyFile::isValidUri($uri);
+
+    // Thumbnail style is the only option to display thumbnails.
+    if (!$style) {
+      return [];
+    }
 
     // Thumbnails can use image styles, except for SVG for now.
     // @todo check for any modules (ImageMagick) which convert SVG to image,
@@ -85,7 +88,7 @@ class Thumbnail {
 
     $content = [
       '#theme'      => $unstyled ? 'image' : 'image_style',
-      '#style_name' => $style ?: 'thumbnail',
+      '#style_name' => $style,
       '#uri'        => $valid ? $uri : UrlHelper::stripDangerousProtocols($uri),
       '#item'       => $item,
       '#alt'        => $alt ? Html::escape(strip_tags($alt)) : '',

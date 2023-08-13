@@ -116,6 +116,15 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       '#wrapper_attributes' => ['class' => ['messages-list']],
     ];
 
+    $form['use_theme_blazy'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Use theme_blazy()'),
+      '#description'   => $this->t('Check to use theme_blazy() specific for sub-modules theme_ITEM() (theme_slick_slide(), theme_splide_slide(), theme_gridstack_box(), etc.) contents with images/media along with their captions. This will be forced at blazy:3.x. You can help starting the migrations by enabling this to spot problems. If any issues, please disable and report for fixes, <a href=":url">read more</a>.', [
+        ':url' => '/admin/help/blazy_ui#theme-blazy',
+      ]),
+      '#default_value' => $config->get('use_theme_blazy'),
+    ];
+
     $form['admin_css'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Admin CSS'),
@@ -189,13 +198,6 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       '#description'   => $this->t("Remove some legacy Foundation CSS grid classes to avoid conflict with core block, e.g: block-nativegrid for b-nativegrid, etc. CHECK if not using those classes, or to avoid themers using them. Leave it UNCHECKED if using them till you update them. See <a href=':url'>Notable changes</a> for details. Be sure to clear cache!", [
         ':url' => '/admin/help/blazy_ui#changes',
       ]),
-    ];
-
-    $form['use_theme_blazy'] = [
-      '#type'          => 'checkbox',
-      '#title'         => $this->t('Use theme_blazy()'),
-      '#description'   => $this->t('Check to use theme_blazy() specific for sub-modules theme_ITEM() (theme_slick_slide(), theme_splide_slide(), theme_gridstack_box(), etc.) contents with images/media. This will be forced at blazy:3.x. You can help starting the migrations by enabling this to spot problems. Currently WIP. If any issues, please disable and report for fixes.'),
-      '#default_value' => $config->get('use_theme_blazy'),
     ];
 
     $form['placeholder'] = [

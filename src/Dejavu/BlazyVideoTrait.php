@@ -6,7 +6,7 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyImage;
 
 /**
- * Deprecated in blazy:8.x-2.0.
+ * Deprecated in blazy:8.x-2.0. Do not import!
  *
  * This file is no longer used nor needed, and will be removed at 3.x.
  * VEF will continue working without this file via BlazyOEmbed instead.

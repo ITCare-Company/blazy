@@ -128,6 +128,7 @@ absolute position and fixed dimensions. */
 
 /* Overrides .field--type-image img, causes confusing blur mismatched height. */
 .blazy .media--blazy img.b-blur,
-.blazy .media--blazy img.media__element {
+.blazy .media--blazy img.media__element,
+.blazy .grid figure {
   margin: 0;
 }

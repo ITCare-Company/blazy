@@ -280,9 +280,8 @@ trait BlazyStyleBaseTrait {
    * $this->reset($sets);
    */
   protected function getThumbnail(array &$sets, $row, $index, $field_caption = NULL): array {
-    $name      = $sets['thumbnail'] ?? NULL;
-    $blazies   = $sets['blazies'];
-    $use_blazy = $blazies->use('theme_thumbnail');
+    $name    = $sets['thumbnail'] ?? NULL;
+    $blazies = $sets['blazies'];
 
     $blazies->set('is.reset', TRUE);
 
@@ -298,26 +297,13 @@ trait BlazyStyleBaseTrait {
       $caption = $this->getFieldRendered($index, $field_caption);
     }
 
+    // Replace empty image item with the rendered output if not using image.
+    if (!$doable && $name) {
+      $item = $this->getFieldRendered($index, $name);
+    }
+
     // If multiple, only one thumbnail can exist.
-    if ($doable) {
-      $tn = $this->manager->getThumbnail($sets, $item, $caption);
-    }
-    else {
-      /* @phpstan-ignore-next-line */
-      $tmp = $name ? $this->getFieldRendered($index, $name) : [];
-
-      // @todo remove check at 3.x.
-      if ($use_blazy) {
-        $tn[static::$itemId] = $tmp;
-        $tn[static::$captionId] = $caption;
-      }
-      // @todo remove this at 3.x.
-      else {
-        $tn = $tmp;
-      }
-    }
-
-    return is_array($tn) ? $tn : [$tn];
+    return $this->manager->getThumbnail($sets, $item, $caption);
   }
 
   /**

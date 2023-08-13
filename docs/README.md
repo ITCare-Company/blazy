@@ -12,6 +12,7 @@
  * [theme_blazy()](#theme-blazy)
  * [Lightboxes](#lightboxes)
  * [SVG](#svg)
+ * [WEBP](#webp)
  * [Features](#features)
  * [Troubleshooting](#troubleshooting)
  * [Aspect ratio](#aspect-ratio)
@@ -173,14 +174,24 @@ e.g.: `theme_slick_slide()`, `theme_splide_slide()`, `theme_mason_box()`, etc.
 At 3.x, we'll no longer ask for permissions, please be sure to test it out to
 spot the problems earlier, or migrate your overrides earlier.
 
+The `theme_blazy()` has been used all along, the only difference is captions
+which are now included as inherent part of `theme_blazy()` including thumbnail
+captions seen at sliders.
+
 Repeat, not replacing their established `theme_ITEM()`, just their contents when
 we all have dups with IMAGE/MEDIA + CAPTIONS contructs. It is not a novel thing,
 see `block.html.twig` with its variants, etc.
 Not a sudden course of actions, it was carefully planned since
-[2.x-RC1](https://git.drupalcode.org/project/blazy/-/blob/8.x-2.0-rc1/src/BlazyManager.php#L180), 4 years ago, and never made it till 2.17.
+[2.x-RC1](https://git.drupalcode.org/project/blazy/-/blob/8.x-2.0-rc1/src/BlazyManager.php#L180), 4 years ago from 2023, and never made it till 2.17.
+
+If you see no difference, nothing to do. If any, be sure it is not caused by
+your non-updated overrides which should be updated prior to blazy:3.x.
+Only report if this is caused blazy's mistake. Kindly provide markup comparison,
+or helpful screenshots to spot the issues better.
 
 #### Profits:
 + Tons of dups are reduced which is part of Blazy's job descriptions.
++ Minimal maintenance for many of Blazy sub-modules.
 + More cool kid features like hoverable effects, etc. will be easier to apply.
 + When Blazy supports extra captions like File description for SVG, it will be
   available immediately to all once, rather than updating each modules to
@@ -192,6 +203,11 @@ Not a sudden course of actions, it was carefully planned since
 + One blazy stupid mistake, including your override, kills em all. We'll work
   it out at Bugs reports if blazy's. It happens, and the world does not end yet.
 
+#### Custom work migrations from theme_ITEM() into theme_blazy():
++ `THEME_preprocess_blazy()`
++ `hook_blazy_caption_alter(array &$element, array $settings, array $context)`
++ For more `hook_alter`: `grep -r ">alter(" ./blazy`, or see `blazy.api.php`
++ As last resorts, override `blazy.html.twig`.
 
 ### <a name="galleries"> </a> USAGES: BLAZY FOR MULTIMEDIA GALLERY VIA VIEWS UI
 #### Using **Blazy Grid**  
@@ -262,15 +278,18 @@ Known lightboxes which has supports for Responsive image:
 * Splidebox also supports AJAX contents.
 * Others might not.
 
-Blazy has two builtin minimal lightboxes:
-* Blazybox, seen at Intense, IO Browser, Slick Browser, ElevateZoomPlus, etc.
-  Normally used as a fallback when the lightbox does not support multimedia.
-* Flybox, a non-disruptive lightbox aka picture in picture window, as an option
-  under Media Switcher since 2.17. It was meant for (remote) video, audio,
-  soundcloud, not images. Best with non grid elements to allow viewers browsing
-  the rest of page while watching videos, or listening to audios, as in picture
-  in picture mode. To auto-flyout the flybox for ads, etc, when the element is
-  visible, etc., please get in touch for 2-3 hours sponsorships.
+### Blazy has two builtin minimal lightboxes:
+* **Blazybox**, seen at Intense, IO Browser, Slick Browser, ElevateZoomPlus,
+  etc. Normally used as a fallback when the lightbox doesn't support multimedia.
+* **Flybox**, a non-disruptive lightbox aka picture in picture window, as an
+  option under Media Switcher since 2.17. It was meant for (remote) video,
+  audio, soundcloud, not images. Best with non grid elements to allow viewers
+  browsing the rest of page while watching videos, or listening to audios, as in
+  picture in picture mode.
+  **Potentials**:
+  + Auto-pop/flyout the Flybox when the element is visible like for ads, etc.
+  + Merge Flybox with Zooming, ElevateZoomPlus, and other lightboxes.
+  + Please get in touch for few hours sponsorships, or chip in.
 
 
 ### Lightbox requirements
@@ -343,6 +362,16 @@ For more robust solutions, consider: SVG Image Field, SVG Image, etc.
   [Read more](https://github.com/darylldoyle/svg-sanitizer)  
   Blazy does not want to ship it in its `composer.json` for serious reasons,
   and will disable the option for Inline SVG if not installed.
+
+***
+## <a name="webp"> </a>WEBP
+Drupal 9.2 has supports for WEBP conversions at Image styles admin page via
+**Convert WEBP**. Only if you are concerned about old browsers, Blazy supports
+it via a polyfill at Blazy UI under **No JavaScript**, be sure to NOT check it.
+**Benefits**:
+* Modern browsers will continue using clean IMG without being forced to use
+  PICTURE for the entire WEBP extensions.
+* Old browsers will have a PICTURE if they don't support WEBP.
 
 ***
 ## <a name="features"> </a>FEATURES

@@ -27,8 +27,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   blazy-related code in Blazy module. Media integration is being reworked.
  *
  * @todo rework this for core Media, and refine for theme_blazy(). Two big TODOs
- * for the next releases is to replace ImageItem references into just $settings,
- * and convert this into non-static to move most BlazyOEmbed stuffs here.
+ * for the next releases are:
+ * - TODO: replace ImageItem references into just $settings
+ * - DONE, 2.17: convert this into non-static, move most BlazyOEmbed stuffs.
  * Not urgent, the important is to make it just work with minimal regressions.
  * @todo recap similiraties and make them plugins.
  */

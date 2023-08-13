@@ -159,9 +159,10 @@
   {%- if IS_INLINE or IS_OVERLAY -%}
     {%- block blazy_caption %}
       {%- set caption_tag = captions.tag ?? 'div' -%}
+      {%- set cw_tag = captions.wrapper_tag ?? 'div' -%}
       {%- set IS_CATEGORY = captions.category is not empty -%}
 
-      {%- if caption_wrapper_attributes -%}<div{{- caption_wrapper_attributes -}}>{%- endif -%}
+      {%- if caption_wrapper_attributes -%}<{{ cw_tag }}{{- caption_wrapper_attributes -}}>{%- endif -%}
 
         <{{ caption_tag }}{{ caption_attributes }}>
           {%- if IS_OVERLAY -%}
@@ -176,7 +177,7 @@
 
         {%- if IS_CATEGORY -%}{{- captions.category -}}{%- endif -%}
 
-      {%- if caption_wrapper_attributes -%}</div>{%- endif -%}
+      {%- if caption_wrapper_attributes -%}</{{ cw_tag }}>{%- endif -%}
 
     {%- endblock %}
   {%- endif -%}

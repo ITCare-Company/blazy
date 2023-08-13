@@ -183,22 +183,24 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       ->set('media.type', $type);
 
     // VEF has just URI, the rest are fetched from resource.
-    $dims = [
-      'width'  => $width,
-      'height' => $height,
-    ];
-    $data = [
-      'uri'   => $uri,
-      'alt'   => $title,
-      'title' => $label ?: $title,
-    ] + $dims;
-
     if ($uri) {
+      $dims = [
+        'width'  => $width,
+        'height' => $height,
+      ];
+      $data = [
+        'uri'   => $uri,
+        'alt'   => $title,
+        'title' => $label ?: $title,
+      ] + $dims;
+
       // We are here from BlazyFilter, VEF, or where no File API available.
       $blazies->set('image', $data, TRUE);
-      $item = BlazyImage::fakeFromSettings($blazies);
+      $data = $blazies->get('image');
+      $item = $blazies->toImage($data);
+
       $blazies->set('image.item', $item)
-        ->set('image.original', $dims);
+        ->set('image.original', $dims, TRUE);
 
       return $item;
     }

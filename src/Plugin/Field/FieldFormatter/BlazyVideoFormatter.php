@@ -18,9 +18,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * BVEF can take over this file to be compat with Blazy 3.x rather than keeping
  * 1.x debris. Also to adopt core OEmbed security features at ease.
  *
+ * How to:
+ * - Put this file in the src\Plugin\Field\FieldFormatter namespace.
+ * - Along with \Drupal\blazy\Dejavu\BlazyVideoBase with updated namespace.
+ * - Copy `field.formatter.settings.blazy_vef_default:` from blazy.schema.yml
+ *   into config/schema directory.
+ *
  * @todo remove prior to full release. This means Slick Video which depends
  * on VEF is deprecated for main Slick at Blazy 8.2.x with core Media only.
- * @todo make is useful for local video instead?
+ * @nottodo make is useful for local video instead? No!
  */
 class BlazyVideoFormatter extends BlazyVideoBase {
 
@@ -68,7 +74,7 @@ class BlazyVideoFormatter extends BlazyVideoBase {
     }
 
     foreach ($items as $delta => $item) {
-      $input = strip_tags($item->value ?: '');
+      $input = $item->value;
 
       if (empty($input)
         || !($provider = $vef->loadProviderFromInput($input))) {
@@ -110,7 +116,6 @@ class BlazyVideoFormatter extends BlazyVideoBase {
 
       // Image with responsive image, lazyLoad, and lightbox supports.
       $build[$delta] = $this->formatter->getBlazy($data);
-      unset($data);
     }
   }
 

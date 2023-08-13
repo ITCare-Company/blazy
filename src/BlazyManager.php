@@ -255,10 +255,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Allows altering the captions to minimize Twig works for minor needs.
-    $result  = $output + $overlays;
-    $context = ['prefix' => $prefix, 'id' => $id];
-    $this->moduleHandler->alter('blazy_caption', $result, $blazies, $context);
-
+    $result = $output + $overlays;
     return array_filter($result);
   }
 
@@ -376,6 +373,10 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $settings   = &$build['#settings'];
     $blazies    = $settings['blazies'];
     $attributes = &$build['#attributes'];
+    $captions   = $this->toHashtag($build, 'captions');
+    $captions   = array_filter($captions);
+
+    $blazies->set('is.captioned', count($captions) > 0);
 
     // Only add figure for grid if using Blazy Filter [caption] shortcode mixed
     // with core [data-caption]. The rest should just have figure tags, either
@@ -389,10 +390,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // provides optional ones. No defaults are provided for all these.
     $theme_attributes = BlazyDefault::themeAttributes();
     foreach ($theme_attributes as $key) {
-      $key            = $key . '_attributes';
-      $defaults       = $this->toHashtag($build, $key);
-      $programs       = $blazies->get('item.' . $key, []);
-      $build["#$key"] = $this->merge($programs, $defaults);
+      $key = $key . '_attributes';
+      $build["#$key"] = $this->themeAttributes($key, $blazies, $build);
     }
 
     // Initial feature checks, URI, delta, media features, etc.
@@ -420,23 +419,25 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Was planned to replace sub-module item markups if similarity is found for
     // theme_gridstack_box(), theme_slick_slide(), etc. Likely for Blazy 3.x+.
     // Since 2.17, it is optional at Blazy UI under `Use theme_blazy()` option.
+    $blazies = $settings['blazies'];
     foreach ($theme_attributes as $key) {
       $key   = $key . '_attributes';
-      $attrs = $this->toHashtag($build, $key);
+      $attrs = $this->themeAttributes($key, $blazies, $build);
+
       // Sanitize potential user-defined attributes such as from BlazyFilter.
       $element["#$key"] = $attrs ? Blazy::sanitize($attrs) : [];
     }
 
     // Provides captions, if so configured.
-    $captions = $this->toHashtag($build, 'captions');
-    if ($captions = array_filter($captions)) {
-      $this->toCaption($element, $captions, $blazies);
+    if ($captions) {
+      $this->toCaption($element, $settings, $captions);
     }
 
     // Preparing Blazy to replace other blazy-related content/ item markups.
     // Composing or layering is crucial for mixed media (icon over CTA or text
     // or lightbox links or iframe over image or CSS background over noscript
     // which cannot be simply dumped as array without elaborate arrangements).
+    $blazies = $settings['blazies'];
     foreach (BlazyDefault::themeContents() as $key => $default) {
       $defaults         = $this->toHashtag($build, $key, $default);
       $programs         = $blazies->get('html.' . $key, $default);
@@ -446,18 +447,30 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
 
     // Pass common elements to theme_blazy().
     $element['#attributes'] = Blazy::sanitize($attributes);
-    $element['#item'] = $build['#item'];
-    $element['#settings'] = $settings;
+    $element['#item']       = $build['#item'];
+    $element['#settings']   = $settings;
+  }
+
+  /**
+   * Returns available theme attributes to account for hook_alters.
+   */
+  private function themeAttributes($key, $blazies, array $build): array {
+    $defaults = $this->toHashtag($build, $key);
+    $programs = $blazies->get('item.' . $key, []);
+
+    return $this->merge($programs, $defaults);
   }
 
   /**
    * Provides captions, if any.
    */
-  private function toCaption(array &$element, array $captions, $blazies): void {
-    $id     = $blazies->get('item.id', 'blazy');
-    $id     = $id == 'content' ? 'blazy' : $id;
-    $self   = $id == 'blazy';
-    $prefix = $self ? $id . '__caption--' : $id . '__';
+  private function toCaption(array &$element, array &$settings, array $captions): void {
+    $blazies = $settings['blazies'];
+    $id      = $blazies->get('item.id', 'blazy');
+    $id      = $id == 'content' ? 'blazy' : $id;
+    $self    = $id == 'blazy';
+    $prefix  = $self ? $id . '__caption--' : $id . '__';
+    $context = ['prefix' => $prefix, 'id' => $id];
 
     if ($output = $this->buildCaption($captions, $blazies, $prefix, $id)) {
       $element['#captions'] = $output;
@@ -478,6 +491,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
         // Perhaps ID__caption--content is better, but leave the ancient alone.
         $element['#caption_content_attributes']['class'][] = $prefix . 'data';
       }
+
+      $this->moduleHandler->alter('blazy_caption', $element, $settings, $context);
     }
   }
 

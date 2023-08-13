@@ -3,22 +3,60 @@
  * Provides flybox view based on blazybox.
  */
 
+body.is-flybox--open {
+  overflow: visible;
+}
+
+.b-flybox {
+  backface-visibility: hidden;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: auto;
+  transform: translate3d(0px, 300%, 0px);
+  transition: .6s transform ease;
+}
+
+.b-flybox,
+.b-flybox audio,
+.b-flybox iframe,
+.b-flybox video,
+.b-flybox .blazybox__fullscreen {
+  width: 100%;
+  height: 236px;
+}
+
+.b-flybox .blazybox__html,
+.b-flybox .blazybox__media,
+.b-flybox .media {
+  left: 0;
+  top: 0;
+  transform: none;
+  max-width: 100%;
+}
+
+.is-flybox--open .b-flybox {
+  transform: translateY(0);
+  z-index: 9999;
+}
+
+.is-flybox--closing .b-flybox {
+  transition: .5s transform ease;
+  transform: translateY(300%);
+  z-index: 9999;
+}
+
+.b-flybox .media--boxtype-audio audio {
+  bottom: 0;
+  height: 100%;
+  top: auto;
+  transform: none;
+}
+
 /** 641px with 16px base font. */
 @media only screen and (min-width: 40.063em) {
-  body.is-flybox--open {
-    overflow: visible;
-  }
 
-  .b-flybox {
-    backface-visibility: hidden;
-    bottom: 2px;
-    left: auto;
-    right: 2px;
-    top: auto;
-    transform: translate3d(0px, 300%, 0px);
-    transition: .6s transform ease;
-  }
-
+  /** Aspect ratio 16:9. */
   .b-flybox,
   .b-flybox audio,
   .b-flybox iframe,
@@ -28,24 +66,11 @@
     height: 236px;
   }
 
-  .b-flybox .blazybox__html,
-  .b-flybox .blazybox__media,
-  .b-flybox .media {
-    left: 0;
-    top: 0;
-    transform: none;
-    max-width: 100%;
-  }
-
-  .is-flybox--open .b-flybox {
-    transform: translateY(0);
-    z-index: 9999;
-  }
-
-  .is-flybox--closing .b-flybox {
-    transition: .5s transform ease;
-    transform: translateY(300%);
-    z-index: 9999;
+  .b-flybox {
+    bottom: 2px;
+    box-shadow: 0 0 0 2px #777;
+    left: auto;
+    right: 2px;
   }
 
   [dir="rtl"] .b-flybox {
@@ -54,7 +79,7 @@
   }
 
   .b-flybox .blazybox__close {
-    border: 1px solid rgba(255, 255, 255, .8);
+    border: 1px solid #777;
     font-size: 12px;
     position: absolute;
     left: -8px;
@@ -68,12 +93,4 @@
     left: auto;
     right: -8px;
   }
-
-  .b-flybox .media--boxtype-audio audio {
-    bottom: 0;
-    height: auto;
-    top: auto;
-    transform: none;
-  }
-
 }

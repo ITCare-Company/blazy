@@ -228,6 +228,28 @@ class BlazySettings implements \Countable {
   }
 
   /**
+   * Provides an object from an array within the optional limited keys.
+   *
+   * @param array $data
+   *   The data to be onverted into an object.
+   * @param array $keys
+   *   The optional limited keys.
+   *
+   * @return \stdClass
+   *   The object.
+   */
+  public function objectify(array $data, array $keys = []): \stdClass {
+    $item = new \stdClass();
+    $keys = $keys ?: array_keys($data);
+    foreach ($keys as $key) {
+      if ($value = $data[$key] ?? NULL) {
+        $item->{$key} = $value;
+      }
+    }
+    return $item;
+  }
+
+  /**
    * Replaces the data of this configuration object.
    *
    * @param array $data
@@ -333,6 +355,21 @@ class BlazySettings implements \Countable {
    */
   public function storage(): array {
     return $this->storage;
+  }
+
+  /**
+   * Provides a fake image item object.
+   *
+   * @param array $data
+   *   The data to be onverted into an object.
+   *
+   * @return \stdClass
+   *   The object.
+   *
+   * @todo remove at 3.x when ImageItem is removed.
+   */
+  public function toImage(array $data): \stdClass {
+    return $this->objectify($data, BlazyDefault::imageProperties());
   }
 
   /**

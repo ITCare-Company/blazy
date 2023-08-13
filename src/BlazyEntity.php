@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\blazy\Deprecated\BlazyEntityDeprecatedTrait;
 
 /**
- * Provides common entity utilities to work with field details.
+ * Provides common entity utilities to work with field details or vanilla.
  */
 class BlazyEntity implements BlazyEntityInterface {
 
@@ -38,7 +38,7 @@ class BlazyEntity implements BlazyEntityInterface {
   protected $blazyMedia;
 
   /**
-   * Constructs a BlazyFormatter instance.
+   * Constructs a BlazyEntity instance.
    */
   public function __construct(BlazyOEmbedInterface $oembed) {
     $this->oembed = $oembed;
@@ -104,11 +104,7 @@ class BlazyEntity implements BlazyEntityInterface {
       $entity = $this->blazyMedia->prepare($data);
     }
 
-    // Build the Media item.
-    // No joy here: $this->oembed->build($data);
     // Prepare container settings.
-    // This class was designed for a single entity, not multiple.
-    // Call this method at the container level if multiple.
     // @todo re-arrange, this needs media metadata from ::oembed() below.
     // Temporary, extracted separately via BlazyMedia::prepare() above.
     $this->prepare($data);
@@ -127,6 +123,7 @@ class BlazyEntity implements BlazyEntityInterface {
       $build = $this->blazyMedia->build($data);
     }
     else {
+      // Else entity.get.view or view builder aka vanilla.
       $build = $this->view($data);
     }
 
@@ -143,6 +140,7 @@ class BlazyEntity implements BlazyEntityInterface {
 
     $settings = &$data['#settings'];
     $blazies = $manager->verifySafely($settings);
+
     if ($blazies->was('entity_prepared')) {
       return;
     }
@@ -151,7 +149,11 @@ class BlazyEntity implements BlazyEntityInterface {
     $manager->prepareData($data);
     $manager->postSettings($settings);
 
-    $blazies->set('was.entity_prepared', TRUE);
+    // Reset in case locked too early before enough data, yet lock it locally.
+    // Seen the problem with GridStack Media player at LB, initialized was
+    // flagged at ::preSettings() above.
+    $blazies->set('was.initialized', FALSE)
+      ->set('was.entity_prepared', TRUE);
   }
 
   /**
@@ -163,6 +165,7 @@ class BlazyEntity implements BlazyEntityInterface {
     $entity   = $data['#entity'] ?? NULL;
     $build    = [];
 
+    // Might be called independently from self::build().
     if (!$entity instanceof EntityInterface) {
       return [];
     }
@@ -183,7 +186,7 @@ class BlazyEntity implements BlazyEntityInterface {
       }
     }
 
-    // Provides an entity.get.view output, or vanilla entity view.
+    // Provides an entity.get.view or view builder aka vanilla.
     return $build ?: $manager->view($data);
   }
 

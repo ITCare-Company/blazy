@@ -199,10 +199,8 @@ class BlazyImage {
         $check = $entity->getFileUri();
 
         if ($image = $factory->get($check)) {
-          $output = self::fakeFromFactory($blazies, $entity, $image);
-          if ($output) {
+          if ($output = self::fakeFromFactory($blazies, $entity, $image)) {
             $uri = $output->uri;
-            $blazies->set('image.item', $output);
           }
         }
       }
@@ -479,28 +477,12 @@ class BlazyImage {
   }
 
   /**
-   * Returns fake image item based on the given $blazies.
-   *
-   * @todo remove ImageItem, fake or real, at 3.x. No longer neccessary with
-   * $blazies as object as planned at BlazyMedia since 2.6.
-   */
-  public static function fakeFromSettings($blazies): object {
-    $item = new \stdClass();
-    foreach (BlazyDefault::imageProperties() as $key) {
-      if ($value = $blazies->get('image.' . $key)) {
-        $item->{$key} = $value;
-      }
-    }
-    return $item;
-  }
-
-  /**
    * Returns data to provide fake image item of file entity via ImageFactory.
    *
    * @todo remove ImageItem, fake or real, at 3.x. No longer neccessary with
    * $blazies as object as planned at BlazyMedia since 2.6.
    */
-  private static function fakeFromFactory(&$blazies, $file, $image): ?object {
+  private static function fakeFromFactory($blazies, $file, $image): ?object {
     /** @var \Drupal\file\Entity\File $file */
     [$type] = explode('/', $file->getMimeType(), 2);
 
@@ -522,10 +504,12 @@ class BlazyImage {
         'entity'    => $file,
       ] + $dims;
 
+      $item = $blazies->toImage($data);
       $blazies->set('image', $data, TRUE)
+        ->set('image.item', $item)
         ->set('image.original', $dims, TRUE);
 
-      return self::fakeFromSettings($blazies);
+      return $item;
     }
     return NULL;
   }
@@ -611,7 +595,7 @@ class BlazyImage {
         $data = self::transformDimensions($style, $blazies, $uri);
         $blazies->set($key, $data, TRUE);
 
-        // Different urls for different image styles.
+        // SVG and external don't convert, exclude them.
         if (!$blazies->is('svg') && !$blazies->is('external')) {
           $url = self::toUrl($settings, $style, $uri);
           $blazies->set($key . '.url', $url);

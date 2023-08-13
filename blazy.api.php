@@ -32,7 +32,7 @@
  * @code
  * function my_module_render_blazy() {
  *   // Old behaviors will be very minimally preserved till 3.x.
- *   // Be sure to put the namespaces into `use` directives.
+ *   // Put the namespaces into `use` directives, e.g.: use Drupal\blazy\Blazy;
  *   // The ::init() contains empty blazies object for convenience:
  *   $settings = \Drupal\blazy\Blazy::init();
  *
@@ -64,6 +64,7 @@
  *   // Passing width/height/alt/title to #item_attributes was deprecated since
  *   // 2.6 when RDF was deprecated from D9. Use settings.blazies above instead.
  *   // It is still usable for adding minor class attributes, etc., though.
+ *   // Supported means, it won't mess up the provided image_style, etc.
  *   // You are on your own other than the above-mentioned supported attributes.
  *   // Since 2.6, theme_blazy() looks dead simple, yet more robust:
  *   $build = [
@@ -104,11 +105,12 @@
  *   // $manager = \Drupal::service('blazy.manager');
  *   $manager = blazy();
  *
- *   $settings = [
- *     // Supported media switcher options dependent on available modules:
- *     // colorbox, media (Image to iframe), photobox.
- *     'media_switch' => 'media',
- *   ];
+ *   // The ::init() contains empty blazies object for convenience:
+ *   $settings = \Drupal\blazy\Blazy::init();
+ *
+ *   // Supported media switcher options dependent on available modules:
+ *   // colorbox, media (Image to iframe), photobox.
+ *   $settings['media_switch'] = 'media';
  *
  *   // Build images.
  *   $build = [
@@ -191,6 +193,7 @@ function hook_blazy_lightboxes_alter(array &$lightboxes) {
  */
 function hook_blazy_alter(array &$build, array $settings = []) {
   if (!empty($settings['media_switch']) && $settings['media_switch'] == 'photoswipe') {
+    // Full blown overrides:
     $build['#pre_render'][] = 'my_module_pre_render';
   }
 }
@@ -218,6 +221,7 @@ function hook_blazy_build_alter(array &$build, array $settings = []) {
   // This also allows a quasi-lightbox like ElevateZoomPlus inject its optionset
   // as its value: elevatezoomplus: responsive, etc.
   if ($blazies->get('colorbox') || $blazies->get('zooming')) {
+    // Full blown overrides:
     $build['#pre_render'][] = 'my_module_pre_render_build';
   }
 }
@@ -241,7 +245,7 @@ function hook_blazy_build_alter(array &$build, array $settings = []) {
  * @code
  * function hook_config_schema_info_alter(array &$definitions) {
  *   $settings = ['color' => '', 'arrowpos' => '', 'dotpos' => ''];
- *   Blazy::configSchemaInfoAlter($definitions,
+ *   blazy()->configSchemaInfoAlter($definitions,
  *     'slick_base', SlickDefault::extendedSettings() + $settings);
  * }
  * @endcode
@@ -369,11 +373,26 @@ function hook_blazy_item_alter(array &$settings, array &$attributes, array &$ite
   // replace the lightbox with an inline media player, and leave the rest of
   // images as lightboxes.
   // Be sure to require `blazy/media` library somewhere, if not already loaded,
-  // says put $blazies->set('libs.media', TRUE); in hook_blazy_settings_alter().
+  // says put $blazies->set('libs.media', TRUE); in hook_blazy_settings_alter(),
+  // conditionally to not waste libraries.
   if ($blazies->get('colorbox') && $blazies->get('media.embed_url')) {
     $blazies->set('switch', 'media')
       ->set('is.player', TRUE)
       ->set('is.lightbox', FALSE);
+  }
+
+  // Convert Blazy image with caption to use FIGURE tag.
+  // Excluding sub-modules which may require elaborate conditions due to more
+  // complex image and caption structures such as sliders. Mason, GridStack,
+  // etc. may severely break with this if not scoped to blazy namespace.
+  // More conditions are available under blazies.is, such as
+  // $blazies->is('captioned') or $blazies->is('multimedia') in case
+  // captioned or not, or breaking multimedia or media player, etc.
+  // If any display issues with grid, media player, etc., refine or remove this.
+  if ($blazies->get('namespace') == 'blazy') {
+    $blazies->set('is.figcaption', TRUE)
+      ->set('item.wrapper_tag', 'figure')
+      ->set('item.wrapper_attributes.class', ['blazy__content']);
   }
 
   // Since > 2.17-beta1, below is no longer needed, already merged.
