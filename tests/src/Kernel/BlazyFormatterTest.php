@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\blazy\Kernel;
 
+use Drupal\Core\Render\Element;
 use Drupal\Core\Form\FormState;
 use Drupal\blazy\Blazy;
 use GuzzleHttp\Exception\GuzzleException;
@@ -73,17 +74,31 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     // Verify it is not a theme_item_list() grid.
     $this->assertArrayNotHasKey('#build', $field);
 
+    /*
     $settings0 = $this->blazyManager->toHashtag($field[0]['#build']);
     $blazies0 = $settings0['blazies'];
     $file0 = $item[0]->entity;
     $tag0 = $blazies0->get('cache.metadata.tags');
-    $this->assertContains($file0->getCacheTags()[0], $tag0, 'First image cache tags is as expected');
+    $this->assertContains($file0->getCacheTags()[0], $tag0, 'First image cache
+    tags is as expected');
 
-    // @fixme $settings1 = $this->blazyManager->toHashtag($field[1]['#build']);
-    // $blazies1 = $settings1['blazies'];
-    // $file1 = $item[1]->entity;
-    // $tag1 = $blazies1->get('cache.metadata.tags');
-    // @fixme $this->assertContains($file1->getCacheTags()[0], $tag1, 'Second image cache tags is as expected');
+    // @fixme
+    $settings1 = $this->blazyManager->toHashtag($field[1]['#build']);
+    $blazies1 = $settings1['blazies'];
+    $file1 = $item[1]->entity;
+    $tag1 = $blazies1->get('cache.metadata.tags');
+    $this->assertContains($file1->getCacheTags()[0], $tag1, 'Second image cache
+    tags is as expected');
+     */
+
+    foreach (Element::children($field) as $key) {
+      $settings = $this->blazyManager->toHashtag($field[$key]['#build']);
+      $blazies = $settings['blazies'];
+      $file = $item[$key]->entity;
+      $tags = $blazies->get('cache.metadata.tags');
+      $this->assertContains($file->getCacheTags()[0], $tags, 'Image cache tags is as expected');
+    }
+
     $render = $this->blazyManager->renderer()->renderRoot($build);
     $this->assertNotEmpty($render);
     $this->assertStringContainsString('data-blazy', $render);
