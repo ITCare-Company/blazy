@@ -235,7 +235,7 @@ class BlazySettings implements \Countable {
    * @param array $keys
    *   The optional limited keys.
    *
-   * @return \stdClass
+   * @return object
    *   The object.
    */
   public function objectify(array $data, array $keys = []): object {
@@ -363,7 +363,7 @@ class BlazySettings implements \Countable {
    * @param array $data
    *   The data to be onverted into an object.
    *
-   * @return \stdClass
+   * @return object
    *   The object.
    *
    * @todo remove at 3.x when ImageItem is removed.

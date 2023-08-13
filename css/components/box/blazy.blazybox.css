@@ -3,6 +3,13 @@
  * Provides fullscreen video view.
  */
 
+.blazybox,
+.blazybox *,
+.blazybox *::before,
+.blazybox *::after {
+  box-sizing: border-box;
+}
+
 .is-blazybox--open {
   overflow: hidden;
 }

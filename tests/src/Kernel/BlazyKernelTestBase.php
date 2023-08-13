@@ -13,13 +13,6 @@ abstract class BlazyKernelTestBase extends FieldKernelTestBase {
   use BlazyKernelTestTrait;
 
   /**
-   * The maximum number of created images.
-   *
-   * @var int
-   */
-  protected $maxItems = 2;
-
-  /**
    * Set to TRUE to strict check all configuration saved.
    *
    * Let's keep it enabled here for just in case core breaks it again related to
