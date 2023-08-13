@@ -35,6 +35,9 @@ trait BlazyFormatterViewBaseTrait {
     // BlazyFormatter::buildSettings() contains media, irrelevant for texts.
     $this->formatter->fieldSettings($settings, $items);
 
+    // Ensures grids are respected in the least.
+    $this->formatter->minimalSettings($settings, $items);
+
     // Internal overrides after enough data is populated above.
     $this->postSettings($settings, $langcode);
 

@@ -28,7 +28,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   /**
    * {@inheritdoc}
    */
-  public function fieldSettings(array &$settings, $items) {
+  public function fieldSettings(array &$settings, $items): void {
     Check::fields($settings, $items);
   }
 
@@ -74,6 +74,13 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     if (!empty($settings['caption'])) {
       $settings['caption'] = array_filter($settings['caption']);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function minimalSettings(array &$settings, $items): void {
+    Check::grids($settings);
   }
 
   /**
