@@ -120,9 +120,6 @@ class CheckItem {
    * That is why this is called twice. Once to check, another to re-check.
    */
   public static function essentials(array &$settings, $item, $called = FALSE): void {
-    // @todo remove rest post tests.
-    $blazies = $settings['blazies']->reset($settings);
-
     // Define the multimedia, needed for media ALT and TITLE checks below.
     // Also VEF will convert its video_embed_field into a fake image item here.
     self::multimedia($settings);
@@ -130,7 +127,9 @@ class CheckItem {
     // Must be here for tests to pass file cache checks.
     // File cache tags cannot be read by tests from #pre_render.
     // Accounts for VEF conversion from video_embed_field into faked image item.
-    $item = $blazies->get('image.item', $item);
+    $blazies = $settings['blazies'];
+    $item    = $blazies->get('image.item', $item);
+
     if ($item && $file = ($item->entity ?? NULL)) {
       $tags = $file->getCacheTags();
       $blazies->set('cache.metadata.tags', $tags, TRUE);
@@ -245,7 +244,8 @@ class CheckItem {
   /**
    * Disable image style if so configured.
    *
-   * Extensions without image styles: animated GIF, APNG, SVG, etc.
+   * Extensions without image styles: SVG, etc.
+   * APNG, animated GIF are reasonable for thumbnails conversions, though.
    *
    * @requires CheckItem::essentials()
    */

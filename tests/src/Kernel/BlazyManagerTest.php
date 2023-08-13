@@ -149,10 +149,10 @@ class BlazyManagerTest extends BlazyKernelTestBase {
   public function testPreprocessBlazy(array $settings, $use_uri, $use_item, $iframe, $expected) {
     $variables = ['attributes' => []];
     $input_url = $settings['input_url'] ?? NULL;
-    $settings = array_merge($this->getFormatterSettings(), $settings);
+    $settings  = array_merge($this->getFormatterSettings(), $settings);
     $settings += Blazy::init();
-    $blazies = $settings['blazies'];
-    $id = 'blazy';
+    $blazies   = $settings['blazies'];
+    $id        = 'blazy';
 
     $blazies->set('item.id', $id)
       ->set('is.blazy', TRUE)
@@ -167,12 +167,15 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     }
 
     $this->blazyManager->postSettings($settings);
+
     $blazies = $settings['blazies']->reset($settings);
-    $item = $use_item ? $this->testItem : NULL;
+    $item    = $use_item ? $this->testItem : NULL;
 
     if ($input_url) {
       $blazies->set('media.input_url', $input_url)
-        ->set('media.source', 'oembed:video');
+        ->set('media.source', 'oembed:video')
+        ->set('media.bundle', 'remote_video')
+        ->set('type', 'video');
 
       $data = [
         '#entity'   => $this->entity,
@@ -189,7 +192,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     BlazyTheme::blazy($variables);
 
-    $image = $expected == TRUE ? !empty($variables['image']) : empty($variables['image']);
+    $image  = $expected == TRUE ? !empty($variables['image']) : empty($variables['image']);
     $iframe = $iframe == TRUE ? !empty($variables['iframe']) : empty($variables['iframe']);
 
     $this->assertTrue($image);
@@ -234,11 +237,10 @@ class BlazyManagerTest extends BlazyKernelTestBase {
         'input_url' => 'https://www.youtube.com/watch?v=uny9kbh4iOEd',
         'media_switch' => 'media',
         'ratio' => 'fluid',
-        'sizes' => '100w',
-        'width' => 640,
-        'height' => 360,
-        'bundle' => 'remote_video',
-        'type' => 'video',
+        // 'width' => 640,
+        // 'height' => 360,
+        // 'bundle' => 'remote_video',
+        // 'type' => 'video',
       ],
       FALSE,
       TRUE,
