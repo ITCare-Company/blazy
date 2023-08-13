@@ -94,6 +94,7 @@ class BlazyImage {
     $uri     = $uri ?: $blazies->get($which . '.uri');
 
     // Original image sizes are stored within ImageItem, or fake one.
+    // @todo remove ImageItem checks at 3.x. when all moved into blazies.image.
     if ($item) {
       // The given item might also be VideoEmbedField, unless converted at
       // Vef::toEmbedUrl(). Ensures it is not screwing up.

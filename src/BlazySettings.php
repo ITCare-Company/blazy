@@ -238,7 +238,7 @@ class BlazySettings implements \Countable {
    * @return \stdClass
    *   The object.
    */
-  public function objectify(array $data, array $keys = []): \stdClass {
+  public function objectify(array $data, array $keys = []): object {
     $item = new \stdClass();
     $keys = $keys ?: array_keys($data);
     foreach ($keys as $key) {
@@ -368,7 +368,7 @@ class BlazySettings implements \Countable {
    *
    * @todo remove at 3.x when ImageItem is removed.
    */
-  public function toImage(array $data): \stdClass {
+  public function toImage(array $data): object {
     return $this->objectify($data, BlazyDefault::imageProperties());
   }
 

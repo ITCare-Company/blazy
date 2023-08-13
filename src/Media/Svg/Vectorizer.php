@@ -303,7 +303,7 @@ class Vectorizer implements VectorizerInterface {
    * @return bool
    *   Whether the pixel are similar in color depending on the direction.
    */
-  protected function isSimilarPixel($rgba, $x, $y, $delta, $direction): bool {
+  protected function isSimilarPixel(array $rgba, $x, $y, $delta, $direction): bool {
     if ($direction == self::DIRECTION_HORIZONTAL) {
       $res = $x + $delta;
 

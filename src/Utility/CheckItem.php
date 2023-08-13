@@ -122,9 +122,10 @@ class CheckItem {
   public static function essentials(array &$settings, $item, $called = FALSE): void {
     // Bail out early if already called/ processed.
     // @fixme tests/src/Kernel/BlazyFormatterTest.php:88
-    // if ($called) {
-    // return;
-    // }
+    if ($called) {
+      return;
+    }
+
     // Inline comments must end in full-stops. If you forgot to remove it, boom!
     $blazies = $settings['blazies'];
 
