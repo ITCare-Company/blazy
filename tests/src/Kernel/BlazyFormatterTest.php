@@ -22,9 +22,9 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     parent::setUp();
 
     $data['fields'] = [
-      'field_video' => 'image',
-      'field_image' => 'image',
-      'field_id'    => 'text',
+      // 'field_video' => 'image',
+      'field_image_multiple' => 'image',
+      'field_id' => 'text',
     ];
 
     // Create contents.

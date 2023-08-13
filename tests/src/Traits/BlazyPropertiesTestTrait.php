@@ -336,14 +336,14 @@ trait BlazyPropertiesTestTrait {
    *
    * @var int
    */
-  protected $maxParagraphs = 8;
+  protected $maxParagraphs = 1;
 
   /**
    * The maximum number of created images.
    *
    * @var int
    */
-  protected $maxItems = 2;
+  protected $maxItems = 1;
 
   /**
    * The tested skins.

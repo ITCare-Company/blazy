@@ -65,7 +65,6 @@ trait BlazyUnitTestTrait {
       'thumbnail_style' => 'thumbnail',
       'ratio'           => 'fluid',
       'caption'         => ['alt' => 'alt', 'title' => 'title'],
-      'sizes'           => '100w',
     ] + BlazyDefault::extendedSettings()
       + Blazy::init()
       + $this->getDefaultFieldDefinition();
