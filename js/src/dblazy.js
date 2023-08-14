@@ -698,8 +698,9 @@
     var _obj = isObj(attr);
     var _getter = !_obj && (_undefined || isBool(withDefault));
     var prefix = isStr(withDefault) ? withDefault : '';
-    // @todo figure out multi-element getters. Ok for now, as hardly multiple.
-    var elm = els && els.length ? els[0] : els;
+
+    // Ensures a single element. Some element with length is actually element.
+    var elm = toElm(els);
 
     // Returns all available attributes, if any.
     if (isUnd(attr) && isElm(elm)) {
@@ -708,6 +709,7 @@
 
     // No defValue defined, or withDefault set, means a getter.
     if (_getter && isStr(attr)) {
+      attr = attr.trim();
       if (_undefined) {
         defValue = '';
       }
@@ -726,6 +728,7 @@
         // return true is equivalent to a continue.
         return true;
       });
+
       return value;
     }
 
