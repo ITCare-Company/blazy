@@ -127,6 +127,9 @@
       me.options = $.extend({}, me.options, opts || {});
     }
 
+    // Re-use old existing loadInvisible to revalidate hidden elements.
+    revalidate = revalidate || me.options.loadInvisible;
+
     // Manually load elements regardless of being disconnected, or not, relevant
     // for Slick slidesToShow > 1 which rebuilds clones of unloaded elements.
     $.each(elms, function (el) {
@@ -230,7 +233,7 @@
     var opts = me.options;
     var count = me.count;
     var io = me.ioObserver;
-    var watching = opts.visibleClass || false;
+    var watching = opts.visibleClass || revalidate || false;
 
     // Only destroy if no use for is-b-visible class.
     if (_bioTick === count - 1 && !watching) {
@@ -238,13 +241,15 @@
     }
 
     // Unlike ResizeObserver/ infinite pager, IntersectionObserver is done.
-    if (io && me.isLoaded(el) && !el.bloaded && opts.isMedia && !revalidate) {
-      if (!watching) {
-        io.unobserve(el);
-      }
+    if (io && opts.isMedia) {
+      if (me.isLoaded(el) && !revalidate) {
+        // Unless watching.
+        if (!watching) {
+          io.unobserve(el);
+        }
 
-      el.bloaded = true;
-      _bioTick++;
+        _bioTick++;
+      }
     }
 
     // Image may take time to load after being hit, and it may be intersected
@@ -284,9 +289,10 @@
     var ww = _viewport.ww || {};
     var entry = entries[0];
     var isBlur = $.isBlur(entry);
+    var isGrid = $.isGrid(entry);
     var isResizing = _viewport.isResized(me, entry);
     var visibleClass = opts.visibleClass;
-    var forAnim = $.isBool(visibleClass) && visibleClass;
+    var forAnim = !isGrid && ($.isBool(visibleClass) && visibleClass);
 
     // RO is another abserver.
     if (isResizing) {
@@ -311,6 +317,7 @@
       var resized = _viewport.isResized(me, e);
       var visible = _viewport.isVisible(e, vp);
       var cn = $.closest(el, _parent) || el;
+
       isBlur = isBlur && !$.hasClass(cn, 'is-b-animated');
 
       // The element is being intersected.

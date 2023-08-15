@@ -166,7 +166,7 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       '#type'          => 'checkbox',
       '#title'         => $this->t('Support Responsive image'),
       '#default_value' => $config->get('responsive_image'),
-      '#description'   => $this->t('Check to support lazyloading for the core Responsive image module. Be sure to use blazy-related formatters.'),
+      '#description'   => $this->t('(Deprecated in blazy:2.5, and is removed in blazy:3.x for module exists check. It was a user consent option due to not being fully integrated till likely blazy:2.4+ so to disable easily without breaking things). Old description: Check to support lazyloading for the core Responsive image module. Be sure to use blazy-related formatters.'),
       '#disabled'      => !function_exists('responsive_image_get_image_dimensions'),
     ];
 

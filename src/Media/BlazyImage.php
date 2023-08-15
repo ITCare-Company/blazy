@@ -366,6 +366,40 @@ class BlazyImage {
   }
 
   /**
+   * Extracts common data from a fake or real image item object.
+   *
+   * The best reason to remove ImageItem references is this pingpong.
+   * Plan for 3.x:
+   *   - Keep fake image item as array, no need to be an object.
+   *   - Convert real ImageItem to an array when found.
+   *   - Store both as just array into blazies.image.
+   *
+   * Since 2.17, a reliance on ImageItem has been gradually removed like seen at
+   * Lightbox, at least made a fallback, no longer the dominance.
+   */
+  public static function toArray($item): array {
+    $data = [];
+
+    // A fake ImageItem has a uri and target_id.
+    if (isset($item->uri)) {
+      return (array) $item;
+    }
+    // A real ImageItem has a target_id, but no URI.
+    elseif (isset($item->target_id)) {
+      $uri = BlazyFile::uri($item);
+      $data = ['uri' => $uri];
+
+      foreach (BlazyDefault::imageProperties() as $key) {
+        if (isset($item->{$key})) {
+          $data[$key] = $item->{$key};
+        }
+      }
+    }
+
+    return $data;
+  }
+
+  /**
    * A wrapper for ImageStyle::transformDimensions().
    *
    * @param object $style
@@ -517,10 +551,11 @@ class BlazyImage {
     if ($data = self::fromFile($file, $factory, $alt, $title)) {
       $dims = ['width' => $data['width'], 'height' => $data['height']];
 
+      // @todo move it out of here for self::toArray():
       $blazies->set('image', $data, TRUE)
         ->set('image.original', $dims, TRUE);
 
-      // @todo remove at 3.x.
+      // @todo remove this pingpong at 3.x:
       $item = $blazies->toImage($data);
       $blazies->set('image.item', $item);
 

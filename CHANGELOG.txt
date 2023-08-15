@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-08-15
 ------------------------------
+- Full-fledged core media integration 99%, and Blazy has just begun in 2.17.
 - Fixed for HTML attribute opration regressions, seen at Jumper.module.
 
 Blazy 8.x-2.0-dev, 2023-08-14

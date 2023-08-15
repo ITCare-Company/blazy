@@ -66,6 +66,7 @@
  *   // It is still usable for adding minor class attributes, etc., though.
  *   // Supported means, it won't mess up the provided image_style, etc.
  *   // You are on your own other than the above-mentioned supported attributes.
+ *   // On your own means, you can XSS attack your own site, it's all yours.
  *   // Since 2.6, theme_blazy() looks dead simple, yet more robust:
  *   $build = [
  *     '#theme'    => 'blazy',

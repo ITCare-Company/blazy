@@ -78,19 +78,6 @@
     return false;
   };
 
-  function is(el, name) {
-    el = el.target || el;
-    return $.hasClass(el, name);
-  }
-
-  $.isBg = function (el, opts) {
-    return is(el, opts && opts.bgClass || _bgClass);
-  };
-
-  $.isBlur = function (el) {
-    return is(el, 'b-blur');
-  };
-
   $.selector = function (opts, suffix) {
     var selector = opts.selector;
     // @todo recheck, troubled for onresize: + ':not(.' + opts.successClass + ')'.

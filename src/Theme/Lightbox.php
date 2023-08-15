@@ -404,14 +404,15 @@ class Lightbox {
     $delta   = $blazies->get('delta', 0);
     $object  = $blazies->get('media.instance');
     $node    = $blazies->get('entity.instance');
-    $file    = NULL;
+    $file    = $blazies->get('image.entity');
     $option  = $settings['box_caption'];
     $custom  = trim($settings['box_caption_custom'] ?? '');
     $caption = '';
 
     // @todo re-check this if any issues, might be a fake stdClass image item.
+    // @todo remove all ImageItem references for blazies as object at 3.x.
     if ($item) {
-      $file = $item->entity ?? NULL;
+      $file = $item->entity ?? $file;
       if (!$object) {
         $object = method_exists($item, 'getEntity')
           ? $item->getEntity() : $file;

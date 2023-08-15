@@ -405,11 +405,12 @@ class BlazyMedia implements BlazyMediaInterface {
   /**
    * Disable fancy features with the unknown land.
    */
-  private function disableFeatures(array &$settings): void {
+  private function disableFeatures(array &$settings, $rendered): void {
     $blazies = $settings['blazies'];
     $settings['media_switch'] = '';
     $blazies->set('switch', '')
-      ->set('is.lightbox', FALSE);
+      ->set('is.lightbox', FALSE)
+      ->set('is.rendered', $rendered);
   }
 
   /**
@@ -441,7 +442,8 @@ class BlazyMedia implements BlazyMediaInterface {
         }
       }
       else {
-        $this->disableFeatures($settings);
+        // @todo recheck if it has media thumbnail URI, and workable.
+        $this->disableFeatures($settings, TRUE);
       }
 
       $item = $original;
@@ -512,12 +514,31 @@ class BlazyMedia implements BlazyMediaInterface {
     elseif (isset($item['#files'])
       && $file = ($item['#files'][0]['file'] ?? NULL)) {
       $this->toLocal($item, $settings, $file);
+      $blazies->set('is.rendered', TRUE);
     }
-    elseif (isset($item['#theme'])) {
-      $this->toIframe($item, $settings);
+    elseif ($theme = $item['#theme'] ?? NULL) {
+      // Resource::TYPE_PHOTO.
+      if ($theme == 'image') {
+        $blazies->set('is.rendered', FALSE)
+          ->set('media.type', 'image');
+
+        if ($uri = $item['#uri'] ?? NULL) {
+          $blazies->set('image.uri', $uri);
+        }
+      }
+      else {
+        // Soundcloud, Twitter, etc.
+        $this->toIframe($item, $settings);
+      }
     }
     else {
-      $this->disableFeatures($settings);
+      // @todo recheck more media entity tendencies, mostly just #markup.
+      // Resource::TYPE_LINK, Facebook, and the rest of media entities.
+      $type = $item['#type'] ?? NULL;
+      $link = !empty($item['#url']) && $type == 'link';
+      $rendered = $link || !empty($item['#markup']);
+
+      $this->disableFeatures($settings, $rendered);
     }
 
     // Clone relevant keys since field wrapper is no longer in use.

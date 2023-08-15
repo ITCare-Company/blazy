@@ -130,6 +130,15 @@
       var me = this;
       var ie = $.hasClass(el, 'b-responsive') && $.hasAttr(el, _data + '-pfsrc');
 
+      // @see https://scottjehl.github.io/picturefill/
+      // @todo remove when IE gone from planet Drupal.
+      if (_win.picturefill && ie) {
+        _win.picturefill({
+          reevaluate: true,
+          elements: [el]
+        });
+      }
+
       // Clear loading classes. Also supports future delayed Native loading.
       if ($.isFun($.unloading)) {
         $.unloading(el);
@@ -139,14 +148,6 @@
       // This is to use the same clearing approach for all parties.
       me.clearCompat(el);
       me.clearScript(el);
-
-      // @see https://scottjehl.github.io/picturefill/
-      if (_win.picturefill && ie) {
-        _win.picturefill({
-          reevaluate: true,
-          elements: [el]
-        });
-      }
 
       // Provides event listeners for easy overrides without full overrides.
       $.trigger(el, _eventDone, {

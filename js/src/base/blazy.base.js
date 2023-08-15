@@ -28,6 +28,24 @@
     return false;
   };
 
+  function is(el, name) {
+    el = el.target || el;
+    return $.hasClass(el, name);
+  }
+
+  $.isBg = function (el, opts) {
+    return is(el, opts && opts.bgClass || 'b-bg');
+  };
+
+  $.isBlur = function (el) {
+    return is(el, 'b-blur');
+  };
+
+  $.isGrid = function (el) {
+    el = el.target || el;
+    return $.isElm($.closest(el, '.grid'));
+  };
+
   $.image = {
 
     alt: function (el, fallback) {

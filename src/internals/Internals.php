@@ -171,6 +171,7 @@ class Internals {
     return $blazies->set('is.iframeable', TRUE)
       ->set('is.playable', TRUE)
       ->set('is.multimedia', TRUE)
+      ->set('is.rendered', FALSE)
       ->set('libs.media', TRUE);
   }
 

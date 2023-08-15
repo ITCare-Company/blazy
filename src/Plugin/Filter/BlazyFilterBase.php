@@ -221,6 +221,14 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
 
     // @todo remove all ImageItem references at 3.x for blazies as object.
     $build['#item'] = $item;
+
+    // Might be extracted at BlazyOembed, but not always iframes here.
+    // Extract ImageItem info and merge them all here for sure.
+    if ($item && $data = Image::toArray($item)) {
+      $blazies->set('image', $data, TRUE)
+        // @todo remove this pingpong at 3.x:
+        ->set('image.item', $item);
+    }
   }
 
   /**
@@ -405,7 +413,6 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
         $uri = mb_substr($src, 0, 4) === 'http' ? $src : $this->root . $src;
         $blazies->set('image.uri_root', $uri);
       }
-
     }
   }
 

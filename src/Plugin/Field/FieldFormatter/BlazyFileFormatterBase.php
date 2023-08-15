@@ -8,11 +8,13 @@ use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\field\FieldConfigInterface;
 use Drupal\file\Plugin\Field\FieldFormatter\FileFormatterBase;
+use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyDependenciesTrait;
-use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Field\BlazyElementTrait;
+use Drupal\blazy\Field\BlazyField;
+use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Utility\Sanitize;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -163,6 +165,15 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
         'image.uri'  => $uri,
         'media.type' => 'image',
       ];
+
+      // Extracts ImageItem data early to help the new SVG with its attributes.
+      if ($item instanceof ImageItem && $values = BlazyImage::toArray($item)) {
+        foreach ($values as $key => $value) {
+          $info['image.' . $key] = $value;
+        }
+        // @todo remove this pingpong at 3.x:
+        $info['image.item'] = $item;
+      }
 
       // Hashtags to avoid render errors with some potential leaks.
       $data = [

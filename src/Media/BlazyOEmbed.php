@@ -183,6 +183,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       ->set('media.type', $type);
 
     // VEF has just URI, the rest are fetched from resource.
+    // Also Soundcloud here.
     if ($uri) {
       $dims = [
         'width'  => $width,
@@ -199,6 +200,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       $data = $blazies->get('image');
       $item = $blazies->toImage($data);
 
+      // @todo move it out of here:
       $blazies->set('image.item', $item)
         ->set('image.original', $dims, TRUE);
 
@@ -257,6 +259,27 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       }
     }
 
+    // BlazyFilter/ VEF without file upload [data-entity-uuid], nor File API.
+    // Soundcloud, etc.
+    if (!BlazyImage::isValidItem($build)) {
+      $build['#item'] = $this->getThumbnail($settings);
+    }
+
+    // If we have a valid image item, fake or real, no biggies.
+    if (BlazyImage::isValidItem($build)) {
+      // Marks a hires if valid and so configured, normally field_media_image.
+      $blazies->set('is.hires', !empty($stage));
+
+      // Extract ImageItem info so to be consumed by SVG attributes.
+      if ($item = $this->blazyManager->toHashtag($build, 'item', NULL)) {
+        if ($data = BlazyImage::toArray($item)) {
+          $blazies->set('image', $data, TRUE)
+            // @todo remove this pingpong at 3.x:
+            ->set('image.item', $item);
+        }
+      }
+    }
+
     // Checks for access.
     if (!$access && $denied = $this->blazyManager->denied($entity)) {
       $build['content'][] = $denied;
@@ -274,15 +297,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       if (!$entity || !$blazies->get('media.embed_url')) {
         $this->toEmbed($settings);
       }
-    }
-
-    // Marks a hires if valid and so configured, normally field_media_image.
-    if (BlazyImage::isValidItem($build)) {
-      $blazies->set('is.hires', !empty($stage));
-    }
-    else {
-      // BlazyFilter/ VEF without file upload [data-entity-uuid], nor File API.
-      $build['#item'] = $this->getThumbnail($settings);
     }
   }
 
@@ -342,7 +356,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
           // Iframe, like image, can be handled by theme_blazy(). The rest
           // that Blazy doesn't understand should be respected as is as content.
-          if (!$blazies->is('iframeable')) {
+          if ($blazies->is('rendered')) {
             $build['content'][] = $result;
           }
         }

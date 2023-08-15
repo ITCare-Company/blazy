@@ -53,6 +53,7 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
    * {@inheritdoc}
    */
   protected function buildElement(array &$element, $entity) {
+    // This basically associates file to media entity like seen at dep VEF.
     $this->blazyOembed->build($element);
 
     // Might need image item from OEmbed service.
