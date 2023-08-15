@@ -512,6 +512,21 @@
   }
 
   /**
+   * Returns true if the x is valid for attribute operations.
+   *
+   * @private
+   *
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
+   *
+   * @return {bool}
+   *   True if x is valid for for attribute operations.
+   */
+  function isAttr(x) {
+    return x && 'getAttribute' in x;
+  }
+
+  /**
    * Returns an object from a NamedNodeMap.
    *
    * @private
@@ -672,7 +687,10 @@
   }
 
   function _op(el, op, name, value) {
-    return el[op + 'Attribute'](name, value);
+    if (isAttr(el)) {
+      return el[op + 'Attribute'](name, value);
+    }
+    return '';
   }
 
   /**
@@ -784,7 +802,7 @@
    *   True if it has the attribute.
    */
   function hasAttr(el, name) {
-    return isQsa(el) && _op(el, _has, name);
+    return _op(el, _has, name);
   }
 
   /**
@@ -822,7 +840,7 @@
   function hasClass(el, names) {
     var found = 0;
 
-    if (isQsa(el) && isStr(names)) {
+    if (isAttr(el) && isStr(names)) {
       // var _list = el.classList;
       names = names.trim();
       var checks = _attr(el, _class);
@@ -865,7 +883,7 @@
    */
   function toggleClass(els, name, op) {
     var chainCallback = function (el, i) {
-      if (isQsa(el)) {
+      if (isAttr(el)) {
         var _list = el.classList;
 
         if (isFun(name)) {
@@ -1118,7 +1136,7 @@
     el = el || _doc;
 
     if (isStr(el)) {
-      el = toElm(el);
+      el = toElm(el, true);
     }
 
     if (isQsa(el)) {
@@ -1841,7 +1859,7 @@
     ctx = ctx || _doc;
 
     // In case a string, and if none is found, give a default document here on.
-    ctx = toElm(ctx) || _doc;
+    ctx = toElm(ctx, true) || _doc;
 
     // @todo fix why the selector itself is given as context on lightboxes
     // since D10/ blazy:2.17. And also check it around for internal mistakes.
@@ -1865,7 +1883,7 @@
   }
 
   // Valid elements for querySelector with length: form, select, etc.
-  function toElm(el) {
+  function toElm(el, isCtx) {
     // Checks if a string is given as a context.
     if (isStr(el)) {
       if (el === _body) {
@@ -1879,7 +1897,9 @@
     }
 
     // Prevents problematic _doc.documentElement as the context.
-    if (is(el, _html)) {
+    // Ensures to not break valid expectation outside context, like jumper
+    // Normally when operating with attributes, not as a context for QSA.
+    if (isCtx && is(el, _html)) {
       return _doc;
     }
 

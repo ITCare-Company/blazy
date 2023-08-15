@@ -47,7 +47,7 @@
     // Getter.
     if (_getter && $.isStr(props)) {
       // @todo figure out multi-element getters. Ok for now, as hardly multiple.
-      var el = els && els.length ? els[0] : els;
+      var el = $.toElm(els);
       // @todo re-check common integer.
       var arr = [_width, _height, 'top', 'right', 'bottom', 'left'];
       var result = $.computeStyle(el, props);

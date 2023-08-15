@@ -483,8 +483,14 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           ? array_values((array) $settings[$key])
           : $settings[$key];
 
-        if ($value && is_string($value)) {
-          $value = trim($value);
+        if (is_string($value)) {
+          if ($key == 'loading' && !$value) {
+            $value = 'lazy';
+          }
+
+          if ($value) {
+            $value = trim($value);
+          }
         }
 
         $form[$key]['#default_value'] = $value;

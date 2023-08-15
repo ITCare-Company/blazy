@@ -38,9 +38,7 @@
 
           if ($.hasAttr(el, dataAttr)) {
             var value = $.attr(el, dataAttr);
-            if (value && value.length) {
-              $.attr(el, name, value);
-            }
+            $.attr(el, name, value);
 
             if (remove) {
               $.removeAttr(el, dataAttr);
@@ -101,7 +99,7 @@
 
           attr = attr || (isPicture ? 'srcset' : 'src');
           if (elms.length) {
-            $(elms).mapAttr(attr, remove);
+            $.mapAttr(elms, attr, remove);
           }
         }
       }

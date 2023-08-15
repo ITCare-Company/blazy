@@ -13,10 +13,6 @@
 
   'use strict';
 
-  if ($.observer) {
-    return;
-  }
-
   $.observer = {
     init: function (scope, cb, elms, withIo) {
       var opts = scope.options || {};

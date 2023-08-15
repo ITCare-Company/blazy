@@ -194,15 +194,8 @@ class BlazyImage {
 
       if (BlazyFile::isFile($entity)
         && $factory = Blazy::service('image.factory')) {
-        // Might be a video/ audio file URI, not just image.
-        // @todo recheck not available beyond formatters, such as View Fields:
-        // $item = $entity->_referringItem;
-        $check = $entity->getFileUri();
-
-        if ($image = $factory->get($check)) {
-          if ($output = self::fakeFromFactory($blazies, $entity, $image)) {
-            $uri = $output->uri;
-          }
+        if ($output = self::fakeFromFactory($blazies, $entity, $factory)) {
+          $uri = $output->uri;
         }
       }
     }
@@ -224,7 +217,6 @@ class BlazyImage {
 
     if ($uri) {
       $blazies->set('image.uri', $uri);
-      // @todo remove, already fixed, self::prepare($settings, $output, $uri);
     }
 
     return $output;
@@ -479,39 +471,62 @@ class BlazyImage {
 
   /**
    * Returns data to provide fake image item of file entity via ImageFactory.
+   */
+  private static function fromFile($file, $factory, $alt = NULL, $title = NULL): array {
+    // Might be a video/ audio file URI, not just image.
+    // @todo recheck not available beyond formatters, such as View Fields:
+    // $item = $entity->_referringItem;
+    $check = $file->getFileUri();
+
+    if ($image = $factory->get($check)) {
+      /** @var \Drupal\file\Entity\File $file */
+      [$type] = explode('/', $file->getMimeType(), 2);
+
+      // Including image/svg+xml.
+      // ALT and TITLE might be hand-coded from BlazyFilter, and so meaningful.
+      // @todo recheck && $image->isValid() and put it back if any issues.
+      // @todo figure out some SVG invalid when accessed from non-formatters like
+      // BlazyViewsFieldFile.
+      if ($type == 'image') {
+        $name = $file->getFilename();
+        return [
+          'uri'       => $file->getFileUri(),
+          'target_id' => $file->id(),
+          'alt'       => $alt ?: $name,
+          'title'     => $title ?: $name,
+          'width'     => $image->getWidth(),
+          'height'    => $image->getHeight(),
+          'type'      => 'image',
+          'entity'    => $file,
+        ];
+      }
+    }
+    return [];
+  }
+
+  /**
+   * Returns data to provide fake image item of file entity via ImageFactory.
    *
    * @todo remove ImageItem, fake or real, at 3.x. No longer neccessary with
    * $blazies as object as planned at BlazyMedia since 2.6.
    */
-  private static function fakeFromFactory($blazies, $file, $image): ?object {
-    /** @var \Drupal\file\Entity\File $file */
-    [$type] = explode('/', $file->getMimeType(), 2);
+  private static function fakeFromFactory($blazies, $file, $factory): ?object {
+    $alt = $blazies->get('image.alt');
+    $title = $blazies->get('image.title');
 
-    // Including image/svg+xml.
-    // ALT and TITLE might be hand-coded from BlazyFilter, and so meaningful.
-    if ($type == 'image' && $image->isValid()) {
-      $name = $file->getFilename();
-      $dims = [
-        'width'  => $image->getWidth(),
-        'height' => $image->getHeight(),
-      ];
+    if ($data = self::fromFile($file, $factory, $alt, $title)) {
+      $dims = ['width' => $data['width'], 'height' => $data['height']];
 
-      $data = [
-        'uri'       => $file->getFileUri(),
-        'target_id' => $file->id(),
-        'alt'       => $blazies->get('image.alt', $name),
-        'title'     => $blazies->get('image.title', $name),
-        'type'      => 'image',
-        'entity'    => $file,
-      ] + $dims;
-
-      $item = $blazies->toImage($data);
       $blazies->set('image', $data, TRUE)
-        ->set('image.item', $item)
         ->set('image.original', $dims, TRUE);
+
+      // @todo remove at 3.x.
+      $item = $blazies->toImage($data);
+      $blazies->set('image.item', $item);
 
       return $item;
     }
+
     return NULL;
   }
 

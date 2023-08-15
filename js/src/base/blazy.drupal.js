@@ -123,10 +123,10 @@
 
     clearing: function (el) {
       // While IO has a mechanism to unobserve, bLazy not.
-      if (el.bclearing) {
-        return;
-      }
-
+      // @todo recheck, in case blocking anything, see #3279316.
+      // if (el.bclearing) {
+      // return;
+      // }
       var me = this;
       var ie = $.hasClass(el, 'b-responsive') && $.hasAttr(el, _data + '-pfsrc');
 
@@ -153,7 +153,7 @@
         options: me.options
       });
 
-      el.bclearing = true;
+      // el.bclearing = true;
     },
 
     windowData: function () {

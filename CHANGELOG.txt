@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-08-15
+------------------------------
+- Fixed for HTML attribute opration regressions, seen at Jumper.module.
+
 Blazy 8.x-2.0-dev, 2023-08-14
 ------------------------------
 - Fixed for broken dBlazy.attr() given elements with length, like forms, etc.
