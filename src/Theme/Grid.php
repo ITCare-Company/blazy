@@ -136,7 +136,7 @@ class Grid {
     $gapless = $options['gapless'] ?? TRUE;
     $is_form = $options['is_form'] ?? TRUE;
     $style   = $options['style'] ?? 'nativegrid';
-    $blazies = $options['blazies'] ?? Blazy::initSettings();
+    $blazies = $options['blazies'] ?? Internals::settings();
 
     $blazies->set('count', $count)
       ->set('is.grid', TRUE)

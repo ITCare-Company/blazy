@@ -34,10 +34,21 @@ interface BlazyOEmbedInterface {
   public function blazyMedia();
 
   /**
+   * Returns the oEmbed provider based on the given media input url.
+   *
+   * @param string $input_url
+   *   The input url.
+   *
+   * @return \Drupal\media\OEmbed\Provider|null
+   *   The oEmbed provider if available, or NULL.
+   */
+  public function getProvider($input_url): ?object;
+
+  /**
    * Returns the oEmbed Resource based on the given media input url.
    *
    * @param string $input_url
-   *   The video url.
+   *   The input url.
    *
    * @return \Drupal\media\OEmbed\Resource
    *   The oEmbed resource.

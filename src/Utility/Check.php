@@ -203,6 +203,7 @@ class Check {
       ->set('media.defaults', $medias)
       ->set('use.dataset', $is_bg || $is_video)
       ->set('use.loader', !$is_nojs)
+      ->set('use.oembed', TRUE)
       ->set('use.svg_dimensions', TRUE);
   }
 

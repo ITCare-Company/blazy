@@ -438,7 +438,7 @@ class BlazyMedia implements BlazyMediaInterface {
 
       if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
         if ($src = $iframe->getAttribute('src')) {
-          if (strpos($src, '?url=') === FALSE) {
+          if ($blazies->use('oembed') && strpos($src, '?url=') === FALSE) {
             $iframe_domain = $blazies->get('iframe_domain');
             $src = $this->toEmbedUrl($src, $iframe_domain);
           }

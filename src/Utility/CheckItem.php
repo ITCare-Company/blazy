@@ -341,11 +341,15 @@ class CheckItem {
     if ($blazies->is('local_audio') && !empty($settings['image'])) {
       $blazies->set('is.multicontent', TRUE);
     }
+
     // BVEF compat without core OEmbed security feature.
-    // @todo remove once BVEF adopted Blazy:2.17+ BlazyVideoFormatter.
     if ($is_remote && strpos($embed_url, 'media/oembed') === FALSE) {
       $type = 'video';
       if ($oembed = Internals::service('blazy.oembed')) {
+        // VEF has no TITLE, nor ALT, for images, provide them.
+        $oembed->getThumbnail($settings);
+
+        // @todo remove once BVEF adopted Blazy:2.17+ BlazyVideoFormatter.
         $options = [
           'embed_url' => $embed_url,
           'is_player' => $is_player,

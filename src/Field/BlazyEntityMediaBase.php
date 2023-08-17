@@ -46,7 +46,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
     if (isset($element['media_switch'])) {
       $element['media_switch']['#options']['rendered'] = $this->t('Image rendered by its formatter');
-      $element['media_switch']['#description'] .= ' ' . $this->t('<b>Image rendered</b> requires <b>Image</b> option filled out and is useful if the formmater offers awesomeness that Blazy does not have but still wants Blazy for a Grid, etc. Be sure the enabled fields here are not hidden/ disabled at its view mode.');
+      $element['media_switch']['#description'] .= ' ' . $this->t('<b>Image rendered</b> requires <b>Image</b> option filled out and is useful if the formatter offers awesomeness that Blazy does not have but still wants Blazy for a Grid, etc. Be sure the enabled fields here are not hidden/ disabled at its view mode.');
     }
 
     if (isset($element['caption'])) {

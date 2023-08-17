@@ -160,9 +160,9 @@ class Libraries implements LibrariesInterface {
    * {@inheritdoc}
    */
   public function attach(array $attach = []): array {
-    $load = [];
     Internals::postSettings($attach);
 
+    $load    = [];
     $blazies = $attach['blazies'];
     $unblazy = $blazies->is('unblazy', FALSE);
     $unload  = $blazies->ui('nojs.lazy', FALSE) || $blazies->is('unlazy');
@@ -277,8 +277,9 @@ class Libraries implements LibrariesInterface {
         $this->cachedData[$cid] = $data;
       }
       else {
-        $alter = $info['alter'] ?? $cid;
+        $alter   = $info['alter'] ?? $cid;
         $context = $info['context'] ?? [];
+        $key     = $info['key'] ?? NULL;
 
         // Allows empty array to trigger hook_alter.
         if (is_array($data)) {
@@ -298,7 +299,7 @@ class Libraries implements LibrariesInterface {
             ksort($data);
           }
 
-          $count = count($data);
+          $count = $key && isset($data[$key]) ? count($data[$key]) : count($data);
           $tags = Cache::buildTags($cid, ['count:' . $count]);
           $this->cache->set($cid, $data, Cache::PERMANENT, $tags);
         }

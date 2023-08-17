@@ -52,8 +52,6 @@ class Thumbnail {
    * Returns the thumbnail image using theme_image(), or theme_image_style().
    *
    * Given SVG and co, data URI, UGC, even thumbnails are no longer peaceful.
-   * Alt and SRC will be auto-escaped when entering Twig, this is just to make
-   * sure no unknown edge cases get in the way.
    *
    * @see https://www.drupal.org/node/2489544
    */
@@ -62,7 +60,7 @@ class Thumbnail {
     $uri     = $blazies->get('thumbnail.uri') ?: $blazies->get('image.uri');
 
     if (!$uri) {
-      // Only Views output, if not having image nor blazy formatters.
+      // Only Views output, if not having image, nor blazy formatters.
       if ($item && is_array($item)) {
         return Internals::toHtml($item, 'div', $class);
       }
@@ -86,12 +84,21 @@ class Thumbnail {
       $unstyled = FALSE;
     }
 
+    // Alt and SRC will be auto-escaped when entering Twig, this is just to make
+    // sure no unknown edge cases get in the way.
+    if ($alt) {
+      $alt = Html::escape(strip_tags($alt));
+      // Twig will escape Can't to Can&#039;t, else doubles: Can&amp;#039;t.
+      // @todo recheck if the world is ended with this, and so remove this.
+      $alt = str_replace('&#039;', "'", $alt);
+    }
+
     $content = [
       '#theme'      => $unstyled ? 'image' : 'image_style',
       '#style_name' => $style,
       '#uri'        => $valid ? $uri : UrlHelper::stripDangerousProtocols($uri),
       '#item'       => $item,
-      '#alt'        => $alt ? Html::escape(strip_tags($alt)) : '',
+      '#alt'        => $alt ?: t('Thumbnail'),
     ];
 
     return Internals::toHtml($content, 'div', $class);

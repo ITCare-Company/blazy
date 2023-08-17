@@ -23,13 +23,10 @@ class Vef {
     $embed_url = $options['embed_url'];
     $is_player = $options['is_player'];
 
-    // VEF has no TITLE, nor ALT, for images, provide them.
-    $oembed->getThumbnail($settings);
-
     // For consistency and security, yet ensure to not mess up url.
     $input_url = $blazies->get('media.input_url');
     if ($input_url) {
-      if (strpos($embed_url, '?url') === FALSE) {
+      if ($blazies->use('oembed') && strpos($embed_url, '?url') === FALSE) {
         $autoplay  = $is_player ? ['autoplay' => 1] : [];
         $embed_url = $oembed->toEmbedUrl($blazies, $input_url, $autoplay);
       }
@@ -39,10 +36,12 @@ class Vef {
     }
 
     // The multimedia is defined for core Media, not VEF, so set it here.
+    $bundle = $blazies->get('media.bundle', 'remote_video');
     $blazies->set('is.multimedia', TRUE)
       ->set('media.input_url', $input_url)
-      ->set('media.bundle', 'remote_video')
-      ->set('media.source', 'video_embed_field');
+      ->set('media.bundle', $bundle)
+      ->set('media.source', 'video_embed_field')
+      ->set('media.type', 'video');
 
     return $embed_url;
   }

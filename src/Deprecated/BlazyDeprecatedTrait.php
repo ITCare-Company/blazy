@@ -73,13 +73,13 @@ trait BlazyDeprecatedTrait {
    */
   public static function settings(array $data = []): BlazySettings {
     // @todo @trigger_error('settings is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::settings() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
-    return self::initSettings($data);
+    return Internals::settings($data);
   }
 
   /**
    * Deprecated in blazy:8.x-2.17.
    *
-   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    * none instead.
    * @see https://www.drupal.org/node/3367291
    */
@@ -91,7 +91,7 @@ trait BlazyDeprecatedTrait {
   /**
    * Deprecated in blazy:8.x-2.17.
    *
-   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    * \Drupal\blazy\BlazyInterface::routeMatch() instead.
    * @see https://www.drupal.org/node/3367291
    */
@@ -103,7 +103,7 @@ trait BlazyDeprecatedTrait {
   /**
    * Deprecated in blazy:8.x-2.17.
    *
-   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    * none instead.
    * @see https://www.drupal.org/node/3367291
    */
@@ -127,7 +127,7 @@ trait BlazyDeprecatedTrait {
   /**
    * Deprecated in blazy:8.x-2.17.
    *
-   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    * \Drupal\blazy\BlazyInterface::attach() instead.
    * @see https://www.drupal.org/node/3367291
    */
@@ -203,7 +203,7 @@ trait BlazyDeprecatedTrait {
   /**
    * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.16.
    *
-   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    * \Drupal\blazy\BlazyInterface::toSettings() instead.
    * @see https://www.drupal.org/node/3367291
    */
@@ -240,7 +240,7 @@ trait BlazyDeprecatedTrait {
   /**
    * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17.
    *
-   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    * none instead.
    * @see https://www.drupal.org/node/3367291
    */
@@ -252,7 +252,7 @@ trait BlazyDeprecatedTrait {
   /**
    * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17.
    *
-   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    * \Drupal\blazy\Utility\Arrays::filter() instead.
    * @see https://www.drupal.org/node/3367291
    */
@@ -264,7 +264,7 @@ trait BlazyDeprecatedTrait {
   /**
    * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17.
    *
-   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    * \Drupal\blazy\BlazyInterface::denied() instead.
    * @see https://www.drupal.org/node/3367291
    */
@@ -333,7 +333,7 @@ trait BlazyDeprecatedTrait {
   /**
    * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17.
    *
-   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    * \Drupal\blazy\BlazyInterface::toHtml() instead.
    * @see https://www.drupal.org/node/3367291
    */
@@ -345,7 +345,7 @@ trait BlazyDeprecatedTrait {
   /**
    * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17.
    *
-   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    * \Drupal\blazy\BlazyInterface::mergeSettings() instead.
    * @see https://www.drupal.org/node/3367291
    */
@@ -357,7 +357,7 @@ trait BlazyDeprecatedTrait {
   /**
    * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17.
    *
-   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    * \Drupal\blazy\BlazyInterface::loadByProperty() instead.
    * @see https://www.drupal.org/node/3367291
    */
@@ -369,7 +369,7 @@ trait BlazyDeprecatedTrait {
   /**
    * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17.
    *
-   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    * \Drupal\blazy\BlazyInterface::loadByUuid() instead.
    * @see https://www.drupal.org/node/3367291
    */
@@ -381,7 +381,7 @@ trait BlazyDeprecatedTrait {
   /**
    * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17.
    *
-   * @deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    * \Drupal\blazy\BlazyInterface::markdown() instead.
    * @see https://www.drupal.org/node/3367291
    */

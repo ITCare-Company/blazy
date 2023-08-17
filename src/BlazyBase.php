@@ -299,9 +299,9 @@ abstract class BlazyBase implements BlazyInterface {
         $this->cachedOptions[$cid] = $data;
       }
       else {
-        $alter = $info['alter'] ?? $cid;
+        $alter   = $info['alter'] ?? $cid;
         $context = $info['context'] ?? [];
-        $key = $info['key'] ?? NULL;
+        $key     = $info['key'] ?? NULL;
 
         // Allows empty array to trigger hook_alter.
         if (is_array($data)) {

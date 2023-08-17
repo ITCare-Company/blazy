@@ -511,7 +511,7 @@ interface BlazyInterface {
   public function service($name): ?object;
 
   /**
-   * An alias for Blazy::initSettings().
+   * An alias for Internals::settings().
    *
    * @param array $data
    *   The optional initial data array.

@@ -37,7 +37,7 @@ To have gapless, simply add `is-b-gapless` class via template_preprocess. */
     overflow: hidden;
   }
 
-  /* To make even bottom gaps when using CSS background Blazy formmater.
+  /* To make even bottom gaps when using CSS background Blazy formatter.
   See Troubleshooting for more details on this.
   Only if using images, add more inner divs to fill in the gaps here. */
   .b-nativegrid.is-b-masonry .grid .litebox,

@@ -105,6 +105,18 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * {@inheritdoc}
    */
+  public function getProvider($input_url): ?object {
+    try {
+      return $this->urlResolver->getProviderByUrl($input_url);
+    }
+    catch (\Exception $e) {
+      return NULL;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getResource($input_url) {
     $resource_url = $this->urlResolver->getResourceUrl($input_url, 0, 0);
     return $this->resourceFetcher->fetchResource($resource_url);
@@ -161,6 +173,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
           if (!BlazyFile::isValidUri($uri)) {
             $type = $resource->getType();
             // All we have here is external images. URI validity is not crucial.
+            // Be sure internet is connected, or you got headaches.
             if (!empty($resource->getThumbnailUrl())) {
               $uri = $resource->getThumbnailUrl()->getUri();
             }
@@ -182,6 +195,13 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $blazies->set('media.input_url', $input)
       ->set('media.label', $title)
       ->set('media.type', $type);
+
+    // Might be NULL for BlazyFilter, VEF, etc., re-define.
+    if (!$blazies->get('media.provider')) {
+      $provider = $this->getProvider($input);
+      $blazies->set('media.provider', $provider)
+        ->set('use.oembed', $provider != NULL);
+    }
 
     // VEF has just URI, the rest are fetched from resource.
     // Also Soundcloud here.
@@ -380,13 +400,16 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       return;
     }
 
-    $input = $this->checkInputUrl($settings, $input);
+    $input    = $this->checkInputUrl($settings, $input);
+    $provider = $this->getProvider($input);
     $autoplay = $switch ? ['autoplay' => 1] : [];
 
     // Should be oembed_url, but embed_url is a fine legacy video_embed_field.
     $embed_url = $this->toEmbedUrl($blazies, $input, $autoplay);
     $blazies->set('media.embed_url', $embed_url)
-      ->set('media.escaped', TRUE);
+      ->set('media.escaped', TRUE)
+      ->set('media.provider', $provider)
+      ->set('use.oembed', $provider != NULL);
   }
 
   /**

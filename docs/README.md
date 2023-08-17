@@ -179,8 +179,8 @@ which are now included as inherent part of `theme_blazy()` including thumbnail
 captions seen at sliders.
 
 Repeat, not replacing their established `theme_ITEM()`, just their contents when
-we all have dups with IMAGE/MEDIA + CAPTIONS contructs. It is not a novel thing,
-see `block.html.twig` with its variants, etc.
+we all have dups with IMAGE/MEDIA + CAPTIONS constructs. It is not a novel
+thing, see `block.html.twig` with its variants, etc.
 Not a sudden course of actions, it was carefully planned since
 [2.x-RC1](https://git.drupalcode.org/project/blazy/-/blob/8.x-2.0-rc1/src/BlazyManager.php#L180), 4 years ago from 2023, and never made it till 2.17.
 

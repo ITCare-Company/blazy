@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-08-17
 ------------------------------
+- Added oEmbed provider check for cross-compat with VEF providers.
 - Prepared Blazy as a service at 3.x.
 - Deprecated duplicated Blazy methods for BlazyInterface to allow Blazy a
   service at 3.x.

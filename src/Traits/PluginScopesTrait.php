@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Traits;
 
 use Drupal\blazy\Blazy;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Utility\Arrays;
 
 /**
@@ -21,7 +22,7 @@ trait PluginScopesTrait {
     $definitions = $current = [];
 
     if (empty($scopes)) {
-      return Blazy::initSettings($definitions);
+      return Internals::settings($definitions);
     }
 
     // Allows to merge at admin level for consistent sane method uses.
@@ -78,7 +79,7 @@ trait PluginScopesTrait {
         }
       }
     }
-    return Blazy::initSettings($definitions);
+    return Internals::settings($definitions);
   }
 
   /**
