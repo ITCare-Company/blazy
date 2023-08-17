@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Utility;
 
 use Drupal\blazy\Blazy;
+use Drupal\blazy\internals\Internals;
 
 /**
  * Provides url, route, request, stream, or any path-related methods.
@@ -43,7 +44,7 @@ class Path {
    * @see https://www.drupal.org/node/2940031
    */
   public static function fileUrlGenerator() {
-    return Blazy::service('file_url_generator');
+    return Internals::service('file_url_generator');
   }
 
   /**
@@ -53,7 +54,7 @@ class Path {
    *   The path resolver.
    */
   public static function pathResolver() {
-    return Blazy::service('extension.path.resolver');
+    return Internals::service('extension.path.resolver');
   }
 
   /**
@@ -63,7 +64,7 @@ class Path {
    *   The request stack.
    */
   public static function requestStack() {
-    return Blazy::service('request_stack');
+    return Internals::service('request_stack');
   }
 
   /**
@@ -73,7 +74,7 @@ class Path {
    *   The currently active route match object.
    */
   public static function routeMatch() {
-    return Blazy::service('current_route_match');
+    return Internals::service('current_route_match');
   }
 
   /**
@@ -83,7 +84,7 @@ class Path {
    *   The stream wrapper manager.
    */
   public static function streamWrapperManager() {
-    return Blazy::service('stream_wrapper_manager');
+    return Internals::service('stream_wrapper_manager');
   }
 
   /**
@@ -199,7 +200,7 @@ class Path {
    * @todo remove for \Drupal\blazy\Asset\Libraries methods at 3.x.
    */
   private static function libraries(array $libraries, $keyed = FALSE): \Generator {
-    if ($finder = Blazy::service('library.libraries_directory_file_finder')) {
+    if ($finder = Internals::service('library.libraries_directory_file_finder')) {
       foreach ($libraries as $library) {
         $result = $finder->find($library);
         if ($keyed) {

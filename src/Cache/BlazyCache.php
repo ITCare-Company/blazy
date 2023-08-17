@@ -3,7 +3,7 @@
 namespace Drupal\blazy\Cache;
 
 use Drupal\Core\Cache\Cache;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\internals\Internals;
 
 /**
  * Provides common cache utility static methods.
@@ -48,14 +48,14 @@ class BlazyCache {
    * @todo remove for \Drupal\blazy\Asset\Libraries::getCacheMetadata() at 3.x.
    */
   public static function metadata(array $build = []): array {
-    $manager   = Blazy::service('blazy.manager');
-    $settings  = Blazy::toHashtag($build) ?: $build;
-    $blazies   = Blazy::verify($settings);
+    $manager   = Internals::service('blazy.manager');
+    $settings  = Internals::toHashtag($build) ?: $build;
+    $blazies   = Internals::verify($settings);
     $namespace = $blazies->get('namespace', 'blazy');
     $count     = $blazies->total() ?: $blazies->get('count', count($settings));
     $max_age   = $manager->config('cache.page.max_age', 'system.performance');
     $max_age   = empty($settings['cache']) ? $max_age : $settings['cache'];
-    $id        = Blazy::getHtmlId($namespace . $count);
+    $id        = Internals::getHtmlId($namespace . $count);
     $id        = $blazies->get('css.id', $id);
     $id        = substr(md5($id), 0, 11);
 

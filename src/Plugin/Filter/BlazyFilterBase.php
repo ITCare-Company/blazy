@@ -737,7 +737,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       '#options' => $captions + ['inline' => $this->t('Caption filter')],
       '#empty_option' => $this->t('- None -'),
       '#default_value' => $this->settings['box_caption'] ?? '',
-      '#description' => $this->t('Automatic will search for Alt text first, then Title text. <br>Image styles only work for uploaded images, not hand-coded ones. Caption filter will use <code>data-caption</code> normally managed by Caption filter.'),
+      '#description' => $this->t('Automatic will search for Alt text first, then Title text. <br>Image styles only work for uploaded images, not hand-coded ones. Caption filter will use <code>data-caption</code> normally managed by Caption filter, will not work for shortcode without [item] element.'),
     ];
   }
 

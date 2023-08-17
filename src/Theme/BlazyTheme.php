@@ -70,7 +70,7 @@ class BlazyTheme {
 
     // With BlazySettings, no longer needed to shutup notices when lacking.
     $settings = &$variables['settings'];
-    $blazies  = Blazy::verify($settings);
+    $blazies  = Internals::verify($settings);
     $item     = $variables['item'];
     $api      = $blazies->is('api');
 
@@ -106,7 +106,7 @@ class BlazyTheme {
 
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
-      Blazy::attach($variables, $settings);
+      Attributes::attach($variables, $settings);
     }
   }
 
@@ -143,7 +143,7 @@ class BlazyTheme {
 
       // Adds a poster image if so configured.
       // Accessed only by BlazyMedia::build().
-      if ($blazy = Blazy::toHashtag($files[0])) {
+      if ($blazy = Internals::toHashtag($files[0])) {
         $blazies = $blazy->get('blazies');
 
         if ($url = $blazies->get('image.url')) {
@@ -336,7 +336,7 @@ class BlazyTheme {
     }
 
     // Attaches Blazy libraries here since Blazy is not the formatter.
-    Blazy::attach($variables, $settings);
+    Attributes::attach($variables, $settings);
   }
 
   /**
@@ -357,19 +357,19 @@ class BlazyTheme {
         // Blazy Grid settings:
         if ($build = $content['#build'] ?? []) {
           if (!$settings) {
-            $settings = Blazy::toHashtag($build);
+            $settings = Internals::toHashtag($build);
           }
 
           // @todo simplify ElevateZoomPlus build_alter overrides:
           if (!$settings) {
-            $settings = Blazy::toHashtag($build['#build'] ?? []);
+            $settings = Internals::toHashtag($build['#build'] ?? []);
           }
         }
       }
     }
 
     if ($settings || $third_party) {
-      Blazy::verify($settings);
+      Internals::verify($settings);
     }
 
     return $settings;

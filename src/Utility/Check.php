@@ -32,7 +32,7 @@ class Check {
     Internals::postSettings($attach);
     $blazies = $attach['blazies'];
 
-    if (!($manager = Blazy::service('blazy.manager'))) {
+    if (!($manager = Internals::service('blazy.manager'))) {
       return $blazies;
     }
 
@@ -214,7 +214,7 @@ class Check {
    */
   public static function blazyOrNot(array &$settings, array $data = []): void {
     // Retrieves Blazy formatter related settings from within Views style.
-    $blazies = Blazy::verify($settings);
+    $blazies = Internals::verify($settings);
     $data    = $data ?: $blazies->get('first.data');
 
     if (empty($data) || !is_array($data)) {
@@ -223,7 +223,7 @@ class Check {
 
     // 1. Blazy formatter within Views styles by supported modules.
     // $item_id might be slide, box, etc.
-    $blazy   = Blazy::toHashtag($data);
+    $blazy   = Internals::toHashtag($data);
     $item_id = $blazies->get('item.id');
     $content = $data[$item_id] ?? $data;
 
@@ -243,7 +243,7 @@ class Check {
       Internals::preserve($settings, $blazy);
 
       // Rechecks container, etc. since we have $blazy.
-      if ($manager = Blazy::service('blazy.manager')) {
+      if ($manager = Internals::service('blazy.manager')) {
         $blazies->set('was.initialized', FALSE);
         $manager->preSettings($settings);
       }
@@ -285,7 +285,7 @@ class Check {
     $namespace   = $blazies->get('namespace', 'blazy');
     $id          = $blazies->get('css.id', '');
     $gallery_id  = "{$namespace}-{$entity_type}-{$bundle}-{$field_clean}-{$view_mode}";
-    $id          = Blazy::getHtmlId("{$gallery_id}-{$entity_id}", $id);
+    $id          = Internals::getHtmlId("{$gallery_id}-{$entity_id}", $id);
     $switch      = $settings['media_switch'] ?? NULL;
     $switch      = $switch ?: $blazies->get('switch');
 
@@ -343,7 +343,7 @@ class Check {
       }
 
       // Formatters, Views style, not Filters.
-      Blazy::toNativeGrid($settings);
+      Internals::toNativeGrid($settings);
     }
 
     $blazies->set('was.grid', TRUE);
@@ -389,7 +389,7 @@ class Check {
   public static function lightboxes(array &$settings): void {
     $blazies = $settings['blazies'];
     $switch  = $blazies->get('switch', $settings['media_switch'] ?? NULL);
-    $manager = Blazy::service('blazy.manager');
+    $manager = Internals::service('blazy.manager');
 
     // Bail out early if not so configured.
     if (!$switch || !$manager) {
@@ -433,7 +433,7 @@ class Check {
    */
   public static function settingsAlter(array &$settings, $entity = NULL): void {
     $blazies = $settings['blazies'];
-    $manager = Blazy::service('blazy.manager');
+    $manager = Internals::service('blazy.manager');
 
     // Bail out early if not so configured.
     if (!$blazies->is('lightbox') || !$manager) {

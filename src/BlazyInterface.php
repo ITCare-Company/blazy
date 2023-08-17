@@ -113,7 +113,7 @@ interface BlazyInterface {
   ): void;
 
   /**
-   * Alias for Blazy::denied() for sub-modules.
+   * Alias for Internals::denied() for sub-modules.
    *
    * @param object $entity
    *   The expected entity interface object to check for its view access.
@@ -208,7 +208,7 @@ interface BlazyInterface {
   public function getEntityAsOptions($entity_type): array;
 
   /**
-   * Alias for Blazy::getHtmlId() to get the trusted HTML ID.
+   * Alias for Internals::getHtmlId() to get the trusted HTML ID.
    *
    * @param string $name
    *   The module name.
@@ -221,7 +221,7 @@ interface BlazyInterface {
   public function getHtmlId($name = 'blazy', $id = ''): string;
 
   /**
-   * Alias for Blazy::getLibrariesPath() to get libraries path.
+   * Alias for LibrariesInterface::getPath() to get libraries path.
    *
    * A few libraries have inconsistent namings, given different packagers:
    *   - splide x splidejs--splide
@@ -239,7 +239,7 @@ interface BlazyInterface {
   public function getLibrariesPath($name, $base_path = FALSE): ?string;
 
   /**
-   * Alias for Blazy::getPath() to get module or theme path.
+   * Alias for Path::getPath() to get module or theme path.
    *
    * @param string $type
    *   The object type, can be module or theme.
@@ -277,6 +277,35 @@ interface BlazyInterface {
    *   The translated entity, if available.
    */
   public function getTranslatedEntity($object, $langcode = NULL);
+
+  /**
+   * Alias for Grid::attributes().
+   *
+   * @param array $attrs
+   *   The container attributes to add into .blazy, normally #attributes.
+   * @param array $settings
+   *   The settings defining the grids.
+   */
+  public function gridAttributes(array &$attrs, array $settings): void;
+
+  /**
+   * Alias for Grid::checkAttributes().
+   *
+   * @param array $attrs
+   *   The container attributes to add into .grid, normally #attributes.
+   * @param array $content_attrs
+   *   The content attributes, if any to add into .grid__content.
+   * @param object $blazies
+   *   The settings.blazies object.
+   * @param bool $root
+   *   Whether to apply it for the root container, or item attributes.
+   */
+  public function gridCheckAttributes(
+    array &$attrs,
+    array &$content_attrs,
+    $blazies,
+    $root = FALSE
+  ): void;
 
   /**
    * Alias for Grid::itemAttributes().
@@ -471,7 +500,7 @@ interface BlazyInterface {
   public function moduleExists($name): bool;
 
   /**
-   * An alias for Blazy::service().
+   * An alias for Internals::service().
    *
    * @param string $name
    *   The service name.
@@ -482,7 +511,7 @@ interface BlazyInterface {
   public function service($name): ?object;
 
   /**
-   * An alias for Blazy::settings().
+   * An alias for Blazy::initSettings().
    *
    * @param array $data
    *   The optional initial data array.
@@ -554,10 +583,6 @@ interface BlazyInterface {
    *
    * @return mixed
    *   The checked value.
-   *
-   * @todo refactor at 3.x, to solve out of sync module like BVEF, etc.
-   * No real problems found so far even with BVEF, just minimize issues.
-   * Alias for Blazy::toHashtag() for sub-modules and easy organization later.
    */
   public function toHashtag(array $data, $key = 'settings', $default = []);
 
@@ -573,7 +598,7 @@ interface BlazyInterface {
   public function toOptions(array $options): array;
 
   /**
-   * Reset blazies object with the added data.
+   * Reset blazies object with the optional added data.
    *
    * @param array $settings
    *   The settings to add data.
@@ -587,17 +612,12 @@ interface BlazyInterface {
    * @return array
    *   The modified settings.
    */
-  public function toSettings(array &$settings, array $data, $key = 'blazies', array $defaults = []): array;
-
-  /**
-   * Verifies BlazySettings exists since few may be called outside the workflow.
-   *
-   * @param array $settings
-   *   The settings being modified.
-   *
-   * @todo deprecated for self::verifySafely() for the returned values.
-   */
-  public function verify(array &$settings): void;
+  public function toSettings(
+    array &$settings,
+    array $data = [],
+    $key = 'blazies',
+    array $defaults = []
+  ): array;
 
   /**
    * Verifies BlazySettings exists since few may be called outside the workflow.
@@ -630,7 +650,7 @@ interface BlazyInterface {
   public function verifyItem(array &$element, $delta): void;
 
   /**
-   * A wrapper for the entity view with access check.
+   * A wrapper for the entity view aka vanilla view with access check.
    *
    * @param array $data
    *   The data containing: #entity, #settings, and fallback (string|array).
@@ -641,5 +661,18 @@ interface BlazyInterface {
    * @see https://www.drupal.org/node/3033656
    */
   public function view(array $data): array;
+
+  /**
+   * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17. What a waste.
+   *
+   * @param array $settings
+   *   The settings being modified.
+   *
+   * @todo deprecated for self::verifySafely() for the returned values.
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * self::verifySafely() instead.
+   * @see https://www.drupal.org/node/3367291
+   */
+  public function verify(array &$settings): void;
 
 }

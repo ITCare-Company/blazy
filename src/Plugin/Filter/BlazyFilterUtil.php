@@ -4,6 +4,7 @@ namespace Drupal\blazy\Plugin\Filter;
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\internals\Internals;
 
 /**
  * Provides shared filter utilities.
@@ -14,7 +15,7 @@ class BlazyFilterUtil {
    * Returns a randomized id.
    */
   public static function getId($id = 'blazy-filter'): string {
-    return Blazy::getHtmlId(str_replace('_', '-', $id) . '-' . Crypt::randomBytesBase64(8));
+    return Internals::getHtmlId(str_replace('_', '-', $id) . '-' . Crypt::randomBytesBase64(8));
   }
 
   /**
@@ -22,7 +23,7 @@ class BlazyFilterUtil {
    */
   public static function attach(array $settings = []): array {
     $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE] + $settings;
-    $all['media_switch'] = $switch = $settings['media_switch'];
+    $all['media_switch'] = $switch = $settings['media_switch'] ?? '';
 
     if (!empty($settings[$switch])) {
       $all[$switch] = $settings[$switch];
@@ -253,7 +254,7 @@ class BlazyFilterUtil {
           if ($settings['style'] == 'flexbox') {
             $settings['style'] = 'flex';
           }
-          Blazy::toNativeGrid($settings);
+          Internals::toNativeGrid($settings);
         }
       }
     }

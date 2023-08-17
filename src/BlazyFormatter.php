@@ -97,7 +97,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $blazies   = $settings['blazies'];
     $plugin_id = $blazies->get('field.plugin_id');
 
-    // BC for non-nego vanilla formatters identified by its plugin ID.
+    // BC for non-nego vanilla formatters identified by its vanilla plugin ID.
     if ($plugin_id && strpos($plugin_id, 'vanilla') !== FALSE) {
       $settings['vanilla'] = TRUE;
       $blazies->set('is.vanilla', TRUE);
@@ -111,7 +111,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     // Extracts the first image item to build colorbox/zoom-like gallery.
     // Also prepare URIs for the new Preload option.
-    // Requires image style entity from above.
+    // Requires image style entities from ::preSettings() above.
     Preloader::prepare($settings, $items, $entities);
 
     // Extracts (Responsive) image dimensions, requires first.uri above.
@@ -152,10 +152,17 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
 
-    // Some formatter has a toggle Vanilla.
+    // The last method before being passed to each manager builders.
+    // Supports lightbox gallery if using Blazy formatter.
+    // Some formatter has a toggle Vanilla, only makes sense for non-vanilla.
     if (empty($settings['vanilla']) && isset($settings['image_style'])) {
-      // Supports lightbox gallery if using Blazy formatter.
-      if ($item = ($build['items'][0] ?? NULL)) {
+      // Extract the first found formatter settings AFTER being processed by
+      // blazy/ sub-module #pre_render so to inform the top level container
+      // about at least the first found URI which is not available at
+      // ::preElements() so to help ElevateZoomPlus, and others needing this
+      // to dipslay their first preview. The most comprehensible sample is
+      // Colorbox large display with small ones, similar to ElevateZoomPlus.
+      if ($item = ($build['items'][0] ?? [])) {
         $fallback = $item[static::$itemId]['#build'] ?? [];
         $data = $item['#build'] ?? $fallback;
 

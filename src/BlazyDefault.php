@@ -3,6 +3,7 @@
 namespace Drupal\blazy;
 
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\blazy\internals\Internals;
 
 /**
  * Defines shared plugin default settings for field formatter and Views style.
@@ -54,13 +55,20 @@ class BlazyDefault {
   ];
 
   /**
+   * Provides the object ID to initialize BlazySettings. slicks, masons, etc.
+   *
+   * @var string
+   */
+  protected static $id = NULL;
+
+  /**
    * Returns alterable plugin settings to pass the tests.
    *
    * @param array $settings
    *   The settings being modified.
    */
   public static function alterableSettings(array &$settings) {
-    if ($manager = Blazy::service('blazy.manager')) {
+    if ($manager = Internals::service('blazy.manager')) {
       $context = ['class' => get_called_class()];
       $manager->moduleHandler()->alter('blazy_base_settings', $settings, $context);
     }
@@ -295,7 +303,7 @@ class BlazyDefault {
     $ui = self::uiSettings();
 
     // For convenience when by-passing the provided API.
-    if ($manager = Blazy::service('blazy.manager')) {
+    if ($manager = Internals::service('blazy.manager')) {
       $ui = $manager->config();
     }
     return [
@@ -316,13 +324,14 @@ class BlazyDefault {
       '@version' => 'blazy:2.6',
     ];
     return [
-      'blazies' => Blazy::settings(self::blazies()),
+      'blazies' => self::toSettings(self::blazies()),
       'WARNING' => new FormattableMarkup('Non-configurable settings are deprecated in @version. Use the BlazySettings object instead!', $params),
 
       // Configurable settings are dumped as they are as always.
       // Very few are adjusted into blazies for easy calls/overrides/alters.
     ] + self::imageSettings()
-      + self::gridSettings();
+      + self::gridSettings()
+      + self::objectify();
   }
 
   /**
@@ -506,6 +515,66 @@ class BlazyDefault {
       'skin' => '',
       'optionset' => '',
     ];
+  }
+
+  /**
+   * Returns a BlazySettings instance.
+   */
+  public static function toSettings(array $data = []): BlazySettings {
+    return Internals::settings($data);
+  }
+
+  /**
+   * Returns options for the object conversions.
+   */
+  protected static function options(): array {
+    return [];
+  }
+
+  /**
+   * Returns values to be converted to a BlazySettings instance.
+   */
+  protected static function values(): array {
+    return [];
+  }
+
+  /**
+   * Returns BlazySettings instance keyed by static::$id.
+   */
+  private static function objectify(): array {
+    $items   = [];
+    $options = self::options();
+    $managed = $options['managed'] ?? FALSE;
+
+    if (!$managed && $values = self::values()) {
+      foreach ($values as $key => $value) {
+        if (is_bool($value)) {
+          if (strpos($key, 'use_') !== FALSE) {
+            $key = str_replace('use_', '', $key);
+            $items['use'][$key] = $value;
+          }
+          else {
+            if ($options['ltrim'] ?? FALSE) {
+              $key = ltrim($key, '_');
+            }
+
+            $items['is'][$key] = $value;
+          }
+        }
+        else {
+          if (strpos($key, 'item_') !== FALSE) {
+            $key = str_replace('item_', '', $key);
+            $items['item'][$key] = $value;
+          }
+          $items[$key] = $value;
+        }
+      }
+    }
+
+    if ($id = static::$id) {
+      return [$id => self::toSettings($items)];
+    }
+    return [];
   }
 
   /**

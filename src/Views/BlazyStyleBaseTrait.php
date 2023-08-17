@@ -7,6 +7,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Render\Markup;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Theme\BlazyViews;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Utility\Sanitize;
 
 /**
@@ -327,7 +328,7 @@ trait BlazyStyleBaseTrait {
    * Renew settings per item.
    */
   protected function reset(array &$settings, $key = 'blazies', array $defaults = []) {
-    return Blazy::reset($settings, $key, $defaults);
+    return Internals::reset($settings, $key, $defaults);
   }
 
   /**

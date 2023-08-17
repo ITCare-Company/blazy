@@ -6,6 +6,7 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Render\Element;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\internals\Internals;
 
 /**
  * Provides common field API operation methods.
@@ -82,7 +83,7 @@ class BlazyField {
     // Fix for Views UI not recognizing Media bundles, unlike Formatters.
     if (empty($bundles)
       && $type
-      && $service = Blazy::service('entity_type.bundle.info')) {
+      && $service = Internals::service('entity_type.bundle.info')) {
       $bundles = $service->getBundleInfo($type);
     }
 
@@ -93,7 +94,7 @@ class BlazyField {
    * Provides field-related settings, called by back-end and front-end.
    */
   public static function settings(array &$settings, $field, array $data = []): array {
-    $settings['blazies'] = $settings['blazies'] ?? Blazy::settings();
+    $settings['blazies'] = $settings['blazies'] ?? Blazy::initSettings();
     $blazies = $settings['blazies'];
     $bundles = self::getAvailableBundles($field);
 
@@ -186,7 +187,7 @@ class BlazyField {
       '#entity' => $file,
       '#settings' => $settings,
     ];
-    if ($manager = Blazy::service('blazy.media')) {
+    if ($manager = Internals::service('blazy.media')) {
       return $rendered ? $manager->view($data) : $manager->fromFile($data);
     }
     return $rendered ? [] : NULL;

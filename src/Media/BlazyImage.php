@@ -5,8 +5,8 @@ namespace Drupal\blazy\Media;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\media\MediaInterface;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Utility\Sanitize;
 
 /**
@@ -178,7 +178,7 @@ class BlazyImage {
    * @todo return image item directly without settings.
    */
   public static function fromAny($object, array &$settings = []): ?object {
-    $blazies = Blazy::verify($settings);
+    $blazies = Internals::verify($settings);
     $output  = $uri = NULL;
 
     // If Media entity, we must have a File entity, and likely ImageItem.
@@ -193,7 +193,7 @@ class BlazyImage {
       $entity = BlazyFile::item($object, $settings);
 
       if (BlazyFile::isFile($entity)
-        && $factory = Blazy::service('image.factory')) {
+        && $factory = Internals::service('image.factory')) {
         if ($output = self::fakeFromFactory($blazies, $entity, $factory)) {
           $uri = $output->uri;
         }
@@ -247,7 +247,7 @@ class BlazyImage {
    * ::fromMedia(), already gone. Can be better.
    */
   public static function fromContent(array $options, $name = NULL): ?object {
-    $settings = Blazy::toHashtag($options);
+    $settings = Internals::toHashtag($options);
     $blazies  = $settings['blazies'] ?? NULL;
     $poster   = $settings['image'] ?? NULL;
     $name     = $name ?: $poster;
@@ -305,7 +305,7 @@ class BlazyImage {
    * Both ImageItem and fake stdClass are valid, no problem.
    */
   public static function isValidItem($item): bool {
-    $item = is_array($item) ? Blazy::toHashtag($item, 'item', NULL) : $item;
+    $item = is_array($item) ? Internals::toHashtag($item, 'item', NULL) : $item;
     return is_object($item) && (isset($item->uri) || isset($item->target_id));
   }
 
@@ -360,7 +360,7 @@ class BlazyImage {
    * @todo remove for BlazyManager::imageStyles().
    */
   public static function styles(array &$settings, $multiple = FALSE): void {
-    if ($manager = Blazy::service('blazy.manager')) {
+    if ($manager = Internals::service('blazy.manager')) {
       $manager->imageStyles($settings, $multiple);
     }
   }

@@ -7,7 +7,7 @@ use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Site\Settings;
 use Drupal\file\FileInterface;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Utility\Path;
 
 /**
@@ -18,7 +18,7 @@ use Drupal\blazy\Utility\Path;
  *   blazy-related code in Blazy module.
  *
  * @todo recap similiraties and make them plugins.
- * @todo remove deprecated functions post D11, not D10, and when D8 is dropped.
+ * @todo remove deprecated functions post D11, not D10, or when D8 is dropped.
  */
 class BlazyFile {
 
@@ -113,6 +113,7 @@ class BlazyFile {
         $url = $gen->transformRelative($url);
       }
       else {
+        // @todo remove when D8 is dropped at 3.x.
         $function = 'file_url_transform_relative';
         $url = is_callable($function) ? $function($url) : $url;
       }
@@ -155,16 +156,20 @@ class BlazyFile {
    * Returns a file object from an URI.
    */
   public static function fromUri($uri, $manager = NULL): ?object {
-    return Blazy::loadByProperty('uri', $uri, 'file', $manager);
+    return Internals::loadByProperty('uri', $uri, 'file', $manager);
   }
 
   /**
    * Returns TRUE if an SVG URI.
    */
   public static function isSvg($uri): bool {
-    $ext = pathinfo($uri, PATHINFO_EXTENSION);
-    $ext = strtolower($ext);
-    return $ext == 'svg';
+    // Some guy uploaded images without extensions, seen at wildlife.
+    if ($ext = pathinfo($uri, PATHINFO_EXTENSION)) {
+      // Some other guy put CAPITAL image extensions for real.
+      $ext = strtolower($ext);
+      return $ext == 'svg';
+    }
+    return FALSE;
   }
 
   /**
@@ -226,12 +231,21 @@ class BlazyFile {
    */
   public static function item($object = NULL, array $settings = [], $uri = NULL): ?object {
     $file = $object;
-    Blazy::verify($settings);
+    Internals::verify($settings);
 
     // Bail out early if we are given what we want.
     /** @var \Drupal\file\Entity\File $file */
     if (self::isFile($file)) {
       return $file;
+    }
+
+    // Fake, or real image item. Might also be VEF.
+    /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $object */
+    if (BlazyImage::isValidItem($object) && $file = $object->entity ?? NULL) {
+      // Ensures not locked here, in case VEF put its VEF, etc.
+      if (self::isFile($file)) {
+        return $file;
+      }
     }
 
     /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $object */
@@ -312,7 +326,7 @@ class BlazyFile {
     $blazies = $settings['blazies'] ?? NULL;
     $uri     = $uri ?: self::uri(NULL, $settings);
     $uuid    = $blazies ? $blazies->get('entity.uuid') : NULL;
-    $file    = $uuid ? Blazy::loadByUuid($uuid, 'file') : NULL;
+    $file    = $uuid ? Internals::loadByUuid($uuid, 'file') : NULL;
 
     if (!$file && $uri) {
       $file = self::fromUri($uri);

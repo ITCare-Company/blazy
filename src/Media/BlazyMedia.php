@@ -210,6 +210,8 @@ class BlazyMedia implements BlazyMediaInterface {
       // See BlazyOEmbedFormatter::getElements().
       if ($entity->getEntityTypeId() == 'media'
         && $entity->hasField($field_name)) {
+        // Not needed with contextual info, but we want a strict check when
+        // it is called out of context to match the exact media by its field.
         $valid = FALSE;
         $field = $entity->get($field_name);
         if (is_string($value)) {
@@ -404,13 +406,19 @@ class BlazyMedia implements BlazyMediaInterface {
 
   /**
    * Disable fancy features with the unknown land.
+   *
+   * @todo add an option for thumbnail preview rather than entity view.
    */
-  private function disableFeatures(array &$settings, $rendered): void {
+  private function disableFeatures(array &$settings, $rendered, $link = NULL): void {
     $blazies = $settings['blazies'];
-    $settings['media_switch'] = '';
-    $blazies->set('switch', '')
-      ->set('is.lightbox', FALSE)
-      ->set('is.rendered', $rendered);
+    $blazies->set('is.rendered', $rendered);
+
+    if ($link) {
+      $settings['media_switch'] = 'content';
+      $blazies->set('switch', 'content')
+        ->set('media.link', $link)
+        ->set('is.lightbox', FALSE);
+    }
   }
 
   /**
@@ -476,7 +484,7 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * Returns a field item/ content to be wrapped by theme_blazy().
+   * Returns a field item/ content to avoid nested field markups.
    *
    * @param array $field
    *   The source renderable array to remove field markups from for DOM diet.
@@ -505,7 +513,9 @@ class BlazyMedia implements BlazyMediaInterface {
 
     // Converts iframes into lazyloaded ones.
     // Iframes: Googledocs, SlideShare. Hardcoded: Spotify.
-    // @todo recheck, likely everyone hardly uses iframes #html_tag lately.
+    // @todo recheck, likely everyone hardly uses iframes #html_tag lately,
+    // except core OEmbed formatter, taken care of by just input, not here,
+    // unless delegated by other formatters.
     // No longer per D9.5: Soundcloud.
     if ($is_iframe && $src = ($attributes['src'] ?? FALSE)) {
       Internals::toPlayable($blazies, $src, TRUE);
@@ -535,10 +545,16 @@ class BlazyMedia implements BlazyMediaInterface {
       // @todo recheck more media entity tendencies, mostly just #markup.
       // Resource::TYPE_LINK, Facebook, and the rest of media entities.
       $type = $item['#type'] ?? NULL;
-      $link = !empty($item['#url']) && $type == 'link';
-      $rendered = $link || !empty($item['#markup']);
+      $link = $type == 'link' && isset($item['#url']) ? $item['#url'] : NULL;
+      // $rendered = $link || !empty($item['#markup']);
+      // Unless required as a thumbnail, render as is.
+      $rendered = !$blazies->is('thumbnail');
+      // At least display thumbnails for empty markups.
+      if (isset($item['#markup']) && empty($item['#markup'])) {
+        $rendered = FALSE;
+      }
 
-      $this->disableFeatures($settings, $rendered);
+      $this->disableFeatures($settings, $rendered, $link);
     }
 
     // Clone relevant keys since field wrapper is no longer in use.

@@ -3,6 +3,7 @@
 namespace Drupal\blazy;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\blazy\Utility\Arrays;
 
 /**
  * Provides settings object.
@@ -32,7 +33,7 @@ class BlazySettings implements \Countable {
    *   The storage.
    */
   public function __construct(array $storage = []) {
-    $this->storage = $storage ? Blazy::arrayFilter($storage) : [];
+    $this->storage = $storage ? Arrays::filter($storage) : [];
   }
 
   /**

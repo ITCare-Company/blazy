@@ -9,11 +9,11 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\field\FieldConfigInterface;
 use Drupal\file\Plugin\Field\FieldFormatter\FileFormatterBase;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyDependenciesTrait;
 use Drupal\blazy\Field\BlazyElementTrait;
 use Drupal\blazy\Field\BlazyField;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Utility\Sanitize;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -355,7 +355,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     $bundles     = $this->getAvailableBundles();
     $type        = method_exists($field, 'get') ? $field->get('entity_type') : NULL;
 
-    if (!$bundles && $type && $service = Blazy::service('entity_type.bundle.info')) {
+    if (!$bundles && $type && $service = Internals::service('entity_type.bundle.info')) {
       $bundles = $service->getBundleInfo($type);
     }
 

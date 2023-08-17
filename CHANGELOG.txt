@@ -1,4 +1,10 @@
 
+Blazy 8.x-2.0-dev, 2023-08-17
+------------------------------
+- Prepared Blazy as a service at 3.x.
+- Deprecated duplicated Blazy methods for BlazyInterface to allow Blazy a
+  service at 3.x.
+
 Blazy 8.x-2.0-dev, 2023-08-15
 ------------------------------
 - Full-fledged core media integration 99%, and Blazy has just begun in 2.17.

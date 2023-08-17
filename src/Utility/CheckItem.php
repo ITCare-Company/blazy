@@ -2,10 +2,10 @@
 
 namespace Drupal\blazy\Utility;
 
-use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Vef;
@@ -44,29 +44,6 @@ class CheckItem {
 
     // @todo recheck if any side effect/ double escape to cdn/ valid input.
     return $check ? UrlHelper::stripDangerousProtocols($url) : $url;
-  }
-
-  /**
-   * Returns a message if access to view the entity is denied.
-   */
-  public static function denied($entity): array {
-    if (!$entity instanceof EntityInterface) {
-      return [];
-    }
-
-    if (!$entity->access('view')) {
-      $parameters = [
-        '@label' => $entity->getEntityType()->getSingularLabel(),
-        '@id' => $entity->id(),
-        '@langcode' => $entity->language()->getId(),
-        '@title' => $entity->label(),
-      ];
-      $restricted_access_label = $entity->access('view label')
-       ? new FormattableMarkup('@label @id (@title)', $parameters)
-       : new FormattableMarkup('@label @id', $parameters);
-      return ['#markup' => $restricted_access_label];
-    }
-    return [];
   }
 
   /**
@@ -141,8 +118,7 @@ class CheckItem {
     }
 
     // Bail out late if already called/ processed.
-    // @fixme tests/src/Kernel/BlazyFormatterTest.php:88
-    // Inline comments must end in full-stops. If you forgot to remove it, boom!
+    // @fixme tests/src/Kernel/BlazyFormatterTest.php:88.
     if ($called) {
       return;
     }
@@ -296,7 +272,7 @@ class CheckItem {
       return;
     }
 
-    $blazies = Blazy::verify($settings);
+    $blazies = Internals::verify($settings);
 
     // Bail out if lazy load is disabled, or in sandbox mode.
     if ($blazies->is('nojs') || $blazies->is('sandboxed')) {
@@ -369,7 +345,7 @@ class CheckItem {
     // @todo remove once BVEF adopted Blazy:2.17+ BlazyVideoFormatter.
     if ($is_remote && strpos($embed_url, 'media/oembed') === FALSE) {
       $type = 'video';
-      if ($oembed = Blazy::service('blazy.oembed')) {
+      if ($oembed = Internals::service('blazy.oembed')) {
         $options = [
           'embed_url' => $embed_url,
           'is_player' => $is_player,

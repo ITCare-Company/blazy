@@ -15,6 +15,9 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\blazy\Cache\BlazyCache;
+use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Theme\Grid;
+use Drupal\blazy\Utility\Arrays;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -149,7 +152,7 @@ abstract class BlazyBase implements BlazyInterface {
   public static function create(ContainerInterface $container) {
     return new static(
       // @todo enable at 3.x: $container->get('blazy.libraries'),
-      Blazy::root($container),
+      Internals::root($container),
       $container->get('entity.repository'),
       $container->get('entity_type.manager'),
       $container->get('module_handler'),
@@ -221,7 +224,7 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function routeMatch() {
     // @todo at 3.x: return $this->libraries->routeMatch();
-    return Blazy::service('current_route_match');
+    return Internals::service('current_route_match');
   }
 
   /**
@@ -251,14 +254,14 @@ abstract class BlazyBase implements BlazyInterface {
     $formatter = 'blazy_base',
     array $settings = []
   ): void {
-    Blazy::configSchemaInfoAlter($definitions, $formatter, $settings);
+    BlazyAlter::configSchemaInfoAlter($definitions, $formatter, $settings);
   }
 
   /**
    * {@inheritdoc}
    */
   public function denied($entity): array {
-    return Blazy::denied($entity);
+    return Internals::denied($entity);
   }
 
   /**
@@ -298,6 +301,7 @@ abstract class BlazyBase implements BlazyInterface {
       else {
         $alter = $info['alter'] ?? $cid;
         $context = $info['context'] ?? [];
+        $key = $info['key'] ?? NULL;
 
         // Allows empty array to trigger hook_alter.
         if (is_array($data)) {
@@ -317,7 +321,7 @@ abstract class BlazyBase implements BlazyInterface {
             ksort($data);
           }
 
-          $count = count($data);
+          $count = $key && isset($data[$key]) ? count($data[$key]) : count($data);
           $tags = Cache::buildTags($cid, ['count:' . $count]);
           $this->cache->set($cid, $data, Cache::PERMANENT, $tags);
         }
@@ -355,7 +359,7 @@ abstract class BlazyBase implements BlazyInterface {
    * {@inheritdoc}
    */
   public function getHtmlId($name = 'blazy', $id = ''): string {
-    return Blazy::getHtmlId($name, $id);
+    return Internals::getHtmlId($name, $id);
   }
 
   /**
@@ -363,14 +367,14 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function getLibrariesPath($name, $base_path = FALSE): ?string {
     // @todo at 3.x: return $this->libraries->getPath($name, $base_path);
-    return Blazy::getLibrariesPath($name, $base_path);
+    return Internals::getLibrariesPath($name, $base_path);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getPath($type, $name, $absolute = FALSE): ?string {
-    return Blazy::getPath($type, $name, $absolute);
+    return Internals::getPath($type, $name, $absolute);
   }
 
   /**
@@ -393,19 +397,38 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function gridAttributes(array &$attrs, array $settings): void {
+    Grid::attributes($attrs, $settings);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function gridCheckAttributes(
+    array &$attrs,
+    array &$content_attrs,
+    $blazies,
+    $root = FALSE
+  ): void {
+    Grid::checkAttributes($attrs, $content_attrs, $blazies, $root);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function gridItemAttributes(
     array &$attrs,
     array &$content_attrs,
     array $settings
   ): void {
-    Blazy::gridItemAttributes($attrs, $content_attrs, $settings);
+    Grid::itemAttributes($attrs, $content_attrs, $settings);
   }
 
   /**
    * {@inheritdoc}
    */
   public function initGrid(array $options): array {
-    return Blazy::initGrid($options);
+    return Grid::initGrid($options);
   }
 
   /**
@@ -467,21 +490,21 @@ abstract class BlazyBase implements BlazyInterface {
    * {@inheritdoc}
    */
   public function markdown($string, $help = TRUE): string {
-    return Blazy::markdown($string, $help);
+    return Internals::markdown($string, $help);
   }
 
   /**
    * {@inheritdoc}
    */
   public function merge(array $data, array $element, $key = NULL): array {
-    return Blazy::merge($data, $element, $key);
+    return Arrays::merge($data, $element, $key);
   }
 
   /**
    * {@inheritdoc}
    */
   public function mergeSettings($keys, array $defaults, array $configs): array {
-    return Blazy::mergeSettings($keys, $defaults, $configs);
+    return Arrays::mergeSettings($keys, $defaults, $configs);
   }
 
   /**
@@ -495,42 +518,42 @@ abstract class BlazyBase implements BlazyInterface {
    * {@inheritdoc}
    */
   public function service($name): ?object {
-    return Blazy::service($name);
+    return Internals::service($name);
   }
 
   /**
    * {@inheritdoc}
    */
   public function settings(array $data = []): BlazySettings {
-    return Blazy::settings($data);
+    return Internals::settings($data);
   }
 
   /**
    * {@inheritdoc}
    */
   public function toGrid($items, array $settings): array {
-    return Blazy::grid($items, $settings);
+    return Grid::build($items, $settings);
   }
 
   /**
    * {@inheritdoc}
    */
   public function toHtml(array $content, $tag = 'div', $class = NULL): array {
-    return Blazy::toHtml($content, $tag, $class);
+    return Internals::toHtml($content, $tag, $class);
   }
 
   /**
    * {@inheritdoc}
    */
   public function hashtag(array &$data, $key = 'settings', $unset = FALSE): void {
-    Blazy::hashtag($data, $key, $unset);
+    Internals::hashtag($data, $key, $unset);
   }
 
   /**
    * {@inheritdoc}
    */
   public function toHashtag(array $data, $key = 'settings', $default = []) {
-    return Blazy::toHashtag($data, $key, $default);
+    return Internals::toHashtag($data, $key, $default);
   }
 
   /**
@@ -548,10 +571,16 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function toSettings(array &$settings, array $data, $key = 'blazies', array $defaults = []): array {
-    $object = Blazy::reset($settings, $key, $defaults);
+  public function toSettings(
+    array &$settings,
+    array $data = [],
+    $key = 'blazies',
+    array $defaults = []
+  ): array {
+    $object = Internals::reset($settings, $key, $defaults);
     if ($data) {
       $object->set($data);
+      $settings[$key] = $object;
     }
     return $settings;
   }
@@ -559,15 +588,8 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function verify(array &$settings): void {
-    Blazy::verify($settings);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function verifySafely(array &$settings, $key = 'blazies', array $defaults = []) {
-    return Blazy::verify($settings, $key, $defaults);
+    return Internals::verify($settings, $key, $defaults);
   }
 
   /**
@@ -635,6 +657,17 @@ abstract class BlazyBase implements BlazyInterface {
       // Cast scalars to array so we can consistently use an IN condition.
       $query->condition($name, (array) $value, $condition);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * \Drupal\blazy\BlazyInterface::verifySafely() instead.
+   */
+  public function verify(array &$settings): void {
+    // @todo @trigger_error('verify is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::verify() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    Internals::verify($settings);
   }
 
 }

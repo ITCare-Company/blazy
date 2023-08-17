@@ -80,7 +80,8 @@ interface BlazyOEmbedInterface {
   /**
    * Returns external image item from resource for BlazyFilter or VEF.
    *
-   * The settings fallbacks are preserved for minimal BVEF compat.
+   * The settings fallbacks are preserved for minimal BVEF compat. This method
+   * allows VEF to have TITLE or ALT for media related displays.
    *
    * @param array $settings
    *   The settings being modified.

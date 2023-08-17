@@ -2,8 +2,8 @@
 
 namespace Drupal\blazy\Deprecated;
 
-use Drupal\blazy\Blazy;
 use Drupal\blazy\Field\BlazyField;
+use Drupal\blazy\internals\Internals;
 
 /**
  * Deprecated in blazy:8.x-2.9.
@@ -108,7 +108,7 @@ trait BlazyEntityDeprecatedTrait {
       '#entity' => $file,
       '#settings' => $settings,
     ];
-    if ($manager = Blazy::service('blazy.media')) {
+    if ($manager = Internals::service('blazy.media')) {
       return $rendered ? $manager->view($data) : $manager->fromFile($data);
     }
     return $rendered ? [] : NULL;

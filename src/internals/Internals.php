@@ -2,10 +2,16 @@
 
 namespace Drupal\blazy\internals;
 
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Media\BlazyImage;
+use Drupal\blazy\Theme\Grid;
+use Drupal\blazy\Utility\Markdown;
+use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Sanitize;
@@ -18,6 +24,13 @@ use Drupal\blazy\Utility\Sanitize;
  *   blazy-related code in Blazy module.
  */
 class Internals {
+
+  /**
+   * The blazy HTML ID.
+   *
+   * @var int
+   */
+  protected static $blazyId;
 
   /**
    * Returns the highest views rows, or field items count to determine gallery.
@@ -33,6 +46,83 @@ class Internals {
     // Store it in an undisturbed location.
     $blazies->set('item.count', $total);
     return $total;
+  }
+
+  /**
+   * Returns a message if access to view the entity is denied.
+   */
+  public static function denied($entity): array {
+    if (!$entity instanceof EntityInterface) {
+      return [];
+    }
+
+    if (!$entity->access('view')) {
+      $parameters = [
+        '@label' => $entity->getEntityType()->getSingularLabel(),
+        '@id' => $entity->id(),
+        '@langcode' => $entity->language()->getId(),
+        '@title' => $entity->label(),
+      ];
+      $restricted_access_label = $entity->access('view label')
+       ? new FormattableMarkup('@label @id (@title)', $parameters)
+       : new FormattableMarkup('@label @id', $parameters);
+      return ['#markup' => $restricted_access_label];
+    }
+    return [];
+  }
+
+  /**
+   * Returns the trusted HTML ID of a single instance.
+   */
+  public static function getHtmlId($namespace = 'blazy', $id = ''): string {
+    if (!isset(static::$blazyId)) {
+      static::$blazyId = 0;
+    }
+
+    // Do not use dynamic Html::getUniqueId, otherwise broken AJAX.
+    $id = empty($id) ? ($namespace . '-' . ++static::$blazyId) : $id;
+    return Html::getId($id);
+  }
+
+  /**
+   * Alias for Path::getLibrariesPath().
+   */
+  public static function getLibrariesPath($name, $base_path = FALSE): ?string {
+    return Path::getLibrariesPath($name, $base_path);
+  }
+
+  /**
+   * Alias for Path::getPath().
+   */
+  public static function getPath($type, $name, $absolute = FALSE): ?string {
+    return Path::getPath($type, $name, $absolute);
+  }
+
+  /**
+   * Returns a entity object by a property.
+   *
+   * @todo remove for BlazyInterface::loadByProperty().
+   */
+  public static function loadByProperty($property, $value, $type, $manager = NULL): ?object {
+    $manager = $manager ?: self::service('blazy.manager');
+    return $manager ? $manager->loadByProperty($property, $value, $type) : NULL;
+  }
+
+  /**
+   * Returns a entity object by a UUID.
+   *
+   * @todo remove for BlazyInterface::loadByUuid().
+   */
+  public static function loadByUuid($uuid, $type, $manager = NULL): ?object {
+    $manager = $manager ?: self::service('blazy.manager');
+    return $manager ? $manager->loadByUuid($uuid, $type) : NULL;
+  }
+
+  /**
+   * Returns markdown.
+   */
+  public static function markdown($string, $help = TRUE): string {
+    return Markdown::parse($string, $help);
   }
 
   /**
@@ -64,8 +154,8 @@ class Internals {
    * @see \Drupa\blazy\BlazyManagerBase::isBlazy()
    */
   public static function preserve(array &$parentsets, array &$childsets): void {
-    Blazy::verify($parentsets);
-    Blazy::verify($childsets);
+    self::verify($parentsets);
+    self::verify($childsets);
 
     // @todo add more formatter related settings where Views styles have none.
     $cherries = BlazyDefault::cherrySettings();
@@ -113,7 +203,7 @@ class Internals {
    * @todo refine to separate container from item level. At least move grid out.
    */
   public static function preSettings(array &$settings, $root = TRUE): void {
-    $blazies = Blazy::verify($settings);
+    $blazies = self::verify($settings);
 
     // Checks for basic features, here for both formatters and views fields.
     // To detect available media bundles from views field when
@@ -148,10 +238,72 @@ class Internals {
    */
   public static function postSettings(array &$settings): void {
     // Failsafe, might be called directly at ::attach() outside the workflow.
-    $blazies = Blazy::verify($settings);
+    $blazies = self::verify($settings);
     if (!$blazies->was('initialized')) {
       self::preSettings($settings);
     }
+  }
+
+  /**
+   * Reset the BlazySettings per item to have unique URI, delta, style, etc.
+   */
+  public static function reset(array &$settings, $key = 'blazies', array $defaults = []): BlazySettings {
+    // Other implementors should verify the $key prior to calling this.
+    self::verify($settings, $key, $defaults);
+
+    // The settings instance must be unique per item.
+    $config = &$settings[$key];
+    if (!$config->was('reset')) {
+      $config->reset($settings, $key);
+      $config->set('was.reset', TRUE);
+    }
+
+    return $config;
+  }
+
+  /**
+   * Returns the cross-compat D8 ~ D10 app root.
+   */
+  public static function root($container) {
+    return version_compare(\Drupal::VERSION, '9.0', '<')
+      ? $container->get('app.root') : $container->getParameter('app.root');
+  }
+
+  /**
+   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
+   */
+  public static function service($service) {
+    return \Drupal::hasService($service) ? \Drupal::service($service) : NULL;
+  }
+
+  /**
+   * Alias for BlazySettings().
+   */
+  public static function settings(array $data = []): BlazySettings {
+    return new BlazySettings($data);
+  }
+
+  /**
+   * Returns the common content item.
+   */
+  public static function toHtml(array $content, $tag = 'div', $class = NULL): array {
+    if ($class) {
+      $attributes = is_array($class) ? $class : ['class' => [$class]];
+      return [
+        '#type' => 'html_tag',
+        '#tag' => $tag,
+        '#attributes' => $attributes,
+        'content' => $content,
+      ];
+    }
+    return $content;
+  }
+
+  /**
+   * Alias for Grid::toNativeGrid().
+   */
+  public static function toNativeGrid(array &$settings): void {
+    Grid::toNativeGrid($settings);
   }
 
   /**
@@ -173,6 +325,62 @@ class Internals {
       ->set('is.multimedia', TRUE)
       ->set('is.rendered', FALSE)
       ->set('libs.media', TRUE);
+  }
+
+  /**
+   * Verify `blazies` exists, in case accessed outside the workflow.
+   */
+  public static function verify(array &$settings, $key = 'blazies', array $defaults = []): BlazySettings {
+    if (!isset($settings[$key])) {
+      $settings += $defaults ?: Blazy::init();
+
+      // A failsafe for edge cases:
+      if (!isset($settings[$key])) {
+        $settings[$key] = self::settings();
+      }
+    }
+
+    // In case overriden above without extending self::init().
+    if (!isset($settings['WARNING']) && !isset($settings['image_style'])) {
+      $settings += Blazy::init();
+    }
+
+    return $settings[$key];
+  }
+
+  /**
+   * A helper to gradually convert things to #things to avoid render error.
+   */
+  public static function hashtag(array &$data, $key = 'settings', $unset = FALSE): void {
+    if (!isset($data["#$key"])) {
+      $data["#$key"] = $data[$key] ?? [];
+    }
+
+    // Temporary failsafe.
+    if ($unset) {
+      unset($data[$key]);
+    }
+
+    $blazy = "#blazy";
+    if ($key == 'settings' && isset($data[$blazy])) {
+      $data["#$key"] = $data[$blazy];
+
+      // Temporary failsafe.
+      if ($unset) {
+        unset($data[$blazy]);
+      }
+    }
+  }
+
+  /**
+   * A helper to gradually convert things to #things to avoid render error.
+   */
+  public static function toHashtag(array $data, $key = 'settings', $default = []) {
+    $result = $data["#$key"] ?? $data[$key] ?? $default;
+    if (!$result && $key == 'settings') {
+      $result = $data["#blazy"] ?? $default;
+    }
+    return $result;
   }
 
 }

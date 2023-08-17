@@ -4,7 +4,7 @@ namespace Drupal\blazy\Media;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\internals\Internals;
 
 /**
  * Provides thumbnail-related methods.
@@ -26,7 +26,7 @@ class Thumbnail {
    *   - Shortly, economy maintenance.
    */
   public static function view(array $settings, $item = NULL, array $captions = []): array {
-    $blazies       = Blazy::verify($settings);
+    $blazies       = Internals::verify($settings);
     $prefix        = $blazies->get('item.prefix', 'slide');
     $caption       = $blazies->get('item.caption', 'caption');
     $use_blazy     = $blazies->use('theme_thumbnail');
@@ -40,7 +40,7 @@ class Thumbnail {
       $output[$prefix] = $thumbnail;
     }
     if ($captions) {
-      $output[$caption] = Blazy::toHtml($captions, 'div', $caption_class);
+      $output[$caption] = Internals::toHtml($captions, 'div', $caption_class);
     }
 
     // Needed by sub-modules for their routines, even useless since 2.17.
@@ -64,7 +64,7 @@ class Thumbnail {
     if (!$uri) {
       // Only Views output, if not having image nor blazy formatters.
       if ($item && is_array($item)) {
-        return Blazy::toHtml($item, 'div', $class);
+        return Internals::toHtml($item, 'div', $class);
       }
       return [];
     }
@@ -94,7 +94,7 @@ class Thumbnail {
       '#alt'        => $alt ? Html::escape(strip_tags($alt)) : '',
     ];
 
-    return Blazy::toHtml($content, 'div', $class);
+    return Internals::toHtml($content, 'div', $class);
   }
 
 }

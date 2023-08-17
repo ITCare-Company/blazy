@@ -3,7 +3,7 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\Core\Cache\Cache;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Theme\Attributes;
 
 /**
@@ -31,7 +31,7 @@ class BlazyResponsiveImage {
    *   The breakpoint manager.
    */
   public static function breakpointManager() {
-    return Blazy::service('breakpoint.manager');
+    return Internals::service('breakpoint.manager');
   }
 
   /**
@@ -199,7 +199,7 @@ class BlazyResponsiveImage {
     if (!isset(self::$styles[$id])) {
       $cache_tags = $resimage->getCacheTags();
       $image_styles = [];
-      if ($manager = Blazy::service('blazy.manager')) {
+      if ($manager = Internals::service('blazy.manager')) {
         $image_styles = $manager->loadMultiple('image_style', $resimage->getImageStyleIds());
       }
 
@@ -251,7 +251,7 @@ class BlazyResponsiveImage {
       }
       else {
         $id = $fallback;
-        if ($blazy = Blazy::service('blazy.manager')) {
+        if ($blazy = Internals::service('blazy.manager')) {
           $uri = $blazies->get('image.uri');
 
           // @todo use dimensions based on the chosen fallback.
@@ -314,7 +314,7 @@ class BlazyResponsiveImage {
 
     // Multiple is a flag for various styles: Blazy Filter, GridStack, etc.
     // While fields can only have one image style per field.
-    if ($valid && $manager = Blazy::service('blazy.manager')) {
+    if ($valid && $manager = Internals::service('blazy.manager')) {
       if (!$unstyled && (!$style || $multiple)) {
         $style = $manager->load($_style, 'responsive_image_style');
       }

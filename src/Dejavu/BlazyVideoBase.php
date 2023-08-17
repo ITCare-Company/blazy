@@ -4,7 +4,6 @@ namespace Drupal\blazy\Dejavu;
 
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
 
@@ -86,7 +85,7 @@ abstract class BlazyVideoBase extends FormatterBase {
    * Returns the optional VEF service to avoid dependency for optional plugins.
    */
   protected function vefProviderManager() {
-    return Blazy::service('video_embed_field.provider_manager');
+    return \blazy()->service('video_embed_field.provider_manager');
   }
 
 }

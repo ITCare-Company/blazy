@@ -99,7 +99,7 @@
 
           attr = attr || (isPicture ? 'srcset' : 'src');
           if (elms.length) {
-            $.mapAttr(elms, attr, remove);
+            mapAttr(elms, attr, remove);
           }
         }
       }

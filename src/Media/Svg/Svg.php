@@ -9,7 +9,7 @@ use Drupal\Core\Image\ImageInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\file\Entity\File;
 use Drupal\file\FileRepository;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\internals\Internals;
 use enshrined\svgSanitize\Sanitizer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -236,7 +236,7 @@ class Svg implements SvgInterface {
     // Set standard file permissions for webserver-generated files.
     if ($res) {
       // @todo update database.
-      // if ($file = Blazy::loadByProperty('uri', $uri, 'file')) {
+      // if ($file = Internals::loadByProperty('uri', $uri, 'file')) {
       // $this->fileRepository->move($file, $dest,
       // FileSystemInterface::EXISTS_REPLACE);
       // }
@@ -312,7 +312,7 @@ class Svg implements SvgInterface {
         // Credits: svg_formatter module.
         if ($_title) {
           $title = $dom->createElement('title', $_title);
-          $title_id = Blazy::getHtmlId('b-svg-' . substr(md5($_title), 0, 11));
+          $title_id = Internals::getHtmlId('b-svg-' . substr(md5($_title), 0, 11));
           $title->setAttribute('id', $title_id);
           $dom->documentElement->insertBefore($title, $dom->documentElement->firstChild);
           $dom->documentElement->setAttribute('aria-labelledby', $title_id);
@@ -349,9 +349,8 @@ class Svg implements SvgInterface {
   protected function toTransparentFormat($source, $ext = 'png', $toolkit_id = NULL): bool {
     $image = $this->image($source, $toolkit_id);
     $this->image = $image;
-    $status = $image->convert($ext);
 
-    if (!$status) {
+    if (!$image->convert($ext)) {
       $this->logger->error('Image convert failed using the %toolkit toolkit on %path (%mimetype)', [
         '%toolkit' => $image->getToolkitId(),
         '%path' => $image->getSource(),

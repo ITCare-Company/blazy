@@ -2,8 +2,9 @@
 
 namespace Drupal\blazy\Theme;
 
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Utility\Arrays;
 
 /**
  * Provides optional Views integration.
@@ -29,14 +30,15 @@ class BlazyViews {
 
     // Load Blazy library once, not per field, if any Blazy Views field found.
     if ($blazy = self::viewsField($view)) {
+      $manager   = $blazy->blazyManager();
       $plugin_id = $view->getStyle()->getPluginId();
       $settings  = $blazy->mergedViewsSettings();
       $blazies   = $settings['blazies'];
 
       $blazies->set('unlazy', FALSE);
 
-      $load  = $blazy->blazyManager()->attach($settings);
-      $loads = Blazy::merge($load, $loads);
+      $load  = $manager->attach($settings);
+      $loads = $manager->merge($load, $loads);
       $grid  = $plugin_id == 'blazy';
 
       if ($options = $view->getStyle()->options) {
@@ -51,7 +53,7 @@ class BlazyViews {
     }
 
     if ($loads) {
-      $view->element['#attached'] = Blazy::merge($loads, $view->element, '#attached');
+      $view->element['#attached'] = Arrays::merge($loads, $view->element, '#attached');
     }
   }
 
@@ -104,9 +106,9 @@ class BlazyViews {
     $id        = "{$which}-{$instance}";
     $id        = $plugin_id . '--' . substr(md5($id), 0, 11);
     $id        = str_replace('_', '-', $id);
-    $id        = Blazy::getHtmlId($id);
+    $id        = Internals::getHtmlId($id);
     $settings += BlazyDefault::lazySettings();
-    $blazies   = Blazy::verify($settings);
+    $blazies   = Internals::verify($settings);
 
     // Prepare needed settings to work with.
     // @todo convert some to blazies, and remove these after sub-modules.

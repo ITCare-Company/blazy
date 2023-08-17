@@ -6,11 +6,12 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\BlazyResponsiveImage;
 use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Media\Ratio;
+use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Utility\Check;
 
 /**
@@ -23,6 +24,16 @@ use Drupal\blazy\Utility\Check;
 class Attributes {
 
   /**
+   * Provides attachments when not using the provided API.
+   */
+  public static function attach(array &$variables, array $settings = []): void {
+    if ($blazy = Internals::service('blazy.manager')) {
+      $attachments = $blazy->attach($settings) ?: [];
+      $variables['#attached'] = Arrays::merge($attachments, $variables, '#attached');
+    }
+  }
+
+  /**
    * Provides container attributes for .blazy container: .field, .view, etc.
    *
    * Relevant for JS lookups, lightbox galleries, also to accommodate
@@ -30,7 +41,7 @@ class Attributes {
    * for DOM diets.
    */
   public static function container(array &$attributes, array $settings): void {
-    $blazies  = Blazy::verify($settings);
+    $blazies  = Internals::verify($settings);
     $classes  = (array) ($attributes['class'] ?? []);
     $data     = $blazies->get('data.blazy');
     $switcher = $blazies->get('lightbox.name') ?: $settings['media_switch'] ?? NULL;
@@ -457,7 +468,7 @@ class Attributes {
 
     // Apply common shared attributes.
     self::common($attributes, $blazies);
-    $image['#attributes'] = Blazy::merge($attributes, $image, '#attributes');
+    $image['#attributes'] = Arrays::merge($attributes, $image, '#attributes');
 
     // Provides a noscript if so configured, before any lazy defined.
     // Not needed at preview mode, or when native lazyload takes over.

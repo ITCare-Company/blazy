@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\media\MediaInterface;
 use Drupal\blazy\Media\BlazyOEmbedInterface;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Utility\CheckItem;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\blazy\Deprecated\BlazyEntityDeprecatedTrait;
@@ -195,7 +196,7 @@ class BlazyEntity implements BlazyEntityInterface {
    */
   public static function settings(array &$settings, $entity): void {
     // Might be accessed by tests, or anywhere outside the workflow.
-    $blazies  = Blazy::verify($settings);
+    $blazies  = Internals::verify($settings);
     $langcode = $blazies->get('language.current');
 
     if ($info = CheckItem::entity($entity, $langcode)) {

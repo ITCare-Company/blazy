@@ -2,7 +2,7 @@
 
 namespace Drupal\blazy\Media;
 
-use Drupal\blazy\Blazy;
+use Drupal\blazy\internals\Internals;
 
 /**
  * Provides placeholder thumbnail image.
@@ -201,7 +201,7 @@ class Placeholder {
     }
 
     // Provides default path, in case required by global, but not provided.
-    if ($manager = Blazy::service('blazy.manager')) {
+    if ($manager = Internals::service('blazy.manager')) {
       $style = $style ?: $manager->load('thumbnail', 'image_style');
     }
 

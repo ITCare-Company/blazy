@@ -4,7 +4,7 @@ namespace Drupal\blazy\Config\Entity;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\Utility\Arrays;
 
 /**
  * Defines the common configuration entity.
@@ -56,7 +56,7 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
   public function getOptions($group = NULL, $property = NULL) {
     $default = self::load('default');
     $default_options = $default ? $default->options : [];
-    $options = Blazy::merge($this->options ?? [], $default_options);
+    $options = Arrays::merge($this->options ?? [], $default_options);
 
     if ($group) {
       if (is_array($group)) {
@@ -75,7 +75,7 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
    * {@inheritdoc}
    */
   public function setOptions(array $options, $merged = TRUE): self {
-    $this->options = $merged ? Blazy::merge($options, $this->options ?? []) : $options;
+    $this->options = $merged ? Arrays::merge($options, $this->options ?? []) : $options;
     return $this;
   }
 

@@ -12,12 +12,6 @@
 
   'use strict';
 
-  if ($.viewport) {
-    return;
-  }
-
-  var _id = 'blazy';
-
   /**
    * Returns element visibility for oldies.
    *
@@ -54,6 +48,7 @@
   function info(offset) {
     offset = offset || 0;
     var size = $.windowSize();
+
     return {
       top: 0 - offset,
       left: 0 - offset,
@@ -102,7 +97,7 @@
       }
 
       // If not extending/ overriding, also allows to listen to.
-      $.trigger(_win, _id + '.resizing', {
+      $.trigger(_win, 'blazy.resizing', {
         winData: winData,
         entries: elms
       });

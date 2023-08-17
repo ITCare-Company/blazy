@@ -3,6 +3,7 @@
 namespace Drupal\blazy;
 
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\Url;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Theme\Lightbox;
@@ -79,7 +80,11 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Fetch the newly modified settings with hashed key.
     $settings = &$element['#settings'];
     $blazies = $settings['blazies'];
-    $url = $blazies->get('entity.url');
+    $url = $blazies->get('media.link') ?: $blazies->get('entity.url');
+
+    if ($url instanceof Url) {
+      $url = $url->toString();
+    }
 
     // Requires a string to strip, image_formatter has a Url object.
     if ($blazies->get('switch') == 'content' && $url && is_string($url)) {
@@ -282,6 +287,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Prevents complication for now, such as lightbox for Facebook, etc.
     // Either makes no sense, or not currently supported without extra legs.
     // Original formatter settings can still be accessed via content variable.
+    // Not here, defined at BlazyMedia::unfield() for more detailed checks.
     $blazies->set('placeholder', [])
       // @todo recheck ->set('is.bg', FALSE)
       // ->set('is.unlazy', TRUE)
@@ -290,13 +296,15 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Supports HTML content for lightboxes as long as having image trigger.
     // Only limit to local media to not conflict with Image rendered by its
     // formatter option, Facebook, Twitter, etc.
+    // Since 2.17, any content can be lightboxed along long as supported.
     // Only possible if having hires image via `Main stage` aka cross image,
     // and the lightbox is capable to display it.
     $hires     = $blazies->is('hires', !empty($settings['image']));
     $richbox   = $blazies->is('lightbox') && $blazies->is('richbox');
-    $supported = $blazies->is('local_media') && $richbox;
+    $supported = $blazies->is('rendered') && $richbox;
 
     if ($supported && $hires) {
+      $blazies->set('is.unlazy', TRUE);
       $element['#lightbox_html'] = $build['content'];
 
       // This allows theme_blazy() to process it as workable media elements.

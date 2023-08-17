@@ -4,6 +4,7 @@ namespace Drupal\blazy\Theme;
 
 use Drupal\blazy\Blazy;
 use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Utility\Check;
 
 /**
@@ -28,7 +29,7 @@ class Grid {
    */
   public static function build($items, array $settings): array {
     // Might be called outside the workflow like Slick/ Splide list builders.
-    $blazies = Blazy::verify($settings);
+    $blazies = Internals::verify($settings);
 
     // If the workflow is by-passed, by calling this directly, re-check grids.
     // If grid chunks with destroyed un(slick|splide), refresh with libraries.
@@ -39,7 +40,7 @@ class Grid {
 
     // Might be called outside Blazy workflows, allows altering settings once.
     $attachments = $attrs = [];
-    if ($manager = Blazy::service('blazy.manager')) {
+    if ($manager = Internals::service('blazy.manager')) {
       $manager->moduleHandler()->alter('blazy_settings_grid', $settings);
       $attachments = $refresh ? $manager->attach($settings) : [];
     }
@@ -82,7 +83,7 @@ class Grid {
 
       // Non-blazy may group galleries per slide like Splide or Slick.
       if ($namespace != 'blazy') {
-        $id = $id . Blazy::getHtmlId('-');
+        $id = $id . Internals::getHtmlId('-');
       }
       $attrs['id'] = $id;
     }
@@ -111,16 +112,16 @@ class Grid {
   ): void {
     if ($root) {
       if ($attrs_alter = ($blazies->get('grid.attributes') ?: [])) {
-        $attrs = Blazy::merge($attrs_alter, $attrs);
+        $attrs = Arrays::merge($attrs_alter, $attrs);
       }
     }
     else {
       if ($attrs_alter = ($blazies->get('grid.item_attributes') ?: [])) {
-        $attrs = Blazy::merge($attrs_alter, $attrs);
+        $attrs = Arrays::merge($attrs_alter, $attrs);
       }
 
       if ($content_attrs_alter = ($blazies->get('grid.item_content_attributes') ?: [])) {
-        $content_attrs = Blazy::merge($content_attrs_alter, $content_attrs);
+        $content_attrs = Arrays::merge($content_attrs_alter, $content_attrs);
       }
     }
   }
@@ -135,7 +136,7 @@ class Grid {
     $gapless = $options['gapless'] ?? TRUE;
     $is_form = $options['is_form'] ?? TRUE;
     $style   = $options['style'] ?? 'nativegrid';
-    $blazies = $options['blazies'] ?? Blazy::settings();
+    $blazies = $options['blazies'] ?? Blazy::initSettings();
 
     $blazies->set('count', $count)
       ->set('is.grid', TRUE)
@@ -397,13 +398,13 @@ class Grid {
 
       // Support non-Blazy which normally uses item_id.
       // Also update chunked grids like carousel sliders.
-      $sets = Blazy::toHashtag($item);
-      $subs = Blazy::toHashtag($item['#build'] ?? []);
-      $sets = Blazy::merge($subs, $sets);
-      $sets = Blazy::mergeSettings('blazies', $settings, $sets);
-      $wrapper_attrs = Blazy::toHashtag($item, 'attributes');
-      $content_attrs = Blazy::toHashtag($item, 'content_attributes');
-      $image = Blazy::toHashtag($item, 'item', NULL);
+      $sets = Internals::toHashtag($item);
+      $subs = Internals::toHashtag($item['#build'] ?? []);
+      $sets = Arrays::merge($subs, $sets);
+      $sets = Arrays::mergeSettings('blazies', $settings, $sets);
+      $wrapper_attrs = Internals::toHashtag($item, 'attributes');
+      $content_attrs = Internals::toHashtag($item, 'content_attributes');
+      $image = Internals::toHashtag($item, 'item', NULL);
 
       $blazy = $sets['blazies'];
       $sets['delta'] = $key;

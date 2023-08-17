@@ -186,8 +186,8 @@ Not a sudden course of actions, it was carefully planned since
 
 If you see no difference, nothing to do. If any, be sure it is not caused by
 your non-updated overrides which should be updated prior to blazy:3.x.
-Only report if this is caused blazy's mistake. Kindly provide markup comparison,
-or helpful screenshots to spot the issues better.
+Only report if this is caused by blazy's mistake. Kindly provide markup
+comparison, or helpful screenshots, to spot the issues better.
 
 #### Profits:
 + Tons of dups are reduced which is part of Blazy's job descriptions.
@@ -207,6 +207,8 @@ or helpful screenshots to spot the issues better.
 + `THEME_preprocess_blazy()`
 + `hook_blazy_caption_alter(array &$element, array $settings, array $context)`
 + For more `hook_alter`: `grep -r ">alter(" ./blazy`, or see `blazy.api.php`
++ Use `settings.blazies` object to provoke HTML changes conditionally via the
+  provided settings alters. Samples are in `blazy.api.php`, more in sub-modules.
 + As last resorts, override `blazy.html.twig`.
 
 ### <a name="galleries"> </a> USAGES: BLAZY FOR MULTIMEDIA GALLERY VIA VIEWS UI
@@ -222,15 +224,16 @@ If you can't use **Blazy Grid** for a reason, maybe having a table, HTML list,
 etc., try the following:
 
 1. Add a CSS class under **Advanced > CSS class** for any reasonable supported/
-  supportive lightbox in the format **blazy--LIGHTBOX-gallery**, e.g.:
-  + **blazy--colorbox-gallery**
-  + **blazy--intense-gallery**
-  + **blazy--mfp-gallery** (Magnific Popup)
-  + **blazy--photobox-gallery**
-  + **blazy--photoswipe-gallery**
-  + **blazy--slick-lightbox-gallery**
-  + **blazy--splidebox-gallery**
-  + **blazy--zooming-gallery**
+   supportive lightbox in the format **blazy--LIGHTBOX-gallery**, e.g.:  
+   + **blazy--colorbox-gallery**
+   + **blazy--flybox-gallery**
+   + **blazy--intense-gallery**
+   + **blazy--mfp-gallery** (Magnific Popup)
+   + **blazy--photobox-gallery**
+   + **blazy--photoswipe-gallery**
+   + **blazy--slick-lightbox-gallery**
+   + **blazy--splidebox-gallery**
+   + **blazy--zooming-gallery**
 
   Note the double dashes BEM modifier "**--**", just to make sure we are on the
   same page that you are intentionally creating a blazy LIGHTBOX gallery.
@@ -267,7 +270,8 @@ Check out the relevant sub-module docs for details.
 ***
 ## <a name="lightboxes"> </a>LIGHTBOXES
 All lightbox integrations are optional. Meaning if the relevant modules and or
-libraries are not present, nothing will show up under `Media switch` option.  
+libraries are not present, nothing will show up under `Media switch` option.
+Except for the new default **Flybox** since 2.17.  
 
 Clear cache if they do not appear as options due to being permanently cached.
 
@@ -285,11 +289,10 @@ Known lightboxes which has supports for Responsive image:
   option under Media Switcher since 2.17. It was meant for (remote) video,
   audio, soundcloud, not images. Best with non grid elements to allow viewers
   browsing the rest of page while watching videos, or listening to audios, as in
-  picture in picture mode.
+  picture in picture mode. Please create an issue to sponsor the potentials.
   **Potentials**:
   + Auto-pop/flyout the Flybox when the element is visible like for ads, etc.
   + Merge Flybox with Zooming, ElevateZoomPlus, and other lightboxes.
-  + Please get in touch for few hours sponsorships, or chip in.
 
 
 ### Lightbox requirements
@@ -368,6 +371,7 @@ For more robust solutions, consider: SVG Image Field, SVG Image, etc.
 Drupal 9.2 has supports for WEBP conversions at Image styles admin page via
 **Convert WEBP**. Only if you are concerned about old browsers, Blazy supports
 it via a polyfill at Blazy UI under **No JavaScript**, be sure to NOT check it.
+
 **Benefits**:
 * Modern browsers will continue using clean IMG without being forced to use
   PICTURE for the entire WEBP extensions.

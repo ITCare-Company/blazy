@@ -6,6 +6,7 @@ use Drupal\media\MediaInterface;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
 use Drupal\media\OEmbed\UrlResolverInterface;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\internals\Internals;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -397,7 +398,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   public function imageFactory() {
     @trigger_error('imageFactory is deprecated in blazy:8.x-2.6 and is removed from blazy:3.0.0. Use none instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    return Blazy::service('image.factory');
+    return Internals::service('image.factory');
   }
 
   /**
@@ -409,7 +410,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    */
   public function getIframeUrlHelper() {
     @trigger_error('getIframeUrlHelper is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use none instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    return Blazy::service('media.oembed.iframe_url_helper');
+    return Internals::service('media.oembed.iframe_url_helper');
   }
 
 }

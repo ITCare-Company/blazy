@@ -11,6 +11,7 @@ use Drupal\blazy\BlazyManager;
 use Drupal\blazy\BlazyEntityInterface;
 use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Traits\PluginScopesTrait;
+use Drupal\blazy\Utility\Arrays;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -207,7 +208,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
       'plugin_id' => $style_id,
       'extras' => [
         'field'     => [
-          'config'    => Blazy::arrayFilter($config),
+          'config'    => Arrays::filter($config),
           'plugin_id' => $this->getPluginId(),
         ],
       ],

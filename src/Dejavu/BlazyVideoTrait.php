@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy\Dejavu;
 
-use Drupal\blazy\Blazy;
 use Drupal\blazy\Media\BlazyImage;
 
 /**
@@ -46,7 +45,7 @@ trait BlazyVideoTrait {
    */
   public function blazyOembed() {
     if (is_null($this->blazyOembed)) {
-      $this->blazyOembed = Blazy::service('blazy.oembed');
+      $this->blazyOembed = \blazy()->service('blazy.oembed');
     }
     return $this->blazyOembed;
   }
@@ -58,7 +57,7 @@ trait BlazyVideoTrait {
    */
   public function imageFactory() {
     if (is_null($this->imageFactory)) {
-      $this->imageFactory = Blazy::service('image.factory');
+      $this->imageFactory = \blazy()->service('image.factory');
     }
     return $this->imageFactory;
   }

@@ -5,6 +5,7 @@ namespace Drupal\blazy;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Field\FormatterInterface;
 use Drupal\editor\Entity\Editor;
+use Drupal\blazy\internals\Internals;
 
 /**
  * Provides hook_alter() methods for Blazy.
@@ -32,7 +33,8 @@ class BlazyAlter {
   ): void {
     if (isset($definitions[$formatter])) {
       $mappings = &$definitions[$formatter]['mapping'];
-      $settings = $settings ?: BlazyDefault::extendedSettings() + BlazyDefault::gridSettings();
+      $settings += BlazyDefault::extendedSettings();
+      $settings += BlazyDefault::gridSettings();
       $settings += BlazyDefault::svgSettings();
       $settings += BlazyDefault::deprecatedSettings();
       $settings += BlazyDefault::nonBlazySettings();
@@ -78,7 +80,7 @@ class BlazyAlter {
     }
 
     if ($extension === 'blazy') {
-      if ($manager = Blazy::service('blazy.manager')) {
+      if ($manager = Internals::service('blazy.manager')) {
         $names = ['DOMPurify', 'dompurify'];
         if ($path = $manager->getLibrariesPath($names)) {
           $js = [
@@ -173,7 +175,7 @@ class BlazyAlter {
    */
   public static function ckeditorCssAlter(array &$css, Editor $editor): void {
     if (self::isCkeditorApplicable($editor)) {
-      $path = Blazy::getPath('module', 'blazy', TRUE);
+      $path = Internals::getPath('module', 'blazy', TRUE);
       $css[] = $path . '/css/components/blazy.media.css';
       $css[] = $path . '/css/components/blazy.preview.css';
       $css[] = $path . '/css/components/blazy.ratio.css';
@@ -185,7 +187,7 @@ class BlazyAlter {
    */
   public static function thirdPartyFormatters(): array {
     $formatters = ['file_audio', 'file_video'];
-    if ($manager = Blazy::service('blazy.manager')) {
+    if ($manager = Internals::service('blazy.manager')) {
       $formatters = $manager->thirdPartyFormatters();
     }
     return array_unique($formatters);

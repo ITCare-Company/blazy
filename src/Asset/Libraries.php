@@ -9,7 +9,6 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\Preloader;
@@ -105,7 +104,7 @@ class Libraries implements LibrariesInterface {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      Blazy::root($container),
+      Internals::root($container),
       $container->get('cache.default'),
       $container->get('config.factory'),
       $container->get('library.discovery'),
@@ -314,13 +313,13 @@ class Libraries implements LibrariesInterface {
    * {@inheritdoc}
    */
   public function getCacheMetadata(array $build): array {
-    $settings  = Blazy::toHashtag($build) ?: $build;
-    $blazies   = Blazy::verify($settings);
+    $settings  = Internals::toHashtag($build) ?: $build;
+    $blazies   = Internals::verify($settings);
     $namespace = $blazies->get('namespace', 'blazy');
     $count     = $blazies->total() ?: $blazies->get('count', count($settings));
     $max_age   = $this->config('cache.page.max_age', 'system.performance');
     $max_age   = empty($settings['cache']) ? $max_age : $settings['cache'];
-    $id        = Blazy::getHtmlId($namespace . $count);
+    $id        = Internals::getHtmlId($namespace . $count);
     $id        = $blazies->get('css.id', $id);
     $id        = substr(md5($id), 0, 11);
 

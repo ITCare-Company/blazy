@@ -5,14 +5,17 @@ namespace Drupal\blazy\Field;
 use Drupal\Core\Render\Markup;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Theme\Attributes;
 
 /**
  * A Trait for blazy element and its captions.
  *
- * This is a preliminary exercise for 3.x mergers.
+ * This is a preliminary exercise for 3.x mergers, called by formatters and
+ * filters, and likely Views if any similarity found, not yet as per 2.17.
  * We all have similar IMAGE + CAPTION constructs. The only difference is
  * sub-modules separate blazy image from captions while Blazy merges them.
- * Plus thumbnails, already managed by themselves, not blazy's business.
+ * Plus thumbnails, already managed by themselves, not blazy's business. Err,
+ * it is, since they also have the same IMAGE + CAPTION constructs.
  *
  * Normally required as separate element.caption by sub-modules. This allows
  * improvements at one go, seen like below issues with poorly informed
@@ -80,7 +83,7 @@ trait BlazyElementTrait {
       $options = BlazyDefault::toSvgOptions($settings);
 
       // @todo call $blazies->get('image.title'); after being moved.
-      if ($title = Blazy::altTitle($blazies, $item)['title']) {
+      if ($title = Attributes::altTitle($blazies, $item)['title']) {
         $options['title'] = $title;
       }
 

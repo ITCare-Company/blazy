@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Traits;
 
 use Drupal\blazy\Blazy;
+use Drupal\blazy\Utility\Arrays;
 
 /**
  * A Trait for plugins, common for Blazy, Splide, Slick, etc.
@@ -20,7 +21,7 @@ trait PluginScopesTrait {
     $definitions = $current = [];
 
     if (empty($scopes)) {
-      return Blazy::settings($definitions);
+      return Blazy::initSettings($definitions);
     }
 
     // Allows to merge at admin level for consistent sane method uses.
@@ -29,7 +30,7 @@ trait PluginScopesTrait {
       unset($scopes['scopes']);
     }
 
-    $current = Blazy::merge($scopes, $current);
+    $current = Arrays::merge($scopes, $current);
 
     // Excludes unique keys out of scopes at admin form level.
     foreach (['blazies', 'settings'] as $key) {
@@ -49,7 +50,7 @@ trait PluginScopesTrait {
         $data[$key] = $value;
 
         if (isset($current['data'])) {
-          $definitions['data'] = Blazy::merge($data, $current['data']);
+          $definitions['data'] = Arrays::merge($data, $current['data']);
         }
         else {
           $definitions['data'] = $data;
@@ -77,7 +78,7 @@ trait PluginScopesTrait {
         }
       }
     }
-    return Blazy::settings($definitions);
+    return Blazy::initSettings($definitions);
   }
 
   /**

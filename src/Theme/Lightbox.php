@@ -11,6 +11,7 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
+use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Utility\Sanitize;
 
 /**
@@ -51,7 +52,7 @@ class Lightbox {
    *   The element being modified.
    */
   public static function build(array &$element): void {
-    $manager    = Blazy::service('blazy.manager');
+    $manager    = Internals::service('blazy.manager');
     $settings   = &$element['#settings'];
     $blazies    = $settings['blazies'];
     $switch     = $blazies->get('lightbox.name');
@@ -73,11 +74,13 @@ class Lightbox {
     $multimedia = $blazies->is('multimedia');
     $svg        = $blazies->is('unstyled');
     $styleable  = $valid && !$svg;
-    $_trusted   = $blazies->get('media.escaped') || $blazies->get('image.trusted');
     $_fullsize  = $_box_style && $styleable;
     $format1    = 'blazy__%s litebox';
     $format2    = 'blazy__%s litebox litebox--multimedia';
     $_resimage  = FALSE;
+    $_trusted   = $blazies->get('media.escaped')
+      || $blazies->get('image.trusted')
+      || $blazies->is('rendered');
 
     // Provide relevant URL since it is a lightbox.
     $attrs = &$element['#url_attributes'];
@@ -97,22 +100,22 @@ class Lightbox {
       $box_width = 640;
       $box_height = 360;
 
-      if ($blazies->is('local_audio')) {
-        $json['boxType'] = 'audio';
-        $json['playable'] = $blazies->is('playable');
-      }
-      elseif ($embed = $blazies->get('media.embed_url')) {
+      $json['playable'] = $blazies->is('playable');
+
+      if ($embed = $blazies->get('media.embed_url')) {
         // Force autoplay for media URL on lightboxes, saving another click.
         // BC for non-oembed such as Video Embed Field without Media migration.
         $url = Blazy::autoplay($embed, !$_trusted);
         $attrs['data-oembed-url'] = $url;
         $json['boxType'] = 'iframe';
-        $json['playable'] = $blazies->is('playable');
 
         // Supports external URL when hard-coded iframe at BlazyFilter.
         if ($blazies->get('image.url')) {
           $data_box_url = TRUE;
         }
+      }
+      else {
+        $json['boxType'] = 'html';
       }
 
       // This allows PhotoSwipe with videos still swipable.
@@ -213,11 +216,11 @@ class Lightbox {
    * Attaches Colorbox if so configured.
    */
   private static function attachColorbox(array &$load): void {
-    if ($service = Blazy::service('colorbox.attachment')) {
+    if ($service = Internals::service('colorbox.attachment')) {
       $dummy = [];
       $service->attach($dummy);
 
-      $load = Blazy::merge($load, $dummy, '#attached');
+      $load = Arrays::merge($load, $dummy, '#attached');
 
       unset($dummy);
     }
@@ -298,7 +301,8 @@ class Lightbox {
 
       // @todo merge with BlazyDefault::TAGS when mixed contents supported.
       // Lightbox Responsive|Picture image will be broken when filtered out.
-      $content = $_resimage ? $content : Xss::filter($content, BlazyDefault::MEDIA_TAGS);
+      $content = $_resimage || $_trusted
+        ? $content : Xss::filter($content, BlazyDefault::MEDIA_TAGS);
 
       // See https://www.drupal.org/project/drupal/issues/3109650.
       $unstrips = [
@@ -308,15 +312,21 @@ class Lightbox {
 
       $json['html'] = Sanitize::unstrip($content, $unstrips);
 
+      // @todo refine type as needed, no longer relevant for boxType.
+      $json['type'] = 'rich';
       if ($_resimage) {
-        $json['type'] = 'rich';
         $json['boxType'] = Blazy::has($content, '<picture')
           ? 'picture' : 'responsiveImage';
       }
       else {
-        if (Blazy::has($content, '<video')) {
-          $json['type'] = 'rich';
+        if ($blazies->is('local_audio')) {
+          $json['boxType'] = 'audio';
+        }
+        elseif ($blazies->is('local_video')) {
           $json['boxType'] = 'video';
+        }
+        else {
+          $json['boxType'] = 'html';
         }
       }
 
