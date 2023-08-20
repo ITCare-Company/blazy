@@ -4,6 +4,7 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Url;
 use Drupal\blazy\Dejavu\BlazyVideoBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -83,16 +84,39 @@ class BlazyVideoFormatter extends BlazyVideoBase {
 
       // Ensures thumbnail is available.
       $provider->downloadThumbnail();
-      $uri = $provider->getLocalThumbnailUri();
+
+      // Addresses two render types: video_embed_iframe and html_tag.
+      $uri       = $provider->getLocalThumbnailUri();
+      $render    = $provider->renderEmbedCode(640, 360, '0');
+      $old_url   = $render['#attributes']['src'] ?? $input;
+      $embed_url = $render['#url'] ?? $old_url;
+      $fragment  = $render['#fragment'] ?? '';
+      $fragment  = $fragment ? '#' . $fragment : '';
+      $query     = $render['#query'] ?? [];
+
+      // Prevents complication with multiple videos by now.
+      unset($query['autoplay'], $query['auto_play']);
+
+      // Pass $embed_url to Blazy to be respected if `Use oEmbed` option is
+      // disabled at Blazy UI. Relevant for Instagram or Facebook, etc. since
+      // using oEmbed may require App ID and secret creds even for simple
+      // oEmbed read, irrelevant for direct embed ala VEF.
+      $embed_url = Url::fromUri($embed_url, ['query' => $query])->toString();
 
       // Update the settings, hard-coded, terracota.
       $sets = $settings;
       $info = [
         'delta' => $delta,
         'image.uri' => $uri,
+        'is' => [
+          'multimedia' => TRUE,
+          'vef' => TRUE,
+        ],
         'media' => [
           'bundle' => 'remote_video',
+          'embed_url' => $embed_url . $fragment,
           'input_url' => $input,
+          'provider' => $provider->getPluginId(),
           'source' => 'video_embed_field',
           'type' => 'video',
         ],
@@ -112,10 +136,11 @@ class BlazyVideoFormatter extends BlazyVideoBase {
         '#item'     => NULL,
       ];
 
+      // Since 2.17, VEF embed is respected via Blazy UI option `Use oEmbed`.
       $this->blazyOembed->build($data);
 
       // Image with responsive image, lazyLoad, and lightbox supports.
-      $build[$delta] = $this->formatter->getBlazy($data);
+      $build['items'][$delta] = $this->formatter->getBlazy($data);
     }
   }
 

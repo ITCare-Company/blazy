@@ -96,12 +96,16 @@ class Lightbox {
     }
 
     // If multimendia with remote or local videos.
+    $json['token'] = $blazies->get('media.token');
+    if ($provider = $blazies->get('media.provider')) {
+      $json['provider'] = $provider;
+    }
+
     if ($multimedia) {
       $box_width = 640;
       $box_height = 360;
 
       $json['playable'] = $blazies->is('playable');
-
       if ($embed = $blazies->get('media.embed_url')) {
         // Force autoplay for media URL on lightboxes, saving another click.
         // BC for non-oembed such as Video Embed Field without Media migration.

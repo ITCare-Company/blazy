@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\media\MediaInterface;
+use Drupal\media\OEmbed\Resource;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
 use Drupal\media\OEmbed\UrlResolverInterface;
 use Drupal\blazy\Blazy;
@@ -105,9 +106,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * {@inheritdoc}
    */
-  public function getProvider($input_url): ?object {
+  public function getProvider($input): ?object {
     try {
-      return $this->urlResolver->getProviderByUrl($input_url);
+      return $this->urlResolver->getProviderByUrl($input);
     }
     catch (\Exception $e) {
       return NULL;
@@ -117,9 +118,14 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * {@inheritdoc}
    */
-  public function getResource($input_url) {
-    $resource_url = $this->urlResolver->getResourceUrl($input_url, 0, 0);
-    return $this->resourceFetcher->fetchResource($resource_url);
+  public function getResource($input): ?object {
+    try {
+      $url = $this->urlResolver->getResourceUrl($input, 0, 0);
+      return $this->resourceFetcher->fetchResource($url);
+    }
+    catch (\Exception $e) {
+      return NULL;
+    }
   }
 
   /**
@@ -149,63 +155,54 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
+   * Checks for the provider and its resources.
+   */
+  public function checkProviderAndResource($input, $blazies): void {
+    if (!$blazies->was('provider')) {
+      $this->checkProvider($input, $blazies);
+    }
+
+    if (!$blazies->was('resource')) {
+      $this->checkResource($input, $blazies);
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
-  public function getThumbnail(array &$settings): ?object {
+  public function getThumbnail(array &$settings, $fallback = TRUE): ?object {
     $blazies = $settings['blazies'];
     $input   = $blazies->get('media.input_url', $settings['input_url'] ?? NULL);
-    $uri     = $blazies->get('image.uri', $settings['uri'] ?? NULL);
-    $height  = $blazies->get('image.height');
-    $width   = $blazies->get('image.width');
-    $label   = $blazies->get('media.label');
-    $title   = $blazies->get('image.title') ?: $label;
-    $type    = $blazies->get('media.type', $settings['type'] ?? NULL);
 
-    // Failsafe, BlazyFilter/ VEF without file upload [data-entity-uuid].
-    try {
-      // Iframe URL may be valid, but not stored as a Media entity.
-      if ($input && $resource = $this->getResource($input)) {
-        // PHP-stan always assumes it an array.
-        if (is_object($resource)) {
-          $title = $resource->getTitle() ?: $title;
-
-          // VEF has valid URI, other hard-coded unmanaged files might not.
-          if (!BlazyFile::isValidUri($uri)) {
-            $type = $resource->getType();
-            // All we have here is external images. URI validity is not crucial.
-            // Be sure internet is connected, or you got headaches.
-            if (!empty($resource->getThumbnailUrl())) {
-              $uri = $resource->getThumbnailUrl()->getUri();
-            }
-          }
-
-          // Respect hard-coded width and height since no UI for all these here.
-          if (!$width || !$height) {
-            $width = $resource->getThumbnailWidth() ?: $resource->getWidth();
-            $height = $resource->getThumbnailHeight() ?: $resource->getHeight();
-          }
-        }
-      }
-    }
-    catch (\Exception $ignore) {
-      // Silently failed likely local works without internet.
+    if (!$input) {
+      return NULL;
     }
 
-    // Redefines for sure.
+    // Might be NULL for BlazyFilter, VEF, etc., re-check.
+    $this->checkProviderAndResource($input, $blazies);
+
+    // Similar to extracting image data from ImageFactory source. Basically,
+    // anything from resource is fallback, except for type.
+    // Respect hard-coded width and height since no UI for all these here.
+    $values = $blazies->get('media.resource', []);
+    $uri    = $blazies->get('image.uri', $settings['uri'] ?? NULL);
+    $uri    = $uri ?: $values['uri'] ?? NULL;
+    $height = $blazies->get('image.height') ?: $values['height'] ?? NULL;
+    $width  = $blazies->get('image.width') ?: $values['width'] ?? NULL;
+    $label  = $blazies->get('media.label') ?: $values['title'] ?? NULL;
+    $title  = $blazies->get('image.title') ?: $label;
+    $type   = $blazies->get('media.type', $settings['type'] ?? NULL);
+    $type   = $values['type'] ?? $type;
+    $type   = $type == 'photo' ? 'image' : $type;
+
+    // Redefines for sure so that VEF has image title.
     $blazies->set('media.input_url', $input)
       ->set('media.label', $title)
       ->set('media.type', $type);
 
-    // Might be NULL for BlazyFilter, VEF, etc., re-define.
-    if (!$blazies->get('media.provider')) {
-      $provider = $this->getProvider($input);
-      $blazies->set('media.provider', $provider)
-        ->set('use.oembed', $provider != NULL);
-    }
-
     // VEF has just URI, the rest are fetched from resource.
     // Also Soundcloud here.
-    if ($uri) {
+    if ($uri && $fallback) {
       $dims = [
         'width'  => $width,
         'height' => $height,
@@ -234,10 +231,42 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * {@inheritdoc}
    */
-  public function toEmbedUrl($blazies, $input, array $autoplay = []): string {
+  public function toEmbedUrl($blazies, $input, array $params = []): string {
     $iframe_domain = $blazies->get('iframe_domain');
 
-    return $this->blazyMedia->toEmbedUrl($input, $iframe_domain, $autoplay);
+    return $this->blazyMedia->toEmbedUrl($input, $iframe_domain, $params);
+  }
+
+  /**
+   * Checks for the provider to determine oembed, or not.
+   */
+  private function checkProvider($input, $blazies): void {
+    $name = $blazies->get('media.provider');
+    $use_oembed = FALSE;
+
+    // Might be NULL for BlazyFilter, VEF, etc., re-define.
+    if ($provider = $this->getProvider($input)) {
+      $name = strtolower($provider->getName());
+      $use_oembed = TRUE;
+    }
+
+    $blazies->set('use.oembed', $use_oembed);
+    if ($name) {
+      $blazies->set('is.' . $name, TRUE)
+        ->set('media.provider', $name)
+        ->set('was.provider', TRUE);
+    }
+  }
+
+  /**
+   * Checks for the provider resources.
+   */
+  private function checkResource($input, $blazies): void {
+    if (!$blazies->get('media.resource.input')
+      && $resource = $this->fromResource($input)) {
+      $blazies->set('media.resource', $resource, TRUE)
+        ->set('was.resource', TRUE);
+    }
   }
 
   /**
@@ -255,6 +284,12 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $valid    = $entity instanceof MediaInterface;
     $stage    = $settings['image'] ?? NULL;
     $media    = $valid ? $entity : NULL;
+
+    // Checks for access.
+    if (!$access && $denied = $this->blazyManager->denied($entity)) {
+      $build['content'][] = $denied;
+      return;
+    }
 
     // Two designated types of $stage: MediaInterface and FileInterface.
     // Since 2.10, Main stage is usable as the main display of a Paragraphs,
@@ -301,12 +336,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       }
     }
 
-    // Checks for access.
-    if (!$access && $denied = $this->blazyManager->denied($entity)) {
-      $build['content'][] = $denied;
-      return;
-    }
-
     /** @var \Drupal\media\Entity\Media $entity */
     if ($valid) {
       $build['#entity'] = $media;
@@ -315,7 +344,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     else {
       // Attempts to get image data directly from oEmbed resource.
       // Called by BlazyFilter or deprecated VEF, run after data populated.
-      if (!$entity || !$blazies->get('media.embed_url')) {
+      $vef = $blazies->get('media.source') == 'video_embed_field';
+      if ($vef || !$entity || !$blazies->get('media.embed_url')) {
         $this->toEmbed($settings);
       }
     }
@@ -345,6 +375,11 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       case 'oembed':
       case 'oembed:video':
       case 'video_embed_field':
+        // @todo re-check:
+        // case 'oembed:instagram':
+        // case 'twitter':
+        // case 'facebook':
+        // case 'pinterest':
         // Input url != embed url. For Youtube, /watch != /embed.
         if ($input) {
           $blazies->set('media.input_url', $input);
@@ -386,6 +421,49 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
+   * Returns image related info from a resource.
+   *
+   * @param string $input
+   *   The input url.
+   *
+   * @return array
+   *   The media data from a resource.
+   */
+  private function fromResource($input): array {
+    $output = [];
+
+    // Failsafe, BlazyFilter/ VEF without file upload [data-entity-uuid].
+    // Iframe URL may be valid, but not stored as a Media entity.
+    if ($input && $resource = $this->getResource($input)) {
+      if ($resource instanceof Resource) {
+        $output['input'] = $input;
+        $output['type']  = $resource->getType();
+        $output['title'] = $resource->getTitle();
+
+        // VEF has valid URI, other hard-coded unmanaged files might not.
+        // All we have here is external images. URI validity is not crucial.
+        // Be sure internet is connected, or you got headaches.
+        if ($uri = $resource->getThumbnailUrl()) {
+          $output['uri'] = $uri->getUri();
+        }
+
+        if ($url = $resource->getUrl()) {
+          $output['url'] = $url->toString();
+        }
+
+        if ($html = $resource->getHtml()) {
+          $output['html'] = $html;
+        }
+
+        $output['width']  = $resource->getThumbnailWidth() ?: $resource->getWidth();
+        $output['height'] = $resource->getThumbnailHeight() ?: $resource->getHeight();
+      }
+    }
+
+    return $output;
+  }
+
+  /**
    * Converts input URL into embed URL, run after ::prepare() populated.
    *
    * @param array $settings
@@ -400,16 +478,31 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       return;
     }
 
-    $input    = $this->checkInputUrl($settings, $input);
-    $provider = $this->getProvider($input);
-    $autoplay = $switch ? ['autoplay' => 1] : [];
+    $input  = $this->checkInputUrl($settings, $input);
+    $params = $switch ? ['autoplay' => 1] : [];
 
-    // Should be oembed_url, but embed_url is a fine legacy video_embed_field.
-    $embed_url = $this->toEmbedUrl($blazies, $input, $autoplay);
+    $this->checkProviderAndResource($input, $blazies);
+
+    // Listen to VEF, or others which might want to set this.
+    $embed_url = $blazies->get('media.embed_url');
+
+    // Always use oEmbed.
+    $use_oembed = TRUE;
+    if ($embed_url) {
+      // Unless disabled via UI even if oEmbed provider exists, specific for VEF
+      // to avoid failing expectations with some providers.
+      $use_oembed = $blazies->ui('use_oembed') && $blazies->use('oembed');
+    }
+
+    // W/o internet, display an (empty) iframe, or a thumbnail.
+    if (!$embed_url || $use_oembed) {
+      $embed_url = $this->toEmbedUrl($blazies, $input, $params);
+    }
+
+    // Sets the correct value.
+    $embed_url = Internals::correct($embed_url);
     $blazies->set('media.embed_url', $embed_url)
-      ->set('media.escaped', TRUE)
-      ->set('media.provider', $provider)
-      ->set('use.oembed', $provider != NULL);
+      ->set('media.escaped', TRUE);
   }
 
   /**

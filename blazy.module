@@ -133,9 +133,14 @@ function blazy_config_schema_info_alter(array &$definitions) {
  * Implements hook_library_info_alter().
  */
 function blazy_library_info_alter(array &$libraries, $extension) {
-  $core = $extension === 'core'
-    && (isset($libraries['once']) || isset($libraries['drupal.debounce']));
-  if ($extension === 'blazy' || $extension === 'media' || $core) {
+  $core = $extension === 'core' &&
+    (isset($libraries['once']) || isset($libraries['drupal.debounce']));
+
+  if ($extension === 'blazy'
+    || $extension === 'media'
+    || $core
+    || $extension === 'media_entity_instagram'
+  ) {
     BlazyAlter::libraryInfoAlter($libraries, $extension);
   }
 }

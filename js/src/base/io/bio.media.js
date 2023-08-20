@@ -42,6 +42,7 @@
   var _srcSet = 'srcset';
   var _dataSrc = _data + _src;
   var _dataSrcset = _data + _srcSet;
+  var _dataText = 'data:text/plain;base64,';
   var _imgSources = [_srcSet, _src];
   var _erCounted = 0;
   var _isDeferChecked = false;
@@ -76,6 +77,7 @@
     var opts = me.options;
     var parent = el.parentNode;
     var isBg = $.isBg(el);
+    var isHtml = $.isHtml(el);
     var isPicture = $.equal(parent, 'picture');
     var isImage = $.equal(el, 'img');
     var isAudio = $.equal(el, 'audio');
@@ -115,7 +117,14 @@
       }
       // IFRAME elements, etc.
       else {
-        if ($.hasAttr(el, _src)) {
+        if (isHtml) {
+          var html = $.attr(el, _dataSrc);
+          html = html.replace(_dataText, '');
+          html = atob(html);
+          $.append(el, html);
+          _erCounted = $.status(el, true, opts);
+        }
+        else if ($.hasAttr(el, _src)) {
           if ($.attr(el, _dataSrc)) {
             $.mapAttr(el, _src, true);
           }

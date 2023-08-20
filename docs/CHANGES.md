@@ -3,7 +3,7 @@
 ## <a name="changes"></a>NOTABLE CHANGES  
 Always check out release notes, if any issues with the latest changes.
 
-* _Blazy 2.17_, 2023/08/13:
+* _Blazy 2.17_, 2023/08/27:
    + Cold fixes for few minor regressions and self organizations.
    + Please bear with frequent releases, it was for sub-modules tests. Their
      tests help spot many regressions, reducing one at a time every releases.
@@ -21,8 +21,9 @@ Always check out release notes, if any issues with the latest changes.
      * Removed stone-aged admin CSS for modern Native Grid.
    + **Breaking change**: changed `settings` to `#settings`, etc. Check out CR:
      [Blazy ecosystem breaking change](https://www.drupal.org/node/3375158).
-   + Added additional config options at Blazy UI. Be sure to check out for
-     `visible_class`, `wrapper_class`, `deprecated_class` options if using them.
+   + **New options**:Added additional config options at Blazy UI. Be sure to
+     check out for `visible_class`, `wrapper_class`, `deprecated_class`,
+     `use_oembed`, `lazy_html` options if using them.
    + Renamed legacy Foundation grid CSS classes to avoid conflicts with core
     `block` CSS classes:
      * `block-GRIDSTYLE` to `b-GRIDSTYLE`, e.g.: `block-nativegrid` to

@@ -19,9 +19,14 @@
   var _iFrame = 'iframe';
   var _isPlaying = 'is-playing';
   var _isBodyPlaying = 'is-b-player-playing';
-  var _dataIFrameTitle = 'data-' + _iFrame + '-title';
-  var _dataUrl = 'data-url data-b-url';
+  var _data = 'data-';
+  var _dataIFrameTitle = _data + _iFrame + '-title';
+  var _dataUrl = _data + 'b-url data-url';
+  var _dataProvider = _data + 'b-provider';
+  var _dataToken = _data + 'b-token';
+  var _mdElement = _md + '__element';
   var _multimedia = $.multimedia || false;
+  var _instagram = $.instagram || false;
 
   /**
    * Blazy media utility functions.
@@ -41,10 +46,18 @@
 
     var url = $.attr(btn, _dataUrl);
     var title = $.attr(btn, _dataIFrameTitle);
+    var token = $.attr(btn, _dataToken);
+    var provider = $.attr(btn, _dataProvider);
+    var instagram = provider === 'instagram';
+    var instagramApi = _instagram && instagram;
     var newIframe;
 
     if (url && $.sanitizer.isDangerous('src', url)) {
       return;
+    }
+
+    if (instagramApi) {
+      _instagram.init(el, {token: token});
     }
 
     /**
@@ -92,20 +105,25 @@
       window.setTimeout(function () {
         $.addClass(player, _isPlaying);
 
-        // Cache iframe for the potential repeating clicks.
-        if (!newIframe) {
-          newIframe = $.create(_iFrame, _md + '__element');
-
-          // Saving another clicks for nested iframes.
-          $.attr(newIframe, {
-            src: url,
-            allow: 'autoplay; fullscreen',
-            title: Drupal.checkPlain(title)
-          });
+        if (instagramApi) {
+          _instagram.show();
         }
+        else {
+          // Cache iframe for the potential repeating clicks.
+          if (!newIframe) {
+            newIframe = $.create(_iFrame, _mdElement);
 
-        // Appends the iframe.
-        player.appendChild(newIframe);
+            // Saving another clicks for nested iframes.
+            $.attr(newIframe, {
+              src: url,
+              allow: 'autoplay; fullscreen',
+              title: Drupal.checkPlain(title)
+            });
+          }
+
+          // Appends the iframe.
+          player.appendChild(newIframe);
+        }
 
         $.addClass(_doc.body, _isBodyPlaying);
 
@@ -137,6 +155,10 @@
       }
 
       $.remove(iframe);
+
+      if (instagramApi) {
+        _instagram.hide();
+      }
 
       $.removeClass(_doc.body, _isBodyPlaying);
 
@@ -178,6 +200,8 @@
     var $el = $(el);
     var alt = $.image.alt(el);
     var data = $.parse($el.attr('data-b-' + _md + ' data-' + _md));
+    var provider = data.provider;
+    var token = data.token;
     var width = data.width ? parseInt(data.width, 0) : 640;
     var pad = $.image.ratio(data);
     var imgUrl = $el.attr('data-box-url');
@@ -191,6 +215,8 @@
     var player = data.playable || data.boxType === 'iframe' ? ' ' + _player : '';
     var ariaClose = Drupal.t('Stop and close the video');
     var ariaPlay = Drupal.t('Load and play the video');
+    var bProvider = '';
+    var bToken = '';
     var html = '';
 
     if (imgUrl) {
@@ -198,8 +224,15 @@
     }
 
     if (player) {
+      if (provider) {
+        bProvider = ' data-b-provider="' + provider + '"';
+      }
+      if (token) {
+        bToken = ' data-b-token="' + token + '"';
+      }
+
       html += '<span class="$icon $icon--close" aria-label="$ariaClose"></span>';
-      html += '<span class="$icon $icon--play" data-b-url="$oembed" data-iframe-title="$alt" aria-label="$ariaPlay"></span>';
+      html += '<span class="$icon $icon--play" data-b-url="$oembed" data-iframe-title="$alt" aria-label="$ariaPlay"$bProvider$bToken></span>';
     }
 
     html = '<div class="$md $idClass $md--switch $player $md--ratio $md--ratio--fluid" aria-live="polite" style="padding-bottom: $pad%">' + html + '</div>';
@@ -215,6 +248,8 @@
       icon: _icon,
       ariaClose: Drupal.checkPlain(ariaClose),
       ariaPlay: Drupal.checkPlain(ariaPlay),
+      bProvider: bProvider,
+      bToken: bToken,
       idClass: idClass,
       player: player,
       pad: pad,

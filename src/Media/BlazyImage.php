@@ -96,8 +96,8 @@ class BlazyImage {
     // Original image sizes are stored within ImageItem, or fake one.
     // @todo remove ImageItem checks at 3.x. when all moved into blazies.image.
     if ($item) {
-      // The given item might also be VideoEmbedField, unless converted at
-      // Vef::toEmbedUrl(). Ensures it is not screwing up.
+      // The given item might also be VideoEmbedField, unless converted using
+      // BlazyOEmbed::getThumbnail(). Ensures it is not screwing up.
       if (!isset($item->width)) {
         $item = $blazies->get('image.item');
       }
@@ -352,6 +352,7 @@ class BlazyImage {
 
     // Provides SVG dimensions, if any.
     BlazySvg::dimensions($settings, $uri);
+    Internals::tokenize($blazies);
   }
 
   /**

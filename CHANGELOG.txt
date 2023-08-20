@@ -1,4 +1,11 @@
 
+Blazy 8.x-2.0-dev, 2023-08-20
+------------------------------
+- Fixed for Instagram within Colorbox.
+- Added a new option to lazy load media HTML.
+- Fixed for VEF Instagram failures, and other VEF compatibility.
+- Added Use oEmbed option specific for VEF compatibility.
+
 Blazy 8.x-2.0-dev, 2023-08-17
 ------------------------------
 - Added oEmbed provider check for cross-compat with VEF providers.

@@ -3,12 +3,17 @@
  * Provides media integration with pure CSS fluid video wrapper.
  */
 
+.media--player {
+  position: relative;
+}
+
 /** Ensures not affecting iframe only without media switcher */
 .media--switch iframe {
   opacity: 0;
   visibility: hidden;
 }
 
+.media.b-html iframe,
 .media--rendered iframe {
   opacity: 1;
   visibility: visible;
@@ -40,9 +45,14 @@
   width: 80px;
 }
 
-button.media__icon--play,
 button.media__icon--close {
   background: none;
+}
+
+.media__icon--play,
+button.media__icon--play {
+  background: rgba(0, 0, 0, .2);
+  /* box-shadow: 0 0 0 26px rgba(0, 0, 0, .2) inset; */
 }
 
 button.media__icon--close {
@@ -165,4 +175,11 @@ button.media__icon--close {
 
 .grid .fb_iframe_widget iframe {
   position: relative !important; /* csslint allow: known-properties, important */
+}
+
+/** Instagram is only one way off, if this player is ever used. */
+.media--instagram iframe ~ .media__icon,
+.media--instagram.is-playing .media__icon,
+.media--instagram.is-playing:hover .media__icon--play {
+  display: none;
 }

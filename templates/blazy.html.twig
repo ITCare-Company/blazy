@@ -66,6 +66,7 @@
   set classes = [
     content ? 'media--rendered',
     blazies.namespace ? 'media--' ~ blazies.namespace|clean_class,
+    blazies.media.provider ? 'media--' ~ blazies.media.provider|clean_class,
     settings.media_switch ? 'media--switch media--switch--' ~ settings.media_switch|clean_class,
     blazies.is.player ? 'media--player',
     blazies.media.bundle ? 'media--bundle--' ~ blazies.media.bundle|clean_class,
@@ -91,6 +92,8 @@
   {% set play_button_attributes = create_attribute({
     'aria-label': play_title,
     'class': ['media__icon', 'media__icon--play'],
+    'data-b-provider': blazies.media.provider,
+    'data-b-token': blazies.media.token,
     'data-url': blazies.media.embed_url,
     'data-iframe-title': label,
     'title': play_title,

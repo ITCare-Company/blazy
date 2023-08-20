@@ -109,6 +109,16 @@ class Attributes {
       $attributes['data-ratio'] = $padding;
     }
 
+    // Lazy load HTML content.
+    if ($blazies->get('lazy.html')) {
+      $unlazy = self::isUnlazy($blazies);
+      if (!$unlazy && $html = $blazies->get('media.encoded.content')) {
+        $attributes['data-src'] = Internals::DATA_TEXT . $html;
+        $attributes['class'][] = 'b-lazy';
+        $attributes['class'][] = 'b-html';
+      }
+    }
+
     // Makes a little BEM order here due to Twig ignoring the preset priority.
     $classes = (array) ($attributes['class'] ?? []);
     $attributes['class'] = array_merge(['media', 'media--blazy'], $classes);
@@ -130,6 +140,7 @@ class Attributes {
    */
   public static function buildIframe(array &$variables): void {
     $settings = &$variables['settings'];
+    $blazies  = $settings['blazies'];
 
     // Only provide iframe if not for lightboxes, identified by URL.
     if (empty($variables['url'])) {
@@ -137,11 +148,13 @@ class Attributes {
       $variables['image'] = empty($settings['media_switch']) ? [] : $variables['image'];
 
       // Pass iframe attributes to template.
-      $variables['iframe'] = [
-        '#type' => 'html_tag',
-        '#tag' => 'iframe',
-        '#attributes' => self::iframe($settings),
-      ];
+      if (!$blazies->use('scripted_iframe')) {
+        $variables['iframe'] = [
+          '#type' => 'html_tag',
+          '#tag' => 'iframe',
+          '#attributes' => self::iframe($settings),
+        ];
+      }
 
       // If not media player, iframe only, without image, disable blur.
       if (empty($variables['image']) && isset($variables['preface']['blur'])) {
@@ -241,7 +254,7 @@ class Attributes {
     // Non-native lazyload for oldies to avoid loading src, the most efficient.
     // No cookies are loaded from external sites till the play button clicked.
     else {
-      $attributes['class'] = ['b-lazy'];
+      $attributes['class'][] = 'b-lazy';
       $attributes['data-src'] = $embed_url;
       $attributes['src'] = 'about:blank';
     }

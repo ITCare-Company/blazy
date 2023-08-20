@@ -48,6 +48,13 @@
 
       // Only animate when the image is fully loaded, else nonsense.
       me.pad(el, animate, old ? 50 : 0);
+
+      if ($.isHtml(el)) {
+        Drupal.attachBehaviors(el);
+        // if (_win.instgrm) {
+        // _win.instgrm.Embeds.process();
+        // }
+      }
     },
 
     checkResize: function (items, cb, root, onDone) {

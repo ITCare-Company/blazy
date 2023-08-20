@@ -133,12 +133,12 @@ interface BlazyMediaInterface {
    *   The input to modify.
    * @param string $iframe_domain
    *   The iframe_domain from media.settings.
-   * @param array $autoplay
-   *   The optional autoplay.
+   * @param array $parameters
+   *   The optional parameters, normally just autoplay.
    *
    * @return string
    *   The media oembed url.
    */
-  public function toEmbedUrl($input, $iframe_domain, array $autoplay = []): string;
+  public function toEmbedUrl($input, $iframe_domain, array $parameters = []): string;
 
 }

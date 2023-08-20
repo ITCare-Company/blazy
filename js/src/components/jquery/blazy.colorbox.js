@@ -14,8 +14,8 @@
   var $body = $('body');
   var _mounted = 'is-' + _idOnce;
   var _element = '[data-' + _id + '-trigger]:not(.' + _mounted + ')';
-  var _blazy = Drupal.blazy || {};
   var _sanitizer = _d.sanitizer;
+  var _instagram = _d.instagram || false;
   var cboxTimer;
 
   /**
@@ -32,6 +32,7 @@
     var media = $box.data('bMedia') || $box.data('media') || {};
     var isIframe = media.boxType === 'iframe' && !_sanitizer.isDangerous('href', url);
     var isHtml = 'html' in media;
+    var instagramApi = _instagram && media.provider === 'instagram';
     var runtimeOptions = {
       html: isHtml ? _sanitizer.sanitize(media.html) : null,
       rel: media.rel || null,
@@ -52,12 +53,18 @@
           $body.addClass(isIframe ? 'colorbox-on--media' : 'colorbox-on--html');
         }
       },
-      onClosed: function () {
+      onCleanup: function () {
         var $media = $('#cboxContent').find('.media');
         if ($media.length) {
           Drupal.detachBehaviors($media[0]);
         }
+      },
+      onClosed: function () {
         removeClasses();
+
+        if (instagramApi) {
+          _instagram.destroy();
+        }
       }
     };
 
@@ -68,6 +75,60 @@
       $body.removeClass(function (index, css) {
         return (css.match(/(^|\s)colorbox-\S+/g) || []).join(' ');
       });
+    }
+
+    // Resize.
+    function resize(o) {
+      $.colorbox.resize({
+        innerWidth: o.width,
+        innerHeight: o.height
+      });
+    }
+
+    // Dimensions.
+    function dimension(w, h) {
+      return {
+        width: w,
+        height: h
+      };
+    }
+
+    // Padding hack.
+    function hack(a, b) {
+      return {
+        paddingBottom: a,
+        height: b
+      };
+    }
+
+    // Instagram.
+    function instagram(el) {
+      var mw = _cbox.maxWidth;
+      var mh = _cbox.maxHeight;
+      var w = mw;
+      var h = mh;
+      var o = dimension(w, h);
+      var data = media;
+
+      data.width = mw;
+      data.height = mh;
+
+      _instagram.init(el[0], data);
+
+      var cb = function (obj) {
+        w = obj.width || mw;
+        h = mh;
+
+        el.css(hack('', ''))
+          .css({
+            width: ''
+          }).removeClass('media--ratio');
+
+        o = dimension(w, h);
+        resize(o);
+      };
+
+      _instagram.show(cb);
     }
 
     /**
@@ -92,10 +153,11 @@
         t.css('left', -(t.width() - pw) / 2);
       }
       else if (pw > w) {
-        $.colorbox.resize({
-          innerWidth: w,
-          innerHeight: h
-        });
+        var o = {
+          width: w,
+          height: h
+        };
+        resize(o);
       }
     }
 
@@ -107,76 +169,75 @@
 
       var mw = _cbox.maxWidth;
       var mh = _cbox.maxHeight;
-
-      var o = {
-        width: media.width || mw,
-        height: media.height || mh
-      };
+      var w = media.width || mw;
+      var h = media.height || mh;
+      var o = dimension(w, h);
+      var shouldResize = true;
+      var img;
+      var pad;
 
       // DOM ready fix.
       cboxTimer = _win.setTimeout(function () {
         if ($('#cboxOverlay').is(':visible')) {
           var $container = $('#cboxLoadedContent');
-          var $iframe = $('.cboxIframe', $container);
-          var $media = $('.media--ratio', $container);
-          var $video = $('video', $container);
+          var container = $container[0];
+          var $iframe = $('.cboxIframe', container);
+          var $media = $('.media--ratio', container);
           var $picture = $container.find('picture img');
           var $resimage = $container.find('img[srcset]');
           var isResimage = $resimage.length || $picture.length;
 
           if (isResimage) {
-            var $img = $picture.length ? $picture : $resimage;
             _win.setTimeout(function () {
-              $img.each(function () {
-                if (this.complete) {
-                  resizeImage.call(this);
+              img = $picture.length ? $picture[0] : $resimage[0];
+              if (img) {
+                if (img.complete) {
+                  resizeImage.call(img);
                 }
                 else {
-                  $(this).one('load', resizeImage);
+                  $(img).one('load', resizeImage);
                 }
-              });
+              }
             }, 101);
 
-            o = {
-              width: mw || media.width,
-              height: mh || media.height
-            };
-          }
-          else if ($video.length) {
-            if (_blazy.load) {
-              _blazy.load($container[0]);
-            }
-          }
-
-          if (!$iframe.length && $media.length) {
-            Drupal.attachBehaviors($media[0]);
+            w = mw || media.width;
+            h = mh || media.height;
+            o = dimension(w, h);
           }
 
           if ($iframe.length || $media.length) {
+            var useHack = true;
+            if ($media.length) {
+              if (instagramApi) {
+                shouldResize = false;
+                useHack = false;
+                instagram($media);
+              }
+
+              Drupal.attachBehaviors($media[0]);
+            }
+
             // @todo consider to not use colorbox iframe for consistent .media.
-            if ($iframe.length) {
+            if ($iframe.length && useHack) {
               $container.addClass('media media--ratio');
-              $iframe.attr('width', o.width).attr('height', o.height).addClass('media__element');
-              $container.css({
-                paddingBottom: (o.height / o.width) * 100 + '%',
-                height: 0
-              });
+              $iframe.attr('width', o.width)
+                .attr('height', o.height)
+                .addClass('media__element');
+
+              pad = (o.height / o.width) * 100 + '%';
+              $container.css(hack(pad, 0));
             }
           }
           else {
-            $container.removeClass('media media--ratio');
-            $container.css({
-              paddingBottom: '',
-              height: o.height
-            }).removeClass('media__element');
+            $container.css(hack('', o.height))
+              .removeClass('media media--ratio media__element');
           }
 
-          $.colorbox.resize({
-            innerWidth: o.width,
-            innerHeight: o.height
-          });
+          if (shouldResize) {
+            resize(o);
+          }
         }
-      }, 10);
+      }, 101);
     }
 
     $box.colorbox($.extend({}, _cbox, runtimeOptions));

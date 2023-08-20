@@ -79,6 +79,21 @@ class BlazyAlter {
       $libraries['oembed.frame']['dependencies'][] = 'blazy/oembed';
     }
 
+    // Blazy colorbox needs these higher.
+    if ($extension === 'media_entity_instagram') {
+      if ($libraries['instagram.embeds']) {
+        $libraries['instagram.embeds']['js']['//platform.instagram.com/en_US/embeds.js'] = [
+          'weight' => -16,
+          'type' => 'external',
+          'minified' => TRUE,
+        ];
+      }
+
+      if (isset($libraries['integration'])) {
+        $libraries['integration']['js']['js/instagram.js'] = ['weight' => -6];
+      }
+    }
+
     if ($extension === 'blazy') {
       if ($manager = Internals::service('blazy.manager')) {
         $names = ['DOMPurify', 'dompurify'];

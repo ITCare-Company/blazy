@@ -5,6 +5,9 @@ blazy.settings:
     admin_css:
       type: boolean
       label: 'Admin CSS'
+    lazy_html:
+      type: boolean
+      label: 'Lazy load HTML'
     nojs:
       type: sequence
       label: 'No JavaScript'
@@ -44,6 +47,9 @@ blazy.settings:
     unstyled_extensions:
       type: string
       label: 'Extensions without image styles'
+    use_oembed:
+      type: boolean
+      label: 'Use oEmbed'
     use_theme_blazy:
       type: boolean
       label: 'Use theme_blazy()'

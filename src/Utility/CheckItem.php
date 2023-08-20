@@ -8,7 +8,6 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
-use Drupal\blazy\Media\Vef;
 use Drupal\blazy\Theme\Attributes;
 
 /**
@@ -332,7 +331,7 @@ class CheckItem {
     $type      = $blazies->get('media.type') ?: $settings['type'] ?? 'image';
     $embed_url = $settings['embed_url'] ?? '';
     $embed_url = $blazies->get('media.embed_url') ?: $embed_url;
-    $is_vef    = $type == 'video' || $blazies->is('playable');
+    $is_vef    = $type == 'video';
     $is_remote = $embed_url && ($blazies->is('remote_video') || $is_vef);
     $is_iframe = $is_remote && empty($switch);
     $is_player = $is_remote && $switch == 'media';
@@ -343,27 +342,38 @@ class CheckItem {
     }
 
     // BVEF compat without core OEmbed security feature.
-    if ($is_remote && strpos($embed_url, 'media/oembed') === FALSE) {
+    if ($embed_url && strpos($embed_url, 'media/oembed') === FALSE) {
       $type = 'video';
       if ($oembed = Internals::service('blazy.oembed')) {
         // VEF has no TITLE, nor ALT, for images, provide them.
         $oembed->getThumbnail($settings);
-
-        // @todo remove once BVEF adopted Blazy:2.17+ BlazyVideoFormatter.
-        $options = [
-          'embed_url' => $embed_url,
-          'is_player' => $is_player,
-        ];
-
-        $embed_url = Vef::toEmbedUrl($settings, $options, $oembed);
       }
+
+      // If you bang your head around why suddenly Instagram failed, this is it.
+      // Only relevant for VEF, not core, if $oembed::toEmbedUrl() is by-passed:
+      if (strpos($embed_url, '//instagram') !== FALSE) {
+        $embed_url = str_replace('//instagram', '//www.instagram', $embed_url);
+      }
+
+      if ($is_player) {
+        $embed_url = Blazy::autoplay($embed_url);
+      }
+
+      // @todo remove once BVEF adopted Blazy:2.17+ BlazyVideoFormatter.
+      // The media is defined for core Media, not VEF, so set it here.
+      $bundle = $blazies->get('media.bundle', 'remote_video');
+      $input = $blazies->get('media.input_url', $settings['input_url'] ?? NULL);
+      $blazies->set('media.input_url', $input)
+        ->set('media.bundle', $bundle)
+        ->set('media.source', 'video_embed_field');
+
     }
 
     // Addresses mixed media unique per item, aside from convenience.
     // Also compat with BVEF till they are updated to adopt 2.10 changes.
     $multimedia = $blazies->is('multimedia', $is_remote);
     $blazies->set('is.iframe', $is_iframe)
-      ->set('is.multimedia', $multimedia)
+      ->set('is.multimedia', $multimedia || $blazies->is('playable'))
       ->set('is.player', $is_player)
       ->set('is.remote_video', $is_remote)
       ->set('media.embed_url', $embed_url)

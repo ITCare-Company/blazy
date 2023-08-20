@@ -36,24 +36,24 @@ interface BlazyOEmbedInterface {
   /**
    * Returns the oEmbed provider based on the given media input url.
    *
-   * @param string $input_url
+   * @param string $input
    *   The input url.
    *
    * @return \Drupal\media\OEmbed\Provider|null
    *   The oEmbed provider if available, or NULL.
    */
-  public function getProvider($input_url): ?object;
+  public function getProvider($input): ?object;
 
   /**
    * Returns the oEmbed Resource based on the given media input url.
    *
-   * @param string $input_url
+   * @param string $input
    *   The input url.
    *
-   * @return \Drupal\media\OEmbed\Resource
+   * @return \Drupal\media\OEmbed\Resource|null
    *   The oEmbed resource.
    */
-  public function getResource($input_url);
+  public function getResource($input): ?object;
 
   /**
    * Builds media-related settings based on the given media input url.
@@ -89,6 +89,16 @@ interface BlazyOEmbedInterface {
   public function checkInputUrl(array &$settings, $input): ?string;
 
   /**
+   * Checks for the provider and its resources, to determine oembed, or not.
+   *
+   * @param string $input
+   *   The media input url.
+   * @param object $blazies
+   *   The blazies object to check and store the provider and its resources.
+   */
+  public function checkProviderAndResource($input, $blazies): void;
+
+  /**
    * Returns external image item from resource for BlazyFilter or VEF.
    *
    * The settings fallbacks are preserved for minimal BVEF compat. This method
@@ -96,8 +106,13 @@ interface BlazyOEmbedInterface {
    *
    * @param array $settings
    *   The settings being modified.
+   * @param bool $fallback
+   *   If it is as fallback to fetch image, else just global definitions.
+   *
+   * @return object
+   *   The fake image item, or null if failed, or not a fallback.
    */
-  public function getThumbnail(array &$settings): ?object;
+  public function getThumbnail(array &$settings, $fallback = TRUE): ?object;
 
   /**
    * Converts input URL into embed URL.
@@ -106,12 +121,12 @@ interface BlazyOEmbedInterface {
    *   The \Drupal\blazy\BlazySettings object.
    * @param string $input
    *   The input to modify.
-   * @param array $autoplay
-   *   The optional autoplay.
+   * @param array $params
+   *   The optional parameters, normally just autoplay.
    *
    * @return string
    *   The media oembed url.
    */
-  public function toEmbedUrl($blazies, $input, array $autoplay = []): string;
+  public function toEmbedUrl($blazies, $input, array $params = []): string;
 
 }

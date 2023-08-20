@@ -26,11 +26,56 @@ use Drupal\blazy\Utility\Sanitize;
 class Internals {
 
   /**
+   * The data URI text.
+   */
+  const DATA_TEXT = 'data:text/plain;base64,';
+
+  /**
    * The blazy HTML ID.
    *
    * @var int
    */
   protected static $blazyId;
+
+  /**
+   * Returns the expected/ corrected input URL.
+   *
+   * @param string $input
+   *   The given url.
+   *
+   * @return string
+   *   The input url.
+   */
+  public static function correct($input): ?string {
+    // If you bang your head around why suddenly Instagram failed, this is it.
+    // Only relevant for VEF, not core, in case ::toEmbedUrl() is by-passed:
+    if ($input && strpos($input, '//instagram') !== FALSE) {
+      $input = str_replace('//instagram', '//www.instagram', $input);
+    }
+    return $input;
+  }
+
+  /**
+   * Returns the expected input URL, specific for Youtube.
+   *
+   * OEmbed Resource doesn't accept `/embed`, provides a conversion helper,
+   * normally seen at BlazyFilter with youtube embed copy/paste, without
+   * creating media entities. Or when given an embed code by VEF, etc.
+   *
+   * @param string $input
+   *   The given url.
+   *
+   * @return string
+   *   The input url.
+   */
+  public static function youtube($input): ?string {
+    if (strpos($input, 'youtube.com/embed') !== FALSE) {
+      $search  = '/youtube\.com\/embed\/([a-zA-Z0-9]+)/smi';
+      $replace = "youtube.com/watch?v=$1";
+      $input   = preg_replace($search, $replace, $input);
+    }
+    return $input;
+  }
 
   /**
    * Returns the highest views rows, or field items count to determine gallery.
@@ -99,6 +144,17 @@ class Internals {
   }
 
   /**
+   * Checks if it a video.
+   */
+  public static function isVideo($blazies): bool {
+    if ($blazies->get('media.input_url')) {
+      $type = $blazies->get('media.resource.type') ?: $blazies->get('media.type');
+      return $type == 'video';
+    }
+    return FALSE;
+  }
+
+  /**
    * Returns a entity object by a property.
    *
    * @todo remove for BlazyInterface::loadByProperty().
@@ -138,6 +194,7 @@ class Internals {
    */
   public static function prepared(array &$settings, $item): void {
     BlazyImage::prepare($settings, $item);
+    self::tokenize($settings['blazies']);
   }
 
   /**
@@ -300,6 +357,18 @@ class Internals {
   }
 
   /**
+   * Sets a token based on media or image url.
+   */
+  public static function tokenize($blazies): void {
+    $url = $blazies->get('media.embed_url') ?: $blazies->get('image.url');
+    $uri = $blazies->get('image.uri');
+
+    self::scriptable($blazies);
+
+    $blazies->set('media.token', 'b-' . substr(md5($uri . $url), 0, 11));
+  }
+
+  /**
    * Alias for Grid::toNativeGrid().
    */
   public static function toNativeGrid(array &$settings): void {
@@ -381,6 +450,18 @@ class Internals {
       $result = $data["#blazy"] ?? $default;
     }
     return $result;
+  }
+
+  /**
+   * Sets Instagram script if so configured.
+   */
+  private static function scriptable($blazies): void {
+    if (!$blazies->is('iframeable')) {
+      if ($blazies->is('instagram') && $blazies->is('instagram_api')) {
+        $blazies->set('use.instagram_api', TRUE)
+          ->set('use.scripted_iframe', $blazies->is('iframe'));
+      }
+    }
   }
 
 }

@@ -161,8 +161,6 @@ class BlazyMedia implements BlazyMediaInterface {
     // Local video, FB, Twitter, etc. is rich to be simple due to terracota,
     // can be refined later when Blazy supports more media types better.
     if ($entity instanceof MediaInterface) {
-      $type = $blazies->get('media.type', 'rich');
-      $blazies->set('media.type', $type);
       $view_mode = $settings['view_mode'] ?? 'default';
       $view_mode = $blazies->get('media.view_mode', $view_mode);
       $source_field = $blazies->get('media.source_field');
@@ -346,6 +344,7 @@ class BlazyMedia implements BlazyMediaInterface {
       // The clearest so far are iframeable vs. iframe, multimedia, local_video.
       // OK for 2.17 since no real usages except for few.
       // See CheckItem::multimedia() for current usage definitions.
+      ->set('is.instagram_api', $source == 'oembed:instagram')
       ->set('is.playable', $is_remote || $is_local)
       ->set('is.multimedia', $is_media)
       ->set('is.local_media', $is_local)
@@ -361,14 +360,14 @@ class BlazyMedia implements BlazyMediaInterface {
   /**
    * {@inheritdoc}
    */
-  public function toEmbedUrl($input, $iframe_domain, array $autoplay = []): string {
+  public function toEmbedUrl($input, $iframe_domain, array $parameters = []): string {
     $query = [
       'url' => $input,
       'max_width' => 0,
       'max_height' => 0,
       'hash' => $this->iFrameUrlHelper->getHash($input, 0, 0),
       'blazy' => 1,
-    ] + $autoplay;
+    ] + $parameters;
 
     // @todo revisit if any issue with other resource types.
     $url = Url::fromRoute('media.oembed_iframe', [], [
@@ -380,7 +379,7 @@ class BlazyMedia implements BlazyMediaInterface {
       $url->setOption('base_url', $iframe_domain);
     }
 
-    return $url->toString();
+    return Internals::correct($url->toString());
   }
 
   /**
@@ -390,7 +389,14 @@ class BlazyMedia implements BlazyMediaInterface {
    */
   private function getType($source_id): string {
     $images = in_array($source_id, ['image', 'svg']);
-    $videos = in_array($source_id, ['oembed:video', 'video_embed_field']);
+    $videos = in_array($source_id, [
+      'oembed:video',
+      'video_embed_field',
+      // 'oembed:instagram',
+      // 'facebook',
+      // 'twitter',
+      // 'pinterest',
+    ]);
 
     if ($images) {
       $type = 'image';
@@ -409,7 +415,7 @@ class BlazyMedia implements BlazyMediaInterface {
    *
    * @todo add an option for thumbnail preview rather than entity view.
    */
-  private function disableFeatures(array &$settings, $rendered, $link = NULL): void {
+  private function disableFeatures(array &$settings, $rendered = TRUE, $link = NULL): void {
     $blazies = $settings['blazies'];
     $blazies->set('is.rendered', $rendered);
 
@@ -433,20 +439,23 @@ class BlazyMedia implements BlazyMediaInterface {
       // issue an E_DEPRECATED error. As of PHP 8.0.0 calling this method
       // statically throws an Error exception.
       // See https://www.php.net/manual/en/domdocument.loadhtml.php.
-      $dom     = Html::load($content);
+      $dom = Html::load($content);
       $iframes = $dom->getElementsByTagName('iframe');
 
       if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
         if ($src = $iframe->getAttribute('src')) {
-          if ($blazies->use('oembed') && strpos($src, '?url=') === FALSE) {
-            $iframe_domain = $blazies->get('iframe_domain');
+          $iframe_domain = $blazies->get('iframe_domain');
+          // For consistency and security, yet ensure to not mess up url.
+          if ($blazies->use('oembed')
+            && strpos($src, '?') === FALSE
+            && strpos($src, '?url=') === FALSE) {
             $src = $this->toEmbedUrl($src, $iframe_domain);
           }
 
           Internals::toPlayable($blazies, $src, TRUE);
 
-          // @todo remove, no longer relevant since upstream definitions.
-          $blazies->set('media.type', $blazies->get('media.source'));
+          // All iframes are treated as video, even if image.
+          $blazies->set('media.type', 'video');
         }
       }
       else {
@@ -519,6 +528,9 @@ class BlazyMedia implements BlazyMediaInterface {
     // No longer per D9.5: Soundcloud.
     if ($is_iframe && $src = ($attributes['src'] ?? FALSE)) {
       Internals::toPlayable($blazies, $src, TRUE);
+
+      // All iframes are treated as video, even if image.
+      $blazies->set('media.type', 'video');
     }
     // Media with local files: video.
     elseif (isset($item['#files'])
@@ -543,12 +555,14 @@ class BlazyMedia implements BlazyMediaInterface {
     }
     else {
       // @todo recheck more media entity tendencies, mostly just #markup.
-      // Resource::TYPE_LINK, Facebook, and the rest of media entities.
+      // Resource::TYPE_LINK.
       $type = $item['#type'] ?? NULL;
       $link = $type == 'link' && isset($item['#url']) ? $item['#url'] : NULL;
-      // $rendered = $link || !empty($item['#markup']);
+
       // Unless required as a thumbnail, render as is.
       $rendered = !$blazies->is('thumbnail');
+
+      // Facebook, and the rest of media entities.
       // At least display thumbnails for empty markups.
       if (isset($item['#markup']) && empty($item['#markup'])) {
         $rendered = FALSE;

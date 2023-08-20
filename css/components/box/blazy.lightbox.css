@@ -81,3 +81,7 @@ a .media--switch img.media__element {
   top: 50%;
   transform: translateY(-50%);
 }
+
+.media .instagram-media {
+  margin: 0 auto !important; /* csslint allow: known-properties, important */
+}

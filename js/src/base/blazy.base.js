@@ -46,6 +46,10 @@
     return $.isElm($.closest(el, '.grid'));
   };
 
+  $.isHtml = function (el, opts) {
+    return is(el, 'b-html');
+  };
+
   $.image = {
 
     alt: function (el, fallback) {

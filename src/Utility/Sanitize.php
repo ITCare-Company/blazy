@@ -7,6 +7,7 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\internals\Internals;
 
 /**
  * Provides very few common sanitization wrapper methods.
@@ -242,14 +243,8 @@ class Sanitize {
    */
   public static function inputUrl($input): ?string {
     if ($input) {
-      // OEmbed Resource doesn't accept `/embed`, provides a conversion helper,
-      // normally seen at BlazyFilter with youtube embed copy/paste, without
-      // creating media entities.
-      if (strpos($input, 'youtube.com/embed') !== FALSE) {
-        $search  = '/youtube\.com\/embed\/([a-zA-Z0-9]+)/smi';
-        $replace = "youtube.com/watch?v=$1";
-        $input   = preg_replace($search, $replace, $input);
-      }
+      // @todo move it out of here at 3.x:
+      Internals::youtube($input);
 
       $input = self::url($input);
     }

@@ -105,40 +105,23 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Blazy outputs can be formatted using either flat list via theme_field(), or
    * a grid of Field items or Views rows via theme_item_list().
    *
-   * @param array $build
+   * @param array $data
    *   The array containing: settings, children elements, or optional items.
    *
    * @return array
    *   The alterable and renderable array of contents.
    */
-  public function build(array $build): array {
-    $settings = $this->getBlazySettings($build);
+  public function build(array $data): array {
+    $settings = $this->getBlazySettings($data);
     $blazies  = $settings['blazies'];
 
     // This #pre_render doesn't work if called from Views results, hence the
     // output is split either as theme_field() or theme_item_list().
     if ($blazies->is('grid')) {
-      // Take over theme_field() with a theme_item_list(), if so configured.
-      // The reason: this is not only fed by field items, but also Views rows.
-      $build['#settings'] = $settings;
-      $content = [
-        '#build'      => $build,
-        '#pre_render' => [[$this, 'preRenderBuild']],
-      ];
-
-      // Yet allows theme_field(), if so required, such as for linked_field.
-      $build = $blazies->use('theme_field') ? [$content] : $content;
+      $build = $this->themeItemList($data, $settings, $blazies);
     }
     else {
-      // If not a grid, pass items as regular index children to theme_field().
-      // Runs after settings.
-      $build = $this->toElementChildren($build);
-
-      // @todo refactor and move non-children out of here at 3.x.
-      // We don't use #settings here to avoid conflicts with others because
-      // theme_field() is not managed by blazy.
-      $build['#blazy'] = $settings;
-      $this->setAttachments($build, $settings);
+      $build = $this->themeField($data, $settings);
     }
 
     $this->moduleHandler->alter('blazy_build', $build, $settings);
@@ -284,6 +267,11 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       $this->mergeSettings('blazies', $settings, $blazy->storage());
     }
 
+    // Ensures at least the library is attached before emptying anything below.
+    if ($attachments = $build['content'][0]['#attached'] ?? []) {
+      $element['#attached'] = $this->merge($attachments, $element, '#attached');
+    }
+
     // Prevents complication for now, such as lightbox for Facebook, etc.
     // Either makes no sense, or not currently supported without extra legs.
     // Original formatter settings can still be accessed via content variable.
@@ -299,16 +287,27 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Since 2.17, any content can be lightboxed along long as supported.
     // Only possible if having hires image via `Main stage` aka cross image,
     // and the lightbox is capable to display it.
-    $hires     = $blazies->is('hires', !empty($settings['image']));
-    $richbox   = $blazies->is('lightbox') && $blazies->is('richbox');
-    $supported = $blazies->is('rendered') && $richbox;
+    $hires   = $blazies->is('hires', !empty($settings['image']));
+    $hires   = $hires || $blazies->get('box_media.id');
+    $richbox = $blazies->is('lightbox') && $blazies->is('richbox');
 
-    if ($supported && $hires) {
+    if ($richbox && $hires) {
       $blazies->set('is.unlazy', TRUE);
       $element['#lightbox_html'] = $build['content'];
 
       // This allows theme_blazy() to process it as workable media elements.
       $build['content'] = [];
+    }
+    else {
+      if ($blazies->get('lazy.html')) {
+        $content = $this->renderer->renderPlain($build['content']);
+        $content = base64_encode($content->__toString());
+        $blazies->set('media.encoded.content', $content)
+          ->set('media.encoded.uri', Internals::DATA_TEXT);
+
+        // This allows theme_blazy() to process it as workable media elements.
+        $build['content'] = [];
+      }
     }
   }
 
@@ -453,6 +452,11 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       $element["#$key"] = $this->merge($values, $element, "#$key");
     }
 
+    // Fixed for media switch and lightboxes with Instagram API.
+    if ($blazies->use('instagram_api') && $blazies->get('switch')) {
+      $element['#attached']['library'][] = 'blazy/instagram';
+    }
+
     // Pass common elements to theme_blazy().
     $element['#attributes'] = Blazy::sanitize($attributes);
     $element['#item']       = $build['#item'];
@@ -467,6 +471,38 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $programs = $blazies->get('item.' . $key, []);
 
     return $this->merge($programs, $defaults);
+  }
+
+  /**
+   * Returns a theme_field() output.
+   */
+  private function themeField(array $data, array $settings): array {
+    // If not a grid, pass items as regular index children to theme_field().
+    // Runs after settings.
+    $build = $this->toElementChildren($data);
+
+    // @todo refactor and move non-children out of here at 3.x.
+    // We don't use #settings here to avoid conflicts with others because
+    // theme_field() is not managed by blazy.
+    $build['#blazy'] = $settings;
+    $this->setAttachments($build, $settings);
+    return $build;
+  }
+
+  /**
+   * Returns a theme_item_list() output.
+   */
+  private function themeItemList(array $data, array $settings, $blazies): array {
+    // Take over theme_field() with a theme_item_list(), if so configured.
+    // The reason: this is not only fed by field items, but also Views rows.
+    $data['#settings'] = $settings;
+    $content = [
+      '#build'      => $data,
+      '#pre_render' => [[$this, 'preRenderBuild']],
+    ];
+
+    // Yet allows theme_field(), if so required, such as for linked_field.
+    return $blazies->use('theme_field') ? [$content] : $content;
   }
 
   /**

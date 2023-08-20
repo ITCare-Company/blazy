@@ -197,13 +197,14 @@ class Check {
       ->set('is.undata', $is_undata)
       ->set('is.unload', $is_unload)
       ->set('is.unloading', $is_unloading)
+      ->set('lazy.html', !empty($ui['lazy_html']))
       ->set('libs.background', $is_bg || $is_audio)
       ->set('libs.compat', $is_compat)
       ->set('libs.ratio', !empty($settings['ratio']))
       ->set('media.defaults', $medias)
       ->set('use.dataset', $is_bg || $is_video)
       ->set('use.loader', !$is_nojs)
-      ->set('use.oembed', TRUE)
+      ->set('use.script', FALSE)
       ->set('use.svg_dimensions', TRUE);
   }
 

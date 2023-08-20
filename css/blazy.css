@@ -132,3 +132,20 @@ absolute position and fixed dimensions. */
 .blazy .grid figure {
   margin: 0;
 }
+
+/* Without aspect ratio will collapsed, with ratio, cropped. Adjust. */
+.b-html,
+.media--instagram {
+  min-height: 140px;
+}
+
+.b-html iframe,
+.media--instagram iframe {
+  min-height: 420px;
+}
+
+.b-html.b-loaded > img {
+  position: absolute;
+  visibility: hidden;
+  z-index: -1;
+}

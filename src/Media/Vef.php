@@ -2,8 +2,6 @@
 
 namespace Drupal\blazy\Media;
 
-use Drupal\blazy\Blazy;
-
 /**
  * Provides deprecated video embed field utility for easy removal.
  *
@@ -21,19 +19,24 @@ class Vef {
   public static function toEmbedUrl(array &$settings, array $options, $oembed): string {
     $blazies   = $settings['blazies'];
     $embed_url = $options['embed_url'];
-    $is_player = $options['is_player'];
-
-    // For consistency and security, yet ensure to not mess up url.
     $input_url = $blazies->get('media.input_url');
+
+    // $is_player = $options['is_player'];
+    // Too risky, abort.
+    // For consistency and security, yet ensure to not mess up url.
+    /*
     if ($input_url) {
-      if ($blazies->use('oembed') && strpos($embed_url, '?url') === FALSE) {
-        $autoplay  = $is_player ? ['autoplay' => 1] : [];
-        $embed_url = $oembed->toEmbedUrl($blazies, $input_url, $autoplay);
-      }
-      elseif ($is_player) {
-        $embed_url = Blazy::autoplay($embed_url);
-      }
+    if ($blazies->use('oembed')
+    && strpos($embed_url, '?') === FALSE
+    && strpos($embed_url, '?url') === FALSE) {
+    $autoplay  = $is_player ? ['autoplay' => 1] : [];
+    $embed_url = $oembed->toEmbedUrl($blazies, $input_url, $autoplay);
     }
+    elseif ($is_player) {
+    $embed_url = Blazy::autoplay($embed_url);
+    }
+    }
+     */
 
     // The multimedia is defined for core Media, not VEF, so set it here.
     $bundle = $blazies->get('media.bundle', 'remote_video');

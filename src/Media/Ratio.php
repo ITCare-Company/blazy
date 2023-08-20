@@ -38,7 +38,7 @@ class Ratio {
       // If using image_style or defaults, even SVG can be padding-hacked for
       // consistency. If using none, then disable aspect ratio altogether.
       // @todo recheck against responsive image, gif, apng, alike.
-      if ($_svg && $_none) {
+      if (($_svg && $_none) || $blazies->is('instagram')) {
         $ratio = NULL;
         $hack  = FALSE;
       }

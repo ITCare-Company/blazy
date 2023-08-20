@@ -1142,9 +1142,9 @@
     if (isQsa(el)) {
       selector = toScope(selector);
       el = context(el, selector);
-      return isUnd(asArray) && isStr(selector)
-        ? (el.querySelector(selector) || [])
-        : toElms(selector, el);
+      return isUnd(asArray) && isStr(selector) ?
+        (el.querySelector(selector) || []) :
+        toElms(selector, el);
     }
     return [];
   }
@@ -1614,6 +1614,39 @@
     return chain.call(els, chainCallback);
   }
 
+  /**
+   * Load a script dynamically.
+   *
+   * @link https://stackoverflow.com/questions/16839698
+   *
+   * @param {string} url
+   *   The script url.
+   * @param {Function} callback
+   *   The optional callback function.
+   * @param {string} id
+   *   The script id.
+   */
+  function getScript(url, callback, id) {
+    var script = _doc.createElement('script');
+    var prior = _doc.getElementsByTagName('script')[0];
+    script.async = 1;
+    script.id = id;
+
+    script.onload = script.onreadystatechange = function (_, isAbort) {
+      if (isAbort || !script.readyState || /loaded|complete/.test(script.readyState)) {
+        script.onload = script.onreadystatechange = null;
+        script = null;
+
+        if (!isAbort && callback) {
+          _win.setTimeout(callback, 0);
+        }
+      }
+    };
+
+    script.src = url;
+    prior.parentNode.insertBefore(script, prior);
+  }
+
   // Type methods.
   // Wonder why ES6 has alt lambda `=>` for `function`? Compact, to save bytes.
   // Kotlin has useless `fun` due to being compiled back to `function`. But ES6
@@ -1701,6 +1734,7 @@
   db.off = off;
   db.one = one;
   db.trigger = trigger;
+  db.getScript = getScript;
 
   // Image methods.
   db.isDecoded = isDecoded;
@@ -1864,9 +1898,9 @@
     // @todo fix why the selector itself is given as context on lightboxes
     // since D10/ blazy:2.17. And also check it around for internal mistakes.
     if (selector) {
-      if (is(ctx, selector)
-        || is(selector, _body)
-        || is(selector, _html)) {
+      if (is(ctx, selector) ||
+        is(selector, _body) ||
+        is(selector, _html)) {
         ctx = _doc;
       }
     }

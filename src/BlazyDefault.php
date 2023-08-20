@@ -450,6 +450,7 @@ class BlazyDefault {
       'animate',
       'dataset',
       'background',
+      'instagram',
       'observer',
       'multimedia',
     ];
