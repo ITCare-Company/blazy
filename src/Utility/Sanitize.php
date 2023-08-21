@@ -242,10 +242,8 @@ class Sanitize {
    *   The sanitized input url.
    */
   public static function inputUrl($input): ?string {
-    if ($input) {
-      // @todo move it out of here at 3.x:
-      Internals::youtube($input);
-
+    // @todo move it out of here at 3.x:
+    if ($input = Internals::youtube($input)) {
       $input = self::url($input);
     }
     return $input;

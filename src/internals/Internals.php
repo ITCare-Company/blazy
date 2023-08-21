@@ -69,7 +69,7 @@ class Internals {
    *   The input url.
    */
   public static function youtube($input): ?string {
-    if (strpos($input, 'youtube.com/embed') !== FALSE) {
+    if ($input && strpos($input, 'youtube.com/embed') !== FALSE) {
       $search  = '/youtube\.com\/embed\/([a-zA-Z0-9]+)/smi';
       $replace = "youtube.com/watch?v=$1";
       $input   = preg_replace($search, $replace, $input);

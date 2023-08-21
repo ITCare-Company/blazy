@@ -44,7 +44,10 @@ class Thumbnail {
     }
 
     // Needed by sub-modules for their routines, even useless since 2.17.
-    $output['#settings'] = $settings;
+    if ($output) {
+      $output['#settings'] = $settings;
+    }
+
     return $output;
   }
 
