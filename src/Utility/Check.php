@@ -203,6 +203,7 @@ class Check {
       ->set('libs.ratio', !empty($settings['ratio']))
       ->set('media.defaults', $medias)
       ->set('use.dataset', $is_bg || $is_video)
+      ->set('use.encodedbox', !empty($ui['use_encodedbox']))
       ->set('use.loader', !$is_nojs)
       ->set('use.script', FALSE)
       ->set('use.svg_dimensions', TRUE);
@@ -416,16 +417,19 @@ class Check {
     }
 
     // Richbox is local video inside lightboxes by supported lightboxes.
-    $_richbox = $blazies->is('richbox') ?: ($settings['_richbox'] ?? FALSE);
-    $richbox  = $blazies->get('colorbox')
-      || $blazies->get('flybox')
-      || $blazies->get('mfp')
-      || $_richbox;
+    $colorbox   = $blazies->get('colorbox');
+    $flybox     = $blazies->get('flybox');
+    $mfp        = $blazies->get('mfp');
+    $encodedbox = $colorbox || $flybox || $mfp;
+    $encodedbox = $blazies->is('encodedbox') || $encodedbox;
+    $_richbox   = $blazies->is('richbox') ?: ($settings['_richbox'] ?? FALSE);
+    $richbox    = $encodedbox || $_richbox;
 
     // (Non-)lightboxes: media player, link to content, image rendered, etc.
     $blazies->set('switch', $switch)
       ->set('libs.media', $switch == 'media')
       ->set('is.lightbox', !empty($lightbox))
+      ->set('is.encodedbox', !empty($encodedbox))
       ->set('is.richbox', !empty($richbox))
       ->set('was.lightbox', TRUE);
   }

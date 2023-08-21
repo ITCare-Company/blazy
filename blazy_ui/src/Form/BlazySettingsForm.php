@@ -116,6 +116,13 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       '#wrapper_attributes' => ['class' => ['messages-list']],
     ];
 
+    $form['admin_css'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Admin CSS'),
+      '#default_value' => $config->get('admin_css'),
+      '#description'   => $this->t('Uncheck to disable blazy related admin compact form styling, only if not compatible with your admin theme.'),
+    ];
+
     $form['use_theme_blazy'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Use theme_blazy()'),
@@ -128,22 +135,22 @@ class BlazySettingsForm extends BlazyConfigFormBase {
     $form['use_oembed'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Use oEmbed'),
-      '#description'   => $this->t('Check to use oEmbed when available. Only relevant for VEF compatibility which already managed their embed codes. Irrelevant for core which already uses oEmbed. If checked, VEF embed will be converted into oEmbed if the provider is available, otherwise left as is. Be informed! Using oEmbed may require having App ID and secret credentials for some providers even for simple oEmbed read such Instagram or Facebook, not Youtube, etc.'),
+      '#description'   => $this->t('Check to use oEmbed when available. Only relevant for VEF compatibility which already managed their embed codes. Irrelevant for core which already uses oEmbed. If checked, VEF embed will be converted into oEmbed if the provider is available, otherwise left as is. Be informed! Using oEmbed may require having App ID and secret credentials for some providers even for simple oEmbed read such as Instagram or Facebook, not Youtube, etc.'),
       '#default_value' => $config->get('use_oembed'),
     ];
 
     $form['lazy_html'] = [
       '#type'          => 'checkbox',
-      '#title'         => $this->t('Lazy load HTML'),
-      '#description'   => $this->t('When theme_blazy() does not understand a media output, it will print it as HTML as is. This HTML is normally a paragraph size. Check this to lazy load such HTML content, no AJAX, otherwise printed as is. A new feature since 2.17, not battle-tested. Potential issues are with the attached libraries, and other various Blazy features. Please disable and report if any issues.'),
+      '#title'         => $this->t('Lazy load HTML (Experimental)'),
+      '#description'   => $this->t('When theme_blazy() does not understand a media output, it will print it as HTML as is. This HTML is normally a paragraph size. Check this to lazy load such HTML content (normally heavy third party contents, like oembed Instagram, Pinterest, etc.), no AJAX, otherwise printed as is. A new feature since 2.17, not battle-tested. Potential issues are with the attached libraries, and other various Blazy features. Please disable and report if any issues.'),
       '#default_value' => $config->get('lazy_html'),
     ];
 
-    $form['admin_css'] = [
+    $form['use_encodedbox'] = [
       '#type'          => 'checkbox',
-      '#title'         => $this->t('Admin CSS'),
-      '#default_value' => $config->get('admin_css'),
-      '#description'   => $this->t('Uncheck to disable blazy related admin compact form styling, only if not compatible with your admin theme.'),
+      '#title'         => $this->t('Use encoding for lightbox HTML (Experimental)'),
+      '#description'   => $this->t('If checked, and the lightbox supports this feature, the lightbox HTML (normally local audio/video, oembed Instagram, etc.) will be encoded. A minor byte saving. Please disable if any issues.'),
+      '#default_value' => $config->get('use_encodedbox'),
     ];
 
     $nojs = $config->get('nojs');
@@ -404,6 +411,7 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       ->set('deprecated_class', $form_state->getValue('deprecated_class'))
       ->set('placeholder', $form_state->getValue('placeholder'))
       ->set('unstyled_extensions', $form_state->getValue('unstyled_extensions'))
+      ->set('use_encodedbox', $form_state->getValue('use_encodedbox'))
       ->set('use_theme_blazy', $form_state->getValue('use_theme_blazy'))
       ->set('use_oembed', $form_state->getValue('use_oembed'))
       ->set('blazy.loadInvisible', $form_state->getValue([

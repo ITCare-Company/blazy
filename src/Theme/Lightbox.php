@@ -251,7 +251,6 @@ class Lightbox {
       '_resimage' => $_resimage,
     ] = $options;
 
-    $is_html = FALSE;
     $blazies = $settings['blazies'];
 
     // Do not output NULL dimensions.
@@ -263,6 +262,7 @@ class Lightbox {
     }
 
     // Currently: Responsive/Picture image, not plain, and Local video.
+    $is_html = FALSE;
     if ($box_html = ($element['#lightbox_html'] ?? [])) {
       $is_html = TRUE;
       $type = str_replace('_', '-', $json['boxType']);
@@ -301,7 +301,8 @@ class Lightbox {
 
       // Responsive image is unwrapped. Local videos wrapped.
       $content = $_resimage ? $box_html : $html;
-      $content = trim($manager->renderer()->renderPlain($content));
+      $content = $manager->renderer()->renderPlain($content);
+      $content = is_object($content) ? $content->__toString() : $content;
 
       // @todo merge with BlazyDefault::TAGS when mixed contents supported.
       // Lightbox Responsive|Picture image will be broken when filtered out.
@@ -314,13 +315,21 @@ class Lightbox {
         'style' => $style,
       ];
 
-      $json['html'] = Sanitize::unstrip($content, $unstrips);
+      $content = Sanitize::unstrip($content, $unstrips);
+      $is_picture = Blazy::has($content, '<picture');
+
+      $json['encoded'] = FALSE;
+      if ($blazies->use('encodedbox') && $blazies->is('encodedbox')) {
+        $content = base64_encode($content);
+        $json['encoded'] = TRUE;
+      }
+
+      $json['html'] = $content;
 
       // @todo refine type as needed, no longer relevant for boxType.
       $json['type'] = 'rich';
       if ($_resimage) {
-        $json['boxType'] = Blazy::has($content, '<picture')
-          ? 'picture' : 'responsiveImage';
+        $json['boxType'] = $is_picture ? 'picture' : 'responsiveImage';
       }
       else {
         if ($blazies->is('local_audio')) {

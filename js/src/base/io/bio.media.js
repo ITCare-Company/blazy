@@ -40,8 +40,10 @@
   var _data = 'data-';
   var _src = 'src';
   var _srcSet = 'srcset';
+  var _bHtml = 'b-html';
   var _dataSrc = _data + _src;
   var _dataSrcset = _data + _srcSet;
+  var _dataHtml = _data + _bHtml;
   var _dataText = 'data:text/plain;base64,';
   var _imgSources = [_srcSet, _src];
   var _erCounted = 0;
@@ -77,7 +79,6 @@
     var opts = me.options;
     var parent = el.parentNode;
     var isBg = $.isBg(el);
-    var isHtml = $.isHtml(el);
     var isPicture = $.equal(parent, 'picture');
     var isImage = $.equal(el, 'img');
     var isAudio = $.equal(el, 'audio');
@@ -88,6 +89,22 @@
     if ($.blur) {
       $.blur(el);
     }
+
+    var loadHtml = function (cn) {
+      if ($.isHtml(cn) && $.hasAttr(cn, _dataHtml)) {
+        var html = $.attr(cn, _dataHtml);
+        html = html.replace(_dataText, '');
+        html = atob(html);
+
+        $.append(cn, html);
+        $.removeAttr(cn, _dataHtml);
+
+        // if (!$.isBg(cn)) {
+        // $.removeAttr(cn, _dataSrc);
+        // }
+        _erCounted = $.status(cn, true, opts);
+      }
+    };
 
     // PICTURE elements.
     if (isPicture) {
@@ -115,24 +132,23 @@
       if (isImage || isBg) {
         me.loadImage(el, isBg, winData);
       }
-      // IFRAME elements, etc.
       else {
-        if (isHtml) {
-          var html = $.attr(el, _dataSrc);
-          html = html.replace(_dataText, '');
-          html = atob(html);
-          $.append(el, html);
-          _erCounted = $.status(el, true, opts);
-        }
-        else if ($.hasAttr(el, _src)) {
+        // IFRAME elements, etc.
+        if ($.hasAttr(el, _src)) {
           if ($.attr(el, _dataSrc)) {
             $.mapAttr(el, _src, true);
           }
 
           _erCounted = defer(me, el, true, opts);
         }
+        // HTML elements.
+        else {
+          loadHtml(el);
+        }
       }
     }
+
+
     me.erCount = _erCounted;
   };
 

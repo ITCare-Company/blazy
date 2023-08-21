@@ -12,7 +12,8 @@
   var _idOnce = _id;
   var _player = _md + '--player';
   var _mounted = 'is-' + _id;
-  var _element = '.' + _player + ':not(.' + _mounted + ')';
+  var _sPlayer = '.' + _player;
+  var _element = _sPlayer + ':not(.' + _mounted + ')';
   var _icon = _md + '__icon';
   var _elIconPlay = '.' + _icon + '--play';
   var _elIconClose = '.' + _icon + '--close';
@@ -25,6 +26,8 @@
   var _dataProvider = _data + 'b-provider';
   var _dataToken = _data + 'b-token';
   var _mdElement = _md + '__element';
+  var _mdInstagram = _md + '--instagram';
+  var _cHidden = 'visually-hidden';
   var _multimedia = $.multimedia || false;
   var _instagram = $.instagram || false;
 
@@ -73,57 +76,71 @@
       e.preventDefault();
 
       // oEmbed/ Soundcloud needs internet, fails on disconnected local.
-      if (url === '') {
+      if (!url) {
         return false;
       }
-
-      var target = this;
-      var player = target.parentNode;
-      var playing = $.find(_doc, '.' + _isPlaying);
-      var iframe = $.find(player, _iFrame);
-
-      url = $.attr(target, _dataUrl);
-      title = $.attr(target, _dataIFrameTitle);
 
       // Reset any (local) video/ audio to avoid multiple elements from playing.
       if (_multimedia) {
         _multimedia.pause();
       }
 
+      var target = this;
+      var sPlayable = '.' + _isPlaying + ':not(.' + _mdInstagram + ')';
+      var playing = $.find(_doc, sPlayable);
+      var player = target.parentNode;
+
       // Remove other playing remote videos.
       if ($.isElm(playing)) {
-        var played = $.find(_doc, '.' + _isPlaying + ' ' + _iFrame);
+        var played = $.find(_doc, sPlayable + ' ' + _iFrame);
         // Remove the previous iframe.
         $.remove(played);
         playing.className = playing.className.replace(/(\S+)playing/, '');
       }
+
+      $.addClass(player, _isPlaying);
+
+      if (instagramApi) {
+        _instagram.show();
+      }
+      else {
+        playNow(e);
+      }
+    }
+
+    /**
+     * Play the media.
+     *
+     * @param {Event} e
+     *   The event triggered by a `click` event.
+     */
+    function playNow(e) {
+      var target = e.target;
+      var player = target.parentNode;
+      var iframe = $.find(player, _iFrame);
+
+      url = $.attr(target, _dataUrl);
+      title = $.attr(target, _dataIFrameTitle);
 
       // Remove the existing iframe on the current clicked iframe.
       $.remove(iframe);
 
       // DOM ready fix, for slow iframe removal.
       window.setTimeout(function () {
-        $.addClass(player, _isPlaying);
+        // Cache iframe for the potential repeating clicks.
+        if (!newIframe) {
+          newIframe = $.create(_iFrame, _mdElement);
 
-        if (instagramApi) {
-          _instagram.show();
+          // Saving another clicks for nested iframes.
+          $.attr(newIframe, {
+            src: url,
+            allow: 'autoplay; fullscreen',
+            title: Drupal.checkPlain(title)
+          });
         }
-        else {
-          // Cache iframe for the potential repeating clicks.
-          if (!newIframe) {
-            newIframe = $.create(_iFrame, _mdElement);
 
-            // Saving another clicks for nested iframes.
-            $.attr(newIframe, {
-              src: url,
-              allow: 'autoplay; fullscreen',
-              title: Drupal.checkPlain(title)
-            });
-          }
-
-          // Appends the iframe.
-          player.appendChild(newIframe);
-        }
+        // Appends the iframe.
+        player.appendChild(newIframe);
 
         $.addClass(_doc.body, _isBodyPlaying);
 
@@ -142,24 +159,29 @@
      *
      * @param {Event} e
      *   The event triggered by a `click` event.
+     *
+     * @return {bool|mixed}
+     *   Return false if instagram API.
      */
     function stop(e) {
       e.preventDefault();
 
       var target = this;
-      var player = target.parentNode;
-      var iframe = $.find(player, _iFrame);
 
+      if (instagramApi) {
+        $.addClass(target, _cHidden);
+        return false;
+      }
+
+      var player = target.parentNode;
+
+      // _instagram.hide();
+      var iframe = $.find(player, _iFrame);
       if (player.className.match(_isPlaying)) {
         player.className = player.className.replace(/(\S+)playing/, '');
       }
 
       $.remove(iframe);
-
-      if (instagramApi) {
-        _instagram.hide();
-      }
-
       $.removeClass(_doc.body, _isBodyPlaying);
 
       // Be sure to detach on your destroy method, or Drupal..detach:
@@ -171,6 +193,23 @@
       });
     }
 
+    /**
+     * Reacts on `blazy.done` event.
+     *
+     * @param {Event} e
+     *   The event triggered by a `blazy.done` event.
+     */
+    function onDone(e) {
+      var target = e.target;
+      var player = $.hasClass(target, _player) ? target : $.closest(target, _sPlayer);
+      var btn = $.find(player, _elIconPlay);
+
+      // Autoload instagram player on being lazy loaded.
+      if ($.hasClass(player, _mdInstagram) && $.isElm(btn)) {
+        btn.click();
+      }
+    }
+
     // Remove iframe if any to avoid browser requesting them till clicked.
     $.remove(iframe);
 
@@ -179,6 +218,9 @@
 
     // Closes the video.
     $el.on('click.' + _id, _elIconClose, stop);
+
+    // Listens to blazy.done event to auto-display instagram feeds.
+    $el.on('blazy.done', onDone);
 
     $.removeClass(_doc.body, _isBodyPlaying);
     $el.addClass(_mounted);

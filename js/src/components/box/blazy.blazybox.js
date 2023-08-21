@@ -226,6 +226,7 @@
     var url;
     var img;
     var pad;
+    var content;
     var width = '';
     var html = '<div class="blazybox__fullscreen">';
 
@@ -239,6 +240,7 @@
 
     if ($.isElm(el)) {
       dataset = $.parse($.attr(el, 'data-b-media data-media'));
+      content = dataset.html;
       oembedUrl = $.attr(el, 'data-oembed-url');
 
       // Video|Audio|Responsive|Picture elements.
@@ -248,8 +250,12 @@
           width = ' style="width:' + wdth + 'px"';
         }
 
-        if (dataset.html) {
-          html += '<div class="blazybox__html"' + width + '>' + dataset.html + '</div>';
+        if (content) {
+          if (dataset.encoded) {
+            content = atob(content);
+          }
+
+          html += '<div class="blazybox__html"' + width + '>' + content + '</div>';
         }
         else if (dataset.boxType === 'image') {
           alt = $.image.alt(el, '');

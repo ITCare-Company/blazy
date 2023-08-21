@@ -121,6 +121,7 @@
     $.each(elms, function (el, i) {
       var media = $.parse($.attr(el, 'data-b-media data-media'));
       var caption = el.nextElementSibling;
+      var validCaption = caption && $.hasClass(caption, 'litebox__caption');
       var url = $.attr(el, 'href');
       var item = {
         el: _jq(el)
@@ -139,7 +140,14 @@
         // (Responsive|Picture) image, local video.
         if ('html' in media) {
           useWidth = boxType === 'video';
-          src = _sanitizer.sanitize(media.html);
+          var html = media.html;
+
+          // If encoded, then decode it.
+          if (media.encoded) {
+            html = atob(html);
+          }
+
+          src = _sanitizer.sanitize(html);
           item.type = 'inline';
         }
         else if (boxType === 'iframe') {
@@ -156,7 +164,7 @@
           }
 
           src = '<div class="mfp-html mfp-html--' + boxType + '"' + style + '><div class="mfp-inner">' + src;
-          if (caption) {
+          if (validCaption) {
             src += '<div class="mfp-bottom-bar"><div class="mfp-title">' + _sanitizer.sanitize(caption.innerHTML) + '</div>' + counter((i + 1) + '/' + total) + '</div>';
           }
           src += '</div></div>';
@@ -167,7 +175,7 @@
         item.src = src;
       }
 
-      if (caption) {
+      if (validCaption) {
         item.title = _sanitizer.sanitize(caption.innerHTML);
       }
 

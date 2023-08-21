@@ -276,10 +276,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Either makes no sense, or not currently supported without extra legs.
     // Original formatter settings can still be accessed via content variable.
     // Not here, defined at BlazyMedia::unfield() for more detailed checks.
-    $blazies->set('placeholder', [])
-      // @todo recheck ->set('is.bg', FALSE)
-      // ->set('is.unlazy', TRUE)
-      ->set('use.loader', FALSE);
+    $blazies->set('placeholder', []);
 
     // Supports HTML content for lightboxes as long as having image trigger.
     // Only limit to local media to not conflict with Image rendered by its
@@ -292,7 +289,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $richbox = $blazies->is('lightbox') && $blazies->is('richbox');
 
     if ($richbox && $hires) {
-      $blazies->set('is.unlazy', TRUE);
       $element['#lightbox_html'] = $build['content'];
 
       // This allows theme_blazy() to process it as workable media elements.
@@ -300,13 +296,20 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
     else {
       if ($blazies->get('lazy.html')) {
-        $content = $this->renderer->renderPlain($build['content']);
+        $content = $this->toHtml($build['content'], 'div', 'media__html');
+        $content = $this->renderer->renderPlain($content);
         $content = base64_encode($content->__toString());
         $blazies->set('media.encoded.content', $content)
           ->set('media.encoded.uri', Internals::DATA_TEXT);
 
         // This allows theme_blazy() to process it as workable media elements.
         $build['content'] = [];
+      }
+      else {
+        // @todo recheck if anything against this.
+        $blazies->set('is.bg', FALSE)
+          ->set('is.unlazy', TRUE)
+          ->set('use.loader', FALSE);
       }
     }
   }

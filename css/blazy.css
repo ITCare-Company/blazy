@@ -144,7 +144,9 @@ absolute position and fixed dimensions. */
   min-height: 420px;
 }
 
-.b-html.b-loaded > img {
+/** @todo re-check variouse use-cases. */
+.b-html.b-loaded > *:not(.media__html) {
+  opacity: 0;
   position: absolute;
   visibility: hidden;
   z-index: -1;

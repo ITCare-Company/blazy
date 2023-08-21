@@ -113,7 +113,10 @@ class Attributes {
     if ($blazies->get('lazy.html')) {
       $unlazy = self::isUnlazy($blazies);
       if (!$unlazy && $html = $blazies->get('media.encoded.content')) {
-        $attributes['data-src'] = Internals::DATA_TEXT . $html;
+        if (!$blazies->get('bgs')) {
+          $attributes['data-src'] = '';
+        }
+        $attributes['data-b-html'] = Internals::DATA_TEXT . $html;
         $attributes['class'][] = 'b-lazy';
         $attributes['class'][] = 'b-html';
       }

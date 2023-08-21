@@ -47,6 +47,9 @@ blazy.settings:
     unstyled_extensions:
       type: string
       label: 'Extensions without image styles'
+    use_encodedbox:
+      type: boolean
+      label: 'Use encoding for lightbox HTML'
     use_oembed:
       type: boolean
       label: 'Use oEmbed'

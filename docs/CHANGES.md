@@ -23,7 +23,7 @@ Always check out release notes, if any issues with the latest changes.
      [Blazy ecosystem breaking change](https://www.drupal.org/node/3375158).
    + **New options**:Added additional config options at Blazy UI. Be sure to
      check out for `visible_class`, `wrapper_class`, `deprecated_class`,
-     `use_oembed`, `lazy_html` options if using them.
+     `use_oembed`, `lazy_html`, `use_encodedbox` options if using them.
    + Renamed legacy Foundation grid CSS classes to avoid conflicts with core
     `block` CSS classes:
      * `block-GRIDSTYLE` to `b-GRIDSTYLE`, e.g.: `block-nativegrid` to

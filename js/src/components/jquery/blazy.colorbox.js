@@ -33,8 +33,15 @@
     var isIframe = media.boxType === 'iframe' && !_sanitizer.isDangerous('href', url);
     var isHtml = 'html' in media;
     var instagramApi = _instagram && media.provider === 'instagram';
+    var html = isHtml ? media.html : null;
+
+    // If encoded, then decode it.
+    if (html && media.encoded) {
+      html = atob(html);
+    }
+
     var runtimeOptions = {
-      html: isHtml ? _sanitizer.sanitize(media.html) : null,
+      html: html ? _sanitizer.sanitize(html) : null,
       rel: media.rel || null,
       iframe: isIframe,
       title: function () {
