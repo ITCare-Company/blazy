@@ -145,9 +145,9 @@
         $.addClass(_doc.body, _isBodyPlaying);
 
         // Be sure to detach on your destroy method, or Drupal..detach:
-        // $.off(_win, 'blazy.mediaPlaying', onPlaying);
+        // $.off('blazy.mediaPlaying', onPlaying);
         // After calling:
-        // $.on(_win, 'blazy.mediaPlaying', onPlaying);
+        // $.on('blazy.mediaPlaying', onPlaying);
         $.trigger(_win, 'blazy.mediaPlaying', {
           player: player
         });
@@ -185,9 +185,9 @@
       $.removeClass(_doc.body, _isBodyPlaying);
 
       // Be sure to detach on your destroy method, or Drupal..detach:
-      // $.off(_win, 'blazy.mediaStopped', onStopped);
+      // $.off('blazy.mediaStopped', onStopped);
       // After calling:
-      // $.on(_win, 'blazy.mediaStopped', onStopped);
+      // $.on('blazy.mediaStopped', onStopped);
       $.trigger(_win, 'blazy.mediaStopped', {
         player: player
       });

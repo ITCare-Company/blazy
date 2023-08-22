@@ -78,7 +78,6 @@ class BlazySettingsFormTest extends KernelTestBase {
     // Emulate a form state of a submitted form.
     $form_state = (new FormState())->setValues([
       'admin_css' => TRUE,
-      'responsive_image' => FALSE,
       'nojs' => array_combine($nojs, $nojs),
     ]);
 

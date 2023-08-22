@@ -108,13 +108,15 @@ function MYTHEME_preprocess_blazy(&$variables) {
     $fx = $blazies->get('fx');
 
     // This was taken care of by feeding $fx, or hard-coded here.
-    $attributes['data-animation'] = $fx ?: 'wobble';
+    // Since 2.17, `data-animation` is deprecated for `data-b-animation`.
+    $prefix = $blazies->use('data_b') ? 'data-b-' : 'data-';
+    $attributes[$prefix . 'animation'] = $fx ?: 'wobble';
 
     // The following can be defined manually.
-    $attributes['data-animation-duration'] = '3s';
-    $attributes['data-animation-delay'] = '.3s';
+    $attributes[$prefix . 'animation-duration'] = '3s';
+    $attributes[$prefix . 'animation-delay'] = '.3s';
     // Iteration can be any number, or infinite.
-    $attributes['data-animation-iteration-count'] = 'infinite';
+    $attributes[$prefix . 'animation-iteration-count'] = 'infinite';
   }
 }
 ```

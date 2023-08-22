@@ -12,10 +12,12 @@
 
   'use strict';
 
-  var _id = 'blazy';
+  // var _id = 'blazy';
   var _erCounted = 0;
   var _data = 'data-';
-  var _dataAnimation = _data + 'animation';
+  // @todo remove at 3.x:
+  var _dataAnim = _data + 'animation';
+  var _dataBanim = _data + 'b-animation';
   var _src = 'src';
   var _srcSet = 'srcset';
   var _imgSources = [_srcSet, _src];
@@ -54,6 +56,64 @@
     threshold: [0]
   };
 
+  // Returns a success.
+  function success(el, status, parent, opts) {
+    // Who knows Safari has different interpretation on Function:
+    // See https://www.drupal.org/project/blazy/issues/3279316.
+    if ($.isFun(opts.success) || $.isObj(opts.success)) {
+      opts.success(el, status, parent, opts);
+    }
+
+    if (_erCounted > 0) {
+      _erCounted--;
+    }
+    return _erCounted;
+  }
+
+  // Returns an error.
+  function error(el, status, parent, opts) {
+    // Who knows Safari has different interpretation on Function:
+    // See https://www.drupal.org/project/blazy/issues/3279316.
+    if ($.isFun(opts.error) || $.isObj(opts.error)) {
+      opts.error(el, status, parent, opts);
+    }
+
+    _erCounted++;
+    return _erCounted;
+  }
+
+  // Make it private to avoid confusion.
+  function loaded(el, status, opts) {
+    var cn = $.closest(el, opts.parent) || el;
+    var ok = status === $._ok || status === true;
+    var successClass = opts.successClass;
+    var errorClass = opts.errorClass;
+    var isSuccess = 'is-' + successClass;
+    var isError = 'is-' + errorClass;
+
+    $.addClass(el, ok ? successClass : errorClass);
+
+    // Adds context for effects: blur, etc. considering BG, or just media.
+    $.addClass(cn, ok ? isSuccess : isError);
+
+    if (ok) {
+      _erCounted = success(el, status, cn, opts);
+      // Native may already remove `data-[SRC|SRCSET]` early, except BG/Video.
+      if ($.hasAttr(el, _data + _src)) {
+        $.removeAttr(el, _imgSources, _data);
+      }
+    }
+    else {
+      _erCounted = error(el, status, cn, opts);
+    }
+
+    // @todo remove in case causing double triggers with blazy.done.
+    // $.trigger(el, _id + '.loaded', {
+    // status: status
+    // });
+    return _erCounted;
+  }
+
   /**
    * Checks if image or iframe is decoded/ completely loaded.
    *
@@ -89,73 +149,20 @@
     return selector + suffix;
   };
 
-  $.success = function (el, status, parent, opts) {
-    if ($.isFun(opts.success)) {
-      opts.success(el, status, parent, opts);
-    }
-
-    if (_erCounted > 0) {
-      _erCounted--;
-    }
-    return _erCounted;
-  };
-
-  $.error = function (el, status, parent, opts) {
-    if ($.isFun(opts.error)) {
-      opts.error(el, status, parent, opts);
-    }
-
-    _erCounted++;
-    return _erCounted;
-  };
-
-  $.status = function (el, ok, opts) {
+  $.status = function (el, status, opts) {
     // Image decode fails with Responsive image, assumes ok, no side effects.
-    return this.loaded(el, ok, null, opts);
-  };
-
-  $.loaded = function (el, status, parent, opts) {
-    var me = this;
-    var cn = $.closest(el, opts.parent) || el;
-    var ok = status === $._ok || status === true;
-    var successClass = opts.successClass;
-    var errorClass = opts.errorClass;
-    var isLoaded = 'is-' + successClass;
-    var isError = 'is-' + errorClass;
-
-    parent = parent || cn;
-
-    $.addClass(el, ok ? successClass : errorClass);
-    // Adds context for effetcs: blur, etc. considering BG, or just media.
-    $.addClass(cn, ok ? isLoaded : isError);
-
-    _erCounted = me[ok ? 'success' : 'error'](el, status, parent, opts);
-
-    // Native may already remove `data-[SRC|SRCSET]` early on, except BG/Video.
-    if (ok && $.hasAttr(el, _data + _src)) {
-      $.removeAttr(el, _imgSources, _data);
-    }
-
-    $.trigger(el, _id + '.loaded', {
-      status: status
-    });
-
-    return _erCounted;
-  };
-
-  $.loadLocalMedia = function (el, ok, opts) {
-    // Native doesn't support video, fix it.
-    $.mapSource(el, _src, true);
-    el.load();
-    return $.status(el, ok, opts);
+    return loaded(el, status, opts);
   };
 
   $.aniElement = function (el) {
-    var an = $.closest(el, '[' + _dataAnimation + ']');
-    if ($.hasAttr(el, _dataAnimation) && !$.isElm(an)) {
-      an = el;
+    // @todo remove the last at 3.x:
+    // If BG, the container itself is the animated element.
+    if ($.hasAttr(el, _dataBanim) || $.hasAttr(el, _dataAnim)) {
+      return el;
     }
-    return an;
+
+    // Else anything else, will traverse the parent/ closest animated element.
+    return $.closest(el, '[' + _dataBanim + ']') || $.closest(el, '[' + _dataAnim + ']');
   };
 
 })(dBlazy, this, this.document);

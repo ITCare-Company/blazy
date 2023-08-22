@@ -41,7 +41,7 @@
       }
 
       var $el = $(el);
-      var animation = _set.animation;
+      var animation = _set.animation || _set.bAnimation;
 
       if ($.isStr(cb)) {
         animation = cb;
@@ -175,11 +175,19 @@
     var existing = null;
     var valid = false;
     var stored = $.storage(_blurKey);
+    // @todo remove at 3.x:
     var dt = 'data-thumb';
-    var dtValue = $.attr(cn, dt);
+    var dbt = 'data-b-thumb';
+    var dtValue = $.attr(cn, dbt + ' ' + dt);
 
-    if (dtValue && $.is(url, dt)) {
-      url = dtValue;
+    if (dtValue) {
+      if ($.is(url, dbt)) {
+        url = dtValue;
+      }
+      // @todo remove at 3.x:
+      else if ($.is(url, dt)) {
+        url = dtValue;
+      }
     }
 
     // If the browser is capable, and the client option enabled.

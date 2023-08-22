@@ -217,7 +217,7 @@
 
   // @todo merge with Bio.js.
   function loadElement(ele, force, options) {
-    // If element is visible, not loaded or forced.
+    // If element is visible, not loaded, hidden or forced.
     if (!$.hasClass(ele, options.successClass) &&
       (force || options.loadInvisible ||
         (ele.offsetWidth > 0 && ele.offsetHeight > 0))) {

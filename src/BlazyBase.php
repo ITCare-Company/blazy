@@ -129,7 +129,8 @@ abstract class BlazyBase implements BlazyInterface {
     CacheBackendInterface $cache,
     LanguageManager $language_manager
   ) {
-    // @todo enable at 3.x: $this->libraries = $libraries;
+    // @todo enable at 3.x:
+    // $this->libraries = $libraries;
     // $this->root = $libraries->root();
     // $this->cache = $libraries->cache();
     // $this->configFactory = $libraries->configFactory();
@@ -244,6 +245,20 @@ abstract class BlazyBase implements BlazyInterface {
   public function configMultiple($group = 'blazy.settings'): array {
     // @todo at 3.x: return $this->libraries->configMultiple($group);
     return $this->config(NULL, $group) ?: [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function myConfig($key = NULL) {
+    return $this->config($key, static::$namespace . '.settings');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function myConfigMultiple(): array {
+    return $this->configMultiple(static::$namespace . '.settings');
   }
 
   /**
@@ -580,8 +595,8 @@ abstract class BlazyBase implements BlazyInterface {
     $object = Internals::reset($settings, $key, $defaults);
     if ($data) {
       $object->set($data);
-      $settings[$key] = $object;
     }
+    $settings[$key] = $object;
     return $settings;
   }
 

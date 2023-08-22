@@ -73,6 +73,32 @@
     return me;
   }
 
+  // Load a HTML content.
+  function loadHtml(cn, opts) {
+    if ($.isHtml(cn) && $.hasAttr(cn, _dataHtml)) {
+      var html = $.attr(cn, _dataHtml);
+      var status = false;
+
+      if (html) {
+        status = true;
+        html = html.replace(_dataText, '');
+        html = atob(html);
+
+        $.append(cn, html);
+        $.removeAttr(cn, _dataHtml);
+      }
+      _erCounted = $.status(cn, status, opts);
+    }
+  }
+
+  // Load local media (audio/video).
+  function loadLocalMedia(el, status, opts) {
+    // Native doesn't support video, fix it.
+    $.mapSource(el, _src, true);
+    el.load();
+    return $.status(el, status, opts);
+  }
+
   // Extends Bio prototype.
   fn.lazyLoad = function (el, winData) {
     var me = this;
@@ -89,22 +115,6 @@
     if ($.blur) {
       $.blur(el);
     }
-
-    var loadHtml = function (cn) {
-      if ($.isHtml(cn) && $.hasAttr(cn, _dataHtml)) {
-        var html = $.attr(cn, _dataHtml);
-        html = html.replace(_dataText, '');
-        html = atob(html);
-
-        $.append(cn, html);
-        $.removeAttr(cn, _dataHtml);
-
-        // if (!$.isBg(cn)) {
-        // $.removeAttr(cn, _dataSrc);
-        // }
-        _erCounted = $.status(cn, true, opts);
-      }
-    };
 
     // PICTURE elements.
     if (isPicture) {
@@ -124,7 +134,7 @@
         me.loadImage(parent, true, winData);
       }
 
-      _erCounted = $.loadLocalMedia(el, true, opts);
+      _erCounted = loadLocalMedia(el, true, opts);
     }
     else {
       // IMG or DIV/ block elements got preloaded for better UX with loading.
@@ -143,7 +153,7 @@
         }
         // HTML elements.
         else {
-          loadHtml(el);
+          loadHtml(el, opts);
         }
       }
     }

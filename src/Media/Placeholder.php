@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Theme\Attributes;
 
 /**
  * Provides placeholder thumbnail image.
@@ -63,7 +64,7 @@ class Placeholder {
     // If blur and thumbnail use the same image style, indicate so instead to
     // save from few bytes.
     if ($url == $blazies->get('thumbnail.url')) {
-      $url = 'data-thumb';
+      $url = Attributes::data($blazies, 'thumb');
     }
 
     $dimensions = [];
@@ -121,7 +122,7 @@ class Placeholder {
    * Build thumbnails, also to provide placeholder for blur effect.
    *
    * Requires image style and dimensions setup after BlazyImage::prepare().
-   * The `[data-thumb]` attribute usages:
+   * The `[data-b-thumb|data-thumb(deprecated)]` attribute usages:
    * - Zoom-in-out effect as seen at Splidebox and PhotoSwipe.
    * - Hoverable or static grid pagination/ thumbnails seen at Splide/ Slick.
    * - Lightbox thumbnails seen at Photobox.
@@ -129,7 +130,7 @@ class Placeholder {
    * - Slider arrows with thumbnails as navigation previews, etc. seen at Slick.
    * - etc.
    *
-   * The `[data-animation]` attribute usages:
+   * The `[data-b-animation|data-animation(deprecated)]` attribute usages:
    * - Blur animation.
    * - Any animation supported by `animate.css` as seen GridStack, or custom.
    *   Check out `/admin/help/blazy_ui` for details.
@@ -147,20 +148,15 @@ class Placeholder {
 
     // Apply attributes related to Blur and Thumbnail image style.
     $blazies = $settings['blazies'];
-    $data_b = $blazies->use('data_b');
     if ($tn_url = $blazies->get('thumbnail.url')) {
-      // @todo replace with data-b-thumb at 3.x to avoid potential conflicts.
-      $prefix = $data_b ? 'data-b-' : 'data-';
-      $attributes[$prefix . 'thumb'] = $tn_url;
+      $attributes[Attributes::data($blazies, 'thumb')] = $tn_url;
     }
 
     // Provides image effect if so configured unless being sandboxed.
     // Slick/ Splide lazy loads won't work, needs Blazy to make animation.
     if ($blazies->is('blazy') && $fx = $blazies->get('fx')) {
       $attributes['class'][] = 'media--fx';
-      // @todo replace with data-b-animation at 3.x to avoid conflicts.
-      $prefix = $data_b ? 'data-b-' : 'data-';
-      $attributes[$prefix . 'animation'] = $fx;
+      $attributes[Attributes::data($blazies, 'animation')] = $fx;
     }
   }
 

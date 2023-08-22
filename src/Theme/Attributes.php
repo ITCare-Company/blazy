@@ -105,8 +105,7 @@ class Attributes {
 
       // Views rewrite results or Twig inline_template may strip out `style`
       // attributes, provide hint to JS.
-      // @todo replace with data-b-ratio by 3.x to avoid potential conflicts.
-      $attributes['data-ratio'] = $padding;
+      $attributes[self::data($blazies, 'ratio')] = $padding;
     }
 
     // Lazy load HTML content.
@@ -215,13 +214,28 @@ class Attributes {
     // 7. Multi-breakpoint aspect ratio only applies if lazyloaded.
     // These may be set once at formatter level, or per breakpoint above.
     // Only relevant if Fluid is selected for Aspect ratio, else a leak.
-    // @todo rename it to data-b-ratios at/by 3.x.
     if ($blazies->is('fluid') && !$blazies->is('undata')) {
       if ($ratios = $blazies->get('ratios', [])) {
-        // @todo replace with data-b-ratios by 3.x to avoid potential conflicts.
-        $attributes['data-ratios'] = Json::encode($ratios);
+        $attributes[self::data($blazies, 'ratios')] = Json::encode($ratios);
       }
     }
+  }
+
+  /**
+   * Returns the expected/ corrected attribute to avoid potential conflicts.
+   *
+   * @param object $blazies
+   *   The given blazies object.
+   * @param string $attr
+   *   The given attribute.
+   *
+   * @return string
+   *   The updated attr.
+   */
+  public static function data($blazies, $attr): string {
+    // @todo use data-b- at/by 3.x to avoid potential conflicts.
+    $prefix = $blazies->use('data_b') ? 'data-b-' : 'data-';
+    return $prefix . $attr;
   }
 
   /**

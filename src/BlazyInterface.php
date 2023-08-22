@@ -104,6 +104,25 @@ interface BlazyInterface {
   public function configMultiple($group = 'blazy.settings'): array;
 
   /**
+   * Returns any config based on "self::$namespace.settings" convension.
+   *
+   * @param string $key
+   *   The setting key.
+   *
+   * @return mixed
+   *   The config value(s), or empty.
+   */
+  public function myConfig($key = NULL);
+
+  /**
+   * Returns any config by "self::$namespace.settings" convension.
+   *
+   * @return array
+   *   The config values, or empty array.
+   */
+  public function myConfigMultiple(): array;
+
+  /**
    * Implements hook_config_schema_info_alter().
    */
   public function configSchemaInfoAlter(

@@ -65,12 +65,6 @@ class BlazyManagerUnitTest extends UnitTestCase {
       ->method('config')
       ->with('admin_css')
       ->willReturn(TRUE);
-
-    /* @phpstan-ignore-next-line */
-    $this->blazyManager->expects($this->any())
-      ->method('config')
-      ->with('responsive_image')
-      ->willReturn(TRUE);
   }
 
   /**

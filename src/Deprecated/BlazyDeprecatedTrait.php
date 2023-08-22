@@ -350,7 +350,7 @@ trait BlazyDeprecatedTrait {
    * @see https://www.drupal.org/node/3367291
    */
   public static function mergeSettings($keys, array $defaults, array $configs): array {
-    @trigger_error('mergeSettings is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use \Drupal\blazy\Utility\Arrays::mergeSettings() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('mergeSettings is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::mergeSettings() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Arrays::mergeSettings($keys, $defaults, $configs);
   }
 

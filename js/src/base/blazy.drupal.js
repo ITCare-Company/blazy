@@ -123,7 +123,7 @@
 
     clearing: function (el) {
       // While IO has a mechanism to unobserve, bLazy not.
-      // @todo recheck, in case blocking anything, see #3279316.
+      // @todo recheck, in case blocking anything in Safari, see #3279316.
       // if (el.bclearing) {
       // return;
       // }
@@ -137,6 +137,11 @@
           reevaluate: true,
           elements: [el]
         });
+      }
+
+      // Instagram, Pinterest, etc. with lazyloaded HTML content if configured.
+      if ($.isHtml(el)) {
+        Drupal.attachBehaviors(el);
       }
 
       // Clear loading classes. Also supports future delayed Native loading.
@@ -167,7 +172,7 @@
 
       // DOM ready fix.
       _win.setTimeout(function () {
-        // Filterout the failing ones.
+        // Filter out the failing ones.
         var elms = $.findAll(cn || _doc, me.selector());
 
         if (elms.length) {

@@ -558,16 +558,20 @@
    * @param {Array|Object|NodeList} obj
    *   Collection of items to iterate.
    * @param {Function} cb
-   *   Callback function for each iteration.
-   * @param {Array|Object|NodeList} scope
-   *   Object/NodeList/Array that forEach is iterating over (aka `this`).
+   *   A function to execute for each element in the array. Its return value is
+   *   discarded. The function is called with the following arguments:
+   *   - element: The current element being processed in the array.
+   *   - index: The index of the current element being processed in the array.
+   *   - array: The array forEach() was called upon.
+   *   The element and hardly used index are normally reversed by jQuery.
+   * @param {Object|undefined} scope
+   *   A value to use as `this` when executing cb, default to `undefined`.
    *
    * @return {Array}
-   *   Returns this collection.
+   *   Returns this collection, originally `undefined`.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
    * @see https://developer.mozilla.org/en-US/docs/Web/API/NodeList/forEach
-   * @todo drop for native [].forEach post D10+ when IE gone from planet earth.
    * @todo refactor, unreliable given unexpected properties.
    */
   function each(obj, cb, scope) {
@@ -734,14 +738,18 @@
 
       var value = defValue;
       // Ambiguous space delimited attributes: 'data-src data-lazy', etc.
-      // $.attr(el, 'data-src data-lazy'); returns the first found.
+      // $.attr(el, 'data-src data-lazy'); returns the first found with values.
       // $.attr(el, 'data-src', defaultValue, true); returns with default.
       // See https://caniuse.com/?search=every.
       toArray(attr).every(function (key) {
         if (hasAttr(elm, key)) {
           value = _op(elm, _get, key);
-          // return false is equivalent to a break.
-          return false;
+
+          // Since it expects values, skip empty ones for ambigous attributes.
+          if (value) {
+            // return false is equivalent to a break.
+            return false;
+          }
         }
         // return true is equivalent to a continue.
         return true;
@@ -751,7 +759,7 @@
     }
 
     var chainCallback = function (el) {
-      if (!isQsa(el)) {
+      if (!isAttr(el)) {
         return _getter ? '' : me;
       }
 
