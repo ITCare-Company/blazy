@@ -46,7 +46,8 @@
           {
             bodyClass: _bodyClass,
             bodyClosingClass: _bodyClosingClass,
-            class: _selfClass
+            class: _selfClass,
+            fs: false
           });
       }
     }

@@ -72,6 +72,20 @@
       var width = data.width ? parseInt(data.width, 0) : 640;
       var height = data.height ? parseInt(data.height, 0) : 360;
       return data ? ((height / width) * 100).toFixed(2) : 100;
+    },
+
+    dimension: function (w, h) {
+      return {
+        width: w,
+        height: h
+      };
+    },
+
+    hack: function (a, b) {
+      return {
+        paddingBottom: a,
+        height: b
+      };
     }
   };
 

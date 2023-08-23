@@ -118,7 +118,15 @@ class Attributes {
         $attributes['data-b-html'] = Internals::DATA_TEXT . $html;
         $attributes['class'][] = 'b-lazy';
         $attributes['class'][] = 'b-html';
+
+        // @todo recheck:
+        $blazies->set('is.player', FALSE);
+        $settings['media_switch'] = '';
       }
+    }
+
+    if ($token = $blazies->get('media.token')) {
+      $attributes['data-b-token'] = $token;
     }
 
     // Makes a little BEM order here due to Twig ignoring the preset priority.

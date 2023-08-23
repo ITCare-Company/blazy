@@ -27,6 +27,8 @@ class Ratio {
     $ratio    = $disabled ? '' : $settings['ratio'] ?? NULL;
     $hack     = $ratio && $fluid;
     $resimage = $blazies->get('resimage.id');
+    $instgrm  = $blazies->use('instagram_api');
+    $lightbox = $blazies->is('lightbox');
 
     // Skip padding hacks if fluid is supported by plain CSS, to avoid JS.
     if ($hack) {
@@ -38,11 +40,18 @@ class Ratio {
       // If using image_style or defaults, even SVG can be padding-hacked for
       // consistency. If using none, then disable aspect ratio altogether.
       // @todo recheck against responsive image, gif, apng, alike.
-      if (($_svg && $_none) || $blazies->is('instagram')) {
+      if ($_svg && $_none) {
         $ratio = NULL;
         $hack  = FALSE;
       }
     }
+
+    // Disable problematic instagram, except for lightbox displays.
+    if ($instgrm && !$lightbox) {
+      $ratio = NULL;
+      $hack  = FALSE;
+    }
+
     return ['ratio' => $ratio, 'hack' => $hack];
   }
 

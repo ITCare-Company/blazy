@@ -23,13 +23,10 @@
   var _data = 'data-';
   var _dataIFrameTitle = _data + _iFrame + '-title';
   var _dataUrl = _data + 'b-url data-url';
-  var _dataProvider = _data + 'b-provider';
-  var _dataToken = _data + 'b-token';
   var _mdElement = _md + '__element';
-  var _mdInstagram = _md + '--instagram';
+  var _bInstagram = 'b-instagram';
   var _cHidden = 'visually-hidden';
   var _multimedia = $.multimedia || false;
-  var _instagram = $.instagram || false;
 
   /**
    * Blazy media utility functions.
@@ -49,18 +46,11 @@
 
     var url = $.attr(btn, _dataUrl);
     var title = $.attr(btn, _dataIFrameTitle);
-    var token = $.attr(btn, _dataToken);
-    var provider = $.attr(btn, _dataProvider);
-    var instagram = provider === 'instagram';
-    var instagramApi = _instagram && instagram;
+    var instagram = $el.hasClass(_bInstagram);
     var newIframe;
 
     if (url && $.sanitizer.isDangerous('src', url)) {
       return;
-    }
-
-    if (instagramApi) {
-      _instagram.init(el, {token: token});
     }
 
     /**
@@ -86,7 +76,7 @@
       }
 
       var target = this;
-      var sPlayable = '.' + _isPlaying + ':not(.' + _mdInstagram + ')';
+      var sPlayable = '.' + _isPlaying + ':not(.' + _bInstagram + ')';
       var playing = $.find(_doc, sPlayable);
       var player = target.parentNode;
 
@@ -100,10 +90,7 @@
 
       $.addClass(player, _isPlaying);
 
-      if (instagramApi) {
-        _instagram.show();
-      }
-      else {
+      if (!instagram) {
         playNow(e);
       }
     }
@@ -168,14 +155,13 @@
 
       var target = this;
 
-      if (instagramApi) {
+      if (instagram) {
         $.addClass(target, _cHidden);
         return false;
       }
 
       var player = target.parentNode;
 
-      // _instagram.hide();
       var iframe = $.find(player, _iFrame);
       if (player.className.match(_isPlaying)) {
         player.className = player.className.replace(/(\S+)playing/, '');
@@ -194,21 +180,23 @@
     }
 
     /**
-     * Reacts on `blazy.done` event.
+     * Reacts on `blazy.done` event sprcific for Instagram HTML content.
      *
      * @param {Event} e
      *   The event triggered by a `blazy.done` event.
      */
+    /*
     function onDone(e) {
       var target = e.target;
       var player = $.hasClass(target, _player) ? target : $.closest(target, _sPlayer);
       var btn = $.find(player, _elIconPlay);
 
       // Autoload instagram player on being lazy loaded.
-      if ($.hasClass(player, _mdInstagram) && $.isElm(btn)) {
+      if ($.isElm(btn)) {
         btn.click();
       }
     }
+     */
 
     // Remove iframe if any to avoid browser requesting them till clicked.
     $.remove(iframe);
@@ -220,8 +208,9 @@
     $el.on('click.' + _id, _elIconClose, stop);
 
     // Listens to blazy.done event to auto-display instagram feeds.
-    $el.on('blazy.done', onDone);
-
+    // if (instagram) {
+    // $el.on('blazy.done', onDone);
+    // }
     $.removeClass(_doc.body, _isBodyPlaying);
     $el.addClass(_mounted);
   }
@@ -280,9 +269,7 @@
     html = '<div class="$md $idClass $md--switch $player $md--ratio $md--ratio--fluid" aria-live="polite" style="padding-bottom: $pad%">' + html + '</div>';
 
     if (!settings.unwrap) {
-      html = '<div class="$wrapper $wrapper--inline" style="width: $widthpx">' +
-        html +
-        '</div>';
+      html = '<div class="$wrapper $wrapper--inline" style="width: $widthpx">' + html + '</div>';
     }
 
     return $.template(html, {

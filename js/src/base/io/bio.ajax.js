@@ -19,6 +19,10 @@
   var _proto = _ajax.prototype;
   var _revTimer;
 
+  if (!_proto) {
+    return;
+  }
+
   // Overrides Drupal.Ajax.prototype.success to re-observe new AJAX contents.
   _proto.success = (function (_ajax) {
     return function (response, status) {

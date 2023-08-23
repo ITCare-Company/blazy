@@ -32,7 +32,6 @@
     var media = $box.data('bMedia') || $box.data('media') || {};
     var isIframe = media.boxType === 'iframe' && !_sanitizer.isDangerous('href', url);
     var isHtml = 'html' in media;
-    var instagramApi = _instagram && media.provider === 'instagram';
     var html = isHtml ? media.html : null;
 
     // If encoded, then decode it.
@@ -68,10 +67,6 @@
       },
       onClosed: function () {
         removeClasses();
-
-        if (instagramApi) {
-          _instagram.destroy();
-        }
       }
     };
 
@@ -94,60 +89,42 @@
 
     // Dimensions.
     function dimension(w, h) {
-      return {
-        width: w,
-        height: h
-      };
+      return _d.image.dimension(w, h);
     }
 
     // Padding hack.
     function hack(a, b) {
-      return {
-        paddingBottom: a,
-        height: b
-      };
+      return _d.image.hack(a, b);
     }
 
-    // Instagram.
-    function instagram(el) {
-      var mw = _cbox.maxWidth;
-      var mh = _cbox.maxHeight;
-      var w = mw;
-      var h = mh;
-      var o = dimension(w, h);
-      var data = media;
+    // Responsive image|Picture.
+    function responsiveImage($picture, $resimage) {
+      var img;
 
-      data.width = mw;
-      data.height = mh;
-
-      _instagram.init(el[0], data);
-
-      var cb = function (obj) {
-        w = obj.width || mw;
-        h = mh;
-
-        el.css(hack('', ''))
-          .css({
-            width: ''
-          }).removeClass('media--ratio');
-
-        o = dimension(w, h);
-        resize(o);
-      };
-
-      _instagram.show(cb);
+      _win.setTimeout(function () {
+        img = $picture.length ? $picture[0] : $resimage[0];
+        if (img) {
+          if (img.complete) {
+            resizeNow.call(img);
+          }
+          else {
+            $(img).one('load', resizeNow);
+          }
+        }
+      }, 101);
     }
 
     /**
      * Resize the responsive|picture image since the library doesn't get it.
      */
-    function resizeImage() {
+    function resizeNow() {
       var t = $(this);
       var w = t.width();
       var h = t.height();
       var p = t.closest('#cboxLoadedContent');
       var pw = p.width();
       var ph = p.height();
+      var o;
 
       if (h > ph) {
         t.css('top', -(h - ph) / 2);
@@ -160,10 +137,7 @@
         t.css('left', -(t.width() - pw) / 2);
       }
       else if (pw > w) {
-        var o = {
-          width: w,
-          height: h
-        };
+        o = dimension(w, h);
         resize(o);
       }
     }
@@ -180,7 +154,6 @@
       var h = media.height || mh;
       var o = dimension(w, h);
       var shouldResize = true;
-      var img;
       var pad;
 
       // DOM ready fix.
@@ -193,19 +166,10 @@
           var $picture = $container.find('picture img');
           var $resimage = $container.find('img[srcset]');
           var isResimage = $resimage.length || $picture.length;
+          var isInstagram = $media.hasClass('b-instagram') && _instagram;
 
           if (isResimage) {
-            _win.setTimeout(function () {
-              img = $picture.length ? $picture[0] : $resimage[0];
-              if (img) {
-                if (img.complete) {
-                  resizeImage.call(img);
-                }
-                else {
-                  $(img).one('load', resizeImage);
-                }
-              }
-            }, 101);
+            responsiveImage($picture, $resimage);
 
             w = mw || media.width;
             h = mh || media.height;
@@ -213,27 +177,39 @@
           }
 
           if ($iframe.length || $media.length) {
-            var useHack = true;
             if ($media.length) {
-              if (instagramApi) {
-                shouldResize = false;
-                useHack = false;
-                instagram($media);
-              }
-
               Drupal.attachBehaviors($media[0]);
+
+              if (isInstagram) {
+                shouldResize = false;
+                $iframe = $('iframe', container);
+              }
             }
 
             // @todo consider to not use colorbox iframe for consistent .media.
-            if ($iframe.length && useHack) {
-              $container.addClass('media media--ratio');
-              $iframe.attr('width', o.width)
-                .attr('height', o.height)
-                .addClass('media__element');
+            _win.setTimeout(function () {
+              // Instagram takes time to make iframes.
+              if ($iframe.length) {
+                if (isInstagram) {
+                  var cb = function (obj) {
+                    o = dimension(obj.width + 'px', obj.height + 'px');
+                    resize(o);
+                  };
 
-              pad = (o.height / o.width) * 100 + '%';
-              $container.css(hack(pad, 0));
-            }
+                  _instagram.show(cb, $iframe[0]);
+                }
+
+                $iframe.attr('width', o.width)
+                  .attr('height', o.height)
+                  .addClass('media__element');
+
+                if (!$media.length) {
+                  pad = _d.image.ratio(o) + '%';
+                  $container.css(hack(pad, 0))
+                    .addClass('media media--ratio');
+                }
+              }
+            }); // 101
           }
           else {
             $container.css(hack('', o.height))
@@ -244,7 +220,7 @@
             resize(o);
           }
         }
-      }, 101);
+      }); // 101
     }
 
     $box.colorbox($.extend({}, _cbox, runtimeOptions));

@@ -144,8 +144,16 @@ absolute position and fixed dimensions. */
   min-height: 420px;
 }
 
-/** @todo re-check variouse use-cases. */
-.b-html.b-loaded > *:not(.media__html) {
+.b-instagram iframe {
+  visibility: hidden;
+}
+
+.is-b-instagram-loaded iframe {
+  visibility: visible;
+}
+
+/** @todo re-check various use-cases. */
+.b-html.b-loaded > img {
   opacity: 0;
   position: absolute;
   visibility: hidden;

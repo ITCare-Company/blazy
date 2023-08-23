@@ -456,8 +456,12 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Fixed for media switch and lightboxes with Instagram API.
-    if ($blazies->use('instagram_api') && $blazies->get('switch')) {
+    if ($blazies->use('instagram_api')) {
       $element['#attached']['library'][] = 'blazy/instagram';
+
+      if (!$blazies->is('lightbox')) {
+        $attributes['class'][] = 'b-instagram';
+      }
     }
 
     // Pass common elements to theme_blazy().

@@ -164,6 +164,11 @@ class BlazyAlter {
         ];
       }
 
+      // Components, normally non-generic, unlike plugins.
+      foreach (BlazyDefault::dyComponents() as $id => $component) {
+        $libraries[$id] = $component;
+      }
+
       self::$libraryInfoBuild = $libraries;
     }
     return self::$libraryInfoBuild;

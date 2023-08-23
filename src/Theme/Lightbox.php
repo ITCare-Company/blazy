@@ -264,6 +264,16 @@ class Lightbox {
     // Currently: Responsive/Picture image, not plain, and Local video.
     $is_html = FALSE;
     if ($box_html = ($element['#lightbox_html'] ?? [])) {
+      if ($blazies->is('local_audio')) {
+        $json['boxType'] = 'audio';
+      }
+      elseif ($blazies->is('local_video')) {
+        $json['boxType'] = 'video';
+      }
+      else {
+        $json['boxType'] = $_resimage ? 'image' : 'html';
+      }
+
       $is_html = TRUE;
       $type = str_replace('_', '-', $json['boxType']);
       // Local video ($html) is wrapped, but not Responsive image ($box_html).
@@ -274,7 +284,7 @@ class Lightbox {
         '#children' => $box_html,
         '#attributes' => [
           // @todo make it flexible for regular non-media HTML.
-          'class' => ['media', 'media--boxtype-' . $type],
+          'class' => ['media', 'media--box', 'media--boxtype-' . $type],
         ],
       ];
 
@@ -293,6 +303,19 @@ class Lightbox {
 
       if ($style) {
         $html['#attributes']['style'] = $style;
+      }
+
+      if ($provider = $json['provider'] ?? NULL) {
+        $html['#attributes']['aria-live'] = 'polite';
+        $html['#attributes']['class'][] = 'media--' . str_replace('_', '-', $provider);
+      }
+
+      if ($token = $blazies->get('media.token')) {
+        $html['#attributes']['data-b-token'] = $token;
+      }
+
+      if ($blazies->use('instagram_api')) {
+        $html['#attributes']['class'][] = 'b-instagram';
       }
 
       // Do not add more classes after media--ratio. This is the only style
@@ -331,18 +354,6 @@ class Lightbox {
       if ($_resimage) {
         $json['boxType'] = $is_picture ? 'picture' : 'responsiveImage';
       }
-      else {
-        if ($blazies->is('local_audio')) {
-          $json['boxType'] = 'audio';
-        }
-        elseif ($blazies->is('local_video')) {
-          $json['boxType'] = 'video';
-        }
-        else {
-          $json['boxType'] = 'html';
-        }
-      }
-
       unset($element['#lightbox_html']);
     }
 

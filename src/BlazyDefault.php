@@ -410,7 +410,7 @@ class BlazyDefault {
    * Returns available components.
    */
   public static function components(): array {
-    return array_merge(self::grids(), [
+    $components = array_merge(self::grids(), [
       'animate',
       'background',
       'blur',
@@ -421,6 +421,22 @@ class BlazyDefault {
       'photobox',
       'ratio',
     ]);
+    return array_merge($components, array_keys(self::dyComponents()));
+  }
+
+  /**
+   * Returns available dynamic components, not registered in libraries.yml.
+   */
+  public static function dyComponents(): array {
+    $deps   = ['blazy/compat'];
+    $common = ['minified' => TRUE, 'weight' => -1];
+
+    return [
+      'instagram' => [
+        'js' => ['js/components/blazy.instagram.min.js' => $common],
+        'dependencies' => $deps,
+      ],
+    ];
   }
 
   /**
@@ -450,7 +466,6 @@ class BlazyDefault {
       'animate',
       'dataset',
       'background',
-      'instagram',
       'observer',
       'multimedia',
     ];
