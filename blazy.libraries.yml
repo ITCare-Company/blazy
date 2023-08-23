@@ -133,7 +133,7 @@ media:
   dependencies:
     - blazy/drupal
     - blazy/ratio
-    - blazy/multimedia
+    # - blazy/multimedia
 
 oembed:
   css:
@@ -210,7 +210,7 @@ blazybox:
   dependencies:
     - blazy/drupal
     - blazy/lightbox
-    - blazy/multimedia
+    # - blazy/multimedia
     - blazy/ratio
 
 flybox:

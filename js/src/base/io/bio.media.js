@@ -48,6 +48,7 @@
   var _imgSources = [_srcSet, _src];
   var _erCounted = 0;
   var _isDeferChecked = false;
+  var _multimedia = $.multimedia || false;
 
   // Inherits Bio prototype.
   var _super = Bio.prototype;
@@ -96,6 +97,10 @@
     // Native doesn't support video, fix it.
     $.mapSource(el, _src, true);
     el.load();
+
+    if (_multimedia) {
+      _multimedia.init(el);
+    }
     return $.status(el, status, opts);
   }
 

@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-08-23
 ------------------------------
+- Fixed for mixed multiple multimedia playing.
 - Safari guess works for #3279316.
 - Fixed for Instagram within more lightboxes.
 

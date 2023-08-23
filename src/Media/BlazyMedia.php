@@ -490,6 +490,8 @@ class BlazyMedia implements BlazyMediaInterface {
     if ($blazies->is('undata') || $blazies->is('richbox')) {
       $item['#attributes']->setAttribute('data-b-undata', TRUE);
     }
+
+    $item['#attached']['library'][] = 'blazy/multimedia';
   }
 
   /**
