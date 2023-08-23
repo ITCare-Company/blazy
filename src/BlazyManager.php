@@ -295,21 +295,24 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       $build['content'] = [];
     }
     else {
-      if ($blazies->get('lazy.html')) {
-        $content = $this->toHtml($build['content'], 'div', 'media__html');
-        $content = $this->renderer->renderPlain($content);
-        $content = base64_encode($content->__toString());
-        $blazies->set('media.encoded.content', $content)
-          ->set('media.encoded.uri', Internals::DATA_TEXT);
+      // Exclude local audio/video, already lazy-loaded by theme_blazy().
+      if (!$blazies->is('local_media')) {
+        if ($blazies->get('lazy.html')) {
+          $content = $this->toHtml($build['content'], 'div', 'media__html');
+          $content = $this->renderer->renderPlain($content);
+          $content = base64_encode($content->__toString());
+          $blazies->set('media.encoded.content', $content)
+            ->set('media.encoded.uri', Internals::DATA_TEXT);
 
-        // This allows theme_blazy() to process it as workable media elements.
-        $build['content'] = [];
-      }
-      else {
-        // @todo recheck if anything against this.
-        $blazies->set('is.bg', FALSE)
-          ->set('is.unlazy', TRUE)
-          ->set('use.loader', FALSE);
+          // This allows theme_blazy() to process it as workable media elements.
+          $build['content'] = [];
+        }
+        else {
+          // @todo recheck if anything against this.
+          $blazies->set('is.bg', FALSE)
+            ->set('is.unlazy', TRUE)
+            ->set('use.loader', FALSE);
+        }
       }
     }
   }
