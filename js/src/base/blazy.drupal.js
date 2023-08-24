@@ -17,7 +17,9 @@
   var _data = 'data';
   var _bbg = 'b-bg';
   var _dataBg = _data + '-' + _bbg;
+  // @todo remove at/by 3.x:
   var _dataRatios = _data + '-ratios';
+  var _dataBratios = _data + '-b-ratios';
   var _elBlur = '.b-blur';
   var _media = 'media';
   var _elMedia = '.' + _media;
@@ -57,7 +59,11 @@
     },
 
     isFluid: function (el, cn) {
-      return $.equal(el.parentNode, 'picture') && $.hasAttr(cn, _dataRatios);
+      return $.equal(el.parentNode, 'picture') &&
+        ($.hasAttr(cn, _dataBratios)
+          // @todo remove the last at/by 3.x:
+          ||
+          $.hasAttr(cn, _dataRatios));
     },
 
     isLoaded: function (el) {

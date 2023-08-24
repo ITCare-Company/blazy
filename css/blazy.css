@@ -133,7 +133,7 @@ absolute position and fixed dimensions. */
   margin: 0;
 }
 
-/* Without aspect ratio will collapsed, with ratio, cropped. Adjust. */
+/* Without aspect ratio will be collapsed, with ratio, cropped. Adjust. */
 .b-html,
 .media--instagram {
   min-height: 140px;
@@ -144,6 +144,7 @@ absolute position and fixed dimensions. */
   min-height: 420px;
 }
 
+/*
 .b-instagram iframe {
   visibility: hidden;
 }
@@ -151,6 +152,7 @@ absolute position and fixed dimensions. */
 .is-b-instagram-loaded iframe {
   visibility: visible;
 }
+*/
 
 /** @todo re-check various use-cases. */
 .b-html.b-loaded > img {

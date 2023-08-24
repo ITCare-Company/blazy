@@ -187,29 +187,27 @@
             }
 
             // @todo consider to not use colorbox iframe for consistent .media.
-            _win.setTimeout(function () {
-              // Instagram takes time to make iframes.
-              if ($iframe.length) {
-                if (isInstagram) {
-                  var cb = function (obj) {
-                    o = dimension(obj.width + 'px', obj.height + 'px');
-                    resize(o);
-                  };
+            // Instagram takes time to make iframes, deferred to onload.
+            if ($iframe.length) {
+              if (isInstagram) {
+                var cb = function (obj) {
+                  o = dimension(obj.width + 'px', obj.height + 'px');
+                  resize(o);
+                };
 
-                  _instagram.show(cb, $iframe[0]);
-                }
-
-                $iframe.attr('width', o.width)
-                  .attr('height', o.height)
-                  .addClass('media__element');
-
-                if (!$media.length) {
-                  pad = _d.image.ratio(o) + '%';
-                  $container.css(hack(pad, 0))
-                    .addClass('media media--ratio');
-                }
+                _instagram.show(cb, $iframe[0]);
               }
-            }); // 101
+
+              $iframe.attr('width', o.width)
+                .attr('height', o.height)
+                .addClass('media__element');
+
+              if (!$media.length) {
+                pad = _d.image.ratio(o) + '%';
+                $container.css(hack(pad, 0))
+                  .addClass('media media--ratio');
+              }
+            }
           }
           else {
             $container.css(hack('', o.height))
@@ -220,7 +218,7 @@
             resize(o);
           }
         }
-      }); // 101
+      });
     }
 
     $box.colorbox($.extend({}, _cbox, runtimeOptions));

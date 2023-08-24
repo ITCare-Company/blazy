@@ -14,6 +14,7 @@
   var _loaded = _mounted + '-loaded';
   var _selBase = '.' + _id;
   var _selector = _selBase + ':not(.' + _mounted + ')';
+  var _dataToken = 'data-b-token';
   var _iframes = {};
   var _iFrame = 'iframe';
   var script = '//platform.instagram.com/en_US/embeds.js';
@@ -113,7 +114,7 @@
     show: function (cb, iframe) {
       var me = this;
       var root = me.root;
-      var token = me.token;
+      var token = me.token || $.attr(root, _dataToken);
 
       if (!token) {
         return;
@@ -170,15 +171,15 @@
    */
   function process(el) {
     var iframe;
-    var token = $.attr(el, 'data-b-token');
+    var token = $.attr(el, _dataToken);
     var instagram = $.instagram;
     var data = {
       token: token
     };
 
-    instagram.init(el, data);
+    $.ready(function () {
+      instagram.init(el, data);
 
-    setTimeout(function () {
       iframe = $.find(el, 'iframe');
 
       if ($.isElm(iframe)) {

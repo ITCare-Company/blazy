@@ -19,8 +19,9 @@
 
   var _id = 'blazy';
   var _data = 'data-';
-  var _dataRatios = _data + 'ratios';
-  var _dataRatio = _data + 'ratio';
+  // @todo remove the last at/by 3.x:
+  var _dataRatios = _data + 'b-ratios ' + _data + 'ratios';
+  var _dataRatio = _data + 'b-ratio ' + _data + 'ratio';
   var _media = 'media';
   var _picture = 'picture';
   var _elMedia = '.' + _media;

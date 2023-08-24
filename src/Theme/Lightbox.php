@@ -290,6 +290,7 @@ class Lightbox {
 
       // Only video needs help, responsive image is taken care of by lightbox.
       $style = '';
+      $hattrs = &$html['#attributes'];
       if ($has_dim) {
         $pad = round((($json['height'] / $json['width']) * 100), 2);
         $style .= 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;';
@@ -298,29 +299,31 @@ class Lightbox {
       // Currently only audio with background cover.
       if ($box_url && $blazies->is('multicontent')) {
         $style .= 'background-image: url(' . $box_url . ');';
-        $html['#attributes']['class'][] = 'b-bg-static';
+        $hattrs['class'][] = 'b-bg-static';
       }
 
       if ($style) {
-        $html['#attributes']['style'] = $style;
+        $hattrs['style'] = $style;
       }
 
       if ($provider = $json['provider'] ?? NULL) {
-        $html['#attributes']['aria-live'] = 'polite';
-        $html['#attributes']['class'][] = 'media--' . str_replace('_', '-', $provider);
+        $hattrs['aria-live'] = 'polite';
+        $hattrs['class'][] = 'media--' . str_replace('_', '-', $provider);
       }
 
       if ($token = $blazies->get('media.token')) {
-        $html['#attributes']['data-b-token'] = $token;
+        $hattrs['data-b-token'] = $token;
       }
 
       if ($blazies->use('instagram_api')) {
-        $html['#attributes']['class'][] = 'b-instagram';
+        $url = $blazies->get('media.input_url');
+        $attrs['data-box-url'] = $box_url;
+        $hattrs['class'][] = 'b-instagram';
       }
 
       // Do not add more classes after media--ratio. This is the only style
       // identifier/ prefix, must come last, else inline style is removed.
-      $html['#attributes']['class'][] = 'media--ratio';
+      $hattrs['class'][] = 'media--ratio';
 
       // Responsive image is unwrapped. Local videos wrapped.
       $content = $_resimage ? $box_html : $html;

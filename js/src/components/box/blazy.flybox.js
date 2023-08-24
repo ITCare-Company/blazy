@@ -20,27 +20,9 @@
   var _gallery = '[' + _dataId + '-gallery]:not(.' + _mounted + ')';
   var _trigger = '[' + _dataId + '-trigger]';
 
-  /**
-   * Flybox utility functions.
-   *
-   * @param {HTMLElement} el
-   *   The flybox HTML element.
-   */
-  function process(el) {
-
-    /**
-     * Launch a flybox.
-     *
-     * @param {Event} e
-     *   The click event.
-     */
-    function launch(e) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      var target = e.target;
-      var link = target.href ? target : $.closest(target, _trigger);
-
+  // Public methods.
+  $.flybox = {
+    open: function (link) {
       if ($.isElm(link)) {
         Drupal.blazyBox.open(link,
           {
@@ -51,7 +33,30 @@
           });
       }
     }
+  };
 
+  /**
+   * Launch a flybox.
+   *
+   * @param {Event} e
+   *   The click event.
+   */
+  function launch(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    var target = e.target;
+    var link = target.href ? target : $.closest(target, _trigger);
+    $.flybox.open(link);
+  }
+
+  /**
+   * Flybox utility functions.
+   *
+   * @param {HTMLElement} el
+   *   The flybox HTML element.
+   */
+  function process(el) {
     $.on(el, 'click.' + _id, _trigger, launch);
     $.addClass(el, _mounted);
   }

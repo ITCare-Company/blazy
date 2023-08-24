@@ -140,7 +140,7 @@
 
         if (isInstagram && _instagram) {
           var cb = function (obj) {
-            var h = obj.height + 'px';
+            var h = (obj.height + 30) + 'px';
             var w = obj.width + 'px';
 
             $el[0].style.minHeight = h;
@@ -279,7 +279,7 @@
    *   An object containing:
    *   - el: The lightbox link element, normally [data-LIGHTBOX-trigger].
    *   - dataset: the [data-b-media] object, extracted from link element.
-   *   - options: extra options not contained with dataset.
+   *   - options: extra options not contained within dataset.
    *
    * @return {String}
    *   Returns a html string.
