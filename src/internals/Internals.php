@@ -9,6 +9,7 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Media\BlazyImage;
+use Drupal\blazy\Media\Provider\Youtube;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\Markdown;
 use Drupal\blazy\Utility\Path;
@@ -56,25 +57,10 @@ class Internals {
   }
 
   /**
-   * Returns the expected input URL, specific for Youtube.
-   *
-   * OEmbed Resource doesn't accept `/embed`, provides a conversion helper,
-   * normally seen at BlazyFilter with youtube embed copy/paste, without
-   * creating media entities. Or when given an embed code by VEF, etc.
-   *
-   * @param string $input
-   *   The given url.
-   *
-   * @return string
-   *   The input url.
+   * Alias for Youtube::fromEmbed().
    */
   public static function youtube($input): ?string {
-    if ($input && strpos($input, 'youtube.com/embed') !== FALSE) {
-      $search  = '/youtube\.com\/embed\/([a-zA-Z0-9]+)/smi';
-      $replace = "youtube.com/watch?v=$1";
-      $input   = preg_replace($search, $replace, $input);
-    }
-    return $input;
+    return Youtube::fromEmbed($input);
   }
 
   /**

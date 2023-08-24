@@ -339,7 +339,7 @@ class Sanitize {
   public static function kid($value): bool {
     // Should use the proper filter before/after Blazy, not this naive.
     // At least useless when already passed to self::attribute() upstream.
-    return Blazy::has($value, 'data:text')
+    return Blazy::has($value, 'data:text/html')
       || Blazy::has($value, 'script:');
     // @todo recheck, the last suspects might be innocent, just being cryptic
     // for common attribute values, normally readable. OK to strip since it

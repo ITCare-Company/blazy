@@ -9,7 +9,7 @@ use Drupal\blazy\internals\Internals;
 /**
  * Provides shared filter utilities.
  */
-class BlazyFilterUtil {
+class BlazyFilterUtil extends Shortcode {
 
   /**
    * Returns a randomized id.
@@ -33,22 +33,6 @@ class BlazyFilterUtil {
   }
 
   /**
-   * Returns string between delimiters, or empty if not found.
-   */
-  public static function getStringBetween($string, $start = '[', $end = ']'): ?string {
-    $string = ' ' . $string;
-    $ini = mb_strpos($string, $start);
-
-    if ($ini == 0) {
-      return '';
-    }
-
-    $ini += strlen($start);
-    $len = mb_strpos($string, $end, $ini) - $ini;
-    return trim(substr($string, $ini, $len) ?: '');
-  }
-
-  /**
    * Returns the inner HTMLof the DOMElement node.
    *
    * See https://www.php.net/manual/en/class.domelement.php#101243
@@ -61,48 +45,6 @@ class BlazyFilterUtil {
       }
     }
     return $text;
-  }
-
-  /**
-   * Remove HTML tags from a string.
-   */
-  public static function unwrap($string, $container = 'blazy', $item = 'item'): string {
-    // Might not be available with self-closing [TAG data="BLAH" /].
-    if (mb_strpos($string, "[$item") !== FALSE) {
-      $string = self::unwrapItem($string, $item);
-    }
-
-    return self::unwrapItem($string, $container);
-  }
-
-  /**
-   * Unwrap the enclosing tags.
-   *
-   * @todo recheck any reliable regex.
-   */
-  public static function unwrapItem($string, $item): string {
-    $patterns = [
-      // Not supported, but for completion [TAG data="BLAH"]A.B.C[/TAG].
-      "~(<p\>)\[$item?(.*?)\](.*?)\[/$item\](<\/p>)~",
-      // Normal WYSIWYG editor outputs with HTML correction filter enabled:
-      // <p>[TAG data="BLAH" /]</p>.
-      // <p>[TAG settings="BLAH"]</p>.
-      // <p>[/TAG]</p>.
-      "~(<p\>)\[(/)?$item(.*?)\](<\/p>)~",
-      // Abnormal non-WYSIWYG editor outputs: <p>[/TAG]<br />.
-      "~(<p\>)\[(/)?$item(.*?)\](<br \/>)~",
-      // Abnormal non-WYSIWYG editor outputs, letfovers: [TAG]</p>.
-      "~\[(/)?$item(.*?)\](<\/p>)~",
-    ];
-
-    $replacements = [
-      "<$item$2>$3</$item>",
-      "<$2$item$3>",
-      "<$2$item$3>",
-      "<$1$item$2>",
-    ];
-
-    return preg_replace($patterns, $replacements, $string);
   }
 
   /**

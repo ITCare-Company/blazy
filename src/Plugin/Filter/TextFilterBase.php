@@ -171,6 +171,10 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
       }
     }
 
+    if ($nav = $node->getAttribute('nav')) {
+      $settings['nav'] = $nav == 'false' ? FALSE : TRUE;
+    }
+
     // Merge all defined attributes into settings for convenient.
     $defaults = $this->defaultConfiguration()['settings'] ?? [];
     if ($defaults) {

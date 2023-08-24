@@ -75,7 +75,7 @@ class BlazyFilter extends BlazyFilterBase {
     $blazies = $settings['blazies'];
 
     if (stristr($text, '[' . static::$namespace) !== FALSE) {
-      $text = Util::unwrap($text, static::$namespace, static::$shortcode);
+      $text = Shortcode::parse($text, static::$namespace, static::$shortcode);
     }
 
     $dom = Html::load($text);
