@@ -2,6 +2,8 @@
  * @file
  *
  * A launcher for responsive (remote|local) videos, Responsive|Picture images.
+ *
+ * Since 2.17, body classes is deprecated for local classes in the #colorbox.
  */
 
 (function ($, _d, Drupal, drupalSettings, _win, _doc) {
@@ -9,11 +11,18 @@
   'use strict';
 
   var _id = 'colorbox';
+  var _root = '#' + _id;
+  var _bRoot = 'b-' + _id;
   var _nick = 'cbox';
   var _idOnce = 'b-' + _nick;
   var $body = $('body');
   var _mounted = 'is-' + _idOnce;
   var _element = '[data-' + _id + '-trigger]:not(.' + _mounted + ')';
+  var _cMediaBox = 'media media--box';
+  var _cMediaRatio = _cMediaBox + ' media--ratio';
+  var _cboxOn = 'colorbox-on';
+  var _sContent = '#cboxContent';
+  var _sLoadedContent = '#cboxLoadedContent';
   var _sanitizer = _d.sanitizer;
   var _instagram = _d.instagram || false;
   var cboxTimer;
@@ -26,11 +35,15 @@
    */
   function process(box) {
     var _cbox = drupalSettings.colorbox || {};
+    var $root = $(_root);
     var $box = $(box);
     var url = box.href || 'x';
     // @todo remove the second at 3.x:
     var media = $box.data('bMedia') || $box.data('media') || {};
-    var isIframe = media.boxType === 'iframe' && !_sanitizer.isDangerous('href', url);
+    var provider = media.provider;
+    var boxType = media.boxType;
+    var isIframe = boxType === 'iframe' && !_sanitizer.isDangerous('href', url);
+    var isInstagram = provider === 'instagram';
     var isHtml = 'html' in media;
     var html = isHtml ? media.html : null;
 
@@ -51,16 +64,32 @@
         return '';
       },
       onComplete: function () {
-        removeClasses();
-        $body.addClass('colorbox-on colorbox-on--' + media.type);
+        _win.clearTimeout(cboxTimer);
 
-        if (isIframe || isHtml) {
-          resizeBox();
-          $body.addClass(isIframe ? 'colorbox-on--media' : 'colorbox-on--html');
-        }
+        // DOM ready fix.
+        cboxTimer = _win.setTimeout(function () {
+          removeClasses();
+
+          if ($('#cboxOverlay').is(':visible')) {
+            $root.addClass(_bRoot + '--' + boxType);
+            if (provider) {
+              $root.addClass(_bRoot + '--' + provider);
+            }
+
+            // @deprecated in 2.17, and is removed in 3.x for local classes.
+            $body.addClass(_cboxOn + ' ' + _cboxOn + '--' + media.type);
+            if (isIframe || isHtml) {
+              // @deprecated in 2.17, and is removed in 3.x for local classes.
+              $body.addClass(isIframe ? _cboxOn + '--media' : _cboxOn + '--html');
+
+              resizeBox();
+            }
+          }
+        });
       },
       onCleanup: function () {
-        var $media = $('#cboxContent').find('.media');
+        var $media = $(_sContent).find('.media');
+
         if ($media.length) {
           Drupal.detachBehaviors($media[0]);
         }
@@ -74,8 +103,16 @@
      * Remove the custom colorbox classes.
      */
     function removeClasses() {
+      // Re-check might be empty for some reasons.
+      $root = $(_root);
+
+      // @todo remove at 3.x for local classes.
       $body.removeClass(function (index, css) {
         return (css.match(/(^|\s)colorbox-\S+/g) || []).join(' ');
+      });
+
+      $root.removeClass(function (index, css) {
+        return (css.match(/(^|\s)b-colorbox-\S+/g) || []).join(' ');
       });
     }
 
@@ -121,7 +158,7 @@
       var t = $(this);
       var w = t.width();
       var h = t.height();
-      var p = t.closest('#cboxLoadedContent');
+      var p = t.closest(_sLoadedContent);
       var pw = p.width();
       var ph = p.height();
       var o;
@@ -142,86 +179,102 @@
       }
     }
 
+    // Instagram oEmbed takes time to make iframes, deferred to onload.
+    function instagram($iframe, o) {
+      _win.setTimeout(function () {
+        var cb = function (obj) {
+          if (obj.width > 180) {
+            o = dimension(obj.width + 'px', obj.height + 'px');
+          }
+
+          resize(o);
+        };
+
+        _instagram.show(cb, $iframe[0]);
+      }, 101);
+    }
+
+    // Padding hack container to make it responsive.
+    function hackContainer($container, $iframe, o) {
+      $iframe.attr('width', o.width)
+        .attr('height', o.height);
+
+      var pad = _d.image.ratio(o) + '%';
+
+      $container.css(hack(pad, 0))
+        .addClass(_cMediaRatio);
+    }
+
     /**
      * Resize the colorbox if any of media types (video, picture, etc.) kick in.
      */
     function resizeBox() {
-      _win.clearTimeout(cboxTimer);
-
       var mw = _cbox.maxWidth;
       var mh = _cbox.maxHeight;
       var w = media.width || mw;
       var h = media.height || mh;
       var o = dimension(w, h);
       var shouldResize = true;
-      var pad;
+      var useHack = true;
+      var $container = $(_sLoadedContent);
+      var container = $container[0];
+      var $iframe = $('iframe', container);
+      var $media = $('.media', container);
+      var $picture = $container.find('picture img');
+      var $resimage = $container.find('img[srcset]');
+      var isResimage = $resimage.length || $picture.length;
+      var isInstagramApi = $media.hasClass('b-instagram') && _instagram;
+      var isInstagramVef = !isInstagramApi && isInstagram;
 
-      // DOM ready fix.
-      cboxTimer = _win.setTimeout(function () {
-        if ($('#cboxOverlay').is(':visible')) {
-          var $container = $('#cboxLoadedContent');
-          var container = $container[0];
-          var $iframe = $('.cboxIframe', container);
-          var $media = $('.media--ratio', container);
-          var $picture = $container.find('picture img');
-          var $resimage = $container.find('img[srcset]');
-          var isResimage = $resimage.length || $picture.length;
-          var isInstagram = $media.hasClass('b-instagram') && _instagram;
+      if (isResimage) {
+        responsiveImage($picture, $resimage);
 
-          if (isResimage) {
-            responsiveImage($picture, $resimage);
+        w = mw || media.width;
+        h = mh || media.height;
+        o = dimension(w, h);
+      }
 
-            w = mw || media.width;
-            h = mh || media.height;
-            o = dimension(w, h);
+      if ($iframe.length || $media.length) {
+        if (isInstagramApi || isInstagramVef) {
+          useHack = false;
+        }
+
+        if ($media.length) {
+          Drupal.attachBehaviors($media[0]);
+
+          // Instagram dynamic iframe only available after being attached.
+          $iframe = $('iframe', container);
+        }
+
+        // @todo consider to not use colorbox iframe for consistent .media,
+        // and avoid complication given Instagram oEmbed vs. VEF.
+        if ($iframe.length) {
+          $iframe.addClass('media__element');
+
+          if (isInstagramApi) {
+            shouldResize = false;
+
+            instagram($iframe, o);
           }
 
-          if ($iframe.length || $media.length) {
-            if ($media.length) {
-              Drupal.attachBehaviors($media[0]);
+          // Padding hack to make responsive iframe, unless disabled.
+          if (!$media.length) {
+            $container.addClass(_cMediaBox + ' media--' + provider);
 
-              if (isInstagram) {
-                shouldResize = false;
-                $iframe = $('iframe', container);
-              }
+            if (useHack) {
+              hackContainer($container, $iframe, o);
             }
-
-            // @todo consider to not use colorbox iframe for consistent .media.
-            if ($iframe.length) {
-              $iframe.addClass('media__element');
-
-              if (isInstagram) {
-                // Instagram takes time to make iframes, deferred to onload.
-                _win.setTimeout(function () {
-                  var cb = function (obj) {
-                    o = dimension(obj.width + 'px', obj.height + 'px');
-                    resize(o);
-                  };
-
-                  _instagram.show(cb, $iframe[0]);
-                }, 101);
-              }
-
-              if (!$media.length) {
-                $iframe.attr('width', o.width)
-                  .attr('height', o.height);
-
-                pad = _d.image.ratio(o) + '%';
-                $container.css(hack(pad, 0))
-                  .addClass('media media--ratio');
-              }
-            }
-          }
-          else {
-            $container.css(hack('', o.height))
-              .removeClass('media media--ratio media__element');
-          }
-
-          if (shouldResize) {
-            resize(o);
           }
         }
-      });
+      }
+      else {
+        $container.css(hack('', o.height))
+          .removeClass(_cMediaRatio + ' media--' + provider);
+      }
+
+      if (shouldResize) {
+        resize(o);
+      }
     }
 
     $box.colorbox($.extend({}, _cbox, runtimeOptions));
@@ -245,8 +298,8 @@
 
       var elms = _d.once(process, _idOnce, _element, context);
       if (elms.length) {
-        $('#' + _id).attr('aria-label', 'color box')
-          .addClass(_idOnce);
+        $(_root).attr('aria-label', 'color box')
+          .addClass(_bRoot);
       }
     },
     detach: function (context, setting, trigger) {

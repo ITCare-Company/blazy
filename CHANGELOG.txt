@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-08-25
+------------------------------
+- Deprecated colorbox body classes for local classes in #colorbox selector.
+
 Blazy 8.x-2.0-dev, 2023-08-23
 ------------------------------
 - Fixed for mixed multiple multimedia playing.

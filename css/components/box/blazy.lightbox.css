@@ -79,7 +79,8 @@ a .media--switch img.media__element {
   margin: auto;
 }
 
-.media.media--box {
+.media.media--box,
+.media--box iframe {
   display: block;
   margin: auto;
 }

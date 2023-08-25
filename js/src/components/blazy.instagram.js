@@ -43,6 +43,10 @@
   }
 
   function update(root, w) {
+    if (!root) {
+      return;
+    }
+
     var pw = root.parentElement;
 
     root.style.width = w + 'px';
@@ -69,16 +73,9 @@
       w = parseInt($.css(ifrm, 'min-width'), 0);
       h = parseInt($.height(ifrm), 0);
 
-      if (h < 500) {
-        if (ws.height < 620) {
-          h = ws.height - 65;
-        }
-        else {
-          h = 620;
-        }
+      if (h < 180 || ws.height < 620) {
+        h = ws.height - 60;
       }
-
-      h = h < 100 ? 520 : h;
 
       update(root, w);
 
