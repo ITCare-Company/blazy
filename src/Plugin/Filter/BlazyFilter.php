@@ -70,10 +70,13 @@ class BlazyFilter extends BlazyFilterBase {
 
     // Prepare settings.
     $settings = $this->buildSettings($text);
+    $blazies  = $settings['blazies'];
 
     // Checks if any shortcodes.
     if (stristr($text, '[' . static::$namespace) !== FALSE) {
       $text = $this->shortcode($text, static::$namespace, static::$shortcode);
+      // Shortcode cannot co-exist with deprecated grid.
+      $blazies->set('is.deprecated_grid', FALSE);
     }
 
     // Load text as \DOMDocument to work with.
@@ -293,6 +296,7 @@ class BlazyFilter extends BlazyFilterBase {
           $blazy->set('delta', $delta);
 
           if ($output = $this->build($node, $sets, $delta)) {
+
             // @todo remove deprecated too-catch-all post Blazy 3.x.
             if ($blazy->is('deprecated_grid')) {
               $grid_items[] = $output;

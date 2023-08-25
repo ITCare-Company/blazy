@@ -289,10 +289,17 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $richbox = $blazies->is('lightbox') && $blazies->is('richbox');
 
     if ($richbox && $hires) {
-      $element['#lightbox_html'] = $build['content'];
+      // When SVG reaches here, it must be INLINE, and occupy content. However
+      // for lightboxes SVG can be displayed as IMG even if INLINE, no problems.
+      // Shortly, SVG does not need to be displayed as HTML content since all
+      // lightboxes is capable to display SVG as IMG just fine.
+      if (!$blazies->is('svg')) {
+        $element['#lightbox_html'] = $build['content'];
 
-      // This allows theme_blazy() to process it as workable media elements.
-      $build['content'] = [];
+        // This allows theme_blazy() to process it as workable media elements.
+        // Putting this inside the block also respects inline SVG option.
+        $build['content'] = [];
+      }
     }
     else {
       // Exclude local audio/video, already lazy-loaded by theme_blazy().
