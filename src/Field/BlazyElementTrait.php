@@ -88,6 +88,8 @@ trait BlazyElementTrait {
       }
 
       if ($output = $this->svgManager->view($uri, $options)) {
+        $blazies->set('lazy.html', FALSE)
+          ->set('use.image', FALSE);
         $element['content'][] = ['#markup' => Markup::create($output)];
       }
     }

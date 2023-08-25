@@ -170,7 +170,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
   /**
    * Setup form attributes.
    */
-  protected function attributes(array &$form): void {
+  protected function attributes(array &$form, $context = 'optionset'): void {
     if (!isset($form['#attributes'])) {
       $form['#attributes'] = [];
     }
@@ -180,7 +180,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
 
     $classes = ['form'];
     // @todo remove slick after sub-modules.
-    foreach (['blazy', 'slick', 'optionset', $name] as $key) {
+    foreach (['blazy', 'slick', $context, $name] as $key) {
       $classes[] = 'form--' . $key;
     }
 

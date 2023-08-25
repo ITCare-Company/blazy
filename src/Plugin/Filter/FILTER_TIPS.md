@@ -58,7 +58,7 @@ entity. Pay attention to attributes, slashes, colons, single and double quotes:
       }" /]     
       </code>
     * `4x4` defines `WIDTHxHEIGHT` based on `grid-row` CSS property, see and
-      override `blazy/css/blazy.nativegrid.css`.
+      override `blazy/css/components/grid/blazy.nativegrid.css`.
 6. **Skipping**: to disable lazyload, add attribute `data-unblazy`:  
    * `<img data-unblazy />`
    * `<iframe data-unblazy />`
