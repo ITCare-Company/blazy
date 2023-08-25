@@ -202,8 +202,10 @@ class BlazySettings implements \Countable {
   /**
    * Sets values for a key.
    */
-  public function set($key, $value = NULL, $merge = FALSE): self {
-    if (is_array($key) && !isset($value)) {
+  public function set($key, $value = NULL, $merge = TRUE): self {
+    if (is_array($key)) {
+      // Ensures to merge to not nullify previous values.
+      $merge = TRUE;
       foreach ($key as $k => $v) {
         $this->setInternal($k, $v, $merge);
       }
@@ -376,7 +378,7 @@ class BlazySettings implements \Countable {
   /**
    * Sets values for a key.
    */
-  private function setInternal($key, $value = NULL, $merge = FALSE): self {
+  private function setInternal($key, $value = NULL, $merge = TRUE): self {
     $parts = array_map('trim', explode('.', $key));
 
     if (is_array($value) && $merge) {

@@ -12,7 +12,6 @@ use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\BlazyFile as File;
 use Drupal\blazy\Media\BlazyImage as Image;
 // @todo use Drupal\blazy\Media\BlazyMedia;
-use Drupal\blazy\Plugin\Filter\BlazyFilterUtil as Util;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -55,9 +54,15 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the main settings.
+   *
+   * @param string $text
+   *   The provided text.
+   *
+   * @return array
+   *   The main settings for current filter.
    */
-  public function buildSettings($text) {
+  protected function buildSettings($text) {
     $config = $this->settings;
     $settings = &$this->settings;
     $settings += Defaults::lazySettings();
@@ -66,7 +71,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $this->manager->verify($settings);
 
     $settings['plugin_id'] = $plugin_id = $this->getPluginId();
-    $settings['id'] = $id = Util::getId($plugin_id);
+    $settings['id'] = $id = AttributeParser::getId($plugin_id);
 
     $definitions = $this->entityFieldManager->getFieldDefinitions('media', 'remote_video');
     $is_media_library = $definitions && isset($definitions['field_media_oembed_video']);
@@ -471,7 +476,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       }
 
       // These are shortcode attributes for grid ITEM, or SLIDE.
-      if ($attrs = Util::getAttribute($node)) {
+      if ($attrs = AttributeParser::getAttribute($node)) {
         // Might be consumed directly by sub-modules.
         $attrs = Blazy::sanitize($attrs);
         $this->shortcodeItemAttributes($build, $node, $blazies, $attrs);
@@ -530,7 +535,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
     $tag      = $node->nodeName;
-    $attrs    = Util::getAttribute($node);
+    $attrs    = AttributeParser::getAttribute($node);
 
     if (!$attrs) {
       return;
@@ -539,7 +544,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     // Prevents blur IMG from screwing up the expected image SRC.
     if ($src = $attrs['src'] ?? NULL) {
       $use_data_uri = $this->settings['use_data_uri'] ?? FALSE;
-      $src = Util::getValidSrc($node, $use_data_uri);
+      $src = AttributeParser::getValidSrc($node, $use_data_uri);
 
       // Iframe with data: alike scheme is a serious kidding, strip it early.
       if ($tag == 'iframe') {

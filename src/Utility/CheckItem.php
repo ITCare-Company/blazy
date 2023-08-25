@@ -377,8 +377,7 @@ class CheckItem {
       ->set('is.player', $is_player)
       ->set('is.remote_video', $is_remote)
       ->set('media.embed_url', $embed_url)
-      ->set('media.type', $type)
-      ->set('switch', $switch);
+      ->set('media.type', $type);
   }
 
 }

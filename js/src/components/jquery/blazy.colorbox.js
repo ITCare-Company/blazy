@@ -187,22 +187,25 @@
             }
 
             // @todo consider to not use colorbox iframe for consistent .media.
-            // Instagram takes time to make iframes, deferred to onload.
             if ($iframe.length) {
-              if (isInstagram) {
-                var cb = function (obj) {
-                  o = dimension(obj.width + 'px', obj.height + 'px');
-                  resize(o);
-                };
+              $iframe.addClass('media__element');
 
-                _instagram.show(cb, $iframe[0]);
+              if (isInstagram) {
+                // Instagram takes time to make iframes, deferred to onload.
+                _win.setTimeout(function () {
+                  var cb = function (obj) {
+                    o = dimension(obj.width + 'px', obj.height + 'px');
+                    resize(o);
+                  };
+
+                  _instagram.show(cb, $iframe[0]);
+                }, 101);
               }
 
-              $iframe.attr('width', o.width)
-                .attr('height', o.height)
-                .addClass('media__element');
-
               if (!$media.length) {
+                $iframe.attr('width', o.width)
+                  .attr('height', o.height);
+
                 pad = _d.image.ratio(o) + '%';
                 $container.css(hack(pad, 0))
                   .addClass('media media--ratio');
@@ -242,7 +245,8 @@
 
       var elms = _d.once(process, _idOnce, _element, context);
       if (elms.length) {
-        $('#' + _id).attr('aria-label', 'color box');
+        $('#' + _id).attr('aria-label', 'color box')
+          .addClass(_idOnce);
       }
     },
     detach: function (context, setting, trigger) {

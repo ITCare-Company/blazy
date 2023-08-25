@@ -101,6 +101,15 @@ class Lightbox {
       $json['provider'] = $provider;
     }
 
+    // Original dimensions from oembed resource.
+    if ($resource = $blazies->get('media.resource', [])) {
+      foreach (['width', 'height'] as $key) {
+        if ($value = $resource[$key] ?? NULL) {
+          $json['o' . $key] = (int) $value;
+        }
+      }
+    }
+
     if ($multimedia) {
       $box_width = 640;
       $box_height = 360;

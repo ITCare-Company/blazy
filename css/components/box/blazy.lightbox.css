@@ -75,6 +75,10 @@ a .media--switch img.media__element {
   visibility: visible;
 }
 
+.media-wrapper--box {
+  margin: auto;
+}
+
 .media.media--box {
   display: block;
   margin: auto;

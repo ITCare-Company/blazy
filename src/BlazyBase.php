@@ -594,7 +594,8 @@ abstract class BlazyBase implements BlazyInterface {
   ): array {
     $object = Internals::reset($settings, $key, $defaults);
     if ($data) {
-      $object->set($data);
+      // Ensures to merge to not nullify previous values.
+      $object->set($data, NULL, TRUE);
     }
     $settings[$key] = $object;
     return $settings;

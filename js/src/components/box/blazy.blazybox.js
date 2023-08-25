@@ -139,17 +139,19 @@
         isInstagram = $.hasClass(elMedia, 'b-instagram');
 
         if (isInstagram && _instagram) {
-          var cb = function (obj) {
-            var h = (obj.height + 30) + 'px';
-            var w = obj.width + 'px';
+          setTimeout(function () {
+            var cb = function (obj) {
+              var h = (obj.height + 30) + 'px';
+              var w = obj.width + 'px';
 
-            $el[0].style.minHeight = h;
-            elMedia.style.width = w;
+              $el[0].style.minHeight = h;
+              elMedia.style.width = w;
 
-            // Instagram takes up the window height at small areas, normally.
-            $el.addClass(_fitHeight);
-          };
-          _instagram.show(cb, elIframe);
+              // Instagram takes up the window height at small areas, normally.
+              $el.addClass(_fitHeight);
+            };
+            _instagram.show(cb, elIframe);
+          }, 101);
         }
       }
 

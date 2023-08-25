@@ -43,7 +43,12 @@
   }
 
   function update(root, w) {
+    var pw = root.parentElement;
+
     root.style.width = w + 'px';
+    if ($.hasClass(pw, 'media-wrapper')) {
+      pw.style.width = w + 'px';
+    }
 
     // @todo remove if no issues with aspect ratio.
     root.style.paddingBottom = '';

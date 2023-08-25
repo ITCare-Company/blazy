@@ -155,6 +155,20 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
+   * Returns settings for attachments.
+   */
+  protected function attach(array $settings = []): array {
+    $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE] + $settings;
+    $all['media_switch'] = $switch = $settings['media_switch'] ?? '';
+
+    if (!empty($settings[$switch])) {
+      $all[$switch] = $settings[$switch];
+    }
+
+    return $all;
+  }
+
+  /**
    * Extracts setting from attributes.
    */
   protected function extractSettings(\DOMElement $node, array &$settings): void {
@@ -197,7 +211,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
       $blazies->set('count', (int) $settings['count']);
     }
 
-    BlazyFilterUtil::toGrid($node, $settings);
+    AttributeParser::toGrid($node, $settings);
   }
 
   /**
@@ -217,6 +231,45 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
     }
 
     return FilteredMarkup::create($filtered_caption->getProcessedText());
+  }
+
+  /**
+   * Returns the inner HTMLof the DOMElement node.
+   *
+   * See https://www.php.net/manual/en/class.domelement.php#101243
+   */
+  protected function getHtml(\DOMElement $node): ?string {
+    $text = '';
+    foreach ($node->childNodes as $child) {
+      if ($child instanceof \DOMElement) {
+        $text .= $child->ownerDocument->saveXML($child);
+      }
+    }
+    return $text;
+  }
+
+  /**
+   * Returns DOMElement nodes expected to be grid, or slide items.
+   */
+  protected function getNodes(\DOMDocument $dom, $tag = '//grid') {
+    $xpath = new \DOMXPath($dom);
+
+    return $xpath->query($tag);
+  }
+
+  /**
+   * Returns a valid node, excluding blur/ noscript images.
+   */
+  protected function getValidNode($children) {
+    $child = $children->item(0);
+    $class = $child->getAttribute('class');
+    $is_blur = $class && strpos($class, 'b-blur') !== FALSE;
+    $is_bg = $class && strpos($class, 'b-bg') !== FALSE;
+
+    if ($is_blur && !$is_bg) {
+      $child = $children->item(1) ?: $child;
+    }
+    return $child;
   }
 
   /**
@@ -246,6 +299,13 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
+   * Alias for Shortcode::parse().
+   */
+  protected function shortcode($text, $container = 'blazy', $item = 'item'): string {
+    return Shortcode::parse($text, $container, $item);
+  }
+
+  /**
    * Prepares the settings.
    *
    * @todo disable after sub-modules remove ::parent, add a return type hint.
@@ -259,6 +319,17 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
    */
   protected function postSettings(array &$settings): void {
     // Do nothing.
+  }
+
+  /**
+   * Removes nodes.
+   */
+  protected function removeNodes(&$nodes): void {
+    foreach ($nodes as $node) {
+      if ($node->parentNode) {
+        $node->parentNode->removeChild($node);
+      }
+    }
   }
 
   /**
@@ -284,6 +355,27 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
     if ($node->parentNode) {
       $node->parentNode->removeChild($node);
     }
+  }
+
+  /**
+   * Return valid nodes based on the allowed tags.
+   */
+  protected function validNodes(\DOMDocument $dom, array $allowed_tags = [], $exclude = ''): array {
+    $valid_nodes = [];
+    foreach ($allowed_tags as $allowed_tag) {
+      $nodes = $dom->getElementsByTagName($allowed_tag);
+      /* @phpstan-ignore-next-line */
+      if ($nodes->length > 0) {
+        foreach ($nodes as $node) {
+          if ($exclude && $node->hasAttribute($exclude)) {
+            continue;
+          }
+
+          $valid_nodes[] = $node;
+        }
+      }
+    }
+    return $valid_nodes;
   }
 
 }
