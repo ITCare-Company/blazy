@@ -82,9 +82,12 @@ trait BlazyElementTrait {
     if ($valid && $uri = $blazies->get('image.uri')) {
       $options = BlazyDefault::toSvgOptions($settings);
 
-      // @todo call $blazies->get('image.title'); after being moved.
-      if ($title = Attributes::altTitle($blazies, $item)['title']) {
-        $options['title'] = $title;
+      // @todo remove fallback after entities updated, except file which has it.
+      $title = $blazies->get('image.title')
+        ?: Attributes::altTitle($blazies, $item)['title'];
+
+      if ($title) {
+        $options['title'] = Attributes::escape($title, TRUE);
       }
 
       if ($output = $this->svgManager->view($uri, $options)) {

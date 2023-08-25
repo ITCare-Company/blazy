@@ -146,6 +146,11 @@
       // Native doesn't support DIV, fix it.
       if (isImage || isBg) {
         me.loadImage(el, isBg, winData);
+
+        // Double lazy load elements.
+        if (isBg && $.isHtml(el)) {
+          loadHtml(el, opts);
+        }
       }
       else {
         // IFRAME elements, etc.

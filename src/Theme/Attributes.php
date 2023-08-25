@@ -108,7 +108,7 @@ class Attributes {
       $attributes[self::data($blazies, 'ratio')] = $padding;
     }
 
-    // Lazy load HTML content.
+    // Since 2.17, lazy load HTML content if so-configured.
     if ($blazies->get('lazy.html')) {
       $unlazy = self::isUnlazy($blazies);
       if (!$unlazy && $html = $blazies->get('media.encoded.content')) {
@@ -157,7 +157,8 @@ class Attributes {
       // Also empty the image to not get in the way, unless player enabled.
       $variables['image'] = empty($settings['media_switch']) ? [] : $variables['image'];
 
-      // Pass iframe attributes to template.
+      // Pass iframe attributes to template, except for Instagram oEmbed, etc.
+      // Scripted iframe is like Instagram BLOCKQUOTE js-converted into IFRAME.
       if (!$blazies->use('scripted_iframe')) {
         $variables['iframe'] = [
           '#type' => 'html_tag',
@@ -346,19 +347,8 @@ class Attributes {
     }
 
     // Updates $title whether for audio/ video, or just image.
-    if ($title) {
-      $title = Html::escape($title);
-      // Twig will escape Can't to Can&#039;t, else doubles: Can&amp;#039;t.
-      // @todo recheck if the world is ended with this, and so remove this.
-      $title = str_replace('&#039;', "'", $title);
-    }
-
-    if ($alt) {
-      $alt = Html::escape($alt);
-      // Twig will escape Can't to Can&#039;t, else doubles: Can&amp;#039;t.
-      // @todo recheck if the world is ended with this, and so remove this.
-      $alt = str_replace('&#039;', "'", $alt);
-    }
+    $title = self::escape($title);
+    $alt   = self::escape($alt);
 
     // Overrides title if to be used as a placeholder for lazyloaded video.
     if ($blazies->is('multimedia') && $title) {
@@ -393,6 +383,23 @@ class Attributes {
       ->set('image.escaped', TRUE);
 
     return ['alt' => $alt ?: '', 'title' => $title];
+  }
+
+  /**
+   * Return the escaped string.
+   */
+  public static function escape($text, $strip = FALSE): ?string {
+    if ($text) {
+      if ($strip) {
+        $text = strip_tags($text);
+      }
+
+      $text = Html::escape($text);
+      // Twig will escape Can't to Can&#039;t, else doubles: Can&amp;#039;t.
+      // @todo recheck if the world is ended with this, and so remove this.
+      $text = str_replace('&#039;', "'", $text);
+    }
+    return $text;
   }
 
   /**
@@ -431,6 +438,7 @@ class Attributes {
 
     // Might be abused to use HTML, fine for captions, but not attributes.
     // This should make both parties happier ever after, sort of.
+    // strip_tags always sounds harsh, but not when done for a noble purpose.
     if ($title) {
       $title = strip_tags($title);
     }

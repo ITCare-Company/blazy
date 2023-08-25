@@ -21,7 +21,7 @@ class BlazyAlter {
    *
    * @var array
    */
-  private static $libraryInfoBuild;
+  protected static $libraryInfoBuild;
 
   /**
    * Implements hook_config_schema_info_alter().
@@ -81,7 +81,7 @@ class BlazyAlter {
 
     // Blazy colorbox needs these higher.
     if ($extension === 'media_entity_instagram') {
-      if ($libraries['instagram.embeds']) {
+      if (isset($libraries['instagram.embeds'])) {
         $libraries['instagram.embeds']['js']['//platform.instagram.com/en_US/embeds.js'] = [
           'weight' => -16,
           'type' => 'external',
@@ -115,7 +115,7 @@ class BlazyAlter {
    * Implements hook_library_info_build().
    */
   public static function libraryInfoBuild() {
-    if (!isset(self::$libraryInfoBuild)) {
+    if (!isset(static::$libraryInfoBuild)) {
       $libraries = [];
       // Optional polyfills for IEs, and oldies.
       $polyfills = array_merge(BlazyDefault::polyfills(), BlazyDefault::ondemandPolyfills());
@@ -169,9 +169,9 @@ class BlazyAlter {
         $libraries[$id] = $component;
       }
 
-      self::$libraryInfoBuild = $libraries;
+      static::$libraryInfoBuild = $libraries;
     }
-    return self::$libraryInfoBuild;
+    return static::$libraryInfoBuild;
   }
 
   /**
@@ -233,7 +233,7 @@ class BlazyAlter {
    * Implements hook_field_formatter_settings_summary_alter().
    */
   public static function fieldFormatterSettingsSummaryAlter(array &$summary, $context): void {
-    if ($formatter = $context['formatter']) {
+    if ($formatter = $context['formatter'] ?? NULL) {
       $on = $formatter->getThirdPartySetting('blazy', 'blazy', FALSE);
       if ($on && in_array($formatter->getPluginId(), self::thirdPartyFormatters())) {
         $summary[] = 'Blazy';
