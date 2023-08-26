@@ -162,6 +162,13 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     // and must be renewed at item level to get correct delta, see #3278525.
     $blazies = $settings['blazies']->reset($settings);
     $delta   = $blazies->get('delta', $build['#delta'] ?? 0);
+    $style   = $settings['image_style'] ?? NULL;
+
+    // Workflows might be by-passed such as passing core Image formatter, not
+    // Blazy for the main image displays within carousels, etc.
+    if ($style && !$blazies->get('image.id')) {
+      $this->imageStyles($settings);
+    }
 
     $blazies->set('delta', $delta)
       ->set('is.api', TRUE);

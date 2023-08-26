@@ -226,7 +226,7 @@ class Check {
 
     // 1. Blazy formatter within Views styles by supported modules.
     // $item_id might be slide, box, etc.
-    $blazy   = Internals::toHashtag($data);
+    $subsets = Internals::toHashtag($data);
     $item_id = $blazies->get('item.id');
     $content = $data[$item_id] ?? $data;
 
@@ -236,16 +236,21 @@ class Check {
     // Flattenings were seen at D7, but no longer seen at D9, however...
     if (is_array($content) && ($view = ($content['#view'] ?? NULL))) {
       if ($blazy_field = BlazyViews::viewsField($view)) {
-        $blazy = $blazy_field->mergedViewsSettings();
-        $settings = array_merge(array_filter($blazy), array_filter($settings));
+        $subsets = $blazy_field->mergedViewsSettings();
+        $settings = array_merge(array_filter($subsets), array_filter($settings));
       }
     }
 
-    // 3. Makes this container aware of Blazy formatter it might contain.
-    if ($blazy) {
-      Internals::preserve($settings, $blazy);
+    // 3. Core image formatter.
+    if (!$subsets && $image_style = $data['#image_style'] ?? NULL) {
+      $subsets['image_style'] = $settings['image_style'] = $image_style;
+    }
 
-      // Rechecks container, etc. since we have $blazy.
+    // 4. Makes this container aware of Blazy formatter it might contain.
+    if ($subsets) {
+      Internals::preserve($settings, $subsets);
+
+      // Rechecks container, etc. since we have $subsets.
       if ($manager = Internals::service('blazy.manager')) {
         $blazies->set('was.initialized', FALSE);
         $manager->preSettings($settings);

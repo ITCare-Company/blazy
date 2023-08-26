@@ -200,16 +200,15 @@ trait BlazyStyleBaseTrait {
             $options = $field->options ?? [];
             $id = $options['plugin_id'] ?? '';
             $type = $options['type'] ?? $id;
-            $switch = isset($options['media_switch'])
-              || isset($options['settings']['media_switch']);
+
+            $doable = isset($options['media_switch'])
+              || isset($options['settings']['image_style']);
 
             if (!$type) {
               continue;
             }
 
-            if (!empty($options['field'])
-              && $switch
-              && strpos($type, 'blazy') !== FALSE) {
+            if (!empty($options['field']) && $doable) {
               $name = $options['field'];
             }
           }
@@ -231,7 +230,7 @@ trait BlazyStyleBaseTrait {
               && !($result['rendered'] instanceof Markup)) {
               // D10/9.5.10 moves it into indices.
               $rendered = $result['rendered'][0]['#build']
-                ?? $result['rendered']['#build'] ?? [];
+                ?? $result['rendered']['#build'] ?? $result['rendered'] ?? [];
             }
           }
         }

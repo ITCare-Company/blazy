@@ -21,7 +21,6 @@ trait BlazyStylePluginTrait {
    * Returns the modified renderable image_formatter to support lazyload.
    */
   protected function getImageRenderable(array &$settings, $row, $index): array {
-    $blazies  = $settings['blazies'];
     $image    = $this->getImageArray($row, $index, $settings['image']);
     $rendered = $image['rendered'] ?? [];
     $item     = $image['raw'] ?? NULL;
@@ -54,48 +53,66 @@ trait BlazyStylePluginTrait {
 
       if ($theme && in_array($theme, ['blazy', 'image_formatter'])) {
         if ($theme == 'blazy') {
-          // Pass Blazy field formatter settings into Views style plugin.
-          // This allows richer contents such as multimedia/ lightbox for free.
-          // Yet, ensures the Views style plugin wins over Blazy formatter,
-          // such as with GridStack which may have its own breakpoints.
-          $newbies = $this->manager->toHashtag($rendered['#build']);
-          $blazy_settings = array_filter($newbies);
-          $settings = array_merge($blazy_settings, array_filter($settings));
-
-          // Reserves crucial blazy specific settings.
-          Internals::preserve($settings, $blazy_settings);
-
-          // Each blazy delta is always 0 within a view, this makes it gallery.
-          $settings['blazies'] = $blazy_settings['blazies'];
-          $settings['blazies']->set('delta', $index)
-            ->set('is.gallery', !empty($settings['media_switch']));
+          $this->withBlazyFormatter($settings, $rendered, $index);
         }
         elseif ($theme == 'image_formatter') {
-          // Deals with "link to content/image" by formatters.
-          $url = $rendered['#url'] ?? '';
-
-          // Checks if an object.
-          if ($url instanceof Url) {
-            $url = $url->setAbsolute()->toString();
-          }
-
-          // Prevent images from having absurd height when being lazyloaded.
-          // Allows to disable it by _noratio such as enforced CSS background.
-          $noratio = $settings['_noratio'] ?? '';
-          $settings['ratio'] = $blazies->get('is.noratio', $noratio) ? '' : 'fluid';
-
-          if (empty($settings['media_switch']) && $url) {
-            $settings['media_switch'] = 'content';
-            $blazies->set('switch', 'content');
-          }
-
-          $blazies->set('delta', $index)
-            ->set('entity.url', $url);
+          $this->withImageFormatter($settings, $rendered, $index);
+          // Update image style if any above is provided.
+          // Moved into ::getBlazy() to account for similar by-passes.
+          // $this->manager->imageStyles($settings);
         }
       }
     }
 
     return $image;
+  }
+
+  /**
+   * Extract image style and url from blazy image formatter.
+   */
+  protected function withBlazyFormatter(array &$settings, array $rendered, $index): void {
+    // Pass Blazy field formatter settings into Views style plugin.
+    // This allows richer contents such as multimedia/ lightbox for free.
+    // Yet, ensures the Views style plugin wins over Blazy formatter,
+    // such as with GridStack which may have its own breakpoints.
+    $newbies = $this->manager->toHashtag($rendered['#build']);
+    $blazy_settings = array_filter($newbies);
+    $settings = array_merge($blazy_settings, array_filter($settings));
+
+    // Reserves crucial blazy specific settings.
+    Internals::preserve($settings, $blazy_settings);
+
+    // Each blazy delta is always 0 within a view, this makes it gallery.
+    $settings['blazies'] = $blazy_settings['blazies'];
+    $settings['blazies']->set('delta', $index)
+      ->set('is.gallery', !empty($settings['media_switch']));
+  }
+
+  /**
+   * Extract image style and url from core image formatter.
+   */
+  protected function withImageFormatter(array &$settings, array $rendered, $index): void {
+    $blazies = $settings['blazies'];
+    // Deals with "link to content/image" by formatters.
+    $url = $rendered['#url'] ?? '';
+
+    // Checks if an object.
+    if ($url instanceof Url) {
+      $url = $url->setAbsolute()->toString();
+    }
+
+    // Prevent images from having absurd height when being lazyloaded.
+    // Allows to disable it by _noratio such as enforced CSS background.
+    $noratio = $settings['_noratio'] ?? '';
+    $settings['ratio'] = $blazies->get('is.noratio', $noratio) ? '' : 'fluid';
+
+    if (empty($settings['media_switch']) && $url) {
+      $settings['media_switch'] = 'content';
+      $blazies->set('switch', 'content');
+    }
+
+    $blazies->set('delta', $index)
+      ->set('entity.url', $url);
   }
 
   /**
