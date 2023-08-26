@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazySettings;
+use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Provider\Youtube;
 use Drupal\blazy\Theme\Grid;
@@ -130,7 +131,14 @@ class Internals {
   }
 
   /**
-   * Checks if it a video.
+   * Checks if it is an SVG.
+   */
+  public static function isSvg($uri): bool {
+    return BlazyFile::isSvg($uri);
+  }
+
+  /**
+   * Checks if it is a video.
    */
   public static function isVideo($blazies): bool {
     if ($blazies->get('media.input_url')) {

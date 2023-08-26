@@ -62,9 +62,21 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     $element['#delta'] = $delta;
     if ($_image || $captions) {
       $image = $this->getImageRenderable($settings, $row, $delta);
+      $rendered = $image['rendered'] ?? [];
       $element['#item'] = $image['raw'] ?? NULL;
 
+      if ($image['applicable']) {
+        $element['content'] = $rendered['#build']['content'] ?? [];
+      }
+      else {
+        $element['content'] = [
+          static::$itemId => $rendered,
+          static::$captionId => $captions,
+        ];
+      }
+
       // Provides the relevant elements based on the configuration.
+      // @todo refine for other formatters here.
       $this->toElement($blazies, $element, $captions);
     }
   }
@@ -79,6 +91,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
 
     // Supports 'group_rows' option.
     // @todo recheck if any side issues for not having raw key.
+    $image['applicable'] = FALSE;
     if (!$rendered) {
       return $image;
     }
@@ -103,11 +116,15 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
         ?? $rendered['#build'][0]['#theme']
         ?? '';
 
-      if ($theme == 'blazy') {
-        $this->withBlazyFormatter($settings, $rendered, $index);
-      }
-      elseif ($theme == 'image_formatter') {
-        $this->withImageFormatter($settings, $rendered, $index);
+      if ($theme && in_array($theme, ['blazy', 'image_formatter'])) {
+        if ($theme == 'blazy') {
+          $this->withBlazyFormatter($settings, $rendered, $index);
+        }
+        elseif ($theme == 'image_formatter') {
+          $this->withImageFormatter($settings, $rendered, $index);
+        }
+
+        $image['applicable'] = TRUE;
       }
     }
 
@@ -448,17 +465,31 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     // This allows richer contents such as multimedia/ lightbox for free.
     // Yet, ensures the Views style plugin wins over Blazy formatter,
     // such as with GridStack which may have its own breakpoints.
-    $newbies = $this->manager->toHashtag($rendered['#build']);
-    $blazy_settings = array_filter($newbies);
-    $settings = array_merge($blazy_settings, array_filter($settings));
+    $newbies   = $this->manager->toHashtag($rendered['#build']);
+    $formatter = array_filter($newbies);
+    $settings  = array_merge($formatter, array_filter($settings));
 
     // Reserves crucial blazy specific settings.
-    Internals::preserve($settings, $blazy_settings);
+    Internals::preserve($settings, $formatter);
 
     // Each blazy delta is always 0 within a view, this makes it gallery.
-    $settings['blazies'] = $blazy_settings['blazies'];
-    $settings['blazies']->set('delta', $index)
+    $blazies = $settings['blazies'];
+    $blazies->merge($formatter['blazies']->storage());
+    $blazies->set('delta', $index)
       ->set('is.gallery', !empty($settings['media_switch']));
+
+    $tn  = $blazies->get('thumbnail.uri', 'x');
+    $uri = $blazies->get('image.uri');
+
+    // Views Media thumbnail may not have expected thumbnail URI, override.
+    if ($uri && strpos($tn, 'media-icons') !== FALSE) {
+      if ($tn_style = $settings['thumbnail_style']) {
+        $uri = $this->manager->load($tn_style, 'image_style')->buildUri($uri);
+      }
+
+      $blazies->set('thumbnail.uri', $uri)
+        ->set('thumbnail.item', $rendered['#item']);
+    }
   }
 
   /**

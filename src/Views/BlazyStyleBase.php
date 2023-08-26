@@ -437,23 +437,26 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
 
     // If we have image style and image item.
     if ($tn_style && is_object($item)) {
-      $uri = Blazy::uri($item);
+      $uri = $tn_uri = Blazy::uri($item);
       $sets['thumbnail_style'] = $tn_style;
 
       if (!$blazies->get('image.uri')) {
         $blazies->set('image.uri', $uri);
       }
 
-      $tn_uri = $uri ? $this->manager
-        ->load($tn_style, 'image_style')
-        ->buildUri($uri) : NULL;
-
       // This allows a thumbnail different from the main stage, such as logos
       // thumbnails, and company buildings for the main stage.
       if ($tn_uri) {
+        if (!Internals::isSvg($tn_uri)) {
+          $tn_uri = $this->manager
+            ->load($tn_style, 'image_style')
+            ->buildUri($tn_uri);
+        }
+
         // @todo remove the first here.
         $sets['thumbnail_uri'] = $tn_uri;
-        $blazies->set('thumbnail.uri', $tn_uri)
+        $blazies->set('thumbnail.id', $tn_style)
+          ->set('thumbnail.uri', $tn_uri)
           ->set('thumbnail.item', $item);
         $doable = TRUE;
       }
