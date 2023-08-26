@@ -641,6 +641,7 @@ class BlazyDefault {
    * Returns sensible default item settings to shutup notices when lacking.
    *
    * @todo deprecated/ removed, no longer relevant since 2.17 after blazies.
+   * Since using BlazySettings as an object, we no longer have warnings.
    */
   public static function itemSettings() {
     return [

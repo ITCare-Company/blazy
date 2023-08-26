@@ -10,6 +10,8 @@ use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Utility\Sanitize;
 
+@trigger_error('The ' . __NAMESPACE__ . '\BlazyStyleBaseTrait is deprecated in blazy:8.x-2.14 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Views\BlazyStyleBase instead. See https://www.drupal.org/node/3367304', E_USER_DEPRECATED);
+
 /**
  * A Trait common for optional views style plugins.
  *
@@ -17,7 +19,9 @@ use Drupal\blazy\Utility\Sanitize;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module. Please extend base classes intead.
  *
- * @todo remove it into BlazyStyleBase after sub-modules extending it.
+ * @deprecated in blazy:8.x-2.14 and is removed from blazy:8.x-3.0. Use
+ *   \Drupal\blazy\Views\BlazyStyleBase instead.
+ * @see https://www.drupal.org/node/3367304
  */
 trait BlazyStyleBaseTrait {
 
@@ -315,8 +319,6 @@ trait BlazyStyleBaseTrait {
 
   /**
    * Sets dynamic html settings.
-   *
-   * @todo remove post blazy:2.17 after outlayer.
    */
   protected function setHtmlSettings(array $settings) {
     $this->htmlSettings = $settings;

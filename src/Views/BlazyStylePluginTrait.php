@@ -5,6 +5,8 @@ namespace Drupal\blazy\Views;
 use Drupal\Core\Url;
 use Drupal\blazy\internals\Internals;
 
+@trigger_error('The ' . __NAMESPACE__ . '\BlazyStylePluginTrait is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Views\BlazyStylePluginBase instead. See https://www.drupal.org/node/3367304', E_USER_DEPRECATED);
+
 /**
  * A Trait common for optional views style plugins.
  *
@@ -51,16 +53,11 @@ trait BlazyStylePluginTrait {
         ?? $rendered['#build'][0]['#theme']
         ?? '';
 
-      if ($theme && in_array($theme, ['blazy', 'image_formatter'])) {
-        if ($theme == 'blazy') {
-          $this->withBlazyFormatter($settings, $rendered, $index);
-        }
-        elseif ($theme == 'image_formatter') {
-          $this->withImageFormatter($settings, $rendered, $index);
-          // Update image style if any above is provided.
-          // Moved into ::getBlazy() to account for similar by-passes.
-          // $this->manager->imageStyles($settings);
-        }
+      if ($theme == 'blazy') {
+        $this->withBlazyFormatter($settings, $rendered, $index);
+      }
+      elseif ($theme == 'image_formatter') {
+        $this->withImageFormatter($settings, $rendered, $index);
       }
     }
 

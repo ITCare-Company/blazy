@@ -5,6 +5,8 @@ namespace Drupal\blazy\Views;
 use Drupal\Component\Utility\Html;
 use Drupal\views\Views;
 
+@trigger_error('The ' . __NAMESPACE__ . '\BlazyStyleOptionsTrait is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Views\BlazyStylePluginBase instead. See https://www.drupal.org/node/3367304', E_USER_DEPRECATED);
+
 /**
  * A Trait common for optional views style plugins.
  *
@@ -12,8 +14,9 @@ use Drupal\views\Views;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module. Please extend base classes intead.
  *
- * @todo remove it into BlazyStylePluginBase after sub-modules extending it.
- * Called by OutlayerViewsBase.
+ * @deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use
+ *   Drupal\blazy\Views\BlazyStylePluginBase instead.
+ * @see https://www.drupal.org/node/3367304
  */
 trait BlazyStyleOptionsTrait {
 
