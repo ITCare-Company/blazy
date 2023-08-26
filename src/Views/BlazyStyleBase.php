@@ -344,8 +344,15 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
   /**
    * Returns the rendered field, either string or array.
    */
-  protected function getFieldRendered($index, $name, $restricted = FALSE): array {
+  protected function getFieldRendered($index, $name, $restricted = FALSE, $row = NULL): array {
     if ($name && $output = $this->getField($index, $name)) {
+      // Linked title has weird value: ….
+      if ($row && $output == "…") {
+        if ($check = $this->getFieldRenderable($row, $index, $name)) {
+          $output = $check['rendered'] ?? [];
+        }
+      }
+
       return is_array($output) ? $output : [
         '#markup' => ($restricted ? Xss::filterAdmin($output) : $output),
       ];

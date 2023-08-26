@@ -121,6 +121,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     // embedded in Blazy ecosytem mostly for Grid, Slider, Mason, GridStack etc.
     if ($is_blazy && $_image && $switch == 'rendered') {
       if ($output = BlazyField::view($entity, $_image, $view_mode)) {
+        $blazies->set('lazy.html', FALSE);
         $data['content'][] = $output;
       }
     }

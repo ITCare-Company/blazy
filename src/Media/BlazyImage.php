@@ -340,6 +340,11 @@ class BlazyImage {
     $blazies = $settings['blazies']->reset($settings);
     $uri = $uri ?: $blazies->get('image.uri');
 
+    // Bailout if no URI.
+    if (!$uri) {
+      return;
+    }
+
     // Provides original image dimensions.
     self::dimensions($settings, $item, $uri, FALSE);
 

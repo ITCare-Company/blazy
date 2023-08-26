@@ -52,9 +52,10 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $blazies  = $this->preBlazy($build, $item);
     $settings = $build['#settings'];
 
-    // Respects content not handled by theme_blazy(), but passed through.
-    // Yet allows rich contents which might still be processed by theme_blazy().
-    $content = !$blazies->get('image.uri') ? $build['content'] : [
+    // Since 2.17, theme_blazy() is more permissive, even if no URI is given,
+    // so to be able to at least process the captions for markup consistency.
+    // We'll bail out downstream if no URI is given, but not here.
+    $content = [
       '#theme'       => 'blazy',
       '#delta'       => $blazies->get('delta'),
       '#item'        => $item,
@@ -80,8 +81,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Fetch the newly modified settings with hashed key.
     $settings = &$element['#settings'];
     $blazies = $settings['blazies'];
-    $url = $blazies->get('media.link') ?: $blazies->get('entity.url');
 
+    // Bail out if no URI is provided.
+    if (!$blazies->get('image.uri')) {
+      return $element;
+    }
+
+    $url = $blazies->get('media.link') ?: $blazies->get('entity.url');
     if ($url instanceof Url) {
       $url = $url->toString();
     }
@@ -304,7 +310,10 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     else {
       // Exclude local audio/video, already lazy-loaded by theme_blazy().
       if (!$blazies->is('local_media')) {
-        if ($blazies->get('lazy.html')) {
+        $unlazy = Internals::isUnlazy($blazies);
+        $media  = $blazies->get('lazy.html') && $blazies->get('media.id');
+
+        if (!$unlazy && $media) {
           $content = $this->toHtml($build['content'], 'div', 'media__html');
           $content = $this->renderer->renderPlain($content);
           $content = base64_encode($content->__toString());

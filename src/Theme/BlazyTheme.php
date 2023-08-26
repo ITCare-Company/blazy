@@ -69,10 +69,11 @@ class BlazyTheme {
     }
 
     // With BlazySettings, no longer needed to shutup notices when lacking.
-    $settings = &$variables['settings'];
-    $blazies  = Internals::verify($settings);
-    $item     = $variables['item'];
-    $api      = $blazies->is('api');
+    $attributes = &$variables['attributes'];
+    $settings   = &$variables['settings'];
+    $blazies    = Internals::verify($settings);
+    $item       = $variables['item'];
+    $api        = $blazies->is('api');
 
     // Still provides a failsafe for direct call to theme_blazy().
     if (!$api) {
@@ -83,6 +84,7 @@ class BlazyTheme {
     // Do not proceed if no URI is provided. URI is not Blazy theme property.
     // Blazy is a wrapper for theme_[(responsive_)image], etc. who wants URI.
     if (!$blazies->get('image.uri')) {
+      Attributes::finalizeAnyway($variables, $attributes, $settings);
       return;
     }
 

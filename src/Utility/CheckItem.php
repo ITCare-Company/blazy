@@ -136,12 +136,13 @@ class CheckItem {
     // URI might be NULL when no associated image to work with, no problem.
     $blazies->set('delta', $delta)
       ->set('is.initial', $initial)
-      ->set('image.uri', $uri)
-      ->set('image.valid', BlazyFile::isValidUri($uri))
       ->set('was.essentials', TRUE);
 
     // Checks images which cannot have image styles without extra legs.
     if ($uri) {
+      $blazies->set('image.uri', $uri)
+        ->set('image.valid', BlazyFile::isValidUri($uri));
+
       self::unstyled($settings, $uri);
     }
   }

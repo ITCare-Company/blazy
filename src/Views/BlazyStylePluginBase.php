@@ -45,7 +45,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     $_image   = $settings['image'] ?? NULL;
 
     $blazies->set('delta', $delta);
-    $captions = $this->getCaption($delta, $settings);
+    $captions = $this->getCaption($delta, $settings, $row);
 
     if ($extras = $element[static::$captionId] ?? []) {
       $captions = array_merge($captions, $extras);
@@ -69,10 +69,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
         $element['content'] = $rendered['#build']['content'] ?? [];
       }
       else {
-        $element['content'] = [
-          static::$itemId => $rendered,
-          static::$captionId => $captions,
-        ];
+        $element['content'] = $rendered;
       }
 
       // Provides the relevant elements based on the configuration.
@@ -178,7 +175,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   /**
    * Returns the caption elements.
    */
-  protected function getCaption($index, array $settings): array {
+  protected function getCaption($index, array $settings, $row = NULL): array {
     $view     = $this->view;
     $captions = [];
     $keys     = array_keys($view->field);
@@ -189,8 +186,8 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     $_caption = $settings['caption'] ?? [];
 
     // Caption items: link, title, overlay, and data, anything else selected.
-    $captions['title']   = $this->getFieldRendered($index, $_title, TRUE);
-    $captions['link']    = $this->getFieldRendered($index, $_link);
+    $captions['title']   = $this->getFieldRendered($index, $_title, TRUE, $row);
+    $captions['link']    = $this->getFieldRendered($index, $_link, TRUE, $row);
     $captions['overlay'] = $this->getFieldRendered($index, $_overlay);
 
     // Exclude non-caption fields so that theme_views_view_fields() kicks in
@@ -425,6 +422,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
       $element[static::$itemId] = $blazy;
       $this->formatter->postBlazy($element, $blazy);
     }
+    unset($element['content']);
   }
 
   /**
@@ -444,6 +442,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     }
 
     $element[static::$captionId] = $captions;
+    unset($element['content']);
   }
 
   /**

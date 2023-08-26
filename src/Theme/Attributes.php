@@ -110,7 +110,7 @@ class Attributes {
 
     // Since 2.17, lazy load HTML content if so-configured.
     if ($blazies->get('lazy.html')) {
-      $unlazy = self::isUnlazy($blazies);
+      $unlazy = Internals::isUnlazy($blazies);
       if (!$unlazy && $html = $blazies->get('media.encoded.content')) {
         if (!$blazies->get('bgs')) {
           $attributes['data-src'] = '';
@@ -128,6 +128,15 @@ class Attributes {
     if ($token = $blazies->get('media.token')) {
       $attributes['data-b-token'] = $token;
     }
+
+    self::finalizeAnyway($variables, $attributes, $settings);
+  }
+
+  /**
+   * Provides the media container classes.
+   */
+  public static function finalizeAnyway(array &$variables, array &$attributes, array $settings): void {
+    $blazies = $settings['blazies'];
 
     // Makes a little BEM order here due to Twig ignoring the preset priority.
     $classes = (array) ($attributes['class'] ?? []);
@@ -316,7 +325,7 @@ class Attributes {
     $trusted = $blazies->get('image.trusted');
     if ($url = $blazies->get('image.url')) {
       $url = $trusted ? $url : UrlHelper::stripDangerousProtocols($url);
-      $unlazy = self::isUnlazy($blazies);
+      $unlazy = Internals::isUnlazy($blazies);
 
       // Native, or unlazy, has .blazy--nojs at container to fix issues, if any.
       if (!$unlazy) {
@@ -704,25 +713,11 @@ class Attributes {
    */
   private static function unloading(array &$attributes, $blazies): void {
     $flag = $blazies->is('unloading');
-    $flag = $flag || self::isUnlazy($blazies);
+    $flag = $flag || Internals::isUnlazy($blazies);
 
     if ($flag) {
       $attributes['data-b-unloading'] = TRUE;
     }
-  }
-
-  /**
-   * Disable lazyload as required.
-   *
-   * The following will disable lazyload:
-   * - if loading:slider is chosen for the initial slide, normally delta 0.
-   * - If unlazy: globally disabled via `No JavaScript` option.
-   * - If static: CK Editor/ preview mode, AMP, and sandboxed mode.
-   */
-  private static function isUnlazy($blazies): bool {
-    return $blazies->is('unlazy')
-      || $blazies->is('static')
-      || $blazies->is('slider') && $blazies->is('initial');
   }
 
 }

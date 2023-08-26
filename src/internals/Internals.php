@@ -138,6 +138,20 @@ class Internals {
   }
 
   /**
+   * Disable lazyload as required.
+   *
+   * The following will disable lazyload:
+   * - if loading:slider (LCP) is chosen for initial slide, normally delta 0.
+   * - If unlazy: globally disabled via `No JavaScript` option.
+   * - If static: CK Editor/ preview mode, AMP, and sandboxed mode.
+   */
+  public static function isUnlazy($blazies): bool {
+    return $blazies->is('unlazy')
+      || $blazies->is('static')
+      || $blazies->is('slider') && $blazies->is('initial');
+  }
+
+  /**
    * Checks if it is a video.
    */
   public static function isVideo($blazies): bool {
@@ -188,7 +202,6 @@ class Internals {
    */
   public static function prepared(array &$settings, $item): void {
     BlazyImage::prepare($settings, $item);
-    self::tokenize($settings['blazies']);
   }
 
   /**
