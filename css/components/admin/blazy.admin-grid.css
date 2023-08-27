@@ -84,7 +84,7 @@
   .b-nativegrid--form .form-checkboxes {
     align-content: space-evenly;
     display: grid;
-    grid-auto-rows: 80px;
+    grid-auto-rows: 68px;
     grid-template-columns: repeat(2, 1fr);
     grid-gap: 0;
     justify-items: center;
@@ -95,6 +95,7 @@
   .b-nativegrid--form .grid.form-item {
     align-self: center;
     display: flex;
+    min-height: 68px;
     height: 100%;
     width: 100%;
   }
@@ -200,10 +201,11 @@
     display: flex;
     align-items: start;
     align-self: center;
+    grid-auto-rows: min-content;
     grid-row: span 4;
     grid-column: span 12;
     justify-content: start;
-    height: 100%;
+    height: auto;
     width: 100%;
   }
 
@@ -216,7 +218,8 @@
     width: 100%;
   }
 
-  .b-nativegrid--form fieldset .fieldset__description {
+  .b-nativegrid--form fieldset .fieldset__description,
+  .b-nativegrid--form .fieldset-wrapper > .description {
     text-align: center;
   }
 
@@ -225,6 +228,7 @@
 /** 1025px with 16px base font. */
 @media only screen and (min-width: 64.063em) {
   .b-nativegrid--form.form--half {
+    grid-auto-rows: min-content;
     max-width: 960px;
     min-width: 760px;
   }

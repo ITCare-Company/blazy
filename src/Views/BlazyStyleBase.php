@@ -383,12 +383,12 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
     // Caption is optional for thumbed navigation only.
     $caption = [];
     if ($field_caption) {
-      $caption = $this->getFieldRendered($index, $field_caption);
+      $caption = $this->getFieldRendered($index, $field_caption, FALSE, $row);
     }
 
     // Replace empty image item with the rendered output if not using image.
     if (!$doable && $name) {
-      $item = $this->getFieldRendered($index, $name);
+      $item = $this->getFieldRendered($index, $name, FALSE, $row);
     }
 
     // Even if multiple, only one thumbnail can exist.
@@ -443,9 +443,8 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
     }
 
     // If we have image style and image item.
-    if ($tn_style && is_object($item)) {
+    if (is_object($item)) {
       $uri = $tn_uri = Blazy::uri($item);
-      $sets['thumbnail_style'] = $tn_style;
 
       if (!$blazies->get('image.uri')) {
         $blazies->set('image.uri', $uri);
@@ -454,7 +453,8 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
       // This allows a thumbnail different from the main stage, such as logos
       // thumbnails, and company buildings for the main stage.
       if ($tn_uri) {
-        if (!Internals::isSvg($tn_uri)) {
+        if ($tn_style && !Internals::isSvg($tn_uri)) {
+          $sets['thumbnail_style'] = $tn_style;
           $tn_uri = $this->manager
             ->load($tn_style, 'image_style')
             ->buildUri($tn_uri);

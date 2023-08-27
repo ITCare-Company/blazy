@@ -51,13 +51,14 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $item     = $this->toHashtag($build, 'item', NULL);
     $blazies  = $this->preBlazy($build, $item);
     $settings = $build['#settings'];
+    $delta    = $build['#delta'] ?? $blazies->get('delta');
 
     // Since 2.17, theme_blazy() is more permissive, even if no URI is given,
     // so to be able to at least process the captions for markup consistency.
     // We'll bail out downstream if no URI is given, but not here.
     $content = [
       '#theme'       => 'blazy',
-      '#delta'       => $blazies->get('delta'),
+      '#delta'       => $delta,
       '#item'        => $item,
       '#image_style' => $settings['image_style'],
       '#build'       => $build,
