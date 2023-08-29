@@ -533,7 +533,7 @@ class BlazyImage {
           'uri'       => $file->getFileUri(),
           'target_id' => $file->id(),
           'alt'       => $alt ?: $name,
-          'title'     => $title ?: $name,
+          'title'     => $title,
           'width'     => $image->getWidth(),
           'height'    => $image->getHeight(),
           'type'      => 'image',

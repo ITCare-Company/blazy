@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-08-29
+------------------------------
+- Fixed for default ugly media.label filename as popup image title.
+
 Blazy 8.x-2.0-dev, 2023-08-26
 ------------------------------
 - Fixed for Views style Main stage regressions if not using Blazy or core Image

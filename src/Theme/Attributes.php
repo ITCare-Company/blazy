@@ -415,12 +415,9 @@ class Attributes {
    * Return the raw image alt and title, normally for captions, not attributes.
    */
   private static function altTitleRaw($blazies, $item = NULL): array {
-    $title = $blazies->get('image.raw.title');
-    $alt   = $blazies->get('image.raw.alt');
-
     // Ensures no double processes.
     if ($blazies->get('image.raw.processed')) {
-      return ['alt' => $alt ?: '', 'title' => $title];
+      return $blazies->get('image.raw');
     }
 
     $title = $blazies->get('image.title') ?: $blazies->get('media.label');
@@ -449,7 +446,10 @@ class Attributes {
     // This should make both parties happier ever after, sort of.
     // strip_tags always sounds harsh, but not when done for a noble purpose.
     if ($title) {
-      $title = strip_tags($title);
+      // Prevents default ugly media.label filename as popup image title.
+      $ext = $blazies->get('image.extension', 'x');
+      $filename = strpos($title, '.' . $ext) !== FALSE;
+      $title = $filename ? '' : strip_tags($title);
     }
 
     $alt = strip_tags($alt ?: '');

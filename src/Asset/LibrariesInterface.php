@@ -186,7 +186,7 @@ interface LibrariesInterface {
    * @param array|string $name
    *   The library name(s), e.g.: 'colorbox', or ['DOMPurify', 'dompurify'].
    * @param bool $base_path
-   *   Whether to prefix it with an a base path.
+   *   Whether to prefix it with a base path.
    *
    * @return string|null
    *   The first found path to the library, or NULL if not found.

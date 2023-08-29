@@ -122,9 +122,6 @@ class CheckItem {
       return;
     }
 
-    // Must be placed after self::multimedia() to get different ALT/ TITLE.
-    Attributes::altTitle($blazies, $item);
-
     // The first is for 2.6+ approach. The last to account for custom works
     // with old approach/ or direct call to theme_blazy() via settings.uri.
     // This issue do not happen at D7, since it consistently uses API.
@@ -145,6 +142,10 @@ class CheckItem {
 
       self::unstyled($settings, $uri);
     }
+
+    // Must be placed after self::multimedia() to get different ALT/ TITLE.
+    // And after image extensions setup to check for ugly filename image title.
+    Attributes::altTitle($blazies, $item);
   }
 
   /**
