@@ -25,7 +25,7 @@
   var _sLoadedContent = '#cboxLoadedContent';
   var _sanitizer = _d.sanitizer;
   var _instagram = _d.instagram || false;
-  var _thirdPartyScript = $.thirdPartyScript || false;
+  var _thirdPartyScript = _d.thirdPartyScript || false;
   var cboxTimer;
 
   /**

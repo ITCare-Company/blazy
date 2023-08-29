@@ -100,7 +100,7 @@
         if (callback) {
           callback();
         }
-      }, delay || 0);
+      }, delay || 101);
     }
   };
 
