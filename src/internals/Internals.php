@@ -431,10 +431,7 @@ class Internals {
     }
 
     // In case overriden above without extending self::init().
-    if (!isset($settings['image_style']) || !isset($settings['WARNING'])) {
-      $settings += Blazy::init();
-    }
-
+    $settings += Blazy::init();
     return $settings[$key];
   }
 
@@ -474,7 +471,7 @@ class Internals {
   }
 
   /**
-   * Sets Instagram script if so configured.
+   * Sets Instagram script if so configured, for oembed:instagram, not VEF.
    */
   private static function scriptable($blazies): void {
     if (!$blazies->is('iframeable')) {

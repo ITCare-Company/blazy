@@ -33,6 +33,7 @@
   list-style: none;
   margin: 0;
   padding: 0 0.625rem 1.25rem;
+  width: 100%;
 }
 
 .b-grid.b-grid--centered,

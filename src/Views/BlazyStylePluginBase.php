@@ -484,6 +484,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     if ($uri && strpos($tn, 'media-icons') !== FALSE) {
       if ($tn_style = $settings['thumbnail_style']) {
         $uri = $this->manager->load($tn_style, 'image_style')->buildUri($uri);
+        $blazies->set('thumbnail.id', $tn_style);
       }
 
       $blazies->set('thumbnail.uri', $uri)

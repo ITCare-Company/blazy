@@ -2,6 +2,8 @@
 
 namespace Drupal\blazy\Form;
 
+use Drupal\blazy\BlazySettings;
+
 /**
  * Defines re-usable services and functions for blazy plugins.
  */
@@ -87,7 +89,7 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    *   The setting definition.
    *
    * @return array
-   *   The settings sumary.
+   *   The settings summary.
    */
   public function getSettingsSummary(array $definition): array;
 
@@ -143,5 +145,32 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    * Modifies the grid only form elements.
    */
   public function gridOnlyForm(array &$form, array &$definition): void;
+
+  /**
+   * Returns TRUE if admin_css option enabled, else FALSE.
+   *
+   * @return bool
+   *   TRUE if admin CSS is enabled.
+   */
+  public function isAdminCss(): bool;
+
+  /**
+   * Returns escaped options.
+   *
+   * @return array
+   *   The escaped options.
+   */
+  public function toOptions(array $data): array;
+
+  /**
+   * Verify the plugin scopes is initialized downstream.
+   *
+   * @param array $definition
+   *   The setting definition.
+   *
+   * @return \Drupal\blazy\BlazySettings
+   *   The BlazySettings object.
+   */
+  public function toScopes(array &$definition): BlazySettings;
 
 }

@@ -46,6 +46,45 @@ trait TraitAdminBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function isAdminCss(): bool {
+    $admin_css = $this->blazyManager->config('admin_css', 'blazy.settings') ?: FALSE;
+    // Disable the admin css in the off canvas menu, to avoid conflicts with
+    // the active frontend theme.
+    if ($admin_css && $router = Path::requestStack()) {
+      $wrapper_format = $router->getCurrentRequest()->query->get('_wrapper_format');
+
+      if ($wrapper_format && $wrapper_format === "drupal_dialog.off_canvas") {
+        $admin_css = FALSE;
+      }
+    }
+    return $admin_css;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function toOptions(array $data): array {
+    return $this->blazyManager->toOptions($data);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function toScopes(array &$definition): BlazySettings {
+    // Looks like unit test failed with manager methods given a Trait.
+    $definition += Blazy::init();
+
+    $scopes = $definition['scopes'] ?? $this->toPluginScopes();
+    if (!$scopes->get('initializer')) {
+      $definition['scopes'] = $scopes = $this->getScopes($definition);
+      $scopes->set('initializer', get_called_class());
+    }
+    return $scopes;
+  }
+
+  /**
    * Check scopes, a failsafe till sub-modules migrated.
    *
    * Temporary re-definitions during migration after BlazyFormatterTrait
@@ -209,23 +248,6 @@ trait TraitAdminBase {
   }
 
   /**
-   * Returns TRUE if admin_css option enabled, else FALSE.
-   */
-  protected function isAdminCss(): bool {
-    $admin_css = $this->blazyManager->config('admin_css', 'blazy.settings') ?: FALSE;
-    // Disable the admin css in the off canvas menu, to avoid conflicts with
-    // the active frontend theme.
-    if ($admin_css && $router = Path::requestStack()) {
-      $wrapper_format = $router->getCurrentRequest()->query->get('_wrapper_format');
-
-      if ($wrapper_format && $wrapper_format === "drupal_dialog.off_canvas") {
-        $admin_css = FALSE;
-      }
-    }
-    return $admin_css;
-  }
-
-  /**
    * Returns form opening classes.
    */
   protected function getOpeningClasses($scopes): array {
@@ -277,28 +299,6 @@ trait TraitAdminBase {
       'classes'  => $classes,
       'settings' => $grids['settings'],
     ];
-  }
-
-  /**
-   * Returns escaped options.
-   */
-  protected function toOptions(array $data): array {
-    return $this->blazyManager->toOptions($data);
-  }
-
-  /**
-   * Verify the plugin scopes is initialized downstream.
-   */
-  protected function toScopes(array &$definition): BlazySettings {
-    // Looks like unit test failed with manager methods given a Trait.
-    $definition += Blazy::init();
-
-    $scopes = $definition['scopes'] ?? $this->toPluginScopes();
-    if (!$scopes->get('initializer')) {
-      $definition['scopes'] = $scopes = $this->getScopes($definition);
-      $scopes->set('initializer', get_called_class());
-    }
-    return $scopes;
   }
 
 }

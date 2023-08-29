@@ -27,7 +27,7 @@ entity. Pay attention to attributes, slashes, colons, single and double quotes:
 4. **Attributes**: The `[item]` can have class and caption attributes, e.g.:  
    `[item
    class="grid--card card"
-   caption='Read <a href="https://mysite.com">more<a>'
+   caption='Read <a href="https://mysite.com">more</a>'
    title="Awesome title"]`  
    The classes will be moved into `grid__content` to make it usable
    such as for Bootstrap well/ card. The caption and title into regular
