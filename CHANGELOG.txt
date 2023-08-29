@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-08-29
 ------------------------------
+- Fixed for Twitter, Pinterest within Colorbox.
 - Fixed for default ugly media.label filename as popup image title.
 
 Blazy 8.x-2.0-dev, 2023-08-26

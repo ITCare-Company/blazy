@@ -541,6 +541,34 @@ class BlazyDefault {
   }
 
   /**
+   * Returns third party libraries that colorbox, etc. need these higher.
+   */
+  public static function thirdPartyLibraries(): array {
+    return [
+      'media_entity_instagram' => [
+        'instagram.embeds' => [
+          'js' => '//platform.instagram.com/en_US/embeds.js',
+          'weight' => -16,
+        ],
+        'integration' => [
+          'js' => 'js/instagram.js',
+          'weight' => -6,
+        ],
+      ],
+      'media_entity_pinterest' => [
+        'pinterest.widgets' => [
+          'js' => 'https://assets.pinterest.com/js/pinit.js',
+          'weight' => -16,
+        ],
+        'integration' => [
+          'js' => 'js/pinterest.js',
+          'weight' => -6,
+        ],
+      ],
+    ];
+  }
+
+  /**
    * Returns options for the object conversions.
    */
   protected static function options(): array {

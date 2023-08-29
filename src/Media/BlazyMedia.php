@@ -142,7 +142,9 @@ class BlazyMedia implements BlazyMediaInterface {
 
     // Prevents fatal error with disconnected internet when having ME Facebook,
     // ME SlideShare, resorted to static thumbnails to avoid broken displays.
-    if ($input = $blazies->get('media.input_url')) {
+    $source = $blazies->get('media.source');
+    $safe = $this->getSafeSource($source);
+    if (!$safe && $input = $blazies->get('media.input_url')) {
       try {
         $this->httpClient->get($input, ['timeout' => 3]);
       }
@@ -383,6 +385,19 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
+   * Returns media sources that do not kill the site when disconnected.
+   */
+  private function getSafeSource($source) {
+    return in_array($source, [
+      'd500px',
+      'flickr',
+      'oembed:instagram',
+      'pinterest',
+      'twitter',
+    ]);
+  }
+
+  /**
    * The media.type is a legacy 1.x with VEF, not official Media property.
    *
    * Just to simplify usage, or complex application downstream.
@@ -419,6 +434,7 @@ class BlazyMedia implements BlazyMediaInterface {
     $blazies = $settings['blazies'];
     $blazies->set('is.rendered', $rendered);
 
+    // @todo recheck, might be dynamic link to iframe like Pinterest:
     if ($link) {
       $settings['media_switch'] = 'content';
       $blazies->set('switch', 'content')

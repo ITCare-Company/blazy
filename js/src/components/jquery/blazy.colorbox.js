@@ -43,7 +43,8 @@
     var provider = media.provider;
     var boxType = media.boxType;
     var isIframe = boxType === 'iframe' && !_sanitizer.isDangerous('href', url);
-    var isInstagram = provider === 'instagram';
+    var isPinterest = provider === 'pinterest';
+    var usePaddingHack = media.paddingHack || false;
     var isHtml = 'html' in media;
     var html = isHtml ? media.html : null;
 
@@ -211,11 +212,10 @@
     function resizeBox() {
       var mw = _cbox.maxWidth;
       var mh = _cbox.maxHeight;
-      var w = media.width || mw;
-      var h = media.height || mh;
+      var w = (usePaddingHack ? media.width : media.owidth) || mw;
+      var h = usePaddingHack ? media.height : mh;
       var o = dimension(w, h);
       var shouldResize = true;
-      var useHack = true;
       var $container = $(_sLoadedContent);
       var container = $container[0];
       var $iframe = $('iframe', container);
@@ -224,7 +224,6 @@
       var $resimage = $container.find('img[srcset]');
       var isResimage = $resimage.length || $picture.length;
       var isInstagramApi = $media.hasClass('b-instagram') && _instagram;
-      var isInstagramVef = !isInstagramApi && isInstagram;
 
       if (isResimage) {
         responsiveImage($picture, $resimage);
@@ -234,11 +233,23 @@
         o = dimension(w, h);
       }
 
-      if ($iframe.length || $media.length) {
-        if (isInstagramApi || isInstagramVef) {
-          useHack = false;
-        }
+      if (isPinterest) {
+        var callback = function () {
+          if (_win.PinUtils) {
+            _win.PinUtils.build();
 
+            // shouldResize = false;
+            w = 520;
+            h = mh;
+            o = dimension(w, h);
+            resize(o);
+          }
+        };
+
+        _win.setTimeout(callback);
+      }
+
+      if ($iframe.length || $media.length) {
         if ($media.length) {
           Drupal.attachBehaviors($media[0]);
 
@@ -256,12 +267,23 @@
 
             instagram($iframe, o);
           }
+          else {
+            if (!usePaddingHack) {
+              $iframe.on('load', function () {
+                var $ifrm = $(this);
+                w = $ifrm.width() + 'px';
+                h = $ifrm.height() + 'px';
+                o = dimension(w, h);
+                resize(o);
+              });
+            }
+          }
 
           // Padding hack to make responsive iframe, unless disabled.
           if (!$media.length) {
             $container.addClass(_cMediaBox + ' media--' + provider);
 
-            if (useHack) {
+            if (usePaddingHack) {
               hackContainer($container, $iframe, o);
             }
           }

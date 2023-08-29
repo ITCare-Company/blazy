@@ -417,7 +417,7 @@ class Internals {
     }
 
     // In case overriden above without extending self::init().
-    if (!isset($settings['WARNING']) && !isset($settings['image_style'])) {
+    if (!isset($settings['image_style']) || !isset($settings['WARNING'])) {
       $settings += Blazy::init();
     }
 

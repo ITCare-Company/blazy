@@ -97,8 +97,21 @@ class Lightbox {
 
     // If multimendia with remote or local videos.
     $json['token'] = $blazies->get('media.token');
+    $json['paddingHack'] = TRUE;
     if ($provider = $blazies->get('media.provider')) {
       $json['provider'] = $provider;
+
+      // Some providers have dynamic and anti-mainstream content/ iframe sizes.
+      $hack = !in_array($provider, [
+        'd500px',
+        'flickr',
+        'instagram',
+        'oembed:instagram',
+        'pinterest',
+        'twitter',
+      ]);
+
+      $json['paddingHack'] = $hack;
     }
 
     // Original dimensions from oembed resource.
@@ -261,6 +274,7 @@ class Lightbox {
     ] = $options;
 
     $blazies = $settings['blazies'];
+    $provider = $json['provider'] ?? NULL;
 
     // Do not output NULL dimensions.
     $has_dim = !empty($box_width) && !empty($box_height);
@@ -300,7 +314,7 @@ class Lightbox {
       // Only video needs help, responsive image is taken care of by lightbox.
       $style = '';
       $hattrs = &$html['#attributes'];
-      if ($has_dim) {
+      if ($has_dim && !empty($json['paddingHack'])) {
         $pad = round((($json['height'] / $json['width']) * 100), 2);
         $style .= 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;';
       }
@@ -313,9 +327,10 @@ class Lightbox {
 
       if ($style) {
         $hattrs['style'] = $style;
+        $hattrs['class'][] = 'media--ratio';
       }
 
-      if ($provider = $json['provider'] ?? NULL) {
+      if ($provider) {
         $hattrs['aria-live'] = 'polite';
         $hattrs['class'][] = 'media--' . str_replace('_', '-', $provider);
       }
@@ -330,9 +345,9 @@ class Lightbox {
         $hattrs['class'][] = 'b-instagram';
       }
 
-      // Do not add more classes after media--ratio. This is the only style
+      // Do not add more classes after media--box. This is the only style
       // identifier/ prefix, must come last, else inline style is removed.
-      $hattrs['class'][] = 'media--ratio';
+      $hattrs['class'][] = 'media--box';
 
       // Responsive image is unwrapped. Local videos wrapped.
       $content = $_resimage ? $box_html : $html;
@@ -346,7 +361,7 @@ class Lightbox {
 
       // See https://www.drupal.org/project/drupal/issues/3109650.
       $unstrips = [
-        'prestyle' => 'ratio"',
+        'prestyle' => '-box"',
         'style' => $style,
       ];
 

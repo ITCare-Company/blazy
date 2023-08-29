@@ -525,15 +525,15 @@ class BlazyImage {
       // Including image/svg+xml.
       // ALT and TITLE might be hand-coded from BlazyFilter, and so meaningful.
       // @todo recheck && $image->isValid() and put it back if any issues.
-      // @todo figure out some SVG invalid when accessed from non-formatters like
-      // BlazyViewsFieldFile.
+      // @todo figure out some SVG invalid when accessed from non-formatters
+      // like BlazyViewsFieldFile.
       if ($type == 'image') {
         $name = $file->getFilename();
         return [
           'uri'       => $file->getFileUri(),
           'target_id' => $file->id(),
           'alt'       => $alt ?: $name,
-          'title'     => $title,
+          'title'     => $title ?: '',
           'width'     => $image->getWidth(),
           'height'    => $image->getHeight(),
           'type'      => 'image',

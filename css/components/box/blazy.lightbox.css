@@ -95,3 +95,10 @@ a .media--switch img.media__element {
 .media .instagram-media {
   margin: 0 auto !important; /* csslint allow: known-properties, important */
 }
+
+.media--box [data-pin-href],
+.media--box.media--twitter,
+.media--box .twitter-tweet-rendered {
+  min-width: 250px;
+  max-width: 100% !important; /* csslint allow: known-properties, important */
+}

@@ -144,6 +144,10 @@ absolute position and fixed dimensions. */
   min-height: 420px;
 }
 
+.blazy .twitter-tweet-rendered {
+  max-width: 100% !important; /* csslint allow: known-properties, important */
+}
+
 /*
 .b-instagram iframe {
   visibility: hidden;
