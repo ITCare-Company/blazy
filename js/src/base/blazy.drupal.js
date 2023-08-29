@@ -27,6 +27,7 @@
   var _eventDone = _id + '.done';
   var _noop = function () {};
   var _extensions = {};
+  var _thirdPartyScript = $.thirdPartyScript || false;
 
   /**
    * Blazy public properties and methods.
@@ -148,6 +149,11 @@
       // Instagram, Pinterest, etc. with lazyloaded HTML content if configured.
       if ($.isHtml(el)) {
         Drupal.attachBehaviors(el);
+
+        // Instagram, Twitter are good, except for Pinterest.
+        if ($.hasClass(el, 'media--pinterest') && _thirdPartyScript) {
+          _thirdPartyScript.attach('pinterest');
+        }
       }
 
       // Clear loading classes. Also supports future delayed Native loading.

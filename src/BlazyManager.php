@@ -283,8 +283,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Either makes no sense, or not currently supported without extra legs.
     // Original formatter settings can still be accessed via content variable.
     // Not here, defined at BlazyMedia::unfield() for more detailed checks.
-    $blazies->set('placeholder', []);
-
+    // @todo recheck and re-enable if any side kicks:
+    // $blazies->set('placeholder', []);
     // Supports HTML content for lightboxes as long as having image trigger.
     // Only limit to local media to not conflict with Image rendered by its
     // formatter option, Facebook, Twitter, etc.
@@ -326,9 +326,9 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
         }
         else {
           // @todo recheck if anything against this.
-          $blazies->set('is.bg', FALSE)
-            ->set('is.unlazy', TRUE)
-            ->set('use.loader', FALSE);
+          $blazies->set('is.bg', FALSE);
+          // ->set('is.unlazy', TRUE)
+          // ->set('use.loader', FALSE);
         }
       }
     }

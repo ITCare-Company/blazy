@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\internals\Internals;
 
 /**
  * Provides aspect ratio insanity.
@@ -27,7 +28,8 @@ class Ratio {
     $ratio    = $disabled ? '' : $settings['ratio'] ?? NULL;
     $hack     = $ratio && $fluid;
     $resimage = $blazies->get('resimage.id');
-    $instgrm  = $blazies->use('instagram_api');
+    $provider = $blazies->get('media.provider');
+    $noratio  = Internals::irrational($provider);
     $lightbox = $blazies->is('lightbox');
 
     // Skip padding hacks if fluid is supported by plain CSS, to avoid JS.
@@ -47,7 +49,7 @@ class Ratio {
     }
 
     // Disable problematic instagram, except for lightbox displays.
-    if ($instgrm && !$lightbox) {
+    if ($noratio && !$lightbox) {
       $ratio = NULL;
       $hack  = FALSE;
     }

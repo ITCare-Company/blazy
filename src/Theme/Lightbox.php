@@ -102,14 +102,7 @@ class Lightbox {
       $json['provider'] = $provider;
 
       // Some providers have dynamic and anti-mainstream content/ iframe sizes.
-      $hack = !in_array($provider, [
-        'd500px',
-        'flickr',
-        'instagram',
-        'oembed:instagram',
-        'pinterest',
-        'twitter',
-      ]);
+      $hack = !Internals::irrational($provider);
 
       $json['paddingHack'] = $hack;
     }

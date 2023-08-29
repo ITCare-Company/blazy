@@ -58,6 +58,20 @@ class Internals {
   }
 
   /**
+   * Checks if a provider can not use aspect ratio due to anti-mainstream sizes.
+   */
+  public static function irrational($provider): bool {
+    return in_array($provider, [
+      'd500px',
+      'flickr',
+      'instagram',
+      'oembed:instagram',
+      'pinterest',
+      'twitter',
+    ]);
+  }
+
+  /**
    * Alias for Youtube::fromEmbed().
    */
   public static function youtube($input): ?string {

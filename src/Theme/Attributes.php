@@ -234,7 +234,10 @@ class Attributes {
     // Only relevant if Fluid is selected for Aspect ratio, else a leak.
     if ($blazies->is('fluid') && !$blazies->is('undata')) {
       if ($ratios = $blazies->get('ratios', [])) {
-        $attributes[self::data($blazies, 'ratios')] = Json::encode($ratios);
+        $provider = $blazies->get('media.provider');
+        if (!Internals::irrational($provider)) {
+          $attributes[self::data($blazies, 'ratios')] = Json::encode($ratios);
+        }
       }
     }
   }

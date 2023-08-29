@@ -89,7 +89,9 @@ button.media__icon--close {
 }
 
 .media__icon--close:hover::before,
-.media__icon--close:hover::after {
+.media__icon--close:hover::after,
+.is-playing:hover .media__icon--close::before,
+.is-playing:hover .media__icon--close::after {
   background-color: #ff6d2c;
 }
 
@@ -121,6 +123,10 @@ button.media__icon--close {
 
 .is-playing .media__icon--close {
   visibility: hidden;
+}
+
+.is-playing:hover .media__icon--close {
+  visibility: visible;
 }
 
 .media__icon--play,

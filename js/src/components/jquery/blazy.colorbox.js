@@ -25,6 +25,7 @@
   var _sLoadedContent = '#cboxLoadedContent';
   var _sanitizer = _d.sanitizer;
   var _instagram = _d.instagram || false;
+  var _thirdPartyScript = $.thirdPartyScript || false;
   var cboxTimer;
 
   /**
@@ -139,7 +140,7 @@
     function responsiveImage($picture, $resimage) {
       var img;
 
-      _win.setTimeout(function () {
+      var callback = function () {
         img = $picture.length ? $picture[0] : $resimage[0];
         if (img) {
           if (img.complete) {
@@ -149,7 +150,8 @@
             $(img).one('load', resizeNow);
           }
         }
-      }, 101);
+      };
+      withDelay(callback, 101);
     }
 
     /**
@@ -180,9 +182,13 @@
       }
     }
 
+    function withDelay(cb, delay) {
+      _win.setTimeout(cb, delay || 0);
+    }
+
     // Instagram oEmbed takes time to make iframes, deferred to onload.
     function instagram($iframe, o) {
-      _win.setTimeout(function () {
+      var callback = function () {
         var cb = function (obj) {
           if (obj.width > 180) {
             o = dimension(obj.width + 'px', obj.height + 'px');
@@ -192,7 +198,8 @@
         };
 
         _instagram.show(cb, $iframe[0]);
-      }, 101);
+      };
+      withDelay(callback, 101);
     }
 
     // Padding hack container to make it responsive.
@@ -233,20 +240,16 @@
         o = dimension(w, h);
       }
 
-      if (isPinterest) {
+      if (isPinterest && _thirdPartyScript) {
         var callback = function () {
-          if (_win.PinUtils) {
-            _win.PinUtils.build();
-
-            // shouldResize = false;
-            w = 520;
-            h = mh;
-            o = dimension(w, h);
-            resize(o);
-          }
+          // shouldResize = false;
+          w = 520;
+          h = mh;
+          o = dimension(w, h);
+          resize(o);
         };
 
-        _win.setTimeout(callback);
+        _thirdPartyScript.attach('pinterest', callback);
       }
 
       if ($iframe.length || $media.length) {
@@ -271,10 +274,13 @@
             if (!usePaddingHack) {
               $iframe.on('load', function () {
                 var $ifrm = $(this);
-                w = $ifrm.width() + 'px';
-                h = $ifrm.height() + 'px';
-                o = dimension(w, h);
-                resize(o);
+                var callback = function () {
+                  w = $ifrm.width() + 'px';
+                  h = $ifrm.height() + 'px';
+                  o = dimension(w, h);
+                  resize(o);
+                };
+                withDelay(callback);
               });
             }
           }
