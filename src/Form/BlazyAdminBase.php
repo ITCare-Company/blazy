@@ -101,7 +101,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
     $this->blazyManager
       ->moduleHandler()
-      ->alter('blazy_form_element_definition', $definition);
+      ->alter('blazy_form_element_definition', $definition, $scopes);
 
     $base_form = $this->baseForm($definition);
 
@@ -393,7 +393,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
     }
 
-    $this->blazyManager->moduleHandler()->alter('blazy_base_form_element', $form, $definition);
+    $this->blazyManager->moduleHandler()->alter('blazy_base_form_element', $form, $definition, $scopes);
 
     return $form;
   }
@@ -402,7 +402,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function mediaSwitchForm(array &$form, array $definition): void {
-    // @todo remove $scopes = $this->toScopes($definition);
+    $scopes    = $this->toScopes($definition);
     $base_form = $this->baseForm($definition);
     $classes   = $this->getTitleClasses(['media-switch', 'hideable'], TRUE);
     $options   = [
@@ -423,7 +423,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
     }
 
-    $this->blazyManager->moduleHandler()->alter('blazy_media_switch_form_element', $form, $definition);
+    $this->blazyManager->moduleHandler()->alter('blazy_media_switch_form_element', $form, $definition, $scopes);
   }
 
   /**
@@ -438,7 +438,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $selects   = ['cache', 'optionset', 'view_mode'];
     $fullwidth = $scopes->data('fullwidth', []);
 
-    $this->blazyManager->moduleHandler()->alter('blazy_form_element', $form, $definition);
+    $this->blazyManager->moduleHandler()->alter('blazy_form_element', $form, $definition, $scopes);
 
     // Prevents non-expected overrides.
     if (isset($form['grid'], $form['grid']['#description'])) {
@@ -593,7 +593,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
     }
 
-    $this->blazyManager->moduleHandler()->alter('blazy_complete_form_element', $form, $definition);
+    $this->blazyManager->moduleHandler()->alter('blazy_complete_form_element', $form, $definition, $scopes);
   }
 
   /**

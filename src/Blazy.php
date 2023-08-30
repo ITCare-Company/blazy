@@ -79,8 +79,8 @@ class Blazy {
   /**
    * Initialize Blazy settings for convenience.
    */
-  public static function init(): array {
-    return BlazyDefault::htmlSettings();
+  public static function init(array $data = []): array {
+    return $data + BlazyDefault::htmlSettings();
   }
 
   /**

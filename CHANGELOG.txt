@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-08-30
+------------------------------
+- Updated blazy.api.php.
+
 Blazy 8.x-2.0-dev, 2023-08-29
 ------------------------------
 - Fixed for lazy-loaded Pinterest.

@@ -269,13 +269,17 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Since 2.17, replacing the current $settings was moved upstream at
     // \Drupal\blazy\Media\BlazyOEmbed::fromMedia(), not here.
     // What we do here is filling up $blazy with the processed image URL, etc.
-    $blazy = $build['content'][0]['#settings'] ?? NULL;
+    // The last is to account for the Use theme_blazy() option from sub-modules,
+    // see Internals::toContent().
+    $item  = $build['content'][0] ?? $build['content'];
+    $blazy = $item['#settings'] ?? NULL;
+
     if ($blazy instanceof BlazySettings) {
       $this->mergeSettings('blazies', $settings, $blazy->storage());
     }
 
     // Ensures at least the library is attached before emptying anything below.
-    if ($attachments = $build['content'][0]['#attached'] ?? []) {
+    if ($attachments = $item['#attached'] ?? []) {
       $element['#attached'] = $this->merge($attachments, $element, '#attached');
     }
 
@@ -403,7 +407,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $settings   = &$build['#settings'];
     $blazies    = $settings['blazies'];
     $attributes = &$build['#attributes'];
-    $captions   = $this->toHashtag($build, 'captions');
+    $captions   = Internals::toContent($build, TRUE, ['captions', 'caption']);
     $captions   = array_filter($captions);
 
     $blazies->set('is.captioned', count($captions) > 0);
@@ -440,6 +444,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $this->moduleHandler->alter('blazy_item', $settings, $attributes, $item_attributes);
 
     // Only process (Responsive) image/ video if no rich-media are provided.
+    $build['content'] = Internals::toContent($build, TRUE);
     $this->buildContent($element, $build);
     if (empty($build['content'])) {
       $this->buildMedia($element, $build);

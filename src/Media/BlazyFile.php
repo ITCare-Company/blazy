@@ -165,7 +165,7 @@ class BlazyFile {
   public static function isSvg($uri): bool {
     // Some guy uploaded images without extensions, seen at wildlife.
     if ($ext = pathinfo($uri, PATHINFO_EXTENSION)) {
-      // Some other guy put CAPITAL image extensions for real.
+      // Some other guy put CAPITALIZED image extensions for real.
       $ext = strtolower($ext);
       return $ext == 'svg';
     }

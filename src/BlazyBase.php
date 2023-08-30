@@ -553,7 +553,7 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function toHtml(array $content, $tag = 'div', $class = NULL): array {
+  public function toHtml($content, $tag = 'div', $class = NULL): array {
     return Internals::toHtml($content, $tag, $class);
   }
 

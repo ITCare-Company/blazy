@@ -102,22 +102,82 @@
  *   o Use \Drupal\blazy\BlazyManager::attach() to load relevant libraries.
  * @code
  * function my_module_render_blazy_multiple() {
- *   // Invoke the plugin class, or use a DI service container accordingly.
+ *   // Invoke the manager service, or use a DI service container accordingly.
  *   // $manager = \Drupal::service('blazy.manager');
  *   $manager = blazy();
  *
- *   // The ::init() contains empty blazies object for convenience:
+ *   // Option init #1 at container level:
+ *   // The ::init() contains empty blazies object for convenience, and optional
+ *   // initial settings data parameter to override defaults.
  *   $settings = \Drupal\blazy\Blazy::init();
  *
- *   // Supported media switcher options dependent on available modules:
- *   // colorbox, media (Image to iframe), photobox.
- *   $settings['media_switch'] = 'media';
+ *   // Option init #2 at item level:
+ *   // $settings = $manager->toSettings($parent_settings, $info); to have
+ *   // initial info which should be stored within blazies object initially.
+ *   // Basically 3 tasks: reset blazies object per item, merging initial parent
+ *   // $settings along with settings the initial values for blazies object.
  *
- *   // Build images.
- *   $build = [
- *     // Load images via $manager->getBlazy().
- *     // See below ...Formatter::buildElements() for consistent samples.
+ *   // Supported media switcher options dependent on available modules:
+ *   // colorbox, media (Image to iframe), photobox. This can also be moved into
+ *   // ::init() method argument.
+ *   $settings['media_switch'] = 'media';
+ *   $settings['image_style'] = 'large';
+ *   $settings['ratio'] = 'fluid';
+ *
+ *   // Build images, assumed inside a loop here.
+ *   // Captions key contains: alt, description, data, link, overlay, title.
+ *   // The image.uri is the only required by theme_blazy(). This $info is
+ *   // optional/ removable if using the second approach below.
+ *
+ *   // Option setter #1, add image.alt, image.title, etc. as needed:
+ *   $info = ['image.uri' => 'https://drupal.org/files/One.gif'];
+ *
+ *   // Option setter #2:
+ *   // $manager::toSettings() initialize `blazies` object with added $info, and
+ *   // reset per item, be sure to repeat the call per item.
+ *   // You can move it up here to access `blazies` object for more works.
+ *   // Notice $info was left out, and use the blazies setter instead:
+ *   // $settings = $manager->toSettings($settings);
+ *   // $blazies = $settings['blazies'];
+ *   // Now do anything with $blazies setter:
+ *   // $blazies->set('image.uri', 'BLAH')
+ *   //   ->set('image.alt', 'BLAH')
+ *   //   ->set('image.title', 'BLAH');
+ *
+ *   // The required are #delta and #settings. Captions is optional.
+ *   $content = $manager->getBlazy([
+ *     // Delta is for galleries, or LCP like Loading priority: slider, etc.
+ *     '#delta' => 0,
+ *     '#settings' => $manager->toSettings($settings, $info),
+ *     'captions' =>  ['title' => ['#markup' => t('Description #1')]],
+ *
+ *      // Only if non-media or media that theme_blazy() does not understand:
+ *      // theme_file_video(), etc. or Vanilla output, put it into `content`.
+ *      // 'content' => $rendered_entity,
+ *
+ *      // If working with Media, Paragraphs, etc, be sure to pass the #entity
+ *      // for blazy.oembed to extract relevant ImageItem, and media data.
+ *      // '#entity' => $media,
+ *
+ *      // If you have \Drupal\image\Plugin\Field\FieldType\ImageItem,
+ *      // deprecated at blazy:3.x for $info.image array above:
+ *      // '#item' => $item,
  *   ];
+ *
+ *   // If working with Media/ OEmbed/ VEF, other than plain old images:
+ *   // $manager->service('blazy.oembed')->build($content);
+ *
+ *   $items[] = $content;
+ *
+ *   // See below ...Formatter::buildElements() for consistent samples.
+ *   // Since 2.17, items are stored in `items` key to match sub-modules.
+ *   // And extracted as needed depending on the parent themes -- theme_field()
+ *   // and theme_item_list() requirements.
+ *   // Both items and indicies will continue working till the end of the day.
+ *   // The correct one for theme_field() is indices as we did all along, but we
+ *   // gotta be trendy with sub-modules for interchangeability and easy swap.
+ *   // Some have been established before blazy, cannot argue with the ancient.
+ *   $build['items'] = $items;
  *
  *   // Finally attach libraries as requested via $settings.
  *   $build['#attached'] = $manager->attach($settings);
@@ -251,7 +311,7 @@ function hook_blazy_build_alter(array &$build, array $settings = []) {
  * }
  * @endcode
  *
- * In addition to the schema, implement hook_blazy_complete_form_element_alter()
+ * In addition to the schema, implement hook_blazy_form_element_alter()
  * to provide the actual extended forms, see far below. And lastly, implement
  * the options at front-end via hook_preprocess().
  *
@@ -414,26 +474,29 @@ function hook_blazy_item_alter(array &$settings, array &$attributes, array &$ite
   // You can have fieldable captions with core Media without any abuses.
   // $item_attributes = blazy()->merge($item_attributes, $safe_attrs);
   // }
-  // Inline comments must end in full-stops, etc.
+  // Inline comments must end in full-stops, etc. If you forgot, BOOM!
 }
 
 /**
  * Alters blazy-related formatter form elements.
  *
  * This takes advantage of Blazy taking care of a few elements finalizations,
- * such as adding #empty_option, extras CSS classes, checkboxes, states, etc.
- * This is run before hook_blazy_complete_form_element_alter().
+ * such as adding #empty_option, extras CSS classes, checkboxes, states, grid,
+ * etc. The best place to add new form items. This is run before
+ * hook_blazy_complete_form_element_alter().
  *
  * @param array $form
  *   The $form being modified.
  * @param array $definition
  *   The array defining the scope of form elements.
+ * @param object $scopes
+ *   The scopes shortcut extracted from $definition for convenience.
  *
  * @see \Drupal\blazy\Form\BlazyAdminBase::finalizeForm()
  *
  * @ingroup blazy_api
  */
-function hook_blazy_form_element_alter(array &$form, array $definition) {
+function hook_blazy_form_element_alter(array &$form, array $definition, $scopes) {
   // For pre 2.6, please use $definition['NAME'] directly, removed at 3.x.
   $namespace = $definition['namespace'] ?? FALSE;
 
@@ -443,9 +506,9 @@ function hook_blazy_form_element_alter(array &$form, array $definition) {
   // Prioritize on `blazies` if any dups as `scopes` subject to cleaning out
   // from dups during migration process while `blazies` will always be intact
   // as also required by front-end.
-  $blazies   = $definition['blazies'] ?? NULL;
-  $scopes    = $definition['scopes'] ?? NULL;
-  $namespace = $blazies ? $blazies->get('namespace') : $namespace;
+  // $blazies = $definition['blazies'] ?? NULL;
+  // Inline comments must end in full-stops, etc. If you forgot, BOOM!
+  $namespace = $scopes->get('namespace') ?: $namespace;
 
   // At forms, configurable settings are grouped under `settings` since 1.x.
   $settings = $definition['settings'] ?? [];
@@ -462,19 +525,23 @@ function hook_blazy_form_element_alter(array &$form, array $definition) {
 /**
  * Alters blazy-related formatter form elements.
  *
- * Modify anything Blazy forms output as you wish.
+ * Modify anything Blazy forms output as you wish. If you see your added form
+ * items break the Native grid, use the previous hook_blazy_form_element_alter()
+ * instead. This is only useful for anything but adding new form items.
  * This is run after hook_blazy_form_element_alter().
  *
  * @param array $form
  *   The $form being modified.
  * @param array $definition
  *   The array defining the scope of form elements.
+ * @param object $scopes
+ *   The scopes shortcut extracted from $definition for convenience.
  *
  * @see \Drupal\blazy\Form\BlazyAdminBase::finalizeForm()
  *
  * @ingroup blazy_api
  */
-function hook_blazy_complete_form_element_alter(array &$form, array $definition) {
+function hook_blazy_complete_form_element_alter(array &$form, array $definition, $scopes) {
   // For pre 2.6, please use $definition['NAME'] directly, removed at 3.x.
   $namespace = $definition['namespace'] ?? FALSE;
 
@@ -484,9 +551,9 @@ function hook_blazy_complete_form_element_alter(array &$form, array $definition)
   // Prioritize on `blazies` if any dups as `scopes` subject to cleaning out
   // from dups during migration process while `blazies` will always be intact
   // as also required by front-end.
-  $blazies   = $definition['blazies'] ?? NULL;
-  $scopes    = $definition['scopes'] ?? NULL;
-  $namespace = $blazies ? $blazies->get('namespace') : $namespace;
+  // $blazies = $definition['blazies'] ?? NULL;
+  // Inline comments must end in full-stops, etc. If you forgot, BOOM!
+  $namespace = $scopes->get('namespace') ?: $namespace;
 
   // At forms, configurable settings are grouped under `settings` since 1.x.
   $settings = $definition['settings'] ?? [];
@@ -495,7 +562,7 @@ function hook_blazy_complete_form_element_alter(array &$form, array $definition)
   if ($namespace == 'splide' && isset($settings['BLAH'])) {
     // Skip Splide text formatter.
     if ($scopes && !$scopes->is('no_image_style')) {
-      // Extend the formatter form elements as needed.
+      // Overrides the formatter form elements as needed.
     }
   }
 }

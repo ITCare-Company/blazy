@@ -565,8 +565,8 @@ interface BlazyInterface {
   /**
    * Returns the common content item.
    *
-   * @param array $content
-   *   The content.
+   * @param array|string $content
+   *   The content. If string will be put into #markup element.
    * @param string $tag
    *   The HTML tag.
    * @param string|array $class
@@ -576,7 +576,7 @@ interface BlazyInterface {
    * @return array
    *   The content to be wrapped with #html_tag, or as is if no class provided.
    */
-  public function toHtml(array $content, $tag = 'div', $class = NULL): array;
+  public function toHtml($content, $tag = 'div', $class = NULL): array;
 
   /**
    * A helper to gradually convert things to #things to avoid render error.

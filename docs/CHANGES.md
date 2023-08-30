@@ -3,7 +3,8 @@
 ## <a name="changes"></a>NOTABLE CHANGES  
 Always check out release notes, if any issues with the latest changes.
 
-* _Blazy 2.17_, 2023/08/27:
+* _Blazy 2.17_, 2023/09/03:
+   + Updated blazy.api.php.
    + Cold fixes for few minor regressions and self organizations.
    + Please bear with frequent releases, it was for sub-modules tests. Their
      tests help spot many regressions, reducing one at a time every releases.
@@ -14,7 +15,6 @@ Always check out release notes, if any issues with the latest changes.
    + **New features**:  
      * On your permissions at Blazy UI, `theme_blazy()` is now capable to
        replace sub-modules theme_ITEM() content, e.g.: theme_slick_slide(), etc.
-     * Updated blazy.api.php.
      * Added a Flybox, a non-disruptive lightbox.
      * audio with BG cover, soundcloud, smarter Fluid ratio.
      * Added supports for local audio with background cover via settings.image.
@@ -26,7 +26,7 @@ Always check out release notes, if any issues with the latest changes.
      [Blazy ecosystem breaking change](https://www.drupal.org/node/3375158).
    + **New options**:Added additional config options at Blazy UI. Be sure to
      check out for `visible_class`, `wrapper_class`, `deprecated_class`,
-     `use_oembed`, `lazy_html`, `use_encodedbox` options if using them.
+     `use_oembed`, `lazy_html`, `use_encodedbox`, etc. options if using them.
    + Renamed legacy Foundation grid CSS classes to avoid conflicts with core
     `block` CSS classes:
      * `block-GRIDSTYLE` to `b-GRIDSTYLE`, e.g.: `block-nativegrid` to
@@ -36,6 +36,8 @@ Always check out release notes, if any issues with the latest changes.
        `small-block-nativegrid-2` to `b-nativegrid--sm-2`, etc.  
 
       Your CSS overrides, if any, will continue working till 3.x, no rushes.
+      If broken for a reason, please copy them from previous releases into
+      your theme till you have time to update them.
 
 * _Blazy 2.16_, 2023/06/02:
    + Hotdamn fix for D10 breaking changes with formatter lightboxes.

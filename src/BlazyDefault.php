@@ -291,32 +291,6 @@ class BlazyDefault {
   }
 
   /**
-   * Grouping for sanity till all settings converted into BlazySettings.
-   *
-   * It was a pre-release RC7 @todo, partially implemented since 2.7.
-   * The hustle is sub-modules are not aware, yet. Yet better started before 3.
-   * While some configurable settings are intact, blazies are more for grouping
-   * dynamic, non-configurable settings. But it can also store blazy-specific.
-   * Very few are adjusted into blazies for easy calls/overrides/alters.
-   */
-  public static function blazies() {
-    $ui = self::uiSettings();
-
-    // For convenience when by-passing the provided API.
-    if ($manager = Internals::service('blazy.manager')) {
-      $ui = $manager->config();
-    }
-    return [
-      'initial' => 0,
-      'is' => [],
-      'lazy' => ['attribute' => 'src', 'class' => 'b-lazy'],
-      'libs' => [],
-      'ui' => $ui,
-      'use' => [],
-    ];
-  }
-
-  /**
    * Returns sensible default container settings to shutup notices when lacking.
    */
   public static function htmlSettings() {
@@ -583,6 +557,33 @@ class BlazyDefault {
   }
 
   /**
+   * Grouping for sanity till all settings converted into BlazySettings.
+   *
+   * It was a pre-release RC7 @todo, partially implemented since 2.7.
+   * The hustle is sub-modules are not aware, yet. Yet better started before 3.
+   * While some configurable settings are intact, blazies are more for grouping
+   * dynamic, non-configurable settings. But it can also store blazy-specific.
+   * Very few are adjusted into blazies for easy calls/overrides/alters.
+   * Please bear with the silly plural `blazies` object, no better ideas.
+   */
+  private static function blazies() {
+    $ui = self::uiSettings();
+
+    // For convenience when by-passing the provided API.
+    if ($manager = Internals::service('blazy.manager')) {
+      $ui = $manager->config();
+    }
+    return [
+      'initial' => 0,
+      'is' => [],
+      'lazy' => ['attribute' => 'src', 'class' => 'b-lazy'],
+      'libs' => [],
+      'ui' => $ui,
+      'use' => [],
+    ];
+  }
+
+  /**
    * Returns BlazySettings instance keyed by static::$id.
    */
   private static function objectify(): array {
@@ -627,6 +628,7 @@ class BlazyDefault {
    * @todo remove custom breakpoints anytime at blazy:3.x, called by BVEF.
    */
   public static function getConstantBreakpoints() {
+    @trigger_error('getConstantBreakpoints is deprecated in blazy:8.x-2.0 and is removed from blazy:3.0.0. Use none instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return ['xs', 'sm', 'md', 'lg', 'xl'];
   }
 
@@ -636,6 +638,7 @@ class BlazyDefault {
    * @todo deprecated/ removed for self::gridSettings() since style is coupled.
    */
   public static function gridBaseSettings() {
+    @trigger_error('gridBaseSettings is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::gridSettings() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return [
       'grid'        => '',
       'grid_medium' => '',
@@ -650,6 +653,7 @@ class BlazyDefault {
    * @todo deprecated/ removed for self::gridSettings() since style is coupled.
    */
   public static function textSettings() {
+    @trigger_error('textSettings is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::gridSettings() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return self::gridSettings();
   }
 
@@ -659,6 +663,7 @@ class BlazyDefault {
    * @todo deprecated/ removed, no longer relevant since 2.17 after blazies.
    */
   public static function anywhereSettings() {
+    @trigger_error('anywhereSettings is deprecated in blazy:8.x-2.0 and is removed from blazy:3.0.0. Use none instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return [
       'lazy'  => '',
       'style' => '',
@@ -672,6 +677,7 @@ class BlazyDefault {
    * Since using BlazySettings as an object, we no longer have warnings.
    */
   public static function itemSettings() {
+    @trigger_error('itemSettings is deprecated in blazy:8.x-2.0 and is removed from blazy:3.0.0. Use blazies object instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return [
       'classes' => [],
       'image_url' => '',

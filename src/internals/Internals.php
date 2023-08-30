@@ -364,7 +364,8 @@ class Internals {
   /**
    * Returns the common content item.
    */
-  public static function toHtml(array $content, $tag = 'div', $class = NULL): array {
+  public static function toHtml($content, $tag = 'div', $class = NULL): array {
+    $content = is_string($content) ? ['#markup' => $content] : $content;
     if ($class) {
       $attributes = is_array($class) ? $class : ['class' => [$class]];
       return [
@@ -457,6 +458,28 @@ class Internals {
         unset($data[$blazy]);
       }
     }
+  }
+
+  /**
+   * A helper to gradually migrate sub-modules content into theme_blazy().
+   */
+  public static function toContent(
+    array &$data,
+    $unset = FALSE,
+    array $keys = ['content', 'box', 'slide'],
+  ): array {
+    $result = [];
+    foreach ($keys as $key) {
+      $value = $data[$key] ?? $data["#$key"] ?? [];
+      if ($value) {
+        $result = $value;
+        break;
+      }
+      if ($unset) {
+        unset($data[$key]);
+      }
+    }
+    return $result;
   }
 
   /**
