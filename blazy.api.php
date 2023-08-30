@@ -33,11 +33,13 @@
  * function my_module_render_blazy() {
  *   // Old behaviors will be very minimally preserved till 3.x.
  *   // Put the namespaces into `use` directives, e.g.: use Drupal\blazy\Blazy;
- *   // The ::init() contains empty blazies object for convenience:
+ *   // The ::init() contains empty blazies object for convenience, and optional
+ *   // initial settings data parameter to override defaults.
  *   $settings = \Drupal\blazy\Blazy::init();
  *
- *   // Pass configurable settings directly into $settings, see more in
- *   \Drupal\blazy\BlazyDefault::imageSettings():
+ *   // Pass configurable settings directly into $settings. These can also be
+ *   // moved into ::init() method argument above instead.
+ *   // See more in \Drupal\blazy\BlazyDefault::imageSettings():
  *   $settings['image_style'] = 'thumbnail';
  *
  *   // Pass non-configurable ones into settings.blazies object:
@@ -94,11 +96,11 @@
  *
  * For advanced usages with multiple images, and a few Blazy features such as
  * lightboxes, lazyloaded images, or iframes, including CSS background and
- * aspect ratio, etc.:
+ * aspect ratio, etc. depending on field types or vanilla/ rendered entity, etc:
  *   o Invoke blazy.manager, and or blazy.formatter, services.
- *   o Use \Drupal\blazy\BlazyManager::getBlazy() method to work with images and
- *     pass relevant settings which request for particular Blazy features
- *     accordingly.
+ *   o Use \Drupal\blazy\BlazyManager::getBlazy() method to work with any
+ *     content (texts, images/media, Views rows, vanilla) and pass relevant
+ *     settings which request for particular Blazy features accordingly.
  *   o Use \Drupal\blazy\BlazyManager::attach() to load relevant libraries.
  * @code
  * function my_module_render_blazy_multiple() {
@@ -112,19 +114,20 @@
  *   $settings = \Drupal\blazy\Blazy::init();
  *
  *   // Option init #2 at item level:
+ *   // $parent_settings is the first settings setup as above, here in a loop.
  *   // $settings = $manager->toSettings($parent_settings, $info); to have
  *   // initial info which should be stored within blazies object initially.
  *   // Basically 3 tasks: reset blazies object per item, merging initial parent
  *   // $settings along with settings the initial values for blazies object.
  *
  *   // Supported media switcher options dependent on available modules:
- *   // colorbox, media (Image to iframe), photobox. This can also be moved into
- *   // ::init() method argument.
+ *   // colorbox, media (Image to iframe), etc. These can also be moved into
+ *   // ::init() method argument above instead.
  *   $settings['media_switch'] = 'media';
  *   $settings['image_style'] = 'large';
  *   $settings['ratio'] = 'fluid';
  *
- *   // Build images, assumed inside a loop here.
+ *   // Build contents, assumed inside a loop here.
  *   // Captions key contains: alt, description, data, link, overlay, title.
  *   // The image.uri is the only required by theme_blazy(). This $info is
  *   // optional/ removable if using the second approach below.
@@ -145,14 +148,20 @@
  *   //   ->set('image.title', 'BLAH');
  *
  *   // The required are #delta and #settings. Captions is optional.
- *   $content = $manager->getBlazy([
+ *   $content = [
  *     // Delta is for galleries, or LCP like Loading priority: slider, etc.
  *     '#delta' => 0,
+ *
+ *     // If using Option setter #1:
  *     '#settings' => $manager->toSettings($settings, $info),
- *     'captions' =>  ['title' => ['#markup' => t('Description #1')]],
+ *
+ *     // If using Option setter #2:
+ *     // '#settings' => $settings,
+ *
+ *     'captions' => ['title' => ['#markup' => t('Description #1')]],
  *
  *      // Only if non-media or media that theme_blazy() does not understand:
- *      // theme_file_video(), etc. or Vanilla output, put it into `content`.
+ *      // texts, theme_BLAH(), etc. or vanilla output, put it into `content`.
  *      // 'content' => $rendered_entity,
  *
  *      // If working with Media, Paragraphs, etc, be sure to pass the #entity
@@ -167,7 +176,8 @@
  *   // If working with Media/ OEmbed/ VEF, other than plain old images:
  *   // $manager->service('blazy.oembed')->build($content);
  *
- *   $items[] = $content;
+ *   // Pass $content to theme_blazy() after working with any sources.
+ *   $items[] = $manager->getBlazy($content);
  *
  *   // See below ...Formatter::buildElements() for consistent samples.
  *   // Since 2.17, items are stored in `items` key to match sub-modules.
@@ -177,6 +187,7 @@
  *   // The correct one for theme_field() is indices as we did all along, but we
  *   // gotta be trendy with sub-modules for interchangeability and easy swap.
  *   // Some have been established before blazy, cannot argue with the ancient.
+ *   // No biggies, we do not always deal with fields, might be Views rows, etc.
  *   $build['items'] = $items;
  *
  *   // Finally attach libraries as requested via $settings.
@@ -209,7 +220,7 @@
  *
  * @ingroup blazy_api
  */
-function hook_blazy_attach_alter(array &$load, array $settings = []) {
+function hook_blazy_attach_alter(array &$load, array $settings) {
   // Since 2.6, non-configurable settings are mostly grouped under `blazies`.
   // For pre 2.6, please use $settings['NAME'] directly.
   $blazies = $settings['blazies'];
@@ -252,7 +263,7 @@ function hook_blazy_lightboxes_alter(array &$lightboxes) {
  *
  * @ingroup blazy_api
  */
-function hook_blazy_alter(array &$build, array $settings = []) {
+function hook_blazy_alter(array &$build, array $settings) {
   if (!empty($settings['media_switch']) && $settings['media_switch'] == 'photoswipe') {
     // Full blown overrides:
     $build['#pre_render'][] = 'my_module_pre_render';
@@ -273,7 +284,7 @@ function hook_blazy_alter(array &$build, array $settings = []) {
  *
  * @ingroup blazy_api
  */
-function hook_blazy_build_alter(array &$build, array $settings = []) {
+function hook_blazy_build_alter(array &$build, array $settings) {
   // Since 2.6, non-configurable settings are mostly grouped under `blazies`.
   // For pre 2.6, please use $settings['NAME'] directly.
   $blazies = $settings['blazies'];
