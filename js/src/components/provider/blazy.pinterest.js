@@ -73,16 +73,37 @@
    */
   function process(el) {
     var provider = $.pinterest;
-    var rendered = $.find(el, _sRendered);
     var pin = $.find(el, _sPin);
 
     provider.init(el);
 
-    _win.setTimeout(function () {
-      if (!$.isElm(rendered)) {
-        provider.show();
+    var isRendered = function (root) {
+      var check = $.find(root, _sRendered);
+      return $.isElm(check);
+    };
+
+    var show = function (pindo) {
+      _win.setTimeout(function () {
+        if (!isRendered(el)) {
+          provider.show();
+        }
+      }, $.isElm(pindo) ? 3 : 301);
+    };
+
+    if ($.isElm(pin)) {
+      show(pin);
+    }
+    else {
+      if ($.isHtml(el)) {
+        $.on(el, 'blazy.done', function (e) {
+          el = e.target;
+          if (!isRendered(el)) {
+            pin = $.find(el, _sPin);
+            show(pin);
+          }
+        });
       }
-    }, $.isElm(pin) ? 0 : 301);
+    }
 
     $.addClass(el, _mounted);
   }

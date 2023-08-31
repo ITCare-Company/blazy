@@ -328,10 +328,6 @@ class Lightbox {
       if ($provider) {
         $hattrs['aria-live'] = 'polite';
         $hattrs['class'][] = 'media--' . str_replace('_', '-', $provider);
-
-        // if (!empty($json['irrational'])) {
-        // $hattrs['class'][] = 'is-b-irrational';
-        // }
       }
 
       if ($token = $blazies->get('media.token')) {

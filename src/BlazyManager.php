@@ -495,12 +495,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       }
     }
 
-    if (!$lightbox && $provider = $blazies->get('media.provider')) {
-      if (Internals::irrational($provider)) {
-        $attributes['class'][] = 'is-b-irrational';
-      }
-    }
-
     // Pass common elements to theme_blazy().
     $element['#attributes'] = Blazy::sanitize($attributes);
     $element['#item']       = $build['#item'];

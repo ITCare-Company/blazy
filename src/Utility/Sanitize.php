@@ -99,23 +99,32 @@ class Sanitize {
       // Only key class is known as array.
       if (is_array($value)) {
         // Respects array item containing space delimited classes: aaa bbb ccc.
-        $value = implode(' ', $value);
-        if ($lowercase) {
-          $value = mb_strtolower($value);
+        if ($value) {
+          $value = implode(' ', $value);
+          if ($lowercase) {
+            $value = mb_strtolower($value);
+          }
+          $value = array_map('\Drupal\Component\Utility\Html::cleanCssIdentifier', explode(' ', $value));
         }
-        $output[$key] = array_map('\Drupal\Component\Utility\Html::cleanCssIdentifier', explode(' ', $value));
+
+        $output[$key] = $value;
       }
       else {
         // Makes abused IMG title/ alt HTML usable for captions and attributes.
-        $value = strip_tags($value);
-        if ($lowercase) {
-          $value = mb_strtolower($value);
+        if ($value) {
+          $value = strip_tags($value);
+          if ($lowercase) {
+            $value = mb_strtolower($value);
+          }
+
+          $kid = $kid || self::kid($value);
+          $escaped_value = $escaped ? Html::escape($value) : $value;
+          $clean = $kid || $lowercase || in_array($key, ['class', 'id']);
+
+          $value = $clean ? Html::cleanCssIdentifier($value) : $escaped_value;
         }
 
-        $kid = $kid || self::kid($value);
-        $escaped_value = $escaped ? Html::escape($value) : $value;
-        $clean = $kid || $lowercase || in_array($key, ['class', 'id']);
-        $output[$key] = $clean ? Html::cleanCssIdentifier($value) : $escaped_value;
+        $output[$key] = $value;
       }
     }
     return $output;

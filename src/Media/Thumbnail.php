@@ -2,7 +2,6 @@
 
 namespace Drupal\blazy\Media;
 
-use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Theme\Attributes;

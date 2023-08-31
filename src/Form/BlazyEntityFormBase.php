@@ -120,7 +120,7 @@ abstract class BlazyEntityFormBase extends EntityForm implements BlazyEntityForm
     }
 
     // Prevent leading and trailing spaces in entity names.
-    $label = Html::escape(trim($entity->label()));
+    $label = Html::escape(trim($entity->label() ?: 'x'));
     $entity->set('label', $label)
       ->set('id', $entity->id());
 
