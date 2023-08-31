@@ -82,6 +82,13 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
   protected $blazyManager;
 
   /**
+   * The blazy media service.
+   *
+   * @var \Drupal\blazy\Media\BlazyMediaInterface
+   */
+  protected $mediaManager;
+
+  /**
    * The svg manager service.
    *
    * @var \Drupal\blazy\Media\Svg\SvgInterface
@@ -116,6 +123,7 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
     // For consistent call against ecosystem shared methods, Blazy has straight
     // inheritance, sub-modules deviate:
     $instance->manager = $instance->formatter = $container->get('blazy.formatter');
+    $instance->mediaManager = $container->get('blazy.media');
     $instance->svgManager = $container->get('blazy.svg');
 
     // @todo remove for consistent call against sub-modules shared methods:
@@ -386,7 +394,7 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
       $caption = $this->getFieldRendered($index, $field_caption, FALSE, $row);
     }
 
-    // Replace empty image item with the rendered output if not using image.
+    // Replace empty image item with the rendered output if not doable.
     if (!$doable && $name) {
       $item = $this->getFieldRendered($index, $name, FALSE, $row);
     }
@@ -433,8 +441,9 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
     $doable   = FALSE;
     $result   = $this->getFieldRenderable($row, 0, $name);
     $rendered = $result['rendered'] ?? [];
-    $tn_style = $rendered['#image_style'] ?? NULL;
+    $tn_style = $rendered['#image_style'] ?? $rendered['#style_name'] ?? NULL;
     $item     = $rendered['#item'] ?? NULL;
+    $uri      = $rendered['#uri'] ?? NULL;
     $build    = $rendered['#build'] ?? [];
 
     // Might be group_rows, the first two are blazy, the last image_formatter.
@@ -442,10 +451,16 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
       $item = $build['#item'] ?? $build[0]['#item'] ?? $rendered['raw'] ?? NULL;
     }
 
-    // If we have image style and image item.
-    if (is_object($item)) {
-      $uri = $tn_uri = Blazy::uri($item);
+    // If no URI, but we have an ImageItem.
+    if (!$uri && is_object($item)) {
+      $uri = Blazy::uri($item);
+    }
 
+    // Only if we have an URI.
+    if ($uri) {
+      $tn_uri = $uri;
+
+      // Also set it as an image.uri for lazy load to work.
       if (!$blazies->get('image.uri')) {
         $blazies->set('image.uri', $uri);
       }
@@ -465,6 +480,7 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
         $blazies->set('thumbnail.id', $tn_style)
           ->set('thumbnail.uri', $tn_uri)
           ->set('thumbnail.item', $item);
+
         $doable = TRUE;
       }
       else {

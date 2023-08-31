@@ -74,7 +74,7 @@
     blazies.resimage.id ? 'media--responsive',
     blazies.is.svg ? 'media--svg',
     settings.ratio ? 'media--ratio media--ratio--' ~ settings.ratio,
-    settings.use_loading or blazies.use.loader ? 'is-b-loading',
+    blazies.use.loader ? 'is-b-loading',
     settings.classes ? settings.classes|join(' ')|clean_class,
   ]
 %}

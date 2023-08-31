@@ -96,9 +96,14 @@ a .media--switch img.media__element {
   margin: 0 auto !important; /* csslint allow: known-properties, important */
 }
 
-.media--box [data-pin-href],
-.media--box.media--twitter,
-.media--box .twitter-tweet-rendered {
-  min-width: 250px;
+.media--box > [data-pin-do],
+.media--box > [data-pin-href],
+.media--box > .instagram-media,
+.media--box > .twitter-tweet-rendered {
+  min-height: 120px;
+  min-width: 320px;
+}
+
+.media--box > .twitter-tweet-rendered {
   max-width: 100% !important; /* csslint allow: known-properties, important */
 }

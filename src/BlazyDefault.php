@@ -404,13 +404,16 @@ class BlazyDefault {
   public static function dyComponents(): array {
     $deps   = ['blazy/compat'];
     $common = ['minified' => TRUE, 'weight' => -1];
+    $libs   = [];
 
-    return [
-      'instagram' => [
-        'js' => ['js/components/blazy.instagram.min.js' => $common],
+    foreach (['instagram', 'pinterest'] as $key) {
+      $libs[$key] = [
+        'js' => ['js/components/provider/blazy.' . $key . '.min.js' => $common],
         'dependencies' => $deps,
-      ],
-    ];
+      ];
+    }
+
+    return $libs;
   }
 
   /**

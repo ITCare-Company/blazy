@@ -89,19 +89,4 @@
     }
   };
 
-  $.thirdPartyScript = {
-    attach: function (provider, callback, delay) {
-      _win.setTimeout(function () {
-        // Instagram, Twitter are good, except for Pinterest.
-        if (provider === 'pinterest' && _win.PinUtils) {
-          _win.PinUtils.build();
-        }
-
-        if (callback) {
-          callback();
-        }
-      }, delay || 101);
-    }
-  };
-
 })(dBlazy, Drupal, this);

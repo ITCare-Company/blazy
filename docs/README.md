@@ -385,10 +385,12 @@ it via a polyfill at Blazy UI under **No JavaScript**, be sure to NOT check it.
 * Supports modern Native lazyload since [incubation](https://drupal.org/node/3104542)
   before Firefox or core had it, or old `data-[src|srcset]` since eons. Must be
   noted very clearly due to some thought Blazy was retarded from core.
-* Supports Image, Responsive image, (local|remote|iframe) videos, DIV either
-  inline, fields, views, or within lightboxes.
 * Lightboxes: Colorbox, Magnific Popup, Splidebox, PhotoSwipe, etc. with
   multimedia lightboxes.
+* Supports Image, Responsive image, (local|remote|iframe) videos, SVG, DIV
+  either inline, fields, views, or within lightboxes.
+* Supports Instagram, Pinterest, Twitter, Youtube, Vimeo, Soundcloud, Facebook
+  within some lightboxes, since 2.17.  
 * Multi-serving lazyloaded images, including multi-breakpoint CSS backgrounds.
 * Field formatters: Blazy with Media integration.
 * Blazy Grid formatter and Views style for multi-value Image, Media and Text:

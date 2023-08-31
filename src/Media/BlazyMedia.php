@@ -312,6 +312,52 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
+   * Modifies item attributes for iframes if any.
+   */
+  public function iframeable(array &$item, array &$settings): bool {
+    $iframeable = FALSE;
+    $blazies    = $settings['blazies'];
+    $original   = $item;
+    $uri        = $blazies->get('image.uri');
+
+    // Checks if we have iframes.
+    if ($content = $this->manager->renderer()->renderPlain($item)) {
+      // Prior to PHP 8.0.0 this method could be called statically, but would
+      // issue an E_DEPRECATED error. As of PHP 8.0.0 calling this method
+      // statically throws an Error exception.
+      // See https://www.php.net/manual/en/domdocument.loadhtml.php.
+      $dom = Html::load($content);
+      $iframes = $dom->getElementsByTagName('iframe');
+
+      // An image URI must be available to be processed by theme_blazy().
+      if ($uri && $iframes->length > 0 && $iframe = $iframes->item(0)) {
+        if ($src = $iframe->getAttribute('src')) {
+          $iframe_domain = $blazies->get('iframe_domain');
+          // For consistency and security, yet ensure to not mess up url.
+          if ($blazies->use('oembed')
+            && strpos($src, '?') === FALSE
+            && strpos($src, '?url=') === FALSE) {
+            $src = $this->toEmbedUrl($src, $iframe_domain);
+          }
+
+          Internals::toPlayable($blazies, $src, TRUE);
+
+          // All iframes are treated as video, even if image.
+          $blazies->set('media.type', 'video');
+          $iframeable = TRUE;
+        }
+      }
+      else {
+        // @todo recheck if it has media thumbnail URI, and workable.
+        $this->disableFeatures($settings, TRUE);
+      }
+
+      $item = $original;
+    }
+    return $iframeable;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function prepare(array &$data): MediaInterface {
@@ -444,46 +490,6 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * Modifies item attributes for iframes if any.
-   */
-  private function toIframe(array &$item, array &$settings): void {
-    $blazies  = $settings['blazies'];
-    $original = $item;
-
-    if ($content = $this->manager->renderer()->renderPlain($item)) {
-      // Prior to PHP 8.0.0 this method could be called statically, but would
-      // issue an E_DEPRECATED error. As of PHP 8.0.0 calling this method
-      // statically throws an Error exception.
-      // See https://www.php.net/manual/en/domdocument.loadhtml.php.
-      $dom = Html::load($content);
-      $iframes = $dom->getElementsByTagName('iframe');
-
-      if ($iframes->length > 0 && $iframe = $iframes->item(0)) {
-        if ($src = $iframe->getAttribute('src')) {
-          $iframe_domain = $blazies->get('iframe_domain');
-          // For consistency and security, yet ensure to not mess up url.
-          if ($blazies->use('oembed')
-            && strpos($src, '?') === FALSE
-            && strpos($src, '?url=') === FALSE) {
-            $src = $this->toEmbedUrl($src, $iframe_domain);
-          }
-
-          Internals::toPlayable($blazies, $src, TRUE);
-
-          // All iframes are treated as video, even if image.
-          $blazies->set('media.type', 'video');
-        }
-      }
-      else {
-        // @todo recheck if it has media thumbnail URI, and workable.
-        $this->disableFeatures($settings, TRUE);
-      }
-
-      $item = $original;
-    }
-  }
-
-  /**
    * Modifies item attributes for local audio/video item.
    */
   private function toLocal(array &$item, array &$settings, $file): void {
@@ -568,7 +574,7 @@ class BlazyMedia implements BlazyMediaInterface {
       }
       else {
         // Soundcloud, Twitter, etc.
-        $this->toIframe($item, $settings);
+        $this->iframeable($item, $settings);
       }
     }
     else {

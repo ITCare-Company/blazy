@@ -117,6 +117,21 @@ interface BlazyMediaInterface {
   public function getSource($file): ?string;
 
   /**
+   * Modifies item attributes for iframes if any.
+   *
+   * This requires at least an image.uri to be a lazyloaded iframe.
+   *
+   * @param array $item
+   *   The renderable array, normally entity.get.view or Views row.rendered.
+   * @param array $settings
+   *   The settings being modified.
+   *
+   * @return bool
+   *   Returns TRUE if iframeable with some modified settings.
+   */
+  public function iframeable(array &$item, array &$settings): bool;
+
+  /**
    * Prepares media item data to provide image item.
    *
    * @param array $data

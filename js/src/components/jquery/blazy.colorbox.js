@@ -25,7 +25,7 @@
   var _sLoadedContent = '#cboxLoadedContent';
   var _sanitizer = _d.sanitizer;
   var _instagram = _d.instagram || false;
-  var _thirdPartyScript = _d.thirdPartyScript || false;
+  var _pinterest = _d.pinterest || false;
   var cboxTimer;
 
   /**
@@ -240,16 +240,16 @@
         o = dimension(w, h);
       }
 
-      if (isPinterest && _thirdPartyScript) {
+      if (isPinterest && _pinterest) {
         var callback = function () {
           // shouldResize = false;
-          w = 520;
+          w = '320px';
           h = mh;
           o = dimension(w, h);
           resize(o);
         };
 
-        _thirdPartyScript.attach('pinterest', callback);
+        _pinterest.show(callback);
       }
 
       if ($iframe.length || $media.length) {

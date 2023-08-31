@@ -332,10 +332,21 @@ class Lightbox {
         $hattrs['data-b-token'] = $token;
       }
 
-      if ($blazies->use('instagram_api')) {
-        $url = $blazies->get('media.input_url');
-        $attrs['data-box-url'] = $box_url;
-        $hattrs['class'][] = 'b-instagram';
+      foreach (array_keys(BlazyDefault::dyComponents()) as $key) {
+        if ($blazies->is($key)) {
+          $url = $blazies->get('media.input_url');
+          $attrs['data-box-url'] = $box_url;
+          $applicable = TRUE;
+
+          // VEF does not need API initializer.
+          if ($key == 'instagram') {
+            $applicable = $blazies->use('instagram_api');
+          }
+
+          if ($applicable) {
+            $hattrs['class'][] = 'b-' . $key;
+          }
+        }
       }
 
       // Do not add more classes after media--box. This is the only style

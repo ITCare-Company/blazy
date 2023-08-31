@@ -1,6 +1,6 @@
 /**
  * @file
- * Provides instagram extension for dBlazy with media switchers.
+ * Provides instagram initializer.
  */
 
 (function ($, Drupal, _win, _doc) {

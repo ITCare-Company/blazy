@@ -66,10 +66,13 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
       $element['#item'] = $image['raw'] ?? NULL;
 
       if ($image['applicable']) {
-        $element['content'] = $rendered['#build']['content'] ?? [];
+        $element['content'][] = $rendered['#build']['content'] ?? [];
       }
       else {
-        $element['content'] = $rendered;
+        // VEF can be iframed as long as having URI, even from a thumbnail.
+        if (!$this->mediaManager->iframeable($rendered, $settings)) {
+          $element['content'][] = $rendered;
+        }
       }
 
       // Provides the relevant elements based on the configuration.
@@ -104,7 +107,8 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
       // Supports multiple image styles within a single view such as GridStack,
       // else fallbacks to the defined image style if available.
       if (empty($settings['image_style'])) {
-        $settings['image_style'] = $rendered['#image_style'] ?? '';
+        $settings['image_style'] = $rendered['#image_style']
+          ?? $rendered['#style_name'] ?? '';
       }
 
       // Converts image formatter for blazy to reduce complexity with CSS
@@ -482,7 +486,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
 
     // Views Media thumbnail may not have expected thumbnail URI, override.
     if ($uri && strpos($tn, 'media-icons') !== FALSE) {
-      if ($tn_style = $settings['thumbnail_style']) {
+      if ($tn_style = $settings['thumbnail_style'] ?? NULL) {
         $uri = $this->manager->load($tn_style, 'image_style')->buildUri($uri);
         $blazies->set('thumbnail.id', $tn_style);
       }
@@ -497,6 +501,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
    */
   protected function withImageFormatter(array &$settings, array $rendered, $index): void {
     $blazies = $settings['blazies'];
+
     // Deals with "link to content/image" by formatters.
     $url = $rendered['#url'] ?? '';
 
@@ -507,8 +512,8 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
 
     // Prevent images from having absurd height when being lazyloaded.
     // Allows to disable it by _noratio such as enforced CSS background.
-    $noratio = $settings['_noratio'] ?? '';
-    $settings['ratio'] = $blazies->get('is.noratio', $noratio) ? '' : 'fluid';
+    $noratio = $settings['_noratio'] ?? FALSE;
+    $settings['ratio'] = $blazies->is('noratio', $noratio) ? '' : 'fluid';
 
     if (empty($settings['media_switch']) && $url) {
       $settings['media_switch'] = 'content';

@@ -1748,9 +1748,9 @@
   db.isDecoded = isDecoded;
 
   // Similar to core domReady, only public and generic.
-  function ready(callback) {
+  function ready(callback, delay) {
     var cb = function () {
-      return setTimeout(callback, 0, db);
+      return setTimeout(callback, delay || 0, db);
     };
 
     if (_doc.readyState !== 'loading') {

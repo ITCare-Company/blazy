@@ -283,12 +283,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       $element['#attached'] = $this->merge($attachments, $element, '#attached');
     }
 
-    // Prevents complication for now, such as lightbox for Facebook, etc.
-    // Either makes no sense, or not currently supported without extra legs.
-    // Original formatter settings can still be accessed via content variable.
-    // Not here, defined at BlazyMedia::unfield() for more detailed checks.
-    // @todo recheck and re-enable if any side kicks:
-    // $blazies->set('placeholder', []);
     // Supports HTML content for lightboxes as long as having image trigger.
     // Only limit to local media to not conflict with Image rendered by its
     // formatter option, Facebook, Twitter, etc.
@@ -302,8 +296,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     if ($richbox && $hires) {
       // When SVG reaches here, it must be INLINE, and occupy content. However
       // for lightboxes SVG can be displayed as IMG even if INLINE, no problems.
-      // Shortly, SVG does not need to be displayed as HTML content since all
-      // lightboxes is capable to display SVG as IMG just fine.
+      // Shortly, SVG does not need to be displayed as HTML content since
+      // lightboxes is capable to display SVG as IMG just fine, any except?
       if (!$blazies->is('svg')) {
         $element['#lightbox_html'] = $build['content'];
 
@@ -329,10 +323,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
           $build['content'] = [];
         }
         else {
-          // @todo recheck if anything against this.
-          $blazies->set('is.bg', FALSE);
-          // ->set('is.unlazy', TRUE)
-          // ->set('use.loader', FALSE);
+          // Disable all lazy stuffs since we got a brick here.
+          $blazies->set('is.bg', FALSE)
+            ->set('is.rendered', TRUE)
+            ->set('is.unlazy', TRUE)
+            ->set('media.type', '')
+            ->set('placeholder', [])
+            ->set('use.loader', FALSE);
         }
       }
     }
@@ -480,12 +477,20 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       $element["#$key"] = $this->merge($values, $element, "#$key");
     }
 
-    // Fixed for media switch and lightboxes with Instagram API.
-    if ($blazies->use('instagram_api')) {
-      $element['#attached']['library'][] = 'blazy/instagram';
+    // Fixed for media switch and lightboxes with Pinterest and Instagram API.
+    foreach (array_keys(BlazyDefault::dyComponents()) as $key) {
+      if ($blazies->is($key)) {
+        $element['#attached']['library'][] = 'blazy/' . $key;
+        $applicable = !$blazies->is('lightbox');
 
-      if (!$blazies->is('lightbox')) {
-        $attributes['class'][] = 'b-instagram';
+        // VEF does not need API initializer.
+        if ($key == 'instagram') {
+          $applicable = $applicable && $blazies->use('instagram_api');
+        }
+
+        if ($applicable) {
+          $attributes['class'][] = 'b-' . $key;
+        }
       }
     }
 
@@ -580,8 +585,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * where items may be stored as direct indices, or put into items property.
    * Actually the same issue happens at core where contents may be indexed or
    * grouped. Meaning not a problem at all, only a problem for consistency.
-   *
-   * @todo call directly items after migrations at/by 3.x.
    */
   private function toElementChildren(array $build): array {
     $build = $build['items']

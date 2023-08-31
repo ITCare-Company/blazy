@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-08-31
+------------------------------
+- Fixed for Pinterest within more lightboxes.
+- Fixed for vanilla VEF as a Views Main stage.
+
 Blazy 8.x-2.0-dev, 2023-08-30
 ------------------------------
 - Updated blazy.api.php.
