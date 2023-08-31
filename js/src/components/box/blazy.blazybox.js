@@ -21,11 +21,12 @@
   var _isOpened = 'is-' + _id + '--open';
   var _fitHeight = _mounted + '--fh';
   var _isFullscreen = _mounted + '--fs';
+  var _bProvider = 'b-provider--';
   var _visualyHidden = 'visually-hidden';
   var _ariaHidden = 'aria-hidden';
   var _sanitizer = $.sanitizer;
   var _multimedia = $.multimedia || false;
-  var _instagram = $.instagram || false;
+  var _provider;
   var oClass;
   var oBodyClass;
   var oBodyClosingClass;
@@ -57,10 +58,11 @@
       var $el = me.$el;
       var link = toElm(trigger);
       var dataset = $.isElm(link) ? $.parse($.attr(link, 'data-b-media data-media')) : {};
+      var provider = dataset.provider;
+      var irrational = dataset.irrational;
       var elContent = $el.find(_selContent);
       var elIframe;
       var elMedia;
-      var isInstagram;
       var winSize = $.windowSize();
       var opts = options || {};
 
@@ -91,6 +93,11 @@
 
       if (opts.fs) {
         $el.addClass(_isFullscreen);
+      }
+
+      $el.removeClass(_bProvider + _provider);
+      if (provider) {
+        $el.addClass(_bProvider + provider);
       }
 
       elContent.innerHTML = _sanitizer.sanitize(content, config);
@@ -126,40 +133,27 @@
         _multimedia.pause();
       }
 
-      $el[0].style.minHeight = '';
       $el.removeClass(_fitHeight);
+      if (irrational) {
+        $el.addClass(_fitHeight);
+      }
 
-      Drupal.attachBehaviors($el[0]);
-
-      // Initialize Instagram after being attached.
+      // Attach any dynamic media.
       elMedia = $.find(elContent, '.media');
-      elIframe = $.find(elContent, 'iframe');
+      if ($.isElm(elMedia)) {
+        Drupal.attachBehaviors(elMedia);
+      }
 
-      if ($.isElm(elMedia) && $.isElm(elIframe)) {
-        isInstagram = $.hasClass(elMedia, 'b-instagram');
+      setTimeout(function () {
+        elIframe = $.find(elContent, 'iframe');
 
-        if (isInstagram && _instagram) {
-          setTimeout(function () {
-            var cb = function (obj) {
-              var h = (obj.height + 30) + 'px';
-              var w = obj.width + 'px';
-
-              $el[0].style.minHeight = h;
-              elMedia.style.width = w;
-
-              // Instagram takes up the window height at small areas, normally.
-              $el.addClass(_fitHeight);
-            };
-            _instagram.show(cb, elIframe);
-          }, 101);
+        if ($.isElm(elIframe)) {
+          $.addClass(elIframe, _cMediaElement);
         }
-      }
-
-      if ($.isElm(elIframe)) {
-        $.addClass(elIframe, _cMediaElement);
-      }
+      }, 101);
 
       me.check();
+      _provider = provider;
     },
 
     /**
@@ -199,6 +193,11 @@
       $.removeClass(body, _isOpened);
       $el.removeClass(_isFullscreen);
 
+      // var classes = $el.attr('class');
+      // var check = (classes.match(/(^|\s)b-provider-\S+/g) || []).join(' ');
+      // if (check) {
+      // $el.removeClass(check);
+      // }
       if (oBodyClass) {
         $.removeClass(body, oBodyClass);
       }

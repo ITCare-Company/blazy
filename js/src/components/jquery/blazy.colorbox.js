@@ -21,11 +21,11 @@
   var _cMediaBox = 'media media--box';
   var _cMediaRatio = _cMediaBox + ' media--ratio';
   var _cboxOn = 'colorbox-on';
-  var _sContent = '#cboxContent';
   var _sLoadedContent = '#cboxLoadedContent';
   var _sanitizer = _d.sanitizer;
   var _instagram = _d.instagram || false;
-  var _pinterest = _d.pinterest || false;
+  var _bProvider = 'b-provider--';
+  var _provider;
   var cboxTimer;
 
   /**
@@ -74,8 +74,9 @@
 
           if ($('#cboxOverlay').is(':visible')) {
             $root.addClass(_bRoot + '--' + boxType);
+
             if (provider) {
-              $root.addClass(_bRoot + '--' + provider);
+              $root.addClass(_bProvider + provider);
             }
 
             // @deprecated in 2.17, and is removed in 3.x for local classes.
@@ -87,10 +88,14 @@
               resizeBox();
             }
           }
+
+          _provider = provider;
         });
       },
       onCleanup: function () {
-        var $media = $(_sContent).find('.media');
+        // Re-check might be empty for some reasons.
+        $root = $(_root);
+        var $media = $root.find('.media');
 
         if ($media.length) {
           Drupal.detachBehaviors($media[0]);
@@ -113,6 +118,7 @@
         return (css.match(/(^|\s)colorbox-\S+/g) || []).join(' ');
       });
 
+      $root.removeClass(_bProvider + _provider);
       $root.removeClass(function (index, css) {
         return (css.match(/(^|\s)b-colorbox-\S+/g) || []).join(' ');
       });
@@ -232,6 +238,10 @@
       var isResimage = $resimage.length || $picture.length;
       var isInstagramApi = $media.hasClass('b-instagram') && _instagram;
 
+      if ($media.length) {
+        Drupal.attachBehaviors($media[0]);
+      }
+
       if (isResimage) {
         responsiveImage($picture, $resimage);
 
@@ -239,59 +249,45 @@
         h = mh || media.height;
         o = dimension(w, h);
       }
-
-      if (isPinterest && _pinterest) {
-        var callback = function () {
-          // shouldResize = false;
-          w = '320px';
-          h = mh;
-          o = dimension(w, h);
-          resize(o);
-        };
-
-        _pinterest.show(callback);
+      else if (isPinterest) {
+        w = '320px';
+        h = mh;
+        o = dimension(w, h);
       }
 
-      if ($iframe.length || $media.length) {
-        if ($media.length) {
-          Drupal.attachBehaviors($media[0]);
+      // @todo consider to not use colorbox iframe for consistent .media,
+      // and avoid complication given Instagram oEmbed vs. VEF.
+      // Instagram dynamic iframe only available after being attached.
+      $iframe = $('iframe', container);
+      if ($iframe.length) {
+        $iframe.addClass('media__element');
 
-          // Instagram dynamic iframe only available after being attached.
-          $iframe = $('iframe', container);
+        if (isInstagramApi) {
+          shouldResize = false;
+
+          instagram($iframe, o);
+        }
+        else {
+          if (!usePaddingHack) {
+            $iframe.on('load', function () {
+              var $ifrm = $(this);
+              var callback = function () {
+                w = $ifrm.width() + 'px';
+                h = $ifrm.height() + 'px';
+                o = dimension(w, h);
+                resize(o);
+              };
+              withDelay(callback);
+            });
+          }
         }
 
-        // @todo consider to not use colorbox iframe for consistent .media,
-        // and avoid complication given Instagram oEmbed vs. VEF.
-        if ($iframe.length) {
-          $iframe.addClass('media__element');
+        // Padding hack to make responsive iframe, unless disabled.
+        if (!$media.length) {
+          $container.addClass(_cMediaBox + ' media--' + provider);
 
-          if (isInstagramApi) {
-            shouldResize = false;
-
-            instagram($iframe, o);
-          }
-          else {
-            if (!usePaddingHack) {
-              $iframe.on('load', function () {
-                var $ifrm = $(this);
-                var callback = function () {
-                  w = $ifrm.width() + 'px';
-                  h = $ifrm.height() + 'px';
-                  o = dimension(w, h);
-                  resize(o);
-                };
-                withDelay(callback);
-              });
-            }
-          }
-
-          // Padding hack to make responsive iframe, unless disabled.
-          if (!$media.length) {
-            $container.addClass(_cMediaBox + ' media--' + provider);
-
-            if (usePaddingHack) {
-              hackContainer($container, $iframe, o);
-            }
+          if (usePaddingHack) {
+            hackContainer($container, $iframe, o);
           }
         }
       }

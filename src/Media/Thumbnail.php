@@ -5,6 +5,7 @@ namespace Drupal\blazy\Media;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Theme\Attributes;
 
 /**
  * Provides thumbnail-related methods.
@@ -64,18 +65,19 @@ class Thumbnail {
 
     if (!$uri) {
       // Only Views output, if not having image, nor blazy formatters.
-      if ($item && is_array($item)) {
+      if ($item) {
         return Internals::toHtml($item, 'div', $class);
       }
       return [];
     }
 
-    $unstyled = $blazies->is('unstyled');
-    $style    = $blazies->get('thumbnail.id') ?: $settings['thumbnail_style'] ?? NULL;
-    $alt      = $blazies->get('image.alt');
-    $valid    = $blazies->get('image.valid') ?: BlazyFile::isValidUri($uri);
+    // Thumbnail style is the only option to display thumbnails. Previous
+    // convention is to display it as long as it has URI, not thumbnail_style.
+    // At least provide a hook_alter with thumbnail.fallback for a force.
+    $style = $blazies->get('thumbnail.id')
+      ?: $settings['thumbnail_style'] ?? $blazies->get('thumbnail.fallback');
 
-    // Thumbnail style is the only option to display thumbnails.
+    // @todo remove if against previous convention with core thumbnail fallback.
     if (!$style) {
       return [];
     }
@@ -83,25 +85,23 @@ class Thumbnail {
     // Thumbnails can use image styles, except for SVG for now.
     // @todo check for any modules (ImageMagick) which convert SVG to image,
     // and remove this check if present, leaving it for external URL + data URI.
+    $unstyled = $blazies->is('unstyled');
+    $valid = $blazies->get('image.valid') ?: BlazyFile::isValidUri($uri);
     if ($valid && !$blazies->is('svg')) {
       $unstyled = FALSE;
     }
 
     // Alt and SRC will be auto-escaped when entering Twig, this is just to make
     // sure no unknown edge cases get in the way.
-    if ($alt) {
-      $alt = Html::escape(strip_tags($alt));
-      // Twig will escape Can't to Can&#039;t, else doubles: Can&amp;#039;t.
-      // @todo recheck if the world is ended with this, and so remove this.
-      $alt = str_replace('&#039;', "'", $alt);
-    }
+    $alt = $blazies->get('image.alt');
+    $alt = $alt ? Attributes::escape($alt) : t('Thumbnail');
 
     $content = [
       '#theme'      => $unstyled ? 'image' : 'image_style',
       '#style_name' => $style,
       '#uri'        => $valid ? $uri : UrlHelper::stripDangerousProtocols($uri),
       '#item'       => $item,
-      '#alt'        => $alt ?: t('Thumbnail'),
+      '#alt'        => $alt,
     ];
 
     return Internals::toHtml($content, 'div', $class);

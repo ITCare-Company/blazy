@@ -147,7 +147,10 @@
 
       // Instagram, Pinterest, etc. with lazyloaded HTML content if configured.
       if ($.isHtml(el)) {
-        Drupal.attachBehaviors(el);
+        // DOM ready fix as usual.
+        _win.setTimeout(function () {
+          Drupal.attachBehaviors(el);
+        });
       }
 
       // Clear loading classes. Also supports future delayed Native loading.

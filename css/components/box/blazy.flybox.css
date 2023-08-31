@@ -79,6 +79,7 @@ body.is-flybox--open {
   }
 
   .b-flybox .media--instagram iframe {
+    min-height: inherit;
     width: auto;
   }
 

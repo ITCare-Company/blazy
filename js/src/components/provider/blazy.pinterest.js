@@ -13,7 +13,8 @@
   var _mounted = 'is-' + _nick;
   var _selBase = '.' + _id;
   var _sPin = '[data-pin-do]';
-  var _selector = _sPin + ':not(.' + _mounted + ')';
+  var _sRendered = '[data-pin-href]';
+  var _selector = _selBase + ':not(.' + _mounted + ')';
   var _dataToken = 'data-b-token';
   var script = 'https://assets.pinterest.com/js/pinit.js';
 
@@ -72,13 +73,16 @@
    */
   function process(el) {
     var provider = $.pinterest;
-    var parent = $.closest(el, _selBase);
+    var rendered = $.find(el, _sRendered);
+    var pin = $.find(el, _sPin);
 
-    provider.init(parent);
+    provider.init(el);
 
     _win.setTimeout(function () {
-      provider.show();
-    });
+      if (!$.isElm(rendered)) {
+        provider.show();
+      }
+    }, $.isElm(pin) ? 0 : 301);
 
     $.addClass(el, _mounted);
   }

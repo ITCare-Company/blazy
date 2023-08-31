@@ -478,10 +478,11 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Fixed for media switch and lightboxes with Pinterest and Instagram API.
+    $lightbox = $blazies->is('lightbox');
     foreach (array_keys(BlazyDefault::dyComponents()) as $key) {
       if ($blazies->is($key)) {
         $element['#attached']['library'][] = 'blazy/' . $key;
-        $applicable = !$blazies->is('lightbox');
+        $applicable = !$lightbox;
 
         // VEF does not need API initializer.
         if ($key == 'instagram') {
@@ -491,6 +492,12 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
         if ($applicable) {
           $attributes['class'][] = 'b-' . $key;
         }
+      }
+    }
+
+    if (!$lightbox && $provider = $blazies->get('media.provider')) {
+      if (Internals::irrational($provider)) {
+        $attributes['class'][] = 'is-b-irrational';
       }
     }
 
