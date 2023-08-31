@@ -71,7 +71,7 @@
     blazies.is.player ? 'media--player',
     blazies.media.bundle ? 'media--bundle--' ~ blazies.media.bundle|clean_class,
     blazies.media.type ? 'media--' ~ blazies.media.type|clean_class,
-    blazies.resimage.id ? 'media--responsive',
+    blazies.resimage.id and not content ? 'media--responsive',
     blazies.is.svg ? 'media--svg',
     settings.ratio ? 'media--ratio media--ratio--' ~ settings.ratio,
     blazies.use.loader ? 'is-b-loading',
