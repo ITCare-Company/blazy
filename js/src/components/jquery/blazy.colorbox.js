@@ -38,9 +38,15 @@
     var _cbox = drupalSettings.colorbox || {};
     var $root = $(_root);
     var $box = $(box);
-    var url = box.href || 'x';
     // @todo remove the second at 3.x:
     var media = $box.data('bMedia') || $box.data('media') || {};
+    var oEmbedUrl = $box.data('oembedUrl');
+    var url = box.href || 'x';
+
+    if (oEmbedUrl) {
+      url = oEmbedUrl;
+    }
+
     var provider = media.provider;
     var boxType = media.boxType;
     var isIframe = boxType === 'iframe' && !_sanitizer.isDangerous('href', url);
@@ -55,6 +61,7 @@
     }
 
     var runtimeOptions = {
+      href: url,
       html: html ? _sanitizer.sanitize(html) : null,
       rel: media.rel || null,
       iframe: isIframe,

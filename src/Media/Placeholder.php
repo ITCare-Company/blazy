@@ -86,7 +86,10 @@ class Placeholder {
     ] + $dimensions;
 
     // Preserves old behaviors.
-    if (!$client) {
+    if ($client) {
+      $attributes['class'][] = 'is-blur-client';
+    }
+    else {
       $blur['#attributes']['class'][] = 'b-lazy';
       $blur['#attributes']['data-src'] = $blazies->get('blur.data');
     }

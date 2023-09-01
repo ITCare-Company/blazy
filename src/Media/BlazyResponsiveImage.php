@@ -104,7 +104,7 @@ class BlazyResponsiveImage {
 
         // Prevents NestedArray from making these indices.
         $blazies->set('bgs', (object) $srcset)
-          ->set('ratios', $ratios)
+          ->set('ratios', (object) $ratios)
           ->set('image.ratio', end($ratios));
 
         // To make compatible with old bLazy (not Bio) which expects no 1px
@@ -171,7 +171,7 @@ class BlazyResponsiveImage {
     $blazies->set('resimage.dimensions', $dimensions)
       ->set('is.dimensions', TRUE)
       ->set('image.ratio', end($ratios))
-      ->set('ratios', $ratios)
+      ->set('ratios', (object) $ratios)
       ->set('resimage.ids', array_values($names));
 
     // Only needed the last one.

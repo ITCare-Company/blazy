@@ -4,8 +4,13 @@
  *
  * While blurring animation impresses smoother transition, it is likely slow.
  * You can override this file, and change animation to just transition instead.
+ * Initially developed on a lower end device that even crashed and shutdown
+ * when opening github.com home years ago, so it took low-end devices into an
+ * account for economy animations while keeping the intention in mind. You can
+ * go crazy with transforms, etc. if low-ends are not a concern. Opacity is
+ * the cheapest. You got a background when you see expensive mentioned anywhere.
  *
- * @todo use SVG and Image Effect module with Imagick for better blur.
+ * @todo make 2.17 blazy.svg service usable for better blur.
  */
 
 /* Without transform, this is more of formality hooking into animation event.*/
@@ -31,6 +36,7 @@
 
 /**
  * Js dynamic classes during animation to match animate.css convention.
+ * The .animates.blur classes are triggered after being loaded, when visible.
  */
 .animated.blur img:not(.b-blur),
 .b-bg.animated.blur {
@@ -39,6 +45,14 @@
   /* The blurred image is not this actual image. */
   -webkit-animation: blazyBlur 1s;
   animation: blazyBlur 1s;
+}
+
+/** Client side may take extra time, adjust duration to be more apparent.
+Opacity is the cheapest among all animations, fine with longer time. */
+.is-blur-client.animated.blur img:not(.b-blur),
+.is-blur-client.b-bg.animated.blur {
+  -webkit-animation-duration: 3s;
+  animation-duration: 3s;
 }
 
 /**
@@ -56,6 +70,11 @@
   transition: opacity 1.2s;
   /* Avoid overlaying, this causes unwanted dark shadow and more artifacts. */
   /* z-index: 1; */
+}
+
+.is-blur-client.is-b-visible:not(.is-b-animated) .b-blur {
+  /* Longer than animation timing to let the actual image surface better. */
+  transition-duration: 3.2s;
 }
 
 .media--fx-lg.is-b-visible:not(.is-b-animated) .b-blur {
@@ -85,7 +104,9 @@ Ugly, but nobody except devs pressing F12 at browsers. */
 /* Supports reduced motion. */
 @media (print), (prefers-reduced-motion: reduce) {
   .animated.blur img:not(.b-blur),
-  .b-bg.animated.blur {
+  .b-bg.animated.blur,
+  .is-blur-client.animated.blur img:not(.b-blur),
+  .is-blur-client.b-bg.animated.blur {
     -webkit-animation-duration: 1ms !important; /* csslint allow: known-properties, important */
     animation-duration: 1ms !important; /* csslint allow: known-properties, important */
     -webkit-transition-duration: 1ms !important; /* csslint allow: known-properties, important */

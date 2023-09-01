@@ -103,9 +103,7 @@
 
     // Animate if any.
     if ($.animate && $.isElm(an) && !$.hasClass(an, _isAnimated)) {
-      setTimeout(function () {
-        $.animate(an);
-      }, 60);
+      $.animate(an);
     }
   }
 

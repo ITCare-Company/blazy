@@ -79,7 +79,8 @@
 
       // The animated blur is image not this container, except a background.
       if (isBlur && !bg) {
-        an = $.find(cn, 'img:not(.' + _bblur + ')') || an;
+        var img = $.find(cn, 'img:not(.' + _bblur + ')');
+        an = $.isElm(img) ? img : an;
       }
 
       function ended(e) {
@@ -100,6 +101,7 @@
           if ($.isElm(elBlur)) {
             elBlur.src = _1px;
             $.removeAttr(elBlur, _data + _bblur);
+            $el.removeClass('is-' + _blur + '-client');
           }
         }
       }

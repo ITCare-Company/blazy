@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-09-01
+------------------------------
+- Fixed for fluid data-ratios regressions with Responsive image.
+- Changed lightbox HREF to point to original sites ethically and consistently.
+
 Blazy 8.x-2.0-dev, 2023-08-31
 ------------------------------
 - Fixed for Pinterest within more lightboxes.

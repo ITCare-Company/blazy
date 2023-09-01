@@ -169,11 +169,7 @@ class Attributes {
       // Pass iframe attributes to template, except for Instagram oEmbed, etc.
       // Scripted iframe is like Instagram BLOCKQUOTE js-converted into IFRAME.
       if (!$blazies->use('scripted_iframe')) {
-        $variables['iframe'] = [
-          '#type' => 'html_tag',
-          '#tag' => 'iframe',
-          '#attributes' => self::iframe($settings),
-        ];
+        $variables['iframe'] = Internals::toHtml(NULL, 'iframe', self::iframe($settings));
       }
 
       // If not media player, iframe only, without image, disable blur.
@@ -362,7 +358,7 @@ class Attributes {
     $title = self::escape($title);
     $alt   = self::escape($alt);
 
-    // Overrides title if to be used as a placeholder for lazyloaded video.
+    // Overrides title if to be used as a placeholder for multimedia.
     if ($blazies->is('multimedia') && $title) {
       $_title = $title;
       $bundle = $blazies->get('media.bundle', 'remote_video');
@@ -426,7 +422,7 @@ class Attributes {
     $title = $blazies->get('image.title') ?: $blazies->get('media.label');
     $alt   = $blazies->get('image.alt');
 
-    // @todo remove this item check at 3.x, once they are all in $blazies.
+    // @todo remove this item check at 3.x, once they are all in blazies.image.
     if ($item) {
       // Title from fake item might be just file name, except from BlazyFilter.
       // Needed by thumbnails if any image item, fake or real, no biggies.
@@ -571,10 +567,9 @@ class Attributes {
       self::lazy($attributes, $blazies, TRUE);
     }
     else {
-      $variables['image'] += [
-        '#theme' => 'image',
-        '#uri' => $blazies->is('unlazy') ? $url : $placeholder,
-      ];
+      // Do not use theme_image_style(), else more complication with SVG, etc.
+      $variables['image']['#theme'] = 'image';
+      $variables['image']['#uri'] = $blazies->is('unlazy') ? $url : $placeholder;
     }
   }
 
@@ -625,21 +620,18 @@ class Attributes {
       BlazyResponsiveImage::background($attributes, $settings);
     }
     else {
-      $natives = ['decoding' => 'async'];
-      $attributes = ($blazies->is('unlazy')
-        ? $natives
-        : [
+      $image = &$variables['image'];
+      $image['#theme'] = 'responsive_image';
+      $image['#responsive_image_style_id'] = $blazies->get('resimage.id');
+      $image['#uri'] = $blazies->get('image.uri');
+
+      if (!$blazies->is('unlazy')) {
+        $image['#attributes'] = [
           'data-b-lazy' => $blazies->ui('one_pixel'),
           'data-b-ui' => $blazies->ui('placeholder'),
           'data-b-placeholder' => $blazies->get('placeholder.url'),
-        ]);
-
-      $variables['image'] += [
-        '#theme' => 'responsive_image',
-        '#responsive_image_style_id' => $blazies->get('resimage.id'),
-        '#uri' => $blazies->get('image.uri'),
-        '#attributes' => $attributes,
-      ];
+        ];
+      }
     }
   }
 
@@ -681,10 +673,15 @@ class Attributes {
     }
 
     foreach (['field', 'view'] as $key) {
-      if ($name = $blazies->get($key . '.name')) {
+      if ($blazies->get($key . '.name')) {
         $classes[] = $namespace . '--' . $key;
+      }
+    }
 
-        if ($add_class) {
+    // @todo remove the last -- for - at 3.x.
+    if ($add_class) {
+      foreach (['field', 'view'] as $key) {
+        if ($name = $blazies->get($key . '.name')) {
           $name = str_replace('_', '-', $name);
           $name = $key == 'view' ? 'view--' . $name : $name;
           $classes[] = $namespace . '--' . $name;
@@ -696,18 +693,20 @@ class Attributes {
 
           // See BlazyAlter::blazySettingsAlter().
           if ($id = $blazies->get('view.instance_id')) {
+            $id = str_replace('_', '-', $id);
             $classes[] = $namespace . '--view--' . $id;
           }
         }
       }
     }
+
     return $classes;
   }
 
   /**
    * Return the image title.
    */
-  private static function mediaTitle($translation): TranslatableMarkup {
+  private static function mediaTitle(array $translation): TranslatableMarkup {
     return new TranslatableMarkup('Preview image for the @bundle "@label".', $translation);
   }
 
@@ -715,10 +714,7 @@ class Attributes {
    * Removes loading attributes if so configured.
    */
   private static function unloading(array &$attributes, $blazies): void {
-    $flag = $blazies->is('unloading');
-    $flag = $flag || Internals::isUnlazy($blazies);
-
-    if ($flag) {
+    if ($blazies->is('unloading') || Internals::isUnlazy($blazies)) {
       $attributes['data-b-unloading'] = TRUE;
     }
   }

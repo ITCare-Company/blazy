@@ -126,8 +126,20 @@ class Lightbox {
       if ($embed = $blazies->get('media.embed_url')) {
         // Force autoplay for media URL on lightboxes, saving another click.
         // BC for non-oembed such as Video Embed Field without Media migration.
-        $url = Blazy::autoplay($embed, !$_trusted);
-        $attrs['data-oembed-url'] = $url;
+        $oembed_url = Blazy::autoplay($embed, !$_trusted);
+
+        // Point HREF to the original site ethically.
+        if ($input = $blazies->get('media.input_url')) {
+          $url = $input;
+        }
+
+        // @todo remove at 3.x, good lightbox, but offers less flexibility.
+        if ($blazies->get('photobox')) {
+          $url = $oembed_url;
+          $attrs['rel'] = 'video';
+        }
+
+        $attrs['data-oembed-url'] = $oembed_url;
         $json['boxType'] = 'iframe';
 
         // Supports external URL when hard-coded iframe at BlazyFilter.
@@ -145,10 +157,6 @@ class Lightbox {
         $box_height   = $blazies->get('box_media.height') ?: $box_height;
         $box_url      = $check;
         $data_box_url = TRUE;
-      }
-
-      if ($blazies->get('photobox')) {
-        $attrs['rel'] = 'video';
       }
     }
     else {
@@ -328,6 +336,9 @@ class Lightbox {
       if ($provider) {
         $hattrs['aria-live'] = 'polite';
         $hattrs['class'][] = 'media--' . str_replace('_', '-', $provider);
+
+        $url = $blazies->get('media.input_url');
+        $attrs['data-box-url'] = $box_url;
       }
 
       if ($token = $blazies->get('media.token')) {
@@ -336,8 +347,6 @@ class Lightbox {
 
       foreach (array_keys(BlazyDefault::dyComponents()) as $key) {
         if ($blazies->is($key)) {
-          $url = $blazies->get('media.input_url');
-          $attrs['data-box-url'] = $box_url;
           $applicable = TRUE;
 
           // VEF does not need API initializer.

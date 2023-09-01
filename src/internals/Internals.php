@@ -365,17 +365,22 @@ class Internals {
    * Returns the common content item.
    */
   public static function toHtml($content, $tag = 'div', $class = NULL): array {
-    $content = is_string($content) ? ['#markup' => $content] : $content;
     if ($class) {
       $attributes = is_array($class) ? $class : ['class' => [$class]];
-      return [
+      $output = [
         '#type' => 'html_tag',
         '#tag' => $tag,
         '#attributes' => $attributes,
-        'content' => $content,
       ];
+
+      // Allows empty IFRAME, etc. tags.
+      if (!is_null($content)) {
+        $content = is_string($content) ? ['#markup' => $content] : $content;
+        $output['content'] = $content;
+      }
+      return $output;
     }
-    return $content;
+    return $content ?: [];
   }
 
   /**
