@@ -81,7 +81,6 @@ class BlazyResponsiveImage {
 
     if ($styles = self::styles($resimage)) {
       $srcset = $ratios = [];
-      $ratios = $blazies->get('ratios', []);
       foreach (array_values($styles['styles']) as $style) {
         $dims = BlazyImage::transformDimensions($style, $blazies);
         $width = $dims['width'];
