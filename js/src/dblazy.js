@@ -1046,7 +1046,8 @@
    *   The modified string.
    */
   function trimSpaces(string) {
-    return string.replace(/\\s+/g, ' ').trim();
+    // v return string.replace(/\s\s+/g, ' ').trim();
+    return string.replace(/\s+/g, ' ').trim();
   }
 
   /**

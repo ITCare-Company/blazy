@@ -148,8 +148,8 @@ class BlazySettingsForm extends BlazyConfigFormBase {
 
     $form['use_encodedbox'] = [
       '#type'          => 'checkbox',
-      '#title'         => $this->t('Use encoding for lightbox HTML (Experimental)'),
-      '#description'   => $this->t('If checked, and the lightbox supports this feature, the lightbox HTML (normally local audio/video, Picture/Responsive image, oembed Instagram, etc.) will be encoded. A minor byte saving. Please disable if any issues.'),
+      '#title'         => $this->t('Use encoding for HTML (Experimental)'),
+      '#description'   => $this->t('If checked, and the lightbox supports this feature, the lightbox HTML (normally local audio/video, Picture/Responsive image, oembed Instagram, etc.) will be encoded. Also applies to CSS background. A minor byte saving. Please disable if any issues.'),
       '#default_value' => $config->get('use_encodedbox'),
     ];
 

@@ -25,6 +25,7 @@
   var _sanitizer = _d.sanitizer;
   var _instagram = _d.instagram || false;
   var _bProvider = 'b-provider--';
+  var _cachedHtml = {};
   var _provider;
   var cboxTimer;
 
@@ -49,20 +50,29 @@
 
     var provider = media.provider;
     var boxType = media.boxType;
+    var token = media.token;
     var isIframe = boxType === 'iframe' && !_sanitizer.isDangerous('href', url);
     var isPinterest = provider === 'pinterest';
     var usePaddingHack = media.paddingHack || false;
     var isHtml = 'html' in media;
-    var html = isHtml ? media.html : null;
+    var html = _cachedHtml[token];
 
-    // If encoded, then decode it.
-    if (html && media.encoded) {
-      html = atob(html);
+    if (isHtml && !html) {
+      html = media.html;
+
+      // If encoded, then decode it.
+      if (media.encoded) {
+        html = atob(html);
+      }
+
+      html = _sanitizer.sanitize(html);
+
+      _cachedHtml[token] = html;
     }
 
     var runtimeOptions = {
       href: url,
-      html: html ? _sanitizer.sanitize(html) : null,
+      html: html,
       rel: media.rel || null,
       iframe: isIframe,
       title: function () {

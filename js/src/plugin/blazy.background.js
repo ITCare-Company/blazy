@@ -8,6 +8,9 @@
   'use strict';
 
   var _dataSrc = 'data-src';
+  var _cEncoded = 'is-b-encoded';
+  var _data = 'data-b-';
+  var _cache = {};
 
   /**
    * Updates CSS background with multi-breakpoint images.
@@ -29,9 +32,7 @@
 
         if (url) {
           el.style.backgroundImage = 'url("' + url + '")';
-          if ($.hasAttr(el, _dataSrc)) {
-            $.removeAttr(el, _dataSrc);
-          }
+          $.removeAttr(el, _dataSrc);
         }
       }
     };
@@ -40,19 +41,30 @@
   }
 
   $.bgUrl = function (el, winData) {
-    var data = $.parse($.attr(el, 'data-b-bg'));
+    var str = $.attr(el, _data + 'bg');
+    var token = $.attr(el, _data + 'token');
+    var data = _cache[token];
+
+    if (!data) {
+      if ($.hasClass(el, _cEncoded)) {
+        str = atob(str);
+      }
+
+      data = $.parse(str);
+      _cache[token] = data;
+    }
 
     if (!$.isEmpty(data)) {
-      var _bg = $.activeWidth(data, winData);
-      if (_bg && _bg !== 'undefined') {
-        var _ratio = _bg.ratio;
+      var obj = $.activeWidth(data, winData);
+      if (obj && !$.isUnd(obj)) {
+        var ratio = obj.ratio;
 
         // Allows to disable Aspect ratio if it has known/ fixed heights such as
         // gridstack multi-size boxes.
-        if (_ratio && !$.hasClass(el, 'b-noratio')) {
-          el.style.paddingBottom = _ratio + '%';
+        if (ratio && !$.hasClass(el, 'b-noratio')) {
+          el.style.paddingBottom = ratio + '%';
         }
-        return _bg.src;
+        return obj.src;
       }
     }
     return $.attr(el, _dataSrc);

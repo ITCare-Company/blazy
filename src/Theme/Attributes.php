@@ -479,8 +479,15 @@ class Attributes {
    * Modifies $variables to provide background (Responsive) image attributes.
    */
   private static function background(array &$attributes, $blazies, $bgs): void {
+    $str = Json::encode($bgs);
     $attributes['class'][] = 'b-bg';
-    $attributes['data-b-bg'] = Json::encode($bgs);
+
+    if ($blazies->use('encodedbox')) {
+      $str = base64_encode($str);
+      $attributes['class'][] = 'is-b-encoded';
+    }
+
+    $attributes['data-b-bg'] = $str;
 
     // If using BG, store title in the permanent container.
     if ($blazies->is('multimedia') && $title = self::altTitle($blazies)['title']) {

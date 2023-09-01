@@ -565,7 +565,7 @@ interface BlazyInterface {
   /**
    * Returns the common content item.
    *
-   * @param array|string $content
+   * @param array|string|null $content
    *   The content. If string will be put into #markup element.
    * @param string $tag
    *   The HTML tag.

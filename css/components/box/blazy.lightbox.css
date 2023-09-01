@@ -92,16 +92,20 @@ a .media--switch img.media__element {
   transform: translateY(-50%);
 }
 
-.media .instagram-media {
-  margin: 0 auto !important; /* csslint allow: known-properties, important */
-}
-
 .media--box > [data-pin-do],
 .media--box > [data-pin-href],
 .media--box > .instagram-media,
 .media--box > .twitter-tweet-rendered {
   min-height: 120px;
   min-width: 320px;
+}
+
+.media--box > .instagram-media {
+  min-height: 420px;
+}
+
+.media .instagram-media {
+  margin: 0 auto !important; /* csslint allow: known-properties, important */
 }
 
 .media--box > .twitter-tweet-rendered {

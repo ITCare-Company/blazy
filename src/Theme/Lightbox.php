@@ -381,6 +381,8 @@ class Lightbox {
       ];
 
       $content = Sanitize::unstrip($content, $unstrips);
+      // @todo remove $content = preg_replace('/\s\s+/', ' ', $content);
+      $content = preg_replace('/\s+/', ' ', $content);
       $is_picture = Blazy::has($content, '<picture');
 
       $json['encoded'] = FALSE;

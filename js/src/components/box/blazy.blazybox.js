@@ -26,6 +26,7 @@
   var _ariaHidden = 'aria-hidden';
   var _sanitizer = $.sanitizer;
   var _multimedia = $.multimedia || false;
+  var _cachedHtml = {};
   var _provider;
   var oClass;
   var oBodyClass;
@@ -60,11 +61,13 @@
       var dataset = $.isElm(link) ? $.parse($.attr(link, 'data-b-media data-media')) : {};
       var provider = dataset.provider;
       var irrational = dataset.irrational;
+      var token = dataset.token;
       var elContent = $el.find(_selContent);
       var elIframe;
       var elMedia;
       var winSize = $.windowSize();
       var opts = options || {};
+      var content = _cachedHtml[token];
 
       // Separate theme options from lighbox options.
       if ($.isUnd(opts.fs)) {
@@ -73,19 +76,24 @@
         opts.height = winSize.height;
       }
 
-      var content = Drupal.theme('blazyBoxMedia', {
-        el: link,
-        dataset: dataset,
-        options: opts
-      });
+      if (!content) {
+        content = Drupal.theme('blazyBoxMedia', {
+          el: link,
+          dataset: dataset,
+          options: opts
+        });
 
-      var config = {
-        ADD_TAGS: ['iframe'],
-        ADD_ATTR: [
-          'allow',
-          'allowfullscreen'
-        ]
-      };
+        var config = {
+          ADD_TAGS: ['iframe'],
+          ADD_ATTR: [
+            'allow',
+            'allowfullscreen'
+          ]
+        };
+
+        content = _sanitizer.sanitize(content, config);
+        _cachedHtml[token] = content;
+      }
 
       // Drupal.attachBehaviors($el[0]);
       $el.removeClass(_visualyHidden)
@@ -100,7 +108,7 @@
         $el.addClass(_bProvider + provider);
       }
 
-      elContent.innerHTML = _sanitizer.sanitize(content, config);
+      elContent.innerHTML = content;
 
       if (options) {
         me.options = $.extend({}, me.options, options);

@@ -389,10 +389,11 @@ class Internals {
   public static function tokenize($blazies): void {
     $url = $blazies->get('media.embed_url') ?: $blazies->get('image.url');
     $uri = $blazies->get('image.uri');
+    $token = substr(md5($uri . $url), 0, 11);
 
     self::scriptable($blazies);
 
-    $blazies->set('media.token', 'b-' . substr(md5($uri . $url), 0, 11));
+    $blazies->set('media.token', 'b-' . $token);
   }
 
   /**

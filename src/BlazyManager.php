@@ -315,7 +315,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
         if (!$unlazy && $media) {
           $content = $this->toHtml($build['content'], 'div', 'media__html');
           $content = $this->renderer->renderPlain($content);
-          $content = base64_encode($content->__toString());
+          $content = preg_replace('/\s+/', ' ', $content->__toString());
+          $content = base64_encode($content);
           $blazies->set('media.encoded.content', $content)
             ->set('media.encoded.uri', Internals::DATA_TEXT);
 
