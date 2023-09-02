@@ -173,8 +173,9 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $blazies->set('delta', $delta)
       ->set('is.api', TRUE);
 
-    CheckItem::essentials($settings, $item);
+    $this->moduleHandler->alter('blazy_preblazy', $settings, $build);
 
+    CheckItem::essentials($settings, $item);
     return $blazies;
   }
 

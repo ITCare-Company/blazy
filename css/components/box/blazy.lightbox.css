@@ -96,6 +96,8 @@ a .media--switch img.media__element {
 .media--box > [data-pin-href],
 .media--box > .instagram-media,
 .media--box > .twitter-tweet-rendered {
+  display: block !important; /* csslint allow: known-properties, important */
+  margin: auto;
   min-height: 120px;
   min-width: 320px;
 }
