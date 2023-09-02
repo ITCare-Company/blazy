@@ -8,6 +8,7 @@
  * and is removed in 3.x.
  */
 
+/* stylelint-disable selector-max-id, declaration-no-important */
 /* csslint ignore:start */
 .b-colorbox--iframe,
 .b-colorbox--iframe * {

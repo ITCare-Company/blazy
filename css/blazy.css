@@ -3,6 +3,7 @@
  * Basic blazy utility.
  */
 
+/* stylelint-disable selector-max-id, declaration-no-important */
 .blazy,
 .blazy *,
 .blazy *::before,
@@ -146,6 +147,7 @@ absolute position and fixed dimensions. */
 }
 
 .blazy .twitter-tweet-rendered {
+  /* stylelint-disable-next-line declaration-no-important */
   max-width: 100% !important; /* csslint allow: known-properties, important */
 }
 

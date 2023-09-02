@@ -2,6 +2,7 @@
  * @file
  */
 
+/* stylelint-disable selector-max-id, declaration-no-important */
 .b-hint {
   display: none;
 }

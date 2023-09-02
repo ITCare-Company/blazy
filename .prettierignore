@@ -1,0 +1,4 @@
+*.yml
+js/*.min.js
+js/*/*.min.js
+js/*/*/*.min.js

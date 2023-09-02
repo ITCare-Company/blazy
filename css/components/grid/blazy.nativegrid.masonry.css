@@ -22,13 +22,13 @@
 /* The gap 15px is to match CSS grid convention such as Bootstrap, adjust it.
 To have gapless, simply add `is-b-gapless` class via template_preprocess. */
 :root {
-  --bnRowHeightMasonry: 15px;
+  --bn-row-height-masonry: 15px;
 }
 
 /** 480px with 16px base font. */
 @media only screen and (min-width: 30em) {
   .b-nativegrid.is-b-masonry {
-    grid-auto-rows: var(--bnRowHeightMasonry);
+    grid-auto-rows: var(--bn-row-height-masonry);
   }
 
   /* Enable to make it gapless for Masonry. */

@@ -3,6 +3,7 @@
  */
 
 /* Credit: https://github.com/tobiasahlin/SpinKit */
+/*
 @-webkit-keyframes rotateplane {
   0% {
     -webkit-transform: perspective(120px);
@@ -17,6 +18,7 @@
     transform: perspective(120px) rotateY(180deg) rotateX(180deg);
   }
 }
+*/
 
 @keyframes rotateplane {
   0% {
@@ -47,8 +49,9 @@
   display: block;
 }
 
-/* Prevents costly double animations when Blur is enabled. */
-.is-b-loading:not(.is-b-loaded):not([data-animation])::before {
+/* Prevents costly double animations when Blur is enabled.
+https://caniuse.com/css-not-sel-list */
+.is-b-loading:not(.is-b-loaded, [data-animation])::before {
   position: absolute;
   z-index: 22;
   top: 50%;

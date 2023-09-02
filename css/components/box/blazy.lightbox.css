@@ -92,6 +92,7 @@ a .media--switch img.media__element {
   transform: translateY(-50%);
 }
 
+/* stylelint-disable declaration-no-important */
 .media--box > [data-pin-do],
 .media--box > [data-pin-href],
 .media--box > .instagram-media,

@@ -14,7 +14,8 @@
  */
 
 /* Without transform, this is more of formality hooking into animation event. */
-@-webkit-keyframes blazyBlur {
+/*
+@-webkit-keyframes blazyblur {
   from {
     opacity: 0.3;
   }
@@ -23,8 +24,9 @@
     opacity: 1;
   }
 }
+*/
 
-@keyframes blazyBlur {
+@keyframes blazyblur {
   from {
     opacity: 0.3;
   }
@@ -43,8 +45,8 @@
   /* transition: opacity 500ms ease-in-out; */
   transition: none;
   /* The blurred image is not this actual image. */
-  -webkit-animation: blazyBlur 1s;
-  animation: blazyBlur 1s;
+  -webkit-animation: blazyblur 1s;
+  animation: blazyblur 1s;
 }
 
 /** Client side may take extra time, adjust duration to be more apparent.
@@ -101,6 +103,7 @@ Ugly, but nobody except devs pressing F12 at browsers. */
   opacity: 0;
 }
 
+/* stylelint-disable selector-max-id, declaration-no-important */
 /* Supports reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   .animated.blur img:not(.b-blur),

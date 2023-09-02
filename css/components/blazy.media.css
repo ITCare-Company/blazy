@@ -3,6 +3,7 @@
  * Provides media integration with pure CSS fluid video wrapper.
  */
 
+/* stylelint-disable selector-max-id, declaration-no-important */
 .media--player {
   position: relative;
 }
@@ -153,6 +154,7 @@ button.media__icon--close {
   opacity: 0;
 }
 
+/* stylelint-disable declaration-no-important */
 /** Prevents potential dimmed iframes when being played. */
 .media--switch.is-playing {
   opacity: 1 !important; /* csslint allow: known-properties, important */

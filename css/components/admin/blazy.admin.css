@@ -3,6 +3,7 @@
  * Basic formatter/ views forms.
  */
 
+/* stylelint-disable selector-max-id, declaration-no-important */
 /** Declutter form when Vanilla is enabled coz table form states are broken. */
 .form--vanilla-on .form__title--hideable,
 .form--media-switch-rendered .form-item--background,

@@ -6,7 +6,7 @@
 /* csslint ignore:start */
 :root {
   /* The gap 15px is to match CSS grid convention such as Bootstrap. Adjust it. */
-  --bfColGap: 15px;
+  --bf-col-gap: 15px;
 }
 
 .b-flex,
@@ -34,8 +34,8 @@
   flex-direction: column;
   min-height: 40px;
   margin: 0;
-  margin-right: var(--bfColGap);
-  margin-bottom: var(--bfColGap);
+  margin-right: var(--bf-col-gap);
+  margin-bottom: var(--bf-col-gap);
   padding: 0;
   transition: height 0.3s, width 0.3s, top 0.3s;
 }
@@ -62,101 +62,101 @@
   }
 
   .blazy.b-flex--sm-2 > .grid {
-    width: calc(33.3% - var(--bfColGap));
+    width: calc(33.3% - var(--bf-col-gap));
   }
 }
 
 /** 641px with 16px base font. */
 @media only screen and (min-width: 40.063em) {
   .blazy.b-flex--md-2 > .grid {
-    width: calc(50% - var(--bfColGap));
+    width: calc(50% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--md-3 > .grid {
-    width: calc(33.3333% - var(--bfColGap));
+    width: calc(33.3333% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--md-4 > .grid {
-    width: calc(25% - var(--bfColGap));
+    width: calc(25% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--md-5 > .grid {
-    width: calc(20% - var(--bfColGap));
+    width: calc(20% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--md-6 > .grid {
-    width: calc(16.6667% - var(--bfColGap));
+    width: calc(16.6667% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--md-7 > .grid {
-    width: calc(14.2857% - var(--bfColGap));
+    width: calc(14.2857% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--md-8 > .grid {
-    width: calc(12.5% - var(--bfColGap));
+    width: calc(12.5% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--md-9 > .grid {
-    width: calc(11.1111% - var(--bfColGap));
+    width: calc(11.1111% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--md-10 > .grid {
-    width: calc(10% - var(--bfColGap));
+    width: calc(10% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--md-11 > .grid {
-    width: calc(9.0909% - var(--bfColGap));
+    width: calc(9.0909% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--md-12 > .grid {
-    width: calc(8.3333% - var(--bfColGap));
+    width: calc(8.3333% - var(--bf-col-gap));
   }
 }
 
 /** 1025px with 16px base font. */
 @media only screen and (min-width: 64.063em) {
   .blazy.b-flex--lg-2 > .grid {
-    width: calc(50% - var(--bfColGap));
+    width: calc(50% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--lg-3 > .grid {
-    width: calc(33.3333% - var(--bfColGap));
+    width: calc(33.3333% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--lg-4 > .grid {
-    width: calc(25% - var(--bfColGap));
+    width: calc(25% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--lg-5 > .grid {
-    width: calc(20% - var(--bfColGap));
+    width: calc(20% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--lg-6 > .grid {
-    width: calc(16.6667% - var(--bfColGap));
+    width: calc(16.6667% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--lg-7 > .grid {
-    width: calc(14.2857% - var(--bfColGap));
+    width: calc(14.2857% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--lg-8 > .grid {
-    width: calc(12.5% - var(--bfColGap));
+    width: calc(12.5% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--lg-9 > .grid {
-    width: calc(11.1111% - var(--bfColGap));
+    width: calc(11.1111% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--lg-10 > .grid {
-    width: calc(10% - var(--bfColGap));
+    width: calc(10% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--lg-11 > .grid {
-    width: calc(9.0909% - var(--bfColGap));
+    width: calc(9.0909% - var(--bf-col-gap));
   }
 
   .blazy.b-flex--lg-12 > .grid {
-    width: calc(8.3333% - var(--bfColGap));
+    width: calc(8.3333% - var(--bf-col-gap));
   }
 }
 /* csslint ignore:end */

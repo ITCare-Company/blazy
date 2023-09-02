@@ -24,10 +24,6 @@
         typeof obj;
     };
 
-  var fn = Eventify.prototype;
-  fn.constructor = Eventify;
-  fn._events = {};
-
   /**
    * Object for Eventify.
    *
@@ -45,6 +41,10 @@
     }
     return this;
   }
+
+  var fn = Eventify.prototype;
+  fn.constructor = Eventify;
+  fn._events = {};
 
   function mixin(obj) {
     for (var key in fn) {

@@ -6,6 +6,7 @@
  * @see https://www.drupal.org/node/3305664
  */
 
+/* stylelint-disable selector-max-id, declaration-no-important */
 /* csslint ignore:start */
 @media screen and (min-width: 1200px) {
   /* Views UI. */

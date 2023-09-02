@@ -15,8 +15,8 @@
 /* csslint ignore:start */
 /* The gap 15px is to match CSS grid convention such as Bootstrap, adjust it. */
 :root {
-  --bnColGap: 15px;
-  --bnRowHeightNative: 80px;
+  --bn-col-gap: 15px;
+  --bn-row-height-native: 80px;
 }
 
 .b-nativegrid,
@@ -37,7 +37,7 @@
   display: block;
   width: 100%;
   min-height: 40px;
-  margin: 0 0 var(--bnColGap) 0;
+  margin: 0 0 var(--bn-col-gap) 0;
   padding: 0;
 }
 
@@ -64,9 +64,9 @@
   }
 
   .b-nativegrid {
-    gap: var(--bnColGap);
+    gap: var(--bn-col-gap);
     grid-template-columns: auto;
-    grid-auto-rows: var(--bnRowHeightNative);
+    grid-auto-rows: var(--bn-row-height-native);
     /* align-content: start;
     justify-content: start;  */
   }

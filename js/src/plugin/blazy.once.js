@@ -15,7 +15,7 @@
  * @see https://www.drupal.org/project/drupal/issues/3254840
  */
 
-(function ($, _win, _doc) {
+(function ($, _win) {
 
   'use strict';
 
@@ -186,4 +186,4 @@
     };
   }
 
-})(dBlazy, this, this.document);
+})(dBlazy, this);
