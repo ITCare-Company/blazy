@@ -147,7 +147,6 @@ absolute position and fixed dimensions. */
 }
 
 .blazy .twitter-tweet-rendered {
-  /* stylelint-disable-next-line declaration-no-important */
   max-width: 100% !important; /* csslint allow: known-properties, important */
 }
 
