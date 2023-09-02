@@ -254,7 +254,6 @@ class BlazyFilter extends BlazyFilterBase {
     $blazies = $settings['blazies'];
 
     if ($node->tagName == static::$namespace) {
-      /* @phpstan-ignore-next-line */
       $dataset = $node->getAttribute('data');
 
       $blazies->set('is.shortcode', TRUE);
@@ -395,9 +394,8 @@ class BlazyFilter extends BlazyFilterBase {
   private function withDomElement(array &$build, $node, $delta): array {
     $media    = NULL;
     $settings = &$build['#settings'];
+    $tn_uri   = $node->getAttribute('data-b-thumb');
 
-    /* @phpstan-ignore-next-line */
-    $tn_uri = $node->getAttribute('data-b-thumb');
     // @todo remove for data-b-thumb at 3.x.
     if (!$tn_uri) {
       $tn_uri = $node->getAttribute('data-thumb');
@@ -569,16 +567,14 @@ class BlazyFilter extends BlazyFilterBase {
     $xpath  = new \DOMXPath($dom);
     $column = ($settings['style'] ?? '') == 'column';
     $query  = $column ? 'column' : 'grid';
-    $grid   = FALSE;
+    $grid   = NULL;
 
     // This is weird, variables not working for xpath?
-    $node = $query == 'column' ? $xpath->query('//*[@data-column]') : $xpath->query('//*[@data-grid]');
-    if ($node->length > 0
-      && $node->item(0)
-      /* @phpstan-ignore-next-line */
-      && $node->item(0)->hasAttribute('data-' . $query)) {
-      /* @phpstan-ignore-next-line */
-      $grid = $node->item(0)->getAttribute('data-' . $query);
+    $nodes = $query == 'column' ? $xpath->query('//*[@data-column]') : $xpath->query('//*[@data-grid]');
+    if ($nodes->length > 0 && $node = $nodes->item(0)) {
+      if ($node instanceof \DOMElement) {
+        $grid = $node->getAttribute('data-' . $query);
+      }
     }
 
     if ($grid) {

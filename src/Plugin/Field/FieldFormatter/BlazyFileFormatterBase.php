@@ -139,13 +139,6 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
-   * Build individual item if so configured such as for file ER goodness.
-   */
-  protected function buildElement(array &$element, $entity) {
-    // Do nothing.
-  }
-
-  /**
    * Returns the Blazy elements, also for sub-modules to re-use.
    *
    * @todo remove parameter $options for properties after sub-modules.
@@ -186,14 +179,14 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       // Provide parent context for fieldable captions with entity_reference.
       if ($item instanceof EntityReferenceItem) {
         $parent = $item->getParent();
-        if (method_exists($parent, 'getEntity')) {
+        if ($parent && method_exists($parent, 'getEntity')) {
           $data['#parent'] = $parent->getEntity();
         }
       }
 
       // Build individual element, no real use here since VEF deprecated.
       // Except for SVG since 2.17.
-      $this->buildElement($data, $file);
+      $this->withElement($data);
 
       // Build captions if so configured.
       $captions = $this->getCaptions($data);
@@ -408,6 +401,27 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     }
 
     return parent::getEntitiesToView($items, $langcode);
+  }
+
+  /**
+   * Build item elements.
+   */
+  protected function withElement(array &$build) {
+
+    // @todo remove at 3.x for self::withElement().
+    $file = $build['#entity'];
+    $this->buildElement($build, $file);
+  }
+
+  /**
+   * Deprecated in blazy:8.x-2.17,  and is removed from blazy:3.0.0.
+   *
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   *   self::withElement() instead.
+   * @see https://www.drupal.org/node/3367291
+   */
+  protected function buildElement(array &$element, $entity) {
+    // @todo @trigger_error('buildElement is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::withElement() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
   }
 
 }

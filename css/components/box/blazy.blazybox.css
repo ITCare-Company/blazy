@@ -74,9 +74,12 @@
   transform: translate(-50%, -50%);
 }
 
-.blazybox.b-provider--pinterest,
 .blazybox.b-provider--twitter {
-  min-height: 418px;
+  min-height: 402px;
+}
+
+.blazybox.b-provider--pinterest {
+  min-height: 416px;
 }
 
 .blazybox.b-provider--instagram {

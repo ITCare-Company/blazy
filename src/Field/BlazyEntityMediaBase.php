@@ -62,24 +62,22 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
   /**
    * {@inheritdoc}
-   *
-   * @todo remove extra params at 3 for destructured properties from $build.
    */
-  protected function prepareElement(array &$build, $entity, $langcode, $delta): void {
-    parent::prepareElement($build, $entity, $langcode, $delta);
+  protected function withElement(array &$build): void {
+    parent::withElement($build);
 
-    $settings = $this->formatter->toHashtag($build);
+    $settings = $build['#settings'];
 
     // Bail out if vanilla (rendered entity) is required.
     if (empty($settings['vanilla'])) {
-      $this->toElements($build);
+      $this->withDetailedElement($build);
     }
   }
 
   /**
    * Hard works here meant to reduce custom code at theme level.
    */
-  protected function toElements(array &$build): void {
+  protected function withDetailedElement(array &$build): void {
     [
       '#delta'    => $delta,
       '#settings' => $settings,
@@ -132,26 +130,6 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     // Split the elements based on the calling modules.
     $this->splitElement($build, $element);
   }
-
-  /**
-   * Build extra elements.
-   *
-   * @todo remove extra params at 3 for destructured properties from $build.
-   */
-  protected function buildElementExtra(array &$element, $entity, $langcode) {
-    // Do nothing, let extenders do their jobs.
-  }
-
-  /**
-   * Build thumbnail navigation such as for Slick asnavfor.
-   *
-   * @todo re-enable after sub-modules corrected params.
-   *
-   * Protected function buildElementThumbnail(array &$build, array $element,
-   * $entity, $delta) {
-   * Do nothing, let extenders do their jobs.
-   * }
-   */
 
   /**
    * Returns the captions, if any.
@@ -287,6 +265,16 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   }
 
   /**
+   * Build extra elements.
+   */
+  protected function withElementExtra(array &$element) {
+    // @todo remove at 3.x:
+    $entity = $element['#entity'];
+    $langcode = $element['#langcode'];
+    $this->buildElementExtra($element, $entity, $langcode);
+  }
+
+  /**
    * Split the elements based on the modules.
    */
   private function splitElement(array &$build, array &$element): void {
@@ -294,7 +282,6 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       '#settings' => $settings,
       '#entity'   => $entity,
       '#delta'    => $delta,
-      '#langcode' => $langcode,
     ] = $build;
 
     $blazies = $settings['blazies'];
@@ -302,35 +289,72 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
     // Optional image with responsive image, lazyLoad, and lightbox supports.
     // Including potential rich Media contents: local video, Facebook, etc.
-    // If the caller is Blazy, provides simple index elements.
+    // Since 2.17, Blazy got trendy with sub-modules for easy swap later.
     if (static::$namespace == 'blazy') {
       $build['items'][$delta] = $element;
     }
     else {
       // Provides extra elements.
-      $this->buildElementExtra($element, $entity, $langcode);
+      $this->withElementExtra($element);
 
       // Build the main item.
       $build['items'][$delta] = $element;
 
       // Build the thumbnail item.
-      if ($is_nav && method_exists($this, 'buildElementThumbnail')) {
-        $this->buildElementThumbnail($build, $element, $entity, $delta);
+      if ($is_nav) {
+        // @todo remove check at/ by 3.x:
+        if (method_exists($this, 'withElementThumbnail')) {
+          $this->withElementThumbnail($build, $element);
+        }
+        // @todo remove at/ by 3.x only after sub-modules:
+        elseif (method_exists($this, 'buildElementThumbnail')) {
+          $this->buildElementThumbnail($build, $element, $entity, $delta);
+        }
       }
     }
   }
 
   /**
+   * Build thumbnail navigation such as for Slick/ Splide asnavfor.
+   *
+   * @todo re-enable after sub-modules corrected params.
+   *
+   * Protected function withElementThumbnail(array &$build, array $element) {
+   * Do nothing, let extenders do their jobs.
+   * }
+   */
+
+  /**
    * Deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0.
    *
-   * @todo enable post blazy:2.17.
    * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use
    *   self::getCaptions() instead.
    * @see https://www.drupal.org/node/3103018
    */
   protected function getCaption(array &$element, $entity, $langcode) {
-    // @todo enable @trigger_error('getCaption is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Field\BlazyEntityMediaBase::getCaptions() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-    // Do nothing.
+    @trigger_error('getCaption is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Field\BlazyEntityMediaBase::getCaptions() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+  }
+
+  /**
+   * Deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0.
+   *
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use
+   *   self::withElementExtra() instead.
+   * @see https://www.drupal.org/node/3103018
+   */
+  protected function buildElementExtra(array &$element, $entity, $langcode) {
+    // @trigger_error('buildElementExtra is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Field\BlazyEntityMediaBase::withElementExtra() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+  }
+
+  /**
+   * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17.
+   *
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use
+   *   self::withDetailedElement() instead.
+   * @see https://www.drupal.org/node/3103018
+   */
+  protected function toElements(array &$build): void {
+    @trigger_error('toElements is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Field\BlazyEntityMediaBase::withDetailedElement() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
   }
 
 }

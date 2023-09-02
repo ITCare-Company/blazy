@@ -14,6 +14,7 @@ use Drupal\blazy\BlazyDefault;
  * complication -- embedding entities within Media, although fine and possible.
  *
  * @see \Drupal\slick\Plugin\Field\FieldFormatter\SlickEntityReferenceFormatterBase
+ * @see \Drupal\splide\Plugin\Field\FieldFormatter\SplideEntityReferenceFormatterBase
  */
 abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
 
@@ -46,13 +47,18 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
 
   /**
    * {@inheritdoc}
+   *
+   * This method is used but not called by sub-modules. Not used by blazy.
    */
-  protected function buildElementExtra(array &$element, $entity, $langcode) {
-    parent::buildElementExtra($element, $entity, $langcode);
+  protected function withElementExtra(array &$element) {
+    parent::withElementExtra($element);
 
+    // @todo remove helper at/ by 3.x post migrations:
     $this->formatter->hashtag($element);
 
     $settings = &$element['#settings'];
+    $entity   = $element['#entity'];
+    $langcode = $element['#langcode'];
     $_class   = $settings['class'] ?? NULL;
     $_layout  = $settings['layout'] ?? NULL;
 

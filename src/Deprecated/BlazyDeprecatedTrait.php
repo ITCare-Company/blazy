@@ -337,7 +337,7 @@ trait BlazyDeprecatedTrait {
    * \Drupal\blazy\BlazyInterface::toHtml() instead.
    * @see https://www.drupal.org/node/3367291
    */
-  public static function toHtml(array $content, $tag = 'div', $class = NULL): array {
+  public static function toHtml($content, $tag = 'div', $class = NULL): array {
     @trigger_error('toHtml is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::toHtml() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
     return Internals::toHtml($content, $tag, $class);
   }

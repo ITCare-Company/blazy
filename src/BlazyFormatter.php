@@ -42,10 +42,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings = &$build['#settings'];
 
     // BC for mismatched minor versions.
-    // @todo replace at 3.x with $blazies = $this->verifySafely($settings);
-    $this->verify($settings);
-
-    $blazies = $settings['blazies'];
+    $blazies = $this->verifySafely($settings);
     $entity  = $items->getEntity();
 
     // @todo remove after sub-modules.
@@ -91,10 +88,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
     $settings = &$build['#settings'];
 
     // BC for mismatched minor versions.
-    // @todo replace at 3.x with $blazies = $this->verifySafely($settings);
-    $this->verify($settings);
-
-    $blazies   = $settings['blazies'];
+    $blazies   = $this->verifySafely($settings);
     $plugin_id = $blazies->get('field.plugin_id');
 
     // BC for non-nego vanilla formatters identified by its vanilla plugin ID.

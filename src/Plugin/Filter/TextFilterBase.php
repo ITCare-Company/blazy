@@ -258,16 +258,27 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Returns a valid node, excluding blur/ noscript images.
+   * Returns a valid node, excluding blur/ bg images.
    */
   protected function getValidNode($children) {
     $child = $children->item(0);
-    $class = $child->getAttribute('class');
+
+    // @todo remove all these for b-filter after another check.
+    $class   = $child->getAttribute('class');
     $is_blur = $class && strpos($class, 'b-blur') !== FALSE;
-    $is_bg = $class && strpos($class, 'b-bg') !== FALSE;
+    $is_bg   = $class && strpos($class, 'b-bg') !== FALSE;
 
     if ($is_blur && !$is_bg) {
       $child = $children->item(1) ?: $child;
+    }
+
+    // With a dedicated b-filter, this should eliminate guess works above.
+    foreach ($children as $node) {
+      $class = $node->getAttribute('class');
+      if (strpos($class, 'b-filter') !== FALSE) {
+        $child = $node;
+        break;
+      }
     }
     return $child;
   }
@@ -307,10 +318,8 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
 
   /**
    * Prepares the settings.
-   *
-   * @todo disable after sub-modules remove ::parent, add a return type hint.
    */
-  protected function preSettings(array &$settings, $text) {
+  protected function preSettings(array &$settings, $text): void {
     // Do nothing.
   }
 
@@ -364,8 +373,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
     $valid_nodes = [];
     foreach ($allowed_tags as $allowed_tag) {
       $nodes = $dom->getElementsByTagName($allowed_tag);
-      /* @phpstan-ignore-next-line */
-      if ($nodes->length > 0) {
+      if (property_exists($nodes, 'length') && $nodes->length > 0) {
         foreach ($nodes as $node) {
           if ($exclude && $node->hasAttribute($exclude)) {
             continue;

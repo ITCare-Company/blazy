@@ -28,7 +28,13 @@
  *
  * Now you can access settings.blazies, and set anything as needed.
  *
+ * @section sec_quick Quick sample #1
  * A single image sample.
+ *
+ * If you need to work with lightbox, linkable content, media, grid, captions,
+ * and other featured, please jump from your window to sample #2. This one is
+ * more useful for individual item and basic understanding of theme_blazy().
+ *
  * @code
  * function my_module_render_blazy() {
  *   // Old behaviors will be very minimally preserved till 3.x.
@@ -91,6 +97,9 @@
  * @endcode
  * @see \Drupal\blazy\Theme\BlazyTheme::blazy()
  * @see \Drupal\blazy\BlazyDefault::imageSettings()
+ * @see template_preprocess_blazy()
+ *
+ * @section sec_detail Detailed sample #2
  *
  * A multiple image sample.
  *
@@ -107,6 +116,7 @@
  *   // Invoke the manager service, or use a DI service container accordingly.
  *   // $manager = \Drupal::service('blazy.manager');
  *   $manager = blazy();
+ *   $formatter = \Drupal::service('blazy.formatter');
  *
  *   // Option init #1 at container level:
  *   // The ::init() contains empty blazies object for convenience, and optional
@@ -126,6 +136,11 @@
  *   $settings['media_switch'] = 'media';
  *   $settings['image_style'] = 'large';
  *   $settings['ratio'] = 'fluid';
+ *
+ *   // If adding grid, lightbox, and other features seen at formatters:
+ *   // $manager->preSettings($settings);
+ *   // If having FieldItemListInterface, ignore the above line, and use:
+ *   // $formatter->preElements($build, $items, $entities);
  *
  *   // Build contents, assumed inside a loop here.
  *   // Captions key contains: alt, description, data, link, overlay, title.
@@ -147,7 +162,7 @@
  *   //   ->set('image.alt', 'BLAH')
  *   //   ->set('image.title', 'BLAH');
  *
- *   // The required are #delta and #settings. Captions is optional.
+ *   // The required are #delta and #settings. Captions, etc. is optional.
  *   $content = [
  *     // Delta is for galleries, or LCP like Loading priority: slider, etc.
  *     '#delta' => 0,
@@ -162,6 +177,7 @@
  *
  *      // Only if non-media or media that theme_blazy() does not understand:
  *      // texts, theme_BLAH(), etc. or vanilla output, put it into `content`.
+ *      // See Options below before giving up here.
  *      // 'content' => $rendered_entity,
  *
  *      // If working with Media, Paragraphs, etc, be sure to pass the #entity
@@ -173,11 +189,43 @@
  *      // '#item' => $item,
  *   ];
  *
- *   // If working with Media/ OEmbed/ VEF, other than plain old images:
+ *   // Options #1 with Media entity or VEF, not expecting vanilla:
+ *   // If working with Media/ OEmbed/ VEF, other than plain old images,
+ *   // do not set `content` early above, blazy.oembed will do:
  *   // $manager->service('blazy.oembed')->build($content);
  *
- *   // Pass $content to theme_blazy() after working with any sources.
+ *   // Pass $content to theme_blazy() after working with any Media/ VEF.
  *   $items[] = $manager->getBlazy($content);
+ *
+ *   // Options #2 with any entities, File, Media, etc., for (non-)vanilla:
+ *   // Do not set `content` early above, blazy.entity will do, including
+ *   // passing it to ::getBlazy().
+ *   // Normally outside formatters with very minimal entity field info.
+ *   // If workable, it will output like Options #1, else fallback to Vanilla.
+ *   // This is more optimistic than Options #3 below.
+ *   // See \Drupal\blazy\Plugin\views\field\BlazyViewsFieldFile
+ *   // See \Drupal\blazy\Plugin\views\field\BlazyViewsFieldMedia
+ *   // See \Drupal\io_browser\Plugin\EntityBrowser\FieldWidgetDisplay
+ *   // See \Drupal\slick_browser\Plugin\EntityBrowser\FieldWidgetDisplay
+ *   // $items[] = $manager->service('blazy.entity')->build($content);
+ *
+ *   // Options #3 with any entities, File, Media, etc., for vanilla.
+ *   // Do not set `content` early.
+ *   // This is more pessimistic and opportunistic than Option #2, expecting
+ *   // more for vanilla aka rendered entity, but will output non-vanilla if
+ *   // workable:.
+ *   // $items[] = $manager->service('blazy.entity')->view($content);
+ *
+ *   // Options #4 with any entities, and expecting just plain vanilla aka
+ *   // rendered entity. Normally needed if rendered entities are to be
+ *   // placed inside grids. While Options #2 and #3 will work out first for
+ *   // non-vanilla before giving up to this rendered entity, this one is indeed
+ *   // expecting a rendered entity. The only reason it is called is Blazy grid.
+ *   // $items[] = $manager->view($content);
+ *
+ *   // Alternatively put it into `content` as mentioned above for non-grid:
+ *   // $content['content'] = $manager->view($content);
+ *   // $items[] = $content;
  *
  *   // See below ...Formatter::buildElements() for consistent samples.
  *   // Since 2.17, items are stored in `items` key to match sub-modules.
@@ -193,6 +241,21 @@
  *   // Finally attach libraries as requested via $settings.
  *   $build['#attached'] = $manager->attach($settings);
  *
+ *   // Options return #1, expecting a Blazy grid display, or theme_field():
+ *   // return $manager->build($build);
+ *
+ *   // Options return #2, passing to any sub-modules' managers, requires their
+ *   // relevant settings setup first as above-mentioned. see their BLAH.api.php
+ *   // if available, \Drupal\blah\BlahDefault, or go directly to their
+ *   // ::build() method if not. There might be some slight difference in
+ *   // requirements, but overall look pretty much similar:
+ *   // return slick()->build($build);
+ *   // return splide()->build($build);
+ *   // return gridstack()->build($build);
+ *   // return outlayer()->build($build);
+ *   // return mason()->build($build);
+ *
+ *   // Options return #3, expecting your own render array display:
  *   return $build;
  * }
  * @endcode

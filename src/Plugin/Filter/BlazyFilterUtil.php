@@ -111,8 +111,7 @@ class BlazyFilterUtil extends Shortcode {
     $valid_nodes = [];
     foreach ($allowed_tags as $allowed_tag) {
       $nodes = $dom->getElementsByTagName($allowed_tag);
-      /* @phpstan-ignore-next-line */
-      if ($nodes->length > 0) {
+      if (property_exists($nodes, 'length') && $nodes->length > 0) {
         foreach ($nodes as $node) {
           if ($exclude && $node->hasAttribute($exclude)) {
             continue;

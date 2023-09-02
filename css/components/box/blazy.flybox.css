@@ -78,6 +78,17 @@ body.is-flybox--open {
     height: 236px;
   }
 
+  .b-flybox.b-provider--instagram {
+    background-color: #fff;
+    width: 326px;
+  }
+
+  .blazybox.b-provider--pinterest,
+  .blazybox.b-provider--twitter {
+    background-color: #fff;
+    width: 322px;
+  }
+
   .b-flybox .media--instagram iframe {
     min-height: inherit;
     width: auto;

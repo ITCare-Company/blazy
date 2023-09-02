@@ -37,7 +37,6 @@ trait BlazyStylePluginTrait {
     // This hustle is to lazyload tons of images -- grids, large galleries,
     // gridstack, mason, with multimedia/ lightboxes for free.
     /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-    /* @phpstan-ignore-next-line */
     if ($this->isValidImageItem($item)) {
       $image['raw'] = $item;
 

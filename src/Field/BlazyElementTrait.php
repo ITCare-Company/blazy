@@ -115,6 +115,13 @@ trait BlazyElementTrait {
 
     $blazy = $this->formatter->getBlazy($internal);
 
+    // @todo compare with split below if mergeable even more.
+    // Only blazy has content, unset here.
+    // unset($data['content']);
+    // $element = $data;
+    // $element[static::$itemId] = $blazy;
+    // Inform thumbnails with the blazy processed settings.
+    // $this->formatter->postBlazy($element, $blazy);
     if (static::$namespace == 'blazy') {
       $element = $blazy;
     }
@@ -122,12 +129,10 @@ trait BlazyElementTrait {
       // Only blazy has content, unset here.
       unset($data['content']);
 
-      // This also might be just removed at 3.x, so to leave it all to blazy.
-      // Currently still needed as fallback due to being optional.
       $element = $data;
       $element[static::$itemId] = $blazy;
 
-      // Keep this one for poorly informed thumbnails.
+      // Inform thumbnails with the blazy processed settings.
       $this->formatter->postBlazy($element, $blazy);
     }
     return $element;

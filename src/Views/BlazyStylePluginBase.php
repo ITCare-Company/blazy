@@ -66,7 +66,9 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
       $element['#item'] = $image['raw'] ?? NULL;
 
       if ($image['applicable']) {
-        $element['content'][] = $rendered['#build']['content'] ?? [];
+        if ($content = $rendered['#build']['content'] ?? []) {
+          $element['content'][] = $content;
+        }
       }
       else {
         // VEF can be iframed as long as having URI, even from a thumbnail.
@@ -100,7 +102,6 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     // This hustle is to lazyload tons of images -- grids, large galleries,
     // gridstack, mason, with multimedia/ lightboxes for free.
     /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-    /* @phpstan-ignore-next-line */
     if ($this->isValidImageItem($item)) {
       $image['raw'] = $item;
 

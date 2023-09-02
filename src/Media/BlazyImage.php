@@ -66,7 +66,7 @@ class BlazyImage {
 
         // Informs individual images that dimensions are already set once.
         // Do not let the first broken image screw up the rest, likely
-        // non-trasliterated file names, SVG, missing ones, etc.
+        // non-transliterated file names, SVG, missing ones, etc.
         if ($data['width']) {
           $blazies->set('image', $data, TRUE)
             ->set('is.dimensions', TRUE);
@@ -272,19 +272,20 @@ class BlazyImage {
             if ($entity instanceof ContentEntityInterface
               && $entity->hasField('thumbnail')) {
               $item = $entity->get('thumbnail')->first();
-              $valid = self::isImage($item);
             }
           }
 
           // For Remote video, it has meaningful label from OEmbed, OOTB.
-          /* @phpstan-ignore-next-line */
-          if ($valid && trim($item->title ?? '') == '') {
-            /* @phpstan-ignore-next-line */
-            $item->title = $object->label();
+          // @phpstan does not get alias self::isImage().
+          if ($item instanceof ImageItem && property_exists($item, 'title')) {
+            if (trim($item->title ?? '') == '') {
+              $item->title = $object->label();
+            }
           }
         }
 
-        return $valid ? $item : NULL;
+        // @phpstan does not get alias self::isImage().
+        return $item instanceof ImageItem ? $item : NULL;
       }
       return NULL;
     };

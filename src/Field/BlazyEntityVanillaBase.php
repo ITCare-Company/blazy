@@ -131,7 +131,8 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
       $build['#delta']    = $delta;
       $build['#entity']   = $entity;
       $build['#langcode'] = $langcode;
-      $this->prepareElement($build, $entity, $langcode, $delta);
+
+      $this->preElement($build);
 
       // Add the entity to cache dependencies so to clear when it is updated.
       if ($item = $build['items'][$delta] ?? []) {
@@ -141,34 +142,6 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
       }
 
       $depth = 0;
-    }
-  }
-
-  /**
-   * Build item contents.
-   *
-   * @todo remove extra params at 3 for destructured properties from $build.
-   */
-  protected function buildElement(array &$build, $entity, $langcode) {
-    $settings = $this->formatter->toHashtag($build);
-
-    // Sub-modules always flag `vanilla` as required, -- configurable, or not.
-    if (!empty($settings['vanilla'])) {
-      $data = [
-        '#entity'   => $entity,
-        '#settings' => $settings,
-        '#delta'    => $build['#delta'],
-      ];
-
-      // @todo merge all these after sub-modules use theme_blazy() at/ by 3.x.
-      if ($output = $this->blazyEntity->view($data)) {
-        if (static::$namespace == 'blazy') {
-          $build['items'][] = $output;
-        }
-        else {
-          $build['items'][] = [static::$itemId => $output];
-        }
-      }
     }
   }
 
@@ -195,13 +168,15 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
 
   /**
    * Prepare item contents.
-   *
-   * @todo remove extra params at 3 for destructured properties from $build.
    */
-  protected function prepareElement(array &$build, $entity, $langcode, $delta): void {
+  protected function preElement(array &$build): void {
+    // @todo remove the helper at/ by 3.x post migrations:
     $this->formatter->hashtag($build);
 
     $settings = &$build['#settings'];
+    $delta    = $build['#delta'];
+    $entity   = $build['#entity'];
+    $langcode = $build['#langcode'];
     $blazies  = $settings['blazies']->reset($settings);
     $bundle   = $entity->bundle();
 
@@ -209,7 +184,9 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
       ->set('language.code', $langcode)
       ->set('delta', $delta);
 
-    $this->buildElement($build, $entity, $langcode);
+    // @todo remove at 3.x, not used by any sub-modules:
+    $this->prepareElement($build, $entity, $langcode, $delta);
+    $this->withElement($build);
   }
 
   /**
@@ -239,6 +216,60 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
 
     // @todo remove.
     $settings['blazy'] = TRUE;
+  }
+
+  /**
+   * Build item elements.
+   */
+  protected function withElement(array &$build) {
+    $settings = $build['#settings'];
+    $entity   = $build['#entity'];
+    $langcode = $build['#langcode'];
+
+    // Sub-modules always flag `vanilla` as required, -- configurable, or not.
+    if (!empty($settings['vanilla'])) {
+      // @todo recheck to pass $build directly, last time it caused too early
+      // render error somewhere.
+      $data = [
+        '#entity'   => $entity,
+        '#settings' => $settings,
+        '#delta'    => $build['#delta'],
+        '#langcode' => $build['#langcode'],
+      ];
+
+      // @todo merge all these after sub-modules use theme_blazy() at/ by 3.x.
+      if ($output = $this->blazyEntity->view($data)) {
+        if (static::$namespace == 'blazy') {
+          $build['items'][] = $output;
+        }
+        else {
+          $build['items'][] = [static::$itemId => $output];
+        }
+      }
+    }
+
+    // @todo remove at 3.x for self::withElement().
+    $this->buildElement($build, $entity, $langcode);
+  }
+
+  /**
+   * Deprecated in blazy:8.x-2.17,  and is removed from blazy:3.0.0.
+   *
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   *   self::withElement() instead.
+   * @see https://www.drupal.org/node/3367291
+   */
+  protected function buildElement(array &$build, $entity, $langcode) {
+    // @todo @trigger_error('buildElement is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::withElement() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+  }
+
+  /**
+   * Prepare item contents.
+   *
+   * @todo remove extra params at 3 for destructured properties from $build.
+   */
+  protected function prepareElement(array &$build, $entity, $langcode, $delta): void {
+    // @todo @trigger_error('prepareElement is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::withElement() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
   }
 
 }

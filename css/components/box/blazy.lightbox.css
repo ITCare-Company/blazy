@@ -104,7 +104,8 @@ a .media--switch img.media__element {
   min-height: 420px;
 }
 
-.media .instagram-media {
+.media .instagram-media,
+.media--box > .twitter-tweet-rendered {
   margin: 0 auto !important; /* csslint allow: known-properties, important */
 }
 

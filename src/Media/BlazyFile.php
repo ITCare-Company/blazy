@@ -255,9 +255,10 @@ class BlazyFile {
     }
     /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $object */
     elseif ($object instanceof EntityReferenceFieldItemListInterface) {
+      // @phpstan Variable $image in PHPDoc tag @ var does not exist.
       /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $image */
-      /* @phpstan-ignore-next-line */
-      if ($image = $object->first()) {
+      $image = $object->first();
+      if ($image) {
         /** @var \Drupal\file\Entity\File $file */
         $file = $image->entity;
       }
@@ -293,26 +294,30 @@ class BlazyFile {
    */
   private static function fromField($entity, $name, array $settings): ?object {
     $file = NULL;
+
+    if (!isset($entity->{$name})) {
+      return NULL;
+    }
+
+    // @phpstan Variable $field in PHPDoc tag @ var does not exist.
     /** @var \Drupal\file\Plugin\Field\FieldType\FileFieldItemList $field */
-    /* @phpstan-ignore-next-line */
-    if (isset($entity->{$name}) && $field = $entity->get($name)) {
-      if (method_exists($field, 'referencedEntities')) {
-        // Two designated types: MediaInterface and FileInterface.
-        $reference = $field->referencedEntities()[0] ?? NULL;
-        // The first is FileInterface.
-        if (self::isFile($reference)) {
-          $file = $reference;
-        }
-        else {
-          // The last is MediaInterface, but let the dogs out for now.
-          $options = [
-            'entity' => $reference,
-            'source' => $entity,
-            'settings' => $settings,
-          ];
-          if ($image = BlazyImage::fromContent($options, $name)) {
-            $file = $image->entity;
-          }
+    $field = $entity->get($name);
+    if ($field && method_exists($field, 'referencedEntities')) {
+      // Two designated types: MediaInterface and FileInterface.
+      $reference = $field->referencedEntities()[0] ?? NULL;
+      // The first is FileInterface.
+      if (self::isFile($reference)) {
+        $file = $reference;
+      }
+      else {
+        // The last is MediaInterface, but let the dogs out for now.
+        $options = [
+          'entity' => $reference,
+          'source' => $entity,
+          'settings' => $settings,
+        ];
+        if ($image = BlazyImage::fromContent($options, $name)) {
+          $file = $image->entity;
         }
       }
     }

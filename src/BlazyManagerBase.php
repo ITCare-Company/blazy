@@ -274,6 +274,15 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   /**
    * {@inheritdoc}
    */
+  public function thirdPartyFormatters(): array {
+    $formatters = ['file_audio', 'file_video'];
+    $this->moduleHandler->alter('blazy_third_party_formatters', $formatters);
+    return array_unique($formatters);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function toBlazy(array &$data, array &$captions, $delta): void {
     // Do nothing for sub-modules to use.
   }
@@ -310,15 +319,6 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $element['#namespace'] = $settings['blazies']->get('namespace');
 
     $this->moduleHandler->alter('blazy_element', $element, $settings);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function thirdPartyFormatters(): array {
-    $formatters = ['file_audio', 'file_video'];
-    $this->moduleHandler->alter('blazy_third_party_formatters', $formatters);
-    return array_unique($formatters);
   }
 
   /**

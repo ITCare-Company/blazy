@@ -335,15 +335,17 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
   protected function getFieldRenderable($row, $index, $name, $multiple = FALSE): array {
     // Be sure to not check "Use field template" under "Style settings" to have
     // renderable array to work with, otherwise flattened string!
+    if (!$name) {
+      return [];
+    }
+
     /** @var \Drupal\views\Plugin\views\field\EntityField $field */
-    /* @phpstan-ignore-next-line */
-    if ($name && $field = ($this->view->field[$name] ?? NULL)) {
-      if (method_exists($field, 'getItems')) {
-        $result = $field->getItems($row);
-        if ($result && is_array($result)) {
-          // @todo recheck the last: a plain array, rendered/raw, markup, etc.
-          return $multiple ? $result : ($result[0] ?? []);
-        }
+    $field = $this->view->field[$name] ?? NULL;
+    if ($field && method_exists($field, 'getItems')) {
+      $result = $field->getItems($row);
+      if ($result && is_array($result)) {
+        // @todo recheck the last: a plain array, rendered/raw, markup, etc.
+        return $multiple ? $result : ($result[0] ?? []);
       }
     }
     return [];

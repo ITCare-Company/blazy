@@ -67,9 +67,9 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $settings = &$this->settings;
     $settings += Defaults::lazySettings();
 
-    // @todo replace at 3.x with $blazies = $this->manager->verifySafely($settings);
-    $this->manager->verify($settings);
+    $blazies = $this->manager->verifySafely($settings);
 
+    // @todo remove $settings post 2.17.
     $settings['plugin_id'] = $plugin_id = $this->getPluginId();
     $settings['id'] = $id = AttributeParser::getId($plugin_id);
 
@@ -77,7 +77,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $is_media_library = $definitions && isset($definitions['field_media_oembed_video']);
 
     $namespace = static::$namespace;
-    $blazies = $settings['blazies'];
+
     $blazies->set('css.id', $id)
       ->set('is.filter', TRUE)
       ->set('is.unsafe', TRUE)

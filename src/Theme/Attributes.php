@@ -293,6 +293,11 @@ class Attributes {
       $attributes['src'] = 'about:blank';
     }
 
+    // Makes query seletor easier for filter.
+    if ($blazies->get('filter')) {
+      $attributes['class'][] = 'b-filter';
+    }
+
     self::common($attributes, $blazies);
     return $attributes;
   }
@@ -332,6 +337,11 @@ class Attributes {
         $attributes['class'][] = $blazies->get('lazy.class', 'b-lazy');
         $attribute = $blazies->get('lazy.attribute', 'src');
         $attributes['data-' . $attribute] = $url;
+      }
+
+      // Makes query seletor easier for filter.
+      if ($blazies->get('filter')) {
+        $attributes['class'][] = 'b-filter';
       }
 
       if ($bg && $unlazy) {
