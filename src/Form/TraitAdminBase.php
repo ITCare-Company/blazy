@@ -2,11 +2,11 @@
 
 namespace Drupal\blazy\Form;
 
-use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Traits\PluginScopesTrait;
+use Drupal\blazy\Utility\Path;
 
 /**
  * A blazy admin Trait to declutter, and focus more on form elements.

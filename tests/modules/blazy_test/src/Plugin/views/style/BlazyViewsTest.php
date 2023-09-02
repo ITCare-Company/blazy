@@ -2,9 +2,9 @@
 
 namespace Drupal\blazy_test\Plugin\views\style;
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Views\BlazyStylePluginBase;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Blazy Views Test style plugin.

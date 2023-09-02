@@ -2,15 +2,15 @@
 
 namespace Drupal\blazy\Media;
 
-use Drupal\Component\Utility\Html;
-use Drupal\Core\Url;
-use Drupal\Core\Cache\Cache;
-use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
-use Drupal\media\MediaInterface;
-use Drupal\media\IFrameUrlHelper;
 use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Utility\CheckItem;
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
+use Drupal\Core\Url;
+use Drupal\media\IFrameUrlHelper;
+use Drupal\media\MediaInterface;
 use GuzzleHttp\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

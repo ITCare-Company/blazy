@@ -2,13 +2,13 @@
 
 namespace Drupal\blazy\Media;
 
+use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Utility\Path;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Site\Settings;
 use Drupal\file\FileInterface;
-use Drupal\blazy\internals\Internals;
-use Drupal\blazy\Utility\Path;
 
 /**
  * Provides file_BLAH BC for D8 - D10+ till D11 rules.

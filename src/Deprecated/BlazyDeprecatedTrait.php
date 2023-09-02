@@ -2,13 +2,13 @@
 
 namespace Drupal\blazy\Deprecated;
 
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\blazy\BlazyAlter;
 use Drupal\blazy\BlazySettings;
 use Drupal\blazy\internals\Internals;
-use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Theme\Attributes;
+use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\Arrays;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Deprecated in blazy:8.x-2.0, and is removed from blazy:3.0.0.

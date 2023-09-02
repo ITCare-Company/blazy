@@ -2,22 +2,22 @@
 
 namespace Drupal\blazy;
 
+use Drupal\blazy\Cache\BlazyCache;
+use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Theme\Grid;
+use Drupal\blazy\Utility\Arrays;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\blazy\Cache\BlazyCache;
-use Drupal\blazy\internals\Internals;
-use Drupal\blazy\Theme\Grid;
-use Drupal\blazy\Utility\Arrays;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

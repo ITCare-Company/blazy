@@ -2,12 +2,12 @@
 
 namespace Drupal\blazy\Utility;
 
-use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\UrlHelper;
-use Drupal\Component\Utility\Xss;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\internals\Internals;
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\UrlHelper;
+use Drupal\Component\Utility\Xss;
 
 /**
  * Provides very few common sanitization wrapper methods.

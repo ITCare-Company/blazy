@@ -2,13 +2,13 @@
 
 namespace Drupal\blazy\Views;
 
-use Drupal\Component\Utility\Xss;
-use Drupal\Component\Utility\Html;
-use Drupal\Core\Render\Markup;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Utility\Sanitize;
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\Xss;
+use Drupal\Core\Render\Markup;
 
 @trigger_error('The ' . __NAMESPACE__ . '\BlazyStyleBaseTrait is deprecated in blazy:8.x-2.14 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Views\BlazyStyleBase instead. See https://www.drupal.org/node/3367304', E_USER_DEPRECATED);
 

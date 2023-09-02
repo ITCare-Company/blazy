@@ -5,10 +5,10 @@
  * Post update hooks for Blazy.
  */
 
+use Drupal\blazy\BlazyDefault;
 use Drupal\Core\Config\Entity\ConfigEntityUpdater;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\views\ViewEntityInterface;
-use Drupal\blazy\BlazyDefault;
 
 /**
  * Clear cache to enable CSP module support.

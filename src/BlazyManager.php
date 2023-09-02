@@ -2,11 +2,11 @@
 
 namespace Drupal\blazy;
 
-use Drupal\Component\Utility\UrlHelper;
-use Drupal\Core\Url;
-use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Theme\Lightbox;
+use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\Security\TrustedCallbackInterface;
+use Drupal\Core\Url;
 
 /**
  * Implements a public facing blazy manager.

@@ -2,8 +2,8 @@
 
 namespace Drupal\blazy;
 
-use Drupal\Component\Render\FormattableMarkup;
 use Drupal\blazy\internals\Internals;
+use Drupal\Component\Render\FormattableMarkup;
 
 /**
  * Defines shared plugin default settings for field formatter and Views style.

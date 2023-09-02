@@ -2,9 +2,6 @@
 
 namespace Drupal\blazy\internals;
 
-use Drupal\Component\Utility\Html;
-use Drupal\Component\Render\FormattableMarkup;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazySettings;
@@ -12,11 +9,14 @@ use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\Provider\Youtube;
 use Drupal\blazy\Theme\Grid;
-use Drupal\blazy\Utility\Markdown;
-use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\CheckItem;
+use Drupal\blazy\Utility\Markdown;
+use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Utility\Sanitize;
+use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Provides internal non-reusable blazy utilities.

@@ -2,9 +2,9 @@
 
 namespace Drupal\blazy\Field;
 
+use Drupal\blazy\BlazyDefault;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\blazy\BlazyDefault;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

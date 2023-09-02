@@ -2,9 +2,9 @@
 
 namespace Drupal\blazy\Plugin\views\style;
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Views\BlazyStyleBase;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Provides Blazy Grid style plugin.

@@ -2,12 +2,12 @@
 
 namespace Drupal\blazy\Media;
 
+use Drupal\blazy\Blazy;
+use Drupal\blazy\internals\Internals;
 use Drupal\media\MediaInterface;
 use Drupal\media\OEmbed\Resource;
 use Drupal\media\OEmbed\ResourceFetcherInterface;
 use Drupal\media\OEmbed\UrlResolverInterface;
-use Drupal\blazy\Blazy;
-use Drupal\blazy\internals\Internals;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

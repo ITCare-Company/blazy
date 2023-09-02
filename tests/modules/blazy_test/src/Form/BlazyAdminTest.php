@@ -2,10 +2,10 @@
 
 namespace Drupal\blazy_test\Form;
 
+use Drupal\blazy\BlazyManagerInterface;
+use Drupal\blazy\Form\BlazyAdminInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\blazy\Form\BlazyAdminInterface;
-use Drupal\blazy\BlazyManagerInterface;
 
 /**
  * Provides resusable admin functions or form elements.

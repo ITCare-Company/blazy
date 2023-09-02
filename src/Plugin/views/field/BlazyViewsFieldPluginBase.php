@@ -2,16 +2,16 @@
 
 namespace Drupal\blazy\Plugin\views\field;
 
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\views\Plugin\views\field\FieldPluginBase;
-use Drupal\views\ResultRow;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazyManager;
 use Drupal\blazy\BlazyEntityInterface;
+use Drupal\blazy\BlazyManager;
 use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Traits\PluginScopesTrait;
 use Drupal\blazy\Utility\Arrays;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\views\Plugin\views\field\FieldPluginBase;
+use Drupal\views\ResultRow;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

@@ -3,8 +3,8 @@
 namespace Drupal\blazy\Utility;
 
 use Drupal\Component\Utility\Xss;
-use Michelf\MarkdownExtra;
 use League\CommonMark\CommonMarkConverter;
+use Michelf\MarkdownExtra;
 
 /**
  * Provides markdown utilities only useful for the help text.

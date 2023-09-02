@@ -2,13 +2,13 @@
 
 namespace Drupal\blazy;
 
+use Drupal\blazy\Deprecated\BlazyDeprecatedTrait;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\Attributes;
-use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Sanitize;
-use Drupal\blazy\Deprecated\BlazyDeprecatedTrait;
 
 /**
  * Provides common public blazy utility and a few aliases for frequent methods.

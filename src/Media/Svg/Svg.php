@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Media\Svg;
 
+use Drupal\blazy\internals\Internals;
 use Drupal\Component\Utility\Color;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Image\ImageFactory;
@@ -9,7 +10,6 @@ use Drupal\Core\Image\ImageInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\file\Entity\File;
 use Drupal\file\FileRepository;
-use Drupal\blazy\internals\Internals;
 use enshrined\svgSanitize\Sanitizer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

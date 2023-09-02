@@ -2,8 +2,8 @@
 
 namespace Drupal\blazy\Views;
 
-use Drupal\Core\Url;
 use Drupal\blazy\internals\Internals;
+use Drupal\Core\Url;
 
 @trigger_error('The ' . __NAMESPACE__ . '\BlazyStylePluginTrait is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Views\BlazyStylePluginBase instead. See https://www.drupal.org/node/3367304', E_USER_DEPRECATED);
 

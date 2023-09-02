@@ -2,12 +2,12 @@
 
 namespace Drupal\blazy\Plugin\Filter;
 
+use Drupal\blazy\internals\Internals;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\Plugin\FilterBase;
 use Drupal\filter\Render\FilteredMarkup;
-use Drupal\blazy\internals\Internals;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

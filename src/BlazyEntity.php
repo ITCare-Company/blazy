@@ -2,13 +2,13 @@
 
 namespace Drupal\blazy;
 
+use Drupal\blazy\Deprecated\BlazyEntityDeprecatedTrait;
+use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Media\BlazyOEmbedInterface;
+use Drupal\blazy\Utility\CheckItem;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\media\MediaInterface;
-use Drupal\blazy\Media\BlazyOEmbedInterface;
-use Drupal\blazy\internals\Internals;
-use Drupal\blazy\Utility\CheckItem;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\blazy\Deprecated\BlazyEntityDeprecatedTrait;
 
 /**
  * Provides common entity utilities to work with field details or vanilla.

@@ -2,8 +2,8 @@
 
 namespace Drupal\blazy\Field;
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\blazy\BlazyDefault;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Base class for all entity reference formatters with field details.

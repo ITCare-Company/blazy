@@ -2,10 +2,10 @@
 
 namespace Drupal\blazy;
 
+use Drupal\blazy\internals\Internals;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Field\FormatterInterface;
 use Drupal\editor\Entity\Editor;
-use Drupal\blazy\internals\Internals;
 
 /**
  * Provides hook_alter() methods for Blazy.

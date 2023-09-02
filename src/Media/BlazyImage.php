@@ -2,12 +2,12 @@
 
 namespace Drupal\blazy\Media;
 
-use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\image\Plugin\Field\FieldType\ImageItem;
-use Drupal\media\MediaInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Utility\Sanitize;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\image\Plugin\Field\FieldType\ImageItem;
+use Drupal\media\MediaInterface;
 
 /**
  * Provides image-related methods.

@@ -2,10 +2,10 @@
 
 namespace Drupal\blazy\Views;
 
+use Drupal\blazy\internals\Internals;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Url;
 use Drupal\views\Views;
-use Drupal\blazy\internals\Internals;
 
 /**
  * A base for blazy views integration to support fieldable entities.

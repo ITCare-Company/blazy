@@ -2,17 +2,17 @@
 
 namespace Drupal\blazy\Asset;
 
-use Drupal\Core\Asset\LibraryDiscovery;
+use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Media\Preloader;
+use Drupal\blazy\Theme\Lightbox;
 use Drupal\Core\Asset\LibrariesDirectoryFileFinder;
+use Drupal\Core\Asset\LibraryDiscovery;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\internals\Internals;
-use Drupal\blazy\Media\Preloader;
-use Drupal\blazy\Theme\Lightbox;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

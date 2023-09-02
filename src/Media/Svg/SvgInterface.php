@@ -5,8 +5,8 @@ namespace Drupal\blazy\Media\Svg;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Image\ImageInterface;
-use Drupal\file\FileRepository;
 use Drupal\file\Entity\File;
+use Drupal\file\FileRepository;
 
 /**
  * Provides SVG utilities.

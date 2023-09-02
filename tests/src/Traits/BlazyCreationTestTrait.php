@@ -2,17 +2,17 @@
 
 namespace Drupal\Tests\blazy\Traits;
 
-use Drupal\Core\File\FileSystemInterface;
-use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\blazy\Blazy;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
-use Drupal\node\Entity\NodeType;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
-use Drupal\blazy\Blazy;
+use Drupal\node\Entity\NodeType;
 
 /**
  * A Trait common for Blazy tests.

@@ -2,8 +2,8 @@
 
 namespace Drupal\blazy\Cache;
 
-use Drupal\Core\Cache\Cache;
 use Drupal\blazy\internals\Internals;
+use Drupal\Core\Cache\Cache;
 
 /**
  * Provides common cache utility static methods.

@@ -2,13 +2,13 @@
 
 namespace Drupal\blazy\Views;
 
-use Drupal\Component\Utility\Xss;
-use Drupal\Component\Utility\Html;
-use Drupal\Core\Render\Markup;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Utility\Sanitize;
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\Xss;
+use Drupal\Core\Render\Markup;
 use Drupal\views\Plugin\views\style\StylePluginBase;
 // @todo enable use Drupal\blazy\Field\BlazyElementTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;

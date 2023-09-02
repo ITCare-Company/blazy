@@ -2,8 +2,8 @@
 
 namespace Drupal\blazy\Media;
 
-use Drupal\media\MediaInterface;
 use Drupal\blazy\BlazyManagerInterface;
+use Drupal\media\MediaInterface;
 use GuzzleHttp\Client;
 
 /**

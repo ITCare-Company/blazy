@@ -2,12 +2,12 @@
 
 namespace Drupal\Tests\blazy\FunctionalJavascript;
 
-use Drupal\FunctionalJavascriptTests\DrupalSelenium2Driver;
-use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
-use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
-use Drupal\Tests\blazy\Traits\BlazyCreationTestTrait;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\internals\Internals;
+use Drupal\FunctionalJavascriptTests\DrupalSelenium2Driver;
+use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
+use Drupal\Tests\blazy\Traits\BlazyCreationTestTrait;
+use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 
 /**
  * Tests the Blazy JavaScript using PhantomJS, or Chromedriver.
