@@ -1,0 +1,9 @@
+{
+  // Eslint reading unwanted .yml?
+  "ignorePatterns": ["*.yml", "config/**/*", "tests/*"],
+  "overrides": [
+    {
+      "files": ["js/src/*.js", "js/src/**/*.js", "js/src/**/**/*.js"]
+    }
+  ]
+}

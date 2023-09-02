@@ -1,3 +1,7 @@
 js/*.min.js
 js/*/*.min.js
 js/*/*/*.min.js
+# Eslint reading unwanted .yml?
+*.yml
+config/*
+tests/*

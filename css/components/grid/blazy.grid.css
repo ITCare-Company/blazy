@@ -9,17 +9,17 @@
 .b-grid,
 .blazy.b-grid,
 .item-list > .b-grid {
-  clear: both;
   display: block;
-  list-style: none;
-  padding: 0;
+  clear: both;
   margin: 0 -0.625rem;
+  padding: 0;
+  list-style: none;
 }
 
 .b-grid::before,
 .b-grid::after {
-  content: " ";
   display: table;
+  content: " ";
 }
 
 .b-grid::after {
@@ -29,11 +29,11 @@
 .b-grid > .grid {
   display: block;
   float: left;
+  width: 100%;
   height: auto;
-  list-style: none;
   margin: 0;
   padding: 0 0.625rem 1.25rem;
-  width: 100%;
+  list-style: none;
 }
 
 .b-grid.b-grid--centered,
@@ -43,15 +43,15 @@
 
 .b-grid.b-grid--centered > .grid,
 .item-list > .b-grid.b-grid--centered > .grid {
-  text-align: left;
   display: inline-block;
   float: none;
+  text-align: left;
   vertical-align: top;
 }
 
 .b-grid .grid__content {
-  max-width: 100%;
   position: relative;
+  max-width: 100%;
 }
 
 @media only screen {

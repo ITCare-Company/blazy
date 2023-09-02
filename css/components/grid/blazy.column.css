@@ -14,20 +14,20 @@
 .b-column,
 .blazy.b-column,
 .item-list > .b-column {
-  clear: both;
   display: block;
-  list-style: none;
+  clear: both;
+  width: 100%;
   margin: 0 auto;
   padding: 0;
-  width: 100%;
+  list-style: none;
 }
 
 /** https://developer.mozilla.org/en-US/docs/Web/CSS/break-inside */
 .b-column > .grid {
   display: block;
   float: none;
-  height: auto;
   overflow: hidden;
+  height: auto;
   -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
   page-break-inside: avoid; /* Deprecated Firefox, works at 49.0.2 */
   -moz-column-break-inside: avoid; /* Current Firefox, but no joy */
@@ -35,7 +35,7 @@
   break-inside: avoid-column;
 }
 
-.b-column > .grid ,
+.b-column > .grid,
 .item-list > .b-column > .grid {
   margin: 0 0 1rem;
   padding: 0;
@@ -43,12 +43,12 @@
 
 /** Fix for broken break-inside with extremely tall grid for FF. */
 .b-column .grid__content {
-  display: inline-block;
-  margin: 0;
-  max-width: 100%;
   position: relative;
-  vertical-align: top;
+  display: inline-block;
   width: 100%;
+  max-width: 100%;
+  margin: 0;
+  vertical-align: top;
 }
 
 /** 480px with 16px base font. */

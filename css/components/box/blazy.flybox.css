@@ -8,14 +8,14 @@ body.is-flybox--open {
 }
 
 .b-flybox {
-  backface-visibility: hidden;
+  top: auto;
+  right: 0;
   bottom: 0;
   left: 0;
   min-height: 236px;
-  right: 0;
-  top: auto;
-  transform: translate3d(0px, 400%, 0px);
-  transition: transform .6s, min-height .6s;
+  transition: transform 0.6s, min-height 0.6s;
+  transform: translate3d(0, 400%, 0);
+  backface-visibility: hidden;
 }
 
 .b-flybox,
@@ -37,20 +37,20 @@ body.is-flybox--open {
 }
 
 .is-flybox--open .b-flybox {
-  transform: translateY(0);
   z-index: 9999;
+  transform: translateY(0);
 }
 
 .is-flybox--closing .b-flybox {
-  transition: .5s transform ease;
-  transform: translateY(400%);
   z-index: 9999;
+  transition: 0.5s transform ease;
+  transform: translateY(400%);
 }
 
 .b-flybox .media--box audio {
+  top: auto;
   bottom: 0;
   height: 100%;
-  top: auto;
   transform: none;
 }
 
@@ -79,46 +79,46 @@ body.is-flybox--open {
   }
 
   .b-flybox.b-provider--instagram {
-    background-color: #fff;
     width: 326px;
+    background-color: #fff;
   }
 
   .blazybox.b-provider--pinterest,
   .blazybox.b-provider--twitter {
-    background-color: #fff;
     width: 322px;
+    background-color: #fff;
   }
 
   .b-flybox .media--instagram iframe {
-    min-height: inherit;
     width: auto;
+    min-height: inherit;
   }
 
   .b-flybox {
-    bottom: 2px;
-    box-shadow: 0 0 0 2px #777;
-    left: auto;
     right: 2px;
+    bottom: 2px;
+    left: auto;
+    box-shadow: 0 0 0 2px #777;
   }
 
   [dir="rtl"] .b-flybox {
-    left: 2px;
     right: auto;
+    left: 2px;
   }
 
   .b-flybox .blazybox__close {
-    border: 1px solid #777;
-    font-size: 12px;
     position: absolute;
-    left: -8px;
     top: -8px;
-    transform: none;
+    left: -8px;
     width: 22px;
     height: 22px;
+    transform: none;
+    border: 1px solid #777;
+    font-size: 12px;
   }
 
   [dir="rtl"] .b-flybox .blazybox__close {
-    left: auto;
     right: -8px;
+    left: auto;
   }
 }

@@ -49,18 +49,18 @@
 
 /* Prevents costly double animations when Blur is enabled. */
 .is-b-loading:not(.is-b-loaded):not([data-animation])::before {
-  content: '';
-  width: 30px;
-  height: 30px;
-  max-width: 30px;
-  background: #2eaae0;
   position: absolute;
-  left: 50%;
-  top: 50%;
-  margin-left: -15px;
-  margin-top: -15px;
-  font-size: 0;
   z-index: 22;
+  top: 50%;
+  left: 50%;
+  width: 30px;
+  max-width: 30px;
+  height: 30px;
+  margin-top: -15px;
+  margin-left: -15px;
+  content: "";
   -webkit-animation: rotateplane 1.2s infinite ease-in-out;
   animation: rotateplane 1.2s infinite ease-in-out;
+  background: #2eaae0;
+  font-size: 0;
 }

@@ -7,24 +7,24 @@
 }
 
 .b-tooltip .b-hint {
-  background: #828282;
-  border-radius: 50%;
-  color: #fff;
-  content: '?';
-  cursor: default;
+  position: absolute;
+  z-index: 8;
+  top: 5px;
+  right: 5px;
   display: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  content: "?";
+  cursor: default;
+  text-align: center;
+  color: #fff;
+  border-radius: 50%;
+  background: #828282;
   font-family: sans-serif;
   font-size: 12px;
   font-weight: 600;
   line-height: 16px;
-  margin: 0;
-  width: 16px;
-  height: 16px;
-  position: absolute;
-  right: 5px;
-  text-align: center;
-  top: 5px;
-  z-index: 8;
 }
 
 .b-tooltip .form-item.is-selected > .b-hint,
@@ -43,30 +43,30 @@
 }
 
 .b-tooltip .form-item > .description {
-  background: #000;
-  background: rgba(0, 0, 0, 0.9);
-  border-radius: 2px;
-  bottom: 120%;
-  box-shadow: 0 2px 10px -2px #000;
-  color: #dadada !important; /* csslint allow: known-properties, important */
-  display: block;
-  font-size: 14px;
-  font-size: 0.875rem;
-  line-height: 1.3;
-  min-height: 40px;
-  max-width: 320px;
-  min-width: 240px;
   position: absolute !important; /* csslint allow: known-properties, important */
-  padding: 12px !important; /* csslint allow: known-properties, important */
-  opacity: 0;
-  overflow: hidden;
+  z-index: 99;
   right: 0;
+  bottom: 120%;
+  display: block;
   visibility: hidden;
+  overflow: hidden;
+  width: 100%;
+  min-width: 240px;
+  max-width: 320px;
+  min-height: 40px;
+  padding: 12px !important; /* csslint allow: known-properties, important */
   transition: all 0.4s ease-in 0s;
   text-align: left;
   white-space: normal;
-  width: 100%;
-  z-index: 99;
+  opacity: 0;
+  color: #dadada !important; /* csslint allow: known-properties, important */
+  border-radius: 2px;
+  background: #000;
+  background: rgba(0, 0, 0, 0.9);
+  box-shadow: 0 2px 10px -2px #000;
+  font-size: 14px;
+  font-size: 0.875rem;
+  line-height: 1.3;
 }
 
 .b-tooltip--lg .form-item > .description {
@@ -89,27 +89,27 @@
 }
 
 .b-tooltip .form-item > .description::after {
-  border: 10px solid transparent;
-  border-right: 10px solid #000;
-  border-top: 0;
-  bottom: -10px;
-  content: "";
-  display: block;
-  height: 0;
-  opacity: .6;
   position: absolute;
-  right: 20px;
-  width: 0;
   z-index: 99;
+  right: 20px;
+  bottom: -10px;
+  display: block;
+  width: 0;
+  height: 0;
+  content: "";
+  opacity: 0.6;
+  border: 10px solid transparent;
+  border-top: 0;
+  border-right: 10px solid #000;
 }
 
 .b-tooltip .form-item.is-selected > .description,
 .b-tooltip .form-item.is-hovered > .description {
   bottom: 100%;
   display: block;
-  opacity: 1 !important; /* csslint allow: known-properties, important */
   visibility: visible;
   overflow: visible !important; /* csslint allow: known-properties, important */
+  opacity: 1 !important; /* csslint allow: known-properties, important */
 }
 
 .b-tooltip .form-item.is-selected > .description {
@@ -117,40 +117,40 @@
 }
 
 .b-tooltip .form-item.is-selected > .description::before {
-  color: #dadada;
-  content: "x";
-  display: block;
-  font-family: sans-serif;
-  height: 20px;
-  left: 5px;
-  line-height: 18px;
-  margin-top: -10px;
   position: absolute;
-  top: 50%;
-  width: 20px;
   z-index: 0;
+  top: 50%;
+  left: 5px;
+  display: block;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  content: "x";
+  color: #dadada;
+  font-family: sans-serif;
+  line-height: 18px;
 }
 
 .b-tooltip .b-tooltip__bottom > .description,
 .b-tooltip .form-item--tooltip-bottom > .description {
-  bottom: auto !important; /* csslint allow: known-properties, important */
   top: 50%;
+  bottom: auto !important; /* csslint allow: known-properties, important */
 }
 
 .b-tooltip .b-tooltip__bottom > .description::after,
 .b-tooltip .form-item--tooltip-bottom > .description::after {
-  border: 10px solid transparent;
-  border-right: 10px solid #000;
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid #000;
-  bottom: auto;
   top: -20px;
+  bottom: auto;
+  border: 10px solid transparent;
+  border-top: 10px solid transparent;
+  border-right: 10px solid #000;
+  border-bottom: 10px solid #000;
 }
 
 .no-js .b-tooltip .form-item:hover > .description {
   bottom: 100%;
   display: block;
-  opacity: 1 !important; /* csslint allow: known-properties, important */
   visibility: visible;
   overflow: visible !important; /* csslint allow: known-properties, important */
+  opacity: 1 !important; /* csslint allow: known-properties, important */
 }

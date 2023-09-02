@@ -22,38 +22,38 @@
 .b-nativegrid,
 .blazy.b-nativegrid,
 .item-list > .b-nativegrid {
-  clear: both;
-  display: block;
-  list-style: none;
-  margin: 0 auto;
-  overflow: hidden;
-  padding: 0;
   position: relative;
+  display: block;
+  clear: both;
+  overflow: hidden;
   width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
 }
 
 .b-nativegrid > .grid,
 .item-list > .b-nativegrid > .grid {
   display: block;
-  margin: 0 0 var(--bnColGap) 0;
-  min-height: 40px;
-  padding: 0;
   width: 100%;
+  min-height: 40px;
+  margin: 0 0 var(--bnColGap) 0;
+  padding: 0;
 }
 
 .b-nativegrid .grid__content {
-  max-width: 100%;
-  overflow: visible;
   position: relative;
+  overflow: visible;
   width: 100%;
+  max-width: 100%;
 }
 
 /* Olivero surprises, adjust it. */
 .is-b-native h2 {
+  margin: 0;
   color: #fff;
   font-size: 1.25rem;
   line-height: 1.6rem;
-  margin: 0;
 }
 
 /** 480px with 16px base font. */
@@ -98,14 +98,14 @@
   }
 
   .b-nativegrid.is-b-native .grid__content {
-    height: 100%;
     overflow: hidden;
+    height: 100%;
   }
 
   /* Enable to make it gapless for Masonry. */
   .b-nativegrid .is-b-grid .grid__content {
-    height: 100%;
     overflow: hidden;
+    height: 100%;
   }
 
   /* Add more relevant selectors accordingly to make gapless grids.
@@ -120,32 +120,32 @@
   .b-nativegrid.is-b-native .grid .media,
   .b-nativegrid.is-b-native .grid img.media__element,
   .b-nativegrid.is-b-native .grid .slide__media {
-    height: inherit;
-    /* Aspect ratio is irrelevant for gapless grid.*/
-    padding: 0 !important; /* csslint allow: known-properties, important */
     position: static; /* To keep lightbox/ video icon centered. */
-    object-fit: cover;
     width: 100%;
+    height: inherit;
+    /* Aspect ratio is irrelevant for gapless grid. */
+    padding: 0 !important; /* csslint allow: known-properties, important */
+    object-fit: cover;
   }
 
   /* For some reason, unlike video, etc., iframe refuses to show when static. */
   .b-nativegrid.is-b-native .grid iframe {
-    height: 100%;
     position: absolute;
+    height: 100%;
   }
 
   /* To avoid initial confusion due to being overflow: hidden, adjust it. */
   .b-nativegrid.is-b-native .blazy__caption,
   .b-nativegrid.is-b-native .slide__caption {
+    position: absolute;
+    z-index: 3;
     bottom: 0;
     left: 0;
-    position: absolute;
     width: 100%;
-    color: #fff;
-    background: rgba(0,0,0,.8);
-    text-align: center;
     padding: 10px 15px;
-    z-index: 3;
+    text-align: center;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.8);
   }
 
 
@@ -256,123 +256,123 @@
 
   /* Dimensions for two-dimensional layout. */
   /** grid-row == height */
-  .b-nativegrid > .grid[data-b-h='1'] {
+  .b-nativegrid > .grid[data-b-h="1"] {
     -ms-grid-row-span: 1;
     grid-row: span 1;
   }
 
-  .b-nativegrid > .grid[data-b-h='2'] {
+  .b-nativegrid > .grid[data-b-h="2"] {
     -ms-grid-row-span: 2;
     grid-row: span 2;
   }
 
-  .b-nativegrid > .grid[data-b-h='3'] {
+  .b-nativegrid > .grid[data-b-h="3"] {
     -ms-grid-row-span: 3;
     grid-row: span 3;
   }
 
-  .b-nativegrid > .grid[data-b-h='4'] {
+  .b-nativegrid > .grid[data-b-h="4"] {
     -ms-grid-row-span: 4;
     grid-row: span 4;
   }
 
-  .b-nativegrid > .grid[data-b-h='5'] {
+  .b-nativegrid > .grid[data-b-h="5"] {
     -ms-grid-row-span: 5;
     grid-row: span 5;
   }
 
-  .b-nativegrid > .grid[data-b-h='6'] {
+  .b-nativegrid > .grid[data-b-h="6"] {
     -ms-grid-row-span: 6;
     grid-row: span 6;
   }
 
-  .b-nativegrid > .grid[data-b-h='7'] {
+  .b-nativegrid > .grid[data-b-h="7"] {
     -ms-grid-row-span: 7;
     grid-row: span 7;
   }
 
-  .b-nativegrid > .grid[data-b-h='8'] {
+  .b-nativegrid > .grid[data-b-h="8"] {
     -ms-grid-row-span: 8;
     grid-row: span 8;
   }
 
-  .b-nativegrid > .grid[data-b-h='9'] {
+  .b-nativegrid > .grid[data-b-h="9"] {
     -ms-grid-row-span: 9;
     grid-row: span 9;
   }
 
-  .b-nativegrid > .grid[data-b-h='10'] {
+  .b-nativegrid > .grid[data-b-h="10"] {
     -ms-grid-row-span: 10;
     grid-row: span 10;
   }
 
-  .b-nativegrid > .grid[data-b-h='11'] {
+  .b-nativegrid > .grid[data-b-h="11"] {
     -ms-grid-row-span: 11;
     grid-row: span 11;
   }
 
-  .b-nativegrid > .grid[data-b-h='12'] {
+  .b-nativegrid > .grid[data-b-h="12"] {
     -ms-grid-row-span: 12;
     grid-row: span 12;
   }
 
   /** grid-column == width */
-  .b-nativegrid > .grid[data-b-w='1'] {
+  .b-nativegrid > .grid[data-b-w="1"] {
     -ms-grid-column-span: 1;
     grid-column: span 1;
   }
 
-  .b-nativegrid > .grid[data-b-w='2'] {
+  .b-nativegrid > .grid[data-b-w="2"] {
     -ms-grid-column-span: 2;
     grid-column: span 2;
   }
 
-  .b-nativegrid > .grid[data-b-w='3'] {
+  .b-nativegrid > .grid[data-b-w="3"] {
     -ms-grid-column-span: 3;
     grid-column: span 3;
   }
 
-  .b-nativegrid > .grid[data-b-w='4'] {
+  .b-nativegrid > .grid[data-b-w="4"] {
     -ms-grid-column-span: 4;
     grid-column: span 4;
   }
 
-  .b-nativegrid > .grid[data-b-w='5'] {
+  .b-nativegrid > .grid[data-b-w="5"] {
     -ms-grid-column-span: 5;
     grid-column: span 5;
   }
 
-  .b-nativegrid > .grid[data-b-w='6'] {
+  .b-nativegrid > .grid[data-b-w="6"] {
     -ms-grid-column-span: 6;
     grid-column: span 6;
   }
 
-  .b-nativegrid > .grid[data-b-w='7'] {
+  .b-nativegrid > .grid[data-b-w="7"] {
     -ms-grid-column-span: 7;
     grid-column: span 7;
   }
 
-  .b-nativegrid > .grid[data-b-w='8'] {
+  .b-nativegrid > .grid[data-b-w="8"] {
     -ms-grid-column-span: 8;
     grid-column: span 8;
   }
 
-  .b-nativegrid > .grid[data-b-w='9'] {
+  .b-nativegrid > .grid[data-b-w="9"] {
     -ms-grid-column-span: 9;
     grid-column: span 9;
   }
 
-  .b-nativegrid > .grid[data-b-w='10'] {
+  .b-nativegrid > .grid[data-b-w="10"] {
     -ms-grid-column-span: 10;
     grid-column: span 10;
   }
 
-  .b-nativegrid > .grid[data-b-w='11'] {
+  .b-nativegrid > .grid[data-b-w="11"] {
     -ms-grid-column-span: 11;
     grid-column: span 11;
   }
 
-  .b-nativegrid > .grid[data-b-w='12'] {
+  .b-nativegrid > .grid[data-b-w="12"] {
     -ms-grid-column-span: 12;
     grid-column: span 12;
   }

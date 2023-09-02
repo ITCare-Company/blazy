@@ -20,8 +20,8 @@
 
   .form--optionset .vertical-tabs .details-wrapper,
   .form--optionset .vertical-tabs .details--responsive .details-wrapper {
-    margin-left: 1rem;
     margin-right: 0;
+    margin-left: 1rem;
   }
 
   .form--optionset .vertical-tabs .claro-details__description {
@@ -31,5 +31,4 @@
   .form--optionset .vertical-tabs .details--settings .details-wrapper {
     margin-left: 0;
   }
-
 }

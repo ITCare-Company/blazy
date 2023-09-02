@@ -28,8 +28,8 @@
 
 .b-colorbox--iframe #cboxWrapper,
 .b-colorbox--iframe #cboxContent {
-  background: none;
   border-radius: 0;
+  background: none;
 }
 
 .b-colorbox--iframe #cboxWrapper,
@@ -44,16 +44,16 @@
 }
 
 .b-colorbox iframe {
-  background-clip: padding-box;
-  border-radius: 0;
   border: 8px solid #37465b;
+  border-radius: 0;
+  background-clip: padding-box;
 }
 
 .b-colorbox img[srcset],
 .b-colorbox picture img {
   display: block;
-  margin: auto;
   max-height: 100%;
+  margin: auto;
 }
 
 .b-colorbox .media--instagram {
