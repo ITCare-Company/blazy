@@ -19,6 +19,7 @@ use Drupal\editor\Entity\Editor;
  * @return \Drupal\blazy\BlazyManager
  *   The Blazy manager class instance.
  */
+// @codingStandardsIgnoreStart
 function blazy(): BlazyManager {
   static $manager;
 
@@ -28,6 +29,7 @@ function blazy(): BlazyManager {
 
   return $manager;
 }
+// @codingStandardsIgnoreEnd
 
 /**
  * Implements hook_theme().
