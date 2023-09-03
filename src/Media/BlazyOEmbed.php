@@ -51,6 +51,20 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   protected $resource;
 
   /**
+   * The Provider and Resource cache.
+   *
+   * @var array
+   */
+  protected $providerAndResource = [];
+
+  /**
+   * The thumbnail cache.
+   *
+   * @var array
+   */
+  protected $thumbnail = [];
+
+  /**
    * Constructs a Blazy oEmbed object.
    */
   public function __construct(
@@ -158,12 +172,17 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * Checks for the provider and its resources.
    */
   public function checkProviderAndResource($input, $blazies): void {
-    if (!$blazies->was('provider')) {
-      $this->checkProvider($input, $blazies);
-    }
+    $id = md5($input);
+    if (!isset($this->providerAndResource[$id])) {
+      if (!$blazies->was('provider')) {
+        $this->checkProvider($input, $blazies);
+      }
 
-    if (!$blazies->was('resource')) {
-      $this->checkResource($input, $blazies);
+      if (!$blazies->was('resource')) {
+        $this->checkResource($input, $blazies);
+      }
+
+      $this->providerAndResource[$id] = $id;
     }
   }
 
@@ -178,54 +197,58 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       return NULL;
     }
 
-    // Might be NULL for BlazyFilter, VEF, etc., re-check.
-    $this->checkProviderAndResource($input, $blazies);
+    $id = md5($input);
+    if (!isset($this->thumbnail[$id])) {
+      // Might be NULL for BlazyFilter, VEF, etc., re-check.
+      $this->checkProviderAndResource($input, $blazies);
 
-    // Similar to extracting image data from ImageFactory source. Basically,
-    // anything from resource is fallback, except for type.
-    // Respect hard-coded width and height since no UI for all these here.
-    $values = $blazies->get('media.resource', []);
-    $uri    = $blazies->get('image.uri', $settings['uri'] ?? NULL);
-    $uri    = $uri ?: $values['uri'] ?? NULL;
-    $height = $blazies->get('image.height') ?: $values['height'] ?? NULL;
-    $width  = $blazies->get('image.width') ?: $values['width'] ?? NULL;
-    $label  = $blazies->get('media.label') ?: $values['title'] ?? NULL;
-    $title  = $blazies->get('image.title') ?: $label;
-    $type   = $blazies->get('media.type', $settings['type'] ?? NULL);
-    $type   = $values['type'] ?? $type;
-    $type   = $type == 'photo' ? 'image' : $type;
+      // Similar to extracting image data from ImageFactory source. Basically,
+      // anything from resource is fallback, except for type.
+      // Respect hard-coded width and height since no UI for all these here.
+      $item   = NULL;
+      $values = $blazies->get('media.resource', []);
+      $uri    = $blazies->get('image.uri', $settings['uri'] ?? NULL);
+      $uri    = $uri ?: $values['uri'] ?? NULL;
+      $height = $blazies->get('image.height') ?: $values['height'] ?? NULL;
+      $width  = $blazies->get('image.width') ?: $values['width'] ?? NULL;
+      $label  = $blazies->get('media.label') ?: $values['title'] ?? NULL;
+      $title  = $blazies->get('image.title') ?: $label;
+      $type   = $blazies->get('media.type', $settings['type'] ?? NULL);
+      $type   = $values['type'] ?? $type;
+      $type   = $type == 'photo' ? 'image' : $type;
 
-    // Redefines for sure so that VEF has image title.
-    $blazies->set('media.input_url', $input)
-      ->set('media.label', $title)
-      ->set('media.type', $type);
+      // Redefines for sure so that VEF has image title.
+      $blazies->set('media.input_url', $input)
+        ->set('media.label', $title)
+        ->set('media.type', $type);
 
-    // VEF has just URI, the rest are fetched from resource.
-    // Also Soundcloud here.
-    if ($uri && $fallback) {
-      $dims = [
-        'width'  => $width,
-        'height' => $height,
-      ];
-      $data = [
-        'uri'   => $uri,
-        'alt'   => $title,
-        'title' => $label ?: $title,
-      ] + $dims;
+      // VEF has just URI, the rest are fetched from resource.
+      // Also Soundcloud here.
+      if ($uri && $fallback) {
+        $dims = [
+          'width'  => $width,
+          'height' => $height,
+        ];
+        $data = [
+          'uri'   => $uri,
+          'alt'   => $title,
+          'title' => $label ?: $title,
+        ] + $dims;
 
-      // We are here from BlazyFilter, VEF, or where no File API available.
-      $blazies->set('image', $data, TRUE);
-      $data = $blazies->get('image');
-      $item = $blazies->toImage($data);
+        // We are here from BlazyFilter, VEF, or where no File API available.
+        $blazies->set('image', $data, TRUE);
+        $data = $blazies->get('image');
+        $item = $blazies->toImage($data);
 
-      // @todo move it out of here:
-      $blazies->set('image.item', $item)
-        ->set('image.original', $dims, TRUE);
+        // @todo move it out of here:
+        $blazies->set('image.item', $item)
+          ->set('image.original', $dims, TRUE);
+      }
 
-      return $item;
+      $this->thumbnail[$id] = $item;
     }
 
-    return NULL;
+    return $this->thumbnail[$id];
   }
 
   /**
@@ -283,6 +306,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $blazies  = $settings['blazies'];
     $valid    = $entity instanceof MediaInterface;
     $stage    = $settings['image'] ?? NULL;
+    $stage    = $blazies->get('field.formatter.image', $stage);
     $media    = $valid ? $entity : NULL;
 
     // Checks for access.
@@ -340,6 +364,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     if ($valid) {
       $build['#entity'] = $media;
       $this->fromMedia($build);
+
     }
     else {
       // Attempts to get image data directly from oEmbed resource.

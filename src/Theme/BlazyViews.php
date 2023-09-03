@@ -125,6 +125,7 @@ class BlazyViews {
       'display'     => $display,
       'embedded'    => $embedded,
       'instance_id' => $instance,
+      'data'        => Internals::getViewFieldData($view),
       'name'        => $view_name,
       'plugin_id'   => $plugin_id,
       'view_mode'   => $view_mode,

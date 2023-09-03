@@ -406,7 +406,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   /**
    * Build item elements.
    */
-  protected function withElement(array &$build) {
+  protected function withElement(array &$build): void {
 
     // @todo remove at 3.x for self::withElement().
     $file = $build['#entity'];

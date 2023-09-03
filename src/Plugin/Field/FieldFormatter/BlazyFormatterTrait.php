@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
 use Drupal\blazy\Field\BlazyField;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Traits\PluginScopesTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -211,6 +212,14 @@ trait BlazyFormatterTrait {
   protected function getCommonScopedFormElements() {
     return ['settings' => $this->getSettings()]
       + $this->getCommonFieldDefinition();
+  }
+
+  /**
+   * Returns Views delta_limit option.
+   */
+  protected function getViewLimit(array $settings): int {
+    $blazies = $settings['blazies'];
+    return Internals::getViewLimit($blazies);
   }
 
   /**

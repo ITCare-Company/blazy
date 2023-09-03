@@ -70,7 +70,7 @@ trait BlazyFormatterViewTrait {
     $this->formatter->postBuildElements($build, $items, $entities);
 
     // Pass to manager for easy updates to all Blazy formatters.
-    $output = $this->manager->build($build);
+    $output   = $this->manager->build($build);
     $settings = $this->manager->toHashtag($build);
 
     // Return without field markup, if not so configured, else field.html.twig.

@@ -337,9 +337,11 @@ class CheckItem {
     $is_remote = $embed_url && ($blazies->is('remote_video') || $is_vef);
     $is_iframe = $is_remote && empty($switch);
     $is_player = $is_remote && $switch == 'media';
+    $stage     = $settings['image'] ?? NULL;
+    $stage     = $blazies->get('field.formatter.image', $stage);
 
     // Only video has poster, audio can only have a multi content.
-    if ($blazies->is('local_audio') && !empty($settings['image'])) {
+    if ($blazies->is('local_audio') && !empty($stage)) {
       $blazies->set('is.multicontent', TRUE);
     }
 

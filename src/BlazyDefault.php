@@ -526,6 +526,7 @@ class BlazyDefault {
         'instagram.embeds' => [
           'js' => '//platform.instagram.com/en_US/embeds.js',
           'weight' => -16,
+          'attributes' => ['defer' => TRUE],
         ],
         'integration' => [
           'js' => 'js/instagram.js',
@@ -536,6 +537,7 @@ class BlazyDefault {
         'pinterest.widgets' => [
           'js' => 'https://assets.pinterest.com/js/pinit.js',
           'weight' => -16,
+          'attributes' => ['defer' => TRUE],
         ],
         'integration' => [
           'js' => 'js/pinterest.js',

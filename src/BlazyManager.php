@@ -279,6 +279,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Ensures at least the library is attached before emptying anything below.
+    // @todo defer heavy external sites' scripts into lazy loaded HTML?
     if ($attachments = $item['#attached'] ?? []) {
       $element['#attached'] = $this->merge($attachments, $element, '#attached');
     }
@@ -289,7 +290,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Since 2.17, any content can be lightboxed along long as supported.
     // Only possible if having hires image via `Main stage` aka cross image,
     // and the lightbox is capable to display it.
-    $hires   = $blazies->is('hires', !empty($settings['image']));
+    $image   = $blazies->get('field.formatter.image', $settings['image'] ?? NULL);
+    $hires   = $blazies->is('hires', !empty($image));
     $hires   = $hires || $blazies->get('box_media.id');
     $richbox = $blazies->is('lightbox') && $blazies->is('richbox');
 
@@ -312,6 +314,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
         $unlazy = Internals::isUnlazy($blazies);
         $media  = $blazies->get('lazy.html') && $blazies->get('media.id');
 
+        // Since 2.17, blazy is capable to lazy load HTML, like any media.
+        // @todo make it usable for non-media contents here.
         if (!$unlazy && $media) {
           $content = $this->toHtml($build['content'], 'div', 'media__html');
           $content = $this->renderer->renderPlain($content);

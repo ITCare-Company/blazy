@@ -42,7 +42,16 @@ class BlazyFormatterBlazy extends BlazyFileSvgFormatterBase {
   protected function buildElements(array &$build, $files, $langcode) {
     $this->formatter->hashtag($build);
 
-    foreach ($this->getElements($build, $files) as $element) {
+    $settings = $build['#settings'];
+    $limit    = $this->getViewLimit($settings);
+
+    foreach ($this->getElements($build, $files) as $delta => $element) {
+      // If a Views display, bail out if more than Views delta_limit.
+      // @todo figure out why Views delta_limit doesn't stop us here.
+      if ($limit > 0 && $delta > $limit - 1) {
+        break;
+      }
+
       // Since 2.17, match sub-modules `items` for easy swap later to DRY.
       $build['items'][] = $element;
     }

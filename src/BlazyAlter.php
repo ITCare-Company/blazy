@@ -83,8 +83,13 @@ class BlazyAlter {
     foreach (BlazyDefault::thirdPartyLibraries() as $module => $libs) {
       if ($extension === $module) {
         foreach ($libs as $id => $lib) {
-          if (isset($libraries[$id])) {
-            $libraries[$id]['js'][$lib['js']]['weight'] = $lib['weight'];
+          if (isset($libraries[$id]) && $js = $lib['js']) {
+            $libraries[$id]['js'][$js]['weight'] = $lib['weight'];
+
+            // See https://stackoverflow.com/questions/10808109
+            if ($attributes = $lib['attributes'] ?? []) {
+              $libraries[$id]['js'][$js]['attributes'] = $attributes;
+            }
           }
         }
       }
@@ -287,6 +292,7 @@ class BlazyAlter {
         'display'     => $display,
         'embedded'    => TRUE,
         'instance_id' => str_replace('_', '-', "{$name}-{$display}-{$view_mode}"),
+        'data'        => Internals::getViewFieldData($view),
         'name'        => $name,
         'plugin_id'   => $plugin_id,
         'view_mode'   => $view_mode,

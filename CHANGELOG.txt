@@ -1,4 +1,9 @@
 
+Blazy 8.x-2.0-dev, 2023-09-03
+------------------------------
+- Fixed for Views delta_limit option.
+- Fixed for local video thumbnails when embedded in a view.
+
 Blazy 8.x-2.0-dev, 2023-09-01
 ------------------------------
 - Fixed for fluid data-ratios regressions with Responsive image.

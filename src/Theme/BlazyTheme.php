@@ -9,7 +9,6 @@ use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\Path;
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Template\Attribute;
 
 /**
@@ -146,9 +145,18 @@ class BlazyTheme {
       // Adds a poster image if so configured.
       // Accessed only by BlazyMedia::build().
       if ($blazy = Internals::toHashtag($files[0])) {
+        $settings = $blazy->storage();
         $blazies = $blazy->get('blazies');
+        $url = $blazies->get('image.url');
 
-        if ($url = $blazies->get('image.url')) {
+        // Views style containing Media stage might be empty, unprocessed.
+        if (!$url && $uri = $blazies->get('image.uri')) {
+          $style = $blazies->get('image.style');
+          $url = Blazy::toUrl($settings, $style, $uri);
+        }
+
+        $blazies->set('image.url', $url);
+        if ($url) {
           if (!$blazies->use('loader') && $use_dataset) {
             $blazies->set('use.loader', TRUE);
           }
@@ -162,7 +170,6 @@ class BlazyTheme {
               $url = $box_url;
             }
 
-            $url = UrlHelper::stripDangerousProtocols($url);
             $attributes->setAttribute('poster', $url);
           }
         }

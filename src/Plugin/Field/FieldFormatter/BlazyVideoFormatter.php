@@ -68,6 +68,7 @@ class BlazyVideoFormatter extends BlazyVideoBase {
    */
   protected function buildElements(array &$build, $items, $langcode) {
     $settings = $this->formatter->toHashtag($build);
+    $limit    = $this->getViewLimit($settings);
     $entity   = $items->getEntity();
 
     if (!($vef = $this->vefProviderManager())) {
@@ -75,6 +76,12 @@ class BlazyVideoFormatter extends BlazyVideoBase {
     }
 
     foreach ($items as $delta => $item) {
+      // If a Views display, bail out if more than Views delta_limit.
+      // @todo figure out why Views delta_limit doesn't stop us here.
+      if ($limit > 0 && $delta > $limit - 1) {
+        break;
+      }
+
       $input = $item->value;
 
       if (empty($input)

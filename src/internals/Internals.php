@@ -145,6 +145,37 @@ class Internals {
   }
 
   /**
+   * Returns minimal View data, hence just delta_limit option for now.
+   */
+  public static function getViewFieldData($view): array {
+    $data = [];
+    foreach ($view->field as $field_name => $field) {
+      if ($options = $field->options ?? []) {
+        if ($check = $options['delta_limit'] ?? NULL) {
+          if ($subsets = $options['settings'] ?? []) {
+            // Ensures we are in the ecosystem. Grid option is only available at
+            // multi-value fields. A single value is not a concern.
+            // @todo recheck if anything else needed here.
+            if (isset($subsets['grid_medium'])) {
+              $data[$field_name]['limit'] = $check;
+            }
+          }
+        }
+      }
+    }
+    return $data;
+  }
+
+  /**
+   * Returns delta_limit option.
+   */
+  public static function getViewLimit($blazies): int {
+    $data = $blazies->get('view.data', []);
+    $name = $blazies->get('field.name');
+    return $data[$name]['limit'] ?? 0;
+  }
+
+  /**
    * Checks if it is an SVG.
    */
   public static function isSvg($uri): bool {

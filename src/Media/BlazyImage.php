@@ -250,6 +250,7 @@ class BlazyImage {
     $settings = Internals::toHashtag($options);
     $blazies  = $settings['blazies'] ?? NULL;
     $poster   = $settings['image'] ?? NULL;
+    $poster   = $blazies ? $blazies->get('field.formatter.image', $poster) : $poster;
     $name     = $name ?: $poster;
 
     // If poster is not defined, use the source_field or thumbnail property.

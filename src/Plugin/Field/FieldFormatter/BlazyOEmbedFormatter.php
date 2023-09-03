@@ -125,7 +125,18 @@ class BlazyOEmbedFormatter extends FormatterBase {
    * Provides the blazy elements.
    */
   protected function buildElements(array &$build, $items, $langcode) {
-    foreach ($this->getElements($build, $items) as $element) {
+    $this->formatter->hashtag($build);
+
+    $settings = $build['#settings'];
+    $limit    = $this->getViewLimit($settings);
+
+    foreach ($this->getElements($build, $items) as $delta => $element) {
+      // If a Views display, bail out if more than Views delta_limit.
+      // @todo figure out why Views delta_limit doesn't stop us here.
+      if ($limit > 0 && $delta > $limit - 1) {
+        break;
+      }
+
       $build['items'][] = $element;
     }
   }

@@ -126,7 +126,9 @@ class Check {
 
     // Some should be refined per item against potential mixed media items.
     // @todo move some into Blazy::prepare() as might be called per item.
-    $blazies->set('is.hires', !empty($settings['image']))
+    $stage = $settings['image'] ?? NULL;
+    $stage = $blazies->get('field.formatter.image', $stage);
+    $blazies->set('is.hires', !empty($stage))
       ->set('item.id', $item_id)
       ->set('item.caption', $item_caption)
       ->set('item.prefix', $item_prefix)

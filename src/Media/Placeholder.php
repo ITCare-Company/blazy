@@ -151,8 +151,8 @@ class Placeholder {
 
     // Apply attributes related to Blur and Thumbnail image style.
     $blazies = $settings['blazies'];
-    if ($tn_url = $blazies->get('thumbnail.url')) {
-      $attributes[Attributes::data($blazies, 'thumb')] = $tn_url;
+    if ($url = $blazies->get('thumbnail.url')) {
+      $attributes[Attributes::data($blazies, 'thumb')] = $url;
     }
 
     // Provides image effect if so configured unless being sandboxed.
