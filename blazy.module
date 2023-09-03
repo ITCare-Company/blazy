@@ -240,6 +240,7 @@ function blazy_parse_markdown($string) {
  * @see https://www.drupal.org/node/3367291
  */
 function blazy_libraries_get_path($name, $base_path = FALSE) {
+  @trigger_error('blazy_libraries_get_path is deprecated in blazy:8.x-2.16 and is removed from blazy:3.0.0. Use blazy()->getLibrariesPath() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
   return blazy()->getLibrariesPath($name, $base_path);
 }
 
