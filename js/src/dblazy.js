@@ -16,7 +16,7 @@
  * @todo when IE gone, https://caniuse.com/dom-manip-convenience
  */
 
-/* global define, module */
+/* global define */
 (function (_win, _doc) {
 
   'use strict';

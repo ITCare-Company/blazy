@@ -8,14 +8,13 @@
  * and is removed in 3.x.
  */
 
-/* csslint ignore:start */
 .b-colorbox--iframe,
 .b-colorbox--iframe * {
   box-sizing: border-box;
   max-width: 100%;
 }
 
-/* stylelint-disable selector-max-id, declaration-no-important */
+/* stylelint-disable */
 .b-colorbox--iframe #cboxBottomCenter,
 .b-colorbox--iframe #cboxBottomRight,
 .b-colorbox--iframe #cboxBottomLeft,
@@ -24,7 +23,7 @@
 .b-colorbox--iframe #cboxTopLeft,
 .b-colorbox--iframe #cboxMiddleLeft,
 .b-colorbox--iframe #cboxMiddleRight {
-  display: none !important; /* csslint allow: known-properties, important */
+  display: none !important;
 }
 
 .b-colorbox--iframe #cboxWrapper,
@@ -36,13 +35,14 @@
 .b-colorbox--iframe #cboxWrapper,
 .b-colorbox--iframe #cboxContent,
 .b-colorbox--iframe #cboxLoadedContent {
-  overflow: visible !important; /* csslint allow: known-properties, important */
+  overflow: visible !important;
 }
 
 .b-colorbox .media--ratio {
-  height: 0 !important; /* csslint allow: known-properties, important */
+  height: 0 !important;
   padding-bottom: 56%;
 }
+/* stylelint-enable */
 
 .b-colorbox iframe {
   border: 8px solid #37465b;
@@ -66,4 +66,3 @@ Be sure to not affect dynamic Instagram oEmbed. They are different beasts. */
 .b-colorbox .media--instagram .cboxIframe {
   max-width: 320px;
 }
-/* csslint ignore:end */

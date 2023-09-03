@@ -11,7 +11,7 @@
  *   It is extending dBlazy as a separate plugin to mimick jQuery CSS method.
  */
 
-(function ($, _win) {
+(function ($) {
 
   'use strict';
 
@@ -173,4 +173,4 @@
     });
   };
 
-})(dBlazy, this);
+})(dBlazy);

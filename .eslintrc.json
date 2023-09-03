@@ -1,6 +1,21 @@
 {
   // Eslint reading unwanted .yml?
   "ignorePatterns": ["*.yml", "config/**/*", "tests/*"],
+    // @todo remove when all js files are converted into es6.
+  "rules": {
+    "no-var": 0,
+    "func-names": 0,
+    "strict": 0,
+    "prefer-template": 0,
+    "prefer-destructuring": 0,
+    "no-undef": 0,
+    "prettier/prettier": 0,
+    "no-lonely-if": 0,
+    "no-shadow": 0,
+    "vars-on-top": 0,
+    "no-plusplus": 0,
+    "no-bitwise": 0
+  },
   "overrides": [
     {
       "files": ["js/src/*.js", "js/src/**/*.js", "js/src/**/**/*.js"]

@@ -8,7 +8,7 @@
  * Below is the cheap version of GridStack.
  */
 
-(function ($, Drupal, _doc) {
+(function ($, Drupal) {
 
   'use strict';
 
@@ -155,4 +155,4 @@
 
   };
 
-}(dBlazy, Drupal, this.document));
+}(dBlazy, Drupal));

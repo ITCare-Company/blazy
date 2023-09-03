@@ -3,7 +3,7 @@
  * Provides pinterest initializer.
  */
 
-(function ($, Drupal, _win, _doc) {
+(function ($, Drupal, _win) {
 
   'use strict';
 
@@ -124,4 +124,4 @@
     }
   };
 
-}(dBlazy, Drupal, this, this.document));
+}(dBlazy, Drupal, this));
