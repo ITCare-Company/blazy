@@ -1,8 +1,4 @@
 {
   "extends": "../../../core/.stylelintrc.json",
-  "selector-id-pattern": "^[a-z][a-zA-Z0-9]+$|^ant-|^mz-",
-  "custom-property-pattern": "^--[a-z][-_a-z0-9IE]*$",
-  "ignoreFiles": [
-    "css/components/box/blazy.colorbox.css"
-  ]
+  "custom-property-pattern": "^--[a-z][-_a-z0-9IE]*$"
 }
