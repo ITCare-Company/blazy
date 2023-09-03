@@ -17,10 +17,10 @@
   if (!_proto.playing) {
     Object.defineProperty(_proto, 'playing', {
       get: function () {
-        return !!(this.currentTime > 0
-          && !this.paused
-          && !this.ended
-          && this.readyState > 2);
+        return !!(this.currentTime > 0 &&
+          !this.paused &&
+          !this.ended &&
+          this.readyState > 2);
       }
     });
   }

@@ -46,7 +46,7 @@
     return $.isElm($.closest(el, '.grid'));
   };
 
-  $.isHtml = function (el, opts) {
+  $.isHtml = function (el) {
     return is(el, 'b-html');
   };
 
@@ -69,8 +69,8 @@
     },
 
     ratio: function (data) {
-      var width = data.width ? parseInt(data.width, 0) : 640;
-      var height = data.height ? parseInt(data.height, 0) : 360;
+      var width = data.width ? parseInt(data.width, 2) : 640;
+      var height = data.height ? parseInt(data.height, 2) : 360;
       return data ? ((height / width) * 100).toFixed(2) : 100;
     },
 

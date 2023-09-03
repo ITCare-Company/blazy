@@ -6,7 +6,6 @@
  * Credits: https://gist.github.com/mudge/5830382
  */
 
-/* global module */
 (function () {
 
   'use strict';

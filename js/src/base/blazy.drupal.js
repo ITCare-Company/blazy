@@ -59,11 +59,9 @@
     },
 
     isFluid: function (el, cn) {
+      // @todo remove the last at/by 3.x:
       return $.equal(el.parentNode, 'picture') &&
-        ($.hasAttr(cn, _dataBratios)
-          // @todo remove the last at/by 3.x:
-          ||
-          $.hasAttr(cn, _dataRatios));
+        ($.hasAttr(cn, _dataBratios) || $.hasAttr(cn, _dataRatios));
     },
 
     isLoaded: function (el) {
