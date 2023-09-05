@@ -581,7 +581,7 @@ class BlazyDefault {
     return [
       'initial' => 0,
       'is' => [],
-      'lazy' => ['attribute' => 'src', 'class' => 'b-lazy'],
+      'lazy' => ['id' => 'blazy', 'attribute' => 'src', 'class' => 'b-lazy'],
       'libs' => [],
       'ui' => $ui,
       'use' => [],

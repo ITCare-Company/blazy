@@ -101,6 +101,16 @@ trait BlazyElementTrait {
   }
 
   /**
+   * Merges source with element array, excluding renderable array.
+   *
+   * Since 2.17, $source is no longer accessible downtream for just $element.
+   */
+  protected function withHashtag(array $source, array $element): array {
+    $data = $this->formatter->withHashtag($source);
+    return array_merge($data, $element);
+  }
+
+  /**
    * Builds the item using theme_blazy(), if so-configured.
    *
    * This is the future implementation after mergers at/by 3.x.
@@ -113,7 +123,8 @@ trait BlazyElementTrait {
       $internal['captions'] = $texts;
     }
 
-    $blazy = $this->formatter->getBlazy($internal);
+    $render = $this->formatter->getBlazy($internal);
+    $output = $this->withHashtag($data, $render);
 
     // @todo compare with split below if mergeable even more.
     // Only blazy has content, unset here.
@@ -123,17 +134,17 @@ trait BlazyElementTrait {
     // Inform thumbnails with the blazy processed settings.
     // $this->formatter->postBlazy($element, $blazy);
     if (static::$namespace == 'blazy') {
-      $element = $blazy;
+      $element = $output;
     }
     else {
       // Only blazy has content, unset here.
       unset($data['content']);
 
       $element = $data;
-      $element[static::$itemId] = $blazy;
+      $element[static::$itemId] = $output;
 
       // Inform thumbnails with the blazy processed settings.
-      $this->formatter->postBlazy($element, $blazy);
+      $this->formatter->postBlazy($element, $output);
     }
     return $element;
   }
@@ -151,19 +162,23 @@ trait BlazyElementTrait {
     // Split for different formatters with very minimal difference.
     if (static::$namespace == 'blazy') {
       $internal[static::$captionId] = $captions;
-      $element = $this->formatter->getBlazy($internal);
+
+      $render  = $this->formatter->getBlazy($internal);
+      $element = $this->withHashtag($data, $render);
     }
     else {
-      $blazy = $this->formatter->getBlazy($internal);
+      $render = $this->formatter->getBlazy($internal);
+      $output = $this->withHashtag($data, $render);
+
       // Only blazy has content, unset here.
       unset($data['content']);
 
       $element = $data;
 
-      $element[static::$itemId] = $blazy;
+      $element[static::$itemId] = $output;
       $element[static::$captionId] = $captions;
 
-      $this->formatter->postBlazy($element, $blazy);
+      $this->formatter->postBlazy($element, $output);
     }
     return $element;
   }

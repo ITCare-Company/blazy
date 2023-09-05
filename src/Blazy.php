@@ -190,11 +190,4 @@ class Blazy {
     return 0;
   }
 
-  /**
-   * Alias for CheckItem::which().
-   */
-  public static function which(array &$settings, $lazy, $class, $attribute): void {
-    CheckItem::which($settings, $lazy, $class, $attribute);
-  }
-
 }

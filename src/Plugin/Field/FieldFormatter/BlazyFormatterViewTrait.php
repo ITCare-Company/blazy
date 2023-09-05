@@ -26,7 +26,7 @@ trait BlazyFormatterViewTrait {
     array $entities = [],
     array $settings = []
   ) {
-    // Modifies settings before building elements.
+    // Modifies elements before building elements.
     $entities = empty($entities) ? [] : array_values($entities);
     $elements = $entities ?: $items;
 
@@ -44,6 +44,7 @@ trait BlazyFormatterViewTrait {
     $defaults = $this->buildSettings();
     $settings = $this->formatter->merge($settings, $defaults);
 
+    // Internal overrides before enough data is populated below.
     $this->preSettings($settings, $langcode);
 
     // Build the settings.
@@ -56,20 +57,18 @@ trait BlazyFormatterViewTrait {
     $this->postSettings($build['#settings'], $langcode);
 
     // Build the elements.
-    // Satisfy phpstan.
     if (method_exists($this, 'buildElements')) {
       // BC hook_alters upstream are happy, ensures no more leaks downstream.
       // @todo recheck if any misses downstream.
       unset($build['settings']);
 
-      // @todo refactor at/by 3.x to return output like ::build() below instead.
       $this->buildElements($build, $elements, $langcode);
     }
 
     // Modifies settings post building elements.
     $this->formatter->postBuildElements($build, $items, $entities);
 
-    // Pass to manager for easy updates to all Blazy formatters.
+    // Pass to manager for easy updates to all ecosystem formatters.
     $output   = $this->manager->build($build);
     $settings = $this->manager->toHashtag($build);
 

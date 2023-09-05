@@ -182,12 +182,16 @@ class Check {
       || $blazies->get('fx')
       || $blazies->get('libs.compat');
 
+    // @todo remove is.bg for use.bg at 3.x:
+    $blazies->set('is.bg', $is_bg);
+
     // Some should be refined per item against potential mixed media items.
     // @todo move some into Blazy::prepare() as might be called per item.
+    // @todo remove some overlaps is for use.
     $blazies->set('css.ratio', $ratios, TRUE)
       ->set('image.loading', $loading)
       ->set('is.amp', $is_amp)
-      ->set('is.bg', $is_bg)
+      ->set('is.blazy', TRUE)
       ->set('is.fluid', $is_fluid)
       ->set('is.nojs', $is_nojs)
       ->set('is.preview', $is_preview)
@@ -204,8 +208,10 @@ class Check {
       ->set('libs.compat', $is_compat)
       ->set('libs.ratio', !empty($settings['ratio']))
       ->set('media.defaults', $medias)
+      ->set('use.bg', $is_bg)
       ->set('use.dataset', $is_bg || $is_video)
       ->set('use.encodedbox', !empty($ui['use_encodedbox']))
+      ->set('use.image', TRUE)
       ->set('use.loader', !$is_nojs)
       ->set('use.script', FALSE)
       ->set('use.svg_dimensions', TRUE);
@@ -367,34 +373,20 @@ class Check {
   /**
    * Checks lazy insanity given various features/ media types + loading option.
    *
+   * Since 2.17, sliders lazyloads are no longer supported to avoid this type
+   * of complication.
+   *
    * To address mixed media, and various options which also affect individual
    * items, see Blazy::preSettings().
    */
   public static function lazyOrNot(array &$settings): void {
     $blazies = $settings['blazies'];
 
-    // Lazy load types: blazy, and slick: ondemand, anticipated, progressive.
-    $is_blazy = $blazies->is('blazy', !empty($settings['blazy']));
-    $is_blazy = $is_blazy || $blazies->is('bg') || $blazies->get('resimage.id');
-    $lazy = $is_blazy ? 'blazy' : $settings['lazy'] ?? 'blazy';
-    $lazy = $blazies->get('lazy.id', $lazy ?: 'blazy');
-    $lazy = $blazies->is('nojs') ? '' : $lazy;
-    $attribute = $blazies->get('lazy.attribute', 'src');
-    $class = $blazies->get('lazy.class', 'b-lazy');
-
-    // @todo re-check after sub-modules which were only aware of `is_preview`.
-    // Basically tricking overrides by the reversed name due to sub-modules are
-    // not updated to the new options `No JavaScript` + `Loading priority`, yet.
-    // As known, Splide/ Slick have their own lazy, but might break till further
-    // updates. Choosing Blazy as their lazyload method is the solution to be
-    // compatible with the mentioned options. Better than sacrificing Native.
-    $is_unlazy = empty($lazy);
-
-    $blazies->set('is.blazy', $is_blazy)
-      ->set('is.unlazy', $is_unlazy)
-      ->set('lazy.id', $lazy)
-      ->set('lazy.attribute', $attribute)
-      ->set('lazy.class', $class)
+    $blazies->set('is.unlazy', $blazies->is('nojs'))
+      // @todo remove after another check, already defined upstream.
+      ->set('lazy.id', 'blazy')
+      ->set('lazy.attribute', 'src')
+      ->set('lazy.class', 'b-lazy')
       ->set('was.lazy', TRUE);
   }
 

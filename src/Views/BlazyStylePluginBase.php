@@ -59,7 +59,6 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     // Supports individual grid/box image style either inline IMG, or CSS.
     $element['#delta'] = $delta;
     if ($_image || $captions) {
-      // @todo listen to thumbnail and re-use the previous call.
       $image = $this->getImageRenderable($settings, $row, $delta);
       $rendered = $image['rendered'] ?? [];
       $element['#item'] = $image['raw'] ?? NULL;

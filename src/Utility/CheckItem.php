@@ -163,6 +163,9 @@ class CheckItem {
   /**
    * Checks lazy insanity given various features/ media types + loading option.
    *
+   * Since 2.17, sliders lazyloads are no longer supported to avoid this type
+   * of complication.
+   *
    * @requires self::multimedia()
    *
    * Some duplicate rules are to address non-blazy formatters like embedded
@@ -171,10 +174,6 @@ class CheckItem {
    * - Respects `No JavaScript: lazy` aka decoupled lazy loader.
    * - Respects `Loading priority` to avoid anti-pattern.
    * - Respects `Loading: slider`, the initial is not lazyloaded, the rest are.
-   * - Respects sub-module lazy attributes and methods:
-   *   - Splide: nearby and sequential.
-   *   - Slick: anticipated, ondemand and progressive.
-   *   Unless they are incapable of dealing with: iframe, BG, Picture, BG, etc.
    *
    * @todo needs a recap to move some container-level here if they must live at
    * individual level, such as non-blazy Image formatter within Blazy ecosystem.
@@ -187,9 +186,8 @@ class CheckItem {
     $use_loader = $blazies->use('loader') ?: $settings['use_loading'] ?? FALSE;
     $use_loader = $unlazy ? FALSE : $use_loader;
     $is_unblur  = $blazies->is('sandboxed')
-      || $blazies->is('unstyled') || $blazies->is('iframe');
-    $is_blazy   = $blazies->get('lazy.id') == 'blazy' && $blazies->is('blazy');
-    $is_blur    = !$is_unblur && ($blazies->is('blur') && $is_blazy);
+      || $blazies->is('unstyled') || $blazies->use('iframe');
+    $is_blur    = !$is_unblur && $blazies->use('blur');
 
     // Supports core Image formatter embedded within Blazy ecosystem.
     $is_fluid = $blazies->is('fluid') ?: $ratio == 'fluid';
@@ -201,20 +199,13 @@ class CheckItem {
     $blazies->set('is.fluid', $is_fluid)
       ->set('is.blur', $is_blur)
       ->set('is.unlazy', $unlazy)
+      ->set('use.blur', $is_blur)
       ->set('use.loader', $use_loader)
       ->set('was.prepare', TRUE);
 
     // Also disable blur effect attributes.
     if (!$is_blur && $blazies->get('fx') == 'blur') {
       $blazies->set('fx', NULL);
-    }
-
-    // Overrides sub-modules which know not iframe, Picture, Video, BG, Blur.
-    if ($is_blazy || $is_blur) {
-      $blazies->set('lazy.attribute', 'src')
-        ->set('lazy.class', 'b-lazy')
-        ->set('lazy.id', 'blazy')
-        ->set('is.blazy', TRUE);
     }
   }
 
@@ -256,62 +247,6 @@ class CheckItem {
       ->set('was.unstyled', TRUE);
 
     return $unstyled;
-  }
-
-  /**
-   * Determines which lazyload to use for Slick and Splide.
-   *
-   * Moved it here to avoid similar issues like `is_preview` complication,
-   * and other improvements: `Loading` priority, `No JavaScript: lazy`, etc.
-   *
-   * @todo refine this based on the new options.
-   * @todo remove non configurable settings after sub-modules.
-   */
-  public static function which(array &$settings, $lazy, $class, $attribute): void {
-    // Don't bother if empty.
-    if (empty($lazy)) {
-      return;
-    }
-
-    $blazies = Internals::verify($settings);
-
-    // Bail out if lazy load is disabled, or in sandbox mode.
-    if ($blazies->is('nojs') || $blazies->is('sandboxed')) {
-      // @todo remove $settings after slick:2.10.
-      $settings['lazy'] = $lazy;
-      return;
-    }
-
-    // Slick only knows plain old image.
-    // Splide does know plain (Responsive) image, but not Picture.
-    // Blazy knows more: BG, local video, remote video or iframe, (Responsive
-    // |Picture) image.
-    // Must be re-defined at item level to respect mixed media.
-    // @todo local video, iframe, etc. are not covered at container level.
-    $use_blazy = $lazy == 'blazy'
-      || !empty($settings['blazy'])
-      || !empty($settings['responsive_image_style'])
-      || $blazies->is('bg', !empty($settings['background']))
-      || $blazies->is('blazy')
-      || $blazies->is('blur');
-
-    // Allows Blazy to take over for advanced features above.
-    $lazy = $use_blazy ? 'blazy' : $lazy;
-
-    // Still a check in case the above does not cover, like video, iframe, etc.
-    if ($use_blazy) {
-      $blazies->set('is.blazy', TRUE);
-    }
-    else {
-      $blazies->set('lazy.attribute', $attribute)
-        ->set('lazy.class', $class);
-    }
-
-    // @todo remove $settings.
-    $settings['blazy'] = $use_blazy;
-    $settings['lazy'] = $lazy;
-
-    $blazies->set('lazy.id', $lazy);
   }
 
   /**
@@ -373,15 +308,25 @@ class CheckItem {
 
     }
 
+    // Disable image.
+    $local_video = $blazies->is('local_video') && !$blazies->is('lightbox');
+    if ($is_iframe || $local_video) {
+      $blazies->set('use.image', FALSE);
+    }
+
     // Addresses mixed media unique per item, aside from convenience.
     // Also compat with BVEF till they are updated to adopt 2.10 changes.
-    $multimedia = $blazies->is('multimedia', $is_remote);
+    // @todo remove deprecated dup is for use at 3.x.
     $blazies->set('is.iframe', $is_iframe)
-      ->set('is.multimedia', $multimedia || $blazies->is('playable'))
-      ->set('is.player', $is_player)
+      ->set('is.player', $is_player);
+
+    $multimedia = $blazies->is('multimedia', $is_remote);
+    $blazies->set('is.multimedia', $multimedia || $blazies->is('playable'))
       ->set('is.remote_video', $is_remote)
       ->set('media.embed_url', $embed_url)
-      ->set('media.type', $type);
+      ->set('media.type', $type)
+      ->set('use.iframe', $is_iframe)
+      ->set('use.player', $is_player);
   }
 
 }

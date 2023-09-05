@@ -1,4 +1,12 @@
 
+Blazy 8.x-2.0-dev, 2023-09-05
+------------------------------
+- Micro optimization: Changed entity formatter loop into \Generator.
+- Micro optimization: Removed sliders lazy loads to avoid complication for just
+  Blazy.
+- Deprecated is.blur for use.blur, is.bg for use.bg, is.player for use.player,
+  is.iframe for use.iframe.
+
 Blazy 8.x-2.0-dev, 2023-09-03
 ------------------------------
 - Fixed for Views delta_limit option.

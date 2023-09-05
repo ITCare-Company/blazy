@@ -143,7 +143,8 @@ class BlazyVideoFormatter extends BlazyVideoBase {
         '#item'     => NULL,
       ];
 
-      // Since 2.17, VEF embed is respected via Blazy UI option `Use oEmbed`.
+      // Since 2.17, VEF embed is respected via Blazy UI option `Use oEmbed`,
+      // or set by option via $blazies->set('use.oembed', FALSE).
       $this->blazyOembed->build($data);
 
       // Image with responsive image, lazyLoad, and lightbox supports.

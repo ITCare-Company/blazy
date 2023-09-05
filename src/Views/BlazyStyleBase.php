@@ -578,6 +578,16 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
   }
 
   /**
+   * Merges source with element array, excluding renderable array.
+   *
+   * Since 2.17, $source is no longer accessible downtream for just $element.
+   */
+  protected function withHashtag(array $source, array $element): array {
+    $data = $this->formatter->withHashtag($source);
+    return array_merge($data, $element);
+  }
+
+  /**
    * Extract image style and url from core image formatter.
    */
   protected function withImageFormatter(array &$settings, array $rendered, $index): void {
@@ -635,16 +645,6 @@ abstract class BlazyStyleBase extends StylePluginBase implements BlazyStyleBaseI
     // If no URI, but we have an ImageItem.
     if (!$uri && is_object($item)) {
       $uri = Blazy::uri($item);
-    }
-
-    // Core media Thumbnail formatter might deliver just default media icons,
-    // while this Views style expects a real image via Image + Thumbnail option.
-    if ($uri && strpos($uri, 'media-icons') !== FALSE) {
-      // @todo make this call usable for the Main stage option downstream.
-      if ($image = $this->getImageRenderable($sets, $row, $index)) {
-        $item = $image['raw'];
-        $uri = $blazies->get('image.uri');
-      }
     }
 
     // Only if we have an URI.

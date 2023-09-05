@@ -161,9 +161,10 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
         $data = $item['#build'] ?? $fallback;
 
         if ($data = array_filter($data)) {
-          $blazy = $data['#settings']['blazies'];
-          $blazies->set('first.data', $data)
-            ->set('first.uri', $blazy->get('image.uri'));
+          if ($blazy = $data['#settings']['blazies'] ?? NULL) {
+            $blazies->set('first.data', $data)
+              ->set('first.uri', $blazy->get('image.uri'));
+          }
         }
       }
     }

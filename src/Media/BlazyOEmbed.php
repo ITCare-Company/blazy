@@ -264,20 +264,22 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * Checks for the provider to determine oembed, or not.
    */
   private function checkProvider($input, $blazies): void {
-    $name = $blazies->get('media.provider');
-    $use_oembed = FALSE;
+    if (!$blazies->was('provider')) {
+      $name = $blazies->get('media.provider');
+      $use_oembed = FALSE;
 
-    // Might be NULL for BlazyFilter, VEF, etc., re-define.
-    if ($provider = $this->getProvider($input)) {
-      $name = strtolower($provider->getName());
-      $use_oembed = TRUE;
-    }
+      // Might be NULL for BlazyFilter, VEF, etc., re-define.
+      if ($provider = $this->getProvider($input)) {
+        $name = strtolower($provider->getName());
+        $use_oembed = TRUE;
+      }
 
-    $blazies->set('use.oembed', $use_oembed);
-    if ($name) {
-      $blazies->set('is.' . $name, TRUE)
-        ->set('media.provider', $name)
-        ->set('was.provider', TRUE);
+      $blazies->set('use.oembed', $use_oembed);
+      if ($name) {
+        $blazies->set('is.' . $name, TRUE)
+          ->set('media.provider', $name)
+          ->set('was.provider', TRUE);
+      }
     }
   }
 
@@ -415,14 +417,25 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
       case 'image':
       case 'svg':
         // Let's keep it for switch purposes.
-        $blazies->set('media.type', 'image');
+        $blazies->set('media.type', 'image')
+          ->set('media.provider', 'local')
+          ->set('media.input', NULL)
+          ->set('media.embed_url', NULL);
         break;
 
       default:
-        // Local audio/video has numeric value, skip.
-        if ($input && !is_numeric($input)) {
-          $blazies->set('media.input_url', $input);
-          $this->toEmbed($settings);
+        if ($input) {
+          // Local audio/video has numeric value, skip.
+          if (is_numeric($input)) {
+            $blazies->set('media.provider', 'local')
+              ->set('media.input_url', NULL)
+              ->set('media.embed_url', NULL)
+              ->set('lazy.html', FALSE);
+          }
+          else {
+            $blazies->set('media.input_url', $input);
+            $this->toEmbed($settings);
+          }
         }
 
         // Supports other Media entities: Facebook, Instagram, local media, etc.
@@ -437,7 +450,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
           // Iframe, like image, can be handled by theme_blazy(). The rest
           // that Blazy doesn't understand should be respected as is as content.
-          if ($blazies->is('rendered')) {
+          if ($blazies->use('content')) {
             $build['content'][] = $result;
           }
         }

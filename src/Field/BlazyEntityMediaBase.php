@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Field;
 
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\internals\Internals;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -15,7 +16,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
   use BlazyDependenciesTrait;
-  use BlazyElementTrait;
 
   /**
    * {@inheritdoc}
@@ -63,26 +63,11 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   /**
    * {@inheritdoc}
    */
-  protected function withElement(array &$build): void {
-    parent::withElement($build);
-
-    $settings = $build['#settings'];
-
-    // Bail out if vanilla (rendered entity) is required.
-    if (empty($settings['vanilla'])) {
-      $this->withDetailedElement($build);
-    }
-  }
-
-  /**
-   * Hard works here meant to reduce custom code at theme level.
-   */
-  protected function withDetailedElement(array &$build): void {
+  protected function withElementDetail(array $build): array {
     [
-      '#delta'    => $delta,
-      '#settings' => $settings,
       '#entity'   => $entity,
       '#langcode' => $langcode,
+      '#settings' => $settings,
     ] = $build;
 
     $blazies   = $settings['blazies'];
@@ -91,14 +76,11 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     $switch    = $settings['media_switch'] ?? NULL;
     $_image    = $settings['image'] ?? NULL;
 
-    // Do not pass $build directly, even if easier, too early render errors.
-    $data = [
-      '#delta'    => $delta,
-      '#settings' => $this->manager->toSettings($settings),
-      '#entity'   => $entity,
-      '#langcode' => $langcode,
-      '#item'     => NULL,
-    ];
+    // Do not pass $build directly, even if easier, too early render errors,
+    // and duplicated elements due to renderable array.
+    $data = $this->formatter->withHashtag($build);
+    $data['#settings'] = $this->manager->toSettings($settings);
+    $data['#item'] = NULL;
 
     // Build media item including custom highres video thumbnail.
     $this->blazyOembed->build($data);
@@ -119,7 +101,9 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     // embedded in Blazy ecosytem mostly for Grid, Slider, Mason, GridStack etc.
     if ($is_blazy && $_image && $switch == 'rendered') {
       if ($output = BlazyField::view($entity, $_image, $view_mode)) {
-        $blazies->set('lazy.html', FALSE);
+        // Disable all lazy stuffs since we got a brick here.
+        Internals::contently($settings);
+
         $data['content'][] = $output;
       }
     }
@@ -127,8 +111,10 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     // Provides the relevant elements based on the configuration.
     $element = $this->toElement($blazies, $data, $captions);
 
-    // Split the elements based on the calling modules.
-    $this->splitElement($build, $element);
+    // Provides extra elements.
+    $this->withElementExtra($element);
+
+    return $element;
   }
 
   /**
@@ -136,10 +122,10 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
    */
   protected function getCaptions(array $element): array {
     [
-      '#settings' => $settings,
       '#entity'   => $entity,
-      '#langcode' => $langcode,
       '#item'     => $item,
+      '#langcode' => $langcode,
+      '#settings' => $settings,
     ] = $element;
 
     $view_mode = $settings['view_mode'] ?? 'full';
@@ -267,51 +253,11 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   /**
    * Build extra elements.
    */
-  protected function withElementExtra(array &$element) {
+  protected function withElementExtra(array &$element): void {
     // @todo remove at 3.x:
-    $entity = $element['#entity'];
-    $langcode = $element['#langcode'];
+    $entity = $element['#entity'] ?? NULL;
+    $langcode = $element['#langcode'] ?? NULL;
     $this->buildElementExtra($element, $entity, $langcode);
-  }
-
-  /**
-   * Split the elements based on the modules.
-   */
-  private function splitElement(array &$build, array &$element): void {
-    [
-      '#settings' => $settings,
-      '#entity'   => $entity,
-      '#delta'    => $delta,
-    ] = $build;
-
-    $blazies = $settings['blazies'];
-    $is_nav  = $blazies->is('nav') || !empty($settings['nav']);
-
-    // Optional image with responsive image, lazyLoad, and lightbox supports.
-    // Including potential rich Media contents: local video, Facebook, etc.
-    // Since 2.17, Blazy got trendy with sub-modules for easy swap later.
-    if (static::$namespace == 'blazy') {
-      $build['items'][$delta] = $element;
-    }
-    else {
-      // Provides extra elements.
-      $this->withElementExtra($element);
-
-      // Build the main item.
-      $build['items'][$delta] = $element;
-
-      // Build the thumbnail item.
-      if ($is_nav) {
-        // @todo remove check at/ by 3.x:
-        if (method_exists($this, 'withElementThumbnail')) {
-          $this->withElementThumbnail($build, $element);
-        }
-        // @todo remove at/ by 3.x only after sub-modules:
-        elseif (method_exists($this, 'buildElementThumbnail')) {
-          $this->buildElementThumbnail($build, $element, $entity, $delta);
-        }
-      }
-    }
   }
 
   /**
@@ -350,11 +296,11 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
    * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17.
    *
    * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use
-   *   self::withDetailedElement() instead.
+   *   self::withElementDetail() instead.
    * @see https://www.drupal.org/node/3103018
    */
   protected function toElements(array &$build): void {
-    @trigger_error('toElements is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Field\BlazyEntityMediaBase::withDetailedElement() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
+    @trigger_error('toElements is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Field\BlazyEntityMediaBase::withElementDetail() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
   }
 
 }

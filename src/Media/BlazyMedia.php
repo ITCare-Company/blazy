@@ -478,7 +478,7 @@ class BlazyMedia implements BlazyMediaInterface {
    */
   private function disableFeatures(array &$settings, $rendered = TRUE, $link = NULL): void {
     $blazies = $settings['blazies'];
-    $blazies->set('is.rendered', $rendered);
+    $blazies->set('use.content', $rendered);
 
     // @todo recheck, might be dynamic link to iframe like Pinterest:
     if ($link) {
@@ -560,13 +560,13 @@ class BlazyMedia implements BlazyMediaInterface {
     elseif (isset($item['#files'])
       && $file = ($item['#files'][0]['file'] ?? NULL)) {
       $this->toLocal($item, $settings, $file);
-      $blazies->set('is.rendered', TRUE);
+      $blazies->set('use.content', TRUE);
     }
     elseif ($theme = $item['#theme'] ?? NULL) {
       // Resource::TYPE_PHOTO.
       if ($theme == 'image') {
-        $blazies->set('is.rendered', FALSE)
-          ->set('media.type', 'image');
+        $blazies->set('media.type', 'image')
+          ->set('use.content', FALSE);
 
         if ($uri = $item['#uri'] ?? NULL) {
           $blazies->set('image.uri', $uri);
@@ -584,7 +584,7 @@ class BlazyMedia implements BlazyMediaInterface {
       $link = $type == 'link' && isset($item['#url']) ? $item['#url'] : NULL;
 
       // Unless required as a thumbnail, render as is.
-      $rendered = !$blazies->is('thumbnail');
+      $rendered = !$blazies->use('thumbnail');
 
       // Facebook, and the rest of media entities.
       // At least display thumbnails for empty markups.

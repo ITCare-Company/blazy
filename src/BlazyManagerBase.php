@@ -220,7 +220,6 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
 
     $blazies->set('fx', $fx)
       ->set('iframe_domain', $iframe_domain)
-      ->set('is.blur', $is_blur)
       ->set('is.debug', $is_debug)
       ->set('is.resimage', $is_resimage)
       ->set('is.unblazy', $this->config('io.unblazy'))
@@ -229,11 +228,15 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
       ->set('libs.blur', $is_blur)
       ->set('lightbox.plugins', $lightboxes)
       ->set('ui', $ui)
-      ->set('use.theme_blazy', $use_blazy)
-      ->set('use.theme_thumbnail', $use_blazy)
+      ->set('use.blur', $is_blur)
       // @todo enable at 3.x after conversion from data-BLAH to data-b-BLAH.
       ->set('use.data_b', FALSE)
+      ->set('use.theme_blazy', $use_blazy)
+      ->set('use.theme_thumbnail', $use_blazy)
       ->set('version.blazy', Blazy::version('blazy'));
+
+    // @todo remove is.blur for use.blur at 3.x:
+    $blazies->set('is.blur', $is_blur);
 
     if ($namespace && $namespace != 'blazy') {
       if ($this->moduleExists($namespace)) {

@@ -21,6 +21,8 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     pluginSettings as traitPluginSettings;
   }
 
+  use BlazyElementTrait;
+
   /**
    * The module namespace.
    *
@@ -112,86 +114,68 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   }
 
   /**
-   * Returns media contents.
-   *
-   * @todo refactor at 3.x to collect from a \Generator like File.
+   * Provides any entity contents.
    */
-  protected function buildElements(array &$build, $entities, $langcode) {
-    // @todo remove the helper at/ by 3.x post migrations:
-    $this->formatter->hashtag($build);
+  protected function buildElements(array &$build, array $entities, $langcode): void {
+    foreach ($this->getElements($build, $entities, $langcode) as $element) {
+      if ($element) {
+        $build['items'][] = $element;
 
-    $settings = $build['#settings'];
-    $limit    = $this->getViewLimit($settings);
-
-    foreach ($entities as $delta => $entity) {
-      // If a Views display, bail out if more than Views delta_limit.
-      // @todo figure out why Views delta_limit doesn't stop us here.
-      if ($limit > 0 && $delta > $limit - 1) {
-        break;
+        $this->withOverride($build, $element);
       }
-
-      // Protect ourselves from recursive rendering.
-      static $depth = 0;
-      $depth++;
-      if ($depth > 20) {
-        $this->loggerFactory->get('entity')
-          ->error('Recursive rendering detected when rendering entity @entity_type @entity_id. Aborting rendering.', [
-            '@entity_type' => $entity->getEntityTypeId(),
-            '@entity_id' => $entity->id(),
-          ]);
-        break;
-      }
-
-      $build['#delta']    = $delta;
-      $build['#entity']   = $entity;
-      $build['#langcode'] = $langcode;
-
-      $this->preElement($build);
-
-      // Add the entity to cache dependencies so to clear when it is updated.
-      if ($item = $build['items'][$delta] ?? []) {
-        $this->formatter
-          ->renderer()
-          ->addCacheableDependency($item, $entity);
-      }
-
-      $depth = 0;
     }
   }
 
   /**
-   * Generates elements, also for sub-modules to re-use.
-   *
-   * @todo refactor at 3.x to collect from a \Generator like File.
+   * Generates elements.
    */
-  protected function getElements($entities, $langcode): \Generator {
+  private function getElements(array $data, array $entities, $langcode): \Generator {
+    // @todo remove the helper at/ by 3.x post migrations:
+    $this->formatter->hashtag($data);
+
+    $settings = $data['#settings'];
+    $limit    = $this->getViewLimit($settings);
+
     foreach ($entities as $delta => $entity) {
-      // Protect ourselves from recursive rendering.
       static $depth = 0;
       $depth++;
+      $element = [];
+
+      // Protect ourselves from recursive rendering.
       if ($depth > 20) {
         $this->loggerFactory->get('entity')
           ->error('Recursive rendering detected when rendering entity @entity_type @entity_id. Aborting rendering.', [
             '@entity_type' => $entity->getEntityTypeId(),
             '@entity_id' => $entity->id(),
           ]);
-        yield NULL;
+        yield $element;
+      }
+      else {
+        // If a Views display, bail out if more than Views delta_limit.
+        // @todo figure out why Views delta_limit doesn't stop us here.
+        if ($limit > 0 && $delta > $limit - 1) {
+          yield $element;
+        }
+        else {
+          $current              = $data;
+          $current['#delta']    = $delta;
+          $current['#entity']   = $entity;
+          $current['#langcode'] = $langcode;
+          $current['#parent']   = $data['#entity'] ?? NULL;
+
+          // @todo refine yield item here at 3.x.
+          if ($element = $this->withElement($current)) {
+            $item = $element[$delta] ?? $element;
+
+            // Add the entity to cache dependencies so to clear when updated.
+            $this->formatter->renderer()
+              ->addCacheableDependency($item, $entity);
+          }
+
+          yield $element;
+        }
       }
 
-      $build['#delta']    = $delta;
-      $build['#entity']   = $entity;
-      $build['#langcode'] = $langcode;
-
-      // @todo yield item here.
-      $this->preElement($build);
-      $item = $build['items'][$delta] ?? [];
-
-      // Add the entity to cache dependencies so to clear when it is updated.
-      if ($item) {
-        $this->formatter->renderer()->addCacheableDependency($item, $entity);
-      }
-
-      yield $item;
       $depth = 0;
     }
   }
@@ -218,36 +202,6 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   }
 
   /**
-   * Prepare item contents.
-   *
-   * @todo return the item here, not void. The challenge is sub-modules return:
-   * items.delta + items.[thumb|nav].items.delta. But we got a working template
-   * at File formatters to cope with this issue at 3.x.
-   */
-  private function preElement(array &$build): void {
-    // @todo remove the helper at/ by 3.x post migrations:
-    $this->formatter->hashtag($build);
-
-    $settings = &$build['#settings'];
-
-    $langcode = $build['#langcode'];
-    $blazies  = $settings['blazies']->reset($settings);
-    $delta    = $build['#delta'];
-    $entity   = $build['#entity'];
-    $bundle   = $entity->bundle();
-
-    $current = $delta . '-' . $entity->id();
-    $blazies->set('bundles.' . $bundle, $bundle, TRUE)
-      ->set('language.code', $langcode)
-      ->set('delta', $delta)
-      ->set('item.current', $current);
-
-    // @todo remove at 3.x, not used by any sub-modules:
-    $this->prepareElement($build, $entity, $langcode, $delta);
-    $this->withElement($build);
-  }
-
-  /**
    * {@inheritdoc}
    */
   protected function getPluginScopes(): array {
@@ -270,68 +224,109 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    */
   protected function pluginSettings(&$blazies, array &$settings): void {
     $this->traitPluginSettings($blazies, $settings);
-    $blazies->set('is.blazy', TRUE);
-
-    // @todo remove.
-    $settings['blazy'] = TRUE;
   }
 
   /**
-   * Build item elements.
-   *
-   * @todo refactor at 3.x to return an element array instead.
+   * Provides detailed elements.
    */
-  protected function withElement(array &$build): void {
-    $settings = $build['#settings'];
-    $entity   = $build['#entity'];
+  protected function withElementDetail(array $build): array {
+    return [];
+  }
+
+  /**
+   * Provides vanilla elements.
+   */
+  protected function withElementVanilla(array $build): array {
+    if ($element = $this->blazyEntity->view($build)) {
+      return $this->withHashtag($build, $element);
+    }
+    return [];
+  }
+
+  /**
+   * Provides item elements.
+   */
+  private function withElement(array $build): array {
+    // @todo remove the helper at/ by 3.x post migrations:
+    $this->formatter->hashtag($build);
+
+    $settings = &$build['#settings'];
     $langcode = $build['#langcode'];
+    $blazies  = $settings['blazies']->reset($settings);
+    $delta    = $build['#delta'];
+    $entity   = $build['#entity'];
+    $bundle   = $entity->bundle();
+
+    $current = $delta . '-' . $entity->id();
+    $blazies->set('bundles.' . $bundle, $bundle, TRUE)
+      ->set('language.code', $langcode)
+      ->set('delta', $delta)
+      ->set('item.current', $current);
+
+    // @todo remove at 3.x, not used by any sub-modules:
+    $this->prepareElement($build, $entity, $langcode, $delta);
 
     // Sub-modules always flag `vanilla` as required, -- configurable, or not.
-    if (!empty($settings['vanilla'])) {
-      // @todo recheck to pass $build directly, last time it caused too early
-      // render error somewhere.
-      $data = [
-        '#entity'   => $entity,
-        '#settings' => $settings,
-        '#delta'    => $build['#delta'],
-        '#langcode' => $build['#langcode'],
-      ];
+    if (empty($settings['vanilla'])) {
+      return $this->withElementDetail($build);
+    }
 
-      // @todo merge all these after sub-modules use theme_blazy() at/ by 3.x.
-      if ($output = $this->blazyEntity->view($data)) {
-        if (static::$namespace == 'blazy') {
-          $build['items'][] = $output;
+    return $this->withElementVanilla($build);
+  }
+
+  /**
+   * Provides overrides for BC.
+   */
+  private function withOverride(array &$build, array $element): void {
+    foreach (['delta', 'entity', 'langcode', 'settings'] as $key) {
+      $build["#$key"] = $element["#$key"] ?? $build["#$key"] ?? NULL;
+    }
+
+    $delta    = $build['#delta'] ?? 0;
+    $entity   = $build['#entity'];
+    $langcode = $build['#langcode'];
+    $settings = $build['#settings'];
+
+    if (method_exists($this, 'withElementOverride')) {
+      $this->withElementOverride($build, $element);
+    }
+    else {
+      // @todo remove for self::withElementOverride().
+      $this->buildElement($build, $entity, $langcode);
+
+      $blazies = $settings['blazies'];
+      if ($blazies->is('nav')) {
+        if (method_exists($this, 'withElementThumbnail')) {
+          $this->withElementThumbnail($build, $element);
         }
-        else {
-          $build['items'][] = [static::$itemId => $output];
+        // @todo remove at/ by 3.x only after sub-modules:
+        elseif (method_exists($this, 'buildElementThumbnail')) {
+          $this->buildElementThumbnail($build, $element, $entity, $delta);
         }
       }
     }
-
-    // @todo remove at 3.x for self::withElement().
-    $this->buildElement($build, $entity, $langcode);
   }
 
   /**
    * Deprecated in blazy:8.x-2.17, and is removed from blazy:3.0.0.
    *
    * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
-   *   self::withElement() instead.
+   *   self::withElement[Detail|Vanilla]() instead.
    * @see https://www.drupal.org/node/3367291
    */
   protected function buildElement(array &$build, $entity, $langcode) {
-    // @todo @trigger_error('buildElement is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::withElement() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    // @todo @trigger_error('buildElement is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::withElement[Detail|Vanilla]() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
   }
 
   /**
    * Deprecated in blazy:8.x-2.17, and is removed from blazy:3.0.0.
    *
    * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
-   *   self::withElement() instead.
+   *   self::withElemen[Detail|Vanilla]() instead.
    * @see https://www.drupal.org/node/3367291
    */
   protected function prepareElement(array &$build, $entity, $langcode, $delta): void {
-    // @todo @trigger_error('prepareElement is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::withElement() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    @trigger_error('prepareElement is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::withElement[Detail|Vanilla]() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
   }
 
 }

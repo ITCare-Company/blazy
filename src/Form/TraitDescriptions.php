@@ -61,7 +61,7 @@ trait TraitDescriptions {
       ]),
       'view_mode' => $view_mode,
       'thumbnail_style' => $this->t('Usages: <ol><li>Placeholder replacement for image effects (blur, etc.)</li><li>Photobox/PhotoSwipe thumbnail</li><li>Custom works with thumbnails.</li></ol> Be sure to have similar aspect ratio for the best blur effect. Leave empty to not use thumbnails.'),
-      'image' => $this->t('Main background/stage/poster image field with the only supported field types: <b>Image</b> or <b>Media</b> containing Image field. You may want to add a new Image field to this entity. Be sure to reuse the exact same image field (normally field_media_image) across various entitiy types (Image, Remote video, Local audio/video, etc.) within this particular entity (says, Media).'),
+      'image' => $this->t('Main background/stage/poster image field with the only supported field types: <b>Image</b> or <b>Media</b> containing Image field. You may want to add a new Image field to this entity. Be sure to reuse the exact same image field (normally field_media_image) across various entitiy types (Image, Remote video, Local audio/video, etc.) within this particular entity (says, Media). Required by some lightboxes as image triggers.'),
     ];
   }
 

@@ -40,6 +40,33 @@ class Internals {
   protected static $blazyId;
 
   /**
+   * Provides common content settings.
+   */
+  public static function contently(array &$settings): void {
+    $blazies = $settings['blazies'];
+
+    // Disable all lazy stuffs since we got a brick here.
+    // @todo recheck any misses, and refine overlaps.
+    $settings['media_switch'] = $settings['ratio'] = '';
+    $blazies->set('is.unlazy', TRUE)
+      ->set('lazy.html', FALSE)
+      ->set('media.type', '')
+      ->set('placeholder', [])
+      ->set('switch', '')
+      ->set('use.bg', FALSE)
+      ->set('use.blur', FALSE)
+      ->set('use.content', TRUE)
+      ->set('use.loader', FALSE)
+      ->set('use.player', FALSE);
+
+    // @todo remove dup is for use at 3.x.
+    $blazies->set('is.bg', FALSE)
+      ->set('is.blur', FALSE)
+      ->set('is.player', FALSE)
+      ->set('is.rendered', TRUE);
+  }
+
+  /**
    * Returns the expected/ corrected input URL.
    *
    * @param string $input
@@ -151,13 +178,15 @@ class Internals {
     $data = [];
     foreach ($view->field as $field_name => $field) {
       if ($options = $field->options ?? []) {
-        if ($check = $options['delta_limit'] ?? NULL) {
+        if (!empty($options['group_rows'])
+          && $limit = $options['delta_limit'] ?? 0) {
           if ($subsets = $options['settings'] ?? []) {
             // Ensures we are in the ecosystem. Grid option is only available at
             // multi-value fields. A single value is not a concern.
-            // @todo recheck if anything else needed here.
             if (isset($subsets['grid_medium'])) {
-              $data[$field_name]['limit'] = $check;
+              $data[$field_name]['limit'] = $limit;
+              $data[$field_name]['offset'] = $options['delta_offset'] ?? 0;
+              $data[$field_name]['options'] = $options;
             }
           }
         }
@@ -171,7 +200,7 @@ class Internals {
    */
   public static function getViewLimit($blazies): int {
     $data = $blazies->get('view.data', []);
-    $name = $blazies->get('field.name');
+    $name = $blazies->get('field.name', 'x');
     return $data[$name]['limit'] ?? 0;
   }
 
@@ -448,10 +477,13 @@ class Internals {
         ->set('media.escaped', $sanitized);
     }
 
+    // @todo remove is.rendered for use.content at 3.x:
+    $blazies->set('is.rendered', FALSE);
+
     return $blazies->set('is.iframeable', TRUE)
       ->set('is.playable', TRUE)
       ->set('is.multimedia', TRUE)
-      ->set('is.rendered', FALSE)
+      ->set('use.content', FALSE)
       ->set('libs.media', TRUE);
   }
 
@@ -537,7 +569,7 @@ class Internals {
     if (!$blazies->is('iframeable')) {
       if ($blazies->is('instagram') && $blazies->is('instagram_api')) {
         $blazies->set('use.instagram_api', TRUE)
-          ->set('use.scripted_iframe', $blazies->is('iframe'));
+          ->set('use.scripted_iframe', $blazies->use('iframe'));
       }
     }
   }

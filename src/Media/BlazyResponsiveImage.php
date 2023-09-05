@@ -73,7 +73,7 @@ class BlazyResponsiveImage {
   public static function background(array &$attributes, array &$settings): void {
     $blazies    = $settings['blazies'];
     $resimage   = $blazies->get('resimage.style');
-    $background = $blazies->is('bg', !empty($settings['background']));
+    $background = $blazies->use('bg');
 
     if (!$background || !$resimage) {
       return;

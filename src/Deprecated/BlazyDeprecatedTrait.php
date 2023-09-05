@@ -426,4 +426,15 @@ trait BlazyDeprecatedTrait {
     return Internals::toHashtag($data, $key, $default);
   }
 
+  /**
+   * Deprecated in blazy:8.x-2.17.
+   *
+   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
+   * none instead.
+   * @see https://www.drupal.org/node/3367291
+   */
+  public static function which(array &$settings, $lazy, $class, $attribute): void {
+    // Do nothing.
+  }
+
 }

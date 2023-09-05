@@ -574,6 +574,13 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function withHashtag(array $data): array {
+    return array_filter($data, fn($k) => strpos($k, '#') !== FALSE, ARRAY_FILTER_USE_KEY);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function toOptions(array $options): array {
     if ($options) {
       $options = array_map('\Drupal\Component\Utility\Html::escape', $options);

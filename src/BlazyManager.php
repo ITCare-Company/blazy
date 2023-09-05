@@ -61,6 +61,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       '#delta'       => $delta,
       '#item'        => $item,
       '#image_style' => $settings['image_style'],
+      '#uri'         => $blazies->get('image.uri'),
       '#build'       => $build,
       '#pre_render'  => [[$this, 'preRenderBlazy']],
     ];
@@ -329,16 +330,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
         }
         else {
           // Disable all lazy stuffs since we got a brick here.
-          // @todo recheck any misses.
-          $settings['media_switch'] = $settings['ratio'] = '';
-          $blazies->set('is.bg', FALSE)
-            ->set('is.rendered', TRUE)
-            ->set('is.player', FALSE)
-            ->set('is.unlazy', TRUE)
-            ->set('media.type', '')
-            ->set('placeholder', [])
-            ->set('switch', '')
-            ->set('use.loader', FALSE);
+          Internals::contently($settings);
         }
       }
     }

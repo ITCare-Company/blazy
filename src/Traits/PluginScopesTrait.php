@@ -90,7 +90,6 @@ trait PluginScopesTrait {
       $id = 'blazy';
 
       $blazies->set('item.id', $id)
-        ->set('is.blazy', TRUE)
         ->set('lazy.id', $id)
         ->set('namespace', $id);
     }

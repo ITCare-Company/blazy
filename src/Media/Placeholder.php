@@ -168,7 +168,7 @@ class Placeholder {
    */
   private static function blurs(array &$settings): void {
     $blazies = $settings['blazies'];
-    if (!$blazies->is('blur')) {
+    if (!$blazies->use('blur')) {
       return;
     }
 
@@ -195,7 +195,7 @@ class Placeholder {
    */
   private static function dataImage(array &$settings, $uri, $tn_uri, $tn_url, $style): void {
     $blazies = $settings['blazies'];
-    if (!$blazies->is('blazy') || !$blazies->is('blur')) {
+    if (!$blazies->is('blazy') || !$blazies->use('blur')) {
       return;
     }
 
@@ -284,6 +284,10 @@ class Placeholder {
     $blazies->set('thumbnail.url', $tn_url);
     if ($tn_url) {
       self::derivative($blazies, $uri, $tn_uri, $style, 'thumbnail');
+    }
+
+    if (!$blazies->use('blur')) {
+      return;
     }
 
     // @todo use the thumbnail size, not original ones, see: #3210759?

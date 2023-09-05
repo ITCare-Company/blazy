@@ -111,6 +111,7 @@ class Attributes {
     // Since 2.17, lazy load HTML content if so-configured.
     if ($blazies->get('lazy.html')) {
       $unlazy = Internals::isUnlazy($blazies);
+
       if (!$unlazy && $html = $blazies->get('media.encoded.content')) {
         if (!$blazies->get('bgs')) {
           $attributes['data-src'] = '';
@@ -119,8 +120,8 @@ class Attributes {
         $attributes['class'][] = 'b-lazy';
         $attributes['class'][] = 'b-html';
 
-        // @todo recheck:
-        $blazies->set('is.player', FALSE);
+        // @todo recheck and remove, already checked upstream.
+        $blazies->set('use.player', FALSE);
         $settings['media_switch'] = '';
       }
     }
@@ -129,6 +130,10 @@ class Attributes {
       $attributes['data-b-token'] = $token;
     }
 
+    // @todo remove BC at 3.x:
+    $player = $blazies->use('player') || $blazies->is('player');
+    $blazies->set('use.player', $player);
+
     self::finalizeAnyway($variables, $attributes, $settings);
   }
 
@@ -136,7 +141,12 @@ class Attributes {
    * Provides the media container classes.
    */
   public static function finalizeAnyway(array &$variables, array &$attributes, array $settings): void {
-    $blazies = $settings['blazies'];
+    $blazies  = $settings['blazies'];
+    $provider = $blazies->get('media.provider');
+
+    if ($provider == 'local') {
+      $blazies->set('media.provider', NULL);
+    }
 
     // Makes a little BEM order here due to Twig ignoring the preset priority.
     $classes = (array) ($attributes['class'] ?? []);
@@ -186,31 +196,43 @@ class Attributes {
    *   The variables being modified.
    */
   public static function buildMedia(array &$variables): void {
-    $attributes = &$variables['attributes'];
-    $settings   = &$variables['settings'];
-    $blazies    = $settings['blazies'];
+    $attributes  = &$variables['attributes'];
+    $settings    = &$variables['settings'];
+    $blazies     = $settings['blazies'];
+    $local_video = $blazies->is('local_video') && !$blazies->is('lightbox');
+    $bgs         = [];
+
+    // Disable fancy features for local video.
+    if ($local_video) {
+      $blazies->set('fx', NULL)
+        ->set('is.blur', FALSE);
+    }
 
     // 1. Prepares thumbnail and optional placeholder based on thumbnail.
     // Do not place this any lower, else breaking some logic below.
+    // The only required for local video is thumbnail for sliders, etc.
     Placeholder::prepare($attributes, $settings);
 
-    // 2. (Responsive) image is optional for Video, or image as CSS background.
-    if ($blazies->get('resimage.id')) {
-      self::buildResponsiveImage($variables);
-    }
-    else {
-      self::buildImage($variables);
-    }
+    // Skip local video, already has usable poster attribute.
+    if (!$local_video) {
+      // 2. (Responsive) image is optional for Video or image as CSS background.
+      if ($blazies->get('resimage.id')) {
+        self::buildResponsiveImage($variables);
+      }
+      else {
+        self::buildImage($variables);
+      }
 
-    // 3. The bgs is output specific for CSS background purposes with BC.
-    // This is applied to both Responsive and plain old images.
-    if ($bgs = $blazies->get('bgs')) {
-      self::background($attributes, $blazies, $bgs);
-    }
+      // 3. The bgs is output specific for CSS background purposes with BC.
+      // This is applied to both Responsive and plain old images.
+      if ($bgs = $blazies->get('bgs')) {
+        self::background($attributes, $blazies, $bgs);
+      }
 
-    // 4. Prepare iframe, and allow a tiny video preview without iframe.
-    if ($blazies->is('iframe') && !$blazies->is('noiframe')) {
-      self::buildIframe($variables);
+      // 4. Prepare iframe, and allow a tiny video preview without iframe.
+      if ($blazies->use('iframe') && !$blazies->is('noiframe')) {
+        self::buildIframe($variables);
+      }
     }
 
     // 5. (Responsive) image is optional for Video, or image as CSS background.
@@ -220,7 +242,7 @@ class Attributes {
       }
 
       // 6. Only blur if it has an image, or BG, including the media player.
-      if ($blazies->is('blur')) {
+      if ($blazies->use('blur')) {
         Placeholder::blur($variables, $settings);
       }
     }
@@ -561,10 +583,9 @@ class Attributes {
     $blazies     = $settings['blazies'];
     $url         = $blazies->get('image.url');
     $placeholder = $blazies->get('placeholder.url');
-    $background  = $blazies->is('bg', !empty($settings['background']));
 
     // Supports either lazy loaded image, or not.
-    if ($background) {
+    if ($blazies->use('bg')) {
       // Attach BG data attributes to a DIV container.
       // Background is not supported by Native, cannot use unlazy, use undata:
       // - undata: no use of dataset (data-b-bg) like at AMP, or preview pages.
@@ -627,11 +648,10 @@ class Attributes {
    *   The variables being modified.
    */
   private static function buildResponsiveImage(array &$variables): void {
-    $settings   = &$variables['settings'];
-    $blazies    = $settings['blazies'];
-    $background = $blazies->is('bg', !empty($settings['background']));
+    $settings = &$variables['settings'];
+    $blazies  = $settings['blazies'];
 
-    if ($background) {
+    if ($blazies->use('bg')) {
       // Attach BG data attributes to a DIV container.
       $attributes = &$variables['attributes'];
       BlazyResponsiveImage::background($attributes, $settings);

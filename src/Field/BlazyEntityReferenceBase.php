@@ -50,7 +50,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
    *
    * This method is used but not called by sub-modules. Not used by blazy.
    */
-  protected function withElementExtra(array &$element) {
+  protected function withElementExtra(array &$element): void {
     parent::withElementExtra($element);
 
     // @todo remove helper at/ by 3.x post migrations:

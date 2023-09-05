@@ -512,7 +512,9 @@ function hook_blazy_item_alter(array &$settings, array &$attributes, array &$ite
   // conditionally to not waste libraries.
   if ($blazies->get('colorbox') && $blazies->get('media.embed_url')) {
     $blazies->set('switch', 'media')
+      // The is.player is deprecated in 2.17 for use.player.
       ->set('is.player', TRUE)
+      ->set('use.player', TRUE)
       ->set('is.lightbox', FALSE);
   }
 

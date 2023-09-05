@@ -49,9 +49,9 @@
 
     var pw = root.parentElement;
 
-    root.style.width = w + 'px';
+    root.style.minWidth = w + 'px';
     if ($.hasClass(pw, 'media-wrapper')) {
-      pw.style.width = w + 'px';
+      pw.style.minWidth = w + 'px';
     }
 
     // @todo remove if no issues with aspect ratio.

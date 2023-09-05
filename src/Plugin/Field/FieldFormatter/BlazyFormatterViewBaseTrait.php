@@ -30,9 +30,11 @@ trait BlazyFormatterViewBaseTrait {
     $defaults = $this->buildSettings();
     $settings = $this->formatter->merge($settings, $defaults);
 
+    // Internal overrides before enough data is populated below.
     $this->preSettings($settings, $langcode);
 
     // BlazyFormatter::buildSettings() contains media, irrelevant for texts.
+    // @todo move it into ::minimalSettings().
     $this->formatter->fieldSettings($settings, $items);
 
     // Ensures grids are respected in the least.
@@ -49,8 +51,8 @@ trait BlazyFormatterViewBaseTrait {
       $this->buildElements($build, $items, $langcode);
     }
 
-    // Pass to manager for easy updates to all Blazy ecosystem formatters.
-    $output = $this->manager->build($build);
+    // Pass to manager for easy updates to all ecosystem formatters.
+    $output   = $this->manager->build($build);
     $settings = $this->manager->toHashtag($build);
 
     // Return without field markup, if not so configured, else field.html.twig.

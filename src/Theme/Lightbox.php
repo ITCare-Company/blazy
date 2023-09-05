@@ -63,7 +63,7 @@ class Lightbox {
     $_box_style = $settings['box_style'] ?? NULL;
     $box_style  = $blazies->get('box.style');
     $box_url    = $blazies->get('box.url');
-    $box_url    = $url = $box_url ?: Blazy::toUrl($settings, $box_style, $uri);
+    $box_url    = $url = $box_url ?: Blazy::url($uri, $box_style);
     $colorbox   = $blazies->get('colorbox');
     $gallery_id = $blazies->get('lightbox.gallery_id');
     $box_id     = $blazies->is('gallery') ? $gallery_id : NULL;
@@ -80,7 +80,7 @@ class Lightbox {
     $_resimage  = FALSE;
     $_trusted   = $blazies->get('media.escaped')
       || $blazies->get('image.trusted')
-      || $blazies->is('rendered');
+      || $blazies->use('content');
 
     // Provide relevant URL since it is a lightbox.
     $attrs = &$element['#url_attributes'];
@@ -98,6 +98,7 @@ class Lightbox {
     // If multimendia with remote or local videos.
     $json['token'] = $blazies->get('media.token');
     $json['paddingHack'] = TRUE;
+    $json['provider'] = NULL;
     if ($provider = $blazies->get('media.provider')) {
       $json['provider'] = $provider;
 
@@ -165,6 +166,9 @@ class Lightbox {
       // If image with valid URI, box image style, and not SVG, APNG, etc.
       // The lightbox full sized image can be plain or responsive images.
       if ($_fullsize) {
+        $data_box_url = FALSE;
+        $check = $blazies->get('box.url');
+
         // Use responsive image if so-configured, unless rich content is given.
         if ($blazies->is('resimage') && empty($element['#lightbox_html'])) {
           $options = [
@@ -173,13 +177,17 @@ class Lightbox {
             'uri' => $uri,
           ];
           $_resimage = self::responsiveImage($element, $options, $manager);
+          $check = $check ?: $url;
         }
 
         // Use non-responsive image if so-configured.
-        if (!$_resimage && $check = $blazies->get('box.url')) {
+        if (!$_resimage && $check) {
           $box_width  = $blazies->get('box.width') ?: $box_width;
           $box_height = $blazies->get('box.height') ?: $box_height;
-          $box_url    = $url = $check;
+        }
+
+        if ($check) {
+          $url = $check;
         }
       }
     }
@@ -333,7 +341,7 @@ class Lightbox {
         $hattrs['class'][] = 'media--ratio';
       }
 
-      if ($provider) {
+      if ($provider && $provider !== 'local' && $blazies->get('media.input_url')) {
         $hattrs['aria-live'] = 'polite';
         $hattrs['class'][] = 'media--' . str_replace('_', '-', $provider);
 

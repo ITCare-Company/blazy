@@ -606,6 +606,17 @@ interface BlazyInterface {
   public function toHashtag(array $data, $key = 'settings', $default = []);
 
   /**
+   * Filter out renderable array from an array.
+   *
+   * @param array $data
+   *   The source data.
+   *
+   * @return array
+   *   The array without renderable.
+   */
+  public function withHashtag(array $data): array;
+
+  /**
    * Returns escaped options.
    *
    * @param array $options
