@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-09-05
 ------------------------------
+- Fixed for discreet behavior BlazyFilter where data:image reset into real URL.
 - Micro optimization: Changed entity formatter loop into \Generator.
 - Micro optimization: Removed sliders lazy loads to avoid complication for just
   Blazy.

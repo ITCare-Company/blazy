@@ -548,6 +548,12 @@ class Attributes {
     // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode.
     $attributes['decoding'] = 'async';
 
+    // This is the root cause for the failing lazy load: data-entity-type!
+    // This attribute reset lazy data:image SRC attribute after Blazy causing
+    // failing lazy-load discreet behaviors, relevant for BlazyFilter:
+    // See https://www.drupal.org/project/blazy/issues/3374519
+    unset($attributes['data-entity-type']);
+
     // Preserves UUID for sub-module lookups, relevant for BlazyFilter.
     if ($uuid = $blazies->get('entity.uuid')) {
       $attributes['data-entity-uuid'] = $uuid;
