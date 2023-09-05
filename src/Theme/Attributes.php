@@ -584,7 +584,7 @@ class Attributes {
     $settings    = &$variables['settings'];
     $blazies     = $settings['blazies'];
     $url         = $blazies->get('image.url');
-    $placeholder = $blazies->get('placeholder.url');
+    $placeholder = $blazies->get('placeholder.url') ?: Placeholder::generate();
 
     // Supports either lazy loaded image, or not.
     if ($blazies->use('bg')) {
@@ -608,8 +608,9 @@ class Attributes {
     }
     else {
       // Do not use theme_image_style(), else more complication with SVG, etc.
-      $variables['image']['#theme'] = 'image';
-      $variables['image']['#uri'] = $blazies->is('unlazy') ? $url : $placeholder;
+      $image = &$variables['image'];
+      $image['#theme'] = 'image';
+      $image['#uri'] = Internals::isUnlazy($blazies) ? $url : $placeholder;
     }
   }
 

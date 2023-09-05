@@ -107,15 +107,15 @@ class Placeholder {
   /**
    * Generates an SVG Placeholder.
    *
-   * @param string $width
+   * @param string|int $width
    *   The image width.
-   * @param string $height
+   * @param string|int $height
    *   The image height.
    *
    * @return string
    *   Returns a string containing an SVG.
    */
-  public static function generate($width, $height): string {
+  public static function generate($width = 100, $height = 100): string {
     $width = $width ?: 100;
     $height = $height ?: 100;
     return 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D\'https%3A%2F%2Fwww.w3.org%2F2000%2Fsvg\'%20viewBox%3D\'0%200%20' . $width . '%20' . $height . '\'%2F%3E';
@@ -205,8 +205,9 @@ class Placeholder {
     }
 
     if (empty($tn_uri) && $style && BlazyFile::isValidUri($uri)) {
+      $options['unsafe'] = FALSE;
       $tn_uri = $style->buildUri($uri);
-      $tn_url = BlazyImage::toUrl($settings, $style, $uri);
+      $tn_url = BlazyImage::url($uri, $style, $options);
     }
 
     // Overrides placeholder with data URI based on configured thumbnail.
@@ -286,10 +287,6 @@ class Placeholder {
       self::derivative($blazies, $uri, $tn_uri, $style, 'thumbnail');
     }
 
-    if (!$blazies->use('blur')) {
-      return;
-    }
-
     // @todo use the thumbnail size, not original ones, see: #3210759?
     $blazies->set('placeholder.width', $width)
       ->set('placeholder.height', $height);
@@ -310,8 +307,10 @@ class Placeholder {
       }
     }
 
-    // Creates `data:image` for blur effect if so configured and applicable.
-    self::dataImage($settings, $uri, $tn_uri, $tn_url, $style);
+    if ($blazies->use('blur')) {
+      // Creates `data:image` for blur effect if so configured and applicable.
+      self::dataImage($settings, $uri, $tn_uri, $tn_url, $style);
+    }
   }
 
 }

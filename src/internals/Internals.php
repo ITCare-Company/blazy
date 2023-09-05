@@ -364,9 +364,6 @@ class Internals {
     // Checks for Image styles, excluding Responsive image.
     BlazyImage::styles($settings);
 
-    // Checks for lazy.
-    Check::lazyOrNot($settings);
-
     // Marks it processed.
     $blazies->set('was.initialized', TRUE);
   }

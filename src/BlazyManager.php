@@ -354,10 +354,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Since 2.9, many were moved into BlazyTheme to support custom work better.
    */
   private function buildMedia(array &$element, array &$build): void {
-    $item     = $build['#item'];
-    $settings = $build['#settings'];
-    $blazies  = $settings['blazies'];
-    $attrs    = $this->toHashtag($build, 'item_attributes');
+    $item  = $build['#item'];
+    $attrs = $this->toHashtag($build, 'item_attributes');
 
     // Extract field item attributes for the theme function, and unset them
     // from the $item so that the field template does not re-render them.
@@ -365,14 +363,6 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     if ($item && isset($item->_attributes)) {
       $attrs += $item->_attributes;
       unset($item->_attributes);
-    }
-
-    // Provides all media cache.
-    // See https://www.drupal.org/project/drupal/issues/2469277.
-    if (!$blazies->is('cache_deferred')) {
-      if ($caches = $blazies->get('cache.metadata', [])) {
-        $element['#cache'] = $caches;
-      }
     }
 
     // Pass item_attributes to theme_blazy(), see if any issues:
@@ -505,6 +495,17 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
         if ($applicable) {
           $attributes['class'][] = 'b-' . $key;
         }
+      }
+    }
+
+    // Provides all media cache.
+    // See https://www.drupal.org/project/drupal/issues/2469277.
+    if (!$blazies->is('cache_deferred')) {
+      if ($caches = $blazies->get('cache.metadata', [])) {
+        if (isset($caches['tags'])) {
+          $caches['tags'] = array_unique($caches['tags']);
+        }
+        $element['#cache'] = $caches;
       }
     }
 

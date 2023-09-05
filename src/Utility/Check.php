@@ -203,6 +203,7 @@ class Check {
       ->set('is.undata', $is_undata)
       ->set('is.unload', $is_unload)
       ->set('is.unloading', $is_unloading)
+      ->set('is.unlazy', $is_nojs)
       ->set('lazy.html', !empty($ui['lazy_html']))
       ->set('libs.background', $is_bg || $is_audio)
       ->set('libs.compat', $is_compat)
@@ -368,26 +369,6 @@ class Check {
     }
 
     $blazies->set('was.grid', TRUE);
-  }
-
-  /**
-   * Checks lazy insanity given various features/ media types + loading option.
-   *
-   * Since 2.17, sliders lazyloads are no longer supported to avoid this type
-   * of complication.
-   *
-   * To address mixed media, and various options which also affect individual
-   * items, see Blazy::preSettings().
-   */
-  public static function lazyOrNot(array &$settings): void {
-    $blazies = $settings['blazies'];
-
-    $blazies->set('is.unlazy', $blazies->is('nojs'))
-      // @todo remove after another check, already defined upstream.
-      ->set('lazy.id', 'blazy')
-      ->set('lazy.attribute', 'src')
-      ->set('lazy.class', 'b-lazy')
-      ->set('was.lazy', TRUE);
   }
 
   /**
