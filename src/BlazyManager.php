@@ -312,8 +312,20 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     else {
       // Exclude local audio/video, already lazy-loaded by theme_blazy().
       if (!$blazies->is('local_media')) {
-        $unlazy = Internals::isUnlazy($blazies);
-        $media  = $blazies->get('lazy.html') && $blazies->get('media.id');
+        $unlazy   = Internals::isUnlazy($blazies);
+        $media    = $blazies->get('lazy.html') && $blazies->get('media.id');
+        $switch   = $blazies->get('switch');
+        $provider = $blazies->get('media.provider');
+
+        // @todo recheck.
+        // Disable media player for Twitter, Instagram, Pinterest, etc.
+        // Some providers have dynamic and anti-mainstream iframe sizes.
+        if ($switch == 'media' && Internals::irrational($provider)) {
+          $settings['media_switch'] = '';
+          $blazies->set('switch', '')
+            ->set('is.player', FALSE)
+            ->set('use.player', FALSE);
+        }
 
         // Since 2.17, blazy is capable to lazy load HTML, like any media.
         // @todo make it usable for non-media contents here.

@@ -422,6 +422,10 @@ class Lightbox {
       $element['#icon']['lightbox']['#markup'] = $icon;
     }
 
+    if (empty($json['provider'])) {
+      unset($json['provider']);
+    }
+
     // Only strip if not already.
     $element['#url'] = $_trusted ? $url : UrlHelper::stripDangerousProtocols($url);
     // @todo replace with data-b-media at 3.x to avoid potential conflicts.

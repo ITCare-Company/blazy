@@ -3,13 +3,13 @@
 namespace Drupal\blazy\Plugin\views\style;
 
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Views\BlazyStyleBase;
+use Drupal\blazy\Views\BlazyStyleVanilla;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Provides Blazy Grid style plugin.
  */
-class BlazyViews extends BlazyStyleBase implements BlazyViewsInterface {
+class BlazyViews extends BlazyStyleVanilla implements BlazyViewsInterface {
 
   /**
    * {@inheritdoc}

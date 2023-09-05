@@ -121,7 +121,9 @@ class Attributes {
         $attributes['class'][] = 'b-html';
 
         // @todo recheck and remove, already checked upstream.
-        $blazies->set('use.player', FALSE);
+        $blazies->set('is.player', FALSE)
+          ->set('use.player', FALSE);
+
         $settings['media_switch'] = '';
       }
     }
