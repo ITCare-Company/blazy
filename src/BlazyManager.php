@@ -245,12 +245,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       }
 
       // Figcaption is more relevant for core filter captions under Figure.
-      $tag     = $blazies->is('figcaption') ? 'figcaption' : 'div';
+      $tag = $blazies->is('figcaption') ? 'figcaption' : 'div';
+
+      // Two caption types: inline and lightbox. Hence inline:
       $output  = ['inline' => $inline, 'tag' => $tag];
       $output += $categories;
     }
 
-    // Allows altering the captions to minimize Twig works for minor needs.
     $result = $output + $overlays;
     return array_filter($result);
   }
@@ -334,6 +335,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
           $content = $this->renderer->renderPlain($content);
           $content = preg_replace('/\s+/', ' ', $content->__toString());
           $content = base64_encode($content);
+
           $blazies->set('media.encoded.content', $content)
             ->set('media.encoded.uri', Internals::DATA_TEXT);
 
@@ -365,7 +367,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       unset($item->_attributes);
     }
 
-    // Pass item_attributes to theme_blazy(), see if any issues:
+    // Pass item_attributes to theme_blazy():
     // https://www.drupal.org/project/blazy/issues/3374519.
     $element['#item_attributes'] = Blazy::sanitize($attrs);
   }
@@ -400,7 +402,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    *   The renderable array being modified.
    * @param array $build
    *   The array of information containing the required Image or File item
-   *   object, settings, optional container attributes.
+   *   object, settings, optional container attributes. An arbitrary storage
+   *   we can mess up before printing them into the $element.
    */
   private function prepareBlazy(array &$element, array $build) {
     $item       = $build['#item'];
@@ -444,6 +447,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $this->moduleHandler->alter('blazy_item', $settings, $attributes, $item_attributes);
 
     // Only process (Responsive) image/ video if no rich-media are provided.
+    // @todo recheck move it above before prepare if any needs or better.
     $build['content'] = Internals::toContent($build, TRUE);
     $this->buildContent($element, $build);
     if (empty($build['content'])) {
@@ -533,7 +537,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Runs after settings.
     $build = $this->toElementChildren($data);
 
-    // @todo refactor and move non-children out of here at 3.x.
+    // @nottodo refactor and move non-children out of here at 3.x.
     // We don't use #settings here to avoid conflicts with others because
     // theme_field() is not managed by blazy.
     $build['#blazy'] = $settings;
@@ -588,6 +592,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
         $element['#caption_content_attributes']['class'][] = $prefix . 'data';
       }
 
+      // Allows altering the captions to minimize Twig works for minor needs.
       $this->moduleHandler->alter('blazy_caption', $element, $settings, $context);
     }
   }

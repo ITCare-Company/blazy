@@ -234,4 +234,11 @@ trait BlazyFormatterTrait {
       ->isMultiple();
   }
 
+  /**
+   * Alias for BlazyField::view().
+   */
+  protected function viewField($entity, $field_name, $view_mode, $multiple = TRUE): array {
+    return BlazyField::view($entity, $field_name, $view_mode, $multiple);
+  }
+
 }

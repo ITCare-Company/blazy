@@ -291,7 +291,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
       $this->withElementOverride($build, $element);
     }
     else {
-      // @todo remove for self::withElementOverride().
+      // @todo remove at 3.x for self::withElementOverride().
       $this->buildElement($build, $entity, $langcode);
 
       $blazies = $settings['blazies'];

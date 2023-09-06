@@ -33,6 +33,11 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
   /**
    * {@inheritdoc}
    */
+  protected static $useOembed = TRUE;
+
+  /**
+   * {@inheritdoc}
+   */
   protected static $useSvg = TRUE;
 
   /**
@@ -47,17 +52,6 @@ class BlazyFileFormatter extends BlazyFormatterBlazy {
    */
   public static function isApplicable(FieldDefinitionInterface $field_definition) {
     return $field_definition->getFieldStorageDefinition()->getSetting('target_type') === 'file';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function withElement(array &$element): void {
-    // This basically associates file to media entity like seen at dep VEF.
-    $this->blazyOembed->build($element);
-
-    // Might need image item from OEmbed service.
-    parent::withElement($element);
   }
 
   /**

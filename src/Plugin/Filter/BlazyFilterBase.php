@@ -586,7 +586,6 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     $safe_attrs = Blazy::sanitize($attrs);
     if ($tag == 'img') {
       // Pass anything else even dangerous attributes.
-      // @todo redisable if this caused SRC set, lazy load failed, even unset.
       $build['#item_attributes'] = $attrs;
       $blazies->set('item.safe_attributes', $safe_attrs);
     }

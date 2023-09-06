@@ -62,7 +62,7 @@ trait BlazyFormatterViewBaseTrait {
   /**
    * Prepare the settings, allows sub-modules to re-use and override.
    */
-  protected function preSettings(array &$settings, $langcode = NULL): void {
+  protected function preSettings(array &$settings, $langcode): void {
     $blazies = $settings['blazies'];
     $blazies->set('language.code', $langcode);
   }
@@ -70,7 +70,7 @@ trait BlazyFormatterViewBaseTrait {
   /**
    * Overrides the settings, allows sub-modules to re-use and override.
    */
-  protected function postSettings(array &$settings, $langcode = NULL): void {
+  protected function postSettings(array &$settings, $langcode): void {
     // Do nothing.
   }
 

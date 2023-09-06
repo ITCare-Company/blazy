@@ -67,7 +67,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
         if ($content = $rendered['#build']['content'] ?? []) {
           // Fixed for missing data-thumb thumbnail with local video, needed
           // by option static grid/ hoverable thumbnail.
-          if ($blazies->get('thumbnail') && $blazies->is('local_media')) {
+          if ($blazies->get('thumbnail.uri') && $blazies->is('local_media')) {
             $blazies->set('is.multicontent', TRUE);
           }
 
@@ -327,8 +327,9 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     }
 
     if ($blazy = $this->formatter->getBlazy($internal)) {
-      $element[static::$itemId] = $blazy;
-      $this->formatter->postBlazy($element, $blazy);
+      $output = $this->withHashtag($element, $blazy);
+      $element[static::$itemId] = $output;
+      $this->formatter->postBlazy($element, $output);
     }
     unset($element['content']);
   }
@@ -345,8 +346,9 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     $internal = $element;
 
     if ($blazy = $this->formatter->getBlazy($internal)) {
-      $element[static::$itemId] = $blazy;
-      $this->formatter->postBlazy($element, $blazy);
+      $output = $this->withHashtag($element, $blazy);
+      $element[static::$itemId] = $output;
+      $this->formatter->postBlazy($element, $output);
     }
 
     $element[static::$captionId] = $captions;

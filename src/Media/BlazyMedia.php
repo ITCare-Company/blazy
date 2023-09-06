@@ -481,6 +481,7 @@ class BlazyMedia implements BlazyMediaInterface {
     $blazies->set('use.content', $rendered);
 
     // @todo recheck, might be dynamic link to iframe like Pinterest:
+    // Pinterest is not here.
     if ($link) {
       $settings['media_switch'] = 'content';
       $blazies->set('switch', 'content')

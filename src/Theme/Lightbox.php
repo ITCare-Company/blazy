@@ -9,7 +9,6 @@ use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Utility\Sanitize;
 use Drupal\Component\Serialization\Json;
-use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityInterface;
@@ -187,7 +186,7 @@ class Lightbox {
         }
 
         if ($check) {
-          $url = $check;
+          $url = $box_url = $check;
         }
       }
     }
@@ -206,8 +205,8 @@ class Lightbox {
       ->set('lightbox.width', (int) $box_width)
       ->set('lightbox.height', (int) $box_height);
 
-    // @todo recheck $count given views gallery vs formatters vs formatters
-    // inside views gallery, and add: && $count > 1.
+    // The highest $count given views gallery vs formatters vs formatters
+    // inside views gallery.
     if ($box_id && $count > 1) {
       // Always 0 when embedded inside a view since it is not aware of it,
       // unless using blazy formatter for the images within Splide, Slick, etc.
@@ -426,14 +425,14 @@ class Lightbox {
       unset($json['provider']);
     }
 
-    // Only strip if not already.
-    $element['#url'] = $_trusted ? $url : UrlHelper::stripDangerousProtocols($url);
-    // @todo replace with data-b-media at 3.x to avoid potential conflicts.
-    $attrs['data-media'] = Json::encode($json);
+    $attrs[Attributes::data($blazies, 'media')] = Json::encode($json);
 
     if ($is_html) {
       $attrs['class'][] = 'litebox--html';
     }
+
+    // Only strip if not already.
+    $element['#url'] = $_trusted ? $url : UrlHelper::stripDangerousProtocols($url);
   }
 
   /**
@@ -455,7 +454,7 @@ class Lightbox {
 
         // Check for image.escaped to avoid unecessary double escapes.
         if (!$blazies->get('image.escaped')) {
-          $alt = $alt ? Html::escape(strip_tags($alt)) : t('Preview');
+          $alt = Internals::escape($alt, TRUE) ?: t('Preview');
         }
 
         $attrs = ['alt' => $alt];

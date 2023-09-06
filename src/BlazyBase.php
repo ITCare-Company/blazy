@@ -93,7 +93,9 @@ abstract class BlazyBase implements BlazyInterface {
   protected $cachedOptions;
 
   /**
-   * The main module namespace.
+   * The main module namespace, kind of group name including their sub-modules.
+   *
+   * Unlike classes, slick_views, etc. will be under slick namespace with this.
    *
    * @var string
    * @see https://www.php.net/manual/en/reserved.keywords.php

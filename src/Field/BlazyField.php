@@ -144,8 +144,8 @@ class BlazyField {
   /**
    * Returns the formatted renderable array of the field.
    */
-  public static function view($entity, $field_name, $view_mode, $multiple = TRUE) {
-    if ($entity->hasField($field_name)) {
+  public static function view($entity, $field_name, $view_mode, $multiple = TRUE): array {
+    if ($entity && $entity->hasField($field_name)) {
       $view = $entity->get($field_name)->view($view_mode);
 
       if (empty($view[0])) {
@@ -169,7 +169,7 @@ class BlazyField {
         $items['#weight'] = $weight;
         return $items;
       }
-      return $view[0];
+      return $view[0] ?? [];
     }
 
     return [];

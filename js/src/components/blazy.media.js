@@ -220,7 +220,8 @@
    *
    * @param {Object} settings
    *   An object containing the link element which triggers the lightbox.
-   *   This link must have [data-media] attribute containing video metadata.
+   *   This link must have [data-b-media]|[data-media] attribute containing
+   *   video metadata. [data-media] is deprecated for [data-b-media].
    *
    * @return {HTMLElement}
    *   Returns a HTMLElement object.

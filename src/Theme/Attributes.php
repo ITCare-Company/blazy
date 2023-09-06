@@ -150,6 +150,10 @@ class Attributes {
       $blazies->set('media.provider', NULL);
     }
 
+    if ($attrs = $blazies->get('media.attributes', [])) {
+      $attributes = Arrays::merge($attributes, $attrs);
+    }
+
     // Makes a little BEM order here due to Twig ignoring the preset priority.
     $classes = (array) ($attributes['class'] ?? []);
     $attributes['class'] = array_merge(['media', 'media--blazy'], $classes);
@@ -290,7 +294,7 @@ class Attributes {
    */
   public static function iframe(array &$settings): array {
     $blazies = $settings['blazies'];
-    $attributes['allowfullscreen'] = TRUE;
+    $attributes = ['allowfullscreen' => TRUE];
 
     // Already escaped upstream for core, except for contribs.
     $embed_url = $blazies->get('media.embed_url');
@@ -298,16 +302,16 @@ class Attributes {
       $embed_url = UrlHelper::stripDangerousProtocols($embed_url);
     }
 
-    // Inside CKEditor must disable interactive elements.
-    if ($blazies->is('sandboxed')) {
-      $attributes['sandbox'] = TRUE;
-      $attributes['src'] = $embed_url;
-    }
     // Native lazyload just loads the URL directly.
     // With many videos like carousels on the page may chaos, but we provide a
     // solution: use `Image to Iframe` for GDPR, swipe and best performance.
-    elseif ($blazies->is('unlazy')) {
+    if (Internals::isUnlazy($blazies)) {
       $attributes['src'] = $embed_url;
+
+      // Inside CKEditor must disable interactive elements.
+      if ($blazies->is('sandboxed')) {
+        $attributes['sandbox'] = TRUE;
+      }
     }
     // Non-native lazyload for oldies to avoid loading src, the most efficient.
     // No cookies are loaded from external sites till the play button clicked.
@@ -320,6 +324,10 @@ class Attributes {
     // Makes query seletor easier for filter.
     if ($blazies->get('filter')) {
       $attributes['class'][] = 'b-filter';
+    }
+
+    if ($attrs = $blazies->get('iframe.attributes', [])) {
+      $attributes = Arrays::merge($attributes, $attrs);
     }
 
     self::common($attributes, $blazies);
@@ -567,6 +575,10 @@ class Attributes {
       $image['#width']  = $width;
     }
 
+    if ($attrs = $blazies->get('image.attributes', [])) {
+      $attributes = Arrays::merge($attributes, $attrs);
+    }
+
     // Apply common shared attributes.
     self::common($attributes, $blazies);
     $image['#attributes'] = Arrays::merge($attributes, $image, '#attributes');
@@ -760,6 +772,7 @@ class Attributes {
    * Removes loading attributes if so configured.
    */
   private static function unloading(array &$attributes, $blazies): void {
+    // @todo recheck the last condition.
     if ($blazies->is('unloading') || Internals::isUnlazy($blazies)) {
       $attributes['data-b-unloading'] = TRUE;
     }

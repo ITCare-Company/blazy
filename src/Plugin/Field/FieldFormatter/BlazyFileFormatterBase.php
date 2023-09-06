@@ -84,6 +84,13 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   protected static $fieldType = 'image';
 
   /**
+   * Whether using the OEmbed service.
+   *
+   * @var bool
+   */
+  protected static $useOembed = FALSE;
+
+  /**
    * Whether using the SVG.
    *
    * @var bool
@@ -415,10 +422,15 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    * Build item elements.
    */
   protected function withElement(array &$build): void {
-
-    // @todo remove at 3.x for self::withElement().
-    $file = $build['#entity'];
-    $this->buildElement($build, $file);
+    if (static::$useOembed) {
+      // This basically associates file to media entity like seen at dep VEF.
+      $this->blazyOembed->build($build);
+    }
+    else {
+      // @todo remove at 3.x for self::withElement() or static::$useOembed.
+      $file = $build['#entity'];
+      $this->buildElement($build, $file);
+    }
   }
 
   /**

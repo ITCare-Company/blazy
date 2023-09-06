@@ -320,7 +320,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $attachments           = $this->merge($attached, $attachments);
     $element['#attached']  = $this->merge($attachments, $element, '#attached');
     $element['#cache']     = $this->merge($cache, $element, '#cache');
-    $element['#namespace'] = $settings['blazies']->get('namespace');
+    $element['#namespace'] = static::$namespace;
 
     $this->moduleHandler->alter('blazy_element', $element, $settings);
   }

@@ -88,7 +88,7 @@ class Internals {
    * Checks if a provider can not use aspect ratio due to anti-mainstream sizes.
    */
   public static function irrational($provider): bool {
-    return in_array($provider, [
+    return in_array($provider ?: 'x', [
       'd500px',
       'flickr',
       'instagram',

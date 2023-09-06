@@ -145,7 +145,7 @@ class BlazyTextFormatter extends FormatterBase {
   /**
    * {@inheritdoc}
    */
-  protected function preSettings(array &$settings, $langcode = NULL): void {
+  protected function preSettings(array &$settings, $langcode): void {
     $blazies = $settings['blazies'];
 
     $blazies->set('is.unblazy', TRUE)

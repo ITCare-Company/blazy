@@ -234,7 +234,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Returns the inner HTMLof the DOMElement node.
+   * Returns the inner HTML of the DOMElement node.
    *
    * See https://www.php.net/manual/en/class.domelement.php#101243
    */
