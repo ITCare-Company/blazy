@@ -274,9 +274,17 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         $use_oembed = TRUE;
       }
 
+      // Unless disabled via UI even if oEmbed provider exists, specific for VEF
+      // to avoid failing expectations with some providers.
+      if ($blazies->is('vef') && !$blazies->ui('use_oembed', FALSE)) {
+        $use_oembed = FALSE;
+      }
+
       $blazies->set('use.oembed', $use_oembed);
       if ($name) {
+        $ratio = !Internals::irrational($name);
         $blazies->set('is.' . $name, TRUE)
+          ->set('media.ratio', $ratio)
           ->set('media.provider', $name)
           ->set('was.provider', TRUE);
       }
@@ -524,16 +532,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     // Listen to VEF, or others which might want to set this.
     $embed_url = $blazies->get('media.embed_url');
 
-    // Always use oEmbed.
-    $use_oembed = TRUE;
-    if ($embed_url) {
-      // Unless disabled via UI even if oEmbed provider exists, specific for VEF
-      // to avoid failing expectations with some providers.
-      $use_oembed = $blazies->ui('use_oembed') && $blazies->use('oembed');
-    }
-
     // W/o internet, display an (empty) iframe, or a thumbnail.
-    if (!$embed_url || $use_oembed) {
+    if ($blazies->use('oembed') || !$embed_url) {
       $embed_url = $this->toEmbedUrl($blazies, $input, $params);
     }
 

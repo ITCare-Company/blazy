@@ -3,7 +3,7 @@
 ## <a name="changes"></a>NOTABLE CHANGES  
 Always check out release notes, if any issues with the latest changes.
 
-* _Blazy 2.17_, 2023/09/03:
+* _Blazy 2.17_, 2023/09/10:
    + Updated blazy.api.php.
    + Cold fixes for few minor regressions and self organizations.
    + Please bear with frequent releases, it was for sub-modules tests. Their
@@ -12,6 +12,10 @@ Always check out release notes, if any issues with the latest changes.
    + **Deprecated**:
      * Colorbox body classes for local classes in `#colorbox` selector, e.g.:
        `body.colorbox-on--media` becomes `#colorbox.b-colorbox--iframe`, etc.
+   + **Removed**:
+     * Sliders' lazy loads are no longer supported for just Blazy. Reasons: They
+       are far more inferior than Blazy at so many levels, and brought more
+       complications aka insanity for very minimal benefit.
    + **New features**:  
      * On your permissions at Blazy UI, `theme_blazy()` is now capable to
        replace sub-modules theme_ITEM() content, e.g.: theme_slick_slide(), etc.

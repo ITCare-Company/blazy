@@ -190,7 +190,7 @@ Only report if this is caused by blazy's mistake. Kindly provide markup
 comparison, or helpful screenshots, to spot the issues better.
 
 #### Profits:
-+ Tons of dups are reduced which is part of Blazy's job descriptions.
++ Tons of dups are reduced which is part of Blazy's job descriptions above.
 + Minimal maintenance for many of Blazy sub-modules.
 + More cool kid features like hoverable effects, etc. will be easier to apply.
 + When Blazy supports extra captions like File description for SVG, it will be
@@ -253,8 +253,8 @@ etc., try the following:
 * With [IO](https://drupal.org/project/io), this can be used to have simple
   and modern Views infinite pagers as grid displays.
 * With the new 2.17 `theme_blazy()` as a replacement for sub-modules
-  `theme_ITEM()` contents, it will easier to have hoverable product effects like
-  seen at many commercial themes.
+  `theme_ITEM()` contents, it will be easier to have hoverable product effects
+  like seen at many commercial e-commerce themes.
 
 
 #### <a name="views-gotchas"> </a>VIEWS GOTCHAS

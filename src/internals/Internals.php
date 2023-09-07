@@ -99,6 +99,18 @@ class Internals {
   }
 
   /**
+   * Provider sometimes NULL when called by sub-modules, not Blazy.
+   *
+   * @fixme somewhere else.
+   */
+  public static function provider($blazies, $provider = NULL): ?string {
+    if (!$provider && $input = $blazies->get('media.input_url')) {
+      $provider = str_ireplace(['www.', '.com'], '', parse_url($input, PHP_URL_HOST));
+    }
+    return $provider;
+  }
+
+  /**
    * Alias for Youtube::fromEmbed().
    */
   public static function youtube($input): ?string {
@@ -259,8 +271,8 @@ class Internals {
   /**
    * Returns markdown.
    */
-  public static function markdown($string, $help = TRUE): string {
-    return Markdown::parse($string, $help);
+  public static function markdown($string, $help = TRUE, $sanitize = TRUE): string {
+    return Markdown::parse($string, $help, $sanitize);
   }
 
   /**

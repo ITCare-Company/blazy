@@ -80,5 +80,5 @@ If you don't drush, before any module update:
 3. Instead view other browser tabs, and simply hit the button if any
    issue.
 4. Run `/update.php` as required.
-5. Only at worst case, know how to run
+5. D7 only, at worst case, know how to run
    [Registry Rebuild](https://www.drupal.org/project/registry_rebuild) safely.

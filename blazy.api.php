@@ -66,11 +66,12 @@
  *     ->set('image.alt', t('Preview'))
  *
  *     // If you don't set `image_style`, provide a dimension in the least.
- *     ->set('image.width', 140)
- *     ->set('lazy.id', 'blazy');
+ *     ->set('image.width', 140);
  *
  *   // Passing width/height/alt/title to #item_attributes was deprecated since
  *   // 2.6 when RDF was deprecated from D9. Use settings.blazies above instead.
+ *   // The #item_attributes will be finally removed at 3.x for
+ *   // blazies.image.attributes.
  *   // It is still usable for adding minor class attributes, etc., though.
  *   // You are on your own other than the above-mentioned supported attributes.
  *   // Supported means, it won't mess up the provided image_style, etc.
@@ -114,6 +115,10 @@
  * @code
  * function my_module_render_blazy_multiple() {
  *   // Invoke the manager service, or use a DI service container accordingly.
+ *   // Specific to Blazy, $manager and $formatter have straight inheritance.
+ *   // Using $formatter for Blazy specifically is the best bet.
+ *   // For sub-modules, use their $manager if calling ::build().
+ *   // However sub-modules deviate, and must call the correct servive.
  *   // $manager = \Drupal::service('blazy.manager');
  *   $manager = blazy();
  *   $formatter = \Drupal::service('blazy.formatter');
@@ -128,7 +133,7 @@
  *   // $settings = $manager->toSettings($parent_settings, $info); to have
  *   // initial info which should be stored within blazies object initially.
  *   // Basically 3 tasks: reset blazies object per item, merging initial parent
- *   // $settings along with settings the initial values for blazies object.
+ *   // $settings along with the initial values for item-level blazies object.
  *
  *   // Supported media switcher options dependent on available modules:
  *   // colorbox, media (Image to iframe), etc. These can also be moved into
@@ -138,7 +143,7 @@
  *   $settings['ratio'] = 'fluid';
  *
  *   // If adding grid, lightbox, and other features seen at formatters:
- *   // $manager->preSettings($settings);
+ *   // $formatter->preSettings($settings);
  *   // If having FieldItemListInterface, ignore the above line, and use:
  *   // $formatter->preElements($build, $items, $entities);
  *
@@ -210,7 +215,7 @@
  *   // $items[] = $manager->service('blazy.entity')->build($content);
  *
  *   // Options #3 with any entities, File, Media, etc., for vanilla.
- *   // Do not set `content` early.
+ *   // Do not set `content` early, blazy.entity will do.
  *   // This is more pessimistic and opportunistic than Option #2, expecting
  *   // more for vanilla aka rendered entity, but will output non-vanilla if
  *   // workable:.
@@ -557,7 +562,7 @@ function hook_blazy_item_alter(array &$settings, array &$attributes, array &$ite
  * Alters blazy-related formatter form elements.
  *
  * This takes advantage of Blazy taking care of a few elements finalizations,
- * such as adding #empty_option, extras CSS classes, checkboxes, states, grid,
+ * such as adding #empty_option, extra CSS classes, checkboxes, states, grid,
  * etc. The best place to add new form items. This is run before
  * hook_blazy_complete_form_element_alter().
  *

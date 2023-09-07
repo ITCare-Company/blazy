@@ -466,11 +466,13 @@ interface BlazyInterface {
    *   The markdown string.
    * @param bool $help
    *   True for admin help page.
+   * @param bool $sanitize
+   *   True, if the text should be sanitized.
    *
    * @return string
    *   The HTML string.
    */
-  public function markdown($string, $help = TRUE): string;
+  public function markdown($string, $help = TRUE, $sanitize = TRUE): string;
 
   /**
    * Merge data with a new one with an optional key.

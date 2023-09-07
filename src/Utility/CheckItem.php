@@ -265,6 +265,7 @@ class CheckItem {
     $blazies   = $settings['blazies'];
     $switch    = $settings['media_switch'] ?? NULL;
     $switch    = $blazies->get('switch', $switch);
+    $provider  = $blazies->get('media.provider');
     $type      = $blazies->get('media.type') ?: $settings['type'] ?? 'image';
     $embed_url = $settings['embed_url'] ?? '';
     $embed_url = $blazies->get('media.embed_url') ?: $embed_url;
@@ -274,6 +275,7 @@ class CheckItem {
     $is_player = $is_remote && $switch == 'media';
     $stage     = $settings['image'] ?? NULL;
     $stage     = $blazies->get('field.formatter.image', $stage);
+    $ratio     = !empty($settings['ratio']);
 
     // Only video has poster, audio can only have a multi content.
     if ($blazies->is('local_audio') && !empty($stage)) {
@@ -305,7 +307,26 @@ class CheckItem {
       $blazies->set('media.input_url', $input)
         ->set('media.bundle', $bundle)
         ->set('media.source', 'video_embed_field');
+    }
 
+    // @fixme provider sometimes NULL when called by sub-modules, not Blazy.
+    if (!$provider) {
+      $provider = Internals::provider($blazies);
+    }
+
+    // Addresses mixed media unique per item, aside from convenience.
+    // Also compat with BVEF till they are updated to adopt 2.10 changes.
+    if ($provider && $provider != 'local') {
+      $noratio = Internals::irrational($provider);
+      $ratio = !$noratio;
+
+      if ($noratio && $is_player) {
+        $is_iframe = TRUE;
+        $is_player = FALSE;
+
+        $settings['media_switch'] = '';
+        $blazies->set('switch', NULL);
+      }
     }
 
     // Disable image.
@@ -314,16 +335,16 @@ class CheckItem {
       $blazies->set('use.image', FALSE);
     }
 
-    // Addresses mixed media unique per item, aside from convenience.
-    // Also compat with BVEF till they are updated to adopt 2.10 changes.
     // @todo remove deprecated dup is for use at 3.x.
     $blazies->set('is.iframe', $is_iframe)
       ->set('is.player', $is_player);
 
     $multimedia = $blazies->is('multimedia', $is_remote);
     $blazies->set('is.multimedia', $multimedia || $blazies->is('playable'))
+      ->set('media.ratio', $ratio)
       ->set('is.remote_video', $is_remote)
       ->set('media.embed_url', $embed_url)
+      ->set('media.provider', $provider)
       ->set('media.type', $type)
       ->set('use.iframe', $is_iframe)
       ->set('use.player', $is_player);

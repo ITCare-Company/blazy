@@ -98,6 +98,8 @@ class Lightbox {
     $json['token'] = $blazies->get('media.token');
     $json['paddingHack'] = TRUE;
     $json['provider'] = NULL;
+    $json['irrational'] = FALSE;
+
     if ($provider = $blazies->get('media.provider')) {
       $json['provider'] = $provider;
 
@@ -324,6 +326,15 @@ class Lightbox {
       // Only video needs help, responsive image is taken care of by lightbox.
       $style = '';
       $hattrs = &$html['#attributes'];
+
+      if ($provider && $provider !== 'local' && $blazies->get('media.input_url')) {
+        $hattrs['aria-live'] = 'polite';
+        $hattrs['class'][] = 'media--' . str_replace('_', '-', $provider);
+
+        $url = $blazies->get('media.input_url');
+        $attrs['data-box-url'] = $box_url;
+      }
+
       if ($has_dim && !empty($json['paddingHack'])) {
         $pad = round((($json['height'] / $json['width']) * 100), 2);
         $style .= 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;';
@@ -338,14 +349,6 @@ class Lightbox {
       if ($style) {
         $hattrs['style'] = $style;
         $hattrs['class'][] = 'media--ratio';
-      }
-
-      if ($provider && $provider !== 'local' && $blazies->get('media.input_url')) {
-        $hattrs['aria-live'] = 'polite';
-        $hattrs['class'][] = 'media--' . str_replace('_', '-', $provider);
-
-        $url = $blazies->get('media.input_url');
-        $attrs['data-box-url'] = $box_url;
       }
 
       if ($token = $blazies->get('media.token')) {
@@ -421,8 +424,10 @@ class Lightbox {
       $element['#icon']['lightbox']['#markup'] = $icon;
     }
 
-    if (empty($json['provider'])) {
-      unset($json['provider']);
+    foreach (['irrational', 'paddingHack', 'provider'] as $key) {
+      if (empty($json[$key])) {
+        unset($json[$key]);
+      }
     }
 
     $attrs[Attributes::data($blazies, 'media')] = Json::encode($json);
@@ -454,7 +459,7 @@ class Lightbox {
 
         // Check for image.escaped to avoid unecessary double escapes.
         if (!$blazies->get('image.escaped')) {
-          $alt = Internals::escape($alt, TRUE) ?: t('Preview');
+          $alt = Attributes::escape($alt, TRUE) ?: t('Preview');
         }
 
         $attrs = ['alt' => $alt];
