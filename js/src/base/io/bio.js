@@ -66,10 +66,8 @@
   var _validateDelay = 25;
   var _observer = $.observer;
   var _viewport = $.viewport;
+  var fn;
 
-  // Cache our prototype.
-  var fn = Bio.prototype;
-  fn.constructor = Bio;
 
   /**
    * Constructor for Bio, Blazy IntersectionObserver.
@@ -100,133 +98,6 @@
 
     return me;
   }
-
-  // Prepare prototype to interchange with Blazy as fallback.
-  fn.count = 0;
-  fn.erCount = 0;
-  fn.resizeTick = 0;
-  fn.destroyed = false;
-  fn.options = {};
-  fn.lazyLoad = function (el, winData) {};
-  fn.loadImage = function (el, isBg, winData) {};
-  fn.resizing = function (el, winData) {};
-  fn.prepare = function () {};
-  fn.windowData = function () {
-    return $.isUnd(_winData.vp) ? _viewport.windowData(this.options, true) : _winData;
-  };
-
-  // BC for interchanging with bLazy.
-  // @todo merge with bLazy::load.
-  fn.load = function (elms, revalidate, opts) {
-    var me = this;
-
-    elms = elms && $.toArray(elms);
-
-    // @todo remove once infinite pager regression fixed properly like before.
-    if (!$.isUnd(opts)) {
-      me.options = $.extend({}, me.options, opts || {});
-    }
-
-    // Re-use old existing loadInvisible to revalidate hidden elements.
-    revalidate = revalidate || me.options.loadInvisible;
-
-    // Manually load elements regardless of being disconnected, or not, relevant
-    // for Slick slidesToShow > 1 which rebuilds clones of unloaded elements.
-    $.each(elms, function (el) {
-      if (me.isValid(el) || ($.isElm(el) && revalidate)) {
-        intersecting.call(me, el, revalidate);
-      }
-    });
-  };
-
-  fn.isLoaded = function (el) {
-    return $.hasClass(el, this.options.successClass);
-  };
-
-  fn.isValid = function (el) {
-    return $.isElm(el) && !this.isLoaded(el);
-  };
-
-  fn.revalidate = function (force) {
-    var me = this;
-
-    // Prevents from too many revalidations unless needed.
-    if ((force === true || me.count !== _counted) && (_revTick < _counted)) {
-      var elms = me.elms = $.findAll(_root, $.selector(me.options));
-
-      if (elms.length) {
-        me.observe(true);
-
-        _revTick++;
-      }
-    }
-  };
-
-  fn.destroyQuietly = function (force) {
-    var me = this;
-    var opts = me.options;
-
-    // Infinite pager like IO wants to keep monitoring infinite contents.
-    // Multi-breakpoint BG/ ratio may want to update during resizing.
-    if (!me.destroyed && (force || $.isUnd(Drupal.io))) {
-      var el = $.find(_doc, $.selector(opts, ':not(.' + opts.successClass + ')'));
-
-      if (!$.isElm(el)) {
-        me.destroy(force);
-      }
-    }
-  };
-
-  fn.destroy = function (force) {
-    var me = this;
-    var opts = me.options;
-    var io = me.ioObserver;
-
-    // Do not disconnect if any error found.
-    if (me.destroyed || (me.erCounted > 0 && !force)) {
-      return;
-    }
-
-    // Disconnect when all entries are loaded, if so configured.
-    var done = (_bioTick === me.count - 1) && opts.disconnect;
-    if (done || force) {
-      if (io) {
-        io.disconnect();
-      }
-
-      _observer.unload(me);
-      me.count = 0;
-      me.elms = [];
-      me.ioObserver = null;
-      me.destroyed = true;
-    }
-  };
-
-  fn.observe = function (reobserve) {
-    var me = this;
-    var elms = me.elms;
-
-    // Only initialize the observer if destroyed, and IO.
-    if ($.isIo && (me.destroyed || reobserve)) {
-      _winData = _observer.init(me, interact, elms, true);
-
-      me.destroyed = false;
-    }
-
-    // Observe as IO, or initialize old bLazy as fallback.
-    if (!_initialized || reobserve) {
-      _observer.observe(me, elms, true);
-
-      _initialized = true;
-    }
-  };
-
-  fn.reinit = function () {
-    var me = this;
-    me.destroyed = true;
-
-    init(me);
-  };
 
   function intersecting(el, revalidate) {
     var me = this;
@@ -383,6 +254,137 @@
     // IO will unobserve, or disconnect. Old bLazy will self destroy.
     me.observe(true);
   }
+
+  // Cache our prototype.
+  fn = Bio.prototype;
+  fn.constructor = Bio;
+
+  // Prepare prototype to interchange with Blazy as fallback.
+  fn.count = 0;
+  fn.erCount = 0;
+  fn.resizeTick = 0;
+  fn.destroyed = false;
+  fn.options = {};
+  fn.lazyLoad = function (el, winData) {};
+  fn.loadImage = function (el, isBg, winData) {};
+  fn.resizing = function (el, winData) {};
+  fn.prepare = function () {};
+  fn.windowData = function () {
+    return $.isUnd(_winData.vp) ? _viewport.windowData(this.options, true) : _winData;
+  };
+
+  // BC for interchanging with bLazy.
+  // @todo merge with bLazy::load.
+  fn.load = function (elms, revalidate, opts) {
+    var me = this;
+
+    elms = elms && $.toArray(elms);
+
+    // @todo remove once infinite pager regression fixed properly like before.
+    if (!$.isUnd(opts)) {
+      me.options = $.extend({}, me.options, opts || {});
+    }
+
+    // Re-use old existing loadInvisible to revalidate hidden elements.
+    revalidate = revalidate || me.options.loadInvisible;
+
+    // Manually load elements regardless of being disconnected, or not, relevant
+    // for Slick slidesToShow > 1 which rebuilds clones of unloaded elements.
+    $.each(elms, function (el) {
+      if (me.isValid(el) || ($.isElm(el) && revalidate)) {
+        intersecting.call(me, el, revalidate);
+      }
+    });
+  };
+
+  fn.isLoaded = function (el) {
+    return $.hasClass(el, this.options.successClass);
+  };
+
+  fn.isValid = function (el) {
+    return $.isElm(el) && !this.isLoaded(el);
+  };
+
+  fn.revalidate = function (force) {
+    var me = this;
+
+    // Prevents from too many revalidations unless needed.
+    if ((force === true || me.count !== _counted) && (_revTick < _counted)) {
+      var elms = me.elms = $.findAll(_root, $.selector(me.options));
+
+      if (elms.length) {
+        me.observe(true);
+
+        _revTick++;
+      }
+    }
+  };
+
+  fn.destroyQuietly = function (force) {
+    var me = this;
+    var opts = me.options;
+
+    // Infinite pager like IO wants to keep monitoring infinite contents.
+    // Multi-breakpoint BG/ ratio may want to update during resizing.
+    if (!me.destroyed && (force || $.isUnd(Drupal.io))) {
+      var el = $.find(_doc, $.selector(opts, ':not(.' + opts.successClass + ')'));
+
+      if (!$.isElm(el)) {
+        me.destroy(force);
+      }
+    }
+  };
+
+  fn.destroy = function (force) {
+    var me = this;
+    var opts = me.options;
+    var io = me.ioObserver;
+
+    // Do not disconnect if any error found.
+    if (me.destroyed || (me.erCounted > 0 && !force)) {
+      return;
+    }
+
+    // Disconnect when all entries are loaded, if so configured.
+    var done = (_bioTick === me.count - 1) && opts.disconnect;
+    if (done || force) {
+      if (io) {
+        io.disconnect();
+      }
+
+      _observer.unload(me);
+      me.count = 0;
+      me.elms = [];
+      me.ioObserver = null;
+      me.destroyed = true;
+    }
+  };
+
+  fn.observe = function (reobserve) {
+    var me = this;
+    var elms = me.elms;
+
+    // Only initialize the observer if destroyed, and IO.
+    if ($.isIo && (me.destroyed || reobserve)) {
+      _winData = _observer.init(me, interact, elms, true);
+
+      me.destroyed = false;
+    }
+
+    // Observe as IO, or initialize old bLazy as fallback.
+    if (!_initialized || reobserve) {
+      _observer.observe(me, elms, true);
+
+      _initialized = true;
+    }
+  };
+
+  fn.reinit = function () {
+    var me = this;
+    me.destroyed = true;
+
+    init(me);
+  };
 
   return Bio;
 

@@ -28,26 +28,28 @@
     return false;
   };
 
+  function real(el) {
+    return el.target || el;
+  }
+
   function is(el, name) {
-    el = el.target || el;
-    return $.hasClass(el, name);
+    return $.hasClass(real(el), name);
   }
 
   $.isBg = function (el, opts) {
-    return is(el, opts && opts.bgClass || 'b-bg');
+    return is(real(el), opts && opts.bgClass || 'b-bg');
   };
 
   $.isBlur = function (el) {
-    return is(el, 'b-blur');
+    return is(real(el), 'b-blur');
   };
 
   $.isGrid = function (el) {
-    el = el.target || el;
-    return $.isElm($.closest(el, '.grid'));
+    return $.isElm($.closest(real(el), '.grid'));
   };
 
   $.isHtml = function (el) {
-    return is(el, 'b-html');
+    return is(real(el), 'b-html');
   };
 
   $.image = {
@@ -69,9 +71,10 @@
     },
 
     ratio: function (data) {
-      var width = data.width ? parseInt(data.width, 2) : 640;
-      var height = data.height ? parseInt(data.height, 2) : 360;
-      return data ? ((height / width) * 100).toFixed(2) : 100;
+      var width = $.toInt(data.width, 640);
+      var height = $.toInt(data.height, 360);
+
+      return ((height / width) * 100).toFixed(2);
     },
 
     dimension: function (w, h) {

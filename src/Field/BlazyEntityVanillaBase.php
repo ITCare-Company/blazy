@@ -157,11 +157,10 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
           yield $element;
         }
         else {
-          $current              = $data;
-          $current['#delta']    = $delta;
-          $current['#entity']   = $entity;
-          $current['#langcode'] = $langcode;
-          $current['#parent']   = $data['#entity'] ?? NULL;
+          $current            = $data;
+          $current['#delta']  = $delta;
+          $current['#entity'] = $entity;
+          $current['#parent'] = $data['#entity'] ?? NULL;
 
           // @todo refine yield item here at 3.x.
           if ($element = $this->withElement($current)) {
@@ -278,11 +277,12 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * Provides overrides for BC.
    */
   private function withOverride(array &$build, array $element): void {
-    foreach (['delta', 'entity', 'langcode', 'settings'] as $key) {
-      $build["#$key"] = $element["#$key"] ?? $build["#$key"] ?? NULL;
+    foreach (['delta', 'entity', 'settings'] as $key) {
+      $default = $key == 'settings' ? [] : NULL;
+      $build["#$key"] = $element["#$key"] ?? $build["#$key"] ?? $default;
     }
 
-    $delta    = $build['#delta'] ?? 0;
+    $delta    = $build['#delta'];
     $entity   = $build['#entity'];
     $langcode = $build['#langcode'];
     $settings = $build['#settings'];

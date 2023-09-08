@@ -305,4 +305,4 @@ photobox:
   dependencies:
     - core/jquery
     - blazy/drupal
-  deprecated: The %library_id% asset library is deprecated in blazy:2.5 and will be removed in blazy:3.0.0.
+  deprecated: The %library_id% is deprecated in blazy:2.5 and is removed in blazy:3.0.0.

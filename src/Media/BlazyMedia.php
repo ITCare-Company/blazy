@@ -378,7 +378,9 @@ class BlazyMedia implements BlazyMediaInterface {
     $medias    = array_merge($locals, $videos);
     $is_local  = in_array($source, $locals);
     $is_media  = in_array($source, $medias);
-    $is_remote = $info['type'] == 'video' || in_array($source, $videos);
+    $type      = $info['type'] ?? 'image';
+    $_type     = str_replace([':'], '_', $type);
+    $is_remote = $type == 'video' || in_array($source, $videos);
 
     // Embed url is not defined here, yet, provides basic media checks.
     $contexts = Cache::mergeContexts(['languages', 'url.site'], $media->getCacheContexts());
@@ -396,11 +398,14 @@ class BlazyMedia implements BlazyMediaInterface {
       ->set('is.playable', $is_remote || $is_local)
       ->set('is.multimedia', $is_media)
       ->set('is.local_media', $is_local)
-      ->set('is.local_audio', $source == 'audio_file')
-      ->set('is.local_video', $source == 'video_file')
       ->set('is.remote_video', $is_remote)
       ->set('is.remote_unknown', !$is_media)
+      ->set('is.' . $_type, TRUE)
       ->set('field.target_bundles.' . $bundle, $bundle, TRUE);
+
+    // @todo remove for is.type:
+    $blazies->set('is.local_audio', $source == 'audio_file')
+      ->set('is.local_video', $source == 'video_file');
 
     return $media;
   }
@@ -453,10 +458,6 @@ class BlazyMedia implements BlazyMediaInterface {
     $videos = in_array($source_id, [
       'oembed:video',
       'video_embed_field',
-      // 'oembed:instagram',
-      // 'facebook',
-      // 'twitter',
-      // 'pinterest',
     ]);
 
     if ($images) {

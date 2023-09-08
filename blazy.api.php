@@ -531,7 +531,7 @@ function hook_blazy_item_alter(array &$settings, array &$attributes, array &$ite
   // $blazies->is('captioned') or $blazies->is('multimedia') in case
   // captioned or not, or breaking multimedia or media player, etc.
   // If any display issues with grid, media player, etc., refine or remove this.
-  if ($blazies->get('namespace') == 'blazy') {
+  if ($blazies->get('namespace') == 'blazy' && $blazies->is('image')) {
     $blazies->set('is.figcaption', TRUE)
       ->set('item.wrapper_tag', 'figure')
       ->set('item.wrapper_attributes.class', ['blazy__content']);

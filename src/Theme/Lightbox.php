@@ -299,10 +299,10 @@ class Lightbox {
     // Currently: Responsive/Picture image, not plain, and Local video.
     $is_html = FALSE;
     if ($box_html = ($element['#lightbox_html'] ?? [])) {
-      if ($blazies->is('local_audio')) {
+      if ($blazies->is('audio_file')) {
         $json['boxType'] = 'audio';
       }
-      elseif ($blazies->is('local_video')) {
+      elseif ($blazies->is('video_file')) {
         $json['boxType'] = 'video';
       }
       else {

@@ -36,16 +36,4 @@ class BlazyFormatterBlazy extends BlazyFileSvgFormatterBase {
    */
   protected static $captionId = 'captions';
 
-  /**
-   * {@inheritdoc}
-   */
-  protected function buildElements(array &$build, $files, $langcode) {
-    foreach ($this->getElements($build, $files) as $element) {
-      if ($element) {
-        // Since 2.17, match sub-modules `items` for easy swap later to DRY.
-        $build['items'][] = $element;
-      }
-    }
-  }
-
 }

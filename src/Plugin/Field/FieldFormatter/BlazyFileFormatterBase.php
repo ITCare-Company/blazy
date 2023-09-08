@@ -146,6 +146,20 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  protected function buildElements(array &$build, $files, $langcode) {
+    foreach ($this->getElements($build, $files) as $element) {
+      if ($element) {
+        // Since 2.17, match sub-modules `items` for easy swap later to DRY.
+        $build['items'][] = $element;
+
+        $this->withOverride($build, $element);
+      }
+    }
+  }
+
+  /**
    * Returns the Blazy elements, also for sub-modules to re-use.
    *
    * @todo remove parameter $options for properties after sub-modules.
@@ -430,6 +444,19 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       // @todo remove at 3.x for self::withElement() or static::$useOembed.
       $file = $build['#entity'];
       $this->buildElement($build, $file);
+    }
+  }
+
+  /**
+   * Provides overrides for BC.
+   */
+  private function withOverride(array &$build, array $element): void {
+    if (method_exists($this, 'withElementOverride')) {
+      foreach (['delta', 'entity', 'settings'] as $key) {
+        $default = $key == 'settings' ? [] : NULL;
+        $build["#$key"] = $element["#$key"] ?? $build["#$key"] ?? $default;
+      }
+      $this->withElementOverride($build, $element);
     }
   }
 

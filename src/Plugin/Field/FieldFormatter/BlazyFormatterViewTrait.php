@@ -48,7 +48,7 @@ trait BlazyFormatterViewTrait {
     $this->preSettings($settings, $langcode);
 
     // Build the settings.
-    $build = ['#settings' => $settings];
+    $build = ['#settings' => $settings, '#langcode' => $langcode];
 
     // Modifies settings before building elements.
     $this->formatter->preElements($build, $items, $entities);
@@ -56,12 +56,13 @@ trait BlazyFormatterViewTrait {
     // Internal overrides after enough data is populated above.
     $this->postSettings($build['#settings'], $langcode);
 
+    // BC hook_alters upstream are happy, ensures no more leaks downstream.
+    // @todo recheck if any misses downstream.
+    unset($build['settings']);
+
     // Build the elements.
     if (method_exists($this, 'buildElements')) {
-      // BC hook_alters upstream are happy, ensures no more leaks downstream.
-      // @todo recheck if any misses downstream.
-      unset($build['settings']);
-
+      // @todo remove $langcode at 3.x:
       $this->buildElements($build, $elements, $langcode);
     }
 

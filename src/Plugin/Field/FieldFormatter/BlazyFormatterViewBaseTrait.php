@@ -44,10 +44,11 @@ trait BlazyFormatterViewBaseTrait {
     $this->postSettings($settings, $langcode);
 
     // Build the settings.
-    $build = ['#settings' => $settings];
+    $build = ['#settings' => $settings, '#langcode' => $langcode];
 
     // Build the elements, and satisfy phpstan.
     if (method_exists($this, 'buildElements')) {
+      // @todo remove $langcode at 3.x:
       $this->buildElements($build, $items, $langcode);
     }
 

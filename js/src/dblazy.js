@@ -313,6 +313,34 @@
   }
 
   /**
+   * Returns true if the x is an integer.
+   *
+   * @private
+   *
+   * @param {Mixed} x
+   *   The x to check for its type truthy.
+   *
+   * @return {bool}
+   *   True if x is an integer.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt
+   * @see https://stackoverflow.com/questions/175739
+   */
+  function isInt(x) {
+    return !isNaN(x) &&
+      parseInt(Number(x)) === x &&
+      !isNaN(parseInt(x, 10));
+  }
+
+  // Normally expecting 640px converted into just 640, etc.
+  function toInt(x, fallback) {
+    if (!isInt(x)) {
+      x = parseInt(x);
+    }
+    return x || fallback || 0;
+  }
+
+  /**
    * Returns true if the argument is a function.
    *
    * @private
@@ -1300,7 +1328,7 @@
     var rw = mobileFirst ? ww : pr;
     var mw = function (w) {
       // The picture wants <= (approximate), non-picture wants >=, wtf.
-      return mobileFirst ? parseInt(w, 0) <= rw : parseInt(w, 0) >= rw;
+      return mobileFirst ? toInt(w, 0) <= rw : toInt(w, 0) >= rw;
     };
 
     var data = _k.filter(mw).map(function (v) {
@@ -1668,6 +1696,7 @@
   db.isElm = isElm;
   db.isFun = isFun;
   db.isEmpty = isEmpty;
+  db.isInt = isInt;
   db.isNull = isNull;
   db.isNum = isNum;
   db.isObj = isObj;
@@ -1701,6 +1730,7 @@
   db.hasProp = hasProp;
   db.parse = parse;
   db.toArray = toArray;
+  db.toInt = toInt;
 
   // Attribute methods.
   db.attr = _attr.bind(db);

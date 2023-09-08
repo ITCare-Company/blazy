@@ -163,7 +163,7 @@ class BlazyTheme {
           $blazies->set('is.dimensions', TRUE);
 
           // Only video has poster, not audio.
-          if ($blazies->is('local_video')) {
+          if ($blazies->is('video_file')) {
             // In lightboxes, provide a dedicated image style url, if any.
             if ($blazies->is('lightbox')
               && $box_url = $blazies->get('box_media.url')) {

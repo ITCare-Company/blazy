@@ -54,7 +54,8 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
    *
    * This method should NOT be used by sub-modules to allow
    * hook_blazy_settings_alter once for the entire ecosystem rather than each
-   * hook_alter for every modules.
+   * hook_alter for every modules, except for few modifications not affecting
+   * the hook_alter.
    *
    * @param array $build
    *   The array containing: settings, or potential optionset for extensions.

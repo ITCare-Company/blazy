@@ -231,10 +231,10 @@
     var el = settings.el || settings.element;
     var $el = $(el);
     var alt = $.image.alt(el);
-    var data = $.parse($el.attr('data-b-' + _md + ' data-' + _md));
+    var data = $.parse($.attr(el, 'data-b-' + _md + ' data-' + _md));
     var provider = data.provider;
     var token = data.token;
-    var width = data.width ? parseInt(data.width, 0) : 640;
+    var width = $.toInt(data.width, 640);
     var pad = $.image.ratio(data);
     var imgUrl = $el.attr('data-box-url');
     var href = el.href;

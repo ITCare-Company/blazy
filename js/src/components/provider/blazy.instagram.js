@@ -70,8 +70,8 @@
 
     $.on(iframe, 'load', function () {
       var ifrm = this;
-      w = parseInt($.css(ifrm, 'min-width'), 0);
-      h = parseInt($.height(ifrm), 0);
+      w = $.toInt($.css(ifrm, 'min-width'), 326);
+      h = $.toInt($.height(ifrm), 520);
 
       if (h < 180 || ws.height < 620) {
         h = ws.height - 60;

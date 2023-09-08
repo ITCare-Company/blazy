@@ -278,7 +278,7 @@ class CheckItem {
     $ratio     = !empty($settings['ratio']);
 
     // Only video has poster, audio can only have a multi content.
-    if ($blazies->is('local_audio') && !empty($stage)) {
+    if ($blazies->is('audio_file') && !empty($stage)) {
       $blazies->set('is.multicontent', TRUE);
     }
 
@@ -329,25 +329,27 @@ class CheckItem {
       }
     }
 
-    // Disable image.
-    $local_video = $blazies->is('local_video') && !$blazies->is('lightbox');
-    if ($is_iframe || $local_video) {
-      $blazies->set('use.image', FALSE);
-    }
-
     // @todo remove deprecated dup is for use at 3.x.
     $blazies->set('is.iframe', $is_iframe)
       ->set('is.player', $is_player);
 
+    $_type = str_replace([':'], '_', $type);
     $multimedia = $blazies->is('multimedia', $is_remote);
     $blazies->set('is.multimedia', $multimedia || $blazies->is('playable'))
       ->set('media.ratio', $ratio)
       ->set('is.remote_video', $is_remote)
+      ->set('is.' . $_type, TRUE)
       ->set('media.embed_url', $embed_url)
       ->set('media.provider', $provider)
       ->set('media.type', $type)
       ->set('use.iframe', $is_iframe)
       ->set('use.player', $is_player);
+
+    // Disable image.
+    $local_video = $blazies->is('video_file') && !$blazies->is('lightbox');
+    if ($is_iframe || $local_video) {
+      $blazies->set('use.image', FALSE);
+    }
   }
 
 }

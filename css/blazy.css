@@ -146,8 +146,14 @@ absolute position and fixed dimensions. */
   min-height: 420px;
 }
 
+/** Forgiven, better than being broken anyway. */
+.grid iframe,
 .blazy .twitter-tweet-rendered {
   max-width: 100% !important; /* csslint allow: known-properties, important */
+}
+
+.grid iframe {
+  min-width: 100% !important; /* csslint allow: known-properties, important */
 }
 
 /*

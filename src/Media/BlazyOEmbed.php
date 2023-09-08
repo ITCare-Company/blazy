@@ -427,7 +427,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
         // Let's keep it for switch purposes.
         $blazies->set('media.type', 'image')
           ->set('media.provider', 'local')
-          ->set('media.input', NULL)
+          ->set('media.input_url', NULL)
           ->set('media.embed_url', NULL);
         break;
 
