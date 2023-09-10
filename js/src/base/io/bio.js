@@ -49,6 +49,7 @@
    */
   var _doc = document;
   var _root = _doc;
+  var _nick = 'bio';
   var _winData = {};
   var _bioTick = 0;
   var _ww = 0;
@@ -107,8 +108,14 @@
     var watching = opts.visibleClass || revalidate || false;
 
     // Only destroy if no use for is-b-visible class.
-    if (_bioTick === count - 1 && !watching) {
-      me.destroyQuietly();
+    if (_bioTick === count - 1) {
+      $.trigger(_win, _nick + '.done', {
+        options: opts
+      });
+
+      if (!watching) {
+        me.destroyQuietly();
+      }
     }
 
     // Unlike ResizeObserver/ infinite pager, IntersectionObserver is done.
@@ -147,7 +154,7 @@
     }
 
     // If not extending/ overriding, also allows to listen to.
-    $.trigger(el, 'bio.intersecting', {
+    $.trigger(el, _nick + '.intersecting', {
       options: opts
     });
   }
@@ -223,8 +230,21 @@
       _resizing = resized && _ww > 0;
       if (_resizing && !isBlur) {
         // Ensures only before settled, or if any different from previous size.
+        var details = {
+          winData: _winData,
+          entries: me.elms,
+          currentWidth: ww,
+          oldWidth: _ww,
+          enlarged: ww > _ww
+        };
+
         if (_ww !== ww) {
           me.resizing(el, _winData);
+
+          $.trigger(_win, _nick + '.resizing', details);
+        }
+        else {
+          $.trigger(_win, _nick + '.resized', details);
         }
         me.resizeTick++;
       }
@@ -339,6 +359,8 @@
     var me = this;
     var opts = me.options;
     var io = me.ioObserver;
+    var done = (_bioTick === me.count - 1);
+    var disconnect = done && opts.disconnect;
 
     // Do not disconnect if any error found.
     if (me.destroyed || (me.erCounted > 0 && !force)) {
@@ -346,8 +368,7 @@
     }
 
     // Disconnect when all entries are loaded, if so configured.
-    var done = (_bioTick === me.count - 1) && opts.disconnect;
-    if (done || force) {
+    if (disconnect || force) {
       if (io) {
         io.disconnect();
       }

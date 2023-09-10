@@ -4,6 +4,7 @@
  *
  * Credit: https://fjolt.com/article/css-grthis loader id-masonry
  *
+ * @requires aspect ratio fluid in the least to layout correctly.
  * @todo deprecated this is worse than NativeGrid Masonry. We can't compete
  * against the fully tested Outlayer or GridStack library.
  */
@@ -12,14 +13,19 @@
 
   'use strict';
 
-  var _id = 'b-flex';
-  var _idOnce = _id;
-  var _isLoading = 'is-b-loading';
-  var _mounted = 'is-' + _idOnce;
-  var _element = '.' + _id + ':not(.' + _mounted + ')';
-  var _max = 0;
-  var _unload = false;
-  var _opts = {
+  var ID = 'b-flex';
+  var ID_ONCE = ID;
+  var C_MOUNTED = 'is-' + ID_ONCE;
+  var C_DONE = C_MOUNTED + '-done';
+  var C_RESIZED = C_MOUNTED + '-resized';
+  var S_ELEMENT = '.' + ID + ':not(.' + C_MOUNTED + ')';
+  var S_GRID = '.grid';
+  var V_BIO = 'bio';
+  var E_DONE = V_BIO + '.done';
+  var E_RESIZED = V_BIO + '.resized';
+  var E_TRANSTIONEND = 'transitionend';
+  var V_MAX = 0;
+  var V_OPTS = {
     $el: null
   };
 
@@ -30,103 +36,91 @@
    *   The container HTML element.
    */
   function process(elm) {
-    var _box = '.grid';
     var heights = {};
-    var box = $.find(elm, _box);
+    var items;
+    var html = $.find(elm, '.b-html');
 
-    if (!$.isElm(box)) {
-      return;
-    }
-
-    var items = $.findAll(elm, _box);
-
-    function init() {
+    function toGrid(grids) {
+      var box = $.find(elm, S_GRID);
       var parentWith = $.rect(elm).width;
       var boxWith = $.rect(box).width;
       var style = $.computeStyle(box);
       var itemWith = boxWith + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
       var columnWidth = Math.round((1 / (itemWith / parentWith)));
 
-      var processItem = function (item, id) {
-        var target = item.target;
-        var isResized = $.isUnd(id);
+      var layout = function (grid, id) {
+        var target = grid.target;
+        grid = target ? $.closest(target, S_GRID) : grid;
+        id = $.isUnd(id) ? grids.indexOf(grid) : id;
 
-        item = target ? $.closest(target, _box) : item;
-        id = isResized ? items.indexOf(item) : id;
-
-        var layout = function () {
-          var cn = $.find(item, _box + '__content');
-          if (!$.isElm(cn)) {
-            return;
-          }
-
-          var cr = $.rect(cn);
-          var ch = cr.height;
-
-          if (ch < 60) {
-            cr = $.rect(item);
-            ch = cr.height;
-          }
-
-          if (ch < 60) {
-            return;
-          }
-
-          var curColumn = id % columnWidth;
-          var style = $.computeStyle(item);
-
-          if ($.isUnd(heights[curColumn])) {
-            heights[curColumn] = 0;
-          }
-
-          item.style.height = ch + 'px';
-          heights[curColumn] += ch + parseFloat(style.marginBottom);
-
-          // If the item has an item above it, then move it to fill the gap.
-          if (id - columnWidth >= 0) {
-            var nh = id - columnWidth + 1;
-            var itemAbove = $.find(elm, _box + ':nth-of-type(' + nh + ')');
-            if ($.isElm(itemAbove)) {
-              var prevBottom = $.rect(itemAbove).bottom;
-              var currentTop = cr.top - parseFloat(style.marginBottom);
-
-              item.style.top = '-' + (currentTop - prevBottom) + 'px';
-            }
-          }
-        };
-
-        if (isResized || _unload) {
-          if (_unload) {
-            item.style.height = '';
-            item.style.top = '';
-          }
-
-          setTimeout(layout, _unload ? 100 : 600);
+        var cn = $.find(grid, S_GRID + '__content');
+        if (!$.isElm(cn)) {
+          return;
         }
-        else {
-          layout();
+
+        var cr = $.rect(cn);
+        var ch = cr.height;
+
+        if (ch < 60) {
+          cr = $.rect(grid);
+          ch = cr.height;
+        }
+
+        if (ch < 60) {
+          return;
+        }
+
+        var curColumn = id % columnWidth;
+        var style = $.computeStyle(grid);
+
+        if ($.isUnd(heights[curColumn])) {
+          heights[curColumn] = 0;
+        }
+
+        // grid.style.minHeight = ch + 'px';
+        heights[curColumn] += ch + parseFloat(style.marginBottom);
+
+        // If the item has an item above it, then move it to fill the gap.
+        if (id - columnWidth >= 0) {
+          var nh = id - columnWidth + 1;
+          var itemAbove = $.find(elm, S_GRID + ':nth-of-type(' + nh + ')');
+          if ($.isElm(itemAbove)) {
+            var prevBottom = $.rect(itemAbove).bottom;
+            var currentTop = cr.top - parseFloat(style.marginBottom);
+
+            // grid.style.top = '-' + (currentTop - prevBottom) + 'px';
+            grid.style.transform = 'translateY(-' + parseInt(currentTop - prevBottom, 0) + 'px)';
+          }
         }
       };
 
+      var processItem = function (item, id) {
+        // var blazies = $.findAll(item, '.b-lazy');
+
+        layout(item, id);
+
+        // if (blazies.length) {
+        // $.each(blazies, function (el) {
+        // $.on(el, 'blazy.done', layout);
+        // });
+        // }
+      };
+
       // Process on page load.
-      $.each(items, processItem);
+      $.each(grids, processItem);
 
-      function checkHeight() {
-        var max = Math.max.apply(null, Object.values(heights));
+      var checkHeight = function () {
+        var values = Object.values(heights);
+        var max = Math.max.apply(null, values);
+
         if (max < 0) {
-          max = _max;
+          max = V_MAX;
         }
 
-        if (_unload) {
-          // Prepare space to avoid jumping jack flash.
-          elm.style.height = _max + 360 + 'px';
-        }
-        else {
-          elm.style.height = max + 'px';
-        }
+        elm.style.minHeight = max + 'px';
 
-        _max = max;
-      }
+        V_MAX = max;
+      };
 
       checkHeight();
 
@@ -137,18 +131,60 @@
       // };
     }
 
-    setTimeout(init, _unload ? 1200 : 200);
+    function initNow(e) {
+      var isDone = e && e.type === E_DONE;
+      var resized = e && e.type === E_RESIZED;
+      items = $.findAll(elm, S_GRID);
 
-    if (!_unload) {
-      $.addClass(elm, _isLoading);
-      setTimeout(function () {
-        $.removeClass(elm, _isLoading);
-      }, 600);
+      function start() {
+        items = $.findAll(elm, S_GRID);
+        toGrid(items);
+
+        $.removeClass(elm, C_RESIZED);
+
+        setTimeout(function () {
+          $.addClass(elm, C_DONE);
+        }, resized ? 600 : 0);
+      }
+
+      if (resized) {
+        $.removeClass(elm, C_DONE);
+        $.addClass(elm, C_RESIZED);
+
+        var ended = function () {
+          heights = {};
+
+          $.each(items, function (el) {
+            el.style.transform = '';
+            // el.style.minHeight = '';
+          });
+          start();
+
+          $.off(elm, E_TRANSTIONEND, ended);
+        };
+
+        $.on(elm, E_TRANSTIONEND, ended);
+      }
+      else {
+        start();
+      }
+
+      if (isDone) {
+        $.off(E_DONE, initNow);
+      }
     }
 
-    $.addClass(elm, _mounted);
-    _opts.$el = elm;
-    _unload = false;
+    if ($.isElm(html)) {
+      $.on(E_DONE, initNow);
+    }
+    else {
+      setTimeout(initNow, 301);
+    }
+
+    $.on(E_RESIZED, $.debounce(initNow, 601));
+
+    $.addClass(elm, C_MOUNTED);
+    V_OPTS.$el = elm;
   }
 
   /**
@@ -158,12 +194,11 @@
    */
   Drupal.behaviors.blazyFlex = {
     attach: function (context) {
-      $.once(process, _idOnce, _element, context);
+      $.once(process, ID_ONCE, S_ELEMENT, context);
     },
     detach: function (context, setting, trigger) {
-      _unload = trigger === 'unload';
-      if (_unload) {
-        $.once.removeSafely(_idOnce, _element, context);
+      if (trigger === 'unload') {
+        $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
       }
     }
   };

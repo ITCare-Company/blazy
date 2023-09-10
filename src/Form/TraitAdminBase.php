@@ -52,10 +52,13 @@ trait TraitAdminBase {
     $admin_css = $this->blazyManager->config('admin_css', 'blazy.settings') ?: FALSE;
     // Disable the admin css in the off canvas menu, to avoid conflicts with
     // the active frontend theme.
-    if ($admin_css && $router = Path::requestStack()) {
-      $wrapper_format = $router->getCurrentRequest()->query->get('_wrapper_format');
+    if ($admin_css && $request = Path::requestStack()) {
+      $current = $request->getCurrentRequest();
+      $uri = $current->getRequestUri();
+      $wrapper_format = $current->query->get('_wrapper_format');
 
-      if ($wrapper_format && $wrapper_format === "drupal_dialog.off_canvas") {
+      if ($wrapper_format === "drupal_dialog.off_canvas"
+        || strpos($uri, '/views/nojs') !== FALSE) {
         $admin_css = FALSE;
       }
     }

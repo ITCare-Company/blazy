@@ -10,11 +10,19 @@
   'use strict';
 
   $.debounce = function (cb, arg, scope, delay) {
+    if ($.isInt(arg) && !scope) {
+      delay = arg;
+    }
+
     var _cb = function () {
       cb.call(scope, arg);
     };
 
-    Drupal.debounce(_cb, delay || 201, true);
+    if (scope) {
+      return Drupal.debounce(_cb, delay || 201, true);
+    }
+
+    return Drupal.debounce.call(this, cb);
   };
 
   $.matchMedia = function (width, minmax) {

@@ -14,17 +14,13 @@
 .item-list > .b-flex {
   display: block;
   clear: both;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  align-items: flex-start;
-  justify-content: flex-start;
   width: 100%;
   height: auto;
   margin: 0 auto;
+  min-height: 40px;
   padding: 0;
   list-style: none;
-  transition: height 0.5s;
+  transition: min-height 0.3s;
 }
 
 .b-flex > .grid,
@@ -37,7 +33,16 @@
   margin-right: var(--bf-col-gap);
   margin-bottom: var(--bf-col-gap);
   padding: 0;
-  transition: height 0.3s, width 0.3s, top 0.3s;
+  width: 100%;
+}
+
+/** @todo listen to transitionend. */
+.b-flex.is-b-flex-done:not(.is-b-flex-resized) > .grid {
+  transition: transform 0.5s;
+}
+
+.b-flex.is-b-flex-resized > .grid {
+  transition: none;
 }
 
 .b-flex .grid__content {
@@ -46,12 +51,18 @@
   max-width: 100%;
 }
 
-.b-flex.is-b-loading {
-  opacity: 0;
-}
-
 /** 480px with 16px base font. */
 @media only screen and (min-width: 30em) {
+  .b-flex,
+  .blazy.b-flex,
+  .item-list > .b-flex {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
   .b-flex,
   .blazy.b-flex,
   .item-list > .b-flex,
