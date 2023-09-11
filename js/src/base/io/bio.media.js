@@ -109,9 +109,13 @@
     var me = this;
     var opts = me.options;
     var sel = opts.selector;
+    var check;
 
-    if (!$.is(el, opts.selector)) {
-      el = $.find(el, sel);
+    if (!$.is(el, sel)) {
+      check = $.find(el, sel);
+      if ($.isElm(check)) {
+        el = check;
+      }
     }
 
     var parent = el.parentNode;

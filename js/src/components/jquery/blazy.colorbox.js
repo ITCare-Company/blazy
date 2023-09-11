@@ -278,7 +278,7 @@
       // Instagram dynamic iframe only available after being attached.
       $iframe = $('iframe', container);
       if ($iframe.length) {
-        $iframe.addClass('media_S_ELEMENT');
+        $iframe.addClass('media__element');
 
         if (isInstagramApi) {
           shouldResize = false;
