@@ -63,6 +63,8 @@ Opacity is the cheapest among all animations, fine with longer time.
  * The native lazy load swaps placeholders for real images, makes it impossible
  * to have blur effect, that is why we put it into another IMG.
  * Blur filter is an expensive effect, use it wisely, selectively by hook alter.
+ * @todo recheck if we can use pseudo selector for blur, last time the issue was
+ * due to failing JS to work with pseudo selectors.
  */
 .media--fx.is-b-visible:not(.is-b-animated) .b-blur {
   /* Longer than animation timing to let the actual image surface better. */

@@ -302,9 +302,15 @@ class Attributes {
       $embed_url = UrlHelper::stripDangerousProtocols($embed_url);
     }
 
+    // Listens to hook_alters.
+    if ($attrs = $blazies->get('iframe.attributes', [])) {
+      unset($attrs['src']);
+      $attributes = Arrays::merge($attributes, $attrs);
+    }
+
     // Native lazyload just loads the URL directly.
     // With many videos like carousels on the page may chaos, but we provide a
-    // solution: use `Image to Iframe` for GDPR, swipe and best performance.
+    // solution: use `Image to iframe` for GDPR, swipe and best performance.
     if (Internals::isUnlazy($blazies)) {
       $attributes['src'] = $embed_url;
 
@@ -314,22 +320,26 @@ class Attributes {
       }
     }
     // Non-native lazyload for oldies to avoid loading src, the most efficient.
-    // No cookies are loaded from external sites till the play button clicked.
+    // No cookies are loaded from external sites till the play button clicked,
+    // only if choosing `Image to iframe` Media switch. This used to be printed
+    // at early 1.x, but no longer since we have JS media player.
     else {
       $attributes['class'][] = 'b-lazy';
       $attributes['data-src'] = $embed_url;
       $attributes['src'] = 'about:blank';
     }
 
-    // Makes query seletor easier for filter.
+    // Makes query selector easier for filter.
     if ($blazies->get('filter')) {
       $attributes['class'][] = 'b-filter';
     }
 
-    if ($attrs = $blazies->get('iframe.attributes', [])) {
-      unset($attrs['src']);
-      $attributes = Arrays::merge($attributes, $attrs);
-    }
+    // Just in case merges cause similar discreet issues to images.
+    // This is the root cause for the failing lazy load: data-entity-type!
+    // This attribute reset lazy data:image SRC attribute after Blazy causing
+    // failing lazy-load discreet behaviors, relevant for BlazyFilter:
+    // See https://www.drupal.org/project/blazy/issues/3374519
+    unset($attributes['data-entity-type']);
 
     self::common($attributes, $blazies);
     return $attributes;
@@ -346,8 +356,9 @@ class Attributes {
    * Defines attributes, builtin, or supported lazyload such as Slick/ Splide.
    *
    * These attributes can be applied to either IMG or DIV as CSS background.
-   * The [data-(src|lazy)] attributes are applicable for (Responsive) image.
-   * While [data-src] is reserved by Blazy, [data-lazy] by Slick.
+   * The [data-(src|srcset)] attributes are applicable for (Responsive) image.
+   * While [data-src] is reserved by Blazy.
+   * The data-[SRC|SCRSET] is if `nojs` disabled, background, or video.
    *
    * @param array $attributes
    *   The attributes being modified.
@@ -357,8 +368,6 @@ class Attributes {
    *   If a background image.
    */
   public static function lazy(array &$attributes, $blazies, $bg = FALSE): void {
-    // Slick has its own class and methods: ondemand, anticipative, progressive.
-    // The data-[SRC|SCRSET|LAZY] is if `nojs` disabled, background, or video.
     $trusted = $blazies->get('image.trusted');
     if ($url = $blazies->get('image.url')) {
       $url = $trusted ? $url : UrlHelper::stripDangerousProtocols($url);
@@ -372,7 +381,7 @@ class Attributes {
         $attributes['data-' . $attribute] = $url;
       }
 
-      // Makes query seletor easier for filter.
+      // Makes query selector easier for filter.
       if ($blazies->get('filter')) {
         $attributes['class'][] = 'b-filter';
       }
