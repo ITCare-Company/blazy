@@ -108,6 +108,12 @@
   FN.lazyLoad = function (el, winData) {
     var me = this;
     var opts = me.options;
+    var sel = opts.selector;
+
+    if (!$.is(el, opts.selector)) {
+      el = $.find(el, sel);
+    }
+
     var parent = el.parentNode;
     var isBg = $.isBg(el);
     var isPicture = $.equal(parent, 'picture');

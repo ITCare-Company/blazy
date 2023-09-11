@@ -12,6 +12,10 @@
 
   'use strict';
 
+  function real(el) {
+    return el ? (el.target || el) : null;
+  }
+
   /**
    * Returns element visibility for oldies.
    *
@@ -32,6 +36,28 @@
       rect.bottom >= vp.top &&
       rect.left <= vp.right &&
       rect.top <= vp.bottom;
+  }
+
+  // See https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.offsetParent
+  function isHidden(e) {
+    var el = real(e);
+    return el && $.isNull(el.offsetParent);
+  }
+
+  function visibleParent(e) {
+    var el = real(e);
+    var cn = $.parent(el);
+    var out = cn;
+
+    while (cn) {
+      if ($.isElm(cn) && !isHidden(cn)) {
+        out = cn;
+        break;
+      }
+
+      cn = cn.parentElement || cn.parentNode;
+    }
+    return out;
   }
 
   /**
@@ -81,9 +107,10 @@
       return (!!e.contentRect || !!scope.resizeTrigger || false);
     },
 
+    isHidden: isHidden,
+
     isVisible: function (e, vp) {
-      var target = e.target;
-      var el = target || e;
+      var el = real(e);
       return $.isIo ? (e.isIntersecting || e.intersectionRatio > 0) : isVisible(el, vp);
     },
 
@@ -112,6 +139,8 @@
 
       return me.windowData(opts);
     },
+
+    visibleParent: visibleParent,
 
     // Must be called after init and update.
     windowData: function (opts, init) {

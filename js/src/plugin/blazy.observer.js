@@ -13,6 +13,8 @@
 
   'use strict';
 
+  var FN_VIEWPORT = $.viewport;
+
   // Enqueue operations.
   function enqueue(queue, cb, scope) {
     $.each(queue, cb.bind(scope));
@@ -82,9 +84,17 @@
       var opts = scope.options || {};
       var ioObserver = scope.ioObserver;
       var roObserver = scope.roObserver;
+      var vp = FN_VIEWPORT;
       var watch = function (watcher) {
         if (watcher && elms && elms.length) {
           $.each(elms, function (entry) {
+            if (vp && watcher === ioObserver && vp.isHidden(entry)) {
+              var cn = vp.visibleParent(entry);
+              if ($.isElm(cn)) {
+                watcher.observe(cn);
+              }
+            }
+
             watcher.observe(entry);
           });
         }
