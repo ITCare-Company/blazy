@@ -21,37 +21,39 @@
 
   'use strict';
 
-  var ns = 'dblazy';
-  var extend = Object.assign;
-  var _aProto = Array.prototype;
-  var _oProto = Object.prototype;
-  var _toString = _oProto.toString;
-  var _splice = _aProto.splice;
-  var _some = _aProto.some;
-  var _symbol = typeof Symbol !== 'undefined' && Symbol;
-  var _isJq = 'jQuery' in _win;
-  var _isCash = 'cash' in _win;
-  var _class = 'class';
-  var _add = 'add';
-  var _remove = 'remove';
-  var _has = 'has';
-  var _get = 'get';
-  var _set = 'set';
-  var _width = 'width';
-  var _uWidth = 'Width';
-  var _clientWidth = 'client' + _uWidth;
-  var _scroll = 'scroll';
-  var _iterator = 'iterator';
-  var _observer = 'Observer';
-  var _eListener = 'EventListener';
-  var _body = 'body';
-  var _html = 'html';
-  var _dashAlphaRe = /-([a-z])/g;
-  var _cssVariableRe = /^--/;
-  var _storage = _win.localStorage;
-  var _events = {};
+  var NAME = 'dblazy';
+  var EXTEND = Object.assign;
+  var PROTO_A = Array.prototype;
+  var PROTO_O = Object.prototype;
+  var PROTO_TOSTRING = PROTO_O.toString;
+  var PROTO_SPLICE = PROTO_A.splice;
+  var PROTO_SOME = PROTO_A.some;
+  var V_SYMBOL = typeof Symbol !== 'undefined' && Symbol;
+  var IS_JQ = 'jQuery' in _win;
+  var IS_CASH = 'cash' in _win;
+  var V_CLASS = 'class';
+  var V_ADD = 'add';
+  var V_REMOVE = 'remove';
+  var V_HAS = 'has';
+  var V_GET = 'get';
+  var V_SET = 'set';
+  var V_WIDTH = 'width';
+  var U_WIDTH = 'Width';
+  var V_CLIENTWIDTH = 'client' + U_WIDTH;
+  var E_SCROLL = 'scroll';
+  var V_ITERATOR = 'iterator';
+  var S_OBSERVER = 'Observer';
+  var E_LISTENER = 'EventListener';
+  var S_BODY = 'body';
+  var S_HTML = 'html';
+  var RE_DASH_ALPHA = /-([a-z])/g;
+  var RE_CSS_VARIABLE = /^--/;
+  var STORAGE = _win.localStorage;
+  var EVENTS = {};
   // The largest integer that can be represented exactly.
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
+  var DB;
+  var FN;
 
   /**
    * Object for public APIs where dBlazy stands for drupalBlazy.
@@ -65,7 +67,7 @@
     function dBlazy(selector, ctx) {
       var me = this;
 
-      me.name = ns;
+      me.name = NAME;
 
       if (!selector) {
         return;
@@ -113,21 +115,21 @@
   }();
 
   // Cache our prototype.
-  var fn = dBlazy.prototype;
+  FN = dBlazy.prototype;
   // Alias instantiation for a shortcut like jQuery $(selector, context).
-  var db = fn.init;
-  db.fn = db.prototype = fn;
+  DB = FN.init;
+  DB.fn = DB.prototype = FN;
 
-  fn.length = 0;
+  FN.length = 0;
 
-  // Ensuring a db collection gets printed as array-like in Chrome's devtools.
-  fn.splice = _splice;
+  // Ensuring a DB collection gets printed as array-like in Chrome's devtools.
+  FN.splice = PROTO_SPLICE;
 
   // IE9 knows not this.
-  if (_symbol) {
-    // Ensuring a db collection is iterable.
+  if (V_SYMBOL) {
+    // Ensuring a DB collection is iterable.
     // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/iterator
-    fn[_symbol[_iterator]] = _aProto[_symbol[_iterator]];
+    FN[V_SYMBOL[V_ITERATOR]] = PROTO_A[V_SYMBOL[V_ITERATOR]];
   }
 
   /**
@@ -146,7 +148,7 @@
   function chain(cb) {
     var me = this;
     // Ok, this is insanely me.
-    me = isMe(me) ? me : db(me);
+    me = isMe(me) ? me : DB(me);
     var ln = me.length;
 
     if (isFun(cb)) {
@@ -170,12 +172,12 @@
    *   The name to test for its type.
    *
    * @return {bool}
-   *   True if name matches the _toString result.
+   *   True if name matches the PROTO_TOSTRING result.
    */
   function isTag(name) {
     var tag = '[object ' + name + ']';
     return function (obj) {
-      return _toString.call(obj) === tag;
+      return PROTO_TOSTRING.call(obj) === tag;
     };
   }
 
@@ -294,7 +296,7 @@
    *   True if x is an instanceof bool.
    */
   function isBool(x) {
-    return x === true || x === false || _toString.call(x) === '[object Boolean]';
+    return x === true || x === false || PROTO_TOSTRING.call(x) === '[object Boolean]';
   }
 
   /**
@@ -436,7 +438,7 @@
     // var type = typeof x;
     // return type === 'function' || type === 'object' && !!x;
     var proto = Object.getPrototypeOf(x);
-    return isNull(proto) || proto === _oProto;
+    return isNull(proto) || proto === PROTO_O;
   }
 
   /**
@@ -570,7 +572,7 @@
   function nodeMapAttr(obj, scope) {
     var info = {};
     if (obj && obj.length) {
-      var arr = _aProto.slice.call(obj);
+      var arr = PROTO_A.slice.call(obj);
       arr.forEach(function (a) {
         info[a.name] = a.value;
       }, scope || this);
@@ -620,7 +622,7 @@
       return [];
     }
 
-    if (_toString.call(obj) === '[object Object]') {
+    if (PROTO_TOSTRING.call(obj) === '[object Object]') {
       for (var prop in obj) {
         if (hasProp(obj, prop)) {
           if (prop === 'length' || prop === 'name') {
@@ -634,7 +636,7 @@
     }
     else if (obj) {
       if (obj instanceof HTMLCollection) {
-        obj = _aProto.slice.call(obj);
+        obj = PROTO_A.slice.call(obj);
       }
 
       if (obj instanceof NamedNodeMap) {
@@ -671,7 +673,7 @@
    *   Returns true if the property found.
    */
   function hasProp(obj, prop) {
-    return _oProto.hasOwnProperty.call(obj, prop);
+    return PROTO_O.hasOwnProperty.call(obj, prop);
   }
 
   /**
@@ -771,7 +773,7 @@
       // See https://caniuse.com/?search=every.
       toArray(attr).every(function (key) {
         if (hasAttr(elm, key)) {
-          value = _op(elm, _get, key);
+          value = _op(elm, V_GET, key);
 
           // Since it expects values, skip empty ones for ambigous attributes.
           if (value) {
@@ -794,7 +796,7 @@
       // Passing a key-value pair object means setting multiple attributes once.
       if (isObj(attr)) {
         each(attr, function (value, key) {
-          _op(el, _set, prefix + key, value);
+          _op(el, V_SET, prefix + key, value);
         });
       }
       // Since an attribute value null makes no sense, assumes nullify.
@@ -802,7 +804,7 @@
         each(toArray(attr), function (value) {
           var name = prefix + value;
           if (hasAttr(el, name)) {
-            _op(el, _remove, name);
+            _op(el, V_REMOVE, name);
           }
         });
       }
@@ -816,7 +818,7 @@
           el.href = defValue;
         }
         else {
-          _op(el, _set, attr, defValue);
+          _op(el, V_SET, attr, defValue);
         }
       }
     };
@@ -838,7 +840,7 @@
    *   True if it has the attribute.
    */
   function hasAttr(el, name) {
-    return _op(el, _has, name);
+    return _op(el, V_HAS, name);
   }
 
   /**
@@ -879,7 +881,7 @@
     if (isAttr(el) && isStr(names)) {
       // var _list = el.classList;
       names = names.trim();
-      var checks = _attr(el, _class);
+      var checks = _attr(el, V_CLASS);
 
       var verify = function (name) {
         // if (_list) {
@@ -923,7 +925,7 @@
         var _list = el.classList;
 
         if (isFun(name)) {
-          name = name(_op(el, _get, 'class'), i);
+          name = name(_op(el, V_GET, 'class'), i);
         }
 
         if (_list && isStr(name)) {
@@ -956,7 +958,7 @@
    *   This dBlazy object.
    */
   function addClass(els, name) {
-    return toggleClass(els, name, _add);
+    return toggleClass(els, name, V_ADD);
   }
 
   /**
@@ -973,7 +975,7 @@
    *   This dBlazy object.
    */
   function removeClass(els, name) {
-    return toggleClass(els, name, _remove);
+    return toggleClass(els, name, V_REMOVE);
   }
 
   /**
@@ -1140,7 +1142,7 @@
       return false;
     }
 
-    return _some.call(toArray(tags), function (tag) {
+    return PROTO_SOME.call(toArray(tags), function (tag) {
       return el.nodeName.toLowerCase() === tag.toLowerCase();
     });
   }
@@ -1282,7 +1284,7 @@
    *   Returns the window width.
    */
   function windowWidth() {
-    return _win.innerWidth || _doc.documentElement[_clientWidth] || _win.screen[_width];
+    return _win.innerWidth || _doc.documentElement[V_CLIENTWIDTH] || _win.screen[V_WIDTH];
   }
 
   /**
@@ -1361,7 +1363,7 @@
    *   This dBlazy object.
    */
   function on(els, eventName, selector, cb, params, isCustom) {
-    return toEvent(els, eventName, selector, cb, params, isCustom, _add);
+    return toEvent(els, eventName, selector, cb, params, isCustom, V_ADD);
   }
 
   /**
@@ -1386,7 +1388,7 @@
    *   This dBlazy object.
    */
   function off(els, eventName, selector, cb, params, isCustom) {
-    return toEvent(els, eventName, selector, cb, params, isCustom, _remove);
+    return toEvent(els, eventName, selector, cb, params, isCustom, V_REMOVE);
   }
 
   /**
@@ -1449,7 +1451,7 @@
 
     // Ensures an array is returned and not a NodeList or an Array-like object.
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
-    return _aProto.slice.call(elements);
+    return PROTO_A.slice.call(elements);
   }
 
   /**
@@ -1495,7 +1497,7 @@
     // Delegated events like on/off: $.on(el, 'click', '.btn', cb, params);
     else if (isStr(selector)) {
       // _onoff = true;
-      var shouldPassive = contains(eventName, ['touchstart', _scroll, 'wheel']);
+      var shouldPassive = contains(eventName, ['touchstart', E_SCROLL, 'wheel']);
       if (isUnd(params)) {
         params = _ie ? false : {
           capture: !shouldPassive,
@@ -1552,22 +1554,22 @@
       var _one = false;
       var options = params || false;
       if (isObj(params)) {
-        options = extend(defaults, params);
+        options = EXTEND(defaults, params);
         _one = options.once || false;
       }
 
       var process = function (e) {
         isCustom = isCustom || startsWith(e, ['blazy.', 'bio.']);
-        var add = op === _add;
+        var add = op === V_ADD;
         var type = (isCustom ? e : e.split('.')[0]).trim();
-        cb = cb || _events[e];
+        cb = cb || EVENTS[e];
 
         var _cb = cb;
         if (isFun(cb)) {
           // See https://caniuse.com/once-event-listener.
           if (_one && add && _ie) {
             var cbone = function cbone() {
-              el[_remove + _eListener](type, cbone, options);
+              el[V_REMOVE + E_LISTENER](type, cbone, options);
               _cb.apply(this, arguments);
             };
             cb = cbone;
@@ -1575,20 +1577,20 @@
           }
 
           // Remove existing listeners, if any.
-          if (add && _events[e] === cb) {
-            el[_remove + _eListener](type, _events[e], options);
+          if (add && EVENTS[e] === cb) {
+            el[V_REMOVE + E_LISTENER](type, EVENTS[e], options);
           }
 
-          el[op + _eListener](type, cb, options);
+          el[op + E_LISTENER](type, cb, options);
         }
 
         // @todo store as namespace to allow easy removal by namespaces.
         if (add) {
-          _events[e] = cb;
+          EVENTS[e] = cb;
         }
         else {
-          if (_events[e]) {
-            delete _events[e];
+          if (EVENTS[e]) {
+            delete EVENTS[e];
           }
         }
       };
@@ -1638,7 +1640,7 @@
         };
 
         if (isObj(param)) {
-          data = extend(data, param);
+          data = EXTEND(data, param);
         }
 
         event = new CustomEvent(eventName, data);
@@ -1689,99 +1691,99 @@
   // Kotlin has useless `fun` due to being compiled back to `function`. But ES6
   // lambda is true savings unless being transpiled. So these stupid abbr are.
   // The contract here is no rigid minds, fun, less bytes. Hail to Linux.
-  db.isTag = isTag;
-  db.isArr = isArr;
-  db.isBool = isBool;
-  db.isDoc = isDoc;
-  db.isElm = isElm;
-  db.isFun = isFun;
-  db.isEmpty = isEmpty;
-  db.isInt = isInt;
-  db.isNull = isNull;
-  db.isNum = isNum;
-  db.isObj = isObj;
-  db.isStr = isStr;
-  db.isUnd = isUnd;
-  db.isEvt = isEvt;
-  db.isQsa = isQsa;
-  db.isIo = 'Intersection' + _observer in _win;
-  db.isMo = 'Mutation' + _observer in _win;
-  db.isRo = 'Resize' + _observer in _win;
-  db.isNativeLazy = 'loading' in HTMLImageElement.prototype;
-  db.isAmd = typeof define === 'function' && define.amd;
-  db.isWin = isWin;
-  db._er = -1;
-  db._ok = 1;
+  DB.isTag = isTag;
+  DB.isArr = isArr;
+  DB.isBool = isBool;
+  DB.isDoc = isDoc;
+  DB.isElm = isElm;
+  DB.isFun = isFun;
+  DB.isEmpty = isEmpty;
+  DB.isInt = isInt;
+  DB.isNull = isNull;
+  DB.isNum = isNum;
+  DB.isObj = isObj;
+  DB.isStr = isStr;
+  DB.isUnd = isUnd;
+  DB.isEvt = isEvt;
+  DB.isQsa = isQsa;
+  DB.isIo = 'Intersection' + S_OBSERVER in _win;
+  DB.isMo = 'Mutation' + S_OBSERVER in _win;
+  DB.isRo = 'Resize' + S_OBSERVER in _win;
+  DB.isNativeLazy = 'loading' in HTMLImageElement.prototype;
+  DB.isAmd = typeof define === 'function' && define.amd;
+  DB.isWin = isWin;
+  DB._er = -1;
+  DB._ok = 1;
 
   // Collection methods.
-  db.chain = function (els, cb) {
+  DB.chain = function (els, cb) {
     return chain.call(els, cb);
   };
 
-  db.each = each;
+  DB.each = each;
 
-  db.extend = extend;
-  fn.extend = function (plugins, reverse) {
+  DB.extend = EXTEND;
+  FN.extend = function (plugins, reverse) {
     reverse = reverse || false;
-    return reverse ? extend(plugins, fn) : extend(fn, plugins);
+    return reverse ? EXTEND(plugins, FN) : EXTEND(FN, plugins);
   };
 
   // Object and array with strings methods.
-  db.hasProp = hasProp;
-  db.parse = parse;
-  db.toArray = toArray;
-  db.toInt = toInt;
+  DB.hasProp = hasProp;
+  DB.parse = parse;
+  DB.toArray = toArray;
+  DB.toInt = toInt;
 
   // Attribute methods.
-  db.attr = _attr.bind(db);
-  db.hasAttr = hasAttr;
-  db.nodeMapAttr = nodeMapAttr;
-  db.removeAttr = removeAttr.bind(db);
+  DB.attr = _attr.bind(DB);
+  DB.hasAttr = hasAttr;
+  DB.nodeMapAttr = nodeMapAttr;
+  DB.removeAttr = removeAttr.bind(DB);
 
   // Class name methods.
-  db.hasClass = hasClass;
-  db.toggleClass = toggleClass;
-  db.addClass = addClass;
-  db.removeClass = removeClass;
+  DB.hasClass = hasClass;
+  DB.toggleClass = toggleClass;
+  DB.addClass = addClass;
+  DB.removeClass = removeClass;
 
   // String methods.
-  db.contains = contains;
-  db.escape = escape;
-  db.startsWith = startsWith;
-  db.trimSpaces = trimSpaces;
+  DB.contains = contains;
+  DB.escape = escape;
+  DB.startsWith = startsWith;
+  DB.trimSpaces = trimSpaces;
 
   // DOM query methods.
-  db.closest = closest;
-  db.is = is;
+  DB.closest = closest;
+  DB.is = is;
 
   // @todo merge with ::is().
-  db.equal = equal;
-  db.find = find;
-  db.findAll = findAll;
-  db.remove = remove;
+  DB.equal = equal;
+  DB.find = find;
+  DB.findAll = findAll;
+  DB.remove = remove;
 
   // Window methods.
-  db.ie = ie;
-  db.pixelRatio = pixelRatio;
-  db.windowWidth = windowWidth;
-  db.windowSize = windowSize;
-  db.activeWidth = activeWidth;
+  DB.ie = ie;
+  DB.pixelRatio = pixelRatio;
+  DB.windowWidth = windowWidth;
+  DB.windowSize = windowSize;
+  DB.activeWidth = activeWidth;
 
   // Event methods.
-  // db.toEvent = toEvent;
-  db.on = on;
-  db.off = off;
-  db.one = one;
-  db.trigger = trigger;
-  db.getScript = getScript;
+  // DB.toEvent = toEvent;
+  DB.on = on;
+  DB.off = off;
+  DB.one = one;
+  DB.trigger = trigger;
+  DB.getScript = getScript;
 
   // Image methods.
-  db.isDecoded = isDecoded;
+  DB.isDecoded = isDecoded;
 
   // Similar to core domReady, only public and generic.
   function ready(callback, delay) {
     var cb = function () {
-      return setTimeout(callback, delay || 0, db);
+      return setTimeout(callback, delay || 0, DB);
     };
 
     if (_doc.readyState !== 'loading') {
@@ -1794,7 +1796,7 @@
     return this;
   }
 
-  db.ready = ready.bind(db);
+  DB.ready = ready.bind(DB);
 
   /**
    * Decodes the image.
@@ -1811,7 +1813,7 @@
    * @see https://chromestatus.com/feature/5637156160667648
    * @see https://html.spec.whatwg.org/multipage/embedded-content.html#dom-img-decode
    */
-  db.decode = function (img) {
+  DB.decode = function (img) {
     if (isDecoded(img)) {
       return Promise.resolve(img);
     }
@@ -1844,7 +1846,7 @@
    * @return {Function}
    *   The function executed at the specified minDelay.
    */
-  db.throttle = function (cb, minDelay, scope) {
+  DB.throttle = function (cb, minDelay, scope) {
     minDelay = minDelay || 50;
     var lastCall = 0;
     return function () {
@@ -1870,7 +1872,7 @@
    * @return {ResizeObserver|Function}
    *   The ResizeObserver instance, or callback function.
    */
-  db.resize = function (cb, t) {
+  DB.resize = function (cb, t) {
     // @todo enable later when old projects are updated: lory, extended, etc.
     // if (this.isRo) {
     // return new ResizeObserver(cb);
@@ -1899,7 +1901,7 @@
    * @see https://stackoverflow.com/questions/1144783
    * @todo use template string or replaceAll for D10, or D11 at the latest.
    */
-  db.template = function (string, map) {
+  DB.template = function (string, map) {
     for (var key in map) {
       if (hasProp(map, key)) {
         string = string.replace(new RegExp(escape('$' + key), 'g'), map[key]);
@@ -1938,8 +1940,8 @@
     // since D10/ blazy:2.17. And also check it around for internal mistakes.
     if (selector) {
       if (is(ctx, selector) ||
-        is(selector, _body) ||
-        is(selector, _html)) {
+        is(selector, S_BODY) ||
+        is(selector, S_HTML)) {
         ctx = _doc;
       }
     }
@@ -1959,11 +1961,11 @@
   function toElm(el, isCtx) {
     // Checks if a string is given as a context.
     if (isStr(el)) {
-      if (el === _body) {
+      if (el === S_BODY) {
         return _doc.body;
       }
       // Prevents problematic _doc.documentElement as the element.
-      else if (el === _html) {
+      else if (el === S_HTML) {
         return _doc;
       }
       return _doc.querySelector(el);
@@ -1972,26 +1974,26 @@
     // Prevents problematic _doc.documentElement as the context.
     // Ensures to not break valid expectation outside context, like jumper
     // Normally when operating with attributes, not as a context for QSA.
-    if (isCtx && is(el, _html)) {
+    if (isCtx && is(el, S_HTML)) {
       return _doc;
     }
 
     // jQuery may pass its array as non-expected context identified by length.
-    var isJq = _isJq && el instanceof _win.jQuery;
-    var isCash = _isCash && el instanceof _win.cash;
+    var isJq = IS_JQ && el instanceof _win.jQuery;
+    var isCash = IS_CASH && el instanceof _win.cash;
     return el && (isMe(el) || isJq || isCash) ? el[0] : el;
   }
 
   // Minimum common DOM methods taken and modified from cash.
   // @todo refactor or remove dups when everyone uses cash, or vanilla alike.
   function camelCase(str) {
-    return str.replace(_dashAlphaRe, function (match, letter) {
+    return str.replace(RE_DASH_ALPHA, function (match, letter) {
       return letter.toUpperCase();
     });
   }
 
   function isVar(prop) {
-    return _cssVariableRe.test(prop);
+    return RE_CSS_VARIABLE.test(prop);
   }
 
   // @see https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle
@@ -2095,41 +2097,41 @@
     return i;
   }
 
-  db.context = context;
-  db.toElm = toElm;
-  db.camelCase = camelCase;
-  db.isVar = isVar;
-  db.computeStyle = computeStyle;
-  db.rect = rect;
-  db.empty = empty;
-  db.parent = parent;
-  db.next = next;
-  db.prev = prev;
-  db.index = index;
-  db.keys = keys;
-  db._op = _op;
+  DB.context = context;
+  DB.toElm = toElm;
+  DB.camelCase = camelCase;
+  DB.isVar = isVar;
+  DB.computeStyle = computeStyle;
+  DB.rect = rect;
+  DB.empty = empty;
+  DB.parent = parent;
+  DB.next = next;
+  DB.prev = prev;
+  DB.index = index;
+  DB.keys = keys;
+  DB._op = _op;
 
   // See https://caniuse.com/?search=localstorage
-  db.storage = function (key, value, defValue, restore) {
-    if (_storage) {
+  DB.storage = function (key, value, defValue, restore) {
+    if (STORAGE) {
       if (isUnd(value)) {
-        return _storage.getItem(key);
+        return STORAGE.getItem(key);
       }
 
       if (isNull(value)) {
-        _storage.removeItem(key);
+        STORAGE.removeItem(key);
       }
       else {
         try {
-          _storage.setItem(key, value);
+          STORAGE.setItem(key, value);
         }
         catch (e) {
           // Reset if (2 - 10MB) quota is exceeded, if value is growing.
-          _storage.removeItem(key);
+          STORAGE.removeItem(key);
 
           // Only makes sense if the value is incremental, not the quota limit.
           if (restore) {
-            _storage.setItem(key, value);
+            STORAGE.setItem(key, value);
           }
         }
       }
@@ -2138,8 +2140,8 @@
   };
 
   // @todo merge with cash if available.
-  // if (_isCash) {
-  // fn.extend(cash.fn, true);
+  // if (IS_CASH) {
+  // FN.extend(cash.fn, true);
   // }
   // Collects base prototypes for clarity.
   var objs = {
@@ -2155,26 +2157,26 @@
   };
 
   // Merge base prototypes.
-  fn.extend(objs);
+  FN.extend(objs);
 
   // @deprecated for shorter ::is(). Hardly used, except lory.
-  db.matches = is;
+  DB.matches = is;
 
-  // @tbd deprecated for db.each to save bytes. Used by many sub-modules.
-  db.forEach = each;
+  // @tbd deprecated for DB.each to save bytes. Used by many sub-modules.
+  DB.forEach = each;
 
   // @tbd deprecated for on/off with shifted arguments. Use on/ off instead.
-  db.bindEvent = on.bind(db);
+  DB.bindEvent = on.bind(DB);
 
-  db.unbindEvent = off.bind(db);
+  DB.unbindEvent = off.bind(DB);
 
   if (typeof exports !== 'undefined') {
     // Node.js.
-    module.exports = db;
+    module.exports = DB;
   }
   else {
     // Browser.
-    _win.dBlazy = db;
+    _win.dBlazy = DB;
   }
 
 })(this, this.document);

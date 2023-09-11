@@ -19,11 +19,11 @@
 
   'use strict';
 
-  var _dataOnce = 'data-once';
-  var _isJq = 'jQuery' in _win;
-  var _remove = 'remove';
-  var _set = 'set';
-  var _wsRe = /[\11\12\14\15\40]+/;
+  var DATA_ONCE = 'data-once';
+  var IS_JQ = 'jQuery' in _win;
+  var REMOVE = 'remove';
+  var SET = 'set';
+  var WS_RE = /[\11\12\14\15\40]+/;
 
   /**
    * A wrapper for core/once until D9.2 is a minimum.
@@ -109,7 +109,7 @@
   }
 
   function selOnce(id) {
-    return '[' + _dataOnce + '~="' + id + '"]';
+    return '[' + DATA_ONCE + '~="' + id + '"]';
   }
 
   function updateOnce(el, opts) {
@@ -117,8 +117,8 @@
     var remove = opts.remove;
     var result = [];
 
-    if ($.hasAttr(el, _dataOnce)) {
-      var ids = $.attr(el, _dataOnce).trim().split(_wsRe);
+    if ($.hasAttr(el, DATA_ONCE)) {
+      var ids = $.attr(el, DATA_ONCE).trim().split(WS_RE);
       $.each(ids, function (id) {
         if (!$.contains(result, id) && id !== remove) {
           result.push(id);
@@ -130,7 +130,7 @@
     }
 
     var value = result.join(' ');
-    $._op(el, value === '' ? _remove : _set, _dataOnce, value.trim());
+    $._op(el, value === '' ? REMOVE : SET, DATA_ONCE, value.trim());
   }
 
   // @todo BigPipe compat to avoid legacy approach with `processed` classes.
@@ -147,7 +147,7 @@
   }
 
   function findOnce(id, ctx) {
-    return elsOnce(!id ? '[' + _dataOnce + ']' : selOnce(id), ctx);
+    return elsOnce(!id ? '[' + DATA_ONCE + ']' : selOnce(id), ctx);
   }
 
   $.once = onceCompat;
@@ -180,7 +180,7 @@
       }
 
       // @todo remove BC for pre core/once when min D9.2:
-      if (_isJq && jq && jq.fn && $.isFun(jq.fn.removeOnce)) {
+      if (IS_JQ && jq && jq.fn && $.isFun(jq.fn.removeOnce)) {
         jq(selector, $.context(ctx)).removeOnce(id);
       }
     };

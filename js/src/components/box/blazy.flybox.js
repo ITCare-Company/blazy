@@ -9,16 +9,16 @@
 
   'use strict';
 
-  var _id = 'flybox';
-  var _isId = 'is-' + _id;
-  var _selfClass = 'b-' + _id;
-  var _bodyClass = _isId + '--open';
-  var _bodyClosingClass = _isId + '--closing';
-  var _idOnce = _id;
-  var _mounted = _isId;
-  var _dataId = 'data-' + _id;
-  var _gallery = '[' + _dataId + '-gallery]:not(.' + _mounted + ')';
-  var _trigger = '[' + _dataId + '-trigger]';
+  var ID = 'flybox';
+  var ID_ONCE = ID;
+  var IS_ID = 'is-' + ID;
+  var SELF_CLASS = 'b-' + ID;
+  var C_BODY = IS_ID + '--open';
+  var C_BODY_CLOSING = IS_ID + '--closing';
+  var C_MOUNTED = IS_ID;
+  var DATA_ID = 'data-' + ID;
+  var S_GALLERY = '[' + DATA_ID + '-gallery]:not(.' + C_MOUNTED + ')';
+  var S_TRIGGER = '[' + DATA_ID + '-trigger]';
 
   // Public methods.
   $.flybox = {
@@ -26,9 +26,9 @@
       if ($.isElm(link)) {
         Drupal.blazyBox.open(link,
           {
-            bodyClass: _bodyClass,
-            bodyClosingClass: _bodyClosingClass,
-            class: _selfClass,
+            bodyClass: C_BODY,
+            bodyClosingClass: C_BODY_CLOSING,
+            class: SELF_CLASS,
             fs: false
           });
       }
@@ -46,7 +46,7 @@
     e.stopPropagation();
 
     var target = e.target;
-    var link = target.href ? target : $.closest(target, _trigger);
+    var link = target.href ? target : $.closest(target, S_TRIGGER);
     $.flybox.open(link);
   }
 
@@ -57,8 +57,8 @@
    *   The flybox HTML element.
    */
   function process(el) {
-    $.on(el, 'click.' + _id, _trigger, launch);
-    $.addClass(el, _mounted);
+    $.on(el, 'click.' + ID, S_TRIGGER, launch);
+    $.addClass(el, C_MOUNTED);
   }
 
   /**
@@ -69,11 +69,11 @@
   Drupal.behaviors.flyBox = {
     attach: function (context) {
 
-      $.once(process, _idOnce, _gallery, context);
+      $.once(process, ID_ONCE, S_GALLERY, context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _gallery, context);
+        $.once.removeSafely(ID_ONCE, S_GALLERY, context);
       }
     }
   };

@@ -9,28 +9,29 @@
 
   'use strict';
 
-  var _id = 'blazybox';
-  var _nick = 'bbox';
-  var _idOnce = _id;
-  var _mounted = 'is-' + _nick;
-  var _selBase = '.' + _id;
-  var _selector = _selBase + ':not(.' + _mounted + ')';
-  var _selContent = _selBase + '__content';
-  var _cMediaElement = 'media__element';
-  var _btnClose = _selBase + '__close';
-  var _isOpened = 'is-' + _id + '--open';
-  var _fitHeight = _mounted + '--fh';
-  var _isFullscreen = _mounted + '--fs';
-  var _bProvider = 'b-provider--';
-  var _visualyHidden = 'visually-hidden';
-  var _ariaHidden = 'aria-hidden';
-  var _sanitizer = $.sanitizer;
-  var _multimedia = $.multimedia || false;
-  var _cachedHtml = {};
-  var _provider;
-  var oClass;
-  var oBodyClass;
-  var oBodyClosingClass;
+  var ID = 'blazybox';
+  var NICK = 'bbox';
+  var ID_ONCE = ID;
+  var IFRAME = 'iframe';
+  var C_MOUNTED = 'is-' + NICK;
+  var S_BASE = '.' + ID;
+  var S_ELEMENT = S_BASE + ':not(.' + C_MOUNTED + ')';
+  var S_CONTENT = S_BASE + '__content';
+  var C_MD_ELEMENT = 'media__element';
+  var S_BTN_CLOSE = S_BASE + '__close';
+  var C_IS_OPEN = 'is-' + ID + '--open';
+  var FIT_HEIGHT = C_MOUNTED + '--fh';
+  var IS_FULLSCREEN = C_MOUNTED + '--fs';
+  var B_PROVIDER = 'b-provider--';
+  var C_HIDDEN = 'visually-hidden';
+  var ARIA_HIDDEN = 'aria-hidden';
+  var FN_SANITIZER = $.sanitizer;
+  var FN_MULTIMEDIA = $.multimedia || false;
+  var CACHED_HTML = {};
+  var PROVIDER;
+  var OC;
+  var OC_BODY;
+  var OC_BODY_CLOSING;
 
   /**
    * Blazybox public methods.
@@ -62,12 +63,12 @@
       var provider = dataset.provider;
       var irrational = dataset.irrational;
       var token = dataset.token;
-      var elContent = $el.find(_selContent);
+      var elContent = $el.find(S_CONTENT);
       var elIframe;
       var elMedia;
       var winSize = $.windowSize();
       var opts = options || {};
-      var content = _cachedHtml[token];
+      var content = CACHED_HTML[token];
 
       // Separate theme options from lighbox options.
       if ($.isUnd(opts.fs)) {
@@ -84,28 +85,28 @@
         });
 
         var config = {
-          ADD_TAGS: ['iframe'],
+          ADD_TAGS: [IFRAME],
           ADD_ATTR: [
             'allow',
             'allowfullscreen'
           ]
         };
 
-        content = _sanitizer.sanitize(content, config);
-        _cachedHtml[token] = content;
+        content = FN_SANITIZER.sanitize(content, config);
+        CACHED_HTML[token] = content;
       }
 
       // Drupal.attachBehaviors($el[0]);
-      $el.removeClass(_visualyHidden)
-        .attr(_ariaHidden, false);
+      $el.removeClass(C_HIDDEN)
+        .attr(ARIA_HIDDEN, false);
 
       if (opts.fs) {
-        $el.addClass(_isFullscreen);
+        $el.addClass(IS_FULLSCREEN);
       }
 
-      $el.removeClass(_bProvider + _provider);
+      $el.removeClass(B_PROVIDER + PROVIDER);
       if (provider) {
-        $el.addClass(_bProvider + provider);
+        $el.addClass(B_PROVIDER + provider);
       }
 
       elContent.innerHTML = content;
@@ -114,36 +115,36 @@
         me.options = $.extend({}, me.options, options);
         var o = me.options;
 
-        oClass = o.class || '';
-        oBodyClass = o.bodyClass || '';
-        oBodyClosingClass = o.bodyClosingClass || '';
+        OC = o.class || '';
+        OC_BODY = o.bodyClass || '';
+        OC_BODY_CLOSING = o.bodyClosingClass || '';
 
-        if (oClass) {
-          $el.addClass(oClass);
+        if (OC) {
+          $el.addClass(OC);
         }
 
-        if (oBodyClass) {
-          $.removeClass(body, oBodyClass);
+        if (OC_BODY) {
+          $.removeClass(body, OC_BODY);
         }
 
         setTimeout(function () {
-          if (oBodyClass) {
-            $.addClass(body, oBodyClass);
+          if (OC_BODY) {
+            $.addClass(body, OC_BODY);
           }
         }, 301);
       }
       else {
-        $.addClass(body, _isOpened);
+        $.addClass(body, C_IS_OPEN);
       }
 
       // Reset any (local) video/ audio to avoid multiple elements from playing.
-      if (_multimedia) {
-        _multimedia.pause();
+      if (FN_MULTIMEDIA) {
+        FN_MULTIMEDIA.pause();
       }
 
-      $el.removeClass(_fitHeight);
+      $el.removeClass(FIT_HEIGHT);
       if (irrational) {
-        $el.addClass(_fitHeight);
+        $el.addClass(FIT_HEIGHT);
       }
 
       // Attach any dynamic media.
@@ -153,15 +154,15 @@
       }
 
       setTimeout(function () {
-        elIframe = $.find(elContent, 'iframe');
+        elIframe = $.find(elContent, IFRAME);
 
         if ($.isElm(elIframe)) {
-          $.addClass(elIframe, _cMediaElement);
+          $.addClass(elIframe, C_MD_ELEMENT);
         }
       }, 101);
 
       me.check();
-      _provider = provider;
+      PROVIDER = provider;
     },
 
     /**
@@ -181,36 +182,36 @@
       }
 
       var closing = function () {
-        $el.addClass(_visualyHidden)
-          .attr(_ariaHidden, true)
-          .find(_selContent).innerHTML = '';
+        $el.addClass(C_HIDDEN)
+          .attr(ARIA_HIDDEN, true)
+          .find(S_CONTENT).innerHTML = '';
       };
 
       var transitioning = function () {
-        if (oBodyClosingClass) {
-          $.removeClass(body, oBodyClosingClass);
+        if (OC_BODY_CLOSING) {
+          $.removeClass(body, OC_BODY_CLOSING);
         }
-        if (oClass) {
-          $el.removeClass(oClass);
+        if (OC) {
+          $el.removeClass(OC);
           closing();
         }
 
         $el.off('transitionend', transitioning);
       };
 
-      $.removeClass(body, _isOpened);
-      $el.removeClass(_isFullscreen);
+      $.removeClass(body, C_IS_OPEN);
+      $el.removeClass(IS_FULLSCREEN);
 
       // var classes = $el.attr('class');
       // var check = (classes.match(/(^|\s)b-provider-\S+/g) || []).join(' ');
       // if (check) {
       // $el.removeClass(check);
       // }
-      if (oBodyClass) {
-        $.removeClass(body, oBodyClass);
+      if (OC_BODY) {
+        $.removeClass(body, OC_BODY);
       }
-      if (oBodyClosingClass) {
-        $.addClass(body, oBodyClosingClass);
+      if (OC_BODY_CLOSING) {
+        $.addClass(body, OC_BODY_CLOSING);
       }
       else {
         closing();
@@ -220,7 +221,7 @@
 
       // Failsafe in case transitionend is screwed up, people click it rapidly.
       setTimeout(function () {
-        if ($el.hasClass(oClass)) {
+        if ($el.hasClass(OC)) {
           transitioning();
         }
       }, 1000);
@@ -232,8 +233,8 @@
       var me = this;
 
       if (me.options.hideCloseBtn) {
-        var close = me.btnClose || me.$el.find(_btnClose);
-        $.addClass(close, _visualyHidden);
+        var close = me.btnClose || me.$el.find(S_BTN_CLOSE);
+        $.addClass(close, C_HIDDEN);
       }
     },
 
@@ -241,7 +242,7 @@
      * Attach the blazyBox.
      */
     attach: function () {
-      var check = $.find(_doc.body, _selBase);
+      var check = $.find(_doc.body, S_BASE);
       if (!$.isElm(check)) {
         $.append(_doc.body, Drupal.theme('blazyBox'));
       }
@@ -249,7 +250,7 @@
 
     isOpened: function () {
       var me = Drupal.blazyBox;
-      return !me.$el.hasClass(_visualyHidden);
+      return !me.$el.hasClass(C_HIDDEN);
     }
   };
 
@@ -277,7 +278,7 @@
     html += '</div>';
 
     return $.template(html, {
-      id: _id
+      id: ID
     });
   };
 
@@ -323,12 +324,12 @@
       alt = $.image.alt(el, '');
       href = el.href;
       url = $.attr(el, 'data-box-url', href, true);
-      html += '<img class="' + _cMediaElement + '" src="' + url + '" decoding="async" loading="eager" alt="' + alt + '" />';
+      html += '<img class="' + C_MD_ELEMENT + '" src="' + url + '" decoding="async" loading="eager" alt="' + alt + '" />';
     }
 
     // Iframe element.
-    if (oembedUrl && !_sanitizer.isDangerous('src', oembedUrl)) {
-      html += '<iframe class="' + _cMediaElement + '" src="' + oembedUrl + '" width="100%" height="100%" allowfullscreen></iframe>';
+    if (oembedUrl && !FN_SANITIZER.isDangerous('src', oembedUrl)) {
+      html += '<iframe class="' + C_MD_ELEMENT + '" src="' + oembedUrl + '" width="100%" height="100%" allowfullscreen></iframe>';
     }
 
     if (fs && options.width && isMedia) {
@@ -338,7 +339,7 @@
       html = '<div class="' + mdClass + '" style="' + mdStyle + '">' + html + '</div>';
     }
 
-    return '<div class="' + _id + '__media">' + html + '</div>';
+    return '<div class="' + ID + '__media">' + html + '</div>';
   };
 
   /**
@@ -353,10 +354,10 @@
 
     me.el = el;
     me.$el = $el;
-    me.btnClose = $el.find(_btnClose);
+    me.btnClose = $el.find(S_BTN_CLOSE);
 
-    $el.on('click.' + _id, _btnClose, me.close, true);
-    $el.addClass(_mounted);
+    $el.on('click.' + ID, S_BTN_CLOSE, me.close, true);
+    $el.addClass(C_MOUNTED);
   }
 
   /**
@@ -369,11 +370,11 @@
 
       Drupal.blazyBox.attach();
 
-      $.once(process, _idOnce, _selector, context);
+      $.once(process, ID_ONCE, S_ELEMENT, context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _selector, context);
+        $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
       }
     }
   };

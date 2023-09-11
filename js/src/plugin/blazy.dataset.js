@@ -53,11 +53,6 @@
     return $.chain(els, chainCallback);
   }
 
-  $.mapAttr = mapAttr;
-  $.fn.mapAttr = function (attr, remove) {
-    return mapAttr(this, attr, remove);
-  };
-
   /**
    * A simple attributes wrapper, looping based on sources (picture/ video).
    *
@@ -107,6 +102,11 @@
 
     return $.chain(els, chainCallback);
   }
+
+  $.mapAttr = mapAttr;
+  $.fn.mapAttr = function (attr, remove) {
+    return mapAttr(this, attr, remove);
+  };
 
   $.mapSource = mapSource;
   $.fn.mapSource = function (attr, remove, withVideo) {

@@ -12,41 +12,46 @@
 
   'use strict';
 
-  // var _id = 'blazy';
-  var _erCounted = 0;
-  var _data = 'data-';
+  var DATA = 'data-';
+  var SRC = 'src';
+  var SRCSET = 'srcset';
+  var DATA_SRC = DATA + SRC;
+  var DATA_SRCSET = DATA + SRCSET;
   // @todo remove at 3.x:
-  var _dataAnim = _data + 'animation';
-  var _dataBanim = _data + 'b-animation';
-  var _src = 'src';
-  var _srcSet = 'srcset';
-  var _imgSources = [_srcSet, _src];
-  var _bgClass = 'b-bg';
+  var DATA_ANIM = DATA + 'animation';
+  var DATA_B_ANIM = DATA + 'b-animation';
+  var IMG_SOURCES = [SRCSET, SRC];
+  var ER_COUNTED = 0;
+  var C_BG = 'b-bg';
+  var C_ERROR = 'b-error';
+  var C_SUCCESS = 'b-loaded';
+  var S_LAZY = '.b-lazy';
+  var S_PARENT = '.media';
 
   $._defaults = {
     error: false,
     offset: 100,
     root: _doc,
     success: false,
-    selector: '.b-lazy',
+    selector: S_LAZY,
     separator: '|',
     container: false,
     containerClass: false,
-    errorClass: 'b-error',
+    errorClass: C_ERROR,
     loadInvisible: false,
-    successClass: 'b-loaded',
+    successClass: C_SUCCESS,
     visibleClass: false,
     validateDelay: 25,
     saveViewportOffsetDelay: 50,
 
     // @todo recheck IO.module. Slick has data-lazy, and irrelevant for Blazy.
-    srcset: 'data-srcset',
-    src: 'data-src',
-    bgClass: _bgClass,
+    srcset: DATA_SRCSET,
+    src: DATA_SRC,
+    bgClass: C_BG,
 
     // IO specifics.
     isMedia: false,
-    parent: '.media',
+    parent: S_PARENT,
     disconnect: false,
     intersecting: false,
     observing: false,
@@ -64,10 +69,10 @@
       opts.success(el, status, parent, opts);
     }
 
-    if (_erCounted > 0) {
-      _erCounted--;
+    if (ER_COUNTED > 0) {
+      ER_COUNTED--;
     }
-    return _erCounted;
+    return ER_COUNTED;
   }
 
   // Returns an error.
@@ -78,8 +83,8 @@
       opts.error(el, status, parent, opts);
     }
 
-    _erCounted++;
-    return _erCounted;
+    ER_COUNTED++;
+    return ER_COUNTED;
   }
 
   // Make it private to avoid confusion.
@@ -97,21 +102,17 @@
     $.addClass(cn, ok ? isSuccess : isError);
 
     if (ok) {
-      _erCounted = success(el, status, cn, opts);
+      ER_COUNTED = success(el, status, cn, opts);
       // Native may already remove `data-[SRC|SRCSET]` early, except BG/Video.
-      if ($.hasAttr(el, _data + _src)) {
-        $.removeAttr(el, _imgSources, _data);
+      if ($.hasAttr(el, DATA_SRC)) {
+        $.removeAttr(el, IMG_SOURCES, DATA);
       }
     }
     else {
-      _erCounted = error(el, status, cn, opts);
+      ER_COUNTED = error(el, status, cn, opts);
     }
 
-    // @todo remove in case causing double triggers with blazy.done.
-    // $.trigger(el, _id + '.loaded', {
-    // status: status
-    // });
-    return _erCounted;
+    return ER_COUNTED;
   }
 
   /**
@@ -157,12 +158,12 @@
   $.aniElement = function (el) {
     // @todo remove the last at 3.x:
     // If BG, the container itself is the animated element.
-    if ($.hasAttr(el, _dataBanim) || $.hasAttr(el, _dataAnim)) {
+    if ($.hasAttr(el, DATA_B_ANIM) || $.hasAttr(el, DATA_ANIM)) {
       return el;
     }
 
     // Else anything else, will traverse the parent/ closest animated element.
-    return $.closest(el, '[' + _dataBanim + ']') || $.closest(el, '[' + _dataAnim + ']');
+    return $.closest(el, '[' + DATA_B_ANIM + ']') || $.closest(el, '[' + DATA_ANIM + ']');
   };
 
 })(dBlazy, this, this.document);

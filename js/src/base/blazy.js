@@ -43,15 +43,15 @@
   'use strict';
 
   // Private vars.
-  var _doc = document;
-  var _source;
-  var _isRetina;
-  var _attrSrc = 'src';
-  var _attrSrcset = 'srcset';
-  var _opts = {};
-  var _vp = {};
-  var _winData = {};
-  var _viewport = $.viewport;
+  var DOC = _win.document;
+  var SOURCE;
+  var IS_RETINA;
+  var ATTR_SRC = 'src';
+  var ATTR_SRCSET = 'srcset';
+  var OPTS = {};
+  var VP = {};
+  var WINDATA = {};
+  var FN_VIEWPORT = $.viewport;
 
   /**
    * Constructor for Blazy.
@@ -68,20 +68,20 @@
     var me = this;
 
     me.name = ns;
-    me.options = _opts = $.extend($._defaults, options || {});
-    me.options.container = _opts.containerClass ? $.findAll(_doc, _opts.containerClass) : false;
+    me.options = OPTS = $.extend($._defaults, options || {});
+    me.options.container = OPTS.containerClass ? $.findAll(DOC, OPTS.containerClass) : false;
     me.destroyed = true;
     var util = me._util = {};
 
-    _opts = me.options;
-    _source = _opts.src || 'data-src';
-    _isRetina = $.pixelRatio() > 1;
+    OPTS = me.options;
+    SOURCE = OPTS.src || 'data-src';
+    IS_RETINA = $.pixelRatio() > 1;
 
-    _viewport.init(_opts);
+    FN_VIEWPORT.init(OPTS);
 
     // Public functions.
     me.windowData = function () {
-      return $.isUnd(_winData.vp) ? _viewport.windowData(_opts, true) : _winData;
+      return $.isUnd(WINDATA.vp) ? FN_VIEWPORT.windowData(OPTS, true) : WINDATA;
     };
 
     me.revalidate = function () {
@@ -103,8 +103,8 @@
 
     me.destroy = function () {
       var util = me._util;
-      if (_opts.container) {
-        $.each(_opts.container, function (object) {
+      if (OPTS.container) {
+        $.each(OPTS.container, function (object) {
           $.off(object, 'scroll.' + ns, util.validateT);
         });
       }
@@ -121,15 +121,15 @@
     // Throttle, ensures that we don't call the functions too often.
     util.validateT = $.throttle(function () {
       validate(me);
-    }, _opts.validateDelay, me);
+    }, OPTS.validateDelay, me);
 
     util.saveViewportOffsetT = $.throttle(function () {
-      saveViewportOffset(_opts);
+      saveViewportOffset(OPTS);
 
-      _viewport.onresizing(me, _winData);
-    }, _opts.saveViewportOffsetDelay, me);
+      FN_VIEWPORT.onresizing(me, WINDATA);
+    }, OPTS.saveViewportOffsetDelay, me);
 
-    saveViewportOffset(_opts);
+    saveViewportOffset(OPTS);
 
     // "dom ready" fix, start lazy load.
     setTimeout(function () {
@@ -144,14 +144,14 @@
     var util = me._util;
 
     // First we create an array of elements to lazy load.
-    me.elms = $.findAll(_opts.root || _doc, $.selector(_opts));
+    me.elms = $.findAll(OPTS.root || DOC, $.selector(OPTS));
     me.count = me.elms.length;
 
     // Then we bind resize and scroll events if not already binded.
     if (me.destroyed) {
       me.destroyed = false;
-      if (_opts.container) {
-        $.each(_opts.container, function (object) {
+      if (OPTS.container) {
+        $.each(OPTS.container, function (object) {
           $.on(object, 'scroll.' + ns, util.validateT);
         });
       }
@@ -191,28 +191,28 @@
       if (elementContainer) {
         var containerRect = $.rect(elementContainer);
         // Is container in view?
-        if (_viewport.isVisible(containerRect, _vp)) {
+        if (FN_VIEWPORT.isVisible(containerRect, VP)) {
           var top = containerRect.top - options.offset;
           var right = containerRect.right + options.offset;
           var bottom = containerRect.bottom + options.offset;
           var left = containerRect.left - options.offset;
 
           var containerRectWithOffset = {
-            top: top > _vp.top ? top : _vp.top,
-            right: right < _vp.right ? right : _vp.right,
-            bottom: bottom < _vp.bottom ? bottom : _vp.bottom,
-            left: left > _vp.left ? left : _vp.left
+            top: top > VP.top ? top : VP.top,
+            right: right < VP.right ? right : VP.right,
+            bottom: bottom < VP.bottom ? bottom : VP.bottom,
+            left: left > VP.left ? left : VP.left
           };
 
           // Is element in view of container?
-          return _viewport.isVisible(rect, containerRectWithOffset);
+          return FN_VIEWPORT.isVisible(rect, containerRectWithOffset);
         }
         else {
           return false;
         }
       }
     }
-    return _viewport.isVisible(rect, _vp);
+    return FN_VIEWPORT.isVisible(rect, VP);
   }
 
   // @todo merge with Bio.js.
@@ -223,11 +223,11 @@
         (ele.offsetWidth > 0 && ele.offsetHeight > 0))) {
 
       // Fallback to default 'data-src'.
-      var dataSrc = $.attr(ele, _source) || $.attr(ele, options.src);
+      var dataSrc = $.attr(ele, SOURCE) || $.attr(ele, options.src);
       if (dataSrc) {
-        // @todo remove _isRetina, not implemented for Responsive image instead.
+        // @todo remove IS_RETINA, not implemented for Responsive image instead.
         var dataSrcSplitted = dataSrc.split(options.separator);
-        var src = dataSrcSplitted[_isRetina && dataSrcSplitted.length > 1 ? 1 : 0];
+        var src = dataSrcSplitted[IS_RETINA && dataSrcSplitted.length > 1 ? 1 : 0];
         var srcset = $.attr(ele, options.srcset);
         var isBg = $.isBg(ele, options);
         var isImage = $.equal(ele, 'img');
@@ -260,9 +260,9 @@
               // Or background-image.
               fixRatio = ie;
               if ($.isFun($.bgUrl)) {
-                src = $.bgUrl(ele, _winData);
+                src = $.bgUrl(ele, WINDATA);
 
-                $.bg(ele, _winData);
+                $.bg(ele, WINDATA);
               }
               else {
                 ele.style.backgroundImage = 'url("' + src + '")';
@@ -277,7 +277,7 @@
             img = ele;
             // Image tag inside picture element wont get preloaded.
             $.each(parent.getElementsByTagName('source'), function (source) {
-              handleSource(source, _attrSrcset, options.srcset);
+              handleSource(source, ATTR_SRCSET, options.srcset);
             });
           }
 
@@ -298,7 +298,7 @@
         // video with child source
         if ($.equal(ele, 'video')) {
           $.each(ele.getElementsByTagName('source'), function (source) {
-            handleSource(source, _attrSrc, options.src);
+            handleSource(source, ATTR_SRC, options.src);
           });
 
           ele.load();
@@ -329,7 +329,7 @@
 
   function handleSources(ele, src, srcset, fixRatio) {
     if (srcset) {
-      $.attr(ele, _attrSrcset, srcset);
+      $.attr(ele, ATTR_SRCSET, srcset);
     }
 
     // Tricking IE + other oldies to fix aspect ratio due to no CSS object-fit.
@@ -347,8 +347,8 @@
   }
 
   function saveViewportOffset(opts) {
-    _winData = _viewport.update(opts);
-    _vp = _viewport.vp;
+    WINDATA = FN_VIEWPORT.update(opts);
+    VP = FN_VIEWPORT.vp;
   }
 
 });

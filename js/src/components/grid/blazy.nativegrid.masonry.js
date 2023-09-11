@@ -12,17 +12,16 @@
 
   'use strict';
 
-  var _id = 'b-nativegrid';
-  var _idOnce = 'b-masonry';
-  var _isMasonry = 'is-' + _idOnce;
-  var _mounted = _isMasonry + '-mounted';
-  var _isUnload = 'is-b-unload';
-  var _element = '.' + _id + '.' + _isMasonry + ':not(.' + _mounted + ')';
-  var _unload = false;
-
   Drupal.blazy = Drupal.blazy || {};
 
-  var _opts = {
+  var ID = 'b-nativegrid';
+  var ID_ONCE = 'b-masonry';
+  var C_IS_MASONRY = 'is-' + ID_ONCE;
+  var C_MOUNTED = C_IS_MASONRY + '-mounted';
+  var C_IS_UNLOAD = 'is-b-unload';
+  var S_ELEMENT = '.' + ID + '.' + C_IS_MASONRY + ':not(.' + C_MOUNTED + ')';
+  var UNLOAD = false;
+  var OPTS = {
     $el: null,
     gap: 15,
     height: 15,
@@ -44,23 +43,24 @@
   function processItem(el, i, isResized) {
     var target = el.target;
     var box = 'target' in el ? $.closest(target, '.grid') : el;
+    var cn;
 
     if (!$.isElm(box)) {
       return;
     }
 
-    var cn = $.find(box, '.grid__content');
+    cn = $.find(box, '.grid__content');
 
     if ($.isElm(cn)) {
-      if (_opts.gap === 0) {
-        _opts.gap = 0.0001;
+      if (OPTS.gap === 0) {
+        OPTS.gap = 0.0001;
       }
 
       // Once setup, we rely on CSS to make it responsive.
       var layout = function () {
         _heights.push($.outerHeight(cn, true));
         var rect = $.rect(cn);
-        var span = Math.ceil((rect.height + _opts.gap) / (_opts.height + _opts.gap));
+        var span = Math.ceil((rect.height + OPTS.gap) / (OPTS.height + OPTS.gap));
 
         // Sets the grid row span based on content and gap height.
         box.style.gridRowEnd = 'span ' + span;
@@ -69,11 +69,11 @@
         setTimeout(function () {
           cn.style.minHeight = '';
           $.addClass(box, 'is-b-layout');
-        }, _unload ? 600 : 200);
+        }, UNLOAD ? 600 : 200);
       };
 
-      if (isResized || _unload) {
-        setTimeout(layout, _unload ? 300 : 200);
+      if (isResized || UNLOAD) {
+        setTimeout(layout, UNLOAD ? 300 : 200);
       }
       else {
         layout();
@@ -98,14 +98,14 @@
       var rows = style.getPropertyValue('grid-auto-rows');
 
       if (gap) {
-        _opts.gap = $.toInt(gap, 0);
+        OPTS.gap = $.toInt(gap, 0);
       }
       if (rows) {
-        _opts.height = $.toInt(rows, 1);
+        OPTS.height = $.toInt(rows, 1);
       }
 
       if (items.length) {
-        if (_unload) {
+        if (UNLOAD) {
           $.each(items, function (item, i) {
             var cn = $.find(item, '.grid__content');
             if (cn && _heights[i]) {
@@ -118,22 +118,22 @@
         $.each(items, processItem);
 
         // Process on resize.
-        if (!_unload) {
+        if (!UNLOAD) {
           Drupal.blazy.checkResize(items, processItem, elm, processItem);
         }
 
       }
     };
 
-    setTimeout(init, _unload ? 110 : 0);
-    _opts.$el = elm;
+    setTimeout(init, UNLOAD ? 110 : 0);
+    OPTS.$el = elm;
 
-    if (_unload) {
-      $.addClass(elm, _isUnload);
+    if (UNLOAD) {
+      $.addClass(elm, C_IS_UNLOAD);
     }
 
-    _unload = false;
-    $.addClass(elm, _mounted);
+    UNLOAD = false;
+    $.addClass(elm, C_MOUNTED);
   }
 
   /**
@@ -143,13 +143,13 @@
    */
   Drupal.behaviors.blazyNativeGrid = {
     attach: function (context) {
-      $.once(process, _idOnce, _element, context);
+      $.once(process, ID_ONCE, S_ELEMENT, context);
 
     },
     detach: function (context, setting, trigger) {
-      _unload = trigger === 'unload';
-      if (_unload) {
-        $.once.removeSafely(_idOnce, _element, context);
+      UNLOAD = trigger === 'unload';
+      if (UNLOAD) {
+        $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
       }
     }
 

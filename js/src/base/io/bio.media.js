@@ -36,24 +36,19 @@
   /**
    * Private variables.
    */
-  var _doc = document;
-  var _data = 'data-';
-  var _src = 'src';
-  var _srcSet = 'srcset';
-  var _bHtml = 'b-html';
-  var _dataSrc = _data + _src;
-  var _dataSrcset = _data + _srcSet;
-  var _dataHtml = _data + _bHtml;
-  var _dataText = 'data:text/plain;base64,';
-  var _imgSources = [_srcSet, _src];
-  var _erCounted = 0;
-  var _isDeferChecked = false;
-  var _multimedia = $.multimedia || false;
-
-  // Inherits Bio prototype.
-  var _super = Bio.prototype;
-  var fn = BioMedia.prototype = Object.create(_super);
-  fn.constructor = BioMedia;
+  var DOC = document;
+  var DATA = 'data-';
+  var SRC = 'src';
+  var SRCSET = 'srcset';
+  var C_HTML = 'b-html';
+  var DATA_SRC = DATA + SRC;
+  var DATA_SRCSET = DATA + SRCSET;
+  var DATA_HTML = DATA + C_HTML;
+  var DATA_TEXT = 'data:text/plain;base64,';
+  var IMG_SOURCES = [SRCSET, SRC];
+  var ER_COUNTED = 0;
+  var IS_DEFERRED_CALLED = false;
+  var FN_MULTIMEDIA = $.multimedia || false;
 
   /**
    * Constructor for BioMedia, Blazy IntersectionObserver for media.
@@ -67,45 +62,50 @@
    * @namespace
    */
   function BioMedia(options) {
-    var me = _bio.apply($.extend({}, _super, $.extend({}, fn, this)), arguments);
+    var me = _bio.apply($.extend({}, SUPER, $.extend({}, FN, this)), arguments);
 
     me.name = ns;
 
     return me;
   }
 
+  // Inherits Bio prototype.
+  var SUPER = Bio.prototype;
+  var FN = BioMedia.prototype = Object.create(SUPER);
+  FN.constructor = BioMedia;
+
   // Load a HTML content.
   function loadHtml(cn, opts) {
-    if ($.isHtml(cn) && $.hasAttr(cn, _dataHtml)) {
-      var html = $.attr(cn, _dataHtml);
+    if ($.isHtml(cn) && $.hasAttr(cn, DATA_HTML)) {
+      var html = $.attr(cn, DATA_HTML);
       var status = false;
 
       if (html) {
         status = true;
-        html = html.replace(_dataText, '');
+        html = html.replace(DATA_TEXT, '');
         html = atob(html);
 
         $.append(cn, html);
-        $.removeAttr(cn, _dataHtml);
+        $.removeAttr(cn, DATA_HTML);
       }
-      _erCounted = $.status(cn, status, opts);
+      ER_COUNTED = $.status(cn, status, opts);
     }
   }
 
   // Load local media (audio/video).
   function loadLocalMedia(el, status, opts) {
     // Native doesn't support video, fix it.
-    $.mapSource(el, _src, true);
+    $.mapSource(el, SRC, true);
     el.load();
 
-    if (_multimedia) {
-      _multimedia.init(el);
+    if (FN_MULTIMEDIA) {
+      FN_MULTIMEDIA.init(el);
     }
     return $.status(el, status, opts);
   }
 
   // Extends Bio prototype.
-  fn.lazyLoad = function (el, winData) {
+  FN.lazyLoad = function (el, winData) {
     var me = this;
     var opts = me.options;
     var parent = el.parentNode;
@@ -114,7 +114,7 @@
     var isImage = $.equal(el, 'img');
     var isAudio = $.equal(el, 'audio');
     var isVideo = $.equal(el, 'video');
-    var isDataset = $.hasAttr(el, _dataSrc);
+    var isDataset = $.hasAttr(el, DATA_SRC);
 
     // Initializes blur, if any.
     if ($.blur) {
@@ -124,13 +124,13 @@
     // PICTURE elements.
     if (isPicture) {
       if (isDataset) {
-        $.mapSource(el, _srcSet, true);
+        $.mapSource(el, SRCSET, true);
 
         // Tiny controller image inside picture element won't get preloaded.
-        $.mapAttr(el, _src, true);
+        $.mapAttr(el, SRC, true);
       }
 
-      _erCounted = defer(me, el, true, opts);
+      ER_COUNTED = defer(me, el, true, opts);
     }
     // AUDIO/ VIDEO elements.
     else if (isVideo || isAudio) {
@@ -139,7 +139,7 @@
         me.loadImage(parent, true, winData);
       }
 
-      _erCounted = loadLocalMedia(el, true, opts);
+      ER_COUNTED = loadLocalMedia(el, true, opts);
     }
     else {
       // IMG or DIV/ block elements got preloaded for better UX with loading.
@@ -154,12 +154,12 @@
       }
       else {
         // IFRAME elements, etc.
-        if ($.hasAttr(el, _src)) {
-          if ($.attr(el, _dataSrc)) {
-            $.mapAttr(el, _src, true);
+        if ($.hasAttr(el, SRC)) {
+          if ($.attr(el, DATA_SRC)) {
+            $.mapAttr(el, SRC, true);
           }
 
-          _erCounted = defer(me, el, true, opts);
+          ER_COUNTED = defer(me, el, true, opts);
         }
         // HTML elements.
         else {
@@ -169,18 +169,18 @@
     }
 
 
-    me.erCount = _erCounted;
+    me.erCount = ER_COUNTED;
   };
 
   // Compatibility between Native and old data-[SRC|SRSET] approaches.
-  fn.loadImage = function (el, isBg, winData) {
+  FN.loadImage = function (el, isBg, winData) {
     var me = this;
     var opts = me.options;
     var img = new Image();
-    var isResimage = $.hasAttr(el, _srcSet);
-    var isDataset = $.hasAttr(el, _dataSrc);
-    var currSrc = isDataset ? _dataSrc : _src;
-    var currSrcset = isDataset ? _dataSrcset : _srcSet;
+    var isResimage = $.hasAttr(el, SRCSET);
+    var isDataset = $.hasAttr(el, DATA_SRC);
+    var currSrc = isDataset ? DATA_SRC : SRC;
+    var currSrcset = isDataset ? DATA_SRCSET : SRCSET;
 
     var preload = function () {
       if ('decode' in img) {
@@ -192,7 +192,7 @@
       }
       else {
         if (isDataset) {
-          $.mapAttr(el, _imgSources, false);
+          $.mapAttr(el, IMG_SOURCES, false);
         }
 
         img.src = $.attr(el, currSrc);
@@ -206,10 +206,10 @@
     var load = function (el, ok) {
       if (isBg && $.isFun($.bg)) {
         $.bg(el, winData);
-        _erCounted = $.status(el, ok, opts);
+        ER_COUNTED = $.status(el, ok, opts);
       }
       else {
-        _erCounted = defer(me, el, ok, opts);
+        ER_COUNTED = defer(me, el, ok, opts);
       }
     };
 
@@ -230,7 +230,7 @@
       });
   };
 
-  fn.resizing = function (el, winData) {
+  FN.resizing = function (el, winData) {
     var me = this;
     var isBg = $.isBg(el, me.options);
 
@@ -249,12 +249,12 @@
   // elements on the exact moment of loading/ visible event, etc. If you hate
   // cool kids or fancy stuffs, do not choose `defer` option, no fuss.
   function defer(me, el, status, opts) {
-    if (!_isDeferChecked) {
+    if (!IS_DEFERRED_CALLED) {
       var cb = function (elm) {
         $.attr(elm, 'loading', 'lazy');
       };
       natively(me, 'defer', cb);
-      _isDeferChecked = true;
+      IS_DEFERRED_CALLED = true;
     }
 
     return $.status(el, status, opts);
@@ -292,7 +292,7 @@
     // The `a` keyword found in `auto, eager, lazy`, not `defer`.
     key = key || 'a';
     var dataset = $.selector(opts, '[data-src][loading*="' + key + '"]:not(.b-blur)');
-    var els = $.findAll(_doc, dataset);
+    var els = $.findAll(DOC, dataset);
 
     // We are here if `No JavaScript` is being disabled.
     if (els.length) {
@@ -325,9 +325,9 @@
       return $.selector(me.options, '[' + prefix + 'srcset*=".webp"]');
     };
 
-    var elms = $.findAll(_doc, sel());
+    var elms = $.findAll(DOC, sel());
     if (!elms.length) {
-      elms = $.findAll(_doc, sel('data-'));
+      elms = $.findAll(DOC, sel('data-'));
     }
 
     if (elms.length) {
@@ -335,7 +335,7 @@
     }
   }
 
-  fn.prepare = function () {
+  FN.prepare = function () {
     var me = this;
 
     // @todo lock it back once AJAX-loaded contents fixed.

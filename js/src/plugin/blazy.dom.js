@@ -2,7 +2,9 @@
  * @file
  * Provides CSS DOM methods which can replaced by Cash, or alike when available.
  *
- * This file is separated to be removed when Cash is available, and adoptable.
+ * Warning! Do not call or use any of the internal methods except for internal
+ * usages. This file is separated to be removed when Cash is available, and
+ * adoptable, or when core has one.
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
@@ -21,22 +23,21 @@
 
   'use strict';
 
-  var _aProto = Array.prototype;
-  var _some = _aProto.some;
-  var _add = 'add';
-  var _remove = 'remove';
-  var _class = 'class';
-  var _width = 'width';
-  var _height = 'height';
-  var _after = 'after';
-  var _before = 'before';
-  var _begin = 'begin';
-  var _end = 'end';
-  var _uTop = 'Top';
-  var _uLeft = 'Left';
-  var _uHeight = 'Height';
-  var _uWidth = 'Width';
-  var _scroll = 'scroll';
+  var PROTO_SOME = Array.prototype.some;
+  var ADD = 'add';
+  var REMOVE = 'remove';
+  var CLASS = 'class';
+  var WIDTH = 'width';
+  var HEIGHT = 'height';
+  var AFTER = 'after';
+  var BEFORE = 'before';
+  var BEGIN = 'begin';
+  var END = 'end';
+  var U_TOP = 'Top';
+  var U_LEFT = 'Left';
+  var U_HEIGHT = 'Height';
+  var U_WIDTH = 'Width';
+  var SCROLL = 'scroll';
 
   function css(els, props, vals) {
     var me = this;
@@ -49,7 +50,7 @@
       // @todo figure out multi-element getters. Ok for now, as hardly multiple.
       var el = $.toElm(els);
       // @todo re-check common integer.
-      var arr = [_width, _height, 'top', 'right', 'bottom', 'left'];
+      var arr = [WIDTH, HEIGHT, 'top', 'right', 'bottom', 'left'];
       var result = $.computeStyle(el, props);
       var num = $.toInt(result, 0);
       return arr.indexOf(props) === -1 ? result : num;
@@ -98,17 +99,17 @@
     var rect = $.rect(el);
 
     return {
-      top: (rect.top || 0) + _doc.body[_scroll + _uTop],
-      left: (rect.left || 0) + _doc.body[_scroll + _uLeft]
+      top: (rect.top || 0) + _doc.body[SCROLL + U_TOP],
+      left: (rect.left || 0) + _doc.body[SCROLL + U_LEFT]
     };
   }
 
   function width(el, val) {
-    return css(el, _width, val);
+    return css(el, WIDTH, val);
   }
 
   function height(el, val) {
-    return css(el, _height, val);
+    return css(el, HEIGHT, val);
   }
 
   function outerDim(el, withMargin, prop) {
@@ -121,11 +122,11 @@
         var margin = function (pos) {
           return $.toInt(style['margin' + pos], 0);
         };
-        if (prop === _uHeight) {
-          result += margin(_uTop) + margin('Bottom');
+        if (prop === U_HEIGHT) {
+          result += margin(U_TOP) + margin('Bottom');
         }
         else {
-          result += margin(_uLeft) + margin('Right');
+          result += margin(U_LEFT) + margin('Right');
         }
       }
     }
@@ -133,11 +134,11 @@
   }
 
   function outerWidth(el, withMargin) {
-    return outerDim(el, withMargin, _uWidth);
+    return outerDim(el, withMargin, U_WIDTH);
   }
 
   function outerHeight(el, withMargin) {
-    return outerDim(el, withMargin, _uHeight);
+    return outerDim(el, withMargin, U_HEIGHT);
   }
 
   /**
@@ -172,12 +173,12 @@
   }
 
   function after(target, el) {
-    insert(target, el, _after + _end);
+    insert(target, el, AFTER + END);
   }
 
   // Node.insertBefore(), similar to beforebegin, with different arguments.
   function before(target, el) {
-    insert(target, el, _before + _begin);
+    insert(target, el, BEFORE + BEGIN);
   }
 
   // Node.appendChild(), same effect as beforeend.
@@ -187,13 +188,13 @@
         target.appendChild(el);
       }
       else {
-        insert(target, el, _before + _end);
+        insert(target, el, BEFORE + END);
       }
     }
   }
 
   function prepend(target, el) {
-    insert(target, el, _after + _begin);
+    insert(target, el, AFTER + BEGIN);
   }
 
   function clone(els, deep) {
@@ -207,6 +208,19 @@
     return $.chain(els, chainCallback);
   }
 
+  // @todo refactor and remove after migration:
+  $.css = css;
+  $.offset = offset;
+  $.clone = clone;
+  $.after = after;
+  $.before = before;
+  $.append = append;
+  $.prepend = prepend;
+  $.width = width;
+  $.height = height;
+  $.outerWidth = outerWidth;
+  $.outerHeight = outerHeight;
+
   var objs = {
     // @todo multiple css values once.
     css: function (prop, val) {
@@ -214,7 +228,7 @@
     },
     hasAttr: function (name) {
       var me = this;
-      return _some.call(me, function (el) {
+      return PROTO_SOME.call(me, function (el) {
         return $.hasAttr(el, name);
       });
     },
@@ -231,7 +245,7 @@
     },
     hasClass: function (name) {
       var me = this;
-      return _some.call(me, function (el) {
+      return PROTO_SOME.call(me, function (el) {
         return $.hasClass(el, name);
       });
     },
@@ -239,11 +253,11 @@
       return $.toggleClass(this, name, op);
     },
     addClass: function (name) {
-      return this.toggleClass(name, _add);
+      return this.toggleClass(name, ADD);
     },
     removeClass: function (name) {
       var me = this;
-      return arguments.length ? me.toggleClass(name, _remove) : me.attr(_class, '');
+      return arguments.length ? me.toggleClass(name, REMOVE) : me.attr(CLASS, '');
     },
     empty: function () {
       return $.empty(this);
@@ -316,10 +330,10 @@
       return outerHeight(this[0], withMargin);
     },
     on: function (eventName, selector, cb, params, isCustom) {
-      return $.on(this, eventName, selector, cb, params, isCustom, _add);
+      return $.on(this, eventName, selector, cb, params, isCustom, ADD);
     },
     off: function (eventName, selector, cb, params, isCustom) {
-      return $.off(this, eventName, selector, cb, params, isCustom, _remove);
+      return $.off(this, eventName, selector, cb, params, isCustom, REMOVE);
     },
     one: function (eventName, cb, isCustom) {
       return $.one(this, eventName, cb, isCustom);
@@ -331,18 +345,5 @@
 
   // Merge prototypes.
   $.fn.extend(objs);
-
-  // @todo refactor and remove after migration:
-  $.css = css;
-  $.offset = offset;
-  $.clone = clone;
-  $.after = after;
-  $.before = before;
-  $.append = append;
-  $.prepend = prepend;
-  $.width = width;
-  $.height = height;
-  $.outerWidth = outerWidth;
-  $.outerHeight = outerHeight;
 
 })(dBlazy, this, this.document);

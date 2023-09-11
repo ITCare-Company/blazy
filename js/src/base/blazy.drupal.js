@@ -12,21 +12,20 @@
 
   'use strict';
 
-  var _id = 'blazy';
-  var _ns = 'Drupal.' + _id;
-  var _data = 'data';
-  var _bbg = 'b-bg';
-  var _dataBg = _data + '-' + _bbg;
+  var ID = 'blazy';
+  var NAME = 'Drupal.' + ID;
+  var DATA = 'data';
+  var C_BG = 'b-bg';
+  var DATA_B_BG = DATA + '-' + C_BG;
   // @todo remove at/by 3.x:
-  var _dataRatios = _data + '-ratios';
-  var _dataBratios = _data + '-b-ratios';
-  var _elBlur = '.b-blur';
-  var _media = 'media';
-  var _elMedia = '.' + _media;
-  var _successClass = 'successClass';
-  var _eventDone = _id + '.done';
-  var _noop = function () {};
-  var _extensions = {};
+  var DATA_RATIOS = DATA + '-ratios';
+  var DATA_B_RATIOS = DATA + '-b-ratios';
+  var S_BLUR = '.b-blur';
+  var S_MEDIA = '.media';
+  var C_SUCCESS = 'successClass';
+  var E_DONE = ID + '.done';
+  var NOOP = function () {};
+  var EXTENSIONS = {};
 
   /**
    * Blazy public properties and methods.
@@ -35,7 +34,7 @@
    */
   Drupal.blazy = {
     context: _doc,
-    name: _ns,
+    name: NAME,
     init: null,
     instances: [],
     resizeTick: 0,
@@ -43,11 +42,11 @@
     blazySettings: drupalSettings.blazy || {},
     ioSettings: drupalSettings.blazyIo || {},
     options: {},
-    clearCompat: _noop,
-    clearScript: _noop,
-    checkResize: _noop,
-    resizing: _noop,
-    revalidate: _noop,
+    clearCompat: NOOP,
+    clearScript: NOOP,
+    checkResize: NOOP,
+    resizing: NOOP,
+    revalidate: NOOP,
 
     // Enforced since IO (bio.js) makes bLazy a fallback internally since 2.6.
     isIo: function () {
@@ -61,11 +60,11 @@
     isFluid: function (el, cn) {
       // @todo remove the last at/by 3.x:
       return $.equal(el.parentNode, 'picture') &&
-        ($.hasAttr(cn, _dataBratios) || $.hasAttr(cn, _dataRatios));
+        ($.hasAttr(cn, DATA_B_RATIOS) || $.hasAttr(cn, DATA_RATIOS));
     },
 
     isLoaded: function (el) {
-      return $.hasClass(el, this.options[_successClass]);
+      return $.hasClass(el, this.options[C_SUCCESS]);
     },
 
     globals: function () {
@@ -76,7 +75,7 @@
         error: me.clearing.bind(me),
         resizing: me.resizing.bind(me),
         selector: '.b-lazy',
-        parent: _elMedia,
+        parent: S_MEDIA,
         errorClass: 'b-error',
         successClass: 'b-loaded'
       };
@@ -85,7 +84,7 @@
     },
 
     extend: function (plugins) {
-      _extensions = $.extend({}, _extensions, plugins);
+      EXTENSIONS = $.extend({}, EXTENSIONS, plugins);
     },
 
     merge: function (opts) {
@@ -96,7 +95,7 @@
 
     run: function (opts) {
       // @see https://www.drupal.org/project/blazy/issues/3258851
-      // var els = $.findAll(_doc, '.media--ratio--fluid, .' + _bbg);
+      // var els = $.findAll(_doc, '.media--ratio--fluid, .' + C_BG);
       // opts.disconnect = opts.disconnect || (!els.length && $.isUnd(Drupal.io));
       return new BioMedia(opts);
     },
@@ -109,20 +108,20 @@
 
       // Executes all extensions.
       if (exe) {
-        $.each(_extensions, function (fn) {
+        $.each(EXTENSIONS, function (fn) {
           if ($.isFun(fn)) {
             fn.call(me);
           }
         });
       }
 
-      return $.extend(me, _extensions);
+      return $.extend(me, EXTENSIONS);
     },
 
     selector: function (suffix) {
       suffix = suffix || '';
       var opts = this.options;
-      return opts.selector + suffix + ':not(.' + opts[_successClass] + ')';
+      return opts.selector + suffix + ':not(.' + opts[C_SUCCESS] + ')';
     },
 
     clearing: function (el) {
@@ -132,7 +131,7 @@
       // return;
       // }
       var me = this;
-      var ie = $.hasClass(el, 'b-responsive') && $.hasAttr(el, _data + '-pfsrc');
+      var ie = $.hasClass(el, 'b-responsive') && $.hasAttr(el, DATA + '-pfsrc');
 
       // @see https://scottjehl.github.io/picturefill/
       // @todo remove when IE gone from planet Drupal.
@@ -162,7 +161,7 @@
       me.clearScript(el);
 
       // Provides event listeners for easy overrides without full overrides.
-      $.trigger(el, _eventDone, {
+      $.trigger(el, E_DONE, {
         options: me.options
       });
 
@@ -193,7 +192,7 @@
       var opts = me.options;
       var sel = opts.selector;
       var _update = function () {
-        if ($.hasAttr(el, _dataBg) && $.isFun($.bg)) {
+        if ($.hasAttr(el, DATA_B_BG) && $.isFun($.bg)) {
           $.bg(el, winData || me.windowData());
         }
         else {
@@ -223,16 +222,16 @@
     // @todo move it out to grid-related which requires this.
     rebind: function (root, cb, observer) {
       var me = this;
-      var elms = $.findAll(root, me.options.selector + ':not(' + _elBlur + ')');
+      var elms = $.findAll(root, me.options.selector + ':not(' + S_BLUR + ')');
       var isMe = elms.length;
 
       if (!isMe) {
-        elms = $.findAll(root, 'img:not(' + _elBlur + ')');
+        elms = $.findAll(root, 'img:not(' + S_BLUR + ')');
       }
 
       if (elms.length) {
         $.each(elms, function (el) {
-          var type = isMe ? _eventDone : 'load';
+          var type = isMe ? E_DONE : 'load';
           $.one(el, type, cb, isMe);
 
           if (observer) {
@@ -244,7 +243,7 @@
 
     pad: function (el, cb, delay) {
       var me = this;
-      var cn = $.closest(el, _elMedia) || el;
+      var cn = $.closest(el, S_MEDIA) || el;
 
       var check = function () {
         var pad = Math.round(((el.naturalHeight / el.naturalWidth) * 100), 2);

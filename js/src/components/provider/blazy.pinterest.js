@@ -7,16 +7,16 @@
 
   'use strict';
 
-  var _id = 'b-pinterest';
-  var _nick = _id;
-  var _idOnce = _nick;
-  var _mounted = 'is-' + _nick;
-  var _selBase = '.' + _id;
-  var _sPin = '[data-pin-do]';
-  var _sRendered = '[data-pin-href]';
-  var _selector = _selBase + ':not(.' + _mounted + ')';
-  var _dataToken = 'data-b-token';
-  var script = 'https://assets.pinterest.com/js/pinit.js';
+  var ID = 'b-pinterest';
+  var ID_ONCE = NICK;
+  var NICK = ID;
+  var DATA_PIN_DO = '[data-pin-do]';
+  var DATA_PIN_HREF = '[data-pin-href]';
+  var DATA_TOKEN = 'data-b-token';
+  var C_MOUNTED = 'is-' + NICK;
+  var S_BASE = '.' + ID;
+  var S_ELEMENT = S_BASE + ':not(.' + C_MOUNTED + ')';
+  var SCRIPT = 'https://assets.pinterest.com/js/pinit.js';
 
   function load(cb) {
     _win.setTimeout(function () {
@@ -39,7 +39,7 @@
       fun();
     }
     else {
-      $.getScript(script, fun, token);
+      $.getScript(SCRIPT, fun, token);
     }
   }
 
@@ -49,7 +49,7 @@
     init: function (root) {
       var me = this;
       me.root = root;
-      me.token = $.attr(root, _dataToken) || _id;
+      me.token = $.attr(root, DATA_TOKEN) || ID;
     },
 
     show: function (cb) {
@@ -73,12 +73,12 @@
    */
   function process(el) {
     var provider = $.pinterest;
-    var pin = $.find(el, _sPin);
+    var pin = $.find(el, DATA_PIN_DO);
 
     provider.init(el);
 
     var isRendered = function (root) {
-      var check = $.find(root, _sRendered);
+      var check = $.find(root, DATA_PIN_HREF);
       return $.isElm(check);
     };
 
@@ -98,14 +98,14 @@
         $.on(el, 'blazy.done', function (e) {
           el = e.target;
           if (!isRendered(el)) {
-            pin = $.find(el, _sPin);
+            pin = $.find(el, DATA_PIN_DO);
             show(pin);
           }
         });
       }
     }
 
-    $.addClass(el, _mounted);
+    $.addClass(el, C_MOUNTED);
   }
 
   /**
@@ -115,11 +115,11 @@
    */
   Drupal.behaviors.blazyPinterest = {
     attach: function (context) {
-      $.once(process, _idOnce, _selector, context);
+      $.once(process, ID_ONCE, S_ELEMENT, context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _selector, context);
+        $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
       }
     }
   };

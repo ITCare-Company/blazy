@@ -7,18 +7,18 @@
 
   'use strict';
 
-  var _id = 'b-instagram';
-  var _nick = _id;
-  var _idOnce = _nick;
-  var _mounted = 'is-' + _nick;
-  var _loaded = _mounted + '-loaded';
-  var _selBase = '.' + _id;
-  var _selector = _selBase + ':not(.' + _mounted + ')';
-  var _dataToken = 'data-b-token';
-  var _iframes = {};
-  var _iFrame = 'iframe';
-  var script = '//platform.instagram.com/en_US/embeds.js';
-  // var script = 'https://www.instagram.com/embed.js';
+  var ID = 'b-instagram';
+  var NICK = ID;
+  var ID_ONCE = NICK;
+  var C_MOUNTED = 'is-' + NICK;
+  var C_LOADED = C_MOUNTED + '-loaded';
+  var S_BASE = '.' + ID;
+  var S_ELEMENT = S_BASE + ':not(.' + C_MOUNTED + ')';
+  var DATA_TOKEN = 'data-b-token';
+  var IFRAMES = {};
+  var IFRAME = 'iframe';
+  var SCRIPT = '//platform.instagram.com/en_US/embeds.js';
+  // var SCRIPT = 'https://www.instagram.com/embed.js';
 
   function load(cb) {
     if (_win.instgrm) {
@@ -38,7 +38,7 @@
       fun();
     }
     else {
-      $.getScript(script, fun, token);
+      $.getScript(SCRIPT, fun, token);
     }
   }
 
@@ -57,7 +57,7 @@
     // @todo remove if no issues with aspect ratio.
     root.style.paddingBottom = '';
     $.removeClass(root, 'media--ratio media--ratio--fluid');
-    $.addClass(root, _loaded);
+    $.addClass(root, C_LOADED);
   }
 
   function onLoad(iframe, cb) {
@@ -82,10 +82,10 @@
       me.width = w;
       me.height = h;
 
-      if (!_iframes[token]) {
+      if (!IFRAMES[token]) {
         iframe.innerHTML = '';
 
-        _iframes[token] = {
+        IFRAMES[token] = {
           iframe: iframe,
           width: w,
           height: h
@@ -116,14 +116,14 @@
     show: function (cb, iframe) {
       var me = this;
       var root = me.root;
-      var token = me.token || $.attr(root, _dataToken);
+      var token = me.token || $.attr(root, DATA_TOKEN);
 
       if (!token) {
         return;
       }
 
       var fromCache = function () {
-        var cache = _iframes[token];
+        var cache = IFRAMES[token];
         if (cache) {
           me.width = cache.width || me.width;
           me.height = cache.height || me.height;
@@ -137,14 +137,14 @@
       };
 
       var fromDisk = function () {
-        iframe = iframe || $.find(root, _iFrame);
+        iframe = iframe || $.find(root, IFRAME);
         if ($.isElm(iframe)) {
           onLoad.call(me, iframe, cb);
         }
       };
 
       var loadIframe = function () {
-        if (_iframes[token]) {
+        if (IFRAMES[token]) {
           fromCache();
         }
         else {
@@ -156,12 +156,12 @@
     },
 
     destroy: function () {
-      // _iframes = {};
+      // IFRAMES = {};
     },
 
     exists: function () {
       var token = this.token;
-      return !$.isUnd(_iframes[token]) && !$.isUnd(_iframes[token].iframe);
+      return !$.isUnd(IFRAMES[token]) && !$.isUnd(IFRAMES[token].iframe);
     }
   };
 
@@ -173,7 +173,7 @@
    */
   function process(el) {
     var iframe;
-    var token = $.attr(el, _dataToken);
+    var token = $.attr(el, DATA_TOKEN);
     var instagram = $.instagram;
     var data = {
       token: token
@@ -192,7 +192,7 @@
       }
     });
 
-    $.addClass(el, _mounted);
+    $.addClass(el, C_MOUNTED);
   }
 
   /**
@@ -202,11 +202,11 @@
    */
   Drupal.behaviors.blazyInstagram = {
     attach: function (context) {
-      $.once(process, _idOnce, _selector, context);
+      $.once(process, ID_ONCE, S_ELEMENT, context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _selector, context);
+        $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
       }
     }
   };

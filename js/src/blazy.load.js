@@ -20,19 +20,19 @@
 
   'use strict';
 
-  var _id = 'blazy';
-  var _idOnce = _id;
-  var _mounted = 'is-' + _id;
-  var _element = '.' + _id + ':not(.' + _mounted + ')';
-  var _elementGlobal = 'body';
-  var _idOnceGlobal = 'b-root';
-  var _data = 'data';
-  var _checked = 'b-checked';
-  var _errorClass = 'errorClass';
-  var _image = 'image';
-  var _src = 'src';
-  var _scrollElms = '#drupal-modal, .is-b-scroll';
-  var _opts = {};
+  var ID = 'blazy';
+  var ID_ONCE = ID;
+  var C_MOUNTED = 'is-' + ID;
+  var S_ELEMENT = '.' + ID + ':not(.' + C_MOUNTED + ')';
+  var S_GLOBAL = 'body';
+  var ID_ONCE_GLOBAL = 'b-root';
+  var V_DATA = 'data';
+  var C_CHECKED = 'b-checked';
+  var C_ERROR = 'errorClass';
+  var V_IMAGE = 'image';
+  var V_SRC = 'src';
+  var S_SCROLL_ELEMENTS = '#drupal-modal, .is-b-scroll';
+  var OPTS = {};
 
   /**
    * Blazy public methods.
@@ -45,8 +45,8 @@
       var me = this;
 
       // In case an error, try forcing it, once.
-      if ($.hasClass(el, _opts[_errorClass]) && !$.hasClass(el, _checked)) {
-        $.addClass(el, _checked);
+      if ($.hasClass(el, OPTS[C_ERROR]) && !$.hasClass(el, C_CHECKED)) {
+        $.addClass(el, C_CHECKED);
 
         // This is a rare case, hardly called, just nice to have for errors.
         me.update(el, true);
@@ -72,11 +72,11 @@
      */
     fixDataUri: function () {
       var me = this;
-      var els = $.findAll(_doc, me.selector('[src^="' + _image + '"]'));
+      var els = $.findAll(_doc, me.selector('[src^="' + V_IMAGE + '"]'));
       var fix = function (img) {
-        var src = $.attr(img, _src);
+        var src = $.attr(img, V_SRC);
         if ($.contains(src, ['base64', 'svg+xml'])) {
-          $.attr(img, _src, src.replace(_image, _data + ':' + _image));
+          $.attr(img, V_SRC, src.replace(V_IMAGE, V_DATA + ':' + V_IMAGE));
         }
       };
 
@@ -98,7 +98,7 @@
       var picture = function (root) {
         if (root.dblazy && root.dbuniform) {
           if ((root.dblazy === cn.dblazy) && !root.dbpicture) {
-            $.trigger(root, _id + '.uniform' + root.dblazy, {
+            $.trigger(root, ID + '.uniform' + root.dblazy, {
               pad: pad
             });
             root.dbpicture = true;
@@ -138,12 +138,12 @@
     // A scrolling modal with an iframe like Entity Browser has no issue since
     // the scrolling container is the entire DOM. Another use case is parallax.
     var container = opts.container;
-    if (container && !$.contains(_scrollElms, container)) {
-      _scrollElms += ', ' + container.trim();
+    if (container && !$.contains(S_SCROLL_ELEMENTS, container)) {
+      S_SCROLL_ELEMENTS += ', ' + container.trim();
     }
 
-    opts.container = _scrollElms;
-    _opts = me.merge(opts);
+    opts.container = S_SCROLL_ELEMENTS;
+    OPTS = me.merge(opts);
 
     // Attempts to fix for Views rewrite stripping out data URI causing 404.
     me.fixDataUri();
@@ -160,14 +160,14 @@
    */
   function process(elm) {
     var me = this;
-    var opts = $.parse($.attr(elm, 'data-' + _id));
-    var isUniform = $.hasClass(elm, _id + '--field b-grid ' + _id + '--uniform');
+    var opts = $.parse($.attr(elm, 'data-' + ID));
+    var isUniform = $.hasClass(elm, ID + '--field b-grid ' + ID + '--uniform');
     var instance = (Math.random() * 10000).toFixed(0);
-    var eventId = _id + '.uniform' + instance;
+    var eventId = ID + '.uniform' + instance;
     var localItems = $.findAll(elm, '.media--ratio');
 
-    _opts = me.merge(opts);
-    me.revalidate = me.revalidate || $.hasClass(elm, _id + '--revalidate');
+    OPTS = me.merge(opts);
+    me.revalidate = me.revalidate || $.hasClass(elm, ID + '--revalidate');
 
     // Each cointainer may have different image styles and aspect ratio.
     // Provides marker to call event once, since adding classes make no sense.
@@ -199,7 +199,7 @@
     if (isUniform && localItems.length) {
       $.on(elm, eventId, swapRatio);
     }
-    $.addClass(elm, _mounted);
+    $.addClass(elm, C_MOUNTED);
   }
 
   /**
@@ -221,15 +221,15 @@
       // Processes .blazy, if available, without initialization.
       // Initialization is not per container to also support IO with root.
       // @todo replace with core/once when min D9.2, and or after sub-modules.
-      $.once(process.bind(me), _idOnce, _element, context);
+      $.once(process.bind(me), ID_ONCE, S_ELEMENT, context);
 
       // Initializes blazy once as a global observer, not per container.
-      $.once(init.bind(me), _idOnceGlobal, _elementGlobal, context);
+      $.once(init.bind(me), ID_ONCE_GLOBAL, S_GLOBAL, context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _element, context);
-        $.once.removeSafely(_idOnceGlobal, _elementGlobal, context);
+        $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
+        $.once.removeSafely(ID_ONCE_GLOBAL, S_GLOBAL, context);
       }
     }
   };

@@ -10,14 +10,14 @@
 
   'use strict';
 
-  var _1px = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-  var _ani = 'animation';
-  var _blur = 'blur';
-  var _bblur = 'b-' + _blur;
-  var _blurKey = 'b' + _blur;
-  var _blurStorage = [];
-  var _data = 'data-';
-  var _isStorage = _win.localStorage;
+  var PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  var ANI = 'animation';
+  var BLUR = 'blur';
+  var B_BLUR = 'b-' + BLUR;
+  var K_BLUR = 'b' + BLUR;
+  var BLUR_STORAGES = [];
+  var P_DATA = 'data-';
+  var IS_STORAGE = _win.localStorage;
 
   /**
    * A simple wrapper to animate anything using animate.css.
@@ -52,20 +52,20 @@
       }
 
       var _animated = 'animated';
-      var _aniEnd = _ani + 'end.' + animation;
+      var _aniEnd = ANI + 'end.' + animation;
       var _style = el.style;
       var classes = _animated + ' ' + animation;
       var props = [
-        _ani,
-        _ani + '-duration',
-        _ani + '-delay',
-        _ani + '-iteration-count'
+        ANI,
+        ANI + '-duration',
+        ANI + '-delay',
+        ANI + '-iteration-count'
       ];
 
       $el.addClass(classes);
 
       $.each(['Duration', 'Delay', 'IterationCount'], function (key) {
-        var _aniKey = _ani + key;
+        var _aniKey = ANI + key;
         if (_set && _aniKey in _set) {
           _style[_aniKey] = _set[_aniKey];
         }
@@ -74,19 +74,19 @@
       // Supports both BG and regular image.
       var cn = $.closest(el, '.media') || el;
       var bg = $el.hasClass('b-bg');
-      var isBlur = animation === _blur;
+      var isBlur = animation === BLUR;
       var an = el;
 
       // The animated blur is image not this container, except a background.
       if (isBlur && !bg) {
-        var img = $.find(cn, 'img:not(.' + _bblur + ')');
+        var img = $.find(cn, 'img:not(.' + B_BLUR + ')');
         an = $.isElm(img) ? img : an;
       }
 
       function ended(e) {
         $el.addClass('is-b-' + _animated)
           .removeClass(classes)
-          .removeAttr(props, _data);
+          .removeAttr(props, P_DATA);
 
         $.each(props, function (key) {
           _style.removeProperty(key);
@@ -97,11 +97,11 @@
         }
 
         if (isBlur) {
-          var elBlur = $.find(cn, 'img.' + _bblur);
+          var elBlur = $.find(cn, 'img.' + B_BLUR);
           if ($.isElm(elBlur)) {
-            elBlur.src = _1px;
-            $.removeAttr(elBlur, _data + _bblur);
-            $el.removeClass('is-' + _blur + '-client');
+            elBlur.src = PLACEHOLDER;
+            $.removeAttr(elBlur, P_DATA + B_BLUR);
+            $el.removeClass('is-' + BLUR + '-client');
           }
         }
       }
@@ -111,11 +111,6 @@
 
     return $.chain(els, chainCallback);
   }
-
-  $.animate = animate.bind($);
-  $.fn.animate = function (animation) {
-    return animate(this, animation);
-  };
 
   // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement.
   // https://caniuse.com/canvas
@@ -157,51 +152,49 @@
       return;
     }
 
-    var el = $.find(cn, 'img.' + _bblur);
+    var el = $.find(cn, 'img.' + B_BLUR);
     if (!$.isElm(el)) {
       return;
     }
 
-    var data = $.attr(el, _data + _bblur);
+    var data = $.attr(el, P_DATA + B_BLUR);
     if (!data) {
       return;
     }
 
     data = data.split('::');
 
-    var shouldStore = _isStorage && data[0] === '1';
+    var shouldStore = IS_STORAGE && data[0] === '1';
     var isDisabled = data[0] === '-1';
     var bid = data[1];
     var mime = data[2];
     var url = data[3];
     var existing = null;
     var valid = false;
-    var stored = $.storage(_blurKey);
+    var stored = $.storage(K_BLUR);
     // @todo remove at 3.x:
     var dt = 'data-thumb';
     var dbt = 'data-b-thumb';
     var dtValue = $.attr(cn, dbt + ' ' + dt);
+    var found;
 
     if (dtValue) {
-      if ($.is(url, dbt)) {
-        url = dtValue;
-      }
-      // @todo remove at 3.x:
-      else if ($.is(url, dt)) {
+      // @todo remove the last at 3.x:
+      if ($.is(url, dbt) || $.is(url, dt)) {
         url = dtValue;
       }
     }
 
     // If the browser is capable, and the client option enabled.
     if (shouldStore) {
-      var found = stored && $.contains(stored, bid);
+      found = stored && $.contains(stored, bid);
 
       valid = !stored || !found;
 
-      _blurStorage = stored ? $.parse(stored) : [];
+      BLUR_STORAGES = stored ? $.parse(stored) : [];
 
       if (found) {
-        $.each(_blurStorage, function (img) {
+        $.each(BLUR_STORAGES, function (img) {
           var key = $.keys(img)[0];
           if (key === bid) {
             existing = img[bid];
@@ -213,14 +206,14 @@
     else {
       // Clear, if disabled (-1), or switching to server from client-side (0).
       if (stored) {
-        $.storage(_blurKey, null);
+        $.storage(K_BLUR, null);
       }
     }
 
     // If client is disabled (-1), use server-side data URI. Clear done above.
     // Run it late, to ensure storages are cleared above as configured.
     if (isDisabled) {
-      $.removeAttr(el, _data + _bblur);
+      $.removeAttr(el, P_DATA + B_BLUR);
       return;
     }
 
@@ -236,13 +229,18 @@
           var tmp = {};
           tmp[bid] = uri;
 
-          _blurStorage.push(tmp);
+          BLUR_STORAGES.push(tmp);
 
-          $.storage(_blurKey, JSON.stringify(_blurStorage));
+          $.storage(K_BLUR, JSON.stringify(BLUR_STORAGES));
         }
       });
     }
   }
+
+  $.animate = animate.bind($);
+  $.fn.animate = function (animation) {
+    return animate(this, animation);
+  };
 
   $.blur = blur.bind($);
 

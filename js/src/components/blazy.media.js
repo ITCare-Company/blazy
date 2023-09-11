@@ -7,26 +7,26 @@
 
   'use strict';
 
-  var _md = 'media';
-  var _id = 'b-' + _md;
-  var _idOnce = _id;
-  var _player = _md + '--player';
-  var _mounted = 'is-' + _id;
-  var _sPlayer = '.' + _player;
-  var _element = _sPlayer + ':not(.' + _mounted + ')';
-  var _icon = _md + '__icon';
-  var _elIconPlay = '.' + _icon + '--play';
-  var _elIconClose = '.' + _icon + '--close';
-  var _iFrame = 'iframe';
-  var _isPlaying = 'is-playing';
-  var _isBodyPlaying = 'is-b-player-playing';
-  var _data = 'data-';
-  var _dataIFrameTitle = _data + _iFrame + '-title';
-  var _dataUrl = _data + 'b-url data-url';
-  var _mdElement = _md + '__element';
-  var _bInstagram = 'b-instagram';
-  var _cHidden = 'visually-hidden';
-  var _multimedia = $.multimedia || false;
+  var MD = 'media';
+  var ID = 'b-' + MD;
+  var ID_ONCE = ID;
+  var IFRAME = 'iframe';
+  var MD_PLAYER = MD + '--player';
+  var S_MOUNTED = 'is-' + ID;
+  var S_PLAYER = '.' + MD_PLAYER;
+  var S_ELEMENT = S_PLAYER + ':not(.' + S_MOUNTED + ')';
+  var ICON = MD + '__icon';
+  var S_PLAY = '.' + ICON + '--play';
+  var S_CLOSE = '.' + ICON + '--close';
+  var C_IS_PLAYING = 'is-playing';
+  var C_IS_BODY_PLAYING = 'is-b-player-playing';
+  var DATA = 'data-';
+  var DATA_IFRAME_TITLE = DATA + IFRAME + '-title';
+  var DATA_URL = DATA + 'b-url data-url';
+  var C_MD_ELEMENT = MD + '__element';
+  var B_INSTAGRAM = 'b-instagram';
+  var C_HIDDEN = 'visually-hidden';
+  var FN_MULTIMEDIA = $.multimedia || false;
 
   /**
    * Blazy media utility functions.
@@ -36,17 +36,17 @@
    */
   function process(el) {
     var $el = $(el);
-    var iframe = $el.find(_iFrame);
-    var btn = $el.find(_elIconPlay);
+    var iframe = $el.find(IFRAME);
+    var btn = $el.find(S_PLAY);
 
     // Media player toggler is disabled, just display iframe.
     if (!$.isElm(btn)) {
       return;
     }
 
-    var url = $.attr(btn, _dataUrl);
-    var title = $.attr(btn, _dataIFrameTitle);
-    var instagram = $el.hasClass(_bInstagram);
+    var url = $.attr(btn, DATA_URL);
+    var title = $.attr(btn, DATA_IFRAME_TITLE);
+    var instagram = $el.hasClass(B_INSTAGRAM);
     var newIframe;
 
     if (url && $.sanitizer.isDangerous('src', url)) {
@@ -71,24 +71,24 @@
       }
 
       // Reset any (local) video/ audio to avoid multiple elements from playing.
-      if (_multimedia) {
-        _multimedia.pause();
+      if (FN_MULTIMEDIA) {
+        FN_MULTIMEDIA.pause();
       }
 
       var target = this;
-      var sPlayable = '.' + _isPlaying + ':not(.' + _bInstagram + ')';
+      var sPlayable = '.' + C_IS_PLAYING + ':not(.' + B_INSTAGRAM + ')';
       var playing = $.find(_doc, sPlayable);
       var player = target.parentNode;
 
       // Remove other playing remote videos.
       if ($.isElm(playing)) {
-        var played = $.find(_doc, sPlayable + ' ' + _iFrame);
+        var played = $.find(_doc, sPlayable + ' ' + IFRAME);
         // Remove the previous iframe.
         $.remove(played);
         playing.className = playing.className.replace(/(\S+)playing/, '');
       }
 
-      $.addClass(player, _isPlaying);
+      $.addClass(player, C_IS_PLAYING);
 
       if (!instagram) {
         playNow(e);
@@ -104,10 +104,10 @@
     function playNow(e) {
       var target = e.target;
       var player = target.parentNode;
-      var iframe = $.find(player, _iFrame);
+      var iframe = $.find(player, IFRAME);
 
-      url = $.attr(target, _dataUrl);
-      title = $.attr(target, _dataIFrameTitle);
+      url = $.attr(target, DATA_URL);
+      title = $.attr(target, DATA_IFRAME_TITLE);
 
       // Remove the existing iframe on the current clicked iframe.
       $.remove(iframe);
@@ -116,7 +116,7 @@
       window.setTimeout(function () {
         // Cache iframe for the potential repeating clicks.
         if (!newIframe) {
-          newIframe = $.create(_iFrame, _mdElement);
+          newIframe = $.create(IFRAME, C_MD_ELEMENT);
 
           // Saving another clicks for nested iframes.
           $.attr(newIframe, {
@@ -129,7 +129,7 @@
         // Appends the iframe.
         player.appendChild(newIframe);
 
-        $.addClass(_doc.body, _isBodyPlaying);
+        $.addClass(_doc.body, C_IS_BODY_PLAYING);
 
         // Be sure to detach on your destroy method, or Drupal..detach:
         // $.off('blazy.mediaPlaying', onPlaying);
@@ -156,19 +156,19 @@
       var target = this;
 
       if (instagram) {
-        $.addClass(target, _cHidden);
+        $.addClass(target, C_HIDDEN);
         return false;
       }
 
       var player = target.parentNode;
 
-      var iframe = $.find(player, _iFrame);
-      if (player.className.match(_isPlaying)) {
+      var iframe = $.find(player, IFRAME);
+      if (player.className.match(C_IS_PLAYING)) {
         player.className = player.className.replace(/(\S+)playing/, '');
       }
 
       $.remove(iframe);
-      $.removeClass(_doc.body, _isBodyPlaying);
+      $.removeClass(_doc.body, C_IS_BODY_PLAYING);
 
       // Be sure to detach on your destroy method, or Drupal..detach:
       // $.off('blazy.mediaStopped', onStopped);
@@ -188,8 +188,8 @@
     /*
     function onDone(e) {
       var target = e.target;
-      var player = $.hasClass(target, _player) ? target : $.closest(target, _sPlayer);
-      var btn = $.find(player, _elIconPlay);
+      var player = $.hasClass(target, MD_PLAYER) ? target : $.closest(target, S_PLAYER);
+      var btn = $.find(player, S_PLAY);
 
       // Autoload instagram player on being lazy loaded.
       if ($.isElm(btn)) {
@@ -202,17 +202,17 @@
     $.remove(iframe);
 
     // Plays the media player.
-    $el.on('click.' + _id, _elIconPlay, play);
+    $el.on('click.' + ID, S_PLAY, play);
 
     // Closes the video.
-    $el.on('click.' + _id, _elIconClose, stop);
+    $el.on('click.' + ID, S_CLOSE, stop);
 
     // Listens to blazy.done event to auto-display instagram feeds.
     // if (instagram) {
     // $el.on('blazy.done', onDone);
     // }
-    $.removeClass(_doc.body, _isBodyPlaying);
-    $el.addClass(_mounted);
+    $.removeClass(_doc.body, C_IS_BODY_PLAYING);
+    $el.addClass(S_MOUNTED);
   }
 
   /**
@@ -231,7 +231,7 @@
     var el = settings.el || settings.element;
     var $el = $(el);
     var alt = $.image.alt(el);
-    var data = $.parse($.attr(el, 'data-b-' + _md + ' data-' + _md));
+    var data = $.parse($.attr(el, 'data-b-' + MD + ' data-' + MD));
     var provider = data.provider;
     var token = data.token;
     var width = $.toInt(data.width, 640);
@@ -239,12 +239,12 @@
     var imgUrl = $el.attr('data-box-url');
     var href = el.href;
     var oembedUrl = $el.attr('data-oembed-url', href, true);
-    var defClass = _md + '__element';
+    var defClass = MD + '__element';
     var imgClass = settings.imgClass ?
       defClass + ' ' + settings.imgClass :
       defClass;
-    var idClass = data.id ? ' ' + _md + '--' + data.id : '';
-    var player = data.playable || data.boxType === 'iframe' ? ' ' + _player : '';
+    var idClass = data.id ? ' ' + MD + '--' + data.id : '';
+    var player = data.playable || data.boxType === 'iframe' ? ' ' + MD_PLAYER : '';
     var ariaClose = Drupal.t('Stop and close the video');
     var ariaPlay = Drupal.t('Load and play the video');
     var bProvider = '';
@@ -274,8 +274,8 @@
     }
 
     return $.template(html, {
-      md: _md,
-      icon: _icon,
+      md: MD,
+      icon: ICON,
       ariaClose: Drupal.checkPlain(ariaClose),
       ariaPlay: Drupal.checkPlain(ariaPlay),
       bProvider: bProvider,
@@ -288,7 +288,7 @@
       alt: alt,
       oembed: oembedUrl,
       width: width,
-      wrapper: _md + '-wrapper'
+      wrapper: MD + '-wrapper'
     });
   };
 
@@ -299,12 +299,12 @@
    */
   Drupal.behaviors.blazyMedia = {
     attach: function (context) {
-      $.once(process, _idOnce, _element, context);
+      $.once(process, ID_ONCE, S_ELEMENT, context);
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.removeClass(_doc.body, _isBodyPlaying);
-        $.once.removeSafely(_idOnce, _element, context);
+        $.removeClass(_doc.body, C_IS_BODY_PLAYING);
+        $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
       }
     }
   };

@@ -13,6 +13,12 @@
 
   'use strict';
 
+  // Enqueue operations.
+  function enqueue(queue, cb, scope) {
+    $.each(queue, cb.bind(scope));
+    queue.length = 0;
+  }
+
   $.observer = {
     init: function (scope, cb, elms, withIo) {
       var opts = scope.options || {};
@@ -110,11 +116,5 @@
       }
     }
   };
-
-  // Enqueue operations.
-  function enqueue(queue, cb, scope) {
-    $.each(queue, cb.bind(scope));
-    queue.length = 0;
-  }
 
 })(dBlazy, this);

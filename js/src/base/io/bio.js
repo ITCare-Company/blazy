@@ -47,27 +47,26 @@
   /**
    * Private variables.
    */
-  var _doc = document;
-  var _root = _doc;
-  var _nick = 'bio';
-  var _winData = {};
-  var _bioTick = 0;
-  var _ww = 0;
-  var _revTick = 0;
-  var _counted = 0;
-  var _opts = {};
-  var _bgClass = 'b-bg';
-  var _isVisible = 'is-b-visible';
-  var _media = 'media';
-  var _parent = '.' + _media;
-  var _addClass = 'addClass';
-  var _removeClass = 'removeClass';
-  var _initialized = false;
-  var _resizing = false;
-  var _validateDelay = 25;
-  var _observer = $.observer;
-  var _viewport = $.viewport;
-  var fn;
+  var DOC = _win.document;
+  var ROOT = DOC;
+  var NICK = 'bio';
+  var WINDATA = {};
+  var BIOTICK = 0;
+  var REVTICK = 0;
+  var COUNTED = 0;
+  var OPTS = {};
+  var C_BG = 'b-bg';
+  var C_IS_VISIBLE = 'is-b-visible';
+  var S_PARENT = '.media';
+  var ADDCLASS = 'addClass';
+  var REMOVECLASS = 'removeClass';
+  var INITIALIZED = false;
+  var IS_RESIZING = false;
+  var VALIDATE_DELAY = 25;
+  var V_WW = 0;
+  var FN_OBSERVER = $.observer;
+  var FN_VIEWPORT = $.viewport;
+  var FN;
 
 
   /**
@@ -82,15 +81,15 @@
    * @namespace
    */
   function Bio(options) {
-    var me = $.extend({}, fn, this);
+    var me = $.extend({}, FN, this);
 
     me.name = ns;
-    me.options = _opts = $.extend({}, $._defaults, options || {});
+    me.options = OPTS = $.extend({}, $._defaults, options || {});
 
-    _bgClass = _opts.bgClass || _bgClass;
-    _validateDelay = _opts.validateDelay || _validateDelay;
-    _parent = _opts.parent || _parent;
-    _root = _opts.root || _root;
+    C_BG = OPTS.bgClass || C_BG;
+    VALIDATE_DELAY = OPTS.validateDelay || VALIDATE_DELAY;
+    S_PARENT = OPTS.parent || S_PARENT;
+    ROOT = OPTS.root || ROOT;
 
     // DOM ready fix. Ain't a culprit.
     setTimeout(function () {
@@ -108,8 +107,8 @@
     var watching = opts.visibleClass || revalidate || false;
 
     // Only destroy if no use for is-b-visible class.
-    if (_bioTick === count - 1) {
-      $.trigger(_win, _nick + '.done', {
+    if (BIOTICK === count - 1) {
+      $.trigger(_win, NICK + '.done', {
         options: opts
       });
 
@@ -126,7 +125,7 @@
           io.unobserve(el);
         }
 
-        _bioTick++;
+        BIOTICK++;
       }
     }
 
@@ -136,9 +135,9 @@
     // until having VIS alike which may spit out new images on AJAX request.
     if (!el.bhit || revalidate) {
       // Makes sure to have media loaded beforehand.
-      me.lazyLoad(el, _winData);
+      me.lazyLoad(el, WINDATA);
 
-      _counted++;
+      COUNTED++;
 
       // Marks it hit/ requested. Not necessarily loaded.
       el.bhit = true;
@@ -154,7 +153,7 @@
     }
 
     // If not extending/ overriding, also allows to listen to.
-    $.trigger(el, _nick + '.intersecting', {
+    $.trigger(el, NICK + '.intersecting', {
       options: opts
     });
   }
@@ -163,20 +162,19 @@
   function interact(entries) {
     var me = this;
     var opts = me.options;
-    var vp = _viewport.vp || {};
-    var ww = _viewport.ww || {};
+    var vp = FN_VIEWPORT.vp || {};
+    var ww = FN_VIEWPORT.ww || {};
     var entry = entries[0];
     var isBlur = $.isBlur(entry);
-    var isGrid = $.isGrid(entry);
-    var isResizing = _viewport.isResized(me, entry);
+    var isResizing = FN_VIEWPORT.isResized(me, entry);
     var visibleClass = opts.visibleClass;
-    var forAnim = !isGrid && ($.isBool(visibleClass) && visibleClass);
+    var forAnim = $.isBool(visibleClass) && visibleClass;
 
     // RO is another abserver.
     if (isResizing) {
-      _winData = _viewport.update(opts);
+      WINDATA = FN_VIEWPORT.update(opts);
 
-      _viewport.onresizing(me, _winData);
+      FN_VIEWPORT.onresizing(me, WINDATA);
     }
     else {
       // Stop IO watching if destroyed, unless a visibleClass is defined:
@@ -192,9 +190,9 @@
     $.each(entries, function (e) {
       var target = e.target;
       var el = target || e;
-      var resized = _viewport.isResized(me, e);
-      var visible = _viewport.isVisible(e, vp);
-      var cn = $.closest(el, _parent) || el;
+      var resized = FN_VIEWPORT.isResized(me, e);
+      var visible = FN_VIEWPORT.isVisible(e, vp);
+      var cn = $.closest(el, S_PARENT) || el;
 
       isBlur = isBlur && !$.hasClass(cn, 'is-b-animated');
 
@@ -206,45 +204,45 @@
         // To make efficient blur filter via CSS, etc. Blur filter is expensive.
         if (me.isLoaded(el)) {
           if (isBlur || forAnim) {
-            $[_addClass](cn, _isVisible);
+            $[ADDCLASS](cn, C_IS_VISIBLE);
           }
 
           if (!forAnim) {
             setTimeout(function () {
-              $[_removeClass](cn, _isVisible);
+              $[REMOVECLASS](cn, C_IS_VISIBLE);
             }, 601);
           }
         }
       }
       else {
-        $[_removeClass](cn, _isVisible);
+        $[REMOVECLASS](cn, C_IS_VISIBLE);
       }
 
       // For different toggle purposes regardless being loaded, or not.
       // Avoid using the reserved `is-b-visible`, use `is-b-inview`, etc.
       if (visibleClass && $.isStr(visibleClass)) {
-        $[visible ? _addClass : _removeClass](cn, visibleClass);
+        $[visible ? ADDCLASS : REMOVECLASS](cn, visibleClass);
       }
 
       // The element is being resized.
-      _resizing = resized && _ww > 0;
-      if (_resizing && !isBlur) {
+      IS_RESIZING = resized && V_WW > 0;
+      if (IS_RESIZING && !isBlur) {
         // Ensures only before settled, or if any different from previous size.
         var details = {
-          winData: _winData,
+          winData: WINDATA,
           entries: me.elms,
           currentWidth: ww,
-          oldWidth: _ww,
-          enlarged: ww > _ww
+          oldWidth: V_WW,
+          enlarged: ww > V_WW
         };
 
-        if (_ww !== ww) {
-          me.resizing(el, _winData);
+        if (V_WW !== ww) {
+          me.resizing(el, WINDATA);
 
-          $.trigger(_win, _nick + '.resizing', details);
+          $.trigger(_win, NICK + '.resizing', details);
         }
         else {
-          $.trigger(_win, _nick + '.resized', details);
+          $.trigger(_win, NICK + '.resized', details);
         }
         me.resizeTick++;
       }
@@ -256,7 +254,7 @@
       }
     });
 
-    _ww = ww;
+    V_WW = ww;
   }
 
   // Initializes the IO with fallback to old bLazy.
@@ -265,7 +263,7 @@
     // Native lazy markup is triggered by enabling `No JavaScript` lazy option.
     me.prepare();
 
-    var elms = me.elms = $.findAll(_root, $.selector(me.options));
+    var elms = me.elms = $.findAll(ROOT, $.selector(me.options));
     me.count = elms.length;
     me._raf = [];
     me._queue = [];
@@ -276,26 +274,26 @@
   }
 
   // Cache our prototype.
-  fn = Bio.prototype;
-  fn.constructor = Bio;
+  FN = Bio.prototype;
+  FN.constructor = Bio;
 
   // Prepare prototype to interchange with Blazy as fallback.
-  fn.count = 0;
-  fn.erCount = 0;
-  fn.resizeTick = 0;
-  fn.destroyed = false;
-  fn.options = {};
-  fn.lazyLoad = function (el, winData) {};
-  fn.loadImage = function (el, isBg, winData) {};
-  fn.resizing = function (el, winData) {};
-  fn.prepare = function () {};
-  fn.windowData = function () {
-    return $.isUnd(_winData.vp) ? _viewport.windowData(this.options, true) : _winData;
+  FN.count = 0;
+  FN.erCount = 0;
+  FN.resizeTick = 0;
+  FN.destroyed = false;
+  FN.options = {};
+  FN.lazyLoad = function (el, winData) {};
+  FN.loadImage = function (el, isBg, winData) {};
+  FN.resizing = function (el, winData) {};
+  FN.prepare = function () {};
+  FN.windowData = function () {
+    return $.isUnd(WINDATA.vp) ? FN_VIEWPORT.windowData(this.options, true) : WINDATA;
   };
 
   // BC for interchanging with bLazy.
   // @todo merge with bLazy::load.
-  fn.load = function (elms, revalidate, opts) {
+  FN.load = function (elms, revalidate, opts) {
     var me = this;
 
     elms = elms && $.toArray(elms);
@@ -317,37 +315,37 @@
     });
   };
 
-  fn.isLoaded = function (el) {
+  FN.isLoaded = function (el) {
     return $.hasClass(el, this.options.successClass);
   };
 
-  fn.isValid = function (el) {
+  FN.isValid = function (el) {
     return $.isElm(el) && !this.isLoaded(el);
   };
 
-  fn.revalidate = function (force) {
+  FN.revalidate = function (force) {
     var me = this;
 
     // Prevents from too many revalidations unless needed.
-    if ((force === true || me.count !== _counted) && (_revTick < _counted)) {
-      var elms = me.elms = $.findAll(_root, $.selector(me.options));
+    if ((force === true || me.count !== COUNTED) && (REVTICK < COUNTED)) {
+      var elms = me.elms = $.findAll(ROOT, $.selector(me.options));
 
       if (elms.length) {
         me.observe(true);
 
-        _revTick++;
+        REVTICK++;
       }
     }
   };
 
-  fn.destroyQuietly = function (force) {
+  FN.destroyQuietly = function (force) {
     var me = this;
     var opts = me.options;
 
     // Infinite pager like IO wants to keep monitoring infinite contents.
     // Multi-breakpoint BG/ ratio may want to update during resizing.
     if (!me.destroyed && (force || $.isUnd(Drupal.io))) {
-      var el = $.find(_doc, $.selector(opts, ':not(.' + opts.successClass + ')'));
+      var el = $.find(DOC, $.selector(opts, ':not(.' + opts.successClass + ')'));
 
       if (!$.isElm(el)) {
         me.destroy(force);
@@ -355,11 +353,11 @@
     }
   };
 
-  fn.destroy = function (force) {
+  FN.destroy = function (force) {
     var me = this;
     var opts = me.options;
     var io = me.ioObserver;
-    var done = (_bioTick === me.count - 1);
+    var done = (BIOTICK === me.count - 1);
     var disconnect = done && opts.disconnect;
 
     // Do not disconnect if any error found.
@@ -373,7 +371,7 @@
         io.disconnect();
       }
 
-      _observer.unload(me);
+      FN_OBSERVER.unload(me);
       me.count = 0;
       me.elms = [];
       me.ioObserver = null;
@@ -381,26 +379,26 @@
     }
   };
 
-  fn.observe = function (reobserve) {
+  FN.observe = function (reobserve) {
     var me = this;
     var elms = me.elms;
 
     // Only initialize the observer if destroyed, and IO.
     if ($.isIo && (me.destroyed || reobserve)) {
-      _winData = _observer.init(me, interact, elms, true);
+      WINDATA = FN_OBSERVER.init(me, interact, elms, true);
 
       me.destroyed = false;
     }
 
     // Observe as IO, or initialize old bLazy as fallback.
-    if (!_initialized || reobserve) {
-      _observer.observe(me, elms, true);
+    if (!INITIALIZED || reobserve) {
+      FN_OBSERVER.observe(me, elms, true);
 
-      _initialized = true;
+      INITIALIZED = true;
     }
   };
 
-  fn.reinit = function () {
+  FN.reinit = function () {
     var me = this;
     me.destroyed = true;
 

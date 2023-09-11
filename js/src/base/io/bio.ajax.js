@@ -14,27 +14,28 @@
 
   'use strict';
 
-  var _blazy = Drupal.blazy || {};
-  var _ajax = Drupal.Ajax || {};
-  var _proto = _ajax.prototype;
-  var _revTimer;
+  var D_BLAZY = Drupal.blazy || {};
+  var D_AJAX = Drupal.Ajax || {};
+  var PROTO = D_AJAX.prototype;
+  var REV_TIMER;
 
-  if (!_proto) {
+  if (!PROTO) {
     return;
   }
 
   // Overrides Drupal.Ajax.prototype.success to re-observe new AJAX contents.
-  _proto.success = (function (_ajax) {
+  PROTO.success = (function (D_AJAX) {
     return function (response, status) {
-      var me = _blazy.init;
+      var me = D_BLAZY.init;
       var opts;
 
       if (me) {
-        opts = _blazy.options;
+        opts = D_BLAZY.options;
 
-        clearTimeout(_revTimer);
+        clearTimeout(REV_TIMER);
+
         // DOM ready fix. Be sure Views "Use field template" is disabled.
-        _revTimer = setTimeout(function () {
+        REV_TIMER = setTimeout(function () {
           var elms = $.findAll(document, $.selector(opts, true));
           if (elms.length) {
             // ::load() means forcing them to load at once, great for small
@@ -48,8 +49,8 @@
         }, 100);
       }
 
-      return _ajax.apply(this, arguments);
+      return D_AJAX.apply(this, arguments);
     };
-  })(_proto.success);
+  })(PROTO.success);
 
 })(dBlazy, Drupal);

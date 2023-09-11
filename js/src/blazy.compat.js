@@ -17,19 +17,17 @@
 
   'use strict';
 
-  var _id = 'blazy';
-  var _data = 'data-';
+  var ID = 'blazy';
+  var DATA = 'data-';
   // @todo remove the last at/by 3.x:
-  var _dataRatios = _data + 'b-ratios ' + _data + 'ratios';
-  var _dataRatio = _data + 'b-ratio ' + _data + 'ratio';
-  var _media = 'media';
-  var _picture = 'picture';
-  var _elMedia = '.' + _media;
-  var _elRatio = _elMedia + '--ratio';
-  var _isAnimated = 'is-b-animated';
-  var _winData = {};
-  var _opts = {};
-  var _ww = 0;
+  var DATA_RATIOS = DATA + 'b-ratios ' + DATA + 'ratios';
+  var DATA_RATIO = DATA + 'b-ratio ' + DATA + 'ratio';
+  var S_PICTURE = 'picture';
+  var S_RATIO = '.media--ratio';
+  var C_IS_ANIMATED = 'is-b-animated';
+  var V_WINDATA = {};
+  var OPTS = {};
+  var V_WW = 0;
 
   /**
    * Blazy public compat methods.
@@ -52,9 +50,9 @@
       var check = function (e) {
         var details = e && e.detail ? e.detail : {};
 
-        _winData = details.winData || me.windowData();
+        V_WINDATA = details.winData || me.windowData();
 
-        var isResized = _ww > 0 && _ww !== _winData.ww;
+        var isResized = V_WW > 0 && V_WW !== V_WINDATA.ww;
         if (isResized) {
           me.resizeTick = bio && bio.resizeTick || 0;
 
@@ -67,11 +65,11 @@
           }
         }
 
-        _ww = _winData.ww;
+        V_WW = V_WINDATA.ww;
       };
 
       // Already throttled for oldies, or RO/RAF for modern browsers.
-      $.on(_win, _id + '.resizing', check);
+      $.on(_win, ID + '.resizing', check);
 
       // When images are loaded, Flexbox or Native Grid as Masonry might need
       // info about the loaded image dimensions to calculate gaps or positions.
@@ -80,7 +78,7 @@
       }
 
       me.destroyed = false;
-      return _winData;
+      return V_WINDATA;
     },
 
     unresize: function () {
@@ -102,7 +100,7 @@
     var an = $.aniElement && $.aniElement(el);
 
     // Animate if any.
-    if ($.animate && $.isElm(an) && !$.hasClass(an, _isAnimated)) {
+    if ($.animate && $.isElm(an) && !$.hasClass(an, C_IS_ANIMATED)) {
       $.animate(an);
     }
   }
@@ -141,8 +139,8 @@
     }
 
     // Blazy container (via formatter or Views style) is not always there.
-    var root = $.closest(cn, '.' + _id);
-    var ratios = $.parse($.attr(cn, _dataRatios));
+    var root = $.closest(cn, '.' + ID);
+    var ratios = $.parse($.attr(cn, DATA_RATIOS));
 
     // Bail out if a static/ non-fluid aspect ratio.
     if ($.isEmpty(ratios)) {
@@ -151,8 +149,8 @@
     }
 
     // For picture, this is more a dummy space till the image is downloaded.
-    var isPicture = $.isElm($.find(cn, _picture)) && isResized;
-    var data = $.extend(_winData, {
+    var isPicture = $.isElm($.find(cn, S_PICTURE)) && isResized;
+    var data = $.extend(V_WINDATA, {
       up: isPicture
     });
     var pad = $.activeWidth(ratios, data);
@@ -167,7 +165,7 @@
     // Update multi-breakpoint CSS background.
     // @todo move it out of ratio. ATM, requires ratio to update multi-BG.
     // if (isResized) {
-    // me.update(cn, false, _winData);
+    // me.update(cn, false, V_WINDATA);
     // }
     // @todo refactor or remove into IO.
     // Fix for picture or bg element with resizing.
@@ -179,7 +177,7 @@
   // Only rewrites if the style is indeed stripped out, and not set.
   // View rewrite result stripped out style attribute required by fluid ratio.
   function fallbackRatio(cn) {
-    var value = $.attr(cn, _dataRatio);
+    var value = $.attr(cn, DATA_RATIO);
 
     if (!$.hasAttr(cn, 'style') && value) {
       cn.style.paddingBottom = value + '%';
@@ -194,7 +192,7 @@
   function resize() {
     var me = this;
     var doc = me.context;
-    var els = $.findAll(doc, _elRatio);
+    var els = $.findAll(doc, S_RATIO);
 
     // Update multi-breakpoint fluid aspect ratio, if any.
     if (els.length) {
@@ -211,11 +209,11 @@
 
     // Mount extensions.
     me.mount(true);
-    _opts = me.options;
+    OPTS = me.options;
 
     // ::init will/not be overridden by blazy/load, no problem since 2.6.
     if ($.isNull(me.init)) {
-      me.init = me.run(_opts);
+      me.init = me.run(OPTS);
     }
 
     resize.call(me);

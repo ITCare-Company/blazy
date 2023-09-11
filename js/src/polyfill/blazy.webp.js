@@ -21,32 +21,28 @@
 
   'use strict';
 
-  if ($.webp) {
-    return;
-  }
-
-  var _key = 'bwebp';
-  var _dataSrcset = 'data-srcset';
-  var _picture = 'picture';
-  var _mimeWebp = 'image/webp';
-  var _source = 'source';
-  var pf = _win.picturefill;
+  var KEY_STORAGE = 'bwebp';
+  var DATA_SRCSET = 'data-srcset';
+  var PICTURE = 'picture';
+  var MIME_WEBP = 'image/webp';
+  var SOURCE = 'source';
+  var FN_PF = _win.picturefill;
 
   function isSupported() {
     var support = true;
 
     // Ensures not locked down when Responsive image is not present, yet.
     // @todo use $.decode for better async.
-    if (pf) {
-      var check = $.storage(_key);
+    if (FN_PF) {
+      var check = $.storage(KEY_STORAGE);
 
       if (!$.isNull(check)) {
         return check === 'true';
       }
 
-      // Undefined means supported, due to !pf.supPicture check.
-      support = $.isUnd(pf._.supportsType(_mimeWebp));
-      $.storage(_key, support);
+      // Undefined means supported, due to !FN_PF.supPicture check.
+      support = $.isUnd(FN_PF._.supportsType(MIME_WEBP));
+      $.storage(KEY_STORAGE, support);
     }
 
     return support;
@@ -56,17 +52,17 @@
     if (!$.isElm(img)) {
       return false;
     }
-    var picture = $.create(_picture);
-    var source = $.create(_source);
+    var picture = $.create(PICTURE);
+    var source = $.create(SOURCE);
     var sizes = $.attr(img, 'sizes');
     var webpSrc = webps.join(',').trim();
     var nowebpSrc = nowebps.join(',').trim();
-    var check = $.find(picture, _source);
+    var check = $.find(picture, SOURCE);
 
     if (!$.isElm(check)) {
       if (dataset) {
-        $.attr(source, _dataSrcset, webpSrc);
-        $.attr(img, _dataSrcset, nowebpSrc);
+        $.attr(source, DATA_SRCSET, webpSrc);
+        $.attr(img, DATA_SRCSET, nowebpSrc);
       }
       else {
         source.srcset = webpSrc;
@@ -77,7 +73,7 @@
         source.sizes = sizes;
       }
 
-      source.type = _mimeWebp;
+      source.type = MIME_WEBP;
 
       $.append(picture, source);
       $.append(picture, img);
@@ -90,7 +86,7 @@
     var img = _doc.importNode(el, true);
     var webps = [];
     var nowebps = [];
-    var dataset = $.attr(img, _dataSrcset);
+    var dataset = $.attr(img, DATA_SRCSET);
     var scrset = $.attr(img, 'srcset');
 
     if (scrset.length || dataset.length) {
@@ -124,7 +120,7 @@
 
       $.each(elms, function (el) {
         var isImg = $.equal(el, 'img');
-        var pic = $.closest(el, _picture);
+        var pic = $.closest(el, PICTURE);
 
         if (isImg && $.isNull(pic)) {
           var parent = $.closest(el, '.media') || el.parentNode;

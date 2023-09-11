@@ -7,10 +7,10 @@
 
   'use strict';
 
-  var _dataSrc = 'data-src';
-  var _cEncoded = 'is-b-encoded';
-  var _data = 'data-b-';
-  var _cache = {};
+  var DATA_SRC = 'data-src';
+  var DATA_B = 'data-b-';
+  var C_ENCODED = 'is-b-encoded';
+  var CACHES = {};
 
   /**
    * Updates CSS background with multi-breakpoint images.
@@ -32,7 +32,7 @@
 
         if (url) {
           el.style.backgroundImage = 'url("' + url + '")';
-          $.removeAttr(el, _dataSrc);
+          $.removeAttr(el, DATA_SRC);
         }
       }
     };
@@ -41,17 +41,17 @@
   }
 
   $.bgUrl = function (el, winData) {
-    var str = $.attr(el, _data + 'bg');
-    var token = $.attr(el, _data + 'token');
-    var data = _cache[token];
+    var str = $.attr(el, DATA_B + 'bg');
+    var token = $.attr(el, DATA_B + 'token');
+    var data = CACHES[token];
 
     if (!data) {
-      if ($.hasClass(el, _cEncoded)) {
+      if ($.hasClass(el, C_ENCODED)) {
         str = atob(str);
       }
 
       data = $.parse(str);
-      _cache[token] = data;
+      CACHES[token] = data;
     }
 
     if (!$.isEmpty(data)) {
@@ -67,7 +67,7 @@
         return obj.src;
       }
     }
-    return $.attr(el, _dataSrc);
+    return $.attr(el, DATA_SRC);
   };
 
   $.bg = bg;

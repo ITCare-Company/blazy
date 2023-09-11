@@ -10,24 +10,25 @@
 
   'use strict';
 
-  var _id = 'colorbox';
-  var _root = '#' + _id;
-  var _bRoot = 'b-' + _id;
-  var _nick = 'cbox';
-  var _idOnce = 'b-' + _nick;
-  var $body = $('body');
-  var _mounted = 'is-' + _idOnce;
-  var _element = '[data-' + _id + '-trigger]:not(.' + _mounted + ')';
-  var _cMediaBox = 'media media--box';
-  var _cMediaRatio = _cMediaBox + ' media--ratio';
-  var _cboxOn = 'colorbox-on';
-  var _sLoadedContent = '#cboxLoadedContent';
-  var _sanitizer = _d.sanitizer;
-  var _instagram = _d.instagram || false;
-  var _bProvider = 'b-provider--';
-  var _cachedHtml = {};
-  var _provider;
-  var cboxTimer;
+  var ID = 'colorbox';
+  var ID_ONCE = 'b-' + NICK;
+  var NICK = 'cbox';
+  var B_ROOT = 'b-' + ID;
+  var S_ROOT = '#' + ID;
+  var $BODY = $('body');
+  var C_MOUNTED = 'is-' + ID_ONCE;
+  var S_ELEMENT = '[data-' + ID + '-trigger]:not(.' + C_MOUNTED + ')';
+  var C_MEDIA_BOX = 'media media--box';
+  var C_MEDIA_RATIO = C_MEDIA_BOX + ' media--ratio';
+  var C_CBOX_ON = 'colorbox-on';
+  var S_LOADED_CONTENT = '#cboxLoadedContent';
+  var FN_SANITIZER = _d.sanitizer;
+  var FN_INSTAGRAM = _d.instagram || false;
+  var B_PROVIDER = 'b-provider--';
+  var CACHED_HTML = {};
+  var MD_PROVIDER;
+  var CBOX_SETTINGS = drupalSettings.colorbox || {};
+  var CBOX_TIMER;
 
   /**
    * Blazy Colorbox utility functions.
@@ -36,8 +37,8 @@
    *   The colorbox HTML element.
    */
   function process(box) {
-    var _cbox = drupalSettings.colorbox || {};
-    var $root = $(_root);
+
+    var $root = $(S_ROOT);
     var $box = $(box);
     // @todo remove the second at 3.x:
     var media = $box.data('bMedia') || $box.data('media') || {};
@@ -51,11 +52,11 @@
     var provider = media.provider;
     var boxType = media.boxType;
     var token = media.token;
-    var isIframe = boxType === 'iframe' && !_sanitizer.isDangerous('href', url);
+    var isIframe = boxType === 'iframe' && !FN_SANITIZER.isDangerous('href', url);
     var isPinterest = provider === 'pinterest';
     var usePaddingHack = media.paddingHack || false;
     var isHtml = 'html' in media;
-    var html = _cachedHtml[token];
+    var html = CACHED_HTML[token];
 
     if (isHtml && !html) {
       html = media.html;
@@ -65,9 +66,9 @@
         html = atob(html);
       }
 
-      html = _sanitizer.sanitize(html);
+      html = FN_SANITIZER.sanitize(html);
 
-      _cachedHtml[token] = html;
+      CACHED_HTML[token] = html;
     }
 
     var runtimeOptions = {
@@ -78,40 +79,40 @@
       title: function () {
         var $caption = $box.next('.litebox__caption');
         if ($caption.length) {
-          return _sanitizer.sanitize($caption[0].innerHTML);
+          return FN_SANITIZER.sanitize($caption[0].innerHTML);
         }
         return '';
       },
       onComplete: function () {
-        _win.clearTimeout(cboxTimer);
+        _win.clearTimeout(CBOX_TIMER);
 
         // DOM ready fix.
-        cboxTimer = _win.setTimeout(function () {
+        CBOX_TIMER = _win.setTimeout(function () {
           removeClasses();
 
           if ($('#cboxOverlay').is(':visible')) {
-            $root.addClass(_bRoot + '--' + boxType);
+            $root.addClass(B_ROOT + '--' + boxType);
 
             if (provider) {
-              $root.addClass(_bProvider + provider);
+              $root.addClass(B_PROVIDER + provider);
             }
 
             // @deprecated in 2.17, and is removed in 3.x for local classes.
-            $body.addClass(_cboxOn + ' ' + _cboxOn + '--' + media.type);
+            $BODY.addClass(C_CBOX_ON + ' ' + C_CBOX_ON + '--' + media.type);
             if (isIframe || isHtml) {
               // @deprecated in 2.17, and is removed in 3.x for local classes.
-              $body.addClass(isIframe ? _cboxOn + '--media' : _cboxOn + '--html');
+              $BODY.addClass(isIframe ? C_CBOX_ON + '--media' : C_CBOX_ON + '--html');
 
               resizeBox();
             }
           }
 
-          _provider = provider;
+          MD_PROVIDER = provider;
         });
       },
       onCleanup: function () {
         // Re-check might be empty for some reasons.
-        $root = $(_root);
+        $root = $(S_ROOT);
         var $media = $root.find('.media');
 
         if ($media.length) {
@@ -128,14 +129,14 @@
      */
     function removeClasses() {
       // Re-check might be empty for some reasons.
-      $root = $(_root);
+      $root = $(S_ROOT);
 
       // @todo remove at 3.x for local classes.
-      $body.removeClass(function (index, css) {
+      $BODY.removeClass(function (index, css) {
         return (css.match(/(^|\s)colorbox-\S+/g) || []).join(' ');
       });
 
-      $root.removeClass(_bProvider + _provider);
+      $root.removeClass(B_PROVIDER + MD_PROVIDER);
       $root.removeClass(function (index, css) {
         return (css.match(/(^|\s)b-colorbox-\S+/g) || []).join(' ');
       });
@@ -184,7 +185,7 @@
       var t = $(this);
       var w = t.width();
       var h = t.height();
-      var p = t.closest(_sLoadedContent);
+      var p = t.closest(S_LOADED_CONTENT);
       var pw = p.width();
       var ph = p.height();
       var o;
@@ -220,7 +221,7 @@
           resize(o);
         };
 
-        _instagram.show(cb, $iframe[0]);
+        FN_INSTAGRAM.show(cb, $iframe[0]);
       };
       withDelay(callback, 101);
     }
@@ -233,27 +234,27 @@
       var pad = _d.image.ratio(o) + '%';
 
       $container.css(hack(pad, 0))
-        .addClass(_cMediaRatio);
+        .addClass(C_MEDIA_RATIO);
     }
 
     /**
      * Resize the colorbox if any of media types (video, picture, etc.) kick in.
      */
     function resizeBox() {
-      var mw = _cbox.maxWidth;
-      var mh = _cbox.maxHeight;
+      var mw = CBOX_SETTINGS.maxWidth;
+      var mh = CBOX_SETTINGS.maxHeight;
       var w = (usePaddingHack ? media.width : media.owidth) || mw;
       var h = usePaddingHack ? media.height : mh;
       var o = dimension(w, h);
       var shouldResize = true;
-      var $container = $(_sLoadedContent);
+      var $container = $(S_LOADED_CONTENT);
       var container = $container[0];
       var $iframe = $('iframe', container);
       var $media = $('.media', container);
       var $picture = $container.find('picture img');
       var $resimage = $container.find('img[srcset]');
       var isResimage = $resimage.length || $picture.length;
-      var isInstagramApi = $media.hasClass('b-instagram') && _instagram;
+      var isInstagramApi = $media.hasClass('b-instagram') && FN_INSTAGRAM;
 
       if ($media.length) {
         Drupal.attachBehaviors($media[0]);
@@ -277,7 +278,7 @@
       // Instagram dynamic iframe only available after being attached.
       $iframe = $('iframe', container);
       if ($iframe.length) {
-        $iframe.addClass('media__element');
+        $iframe.addClass('media_S_ELEMENT');
 
         if (isInstagramApi) {
           shouldResize = false;
@@ -301,7 +302,7 @@
 
         // Padding hack to make responsive iframe, unless disabled.
         if (!$media.length) {
-          $container.addClass(_cMediaBox + ' media--' + provider);
+          $container.addClass(C_MEDIA_BOX + ' media--' + provider);
 
           if (usePaddingHack) {
             hackContainer($container, $iframe, o);
@@ -310,7 +311,7 @@
       }
       else {
         $container.css(hack('', o.height))
-          .removeClass(_cMediaRatio + ' media--' + provider);
+          .removeClass(C_MEDIA_RATIO + ' media--' + provider);
       }
 
       if (shouldResize) {
@@ -318,8 +319,8 @@
       }
     }
 
-    $box.colorbox($.extend({}, _cbox, runtimeOptions));
-    $box.addClass(_mounted);
+    $box.colorbox($.extend({}, CBOX_SETTINGS, runtimeOptions));
+    $box.addClass(C_MOUNTED);
   }
 
   /**
@@ -330,22 +331,22 @@
   Drupal.behaviors.blazyColorbox = {
     attach: function (context) {
 
-      var _cbox = drupalSettings.colorbox;
-
       // Disable Colorbox for small screens.
-      if (_d.isUnd(_cbox) || _cbox.mobiledetect && _d.matchMedia(_cbox.mobiledevicewidth)) {
+      if (_d.isUnd(CBOX_SETTINGS) ||
+        CBOX_SETTINGS.mobiledetect &&
+        _d.matchMedia(CBOX_SETTINGS.mobiledevicewidth)) {
         return;
       }
 
-      var elms = _d.once(process, _idOnce, _element, context);
+      var elms = _d.once(process, ID_ONCE, S_ELEMENT, context);
       if (elms.length) {
-        $(_root).attr('aria-label', 'color box')
-          .addClass(_bRoot);
+        $(S_ROOT).attr('aria-label', 'color box')
+          .addClass(B_ROOT);
       }
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        _d.once.removeSafely(_idOnce, _element, context);
+        _d.once.removeSafely(ID_ONCE, S_ELEMENT, context);
       }
     }
   };

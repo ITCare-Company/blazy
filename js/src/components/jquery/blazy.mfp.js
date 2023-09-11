@@ -9,19 +9,19 @@
 
   'use strict';
 
-  var _jq = jQuery;
-  var _id = 'mfp';
-  var _idOnce = 'b-' + _id;
-  var _dataId = 'data-' + _id;
-  var _mounted = 'is-' + _idOnce;
-  var _element = '[' + _dataId + '-gallery]:not(.' + _mounted + ')';
-  var _trigger = '[' + _dataId + '-trigger]';
-  var _blazy = Drupal.blazy || {};
-  var _sanitizer = $.sanitizer;
-  var _canZoom = true;
-  var _elClicked;
-  var _index = 0;
-  var _mp;
+  var JQ = jQuery;
+  var ID = 'mfp';
+  var ID_ONCE = 'b-' + ID;
+  var DATA_ID = 'data-' + ID;
+  var C_MOUNTED = 'is-' + ID_ONCE;
+  var S_ELEMENT = '[' + DATA_ID + '-gallery]:not(.' + C_MOUNTED + ')';
+  var S_TRIGGER = '[' + DATA_ID + '-trigger]';
+  var D_BLAZY = Drupal.blazy || {};
+  var FN_SANITIZER = $.sanitizer;
+  var CAN_ZOOM = true;
+  var EL_CLICKED;
+  var V_INDEX = 0;
+  var FN_MP;
 
   /**
    * Blazy MagnificPopup utility functions.
@@ -30,7 +30,7 @@
    *   The [data-mfp-gallery] container HTML element.
    */
   function process(box) {
-    var elms = $.findAll(box, _trigger);
+    var elms = $.findAll(box, S_TRIGGER);
     var items = build(elms);
     var $box = $(box);
 
@@ -60,8 +60,8 @@
               // FOUC fix.
               setTimeout(function () {
                 $.addClass($wrap[0], 'mfp-on');
-                if (_blazy.load) {
-                  _blazy.load($wrap[0]);
+                if (D_BLAZY.load) {
+                  D_BLAZY.load($wrap[0]);
                 }
               }, 100);
             }
@@ -74,7 +74,7 @@
         // Zoom requires anything which has image: (local|remote) video, etc.
         // @todo figure out to disable zoom when having plain HTML or AJAX.
         zoom: {
-          enabled: _canZoom,
+          enabled: CAN_ZOOM,
           duration: 300,
           easing: 'ease-in-out',
 
@@ -87,7 +87,7 @@
             // this case its <a> tag you don't need to add "opener" option if
             // this code matches your needs, it's default one.
             // @fixme only works at first launch, not when zoom-close repeated.
-            return _jq(_elClicked || openerElement.data.el);
+            return JQ(EL_CLICKED || openerElement.data.el);
           }
         }
       });
@@ -95,23 +95,23 @@
 
     prepare();
 
-    $.on(box, 'click', _trigger, function (e) {
-      var el = _elClicked = e.target;
+    $.on(box, 'click', S_TRIGGER, function (e) {
+      var el = EL_CLICKED = e.target;
 
       // Supports Blazy Grid, Splide/ Slick, GridStack/Mason galleries.
       // @todo add options to avoid guessing.
-      _index = $.index(el, ['.box', '.grid', '.field__item', 'li', '.slide']);
+      V_INDEX = $.index(el, ['.box', '.grid', '.field__item', 'li', '.slide']);
 
       setTimeout(function () {
-        _mp = $.magnificPopup.instance;
+        FN_MP = $.magnificPopup.instance;
 
-        if (_mp) {
-          _mp.goTo(_index);
+        if (FN_MP) {
+          FN_MP.goTo(V_INDEX);
         }
       });
     }, false);
 
-    $.addClass(box, _mounted);
+    $.addClass(box, C_MOUNTED);
   }
 
   function build(elms) {
@@ -124,7 +124,7 @@
       var validCaption = caption && $.hasClass(caption, 'litebox__caption');
       var url = $.attr(el, 'href');
       var item = {
-        el: _jq(el)
+        el: JQ(el)
       };
       var boxType = item.boxType = media.boxType;
       var src;
@@ -147,7 +147,7 @@
             html = atob(html);
           }
 
-          src = _sanitizer.sanitize(html);
+          src = FN_SANITIZER.sanitize(html);
           item.type = 'inline';
         }
         else if (boxType === 'iframe') {
@@ -165,7 +165,7 @@
 
           src = '<div class="mfp-html mfp-html--' + boxType + '"' + style + '><div class="mfp-inner">' + src;
           if (validCaption) {
-            src += '<div class="mfp-bottom-bar"><div class="mfp-title">' + _sanitizer.sanitize(caption.innerHTML) + '</div>' + counter((i + 1) + '/' + total) + '</div>';
+            src += '<div class="mfp-bottom-bar"><div class="mfp-title">' + FN_SANITIZER.sanitize(caption.innerHTML) + '</div>' + counter((i + 1) + '/' + total) + '</div>';
           }
           src += '</div></div>';
         }
@@ -176,7 +176,7 @@
       }
 
       if (validCaption) {
-        item.title = _sanitizer.sanitize(caption.innerHTML);
+        item.title = FN_SANITIZER.sanitize(caption.innerHTML);
       }
 
       items.push(item);
@@ -212,7 +212,7 @@
 
       exists = $.isElm(img);
       if (exists) {
-        $img = mp.currItem.img = _jq(img);
+        $img = mp.currItem.img = JQ(img);
         // mp.currItem.type = 'image';
         mp.currItem.hasSize = exists;
       }
@@ -235,8 +235,8 @@
         setTimeout(function () {
           Drupal.attachBehaviors($media);
 
-          if (_blazy) {
-            _blazy.load($media);
+          if (D_BLAZY) {
+            D_BLAZY.load($media);
           }
         });
       }
@@ -252,26 +252,26 @@
     attach: function (context) {
 
       // Converts jQuery.magnificPopup into dBlazy for consistent vanilla JS.
-      if (_jq && $.isFun(_jq.fn.magnificPopup) && !$.isFun($.fn.magnificPopup)) {
-        var _mfp = _jq.fn.magnificPopup;
+      if (JQ && $.isFun(JQ.fn.magnificPopup) && !$.isFun($.fn.magnificPopup)) {
+        var _mfp = JQ.fn.magnificPopup;
 
         $.fn.magnificPopup = function (options) {
           var me = $(_mfp.apply(this, arguments));
 
           if ($.isUnd($.magnificPopup)) {
-            $.magnificPopup = _jq.magnificPopup;
+            $.magnificPopup = JQ.magnificPopup;
           }
 
           return me;
         };
       }
 
-      $.once(process, _idOnce, _element, context);
+      $.once(process, ID_ONCE, S_ELEMENT, context);
 
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        $.once.removeSafely(_idOnce, _element, context);
+        $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
       }
     }
 

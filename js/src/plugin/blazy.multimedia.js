@@ -13,9 +13,9 @@
 
   // Credit: https://stackoverflow.com/questions/6877403
   // https://caniuse.com/?search=HTMLMediaElement
-  var _proto = HTMLMediaElement.prototype;
-  if (!_proto.playing) {
-    Object.defineProperty(_proto, 'playing', {
+  var PROTO = HTMLMediaElement.prototype;
+  if (!PROTO.playing) {
+    Object.defineProperty(PROTO, 'playing', {
       get: function () {
         return !!(this.currentTime > 0 &&
           !this.paused &&
@@ -25,8 +25,8 @@
     });
   }
 
-  var _selPlaying = '.is-playing';
-  var _selIconClose = '.media__icon--close';
+  var S_PLAYING = '.is-playing';
+  var S_ICON_CLOSE = '.media__icon--close';
 
   /**
    * Pause a video/ audio element.
@@ -64,7 +64,7 @@
    */
   function pauseOthers(e) {
     var target = e.target;
-    var el = $.find(_doc, _selPlaying);
+    var el = $.find(_doc, S_PLAYING);
     var btn;
 
     // Pause other local media.
@@ -72,7 +72,7 @@
 
     // Stop iframe media players.
     if ($.isElm(el)) {
-      btn = $.find(el, _selIconClose);
+      btn = $.find(el, S_ICON_CLOSE);
       if ($.isElm(btn)) {
         btn.click();
       }

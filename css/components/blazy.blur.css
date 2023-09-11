@@ -50,12 +50,13 @@
 }
 
 /** Client side may take extra time, adjust duration to be more apparent.
-Opacity is the cheapest among all animations, fine with longer time. */
+Opacity is the cheapest among all animations, fine with longer time.
 .is-blur-client.animated.blur img:not(.b-blur),
 .is-blur-client.b-bg.animated.blur {
-  -webkit-animation-duration: 3s;
-  animation-duration: 3s;
+  -webkit-animation-duration: 2s;
+  animation-duration: 2s;
 }
+*/
 
 /**
  * The blur image, to support various usages: native, BG and regular IMG.
@@ -74,10 +75,11 @@ Opacity is the cheapest among all animations, fine with longer time. */
   /* z-index: 1; */
 }
 
+/* Longer than animation timing to let the actual image surface better.
 .is-blur-client.is-b-visible:not(.is-b-animated) .b-blur {
-  /* Longer than animation timing to let the actual image surface better. */
-  transition-duration: 3.2s;
+  transition-duration: 2.2s;
 }
+*/
 
 .media--fx-lg.is-b-visible:not(.is-b-animated) .b-blur {
   /* Reduces artifacts due to being large. */
@@ -107,9 +109,7 @@ Ugly, but nobody except devs pressing F12 at browsers. */
 /* Supports reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   .animated.blur img:not(.b-blur),
-  .b-bg.animated.blur,
-  .is-blur-client.animated.blur img:not(.b-blur),
-  .is-blur-client.b-bg.animated.blur {
+  .b-bg.animated.blur {
     -webkit-transition-duration: 1ms !important; /* csslint allow: known-properties, important */
     transition-duration: 1ms !important; /* csslint allow: known-properties, important */
     -webkit-animation-duration: 1ms !important; /* csslint allow: known-properties, important */

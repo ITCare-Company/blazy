@@ -45,11 +45,11 @@
   }
 
   $.isBg = function (el, opts) {
-    return is(real(el), opts && opts.bgClass || 'b-bg');
+    return is(el, opts && opts.bgClass || 'b-bg');
   };
 
   $.isBlur = function (el) {
-    return is(real(el), 'b-blur');
+    return is(el, 'b-blur');
   };
 
   $.isGrid = function (el) {
@@ -57,7 +57,7 @@
   };
 
   $.isHtml = function (el) {
-    return is(real(el), 'b-html');
+    return is(el, 'b-html');
   };
 
   $.image = {
