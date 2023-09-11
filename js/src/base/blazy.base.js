@@ -10,10 +10,6 @@
   'use strict';
 
   $.debounce = function (cb, arg, scope, delay) {
-    if ($.isInt(arg) && !scope) {
-      delay = arg;
-    }
-
     var _cb = function () {
       cb.call(scope, arg);
     };

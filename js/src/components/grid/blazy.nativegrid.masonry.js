@@ -20,6 +20,7 @@
   var C_MOUNTED = C_IS_MASONRY + '-mounted';
   var C_IS_UNLOAD = 'is-b-unload';
   var S_ELEMENT = '.' + ID + '.' + C_IS_MASONRY + ':not(.' + C_MOUNTED + ')';
+  var HEIGHTS = [];
   var UNLOAD = false;
   var OPTS = {
     $el: null,
@@ -28,7 +29,7 @@
     rows: 10
   };
 
-  var _heights = [];
+
 
   /**
    * Applies the correct span to each grid item.
@@ -58,7 +59,7 @@
 
       // Once setup, we rely on CSS to make it responsive.
       var layout = function () {
-        _heights.push($.outerHeight(cn, true));
+        HEIGHTS.push($.outerHeight(cn, true));
         var rect = $.rect(cn);
         var span = Math.ceil((rect.height + OPTS.gap) / (OPTS.height + OPTS.gap));
 
@@ -108,8 +109,8 @@
         if (UNLOAD) {
           $.each(items, function (item, i) {
             var cn = $.find(item, '.grid__content');
-            if (cn && _heights[i]) {
-              cn.style.minHeight = _heights[i] + 'px';
+            if (cn && HEIGHTS[i]) {
+              cn.style.minHeight = HEIGHTS[i] + 'px';
             }
           });
         }
@@ -144,7 +145,6 @@
   Drupal.behaviors.blazyNativeGrid = {
     attach: function (context) {
       $.once(process, ID_ONCE, S_ELEMENT, context);
-
     },
     detach: function (context, setting, trigger) {
       UNLOAD = trigger === 'unload';

@@ -49,6 +49,7 @@
     revalidate: NOOP,
 
     // Enforced since IO (bio.js) makes bLazy a fallback internally since 2.6.
+    // @todo remove, no longer relevant for IO with Blazy fallback.
     isIo: function () {
       return true;
     },
@@ -125,11 +126,6 @@
     },
 
     clearing: function (el) {
-      // While IO has a mechanism to unobserve, bLazy not.
-      // @todo recheck, in case blocking anything in Safari, see #3279316.
-      // if (el.bclearing) {
-      // return;
-      // }
       var me = this;
       var ie = $.hasClass(el, 'b-responsive') && $.hasAttr(el, DATA + '-pfsrc');
 
@@ -164,8 +160,6 @@
       $.trigger(el, E_DONE, {
         options: me.options
       });
-
-      // el.bclearing = true;
     },
 
     windowData: function () {

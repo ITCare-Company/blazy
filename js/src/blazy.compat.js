@@ -18,16 +18,16 @@
   'use strict';
 
   var ID = 'blazy';
+  var C_IS_ANIMATED = 'is-b-animated';
   var DATA = 'data-';
   // @todo remove the last at/by 3.x:
   var DATA_RATIOS = DATA + 'b-ratios ' + DATA + 'ratios';
   var DATA_RATIO = DATA + 'b-ratio ' + DATA + 'ratio';
+  var E_RESIZING = 'bio.resizing';
   var S_PICTURE = 'picture';
   var S_RATIO = '.media--ratio';
-  var C_IS_ANIMATED = 'is-b-animated';
-  var V_WINDATA = {};
   var OPTS = {};
-  var V_WW = 0;
+  var V_WINDATA = {};
 
   /**
    * Blazy public compat methods.
@@ -52,24 +52,19 @@
 
         V_WINDATA = details.winData || me.windowData();
 
-        var isResized = V_WW > 0 && V_WW !== V_WINDATA.ww;
-        if (isResized) {
-          me.resizeTick = bio && bio.resizeTick || 0;
+        me.resizeTick = bio && bio.resizeTick || 0;
 
-          if ($.isFun(cb)) {
-            $.each(items, function (entry, i) {
-              var el = entry.target || entry;
+        if ($.isFun(cb)) {
+          $.each(items, function (entry, i) {
+            var el = entry.target || entry;
 
-              return cb.call(me, el, i, isResized);
-            });
-          }
+            return cb.call(me, el, i, true);
+          });
         }
-
-        V_WW = V_WINDATA.ww;
       };
 
       // Already throttled for oldies, or RO/RAF for modern browsers.
-      $.on(_win, ID + '.resizing', check);
+      $.on(E_RESIZING, check);
 
       // When images are loaded, Flexbox or Native Grid as Masonry might need
       // info about the loaded image dimensions to calculate gaps or positions.
@@ -129,6 +124,11 @@
    * Unless made generic for a ping-pong.
    */
   function updateRatio(cn, i, isResized) {
+    var data;
+    var isPicture;
+    var pad;
+    var ratios;
+    var root;
     cn = cn.target || cn;
 
     // The actual third argument is object collections, unless being resized.
@@ -138,9 +138,7 @@
       return;
     }
 
-    // Blazy container (via formatter or Views style) is not always there.
-    var root = $.closest(cn, '.' + ID);
-    var ratios = $.parse($.attr(cn, DATA_RATIOS));
+    ratios = $.parse($.attr(cn, DATA_RATIOS));
 
     // Bail out if a static/ non-fluid aspect ratio.
     if ($.isEmpty(ratios)) {
@@ -149,29 +147,20 @@
     }
 
     // For picture, this is more a dummy space till the image is downloaded.
-    var isPicture = $.isElm($.find(cn, S_PICTURE)) && isResized;
-    var data = $.extend(V_WINDATA, {
+    isPicture = $.isElm($.find(cn, S_PICTURE)) && isResized;
+    data = $.extend(V_WINDATA, {
       up: isPicture
     });
-    var pad = $.activeWidth(ratios, data);
 
     // Provides marker for grouping between multiple instances.
+    // Blazy container (via formatter or Views style) is not always there.
+    root = $.closest(cn, '.' + ID);
     cn.dblazy = $.isElm(root) && root.dblazy;
-    if (!$.isUnd(pad)) {
+
+    pad = $.activeWidth(ratios, data);
+    if (pad && !$.isUnd(pad)) {
       cn.style.paddingBottom = pad + '%';
     }
-
-    // @todo remove, already moved into bio.media.js for multi-breakpoint BG.
-    // Update multi-breakpoint CSS background.
-    // @todo move it out of ratio. ATM, requires ratio to update multi-BG.
-    // if (isResized) {
-    // me.update(cn, false, V_WINDATA);
-    // }
-    // @todo refactor or remove into IO.
-    // Fix for picture or bg element with resizing.
-    // if (isResized && (isPicture || $.hasAttr(cn, _dataBg))) {
-    // me.onIntersecting((isPicture ? $.find(cn, 'img') : cn), cn);
-    // }
   }
 
   // Only rewrites if the style is indeed stripped out, and not set.

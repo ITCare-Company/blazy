@@ -220,7 +220,6 @@
 
       // Processes .blazy, if available, without initialization.
       // Initialization is not per container to also support IO with root.
-      // @todo replace with core/once when min D9.2, and or after sub-modules.
       $.once(process.bind(me), ID_ONCE, S_ELEMENT, context);
 
       // Initializes blazy once as a global observer, not per container.

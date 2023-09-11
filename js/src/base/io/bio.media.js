@@ -49,6 +49,8 @@
   var ER_COUNTED = 0;
   var IS_DEFERRED_CALLED = false;
   var FN_MULTIMEDIA = $.multimedia || false;
+  var FN;
+  var SUPER;
 
   /**
    * Constructor for BioMedia, Blazy IntersectionObserver for media.
@@ -70,8 +72,8 @@
   }
 
   // Inherits Bio prototype.
-  var SUPER = Bio.prototype;
-  var FN = BioMedia.prototype = Object.create(SUPER);
+  SUPER = Bio.prototype;
+  FN = BioMedia.prototype = Object.create(SUPER);
   FN.constructor = BioMedia;
 
   // Load a HTML content.
