@@ -197,14 +197,12 @@ function blazy_filter_cleanup($module = 'blazy') {
   foreach ($config_storage->listAll('filter.format') as $config_name) {
     $config = $config_factory->getEditable($config_name);
 
-    if ($config->get($filter)) {
-      $dependencies = $config->get('dependencies');
-      $modules = array_diff($dependencies['module'] ?? [], [$module]);
-
-      $config
-        ->clear($filter)
-        ->set('dependencies.module', $modules)
-        ->save(TRUE);
+    if ($config->get($filter) && $dependencies = $config->get('dependencies')) {
+      if ($existings = $dependencies['module'] ?? []) {
+        $modules = array_diff($existings, [$module]);
+        $config->set('dependencies.module', $modules);
+      }
+      $config->clear($filter)->save(TRUE);
     }
   }
 

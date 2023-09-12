@@ -88,6 +88,7 @@
       var watch = function (watcher) {
         if (watcher && elms && elms.length) {
           $.each(elms, function (entry) {
+            // IO cannot watch hidden elements, watch the closest visible one.
             if (vp && watcher === ioObserver && vp.isHidden(entry)) {
               var cn = vp.visibleParent(entry);
               if ($.isElm(cn)) {

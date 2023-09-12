@@ -710,9 +710,13 @@
   function toArray(x) {
     if (isStr(x)) {
       x = x.trim();
+
+      // Classlist comma separated array-like, but hardly used: aaa, bbb, ccc.
       if (x.indexOf(',') !== -1) {
         return x.split(',');
       }
+
+      // Regular space delimited multi-value like classes: aaa bbb ccc.
       if (/\s/.test(x)) {
         return x.split(' ');
       }
@@ -734,8 +738,8 @@
    *
    * @param {dBlazy|Array.<Element>|Element} els
    *   The HTML element(s), or dBlazy instance.
-   * @param {string|Object} attr
-   *   The attr name, can be a string or object.
+   * @param {string|Object|Array.<String>} attr
+   *   The attr name, can be a string, object, or string array.
    * @param {string} defValue
    *   The default value, can be null or undefined for different intentions.
    * @param {string|bool} withDefault
@@ -772,7 +776,7 @@
       // $.attr(el, 'data-src', defaultValue, true); returns with default.
       // See https://caniuse.com/?search=every.
       toArray(attr).every(function (key) {
-        if (hasAttr(elm, key)) {
+        if (_op(elm, V_HAS, key)) {
           value = _op(elm, V_GET, key);
 
           // Since it expects values, skip empty ones for ambigous attributes.
@@ -803,7 +807,7 @@
       else if (isNull(defValue)) {
         each(toArray(attr), function (value) {
           var name = prefix + value;
-          if (hasAttr(el, name)) {
+          if (_op(el, V_HAS, name)) {
             _op(el, V_REMOVE, name);
           }
         });
@@ -833,14 +837,25 @@
    *
    * @param {Element} el
    *   The HTML element.
-   * @param {string} name
-   *   The attribute name.
+   * @param {string} names
+   *   The attribute name(s), space delimited if many.
    *
    * @return {bool}
-   *   True if it has the attribute.
+   *   True if it has the attribute(s).
    */
-  function hasAttr(el, name) {
-    return _op(el, V_HAS, name);
+  function hasAttr(el, names) {
+    var found = 0;
+
+    if (isAttr(el) && isStr(names)) {
+      var verify = function (name) {
+        if (_op(el, V_HAS, name)) {
+          found++;
+        }
+      };
+
+      each(toArray(names), verify);
+    }
+    return found > 0;
   }
 
   /**
@@ -880,7 +895,6 @@
 
     if (isAttr(el) && isStr(names)) {
       // var _list = el.classList;
-      names = names.trim();
       var checks = _attr(el, V_CLASS);
 
       var verify = function (name) {

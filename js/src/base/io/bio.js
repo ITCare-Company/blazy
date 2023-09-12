@@ -53,7 +53,7 @@
   var WINDATA = {};
   var BIOTICK = 0;
   var REVTICK = 0;
-  var COUNTED = 0;
+  var HITTICK = 0;
   var OPTS = {};
   var C_BG = 'b-bg';
   var C_IS_VISIBLE = 'is-b-visible';
@@ -125,6 +125,7 @@
           io.unobserve(el);
         }
 
+        // Count the loaded ones, watching or not.
         BIOTICK++;
       }
     }
@@ -137,11 +138,10 @@
       // Makes sure to have media loaded beforehand.
       me.lazyLoad(el, WINDATA);
 
-      COUNTED++;
+      HITTICK++;
 
-      // Marks it hit/ requested. Not necessarily loaded.
+      // Marks it hit/ requested, not necessarily loaded.
       el.bhit = true;
-      revalidate = false;
     }
 
     // If not extending/ overriding, at least provide the option.
@@ -163,7 +163,7 @@
     var me = this;
     var opts = me.options;
     var vp = FN_VIEWPORT.vp || {};
-    var ww = FN_VIEWPORT.ww || {};
+    var ww = FN_VIEWPORT.ww || 0;
     var entry = entries[0];
     var isBlur = $.isBlur(entry);
     var isResizing = FN_VIEWPORT.isResized(me, entry);
@@ -227,7 +227,6 @@
       // The element is being resized.
       IS_RESIZING = resized && V_WW > 0;
       if (IS_RESIZING && !isBlur) {
-        // Ensures only before settled, or if any different from previous size.
         var details = {
           winData: WINDATA,
           entries: me.elms,
@@ -236,6 +235,7 @@
           enlarged: ww > V_WW
         };
 
+        // Ensures only before settled, or if any different from previous size.
         if (V_WW !== ww) {
           me.resizing(el, WINDATA);
 
@@ -327,7 +327,7 @@
     var me = this;
 
     // Prevents from too many revalidations unless needed.
-    if ((force === true || me.count !== COUNTED) && (REVTICK < COUNTED)) {
+    if ((force === true || me.count !== HITTICK) && (REVTICK < HITTICK)) {
       var elms = me.elms = $.findAll(ROOT, $.selector(me.options));
 
       if (elms.length) {

@@ -17,6 +17,29 @@
   }
 
   /**
+   * Returns viewport info.
+   *
+   * @private
+   *
+   * @param {Element} offset
+   *   The offset defined via UI normally related to header fixed position.
+   *
+   * @return {Object}
+   *   Returns the window viewport info.
+   */
+  function info(offset) {
+    offset = offset || 0;
+    var size = $.windowSize();
+
+    return {
+      top: 0 - offset,
+      left: 0 - offset,
+      bottom: size.height + offset,
+      right: size.width + offset
+    };
+  }
+
+  /**
    * Returns element visibility for oldies.
    *
    * @private
@@ -31,6 +54,10 @@
    */
   function isVisible(el, vp) {
     var rect = $.isElm(el) ? $.rect(el) : el;
+
+    if (!vp) {
+      vp = info();
+    }
 
     return rect.right >= vp.left &&
       rect.bottom >= vp.top &&
@@ -60,29 +87,6 @@
     return out;
   }
 
-  /**
-   * Returns viewport info.
-   *
-   * @private
-   *
-   * @param {Element} offset
-   *   The offset defined via UI normally related to header fixed position.
-   *
-   * @return {Object}
-   *   Returns the window viewport info.
-   */
-  function info(offset) {
-    offset = offset || 0;
-    var size = $.windowSize();
-
-    return {
-      top: 0 - offset,
-      left: 0 - offset,
-      bottom: size.height + offset,
-      right: size.width + offset
-    };
-  }
-
   $.viewport = {
     vp: {
       top: 0,
@@ -98,12 +102,13 @@
 
       me.vp = info(opts.offset);
 
-      // me.vp.top = 0 - offset;
-      // me.vp.left = 0 - offset;
       return me.vp;
     },
 
     isResized: function (scope, e) {
+      if (!('contentRect' in e)) {
+        return false;
+      }
       return (!!e.contentRect || !!scope.resizeTrigger || false);
     },
 
