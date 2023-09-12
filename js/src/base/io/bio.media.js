@@ -128,11 +128,6 @@
     var isVideo = $.equal(el, 'video');
     var isDataset = $.hasAttr(el, DATA_SRC);
 
-    // Initializes blur, if any.
-    if ($.blur) {
-      $.blur(el);
-    }
-
     // PICTURE elements.
     if (isPicture) {
       if (isDataset) {

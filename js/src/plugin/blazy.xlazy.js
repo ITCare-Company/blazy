@@ -17,9 +17,6 @@
   var SRCSET = 'srcset';
   var DATA_SRC = DATA + SRC;
   var DATA_SRCSET = DATA + SRCSET;
-  // @todo remove at 3.x:
-  var DATA_ANIM = DATA + 'animation';
-  var DATA_B_ANIM = DATA + 'b-animation';
   var IMG_SOURCES = [SRCSET, SRC];
   var ER_COUNTED = 0;
   var C_BG = 'b-bg';
@@ -153,17 +150,6 @@
   $.status = function (el, status, opts) {
     // Image decode fails with Responsive image, assumes ok, no side effects.
     return loaded(el, status, opts);
-  };
-
-  $.aniElement = function (el) {
-    // @todo remove the last at 3.x:
-    // If BG, the container itself is the animated element.
-    if ($.hasAttr(el, DATA_B_ANIM) || $.hasAttr(el, DATA_ANIM)) {
-      return el;
-    }
-
-    // Else anything else, will traverse the parent/ closest animated element.
-    return $.closest(el, '[' + DATA_B_ANIM + ']') || $.closest(el, '[' + DATA_ANIM + ']');
   };
 
 })(dBlazy, this, this.document);

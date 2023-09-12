@@ -21,9 +21,9 @@
   var S_ELEMENT = '.' + ID + ':not(.' + C_MOUNTED + ')';
   var S_GRID = '.grid';
   var V_BIO = 'bio';
-  var E_DONE = V_BIO + '.done';
-  var E_RESIZED = V_BIO + '.resized';
-  var E_TRANSTIONEND = 'transitionend';
+  var E_DONE = V_BIO + ':done';
+  var E_RESIZED = V_BIO + ':resized';
+  var E_TRANSTIONEND = 'transitionend.' + ID;
   var V_MAX = 0;
   var V_OPTS = {
     $el: null
@@ -170,18 +170,18 @@
       }
 
       if (isDone) {
-        $.off(E_DONE, initNow);
+        $.off(E_DONE + '.' + ID, initNow);
       }
     }
 
     if ($.isElm(html)) {
-      $.on(E_DONE, initNow);
+      $.on(E_DONE + '.' + ID, initNow);
     }
     else {
       setTimeout(initNow, 301);
     }
 
-    $.on(E_RESIZED, $.debounce(initNow, 601));
+    $.on(E_RESIZED + '.' + ID, $.debounce(initNow, 601));
 
     $.addClass(elm, C_MOUNTED);
     V_OPTS.$el = elm;

@@ -12,10 +12,13 @@ Always check out release notes, if any issues with the latest changes.
    + **Deprecated**:
      * Colorbox body classes for local classes in `#colorbox` selector, e.g.:
        `body.colorbox-on--media` becomes `#colorbox.b-colorbox--iframe`, etc.
+     * `blazy.done` event for colonized `blazy:done` to allow namespacing.
+     * `bio.intersecting` event for colonized `bio:intersecting`.
    + **Removed**:
      * Sliders' lazy loads are no longer supported for just Blazy. Reasons: They
        are far more inferior than Blazy at so many levels, and brought more
        complications aka insanity for very minimal benefit.
+     * Removed duplicated `blazy.resizing` event for `bio:resizing`.
    + **New features**:  
      * On your permissions at Blazy UI, `theme_blazy()` is now capable to
        replace sub-modules theme_ITEM() content, e.g.: theme_slick_slide(), etc.
@@ -26,6 +29,8 @@ Always check out release notes, if any issues with the latest changes.
      * Added image ALT and TITLE for VEF which has none.
      * Re-purposed `Blazy Image with VEF (deprecated)` formatter for SVG (WIP).
      * Removed stone-aged admin CSS for modern Native Grid.
+     * Added new events: `bio:done` for entire collections, `bio:resizing`,
+       `bio:resized`, `blazy:mediaPlaying`, `blazy:mediaStopped`.
    + **Breaking change**: changed `settings` to `#settings`, etc. Check out CR:
      [Blazy ecosystem breaking change](https://www.drupal.org/node/3375158).
    + **New options**:Added additional config options at Blazy UI. Be sure to

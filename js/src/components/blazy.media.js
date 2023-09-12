@@ -132,10 +132,10 @@
         $.addClass(_doc.body, C_IS_BODY_PLAYING);
 
         // Be sure to detach on your destroy method, or Drupal..detach:
-        // $.off('blazy.mediaPlaying', onPlaying);
+        // $.off('blazy:mediaPlaying', onPlaying);
         // After calling:
-        // $.on('blazy.mediaPlaying', onPlaying);
-        $.trigger(_win, 'blazy.mediaPlaying', {
+        // $.on('blazy:mediaPlaying', onPlaying);
+        $.trigger(_win, 'blazy:mediaPlaying', {
           player: player
         });
       });
@@ -171,19 +171,19 @@
       $.removeClass(_doc.body, C_IS_BODY_PLAYING);
 
       // Be sure to detach on your destroy method, or Drupal..detach:
-      // $.off('blazy.mediaStopped', onStopped);
+      // $.off('blazy:mediaStopped', onStopped);
       // After calling:
-      // $.on('blazy.mediaStopped', onStopped);
-      $.trigger(_win, 'blazy.mediaStopped', {
+      // $.on('blazy:mediaStopped', onStopped);
+      $.trigger(_win, 'blazy:mediaStopped', {
         player: player
       });
     }
 
     /**
-     * Reacts on `blazy.done` event sprcific for Instagram HTML content.
+     * Reacts on `blazy:done` event sprcific for Instagram HTML content.
      *
      * @param {Event} e
-     *   The event triggered by a `blazy.done` event.
+     *   The event triggered by a `blazy:done` event.
      */
     /*
     function onDone(e) {
@@ -207,9 +207,9 @@
     // Closes the video.
     $el.on('click.' + ID, S_CLOSE, stop);
 
-    // Listens to blazy.done event to auto-display instagram feeds.
+    // Listens to blazy:done event to auto-display instagram feeds.
     // if (instagram) {
-    // $el.on('blazy.done', onDone);
+    // $el.on('blazy:done', onDone);
     // }
     $.removeClass(_doc.body, C_IS_BODY_PLAYING);
     $el.addClass(S_MOUNTED);

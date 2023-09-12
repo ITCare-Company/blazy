@@ -127,12 +127,6 @@
       if ($.isFun(opts.resizing)) {
         opts.resizing(scope, elms, winData);
       }
-
-      // If not extending/ overriding, also allows to listen to.
-      $.trigger(_win, 'blazy.resizing', {
-        winData: winData,
-        entries: elms
-      });
     },
 
     update: function (opts) {

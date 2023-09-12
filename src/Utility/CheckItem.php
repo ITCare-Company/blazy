@@ -185,7 +185,7 @@ class CheckItem {
     $unlazy     = $unlazy ? TRUE : $blazies->is('unlazy');
     $use_loader = $blazies->use('loader') ?: $settings['use_loading'] ?? FALSE;
     $use_loader = $unlazy ? FALSE : $use_loader;
-    $is_unblur  = $blazies->is('sandboxed')
+    $is_unblur  = Internals::isUnlazy($blazies)
       || $blazies->is('unstyled') || $blazies->use('iframe');
     $is_blur    = !$is_unblur && $blazies->use('blur');
 

@@ -57,6 +57,8 @@
   var OPTS = {};
   var C_BG = 'b-bg';
   var C_IS_VISIBLE = 'is-b-visible';
+  // @todo remove the first at 3.x:
+  var E_INTERSECTING = NICK + '.intersecting ' + NICK + ':intersecting';
   var S_PARENT = '.media';
   var ADDCLASS = 'addClass';
   var REMOVECLASS = 'removeClass';
@@ -108,7 +110,7 @@
 
     // Only destroy if no use for is-b-visible class.
     if (BIOTICK === count - 1) {
-      $.trigger(_win, NICK + '.done', {
+      $.trigger(_win, NICK + ':done', {
         options: opts
       });
 
@@ -153,7 +155,7 @@
     }
 
     // If not extending/ overriding, also allows to listen to.
-    $.trigger(el, NICK + '.intersecting', {
+    $.trigger(el, E_INTERSECTING, {
       options: opts
     });
   }
@@ -239,10 +241,10 @@
         if (V_WW !== ww) {
           me.resizing(el, WINDATA);
 
-          $.trigger(_win, NICK + '.resizing', details);
+          $.trigger(_win, NICK + ':resizing', details);
         }
         else {
-          $.trigger(_win, NICK + '.resized', details);
+          $.trigger(_win, NICK + ':resized', details);
         }
         me.resizeTick++;
       }

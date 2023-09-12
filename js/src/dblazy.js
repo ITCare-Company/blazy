@@ -1573,9 +1573,19 @@
       }
 
       var process = function (e) {
-        isCustom = isCustom || startsWith(e, ['blazy.', 'bio.']);
+        // @todo refactor to use colon to be namespaced with DOT properly, e.g:
+        // blazy:done.NAMESPACE rather than problematic blazy.done.
+        var colon = contains(e, ':');
+        isCustom = isCustom || colon || startsWith(e, ['blazy.', 'bio.']);
+        var realE = e;
+
+        if (colon) {
+          // Remove NAMESPACE from blazy:done.NAMESPACE.
+          realE = e.split('.')[0].trim();
+        }
+
         var add = op === V_ADD;
-        var type = (isCustom ? e : e.split('.')[0]).trim();
+        var type = (isCustom ? realE : e.split('.')[0]).trim();
         cb = cb || EVENTS[e];
 
         var _cb = cb;
@@ -1618,50 +1628,54 @@
   /**
    * A not simple wrapper for triggering event like jQuery.trigger().
    *
+   * Namespacing is not done here, instead when calling $.on() or $.off().
+   *
    * @param {dBlazy|Array.<Element>|Element} els
    *   The HTML element(s), or dBlazy instance.
-   * @param {string} eventName
-   *   The event name to trigger.
+   * @param {string} eventNames
+   *   The event name to trigger, space delimited for multi-value.
    * @param {Object} details
    *   The optional detail object passed into a custom event detail property.
    * @param {Object} param
    *   The optional param passed into a custom event.
    *
-   * @return {CustomEvent|Event|undefined}
-   *   The CustomEvent or Event object to dispatch.
+   * @return {Object}
+   *   Returns this instance.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Document/createEvent
-   * @todo namespaced event name, and more refined native event.
    */
-  function trigger(els, eventName, details, param) {
+  function trigger(els, eventNames, details, param) {
     var chainCallback = function (el) {
-      var event;
       if (!isEvt(el)) {
-        return event;
+        return;
       }
 
-      if (isUnd(details)) {
-        event = new Event(eventName);
-      }
-      else {
-        // Bubbles to be caught by ancestors. Cancelable to preventDefault.
-        var data = {
-          bubbles: true,
-          cancelable: true,
-          detail: details || {}
-        };
+      var execute = function (eventName) {
+        var event;
+        if (isUnd(details)) {
+          event = new Event(eventName);
+        }
+        else {
+          // Bubbles to be caught by ancestors. Cancelable to preventDefault.
+          var data = {
+            bubbles: true,
+            cancelable: true,
+            detail: details || {}
+          };
 
-        if (isObj(param)) {
-          data = EXTEND(data, param);
+          if (isObj(param)) {
+            data = EXTEND(data, param);
+          }
+
+          event = new CustomEvent(eventName, data);
         }
 
-        event = new CustomEvent(eventName, data);
-      }
+        el.dispatchEvent(event);
+      };
 
-      el.dispatchEvent(event);
-      return event;
+      each(toArray(eventNames), execute);
     };
 
     return chain.call(els, chainCallback);

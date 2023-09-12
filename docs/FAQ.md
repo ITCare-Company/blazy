@@ -21,6 +21,16 @@ some code cleanup, and optimization where needed. Patches are very much welcome.
 * The `b-lazy` class is applied to the **target item** to lazy load, normally
   the children of `.blazy`, but not always. This can be IMG, VIDEO, DIV, etc.
 
+### BLAZY:DONE VS. BIO:DONE EVENTS
+The `blazy:done` event is for individual lazy-loaded elements, while `bio:done`
+is for the entire collections.
+
+Since 2.17, you can namespace colonized events like so: `blazy:done.MYMODULE`
+which was problematic with dot `blazy.done`. That is why `blazy.done` is
+deprecated for `blazy:done`. The dotted event names like `blazy.done` will
+continue working till 3.x. Changing them to colonized `blazy:done` is strongly
+recommended to pass 3.x. Newly added events will only use colons.
+
 ### WHAT `BLAZY` CSS CLASS IS FOR?
 Aside from the fact that a module must reserve its namespace including for CSS
 classes, the `blazy` is actually used to limit the scope to scan document.

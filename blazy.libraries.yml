@@ -121,8 +121,10 @@ blur:
   css:
     component:
       css/components/blazy.blur.css: {}
+  js:
+    js/components/blazy.blur.min.js: { minified: true, weight: -1.8 }
   dependencies:
-    - blazy/base
+    - blazy/animate
 
 media:
   css:

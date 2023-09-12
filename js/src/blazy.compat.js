@@ -18,12 +18,13 @@
   'use strict';
 
   var ID = 'blazy';
+  var COMPAT = 'compat';
   var C_IS_ANIMATED = 'is-b-animated';
   var DATA = 'data-';
   // @todo remove the last at/by 3.x:
   var DATA_RATIOS = DATA + 'b-ratios ' + DATA + 'ratios';
   var DATA_RATIO = DATA + 'b-ratio ' + DATA + 'ratio';
-  var E_RESIZING = 'bio.resizing';
+  var E_RESIZING = 'bio:resizing.' + COMPAT;
   var S_PICTURE = 'picture';
   var S_RATIO = '.media--ratio';
   var OPTS = {};

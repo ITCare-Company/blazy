@@ -1,4 +1,14 @@
 
+Blazy 8.x-2.0-dev, 2023-09-12
+------------------------------
+- Added new events: bio:done for entire collections, bio:resizing, bio:resized,
+  blazy:mediaPlaying, blazy:mediaStopped.
+- Deprecated blazy.done event for colonized blazy:done to allow namespacing.
+- Deprecated bio.intersecting event for colonized bio:intersecting.
+- Removed blazy.resizing for bio:resizing event.
+- Decoupled blur from blazy.animate.js
+- Disabled blur when being unlazy since it requires lazy load as a trigger.
+
 Blazy 8.x-2.0-dev, 2023-09-05
 ------------------------------
 - Fixed for discreet behavior BlazyFilter where data:image reset into real URL.
