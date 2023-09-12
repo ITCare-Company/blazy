@@ -1,6 +1,7 @@
 
 Blazy 8.x-2.0-dev, 2023-09-12
 ------------------------------
+- Simplified returned values for dBlazy.find().
 - Added new events: bio:done for entire collections, bio:resizing, bio:resized,
   blazy:mediaPlaying, blazy:mediaStopped.
 - Deprecated blazy.done event for colonized blazy:done to allow namespacing.

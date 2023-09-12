@@ -487,7 +487,7 @@
   }
 
   /**
-   * Returns true if the x is valid for querySelector.
+   * Returns true if the x is a document.
    *
    * @private
    *
@@ -495,7 +495,7 @@
    *   The x to check for its type truthy.
    *
    * @return {bool}
-   *   True if x is valid for querySelector.
+   *   True if x is a document.
    *
    * 1: Node.ELEMENT_NODE
    * 9: Node.DOCUMENT_NODE
@@ -543,6 +543,10 @@
 
   /**
    * Returns true if the x is valid for attribute operations.
+   *
+   * Ambiguous as if expecting an attribute check, but no biggies for internals.
+   * Consider it a short name for isAttributable().
+   * Similar to isElm(), just a re-assuring for attributes work.
    *
    * @private
    *
@@ -928,7 +932,7 @@
    * @param {string} name
    *   The class name, or space-delimited class names.
    * @param {string} op
-   *   Whether to add or remove the class.
+   *   Whether to add or remove the class, or undefined to toggle.
    *
    * @return {Object}
    *   This dBlazy object.
@@ -1172,8 +1176,10 @@
    * Alternatively flag the asArray to any value if an array is expected, or
    * use the shortcut ::findAll() to be clear.
    *
-   * To check if the expected element is found:
-   *   - use $.isElm(el) which returns a bool.
+   * To check if the returned element is found:
+   *   - use $.isElm(el) which returns a bool, or !$.isNull(el).
+   * To check if the returned elements are found:
+   *   - use regular els.length check.
    *
    * @param {Element|string} el
    *   The parent HTML element or common selector strings.
@@ -1182,10 +1188,11 @@
    * @param {bool|int} asArray
    *   Force returning an array if expected to operate on.
    *
-   * @return {?Array.<Element>}
-   *   Empty array if not found, else the expected element(s).
+   * @return {Element|null|?Array.<Element>}
+   *   Empty array or null if not found, else the expected element(s).
    */
   function find(el, selector, asArray) {
+    var single = isUnd(asArray) && isStr(selector);
     el = el || _doc;
 
     if (isStr(el)) {
@@ -1195,11 +1202,9 @@
     if (isQsa(el)) {
       selector = toScope(selector);
       el = context(el, selector);
-      return isUnd(asArray) && isStr(selector) ?
-        (el.querySelector(selector) || []) :
-        toElms(selector, el);
+      return single ? el.querySelector(selector) : toElms(selector, el);
     }
-    return [];
+    return single ? null : [];
   }
 
   /**
