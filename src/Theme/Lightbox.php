@@ -338,6 +338,7 @@ class Lightbox {
       if ($has_dim && !empty($json['paddingHack'])) {
         $pad = round((($json['height'] / $json['width']) * 100), 2);
         $style .= 'width:' . $json['width'] . 'px; padding-bottom: ' . $pad . '%;';
+        $hattrs['data-b-ratio'] = $pad;
       }
 
       // Currently only audio with background cover.

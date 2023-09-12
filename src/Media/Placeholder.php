@@ -157,7 +157,7 @@ class Placeholder {
 
     // Provides image effect if so configured unless being sandboxed.
     // Slick/ Splide lazy loads won't work, needs Blazy to make animation.
-    if ($blazies->is('blazy') && $fx = $blazies->get('fx')) {
+    if ($fx = $blazies->get('fx')) {
       $attributes['class'][] = 'media--fx';
       $attributes[Attributes::data($blazies, 'animation')] = $fx;
     }
@@ -195,7 +195,7 @@ class Placeholder {
    */
   private static function dataImage(array &$settings, $uri, $tn_uri, $tn_url, $style): void {
     $blazies = $settings['blazies'];
-    if (!$blazies->is('blazy') || !$blazies->use('blur')) {
+    if (!$blazies->use('blur')) {
       return;
     }
 

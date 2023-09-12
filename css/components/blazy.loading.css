@@ -1,5 +1,6 @@
 /**
  * @file
+ * Provides loading indicator animation, not used when using blur.
  */
 
 /* Credit: https://github.com/tobiasahlin/SpinKit */
@@ -41,12 +42,8 @@
 
 /* Hide for non-js users. */
 .is-b-loading::before {
+  z-index: -1;
   display: none;
-}
-
-/* Core drupal.init.js provides this .js class for free as long as loaded. */
-.js .is-b-loading:not(.is-b-loaded)::before {
-  display: block;
 }
 
 /* Prevents costly double animations when Blur is enabled.
@@ -57,7 +54,6 @@ CSSLint vs. Stylelint complain conflicting problems at different CSS specs.
 .is-b-loading:not(.is-b-loaded)::before,
 .is-b-loading:not([data-animation])::before {
   position: absolute;
-  z-index: 22;
   top: 50%;
   left: 50%;
   width: 30px;
@@ -71,6 +67,8 @@ CSSLint vs. Stylelint complain conflicting problems at different CSS specs.
 }
 
 .is-b-loading.is-b-visible:not(.is-b-loaded)::before {
+  z-index: 22;
+  display: block;
   -webkit-animation: rotateplane 1.2s infinite ease-in-out;
   animation: rotateplane 1.2s infinite ease-in-out;
 }

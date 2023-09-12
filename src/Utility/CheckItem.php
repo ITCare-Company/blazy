@@ -194,7 +194,7 @@ class CheckItem {
 
     // @todo better logic to support loader as required, must decouple loader.
     // @todo $lazy = $blazies->get('image.loading') == 'lazy';
-    // @todo $lazy = $blazies->is('blazy') && ($blazies->get('libs.compat') || $lazy);
+    // @todo $lazy = $blazies->get('libs.compat') || $lazy;
     // Redefines some since this can be fed by anyone, including custom works.
     $blazies->set('is.fluid', $is_fluid)
       ->set('is.blur', $is_blur)

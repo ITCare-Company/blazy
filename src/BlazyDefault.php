@@ -403,7 +403,7 @@ class BlazyDefault {
    */
   public static function dyComponents(): array {
     $deps   = ['blazy/compat'];
-    $common = ['minified' => TRUE, 'weight' => -1];
+    $common = ['minified' => TRUE, 'weight' => -1.8];
     $libs   = [];
 
     foreach (['instagram', 'pinterest'] as $key) {
