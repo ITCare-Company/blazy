@@ -100,6 +100,17 @@
     };
   }
 
+  // See https://caniuse.com/?search=map
+  if (!_aProto.map) {
+    _aProto.map = function (cb) {
+      var result = [];
+      for (var i = 0; i < this.length; i++) {
+        result.push(cb(this[i], i, this));
+      }
+      return result;
+    };
+  }
+
   // IE >= 9 compat, else SCRIPT445: Object doesn't support this action.
   // @see https://msdn.microsoft.com/library/ff975299(v=vs.85).aspx.
   if (typeof _win.CustomEvent === 'function') {

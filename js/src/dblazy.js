@@ -632,6 +632,7 @@
           if (prop === 'length' || prop === 'name') {
             continue;
           }
+          // return false means a break, return true continue.
           if (cb.call(scope, obj[prop], prop, obj) === false) {
             break;
           }
@@ -717,12 +718,16 @@
 
       // Classlist comma separated array-like, but hardly used: aaa, bbb, ccc.
       if (x.indexOf(',') !== -1) {
-        return x.split(',');
+        return x.split(',').map(function (item) {
+          return item.trim();
+        });
       }
 
       // Regular space delimited multi-value like classes: aaa bbb ccc.
       if (/\s/.test(x)) {
-        return x.split(' ');
+        return x.split(' ').map(function (item) {
+          return item.trim();
+        });
       }
     }
     return isArr(x) ? x : [x];
@@ -1578,7 +1583,7 @@
       }
 
       var process = function (e) {
-        // @todo refactor to use colon to be namespaced with DOT properly, e.g:
+        // Use colon to be namespaced with DOT properly, e.g:
         // blazy:done.NAMESPACE rather than problematic blazy.done.
         var colon = contains(e, ':');
         isCustom = isCustom || colon || startsWith(e, ['blazy.', 'bio.']);

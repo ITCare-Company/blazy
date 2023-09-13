@@ -60,8 +60,9 @@
  *     // ->set('image.url', '/logo.png') // <= image.url alone won't work!
  *
  *     // If you have no valid URI, simply change `url` to `uri` like below,
- *     // invalid URI is just printed:
+ *     // invalid URI, including external/ sister site url, is just printed:
  *     // ->set('image.uri', '/logo.png')
+ *     // ->set('image.uri', 'https://example.com/logo.png')
  *
  *     ->set('image.alt', t('Preview'))
  *
@@ -70,8 +71,9 @@
  *
  *   // Passing width/height/alt/title to #item_attributes was deprecated since
  *   // 2.6 when RDF was deprecated from D9. Use settings.blazies above instead.
- *   // The #item_attributes will be finally removed at 3.x for
- *   // blazies.image.attributes.
+ *   // The #item_attributes will be finally removed at 3.x.
+ *   // Use blazies.image.attributes or blazies.iframe.attributes for anything
+ *   // other than basic image attributes (width/height/alt/title) instead.
  *   // It is still usable for adding minor class attributes, etc., though.
  *   // You are on your own other than the above-mentioned supported attributes.
  *   // Supported means, it won't mess up the provided image_style, etc.
@@ -98,6 +100,7 @@
  * @endcode
  * @see \Drupal\blazy\Theme\BlazyTheme::blazy()
  * @see \Drupal\blazy\BlazyDefault::imageSettings()
+ * @see \Drupal\gridstack_ui\Controller\GridStackListBuilder::buildRow()
  * @see template_preprocess_blazy()
  *
  * @section sec_detail Detailed sample #2
@@ -137,7 +140,9 @@
  *
  *   // Supported media switcher options dependent on available modules:
  *   // colorbox, media (Image to iframe), etc. These can also be moved into
- *   // ::init() method argument above instead.
+ *   // ::init() method argument above instead. These settings are normally
+ *   // seen at Field formatter/ Views Style UI form items, and defined in
+ *   // Drupal\blazy\BlazyDefault, or any similar extending classes.
  *   $settings['media_switch'] = 'media';
  *   $settings['image_style'] = 'large';
  *   $settings['ratio'] = 'fluid';
@@ -249,18 +254,22 @@
  *   // Options return #1, expecting a Blazy grid display, or theme_field():
  *   // return $manager->build($build);
  *
- *   // Options return #2, passing to any sub-modules' managers, requires their
- *   // relevant settings setup first as above-mentioned. see their BLAH.api.php
- *   // if available, \Drupal\blah\BlahDefault, or go directly to their
- *   // ::build() method if not. There might be some slight difference in
- *   // requirements, but overall look pretty much similar:
+ *   // Options return #2, passing to any sub-modules' managers, not formatters,
+ *   // requires their relevant settings setup first as above-mentioned. See
+ *   // their BLAH.api.php if available, \Drupal\blah\BlahDefault, or go
+ *   // directly to their ::build() method if not. There might be some slight
+ *   // difference in requirements, but overall look pretty much similar:
  *   // return slick()->build($build);
  *   // return splide()->build($build);
  *   // return gridstack()->build($build);
  *   // return outlayer()->build($build);
  *   // return mason()->build($build);
  *
- *   // Options return #3, expecting your own render array display:
+ *   // Options return #3, passing to Twig at any template_preprocess:
+ *   // $variables['content'] = $manager->build($build);
+ *   // At Twig: {{ content }}
+ *
+ *   // Options return #4, expecting your own render array display:
  *   return $build;
  * }
  * @endcode
