@@ -41,7 +41,12 @@ class Attributes {
    * for DOM diets.
    */
   public static function container(array &$attributes, array $settings): void {
-    $blazies  = Internals::verify($settings);
+    $blazies = Internals::verify($settings);
+
+    if ($attrs = $blazies->get('container.attributes', [])) {
+      $attributes = Arrays::merge($attributes, $attrs);
+    }
+
     $classes  = (array) ($attributes['class'] ?? []);
     $data     = $blazies->get('data.blazy');
     $switcher = $blazies->get('lightbox.name') ?: $settings['media_switch'] ?? NULL;
@@ -71,10 +76,10 @@ class Attributes {
       if ($extras = self::firstClasses($attributes, $blazies, $options)) {
         $classes = array_merge($classes, $extras);
       }
+    }
 
-      if (!empty($settings['caption'])) {
-        $classes[] = 'is-b-captioned';
-      }
+    if (!empty($settings['caption'])) {
+      $classes[] = 'is-b-captioned';
     }
 
     // Needed for nested grids as well: blazy blazy--grid b-nativegrid, etc.
