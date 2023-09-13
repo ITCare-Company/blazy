@@ -104,9 +104,11 @@
   function intersecting(el, revalidate) {
     var me = this;
     var opts = me.options;
+    var sel = opts.selector;
     var count = me.count;
     var io = me.ioObserver;
     var watching = opts.visibleClass || revalidate || false;
+    var check;
 
     // Only destroy if no use for is-b-visible class.
     if (BIOTICK === count - 1) {
@@ -120,15 +122,29 @@
     }
 
     // Unlike ResizeObserver/ infinite pager, IntersectionObserver is done.
-    if (io && opts.isMedia) {
-      if (me.isLoaded(el) && !revalidate) {
-        // Unless watching.
-        if (!watching) {
+    if (io) {
+      // We are here with arbitrary observed elements for hidden children.
+      // See https://drupal.org/node/3279316.
+      if (!$.is(el, sel)) {
+        check = $.find(el, sel);
+        if ($.isElm(check)) {
+          // The job is done, unobserve.
           io.unobserve(el);
+          // Pass back bounding rects to the unbound hidden element here on.
+          el = check;
         }
+      }
 
-        // Count the loaded ones, watching or not.
-        BIOTICK++;
+      if (opts.isMedia) {
+        if (me.isLoaded(el) && !revalidate) {
+          // Unless watching.
+          if (!watching) {
+            io.unobserve(el);
+          }
+
+          // Count the loaded ones, watching or not.
+          BIOTICK++;
+        }
       }
     }
 
