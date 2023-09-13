@@ -33,7 +33,7 @@ Always check out release notes, if any issues with the latest changes.
        `bio:resized`, `blazy:mediaPlaying`, `blazy:mediaStopped`.
    + **Breaking change**: changed `settings` to `#settings`, etc. Check out CR:
      [Blazy ecosystem breaking change](https://www.drupal.org/node/3375158).
-   + **New options**:Added additional config options at Blazy UI. Be sure to
+   + **New options**: Added additional config options at Blazy UI. Be sure to
      check out for `visible_class`, `wrapper_class`, `deprecated_class`,
      `use_oembed`, `lazy_html`, `use_encodedbox`, etc. options if using them.
    + Renamed legacy Foundation grid CSS classes to avoid conflicts with core

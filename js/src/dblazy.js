@@ -1142,7 +1142,10 @@
         selector = toScope(selector);
         return el.matches ? el.matches(selector) : false;
       }
-      return isElm(selector) && el === selector;
+
+      if (isElm(selector)) {
+        return el === selector;
+      }
     }
     return el === selector;
   }
@@ -2010,7 +2013,7 @@
     }
 
     // Prevents problematic _doc.documentElement as the context.
-    // Ensures to not break valid expectation outside context, like jumper
+    // Ensures to not break valid expectation outside context, like jumper.
     // Normally when operating with attributes, not as a context for QSA.
     if (isCtx && is(el, S_HTML)) {
       return _doc;
@@ -2037,7 +2040,7 @@
   // @see https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle
   function computeStyle(el, prop, isVariable) {
     if (!isElm(el)) {
-      return;
+      return null;
     }
 
     var _style = getComputedStyle(el, null);
