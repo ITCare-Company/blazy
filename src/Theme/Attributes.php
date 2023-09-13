@@ -71,6 +71,10 @@ class Attributes {
       if ($extras = self::firstClasses($attributes, $blazies, $options)) {
         $classes = array_merge($classes, $extras);
       }
+
+      if (!empty($settings['caption'])) {
+        $classes[] = 'is-b-captioned';
+      }
     }
 
     // Needed for nested grids as well: blazy blazy--grid b-nativegrid, etc.

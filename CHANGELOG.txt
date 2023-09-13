@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-09-13
+------------------------------
+- Fixed for native grid masonry with captions.
+
 Blazy 8.x-2.0-dev, 2023-09-12
 ------------------------------
 - Simplified returned values for dBlazy.find().

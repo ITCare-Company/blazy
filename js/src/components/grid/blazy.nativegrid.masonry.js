@@ -52,33 +52,34 @@
 
     cn = $.find(box, '.grid__content');
 
-    if ($.isElm(cn)) {
-      if (OPTS.gap === 0) {
-        OPTS.gap = 0.0001;
-      }
+    if (OPTS.gap === 0) {
+      OPTS.gap = 0.0001;
+    }
 
-      // Once setup, we rely on CSS to make it responsive.
-      var layout = function () {
-        HEIGHTS.push($.outerHeight(cn, true));
-        var rect = $.rect(cn);
-        var span = Math.ceil((rect.height + OPTS.gap) / (OPTS.height + OPTS.gap));
+    // Once setup, we rely on CSS to make it responsive.
+    var layout = function () {
+      var height = $.outerHeight(cn, true);
+      var rect = $.rect(cn);
+      var span;
 
-        // Sets the grid row span based on content and gap height.
-        box.style.gridRowEnd = 'span ' + span;
+      HEIGHTS.push(height);
+      span = Math.ceil((rect.height + OPTS.gap) / (OPTS.height + OPTS.gap));
 
-        $.addClass(box, 'is-b-grid');
-        setTimeout(function () {
-          cn.style.minHeight = '';
-          $.addClass(box, 'is-b-layout');
-        }, UNLOAD ? 600 : 200);
-      };
+      // Sets the grid row span based on content and gap height.
+      box.style.gridRowEnd = 'span ' + span;
 
-      if (isResized || UNLOAD) {
-        setTimeout(layout, UNLOAD ? 300 : 200);
-      }
-      else {
-        layout();
-      }
+      $.addClass(box, 'is-b-grid');
+      setTimeout(function () {
+        cn.style.minHeight = '';
+        $.addClass(box, 'is-b-layout');
+      }, UNLOAD ? 600 : 200);
+    };
+
+    if (isResized || UNLOAD) {
+      setTimeout(layout, UNLOAD ? 300 : 200);
+    }
+    else {
+      layout();
     }
   }
 
@@ -106,6 +107,7 @@
       }
 
       if (items.length) {
+        // @todo recheck and remove.
         if (UNLOAD) {
           $.each(items, function (item, i) {
             var cn = $.find(item, '.grid__content');
