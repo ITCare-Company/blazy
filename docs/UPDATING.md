@@ -22,27 +22,27 @@ This will be your last resort if updates have errors. Never reload this page.
    Be sure to put your site on maintenance mode.
 
 3. [/admin/config/development/performance](/admin/config/development/performance)  
-  * Hit **Clear all caches** button once the new Blazy in place, immediately
-    after running `composer update`...  
-    Do not run `/update.php` yet until all caches are cleared up! Even if
-    `/update.php` looks like taking care of this.
-    Clearing cache should fix most issues with or without updates. If any, this
-    step will also make sure a smooth update, since all code base, including
-    those dynamic ones generated at `../files/php`, are now synced.
-    Any blocking code changes will no longer block the update process. Most
-    reported errors are due to failing to clear cache in the first place prior
-    to running updates.
-  * Regenerate CSS and JS as the latest fixes may contain changes to the assets.
-    Ignore below if you are aware, and found no asset changes from commits.
-    Normally clearing cache suffices when no asset changes are found.
-      * Uncheck CSS and JS aggregation options under Bandwidth optimization.
-      * Save.
-      * [Ignorable] See one of Blazy related pages if display is expected.
-      * [Ignorable] Only clear cache if needed.
-      * Check both options again.
-      * Save again.
-      * [Ignorable] Press F5, or CMD/ CTRL + R to refresh browser cache if
-        needed.
+   * Hit **Clear all caches** button once the new Blazy in place, immediately
+     after running `composer update`...  
+     Do not run `/update.php` yet until all caches are cleared up! Even if
+     `/update.php` looks like taking care of this.
+     Clearing cache should fix most issues with or without updates. If any, this
+     step will also make sure a smooth update, since all code base, including
+     those dynamic ones generated at `../files/php`, are now synced.
+     Any blocking code changes will no longer block the update process. Most
+     reported errors are due to failing to clear cache in the first place prior
+     to running updates.
+   * Regenerate CSS and JS as the latest fixes may contain changes to the
+     assets. Ignore below if you are aware, and found no asset changes from
+     commits. Normally clearing cache suffices when no asset changes are found.
+     * Uncheck CSS and JS aggregation options under Bandwidth optimization.
+     * Save.
+     * [Ignorable] See one of Blazy related pages if display is expected.
+     * [Ignorable] Only clear cache if needed.
+     * Check both options again.
+     * Save again.
+     * [Ignorable] Press F5, or CMD/ CTRL + R to refresh browser cache if
+       needed.
 
 4. [Admin status](/admin/reports/status)
 
