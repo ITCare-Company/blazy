@@ -161,7 +161,7 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
       }
     }
 
-    return Sanitize::attribute($values, TRUE, $clean);
+    return $values ? Sanitize::attribute($values, TRUE, $clean) : [];
   }
 
   /**

@@ -50,8 +50,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    * Checks if we can work with this formatter, otherwise no go if flattened.
    */
   protected function getImageArray($row, $index, $field_image): array {
-    if ($field_image
-      && $image = $this->getFieldRenderable($row, $index, $field_image)) {
+    if ($image = $this->getFieldRenderable($row, $index, $field_image)) {
 
       // Just to be sure, replace raw with the found image item.
       if ($item = $this->getImageItem($image)) {
@@ -299,9 +298,10 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
         $style = NULL;
 
         if ($tn_style && !Internals::isSvg($tn_uri)) {
-          $style = $this->manager->load($tn_style, 'image_style');
-          $sets['thumbnail_style'] = $tn_style;
-          $tn_uri = $style->buildUri($tn_uri);
+          if ($style = $this->manager->load($tn_style, 'image_style')) {
+            $sets['thumbnail_style'] = $tn_style;
+            $tn_uri = $style->buildUri($tn_uri);
+          }
         }
 
         $tn_url = Blazy::url($tn_uri, $style);

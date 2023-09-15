@@ -581,44 +581,6 @@ interface BlazyInterface {
   public function toHtml($content, $tag = 'div', $class = NULL): array;
 
   /**
-   * A helper to gradually convert things to #things to avoid render error.
-   *
-   * @param array $data
-   *   The source data being modified.
-   * @param string $key
-   *   The given key.
-   * @param bool $unset
-   *   Whether to unset original data, default to FALSE till fully migrated.
-   */
-  public function hashtag(array &$data, $key = 'settings', $unset = FALSE): void;
-
-  /**
-   * A helper to gradually convert things to #things to avoid render error.
-   *
-   * @param array $data
-   *   The source data.
-   * @param string $key
-   *   The given key.
-   * @param array|bool|null|string $default
-   *   The default value.
-   *
-   * @return mixed
-   *   The checked value.
-   */
-  public function toHashtag(array $data, $key = 'settings', $default = []);
-
-  /**
-   * Filter out renderable array from an array.
-   *
-   * @param array $data
-   *   The source data.
-   *
-   * @return array
-   *   The array without renderable.
-   */
-  public function withHashtag(array $data): array;
-
-  /**
    * Returns escaped options.
    *
    * @param array $options
@@ -693,6 +655,52 @@ interface BlazyInterface {
    * @see https://www.drupal.org/node/3033656
    */
   public function view(array $data): array;
+
+  /**
+   * Filter out renderable array from an array.
+   *
+   * @param array $data
+   *   The source data.
+   *
+   * @return array
+   *   The array without renderable.
+   */
+  public function withHashtag(array $data): array;
+
+  /**
+   * A helper to gradually convert things to #things to avoid render error.
+   *
+   * This helper is temporary, and should only be used for BC purposes. This
+   * should be finally deprecated and put out of service once migrations are
+   * done at 3.x.
+   *
+   * @param array $data
+   *   The source data being modified.
+   * @param string $key
+   *   The given key.
+   * @param bool $unset
+   *   Whether to unset original data, default to FALSE till fully migrated.
+   */
+  public function hashtag(array &$data, $key = 'settings', $unset = FALSE): void;
+
+  /**
+   * A helper to gradually convert things to #things to avoid render error.
+   *
+   * This helper is temporary, and should only be used for BC purposes. This
+   * should be finally deprecated and put out of service once migrations are
+   * done at 3.x.
+   *
+   * @param array $data
+   *   The source data.
+   * @param string $key
+   *   The given key.
+   * @param array|bool|null|string $default
+   *   The default value.
+   *
+   * @return mixed
+   *   The checked value.
+   */
+  public function toHashtag(array $data, $key = 'settings', $default = []);
 
   /**
    * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17. What a waste.

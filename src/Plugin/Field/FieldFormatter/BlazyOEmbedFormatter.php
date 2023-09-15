@@ -125,8 +125,6 @@ class BlazyOEmbedFormatter extends FormatterBase {
    * Provides the blazy elements.
    */
   protected function buildElements(array &$build, $items, $langcode) {
-    $this->formatter->hashtag($build);
-
     $settings = $build['#settings'];
     $limit    = $this->getViewLimit($settings);
 

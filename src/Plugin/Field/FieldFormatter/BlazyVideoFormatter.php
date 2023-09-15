@@ -67,7 +67,7 @@ class BlazyVideoFormatter extends BlazyVideoBase {
    * Build the blazy elements.
    */
   protected function buildElements(array &$build, $items, $langcode) {
-    $settings = $this->formatter->toHashtag($build);
+    $settings = $build['#settings'];
     $limit    = $this->getViewLimit($settings);
     $entity   = $items->getEntity();
 

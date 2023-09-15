@@ -163,6 +163,22 @@
     return me;
   }
 
+  // Similar to core domReady, only public and generic.
+  function ready(callback, delay) {
+    var cb = function () {
+      return setTimeout(callback, delay || 0, DB);
+    };
+
+    if (_doc.readyState !== 'loading') {
+      cb();
+    }
+    else {
+      _doc.addEventListener('DOMContentLoaded', cb);
+    }
+
+    return this;
+  }
+
   /**
    * Returns a `toString`-based type tester, based on underscore.js.
    *
@@ -1481,6 +1497,104 @@
     return PROTO_A.slice.call(elements);
   }
 
+  // Use colon to be namespaced with DOT properly, e.g:
+  // blazy:done.NAMESPACE rather than problematic blazy.done.
+  // @todo remove isCustom at 3.x for just colon separator.
+  function eType(e, isCustom) {
+    var custom = isCustom || startsWith(e, ['blazy.', 'bio.']);
+
+    // @todo at 3.x: return e.split('.')[0].trim();
+    return (custom ? e : e.split('.')[0]).trim();
+  }
+
+  // @todo remove isCustom at 3.x for just colon separator.
+  var eHandler = {
+    _opts: function (params) {
+      var _one = false;
+      var options = params || false;
+      var defaults = {
+        capture: false,
+        passive: true
+      };
+
+      if (isObj(params)) {
+        options = EXTEND(defaults, params);
+        _one = options.once || false;
+      }
+
+      return {
+        one: _one,
+        options: options
+      };
+    },
+
+    add: function (el, e, cb, params, isCustom) {
+      var me = this;
+      var opts = me._opts(params);
+      var options = opts.options;
+      var type = eType(e, isCustom);
+      var _cb = cb;
+
+      // See https://caniuse.com/once-event-listener.
+      // @todo remove IE at 10+.
+      if (opts.one && ie()) {
+        var cbone = function cbone() {
+          el[V_REMOVE + E_LISTENER](type, cbone);
+          cb.apply(this, arguments);
+        };
+        _cb = cbone;
+      }
+
+      // Remove existing listeners, if any references.
+      // @todo remove after another check, might be assigned to others:
+      // if (EVENTS[e] === _cb) {
+      // el[V_REMOVE + E_LISTENER](type, EVENTS[e], options);
+      // }
+      if (isFun(_cb)) {
+        EVENTS[e] = _cb;
+
+        el[V_ADD + E_LISTENER](type, _cb, options);
+      }
+    },
+
+    remove: function (el, e, cb, params, isCustom) {
+      var me = this;
+      var opts = me._opts(params);
+      var options = opts.options;
+      var type = eType(e, isCustom);
+      var _cb = EVENTS[e] || cb;
+
+      if (isFun(_cb)) {
+        el[V_REMOVE + E_LISTENER](type, _cb, options);
+        delete EVENTS[e];
+      }
+    }
+  };
+
+  // @todo compare with direct querySelectorAll:
+  // - Assumed/ make els single? Unless moved to the chain, but complicated.
+  // - Replace els with els children identified by selector.
+  // - Remove this onoffEvent callback. Any taker, please?
+  function eOnOff(e, cb, selector) {
+    // @todo handle automatically by its return value.
+    // e.preventDefault();
+    // e.stopPropagation();
+    var t = e.target;
+
+    if (is(t, selector)) {
+      cb.call(t, e);
+    }
+    else {
+      while (t && t !== this) {
+        if (is(t, selector)) {
+          cb.call(t, e);
+          break;
+        }
+        t = t.parentElement || t.parentNode;
+      }
+    }
+  }
+
   /**
    * A not simple wrapper for the namespaced [add|remove]EventListener.
    *
@@ -1504,16 +1618,19 @@
    * @return {Object}
    *   This dBlazy object.
    *
+   * @todo https://developer.mozilla.org/en-US/docs/Web/API/AbortController
+   * @todo automatically handled by its return value.
+   * @todo remove isCustom at 3.x for just colon.
+   *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
    * @see https://caniuse.com/once-event-listener
    * @see https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md
-   * @todo automatically handled by its return value.
    */
   function toEvent(els, eventName, selector, cb, params, isCustom, op) {
     var _cbt = cb;
     var _ie = ie();
-    // var _onoff = false;
-    // Assumes window events if no elements: $.on('scroll', cb, params);
+
+    // 1. Assumes window events if no elements: $.on('scroll', cb, params);
     // Shift one argument if no real elements are provided.
     if (isStr(els) && isFun(eventName)) {
       params = selector;
@@ -1521,9 +1638,8 @@
       eventName = els;
       els = [_win];
     }
-    // Delegated events like on/off: $.on(el, 'click', '.btn', cb, params);
+    // 2. Delegated events like on/off: $.on(el, 'click', '.btn', cb, params);
     else if (isStr(selector)) {
-      // _onoff = true;
       var shouldPassive = contains(eventName, ['touchstart', E_SCROLL, 'wheel']);
       if (isUnd(params)) {
         params = _ie ? false : {
@@ -1532,33 +1648,11 @@
         };
       }
 
-      // @todo compare with direct querySelectorAll:
-      // - Assumed/ make els single? Unless moved to the chain, but complicated.
-      // - Replace els with els children identified by selector.
-      // - Remove this onoffEvent callback. Any taker, please?
-      var onoffEvent = function (e) {
-        // @todo handle automatically by its return value.
-        // e.preventDefault();
-        // e.stopPropagation();
-        var t = e.target;
-
-        if (is(t, selector)) {
-          _cbt.call(t, e);
-        }
-        else {
-          while (t && t !== this) {
-            if (is(t, selector)) {
-              _cbt.call(t, e);
-              break;
-            }
-            t = t.parentElement || t.parentNode;
-          }
-        }
+      cb = function (e) {
+        eOnOff(e, _cbt, selector);
       };
-
-      cb = onoffEvent;
     }
-    // Non-delegated events: $.on(el, 'click', cb, params);
+    // 3. Non-delegated events: $.on(el, 'click', cb, params);
     // Shift one argument if selector is expected as a callback function.
     else {
       if (isFun(selector)) {
@@ -1573,63 +1667,8 @@
         return;
       }
 
-      var defaults = {
-        capture: false,
-        passive: true
-      };
-
-      var _one = false;
-      var options = params || false;
-      if (isObj(params)) {
-        options = EXTEND(defaults, params);
-        _one = options.once || false;
-      }
-
       var process = function (e) {
-        // Use colon to be namespaced with DOT properly, e.g:
-        // blazy:done.NAMESPACE rather than problematic blazy.done.
-        var colon = contains(e, ':');
-        isCustom = isCustom || colon || startsWith(e, ['blazy.', 'bio.']);
-        var realE = e;
-
-        if (colon) {
-          // Remove NAMESPACE from blazy:done.NAMESPACE.
-          realE = e.split('.')[0].trim();
-        }
-
-        var add = op === V_ADD;
-        var type = (isCustom ? realE : e.split('.')[0]).trim();
-        cb = cb || EVENTS[e];
-
-        var _cb = cb;
-        if (isFun(cb)) {
-          // See https://caniuse.com/once-event-listener.
-          if (_one && add && _ie) {
-            var cbone = function cbone() {
-              el[V_REMOVE + E_LISTENER](type, cbone, options);
-              _cb.apply(this, arguments);
-            };
-            cb = cbone;
-            add = false;
-          }
-
-          // Remove existing listeners, if any.
-          if (add && EVENTS[e] === cb) {
-            el[V_REMOVE + E_LISTENER](type, EVENTS[e], options);
-          }
-
-          el[op + E_LISTENER](type, cb, options);
-        }
-
-        // @todo store as namespace to allow easy removal by namespaces.
-        if (add) {
-          EVENTS[e] = cb;
-        }
-        else {
-          if (EVENTS[e]) {
-            delete EVENTS[e];
-          }
-        }
+        eHandler[op](el, e, cb, params, isCustom);
       };
 
       each(toArray(eventName), process);
@@ -1820,23 +1859,6 @@
 
   // Image methods.
   DB.isDecoded = isDecoded;
-
-  // Similar to core domReady, only public and generic.
-  function ready(callback, delay) {
-    var cb = function () {
-      return setTimeout(callback, delay || 0, DB);
-    };
-
-    if (_doc.readyState !== 'loading') {
-      cb();
-    }
-    else {
-      _doc.addEventListener('DOMContentLoaded', cb);
-    }
-
-    return this;
-  }
-
   DB.ready = ready.bind(DB);
 
   /**

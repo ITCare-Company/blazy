@@ -156,16 +156,6 @@ absolute position and fixed dimensions. */
   min-width: 100% !important; /* csslint allow: known-properties, important */
 }
 
-/*
-.b-instagram iframe {
-  visibility: hidden;
-}
-
-.is-b-instagram-loaded iframe {
-  visibility: visible;
-}
-*/
-
 /** @todo re-check various use-cases. */
 .b-html.b-loaded > img {
   position: absolute;

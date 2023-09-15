@@ -166,9 +166,20 @@ abstract class SkinManagerBase extends DefaultPluginManager implements SkinManag
         }
       }
 
+      if ($extras = $this->getAdditionalLibraries()) {
+        $libraries = $this->manager->merge($extras, $libraries);
+      }
+
       $this->libraryInfoBuild = $libraries;
     }
     return $this->libraryInfoBuild;
+  }
+
+  /**
+   * Returns additional libraries.
+   */
+  protected function getAdditionalLibraries(): array {
+    return [];
   }
 
   /**

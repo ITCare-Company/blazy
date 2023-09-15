@@ -562,27 +562,6 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function hashtag(array &$data, $key = 'settings', $unset = FALSE): void {
-    Internals::hashtag($data, $key, $unset);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function toHashtag(array $data, $key = 'settings', $default = []) {
-    return Internals::toHashtag($data, $key, $default);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function withHashtag(array $data): array {
-    return array_filter($data, fn($k) => strpos($k, '#') !== FALSE, ARRAY_FILTER_USE_KEY);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function toOptions(array $options): array {
     if ($options) {
       $options = array_map('\Drupal\Component\Utility\Html::escape', $options);
@@ -668,6 +647,13 @@ abstract class BlazyBase implements BlazyInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function withHashtag(array $data): array {
+    return array_filter($data, fn($k) => strpos($k, '#') !== FALSE, ARRAY_FILTER_USE_KEY);
+  }
+
+  /**
    * Allows Blazy add return type hint to its attach() method after sub-modules.
    */
   protected function attachments(array &$load, array $attach, $blazies): void {
@@ -682,6 +668,20 @@ abstract class BlazyBase implements BlazyInterface {
       // Cast scalars to array so we can consistently use an IN condition.
       $query->condition($name, (array) $value, $condition);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hashtag(array &$data, $key = 'settings', $unset = FALSE): void {
+    Internals::hashtag($data, $key, $unset);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function toHashtag(array $data, $key = 'settings', $default = []) {
+    return Internals::toHashtag($data, $key, $default);
   }
 
   /**
