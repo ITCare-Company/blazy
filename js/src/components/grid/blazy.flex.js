@@ -42,11 +42,11 @@
 
     function toGrid(grids) {
       var box = $.find(elm, S_GRID);
-      var parentWith = $.rect(elm).width;
-      var boxWith = $.rect(box).width;
-      var style = $.computeStyle(box);
-      var itemWith = boxWith + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
-      var columnWidth = Math.round((1 / (itemWith / parentWith)));
+      var parentWidth = $.rect(elm).width;
+      var boxWidth = $.rect(box).width;
+      var boxStyle = $.computeStyle(box);
+      var itemWidth = boxWidth + (parseFloat(boxStyle.marginLeft) + parseFloat(boxStyle.marginRight));
+      var columnWidth = Math.round((1 / (itemWidth / parentWidth)));
 
       var layout = function (grid, id) {
         var target = grid.target;
