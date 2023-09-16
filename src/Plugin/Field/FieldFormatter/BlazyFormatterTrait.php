@@ -235,6 +235,13 @@ trait BlazyFormatterTrait {
   }
 
   /**
+   * Alias for BlazyField::getString().
+   */
+  protected function getString($entity, $field_name, $langcode, $clean = TRUE): string {
+    return BlazyField::getString($entity, $field_name, $langcode, $clean);
+  }
+
+  /**
    * Alias for BlazyField::view().
    */
   protected function viewField($entity, $field_name, $view_mode, $multiple = TRUE): array {

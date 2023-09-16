@@ -67,14 +67,14 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
     if ($_layout) {
       $layout = $_layout;
       if (strpos($layout, 'field_') !== FALSE && isset($entity->{$layout})) {
-        $layout = BlazyField::getString($entity, $layout, $langcode);
+        $layout = $this->getString($entity, $layout, $langcode);
       }
       $settings['layout'] = $layout;
     }
 
     // Classes, if so configured.
     if ($_class && isset($entity->{$_class})) {
-      $settings['class'] = BlazyField::getString($entity, $_class, $langcode);
+      $settings['class'] = $this->getString($entity, $_class, $langcode);
     }
   }
 
@@ -95,7 +95,7 @@ abstract class BlazyEntityReferenceBase extends BlazyEntityMediaBase {
 
     // Link, if so configured.
     if ($_link && isset($entity->{$_link})) {
-      $links = BlazyField::view($entity, $_link, $view_mode);
+      $links = $this->viewField($entity, $_link, $view_mode);
       $formatter = $links['#formatter'] ?? 'x';
 
       // Only simplify markups for known formatters registered by link.module.

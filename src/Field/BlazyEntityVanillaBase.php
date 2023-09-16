@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Field;
 
+use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterEntityTrait;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\EntityReferenceFormatterBase;
@@ -21,6 +22,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     pluginSettings as traitPluginSettings;
   }
 
+  use BlazyFormatterEntityTrait;
   use BlazyElementTrait;
 
   /**
@@ -197,7 +199,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     $target_type = $target_type ?: $this->getFieldSetting('target_type');
     $bundles     = $this->getAvailableBundles();
 
-    return $this->admin()->getFieldOptions($bundles, $names, $target_type);
+    return $this->getFieldOptionsWithBundles($bundles, $names, $target_type);
   }
 
   /**

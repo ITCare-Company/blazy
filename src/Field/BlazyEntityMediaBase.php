@@ -100,7 +100,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     // formatter, yet has awesomeness that Blazy doesn't, but still wants to be
     // embedded in Blazy ecosytem mostly for Grid, Slider, Mason, GridStack etc.
     if ($is_blazy && $_image && $switch == 'rendered') {
-      if ($output = BlazyField::view($entity, $_image, $view_mode)) {
+      if ($output = $this->viewField($entity, $_image, $view_mode)) {
         // Disable all lazy stuffs since we got a brick here.
         Internals::contently($settings);
 
@@ -176,7 +176,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
         }
 
         // Provides fieldable captions.
-        if ($markup = BlazyField::view($entity, $field_caption, $view_mode)) {
+        if ($markup = $this->viewField($entity, $field_caption, $view_mode)) {
           if (isset($markup['#weight'])) {
             $weights[] = $markup['#weight'];
           }

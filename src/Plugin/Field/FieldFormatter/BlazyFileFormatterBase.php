@@ -5,8 +5,6 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyDependenciesTrait;
 use Drupal\blazy\Field\BlazyElementTrait;
-use Drupal\blazy\Field\BlazyField;
-use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Utility\Sanitize;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
@@ -35,8 +33,10 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
   use BlazyFormatterTrait {
     getScopedFormElements as traitGetScopedFormElements;
   }
+
   use BlazyDependenciesTrait;
   use BlazyElementTrait;
+  use BlazyFormatterEntityTrait;
 
   /**
    * The main module namespace.
@@ -183,18 +183,20 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
         $uri  = $file->getFileUri();
         $info = [
           'delta'      => $delta,
-          'image.uri'  => $uri,
           'media.type' => 'image',
         ];
 
         // Extracts ImageItem data early to help new SVG with its attributes.
+        $image = ['uri' => $uri];
         if ($item instanceof ImageItem && $values = BlazyImage::toArray($item)) {
           foreach ($values as $key => $value) {
-            $info['image.' . $key] = $value;
+            $image[$key] = $value;
           }
           // @todo remove this pingpong at 3.x:
-          $info['image.item'] = $item;
+          $image['item'] = $item;
         }
+
+        $info['image'] = $image;
 
         // Hashtags to avoid render errors with some potential leaks.
         $data = [
@@ -275,7 +277,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     // Provides fieldable captions.
     if ($type == 'entity_reference' && $entity = $data['#parent'] ?? NULL) {
       foreach ($options as $name) {
-        if ($markup = BlazyField::view($entity, $name, [])) {
+        if ($markup = $this->viewField($entity, $name, [])) {
           $captions[$name] = $markup;
         }
       }
@@ -377,11 +379,11 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     $bundles     = $this->getAvailableBundles();
     $type        = method_exists($field, 'get') ? $field->get('entity_type') : NULL;
 
-    if (!$bundles && $type && $service = Internals::service('entity_type.bundle.info')) {
+    if (!$bundles && $type && $service = $this->formatter->service('entity_type.bundle.info')) {
       $bundles = $service->getBundleInfo($type);
     }
 
-    return $this->admin()->getFieldOptions($bundles, $names, $target_type);
+    return $this->getFieldOptionsWithBundles($bundles, $names, $target_type);
   }
 
   /**
@@ -405,12 +407,18 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     // Add the default image if the type is image.
     if ($items->isEmpty() && $this->fieldDefinition->getType() === 'image') {
       $default_image = $this->getFieldSetting('default_image');
+      $uuid = $default_image['uuid'] ?? NULL;
+
       // If we are dealing with a configurable field, look in both
       // instance-level and field-level settings.
-      if (empty($default_image['uuid']) && $this->fieldDefinition instanceof FieldConfigInterface) {
-        $default_image = $this->fieldDefinition->getFieldStorageDefinition()->getSetting('default_image');
+      if (!$uuid && $this->fieldDefinition instanceof FieldConfigInterface) {
+        $default_image = $this->fieldDefinition
+          ->getFieldStorageDefinition()
+          ->getSetting('default_image');
       }
-      if (!empty($default_image['uuid']) && $file = $this->formatter->loadByUuid($default_image['uuid'], 'file')) {
+
+      $uuid = $uuid ?: ($default_image['uuid'] ?? NULL);
+      if ($uuid && $file = $this->formatter->loadByUuid($uuid, 'file')) {
         // Clone the FieldItemList into a runtime-only object for the formatter,
         // so that the fallback image can be rendered without affecting the
         // field values in the entity being rendered.
@@ -464,11 +472,11 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    * Deprecated in blazy:8.x-2.17,  and is removed from blazy:3.0.0.
    *
    * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
-   *   self::withElement() instead.
+   *   self::withElement() or static::$useOembed instead.
    * @see https://www.drupal.org/node/3367291
    */
   protected function buildElement(array &$element, $entity) {
-    // @todo @trigger_error('buildElement is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::withElement() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
+    // @todo @trigger_error('buildElement is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::withElement() or static::$useOembed instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
   }
 
 }

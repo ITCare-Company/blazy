@@ -61,6 +61,8 @@ trait TraitAdminOptions {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo deprecated for BlazyFormatterEntityTrait::getFieldOptionsWithBundles().
    */
   public function getFieldOptions(
     array $target_bundles = [],
@@ -223,6 +225,8 @@ trait TraitAdminOptions {
 
   /**
    * Declutters options from less relevant options, specific to captions.
+   *
+   * @todo deprecated for BlazyFormatterEntityTrait::getExcludedFieldOptions().
    */
   protected function getExcludedFieldOptions(): array {
     // @todo figure out a more efficient way than blacklisting.
