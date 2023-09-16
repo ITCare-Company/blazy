@@ -22,7 +22,7 @@
   var S_GRID = '.grid';
   var V_BIO = 'bio';
   var E_DONE = V_BIO + ':done';
-  var E_RESIZED = V_BIO + ':resized';
+  var E_RESIZED = V_BIO + ':resizing';
   var E_TRANSTIONEND = 'transitionend.' + ID;
   var V_MAX = 0;
   var V_OPTS = {
@@ -95,15 +95,7 @@
       };
 
       var processItem = function (item, id) {
-        // var blazies = $.findAll(item, '.b-lazy');
-
         layout(item, id);
-
-        // if (blazies.length) {
-        // $.each(blazies, function (el) {
-        // $.on(el, 'blazy.done', layout);
-        // });
-        // }
       };
 
       // Process on page load.
@@ -117,7 +109,9 @@
           max = V_MAX;
         }
 
-        elm.style.minHeight = max + 'px';
+        // Min-height causes unwanted white-space. Height is too risky with
+        // dynamic contents without aspect ratio, but normally fit best.
+        elm.style.height = max + 'px';
 
         V_MAX = max;
       };
