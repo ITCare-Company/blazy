@@ -82,6 +82,10 @@ class Attributes {
       $classes[] = 'is-b-captioned';
     }
 
+    if ($blazies->use('ajax')) {
+      $classes[] = 'is-b-ajax';
+    }
+
     // Needed for nested grids as well: blazy blazy--grid b-nativegrid, etc.
     $attributes['class'] = array_merge(['blazy'], $classes);
     $attributes['data-blazy'] = $data && is_array($data) ? Json::encode($data) : '';

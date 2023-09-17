@@ -18,7 +18,8 @@
   var C_MOUNTED = 'is-' + ID_ONCE;
   var C_DONE = C_MOUNTED + '-done';
   var C_RESIZED = C_MOUNTED + '-resized';
-  var S_ELEMENT = '.' + ID + ':not(.' + C_MOUNTED + ')';
+  var C_IS_CAPTIONED = 'is-b-captioned';
+  var S_ELEMENT = '.' + ID; // + ':not(.' + C_MOUNTED + ')';
   var S_GRID = '.grid';
   var V_BIO = 'bio';
   var E_DONE = V_BIO + ':done';
@@ -39,15 +40,15 @@
     var heights = {};
     var items;
     var html = $.find(elm, '.b-html');
+    var caption = $.find(elm, '.views-field') && $.find(elm, '.views-field p');
+    var box = $.find(elm, S_GRID);
+    var parentWidth = $.rect(elm).width;
+    var boxWidth = $.rect(box).width;
+    var boxStyle = $.computeStyle(box);
+    var itemWidth = boxWidth + (parseFloat(boxStyle.marginLeft) + parseFloat(boxStyle.marginRight));
+    var columnWidth = Math.round((1 / (itemWidth / parentWidth)));
 
     function toGrid(grids) {
-      var box = $.find(elm, S_GRID);
-      var parentWidth = $.rect(elm).width;
-      var boxWidth = $.rect(box).width;
-      var boxStyle = $.computeStyle(box);
-      var itemWidth = boxWidth + (parseFloat(boxStyle.marginLeft) + parseFloat(boxStyle.marginRight));
-      var columnWidth = Math.round((1 / (itemWidth / parentWidth)));
-
       var layout = function (grid, id) {
         var target = grid.target;
         grid = target ? $.closest(target, S_GRID) : grid;
@@ -70,7 +71,7 @@
           return;
         }
 
-        var curColumn = id % columnWidth;
+        var curColumn = (id % columnWidth) || 0;
         var style = $.computeStyle(grid);
 
         if ($.isUnd(heights[curColumn])) {
@@ -111,6 +112,7 @@
 
         // Min-height causes unwanted white-space. Height is too risky with
         // dynamic contents without aspect ratio, but normally fit best.
+        max = parseInt(max, 10);
         elm.style.height = max + 'px';
 
         V_MAX = max;
@@ -118,20 +120,41 @@
 
       checkHeight();
 
-      // @todo this breaks initial bricks.
-      // var checkResize = function () {
-      // Process on resize.
-      // me.checkResize(items, processItem, elm);
-      // };
+      var loader = $.find(_doc.body, '> .ajaxin-wrapper');
+      $.remove(loader);
+    }
+
+    function reset(grids) {
+      heights = {};
+
+      elm.style.height = '';
+      $.each(grids, function (el) {
+        el.style.transform = '';
+      });
+    }
+
+    function onMutation(entries) {
+      $.each(entries, function (entry) {
+        if ($.is(entry.target, elm) && entry.addedNodes.length) {
+          setTimeout(function () {
+            items = $.findAll(elm, S_GRID);
+            reset(items);
+            toGrid(items);
+          }, 301);
+        }
+      });
     }
 
     function initNow(e) {
-      var isDone = e && e.type === E_DONE;
-      var resized = e && e.type === E_RESIZED;
-      items = $.findAll(elm, S_GRID);
+      var isDone = false;
+      var resized = false;
 
-      function start() {
-        items = $.findAll(elm, S_GRID);
+      if (e) {
+        isDone = e.type === E_DONE;
+        resized = e.type === E_RESIZED;
+      }
+
+      function start(items) {
         toGrid(items);
 
         $.removeClass(elm, C_RESIZED);
@@ -141,18 +164,22 @@
         }, resized ? 600 : 0);
       }
 
+      if (isDone) {
+        reset(items);
+
+        if (isDone) {
+          $.off(E_DONE + '.' + ID, initNow);
+        }
+      }
+
       if (resized) {
         $.removeClass(elm, C_DONE);
         $.addClass(elm, C_RESIZED);
 
         var ended = function () {
-          heights = {};
-
-          $.each(items, function (el) {
-            el.style.transform = '';
-            // el.style.minHeight = '';
-          });
-          start();
+          items = $.findAll(elm, S_GRID);
+          reset(items);
+          start(items);
 
           $.off(elm, E_TRANSTIONEND, ended);
         };
@@ -160,11 +187,7 @@
         $.on(elm, E_TRANSTIONEND, ended);
       }
       else {
-        start();
-      }
-
-      if (isDone) {
-        $.off(E_DONE + '.' + ID, initNow);
+        start(items);
       }
     }
 
@@ -176,6 +199,15 @@
     }
 
     $.on(E_RESIZED + '.' + ID, $.debounce(initNow, 601));
+
+    var observer = new MutationObserver(onMutation);
+    observer.observe(elm, {
+      childList: true
+    });
+
+    if (caption) {
+      $.addClass(elm, C_IS_CAPTIONED);
+    }
 
     $.addClass(elm, C_MOUNTED);
     V_OPTS.$el = elm;

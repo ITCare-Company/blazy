@@ -37,7 +37,8 @@
   display: block;
   width: 100%;
   min-height: 40px;
-  margin: 0 0 var(--bn-col-gap) 0;
+  /* margin: 0 0 var(--bn-col-gap) 0; */
+  margin: 0;
   padding: 0;
 }
 
@@ -98,12 +99,6 @@
   }
 
   .b-nativegrid.is-b-native .grid__content {
-    overflow: hidden;
-    height: 100%;
-  }
-
-  /* Enable to make it gapless for Masonry. */
-  .b-nativegrid .is-b-grid .grid__content {
     overflow: hidden;
     height: 100%;
   }

@@ -21,8 +21,20 @@
 /* csslint ignore:start */
 /* The gap 15px is to match CSS grid convention such as Bootstrap, adjust it.
 To have gapless, simply add `is-b-gapless` class via template_preprocess. */
-:root {
+.is-b-masonry {
+  /* Assumed images only. If any captions, see .is-b-captioned. */
+  --bn-row-height-masonry: 0.0001px;
+}
+
+/* Adjust this if any texts cropped. */
+.is-b-masonry.is-b-captioned {
   --bn-row-height-masonry: 15px;
+}
+
+.b-nativegrid.is-b-masonry > .grid,
+.item-list > .b-nativegrid.is-b-masonry > .grid {
+  /* Do not control gap with margin, use gap in blazy.native.grid.css instead. */
+  margin: 0 auto;
 }
 
 /** 480px with 16px base font. */
@@ -30,7 +42,7 @@ To have gapless, simply add `is-b-gapless` class via template_preprocess. */
   .b-nativegrid.is-b-masonry {
     grid-auto-rows: var(--bn-row-height-masonry);
     /* Add a min-height to the .b-nativegrid to avoid reflow due to using JS. */
-    min-height: 640px;
+    min-height: 180px;
   }
 
   /** Without margin. */
@@ -38,11 +50,18 @@ To have gapless, simply add `is-b-gapless` class via template_preprocess. */
     gap: 0;
   }
 
-  /* Enable to make it gapless for Masonry. */
-  .b-nativegrid.is-b-masonry .is-b-grid .grid__content {
+  .b-nativegrid.is-b-masonry > .grid,
+  .item-list > .b-nativegrid.is-b-masonry > .grid {
     overflow: hidden;
-    height: 100%;
+    grid-row-end: span 2;
   }
+
+  /*
+  .b-nativegrid.is-b-masonry.is-b-captioned .grid,
+  .b-nativegrid.is-b-masonry.is-b-captioned .grid__content {
+    min-height: fit-content;
+  }
+  */
 
   /* To make even bottom gaps when using CSS background Blazy formatter.
   See Troubleshooting for more details on this.
@@ -53,6 +72,13 @@ To have gapless, simply add `is-b-gapless` class via template_preprocess. */
     height: 100%;
   }
 
+  /* Adjust distractions accordingly. */
+  .is-b-masonry p,
+  .is-b-masonry h2,
+  .is-b-masonry figure {
+    margin: 0;
+  }
+
   /* The only rule make sense for small devices, adjust it accordingly. */
   .b-nativegrid--sm-2.is-b-masonry {
     grid-template-columns: repeat(auto-fill, minmax(50%, 1fr));
@@ -61,16 +87,6 @@ To have gapless, simply add `is-b-gapless` class via template_preprocess. */
 
 /** 641px with 16px base font. */
 @media only screen and (min-width: 40.063em) {
-  /* Makes nice with AJAX unload due to unpredictable content heights. */
-  .is-b-unload .grid:not(.is-b-grid) {
-    transition: opacity 0.3s;
-    opacity: 0;
-  }
-
-  .is-b-unload .grid.is-b-layout {
-    opacity: 1;
-  }
-
   .b-nativegrid--md-2.is-b-masonry {
     grid-template-columns: repeat(auto-fill, minmax(50%, 1fr));
   }

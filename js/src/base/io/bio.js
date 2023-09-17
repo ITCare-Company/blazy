@@ -135,16 +135,14 @@
         }
       }
 
-      if (opts.isMedia) {
-        if (me.isLoaded(el) && !revalidate) {
-          // Unless watching.
-          if (!watching) {
-            io.unobserve(el);
-          }
-
-          // Count the loaded ones, watching or not.
-          BIOTICK++;
+      if (me.isLoaded(el) && !revalidate) {
+        // Unless watching.
+        if (opts.isMedia && !watching) {
+          io.unobserve(el);
         }
+
+        // Count the loaded ones, watching or not.
+        BIOTICK++;
       }
     }
 

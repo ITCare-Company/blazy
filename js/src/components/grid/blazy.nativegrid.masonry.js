@@ -18,70 +18,10 @@
   var ID_ONCE = 'b-masonry';
   var C_IS_MASONRY = 'is-' + ID_ONCE;
   var C_MOUNTED = C_IS_MASONRY + '-mounted';
-  var C_IS_UNLOAD = 'is-b-unload';
-  var S_ELEMENT = '.' + ID + '.' + C_IS_MASONRY + ':not(.' + C_MOUNTED + ')';
-  var HEIGHTS = [];
-  var UNLOAD = false;
-  var OPTS = {
-    $el: null,
-    gap: 15,
-    height: 15,
-    rows: 10
-  };
-
-
-
-  /**
-   * Applies the correct span to each grid item.
-   *
-   * @param {HTMLElement|Event} el
-   *   The item HTML element, or event object on blazy.done.
-   * @param {int} i
-   *   The element index.
-   * @param {bool} isResized
-   *   If the resize event is triggered.
-   */
-  function processItem(el, i, isResized) {
-    var target = el.target;
-    var box = 'target' in el ? $.closest(target, '.grid') : el;
-    var cn;
-
-    if (!$.isElm(box)) {
-      return;
-    }
-
-    cn = $.find(box, '.grid__content');
-
-    if (OPTS.gap === 0) {
-      OPTS.gap = 0.0001;
-    }
-
-    // Once setup, we rely on CSS to make it responsive.
-    var layout = function () {
-      var height = $.outerHeight(cn, true);
-      var rect = $.rect(cn);
-      var span;
-
-      HEIGHTS.push(height);
-      span = Math.ceil((rect.height + OPTS.gap) / (OPTS.height + OPTS.gap));
-
-      // Sets the grid row span based on content and gap height.
-      box.style.gridRowEnd = 'span ' + span;
-
-      $.addClass(box, 'is-b-grid');
-      setTimeout(function () {
-        cn.style.minHeight = '';
-        $.addClass(box, 'is-b-layout');
-      }, UNLOAD ? 600 : 200);
-    };
-
-    if (isResized || UNLOAD) {
-      setTimeout(layout, UNLOAD ? 300 : 200);
-    }
-    else {
-      layout();
-    }
-  }
+  var S_ELEMENT = '.' + ID + '.' + C_IS_MASONRY;
+  var C_IS_CAPTIONED = 'is-b-captioned';
+  var S_GRID = '.grid';
+  var V_MAX = 0;
 
   /**
    * Applies grid row end to each grid item.
@@ -90,52 +30,87 @@
    *   The container HTML element.
    */
   function process(elm) {
-    var selector = '.grid:not(.is-b-grid)';
-    // The is-b-grid is flag to not re-do with VIS, views infinite scroll/ IO.
-    var items = $.findAll(elm, selector);
+    var heights = {};
+    var items = $.findAll(elm, S_GRID);
+    var style = $.computeStyle(elm);
+    var gap = style.getPropertyValue('row-gap');
+    var rows = style.getPropertyValue('grid-auto-rows');
+    var box = $.find(elm, S_GRID);
+    var caption = $.find(elm, '.views-field') && $.find(elm, '.views-field p');
+    var parentWidth = $.rect(elm).width;
+    var boxWidth = $.rect(box).width;
+    var boxStyle = $.computeStyle(box);
+    var margin = parseFloat(boxStyle.marginLeft) + parseFloat(boxStyle.marginRight);
+    var itemWidth = boxWidth + margin;
+    var columnWidth = Math.round((1 / (itemWidth / parentWidth)));
+    var rowHeight = $.toInt(rows, 1);
 
-    var init = function () {
-      var style = $.computeStyle(elm);
-      var gap = style.getPropertyValue('grid-row-gap');
-      var rows = style.getPropertyValue('grid-auto-rows');
+    function processItem(el, id) {
+      var target = el.target;
+      var grid = target ? $.closest(target, S_GRID) : el;
 
-      if (gap) {
-        OPTS.gap = $.toInt(gap, 0);
+      id = id || items.indexOf(grid);
+      gap = $.toInt(gap, 0);
+
+      if (gap === 0) {
+        gap = 0.0001;
       }
-      if (rows) {
-        OPTS.height = $.toInt(rows, 1);
-      }
 
-      if (items.length) {
-        // @todo recheck and remove.
-        if (UNLOAD) {
-          $.each(items, function (item, i) {
-            var cn = $.find(item, '.grid__content');
-            if (cn && HEIGHTS[i]) {
-              cn.style.minHeight = HEIGHTS[i] + 'px';
-            }
-          });
+      // Once setup, we rely on CSS to make it responsive.
+      var layout = function () {
+        var cn = $.find(grid, S_GRID + '__content');
+        var ch = $.outerHeight(cn, true);
+        var span = Math.ceil((ch + gap) / (rowHeight + gap));
+        var curColumn;
+        var style;
+
+        // Sets the grid row span based on content and gap height.
+        grid.style.gridRowEnd = 'span ' + span;
+
+        curColumn = (id % columnWidth) || 0;
+        style = $.computeStyle(grid);
+
+        if ($.isUnd(heights[curColumn])) {
+          heights[curColumn] = 0;
         }
 
-        // Process on page load.
-        $.each(items, processItem);
+        heights[curColumn] += ch + parseFloat(style.marginBottom);
+      };
 
-        // Process on resize.
-        if (!UNLOAD) {
-          Drupal.blazy.checkResize(items, processItem, elm, processItem);
-        }
-
-      }
-    };
-
-    setTimeout(init, UNLOAD ? 110 : 0);
-    OPTS.$el = elm;
-
-    if (UNLOAD) {
-      $.addClass(elm, C_IS_UNLOAD);
+      setTimeout(layout, 301);
     }
 
-    UNLOAD = false;
+    // Process on page load.
+    $.each(items, processItem);
+
+    var checkHeight = function () {
+      var values = Object.values(heights);
+      var max = Math.max.apply(null, values);
+
+      if (max < 0) {
+        max = V_MAX;
+      }
+
+      // Min-height causes unwanted white-space. Height is too risky with
+      // dynamic contents without aspect ratio, but normally fit best.
+      elm.style.height = max + 'px';
+
+      V_MAX = max;
+
+      setTimeout(function () {
+        elm.style.height = '';
+      }, 1200);
+    };
+
+    checkHeight();
+
+    // Process on resize.
+    Drupal.blazy.checkResize(items, processItem, elm, processItem);
+
+    if (caption) {
+      $.addClass(elm, C_IS_CAPTIONED);
+    }
+
     $.addClass(elm, C_MOUNTED);
   }
 
@@ -149,8 +124,7 @@
       $.once(process, ID_ONCE, S_ELEMENT, context);
     },
     detach: function (context, setting, trigger) {
-      UNLOAD = trigger === 'unload';
-      if (UNLOAD) {
+      if (trigger === 'unload') {
         $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
       }
     }
