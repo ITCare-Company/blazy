@@ -93,7 +93,10 @@
 
       // Min-height causes unwanted white-space. Height is too risky with
       // dynamic contents without aspect ratio, but normally fit best.
-      elm.style.height = max + 'px';
+      max = parseInt(max, 10);
+      if (max > 0) {
+        elm.style.height = max + 'px';
+      }
 
       V_MAX = max;
 

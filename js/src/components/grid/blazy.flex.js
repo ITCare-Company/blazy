@@ -45,7 +45,8 @@
     var parentWidth = $.rect(elm).width;
     var boxWidth = $.rect(box).width;
     var boxStyle = $.computeStyle(box);
-    var itemWidth = boxWidth + (parseFloat(boxStyle.marginLeft) + parseFloat(boxStyle.marginRight));
+    var margin = parseFloat(boxStyle.marginLeft) + parseFloat(boxStyle.marginRight);
+    var itemWidth = boxWidth + margin;
     var columnWidth = Math.round((1 / (itemWidth / parentWidth)));
 
     function toGrid(grids) {
@@ -113,7 +114,9 @@
         // Min-height causes unwanted white-space. Height is too risky with
         // dynamic contents without aspect ratio, but normally fit best.
         max = parseInt(max, 10);
-        elm.style.height = max + 'px';
+        if (max > 0) {
+          elm.style.height = max + 'px';
+        }
 
         V_MAX = max;
       };
@@ -154,6 +157,7 @@
         resized = e.type === E_RESIZED;
       }
 
+      items = $.findAll(elm, S_GRID);
       function start(items) {
         toGrid(items);
 
