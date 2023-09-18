@@ -63,7 +63,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
       $rendered = $image['rendered'] ?? [];
       $element['#item'] = $image['raw'] ?? NULL;
 
-      if ($image['applicable']) {
+      if (!empty($image['applicable'])) {
         if ($content = $rendered['#build']['content'] ?? []) {
           // Fixed for missing data-thumb thumbnail with local video, needed
           // by option static grid/ hoverable thumbnail.
