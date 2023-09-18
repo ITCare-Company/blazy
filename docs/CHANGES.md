@@ -3,12 +3,11 @@
 ## <a name="changes"></a>NOTABLE CHANGES  
 Always check out release notes, if any issues with the latest changes.
 
-* _Blazy 2.17_, 2023/09/10:
+* _Blazy 2.17_, 2023/09/18:
    + Updated blazy.api.php.
    + Cold fixes for few minor regressions and self organizations.
-   + Please bear with frequent releases, it was for sub-modules tests. Their
-     tests help spot many regressions, reducing one at a time every releases.
-     We normally release some 3 months or years periods. It is special for 3.x.
+   + **Breaking change**: changed `settings` to `#settings`, etc. Check out CR:
+     [Blazy ecosystem breaking change](https://www.drupal.org/node/3375158).
    + **Deprecated**:
      * Colorbox body classes for local classes in `#colorbox` selector, e.g.:
        `body.colorbox-on--media` becomes `#colorbox.b-colorbox--iframe`, etc.
@@ -31,8 +30,6 @@ Always check out release notes, if any issues with the latest changes.
      * Removed stone-aged admin CSS for modern Native Grid.
      * Added new events: `bio:done` for entire collections, `bio:resizing`,
        `bio:resized`, `blazy:mediaPlaying`, `blazy:mediaStopped`.
-   + **Breaking change**: changed `settings` to `#settings`, etc. Check out CR:
-     [Blazy ecosystem breaking change](https://www.drupal.org/node/3375158).
    + **New options**: Added additional config options at Blazy UI. Be sure to
      check out for `visible_class`, `wrapper_class`, `deprecated_class`,
      `use_oembed`, `lazy_html`, `use_encodedbox`, etc. options if using them.
