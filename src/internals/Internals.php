@@ -544,7 +544,7 @@ class Internals {
   public static function toContent(
     array &$data,
     $unset = FALSE,
-    array $keys = ['content', 'box', 'slide'],
+    array $keys = ['content', 'box', 'slide']
   ): array {
     $result = [];
     foreach ($keys as $key) {
