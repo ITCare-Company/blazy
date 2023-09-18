@@ -182,8 +182,3 @@ field.formatter.settings.blazy_file:
 field.formatter.settings.blazy_video:
   type: blazy_base
   label: 'Blazy image with VEF display format settings'
-
-# This should be at BVEF, previously blazy_video above not copied/ adjusted.
-field.formatter.settings.blazy_vef_default:
-  type: blazy_base
-  label: 'Blazy video with VEF display format settings'

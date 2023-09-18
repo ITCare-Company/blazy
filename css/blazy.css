@@ -152,7 +152,8 @@ absolute position and fixed dimensions. */
   max-width: 100% !important; /* csslint allow: known-properties, important */
 }
 
-.grid iframe {
+.grid iframe,
+.grid .media__html > span {
   min-width: 100% !important; /* csslint allow: known-properties, important */
 }
 

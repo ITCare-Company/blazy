@@ -125,9 +125,9 @@
 
   .is-b-native .grid .b-html.b-loaded > img {
     position: absolute;
-    object-fit: none;
     z-index: -1;
     width: 0;
+    object-fit: none;
   }
 
   /* For some reason, unlike video, etc., iframe refuses to show when static. */
