@@ -1,4 +1,8 @@
 
+Blazy 8.x-2.0-dev, 2023-09-18
+------------------------------
+- Masonry (Flexbox and or Native Grid) are messed up, try uninstalling BigPipe.
+
 Blazy 8.x-2.0-dev, 2023-09-17
 ------------------------------
 - Fixed for native grid/flexbox masonry with VIS/ IO.

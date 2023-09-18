@@ -24,11 +24,17 @@
   var V_BIO = 'bio';
   var E_DONE = V_BIO + ':done';
   var E_RESIZED = V_BIO + ':resizing';
-  var E_TRANSTIONEND = 'transitionend.' + ID;
   var V_MAX = 0;
-  var V_OPTS = {
-    $el: null
-  };
+
+  function columnCount(elm) {
+    var box = $.find(elm, S_GRID);
+    var parentWidth = $.rect(elm).width;
+    var boxWidth = $.rect(box).width;
+    var boxStyle = $.computeStyle(box);
+    var margin = parseFloat(boxStyle.marginLeft) + parseFloat(boxStyle.marginRight);
+    var itemWidth = boxWidth + margin;
+    return Math.round((1 / (itemWidth / parentWidth)));
+  }
 
   /**
    * Applies height adjustments to each item.
@@ -38,16 +44,19 @@
    */
   function process(elm) {
     var heights = {};
-    var items;
+    var items = $.findAll(elm, S_GRID);
     var html = $.find(elm, '.b-html');
     var caption = $.find(elm, '.views-field') && $.find(elm, '.views-field p');
-    var box = $.find(elm, S_GRID);
-    var parentWidth = $.rect(elm).width;
-    var boxWidth = $.rect(box).width;
-    var boxStyle = $.computeStyle(box);
-    var margin = parseFloat(boxStyle.marginLeft) + parseFloat(boxStyle.marginRight);
-    var itemWidth = boxWidth + margin;
-    var columnWidth = Math.round((1 / (itemWidth / parentWidth)));
+    var columns = columnCount(elm);
+
+    function reset(grids) {
+      heights = {};
+
+      elm.style.height = '';
+      $.each(grids, function (el) {
+        el.style.transform = '';
+      });
+    }
 
     function toGrid(grids) {
       var layout = function (grid, id) {
@@ -72,7 +81,7 @@
           return;
         }
 
-        var curColumn = (id % columnWidth) || 0;
+        var curColumn = (id % columns) || 0;
         var style = $.computeStyle(grid);
 
         if ($.isUnd(heights[curColumn])) {
@@ -83,8 +92,8 @@
         heights[curColumn] += ch + parseFloat(style.marginBottom);
 
         // If the item has an item above it, then move it to fill the gap.
-        if (id - columnWidth >= 0) {
-          var nh = id - columnWidth + 1;
+        if (id - columns >= 0) {
+          var nh = id - columns + 1;
           var itemAbove = $.find(elm, S_GRID + ':nth-of-type(' + nh + ')');
           if ($.isElm(itemAbove)) {
             var prevBottom = $.rect(itemAbove).bottom;
@@ -127,13 +136,16 @@
       $.remove(loader);
     }
 
-    function reset(grids) {
-      heights = {};
+    function start(grids, cw) {
+      if (cw > 1) {
+        toGrid(grids);
+      }
 
-      elm.style.height = '';
-      $.each(grids, function (el) {
-        el.style.transform = '';
-      });
+      $.removeClass(elm, C_RESIZED);
+
+      setTimeout(function () {
+        $.addClass(elm, C_DONE);
+      }, 101);
     }
 
     function onMutation(entries) {
@@ -142,7 +154,8 @@
           setTimeout(function () {
             items = $.findAll(elm, S_GRID);
             reset(items);
-            toGrid(items);
+
+            start(items, columns);
           }, 301);
         }
       });
@@ -150,49 +163,27 @@
 
     function initNow(e) {
       var isDone = false;
-      var resized = false;
+      var isResized = false;
 
       if (e) {
         isDone = e.type === E_DONE;
-        resized = e.type === E_RESIZED;
-      }
+        isResized = e.type === E_RESIZED;
 
-      items = $.findAll(elm, S_GRID);
-      function start(items) {
-        toGrid(items);
-
-        $.removeClass(elm, C_RESIZED);
-
-        setTimeout(function () {
-          $.addClass(elm, C_DONE);
-        }, resized ? 600 : 0);
-      }
-
-      if (isDone) {
         reset(items);
 
         if (isDone) {
           $.off(E_DONE + '.' + ID, initNow);
         }
+        else if (isResized) {
+          $.removeClass(elm, C_DONE);
+          $.addClass(elm, C_RESIZED);
+
+          columns = columnCount(elm);
+        }
       }
 
-      if (resized) {
-        $.removeClass(elm, C_DONE);
-        $.addClass(elm, C_RESIZED);
-
-        var ended = function () {
-          items = $.findAll(elm, S_GRID);
-          reset(items);
-          start(items);
-
-          $.off(elm, E_TRANSTIONEND, ended);
-        };
-
-        $.on(elm, E_TRANSTIONEND, ended);
-      }
-      else {
-        start(items);
-      }
+      items = $.findAll(elm, S_GRID);
+      start(items, columns);
     }
 
     if ($.isElm(html)) {
@@ -214,7 +205,6 @@
     }
 
     $.addClass(elm, C_MOUNTED);
-    V_OPTS.$el = elm;
   }
 
   /**

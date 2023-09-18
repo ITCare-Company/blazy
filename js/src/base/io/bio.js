@@ -191,6 +191,25 @@
       WINDATA = FN_VIEWPORT.update(opts);
 
       FN_VIEWPORT.onresizing(me, WINDATA);
+
+      if (V_WW > 0) {
+        var details = {
+          winData: WINDATA,
+          entries: me.elms,
+          currentWidth: ww,
+          oldWidth: V_WW,
+          enlarged: ww > V_WW
+        };
+
+        // Ensures only before settled, or if any different from previous size.
+        if (V_WW !== ww) {
+          $.trigger(_win, NICK + ':resizing', details);
+        }
+        else {
+          $.trigger(_win, NICK + ':resized', details);
+        }
+        me.resizeTick++;
+      }
     }
     else {
       // Stop IO watching if destroyed, unless a visibleClass is defined:
@@ -243,24 +262,10 @@
       // The element is being resized.
       IS_RESIZING = resized && V_WW > 0;
       if (IS_RESIZING && !isBlur) {
-        var details = {
-          winData: WINDATA,
-          entries: me.elms,
-          currentWidth: ww,
-          oldWidth: V_WW,
-          enlarged: ww > V_WW
-        };
-
         // Ensures only before settled, or if any different from previous size.
         if (V_WW !== ww) {
           me.resizing(el, WINDATA);
-
-          $.trigger(_win, NICK + ':resizing', details);
         }
-        else {
-          $.trigger(_win, NICK + ':resized', details);
-        }
-        me.resizeTick++;
       }
 
       // Provides option such as to animate bg or elements regardless position.
