@@ -8,7 +8,7 @@
 /**
  * Removed deprecated settings.
  */
-function blazy_post_update_remove_deprecated_settings()) {
+function blazy_post_update_remove_deprecated_settings() {
   $config = \Drupal::configFactory()->getEditable('blazy.settings');
   foreach (['responsive_image', 'use_theme_blazy'] as $key) {
     $config->clear($key);

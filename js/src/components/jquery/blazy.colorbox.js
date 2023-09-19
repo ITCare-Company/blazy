@@ -15,12 +15,10 @@
   var ID_ONCE = 'b-' + NICK;
   var B_ROOT = 'b-' + ID;
   var S_ROOT = '#' + ID;
-  var $BODY = $('body');
   var C_MOUNTED = 'is-' + ID_ONCE;
   var S_ELEMENT = '[data-' + ID + '-trigger]:not(.' + C_MOUNTED + ')';
   var C_MEDIA_BOX = 'media media--box';
   var C_MEDIA_RATIO = C_MEDIA_BOX + ' media--ratio';
-  var C_CBOX_ON = 'colorbox-on';
   var S_LOADED_CONTENT = '#cboxLoadedContent';
   var FN_SANITIZER = _d.sanitizer;
   var FN_INSTAGRAM = _d.instagram || false;
