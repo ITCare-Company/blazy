@@ -3,6 +3,8 @@
 ## <a name="changes"></a>NOTABLE CHANGES  
 Always check out release notes, if any issues with the latest changes.
 
+* _Blazy 2.18_, 2023/09/24:
+  + Mildly hot fixes for 2.17 regressions.
 * _Blazy 2.17_, 2023/09/18:
    + Updated blazy.api.php.
    + Cold fixes for few minor regressions and self organizations.
