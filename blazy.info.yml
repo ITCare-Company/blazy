@@ -1,7 +1,7 @@
 name: Blazy
 type: module
 description: "Provides basic Blazy integration for lazy loading and multi-serving images."
-core_version_requirement: ^8.8 || ^9 || ^10
+core_version_requirement: ^9.3 || ^10 || ^11
 package: Blazy
 dependencies:
   - drupal:filter
@@ -13,4 +13,4 @@ test_dependencies:
 # Do not remove until below issues are resolved!
 # Add a fake version so local drush and Git checkouts do not fail dependencies.
 # Also accounts for the failing PHP8.1+ with git clone or --prefer-source.
-version: 8.x-2.17
+version: 3.x

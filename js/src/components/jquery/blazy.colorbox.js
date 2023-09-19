@@ -11,8 +11,8 @@
   'use strict';
 
   var ID = 'colorbox';
-  var ID_ONCE = 'b-' + NICK;
   var NICK = 'cbox';
+  var ID_ONCE = 'b-' + NICK;
   var B_ROOT = 'b-' + ID;
   var S_ROOT = '#' + ID;
   var $BODY = $('body');
@@ -97,12 +97,7 @@
               $root.addClass(B_PROVIDER + provider);
             }
 
-            // @deprecated in 2.17, and is removed in 3.x for local classes.
-            $BODY.addClass(C_CBOX_ON + ' ' + C_CBOX_ON + '--' + media.type);
             if (isIframe || isHtml) {
-              // @deprecated in 2.17, and is removed in 3.x for local classes.
-              $BODY.addClass(isIframe ? C_CBOX_ON + '--media' : C_CBOX_ON + '--html');
-
               resizeBox();
             }
           }
@@ -130,11 +125,6 @@
     function removeClasses() {
       // Re-check might be empty for some reasons.
       $root = $(S_ROOT);
-
-      // @todo remove at 3.x for local classes.
-      $BODY.removeClass(function (index, css) {
-        return (css.match(/(^|\s)colorbox-\S+/g) || []).join(' ');
-      });
 
       $root.removeClass(B_PROVIDER + MD_PROVIDER);
       $root.removeClass(function (index, css) {

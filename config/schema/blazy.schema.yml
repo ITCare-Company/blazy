@@ -53,12 +53,6 @@ blazy.settings:
     use_oembed:
       type: boolean
       label: 'Use oEmbed'
-    use_theme_blazy:
-      type: boolean
-      label: 'Use theme_blazy()'
-    responsive_image:
-      type: boolean
-      label: 'Support Responsive image'
     blazy:
       type: mapping
       label: Blazy
@@ -177,8 +171,3 @@ filter_settings.blazy_filter:
 field.formatter.settings.blazy_file:
   type: blazy_base
   label: 'Blazy File/SVG display format settings'
-
-# @todo remove at 3.x anything below this line:
-field.formatter.settings.blazy_video:
-  type: blazy_base
-  label: 'Blazy image with VEF display format settings'

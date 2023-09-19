@@ -10,7 +10,6 @@ blur_client: false
 blur_storage: false
 blur_minwidth: 0
 noscript: false
-responsive_image: false
 one_pixel: true
 visible_class: false
 wrapper_class: false
@@ -19,7 +18,6 @@ placeholder: ''
 unstyled_extensions: ''
 use_encodedbox: false
 use_oembed: false
-use_theme_blazy: false
 extras: {}
 blazy:
   loadInvisible: false

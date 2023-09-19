@@ -2,8 +2,6 @@
 
 namespace Drupal\blazy;
 
-use Drupal\blazy\Cache\BlazyCache;
-use Drupal\blazy\Deprecated\BlazyManagerDeprecatedTrait;
 use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\Thumbnail;
 use Drupal\blazy\Utility\Check;
@@ -15,17 +13,12 @@ use Drupal\blazy\Utility\Path;
  */
 abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInterface {
 
-  // @todo remove at 3.x:
-  use BlazyManagerDeprecatedTrait;
-
   /**
    * {@inheritdoc}
    */
   public function attach(array $attach = []) {
-    // @todo enable at 3.x: $load = $this->libraries->attach($attach);
-    // $blazies = $attach['blazies'];
-    $load = [];
-    $blazies = Check::attachments($load, $attach);
+    $load    = $this->libraries->attach($attach);
+    $blazies = $attach['blazies'];
 
     $this->attachments($load, $attach, $blazies);
 
@@ -50,30 +43,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    * {@inheritdoc}
    */
   public function getIoSettings(array $attach = []): object {
-    $io = [];
-    $thold = $this->config('io.threshold');
-    $thold = str_replace(['[', ']'], '', trim($thold ?: '0'));
-
-    // @todo re-check, looks like the default 0 is broken sometimes.
-    if ($thold == '0') {
-      $thold = '0, 0.25, 0.5, 0.75, 1';
-    }
-
-    $thold = strpos($thold, ',') !== FALSE
-      ? array_map('trim', explode(',', $thold)) : [$thold];
-    $formatted = [];
-    foreach ($thold as $value) {
-      $formatted[] = strpos($value, '.') !== FALSE ? (float) $value : (int) $value;
-    }
-
-    // Respects hook_blazy_attach_alter() for more fine-grained control.
-    foreach (['disconnect', 'rootMargin', 'threshold'] as $key) {
-      $default = $key == 'rootMargin' ? '0px' : FALSE;
-      $value = $key == 'threshold' ? $formatted : $this->config('io.' . $key);
-      $io[$key] = $attach['io.' . $key] ?? ($value ?: $default);
-    }
-    // @todo enable at 3.x: return $this->libraries->getIoSettings($attach);
-    return (object) $io;
+    return $this->libraries->getIoSettings($attach);
   }
 
   /**
@@ -108,9 +78,9 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    * {@inheritdoc}
    */
   public function getLightboxes(): array {
-    $cid = 'blazy_lightboxes';
-    // @todo at 3.x: $this->libraries->getLightboxes();
-    $data = BlazyCache::lightboxes($this->root);
+    $cid  = 'blazy_lightboxes';
+    $data = $this->libraries->getLightboxes();
+
     return $this->getCachedOptions($cid, $data);
   }
 
@@ -216,7 +186,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $is_blur = $fx == 'blur';
     $is_resimage = $this->moduleExists('responsive_image');
     $namespace = $blazies->get('namespace');
-    $use_blazy = $ui['use_theme_blazy'] ?? FALSE;
+    $use_blazy = TRUE;
 
     $blazies->set('fx', $fx)
       ->set('iframe_domain', $iframe_domain)
@@ -323,42 +293,6 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $element['#namespace'] = static::$namespace;
 
     $this->moduleHandler->alter('blazy_element', $element, $settings);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @todo remove at/by 3.x after subs extending BlazyManagerBaseInterface.
-   */
-  public function build(array $build): array {
-    return [];
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @todo remove at/by 3.x after subs extending BlazyManagerBaseInterface.
-   */
-  public function getBlazy(array $build): array {
-    return [];
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @todo remove at/by 3.x after subs extending BlazyManagerBaseInterface.
-   */
-  public function preRenderBlazy(array $element): array {
-    return [];
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @todo remove at/by 3.x after subs extending BlazyManagerBaseInterface.
-   */
-  public function preRenderBuild(array $element): array {
-    return [];
   }
 
 }

@@ -32,6 +32,14 @@ interface BlazyInterface {
   public function entityTypeManager();
 
   /**
+   * Returns the libraries service.
+   *
+   * @return \Drupal\blazy\Asset\LibrariesInterface
+   *   The libraries service.
+   */
+  public function libraries();
+
+  /**
    * Returns the module handler service.
    *
    * @return \Drupal\Core\Extension\ModuleHandlerInterface

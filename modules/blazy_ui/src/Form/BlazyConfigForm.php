@@ -8,9 +8,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
 /**
- * Defines blazy admin settings form.
+ * Defines blazy admin config form.
  */
-class BlazySettingsForm extends BlazyConfigFormBase {
+class BlazyConfigForm extends BlazyConfigFormBase {
 
   /**
    * {@inheritdoc}
@@ -123,15 +123,6 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       '#description'   => $this->t('Uncheck to disable blazy related admin compact form styling, only if not compatible with your admin theme.'),
     ];
 
-    $form['use_theme_blazy'] = [
-      '#type'          => 'checkbox',
-      '#title'         => $this->t('Use theme_blazy()'),
-      '#description'   => $this->t('Check to use theme_blazy() specific for sub-modules theme_ITEM() (theme_slick_slide(), theme_splide_slide(), theme_gridstack_box(), etc.) contents with images/media along with their captions. This will be forced at blazy:3.x. You can help starting the migrations by enabling this to spot problems. If any issues, please disable and report for fixes, <a href=":url">read more</a>.', [
-        ':url' => '/admin/help/blazy_ui#theme-blazy',
-      ]),
-      '#default_value' => $config->get('use_theme_blazy'),
-    ];
-
     $form['use_oembed'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Use oEmbed'),
@@ -179,16 +170,6 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       '#title'         => $this->t('Add noscript'),
       '#default_value' => $config->get('noscript'),
       '#description'   => $this->t('Enable noscript if you want to support <a href=":url">non-javascript users</a>.', [':url' => 'https://stackoverflow.com/questions/9478737']),
-    ];
-
-    // @todo remove users's consent at 3.x, should be enough with manual check.
-    // It was an option due to not being fully integrated till likely 2.4+.
-    $form['responsive_image'] = [
-      '#type'          => 'checkbox',
-      '#title'         => $this->t('Support Responsive image'),
-      '#default_value' => $config->get('responsive_image'),
-      '#description'   => $this->t('(Deprecated in blazy:2.5, and is removed in blazy:3.x for module exists check. It was a user consent option due to not being fully integrated till likely blazy:2.4+ so to disable easily without breaking things). Old description: Check to support lazyloading for the core Responsive image module. Be sure to use blazy-related formatters.'),
-      '#disabled'      => !function_exists('responsive_image_get_image_dimensions'),
     ];
 
     $form['one_pixel'] = [
@@ -404,7 +385,6 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       ->set('blur_storage', $form_state->getValue('blur_storage'))
       ->set('blur_minwidth', $form_state->getValue('blur_minwidth'))
       ->set('noscript', $form_state->getValue('noscript'))
-      ->set('responsive_image', $form_state->getValue('responsive_image'))
       ->set('one_pixel', $form_state->getValue('one_pixel'))
       ->set('visible_class', $form_state->getValue('visible_class'))
       ->set('wrapper_class', $form_state->getValue('wrapper_class'))
@@ -412,7 +392,6 @@ class BlazySettingsForm extends BlazyConfigFormBase {
       ->set('placeholder', $form_state->getValue('placeholder'))
       ->set('unstyled_extensions', $form_state->getValue('unstyled_extensions'))
       ->set('use_encodedbox', $form_state->getValue('use_encodedbox'))
-      ->set('use_theme_blazy', $form_state->getValue('use_theme_blazy'))
       ->set('use_oembed', $form_state->getValue('use_oembed'))
       ->set('blazy.loadInvisible', $form_state->getValue([
         'blazy',

@@ -25,7 +25,7 @@ function blazy_ui_help($route_name) {
 
     $output = '';
     foreach ($items as $key) {
-      $output .= file_get_contents(dirname(dirname(__FILE__)) . "/docs/{$key}.md");
+      $output .= file_get_contents(dirname(dirname(dirname(__FILE__))) . "/docs/{$key}.md");
     }
 
     return blazy()->markdown($output);

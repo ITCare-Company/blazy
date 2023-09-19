@@ -17,8 +17,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides libraries utilities.
- *
- * @todo enable the service at 3.x, non-functional till a minimum D9.3.
  */
 class Libraries implements LibrariesInterface {
 
@@ -391,10 +389,8 @@ class Libraries implements LibrariesInterface {
       $lightboxes[] = 'colorbox';
     }
 
-    // @todo remove deprecated unmaintained photobox.
     // Most lightboxes are unmantained, only supports mostly used, or robust.
     $paths = [
-      'photobox' => 'photobox/photobox/jquery.photobox.js',
       'mfp' => 'magnific-popup/dist/jquery.magnific-popup.min.js',
     ];
 

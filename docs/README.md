@@ -54,17 +54,6 @@ Core modules:
 1. Media  
 2. Filter
 
-### Applicable for Blazy module <= 2.5:
-The bLazy library is forked at Blazy 2.6, and no longer required from now on,
-see [#3257511](https://drupal.org/node/3257511).
-Any references to bLazy library is no longer relevant for forked version at 2.6.  
-
-* [Download bLazy](https://github.com/dinbror/blazy)  
-* Extract it as is, rename **blazy-master** to **blazy**, so both assets are:  
-
-  + **/libraries/blazy/blazy.js**
-  + **/libraries/blazy/blazy.min.js**
-
 ***
 ## <a name="recommended-modules"> </a>RECOMMENDED LIBRARIES/ MODULES
 For better admin help page, either way will do, ordered by recommendation:  

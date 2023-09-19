@@ -2,28 +2,16 @@
 
 namespace Drupal\blazy;
 
-use Drupal\blazy\Deprecated\BlazyDeprecatedTrait;
 use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Sanitize;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Provides common public blazy utility and a few aliases for frequent methods.
- *
- * Was planned to be non-static since 1.x as blazy service, failed miserably
- * and removed at 2.x as service due to some design problems.
- * Since 2.17, we are preparing it for a service at 3.x, thus static methods
- * similar to BlazyInterface will need to be removed at 3.x so that it can be
- * made non-static and extends BlazyBase as a non-manager alternative. Those
- * deprecated methods are stored in BlazyDeprecatedTrait for easy removal.
- * Two reasons for the failures: no real motivations, and enjoying static
- * methods better. More reasons for re-enacting it as a service: a new
- * compelling motivation for blazy.skin service at 3.x for sub-modules
- * boilerplate reducers, and more cool kid features like flybox, hoverable
- * effects, skins etc.
  *
  * Using aliases allow Blazy to self-organize, or improve as needed. A good
  * sample is BlazyGrid relocation, or likely BlazySettings, etc. If you are
@@ -33,13 +21,8 @@ use Drupal\blazy\Utility\Sanitize;
  *     were proven to change to non-static overtime to overcome static class
  *     limitations, or design problems. Some were moved into BlazyInterface
  *     since early 2.16.
- *
- * @todo refactor as a service at 3.x for non-manager alternative.
  */
-class Blazy {
-
-  // @todo remove at blazy:3.0.
-  use BlazyDeprecatedTrait;
+class Blazy extends BlazyBase {
 
   /**
    * Alias for CheckItem::autoplay().
@@ -188,6 +171,29 @@ class Blazy {
       return (int) $service->getInstalledVersion((string) $module);
     }
     return 0;
+  }
+
+  /**
+   * Implements hook_field_formatter_info_alter().
+   *
+   * @todo remove from blazy:8.x-2.1 for
+   *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter.
+   * @see https://www.drupal.org/node/3103018
+   */
+  public static function fieldFormatterInfoAlter(array &$info): void {
+    // Supports optional Media Entity via VEM/VEF if available.
+    $common = [
+      'description' => new TranslatableMarkup('Displays lazyloaded images, or iframes, for VEF/ ME.'),
+      'quickedit'   => ['editor' => 'disabled'],
+      'provider'    => 'blazy',
+    ];
+
+    $info['blazy_video'] = $common + [
+      'id'          => 'blazy_video',
+      'label'       => new TranslatableMarkup('Blazy VEF (removed in 3.0.0)'),
+      'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter',
+      'field_types' => ['video_embed_field'],
+    ];
   }
 
 }
