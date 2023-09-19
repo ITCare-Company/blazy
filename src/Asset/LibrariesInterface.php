@@ -70,7 +70,7 @@ interface LibrariesInterface {
    * @return array
    *   The supported libraries.
    */
-  public function attach(array $attach = []): array;
+  public function attach(array &$attach): array;
 
   /**
    * Gets a single library defined by an extension by name.

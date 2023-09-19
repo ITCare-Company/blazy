@@ -157,7 +157,7 @@ class Libraries implements LibrariesInterface {
   /**
    * {@inheritdoc}
    */
-  public function attach(array $attach = []): array {
+  public function attach(array &$attach): array {
     Internals::postSettings($attach);
 
     $load    = [];
