@@ -37,6 +37,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
    * @covers ::configFactory
    */
   public function testBlazyManagerServiceInstances() {
+    $this->assertInstanceOf('\Drupal\blazy\Asset\LibrariesInterface', $this->blazyManager->libraries());
     $this->assertInstanceOf('\Drupal\Core\Entity\EntityTypeManagerInterface', $this->blazyManager->entityTypeManager());
     $this->assertInstanceOf('\Drupal\Core\Extension\ModuleHandlerInterface', $this->blazyManager->moduleHandler());
     $this->assertInstanceOf('\Drupal\Core\Render\RendererInterface', $this->blazyManager->renderer());

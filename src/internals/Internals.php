@@ -412,8 +412,7 @@ class Internals {
    * Returns the cross-compat D8 ~ D10 app root.
    */
   public static function root($container) {
-    return version_compare(\Drupal::VERSION, '9.0', '<')
-      ? $container->get('app.root') : $container->getParameter('app.root');
+    return $container->getParameter('app.root');
   }
 
   /**

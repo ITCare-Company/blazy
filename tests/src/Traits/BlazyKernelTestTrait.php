@@ -72,6 +72,7 @@ trait BlazyKernelTestTrait {
     $this->blazyAdminFormatter    = $this->container->get('blazy.admin.formatter');
     $this->blazyAdmin             = $this->container->get('blazy.admin');
     $this->languageManager        = $this->container->get('language_manager');
+    $this->libraries              = $this->container->get('blazy.libraries');
   }
 
 }
