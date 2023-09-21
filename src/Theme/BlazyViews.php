@@ -120,12 +120,14 @@ class BlazyViews {
     $settings['view_name']    = $view_name;
     $settings['view_display'] = $display;
 
+    $data = Internals::getViewFieldData($view);
     $view_info = [
       'count'       => $count,
       'display'     => $display,
       'embedded'    => $embedded,
       'instance_id' => $instance,
-      'data'        => Internals::getViewFieldData($view),
+      'data'        => $data,
+      'multifield'  => count($data['fields']) > 1,
       'name'        => $view_name,
       'plugin_id'   => $plugin_id,
       'view_mode'   => $view_mode,

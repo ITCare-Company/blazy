@@ -78,7 +78,7 @@ class Attributes {
       }
     }
 
-    if (!empty($settings['caption'])) {
+    if (!empty($settings['caption']) || $blazies->get('view.multifield')) {
       $classes[] = 'is-b-captioned';
     }
 
