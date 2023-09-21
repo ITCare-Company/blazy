@@ -3,126 +3,18 @@
 namespace Drupal\blazy\Media\Svg;
 
 use Drupal\blazy\internals\Internals;
+use Drupal\blazy\Media\BlazyFile;
 use Drupal\Component\Utility\Color;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\Core\Image\ImageFactory;
-use Drupal\Core\Image\ImageInterface;
-use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\file\Entity\File;
-use Drupal\file\FileRepository;
 use enshrined\svgSanitize\Sanitizer;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides Svg utility for blazy_file with SVG, and blur images.
  *
  * @todo make this class also functional for SVG blur.
  */
-class Svg implements SvgInterface {
-
-  /**
-   * The file system service.
-   *
-   * @var \Drupal\Core\File\FileSystemInterface
-   */
-  protected $fileSystem;
-
-  /**
-   * The file repository service.
-   *
-   * @var \Drupal\file\FileRepository
-   */
-  protected $fileRepository;
-
-  /**
-   * The image object.
-   *
-   * @var \Drupal\Core\Image\ImageInterface
-   */
-  protected $image;
-
-  /**
-   * The image factory service.
-   *
-   * @var \Drupal\Core\Image\ImageFactory
-   */
-  protected $imageFactory;
-
-  /**
-   * A logger instance.
-   *
-   * @var \Drupal\Core\Logger\LoggerChannelInterface
-   */
-  protected $logger;
-
-  /**
-   * Constructs a SVG manager object.
-   */
-  public function __construct(
-    FileSystemInterface $file_system,
-    FileRepository $file_repository,
-    ImageFactory $image_factory,
-    LoggerChannelFactoryInterface $logger
-  ) {
-    $this->fileSystem = $file_system;
-    $this->fileRepository = $file_repository;
-    $this->imageFactory = $image_factory;
-    $this->logger = $logger->get('image');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('file_system'),
-      $container->get('file.repository'),
-      $container->get('image.factory'),
-      $container->get('logger.factory')
-    );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function fileSystem(): FileSystemInterface {
-    return $this->fileSystem;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function fileRepository(): FileRepository {
-    return $this->fileRepository;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function imageFactory(): ImageFactory {
-    return $this->imageFactory;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function image($source = NULL, $toolkit_id = NULL): ImageInterface {
-    return $this->imageFactory->get($source, $toolkit_id);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isSvg(File $file): bool {
-    return $file->getMimeType() === 'image/svg+xml';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function realpath($uri): string {
-    return $this->fileSystem->realpath($uri);
-  }
+class Svg extends BlazyFile implements SvgInterface {
 
   /**
    * {@inheritdoc}

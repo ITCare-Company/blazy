@@ -152,11 +152,7 @@
     {%- if media_attributes -%}</div>{%- endif -%}
   {%- endblock %}
 
-  {#
-     Since 2.17, this will replace sub-modules theme_ITEM() contents at 3.x.
-     To test it out, enable the option `Use theme_blazy()` at Blazy UI.
-     It opens up the door for hoverable effects, etc. at ease and reduce dups.
-  #}
+  {# Since 3.x, this replaces sub-modules theme_ITEM() contents. #}
   {%- set IS_INLINE = captions.inline is not empty -%}
   {%- set IS_OVERLAY = captions.overlay is not empty -%}
 

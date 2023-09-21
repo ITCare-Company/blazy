@@ -8,7 +8,6 @@ use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Sanitize;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Provides common public blazy utility and a few aliases for frequent methods.
@@ -163,37 +162,12 @@ class Blazy extends BlazyBase {
 
   /**
    * Returns a module installed version based on `hook_update_VERSION`.
-   *
-   * @requires drupal:9.3.0, no need a fallback.
    */
   public static function version($module): int {
     if ($service = Internals::service('update.update_hook_registry')) {
       return (int) $service->getInstalledVersion((string) $module);
     }
     return 0;
-  }
-
-  /**
-   * Implements hook_field_formatter_info_alter().
-   *
-   * @todo remove from blazy:8.x-2.1 for
-   *   \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyMediaFormatter.
-   * @see https://www.drupal.org/node/3103018
-   */
-  public static function fieldFormatterInfoAlter(array &$info): void {
-    // Supports optional Media Entity via VEM/VEF if available.
-    $common = [
-      'description' => new TranslatableMarkup('Displays lazyloaded images, or iframes, for VEF/ ME.'),
-      'quickedit'   => ['editor' => 'disabled'],
-      'provider'    => 'blazy',
-    ];
-
-    $info['blazy_video'] = $common + [
-      'id'          => 'blazy_video',
-      'label'       => new TranslatableMarkup('Blazy VEF (removed in 3.0.0)'),
-      'class'       => 'Drupal\blazy\Plugin\Field\FieldFormatter\BlazyVideoFormatter',
-      'field_types' => ['video_embed_field'],
-    ];
   }
 
 }

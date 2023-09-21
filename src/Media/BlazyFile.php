@@ -7,20 +7,118 @@ use Drupal\blazy\Utility\Path;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\Image\ImageFactory;
+use Drupal\Core\Image\ImageInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\file\FileInterface;
+use Drupal\file\FileRepository;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides file_BLAH BC for D8 - D10+ till D11 rules.
  *
- * @internal
- *   This is an internal part of the Blazy system and should only be used by
- *   blazy-related code in Blazy module.
- *
- * @todo recap similiraties and make them plugins.
  * @todo remove deprecated functions post D11, not D10, or when D8 is dropped.
  */
-class BlazyFile {
+class BlazyFile implements BlazyFileInterface {
+
+  /**
+   * The file system service.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
+  protected $fileSystem;
+
+  /**
+   * The file repository service.
+   *
+   * @var \Drupal\file\FileRepository
+   */
+  protected $fileRepository;
+
+  /**
+   * The image object.
+   *
+   * @var \Drupal\Core\Image\ImageInterface
+   */
+  protected $image;
+
+  /**
+   * The image factory service.
+   *
+   * @var \Drupal\Core\Image\ImageFactory
+   */
+  protected $imageFactory;
+
+  /**
+   * A logger instance.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
+  protected $logger;
+
+  /**
+   * Constructs a SVG manager object.
+   */
+  public function __construct(
+    FileSystemInterface $file_system,
+    FileRepository $file_repository,
+    ImageFactory $image_factory,
+    LoggerChannelFactoryInterface $logger
+  ) {
+    $this->fileSystem = $file_system;
+    $this->fileRepository = $file_repository;
+    $this->imageFactory = $image_factory;
+    $this->logger = $logger->get('image');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('file_system'),
+      $container->get('file.repository'),
+      $container->get('image.factory'),
+      $container->get('logger.factory')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fileSystem(): FileSystemInterface {
+    return $this->fileSystem;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fileRepository(): FileRepository {
+    return $this->fileRepository;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function imageFactory(): ImageFactory {
+    return $this->imageFactory;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function image($source = NULL, $toolkit_id = NULL): ImageInterface {
+    return $this->imageFactory->get($source, $toolkit_id);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function realpath($uri): string {
+    return $this->fileSystem->realpath($uri);
+  }
 
   /**
    * Returns TRUE if an external URL.

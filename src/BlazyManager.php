@@ -446,6 +446,15 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Such as disabling lightbox for inline media player.
     $this->moduleHandler->alter('blazy_item', $settings, $attributes, $item_attributes);
 
+    // Update media switcher based on the hook_blazy_item_alter.
+    $blazies    = $settings['blazies'];
+    $api_switch = $blazies->get('switch');
+    if ($api_switch && $switch = $settings['media_switch'] ?? NULL) {
+      if ($switch != $api_switch) {
+        $settings['media_switch'] = $api_switch;
+      }
+    }
+
     // Only process (Responsive) image/ video if no rich-media are provided.
     // @todo recheck move it above before prepare if any needs or better.
     $build['content'] = Internals::toContent($build, TRUE);

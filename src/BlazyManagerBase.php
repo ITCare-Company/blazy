@@ -16,7 +16,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   /**
    * {@inheritdoc}
    */
-  public function attach(array $attach = []) {
+  public function attach(array $attach = []): array {
     $load    = $this->libraries->attach($attach);
     $blazies = $attach['blazies'];
 

@@ -138,6 +138,8 @@ class BlazyViews {
       ->set('css.id', $id)
       ->set('is.multiple', $count > 1)
       ->set('is.view', $is_view)
+      // Prevents potential broken core image formatter due to lack of options.
+      ->set('libs.ratio', TRUE)
       ->set('use.ajax', $view->ajaxEnabled())
       ->set('view', $view_info, TRUE);
 

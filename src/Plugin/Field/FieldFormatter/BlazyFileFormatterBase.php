@@ -161,10 +161,8 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
   /**
    * Returns the Blazy elements, also for sub-modules to re-use.
-   *
-   * @todo remove parameter $options for properties after sub-modules.
    */
-  protected function getElements(array $build, $files, $options = NULL): \Generator {
+  protected function getElements(array $build, $files): \Generator {
     $settings = $this->formatter->toHashtag($build);
     $limit    = $this->getViewLimit($settings);
 
@@ -377,10 +375,10 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     $field       = $this->fieldDefinition;
     $target_type = $target_type ?: $this->getFieldSetting('target_type');
     $bundles     = $this->getAvailableBundles();
-    $type        = method_exists($field, 'get') ? $field->get('entity_type') : NULL;
+    $entity_type = method_exists($field, 'get') ? $field->get('entity_type') : NULL;
 
-    if (!$bundles && $type && $service = $this->formatter->service('entity_type.bundle.info')) {
-      $bundles = $service->getBundleInfo($type);
+    if (!$bundles && $entity_type && $service = $this->formatter->service('entity_type.bundle.info')) {
+      $bundles = $service->getBundleInfo($entity_type);
     }
 
     return $this->getFieldOptionsWithBundles($bundles, $names, $target_type);

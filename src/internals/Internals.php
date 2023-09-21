@@ -485,9 +485,6 @@ class Internals {
         ->set('media.escaped', $sanitized);
     }
 
-    // @todo remove is.rendered for use.content at 3.x:
-    $blazies->set('is.rendered', FALSE);
-
     return $blazies->set('is.iframeable', TRUE)
       ->set('is.playable', TRUE)
       ->set('is.multimedia', TRUE)

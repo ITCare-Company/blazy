@@ -2,10 +2,12 @@
 
 namespace Drupal\blazy;
 
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+
 /**
- * Provides common blazy utility methods.
+ * Provides base blazy utility methods.
  */
-interface BlazyInterface {
+interface BlazyInterface extends ContainerInjectionInterface {
 
   /**
    * Returns the app root.

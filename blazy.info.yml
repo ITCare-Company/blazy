@@ -1,11 +1,12 @@
 name: Blazy
 type: module
-description: "Provides basic Blazy integration for lazy loading and multi-serving images."
+description: "Provides media lazy loading."
 core_version_requirement: ^9.3 || ^10 || ^11
 package: Blazy
 dependencies:
   - drupal:filter
   - drupal:media
+
 test_dependencies:
   - drupal:responsive_image
   - drupal:views

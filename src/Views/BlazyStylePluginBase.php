@@ -63,21 +63,23 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
       $rendered = $image['rendered'] ?? [];
       $element['#item'] = $image['raw'] ?? NULL;
 
-      if (!empty($image['applicable'])) {
-        if ($content = $rendered['#build']['content'] ?? []) {
-          // Fixed for missing data-thumb thumbnail with local video, needed
-          // by option static grid/ hoverable thumbnail.
-          if ($blazies->get('thumbnail.uri') && $blazies->is('local_media')) {
-            $blazies->set('is.multicontent', TRUE);
-          }
+      if ($rendered) {
+        if (!empty($image['applicable'])) {
+          if ($content = $rendered['#build']['content'] ?? []) {
+            // Fixed for missing data-thumb thumbnail with local video, needed
+            // by option static grid/ hoverable thumbnail.
+            if ($blazies->get('thumbnail.uri') && $blazies->is('local_media')) {
+              $blazies->set('is.multicontent', TRUE);
+            }
 
-          $element['content'] = $content;
+            $element['content'] = $content;
+          }
         }
-      }
-      else {
-        // VEF can be iframed as long as having URI, even from a thumbnail.
-        if (!$this->mediaManager->iframeable($rendered, $settings)) {
-          $element['content'][] = $rendered;
+        else {
+          // VEF can be iframed as long as having URI, even from a thumbnail.
+          if (!$this->mediaManager->iframeable($rendered, $settings)) {
+            $element['content'][] = $rendered;
+          }
         }
       }
 
@@ -138,7 +140,6 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   /**
    * Returns the relevant elements based on the configuration.
    *
-   * @todo call self::themeBlazy() directly at 3.x after sub-modules.
    * @todo remove for BlazyElementTrait if similar to field formatters.
    */
   protected function toElement($blazies, array &$data, array $captions): void {
@@ -150,13 +151,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
 
     // Provides inline SVG if applicable.
     // @todo recheck $this->viewSvg($data);
-    if ($blazies->use('theme_blazy')) {
-      $this->themeBlazy($data, $captions, $delta);
-    }
-    else {
-      // @todo remove at 3.x.
-      $this->themeItem($data, $captions, $delta);
-    }
+    $this->themeBlazy($data, $captions, $delta);
   }
 
   /**
@@ -314,8 +309,6 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   /**
    * Builds the item using theme_blazy(), if so-configured.
    *
-   * This is the future implementation after mergers at/by 3.x.
-   *
    * @todo remove for BlazyElementTrait if similar to field formatters.
    */
   private function themeBlazy(array &$element, array $captions, $delta): void {
@@ -331,27 +324,6 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
       $element[static::$itemId] = $output;
       $this->formatter->postBlazy($element, $output);
     }
-    unset($element['content']);
-  }
-
-  /**
-   * This is the current implementation before mergers at 3.x.
-   *
-   * Looks simpler, yet it has lots of dup efforts downstream.
-   *
-   * @todo remove for BlazyElementTrait if similar to field formatters.
-   * @todo remove regardless at 3.x.
-   */
-  private function themeItem(array &$element, array $captions, $delta): void {
-    $internal = $element;
-
-    if ($blazy = $this->formatter->getBlazy($internal)) {
-      $output = $this->withHashtag($element, $blazy);
-      $element[static::$itemId] = $output;
-      $this->formatter->postBlazy($element, $output);
-    }
-
-    $element[static::$captionId] = $captions;
     unset($element['content']);
   }
 

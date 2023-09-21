@@ -4,9 +4,6 @@ namespace Drupal\blazy;
 
 /**
  * Defines re-usable media-related methods across Blazy ecosystem to DRY.
- *
- * Sub-modules should implement/ extend BlazyManagerBaseInterface, not
- * BlazyManagerInterface to have their own unique render methods.
  */
 interface BlazyManagerBaseInterface extends BlazyInterface {
 
@@ -21,10 +18,8 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *
    * @return array
    *   The supported libraries.
-   *
-   * @todo add return type hint :array at/by 3.x after sub-modules.
    */
-  public function attach(array $attach = []);
+  public function attach(array $attach = []): array;
 
   /**
    * Alias for Blazy::containerAttributes().
