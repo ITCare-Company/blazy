@@ -516,7 +516,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     if (!$blazies->is('cache_deferred')) {
       if ($caches = $blazies->get('cache.metadata', [])) {
         if (isset($caches['tags'])) {
-          $caches['tags'] = array_unique($caches['tags']);
+          $caches['tags'] = array_unique($caches['tags'], SORT_REGULAR);
         }
         $element['#cache'] = $caches;
       }

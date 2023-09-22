@@ -209,7 +209,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     /** @var \Drupal\media\Entity\Media $entity */
     if ($valid) {
       $this->fromMedia($build);
-
     }
     else {
       // Attempts to get image data directly from oEmbed resource.

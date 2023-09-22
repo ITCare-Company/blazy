@@ -102,7 +102,7 @@ class Libraries implements LibrariesInterface {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      Internals::root($container),
+      $container->getParameter('app.root'),
       $container->get('cache.default'),
       $container->get('config.factory'),
       $container->get('library.discovery'),
