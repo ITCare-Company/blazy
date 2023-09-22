@@ -383,9 +383,10 @@ class BlazySettings implements \Countable {
 
     if (is_array($value) && $merge) {
       $value = array_merge((array) $this->get($key, []), $value);
-      if (isset($value[1])) {
-        $value = array_unique($value);
-      }
+      // @todo recheck Array to string conversion.
+      // if (isset($value[1])) {
+      // $value = array_unique($value);
+      // }
     }
 
     if (count($parts) == 1) {
