@@ -208,7 +208,6 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
 
     /** @var \Drupal\media\Entity\Media $entity */
     if ($valid) {
-      $build['#entity'] = $media;
       $this->fromMedia($build);
 
     }
@@ -386,7 +385,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
     $source   = $blazies->get('media.source');
 
     // Overrides entity with the translated version.
-    $build['#entity'] = $media;
+    if ($build['#entity'] instanceof MediaInterface) {
+      $build['#entity'] = $media;
+    }
 
     // Local video/ audio file were fully supported since 2.17.
     // @todo support other media sources: Resource::TYPE_PHOTO,

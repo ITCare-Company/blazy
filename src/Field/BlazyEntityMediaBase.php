@@ -231,7 +231,11 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     }
 
     // @todo better way than hard-coding field name.
-    unset($captions['field_image'], $captions['field_media_image']);
+    unset(
+      $captions['field_image'],
+      $captions['field_media_image'],
+      $captions['field_media']
+    );
 
     return [
       'background'        => TRUE,
