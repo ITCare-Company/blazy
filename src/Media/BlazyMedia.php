@@ -131,7 +131,7 @@ class BlazyMedia implements BlazyMediaInterface {
    * {@inheritdoc}
    */
   public function view(array $build): array {
-    $entity   = $build['#entity'];
+    $entity   = $build['#media'] ?? $build['#entity'];
     $settings = &$build['#settings'];
     $item     = $build['#item'] ?? NULL;
 
@@ -361,7 +361,7 @@ class BlazyMedia implements BlazyMediaInterface {
    * {@inheritdoc}
    */
   public function prepare(array &$data): MediaInterface {
-    $media     = $data['#entity'];
+    $media     = $data['#media'] ?? $data['#entity'];
     $settings  = &$data['#settings'];
     $blazies   = $settings['blazies'];
     $view_mode = $settings['view_mode'] ?? 'default';
