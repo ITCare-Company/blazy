@@ -75,6 +75,7 @@ trait BlazyElementTrait {
           ->set('lazy.html', FALSE)
           ->set('use.image', FALSE)
           ->set('use.loader', FALSE);
+
         $element['content'][] = ['#markup' => Markup::create($output)];
       }
     }

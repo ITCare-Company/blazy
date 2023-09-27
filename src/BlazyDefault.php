@@ -285,7 +285,6 @@ class BlazyDefault {
       'visible_class'       => FALSE,
       'noscript'            => FALSE,
       'placeholder'         => '',
-      'responsive_image'    => FALSE,
       'unstyled_extensions' => '',
     ];
   }
@@ -392,7 +391,6 @@ class BlazyDefault {
       'filter',
       'media',
       'mfp',
-      'photobox',
       'ratio',
     ]);
     return array_merge($components, array_keys(self::dyComponents()));
@@ -487,7 +485,6 @@ class BlazyDefault {
    */
   public static function deprecatedSettings() {
     return [
-      'breakpoints' => [],
       'current_view_mode' => '',
       'fx' => '',
       'grid_header' => '',

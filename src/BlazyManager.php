@@ -85,22 +85,20 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $blazies = $settings['blazies'];
 
     // Bail out if no URI is provided.
-    if (!$blazies->get('image.uri')) {
-      return $element;
-    }
+    if ($blazies->get('image.uri')) {
+      $url = $blazies->get('media.link') ?: $blazies->get('entity.url');
+      if ($url instanceof Url) {
+        $url = $url->toString();
+      }
 
-    $url = $blazies->get('media.link') ?: $blazies->get('entity.url');
-    if ($url instanceof Url) {
-      $url = $url->toString();
-    }
-
-    // Requires a string to strip, image_formatter has a Url object.
-    if ($blazies->get('switch') == 'content' && $url && is_string($url)) {
-      $element['#url'] = UrlHelper::stripDangerousProtocols($url);
-      $element['#url_attributes']['class'][] = 'b-link';
-    }
-    elseif ($blazies->is('lightbox')) {
-      Lightbox::build($element);
+      // Requires a string to strip, image_formatter has a Url object.
+      if ($blazies->get('switch') == 'content' && $url && is_string($url)) {
+        $element['#url'] = UrlHelper::stripDangerousProtocols($url);
+        $element['#url_attributes']['class'][] = 'b-link';
+      }
+      elseif ($blazies->is('lightbox')) {
+        Lightbox::build($element);
+      }
     }
 
     unset($build);
@@ -289,7 +287,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Supports HTML content for lightboxes as long as having image trigger.
     // Only limit to local media to not conflict with Image rendered by its
     // formatter option, Facebook, Twitter, etc.
-    // Since 2.17, any content can be lightboxed along long as supported.
+    // Since 2.17, any content can be lightboxed as long as supported.
     // Only possible if having hires image via `Main stage` aka cross image,
     // and the lightbox is capable to display it.
     $image   = $blazies->get('field.formatter.image', $settings['image'] ?? NULL);
@@ -354,6 +352,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Build out (Responsive) image.
    *
    * Since 2.9, many were moved into BlazyTheme to support custom work better.
+   *
+   * @todo remove all these after moving item_attributes to image.attributes.
    */
   private function buildMedia(array &$element, array &$build): void {
     $item  = $build['#item'];
@@ -432,6 +432,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Initial feature checks, URI, delta, media features, etc.
+    // @todo remove this before 3.x release.
     $item_attributes = &$build['#item_attributes'];
 
     // Ensures CheckItem::essentials() called once.
@@ -542,7 +543,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Returns a theme_field() output.
    */
   private function themeField(array $data, array $settings): array {
-    // If not a grid, pass items as regular index children to theme_field().
+    // Pass items as regular index children to theme_field().
     // Runs after settings.
     $build = $this->toElementChildren($data);
 

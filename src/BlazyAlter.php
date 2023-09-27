@@ -43,21 +43,10 @@ class BlazyAlter {
         // Seems double is ignored, and causes a missing schema, unlike float.
         $type = gettype($value);
         $type = $type == 'double' ? 'float' : $type;
-        $mappings[$key]['type'] = $key == 'breakpoints' ? 'mapping' : (is_array($value) ? 'sequence' : $type);
+        $mappings[$key]['type'] = is_array($value) ? 'sequence' : $type;
 
         if (!is_array($value)) {
           $mappings[$key]['label'] = Unicode::ucfirst(str_replace('_', ' ', $key));
-        }
-      }
-
-      // @todo remove custom breakpoints anytime before 3.x as per #3105243.
-      if (isset($mappings['breakpoints'])) {
-        foreach (['xs', 'sm', 'md', 'lg', 'xl'] as $breakpoint) {
-          $mappings['breakpoints']['mapping'][$breakpoint]['type'] = 'mapping';
-          foreach (['breakpoint', 'width', 'image_style'] as $item) {
-            $mappings['breakpoints']['mapping'][$breakpoint]['mapping'][$item]['type']  = 'string';
-            $mappings['breakpoints']['mapping'][$breakpoint]['mapping'][$item]['label'] = Unicode::ucfirst(str_replace('_', ' ', $item));
-          }
         }
       }
     }
@@ -269,6 +258,9 @@ class BlazyAlter {
    * its options via [data-splidebox] to the correct container, etc., and avoid
    * duplicating injections at both embedded Blazy formatter and Blazy Grid view
    * style. And the same principle applies to all sub-modules.
+   *
+   * Warning! Do not alter configurable settings like use_theme_field here, it
+   * caused 2.16 chaotic markups with Views embedded blazy formatters.
    */
   public static function blazySettingsAlter(array &$build, $items): void {
     $settings = &$build['#settings'];
@@ -283,9 +275,6 @@ class BlazyAlter {
       $display   = is_null($style) ? '' : $style->displayHandler->getPluginId();
       $plugin_id = is_null($style) ? '' : $style->getPluginId();
 
-      // Not needed, can be just accessed via $blazies directly:
-      // $field = $blazies->get('field', []);
-      // $field['count'] = $blazies->get('count');
       // Only eat what we can chew:
       $data = Internals::getViewFieldData($view);
       $current = [
@@ -298,28 +287,11 @@ class BlazyAlter {
         'name'        => $name,
         'plugin_id'   => $plugin_id,
         'view_mode'   => $view_mode,
-        // 'formatter' => $field,
       ];
 
       // Collects view info for the embedded Blazy, and this is not a view.
       $blazies->set('view', $current, TRUE)
         ->set('is.view', FALSE);
-
-      // @todo remove when Blazy has use_theme_field option. This is so to avoid
-      // emptiness when enabling Views `Display all values in the same row`, and
-      // Blazy is embedded inside sub-modules.
-      // @fixme this breaks theme_field() item wrappers when embedded as Views.
-      // Fixing one problem breaks others thingies, doh.
-      /*
-      if ($name = $blazies->get('field.name')) {
-      if ($field = ($view->field[$name] ?? NULL)) {
-      $options = $field->options ?? [];
-      if (!empty($options['group_rows'])) {
-      $settings['use_theme_field'] = TRUE;
-      }
-      }
-      }
-       */
     }
   }
 

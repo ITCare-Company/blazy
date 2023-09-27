@@ -288,15 +288,6 @@ class Internals {
   }
 
   /**
-   * Alias for Path::getLibrariesPath().
-   *
-   * @todo remove after usage checks.
-   */
-  public static function getLibrariesPath($name, $base_path = FALSE): ?string {
-    return Path::getLibrariesPath($name, $base_path);
-  }
-
-  /**
    * Returns the app root.
    *
    * @todo remove after usage checks.

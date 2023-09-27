@@ -4,12 +4,9 @@ namespace Drupal\blazy\Utility;
 
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\internals\Internals;
-use Drupal\blazy\Media\Preloader;
 use Drupal\blazy\Theme\BlazyViews;
-use Drupal\blazy\Theme\Lightbox;
 
 /**
  * Provides feature check methods at container level, or globally.
@@ -22,93 +19,6 @@ use Drupal\blazy\Theme\Lightbox;
  * @todo remove most $settings once migrated and after sub-modules and tests.
  */
 class Check {
-
-  /**
-   * Modifies asset attachments.
-   *
-   * @todo remove for \Drupal\blazy\Asset\Libraries::attach() at 3.x.
-   */
-  public static function attachments(array &$load, array &$attach): BlazySettings {
-    Internals::postSettings($attach);
-    $blazies = $attach['blazies'];
-
-    if (!($manager = Internals::service('blazy.manager'))) {
-      return $blazies;
-    }
-
-    $unblazy = $blazies->is('unblazy', FALSE);
-    $unload  = $blazies->ui('nojs.lazy', FALSE) || $blazies->is('unlazy');
-    $is_grid = $blazies->is('grid');
-    $visible = $blazies->ui('visible_class') && !$is_grid;
-
-    if ($blazies->is('lightbox')) {
-      Lightbox::attach($load, $attach, $blazies);
-    }
-
-    // Always keep Drupal UI config to support dynamic compat features.
-    $config = $manager->config('blazy');
-    $config['loader'] = !$unload;
-    $config['unblazy'] = $unblazy;
-    $config['visibleClass'] = $visible ?: FALSE;
-
-    // One is enough due to various formatters negating each others.
-    $compat = $blazies->get('libs.compat');
-
-    // Only if `No JavaScript` option is disabled, or has compat.
-    // Compat is a loader for Blur, BG, Video which Native doesn't support.
-    if ($compat || !$unload) {
-      if ($compat) {
-        $config['compat'] = $compat;
-      }
-
-      // Modern sites may want to forget oldies, respect.
-      if (!$unblazy) {
-        $load['library'][] = 'blazy/blazy';
-      }
-
-      foreach (BlazyDefault::nojs() as $key) {
-        if (empty($blazies->ui('nojs.' . $key))) {
-          $lib = $key == 'lazy' ? 'load' : $key;
-          $load['library'][] = 'blazy/' . $lib;
-        }
-      }
-    }
-
-    if ($libs = array_filter($blazies->get('libs', []))) {
-      foreach (array_keys($libs) as $lib) {
-        $key = str_replace('__', '.', $lib);
-        $load['library'][] = 'blazy/' . $key;
-      }
-    }
-
-    // @todo remove for the above once all components are set to libs.
-    foreach (BlazyDefault::components() as $component) {
-      $key = str_replace('.', '__', $component);
-      if ($blazies->get('libs.' . $key, FALSE)) {
-        $load['library'][] = 'blazy/' . $component;
-      }
-    }
-
-    // Adds AJAX helper to revalidate Blazy/ IO, if using VIS, or alike.
-    // @todo remove when VIS detaches behaviors properly like IO.
-    if ($blazies->use('ajax', FALSE)) {
-      $load['library'][] = 'blazy/bio.ajax';
-    }
-
-    // Preload.
-    if (!empty($attach['preload'])) {
-      Preloader::preload($load, $attach);
-    }
-
-    // No blazy libraries are loaded when `No JavaScript`, etc. enabled.
-    // And the drupalSettings should not be, either. So quiet here.
-    if (isset($load['library'])) {
-      $load['drupalSettings']['blazy'] = $config;
-      $load['drupalSettings']['blazyIo'] = $manager->getIoSettings($attach);
-      $load['library'] = array_unique($load['library']);
-    }
-    return $blazies;
-  }
 
   /**
    * Checks for container stuffs, mostly re-definition in case set earlier.
@@ -390,7 +300,7 @@ class Check {
 
     // Lightbox is unique, safe to reserve top level key:
     if ($lightbox) {
-      // @todo remove settings after migration and sub-modules.
+      // Required by sub-modules for easy attachments.
       $settings[$switch] = $optionset;
 
       // Allows lightboxes to provide its own optionsets, e.g.: ElevateZoomPlus.

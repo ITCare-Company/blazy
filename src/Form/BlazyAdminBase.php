@@ -608,9 +608,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     if ($lightboxes = $scopes->data('lightboxes')) {
       foreach ($lightboxes as $lightbox) {
         $name = Unicode::ucwords(str_replace('_', ' ', $lightbox));
-        if ($lightbox == 'photobox') {
-          $name .= ' (Deprecated)';
-        }
         if ($lightbox == 'mfp') {
           $name = 'Magnific Popup';
         }

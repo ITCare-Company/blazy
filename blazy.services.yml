@@ -34,10 +34,17 @@ services:
     class: Drupal\blazy\BlazyEntity
     arguments: ['@blazy.oembed']
 
+  blazy.config:
+    class: Drupal\blazy\Config\Config
+    # @todo recheck deprecated at D10: '@request_stack',
+    arguments: ['%app.root%', '@cache.default', '@config.factory', '@module_handler', '@current_route_match']
+
   blazy.libraries:
     class: Drupal\blazy\Asset\Libraries
-    # @todo recheck deprecated at D10: '@request_stack',
-    arguments: ['%app.root%', '@cache.default', '@config.factory', '@library.discovery', '@library.libraries_directory_file_finder', '@module_handler', '@current_route_match']
+    parent: blazy.config
+    calls:
+      - [setDiscovery, ['@library.discovery']]
+      - [setFinder, ['@library.libraries_directory_file_finder']]
 
   blazy.file:
     class: Drupal\blazy\Media\BlazyFile

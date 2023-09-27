@@ -167,7 +167,6 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
       'entity_reference_entity_view',
       'gridstack_file',
       'gridstack_media',
-      'photobox',
       'video_embed_field_video',
       'youtube_video',
     ];

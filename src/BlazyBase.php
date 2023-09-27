@@ -265,8 +265,8 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
-  public function entityQuery($type, $conjunction = 'AND') {
-    return $this->getStorage($type)->getQuery($conjunction);
+  public function entityQuery($type, $conjunction = 'AND', $access = TRUE) {
+    return $this->getStorage($type)->getQuery($conjunction)->accessCheck($access);
   }
 
   /**

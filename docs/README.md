@@ -218,7 +218,6 @@ etc., try the following:
    + **blazy--flybox-gallery**
    + **blazy--intense-gallery**
    + **blazy--mfp-gallery** (Magnific Popup)
-   + **blazy--photobox-gallery**
    + **blazy--photoswipe-gallery**
    + **blazy--slick-lightbox-gallery**
    + **blazy--splidebox-gallery**
@@ -286,8 +285,7 @@ Known lightboxes which has supports for Responsive image:
 
 ### Lightbox requirements
 * Colorbox, PhotoSwipe, etc. requires both modules and their libraries present.
-* Photobox, Magnific Popup, requires only libraries to be present:  
-  + `/libraries/photobox/photobox/jquery.photobox.js`
+* Magnific Popup, requires only libraries to be present:  
   + `/libraries/magnific-popup/dist/jquery.magnific-popup.min.js`  
   The reason for no modules are being required because no special settings, nor
   re-usable options to bother provided by them. Aside from the fact, Blazy has

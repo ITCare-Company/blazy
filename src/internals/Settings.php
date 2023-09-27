@@ -307,7 +307,7 @@ class Settings {
 
       // A failsafe for edge cases:
       if (!isset($settings[$key])) {
-        $settings[$key] = self::settings();
+        $settings[$key] = self::init();
       }
     }
 

@@ -36,7 +36,6 @@ class BlazyTheme {
    *       audio/video, or entity URLs, when using Colorbox/Photobox, or Link to
    *       content options.
    *   - attributes: The container attributes (media, media--ratio etc.).
-   *   - item_attributes: The image attributes (width, height, src, etc.).
    *   - url_attributes: An array of URL attributes, lightbox or content links.
    *   - noscript: The fallback image for non-js users.
    *   - postscript: Any extra content to put into blazy goes here. Use keyed or

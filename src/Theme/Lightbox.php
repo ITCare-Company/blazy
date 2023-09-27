@@ -25,10 +25,7 @@ class Lightbox {
   /**
    * Provides lightbox libraries.
    */
-  public static function attach(array &$load, array &$attach, $blazies = NULL): void {
-    // @todo remove NULL check at 3.x.
-    $blazies = $blazies ?: $attach['blazies'];
-
+  public static function attach(array &$load, array &$attach, $blazies): void {
     if ($name = $blazies->get('lightbox.name')) {
       $load['library'][] = 'blazy/lightbox';
 
@@ -36,7 +33,7 @@ class Lightbox {
       if ($name == 'colorbox') {
         self::attachColorbox($load);
       }
-      foreach (['colorbox', 'flybox', 'mfp', 'photobox'] as $key) {
+      foreach (['colorbox', 'flybox', 'mfp'] as $key) {
         if ($name == $key) {
           $blazies->set('libs.' . $key, TRUE);
         }
@@ -133,12 +130,6 @@ class Lightbox {
         // Point HREF to the original site ethically.
         if ($input = $blazies->get('media.input_url')) {
           $url = $input;
-        }
-
-        // @todo remove at 3.x, good lightbox, but offers less flexibility.
-        if ($blazies->get('photobox')) {
-          $url = $oembed_url;
-          $attrs['rel'] = 'video';
         }
 
         $attrs['data-oembed-url'] = $oembed_url;

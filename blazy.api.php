@@ -74,7 +74,6 @@
  *   // The #item_attributes will be finally removed at 3.x.
  *   // Use blazies.image.attributes or blazies.iframe.attributes for anything
  *   // other than basic image attributes (width/height/alt/title) instead.
- *   // It is still usable for adding minor class attributes, etc., though.
  *   // You are on your own other than the above-mentioned supported attributes.
  *   // Supported means, it won't mess up the provided image_style, etc.
  *   // On your own means, you can XSS attack your own site, it's all yours.
@@ -134,9 +133,9 @@
  *   // Option init #2 at item level:
  *   // $parent_settings is the first settings setup as above, here in a loop.
  *   // $settings = $manager->toSettings($parent_settings, $info); to have
- *   // initial info which should be stored within blazies object initially.
+ *   // initial $info which should be stored within blazies object initially.
  *   // Basically 3 tasks: reset blazies object per item, merging initial parent
- *   // $settings along with the initial values for item-level blazies object.
+ *   // $settings along with the initial $info for item-level blazies object.
  *
  *   // Supported media switcher options dependent on available modules:
  *   // colorbox, media (Image to iframe), etc. These can also be moved into

@@ -146,7 +146,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $this->moduleHandler->alter('blazy_preblazy', $settings, $build);
 
     CheckItem::essentials($settings, $item);
-    return $blazies;
+    return $settings['blazies'] ?? $blazies;
   }
 
   /**

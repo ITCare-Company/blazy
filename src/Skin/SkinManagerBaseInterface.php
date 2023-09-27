@@ -29,7 +29,7 @@ interface SkinManagerBaseInterface extends MapperInterface {
    * @param string $id
    *   The plugin id.
    *
-   * @return object
+   * @return \Drupal\blazy\Plugin\SkinPluginInterface
    *   Return instance of BlazySkin.
    */
   public function load($id): SkinPluginInterface;

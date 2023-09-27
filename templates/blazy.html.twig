@@ -138,11 +138,9 @@
     {%- if media_attributes -%}<div{{- media_attributes -}}>{%- endif -%}
       {%- if url and not blazies.use.player -%}
         <a href="{{ url }}"{{ url_attributes }}>{{- media -}}</a>
-        {# Allows fieldable captions with A tag, such as social share.
-          litebox-caption is deprecated for litebox__caption in 2.17.
-        #}
+        {# Allows fieldable captions with A tag, such as social share. #}
         {%- if captions and captions.lightbox is not empty -%}
-          <div class="litebox__caption litebox-caption visually-hidden">
+          <div class="litebox__caption visually-hidden">
             {{- captions.lightbox -}}
           </div>
         {%- endif -%}
