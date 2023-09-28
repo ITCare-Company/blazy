@@ -600,6 +600,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
 
     $this->blazyManager->moduleHandler()->alter('blazy_complete_form_element', $form, $definition, $scopes);
+
+    if (!$scopes->is('_views')) {
+      $prefix = $form['opening']['#prefix'] ?? '';
+      $form['opening']['#prefix'] = $prefix . '<br /><small>' . $this->t("<strong>Tips!</strong> Reload the page, or save first, only when changing formatters. Some form items may not be loaded after AJAX.") . '</small>';
+    }
   }
 
   /**
