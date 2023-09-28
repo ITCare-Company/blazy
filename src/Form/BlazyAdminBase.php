@@ -277,15 +277,46 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     // as \Drupal\blazy\Plugin\views\field\BlazyViewsFieldPluginBase.
     $this->checkScopes($scopes, $definition);
 
-    $blazies    = $definition['blazies'];
-    $data       = $scopes->get('data');
-    $form       = [];
-    $no_image   = $scopes->is('no_image_style');
-    $multimedia = $scopes->is('multimedia');
+    $blazies      = $definition['blazies'];
+    $form         = [];
+    $no_image     = $scopes->is('no_image_style');
+    $disabled     = $scopes->is('no_view_mode');
+    $target_type  = $scopes->get('target_type') || $blazies->get('field.target_type');
+    $view_mode    = $scopes->get('view_mode') || $blazies->get('field.view_mode');
+    $is_fieldable = $target_type && $view_mode;
 
-    if ($no_image) {
-      return [];
+    if ($is_fieldable && !$disabled) {
+      $form['view_mode'] = [
+        '#type'     => 'select',
+        '#options'  => $this->getViewModeOptions($target_type),
+        '#title'    => $this->t('View mode'),
+        '#weight'   => -101,
+        '#enforced' => TRUE,
+      ];
     }
+
+    if ($scopes->form('image_style') || !$no_image) {
+      $this->baseImageForm($form, $definition, $scopes);
+    }
+
+    // Add descriptions, if applicable.
+    foreach ($this->baseDescriptions($scopes) as $key => $description) {
+      if (isset($form[$key])) {
+        $form[$key]['#description'] = $description;
+      }
+    }
+
+    $this->blazyManager->moduleHandler()->alter('blazy_base_form_element', $form, $definition, $scopes);
+
+    return $form;
+  }
+
+  /**
+   * Provides basic image options.
+   */
+  protected function baseImageForm(array &$form, array $definition, $scopes): void {
+    $data = $scopes->get('data');
+    $multimedia = $scopes->is('multimedia');
 
     if (!$scopes->is('no_preload')) {
       $form['preload'] = [
@@ -352,20 +383,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
     }
 
-    $disabled = $scopes->is('no_view_mode');
-    $target_type = $blazies->get('field.target_type');
-    $is_fieldable = $target_type && $blazies->get('field.view_mode');
-
-    if ($is_fieldable && !$disabled) {
-      $form['view_mode'] = [
-        '#type'     => 'select',
-        '#options'  => $this->getViewModeOptions($target_type),
-        '#title'    => $this->t('View mode'),
-        '#weight'   => -101,
-        '#enforced' => TRUE,
-      ];
-    }
-
     if ($scopes->is('thumbnail_style')) {
       $form['thumbnail_style'] = [
         '#type'    => 'select',
@@ -385,17 +402,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#prefix'  => '<h3 class="' . $classes . '">' . $this->t('Fields') . '</h3>',
       ];
     }
-
-    // Add descriptions, if applicable.
-    foreach ($this->baseDescriptions($scopes) as $key => $description) {
-      if (isset($form[$key])) {
-        $form[$key]['#description'] = $description;
-      }
-    }
-
-    $this->blazyManager->moduleHandler()->alter('blazy_base_form_element', $form, $definition, $scopes);
-
-    return $form;
   }
 
   /**

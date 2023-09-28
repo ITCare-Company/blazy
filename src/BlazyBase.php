@@ -11,7 +11,7 @@ use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Language\LanguageManager;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -84,7 +84,7 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * The language manager.
    *
-   * @var \Drupal\Core\Language\LanguageManager
+   * @var \Drupal\Core\Language\LanguageManagerInterface
    */
   protected $languageManager;
 
@@ -120,7 +120,7 @@ abstract class BlazyBase implements BlazyInterface {
     EntityRepositoryInterface $entity_repository,
     EntityTypeManagerInterface $entity_type_manager,
     RendererInterface $renderer,
-    LanguageManager $language_manager
+    LanguageManagerInterface $language_manager
   ) {
     $this->libraries         = $libraries;
     $this->root              = $libraries->root();

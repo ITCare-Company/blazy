@@ -54,7 +54,7 @@ html:not(.js) [data-b-blur] {
   border: 0;
 }
 
-/* To keep animated elements in place when not happing .blazy container. */
+/* To keep animated elements in place when not having .blazy container. */
 .media--blazy,
 /* Or BlazyFilter which has no .blazy container. */
 .media--fx {
