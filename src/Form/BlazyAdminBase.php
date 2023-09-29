@@ -281,8 +281,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $form         = [];
     $no_image     = $scopes->is('no_image_style');
     $disabled     = $scopes->is('no_view_mode');
-    $target_type  = $scopes->get('target_type') || $blazies->get('field.target_type');
-    $view_mode    = $scopes->get('view_mode') || $blazies->get('field.view_mode');
+    $target_type  = $scopes->get('target_type') ?: $blazies->get('field.target_type');
+    $view_mode    = $scopes->get('view_mode') ?: $blazies->get('field.view_mode');
     $is_fieldable = $target_type && $view_mode;
 
     if ($is_fieldable && !$disabled) {
