@@ -192,12 +192,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $keys   = array_combine($keys, $keys);
     $keys   = array_filter($keys, fn($k) => strpos($k, 'title') === FALSE, ARRAY_FILTER_USE_KEY);
     $single = count($keys) == 1;
+    $ttag   = $blazies->get('item.title_tag', 'h2');
 
     // Supports multiple description fields.
     foreach ($captions as $key => $caption) {
       $css = $prefix . $key;
       if (strpos($key, 'title') !== FALSE) {
-        $inline[$key] = $this->toHtml($caption, 'h2', $prefix . 'title');
+        $inline[$key] = $this->toHtml($caption, $ttag, $prefix . 'title');
       }
       elseif ($key == 'overlay') {
         $overlays[$key] = $this->toHtml($caption, 'div', $css);
