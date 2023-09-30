@@ -54,7 +54,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     }
 
     if (isset($element['image']['#description'])) {
-      $element['image']['#description'] .= ' ' . $this->t('For (remote|local) video, this allows separate high-res or poster image. Be sure this exact same field is also used for bundle <b>Image</b> to have a mix of videos and images if this entity is Media. Leaving it empty will fallback to the video provider thumbnails, or no poster for local video. The formatter/renderer is managed by <strong>@plugin_id</strong> formatter. Meaning original formatter ignored.', ['@plugin_id' => $this->getPluginId()]);
+      $element['image']['#description'] .= ' ' . $this->t('The formatter/renderer is managed by <strong>@plugin_id</strong> formatter. Meaning original formatter ignored.', ['@plugin_id' => $this->getPluginId()]);
     }
 
     return $element;
@@ -252,14 +252,16 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
         $captions['title'] = $titles['title'] = $this->t('Image Title');
         $captions['alt'] = $this->t('Image Alt');
       }
-
-      // Only provides poster if media contains rich media.
-      $media = BlazyDefault::imagePosters();
-      if (count(array_intersect($keys, $media)) > 0) {
-        $images['images'] = $this->getFieldOptions(['image']);
-      }
     }
 
+    // Only provides poster if media contains rich media.
+    // @todo recheck without Image, Media loses image attribute association
+    // due to core Media thumbnail returning NULL title value.
+    // See https://www.drupal.org/project/blazy/issues/3390399
+    // $media = BlazyDefault::imagePosters();
+    // if (count(array_intersect($keys, $media)) > 0) {
+    $images['images'] = $this->getFieldOptions(['image']);
+    // }
     // @todo better way than hard-coding field name.
     unset(
       $captions['field_image'],

@@ -407,6 +407,8 @@ class BlazyMedia implements BlazyMediaInterface {
     $blazies->set('is.local_audio', $source == 'audio_file')
       ->set('is.local_video', $source == 'video_file');
 
+    // Just to be sure in case called anywhere else.
+    $data['#media'] = $media;
     return $media;
   }
 
