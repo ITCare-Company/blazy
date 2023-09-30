@@ -364,7 +364,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         ],
       ];
 
-      if ($scopes->is('fieldable')) {
+      if ($scopes->is('fieldable') && isset($data['links'])) {
         $form['media_switch']['#options']['link'] = $this->t('Image linked by Link field');
       }
 
