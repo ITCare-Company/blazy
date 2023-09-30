@@ -4,7 +4,6 @@ namespace Drupal\blazy;
 
 use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Theme\Lightbox;
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Url;
 
@@ -83,18 +82,17 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Fetch the newly modified settings with hashed key.
     $settings = &$element['#settings'];
     $blazies = $settings['blazies'];
+    $switch = $blazies->get('switch');
 
     // Bail out if no URI is provided.
     if ($blazies->get('image.uri')) {
-      $url = $blazies->get('media.link') ?: $blazies->get('entity.url');
-      if ($url instanceof Url) {
-        $url = $url->toString();
-      }
+      // Disables linkable Pinterest, Twitter, etc.
+      // @todo refine or excludes other providers that should not be linked.
+      $linked = in_array($switch, ['link', 'content']) && Internals::linkable($blazies);
 
       // Requires a string to strip, image_formatter has a Url object.
-      if ($blazies->get('switch') == 'content' && $url && is_string($url)) {
-        $element['#url'] = UrlHelper::stripDangerousProtocols($url);
-        $element['#url_attributes']['class'][] = 'b-link';
+      if ($linked) {
+        $this->toLink($element, $blazies);
       }
       elseif ($blazies->is('lightbox')) {
         Lightbox::build($element);
@@ -316,11 +314,12 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
         $media    = $blazies->get('lazy.html') && $blazies->get('media.id');
         $switch   = $blazies->get('switch');
         $provider = $blazies->get('media.provider');
+        $disabled = in_array($switch, ['content', 'link', 'media']);
 
         // @todo recheck.
         // Disable media player for Twitter, Instagram, Pinterest, etc.
         // Some providers have dynamic and anti-mainstream iframe sizes.
-        if ($switch == 'media' && Internals::irrational($provider)) {
+        if ($disabled && Internals::irrational($provider)) {
           $settings['media_switch'] = '';
           $blazies->set('switch', '')
             ->set('is.player', FALSE)
@@ -496,19 +495,19 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     }
 
     // Fixed for media switch and lightboxes with Pinterest and Instagram API.
-    $lightbox = $blazies->is('lightbox');
-    foreach (array_keys(BlazyDefault::dyComponents()) as $key) {
-      if ($blazies->is($key)) {
-        $element['#attached']['library'][] = 'blazy/' . $key;
-        $applicable = !$lightbox;
+    $providers = array_keys(BlazyDefault::dyComponents());
+    if ($provider = $blazies->get('media.provider')) {
+      if (in_array($provider, $providers) && $blazies->is($provider)) {
+        $element['#attached']['library'][] = 'blazy/' . $provider;
+        $applicable = !$blazies->is('lightbox');
 
         // VEF does not need API initializer.
-        if ($key == 'instagram') {
+        if ($provider == 'instagram') {
           $applicable = $applicable && $blazies->use('instagram_api');
         }
 
         if ($applicable) {
-          $attributes['class'][] = 'b-' . $key;
+          $attributes['class'][] = 'b-' . $provider;
         }
       }
     }
@@ -629,6 +628,38 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     );
 
     return $build;
+  }
+
+  /**
+   * Provides linkable content.
+   */
+  private function toLink(array &$element, $blazies): void {
+    $url = $blazies->get('media.link') ?: $blazies->get('entity.url');
+    $switch = $blazies->get('switch');
+
+    if ($switch == 'link') {
+      $url = $blazies->get('field.values.link', []);
+      if (is_array($url)) {
+        $url = reset($url);
+      }
+    }
+
+    if ($url) {
+      // If formatted link with title and value, extract its URL only.
+      if (is_array($url) && isset($url['#url'])) {
+        $url = $url['#url'];
+      }
+
+      if ($url instanceof Url) {
+        $url = $url->toString();
+      }
+
+      // Plain text field, link field w/o plain text URL, core linked Image.
+      if ($url) {
+        $element['#url'] = $url;
+        $element['#url_attributes']['class'][] = 'b-link';
+      }
+    }
   }
 
 }

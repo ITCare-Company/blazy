@@ -72,6 +72,13 @@ class Internals {
   }
 
   /**
+   * Alias for Multimedia::irrational().
+   */
+  public static function linkable($blazies): bool {
+    return Multimedia::linkable($blazies);
+  }
+
+  /**
    * Alias for Multimedia::provider().
    */
   public static function provider($blazies, $provider = NULL): ?string {

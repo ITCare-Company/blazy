@@ -177,7 +177,7 @@ trait TraitAdminOptions {
     // @todo remove the second after complete migrations.
     // @todo $options = $scopes->data('lightboxes')
     // ?: $this->blazyManager->getLightboxes();
-    $options = ['content', 'media', 'rendered', ''];
+    $options = ['content', 'link', 'media', 'rendered', ''];
 
     // @fixme this appears to be broken at some point of Drupal, seen
     // inconsistent between field formatters and Views field UI. Works at field

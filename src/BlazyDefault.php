@@ -139,6 +139,15 @@ class BlazyDefault {
   }
 
   /**
+   * Returns media-related field formatter settings.
+   */
+  public static function mediaSettings() {
+    return [
+      'link' => '',
+    ] + self::svgSettings();
+  }
+
+  /**
    * Returns non-prefixed svg-related options.
    */
   public static function toSvgOptions(array $settings) {

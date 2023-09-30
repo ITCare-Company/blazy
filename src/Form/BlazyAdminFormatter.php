@@ -192,7 +192,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
       'cache' => $cache,
       'caption' => $caption,
       'class' => $this->t('If provided, individual item will have this class, e.g.: to have different background with transparent images. Be sure its formatter is Key or Label. Accepted field types: list text, string (e.g.: node title), term/entity reference label.'),
-      'link' => $this->t('Link to content: Read more, View Case Study, etc. If an entity, be sure its formatter is linkable strings like ID or Label.'),
+      'link' => $this->t('Link to content: Read more, View Case Study, etc. If an entity, be sure its formatter is linkable strings like ID or Label. <strong>Two behaviors</strong>: <ol><li>If <strong>Media switcher &gt; Image linked by Link field</strong> is selected, it will be gone to serve as a wrapping link of the image, only if its formatter/ output is plain text URL.</li><li>As opposed to Caption fields, it will be positioned and wrapped with a dedicated class: <strong>@namespace__link</strong>.</li></ol>', ['@namespace' => $namespace]),
       'optionset' => $this->t('Enable the optionset UI module to manage the optionsets.'),
       'overlay' => $overlay,
       'thumbnail' => $this->t('Leave empty to not use thumbnail/ pager.'),

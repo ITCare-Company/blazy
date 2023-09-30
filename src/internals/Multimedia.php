@@ -48,6 +48,20 @@ class Multimedia {
   }
 
   /**
+   * Disables linkable Pinterest, Twitter, etc.
+   *
+   * @todo refine or excludes other providers that should not be linked.
+   */
+  public static function linkable($blazies): bool {
+    if ($provider = $blazies->get('media.provider')) {
+      if (self::irrational($provider) || in_array($provider, ['facebook'])) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  }
+
+  /**
    * Provider sometimes NULL when called by sub-modules, not Blazy.
    *
    * @fixme somewhere else.

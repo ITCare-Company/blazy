@@ -35,7 +35,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return BlazyDefault::svgSettings() + parent::defaultSettings();
+    return BlazyDefault::mediaSettings() + parent::defaultSettings();
   }
 
   /**
@@ -128,11 +128,14 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       '#settings' => $settings,
     ] = $element;
 
+    $blazies   = $settings['blazies'];
     $view_mode = $settings['view_mode'] ?? 'full';
     $captions  = $items = $weights = [];
     $fields    = $settings['caption'] ?? [];
     $fields    = array_filter($fields);
+    $_link     = $settings['link'] ?? NULL;
     $_title    = $settings['title'] ?? NULL;
+    $_switch   = $settings['media_switch'] ?? NULL;
     $output    = [];
 
     // Title can be plain text, or link field.
@@ -199,6 +202,32 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       $captions['data'] = $items;
     }
 
+    // Link, if so configured.
+    if ($_link && isset($entity->{$_link})) {
+      $links = $this->viewField($entity, $_link, $view_mode);
+      $formatter = $links['#formatter'] ?? 'x';
+
+      // Only simplify markups for known formatters registered by link.module.
+      if ($links && in_array($formatter, ['link'])) {
+        $links = [];
+        foreach ($entity->{$_link} as $link) {
+          $links[] = $link->view($view_mode);
+        }
+      }
+
+      $blazies->set('field.values.link', $links);
+
+      // If linkable element is plain text, it is not worth a caption.
+      if ($_switch == 'link') {
+        if (isset($links[0]['#plain_text'])
+          || isset($links[0]['#context']['value'])) {
+          $links = [];
+        }
+      }
+
+      $captions['link'] = $links;
+    }
+
     return array_filter($captions);
   }
 
@@ -209,6 +238,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     $bundles  = $this->getAvailableBundles();
     $captions = $this->getFieldOptions();
     $_texts   = ['text', 'text_long', 'string', 'string_long', 'link'];
+    $_links   = ['text', 'string', 'link'];
     $titles   = $this->getFieldOptions($_texts);
     $images   = [];
     $svg_form = static::$useSvg;
@@ -249,6 +279,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
       'no_image_style'    => FALSE,
       'responsive_image'  => TRUE,
       'thumbnail_style'   => TRUE,
+      'links'             => $this->getFieldOptions($_links),
       'titles'            => $titles,
     ] + $images
       + parent::getPluginScopes();

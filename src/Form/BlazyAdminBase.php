@@ -285,6 +285,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $view_mode    = $scopes->get('view_mode') ?: $blazies->get('field.view_mode');
     $is_fieldable = $target_type && $view_mode;
 
+    $scopes->set('is.fieldable', $is_fieldable);
+
     if ($is_fieldable && !$disabled) {
       $form['view_mode'] = [
         '#type'     => 'select',
@@ -361,6 +363,10 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           'content' => $this->t('Image linked to content'),
         ],
       ];
+
+      if ($scopes->is('fieldable')) {
+        $form['media_switch']['#options']['link'] = $this->t('Image linked by Link field');
+      }
 
       if ($scopes->is('lightbox')) {
         $this->lightboxForm($form, $definition, $scopes);
