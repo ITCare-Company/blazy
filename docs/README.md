@@ -137,7 +137,7 @@ Visit the following to configure and make use of Blazy:
 
 1. [/admin/config/media/blazy](/admin/config/media/blazy)
 
-   Enable Blazy UI sub-module first, otherwise regular **Access denied**.
+   Enable Blazy UI sub-module first, otherwise regular **404|403**.
    Contains few global options. Blazy UI can be uninstalled at production later
    without problems.
 
