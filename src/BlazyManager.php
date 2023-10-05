@@ -586,7 +586,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       $element['#captions'] = $output;
 
       // @todo remove debug:
-      if (!$self && !$blazies->ui('deprecated_class')) {
+      if (!$self) {
         $element['#caption_attributes']['class'][] = 'blazy__caption';
       }
 

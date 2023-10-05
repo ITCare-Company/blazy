@@ -139,8 +139,7 @@ class Grid {
     $blazies = $options['blazies'] ?? Internals::settings();
 
     $blazies->set('count', $count)
-      ->set('is.grid', TRUE)
-      ->set('ui.deprecated_class', TRUE);
+      ->set('is.grid', TRUE);
 
     $sets = [
       'grid'        => $options['grid'] ?? '6x1',
@@ -307,7 +306,6 @@ class Grid {
    * Limit to grid only, so to be usable for plain list.
    */
   private static function containerAttributes(array &$attrs, array $settings, $blazies): void {
-    $remove  = $blazies->ui('deprecated_class', FALSE);
     $style   = $settings['style'] ?: 'grid';
     $count   = Internals::count($blazies);
     $format1 = 'b-%s';
@@ -320,12 +318,6 @@ class Grid {
     // To remove border of the last odd item.
     if ($count % 2 != 0) {
       $attrs['class'][] = 'b-odd';
-    }
-
-    // Deprecated since 2.17, use the latest instead.
-    if (!$remove) {
-      $format3 = 'block-%s';
-      $attrs['class'][] = sprintf($format3, $style);
     }
 
     // Adds common grid attributes for CSS3 column, Foundation, etc.
@@ -343,11 +335,6 @@ class Grid {
           }
           else {
             $nick = 'lg';
-          }
-
-          // Deprecated since 2.17, use the latest instead.
-          if (!$remove) {
-            $attrs['class'][] = $key . '-block-' . $style . '-' . $value;
           }
 
           $format3 = 'b-%s--%s-%d';

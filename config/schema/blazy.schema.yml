@@ -38,9 +38,6 @@ blazy.settings:
     wrapper_class:
       type: boolean
       label: 'Remove field/ view wrapper classes'
-    deprecated_class:
-      type: boolean
-      label: 'Remove deprecated classes'
     placeholder:
       type: string
       label: Placeholder
