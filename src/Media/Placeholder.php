@@ -224,9 +224,8 @@ class Placeholder {
         $blazies->set('blur.data', $blur);
       }
 
-      // Prevents double animations.
-      $blazies->set('use.loader', FALSE)
-        ->set('blur.uri', $tn_uri)
+      // Sets blur.uri.
+      $blazies->set('blur.uri', $tn_uri)
         ->set('blur.url', $tn_url);
     }
   }
