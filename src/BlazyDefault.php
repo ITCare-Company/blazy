@@ -120,8 +120,10 @@ class BlazyDefault {
   public static function imageSettings() {
     return [
       'layout'    => '',
+      'link'      => '',
       'view_mode' => '',
-    ] + self::baseSettings() + self::baseImageSettings();
+    ] + self::baseSettings()
+      + self::baseImageSettings();
   }
 
   /**

@@ -364,7 +364,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         ],
       ];
 
-      if ($scopes->is('fieldable') && isset($data['links'])) {
+      if (isset($data['links'])) {
         $form['media_switch']['#options']['link'] = $this->t('Image linked by Link field');
       }
 
@@ -408,6 +408,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#prefix'  => '<h3 class="' . $classes . '">' . $this->t('Fields') . '</h3>',
       ];
     }
+
+    $this->linkForm($form, $definition, $scopes);
   }
 
   /**
@@ -424,6 +426,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       'box_media_style',
       'box_caption',
       'box_caption_custom',
+      'link',
     ];
 
     foreach ($options as $key) {
@@ -690,6 +693,24 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           }
         }
       }
+    }
+  }
+
+  /**
+   * Provides link options serving plain image, fieldable and views ui.
+   */
+  protected function linkForm(array &$form, array $definition, $scopes): void {
+    $data = $scopes->get('data');
+    $description = $this->baseDescriptions($scopes);
+
+    if (isset($data['links'])) {
+      $form['link'] = [
+        '#type'        => 'select',
+        '#title'       => $this->t('Link'),
+        '#options'     => $this->toOptions($data['links'] ?: []),
+        '#weight'      => 9,
+        '#description' => $description['link'] ?? '',
+      ];
     }
   }
 
