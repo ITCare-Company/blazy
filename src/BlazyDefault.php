@@ -119,6 +119,7 @@ class BlazyDefault {
    */
   public static function imageSettings() {
     return [
+      'by_delta'  => -1,
       'layout'    => '',
       'link'      => '',
       'view_mode' => '',

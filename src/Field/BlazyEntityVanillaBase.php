@@ -69,6 +69,13 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   protected static $fieldType = 'entity';
 
   /**
+   * Whether displaying a single item by index, or not.
+   *
+   * @var bool
+   */
+  protected static $byDelta = FALSE;
+
+  /**
    * Whether using the SVG.
    *
    * @var bool
@@ -136,48 +143,45 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     $this->formatter->hashtag($data);
 
     $settings = $data['#settings'];
+    $blazies  = $settings['blazies'];
     $limit    = $this->getViewLimit($settings);
+    $by_delta = $settings['by_delta'] ?? -1;
+    $total    = $blazies->total();
+    $valid    = $by_delta > -1 && $by_delta < $total - 1;
 
-    foreach ($entities as $delta => $entity) {
-      static $depth = 0;
-      $depth++;
-      $element = [];
+    // Returns a single item by delta if so-configured.
+    if ($valid && $entity = ($entities[$by_delta] ?? NULL)) {
+      yield $this->getElement($data, $entity, $by_delta);
+    }
+    else {
+      // Else a regular loop.
+      foreach ($entities as $delta => $entity) {
+        static $depth = 0;
+        $depth++;
+        $element = [];
 
-      // Protect ourselves from recursive rendering.
-      if ($depth > 20) {
-        $this->loggerFactory->get('entity')
-          ->error('Recursive rendering detected when rendering entity @entity_type @entity_id. Aborting rendering.', [
-            '@entity_type' => $entity->getEntityTypeId(),
-            '@entity_id' => $entity->id(),
-          ]);
-        yield $element;
-      }
-      else {
-        // If a Views display, bail out if more than Views delta_limit.
-        // @todo figure out why Views delta_limit doesn't stop us here.
-        if ($limit > 0 && $delta > $limit - 1) {
+        // Protect ourselves from recursive rendering.
+        if ($depth > 20) {
+          $this->loggerFactory->get('entity')
+            ->error('Recursive rendering detected when rendering entity @entity_type @entity_id. Aborting rendering.', [
+              '@entity_type' => $entity->getEntityTypeId(),
+              '@entity_id' => $entity->id(),
+            ]);
           yield $element;
         }
         else {
-          $current            = $data;
-          $current['#delta']  = $delta;
-          $current['#entity'] = $entity;
-          $current['#parent'] = $data['#entity'] ?? NULL;
-
-          // @todo refine yield item here at 3.x.
-          if ($element = $this->withElement($current)) {
-            $item = $element[$delta] ?? $element;
-
-            // Add the entity to cache dependencies so to clear when updated.
-            $this->formatter->renderer()
-              ->addCacheableDependency($item, $entity);
+          // If a Views display, bail out if more than Views delta_limit.
+          // @todo figure out why Views delta_limit doesn't stop us here.
+          if ($limit > 0 && $delta > $limit - 1) {
+            yield $element;
           }
-
-          yield $element;
+          else {
+            yield $this->getElement($data, $entity, $delta);
+          }
         }
-      }
 
-      $depth = 0;
+        $depth = 0;
+      }
     }
   }
 
@@ -187,6 +191,28 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   protected function getAvailableBundles(): array {
     $field = $this->fieldDefinition;
     return BlazyField::getAvailableBundles($field);
+  }
+
+  /**
+   * Returns the individual element.
+   */
+  protected function getElement(array $data, $entity, $delta): array {
+    $current            = $data;
+    $current['#delta']  = $delta;
+    $current['#entity'] = $entity;
+    $current['#parent'] = $data['#entity'] ?? NULL;
+
+    // @todo refine yield item here at 3.x.
+    if ($element = $this->withElement($current)) {
+      $item = $element[$delta] ?? $element;
+
+      // Add the entity to cache dependencies so to clear when updated.
+      $this->formatter->renderer()
+        ->addCacheableDependency($item, $entity);
+
+      return $element;
+    }
+    return [];
   }
 
   /**
@@ -213,6 +239,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
   protected function getPluginScopes(): array {
     $multiple = $this->isMultiple();
     return [
+      'by_delta'         => $multiple && static::$byDelta,
       'no_layouts'       => TRUE,
       'no_image_style'   => TRUE,
       'responsive_image' => FALSE,

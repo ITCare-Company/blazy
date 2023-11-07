@@ -5,6 +5,7 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyDependenciesTrait;
 use Drupal\blazy\Field\BlazyElementTrait;
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Utility\Sanitize;
 use Drupal\Core\Field\EntityReferenceFieldItemListInterface;
@@ -82,6 +83,13 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    * @var string
    */
   protected static $fieldType = 'image';
+
+  /**
+   * Whether displaying a single item by index, or not.
+   *
+   * @var bool
+   */
+  protected static $byDelta = FALSE;
 
   /**
    * Whether using the OEmbed service.
@@ -164,65 +172,83 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    */
   protected function getElements(array $build, $files): \Generator {
     $settings = $this->formatter->toHashtag($build);
+    $blazies  = $settings['blazies'];
     $limit    = $this->getViewLimit($settings);
+    $by_delta = $settings['by_delta'] ?? -1;
+    $total    = $blazies->total();
+    $valid    = $by_delta > -1 && $by_delta < $total - 1;
 
-    foreach ($files as $delta => $file) {
-      // If a Views display, bail out if more than Views delta_limit.
-      // @todo figure out why Views delta_limit doesn't stop us here.
-      if ($limit > 0 && $delta > $limit - 1) {
-        yield [];
-      }
-      else {
-        /** @var \Drupal\file\Plugin\Field\FieldType\FileItem $item */
-        /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
-        /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
-        $item = $file->_referringItem;
-        $sets = $settings;
-        $uri  = $file->getFileUri();
-        $info = [
-          'delta'      => $delta,
-          'media.type' => 'image',
-        ];
-
-        // Extracts ImageItem data early to help new SVG with its attributes.
-        $image = ['uri' => $uri];
-        if ($item instanceof ImageItem && $values = BlazyImage::toArray($item)) {
-          foreach ($values as $key => $value) {
-            $image[$key] = $value;
-          }
-          // @todo remove this pingpong at 3.x:
-          $image['item'] = $item;
+    // Returns a single item by delta if so-configured.
+    if ($valid && $entity = ($files[$by_delta] ?? NULL)) {
+      yield $this->getElement($settings, $entity, $by_delta);
+    }
+    else {
+      // Else a regular loop.
+      foreach ($files as $delta => $file) {
+        // If a Views display, bail out if more than Views delta_limit.
+        // @todo figure out why Views delta_limit doesn't stop us here.
+        if ($limit > 0 && $delta > $limit - 1) {
+          yield [];
         }
-
-        $info['image'] = $image;
-
-        // Hashtags to avoid render errors with some potential leaks.
-        $data = [
-          '#delta'    => $delta,
-          '#entity'   => $file,
-          '#item'     => $item,
-          '#settings' => $this->formatter->toSettings($sets, $info),
-        ];
-
-        // Provide parent context for fieldable captions with entity_reference.
-        if ($item instanceof EntityReferenceItem) {
-          $parent = $item->getParent();
-          if ($parent && method_exists($parent, 'getEntity')) {
-            $data['#parent'] = $parent->getEntity();
-          }
+        else {
+          yield $this->getElement($settings, $file, $delta);
         }
-
-        // Build individual element, no real use here since VEF deprecated.
-        // Except for SVG since 2.17.
-        $this->withElement($data);
-
-        // Build captions if so configured.
-        $captions = $this->getCaptions($data);
-
-        // Provides the relevant elements based on the configuration.
-        yield $this->toElement($sets['blazies'], $data, $captions);
       }
     }
+  }
+
+  /**
+   * Returns the individual element.
+   */
+  protected function getElement(array $settings, $file, $delta): array {
+    /** @var \Drupal\file\Plugin\Field\FieldType\FileItem $item */
+    /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
+    /** @var \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem $item */
+    $item = $file->_referringItem;
+    $sets = $settings;
+    $uri  = $file->getFileUri();
+    $info = [
+      'delta'      => $delta,
+      'media.type' => 'image',
+    ];
+
+    // Extracts ImageItem data early to help new SVG with its attributes.
+    $image = ['uri' => $uri];
+    if ($item instanceof ImageItem && $values = BlazyImage::toArray($item)) {
+      foreach ($values as $key => $value) {
+        $image[$key] = $value;
+      }
+      // @todo remove this pingpong at 3.x:
+      $image['item'] = $item;
+    }
+
+    $info['image'] = $image;
+
+    // Hashtags to avoid render errors with some potential leaks.
+    $data = [
+      '#delta'    => $delta,
+      '#entity'   => $file,
+      '#item'     => $item,
+      '#settings' => $this->formatter->toSettings($sets, $info),
+    ];
+
+    // Provide parent context for fieldable captions with entity_reference.
+    if ($item instanceof EntityReferenceItem) {
+      $parent = $item->getParent();
+      if ($parent && method_exists($parent, 'getEntity')) {
+        $data['#parent'] = $parent->getEntity();
+      }
+    }
+
+    // Build individual element, no real use here since VEF deprecated.
+    // Except for SVG since 2.17.
+    $this->withElement($data);
+
+    // Build captions if so configured.
+    $captions = $this->getCaptions($data);
+
+    // Provides the relevant elements based on the configuration.
+    return $this->toElement($sets['blazies'], $data, $captions);
   }
 
   /**
@@ -300,9 +326,8 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       $blazies->set('field.values.link', $links);
 
       // If linkable element is plain text, it is not worth a caption.
-      if ($_switch == 'link') {
-        if (isset($links[0]['#plain_text'])
-          || isset($links[0]['#context']['value'])) {
+      if ($_switch == 'link' && $link = $links[0] ?? []) {
+        if (Internals::emptyOrPlainTextLink($link)) {
           $links = [];
         }
       }
@@ -345,6 +370,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
     return [
       'background'        => TRUE,
+      'by_delta'          => $multiple && static::$byDelta,
       'captions'          => $this->getCaptionOptions(),
       'grid_form'         => $multiple,
       'image_style_form'  => TRUE,

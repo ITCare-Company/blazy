@@ -120,6 +120,14 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
     }
 
+    if ($scopes->is('by_delta')) {
+      $form['by_delta'] = [
+        '#type'   => 'textfield',
+        '#title'  => $this->t('By delta'),
+        '#weight' => -111,
+      ];
+    }
+
     if ($skins = $scopes->data('skins')) {
       $form['skin'] = [
         '#type'     => 'select',

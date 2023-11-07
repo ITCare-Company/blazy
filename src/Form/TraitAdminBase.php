@@ -52,8 +52,7 @@ trait TraitAdminBase {
     $admin_css = $this->blazyManager->config('admin_css', 'blazy.settings') ?: FALSE;
     // Disable the admin css in the off canvas menu, to avoid conflicts with
     // the active frontend theme.
-    if ($admin_css && $request = Path::requestStack()) {
-      $current = $request->getCurrentRequest();
+    if ($admin_css && $current = $this->getCurrentRequest()) {
       $uri = $current->getRequestUri();
       $wrapper_format = $current->query->get('_wrapper_format');
 
@@ -111,9 +110,19 @@ trait TraitAdminBase {
     $entity_type = $blazies->get('field.entity_type') ?: ($definition['entity_type'] ?? '');
     $view_mode = $blazies->get('field.view_mode') ?: ($definition['view_mode'] ?? '');
     $switch = !$scopes->is('no_lightboxes') && isset($settings['media_switch']);
+    $wrapper_format = NULL;
+    $lb = FALSE;
+
+    if ($current = $this->getCurrentRequest()) {
+      $wrapper_format = $current->query->get('_wrapper_format');
+      if ($uri = $current->getRequestUri()) {
+        $lb = strpos($uri, '/layout_builder') !== FALSE;
+      }
+    }
 
     $bools = [
       'background',
+      'by_delta',
       'caches',
       'grid_required',
       'grid_simple',
@@ -145,6 +154,7 @@ trait TraitAdminBase {
     $sliders = in_array($namespace, ['slick', 'splide']);
     $scopes->set('data.lightboxes', $lightboxes)
       ->set('is.fieldable', $target_type && $entity_type)
+      ->set('is._lb', $lb)
       ->set('is.lightbox', count($lightboxes) > 0)
       ->set('is.responsive_image', $responsive)
       ->set('is.slider', $scopes->is('slider') ?: $sliders)
@@ -154,7 +164,8 @@ trait TraitAdminBase {
       ->set('entity.type', $entity_type)
       ->set('plugin_id', $plugin_id)
       ->set('target_type', $target_type)
-      ->set('view_mode', $view_mode);
+      ->set('view_mode', $view_mode)
+      ->set('_wrapper_format', $wrapper_format);
 
     $data = [
       'deprecations',
@@ -218,6 +229,16 @@ trait TraitAdminBase {
     }
 
     $scopes->set('was.scoped', TRUE);
+  }
+
+  /**
+   * Returns the current request object.
+   */
+  protected function getCurrentRequest() {
+    if ($request = Path::requestStack()) {
+      return $request->getCurrentRequest();
+    }
+    return NULL;
   }
 
   /**

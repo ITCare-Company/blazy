@@ -134,7 +134,7 @@ class Path {
   public static function isAmp(): bool {
     if (!isset(static::$isAmp)) {
       $request = self::request();
-      static::$isAmp = $request && $request->query->get('amp');
+      static::$isAmp = $request && $request->query->get('amp') !== NULL;
     }
     return static::$isAmp;
   }

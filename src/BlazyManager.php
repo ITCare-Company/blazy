@@ -90,7 +90,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       // @todo refine or excludes other providers that should not be linked.
       $linked = in_array($switch, ['link', 'content']) && Internals::linkable($blazies);
 
-      // Requires a string to strip, image_formatter has a Url object.
+      // If Image linked to Content, or Link/ Plain text URL field.
       if ($linked) {
         $this->toLink($element, $blazies);
       }
@@ -636,12 +636,13 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
   private function toLink(array &$element, $blazies): void {
     $url = $blazies->get('media.link') ?: $blazies->get('entity.url');
     $switch = $blazies->get('switch');
-
-    if ($switch == 'link') {
-      $url = $blazies->get('field.values.link', []);
-      if (is_array($url)) {
-        $url = reset($url);
-      }
+    // @todo enable $delta = $blazies->get('delta');
+    if ($switch == 'link' && $urls = $blazies->get('field.values.link', [])) {
+      $url = reset($urls);
+      // @todo add option to map links to images.
+      // if (isset($urls[$delta])) {
+      // $url = $urls[$delta];
+      // }
     }
 
     if ($url) {
