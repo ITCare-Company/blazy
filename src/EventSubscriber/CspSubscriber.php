@@ -51,7 +51,9 @@ class CspSubscriber implements EventSubscriberInterface {
    * @phpstan-ignore-next-line
    */
   public function onCspPolicyAlter(PolicyAlterEvent $alterEvent) : void {
+    /* @phpstan-ignore-next-line */
     $policy = $alterEvent->getPolicy();
+    /* @phpstan-ignore-next-line */
     $response = $alterEvent->getResponse();
 
     if ($response instanceof AttachmentsInterface) {
