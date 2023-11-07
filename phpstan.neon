@@ -8,6 +8,8 @@ parameters:
     # - tests/src
   excludePaths:
     - 'tests/src'
+  # https://phpstan.org/user-guide/ignoring-errors#reporting-unused-ignores
+  reportUnmatchedIgnoredErrors: false
   ignoreErrors:
     # See https://github.com/mglaman/phpstan-drupal/issues/30
     # new static() is a best practice in Drupal, so we cannot fix that.
