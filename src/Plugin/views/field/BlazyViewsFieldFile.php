@@ -31,7 +31,7 @@ class BlazyViewsFieldFile extends BlazyViewsFieldPluginBase {
       // Pass results to \Drupal\blazy\BlazyEntity.
       return $this->blazyEntity->build($data);
     }
-    return [];
+    return '';
   }
 
   /**

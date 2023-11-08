@@ -160,7 +160,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    * {@inheritdoc}
    */
   public function render(ResultRow $values) {
-    return [];
+    return '';
   }
 
   /**

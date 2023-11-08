@@ -76,7 +76,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
   /**
    * Returns the language manager service.
    *
-   * @return \Drupal\Core\Language\LanguageManager
+   * @return \Drupal\Core\Language\LanguageManagerInterface
    *   The language manager.
    */
   public function languageManager();
