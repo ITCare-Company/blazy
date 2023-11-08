@@ -40,7 +40,7 @@ class BlazyFile implements BlazyFileInterface {
   /**
    * The image object.
    *
-   * @var \Drupal\Core\Image\ImageInterface
+   * @var \Drupal\Core\Image\ImageInterface|null
    */
   protected $image;
 
@@ -171,6 +171,7 @@ class BlazyFile implements BlazyFileInterface {
     }
 
     $function = 'file_create_url';
+    /* @phpstan-ignore-next-line */
     return is_callable($function) ? $function($uri) : '';
   }
 
@@ -213,6 +214,7 @@ class BlazyFile implements BlazyFileInterface {
       else {
         // @todo remove when D8 is dropped at 3.x.
         $function = 'file_url_transform_relative';
+        /* @phpstan-ignore-next-line */
         $url = is_callable($function) ? $function($url) : $url;
       }
     }

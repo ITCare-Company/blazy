@@ -28,7 +28,7 @@ class Internals {
   /**
    * The blazy HTML ID.
    *
-   * @var int
+   * @var int|null
    */
   protected static $blazyId;
 

@@ -400,6 +400,8 @@ class BlazySettings implements \Countable {
 
   /**
    * Sorts recursively.
+   *
+   * @phpstan-ignore-next-line
    */
   private function rksort(&$a): bool {
     if (!is_array($a)) {
