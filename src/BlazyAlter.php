@@ -268,8 +268,9 @@ class BlazyAlter {
 
     // Sniffs for Views to allow block__no_wrapper, views_no_wrapper, etc.
     $function = 'views_get_current_view';
-    if (is_callable($function)) {
-      $view      = $function();
+    // @todo phpstan bug, misleading with nullable function return.
+    /* @phpstan-ignore-next-line */
+    if (is_callable($function) && $view = $function()) {
       $name      = $view->storage->id();
       $view_mode = $view->current_display;
       $style     = $view->style_plugin;
