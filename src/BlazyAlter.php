@@ -274,8 +274,8 @@ class BlazyAlter {
       $name      = $view->storage->id();
       $view_mode = $view->current_display;
       $style     = $view->style_plugin;
-      $display   = is_null($style) ? '' : $style->displayHandler->getPluginId();
-      $plugin_id = is_null($style) ? '' : $style->getPluginId();
+      $display   = $style ? $style->displayHandler->getPluginId() : '';
+      $plugin_id = $style ? $style->getPluginId() : '';
 
       // Only eat what we can chew:
       $data = Internals::getViewFieldData($view);
