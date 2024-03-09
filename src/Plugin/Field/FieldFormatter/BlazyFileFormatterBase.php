@@ -362,11 +362,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     $type     = $field->getType();
     $is_image = $type == 'image' || $type == 'svg_image_field';
     $_links   = ['text', 'string', 'link'];
-    $links    = [];
-
-    if (method_exists($field, 'get')) {
-      $links = $this->getFieldOptions($_links, $field->get('entity_type'));
-    }
+    $links    = $this->getFieldOptions($_links, $field->getTargetEntityTypeId());
 
     return [
       'background'        => TRUE,
@@ -419,9 +415,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       $captions = 'default';
     }
     else {
-      if (method_exists($field, 'get')) {
-        $captions = $this->getFieldOptions($_texts, $field->get('entity_type'));
-      }
+      $captions = $this->getFieldOptions($_texts, $field->getTargetEntityTypeId());
     }
     return $captions;
   }
@@ -438,7 +432,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     $field       = $this->fieldDefinition;
     $target_type = $target_type ?: $this->getFieldSetting('target_type');
     $bundles     = $this->getAvailableBundles();
-    $entity_type = method_exists($field, 'get') ? $field->get('entity_type') : NULL;
+    $entity_type = method_exists($field, 'get') ? $field->get('entity_type') : $field->getTargetEntityTypeId();
 
     if (!$bundles && $entity_type && $service = $this->formatter->service('entity_type.bundle.info')) {
       $bundles = $service->getBundleInfo($entity_type);
