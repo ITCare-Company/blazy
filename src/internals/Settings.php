@@ -63,10 +63,20 @@ class Settings {
     foreach ($view->field as $field_name => $field) {
       if ($options = $field->options ?? []) {
         $names[] = $field_name;
+        $subsets = $options['settings'] ?? [];
+        $type = $options['type'] ?? 'x';
 
-        if (!empty($options['group_rows'])
-          && $limit = $options['delta_limit'] ?? 0) {
-          if ($subsets = $options['settings'] ?? []) {
+        if ($subsets) {
+          if (isset($subsets['media_switch'])) {
+            $data['formatters'][] = [
+              'type' => $type,
+              'field_name' => $field_name,
+              'settings' => $subsets,
+            ];
+          }
+
+          if (!empty($options['group_rows'])
+            && $limit = $options['delta_limit'] ?? 0) {
             // Ensures we are in the ecosystem. Grid option is only available at
             // multi-value fields. A single value is not a concern.
             if (isset($subsets['grid_medium'])) {

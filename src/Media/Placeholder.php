@@ -258,7 +258,7 @@ class Placeholder {
    */
   private static function thumbnails(array &$settings): void {
     $blazies = $settings['blazies'];
-    $style   = NULL;
+    $style   = $blazies->get('thumbnail.style');
     $width   = $height = 1;
     $uri     = $blazies->get('image.uri');
     $tn_uri  = $settings['thumbnail_uri'] ?? NULL;
@@ -273,7 +273,7 @@ class Placeholder {
     }
 
     // This one uses non-unique image, similar to the main stage image.
-    if ($style = $blazies->get('thumbnail.style')) {
+    if ($style) {
       $disabled = $blazies->is('external') || $blazies->is('svg');
       if (!$disabled) {
         $_tn_uri = $style->buildUri($uri);
