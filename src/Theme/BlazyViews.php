@@ -79,7 +79,7 @@ class BlazyViews {
 
     // Given blazy--photoswipe-gallery, adds the [data-photoswipe-gallery], etc.
     if ($lightbox && in_array($lightbox, $lightboxes)) {
-      $variables['attributes']  = $variables['attributes'] ?? [];
+      $variables['attributes'] = $variables['attributes'] ?? [];
 
       $data = [
         'namespace' => 'blazy',
