@@ -35,17 +35,17 @@ class Shortcode {
       $string = self::process($string, $item);
 
       // @todo remove into self::replace().
+      $string = str_replace("<p><$item>", "<$item>", $string);
       $string = str_replace("<p><$item ", "<$item ", $string);
-      $string = str_replace("<p><$item>\n", "<$item>", $string);
-      $string = str_replace("</$item></p>\n", "</$item>\n", $string);
+      $string = str_replace("</$item></p>", "</$item>", $string);
     }
 
     $text = self::process($string, $container);
 
     // @todo remove into self::replace().
+    $text = str_replace("<p><$container>", "<$container>", $text);
     $text = str_replace("<p><$container ", "<$container ", $text);
-    $text = str_replace("<p><$container>\n", "<$container>\n", $text);
-    $text = str_replace("</$container></p>\n", "</$container>\n", $text);
+    $text = str_replace("</$container></p>", "</$container>", $text);
     return $text;
   }
 
