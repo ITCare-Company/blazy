@@ -9,6 +9,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Provides config utilities.
@@ -246,6 +247,21 @@ class Config implements ConfigInterface {
     }
 
     return (object) $io;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function import($module, $name, $key, $folder = 'install', $optionset = TRUE): void {
+    $path = Internals::getPath('module', $module);
+    $basename = $optionset ? sprintf('%s.optionset.%s', $name, $key) : sprintf('%s.%s', $name, $key);
+    $config_path = sprintf('%s/config/%s/%s.yml', $path, $folder, $basename);
+
+    if ($data = Yaml::parseFile($config_path)) {
+      $this->configFactory->getEditable($basename)
+        ->setData($data)
+        ->save(TRUE);
+    }
   }
 
   /**

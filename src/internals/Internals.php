@@ -33,6 +33,15 @@ class Internals {
   protected static $blazyId;
 
   /**
+   * Alias for base_path() for easy removal.
+   *
+   * @todo replace base_path() if any replacement by D11.
+   */
+  public static function basePath(): ?string {
+    return \base_path() ?: '';
+  }
+
+  /**
    * Returns TRUE if the link has empty title, or just plain URL or text.
    */
   public static function emptyOrPlainTextLink(array $link): bool {

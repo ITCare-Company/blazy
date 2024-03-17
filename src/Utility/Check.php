@@ -27,7 +27,7 @@ class Check {
    */
   public static function container(array &$settings): void {
     $blazies      = $settings['blazies'];
-    $item_id      = $blazies->get('item.id', $settings['item_id'] ?? 'blazy');
+    $item_id      = $blazies->get('item.id', 'blazy');
     $item_caption = $blazies->get('item.caption', 'captions');
     $item_prefix  = $blazies->get('item.prefix', 'blazy');
     $namespace    = $blazies->get('namespace', $settings['namespace'] ?? 'blazy');

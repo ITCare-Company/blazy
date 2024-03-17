@@ -124,6 +124,22 @@ interface ConfigInterface {
   public function getIoSettings(array $attach = []): object;
 
   /**
+   * Import a config entity, and save it into database.
+   *
+   * @param string $module
+   *   The module name.
+   * @param string $name
+   *   The module or config name can be different from $module.
+   * @param string $key
+   *   The config key.
+   * @param string $folder
+   *   The subfolder under config directory.
+   * @param bool $optionset
+   *   Whether it has optionset key in thed config filename, a Blazy convention.
+   */
+  public function import($module, $name, $key, $folder = 'install', $optionset = TRUE): void;
+
+  /**
    * Returns escaped options.
    *
    * @param array $options

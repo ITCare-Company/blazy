@@ -525,6 +525,11 @@ abstract class BlazyBase implements BlazyInterface {
       // Ensures to merge to not nullify previous values.
       $object->set($data, NULL, TRUE);
     }
+
+    if ($key == 'blazies') {
+      Internals::count($object);
+    }
+
     $settings[$key] = $object;
     return $settings;
   }
@@ -622,17 +627,6 @@ abstract class BlazyBase implements BlazyInterface {
    */
   public function toHashtag(array $data, $key = 'settings', $default = []) {
     return Internals::toHashtag($data, $key, $default);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
-   * \Drupal\blazy\BlazyInterface::verifySafely() instead.
-   */
-  public function verify(array &$settings): void {
-    // @todo @trigger_error('verify is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use \Drupal\blazy\BlazyInterface::verify() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
-    Internals::verify($settings);
   }
 
 }

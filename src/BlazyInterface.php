@@ -714,17 +714,4 @@ interface BlazyInterface extends ContainerInjectionInterface {
    */
   public function toHashtag(array $data, $key = 'settings', $default = []);
 
-  /**
-   * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17. What a waste.
-   *
-   * @param array $settings
-   *   The settings being modified.
-   *
-   * @todo deprecated for self::verifySafely() for the returned values.
-   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
-   * self::verifySafely() instead.
-   * @see https://www.drupal.org/node/3367291
-   */
-  public function verify(array &$settings): void;
-
 }

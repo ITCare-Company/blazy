@@ -158,7 +158,7 @@ class Libraries extends Config implements LibrariesInterface {
     $libraries = [];
     foreach ($this->find($names, TRUE) as $key => $path) {
       if ($path) {
-        $libraries[$key] = $base_path ? \base_path() . $path : $path;
+        $libraries[$key] = $base_path ? Internals::basePath() . $path : $path;
       }
     }
     return $libraries;
@@ -194,7 +194,7 @@ class Libraries extends Config implements LibrariesInterface {
     $names = is_array($name) ? $name : [$name];
     foreach ($this->find($names) as $path) {
       if ($path) {
-        $library = $base_path ? \base_path() . $path : $path;
+        $library = $base_path ? Internals::basePath() . $path : $path;
         break;
       }
     }

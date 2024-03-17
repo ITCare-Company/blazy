@@ -95,7 +95,7 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // @todo remove $settings after sub-modules: gridstack, slick_browser.
     $data['#access'] = TRUE;
-    $data['#delta']  = $delta = $data['#delta'] ?? ($settings['delta'] ?? -1);
+    $data['#delta']  = $data['#delta'] ?? ($settings['delta'] ?? -1);
 
     // Extract media data with translated one, dup required by self::prepare().
     if ($entity instanceof MediaInterface) {

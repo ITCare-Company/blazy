@@ -104,19 +104,14 @@ class Path {
 
   /**
    * Returns the commonly used path, or just the base path.
-   *
-   * @todo remove drupal_get_path check when min D9.3.
    */
   public static function getPath($type, $name, $absolute = FALSE): ?string {
     if ($resolver = self::pathResolver()) {
       $path = $resolver->getPath($type, $name);
+
+      return $absolute ? Internals::basePath() . $path : $path;
     }
-    else {
-      $function = 'drupal_get_path';
-      /* @phpstan-ignore-next-line */
-      $path = is_callable($function) ? $function($type, $name) : '';
-    }
-    return $absolute ? \base_path() . $path : $path;
+    return '';
   }
 
   /**
