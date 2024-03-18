@@ -252,9 +252,16 @@ class Config implements ConfigInterface {
   /**
    * {@inheritdoc}
    */
-  public function import($module, $name, $key, $folder = 'install', $optionset = TRUE): void {
+  public function import(array $options): void {
+    $options = $options + ['folder' => 'install'];
+
+    [
+      'module' => $module,
+      'basename' => $basename,
+      'folder' => $folder,
+    ] = $options;
+
     $path = Internals::getPath('module', $module);
-    $basename = $optionset ? sprintf('%s.optionset.%s', $name, $key) : sprintf('%s.%s', $name, $key);
     $config_path = sprintf('%s/config/%s/%s.yml', $path, $folder, $basename);
 
     if ($data = Yaml::parseFile($config_path)) {

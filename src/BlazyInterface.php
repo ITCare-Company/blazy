@@ -370,6 +370,17 @@ interface BlazyInterface extends ContainerInjectionInterface {
   ): void;
 
   /**
+   * Import a config entity, and save it into database.
+   *
+   * @param array $options
+   *   Containing:
+   *     - module, the module name where config to be imported is stored.
+   *     - basename, file name without .yml extension: slick.optionset.nav, etc.
+   *     - folder, whether install, or optional.
+   */
+  public function import(array $options): void;
+
+  /**
    * Initialize Grid at any containers with DIV > DIVs without passing contents.
    *
    * @param array $options

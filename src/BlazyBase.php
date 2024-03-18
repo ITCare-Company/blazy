@@ -389,6 +389,13 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function import(array $options): void {
+    $this->libraries->import($options);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function initGrid(array $options): array {
     return Grid::initGrid($options);
   }

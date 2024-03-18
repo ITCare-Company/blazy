@@ -535,8 +535,6 @@ class Lightbox {
         break;
 
       case 'custom':
-        $caption = '';
-
         // $object can be file or media for plain images, or media entities.
         if ($custom && $object instanceof EntityInterface) {
           $options = ['clear' => TRUE];

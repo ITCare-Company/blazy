@@ -75,12 +75,15 @@ Shortly, you should kindly help the maintainers with detailed info to help you.
    + `Meta`, `Task` or `Plan`.  
 2. If your issue were directed to this page, feel free to re-open it after:  
    + You prove we identified it incorrectly, and in such a case we are sorry.
-   + You have redacted it accordingly, and or provide the required data.
+   + You have redacted it accordingly, and or provide the required data.  
 
-It is perfectly fine to be negative as long as backed by data, or
-info. In fact, your name will be credited where credit's due with gratitude and
+It is perfectly fine to be negative as long as backed by data, or info (form or
+proof screenshots, benchmarks, docs, or anything else that add a value).
+In fact, your name will be credited where credit's due with gratitude and
 respect at CHANGELOG.txt or
 [here](https://www.drupal.org/node/2663268/committers).
+
+Offhanded negative posts without data are mere useless gossips we never welcome!
 
 We are well aware, defects, bugs, flaws etc. are there as proven by bug fixes.
 We believe constructive criticism, positive suggestions, corrections, patches,

@@ -126,18 +126,13 @@ interface ConfigInterface {
   /**
    * Import a config entity, and save it into database.
    *
-   * @param string $module
-   *   The module name.
-   * @param string $name
-   *   The module or config name can be different from $module.
-   * @param string $key
-   *   The config key.
-   * @param string $folder
-   *   The subfolder under config directory.
-   * @param bool $optionset
-   *   Whether it has optionset key in thed config filename, a Blazy convention.
+   * @param array $options
+   *   Containing:
+   *     - module, the module name where config to be imported is stored.
+   *     - basename, file name without .yml extension: slick.optionset.nav, etc.
+   *     - folder, whether install, or optional.
    */
-  public function import($module, $name, $key, $folder = 'install', $optionset = TRUE): void;
+  public function import(array $options): void;
 
   /**
    * Returns escaped options.

@@ -10,7 +10,7 @@ use Drupal\blazy\Utility\Path;
 use Drupal\Component\Utility\Html;
 
 /**
- * Provides internal non-reusable blazy utilities.
+ * Provides internal kitchen-skink non-reusable blazy utilities.
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
