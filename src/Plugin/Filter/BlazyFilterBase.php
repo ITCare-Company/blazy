@@ -646,7 +646,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
       ],
       '#empty_option' => $this->t('- None -'),
       '#default_value' => $this->settings['media_switch'] ?? '',
-      '#description' => $this->t('<ul><li><b>Image to iframe</b> will play video when toggled.</li><li><b>Image to lightbox</b> (Colorbox, Photobox, PhotoSwipe, Slick Lightbox, Zooming, Intense, etc.) will display media in lightbox.</li></ul>Both can stand alone or grouped as a gallery. To build a gallery, use the grid shortcodes.'),
+      '#description' => $this->t('<ul><li><b>Image to iframe</b> will play video when toggled.</li><li><b>Image to lightbox</b> (Colorbox, Splidebox, PhotoSwipe, Slick Lightbox, Zooming, Intense, etc.) will display media in lightbox.</li></ul>Both can stand alone or grouped as a gallery. To build a gallery, use the grid shortcodes.'),
     ];
 
     if (!empty($lightboxes)) {

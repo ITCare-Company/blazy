@@ -128,7 +128,7 @@ class Placeholder {
    * The `[data-b-thumb|data-thumb(deprecated)]` attribute usages:
    * - Zoom-in-out effect as seen at Splidebox and PhotoSwipe.
    * - Hoverable or static grid pagination/ thumbnails seen at Splide/ Slick.
-   * - Lightbox thumbnails seen at Photobox.
+   * - Lightbox thumbnails seen at Splidebox.
    * - Switchable thumbnail to main stage seen at ElevateZoomPlus.
    * - Slider arrows with thumbnails as navigation previews, etc. seen at Slick.
    * - etc.
