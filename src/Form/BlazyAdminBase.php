@@ -120,11 +120,12 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
     }
 
-    if ($scopes->is('by_delta')) {
+    if ($scopes->is('by_delta') && !$scopes->is('_views')) {
       $form['by_delta'] = [
         '#type'   => 'textfield',
         '#title'  => $this->t('By delta'),
         '#weight' => -111,
+        '#wrapper_attributes' => $this->getTooltipClasses(),
       ];
     }
 

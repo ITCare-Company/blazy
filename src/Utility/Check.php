@@ -254,17 +254,17 @@ class Check {
     $is_grid  = $sub_grid ?: ($style && $has_grid);
     $is_grid  = $is_grid ?: $settings['_grid'] ?? $blazies->is('grid', $is_grid);
 
-    // Babysitter for Slick which requires no Display style.
-    if ($is_grid && !$style) {
-      $settings['style'] = 'grid';
-    }
+    $blazies->set('is.grid', $is_grid);
 
     // Bail out early if not so configured.
     if (!$is_grid) {
       return;
     }
 
-    $blazies->set('is.grid', $is_grid);
+    // Babysitter for Slick which requires no Display style.
+    if (!$style) {
+      $settings['style'] = 'grid';
+    }
 
     if ($style) {
       foreach (BlazyDefault::grids() as $grid) {
