@@ -88,14 +88,6 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     // Captions if so configured, including Blazy formatters.
     $captions = $this->getCaptions($data);
 
-    // @todo remove BC at blazy:3.x.
-    $this->getCaption($data, $entity, $langcode);
-    if (isset($data[static::$captionId])) {
-      @trigger_error('getCaption is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Field\BlazyEntityMediaBase::getCaptions() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-      $captions = array_merge($captions, $data[static::$captionId]);
-      unset($data[static::$captionId]);
-    }
-
     // If `Image rendered` is picked, render image as is. Might not be Blazy's
     // formatter, yet has awesomeness that Blazy doesn't, but still wants to be
     // embedded in Blazy ecosytem mostly for Grid, Slider, Mason, GridStack etc.
@@ -290,10 +282,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
    * Build extra elements.
    */
   protected function withElementExtra(array &$element): void {
-    // @todo remove at 3.x:
-    $entity = $element['#entity'] ?? NULL;
-    $langcode = $element['#langcode'] ?? NULL;
-    $this->buildElementExtra($element, $entity, $langcode);
+    // Do nothing, let extenders do their jobs.
   }
 
   /**
@@ -305,38 +294,5 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
    * Do nothing, let extenders do their jobs.
    * }
    */
-
-  /**
-   * Deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0.
-   *
-   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use
-   *   self::getCaptions() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  protected function getCaption(array &$element, $entity, $langcode) {
-    @trigger_error('getCaption is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Field\BlazyEntityMediaBase::getCaptions() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-  }
-
-  /**
-   * Deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0.
-   *
-   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use
-   *   self::withElementExtra() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  protected function buildElementExtra(array &$element, $entity, $langcode) {
-    // @trigger_error('buildElementExtra is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Field\BlazyEntityMediaBase::withElementExtra() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-  }
-
-  /**
-   * Deprecated in blazy:8.x-2.17, added in blazy:8.x-2.17.
-   *
-   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use
-   *   self::withElementDetail() instead.
-   * @see https://www.drupal.org/node/3103018
-   */
-  protected function toElements(array &$build): void {
-    @trigger_error('toElements is deprecated in blazy:8.x-2.17 and is removed from blazy:8.x-3.0. Use \Drupal\blazy\Field\BlazyEntityMediaBase::withElementDetail() instead. See https://www.drupal.org/node/3103018', E_USER_DEPRECATED);
-  }
 
 }

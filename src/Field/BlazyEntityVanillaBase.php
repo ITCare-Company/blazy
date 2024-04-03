@@ -289,15 +289,12 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     $delta    = $build['#delta'];
     $entity   = $build['#entity'];
     $bundle   = $entity->bundle();
+    $current  = $delta . '-' . $entity->id();
 
-    $current = $delta . '-' . $entity->id();
     $blazies->set('bundles.' . $bundle, $bundle, TRUE)
       ->set('language.code', $langcode)
       ->set('delta', $delta)
       ->set('item.current', $current);
-
-    // @todo remove at 3.x, not used by any sub-modules:
-    $this->prepareElement($build, $entity, $langcode, $delta);
 
     // Sub-modules always flag `vanilla` as required, -- configurable, or not.
     if (empty($settings['vanilla'])) {
@@ -325,9 +322,6 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
       $this->withElementOverride($build, $element);
     }
     else {
-      // @todo remove at 3.x for self::withElementOverride().
-      $this->buildElement($build, $entity, $langcode);
-
       $blazies = $settings['blazies'];
       if ($blazies->is('nav')) {
         if (method_exists($this, 'withElementThumbnail')) {
@@ -339,28 +333,6 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
         }
       }
     }
-  }
-
-  /**
-   * Deprecated in blazy:8.x-2.17, and is removed from blazy:3.0.0.
-   *
-   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
-   *   self::withElement[Detail|Vanilla]() instead.
-   * @see https://www.drupal.org/node/3367291
-   */
-  protected function buildElement(array &$build, $entity, $langcode) {
-    // @todo @trigger_error('buildElement is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::withElement[Detail|Vanilla]() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
-  }
-
-  /**
-   * Deprecated in blazy:8.x-2.17, and is removed from blazy:3.0.0.
-   *
-   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
-   *   self::withElemen[Detail|Vanilla]() instead.
-   * @see https://www.drupal.org/node/3367291
-   */
-  protected function prepareElement(array &$build, $entity, $langcode, $delta): void {
-    @trigger_error('prepareElement is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::withElement[Detail|Vanilla]() instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
   }
 
 }

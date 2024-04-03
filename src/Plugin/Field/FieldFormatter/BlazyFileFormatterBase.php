@@ -503,11 +503,6 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       // This basically associates file to media entity like seen at dep VEF.
       $this->blazyOembed->build($build);
     }
-    else {
-      // @todo remove at 3.x for self::withElement() or static::$useOembed.
-      $file = $build['#entity'];
-      $this->buildElement($build, $file);
-    }
   }
 
   /**
@@ -521,17 +516,6 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
       }
       $this->withElementOverride($build, $element);
     }
-  }
-
-  /**
-   * Deprecated in blazy:8.x-2.17,  and is removed from blazy:3.0.0.
-   *
-   * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
-   *   self::withElement() or static::$useOembed instead.
-   * @see https://www.drupal.org/node/3367291
-   */
-  protected function buildElement(array &$element, $entity) {
-    // @todo @trigger_error('buildElement is deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use self::withElement() or static::$useOembed instead. See https://www.drupal.org/node/3367291', E_USER_DEPRECATED);
   }
 
 }
