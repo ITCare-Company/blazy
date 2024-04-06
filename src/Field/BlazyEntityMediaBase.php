@@ -66,7 +66,6 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   protected function withElementDetail(array $build): array {
     [
       '#entity'   => $entity,
-      '#langcode' => $langcode,
       '#settings' => $settings,
     ] = $build;
 
@@ -279,13 +278,6 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
   }
 
   /**
-   * Build extra elements.
-   */
-  protected function withElementExtra(array &$element): void {
-    // Do nothing, let extenders do their jobs.
-  }
-
-  /**
    * Build thumbnail navigation such as for Slick/ Splide asnavfor.
    *
    * @todo re-enable after sub-modules corrected params.
@@ -294,5 +286,12 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
    * Do nothing, let extenders do their jobs.
    * }
    */
+
+  /**
+   * Build extra elements.
+   */
+  protected function withElementExtra(array &$element): void {
+    // Do nothing, let extenders do their jobs.
+  }
 
 }

@@ -315,7 +315,6 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
 
     $delta    = $build['#delta'];
     $entity   = $build['#entity'];
-    $langcode = $build['#langcode'];
     $settings = $build['#settings'];
 
     if (method_exists($this, 'withElementOverride')) {
