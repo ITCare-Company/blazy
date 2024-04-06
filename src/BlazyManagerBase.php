@@ -206,9 +206,6 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
       ->set('use.theme_thumbnail', $use_blazy)
       ->set('version.blazy', Blazy::version('blazy'));
 
-    // @todo remove is.blur for use.blur at 3.x:
-    $blazies->set('is.blur', $is_blur);
-
     if ($namespace && $namespace != 'blazy') {
       if ($this->moduleExists($namespace)) {
         $blazies->set('version.' . $namespace, Blazy::version($namespace));

@@ -447,9 +447,6 @@ class BlazyDefault {
       'eventify',
       'viewport',
       'xlazy',
-      // @todo remove css + dom post sub-module updates at 2.18+.
-      // 'css',
-      // 'dom',
       'animate',
       'dataset',
       'background',
