@@ -298,6 +298,13 @@ class Placeholder {
 
     // With CSS background, IMG may be empty, add thumbnail to the container.
     $blazies->set('thumbnail.url', $tn_url);
+
+    // SVG is scalable, can be used as a thumbnail as long as style is defined.
+    if (!$tn_url && $blazies->is('svg') && $style) {
+      $svg_url = $blazies->get('image.url');
+      $blazies->set('thumbnail.url', $svg_url);
+    }
+
     if ($tn_url) {
       self::derivative($blazies, $uri, $tn_uri, $style, 'thumbnail');
     }
