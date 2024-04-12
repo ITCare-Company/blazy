@@ -200,7 +200,6 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
       ->set('lightbox.plugins', $lightboxes)
       ->set('ui', $ui)
       ->set('use.blur', $is_blur)
-      // @todo enable at 3.x after conversion from data-BLAH to data-b-BLAH.
       ->set('use.data_b', TRUE)
       ->set('use.theme_blazy', $use_blazy)
       ->set('use.theme_thumbnail', $use_blazy)
