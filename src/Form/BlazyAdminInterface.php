@@ -173,4 +173,9 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    */
   public function toScopes(array &$definition): BlazySettings;
 
+  /**
+   * Returns native grid description.
+   */
+  public function nativeGridDescription();
+
 }
