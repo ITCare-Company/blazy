@@ -20,6 +20,7 @@
   var C_MOUNTED = C_IS_MASONRY + '-mounted';
   var S_ELEMENT = '.' + ID + '.' + C_IS_MASONRY;
   var C_IS_CAPTIONED = 'is-b-captioned';
+  var UNLOAD;
 
   /**
    * Processes a grid object.
@@ -113,6 +114,14 @@
       $.each(grids, processItem);
     }
 
+    // Fix for LB or AJAX in general integration.
+    if (UNLOAD) {
+      setTimeout(function () {
+        layout();
+        UNLOAD = false;
+      }, 300);
+    }
+
     $.on('load.' + ID_ONCE, function () {
       layout();
 
@@ -143,6 +152,7 @@
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
+        UNLOAD = true;
         $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
       }
     }
