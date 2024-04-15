@@ -72,7 +72,9 @@
   .b-nativegrid {
     gap: var(--bn-col-gap);
     grid-template-columns: auto;
+    /* Use min-content if to make perfectly calculated non-bg images fit. */
     grid-auto-rows: var(--bn-row-height-native);
+    /* bad for bg: align-items: start; */
     /* align-content: start;
     justify-content: start;  */
   }
@@ -81,7 +83,7 @@
   .blazy.b-nativegrid,
   .item-list > .b-nativegrid {
     display: grid;
-    grid-auto-flow: dense;
+    grid-auto-flow: row dense;
   }
 
   /** Without margin. */

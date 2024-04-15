@@ -736,6 +736,10 @@ class Attributes {
       $classes[] = 'blazy--nojs';
     }
 
+    if ($blazies->is('bg')) {
+      $classes[] = 'is-b-bg';
+    }
+
     // Specific for media switcher, lightbox or not.
     if ($switcher) {
       $switch = str_replace('_', '-', $switcher);

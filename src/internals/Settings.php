@@ -169,6 +169,10 @@ class Settings {
     $parent = $parentsets['blazies'];
     $child  = $childsets['blazies'];
 
+    if ($bg = $parentsets['background'] ?? FALSE) {
+      $parent->set('is.bg', $bg);
+    }
+
     // $parent->set('first.settings', array_filter($child));
     // $parent->set('first.item_id', $child->get('item.id'));
     // Hints containers to build relevant lightbox gallery attributes.

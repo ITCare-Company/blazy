@@ -14,6 +14,7 @@
  * @todo remove unneeded dup methods once all codebase migrated.
  * @todo move more DOM methods into blazy.dom.js to make it ditchable for Cash.
  * @todo when IE gone, https://caniuse.com/dom-manip-convenience
+ * @todo remove all min files at D10, see https://www.drupal.org/node/3305725
  */
 
 /* global define */
@@ -592,7 +593,7 @@
   function nodeMapAttr(obj, scope) {
     var info = {};
     if (obj && obj.length) {
-      var arr = PROTO_A.slice.call(obj);
+      var arr = slice(obj);
       arr.forEach(function (a) {
         info[a.name] = a.value;
       }, scope || this);
@@ -657,7 +658,7 @@
     }
     else if (obj) {
       if (obj instanceof HTMLCollection) {
-        obj = PROTO_A.slice.call(obj);
+        obj = slice(obj);
       }
 
       if (obj instanceof NamedNodeMap) {
@@ -1473,6 +1474,25 @@
   }
 
   /**
+   * A shortcut for Array.prototype.slice.
+   *
+   * @private
+   *
+   * Ensures an array is returned and not a NodeList or an Array-like object.
+   *
+   * @param {NodeList|Array.<Element>} elements
+   *   A NodeList, array of elements.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
+   *
+   * @return {Array.<Element>}
+   *   An array of elements.
+   */
+  function slice(elements) {
+    return PROTO_A.slice.call(elements);
+  }
+
+  /**
    * Process arguments, query the DOM if necessary. Adapted from core/once.
    *
    * @private
@@ -1492,9 +1512,7 @@
       elements = ctx.querySelectorAll(selector);
     }
 
-    // Ensures an array is returned and not a NodeList or an Array-like object.
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
-    return PROTO_A.slice.call(elements);
+    return slice(elements);
   }
 
   // Use colon to be namespaced with DOT properly, e.g:
@@ -2161,7 +2179,9 @@
   }
 
   DB.context = context;
+  DB.slice = slice;
   DB.toElm = toElm;
+  DB.toElms = toElms;
   DB.camelCase = camelCase;
   DB.isVar = isVar;
   DB.computeStyle = computeStyle;

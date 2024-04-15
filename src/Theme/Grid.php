@@ -53,15 +53,20 @@ class Grid {
       $wrappers[] = 'item-list--blazy-' . str_replace('_', '-', $style);
     }
 
-    return [
-      '#theme'              => 'item_list',
-      '#items'              => $contents,
-      '#context'            => ['settings' => $settings],
-      '#attributes'         => $attrs,
-      '#wrapper_attributes' => ['class' => array_merge(['item-list'], $wrappers)],
-      '#title'              => self::label($blazies),
-      '#attached'           => $attachments,
-    ];
+    if ($blazies->is('lb')) {
+      $output['#regions'] = $contents;
+    }
+    else {
+      $output['#theme'] = 'item_list';
+      $output['#items'] = $contents;
+      $output['#context'] = ['settings' => $settings];
+      $output['#title'] = self::label($blazies);
+      $output['#wrapper_attributes'] = ['class' => array_merge(['item-list'], $wrappers)];
+    }
+
+    $output['#attributes'] = $attrs;
+    $output['#attached'] = $attachments;
+    return $output;
   }
 
   /**
@@ -373,7 +378,13 @@ class Grid {
 
     $blazies->set('grid.item_class', $item_class);
 
+    $names = [];
+    if ($regions = $blazies->get('lb.regions', [])) {
+      $names = array_keys($regions);
+    }
+
     foreach ($items as $key => $item) {
+
       // @todo recheck if D9 Views outputs strings like D7, and adjust this.
       // Nobody report issues since 1.x, likely no more strings since D8+.
       if (!is_array($item)) {
@@ -416,8 +427,15 @@ class Grid {
         '#attributes' => $content_attrs,
       ] : $item;
 
-      $content['#wrapper_attributes'] = $wrapper_attrs;
-      $contents[] = $content;
+      if ($blazies->is('lb')) {
+        $content['#attributes'] = $wrapper_attrs;
+      }
+      else {
+        $content['#wrapper_attributes'] = $wrapper_attrs;
+      }
+
+      $delta = $names ? $names[$key] : $key;
+      $contents[$delta] = $content;
     }
     return $contents;
   }
