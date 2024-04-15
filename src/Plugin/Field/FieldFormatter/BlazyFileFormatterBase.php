@@ -176,7 +176,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     $limit    = $this->getViewLimit($settings);
     $by_delta = $settings['by_delta'] ?? -1;
     $total    = $blazies->total();
-    $valid    = $by_delta > -1 && $by_delta < $total - 1;
+    $valid    = $by_delta > -1 && $by_delta < $total;
 
     // Returns a single item by delta if so-configured.
     if ($valid && $entity = ($files[$by_delta] ?? NULL)) {
