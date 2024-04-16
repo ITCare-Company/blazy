@@ -55,14 +55,6 @@
   height: 100%;
 }
 
-/* Olivero surprises, adjust it. */
-.is-b-native:not(.b-layout) .blazy__caption h2 {
-  margin: 0;
-  color: #fff;
-  font-size: 1.25rem;
-  line-height: 1.6rem;
-}
-
 /** 480px with 16px base font. */
 @media only screen and (min-width: 30em) {
   .b-nativegrid > .grid,
@@ -145,6 +137,14 @@
   .is-b-native:not(.b-layout) .grid iframe {
     position: absolute;
     height: 100%;
+  }
+
+  /* Olivero surprises, adjust it. */
+  .is-b-native:not(.b-layout) .blazy__caption h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.25rem;
+    line-height: 1.6rem;
   }
 
   /* To avoid initial confusion due to being overflow: hidden, adjust it. */
