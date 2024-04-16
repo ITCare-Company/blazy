@@ -1,0 +1,38 @@
+{#
+/**
+ * @file
+ * Template for a Blazy layout.
+ */
+#}
+{%
+  set classes = [
+    'b-layout',
+  ]
+%}
+{% if content %}
+  <div{{ attributes.addClass(classes) }}>
+    {% for region in layout.getRegionNames %}
+    {% set name = settings.regions[region].name %}
+    {% set use_bg = settings.regions[region].background is not empty %}
+    {%
+      set region_classes = [
+        'blazy__region',
+        'region',
+        'region--' ~ region|clean_class,
+        name is not empty ? '--' ~ name|clean_class,
+        use_bg ? 'region--b-bg',
+      ]
+    %}
+      <div{{ region_attributes[region].addClass(region_classes) }}>
+        {# @todo remove check when core draggable works with inner DIV. #}
+        {% if in_preview %}
+          {{ content[region] }}
+        {% else %}
+          <div{{ region_content_attributes[region].addClass('grid__content') }}>
+            {{ content[region] }}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

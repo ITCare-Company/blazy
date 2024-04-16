@@ -52,12 +52,13 @@ trait TraitAdminBase {
     $admin_css = $this->blazyManager->config('admin_css', 'blazy.settings') ?: FALSE;
     // Disable the admin css in the off canvas menu, to avoid conflicts with
     // the active frontend theme.
-    if ($admin_css && $current = $this->getCurrentRequest()) {
-      $uri = $current->getRequestUri();
-      $wrapper_format = $current->query->get('_wrapper_format');
+    $uris = $this->getUri();
+    if ($admin_css && $uri = $uris['uri']) {
+      $wrapper_format = $uris['wrapper_format'] ?? '';
 
       if ($wrapper_format === "drupal_dialog.off_canvas"
-        || strpos($uri, '/views/nojs') !== FALSE) {
+        || strpos($uri, '/views/nojs') !== FALSE
+        || strpos($uri, '/layout_builder/') !== FALSE) {
         $admin_css = FALSE;
       }
     }
@@ -306,6 +307,18 @@ trait TraitAdminBase {
     $classes[] = 'b-tooltip--lg';
 
     return $classes;
+  }
+
+  /**
+   * Returns the admin URI.
+   */
+  protected function getUri(): array {
+    $uri = $wrapper_format = '';
+    if ($current = $this->getCurrentRequest()) {
+      $uri = $current->getRequestUri();
+      $wrapper_format = $current->query->get('_wrapper_format');
+    }
+    return ['uri' => $uri, 'wrapper_format' => $wrapper_format];
   }
 
   /**

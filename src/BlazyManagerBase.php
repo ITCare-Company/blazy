@@ -92,6 +92,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     $styles = [
       'column' => 'CSS3 Columns',
       'grid' => 'Grid Foundation',
+      'flexbox' => 'Flexbox',
       'flex' => 'Flexbox Masonry',
       'nativegrid' => 'Native Grid',
     ];

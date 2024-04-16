@@ -178,4 +178,29 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    */
   public function nativeGridDescription();
 
+  /**
+   * Returns base descriptions.
+   */
+  public function baseDescriptions($scopes): array;
+
+  /**
+   * Returns grid descriptions.
+   */
+  public function gridDescriptions($scopes): array;
+
+  /**
+   * Returns grid header description.
+   */
+  public function gridHeaderDescription();
+
+  /**
+   * Returns opening descriptions.
+   */
+  public function openingDescriptions(): array;
+
+  /**
+   * Returns SVG description, from SVG image field to support it in Blazy.
+   */
+  public function svgDescriptions(): array;
+
 }

@@ -1,0 +1,35 @@
+/**
+ * @file
+ * Provides admin blazy layout.
+ */
+
+.layout-builder .b-layout {
+  min-height: 160px;
+}
+
+.layout-builder .b-layout .grid {
+  min-height: 160px;
+  background-color: #eaeaea;
+}
+
+.layout-builder .b-layout .region--b-bg {
+  padding: 2em;
+}
+
+.layout-builder .b-layout .block {
+  background-color: transparent;
+}
+
+.b-layout .layout-builder__add-block {
+  position: absolute;
+  top: auto;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.layout-builder .grid .blazy__caption,
+.layout-builder .grid .slide__caption,
+.layout-builder .grid .box__caption {
+  pointer-events: none;
+}

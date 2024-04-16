@@ -1,6 +1,6 @@
 /**
  * @file
- * Provides CSS3 flex based on Flexbox layout.
+ * Provides CSS3 flex based on Flexbox Masonry layout.
  *
  * The .grid side margin affects the decision for .b-flex justify-content,
  * affects odd and even .grid items. And .grid margin auto causes more trouble,

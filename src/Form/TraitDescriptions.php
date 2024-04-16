@@ -23,13 +23,13 @@ trait TraitDescriptions {
    * {@inheritdoc}
    */
   public function nativeGridDescription() {
-    return $this->t('<br>Specific for <b>Native Grid</b>, two recipes: <ol><li><b>One-dimensional</b>: Input a single numeric column grid, acting as Masonry. <em>Best with</em>: scaled images.</li><li><b>Two-dimensional</b>: Input a space separated value with <code>WIDTHxHEIGHT</code> pair based on the amount of columns/ rows, at max 12, e.g.: <br><code>4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2</code> <br>This will resemble GridStack optionset <b>Tagore</b>. Any single value e.g.: <code>4x4</code> will repeat uniformly like one-dimensional. <br><em>Best with</em>: <ul><li><b>Use CSS background</b> ON.</li><li>Exact item amount or better more designated grids than lacking. Use a little math with the exact item amount to have gapless grids.</li><li>Disabled image aspect ratio to use grid ratio instead.</li></ul></li></ol>This requires any grid-related <b>Display style</b>. Unless required, leave empty to DIY, or to not build grids.');
+    return $this->t('<br><br>Specific for <b>Flexbox</b>, not <em>Flexbox Masonry</em>: <ol><li>Accepted a very limited column number combination: <br><code>10 15 20 25 30 33 33 40 50 60 75 77 80 100</code><br>Each row must amount to 100% width, e.g.: <code>25 50 25</code> or <code>33 34 33</code></li></ol>Specific for <b>Native Grid</b>, two recipes: <ol><li><b>One-dimensional</b>: Input a single numeric column grid, acting as Masonry. <em>Best with</em>: scaled images.</li><li><b>Two-dimensional</b>: Input a space separated value with <code>WIDTHxHEIGHT</code> pair based on the amount of columns/ rows, at max 12, e.g.: <br><code>4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2</code> <br>This will resemble GridStack optionset <b>Tagore</b>. Any single value e.g.: <code>4x4</code> will repeat uniformly like one-dimensional. <br><em>Best with</em>: <ul><li><b>Use CSS background</b> ON.</li><li>Exact item amount or better more designated grids than lacking. Use a little math with the exact item amount to have gapless grids.</li><li>Disabled image aspect ratio to use grid ratio instead.</li></ul></li></ol>This requires any grid-related <b>Display style</b>. Unless required, leave empty to DIY, or to not build grids.');
   }
 
   /**
-   * Returns base descriptions.
+   * {@inheritdoc}
    */
-  protected function baseDescriptions($scopes): array {
+  public function baseDescriptions($scopes): array {
     $namespace = $scopes->get('namespace', 'blazy');
     $ui_url = '/admin/config/media/blazy';
     if ($this->blazyManager->moduleExists('blazy_ui')) {
@@ -77,9 +77,9 @@ trait TraitDescriptions {
   }
 
   /**
-   * Returns grid descriptions.
+   * {@inheritdoc}
    */
-  protected function gridDescriptions($scopes): array {
+  public function gridDescriptions($scopes): array {
     $description = $this->t('Empty the value first if trouble with changing form states. The amount of block grid columns (1 - 12, or empty) for large monitors 64.063em  (1025px) up.');
     if ($scopes->is('slider')) {
       $description .= $this->t('<br /><strong>Requires</strong>:<ol><li>Any grid-related Display style,</li><li>Visible items,</li><li>Skin Grid for starter,</li><li>A reasonable amount of contents.</li></ol>');
@@ -94,30 +94,30 @@ trait TraitDescriptions {
   }
 
   /**
-   * Returns grid header description.
+   * {@inheritdoc}
    */
-  protected function gridHeaderDescription() {
+  public function gridHeaderDescription() {
     return $this->t('Depends on the <strong>Display style</strong>.');
   }
 
   /**
-   * Returns opening descriptions.
+   * {@inheritdoc}
    */
-  protected function openingDescriptions($scopes): array {
+  public function openingDescriptions(): array {
     return [
       'background' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires an Aspect ratio, otherwise collapsed containers. Unless explicitly removed such as for GridStack which manages its own problem, or a min-height is added manually to <strong>.b-bg</strong> selector.'),
       'by_delta' => $this->t('Display a single item by delta, starting from 0. Useful to display a multi-value field when broken down into a single display like Layout Builder blocks so that one field can occupy multiple regions simply by using its delta. More efficient than creating different single fields for the same image or media. Almost similar to Views <strong>Display all values in the same row (DAVISR)</strong>, except only designated to display a single value beyond Views UI. If embedded inside Views, this option is not available for more robust Views DAVISR. Be sure to disable Display style and grid options since it will show one item only.'),
       'caption' => $this->t('Enable any of the following fields as captions. These fields are treated and wrapped as captions.'),
       'layout' => $this->t('Requires a skin. The builtin layouts affects the entire items uniformly. Leave empty to DIY.'),
       'skin' => $this->t('Skins allow various layouts with just CSS. Some options below depend on a skin. Leave empty to DIY. Or use the provided hook_info() and implement the skin interface to register ones.'),
-      'style' => $this->t('Unless otherwise specified, the styles require <strong>Grid</strong>. Difference: <ul><li><strong>Columns</strong> is best with irregular image sizes (scale width, empty height), affects the natural order of grid items, top-bottom, not left-right.</li><li><strong>Foundation</strong> with regular cropped ones, left-right.</li><li><strong>Flex Masonry</strong> (@deprecated due to an epic failure) uses Flexbox, supports (ir)-regular, left-right flow, requires aspect ratio fluid to layout correctly.</li><li><strong>Native Grid</strong> supports both one and two dimensional grid.</li></ul> Unless required, leave empty to use default formatter, or style. Save for <b>Grid Foundation</b>, the rest are experimental!'),
+      'style' => $this->t('Unless otherwise specified, the styles require <strong>Grid</strong>. Difference: <ul><li><strong>Columns</strong> is best with irregular image sizes (scale width, empty height), affects the natural order of grid items, top-bottom, not left-right.</li><li><strong>Foundation</strong> with regular cropped ones, left-right.</li><li><strong>Flexbox</strong> with limited non-repeatable non-gapless 3-4 columns, see Blazy Layout sub-module for Layout Builder.</li> <li><strong>Flex Masonry</strong> (@deprecated due to an epic failure) uses Flexbox, supports (ir)-regular, left-right flow, requires aspect ratio fluid to layout correctly.</li><li><strong>Native Grid</strong> supports both one and two dimensional grid.</li></ul> Unless required, leave empty to use default formatter, or style. Save for <b>Grid Foundation</b>, the rest are experimental!'),
     ];
   }
 
   /**
-   * Returns SVG description, from SVG image field to support it in Blazy.
+   * {@inheritdoc}
    */
-  protected function svgDescriptions(): array {
+  public function svgDescriptions(): array {
     $sanitizer = 'https://github.com/darylldoyle/svg-sanitizer';
     return [
       'inline' => $this->t('If checked, SVG is not embedded in the IMG tag. Be sure to disable CSS background option. Only enable for CSS and JavaScript manipulations, and trusted users, due to <a href=":url1">inline SVG security</a>. Required <a href=":url2">SVG Sanitizer</a>.', [

@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Field;
 
+use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterEntityTrait;
 use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterTrait;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -142,7 +143,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     // @todo remove the helper at/ by 3.x post migrations:
     $this->formatter->hashtag($data);
 
-    $settings = $data['#settings'];
+    $settings = &$data['#settings'];
     $blazies  = $settings['blazies'];
     $limit    = $this->getViewLimit($settings);
     $by_delta = $settings['by_delta'] ?? -1;
@@ -151,6 +152,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
 
     // Returns a single item by delta if so-configured.
     if ($valid && $entity = ($entities[$by_delta] ?? NULL)) {
+      Internals::updateCountByDelta($settings);
       yield $this->getElement($data, $entity, $by_delta);
     }
     else {

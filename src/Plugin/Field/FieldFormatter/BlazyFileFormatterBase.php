@@ -171,7 +171,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    * Returns the Blazy elements, also for sub-modules to re-use.
    */
   protected function getElements(array $build, $files): \Generator {
-    $settings = $this->formatter->toHashtag($build);
+    $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
     $limit    = $this->getViewLimit($settings);
     $by_delta = $settings['by_delta'] ?? -1;
@@ -180,6 +180,7 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
 
     // Returns a single item by delta if so-configured.
     if ($valid && $entity = ($files[$by_delta] ?? NULL)) {
+      Internals::updateCountByDelta($settings);
       yield $this->getElement($settings, $entity, $by_delta);
     }
     else {

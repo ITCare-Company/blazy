@@ -202,7 +202,9 @@ class Check {
       BlazyField::settings($settings, $field);
     }
 
-    $count       = $blazies->get('count', $items->count());
+    // @fixme might be 0 even has one if embedded inside LB blocks.
+    $total       = $items->count();
+    $count       = $blazies->get('count', $total);
     $field_name  = $blazies->get('field.name');
     $field_clean = str_replace('field_', '', $field_name);
     $entity_type = $blazies->get('entity.type_id');
@@ -224,6 +226,7 @@ class Check {
 
     // @todo remove, used by sliders at twigs.
     $settings['count'] = $count;
+    $settings['by_delta'] = (int) $settings['by_delta'] ?? -1;
     $settings['id'] = $id;
     $settings['use_theme_field'] = $use_field;
 

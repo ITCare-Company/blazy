@@ -171,7 +171,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
 
     // Add descriptions, if applicable.
-    foreach ($this->openingDescriptions($scopes) as $key => $description) {
+    foreach ($this->openingDescriptions() as $key => $description) {
       if (isset($form[$key])) {
         $form[$key]['#description'] = $description;
       }
@@ -273,6 +273,36 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function closingForm(array &$form, array $definition): void {
+    $scopes = $this->toScopes($definition);
+    $namespace = $scopes->get('namespace');
+    $valid = $scopes->get('field') && $scopes->is('theme_field');
+    $uri = $this->getUri()['uri'];
+    $lb = strpos($uri, '/layout_builder/') !== FALSE;
+
+    if ($namespace == 'blazy') {
+      $valid = $lb || $valid;
+
+      if ($lb) {
+        $form['use_lb'] = [
+          '#type' => 'hidden',
+          '#value' => TRUE,
+        ];
+      }
+    }
+
+    if ($valid) {
+      $form['use_theme_field'] = [
+        '#title'       => $this->t('Use field template'),
+        '#type'        => 'checkbox',
+        '#description' => $this->t('Wrap Blazy field output into regular field markup (field.html.twig). Vanilla output otherwise.'),
+      ];
+    }
+
+    $form['admin_uri'] = [
+      '#type' => 'hidden',
+      '#value' => $uri,
+    ];
+
     $this->finalizeForm($form, $definition);
   }
 

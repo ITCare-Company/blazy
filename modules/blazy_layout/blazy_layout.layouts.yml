@@ -1,0 +1,29 @@
+blazy_layout:
+  label: Blazy dynamic layout
+  library: blazy_layout/layout
+  class: '\Drupal\blazy_layout\Plugin\Layout\BlazyLayouts'
+  category: Blazy
+  default_region: blzyr_0
+  icon_map:
+    - [blzyr_0, blzyr_1, blzyr_2, blzyr_3]
+    - [blzyr_4, blzyr_5, blzyr_6]
+    - [blzyr_7, blzyr_8]
+  regions:
+    blzyr_0:
+      label: Region 0
+    blzyr_1:
+      label: Region 1
+    blzyr_2:
+      label: Region 2
+    blzyr_3:
+      label: Region 3
+    blzyr_4:
+      label: Region 4
+    blzyr_5:
+      label: Region 5
+    blzyr_6:
+      label: Region 6
+    blzyr_7:
+      label: Region 7
+    blzyr_8:
+      label: Region 8

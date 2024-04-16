@@ -55,6 +55,7 @@ To have gapless, simply add `is-b-gapless` class via template_preprocess. */
   .b-nativegrid.is-b-masonry > .grid,
   .item-list > .b-nativegrid.is-b-masonry > .grid {
     overflow: hidden;
+    flex-wrap: nowrap;
     grid-row-end: span 2;
     align-self: start;
   }

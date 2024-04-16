@@ -172,6 +172,13 @@ flex:
   dependencies:
     - blazy/compat
 
+flexbox:
+  css:
+    component:
+      css/components/grid/blazy.flexbox.css: {}
+  dependencies:
+    - blazy/base
+
 grid:
   css:
     component:

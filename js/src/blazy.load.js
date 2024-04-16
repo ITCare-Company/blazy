@@ -33,6 +33,7 @@
   var V_SRC = 'src';
   var S_SCROLL_ELEMENTS = '#drupal-modal, .is-b-scroll';
   var OPTS = {};
+  var UNLOAD;
 
   /**
    * Blazy public methods.
@@ -225,9 +226,16 @@
 
       // Initializes blazy once as a global observer, not per container.
       $.once(init.bind(me), ID_ONCE_GLOBAL, S_GLOBAL, context);
+
+      // After AJAX failures.
+      if (UNLOAD) {
+        init.call(me, context);
+        UNLOAD = false;
+      }
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
+        UNLOAD = true;
         $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
         $.once.removeSafely(ID_ONCE_GLOBAL, S_GLOBAL, context);
       }

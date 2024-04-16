@@ -1,0 +1,41 @@
+/**
+ * @file
+ * Provides base blazy layout.
+ */
+
+.blazy.b-layout > .grid {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+
+.block.block--b-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  inset: 0;
+}
+
+.block.block--b-bg ~ .block {
+  padding: 0.5em;
+}
+
+.block.block--b-bg > .is-b-bg {
+  height: inherit;
+}
+
+.block.block--b-bg .b-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 1px;
+  /** Temp fix, also to fix the VIDEO element to max width, not only IMG. */
+  object-fit: cover;
+}
+
+.block:not(.block--b-bg) {
+  position: relative;
+  z-index: 1;
+}

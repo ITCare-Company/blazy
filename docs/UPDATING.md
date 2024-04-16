@@ -68,7 +68,8 @@ above regular Update SOP:
 3. Only if any issues with asset re-generations, rename or delete folders:
    + `web/sites/default/files/css`
    + `web/sites/default/files/js`
-4. Run `drush cr`, `drush updb` and `drush cr`. Note the silly sequence!
+4. Run `composer clear-cache`, if necessary. Will slow it down temporarily!
+5. Run `drush cr`, `drush updb` and `drush cr`. Note the silly sequence!
 
 
 **Note the order!**  

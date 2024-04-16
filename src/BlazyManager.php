@@ -586,10 +586,9 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       $element['#captions'] = $output;
 
       // @todo remove debug:
-      if (!$self) {
-        $element['#caption_attributes']['class'][] = 'blazy__caption';
-      }
-
+      // if (!$self) {
+      // $element['#caption_attributes']['class'][] = 'blazy__caption';
+      // }
       $element['#caption_attributes']['class'][] = $id . '__caption';
 
       // Overlays are media players/ nested sliders over images seen at Slick/

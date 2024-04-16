@@ -149,6 +149,13 @@ class Internals {
   }
 
   /**
+   * Alias for Settings::updateCountByDelta().
+   */
+  public static function updateCountByDelta(array &$settings): void {
+    Settings::updateCountByDelta($settings);
+  }
+
+  /**
    * Alias for Settings::getViewFieldData().
    */
   public static function getViewFieldData($view): array {

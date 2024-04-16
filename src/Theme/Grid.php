@@ -241,26 +241,42 @@ class Grid {
   }
 
   /**
+   * Checks if a grid expects a flexbox layout.
+   */
+  public static function isFlexbox(array $settings): bool {
+    if ($grid = $settings['grid'] ?? NULL) {
+      $style = $settings['style'] ?? NULL;
+      return !is_numeric($grid) && $style == 'flexbox';
+    }
+    return FALSE;
+  }
+
+  /**
    * Checks if a grid expects a two-dimensional grid.
    */
-  public static function isNativeGrid($grid): bool {
-    return !empty($grid) && !is_numeric($grid);
+  public static function isNativeGrid(array $settings): bool {
+    if ($grid = $settings['grid'] ?? NULL) {
+      $style = $settings['style'] ?? NULL;
+      return !is_numeric($grid) && $style == 'nativegrid';
+    }
+    return FALSE;
   }
 
   /**
    * Checks if a grid uses a native grid, but expecting a masonry.
    */
   public static function isNativeGridAsMasonry(array $settings): bool {
-    return !self::isNativeGrid($settings['grid'])
+    return !self::isNativeGrid($settings)
       && $settings['style'] == 'nativegrid';
   }
 
   /**
    * Extracts grid like: 4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2, or single 4x4.
    */
-  public static function toDimensions($grid): array {
+  public static function toDimensions(array $settings): array {
     $dimensions = [];
-    if (self::isNativeGrid($grid)) {
+    if (self::isNativeGrid($settings) || self::isFlexbox($settings)) {
+      $grid = $settings['grid'];
       $values = array_map('trim', explode(" ", $grid));
 
       foreach ($values as $value) {
@@ -295,7 +311,7 @@ class Grid {
 
     // If Native Grid style with numeric grid, assumed non-two-dimensional.
     // @todo add supports for multiple grid_medium and grid_small.
-    if ($dimensions = self::toDimensions($grid)) {
+    if ($dimensions = self::toDimensions($settings)) {
       // Prevents NestedArray from screwing up.
       $blazies->set('grid.large_dimensions', $dimensions)
         ->set('grid.dimensions', (object) $dimensions)

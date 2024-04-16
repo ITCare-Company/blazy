@@ -1,0 +1,9 @@
+layout:
+  css:
+    theme:
+      css/blazy-layout.css: { }
+
+admin:
+  css:
+    theme:
+      css/blazy-layout.admin.css: { }

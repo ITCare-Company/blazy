@@ -45,7 +45,7 @@ class Settings {
    * Sliders may trick count 100 into just 2 for their magic chunk trick.
    */
   public static function count($blazies, $default = 0): int {
-    $field = $blazies->get('total', 0) ?: $blazies->get('count', 1);
+    $field = $blazies->get('total', 0) ?: $blazies->get('count', 0);
     $views = $blazies->get('view.count', 0);
     $count = $views > $field ? $views : $field;
     $total = $count > $default ? $count : $default;
@@ -53,6 +53,22 @@ class Settings {
     // Store it in an undisturbed location.
     $blazies->set('item.count', $total);
     return $total;
+  }
+
+  /**
+   * Update count by delta option.
+   */
+  public static function updateCountByDelta(array &$settings): void {
+    $blazies  = $settings['blazies'];
+    $by_delta = $settings['by_delta'] ?? -1;
+    $total    = $blazies->total();
+
+    if ($by_delta > -1 && $by_delta < $total) {
+      $settings['count'] = 1;
+      $blazies->set('count', 1)
+        ->set('total', 1)
+        ->set('item.count_original', $total);
+    }
   }
 
   /**

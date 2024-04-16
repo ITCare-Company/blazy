@@ -1,4 +1,10 @@
 
+Blazy 3.0.x-dev, 2024-04-16
+---------------------------
+- Fixed for by_delta option count.
+- Added Blazy Layout sub-module for Layout Builder.
+- Added flexbox layout.
+
 Blazy 3.0.x-dev, 2023-09-18
 ---------------------------
 - Initial 3.x.

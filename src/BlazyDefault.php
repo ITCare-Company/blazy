@@ -78,7 +78,7 @@ class BlazyDefault {
    * Returns basic plugin settings.
    */
   public static function baseSettings() {
-    $settings = ['cache' => 0];
+    $settings = ['cache' => 0, 'admin_uri' => ''];
 
     self::alterableSettings($settings);
     return $settings;
@@ -112,6 +112,7 @@ class BlazyDefault {
       'preload'                => FALSE,
       'responsive_image_style' => '',
       'use_theme_field'        => FALSE,
+      'use_lb'                 => FALSE,
     ] + self::cherrySettings();
   }
 
@@ -434,6 +435,7 @@ class BlazyDefault {
     return [
       'column',
       'flex',
+      'flexbox',
       'grid',
       'nativegrid',
       'nativegrid.masonry',
