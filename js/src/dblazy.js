@@ -1509,7 +1509,7 @@
     // Assume selector is an array-like element unless a string.
     var elements = toArray(selector);
     if (isStr(selector)) {
-      elements = ctx.querySelectorAll(selector);
+      elements = [ctx || _doc].querySelectorAll(selector);
     }
 
     return slice(elements);

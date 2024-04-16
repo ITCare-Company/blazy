@@ -18,7 +18,9 @@
   var ID_ONCE = 'b-masonry';
   var C_IS_MASONRY = 'is-' + ID_ONCE;
   var C_MOUNTED = C_IS_MASONRY + '-mounted';
-  var S_ELEMENT = '.' + ID + '.' + C_IS_MASONRY;
+  var C_IS_DISABLED = C_MOUNTED + '-disabled';
+  var S_BASE = '.' + ID;
+  var S_ELEMENT = S_BASE + '.' + C_IS_MASONRY;
   var C_IS_CAPTIONED = 'is-b-captioned';
   var UNLOAD;
 
@@ -28,7 +30,7 @@
    * @param {Object} grid
    *   The grid object.
    */
-  function processItem(grid) {
+  function subprocess(grid) {
     // Get the post relayout number of columns.
     var ncol = getComputedStyle(grid._el).gridTemplateColumns.split(' ').length;
 
@@ -38,12 +40,17 @@
       grid.ncol = ncol;
 
       // Revert to initial positioning, no margin.
-      $.each(grid.items, function (c) {
-        c.style.removeProperty('margin-top');
-      });
+      var cleanout = function () {
+        $.each(grid.items, function (c) {
+          c.style.removeProperty('margin-top');
+        });
+      };
+
+      cleanout();
 
       // If we have more than one column.
       if (grid.ncol > 1) {
+        $.removeClass(grid._el, C_IS_DISABLED);
         $.each(grid.items.slice(ncol), function (c, i) {
           // Bottom edge of item above.
           var prevFin = $.rect(grid.items[i]).bottom;
@@ -52,6 +59,10 @@
 
           c.style.marginTop = (prevFin + grid.gap - currItm) + 'px';
         });
+      }
+      else {
+        $.addClass(grid._el, C_IS_DISABLED);
+        cleanout();
       }
 
       grid.mod = 0;
@@ -68,7 +79,8 @@
         items: children.filter(function (c) {
           return c.nodeType === 1 && +getComputedStyle(c).gridColumnEnd !== -1;
         }),
-        ncol: 0
+        ncol: 0,
+        count: children.length
       };
     });
   }
@@ -110,27 +122,50 @@
 
     grids = map(grids);
 
-    function layout() {
-      $.each(grids, processItem);
-    }
-
-    // Fix for LB or AJAX in general integration.
-    if (UNLOAD) {
-      setTimeout(function () {
-        layout();
-        UNLOAD = false;
-      }, 300);
-    }
-
-    $.on('load.' + ID_ONCE, function () {
-      layout();
-
+    function observe() {
       $.each(grids, function (grid) {
         $.each(grid.items, function (c) {
           o.observe(c);
         });
       });
+    }
 
+    function layout(e) {
+      if (e === UNLOAD) {
+        var elms = $.toElms(S_BASE);
+
+        if (grids.length) {
+          grids = map(elms);
+
+          grids.find(function (grid) {
+            return $.hasClass(grid._el, ID);
+          }).mod = 1;
+
+          $.each(grids, subprocess);
+        }
+      }
+      else {
+        $.each(grids, subprocess);
+      }
+    }
+
+    // Fix for LB or AJAX in general integration.
+    // @todo move it to an AJAX event when Drupal has one by 2048.
+    if (UNLOAD) {
+      setTimeout(function () {
+
+        layout(UNLOAD);
+        observe();
+
+        UNLOAD = false;
+      }, 700);
+    }
+
+    $.on('load.' + ID_ONCE, function () {
+      layout();
+      observe();
+
+      // No need to debounce, RO is already browser-optimized.
       $.on('resize.' + ID_ONCE, layout, false);
     }, false);
   }
@@ -153,7 +188,10 @@
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
         UNLOAD = true;
-        $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
+        var els = $.once.removeSafely(ID_ONCE, S_BASE, context);
+        if (els && els.length) {
+          $.removeClass(els[0], C_MOUNTED);
+        }
       }
     }
 

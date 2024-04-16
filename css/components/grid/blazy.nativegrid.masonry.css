@@ -37,6 +37,10 @@ To have gapless, simply add `is-b-gapless` class via template_preprocess. */
   margin: 0 auto;
 }
 
+.b-nativegrid.is-b-masonry-disabled > .grid {
+  margin-top: 0 !important;
+}
+
 /** 480px = 30em with 16px base font. */
 @media only screen and (min-width: 30em) {
   .b-nativegrid.is-b-masonry {
