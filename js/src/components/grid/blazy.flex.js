@@ -112,7 +112,6 @@
       $.addClass(elm, C_IS_CAPTIONED);
     }
 
-    elm.bflex = C_MOUNTED;
     $.addClass(elm, C_MOUNTED);
   }
 
@@ -147,7 +146,7 @@
       if (e === UNLOAD) {
         var elms = $.toElms(S_BASE);
 
-        if (grids.length) {
+        if (elms.length) {
           grids = map(elms);
 
           grids.find(function (grid) {
