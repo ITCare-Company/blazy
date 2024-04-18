@@ -136,7 +136,8 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     // @todo remove the helper at/ by 3.x post migrations:
     $this->formatter->hashtag($data);
 
-    $settings = &$data['#settings'];
+    // Do not reference here, else causes duplicates.
+    $settings = $data['#settings'];
     $blazies  = $settings['blazies'];
     $limit    = $this->getViewLimit($settings);
     $by_delta = $settings['by_delta'] ?? -1;
@@ -146,6 +147,8 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     // Returns a single item by delta if so-configured.
     if ($valid && $entity = ($entities[$by_delta] ?? NULL)) {
       Internals::updateCountByDelta($settings);
+      $data['#settings'] = $settings;
+
       yield $this->getElement($data, $entity, $by_delta);
     }
     else {
