@@ -100,11 +100,12 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
         '#title'       => $this->t('@title', ['@title' => ucfirst($title)]),
         '#description' => $description,
         '#attributes'  => $tooltip,
+        '#required'    => $key == 'wrapper',
       ];
 
       if ($options) {
         $elements[$key]['#options'] = $options;
-        if (!isset($elements[$key]['#required'])) {
+        if (empty($elements[$key]['#required'])) {
           $elements[$key]['#empty_option'] = $this->t('- None -');
         }
       }
@@ -112,8 +113,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
 
     // Defines the default values if available.
     foreach ($elements as $name => $element) {
-      $type     = $element['#type'] ?? '';
-      $default  = $element['#default_value'] ?? '';
+      $type     = $element['#type'];
       $fallback = $type == 'checkbox' ? FALSE : '';
       $value    = $defaults[$name] ?? $fallback;
 
@@ -140,13 +140,13 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
         $elements[$name]['#size'] = 20;
         $elements[$name]['#maxlength'] = 255;
       }
-      if (is_int($default)) {
+      if ($type == 'number') {
         $elements[$name]['#maxlength'] = 60;
         $elements[$name]['#attributes']['class'][] = 'form-text--int';
       }
 
       if ($admin_css) {
-        if (is_bool($default)) {
+        if ($type == 'checkbox') {
           $elements[$name]['#title_display'] = 'before';
         }
 
@@ -177,10 +177,10 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     $elements = [];
 
     $elements['wrapper'] = [
-      '#type'         => 'select',
-      '#options'      => $root ? Defaults::mainWrapperOptions() : Defaults::regionWrapperOptions(),
-      '#empty_option' => $this->t('Div'),
-      '#title'        => $this->t('Wrapper'),
+      '#type'     => 'select',
+      '#options'  => $root ? Defaults::mainWrapperOptions() : Defaults::regionWrapperOptions(),
+      '#required' => TRUE,
+      '#title'    => $this->t('Wrapper'),
     ];
 
     $elements['attributes'] = [

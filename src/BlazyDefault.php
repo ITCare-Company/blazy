@@ -78,7 +78,7 @@ class BlazyDefault {
    * Returns basic plugin settings.
    */
   public static function baseSettings() {
-    $settings = ['cache' => 0, 'admin_uri' => ''];
+    $settings = ['cache' => 0, 'admin_uri' => '', 'use_lb' => FALSE];
 
     self::alterableSettings($settings);
     return $settings;
@@ -506,6 +506,7 @@ class BlazyDefault {
       'sizes' => '',
       '_item' => '',
       '_uri' => '',
+      'breakpoints' => '',
     ];
   }
 

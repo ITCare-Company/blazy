@@ -286,11 +286,9 @@ class Grid {
 
         // If multidimensional layout.
         if (Blazy::has($value, '-')) {
-          $separator = '-';
           [$width, $height] = array_pad(array_map('trim', explode("-", $value, 2)), 2, NULL);
         }
         elseif (Blazy::has($value, 'x')) {
-          $separator = 'x';
           [$width, $height] = array_pad(array_map('trim', explode("x", $value, 2)), 2, NULL);
         }
 
