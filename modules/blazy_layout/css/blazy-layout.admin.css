@@ -3,6 +3,7 @@
  * Provides admin blazy layout.
  */
 
+/* stylelint-disable selector-max-id, declaration-no-important */
 .layout-builder .b-layout {
   min-height: 160px;
 }
@@ -22,6 +23,7 @@
 
 .b-layout .layout-builder__add-block {
   position: absolute;
+  z-index: 9;
   top: auto;
   bottom: 0;
   left: 0;
@@ -32,4 +34,30 @@
 .layout-builder .grid .slide__caption,
 .layout-builder .grid .box__caption {
   pointer-events: none;
+}
+
+/* Optionset. */
+.form--optionset .details--settings .blazy--grid {
+  min-height: 360px;
+}
+
+@media screen and (min-width: 1280px) {
+  .form--optionset.b-tooltip .form-wrapper--regions-settings {
+    min-width: 560px;
+    padding-top: 15px;
+  }
+
+  /*
+  .form--optionset .form-wrapper--regions-settings .form-item input:not(.form-checkbox),
+  .form--optionset .form-wrapper--regions-settings .form-item select {
+    width: 80px;
+  } */
+
+  .form--optionset .form-wrapper--table .form-item {
+    max-width: 420px;
+  }
+
+  .form--optionset .form-wrapper--table .form-item--region-label {
+    min-width: 120px;
+  }
 }

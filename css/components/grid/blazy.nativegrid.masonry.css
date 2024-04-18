@@ -31,12 +31,6 @@ To have gapless, simply add `is-b-gapless` class via template_preprocess. */
   --bn-row-height-masonry: 15px;
 }
 
-.b-nativegrid.is-b-masonry > .grid,
-.item-list > .b-nativegrid.is-b-masonry > .grid {
-  /* Do not control gap with margin, use gap in blazy.native.grid.css instead. */
-  margin: 0 auto;
-}
-
 .b-nativegrid.is-b-masonry-disabled > .grid {
   margin-top: 0 !important;
 }

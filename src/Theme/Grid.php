@@ -275,7 +275,8 @@ class Grid {
    */
   public static function toDimensions(array $settings): array {
     $dimensions = [];
-    if (self::isNativeGrid($settings) || self::isFlexbox($settings)) {
+    $nativegrid = self::isNativeGrid($settings);
+    if ($nativegrid || self::isFlexbox($settings)) {
       $grid = $settings['grid'];
       $values = array_map('trim', explode(" ", $grid));
 
@@ -284,11 +285,21 @@ class Grid {
         $height = 0;
 
         // If multidimensional layout.
-        if (Blazy::has($value, 'x')) {
+        if (Blazy::has($value, '-')) {
+          $separator = '-';
+          [$width, $height] = array_pad(array_map('trim', explode("-", $value, 2)), 2, NULL);
+        }
+        elseif (Blazy::has($value, 'x')) {
+          $separator = 'x';
           [$width, $height] = array_pad(array_map('trim', explode("x", $value, 2)), 2, NULL);
         }
 
-        $dimensions[] = ['width' => (int) $width, 'height' => (int) $height];
+        if ($nativegrid) {
+          $width = (int) $width;
+          $height = (int) $height;
+        }
+
+        $dimensions[] = ['width' => $width, 'height' => $height];
       }
     }
 

@@ -5,25 +5,23 @@ blazy_layout:
   category: Blazy
   default_region: blzyr_0
   icon_map:
-    - [blzyr_0, blzyr_1, blzyr_2, blzyr_3]
-    - [blzyr_4, blzyr_5, blzyr_6]
-    - [blzyr_7, blzyr_8]
+    - [blzyr_0]
   regions:
     blzyr_0:
-      label: Region 0
+      label: Main
     blzyr_1:
-      label: Region 1
+      label: Feature
     blzyr_2:
-      label: Region 2
+      label: Sidetop
     blzyr_3:
-      label: Region 3
+      label: Sidebar
     blzyr_4:
-      label: Region 4
+      label: Sidebelow
     blzyr_5:
-      label: Region 5
+      label: Footer middle first
     blzyr_6:
-      label: Region 6
+      label: Footer middle last
     blzyr_7:
-      label: Region 7
+      label: Footer first
     blzyr_8:
-      label: Region 8
+      label: Footer last

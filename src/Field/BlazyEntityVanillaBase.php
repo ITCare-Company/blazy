@@ -95,15 +95,8 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    $element    = [];
-    $definition = $this->getScopedFormElements();
-
-    $definition['_views'] = isset($form['field_api_classes']);
-
-    // @todo remove after sub-modules.
-    $definition['view_mode'] = $this->viewMode;
-    $definition['plugin_id'] = $this->getPluginId();
-    $definition['target_type'] = $this->getFieldSetting('target_type');
+    $element = [];
+    $definition = $this->getScopedDefinition($form);
 
     $this->admin()->buildSettingsForm($element, $definition);
     return $element;
@@ -334,6 +327,21 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
         }
       }
     }
+  }
+
+  /**
+   * Returns scoped definitions.
+   */
+  protected function getScopedDefinition(array $form): array {
+    $definition = $this->getScopedFormElements();
+    $definition['_views'] = isset($form['field_api_classes']);
+
+    // @todo remove after sub-modules.
+    $definition['view_mode'] = $this->viewMode;
+    $definition['plugin_id'] = $this->getPluginId();
+    $definition['target_type'] = $this->getFieldSetting('target_type');
+
+    return $definition;
   }
 
 }

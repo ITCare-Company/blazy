@@ -55,6 +55,8 @@ function blazy_layout_preprocess_layout(&$variables) {
     if ($regions = $variables['content']['#regions'] ?? []) {
       $count = $settings['count'] = (int) $settings['count'];
 
+      $variables['wrapper_tag'] = $settings['wrapper'] ?? 'div';
+
       // Create an attributes variable for each region.
       foreach (range(1, $count) as $delta => $value) {
         $name = BlazyLayoutDefault::regionId($delta);
@@ -81,7 +83,9 @@ function blazy_layout_preprocess_layout(&$variables) {
         // Merge attributes.
         if ($region = $regions[$name] ?? []) {
           if ($attrs = $region['#attributes'] ?? []) {
-            $variables['region_attributes'][$name]->merge(new Attribute($attrs));
+            if (isset($variables['region_attributes'][$name])) {
+              $variables['region_attributes'][$name]->merge(new Attribute($attrs));
+            }
           }
         }
 
@@ -98,7 +102,6 @@ function blazy_layout_preprocess_layout(&$variables) {
  * Overrides variables for block.html.twig templates.
  */
 function blazy_layout_preprocess_block(&$variables) {
-  $elements = &$variables['elements'];
   if ($settings = $variables['content'][0]['#blazy'] ?? []) {
     $blazies = $settings['blazies'];
     $variables['blazies'] = $blazies->storage();
@@ -115,39 +118,39 @@ function blazy_layout_preprocess_field(&$variables) {
 
   if ($blazy || isset($element['#blazy'])
     || !empty($element['#third_party_settings']['blazy']['blazy'])) {
-      if ($settings = $element['#blazy'] ?? []) {
-        $blazies = $settings['blazies'];
-        $variables['blazies'] = $blazies;
+    if ($settings = $element['#blazy'] ?? []) {
+      $blazies = $settings['blazies'];
+      $variables['blazies'] = $blazies;
 
-        // @fixme might be 0 even has one if embedded inside LB blocks.
-        if ($blazies->total() == 0) {
-          $items = $variables['items'] ?? [];
-          if ($content = $items[0]['content']) {
-            $count = count($items);
-            $settings['count'] = $count;
-            $blazies->set('count', $count)
-              ->set('total', $count);
-          }
+      // @fixme might be 0 even has one if embedded inside LB blocks.
+      if ($blazies->total() == 0) {
+        $items = $variables['items'] ?? [];
+        if ($items && !empty($items[0]['content'])) {
+          $count = count($items);
+          $settings['count'] = $count;
+          $blazies->set('count', $count)
+            ->set('total', $count);
         }
-
-        // Make Blazy background have less divities if just a single image.
-        // Basically reverting to stable9 logic with minimal divities.
-        if ($blazies->get('count') == 1) {
-          $variables['multiple'] = FALSE;
-          if (!empty($settings['background'])) {
-            $variables['label_hidden'] = TRUE;
-          }
-        }
-
-        /*
-        if (!empty($settings['background'])) {
-          $admin_uri = $settings['admin_uri'] ?? 'x';
-          if (strpos($admin_uri, '/layout_builder/') !== FALSE) {
-
-          }
-        }
-        */
       }
+
+      // Make Blazy background have less divities if just a single image.
+      // Basically reverting to stable9 logic with minimal divities.
+      if ($blazies->get('count') == 1) {
+        $variables['multiple'] = FALSE;
+        if (!empty($settings['background'])) {
+          $variables['label_hidden'] = TRUE;
+        }
+      }
+
+      /*
+      if (!empty($settings['background'])) {
+      $admin_uri = $settings['admin_uri'] ?? 'x';
+      if (strpos($admin_uri, '/layout_builder/') !== FALSE) {
+
+      }
+      }
+       */
+    }
   }
 }
 

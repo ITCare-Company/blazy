@@ -284,6 +284,11 @@ admin.optionset:
     theme:
       css/components/admin/blazy.admin-optionset.css: {}
 
+admin.lb:
+  css:
+    theme:
+      css/components/admin/blazy.admin-lb.css: {}    
+
 admin:
   css:
     theme:

@@ -7,3 +7,5 @@ admin:
   css:
     theme:
       css/blazy-layout.admin.css: { }
+  dependencies:
+    - blazy/admin.lb

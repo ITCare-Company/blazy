@@ -39,9 +39,9 @@ class BlazyLayout extends BlazyManager implements BlazyLayoutInterface {
       $regions[$id]['id']    = $id;
       $regions[$id]['delta'] = $delta;
       $regions[$id]['label'] = Defaults::regionTranslatableLabel($label);
-      $regions[$id]['name']  = $label;
-      $regions[$id]['type']  = 'region';
+      $regions[$id]['name']  = $id;
     }
+
     return $regions;
   }
 

@@ -31,16 +31,15 @@ class BlazyLayoutDefault {
    */
   public static function layoutSettings() {
     return [
-      'regions' => [],
-      'count' => static::REGION_COUNT,
-      'percentage' => '',
-      'style' => 'nativegrid',
-      'grid' => '4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2',
-      'grid_medium' => '3',
-      'grid_small' => '1',
+      'regions'        => [],
+      'count'          => static::REGION_COUNT,
+      'style'          => 'nativegrid',
+      'grid'           => '4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2',
+      'grid_medium'    => '3',
+      'grid_small'     => '1',
       'grid_auto_rows' => '',
-      'align_items' => '',
-    ];
+      'align_items'    => '',
+    ] + self:: sharedSettings();
   }
 
   /**
@@ -48,13 +47,9 @@ class BlazyLayoutDefault {
    */
   public static function regionSettings() {
     return [
-      'attributes' => '',
-      'name'       => '',
-      // 'regions'         => [],
-      // 'styles'          => [],
-      // 'wrapper'         => '',
-      // 'wrapper_classes' => '',
-      // 'row_classes'     => '',
+      'label'    => '',
+      'settings' => self:: sharedSettings(),
+      // 'styles' => [],
     ];
   }
 
@@ -86,6 +81,44 @@ class BlazyLayoutDefault {
   }
 
   /**
+   * Returns the main wrapper Layout Builder select options.
+   */
+  public static function mainWrapperOptions() {
+    return [
+      'div'     => 'Div',
+      'article' => 'Article',
+      'aside'   => 'Aside',
+      'main'    => 'Main',
+      'footer'  => 'Footer',
+      'section' => 'Section',
+    ];
+  }
+
+  /**
+   * Returns wrapper Layout Builder select options.
+   */
+  public static function regionWrapperOptions() {
+    return self::mainWrapperOptions() + [
+      'figure' => 'Figure',
+      'header' => 'Header',
+    ];
+  }
+
+  /**
+   * Returns layout id.
+   */
+  public static function layoutId($id) {
+    return "blazy_$id";
+  }
+
+  /**
+   * Returns layout id.
+   */
+  public static function layoutLabel($label) {
+    return "Blazy: $label";
+  }
+
+  /**
    * Returns region ID.
    */
   public static function regionId($id): string {
@@ -106,13 +139,18 @@ class BlazyLayoutDefault {
     return new TranslatableMarkup('@label', ['@label' => $label], [
       'context' => 'layout_region',
     ]);
-    // Must follow LB convention without arguments.
-    /* @phpstan-ignore-next-line */
-    /*
-    return new TranslatableMarkup("$label", [], [
-    'context' => 'layout_region',
-    ]);
-     */
+  }
+
+  /**
+   * Returns the shared settings.
+   */
+  private static function sharedSettings() {
+    return [
+      'wrapper'     => 'div',
+      'attributes'  => '',
+      'classes'     => '',
+      'row_classes' => '',
+    ];
   }
 
 }

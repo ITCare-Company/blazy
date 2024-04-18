@@ -10,20 +10,24 @@
   ]
 %}
 {% if content %}
-  <div{{ attributes.addClass(classes) }}>
+  <{{ wrapper_tag }}{{ attributes.addClass(classes) }}>
     {% for region in layout.getRegionNames %}
-    {% set name = settings.regions[region].name %}
-    {% set use_bg = settings.regions[region].background is not empty %}
+    {% set regsets = settings.regions[region]  %}
+    {% set name = regsets.label %}
+    {% set use_bg = regsets.settings.background is not empty %}
+    {% set custom_classes = regsets.settings.classes %}
+    {% set region_tag = (regsets.settings.wrapper|default('div')) %}
     {%
       set region_classes = [
         'blazy__region',
         'region',
         'region--' ~ region|clean_class,
-        name is not empty ? '--' ~ name|clean_class,
+        name is not empty ? 'region--' ~ name|clean_class,
         use_bg ? 'region--b-bg',
+        custom_classes is not empty ? custom_classes|join(' '),
       ]
     %}
-      <div{{ region_attributes[region].addClass(region_classes) }}>
+      <{{ region_tag }}{{ region_attributes[region].addClass(region_classes) }}>
         {# @todo remove check when core draggable works with inner DIV. #}
         {% if in_preview %}
           {{ content[region] }}
@@ -32,7 +36,7 @@
             {{ content[region] }}
           </div>
         {% endif %}
-      </div>
+      </{{ region_tag }}>
     {% endfor %}
-  </div>
+  </{{ wrapper_tag }}>
 {% endif %}

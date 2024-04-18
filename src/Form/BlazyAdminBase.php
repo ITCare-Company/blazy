@@ -491,6 +491,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $excludes  = ['details', 'fieldset', 'hidden', 'markup', 'item', 'table'];
     $selects   = ['cache', 'optionset', 'view_mode'];
     $fullwidth = $scopes->data('fullwidth', []);
+    $descs     = $scopes->data('additional_descriptions', []);
+    $repdescs  = $scopes->data('replaced_descriptions', []);
 
     $this->blazyManager->moduleHandler()->alter('blazy_form_element', $form, $definition, $scopes);
 
@@ -635,6 +637,26 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       if (in_array($key, $scopes->data('deprecations'))) {
         unset($form[$key]['#default_value']);
       }
+
+      // Additional descriptions.
+      if ($desc = $descs[$key] ?? '') {
+        if (!empty($form[$key]['#description'])) {
+          $placement = $descs[$key]['placement'] ?? '';
+          if ($placement == 'after') {
+            $form[$key]['#description'] .= $desc;
+          }
+          else {
+            $form[$key]['#description'] = $desc . ' ' . $form[$key]['#description'];
+          }
+        }
+      }
+      elseif ($desc = $repdescs[$key] ?? '') {
+        $form[$key]['#description'] = $desc;
+      }
+
+      if ($this->isAdminLb() || $scopes->is('collapsible_description')) {
+        $this->themeDescription($form[$key]);
+      }
     }
 
     if ($admin_css) {
@@ -645,6 +667,10 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
           $form['closing']['#attached']['library'][] = $key;
         }
       }
+    }
+
+    if ($this->isAdminLb()) {
+      $form['closing']['#attached']['library'][] = 'blazy/admin.lb';
     }
 
     $this->blazyManager->moduleHandler()->alter('blazy_complete_form_element', $form, $definition, $scopes);

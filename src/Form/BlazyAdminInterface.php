@@ -155,6 +155,14 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
   public function isAdminCss(): bool;
 
   /**
+   * Returns TRUE if a Layout Builder admin page.
+   *
+   * @return bool
+   *   TRUE if Layout Builder admin page.
+   */
+  public function isAdminLb(): bool;
+
+  /**
    * Returns escaped options.
    *
    * @return array
@@ -172,6 +180,11 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    *   The BlazySettings object.
    */
   public function toScopes(array &$definition): BlazySettings;
+
+  /**
+   * Provides compact description due to small estates in modal.
+   */
+  public function themeDescription(array &$form, array $parents = []): void;
 
   /**
    * Returns native grid description.

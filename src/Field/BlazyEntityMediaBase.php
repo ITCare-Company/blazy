@@ -46,18 +46,36 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
 
     if (isset($element['media_switch'])) {
       $element['media_switch']['#options']['rendered'] = $this->t('Image rendered by its formatter');
-      $element['media_switch']['#description'] .= ' ' . $this->t('<b>Image rendered</b> requires <b>Image</b> option filled out and is useful if the formatter offers awesomeness that Blazy does not have but still wants Blazy for a Grid, etc. Be sure the enabled fields here are not hidden/ disabled at its view mode.');
-    }
-
-    if (isset($element['caption'])) {
-      $element['caption']['#description'] = $this->t('Check fields to be treated as captions, even if not caption texts.');
-    }
-
-    if (isset($element['image']['#description'])) {
-      $element['image']['#description'] .= ' ' . $this->t('The formatter/renderer is managed by <strong>@plugin_id</strong> formatter. Meaning original formatter ignored.', ['@plugin_id' => $this->getPluginId()]);
     }
 
     return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getScopedDefinition(array $form): array {
+    $definition = parent::getScopedDefinition($form);
+    $existings = $definition['additional_descriptions'] ?? [];
+
+    $descriptions = [
+      'image' => [
+        'description' => $this->t('The formatter/renderer is managed by <strong>@plugin_id</strong> formatter. Meaning original formatter ignored.', ['@plugin_id' => $this->getPluginId()]),
+        'placement' => 'after',
+      ],
+      'media_switch' => [
+        'description' => $this->t('<b>Image rendered</b> requires <b>Image</b> option filled out and is useful if the formatter offers awesomeness that Blazy does not have but still wants Blazy for a Grid, etc. Be sure the enabled fields here are not hidden/ disabled at its view mode.'),
+        'placement' => 'after',
+      ],
+    ];
+
+    $replaced_descriptions = [
+      'caption' => $this->t('Check fields to be treated as captions, even if not caption texts.'),
+    ];
+
+    $definition['additional_descriptions'] = $this->manager->merge($descriptions, $existings);
+    $definition['replaced_descriptions'] = $replaced_descriptions;
+    return $definition;
   }
 
   /**

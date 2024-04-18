@@ -68,6 +68,14 @@ trait TraitAdminBase {
   /**
    * {@inheritdoc}
    */
+  public function isAdminLb(): bool {
+    $uris = $this->getUri();
+    return strpos($uris['uri'], '/layout_builder/') !== FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function toOptions(array $data): array {
     return $this->blazyManager->toOptions($data);
   }
@@ -85,6 +93,30 @@ trait TraitAdminBase {
       $scopes->set('initializer', get_called_class());
     }
     return $scopes;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function themeDescription(array &$form, array $parents = []): void {
+    if (!empty($form['#description'])) {
+      $desc = [
+        '#type'  => 'details',
+        '#title' => $this->t('?'),
+        '#open'  => FALSE,
+      ];
+
+      if ($parents) {
+        $desc['#parents'] = $parents;
+      }
+
+      $desc['description'] = [
+        '#markup' => $form['#description'],
+      ];
+
+      $form['#description'] = $this->blazyManager->renderer()->renderPlain($desc);
+      $form['#wrapper_attributes']['class'][] = 'form-item--collapsidesc';
+    }
   }
 
   /**
