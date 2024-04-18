@@ -68,6 +68,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       switch ($key) {
         case 'wrapper':
           $options = Defaults::mainWrapperOptions();
+          $description = '';
           break;
 
         case 'align_items':
@@ -132,10 +133,6 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       if ($type == 'textfield') {
         $elements[$name]['#size'] = 20;
         $elements[$name]['#maxlength'] = 255;
-      }
-      if ($type == 'number') {
-        $elements[$name]['#maxlength'] = 60;
-        $elements[$name]['#attributes']['class'][] = 'form-text--int';
       }
 
       if ($admin_css) {
