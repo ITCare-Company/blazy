@@ -127,14 +127,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       }
 
       $elements[$name]['#default_value'] = $settings[$name] ?? $value;
-
-      if ($type != 'hidden') {
-        $elements[$name]['#attributes']['class'][] = 'is-tooltip';
-      }
-      else {
-        // Ensures hidden element doesn't screw up the states.
-        unset($elements['#states']);
-      }
+      $elements[$name]['#attributes']['class'][] = 'is-tooltip';
 
       if ($type == 'textfield') {
         $elements[$name]['#size'] = 20;

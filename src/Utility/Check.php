@@ -224,9 +224,12 @@ class Check {
     $use_field = !$blazies->is('lightbox') && $linked;
     $use_field = $use_field || !empty($settings['use_theme_field']);
 
+    if (is_string($settings['by_delta'])) {
+      $settings['by_delta'] = (int) $settings['by_delta'];
+    }
+
     // @todo remove, used by sliders at twigs.
     $settings['count'] = $count;
-    $settings['by_delta'] = (int) $settings['by_delta'] ?? -1;
     $settings['id'] = $id;
     $settings['use_theme_field'] = $use_field;
 
