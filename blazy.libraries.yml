@@ -156,6 +156,13 @@ ratio:
     - blazy/base
 
 # CSS grids.
+style:
+  css:
+    component:
+      css/components/blazy.style.css: {}
+  dependencies:
+    - blazy/base
+
 column:
   css:
     component:
@@ -171,13 +178,14 @@ flex:
     js/components/grid/blazy.flex.min.js: { minified: true, weight: -0.04 }
   dependencies:
     - blazy/compat
+    - blazy/style
 
 flexbox:
   css:
     component:
       css/components/grid/blazy.flexbox.css: {}
   dependencies:
-    - blazy/base
+    - blazy/style
 
 grid:
   css:
@@ -287,7 +295,7 @@ admin.optionset:
 admin.lb:
   css:
     theme:
-      css/components/admin/blazy.admin-lb.css: {}    
+      css/components/admin/blazy.admin-lb.css: {}
 
 admin:
   css:

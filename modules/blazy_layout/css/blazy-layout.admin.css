@@ -9,8 +9,11 @@
 }
 
 .layout-builder .b-layout .grid {
-  min-height: 160px;
   background-color: #eaeaea;
+}
+
+.b-layout .grid {
+  min-height: 64px;
 }
 
 .layout-builder .b-layout .region--b-bg {

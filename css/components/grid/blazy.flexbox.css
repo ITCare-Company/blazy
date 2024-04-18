@@ -124,34 +124,6 @@
   .blazy.b-flexbox--md-4 > .grid {
     flex: 0 1 calc(25% - var(--bfb-col-gap));
   }
-
-  .blazy.b-flexbox > .grid[data-b-h="xxs"] {
-    min-height: 80px;
-  }
-
-  .blazy.b-flexbox > .grid[data-b-h="xs"] {
-    min-height: 120px;
-  }
-
-  .blazy.b-flexbox > .grid[data-b-h="sm"] {
-    min-height: 240px;
-  }
-
-  .blazy.b-flexbox > .grid[data-b-h="md"] {
-    min-height: 320px;
-  }
-
-  .blazy.b-flexbox > .grid[data-b-h="lg"] {
-    min-height: 480px;
-  }
-
-  .blazy.b-flexbox > .grid[data-b-h="xl"] {
-    min-height: 560px;
-  }
-
-  .blazy.b-flexbox > .grid[data-b-h="xxl"] {
-    min-height: 640px;
-  }
 }
 
 /** 1025px with 16px base font. */

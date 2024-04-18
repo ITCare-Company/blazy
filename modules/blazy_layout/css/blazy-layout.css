@@ -9,6 +9,10 @@
   overflow: hidden;
 }
 
+.blazy.b-layout > .region--empty:not(.layout-builder__region) {
+  min-height: 0;
+}
+
 .block.block--b-bg {
   position: absolute;
   width: 100%;

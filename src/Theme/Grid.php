@@ -370,6 +370,14 @@ class Grid {
       }
     }
 
+    // Layouts which might have a min-height region.
+    if ($blazies->get('grid.dimensions', [])) {
+      $styles = ['columns', 'flex', 'flexbox'];
+      if (in_array($style, $styles)) {
+        $attrs['class'][] = 'b-mh';
+      }
+    }
+
     // If Native Grid style with numeric grid, assumed non-two-dimensional.
     if ($style == 'nativegrid') {
       $attrs['class'][] = self::isNativeGridAsMasonry($settings)

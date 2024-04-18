@@ -265,6 +265,24 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function setAttachments(
+    array &$element,
+    array $settings,
+    array $attachments = []
+  ): void {
+    $cache                 = $this->getCacheMetadata($settings);
+    $attached              = $this->attach($settings);
+    $attachments           = $this->merge($attached, $attachments);
+    $element['#attached']  = $this->merge($attachments, $element, '#attached');
+    $element['#cache']     = $this->merge($cache, $element, '#cache');
+    $element['#namespace'] = static::$namespace;
+
+    $this->moduleHandler->alter('blazy_element', $element, $settings);
+  }
+
+  /**
    * Provides data to be consumed by Blazy::preSettings().
    *
    * Such as to provide lazy attribute and class for Slick or Splide, etc.
@@ -278,24 +296,6 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    */
   protected function postSettingsData(array &$settings): void {
     // Do nothing, let extenders override data at ease as needed.
-  }
-
-  /**
-   * Provides attachments and cache common for all blazy-related modules.
-   */
-  protected function setAttachments(
-    array &$element,
-    array $settings,
-    array $attachments = []
-  ): void {
-    $cache                 = $this->getCacheMetadata($settings);
-    $attached              = $this->attach($settings);
-    $attachments           = $this->merge($attached, $attachments);
-    $element['#attached']  = $this->merge($attachments, $element, '#attached');
-    $element['#cache']     = $this->merge($cache, $element, '#cache');
-    $element['#namespace'] = static::$namespace;
-
-    $this->moduleHandler->alter('blazy_element', $element, $settings);
   }
 
 }

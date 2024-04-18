@@ -1,0 +1,32 @@
+/**
+ * @file
+ * Provides shared CSS rules for Blazy layout.
+ */
+
+.blazy.b-mh > [data-b-h="xxs"] {
+  min-height: 80px;
+}
+
+.blazy.b-mh > [data-b-h="xs"] {
+  min-height: 120px;
+}
+
+.blazy.b-mh > [data-b-h="sm"] {
+  min-height: 240px;
+}
+
+.blazy.b-mh > [data-b-h="md"] {
+  min-height: 320px;
+}
+
+.blazy.b-mh > [data-b-h="lg"] {
+  min-height: 480px;
+}
+
+.blazy.b-mh > [data-b-h="xl"] {
+  min-height: 560px;
+}
+
+.blazy.b-mh > [data-b-h="xxl"] {
+  min-height: 640px;
+}

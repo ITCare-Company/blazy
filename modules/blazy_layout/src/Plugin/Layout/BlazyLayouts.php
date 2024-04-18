@@ -14,7 +14,6 @@ class BlazyLayouts extends BlazyLayoutsBase {
     $this->init();
 
     $build    = parent::build($regions);
-    $layout   = $build['#layout'];
     $settings = $this->settings();
 
     // $build['#layout']   = $layout;
@@ -30,7 +29,7 @@ class BlazyLayouts extends BlazyLayoutsBase {
     $this->attachments($output, $settings);
 
     // Modifies regions.
-    $this->regions($output, $settings, $layout);
+    $this->regions($output, $settings);
 
     // Modifies attributes.
     $this->attributes($output, $settings);
@@ -59,13 +58,13 @@ class BlazyLayouts extends BlazyLayoutsBase {
       $blazies = $sets['blazies']->reset($sets);
 
       $blazies->set('lb.rid', $rid)
-        ->set('delta.', $i);
+        ->set('delta', $i);
 
       $box['#settings'] = $sets;
 
       // Preserves indices even if empty so to layout for Layout Builder.
       // $region && !Element::isEmpty($region) ? $region : ['#markup' => ' '];.
-      $box[$rid] = ['#markup' => '?'];
+      $box[$rid] = $this->inPreview ? ['#markup' => '?'] : [];
       $items[] = $box;
       ++$i;
     }

@@ -54,7 +54,6 @@ function blazy_layout_preprocess_layout(&$variables) {
   if ($namespace == 'blazy') {
     if ($regions = $variables['content']['#regions'] ?? []) {
       $count = $settings['count'] = (int) $settings['count'];
-
       $variables['wrapper_tag'] = $settings['wrapper'] ?? 'div';
 
       // Create an attributes variable for each region.

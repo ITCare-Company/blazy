@@ -227,4 +227,13 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    */
   public function toBlazy(array &$data, array &$captions, $delta): void;
 
+  /**
+   * Provides attachments and cache common for all blazy-related modules.
+   */
+  public function setAttachments(
+    array &$element,
+    array $settings,
+    array $attachments = []
+  ): void;
+
 }

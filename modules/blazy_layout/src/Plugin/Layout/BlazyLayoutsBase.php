@@ -289,12 +289,11 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
     array $settings,
     array $attachments = []
   ): void {
-    $cache                 = $this->manager->getCacheMetadata($settings);
-    $attached              = $this->manager->attach($settings);
-    $attachments           = $this->manager->merge($attached, $attachments);
-    $element['#attached']  = $this->manager->merge($attachments, $element, '#attached');
-    $element['#cache']     = $this->manager->merge($cache, $element, '#cache');
-    $element['#namespace'] = static::$namespace;
+    $this->manager->setAttachments(
+      $element,
+      $settings,
+      $attachments
+    );
 
     $element['#attached']['library'][] = 'blazy_layout/layout';
     if ($this->inPreview) {
@@ -324,8 +323,6 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
           'label' => Defaults::regionTranslatableLabel($label),
         ];
       }
-      // @fixme useless here.
-      // $regions[$key]['dummy'] = ['#markup' => ' '];
     }
 
     $layout->setRegions($factory_regions);
@@ -366,7 +363,8 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
   /**
    * Modifies regions.
    */
-  protected function regions(array &$output, array &$settings, $layout): void {
+  protected function regions(array &$output, array &$settings): void {
+    $layout = $this->pluginDefinition;
     $factory_regions = $layout->getRegions();
     $dummy_regions = $output['#regions'] ?? [];
     $default_regions = array_keys($factory_regions);
@@ -376,7 +374,8 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
     // Add dummy regions to keep layout intact.
     foreach (range(1, static::$count) as $delta => $value) {
       $name = Defaults::regionId($delta);
-      if (!isset($output[$name])) {
+
+      if (!isset($output[$name]) && $this->inPreview) {
         $label = Defaults::regionLabel($delta);
         $output[$name]['dummy']['#markup'] = '';
       }
@@ -384,6 +383,9 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
       if ($subsets = $settings['regions'][$name]['settings'] ?? []) {
         if ($classes = $this->getClasses($subsets)) {
           $settings['regions'][$name]['settings']['classes'] = $classes;
+        }
+        if (empty($output[$name])) {
+          $settings['regions'][$name]['settings']['empty'] = TRUE;
         }
       }
     }
@@ -463,7 +465,10 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
    */
   protected function getClasses(array $settings): array {
     if ($classes = $settings['classes'] ?? '') {
-      $classes = array_map('\Drupal\Component\Utility\Html::cleanCssIdentifier', explode(' ', $classes));
+      $classes = array_map(
+        '\Drupal\Component\Utility\Html::cleanCssIdentifier',
+        explode(' ', $classes)
+      );
       return array_filter($classes);
     }
     return [];
