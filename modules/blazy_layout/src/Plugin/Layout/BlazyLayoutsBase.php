@@ -427,12 +427,10 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
       'label' => Defaults::regionTranslatableLabel('Background'),
     ];
 
-    if ($new_regions) {
-      $this->blocks($output, $settings, $new_regions);
+    $this->blocks($output, $settings, $new_regions);
 
-      ksort($new_regions);
-      $this->pluginDefinition->setRegions($new_regions);
-    }
+    ksort($new_regions);
+    $this->pluginDefinition->setRegions($new_regions);
   }
 
   /**
