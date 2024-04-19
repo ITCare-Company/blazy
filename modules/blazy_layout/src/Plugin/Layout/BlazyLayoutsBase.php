@@ -468,7 +468,7 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
               }
 
               if ($name == 'bg') {
-                $output[$name][$uuid]['content'][0][0]['#build']['overlay']['blazy_layout']['#markup'] = '<div class="blazy__overlay"></div>';
+                $output[$name][$uuid]['content'][0][0]['#build']['overlay']['blazy_layout']['#markup'] = '<div class="media__overlay"></div>';
               }
 
               $settings['regions'][$name]['settings']['background'] = TRUE;
