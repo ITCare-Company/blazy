@@ -294,7 +294,10 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['use_theme_field'] = [
         '#title'       => $this->t('Use field template'),
         '#type'        => 'checkbox',
-        '#description' => $this->t('Wrap Blazy field output into regular field markup (field.html.twig). Vanilla output otherwise.'),
+        '#description' => $this->t('Wrap Blazy field output into regular field markup (field.html.twig). Vanilla output otherwise. @lb', [
+          '@lb' => $lb ? $this->t('If enabled, it may break CSS background due to extra divities.') : '',
+        ]),
+        '#weight'      => -100
       ];
     }
 

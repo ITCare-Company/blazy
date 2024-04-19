@@ -112,7 +112,13 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
     parent::validateConfigurationForm($form, $form_state);
 
     $settings = $form_state->getValue('settings');
-    $form_state->setValue(['settings', 'count'], (int) $settings['count']);
+    $count = (int) $settings['count'];
+
+    // Yes, stupid, but satisfying stupidity is harmless.
+    if ($count < 1) {
+      $count = 1;
+    }
+    $form_state->setValue(['settings', 'count'], $count);
   }
 
   /**
@@ -166,7 +172,6 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
       '#type'        => 'details',
       '#tree'        => TRUE,
       '#open'        => TRUE,
-      // '#weight'      => 30,
       '#title'       => $this->t('Global settings'),
       '#description' => $this->t('Use Blazy Image/ Media formatters to have background or even nested grids when creating blocks.'),
       '#parents'     => ['layout_settings', 'settings'],
@@ -196,7 +201,7 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
     foreach ($grid_form as $key => $element) {
       $form['settings'][$key] = $element;
       $form['settings'][$key]['#default_value'] = $settings[$key];
-      // $form['settings'][$key]['#weight'] = 10;
+
       if ($key == 'grid') {
         if (isset($form['settings'][$key]['#description'])) {
           $form['settings'][$key]['#description'] .= $this->admin->nativeGridDescription();
@@ -244,7 +249,7 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
       }
 
       $subsets2 = $subsets['regions'][$region];
-      // $subsets2['label'] = $subsets2['label'] ??
+
       $label = $this->t('@label: <em>@name</em>', [
         '@label' => $info['label'],
         '@name'  => $subsets2['label'] ?? $this->t('No name'),
@@ -390,15 +395,14 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
       }
 
       if (!isset($output[$name]) && $this->inPreview) {
-        $label = Defaults::regionLabel($delta);
-        $output[$name]['dummy']['#markup'] = '';
+        $output[$name]['dummy']['#markup'] = ' ';
       }
     }
 
     if (empty($output['bg'])) {
       $settings['regions']['bg']['settings']['empty'] = TRUE;
       if ($this->inPreview) {
-        $output['bg']['dummy']['#markup'] = '';
+        $output['bg']['dummy']['#markup'] = ' ';
       }
     }
 

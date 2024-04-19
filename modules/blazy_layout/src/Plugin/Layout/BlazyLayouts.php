@@ -16,12 +16,11 @@ class BlazyLayouts extends BlazyLayoutsBase {
     $build    = parent::build($regions);
     $settings = $this->settings();
 
-    // $build['#layout']   = $layout;
     $build['#settings'] = $settings;
     $build['#count']    = static::$count;
 
     // Modifies output.
-    $items  = $this->interpolate($settings, $regions);
+    $items  = $this->interpolate($settings);
     $grids  = $this->manager->toGrid($items, $settings);
     $output = $this->manager->merge($grids, $build);
 
@@ -44,10 +43,7 @@ class BlazyLayouts extends BlazyLayoutsBase {
   /**
    * Interpolate data from Layout Builder to extract grid attributes.
    */
-  private function interpolate(
-    array &$settings,
-    array $regions
-  ): array {
+  private function interpolate(array &$settings): array {
     $items   = [];
     $regions = $settings['regions'] ?? [];
     unset($regions['bg']);

@@ -209,15 +209,19 @@ function blazy_layout_theme_suggestions_alter(array &$suggestions, array $variab
     // Basically reverting to stable9 logic with minimal divities.
     $settings = [];
     if ($hook == 'field') {
-      $settings = $variables['element']['#blazy'] ?? [];
+      if (empty($settings['use_theme_field'])) {
+        $settings = $variables['element']['#blazy'] ?? [];
+      }
+      else {
+        $settings = [];
+      }
     }
     elseif ($hook == 'block') {
       $settings = $variables['elements']['content'][0]['#blazy'] ?? [];
     }
 
     if ($settings) {
-      if (!empty($settings['use_lb']) && empty($settings['use_theme_field'])) {
-        $blazies = $settings['blazies'];
+      if (!empty($settings['use_lb']) && $blazies = $settings['blazies'] ?? NULL) {
         if ($blazies->use('bg') || $blazies->count() == 1) {
           $suggestions[] = $hook . '__blazy';
         }
