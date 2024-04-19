@@ -3,10 +3,31 @@
  * Provides base blazy layout.
  */
 
+.blazy.b-layout {
+  position: relative;
+  margin-bottom: 15px;
+}
+
 .blazy.b-layout > .grid {
   position: relative;
   display: block;
   overflow: hidden;
+}
+
+.blazy.b-layout .grid__content {
+  margin: 0;
+}
+
+.blazy.b-layout--bg .region--bg {
+  position: static;
+  z-index: 0;
+  width: 100%;
+  margin: 0;
+  inset: 0;
+}
+
+.blazy.b-layout--bg .region--bg:not(.layout-builder__region) {
+  min-height: 0;
 }
 
 .blazy.b-layout > .region--empty:not(.layout-builder__region) {
@@ -17,6 +38,7 @@
   position: absolute;
   width: 100%;
   height: 100%;
+  margin: 0;
   padding: 0;
   inset: 0;
 }

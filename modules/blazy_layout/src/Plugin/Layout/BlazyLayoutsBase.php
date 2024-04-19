@@ -325,6 +325,11 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
       }
     }
 
+    $factory_regions['bg'] = [
+      'label' => Defaults::regionTranslatableLabel('Background'),
+    ];
+
+    $this->setConfiguration($settings);
     $layout->setRegions($factory_regions);
     $this->pluginDefinition = $layout;
     return $layout;
@@ -369,16 +374,11 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
     $dummy_regions = $output['#regions'] ?? [];
     $default_regions = array_keys($factory_regions);
     $active_regions = array_keys(array_diff_key($dummy_regions, $default_regions));
-    $used_regions = [];
+    $new_regions = [];
 
     // Add dummy regions to keep layout intact.
     foreach (range(1, static::$count) as $delta => $value) {
       $name = Defaults::regionId($delta);
-
-      if (!isset($output[$name]) && $this->inPreview) {
-        $label = Defaults::regionLabel($delta);
-        $output[$name]['dummy']['#markup'] = '';
-      }
 
       if ($subsets = $settings['regions'][$name]['settings'] ?? []) {
         if ($classes = $this->getClasses($subsets)) {
@@ -388,51 +388,93 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
           $settings['regions'][$name]['settings']['empty'] = TRUE;
         }
       }
+
+      if (!isset($output[$name]) && $this->inPreview) {
+        $label = Defaults::regionLabel($delta);
+        $output[$name]['dummy']['#markup'] = '';
+      }
     }
 
-    foreach (Element::children($output) as $delta => $name) {
+    if (empty($output['bg'])) {
+      $settings['regions']['bg']['settings']['empty'] = TRUE;
+      if ($this->inPreview) {
+        $output['bg']['dummy']['#markup'] = '';
+      }
+    }
+
+    // Add or remove regions based on the given settings.count.
+    $keys = array_filter($output, fn($k) => strpos($k, '#') === FALSE, ARRAY_FILTER_USE_KEY);
+    foreach (array_keys($keys) as $delta => $name) {
       if (isset($output[$name])) {
 
         // Provides dummy regions.
         if (array_key_exists($delta, $active_regions)) {
           $label = Defaults::regionLabel($delta);
-          $used_regions[$name] = [
+          $new_regions[$name] = [
             'label' => Defaults::regionTranslatableLabel($label),
           ];
-
-          // Move Blazy background to the beginning.
-          foreach (Element::children($output[$name]) as $uuid) {
-            $block = $output[$name][$uuid];
-
-            if ($formatter = $block['content'][0]['#formatter'] ?? '') {
-              if (strpos($formatter, 'blazy') !== FALSE) {
-                if ($fielsets = $block['content'][0]['#blazy'] ?? []) {
-                  $output[$name][$uuid]['#blazy'] = $settings;
-                  $bg = $fielsets['background'] ?? FALSE;
-
-                  if ($bg) {
-                    $settings['regions'][$name]['settings']['background'] = TRUE;
-                    $this->setRegionConfig($name, [
-                      'settings' => [
-                        'background' => TRUE,
-                      ],
-                    ]);
-                    $output[$name][$uuid]['#weight'] = -101;
-                  }
-                }
-              }
-            }
-          }
         }
         else {
-          unset($output[$name]);
+          if ($name != 'bg') {
+            unset($output[$name]);
+          }
         }
       }
     }
 
-    if ($used_regions) {
-      ksort($used_regions);
-      $this->pluginDefinition->setRegions($used_regions);
+    // Add a special bg region.
+    $new_regions['bg'] = [
+      'label' => Defaults::regionTranslatableLabel('Background'),
+    ];
+
+    if ($new_regions) {
+      $this->blocks($output, $settings, $new_regions);
+
+      ksort($new_regions);
+      $this->pluginDefinition->setRegions($new_regions);
+    }
+  }
+
+  /**
+   * Modifies blocks.
+   */
+  protected function blocks(array &$output, array &$settings, array $new_regions): void {
+    // Move Blazy background to the beginning.
+    foreach (array_keys($new_regions) as $name) {
+      if (!isset($output[$name])) {
+        continue;
+      }
+
+      foreach (Element::children($output[$name]) as $uuid) {
+        $block = $output[$name][$uuid];
+        $formatter = $block['content'][0]['#formatter'] ?? 'x';
+
+        if (strpos($formatter, 'blazy') !== FALSE) {
+          if ($fielsets = $block['content'][0]['#blazy'] ?? []) {
+            // Pass the layout settings, not formatter's.
+            $output[$name][$uuid]['#blazy'] = $settings;
+            $subblazies = $fielsets['blazies'];
+
+            if (!empty($fielsets['background'])) {
+              $blazies = $settings['blazies']->reset($settings);
+              $blazies->set('use.bg', TRUE);
+
+              $keys = ['entity', 'field', 'image', 'lightbox', 'media'];
+              foreach ($keys as $key) {
+                $blazies->set($key, $subblazies->get($key));
+              }
+
+              $settings['regions'][$name]['settings']['background'] = TRUE;
+              $this->setRegionConfig($name, [
+                'settings' => [
+                  'background' => TRUE,
+                ],
+              ]);
+              $output[$name][$uuid]['#weight'] = -101;
+            }
+          }
+        }
+      }
     }
   }
 

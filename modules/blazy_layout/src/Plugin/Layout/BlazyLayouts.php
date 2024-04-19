@@ -50,6 +50,7 @@ class BlazyLayouts extends BlazyLayoutsBase {
   ): array {
     $items   = [];
     $regions = $settings['regions'] ?? [];
+    unset($regions['bg']);
 
     $i = 0;
     foreach ($regions as $rid => $value) {
