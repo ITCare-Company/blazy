@@ -92,6 +92,10 @@
   inset: 0;
 }
 
+.layout-builder-block.block--b-bg + .block {
+  margin-top: 2em;
+}
+
 .b-layout .blazy__warning {
   padding: 1.25em;
   text-align: center;
