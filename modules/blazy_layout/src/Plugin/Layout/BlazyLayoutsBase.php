@@ -452,16 +452,23 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
         if (strpos($formatter, 'blazy') !== FALSE) {
           if ($fielsets = $block['content'][0]['#blazy'] ?? []) {
             // Pass the layout settings, not formatter's.
-            $output[$name][$uuid]['#blazy'] = $settings;
+            $subsets = $settings;
+            $blazies = $subsets['blazies']->reset($subsets);
             $subblazies = $fielsets['blazies'];
+            $output[$name][$uuid]['#blazy'] = $subsets;
 
             if (!empty($fielsets['background'])) {
-              $blazies = $settings['blazies']->reset($settings);
-              $blazies->set('use.bg', TRUE);
+              $blazies->set('is.preview', $this->inPreview)
+                ->set('use.bg', TRUE)
+                ->set('lb.region', $name);
 
               $keys = ['entity', 'field', 'image', 'lightbox', 'media'];
               foreach ($keys as $key) {
                 $blazies->set($key, $subblazies->get($key));
+              }
+
+              if ($name == 'bg') {
+                $output[$name][$uuid]['content'][0][0]['#build']['overlay']['blazy_layout']['#markup'] = '<div class="blazy__overlay"></div>';
               }
 
               $settings['regions'][$name]['settings']['background'] = TRUE;

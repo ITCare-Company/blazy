@@ -42,6 +42,7 @@
     label_display == 'visually_hidden' ? 'visually-hidden',
   ]
 %}
+{% set NO_BG = blazies and blazies.use.bg is empty %}
 {% if label_hidden %}
   {% if multiple %}
     <div{{ attributes }}>
@@ -51,14 +52,16 @@
     </div>
   {% else %}
     {% for item in items %}
-      <div{{ attributes }}>{{ item.content }}</div>
+      {% if NO_BG %}<div{{ attributes }}>{% endif %}
+        {{ item.content }}
+      {% if NO_BG %}</div>{% endif %}
     {% endfor %}
   {% endif %}
 {% else %}
-  <div{{ attributes }}>
+  {% if NO_BG %}<div{{ attributes }}>{% endif %}
     <div{{ title_attributes.addClass(title_classes) }}>{{ label }}</div>
     {% if multiple %}
-      <div>
+      <div class="field__items">
     {% endif %}
     {% for item in items %}
       <div{{ item.attributes.addClass('field__item') }}>{{ item.content }}</div>
@@ -66,5 +69,5 @@
     {% if multiple %}
       </div>
     {% endif %}
-  </div>
+  {% if NO_BG %}</div>{% endif %}
 {% endif %}

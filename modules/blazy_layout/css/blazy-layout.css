@@ -3,65 +3,71 @@
  * Provides base blazy layout.
  */
 
+/* stylelint-disable declaration-no-important */
 .blazy.b-layout {
   position: relative;
+  /* To make stacking layouts reasonable, adjust like anything else. */
   margin-bottom: 15px;
 }
 
-.blazy.b-layout > .grid {
+.b-layout > .grid {
   position: relative;
   display: block;
   overflow: hidden;
 }
 
-.blazy.b-layout .grid__content {
-  margin: 0;
-}
-
-.blazy.b-layout--bg .region--bg {
-  position: static;
+.b-layout .region--bg {
   z-index: 0;
   width: 100%;
   margin: 0;
   inset: 0;
 }
 
-.blazy.b-layout--bg .region--bg:not(.layout-builder__region) {
+.b-layout > .region--bg:not(.layout-builder__region),
+.b-layout > .region--empty:not(.layout-builder__region) {
   min-height: 0;
 }
 
-.blazy.b-layout > .region--empty:not(.layout-builder__region) {
-  min-height: 0;
-}
-
-.block.block--b-bg {
+.b-layout .region--bg,
+.b-layout .region--bg > .b-bg,
+.b-layout .region > .grid__content > .b-bg,
+.b-layout .region > .grid__content > .block > .b-bg {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  inset: 0;
-}
-
-.block.block--b-bg ~ .block {
-  padding: 0.5em;
-}
-
-.block.block--b-bg > .is-b-bg {
-  height: inherit;
-}
-
-.block.block--b-bg .b-bg {
-  position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
   min-height: 1px;
+  padding-bottom: 0 !important;
   /** Temp fix, also to fix the VIDEO element to max width, not only IMG. */
   object-fit: cover;
+  inset: 0;
 }
 
 .block:not(.block--b-bg) {
   position: relative;
   z-index: 1;
+}
+
+/* @todo recheck if any side effects. */
+.b-layout .region--b-bg > .grid__content  {
+  position: static;
+  inset: 0;
+}
+
+.b-layout .blazy__overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(12, 99, 240, 0.4);
+  inset: 0;
+}
+
+.b-nativegrid.b-layout > .region--bg {
+  display: block;
+  grid-row: unset;
+  grid-column: unset;
+}
+
+.b-layout .b-bg > iframe {
+  position: absolute;
+  height: 100%;
 }

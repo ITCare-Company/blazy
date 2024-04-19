@@ -23,9 +23,9 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
 
     $elements['count'] = [
       '#type'        => 'number',
-      '#title'       => $this->t('Count'),
+      '#title'       => $this->t('Region count'),
       '#maxlength'   => 255,
-      '#description' => $this->t('The amount of regions. Specific for Native Grid, be sure to match the amount of designated grid boxes.'),
+      '#description' => $this->t('The amount of regions, normally matches the amount of grids specific for Native Grid.'),
     ];
 
     $elements['style'] = [
@@ -205,6 +205,67 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     }
 
     $form += $elements;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function formBackground(
+    array &$form,
+    array $settings,
+    array $excludes = [],
+    $root = TRUE
+  ): void {
+    $tooltip  = ['class' => ['is-tooltip']];
+    $elements = [];
+
+    $elements['wrapper'] = [
+      '#type'     => 'select',
+      '#options'  => $root ? Defaults::mainWrapperOptions() : Defaults::regionWrapperOptions(),
+      '#required' => TRUE,
+      '#title'    => $this->t('Wrapper'),
+    ];
+
+    $elements['attributes'] = [
+      '#type'        => 'textfield',
+      '#title'       => $this->t('Attributes'),
+      '#description' => $this->t('Use comma: role|main,data-key|value'),
+      '#access'      => FALSE,
+    ];
+
+    $elements['classes'] = [
+      '#type'        => 'textfield',
+      '#title'       => $this->t('Classes'),
+      '#description' => $this->t('Use space: bg-dark text-white'),
+    ];
+
+    $elements['row_classes'] = [
+      '#type'        => 'textfield',
+      '#title'       => $this->t('Row classes'),
+      '#description' => $this->t('Use space: align-items-stretch no-gutters'),
+      '#access'      => FALSE,
+    ];
+
+    foreach (array_keys($elements) as $key) {
+      if ($excludes && in_array($key, $excludes)) {
+        unset($elements[$key]);
+        continue;
+      }
+
+      $value = $settings[$key] ?? '';
+      $elements[$key]['#default_value'] = $value ? Xss::filter($value) : '';
+      $elements[$key]['#attributes'] = $tooltip;
+    }
+
+    $form += $elements;
+  }
+
+  /**
+   * Checks for valid color excluding black (#000000) by design.
+   */
+  protected function getColor($key, array $settings) {
+    $colors = $settings['styles'];
+    return !empty($colors[$key]) && $colors[$key] != '#000000' ? $colors[$key] : FALSE;
   }
 
 }

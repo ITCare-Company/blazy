@@ -6,6 +6,7 @@
 /* stylelint-disable selector-max-id, declaration-no-important */
 .layout-builder .b-layout {
   min-height: 160px;
+  padding-top: 120px;
 }
 
 .layout-builder .b-layout .grid {
@@ -14,6 +15,16 @@
 
 .b-layout .grid {
   min-height: 72px;
+}
+
+/*
+.layout-builder .blazy.b-layout--bg .region--bg {
+  position: static;
+}
+*/
+
+.layout-builder .blazy.b-layout .region--bg.region--empty {
+  position: relative;
 }
 
 .layout-builder .b-layout .grid::after {
@@ -34,7 +45,7 @@
 }
 
 .layout-builder .b-layout .region--b-bg {
-  padding: 2em;
+  padding: 0;
 }
 
 .b-layout .region--b-bg:not([data-b-h]) {
@@ -71,6 +82,21 @@
   pointer-events: none;
 }
 
+.layout-builder-block.block--b-bg,
+.layout-builder-block.block--b-bg > .b-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  inset: 0;
+}
+
+.b-layout .blazy__warning {
+  padding: 1.25em;
+  text-align: center;
+}
+
 /* Optionset. */
 .form--optionset .details--settings .blazy--grid {
   min-height: 360px;
@@ -81,12 +107,6 @@
     min-width: 560px;
     padding-top: 15px;
   }
-
-  /*
-  .form--optionset .form-wrapper--regions-settings .form-item input:not(.form-checkbox),
-  .form--optionset .form-wrapper--regions-settings .form-item select {
-    width: 80px;
-  } */
 
   .form--optionset .form-wrapper--table .form-item {
     max-width: 420px;

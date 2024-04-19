@@ -47,7 +47,7 @@ function blazy_layout_theme() {
 /**
  * Overrides variables for layout.html.twig templates.
  */
-function blazy_layout_preprocess_layout(&$variables) {
+function blazy_layout_preprocess_layout(array &$variables) {
   $settings = &$variables['settings'];
   $namespace = $variables['content']['#namespace'] ?? NULL;
 
@@ -60,7 +60,7 @@ function blazy_layout_preprocess_layout(&$variables) {
     if ($in_preview) {
       $variables['attributes']['class'][] = 'b-layout--preview';
       $variables['region_attributes']['bg']['title'] = t('Background');
-      $variables['region_attributes']['bg']['data-b-h'] = 'xxs';
+      $variables['region_attributes']['bg']['data-b-h'] = 'xs';
     }
 
     if ($background) {
@@ -126,17 +126,16 @@ function blazy_layout_preprocess_layout(&$variables) {
 /**
  * Overrides variables for block.html.twig templates.
  */
-function blazy_layout_preprocess_block(&$variables) {
-  if ($settings = $variables['content'][0]['#blazy'] ?? []) {
-    $blazies = $settings['blazies'];
-    $variables['blazies'] = $blazies->storage();
+function blazy_layout_preprocess_block(array &$variables) {
+  if ($settings = $variables['elements']['#blazy'] ?? []) {
+    $variables['blazies'] = $settings['blazies']->storage();
   }
 }
 
 /**
  * Overrides variables for field.html.twig templates.
  */
-function blazy_layout_preprocess_field(&$variables) {
+function blazy_layout_preprocess_field(array &$variables) {
   $element = &$variables['element'];
   $formatter = $element['#formatter'] ?? 'null';
   $blazy = strpos($formatter, 'blazy') !== FALSE;
@@ -145,7 +144,7 @@ function blazy_layout_preprocess_field(&$variables) {
     || !empty($element['#third_party_settings']['blazy']['blazy'])) {
     if ($settings = $element['#blazy'] ?? []) {
       $blazies = $settings['blazies'];
-      $variables['blazies'] = $blazies;
+      $variables['blazies'] = $blazies->storage();
 
       // @fixme might be 0 even has one if embedded inside LB blocks.
       if ($blazies->total() == 0) {

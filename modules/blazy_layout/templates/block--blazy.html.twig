@@ -31,7 +31,8 @@
  * @ingroup themeable
  */
 #}
-{% set USE_BG = blazies is defined and blazies.use.bg %}
+{% set USE_BG = blazies and blazies.use.bg %}
+{% set USE_WRAP = blazies.is.preview or not USE_BG %}
 {%
   set classes = [
     'block',
@@ -42,8 +43,7 @@
     layout ? 'layout--' ~ layout|clean_class,
   ]
 %}
-
-<div{{ attributes.addClass(classes) }}>
+{% if USE_WRAP %}<div{{ attributes.addClass(classes) }}>{% endif %}
   {{ title_prefix }}
   {% if label %}
     <h2{{ title_attributes.addClass('block__title') }}>{{ label }}</h2>
@@ -58,4 +58,4 @@
       </div>
     {% endif %}
   {% endblock %}
-</div>
+{% if USE_WRAP %}</div>{% endif %}

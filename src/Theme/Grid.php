@@ -294,7 +294,7 @@ class Grid {
 
         if ($nativegrid) {
           $width = (int) $width;
-          $height = (int) $height;
+          $height = $height;
         }
 
         $dimensions[] = ['width' => $width, 'height' => $height];
