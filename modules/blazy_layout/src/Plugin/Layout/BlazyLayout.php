@@ -3,9 +3,9 @@
 namespace Drupal\blazy_layout\Plugin\Layout;
 
 /**
- * Provides a BlazyLayouts class for Layout plugins.
+ * Provides a BlazyLayout class for Layout plugins.
  */
-class BlazyLayouts extends BlazyLayoutsBase {
+class BlazyLayout extends BlazyLayoutBase {
 
   /**
    * {@inheritdoc}

@@ -5,7 +5,7 @@ namespace Drupal\blazy_layout\Form;
 use Drupal\blazy\Form\BlazyAdminInterface;
 
 /**
- * Defines re-usable services and functions for BlazyLayout forms.
+ * Defines re-usable services and functions for BlazyLayoutManager forms.
  */
 interface BlazyLayoutAdminInterface extends BlazyAdminInterface {
 
@@ -20,6 +20,18 @@ interface BlazyLayoutAdminInterface extends BlazyAdminInterface {
    *   The optional excluded form elements.
    */
   public function formBase(array &$form, array $settings, array $excludes = []): void;
+
+  /**
+   * Returns color form elements.
+   *
+   * @param array $form
+   *   The modified form.
+   * @param array $settings
+   *   The stored settings.
+   * @param array $excludes
+   *   The optional excluded form elements.
+   */
+  public function formColors(array &$form, array $settings, array $excludes = []): void;
 
   /**
    * Returns available form elements.

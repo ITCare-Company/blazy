@@ -1,4 +1,9 @@
 
+Blazy Layout 3.x-dev, 2024-04-22
+--------------------------------
+- Added color style options for Blazy layout.
+- Renamed classes for clarity.
+
 Blazy Layout 3.x-dev, 2024-04-12
 --------------------------------
 - Initial 3.x commit.

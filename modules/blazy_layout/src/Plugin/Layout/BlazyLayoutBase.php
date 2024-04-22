@@ -3,9 +3,9 @@
 namespace Drupal\blazy_layout\Plugin\Layout;
 
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformStateInterface;
 use Drupal\Core\Layout\LayoutDefault;
@@ -13,9 +13,9 @@ use Drupal\Core\Render\Element;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a BlazyLayoutsBase class for Layout plugins.
+ * Provides a BlazyLayoutBase class for Layout plugins.
  */
-abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInterface {
+abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInterface {
 
   /**
    * The blazy layout admin service.
@@ -27,7 +27,7 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
   /**
    * The blazy layout service.
    *
-   * @var \Drupal\blazy_layout\BlazyLayoutInterface
+   * @var \Drupal\blazy_layout\BlazyLayoutManagerInterface
    */
   protected $manager;
 
@@ -52,9 +52,25 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
   protected static $captionId = 'blazy';
 
   /**
-   * {@inheritdoc}
+   * Provides CSS rules.
+   *
+   * @var array
+   */
+  protected static $styles;
+
+  /**
+   * Provides region amount.
+   *
+   * @var int
    */
   protected static $count = 0;
+
+  /**
+   * Provides instance ID.
+   *
+   * @var string
+   */
+  protected static $instanceId;
 
   /**
    * {@inheritdoc}
@@ -119,6 +135,23 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
       $count = 1;
     }
     $form_state->setValue(['settings', 'count'], $count);
+
+    // The main background styles.
+    $this->validateStyles($form_state);
+
+    if ($regions = $form_state->getValue('regions')) {
+      foreach ($regions as $name => $region) {
+        foreach ($region as $key => $value) {
+          if ($key == 'settings') {
+            foreach (array_keys($value) as $k) {
+              if ($k == 'styles') {
+                $this->validateStyles($form_state, ['regions', $name, 'settings', 'styles', 'colors']);
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -136,18 +169,31 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
           }
           else {
             foreach ($value as $sk => $sv) {
-              $regions[$name][$key][$sk] = $sv;
+              if ($sk == 'styles') {
+                foreach ($sv['colors'] as $ssk => $ssv) {
+                  $regions[$name][$key][$sk]['colors'][$ssk] = $ssv;
+                }
+              }
+              else {
+                $regions[$name][$key][$sk] = $sv;
+              }
             }
           }
         }
       }
     }
-
     $this->configuration['regions'] = $regions;
 
     if ($settings = $form_state->getValue('settings')) {
       foreach ($settings as $key => $value) {
-        $this->configuration[$key] = $value;
+        if ($key == 'styles') {
+          foreach ($value['colors'] as $sk => $sv) {
+            $this->configuration[$key]['colors'][$sk] = $sv;
+          }
+        }
+        else {
+          $this->configuration[$key] = $value;
+        }
       }
       unset($this->configuration['settings']);
     }
@@ -179,8 +225,16 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
 
     // The main grid setttings.
     foreach (Defaults::layoutSettings() as $key => $value) {
-      $default = $config[$key] ?? $value;
-      $settings[$key] = $this->configuration['settings'][$key] ?? $default;
+      if ($key == 'styles') {
+        foreach ($value['colors'] as $sk => $sv) {
+          $default = $config[$key]['colors'][$sk] ?? $sv;
+          $settings[$key]['colors'][$sk] = $this->configuration[$key]['colors'][$sk] ?? $default;
+        }
+      }
+      else {
+        $default = $config[$key] ?? $value;
+        $settings[$key] = $this->configuration[$key] ?? $default;
+      }
     }
 
     // @todo enable:row_classes.
@@ -188,6 +242,7 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
     $excludes = array_combine($excludes, $excludes);
     $this->admin->formBase($form['settings'], $settings, $excludes);
     $this->admin->formSettings($form['settings'], $settings, $excludes);
+    $this->admin->formColors($form['settings'], $settings['styles']['colors']);
 
     $arguments = [
       'grid_simple' => TRUE,
@@ -210,11 +265,21 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
     }
 
     foreach (Element::children($form['settings']) as $key) {
-      $parents = ['layout_settings', 'settings', $key];
-      $this->admin->themeDescription($form['settings'][$key], $parents);
+      if ($key == 'styles') {
+        if ($colors = $form['settings'][$key]['colors'] ?? []) {
+          foreach (Element::children($colors) as $sk => $sv) {
+            $parents = ['layout_settings', 'settings', $key, 'colors'];
+            $this->admin->themeDescription($form['settings'][$key]['colors'], $parents);
+          }
+        }
+      }
+      else {
+        $parents = ['layout_settings', 'settings', $key];
+        $this->admin->themeDescription($form['settings'][$key], $parents);
 
-      if (isset($form['settings'][$key]['#weight'])) {
-        unset($form['settings'][$key]['#weight']);
+        if (isset($form['settings'][$key]['#weight'])) {
+          unset($form['settings'][$key]['#weight']);
+        }
       }
     }
 
@@ -242,14 +307,21 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
         }
         else {
           foreach ($value as $sk => $sv) {
-            $default = $config['regions'][$region][$key][$sk] ?? $sv;
-            $subsets['regions'][$region][$key][$sk] = $default;
+            if ($sk == 'styles') {
+              foreach ($sv['colors'] as $ssk => $ssv) {
+                $default = $config['regions'][$region][$key][$sk]['colors'][$ssk] ?? $ssv;
+                $subsets['regions'][$region][$key][$sk]['colors'][$ssk] = $default;
+              }
+            }
+            else {
+              $default = $config['regions'][$region][$key][$sk] ?? $sv;
+              $subsets['regions'][$region][$key][$sk] = $default;
+            }
           }
         }
       }
 
       $subsets2 = $subsets['regions'][$region];
-
       $label = $this->t('@label: <em>@name</em>', [
         '@label' => $info['label'],
         '@name'  => $subsets2['label'] ?? $this->t('No name'),
@@ -279,7 +351,12 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
       ];
 
       $subsets3 = $subsets2['settings'];
+      $subsets3['rid'] = $region;
       $this->admin->formWrappers($form['regions'][$region]['settings'], $subsets3, [], FALSE);
+
+      $subsets4 = $subsets3['styles']['colors'];
+      $subsets4['rid'] = $region;
+      $this->admin->formColors($form['regions'][$region]['settings'], $subsets4);
     }
 
     $form['settings']['#attached']['library'][] = 'blazy_layout/admin';
@@ -315,7 +392,16 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
     $factory_regions = $layout->getRegions();
     $keys = array_values($factory_regions);
     $count = (int) $settings['count'];
+    $ids = $settings;
+
+    unset(
+      $ids['blazies'],
+      $ids['WARNING']
+    );
+
+    $id = Json::encode($ids);
     static::$count = $count;
+    static::$instanceId = 'b-layout--' . substr(md5($id), 0, 11);
 
     // Add new regions, if any different from factory.
     foreach (range(1, static::$count) as $delta => $value) {
@@ -407,8 +493,7 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
     }
 
     // Add or remove regions based on the given settings.count.
-    $keys = array_filter($output, fn($k) => strpos($k, '#') === FALSE, ARRAY_FILTER_USE_KEY);
-    foreach (array_keys($keys) as $delta => $name) {
+    foreach ($this->manager->getKeys($output) as $delta => $name) {
       if (isset($output[$name])) {
 
         // Provides dummy regions.
@@ -441,6 +526,9 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
    * Modifies blocks.
    */
   protected function blocks(array &$output, array &$settings, array $new_regions): void {
+    $colors = $settings['styles']['colors'] ?? [];
+    ksort($new_regions);
+
     // Move Blazy background to the beginning.
     foreach (array_keys($new_regions) as $name) {
       if (!isset($output[$name])) {
@@ -470,7 +558,29 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
               }
 
               if ($name == 'bg') {
-                $output[$name][$uuid]['content'][0][0]['#build']['overlay']['blazy_layout']['#markup'] = '<div class="media__overlay"></div>';
+                $colorsets = $colors;
+              }
+              else {
+                $colorsets = $subsets['regions'][$name]['settings']['styles']['colors'] ?? [];
+              }
+
+              if ($colorsets) {
+                $text_name = $name == 'bg' ? '' : $name;
+                $this->texts($text_name, $colorsets, 'text');
+                $this->texts($text_name, $colorsets, 'heading');
+                $this->backgrounds($name, $colorsets, 'background');
+                $this->backgrounds($name, $colorsets, 'overlay');
+              }
+
+              if (isset($output[$name][$uuid]['content'][0][0]['#build'])) {
+                $blazy = &$output[$name][$uuid]['content'][0][0]['#build'];
+
+                $blazy['overlay']['blazy_layout'] = [
+                  '#theme' => 'container',
+                  '#attributes' => [
+                    'class' => ['media__overlay'],
+                  ],
+                ];
               }
 
               $settings['regions'][$name]['settings']['background'] = TRUE;
@@ -491,11 +601,9 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
    * Modifies attributes.
    */
   protected function attributes(array &$output, array $settings): void {
-    if (!isset($output['#attributes'])) {
-      $output['#attributes'] = [];
-    }
-
+    $id = static::$instanceId;
     $css = '';
+
     foreach (['grid_auto_rows', 'align_items'] as $option) {
       if ($value = $settings[$option] ?? NULL) {
         $key = str_replace('_', '-', $option);
@@ -505,10 +613,81 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
     }
 
     if ($css) {
-      Attributes::inlineStyle($output['#attributes'], $css);
+      static::$styles[$id][$id] = $css;
     }
 
     $this->parseClasses($output, $settings);
+
+    $output['#attributes']['class'][] = $id;
+
+    // Put this in the head to avoid ugly inline element styles.
+    if ($rules = static::$styles[$id] ?? []) {
+      $css = $this->toRules($rules, $id);
+
+      $output['#attached']['html_head'][] = [
+        ['#tag' => 'style', '#value' => $css, '#weight' => 1],
+        $id . '-style',
+      ];
+    }
+  }
+
+  /**
+   * Provides background styles.
+   */
+  protected function backgrounds(
+    $region,
+    array $colors,
+    $key = 'background'
+  ): void {
+    $id = static::$instanceId;
+    $region = str_replace('_', '-', $region);
+    $css = '';
+
+    if ($style = $colors["{$key}_color"] ?? NULL) {
+      $css .= "background-color: $style;";
+    }
+    if ($style = $colors["{$key}_opacity"] ?? NULL) {
+      if ($style != '0' && $style != '1') {
+        $css .= "opacity: $style;";
+      }
+    }
+
+    if ($css) {
+      if ($key == 'background') {
+        static::$styles[$id][".region--{$region} .b-bg"] = $css;
+      }
+      elseif ($key == 'overlay') {
+        static::$styles[$id][".region--{$region} .media__overlay"] = $css;
+      }
+    }
+  }
+
+  /**
+   * Provides text styles.
+   */
+  protected function texts(
+    $region,
+    array $colors,
+    $key = 'heading'
+  ): void {
+    $id = static::$instanceId;
+    $prefix = '.region';
+
+    if ($region) {
+      $region = str_replace('_', '-', $region);
+      $prefix = ".region--{$region}";
+    }
+
+    if ($style = $colors["{$key}_color"] ?? NULL) {
+      $css = "color: $style;";
+
+      if ($key == 'text') {
+        static::$styles[$id][$prefix] = $css;
+      }
+      else {
+        static::$styles[$id]["{$prefix} h2, {$prefix} h3, {$prefix} .block__title, {$prefix} .field__label"] = $css;
+      }
+    }
   }
 
   /**
@@ -534,6 +713,46 @@ abstract class BlazyLayoutsBase extends LayoutDefault implements BlazyLayoutsInt
         $output['#attributes']['class'][] = $class;
       }
     }
+  }
+
+  /**
+   * Validate form styles.
+   */
+  protected function validateStyles(
+    FormStateInterface $form_state,
+    array $keys = ['settings', 'styles', 'colors']
+  ): void {
+    if ($styles = $form_state->getValue($keys)) {
+      foreach ($styles as &$style) {
+        if ($style == '#000000' || $style == '1' || $style == '0') {
+          $style = '';
+        }
+      }
+      $form_state->setValue($keys, array_filter($styles));
+    }
+  }
+
+  /**
+   * Extract data to CSS rules.
+   */
+  private function toRules(array $data, $id): string {
+    return implode(' ', array_map(
+      function ($value, $key) use ($id) {
+        if (strpos($key, ',') !== FALSE) {
+          $vals = array_map('trim', explode(',', $key));
+          $keys = [];
+          foreach ($vals as $val) {
+            $keys[] = ".blazy.{$id} {$val}";
+          }
+
+          $key = implode(', ', $keys);
+          return "{$key} {{$value}}";
+        }
+        return $id == $key ? ".blazy.{$key} {{$value}}" : ".blazy.{$id} {$key} {{$value}}";
+      },
+      $data,
+      array_keys($data)
+    ));
   }
 
 }

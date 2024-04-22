@@ -5,18 +5,18 @@
  * Provides a single, yet dynamic, Blazy layout for Layout Builder.
  */
 
-use Drupal\blazy_layout\BlazyLayout;
 use Drupal\blazy_layout\BlazyLayoutDefault;
+use Drupal\blazy_layout\BlazyLayoutManager;
 use Drupal\Core\Template\Attribute;
 
 /**
  * Provides a convenient shortcut for procedural hooks.
  *
- * @return \Drupal\blazy_layout\BlazyLayout
- *   The BlazyLayout manager class instance.
+ * @return \Drupal\blazy_layout\BlazyLayoutManager
+ *   The BlazyLayoutManager manager class instance.
  */
 // @codingStandardsIgnoreStart
-function blazy_layout(): BlazyLayout {
+function blazy_layout(): BlazyLayoutManager {
   static $manager;
 
   if (!isset($manager)) {
@@ -52,10 +52,11 @@ function blazy_layout_preprocess_layout(array &$variables) {
   $namespace = $variables['content']['#namespace'] ?? NULL;
 
   if ($namespace == 'blazy') {
-    $layout = $variables['layout'];
     $in_preview = $variables['in_preview'];
     $settings['background'] = $background = $in_preview || !empty($variables['content']['bg']);
     $style = $settings['style'] ?? '';
+
+    _blazy_layout_region_attributes($variables, 'bg');
 
     if ($in_preview) {
       $variables['attributes']['class'][] = 'b-layout--preview';
@@ -85,14 +86,7 @@ function blazy_layout_preprocess_layout(array &$variables) {
         // }
         // }
         // Core region attributes depend on content[region], hence enforced.
-        foreach (['attributes', 'content_attributes'] as $key) {
-          if (!isset($variables["region_$key"][$name])) {
-            if (!isset($variables['content'][$name]["#$key"])) {
-              $variables['content'][$name]["#$key"] = [];
-            }
-            $variables["region_$key"][$name] = new Attribute($variables['content'][$name]["#$key"]);
-          }
-        }
+        _blazy_layout_region_attributes($variables, $name);
 
         // If ($variables['region_attributes'][$name]->toArray() == $lb_attrs) {
         // $variables['region_attributes'][$name] = new Attribute();
@@ -119,6 +113,20 @@ function blazy_layout_preprocess_layout(array &$variables) {
 
       $regions = array_diff(array_keys($settings['regions']), ['bg']);
       $variables['regions'] = $regions;
+    }
+  }
+}
+
+/**
+ * Provides regions attributes.
+ */
+function _blazy_layout_region_attributes(array &$variables, $name) {
+  foreach (['attributes', 'content_attributes'] as $key) {
+    if (!isset($variables["region_$key"][$name])) {
+      if (!isset($variables['content'][$name]["#$key"])) {
+        $variables['content'][$name]["#$key"] = [];
+      }
+      $variables["region_$key"][$name] = new Attribute($variables['content'][$name]["#$key"]);
     }
   }
 }

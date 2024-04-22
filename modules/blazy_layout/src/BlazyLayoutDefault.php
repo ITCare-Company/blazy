@@ -49,7 +49,20 @@ class BlazyLayoutDefault {
     return [
       'label'    => '',
       'settings' => self:: sharedSettings(),
-      // 'styles' => [],
+    ];
+  }
+
+  /**
+   * Returns the region layout settings.
+   */
+  public static function styleSettings() {
+    return [
+      'background_color'   => '',
+      'background_opacity' => '1',
+      'overlay_color'      => '',
+      'overlay_opacity'    => '1',
+      'heading_color'      => '',
+      'text_color'         => '',
     ];
   }
 
@@ -150,6 +163,7 @@ class BlazyLayoutDefault {
       'attributes'  => '',
       'classes'     => '',
       'row_classes' => '',
+      'styles'      => ['colors' => self::styleSettings()],
     ];
   }
 

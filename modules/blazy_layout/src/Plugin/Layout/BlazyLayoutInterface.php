@@ -5,9 +5,9 @@ namespace Drupal\blazy_layout\Plugin\Layout;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 
 /**
- * Provides an interface for BlazyLayouts methods.
+ * Provides an interface for BlazyLayout methods.
  */
-interface BlazyLayoutsInterface extends ContainerFactoryPluginInterface {
+interface BlazyLayoutInterface extends ContainerFactoryPluginInterface {
 
   /**
    * Returns the region configurations based on the key.

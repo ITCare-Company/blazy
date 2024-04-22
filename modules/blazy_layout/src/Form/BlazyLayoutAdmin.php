@@ -4,8 +4,10 @@ namespace Drupal\blazy_layout\Form;
 
 use Drupal\blazy\Form\BlazyAdminBase;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
+use Drupal\blazy_layout\BlazyLayoutManagerInterface;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Extends base form for Blazy layout instance configuration form.
@@ -13,6 +15,31 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterface {
 
   use StringTranslationTrait;
+
+  /**
+   * The blazy layout manager service.
+   *
+   * @var \Drupal\blazy_layout\BlazyLayoutManagerInterface
+   */
+  protected $manager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    $instance = parent::create($container);
+    $instance->setManager($container->get('blazy_layout'));
+
+    return $instance;
+  }
+
+  /**
+   * Sets manager service.
+   */
+  public function setManager(BlazyLayoutManagerInterface $manager) {
+    $this->manager = $manager;
+    return $this;
+  }
 
   /**
    * {@inheritdoc}
@@ -47,6 +74,83 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     }
 
     $form += $elements;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function formColors(array &$form, array $settings, array $excludes = []): void {
+    $tooltip = ['class' => ['is-tooltip']];
+
+    if ($region = $settings['rid'] ?? NULL) {
+      $parents = ['layout_settings', 'regions', $region, 'settings', 'styles'];
+    }
+    else {
+      $parents = ['layout_settings', 'settings', 'styles'];
+    }
+
+    $form['styles'] = [
+      '#type'        => 'details',
+      '#tree'        => TRUE,
+      '#open'        => FALSE,
+      '#title'       => $this->t('Styles'),
+      '#parents'     => $parents,
+      '#weight'      => 10,
+    ];
+
+    $form['styles']['colors'] = [
+      '#type'        => 'details',
+      '#tree'        => TRUE,
+      '#open'        => TRUE,
+      '#title'       => $this->t('Colors'),
+      '#parents'     => array_merge($parents, ['colors']),
+    ];
+
+    $colors = &$form['styles']['colors'];
+    $colors['background_color'] = [
+      '#type'  => 'color',
+      '#title'  => $this->t('Background color'),
+    ];
+
+    $colors['background_opacity'] = [
+      '#type'  => 'range',
+      '#title' => $this->t('Background opacity'),
+    ];
+
+    $colors['overlay_color'] = [
+      '#type'  => 'color',
+      '#title' => $this->t('Overlay color'),
+    ];
+
+    $colors['overlay_opacity'] = [
+      '#type'  => 'range',
+      '#title' => $this->t('Overlay opacity'),
+    ];
+
+    $colors['text_color'] = [
+      '#type'  => 'color',
+      '#title' => $this->t('Text color'),
+    ];
+
+    $colors['heading_color'] = [
+      '#type'  => 'color',
+      '#title' => $this->t('Heading color'),
+    ];
+
+    foreach ($this->manager->getKeys($colors) as $key) {
+      if ($excludes && in_array($key, $excludes)) {
+        unset($colors[$key]);
+        continue;
+      }
+
+      if (strpos($key, '_opacity') !== FALSE) {
+        $colors[$key]['#min'] = 0;
+        $colors[$key]['#max'] = 1;
+        $colors[$key]['#step'] = 0.1;
+      }
+      $colors[$key]['#default_value'] = $settings[$key] ?? '';
+      $colors[$key]['#attributes'] = $tooltip;
+    }
   }
 
   /**

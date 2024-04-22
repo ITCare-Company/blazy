@@ -6,9 +6,9 @@ use Drupal\blazy\BlazyManager;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 
 /**
- * Provides BlazyLayout utility.
+ * Provides BlazyLayoutManager utility.
  */
-class BlazyLayout extends BlazyManager implements BlazyLayoutInterface {
+class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInterface {
 
   /**
    * {@inheritdoc}
@@ -43,6 +43,19 @@ class BlazyLayout extends BlazyManager implements BlazyLayoutInterface {
     }
 
     return $regions;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getKeys(array $elements): array {
+    return array_keys(
+      array_filter(
+        $elements,
+        fn($k) => strpos($k, '#') === FALSE,
+        ARRAY_FILTER_USE_KEY
+      )
+    );
   }
 
 }

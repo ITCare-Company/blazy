@@ -1,7 +1,7 @@
 blazy_layout:
   label: Blazy dynamic layout
   library: blazy_layout/layout
-  class: '\Drupal\blazy_layout\Plugin\Layout\BlazyLayouts'
+  class: '\Drupal\blazy_layout\Plugin\Layout\BlazyLayout'
   category: Blazy
   default_region: blzyr_0
   icon_map:
