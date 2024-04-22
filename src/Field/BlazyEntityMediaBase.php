@@ -24,7 +24,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     $instance->svgManager = $container->get('blazy.svg');

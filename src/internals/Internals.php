@@ -80,7 +80,7 @@ class Internals {
   public static function toContent(
     array &$data,
     $unset = FALSE,
-    array $keys = ['content', 'box', 'slide']
+    array $keys = ['content', 'box', 'slide'],
   ): array {
     return Content::toContent($data, $unset, $keys);
   }
@@ -217,7 +217,7 @@ class Internals {
   public static function reset(
     array &$settings,
     $key = 'blazies',
-    array $defaults = []
+    array $defaults = [],
   ): BlazySettings {
     return Settings::reset($settings, $key, $defaults);
   }
@@ -256,7 +256,7 @@ class Internals {
   public static function verify(
     array &$settings,
     $key = 'blazies',
-    array $defaults = []
+    array $defaults = [],
   ): BlazySettings {
     return Settings::verify($settings, $key, $defaults);
   }

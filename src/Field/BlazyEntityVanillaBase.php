@@ -223,7 +223,7 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
     array $names = [],
     $entity_type = NULL,
     $target_type = NULL,
-    $exclude = TRUE
+    $exclude = TRUE,
   ): array {
     $entity_type = $entity_type ?: $this->getFieldSetting('target_type');
     $bundles     = $this->getAvailableBundles();

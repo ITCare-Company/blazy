@@ -62,7 +62,7 @@ class Svg extends BlazyFile implements SvgInterface {
     $uri,
     $destination,
     $color = '#ffffff',
-    $fuzz = 20
+    $fuzz = 20,
   ): ?string {
     $path = $this->realpath($uri);
     $dest = $this->realpath($destination);

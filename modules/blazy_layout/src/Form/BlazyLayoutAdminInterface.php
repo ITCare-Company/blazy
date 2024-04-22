@@ -61,7 +61,7 @@ interface BlazyLayoutAdminInterface extends BlazyAdminInterface {
     array &$form,
     array $settings,
     array $excludes = [],
-    $root = TRUE
+    $root = TRUE,
   ): void;
 
 }

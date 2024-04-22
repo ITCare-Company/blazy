@@ -79,7 +79,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     $instance = new static(
       $configuration,
@@ -369,7 +369,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   protected function attachments(
     array &$element,
     array $settings,
-    array $attachments = []
+    array $attachments = [],
   ): void {
     $this->manager->setAttachments(
       $element,
@@ -637,7 +637,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   protected function backgrounds(
     $region,
     array $colors,
-    $key = 'background'
+    $key = 'background',
   ): void {
     $id = static::$instanceId;
     $region = str_replace('_', '-', $region);
@@ -668,7 +668,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   protected function texts(
     $region,
     array $colors,
-    $key = 'heading'
+    $key = 'heading',
   ): void {
     $id = static::$instanceId;
     $prefix = '.region';
@@ -720,7 +720,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    */
   protected function validateStyles(
     FormStateInterface $form_state,
-    array $keys = ['settings', 'styles', 'colors']
+    array $keys = ['settings', 'styles', 'colors'],
   ): void {
     if ($styles = $form_state->getValue($keys)) {
       foreach ($styles as &$style) {

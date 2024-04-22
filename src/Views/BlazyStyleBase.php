@@ -36,7 +36,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
 

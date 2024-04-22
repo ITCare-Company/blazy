@@ -265,7 +265,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     array &$form,
     array $settings,
     array $excludes = [],
-    $root = TRUE
+    $root = TRUE,
   ): void {
     $tooltip  = ['class' => ['is-tooltip']];
     $elements = [];
@@ -318,7 +318,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     array &$form,
     array $settings,
     array $excludes = [],
-    $root = TRUE
+    $root = TRUE,
   ): void {
     $tooltip  = ['class' => ['is-tooltip']];
     $elements = [];

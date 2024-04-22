@@ -112,7 +112,7 @@ trait TraitDescriptions {
   public function openingDescriptions(): array {
     $lb = $this->isAdminLb();
     return [
-      'background' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires an Aspect ratio, otherwise collapsed containers. Unless explicitly removed such as for GridStack which manages its own problem, or a min-height is added using grid min-height, or manually to <strong>.b-bg</strong> selector. @lb', [
+      'background' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires an Aspect ratio, otherwise collapsed containers. Unless explicitly removed such as for GridStack which manages its own problem, or a min-height is added using grid min-height (see Blazy layout sub-module Grid option), or manually to <strong>.b-bg</strong> selector. @lb', [
         '@lb' => $lb ? $this->t('<br><strong>Note!</strong> Must disable <strong>Use field template</strong> for background to work.') : '',
       ]),
       'by_delta' => $this->t('Display a single item by delta, starting from 0. Useful to display a multi-value field when broken down into a single display like Layout Builder blocks so that one field can occupy multiple regions simply by using its delta. More efficient than creating different single fields for the same image or media. Almost similar to Views <strong>Display all values in the same row (DAVISR)</strong>, except only designated to display a single value beyond Views UI. If embedded inside Views, this option is not available for more robust Views DAVISR. Be sure to disable Display style and grid options since it will show one item only.'),
@@ -142,6 +142,19 @@ trait TraitDescriptions {
       'fill' => $this->t('Force the fill to currentColor to allow the SVG inherit coloring from the enclosing tag, such as a link tag.'),
       'hide_caption' => $this->t('Unlike images, SVG has no ALT and TITLE attributes, except for SVG Image Field, or core file Description field. This option will hide captions, and put them into image attributes instead. Relevant if Inline option is disabled aka using IMG tag. Be sure to enable them under the Caption fields.'),
       'attributes' => $this->t('Input one of SVG dimension sources: <code>none, image_style, or WIDTHxHEIGHT</code>. To disable, input: <strong>none</strong>, and will also disable Aspect ratio option. The <strong>image_style</strong> ansich will use the provided Image style, useful to get consistent heights within carousels, or rigid grids. The <strong>WIDTHxHEIGHT</strong>, e.g.: 800x400, for custom defined dimensions. Default or fallback to extract from SVG attributes, unless <strong>none</strong> is set. Only width and height are supported. Affected by Aspect ratio option.'),
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function closingDescriptions(): array {
+    $lb = $this->isAdminLb();
+
+    return [
+      'use_theme_field' => $this->t('Wrap Blazy field output into regular field markup (field.html.twig). Vanilla output otherwise. @lb', [
+        '@lb' => $lb ? $this->t('If enabled, it may break CSS background due to extra divities. Backgrounds require very minimal divities.') : '',
+      ]),
     ];
   }
 

@@ -78,7 +78,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
     $plugin_id,
     $plugin_definition,
     BlazyManager $blazy_manager,
-    BlazyEntityInterface $blazy_entity
+    BlazyEntityInterface $blazy_entity,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->blazyManager = $blazy_manager;
@@ -93,7 +93,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
     ContainerInterface $container,
     array $configuration,
     $plugin_id,
-    $plugin_definition
+    $plugin_definition,
   ) {
     return new static(
       $configuration,

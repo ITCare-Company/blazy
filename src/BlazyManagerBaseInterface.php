@@ -233,7 +233,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
   public function setAttachments(
     array &$element,
     array $settings,
-    array $attachments = []
+    array $attachments = [],
   ): void;
 
 }

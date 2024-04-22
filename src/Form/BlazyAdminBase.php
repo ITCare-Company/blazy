@@ -70,7 +70,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     EntityDisplayRepositoryInterface $entity_display_repository,
     TypedConfigManagerInterface $typed_config,
     DateFormatterInterface $date_formatter,
-    BlazyManagerInterface $blazy_manager
+    BlazyManagerInterface $blazy_manager,
   ) {
     $this->entityDisplayRepository = $entity_display_repository;
     $this->typedConfig             = $typed_config;
@@ -294,10 +294,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       $form['use_theme_field'] = [
         '#title'       => $this->t('Use field template'),
         '#type'        => 'checkbox',
-        '#description' => $this->t('Wrap Blazy field output into regular field markup (field.html.twig). Vanilla output otherwise. @lb', [
-          '@lb' => $lb ? $this->t('If enabled, it may break CSS background due to extra divities.') : '',
-        ]),
-        '#weight'      => -100
+        '#description' => $this->closingDescriptions()['use_theme_field'],
+        '#weight'      => -100,
       ];
     }
 
@@ -798,7 +796,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
         '#title'       => $this->t('@title', ['@title' => $title]),
         // @todo recheck '#enforced' => !$scopes->is('vanilla'),
         '#description' => $desc,
-        '#weight'      => -100,
+        '#weight'      => -99,
       ];
 
       if ($base == 'inline') {

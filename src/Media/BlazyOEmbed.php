@@ -70,7 +70,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   public function __construct(
     BlazyMediaInterface $blazy_media,
     ResourceFetcherInterface $resource_fetcher,
-    UrlResolverInterface $url_resolver
+    UrlResolverInterface $url_resolver,
   ) {
     $this->blazyMedia = $blazy_media;
     $this->resourceFetcher = $resource_fetcher;

@@ -264,7 +264,7 @@ class Lightbox {
     array &$attrs,
     array $options,
     array $settings,
-    $manager
+    $manager,
   ): void {
     [
       'box_url' => $box_url,

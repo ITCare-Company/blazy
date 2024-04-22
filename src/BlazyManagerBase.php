@@ -270,7 +270,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   public function setAttachments(
     array &$element,
     array $settings,
-    array $attachments = []
+    array $attachments = [],
   ): void {
     $cache                 = $this->getCacheMetadata($settings);
     $attached              = $this->attach($settings);

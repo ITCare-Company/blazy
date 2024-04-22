@@ -120,7 +120,7 @@ abstract class BlazyBase implements BlazyInterface {
     EntityRepositoryInterface $entity_repository,
     EntityTypeManagerInterface $entity_type_manager,
     RendererInterface $renderer,
-    LanguageManagerInterface $language_manager
+    LanguageManagerInterface $language_manager,
   ) {
     $this->libraries         = $libraries;
     $this->root              = $libraries->root();
@@ -250,7 +250,7 @@ abstract class BlazyBase implements BlazyInterface {
   public function configSchemaInfoAlter(
     array &$definitions,
     $formatter = 'blazy_base',
-    array $settings = []
+    array $settings = [],
   ): void {
     BlazyAlter::configSchemaInfoAlter($definitions, $formatter, $settings);
   }
@@ -275,7 +275,7 @@ abstract class BlazyBase implements BlazyInterface {
   public function getCachedData(
     $cid,
     array $data = [],
-    array $info = []
+    array $info = [],
   ): array {
     return $this->getCachedOptions($cid, $data, FALSE, $info);
   }
@@ -287,7 +287,7 @@ abstract class BlazyBase implements BlazyInterface {
     $cid,
     array $data = [],
     $as_options = TRUE,
-    array $info = []
+    array $info = [],
   ): array {
     return $this->libraries->getCachedData(
       $cid,
@@ -370,7 +370,7 @@ abstract class BlazyBase implements BlazyInterface {
     array &$attrs,
     array &$content_attrs,
     $blazies,
-    $root = FALSE
+    $root = FALSE,
   ): void {
     Grid::checkAttributes($attrs, $content_attrs, $blazies, $root);
   }
@@ -381,7 +381,7 @@ abstract class BlazyBase implements BlazyInterface {
   public function gridItemAttributes(
     array &$attrs,
     array &$content_attrs,
-    array $settings
+    array $settings,
   ): void {
     Grid::itemAttributes($attrs, $content_attrs, $settings);
   }
@@ -425,7 +425,7 @@ abstract class BlazyBase implements BlazyInterface {
     $type = 'file',
     $access = TRUE,
     $conjunction = 'AND',
-    $condition = 'IN'
+    $condition = 'IN',
   ): array {
     $storage = $this->getStorage($type);
     $query = $storage->getQuery($conjunction);
@@ -525,7 +525,7 @@ abstract class BlazyBase implements BlazyInterface {
     array &$settings,
     array $data = [],
     $key = 'blazies',
-    array $defaults = []
+    array $defaults = [],
   ): array {
     $object = Internals::reset($settings, $key, $defaults);
     if ($data) {

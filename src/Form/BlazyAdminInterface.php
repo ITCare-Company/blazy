@@ -112,7 +112,7 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
     array $target_bundles = [],
     array $allowed_field_types = [],
     $entity_type = 'media',
-    $target_type = ''
+    $target_type = '',
   ): array;
 
   /**
@@ -215,5 +215,10 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    * Returns SVG description, from SVG image field to support it in Blazy.
    */
   public function svgDescriptions(): array;
+
+  /**
+   * Returns closing form descriptions.
+   */
+  public function closingDescriptions(): array;
 
 }

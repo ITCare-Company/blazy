@@ -113,7 +113,7 @@ class Grid {
     array &$attrs,
     array &$content_attrs,
     $blazies,
-    $root = FALSE
+    $root = FALSE,
   ): void {
     if ($root) {
       if ($attrs_alter = ($blazies->get('grid.attributes') ?: [])) {
@@ -190,7 +190,7 @@ class Grid {
   public static function itemAttributes(
     array &$attrs,
     array &$content_attrs,
-    array $settings
+    array $settings,
   ): void {
     $blazies = $settings['blazies'];
     $item_class = $blazies->get('grid.item_class', 'grid');

@@ -29,7 +29,7 @@ class BlazyAlter {
   public static function configSchemaInfoAlter(
     array &$definitions,
     $formatter = 'blazy_base',
-    array $settings = []
+    array $settings = [],
   ): void {
     if (isset($definitions[$formatter])) {
       $mappings = &$definitions[$formatter]['mapping'];

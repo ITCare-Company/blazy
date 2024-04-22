@@ -65,7 +65,7 @@ class BlazyFile implements BlazyFileInterface {
     FileSystemInterface $file_system,
     FileRepository $file_repository,
     ImageFactory $image_factory,
-    LoggerChannelFactoryInterface $logger
+    LoggerChannelFactoryInterface $logger,
   ) {
     $this->fileSystem = $file_system;
     $this->fileRepository = $file_repository;

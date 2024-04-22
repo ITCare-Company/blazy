@@ -330,7 +330,7 @@ class Settings {
   public static function verify(
     array &$settings,
     $key = 'blazies',
-    array $defaults = []
+    array $defaults = [],
   ): BlazySettings {
     if (!isset($settings[$key])) {
       $settings += $defaults ?: Blazy::init();

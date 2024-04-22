@@ -138,7 +138,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
   public function configSchemaInfoAlter(
     array &$definitions,
     $formatter = 'blazy_base',
-    array $settings = []
+    array $settings = [],
   ): void;
 
   /**
@@ -186,7 +186,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
   public function getCachedData(
     $cid,
     array $data = [],
-    array $info = []
+    array $info = [],
   ): array;
 
   /**
@@ -211,7 +211,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
     $cid,
     array $data = [],
     $as_options = TRUE,
-    array $info = []
+    array $info = [],
   ): array;
 
   /**
@@ -335,7 +335,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
     array &$attrs,
     array &$content_attrs,
     $blazies,
-    $root = FALSE
+    $root = FALSE,
   ): void;
 
   /**
@@ -366,7 +366,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
   public function gridItemAttributes(
     array &$attrs,
     array &$content_attrs,
-    array $settings
+    array $settings,
   ): void;
 
   /**
@@ -451,7 +451,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
     $type = 'file',
     $access = TRUE,
     $conjunction = 'AND',
-    $condition = 'IN'
+    $condition = 'IN',
   ): array;
 
   /**
@@ -633,7 +633,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
     array &$settings,
     array $data = [],
     $key = 'blazies',
-    array $defaults = []
+    array $defaults = [],
   ): array;
 
   /**

@@ -70,7 +70,7 @@ interface SvgInterface extends BlazyFileInterface {
     $uri,
     $destination,
     $color = '#ffffff',
-    $fuzz = 20
+    $fuzz = 20,
   ): ?string;
 
   /**

@@ -98,7 +98,7 @@ interface ConfigInterface {
     $cid,
     array $data = [],
     $as_options = TRUE,
-    array $info = []
+    array $info = [],
   ): array;
 
   /**

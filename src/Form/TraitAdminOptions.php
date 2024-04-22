@@ -68,7 +68,7 @@ trait TraitAdminOptions {
     array $target_bundles = [],
     array $allowed_field_types = [],
     $entity_type = 'media',
-    $target_type = ''
+    $target_type = '',
   ): array {
     $options = [];
 

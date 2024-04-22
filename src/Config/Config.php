@@ -66,7 +66,7 @@ class Config implements ConfigInterface {
     CacheBackendInterface $cache,
     ConfigFactoryInterface $config_factory,
     ModuleHandlerInterface $module_handler,
-    RouteMatchInterface $route_match
+    RouteMatchInterface $route_match,
   ) {
     $this->root          = $root;
     $this->cache         = $cache;
@@ -147,7 +147,7 @@ class Config implements ConfigInterface {
     $cid,
     array $data = [],
     $as_options = TRUE,
-    array $info = []
+    array $info = [],
   ): array {
     $reset = $info['reset'] ?? FALSE;
     if (!isset($this->cachedData[$cid]) || $reset) {
