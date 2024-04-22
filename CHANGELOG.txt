@@ -1,4 +1,8 @@
 
+Blazy 3.0.x-dev, 2024-04-22
+---------------------------
+- Upped Drupal requirement to 9.4 to avoid PHP7 issues.
+
 Blazy 3.0.x-dev, 2024-04-16
 ---------------------------
 - Fixed for by_delta option count.
