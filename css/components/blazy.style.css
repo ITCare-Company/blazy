@@ -3,7 +3,8 @@
  * Provides shared CSS rules for Blazy layout.
  */
 
-.blazy.b-mh > [data-b-h="xxs"] {
+.blazy.b-mh > [data-b-h="xxs"],
+.blazy.b-mh > [data-b-h="x2s"] {
   min-height: 80px;
 }
 
@@ -27,6 +28,19 @@
   min-height: 560px;
 }
 
-.blazy.b-mh > [data-b-h="xxl"] {
+.blazy.b-mh > [data-b-h="xxl"],
+.blazy.b-mh > [data-b-h="x2l"] {
   min-height: 640px;
+}
+
+.blazy.b-mh > [data-b-h="x3l"] {
+  min-height: 720px;
+}
+
+.blazy.b-mh > [data-b-h="x4l"] {
+  min-height: 820px;
+}
+
+.blazy.b-mh > [data-b-h="x5l"] {
+  min-height: 920px;
 }
