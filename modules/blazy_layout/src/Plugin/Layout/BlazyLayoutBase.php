@@ -3,6 +3,7 @@
 namespace Drupal\blazy_layout\Plugin\Layout;
 
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 use Drupal\Component\Serialization\Json;
@@ -535,14 +536,48 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         continue;
       }
 
+      $subsets = $settings;
       foreach (Element::children($output[$name]) as $uuid) {
         $block = $output[$name][$uuid];
         $formatter = $block['content'][0]['#formatter'] ?? 'x';
 
+        if (!isset($output[$name]['#attributes'])) {
+          $output[$name]['#attributes'] = [];
+        }
+
+        if ($name == 'bg') {
+          $colorsets = $colors;
+        }
+        else {
+          $colorsets = $subsets['regions'][$name]['settings']['styles']['colors'] ?? [];
+        }
+
+        if ($colorsets) {
+          $text_name = $name == 'bg' ? '' : $name;
+          $css_text = $this->texts($text_name, $colorsets, 'text');
+          $heading_text = $this->texts($text_name, $colorsets, 'heading');
+          $css_background = $this->backgrounds($name, $colorsets, 'background');
+          $css_overlay = $this->backgrounds($name, $colorsets, 'overlay');
+
+          if ($this->inPreview) {
+            $merged_css = '';
+
+            if ($css_text) {
+              $merged_css .= $css_text;
+            }
+            if ($css_background) {
+              $merged_css .= $css_background;
+            }
+
+            if ($merged_css) {
+              Attributes::inlineStyle($output[$name]['#attributes'], $merged_css);
+            }
+          }
+        }
+
         if (strpos($formatter, 'blazy') !== FALSE) {
           if ($fielsets = $block['content'][0]['#blazy'] ?? []) {
             // Pass the layout settings, not formatter's.
-            $subsets = $settings;
             $blazies = $subsets['blazies']->reset($subsets);
             $subblazies = $fielsets['blazies'];
             $output[$name][$uuid]['#blazy'] = $subsets;
@@ -557,21 +592,6 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
                 $blazies->set($key, $subblazies->get($key));
               }
 
-              if ($name == 'bg') {
-                $colorsets = $colors;
-              }
-              else {
-                $colorsets = $subsets['regions'][$name]['settings']['styles']['colors'] ?? [];
-              }
-
-              if ($colorsets) {
-                $text_name = $name == 'bg' ? '' : $name;
-                $this->texts($text_name, $colorsets, 'text');
-                $this->texts($text_name, $colorsets, 'heading');
-                $this->backgrounds($name, $colorsets, 'background');
-                $this->backgrounds($name, $colorsets, 'overlay');
-              }
-
               if (isset($output[$name][$uuid]['content'][0][0]['#build'])) {
                 $blazy = &$output[$name][$uuid]['content'][0][0]['#build'];
 
@@ -581,6 +601,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
                     'class' => ['media__overlay'],
                   ],
                 ];
+
+                if ($this->inPreview && isset($css_overlay)) {
+                  Attributes::inlineStyle($blazy['overlay']['blazy_layout']['#attributes'], $css_overlay);
+                }
               }
 
               $settings['regions'][$name]['settings']['background'] = TRUE;
@@ -614,6 +638,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
     if ($css) {
       static::$styles[$id][$id] = $css;
+
+      if ($this->inPreview) {
+        Attributes::inlineStyle($output['#attributes'], $css);
+      }
     }
 
     $this->parseClasses($output, $settings);
@@ -638,7 +666,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $region,
     array $colors,
     $key = 'background',
-  ): void {
+  ): string {
     $id = static::$instanceId;
     $region = str_replace('_', '-', $region);
     $css = '';
@@ -660,6 +688,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         static::$styles[$id][".region--{$region} .media__overlay"] = $css;
       }
     }
+    return $css;
   }
 
   /**
@@ -669,9 +698,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $region,
     array $colors,
     $key = 'heading',
-  ): void {
+  ): string {
     $id = static::$instanceId;
     $prefix = '.region';
+    $css = '';
 
     if ($region) {
       $region = str_replace('_', '-', $region);
@@ -688,6 +718,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         static::$styles[$id]["{$prefix} h2, {$prefix} h3, {$prefix} .block__title, {$prefix} .field__label"] = $css;
       }
     }
+    return $css;
   }
 
   /**
