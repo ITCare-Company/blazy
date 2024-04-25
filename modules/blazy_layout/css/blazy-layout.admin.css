@@ -3,10 +3,10 @@
  * Provides admin blazy layout.
  */
 
-/* stylelint-disable selector-max-id, declaration-no-important */
+/* stylelint-disable declaration-no-important */
 .layout-builder .b-layout {
   min-height: 160px;
-  padding-top: 120px;
+  padding-top: 120px !important;
 }
 
 .layout-builder .b-layout .grid {
