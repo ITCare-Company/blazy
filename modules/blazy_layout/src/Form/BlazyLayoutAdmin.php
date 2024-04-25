@@ -155,12 +155,20 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
         continue;
       }
 
+      $value = $settings['colors'][$key] ?? '';
+
       if (strpos($key, '_opacity') !== FALSE) {
         $colors[$key]['#min'] = 0;
         $colors[$key]['#max'] = 1;
         $colors[$key]['#step'] = 0.1;
+        $colors[$key]['#field_suffix'] = '1';
       }
-      $colors[$key]['#default_value'] = $settings['colors'][$key] ?? '';
+
+      if (strpos($key, '_color') !== FALSE) {
+        $colors[$key]['#field_suffix'] = $value;
+      }
+
+      $colors[$key]['#default_value'] = $value;
       $colors[$key]['#attributes'] = $tooltip;
     }
 

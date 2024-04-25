@@ -122,8 +122,9 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       '#tree'        => TRUE,
       '#open'        => TRUE,
       '#title'       => $this->t('Global settings'),
-      '#description' => $this->t('Use Blazy Image/ Media formatters to have background or even nested grids when creating blocks.'),
+      '#description' => $this->t('Use Blazy Image/ Media formatters to have background or even nested grids when creating blocks. Reload the page if some options are not updated after saving the modal form.'),
       '#parents'     => ['layout_settings', 'settings'],
+      '#attributes'  => ['class' => ['form-wrapper--b-layout']],
     ];
 
     // The main grid setttings.
@@ -197,10 +198,11 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
 
     $subsets = [];
     $form['regions'] = [
-      '#type'    => 'container',
-      '#tree'    => TRUE,
-      '#parents' => ['layout_settings', 'regions'],
-      '#weight'  => 31,
+      '#type'       => 'container',
+      '#tree'       => TRUE,
+      '#parents'    => ['layout_settings', 'regions'],
+      '#weight'     => 31,
+      '#attributes' => ['class' => ['form-wrapper--b-layout']],
     ];
 
     foreach ($regions as $region => $info) {
