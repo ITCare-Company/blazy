@@ -84,7 +84,7 @@ trait TraitDescriptions {
    */
   public function gridDescriptions($scopes): array {
     $lb = $this->isAdminLb();
-    $description = $this->t('@lbUnless otherwise specified below, it must be a number denoting the amount of columns (1 - 12, or empty).', [
+    $description = $this->t('@lbGrid is boxy. Column is stacky in flexbox or CSS column. They mean to be the same thing here on. Unless otherwise specified below, it must be a number denoting the amount of columns (1 - 12, or empty).', [
       '@lb' => $lb ? '' : 'Empty the value first if trouble with changing form states. ',
     ]);
     if ($scopes->is('slider')) {

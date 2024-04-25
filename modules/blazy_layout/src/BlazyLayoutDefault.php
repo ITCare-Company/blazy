@@ -43,6 +43,15 @@ class BlazyLayoutDefault {
   }
 
   /**
+   * Returns the sub-layout settings.
+   */
+  public static function sublayoutSettings() {
+    return [
+      'padding' => '',
+    ];
+  }
+
+  /**
    * Returns the region layout settings.
    */
   public static function regionSettings() {
@@ -163,7 +172,10 @@ class BlazyLayoutDefault {
       'attributes'  => '',
       'classes'     => '',
       'row_classes' => '',
-      'styles'      => ['colors' => self::styleSettings()],
+      'styles'      => [
+        'colors'  => self::styleSettings(),
+        'layouts' => self::sublayoutSettings(),
+      ],
     ];
   }
 

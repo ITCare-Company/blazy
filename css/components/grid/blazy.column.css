@@ -18,8 +18,11 @@
   clear: both;
   width: 100%;
   margin: 0 auto;
-  padding: 0;
   list-style: none;
+}
+
+ul.blazy.b-column {
+  padding: 0;
 }
 
 /** https://developer.mozilla.org/en-US/docs/Web/CSS/break-inside */

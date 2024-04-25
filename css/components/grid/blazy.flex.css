@@ -30,9 +30,12 @@
   height: auto;
   min-height: 40px;
   margin: 0 auto;
-  padding: 0;
   list-style: none;
   transition: min-height 0.3s;
+}
+
+ul.blazy.b-flex {
+  padding: 0;
 }
 
 .b-flex > .grid,

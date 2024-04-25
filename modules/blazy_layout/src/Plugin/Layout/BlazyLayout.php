@@ -5,7 +5,7 @@ namespace Drupal\blazy_layout\Plugin\Layout;
 /**
  * Provides a BlazyLayout class for Layout plugins.
  */
-class BlazyLayout extends BlazyLayoutBase {
+class BlazyLayout extends BlazyLayoutForm {
 
   /**
    * {@inheritdoc}
@@ -27,11 +27,14 @@ class BlazyLayout extends BlazyLayoutBase {
     // Modifies attachments.
     $this->attachments($output, $settings);
 
+    // Modifies attributes.
+    $this->attributes($output, $settings);
+
     // Modifies regions.
     $this->regions($output, $settings);
 
-    // Modifies attributes.
-    $this->attributes($output, $settings);
+    // Provides inline style.
+    $this->styles($output, $settings);
 
     // Updates settings.
     $output['#settings'] = $settings;

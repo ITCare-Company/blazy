@@ -31,7 +31,7 @@ interface BlazyLayoutAdminInterface extends BlazyAdminInterface {
    * @param array $excludes
    *   The optional excluded form elements.
    */
-  public function formColors(array &$form, array $settings, array $excludes = []): void;
+  public function formStyles(array &$form, array $settings, array $excludes = []): void;
 
   /**
    * Returns available form elements.

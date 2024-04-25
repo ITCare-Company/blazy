@@ -79,7 +79,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   /**
    * {@inheritdoc}
    */
-  public function formColors(array &$form, array $settings, array $excludes = []): void {
+  public function formStyles(array &$form, array $settings, array $excludes = []): void {
     $tooltip = ['class' => ['is-tooltip']];
 
     if ($region = $settings['rid'] ?? NULL) {
@@ -90,20 +90,21 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     }
 
     $form['styles'] = [
-      '#type'        => 'details',
-      '#tree'        => TRUE,
-      '#open'        => FALSE,
-      '#title'       => $this->t('Styles'),
-      '#parents'     => $parents,
-      '#weight'      => 10,
+      '#type'    => 'details',
+      '#tree'    => TRUE,
+      '#open'    => FALSE,
+      '#title'   => $this->t('Styles'),
+      '#parents' => $parents,
+      '#weight'  => 10,
     ];
 
+    // Colors.
     $form['styles']['colors'] = [
-      '#type'        => 'details',
-      '#tree'        => TRUE,
-      '#open'        => TRUE,
-      '#title'       => $this->t('Colors'),
-      '#parents'     => array_merge($parents, ['colors']),
+      '#type'    => 'details',
+      '#tree'    => TRUE,
+      '#open'    => TRUE,
+      '#title'   => $this->t('Colors'),
+      '#parents' => array_merge($parents, ['colors']),
     ];
 
     $colors = &$form['styles']['colors'];
@@ -148,13 +149,41 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
         $colors[$key]['#max'] = 1;
         $colors[$key]['#step'] = 0.1;
       }
-      $colors[$key]['#default_value'] = $settings[$key] ?? '';
+      $colors[$key]['#default_value'] = $settings['colors'][$key] ?? '';
       $colors[$key]['#attributes'] = $tooltip;
+    }
+
+    // Layouts.
+    $form['styles']['layouts'] = [
+      '#type'    => 'details',
+      '#tree'    => TRUE,
+      '#open'    => TRUE,
+      '#title'   => $this->t('Layouts'),
+      '#parents' => array_merge($parents, ['layouts']),
+    ];
+
+    $layouts = &$form['styles']['layouts'];
+    $layouts['padding'] = [
+      '#type'        => 'textfield',
+      '#title'       => $this->t('Padding'),
+      '#description' => $this->t('Leave empty if using CSS framework like Bootstrap, etc. Input padding as classes in the relevant <b>Classes</b> option instead, e.g.: <code>p-sm-2 p-md-5</code>'),
+    ];
+
+    foreach ($this->manager->getKeys($layouts) as $key) {
+      if ($excludes && in_array($key, $excludes)) {
+        unset($layouts[$key]);
+        continue;
+      }
+
+      $layouts[$key]['#default_value'] = $settings['layouts'][$key] ?? '';
+      $layouts[$key]['#attributes'] = $tooltip;
     }
   }
 
   /**
    * {@inheritdoc}
+   *
+   * @todo refine and merge with self::formWrappers().
    */
   public function formSettings(array &$form, array $settings, array $excludes = []): void {
     $defaults    = Defaults::layoutSettings();
@@ -175,6 +204,11 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
           $description = '';
           break;
 
+        case 'classes':
+          $options = [];
+          $description = $this->t('Use space: bg-dark text-white. May use CSS framework classes like Bootstrap, e.g.: <code>p-sm-2 p-md-5</code>');
+          break;
+
         case 'align_items':
           $options = Defaults::aligItems();
           $description = $this->t('Flexbox and Native Grid only. Try <code>start</code> to have floating elements, but might break Blazy CSS background. The CSS align-items property sets the align-self value on all direct children as a group. In Flexbox, it controls the alignment of items on the Cross Axis. In Grid Layout, it controls the alignment of items on the Block Axis within their grid area. <a href="@url">Read more</a>', [
@@ -183,6 +217,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
           break;
 
         case 'grid_auto_rows':
+          $options = [];
           $description = $this->t('Native Grid only. Accepted values: auto, min-content, max-content, minmax. Spefiic for minmax, it requires additional arguments, e.g.: minmax(80px, auto). Default to use the CSS rule <code>var(--bn-row-height-native)</code> or 80px. <a href="@url">Read more</a>', [
             '@url' => 'https://developer.mozilla.org/en-US/docs/Web/CSS/grid-auto-rows',
           ]);
@@ -287,7 +322,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     $elements['classes'] = [
       '#type'        => 'textfield',
       '#title'       => $this->t('Classes'),
-      '#description' => $this->t('Use space: bg-dark text-white'),
+      '#description' => $this->t('Use space: bg-dark text-white. May use CSS framework classes like Bootstrap, e.g.: <code>p-sm-2 p-md-5</code>'),
     ];
 
     $elements['row_classes'] = [

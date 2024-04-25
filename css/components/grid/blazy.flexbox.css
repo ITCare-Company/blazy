@@ -29,8 +29,11 @@
   height: auto;
   min-height: 40px;
   margin: 0 auto;
-  padding: 0;
   list-style: none;
+}
+
+ul.blazy.b-flexbox {
+  padding: 0;
 }
 
 .blazy.b-flexbox > .grid {
