@@ -111,7 +111,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     $colors = &$form['styles']['colors'];
     $colors['background_color'] = [
       '#type'  => 'color',
-      '#title'  => $this->t('Background color'),
+      '#title' => $this->t('Background color'),
     ];
 
     $colors['background_opacity'] = [
@@ -157,15 +157,15 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
 
       $value = $settings['colors'][$key] ?? '';
 
-      if (strpos($key, '_opacity') !== FALSE) {
+      if ($colors[$key]['#type'] == 'range') {
         $colors[$key]['#min'] = 0;
         $colors[$key]['#max'] = 1;
         $colors[$key]['#step'] = 0.1;
-        $colors[$key]['#field_suffix'] = '1';
+        $colors[$key]['#field_suffix'] = $value ?: ' ';
       }
 
-      if (strpos($key, '_color') !== FALSE) {
-        $colors[$key]['#field_suffix'] = $value;
+      if ($colors[$key]['#type'] == 'color') {
+        $colors[$key]['#field_suffix'] = $value ?: ' ';
       }
 
       $colors[$key]['#default_value'] = $value;

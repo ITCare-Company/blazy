@@ -122,7 +122,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       '#tree'        => TRUE,
       '#open'        => TRUE,
       '#title'       => $this->t('Global settings'),
-      '#description' => $this->t('Use Blazy Image/ Media formatters to have background or even nested grids when creating blocks. Reload the page if some options are not updated after saving the modal form.'),
+      '#description' => $this->t('Use Blazy Image/ Media formatters to have background or even nested grids when creating blocks. Reload the page if some options do not update CSS/preview after saving this modal form.'),
       '#parents'     => ['layout_settings', 'settings'],
       '#attributes'  => ['class' => ['form-wrapper--b-layout']],
     ];
