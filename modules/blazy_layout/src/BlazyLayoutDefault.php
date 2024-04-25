@@ -71,7 +71,9 @@ class BlazyLayoutDefault {
       'overlay_color'      => '',
       'overlay_opacity'    => '1',
       'heading_color'      => '',
+      'heading_opacity'    => '1',
       'text_color'         => '',
+      'text_opacity'       => '1',
     ];
   }
 

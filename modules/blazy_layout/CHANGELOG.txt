@@ -1,4 +1,8 @@
 
+Blazy Layout 3.x-dev, 2024-04-25
+--------------------------------
+- Fixed for region classes.
+
 Blazy Layout 3.x-dev, 2024-04-22
 --------------------------------
 - Added color style options for Blazy layout.

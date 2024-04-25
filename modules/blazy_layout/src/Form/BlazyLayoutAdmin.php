@@ -100,11 +100,12 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
 
     // Colors.
     $form['styles']['colors'] = [
-      '#type'    => 'details',
-      '#tree'    => TRUE,
-      '#open'    => TRUE,
-      '#title'   => $this->t('Colors'),
-      '#parents' => array_merge($parents, ['colors']),
+      '#type'        => 'details',
+      '#tree'        => TRUE,
+      '#open'        => TRUE,
+      '#title'       => $this->t('Colors'),
+      '#parents'     => array_merge($parents, ['colors']),
+      '#description' => $this->t('Might conflict against CSS framework classes like Bootstrap, etc. Just leave them to default values (color #000000/ black, and opacity 1 or 0) to respect CSS framework. Only useful if colors are not provided by frameworks.'),
     ];
 
     $colors = &$form['styles']['colors'];
@@ -133,9 +134,19 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       '#title' => $this->t('Text color'),
     ];
 
+    $colors['text_opacity'] = [
+      '#type'  => 'range',
+      '#title' => $this->t('Text opacity'),
+    ];
+
     $colors['heading_color'] = [
       '#type'  => 'color',
       '#title' => $this->t('Heading color'),
+    ];
+
+    $colors['heading_opacity'] = [
+      '#type'  => 'range',
+      '#title' => $this->t('Heading opacity'),
     ];
 
     foreach ($this->manager->getKeys($colors) as $key) {
@@ -166,7 +177,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     $layouts['padding'] = [
       '#type'        => 'textfield',
       '#title'       => $this->t('Padding'),
-      '#description' => $this->t('Leave empty if using CSS framework like Bootstrap, etc. Input padding as classes in the relevant <b>Classes</b> option instead, e.g.: <code>p-sm-2 p-md-5</code>'),
+      '#description' => $this->t('Valid CSS padding value, e.g.: <code>3rem or 15px 30px</code>. Leave empty if using CSS framework like Bootstrap, etc. Input padding as classes in the relevant <b>Classes</b> option instead, e.g.: <code>p-sm-2 p-md-5</code>'),
     ];
 
     foreach ($this->manager->getKeys($layouts) as $key) {
@@ -206,7 +217,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
 
         case 'classes':
           $options = [];
-          $description = $this->t('Use space: bg-dark text-white. May use CSS framework classes like Bootstrap, e.g.: <code>p-sm-2 p-md-5</code>');
+          $description = $this->t('Use space: <code>bg-dark text-white</code>. May use CSS framework classes like Bootstrap, e.g.: <code>p-sm-2 p-md-5</code>');
           break;
 
         case 'align_items':

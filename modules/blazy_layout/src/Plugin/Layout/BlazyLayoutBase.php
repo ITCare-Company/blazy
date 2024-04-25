@@ -484,8 +484,20 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     }
 
     if ($style = $colors["{$key}_color"] ?? NULL) {
-      $css = "color: $style;";
+      $css .= "color: $style;";
+    }
 
+    if ($style = $colors["{$key}_opacity"] ?? NULL) {
+      if ($style != '0' && $style != '1') {
+        $css .= "opacity: $style;";
+
+        if ($key == 'text') {
+          $prefix .= ' p';
+        }
+      }
+    }
+
+    if ($css) {
       if ($key == 'text') {
         static::$styles[$id][$prefix] = $css;
       }

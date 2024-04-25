@@ -11,24 +11,20 @@
   ]
 %}
 {% if content %}
-  {%
-    set region_classes = [
-      'grid',
-      'blazy__region',
-      'region',
-    ]
-  %}
   <{{ wrapper_tag }}{{ attributes.addClass(classes) }}>
     {% if settings.background %}
       {% set REGSETS = settings.regions.bg %}
       {% set CUSTOM_CLASSES = REGSETS.settings.classes %}
       {% set IS_EMPTY = REGSETS.settings.empty %}
       {%
-        set bg_classes = region_classes | merge([
+        set bg_classes = [
+          'grid',
+          'blazy__region',
+          'region',
           'region--bg',
           IS_EMPTY ? 'region--empty',
           CUSTOM_CLASSES is not empty ? CUSTOM_CLASSES|join(' '),
-        ])
+        ]
       %}
       <div{{ region_attributes.bg.addClass(bg_classes) }}>
         {% if in_preview and IS_EMPTY %}
@@ -44,6 +40,13 @@
       {% set CUSTOM_CLASSES = REGSETS.settings.classes %}
       {% set REGION_TAG = (REGSETS.settings.wrapper|default('div')) %}
       {% set IS_EMPTY = REGSETS.settings.empty %}
+      {%
+        set region_classes = [
+          'grid',
+          'blazy__region',
+          'region',
+        ]
+      %}
       {%
         set region_classes = region_classes | merge([
           'region--' ~ region|clean_class,
