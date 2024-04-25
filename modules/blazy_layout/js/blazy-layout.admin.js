@@ -4,7 +4,7 @@
  */
 
 
-(function ($, Drupal, _doc) {
+(function ($, Drupal) {
 
   'use strict';
 
@@ -64,4 +64,4 @@
     }
   };
 
-}(dBlazy, Drupal, this.document));
+}(dBlazy, Drupal));

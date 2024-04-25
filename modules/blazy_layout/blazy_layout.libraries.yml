@@ -10,4 +10,6 @@ admin:
   js:
     js/blazy-layout.admin.js: { }
   dependencies:
+    - core/drupal
+    - blazy/dblazy
     - blazy/admin.lb
