@@ -24,14 +24,12 @@
   // See https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/addRule
   // See https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/insertRule
   function addRule(stylesheet, selector, rule) {
-    if (stylesheet) {
-      // This feature is no longer recommended.
-      if (stylesheet.addRule) {
-        stylesheet.addRule(selector, rule);
-      }
-      else if (stylesheet.insertRule) {
-        stylesheet.insertRule(selector + ' { ' + rule + ' }', stylesheet.cssRules.length);
-      }
+    // This feature is no longer recommended.
+    if (stylesheet.addRule) {
+      stylesheet.addRule(selector, rule);
+    }
+    else if (stylesheet.insertRule) {
+      stylesheet.insertRule(selector + ' { ' + rule + ' }', stylesheet.cssRules.length);
     }
   }
 
@@ -56,7 +54,7 @@
   }
 
   /**
-   * Processes a blazy layout form.
+   * Processes a blazy layout modal form.
    *
    * @param {HTMLElement} elm
    *   The container HTML element.
@@ -75,7 +73,7 @@
       }
     };
 
-    var updateStyle = function (id, el, region, rid) {
+    var updateStyle = function (id, el, region) {
       var styleId = id + '-style';
       var elSheet = $.find(_doc, '#' + styleId);
 
@@ -123,26 +121,27 @@
       var el = this;
       var region;
       var rid;
-      var formRegion = $.closest(el, '[data-b-region]');
+      var formRegion;
+      var layout;
+      var id;
 
       updateValue(el);
 
       setTimeout(function () {
         formRegion = $.closest(el, '[data-b-region]');
-
-        var layout = $.find(_doc, S_ACTIVE_LAYOUT);
+        layout = $.find(_doc, S_ACTIVE_LAYOUT);
 
         if (!layout) {
           return;
         }
 
-        var id = layout.id;
+        id = layout.id;
         if (formRegion) {
           rid = formRegion.dataset.bRegion;
           region = $.find(layout, '[data-region="' + rid + '"]');
 
           if (region) {
-            updateStyle(id, el, region, rid);
+            updateStyle(id, el, region);
           }
         }
       });
