@@ -1,6 +1,7 @@
 
 Blazy Layout 3.x-dev, 2024-04-26
 --------------------------------
+- Added Blazy layout live preview.
 - Fixed for Blazy layout ID, requires saving form.
 - Moved complex admin inline style into JS-generated CSS.
 - Added link colors.

@@ -50,6 +50,13 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   protected static $captionId = 'blazy';
 
   /**
+   * Provides CSS selectors.
+   *
+   * @var array
+   */
+  protected static $selectors;
+
+  /**
    * Provides CSS rules.
    *
    * @var array
@@ -283,9 +290,11 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    * Modifies blocks.
    */
   protected function blocks(array &$output, array &$settings, array $new_regions): void {
-    $colors = $settings['styles']['colors'] ?? [];
-    $layouts = $settings['styles']['layouts'] ?? [];
     ksort($new_regions);
+
+    $id      = static::$instanceId;
+    $colors  = $settings['styles']['colors'] ?? [];
+    $layouts = $settings['styles']['layouts'] ?? [];
 
     // Move Blazy background to the beginning.
     foreach (array_keys($new_regions) as $name) {
@@ -311,18 +320,13 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
           $layoutsets = $subsets['regions'][$name]['settings']['styles']['layouts'] ?? [];
         }
 
-        if ($colorsets) {
-          $text_name = $name == 'bg' ? '' : $name;
-          $this->texts($text_name, $colorsets, 'text');
-          $this->texts($text_name, $colorsets, 'heading');
-          $this->links($text_name, $colorsets);
-          $this->backgrounds($name, $colorsets, 'background');
-          $this->backgrounds($name, $colorsets, 'overlay');
-        }
-
-        if ($layoutsets) {
-          $this->layouts($name, $layoutsets, 'padding');
-        }
+        // $text_name = $name == 'bg' ? '' : $name;
+        $this->texts($name, $colorsets, 'text');
+        $this->texts($name, $colorsets, 'heading');
+        $this->links($name, $colorsets);
+        $this->backgrounds($name, $colorsets, 'background');
+        $this->backgrounds($name, $colorsets, 'overlay');
+        $this->layouts($name, $layoutsets, 'padding');
 
         if (strpos($formatter, 'blazy') !== FALSE) {
           if ($fielsets = $block['content'][0]['#blazy'] ?? []) {
@@ -363,6 +367,12 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
           }
         }
       }
+
+      if ($this->inPreview) {
+        if ($selectors = static::$selectors[$id][$name] ?? []) {
+          $output[$name]['#attributes']['data-b-selector'] = Json::encode($selectors);
+        }
+      }
     }
   }
 
@@ -391,15 +401,15 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
     if ($css) {
       static::$styles[$id][$id] = $css;
-
-      // If ($this->inPreview) {
-      // Attributes::inlineStyle($output['#attributes'], $css);
-      // }.
     }
 
     $this->parseClasses($output, $settings);
 
     $output['#attributes']['class'][] = $id;
+
+    if ($this->inPreview) {
+      $output['#attributes']['id'] = $id;
+    }
   }
 
   /**
@@ -421,11 +431,57 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     }
 
     if ($this->inPreview) {
-      $json = $css ? Json::encode([
+      $json = Json::encode([
         'id' => $id,
         'style' => $css,
-      ]) : '';
-      $output['#attributes']['data-b-layout'] = $json ? base64_encode($json) : '';
+      ]);
+
+      $output['#attributes']['data-b-layout'] = base64_encode($json);
+    }
+  }
+
+  /**
+   * Provides CSS selector.
+   */
+  protected function selector($key, $region, $rule = NULL): string {
+    $prefix = '.region';
+
+    if ($region) {
+      $region = str_replace('_', '-', $region);
+      $prefix = ".region--{$region}";
+    }
+
+    if ($region == 'bg' && !in_array($key, ['background', 'overlay'])) {
+      $prefix = '.region';
+    }
+
+    switch ($key) {
+      case 'padding':
+        return $prefix;
+
+      case 'background':
+        return "{$prefix} .b-bg";
+
+      case 'overlay':
+        return "{$prefix} .media__overlay";
+
+      case 'text':
+        if ($rule == 'opacity') {
+          $prefix .= ' p';
+        }
+        return $prefix;
+
+      case 'heading':
+        return "{$prefix} h2, {$prefix} h3, {$prefix} .block__title, {$prefix} .field__label";
+
+      case 'link':
+        return "{$prefix} a";
+
+      case 'link_hover':
+        return "{$prefix} a:hover";
+
+      default:
+        return '';
     }
   }
 
@@ -436,9 +492,9 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $region,
     array $colors,
     $key = 'background',
-  ): string {
+  ): array {
     $id = static::$instanceId;
-    $region = str_replace('_', '-', $region);
+    $rule = 'color';
     $css = '';
 
     if ($style = $colors["{$key}_color"] ?? NULL) {
@@ -446,19 +502,18 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     }
     if ($style = $colors["{$key}_opacity"] ?? NULL) {
       if ($style != '0' && $style != '1') {
+        $rule = 'opacity';
         $css .= "opacity: $style;";
       }
     }
 
+    $selector = $this->selector($key, $region, $rule);
     if ($css) {
-      if ($key == 'background') {
-        static::$styles[$id][".region--{$region} .b-bg"] = $css;
-      }
-      elseif ($key == 'overlay') {
-        static::$styles[$id][".region--{$region} .media__overlay"] = $css;
-      }
+      static::$styles[$id][$selector] = $css;
     }
-    return $css;
+
+    static::$selectors[$id][$region][$key] = $selector;
+    return ['css' => $css, 'selector' => $selector];
   }
 
   /**
@@ -468,15 +523,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $region,
     array $colors,
     $key = 'heading',
-  ): string {
+  ): array {
     $id = static::$instanceId;
-    $prefix = '.region';
+    $rule = 'color';
     $css = '';
-
-    if ($region) {
-      $region = str_replace('_', '-', $region);
-      $prefix = ".region--{$region}";
-    }
 
     if ($style = $colors["{$key}_color"] ?? NULL) {
       $css .= "color: $style;";
@@ -484,23 +534,18 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
     if ($style = $colors["{$key}_opacity"] ?? NULL) {
       if ($style != '0' && $style != '1') {
+        $rule = 'opacity';
         $css .= "opacity: $style;";
-
-        if ($key == 'text') {
-          $prefix .= ' p';
-        }
       }
     }
 
+    $selector = $this->selector($key, $region, $rule);
     if ($css) {
-      if ($key == 'text') {
-        static::$styles[$id][$prefix] = $css;
-      }
-      else {
-        static::$styles[$id]["{$prefix} h2, {$prefix} h3, {$prefix} .block__title, {$prefix} .field__label"] = $css;
-      }
+      static::$styles[$id][$selector] = $css;
     }
-    return $css;
+
+    static::$selectors[$id][$region][$key] = $selector;
+    return ['css' => $css, 'selector' => $selector];
   }
 
   /**
@@ -509,27 +554,29 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   protected function links(
     $region,
     array $colors,
-  ): string {
+  ): array {
     $id = static::$instanceId;
-    $prefix = '.region';
     $css = '';
 
-    if ($region) {
-      $region = str_replace('_', '-', $region);
-      $prefix = ".region--{$region}";
-    }
+    $selector = $this->selector('link', $region);
+    static::$selectors[$id][$region]['link'] = $selector;
 
     if ($style = $colors["link_color"] ?? NULL) {
       $css = "color: $style;";
-      static::$styles[$id]["$prefix a"] = $css;
+
+      static::$styles[$id][$selector] = $css;
     }
 
-    if ($style = $colors["link_hover_color"] ?? NULL) {
+    $selector = $this->selector('link_hover', $region);
+    static::$selectors[$id][$region]['link_hover'] = $selector;
+
+    if ($style = $colors['link_hover_color'] ?? NULL) {
       $css = "color: $style;";
-      static::$styles[$id]["$prefix a:hover"] = $css;
+
+      static::$styles[$id][$selector] = $css;
     }
 
-    return $css;
+    return ['css' => $css, 'selector' => $selector];
   }
 
   /**
@@ -539,22 +586,19 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $region,
     array $settings,
     $key = 'padding',
-  ): string {
+  ): array {
     $id = static::$instanceId;
-    $prefix = '.region';
     $css = '';
 
-    if ($region) {
-      $region = str_replace('_', '-', $region);
-      $prefix = ".region--{$region}";
-    }
-
+    $selector = $this->selector('padding', $region);
     if ($style = $settings[$key] ?? NULL) {
       $css = "$key: $style;";
 
-      static::$styles[$id][$prefix] = $css;
+      static::$styles[$id][$selector] = $css;
     }
-    return $css;
+
+    static::$selectors[$id][$region][$key] = $selector;
+    return ['css' => $css, 'selector' => $selector];
   }
 
   /**

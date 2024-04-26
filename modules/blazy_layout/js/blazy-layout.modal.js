@@ -3,7 +3,6 @@
  * Provides Blazy layout utilities.
  */
 
-
 (function ($, Drupal, _doc) {
 
   'use strict';
@@ -15,6 +14,46 @@
   var S_BASE = '.form-wrapper--' + BASE;
   var S_ELEMENT = S_BASE + ':not(.' + C_MOUNTED + ')';
   var S_ACTIVE_LAYOUT = '.' + BASE + '.is-layout-builder-highlighted';
+  var PREFIX_BACKGROUND = 'background_';
+  var PREFIX_OVERLAY = 'overlay_';
+  var PREFIX_TEXT = 'text_';
+  var PREFIX_HEADING = 'heading_';
+  var PREFIX_LINK = 'link_';
+  var PREFIX_LINK_HOVER = 'link_hover_';
+
+  // See https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/addRule
+  // See https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/insertRule
+  function addRule(stylesheet, selector, rule) {
+    if (stylesheet) {
+      // This feature is no longer recommended.
+      if (stylesheet.addRule) {
+        stylesheet.addRule(selector, rule);
+      }
+      else if (stylesheet.insertRule) {
+        stylesheet.insertRule(selector + ' { ' + rule + ' }', stylesheet.cssRules.length);
+      }
+    }
+  }
+
+  function getSelector(id, selectors, key) {
+    key = key.replace(/_+$/, '');
+
+    if (selectors) {
+      var selector = selectors[key];
+
+      if (selector) {
+        id = '.blazy.' + id;
+        selector = id + ' ' + selector;
+
+        if ($.contains(selector, ',')) {
+          selector = selector.replaceAll(',', ', ' + id);
+        }
+      }
+
+      return selector;
+    }
+    return '';
+  }
 
   /**
    * Processes a blazy layout form.
@@ -26,21 +65,57 @@
     var colors = $.findAll(elm, 'input[type="color"]');
     var ranges = $.findAll(elm, 'input[type="range"]');
 
+    var is = function (el, prefix) {
+      return $.contains(el.name, prefix);
+    };
+
     var updateValue = function (el) {
       if (el.nextElementSibling) {
         el.nextElementSibling.textContent = el.value;
       }
     };
 
-    var updateColor = function (el, region) {
-      if ($.contains(el.name, 'background_')) {
-        // @todo live preview.
-      }
-    };
+    var updateStyle = function (id, el, region, rid) {
+      var styleId = id + '-style';
+      var elSheet = $.find(_doc, '#' + styleId);
 
-    var updateOpacity = function (el, region) {
-      if ($.contains(el.name, 'background_')) {
-        // @todo live preview.
+      if (!elSheet) {
+        return;
+      }
+
+      var sheet = elSheet.sheet;
+      // var rules = sheet.cssRules || sheet.rules;
+      var value;
+      var selectors;
+      var selector;
+      var prop = el.dataset.bProp;
+
+      if (region.dataset && region.dataset.bSelector) {
+        selectors = $.parse(region.dataset.bSelector);
+      }
+
+      if (is(el, PREFIX_BACKGROUND)) {
+        selector = getSelector(id, selectors, PREFIX_BACKGROUND);
+      }
+      else if (is(el, PREFIX_OVERLAY)) {
+        selector = getSelector(id, selectors, PREFIX_OVERLAY);
+      }
+      else if (is(el, PREFIX_TEXT)) {
+        selector = getSelector(id, selectors, PREFIX_TEXT);
+      }
+      else if (is(el, PREFIX_HEADING)) {
+        selector = getSelector(id, selectors, PREFIX_HEADING);
+      }
+      else if (is(el, PREFIX_LINK_HOVER)) {
+        selector = getSelector(id, selectors, PREFIX_LINK_HOVER);
+      }
+      else if (is(el, PREFIX_LINK)) {
+        selector = getSelector(id, selectors, PREFIX_LINK);
+      }
+
+      if (sheet && selector) {
+        value = prop + ':' + el.value;
+        addRule(sheet, selector, value);
       }
     };
 
@@ -48,7 +123,6 @@
       var el = this;
       var region;
       var rid;
-      var layout = $.find(_doc, S_ACTIVE_LAYOUT);
       var formRegion = $.closest(el, '[data-b-region]');
 
       updateValue(el);
@@ -56,17 +130,19 @@
       setTimeout(function () {
         formRegion = $.closest(el, '[data-b-region]');
 
+        var layout = $.find(_doc, S_ACTIVE_LAYOUT);
+
+        if (!layout) {
+          return;
+        }
+
+        var id = layout.id;
         if (formRegion) {
           rid = formRegion.dataset.bRegion;
           region = $.find(layout, '[data-region="' + rid + '"]');
 
           if (region) {
-            if ($.contains(el.name, '_opacity')) {
-              updateOpacity(el, region);
-            }
-            else {
-              updateColor(el, region);
-            }
+            updateStyle(id, el, region, rid);
           }
         }
       });

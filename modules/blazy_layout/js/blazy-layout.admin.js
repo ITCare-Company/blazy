@@ -27,12 +27,11 @@
     var subprocess = function (obj) {
       var css = obj.style;
 
-      if (css) {
-        var el = _doc.createElement('style');
-        el.id = obj.id;
-        el.textContent = css;
-        _doc.head.appendChild(el);
-      }
+      // @todo merge with PHP instead.
+      var el = _doc.createElement('style');
+      el.id = obj.id + '-style';
+      el.textContent = css;
+      _doc.head.appendChild(el);
     };
 
     if (dataset) {

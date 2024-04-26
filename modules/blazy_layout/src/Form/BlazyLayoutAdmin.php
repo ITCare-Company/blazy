@@ -46,7 +46,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
    */
   public function formBase(array &$form, array $settings, array $excludes = []): void {
     $elements = [];
-    $tooltip = ['class' => ['is-tooltip']];
+    $attrs    = ['class' => ['is-tooltip']];
 
     $elements['count'] = [
       '#type'        => 'number',
@@ -68,7 +68,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
         continue;
       }
       $elements[$key]['#default_value'] = $settings[$key] ?? '';
-      $elements[$key]['#attributes'] = $tooltip;
+      $elements[$key]['#attributes'] = $attrs;
       $elements[$key]['#required'] = TRUE;
       $elements[$key]['#weight'] = 20;
     }
@@ -80,7 +80,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
    * {@inheritdoc}
    */
   public function formStyles(array &$form, array $settings, array $excludes = []): void {
-    $tooltip = ['class' => ['is-tooltip']];
+    $attrs = ['class' => ['is-tooltip']];
 
     if ($region = $settings['rid'] ?? NULL) {
       $parents = ['layout_settings', 'regions', $region, 'settings', 'styles'];
@@ -139,14 +139,18 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
         $colors[$key]['#max'] = 1;
         $colors[$key]['#step'] = 0.1;
         $colors[$key]['#field_suffix'] = $value ?: ' ';
+        $attrs['data-b-prop'] = 'opacity';
       }
 
       if ($colors[$key]['#type'] == 'color') {
         $colors[$key]['#field_suffix'] = $value ?: ' ';
+
+        $bg = strpos($key, 'background') !== FALSE || strpos($key, 'overlay') !== FALSE;
+        $attrs['data-b-prop'] = $bg ? 'background-color' : 'color';
       }
 
       $colors[$key]['#default_value'] = $value;
-      $colors[$key]['#attributes'] = $tooltip;
+      $colors[$key]['#attributes'] = $attrs;
     }
 
     // Layouts.
@@ -171,8 +175,9 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
         continue;
       }
 
+      $attrs['data-b-prop'] = str_replace('_', '', $key);
       $layouts[$key]['#default_value'] = $settings['layouts'][$key] ?? '';
-      $layouts[$key]['#attributes'] = $tooltip;
+      $layouts[$key]['#attributes'] = $attrs;
     }
   }
 
@@ -184,7 +189,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   public function formSettings(array &$form, array $settings, array $excludes = []): void {
     $defaults    = Defaults::layoutSettings();
     $admin_css   = $this->blazyManager->config('admin_css', 'blazy.settings');
-    $tooltip     = ['class' => ['is-tooltip']];
+    $attrs       = ['class' => ['is-tooltip']];
     $bottoms     = ['align_items', 'grid_auto_rows'];
     $elements    = $options = [];
     $description = '';
@@ -240,7 +245,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
         $elements[$key] = [
           '#title'       => $this->t('@title', ['@title' => ucfirst($title)]),
           '#description' => $description,
-          '#attributes'  => $tooltip,
+          '#attributes'  => $attrs,
           '#required'    => $key == 'wrapper',
         ];
 
@@ -290,8 +295,8 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
               $elements[$key]['#wrapper_attributes'] = [];
             }
 
-            $attrs = &$elements[$key]['#wrapper_attributes'];
-            $attrs['class'][] = 'b-tooltip__bottom';
+            $wattrs = &$elements[$key]['#wrapper_attributes'];
+            $wattrs['class'][] = 'b-tooltip__bottom';
           }
         }
       }
@@ -309,7 +314,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     array $excludes = [],
     $root = TRUE,
   ): void {
-    $tooltip  = ['class' => ['is-tooltip']];
+    $attrs    = ['class' => ['is-tooltip']];
     $elements = [];
 
     $elements['wrapper'] = [
@@ -347,7 +352,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
 
       $value = $settings[$key] ?? '';
       $elements[$key]['#default_value'] = $value ? Xss::filter($value) : '';
-      $elements[$key]['#attributes'] = $tooltip;
+      $elements[$key]['#attributes'] = $attrs;
     }
 
     $form += $elements;
@@ -362,7 +367,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     array $excludes = [],
     $root = TRUE,
   ): void {
-    $tooltip  = ['class' => ['is-tooltip']];
+    $attrs    = ['class' => ['is-tooltip']];
     $elements = [];
 
     $elements['wrapper'] = [
@@ -400,7 +405,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
 
       $value = $settings[$key] ?? '';
       $elements[$key]['#default_value'] = $value ? Xss::filter($value) : '';
-      $elements[$key]['#attributes'] = $tooltip;
+      $elements[$key]['#attributes'] = $attrs;
     }
 
     $form += $elements;
