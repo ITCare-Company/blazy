@@ -425,7 +425,12 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       $css = preg_replace('/\s+/', ' ', $css);
 
       $output['#attached']['html_head'][] = [
-        ['#tag' => 'style', '#value' => $css, '#weight' => 1],
+        [
+          '#tag'        => 'style',
+          '#value'      => $css,
+          '#weight'     => 1,
+          '#attributes' => ['id' => $id . '-style'],
+        ],
         $id . '-style',
       ];
     }

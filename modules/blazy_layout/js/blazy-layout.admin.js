@@ -3,7 +3,6 @@
  * Provides Blazy layout utilities.
  */
 
-
 (function ($, Drupal, _doc) {
 
   'use strict';
@@ -26,12 +25,18 @@
 
     var subprocess = function (obj) {
       var css = obj.style;
+      var styleId = obj.id + '-style';
+      var el = $.find(_doc, '#' + styleId);
 
-      // @todo merge with PHP instead.
-      var el = _doc.createElement('style');
-      el.id = obj.id + '-style';
-      el.textContent = css;
-      _doc.head.appendChild(el);
+      if (!el) {
+        el = _doc.createElement('style');
+        el.id = styleId;
+        el.textContent = css;
+        _doc.head.appendChild(el);
+      }
+      else {
+        el.textContent = css;
+      }
     };
 
     if (dataset) {
