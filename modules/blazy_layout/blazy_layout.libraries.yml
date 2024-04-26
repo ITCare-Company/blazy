@@ -13,3 +13,12 @@ admin:
     - core/drupal
     - blazy/dblazy
     - blazy/admin.lb
+
+modal:
+  css:
+    theme:
+      css/blazy-layout.modal.css: { }
+  js:
+    js/blazy-layout.modal.js: { }
+  dependencies:
+    - blazy_layout/admin

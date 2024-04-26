@@ -3,6 +3,7 @@
 namespace Drupal\blazy_layout\Plugin\Layout;
 
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
+use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformStateInterface;
 use Drupal\Core\Render\Element;
@@ -33,6 +34,11 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       $count = 1;
     }
     $form_state->setValue(['settings', 'count'], $count);
+
+    if (empty($settings['id'])) {
+      $id = Crypt::randomBytesBase64(8);
+      $form_state->setValue(['settings', 'id'], strtolower($id));
+    }
 
     // The main background styles.
     $this->validateStyles($form_state);
@@ -289,7 +295,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       }
     }
 
-    $form['settings']['#attached']['library'][] = 'blazy_layout/admin';
+    $form['settings']['#attached']['library'][] = 'blazy_layout/modal';
     return $form;
   }
 

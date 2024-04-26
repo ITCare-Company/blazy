@@ -31,6 +31,7 @@ class BlazyLayoutDefault {
    */
   public static function layoutSettings() {
     return [
+      'id'             => '',
       'regions'        => [],
       'count'          => static::REGION_COUNT,
       'style'          => 'nativegrid',
@@ -39,7 +40,7 @@ class BlazyLayoutDefault {
       'grid_small'     => '1',
       'grid_auto_rows' => '',
       'align_items'    => '',
-    ] + self:: sharedSettings();
+    ] + self::sharedSettings();
   }
 
   /**
@@ -57,7 +58,7 @@ class BlazyLayoutDefault {
   public static function regionSettings() {
     return [
       'label'    => '',
-      'settings' => self:: sharedSettings(),
+      'settings' => self::sharedSettings(),
     ];
   }
 
@@ -74,6 +75,8 @@ class BlazyLayoutDefault {
       'heading_opacity'    => '1',
       'text_color'         => '',
       'text_opacity'       => '1',
+      'link_color'         => '',
+      'link_hover_color'   => '',
     ];
   }
 

@@ -100,35 +100,3 @@
   padding: 1.25em;
   text-align: center;
 }
-
-/* Modal. */
-.form-wrapper--b-layout input[type="color"],
-.form-wrapper--b-layout input[type="range"] {
-  max-width: 125px !important;
-}
-
-.form-wrapper--b-layout input[type="color"] + .field-suffix,
-.form-wrapper--b-layout input[type="range"] + .field-suffix {
-  float: right !important;
-  font-size: small !important;
-}
-
-/* Optionset. */
-.form--optionset .details--settings .blazy--grid {
-  min-height: 360px;
-}
-
-@media screen and (min-width: 1280px) {
-  .form--optionset.b-tooltip .form-wrapper--regions-settings {
-    min-width: 560px;
-    padding-top: 15px;
-  }
-
-  .form--optionset .form-wrapper--table .form-item {
-    max-width: 420px;
-  }
-
-  .form--optionset .form-wrapper--table .form-item--region-label {
-    min-width: 120px;
-  }
-}

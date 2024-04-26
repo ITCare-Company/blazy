@@ -90,12 +90,18 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     }
 
     $form['styles'] = [
-      '#type'    => 'details',
-      '#tree'    => TRUE,
-      '#open'    => FALSE,
-      '#title'   => $this->t('Styles'),
-      '#parents' => $parents,
-      '#weight'  => 10,
+      '#type'       => 'details',
+      '#tree'       => TRUE,
+      '#open'       => FALSE,
+      '#title'      => $this->t('Styles'),
+      '#parents'    => $parents,
+      '#weight'     => 10,
+      '#attributes' => [
+        'class' => [
+          'form-wrapper--b-layout-styles',
+        ],
+        'data-b-region' => $region ?: 'bg',
+      ],
     ];
 
     // Colors.
@@ -109,45 +115,16 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     ];
 
     $colors = &$form['styles']['colors'];
-    $colors['background_color'] = [
-      '#type'  => 'color',
-      '#title' => $this->t('Background color'),
-    ];
 
-    $colors['background_opacity'] = [
-      '#type'  => 'range',
-      '#title' => $this->t('Background opacity'),
-    ];
+    foreach (array_keys(Defaults::styleSettings()) as $key) {
+      $type  = strpos($key, '_color') ? 'color' : 'range';
+      $title = str_replace('_', ' ', $key);
 
-    $colors['overlay_color'] = [
-      '#type'  => 'color',
-      '#title' => $this->t('Overlay color'),
-    ];
-
-    $colors['overlay_opacity'] = [
-      '#type'  => 'range',
-      '#title' => $this->t('Overlay opacity'),
-    ];
-
-    $colors['text_color'] = [
-      '#type'  => 'color',
-      '#title' => $this->t('Text color'),
-    ];
-
-    $colors['text_opacity'] = [
-      '#type'  => 'range',
-      '#title' => $this->t('Text opacity'),
-    ];
-
-    $colors['heading_color'] = [
-      '#type'  => 'color',
-      '#title' => $this->t('Heading color'),
-    ];
-
-    $colors['heading_opacity'] = [
-      '#type'  => 'range',
-      '#title' => $this->t('Heading opacity'),
-    ];
+      $colors[$key] = [
+        '#type'  => $type,
+        '#title' => $this->t('@title', ['@title' => ucfirst($title)]),
+      ];
+    }
 
     foreach ($this->manager->getKeys($colors) as $key) {
       if ($excludes && in_array($key, $excludes)) {
@@ -253,21 +230,29 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
         $type = 'select';
       }
 
-      $title = str_replace('_', ' ', $key);
-      $elements[$key] = [
-        '#type'        => $type,
-        '#title'       => $this->t('@title', ['@title' => ucfirst($title)]),
-        '#description' => $description,
-        '#attributes'  => $tooltip,
-        '#required'    => $key == 'wrapper',
-      ];
+      if ($key == 'id') {
+        $type = 'hidden';
+      }
 
-      if ($options) {
-        $elements[$key]['#options'] = $options;
-        if (empty($elements[$key]['#required'])) {
-          $elements[$key]['#empty_option'] = $this->t('- None -');
+      $title = str_replace('_', ' ', $key);
+
+      if ($type !== 'hidden') {
+        $elements[$key] = [
+          '#title'       => $this->t('@title', ['@title' => ucfirst($title)]),
+          '#description' => $description,
+          '#attributes'  => $tooltip,
+          '#required'    => $key == 'wrapper',
+        ];
+
+        if ($options) {
+          $elements[$key]['#options'] = $options;
+          if (empty($elements[$key]['#required'])) {
+            $elements[$key]['#empty_option'] = $this->t('- None -');
+          }
         }
       }
+
+      $elements[$key]['#type'] = $type;
     }
 
     // Defines the default values if available.
@@ -286,25 +271,28 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       }
 
       $elements[$name]['#default_value'] = $settings[$name] ?? $value;
-      $elements[$name]['#attributes']['class'][] = 'is-tooltip';
 
       if ($type == 'textfield') {
         $elements[$name]['#size'] = 20;
         $elements[$name]['#maxlength'] = 255;
       }
 
-      if ($admin_css) {
-        if ($type == 'checkbox') {
-          $elements[$name]['#title_display'] = 'before';
-        }
+      if ($type !== 'hidden') {
+        $elements[$name]['#attributes']['class'][] = 'is-tooltip';
 
-        foreach ($bottoms as $key) {
-          if (!isset($elements[$key]['#wrapper_attributes'])) {
-            $elements[$key]['#wrapper_attributes'] = [];
+        if ($admin_css) {
+          if ($type == 'checkbox') {
+            $elements[$name]['#title_display'] = 'before';
           }
 
-          $attrs = &$elements[$key]['#wrapper_attributes'];
-          $attrs['class'][] = 'b-tooltip__bottom';
+          foreach ($bottoms as $key) {
+            if (!isset($elements[$key]['#wrapper_attributes'])) {
+              $elements[$key]['#wrapper_attributes'] = [];
+            }
+
+            $attrs = &$elements[$key]['#wrapper_attributes'];
+            $attrs['class'][] = 'b-tooltip__bottom';
+          }
         }
       }
     }

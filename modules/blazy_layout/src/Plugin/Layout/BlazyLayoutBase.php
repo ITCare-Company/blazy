@@ -3,7 +3,6 @@
 namespace Drupal\blazy_layout\Plugin\Layout;
 
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 use Drupal\Component\Serialization\Json;
@@ -149,9 +148,17 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       $ids['WARNING']
     );
 
-    $id = Json::encode($ids);
+    // For some reason, short coalesce always fails.
+    if ($id = $settings['id'] ?? NULL) {
+      $layout_id = $id;
+    }
+    else {
+      $id = Json::encode($ids);
+      $layout_id = substr(md5($id), 0, 11);
+    }
+
     static::$count = $count;
-    static::$instanceId = 'b-layout--' . substr(md5($id), 0, 11);
+    static::$instanceId = 'b-layout--' . $layout_id;
 
     // Add new regions, if any different from factory.
     foreach (range(1, static::$count) as $delta => $value) {
@@ -306,29 +313,15 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
         if ($colorsets) {
           $text_name = $name == 'bg' ? '' : $name;
-          $css_text = $this->texts($text_name, $colorsets, 'text');
-          $heading_text = $this->texts($text_name, $colorsets, 'heading');
-          $css_background = $this->backgrounds($name, $colorsets, 'background');
-          $css_overlay = $this->backgrounds($name, $colorsets, 'overlay');
-          $css_padding = $name == 'bg' ? '' : $this->layouts($name, $layoutsets, 'padding');
+          $this->texts($text_name, $colorsets, 'text');
+          $this->texts($text_name, $colorsets, 'heading');
+          $this->links($text_name, $colorsets);
+          $this->backgrounds($name, $colorsets, 'background');
+          $this->backgrounds($name, $colorsets, 'overlay');
+        }
 
-          if ($this->inPreview) {
-            $merged_css = '';
-
-            if ($css_text) {
-              $merged_css .= $css_text;
-            }
-            if ($css_background) {
-              $merged_css .= $css_background;
-            }
-            if ($css_padding) {
-              $merged_css .= $css_padding;
-            }
-
-            if ($merged_css) {
-              Attributes::inlineStyle($output[$name]['#attributes'], $merged_css);
-            }
-          }
+        if ($layoutsets) {
+          $this->layouts($name, $layoutsets, 'padding');
         }
 
         if (strpos($formatter, 'blazy') !== FALSE) {
@@ -357,10 +350,6 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
                     'class' => ['media__overlay'],
                   ],
                 ];
-
-                if ($this->inPreview && isset($css_overlay)) {
-                  Attributes::inlineStyle($blazy['overlay']['blazy_layout']['#attributes'], $css_overlay);
-                }
               }
 
               $settings['regions'][$name]['settings']['background'] = TRUE;
@@ -403,9 +392,9 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     if ($css) {
       static::$styles[$id][$id] = $css;
 
-      if ($this->inPreview) {
-        Attributes::inlineStyle($output['#attributes'], $css);
-      }
+      // If ($this->inPreview) {
+      // Attributes::inlineStyle($output['#attributes'], $css);
+      // }.
     }
 
     $this->parseClasses($output, $settings);
@@ -417,20 +406,26 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    * Provides CSS rules.
    */
   protected function styles(array &$output, array $settings): void {
-    $id = static::$instanceId;
-
-    if (!isset($output['#content_attributes'])) {
-      $output['#content_attributes'] = [];
-    }
+    $id  = static::$instanceId;
+    $css = '';
 
     // Put this in the head to avoid ugly inline element styles.
     if ($rules = static::$styles[$id] ?? []) {
       $css = $this->toRules($rules, $id);
+      $css = preg_replace('/\s+/', ' ', $css);
 
       $output['#attached']['html_head'][] = [
         ['#tag' => 'style', '#value' => $css, '#weight' => 1],
         $id . '-style',
       ];
+    }
+
+    if ($this->inPreview) {
+      $json = $css ? Json::encode([
+        'id' => $id,
+        'style' => $css,
+      ]) : '';
+      $output['#attributes']['data-b-layout'] = $json ? base64_encode($json) : '';
     }
   }
 
@@ -505,6 +500,35 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         static::$styles[$id]["{$prefix} h2, {$prefix} h3, {$prefix} .block__title, {$prefix} .field__label"] = $css;
       }
     }
+    return $css;
+  }
+
+  /**
+   * Provides link styles.
+   */
+  protected function links(
+    $region,
+    array $colors,
+  ): string {
+    $id = static::$instanceId;
+    $prefix = '.region';
+    $css = '';
+
+    if ($region) {
+      $region = str_replace('_', '-', $region);
+      $prefix = ".region--{$region}";
+    }
+
+    if ($style = $colors["link_color"] ?? NULL) {
+      $css = "color: $style;";
+      static::$styles[$id]["$prefix a"] = $css;
+    }
+
+    if ($style = $colors["link_hover_color"] ?? NULL) {
+      $css = "color: $style;";
+      static::$styles[$id]["$prefix a:hover"] = $css;
+    }
+
     return $css;
   }
 

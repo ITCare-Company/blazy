@@ -4,14 +4,14 @@
  */
 
 
-(function ($, Drupal) {
+(function ($, Drupal, _doc) {
 
   'use strict';
 
-  var ID = 'b-layout-form';
+  var ID = 'b-layout';
   var ID_ONCE = ID;
   var C_MOUNTED = 'is-' + ID_ONCE;
-  var S_BASE = '.form-wrapper--b-layout';
+  var S_BASE = '.' + ID;
   var S_ELEMENT = S_BASE + ':not(.' + C_MOUNTED + ')';
 
   /**
@@ -21,27 +21,26 @@
    *   The container HTML element.
    */
   function process(elm) {
-    var colors = $.findAll(elm, 'input[type="color"]');
-    var ranges = $.findAll(elm, 'input[type="range"]');
+    var dataset = elm.dataset.bLayout;
+    var data;
 
-    var updateValue = function (el) {
-      if (el.nextElementSibling) {
-        el.nextElementSibling.textContent = el.value;
+    var subprocess = function (obj) {
+      var css = obj.style;
+
+      if (css) {
+        var el = _doc.createElement('style');
+        el.id = obj.id;
+        el.textContent = css;
+        _doc.head.appendChild(el);
       }
     };
 
-    var subprocess = function (elms) {
-      $.each(elms, function (el) {
-        updateValue(el);
-
-        $.on(el, 'change.' + ID, function () {
-          updateValue(this);
-        });
-      });
-    };
-
-    subprocess(colors);
-    subprocess(ranges);
+    if (dataset) {
+      data = $.parse(atob(dataset));
+      if (data.style) {
+        subprocess(data);
+      }
+    }
 
     $.addClass(elm, C_MOUNTED);
   }
@@ -64,4 +63,4 @@
     }
   };
 
-}(dBlazy, Drupal));
+}(dBlazy, Drupal, this.document));
