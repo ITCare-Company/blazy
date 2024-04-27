@@ -422,6 +422,17 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         if (strpos($value, ':') === FALSE) {
           $css .= 'max-width:' . $value . ';';
         }
+        else {
+          $vals = array_map('trim', explode(' ', $value));
+          $queries = '';
+          foreach ($vals as $val) {
+            $keys = array_map('trim', explode(':', $val));
+            $queries .= '@media screen and (min-width: ' . $keys[0] . ') {ROOT {max-width: ' . $keys[1] . '}}';
+          }
+          if ($queries) {
+            static::$styles[$id]['max_width'] = $queries;
+          }
+        }
       }
     }
 
@@ -680,6 +691,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   private function toRules(array $data, $id): string {
     return implode(' ', array_map(
       function ($value, $key) use ($id) {
+        if (strpos($value, 'ROOT') !== FALSE) {
+          return str_replace('ROOT', ".blazy.b-layout.{$id}", $value);
+        }
+
         if (strpos($key, ',') !== FALSE) {
           $vals = array_map('trim', explode(',', $key));
           $keys = [];
