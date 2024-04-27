@@ -73,3 +73,9 @@
   position: absolute;
   height: 100%;
 }
+
+/* Fix for unnecessary Olivero Grid surprises causing Slick excessive height. */
+.b-layout .view,
+.b-layout .view-content {
+  display: block;
+}
