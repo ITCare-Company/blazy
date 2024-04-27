@@ -48,7 +48,9 @@ class BlazyLayoutDefault {
    */
   public static function sublayoutSettings() {
     return [
-      'padding' => '',
+      'ete'       => FALSE,
+      'padding'   => '',
+      'max_width' => '',
     ];
   }
 

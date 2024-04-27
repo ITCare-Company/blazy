@@ -199,6 +199,11 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   protected function settings(): array {
     $settings = $this->getConfiguration();
     $settings['blazy_layout'] = TRUE;
+    $settings['ete'] = FALSE;
+
+    if ($layouts = $settings['styles']['layouts'] ?? []) {
+      $settings['ete'] = !empty($layouts['ete']);
+    }
 
     $this->manager->verifySafely($settings);
     $this->manager->preSettings($settings);
@@ -394,7 +399,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    * Modifies attributes.
    */
   protected function attributes(array &$output, array $settings): void {
-    $id    = static::$instanceId;
+    $id    = $selector = static::$instanceId;
     $style = $settings['style'] ?? '';
     $css   = '';
 
@@ -409,15 +414,26 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       }
     }
 
-    if ($value = $settings['styles']['layouts']['padding'] ?? NULL) {
-      $css .= 'padding:' . $value . ';';
+    if ($layouts = $settings['styles']['layouts'] ?? []) {
+      if ($value = $layouts['padding'] ?? NULL) {
+        $css .= 'padding:' . $value . ';';
+      }
+      if ($value = $layouts['max_width'] ?? NULL) {
+        if (strpos($value, ':') === FALSE) {
+          $css .= 'max-width:' . $value . ';';
+        }
+      }
     }
 
     if ($css) {
-      static::$styles[$id][$id] = $css;
+      static::$styles[$id][$selector] = $css;
     }
 
     $this->parseClasses($output, $settings);
+
+    if (!isset($output['#wrapper_attributes'])) {
+      $output['#wrapper_attributes'] = [];
+    }
 
     if ($this->inPreview) {
       $output['#attributes']['id'] = $id;
@@ -674,7 +690,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
           $key = implode(', ', $keys);
           return "{$key} {{$value}}";
         }
-        return $id == $key ? ".blazy.{$key} {{$value}}" : ".blazy.{$id} {$key} {{$value}}";
+        return $id == $key ? ".blazy.b-layout.{$key} {{$value}}" : ".blazy.{$id} {$key} {{$value}}";
       },
       $data,
       array_keys($data)

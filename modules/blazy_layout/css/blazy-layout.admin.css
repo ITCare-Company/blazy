@@ -99,3 +99,11 @@
   font-size: 14px;
   line-height: 1.2;
 }
+
+.b-layout-wrapper--ete .region--bg .block--b-bg > .contextual {
+  right: 30px;
+}
+
+[dir="rtl"] .b-layout-wrapper--ete .region--bg .block--b-bg > .contextual {
+  left: 30px;
+}

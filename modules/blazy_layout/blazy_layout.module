@@ -55,6 +55,8 @@ function blazy_layout_preprocess_layout(array &$variables) {
     return;
   }
 
+  $wrappers = $variables['content']['#wrapper_attributes'] ?? [];
+  $variables['wrapper_attributes'] = new Attribute($wrappers);
   $in_preview = $variables['in_preview'];
   $settings['background'] = $background = $in_preview ||
     !empty($settings['background']) ||
