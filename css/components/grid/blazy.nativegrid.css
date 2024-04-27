@@ -50,11 +50,8 @@ ul.blazy.b-nativegrid {
   margin: 0;
 }
 
-.b-nativegrid .grid__content {
-  position: relative;
-  overflow: visible;
-  width: 100%;
-  max-width: 100%;
+.b-nativegrid .grid__content,
+.b-nativegrid .region__content {
   height: 100%;
 }
 

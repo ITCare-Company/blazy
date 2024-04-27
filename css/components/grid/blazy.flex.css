@@ -66,12 +66,6 @@ ul.blazy.b-flex {
   transition: none;
 }
 
-.b-flex .grid__content {
-  position: relative;
-  overflow: visible;
-  max-width: 100%;
-}
-
 /** 480px with 16px base font. */
 @media only screen and (min-width: 30em) {
   /* Gap with flexbox is problematic against justify-content vs. flex-direction: row. */

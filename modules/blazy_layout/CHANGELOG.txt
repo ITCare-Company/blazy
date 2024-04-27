@@ -1,6 +1,7 @@
 
 Blazy Layout 3.x-dev, 2024-04-27
 --------------------------------
+- Changed region background image to be optional for just background color.
 - Changed problematic opacity to color alpha channel.
 - Changed background image to be optional for just background color.
 - Fixed for problematic text opacity selector.

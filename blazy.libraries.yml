@@ -168,7 +168,7 @@ column:
     component:
       css/components/grid/blazy.column.css: {}
   dependencies:
-    - blazy/base
+    - blazy/style
 
 flex:
   css:
@@ -210,6 +210,7 @@ nativegrid.masonry:
   dependencies:
     - blazy/compat
     - blazy/nativegrid
+    - blazy/style
 
 # Lightboxes.
 lightbox:

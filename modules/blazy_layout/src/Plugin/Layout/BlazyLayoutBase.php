@@ -149,24 +149,26 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $factory_regions = $layout->getRegions();
     $keys = array_values($factory_regions);
     $count = (int) $settings['count'];
-    $ids = $settings;
-
-    unset(
-      $ids['blazies'],
-      $ids['WARNING']
-    );
 
     // For some reason, short coalesce always fails.
     if ($id = $settings['id'] ?? NULL) {
       $layout_id = $id;
     }
     else {
+      $ids = $settings;
+      unset(
+        $ids['blazies'],
+        $ids['WARNING']
+      );
       $id = Json::encode($ids);
       $layout_id = substr(md5($id), 0, 11);
     }
 
+    $layout_id = strtolower($layout_id);
     static::$count = $count;
     static::$instanceId = 'b-layout--' . $layout_id;
+
+    $settings['id'] = $layout_id;
 
     // Add new regions, if any different from factory.
     foreach (range(1, static::$count) as $delta => $value) {
@@ -252,10 +254,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
     if (empty($output['bg'])) {
       $settings['regions']['bg']['settings']['empty'] = TRUE;
-
-      // If ($this->inPreview) {.
       $output['bg']['dummy']['#markup'] = ' ';
-      // }
     }
 
     // Add or remove regions based on the given settings.count.
@@ -324,16 +323,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
           $layoutsets = $subsets['regions'][$name]['settings']['styles']['layouts'] ?? [];
         }
 
-        $options = ['empty' => $empty];
-        $this->texts($name, $colorsets, 'text', $options);
-        $this->texts($name, $colorsets, 'heading', $options);
-        $this->links($name, $colorsets, $options);
-        $bgs = $this->backgrounds($name, $colorsets, 'background', $options);
-        $this->backgrounds($name, $colorsets, 'overlay', $options);
-        $this->layouts($name, $layoutsets, 'padding', $options);
-
-        $use_bg = !empty($bgs['bg']);
-
+        $use_bg = $block_bg = FALSE;
         if (strpos($formatter, 'blazy') !== FALSE) {
           if ($fielsets = $block['content'][0]['#blazy'] ?? []) {
             // Pass the layout settings, not formatter's.
@@ -342,7 +332,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
             $output[$name][$uuid]['#blazy'] = $subsets;
 
             if (!empty($fielsets['background'])) {
-              $use_bg = TRUE;
+              $use_bg = $block_bg = TRUE;
               $blazies->set('is.preview', $this->inPreview)
                 ->set('use.bg', TRUE)
                 ->set('lb.region', $name);
@@ -367,6 +357,16 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
             }
           }
         }
+
+        $options = ['empty' => $empty, 'block_bg' => $block_bg];
+        $this->texts($name, $colorsets, 'text', $options);
+        $this->texts($name, $colorsets, 'heading', $options);
+        $this->links($name, $colorsets, $options);
+        $bgs = $this->backgrounds($name, $colorsets, 'background', $options);
+        $this->backgrounds($name, $colorsets, 'overlay', $options);
+        $this->layouts($name, $layoutsets, 'padding', $options);
+
+        $use_bg = $use_bg || !empty($bgs['bg']);
 
         if ($use_bg) {
           if ($name == 'bg' && empty($settings['background'])) {
@@ -419,8 +419,6 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
     $this->parseClasses($output, $settings);
 
-    $output['#attributes']['class'][] = $id;
-
     if ($this->inPreview) {
       $output['#attributes']['id'] = $id;
     }
@@ -463,8 +461,9 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    * Provides CSS selector.
    */
   protected function selector($key, $region, array $options = []): string {
-    $empty  = $options['empty'] ?? FALSE;
-    $prefix = '.region';
+    $empty    = $options['empty'] ?? FALSE;
+    $block_bg = $options['block_bg'] ?? FALSE;
+    $prefix   = '.region';
 
     if ($region) {
       $region = str_replace('_', '-', $region);
@@ -480,7 +479,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         return $prefix;
 
       case 'background':
-        return $empty ? "{$prefix}, {$prefix} .b-bg" : "{$prefix} .b-bg";
+        return $empty || !$block_bg ? "{$prefix}, {$prefix} .b-bg" : "{$prefix} .b-bg";
 
       case 'overlay':
         return "{$prefix} .media__overlay";

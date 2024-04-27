@@ -30,8 +30,8 @@
 
 .b-layout .region--bg,
 .b-layout .region--bg > .b-bg,
-.b-layout .region > .grid__content > .b-bg,
-.b-layout .region > .grid__content > .block > .b-bg {
+.b-layout .region > div > .b-bg,
+.b-layout .region > div > .block > .b-bg {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -48,7 +48,8 @@
 }
 
 /* @todo recheck if any side effects. */
-.b-layout .region--b-bg > .grid__content  {
+.b-layout .region--b-bg > .grid__content,
+.b-layout .region--b-bg > .region__content {
   position: static;
   inset: 0;
 }

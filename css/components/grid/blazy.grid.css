@@ -49,11 +49,6 @@
   vertical-align: top;
 }
 
-.b-grid .grid__content {
-  position: relative;
-  max-width: 100%;
-}
-
 @media only screen {
   .b-grid--sm-1 > .grid {
     width: 100%;

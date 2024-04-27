@@ -45,11 +45,9 @@ ul.blazy.b-column {
 }
 
 /** Fix for broken break-inside with extremely tall grid for FF. */
-.b-column .grid__content {
-  position: relative;
+.b-column .grid__content,
+.b-column .region__content {
   display: inline-block;
-  width: 100%;
-  max-width: 100%;
   margin: 0;
   vertical-align: top;
 }
