@@ -3,13 +3,13 @@
  * Provides admin blazy layout.
  */
 
-/* stylelint-disable declaration-no-important */
+/* stylelint-disable selector-max-id, declaration-no-important */
 .layout-builder .b-layout {
   min-height: 160px;
 }
 
 .layout-builder .b-layout--bg {
-  padding-top: 120px !important;
+  padding-top: 140px !important;
 }
 
 .b-layout .grid {
@@ -63,7 +63,7 @@
 }
 
 .b-layout .region--bg.region--empty .layout-builder__add-block {
-  top: 48px;
+  top: 60px;
   bottom: auto;
 }
 
@@ -94,4 +94,5 @@
 .b-layout .blazy__warning {
   padding: 1.25em;
   text-align: center;
+  line-height: 1.2;
 }
