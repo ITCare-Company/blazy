@@ -463,8 +463,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    * Provides CSS selector.
    */
   protected function selector($key, $region, array $options = []): string {
-    $empty = $options['empty'] ?? FALSE;
-    // $rule = $options['rule'] ?? NULL;
+    $empty  = $options['empty'] ?? FALSE;
     $prefix = '.region';
 
     if ($region) {
@@ -512,16 +511,11 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $key = 'background',
     array $options = [],
   ): array {
-    $id = static::$instanceId;
+    $id   = static::$instanceId;
     $rule = 'color';
-    $css = '';
-    $bg = $alpha = FALSE;
-    $hex = '';
-
-    if ($value = $colors["{$key}_color"] ?? NULL) {
-      $bg = TRUE;
-      $hex = $value;
-    }
+    $bg   = $alpha = FALSE;
+    $hex  = $colors["{$key}_color"] ?? NULL;
+    $css  = '';
 
     if ($value = $colors["{$key}_opacity"] ?? NULL) {
       if ($value != '0' && $value != '1') {
@@ -534,6 +528,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $selector = $this->selector($key, $region, $options);
 
     if ($hex) {
+      $bg = TRUE;
       $color = Color::hexToRgba($hex, $alpha);
       $css = "background-color: $color;";
     }
@@ -555,15 +550,11 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $key = 'heading',
     array $options = [],
   ): array {
-    $id = static::$instanceId;
-    $rule = 'color';
+    $id    = static::$instanceId;
+    $rule  = 'color';
     $alpha = FALSE;
-    $hex = '';
-    $css = '';
-
-    if ($value = $colors["{$key}_color"] ?? NULL) {
-      $hex = $value;
-    }
+    $hex   = $colors["{$key}_color"] ?? NULL;
+    $css   = '';
 
     if ($value = $colors["{$key}_opacity"] ?? NULL) {
       if ($value != '0' && $value != '1') {
@@ -596,7 +587,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     array $colors,
     array $options = [],
   ): array {
-    $id = static::$instanceId;
+    $id  = static::$instanceId;
     $css = '';
 
     $selector = $this->selector('link', $region, $options);
@@ -629,7 +620,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $key = 'padding',
     array $options = [],
   ): array {
-    $id = static::$instanceId;
+    $id  = static::$instanceId;
     $css = '';
 
     $selector = $this->selector('padding', $region, $options);
