@@ -53,7 +53,10 @@ function blazy_layout_preprocess_layout(array &$variables) {
 
   if ($namespace == 'blazy') {
     $in_preview = $variables['in_preview'];
-    $settings['background'] = $background = $in_preview || !empty($variables['content']['bg']);
+    $settings['background'] = $background = $in_preview ||
+      !empty($settings['background']) ||
+      !empty($variables['content']['bg']);
+
     $style = $settings['style'] ?? '';
 
     _blazy_layout_region_attributes($variables, 'bg');

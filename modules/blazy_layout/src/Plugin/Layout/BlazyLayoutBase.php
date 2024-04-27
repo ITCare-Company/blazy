@@ -4,6 +4,7 @@ namespace Drupal\blazy_layout\Plugin\Layout;
 
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Utility\Arrays;
+use Drupal\blazy\Utility\Color;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Layout\LayoutDefault;
@@ -251,9 +252,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
     if (empty($output['bg'])) {
       $settings['regions']['bg']['settings']['empty'] = TRUE;
-      if ($this->inPreview) {
-        $output['bg']['dummy']['#markup'] = ' ';
-      }
+
+      // If ($this->inPreview) {.
+      $output['bg']['dummy']['#markup'] = ' ';
+      // }
     }
 
     // Add or remove regions based on the given settings.count.
@@ -303,6 +305,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       }
 
       $subsets = $settings;
+      $empty   = empty($output[$name]) || isset($output[$name]['dummy']);
+
       foreach (Element::children($output[$name]) as $uuid) {
         $block = $output[$name][$uuid];
         $formatter = $block['content'][0]['#formatter'] ?? 'x';
@@ -320,13 +324,15 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
           $layoutsets = $subsets['regions'][$name]['settings']['styles']['layouts'] ?? [];
         }
 
-        // $text_name = $name == 'bg' ? '' : $name;
-        $this->texts($name, $colorsets, 'text');
-        $this->texts($name, $colorsets, 'heading');
-        $this->links($name, $colorsets);
-        $this->backgrounds($name, $colorsets, 'background');
-        $this->backgrounds($name, $colorsets, 'overlay');
-        $this->layouts($name, $layoutsets, 'padding');
+        $options = ['empty' => $empty];
+        $this->texts($name, $colorsets, 'text', $options);
+        $this->texts($name, $colorsets, 'heading', $options);
+        $this->links($name, $colorsets, $options);
+        $bgs = $this->backgrounds($name, $colorsets, 'background', $options);
+        $this->backgrounds($name, $colorsets, 'overlay', $options);
+        $this->layouts($name, $layoutsets, 'padding', $options);
+
+        $use_bg = !empty($bgs['bg']);
 
         if (strpos($formatter, 'blazy') !== FALSE) {
           if ($fielsets = $block['content'][0]['#blazy'] ?? []) {
@@ -336,6 +342,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
             $output[$name][$uuid]['#blazy'] = $subsets;
 
             if (!empty($fielsets['background'])) {
+              $use_bg = TRUE;
               $blazies->set('is.preview', $this->inPreview)
                 ->set('use.bg', TRUE)
                 ->set('lb.region', $name);
@@ -356,15 +363,22 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
                 ];
               }
 
-              $settings['regions'][$name]['settings']['background'] = TRUE;
-              $this->setRegionConfig($name, [
-                'settings' => [
-                  'background' => TRUE,
-                ],
-              ]);
               $output[$name][$uuid]['#weight'] = -101;
             }
           }
+        }
+
+        if ($use_bg) {
+          if ($name == 'bg' && empty($settings['background'])) {
+            $settings['background'] = TRUE;
+          }
+
+          $settings['regions'][$name]['settings']['background'] = TRUE;
+          $this->setRegionConfig($name, [
+            'settings' => [
+              'background' => TRUE,
+            ],
+          ]);
         }
       }
 
@@ -448,7 +462,9 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   /**
    * Provides CSS selector.
    */
-  protected function selector($key, $region, $rule = NULL): string {
+  protected function selector($key, $region, array $options = []): string {
+    $empty = $options['empty'] ?? FALSE;
+    // $rule = $options['rule'] ?? NULL;
     $prefix = '.region';
 
     if ($region) {
@@ -465,19 +481,16 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         return $prefix;
 
       case 'background':
-        return "{$prefix} .b-bg";
+        return $empty ? "{$prefix}, {$prefix} .b-bg" : "{$prefix} .b-bg";
 
       case 'overlay':
         return "{$prefix} .media__overlay";
 
       case 'text':
-        if ($rule == 'opacity') {
-          $prefix .= ' p';
-        }
-        return $prefix;
+        return "{$prefix} p";
 
       case 'heading':
-        return "{$prefix} h2, {$prefix} h3, {$prefix} .block__title, {$prefix} .field__label";
+        return "{$prefix} h2, {$prefix} h3, {$prefix} .field__label";
 
       case 'link':
         return "{$prefix} a";
@@ -497,28 +510,40 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $region,
     array $colors,
     $key = 'background',
+    array $options = [],
   ): array {
     $id = static::$instanceId;
     $rule = 'color';
     $css = '';
+    $bg = $alpha = FALSE;
+    $hex = '';
 
-    if ($style = $colors["{$key}_color"] ?? NULL) {
-      $css .= "background-color: $style;";
+    if ($value = $colors["{$key}_color"] ?? NULL) {
+      $bg = TRUE;
+      $hex = $value;
     }
-    if ($style = $colors["{$key}_opacity"] ?? NULL) {
-      if ($style != '0' && $style != '1') {
+
+    if ($value = $colors["{$key}_opacity"] ?? NULL) {
+      if ($value != '0' && $value != '1') {
         $rule = 'opacity';
-        $css .= "opacity: $style;";
+        $alpha = $value;
       }
     }
 
-    $selector = $this->selector($key, $region, $rule);
+    $options['rule'] = $rule;
+    $selector = $this->selector($key, $region, $options);
+
+    if ($hex) {
+      $color = Color::hexToRgba($hex, $alpha);
+      $css = "background-color: $color;";
+    }
+
     if ($css) {
       static::$styles[$id][$selector] = $css;
     }
 
     static::$selectors[$id][$region][$key] = $selector;
-    return ['css' => $css, 'selector' => $selector];
+    return ['css' => $css, 'selector' => $selector, 'bg' => $bg];
   }
 
   /**
@@ -528,23 +553,33 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $region,
     array $colors,
     $key = 'heading',
+    array $options = [],
   ): array {
     $id = static::$instanceId;
     $rule = 'color';
+    $alpha = FALSE;
+    $hex = '';
     $css = '';
 
-    if ($style = $colors["{$key}_color"] ?? NULL) {
-      $css .= "color: $style;";
+    if ($value = $colors["{$key}_color"] ?? NULL) {
+      $hex = $value;
     }
 
-    if ($style = $colors["{$key}_opacity"] ?? NULL) {
-      if ($style != '0' && $style != '1') {
+    if ($value = $colors["{$key}_opacity"] ?? NULL) {
+      if ($value != '0' && $value != '1') {
         $rule = 'opacity';
-        $css .= "opacity: $style;";
+        $alpha = $value;
       }
     }
 
-    $selector = $this->selector($key, $region, $rule);
+    $options['rule'] = $rule;
+    $selector = $this->selector($key, $region, $options);
+
+    if ($hex) {
+      $color = Color::hexToRgba($hex, $alpha);
+      $css = "color: $color;";
+    }
+
     if ($css) {
       static::$styles[$id][$selector] = $css;
     }
@@ -559,11 +594,12 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   protected function links(
     $region,
     array $colors,
+    array $options = [],
   ): array {
     $id = static::$instanceId;
     $css = '';
 
-    $selector = $this->selector('link', $region);
+    $selector = $this->selector('link', $region, $options);
     static::$selectors[$id][$region]['link'] = $selector;
 
     if ($style = $colors["link_color"] ?? NULL) {
@@ -572,7 +608,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       static::$styles[$id][$selector] = $css;
     }
 
-    $selector = $this->selector('link_hover', $region);
+    $selector = $this->selector('link_hover', $region, $options);
     static::$selectors[$id][$region]['link_hover'] = $selector;
 
     if ($style = $colors['link_hover_color'] ?? NULL) {
@@ -591,11 +627,12 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $region,
     array $settings,
     $key = 'padding',
+    array $options = [],
   ): array {
     $id = static::$instanceId;
     $css = '';
 
-    $selector = $this->selector('padding', $region);
+    $selector = $this->selector('padding', $region, $options);
     if ($style = $settings[$key] ?? NULL) {
       $css = "$key: $style;";
 

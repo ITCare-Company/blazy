@@ -53,6 +53,20 @@
     return '';
   }
 
+  function toRgba(color, alpha) {
+    if (!$.isUnd(alpha)) {
+      if (Math.abs(alpha) === 0) {
+        return 'transparent';
+      }
+      else if (Math.abs(alpha) === 1) {
+        return color;
+      }
+
+      return 'rgba(' + parseInt(color.slice(-6, -4), 16) + ',' + parseInt(color.slice(-4, -2), 16) + ',' + parseInt(color.slice(-2), 16) + ',' + alpha + ')';
+    }
+    return color;
+  }
+
   /**
    * Processes a blazy layout modal form.
    *
@@ -73,6 +87,39 @@
       }
     };
 
+    var makeRgba = function (el) {
+      var cn = el.parentNode;
+      var sibling;
+      var input;
+      var hex;
+
+      if (el.type === 'range') {
+        sibling = cn.previousElementSibling;
+        input = $.find(sibling, 'input[type="color"]');
+
+        if (input) {
+          hex = input.value;
+          return {
+            prop: input.dataset.bProp,
+            value: toRgba(hex, el.value)
+          };
+        }
+      }
+      else if (el.type === 'color') {
+        sibling = cn.nextElementSibling;
+        input = $.find(sibling, 'input[type="range"]');
+
+        if (input) {
+          hex = el.value;
+          return {
+            prop: el.dataset.bProp,
+            value: toRgba(hex, input.value)
+          };
+        }
+      }
+      return {};
+    };
+
     var updateStyle = function (id, el, region) {
       var styleId = id + '-style';
       var elSheet = $.find(_doc, '#' + styleId);
@@ -83,10 +130,12 @@
 
       var sheet = elSheet.sheet;
       // var rules = sheet.cssRules || sheet.rules;
-      var value;
       var selectors;
       var selector;
       var prop = el.dataset.bProp;
+      var value = el.value;
+      var color = makeRgba(el);
+      var rule;
 
       if (region.dataset && region.dataset.bSelector) {
         selectors = $.parse(region.dataset.bSelector);
@@ -112,8 +161,13 @@
       }
 
       if (sheet && selector) {
-        value = prop + ':' + el.value;
-        addRule(sheet, selector, value);
+        if (color.value) {
+          prop = color.prop;
+          value = color.value;
+        }
+
+        rule = prop + ':' + value;
+        addRule(sheet, selector, rule);
       }
     };
 

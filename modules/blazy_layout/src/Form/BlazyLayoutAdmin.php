@@ -111,7 +111,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       '#open'        => TRUE,
       '#title'       => $this->t('Colors'),
       '#parents'     => array_merge($parents, ['colors']),
-      '#description' => $this->t('Might conflict against CSS framework classes like Bootstrap, etc. Just leave them to default values (color #000000/ black, and opacity 1 or 0) to respect CSS framework. Only useful if colors are not provided by frameworks.'),
+      '#description' => $this->t('Might conflict against CSS framework classes like Bootstrap, etc. Just leave them to default values (color #000000/ black, and opacity 1) to respect CSS framework. Only useful if colors are not provided by frameworks.'),
     ];
 
     $colors = &$form['styles']['colors'];

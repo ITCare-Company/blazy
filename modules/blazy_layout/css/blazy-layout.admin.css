@@ -6,25 +6,15 @@
 /* stylelint-disable declaration-no-important */
 .layout-builder .b-layout {
   min-height: 160px;
-  padding-top: 120px !important;
 }
 
-.layout-builder .b-layout .grid {
-  background-color: #eaeaea;
+.layout-builder .b-layout--bg {
+  padding-top: 120px !important;
 }
 
 .b-layout .grid {
   min-height: 72px;
-}
-
-/*
-.layout-builder .blazy.b-layout--bg .region--bg {
-  position: static;
-}
-*/
-
-.layout-builder .blazy.b-layout .region--bg.region--empty {
-  position: relative;
+  background-color: #eaeaea;
 }
 
 .layout-builder .b-layout .grid::after {
@@ -70,6 +60,11 @@
   min-height: 48px;
   margin: 0;
   pointer-events: none;
+}
+
+.b-layout .region--bg.region--empty .layout-builder__add-block {
+  top: 48px;
+  bottom: auto;
 }
 
 .b-layout .layout-builder__add-block a {
