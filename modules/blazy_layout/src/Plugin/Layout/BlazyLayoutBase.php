@@ -476,7 +476,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
     switch ($key) {
       case 'padding':
-        return $prefix;
+        return $region == 'bg' ? '' : $prefix;
 
       case 'background':
         return $empty || !$block_bg ? "{$prefix}, {$prefix} .b-bg" : "{$prefix} .b-bg";
