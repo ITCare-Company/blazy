@@ -429,9 +429,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
             $keys = array_map('trim', explode(':', $val));
             $queries .= '@media screen and (min-width: ' . $keys[0] . ') {ROOT {max-width: ' . $keys[1] . '}}';
           }
-          if ($queries) {
-            static::$styles[$id]['max_width'] = $queries;
-          }
+          static::$styles[$id]['max_width'] = $queries;
         }
       }
     }

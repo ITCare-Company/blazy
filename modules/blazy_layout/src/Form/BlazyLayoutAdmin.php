@@ -170,13 +170,13 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       $description = '';
       if ($key == 'ete') {
         $title = 'Edge to edge';
-        $description = $this->t('If enabled, will make the main background span edge to edge. Works better with <b>Max width</b> option, and themes with large content region and without sidebars. Try Bartik if any issues.');
+        $description = $this->t('If enabled, will make the main background span edge to edge. Works better with <b>Max width</b> option, and themes with wide content region and without sidebars. Try Bartik if any issues.');
       }
       elseif ($key == 'padding') {
         $description = $this->t('Valid CSS padding value, e.g.: <code>3rem or 15px 30px</code>. Leave empty if using CSS framework like Bootstrap, etc. Input padding as classes in the relevant <b>Classes</b> option instead, e.g.: <code>p-sm-2 p-md-5</code>');
       }
       elseif ($key == 'max_width') {
-        $description = $this->t('Useful to reveal the background image, if padding is cumbersome. Valid CSS max-width value, e.g.: <code>82% or 1270px</code>. To have a mobile up max-width, use a colon-separated media query <small>WINDOW_MIN_WIDTH:LAYOUT_MAX_WIDTH</small> with spaces, e.g.: <br><code>0px:98% 768px:90% 1270px:82%</code>. Affected by parent container widths.');
+        $description = $this->t('Useful to reveal the background image, if padding is cumbersome. Valid CSS max-width value, e.g.: <code>82% or 1270px</code>. To have a mobile up max-width, use a colon-separated media query <small>WINDOW_MIN_WIDTH:LAYOUT_MAX_WIDTH</small> pair with spaces, e.g.: <br><code>0px:98% 768px:90% 1270px:82%</code>. Affected by parent container widths.');
       }
 
       $layouts[$key] = [
