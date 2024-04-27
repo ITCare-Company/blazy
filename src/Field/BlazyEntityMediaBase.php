@@ -64,7 +64,11 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
         'placement' => 'after',
       ],
       'media_switch' => [
-        'description' => $this->t('<b>Image rendered</b> requires <b>Image</b> option filled out and is useful if the formatter offers awesomeness that Blazy does not have but still wants Blazy for a Grid, etc. Be sure the enabled fields here are not hidden/ disabled at its view mode.'),
+        'description' => $this->t('<br><b>Image rendered</b> requires <b>Image</b> option filled out and is useful if the formatter offers awesomeness that Blazy does not have but still wants Blazy for a Grid, etc. Be sure the enabled fields here are not hidden/ disabled at its view mode.'),
+        'placement' => 'after',
+      ],
+      'ratio' => [
+        'description' => $this->t('Required if using media entity to switch between iframe and overlay image, otherwise DIY.'),
         'placement' => 'after',
       ],
     ];

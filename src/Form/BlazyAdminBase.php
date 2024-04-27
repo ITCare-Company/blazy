@@ -642,12 +642,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       // Additional descriptions.
       if ($desc = $descs[$key] ?? '') {
         if (!empty($form[$key]['#description'])) {
-          $placement = $descs[$key]['placement'] ?? '';
+          $placement = $desc['placement'] ?? '';
+          $description = $desc['description'] ?? '';
           if ($placement == 'after') {
-            $form[$key]['#description'] .= $desc;
+            $form[$key]['#description'] .= $description;
           }
           else {
-            $form[$key]['#description'] = $desc . ' ' . $form[$key]['#description'];
+            $form[$key]['#description'] = $description . ' ' . $form[$key]['#description'];
           }
         }
       }
