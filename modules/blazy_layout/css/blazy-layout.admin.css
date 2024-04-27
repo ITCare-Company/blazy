@@ -101,9 +101,9 @@
 }
 
 .b-layout-wrapper--ete .region--bg .block--b-bg > .contextual {
-  right: 30px;
+  right: 100px;
 }
 
 [dir="rtl"] .b-layout-wrapper--ete .region--bg .block--b-bg > .contextual {
-  left: 30px;
+  left: 100px;
 }
