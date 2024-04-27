@@ -92,7 +92,10 @@
 }
 
 .b-layout .blazy__warning {
-  padding: 1.25em;
+  padding: 26px 0;
   text-align: center;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.4);
+  font-size: 14px;
   line-height: 1.2;
 }
