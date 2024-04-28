@@ -1506,10 +1506,12 @@
    *   An array of elements to process.
    */
   function toElms(selector, ctx) {
+    ctx = ctx || _doc;
+
     // Assume selector is an array-like element unless a string.
     var elements = toArray(selector);
     if (isStr(selector)) {
-      elements = [ctx || _doc].querySelectorAll(selector);
+      elements = ctx.querySelectorAll(selector);
     }
 
     return slice(elements);

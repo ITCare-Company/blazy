@@ -309,6 +309,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       }
 
       $subsets = $settings;
+      $styles  = $subsets['regions'][$name]['settings']['styles'] ?? [];
       $empty   = empty($output[$name]) || isset($output[$name]['dummy']);
 
       foreach (Element::children($output[$name]) as $uuid) {
@@ -324,28 +325,32 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
           $layoutsets = $layouts;
         }
         else {
-          $colorsets = $subsets['regions'][$name]['settings']['styles']['colors'] ?? [];
-          $layoutsets = $subsets['regions'][$name]['settings']['styles']['layouts'] ?? [];
+          $colorsets = $styles['colors'] ?? [];
+          $layoutsets = $styles['layouts'] ?? [];
         }
 
         $use_bg = $block_bg = FALSE;
+        $use_overlay = !empty($colorsets['overlay_color']);
+
         if (strpos($formatter, 'blazy') !== FALSE) {
-          if ($fielsets = $block['content'][0]['#blazy'] ?? []) {
+          if ($fieldsets = $block['content'][0]['#blazy'] ?? []) {
             // Pass the layout settings, not formatter's.
             $blazies = $subsets['blazies']->reset($subsets);
-            $subblazies = $fielsets['blazies'];
+            $subblazies = $fieldsets['blazies'];
             $output[$name][$uuid]['#blazy'] = $subsets;
 
-            if (!empty($fielsets['background'])) {
-              $use_bg = $block_bg = TRUE;
-              $blazies->set('is.preview', $this->inPreview)
-                ->set('use.bg', TRUE)
-                ->set('lb.region', $name);
+            $blazies->set('is.preview', $this->inPreview)
+              ->set('lb.region', $name);
 
-              $keys = ['entity', 'field', 'image', 'lightbox', 'media'];
-              foreach ($keys as $key) {
-                $blazies->set($key, $subblazies->get($key));
-              }
+            $keys = ['entity', 'field', 'image', 'lightbox', 'media'];
+            foreach ($keys as $key) {
+              $blazies->set($key, $subblazies->get($key));
+            }
+
+            if (!empty($fieldsets['background'])) {
+              $block_bg = $use_bg = $use_overlay = TRUE;
+
+              $blazies->set('use.bg', TRUE);
 
               if (isset($output[$name][$uuid]['content'][0][0]['#build'])) {
                 $blazy = &$output[$name][$uuid]['content'][0][0]['#build'];
