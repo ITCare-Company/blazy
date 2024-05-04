@@ -1,4 +1,8 @@
 
+Blazy 3.0.x-dev, 2024-05-04
+---------------------------
+- Added link to entity option for Blazy Title formatter.
+
 Blazy 3.0.x-dev, 2024-04-22
 ---------------------------
 - Upped Drupal requirement to 9.4 to avoid PHP7 issues.

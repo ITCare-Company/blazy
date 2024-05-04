@@ -10,6 +10,7 @@
  * [Installing libraries via Composer](#composer)
  * [Configuration](#configuration)
  * [theme_blazy()](#theme-blazy)
+ * [Multimedia galleries](#galleries)
  * [Lightboxes](#lightboxes)
  * [SVG](#svg)
  * [WEBP](#webp)
@@ -206,7 +207,7 @@ comparison, or helpful screenshots, to spot the issues better.
 2. Add a Blazy formatter for the Media or Image field.
 3. Add any lightbox under **Media switcher** option.
 4. Limit the values to 1 under **Multiple field settings** > **Display**, if
-   any.
+   any multi-value field.
 
 #### Without **Blazy Grid**  
 If you can't use **Blazy Grid** for a reason, maybe having a table, HTML list,
