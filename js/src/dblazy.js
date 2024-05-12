@@ -1760,15 +1760,14 @@
           event = new CustomEvent(eventName, data);
         }
 
-        var type = eType(eventName);
+        el.dispatchEvent(event);
+
         // Supports triggering events with extra arguments ala jQuery.
         // $.trigger(ROOT, 'custom:move', [ctx, width]);
         // $.on(ROOT, 'custom:move.NAMESPACE', function (e, ctx, width) {});
+        var type = eType(eventName);
         if (EVENTS[type] && EVENTS[type].type === eventName && isArr(details)) {
           EVENTS[type].callback.apply(null, [event].concat(details));
-        }
-        else {
-          el.dispatchEvent(event);
         }
       };
 
