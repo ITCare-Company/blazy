@@ -1973,21 +1973,51 @@
    *
    * @param {Function} cb
    *   The callback function.
-   * @param {number} t
-   *   The timeout.
+   * @param {undefined|String|Array.<Element>|Element} t
+   *   The timeout, selector, or element(s).
    *
-   * @return {ResizeObserver|Function}
-   *   The ResizeObserver instance, or callback function.
+   * @return {Function}
+   *   The callback function.
    */
   DB.resize = function (cb, t) {
-    // @todo enable later when old projects are updated: lory, extended, etc.
-    // if (this.isRo) {
-    // return new ResizeObserver(cb);
-    // }
-    _win.onresize = function (e) {
+    // Preserves oldies till updated: lory, extended, etc.
+    // Safe to replace, previously only called: $.resize(cb)();
+    if (this.isRo && !isUnd(t)) {
+      var observer = new ResizeObserver(function (entries) {
+        var me = this;
+        var winsize = windowSize();
+
+        each(entries, function (entry) {
+          var rect = entry.contentRect;
+          var width = Math.floor(rect.width);
+          var height = Math.floor(rect.height);
+          var data = {
+            width: width,
+            height: height,
+            window: winsize
+          };
+
+          // Pass it to callback.
+          cb.apply(null, [me, data, entry]);
+        });
+      });
+
+      var elms = toElms(t);
+      if (elms.length) {
+        each(toElms(t), function (el) {
+          if (isElm(el)) {
+            observer.observe(el);
+          }
+        });
+      }
+      return cb;
+    }
+
+    _win.onresize = function () {
       clearTimeout(t);
-      t = setTimeout(cb.bind(e), 200);
+      t = setTimeout(cb, 200);
     };
+
     return cb;
   };
 
