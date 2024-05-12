@@ -1,4 +1,8 @@
 
+Blazy 3.0.x-dev, 2024-05-12
+---------------------------
+- Supports triggering events with extra arguments ala jQuery.
+
 Blazy 3.0.x-dev, 2024-05-04
 ---------------------------
 - Added link to entity option for Blazy Title formatter.

@@ -88,6 +88,8 @@ class BlazyViews {
 
       $settings = Blazy::init($data);
 
+      $settings[$lightbox] = $lightbox;
+
       $blazies = $settings['blazies'];
       if ($view = $variables['view']) {
         $count = count($view->result);
@@ -95,9 +97,11 @@ class BlazyViews {
           ->set('total', $count);
       }
 
-      \blazy()->moduleHandler()->alter('blazy_is_view', $settings, $variables);
+      $variables['blazy'] = $settings;
 
-      Attributes::container($variables['attributes'], $settings);
+      \blazy()->moduleHandler()->alter('blazy_is_view', $variables['blazy'], $variables);
+
+      Attributes::container($variables['attributes'], $variables['blazy']);
     }
   }
 

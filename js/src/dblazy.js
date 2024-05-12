@@ -746,6 +746,7 @@
           return item.trim();
         });
       }
+      return [x];
     }
     return isArr(x) ? x : [x];
   }
@@ -1571,7 +1572,14 @@
       // el[V_REMOVE + E_LISTENER](type, EVENTS[e], options);
       // }
       if (isFun(_cb)) {
+        var customEvent = {
+          name: e,
+          callback: _cb,
+          type: type
+        };
+
         EVENTS[e] = _cb;
+        EVENTS[type] = customEvent;
 
         el[V_ADD + E_LISTENER](type, _cb, options);
       }
@@ -1587,6 +1595,7 @@
       if (isFun(_cb)) {
         el[V_REMOVE + E_LISTENER](type, _cb, options);
         delete EVENTS[e];
+        delete EVENTS[type];
       }
     }
   };
@@ -1719,6 +1728,13 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Document/createEvent
    */
   function trigger(els, eventNames, details, param) {
+    // Supports $.trigger('resize') for window;
+    if (isStr(els)) {
+      details = eventNames;
+      eventNames = els;
+      els = [_win];
+    }
+
     var chainCallback = function (el) {
       if (!isEvt(el)) {
         return;
@@ -1744,7 +1760,16 @@
           event = new CustomEvent(eventName, data);
         }
 
-        el.dispatchEvent(event);
+        var type = eType(eventName);
+        // Supports triggering events with extra arguments ala jQuery.
+        // $.trigger(ROOT, 'custom:move', [ctx, width]);
+        // $.on(ROOT, 'custom:move.NAMESPACE', function (e, ctx, width) {});
+        if (EVENTS[type] && EVENTS[type].type === eventName && isArr(details)) {
+          EVENTS[type].callback.apply(null, [event].concat(details));
+        }
+        else {
+          el.dispatchEvent(event);
+        }
       };
 
       each(toArray(eventNames), execute);
