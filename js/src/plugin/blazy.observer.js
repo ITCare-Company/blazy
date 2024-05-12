@@ -23,7 +23,7 @@
 
   $.observer = {
     elms: [],
-    widthIo: false,
+    withIo: false,
     init: function (scope, cb, elms, withIo) {
       var me = this;
       var opts = scope.options || {};
