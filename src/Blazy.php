@@ -52,6 +52,13 @@ class Blazy extends BlazyBase {
   }
 
   /**
+   * Alias for Internals::formatTitle().
+   */
+  public static function formatTitle($value, $url, array $settings): array {
+    return Internals::formatTitle($value, $url, $settings);
+  }
+
+  /**
    * Alias for CheckItem::has().
    */
   public static function has($content, $needle) {

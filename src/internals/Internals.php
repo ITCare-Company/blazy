@@ -68,6 +68,13 @@ class Internals {
   }
 
   /**
+   * Alias for Content::formatTitle().
+   */
+  public static function formatTitle($value, $url, array $settings): array {
+    return Content::formatTitle($value, $url, $settings);
+  }
+
+  /**
    * Alias for Content::toHtml().
    */
   public static function toHtml($content, $tag = 'div', $class = NULL): array {

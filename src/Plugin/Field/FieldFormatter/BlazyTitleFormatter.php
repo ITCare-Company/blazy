@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 
+use Drupal\blazy\internals\Internals;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldFormatter\StringFormatter;
@@ -38,9 +39,6 @@ class BlazyTitleFormatter extends StringFormatter {
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $elements    = [];
     $settings    = $this->getSettings();
-    $delimiter   = $settings['delimiter'] ?? NULL;
-    $tag         = $settings['tag'] ?? NULL;
-    $break       = $settings['break'] ?? FALSE;
     $url         = NULL;
     $entity      = $items->getEntity();
     $entity_type = $entity->getEntityType();
@@ -57,41 +55,7 @@ class BlazyTitleFormatter extends StringFormatter {
         $property = $class::mainPropertyName();
 
         if ($value = $item->{$property}) {
-          $title = $value;
-          $subtitle = NULL;
-
-          if ($delimiter) {
-            if ($found = $this->getDelimiter($value, $delimiter)) {
-              [$title, $subtitle] = array_pad(array_map('trim', explode($found, $value, 2)), 2, NULL);
-            }
-
-            if ($subtitle) {
-              if ($tag) {
-                $linebreak = $break ? '<br />' : ' ';
-                $title .= $linebreak . '<' . $tag . '>' . $subtitle . '</' . $tag . '>';
-              }
-              else {
-                $title .= '<br />' . $subtitle;
-              }
-            }
-          }
-
-          $tags = ['span', 'em', 'b', 'i', 'strong', 'br'];
-          $view_value = [
-            '#markup' => $title,
-            '#allowed_tags' => array_merge($tags, [$tag]),
-          ];
-
-          if ($url) {
-            $elements[] = [
-              '#type'  => 'link',
-              '#title' => $view_value,
-              '#url'   => $url,
-            ];
-          }
-          else {
-            $elements[] = $view_value;
-          }
+          $elements[] = Internals::formatTitle($value, $url, $settings);
         }
       }
     }
@@ -140,23 +104,6 @@ class BlazyTitleFormatter extends StringFormatter {
       '@link' => $this->getSetting('link_to_entity') ? $this->t('Yes') : $this->t('No'),
     ]);
     return $summary;
-  }
-
-  /**
-   * Returns one of the found configurable delimiter in the title.
-   */
-  protected function getDelimiter($title, $delimiter = ''): ?string {
-    $delimiter = empty($delimiter) ? '|,:,/,- , —' : $delimiter;
-    $limits = array_map('trim', explode(',', $delimiter));
-
-    foreach ($limits as $limit) {
-      if (stripos($title, $limit) === FALSE) {
-        continue;
-      }
-
-      return $limit;
-    }
-    return NULL;
   }
 
 }
