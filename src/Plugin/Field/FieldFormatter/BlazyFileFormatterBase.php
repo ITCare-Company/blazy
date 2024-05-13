@@ -272,6 +272,10 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
     $_switch   = $settings['media_switch'] ?? NULL;
     $view_mode = $settings['view_mode'] ?? 'default';
     $captions  = [];
+    $titlesets = $blazies->get('format.title', []);
+    $formatted = !empty($titlesets['delimiter']);
+    $url       = empty($titlesets['link_to_entity'])
+      ? NULL : Internals::entityUrl($entity);
 
     if ($options) {
       // Provides default image captions.
@@ -295,7 +299,12 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
             }
 
             if ($display) {
-              $captions[$name] = ['#markup' => $caption];
+              if ($formatted) {
+                $captions[$name] = Internals::formatTitle($caption, $url, $titlesets);
+              }
+              else {
+                $captions[$name] = ['#markup' => $caption];
+              }
             }
           }
         }

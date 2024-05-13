@@ -8,6 +8,7 @@ use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\Markdown;
 use Drupal\blazy\Utility\Path;
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Provides internal kitchen-skink non-reusable blazy utilities.
@@ -58,6 +59,18 @@ class Internals {
       return TRUE;
     }
     return FALSE;
+  }
+
+  /**
+   * Returns the URI elements of the entity.
+   */
+  public static function entityUrl($entity) {
+    if ($entity instanceof EntityInterface) {
+      $rel = $entity->getEntityType()
+        ->hasLinkTemplate('revision') ? 'revision' : 'canonical';
+      return $entity->toUrl($rel);
+    }
+    return NULL;
   }
 
   /**

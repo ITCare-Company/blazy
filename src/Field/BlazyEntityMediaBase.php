@@ -142,6 +142,7 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     ] = $element;
 
     $blazies   = $settings['blazies'];
+    $parent    = $element['#parent'] ?? NULL;
     $view_mode = $settings['view_mode'] ?? 'full';
     $captions  = $items = $weights = [];
     $fields    = $settings['caption'] ?? [];
@@ -150,6 +151,10 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
     $_title    = $settings['title'] ?? NULL;
     $_switch   = $settings['media_switch'] ?? NULL;
     $output    = [];
+    $titlesets = $blazies->get('format.title', []);
+    $formatted = !empty($titlesets['delimiter']);
+    $url       = !empty($titlesets['link_to_entity']) && $parent
+      ? Internals::entityUrl($parent) : NULL;
 
     // Title can be plain text, or link field.
     if ($_title) {
@@ -163,7 +168,13 @@ abstract class BlazyEntityMediaBase extends BlazyEntityVanillaBase {
         // Respects both fake and real image item.
         if ($caption = trim($item->title ?? '')) {
           $caption = Xss::filter($caption, BlazyDefault::TAGS);
-          $output = ['#markup' => $caption];
+
+          if ($formatted) {
+            $output = Internals::formatTitle($caption, $url, $titlesets);
+          }
+          else {
+            $output = ['#markup' => $caption];
+          }
         }
       }
 
