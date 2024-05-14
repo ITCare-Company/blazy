@@ -12,7 +12,7 @@ use Drupal\Core\Entity\EntityInterface;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
  */
-class Content {
+class Content extends Multimedia {
 
   /**
    * Returns a message if access to view the entity is denied.

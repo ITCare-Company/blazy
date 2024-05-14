@@ -88,6 +88,7 @@ abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
     $this->getSession()->wait(3000);
 
     // Verifies that one of the images is there once loaded.
+    // @phpstan-ignore-next-line
     $this->assertNotEmpty($this->assertSession()->waitForElement('css', '.b-loaded'));
 
     // Capture the loaded moment.

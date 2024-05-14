@@ -111,9 +111,10 @@
   // Only relevant for BigPipe compat, though.
   $.once.removeSafely = function (id, selector, ctx, clear) {
     var me = this;
+    var root = $.context(ctx, selector);
 
-    if (me.find(id, ctx).length) {
-      return me.remove(id, selector, ctx);
+    if (me.find(id, root).length) {
+      return me.remove(id, selector, root);
     }
     return [];
   };

@@ -52,6 +52,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
    * @covers ::config
    */
   public function testConfigLoad() {
+    // @phpstan-ignore-next-line
     $this->blazyManager->expects($this->any())
       ->method('config')
       ->with('blazy')
@@ -59,7 +60,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
 
     $blazy = $this->blazyManager->config('blazy');
     $this->assertArrayHasKey('loadInvisible', $blazy);
-
+    // @phpstan-ignore-next-line
     $this->blazyManager->expects($this->any())
       ->method('config')
       ->with('admin_css')
@@ -75,7 +76,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
   public function testEntityLoadImageStyle() {
     $styles = $this->setUpImageStyle();
     $ids = array_keys($styles);
-
+    // @phpstan-ignore-next-line
     $this->blazyManager->expects($this->any())
       ->method('loadMultiple')
       ->with('image_style')
@@ -83,7 +84,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
 
     $multiple = $this->blazyManager->loadMultiple('image_style', $ids);
     $this->assertArrayHasKey('large', $multiple);
-
+    // @phpstan-ignore-next-line
     $this->blazyManager->expects($this->any())
       ->method('load')
       ->with('large')
@@ -106,7 +107,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
     $build['#settings']['uri'] = $uri;
 
     $theme = ['#theme' => 'blazy', '#build' => []];
-
+    // @phpstan-ignore-next-line
     $this->blazyManager->expects($this->any())
       ->method('getBlazy')
       ->willReturn($expected_image ? $theme : []);
@@ -160,14 +161,14 @@ class BlazyManagerUnitTest extends UnitTestCase {
       'ratio'        => 'fluid',
       'style'        => 'column',
     ];
-
+    // @phpstan-ignore-next-line
     $this->blazyManager->expects($this->any())
       ->method('attach')
       ->with($attach)
       ->willReturn(['drupalSettings' => ['blazy' => []]]);
 
     $attachments = $this->blazyManager->attach($attach);
-
+    // @phpstan-ignore-next-line
     $this->blazyManager->expects($this->any())
       ->method('attach')
       ->with($attach)
@@ -181,6 +182,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
    * @covers ::getLightboxes
    */
   public function testGetLightboxes() {
+    // @phpstan-ignore-next-line
     $this->blazyManager->expects($this->any())
       ->method('getLightboxes')
       ->willReturn([]);

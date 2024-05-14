@@ -3,7 +3,6 @@
 namespace Drupal\blazy;
 
 use Drupal\blazy\internals\Internals;
-use Drupal\Component\Render\FormattableMarkup;
 
 /**
  * Defines shared plugin default settings for field formatter and Views style.
@@ -307,12 +306,8 @@ class BlazyDefault {
    * Returns sensible default container settings to shutup notices when lacking.
    */
   public static function htmlSettings() {
-    $params = [
-      '@version' => 'blazy:2.6',
-    ];
     return [
       'blazies' => self::toSettings(self::blazies()),
-      'WARNING' => new FormattableMarkup('Non-configurable settings are deprecated in @version. Use the BlazySettings object instead!', $params),
 
       // Configurable settings are dumped as they are as always.
       // Very few are adjusted into blazies for easy calls/overrides/alters.

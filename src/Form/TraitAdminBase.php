@@ -114,7 +114,7 @@ trait TraitAdminBase {
         '#markup' => $form['#description'],
       ];
 
-      $form['#description'] = $this->blazyManager->renderer()->renderPlain($desc);
+      $form['#description'] = $this->blazyManager->renderInIsolation($desc);
       $form['#wrapper_attributes']['class'][] = 'form-item--collapsidesc';
     }
   }

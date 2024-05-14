@@ -533,6 +533,17 @@ interface BlazyInterface extends ContainerInjectionInterface {
   public function mergeSettings($keys, array $defaults, array $configs): array;
 
   /**
+   * A D9-12 compat \Drupal\Core\Render\RendererInterface::renderInIsolation().
+   *
+   * @param array $elements
+   *   The structured array describing the data to be rendered.
+   *
+   * @return \Drupal\Component\Render\MarkupInterface
+   *   The rendered HTML.
+   */
+  public function renderInIsolation(array &$elements);
+
+  /**
    * A wrapper for \Drupal\Core\Extension\ModuleHandlerInterface::moduleExists.
    *
    * @param string $name

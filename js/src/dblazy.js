@@ -1204,6 +1204,7 @@
    *
    * To check if the returned element is found:
    *   - use $.isElm(el) which returns a bool, or !$.isNull(el).
+   *   - or use it directly as condition if not using asArray argument.
    * To check if the returned elements are found:
    *   - use regular els.length check.
    *

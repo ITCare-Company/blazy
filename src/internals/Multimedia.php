@@ -13,7 +13,7 @@ use Drupal\blazy\Utility\Sanitize;
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
  */
-class Multimedia {
+class Multimedia extends Settings {
 
   /**
    * Returns the expected/ corrected input URL.

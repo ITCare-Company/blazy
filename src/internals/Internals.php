@@ -9,17 +9,17 @@ use Drupal\blazy\Utility\Markdown;
 use Drupal\blazy\Utility\Path;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\File\FileExists;
+use Drupal\Core\File\FileSystemInterface;
 
 /**
- * Provides internal kitchen-skink non-reusable blazy utilities.
+ * Provides internal kitchen-sink non-reusable blazy utilities.
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
- *
- * @todo remove some aliases for actual class calls after migrations.
  */
-class Internals {
+class Internals extends Content {
 
   /**
    * The data URI text.
@@ -32,6 +32,18 @@ class Internals {
    * @var int|null
    */
   protected static $blazyId;
+
+  /**
+   * Alias for FileExists::Replace for easy D10.3 removal.
+   */
+  public static function fileExistsReplace() {
+    if (class_exists(FileExists::class)) {
+      return FileExists::Replace;
+    }
+    // @todo remove when min D10.3.
+    // @phpstan-ignore-next-line
+    return FileSystemInterface::EXISTS_REPLACE;
+  }
 
   /**
    * Alias for base_path() for easy removal.
@@ -74,214 +86,6 @@ class Internals {
   }
 
   /**
-   * Alias for Content::denied().
-   */
-  public static function denied($entity): array {
-    return Content::denied($entity);
-  }
-
-  /**
-   * Alias for Content::formatTitle().
-   */
-  public static function formatTitle($value, $url, array $settings): array {
-    return Content::formatTitle($value, $url, $settings);
-  }
-
-  /**
-   * Alias for Content::toHtml().
-   */
-  public static function toHtml($content, $tag = 'div', $class = NULL): array {
-    return Content::toHtml($content, $tag, $class);
-  }
-
-  /**
-   * Alias for Content::toContent().
-   */
-  public static function toContent(
-    array &$data,
-    $unset = FALSE,
-    array $keys = ['content', 'box', 'slide'],
-  ): array {
-    return Content::toContent($data, $unset, $keys);
-  }
-
-  /**
-   * Alias for Multimedia::correct().
-   */
-  public static function correct($input): ?string {
-    return Multimedia::correct($input);
-  }
-
-  /**
-   * Alias for Multimedia::irrational().
-   */
-  public static function irrational($provider): bool {
-    return Multimedia::irrational($provider);
-  }
-
-  /**
-   * Alias for Multimedia::irrational().
-   */
-  public static function linkable($blazies): bool {
-    return Multimedia::linkable($blazies);
-  }
-
-  /**
-   * Alias for Multimedia::provider().
-   */
-  public static function provider($blazies, $provider = NULL): ?string {
-    return Multimedia::provider($blazies, $provider);
-  }
-
-  /**
-   * Alias for Multimedia::isVideo().
-   */
-  public static function isVideo($blazies): bool {
-    return Multimedia::isVideo($blazies);
-  }
-
-  /**
-   * Alias for Multimedia::toPlayable().
-   */
-  public static function toPlayable($blazies, $src = NULL, $sanitized = FALSE): BlazySettings {
-    return Multimedia::toPlayable($blazies, $src, $sanitized);
-  }
-
-  /**
-   * Alias for Multimedia::youtube().
-   */
-  public static function youtube($input): ?string {
-    return Multimedia::youtube($input);
-  }
-
-  /**
-   * Alias for Settings::contently().
-   */
-  public static function contently(array &$settings): void {
-    Settings::contently($settings);
-  }
-
-  /**
-   * Alias for Settings::count().
-   */
-  public static function count($blazies, $default = 0): int {
-    return Settings::count($blazies, $default);
-  }
-
-  /**
-   * Alias for Settings::updateCountByDelta().
-   */
-  public static function updateCountByDelta(array &$settings): void {
-    Settings::updateCountByDelta($settings);
-  }
-
-  /**
-   * Alias for Settings::getViewFieldData().
-   */
-  public static function getViewFieldData($view): array {
-    return Settings::getViewFieldData($view);
-  }
-
-  /**
-   * Alias for Settings::getViewLimit().
-   */
-  public static function getViewLimit($blazies): int {
-    return Settings::getViewLimit($blazies);
-  }
-
-  /**
-   * Alias for Settings::isUnlazy().
-   */
-  public static function isUnlazy($blazies): bool {
-    return Settings::isUnlazy($blazies);
-  }
-
-  /**
-   * Alias for Settings::prepare().
-   */
-  public static function prepare(array &$settings, $item, $called = FALSE): void {
-    Settings::prepare($settings, $item, $called);
-  }
-
-  /**
-   * Alias for Settings::prepared().
-   */
-  public static function prepared(array &$settings, $item): void {
-    Settings::prepared($settings, $item);
-  }
-
-  /**
-   * Alias for Settings::preserve().
-   */
-  public static function preserve(array &$parentsets, array &$childsets): void {
-    Settings::preserve($parentsets, $childsets);
-  }
-
-  /**
-   * Alias for Settings::preSettings().
-   */
-  public static function preSettings(array &$settings, $root = TRUE): void {
-    Settings::preSettings($settings, $root);
-  }
-
-  /**
-   * Alias for Settings::postSettings().
-   */
-  public static function postSettings(array &$settings): void {
-    Settings::postSettings($settings);
-  }
-
-  /**
-   * Alias for Settings::reset().
-   */
-  public static function reset(
-    array &$settings,
-    $key = 'blazies',
-    array $defaults = [],
-  ): BlazySettings {
-    return Settings::reset($settings, $key, $defaults);
-  }
-
-  /**
-   * Alias for Settings::init().
-   */
-  public static function settings(array $data = []): BlazySettings {
-    return Settings::init($data);
-  }
-
-  /**
-   * Alias for Settings::hashtag().
-   */
-  public static function hashtag(array &$data, $key = 'settings', $unset = FALSE): void {
-    Settings::hashtag($data, $key, $unset);
-  }
-
-  /**
-   * Alias for Settings::toHashtag().
-   */
-  public static function toHashtag(array $data, $key = 'settings', $default = []) {
-    return Settings::toHashtag($data, $key, $default);
-  }
-
-  /**
-   * Alias for Settings::tokenize().
-   */
-  public static function tokenize($blazies): void {
-    Settings::tokenize($blazies);
-  }
-
-  /**
-   * Alias for Settings::verify().
-   */
-  public static function verify(
-    array &$settings,
-    $key = 'blazies',
-    array $defaults = [],
-  ): BlazySettings {
-    return Settings::verify($settings, $key, $defaults);
-  }
-
-  /**
    * Returns the trusted HTML ID of a single instance.
    */
   public static function getHtmlId($namespace = 'blazy', $id = ''): string {
@@ -320,6 +124,13 @@ class Internals {
    */
   public static function service($service) {
     return \Drupal::hasService($service) ? \Drupal::service($service) : NULL;
+  }
+
+  /**
+   * Alias for Settings::init().
+   */
+  public static function settings(array $data = []): BlazySettings {
+    return static::init($data);
   }
 
   /**

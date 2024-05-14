@@ -52,7 +52,7 @@ class Svg extends BlazyFile implements SvgInterface {
    * {@inheritdoc}
    */
   public function sanitizer(): ?object {
-    return class_exists('\enshrined\svgSanitize\Sanitizer') ? new Sanitizer() : NULL;
+    return class_exists(Sanitizer::class) ? new Sanitizer() : NULL;
   }
 
   /**
@@ -100,7 +100,8 @@ class Svg extends BlazyFile implements SvgInterface {
       $this->runOsShell('mktrans', $arg);
 
       // Destination is harcoded as NAME-transparent.png, move it.
-      $this->fileSystem->move($tmp, $dest, FileSystemInterface::EXISTS_REPLACE);
+      $replace = Internals::fileExistsReplace();
+      $this->fileSystem->move($tmp, $dest, $replace);
       $res = $dest;
     }
     // Fallbacks to ImageMagick convert command, no real joy here.
@@ -128,9 +129,9 @@ class Svg extends BlazyFile implements SvgInterface {
     // Set standard file permissions for webserver-generated files.
     if ($res) {
       // @todo update database.
+      // $replace = Internals::fileExistsReplace();
       // if ($file = Internals::loadByProperty('uri', $uri, 'file')) {
-      // $this->fileRepository->move($file, $dest,
-      // FileSystemInterface::EXISTS_REPLACE);
+      // $this->fileRepository->move($file, $dest, $replace);
       // }
       if (isset($this->image) && $this->image->save($res)) {
         return $res;

@@ -191,6 +191,20 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * {@inheritdoc}
    */
+  public function renderInIsolation(array &$elements) {
+    // @todo call directly ::renderInIsolation() when min D10.3.
+    return Blazy::backwardsCompatibleCall(
+      currentVersion: \Drupal::VERSION,
+      deprecatedVersion: '10.3',
+      currentCallable: fn() => $this->renderer->renderInIsolation($elements),
+      // @phpstan-ignore-next-line
+      deprecatedCallable: fn() => $this->renderer->renderPlain($elements),
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function configFactory() {
     return $this->configFactory;
   }
