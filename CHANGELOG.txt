@@ -1,4 +1,8 @@
 
+Blazy 3.0.x-dev, 2024-05-14
+---------------------------
+- Issue #3446991 by gausarts: Remove some once compat methods for core/once.
+
 Blazy 3.0.x-dev, 2024-05-12
 ---------------------------
 - Supports triggering events with extra arguments ala jQuery.
