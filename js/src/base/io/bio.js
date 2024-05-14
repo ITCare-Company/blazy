@@ -290,6 +290,7 @@
     me.count = elms.length;
     me._raf = [];
     me._queue = [];
+    me.withIo = true;
 
     // Observe elements. Old blazy as fallback is also initialized here.
     // IO will unobserve, or disconnect. Old bLazy will self destroy.
@@ -394,7 +395,7 @@
         io.disconnect();
       }
 
-      FN_OBSERVER.unload(me);
+      FN_OBSERVER.unload();
       me.count = 0;
       me.elms = [];
       me.ioObserver = null;
@@ -414,7 +415,7 @@
 
       me.destroyed = false;
 
-      FN_OBSERVER.observe(me);
+      FN_OBSERVER.observe();
 
       INITIALIZED = true;
     }

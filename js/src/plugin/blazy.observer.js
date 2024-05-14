@@ -23,7 +23,9 @@
 
   $.observer = {
     elms: [],
+    scope: null,
     withIo: false,
+    // @todo remove elms and withIo for scope properties at blazy: 4.x, or soon.
     init: function (scope, cb, elms, withIo) {
       var me = this;
       var opts = scope.options || {};
@@ -44,8 +46,9 @@
       };
 
       // To remove old extra params from self::observe().
-      me.elms = elms = $.toArray(elms);
-      me.withIo = withIo;
+      me.elms = elms = $.toArray(scope.elms || elms);
+      me.scope = scope;
+      me.withIo = scope.withIo || withIo;
 
       function _cb(entries) {
         if (!queue.length) {
@@ -90,8 +93,9 @@
       return data;
     },
 
-    observe: function (scope) {
+    observe: function () {
       var me = this;
+      var scope = me.scope;
       var elms = me.elms;
       var withIo = me.withIo;
       var opts = scope.options || {};
@@ -131,9 +135,12 @@
       return scope;
     },
 
+    // @todo remove scope after another usage check.
     unload: function (scope) {
-      var rafs = scope._raf;
-      if (rafs && rafs.length) {
+      scope = scope || this.scope;
+      var rafs = scope._raf || [];
+
+      if (rafs.length) {
         $.each(rafs, function (raf) {
           cancelAnimationFrame(raf);
         });
