@@ -163,15 +163,6 @@ function blazy_layout_preprocess_field(array &$variables) {
           $variables['label_hidden'] = TRUE;
         }
       }
-
-      /*
-      if (!empty($settings['background'])) {
-      $admin_uri = $settings['admin_uri'] ?? 'x';
-      if (strpos($admin_uri, '/layout_builder/') !== FALSE) {
-
-      }
-      }
-       */
     }
   }
 }

@@ -31,27 +31,6 @@ class Blazy extends BlazyBase {
   }
 
   /**
-   * Alias for Attributes::container().
-   */
-  public static function containerAttributes(array &$attributes, array $settings): void {
-    Attributes::container($attributes, $settings);
-  }
-
-  /**
-   * Alias for BlazyFile::createUrl().
-   */
-  public static function createUrl($uri, $relative = FALSE): string {
-    return BlazyFile::createUrl($uri, $relative);
-  }
-
-  /**
-   * Alias for BlazyEntity::settings().
-   */
-  public static function entitySettings(array &$settings, $entity): void {
-    BlazyEntity::settings($settings, $entity);
-  }
-
-  /**
    * A deprecation helper copied from D10.3 for easy migration check.
    *
    * @see Drupal\Component\Utility\DeprecationHelper
@@ -72,6 +51,27 @@ class Blazy extends BlazyBase {
     return version_compare($normalizedVersion, $deprecatedVersion, '>=')
       ? $currentCallable()
       : $deprecatedCallable();
+  }
+
+  /**
+   * Alias for Attributes::container().
+   */
+  public static function containerAttributes(array &$attributes, array $settings): void {
+    Attributes::container($attributes, $settings);
+  }
+
+  /**
+   * Alias for BlazyFile::createUrl().
+   */
+  public static function createUrl($uri, $relative = FALSE): string {
+    return BlazyFile::createUrl($uri, $relative);
+  }
+
+  /**
+   * Alias for BlazyEntity::settings().
+   */
+  public static function entitySettings(array &$settings, $entity): void {
+    BlazyEntity::settings($settings, $entity);
   }
 
   /**

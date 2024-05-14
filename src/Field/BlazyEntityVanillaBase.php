@@ -278,9 +278,6 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
    * Provides item elements.
    */
   private function withElement(array $build): array {
-    // @todo remove the helper at/ by 3.x post migrations:
-    $this->formatter->hashtag($build);
-
     $settings = &$build['#settings'];
     $langcode = $build['#langcode'];
     $blazies  = $settings['blazies']->reset($settings);

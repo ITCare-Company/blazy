@@ -341,14 +341,6 @@ class BlazySettings implements \Countable {
     // }
     $instance = new self($data);
 
-    // @todo remove post gridstack 2.12 due to newly added $key.
-    if ($instance->get('namespace') == 'gridstack'
-      && $instance->get('engine')) {
-      if ($key == 'blazies') {
-        $key = 'gridstacks';
-      }
-    }
-
     $settings[$key] = $instance;
     return $instance;
   }
