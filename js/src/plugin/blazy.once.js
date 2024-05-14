@@ -1,6 +1,6 @@
 /**
  * @file
- * Provides once compat for D8+.
+ * Provides once compat for D9+.
  *
  * @internal
  *   This is an internal part of the Blazy system and should only be used by

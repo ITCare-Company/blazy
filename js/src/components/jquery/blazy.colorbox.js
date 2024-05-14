@@ -35,11 +35,9 @@
    *   The colorbox HTML element.
    */
   function process(box) {
-
     var $root = $(S_ROOT);
     var $box = $(box);
-    // @todo remove the second at 3.x:
-    var media = $box.data('bMedia') || $box.data('media') || {};
+    var media = $box.data('bMedia') || {};
     var oEmbedUrl = $box.data('oembedUrl');
     var url = box.href || 'x';
 

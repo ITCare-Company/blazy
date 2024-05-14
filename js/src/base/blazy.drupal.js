@@ -17,14 +17,10 @@
   var DATA = 'data';
   var C_BG = 'b-bg';
   var DATA_B_BG = DATA + '-' + C_BG;
-  // @todo remove at/by 3.x:
-  var DATA_RATIOS = DATA + '-ratios';
   var DATA_B_RATIOS = DATA + '-b-ratios';
   var S_BLUR = '.b-blur';
   var S_MEDIA = '.media';
   var C_SUCCESS = 'successClass';
-  // @todo rename it to use colon: blazy:done to allow namespacing.
-  var E_DONE = ID + '.done';
   var E_DONE_COLON = ID + ':done';
   var NOOP = function () {};
   var EXTENSIONS = {};
@@ -63,7 +59,7 @@
     isFluid: function (el, cn) {
       // @todo remove the last at/by 3.x:
       return $.equal(el.parentNode, 'picture') &&
-        $.hasAttr(cn, DATA_B_RATIOS + ' ' + DATA_RATIOS);
+        $.hasAttr(cn, DATA_B_RATIOS);
     },
 
     isLoaded: function (el) {
@@ -159,9 +155,8 @@
       me.clearScript(el);
 
       // Provides event listeners for easy overrides without full overrides.
-      $.trigger(el, E_DONE + ' ' + E_DONE_COLON, {
-        options: me.options,
-        warning: Drupal.t('blazy.done is deprecated in 2.17, use with colon blazy:done to allow namespacing instead.')
+      $.trigger(el, E_DONE_COLON, {
+        options: me.options
       });
     },
 
@@ -228,7 +223,7 @@
 
       if (elms.length) {
         $.each(elms, function (el) {
-          var type = isMe ? E_DONE : 'load';
+          var type = isMe ? E_DONE_COLON : 'load';
           $.one(el, type, cb, isMe);
 
           if (observer) {

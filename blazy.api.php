@@ -440,14 +440,6 @@ function hook_blazy_base_settings_alter(array &$settings, array $context) {
  * @ingroup blazy_api
  */
 function hook_blazy_settings_alter(array &$build, $items) {
-  // Since blazy:2.17, the settings key is hashed to avoid leaks/ render errors.
-  // Pre blazy:2.17 $build['settings'] will continue working till 3.x.
-  // @todo remove check post blazy:2.17, only needed for mismatched versions.
-  $key = 'settings';
-  if (!isset($build["#$key"]) && isset($build[$key])) {
-    $build["#$key"] = $build[$key];
-  }
-
   $settings = &$build['#settings'];
 
   // Most configurable settings are put as direct key-value pairs.
@@ -455,7 +447,9 @@ function hook_blazy_settings_alter(array &$build, $items) {
   // For pre 2.6, please use $settings['NAME'] directly.
   $blazies = $settings['blazies'];
 
-  // Add more custom CSS aspect ratios, see /admin/help/blazy_ui#aspect-ratio:
+  // Add more custom CSS aspect ratios, see /admin/help/blazy_ui#aspect-ratio.
+  // You must provide your own CSS rules in accordance with css/components/
+  // blazy.ratio.css convention, hence .media--ratio--78 {}, etc.
   $blazies->set('css.ratio', ['7:8', '6:5'], TRUE);
 
   // Overrides one pixel placeholder on particular pages relevant if using Views
@@ -497,6 +491,21 @@ function hook_blazy_settings_alter(array &$build, $items) {
       $blazies->set('ui.placeholder', '/blank.svg');
     }
   }
+
+  // Makes any image-based title as caption formatted as HTML caption where
+  // BlazyTitleFormatter is not available. The image title like:
+  // Awesome image: some short sub-title, will be formatted as:
+  // Awesome image <small>some short sub-title</small>.
+  // The <small> tag can be put on another line using CSS display:block, etc.
+  // Useful for captions so to make Alt attribute is more for longer SEO stuff.
+  // Add more conditional based on entities, etc. via blazies objects.
+  // Available since Blazy:3.0.6:
+  $blazies->set('format.title', [
+    // Any following character will be treated as a delimiter.
+    'delimiter' => '|,:,/,- , —',
+    'tag' => 'small',
+    'link_to_entity' => TRUE,
+  ]);
 }
 
 /**
