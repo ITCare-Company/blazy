@@ -31,16 +31,12 @@ class Blazy extends BlazyBase {
   }
 
   /**
-   * A deprecation helper copied from D10.3 for easy migration check.
+   * A wrapper for version_compare in Drupal context.
    *
    * @see Drupal\Component\Utility\DeprecationHelper
    */
-  public static function backwardsCompatibleCall(
-    string $currentVersion,
-    string $deprecatedVersion,
-    callable $currentCallable,
-    callable $deprecatedCallable,
-  ): mixed {
+  public static function versionGreaterThan($deprecatedVersion): bool {
+    $currentVersion = \Drupal::VERSION;
     // Normalize the version string when it's a dev version to the first point
     // release of that minor. E.g. 10.2.x-dev and 10.2-dev both translate
     // to 10.2.0.
@@ -48,7 +44,20 @@ class Blazy extends BlazyBase {
       ? str_replace(['.x-dev', '-dev'], '.0', $currentVersion)
       : $currentVersion;
 
-    return version_compare($normalizedVersion, $deprecatedVersion, '>=')
+    return version_compare($normalizedVersion, $deprecatedVersion, '>=');
+  }
+
+  /**
+   * A deprecation helper copied from D10.3 for easy migration check.
+   *
+   * @see Drupal\Component\Utility\DeprecationHelper
+   */
+  public static function backwardsCompatibleCall(
+    string $deprecatedVersion,
+    callable $currentCallable,
+    callable $deprecatedCallable,
+  ): mixed {
+    return self::versionGreaterThan($deprecatedVersion)
       ? $currentCallable()
       : $deprecatedCallable();
   }
