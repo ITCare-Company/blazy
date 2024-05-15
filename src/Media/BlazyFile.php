@@ -12,14 +12,17 @@ use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Image\ImageInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Site\Settings;
+use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\file\FileInterface;
 use Drupal\file\FileRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides file_BLAH BC for D8 - D10+ till D11 rules.
+ * Provides file_BLAH for D9.3 - D11+.
  *
- * @todo remove deprecated functions post D11, not D10, or when D8 is dropped.
+ * Blazy 3.x now depends on D9.4, not D9.2, safe to remove deprecated.
+ *
+ * @see https://www.drupal.org/node/2940031
  */
 class BlazyFile implements BlazyFileInterface {
 
@@ -169,10 +172,7 @@ class BlazyFile implements BlazyFileInterface {
         ? $gen->generateString($uri)
         : $gen->generateAbsoluteString($uri);
     }
-
-    $function = 'file_create_url';
-    /* @phpstan-ignore-next-line */
-    return is_callable($function) ? $function($uri) : '';
+    return '';
   }
 
   /**
@@ -202,20 +202,16 @@ class BlazyFile implements BlazyFileInterface {
 
     // Returns as is if an external URL: UCG or external OEmbed image URL.
     if (self::isExternal($uri)) {
-      $url = $uri;
+      return $uri;
     }
-    elseif (self::isValidUri($uri)) {
+
+    // If valid URI, use image style, or as is, and make it relative path.
+    if (self::isValidUri($uri)) {
       $stylable = $style && !self::isSvg($uri);
       $url = $stylable ? $style->buildUrl($uri) : self::createUrl($uri);
 
       if ($gen = Path::fileUrlGenerator()) {
         $url = $gen->transformRelative($url);
-      }
-      else {
-        // @todo remove when D8 is dropped at 3.x.
-        $function = 'file_url_transform_relative';
-        /* @phpstan-ignore-next-line */
-        $url = is_callable($function) ? $function($url) : $url;
       }
     }
 
@@ -233,6 +229,7 @@ class BlazyFile implements BlazyFileInterface {
   public static function buildUri($url): ?string {
     if (!self::isExternal($url)
       && $normal_path = UrlHelper::parse($url)['path']) {
+
       // If the request has a base path, remove it from the beginning of the
       // normal path as it should not be included in the URI.
       $base_path = \Drupal::request()->getBasePath();
@@ -240,13 +237,17 @@ class BlazyFile implements BlazyFileInterface {
         $normal_path = str_replace($base_path, '', $normal_path);
       }
 
-      $public_path = Settings::get('file_public_path', 'sites/default/files');
+      $scheme = \blazy()->config('default_scheme', 'system.file');
+
+      $active_path = $scheme == 'public'
+        ? PublicStream::basePath()
+        : Settings::get('file_private_path');
 
       // Only concerns for the correct URI, not image URL which is already being
       // displayed via SRC attribute. Don't bother language prefixes for IMG.
-      if ($public_path && mb_strpos($normal_path, $public_path) !== FALSE) {
-        $rel_path = str_replace($public_path, '', $normal_path);
-        return self::normalizeUri($rel_path);
+      if ($active_path && mb_strpos($normal_path, $active_path) !== FALSE) {
+        $path = str_replace($active_path, '', $normal_path);
+        return self::normalizeUri($path);
       }
     }
     return NULL;
@@ -273,17 +274,17 @@ class BlazyFile implements BlazyFileInterface {
   }
 
   /**
-   * Normalizes URI for sub-modules.
+   * Normalizes URI for BlazyFilter URLs, etc., hardly formatters.
    */
   public static function normalizeUri($path): string {
     $uri = $path;
     if ($stream = Path::streamWrapperManager()) {
-      $uri = $stream->normalizeUri($path);
-
-      // @todo re-check why scheme is gone since 2.9. It was there <= 2.5.
-      if (substr($uri, 0, 2) === '//') {
-        $uri = 'public:' . $uri;
+      // The double slash was from buildUri.
+      if (substr($path, 0, 2) === '//') {
+        $scheme = \blazy()->config('default_scheme', 'system.file');
+        $uri = $scheme . ':' . $path;
       }
+      $uri = $stream->normalizeUri($uri);
     }
     return $uri;
   }

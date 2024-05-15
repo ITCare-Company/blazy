@@ -196,6 +196,7 @@ abstract class BlazyBase implements BlazyInterface {
     return Blazy::backwardsCompatibleCall(
       currentVersion: \Drupal::VERSION,
       deprecatedVersion: '10.3',
+      // @phpstan-ignore-next-line
       currentCallable: fn() => $this->renderer->renderInIsolation($elements),
       // @phpstan-ignore-next-line
       deprecatedCallable: fn() => $this->renderer->renderPlain($elements),
