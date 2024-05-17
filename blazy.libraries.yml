@@ -109,7 +109,6 @@ loading:
     js/plugin/blazy.loading.min.js: { minified: true, weight: -5.5 }
   dependencies:
     - blazy/base
-    - blazy/dblazy
 
 filter:
   css:
@@ -311,5 +310,4 @@ admin:
   dependencies:
     - core/jquery
     - blazy/drupal
-    - blazy/dblazy
     - blazy/admin.grid
