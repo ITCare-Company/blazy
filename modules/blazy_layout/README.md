@@ -1,7 +1,7 @@
 
 # ABOUT BLAZY LAYOUT
 
-Provides a single, yet dynamic, Blazy layout for Layout Builder.
+Provides a single layout with dynamic regions for Layout Builder.
 
 ## INSTALLATION
 Install the module as usual, more info can be found on:

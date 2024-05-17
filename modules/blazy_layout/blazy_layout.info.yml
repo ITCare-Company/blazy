@@ -1,6 +1,6 @@
 name: Blazy Layout (Experimental)
 type: module
-description: Provides a single, yet dynamic, Blazy layout for Layout Builder.
+description: Provides a single layout with dynamic regions for Layout Builder.
 core_version_requirement: '>=9.4'
 package: Blazy
 dependencies:

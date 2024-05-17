@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Provides a single, yet dynamic, Blazy layout for Layout Builder.
+ * Provides a single layout with dynamic regions for Layout Builder.
  */
 
 use Drupal\blazy_layout\BlazyLayoutDefault;
@@ -65,6 +65,10 @@ function blazy_layout_preprocess_layout(array &$variables) {
   $style = $settings['style'] ?? '';
 
   _blazy_layout_region_attributes($variables, 'bg');
+
+  if ($theme = \Drupal::theme()->getActiveTheme()->getName()) {
+    $variables['attributes']['class'][] = 'b-theme-' . str_replace('_', '-', $theme);
+  }
 
   if ($in_preview) {
     $variables['attributes']['class'][] = 'b-layout--preview';
@@ -208,7 +212,8 @@ function blazy_layout_theme_suggestions_alter(array &$suggestions, array $variab
     }
 
     if ($settings) {
-      if (!empty($settings['use_lb']) && $blazies = $settings['blazies'] ?? NULL) {
+      if (!empty($settings['use_lb'])
+        && $blazies = $settings['blazies'] ?? NULL) {
         if ($blazies->use('bg') || $blazies->count() == 1) {
           $suggestions[] = $hook . '__blazy';
         }

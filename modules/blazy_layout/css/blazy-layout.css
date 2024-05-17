@@ -74,15 +74,10 @@
   height: 100%;
 }
 
-/* Fix for unnecessary Olivero Grid surprises causing Slick excessive height. */
-.b-layout .view,
-.b-layout .view-content {
-  display: block;
-}
-
 /* Edge to edge. */
 .b-layout-wrapper--ete {
   position: relative;
+  overflow: visible;
 }
 
 .b-layout-wrapper--ete > .blazy.b-layout {
@@ -95,7 +90,20 @@
 
 .b-layout-wrapper--ete > .blazy.b-layout > .region--bg {
   left: 50%;
-  /* Should be 100vw, but accounts for Olivero as a problematic sample. */
-  width: 110vw;
+  width: 100vw;
   transform: translateX(-50%);
+}
+
+/* Few samples of theme compatibility issues. */
+/* Fix for unnecessary Olivero Grid surprises causing Slick excessive height. */
+.b-layout .view,
+.b-layout .view-content {
+  display: block;
+}
+
+/* To remove extra gap, try overflow:hidden in .layout-main of Olivero, or
+other themes with similar problems. */
+.b-layout-wrapper--ete > .b-layout.b-theme-olivero > .region--bg {
+  /* Should be 100vw, but accounts for Olivero as a problematic sample. */
+  width: calc(100vw + var(--content-left));
 }

@@ -44,13 +44,9 @@ ul.blazy.b-flexbox {
 .item-list > .b-flexbox > .grid {
   position: relative;
   display: block;
-  /* flex-direction: row; */
   width: 100%;
   min-height: 40px;
-  /* Left and right 0 makes centered and gapless parent without negative margin.
-  Auto causes trouble against parent space-between vs. flex-start, incorrect
-  overlapping .grid placement, yet best for dynamic var calculation. */
-  margin: 0 calc(var(--bfb-col-gap) / 2) var(--bfb-col-gap);
+  margin: 0;
   padding: 0;
 }
 
@@ -79,6 +75,15 @@ ul.blazy.b-flexbox {
     justify-content: flex-start;
     width: 100%;
     margin: 0 auto;
+  }
+
+  .b-flexbox > .grid,
+  .item-list > .b-flexbox > .grid {
+    /* flex-direction: row; */
+    /* Left and right 0 makes centered and gapless parent without negative margin.
+    Auto causes trouble against parent space-between vs. flex-start, incorrect
+    overlapping .grid placement, yet best for dynamic var calculation. */
+    margin: 0 calc(var(--bfb-col-gap) / 2) var(--bfb-col-gap);
   }
 
   /* Adjust distractions accordingly. */

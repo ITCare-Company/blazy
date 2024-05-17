@@ -1,6 +1,6 @@
 {
   "name": "drupal/blazy_layout",
-  "description": "Provides a blazy layout.",
+  "description": "Provides a single layout with dynamic regions for Layout Builder.",
   "keywords": ["Blazy", "Layout", "Drupal"],
   "type": "drupal-module",
   "license": "GPL-2.0-or-later",
