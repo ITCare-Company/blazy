@@ -170,7 +170,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       $description = '';
       if ($key == 'ete') {
         $title = 'Edge to edge';
-        $description = $this->t('If enabled, the main background will span edge to edge. Works better with <b>Max width</b> option, and themes with wide content region and without sidebars. Try Bartik if any issues.');
+        $description = $this->t('If enabled, the main background will span edge to edge. Works better with <b>Max width</b> option, and themes with wide content region and without sidebars. Requires parent selectors without <code>overflow: hidden</code> rules, else cropped. Try Bartik if any issues.');
       }
       elseif ($key == 'padding') {
         $description = $this->t('Valid CSS padding value, e.g.: <code>3rem or 15px 30px</code>. Leave empty if using CSS framework like Bootstrap, etc. Input padding as classes in the relevant <b>Classes</b> option instead.');

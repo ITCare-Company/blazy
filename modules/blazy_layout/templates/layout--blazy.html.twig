@@ -12,6 +12,7 @@
 {%
   set classes = [
     'b-layout',
+    settings.ete ? 'b-layout--ete',
     settings.id ? 'b-layout--' ~ settings.id|clean_class,
     settings.background ? 'b-layout--bg',
   ]

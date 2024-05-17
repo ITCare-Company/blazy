@@ -88,7 +88,7 @@
   transform: translateX(-50%);
 }
 
-.b-layout-wrapper--ete > .blazy.b-layout > .region--bg {
+.blazy.b-layout--ete > .region--bg {
   left: 50%;
   width: 100vw;
   transform: translateX(-50%);
@@ -103,7 +103,11 @@
 
 /* To remove extra gap, try overflow:hidden in .layout-main of Olivero, or
 other themes with similar problems. */
-.b-layout-wrapper--ete > .b-layout.b-theme-olivero > .region--bg {
+.b-layout--ete.b-theme-olivero > .region--bg {
   /* Should be 100vw, but accounts for Olivero as a problematic sample. */
   width: calc(100vw + var(--content-left));
+}
+
+.b-layout .region > * {
+  margin-block-end: 0;
 }

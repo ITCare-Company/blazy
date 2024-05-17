@@ -1,6 +1,10 @@
 /**
  * @file
  * Provides shared CSS rules for Blazy layout.
+ *
+ * This is just dummy to avoid collapsed images with blazy layout backgrounds.
+ * To have a multi-breakpoint height, override this file and add revelant media
+ * queries and change each rule height based on the media widths.
  */
 
 .blazy.b-mh > [data-b-h="xxs"],

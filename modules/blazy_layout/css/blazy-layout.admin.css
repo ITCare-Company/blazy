@@ -13,8 +13,12 @@
 }
 
 .b-layout .grid {
-  min-height: 72px;
+  min-height: 210px;
   background-color: #eaeaea;
+}
+
+.b-layout .region--empty {
+  min-height: 120px;
 }
 
 .layout-builder .b-layout .grid::after {

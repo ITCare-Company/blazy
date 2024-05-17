@@ -184,6 +184,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   public function gridForm(array &$form, array $definition): void {
     $scopes = $this->toScopes($definition);
     $required = $scopes->is('grid_required');
+    $lb = $this->isAdminLb();
 
     if (!$scopes->is('no_grid_header')) {
       $header  = $this->t('Group individual items as block grid?');
@@ -200,7 +201,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
 
     $form['grid'] = [
-      '#type'     => 'textfield',
+      '#type'     => $lb ? 'textarea' : 'textfield',
       '#title'    => $this->t('Grid large'),
       '#enforced' => TRUE,
       '#required' => $required,
