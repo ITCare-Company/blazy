@@ -30,6 +30,7 @@
   var PROTO_SPLICE = PROTO_A.splice;
   var PROTO_SOME = PROTO_A.some;
   var V_SYMBOL = typeof Symbol !== 'undefined' && Symbol;
+  var C_TOUCH = 'touchevents';
   var IS_JQ = 'jQuery' in _win;
   var IS_CASH = 'cash' in _win;
   var V_CLASS = 'class';
@@ -575,6 +576,50 @@
    */
   function isAttr(x) {
     return x && 'getAttribute' in x;
+  }
+
+  /**
+   * Returns true if a touch device.
+   *
+   * @private
+   *
+   * @param {Function} cb
+   *   The callback function called on matchMedia change.
+   *
+   * @return {bool}
+   *   True if a touch device.
+   */
+  function isTouch(cb) {
+    var query = {};
+
+    // @todo remove check when min D.10.
+    if ('matchMedia' in _win) {
+      query = _win.matchMedia('(hover: none), (pointer: coarse)');
+      if (cb) {
+        query.addEventListener('change', cb);
+      }
+    }
+
+    return (
+      ('ontouchstart' in _win) ||
+      (_win.DocumentTouch && _doc instanceof _win.DocumentTouch) ||
+      query.matches ||
+      (navigator.maxTouchPoints > 0) ||
+      (navigator.msMaxTouchPoints > 0)
+    );
+  }
+
+  /**
+   * Dynamically add [no-]touchevents class to html.
+   *
+   * Basically similar to core/drupal.touchevents-test, only with change.
+   */
+  function touchOrNot() {
+    var html = _doc.documentElement;
+    var matches = isTouch(touchOrNot);
+
+    removeClass(html, [C_TOUCH, 'no-' + C_TOUCH]);
+    addClass(html, matches ? C_TOUCH : 'no-' + C_TOUCH);
   }
 
   /**
@@ -1837,6 +1882,8 @@
   DB.isNativeLazy = 'loading' in HTMLImageElement.prototype;
   DB.isAmd = typeof define === 'function' && define.amd;
   DB.isWin = isWin;
+  DB.isTouch = isTouch;
+  DB.touchOrNot = touchOrNot;
   DB._er = -1;
   DB._ok = 1;
 
@@ -1976,17 +2023,20 @@
    *   The callback function.
    * @param {undefined|String|Array.<Element>|Element} t
    *   The timeout, selector, or element(s).
+   * @param {Function} cbt
+   *   The touch callback function, else default to cb.
    *
    * @return {Function}
    *   The callback function.
    */
-  DB.resize = function (cb, t) {
+  DB.resize = function (cb, t, cbt) {
     // Preserves oldies till updated: lory, extended, etc.
     // Safe to replace, previously only called: $.resize(cb)();
     if (this.isRo && !isUnd(t)) {
       var observer = new ResizeObserver(function (entries) {
         var me = this;
         var winsize = windowSize();
+        var touch = isTouch(cbt || cb);
 
         each(entries, function (entry) {
           var rect = entry.contentRect;
@@ -1995,7 +2045,8 @@
           var data = {
             width: width,
             height: height,
-            window: winsize
+            window: winsize,
+            touch: touch
           };
 
           // Pass it to callback.
