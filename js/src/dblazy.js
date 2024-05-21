@@ -2015,7 +2015,6 @@
   };
 
   function boxSize(entry) {
-    var erect;
     var width;
     var height;
     var size;
@@ -2030,9 +2029,9 @@
 
     if (!height) {
       // entry.contentRect is deprecated.
-      erect = entry.contentRect || rect(entry.target);
-      width = erect.width;
-      height = erect.height;
+      size = entry.contentRect || rect(entry.target);
+      width = size.width;
+      height = size.height;
     }
 
     return {
