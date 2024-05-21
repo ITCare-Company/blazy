@@ -2014,6 +2014,33 @@
     };
   };
 
+  function boxSize(entry) {
+    var erect;
+    var width;
+    var height;
+    var size;
+
+    if (entry.contentBoxSize) {
+      size = entry.contentBoxSize[0];
+      if (size) {
+        width = size.inlineSize;
+        height = size.blockSize;
+      }
+    }
+
+    if (!height) {
+      // entry.contentRect is deprecated.
+      erect = entry.contentRect || rect(entry.target);
+      width = erect.width;
+      height = erect.height;
+    }
+
+    return {
+      width: Math.floor(width),
+      height: Math.floor(height)
+    };
+  }
+
   /**
    * A simple wrapper to delay callback function on window resize.
    *
@@ -2028,6 +2055,9 @@
    *
    * @return {Function}
    *   The callback function.
+   *
+   * See https://dev.to/murashow/quick-guide-to-resize-observer-gam
+   * See https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver
    */
   DB.resize = function (cb, t, cbt) {
     // Preserves oldies till updated: lory, extended, etc.
@@ -2039,12 +2069,10 @@
         var touch = isTouch(cbt || cb);
 
         each(entries, function (entry) {
-          var rect = entry.contentRect;
-          var width = Math.floor(rect.width);
-          var height = Math.floor(rect.height);
+          var size = boxSize(entry);
           var data = {
-            width: width,
-            height: height,
+            width: size.width,
+            height: size.height,
             window: winsize,
             touch: touch
           };
@@ -2056,7 +2084,7 @@
 
       var elms = toElms(t);
       if (elms.length) {
-        each(toElms(t), function (el) {
+        each(elms, function (el) {
           if (isElm(el)) {
             observer.observe(el);
           }
