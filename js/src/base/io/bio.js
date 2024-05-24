@@ -107,7 +107,6 @@
     var count = me.count;
     var io = me.ioObserver;
     var watching = opts.visibleClass || revalidate || false;
-    var check;
 
     // Only destroy if no use for is-b-visible class.
     if (BIOTICK === count - 1) {
