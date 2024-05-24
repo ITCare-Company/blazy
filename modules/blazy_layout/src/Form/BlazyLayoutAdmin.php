@@ -178,6 +178,9 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       elseif ($key == 'max_width') {
         $description = $this->t('Useful to reveal the background image, if padding is cumbersome. Valid CSS max-width value, e.g.: <code>82% or 1270px</code>. To have a mobile up max-width, use a colon-separated media query <small>WINDOW_MIN_WIDTH:LAYOUT_MAX_WIDTH</small> pair with spaces, e.g.: <br><code>0px:98% 768px:90% 1270px:82%</code>. Affected by parent container widths of this layout wrapper. Try Bartik if any issues.');
       }
+      elseif ($key == 'gapless') {
+        $description = $this->t('Flexbox and Native grid only. Remove margins to make it gapless.');
+      }
 
       $layouts[$key] = [
         '#type'        => $type,

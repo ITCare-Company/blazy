@@ -20,9 +20,7 @@ class BlazyLayout extends BlazyLayoutForm {
     $build['#count']    = static::$count;
 
     // Modifies output.
-    $items  = $this->interpolate($settings);
-    $grids  = $this->manager->toGrid($items, $settings);
-    $output = $this->manager->merge($grids, $build);
+    $output = $this->interpolate($settings, $build);
 
     // Modifies attachments.
     $this->attachments($output, $settings);
@@ -46,29 +44,19 @@ class BlazyLayout extends BlazyLayoutForm {
   /**
    * Interpolate data from Layout Builder to extract grid attributes.
    */
-  private function interpolate(array &$settings): array {
-    $items   = [];
-    $regions = $settings['regions'] ?? [];
-    unset($regions['bg']);
+  private function interpolate(array &$settings, array $build): array {
+    $sets = $settings;
+    $sets['is_form'] = FALSE;
+    $data = $this->manager->initGrid($sets);
 
-    $i = 0;
-    foreach ($regions as $rid => $value) {
-      $box = [];
-      $sets = $settings;
-      $blazies = $sets['blazies']->reset($sets);
+    $settings = $this->manager->merge($data['settings'], $settings);
+    $build['#attributes'] = $this->manager->merge(
+      $data['attributes'],
+      $build,
+      '#attributes'
+    );
 
-      $blazies->set('lb.rid', $rid)
-        ->set('delta', $i);
-
-      $box['#settings'] = $sets;
-
-      // Preserves indices even if empty so to layout for Layout Builder.
-      // $region && !Element::isEmpty($region) ? $region : ['#markup' => ' '];.
-      $box[$rid] = $this->inPreview ? ['#markup' => '?'] : [];
-      $items[] = $box;
-      ++$i;
-    }
-    return $items;
+    return $build;
   }
 
 }

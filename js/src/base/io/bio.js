@@ -124,14 +124,9 @@
     if (io) {
       // We are here with arbitrary observed elements for hidden children.
       // See https://drupal.org/node/3279316.
-      if (!$.is(el, sel)) {
-        check = $.find(el, sel);
-        if ($.isElm(check)) {
-          // The job is done, unobserve.
-          io.unobserve(el);
-          // Pass back bounding rects to the unbound hidden element here on.
-          el = check;
-        }
+      var hidden = FN_OBSERVER.hiddenChild(el, sel);
+      if (hidden) {
+        el = hidden;
       }
 
       if (me.isLoaded(el) && !revalidate) {

@@ -55,6 +55,7 @@ function blazy_layout_preprocess_layout(array &$variables) {
     return;
   }
 
+  $blazies = $settings['blazies'];
   $wrappers = $variables['content']['#wrapper_attributes'] ?? [];
   $variables['wrapper_attributes'] = new Attribute($wrappers);
   $in_preview = $variables['in_preview'];
@@ -81,7 +82,7 @@ function blazy_layout_preprocess_layout(array &$variables) {
   }
 
   $region_settings = $settings['regions'];
-  if ($regions = $variables['content']['#regions'] ?? []) {
+  if ($regions = $blazies->get('grid.items', [])) {
     $count = $settings['count'] = (int) $settings['count'];
 
     // Create an attributes variable for each region.
@@ -101,6 +102,11 @@ function blazy_layout_preprocess_layout(array &$variables) {
         if ($attrs = $region['#attributes'] ?? []) {
           if (isset($variables['region_attributes'][$name])) {
             $variables['region_attributes'][$name]->merge(new Attribute($attrs));
+          }
+        }
+        if ($cattrs = $region['#content_attributes'] ?? []) {
+          if (isset($variables['region_content_attributes'][$name])) {
+            $variables['region_content_attributes'][$name]->merge(new Attribute($cattrs));
           }
         }
       }

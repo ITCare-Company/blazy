@@ -4,6 +4,7 @@
  */
 
 /* stylelint-disable selector-max-id, declaration-no-important */
+/* @fixme problematic empty grids with heights vs. options in admin preview. */
 .layout-builder .b-layout {
   min-height: 160px;
 }
@@ -13,7 +14,7 @@
 }
 
 .b-layout .grid {
-  min-height: 210px;
+  min-height: 170px;
   background-color: #eaeaea;
 }
 

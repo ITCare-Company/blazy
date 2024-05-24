@@ -45,27 +45,37 @@ class Grid {
       $attachments = $refresh ? $manager->attach($settings) : [];
     }
 
+    // @todo separate grid item attributes from contents.
     $contents = self::content($items, $settings);
     self::attributes($attrs, $settings);
 
-    $wrappers = ['item-list--blazy'];
-    if ($style = $settings['style'] ?? NULL) {
-      $wrappers[] = 'item-list--blazy-' . str_replace('_', '-', $style);
+    // Without theme_item_list if so required.
+    if ($blazies->get('grid.unlist')) {
+      // Expecting grid item attributes with divities, not list.
+      // TBD, use items or indexed children.
+      $output['items'] = $contents;
     }
-
-    if ($blazies->is('lb')) {
-      $output['#regions'] = $contents;
-    }
+    // With theme_item_list.
     else {
+      $wrappers = ['item-list--blazy'];
+      if ($style = $settings['style'] ?? NULL) {
+        $wrappers[] = 'item-list--blazy-' . str_replace('_', '-', $style);
+      }
+
       $output['#theme'] = 'item_list';
       $output['#items'] = $contents;
       $output['#context'] = ['settings' => $settings];
       $output['#title'] = self::label($blazies);
-      $output['#wrapper_attributes'] = ['class' => array_merge(['item-list'], $wrappers)];
+      $output['#wrapper_attributes'] = [
+        'class' => array_merge(['item-list'], $wrappers),
+      ];
     }
 
     $output['#attributes'] = $attrs;
-    $output['#attached'] = $attachments;
+    if ($attachments) {
+      $output['#attached'] = $attachments;
+    }
+
     return $output;
   }
 
@@ -178,6 +188,29 @@ class Grid {
       }
     }
 
+    // Provides item attributes if any grid.items.
+    $i = 0;
+    if ($items = $blazies->get('grid.items', [])) {
+      foreach ($items as $key => &$item) {
+        Internals::hashtag($item, 'settings', TRUE);
+
+        $subsets = $sets;
+        $blazy = $subsets['blazies']->reset($subsets);
+        $subsets['delta'] = $i;
+        $blazy->set('delta', $i);
+        $subattrs = [];
+        $content_attrs = [];
+
+        self::itemAttributes($subattrs, $content_attrs, $subsets);
+        $item['#attributes'] = $subattrs;
+        $item['#content_attributes'] = $content_attrs;
+
+        $i++;
+      }
+
+      $blazies->set('grid.items', $items);
+    }
+
     $classes = array_merge($attrs['class'], $classes);
     $attrs['class'] = array_unique(array_filter($classes));
 
@@ -273,11 +306,11 @@ class Grid {
   /**
    * Extracts grid like: 4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2, or single 4x4.
    */
-  public static function toDimensions(array $settings): array {
+  public static function toDimensions(array $settings, $key = 'grid'): array {
     $dimensions = [];
     $nativegrid = self::isNativeGrid($settings);
     if ($nativegrid || self::isFlexbox($settings)) {
-      $grid = $settings['grid'];
+      $grid = $settings[$key];
       $values = array_map('trim', explode(" ", $grid));
 
       foreach ($values as $value) {
@@ -292,6 +325,7 @@ class Grid {
           [$width, $height] = array_pad(array_map('trim', explode("x", $value, 2)), 2, NULL);
         }
 
+        // @todo remove after some refactor to use string instead.
         if ($nativegrid) {
           $width = (int) $width;
           $height = $height;
@@ -319,11 +353,11 @@ class Grid {
     }
 
     // If Native Grid style with numeric grid, assumed non-two-dimensional.
-    // @todo add supports for multiple grid_medium and grid_small.
+    // @todo add supports for multiple grid_medium, not grid_small.
     if ($dimensions = self::toDimensions($settings)) {
-      // Prevents NestedArray from screwing up.
-      $blazies->set('grid.large_dimensions', $dimensions)
-        ->set('grid.dimensions', (object) $dimensions)
+      // Prevents NestedArray from screwing up by making this an object.
+      // @todo support medium other than large.
+      $blazies->set('grid.dimensions', (object) $dimensions)
         ->set('grid.large', $grid)
         ->set('grid.count', count($dimensions));
     }
@@ -412,7 +446,7 @@ class Grid {
     $blazies->set('grid.item_class', $item_class);
 
     $names = [];
-    if ($regions = $blazies->get('lb.regions', [])) {
+    if ($regions = $blazies->get('grid.items', [])) {
       $names = array_keys($regions);
     }
 
@@ -450,6 +484,8 @@ class Grid {
         $item['content_attributes'],
         $item['item_attributes']
       );
+
+      // Remove useless image item, if any.
       if (is_object($image)) {
         unset($item['#item'], $item['item']);
       }
@@ -460,14 +496,17 @@ class Grid {
         '#attributes' => $content_attrs,
       ] : $item;
 
-      if ($blazies->is('lb')) {
+      // With any container-like themes.
+      if ($names) {
+        $delta = $names[$key];
         $content['#attributes'] = $wrapper_attrs;
       }
+      // With theme_item_list.
       else {
+        $delta = $key;
         $content['#wrapper_attributes'] = $wrapper_attrs;
       }
 
-      $delta = $names ? $names[$key] : $key;
       $contents[$delta] = $content;
     }
     return $contents;

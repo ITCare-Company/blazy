@@ -17,7 +17,6 @@
   var ID_ONCE = ID;
   var C_MOUNTED = 'is-' + ID_ONCE;
   var C_IS_DISABLED = C_MOUNTED + '-disabled';
-  var C_IS_CAPTIONED = 'is-b-captioned';
   var S_BASE = '.' + ID;
   // @fixme with lock masonry broken after AJAX unless class removed at detach.
   // drupalSettings.blazy.useAjax ? '.' + ID :
@@ -104,14 +103,6 @@
    *   The container HTML element.
    */
   function process(elm) {
-    var caption = $.find(elm, '.views-field') && $.find(elm, '.views-field p');
-
-    // @todo move it to PHP, unreliable here.
-    // It is here for Views rows not aware of captions, not formatters.
-    if (caption) {
-      $.addClass(elm, C_IS_CAPTIONED);
-    }
-
     $.addClass(elm, C_MOUNTED);
   }
 

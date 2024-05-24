@@ -78,17 +78,24 @@ class Attributes {
       }
     }
 
-    if (!empty($settings['caption']) || $blazies->get('view.multifield')) {
-      $classes[] = 'is-b-captioned';
+    // @todo remove when nativegrid masonry no longer needs this.
+    if ($blazies->is('grid')) {
+      $count = $blazies->get('view.count', 0);
+      if (!empty($settings['caption']) ||
+        ($count > 1 && $blazies->get('view.multifield'))) {
+        $classes[] = 'is-b-captioned';
+      }
     }
 
-    if ($blazies->use('ajax')) {
-      $classes[] = 'is-b-ajax';
-    }
-
+    // @todo remove, hardly used as identifier.
+    // if ($blazies->use('ajax')) {
+    // $classes[] = 'is-b-ajax';
+    // }
     // Needed for nested grids as well: blazy blazy--grid b-nativegrid, etc.
     $attributes['class'] = array_merge(['blazy'], $classes);
-    $attributes['data-blazy'] = $data && is_array($data) ? Json::encode($data) : '';
+    $attributes['data-blazy'] = $data && is_array($data)
+      ? Json::encode($data)
+      : '';
   }
 
   /**

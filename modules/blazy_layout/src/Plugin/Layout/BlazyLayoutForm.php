@@ -275,7 +275,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
 
       $subsets4 = $subsets3['styles'];
       $subsets4['rid'] = $region;
-      $excludes = ['ete', 'max_width'];
+      $excludes = ['ete', 'gapless', 'max_width'];
       $this->admin->formStyles($regform, $subsets4, $excludes);
 
       foreach (Element::children($regform) as $key) {

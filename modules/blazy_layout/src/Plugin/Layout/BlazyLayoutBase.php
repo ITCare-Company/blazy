@@ -189,9 +189,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    * Modifies regions.
    */
   protected function regions(array &$output, array &$settings): void {
+    $blazies = $settings['blazies'];
     $layout = $this->pluginDefinition;
     $factory_regions = $layout->getRegions();
-    $dummy_regions = $output['#regions'] ?? [];
+    $dummy_regions = $blazies->get('grid.items', []);
     $default_regions = array_keys($factory_regions);
     $active_regions = array_keys(array_diff_key($dummy_regions, $default_regions));
     $new_regions = [];
@@ -231,6 +232,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
           ];
         }
         else {
+          // Remove anything beyond grid count, except the special BG region.
           if ($name != 'bg') {
             unset($output[$name]);
           }

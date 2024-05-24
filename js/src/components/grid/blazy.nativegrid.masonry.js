@@ -21,7 +21,6 @@
   var C_IS_DISABLED = C_MOUNTED + '-disabled';
   var S_BASE = '.' + ID;
   var S_ELEMENT = S_BASE + '.' + C_IS_MASONRY;
-  var C_IS_CAPTIONED = 'is-b-captioned';
   var UNLOAD;
 
   /**
@@ -92,14 +91,6 @@
    *   The container HTML element.
    */
   function process(elm) {
-    var caption = $.find(elm, '.views-field') && $.find(elm, '.views-field p');
-
-    // @todo move it to PHP, unreliable here.
-    // It is here for Views rows not aware of captions, not formatters.
-    if (caption) {
-      $.addClass(elm, C_IS_CAPTIONED);
-    }
-
     $.addClass(elm, C_MOUNTED);
   }
 

@@ -1,4 +1,10 @@
 
+Blazy 3.0.x-dev, 2024-05-24
+---------------------------
+- Added gapless grid option for LB.
+- Fixed for Blazy layout -- CSS, dummy contents, etc.
+- Minor re-usability: JS, grid outside Layout Builder, etc.
+
 Blazy 3.0.x-dev, 2024-05-14
 ---------------------------
 - Issue #3446991 by gausarts: Remove some once compat methods for core/once.

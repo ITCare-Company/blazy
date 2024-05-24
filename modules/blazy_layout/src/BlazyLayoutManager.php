@@ -88,6 +88,7 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
 
     if ($layouts = $settings['styles']['layouts'] ?? []) {
       $settings['ete'] = !empty($layouts['ete']);
+      $settings['gapless'] = !empty($layouts['gapless']);
     }
 
     $this->verifySafely($settings);
@@ -99,7 +100,8 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
     $blazies->set('namespace', static::$namespace)
       ->set('is.grid', TRUE)
       ->set('is.lb', TRUE)
-      ->set('lb.regions', $settings['regions'])
+      ->set('grid.unlist', TRUE)
+      ->set('grid.items', $settings['regions'] ?? [])
       ->set('item.id', static::$itemId)
       ->set('item.prefix', static::$itemPrefix)
       ->set('item.caption', static::$captionId)
@@ -188,7 +190,10 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
           $key = implode(', ', $keys);
           return "{$key} {{$value}}";
         }
-        return $id == $key ? ".blazy.b-layout.{$key} {{$value}}" : ".blazy.{$id} {$key} {{$value}}";
+
+        return $id == $key
+          ? ".blazy.b-layout.{$key} {{$value}}"
+          : ".blazy.{$id} {$key} {{$value}}";
       },
       $data,
       array_keys($data)

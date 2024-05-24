@@ -23,7 +23,7 @@
 
   $.observer = {
     elms: [],
-    scope: null,
+    scope: {},
     withIo: false,
     // @todo remove elms and withIo for scope properties at blazy: 4.x, or soon.
     init: function (scope, cb, elms, withIo) {
@@ -93,22 +93,50 @@
       return data;
     },
 
+    visibleParent: function (entry) {
+      var vp = FN_VIEWPORT;
+
+      if (vp && vp.isHidden(entry)) {
+        return vp.visibleParent(entry);
+      }
+      return null;
+    },
+
+    hiddenChild: function (el, sel) {
+      var me = this;
+      var io = me.scope.ioObserver;
+
+      // We are here with arbitrary observed elements for hidden children.
+      // See https://drupal.org/node/3279316.
+      if (io && !$.is(el, sel)) {
+        var check = $.find(el, sel);
+        if ($.isElm(check)) {
+          // The job is done, unobserve.
+          io.unobserve(el);
+          // Pass back bounding rects to the unbound hidden element here on.
+          return check;
+        }
+      }
+      return null;
+    },
+
     observe: function () {
       var me = this;
       var scope = me.scope;
+      // @todo also call directly scope.elms, scope.withIo
       var elms = me.elms;
       var withIo = me.withIo;
       var opts = scope.options || {};
       var ioObserver = scope.ioObserver;
       var roObserver = scope.roObserver;
-      var vp = FN_VIEWPORT;
       var watch = function (watcher) {
         if (watcher && elms && elms.length) {
           $.each(elms, function (entry) {
             // IO cannot watch hidden elements, watch the closest visible one.
-            if (vp && watcher === ioObserver && vp.isHidden(entry)) {
-              var cn = vp.visibleParent(entry);
-              if ($.isElm(cn)) {
+            // Once intersected, the parent must delegate back to the hidden.
+            if (watcher === ioObserver) {
+              var cn = me.visibleParent(entry);
+              if (cn) {
                 watcher.observe(cn);
               }
             }
