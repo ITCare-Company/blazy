@@ -179,19 +179,18 @@ class Grid {
       }
     }
 
-    if ($style == 'nativegrid') {
-      if ($gapless) {
-        $classes[] = 'is-b-gapless';
-      }
-      if ($is_form) {
-        $attrs['class'][] = 'b-nativegrid--form';
-      }
+    if ($gapless) {
+      $classes[] = 'is-b-gapless';
+    }
+
+    if ($is_form && $style == 'nativegrid') {
+      $attrs['class'][] = 'b-nativegrid--form';
     }
 
     // Provides item attributes if any grid.items.
     $i = 0;
     if ($items = $blazies->get('grid.items', [])) {
-      foreach ($items as $key => &$item) {
+      foreach ($items as &$item) {
         Internals::hashtag($item, 'settings', TRUE);
 
         $subsets = $sets;
