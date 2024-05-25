@@ -201,7 +201,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
 
     $form['grid'] = [
-      '#type'     => $lb ? 'textarea' : 'textfield',
+      '#type'     => 'textarea',
       '#title'    => $this->t('Grid large'),
       '#enforced' => TRUE,
       '#required' => $required,

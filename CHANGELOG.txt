@@ -1,4 +1,8 @@
 
+Blazy 3.0.x-dev, 2024-05-25
+---------------------------
+- Added supports for grid setting values with linebreak for reability.
+
 Blazy 3.0.x-dev, 2024-05-24
 ---------------------------
 - Added gapless grid option for LB.

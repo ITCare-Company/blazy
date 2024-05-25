@@ -164,10 +164,7 @@ class Grid {
       'blazies'     => $blazies,
     ];
 
-    if ($style == 'nativegrid') {
-      self::toNativeGrid($sets);
-    }
-
+    self::toNativeGrid($sets);
     self::attributes($attrs, $sets);
 
     if (!$classes) {
@@ -234,19 +231,36 @@ class Grid {
     $classes = (array) ($content_attrs['class'] ?? []);
     $content_attrs['class'] = array_merge(['grid__content'], $classes);
 
+    // Convert grid value to attributes.
+    foreach (['lg', 'md'] as $key) {
+      self::toItemAttributes($attrs, $settings, $key);
+    }
+
+    // Checks for hook alters.
+    self::checkAttributes($attrs, $content_attrs, $blazies, FALSE);
+  }
+
+  /**
+   * Convert grid value to attributes.
+   */
+  public static function toItemAttributes(array &$attrs, array $settings, $id = 'lg'): void {
+    $blazies = $settings['blazies'];
+
     // Count may be set as 2 even if it is 100 by sliders for their magic trick.
     // However total, the new preserved count key, may not be set somewhere.
     // @todo use just total after sub-modules provides it to avoid this check.
     $total = Internals::count($blazies);
     $grid_count = $blazies->get('grid.count', 0);
+    $bw = $id == 'lg' ? 'data-b-w' : 'data-b-mw';
+    $bh = $id == 'lg' ? 'data-b-h' : 'data-b-mh';
 
-    if ($dim = $blazies->get('grid.dimensions')) {
+    if ($dim = $blazies->get('grid.dimensions.' . $id, NULL)) {
       $dim = (array) $dim;
       $delta = $blazies->get('delta', $settings['delta'] ?? 0);
       if (isset($dim[$delta])) {
-        $attrs['data-b-w'] = $dim[$delta]['width'];
+        $attrs[$bw] = $dim[$delta]['width'];
         if ($height = $dim[$delta]['height'] ?? NULL) {
-          $attrs['data-b-h'] = $height;
+          $attrs[$bh] = $height;
         }
       }
       else {
@@ -261,45 +275,34 @@ class Grid {
         $width = $dim[$key]['width'] ?? $dim[0]['width'] ?? NULL;
 
         if ($width && $total > $grid_count) {
-          $attrs['data-b-w'] = $width;
+          $attrs[$bw] = $width;
           if ($height) {
-            $attrs['data-b-h'] = $height;
+            $attrs[$bh] = $height;
           }
         }
       }
     }
-
-    self::checkAttributes($attrs, $content_attrs, $blazies, FALSE);
   }
 
   /**
-   * Checks if a grid expects a flexbox layout.
+   * Checks if a grid expects a flexbox layout, not flex masonry.
    */
-  public static function isFlexbox(array $settings): bool {
-    if ($grid = $settings['grid'] ?? NULL) {
-      $style = $settings['style'] ?? NULL;
-      return !is_numeric($grid) && $style == 'flexbox';
-    }
-    return FALSE;
+  public static function isFlexbox(array $settings, $key = 'grid'): bool {
+    return self::isPair($settings, 'flexbox', $key);
   }
 
   /**
    * Checks if a grid expects a two-dimensional grid.
    */
-  public static function isNativeGrid(array $settings): bool {
-    if ($grid = $settings['grid'] ?? NULL) {
-      $style = $settings['style'] ?? NULL;
-      return !is_numeric($grid) && $style == 'nativegrid';
-    }
-    return FALSE;
+  public static function isNativeGrid(array $settings, $key = 'grid'): bool {
+    return self::isPair($settings, 'nativegrid', $key);
   }
 
   /**
    * Checks if a grid uses a native grid, but expecting a masonry.
    */
-  public static function isNativeGridAsMasonry(array $settings): bool {
-    return !self::isNativeGrid($settings)
-      && $settings['style'] == 'nativegrid';
+  public static function isNativeGridAsMasonry(array $settings, $key = 'grid'): bool {
+    return self::isPair($settings, 'nativegrid', $key, TRUE);
   }
 
   /**
@@ -307,30 +310,27 @@ class Grid {
    */
   public static function toDimensions(array $settings, $key = 'grid'): array {
     $dimensions = [];
-    $nativegrid = self::isNativeGrid($settings);
-    if ($nativegrid || self::isFlexbox($settings)) {
-      $grid = $settings[$key];
-      $values = array_map('trim', explode(" ", $grid));
+    $nativegrid = self::isNativeGrid($settings, $key);
+    if ($nativegrid || self::isFlexbox($settings, $key)) {
+      if ($grid = $settings[$key] ?? NULL) {
+        $grid = preg_replace("/[\r\n]+/", " ", $grid);
+        $grid = preg_replace('/\s+/', ' ', $grid);
+        $values = array_map('trim', explode(" ", $grid));
 
-      foreach ($values as $value) {
-        $width = $value;
-        $height = 0;
+        foreach ($values as $value) {
+          $width = $value;
+          $height = 0;
 
-        // If multidimensional layout.
-        if (Blazy::has($value, '-')) {
-          [$width, $height] = array_pad(array_map('trim', explode("-", $value, 2)), 2, NULL);
+          // If multidimensional layout.
+          if (Blazy::has($value, '-')) {
+            [$width, $height] = array_pad(array_map('trim', explode("-", $value, 2)), 2, NULL);
+          }
+          elseif (Blazy::has($value, 'x')) {
+            [$width, $height] = array_pad(array_map('trim', explode("x", $value, 2)), 2, NULL);
+          }
+
+          $dimensions[] = ['width' => $width, 'height' => $height];
         }
-        elseif (Blazy::has($value, 'x')) {
-          [$width, $height] = array_pad(array_map('trim', explode("x", $value, 2)), 2, NULL);
-        }
-
-        // @todo remove after some refactor to use string instead.
-        if ($nativegrid) {
-          $width = (int) $width;
-          $height = $height;
-        }
-
-        $dimensions[] = ['width' => $width, 'height' => $height];
       }
     }
 
@@ -346,20 +346,12 @@ class Grid {
     }
 
     $blazies = $settings['blazies'];
-    $grid = $settings['grid_large'] = $settings['grid'];
     if (self::isNativeGridAsMasonry($settings)) {
       $blazies->set('libs.nativegrid__masonry', TRUE);
     }
 
     // If Native Grid style with numeric grid, assumed non-two-dimensional.
-    // @todo add supports for multiple grid_medium, not grid_small.
-    if ($dimensions = self::toDimensions($settings)) {
-      // Prevents NestedArray from screwing up by making this an object.
-      // @todo support medium other than large.
-      $blazies->set('grid.dimensions', (object) $dimensions)
-        ->set('grid.large', $grid)
-        ->set('grid.count', count($dimensions));
-    }
+    self::toPair($settings);
   }
 
   /**
@@ -386,7 +378,6 @@ class Grid {
       foreach (['small', 'medium', 'large'] as $key) {
         $value = $settings['grid_' . $key] ?? NULL;
         if ($value && is_numeric($value)) {
-          $value = (int) $value;
           if ($key == 'small') {
             $nick = 'sm';
           }
@@ -397,15 +388,16 @@ class Grid {
             $nick = 'lg';
           }
 
-          $format3 = 'b-%s--%s-%d';
+          $format3 = 'b-%s--%s-%s';
           $attrs['class'][] = sprintf($format3, $style, $nick, $value);
         }
       }
     }
 
     // Layouts which might have a min-height region.
+    // Exclude nativegrid and Foundation grid which have fixed heights.
     if ($blazies->get('grid.dimensions', [])) {
-      $styles = ['columns', 'flex', 'flexbox'];
+      $styles = ['column', 'flex', 'flexbox'];
       if (in_array($style, $styles)) {
         $attrs['class'][] = 'b-mh';
       }
@@ -520,6 +512,50 @@ class Grid {
       return $blazies->get('field.label') ?: '';
     }
     return '';
+  }
+
+  /**
+   * Checks if a grid has a pair or non-numeric value: 4x2, 50-md, etc.
+   */
+  private static function isPair(
+    array $settings,
+    $value,
+    $key = 'grid',
+    $numeric = FALSE,
+  ): bool {
+    if ($grid = $settings[$key] ?? NULL) {
+      $style = $settings['style'] ?? 'x';
+      $check = $numeric ? is_numeric($grid) : !is_numeric($grid);
+      return $check && $style === $value;
+    }
+    return FALSE;
+  }
+
+  /**
+   * Passes grid like: 4x4, 50-md, etc.
+   */
+  private static function toPair(array &$settings): void {
+    $blazies = $settings['blazies'];
+    $grid = $settings['grid_large'] = $settings['grid'] ?? NULL;
+
+    if (!$grid) {
+      return;
+    }
+
+    // If Native Grid style with numeric grid, assumed non-two-dimensional.
+    // @todo add supports for multiple grid_medium, not grid_small.
+    if ($dimensions = self::toDimensions($settings)) {
+      // Prevents NestedArray from screwing up by making this an object.
+      // @todo support medium other than large.
+      $blazies->set('grid.dimensions.lg', (object) $dimensions)
+        ->set('grid.large', $grid)
+        ->set('grid.count', count($dimensions));
+
+      // The grid_medium dimensions, see css/components/blazy.style.css.
+      if ($mediums = self::toDimensions($settings, 'grid_medium')) {
+        $blazies->set('grid.dimensions.md', (object) $mediums);
+      }
+    }
   }
 
 }

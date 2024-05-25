@@ -127,6 +127,65 @@ ul.blazy.b-flexbox {
   }
 }
 
+/** 768px = 48em with 16px base font. */
+@media only screen and (min-width: 48em) {
+  .blazy.b-flexbox > [data-b-mw="10"] {
+    flex: 0 1 calc(10% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox > [data-b-mw="15"] {
+    flex: 0 1 calc(15% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox > [data-b-mw="20"] {
+    flex: 0 1 calc(20% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox > [data-b-mw="25"] {
+    flex: 0 1 calc(25% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox > [data-b-mw="30"] {
+    flex: 0 1 calc(30% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox > [data-b-mw="33"] {
+    flex: 0 1 calc(33% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox > [data-b-mw="34"] {
+    flex: 0 1 calc(34% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox > [data-b-mw="40"] {
+    flex: 0 1 calc(40% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox > [data-b-mw="50"] {
+    flex: 0 1 calc(50% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox > [data-b-mw="60"] {
+    flex: 0 1 calc(60% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox > [data-b-mw="75"] {
+    flex: 0 1 calc(75% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox > [data-b-mw="77"] {
+    flex: 0 1 calc(77% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox > [data-b-mw="80"] {
+    flex: 0 1 calc(80% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox > [data-b-mw="100"] {
+    flex: 0 1 100%;
+  }
+}
+
 /** 1025px with 16px base font. */
 @media only screen and (min-width: 64.063em) {
   .blazy.b-flexbox > [data-b-w="10"] {
