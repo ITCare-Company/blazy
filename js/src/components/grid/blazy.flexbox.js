@@ -18,7 +18,7 @@
   var C_MOUNTED = IS_NAME + '-mounted';
   var DATA_ID = 'data-b-' + NICK;
   var S_BASE = '[' + DATA_ID + ']';
-  var S_ELEMENT = '.' + ID + S_BASE;
+  var S_ELEMENT = '.' + ID + S_BASE + ':not(.' + C_MOUNTED + ')';
   var UNLOAD;
 
   /**

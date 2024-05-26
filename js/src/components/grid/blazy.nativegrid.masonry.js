@@ -23,7 +23,7 @@
   var C_IS_MASONRY = 'is-' + ID_ONCE;
   var C_MOUNTED = C_IS_MASONRY + '-mounted';
   var S_BASE = '.' + ID;
-  var S_ELEMENT = S_BASE + '.' + C_IS_MASONRY;
+  var S_ELEMENT = S_BASE + '.' + C_IS_MASONRY + ':not(.' + C_MOUNTED + ')';
   var UNLOAD;
 
   /**

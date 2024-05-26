@@ -179,7 +179,8 @@
 
       // Fix for LB or AJAX in general integration.
       // @todo move it to an AJAX event when Drupal has one by 2048.
-      if (me.options.unload) {
+      // BigPipe as usual.
+      if (me.options.unload && !$.isBigPipe()) {
         watch(me.options.unload);
         me.options.unload = false;
       }

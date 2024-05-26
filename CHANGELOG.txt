@@ -1,4 +1,8 @@
 
+Blazy 3.0.x-dev, 2024-05-27
+---------------------------
+- Fixed for dynamic grids with BigPipe as usual.
+
 Blazy 3.0.x-dev, 2024-05-26
 ---------------------------
 - Added supports for dynamic multi-breakpoint native grid and flexbox.

@@ -47,23 +47,24 @@
     toObject: function (elms, e) {
       var me = this;
       var opts = me.options;
-      var engine = me.options.engine;
+      var engine = opts.engine;
       var gap;
+
+      if (engine === E_FLEX) {
+        gap = $.computeStyle(_html, opts.gap, true);
+      }
 
       return elms.map(function (el) {
         var children = $.slice(el.childNodes);
 
         if (engine === E_NATIVEGRID) {
-          gap = parseFloat(getComputedStyle(el).gridRowGap);
-        }
-        else if (engine === E_FLEX) {
-          gap = parseFloat($.computeStyle(_html, opts.gap, true));
+          gap = getComputedStyle(el).gridRowGap;
         }
 
         return {
           _el: el,
           event: e || {},
-          gap: gap,
+          gap: gap ? parseFloat(gap) : 0,
           items: children.filter(function (c) {
             return $.hasClass(c, C_GRID) && !$.hasClass(c, 'region--bg');
           }),
@@ -200,7 +201,7 @@
 
       // Fix for LB or AJAX in general integration.
       // @todo move it to an AJAX event when Drupal has one by 2048.
-      if (me.options.unload) {
+      if (me.options.unload && !$.isBigPipe()) {
         watch(me.options.unload);
         me.options.unload = false;
       }
