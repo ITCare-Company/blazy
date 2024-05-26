@@ -372,4 +372,15 @@ trait TraitAdminBase {
     ];
   }
 
+  /**
+   * Returns the supported multi-breakpoint grids.
+   */
+  protected function isMultiBreakpoint(array $definition): bool {
+    $settings = $definition['settings'] ?? [];
+    if ($style = $settings['style'] ?? '') {
+      return in_array($style, ['flexbox', 'nativegrid']);
+    }
+    return FALSE;
+  }
+
 }

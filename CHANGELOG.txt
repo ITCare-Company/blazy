@@ -1,4 +1,9 @@
 
+Blazy 3.0.x-dev, 2024-05-26
+---------------------------
+- Added supports for dynamic multi-breakpoint native grid and flexbox.
+- Changed blazy native grid and flexbox EM to PX to avoid theme compatibility.
+
 Blazy 3.0.x-dev, 2024-05-25
 ---------------------------
 - Added supports for grid setting values with linebreak for reability.

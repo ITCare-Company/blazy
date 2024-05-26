@@ -171,6 +171,18 @@ column:
   dependencies:
     - blazy/style
 
+dygrid:
+  js:
+    js/components/grid/blazy.dygrid.min.js: { minified: true, weight: -0.05 }
+  dependencies:
+    - blazy/base
+
+masonry:
+  js:
+    js/components/grid/blazy.masonry.min.js: { minified: true, weight: -0.05 }
+  dependencies:
+    - blazy/base
+
 flex:
   css:
     component:
@@ -180,13 +192,17 @@ flex:
   dependencies:
     - blazy/compat
     - blazy/style
+    - blazy/masonry
 
 flexbox:
   css:
     component:
       css/components/grid/blazy.flexbox.css: {}
+  js:
+    js/components/grid/blazy.flexbox.min.js: { minified: true, weight: -0.04 }
   dependencies:
     - blazy/style
+    - blazy/dygrid
 
 grid:
   css:
@@ -199,8 +215,10 @@ nativegrid:
   css:
     component:
       css/components/grid/blazy.nativegrid.css: {}
+  js:
+    js/components/grid/blazy.nativegrid.min.js: { minified: true, weight: -0.04 }
   dependencies:
-    - blazy/base
+    - blazy/dygrid
 
 nativegrid.masonry:
   css:
@@ -212,6 +230,7 @@ nativegrid.masonry:
     - blazy/compat
     - blazy/nativegrid
     - blazy/style
+    - blazy/masonry
 
 # Lightboxes.
 lightbox:

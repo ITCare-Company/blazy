@@ -184,6 +184,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   public function gridForm(array &$form, array $definition): void {
     $scopes = $this->toScopes($definition);
     $required = $scopes->is('grid_required');
+    $multigrid = $this->isMultiBreakpoint($definition);
     $lb = $this->isAdminLb();
 
     if (!$scopes->is('no_grid_header')) {
@@ -210,7 +211,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     ];
 
     $form['grid_medium'] = [
-      '#type'  => 'textfield',
+      '#type'  => $multigrid ? 'textarea' : 'textfield',
       '#title' => $this->t('Grid medium'),
     ];
 
@@ -495,6 +496,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     $fullwidth = $scopes->data('fullwidth', []);
     $descs     = $scopes->data('additional_descriptions', []);
     $repdescs  = $scopes->data('replaced_descriptions', []);
+    $multigrid = $this->isMultiBreakpoint($definition);
 
     $this->blazyManager->moduleHandler()->alter('blazy_form_element', $form, $definition, $scopes);
 
@@ -592,6 +594,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
         $wide = in_array($key, ['grid', 'box_caption_custom'])
           || ($scopes->is('grid_required') && $key == 'style');
+
+        if ($multigrid && $key == 'grid_medium') {
+          $wide = TRUE;
+        }
+
         if ($wide || ($fullwidth && in_array($key, $fullwidth))) {
           $wrapper_attrs['data-b-w'] = 12;
         }
@@ -632,7 +639,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       }
 
       // Don't store values babysitters.
-      if (!empty($form[$key]['#unset']) || ($form[$key]['#access'] ?? 'x') == FALSE) {
+      if (!empty($form[$key]['#unset'])
+        || ($form[$key]['#access'] ?? 'x') == FALSE) {
         unset($form[$key]['#default_value']);
       }
 

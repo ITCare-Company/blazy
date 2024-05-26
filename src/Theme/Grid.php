@@ -6,6 +6,7 @@ use Drupal\blazy\Blazy;
 use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Utility\Check;
+use Drupal\Component\Serialization\Json;
 
 /**
  * Provides grid utilities.
@@ -88,6 +89,11 @@ class Grid {
     $is_gallery = $blazies->is('gallery');
     $namespace  = $blazies->get('namespace');
 
+    // Limit to grid only, so to be usable for plain list.
+    if ($blazies->is('grid')) {
+      self::containerAttributes($attrs, $settings);
+    }
+
     // Provides data-attributes to avoid conflict with original implementations.
     Attributes::container($attrs, $settings);
 
@@ -101,11 +107,6 @@ class Grid {
         $id = $id . Internals::getHtmlId('-');
       }
       $attrs['id'] = $id;
-    }
-
-    // Limit to grid only, so to be usable for plain list.
-    if ($blazies->is('grid')) {
-      self::containerAttributes($attrs, $settings, $blazies);
     }
 
     // Listens to hook_blazy_settings_alter for minor alters.
@@ -232,9 +233,7 @@ class Grid {
     $content_attrs['class'] = array_merge(['grid__content'], $classes);
 
     // Convert grid value to attributes.
-    foreach (['lg', 'md'] as $key) {
-      self::toItemAttributes($attrs, $settings, $key);
-    }
+    self::toItemAttributes($attrs, $settings);
 
     // Checks for hook alters.
     self::checkAttributes($attrs, $content_attrs, $blazies, FALSE);
@@ -243,7 +242,7 @@ class Grid {
   /**
    * Convert grid value to attributes.
    */
-  public static function toItemAttributes(array &$attrs, array $settings, $id = 'lg'): void {
+  public static function toItemAttributes(array &$attrs, array $settings): void {
     $blazies = $settings['blazies'];
 
     // Count may be set as 2 even if it is 100 by sliders for their magic trick.
@@ -251,10 +250,10 @@ class Grid {
     // @todo use just total after sub-modules provides it to avoid this check.
     $total = Internals::count($blazies);
     $grid_count = $blazies->get('grid.count', 0);
-    $bw = $id == 'lg' ? 'data-b-w' : 'data-b-mw';
-    $bh = $id == 'lg' ? 'data-b-h' : 'data-b-mh';
+    $bw = 'data-b-w';
+    $bh = 'data-b-h';
 
-    if ($dim = $blazies->get('grid.dimensions.' . $id, NULL)) {
+    if ($dim = $blazies->get('grid.dimensions.lg', NULL)) {
       $dim = (array) $dim;
       $delta = $blazies->get('delta', $settings['delta'] ?? 0);
       if (isset($dim[$delta])) {
@@ -311,6 +310,7 @@ class Grid {
   public static function toDimensions(array $settings, $key = 'grid'): array {
     $dimensions = [];
     $nativegrid = self::isNativeGrid($settings, $key);
+
     if ($nativegrid || self::isFlexbox($settings, $key)) {
       if ($grid = $settings[$key] ?? NULL) {
         $grid = preg_replace("/[\r\n]+/", " ", $grid);
@@ -357,7 +357,8 @@ class Grid {
   /**
    * Limit to grid only, so to be usable for plain list.
    */
-  private static function containerAttributes(array &$attrs, array $settings, $blazies): void {
+  private static function containerAttributes(array &$attrs, array $settings): void {
+    $blazies = $settings['blazies'];
     $style   = $settings['style'] ?: 'grid';
     $count   = Internals::count($blazies);
     $format1 = 'b-%s';
@@ -396,7 +397,8 @@ class Grid {
 
     // Layouts which might have a min-height region.
     // Exclude nativegrid and Foundation grid which have fixed heights.
-    if ($blazies->get('grid.dimensions', [])) {
+    $dimensions = $blazies->get('grid.dimensions', []);
+    if ($dimensions) {
       $styles = ['column', 'flex', 'flexbox'];
       if (in_array($style, $styles)) {
         $attrs['class'][] = 'b-mh';
@@ -405,8 +407,23 @@ class Grid {
 
     // If Native Grid style with numeric grid, assumed non-two-dimensional.
     if ($style == 'nativegrid') {
-      $attrs['class'][] = self::isNativeGridAsMasonry($settings)
-        ? 'is-b-masonry' : 'is-b-native';
+      $masonry = self::isNativeGridAsMasonry($settings);
+      $attrs['class'][] = $masonry ? 'is-b-masonry' : 'is-b-native';
+    }
+
+    // Since 3.0.7, supports dynamic multi-breakpoint grids.
+    if ($dimensions && $lgs = $dimensions['lg'] ?? NULL) {
+      // Only support dynamic grids if grid_medium is non-numeric.
+      if ($mds = $dimensions['md'] ?? NULL) {
+        $data = [
+          'lg' => self::toValues((array) $lgs),
+          'md' => self::toValues((array) $mds),
+        ];
+
+        $json = Json::encode($data);
+        $attrs['data-b-' . $style] = base64_encode($json);
+        $attrs['class'][] = 'is-b-dygrid';
+      }
     }
   }
 
@@ -556,6 +573,19 @@ class Grid {
         $blazies->set('grid.dimensions.md', (object) $mediums);
       }
     }
+  }
+
+  /**
+   * Converts array to array values.
+   */
+  private static function toValues(array $array): array {
+    $values = [];
+    array_walk($array, function ($val) use (&$values) {
+      if (is_array($val)) {
+        array_push($values, array_values($val));
+      }
+    });
+    return $values;
   }
 
 }

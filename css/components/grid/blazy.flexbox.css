@@ -12,6 +12,7 @@
  * large single number columns are the closes to the real Masonry_Layout.
  *
  * @see https://caniuse.com/flexbox-gap
+ * @see https://developer.mozilla.org/en-US/docs/Web/CSS/flex
  */
 
 /* csslint ignore:start */
@@ -19,6 +20,11 @@
   /* The gap 15px is to match CSS grid convention such as Bootstrap.
   Affected by .grid margin 0 vs. auto. This 14px is best for .b-flexbox. Adjust it. */
   --bfb-col-gap: 14px;
+  /* Since 3.0.7, these values are to determine multi-breakpoint grids with
+  min-max device widths, basically just to make grid_medium value kicks in
+  within this range. If changed, be sure to update its media query far below. */
+  --bfb-md: 768px;
+  --bfb-lg: 1024px;
 }
 
 .blazy.b-flexbox,
@@ -50,8 +56,8 @@ ul.blazy.b-flexbox {
   padding: 0;
 }
 
-/** 480px with 16px base font. */
-@media only screen and (min-width: 30em) {
+/** 480px = 30em with 16px base font. */
+@media only screen and (min-width: 480px) {
   /* Gap with flexbox is problematic against justify-content vs. flex-direction: row. */
   .b-flexbox,
   .blazy.b-flexbox,
@@ -112,8 +118,8 @@ ul.blazy.b-flexbox {
   }
 }
 
-/** 640px with 16px base font. */
-@media only screen and (min-width: 40em) {
+/** 640px = 40em with 16px base font. */
+@media only screen and (min-width: 640px) {
   .blazy.b-flexbox--md-2 > .grid {
     flex: 0 1 calc(50% - var(--bfb-col-gap));
   }
@@ -127,67 +133,12 @@ ul.blazy.b-flexbox {
   }
 }
 
-/** 768px = 48em with 16px base font. */
-@media only screen and (min-width: 48em) {
-  .blazy.b-flexbox > [data-b-mw="10"] {
-    flex: 0 1 calc(10% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox > [data-b-mw="15"] {
-    flex: 0 1 calc(15% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox > [data-b-mw="20"] {
-    flex: 0 1 calc(20% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox > [data-b-mw="25"] {
-    flex: 0 1 calc(25% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox > [data-b-mw="30"] {
-    flex: 0 1 calc(30% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox > [data-b-mw="33"] {
-    flex: 0 1 calc(33% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox > [data-b-mw="34"] {
-    flex: 0 1 calc(34% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox > [data-b-mw="40"] {
-    flex: 0 1 calc(40% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox > [data-b-mw="50"] {
-    flex: 0 1 calc(50% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox > [data-b-mw="60"] {
-    flex: 0 1 calc(60% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox > [data-b-mw="75"] {
-    flex: 0 1 calc(75% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox > [data-b-mw="77"] {
-    flex: 0 1 calc(77% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox > [data-b-mw="80"] {
-    flex: 0 1 calc(80% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox > [data-b-mw="100"] {
-    flex: 0 1 100%;
-  }
-}
-
-/** 1025px with 16px base font. */
-@media only screen and (min-width: 64.063em) {
+/**
+ * 768px = 48em with 16px base font.
+ *
+ * Since 3.0.7, supports multi-breakpoint grids for grid and grid_medium.
+ */
+@media only screen and (min-width: 768px) {
   .blazy.b-flexbox > [data-b-w="10"] {
     flex: 0 1 calc(10% - var(--bfb-col-gap));
   }

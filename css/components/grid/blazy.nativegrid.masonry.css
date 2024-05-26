@@ -31,8 +31,16 @@ To have gapless, simply add `is-b-gapless` class via template_preprocess. */
   --bn-row-height-masonry: 15px;
 }
 
-.b-nativegrid.is-b-masonry-disabled > .grid {
+.b-nativegrid.is-b-masonry-disabled:not(.is-b-gapless) > .grid,
+.item-list > .is-b-masonry-disabled:not(.is-b-gapless) > .grid {
   margin-top: 0 !important;
+  margin-bottom: var(--bn-col-gap);
+}
+
+.b-nativegrid.is-b-masonry-disabled,
+.blazy.b-nativegrid.is-b-masonry-disabled,
+.item-list > .b-nativegrid.is-b-masonry-disabled {
+  display: block;
 }
 
 /** 480px = 30em with 16px base font. */

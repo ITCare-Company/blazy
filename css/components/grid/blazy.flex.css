@@ -52,8 +52,10 @@ ul.blazy.b-flex {
   padding: 0;
 }
 
-.b-flex.is-b-flex-disabled > .grid {
+.b-flex.is-b-flex-disabled:not(.is-b-gapless) > .grid,
+.item-list > .is-b-flex-disabled:not(.is-b-gapless) > .grid {
   margin-top: 0 !important;
+  margin-bottom: var(--bf-col-gap);
 }
 
 /** @todo listen to transitionend. */

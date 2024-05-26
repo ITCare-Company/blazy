@@ -14,3 +14,9 @@
   float: right !important;
   font-size: small !important;
 }
+
+/* Help focus on the expanded details. */
+.form-wrapper--b-layout > details[open] {
+  background-color: rgba(0,0,0,0.5) !important;
+  border-radius: 8px !important;
+}

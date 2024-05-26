@@ -161,6 +161,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       'grid_required' => TRUE,
       'no_grid_header' => TRUE,
       'blazy_layout' => TRUE,
+      'settings' => $settings,
     ];
 
     $grid_form = [];
