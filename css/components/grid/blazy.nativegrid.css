@@ -47,6 +47,7 @@ ul.blazy.b-nativegrid {
   min-height: 40px;
   margin: 0 0 var(--bn-col-gap);
   padding: 0;
+  opacity: 1;
 }
 
 /** Without margin. */
@@ -58,6 +59,11 @@ ul.blazy.b-nativegrid {
 .b-nativegrid .grid__content,
 .b-nativegrid .region__content {
   height: 100%;
+}
+
+.b-nativegrid.is-b-loading > .grid {
+  transition: opacity 0.3s ease-in;
+  opacity: 0;
 }
 
 /** 480px = 30em with 16px base font. */

@@ -17,6 +17,7 @@
   var S_GRID = '.' + C_GRID;
   var E_FLEX = 'flex';
   var E_NATIVEGRID = 'nativegrid';
+  var IS_LOADING = 'is-b-loading is-b-visible';
 
   $.masonry = {
 
@@ -89,6 +90,8 @@
 
       // If the number of columns has changed.
       if (grid.ncol !== ncol || grid.mod) {
+        $.addClass(grid._el, IS_LOADING);
+
         // Update number of columns.
         grid.ncol = ncol;
 
@@ -119,6 +122,9 @@
         }
 
         grid.mod = false;
+        setTimeout(function () {
+          $.removeClass(grid._el, IS_LOADING);
+        }, 500);
       }
     },
 
@@ -140,10 +146,10 @@
 
       me.options = opts;
 
-      var roots = me.toObject(elms);
+      var objs = me.toObject(elms);
 
       var onResize = function (entry) {
-        roots.find(function (grid) {
+        objs.find(function (grid) {
           if (grid._el === entry.target.parentElement) {
             if (me.resized) {
               me.subprocess(grid);
@@ -163,7 +169,7 @@
       });
 
       function observe() {
-        $.each(roots, function (grid) {
+        $.each(objs, function (grid) {
           $.each(grid.items, function (c) {
             o.observe(c);
           });
@@ -171,22 +177,26 @@
       }
 
       function layout(e) {
-        if ($.isUnd(e)) {
-          $.each(roots, me.subprocess, me);
-        }
-        else {
-          var elms = $.toElms(opts.sBase);
+        // Only change if needs changing.
+        if (e) {
+          // If infinite scroll, needs ref-fetching newly added DOM elements.
+          if (me.options.unload) {
+            elms = $.toElms(opts.sBase);
 
-          if (elms.length) {
-            roots = me.toObject(elms, e);
+            if (elms.length) {
+              objs = me.toObject(elms, e);
 
-            roots.find(function (grid) {
-              return $.hasClass(grid._el, opts.id);
-            }).mod = true;
-
-            $.each(roots, me.subprocess, me);
+              objs.find(function (grid) {
+                return $.hasClass(grid._el, opts.id);
+              }).mod = true;
+            }
+          }
+          else {
+            // If matching the contraint for MD, or need resizing.
+            objs = me.toObject(elms, e);
           }
         }
+        $.each(objs, me.subprocess, me);
       }
 
       var watch = function (e) {
@@ -199,9 +209,10 @@
         }, e === me.options.unload ? 700 : 1);
       };
 
-      // Fix for LB or AJAX in general integration.
+      // Fix for LB, infine scroll, or AJAX in general integration.
+      // With BigPipe 2024, everything called twice causes reset and reload.
       // @todo move it to an AJAX event when Drupal has one by 2048.
-      if (me.options.unload && !$.isBigPipe()) {
+      if (me.options.unload) {
         watch(me.options.unload);
         me.options.unload = false;
       }

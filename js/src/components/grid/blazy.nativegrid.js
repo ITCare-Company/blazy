@@ -19,6 +19,8 @@
   var DATA_ID = 'data-b-' + NICK;
   var S_BASE = '[' + DATA_ID + ']';
   var S_ELEMENT = '.' + ID + S_BASE + ':not(.' + C_MOUNTED + ')';
+  var BIG_PIPE = $.isBigPipe();
+  var INITIAL = true;
   var UNLOAD;
 
   /**
@@ -53,11 +55,13 @@
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        UNLOAD = true;
-        var els = $.once.removeSafely(ID_ONCE, S_BASE, context);
-        if (els && els.length) {
-          $.removeClass(els[0], C_MOUNTED);
+        // Prevents from BigPipe problematic multiple invocations, 6+.
+        UNLOAD = BIG_PIPE ? $.isBigPipeDone() : true;
+        if (UNLOAD && !INITIAL) {
+          $.once.removeSafely(ID_ONCE, S_BASE, context, C_MOUNTED);
         }
+
+        INITIAL = BIG_PIPE ? !$.isBigPipeDone() : false;
       }
     }
 

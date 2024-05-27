@@ -44,6 +44,10 @@
     return 'bigPipePlaceholderIds' in drupalSettings;
   };
 
+  $.isBigPipeDone = function () {
+    return $.isBigPipe() && $.isEmpty(drupalSettings.bigPipePlaceholderIds);
+  };
+
   $.isBg = function (el, opts) {
     return is(el, opts && opts.bgClass || 'b-bg');
   };

@@ -107,16 +107,23 @@
   $.once = $.extend(onceCompat, coreOnce);
   $.filter = _filter;
 
-  // @todo implement clear, maybe by internal processed class.
-  // Only relevant for BigPipe compat, though.
-  $.once.removeSafely = function (id, selector, ctx, clear) {
+  // The mountedClass is normally the processed class for BigPipe compat,
+  // added once everything is setup on Drupal.behaviors, and only relevant for
+  // infinite scroll and scripts which update DOM, hardly regular [non-]AJAX.
+  // At most cases, mountedClass is not needed w/o BigPipe. However if anything
+  // broken with BigPipe, simply put the mountedClass.
+  $.once.removeSafely = function (id, selector, ctx, mountedClass) {
     var me = this;
     var root = $.context(ctx, selector);
+    var els = [];
 
     if (me.find(id, root).length) {
-      return me.remove(id, selector, root);
+      els = me.remove(id, selector, root);
+      if (els.length && $.isStr(mountedClass)) {
+        $.removeClass(els, mountedClass);
+      }
     }
-    return [];
+    return els;
   };
 
 })(dBlazy, Drupal, this);

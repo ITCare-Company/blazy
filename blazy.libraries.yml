@@ -176,12 +176,14 @@ dygrid:
     js/components/grid/blazy.dygrid.min.js: { minified: true, weight: -0.05 }
   dependencies:
     - blazy/base
+    - blazy/loading
 
 masonry:
   js:
     js/components/grid/blazy.masonry.min.js: { minified: true, weight: -0.05 }
   dependencies:
     - blazy/base
+    - blazy/loading
 
 flex:
   css:

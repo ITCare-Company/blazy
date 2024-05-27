@@ -24,6 +24,8 @@
   var C_MOUNTED = C_IS_MASONRY + '-mounted';
   var S_BASE = '.' + ID;
   var S_ELEMENT = S_BASE + '.' + C_IS_MASONRY + ':not(.' + C_MOUNTED + ')';
+  var BIG_PIPE = $.isBigPipe();
+  var INITIAL = true;
   var UNLOAD;
 
   /**
@@ -59,11 +61,13 @@
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        UNLOAD = true;
-        var els = $.once.removeSafely(ID_ONCE, S_BASE, context);
-        if (els && els.length) {
-          $.removeClass(els[0], C_MOUNTED);
+        // Prevents from BigPipe problematic multiple invocations, 6+.
+        UNLOAD = BIG_PIPE ? $.isBigPipeDone() : true;
+        if (UNLOAD && !INITIAL) {
+          $.once.removeSafely(ID_ONCE, S_BASE, context, C_MOUNTED);
         }
+
+        INITIAL = BIG_PIPE ? !$.isBigPipeDone() : false;
       }
     }
 

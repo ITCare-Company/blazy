@@ -1,6 +1,7 @@
 
 Blazy 3.0.x-dev, 2024-05-27
 ---------------------------
+- Fixed for infinite scroll (IO/ VIS) grids with BigPipe complications.
 - Fixed for dynamic grids with BigPipe as usual.
 
 Blazy 3.0.x-dev, 2024-05-26
