@@ -1,4 +1,9 @@
 
+Blazy 3.0.x-dev, 2024-05-28
+---------------------------
+- Issue #3361143: Compatibility with BigPipe.
+- Renamed .is-b-native to .is-b-nativegrid for clarity and consistency.
+
 Blazy 3.0.x-dev, 2024-05-27
 ---------------------------
 - Fixed for infinite scroll (IO/ VIS) grids with BigPipe complications.

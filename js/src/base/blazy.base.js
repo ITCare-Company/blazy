@@ -5,7 +5,7 @@
  * @todo watch out for Drupal namespace removal, likely becomes under window.
  */
 
-(function ($, Drupal, drupalSettings, _win) {
+(function ($, Drupal, _win) {
 
   'use strict';
 
@@ -39,14 +39,6 @@
   function is(el, name) {
     return $.hasClass(real(el), name);
   }
-
-  $.isBigPipe = function () {
-    return 'bigPipePlaceholderIds' in drupalSettings;
-  };
-
-  $.isBigPipeDone = function () {
-    return $.isBigPipe() && $.isEmpty(drupalSettings.bigPipePlaceholderIds);
-  };
 
   $.isBg = function (el, opts) {
     return is(el, opts && opts.bgClass || 'b-bg');
@@ -115,4 +107,4 @@
     }
   };
 
-})(dBlazy, Drupal, drupalSettings, this);
+})(dBlazy, Drupal, this);

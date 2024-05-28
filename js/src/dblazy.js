@@ -18,7 +18,7 @@
  */
 
 /* global define */
-(function (_win, _doc) {
+(function (_win, _doc, _ds) {
 
   'use strict';
 
@@ -576,6 +576,28 @@
    */
   function isAttr(x) {
     return x && 'getAttribute' in x;
+  }
+
+  function isBigPipe() {
+    return 'bigPipePlaceholderIds' in _ds;
+  }
+
+  // Checks if BigPipe replacement jobs are done.
+  function wwoBigPipeDone() {
+    if (isBigPipe()) {
+      return isEmpty(_ds.bigPipePlaceholderIds);
+    }
+    // If BigPipe is not installed, always done.
+    return true;
+  }
+
+  // Wait for BigPipe to be done before calling a function, not really once.
+  // This should also avoid multiple invocations of the callback function.
+  function wwoBigPipe(cb, t) {
+    if (wwoBigPipeDone()) {
+      // DOM ready fix.
+      setTimeout(cb, t || 101);
+    }
   }
 
   /**
@@ -1796,7 +1818,7 @@
           var data = {
             bubbles: true,
             cancelable: true,
-            detail: details || {}
+            detail: isObj(details) ? details : {}
           };
 
           if (isObj(param)) {
@@ -1882,6 +1904,9 @@
   DB.isNativeLazy = 'loading' in HTMLImageElement.prototype;
   DB.isAmd = typeof define === 'function' && define.amd;
   DB.isWin = isWin;
+  DB.isBigPipe = isBigPipe;
+  DB.wwoBigPipeDone = wwoBigPipeDone;
+  DB.wwoBigPipe = wwoBigPipe;
   DB.isTouch = isTouch;
   DB.touchOrNot = touchOrNot;
   DB._er = -1;
@@ -2397,4 +2422,4 @@
     _win.dBlazy = DB;
   }
 
-})(this, this.document);
+})(this, this.document, drupalSettings);

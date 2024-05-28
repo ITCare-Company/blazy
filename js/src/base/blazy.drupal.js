@@ -16,12 +16,15 @@
   var NAME = 'Drupal.' + ID;
   var DATA = 'data';
   var C_BG = 'b-bg';
+  var C_ERROR = 'errorClass';
+  var C_CHECKED = 'b-checked';
   var DATA_B_BG = DATA + '-' + C_BG;
   var DATA_B_RATIOS = DATA + '-b-ratios';
   var S_BLUR = '.b-blur';
   var S_MEDIA = '.media';
   var C_SUCCESS = 'successClass';
-  var E_DONE_COLON = ID + ':done';
+  var E_DONE = ID + ':done';
+  var E_ERROR = ID + ':error';
   var NOOP = function () {};
   var EXTENSIONS = {};
 
@@ -125,10 +128,23 @@
 
     clearing: function (el) {
       var me = this;
-      var ie = $.hasClass(el, 'b-responsive') && $.hasAttr(el, DATA + '-pfsrc');
+      var ie;
+
+      // Bail out if any error.
+      if ($.hasClass(el, me.options[C_ERROR]) && !$.hasClass(el, C_CHECKED)) {
+        $.addClass(el, C_CHECKED);
+        // Clear loading classes. Also supports future delayed Native loading.
+        if ($.isFun($.unloading)) {
+          $.unloading(el);
+        }
+
+        $.trigger(el, E_ERROR, [me]);
+        return;
+      }
 
       // @see https://scottjehl.github.io/picturefill/
       // @todo remove when IE gone from planet Drupal.
+      ie = $.hasClass(el, 'b-responsive') && $.hasAttr(el, DATA + '-pfsrc');
       if (_win.picturefill && ie) {
         _win.picturefill({
           reevaluate: true,
@@ -155,7 +171,7 @@
       me.clearScript(el);
 
       // Provides event listeners for easy overrides without full overrides.
-      $.trigger(el, E_DONE_COLON, {
+      $.trigger(el, E_DONE, {
         options: me.options
       });
     },
@@ -223,7 +239,7 @@
 
       if (elms.length) {
         $.each(elms, function (el) {
-          var type = isMe ? E_DONE_COLON : 'load';
+          var type = isMe ? E_DONE : 'load';
           $.one(el, type, cb, isMe);
 
           if (observer) {

@@ -5,6 +5,10 @@
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module, or its sub-modules.
+ *
+ * @see https://www.drupal.org/project/drupal/issues/1461322
+ * @see https://www.drupal.org/project/slick/issues/3340509
+ * @see https://www.drupal.org/project/slick/issues/3211873
  */
 
 (function ($, Drupal, _win) {
@@ -31,6 +35,16 @@
    */
   function onceCompat(cb, id, selector, ctx) {
     var els = [];
+
+    // Prevents from BigPipe problematic multiple invocations.
+    // Mostly relevant for [DOM|AJAX]-related mutation environment (LB, infinite
+    // scroll, etc), hardly static pages without DOM modification. What this
+    // does is waiting for BigPipe to do its job, and only when it is done, once
+    // is called. The drawback, it will slightly delay DOM changes, yet better
+    // than problematic multiple invocations.
+    if (!$.wwoBigPipeDone()) {
+      return els;
+    }
 
     // If cb is a string, allow empty selector/ context for document.
     // Assumes once(id, selector, context), by shifting one argument.
@@ -94,36 +108,105 @@
     });
   }
 
-  // @todo BigPipe compat to avoid legacy approach with `processed` classes.
-  // See:
-  // - https://www.drupal.org/project/drupal/issues/1461322.
-  // - https://www.drupal.org/project/slick/issues/3340509.
-  // - https://www.drupal.org/project/slick/issues/3211873.
+  // Since 3.0.6, uses core/once.
   function initOnce(id, selector, ctx) {
     var root = $.context(ctx, selector);
     return coreOnce(id, selector, root);
   }
 
   $.once = $.extend(onceCompat, coreOnce);
+  $.once.counter = 0;
   $.filter = _filter;
 
-  // The mountedClass is normally the processed class for BigPipe compat,
-  // added once everything is setup on Drupal.behaviors, and only relevant for
-  // infinite scroll and scripts which update DOM, hardly regular [non-]AJAX.
-  // At most cases, mountedClass is not needed w/o BigPipe. However if anything
-  // broken with BigPipe, simply put the mountedClass.
-  $.once.removeSafely = function (id, selector, ctx, mountedClass) {
-    var me = this;
-    var root = $.context(ctx, selector);
-    var els = [];
+  // Tested at D10.3, a workaround, not a final fix, till BigPipe issues fixed.
+  // This is likely the root cause of BigPipe issues, unmatched detachments.
+  // Normally called in Drupal.behaviors.detach() with trigger `unload`.
+  // This check basically makes BigPipe behaves like without it as otherwise
+  // `unload` trigger is called many times on BigPipe replacement jobs.
+  // @todo update this if blazy ajax-related is broken later, that is when
+  // BigPipe fixes this issue. See the above BigPipe issues.
+  // @fixme, not really crucial, AJAX (IO/ VIS) requires 2, the rest 1.
+  // Without BigPipe, always 0.
+  $.once.unload = $.once.counter >= ($.isBigPipe() ? 1 : 0);
 
-    if (me.find(id, root).length) {
-      els = me.remove(id, selector, root);
-      if (els.length && $.isStr(mountedClass)) {
-        $.removeClass(els, mountedClass);
+  // See https://developer.mozilla.org/en-US/docs/Web/CSS/:not
+  function extractNot(selector) {
+    var mounted = [];
+    if ($.contains(selector, ':not')) {
+      var notsels = selector.split(':not');
+
+      $.each(notsels, function (notsel) {
+        if ($.contains(notsel, '(')) {
+          var cls = notsel.split('(').pop().split(')')[0];
+
+          // Selector list/ compound argument, with commas.
+          if ($.contains(cls, ',')) {
+            var vals = cls.split(',');
+            $.each(vals, function (val) {
+              val = val.replace('.', '');
+              mounted.push(val);
+            });
+          }
+          else {
+            if (cls) {
+              cls = cls.replace('.', '');
+              mounted.push(cls);
+            }
+          }
+        }
+      });
+    }
+    return mounted;
+  }
+
+  $.once.removeSafely = function (id, selector, ctx) {
+    var me = this;
+    var els = [];
+    var root;
+    var unload;
+    var mounted;
+
+    if ($.wwoBigPipeDone()) {
+      unload = $.once.unload;
+      root = $.context(ctx, selector);
+
+      if (unload && me.find(id, root).length) {
+        els = me.remove(id, selector, root);
+
+        // @todo remove, might be no longer relevant for ::wwoBigPipeDone(),
+        // only remove after :not() classes are removed to avoid blocking.
+        mounted = extractNot(selector);
+        if (els.length && mounted.length) {
+          $.removeClass(els, mounted);
+        }
       }
     }
+
     return els;
+  };
+
+  /**
+   * Attaches Blazy behavior to nothing for BigPipe compat.
+   *
+   * @type {Drupal~behavior}
+   */
+  Drupal.behaviors.blazyOnce = {
+    attach: function (context) {
+
+      $.wwoBigPipe(function () {
+        if ($.once.counter > 1) {
+          $.once.counter--;
+        }
+      });
+
+    },
+    detach: function (context, setting, trigger) {
+      if (trigger === 'unload') {
+        $.wwoBigPipe(function () {
+          $.once.counter++;
+        });
+      }
+    }
   };
 
 })(dBlazy, Drupal, this);

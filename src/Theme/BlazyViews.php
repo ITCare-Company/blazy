@@ -36,7 +36,8 @@ class BlazyViews {
       $settings  = $blazy->mergedViewsSettings();
       $blazies   = $settings['blazies'];
 
-      $blazies->set('unlazy', FALSE);
+      $blazies->set('unlazy', FALSE)
+        ->set('use.ajax', $ajax);
 
       $load  = $manager->attach($settings);
       $loads = $manager->merge($load, $loads);
@@ -94,7 +95,8 @@ class BlazyViews {
       if ($view = $variables['view']) {
         $count = count($view->result);
         $blazies->set('count', $count)
-          ->set('total', $count);
+          ->set('total', $count)
+          ->set('use.ajax', $view->ajaxEnabled());
       }
 
       $variables['blazy'] = $settings;

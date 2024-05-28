@@ -8,7 +8,7 @@
  * reflow due to using JS.
  *
  * Classes:
- *  - .is-b-native, as the original two-dimensional, the real Native Grid.
+ *  - .is-b-nativegrid, as the original two-dimensional, the real Native Grid.
  *  - .is-b-masonry, as the tweaked one-dimensional, the Masonry.
  */
 
@@ -47,7 +47,8 @@ ul.blazy.b-nativegrid {
   min-height: 40px;
   margin: 0 0 var(--bn-col-gap);
   padding: 0;
-  opacity: 1;
+  /* At most grids, transition is causing issues than helpful. */
+  transition: none;
 }
 
 /** Without margin. */
@@ -59,11 +60,6 @@ ul.blazy.b-nativegrid {
 .b-nativegrid .grid__content,
 .b-nativegrid .region__content {
   height: 100%;
-}
-
-.b-nativegrid.is-b-loading > .grid {
-  transition: opacity 0.3s ease-in;
-  opacity: 0;
 }
 
 /** 480px = 30em with 16px base font. */
@@ -105,28 +101,28 @@ ul.blazy.b-nativegrid {
   }
 
   /** Adjust the minimum accordingly like everything else. */
-  .is-b-native > .grid {
+  .is-b-nativegrid > .grid {
     grid-row: span 2;
     grid-column: auto;
   }
 
-  .is-b-native:not(.b-layout) .grid__content {
+  .is-b-nativegrid:not(.b-layout) .grid__content {
     overflow: hidden;
     height: 100%;
   }
 
   /* Add more relevant selectors accordingly to make gapless grids.
-  Remove .is-b-native to make it fit height-width for Masonry as well, if needed. */
-  .is-b-native:not(.b-layout) .b-cover,
-  .is-b-native:not(.b-layout) .b-link,
-  .is-b-native:not(.b-layout) .litebox,
-  .is-b-native:not(.b-layout) .b-bg,
-  .is-b-native:not(.b-layout) iframe,
-  .is-b-native:not(.b-layout) picture,
-  .is-b-native:not(.b-layout) video,
-  .is-b-native:not(.b-layout) .media,
-  .is-b-native:not(.b-layout) img.media__element,
-  .is-b-native:not(.b-layout) .slide__media {
+  Remove .is-b-nativegrid to make it fit height-width for Masonry as well, if needed. */
+  .is-b-nativegrid:not(.b-layout) .b-cover,
+  .is-b-nativegrid:not(.b-layout) .b-link,
+  .is-b-nativegrid:not(.b-layout) .litebox,
+  .is-b-nativegrid:not(.b-layout) .b-bg,
+  .is-b-nativegrid:not(.b-layout) iframe,
+  .is-b-nativegrid:not(.b-layout) picture,
+  .is-b-nativegrid:not(.b-layout) video,
+  .is-b-nativegrid:not(.b-layout) .media,
+  .is-b-nativegrid:not(.b-layout) img.media__element,
+  .is-b-nativegrid:not(.b-layout) .slide__media {
     position: static; /* To keep lightbox/ video icon centered. */
     width: 100%;
     height: inherit;
@@ -135,7 +131,7 @@ ul.blazy.b-nativegrid {
     object-fit: cover;
   }
 
-  .is-b-native .b-html.b-loaded > img {
+  .is-b-nativegrid .b-html.b-loaded > img {
     position: absolute;
     z-index: -1;
     width: 0;
@@ -143,13 +139,13 @@ ul.blazy.b-nativegrid {
   }
 
   /* For some reason, unlike video, etc., iframe refuses to show when static. */
-  .is-b-native:not(.b-layout) .grid iframe {
+  .is-b-nativegrid:not(.b-layout) .grid iframe {
     position: absolute;
     height: 100%;
   }
 
   /* Olivero surprises, adjust it. */
-  .is-b-native:not(.b-layout) .blazy__caption h2 {
+  .is-b-nativegrid:not(.b-layout) .blazy__caption h2 {
     margin: 0;
     color: #fff;
     font-size: 1.25rem;
@@ -157,8 +153,8 @@ ul.blazy.b-nativegrid {
   }
 
   /* To avoid initial confusion due to being overflow: hidden, adjust it. */
-  .is-b-native:not(.b-layout) .blazy__caption,
-  .is-b-native:not(.b-layout) .slide__caption {
+  .is-b-nativegrid:not(.b-layout) .blazy__caption,
+  .is-b-nativegrid:not(.b-layout) .slide__caption {
     position: absolute;
     z-index: 3;
     bottom: 0;

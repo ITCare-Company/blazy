@@ -16,26 +16,9 @@
   $.masonry = $.masonry || {};
 
   var NICK = 'flex';
-  var ID = 'b-' + NICK;
-  var ID_ONCE = ID;
-  var C_MOUNTED = 'is-' + ID_ONCE;
-  var S_BASE = '.' + ID;
-  // @fixme with lock masonry broken after AJAX unless class removed at detach.
-  // drupalSettings.blazy.useAjax ? '.' + ID :
-  var S_ELEMENT = S_BASE + ':not(.' + C_MOUNTED + ')';
-  var BIG_PIPE = $.isBigPipe();
-  var INITIAL = true;
+  var ID_ONCE = 'b-' + NICK;
+  var S_ELEMENT = '.' + ID_ONCE;
   var UNLOAD;
-
-  /**
-   * Processes a grid masonry.
-   *
-   * @param {HTMLElement} elm
-   *   The container HTML element.
-   */
-  function process(elm) {
-    $.addClass(elm, C_MOUNTED);
-  }
 
   /**
    * Attaches Blazy behavior to HTML element identified by .b-flex.
@@ -45,27 +28,30 @@
   Drupal.behaviors.blazyFlex = {
     attach: function (context) {
 
-      var grids = $.once(process, ID_ONCE, S_ELEMENT, context);
-      if (grids.length) {
-        var opts = {
-          nick: NICK,
-          engine: NICK,
-          gap: '--bf-col-gap',
-          unload: UNLOAD
-        };
-        $.masonry.init(grids, opts);
-      }
+      $.wwoBigPipe(function () {
+        var grids = $.once(ID_ONCE, S_ELEMENT, context);
+        if (grids.length) {
+          var opts = {
+            nick: NICK,
+            engine: NICK,
+            cName: ID_ONCE,
+            cDisabled: 'is-' + ID_ONCE + '-disabled',
+            gap: '--bf-col-gap',
+            selector: S_ELEMENT,
+            unload: UNLOAD
+          };
+          $.masonry.init(grids, opts);
+        }
+      });
 
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        // Prevents from BigPipe problematic multiple invocations, 6+.
-        UNLOAD = BIG_PIPE ? $.isBigPipeDone() : true;
-        if (UNLOAD && !INITIAL) {
-          $.once.removeSafely(ID_ONCE, S_BASE, context, C_MOUNTED);
-        }
-
-        INITIAL = BIG_PIPE ? !$.isBigPipeDone() : false;
+        // Prevents from BigPipe problematic multiple invocations.
+        $.wwoBigPipe(function () {
+          $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
+          UNLOAD = $.once.unload;
+        });
       }
     }
   };

@@ -8,7 +8,7 @@
  * reflow due to using JS.
  *
  * Classes:
- *  - .is-b-native, as the original two-dimensional, the real Native Grid.
+ *  - .is-b-nativegrid, as the original two-dimensional, the real Native Grid.
  *  - .is-b-masonry, as the tweaked one-dimensional, the Masonry.
  *
  * Warning! The percentage values are affected by :root--bnColGap. Adjust.

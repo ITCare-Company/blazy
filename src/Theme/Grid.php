@@ -408,7 +408,7 @@ class Grid {
     // If Native Grid style with numeric grid, assumed non-two-dimensional.
     if ($style == 'nativegrid') {
       $masonry = self::isNativeGridAsMasonry($settings);
-      $attrs['class'][] = $masonry ? 'is-b-masonry' : 'is-b-native';
+      $attrs['class'][] = $masonry ? 'is-b-masonry' : 'is-b-nativegrid';
     }
 
     // Since 3.0.7, supports dynamic multi-breakpoint grids.

@@ -17,7 +17,7 @@
   var S_GRID = '.' + C_GRID;
   var E_FLEX = 'flex';
   var E_NATIVEGRID = 'nativegrid';
-  var IS_LOADING = 'is-b-loading is-b-visible';
+  var IS_LOADING = ['is-b-loading', 'is-b-visible'];
 
   $.masonry = {
 
@@ -122,9 +122,10 @@
         }
 
         grid.mod = false;
+
         setTimeout(function () {
           $.removeClass(grid._el, IS_LOADING);
-        }, 500);
+        }, 300);
       }
     },
 
@@ -138,11 +139,6 @@
      */
     init: function (elms, opts) {
       var me = this;
-      var nick = opts.nick;
-
-      opts.id = 'b-' + nick;
-      opts.sBase = '.' + opts.id;
-      opts.cDisabled = 'is-' + opts.id + '-disabled';
 
       me.options = opts;
 
@@ -177,24 +173,19 @@
       }
 
       function layout(e) {
-        // Only change if needs changing.
+        // If AJAX/ infinite scroll, re-fetch newly added DOM elements.
         if (e) {
-          // If infinite scroll, needs ref-fetching newly added DOM elements.
-          if (me.options.unload) {
-            elms = $.toElms(opts.sBase);
+          elms = $.toElms(opts.selector);
 
-            if (elms.length) {
-              objs = me.toObject(elms, e);
-
-              objs.find(function (grid) {
-                return $.hasClass(grid._el, opts.id);
-              }).mod = true;
-            }
-          }
-          else {
-            // If matching the contraint for MD, or need resizing.
+          if (elms.length) {
             objs = me.toObject(elms, e);
+
+            objs.find(function (grid) {
+              return $.hasClass(grid._el, opts.cName);
+            }).mod = true;
           }
+
+          me.options.unload = false;
         }
         $.each(objs, me.subprocess, me);
       }
@@ -206,20 +197,11 @@
           layout(e);
 
           // AJAX package may be late to populate DOM.
-        }, e === me.options.unload ? 700 : 1);
+        }, e === me.options.unload ? 101 : 1);
       };
 
-      // Fix for LB, infine scroll, or AJAX in general integration.
-      // With BigPipe 2024, everything called twice causes reset and reload.
-      // @todo move it to an AJAX event when Drupal has one by 2048.
-      if (me.options.unload) {
-        watch(me.options.unload);
-        me.options.unload = false;
-      }
-
-      $.on('load.' + opts.id, function () {
-        watch();
-      }, false);
+      // Fix for LB, infinite scroll, or AJAX in general integration.
+      watch(me.options.unload);
     }
 
   };

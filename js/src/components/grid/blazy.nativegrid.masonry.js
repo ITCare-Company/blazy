@@ -18,25 +18,10 @@
 
   var ENGINE = 'nativegrid';
   var NICK = 'masonry';
-  var ID = 'b-' + ENGINE;
   var ID_ONCE = 'b-' + NICK;
-  var C_IS_MASONRY = 'is-' + ID_ONCE;
-  var C_MOUNTED = C_IS_MASONRY + '-mounted';
-  var S_BASE = '.' + ID;
-  var S_ELEMENT = S_BASE + '.' + C_IS_MASONRY + ':not(.' + C_MOUNTED + ')';
-  var BIG_PIPE = $.isBigPipe();
-  var INITIAL = true;
+  var IS_MASONRY = 'is-' + ID_ONCE;
+  var S_ELEMENT = '.' + IS_MASONRY;
   var UNLOAD;
-
-  /**
-   * Processes a grid masonry.
-   *
-   * @param {HTMLElement} elm
-   *   The container HTML element.
-   */
-  function process(elm) {
-    $.addClass(elm, C_MOUNTED);
-  }
 
   /**
    * Attaches Blazy behavior to HTML element identified by .b-nativegrid.
@@ -46,28 +31,31 @@
   Drupal.behaviors.blazyNativeGridMasonry = {
     attach: function (context) {
 
-      var grids = $.once(process, ID_ONCE, S_ELEMENT, context);
+      $.wwoBigPipe(function () {
+        var grids = $.once(ID_ONCE, S_ELEMENT, context);
 
-      if (grids.length
-          && getComputedStyle(grids[0]).gridTemplateRows !== 'masonry') {
-        var opts = {
-          nick: NICK,
-          engine: ENGINE,
-          unload: UNLOAD
-        };
-        $.masonry.init(grids, opts);
-      }
+        if (grids.length &&
+          getComputedStyle(grids[0]).gridTemplateRows !== 'masonry') {
+          var opts = {
+            nick: NICK,
+            engine: ENGINE,
+            cName: IS_MASONRY,
+            cDisabled: IS_MASONRY + '-disabled',
+            selector: S_ELEMENT,
+            unload: UNLOAD
+          };
+          $.masonry.init(grids, opts);
+        }
+      });
 
     },
     detach: function (context, setting, trigger) {
       if (trigger === 'unload') {
-        // Prevents from BigPipe problematic multiple invocations, 6+.
-        UNLOAD = BIG_PIPE ? $.isBigPipeDone() : true;
-        if (UNLOAD && !INITIAL) {
-          $.once.removeSafely(ID_ONCE, S_BASE, context, C_MOUNTED);
-        }
-
-        INITIAL = BIG_PIPE ? !$.isBigPipeDone() : false;
+        // Prevents from BigPipe problematic multiple invocations.
+        $.wwoBigPipe(function () {
+          $.once.removeSafely(ID_ONCE, S_ELEMENT, context);
+          UNLOAD = $.once.unload;
+        });
       }
     }
 

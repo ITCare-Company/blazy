@@ -54,12 +54,8 @@ ul.blazy.b-flexbox {
   min-height: 40px;
   margin: 0;
   padding: 0;
-  opacity: 1;
-}
-
-.b-flexbox.is-b-loading > .grid {
-  transition: opacity 0.3s ease-in;
-  opacity: 0;
+  /* At most grids, transition is causing issues than helpful. */
+  transition: none;
 }
 
 /** 480px = 30em with 16px base font. */

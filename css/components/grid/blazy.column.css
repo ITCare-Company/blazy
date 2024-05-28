@@ -42,6 +42,8 @@ ul.blazy.b-column {
 .item-list > .b-column > .grid {
   margin: 0 0 1rem;
   padding: 0;
+  /* At most grids, transition is causing issues than helpful. */
+  transition: none;
 }
 
 /** Fix for broken break-inside with extremely tall grid for FF. */
