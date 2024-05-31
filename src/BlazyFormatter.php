@@ -108,6 +108,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
 
     $settings = &$build['#settings'];
 
+    $build['#vanilla'] = !empty($settings['vanilla']);
+
     // Since 2.17, allows altering the settings once for the entire ecosystem,
     // rather than each hook_alter for every modules.
     // The $build contains #settings, or potential #optionset for sub-modules.

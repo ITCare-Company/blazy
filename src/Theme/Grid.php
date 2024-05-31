@@ -185,7 +185,8 @@ class Grid {
       $attrs['class'][] = 'b-nativegrid--form';
     }
 
-    // Provides item attributes if any grid.items.
+    // Provides item attributes if any grid.items, dummy array to hold data:
+    // #settings, #attributes, #content_attributes, and anything else.
     $i = 0;
     if ($items = $blazies->get('grid.items', [])) {
       foreach ($items as &$item) {
@@ -560,10 +561,9 @@ class Grid {
     }
 
     // If Native Grid style with numeric grid, assumed non-two-dimensional.
-    // @todo add supports for multiple grid_medium, not grid_small.
+    // Since 3.0.7, supports for multiple grid_medium, not grid_small.
     if ($dimensions = self::toDimensions($settings)) {
       // Prevents NestedArray from screwing up by making this an object.
-      // @todo support medium other than large.
       $blazies->set('grid.dimensions.lg', (object) $dimensions)
         ->set('grid.large', $grid)
         ->set('grid.count', count($dimensions));

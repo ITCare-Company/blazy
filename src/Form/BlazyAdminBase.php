@@ -246,9 +246,10 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       if (isset($form[$key])) {
         $form[$key]['#enforced'] = TRUE;
         $form[$key]['#weight'] = $key == 'grid_header' ? 50 : 61;
+
         $form[$key]['#states'] = [
           'visible' => [
-            'input[name$="[grid]"]' => ['!value' => ''],
+            '[name$="[grid]"]' => ['!value' => ''],
           ],
         ];
       }

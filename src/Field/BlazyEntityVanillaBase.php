@@ -242,7 +242,8 @@ abstract class BlazyEntityVanillaBase extends EntityReferenceFormatterBase {
       'no_image_style'   => TRUE,
       'responsive_image' => FALSE,
       'target_bundles'   => $this->getAvailableBundles(),
-      'vanilla'          => TRUE,
+      // Refers to form item Vanilla.
+      'vanilla'          => FALSE,
       'view_mode'        => $this->viewMode,
       'multiple'         => $this->isMultiple(),
       'grid_form'        => $multiple,

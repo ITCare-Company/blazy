@@ -77,12 +77,22 @@ class Internals extends Content {
    * Returns the URI elements of the entity.
    */
   public static function entityUrl($entity) {
+    $url = NULL;
     if ($entity instanceof EntityInterface) {
-      $rel = $entity->getEntityType()
-        ->hasLinkTemplate('revision') ? 'revision' : 'canonical';
-      return $entity->toUrl($rel);
+      // Deals with UndefinedLinkTemplateException such as paragraphs type.
+      // @see #2596385, or fetch the host entity.
+      if (!$entity->isNew()) {
+        try {
+          $rel = $entity->getEntityType()
+            ->hasLinkTemplate('revision') ? 'revision' : 'canonical';
+          $url = $entity->toUrl($rel);
+        }
+        catch (\Exception $ignore) {
+          // Do nothing.
+        }
+      }
     }
-    return NULL;
+    return $url;
   }
 
   /**
