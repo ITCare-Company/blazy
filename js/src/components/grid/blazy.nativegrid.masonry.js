@@ -21,6 +21,7 @@
   var ID_ONCE = 'b-' + NICK;
   var IS_MASONRY = 'is-' + ID_ONCE;
   var S_ELEMENT = '.' + IS_MASONRY;
+  var VALID = false;
   var UNLOAD;
 
   /**
@@ -36,6 +37,7 @@
 
         if (grids.length &&
           getComputedStyle(grids[0]).gridTemplateRows !== 'masonry') {
+          VALID = true;
           var opts = {
             nick: NICK,
             engine: ENGINE,
@@ -50,7 +52,7 @@
 
     },
     detach: function (context, setting, trigger) {
-      if (trigger === 'unload') {
+      if (VALID && trigger === 'unload') {
         // Prevents from BigPipe problematic multiple invocations.
         $.wwoBigPipe(function () {
           $.once.removeSafely(ID_ONCE, S_ELEMENT, context);

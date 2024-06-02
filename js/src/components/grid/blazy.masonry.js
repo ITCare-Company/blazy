@@ -180,9 +180,13 @@
           if (elms.length) {
             objs = me.toObject(elms, e);
 
-            objs.find(function (grid) {
+            var check = objs.find(function (grid) {
               return $.hasClass(grid._el, opts.cName);
-            }).mod = true;
+            });
+
+            if (check) {
+              check.mod = true;
+            }
           }
 
           me.options.unload = false;

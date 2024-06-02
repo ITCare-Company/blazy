@@ -74,17 +74,19 @@
       var e = grid.event;
 
       var update = function (obj, data) {
-        $.each(obj.items, function (item, i) {
-          var dim = data[i];
-          if (dim) {
-            if (dim[0]) {
-              $.attr(item, DATA_W, dim[0]);
+        if (data) {
+          $.each(obj.items, function (item, i) {
+            var dim = data[i];
+            if (dim) {
+              if (dim[0]) {
+                $.attr(item, DATA_W, dim[0]);
+              }
+              if (dim[1]) {
+                $.attr(item, DATA_H, dim[1]);
+              }
             }
-            if (dim[1]) {
-              $.attr(item, DATA_H, dim[1]);
-            }
-          }
-        });
+          });
+        }
       };
 
       // If any event, or modification.
@@ -157,16 +159,20 @@
       function layout(e) {
         // Only change if needs changing.
         if (e) {
-          // If infinite scroll, needs ref-fetching newly added DOM elements.
+          // If AJAX/ infinite scroll, ref-fetch newly added DOM elements.
           if (e === me.options.unload) {
             elms = $.toElms(opts.selector);
 
             if (elms.length) {
               objs = me.toObject(elms, e);
 
-              objs.find(function (grid) {
+              var check = objs.find(function (grid) {
                 return $.hasClass(grid._el, opts.cName);
-              }).mod = true;
+              });
+
+              if (check) {
+                check.mod = true;
+              }
             }
 
             me.options.unload = false;

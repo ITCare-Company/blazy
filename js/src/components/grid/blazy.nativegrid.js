@@ -16,6 +16,7 @@
   var C_NAME = 'is-' + ID_ONCE;
   var DATA_ID = 'data-b-' + NICK;
   var S_ELEMENT = '[' + DATA_ID + ']';
+  var VALID = false;
   var UNLOAD;
 
   /**
@@ -30,6 +31,7 @@
         var roots = $.once(ID_ONCE, S_ELEMENT, context);
 
         if (roots.length) {
+          VALID = true;
           var opts = {
             nick: NICK,
             cName: C_NAME,
@@ -46,7 +48,7 @@
 
     },
     detach: function (context, setting, trigger) {
-      if (trigger === 'unload') {
+      if (VALID && trigger === 'unload') {
         // Prevents from BigPipe problematic multiple invocations.
         $.wwoBigPipe(function () {
           $.once.removeSafely(ID_ONCE, S_ELEMENT, context);

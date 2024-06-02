@@ -18,6 +18,7 @@
   var NICK = 'flex';
   var ID_ONCE = 'b-' + NICK;
   var S_ELEMENT = '.' + ID_ONCE;
+  var VALID = false;
   var UNLOAD;
 
   /**
@@ -30,7 +31,9 @@
 
       $.wwoBigPipe(function () {
         var grids = $.once(ID_ONCE, S_ELEMENT, context);
+
         if (grids.length) {
+          VALID = true;
           var opts = {
             nick: NICK,
             engine: NICK,
@@ -46,7 +49,7 @@
 
     },
     detach: function (context, setting, trigger) {
-      if (trigger === 'unload') {
+      if (VALID && trigger === 'unload') {
         // Prevents from BigPipe problematic multiple invocations.
         $.wwoBigPipe(function () {
           $.once.removeSafely(ID_ONCE, S_ELEMENT, context);

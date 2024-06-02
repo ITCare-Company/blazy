@@ -51,10 +51,17 @@ class Grid {
     self::attributes($attrs, $settings);
 
     // Without theme_item_list if so required.
+    // Expecting grid item attributes with divities, not UL list.
     if ($blazies->get('grid.unlist')) {
-      // Expecting grid item attributes with divities, not list.
-      // TBD, use items or indexed children.
-      $output['items'] = $contents;
+      // Provides indexed children.
+      if ($blazies->get('grid.indexed')) {
+        $output = $contents;
+      }
+      // Or grouped children.
+      else {
+        $output['items'] = $contents;
+      }
+      $output['#settings'] = $settings;
     }
     // With theme_item_list.
     else {
@@ -66,12 +73,12 @@ class Grid {
       $output['#theme'] = 'item_list';
       $output['#items'] = $contents;
       $output['#context'] = ['settings' => $settings];
-      $output['#title'] = self::label($blazies);
       $output['#wrapper_attributes'] = [
         'class' => array_merge(['item-list'], $wrappers),
       ];
     }
 
+    $output['#title'] = self::label($blazies);
     $output['#attributes'] = $attrs;
     if ($attachments) {
       $output['#attached'] = $attachments;
