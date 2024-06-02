@@ -17,49 +17,6 @@ use Drupal\blazy\Utility\Arrays;
 class BlazyViews {
 
   /**
-   * Implements hook_views_pre_render().
-   */
-  public static function viewsPreRender($view): void {
-    $loads = [];
-    $ajax  = $view->ajaxEnabled();
-
-    // At least, less aggressive than sitewide hook_library_info_alter().
-    // @todo remove when VIS alike added `Drupal.detachBehaviors()` to their JS.
-    if ($ajax) {
-      $loads['library'][] = 'blazy/bio.ajax';
-    }
-
-    // Load Blazy library once, not per field, if any Blazy Views field found.
-    if ($blazy = self::viewsField($view)) {
-      $manager   = $blazy->blazyManager();
-      $plugin_id = $view->getStyle()->getPluginId();
-      $settings  = $blazy->mergedViewsSettings();
-      $blazies   = $settings['blazies'];
-
-      $blazies->set('unlazy', FALSE)
-        ->set('use.ajax', $ajax);
-
-      $load  = $manager->attach($settings);
-      $loads = $manager->merge($load, $loads);
-      $grid  = $plugin_id == 'blazy';
-
-      if ($options = $view->getStyle()->options) {
-        $grid = empty($options['grid']) ? $grid : TRUE;
-      }
-
-      // Prevents dup [data-LIGHTBOX-gallery] if the Views style supports Grid.
-      if (!$grid) {
-        $view->element['#attributes'] = $view->element['#attributes'] ?? [];
-        Attributes::container($view->element['#attributes'], $settings);
-      }
-    }
-
-    if ($loads) {
-      $view->element['#attached'] = Arrays::merge($loads, $view->element, '#attached');
-    }
-  }
-
-  /**
    * Returns one of the Blazy Views fields, if available.
    */
   public static function viewsField($view) {
@@ -72,16 +29,45 @@ class BlazyViews {
   }
 
   /**
+   * Checks if Blazy is applicable in a view.
+   */
+  public static function isApplicable(array &$variables): array {
+    $view      = $variables['view'];
+    $blazy     = self::viewsField($view);
+    $css_class = $variables['css_class'] ?? NULL;
+
+    return [
+      'css' => $css_class && strpos($css_class, 'blazy--') !== FALSE,
+      'field' => $view->ajaxEnabled() || !empty($blazy),
+    ];
+  }
+
+  /**
    * Implements hook_preprocess_views_view().
    */
-  public static function preprocessViewsView(array &$variables, $lightboxes): void {
+  public static function preprocessViewsView(array &$variables): void {
+    $check = self::isApplicable($variables);
+    if ($check['css']) {
+      self::withViewsView($variables);
+    }
+
+    if ($check['field']) {
+      self::withViewsField($variables);
+    }
+  }
+
+  /**
+   * Implements hook_preprocess_views_view().
+   */
+  public static function withViewsView(array &$variables): void {
+    $lightboxes = \blazy()->getLightboxes();
+
     preg_match('~blazy--(.*?)-gallery~', $variables['css_class'], $matches);
     $lightbox = $matches[1] ? str_replace('-', '_', $matches[1]) : FALSE;
 
     // Given blazy--photoswipe-gallery, adds the [data-photoswipe-gallery], etc.
     if ($lightbox && in_array($lightbox, $lightboxes)) {
-      $variables['attributes'] = $variables['attributes'] ?? [];
-
+      $view = $variables['view'];
       $data = [
         'namespace' => 'blazy',
         'media_switch' => $lightbox,
@@ -92,18 +78,58 @@ class BlazyViews {
       $settings[$lightbox] = $lightbox;
 
       $blazies = $settings['blazies'];
-      if ($view = $variables['view']) {
-        $count = count($view->result);
-        $blazies->set('count', $count)
-          ->set('total', $count)
-          ->set('use.ajax', $view->ajaxEnabled());
+      $count = count($view->result);
+      $blazies->set('count', $count)
+        ->set('total', $count)
+        ->set('use.ajax', $view->ajaxEnabled());
+
+      \blazy()->moduleHandler()->alter('blazy_is_view', $settings, $variables);
+
+      Attributes::container($variables['attributes'], $settings);
+      $variables['blazy'] = $settings;
+    }
+  }
+
+  /**
+   * Implements hook_preprocess_views_view().
+   */
+  public static function withViewsField(array &$variables): void {
+    $view  = $variables['view'];
+    $loads = [];
+    $ajax  = $view->ajaxEnabled();
+
+    // At least, less aggressive than sitewide hook_library_info_alter().
+    // @todo remove when VIS alike added `Drupal.detachBehaviors()` to their JS.
+    if ($ajax) {
+      $loads['library'][] = 'blazy/bio.ajax';
+    }
+
+    // Load Blazy library once, not per field, if any Blazy Views field found.
+    if ($blazy = self::viewsField($view)) {
+      $manager   = \blazy();
+      $plugin_id = $view->getStyle()->getPluginId();
+      $settings  = $blazy->mergedSettings;
+      $blazies   = $settings['blazies'];
+
+      $blazies->set('unlazy', FALSE);
+
+      $load  = $manager->attach($settings);
+      $loads = $manager->merge($load, $loads);
+      $grid  = $plugin_id == 'blazy';
+
+      if ($options = $view->getStyle()->options) {
+        $grid = empty($options['grid']) ? $grid : TRUE;
       }
 
-      $variables['blazy'] = $settings;
+      // Prevents dup [data-LIGHTBOX-gallery] if the Views style supports Grid.
+      if (!$grid) {
+        $manager->moduleHandler()->alter('blazy_is_view', $settings, $variables);
+        Attributes::container($variables['attributes'], $settings);
+      }
+    }
 
-      \blazy()->moduleHandler()->alter('blazy_is_view', $variables['blazy'], $variables);
-
-      Attributes::container($variables['attributes'], $variables['blazy']);
+    if ($loads) {
+      $variables['#attached'] = Arrays::merge($loads, $variables, '#attached');
     }
   }
 

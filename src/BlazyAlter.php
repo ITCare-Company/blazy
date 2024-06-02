@@ -257,7 +257,7 @@ class BlazyAlter {
    * Warning! Do not alter configurable settings like use_theme_field here, it
    * caused 2.16 chaotic markups with Views embedded blazy formatters.
    */
-  public static function blazySettingsAlter(array &$build, $items): void {
+  public static function blazySettingsAlter(array &$build, $object): void {
     $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
 

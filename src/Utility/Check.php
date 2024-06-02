@@ -368,7 +368,9 @@ class Check {
     }
 
     // Only needed for lightbox captions with entity label and tokens.
-    $blazies->set('entity.instance', $entity);
+    if ($entity) {
+      $blazies->set('entity.instance', $entity);
+    }
   }
 
 }

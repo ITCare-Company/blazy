@@ -182,10 +182,9 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function gridForm(array &$form, array $definition): void {
-    $scopes = $this->toScopes($definition);
-    $required = $scopes->is('grid_required');
+    $scopes    = $this->toScopes($definition);
+    $required  = $scopes->is('grid_required');
     $multigrid = $this->isMultiBreakpoint($definition);
-    $lb = $this->isAdminLb();
 
     if (!$scopes->is('no_grid_header')) {
       $header  = $this->t('Group individual items as block grid?');

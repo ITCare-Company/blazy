@@ -1,4 +1,9 @@
 
+Blazy 3.0.x-dev, 2024-06-02
+---------------------------
+- Updated hook_blazy_settings_alter() for Views field to facilitate a swap.
+- Removed no-longer working hook_views_pre_render() for preprocess_views_view().
+
 Blazy 3.0.x-dev, 2024-05-31
 ---------------------------
 - Fixed for paragraphs UndefinedLinkTemplateException from a hook_alter.

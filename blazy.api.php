@@ -434,12 +434,22 @@ function hook_blazy_base_settings_alter(array &$settings, array $context) {
  *
  * @param array $build
  *   The array containing: #settings, or potential #optionset for sub-modules.
- * @param object $items
- *   The Drupal\Core\Field\FieldItemListInterface items.
+ * @param object|null $object
+ *   Since 3.0.9, maybe one of these depending on the provider/ trigger:
+ *     - Drupal\Core\Field\FieldItemListInterface for field formatters.
+ *     - Drupal\views\ViewExecutable for Views fields.
+ *     - NULL, such as from IO/ Slick Browser widget displays.
+ *   This should make many sub-modules support their lightboxes at one go.
+ *
+ * @see \Drupal\blazy\BlazyFormatter
+ * @see \Drupal\blazy\BlazyEntity
+ * @see \Drupal\blazy\Plugin\views\field\BLAH
+ * @see \Drupal\io_browser\Plugin\EntityBrowser\BLAH
+ * @see \Drupal\slick_browser\Plugin\EntityBrowser\BLAH
  *
  * @ingroup blazy_api
  */
-function hook_blazy_settings_alter(array &$build, $items) {
+function hook_blazy_settings_alter(array &$build, $object) {
   $settings = &$build['#settings'];
 
   // Most configurable settings are put as direct key-value pairs.
@@ -450,6 +460,10 @@ function hook_blazy_settings_alter(array &$build, $items) {
   // Add more custom CSS aspect ratios, see /admin/help/blazy_ui#aspect-ratio.
   // You must provide your own CSS rules in accordance with css/components/
   // blazy.ratio.css convention, hence .media--ratio--78 {}, etc.
+  // These will NOT be seen as Aspect ratio form item options, but taken into
+  // account/ calculated automatically only if Aspect ratio Fluid is chosen.
+  // The benefit is removing the need to use padding hack inline styles for
+  // your own custom CSS rules so to have cleaner markups.
   $blazies->set('css.ratio', ['7:8', '6:5'], TRUE);
 
   // Overrides one pixel placeholder on particular pages relevant if using Views
@@ -548,14 +562,14 @@ function hook_blazy_item_alter(array &$settings, array &$attributes, array &$ite
   // $blazies->is('captioned') or $blazies->is('multimedia') in case
   // captioned or not, or breaking multimedia or media player, etc.
   // If any display issues with grid, media player, etc., refine or remove this.
-  // blazies.is[image|video_file|twitter, etc] is related to Media sources.
+  // blazies.is[image|video_file|twitter, etc.] is related to Media sources.
   if ($blazies->get('namespace') == 'blazy' && $blazies->is('image')) {
     $blazies->set('is.figcaption', TRUE)
       ->set('item.wrapper_tag', 'figure')
       ->set('item.wrapper_attributes.class', ['blazy__content']);
   }
 
-  // Changed default caption title tag from H2 to H3.
+  // Change default caption title tag from H2 to H3.
   $blazies->set('item.title_tag', 'h3');
 
   // Since > 2.17-beta1, below is no longer needed, already merged.

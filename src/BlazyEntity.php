@@ -109,6 +109,17 @@ class BlazyEntity implements BlazyEntityInterface {
 
     // Individual entity settings.
     self::settings($settings, $entity);
+
+    // Since 3.0.9, mimicking Blazy formatters so to swap settings once.
+    // At most cases, this class is accessed from Views, or Entity Browser.
+    // Should save many lightbox-related sub-modules from another hook_alter.
+    // See \Drupal\blazy\Plugin\views\field\BLAH.
+    // See \Drupal\io_browser\Plugin\EntityBrowser\BLAH.
+    // See \Drupal\slick_browser\Plugin\EntityBrowser\BLAH.
+    $view = $data['#view'] ?? NULL;
+    $manager->moduleHandler()->alter('blazy_settings', $data, $view);
+    $settings = &$data['#settings'];
+
     // $manager->toSettings($settings, $info);
     $manager->postSettingsAlter($settings, $entity);
 

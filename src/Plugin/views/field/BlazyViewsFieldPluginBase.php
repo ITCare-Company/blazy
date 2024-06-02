@@ -68,7 +68,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    *
    * @var array
    */
-  protected $mergedSettings = [];
+  public $mergedSettings = [];
 
   /**
    * Constructs a BlazyViewsFieldPluginBase object.
@@ -190,8 +190,8 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * Merges the settings.
    */
-  public function mergedViewsSettings(array $data = []) {
-    $settings = $this->mergedSettings + BlazyDefault::entitySettings();
+  public function mergedViewsSettings(array $data = [], $entity = NULL) {
+    $settings = BlazyDefault::entitySettings();
     $config   = [];
     $view     = $this->view;
     $style    = $view->style_plugin;
@@ -227,6 +227,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
     if (!isset($data['defer'])) {
       $this->blazyManager->preSettings($settings);
     }
+
     return $settings;
   }
 
