@@ -95,6 +95,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
         $this->toLink($element, $blazies);
       }
       elseif ($blazies->is('lightbox')) {
+        // Allows altering the lightbox item.
+        $this->moduleHandler->alter('blazy_lightbox', $element);
         Lightbox::build($element);
       }
     }

@@ -171,12 +171,14 @@
       return setTimeout(callback, delay || 0, DB);
     };
 
-    if (_doc.readyState !== 'loading') {
-      cb();
-    }
-    else {
-      _doc.addEventListener('DOMContentLoaded', cb);
-    }
+    wwoBigPipe(function () {
+      if (_doc.readyState !== 'loading') {
+        cb();
+      }
+      else {
+        _doc.addEventListener('DOMContentLoaded', cb);
+      }
+    });
 
     return this;
   }

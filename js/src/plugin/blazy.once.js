@@ -29,11 +29,13 @@
    *   A NodeList, array of elements, single Element, or a string.
    * @param {Document|Element|null} ctx
    *   An element to use as context for querySelectorAll, or empty.
+   * @param {Object|undefined} scope
+   *   A value to use as `this` when executing cb, default to `undefined`.
    *
    * @return {Array.<Element>}
    *   An array of elements to process, or empty for old behavior.
    */
-  function onceCompat(cb, id, selector, ctx) {
+  function onceCompat(cb, id, selector, ctx, scope) {
     var els = [];
 
     // Prevents from BigPipe problematic multiple invocations.
@@ -62,7 +64,7 @@
       els = initOnce(id, selector, ctx);
       if (els.length) {
         // Already avoids loop for a single item.
-        $.each(els, cb);
+        $.each(els, cb, scope);
       }
     }
 

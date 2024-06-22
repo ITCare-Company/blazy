@@ -51,7 +51,7 @@ class Lightbox {
     $manager    = Internals::service('blazy.manager');
     $settings   = &$element['#settings'];
     $blazies    = $settings['blazies'];
-    $switch     = $blazies->get('lightbox.name');
+    $switch     = $blazies->get('switch') ?: $blazies->get('lightbox.name');
     $switch_css = str_replace('_', '-', $switch);
     $item       = $blazies->get('image.item');
     $uri        = $blazies->get('image.uri');
@@ -82,6 +82,10 @@ class Lightbox {
     $attrs = &$element['#url_attributes'];
     $attrs['class'][] = sprintf($multimedia ? $format2 : $format1, $switch_css);
     $attrs['data-' . $switch_css . '-trigger'] = TRUE;
+
+    if ($blazies->get('media.type') === 'image') {
+      $attrs['class'][] = 'litebox--image';
+    }
 
     // Might not be present from BlazyFilter.
     $json = ['id' => $switch_css, 'count' => $count, 'boxType' => 'image'];
