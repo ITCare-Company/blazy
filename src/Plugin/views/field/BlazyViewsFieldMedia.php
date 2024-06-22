@@ -48,7 +48,7 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
       /* @phpstan-ignore-next-line */
       return $this->blazyEntity->build($data);
     }
-    return [];
+    return '';
   }
 
   /**
