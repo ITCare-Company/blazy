@@ -109,9 +109,10 @@ class BlazyViews {
       $manager   = \blazy();
       $plugin_id = $view->getStyle()->getPluginId();
       $settings  = $blazy->mergedSettings;
-      $blazies   = $settings['blazies'];
 
-      $blazies->set('unlazy', FALSE);
+      if ($blazies = $settings['blazies'] ?? NULL) {
+        $blazies->set('unlazy', FALSE);
+      }
 
       $load  = $manager->attach($settings);
       $loads = $manager->merge($load, $loads);
