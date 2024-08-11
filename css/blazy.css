@@ -184,3 +184,11 @@ absolute position and fixed dimensions. */
 .b-error.b-checked {
   display: none;
 }
+
+/* Fix for unnecessary Olivero Grid surprises with Splide/Slick excessive width. */
+.view--blazy,
+.view--blazy .view-content,
+.block .view--blazy,
+.block .view--blazy .view-content {
+  display: block;
+}

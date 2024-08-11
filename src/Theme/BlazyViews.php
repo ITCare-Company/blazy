@@ -47,90 +47,29 @@ class BlazyViews {
    */
   public static function preprocessViewsView(array &$variables): void {
     $check = self::isApplicable($variables);
+    $valid = FALSE;
     if ($check['css']) {
-      self::withViewsView($variables);
+      $valid = self::withViewsView($variables);
     }
 
     if ($check['field']) {
-      self::withViewsField($variables);
-    }
-  }
-
-  /**
-   * Implements hook_preprocess_views_view().
-   */
-  public static function withViewsView(array &$variables): void {
-    $lightboxes = \blazy()->getLightboxes();
-
-    preg_match('~blazy--(.*?)-gallery~', $variables['css_class'], $matches);
-    $lightbox = $matches[1] ? str_replace('-', '_', $matches[1]) : FALSE;
-
-    // Given blazy--photoswipe-gallery, adds the [data-photoswipe-gallery], etc.
-    if ($lightbox && in_array($lightbox, $lightboxes)) {
-      $view = $variables['view'];
-      $data = [
-        'namespace' => 'blazy',
-        'media_switch' => $lightbox,
-      ];
-
-      $settings = Blazy::init($data);
-
-      $settings[$lightbox] = $lightbox;
-
-      $blazies = $settings['blazies'];
-      $count = count($view->result);
-      $blazies->set('count', $count)
-        ->set('total', $count)
-        ->set('use.ajax', $view->ajaxEnabled());
-
-      \blazy()->moduleHandler()->alter('blazy_is_view', $settings, $variables);
-
-      Attributes::container($variables['attributes'], $settings);
-      $variables['blazy'] = $settings;
-    }
-  }
-
-  /**
-   * Implements hook_preprocess_views_view().
-   */
-  public static function withViewsField(array &$variables): void {
-    $view  = $variables['view'];
-    $loads = [];
-    $ajax  = $view->ajaxEnabled();
-
-    // At least, less aggressive than sitewide hook_library_info_alter().
-    // @todo remove when VIS alike added `Drupal.detachBehaviors()` to their JS.
-    if ($ajax) {
-      $loads['library'][] = 'blazy/bio.ajax';
+      $valid = self::withViewsField($variables) ?: $valid;
     }
 
-    // Load Blazy library once, not per field, if any Blazy Views field found.
-    if ($blazy = self::viewsField($view)) {
-      $manager   = \blazy();
-      $plugin_id = $view->getStyle()->getPluginId();
-      $settings  = $blazy->mergedSettings;
-
-      if ($blazies = $settings['blazies'] ?? NULL) {
-        $blazies->set('unlazy', FALSE);
-      }
-
-      $load  = $manager->attach($settings);
-      $loads = $manager->merge($load, $loads);
-      $grid  = $plugin_id == 'blazy';
-
-      if ($options = $view->getStyle()->options) {
-        $grid = empty($options['grid']) ? $grid : TRUE;
-      }
-
-      // Prevents dup [data-LIGHTBOX-gallery] if the Views style supports Grid.
-      if (!$grid) {
-        $manager->moduleHandler()->alter('blazy_is_view', $settings, $variables);
-        Attributes::container($variables['attributes'], $settings);
+    if ($view = $variables['view'] ?? NULL) {
+      if ($fields = $view->field) {
+        foreach ($fields as $field) {
+          if (isset($field->options['media_switch'])) {
+            $valid = TRUE;
+            break;
+          }
+        }
       }
     }
 
-    if ($loads) {
-      $variables['#attached'] = Arrays::merge($loads, $variables, '#attached');
+    // Add own CSS class to fix theme compat like Olivero Grid surprises.
+    if ($valid) {
+      $variables['attributes']['class'][] = 'view--blazy';
     }
   }
 
@@ -194,6 +133,90 @@ class BlazyViews {
       ->set('view', $view_info, TRUE);
 
     return $settings;
+  }
+
+  /**
+   * Implements hook_preprocess_views_view().
+   */
+  private static function withViewsView(array &$variables): bool {
+    $lightboxes = \blazy()->getLightboxes();
+
+    preg_match('~blazy--(.*?)-gallery~', $variables['css_class'], $matches);
+    $lightbox = $matches[1] ? str_replace('-', '_', $matches[1]) : FALSE;
+
+    // Given blazy--photoswipe-gallery, adds the [data-photoswipe-gallery], etc.
+    if ($lightbox && in_array($lightbox, $lightboxes)) {
+      $view = $variables['view'];
+      $data = [
+        'namespace' => 'blazy',
+        'media_switch' => $lightbox,
+      ];
+
+      $settings = Blazy::init($data);
+
+      $settings[$lightbox] = $lightbox;
+
+      $blazies = $settings['blazies'];
+      $count = count($view->result);
+      $blazies->set('count', $count)
+        ->set('total', $count)
+        ->set('use.ajax', $view->ajaxEnabled());
+
+      \blazy()->moduleHandler()->alter('blazy_is_view', $settings, $variables);
+
+      Attributes::container($variables['attributes'], $settings);
+      $variables['blazy'] = $settings;
+      return TRUE;
+    }
+    return FALSE;
+  }
+
+  /**
+   * Implements hook_preprocess_views_view().
+   */
+  private static function withViewsField(array &$variables): bool {
+    $view  = $variables['view'];
+    $loads = [];
+    $ajax  = $view->ajaxEnabled();
+    $valid = FALSE;
+
+    // At least, less aggressive than sitewide hook_library_info_alter().
+    // @todo remove when VIS alike added `Drupal.detachBehaviors()` to their JS.
+    if ($ajax) {
+      $loads['library'][] = 'blazy/bio.ajax';
+    }
+
+    // Load Blazy library once, not per field, if any Blazy Views field found.
+    if ($blazy = self::viewsField($view)) {
+      $manager   = \blazy();
+      $plugin_id = $view->getStyle()->getPluginId();
+      $settings  = $blazy->mergedSettings ?: $blazy->mergedViewsSettings();
+
+      if ($blazies = $settings['blazies'] ?? NULL) {
+        $blazies->set('unlazy', FALSE);
+      }
+
+      $load  = $manager->attach($settings);
+      $loads = $manager->merge($load, $loads);
+      $grid  = $plugin_id == 'blazy';
+
+      if ($options = $view->getStyle()->options) {
+        $grid = empty($options['grid']) ? $grid : TRUE;
+      }
+
+      // Prevents dup [data-LIGHTBOX-gallery] if the Views style supports Grid.
+      if (!$grid) {
+        $manager->moduleHandler()->alter('blazy_is_view', $settings, $variables);
+        Attributes::container($variables['attributes'], $settings);
+      }
+
+      $valid = TRUE;
+    }
+
+    if ($loads) {
+      $variables['#attached'] = Arrays::merge($loads, $variables, '#attached');
+    }
+    return $valid;
   }
 
 }

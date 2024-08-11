@@ -1,4 +1,13 @@
 
+Blazy 3.0.x-dev, 2024-08-11
+---------------------------
+- Fixed for Olivero Grid surprises with Splide and Slick.
+
+Blazy 3.0.x-dev, 2024-06-27
+---------------------------
+- Issue #3457375 by KarlShea: BlazyViews::withViewsField calls set() on null if
+  no results in view.
+
 Blazy 3.0.x-dev, 2024-06-02
 ---------------------------
 - Updated hook_blazy_settings_alter() for Views field to facilitate a swap.

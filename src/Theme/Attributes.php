@@ -491,14 +491,17 @@ class Attributes {
       return $blazies->get('image.raw');
     }
 
-    $title = $blazies->get('image.title') ?: $blazies->get('media.label');
-    $alt   = $blazies->get('image.alt');
+    // Plain hard-coded filter/ external image might not have ImageItem object.
+    // Soundcloud/remote videos (Vimeo, Youtube, etc) have meaningful titles.
+    $title = $blazies->is('image')
+      ? $blazies->get('image.title')
+      : $blazies->get('media.label');
+    $alt = $blazies->get('image.alt');
 
     // @todo remove this item check at 3.x, once they are all in blazies.image.
     if ($item) {
       // Title from fake item might be just file name, except from BlazyFilter.
       // Needed by thumbnails if any image item, fake or real, no biggies.
-      // @todo recheck, alt from fake image factory might be just file name.
       $alt = empty($item->alt) ? $alt : trim($item->alt);
       $desc = $item->description ?? NULL;
 
@@ -508,22 +511,25 @@ class Attributes {
       }
 
       // Do not output an empty 'title' attribute.
-      if (isset($item->title) && (mb_strlen($item->title) != 0)) {
-        $title = trim($item->title);
+      if (isset($item->title)) {
+        $title = mb_strlen($item->title) != 0 ? trim($item->title) : '';
       }
     }
 
     // Might be abused to use HTML, fine for captions, but not attributes.
     // This should make both parties happier ever after, sort of.
     // strip_tags always sounds harsh, but not when done for a noble purpose.
-    if ($title) {
-      // Prevents default ugly media.label filename as popup image title.
-      $ext = $blazies->get('image.extension', 'x');
-      $filename = strpos($title, '.' . $ext) !== FALSE;
-      $title = $filename ? '' : strip_tags($title);
+    $ext = $blazies->get('image.extension', 'x');
+
+    // Alt from fake image factory might be just file name.
+    if ($alt) {
+      $alt = strpos($alt, '.' . $ext) !== FALSE ? '' : strip_tags($alt);
     }
 
-    $alt = strip_tags($alt ?: '');
+    // Prevents default ugly media.label filename as popup image title.
+    if ($title) {
+      $title = strpos($title, '.' . $ext) !== FALSE ? '' : strip_tags($title);
+    }
 
     // Ensures called once, else filled up even when it should be empty.
     $blazies->set('image.raw.alt', $alt)
