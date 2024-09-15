@@ -1,3 +1,6 @@
+Blazy 3.0.x-dev, 2024-09-15
+---------------------------
+Issue #3474291 by leslieg: Update logo for compatibility with Project Browser.
 
 Blazy 3.0.x-dev, 2024-08-11
 ---------------------------
