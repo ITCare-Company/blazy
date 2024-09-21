@@ -150,6 +150,8 @@ ul.blazy.b-flexbox {
  * Since 3.0.7, supports multi-breakpoint grids for grid and grid_medium.
  */
 @media only screen and (min-width: 768px) {
+
+  /* Column widths are determined by column numbers between 1-12. */
   .blazy.b-flexbox--lg-1 > .grid {
     flex: 0 1 calc(100% - var(--bfb-col-gap));
   }
@@ -198,6 +200,7 @@ ul.blazy.b-flexbox {
     flex: 0 1 calc(8.3333% - var(--bfb-col-gap));
   }
 
+  /* Column widths are determined by real percentage. */
   .blazy.b-flexbox > [data-b-w="10"] {
     flex: 0 1 calc(10% - var(--bfb-col-gap));
   }
@@ -234,6 +237,10 @@ ul.blazy.b-flexbox {
     flex: 0 1 calc(50% - var(--bfb-col-gap));
   }
 
+  .blazy.b-flexbox > [data-b-w="55"] {
+    flex: 0 1 calc(55% - var(--bfb-col-gap));
+  }
+
   .blazy.b-flexbox > [data-b-w="60"] {
     flex: 0 1 calc(60% - var(--bfb-col-gap));
   }
@@ -254,4 +261,7 @@ ul.blazy.b-flexbox {
     flex: 0 1 100%;
   }
 
+}
+
+*/
 }
