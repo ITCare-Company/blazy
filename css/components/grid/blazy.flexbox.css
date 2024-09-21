@@ -60,6 +60,7 @@ ul.blazy.b-flexbox {
 
 /** 480px = 30em with 16px base font. */
 @media only screen and (min-width: 480px) {
+
   /* Gap with flexbox is problematic against justify-content vs. flex-direction: row. */
   .b-flexbox,
   .blazy.b-flexbox,
@@ -133,6 +134,14 @@ ul.blazy.b-flexbox {
   .blazy.b-flexbox--md-4 > .grid {
     flex: 0 1 calc(25% - var(--bfb-col-gap));
   }
+
+  .blazy.b-flexbox--md-5 > .grid {
+    flex: 0 1 calc(20% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox--md-6 > .grid {
+    flex: 0 1 calc(16.6666% - var(--bfb-col-gap));
+  }
 }
 
 /**
@@ -141,6 +150,54 @@ ul.blazy.b-flexbox {
  * Since 3.0.7, supports multi-breakpoint grids for grid and grid_medium.
  */
 @media only screen and (min-width: 768px) {
+  .blazy.b-flexbox--lg-1 > .grid {
+    flex: 0 1 calc(100% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox--lg-2 > .grid {
+    flex: 0 1 calc(50% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox--lg-3 > .grid {
+    flex: 0 1 calc(33.3333% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox--lg-4 > .grid {
+    flex: 0 1 calc(25% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox--lg-5 > .grid {
+    flex: 0 1 calc(20% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox--lg-6 > .grid {
+    flex: 0 1 calc(16.6666% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox--lg-7 > .grid {
+    flex: 0 1 calc(14.2857% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox--lg-8 > .grid {
+    flex: 0 1 calc(12.5% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox--lg-9 > .grid {
+    flex: 0 1 calc(11.1111% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox--lg-10 > .grid {
+    flex: 0 1 calc(10% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox--lg-11 > .grid {
+    flex: 0 1 calc(9.0909% - var(--bfb-col-gap));
+  }
+
+  .blazy.b-flexbox--lg-12 > .grid {
+    flex: 0 1 calc(8.3333% - var(--bfb-col-gap));
+  }
+
   .blazy.b-flexbox > [data-b-w="10"] {
     flex: 0 1 calc(10% - var(--bfb-col-gap));
   }
