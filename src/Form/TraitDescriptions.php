@@ -73,7 +73,7 @@ trait TraitDescriptions {
         ':dimensions'  => '//size43.com/jqueryVideoTool.html',
         ':follow'      => '//en.wikipedia.org/wiki/Aspect_ratio_%28image%29',
         ':link'        => '//www.smashingmagazine.com/2014/02/27/making-embedded-content-work-in-responsive-design/',
-        ':ratio'       => '/admin/help/blazy_ui#aspect-ratio',
+        ':ratio'       => Url::fromUri('internal:/admin/help/blazy_ui#aspect-ratio')->toString(),
       ]),
       'view_mode' => $view_mode,
       'thumbnail_style' => $this->t('Usages: <ol><li>Placeholder replacement for image effects (blur, etc.)</li><li>Splidebox/PhotoSwipe thumbnail</li><li>Custom works with thumbnails.</li></ol> Be sure to have similar aspect ratio for the best blur effect. Leave empty to not use thumbnails.'),

@@ -63,13 +63,13 @@ class BlazyConfigForm extends BlazyConfigFormBase {
     // Adapted from Colorbox module, thanks.
     $dom_text = $dom_exists ?
       '[v] ' . $this->t('The DOMPurify library is installed to sanitize lightbox captions. Be sure to clear cache for library discoveries. [<a href=":ui">Blazy UI help</a>]', [
-        ':ui' => '/admin/help/blazy_ui#dompurify',
+        ':ui' => Url::fromUri('internal:/admin/help/blazy_ui#dompurify')->toString(),
       ])
       :
       '[x] ' . $this->t('<strong>Warning!</strong> The <a href=":url">DOMPurify</a> library is not installed. It is necessary for HTML in lightbox captions. Without it, they are only sanitized server-side, or builtin. [<a href=":ui">Blazy UI help</a>].',
         [
           ':url' => 'https://github.com/cure53/DOMPurify/archive/main.zip',
-          ':ui' => '/admin/help/blazy_ui#dompurify',
+          ':ui' => Url::fromUri('internal:/admin/help/blazy_ui#dompurify')->toString(),
         ]);
 
     $hints[] = [
@@ -83,13 +83,13 @@ class BlazyConfigForm extends BlazyConfigFormBase {
 
     $svg_text = $svg_exists ?
       '[v] ' . $this->t('The SVG Sanitizer library is installed to sanitize inline SVG. [<a href=":ui">Blazy UI help</a>]', [
-        ':ui' => '/admin/help/blazy_ui#svg',
+        ':ui' => Url::fromUri('internal:/admin/help/blazy_ui#svg')->toString(),
       ])
       :
       '[x] ' . $this->t('<strong>Warning!</strong> The <a href=":url">SVG Sanitizer</a> library is not installed. This library is necessary if you want to use SVG inline. Without it, the world would be ended. [<a href=":ui">Blazy UI help</a>].',
         [
           ':url' => $svg_sanitizer,
-          ':ui' => '/admin/help/blazy_ui#svg',
+          ':ui' => Url::fromUri('internal:/admin/help/blazy_ui#svg')->toString(),
         ]);
 
     $hints[] = [
@@ -423,7 +423,9 @@ class BlazyConfigForm extends BlazyConfigFormBase {
     $this->libraryDiscovery->clearCachedDefinitions();
     $this->configFactory->clearStaticCache();
 
-    $this->messenger()->addMessage($this->t('Be sure to <a href=":clear_cache">clear the cache</a> if trouble to see the updated settings.', [':clear_cache' => Url::fromRoute('system.performance_settings')->toString()]));
+    $this->messenger()->addMessage($this->t('Be sure to <a href=":clear_cache">clear the cache</a> if trouble to see the updated settings.', [
+      ':clear_cache' => Url::fromRoute('system.performance_settings')->toString(),
+    ]));
 
     parent::submitForm($form, $form_state);
   }

@@ -202,7 +202,8 @@ ul.blazy.b-flexbox {
 
   .blazy.b-flexbox--lg-3 > .grid,
   .blazy.b-flexbox > [data-b-w="33"] {
-    flex: 0 1 calc(33.3333% - var(--bfb-col-gap));
+    /* Cannot use exact 33.3333% for some reason. */
+    flex: 0 1 calc(33% - var(--bfb-col-gap));
   }
 
   .blazy.b-flexbox > [data-b-w="34"] {
