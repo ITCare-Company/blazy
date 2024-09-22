@@ -151,27 +151,7 @@ ul.blazy.b-flexbox {
  */
 @media only screen and (min-width: 768px) {
 
-  /* Column widths are determined by column numbers between 1-12. */
-  .blazy.b-flexbox--lg-1 > .grid {
-    flex: 0 1 calc(100% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox--lg-2 > .grid {
-    flex: 0 1 calc(50% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox--lg-3 > .grid {
-    flex: 0 1 calc(33.3333% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox--lg-4 > .grid {
-    flex: 0 1 calc(25% - var(--bfb-col-gap));
-  }
-
-  .blazy.b-flexbox--lg-5 > .grid {
-    flex: 0 1 calc(20% - var(--bfb-col-gap));
-  }
-
+  /* Column widths are determined by column amount between 1-12. */
   .blazy.b-flexbox--lg-6 > .grid {
     flex: 0 1 calc(16.6666% - var(--bfb-col-gap));
   }
@@ -188,10 +168,6 @@ ul.blazy.b-flexbox {
     flex: 0 1 calc(11.1111% - var(--bfb-col-gap));
   }
 
-  .blazy.b-flexbox--lg-10 > .grid {
-    flex: 0 1 calc(10% - var(--bfb-col-gap));
-  }
-
   .blazy.b-flexbox--lg-11 > .grid {
     flex: 0 1 calc(9.0909% - var(--bfb-col-gap));
   }
@@ -201,6 +177,7 @@ ul.blazy.b-flexbox {
   }
 
   /* Column widths are determined by real percentage. */
+  .blazy.b-flexbox--lg-10 > .grid,
   .blazy.b-flexbox > [data-b-w="10"] {
     flex: 0 1 calc(10% - var(--bfb-col-gap));
   }
@@ -209,10 +186,12 @@ ul.blazy.b-flexbox {
     flex: 0 1 calc(15% - var(--bfb-col-gap));
   }
 
+  .blazy.b-flexbox--lg-5 > .grid,
   .blazy.b-flexbox > [data-b-w="20"] {
     flex: 0 1 calc(20% - var(--bfb-col-gap));
   }
 
+  .blazy.b-flexbox--lg-4 > .grid,
   .blazy.b-flexbox > [data-b-w="25"] {
     flex: 0 1 calc(25% - var(--bfb-col-gap));
   }
@@ -221,8 +200,9 @@ ul.blazy.b-flexbox {
     flex: 0 1 calc(30% - var(--bfb-col-gap));
   }
 
+  .blazy.b-flexbox--lg-3 > .grid,
   .blazy.b-flexbox > [data-b-w="33"] {
-    flex: 0 1 calc(33% - var(--bfb-col-gap));
+    flex: 0 1 calc(33.3333% - var(--bfb-col-gap));
   }
 
   .blazy.b-flexbox > [data-b-w="34"] {
@@ -233,6 +213,7 @@ ul.blazy.b-flexbox {
     flex: 0 1 calc(40% - var(--bfb-col-gap));
   }
 
+  .blazy.b-flexbox--lg-2 > .grid,
   .blazy.b-flexbox > [data-b-w="50"] {
     flex: 0 1 calc(50% - var(--bfb-col-gap));
   }
@@ -257,11 +238,9 @@ ul.blazy.b-flexbox {
     flex: 0 1 calc(80% - var(--bfb-col-gap));
   }
 
+  .blazy.b-flexbox--lg-1 > .grid,
   .blazy.b-flexbox > [data-b-w="100"] {
     flex: 0 1 100%;
   }
 
-}
-
-*/
 }

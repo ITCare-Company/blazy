@@ -258,6 +258,14 @@ class BlazyConfigForm extends BlazyConfigFormBase {
       }
     }
 
+    $form['max_region_count'] = [
+      '#type'          => 'number',
+      '#title'         => $this->t('Max region count'),
+      '#default_value' => $config->get('max_region_count'),
+      '#description'   => $this->t('Specific for Blazy layout, define the maximum amount of regions. Default to 20 if left 0 or below 9. Regions beyond this amount will be hidden.'),
+      '#access'        => $this->manager->moduleExists('blazy_layout'),
+    ];
+
     $form['blazy'] = [
       '#type'        => 'details',
       '#tree'        => TRUE,
@@ -383,6 +391,7 @@ class BlazyConfigForm extends BlazyConfigFormBase {
       ->set('unstyled_extensions', $form_state->getValue('unstyled_extensions'))
       ->set('use_encodedbox', $form_state->getValue('use_encodedbox'))
       ->set('use_oembed', $form_state->getValue('use_oembed'))
+      ->set('max_region_count', $form_state->getValue('max_region_count'))
       ->set('blazy.loadInvisible', $form_state->getValue([
         'blazy',
         'loadInvisible',

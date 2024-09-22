@@ -51,8 +51,8 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     $elements['count'] = [
       '#type'        => 'number',
       '#title'       => $this->t('Region count'),
-      '#maxlength'   => 255,
-      '#description' => $this->t('The amount of regions, normally matches the amount of grids specific for Native Grid.'),
+      '#min'         => 1,
+      '#description' => $this->t('The amount of regions, normally matches the amount of grids specific for Native Grid. Till we have a working AJAX, whenever changing this amount, after hitting the Update button, re-open this modal, and hit Update button again to update the regions. Visit Blazy UI, to change the allowed maximum region amount.'),
     ];
 
     $elements['style'] = [
