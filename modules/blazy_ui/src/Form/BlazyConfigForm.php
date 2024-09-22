@@ -421,7 +421,8 @@ class BlazyConfigForm extends BlazyConfigFormBase {
     $config->save();
 
     // Invalidate the library discovery cache to update the responsive image.
-    $this->libraryDiscovery->clearCachedDefinitions();
+    // @todo use LibraryDiscoveryCollector::clear() for D12.
+    // $this->libraryDiscovery->clearCachedDefinitions();
     $this->configFactory->clearStaticCache();
 
     $this->messenger()->addMessage($this->t('Be sure to <a href=":clear_cache">clear the cache</a> if trouble to see the updated settings.', [
