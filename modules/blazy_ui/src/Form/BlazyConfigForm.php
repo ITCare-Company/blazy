@@ -59,17 +59,18 @@ class BlazyConfigForm extends BlazyConfigFormBase {
     $svg_sanitizer = 'https://github.com/darylldoyle/svg-sanitizer';
     $class = $exists ? 'info' : 'warning';
     $hints = [];
+    $help = Url::fromUri('internal:/admin/help/blazy_ui')->toString();
 
     // Adapted from Colorbox module, thanks.
     $dom_text = $dom_exists ?
       '[v] ' . $this->t('The DOMPurify library is installed to sanitize lightbox captions. Be sure to clear cache for library discoveries. [<a href=":ui">Blazy UI help</a>]', [
-        ':ui' => Url::fromUri('internal:/admin/help/blazy_ui#dompurify')->toString(),
+        ':ui' => $help . '#dompurify',
       ])
       :
       '[x] ' . $this->t('<strong>Warning!</strong> The <a href=":url">DOMPurify</a> library is not installed. It is necessary for HTML in lightbox captions. Without it, they are only sanitized server-side, or builtin. [<a href=":ui">Blazy UI help</a>].',
         [
           ':url' => 'https://github.com/cure53/DOMPurify/archive/main.zip',
-          ':ui' => Url::fromUri('internal:/admin/help/blazy_ui#dompurify')->toString(),
+          ':ui' => $help . '#dompurify',
         ]);
 
     $hints[] = [
@@ -83,13 +84,13 @@ class BlazyConfigForm extends BlazyConfigFormBase {
 
     $svg_text = $svg_exists ?
       '[v] ' . $this->t('The SVG Sanitizer library is installed to sanitize inline SVG. [<a href=":ui">Blazy UI help</a>]', [
-        ':ui' => Url::fromUri('internal:/admin/help/blazy_ui#svg')->toString(),
+        ':ui' => $help . '#svg',
       ])
       :
       '[x] ' . $this->t('<strong>Warning!</strong> The <a href=":url">SVG Sanitizer</a> library is not installed. This library is necessary if you want to use SVG inline. Without it, the world would be ended. [<a href=":ui">Blazy UI help</a>].',
         [
           ':url' => $svg_sanitizer,
-          ':ui' => Url::fromUri('internal:/admin/help/blazy_ui#svg')->toString(),
+          ':ui' => $help . '#svg',
         ]);
 
     $hints[] = [
