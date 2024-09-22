@@ -59,7 +59,11 @@ class BlazyConfigForm extends BlazyConfigFormBase {
     $svg_sanitizer = 'https://github.com/darylldoyle/svg-sanitizer';
     $class = $exists ? 'info' : 'warning';
     $hints = [];
-    $help = Url::fromUri('internal:/admin/help/blazy_ui')->toString();
+    $help = '/admin/help/blazy_ui';
+
+    if ($this->manager->moduleExists('help')) {
+      $help = Url::fromUri('internal:/admin/help/blazy_ui')->toString();
+    }
 
     // Adapted from Colorbox module, thanks.
     $dom_text = $dom_exists ?

@@ -34,8 +34,12 @@ trait TraitDescriptions {
    */
   public function baseDescriptions($scopes): array {
     $namespace = $scopes->get('namespace', 'blazy');
-    $help = Url::fromUri('internal:/admin/help/blazy_ui')->toString();
-    $ui_url = Url::fromUri('internal:/admin/config/media/blazy')->toString();
+    $help = '/admin/help/blazy_ui';
+    $ui_url = '/admin/config/media/blazy';
+
+    if ($this->blazyManager->moduleExists('help')) {
+      $help = Url::fromUri('internal:/admin/help/blazy_ui')->toString();
+    }
 
     if ($this->blazyManager->moduleExists('blazy_ui')) {
       $ui_url = Url::fromRoute('blazy.settings')->toString();
