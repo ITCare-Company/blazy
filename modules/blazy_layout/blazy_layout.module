@@ -5,9 +5,9 @@
  * Provides a single layout with dynamic regions for Layout Builder.
  */
 
+use Drupal\Core\Template\Attribute;
 use Drupal\blazy_layout\BlazyLayoutDefault;
 use Drupal\blazy_layout\BlazyLayoutManager;
-use Drupal\Core\Template\Attribute;
 
 /**
  * Provides a convenient shortcut for procedural hooks.

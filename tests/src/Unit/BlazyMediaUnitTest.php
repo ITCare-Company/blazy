@@ -2,9 +2,9 @@
 
 namespace Drupal\Tests\blazy\Unit;
 
-use Drupal\blazy\Blazy;
-use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 use Drupal\Tests\UnitTestCase;
+use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
+use Drupal\blazy\Blazy;
 
 /**
  * @coversDefaultClass \Drupal\blazy\BlazyMedia

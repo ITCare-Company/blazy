@@ -2,11 +2,11 @@
 
 namespace Drupal\blazy_layout\Plugin\Layout;
 
-use Drupal\blazy\Utility\Color;
-use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Layout\LayoutDefault;
 use Drupal\Core\Render\Element;
+use Drupal\blazy\Utility\Color;
+use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

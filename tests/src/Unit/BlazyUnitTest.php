@@ -2,13 +2,13 @@
 
 namespace Drupal\Tests\blazy\Unit;
 
+use Drupal\Tests\UnitTestCase;
+use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;
+use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Theme\BlazyTheme;
-use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;
-use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
-use Drupal\Tests\UnitTestCase;
 
 /**
  * @coversDefaultClass \Drupal\blazy\Blazy

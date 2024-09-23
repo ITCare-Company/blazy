@@ -2,9 +2,9 @@
 
 namespace Drupal\blazy;
 
-use Drupal\blazy\internals\Internals;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Field\FormatterInterface;
+use Drupal\blazy\internals\Internals;
 use Drupal\editor\Entity\Editor;
 
 /**

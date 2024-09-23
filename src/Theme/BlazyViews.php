@@ -4,8 +4,8 @@ namespace Drupal\blazy\Theme;
 
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\internals\Internals;
 use Drupal\blazy\Utility\Arrays;
+use Drupal\blazy\internals\Internals;
 
 /**
  * Provides optional Views integration.

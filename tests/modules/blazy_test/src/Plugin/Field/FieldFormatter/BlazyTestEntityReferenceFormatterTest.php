@@ -2,10 +2,10 @@
 
 namespace Drupal\blazy_test\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyEntityReferenceBase;
 use Drupal\blazy\internals\Internals;
-use Drupal\Core\Field\FieldItemListInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

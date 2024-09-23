@@ -2,12 +2,12 @@
 
 namespace Drupal\Tests\blazy\Unit\Form;
 
-use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\Form\BlazyAdminFormatter;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
+use Drupal\Tests\UnitTestCase;
 use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
-use Drupal\Tests\UnitTestCase;
+use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Form\BlazyAdminFormatter;
 
 /**
  * Tests the Blazy admin formatter form.

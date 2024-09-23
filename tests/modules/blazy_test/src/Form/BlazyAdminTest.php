@@ -2,9 +2,9 @@
 
 namespace Drupal\blazy_test\Form;
 
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\Form\BlazyAdminInterface;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

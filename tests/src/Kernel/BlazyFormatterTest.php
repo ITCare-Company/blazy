@@ -2,9 +2,9 @@
 
 namespace Drupal\Tests\blazy\Kernel;
 
-use Drupal\blazy\Blazy;
 // @todo use Drupal\Core\Render\Element;
 use Drupal\Core\Form\FormState;
+use Drupal\blazy\Blazy;
 use GuzzleHttp\Exception\GuzzleException;
 
 /**
