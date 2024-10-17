@@ -261,6 +261,15 @@ class BlazyAlter {
     $settings = &$build['#settings'];
     $blazies  = $settings['blazies'];
 
+    // Adds bio.ajax to fix product variation AJAX within BigPipe.
+    // Views AJAX will automatically work, however to support other non-views
+    // AJAX, add more conditions to your custom hook_blazy_settings_alter.
+    if ($type = $blazies->get('field.entity_type')) {
+      if ($type == 'commerce_product_variation') {
+        $blazies->set('use.ajax', TRUE);
+      }
+    }
+
     // Sniffs for Views to allow block__no_wrapper, views_no_wrapper, etc.
     $function = 'views_get_current_view';
     // @todo phpstan bug, misleading with nullable function return.
