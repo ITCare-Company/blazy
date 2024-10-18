@@ -1,3 +1,7 @@
+Blazy Layout 3.x-dev, 2024-10-18
+--------------------------------
+- Fixed for initial LB preview.
+
 Blazy Layout 3.x-dev, 2024-09-22
 --------------------------------
 - Fixed for hidden regions beyond defaults.

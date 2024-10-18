@@ -39,6 +39,20 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   protected static $itemPrefix = 'blazy';
 
   /**
+   * Provides factory regions.
+   *
+   * @var array
+   */
+  protected static $factoryRegions;
+
+  /**
+   * Provides instance regions.
+   *
+   * @var array
+   */
+  protected static $instanceRegions;
+
+  /**
    * Provides CSS selectors.
    *
    * @var array
@@ -148,7 +162,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     }
 
     $layout_id = strtolower($layout_id);
-    static::$count = $count;
+    static::$factoryRegions = $factory_regions;
+    static::$count = $settings['count'] = $count;
     static::$instanceId = 'b-layout--' . $layout_id;
 
     $settings['id'] = $layout_id;
@@ -166,14 +181,31 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       }
     }
 
+    // Removed regions beyond the designated amount.
+    $factory_count = count($factory_regions);
+    foreach ($keys as $delta => $value) {
+      if ($delta < $count || $delta == ($factory_count - 1)) {
+        continue;
+      }
+
+      $name = Defaults::regionId($delta);
+      unset($factory_regions[$name]);
+      unset($settings['regions'][$name]);
+    }
+
     // A special static BG region.
-    $factory_regions['bg'] = [
-      'label' => Defaults::regionTranslatableLabel('Background'),
-    ];
+    if (!isset($factory_regions['bg'])) {
+      $factory_regions['bg'] = [
+        'label' => Defaults::regionTranslatableLabel('Background'),
+      ];
+    }
+
+    static::$instanceRegions = $factory_regions;
 
     $this->setConfiguration($settings);
     $layout->setRegions($factory_regions);
     $this->pluginDefinition = $layout;
+    $this->pluginDefinition->set('blazies', $factory_regions);
     return $layout;
   }
 
@@ -189,14 +221,6 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    * Modifies regions.
    */
   protected function regions(array &$output, array &$settings): void {
-    $blazies = $settings['blazies'];
-    $layout = $this->pluginDefinition;
-    $factory_regions = $layout->getRegions();
-    $dummy_regions = $blazies->get('grid.items', []);
-    $default_regions = array_keys($factory_regions);
-    $active_regions = array_keys(array_diff_key($dummy_regions, $default_regions));
-    $new_regions = [];
-
     // Add dummy regions to keep layout intact.
     foreach (range(1, static::$count) as $delta => $value) {
       $name = Defaults::regionId($delta);
@@ -222,50 +246,19 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       $output['bg']['dummy']['#markup'] = ' ';
     }
 
-    // Add or remove regions based on the given settings.count.
-    foreach ($this->manager->getKeys($output) as $delta => $name) {
-      if (isset($output[$name])) {
-
-        // Provides dummy regions.
-        if (array_key_exists($delta, $active_regions)) {
-          $label = Defaults::regionLabel($delta);
-          $new_regions[$name] = [
-            'label' => Defaults::regionTranslatableLabel($label),
-          ];
-        }
-        else {
-          // Remove anything beyond grid count, except the special BG region.
-          if ($name != 'bg') {
-            unset($output[$name]);
-          }
-        }
-      }
-    }
-
-    // Add a special bg region.
-    $new_regions['bg'] = [
-      'label' => Defaults::regionTranslatableLabel('Background'),
-    ];
-
-    $this->blocks($output, $settings, $new_regions);
-
-    ksort($new_regions);
-    $this->pluginDefinition->setRegions($new_regions);
-    $this->pluginDefinition->set('blazies', $new_regions);
+    $this->blocks($output, $settings);
   }
 
   /**
    * Modifies blocks.
    */
-  protected function blocks(array &$output, array &$settings, array $new_regions): void {
-    ksort($new_regions);
-
+  protected function blocks(array &$output, array &$settings): void {
     $id      = static::$instanceId;
     $colors  = $settings['styles']['colors'] ?? [];
     $layouts = $settings['styles']['layouts'] ?? [];
 
     // Move Blazy background to the beginning.
-    foreach (array_keys($new_regions) as $name) {
+    foreach (array_keys(static::$instanceRegions) as $name) {
       if (!isset($output[$name])) {
         continue;
       }
