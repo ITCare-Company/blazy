@@ -55,11 +55,12 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       $max = 20;
     }
 
+    $options = range(1, $max);
     $elements['count'] = [
-      '#type'        => 'number',
+      '#type'        => 'select',
       '#title'       => $this->t('Region count'),
-      '#min'         => 1,
-      '#description' => $this->t('The amount of regions (max @max), normally matches the amount of grids specific for Native Grid and Flexbox. Visit <a href=":url">Blazy UI</a> to change the allowed maximum region amount: @max. Regions beyond that will be hidden.<br><b>Warning!</b> Till we have a working AJAX, whenever changing this amount, after hitting the Update button, re-open this modal, and hit Update button again to update the regions.', [
+      '#options'     => array_combine($options, $options),
+      '#description' => $this->t('The amount of regions (max @max), normally matches the amount of grids specific for Native Grid and Flexbox. Visit <a href=":url">Blazy UI</a> to change the allowed maximum region amount: @max. Regions beyond that will be hidden.', [
         ':url' => $url,
         '@max' => $max,
       ]),

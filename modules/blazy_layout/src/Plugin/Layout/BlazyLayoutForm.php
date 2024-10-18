@@ -199,9 +199,33 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       }
     }
 
+    // AJAX element.
+    $form['settings']['count']['#ajax'] = [
+      'callback' => [$this, 'countCallback'],
+      'wrapper' => 'edit-regions-ajax-wrapper',
+      'effect' => 'fade',
+    ];
+
+    // Add some information to the form state for easier form altering.
+    $region_count = $form_state2->getValue('layout_settings')['settings']['count'] ?? $settings['count'];
+    $form_state2->setValue('region_count', $region_count);
+    $user_input = $form_state2->getUserInput();
+    $region_input = $region_count;
+    if ($value = $user_input['layout_settings']['settings']['count'] ?? NULL) {
+      $region_input = (int) $value;
+    }
+
+    if ($region_input && ($region_input != $region_count)) {
+      $form_state2->setValue('region_count', $region_input);
+    }
+
+    $state_count = $form_state2->getValue('region_count');
+    $count = $state_count ?: $settings['count'];
+    $settings['count'] = (int) $count;
+
     // Region settings.
     $defined = $definition->getRegions();
-    $regions = $this->manager->getRegions((int) $settings['count']);
+    $regions = $this->manager->getRegions($settings['count']);
 
     $subsets = [];
     $form['regions'] = [
@@ -210,6 +234,8 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       '#parents'    => ['layout_settings', 'regions'],
       '#weight'     => 31,
       '#attributes' => ['class' => ['form-wrapper--b-layout']],
+      '#prefix'     => '<div id="edit-regions-ajax-wrapper">',
+      '#suffix'     => '</div>',
     ];
 
     foreach ($regions as $region => $info) {
@@ -299,6 +325,13 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
 
     $form['settings']['#attached']['library'][] = 'blazy_layout/modal';
     return $form;
+  }
+
+  /**
+   * Callback for count.
+   */
+  public function countCallback(array $form, FormStateInterface $form_state) {
+    return $form['layout_settings']['regions'];
   }
 
   /**

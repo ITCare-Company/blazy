@@ -1,5 +1,6 @@
 Blazy Layout 3.x-dev, 2024-10-18
 --------------------------------
+- Fix for AJAX regions.
 - Fixed for unwanted Olivero grid overrides.
 - Fixed for regions beyond defaults.
 - Fixed for initial LB preview.
