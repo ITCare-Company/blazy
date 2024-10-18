@@ -149,7 +149,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $layout = clone $this->pluginDefinition;
     $settings = $this->getConfiguration();
     $factory_regions = $layout->getRegions();
-    $keys = array_values($factory_regions);
+    $editable_regions = $factory_regions;
+
+    unset($editable_regions['bg']);
+    $keys = array_values($editable_regions);
     $count = (int) $settings['count'];
 
     // For some reason, short coalesce always fails.
@@ -169,6 +172,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $settings['id'] = $layout_id;
 
     // Add new regions, if any different from factory.
+    // @todo remove after another check, since now region has limit.
     foreach (range(1, static::$count) as $delta => $value) {
       $key = Defaults::regionId($delta);
       $region = $keys[$delta] ?? $delta;
@@ -182,18 +186,23 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     }
 
     // Removed regions beyond the designated amount.
-    $factory_count = count($factory_regions);
     foreach ($keys as $delta => $value) {
-      if ($delta < $count || $delta == ($factory_count - 1)) {
+      $name = Defaults::regionId($delta);
+      if ($delta < $count) {
+        // Add initial settings if it is beyond default 9.
+        if (!isset($settings['regions'][$name]) && isset($factory_regions[$name])) {
+          $settings['regions'][$name] = $factory_regions[$name];
+          $settings['regions'][$name]['settings'] = [];
+        }
         continue;
       }
 
-      $name = Defaults::regionId($delta);
       unset($factory_regions[$name]);
       unset($settings['regions'][$name]);
     }
 
     // A special static BG region.
+    // @todo remove after another check.
     if (!isset($factory_regions['bg'])) {
       $factory_regions['bg'] = [
         'label' => Defaults::regionTranslatableLabel('Background'),
