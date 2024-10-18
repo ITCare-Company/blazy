@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Provides resusable admin functions or form elements.
  */
-class BlazyAdminTest implements BlazyAdminTestInterface {
+class BlazyAdminTst implements BlazyAdminTstInterface {
 
   use StringTranslationTrait;
 

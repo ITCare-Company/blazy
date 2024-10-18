@@ -21,7 +21,7 @@ use Drupal\blazy\internals\Internals;
  *   display_types = {"normal"}
  * )
  */
-class BlazyViewsTest extends BlazyStylePluginBase {
+class BlazyViewsTst extends BlazyStylePluginBase {
 
   /**
    * {@inheritdoc}

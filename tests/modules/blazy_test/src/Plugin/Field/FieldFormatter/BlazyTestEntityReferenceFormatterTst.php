@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   field_types = {"entity_reference", "file"}
  * )
  */
-class BlazyTestEntityReferenceFormatterTest extends BlazyEntityReferenceBase {
+class BlazyTestEntityReferenceFormatterTst extends BlazyEntityReferenceBase {
 
   /**
    * {@inheritdoc}
