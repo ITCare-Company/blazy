@@ -20,12 +20,16 @@
   box-shadow: none !important;
 }
 
-.form-item--collapsidesc > div > details summary {
+.form-item--collapsidesc > div > details > summary {
   display: block !important;
   text-align: right !important;
 }
 
-.form-item--collapsidesc > div > details summary::after {
+.form-item--collapsidesc > div > details > summary:focus {
+  outline-width: 0 !important;
+}
+
+.form-item--collapsidesc > div > details > summary::after {
   display: none !important;
 }
 

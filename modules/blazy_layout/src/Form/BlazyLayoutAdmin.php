@@ -49,7 +49,11 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     $elements = [];
     $attrs    = ['class' => ['is-tooltip']];
     $max      = (int) $this->manager->config('max_region_count');
-    $url      = Url::fromUri('internal:/admin/config/media/blazy')->toString();
+    $url      = '/admin/config/media/blazy';
+
+    if ($this->manager->moduleExists('blazy_ui')) {
+      $url = Url::fromUri('internal:/admin/config/media/blazy')->toString();
+    }
 
     if ($max < 10) {
       $max = 20;
@@ -60,7 +64,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       '#type'        => 'select',
       '#title'       => $this->t('Region count'),
       '#options'     => array_combine($options, $options),
-      '#description' => $this->t('The amount of regions (max @max), normally matches the amount of grids specific for Native Grid and Flexbox. Visit <a href=":url">Blazy UI</a> to change the allowed maximum region amount: @max. Regions beyond that will be hidden.', [
+      '#description' => $this->t('The amount of regions (max @max, excluding Background region), normally matches the amount of grids specific for Native Grid and Flexbox. Visit <a href=":url">Blazy UI > Max region count</a> to change the allowed maximum region amount: @max. Regions beyond that will be hidden.', [
         ':url' => $url,
         '@max' => $max,
       ]),
@@ -219,7 +223,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
    */
   public function formSettings(array &$form, array $settings, array $excludes = []): void {
     $defaults    = Defaults::layoutSettings();
-    $admin_css   = $this->blazyManager->config('admin_css', 'blazy.settings');
+    $admin_css   = $this->manager->config('admin_css', 'blazy.settings');
     $attrs       = ['class' => ['is-tooltip']];
     $bottoms     = ['align_items', 'grid_auto_rows'];
     $elements    = $options = [];
@@ -243,15 +247,15 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
 
         case 'align_items':
           $options = Defaults::aligItems();
-          $description = $this->t('Flexbox and Native Grid only. Try <code>start</code> to have floating elements, but might break Blazy CSS background. The CSS align-items property sets the align-self value on all direct children as a group. In Flexbox, it controls the alignment of items on the Cross Axis. In Grid Layout, it controls the alignment of items on the Block Axis within their grid area. <a href="@url">Read more</a>', [
-            '@url' => 'https://developer.mozilla.org/en-US/docs/Web/CSS/align-items',
+          $description = $this->t('Flexbox and Native Grid only. Try <code>start</code> to have floating elements, but might break Blazy CSS background. The CSS align-items property sets the align-self value on all direct children as a group. In Flexbox, it controls the alignment of items on the Cross Axis. In Grid Layout, it controls the alignment of items on the Block Axis within their grid area. <a href=":url">Read more</a>', [
+            ':url' => 'https://developer.mozilla.org/en-US/docs/Web/CSS/align-items',
           ]);
           break;
 
         case 'grid_auto_rows':
           $options = [];
-          $description = $this->t('Native Grid only. Accepted values: auto, min-content, max-content, minmax. Spefiic for minmax, it requires additional arguments, e.g.: minmax(80px, auto). Default to use the CSS rule <code>var(--bn-row-height-native)</code> or 80px. <a href="@url">Read more</a>', [
-            '@url' => 'https://developer.mozilla.org/en-US/docs/Web/CSS/grid-auto-rows',
+          $description = $this->t('Native Grid only. Accepted values: auto, min-content, max-content, minmax. Spefiic for minmax, it requires additional arguments, e.g.: minmax(80px, auto). Default to use the CSS rule <code>var(--bn-row-height-native)</code> or 80px. <a href=":url">Read more</a>', [
+            ':url' => 'https://developer.mozilla.org/en-US/docs/Web/CSS/grid-auto-rows',
           ]);
           break;
 
