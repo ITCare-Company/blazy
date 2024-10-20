@@ -10,13 +10,18 @@ Install the module as usual, more info can be found on:
 
 
 ## USAGE / CONFIGURATION
-* Visit layout builder pages, and add a Blazy Layout there.
+* Visit Layout builder pages (`/node/123/layout1`), and add a Blazy Layout.
 * To use Media (image, local video, remote video) as background, install
   [Media library form element](https://www.drupal.org/project/media_library_form_element). This is alternative to core
-  **Layout Builder Expose All Field Blocks** which was deprecated.
+  **Layout Builder Expose All Field Blocks** which was deprecated, also a more
+  efficient solution to **Choose a block > Content fields** to avoid creating
+  useless/ unused Media fields.
   This background is available for all regions, including the main layout.
-  If provided, be sure to not enable **Use background** option for Blazy
-  formatters to avoid duplicated and conflicting backgrounds.
+  If provided, be sure to **NOT** enable **Use background** option for Blazy
+  formatters to avoid multiple and conflicting backgrounds.
+  The option is available at:
+
+  **Blazy layout > [Global|Region] > Settings > Styles > Media**
 
 
 ## KNOWN ISSUES/ LIMITATIONS
