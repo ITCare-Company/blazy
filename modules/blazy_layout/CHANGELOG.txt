@@ -1,5 +1,6 @@
 Blazy Layout 3.x-dev, 2024-10-20
 --------------------------------
+- Respected Background color with empty regions without media/images.
 - Added Background media option for all regions.
 
 Blazy Layout 3.x-dev, 2024-10-18

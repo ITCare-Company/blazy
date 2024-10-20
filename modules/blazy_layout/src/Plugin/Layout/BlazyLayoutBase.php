@@ -285,6 +285,22 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       $empty   = empty($output[$name]) || isset($output[$name]['dummy']);
       $is_bg   = FALSE;
 
+      if ($name == 'bg') {
+        $colorsets = $colors;
+        $layoutsets = $layouts;
+      }
+      else {
+        $colorsets = $styles['colors'] ?? [];
+        $layoutsets = $styles['layouts'] ?? [];
+      }
+
+      $use_bg_color = !empty($colorsets['background_color']) || $this->inPreview;
+      $use_overlay = !empty($colorsets['overlay_color']) || $this->inPreview;
+
+      if ($use_bg_color && !isset($output[$name])) {
+        $output[$name][$name . '-bg']['#markup'] = ' ';
+      }
+
       // Place before a bailout so to be visible at frontend.
       if ($mid = $styles['media']['id'] ?? NULL) {
         $is_bg = TRUE;
@@ -300,22 +316,11 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       foreach (Element::children($output[$name]) as $uuid) {
         $block = $output[$name][$uuid];
         $formatter = $block['content'][0]['#formatter'] ?? 'x';
+        $use_bg = $block_bg = FALSE;
 
         if (!isset($output[$name]['#attributes'])) {
           $output[$name]['#attributes'] = [];
         }
-
-        if ($name == 'bg') {
-          $colorsets = $colors;
-          $layoutsets = $layouts;
-        }
-        else {
-          $colorsets = $styles['colors'] ?? [];
-          $layoutsets = $styles['layouts'] ?? [];
-        }
-
-        $use_bg = $block_bg = FALSE;
-        $use_overlay = !empty($colorsets['overlay_color']);
 
         // Blazy formatter in a block.
         if (strpos($formatter, 'blazy') !== FALSE) {
@@ -336,7 +341,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
             }
 
             if (!empty($fieldsets['background'])) {
-              $block_bg = $use_bg = $use_overlay = TRUE;
+              $block_bg = $use_bg = TRUE;
 
               $blazies->set('use.bg', TRUE);
 
@@ -344,7 +349,9 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
               if (isset($output[$name][$uuid]['content'][0][0]['#build'])) {
                 $blazy = &$output[$name][$uuid]['content'][0][0]['#build'];
 
-                $blazy['overlay']['blazy_layout'] = $this->overlay();
+                if ($use_overlay) {
+                  $blazy['overlay']['blazy_layout'] = $this->overlay();
+                }
               }
 
               $output[$name][$uuid]['#weight'] = -101;
