@@ -25,6 +25,10 @@ Install the module as usual, more info can be found on:
 
     **Blazy layout > [Global|Region] > Settings > Styles > Media**
 
+  To have a custom hi-res image for (local|remote) video, relevant for
+  `Use player` option, simply re-use the existing `field_media_image` into each
+  bundle.
+
 
 ## KNOWN ISSUES/ LIMITATIONS
 * This module does not provide a CSS framework integration, instead using the
