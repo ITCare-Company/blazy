@@ -18,14 +18,10 @@
 
 .b-layout .region--bg {
   z-index: 0;
-  width: 100%;
+  /* Prevents unexpected collapsed background. */
+  width: 100% !important;
   margin: 0;
   inset: 0;
-}
-
-/* Prevents unexpected collapsed background. */
-.b-layout > .region--bg {
-  width: 100% !important;
 }
 
 .b-layout > .region--bg:not(.layout-builder__region),

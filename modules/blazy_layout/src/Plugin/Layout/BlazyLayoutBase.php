@@ -629,11 +629,6 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
       // Pass results to \Drupal\blazy\BlazyEntity.
       if ($media = $this->manager->load($mid, 'media')) {
-        $data['#entity'] = $media;
-        $data['#delta'] = 0;
-        $data['#settings'] = $config;
-        $data['#settings']['blazies'] = $blazies;
-
         if ($name == 'bg') {
           $styles = $settings['styles'] ?? [];
         }
@@ -642,6 +637,13 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         }
 
         $use_overlay = !empty($styles['colors']['overlay_color']);
+        $config['media_switch'] = empty($styles['media']['use_player']) ? '' : 'media';
+
+        $data['#entity'] = $media;
+        $data['#delta'] = 0;
+        $data['#settings'] = $config;
+        $data['#settings']['blazies'] = $blazies;
+
         if ($result = $this->blazyEntity->build($data)) {
           $uuid = $name . '-media';
 

@@ -259,6 +259,9 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
           $type = 'media_library';
         }
       }
+      elseif ($key == 'use_player') {
+        $description = $this->t('Only if a remote video, enable to use Blazy media player like Image to iframe, that is, iframe is hidden/ not there till a play button is hit.');
+      }
 
       $media[$key] = [
         '#type'        => $type,
