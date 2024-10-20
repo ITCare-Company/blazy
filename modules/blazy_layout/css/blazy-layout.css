@@ -35,6 +35,7 @@
 
 .b-layout .region--bg,
 .b-layout .region--bg > .b-bg,
+.b-layout .region > .b-bg,
 .b-layout .region > div > .b-bg,
 .b-layout .region > div > .block > .b-bg {
   position: absolute;

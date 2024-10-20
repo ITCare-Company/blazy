@@ -3,6 +3,7 @@
 namespace Drupal\blazy_layout;
 
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\blazy\BlazyDefault;
 
 /**
  * Defines shared plugin default settings for field formatter and Views style.
@@ -24,6 +25,13 @@ class BlazyLayoutDefault {
       'flexbox' => 'Flexbox',
       'nativegrid' => 'Native Grid',
     ];
+  }
+
+  /**
+   * Returns sensible default options common for entities lacking of UI.
+   */
+  public static function entitySettings() {
+    return BlazyDefault::entitySettings();
   }
 
   /**
@@ -52,6 +60,15 @@ class BlazyLayoutDefault {
       'gapless'   => FALSE,
       'padding'   => '',
       'max_width' => '',
+    ];
+  }
+
+  /**
+   * Returns the media settings.
+   */
+  public static function layoutMediaSettings() {
+    return [
+      'id' => '',
     ];
   }
 
@@ -174,7 +191,7 @@ class BlazyLayoutDefault {
   /**
    * Returns the shared settings.
    */
-  private static function sharedSettings() {
+  public static function sharedSettings() {
     return [
       'wrapper'     => 'div',
       'attributes'  => '',
@@ -183,6 +200,7 @@ class BlazyLayoutDefault {
       'styles'      => [
         'colors'  => self::styleSettings(),
         'layouts' => self::sublayoutSettings(),
+        'media' => self::layoutMediaSettings(),
       ],
     ];
   }

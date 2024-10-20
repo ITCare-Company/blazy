@@ -120,16 +120,17 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     ];
 
     // Colors.
-    $form['styles']['colors'] = [
+    $form_id = 'colors';
+    $form['styles'][$form_id] = [
       '#type'        => 'details',
       '#tree'        => TRUE,
       '#open'        => TRUE,
       '#title'       => $this->t('Colors'),
-      '#parents'     => array_merge($parents, ['colors']),
+      '#parents'     => array_merge($parents, [$form_id]),
       '#description' => $this->t('Might conflict against CSS framework classes like Bootstrap, etc. Leave them to default (color #000000/ black, and opacity 1) values to respect framework. Useful if colors are not provided by frameworks. Background and Overlay options require Blazy Image/Media with Use CSS Background enabled to exist in the region. Text with <code>P</code> tag.'),
     ];
 
-    $colors = &$form['styles']['colors'];
+    $colors = &$form['styles'][$form_id];
 
     foreach (array_keys(Defaults::styleSettings()) as $key) {
       $type  = strpos($key, '_color') ? 'color' : 'range';
@@ -147,7 +148,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
         continue;
       }
 
-      $value = $settings['colors'][$key] ?? '';
+      $value = $settings[$form_id][$key] ?? '';
 
       if ($colors[$key]['#type'] == 'range') {
         $colors[$key]['#min'] = 0;
@@ -169,15 +170,16 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     }
 
     // Layouts.
-    $form['styles']['layouts'] = [
+    $form_id = 'layouts';
+    $form['styles'][$form_id] = [
       '#type'    => 'details',
       '#tree'    => TRUE,
       '#open'    => TRUE,
       '#title'   => $this->t('Layouts'),
-      '#parents' => array_merge($parents, ['layouts']),
+      '#parents' => array_merge($parents, [$form_id]),
     ];
 
-    $layouts = &$form['styles']['layouts'];
+    $layouts = &$form['styles'][$form_id];
     foreach (Defaults::sublayoutSettings() as $key => $value) {
       $type  = is_bool($value) ? 'checkbox' : 'textfield';
       $title = str_replace('_', ' ', $key);
@@ -211,8 +213,78 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       }
 
       $attrs['data-b-prop'] = str_replace('_', '', $key);
-      $layouts[$key]['#default_value'] = $settings['layouts'][$key] ?? '';
+      $layouts[$key]['#default_value'] = $settings[$form_id][$key] ?? '';
       $layouts[$key]['#attributes'] = $attrs;
+    }
+
+    // Media.
+    $form_id = 'media';
+    $help = '/admin/help/blazy_layout';
+    $exists = $this->manager->moduleExists('media_library_form_element');
+
+    if ($this->manager->moduleExists('help')) {
+      $help = Url::fromUri('internal:/admin/help/blazy_layout')->toString();
+    }
+
+    $form['styles'][$form_id] = [
+      '#type'    => 'details',
+      '#tree'    => TRUE,
+      '#open'    => TRUE,
+      '#title'   => $this->t('Media'),
+      '#parents' => array_merge($parents, [$form_id]),
+    ];
+
+    $media = &$form['styles'][$form_id];
+    $description = $this->t('Read more how to use media as background <a href=":help">here</a>.', [
+      ':help' => $help,
+    ]);
+
+    if (!$exists) {
+      $description .= $this->t('Requires <a href=":url2">Media library form element</a> module.', [
+        ':url2' => 'https://www.drupal.org/project/media_library_form_element',
+      ]);
+    }
+
+    $media['#description'] = $description;
+
+    foreach (Defaults::layoutMediaSettings() as $key => $value) {
+      $type  = is_bool($value) ? 'checkbox' : 'textfield';
+      $title = str_replace('_', ' ', $key);
+
+      $description = '';
+      if ($key == 'id') {
+        $title = 'background media';
+
+        if ($exists) {
+          $type = 'media_library';
+        }
+      }
+
+      $media[$key] = [
+        '#type'        => $type,
+        '#title'       => $this->t('@title', ['@title' => ucfirst($title)]),
+        '#description' => $description,
+      ];
+
+      if ($key == 'id') {
+        if ($exists) {
+          // @todo add options to avoid hard-coded bundles.
+          $media[$key]['#allowed_bundles'] = ['image', 'video', 'remote_video'];
+          $media[$key]['#cardinality'] = 1;
+        }
+        else {
+          $media[$key]['#disabled'] = TRUE;
+        }
+      }
+
+      $attrs['data-b-prop'] = str_replace('_', '', $key);
+      $value = $settings[$form_id][$key] ?? $value;
+      if ($key == 'id') {
+        $value = $settings[$form_id]['media_library_selection'] ?? $value;
+      }
+
+      $media[$key]['#default_value'] = $value;
+      $media[$key]['#attributes'] = $attrs;
     }
   }
 

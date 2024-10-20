@@ -29,6 +29,13 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   protected $manager;
 
   /**
+   * The blazy entity service.
+   *
+   * @var \Drupal\blazy\BlazyEntityInterface
+   */
+  protected $blazyEntity;
+
+  /**
    * {@inheritdoc}
    */
   protected static $namespace = 'blazy';
@@ -97,6 +104,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
     $instance->admin = $container->get('blazy_layout.admin');
     $instance->manager = $container->get('blazy_layout');
+    $instance->blazyEntity = $container->get('blazy.entity');
 
     return $instance;
   }
@@ -266,16 +274,29 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $colors  = $settings['styles']['colors'] ?? [];
     $layouts = $settings['styles']['layouts'] ?? [];
 
+    if ($mid = $settings['styles']['media']['id'] ?? NULL) {
+      $this->media($output, $settings, $mid, 'bg');
+    }
+
     // Move Blazy background to the beginning.
     foreach (array_keys(static::$instanceRegions) as $name) {
+      $subsets = $settings;
+      $styles  = $subsets['regions'][$name]['settings']['styles'] ?? [];
+      $empty   = empty($output[$name]) || isset($output[$name]['dummy']);
+      $is_bg   = FALSE;
+
+      // Place before a bailout so to be visible at frontend.
+      if ($mid = $styles['media']['id'] ?? NULL) {
+        $is_bg = TRUE;
+        $this->media($output, $subsets, $mid, $name);
+      }
+
+      // Bail out if an empty region.
       if (!isset($output[$name])) {
         continue;
       }
 
-      $subsets = $settings;
-      $styles  = $subsets['regions'][$name]['settings']['styles'] ?? [];
-      $empty   = empty($output[$name]) || isset($output[$name]['dummy']);
-
+      // Loop through each region contents, including backgrounds.
       foreach (Element::children($output[$name]) as $uuid) {
         $block = $output[$name][$uuid];
         $formatter = $block['content'][0]['#formatter'] ?? 'x';
@@ -296,6 +317,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         $use_bg = $block_bg = FALSE;
         $use_overlay = !empty($colorsets['overlay_color']);
 
+        // Blazy formatter in a block.
         if (strpos($formatter, 'blazy') !== FALSE) {
           if ($fieldsets = $block['content'][0]['#blazy'] ?? []) {
             // Pass the layout settings, not formatter's.
@@ -308,7 +330,9 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
             $keys = ['entity', 'field', 'image', 'lightbox', 'media'];
             foreach ($keys as $key) {
-              $blazies->set($key, $subblazies->get($key));
+              if ($values = $subblazies->get($key)) {
+                $blazies->set($key, $values);
+              }
             }
 
             if (!empty($fieldsets['background'])) {
@@ -316,15 +340,11 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
               $blazies->set('use.bg', TRUE);
 
+              // It is a theme_field() here.
               if (isset($output[$name][$uuid]['content'][0][0]['#build'])) {
                 $blazy = &$output[$name][$uuid]['content'][0][0]['#build'];
 
-                $blazy['overlay']['blazy_layout'] = [
-                  '#theme' => 'container',
-                  '#attributes' => [
-                    'class' => ['media__overlay'],
-                  ],
-                ];
+                $blazy['overlay']['blazy_layout'] = $this->overlay();
               }
 
               $output[$name][$uuid]['#weight'] = -101;
@@ -342,7 +362,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
         $use_bg = $use_bg || !empty($bgs['bg']);
 
-        if ($use_bg) {
+        if ($use_bg || $is_bg) {
           if ($name == 'bg' && empty($settings['background'])) {
             $settings['background'] = TRUE;
           }
@@ -582,6 +602,71 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
     static::$selectors[$id][$region][$key] = $selector;
     return ['css' => $css, 'selector' => $selector];
+  }
+
+  /**
+   * Returns the formatted media as Blazy CSS background.
+   */
+  protected function media(array &$output, array &$settings, $mid, $name): void {
+    $data = [];
+    $blazies = $settings['blazies'];
+    $config = [
+      'background' => TRUE,
+      '_detached' => FALSE,
+    ] + Defaults::entitySettings();
+
+    if ($mid) {
+      if ($this->inPreview) {
+        $blazies->set('use.ajax', TRUE);
+      }
+
+      // Pass results to \Drupal\blazy\BlazyEntity.
+      if ($media = $this->manager->load($mid, 'media')) {
+        $data['#entity'] = $media;
+        $data['#delta'] = 0;
+        $data['#settings'] = $config;
+        $data['#settings']['blazies'] = $blazies;
+
+        if ($name == 'bg') {
+          $styles = $settings['styles'] ?? [];
+        }
+        else {
+          $styles = $settings['regions'][$name]['settings']['styles'] ?? [];
+        }
+
+        $use_overlay = !empty($styles['colors']['overlay_color']);
+        if ($result = $this->blazyEntity->build($data)) {
+          $uuid = $name . '-media';
+
+          if ($use_overlay || $this->inPreview) {
+            $result['#build']['overlay']['blazy_layout'] = $this->overlay();
+          }
+
+          $output[$name][$uuid] = $result;
+          $output[$name][$uuid]['#weight'] = -102;
+
+          $settings['background'] = TRUE;
+          $settings['regions'][$name]['settings']['empty'] = FALSE;
+          $this->setRegionConfig($name, [
+            'settings' => [
+              'background' => TRUE,
+            ],
+          ]);
+        }
+      }
+    }
+  }
+
+  /**
+   * Returns overlay markup.
+   */
+  private function overlay(): array {
+    return [
+      '#theme' => 'container',
+      '#attributes' => [
+        'class' => ['media__overlay'],
+      ],
+    ];
   }
 
 }

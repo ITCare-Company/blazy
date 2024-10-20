@@ -64,6 +64,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     parent::submitConfigurationForm($form, $form_state);
 
+    $styleset = array_keys(Defaults::sharedSettings()['styles']);
     $regions = [];
     if ($values = $form_state->getValue('regions')) {
       foreach ($values as $name => $region) {
@@ -74,7 +75,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
           else {
             foreach ($value as $sk => $sv) {
               if ($sk == 'styles') {
-                foreach (['colors', 'layouts'] as $ssk) {
+                foreach ($styleset as $ssk) {
                   foreach ($sv[$ssk] as $sssk => $sssv) {
                     $regions[$name][$key][$sk][$ssk][$sssk] = $sssv;
                   }
@@ -93,12 +94,11 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     if ($settings = $form_state->getValue('settings')) {
       foreach ($settings as $key => $value) {
         if ($key == 'styles') {
-          foreach (['colors', 'layouts'] as $sk) {
+          foreach ($styleset as $sk) {
             foreach ($value[$sk] as $ssk => $ssv) {
               $this->configuration[$key][$sk][$ssk] = $ssv;
             }
           }
-
         }
         else {
           $this->configuration[$key] = is_string($value) ? trim($value) : $value;
@@ -122,6 +122,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     $config     = $this->getConfiguration();
     $definition = $this->pluginDefinition;
     $settings   = [];
+    $styleset   = array_keys(Defaults::sharedSettings()['styles']);
 
     $form['settings'] = [
       '#type'        => 'details',
@@ -136,7 +137,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     // The main grid setttings.
     foreach (Defaults::layoutSettings() as $key => $value) {
       if ($key == 'styles') {
-        foreach (['colors', 'layouts'] as $sk) {
+        foreach ($styleset as $sk) {
           foreach ($value[$sk] as $ssk => $ssv) {
             $default = $config[$key][$sk][$ssk] ?? $ssv;
             $settings[$key][$sk][$ssk] = $this->configuration[$key][$sk][$ssk] ?? $default;
@@ -180,7 +181,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
 
     foreach (Element::children($form['settings']) as $key) {
       if ($key == 'styles') {
-        foreach (['colors', 'layouts'] as $sk) {
+        foreach ($styleset as $sk) {
           if ($subform = $form['settings'][$key][$sk] ?? []) {
             foreach (Element::children($subform) as $ssk) {
               $parents = ['layout_settings', 'settings', $key, $sk];
@@ -251,7 +252,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
         else {
           foreach ($value as $sk => $sv) {
             if ($sk == 'styles') {
-              foreach (['colors', 'layouts'] as $ssk) {
+              foreach ($styleset as $ssk) {
                 foreach ($sv[$ssk] as $sssk => $sssv) {
                   $default = $config['regions'][$region][$key][$sk][$ssk][$sssk] ?? $sssv;
                   $subsets['regions'][$region][$key][$sk][$ssk][$sssk] = $default;
@@ -307,7 +308,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
 
       foreach (Element::children($regform) as $key) {
         if ($key == 'styles') {
-          foreach (['colors', 'layouts'] as $sk) {
+          foreach ($styleset as $sk) {
             if ($subform = $regform[$key][$sk] ?? []) {
               foreach (Element::children($subform) as $ssk) {
                 $parents = ['layout_settings', 'regions', $region, 'settings', $key, $sk];

@@ -1,3 +1,7 @@
+Blazy Layout 3.x-dev, 2024-10-20
+--------------------------------
+- Added Background media option for all regions.
+
 Blazy Layout 3.x-dev, 2024-10-18
 --------------------------------
 - Fix for AJAX regions.
