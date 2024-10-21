@@ -636,8 +636,12 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
           $styles = $settings['regions'][$name]['settings']['styles'] ?? [];
         }
 
+        $mediasets = $styles['media'] ?? [];
         $use_overlay = !empty($styles['colors']['overlay_color']);
-        $config['media_switch'] = empty($styles['media']['use_player']) ? '' : 'media';
+        $config = array_merge($config, $mediasets);
+        $config['media_switch'] = empty($mediasets['use_player']) ? '' : 'media';
+
+        unset($config['use_player']);
 
         $data['#entity'] = $media;
         $data['#delta'] = 0;

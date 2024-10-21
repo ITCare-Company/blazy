@@ -194,12 +194,12 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
   /**
    * Returns base descriptions.
    */
-  public function baseDescriptions($scopes): array;
+  public function baseDescriptions(): array;
 
   /**
    * Returns grid descriptions.
    */
-  public function gridDescriptions($scopes): array;
+  public function gridDescriptions(): array;
 
   /**
    * Returns grid header description.

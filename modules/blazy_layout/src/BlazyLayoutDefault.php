@@ -68,8 +68,12 @@ class BlazyLayoutDefault {
    */
   public static function layoutMediaSettings() {
     return [
-      'id'         => '',
+      'id' => '',
       'use_player' => FALSE,
+      'background' => TRUE,
+      'ratio' => 'fluid',
+      'image_style' => '',
+      'responsive_image_style' => '',
     ];
   }
 

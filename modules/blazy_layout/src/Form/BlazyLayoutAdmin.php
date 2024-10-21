@@ -5,6 +5,7 @@ namespace Drupal\blazy_layout\Form;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
+use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Form\BlazyAdminBase;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 use Drupal\blazy_layout\BlazyLayoutManagerInterface;
@@ -51,6 +52,8 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     $max      = (int) $this->manager->config('max_region_count');
     $url      = '/admin/config/media/blazy';
 
+    $this->checkDefinition($settings);
+
     if ($this->manager->moduleExists('blazy_ui')) {
       $url = Url::fromUri('internal:/admin/config/media/blazy')->toString();
     }
@@ -95,6 +98,8 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
    * {@inheritdoc}
    */
   public function formStyles(array &$form, array $settings, array $excludes = []): void {
+    $this->checkDefinition($settings);
+
     $attrs = ['class' => ['is-tooltip']];
 
     if ($region = $settings['rid'] ?? NULL) {
@@ -247,29 +252,49 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
 
     $media['#description'] = $description;
 
+    $this->baseImageForm($media, $this->definition);
+
     foreach (Defaults::layoutMediaSettings() as $key => $value) {
-      $type  = is_bool($value) ? 'checkbox' : 'textfield';
+      $type = is_bool($value) ? 'checkbox' : 'select';
       $title = str_replace('_', ' ', $key);
-
+      $value = $settings[$form_id][$key] ?? $value;
       $description = '';
-      if ($key == 'id') {
-        $title = 'background media';
+      $weight = NULL;
+      $self = FALSE;
 
-        if ($exists) {
-          $type = 'media_library';
-        }
+      if ($key == 'id') {
+        $self = TRUE;
+        $title = 'background media';
+        $type = $exists ? 'media_library' : 'textfield';
+        $weight = -110;
       }
       elseif ($key == 'use_player') {
+        $self = TRUE;
+        $weight = -109;
         $description = $this->t('Only if a remote video, enable to use Blazy media player like Image to iframe, that is, iframe is hidden/ not there till a play button is hit.');
       }
+      elseif ($key == 'background') {
+        $weight = -108;
+      }
 
-      $media[$key] = [
-        '#type'        => $type,
-        '#title'       => $this->t('@title', ['@title' => ucfirst($title)]),
-        '#description' => $description,
-      ];
+      if ($self) {
+        $media[$key]['#type'] = $type;
+        $media[$key]['#title'] = $this->t('@title', ['@title' => ucfirst($title)]);
+        if ($description) {
+          $media[$key]['#description'] = $description;
+        }
+      }
+
+      if ($type == 'select') {
+        $media[$key]['#empty_option'] = $this->t('- None -');
+      }
+
+      if ($weight) {
+        $media[$key]['#weight'] = $weight;
+      }
 
       if ($key == 'id') {
+        $value = $settings[$form_id]['media_library_selection'] ?? $value;
         if ($exists) {
           // @todo add options to avoid hard-coded bundles.
           $media[$key]['#allowed_bundles'] = ['image', 'video', 'remote_video'];
@@ -281,10 +306,6 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       }
 
       $attrs['data-b-prop'] = str_replace('_', '', $key);
-      $value = $settings[$form_id][$key] ?? $value;
-      if ($key == 'id') {
-        $value = $settings[$form_id]['media_library_selection'] ?? $value;
-      }
 
       $media[$key]['#default_value'] = $value;
       $media[$key]['#attributes'] = $attrs;
@@ -383,15 +404,11 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       // Stupid, but in case more stupidity gets in the way.
       if ($type == 'textfield') {
         $value = strip_tags($value);
-      }
-
-      $elements[$name]['#default_value'] = $settings[$name] ?? $value;
-
-      if ($type == 'textfield') {
         $elements[$name]['#size'] = 20;
         $elements[$name]['#maxlength'] = 255;
       }
 
+      $elements[$name]['#default_value'] = $settings[$name] ?? $value;
       if ($type !== 'hidden') {
         $elements[$name]['#attributes']['class'][] = 'is-tooltip';
 
@@ -469,56 +486,18 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   }
 
   /**
-   * {@inheritdoc}
+   * Checks for definition.
    */
-  public function formBackground(
-    array &$form,
-    array $settings,
-    array $excludes = [],
-    $root = TRUE,
-  ): void {
-    $attrs    = ['class' => ['is-tooltip']];
-    $elements = [];
-
-    $elements['wrapper'] = [
-      '#type'     => 'select',
-      '#options'  => $root ? Defaults::mainWrapperOptions() : Defaults::regionWrapperOptions(),
-      '#required' => TRUE,
-      '#title'    => $this->t('Wrapper'),
+  protected function checkDefinition(array $settings): void {
+    $definition = [
+      'background' => TRUE,
+      'responsive_image' => TRUE,
+      'no_loading' => TRUE,
+      'no_preload' => TRUE,
     ];
 
-    $elements['attributes'] = [
-      '#type'        => 'textfield',
-      '#title'       => $this->t('Attributes'),
-      '#description' => $this->t('Use comma: role|main,data-key|value'),
-      '#access'      => FALSE,
-    ];
-
-    $elements['classes'] = [
-      '#type'        => 'textfield',
-      '#title'       => $this->t('Classes'),
-      '#description' => $this->t('Use space: bg-dark text-white'),
-    ];
-
-    $elements['row_classes'] = [
-      '#type'        => 'textfield',
-      '#title'       => $this->t('Row classes'),
-      '#description' => $this->t('Use space: align-items-stretch no-gutters'),
-      '#access'      => FALSE,
-    ];
-
-    foreach (array_keys($elements) as $key) {
-      if ($excludes && in_array($key, $excludes)) {
-        unset($elements[$key]);
-        continue;
-      }
-
-      $value = $settings[$key] ?? '';
-      $elements[$key]['#default_value'] = $value ? Xss::filter($value) : '';
-      $elements[$key]['#attributes'] = $attrs;
-    }
-
-    $form += $elements;
+    $definition['settings'] = $settings;
+    $this->toScopes($definition);
   }
 
   /**

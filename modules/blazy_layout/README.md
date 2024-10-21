@@ -14,7 +14,9 @@ Install the module as usual, more info can be found on:
 * Two ways to add Media background (image, local video, remote video):
   + **Add block > Choose a block > Content fields**, and choose Blazy formatter
     with **Use background** enabled. A Media/ Image field must exist in the
-    active entity/content type.
+    active entity/content type. Use **By delta** option to map items of a single
+    multi-value field to all regions rather than creating multiple fields
+    for multiple regions.
   + Install [Media library form element](https://www.drupal.org/project/media_library_form_element).
     This is alternative to core **Layout Builder Expose All Field Blocks** which
     was deprecated, also a more efficient solution to the first option above to

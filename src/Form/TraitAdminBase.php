@@ -86,13 +86,25 @@ trait TraitAdminBase {
   public function toScopes(array &$definition): BlazySettings {
     // Looks like unit test failed with manager methods given a Trait.
     $definition += Blazy::init();
+    $blazies = $definition['blazies'];
+    $namespace = $blazies->get('namespace') ?: ($definition['namespace'] ?? '');
+
+    static::$namespace = $namespace;
 
     $scopes = $definition['scopes'] ?? $this->toPluginScopes();
     if (!$scopes->get('initializer')) {
       $definition['scopes'] = $scopes = $this->getScopes($definition);
       $scopes->set('initializer', get_called_class());
+
+      // Might be called directly without calling self::buildSettingsForm(),
+      // such as \Drupal\blazy\Plugin\views\field\BlazyViewsFieldPluginBase.
+      // @todo remove this failsafe after sub-module migrations done.
+      $this->checkScopes($scopes, $definition);
     }
-    return $scopes;
+
+    $this->scopes = $scopes;
+    $this->definition = $definition;
+    return $this->scopes;
   }
 
   /**
@@ -132,19 +144,19 @@ trait TraitAdminBase {
       return;
     }
 
+    $namespace = static::$namespace;
     $definition['plugin_id'] = $definition['plugin_id'] ?? 'x';
     $settings = $definition['settings'] ?? [];
     $blazies = $definition['blazies'];
     $lightboxes = $this->blazyManager->getLightboxes();
     $is_responsive = function_exists('responsive_image_get_image_dimensions');
-    $namespace = $blazies->get('namespace') ?: ($definition['namespace'] ?? '');
     $plugin_id = $blazies->get('field.plugin_id') ?: $definition['plugin_id'];
     $target_type = $blazies->get('field.target_type') ?: ($definition['target_type'] ?? '');
     $entity_type = $blazies->get('field.entity_type') ?: ($definition['entity_type'] ?? '');
     $view_mode = $blazies->get('field.view_mode') ?: ($definition['view_mode'] ?? '');
     $switch = !$scopes->is('no_lightboxes') && isset($settings['media_switch']);
     $wrapper_format = NULL;
-    $lb = FALSE;
+    $lb = $this->isAdminLb();
 
     if ($current = $this->getCurrentRequest()) {
       $wrapper_format = $current->query->get('_wrapper_format');
@@ -155,11 +167,11 @@ trait TraitAdminBase {
 
     $bools = [
       'background',
-      'by_delta',
       'caches',
       'grid_required',
       'grid_simple',
       'multimedia',
+      'multiple',
       'nav',
       'no_box_captions',
       'no_grid_header',
@@ -185,9 +197,12 @@ trait TraitAdminBase {
     // @todo remove after sub-modules migrations, and simplify all these at 3.x.
     $responsive = $is_responsive && $scopes->is('responsive_image');
     $sliders = in_array($namespace, ['slick', 'splide']);
+    $by_delta = $lb && $scopes->is('multiple') &&  $namespace == 'blazy';
+
     $scopes->set('data.lightboxes', $lightboxes)
       ->set('is.fieldable', $target_type && $entity_type)
       ->set('is._lb', $lb)
+      ->set('is.by_delta', $by_delta)
       ->set('is.lightbox', count($lightboxes) > 0)
       ->set('is.responsive_image', $responsive)
       ->set('is.slider', $scopes->is('slider') ?: $sliders)

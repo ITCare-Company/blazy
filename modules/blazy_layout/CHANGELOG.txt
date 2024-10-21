@@ -1,5 +1,6 @@
 Blazy Layout 3.x-dev, 2024-10-20
 --------------------------------
+- Added media-related options.
 - Fixed Edge to edge regression.
 - Added Use player option for Background video.
 - Respected Background color with empty regions without media/images.

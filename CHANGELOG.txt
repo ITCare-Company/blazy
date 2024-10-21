@@ -1,3 +1,7 @@
+Blazy 3.0.x-dev, 2024-10-21
+---------------------------
+- Removed unwanted By delta option outside Layout builder.
+
 Blazy 3.0.x-dev, 2024-09-22
 ---------------------------
 - Issue #3469022 by ahmad khader: Fix flybox malfunctions after being closed for
