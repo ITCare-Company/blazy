@@ -6,23 +6,24 @@ Provides a single layout with dynamic regions for Layout Builder.
 ## INSTALLATION
 Install the module as usual, more info can be found on:
 
-[Installing Drupal 8 Modules](https://drupal.org/node/1897420)
+[Installing Drupal Modules](https://drupal.org/node/1897420)
 
 
 ## USAGE / CONFIGURATION
 * Visit Layout builder pages (`/node/123/layout`), and add a Blazy Layout.
 * Two ways to add Media background (image, local video, remote video):
   + **Add block > Choose a block > Content fields**, and choose Blazy formatter
-    with **Use background** enabled. A Media/ Image field must exist in the
+    with **Use CSS background** enabled. A Media/ Image field must exist in the
     active entity/content type. Use **By delta** option to map items of a single
     multi-value field to all regions rather than creating multiple fields
     for multiple regions.
   + Install [Media library form element](https://www.drupal.org/project/media_library_form_element).
     This is alternative to core **Layout Builder Expose All Field Blocks** which
-    was deprecated, also a more efficient solution to the first option above to
-    avoid creating useless/ unused Media fields. This background is available
+    was deprecated, also a more efficient solution than the first option above
+    to avoid creating useless/ unused Media fields. This background is available
     for all regions, including the main layout. If provided, be sure to **NOT**
-    enable **Use background** option for Blazy formatters to avoid multiple and conflicting backgrounds.
+    enable **Use CSS background** option for Blazy formatters to avoid multiple
+    and conflicting backgrounds.
     The option is available at:
 
     **Blazy layout > [Global|Region] > Settings > Styles > Media**
