@@ -117,6 +117,9 @@ trait TraitAdminBase {
         '#type'  => 'details',
         '#title' => $this->t('?'),
         '#open'  => FALSE,
+        '#attributes' => [
+          'class' => ['b-details', 'b-details--description'],
+        ],
       ];
 
       if ($parents) {
