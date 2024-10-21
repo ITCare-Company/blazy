@@ -3,9 +3,9 @@
 namespace Drupal\blazy_layout\Form;
 
 use Drupal\Component\Utility\Xss;
+use Drupal\Core\Render\Element;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
-use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Form\BlazyAdminBase;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 use Drupal\blazy_layout\BlazyLayoutManagerInterface;
@@ -310,6 +310,9 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       $media[$key]['#default_value'] = $value;
       $media[$key]['#attributes'] = $attrs;
     }
+
+    // @todo add tabs for readability.
+    // $this->tabify($form, 'styles');
   }
 
   /**
@@ -506,6 +509,32 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   protected function getColor($key, array $settings) {
     $colors = $settings['styles'];
     return !empty($colors[$key]) && $colors[$key] != '#000000' ? $colors[$key] : FALSE;
+  }
+
+  /**
+   * Provides tabs menu.
+   */
+  protected function tabify(array &$form, $id = 'styles'): void {
+    $list = [];
+    foreach (Element::children($form[$id]) as $name) {
+      $title = $form[$id][$name]['#title'];
+      $title = ['#markup' => $title];
+      $list[$name] = $this->manager->toHtml($title, 'button', [
+        'class' => [
+          'btn',
+          'button',
+          'b-tabs__menu-item',
+        ],
+      ]);
+    }
+
+    $classes = ['b-tabs__menu', 'b-tabs__menu--' . $id];
+    $form[$id]['menu'] = [
+      '#theme' => 'item_list',
+      '#items' => $list,
+      '#attributes' => ['class' => $classes],
+      '#weight' => -9,
+    ];
   }
 
 }

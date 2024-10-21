@@ -64,7 +64,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * The form scopes.
    *
-   * @var Drupal\blazy\BlazySettings
+   * @var \Drupal\blazy\BlazySettings
    */
   protected $scopes;
 
@@ -277,7 +277,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
     }
 
     // Add descriptions, if applicable.
-    foreach ($this->gridDescriptions($scopes) as $key => $description) {
+    foreach ($this->gridDescriptions() as $key => $description) {
       if (isset($form[$key])) {
         $form[$key]['#description'] = $description;
       }

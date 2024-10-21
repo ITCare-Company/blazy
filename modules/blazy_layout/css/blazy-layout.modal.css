@@ -20,3 +20,20 @@
   border-radius: 8px !important;
   background-color: rgba(0,0,0,0.5) !important;
 }
+
+/* @todo tabs */
+ul.b-tabs__menu {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none  !important;
+}
+
+ul.b-tabs__menu > li {
+  display: inline-block !important;
+  margin-right: 2px !important;
+  vertical-align: top !important;
+}
+
+ul.b-tabs__menu > li button {
+  padding: 5px 12px !important;
+}
