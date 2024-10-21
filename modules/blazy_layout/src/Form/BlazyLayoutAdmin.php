@@ -3,7 +3,6 @@
 namespace Drupal\blazy_layout\Form;
 
 use Drupal\Component\Utility\Xss;
-use Drupal\Core\Render\Element;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\blazy\Form\BlazyAdminBase;
@@ -312,7 +311,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     }
 
     // @todo add tabs for readability.
-    // $this->tabify($form, 'styles');
+    $this->tabify($form, 'styles');
   }
 
   /**
@@ -514,27 +513,8 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   /**
    * Provides tabs menu.
    */
-  protected function tabify(array &$form, $id = 'styles'): void {
-    $list = [];
-    foreach (Element::children($form[$id]) as $name) {
-      $title = $form[$id][$name]['#title'];
-      $title = ['#markup' => $title];
-      $list[$name] = $this->manager->toHtml($title, 'button', [
-        'class' => [
-          'btn',
-          'button',
-          'b-tabs__menu-item',
-        ],
-      ]);
-    }
-
-    $classes = ['b-tabs__menu', 'b-tabs__menu--' . $id];
-    $form[$id]['menu'] = [
-      '#theme' => 'item_list',
-      '#items' => $list,
-      '#attributes' => ['class' => $classes],
-      '#weight' => -9,
-    ];
+  protected function tabify(array &$form, $form_id = 'styles'): void {
+    // @todo add something.
   }
 
 }

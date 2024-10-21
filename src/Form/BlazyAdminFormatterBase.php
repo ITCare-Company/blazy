@@ -3,7 +3,6 @@
 namespace Drupal\blazy\Form;
 
 use Drupal\Component\Utility\Unicode;
-use Drupal\Core\Url;
 
 /**
  * A base for field formatter admin to have re-usable methods in one place.
