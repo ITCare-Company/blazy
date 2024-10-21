@@ -150,6 +150,15 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
     }
 
+    // @todo remove after sub-modules calls ::baseImageForm().
+    if ($scopes->is('background')) {
+      $form['background'] = [
+        '#type'   => 'checkbox',
+        '#title'  => $this->t('Use CSS background'),
+        '#weight' => -100,
+      ];
+    }
+
     if ($skins = $scopes->data('skins')) {
       $form['skin'] = [
         '#type'     => 'select',
@@ -416,13 +425,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       ];
     }
 
-    if ($scopes->is('background')) {
-      $form['background'] = [
-        '#type'   => 'checkbox',
-        '#title'  => $this->t('Use CSS background'),
-        '#weight' => -100,
-      ];
-    }
+    $form['background'] = [
+      '#type'   => 'checkbox',
+      '#title'  => $this->t('Use CSS background'),
+      '#weight' => -100,
+    ];
 
     if ($scopes->is('switch')) {
       $form['media_switch'] = [
