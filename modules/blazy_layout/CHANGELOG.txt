@@ -1,3 +1,7 @@
+Blazy Layout 3.x-dev, 2024-10-21
+--------------------------------
+- Added tabs for readability.
+
 Blazy Layout 3.x-dev, 2024-10-20
 --------------------------------
 - Added media-related options.

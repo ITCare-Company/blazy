@@ -187,6 +187,11 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
   public function themeDescription(array &$form, array $parents = []): void;
 
   /**
+   * Provides tabs menu.
+   */
+  public function tabify(array &$form, $form_id, $region): void;
+
+  /**
    * Returns native grid description.
    */
   public function nativeGridDescription();

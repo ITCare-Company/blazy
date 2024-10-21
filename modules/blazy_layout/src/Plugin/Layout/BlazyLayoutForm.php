@@ -182,10 +182,10 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     foreach (Element::children($form['settings']) as $key) {
       if ($key == 'styles') {
         foreach ($styleset as $sk) {
-          if ($subform = $form['settings'][$key][$sk] ?? []) {
+          if ($subform = $form['settings'][$key][$sk]['tabs_content'] ?? []) {
             foreach (Element::children($subform) as $ssk) {
-              $parents = ['layout_settings', 'settings', $key, $sk];
-              $this->admin->themeDescription($form['settings'][$key][$sk][$ssk], $parents);
+              $parents = ['layout_settings', 'settings', $key, $sk, 'tabs_content'];
+              $this->admin->themeDescription($form['settings'][$key][$sk]['tabs_content'][$ssk], $parents);
             }
           }
         }
@@ -309,10 +309,10 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       foreach (Element::children($regform) as $key) {
         if ($key == 'styles') {
           foreach ($styleset as $sk) {
-            if ($subform = $regform[$key][$sk] ?? []) {
+            if ($subform = $regform[$key][$sk]['tabs_content'] ?? []) {
               foreach (Element::children($subform) as $ssk) {
-                $parents = ['layout_settings', 'regions', $region, 'settings', $key, $sk];
-                $this->admin->themeDescription($regform[$key][$sk][$ssk], $parents);
+                $parents = ['layout_settings', 'regions', $region, 'settings', $key, $sk, 'tabs_content'];
+                $this->admin->themeDescription($regform[$key][$sk]['tabs_content'][$ssk], $parents);
               }
             }
           }

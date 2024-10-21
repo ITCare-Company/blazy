@@ -113,7 +113,7 @@ class BlazyConfigForm extends BlazyConfigFormBase {
       'items' => $hints,
       '#attributes' => [
         'class' => [
-          'messages-list__item ',
+          'messages-list__item',
           'messages',
           'messages--' . $class,
         ],

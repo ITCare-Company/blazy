@@ -1,0 +1,43 @@
+/**
+ * @file
+ * Provides blazy CSS horizontal tabs.
+ */
+
+/* stylelint-disable declaration-no-important */
+.b-tabs .b-tabs__pane,
+.b-tabs .b-tabs__btn {
+  display: none !important;
+}
+
+.b-tabs > div {
+  padding: 0 !important;
+}
+
+.b-tabs__pane > div > [class*="description"] {
+  font-size: small !important;
+}
+
+.b-tabs .b-tabs__label {
+  background-color: transparent !important;
+  display: inline-block !important;
+  cursor: pointer !important;
+  padding: 8px 12px !important;
+}
+
+.b-tabs .b-tabs__label:hover,
+.b-tabs .b-tabs__label:active,
+.b-tabs .b-tabs__label.is-active {
+  color: #ffffff !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+
+.b-tabs .b-tabs__pane {
+  padding: 10px !important;
+  max-width: 100% !important;
+}
+
+.b-tabs .b-tabs__btn:checked + .b-tabs__pane {
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #eaeaea !important;
+  display: block !important;
+}

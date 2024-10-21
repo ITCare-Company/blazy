@@ -100,8 +100,9 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     $this->checkDefinition($settings);
 
     $attrs = ['class' => ['is-tooltip']];
+    $region = $settings['rid'] ?? NULL;
 
-    if ($region = $settings['rid'] ?? NULL) {
+    if ($region) {
       $parents = ['layout_settings', 'regions', $region, 'settings', 'styles'];
     }
     else {
@@ -310,8 +311,8 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       $media[$key]['#attributes'] = $attrs;
     }
 
-    // @todo add tabs for readability.
-    $this->tabify($form, 'styles');
+    // Add tabs for readability.
+    $this->tabify($form, 'styles', $region);
   }
 
   /**
@@ -508,13 +509,6 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   protected function getColor($key, array $settings) {
     $colors = $settings['styles'];
     return !empty($colors[$key]) && $colors[$key] != '#000000' ? $colors[$key] : FALSE;
-  }
-
-  /**
-   * Provides tabs menu.
-   */
-  protected function tabify(array &$form, $form_id = 'styles'): void {
-    // @todo add something.
   }
 
 }

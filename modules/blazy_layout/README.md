@@ -35,7 +35,8 @@ Install the module as usual, more info can be found on:
 ## KNOWN ISSUES/ LIMITATIONS
 * This module does not provide a CSS framework integration, instead using the
   existing grid solutions with few tweaks to support regular floating elements
-  commonly seen at one-dimensional layouts.
+  commonly seen at one-dimensional layouts. However any CSS framework cosmetic
+  rules can be used via the provided **Classes** options.
 
 
 # AUTHOR/MAINTAINER/CREDITS

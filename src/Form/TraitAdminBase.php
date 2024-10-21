@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Form;
 
+use Drupal\Core\Render\Element;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazySettings;
@@ -128,6 +129,64 @@ trait TraitAdminBase {
 
       $form['#description'] = $this->blazyManager->renderInIsolation($desc);
       $form['#wrapper_attributes']['class'][] = 'form-item--collapsidesc';
+    }
+  }
+
+  /**
+   * Provides tabs menu.
+   */
+  public function tabify(array &$form, $form_id, $region): void {
+    $children = Element::children($form[$form_id]);
+
+    // @todo add option $form[$form_id]['#type'] = 'container';
+    $form[$form_id]['#attributes']['class'][] = 'b-tabs';
+    $form[$form_id]['#attached']['library'][] = 'blazy/admin.tabs';
+    $region = $region ?: 'bg';
+
+    $list = [];
+    foreach ($children as $delta => $name) {
+      $title = $form[$form_id][$name]['#title'] ?? '';
+      $group = $region . '-' . $name;
+      $id = 'b-tabs-' . $group . '-' . $delta;
+      $checked = $delta == 0 ? ' checked="checked"' : '';
+      $menu_item = '<label class="b-tabs__label" for="' . $id . '">' . $title . '</label>';
+
+      $list[] = [
+        '#markup' => $menu_item,
+        '#allowed_tags' => ['label'],
+      ];
+    }
+
+    $form[$form_id]['tabs_menu'] = [
+      '#type' => 'container',
+      'items' => $list,
+      '#attributes' => [
+        'class' => [
+          'b-tabs__menu',
+        ],
+      ],
+      '#weight' => -9,
+    ];
+
+    foreach ($children as $delta => $name) {
+      $title = $form[$form_id][$name]['#title'] ?? '';
+      $group = $region . '-' . $name;
+      $id = 'b-tabs-' . $group . '-' . $delta;
+      $checked = $delta == 0 ? ' checked="checked"' : '';
+      $menu_item = '<input class="b-tabs__btn" id="' . $id . '" name="b-tabs-' . $region . '" type="radio"' . $checked . '/>';
+
+      $form[$form_id][$name]['#summary_attributes']['class'][] = 'visually-hidden';
+      $content = $form[$form_id][$name];
+      unset($form[$form_id][$name]);
+      $form[$form_id][$name]['tabs_btn'] = [
+        '#markup' => $menu_item,
+        '#allowed_tags' => ['input'],
+        '#weight' => -9,
+      ];
+
+      $form[$form_id][$name]['tabs_content'] = $content;
+      $form[$form_id][$name]['tabs_content']['#attributes']['class'][] = 'b-tabs__pane';
+      $form[$form_id][$name]['tabs_content']['#weight'] = -8;
     }
   }
 
