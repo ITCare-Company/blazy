@@ -6,7 +6,6 @@
  */
 
 use Drupal\Core\Template\Attribute;
-use Drupal\Core\Render\Element;
 use Drupal\blazy_layout\BlazyLayoutDefault;
 use Drupal\blazy_layout\BlazyLayoutManager;
 
@@ -111,8 +110,6 @@ function blazy_layout_preprocess_layout(array &$variables) {
         }
       }
 
-
-      dpm($variables['content'][$name]);
       // Core region attributes depend on content[region], hence enforced.
       _blazy_layout_region_attributes($variables, $name);
 
