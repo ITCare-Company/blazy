@@ -40,7 +40,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   /**
    * The current entity.
    *
-   * @var \Drupal\Core\Entity\EntityInterface|NULL
+   * @var \Drupal\Core\Entity\EntityInterface|null
    */
   protected $entity;
 

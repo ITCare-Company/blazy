@@ -28,9 +28,12 @@ Install the module as usual, more info can be found on:
 
     **Blazy layout > [Global|Region] > Settings > Styles > Media**
 
-  To have a custom hi-res image for (local|remote) video, relevant for
+* To have a custom hi-res image for (local|remote) video, relevant for
   `Use player` option, simply re-use the existing `field_media_image` into each
   bundle.
+* To have unique linkable media for
+  **Media switcher > Image linked by Link field**, add a Link or Text field to
+  the Media entity, not the Content type or Node.
 
 
 ## KNOWN ISSUES/ LIMITATIONS
