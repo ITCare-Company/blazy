@@ -53,9 +53,7 @@ trait TraitDescriptions {
     }
 
     return [
-      'background' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires an Aspect ratio, otherwise collapsed containers. Unless explicitly removed such as for GridStack which manages its own problem, or a min-height is added using grid min-height (see Blazy layout sub-module Grid option), or manually to <strong>.b-bg</strong> selector. @lb', [
-        '@lb' => $lb ? $this->t('<br><strong>Note!</strong> If provided, must disable <strong>Use field template</strong> for background to work. Default FALSE.') : '',
-      ]),
+      'background' => $this->background(),
       'preload' => $this->t("Preload to optimize the loading of late-discovered resources. Normally large or hero images below the fold. By preloading a resource, you tell the browser to fetch it sooner than the browser would otherwise discover it before Native lazy or lazyloader JavaScript kicks in, or starts its own preload or decoding. The browser caches preloaded resources so they are available immediately when needed. Nothing is loaded or executed at preloading stage. <br>Just a friendly heads up: do not overuse this option, because not everything are critical, <a href=':url'>read more</a>.", [
         ':url' => 'https://www.drupal.org/node/3262804',
       ]),
@@ -128,9 +126,7 @@ trait TraitDescriptions {
     $lb = $this->isAdminLb();
     return [
       // @todo remove after sub-modules.
-      'background' => $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires an Aspect ratio, otherwise collapsed containers. Unless explicitly removed such as for GridStack which manages its own problem, or a min-height is added using grid min-height (see Blazy layout sub-module Grid option), or manually to <strong>.b-bg</strong> selector. @lb', [
-        '@lb' => $lb ? $this->t('<br><strong>Note!</strong> If provided, must disable <strong>Use field template</strong> for background to work. Default FALSE.') : '',
-      ]),
+      'background' => $this->background(),
       'by_delta' => $this->t('Display a single item by delta, starting from 0. Leave it -1 to display all. Useful to display a multi-value field when broken down into a single display like Layout Builder blocks so that one field can occupy multiple regions simply by using its delta. More efficient than creating different single fields for the same image or media. Almost similar to Views <strong>Display all values in the same row (DAVISR)</strong>, except only designated to display a single value beyond Views UI. If embedded inside Views, this option is not available for more robust Views DAVISR. Be sure to disable Display style and grid options since it will show one item only.'),
       'caption' => $this->t('Enable any of the following fields as captions. These fields are treated and wrapped as captions.'),
       'layout' => $this->t('Requires a skin. The builtin layouts affects the entire items uniformly. Leave empty to DIY.'),
@@ -192,6 +188,16 @@ trait TraitDescriptions {
         '@lb' => $lb ? $this->t('If enabled, it may break CSS background due to extra divities. Backgrounds require very minimal divities.') : '',
       ]),
     ];
+  }
+
+  /**
+   * Returns background description, due to dups till sub-module updates.
+   */
+  private function background(): string {
+    $lb = $this->isAdminLb();
+    return $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires an Aspect ratio, otherwise collapsed containers. Unless explicitly removed such as for GridStack which manages its own problem, or a min-height is added using grid min-height (see Blazy layout sub-module Grid option), or manually to <strong>.b-bg</strong> selector. @lb', [
+      '@lb' => $lb ? $this->t('<br><strong>Note!</strong> Must disable <strong>Use field template</strong> (if provided, default to FALSE) for background to work.') : '',
+    ]);
   }
 
 }
