@@ -1,5 +1,6 @@
 Blazy Layout 3.x-dev, 2024-10-21
 --------------------------------
+- Added some formatter options to Media in Blazy layout.
 - Added tabs for readability.
 
 Blazy Layout 3.x-dev, 2024-10-20

@@ -774,32 +774,41 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
       // @todo remove check after another check.
       // Was meant for Blazy Views fields lacking of field info needed here.
       if (!$scopes->is('no_box_captions')) {
+        $custom = !$scopes->is('no_box_caption_custom');
+        $options = $this->getLightboxCaptionOptions();
+
+        if (!$custom) {
+          unset($options['custom']);
+        }
+
         $form['box_caption'] = [
           '#type'    => 'select',
           '#title'   => $this->t('Lightbox caption'),
-          '#options' => $this->getLightboxCaptionOptions(),
+          '#options' => $options,
           '#weight'  => -95,
         ];
 
-        $form['box_caption_custom'] = [
-          '#title'  => $this->t('Lightbox custom caption'),
-          '#type'   => 'textfield',
-          '#weight' => -94,
-          '#states' => $this->getState(static::STATE_LIGHTBOX_CUSTOM, $scopes),
-        ];
+        if ($custom) {
+          $form['box_caption_custom'] = [
+            '#title'  => $this->t('Lightbox custom caption'),
+            '#type'   => 'textfield',
+            '#weight' => -94,
+            '#states' => $this->getState(static::STATE_LIGHTBOX_CUSTOM, $scopes),
+          ];
 
-        if ($is_token) {
-          $entity_type = $blazies->get('field.entity_type');
-          $target_type = $blazies->get('field.target_type');
-          $types = $entity_type ? [$entity_type] : [];
-          $types = $target_type ? array_merge($types, [$target_type]) : $types;
+          if ($is_token) {
+            $entity_type = $blazies->get('field.entity_type');
+            $target_type = $blazies->get('field.target_type');
+            $types = $entity_type ? [$entity_type] : [];
+            $types = $target_type ? array_merge($types, [$target_type]) : $types;
 
-          if ($types) {
-            $form['box_caption_custom']['#field_suffix'] = [
-              '#theme'       => 'token_tree_link',
-              '#text'        => $this->t('Tokens'),
-              '#token_types' => $types,
-            ];
+            if ($types) {
+              $form['box_caption_custom']['#field_suffix'] = [
+                '#theme'       => 'token_tree_link',
+                '#text'        => $this->t('Tokens'),
+                '#token_types' => $types,
+              ];
+            }
           }
         }
       }

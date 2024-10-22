@@ -254,6 +254,9 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
 
     $this->baseImageForm($media, $this->definition);
 
+    // Remove irrelevant link to content as it is itself.
+    unset($media['media_switch']['#options']['content']);
+
     foreach (Defaults::layoutMediaSettings() as $key => $value) {
       $type = is_bool($value) ? 'checkbox' : 'select';
       $title = str_replace('_', ' ', $key);
@@ -262,16 +265,21 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       $weight = NULL;
       $self = FALSE;
 
+      // @todo remove deprecated option after an update.
+      if ($key == 'use_player') {
+        continue;
+      }
+
+      // BC for use_player.
+      if ($key == 'media_switch' && !empty($settings[$form_id]['use_player'])) {
+        $value = 'media';
+      }
+
       if ($key == 'id') {
         $self = TRUE;
         $title = 'background media';
         $type = $exists ? 'media_library' : 'textfield';
         $weight = -110;
-      }
-      elseif ($key == 'use_player') {
-        $self = TRUE;
-        $weight = -109;
-        $description = $this->t('Only if a remote video, enable to use Blazy media player like Image to iframe, that is, iframe is hidden/ not there till a play button is hit.');
       }
       elseif ($key == 'background') {
         $weight = -108;
@@ -494,11 +502,14 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   protected function checkDefinition(array $settings): void {
     $definition = [
       'background' => TRUE,
+      'multimedia' => TRUE,
       'responsive_image' => TRUE,
+      'no_box_caption_custom' => TRUE,
       'no_loading' => TRUE,
       'no_preload' => TRUE,
     ];
 
+    $settings['media_switch'] = '';
     $definition['settings'] = $settings;
     $this->toScopes($definition);
   }

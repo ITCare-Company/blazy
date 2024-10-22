@@ -236,6 +236,7 @@ trait TraitAdminBase {
       'multiple',
       'nav',
       'no_box_captions',
+      'no_box_caption_custom',
       'no_grid_header',
       'no_image_style',
       'no_layouts',

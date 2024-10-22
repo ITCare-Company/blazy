@@ -137,6 +137,24 @@ class BlazyEntity implements BlazyEntityInterface {
     }
 
     $manager->moduleHandler()->alter('blazy_build_entity', $build, $entity, $settings);
+
+    // Allows a standalone blazy layout media to have container for lightboxes.
+    if ($config = $build['#build']['#settings'] ?? []) {
+      if ($blazies = $config['blazies'] ?? NULL) {
+        if ($blazies->use('container')) {
+          $content = $build;
+          $attrs = [];
+          Blazy::containerAttributes($attrs, $config);
+
+          $build = [
+            '#type' => 'container',
+            '#attributes' => $attrs,
+            'content' => $content,
+          ];
+        }
+      }
+    }
+
     return $build;
   }
 

@@ -69,11 +69,16 @@ class BlazyLayoutDefault {
   public static function layoutMediaSettings() {
     return [
       'id' => '',
-      'use_player' => FALSE,
       'background' => TRUE,
-      'ratio' => 'fluid',
+      'media_switch' => '',
       'image_style' => '',
       'responsive_image_style' => '',
+      'box_caption' => '',
+      'box_style' => '',
+      'box_media_style' => '',
+      'ratio' => 'fluid',
+      // @todo remove after an update.
+      'use_player' => FALSE,
     ];
   }
 

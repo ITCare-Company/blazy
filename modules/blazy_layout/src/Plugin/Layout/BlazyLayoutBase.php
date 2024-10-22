@@ -5,6 +5,7 @@ namespace Drupal\blazy_layout\Plugin\Layout;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Layout\LayoutDefault;
 use Drupal\Core\Render\Element;
+use Drupal\blazy\Blazy;
 use Drupal\blazy\Utility\Color;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -639,9 +640,16 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         $mediasets = $styles['media'] ?? [];
         $use_overlay = !empty($styles['colors']['overlay_color']);
         $config = array_merge($config, $mediasets);
-        $config['media_switch'] = empty($mediasets['use_player']) ? '' : 'media';
 
-        unset($config['use_player']);
+        // @todo remove after a hook update.
+        if (!empty($mediasets['use_player'])) {
+          $config['media_switch'] = 'media';
+          unset($config['use_player']);
+        }
+
+        // Add a wrapper for lightbox to work.
+        $use_container = !empty($config['media_switch']) && $config['media_switch'] != 'media';
+        $blazies->set('use.container', $use_container);
 
         $data['#entity'] = $media;
         $data['#delta'] = 0;

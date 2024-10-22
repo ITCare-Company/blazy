@@ -8,10 +8,10 @@ us understand better your bug reports, or patches as needed.
 * Use body text for explanation purposes.
 * If language is a barrier, use any available/ online translation tool.
 * Be sure to type keywords of your would-be title in the provided Search box
-  to avoid unnecessary dups. This would save your precious time for not only
-  immediate solutions, but also typing more useless words. Your problems might
-  already be addressed. Only proceed if no existing issues are found.
-* Do not make an issue as a vehicle for any strikes. Keep civil.
+  to avoid unnecessary dups. This would save your precious time not only for
+  immediate solutions, but also from typing more useless words. Your problems
+  might already be addressed. Only proceed if no existing issues are found.
+* Do not abuse an issue as a vehicle for any strikes. Keep civil.
 
 
 ### 1. SUBMITTING ISSUES
