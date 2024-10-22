@@ -658,6 +658,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         }
 
         // Add a wrapper for lightbox to work.
+        $use_container = FALSE;
         if ($switch = $config['media_switch'] ?? NULL) {
           $use_container = !in_array($switch, ['media', 'content', 'link']);
           $blazies->set('use.container', $use_container);
@@ -670,17 +671,22 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
             $blazies->set('field.values.link', $links);
           }
         }
+
         $data['#entity'] = $media;
         $data['#parent'] = $entity;
         $data['#delta'] = 0;
         $data['#settings'] = $config;
-        // $data['#settings']['blazies'] = $blazies;
 
         if ($result = $this->blazyEntity->build($data)) {
           $uuid = $name . '-media';
 
           if ($use_overlay || $this->inPreview) {
-            $result['#build']['overlay']['blazy_layout'] = $this->overlay();
+            if ($use_container) {
+              $result['content']['#build']['overlay']['blazy_layout'] = $this->overlay();
+            }
+            else {
+              $result['#build']['overlay']['blazy_layout'] = $this->overlay();
+            }
           }
 
           $output[$name][$uuid] = $result;

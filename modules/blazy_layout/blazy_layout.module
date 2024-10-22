@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Template\Attribute;
+use Drupal\Core\Render\Element;
 use Drupal\blazy_layout\BlazyLayoutDefault;
 use Drupal\blazy_layout\BlazyLayoutManager;
 
@@ -89,6 +90,29 @@ function blazy_layout_preprocess_layout(array &$variables) {
     foreach (range(1, $count) as $delta => $value) {
       $name = BlazyLayoutDefault::regionId($delta);
 
+      // Remove unwanted block attributes from builtin Media background.
+      $contents = &$variables['content'];
+      if (isset($contents[$name])) {
+        $subcontents = &$contents[$name];
+        foreach ($subcontents as $uuid => &$content) {
+          if (strpos($uuid, '-media') !== FALSE) {
+            unset(
+              $content['#attributes']['data-layout-block-uuid'],
+              $content['#attributes']['data-layout-builder-highlight-id']
+            );
+            $classes = $content['#attributes']['class'];
+            $classes = array_diff($classes, [
+              'js-layout-builder-block',
+              'layout-builder-block',
+            ]);
+            $content['#attributes']['class'] = $classes;
+            break;
+          }
+        }
+      }
+
+
+      dpm($variables['content'][$name]);
       // Core region attributes depend on content[region], hence enforced.
       _blazy_layout_region_attributes($variables, $name);
 

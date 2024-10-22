@@ -113,3 +113,9 @@
 [dir="rtl"] .b-layout-wrapper--ete .region--bg .block--b-bg > .contextual {
   left: 100px;
 }
+
+.layout-builder__region > .blazy,
+.layout-builder__region > .b-link {
+  display: block;
+  width: 100%;
+}
