@@ -1,5 +1,6 @@
 Blazy Layout 3.x-dev, 2024-10-21
 --------------------------------
+- Changed Link field target entity to Media bundles for unique links.
 - Added link option.
 - Added some formatter options to Media in Blazy layout.
 - Added tabs for readability.

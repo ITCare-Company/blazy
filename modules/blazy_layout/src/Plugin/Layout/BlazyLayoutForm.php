@@ -362,6 +362,8 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
 
   /**
    * Extract data from the entity form.
+   *
+   * @todo remove if Link field is a Media field, or no further use or change.
    */
   private function getEntityData($entity_form): array {
     $extras = [];

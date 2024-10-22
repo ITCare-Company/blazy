@@ -629,6 +629,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $config = [
       'background' => TRUE,
       '_detached' => FALSE,
+      'blazies' => $blazies,
     ] + Defaults::entitySettings();
 
     if ($mid) {
@@ -648,6 +649,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         $mediasets = $styles['media'] ?? [];
         $use_overlay = !empty($styles['colors']['overlay_color']);
         $config = array_merge($config, $mediasets);
+        $blazies = $config['blazies']->reset($config);
 
         // @todo remove after a hook update.
         if (!empty($mediasets['use_player'])) {
@@ -664,7 +666,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         // Link, if so configured.
         $entity = $this->entity();
         if ($_link = $mediasets['link'] ?? NULL) {
-          if ($links = $this->viewLinks($_link, $entity)) {
+          if ($links = $this->viewLinks($_link, $media)) {
             $blazies->set('field.values.link', $links);
           }
         }
@@ -672,7 +674,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         $data['#parent'] = $entity;
         $data['#delta'] = 0;
         $data['#settings'] = $config;
-        $data['#settings']['blazies'] = $blazies;
+        // $data['#settings']['blazies'] = $blazies;
 
         if ($result = $this->blazyEntity->build($data)) {
           $uuid = $name . '-media';
@@ -730,7 +732,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       if ($links && in_array($formatter, ['link'])) {
         $links = [];
         foreach ($entity->{$name} as $link) {
-          $links[] = $link->view($view_mode);
+          $links[] = $link->view('default');
         }
       }
     }

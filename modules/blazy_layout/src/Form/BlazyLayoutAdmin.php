@@ -288,7 +288,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
         $weight = -108;
       }
       elseif ($key == 'link') {
-        $description = $this->t('<b>Supported types</b>: Link or plain Text containing URL. It will be used for <b>Media switcher &gt; Image linked by Link field</b> so that the image is wrapped by this Link value, only if its formatter/ output is plain text URL.');
+        $description = $this->t('<b>Supported types</b>: Link or plain Text containing URL. It will be used for <b>Media switcher &gt; Image linked by Link field</b> so that the image is wrapped by this Link value, only if its formatter/ output is plain text URL. This Link field should exist at the media bundles: image, video and remote_video, so to get unique link per region.');
       }
 
       if ($self) {
@@ -519,15 +519,16 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       'namespace' => 'blazy',
     ];
 
-    if ($extras = $options['extras'] ?? []) {
-      if ($bundle = $extras['bundle'] ?? NULL) {
-        $target_type = $extras['entity_type_id'] ?? 'node';
-        $names = ['text', 'string', 'link'];
-        $bundles = [$bundle => ['label' => ucfirst($bundle)]];
-        $links = $this->getFieldOptionsWithBundles($bundles, $names, $target_type);
-        $definition['links'] = $links;
-      }
+    // @todo add option to choose either Media or Content type.
+    $media_bundles = [];
+    foreach (['image', 'video', 'remote_video'] as $key) {
+      $media_bundles = [$key => ['label' => ucfirst($key)]];
     }
+
+    $names = ['text', 'string', 'link'];
+    $links = $this->getFieldOptionsWithBundles($media_bundles, $names, 'media');
+
+    $definition['links'] = $links;
 
     $settings['media_switch'] = '';
     $definition['settings'] = $settings;
