@@ -7,6 +7,11 @@ us understand better your bug reports, or patches as needed.
 * Avoid explaining everything in the title.
 * Use body text for explanation purposes.
 * If language is a barrier, use any available/ online translation tool.
+* Be sure to type keywords of your would-be title in the provided Search box
+  to avoid unnecessary dups. This would save your precious time for not only
+  immediate solutions, but also typing more useless words. Your problems might
+  already be addressed. Only proceed if no existing issues are found.
+* Do not make an issue as a vehicle for any strikes. Keep civil.
 
 
 ### 1. SUBMITTING ISSUES
@@ -42,7 +47,8 @@ In order for you to help, or buy, us successfully, please consider:
 
 You must speak like human to human, and help us respect you, and your time.
 Dumping patches with empty body text, or any disrespectful negative posts, will
-be disregarded till the above is met.
+be disregarded till the above is met. We are not hungry for respects. We simply
+do not welcome disrespects in respected project issues. It is the boundary.
 
 ### BUG REPORTS OR SUPPORT REQUESTS
 A basic knowledge of Drupal site building is required. If you get stuck, please:
@@ -59,6 +65,7 @@ If you do have bug reports, we respect bugs, please:
    * provide detailed info, a screenshot of the output and Blazy form, or words
      to identify it any better, library version, module version, active theme.
    * make sure that the bug is caused by the module.
+   * do not game bugs, a waste of time, we'll know it, and close it.
 
 For the Blazy library bug, please report it to:
   [Blazy library](https://github.com/dinbror/blazy)
@@ -70,13 +77,13 @@ For the support requests, a screenshot of the output and Blazy form are helpful.
 Shortly, you should kindly help the maintainers with detailed info to help you.
 
 ### <a name="issues"></a> CONSTRUCTIVE VS. NON-CONSTRUCTIVE PROJECT ISSUES
-1. We appreciate constructive, or at least normal/ minor, project issues:  
+1. We appreciate constructive, or at least normal/ minor, project issues:
    + `Support/ Feature` requests,
    + `Bug` reports,
-   + `Meta`, `Task` or `Plan`.  
-2. If your issue were directed to this page, feel free to re-open it after:  
+   + `Meta`, `Task` or `Plan`.
+2. If your issue were directed to this page, feel free to re-open it after:
    + You prove we identified it incorrectly, and in such a case we are sorry.
-   + You have redacted it accordingly, and or provide the required data.  
+   + You have redacted it accordingly, and or provide the required data.
 
 It is perfectly fine to be negative as long as backed by data, or info (form or
 proof screenshots, benchmarks, docs, or anything else that add a value).

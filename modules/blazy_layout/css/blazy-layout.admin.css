@@ -52,6 +52,7 @@
 }
 
 .layout-builder .b-layout .block {
+  width: 100%;
   background-color: transparent;
 }
 

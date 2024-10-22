@@ -60,7 +60,7 @@ class BlazyViews {
     if ($view = $variables['view'] ?? NULL) {
       if ($fields = $view->field) {
         foreach ($fields as $field) {
-          if (isset($field->options['media_switch'])) {
+          if (isset($field->options['settings']['media_switch'])) {
             $valid = TRUE;
             break;
           }

@@ -324,7 +324,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       }
     }
 
-    $form['settings']['#attached']['library'][] = 'blazy_layout/modal';
+    $form['#attached']['library'][] = 'blazy_layout/modal';
     return $form;
   }
 
