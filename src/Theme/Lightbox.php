@@ -434,6 +434,10 @@ class Lightbox {
       $attrs['class'][] = 'litebox--html';
     }
 
+    if ($blazies->is('bg')) {
+      $attrs['class'][] = 'litebox--bg';
+    }
+
     // Only strip if not already.
     $element['#url'] = $_trusted ? $url : UrlHelper::stripDangerousProtocols($url);
   }

@@ -660,6 +660,10 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       if ($url) {
         $element['#url'] = $url;
         $element['#url_attributes']['class'][] = 'b-link';
+
+        if ($blazies->is('bg')) {
+          $element['#url_attributes']['class'][] = 'b-link--bg';
+        }
       }
     }
   }
