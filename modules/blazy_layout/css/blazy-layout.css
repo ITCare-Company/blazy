@@ -29,6 +29,9 @@
   min-height: 0;
 }
 
+.b-layout .is-b-bg,
+.b-layout .b-link--bg,
+.b-layout .litebox--bg,
 .b-layout .region--bg,
 .b-layout .region--bg > .b-bg,
 .b-layout .region > .b-bg,
@@ -42,6 +45,11 @@
   /** Temp fix, also to fix the VIDEO element to max width, not only IMG. */
   object-fit: cover;
   inset: 0;
+}
+
+.b-layout .litebox--bg > .media,
+.b-layout .b-link--bg > .media {
+  height: 100%;
 }
 
 .b-layout .block:not(.block--b-bg) {
@@ -112,13 +120,4 @@ other themes with similar problems. */
 
 .b-layout .region > * {
   margin-block-end: 0;
-}
-
-.b-layout .is-b-bg,
-.b-layout .litebox--bg,
-.b-layout .litebox--bg > .media,
-.b-layout .b-link--bg,
-.b-layout .b-link--bg > .media {
-  display: block;
-  height: 100%;
 }
