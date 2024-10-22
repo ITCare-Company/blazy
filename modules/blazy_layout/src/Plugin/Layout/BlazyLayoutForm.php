@@ -118,11 +118,13 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       ? $form_state->getCompleteFormState()
       : $form_state;
 
-    $form       = parent::buildConfigurationForm($form, $form_state2);
-    $config     = $this->getConfiguration();
-    $definition = $this->pluginDefinition;
-    $settings   = [];
-    $styleset   = array_keys(Defaults::sharedSettings()['styles']);
+    $form        = parent::buildConfigurationForm($form, $form_state2);
+    $config      = $this->getConfiguration();
+    $definition  = $this->pluginDefinition;
+    $settings    = [];
+    $styleset    = array_keys(Defaults::sharedSettings()['styles']);
+    $entity_form = isset($form_state2->getBuildInfo()['callback_object']) ? $form_state2->getFormObject() : NULL;
+    $extras      = $entity_form ? $this->getEntityData($entity_form) : [];
 
     $form['settings'] = [
       '#type'        => 'details',
@@ -153,9 +155,13 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     // @todo enable:row_classes.
     $excludes = ['regions', 'attributes', 'row_classes'];
     $excludes = array_combine($excludes, $excludes);
-    $this->admin->formBase($form['settings'], $settings, $excludes);
-    $this->admin->formSettings($form['settings'], $settings, $excludes);
-    $this->admin->formStyles($form['settings'], $settings['styles']);
+
+    $options = ['excludes' => $excludes, 'extras' => $extras];
+    $this->admin->formBase($form['settings'], $settings, $options);
+    $this->admin->formSettings($form['settings'], $settings, $options);
+
+    $options = ['excludes' => [], 'extras' => $extras];
+    $this->admin->formStyles($form['settings'], $settings['styles'], $options);
 
     $arguments = [
       'grid_simple' => TRUE,
@@ -299,12 +305,14 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       $regform = &$form['regions'][$region]['settings'];
       $subsets3 = $subsets2['settings'];
       $subsets3['rid'] = $region;
-      $this->admin->formWrappers($regform, $subsets3, [], FALSE);
+      $options = ['excludes' => [], 'extras' => $extras];
+      $this->admin->formWrappers($regform, $subsets3, $options, FALSE);
 
       $subsets4 = $subsets3['styles'];
       $subsets4['rid'] = $region;
       $excludes = ['ete', 'gapless', 'max_width'];
-      $this->admin->formStyles($regform, $subsets4, $excludes);
+      $options = ['excludes' => $excludes, 'extras' => $extras];
+      $this->admin->formStyles($regform, $subsets4, $options);
 
       foreach (Element::children($regform) as $key) {
         if ($key == 'styles') {
@@ -350,6 +358,55 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       }
       $form_state->setValue($keys, array_filter($styles));
     }
+  }
+
+  /**
+   * Extract data from the entity form.
+   */
+  private function getEntityData($entity_form): array {
+    $extras = [];
+    $id     = NULL;
+    $bundle = NULL;
+    $entity = NULL;
+    $target = NULL;
+    $mode   = NULL;
+
+    /** @var \Drupal\layout_builder\Form\ConfigureSectionForm $entity_form */
+    if (method_exists($entity_form, 'getSectionStorage') && ($storage = $entity_form->getSectionStorage())) {
+      $contexts = $storage->getContextValues();
+      if (isset($contexts['entity']) && $entity = $contexts['entity']) {
+        $id     = $entity->id();
+        $bundle = $entity->bundle();
+        $target = $entity->getEntityTypeId();
+        $mode   = $contexts['view_mode'];
+      }
+      elseif (isset($contexts['display']) && $display = $contexts['display']) {
+        $id     = $display->id();
+        $bundle = $display->getTargetBundle();
+        $target = $display->getTargetEntityTypeId();
+        $mode   = $contexts['view_mode'];
+      }
+    }
+
+    /** @var \Drupal\Core\Entity\Display\EntityDisplayInterface $entity_form */
+    elseif (method_exists($entity_form, 'getEntity') && $entity = $entity_form->getEntity()) {
+      $id     = $entity->id();
+      $bundle = $entity->getTargetBundle();
+      $target = $entity->getTargetEntityTypeId();
+      $mode   = $entity->getMode();
+    }
+
+    if ($bundle) {
+      $extras = [
+        'entity'         => $entity,
+        'bundle'         => $bundle,
+        'entity_id'      => $id,
+        'entity_type_id' => $target,
+        'view_mode'      => $mode,
+      ];
+    }
+
+    return $extras;
   }
 
 }

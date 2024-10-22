@@ -6,6 +6,7 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\blazy\Form\BlazyAdminBase;
+use Drupal\blazy\Plugin\Field\FieldFormatter\BlazyFormatterEntityTrait;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 use Drupal\blazy_layout\BlazyLayoutManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -16,6 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterface {
 
   use StringTranslationTrait;
+  use BlazyFormatterEntityTrait;
 
   /**
    * The blazy layout manager service.
@@ -45,13 +47,14 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   /**
    * {@inheritdoc}
    */
-  public function formBase(array &$form, array $settings, array $excludes = []): void {
+  public function formBase(array &$form, array $settings, array $options = []): void {
+    $excludes = $options['excludes'] ?? [];
     $elements = [];
     $attrs    = ['class' => ['is-tooltip']];
     $max      = (int) $this->manager->config('max_region_count');
     $url      = '/admin/config/media/blazy';
 
-    $this->checkDefinition($settings);
+    $this->checkDefinition($settings, $options);
 
     if ($this->manager->moduleExists('blazy_ui')) {
       $url = Url::fromUri('internal:/admin/config/media/blazy')->toString();
@@ -96,11 +99,12 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   /**
    * {@inheritdoc}
    */
-  public function formStyles(array &$form, array $settings, array $excludes = []): void {
-    $this->checkDefinition($settings);
+  public function formStyles(array &$form, array $settings, array $options = []): void {
+    $this->checkDefinition($settings, $options);
 
-    $attrs = ['class' => ['is-tooltip']];
-    $region = $settings['rid'] ?? NULL;
+    $excludes = $options['excludes'] ?? [];
+    $attrs    = ['class' => ['is-tooltip']];
+    $region   = $settings['rid'] ?? NULL;
 
     if ($region) {
       $parents = ['layout_settings', 'regions', $region, 'settings', 'styles'];
@@ -255,8 +259,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
     $this->baseImageForm($media, $this->definition);
 
     // Remove irrelevant link to content as it is itself.
-    unset($media['media_switch']['#options']['content']);
-
+    // @todo unset($media['media_switch']['#options']['content']);
     foreach (Defaults::layoutMediaSettings() as $key => $value) {
       $type = is_bool($value) ? 'checkbox' : 'select';
       $title = str_replace('_', ' ', $key);
@@ -284,13 +287,17 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       elseif ($key == 'background') {
         $weight = -108;
       }
+      elseif ($key == 'link') {
+        $description = $this->t('<b>Supported types</b>: Link or plain Text containing URL. It will be used for <b>Media switcher &gt; Image linked by Link field</b> so that the image is wrapped by this Link value, only if its formatter/ output is plain text URL.');
+      }
 
       if ($self) {
         $media[$key]['#type'] = $type;
         $media[$key]['#title'] = $this->t('@title', ['@title' => ucfirst($title)]);
-        if ($description) {
-          $media[$key]['#description'] = $description;
-        }
+      }
+
+      if ($description) {
+        $media[$key]['#description'] = $description;
       }
 
       if ($type == 'select') {
@@ -328,7 +335,8 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
    *
    * @todo refine and merge with self::formWrappers().
    */
-  public function formSettings(array &$form, array $settings, array $excludes = []): void {
+  public function formSettings(array &$form, array $settings, array $options = []): void {
+    $excludes    = $options['excludes'] ?? [];
     $defaults    = Defaults::layoutSettings();
     $admin_css   = $this->manager->config('admin_css', 'blazy.settings');
     $attrs       = ['class' => ['is-tooltip']];
@@ -449,9 +457,10 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   public function formWrappers(
     array &$form,
     array $settings,
-    array $excludes = [],
+    array $options = [],
     $root = TRUE,
   ): void {
+    $excludes = $options['excludes'] ?? [];
     $attrs    = ['class' => ['is-tooltip']];
     $elements = [];
 
@@ -499,7 +508,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
   /**
    * Checks for definition.
    */
-  protected function checkDefinition(array $settings): void {
+  protected function checkDefinition(array $settings, array $options): void {
     $definition = [
       'background' => TRUE,
       'multimedia' => TRUE,
@@ -507,7 +516,18 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       'no_box_caption_custom' => TRUE,
       'no_loading' => TRUE,
       'no_preload' => TRUE,
+      'namespace' => 'blazy',
     ];
+
+    if ($extras = $options['extras'] ?? []) {
+      if ($bundle = $extras['bundle'] ?? NULL) {
+        $target_type = $extras['entity_type_id'] ?? 'node';
+        $names = ['text', 'string', 'link'];
+        $bundles = [$bundle => ['label' => ucfirst($bundle)]];
+        $links = $this->getFieldOptionsWithBundles($bundles, $names, $target_type);
+        $definition['links'] = $links;
+      }
+    }
 
     $settings['media_switch'] = '';
     $definition['settings'] = $settings;

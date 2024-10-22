@@ -3,9 +3,10 @@
 namespace Drupal\blazy_layout\Plugin\Layout;
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Layout\LayoutDefault;
 use Drupal\Core\Render\Element;
-use Drupal\blazy\Blazy;
+use Drupal\blazy\Field\BlazyField;
 use Drupal\blazy\Utility\Color;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -35,6 +36,13 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    * @var \Drupal\blazy\BlazyEntityInterface
    */
   protected $blazyEntity;
+
+  /**
+   * The current entity.
+   *
+   * @var \Drupal\Core\Entity\EntityInterface
+   */
+  protected $entity;
 
   /**
    * {@inheritdoc}
@@ -648,10 +656,20 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         }
 
         // Add a wrapper for lightbox to work.
-        $use_container = !empty($config['media_switch']) && $config['media_switch'] != 'media';
-        $blazies->set('use.container', $use_container);
+        if ($switch = $config['media_switch'] ?? NULL) {
+          $use_container = !in_array($switch, ['media', 'content', 'link']);
+          $blazies->set('use.container', $use_container);
+        }
 
+        // Link, if so configured.
+        $entity = $this->entity();
+        if ($_link = $mediasets['link'] ?? NULL) {
+          if ($links = $this->viewLinks($_link, $entity)) {
+            $blazies->set('field.values.link', $links);
+          }
+        }
         $data['#entity'] = $media;
+        $data['#parent'] = $entity;
         $data['#delta'] = 0;
         $data['#settings'] = $config;
         $data['#settings']['blazies'] = $blazies;
@@ -676,6 +694,47 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         }
       }
     }
+  }
+
+  /**
+   * Returns current entity.
+   */
+  private function entity() {
+    if (!isset($this->entity)) {
+      $entity = NULL;
+      if ($route = $this->manager->service('current_route_match')) {
+        if ($route->getRouteObject()) {
+          foreach ($route->getParameters() as $parameter) {
+            if ($parameter instanceof EntityInterface) {
+              $entity = $parameter;
+              break;
+            }
+          }
+        }
+      }
+      $this->entity = $entity;
+    }
+    return $this->entity;
+  }
+
+  /**
+   * Returns links.
+   */
+  private function viewLinks($name, $entity): array {
+    $links = [];
+    if ($entity && isset($entity->{$name})) {
+      $links = BlazyField::view($entity, $name, []);
+      $formatter = $links['#formatter'] ?? 'x';
+
+      // Only simplify markups for known formatters by link.module.
+      if ($links && in_array($formatter, ['link'])) {
+        $links = [];
+        foreach ($entity->{$name} as $link) {
+          $links[] = $link->view($view_mode);
+        }
+      }
+    }
+    return $links;
   }
 
   /**

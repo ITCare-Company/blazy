@@ -77,6 +77,7 @@ class BlazyLayoutDefault {
       'box_style' => '',
       'box_media_style' => '',
       'ratio' => 'fluid',
+      'link' => '',
       // @todo remove after an update.
       'use_player' => FALSE,
     ];
