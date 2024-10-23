@@ -100,7 +100,7 @@ class BlazyMediaUnitTest extends UnitTestCase {
   /**
    * Provider for ::testBlazyMediaBuild.
    */
-  public function providerTestBlazyMediaBuild() {
+  public static function providerTestBlazyMediaBuild() {
     $iframe = [
       '#type' => 'html_tag',
       '#tag' => 'iframe',

@@ -267,7 +267,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
    * @return array
    *   An array of tested data.
    */
-  public function providerTestBlazyMedia() {
+  public static function providerTestBlazyMedia() {
     return [
       ['', TRUE],
       ['https://xyz123.com/x/123', FALSE],

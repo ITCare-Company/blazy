@@ -123,7 +123,7 @@ class BlazyManagerUnitTest extends UnitTestCase {
    * @return array
    *   An array of tested data.
    */
-  public function providerTestGetBlazy() {
+  public static function providerTestGetBlazy() {
     $data[] = [
       '',
       '',
