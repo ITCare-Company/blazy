@@ -52,7 +52,7 @@ Install the module as usual, more info can be found on:
       media. This is the most efficient by far for simple backgrounds.
 
 
-### The following is applicable to both background options above:
+### The following is applicable to background options above:
 * To have a custom hi-res image/poster for (local|remote) video:
   + Visit bundles:
     * [Remote video](/admin/structure/media/manage/remote_video/fields)
@@ -60,7 +60,8 @@ Install the module as usual, more info can be found on:
   + Re-use the existing `field_media_image` into each bundle.
 
     The same principle is applicable to non-background (Document, Audio, etc.)
-    when being used with/without background purposes.
+    when being used with/without background purposes. Normally you would select
+    this field under **Blazy formatter > Main stage** to be sure.
   + Select `Media switcher > Image to iframe` option.
 * To have unique linkable media:
   + Add a Link or Text field to the Media bundles (not Content type or Node).

@@ -72,7 +72,7 @@ trait TraitDescriptions {
         '@rendered' => $scopes->form('fieldable') ? $this->t('<li><b>Image rendered by its formatter</b>: image-related settings here will be ignored: breakpoints, image style, CSS background, aspect ratio, lazyload, etc. Only choose if needing a special image formatter such as Image Link Formatter.</li>') : '',
         '@lb' => $lb ? '' : $this->t('Add <em>Thumbnail style</em> if using Splidebox, Slick, or others which may need it. Try selecting "<strong>- None -</strong>" first before changing if trouble with this complex form states.'),
       ]),
-      'box_style' => $this->t('Supports both Responsive and regular images.'),
+      'box_style' => $this->t('Only relevant for lightboxes under Media switcher. Supports both Responsive and regular images.'),
       'box_media_style' => $this->t('Allows different lightbox video dimensions. Or can be used to have a swipable video if <a href=":photoswipe">Blazy PhotoSwipe</a>, or <a href=":slick">Slick Lightbox</a>, or <a href=":splidebox">Splidebox</a> installed.', [
         ':photoswipe' => 'https://drupal.org/project/blazy_photoswipe',
         ':slick' => 'https://drupal.org/project/slick_lightbox',

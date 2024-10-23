@@ -267,7 +267,7 @@ class BlazyConfigForm extends BlazyConfigFormBase {
       '#type'          => 'number',
       '#title'         => $this->t('Max region count'),
       '#default_value' => $config->get('max_region_count'),
-      '#description'   => $this->t('Specific for Blazy layout, define the maximum amount of regions. Default to 20 if left 0 or below 9. Regions beyond this amount will be hidden.'),
+      '#description'   => $this->t('Specific for Blazy layout, define the maximum amount of regions. Default to 20 if left 0 or below 9. Regions beyond this amount will be hidden. If changed, be sure to clear caches for regions to be re-registered.'),
       '#access'        => $this->manager->moduleExists('blazy_layout'),
     ];
 

@@ -55,30 +55,6 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   const STATE_IMAGE_RENDERED_ENABLED = 5;
 
   /**
-   * The form scopes.
-   *
-   * @var array
-   */
-  protected $definition = [];
-
-  /**
-   * The form scopes.
-   *
-   * @var \Drupal\blazy\BlazySettings
-   */
-  protected $scopes;
-
-  /**
-   * The main module namespace, kind of group name including their sub-modules.
-   *
-   * Unlike classes, slick_views, etc. will be under slick namespace with this.
-   *
-   * @var string
-   * @see https://www.php.net/manual/en/reserved.keywords.php
-   */
-  protected static $namespace = 'blazy';
-
-  /**
    * Constructs a BlazyAdminBase object.
    *
    * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository
