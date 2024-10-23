@@ -136,7 +136,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       '#open'        => TRUE,
       '#title'       => $this->t('Colors'),
       '#parents'     => array_merge($parents, [$form_id]),
-      '#description' => $this->t('Might conflict against CSS framework classes like Bootstrap, etc. Leave them to default (color #000000/ black, and opacity 1) values to respect framework. Useful if colors are not provided by frameworks. Overlay options require Blazy Image/Media block with <b>Use CSS Background</b> enabled, or <b>Styles &gt; Media</b> below, to exist in the region. Text with <code>P</code> tag.'),
+      '#description' => $this->t('If you input CSS framework cosmetic color classes (Bootstrap, etc.) under <b>Classes</b> option above, it might conflict or be overriden. Just choose one of them. Leave them to default (color #000000/ black, and opacity 1) values to use CSS framework. Useful if colors are not provided by frameworks. Overlay options require Blazy Image/Media block with <b>Use CSS Background</b> enabled, or <b>Styles &gt; Media</b> below, to exist in the region. Text with <code>P</code> tag.'),
     ];
 
     $colors = &$form['styles'][$form_id];

@@ -10,14 +10,14 @@ Install the module as usual, more info can be found on:
 
 
 ## USAGE / CONFIGURATION
-* Visit Layout builder pages (`/node/123/layout`), and add a Blazy Layout.
-* Two ways to add Media background (image, local video, remote video):
+* Visit Layout builder (LB) pages (`/node/123/layout`), and add a Blazy Layout.
+* Three ways to add Media background (image, local video, remote video):
   + **With Blazy Image/Media formatter:**
     * Add a _multi-value_ Media/ Image field in the active entity/Content type.
     * Upload some images/media (matching the amount of regions which should
       have backgrounds) into the field. If the region total is 10, and you need
       3 backgrounds, just upload 3 items, not 10.
-    * At Layout builder: **Add block > Choose a block > Content fields**.
+    * At LB: **Add block > Choose a block > Content fields**.
     * Choose **Blazy formatter**, and enable **Use CSS background** option.
     * Use **By delta** option starting from 0 to map field items to any regions
       rather than creating multiple fields for multiple regions.
@@ -25,19 +25,32 @@ Install the module as usual, more info can be found on:
       no need to match one to one delta from field items to regions.
     * FYI, this offers more options, but might be overwhelmed for background
       purposes.
+  + **With Block content types**:
+    * [/admin/structure/block-content](/admin/structure/block-content), add
+      a dedicated background type, says **Background**.
+    * [/admin/structure/block-content/manage/background/fields](/admin/structure/block-content/manage/background/fields),
+      add a Media field says **Media**, choose Image, Video and Remote video. Multi-value is better for carousel re-use.
+    * [/admin/structure/block-content/manage/background/display](/admin/structure/block-content/manage/background/display), choose Blazy formatter, and enable
+      **Use CSS background**.
+    * Create as many as blocks for background: [/block/add/background](/block/add/background), or on the fly using LB **Create content block**.
+    * At LB, either way:
+      * **Add block > Create content block**.
+      * **Add block > Choose a block > Content block**
   + **With builtin Media library:**
     * Install [Media library form element](https://www.drupal.org/project/media_library_form_element).
       This is alternative to core **Layout Builder Expose All Field Blocks**
-      which was deprecated, also a more efficient solution than the first option
-      above to avoid creating useless/ unused Media fields. This background is
-      available for all regions, including the main layout. If provided, be sure
-      to **NOT** enable **Use CSS background** option for other Blazy formatters
-      if provided within the same region to avoid multiple and conflicting
-      backgrounds.
+      which was deprecated, also a more efficient solution than the first two
+      options above to avoid creating useless/ unused Media fields. This
+      background is available for all regions, including the main layout. If
+      provided, be sure to **NOT** enable **Use CSS background** option for
+      other Blazy formatters if provided within the same region to avoid
+      multiple and conflicting backgrounds.
     * Select image/media at Layout builder page under:
 
       **Blazy layout > [Global|Region] > Settings > Styles > Media**
-    * **Benefits**: No fields are created, just re-use, or create, media.
+    * **Benefits**: No fields or blocks are created, just re-use, or create,
+      media. This is the most efficient by far for simple backgrounds.
+
 
 ### The following is applicable to both background options above:
 * To have a custom hi-res image/poster for (local|remote) video:
