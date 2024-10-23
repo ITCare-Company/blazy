@@ -122,3 +122,10 @@
   display: block;
   width: 100%;
 }
+
+/* Disable link/lightbox/player for admin preview to avoid conflict actions. */
+.layout-builder .b-layout .b-link--bg,
+.layout-builder .b-layout .litebox--bg,
+.layout-builder .b-layout .media__icon {
+  pointer-events: none;
+}
