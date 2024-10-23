@@ -166,10 +166,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $layout = clone $this->pluginDefinition;
     $settings = $this->getConfiguration();
     $factory_regions = $layout->getRegions();
-    $editable_regions = $factory_regions;
+    $dynamic_regions = $factory_regions;
 
-    unset($editable_regions['bg']);
-    $keys = array_values($editable_regions);
+    unset($dynamic_regions['bg']);
+    $keys = array_values($dynamic_regions);
     $count = (int) $settings['count'];
 
     // For some reason, short coalesce always fails.
@@ -182,11 +182,11 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     }
 
     $layout_id = strtolower($layout_id);
+    $settings['id'] = $layout_id;
+
     static::$factoryRegions = $factory_regions;
     static::$count = $settings['count'] = $count;
-    static::$instanceId = 'b-layout--' . $layout_id;
-
-    $settings['id'] = $layout_id;
+    static::$instanceId = Defaults::layoutId($layout_id);
 
     // Add new regions, if any different from factory.
     // @todo remove after another check, since now region has limit.

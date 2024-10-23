@@ -4,10 +4,19 @@
  */
 
 /* stylelint-disable declaration-no-important */
+:root {
+  /* The gap 15px is to match CSS grid convention such as Bootstrap.
+  Affected by .grid margin 0 vs. auto. This 14px is best for .b-flex. Adjust it. */
+  --blz-gap: 15px;
+}
+
+.b-layout-wrapper {
+  /* To make stacking layouts reasonable, adjust like anything else. */
+  margin-bottom: var(--blz-gap);
+}
+
 .blazy.b-layout {
   position: relative;
-  /* To make stacking layouts reasonable, adjust like anything else. */
-  margin-bottom: 15px;
 }
 
 .b-layout > .grid {
@@ -50,6 +59,10 @@
 .b-layout .litebox--bg > .media,
 .b-layout .b-link--bg > .media {
   height: 100%;
+}
+
+.b-layout .block {
+  padding: var(--blz-gap);
 }
 
 .b-layout .block:not(.block--b-bg) {

@@ -12,28 +12,47 @@ Install the module as usual, more info can be found on:
 ## USAGE / CONFIGURATION
 * Visit Layout builder pages (`/node/123/layout`), and add a Blazy Layout.
 * Two ways to add Media background (image, local video, remote video):
-  + **Add block > Choose a block > Content fields**, and choose Blazy formatter
-    with **Use CSS background** enabled. A Media/ Image field must exist in the
-    active entity/content type. Use **By delta** option to map items of a single
-    multi-value field to all regions rather than creating multiple fields
-    for multiple regions.
-  + Install [Media library form element](https://www.drupal.org/project/media_library_form_element).
-    This is alternative to core **Layout Builder Expose All Field Blocks** which
-    was deprecated, also a more efficient solution than the first option above
-    to avoid creating useless/ unused Media fields. This background is available
-    for all regions, including the main layout. If provided, be sure to **NOT**
-    enable **Use CSS background** option for Blazy formatters to avoid multiple
-    and conflicting backgrounds.
-    The option is available at:
+  + **With Blazy Image/Media formatter:**
+    * Add a _multi-value_ Media/ Image field in the active entity/Content type.
+    * Upload some images/media (matching the amount of regions which should
+      have backgrounds) into the field. If the region total is 10, and you need
+      3 backgrounds, just upload 3 items, not 10.
+    * At Layout builder: **Add block > Choose a block > Content fields**.
+    * Choose **Blazy formatter**, and enable **Use CSS background** option.
+    * Use **By delta** option starting from 0 to map field items to any regions
+      rather than creating multiple fields for multiple regions.
+    * Repeat for any region which may require backgrounds. Adjust **By delta**,
+      no need to match one to one delta from field items to regions.
+    * FYI, this offers more options, but might be overwhelmed for background
+      purposes.
+  + **With builtin Media library:**
+    * Install [Media library form element](https://www.drupal.org/project/media_library_form_element).
+      This is alternative to core **Layout Builder Expose All Field Blocks**
+      which was deprecated, also a more efficient solution than the first option
+      above to avoid creating useless/ unused Media fields. This background is
+      available for all regions, including the main layout. If provided, be sure
+      to **NOT** enable **Use CSS background** option for other Blazy formatters
+      if provided within the same region to avoid multiple and conflicting
+      backgrounds.
+    * Select image/media at Layout builder page under:
 
-    **Blazy layout > [Global|Region] > Settings > Styles > Media**
+      **Blazy layout > [Global|Region] > Settings > Styles > Media**
+    * **Benefits**: No fields are created, just re-use, or create, media.
 
-* To have a custom hi-res image for (local|remote) video, relevant for
-  `Use player` option, simply re-use the existing `field_media_image` into each
-  bundle.
-* To have unique linkable media for
-  **Media switcher > Image linked by Link field**, add a Link or Text field to
-  the Media entity, not the Content type or Node.
+### The following is applicable to both background options above:
+* To have a custom hi-res image/poster for (local|remote) video:
+  + Visit bundles:
+    * [Remote video](/admin/structure/media/manage/remote_video/fields)
+    * [Video](/admin/structure/media/manage/video/fields)
+  + Re-use the existing `field_media_image` into each bundle.
+
+    The same principle is applicable to non-background (Document, Audio, etc.)
+    when being used with/without background purposes.
+  + Select `Media switcher > Image to iframe` option.
+* To have unique linkable media:
+  + Add a Link or Text field to the Media bundles (not Content type or Node).
+  + Select it under **Link** option.
+  + Choose **Media switcher > Image linked by Link field**.
 
 
 ## KNOWN ISSUES/ LIMITATIONS

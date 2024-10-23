@@ -78,7 +78,7 @@ trait TraitDescriptions {
         ':slick' => 'https://drupal.org/project/slick_lightbox',
         ':splidebox' => 'https://drupal.org/project/splidebox',
       ]),
-      'box_caption' => $this->t('Automatic will search for Alt text first, then Title text. Try selecting <strong>- None -</strong> first when changing if trouble with form states.'),
+      'box_caption' => $this->t('Automatic will search for Alt text first, then Title text.'),
       'box_caption_custom' => $this->t('Multi-value rich text field will be mapped to each image by its delta.'),
       'ratio' => $this->t('Aspect ratio to get consistently responsive images and iframes. Coupled with Image style. And to fix layout reflow, excessive height issues, whitespace below images, collapsed container, no-js users, etc. <a href=":dimensions" target="_blank">Image styles and video dimensions</a> must <a href=":follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. <a href=":link" target="_blank">Learn more</a>. <ul><li><b>Fixed ratio:</b> all images use the same aspect ratio mobile up. Use it to avoid JS works, or if it fails Responsive image. </li><li><b>Fluid:</b> aka dynamic, dimensions are calculated. First specific for non-responsive images, using PHP for pure CSS if any matching the fixed ones (1:1, 2:3, etc.), <a href=":ratio">read more</a>. If none found, JS works are attempted to fix it.</li><li><b>Leave empty:</b> to DIY (such as using CSS mediaquery), or when working with gapless grids like GridStack, or Blazy Native Grid.</li></ul>', [
         ':dimensions'  => '//size43.com/jqueryVideoTool.html',

@@ -63,9 +63,11 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  min-height: 48px;
+  min-height: 42px;
   margin: 0;
+  padding: 8px 0;
   pointer-events: none;
+  background-color: #eff6fcbf;
 }
 
 .b-layout .region--bg.region--empty .layout-builder__add-block {
@@ -75,6 +77,7 @@
 
 .b-layout .layout-builder__add-block a {
   pointer-events: auto;
+  font-size: 14px;
 }
 
 .layout-builder .grid .blazy__caption,
@@ -102,7 +105,7 @@
   text-align: center;
   color: #fff;
   background-color: rgba(0, 0, 0, 0.4);
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.2;
 }
 

@@ -166,28 +166,28 @@ class BlazyLayoutDefault {
    * Returns layout id.
    */
   public static function layoutId($id) {
-    return "blazy_$id";
+    return "b-layout--{$id}";
   }
 
   /**
    * Returns layout id.
    */
   public static function layoutLabel($label) {
-    return "Blazy: $label";
+    return "Blazy: {$label}";
   }
 
   /**
    * Returns region ID.
    */
   public static function regionId($id): string {
-    return "blzyr_$id";
+    return "blzyr_{$id}";
   }
 
   /**
    * Returns region label.
    */
   public static function regionLabel($id): string {
-    return "Region $id";
+    return "Region {$id}";
   }
 
   /**
