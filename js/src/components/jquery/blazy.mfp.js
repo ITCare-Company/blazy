@@ -21,98 +21,6 @@
   var CAN_ZOOM = true;
   var EL_CLICKED;
   var V_INDEX = 0;
-  var FN_MP;
-
-  /**
-   * Blazy MagnificPopup utility functions.
-   *
-   * @param {HTMLElement} box
-   *   The [data-mfp-gallery] container HTML element.
-   */
-  function process(box) {
-    var elms = $.findAll(box, S_TRIGGER);
-    var items = build(elms);
-    var $box = $(box);
-
-    function prepare() {
-      $box.magnificPopup({
-        items: items,
-        gallery: {
-          enabled: elms.length > 1,
-          navigateByImgClick: true,
-          tCounter: '%curr%/%total%'
-        },
-        preloader: true,
-        callbacks: {
-          beforeClose: function () {
-            var currItem = this.currItem;
-            if (currItem && currItem.inlineElement) {
-              attach(currItem.inlineElement[0]);
-            }
-          },
-          change: function () {
-            checkImage(this, true);
-          },
-          open: function () {
-            var $wrap = this.wrap;
-            if ($wrap && $wrap.length) {
-
-              // FOUC fix.
-              setTimeout(function () {
-                $.addClass($wrap[0], 'mfp-on');
-                if (D_BLAZY.load) {
-                  D_BLAZY.load($wrap[0]);
-                }
-              }, 100);
-            }
-          }
-        },
-
-        // This class is for CSS animation below.
-        mainClass: 'mfp-with-zoom',
-
-        // Zoom requires anything which has image: (local|remote) video, etc.
-        // @todo figure out to disable zoom when having plain HTML or AJAX.
-        zoom: {
-          enabled: CAN_ZOOM,
-          duration: 300,
-          easing: 'ease-in-out',
-
-          // The "opener" function should return the element from which popup
-          // will be zoomed in and to which popup will be scaled down
-          // By default it looks for an image tag:
-          opener: function (openerElement) {
-            checkImage(this);
-            // openerElement is the element on which popup was initialized, in
-            // this case its <a> tag you don't need to add "opener" option if
-            // this code matches your needs, it's default one.
-            // @fixme only works at first launch, not when zoom-close repeated.
-            return JQ(EL_CLICKED || openerElement.data.el);
-          }
-        }
-      });
-    }
-
-    prepare();
-
-    $.on(box, 'click', S_TRIGGER, function (e) {
-      var el = EL_CLICKED = e.target;
-
-      // Supports Blazy Grid, Splide/ Slick, GridStack/Mason galleries.
-      // @todo add options to avoid guessing.
-      V_INDEX = $.index(el, ['.box', '.grid', '.field__item', 'li', '.slide']);
-
-      setTimeout(function () {
-        FN_MP = $.magnificPopup.instance;
-
-        if (FN_MP) {
-          FN_MP.goTo(V_INDEX);
-        }
-      });
-    }, false);
-
-    $.addClass(box, C_MOUNTED);
-  }
 
   function build(elms) {
     var items = [];
@@ -189,9 +97,10 @@
   }
 
   // Required by zoom.
-  function checkImage(mp, add) {
+  function checkImage(mp, add, link) {
     var $img;
     var content = mp.content;
+    var $fallback;
 
     if (content && content.length) {
       var el = content[0];
@@ -223,7 +132,11 @@
         }
       }
     }
-    return $img;
+
+    if (link && link.img) {
+      $fallback = JQ(link.img);
+    }
+    return $img || $fallback;
   }
 
   function attach(el, op) {
@@ -244,6 +157,109 @@
   }
 
   /**
+   * Blazy MagnificPopup utility functions.
+   *
+   * @param {HTMLElement} box
+   *   The [data-mfp-gallery] container HTML element.
+   */
+  function process(box) {
+    var elms = $.findAll(box, S_TRIGGER);
+    var items = build(elms);
+    var $box = $(box);
+    var FN_INSTANCE;
+
+    function prepare() {
+      $box.magnificPopup({
+        items: items,
+        gallery: {
+          enabled: elms.length > 1,
+          navigateByImgClick: true,
+          tCounter: '%curr%/%total%'
+        },
+        preloader: true,
+        callbacks: {
+          beforeClose: function () {
+            var currItem = this.currItem;
+            if (currItem && currItem.inlineElement) {
+              attach(currItem.inlineElement[0]);
+            }
+          },
+          change: function () {
+            FN_INSTANCE = this;
+            checkImage(this, true);
+          },
+          open: function () {
+            FN_INSTANCE = this;
+            var $wrap = this.wrap;
+            if ($wrap && $wrap.length) {
+
+              // FOUC fix.
+              setTimeout(function () {
+                $.addClass($wrap[0], 'mfp-on');
+                if (D_BLAZY.load) {
+                  D_BLAZY.load($wrap[0]);
+                }
+              }, 100);
+            }
+          }
+        },
+
+        // This class is for CSS animation below.
+        // Class to remove default margin from left and right side.
+        mainClass: 'mfp-no-margins mfp-with-zoom',
+        image: {
+          verticalFit: true
+        },
+
+        // Zoom requires anything which has image: (local|remote) video, etc.
+        // @todo figure out to disable zoom when having plain HTML or AJAX.
+        zoom: {
+          enabled: CAN_ZOOM,
+          // duration: 300,
+          easing: 'ease-in-out',
+
+          // The "opener" function should return the element from which popup
+          // will be zoomed in and to which popup will be scaled down
+          // By default it looks for an image tag:
+          opener: function (openerElement) {
+            var img = checkImage(FN_INSTANCE, false, openerElement);
+            if (img && img.length) {
+              return img;
+            }
+
+            // openerElement is the element on which popup was initialized, in
+            // this case its <a> tag you don't need to add "opener" option if
+            // this code matches your needs, it's default one.
+            // @fixme only works at first launch, not when zoom-close repeated.
+            return JQ(EL_CLICKED || openerElement.data.el);
+          }
+        }
+      });
+    }
+
+    prepare();
+
+    $.on(box, 'click.' + ID, S_TRIGGER, function (e) {
+      // Expected as IMG for zoom.opener(), not LINK/THIS.
+      var el = EL_CLICKED = e.target;
+
+      // Supports Blazy Grid, Splide/ Slick, GridStack/Mason galleries.
+      // @todo add options to avoid guessing.
+      V_INDEX = $.index(el, ['.box', '.grid', '.field__item', 'li', '.slide']);
+
+      setTimeout(function () {
+        FN_INSTANCE = FN_INSTANCE || $.magnificPopup.instance;
+
+        if (FN_INSTANCE) {
+          FN_INSTANCE.goTo(V_INDEX);
+        }
+      });
+    }, false);
+
+    $.addClass(box, C_MOUNTED);
+  }
+
+  /**
    * Attaches blazy magnific popup behavior to HTML element.
    *
    * @type {Drupal~behavior}
@@ -252,21 +268,23 @@
     attach: function (context) {
 
       // Converts jQuery.magnificPopup into dBlazy for consistent vanilla JS.
-      if (JQ && $.isFun(JQ.fn.magnificPopup) && !$.isFun($.fn.magnificPopup)) {
-        var _mfp = JQ.fn.magnificPopup;
+      $.wwoBigPipe(function () {
+        if (JQ && $.isFun(JQ.fn.magnificPopup) && !$.isFun($.fn.magnificPopup)) {
+          var _mfp = JQ.fn.magnificPopup;
 
-        $.fn.magnificPopup = function (options) {
-          var me = $(_mfp.apply(this, arguments));
+          $.fn.magnificPopup = function (options) {
+            var me = $(_mfp.apply(this, arguments));
 
-          if ($.isUnd($.magnificPopup)) {
-            $.magnificPopup = JQ.magnificPopup;
-          }
+            if ($.isUnd($.magnificPopup)) {
+              $.magnificPopup = JQ.magnificPopup;
+            }
 
-          return me;
-        };
-      }
+            return me;
+          };
+        }
 
-      $.once(process, ID_ONCE, S_ELEMENT, context);
+        $.once(process, ID_ONCE, S_ELEMENT, context);
+      });
 
     },
     detach: function (context, setting, trigger) {
