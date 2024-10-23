@@ -12,7 +12,7 @@ Install the module as usual, more info can be found on:
 ## USAGE / CONFIGURATION
 * Visit Layout builder (LB) pages (`/node/123/layout`), and add a Blazy Layout.
 * Three ways to add Media background (image, local video, remote video):
-  + **With Blazy Image/Media formatter:**
+  + **With active entity/Content type:**
     * Add a _multi-value_ Media/ Image field in the active entity/Content type.
     * Upload some images/media (matching the amount of regions which should
       have backgrounds) into the field. If the region total is 10, and you need
@@ -25,7 +25,7 @@ Install the module as usual, more info can be found on:
       no need to match one to one delta from field items to regions.
     * FYI, this offers more options, but might be overwhelmed for background
       purposes.
-  + **With Block content types**:
+  + **With Block content type**:
     * [/admin/structure/block-content](/admin/structure/block-content), add
       a dedicated background type, says **Background**.
     * [/admin/structure/block-content/manage/background/fields](/admin/structure/block-content/manage/background/fields),
@@ -70,10 +70,11 @@ Install the module as usual, more info can be found on:
 
 
 ## KNOWN ISSUES/ LIMITATIONS
-* This module does not provide a CSS framework integration, instead using the
-  existing grid solutions with few tweaks to support regular floating elements
-  commonly seen at one-dimensional layouts. However any CSS framework cosmetic
-  rules can be used via the provided **Classes** options.
+* This module does not provide a CSS framework integration aka framework
+  agnostic. Instead using the existing grid solutions with few tweaks to support
+  regular floating elements commonly seen at one-dimensional layouts. However
+  any CSS framework cosmetic rules can be used via the provided **Classes**
+  options.
 
 
 # AUTHOR/MAINTAINER/CREDITS

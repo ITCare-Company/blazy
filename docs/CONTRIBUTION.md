@@ -91,7 +91,7 @@ In fact, your name will be credited where credit's due with gratitude and
 respect at CHANGELOG.txt or
 [here](https://www.drupal.org/node/2663268/committers).
 
-Offhanded negative posts without data are mere useless gossips we never welcome!
+Offhanded toxic posts without data are mere useless gossips we never welcome!
 
 We are well aware, defects, bugs, flaws etc. are there as proven by bug fixes.
 We believe constructive criticism, positive suggestions, corrections, patches,
