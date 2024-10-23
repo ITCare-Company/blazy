@@ -216,16 +216,13 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
 
     // Add some information to the form state for easier form altering.
     $region_count = $form_state2->getValue('layout_settings')['settings']['count'] ?? $settings['count'];
-    $form_state2->setValue('region_count', $region_count);
     $user_input = $form_state2->getUserInput();
     $region_input = $region_count;
     if ($value = $user_input['layout_settings']['settings']['count'] ?? NULL) {
       $region_input = (int) $value;
     }
 
-    if ($region_input && ($region_input != $region_count)) {
-      $form_state2->setValue('region_count', $region_input);
-    }
+    $form_state2->setValue('region_count', $region_input);
 
     $state_count = $form_state2->getValue('region_count');
     $count = $state_count ?: $settings['count'];
