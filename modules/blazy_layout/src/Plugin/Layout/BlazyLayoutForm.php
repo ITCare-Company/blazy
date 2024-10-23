@@ -40,8 +40,8 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       $form_state->setValue(['settings', 'id'], strtolower($id));
     }
 
-    // The main background styles.
-    $this->validateStyles($form_state);
+    // The main background color styles.
+    $this->validateColors($form_state);
 
     if ($regions = $form_state->getValue('regions')) {
       foreach ($regions as $name => $region) {
@@ -49,7 +49,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
           if ($key == 'settings') {
             foreach (array_keys($value) as $k) {
               if ($k == 'styles') {
-                $this->validateStyles($form_state, ['regions', $name, 'settings', 'styles', 'colors']);
+                $this->validateColors($form_state, ['regions', $name, 'settings', 'styles', 'colors']);
               }
             }
           }
@@ -164,6 +164,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     $this->admin->formStyles($form['settings'], $settings['styles'], $options);
 
     $arguments = [
+      'namespace' => 'blazy',
       'grid_simple' => TRUE,
       'grid_required' => TRUE,
       'no_grid_header' => TRUE,
@@ -346,7 +347,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
   /**
    * Validate form styles.
    */
-  protected function validateStyles(
+  protected function validateColors(
     FormStateInterface $form_state,
     array $keys = ['settings', 'styles', 'colors'],
   ): void {
@@ -366,7 +367,6 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
    * @todo remove if Link field is a Media field, or no further use or change.
    */
   private function getEntityData($entity_form): array {
-    $extras = [];
     $id     = NULL;
     $bundle = NULL;
     $entity = NULL;
@@ -380,13 +380,13 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
         $id     = $entity->id();
         $bundle = $entity->bundle();
         $target = $entity->getEntityTypeId();
-        $mode   = $contexts['view_mode'];
+        $mode   = $contexts['view_mode'] ?? '';
       }
       elseif (isset($contexts['display']) && $display = $contexts['display']) {
         $id     = $display->id();
         $bundle = $display->getTargetBundle();
         $target = $display->getTargetEntityTypeId();
-        $mode   = $contexts['view_mode'];
+        $mode   = $contexts['view_mode'] ?? '';
       }
     }
 
@@ -398,17 +398,13 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       $mode   = $entity->getMode();
     }
 
-    if ($bundle) {
-      $extras = [
-        'entity'         => $entity,
-        'bundle'         => $bundle,
-        'entity_id'      => $id,
-        'entity_type_id' => $target,
-        'view_mode'      => $mode,
-      ];
-    }
-
-    return $extras;
+    return $bundle ? [
+      'entity'         => $entity,
+      'bundle'         => $bundle,
+      'entity_id'      => $id,
+      'entity_type_id' => $target,
+      'view_mode'      => $mode,
+    ] : [];
   }
 
 }

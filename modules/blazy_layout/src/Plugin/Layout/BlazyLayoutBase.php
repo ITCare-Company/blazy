@@ -171,36 +171,12 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     unset($dynamic_regions['bg']);
     $keys = array_values($dynamic_regions);
     $count = (int) $settings['count'];
-
-    // For some reason, short coalesce always fails.
-    if ($id = $settings['id'] ?? NULL) {
-      $layout_id = $id;
-    }
-    else {
-      $id = Json::encode($settings);
-      $layout_id = substr(md5($id), 0, 11);
-    }
-
-    $layout_id = strtolower($layout_id);
+    $layout_id = $this->id($settings);
     $settings['id'] = $layout_id;
 
     static::$factoryRegions = $factory_regions;
     static::$count = $settings['count'] = $count;
     static::$instanceId = Defaults::layoutId($layout_id);
-
-    // Add new regions, if any different from factory.
-    // @todo remove after another check, since now region has limit.
-    foreach (range(1, static::$count) as $delta => $value) {
-      $key = Defaults::regionId($delta);
-      $region = $keys[$delta] ?? $delta;
-
-      if (is_int($region) && $region == $delta) {
-        $label = Defaults::regionLabel($delta);
-        $factory_regions[$key] = [
-          'label' => Defaults::regionTranslatableLabel($label),
-        ];
-      }
-    }
 
     // Removed regions beyond the designated amount.
     foreach ($keys as $delta => $value) {
@@ -218,20 +194,12 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       unset($settings['regions'][$name]);
     }
 
-    // A special static BG region.
-    // @todo remove after another check.
-    if (!isset($factory_regions['bg'])) {
-      $factory_regions['bg'] = [
-        'label' => Defaults::regionTranslatableLabel('Background'),
-      ];
-    }
-
     static::$instanceRegions = $factory_regions;
 
     $this->setConfiguration($settings);
     $layout->setRegions($factory_regions);
     $this->pluginDefinition = $layout;
-    $this->pluginDefinition->set('blazies', $factory_regions);
+
     return $layout;
   }
 
@@ -256,12 +224,13 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
           $settings['regions'][$name]['settings']['classes'] = $classes;
         }
 
-        // Always show empty regions to avoid collapsed regions at LB.
+        // Add empty flag for proper styling outside LB.
         if (empty($output[$name]) && !$this->inPreview) {
           $settings['regions'][$name]['settings']['empty'] = TRUE;
         }
       }
 
+      // Always show empty regions to avoid collapsed regions at LB.
       if (!isset($output[$name]) && $this->inPreview) {
         $output[$name]['dummy']['#markup'] = ' ';
       }
@@ -723,6 +692,22 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       $this->entity = $entity;
     }
     return $this->entity;
+  }
+
+  /**
+   * Returns layout id.
+   */
+  private function id(array $settings): string {
+    // For some reason, short coalesce always fails.
+    if ($id = $settings['id'] ?? NULL) {
+      $layout_id = $id;
+    }
+    else {
+      $id = Json::encode($settings);
+      $layout_id = substr(md5($id), 0, 11);
+    }
+
+    return strtolower($layout_id);
   }
 
   /**
