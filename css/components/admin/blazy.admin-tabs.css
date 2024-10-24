@@ -19,23 +19,23 @@
 }
 
 .b-tabs .b-tabs__label {
-  background-color: transparent !important;
   display: inline-block !important;
-  cursor: pointer !important;
   padding: 8px 1rem !important;
+  cursor: pointer !important;
+  background-color: transparent !important;
 }
 
 .b-tabs .b-tabs__label:hover,
 .b-tabs .b-tabs__label:active,
 .b-tabs .b-tabs__label.is-active {
-  color: #ffffff !important;
+  color: #fff !important;
   background: rgba(0, 0, 0, 0.4) !important;
 }
 
 .b-tabs .b-tabs__pane {
-  padding: 1rem !important;
   max-width: 100% !important;
   margin-block-start: 0 !important;
+  padding: 1rem !important;
 }
 
 .b-tabs .b-tabs__pane > div {
@@ -43,11 +43,11 @@
 }
 
 .b-tabs .b-tabs__btn:checked + .b-tabs__pane {
-  border: 1px solid #dedfe4;
   display: block !important;
+  border: 1px solid #dedfe4;
 }
 
 .ui-dialog .b-tabs .b-tabs__btn:checked + .b-tabs__pane {
-  background: rgba(0, 0, 0, 0.4) !important;
   color: #eaeaea !important;
+  background: rgba(0, 0, 0, 0.4) !important;
 }
