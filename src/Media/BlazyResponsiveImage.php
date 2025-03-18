@@ -235,11 +235,15 @@ class BlazyResponsiveImage {
     $ratio    = NULL;
     $data_src = $placeholder;
 
-    // If not enabled via UI, by default, always 1px, or the custom Placeholder.
-    // Image style will be prioritized as fallback to have different fallbacks
-    // per field relevant for various aspect ratios rather than the one and only
-    // fallback for the entire site via Responsive image UI.
-    if ($blazies->ui('one_pixel') || !empty($settings['image_style'])) {
+    // Global Responsive image 1px option should not block, so to get a proper
+    // Fallback image ready as required when Image style is left empty.
+    // This way no original image is passed into Image style which will screw up
+    // image dimensions.
+    // Image style, when not empty, should block, and will be prioritized as
+    // fallback to have different fallbacks per field relevant for various
+    // aspect ratios rather than the one and only fallback for the entire site
+    // via Responsive image UI.
+    if (!empty($settings['image_style'])) {
       return;
     }
 
