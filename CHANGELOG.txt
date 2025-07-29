@@ -1,3 +1,8 @@
+
+Blazy 3.0.x-dev, 2025-07-29
+---------------------------
+- Added blazy bio.ajax library only if both core drupal.ajax and blazy exist.
+
 Blazy 3.0.x-dev, 2025-03-19
 ---------------------------
 - git commit -m 'Issue #3513440 by bgreco: Responsive image preloads
