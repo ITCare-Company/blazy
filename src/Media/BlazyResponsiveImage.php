@@ -379,7 +379,9 @@ class BlazyResponsiveImage {
       $func1 = '_responsive_image_build_source_attributes';
       $func2 = '_responsive_image_image_style_url';
 
+      /* @phpstan-ignore-next-line */
       if (is_callable($func1)) {
+        /* @phpstan-ignore-next-line */
         if (is_callable($func2)) {
           $fallback = $func2($id, $uri);
         }

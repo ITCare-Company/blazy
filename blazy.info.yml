@@ -10,8 +10,3 @@ dependencies:
 test_dependencies:
   - drupal:responsive_image
   - drupal:views
-
-# Do not remove until below issues are resolved!
-# Add a fake version so local drush and Git checkouts do not fail dependencies.
-# Also accounts for the failing PHP8.1+ with git clone or --prefer-source.
-version: 3.x

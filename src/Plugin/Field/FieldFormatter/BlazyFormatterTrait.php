@@ -158,6 +158,7 @@ trait BlazyFormatterTrait {
     $commons = $this->getCommonScopedFormElements();
 
     // Compat for BVEF till updated to adopt Blazy 2.10 BlazyVideoFormatter.
+    /* @phpstan-ignore-next-line */
     $scopes = method_exists($this, 'getPluginScopes')
       ? $this->getPluginScopes() : [];
 
