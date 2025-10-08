@@ -6,6 +6,3 @@ package: Blazy
 dependencies:
   - drupal:layout_discovery
   - blazy:blazy (>= 3.x)
-
-# Add a fake version so local drush and Git checkouts do not fail dependencies.
-version: 3.x
