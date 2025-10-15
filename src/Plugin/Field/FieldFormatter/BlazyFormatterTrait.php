@@ -113,7 +113,7 @@ trait BlazyFormatterTrait {
    * Returns the blazy admin service.
    */
   public function admin() {
-    return \Drupal::service('blazy.admin.formatter');
+    return $this->formatter->service('blazy.admin.formatter');
   }
 
   /**
