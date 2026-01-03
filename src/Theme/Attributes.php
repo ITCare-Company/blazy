@@ -545,7 +545,7 @@ class Attributes {
   private static function common(array &$attributes, $blazies): void {
     $attributes['class'][] = 'media__element';
     $loading = $blazies->get('image.loading', 'lazy');
-    $unlazy = Internals::isUnlazy($blazies);
+    $lcp = $blazies->is('slider') && $blazies->is('initial');
 
     // @todo at 2022/2 core has no loading Responsive.
     $excludes = in_array($loading, ['slider', 'unlazy']);
@@ -562,7 +562,7 @@ class Attributes {
     // single hero image removing the necessity for Blazy formatters for now.
     // See https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/fetchpriority
     if ($loading == 'slider') {
-      if ($unlazy) {
+      if ($lcp) {
         // A hero image needs a high priority.
         $attributes['fetchpriority'] = 'high';
       }
