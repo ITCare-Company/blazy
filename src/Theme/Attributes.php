@@ -540,16 +540,36 @@ class Attributes {
   }
 
   /**
-   * Provide common attributes for IMG, IFRAME, VIDEO, etc. elements.
+   * Provide common attributes for IMG and IFRAME/VIDEO elements.
    */
   private static function common(array &$attributes, $blazies): void {
     $attributes['class'][] = 'media__element';
     $loading = $blazies->get('image.loading', 'lazy');
+    $unlazy = Internals::isUnlazy($blazies);
 
     // @todo at 2022/2 core has no loading Responsive.
     $excludes = in_array($loading, ['slider', 'unlazy']);
     if ($blazies->get('image.width') && !$excludes) {
       $attributes['loading'] = $loading;
+    }
+
+    // The fetchpriority is mostly relevant with slider architecture, and
+    // applicable to limited media: IMG and IFRAME. Just a hint, not mandatory.
+    // This option is limited to CWV:LCP hero image, and can be applied to
+    // non-slider hero image when an option to distinguish LCP vs Below the Fold
+    // is available. Major browser supports are massive as per 2026/1/3.
+    // The non-slider work is ignored, since Slick/Splide can also display a
+    // single hero image removing the necessity for Blazy formatters for now.
+    // See https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/fetchpriority
+    if ($loading == 'slider') {
+      if ($unlazy) {
+        // A hero image needs a high priority.
+        $attributes['fetchpriority'] = 'high';
+      }
+      else {
+        // Hidden images should be deferred.
+        $attributes['fetchpriority'] = 'low';
+      }
     }
   }
 
