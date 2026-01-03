@@ -109,8 +109,9 @@ class Thumbnail {
       '#item'       => $item,
       '#alt'        => $alt,
       '#attributes' => [
-        'decoding' => 'async',
-        'loading'  => $blazies->get('delta', 0) < $delta ? 'eager' : 'lazy',
+        'decoding'      => 'async',
+        'loading'       => $blazies->get('delta', 0) < $delta ? 'eager' : 'lazy',
+        'fetchpriority' => 'low',
       ],
     ];
 
