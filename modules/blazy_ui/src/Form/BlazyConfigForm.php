@@ -142,6 +142,17 @@ class BlazyConfigForm extends BlazyConfigFormBase {
       '#default_value' => $config->get('lazy_html'),
     ];
 
+    $form['ratio_modern'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Use modern CSS aspect-ratio (Experimental)'),
+      '#description'   => $this->t("Will use the modern CSS aspect-ratio if supported. Disable if any issues, see <a href=':ui'>Blazy help</a>, <a href=':url'>caniuse.com</a>, or <a href=':msdn'>learn more</a>.", [
+        ':ui' => $help . '#aspect-ratio',
+        ':url' => 'https://caniuse.com/?search=aspect-ratio',
+        ':msdn' => 'https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio',
+      ]),
+      '#default_value' => $config->get('ratio_modern'),
+    ];
+
     $form['use_encodedbox'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Use encoding for HTML (Experimental)'),
@@ -396,6 +407,7 @@ class BlazyConfigForm extends BlazyConfigFormBase {
       ->set('unstyled_extensions', $form_state->getValue('unstyled_extensions'))
       ->set('use_encodedbox', $form_state->getValue('use_encodedbox'))
       ->set('use_oembed', $form_state->getValue('use_oembed'))
+      ->set('ratio_modern', $form_state->getValue('ratio_modern'))
       ->set('max_region_count', $form_state->getValue('max_region_count'))
       ->set('blazy.loadInvisible', $form_state->getValue([
         'blazy',

@@ -53,6 +53,9 @@ blazy.settings:
     max_region_count:
       type: integer
       label: 'Max region count'
+    ratio_modern:
+      type: boolean
+      label: 'Use modern CSS aspect-ratio'
     blazy:
       type: mapping
       label: Blazy

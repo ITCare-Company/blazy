@@ -560,16 +560,12 @@ class Attributes {
     // is available. Major browser supports are massive as per 2026/1/3.
     // The non-slider work is ignored, since Slick/Splide can also display a
     // single hero image removing the necessity for Blazy formatters for now.
+    // Only one image can have fetchpriority=high on a page. That is why it is
+    // limited only to the designated loading=slider as a hero image.
     // See https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/fetchpriority
     if ($loading == 'slider') {
-      if ($lcp) {
-        // A hero image needs a high priority.
-        $attributes['fetchpriority'] = 'high';
-      }
-      else {
-        // Hidden images should be deferred.
-        $attributes['fetchpriority'] = 'low';
-      }
+      // A hero image needs a high priority. Hidden images should be deferred.
+      $attributes['fetchpriority'] = $lcp ? 'high' : 'low';
     }
   }
 
@@ -616,7 +612,11 @@ class Attributes {
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode.
-    $attributes['decoding'] = 'async';
+    $lcp = $blazies->is('slider') && $blazies->is('initial');
+    // LCP images should be sync or without decoding.
+    if (!$lcp) {
+      $attributes['decoding'] = 'async';
+    }
 
     // Preserves UUID for sub-module lookups, relevant for BlazyFilter.
     if ($uuid = $blazies->get('entity.uuid')) {

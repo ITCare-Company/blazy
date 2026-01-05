@@ -1,3 +1,10 @@
+Blazy 3.0.x-dev, 2026-01-05
+---------------------------
+- Implemented modern CSS aspect-ratio.
+
+Blazy 3.0.x-dev, 2026-01-03
+---------------------------
+- Micro optimization with fetchpriority specific for sliders.
 
 Blazy 3.0.x-dev, 2025-07-29
 ---------------------------

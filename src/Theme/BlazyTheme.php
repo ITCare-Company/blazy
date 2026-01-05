@@ -170,6 +170,14 @@ class BlazyTheme {
             }
 
             $attributes->setAttribute('poster', $url);
+
+            // If a hero video.
+            $loading = $blazies->get('image.loading', 'lazy');
+            if ($loading == 'slider') {
+              if ($blazies->is('slider') && $blazies->is('initial')) {
+                $attributes['fetchpriority'] = 'high';
+              }
+            }
           }
         }
       }

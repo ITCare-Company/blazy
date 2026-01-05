@@ -18,6 +18,7 @@ unstyled_extensions: ''
 use_encodedbox: false
 use_oembed: false
 max_region_count: 0
+ratio_modern: false
 extras: {}
 blazy:
   loadInvisible: false
