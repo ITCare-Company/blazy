@@ -94,19 +94,15 @@ class Preloader {
     $empties = $images = [];
     foreach ($items as $key => $item) {
       $image = [];
-      $lcp = $key == $blazies->get('initial', -1);
 
-      // @todo remove $key == 0, once sub-modules updated post to 3.0.17.
-      if ($key == 0 || $lcp) {
-        // Priotize image file, then Media, etc.
-        $entity = is_object($item) && isset($item->entity) ? $item->entity : NULL;
-        if (!$entity) {
-          $entity = $entities[$key] ?? NULL;
-        }
-
-        // Respects empty URI to keep indices intact for correct mixed media.
-        $image = $func($item, $entity, $key);
+      // Priotize image file, then Media, etc.
+      $entity = is_object($item) && isset($item->entity) ? $item->entity : NULL;
+      if (!$entity) {
+        $entity = $entities[$key] ?? NULL;
       }
+
+      // Respects empty URI to keep indices intact for correct mixed media.
+      $image = $func($item, $entity, $key);
 
       $images[] = $image;
 
@@ -118,6 +114,7 @@ class Preloader {
     $empty = count($empties) == count($images);
     $images = $empty ? array_filter($images) : $images;
 
+    // This is also required by BlazyResponsiveImage::sources().
     $blazies->set('images', $images);
 
     // Checks for [Responsive] image dimensions and sources for formatters
@@ -204,7 +201,8 @@ class Preloader {
         $uri   = $source['uri'] ?? NULL;
         $url   = $source['fallback'] ?? NULL;
         $valid = $source['valid'] ?? FALSE;
-        $hero  = $priority && $delta == $blazies->get('initial', -1);
+        $start = $delta == $blazies->get('initial', -1);
+        $hero  = $priority && $start;
 
         // Preloading 1px data URI makes no sense, see if image_url exists.
         if ($url) {
@@ -215,7 +213,7 @@ class Preloader {
         }
 
         foreach ($source['items'] as $item) {
-          yield empty($item['srcset']) ? NULL : $link($url, $uri, $item, $valid, $hero);
+          yield empty($item['srcset']) || !$start ? NULL : $link($url, $uri, $item, $valid, $hero);
         }
       }
     }
@@ -226,10 +224,11 @@ class Preloader {
         $uri   = $image['uri'] ?? NULL;
         $url   = $image['url'] ?? NULL;
         $valid = $image['valid'] ?? FALSE;
-        $hero  = $priority && $delta == $blazies->get('initial', -1);
+        $start = $delta == $blazies->get('initial', -1);
+        $hero  = $priority && $start;
 
         // URI might be empty with mixed media, but indices are preserved.
-        yield $uri && $url ? $link($url, $uri, NULL, $valid, $hero) : NULL;
+        yield $uri && $url && $start ? $link($url, $uri, NULL, $valid, $hero) : NULL;
       }
     }
   }
