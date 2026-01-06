@@ -31,6 +31,7 @@ class Preloader {
     $images  = array_filter($blazies->get('images', []));
     $sources = $blazies->get('resimage.sources', []);
 
+    // @todo refine to just a hero image, not always 0 for sliders.
     if (empty($images) || empty($images[0]['uri'])) {
       return;
     }
@@ -60,7 +61,8 @@ class Preloader {
     }
 
     $style = $blazies->get('image.style');
-    $func = function ($item, $entity = NULL, $delta = 0) use (&$settings, $blazies, $style) {
+
+    $func = function ($item, $entity, $delta = 0) use (&$settings, $blazies, $style) {
       $options  = ['entity' => $entity, 'settings' => $settings];
       $image    = BlazyImage::item($item, $options);
       $uri      = BlazyFile::uri($image);
@@ -91,14 +93,21 @@ class Preloader {
 
     $empties = $images = [];
     foreach ($items as $key => $item) {
-      // Priotize image file, then Media, etc.
-      $entity = is_object($item) && isset($item->entity) ? $item->entity : NULL;
-      if (!$entity) {
-        $entity = $entities[$key] ?? NULL;
+      $image = [];
+      $lcp = $key == $blazies->get('initial', -1);
+
+      // @todo remove $key == 0, once sub-modules updated post to 3.0.17.
+      if ($key == 0 || $lcp) {
+        // Priotize image file, then Media, etc.
+        $entity = is_object($item) && isset($item->entity) ? $item->entity : NULL;
+        if (!$entity) {
+          $entity = $entities[$key] ?? NULL;
+        }
+
+        // Respects empty URI to keep indices intact for correct mixed media.
+        $image = $func($item, $entity, $key);
       }
 
-      // Respects empty URI to keep indices intact for correct mixed media.
-      $image = $func($item, $entity, $key);
       $images[] = $image;
 
       if (empty($image['uri'])) {
@@ -192,15 +201,17 @@ class Preloader {
     // Responsive image with multiple sources.
     if ($sources) {
       foreach ($sources as $delta => $source) {
-        $uri   = $source['uri'];
-        $url   = $source['fallback'];
-        $valid = $source['valid'];
+        $uri   = $source['uri'] ?? NULL;
+        $url   = $source['fallback'] ?? NULL;
+        $valid = $source['valid'] ?? FALSE;
         $hero  = $priority && $delta == $blazies->get('initial', -1);
 
         // Preloading 1px data URI makes no sense, see if image_url exists.
-        $data_uri = Blazy::isDataUri($url);
-        if ($data_uri && $url2 = $source['url'] ?? NULL) {
-          $url = $url2;
+        if ($url) {
+          $data_uri = Blazy::isDataUri($url);
+          if ($data_uri && $url2 = $source['url'] ?? NULL) {
+            $url = $url2;
+          }
         }
 
         foreach ($source['items'] as $item) {

@@ -612,7 +612,7 @@ class Attributes {
     }
 
     // LCP images should be sync or without decoding.
-    // See https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode.
+    // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode.
     if (!$blazies->is('lcp')) {
       $attributes['decoding'] = 'async';
     }
