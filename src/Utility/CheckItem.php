@@ -183,7 +183,9 @@ class CheckItem {
   public static function insanity(array &$settings): void {
     $blazies    = $settings['blazies'];
     $ratio      = $settings['ratio'] ?? '';
-    $lcp        = $blazies->is('initial') && ($blazies->is('slider') || $blazies->is('unloading'));
+    $heroes     = $blazies->is('slider') || $blazies->is('unloading');
+    $lcp        = $heroes && $blazies->is('initial');
+    $siblings   = $heroes && !$blazies->is('initial');
     $unlazy     = $blazies->is('unlazy');
     $use_loader = $blazies->use('loader') ?: $settings['use_loading'] ?? FALSE;
     $use_loader = $lcp || $unlazy ? FALSE : $use_loader;
@@ -201,15 +203,22 @@ class CheckItem {
     $blazies->set('is.fluid', $is_fluid)
       ->set('is.blur', $is_blur)
       ->set('is.lcp', $lcp)
+      ->set('is.lcp_siblings', $siblings)
       ->set('is.unloading', $lcp)
       ->set('is.unlazy', $unlazy)
       ->set('use.blur', $is_blur)
       ->set('use.loader', $use_loader)
       ->set('was.prepare', TRUE);
 
-    // If a Hero image, override per item.
-    if ($lcp) {
-      $blazies->set('is.unlazy', $unlazy && !$lcp);
+    // If a Hero image and grid, override siblings to use thumbnail if provided.
+    if ($siblings && !empty($blazies->is('grid'))) {
+      $image = $blazies->get('image');
+      if ($thumbnail = $blazies->get('thumbnail')) {
+        $blazies->set('image', $thumbnail, TRUE);
+
+        // Store replaced image into thumbnail.
+        $blazies->set('thumbnail.image', $image, TRUE);
+      }
     }
 
     // Also disable blur effect attributes.

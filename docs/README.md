@@ -234,9 +234,9 @@ Title.
      instead.
 
 2. Enable **Preloading** option, important for heroes, and specifically BG.
-3. [TODO] For **static Hero media** with a multi-value field, choose a
+3. For **static Hero media** with a multi-value field, choose a
    **Thumbnail style** if you want the non-prominent ones smaller, else leave it
-   empty.
+   empty. This only works if **Grid** is provided.
 
 For the first media, BG will have **fetchpriority** high at the link preload,
 while the rest will have it inline on their own HTML tags. A Hero will

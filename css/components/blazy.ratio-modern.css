@@ -14,11 +14,11 @@
     padding-bottom: 0;
   }
 
+  .media--ratio:not(.b-bg),
   .media.media--ratio:not(.media--ratio--fluid, .b-bg) {
     height: auto;
   }
 
-  .media--ratio:not(.b-bg),
   .media--ratio:not(.media--ratio--fluid) .media__element,
   .media--ratio:not(.media--ratio--fluid) svg {
     position: static;

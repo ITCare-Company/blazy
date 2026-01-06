@@ -388,8 +388,8 @@ class Attributes {
    *   If a background image.
    */
   public static function lazy(array &$attributes, $blazies, $bg = FALSE): void {
-    $trusted = $blazies->get('image.trusted');
     if ($url = $blazies->get('image.url')) {
+      $trusted = $blazies->get('image.trusted');
       $url = $trusted ? $url : UrlHelper::stripDangerousProtocols($url);
       $unlazy = Internals::isUnlazy($blazies);
 
@@ -547,19 +547,17 @@ class Attributes {
   private static function common(array &$attributes, $blazies): void {
     $attributes['class'][] = 'media__element';
     $loading = $blazies->get('image.loading', 'lazy');
-    $heroes = in_array($loading, ['slider', 'unlazy']);
 
     // The fetchpriority is mostly relevant with slider architecture, and
     // applicable to limited media: IMG and IFRAME. Just a hint, not mandatory.
     // This option is limited to CWV:LCP hero image, and can be applied to
-    // non-slider hero image when an option to distinguish LCP vs Below the Fold
-    // is available. Major browser supports are massive as per 2026/1/3.
-    // The non-slider work is ignored, since Slick/Splide can also display a
-    // single hero image removing the necessity for Blazy formatters for now.
+    // non-slider hero image with `unlazy` option. Major browser supports are
+    // massive as per 2026/1/3.
+    // Slick/Splide can also display a single hero image.
     // Only one image can have fetchpriority=high on a page. That is why it is
-    // limited only to the designated loading=slider as a hero image.
+    // limited only to the designated LCP as a hero image.
     // See https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/fetchpriority
-    if ($heroes) {
+    if (in_array($loading, ['slider', 'unlazy'])) {
       // A hero image needs a high priority. Hidden images should be deferred.
       $attributes['fetchpriority'] = $blazies->is('lcp') ? 'high' : 'low';
     }
@@ -613,11 +611,9 @@ class Attributes {
       $attributes['title'] = $title;
     }
 
-    // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode.
-    $lcp = $blazies->is('lcp');
-
     // LCP images should be sync or without decoding.
-    if (!$lcp) {
+    // See https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode.
+    if (!$blazies->is('lcp')) {
       $attributes['decoding'] = 'async';
     }
 
