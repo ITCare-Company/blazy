@@ -183,10 +183,10 @@ class CheckItem {
   public static function insanity(array &$settings): void {
     $blazies    = $settings['blazies'];
     $ratio      = $settings['ratio'] ?? '';
-    $unlazy     = $blazies->is('slider') && $blazies->is('initial');
-    $unlazy     = $unlazy ? TRUE : $blazies->is('unlazy');
+    $lcp        = $blazies->is('initial') && ($blazies->is('slider') || $blazies->is('unloading'));
+    $unlazy     = $blazies->is('unlazy');
     $use_loader = $blazies->use('loader') ?: $settings['use_loading'] ?? FALSE;
-    $use_loader = $unlazy ? FALSE : $use_loader;
+    $use_loader = $lcp || $unlazy ? FALSE : $use_loader;
     $is_unblur  = Internals::isUnlazy($blazies)
       || $blazies->is('unstyled') || $blazies->use('iframe');
     $is_blur    = !$is_unblur && $blazies->use('blur');
@@ -200,10 +200,17 @@ class CheckItem {
     // Redefines some since this can be fed by anyone, including custom works.
     $blazies->set('is.fluid', $is_fluid)
       ->set('is.blur', $is_blur)
+      ->set('is.lcp', $lcp)
+      ->set('is.unloading', $lcp)
       ->set('is.unlazy', $unlazy)
       ->set('use.blur', $is_blur)
       ->set('use.loader', $use_loader)
       ->set('was.prepare', TRUE);
+
+    // If a Hero image, override per item.
+    if ($lcp) {
+      $blazies->set('is.unlazy', $unlazy && !$lcp);
+    }
 
     // Also disable blur effect attributes.
     if (!$is_blur && $blazies->get('fx') == 'blur') {

@@ -114,7 +114,8 @@ class BlazyResponsiveImage {
         $old_url = $blazies->get('image.url');
         $new_url = $unlazy ? $old_url : $bg['src'];
 
-        $blazies->set('is.unlazy', $unlazy)
+        // $blazies->set('is.unlazy', $unlazy)
+        $blazies->set('is.undata', $unlazy)
           ->set('image.url', $new_url);
 
         Attributes::lazy($attributes, $blazies, TRUE);

@@ -72,7 +72,7 @@ class Check {
     $is_fluid     = ($settings['ratio'] ?? '') == 'fluid';
     $is_static    = $is_preview || $is_amp || $is_sandboxed;
     $is_undata    = $is_static || $is_unloading;
-    $is_nojs      = $is_unload || $is_undata;
+    $is_nojs      = $is_unload || $is_static;
 
     /* @phpstan-ignore-next-line */
     $is_resimage = is_callable('responsive_image_get_mime_type');
@@ -96,6 +96,11 @@ class Check {
 
     // @todo remove is.bg for use.bg at 3.x:
     $blazies->set('is.bg', $is_bg);
+
+    // For Hero media.
+    if ($is_unloading) {
+      $blazies->set('initial', 0);
+    }
 
     // Some should be refined per item against potential mixed media items.
     // @todo move some into Blazy::prepare() as might be called per item.

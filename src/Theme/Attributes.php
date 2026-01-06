@@ -541,17 +541,13 @@ class Attributes {
 
   /**
    * Provide common attributes for IMG and IFRAME/VIDEO elements.
+   *
+   * @todo at 2022/2 core has no loading Responsive.
    */
   private static function common(array &$attributes, $blazies): void {
     $attributes['class'][] = 'media__element';
     $loading = $blazies->get('image.loading', 'lazy');
-    $lcp = $blazies->is('slider') && $blazies->is('initial');
-
-    // @todo at 2022/2 core has no loading Responsive.
-    $excludes = in_array($loading, ['slider', 'unlazy']);
-    if ($blazies->get('image.width') && !$excludes) {
-      $attributes['loading'] = $loading;
-    }
+    $heroes = in_array($loading, ['slider', 'unlazy']);
 
     // The fetchpriority is mostly relevant with slider architecture, and
     // applicable to limited media: IMG and IFRAME. Just a hint, not mandatory.
@@ -563,9 +559,15 @@ class Attributes {
     // Only one image can have fetchpriority=high on a page. That is why it is
     // limited only to the designated loading=slider as a hero image.
     // See https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/fetchpriority
-    if ($loading == 'slider') {
+    if ($heroes) {
       // A hero image needs a high priority. Hidden images should be deferred.
-      $attributes['fetchpriority'] = $lcp ? 'high' : 'low';
+      $attributes['fetchpriority'] = $blazies->is('lcp') ? 'high' : 'low';
+    }
+    else {
+      // Ensures dimensions set.
+      if ($blazies->get('image.width')) {
+        $attributes['loading'] = $loading;
+      }
     }
   }
 
@@ -612,7 +614,8 @@ class Attributes {
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode.
-    $lcp = $blazies->is('slider') && $blazies->is('initial');
+    $lcp = $blazies->is('lcp');
+
     // LCP images should be sync or without decoding.
     if (!$lcp) {
       $attributes['decoding'] = 'async';

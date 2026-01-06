@@ -10,6 +10,7 @@
  * [Installing libraries via Composer](#composer)
  * [Configuration](#configuration)
  * [theme_blazy()](#theme-blazy)
+ * [Hero media](#heroes)
  * [Multimedia galleries](#galleries)
  * [Lightboxes](#lightboxes)
  * [SVG](#svg)
@@ -203,6 +204,45 @@ comparison, or helpful screenshots, to spot the issues better.
 + As last resorts, override `blazy.html.twig`. Headaches are yours in the long
   run. FYI, even the author, me, never touch this file in any custom works.
   The above suffices at 100% own cases.
+
+
+### <a name="heroes"> </a>Hero media
+Building a Hero media (BG, IMG, IFRAME, VIDEO) that complies with
+**Core Web Vitals** protocols. If a field is dedicated for a hero, be sure
+**unlazy** or **slider** option exists only once per page, similar to Page
+Title.
+
+1. Under **Loading priority** option, choose either **unlazy** or **slider**.
+   + **unlazy** serves a static Hero media, works best with a single media,
+     but for a multi-value field, **Native Grid** in tandem with
+     **Use CSS background** options should look decent.
+     This will make the first image more prominent, while the rest having
+     **Tagore** layout:
+
+     `12x6 4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2`
+
+     Or to look like sliders with a 4-item thumbnail navigation:
+
+     `12x6 3x2 3x2 3x2 3x2`
+
+     Adjust the amount of field items to match the designated grids.
+
+   + **slider** serves a dynamic/slider Hero media, works best with multi-value
+     value field which can also be a single Hero slide. Use Slick or Splide.
+     Only reasonable for sliders (one visible at a time), not carousels
+     (multiple visible slides at once). For non-hero sliders, use **lazy**
+     instead.
+
+2. Enable **Preloading** option, important for heroes, and specifically BG.
+3. [TODO] For **static Hero media** with a multi-value field, choose a
+   **Thumbnail style** if you want the non-prominent ones smaller, else leave it
+   empty.
+
+For the first media, BG will have **fetchpriority** high at the link preload,
+while the rest will have it inline on their own HTML tags. A Hero will
+**unlazy** the first visible, and leave the rest lazyloaded to meet **LCP**
+requirements without sacrificing performance.
+
 
 ### <a name="galleries"> </a> USAGES: BLAZY FOR MULTIMEDIA GALLERY VIA VIEWS UI
 #### Using **Blazy Grid**
