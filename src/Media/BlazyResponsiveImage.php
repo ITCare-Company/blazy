@@ -110,12 +110,11 @@ class BlazyResponsiveImage {
         // for [data-src], else error, provide a real smallest image. Bio will
         // map it to the current breakpoint later.
         $bg      = reset($srcset);
-        $unlazy  = $blazies->is('undata');
+        $unlazy  = $blazies->is('lcp') || $blazies->is('undata');
         $old_url = $blazies->get('image.url');
         $new_url = $unlazy ? $old_url : $bg['src'];
 
-        // $blazies->set('is.unlazy', $unlazy)
-        $blazies->set('is.undata', $unlazy)
+        $blazies->set('is.unlazy', $unlazy)
           ->set('image.url', $new_url);
 
         Attributes::lazy($attributes, $blazies, TRUE);

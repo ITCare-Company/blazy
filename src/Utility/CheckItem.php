@@ -204,8 +204,8 @@ class CheckItem {
       ->set('is.blur', $is_blur)
       ->set('is.lcp', $lcp)
       ->set('is.lcp_siblings', $siblings)
-      ->set('is.unloading', $lcp)
-      ->set('is.unlazy', $unlazy)
+      ->set('is.unloading', $lcp || $blazies->is('unloading'))
+      ->set('is.unlazy', $lcp || $unlazy)
       ->set('use.blur', $is_blur)
       ->set('use.loader', $use_loader)
       ->set('was.prepare', TRUE);

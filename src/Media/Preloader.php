@@ -140,20 +140,17 @@ class Preloader {
    * Generates preload urls.
    */
   private static function generate(array $images, array $sources, $blazies): \Generator {
-    // Suppress useless warning of likely failing initial image generation.
-    // Better than checking file exists.
-    $mime = @mime_content_type($images[0]['uri']);
-    [$type] = array_map('trim', explode('/', $mime, 2));
     $loading = $blazies->get('image.loading', 'lazy');
     $heroes = in_array($loading, ['slider', 'unlazy']);
     $priority = $blazies->use('bg', FALSE) && $heroes;
 
-    $link = function ($url, $uri, $item = NULL, $valid = FALSE, $hero = FALSE) use ($mime, $type): array {
+    $link = function ($url, $uri, $item, $valid, $hero): array {
+      // Suppress useless warning of likely failing initial image generation.
+      // Better than checking file exists.
       // Each field may have different mime types for each image just like URIs.
-      $mime = @mime_content_type($uri) ?: $mime;
-      if ($item) {
-        $item_type = $item['type'] ?? NULL;
-        $mime = $item_type ? $item_type->value() : $mime;
+      $mime = @mime_content_type($uri) ?: '';
+      if ($item && $item_type = $item['type'] ?? NULL) {
+        $mime = $item_type->value() ?: $mime;
       }
 
       [$type] = array_map('trim', explode('/', $mime, 2));
@@ -212,8 +209,8 @@ class Preloader {
           }
         }
 
-        foreach ($source['items'] as $item) {
-          yield empty($item['srcset']) || !$start ? NULL : $link($url, $uri, $item, $valid, $hero);
+        foreach ($source['items'] as $source_item) {
+          yield empty($source_item['srcset']) || !$start ? NULL : $link($url, $uri, $source_item, $valid, $hero);
         }
       }
     }
