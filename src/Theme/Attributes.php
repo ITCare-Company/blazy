@@ -393,6 +393,11 @@ class Attributes {
       $url = $trusted ? $url : UrlHelper::stripDangerousProtocols($url);
       $unlazy = Internals::isUnlazy($blazies);
 
+      // Makes query selector easier for filter.
+      if ($blazies->get('filter')) {
+        $attributes['class'][] = 'b-filter';
+      }
+
       // Native, or unlazy, has .blazy--nojs at container to fix issues, if any.
       if (!$unlazy) {
         // @todo put it back up above if any issues.
@@ -400,14 +405,10 @@ class Attributes {
         $attribute = $blazies->get('lazy.attribute', 'src');
         $attributes['data-' . $attribute] = $url;
       }
-
-      // Makes query selector easier for filter.
-      if ($blazies->get('filter')) {
-        $attributes['class'][] = 'b-filter';
-      }
-
-      if ($bg && $unlazy) {
-        self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
+      else {
+        if ($bg) {
+          self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
+        }
       }
     }
   }
