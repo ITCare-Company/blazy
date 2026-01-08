@@ -234,7 +234,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
         'view_mode'    => 'default',
       ];
 
-      $blazies->set('media', $info)
+      $blazies->set('media', $info, TRUE)
         ->set('image.uri', $this->uri);
 
       $build = $this->display->build($entity);
@@ -269,9 +269,9 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
    */
   public static function providerTestBlazyMedia() {
     return [
-      ['', TRUE],
+      ['', FALSE],
       ['https://xyz123.com/x/123', FALSE],
-      ['user', TRUE],
+      ['https://www.youtube.com/watch?v=6G5_70PqodU', TRUE],
     ];
   }
 

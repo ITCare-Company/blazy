@@ -120,6 +120,7 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $this->createScreenshot($image_path . '/2_blazy_filter_loading.png');
 
     // Verifies that our filter works identified by media-wrapper--blazy class.
+    // @fixme
     $this->assertSession()->elementExists('css', '.media-wrapper--blazy');
     $this->assertSession()->elementContains('css', '.media-wrapper--blazy', 'b-lazy');
 
@@ -269,6 +270,7 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
 <area alt="Step 1" href="/node/1" coords="158,224,314,317,315,377,156,469,109,346,0" shape="polygon">
 <area alt="Step 2" href="/node/2" coords="377,85,380,268,327,299,168,208,241,100,0" shape="polygon">
 </map>';
+    $text .= '<img src="https://drupal.org/files/One.gif" width="350" height="162502" />';
     $text .= '</div>';
 
     return $text;

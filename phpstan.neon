@@ -7,10 +7,10 @@ parameters:
   level: 4
   paths:
     - src
-    # - tests/src
+    - tests/src
   # Remove when we have time.
-  excludePaths:
-    - tests/*
+  # excludePaths:
+  #   - tests/*
   # https://phpstan.org/user-guide/ignoring-errors#reporting-unused-ignores
   reportUnmatchedIgnoredErrors: false
   treatPhpDocTypesAsCertain: false
