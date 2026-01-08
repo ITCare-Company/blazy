@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Field\FormatterInterface;
+use Drupal\media\OEmbed\Provider;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyAlter;
 use Drupal\blazy\BlazyManager;

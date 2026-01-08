@@ -112,6 +112,7 @@ class Check {
       ->set('is.fluid', $is_fluid)
       ->set('is.nojs', $is_nojs)
       ->set('is.preview', $is_preview)
+      ->set('is.privacy_consent', !empty($ui['privacy_consent']))
       ->set('is.resimage', $is_resimage)
       ->set('is.sandboxed', $is_sandboxed)
       ->set('is.slider', $is_slider)

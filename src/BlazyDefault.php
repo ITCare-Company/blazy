@@ -298,6 +298,7 @@ class BlazyDefault {
       'visible_class'       => FALSE,
       'noscript'            => FALSE,
       'placeholder'         => '',
+      'privacy_consent'     => FALSE,
       'unstyled_extensions' => '',
       'ratio_modern'        => FALSE,
     ];

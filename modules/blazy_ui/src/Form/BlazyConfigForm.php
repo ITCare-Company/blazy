@@ -135,6 +135,13 @@ class BlazyConfigForm extends BlazyConfigFormBase {
       '#default_value' => $config->get('use_oembed'),
     ];
 
+    $form['privacy_consent'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Use Privacy-Enhanced YouTube domain (WIP, not working, Experimental)'),
+      '#description'   => $this->t('Keep it disabled till further fixes. If enabled, YouTube videos will load via www.youtube-nocookie.com. This prevents YouTube from storing tracking cookies until the user plays the video, aiding GDPR compliance.'),
+      '#default_value' => $config->get('privacy_consent'),
+    ];
+
     $form['lazy_html'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Lazy load HTML (Experimental)'),
@@ -407,6 +414,7 @@ class BlazyConfigForm extends BlazyConfigFormBase {
       ->set('unstyled_extensions', $form_state->getValue('unstyled_extensions'))
       ->set('use_encodedbox', $form_state->getValue('use_encodedbox'))
       ->set('use_oembed', $form_state->getValue('use_oembed'))
+      ->set('privacy_consent', $form_state->getValue('privacy_consent'))
       ->set('ratio_modern', $form_state->getValue('ratio_modern'))
       ->set('max_region_count', $form_state->getValue('max_region_count'))
       ->set('blazy.loadInvisible', $form_state->getValue([
