@@ -152,7 +152,8 @@ images. Useful if you are not sure. To add more aspect ratios:
   ``$blazies->set('css.ratio', ['7:8', '6:5'], TRUE);``
 
   The `TRUE` flag ensures to append, not nullify, the existing ones:
-  ``['1:1', '3:2', '4:3', '8:5', '16:9']``
+
+  ``['1:1', '3:2', '4:3', '8:5', '9:16', '16:9', '16:10', '21:9']``
 
   See `blazy.api.php` for the available `hook_alter`. Always clear caches
   whenever adding or removing procedural functions.
@@ -162,7 +163,7 @@ images. Useful if you are not sure. To add more aspect ratios:
   * [/admin/config/media/image-styles](/admin/config/media/image-styles)
   * [Aspect ratio template](#aspect-ratio-template)
 + Choose Aspect ratio **Fluid** so that your custom aspect ratios are
-  automacally in use.
+  automacally in use if any match.
 
 
 Relevant to make aspect ratio `Fluid` option prioritize these ratios for pure

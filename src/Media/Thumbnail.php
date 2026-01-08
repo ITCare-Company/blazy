@@ -84,7 +84,7 @@ class Thumbnail {
       return [];
     }
 
-    // @todo move it out of here.
+    // @todo move it out of here, required by vanilla Splide navigation.
     CheckItem::unstyled($settings, $uri);
     $blazies = $settings['blazies'];
 
