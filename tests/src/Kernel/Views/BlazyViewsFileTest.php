@@ -9,9 +9,9 @@ use Drupal\views\Views;
  * Test Blazy Views integration.
  *
  * @coversDefaultClass \Drupal\blazy\Views\BlazyStylePluginBase
- *
- * @group blazy
  */
+#[Group('blazy')]
+#[RunTestsInSeparateProcesses]
 class BlazyViewsFileTest extends BlazyViewsTestBase {
 
   /**

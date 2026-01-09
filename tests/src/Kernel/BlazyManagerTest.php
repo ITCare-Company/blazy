@@ -11,9 +11,9 @@ use Drupal\blazy\Theme\BlazyTheme;
  *
  * @coversDefaultClass \Drupal\blazy\BlazyManager
  * @requires module media
- *
- * @group blazy
  */
+#[Group('blazy')]
+#[RunTestsInSeparateProcesses]
 class BlazyManagerTest extends BlazyKernelTestBase {
 
   /**

@@ -416,28 +416,67 @@ it via a polyfill at Blazy UI under **No JavaScript**, be sure to NOT check it.
 
 ***
 ## <a name="features"> </a>FEATURES
-* Works absurdly fine at IE9 for Blazy 2.6.
-* Works without JavaScript within/without JavaScript browsers.
-* Works with AMP, or static/ archived sites, e.g.: Tome, HTTrack, etc.
-* Supports modern Native lazyload since [incubation](https://drupal.org/node/3104542)
-  before Firefox or core had it, or old `data-[src|srcset]` since eons. Must be
+* **Deep Integration**:
+
+  Seamlessly works with Core Media, Views, Paragraphs, and Media contrib
+  modules. Supports Image, Responsive image, (local|remote|iframe) videos, SVG,
+  DIV (CSS backgrounds), either inline, fields, views, or within lightboxes.
+  * Field formatters: Blazy with Media, Paragraphs, and entities integrations.
+  * Instagram, Pinterest, Twitter, Youtube, Vimeo, Soundcloud, Facebook
+    within some lightboxes.
+* **LCP & CLS Management**:
+
+  Engineered for a **"CLS-zero" strategy**, our framework integrates
+  **sophisticated preloading** alongside native `fetchpriority` and `decoding`
+  to systematically eliminate LCP discovery delays. We provide rigorous
+  optimization for every asset—from **standard images**, **CSS backgrounds**
+  and **responsive picture elements** to **optimized video posters**. While we
+  leverage modern CSS `aspect-ratio` for layout stability, we maintain a refined
+  **padding-bottom fallback** to ensure backward compatibility (BC) without
+  sacrificing precision.
+* **Intelligent Lazy-loading**:
+
+  Supports modern Native lazyload since [incubation](https://drupal.org/node/3104542)
+  before Firefox or core had it, or old `data-[src|srcset]` since eons.
+  Sophisticated preloading via the Blazy engine  for images, CSS backgrounds,
+  iframes, SVG, HTML5 video, audio, and HTML media. Must be
   noted very clearly due to some thought Blazy was retarded from core.
-* Lightboxes: Colorbox, Magnific Popup, Splidebox, PhotoSwipe, etc. with
-  multimedia lightboxes.
-* Supports Image, Responsive image, (local|remote|iframe) videos, SVG, DIV
-  either inline, fields, views, or within lightboxes.
-* Supports Instagram, Pinterest, Twitter, Youtube, Vimeo, Soundcloud, Facebook
-  within some lightboxes, since 2.17.
-* Multi-serving lazyloaded images, including multi-breakpoint CSS backgrounds.
-* Field formatters: Blazy with Media integration.
-* Blazy Grid formatter and Views style for multi-value Image, Media and Text:
-  CSS3 Columns, Grid Foundation, Flexbox, Native Grid.
-* Supports inline galleries, and grid or CSS3 Masonry via Blazy Filter.
-  Enable Blazy Filter at **/admin/config/content/formats**.
-* Simple shortcodes for inline galleries, check out **/filter/tips**.
-* Delay loading for below-fold images until 100px (configurable) before they are
-  visible at viewport.
-* A simple effortless CSS loading indicator.
+  * Supports WEBP.
+  * Works absurdly fine at IE9 for Blazy 2.6.
+  * Works without JavaScript within/without JavaScript browsers.
+  * Works with AMP, or static/ archived sites, e.g.: Tome, HTTrack, etc.
+  * Multi-serving lazyloaded images, including multi-breakpoint CSS backgrounds.
+  * Delay loading for below-fold images until 100px (configurable) before they
+    are visible at viewport.
+  * A simple effortless CSS loading indicator.
+* **Privacy & GDPR Compliance**:
+
+  Utilizes a **Two-Click Media Loader** via the "Image to Iframe" option.
+  No third-party tracking scripts are initialized until the user actively
+  engages with the play button—satisfying strict **GDPR and ePrivacy**
+  requirements.
+* **Developer Friendly**:
+
+  Features a "Vanilla" mode and a
+  [robust API](https://git.drupalcode.org/project/blazy/blob/3.0.x/blazy.api.php)
+  for custom/theme implementations.
+* **Robust content supports:**
+
+  HTML, responsive image/ picture, responsive iframe, SVG, video, audio and
+  third party contents.
+* **Inline & lightbox mixed-media:**
+
+  A single **Media switcher** option for various interactions: image to content,
+  iframe, and (quasi-)lightboxes: Slick lightbox, Colorbox, PhotoSwipe, Flybox,
+  Magnific Popup, Zooming, etc.
+* **Advanced Gallery Grids:**
+
+  * Blazy Grid formatter and Views style for multi-value Image, Media and Text:
+    CSS3 Columns, Grid Foundation, Flexbox, Native Grid.
+  * Supports inline galleries, and grid or CSS3 Masonry via Blazy Filter.
+    Enable Blazy Filter at **/admin/config/content/formats**.
+  * Simple shortcodes for inline galleries, check out **/filter/tips**.
+
 * It doesn't take over all images, so it can be enabled as needed via Blazy
   formatter, or its supporting modules.
 

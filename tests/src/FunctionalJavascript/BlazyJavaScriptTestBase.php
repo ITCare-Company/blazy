@@ -10,9 +10,9 @@ use Drupal\blazy\BlazyDefault;
 
 /**
  * Tests the Blazy JavaScript using PhantomJS, or Chromedriver.
- *
- * @group blazy
  */
+#[Group('blazy')]
+#[RunTestsInSeparateProcesses]
 abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
 
   use BlazyUnitTestTrait;
@@ -89,7 +89,6 @@ abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
 
     // Verifies that one of the images is there once loaded.
     // @phpstan-ignore-next-line
-    // @fixme
     $this->assertNotEmpty($this->assertSession()->waitForElement('css', '.b-loaded'));
 
     // Capture the loaded moment.

@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\blazy\Traits;
 
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\File\FileSystemInterface;
@@ -14,13 +15,20 @@ use Drupal\file\FileInterface;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\node\Entity\NodeType;
+use Drupal\Tests\field\Traits\EntityReferenceFieldCreationTrait;
+use Drupal\Tests\node\Traits\ContentTypeCreationTrait;
+use Drupal\Tests\node\Traits\NodeCreationTrait;
 
 /**
  * A Trait common for Blazy tests.
  *
- * @todo Consider using ContentTypeCreationTrait, TestFileCreationTrait.
+ * @todo Consider using TestFileCreationTrait.
  */
 trait BlazyCreationTestTrait {
+
+  use ContentTypeCreationTrait;
+  use EntityReferenceFieldCreationTrait;
+  use NodeCreationTrait;
 
   /**
    * Testing node type.
@@ -149,12 +157,13 @@ trait BlazyCreationTestTrait {
     $full_html = $this->blazyManager->load('full_html', 'filter_format');
     $restricted_html = $this->blazyManager->load('restricted_html', 'filter_format');
 
-    if (empty($node_type)) {
-      $node_type = NodeType::create([
-        'type' => $bundle,
-        'name' => $bundle,
-      ]);
-      $node_type->save();
+    $values = [
+      'type' => $bundle,
+      'name' => $bundle,
+    ];
+
+    if (!$node_type) {
+      $node_type = $this->createContentType($values);
     }
 
     if (!$restricted_html && is_null($this->filterFormatRestricted)) {
@@ -180,8 +189,6 @@ trait BlazyCreationTestTrait {
       $this->filterFormatFull = $full_html;
     }
 
-    node_add_body_field($node_type);
-
     if (!empty($this->testFieldName)) {
       $settings['fields'][$this->testFieldName] = empty($this->testFieldType) ? 'image' : $this->testFieldType;
     }
@@ -197,8 +204,6 @@ trait BlazyCreationTestTrait {
         $this->setUpFieldConfig($bundle, $data);
       }
     }
-
-    $node_type->save();
 
     return $node_type;
   }

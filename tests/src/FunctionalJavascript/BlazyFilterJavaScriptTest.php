@@ -16,9 +16,9 @@ use Drupal\filter\FilterProcessResult;
 
 /**
  * Tests the Blazy Filter JavaScript using Selenium, or Chromedriver.
- *
- * @group blazy
  */
+#[Group('blazy')]
+#[RunTestsInSeparateProcesses]
 class BlazyFilterJavaScriptTest extends WebDriverTestBase {
 
   use BlazyUnitTestTrait;
@@ -120,7 +120,6 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $this->createScreenshot($image_path . '/2_blazy_filter_loading.png');
 
     // Verifies that our filter works identified by media-wrapper--blazy class.
-    // @fixme
     $this->assertSession()->elementExists('css', '.media-wrapper--blazy');
     $this->assertSession()->elementContains('css', '.media-wrapper--blazy', 'b-lazy');
 

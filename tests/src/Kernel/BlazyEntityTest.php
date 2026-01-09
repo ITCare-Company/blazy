@@ -7,9 +7,9 @@ namespace Drupal\Tests\blazy\Kernel;
  *
  * @coversDefaultClass \Drupal\blazy\BlazyEntity
  * @requires module media
- *
- * @group blazy
  */
+#[Group('blazy')]
+#[RunTestsInSeparateProcesses]
 class BlazyEntityTest extends BlazyKernelTestBase {
 
   /**
