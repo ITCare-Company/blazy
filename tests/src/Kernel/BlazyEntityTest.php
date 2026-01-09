@@ -7,6 +7,8 @@ namespace Drupal\Tests\blazy\Kernel;
  *
  * @coversDefaultClass \Drupal\blazy\BlazyEntity
  * @requires module media
+ *
+ * @group blazy
  */
 #[Group('blazy')]
 #[RunTestsInSeparateProcesses]
@@ -39,7 +41,6 @@ class BlazyEntityTest extends BlazyKernelTestBase {
    * @param bool $expected
    *   The expected output.
    *
-   * @covers ::view
    * @dataProvider providerTestGetEntityView
    */
   public function testGetEntityView($entity, $fallback, $message, $expected) {

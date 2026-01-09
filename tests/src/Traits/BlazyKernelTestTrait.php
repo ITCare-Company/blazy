@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\blazy\Traits;
 
 /**
@@ -51,6 +53,9 @@ trait BlazyKernelTestTrait {
     $this->installEntitySchema('file');
     $this->installEntitySchema('media');
     // @todo $this->installEntitySchema('entity_test');
+    if ($this->entityType) {
+      $this->installEntitySchema($this->entityType);
+    }
   }
 
   /**

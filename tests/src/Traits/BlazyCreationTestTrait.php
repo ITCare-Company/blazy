@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\blazy\Traits;
 
-use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\File\FileSystemInterface;
@@ -103,13 +102,13 @@ trait BlazyCreationTestTrait {
    * @param string $field_name
    *   Formatted field name.
    *
-   * @return \Drupal\field\FieldStorageConfigInterface
+   * @return \Drupal\field\FieldStorageConfigInterface|null
    *   The field storage definition.
    */
   protected function getBlazyFieldStorageDefinition($field_name = '') {
     $field_name = empty($field_name) ? $this->testFieldName : $field_name;
     $field_storage_definitions = $this->entityFieldManager->getFieldStorageDefinitions($this->entityType);
-    return $field_storage_definitions[$field_name] ?? FALSE;
+    return $field_storage_definitions[$field_name] ?? NULL;
   }
 
   /**
@@ -166,24 +165,26 @@ trait BlazyCreationTestTrait {
       $node_type = $this->createContentType($values);
     }
 
-    if (!$restricted_html && is_null($this->filterFormatRestricted)) {
+    if (!$restricted_html && !$this->filterFormatRestricted) {
       $this->filterFormatRestricted = FilterFormat::create([
         'format'  => 'restricted_html',
         'name'    => 'Basic HML',
         'weight'  => 2,
         'filters' => [],
-      ])->save();
+      ]);
+      $this->filterFormatRestricted->save();
     }
     else {
       $this->filterFormatRestricted = $restricted_html;
     }
 
-    if (!$full_html && is_null($this->filterFormatFull)) {
+    if (!$full_html && !$this->filterFormatFull) {
       $this->filterFormatFull = FilterFormat::create([
         'format'  => 'full_html',
         'name'    => 'Full HML',
         'weight'  => 3,
-      ])->save();
+      ]);
+      $this->filterFormatFull->save();
     }
     else {
       $this->filterFormatFull = $full_html;
@@ -261,7 +262,7 @@ trait BlazyCreationTestTrait {
           continue;
         }
 
-        if (isset($this->entityFieldName) && ($field_name == $this->entityFieldName)) {
+        if ($field_name == $this->entityFieldName) {
           continue;
         }
 

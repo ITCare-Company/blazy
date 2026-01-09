@@ -81,7 +81,7 @@ class BlazyMediaUnitTest extends UnitTestCase {
     $entity->expects($this->any())
       ->method('get')
       ->with($source_field)
-      ->will($this->returnValue($items));
+      ->willReturn($items);
 
     $data = [
       '#entity' => $entity,

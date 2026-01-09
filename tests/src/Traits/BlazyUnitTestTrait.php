@@ -111,8 +111,12 @@ trait BlazyUnitTestTrait {
    *   The default field definition.
    */
   protected function getDefaultFieldDefinition() {
+    $bundle = $this->bundle;
+    if (!$bundle) {
+      $bundle = 'bundle_test';
+    }
     return [
-      'bundle'      => $this->bundle ?? 'bundle_test',
+      'bundle'      => $bundle,
       'entity_type' => $this->entityType,
       'field_name'  => $this->testFieldName,
       'field_type'  => 'image',
@@ -320,7 +324,7 @@ trait BlazyUnitTestTrait {
     /* @phpstan-ignore-next-line */
     $entity->expects($this->any())
       ->method('getEntityTypeId')
-      ->will($this->returnValue('node'));
+      ->willReturn('node');
 
     $item = $this->createMock('\Drupal\Core\Field\FieldItemListInterface');
 

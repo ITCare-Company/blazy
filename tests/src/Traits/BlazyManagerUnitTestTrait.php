@@ -131,7 +131,7 @@ trait BlazyManagerUnitTestTrait {
     $storage->expects($this->any())
       ->method('load')
       ->with($style)
-      ->will($this->returnValue($styles[$style]));
+      ->willReturn($styles[$style]);
 
     /* @phpstan-ignore-next-line */
     $this->entityTypeManager->expects($this->any())

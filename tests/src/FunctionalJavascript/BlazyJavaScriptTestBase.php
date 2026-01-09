@@ -10,6 +10,8 @@ use Drupal\blazy\BlazyDefault;
 
 /**
  * Tests the Blazy JavaScript using PhantomJS, or Chromedriver.
+ *
+ * @group blazy
  */
 #[Group('blazy')]
 #[RunTestsInSeparateProcesses]

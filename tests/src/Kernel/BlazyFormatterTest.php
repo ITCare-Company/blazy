@@ -11,6 +11,8 @@ use GuzzleHttp\Exception\GuzzleException;
  * Tests the Blazy image formatter.
  *
  * @coversDefaultClass \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyImageFormatter
+ *
+ * @group blazy
  */
 #[Group('blazy')]
 #[RunTestsInSeparateProcesses]

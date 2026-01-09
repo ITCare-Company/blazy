@@ -364,14 +364,14 @@ trait BlazyPropertiesTestTrait {
    *
    * @var \Drupal\filter\Entity\FilterFormat
    */
-  protected $filterFormatFull = NULL;
+  protected $filterFormatFull;
 
   /**
    * The filter format.
    *
    * @var \Drupal\filter\Entity\FilterFormat
    */
-  protected $filterFormatRestricted = NULL;
+  protected $filterFormatRestricted;
 
   /**
    * The file system service.

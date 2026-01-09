@@ -12,6 +12,8 @@ use Drupal\blazy_ui\Form\BlazyConfigForm;
  * Tests the Blazy UI settings form.
  *
  * @coversDefaultClass \Drupal\blazy_ui\Form\BlazyConfigForm
+ *
+ * @group blazy
  */
 #[Group('blazy')]
 #[RunTestsInSeparateProcesses]
@@ -52,8 +54,6 @@ class BlazyConfigFormTest extends KernelTestBase {
 
   /**
    * {@inheritdoc}
-   *
-   * @covers ::__construct
    */
   protected function setUp(): void {
     parent::setUp();
@@ -67,11 +67,6 @@ class BlazyConfigFormTest extends KernelTestBase {
 
   /**
    * Tests for \Drupal\blazy_ui\Form\BlazyConfigForm.
-   *
-   * @covers ::getFormId
-   * @covers ::getEditableConfigNames
-   * @covers ::buildForm
-   * @covers ::submitForm
    */
   public function testBlazyConfigForm() {
     $nojs = BlazyDefault::nojs();

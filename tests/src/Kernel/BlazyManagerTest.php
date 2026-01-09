@@ -11,6 +11,8 @@ use Drupal\blazy\Theme\BlazyTheme;
  *
  * @coversDefaultClass \Drupal\blazy\BlazyManager
  * @requires module media
+ *
+ * @group blazy
  */
 #[Group('blazy')]
 #[RunTestsInSeparateProcesses]
@@ -26,6 +28,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     $settings['fields']['field_text_multiple'] = 'text';
 
+    $this->installEntitySchema($this->entityType);
     $this->setUpContentTypeTest($bundle, $settings);
     $this->setUpContentWithItems($bundle);
     $this->setUpRealImage();

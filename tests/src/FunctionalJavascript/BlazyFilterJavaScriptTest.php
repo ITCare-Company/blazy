@@ -16,6 +16,8 @@ use Drupal\filter\FilterProcessResult;
 
 /**
  * Tests the Blazy Filter JavaScript using Selenium, or Chromedriver.
+ *
+ * @group blazy
  */
 #[Group('blazy')]
 #[RunTestsInSeparateProcesses]
@@ -108,13 +110,21 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     // Ensures Blazy is not loaded on page load.
     // @todo with Native lazyload, b-loaded is enforced on page load. And
     // since the testing browser Chrome support it, it is irrelevant.
-    // @todo $this->assertSession()->elementNotExists('css', '.b-loaded');
+    // @todo
+    $this->assertSession()->elementNotExists('css', '.b-loaded');
+
     // Capture the initial page load moment.
     $this->createScreenshot($image_path . '/1_blazy_filter_initial.png');
+
+    // Wait a moment.
+    $this->getSession()->wait(6000);
     $this->assertSession()->elementExists('css', '.b-lazy');
 
     // Trigger Blazy to load images by scrolling down window.
     $session->executeScript('window.scrollTo(0, document.body.scrollHeight);');
+
+    // Wait a moment.
+    $this->getSession()->wait(6000);
 
     // Capture the loading moment after scrolling down the window.
     $this->createScreenshot($image_path . '/2_blazy_filter_loading.png');
