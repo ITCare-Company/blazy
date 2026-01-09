@@ -36,6 +36,8 @@ abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @var array<string>
    */
   protected static $modules = [
     'field',

@@ -7,12 +7,12 @@ use Drupal\views\Views;
 
 /**
  * Test Blazy Views integration.
- *
- * @coversDefaultClass \Drupal\blazy\Views\BlazyStylePluginBase
  */
-/** @phpstan-ignore-next-line */
+/**
+ * @phpstan-ignore-next-line */
 #[Group('blazy')]
-/** @phpstan-ignore-next-line */
+/**
+ * @phpstan-ignore-next-line */
 #[RunTestsInSeparateProcesses]
 class BlazyViewsFileTest extends BlazyViewsTestBase {
 

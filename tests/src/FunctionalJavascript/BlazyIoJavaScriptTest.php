@@ -5,9 +5,11 @@ namespace Drupal\Tests\blazy\FunctionalJavascript;
 /**
  * Tests the Blazy IO JavaScript using PhantomJS, or Chromedriver.
  */
-/** @phpstan-ignore-next-line */
+/**
+ * @phpstan-ignore-next-line */
 #[Group('blazy')]
-/** @phpstan-ignore-next-line */
+/**
+ * @phpstan-ignore-next-line */
 #[RunTestsInSeparateProcesses]
 class BlazyIoJavaScriptTest extends BlazyJavaScriptTestBase {
 

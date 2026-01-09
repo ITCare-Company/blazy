@@ -24,9 +24,9 @@ abstract class BlazyKernelTestBase extends FieldKernelTestBase {
   protected $strictConfigSchema = TRUE;
 
   /**
-   * Modules to enable.
+   * {@inheritdoc}
    *
-   * @var array
+   * @var array<string>
    */
   protected static $modules = [
     'system',

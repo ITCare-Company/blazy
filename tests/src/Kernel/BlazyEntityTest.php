@@ -4,13 +4,13 @@ namespace Drupal\Tests\blazy\Kernel;
 
 /**
  * Tests the Blazy entity methods.
- *
- * @coversDefaultClass \Drupal\blazy\BlazyEntity
  * @requires module media
  */
-/** @phpstan-ignore-next-line */
+/**
+ * @phpstan-ignore-next-line */
 #[Group('blazy')]
-/** @phpstan-ignore-next-line */
+/**
+ * @phpstan-ignore-next-line */
 #[RunTestsInSeparateProcesses]
 class BlazyEntityTest extends BlazyKernelTestBase {
 
@@ -45,7 +45,7 @@ class BlazyEntityTest extends BlazyKernelTestBase {
    */
   public function testGetEntityView($entity, $fallback, $message, $expected) {
     if ($entity == 'node') {
-      $entity = empty($this->entity) ? $this->setUpContentWithItems($this->bundle) : $this->entity;
+      $entity = $this->entity === NULL ? $this->setUpContentWithItems($this->bundle) : $this->entity;
     }
     elseif ($entity == 'responsive_image') {
       $entity = $this->blazyManager->load('blazy_responsive_test', 'responsive_image_style');

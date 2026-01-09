@@ -9,12 +9,12 @@ use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Tests the Blazy image formatter.
- *
- * @coversDefaultClass \Drupal\blazy\Plugin\Field\FieldFormatter\BlazyImageFormatter
  */
-/** @phpstan-ignore-next-line */
+/**
+ * @phpstan-ignore-next-line */
 #[Group('blazy')]
-/** @phpstan-ignore-next-line */
+/**
+ * @phpstan-ignore-next-line */
 #[RunTestsInSeparateProcesses]
 class BlazyFormatterTest extends BlazyKernelTestBase {
 
@@ -124,7 +124,8 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
    * Tests the Blazy formatter view display.
    */
   public function testFormatterViewDisplay() {
-    $formatter_settings = $this->formatterInstance->buildSettings();
+    $build['#settings'] = Blazy::init();
+    $formatter_settings = $this->formatterInstance->buildSettings($build, []);
     $this->assertArrayHasKey('blazies', $formatter_settings);
 
     $blazies = $formatter_settings['blazies'];
@@ -206,7 +207,6 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
    * @param bool $expected
    *   The expected output.
    *
-   * @covers ::view
    * @dataProvider providerTestBlazyMedia
    */
   public function testBlazyMedia($input_url, $expected) {

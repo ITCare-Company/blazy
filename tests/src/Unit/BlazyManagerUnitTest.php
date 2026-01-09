@@ -7,7 +7,7 @@ use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 
 /**
- * @coversDefaultClass \Drupal\blazy\BlazyManager
+ *  \Drupal\blazy\BlazyManager
  *
  * @group blazy
  */
@@ -29,12 +29,6 @@ class BlazyManagerUnitTest extends UnitTestCase {
 
   /**
    * Tests cases for various methods.
-   *
-   * @covers ::entityTypeManager
-   * @covers ::moduleHandler
-   * @covers ::renderer
-   * @covers ::cache
-   * @covers ::configFactory
    */
   public function testBlazyManagerServiceInstances() {
     $this->assertInstanceOf('\Drupal\blazy\Asset\LibrariesInterface', $this->blazyManager->libraries());
@@ -48,8 +42,6 @@ class BlazyManagerUnitTest extends UnitTestCase {
 
   /**
    * Tests cases for config.
-   *
-   * @covers ::config
    */
   public function testConfigLoad() {
     /** @phpstan-ignore-next-line */
@@ -69,9 +61,6 @@ class BlazyManagerUnitTest extends UnitTestCase {
 
   /**
    * Tests cases for config.
-   *
-   * @covers ::load
-   * @covers ::loadMultiple
    */
   public function testEntityLoadImageStyle() {
     $styles = $this->setUpImageStyle();
@@ -97,7 +86,6 @@ class BlazyManagerUnitTest extends UnitTestCase {
   /**
    * Tests for \Drupal\blazy\BlazyManager::getBlazy().
    *
-   * @covers ::getBlazy
    * @dataProvider providerTestGetBlazy
    */
   public function testGetBlazy($uri, $content, $expected_image, $expected_render) {
@@ -149,7 +137,6 @@ class BlazyManagerUnitTest extends UnitTestCase {
   /**
    * Tests cases for attachments.
    *
-   * @covers ::attach
    * @depends testConfigLoad
    */
   public function testAttach() {
@@ -178,8 +165,6 @@ class BlazyManagerUnitTest extends UnitTestCase {
 
   /**
    * Tests cases for lightboxes.
-   *
-   * @covers ::getLightboxes
    */
   public function testGetLightboxes() {
     /** @phpstan-ignore-next-line */

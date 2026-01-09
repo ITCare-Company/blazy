@@ -18,9 +18,11 @@ use Drupal\filter\FilterProcessResult;
 /**
  * Tests the Blazy Filter JavaScript using Selenium, or Chromedriver.
  */
-/** @phpstan-ignore-next-line */
+/**
+ * @phpstan-ignore-next-line */
 #[Group('blazy')]
-/** @phpstan-ignore-next-line */
+/**
+ * @phpstan-ignore-next-line */
 #[RunTestsInSeparateProcesses]
 class BlazyFilterJavaScriptTest extends WebDriverTestBase {
 
@@ -44,6 +46,8 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @var array<string>
    */
   protected static $modules = [
     'field',
@@ -181,7 +185,7 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
    * @param string $langcode
    *   The language code of the text to be filtered.
    *
-   * @return \Drupal\filter\FilterProcessResult
+   * @return array
    *   The filtered text, wrapped in a FilterProcessResult object, and possibly
    *   with associated assets, cacheability metadata and placeholders.
    */

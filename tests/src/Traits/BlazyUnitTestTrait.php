@@ -307,7 +307,7 @@ trait BlazyUnitTestTrait {
       '#item' => $item,
     ];
 
-    $this->testItem = $item;
+    $this->mockItem = $item;
   }
 
   /**
@@ -335,7 +335,7 @@ trait BlazyUnitTestTrait {
 
     $this->setUpUnitImages();
 
-    $this->testItem = $item;
+    $this->mockItem = $item;
     $this->data['#item'] = $item;
     $item->entity = $entity;
   }

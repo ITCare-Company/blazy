@@ -34,7 +34,7 @@ trait BlazyCreationTestTrait {
   /**
    * Testing node type.
    *
-   * @var \Drupal\node\Entity\NodeType
+   * @var \Drupal\node\Entity\NodeType|null
    */
   protected $nodeType;
 
@@ -111,7 +111,7 @@ trait BlazyCreationTestTrait {
    * @param string $field_name
    *   Formatted field name.
    *
-   * @return \Drupal\field\FieldStorageConfigInterface|null
+   * @return \Drupal\Core\Field\FieldStorageDefinitionInterface|null
    *   The field storage definition.
    */
   protected function getBlazyFieldStorageDefinition($field_name = '') {
@@ -128,7 +128,7 @@ trait BlazyCreationTestTrait {
    * @param string $field_name
    *   Formatted field name.
    *
-   * @return \Drupal\Core\Field\FormatterInterface|null
+   * @return \Drupal\blazy\BlazyFormatterInterface|\Drupal\Core\Field\FormatterInterface|null
    *   The field formatter instance.
    */
   protected function getFormatterInstance($plugin_id = '', $field_name = '') {
@@ -208,7 +208,7 @@ trait BlazyCreationTestTrait {
    * @param array $settings
    *   (Optional) configurable settings.
    *
-   * @return \Drupal\node\Entity\Node|null
+   * @return \Drupal\node\NodeInterface
    *   The node instance.
    */
   protected function setUpContentWithItems($bundle = '', array $settings = []) {
@@ -574,15 +574,15 @@ trait BlazyCreationTestTrait {
 
     /*
     $data = [
-      'field_name' => $field_name,
-      'entity_type' => $this->entityType,
-      'label' => str_replace('_', ' ', $field_name),
-      'settings' => $config,
-      'storage_settings' => $storage_settings,
+    'field_name' => $field_name,
+    'entity_type' => $this->entityType,
+    'label' => str_replace('_', ' ', $field_name),
+    'settings' => $config,
+    'storage_settings' => $storage_settings,
     ];
 
     $this->addTestField($data, $bundle);
-    */
+     */
 
     if ($field_name == 'body') {
       $this->setupBodyField();
@@ -640,7 +640,7 @@ trait BlazyCreationTestTrait {
   protected function addTestField(
     array $data,
     string $bundle = '',
-    ): void {
+  ): void {
     $bundle = $bundle ?: $this->bundle;
     $field_name = $data['field_name'] ?? $this->testFieldName;
     $field_type = $data['field_type'] ?? $this->testFieldType;
@@ -725,7 +725,7 @@ trait BlazyCreationTestTrait {
   protected function randomParagraphs(
     int $count = 100,
     int $per_paragraph = 5,
-    int $max_sentence_chars = 120
+    int $max_sentence_chars = 120,
   ): string {
     $words = ['a', 'be', 'to', 'of', 'in', 'it', 'is', 'you', 'that', 'on',
       'for', 'with', 'as', 'are', 'there', 'here', 'oh', 'no', 'yes', 'god',
