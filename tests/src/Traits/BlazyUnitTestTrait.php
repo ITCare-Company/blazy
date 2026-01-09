@@ -316,19 +316,19 @@ trait BlazyUnitTestTrait {
   protected function setUpMockImage() {
     $entity = $this->createMock('\Drupal\Core\Entity\ContentEntityInterface');
 
-    /* @phpstan-ignore-next-line */
+    /** @phpstan-ignore-next-line */
     $entity->expects($this->any())
       ->method('label')
       ->willReturn($this->randomMachineName());
 
-    /* @phpstan-ignore-next-line */
+    /** @phpstan-ignore-next-line */
     $entity->expects($this->any())
       ->method('getEntityTypeId')
       ->willReturn('node');
 
     $item = $this->createMock('\Drupal\Core\Field\FieldItemListInterface');
 
-    /* @phpstan-ignore-next-line */
+    /** @phpstan-ignore-next-line */
     $item->expects($this->any())
       ->method('getEntity')
       ->willReturn($entity);

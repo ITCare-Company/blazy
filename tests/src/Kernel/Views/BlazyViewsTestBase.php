@@ -7,8 +7,6 @@ use Drupal\Tests\views\Kernel\ViewsKernelTestBase;
 
 /**
  * Defines base class for Blazy Views integration.
- *
- * @group blazy
  */
 abstract class BlazyViewsTestBase extends ViewsKernelTestBase {
 

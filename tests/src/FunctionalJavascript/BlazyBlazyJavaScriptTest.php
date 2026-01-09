@@ -4,10 +4,10 @@ namespace Drupal\Tests\blazy\FunctionalJavascript;
 
 /**
  * Tests the Blazy bLazy JavaScript using PhantomJS, or Chromedriver.
- *
- * @group blazy
  */
+/** @phpstan-ignore-next-line */
 #[Group('blazy')]
+/** @phpstan-ignore-next-line */
 #[RunTestsInSeparateProcesses]
 class BlazyBlazyJavaScriptTest extends BlazyJavaScriptTestBase {
 

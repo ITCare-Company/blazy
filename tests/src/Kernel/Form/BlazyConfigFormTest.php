@@ -12,10 +12,10 @@ use Drupal\blazy_ui\Form\BlazyConfigForm;
  * Tests the Blazy UI settings form.
  *
  * @coversDefaultClass \Drupal\blazy_ui\Form\BlazyConfigForm
- *
- * @group blazy
  */
+/** @phpstan-ignore-next-line */
 #[Group('blazy')]
+/** @phpstan-ignore-next-line */
 #[RunTestsInSeparateProcesses]
 class BlazyConfigFormTest extends KernelTestBase {
 

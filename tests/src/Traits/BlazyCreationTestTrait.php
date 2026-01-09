@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\blazy\Traits;
 
+use Drupal\blazy\Blazy;
+use Drupal\blazy\internals\Internals;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\blazy\Blazy;
-use Drupal\blazy\internals\Internals;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\file\Entity\File;
@@ -35,6 +37,13 @@ trait BlazyCreationTestTrait {
    * @var \Drupal\node\Entity\NodeType
    */
   protected $nodeType;
+
+  /**
+   * Check if body is already set.
+   *
+   * @var bool
+   */
+  protected $bodySet;
 
   /**
    * Setup formatter displays, default to image, and update its settings.
@@ -152,43 +161,25 @@ trait BlazyCreationTestTrait {
    *   (Optional) configurable settings.
    */
   protected function setUpContentTypeTest($bundle = '', array $settings = []) {
-    $node_type = NodeType::load($bundle);
-    $full_html = $this->blazyManager->load('full_html', 'filter_format');
-    $restricted_html = $this->blazyManager->load('restricted_html', 'filter_format');
-
+    $bundle = $bundle ?: $this->bundle;
     $values = [
       'type' => $bundle,
-      'name' => $bundle,
+      'name' => str_replace('_', ' ', $bundle),
     ];
 
+    $node_type = NodeType::load($bundle);
     if (!$node_type) {
       $node_type = $this->createContentType($values);
     }
 
-    if (!$restricted_html && !$this->filterFormatRestricted) {
-      $this->filterFormatRestricted = FilterFormat::create([
-        'format'  => 'restricted_html',
-        'name'    => 'Basic HML',
-        'weight'  => 2,
-        'filters' => [],
-      ]);
-      $this->filterFormatRestricted->save();
-    }
-    else {
-      $this->filterFormatRestricted = $restricted_html;
-    }
+    $this->setupFilterFormat();
 
-    if (!$full_html && !$this->filterFormatFull) {
-      $this->filterFormatFull = FilterFormat::create([
-        'format'  => 'full_html',
-        'name'    => 'Full HML',
-        'weight'  => 3,
-      ]);
-      $this->filterFormatFull->save();
-    }
-    else {
-      $this->filterFormatFull = $full_html;
-    }
+    $data = $settings;
+    $settings['fields']['body'] = 'text_with_summary';
+    $data['body_settings'] = [
+      'display_summary' => TRUE,
+      'allowed_formats' => ['restricted_html', 'full_html'],
+    ];
 
     if (!empty($this->testFieldName)) {
       $settings['fields'][$this->testFieldName] = empty($this->testFieldType) ? 'image' : $this->testFieldType;
@@ -197,15 +188,15 @@ trait BlazyCreationTestTrait {
       $settings['fields'][$settings['field_name']] = $settings['field_type'];
     }
 
-    $data = [];
-    if (!empty($settings['fields'])) {
-      foreach ($settings['fields'] as $field_name => $field_type) {
+    if ($fields = $settings['fields'] ?? []) {
+      foreach ($fields as $field_name => $field_type) {
         $data['field_name'] = $field_name;
         $data['field_type'] = $field_type;
         $this->setUpFieldConfig($bundle, $data);
       }
     }
 
+    $this->nodeType = $node_type;
     return $node_type;
   }
 
@@ -221,31 +212,25 @@ trait BlazyCreationTestTrait {
    *   The node instance.
    */
   protected function setUpContentWithItems($bundle = '', array $settings = []) {
-    $title  = empty($settings['title']) ? $this->testPluginId : $settings['title'];
-    $data   = empty($settings['values']) ? [] : $settings['values'];
+    $bundle = $bundle ?: $this->bundle;
+    $title = $settings['title'] ?? $this->testPluginId;
+    $data = $settings['values'] ?? [];
+    $count = $this->maxParagraphs / 2;
+    $text = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+    $text .= $this->getRandomGenerator()->paragraphs($count);
+    $text .= $this->randomParagraphs($count);
+
+    if ($extra_text = $settings['extra_text'] ?? NULL) {
+      $text .= $extra_text;
+    }
+
     $values = $data + [
       'title'  => $title . ' : ' . $this->randomMachineName(),
       'type'   => $bundle,
       'status' => TRUE,
     ];
 
-    $node = $this->blazyManager->entityTypeManager()
-      ->getStorage($this->entityType)
-      ->create($values);
-
-    $node->save();
-
-    if (isset($node->body)) {
-      $text = $this->getRandomGenerator()->paragraphs($this->maxParagraphs);
-      if (!empty($settings['extra_text'])) {
-        $text .= $settings['extra_text'];
-      }
-
-      /* @phpstan-ignore-next-line */
-      if ($body = $node->get('body')) {
-        $body->setValue(['value' => $text, 'format' => 'full_html']);
-      }
-    }
+    $node = $this->createNode($values);
 
     if (!empty($this->testFieldName)) {
       $settings['fields'][$this->testFieldName] = empty($this->testFieldType) ? 'image' : $this->testFieldType;
@@ -254,8 +239,9 @@ trait BlazyCreationTestTrait {
       $settings['fields'][$settings['field_name']] = $settings['field_type'];
     }
 
-    if (!empty($settings['fields'])) {
-      foreach ($settings['fields'] as $field_name => $field_type) {
+    $settings['fields']['body'] = 'text_with_summary';
+    if ($fields = $settings['fields'] ?? []) {
+      foreach ($fields as $field_name => $field_type) {
         $multiple = $field_type == 'image' || strpos($field_name, 'mul') !== FALSE;
 
         if (strpos($field_name, 'empty') !== FALSE) {
@@ -266,12 +252,18 @@ trait BlazyCreationTestTrait {
           continue;
         }
 
+        // @see \Drupal\Core\Field\FieldItemListInterface::generateSampleItems
         $max = $multiple ? $this->maxItems : 2;
-        if (isset($node->{$field_name})) {
-          // @see \Drupal\Core\Field\FieldItemListInterface::generateSampleItems
-          /* @phpstan-ignore-next-line */
+        if ($node->hasField($field_name)) {
+          /** @phpstan-ignore-next-line */
           if ($field = $node->get($field_name)) {
-            $field->generateSampleItems($max);
+            if ($field_name == 'body') {
+              $body = ['value' => $text, 'format' => 'full_html'];
+              $node->set('body', $body);
+            }
+            else {
+              $field->generateSampleItems($max);
+            }
           }
         }
       }
@@ -282,85 +274,6 @@ trait BlazyCreationTestTrait {
     $this->entity = $node;
 
     return $node;
-  }
-
-  /**
-   * Setup a new image field.
-   *
-   * @param string $bundle
-   *   The bundle name.
-   * @param array $data
-   *   (Optional) A list of field data.
-   */
-  protected function setUpFieldConfig($bundle = '', array $data = []) {
-    $config     = [];
-    $default    = empty($this->testFieldType) ? 'image' : $this->testFieldType;
-    $field_type = empty($data['field_type']) ? $default : $data['field_type'];
-    $field_name = empty($data['field_name']) ? $this->testFieldName : $data['field_name'];
-    $multiple   = strpos($field_name, 'mul') !== FALSE;
-
-    if (in_array($field_type, ['file', 'image'])) {
-      $config['file_directory'] = $this->testPluginId;
-      $config['file_extensions'] = 'png gif jpg jpeg';
-
-      if ($field_type == 'file') {
-        $config['file_extensions'] .= ' txt';
-      }
-
-      if ($field_type == 'image') {
-        $config['title_field'] = 1;
-        $config['title_field_required'] = 1;
-      }
-
-      $multiple = TRUE;
-    }
-
-    $field_storage = FieldStorageConfig::loadByName($this->entityType, $field_name);
-
-    $storage_settings = [];
-    if ($field_type == 'entity_reference') {
-      $storage_settings['target_type'] = $this->targetType ?? $this->entityType;
-      $bundle = $this->bundle;
-      $multiple = FALSE;
-    }
-
-    if ($field_name == 'field_image') {
-      $multiple = FALSE;
-    }
-
-    if (!$field_storage) {
-      FieldStorageConfig::create([
-        'entity_type' => $this->entityType,
-        'field_name'  => $field_name,
-        'type'        => $field_type,
-        'cardinality' => $multiple ? -1 : 1,
-        'settings'    => $storage_settings,
-      ])->save();
-    }
-
-    $field_config = FieldConfig::loadByName($this->entityType, $bundle, $field_name);
-
-    if ($field_type == 'entity_reference' && !empty($this->targetBundles)) {
-      $config['handler'] = 'default';
-      $config['handler_settings']['target_bundles'] = $this->targetBundles;
-      $config['handler_settings']['sort']['field'] = '_none';
-      $bundle = $this->bundle;
-    }
-
-    if (!$field_config) {
-      $field_config = FieldConfig::create([
-        'field_storage' => $field_storage,
-        'field_name'    => $field_name,
-        'entity_type'   => $this->entityType,
-        'bundle'        => $bundle,
-        'label'         => str_replace('_', ' ', $field_name),
-        'settings'      => $config,
-      ]);
-
-      $field_config->save();
-    }
-
-    return $field_config;
   }
 
   /**
@@ -378,7 +291,7 @@ trait BlazyCreationTestTrait {
    */
   protected function buildEntityReferenceRenderArray(array $referenced_entities, $type = '', array $settings = []) {
     $type = empty($type) ? $this->entityPluginId : $type;
-    /* @phpstan-ignore-next-line */
+    /** @phpstan-ignore-next-line */
     $items = $this->referencingEntity->get($this->entityFieldName);
 
     // Assign the referenced entities.
@@ -490,7 +403,7 @@ trait BlazyCreationTestTrait {
    * Set up dummy image.
    */
   protected function setUpRealImage() {
-    /* @phpstan-ignore-next-line */
+    /** @phpstan-ignore-next-line */
     $this->uri = $this->getImagePath();
     $item = $this->dummyItem;
 
@@ -498,7 +411,7 @@ trait BlazyCreationTestTrait {
       $item = $this->testItems[0];
 
       if ($item instanceof ImageItem) {
-        /* @phpstan-ignore-next-line */
+        /** @phpstan-ignore-next-line */
         $this->uri = ($entity = $item->entity) && empty($item->uri) ? $entity->getFileUri() : $item->uri;
         $this->url = Blazy::transformRelative($this->uri);
       }
@@ -571,6 +484,269 @@ trait BlazyCreationTestTrait {
   protected function prepareTestDirectory() {
     $this->testDirPath = $this->root . '/sites/default/files/simpletest/' . $this->testPluginId;
     $this->fileSystem->prepareDirectory($this->testDirPath, FileSystemInterface::CREATE_DIRECTORY);
+  }
+
+  /**
+   * Setup a new image field.
+   *
+   * @param string $bundle
+   *   The bundle name.
+   * @param array $data
+   *   (Optional) A list of field data.
+   */
+  protected function setUpFieldConfig($bundle = '', array $data = []) {
+    $bundle     = $bundle ?: $this->bundle;
+    $default    = empty($this->testFieldType) ? 'image' : $this->testFieldType;
+    $field_type = $data['field_type'] ?? $default;
+    $field_name = $data['field_name'] ?? $this->testFieldName;
+    $config     = $data[$field_name . '_settings'] ?? [];
+    $multiple   = strpos($field_name, 'mul') !== FALSE;
+    $node_type  = $this->nodeType ?? NodeType::load($bundle);
+
+    if (!$node_type) {
+      // This only creates the bundle, nothing else.
+      $node_type = $this->createContentType([
+        'type' => $bundle,
+        'name' => str_replace('_', ' ', $bundle),
+      ]);
+    }
+
+    $this->nodeType = $node_type;
+
+    if (in_array($field_type, ['file', 'image'])) {
+      $config['file_directory'] = $this->testPluginId;
+      $config['file_extensions'] = 'png gif jpg jpeg';
+
+      if ($field_type == 'file') {
+        $config['file_extensions'] .= ' txt';
+      }
+
+      if ($field_type == 'image') {
+        $config['title_field'] = 1;
+        $config['title_field_required'] = 1;
+      }
+
+      $multiple = TRUE;
+    }
+
+    $storage_settings = $data[$field_name . '_storage_settings'] ?? [];
+    if ($field_type == 'entity_reference') {
+      $storage_settings['target_type'] = $this->targetType ?? $this->entityType;
+      $bundle = $this->bundle;
+      $multiple = FALSE;
+    }
+
+    if ($field_name == 'field_image') {
+      $multiple = FALSE;
+    }
+
+    $field_storage = FieldStorageConfig::loadByName($this->entityType, $field_name);
+    if (!$field_storage) {
+      $field_storage = FieldStorageConfig::create([
+        'entity_type' => $this->entityType,
+        'field_name'  => $field_name,
+        'type'        => $field_type,
+        'cardinality' => $multiple ? -1 : 1,
+        'settings'    => $storage_settings,
+      ])->save();
+    }
+
+    $field_config = FieldConfig::loadByName($this->entityType, $bundle, $field_name);
+    if ($field_type == 'entity_reference' && !empty($this->targetBundles)) {
+      $config['handler'] = 'default';
+      $config['handler_settings']['target_bundles'] = $this->targetBundles;
+      $config['handler_settings']['sort']['field'] = '_none';
+      $bundle = $this->bundle;
+    }
+
+    if (!$field_config) {
+      $params = [
+        'field_storage' => $field_storage,
+        'field_name'    => $field_name,
+        'entity_type'   => $this->entityType,
+        'bundle'        => $bundle,
+        'label'         => str_replace('_', ' ', $field_name),
+        'settings'      => $config,
+      ];
+
+      $field_config = FieldConfig::create($params)->save();
+    }
+
+    /*
+    $data = [
+      'field_name' => $field_name,
+      'entity_type' => $this->entityType,
+      'label' => str_replace('_', ' ', $field_name),
+      'settings' => $config,
+      'storage_settings' => $storage_settings,
+    ];
+
+    $this->addTestField($data, $bundle);
+    */
+
+    if ($field_name == 'body') {
+      $this->setupBodyField();
+    }
+    return $field_config;
+  }
+
+  /**
+   * Setups body field displays.
+   */
+  protected function setupBodyField() {
+    if (!$this->bodySet) {
+      $type = $this->nodeType;
+
+      /** @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface $display_repository */
+      $display_repository = $this->entityDisplayRepository;
+      if (!$display_repository) {
+        $display_repository = $this->blazyManager->service('entity_display.repository');
+      }
+
+      // Assign widget settings for the default form mode.
+      $display_repository->getFormDisplay('node', $type->id())
+        ->setComponent('body', [
+          'type' => 'text_textarea_with_summary',
+        ])
+        ->save();
+
+      // Assign display settings for the 'default' and 'teaser' view modes.
+      $display_repository->getViewDisplay('node', $type->id())
+        ->setComponent('body', [
+          'label' => 'hidden',
+          'type' => 'text_default',
+        ])
+        ->save();
+
+      // The teaser view mode is created by the Standard profile and therefore
+      // might not exist.
+      $view_modes = $display_repository->getViewModes('node');
+      if (isset($view_modes['teaser'])) {
+        $display_repository->getViewDisplay('node', $type->id(), 'teaser')
+          ->setComponent('body', [
+            'label' => 'hidden',
+            'type' => 'text_summary_or_trimmed',
+          ])
+          ->save();
+      }
+
+      $this->bodySet = TRUE;
+    }
+  }
+
+  /**
+   * Add test fields.
+   */
+  protected function addTestField(
+    array $data,
+    string $bundle = '',
+    ): void {
+    $bundle = $bundle ?: $this->bundle;
+    $field_name = $data['field_name'] ?? $this->testFieldName;
+    $field_type = $data['field_type'] ?? $this->testFieldType;
+    $entity_type = $data['entity_type'] ?? $this->entityType;
+    $label = $data['label'] ?? str_replace('_', ' ', $field_name);
+    $settings = $data['settings'] ?? [];
+    $node_type = $this->nodeType ?? NodeType::load($bundle);
+
+    if (!$node_type) {
+      // This only creates the bundle, nothing else.
+      $node_type = $this->createContentType([
+        'type' => $bundle,
+        'name' => str_replace('_', ' ', $bundle),
+      ]);
+    }
+
+    $this->nodeType = $node_type;
+
+    $field_storage = FieldStorageConfig::loadByName(
+      $entity_type,
+      $field_name
+    );
+    if (!$field_storage) {
+      $field_storage = FieldStorageConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => $entity_type,
+        'type' => $field_type,
+      ])->save();
+    }
+
+    $field = FieldConfig::loadByName($entity_type, $bundle, $field_name);
+    if (!$field) {
+      // Attach body field to the bundle.
+      FieldConfig::create([
+        'field_name' => $field_name,
+        'field_storage' => $field_storage,
+        'bundle' => $bundle,
+        'label' => $label,
+        'settings' => $settings,
+      ])->save();
+    }
+  }
+
+  /**
+   * Prepares filter formats.
+   */
+  protected function setupFilterFormat(): void {
+    $full_html = $this->blazyManager->load('full_html', 'filter_format');
+    $restricted_html = $this->blazyManager->load('restricted_html', 'filter_format');
+
+    if (!$restricted_html) {
+      $restricted_html = FilterFormat::create([
+        'format'  => 'restricted_html',
+        'name'    => 'Basic HML',
+        'weight'  => 2,
+        'filters' => [],
+      ]);
+
+      $restricted_html->save();
+    }
+
+    $this->filterFormatRestricted = $restricted_html;
+
+    if (!$full_html) {
+      $full_html = FilterFormat::create([
+        'format'  => 'full_html',
+        'name'    => 'Full HML',
+        'weight'  => 3,
+      ]);
+
+      $full_html->save();
+    }
+
+    $this->filterFormatFull = $full_html;
+  }
+
+  /**
+   * Generate random paragraphs.
+   *
+   * @todo remove once core ::getRandomGenerator()->paragraphs() works again.
+   */
+  protected function randomParagraphs(
+    int $count = 100,
+    int $per_paragraph = 5,
+    int $max_sentence_chars = 120
+  ): string {
+    $words = ['a', 'be', 'to', 'of', 'in', 'it', 'is', 'you', 'that', 'on',
+      'for', 'with', 'as', 'are', 'there', 'here', 'oh', 'no', 'yes', 'god',
+    ];
+    $output = [];
+
+    for ($p = 0; $p < $count; $p++) {
+      $sentences = [];
+
+      for ($s = 0; $s < $per_paragraph; $s++) {
+        $sentence = '';
+        while (strlen($sentence) < $max_sentence_chars) {
+          $sentence .= $words[array_rand($words)] . ' ';
+        }
+        $sentences[] = ucfirst(rtrim(substr($sentence, 0, $max_sentence_chars))) . '.';
+      }
+
+      $output[] = implode(' ', $sentences);
+    }
+
+    return implode("\n\n", $output);
   }
 
 }

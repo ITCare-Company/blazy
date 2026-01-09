@@ -7,10 +7,10 @@ namespace Drupal\Tests\blazy\Kernel;
  *
  * @coversDefaultClass \Drupal\blazy\BlazyEntity
  * @requires module media
- *
- * @group blazy
  */
+/** @phpstan-ignore-next-line */
 #[Group('blazy')]
+/** @phpstan-ignore-next-line */
 #[RunTestsInSeparateProcesses]
 class BlazyEntityTest extends BlazyKernelTestBase {
 

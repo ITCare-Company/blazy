@@ -11,10 +11,10 @@ use Drupal\blazy\Theme\BlazyTheme;
  *
  * @coversDefaultClass \Drupal\blazy\BlazyManager
  * @requires module media
- *
- * @group blazy
  */
+/** @phpstan-ignore-next-line */
 #[Group('blazy')]
+/** @phpstan-ignore-next-line */
 #[RunTestsInSeparateProcesses]
 class BlazyManagerTest extends BlazyKernelTestBase {
 
@@ -28,7 +28,6 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     $settings['fields']['field_text_multiple'] = 'text';
 
-    $this->installEntitySchema($this->entityType);
     $this->setUpContentTypeTest($bundle, $settings);
     $this->setUpContentWithItems($bundle);
     $this->setUpRealImage();

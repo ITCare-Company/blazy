@@ -10,7 +10,9 @@ use Drupal\views\Views;
  *
  * @coversDefaultClass \Drupal\blazy\Views\BlazyStylePluginBase
  */
+/** @phpstan-ignore-next-line */
 #[Group('blazy')]
+/** @phpstan-ignore-next-line */
 #[RunTestsInSeparateProcesses]
 class BlazyViewsFileTest extends BlazyViewsTestBase {
 
