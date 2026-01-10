@@ -39,13 +39,6 @@ trait BlazyCreationTestTrait {
   protected $nodeType = NULL;
 
   /**
-   * Check if body is already set.
-   *
-   * @var bool
-   */
-  protected $bodySet;
-
-  /**
    * Setup formatter displays, default to image, and update its settings.
    *
    * @param string $bundle
@@ -228,6 +221,8 @@ trait BlazyCreationTestTrait {
       'title'  => $title . ' : ' . $this->randomMachineName(),
       'type'   => $bundle,
       'status' => TRUE,
+      // Prevents ::createNode from early setup, otherwise breaking the flow.
+      'body' => [],
     ];
 
     $node = $this->createNode($values);
@@ -494,7 +489,7 @@ trait BlazyCreationTestTrait {
    * @param array $data
    *   (Optional) A list of field data.
    */
-  protected function setUpFieldConfig($bundle = '', array $data = []) {
+  protected function setUpFieldConfig($bundle = '', array $data = []): void {
     $bundle     = $bundle ?: $this->bundle;
     $default    = empty($this->testFieldType) ? 'image' : $this->testFieldType;
     $field_type = $data['field_type'] ?? $default;
@@ -513,6 +508,22 @@ trait BlazyCreationTestTrait {
 
     $this->nodeType = $node_type;
 
+    $this->ensureFieldCreatedOnce($data, $bundle);
+  }
+
+  /**
+   * Ensures field being created once.
+   */
+  protected function ensureFieldCreatedOnce(array $data, string $bundle = 'bundle_test'): void {
+    $default    = $this->testFieldType ?: 'image';
+    $field_type = $data['field_type'] ?? $default;
+    $field_name = $data['field_name'] ?? $this->testFieldName;
+    $config     = $data[$field_name . '_settings'] ?? [];
+    $multiple   = strpos($field_name, 'mul') !== FALSE;
+    $label      = $data['label'] ?? str_replace('_', ' ', $field_name);
+    $config     = $data[$field_name . '_settings'] ?? [];
+    $storage    = FieldStorageConfig::loadByName($this->entityType, $field_name);
+
     if (in_array($field_type, ['file', 'image'])) {
       $config['file_directory'] = $this->testPluginId;
       $config['file_extensions'] = 'png gif jpg jpeg';
@@ -529,6 +540,13 @@ trait BlazyCreationTestTrait {
       $multiple = TRUE;
     }
 
+    if ($field_type == 'entity_reference' && !empty($this->targetBundles)) {
+      $config['handler'] = 'default';
+      $config['handler_settings']['target_bundles'] = $this->targetBundles;
+      $config['handler_settings']['sort']['field'] = '_none';
+      $bundle = $this->bundle;
+    }
+
     $storage_settings = $data[$field_name . '_storage_settings'] ?? [];
     if ($field_type == 'entity_reference') {
       $storage_settings['target_type'] = $this->targetType ?? $this->entityType;
@@ -540,97 +558,86 @@ trait BlazyCreationTestTrait {
       $multiple = FALSE;
     }
 
-    $field_storage = FieldStorageConfig::loadByName($this->entityType, $field_name);
-    if (!$field_storage) {
-      $field_storage = FieldStorageConfig::create([
+    if (!$storage) {
+      // Create new configurable storage.
+      $storage = FieldStorageConfig::create([
+        'field_name' => $field_name,
         'entity_type' => $this->entityType,
-        'field_name'  => $field_name,
-        'type'        => $field_type,
+        'type' => $field_type,
         'cardinality' => $multiple ? -1 : 1,
-        'settings'    => $storage_settings,
+        'settings' => $storage_settings,
+      ]);
+      $storage->save();
+
+      // Only now is it safe to pass field_storage.
+      FieldConfig::create([
+        'field_storage' => $storage,
+        'field_name' => $field_name,
+        'entity_type' => $this->entityType,
+        'bundle' => $bundle,
+        'label' => $label,
+        'settings' => $config,
       ])->save();
+
+      if ($field_name == 'body') {
+        $this->setupBodyField();
+      }
+      return;
     }
 
-    $field_config = FieldConfig::loadByName($this->entityType, $bundle, $field_name);
-    if ($field_type == 'entity_reference' && !empty($this->targetBundles)) {
-      $config['handler'] = 'default';
-      $config['handler_settings']['target_bundles'] = $this->targetBundles;
-      $config['handler_settings']['sort']['field'] = '_none';
-      $bundle = $this->bundle;
+    // Storage exists and is configurable, attach field config only if missing.
+    if (!FieldConfig::loadByName($this->entityType, $bundle, $field_name)) {
+      FieldConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => $this->entityType,
+        'bundle' => $bundle,
+        'label' => $label,
+        'settings' => $config,
+      ])->save();
+
+      if ($field_name == 'body') {
+        $this->setupBodyField();
+      }
     }
-
-    if (!$field_config) {
-      $params = [
-        'field_storage' => $field_storage,
-        'field_name'    => $field_name,
-        'entity_type'   => $this->entityType,
-        'bundle'        => $bundle,
-        'label'         => str_replace('_', ' ', $field_name),
-        'settings'      => $config,
-      ];
-
-      $field_config = FieldConfig::create($params)->save();
-    }
-
-    /*
-    $data = [
-    'field_name' => $field_name,
-    'entity_type' => $this->entityType,
-    'label' => str_replace('_', ' ', $field_name),
-    'settings' => $config,
-    'storage_settings' => $storage_settings,
-    ];
-
-    $this->addTestField($data, $bundle);
-     */
-
-    if ($field_name == 'body') {
-      $this->setupBodyField();
-    }
-    return $field_config;
   }
 
   /**
    * Setups body field displays.
    */
   protected function setupBodyField() {
-    if (!$this->bodySet) {
-      $type = $this->nodeType;
+    $type = $this->nodeType;
 
-      /** @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface $display_repository */
-      $display_repository = $this->entityDisplayRepository;
-      if (!$display_repository) {
-        $display_repository = $this->blazyManager->service('entity_display.repository');
-      }
+    /** @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface $display_repository */
+    $display_repository = $this->entityDisplayRepository;
+    if (!$display_repository) {
+      $display_repository = $this->blazyManager->service('entity_display.repository');
+    }
 
-      // Assign widget settings for the default form mode.
-      $display_repository->getFormDisplay('node', $type->id())
-        ->setComponent('body', [
-          'type' => 'text_textarea_with_summary',
-        ])
-        ->save();
+    // Assign widget settings for the default form mode.
+    $display_repository->getFormDisplay('node', $type->id())
+      ->setComponent('body', [
+        'type' => 'text_textarea_with_summary',
+      ])
+      ->save();
 
-      // Assign display settings for the 'default' and 'teaser' view modes.
-      $display_repository->getViewDisplay('node', $type->id())
+    // Assign display settings for the 'default' and 'teaser' view modes.
+    $display_repository->getViewDisplay('node', $type->id())
+      ->setComponent('body', [
+        'label' => 'hidden',
+        'type' => 'text_default',
+      ])
+      ->save();
+
+    // The teaser view mode is created by the Standard profile and therefore
+    // might not exist.
+    $view_modes = $display_repository->getViewModes('node');
+    if (isset($view_modes['teaser'])) {
+      $display_repository->getViewDisplay('node', $type->id(), 'teaser')
         ->setComponent('body', [
           'label' => 'hidden',
-          'type' => 'text_default',
+          'type' => 'text_summary_or_trimmed',
         ])
         ->save();
-
-      // The teaser view mode is created by the Standard profile and therefore
-      // might not exist.
-      $view_modes = $display_repository->getViewModes('node');
-      if (isset($view_modes['teaser'])) {
-        $display_repository->getViewDisplay('node', $type->id(), 'teaser')
-          ->setComponent('body', [
-            'label' => 'hidden',
-            'type' => 'text_summary_or_trimmed',
-          ])
-          ->save();
-      }
-
-      $this->bodySet = TRUE;
     }
   }
 
