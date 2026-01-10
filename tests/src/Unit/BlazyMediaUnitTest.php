@@ -53,7 +53,7 @@ class BlazyMediaUnitTest extends UnitTestCase {
     $markup['#attached'] = [];
     $markup['#cache']    = [];
 
-    /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
+    // Mocking \Drupal\Core\Entity\ContentEntityInterface.
     $entity = $this->createMock('\Drupal\Core\Entity\ContentEntityInterface');
     $field_definition = $this->createMock('\Drupal\Core\Field\FieldDefinitionInterface');
 

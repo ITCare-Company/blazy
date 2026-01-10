@@ -64,7 +64,9 @@ class BlazyConfigFormTest extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    $this->installConfig(static::$modules);
+    $this->installConfig([
+      'blazy',
+    ]);
 
     $this->blazyManager = $this->container->get('blazy.manager');
 

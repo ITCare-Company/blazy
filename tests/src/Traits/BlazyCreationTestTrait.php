@@ -6,7 +6,6 @@ namespace Drupal\Tests\blazy\Traits;
 
 use Drupal\blazy\Blazy;
 use Drupal\blazy\internals\Internals;
-use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\field\Entity\FieldConfig;

@@ -267,7 +267,13 @@ class BlazyManagerTest extends BlazyKernelTestBase {
       'height' => 480,
     ];
 
-    template_preprocess_responsive_image($variables);
+    // @todo update for D12.
+    /* @phpstan-ignore-next-line */
+    $preprocess = 'template_preprocess_responsive_image';
+    if (is_callable($preprocess)) {
+      /* @phpstan-ignore-next-line */
+      $preprocess($variables);
+    }
 
     $variables['img_element']['#uri'] = $this->uri;
 
