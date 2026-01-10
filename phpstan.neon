@@ -8,9 +8,6 @@ parameters:
   paths:
     - src
     - tests/src
-  # Remove when we have time.
-  # excludePaths:
-  #   - tests/*
   # https://phpstan.org/user-guide/ignoring-errors#reporting-unused-ignores
   reportUnmatchedIgnoredErrors: false
   treatPhpDocTypesAsCertain: false
