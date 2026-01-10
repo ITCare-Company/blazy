@@ -168,7 +168,7 @@ trait BlazyPropertiesTestTrait {
   /**
    * The entity.
    *
-   * @var \Drupal\Core\Entity\EntityInterface|null
+   * @var \Drupal\Core\Entity\FieldableEntityInterface|null
    */
   protected $entity = NULL;
 
@@ -280,9 +280,9 @@ trait BlazyPropertiesTestTrait {
   /**
    * The created items.
    *
-   * @var array
+   * @var \Drupal\Core\Field\FieldItemListInterface
    */
-  protected $testItems = [];
+  protected $testItems = NULL;
 
   /**
    * The formatter definition.

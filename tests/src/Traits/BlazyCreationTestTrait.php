@@ -303,25 +303,6 @@ trait BlazyCreationTestTrait {
   }
 
   /**
-   * Sets field values as built by FieldItemListInterface::view().
-   *
-   * @param \Drupal\Core\Entity\EntityInterface[] $entity
-   *   An entity object that will be displayed.
-   * @param array $settings
-   *   Settings specific to the formatter. Defaults to the formatter's defaults.
-   *
-   * @return array
-   *   A render array.
-   */
-  protected function collectRenderDisplay(array $entity, array $settings = []) {
-    $view_mode = empty($settings['view_mode']) ? 'default' : $settings['view_mode'];
-
-    $display = EntityViewDisplay::collectRenderDisplay($entity, $view_mode);
-
-    return $display->build($entity);
-  }
-
-  /**
    * Build dummy contents with entity references.
    *
    * @param array $settings

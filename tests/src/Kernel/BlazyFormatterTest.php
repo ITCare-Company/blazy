@@ -85,7 +85,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     $settings0 = $this->blazyManager->toHashtag($field[0]['#build']);
     $blazies0 = $settings0['blazies'];
-    $file0 = $item[0]->entity;
+    $file0 = $item[0]->entity ?? NULL;
     $tag0 = $blazies0->get('cache.metadata.tags');
     $this->assertContains($file0->getCacheTags()[0], $tag0, 'First image cache tags is as expected');
 
@@ -132,7 +132,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
    */
   public function testFormatterViewDisplay() {
     $build['#settings'] = Blazy::init();
-    $formatter_settings = $this->formatterInstance->buildSettings($build, []);
+    $formatter_settings = $this->formatterInstance->buildSettings($build, NULL);
     $this->assertArrayHasKey('blazies', $formatter_settings);
 
     $blazies = $formatter_settings['blazies'];
