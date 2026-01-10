@@ -36,7 +36,7 @@ trait BlazyCreationTestTrait {
    *
    * @var \Drupal\node\Entity\NodeType|null
    */
-  protected $nodeType;
+  protected $nodeType = NULL;
 
   /**
    * Check if body is already set.
@@ -208,7 +208,7 @@ trait BlazyCreationTestTrait {
    * @param array $settings
    *   (Optional) configurable settings.
    *
-   * @return \Drupal\node\NodeInterface
+   * @return \Drupal\node\NodeInterface|\Drupal\node\Entity\Node|null
    *   The node instance.
    */
   protected function setUpContentWithItems($bundle = '', array $settings = []) {

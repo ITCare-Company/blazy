@@ -65,6 +65,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $build = $this->display->build($entity);
 
     $this->assertInstanceOf('\Drupal\Core\Field\FieldItemListInterface', $this->testItems, 'Field implements interface.');
+    /** @phpstan-ignore-next-line */
     $this->assertInstanceOf('\Drupal\blazy\BlazyManagerInterface', $this->formatterInstance->blazyManager(), 'BlazyManager implements interface.');
 
     // Tests cache tags matching entity ::getCacheTags().
