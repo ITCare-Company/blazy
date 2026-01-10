@@ -138,7 +138,7 @@ class BlazyConfigForm extends BlazyConfigFormBase {
     $form['privacy_consent'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Use Privacy-Enhanced YouTube domain (WIP, not working, Experimental)'),
-      '#description'   => $this->t('Keep it disabled till further fixes. If enabled, YouTube videos will load via www.youtube-nocookie.com. This prevents YouTube from storing tracking cookies until the user plays the video, aiding GDPR compliance.'),
+      '#description'   => $this->t('Keep it disabled till further fixes/patches. If enabled, YouTube videos will load via www.youtube-nocookie.com. This prevents YouTube from storing tracking cookies until the user plays the video, aiding GDPR compliance. The current media player fairly complies with GDPR, this feature should make it even more compliant.'),
       '#default_value' => $config->get('privacy_consent'),
     ];
 

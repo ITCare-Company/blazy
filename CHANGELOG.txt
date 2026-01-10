@@ -1,4 +1,8 @@
 
+Blazy 3.0.x-dev, 2026-01-10
+---------------------------
+- Fixed for tests.
+
 Blazy 3.0.x-dev, 2026-01-08
 ---------------------------
 - Added third-party cookies and data tracking concent to media player buttons.
