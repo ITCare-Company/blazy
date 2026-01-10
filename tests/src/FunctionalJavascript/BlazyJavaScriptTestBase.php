@@ -14,10 +14,16 @@ use Drupal\blazy\BlazyDefault;
  * Tests the Blazy JavaScript using PhantomJS, or Chromedriver.
  */
 /**
- * @phpstan-ignore-next-line */
+ * A D12 compat, please update or ignore.
+ *
+ * @phpstan-ignore-next-line
+ */
 #[Group('blazy')]
 /**
- * @phpstan-ignore-next-line */
+ * A D12 compat, please update or ignore.
+ *
+ * @phpstan-ignore-next-line
+ */
 #[RunTestsInSeparateProcesses]
 abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
 

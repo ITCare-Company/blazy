@@ -7,9 +7,7 @@ use Drupal\Tests\blazy\Traits\BlazyManagerUnitTestTrait;
 use Drupal\Tests\blazy\Traits\BlazyUnitTestTrait;
 
 /**
- *  \Drupal\blazy\BlazyManager
- *
- * @group blazy
+ * Testing \Drupal\blazy\BlazyManager.
  */
 class BlazyManagerUnitTest extends UnitTestCase {
 

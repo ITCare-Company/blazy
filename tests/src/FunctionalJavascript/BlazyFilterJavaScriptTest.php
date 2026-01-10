@@ -19,10 +19,16 @@ use Drupal\filter\FilterProcessResult;
  * Tests the Blazy Filter JavaScript using Selenium, or Chromedriver.
  */
 /**
- * @phpstan-ignore-next-line */
+ * A D12 compat, please update or ignore.
+ *
+ * @phpstan-ignore-next-line
+ */
 #[Group('blazy')]
 /**
- * @phpstan-ignore-next-line */
+ * A D12 compat, please update or ignore.
+ *
+ * @phpstan-ignore-next-line
+ */
 #[RunTestsInSeparateProcesses]
 class BlazyFilterJavaScriptTest extends WebDriverTestBase {
 

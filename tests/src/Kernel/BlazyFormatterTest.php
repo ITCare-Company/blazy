@@ -11,10 +11,16 @@ use GuzzleHttp\Exception\GuzzleException;
  * Tests the Blazy image formatter.
  */
 /**
- * @phpstan-ignore-next-line */
+ * A D12 compat, please update or ignore.
+ *
+ * @phpstan-ignore-next-line
+ */
 #[Group('blazy')]
 /**
- * @phpstan-ignore-next-line */
+ * A D12 compat, please update or ignore.
+ *
+ * @phpstan-ignore-next-line
+ */
 #[RunTestsInSeparateProcesses]
 class BlazyFormatterTest extends BlazyKernelTestBase {
 

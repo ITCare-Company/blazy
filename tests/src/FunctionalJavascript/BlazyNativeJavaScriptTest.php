@@ -6,10 +6,16 @@ namespace Drupal\Tests\blazy\FunctionalJavascript;
  * Tests the Blazy without lazyloader script using PhantomJS, or Chromedriver.
  */
 /**
- * @phpstan-ignore-next-line */
+ * A D12 compat, please update or ignore.
+ *
+ * @phpstan-ignore-next-line
+ */
 #[Group('blazy')]
 /**
- * @phpstan-ignore-next-line */
+ * A D12 compat, please update or ignore.
+ *
+ * @phpstan-ignore-next-line
+ */
 #[RunTestsInSeparateProcesses]
 class BlazyNativeJavaScriptTest extends BlazyJavaScriptTestBase {
 
