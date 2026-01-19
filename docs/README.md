@@ -5,6 +5,7 @@
  * [Upgrading from 1.x](https://www.drupal.org/project/blazy#blazy-upgrade)
  * [Update SOP](#updating)
  * [Requirements](#requirements)
+ * [About Native lazyloading](#native-lazyload)
  * [Recommended modules](#recommended-modules)
  * [Installation](#installation)
  * [Installing libraries via Composer](#composer)
@@ -28,10 +29,11 @@
 
 ***
 ## <a name="introduction"></a>INTRODUCTION
-Provides integration with bLazy and or Intersection Observer API, or browser
-native lazy loading to lazy load and multi-serve images to save bandwidth and
-server requests. The user will have faster load times and save data usage if
-they don't browse the whole page.
+Provides integration with bLazy or Native lazyload to lazy-load and multi-serve
+images to save bandwidth and server requests. The user will have faster load
+times and save data usage if they don't browse the whole page. Engineered to
+satisfy modern **Core Web Vitals****, it transforms the traditional lazyload
+into a robust, prioritized media delivery system.
 
 Check out [project home](https://www.drupal.org/project/blazy) for most updated
 info.
@@ -67,6 +69,21 @@ For better admin help page, either way will do, ordered by recommendation:
 To make reading this README a breeze at [Blazy help](/admin/help/blazy_ui)
 
 
+## <a name="native-lazyload"> </a>## ABOUT NATIVE LAZYLOADING
+Relying solely on native lazyloading for **Core Web Vitals** (CWV) is like
+trying to finish a sculpture with a sledgehammer—it lacks the precision required
+for professional work. CWV isn't just about "loading"; they are about stability
+and timing. Native lazyloading does not address Backward Compatibility (BC), CSP
+compliance, or the nuances of LCP for diverse media placements. Whether dealing
+with server-side preloading, various media types (remote/local video, local
+audio, CSS background images, SVG, and even HTML media types), or complex slider
+integrations, Blazy provides the granular control over
+"above vs. below the fold" logic that Core, or even other lazyload module,
+simply doesn't touch. Blazy extends Core basic lazyloading feature; it is the
+engine that transforms those standards and basic browser specs into a polished,
+high-performance user experience.
+
+
 ### MODULES THAT INTEGRATE WITH OR REQUIRE BLAZY
 * [Ajaxin](https://www.drupal.org/project/ajaxin)
 * [Intersection Observer](https://www.drupal.org/project/io)
@@ -87,12 +104,7 @@ To make reading this README a breeze at [Blazy help](/admin/help/blazy_ui)
 * [ElevateZoom Plus](https://www.drupal.org/project/elevatezoomplus)
 * [Ultimenu](https://www.drupal.org/project/ultimenu)
 
-Most duplication efforts from the above modules will be merged into
-`\Drupal\blazy\Dejavu`, or anywhere else namespaces.
-
-
-**What dups?**
-
+Most duplication efforts from the above modules will be merged into Blazy.
 The most obvious is the removal of formatters from Intense, Zooming,
 Slick Lightbox, Blazy PhotoSwipe, and other (quasi-)lightboxes. Any lightbox
 supported by Blazy can use Blazy, or Slick formatters if applicable instead.
@@ -143,6 +155,17 @@ Visit the following to configure and make use of Blazy:
 
 ***
 ## <a name="features"> </a>FEATURES
+Blazy does not just 'add features'; it provides the architectural
+scaffolding that native lazy-loading lacks. It is the engine that transforms
+basic browser specs into a polished, high-performance user experience.
+
+Native Lazy-loading has a "one-size-fits-all" threshold (the distance from the
+viewport) which is often too aggressive or too conservative depending on the
+network speed. Blazy allows the developer to be the "artist" and decide exactly
+when that trigger happens. It is notable at **Loading priority** option along
+with some internal intelligence outlined below to comply with
+**Core Web Vitals**.
+
 * **Deep Integration**:
 
   Seamlessly works with Core Media, Views, Paragraphs, and Media contrib
@@ -178,15 +201,20 @@ Visit the following to configure and make use of Blazy:
   * A simple effortless CSS loading indicator.
 * **Privacy & GDPR Compliance**:
 
-  Utilizes a **Two-Click Media Loader** via the "Image to Iframe" option.
-  No third-party tracking scripts are initialized until the user actively
-  engages with the play button—satisfying strict **GDPR and ePrivacy**
-  requirements.
+  Utilizing a **Two-Click Media Loader** via the
+  **Media switcher > Image to Iframe** option, no third-party tracking scripts
+  are initialized within our **Media player** until the user actively engages
+  with the play button—satisfying strict **GDPR and ePrivacy** requirements.
 * **Developer Friendly**:
 
   Features a "Vanilla" mode and a
   [robust API](https://git.drupalcode.org/project/blazy/blob/3.0.x/blazy.api.php)
   for custom/theme implementations.
+* **Editor Friendly:**
+
+  The `Blazy Filter` provides a streamlined shortcode for embedding rich
+  multimedia content directly within text editors; see
+  [Filter tips](/filter/tips).
 * **Robust content supports:**
 
   HTML, responsive image/ picture, responsive iframe, SVG, video, audio and
@@ -195,7 +223,7 @@ Visit the following to configure and make use of Blazy:
 
   A single **Media switcher** option for various interactions: image to content,
   iframe, and (quasi-)lightboxes: Slick lightbox, Colorbox, PhotoSwipe, Flybox,
-  Magnific Popup, Zooming, etc.
+  Magnific Popup, ElevateZoom Plus, Zooming, etc.
 * **Advanced Gallery Grids:**
 
   * Blazy Grid formatter and Views style for multi-value Image, Media and Text:
@@ -205,7 +233,7 @@ Visit the following to configure and make use of Blazy:
   * Simple shortcodes for inline galleries, check out **/filter/tips**.
 
 * It doesn't take over all images, so it can be enabled as needed via Blazy
-  formatter, or its supporting modules.
+  formatters, or its supporting modules.
 
 
 ### OPTIONAL FEATURES

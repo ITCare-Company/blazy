@@ -67,7 +67,8 @@ Critical feedback is welcome provided it is backed by **technical data**
 (benchmarks, screenshots, or documentation). We prioritize project health and
 collective time; therefore, discussions that deviate into unproductive
 negativity or fail to offer actionable insights will be closed to maintain
-focus.
+focus. We also reserve the right to remain silent, not due to discourtesy, but
+mostly a cell phone limitation with mini keyboards used to manage issues.
 
 **Reciprocity:**
 We recognize that defects are part of the development process. Constructive

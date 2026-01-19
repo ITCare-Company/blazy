@@ -173,7 +173,13 @@ class Preloader {
         }
       }
 
-      // Only if BG and a hero image, set the fetchpriority.
+      // Only if BG and a hero image, set the fetchpriority. For non-BG, an
+      // inline fetchpriority in IMG/IFRAME is provided instead.
+      // It is the modern "turbo" button that signals to the browser to
+      // prioritize this asset over non-critical CSS or JavaScript.
+      // It ensures the preload itself is treated as the highest priority
+      // request, even before the browser has finished parsing the rest of the
+      // head.
       if ($hero) {
         $attrs['fetchpriority'] = 'high';
       }

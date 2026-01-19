@@ -130,7 +130,7 @@ class Attributes {
 
     // Since 2.17, lazy load HTML content if so-configured.
     if ($blazies->get('lazy.html')) {
-      $unlazy = Internals::isUnlazy($blazies);
+      $unlazy = Internals::isUndata($blazies);
 
       if (!$unlazy && $html = $blazies->get('media.encoded.content')) {
         if (!$blazies->get('bgs')) {
@@ -331,7 +331,7 @@ class Attributes {
     // Native lazyload just loads the URL directly.
     // With many videos like carousels on the page may chaos, but we provide a
     // solution: use `Image to iframe` for GDPR, swipe and best performance.
-    if (Internals::isUnlazy($blazies)) {
+    if (Internals::isUndata($blazies)) {
       $attributes['src'] = $embed_url;
 
       // Inside CKEditor must disable interactive elements.
@@ -548,6 +548,7 @@ class Attributes {
   private static function common(array &$attributes, $blazies): void {
     $attributes['class'][] = 'media__element';
     $loading = $blazies->get('image.loading', 'lazy');
+    $heroes = in_array($loading, ['slider', 'unlazy']);
 
     // The fetchpriority is mostly relevant with slider architecture, and
     // applicable to limited media: IMG and IFRAME. Just a hint, not mandatory.
@@ -558,16 +559,23 @@ class Attributes {
     // Only one image can have fetchpriority=high on a page. That is why it is
     // limited only to the designated LCP as a hero image.
     // See https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/fetchpriority
-    if (in_array($loading, ['slider', 'unlazy'])) {
+    if ($heroes) {
       // A hero image needs a high priority. Hidden images should be deferred.
+      // It is the modern "turbo" button that signals to the browser to
+      // prioritize this asset over non-critical CSS or JavaScript.
       $attributes['fetchpriority'] = $blazies->is('lcp') ? 'high' : 'low';
+
+      // Only if Heroes, prevents from aggressive hijacks by global "Auto-lazy"
+      // scripts or browser data-saver heuristics which might ruin LCP scores
+      // using explicit `eager`, safer than negligible byte shaver.
+      $loading = $blazies->is('lcp') ? 'eager' : 'lazy';
     }
-    else {
-      // Ensures dimensions set.
-      if ($blazies->get('image.width')) {
-        $attributes['loading'] = $loading;
-      }
-    }
+
+    // Sets the loading attributes; dimensions should be no longer a concern
+    // with most use cases, even with careless text editors, already taken care
+    // of by Core for text editors, or Blazy for the fields. Except negligible
+    // external URLs.
+    $attributes['loading'] = $loading;
   }
 
   /**
@@ -613,6 +621,22 @@ class Attributes {
     }
 
     // LCP images should be sync or without decoding.
+    // The Danger of async for LCP: decoding="async" tells the browser it can
+    // delay the painting of the image to keep the main thread free for other
+    // tasks (like JS). For an LCP image, this is the opposite. We want the
+    // pixels on the screen as fast as possible to comply with Core Web Vitals.
+    // The Problem with sync for LC: While decoding="sync" forces the browser
+    // to paint the image immediately, it can technically block the main thread.
+    // However, the most important point is that browsers already default to the
+    // most efficient decoding path for high-priority images.
+    // By omitting the attribute for LCP:
+    // * Save the bytes, even if negligible.
+    // * Allow the browser's engine to make the optimal choice based on current
+    // CPU/GPU load.
+    // * Avoid the risk of async accidentally pushing the LCP paint to a later
+    // frame.
+    // Never use decoding="async" on a Hero image, as it gives the browser
+    // permission to delay the very pixels our LCP score depends on.
     // https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decode.
     if (!$blazies->is('lcp')) {
       $attributes['decoding'] = 'async';
@@ -649,7 +673,6 @@ class Attributes {
 
     // Provides [data-(src|lazy)] for (Responsive) image, after noscript.
     self::lazy($image['#attributes'], $blazies);
-    self::unloading($image['#attributes'], $blazies);
   }
 
   /**
@@ -828,16 +851,6 @@ class Attributes {
    */
   private static function mediaTitle(array $translation): TranslatableMarkup {
     return new TranslatableMarkup('Preview image for the @bundle "@label".', $translation);
-  }
-
-  /**
-   * Removes loading attributes if so configured.
-   */
-  private static function unloading(array &$attributes, $blazies): void {
-    // @todo recheck the last condition.
-    if ($blazies->is('unloading') || Internals::isUnlazy($blazies)) {
-      $attributes['data-b-unloading'] = TRUE;
-    }
   }
 
 }

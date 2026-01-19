@@ -106,7 +106,6 @@ class Thumbnail {
     // sure no unknown edge cases get in the way.
     $alt = $blazies->get('image.alt');
     $alt = $alt ? Attributes::escape($alt) : t('Thumbnail');
-    $delta = $blazies->get('thumbnail.lazy_delta', 4);
 
     $content = [
       '#theme'      => $unstyled ? 'image' : 'image_style',
@@ -115,9 +114,8 @@ class Thumbnail {
       '#item'       => $item,
       '#alt'        => $alt,
       '#attributes' => [
-        'decoding'      => 'async',
-        'loading'       => $blazies->get('delta', 0) < $delta ? 'eager' : 'lazy',
-        'fetchpriority' => 'low',
+        'decoding' => 'async',
+        'loading'  => 'lazy',
       ],
     ];
 

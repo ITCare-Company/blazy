@@ -126,19 +126,30 @@ class Settings {
   }
 
   /**
-   * Disable lazyload as required.
+   * Disable old [data-SRC|SRCSET] lazyload for LCP or Native lazyloading.
    *
-   * The following will disable lazyload if:
+   * The following will disable old lazyload [data-] attributes if:
    * - lcp: Hero static/slider is chosen for initial item, normally delta 0.
-   * - nojs: globally disabled via `No JavaScript` option.
+   * Since Blazy:3.0.17, it supports static Heroes apart from slider Heroes.
    * - unlazy: globally disabled, or by request.
    * - static: CK Editor/ preview mode, AMP, and sandboxed mode.
    */
-  public static function isUnlazy($blazies): bool {
+  public static function isUndata($blazies): bool {
     return $blazies->is('lcp')
-      || $blazies->is('nojs')
       || $blazies->is('unlazy')
       || $blazies->is('static');
+  }
+
+  /**
+   * Disable old [data-SRC|SRCSET] lazyload for LCP or Native lazyloading.
+   *
+   * The following will disable old lazyload [data-] attributes if:
+   * - [data-SRC|SRCSET] is removed.
+   * - nojs: globally disabled via `No JavaScript` option.
+   */
+  public static function isUnlazy($blazies): bool {
+    return self::isUndata($blazies)
+      || $blazies->is('nojs');
   }
 
   /**

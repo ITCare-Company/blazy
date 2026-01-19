@@ -1,4 +1,10 @@
 
+
+Blazy 3.0.x-dev, 2026-01-19
+---------------------------
+- Fixed for potential external hijacks which might affect Heroes LCP scores.
+- Moved CSS from blazy/base into blazy/css due to zero-JS regression.
+
 Blazy 3.0.x-dev, 2026-01-10
 ---------------------------
 - Fixed for tests.

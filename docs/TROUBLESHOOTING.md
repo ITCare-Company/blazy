@@ -173,8 +173,9 @@ However they will be automatically picked up if matches are found.
 
 #### What is the fuss about aspect ratio?
 Aspect ratio fixes many issues with lazyloaded elements -- collapsed, distorted,
-excessive height, layout reflow, etc., including making iframe fully responsive.
-However it doesn't fix everything. Please bear with it.
+excessive height, Reflow/Layout (unexpected reflows are the primary cause of
+poor Cumulative Layout Shift (CLS) scores), etc., including making iframe fully
+responsive. However it doesn't fix everything. Please bear with it.
 
 **If you have display issues, the correct Aspect ratio is your first best bet.**
 
