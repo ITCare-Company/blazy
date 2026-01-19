@@ -1,4 +1,5 @@
-***
+
+---
 ## <a name="contribution"></a>SUBMITTING PATCHES OR ISSUES
 
 Please use the provided issue template to ensure your reports are technically actionable. High-quality reports allow us to maintain a standard of excellence.
@@ -14,7 +15,7 @@ To ensure a rigorous technical analysis, please:
 * **Provide Context:** Include library versions, related module versions, and
 your active theme.
 * **Verify Assets:** Ensure the Slick library is correctly loaded and not
-returning a 404.
+returning a 404 or 403.
 * **Isolate Variables:** Switch to a core theme (e.g., Olivero or Bartik) and
 use default formatters to rule out custom overrides.
 * **Sync Branches:** Ensure related modules are on matching or compatible
@@ -35,23 +36,23 @@ explanation. Patches without explanatory context will be deferred.
 
 ---
 
-## BUG REPORTS OR SUPPORT REQUESTS
+### BUG REPORTS OR SUPPORT REQUESTS
 
 A baseline understanding of Drupal site building is required. Before opening
 an issue:
 
 * Consult the README via **`/admin/help`** and review field descriptions.
 * Install the samples, if provided by sub-modules, to observe a verified,
-working implementation.
+working implementation. Any display issues must be confronted against the working samples.
 * Search the issue queue; many solutions are already documented.
 
 **For Validated Bug Reports:**
 Provide consistent reproduction steps, detailed environment info, and
-screenshots of both the output and the administrative form.
+screenshots of both the output and the administrative form. Specific to JavaScript, press  `F12`, capture **Console** tab for potential errors. Fix them first if unrelated to this module.
 
 ---
 
-## <a name="issues"></a> PROJECT HEALTH: CONSTRUCTIVE VS. NON-CONSTRUCTIVE
+### <a name="issues"></a> PROJECT HEALTH: CONSTRUCTIVE VS. NON-CONSTRUCTIVE
 
 We prioritize and credit contributions that advance the project through
 technical rigor.

@@ -2,6 +2,8 @@
 
 Blazy 3.0.x-dev, 2026-01-19
 ---------------------------
+- Fixed for markdown table.
+- Fixed for preload mime type given image_convert new extension.
 - Fixed for potential external hijacks which might affect Heroes LCP scores.
 - Moved CSS from blazy/base into blazy/css due to zero-JS regression.
 

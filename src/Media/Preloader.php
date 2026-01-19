@@ -4,6 +4,7 @@ namespace Drupal\blazy\Media;
 
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Utility\CheckItem;
 
 /**
@@ -81,13 +82,19 @@ class Preloader {
         BlazyImage::dimensions($settings, $image, $uri, TRUE);
       }
 
+      $style_uri = NULL;
+      if ($style && $url) {
+        $style_uri = BlazyFile::buildUri($url);
+      }
+
       // @todo also pass $style + $image when all sources covered.
       return $uri ? [
-        'delta'    => $delta,
-        'unstyled' => $unstyled,
-        'uri'      => $uri,
-        'url'      => $url,
-        'valid'    => $valid,
+        'delta'     => $delta,
+        'unstyled'  => $unstyled,
+        'uri'       => $uri,
+        'url'       => $url,
+        'valid'     => $valid,
+        'uri_style' => $style_uri,
       ] : [];
     };
 
@@ -144,11 +151,19 @@ class Preloader {
     $heroes = in_array($loading, ['slider', 'unlazy']);
     $priority = $blazies->use('bg', FALSE) && $heroes;
 
-    $link = function ($url, $uri, $item, $valid, $hero): array {
+    $link = function (array $image, $item = NULL): array {
+      $uri = $image['uri'] ?? NULL;
+      $url = $image['url'] ?? NULL;
+      $valid = $image['valid'] ?? FALSE;
+      $hero = $image['hero'] ?? FALSE;
+      $uri_style = $image['uri_style'] ?? $uri;
+
       // Suppress useless warning of likely failing initial image generation.
       // Better than checking file exists.
       // Each field may have different mime types for each image just like URIs.
-      $mime = @mime_content_type($uri) ?: '';
+      $mime = @mime_content_type($uri_style) ?: '';
+
+      // Responsive image.
       if ($item && $item_type = $item['type'] ?? NULL) {
         $mime = $item_type->value() ?: $mime;
       }
@@ -163,6 +178,7 @@ class Preloader {
         'type' => $mime,
       ];
 
+      // Responsive image.
       $suffix = '';
       if ($srcset = ($item['srcset'] ?? NULL)) {
         $suffix = '_responsive';
@@ -203,9 +219,8 @@ class Preloader {
       foreach ($sources as $delta => $source) {
         $uri   = $source['uri'] ?? NULL;
         $url   = $source['fallback'] ?? NULL;
-        $valid = $source['valid'] ?? FALSE;
+        $valid = $source['valid'] ?? TRUE;
         $start = $delta == $blazies->get('initial', -1);
-        $hero  = $priority && $start;
 
         // Preloading 1px data URI makes no sense, see if image_url exists.
         if ($url) {
@@ -215,8 +230,15 @@ class Preloader {
           }
         }
 
+        $image = [
+          'uri' => $uri,
+          'url' => $url,
+          'valid' => $valid,
+          'hero' => $priority && $start,
+        ];
+
         foreach ($source['items'] as $source_item) {
-          yield empty($source_item['srcset']) || !$start ? NULL : $link($url, $uri, $source_item, $valid, $hero);
+          yield empty($source_item['srcset']) || !$start ? NULL : $link($image, $source_item);
         }
       }
     }
@@ -226,12 +248,12 @@ class Preloader {
         // Indices might be preserved even empty/ failing URI, etc.
         $uri   = $image['uri'] ?? NULL;
         $url   = $image['url'] ?? NULL;
-        $valid = $image['valid'] ?? FALSE;
         $start = $delta == $blazies->get('initial', -1);
-        $hero  = $priority && $start;
+
+        $image['hero'] = $priority && $start;
 
         // URI might be empty with mixed media, but indices are preserved.
-        yield $uri && $url && $start ? $link($url, $uri, NULL, $valid, $hero) : NULL;
+        yield $uri && $url && $start ? $link($image) : NULL;
       }
     }
   }

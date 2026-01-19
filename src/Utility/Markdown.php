@@ -4,6 +4,10 @@ namespace Drupal\blazy\Utility;
 
 use Drupal\Component\Utility\Xss;
 use League\CommonMark\CommonMarkConverter;
+use League\CommonMark\Environment\Environment;
+use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+use League\CommonMark\Extension\Table\TableExtension;
+use League\CommonMark\MarkdownConverter;
 use Michelf\MarkdownExtra;
 
 /**
@@ -34,8 +38,21 @@ class Markdown {
       return $help ? '<pre>' . $text . '</pre>' : $text;
     }
 
+    // Fixed for invisible characters and linebreaks.
+    $text = preg_replace('/\x{00A0}/u', ' ', $text);
+    $text = str_replace(["\r\n", "\r"], "\n", $text);
+
     if (class_exists('League\CommonMark\CommonMarkConverter')) {
-      $converter = new CommonMarkConverter();
+      if (class_exists('League\CommonMark\Extension\Table\TableExtension')) {
+        $environment = new Environment();
+        $environment->addExtension(new CommonMarkCoreExtension());
+        $environment->addExtension(new TableExtension());
+
+        $converter = new MarkdownConverter($environment);
+      }
+      else {
+        $converter = new CommonMarkConverter();
+      }
 
       if (method_exists($converter, 'convert')) {
         $text = (string) $converter->convert($text);
@@ -43,6 +60,7 @@ class Markdown {
       else {
         // Deprecated since 2.2.
         $method = 'convertToHtml';
+        /** @phpstan-ignore-next-line */
         if (is_callable([$converter, $method])) {
           $text = (string) $converter->{$method}($text);
         }
