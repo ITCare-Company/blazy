@@ -1,7 +1,22 @@
 includes:
-  - phpstan.neon.dist
+  - ../../../core/phpstan.neon.dist
 parameters:
-  level: 5
+  # Keep it at 4 to minimize continual churns at 5 for now.
+  level: 4
+  paths:
+    - src
+    - tests/src
+  # https://phpstan.org/user-guide/ignoring-errors#reporting-unused-ignores
+  reportUnmatchedIgnoredErrors: false
+  treatPhpDocTypesAsCertain: false
+  # Keep analysis deterministic
+  inferPrivatePropertyTypeFromConstructor: true
   # Extra strictness locally
   # checkImplicitMixed: true
   # checkUninitializedProperties: true
+  ignoreErrors:
+    # See https://github.com/mglaman/phpstan-drupal/issues/30
+    # new static() is a best practice in Drupal, so we cannot fix that.
+    - "#^Unsafe usage of new static#"
+    - '#Plugin definitions cannot be altered.#'
+    - '#Trait Drupal\\blazy\\Traits\\EasingTrait is used zero times and is not analysed.#'
