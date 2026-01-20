@@ -107,7 +107,8 @@ If you are currently overriding `theme_ITEM()` templates, migrate your logic bef
 
   - **Captions:** Utilize `hook_blazy_caption_alter()`.
 
-  - **State Management:** Use the `settings.blazies` object to steer HTML changes conditionally.
+  - **State Management:** Use the `settings.blazies` object to steer HTML
+    changes conditionally.
 
   - **Last Resort:** Override `blazy.html.twig`. Note that even the core
     author avoids this—the provided hooks are 100% sufficient for custom architectural requirements.

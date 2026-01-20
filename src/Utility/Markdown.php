@@ -43,7 +43,12 @@ class Markdown {
     $text = str_replace(["\r\n", "\r"], "\n", $text);
 
     if (class_exists('League\CommonMark\CommonMarkConverter')) {
-      if (class_exists('League\CommonMark\Extension\Table\TableExtension')) {
+      $env_exists = class_exists('League\CommonMark\Environment\Environment');
+      $core_exists = class_exists('League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension');
+      $te_exists = class_exists('League\CommonMark\Extension\Table\TableExtension');
+      $mc_exists = class_exists('League\CommonMark\MarkdownConverter');
+
+      if ($core_exists && $env_exists && $te_exists && $mc_exists) {
         $environment = new Environment();
         $environment->addExtension(new CommonMarkCoreExtension());
         $environment->addExtension(new TableExtension());

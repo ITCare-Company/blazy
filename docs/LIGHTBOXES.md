@@ -9,8 +9,7 @@ exception of the default **Flybox**, available since version 2.17.
 If expected options do not appear, clear caches, as **Media Switcher** options
 may be permanently cached.
 
-Most lightboxes (though not all) support responsive images and local or remote
-video. Known lightboxes with **Responsive Image** support include:
+Most lightboxes (though not all) support responsive images, audio, and local or remote video, SoundCloud, including HTML media type like Instagram, Pinterest, etc. Known lightboxes with **Responsive Image** support include:
 
 - Colorbox
 - Magnific Popup

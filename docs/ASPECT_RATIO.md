@@ -1,6 +1,6 @@
 
 ---
-## <a name="aspect-ratio"></a> ASPECT RATIO & LAYOUT STABILITY
+## <a name="aspect-ratio"></a>ASPECT RATIO & LAYOUT STABILITY
 The **Aspect Ratio** is our primary defense against **Cumulative Layout Shift (CLS)**, particularly when using JavaScript-based lazy loading or responsive iframes. By reserving the correct space before media loads, we prevent container collapse, white space below media, distorted elements, and unexpected page
 jumps:
   * —essential for both user experience and SEO rankings.
@@ -78,15 +78,15 @@ be applied strategically based on your layout architecture.
 ####  Technical Troubleshooting
 - **Collapsed Containers or Empty White Space:**
 
-  Ensure an Aspect Ratio is defined.
+    Ensure an Aspect Ratio is defined.
 
 - **Grid Distortions:**
 
-  If your grid appears broken, the image aspect ratio is likely conflicting with the grid's own constraints. Disable the ratio for these specific elements.
+    If your grid appears broken, the image aspect ratio is likely conflicting with the grid's own constraints. Disable the ratio for these specific elements.
 
 - **Missing Custom Ratios:**
 
-  If a custom ratio isn't appearing, ensure you have cleared the cache after
+    If a custom ratio isn't appearing, ensure you have cleared the cache after
   your procedural function change and that your theme contains the matching CSS rule following the convention in `blazy.ratio.css`.
 
 **References:**

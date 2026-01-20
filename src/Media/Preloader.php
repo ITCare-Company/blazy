@@ -4,7 +4,6 @@ namespace Drupal\blazy\Media;
 
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Utility\CheckItem;
 
 /**

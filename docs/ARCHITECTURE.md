@@ -16,26 +16,30 @@ assets. Historically, this signature principle was defined by the mandate:
 *"It doesn't take over all images."* Blazy has consistently led this specialized
 approach, proven to withstand the rigors of **Core Web Vitals (CWV)**.
 
+While Blazy is purpose-built to optimize media delivery and prevent
+media-induced layout shifts, it operates within a broader, interconnected page ecosystem. As a result, achieving true layout stability extends beyond any
+single module. **Cumulative Layout Shift (CLS)**
+[must be addressed holistically](#cls), with coordinated responsibility across markup, rendering strategies, and interacting subsystems—not media alone.
+
 ---
 
 ### <a name="why-cwv"> </a>I. Throughput vs. Perceptual Timing
-> _Why would I care about CWV and specifically LCP, when I can have overall
-lighter page weight with Native lazyloading alone?_
+> _Why would I care about CWV and specifically LCP, when I can have overall lighter page weight with native lazy loading alone?_
 
 **Short answer:**
 
-We don't view it as user preference, but we value diverse POVs. Feel free to
-choose your own adventure!
+We don't view it as a user preference, but we value diverse POVs. Feel free to choose your own adventure!
 
 **Long answer:**
 
-The naive obsession with **page weight** is a relic of the dial-up era; modern architecture prioritizes **Critical Path Optimization** and
+The obsolete obsession with **page weight** is a relic of the dial-up era;
+modern architecture prioritizes **Critical Path Optimization** and
 **Perceptual Performance**.
 
 | Metric | Philosophy | Technical Reality |
 | --- | --- | --- |
 | **Native Lazyloading** | Passive Resource Deferral | A blunt instrument that manages payload volume but does nothing to orchestrate the **Critical Rendering Path**. It is a bandwidth saver, not a speed generator. |
-| **LCP (Core Web Vital)** | Dominant Content Heuristic | Measures the precise moment the **Viewport’s primary node** is rasterized. You can have a "light" page that fails LCP due to render-blocking CSS, slow TTFB, or unprioritized hero assets. |
+| **LCP (Core Web Vital)** | Dominant Content Heuristic | Measures the precise moment the **Viewport’s primary node** is rasterized.  You can have a "light" page that fails LCP due to render-blocking CSS, slow TTFB, or unprioritized hero assets. |
 
 
 **The Verdict:**
@@ -151,8 +155,7 @@ delivery.
     Blazy is engineered to serve **zero JavaScript**. We provide the framework
     for total minimalism; while the final execution weight is an artistic
     choice, reaching the **33kB threshold** is impossible unless you permit
-    systemic design inconsistency on a single page. Impractical given Blazy
-    features, just PoC.
+    systemic design inconsistency on a single page. This is impractical given Blazy’s feature set—useful only as a PoC.
 
 > **Disclaimer on Technical Terminology:**
 >

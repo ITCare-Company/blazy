@@ -82,7 +82,7 @@ image be linked as required. Best of Both Worlds for real.
 
 ### 11. VIEWS GOTCHAS
 * If using Blazy formatter as a standalone Views output and encountering issues, check **Use field template** under **Style settings**.
-* Conversely, **uncheck** "Use field template" when Blazy is embedded inside another module (like Slick) to ensure the renderable array is passed correctly.
+* Conversely, uncheck **Use field template** when Blazy is embedded inside another module (like Slick) to ensure the renderable array is passed correctly.
 * When in doubt, toggle this setting and check the output.
 
 ### 12. NATIVE GRID MASONRY
@@ -102,17 +102,18 @@ height.
 
 ### 13. IMAGES DO NOT LOAD
 If images fail to load inside hidden tabs or containers:
-* Enable **Load invisible** at `/admin/config/media/blazy`.
+* Enable **Load invisible** at `/admin/config/media/blazy`. Only valid for old
+bLazy library. IO and Native lazy loading don't have this issue.
 * For Responsive Images in lightboxes, do not use the `-empty image-` fallback. Edit styles at `/admin/config/media/responsive-image-style`. Note that lightbox full-size images are handled by the lightbox library, not Blazy's lazyloading.
 
 ### 14. OLIVERO SUB-THEMES
 Carousels (Splide/Slick) in Views may conflict with Olivero's grid rules,
-causing "gargantuan" dimensions.
-- **Fix**: Disable `grid-template-rows: max-content;` on ancestor selectors.
+causing "gargantuan" dimensions. This issue has been taken care of automatically
+since 2.17, however it is still mentioned to avoid similar issues with other
+themes as well. Choose one of these:
+* Disable `grid-template-rows: max-content;` on ancestor selectors.
 This rule often forces slides to span their full width/height regardless of the viewport.
 * Adding the CSS class `view--blazy` under **Views > Advanced > CSS Class** may also resolve container boundary issues.
-* This issue has been taken care of automatically since 2.17, however it is
-still mentioned to avoid similar issues with other themes as well.
 
 ### 15. BROKEN MODULES
 Alpha, Beta, and DEV releases are for development environments. If a module

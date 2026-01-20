@@ -9,7 +9,7 @@
  * [Features](#features)
  * [Recommended modules](#recommended-modules)
  * [Architectural philosophy](#architecture)
- * * **Content displays:**
+ * **Content displays:**
     + [Blazy Layout](#layouts)
     + [Building Heroes](#heroes)
     + [Multimedia galleries](#galleries)
@@ -33,8 +33,8 @@ Blazy is a high-performance media delivery engine engineered to meet the
 rigorous demands of modern **Core Web Vitals**. By intelligently leveraging the **Intersection Observer API**, browser-native lazy loading, or the bLazy
 library, it ensures assets are served only when necessary and in the optimal format for the user's device.
 
-Check out [Blazy project home](https://www.drupal.org/project/blazy) for most updated
-info.
+Check out [Blazy project home](https://www.drupal.org/project/blazy) for most
+updated info.
 
 ---
 ## <a name="first"> </a>VERSION COMPATIBILITY
@@ -43,7 +43,7 @@ Blazy and its sub-modules use a **tightly coupled architecture** to reduce code 
 - **Match Release Tiers:** Always pair `DEV` with `DEV`, or `Beta` with `Beta/RC`. Mixing stable releases with development branches will likely cause errors.
 - **Branch Integrity:** Mismatched branches (e.g., `1.x` with `2.x`) are fundamentally incompatible unless explicitly stated.
 
-**Note:** If you encounter unexpected errors, your first step should be ensuring all Blazy-related modules match the latest release date or version number. Uninstallation is not needed. While it might be true for manual FTP or GIT, Composer with proper constraints will install dependency tree correctly eliminating this issue in the first place.
+**Note:** If you encounter unexpected errors, your first step should be ensuring all Blazy-related modules match the latest release date or version number. **Uninstallation is not needed**. While it might be true for manual FTP or GIT, Composer with proper constraints will install dependency tree correctly eliminating this issue in the first place.
 
 ---
 ## <a name="requirements"> </a>REQUIREMENTS
@@ -62,6 +62,7 @@ Blazy and its sub-modules use a **tightly coupled architecture** to reduce code 
      For upgrading Blazy and its sub-modules from 1.x to 2.x or 3+.
 
 4. [**Update SOP**](#updating)
+
     A definitive guide for update and upgrade troubleshootings, including WSOD.
 
 ---
@@ -71,7 +72,7 @@ Visit the following to configure and make use of Blazy:
 
 1. [/admin/config/media/blazy](/admin/config/media/blazy)
 
-    Enable Blazy UI sub-module first, otherwise regular **404|403**.
+   Enable Blazy UI sub-module first, otherwise regular **404|403**.
    Contains few global options. Blazy UI can be uninstalled at production later
    without problems.
 
@@ -95,26 +96,26 @@ Blazy provides the architectural scaffolding that native lazy-loading lacks. It 
 
 - **Deep Integration**:
 
-  Seamless orchestration for Core Media, Views,
-  Paragraphs, and Media contrib. Supports Image, Responsive image, Picture,
-  (local|remote|iframe) video, audio, [SVG](#svg), multi-breakpoint CSS backgrounds, and HTML media type.
+    Seamless orchestration for Core Media, Views,
+    Paragraphs, and Media contrib. Supports Image, Responsive image, Picture,
+    (local|remote|iframe) video, audio, [SVG](#svg), multi-breakpoint CSS backgrounds, and HTML media type.
 
 - **Main-Thread Protection**:
 
-  Offloads heavy third-party embeds (Instagram, Pinterest, Twitter, YouTube, Vimeo, SoundCloud, etc) via **Lazyload HTML** and **Media Switcher** options
-  to prevent UI "jank" and prioritize interaction.
+    Offloads heavy third-party embeds (Instagram, Pinterest, Twitter, YouTube, Vimeo, SoundCloud, etc) via **Lazyload HTML** and **Media Switcher** options
+    to prevent UI "jank" and prioritize interaction.
 
 - **LCP & CLS Management**:
 
-  Engineered for a **"CLS-zero" strategy** using modern CSS `aspect-ratio` with
-  legacy `padding-bottom` fallbacks to ensure layout stability across all
-  browser generations. See [Aspect ratio](#aspect-ratio).
+    Engineered for a **"CLS-zero" strategy** using modern CSS `aspect-ratio`
+    with legacy `padding-bottom` fallbacks to ensure layout stability across all
+    browser generations. See [Aspect ratio](#aspect-ratio).
 
 - **Critical Path Optimization**:
 
-  Advanced preloading (image, responsive image/picture, iframe preview, CSS background and video poster) and `fetchpriority="high"` logic to
-  systematically eliminate LCP discovery delays for the most important assets,
-  and adaptive `decoding` for hidden or thumbnail Heroes.
+    Advanced preloading (image, responsive image/picture, iframe preview, CSS background and video poster) and `fetchpriority="high"` logic to
+    systematically eliminate LCP discovery delays for the most important assets,
+    and adaptive `decoding` for hidden or thumbnail Heroes.
 
 - **Intelligent Loading Priority**:
 
@@ -139,16 +140,16 @@ Blazy provides the architectural scaffolding that native lazy-loading lacks. It 
 
 - **Privacy by Design**:
 
-  Integrated **Two-Click Media Loader** (**Media switcher > Image to Iframe**) ensures **GDPR/ePrivacy** compliance by blocking third-party tracking scripts
-  until active user engagement. See [Optimization](#optimization).
+    Integrated **Two-Click Media Loader** (**Media switcher > Image to Iframe**) ensures **GDPR/ePrivacy** compliance by blocking third-party tracking
+    scripts until active user engagement. See [Optimization](#optimization).
 
 - **Advanced Gallery Grids**:
 
-  Built-in support for CSS3 Columns, Flexbox, and Native Grid layouts for multi-value Media and Text fields. See [Building galleries](#galleries).
+    Built-in support for CSS3 Columns, Flexbox, and Native Grid layouts for multi-value Media and Text fields. See [Building galleries](#galleries).
 
 - **Extensible Lightbox Ecosystem**:
 
-  Unified **Media switcher** for Slick Lightbox, Colorbox, PhotoSwipe, Flybox, Magnific Popup, ElevateZoom Plus, and more. See [Lightbox integration](#lightboxes)
+    Unified **Media switcher** for Slick Lightbox, Colorbox, PhotoSwipe, Flybox, Magnific Popup, ElevateZoom Plus, and more. See [Lightbox integration](#lightboxes)
 
 - **Developer & Editor API**:
     - **Vanilla Mode**:
@@ -157,7 +158,7 @@ Blazy provides the architectural scaffolding that native lazy-loading lacks. It 
 
     - **Blazy Filter**:
 
-      Streamlined shortcode support for embedding rich multimedia or grid with lightboxes and media players directly within text editors. See [Content formats](/admin/config/content/formats) and [Filter tips](/filter/tips).
+      Streamlined shortcode support for embedding rich multimedia or grid with lightboxes and media players directly within text editors. See [Text formats and editors](/admin/config/content/formats) and [Filter tips](/filter/tips).
 
     - **Robust Hook API**:
 

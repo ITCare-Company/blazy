@@ -11,7 +11,7 @@ mandatory.
 | --- | --- |
 | **Major Upgrade (2.x to 3.x)** | `composer require drupal/blazy:^3.0 -W -n` <br /> See Blazy project home [**Upgrade Path**](https://www.drupal.org/project/blazy#blazy-upgrade) |
 | **Standard Update (Drush)** | `drush cr && drush updb && drush cr` |
-| **Asset Issues (CSS/JS)** | Toggle Aggregation in [**Performance Page**](/admin/config/development/performance) with **Clearing all caches** button |
+| **Asset Issues (CSS/JS UI)** | Toggle Aggregation in [**Performance Page**](/admin/config/development/performance) with **Clearing all caches** button |
 | **WSOD Emergency Recovery** | Delete `composer.lock` & `/vendor`, then `composer install -W -n` |
 
 ---
@@ -27,12 +27,12 @@ configuration). Instead, downgrade to your previous version, clear all caches, a
 #### 1. Update via Composer
 For major version upgrades (e.g., 2.x to 3.x), you must perform a **parallel upgrade** to ensure all dependencies resolve simultaneously.
 
-* **Core Module only:**
+* **Main Module only:**
 ```bash
    composer require drupal/blazy:^3.0 -W -n
 ```
 
-* **With Sub-modules (Recommended):**
+* **With Sub-modules (if installed):**
 ```bash
    composer require drupal/blazy:^3.0 drupal/slick:^3.0 drupal/slick_views:^3.0 -W -n
 ```
@@ -46,10 +46,11 @@ Once composer is done, ​execute this specific sequence to ensure the container
 drush cr && drush updb && drush cr
 ```
 
-The first `drush cr` ensures the new code is (re-)mapped correctly in `../files/php`. Failing to do this is the major error reason.
+The first `drush cr` ensures the new code is (re-)mapped correctly in
+`../files/php`. Failing to do this is the major error reason.
 
 #### 3. Update via UI (Manual / No-Drush)
-If you do not have access to Drush, follow these steps in strict order. **Preparation is vital**.
+If you do not have access to Drush, follow these steps in strict order. **Preparation (backup) is vital**.
 
 1. **Staging First:** Never update Production directly. Test on a Dev/Staging environment and ensure you have a fresh backup (e.g., via [backup_migrate](https://drupal.org/project/backup_migrate)). If you override asset or template files, be sure to cross-check against the latest releases for any potential changes (see the relevant **Change Records** links from the ecosystem project homes), and re-adjust them accordingly. Major releases may have potentially breaking changes to leverage either Core upgrade requirements or any internal major betterment like seen from Blazy 2.17 to 3.x, see more details if any provided at [Admin status](/admin/reports/status).
 
@@ -58,17 +59,24 @@ Place the site in [Maintenance Mode](/admin/config/development/maintenance).
 
 3. **The "Safety Tab":** Open the [**Performance Page**](/admin/config/development/performance) in a separate browser tab. Do not close or reload this tab. This is your emergency access to clear caches if the rest of the UI breaks.
 
-4. **Download Files:** Replace the module files via the [Update UI](/admin/modules/update), FTP or Composer.
+4. **Download Files:** Replace the module files via the
+   [Update UI](/admin/modules/update), FTP or Composer.
 
-5. **Pre-Update Cache Clear:** Before running any database updates, hit "**Clear all caches**". This ensures the new code is mapped correctly in `../files/php`. Failing to do this is the major error reason.
+5. **Pre-Update Cache Clear:** Before running any database updates, hit
+   "**Clear all caches**". This ensures the new code is mapped correctly in
+   `../files/php`. Failing to do this is the major error reason.
 
-6. **Run Updates:** Navigate to `/update.php` in your browser and execute pending tasks.
+6. **Run Updates:** Navigate to `/update.php` in your browser and execute
+   pending tasks.
 
 7. **Post-Update Cache Clear:** Clear all caches a second time.
 
-8. **Rebuild Assets:** If you see CSS/JS issues, toggle aggregation (Off/Save/On/Save) on the Performance page to force a regeneration of assets.
+8. **Rebuild Assets:** Only if you see CSS/JS issues and regular cache clearing
+   fails, toggle aggregation on the Performance page to force a regeneration
+   assets.
 
-9. **Verification:** Verify the latest status at [Admin status](/admin/reports/status) and view your site.
+9. **Verification:** Verify the latest status at
+   [Admin status](/admin/reports/status) and view your site.
 
 ---
 ## <a name="wsod"></a>Emergency Recovery (WSOD)

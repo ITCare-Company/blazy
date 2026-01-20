@@ -18,6 +18,7 @@ for complex multi-value fields like sliders, which can inadvertently threaten pe
      - **unlazy (Static Heroes):**
 
        Optimized for single media assets. For multi-value fields, pair this with **Native Grid**, **Use CSS background**, and **Thumbnail style**. This creates a hierarchy where the first media is prominent, while subsequent media items follow a layout pattern.
+
         + **Grid Example (Tagore):**
 
           `12x6 4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2`
@@ -30,7 +31,12 @@ for complex multi-value fields like sliders, which can inadvertently threaten pe
 
         + *Pro Tip:*
 
-            Ensure **Thumbnail style** is defined for smaller assets to protect LCP. Note that Slick or Splide can also display single Heroes, often removing the need for a separate static Hero field.
+           * Ensure **Thumbnail style** is defined for smaller assets to protect
+             LCP.
+           * Note that Slick or Splide can also display single Heroes, often
+             removing the need for a separate static Hero field. That is why
+             static Heroes are never fully elaborated until 3.0.17 as a PoC for
+             those who have no interests in sliders.
 
 
      - **slider (Dynamic Heroes):**
@@ -53,7 +59,7 @@ for complex multi-value fields like sliders, which can inadvertently threaten pe
 
     Blazy handles aspect ratios to prevent layout shifts (CLS), ensuring that
     the Hero container exists in the DOM at the correct proportions before the media even begins to download. Be sure to fill in the **Aspect ratio**
-    option.
+    option as required.
 
 #### The Hero Logic: Performance by Design
 The following ensures Heroes meet LCP and CLS requirements without manual micro-management:
@@ -79,4 +85,8 @@ The following ensures Heroes meet LCP and CLS requirements without manual micro-
 
 **Reflection on Hero Architecture**
 
-Native lazyloading alone is a blunt instrument; it cannot fully satisfy the nuanced requirements of LCP. While recent releases have tightened warnings and addressed edge-case overrides, the foundational logic for Hero and Slider optimization has been a core pillar of Blazy since the inception of **Core Web Vitals**.
+Native lazyloading alone is a [blunt instrument](#why-cwv); it cannot fully
+satisfy the nuanced requirements of LCP. While recent releases have tightened
+warnings and addressed oversights and edge-case overrides, the foundational
+logic for Hero and Slider optimization has been a core pillar of Blazy since
+the inception of **Core Web Vitals**.
