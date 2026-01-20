@@ -1,5 +1,6 @@
-includes:
-  - ../../../core/phpstan.neon.dist
+# Works locally, but failed at CI.
+# includes:
+# - ../../../core/phpstan.neon.dist
 parameters:
   # Keep it at 4 to minimize continual churns at 5 for now.
   level: 4
