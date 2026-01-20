@@ -1,5 +1,5 @@
 
----
+***
 ## <a name="lightboxes"></a> MULTIMEDIA LIGHTBOXES
 
 All lightbox integrations are optional. If the required modules and/or libraries

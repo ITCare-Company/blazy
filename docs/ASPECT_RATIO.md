@@ -1,5 +1,5 @@
 
----
+***
 ## <a name="aspect-ratio"></a>ASPECT RATIO & LAYOUT STABILITY
 The **Aspect Ratio** is our primary defense against **Cumulative Layout Shift (CLS)**, particularly when using JavaScript-based lazy loading or responsive iframes. By reserving the correct space before media loads, we prevent container collapse, white space below media, distorted elements, and unexpected page
 jumps:

@@ -1,5 +1,5 @@
 
----
+***
 ## <a name="troubleshooting"></a>TROUBLESHOOTING
 - **Masonry (Flexbox or Native Grid) issues**: If your layouts are broken, try uninstalling BigPipe. Before version 2.17, we attempted to maintain BigPipe compatibility, but it frequently broke Masonry on infinite pagers (VIS/IO).
 Since version 3.x, BigPipe should work for 99% use cases, leaving 1% for:

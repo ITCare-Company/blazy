@@ -1,5 +1,5 @@
 
----
+***
 ## <a name="galleries"> </a>MULTIMEDIA GALLERY VIA VIEWS UI
 #### Using **Blazy Grid**
 For massive galleries, using **Blazy Grid + Lightbox** (Colorbox, PhotoSwipe, etc.) is objectively faster than a slider-only implementation for static

@@ -8,6 +8,7 @@ use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Sanitize;
 use Drupal\blazy\internals\Internals;
+use enshrined\svgSanitize\Sanitizer;
 
 /**
  * Provides common public blazy utility and a few aliases for frequent methods.
@@ -151,7 +152,7 @@ class Blazy extends BlazyBase {
    * In case we have SVG Sanitizer alternatives, provide one door check.
    */
   public static function svgSanitizerExists(): bool {
-    return class_exists('\enshrined\svgSanitize\Sanitizer');
+    return class_exists(Sanitizer::class);
   }
 
   /**

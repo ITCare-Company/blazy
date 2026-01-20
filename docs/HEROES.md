@@ -1,5 +1,5 @@
 
----
+***
 ## <a name="heroes"></a>HERO MEDIA: Mastering the Critical Path
 Building Hero media (Backgrounds, Images, Iframes, or Video) requires strict adherence to **Core Web Vitals** (CWV), specifically optimizing for **Largest Contentful Paint** (LCP).
 

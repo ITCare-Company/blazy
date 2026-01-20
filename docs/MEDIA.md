@@ -1,5 +1,5 @@
 
----
+***
 ## <a name="svg"></a> SVG
 
 Install **SVG Sanitizer** via Composer (see the [COMPOSER](#composer) section):

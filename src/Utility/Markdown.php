@@ -42,13 +42,11 @@ class Markdown {
     $text = preg_replace('/\x{00A0}/u', ' ', $text);
     $text = str_replace(["\r\n", "\r"], "\n", $text);
 
-    if (class_exists('League\CommonMark\CommonMarkConverter')) {
-      $env_exists = class_exists('League\CommonMark\Environment\Environment');
-      $core_exists = class_exists('League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension');
-      $te_exists = class_exists('League\CommonMark\Extension\Table\TableExtension');
-      $mc_exists = class_exists('League\CommonMark\MarkdownConverter');
-
-      if ($core_exists && $env_exists && $te_exists && $mc_exists) {
+    if (class_exists(CommonMarkConverter::class)) {
+      if (class_exists(Environment::class)
+        && class_exists(CommonMarkCoreExtension::class)
+        && class_exists(TableExtension::class)
+        && class_exists(MarkdownConverter::class)) {
         $environment = new Environment();
         $environment->addExtension(new CommonMarkCoreExtension());
         $environment->addExtension(new TableExtension());
@@ -59,6 +57,8 @@ class Markdown {
         $converter = new CommonMarkConverter();
       }
 
+      // Avoid risks for convertToHtml until proper checks.
+      /** @phpstan-ignore-next-line */
       if (method_exists($converter, 'convert')) {
         $text = (string) $converter->convert($text);
       }
@@ -71,7 +71,7 @@ class Markdown {
         }
       }
     }
-    elseif (class_exists('Michelf\MarkdownExtra')) {
+    elseif (class_exists(MarkdownExtra::class)) {
       $text = (string) MarkdownExtra::defaultTransform($text);
     }
 
@@ -83,8 +83,8 @@ class Markdown {
    * Checks if we have the needed classes.
    */
   private static function isApplicable(): bool {
-    return class_exists('League\CommonMark\CommonMarkConverter')
-      || class_exists('Michelf\MarkdownExtra');
+    return class_exists(CommonMarkConverter::class)
+      || class_exists(MarkdownExtra::class);
   }
 
 }

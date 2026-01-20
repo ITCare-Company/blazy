@@ -1,5 +1,5 @@
 
----
+***
 ## <a name="architecture"> </a>ARCHITECTURAL PHILOSOPHY
 
 Inspired by Jan van Eyck’s motto **'Als Ik Kan'** (*As best I can*), Blazy is

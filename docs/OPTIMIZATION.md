@@ -1,7 +1,6 @@
 
----
-## <a name="optimization"></a>Strategic Optimization Checklist
-
+***
+## <a name="optimization"></a>STRATEGIC OPTIMIZATION CHECKLIST
 Proper configuration ensures the module works for you, not against you. Use this checklist to audit your implementation for maximum performance and technical integrity.
 
 ---

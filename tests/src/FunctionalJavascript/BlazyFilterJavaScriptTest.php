@@ -156,7 +156,6 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
 
     // Already sanitized by text editor since D 10.6.2.
     // $this->assertSession()->elementExists('css', 'img[data-src^=alert]');
-    // $this->assertSession()->elementExists('css', 'img[data-src^=javascript]');
     // Verifies that we have data URI disallowed.
     $this->assertSession()->elementNotExists('css', 'img[src^=data]');
     $this->assertSession()->elementNotExists('xpath', '//img[contains(@src, "data:image")]');

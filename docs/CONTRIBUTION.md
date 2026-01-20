@@ -1,5 +1,5 @@
 
----
+***
 ## <a name="contribution"></a>SUBMITTING PATCHES OR ISSUES
 
 Please use the provided issue template to ensure your reports are technically actionable. High-quality reports allow us to maintain a standard of excellence.

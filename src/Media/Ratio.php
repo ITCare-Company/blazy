@@ -86,7 +86,7 @@ class Ratio {
 
     $mapped_ratios = array_combine(
       $ratios,
-      array_map(fn($r) => ($a = explode(':', $r))[0] / $a[1], $ratios)
+      array_map(fn($r) => (int) (($a = explode(':', $r))[0]) / (int) $a[1], $ratios)
     );
 
     $width  = (int) $width;
