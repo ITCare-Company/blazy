@@ -1,8 +1,8 @@
 
 Blazy 3.0.x-dev, 2026-01-21
 ---------------------------
-- bug: #3511029 Deprecated function: strpos() ... in
-  Drupal\blazy\BlazyManagerBase->preSettings() (line 220).
+- Issue #3511029 by skymen, jura.khrapunov: Deprecated function: strpos() ...
+  in Drupal\blazy\BlazyManagerBase->preSettings() (line 220)
 - Added Blur effect replacement strategy with animate.css.
 
 Blazy 3.0.x-dev, 2026-01-19
