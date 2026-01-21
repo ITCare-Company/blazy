@@ -218,8 +218,10 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
       $blazies->set('route_name', $route_name);
 
       // @todo figure out more admin pages with AJAX where Blazy may sit.
-      if (strpos($route_name, 'layout_builder.') !== FALSE) {
-        $blazies->set('use.ajax', TRUE);
+      if (!is_null($route_name)) {
+        if (strpos($route_name, 'layout_builder.') !== FALSE) {
+          $blazies->set('use.ajax', TRUE);
+        }
       }
     }
 
