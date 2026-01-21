@@ -16,6 +16,7 @@
     + [Lightboxes](#lightboxes)
     + [Aspect ratio](#aspect-ratio)
     + [SVG & WEBP](#svg)
+    + [Animate.css integration](#animate-css)
     + [theme_blazy()](#theme-blazy)
  * [FAQ](#faq)
  * [Troubleshooting](#troubleshooting)
@@ -27,23 +28,31 @@
 
 
 ---
-## <a name="introduction"></a>OPTIMIZED MEDIA DELIVERY
+## <a name="introduction"> </a>OPTIMIZED MEDIA DELIVERY
 
 Blazy is a high-performance media delivery engine engineered to meet the
 rigorous demands of modern **Core Web Vitals**. By intelligently leveraging the **Intersection Observer API**, browser-native lazy loading, or the bLazy
-library, it ensures assets are served only when necessary and in the optimal format for the user's device.
+library, it ensures assets are served only when necessary and in the optimal
+format for the user's device.
 
 Check out [Blazy project home](https://www.drupal.org/project/blazy) for most
 updated info.
 
 ---
 ## <a name="first"> </a>VERSION COMPATIBILITY
-Blazy and its sub-modules use a **tightly coupled architecture** to reduce code duplication (DRY principle). To ensure system stability, you must maintain version parity across all installed sub-modules:
+Blazy and its sub-modules use a **tightly coupled architecture** to reduce code duplication (DRY principle). To ensure system stability, you must maintain
+version parity across all installed sub-modules:
 
-- **Match Release Tiers:** Always pair `DEV` with `DEV`, or `Beta` with `Beta/RC`. Mixing stable releases with development branches will likely cause errors.
-- **Branch Integrity:** Mismatched branches (e.g., `1.x` with `2.x`) are fundamentally incompatible unless explicitly stated.
+- **Match Release Tiers:** Always pair `DEV` with `DEV`, or `Beta` with
+  `Beta/RC`. Mixing stable releases with development branches will likely cause
+  errors.
+- **Branch Integrity:** Mismatched branches (e.g., `1.x` with `2.x`) are
+  fundamentally incompatible unless explicitly stated.
 
-**Note:** If you encounter unexpected errors, your first step should be ensuring all Blazy-related modules match the latest release date or version number. **Uninstallation is not needed**. While it might be true for manual FTP or GIT, Composer with proper constraints will install dependency tree correctly eliminating this issue in the first place.
+**Note:** If you encounter unexpected errors, your first step should be ensuring
+all Blazy-related modules match the latest release date or version number. **Uninstallation is not needed**. While it might be true for manual FTP or GIT,
+Composer with proper constraints will install dependency tree correctly
+eliminating this issue in the first place.
 
 ---
 ## <a name="requirements"> </a>REQUIREMENTS
@@ -92,17 +101,21 @@ Visit the following to configure and make use of Blazy:
 
 ---
 ## <a name="features"> </a>FEATURES
-Blazy provides the architectural scaffolding that native lazy-loading lacks. It is the engine that transforms basic browser specs into a polished, high-performance experience compliant with **Core Web Vitals**.
+Blazy provides the architectural scaffolding that native lazy-loading lacks. It
+is the engine that transforms basic browser specs into a polished,
+high-performance experience compliant with **Core Web Vitals**.
 
 - **Deep Integration**:
 
     Seamless orchestration for Core Media, Views,
     Paragraphs, and Media contrib. Supports Image, Responsive image, Picture,
-    (local|remote|iframe) video, audio, [SVG](#svg), multi-breakpoint CSS backgrounds, and HTML media type.
+    (local|remote|iframe) video, audio, [SVG](#svg), multi-breakpoint CSS
+    backgrounds, and HTML media type.
 
 - **Main-Thread Protection**:
 
-    Offloads heavy third-party embeds (Instagram, Pinterest, Twitter, YouTube, Vimeo, SoundCloud, etc) via **Lazyload HTML** and **Media Switcher** options
+    Offloads heavy third-party embeds (Instagram, Pinterest, Twitter, YouTube,
+    Vimeo, SoundCloud, etc) via **Lazyload HTML** and **Media Switcher** options
     to prevent UI "jank" and prioritize interaction.
 
 - **LCP & CLS Management**:
@@ -113,7 +126,8 @@ Blazy provides the architectural scaffolding that native lazy-loading lacks. It 
 
 - **Critical Path Optimization**:
 
-    Advanced preloading (image, responsive image/picture, iframe preview, CSS background and video poster) and `fetchpriority="high"` logic to
+    Advanced preloading (image, responsive image/picture, iframe preview, CSS
+    background and video poster) and `fetchpriority="high"` logic to
     systematically eliminate LCP discovery delays for the most important assets,
     and adaptive `decoding` for hidden or thumbnail Heroes.
 
@@ -121,7 +135,9 @@ Blazy provides the architectural scaffolding that native lazy-loading lacks. It 
 
     - **unlazy|slider**:
 
-      Server-side exemption for Hero assets to trigger the browser's **Preload Scanner** immediately while keeping hidden and below-the-fold elements lazyloaded. See [Building heroes](#heroes).
+      Server-side exemption for Hero assets to trigger the browser's
+      **Preload Scanner** immediately while keeping hidden and below-the-fold
+      elements lazyloaded. See [Building heroes](#heroes).
 
     - **defer**:
 
@@ -130,7 +146,9 @@ Blazy provides the architectural scaffolding that native lazy-loading lacks. It 
 
     - **Native/JS Hybrid**:
 
-      Supports Native lazyloading since incubation with an optional JavaScript delegation for granular threshold control and legacy browser support. JavaScript-based solutions offer superior **adaptive intelligence**: they can delegate the task to the browser's native engine when available, while providing a robust fallback for older environments.
+      Supports Native lazyloading since incubation with an optional JavaScript delegation for granular threshold control and legacy browser support. JavaScript-based solutions offer superior **adaptive intelligence**: they
+      can delegate the task to the browser's native engine when available, while
+      providing a robust fallback for older environments.
 
 - **Universal Compatibility**:
 
@@ -140,16 +158,19 @@ Blazy provides the architectural scaffolding that native lazy-loading lacks. It 
 
 - **Privacy by Design**:
 
-    Integrated **Two-Click Media Loader** (**Media switcher > Image to Iframe**) ensures **GDPR/ePrivacy** compliance by blocking third-party tracking
+    Integrated **Two-Click Media Loader** (**Media switcher > Image to Iframe**)
+    ensures **GDPR/ePrivacy** compliance by blocking third-party tracking
     scripts until active user engagement. See [Optimization](#optimization).
 
 - **Advanced Gallery Grids**:
 
-    Built-in support for CSS3 Columns, Flexbox, and Native Grid layouts for multi-value Media and Text fields. See [Building galleries](#galleries).
+    Built-in support for CSS3 Columns, Flexbox, and Native Grid layouts for
+    multi-value Media and Text fields. See [Building galleries](#galleries).
 
 - **Extensible Lightbox Ecosystem**:
 
-    Unified **Media switcher** for Slick Lightbox, Colorbox, PhotoSwipe, Flybox, Magnific Popup, ElevateZoom Plus, and more. See [Lightbox integration](#lightboxes)
+    Unified **Media switcher** for Slick Lightbox, Colorbox, PhotoSwipe, Flybox, Magnific Popup, ElevateZoom Plus, and more. See
+    [Lightbox integration](#lightboxes)
 
 - **Developer & Editor API**:
     - **Vanilla Mode**:
@@ -158,11 +179,14 @@ Blazy provides the architectural scaffolding that native lazy-loading lacks. It 
 
     - **Blazy Filter**:
 
-      Streamlined shortcode support for embedding rich multimedia or grid with lightboxes and media players directly within text editors. See [Text formats and editors](/admin/config/content/formats) and [Filter tips](/filter/tips).
+      Streamlined shortcode support for embedding rich multimedia or grid with lightboxes and media players directly within text editors. See
+      [Text formats and editors](/admin/config/content/formats) and
+      [Filter tips](/filter/tips).
 
     - **Robust Hook API**:
 
-      Comprehensive integration points for custom theme and module development. See [blazy.api.php](https://git.drupalcode.org/project/blazy/blob/3.0.x/blazy.api.php)
+      Comprehensive integration points for custom theme and module development.
+      See [blazy.api.php](https://git.drupalcode.org/project/blazy/blob/3.0.x/blazy.api.php)
 
 
 ### OPTIONAL FEATURES
@@ -205,11 +229,13 @@ To make reading this README a breeze at [Blazy help](/admin/help/blazy_ui)
 * [Ultimenu](https://www.drupal.org/project/ultimenu)
 
 ---
-## <a name="layouts"></a>BLAZY LAYOUT
-To fully leverage the Core **Layout Builder** (LB) and re-use the established Grid system, Blazy provides the **Blazy Layout** submodule.
+## <a name="layouts"> </a>BLAZY LAYOUT
+To fully leverage the Core **Layout Builder** (LB) and re-use the established
+Grid system, Blazy provides the **Blazy Layout** submodule.
 
 * Enable the [**Blazy Layout**](/admin/modules) submodule, if not already.
-* Visit [**Blazy Layout Help**](/admin/help/blazy_layout) for more detailed applications.
+* Visit [**Blazy Layout Help**](/admin/help/blazy_layout) for more detailed
+  applications.
 
 
 ## READ MORE

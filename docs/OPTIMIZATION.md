@@ -1,7 +1,8 @@
 
 ***
-## <a name="optimization"></a>STRATEGIC OPTIMIZATION CHECKLIST
-Proper configuration ensures the module works for you, not against you. Use this checklist to audit your implementation for maximum performance and technical integrity.
+## <a name="optimization"> </a>STRATEGIC OPTIMIZATION CHECKLIST
+Proper configuration ensures the module works for you, not against you. Use this checklist to audit your implementation for maximum performance and technical
+integrity.
 
 ---
 
@@ -13,46 +14,57 @@ Proper configuration ensures the module works for you, not against you. Use this
 
 - **Global Performance:**
     Ensure Drupal’s core **CSS/JS aggregation** and caching are active at
-    `/admin/config/development/performance`. Without this, software-level optimizations are moot.
+    `/admin/config/development/performance`. Without this, software-level
+    optimizations are moot.
 
 ### 2. Media Architecture & Privacy
 
 - **Lazyload HTML:**
 
     For third-party embeds (Instagram, Pinterest, etc.), enable
-    **Lazyload HTML** in the Blazy UI. Offloading heavy third-party scripts prevents main-thread blocking and preserves host page performance.
+    **Lazyload HTML** in the Blazy UI. Offloading heavy third-party scripts
+    prevents main-thread blocking and preserves host page performance.
 
 - **Lazyload IFRAME:**
 
-    Using the **Media Switcher** option with a static image preview is the primary defense against heavy third-party scripts. By intercepting iframe requests until user interaction, the main thread remains responsive during initial page load.
+    Using the **Media Switcher** option with a static image preview is the
+    primary defense against heavy third-party scripts. By intercepting iframe
+    requests until user interaction, the main thread remains responsive during
+    initial page load.
 
     1. **Image to IFRAME (Two-Click Loader):**
 
-       The gold standard for **GDPR/ePrivacy compliance**. It blocks third-party tracking until active user engagement.
+       The gold standard for **GDPR/ePrivacy compliance**. This workflow blocks third-party tracking until "Active Opt-in" user engagement.
 
     2. **Image to Lightbox:**
 
-       Offloads scripts into a **conceptual background thread**—a destroyable, isolated execution path—protecting the host page’s performance.
+       Offloads scripts into a **conceptual background thread**—a destroyable,
+       isolated execution path—protecting the host page’s performance.
 
     3. **Image Linked to Content|by Link field:**
 
-       The most aggressive strategy. It **completely removes** external scripts from the current page, delegating them to dedicated URLs.
+       The most aggressive strategy. It **completely removes** external scripts
+       from the current page, delegating them to dedicated URLs.
 
 ### 3. Precision Engineering for Media
 
 - **Prevent Layout Shift (CLS):**
 
     The **Aspect Ratio** is our primary defense against
-    **Cumulative Layout Shift (CLS)**. By reserving space before media loads, we prevent container collapse and page jumps.
+    **Cumulative Layout Shift (CLS)**. By reserving space before media loads, we
+    prevent container collapse and page jumps.
 
     - **Strategy:**
 
-       Use image styles with a **"crop"** effect, whenever possible. Select the **Aspect ratio** in the formatter UI and enable **Modern CSS aspect-ratio** in Blazy
-       settings.
+       Use image styles with a **"crop"** effect, whenever possible. Select the
+       **Aspect ratio** in the formatter UI and enable
+       **Modern CSS aspect-ratio** in Blazy settings.
 
     - **Fluid Logic:**
 
-      While native lazy loading handles basic shifts, Blazy’s **adaptive intelligence** provides robust fallbacks for legacy environments and fluid containers.
+      While native lazy loading handles basic shifts, Blazy’s
+      **adaptive intelligence** provides robust fallbacks for legacy
+      environments and fluid containers.
 
      - **Issues beyond Blazy:**
 
@@ -65,36 +77,48 @@ Proper configuration ensures the module works for you, not against you. Use this
         * Third-party widgets or HTML
         * etc.
 
-        The most authoritative way to prevent layout shift is to reserve space for a container, either by defining **fixed dimensions** or, at a minimum, a `min-height`.
+        The most authoritative way to prevent layout shift is to reserve space
+        for a container, either by defining **predictive/fixed dimensions** or,
+        at a minimum, a `min-height`.
 
 - **Loading Priority (LCP):**
 
-    Use **Preload** and **Loading Priority** options for "above-the-fold" assets to optimize **Largest Contentful Paint (LCP)**. Treat hero media as a priority, not an afterthought.
+    Use **Preload** and **Loading Priority** options for "above-the-fold" assets
+    to optimize **Largest Contentful Paint (LCP)**. Treat hero media as a
+    priority, not an afterthought.
 
 - **Responsive Standards:**
 
-    Prioritize **Core Responsive Image** whenever storage permits. If storage is a constraint, utilize modern formats like **WebP** or **AVIF** to maintain visual fidelity at a fraction of the weight along with a versatile design.
+    Prioritize **Core Responsive Image** whenever storage permits. If storage is
+    a constraint, utilize modern formats like **WebP** or **AVIF** to maintain
+    visual fidelity at a fraction of the weight along with a versatile design.
 
 ### 4. Interactive Scalability
 
 - **Scalability for Galleries:**
 
-  For massive datasets, favor **Blazy Grid + Lightbox** (Colorbox, PhotoSwipe, etc.). This is objectively more efficient than a slider-only implementation
+  For massive datasets, favor **Blazy Grid + Lightbox** (Colorbox, PhotoSwipe,
+  etc.). This is objectively more efficient than a slider-only implementation
   for static viewing.
 
 - **The DOM Diet: Eradicating Divitis:**
 
-  To achieve a high-performance render, we must treat the DOM tree with the precision of a minimalist. Excessive nesting is technical debt. Follow these protocols to ensure lean, semantic markup:
+  To achieve a high-performance render, we must treat the DOM tree with the
+  precision of a minimalist. Excessive nesting is technical debt. Follow these
+  protocols to ensure lean, semantic markup:
 
   1. Field & View Configuration
 
      - **Remove Wrapper Classes:**
 
-       Always enable **"Remove field/view wrapper CSS classes."**. It is only useful for custom DOM diet.
+       Always enable **"Remove field/view wrapper CSS classes."**. It is only
+       useful for custom DOM diet.
 
      - **Uncheck "Use theme field":**
 
-       If provided, keep this disabled unless a specific architectural requirement dictates otherwise. This prevents the system from injecting default, heavy-handed wrappers.
+       If provided, keep this disabled unless a specific architectural
+       requirement dictates otherwise. This prevents the system from injecting
+       default, heavy-handed wrappers.
 
   2. Template-Level Purging
 
@@ -103,11 +127,14 @@ Proper configuration ensures the module works for you, not against you. Use this
 
      - **Implementation:**
 
-       Use specialized Twig templates—`block--no-wrapper.html.twig` or `views--no-wrapper.html.twig`—to strip the container to its core components conditionally, whenever possible. And use the **field/view wrapper CSS classes** for more contextual styling.
+       Use specialized Twig templates—`block--no-wrapper.html.twig` or `views--no-wrapper.html.twig`—to strip the container to its core
+       components conditionally, whenever possible. And use the
+       **field/view wrapper CSS classes** for more contextual styling.
 
      - **Result:**
 
-       Contextual styling becomes cleaner, inheritance is more predictable, and the browser spends less time traversing the tree.
+       Contextual styling becomes cleaner, inheritance is more predictable,
+       and the browser spends less time traversing the tree.
 
 > _Every line of HTML you don't write is a line you don't have to debug. Shave the bloat._
 
@@ -120,7 +147,22 @@ Proper configuration ensures the module works for you, not against you. Use this
 
 - **Noscript Compatibility:**
 
-    While `<noscript>` provides a fallback, it adds HTML weight. If your target audience is modern sites or performance-critical, disable this fallback to shave off every possible byte.
+    While `<noscript>` provides a fallback, it adds HTML weight. If your target
+    audience is modern sites or performance-critical, disable this fallback to
+    shave off every possible byte.
+
+- **Blur Effect:**
+
+    While **Blur** effect provides attractive transitions, it adds HTML
+    weight. If your target audience is performance-critical, any will do:
+
+    - Disable this, and use the default **Blue loading indicator**
+    - Leverage [Animate CSS](#animate-css)
+    - Enable **Use client-side blur** with **Store blur in localStorage**
+    - Leverage `hook_blazy_settings_alter` to switch **Blue**, **Blur**, and
+      **Animate CSS** animation effects conditionally
+
+    They signifantly reduce the page wight by shaving off **Blur** large bytes.
 
 - **Fine-Tuning:**
 
@@ -129,14 +171,20 @@ Proper configuration ensures the module works for you, not against you. Use this
     cockpit for precision tuning.
 
 ---
-## <a name="cls"></a>The Big Picture: CLS Prevention
+## <a name="cls"> </a>The Big Picture: CLS Prevention
 
-While **Blazy** is optimized to eliminate shifts for media, it is only one inhabitant of a complex page ecosystem. Total layout stability requires a holistic approach to address variables that occur before or during the "DOM surgery" of a page load.
+While **Blazy** is optimized to eliminate shifts for media, it is only one
+inhabitant of a complex page ecosystem. [Total layout stability](#layouts)
+requires a holistic approach to address variables that occur before or during
+the "DOM surgery" of a page load.
 
-For components outside the Blazy ecosystem, the approach generally involves assigning a **min-height** or **predictive/fixed dimensions** to containers that may collapse. This follows the same principle used to prevent layout shifts in images when an aspect ratio cannot be applied, as outlined in the form items and [TROUBLESHOOTING](#troubleshooting) section.
+For components outside the Blazy ecosystem, the approach generally involves
+assigning a **min-height** or **predictive/fixed dimensions** to containers that
+may collapse. This follows the same principle used to prevent layout shifts in
+images when an aspect ratio cannot be applied, as outlined in the form items and [TROUBLESHOOTING](#troubleshooting) section.
 
 ### ⚠️ Variables Challenging Visual Stability
-Understanding the variables is vital for more targetted solutions.
+Understanding the variables is vital for more targeted solutions.
 
 * **Ads & Dynamic Bidding:**
 
@@ -145,7 +193,8 @@ Understanding the variables is vital for more targetted solutions.
 
 * **Core BigPipe:**
 
-    Drupal’s streaming delivery removes HTML from the initial response and injects it dynamically. With up to 6 known sequential replacements, the page
+    Drupal’s streaming delivery removes HTML from the initial response and
+    injects it dynamically. With up to 6 known sequential replacements, the page
     can "stutter" or jump repeatedly if placeholders aren't sized correctly.
 
 * **Third-party HTML & iFrames:**
@@ -165,12 +214,15 @@ The most authoritative way to prevent shift is to reserve space.
 
 * **Known Dimensions:**
 
-   If a block’s size is constant (e.g., a 300x250 ad), use a container with
-   these **fixed dimensions**.
+    If a block’s size is constant (e.g., a 300x250 ad), use a container with
+   these **fixed dimensions**. Ignoring these constraints to “catch” a click may
+   result in invalid engagement and directly degrades CLS.
 
 * **Unknown Dimensions:**
 
-    At a minimum, apply a `min-height` to BigPipe placeholders. It is visually superior to have a small gap of whitespace than to have the entire page content "leap" 500px downward. Adjust 500px to your own layout.
+    At a minimum, apply a `min-height` to BigPipe placeholders. It is visually
+    superior to have a small gap of whitespace than to have the entire page
+    content "leap" 500px downward. Adjust 500px to your own layout.
     ```css
     /* Adjust collapsed container selector. */
     .region-content {
@@ -179,7 +231,9 @@ The most authoritative way to prevent shift is to reserve space.
     ```
 
 #### 2. Aspect Ratio Boxes
-For fluid layouts, the CSS `aspect-ratio` property is your strongest ally. It allows the browser to calculate the container's footprint even when the content (like a Blazy image or BigPipe block) is still empty.
+For fluid layouts, the CSS `aspect-ratio` property is your strongest ally. It
+allows the browser to calculate the container's footprint even when the content
+(like a Blazy image or BigPipe block) is still empty.
 
 ```css
 .container {
@@ -188,20 +242,32 @@ For fluid layouts, the CSS `aspect-ratio` property is your strongest ally. It al
 ```
 
 #### 3. Slot Capping for Third-Parties
-For ads that vary in size, implement **Slot Capping**. Reserve the height of the largest possible ad. This ensures that regardless of which creative wins the
+For ads that vary in size, implement **Slot Capping**. Reserve the height of the
+largest possible ad. This ensures that regardless of which creative wins the
 bid, the content below it remains anchored.
 
 #### 4. The BigPipe + Blazy Bridge
-BigPipe delivers significant improvements to TTFB and FCP by streaming page fragments progressively. However, because it replaces placeholders in the live DOM, it can introduce CLS unless layout stability is explicitly designed into those replacement regions, as outlined above.
+BigPipe delivers significant improvements to TTFB and FCP by streaming page
+fragments progressively. However, because it replaces placeholders in the live
+DOM, it can introduce CLS unless layout stability is explicitly designed into
+those replacement regions, as outlined above.
 
-Clear separation of responsibilities enables more accurate, context-driven decisions based on your target audience: optimizing BigPipe for authenticated users with highly dynamic, PHP-driven interactions, while relying on stable, cached HTML for anonymous traffic. Within this model, Blazy remains a focused, media-level solution—addressing only media delivery and media-induced shifts,
+Clear separation of responsibilities enables more accurate, context-driven
+decisions based on your target audience: optimizing BigPipe for authenticated
+users with highly dynamic, PHP-driven interactions, while relying on stable,
+cached HTML for anonymous traffic. Within this model, Blazy remains a focused,
+media-level solution—addressing only media delivery and media-induced shifts,
 not structural layout changes introduced by the rendering pipeline itself.
 
-During BigPipe’s progressive rendering phase, Blazy functions as a coordinating layer within its own ecosystem. By extending `core/once` and responding to the completion of BigPipe’s placeholder replacements, Blazy ensures that media
+During BigPipe’s progressive rendering phase, Blazy functions as a coordinating
+layer within its own ecosystem. By extending `core/once` and responding to the
+completion of BigPipe’s placeholder replacements, Blazy ensures that media
 assets are initialized only after their structural containers have stabilized
 in the DOM.
 
 With this approach, beginning with Blazy 2.17, the vast majority of
-Blazy–BigPipe interoperability issues have been resolved. The remaining edge cases are primarily related to CSS reordering behavior (only if still an issue),
-which lies outside Blazy’s responsibility, as well as any currently unknown scenarios. We welcome reproducible reports for any such incompatibilities to
+Blazy–BigPipe interoperability issues have been resolved. The remaining edge
+cases are primarily related to CSS reordering behavior (only if still an issue),
+which lies outside Blazy’s responsibility, as well as any currently unknown
+scenarios. We welcome reproducible reports for any such incompatibilities to
 make Blazy fully compatible with Core BigPipe.

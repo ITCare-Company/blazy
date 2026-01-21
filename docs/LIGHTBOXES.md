@@ -1,6 +1,6 @@
 
 ***
-## <a name="lightboxes"></a> MULTIMEDIA LIGHTBOXES
+## <a name="lightboxes"> </a> MULTIMEDIA LIGHTBOXES
 
 All lightbox integrations are optional. If the required modules and/or libraries
 are not present, no options will appear under **Media Switcher**, with the
@@ -9,7 +9,9 @@ exception of the default **Flybox**, available since version 2.17.
 If expected options do not appear, clear caches, as **Media Switcher** options
 may be permanently cached.
 
-Most lightboxes (though not all) support responsive images, audio, and local or remote video, SoundCloud, including HTML media type like Instagram, Pinterest, etc. Known lightboxes with **Responsive Image** support include:
+Most lightboxes (though not all) support responsive images, audio, and local or
+remote video, SoundCloud, including HTML media type like Instagram, Pinterest,
+etc. Known lightboxes with **Responsive Image** support include:
 
 - Colorbox
 - Magnific Popup
@@ -61,7 +63,8 @@ Blazy provides two minimal built-in lightboxes:
     `/libraries/magnific-popup/dist/jquery.magnific-popup.min.js`
 
     No Drupal module is required, as Magnific Popup exposes no reusable
-    settings or configuration. Blazy provides its own initializer to enable advanced features such as:
+    settings or configuration. Blazy provides its own initializer to enable
+    advanced features such as:
 
     - Local and remote video
     - Responsive images and `<picture>`
@@ -70,7 +73,7 @@ Blazy provides two minimal built-in lightboxes:
 
 ---
 
-### <a name="dompurify"></a> Lightbox Captions with DOMPurify
+### <a name="dompurify"> </a> Lightbox Captions with DOMPurify
 
 To enable HTML content in lightbox captions, install **DOMPurify** via Composer
 (see the [COMPOSER](#composer) section):
@@ -89,7 +92,9 @@ Alternatively, DOMPurify can be downloaded directly from:
 
 The Composer method installs the full package by default.
 
-Blazy lightboxes support captions inside lightbox overlays. When HTML captions are used, the DOMPurify library is required. Place one of the following files inside your libraries directory:
+Blazy lightboxes support captions inside lightbox overlays. When HTML captions
+are used, the DOMPurify library is required. Place one of the following files
+inside your libraries directory:
 
 * `DOMPurify/dist/purify.min.js`
 * `dompurify/dist/purify.min.js`
@@ -97,7 +102,8 @@ Blazy lightboxes support captions inside lightbox overlays. When HTML captions a
 Ensure all library files are directly accessible by the browser and do not
 return 404 or 403 errors.
 
-If using the Colorbox module, follow its recommended library path to avoid duplicate folders. Blazy will automatically detect and use any valid
+If using the Colorbox module, follow its recommended library path to avoid
+duplicate folders. Blazy will automatically detect and use any valid
 installation.
 
 DOMPurify is optional. Without it, Blazy (sub-)modules will sanitize captions server-side using basic sanitization rules.

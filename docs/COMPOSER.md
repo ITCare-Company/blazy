@@ -1,6 +1,6 @@
 
 ***
-## <a name="composer"></a>INSTALLING THIRD-PARTY LIBRARIES VIA COMPOSER
+## <a name="composer"> </a>INSTALLING THIRD-PARTY LIBRARIES VIA COMPOSER
 Until Drupal has an official [core management of the 3rd-party front-end libraries](https://www.drupal.org/project/drupal/issues/2873160), there are various ways
 to install third party bower (deprecated)/ npm asset libraries.
 
@@ -19,7 +19,8 @@ above-mentioned issues.
 
 ### VIA ASSET-PACKAGIST.ORG
 If using [asset-packagist.org](https://asset-packagist.org/), regardless cons,
-be sure to set up your composer.json correctly. Be warned! Invalid JSON may break; normally unwanted trailing commas.
+be sure to set up your composer.json correctly. Be warned! Invalid JSON may
+break; normally unwanted trailing commas.
 
 1. Add/ merge these lines, add commas as required:
 ````
@@ -51,7 +52,7 @@ be sure to set up your composer.json correctly. Be warned! Invalid JSON may brea
 
 3. Require [composer-installers-extender](https://github.com/oomphinc/composer-installers-extender):
 
-  `composer require oomphinc/composer-installers-extender`
+   `composer require oomphinc/composer-installers-extender`
 
 4. Then require any libraries as usual only prefixed with `npm-asset`, or
    `bower-asset` (deprecated). The versions must be re-checked, just samples:
@@ -73,4 +74,5 @@ be sure to set up your composer.json correctly. Be warned! Invalid JSON may brea
 
 > [!WARNING]
 > To avoid potential security issues, please only install the `dist` directory,
-if any, or only the required files, and not any other files from the archive. Check out the relevant module project requirements for the exact needed files.
+if any, or only the required files, and not any other files from the archive.
+Check out the relevant module project requirements for the exact needed files.

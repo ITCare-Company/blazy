@@ -2,7 +2,8 @@
 ***
 ## <a name="galleries"> </a>MULTIMEDIA GALLERY VIA VIEWS UI
 #### Using **Blazy Grid**
-For massive galleries, using **Blazy Grid + Lightbox** (Colorbox, PhotoSwipe, etc.) is objectively faster than a slider-only implementation for static
+For massive galleries, using **Blazy Grid + Lightbox** (Colorbox, PhotoSwipe,
+etc.) is objectively faster than a slider-only implementation for static
 viewing. Grid is the recommended alternative to sliders.
 
 1. Add a Views style **Blazy Grid** for entities containing Media or Image.

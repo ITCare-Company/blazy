@@ -57,18 +57,11 @@ class Markdown {
         $converter = new CommonMarkConverter();
       }
 
-      // Avoid risks for convertToHtml until proper checks.
+      // @todo figure out the best solution, not crucial for being optional.
       /** @phpstan-ignore-next-line */
       if (method_exists($converter, 'convert')) {
-        $text = (string) $converter->convert($text);
-      }
-      else {
-        // Deprecated since 2.2.
-        $method = 'convertToHtml';
         /** @phpstan-ignore-next-line */
-        if (is_callable([$converter, $method])) {
-          $text = (string) $converter->{$method}($text);
-        }
+        $text = (string) $converter->convert($text);
       }
     }
     elseif (class_exists(MarkdownExtra::class)) {

@@ -1,5 +1,9 @@
 
 
+Blazy 3.0.x-dev, 2026-01-21
+---------------------------
+- Added Blur effect replacement strategy with animate.css.
+
 Blazy 3.0.x-dev, 2026-01-19
 ---------------------------
 - Fixed for markdown table.

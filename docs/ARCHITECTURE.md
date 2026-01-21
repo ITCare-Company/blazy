@@ -17,9 +17,10 @@ assets. Historically, this signature principle was defined by the mandate:
 approach, proven to withstand the rigors of **Core Web Vitals (CWV)**.
 
 While Blazy is purpose-built to optimize media delivery and prevent
-media-induced layout shifts, it operates within a broader, interconnected page ecosystem. As a result, achieving true layout stability extends beyond any
-single module. **Cumulative Layout Shift (CLS)**
-[must be addressed holistically](#cls), with coordinated responsibility across markup, rendering strategies, and interacting subsystems—not media alone.
+media-induced layout shifts, it operates within a broader, interconnected page ecosystem. As a result, achieving [true layout stability](#layouts) extends
+beyond any single module. **Cumulative Layout Shift (CLS)**
+[must be addressed holistically](#cls), with coordinated responsibility across
+markup, rendering strategies, and interacting subsystems—not media alone.
 
 ---
 
@@ -28,7 +29,8 @@ single module. **Cumulative Layout Shift (CLS)**
 
 **Short answer:**
 
-We don't view it as a user preference, but we value diverse POVs. Feel free to choose your own adventure!
+We don't view it as a user preference, but we value diverse POVs. Feel free to
+choose your own adventure!
 
 **Long answer:**
 
@@ -148,14 +150,15 @@ delivery.
     1. Initialize a simple **Blazy Image**, the most basic formatter.
     2. Enable the **No JavaScript** option and remove polyfills in the UI.
     3. Disable all JS-dependent features (Blur, Lightbox, Media players,
-       Responsive Image/Picture, etc.).
+       Responsive Image/Picture, Aspect ratio Fluid, etc.).
 
 - **Observe the result:**
 
     Blazy is engineered to serve **zero JavaScript**. We provide the framework
     for total minimalism; while the final execution weight is an artistic
     choice, reaching the **33kB threshold** is impossible unless you permit
-    systemic design inconsistency on a single page. This is impractical given Blazy’s feature set—useful only as a PoC.
+    systemic design inconsistency on a single page. This is impractical given
+    Blazy’s feature set—useful only as a PoC.
 
 > **Disclaimer on Technical Terminology:**
 >

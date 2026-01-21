@@ -311,6 +311,13 @@ function hook_blazy_attach_alter(array &$load, array $settings) {
       'container' => blazy()->renderInIsolation($template),
     ];
   }
+
+  // Attach animate.css library only if the Image effect is anything but Blur.
+  // See hook_blazy_image_effects_alter() to register the effects.
+  $fx = $blazies->get('fx');
+  if ($fx && $fx != 'blur') {
+    $load['library'][] = 'MY_MODULE/animation';
+  }
 }
 
 /**
@@ -325,6 +332,26 @@ function hook_blazy_attach_alter(array &$load, array $settings) {
  */
 function hook_blazy_lightboxes_alter(array &$lightboxes) {
   $lightboxes[] = 'photoswipe';
+}
+
+/**
+ * Alters available Image effect option at Blazy UI.
+ *
+ * @param array $effects
+ *   The array of Image effect options being modified, default to Blur.
+ *
+ * @see \Drupal\blazy\Utility\Animation
+ * @see /admin/help/blazy_ui#animate-css
+ * @see hook_blazy_attach_alter
+ *
+ * @ingroup blazy_api
+ */
+function hook_blazy_image_effects_alter(array &$effects) {
+  // Use Drupal\blazy\Utility\Animation
+  // to add Image effect options based on animate.css at Blazy UI.
+  // $effects += Animation::animations();
+  // Or use a special animation.
+  $effects[] = 'peekaboo';
 }
 
 /**
@@ -473,6 +500,13 @@ function hook_blazy_settings_alter(array &$build, $object) {
   $id = $blazies->get('entity.id');
   if ($id && in_array($id, [45, 67])) {
     $blazies->set('ui.placeholder', '/blank.gif');
+  }
+
+  // Override Image effect: Blur or animate.css effects based on pages:
+  if ($id && in_array($id, [77, 123])) {
+    // If you have global Image effect:zoomIn, change it to anything else here.
+    // See hook_blazy_image_effects_alter.
+    $blazies->set('fx', 'wobble');
   }
 
   // Alternatively override views blocks identified by `view.view_mode` with

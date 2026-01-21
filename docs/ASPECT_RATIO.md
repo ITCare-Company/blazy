@@ -1,12 +1,19 @@
 
 ***
-## <a name="aspect-ratio"></a>ASPECT RATIO & LAYOUT STABILITY
-The **Aspect Ratio** is our primary defense against **Cumulative Layout Shift (CLS)**, particularly when using JavaScript-based lazy loading or responsive iframes. By reserving the correct space before media loads, we prevent container collapse, white space below media, distorted elements, and unexpected page
-jumps:
+## <a name="aspect-ratio"> </a>ASPECT RATIO & LAYOUT STABILITY
+The **Aspect Ratio** is the primary defense against
+**Cumulative Layout Shift (CLS)**, particularly when using JavaScript-based lazy
+loading or responsive iframes. By reserving the correct space before media, we
+prevent container collapse, white space below media, distorted elements, and
+unexpected page jumps:
   * —essential for both user experience and SEO rankings.
   * —a critical requirement for cross-browser compatibility and legacy support.
 
-While modern browsers can often derive this from inline `width` and `height` attributes (Native Lazy Loading), **Fluid Logic** and JavaScript-based solutions offer superior **adaptive intelligence**: they can delegate the task to the browser's native engine when available, while providing a robust fallback for older environments.
+While modern browsers can often derive this from inline `width` and `height`
+attributes (Native Lazy Loading), **Fluid Logic** and JavaScript-based solutions
+offer superior **adaptive intelligence**: they can delegate the task to the
+browser's native engine when available, while providing a robust fallback for
+older environments.
 
 ### Core Implementation Logic
 The system now utilizes a **Modern-First** strategy (v3.0.17+) with intelligent fallbacks to ensure cross-browser stability:
@@ -14,11 +21,13 @@ The system now utilizes a **Modern-First** strategy (v3.0.17+) with intelligent 
 - **Modern CSS `aspect-ratio`**:
 
     If **Use modern CSS aspect-ratio** is enabled in Blazy UI, the system
-    utilizes native CSS properties, significantly cleaner for themers.
+    utilizes native CSS properties, significantly cleaner for themers and less
+    hacky.
 
 - **Adaptive Intelligence**:
 
-    JavaScript-based lazy loading detects browser support; it delegates tasks to the native engine when available but maintains the **padding-bottom hack**
+    JavaScript-based lazy loading detects browser support; it delegates tasks to
+    the native engine when available but maintains the **padding-bottom hack**
     for legacy environments.
 
 - **Fluid Logic**:
@@ -29,7 +38,8 @@ The system now utilizes a **Modern-First** strategy (v3.0.17+) with intelligent 
 
 - **Responsive Images**:
 
-    Currently, responsive images (including Picture element) continue to utilize padding hacks due to the complexity of varied source sizes.
+    Currently, responsive images (including Picture element) continue to utilize
+    padding hacks due to the complexity of varied source sizes.
 
 ---
 
@@ -40,10 +50,12 @@ The system now utilizes a **Modern-First** strategy (v3.0.17+) with intelligent 
 * This replaces legacy padding hacks with native CSS.
 * **Customization**:
 
-   Override `css/components/blazy.ratio.css` and `css/components/blazy.ratio-modern.css` for custom styling.
+   Override `css/components/blazy.ratio.css` and
+   `css/components/blazy.ratio-modern.css` for custom styling.
 
 #### 2. Defining Custom Ratios
-To extend the default ratios (1:1, 4:3, 16:9, etc.), use `hook_blazy_settings_alter`:
+To extend the default ratios (1:1, 4:3, 16:9, etc.), use
+`hook_blazy_settings_alter`:
 
 ```php
 // Appending custom ratios (7:8, 6:5) to the existing set.
@@ -56,7 +68,9 @@ The `TRUE` flag ensures to append, not nullify, the existing ones:
 See [**blazy.api.php**](https://git.drupalcode.org/project/blazy/blob/3.0.x/blazy.api.php) for the available `hook_alter`.
 
 #### 3. Image Styles
-For the best results, create Image Styles that match your defined aspect ratios and select the **Fluid** option in the formatter. The system will automatically pick the matching ratio for pure CSS execution.
+For the best results, create Image Styles that match your defined aspect ratios
+and select the **Fluid** option in the formatter. The system will automatically
+pick the matching ratio for pure CSS execution.
 
 Create image styles that stick to the default or custom aspect ratios:
   * [/admin/config/media/image-styles](/admin/config/media/image-styles)
@@ -82,12 +96,15 @@ be applied strategically based on your layout architecture.
 
 - **Grid Distortions:**
 
-    If your grid appears broken, the image aspect ratio is likely conflicting with the grid's own constraints. Disable the ratio for these specific elements.
+    If your grid appears broken, the image aspect ratio is likely conflicting
+    with the grid's own constraints. Disable the ratio for these specific
+    elements.
 
 - **Missing Custom Ratios:**
 
     If a custom ratio isn't appearing, ensure you have cleared the cache after
-  your procedural function change and that your theme contains the matching CSS rule following the convention in `blazy.ratio.css`.
+  your procedural function change and that your theme contains the matching CSS
+  rule following the convention in `blazy.ratio.css`.
 
 **References:**
 
@@ -95,7 +112,7 @@ be applied strategically based on your layout architecture.
 * [MDN Web Docs: aspect-ratio](https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio)
 
 ---
-## <a name="aspect-ratio-template"></a>ASPECT RATIO TEMPLATE
+## <a name="aspect-ratio-template"> </a>ASPECT RATIO TEMPLATE
 ### Tools to check aspect ratio:
 https://size43.com/jqueryVideoTool.html
 

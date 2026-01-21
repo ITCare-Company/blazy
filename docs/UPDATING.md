@@ -1,8 +1,11 @@
 
 ***
-## <a name="updating"></a>Standard Operating Procedure (SOP) for Updates
+## <a name="updating"> </a>Standard Operating Procedure (SOP) for Updates
 
-> **Documentation Scope:** This documentation is comprehensive to serve as a definitive resource and reduce repetitive support inquiries. If you are an experienced site-builder, feel free to bypass the foundational steps. However, for those seeking a guaranteed stable deployment, these procedures are
+> **Documentation Scope:** This documentation is comprehensive to serve as a
+definitive resource and reduce repetitive support inquiries. If you are an
+experienced site-builder, feel free to bypass the foundational steps. However,
+for those seeking a guaranteed stable deployment, these procedures are
 mandatory.
 
 ### Quick Start: Update Commands
@@ -21,11 +24,14 @@ mandatory.
 > [!IMPORTANT]
 > **The Golden Rule of Updates:**
 >
-> Strict adherence to the order of operations below is required. If your site becomes unstable, **do not uninstall the module** (which destroys
-configuration). Instead, downgrade to your previous version, clear all caches, and restart this SOP from step one.
+> Strict adherence to the order of operations below is required. If your site
+becomes unstable, **do not uninstall the module** (which destroys
+configuration). Instead, downgrade to your previous version, clear all caches,
+and restart this SOP from step one.
 
 #### 1. Update via Composer
-For major version upgrades (e.g., 2.x to 3.x), you must perform a **parallel upgrade** to ensure all dependencies resolve simultaneously.
+For major version upgrades (e.g., 2.x to 3.x), you must perform a
+**parallel upgrade** to ensure all dependencies resolve simultaneously.
 
 * **Main Module only:**
 ```bash
@@ -37,10 +43,12 @@ For major version upgrades (e.g., 2.x to 3.x), you must perform a **parallel upg
    composer require drupal/blazy:^3.0 drupal/slick:^3.0 drupal/slick_views:^3.0 -W -n
 ```
 
-**Note:** The `-W` (with-dependencies) and `-n` (no-interaction) flags ensure a smooth, automated update of the entire tree.
+**Note:** The `-W` (with-dependencies) and `-n` (no-interaction) flags ensure a
+smooth, automated update of the entire tree.
 
 #### 2. Update via Drush (The Preferred Method)
-Once composer is done, ​execute this specific sequence to ensure the container and database are synchronized:
+Once composer is done, ​execute this specific sequence to ensure the container
+and database are synchronized:
 
 ```bash
 drush cr && drush updb && drush cr
@@ -50,37 +58,68 @@ The first `drush cr` ensures the new code is (re-)mapped correctly in
 `../files/php`. Failing to do this is the major error reason.
 
 #### 3. Update via UI (Manual / No-Drush)
-If you do not have access to Drush, follow these steps in strict order. **Preparation (backup) is vital**.
+If you do not have access to Drush, follow these steps in strict order.
+**Preparation (backup) is vital**.
 
-1. **Staging First:** Never update Production directly. Test on a Dev/Staging environment and ensure you have a fresh backup (e.g., via [backup_migrate](https://drupal.org/project/backup_migrate)). If you override asset or template files, be sure to cross-check against the latest releases for any potential changes (see the relevant **Change Records** links from the ecosystem project homes), and re-adjust them accordingly. Major releases may have potentially breaking changes to leverage either Core upgrade requirements or any internal major betterment like seen from Blazy 2.17 to 3.x, see more details if any provided at [Admin status](/admin/reports/status).
+1. **Staging First:**
+
+   Never update Production directly. Test on a Dev/Staging environment and
+   ensure you have a fresh backup (e.g., via
+   [backup_migrate](https://drupal.org/project/backup_migrate)). If you override
+   asset or template files, be sure to cross-check against the latest releases
+   for any potential changes (see the relevant **Change Records** links from the
+   ecosystem project homes), and re-adjust them accordingly. Major releases may
+   have potentially breaking changes to leverage either Core upgrade
+   requirements or any internal major betterment like seen from Blazy 2.17 to
+   3.x, see more details if any provided at
+   [Admin status](/admin/reports/status).
 
 2. **Maintenance Mode:**
-Place the site in [Maintenance Mode](/admin/config/development/maintenance).
 
-3. **The "Safety Tab":** Open the [**Performance Page**](/admin/config/development/performance) in a separate browser tab. Do not close or reload this tab. This is your emergency access to clear caches if the rest of the UI breaks.
+   Place the site in [Maintenance Mode](/admin/config/development/maintenance).
 
-4. **Download Files:** Replace the module files via the
+3. **The "Safety Tab":**
+
+   Open the [**Performance Page**](/admin/config/development/performance) in a
+   separate browser tab. Do not close or reload this tab. This is
+   your emergency access to clear caches if the rest of the UI breaks.
+
+4. **Download Files:**
+
+   Replace the module files via the
    [Update UI](/admin/modules/update), FTP or Composer.
 
-5. **Pre-Update Cache Clear:** Before running any database updates, hit
-   "**Clear all caches**". This ensures the new code is mapped correctly in
-   `../files/php`. Failing to do this is the major error reason.
+5. **Pre-Update Cache Clear:**
 
-6. **Run Updates:** Navigate to `/update.php` in your browser and execute
-   pending tasks.
+   Before running any database updates, hit "**Clear all caches**". This ensures
+   the new code is mapped correctly in `../files/php`. Failing to do this is the
+   major error reason.
 
-7. **Post-Update Cache Clear:** Clear all caches a second time.
+6. **Run Updates:**
 
-8. **Rebuild Assets:** Only if you see CSS/JS issues and regular cache clearing
-   fails, toggle aggregation on the Performance page to force a regeneration
-   assets.
+   Navigate to `/update.php` in your browser and execute pending tasks.
 
-9. **Verification:** Verify the latest status at
-   [Admin status](/admin/reports/status) and view your site.
+7. **Post-Update Cache Clear:**
+
+   Clear all caches a second time.
+
+8. **Rebuild Assets:**
+
+   Only if you see CSS/JS issues and regular cache clearing fails, toggle
+   aggregation on the
+   [**Performance Page**](/admin/config/development/performance) to force a
+   regeneration assets.
+
+9. **Verification:**
+
+   Verify the latest status at [Admin status](/admin/reports/status) and view
+   your site.
 
 ---
-## <a name="wsod"></a>Emergency Recovery (WSOD)
-This might or might not be related to Blazy updates. If you encounter a **White Screen of Death** (WSOD) that a standard cache clear cannot fix, perform a total environment rebuild:
+## <a name="wsod"> </a>Emergency Recovery (WSOD)
+This might or might not be related to Blazy updates. If you encounter a
+**White Screen of Death** (WSOD) that a standard cache clear cannot fix, perform
+a total environment rebuild:
 
 1. Rename or delete the `composer.lock` file and the `/vendor` directory.
 2. Run `composer update -W -n` to reinstall a clean dependency tree.
@@ -88,7 +127,8 @@ This might or might not be related to Blazy updates. If you encounter a **White 
     * `web/sites/default/files/css`
     * `web/sites/default/files/js`
 4. Run the Drush "Power Cycle": `drush cr && drush updb && drush cr`.
-5. If WSOD persists, capture the error message/log; search or post it to any suspect module mentioned in it.
+5. If WSOD persists, capture the error message/log; search or post it to any
+   uspect module mentioned in it.
 
 **Note on Stability:**
 Alpha, Beta, and DEV releases are for development environments. Always align
