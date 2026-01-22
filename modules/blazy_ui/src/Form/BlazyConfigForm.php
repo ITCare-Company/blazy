@@ -149,6 +149,13 @@ class BlazyConfigForm extends BlazyConfigFormBase {
       '#default_value' => $config->get('lazy_html'),
     ];
 
+    $form['use_encodedbox'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Use encoding for HTML (Experimental)'),
+      '#description'   => $this->t('If checked, and the lightbox supports this feature, the lightbox HTML (normally local audio/video, Picture/Responsive image, oembed Instagram, etc.) will be encoded. Also applies to CSS background. A minor byte saving. Please disable if any issues.'),
+      '#default_value' => $config->get('use_encodedbox'),
+    ];
+
     $form['ratio_modern'] = [
       '#type'          => 'checkbox',
       '#title'         => $this->t('Use modern CSS aspect-ratio (Experimental)'),
@@ -158,13 +165,6 @@ class BlazyConfigForm extends BlazyConfigFormBase {
         ':msdn' => 'https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio',
       ]),
       '#default_value' => $config->get('ratio_modern'),
-    ];
-
-    $form['use_encodedbox'] = [
-      '#type'          => 'checkbox',
-      '#title'         => $this->t('Use encoding for HTML (Experimental)'),
-      '#description'   => $this->t('If checked, and the lightbox supports this feature, the lightbox HTML (normally local audio/video, Picture/Responsive image, oembed Instagram, etc.) will be encoded. Also applies to CSS background. A minor byte saving. Please disable if any issues.'),
-      '#default_value' => $config->get('use_encodedbox'),
     ];
 
     $nojs = $config->get('nojs');

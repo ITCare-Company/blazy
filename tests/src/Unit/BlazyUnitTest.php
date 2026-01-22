@@ -84,7 +84,7 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Tests \Drupal\blazy\Theme\BlazyTheme::blazy.
+   * Tests \Drupal\blazy\Hook\ThemeHooks::preprocessBlazy.
    *
    * @param array $settings
    *   The settings being tested.
@@ -121,6 +121,7 @@ class BlazyUnitTest extends UnitTestCase {
     $variables['element']['#item'] = $item == TRUE ? $this->mockItem : NULL;
     $variables['element']['#settings'] = $settings;
 
+    // @todo update to ThemeHooks::preprocessBlazy($variables).
     BlazyTheme::blazy($variables);
 
     $image = $expected_image == TRUE ? !empty($variables['image']) : empty($variables['image']);

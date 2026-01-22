@@ -207,6 +207,16 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       }
     }
 
+    $form['settings']['hero'] = [
+      '#type'          => 'textfield',
+      '#title'         => $this->t('Hero region'),
+      '#description'   => $this->t("Choose the delta of region if it should be treated as Hero. Normally the largest media background. Leave it as is if this layout is embedded under a Hero. Hero media should only exist once per page like Page Title."),
+      '#weight'        => 30,
+      '#default_value' => $settings['hero'],
+    ];
+
+    $this->admin->themeDescription($form['settings']['hero']);
+
     // AJAX element.
     $form['settings']['count']['#ajax'] = [
       'callback' => [$this, 'countCallback'],

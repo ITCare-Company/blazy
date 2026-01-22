@@ -147,7 +147,7 @@ trait TraitDescriptions {
       return '';
     }
     $url = Url::fromRoute('entity.responsive_image_style.collection')->toString();
-    $description = $this->t('Responsive image style for the main stage image is more reasonable for large images. Works with multi-serving IMG, or PICTURE element. Leave empty to disable. <a href=":url" target="_blank">Manage responsive image styles</a>.', [
+    $description = $this->t('Responsive image style for the main stage image is more reasonable for large images. Works with multi-serving IMG, PICTURE element, or CSS background to have multi-breakpoint backgrounds. Leave empty to disable. <a href=":url" target="_blank">Manage responsive image styles</a>.', [
       ':url' => $url,
     ]);
     if ($this->blazyManager->moduleExists('blazy_ui')) {
@@ -196,7 +196,7 @@ trait TraitDescriptions {
    */
   private function background(): string {
     $lb = $this->isAdminLb();
-    return $this->t('Check this to turn the image into CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires an Aspect ratio, otherwise collapsed containers. Unless explicitly removed such as for GridStack which manages its own problem, or a min-height is added using grid min-height (see Blazy layout sub-module Grid option), or manually to <strong>.b-bg</strong> selector. @lb', [
+    return $this->t('Check this to turn the image into CSS background. Use Responsive image to have multi-breakpoint CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires an Aspect ratio, otherwise collapsed containers. Unless explicitly removed such as for GridStack which manages its own problem, or a min-height is added using grid min-height (see Blazy layout sub-module Grid option), or manually to <strong>.b-bg</strong> selector. @lb', [
       '@lb' => $lb ? $this->t('<br><strong>Note!</strong> Must disable <strong>Use field template</strong> (if provided, default to FALSE) for background to work.') : '',
     ]);
   }

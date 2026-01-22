@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\internals;
 
+use Drupal\Component\Utility\Unicode;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazySettings;
@@ -17,6 +18,35 @@ use Drupal\blazy\Utility\CheckItem;
  *   blazy-related code in Blazy module.
  */
 class Settings {
+
+  /**
+   * Implements hook_config_schema_info_alter().
+   */
+  public static function configSchemaInfoAlter(
+    array &$definitions,
+    $formatter = 'blazy_base',
+    array $settings = [],
+  ): void {
+    if (isset($definitions[$formatter])) {
+      $mappings = &$definitions[$formatter]['mapping'];
+      $settings += BlazyDefault::extendedSettings();
+      $settings += BlazyDefault::gridSettings();
+      $settings += BlazyDefault::svgSettings();
+      $settings += BlazyDefault::deprecatedSettings();
+      $settings += BlazyDefault::nonBlazySettings();
+
+      foreach ($settings as $key => $value) {
+        // Seems double is ignored, and causes a missing schema, unlike float.
+        $type = gettype($value);
+        $type = $type == 'double' ? 'float' : $type;
+        $mappings[$key]['type'] = is_array($value) ? 'sequence' : $type;
+
+        if (!is_array($value)) {
+          $mappings[$key]['label'] = Unicode::ucfirst(str_replace('_', ' ', $key));
+        }
+      }
+    }
+  }
 
   /**
    * Provides common content settings.
@@ -128,6 +158,19 @@ class Settings {
   /**
    * Disable old [data-SRC|SRCSET] lazyload for LCP or Native lazyloading.
    *
+   * Since BG is not supported by Native lazy, it must stay lazyloaded, except:
+   * - lcp: Hero static/slider is chosen for initial item, normally delta 0.
+   * Since Blazy:3.0.17, it supports static Heroes apart from slider Heroes.
+   * - static: CK Editor/ preview mode, AMP, and sandboxed mode.
+   */
+  public static function isUnlazyBg($blazies): bool {
+    return $blazies->is('lcp')
+      || $blazies->is('static');
+  }
+
+  /**
+   * Disable old [data-SRC|SRCSET] lazyload for LCP or Native lazyloading.
+   *
    * The following will disable old lazyload [data-] attributes if:
    * - lcp: Hero static/slider is chosen for initial item, normally delta 0.
    * Since Blazy:3.0.17, it supports static Heroes apart from slider Heroes.
@@ -199,7 +242,7 @@ class Settings {
     $child  = $childsets['blazies'];
 
     if ($bg = $parentsets['background'] ?? FALSE) {
-      $parent->set('is.bg', $bg);
+      $parent->set('use.bg', $bg);
     }
 
     // $parent->set('first.settings', array_filter($child));

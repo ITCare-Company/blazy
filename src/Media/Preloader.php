@@ -5,6 +5,7 @@ namespace Drupal\blazy\Media;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Utility\CheckItem;
+use Drupal\blazy\internals\Internals;
 
 /**
  * Provides preload utility.
@@ -110,10 +111,10 @@ class Preloader {
       // Respects empty URI to keep indices intact for correct mixed media.
       $image = $func($item, $entity, $key);
 
-      $images[] = $image;
+      $images[$key] = $image;
 
       if (empty($image['uri'])) {
-        $empties[] = TRUE;
+        $empties[$key] = TRUE;
       }
     }
 
@@ -121,7 +122,7 @@ class Preloader {
     $images = $empty ? array_filter($images) : $images;
 
     // This is also required by BlazyResponsiveImage::sources().
-    $blazies->set('images', $images);
+    $blazies->set('images', $images, TRUE);
 
     // Checks for [Responsive] image dimensions and sources for formatters
     // and filters. Sets dimensions once, if cropped, to reduce costs with ton
@@ -129,10 +130,28 @@ class Preloader {
     // These also provide data for the Preload option.
     if (!$blazies->was('resimage_dimensions')) {
       $unstyled = $blazies->get('first.unstyled');
-      if (!$unstyled && $blazies->get('first.uri')) {
-        $resimage = BlazyResponsiveImage::toStyle($settings, $unstyled);
+      $resimage = $blazies->get('resimage.style');
+
+      // @todo recheck $blazies->get('first.uri').
+      if (!$unstyled) {
+        if ($heroes = $blazies->get('heroes')) {
+          if ($hero_style = $heroes['responsive_image_style'] ?? NULL) {
+            if (!$blazies->get('heroes.responsive_image.id')) {
+              if ($manager = Internals::service('blazy.manager')) {
+                $resimage = $manager->load($hero_style, 'responsive_image_style') ?: $resimage;
+              }
+            }
+          }
+        }
+        else {
+          $resimage = BlazyResponsiveImage::toStyle($settings, $unstyled);
+        }
+
         if ($resimage) {
           BlazyResponsiveImage::dimensions($settings, $resimage, TRUE);
+
+          $blazies->set('heroes.reponsive_image.style', $resimage)
+            ->set('heroes.reponsive_image.id', $resimage->id());
         }
         elseif ($style) {
           BlazyImage::cropDimensions($settings, $style);

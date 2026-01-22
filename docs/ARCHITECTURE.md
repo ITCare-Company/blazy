@@ -25,7 +25,8 @@ markup, rendering strategies, and interacting subsystems—not media alone.
 ---
 
 ### <a name="why-cwv"> </a>I. Throughput vs. Perceptual Timing
-> _Why would I care about CWV and specifically LCP, when I can have overall lighter page weight with native lazy loading alone?_
+> _Why would I care about CWV and specifically LCP, when I can have overall
+> lighter page weight with native lazy loading alone?_
 
 **Short answer:**
 

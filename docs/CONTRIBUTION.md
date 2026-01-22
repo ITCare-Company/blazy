@@ -21,6 +21,7 @@ use default formatters to rule out custom overrides.
 * **Sync Branches:** Ensure related modules are on matching or compatible
 branches.
 * **Search First:** Check the issue queue for duplicates.
+* **Validate:** Ensure you are working against the latest **dev branch**.
 * **Categorize:** When in doubt, file as a **Support Request**. Valid bugs
 will be re-categorized by maintainers upon verification.
 

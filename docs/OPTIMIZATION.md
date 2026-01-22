@@ -136,7 +136,8 @@ integrity.
        Contextual styling becomes cleaner, inheritance is more predictable,
        and the browser spends less time traversing the tree.
 
-> _Every line of HTML you don't write is a line you don't have to debug. Shave the bloat._
+> _Every line of HTML you don't write is a line you don't have to debug.
+> Shave the bloat._
 
 ### 5. Automated Intelligence & Modern Standards
 
@@ -153,16 +154,17 @@ integrity.
 
 - **Blur Effect:**
 
-    While **Blur** effect provides attractive transitions, it adds HTML
-    weight. If your target audience is performance-critical, any will do:
+    While **Blur** effect provides attractive animations and transitions, it
+    adds HTML weight. If your target audience is performance-critical, any will
+    do:
 
-    - Disable this, and use the default **Blue loading indicator**
+    - Disable **Blur**, and use the default **Blue loading indicator**
     - Leverage [Animate CSS](#animate-css)
     - Enable **Use client-side blur** with **Store blur in localStorage**
     - Leverage `hook_blazy_settings_alter` to switch **Blue**, **Blur**, and
       **Animate CSS** animation effects conditionally
 
-    They signifantly reduce the page wight by shaving off **Blur** large bytes.
+    They signifantly reduce the page weight by shaving off **Blur** large bytes.
 
 - **Fine-Tuning:**
 
@@ -267,7 +269,7 @@ in the DOM.
 
 With this approach, beginning with Blazy 2.17, the vast majority of
 Blazy–BigPipe interoperability issues have been resolved. The remaining edge
-cases are primarily related to CSS reordering behavior (only if still an issue),
-which lies outside Blazy’s responsibility, as well as any currently unknown
+cases are primarily related to CSS reordering behavior (only if still an issue,
+which lies outside Blazy’s responsibility), as well as any currently unknown
 scenarios. We welcome reproducible reports for any such incompatibilities to
 make Blazy fully compatible with Core BigPipe.

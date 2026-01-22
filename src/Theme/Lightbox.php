@@ -434,7 +434,7 @@ class Lightbox {
       $attrs['class'][] = 'litebox--html';
     }
 
-    if ($blazies->is('bg')) {
+    if ($blazies->use('bg')) {
       $attrs['class'][] = 'litebox--bg';
     }
 

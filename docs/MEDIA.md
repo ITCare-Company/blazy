@@ -71,23 +71,27 @@ The **Blur** effect can be replaced with `animate.css`.
 
 #### Animation Sample:
 - [GridStack](https://drupal.org/project/gridstack) at **Layout Builder** pages
-- Use `Drupal\blazy\Utility\Animation` for quick population into **Blur**
-  option.
+- Use `Drupal\blazy\Utility\Animation` for quick population into
+  **Image effect** option containing the **Blur** effect.
 - See [blazy.api.php](https://git.drupalcode.org/project/blazy/blob/3.0.x/blazy.api.php)
 
 #### Required Implementation Strategy:
 1.  **Animation Registration**: Register animations via
     `hook_blazy_image_effects_alter`.
 2.  **Attach the Library**: Use your theme, or `hook_blazy_attach_alter` to
-    load the library conditionally.
-3.  **Effect Selection**: Choose the effects at **Blazy UI > Image effect**
-    after cache clearing.
+    load the library selectively.
+3.  **Effect Selection**: Choose the effects at **Blazy UI > Image effect**,
+    available after cache clearing.
 
 #### Optional Implementation Strategy:
 1.  **Granular Control**: Use `hook_blazy_settings_alter` to programmatically
     inject or even switch the `blazies.fx` setting based on specific context.
-2.  **Preprocess Overrides**: Put the relevant attributes into `.media`, only
-    if fine-graned controls are required, otherwise default will do:
+2.  **CSS Overrides**: Override CSS using `.media` selector; it is more
+    efficient to modify or override duration, delay and iteration in CSS
+    than preprocess surgery.
+2.  **Preprocess Overrides**: Tough route for non-CSS-savvy users. Put the
+    relevant attributes into `.media`, only if fine-graned controls are
+    required, otherwise default will do:
 
 ```php
 /**
@@ -104,8 +108,8 @@ function MYTHEME_preprocess_blazy(&$variables) {
 
     // Everything is optional for fine grained control, Blazy will automatically
     // populate animation name based on Image effect option, and that should
-    // work immediately when the library is correctly loaded.
-    // Overrides animation attributes accordingly for more controls.
+    // work immediately when the library is correctly loaded. Two options:
+    // Overrides animation attributes here accordingly for more controls.
     $variables['attributes'][$prefix] = $blazies->get('fx') ?: 'wobble';
     $variables['attributes'][$prefix . '-duration'] = '3s';
     $variables['attributes'][$prefix . '-delay'] = '.3s';

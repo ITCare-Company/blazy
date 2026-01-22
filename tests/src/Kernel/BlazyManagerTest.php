@@ -187,6 +187,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $variables['element']['#item'] = $item;
     $variables['element']['#settings'] = $settings;
 
+    // @todo update to ThemeHooks::preprocessBlazy($variables).
     BlazyTheme::blazy($variables);
 
     $image  = $expected == TRUE ? !empty($variables['image']) : empty($variables['image']);
@@ -275,6 +276,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
       $variables['img_element']['#uri'] = $this->uri;
 
+      // @todo update to ThemeHooks::preprocessResponsiveImage($variables).
       BlazyTheme::responsiveImage($variables);
 
       $this->assertEquals($expected, $variables['output_image_tag']);

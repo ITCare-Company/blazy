@@ -1,4 +1,11 @@
 
+Blazy 3.0.x-dev, 2026-01-22
+---------------------------
+- Refactored hooks for easy D12 update.
+- Disengaged lazy.html from regular lazyload for being standalone option.
+- Fixed for BG with No JavaScript. BG requires JS for multi-breakpoint.
+- Removed blazies.is.bg for blazies.use.bg.
+
 Blazy 3.0.x-dev, 2026-01-21
 ---------------------------
 - Issue #3511029 by skymen, jura.khrapunov: Deprecated function: strpos() ...

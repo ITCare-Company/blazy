@@ -128,7 +128,7 @@ a total environment rebuild:
     * `web/sites/default/files/js`
 4. Run the Drush "Power Cycle": `drush cr && drush updb && drush cr`.
 5. If WSOD persists, capture the error message/log; search or post it to any
-   uspect module mentioned in it.
+   identified module mentioned in it.
 
 **Note on Stability:**
 Alpha, Beta, and DEV releases are for development environments. Always align

@@ -97,7 +97,7 @@
  *   return $build;
  * }
  * @endcode
- * @see \Drupal\blazy\Theme\BlazyTheme::blazy()
+ * @see \Drupal\blazy\Hook\ThemeHooks::preprocessBlazy()
  * @see \Drupal\blazy\BlazyDefault::imageSettings()
  * @see \Drupal\gridstack_ui\Controller\GridStackListBuilder::buildRow()
  * @see template_preprocess_blazy()

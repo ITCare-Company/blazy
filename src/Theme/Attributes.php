@@ -52,7 +52,7 @@ class Attributes {
     $switcher = $blazies->get('lightbox.name') ?: $settings['media_switch'] ?? NULL;
 
     // Might be by-passed due to minimal settings, or outside the workflow.
-    // See \Drupal\blazy\Theme\BlazyViews::preprocessViewsView().
+    // See \Drupal\blazy\Hook\ViewsHooks::preprocessViewsView().
     if ($switcher && !$blazies->was('lightbox')) {
       Check::lightboxes($settings);
     }
@@ -130,7 +130,7 @@ class Attributes {
 
     // Since 2.17, lazy load HTML content if so-configured.
     if ($blazies->get('lazy.html')) {
-      $unlazy = Internals::isUndata($blazies);
+      $unlazy = $blazies->is('static');
 
       if (!$unlazy && $html = $blazies->get('media.encoded.content')) {
         if (!$blazies->get('bgs')) {
@@ -392,6 +392,7 @@ class Attributes {
       $trusted = $blazies->get('image.trusted');
       $url = $trusted ? $url : UrlHelper::stripDangerousProtocols($url);
       $unlazy = Internals::isUnlazy($blazies);
+      $unlazy_bg = Internals::isUnlazyBg($blazies);
 
       // Makes query selector easier for filter.
       if ($blazies->get('filter')) {
@@ -399,16 +400,17 @@ class Attributes {
       }
 
       // Native, or unlazy, has .blazy--nojs at container to fix issues, if any.
-      if (!$unlazy) {
+      // BG is not supported by Native lazyload, enforce ir.
+      if (!$unlazy || $bg && !$unlazy_bg) {
         // @todo put it back up above if any issues.
         $attributes['class'][] = $blazies->get('lazy.class', 'b-lazy');
         $attribute = $blazies->get('lazy.attribute', 'src');
         $attributes['data-' . $attribute] = $url;
       }
-      else {
-        if ($bg) {
-          self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
-        }
+
+      // If BG in static AMP or sandboxed.
+      if ($bg && $unlazy_bg) {
+        self::inlineStyle($attributes, 'background-image: url(' . $url . ');');
       }
     }
   }
@@ -792,7 +794,7 @@ class Attributes {
       $classes[] = 'blazy--nojs';
     }
 
-    if ($blazies->is('bg')) {
+    if ($blazies->use('bg')) {
       $classes[] = 'is-b-bg';
     }
 

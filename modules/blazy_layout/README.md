@@ -1,13 +1,16 @@
 
 # BLAZY LAYOUT: THE ARCHITECT’S CHOICE
 
-**Blazy Layout** provides a single layout template with dynamic regions for **Layout Builder** (LB). This isn't just another layout handler; it is a sophisticated re-imagining of the established Blazy Grid system. By
+**Blazy Layout** provides a single layout template with dynamic regions for
+**Layout Builder** (LB). This isn't just another layout handler; it is a sophisticated re-imagining of the established Blazy Grid system. By
 transforming dynamic grid options into responsive layout variants, it eliminates
 the redundant need for dozens of individual templates.
 
-We have mastered the art of the "One"—a single, noble template capable of infinite expression.
+We have mastered the art of the "One"—a single, noble template capable of
+infinite expression.
 
-> In an era of over-engineering, **Blazy Layout** honors the original intent of the web: _clean, fast, and infinitely adaptable_.
+> In an era of over-engineering, **Blazy Layout** honors the original intent of
+> the web: _clean, fast, and infinitely adaptable_.
 
 ## REQUIREMENTS
 * Core Layout Discovery.
@@ -33,7 +36,8 @@ We have mastered the art of the "One"—a single, noble template capable of infi
 
 ### MASTERING THE DYNAMIC LAYOUT
 Whether you require Flexbox, CSS3 Columns, or Native Grid—including their
-Masonry counterparts—**Blazy Layout** delivers a "one for all" solution. It is hyper-efficient, leveraging modern browser capabilities with a remarkably small CSS footprint and lean markups to produce limitless, high-performance results.
+Masonry counterparts—**Blazy Layout** delivers a "one for all" solution. It is hyper-efficient, leveraging modern browser capabilities with a remarkably small
+CSS footprint and lean markups to produce limitless, high-performance results.
 
 While Grid impresses a box, and Column a pillar depending on the selected layout engine, they refer to a region or sub-section in layout terminology.
 
@@ -41,27 +45,37 @@ While Grid impresses a box, and Column a pillar depending on the selected layout
 
   + Select **Region count** to define the allowed amount of regions.
   + Utilize the three core Grid options to define your region structure.
-    Whether you need a simple inline flow, a complex 2D grid, or a stacked mobile-first design, a single baseline template handles it all.
+    Whether you need a simple inline flow (one-dimensional), a complex 2D grid
+    (two-dimensional), or a stacked mobile-first design, a single baseline
+    handles it all.
 
 * **Universal Application:**
 
-  Effortlessly apply CSS images, solid colors, or transparent washes to the entire layout or specific sub-sections to create a striking visual
+  Effortlessly apply CSS images, solid colors, or transparent washes to the
+  entire layout or specific sub-sections to create a striking visual
   foundation.
 
 * **Atmospheric Overlays & Contrast:**
 
-  For truly "eye-catching" depth, utilize the **RGBA Overlay** option. This allows you to stack semi-transparent color filters over your images, working
-  in tandem with **Headline and Text color** options to ensure perfect contrast and brand consistency. A layout is only as good as its legibility. By controlling the overlay and the text color within a single interface, you aren't just building a page—you are composing a masterpiece of readability.
+  For truly "eye-catching" depth, utilize the **RGBA Overlay** option. This
+  allows you to stack semi-transparent color filters over your images, working
+  in tandem with **Headline and Text color** options to ensure perfect contrast
+  and brand consistency. A layout is only as good as its legibility. By
+  controlling the overlay and the text color within a single interface, you
+  aren't just building a page—you are composing a masterpiece of readability.
 
 * **Instant Feedback:**
 
-  Design at the speed of thought. A **Live Preview** is integrated directly into the configuration UI, providing immediate visual confirmation as you fine-tune your colors, backgrounds, and typography. Be sure the section, blocks and
+  Design at the speed of thought. A **Live Preview** is integrated directly into
+  the configuration UI, providing immediate visual confirmation as you fine-tune
+  your colors, backgrounds, and typography. Be sure the section, blocks and
   probably background images are added first to the page, otherwise nothing to
   see.
 
 * **Perspective:**
 
-  Engage the **Edge-to-Edge** option to allow your layout to span the full horizontal width of the viewport.
+  Engage the **Edge-to-Edge** option to allow your layout to span the full
+  horizontal width of the viewport.
 
 * **Composition:**
 
@@ -75,40 +89,7 @@ While Grid impresses a box, and Column a pillar depending on the selected layout
 ### MEDIA BACKGROUND
 Three ways to add Media (image or local|remote video) as CSS background:
 
-1. **With active entity/Content type:**
-
-   * Add a _multi-value_ Media/ Image field in the active entity/Content type.
-   * Upload some images/media (matching the amount of regions which should
-     have backgrounds) into the field. If the region total is 10, and you need
-     3 backgrounds, just upload 3 items, not 10.
-   * At LB: **Add block > Choose a block > Content fields**.
-   * Choose **Blazy formatter**, and enable **Use CSS background** option.
-   * Use **By delta** option starting from 0 to map field items to any regions
-     rather than creating multiple fields for multiple regions.
-   * Repeat for any region which may require backgrounds. Adjust **By delta**,
-     no need to match one to one delta from field items to regions.
-   * FYI, this offers more options, but might be overwhelmed for background
-     purposes.
-
-2. **With Block content type**:
-
-   * [/admin/structure/block-content](/admin/structure/block-content), add
-      a dedicated background type, says **Background**.
-
-   * [/admin/structure/block-content/manage/background/fields](/admin/structure/block-content/manage/background/fields),
-     add a Media field says **Media**, choose Image, Video and Remote video. Multi-value is better for carousel re-use.
-
-   * [/admin/structure/block-content/manage/background/display](/admin/structure/block-content/manage/background/display), choose Blazy formatter, and enable
-      **Use CSS background**.
-
-   * Create as many as blocks for background: [/block/add/background](/block/add/background), or on the fly using LB **Create content block**.
-
-   * At LB, either way:
-
-     * **Add block > Create content block**.
-     * **Add block > Choose a block > Content block**
-
-3. **With builtin Media library:**
+1. **With builtin Media library (Recommended):**
 
    * Install [Media library form element](https://www.drupal.org/project/media_library_form_element).
 
@@ -127,7 +108,40 @@ Three ways to add Media (image or local|remote video) as CSS background:
    * Repeat for any other regions as needed.
 
    * **Benefits**: No fields or blocks are created, just re-use, or create,
-     media. This is the most efficient by far for simple backgrounds.
+     media. This is the most efficient solution for simple backgrounds.
+
+2. **With active entity/Content type:**
+
+   * Add a _multi-value_ Media/ Image field in the active entity/Content type.
+   * Upload some images/media (matching the amount of regions which should
+     have backgrounds) into the field. If the region total is 10, and you need
+     3 backgrounds, just upload 3 items, not 10.
+   * At LB: **Add block > Choose a block > Content fields**.
+   * Choose **Blazy formatter**, and enable **Use CSS background** option.
+   * Use **By delta** option starting from 0 to map field items to any regions
+     rather than creating multiple fields for multiple regions.
+   * Repeat for any region which may require backgrounds. Adjust **By delta**,
+     no need to match one to one delta from field items to regions.
+   * FYI, this offers more options, but might be overwhelmed for background
+     purposes.
+
+3. **With Block content type**:
+
+   * [/admin/structure/block-content](/admin/structure/block-content), add
+      a dedicated background type, says **Background**.
+
+   * [/admin/structure/block-content/manage/background/fields](/admin/structure/block-content/manage/background/fields),
+     add a Media field says **Media**, choose Image, Video and Remote video. Multi-value is better for carousel re-use.
+
+   * [/admin/structure/block-content/manage/background/display](/admin/structure/block-content/manage/background/display), choose Blazy formatter, and enable
+      **Use CSS background**.
+
+   * Create as many as blocks for background: [/block/add/background](/block/add/background), or on the fly using LB **Create content block**.
+
+   * At LB, either way:
+
+     * **Add block > Create content block**.
+     * **Add block > Choose a block > Content block**
 
 
 #### The following is applicable to background options above:

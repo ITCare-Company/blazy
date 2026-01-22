@@ -22,9 +22,6 @@ class BlazyLayout extends BlazyLayoutForm {
     // Modifies output.
     $output = $this->interpolate($settings, $build);
 
-    // Modifies attachments.
-    $this->attachments($output, $settings);
-
     // Modifies attributes.
     $this->attributes($output, $settings);
 
@@ -33,6 +30,9 @@ class BlazyLayout extends BlazyLayoutForm {
 
     // Provides inline style.
     $this->styles($output, $settings);
+
+    // Modifies attachments.
+    $this->attachments($output, $settings);
 
     // Updates settings and layout.
     $output['#settings'] = $settings;

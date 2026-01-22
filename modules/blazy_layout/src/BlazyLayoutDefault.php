@@ -42,6 +42,7 @@ class BlazyLayoutDefault {
       'id'             => '',
       'regions'        => [],
       'count'          => static::REGION_COUNT,
+      'hero'           => '',
       'style'          => 'nativegrid',
       'grid'           => '4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2',
       'grid_medium'    => '3',

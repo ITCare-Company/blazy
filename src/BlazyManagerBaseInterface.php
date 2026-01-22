@@ -201,9 +201,9 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    * via Entity/Media Embed which normally means Blazy should be disabled
    * due to CKEditor not supporting JS assets.
    *
-   * @see \Drupal\blazy\Theme\BlazyTheme::blazy()
-   * @see \Drupal\blazy\Theme\BlazyTheme::field()
-   * @see \Drupal\blazy\Theme\BlazyTheme::fileVideo()
+   * @see \Drupal\blazy\Hook\ThemeHooks::preprocessBlazy()
+   * @see \Drupal\blazy\Hook\ThemeHooks::preprocessField()
+   * @see \Drupal\blazy\Hook\ThemeHooks::preprocessFileVideo()
    * @see blazy_preprocess_file_video()
    */
   public function thirdPartyFormatters(): array;
@@ -235,5 +235,15 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
     array $settings,
     array $attachments = [],
   ): void;
+
+  /**
+   * Cleans out unclean module filter references after uninstalls.
+   *
+   * @param string $module
+   *   The module being uninstall.
+   *
+   * @todo remove when core filter takes care of its own plugins removal.
+   */
+  public function filterCleanup($module = 'blazy'): void;
 
 }

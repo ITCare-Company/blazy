@@ -266,7 +266,7 @@ abstract class BlazyBase implements BlazyInterface {
     $formatter = 'blazy_base',
     array $settings = [],
   ): void {
-    BlazyAlter::configSchemaInfoAlter($definitions, $formatter, $settings);
+    Internals::configSchemaInfoAlter($definitions, $formatter, $settings);
   }
 
   /**

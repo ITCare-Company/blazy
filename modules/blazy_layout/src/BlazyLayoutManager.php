@@ -107,11 +107,29 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
       ->set('item.caption', static::$captionId)
       ->set('count', $count);
 
+    if ($hero = $settings['hero'] ?? NULL) {
+      $id = Defaults::regionId($hero);
+      if ($styles = $settings['regions'][$id]['settings']['styles']['media'] ?? []) {
+        $blazies->set('heroes', $styles);
+
+        foreach (BlazyDefault::imageStyles() as $key) {
+          if (!$blazies->get('heroes.' . $key . '.style')) {
+            if ($_style = ($styles[$key . '_style'] ?? '')) {
+              if ($entity = $this->load($_style, 'image_style')) {
+                $blazies->set('heroes.' . $key . '.style', $entity)
+                  ->set('heroes.' . $key . '.id', $entity->id());
+              }
+            }
+          }
+        }
+      }
+    }
+
     $this->postSettings($settings);
 
     $settings = array_diff_key($settings, BlazyDefault::imageSettings());
     $settings = Arrays::filter($settings);
-
+    $settings['preload'] = TRUE;
     return $settings;
   }
 

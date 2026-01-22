@@ -94,11 +94,9 @@ class Check {
       || $blazies->get('fx')
       || $blazies->get('libs.compat');
 
-    // @todo remove is.bg for use.bg at 3.x:
-    $blazies->set('is.bg', $is_bg);
-
-    // For Hero media.
-    if ($is_unloading) {
+    // For Hero media specific to blazy formatters.
+    // Only if not set, set Hero delta here, see BlazyLayoutBase.
+    if ($is_unloading && !$blazies->was('initial')) {
       $blazies->set('initial', 0);
     }
 
@@ -124,7 +122,7 @@ class Check {
       ->set('is.unlazy', $is_nojs)
       ->set('lazy.html', !empty($ui['lazy_html']))
       ->set('libs.background', $is_bg || $is_audio)
-      ->set('libs.compat', $is_compat)
+      ->set('libs.compat', $is_compat || $is_bg)
       ->set('libs.ratio', !empty($settings['ratio']))
       ->set('media.defaults', $medias)
       ->set('use.bg', $is_bg)

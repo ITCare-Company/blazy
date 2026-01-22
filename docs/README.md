@@ -122,7 +122,8 @@ high-performance experience compliant with **Core Web Vitals**.
 
     Engineered for a **"CLS-zero" strategy** using modern CSS `aspect-ratio`
     with legacy `padding-bottom` fallbacks to ensure layout stability across all
-    browser generations. See [Aspect ratio](#aspect-ratio).
+    browser generations. See [Aspect ratio](#aspect-ratio)
+    and [CLS Prevention](#cls).
 
 - **Critical Path Optimization**:
 

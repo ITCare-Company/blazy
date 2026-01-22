@@ -312,7 +312,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     else {
       // Exclude local audio/video, already lazy-loaded by theme_blazy().
       if (!$blazies->is('local_media')) {
-        $unlazy   = Internals::isUndata($blazies);
+        $unlazy   = $blazies->is('static');
         $media    = $blazies->get('lazy.html') && $blazies->get('media.id');
         $switch   = $blazies->get('switch');
         $provider = $blazies->get('media.provider');
@@ -661,7 +661,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
         $element['#url'] = $url;
         $element['#url_attributes']['class'][] = 'b-link';
 
-        if ($blazies->is('bg')) {
+        if ($blazies->use('bg')) {
           $element['#url_attributes']['class'][] = 'b-link--bg';
         }
       }

@@ -6,7 +6,9 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Layout\LayoutDefault;
 use Drupal\Core\Render\Element;
+use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyField;
+use Drupal\blazy\Media\Preloader;
 use Drupal\blazy\Utility\Color;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -43,6 +45,13 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    * @var \Drupal\Core\Entity\EntityInterface|null
    */
   protected $entity;
+
+  /**
+   * The media entities.
+   *
+   * @var \Drupal\media\MediaInterface[]|null
+   */
+  protected $entities;
 
   /**
    * {@inheritdoc}
@@ -242,6 +251,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     }
 
     $this->blocks($output, $settings);
+
+    if ($entities = $this->entities ?? []) {
+      Preloader::prepare($settings, $entities, $entities);
+    }
   }
 
   /**
@@ -251,27 +264,37 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $id      = static::$instanceId;
     $colors  = $settings['styles']['colors'] ?? [];
     $layouts = $settings['styles']['layouts'] ?? [];
+    $blazies = $settings['blazies'];
 
     if ($mid = $settings['styles']['media']['id'] ?? NULL) {
       $this->media($output, $settings, $mid, 'bg');
     }
 
+    if ($hero = $settings['hero'] ?? NULL) {
+      $blazies->set('initial', (int) $hero)
+        ->set('was.initial', TRUE);
+    }
+
     // Move Blazy background to the beginning.
     foreach (array_keys(static::$instanceRegions) as $name) {
+      $delta   = (int) str_replace('blzyr_', '', $name);
       $subsets = $settings;
       $styles  = $subsets['regions'][$name]['settings']['styles'] ?? [];
       $empty   = empty($output[$name]) || isset($output[$name]['dummy']);
       $is_bg   = FALSE;
 
       if ($name == 'bg') {
+        $delta = -1;
         $colorsets = $colors;
         $layoutsets = $layouts;
       }
       else {
+        $this->entities[$delta] = NULL;
         $colorsets = $styles['colors'] ?? [];
         $layoutsets = $styles['layouts'] ?? [];
       }
 
+      $is_hero = $hero == $delta;
       $use_bg_color = !empty($colorsets['background_color']) || $this->inPreview;
       $use_overlay = !empty($colorsets['overlay_color']) || $this->inPreview;
 
@@ -279,10 +302,14 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         $output[$name][$name . '-bg']['#markup'] = ' ';
       }
 
+      $blazies = $subsets['blazies']->reset($subsets);
+      $blazies->set('delta', $delta);
+
       // Place before a bailout so to be visible at frontend.
       if ($mid = $styles['media']['id'] ?? NULL) {
         $is_bg = TRUE;
-        $this->media($output, $subsets, $mid, $name);
+
+        $this->media($output, $subsets, $mid, $name, $delta, $is_hero);
       }
 
       // Bail out if an empty region.
@@ -304,7 +331,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         if (strpos($formatter, 'blazy') !== FALSE) {
           if ($fieldsets = $block['content'][0]['#blazy'] ?? []) {
             // Pass the layout settings, not formatter's.
-            $blazies = $subsets['blazies']->reset($subsets);
+            // $blazies = $subsets['blazies']->reset($subsets);
             $subblazies = $fieldsets['blazies'];
             $output[$name][$uuid]['#blazy'] = $subsets;
 
@@ -592,14 +619,20 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   /**
    * Returns the formatted media as Blazy CSS background.
    */
-  protected function media(array &$output, array &$settings, $mid, $name): void {
+  protected function media(
+    array &$output,
+    array &$settings,
+    $mid,
+    $name,
+    $delta = 0,
+    $hero = FALSE,
+  ): void {
     $data = [];
     $blazies = $settings['blazies'];
     $config = [
       'background' => TRUE,
       '_detached' => FALSE,
-      'blazies' => $blazies,
-    ] + Defaults::entitySettings();
+    ] + $settings + Defaults::entitySettings();
 
     if ($mid) {
       if ($this->inPreview) {
@@ -608,6 +641,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
       // Pass results to \Drupal\blazy\BlazyEntity.
       if ($media = $this->manager->load($mid, 'media')) {
+        $this->entities[$delta] = $media;
         if ($name == 'bg') {
           $styles = $settings['styles'] ?? [];
         }
@@ -616,9 +650,49 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         }
 
         $mediasets = $styles['media'] ?? [];
+        unset($mediasets['id']);
+
         $use_overlay = !empty($styles['colors']['overlay_color']);
-        $config = array_merge($config, $mediasets);
+        $config = $this->manager->merge($mediasets, $config);
         $blazies = $config['blazies']->reset($config);
+
+        $blazies->set('is.bg', TRUE);
+
+        if ($hero) {
+          $config['loading'] = 'unlazy';
+          $blazies->set('is.initial', TRUE)
+            ->set('is.undata', TRUE)
+            ->set('is.unloading', TRUE)
+            ->set('is.lcp', TRUE);
+
+          if ($mediasets = array_filter($mediasets)) {
+            $image_styles = BlazyDefault::imageStyles();
+            $entity_type_id = 'image_style';
+            $resimage = $mediasets['responsive_image_style'] ?? NULL;
+            if ($resimage) {
+              $image_styles[] = 'responsive_image';
+            }
+
+            foreach ($image_styles as $key) {
+              if (!$blazies->get($key . '.style')) {
+                if ($_style = ($mediasets[$key . '_style'] ?? '')) {
+                  $prefix = $key;
+                  if ($key == 'responsive_image') {
+                    $entity_type_id = 'responsive_image_style';
+                    $prefix = 'resimage';
+                  }
+                  if (!$blazies->get($prefix . '.id')) {
+                    if ($entity = $this->manager->load($_style, $entity_type_id)) {
+                      $blazies->set($prefix . '.style', $entity)
+                        ->set($prefix . '.id', $entity->id());
+
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
 
         // @todo remove after a hook update.
         if (!empty($mediasets['use_player'])) {
@@ -643,8 +717,9 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
         $data['#entity'] = $media;
         $data['#parent'] = $entity;
-        $data['#delta'] = 0;
+        $data['#delta'] = $name == 'bg' ? -1 : $delta;
         $data['#settings'] = $config;
+        $data['#region'] = $name;
 
         if ($result = $this->blazyEntity->build($data)) {
           $uuid = $name . '-media';

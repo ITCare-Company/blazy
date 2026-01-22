@@ -470,13 +470,8 @@ trait BlazyCreationTestTrait {
    *   (Optional) A list of field data.
    */
   protected function setUpFieldConfig($bundle = '', array $data = []): void {
-    $bundle     = $bundle ?: $this->bundle;
-    $default    = empty($this->testFieldType) ? 'image' : $this->testFieldType;
-    $field_type = $data['field_type'] ?? $default;
-    $field_name = $data['field_name'] ?? $this->testFieldName;
-    $config     = $data[$field_name . '_settings'] ?? [];
-    $multiple   = strpos($field_name, 'mul') !== FALSE;
-    $node_type  = $this->nodeType ?? NodeType::load($bundle);
+    $bundle    = $bundle ?: $this->bundle;
+    $node_type = $this->nodeType ?? NodeType::load($bundle);
 
     if (!$node_type) {
       // This only creates the bundle, nothing else.
@@ -501,7 +496,6 @@ trait BlazyCreationTestTrait {
     $config     = $data[$field_name . '_settings'] ?? [];
     $multiple   = strpos($field_name, 'mul') !== FALSE;
     $label      = $data['label'] ?? str_replace('_', ' ', $field_name);
-    $config     = $data[$field_name . '_settings'] ?? [];
     $storage    = FieldStorageConfig::loadByName($this->entityType, $field_name);
 
     if (in_array($field_type, ['file', 'image'])) {

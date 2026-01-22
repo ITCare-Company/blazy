@@ -286,6 +286,46 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function filterCleanup($module = 'blazy'): void {
+    $config_storage = $this->service('config.storage');
+    if (!$config_storage) {
+      return;
+    }
+
+    $filter = "filters.{$module}_filter";
+
+    // Removes unclean [module]_filter references, see #3257390.
+    foreach ($config_storage->listAll('filter.format') as $config_name) {
+      $config = $this->configFactory()->getEditable($config_name);
+
+      if ($config->get($filter) && $dependencies = $config->get('dependencies')) {
+        if ($existings = $dependencies['module'] ?? []) {
+          $modules = array_diff($existings, [$module]);
+          $config->set('dependencies.module', $modules);
+        }
+        $config->clear($filter)->save(TRUE);
+      }
+    }
+
+    // Just to be safe and sure, reset filter_formats cache, etc.
+    // @todo re-check if core deprecated this function at or by D10.
+    $reset = 'drupal_static_reset';
+    /* @phpstan-ignore-next-line */
+    if (is_callable($reset)) {
+      $reset('filter_formats');
+    }
+
+    $this->getStorage('filter_format')->resetCache();
+
+    // Clear plugin manager caches.
+    if ($cache_clearer = $this->service('plugin.cache_clearer')) {
+      $cache_clearer->clearCachedDefinitions();
+    }
+  }
+
+  /**
    * Provides data to be consumed by Blazy::preSettings().
    *
    * Such as to provide lazy attribute and class for Slick or Splide, etc.
