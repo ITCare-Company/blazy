@@ -656,7 +656,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         $config = $this->manager->merge($mediasets, $config);
         $blazies = $config['blazies']->reset($config);
 
-        $blazies->set('is.bg', TRUE);
+        $blazies->set('use.bg', TRUE);
 
         if ($hero) {
           $config['loading'] = 'unlazy';

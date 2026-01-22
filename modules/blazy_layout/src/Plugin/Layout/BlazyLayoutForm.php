@@ -13,6 +13,8 @@ use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
  */
 abstract class BlazyLayoutForm extends BlazyLayoutBase {
 
+  use TraitLayoutDescriptions;
+
   /**
    * {@inheritdoc}
    */
@@ -131,7 +133,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       '#tree'        => TRUE,
       '#open'        => TRUE,
       '#title'       => $this->t('Global settings'),
-      '#description' => $this->t('Use Blazy Image/ Media formatters to have background or even nested grids when creating blocks. Reload the page if some options do not update CSS/preview after saving this modal form.'),
+      '#description' => $this->description()['settings'],
       '#parents'     => ['layout_settings', 'settings'],
       '#attributes'  => ['class' => ['form-wrapper--b-layout']],
     ];
@@ -210,7 +212,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     $form['settings']['hero'] = [
       '#type'          => 'textfield',
       '#title'         => $this->t('Hero region'),
-      '#description'   => $this->t("Choose the delta of region if it should be treated as Hero. Normally the largest media background. Leave it as is if this layout is embedded under a Hero. Hero media should only exist once per page like Page Title."),
+      '#description'   => $this->description()['hero'],
       '#weight'        => 30,
       '#default_value' => $settings['hero'],
     ];
@@ -299,7 +301,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
         '#type'          => 'textfield',
         '#title'         => $this->t('Region name'),
         '#default_value' => $subsets2['label'],
-        '#description'   => $this->t('The human-readable region name for theming.'),
+        '#description'   => $this->description()['label'],
       ];
 
       $form['regions'][$region]['settings'] = [
