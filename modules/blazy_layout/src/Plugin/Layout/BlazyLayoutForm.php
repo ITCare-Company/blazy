@@ -3,6 +3,7 @@
 namespace Drupal\blazy_layout\Plugin\Layout;
 
 use Drupal\Component\Utility\Crypt;
+use Drupal\Core\Url;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformStateInterface;
 use Drupal\Core\Render\Element;
@@ -127,6 +128,11 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     $styleset    = array_keys(Defaults::sharedSettings()['styles']);
     $entity_form = isset($form_state2->getBuildInfo()['callback_object']) ? $form_state2->getFormObject() : NULL;
     $extras      = $entity_form ? $this->getEntityData($entity_form) : [];
+    $url         = '/admin/config/media/blazy';
+
+    if ($this->manager->moduleExists('blazy_ui')) {
+      $url = Url::fromUri('internal:/admin/config/media/blazy')->toString();
+    }
 
     $form['settings'] = [
       '#type'        => 'details',
@@ -213,11 +219,31 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       '#type'          => 'textfield',
       '#title'         => $this->t('Hero region'),
       '#description'   => $this->description()['hero'],
-      '#weight'        => 30,
       '#default_value' => $settings['hero'],
+      '#weight'        => 30,
     ];
 
     $this->admin->themeDescription($form['settings']['hero']);
+
+    $use_custom_css = $this->manager->config('use_custom_css');
+    $scopes = [
+      'css_scope' => $this->manager->config('css_scope'),
+    ];
+
+    if (!$use_custom_css) {
+      $scopes['ui_url'] = $url;
+    }
+
+    $form['settings']['custom_css'] = [
+      '#type'          => 'textarea',
+      '#title'         => $this->t('Custom CSS (advanced)'),
+      '#description'   => $this->description($scopes)['custom_css'],
+      '#default_value' => $settings['custom_css'],
+      '#disabled'      => !$use_custom_css,
+      '#weight'        => 30,
+    ];
+
+    $this->admin->themeDescription($form['settings']['custom_css']);
 
     // AJAX element.
     $form['settings']['count']['#ajax'] = [

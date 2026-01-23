@@ -16,6 +16,7 @@ class BlazyConfigForm extends BlazyConfigFormBase {
    * {@inheritdoc}
    */
   protected $validatedOptions = [
+    'css_scope',
     'placeholder',
     'unstyled_extensions',
     ['blazy', 'container'],
@@ -60,6 +61,7 @@ class BlazyConfigForm extends BlazyConfigFormBase {
     $class = $exists ? 'info' : 'warning';
     $hints = [];
     $help = '/admin/help/blazy_ui';
+    $bl_exists = $this->manager->moduleExists('blazy_layout');
 
     if ($this->manager->moduleExists('help')) {
       $help = Url::fromUri('internal:/admin/help/blazy_ui')->toString();
@@ -126,6 +128,32 @@ class BlazyConfigForm extends BlazyConfigFormBase {
       '#title'         => $this->t('Admin CSS'),
       '#default_value' => $config->get('admin_css'),
       '#description'   => $this->t('Uncheck to disable blazy related admin compact form styling, only if not compatible with your admin theme.'),
+      '#enabled'       => $bl_exists,
+    ];
+
+    $form['use_custom_css'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Allow custom inline CSS for Blazy layout'),
+      '#default_value' => $config->get('use_custom_css'),
+      '#description'   => $this->t("Enables a raw CSS textarea for fine-grained visual adjustments. <b>Warning!</b> Inline CSS can affect page rendering and stability beyond Blazy layout if used incorrectly. Only enable this for trusted site builders who understand CSS scope and impact. A <b>Custom CSS</b> textarea is available at <b>Layout Builder</b> administrative pages when <b>Blazy dynamic layout</b> is added."),
+      '#disabled'      => !$bl_exists,
+    ];
+
+    if (!$bl_exists) {
+      $form['use_custom_css']['#description'] .= ' ' . $this->t('<b>Requires Blazy layout<b>.');
+    }
+
+    $form['css_scope'] = [
+      '#type'          => 'textfield',
+      '#title'         => $this->t('CSS selector scope'),
+      '#default_value' => $config->get('css_scope'),
+      '#description'   => $this->t('Provide a single selector scope (e.g.: <code>.region-content</code>) to avoid targeting global elements (html, body). Strongly recommended to scope potential misuse. If provided, <code>body {display: none}</code> is neutralized to <code>.region-content body {display: none}</code>. Leave it empty only for solo devs.'),
+      '#disabled'      => !$bl_exists,
+      '#states'        => [
+        'visible' => [
+          'input[name="use_custom_css"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
 
     $form['use_oembed'] = [
@@ -400,6 +428,8 @@ class BlazyConfigForm extends BlazyConfigFormBase {
     $config = $this->configFactory->getEditable('blazy.settings');
     $config
       ->set('admin_css', $form_state->getValue('admin_css'))
+      ->set('use_custom_css', $form_state->getValue('use_custom_css'))
+      ->set('css_scope', $form_state->getValue('css_scope'))
       ->set('lazy_html', $form_state->getValue('lazy_html'))
       ->set('nojs', $form_state->getValue('nojs'))
       ->set('fx', $form_state->getValue('fx'))

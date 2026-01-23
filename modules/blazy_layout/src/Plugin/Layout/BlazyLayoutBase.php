@@ -460,7 +460,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
     // Put this in the head to avoid ugly inline element styles.
     if ($rules = static::$styles[$id] ?? []) {
-      $css = $this->manager->toRules($rules, $id);
+      $custom_css = $settings['custom_css'] ?? '';
+      $css = $this->manager->toRules($rules, $id, $custom_css);
       $css = preg_replace('/\s+/', ' ', $css);
 
       $output['#attached']['html_head'][] = [

@@ -87,11 +87,13 @@ interface BlazyLayoutManagerInterface extends BlazyManagerInterface {
    *   The data array containing selectors and their CSS rules.
    * @param string $id
    *   The layout instance ID.
+   * @param string $custom_css
+   *   The optional custom CSS.
    *
    * @return string
    *   The CSS rules.
    */
-  public function toRules(array $data, $id): string;
+  public function toRules(array $data, $id, $custom_css = ''): string;
 
   /**
    * Returns the available admin theme to fetch the media library styling.

@@ -5,6 +5,7 @@ namespace Drupal\blazy_layout;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\BlazyManager;
 use Drupal\blazy\Utility\Arrays;
+use Drupal\blazy\Utility\Css;
 use Drupal\blazy_layout\BlazyLayoutDefault as Defaults;
 
 /**
@@ -129,7 +130,11 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
 
     $settings = array_diff_key($settings, BlazyDefault::imageSettings());
     $settings = Arrays::filter($settings);
-    $settings['preload'] = TRUE;
+
+    if ($blazies->get('heroes')) {
+      $settings['preload'] = TRUE;
+    }
+
     return $settings;
   }
 
@@ -191,8 +196,8 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
   /**
    * {@inheritdoc}
    */
-  public function toRules(array $data, $id): string {
-    return implode(' ', array_map(
+  public function toRules(array $data, $id, $custom_css = ''): string {
+    $css = implode(' ', array_map(
       function ($value, $key) use ($id) {
         if (strpos($value, 'ROOT') !== FALSE) {
           return str_replace('ROOT', ".blazy.b-layout.{$id}", $value);
@@ -216,6 +221,19 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
       $data,
       array_keys($data)
     ));
+
+    // UGC CSS requires hardened admin roles to enable the option at Blazy UI.
+    if ($this->config('use_custom_css') && $custom_css) {
+      $added_css = Css::sanitizeInline($custom_css);
+
+      if ($scope = $this->config('css_scope')) {
+        $added_css = Css::scope($added_css, $scope);
+      }
+
+      $css .= $added_css;
+    }
+
+    return $css;
   }
 
   /**

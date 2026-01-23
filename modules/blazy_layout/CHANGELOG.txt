@@ -1,3 +1,8 @@
+Blazy Layout 3.x-dev, 2026-01-23
+--------------------------------
+- Added Custom CSS textarea to Blazy Layout to fix CLS beyond the provided
+  CSS classes.
+
 Blazy Layout 3.x-dev, 2026-01-21
 --------------------------------
 - Added Hero region.

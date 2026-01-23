@@ -5,6 +5,12 @@ blazy.settings:
     admin_css:
       type: boolean
       label: 'Admin CSS'
+    use_custom_css:
+      type: boolean
+      label: 'Allow custom inline CSS for Blazy layout'
+    css_scope:
+      type: string
+      label: 'CSS selector scope'
     lazy_html:
       type: boolean
       label: 'Lazy load HTML'

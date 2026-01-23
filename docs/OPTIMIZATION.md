@@ -285,7 +285,7 @@ make Blazy fully compatible with Core BigPipe.
 > This section is OOT and not Blazy's responsibility, like a few other things
 anywhere else; it is comprehensive to serve as a definitive resource and reduce
 repetitive support inquiries unrelated to the Blazy ecosystem. If you are an
-experienced site-builder, feel free to bypass the foundational steps; however
+experienced site-builder, feel free to bypass the foundational steps; however,
 ensure to validate your issues against the documentation before posting.
 Spending a 15-minute reading or skim will save us both from unnecessary issues.
 >
