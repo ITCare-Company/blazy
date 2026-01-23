@@ -169,54 +169,105 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
   protected function formatterDescriptions($scopes): array {
     $namespace = $scopes->get('namespace', 'blazy');
 
-    $cache = $this->t('Cache the rendered output as static HTML.
+    $cache = $this->t(
+      'Cache the rendered output as static HTML.
 <ul>
-<li><strong>Permanent</strong>: cached until the next cron run.</li>
-<li><strong>Any number</strong>: expires after the selected time.</li>
+  <li><strong>Permanent</strong>: cached until the next cron run.</li>
+  <li><strong>Any number</strong>: expires after the selected time.</li>
 </ul>
+
 A working cron job is required to clear stale cache. Cached content is always refreshed on cron, regardless of expiration.
+
 <br>Leave empty to disable caching.
-<br><strong>Warning:</strong> Cached output is rendered as-is. Do not enable if it contains sensitive or contextual elements (e.g. edit links). Enable only after configuration is finalized.');
-    $caption = $this->t('Enable one or more fields to be used as captions. Selected fields will be wrapped and styled as captions.');
-    $overlay = $this->t('Content displayed on top of the main stage, such as images, sliders, or other media.');
+
+<br><strong>Warning:</strong> Cached output is rendered as-is. Do not enable if it contains sensitive or contextual elements (e.g. edit links). Enable only after configuration is finalized.'
+    );
+
+    $caption = $this->t(
+      'Enable one or more fields to be used as captions.
+Selected fields will be wrapped and styled as captions.'
+    );
+
+    $overlay = $this->t(
+      'Content displayed on top of the main stage, such as images, sliders, or other media.'
+    );
 
     if ($scopes->is('_views')) {
-      $cache .= ' ' . $this->t('If updates are not visible, temporarily disable Views caching (<strong>Advanced &gt; Caching</strong>).');
-      $overlay .= ' ' . $this->t('If using Slick field formatter, enable <strong>Use field template</strong> in its settings.');
+      $cache .= ' ' . $this->t(
+        'If updates are not visible, temporarily disable Views caching
+(<strong>Advanced &gt; Caching</strong>).'
+      );
+
+      $overlay .= ' ' . $this->t(
+        'If using Slick field formatter, enable
+<strong>Use field template</strong> in its settings.'
+      );
     }
     else {
-      $caption .= ' ' . $this->t('Ensure selected fields are visible in the chosen View mode.');
+      $caption .= ' ' . $this->t(
+        'Ensure selected fields are visible in the chosen View mode.'
+      );
     }
 
     return [
       'cache' => $cache,
+
       'caption' => $caption,
-      'class' => $this->t('Optional CSS class per item.
+
+      'class' => $this->t(
+        'Optional CSS class per item.
 Useful for conditional styling (e.g. transparent images).
+
 Field must output a string (Key or Label).
-Supported types: list text, string, title, term/entity label.'),
-      'optionset' => $this->t('Enable the Optionset UI module to manage available optionsets.'),
+
+Supported types:
+list text, string, title, term/entity label.'
+      ),
+
+      'optionset' => $this->t(
+        'Enable the Optionset UI module to manage available optionsets.'
+      ),
+
       'overlay' => $overlay,
-      'thumbnail' => $this->t('Leave empty to disable thumbnails or pagers.'),
-      'title' => $this->t('<strong>Supported types</strong>: Image title or string-based fields (Title, Link, etc.).
+
+      'thumbnail' => $this->t(
+        'Leave empty to disable thumbnails or pagers.'
+      ),
+
+      'title' => $this->t(
+        '<strong>Supported types</strong>:
+Image title or string-based fields (Title, Link, etc.).
+
 For entities, use formatters that output plain strings (ID or Label).
-Unlike <strong>Caption fields</strong>, this is rendered as a heading (overridable by <code>hook_blazy_item_alter() with blazies.item.title_tag</code>) and wrapped with a dedicated class: <strong>@class</strong>.',
-      [
-        '@class' => $namespace == 'blazy'
-          ? 'blazy__caption--title'
-          : $namespace . '__title',
-      ]),
-      'vanilla' => $this->t('<strong>Enable</strong> to render items without Blazy processing.
+
+Unlike <strong>Caption fields</strong>, this is rendered as a heading
+(overridable via
+<code>hook_blazy_item_alter()</code> with
+<code>blazies.item.title_tag</code>)
+and wrapped with a dedicated class:
+<strong>@class</strong>.',
+        [
+          '@class' => $namespace === 'blazy'
+            ? 'blazy__caption--title'
+            : $namespace . '__title',
+        ]
+      ),
+
+      'vanilla' => $this->t(
+        '<strong>Enable</strong> to render items without Blazy processing.
 <ul>
-<li>Outputs raw formatter markup.</li>
-<li>Disables most @module features (layouts, grids, etc.).</li>
-<li>Use when custom formatting is required.</li>
-<li>Issues by enabling this option are not supported and considered custom works.</li>
+  <li>Outputs raw formatter markup.</li>
+  <li>Disables most @module features (layouts, grids, etc.).</li>
+  <li>Use when custom formatting is required.</li>
+  <li>Issues caused by enabling this option are not supported and
+      considered custom works.</li>
 </ul>
+
 <strong>Disable</strong> to use consistent markup and advanced features.',
-      [
-        '@module' => $namespace,
-      ]),
+        [
+          '@module' => $namespace,
+        ]
+      ),
     ];
   }
 

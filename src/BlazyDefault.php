@@ -296,11 +296,18 @@ class BlazyDefault {
       'nojs'                => [],
       'one_pixel'           => TRUE,
       'visible_class'       => FALSE,
+      'wrapper_class'       => FALSE,
+      'max_region_count'    => 0,
       'noscript'            => FALSE,
       'placeholder'         => '',
       'privacy_consent'     => FALSE,
-      'unstyled_extensions' => '',
       'ratio_modern'        => FALSE,
+      'lazy_html'           => FALSE,
+      'use_encodedbox'      => FALSE,
+      'use_oembed'          => FALSE,
+      'use_custom_css'      => FALSE,
+      'css_scope'           => '',
+      'unstyled_extensions' => '',
     ];
   }
 
