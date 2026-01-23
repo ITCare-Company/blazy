@@ -224,7 +224,10 @@ The most authoritative way to prevent shift is to reserve space.
 
     At a minimum, apply a `min-height` to BigPipe placeholders. It is visually
     superior to have a small gap of whitespace than to have the entire page
-    content "leap" 500px downward. Adjust 500px to your own layout.
+    content "leap" 500px downward. Adjust 500px to your own layout, or use
+    [Blazy layout](#layouts) which is designed to manage layout stability
+    problems using UI rather than hacking theme CSS for every minor content
+    variances like so:
     ```css
     /* Adjust collapsed container selector. */
     .region-content {
@@ -252,7 +255,10 @@ bid, the content below it remains anchored.
 BigPipe delivers significant improvements to TTFB and FCP by streaming page
 fragments progressively. However, because it replaces placeholders in the live
 DOM, it can introduce CLS unless layout stability is explicitly designed into
-those replacement regions, as outlined above.
+those replacement regions, as [outlined above](#cls).
+
+If evaluating CLS relative to TTFB, temporarily (un-)install BigPipe until the
+rendering strategy is fully understood.
 
 Clear separation of responsibilities enables more accurate, context-driven
 decisions based on your target audience: optimizing BigPipe for authenticated
@@ -273,3 +279,15 @@ cases are primarily related to CSS reordering behavior (only if still an issue,
 which lies outside Blazy’s responsibility), as well as any currently unknown
 scenarios. We welcome reproducible reports for any such incompatibilities to
 make Blazy fully compatible with Core BigPipe.
+
+> **Disclaimer on documentation**
+>
+> This section is OOT and not Blazy's responsibility, like a few other things
+anywhere else; it is comprehensive to serve as a definitive resource and reduce
+repetitive support inquiries unrelated to the Blazy ecosystem. If you are an
+experienced site-builder, feel free to bypass the foundational steps; however
+ensure to validate your issues against the documentation before posting.
+Spending a 15-minute reading or skim will save us both from unnecessary issues.
+>
+> Proper isolation enables accurate evaluation.
+[Have your cake and eat it too](#cls).

@@ -3,7 +3,7 @@
 namespace Drupal\blazy\Utility;
 
 /**
- * A coomon animation names for Animate CSS.
+ * A common animation names for Animate CSS.
  */
 class Animation {
 

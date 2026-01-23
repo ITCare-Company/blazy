@@ -24,8 +24,56 @@ trait TraitDescriptions {
    */
   public function nativeGridDescription() {
     $lb = $this->isAdminLb();
-    return $this->t('<br><br>Accepted format for any below is a space separated value with a pair of <code>WIDTHxHEIGHT</code> or <code>WIDTH-HEIGHT</code>, or just single numbers. Use linebreak per 100% or 12 columns for reability. <br><br><b>Flexbox</b>, not <em>Flexbox Masonry</em>: <ol><li><b>Fixed/uniform width</b> with column amount: 1 to 12.</li><li><b>Variable width</b> with percentage: <br><code>10 15 20 25 30 33 34 40 50 55 60 75 77 80 100</code><br>Each row must amount to 100%, e.g.: <br><code>25 50 25</code><br><code>33 34 33</code><br><code>30 20 20 30</code></li><li><b>Variable width and fixed height</b>: To have a min-height specify in the format where WIDTH is the percentage, and HEIGHT is one of <br><code>x2s xxs xs sm md lg xl xxl x2l x3l x4l x5l</code>, e.g: <br><code>100-xxl</code><br><code>50-md 50-md</code><br><code>30-xs 20-xs 20-xs 30-xs</code><br>To add yours, see <code>css/blazy.style.css</code>.</li></ol><b>Native Grid</b>: <ol><li><b>One-dimensional</b>: Input a single numeric column grid, acting as Masonry, e.g.: <br><code>4</code> or <code>4x4</code><br>The first will be auto-height, the last fixed height. <em>Best with</em>: scaled images.</li><li><b>Two-dimensional</b>: Input the format pair based on the amount of columns/ rows, at max 12, e.g.: <br><code>4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2</code> <br>This will resemble GridStack optionset <b>Tagore</b>. Any single value e.g.: <code>4x4</code> will repeat uniformly like one-dimensional. <br><em>Best with</em>: <ul><li><b>Use CSS background</b> ON.</li><li>Exact item amount or better more designated grids than lacking. Use a little math with the exact item amount to have gapless grids.</li><li>Disabled image aspect ratio to use grid ratio instead.</li></ul></li></ol>@lb', [
-      '@lb' => $lb ? '' : $this->t('This requires any grid-related <b>Display style</b>. Unless required, leave empty to DIY, or to not build grids.'),
+
+    return $this->t('<br><br>Accepted formats (space-separated):
+<ul>
+<li><code>WIDTHxHEIGHT</code> or <code>WIDTH-HEIGHT</code></li>
+<li>Single numbers (columns)</li>
+</ul>
+Use one line per row (100% total or 12 columns) for readability.
+
+<br><br>
+<strong>Flexbox</strong> (not Flexbox Masonry):
+<ol>
+<li>
+<strong>Uniform width</strong>: columns <code>1–12</code>.
+</li>
+<li>
+<strong>Variable width (percent)</strong>: each row must total <code>100%</code>.
+<br><code>25 50 25</code><br><code>33 34 33</code>
+</li>
+<li>
+<strong>Variable width + fixed height</strong>:
+<br><code>WIDTH-HEIGHT</code>, where HEIGHT is one of:
+<br><code>xxs xs sm md lg xl xxl x2l x3l x4l x5l</code>
+<br>Examples:
+<br><code>100-xxl</code>
+<br><code>50-md 50-md</code>
+</li>
+</ol>
+
+<strong>Native Grid</strong>:
+<ol>
+<li>
+<strong>One-dimensional</strong> (masonry-like):
+<br><code>4</code> (auto height) or <code>4x4</code> (fixed height).
+<br><em>Best for scaled images.</em>
+</li>
+<li>
+<strong>Two-dimensional</strong>:
+<br>Column × row pairs (max 12):
+<br><code>4x4 4x3 2x2 2x4</code>
+<br>Single values repeat uniformly.
+<br><em>Best when:</em>
+<ul>
+<li>CSS background is enabled</li>
+<li>Item count matches the grid</li>
+<li>Image aspect ratio is disabled</li>
+</ul>
+</li>
+</ol>
+    @lb', [
+      '@lb' => $lb ? '' : $this->t('Requires a grid-based Display style. Leave empty to build manually.'),
     ]);
   }
 
@@ -60,15 +108,32 @@ trait TraitDescriptions {
       'link' => $this->t('<strong>Supported types</strong>: Link or plain Text containing URL. Link to content: Read more, View Case Study, etc. If an entity, be sure its formatter is linkable strings like ID or Label. <strong>Two behaviors</strong>: <ol><li>If <strong>Media switcher &gt; Image linked by Link field</strong> is available as an option and selected, it will be gone to serve as a wrapping link of the image, only if its formatter/ output is plain text URL.</li><li>As opposed to <strong>Caption fields</strong> if available, it will be positioned and wrapped with a dedicated class: <strong>@class</strong>.</li></ol>', [
         '@class' => $namespace == 'blazy' ? 'blazy__caption--link' : $namespace . '__link',
       ]),
-      'loading' => $this->t("Decide the <b>loading</b> attribute affected by <a href=':lcp'>LCP</a> (known as the first screen, above the fold, onscreen critical contents, or a hero media). If dedicated as a hero field, be sure <b>unlazy</b> or <b>slider</b> option exists only once per page, similar to Page Title.<ul><li><b>lazy</b>, the default: Best for non-critical, off-screen contents, will defer loading off-screen media until users scroll near them.</li><li><b>auto</b>: Browsers determine whether or not to lazily load. Only if uncertain about LCP boundaries given different devices. </li><li><b>eager</b>: Loads right away. Similar effect like without <b>loading</b>, included for completeness. Minimum for LCP.</li><li><b>defer</b>: Similar to the default <b>lazy</b>, but will trigger native lazy after the first row is loaded. Will disable global <b>No JavaScript: lazy</b> option on this particular field, <a href=':defer'>read more</a>.</li><li><b>unlazy</b>: Best for LCP with static Hero media. While it is best for a single media, for a multi-value field, use <b>Native Grid</b>, <b>Thumbnail style</b> and <b>Use CSS background</b> to make the first item stand prominently, while the rest smaller.</li><li><b>slider</b>: Best for LCP with dynamic/slider Hero media. Only reasonable for sliders (one visible at a time), not carousels (multiple visible slides at once). For non-hero sliders, use <b>lazy</b> or <b>defer</b> instead. Available at slider formatters.</li></ul><b>Note</b>: Avoid lazy-loading media for LCP, <a href=':webdev'>read more</a>, or <a href=':heroes'>bulding heroes</a>.", [
+      'loading' => $this->t("Controls the HTML <b>loading</b> attribute, which affects <a href=':lcp'>LCP</a>.
+Use <b>unlazy</b> or <b>slider</b> only once per page for hero media.
+
+<ul>
+<li><b>lazy</b> (default): best for off-screen media.</li>
+<li><b>auto</b>: browser decides.</li>
+<li><b>eager</b>: load immediately (minimum for LCP).</li>
+<li><b>defer</b>: lazy-load after the first row; disables global no-JS lazy for this field.</li>
+<li><b>unlazy</b>: recommended for static hero media.</li>
+<li><b>slider</b>: hero sliders with one visible slide. For non-hero sliders, use <b>lazy</b> or <b>defer</b> instead. Available at slider formatters.</li>
+</ul>
+<b>Note</b>: Avoid lazy-loading media for LCP, <a href=':webdev'>read more</a>, or <a href=':heroes'>bulding heroes</a>.",
+      [
         ':lcp' => 'https://web.dev/lcp/',
-        ':defer' => 'https://drupal.org/node/3120696',
         ':webdev' => 'https://web.dev/browser-level-image-lazy-loading/#avoid-lazy-loading-images-that-are-in-the-first-visible-viewport',
         ':heroes' => $help . '#heroes',
       ]),
       'image_style' => $this->t('The content image style. This will be treated as the fallback image to override the global option <a href=":url">Responsive image 1px placeholder</a>, which is normally smaller, if Responsive image are provided. Shortly, leave it empty to make Responsive image fallback respected. Otherwise this is the only image displayed. This image style is also used to provide dimensions not only for image/iframe but also any media entity like local video, where no images are even associated with, to have the designated dimensions in tandem with aspect ratio as otherwise no UI to customize for.', [':url' => $ui_url]),
       'responsive_image_style' => $this->resimageDescriptions(),
-      'media_switch' => $this->t('Clear cache if lightboxes do not appear here due to being permanently cached. <ol><li><b>Link to content/ by Link field</b>: for aggregated small media contents -- slicks, splides, grids, etc.</li><li><b>Image to iframe</b>: video is hidden below image until toggled, otherwise iframe is always displayed, and draggable fails. Aspect ratio applies.</li><li><b>(Quasi-)lightboxes</b>: Colorbox, ElevateZoomPlus, Intense, Splidebox, PhotoSwipe, Magnific Popup, Slick Lightbox, Splidebox, Zooming, etc. Depends on the enabled supported modules, or has known integration with Blazy. See docs or <em>/admin/help/blazy_ui</em> for details.</li>@rendered</ol> @lb', [
+      'media_switch' => $this->t('<ul>
+<li><b>Link to content/by Link field</b>: wrap images using a link, or a Link field.</li>
+<li><b>Image to iframe</b>: video loads only after interaction, requires Aspect ratio.</li>
+<li><b>Lightboxes</b>: depends on installed integrations (Colorbox, PhotoSwipe, Splidebox, Slick, etc.).</li>
+<li>@rendered</li>
+</ul>
+      @lb', [
         '@rendered' => $scopes->form('fieldable') ? $this->t('<li><b>Image rendered by its formatter</b>: image-related settings here will be ignored: breakpoints, image style, CSS background, aspect ratio, lazyload, etc. Only choose if needing a special image formatter such as Image Link Formatter.</li>') : '',
         '@lb' => $lb ? '' : $this->t('Add <em>Thumbnail style</em> if using Splidebox, Slick, or others which may need it. Try selecting "<strong>- None -</strong>" first before changing if trouble with this complex form states.'),
       ]),
@@ -80,11 +145,18 @@ trait TraitDescriptions {
       ]),
       'box_caption' => $this->t('Automatic will search for Alt text first, then Title text.'),
       'box_caption_custom' => $this->t('Multi-value rich text field will be mapped to each image by its delta.'),
-      'ratio' => $this->t('Aspect ratio to get consistently responsive images and iframes. Coupled with Image style. And to fix Reflow/Layout (unexpected reflows are the primary cause of poor Cumulative Layout Shift (CLS) scores), excessive height issues, whitespace below images, collapsed container, no-js users, etc. <a href=":dimensions" target="_blank">Image styles and video dimensions</a> must <a href=":follow" target="_blank">follow the aspect ratio</a>. If not, images will be distorted. <a href=":link" target="_blank">Learn more</a>. <ul><li><b>Fixed ratio:</b> all images use the same aspect ratio mobile up. Use it to avoid JS works, or if it fails Responsive image. </li><li><b>Fluid:</b> aka dynamic, dimensions are calculated. First specific for non-responsive images, using PHP for pure CSS if any matching the fixed ones (1:1, 2:3, etc.), <a href=":ratio">read more</a>. If none found, JS works are attempted to fix it.</li><li><b>Leave empty:</b> to DIY (such as using CSS mediaquery), or when working with gapless grids like GridStack, or Blazy Native Grid.</li></ul>', [
-        ':dimensions'  => '//size43.com/jqueryVideoTool.html',
-        ':follow'      => '//en.wikipedia.org/wiki/Aspect_ratio_%28image%29',
-        ':link'        => '//www.smashingmagazine.com/2014/02/27/making-embedded-content-work-in-responsive-design/',
-        ':ratio'       => $help . '#aspect-ratio',
+      'ratio' => $this->t('Aspect ratio for responsive images and iframes.
+Helps prevent layout shifts (CLS), excess whitespace, and collapsed containers.
+
+<ul>
+<li><b>Fixed</b>: same ratio for all items. Pure CSS.</li>
+<li><b>Fluid</b>: dimensions calculated dynamically (CSS first, JS fallback).</li>
+<li><b>Empty</b>: manage ratios manually (e.g. GridStack, Native Grid, custom works).</li>
+</ul>
+
+Image styles and video dimensions must match the ratio, or distortion will occur, <a href=":ratio">learn more</a>.',
+      [
+        ':ratio' => $help . '#aspect-ratio',
       ]),
       'view_mode' => $view_mode,
       'thumbnail_style' => $this->t('Usages: <ol><li>Placeholder replacement for image effects (blur, etc.)</li><li>Splidebox/PhotoSwipe thumbnail</li><li>Custom works with thumbnails.</li></ol> Be sure to have similar aspect ratio for the best blur effect. Leave empty to not use thumbnails.'),
@@ -98,16 +170,17 @@ trait TraitDescriptions {
   public function gridDescriptions(): array {
     $scopes = $this->scopes;
     $lb = $this->isAdminLb();
-    $description = $this->t('@lbGrid is boxy. Column is stacky in flexbox or CSS column. They mean to be the same thing here on. Unless otherwise specified below, it must be a number denoting the amount of columns (1 - 12, or empty).', [
-      '@lb' => $lb ? '' : 'Empty the value first if trouble with changing form states. ',
+
+    $description = $this->t('@lbGrid controls column count. Unless noted below, enter a number <code>1–12</code> or leave empty.', [
+      '@lb' => $lb ? '' : $this->t('Clear the value first if form states behave unexpectedly.'),
     ]);
     if ($scopes->is('slider')) {
       $description .= $this->t('<br /><strong>Requires</strong>:<ol><li>Any grid-related Display style,</li><li>Visible items,</li><li>Skin Grid for starter,</li><li>A reasonable amount of contents.</li></ol>');
     }
     return [
       'grid' => $description,
-      'grid_medium' => $this->t('Only accepts uniform columns (1 - 12, or empty) for medium devices 40.063em - 64em (641px - 1024px) up. Since 3.0.7, specific for native grid (two-dimensional) and Flexbox (non-masonry), it supports values like Grid large aka multi-breakpoint grids, updated via JS. Be sure the amount of WIDTH-HEIGHT pairs matches Grid large.'),
-      'grid_small' => $this->t('Only accepts uniform columns (1 - 2, or empty) for small devices 0 - 40em (640px) up due to small real estate. Below this value, always one column.'),
+      'grid_medium' => $this->t('Uniform columns only (<code>1–12</code>) for medium screens (641–1024px). For Native Grid (2D) and Flexbox (non-masonry), WIDTH-HEIGHT pairs must match Grid (large).'),
+      'grid_small' => $this->t('Uniform columns only (<code>1–2</code>) for small screens (≤640px). Below this, layout falls back to one column.'),
       'visible_items' => $this->t('How many items per display at a time.'),
       'preserve_keys' => $this->t('If checked, keys will be preserved. Default is FALSE which will reindex the grid chunk numerically.'),
     ];
@@ -164,7 +237,11 @@ trait TraitDescriptions {
   public function svgDescriptions(): array {
     $sanitizer = 'https://github.com/darylldoyle/svg-sanitizer';
     return [
-      'inline' => $this->t('If checked, SVG is not embedded in the IMG tag. Be sure to disable CSS background option. Only enable for CSS and JavaScript manipulations, and trusted users, due to <a href=":url1">inline SVG security</a>. Required <a href=":url2">SVG Sanitizer</a>.', [
+      'inline' => $this->t('Render SVG inline (not via IMG).
+Disable CSS background.
+Trusted users only due to <a href=":url1">SVG security risks</a>.
+Requires <a href=":url2">SVG Sanitizer</a>.',
+      [
         ':url1' => 'https://www.w3.org/wiki/SVG_Security',
         ':url2' => $sanitizer,
       ]),
@@ -174,7 +251,12 @@ trait TraitDescriptions {
       'sanitize_remote' => $this->t('Remove attributes that reference remote files, this will stop HTTP leaks but will add an overhead to the sanitizer.'),
       'fill' => $this->t('Force the fill to currentColor to allow the SVG inherit coloring from the enclosing tag, such as a link tag.'),
       'hide_caption' => $this->t('Unlike images, SVG has no ALT and TITLE attributes, except for SVG Image Field, or core file Description field. This option will hide captions, and put them into image attributes instead. Relevant if Inline option is disabled aka using IMG tag. Be sure to enable them under the Caption fields.'),
-      'attributes' => $this->t('Input one of SVG dimension sources: <code>none, image_style, or WIDTHxHEIGHT</code>. To disable, input: <strong>none</strong>, and will also disable Aspect ratio option. The <strong>image_style</strong> ansich will use the provided Image style, useful to get consistent heights within carousels, or rigid grids. The <strong>WIDTHxHEIGHT</strong>, e.g.: 800x400, for custom defined dimensions. Default or fallback to extract from SVG attributes, unless <strong>none</strong> is set. Only width and height are supported. Affected by Aspect ratio option.'),
+      'attributes' => $this->t('SVG dimensions source:
+<ul>
+<li><code>none</code>: disables Aspect ratio</li>
+<li><code>image_style</code>: ansich, will use the provided Image style, to get consistent heights within carousels, or rigid grids</li>
+<li><code>WIDTHxHEIGHT</code>: e.g.: 800x400, for custom defined dimensions. Default or fallback to extract from SVG attributes, unless <strong>none</strong> is set</li>
+</ul>Only width and height are supported. Affected by Aspect ratio option.'),
     ];
   }
 
@@ -196,8 +278,16 @@ trait TraitDescriptions {
    */
   private function background(): string {
     $lb = $this->isAdminLb();
-    return $this->t('Check this to turn the image into CSS background. Use Responsive image to have multi-breakpoint CSS background. This opens up the goodness of CSS, such as background cover, fixed attachment, etc. <br /><strong>Important!</strong> Requires an Aspect ratio, otherwise collapsed containers. Unless explicitly removed such as for GridStack which manages its own problem, or a min-height is added using grid min-height (see Blazy layout sub-module Grid option), or manually to <strong>.b-bg</strong> selector. @lb', [
-      '@lb' => $lb ? $this->t('<br><strong>Note!</strong> Must disable <strong>Use field template</strong> (if provided, default to FALSE) for background to work.') : '',
+
+    return $this->t('Enable to render the image as a CSS background.
+Use a Responsive image for multi-breakpoint backgrounds.
+This allows CSS features such as <code>background-size: cover</code> and fixed attachment.
+
+<br><strong>Important:</strong> Requires an Aspect ratio to prevent collapsed containers.
+Exceptions apply when the layout manages height (e.g. GridStack), a grid min-height is set, or a manual min-height is applied to <strong>.b-bg</strong>.
+@lb',
+    [
+      '@lb' => $lb ? $this->t('<br><strong>Note:</strong> <strong>Use field template</strong> must be disabled for backgrounds to work.') : '',
     ]);
   }
 

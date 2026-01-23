@@ -2,7 +2,8 @@
 # BLAZY LAYOUT: THE ARCHITECT’S CHOICE
 
 **Blazy Layout** provides a single layout template with dynamic regions for
-**Layout Builder** (LB). This isn't just another layout handler; it is a sophisticated re-imagining of the established Blazy Grid system. By
+**Layout Builder** (LB). This isn't just another layout handler; it is a
+sophisticated re-imagining of the established Blazy Grid system. By
 transforming dynamic grid options into responsive layout variants, it eliminates
 the redundant need for dozens of individual templates.
 
@@ -24,7 +25,8 @@ infinite expression.
 * **Integration:**
 
     Navigate to your **Layout Builder** default configuration
-    (`/admin/structure/types/manage/page/display/default/layout`) or any administrative variant (`/node/123/layout`).
+    (`/admin/structure/types/manage/page/display/default/layout`) or any
+    administrative variant (`/node/123/layout`).
 
 * **Selection:**
 
@@ -39,7 +41,8 @@ Whether you require Flexbox, CSS3 Columns, or Native Grid—including their
 Masonry counterparts—**Blazy Layout** delivers a "one for all" solution. It is hyper-efficient, leveraging modern browser capabilities with a remarkably small
 CSS footprint and lean markups to produce limitless, high-performance results.
 
-While Grid impresses a box, and Column a pillar depending on the selected layout engine, they refer to a region or sub-section in layout terminology.
+While Grid impresses a box, and Column a pillar depending on the selected layout
+engine, they refer to a region or sub-section in layout terminology.
 
 * **Layout Definition:**
 
@@ -131,7 +134,8 @@ Three ways to add Media (image or local|remote video) as CSS background:
       a dedicated background type, says **Background**.
 
    * [/admin/structure/block-content/manage/background/fields](/admin/structure/block-content/manage/background/fields),
-     add a Media field says **Media**, choose Image, Video and Remote video. Multi-value is better for carousel re-use.
+     add a Media field says **Media**, choose Image, Video and Remote video.
+     Multi-value is better for carousel re-use.
 
    * [/admin/structure/block-content/manage/background/display](/admin/structure/block-content/manage/background/display), choose Blazy formatter, and enable
       **Use CSS background**.

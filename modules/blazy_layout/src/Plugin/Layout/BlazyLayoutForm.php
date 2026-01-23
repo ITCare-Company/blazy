@@ -385,13 +385,13 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     /** @var \Drupal\layout_builder\Form\ConfigureSectionForm $entity_form */
     if (method_exists($entity_form, 'getSectionStorage') && ($storage = $entity_form->getSectionStorage())) {
       $contexts = $storage->getContextValues();
-      if (isset($contexts['entity']) && $entity = $contexts['entity']) {
+      if ($entity = $contexts['entity'] ?? NULL) {
         $id     = $entity->id();
         $bundle = $entity->bundle();
         $target = $entity->getEntityTypeId();
         $mode   = $contexts['view_mode'] ?? '';
       }
-      elseif (isset($contexts['display']) && $display = $contexts['display']) {
+      elseif ($display = $contexts['display'] ?? NULL) {
         $id     = $display->id();
         $bundle = $display->getTargetBundle();
         $target = $display->getTargetEntityTypeId();
@@ -400,7 +400,8 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     }
 
     /** @var \Drupal\Core\Entity\Display\EntityDisplayInterface $entity_form */
-    elseif (method_exists($entity_form, 'getEntity') && $entity = $entity_form->getEntity()) {
+    elseif (method_exists($entity_form, 'getEntity')
+      && $entity = $entity_form->getEntity()) {
       $id     = $entity->id();
       $bundle = $entity->getTargetBundle();
       $target = $entity->getTargetEntityTypeId();
