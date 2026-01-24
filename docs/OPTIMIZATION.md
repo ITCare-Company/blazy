@@ -300,4 +300,4 @@ troubleshooting.
 >
 > Proper [isolation](#cls) and [configuration](#optimization) enable accurate
 > evaluation.
-> [Have your cake and eat it too](#cls)
+> [Have your cake and eat it too](#cls).

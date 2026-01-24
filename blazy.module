@@ -34,6 +34,16 @@ function blazy(): BlazyManager {
 // @codingStandardsIgnoreEnd
 
 /**
+ * Cleans out unclean module filter references after uninstalls.
+ *
+ * @todo delete everything after this function when min D11.
+ * @todo delete this function, only after submodules.
+ */
+function blazy_filter_cleanup($module = 'blazy') {
+  blazy()->filterCleanup($module);
+}
+
+/**
  * Implements hook_theme().
  */
 function blazy_theme() {
@@ -150,11 +160,4 @@ function blazy_views_data_alter(&$data) {
  */
 function blazy_views_plugins_style_alter(array &$plugins) {
   BlazyAlter::viewsPluginsStyleAlter($plugins);
-}
-
-/**
- * Cleans out unclean module filter references after uninstalls.
- */
-function blazy_filter_cleanup($module = 'blazy') {
-  blazy()->filterCleanup($module);
 }

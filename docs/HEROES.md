@@ -85,7 +85,9 @@ The following ensures Heroes meet LCP and CLS requirements without manual micro-
 - **Selective Eagerness (Unlazy):**
 
     Blazy strategically exempts the first visible media from lazyloading (the
-    **unlazy** state). In sliders, it can be the thirdth or sixth and so on, not always the first media depending on `start` or `initialSlide` options. This ensures the asset is immediately discoverable by the browser's
+    **unlazy** state). In sliders, it can be the thirdth or sixth and so on, not
+    always the first media depending on `start` or `initialSlide` options. This
+    ensures the asset is immediately discoverable by the browser's
     **Preload Scanner** at the initial HTML parse. Even when using the JavaScript-delegated approach—where JS manages the native `loading`
     attribute for broader audience compatibility—this exemption bypasses the
     script execution bottleneck, ensuring the LCP candidate is fetched with zero

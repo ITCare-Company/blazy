@@ -84,7 +84,7 @@ class Content extends Multimedia {
    */
   public static function toContent(
     array &$data,
-    $unset = FALSE,
+    bool $unset = FALSE,
     array $keys = ['content', 'box', 'slide'],
   ): array {
     $result = [];

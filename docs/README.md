@@ -55,6 +55,28 @@ all Blazy-related modules match the latest release date or version number. **Uni
 Composer with proper constraints will install dependency tree correctly
 eliminating this issue in the first place.
 
+### VERSION ROADMAP
+1. **Blazy 3.x (Drupal ≥ 9.4)**
+
+   Ecosytem stability with lingering baggages.
+
+2. **Blazy 4.x (Drupal ≥ 11.0)**
+
+   Ecosytem consolidation with minimum BC for D12.
+
+   * Requires PHP ≥ 8.2
+   * Internals are strictly typed
+   * Public APIs:
+     + `blazy.api.php` remains BC-stable within the major
+     + Public classes may be tightened
+
+3. **Blazy 5.x (Drupal ≥ 12.0)**
+
+   A breaking change phase without BC.
+
+   * Public APIs are tightened
+   * Full strict typing enforced
+
 ---
 ## <a name="requirements"> </a>REQUIREMENTS
 1. Media
