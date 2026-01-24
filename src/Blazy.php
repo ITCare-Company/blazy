@@ -101,7 +101,7 @@ class Blazy extends BlazyBase {
   /**
    * Alias for CheckItem::has().
    */
-  public static function has($content, $needle) {
+  public static function has($content, $needle): bool {
     return CheckItem::has($content, $needle);
   }
 
@@ -122,7 +122,7 @@ class Blazy extends BlazyBase {
   /**
    * Return TRUE if an url is a data URI.
    */
-  public static function isDataUri($url) {
+  public static function isDataUri($url): bool {
     $url = trim($url ?: '');
     return $url && mb_substr($url, 0, 10) === 'data:image';
   }

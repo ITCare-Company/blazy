@@ -9,7 +9,7 @@
  * [Features](#features)
  * [Recommended modules](#recommended-modules)
  * [Architectural philosophy](#architecture)
- * **Content displays:**
+ * <a name="content-architecture"> </a>**Content displays:**
     + [Blazy Layout](#layouts)
     + [Building Heroes](#heroes)
     + [Multimedia galleries](#galleries)
@@ -21,6 +21,7 @@
  * [FAQ](#faq)
  * [Troubleshooting](#troubleshooting)
  * [Optimization](#optimization)
+ * [Project Manifesto](#manifesto)
  * [Roadmap](#roadmap)
  * [Contribution](#contribution)
  * [Maintainers](#maintainers)

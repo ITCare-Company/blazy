@@ -129,9 +129,11 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     $entity_form = isset($form_state2->getBuildInfo()['callback_object']) ? $form_state2->getFormObject() : NULL;
     $extras      = $entity_form ? $this->getEntityData($entity_form) : [];
     $url         = '/admin/config/media/blazy';
+    $help        = '/admin/help/blazy_ui';
 
     if ($this->manager->moduleExists('blazy_ui')) {
       $url = Url::fromUri('internal:/admin/config/media/blazy')->toString();
+      $help = Url::fromUri('internal:/admin/help/blazy_ui')->toString();
     }
 
     $form['settings'] = [
@@ -233,6 +235,8 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     if (!$use_custom_css) {
       $scopes['ui_url'] = $url;
     }
+
+    $scopes['blazy_help'] = $help;
 
     $form['settings']['custom_css'] = [
       '#type'          => 'textarea',

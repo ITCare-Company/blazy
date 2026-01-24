@@ -5,7 +5,8 @@
 **Layout Builder** (LB). This isn't just another layout handler; it is a
 sophisticated re-imagining of the established Blazy Grid system. By
 transforming dynamic grid options into responsive layout variants, it eliminates
-the redundant need for dozens of individual templates.
+the redundant need for dozens of individual templates while providing a
+**CLS-zero** strategy utilizing its simple configuration.
 
 We have mastered the art of the "One"—a single, noble template capable of
 infinite expression.
@@ -52,9 +53,25 @@ engine, they refer to a region or sub-section in layout terminology.
     (two-dimensional), or a stacked mobile-first design, a single baseline
     handles it all.
 
+* **Hero Friendly:**
+
+  Defining a region as a Hero allows you to make **Layout Builder** as the
+  primary layout manager beyond regular hard-coded regions and traditional
+  block placement in templates. Two Hero builders:
+
+  + Place a dynamic slider or static media Views block and treat it as a
+    [Hero](/admin/help/blazy_ui#heroes).
+
+    **Benefits:** single and multi-value field are supported.
+
+  + Assign a Hero delta directly into **Hero region** option, and upload a Hero
+    media ((Responsive) img, Picture, Media player, Video, Audio).
+
+    **Benefits:** a single, prominent and optimized Hero without Views overhead
+
 * **Universal Application:**
 
-  Effortlessly apply CSS images, solid colors, or transparent washes to the
+  Effortlessly apply CSS backgrounds, solid colors, or transparent washes to the
   entire layout or specific sub-sections to create a striking visual
   foundation.
 
@@ -83,6 +100,22 @@ engine, they refer to a region or sub-section in layout terminology.
 * **Composition:**
 
   Place regular content blocks over your defined layout regions.
+
+* **Custom CSS (advanced):**
+
+  The CSS is injected directly into the page `<head>` and applied at
+  render time.
+  + Provide a scoped selector at [Blazy UI](/admin/config/media/blazy)
+    after enabling **Allow custom inline CSS for Blazy layout**.
+  + Avoid targeting global elements (`html`, `body`)
+  + External imports and remote URLs are ignored
+  + Leave empty to avoid unnecessary layout instability
+
+   Incorrect CSS may break layout rendering or affect unrelated components. This
+   option is intended primarily to mitigate
+   [**CLS issues**](/admin/help/blazy_ui#cls) when the provided `min-height`
+   utility classes (**xxs xs sm md lg xl xxl x2l x3l x4l x5l**) are
+   insufficient.
 
 * **The Result:**
 
@@ -181,6 +214,7 @@ Three ways to add Media (image or local|remote video) as CSS background:
   regular floating elements commonly seen at one-dimensional layouts. However,
   any CSS framework cosmetic rules can be utilized via the provided **Classes**
   options.
+* Background images are not draggable, simply replace and reuse them.
 
 ## AUTHOR/MAINTAINER/CREDITS
 * [Gaus Surahman](https://www.drupal.org/user/159062)

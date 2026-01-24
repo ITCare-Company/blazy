@@ -22,6 +22,7 @@ Drupal core’s Image widget does not support SVG files. To upload SVGs, use a
    * **Add a new field → Reference → File** for simple needs
    * Enable the **Description field** for SVG captions
    * Alternatively, choose **Reference → Other → File** for more complex needs
+
 `/admin/structure/types/manage/page/fields`
 
 2. [/admin/structure/types/manage/page/fields](/admin/structure/types/manage/project/page)

@@ -17,7 +17,7 @@ integrity.
     `/admin/config/development/performance`. Without this, software-level
     optimizations are moot.
 
-### 2. Media Architecture & Privacy
+### <a name="media-architecture"> </a>2. Media Architecture & Privacy
 
 - **Lazyload HTML:**
 
@@ -209,7 +209,9 @@ Understanding the variables is vital for more targeted solutions.
 ### 🛡️ Strategic Solutions
 
 To maintain a perfect **Cumulative Layout Shift (CLS)** score, we must move from **reactive** loading to **predictive** spacing. While Blazy has an immediate
-solution via **Aspect ratio** option, the following demands your own fixes.
+solution via [**Aspect ratio**](#aspect-ratio) option and
+[**Blazy Layout**](#layouts) with **CSS classes** and **Custom CSS** textarea,
+the following demands your own fixes.
 
 #### 1. The "Skeleton" Container (Fixed Dimensions)
 The most authoritative way to prevent shift is to reserve space.
@@ -217,8 +219,8 @@ The most authoritative way to prevent shift is to reserve space.
 * **Known Dimensions:**
 
     If a block’s size is constant (e.g., a 300x250 ad), use a container with
-   these **fixed dimensions**. Ignoring these constraints to “catch” a click may
-   result in invalid engagement and directly degrades CLS.
+    these **fixed dimensions**. Ignoring these constraints to “catch” a click
+    may result in invalid engagement and directly degrades CLS.
 
 * **Unknown Dimensions:**
 
@@ -251,21 +253,26 @@ For ads that vary in size, implement **Slot Capping**. Reserve the height of the
 largest possible ad. This ensures that regardless of which creative wins the
 bid, the content below it remains anchored.
 
-#### 4. The BigPipe + Blazy Bridge
+#### <a name="big-bees"> </a>4. The BigPipe + Blazy Bridge
+
 BigPipe delivers significant improvements to TTFB and FCP by streaming page
 fragments progressively. However, because it replaces placeholders in the live
-DOM, it can introduce CLS unless layout stability is explicitly designed into
-those replacement regions, as [outlined above](#cls).
+DOM, it can introduce CLS unless [layout stability](#layouts) is explicitly
+designed into those replacement regions, as [outlined above](#cls).
 
-If evaluating CLS relative to TTFB, temporarily (un-)install BigPipe until the
-rendering strategy is fully understood.
+When evaluating CLS in relation to TTFB, temporarily enabling or disabling
+BigPipe can help isolate the rendering strategy. Since BigPipe operates at a
+broader rendering scope through fragment streaming and directly influences TTFB,
+while Blazy focuses on a narrower media-related scope, CLS should be analyzed in
+terms of placeholder replacement and layout stability across the rendering
+pipeline.
 
-Clear separation of responsibilities enables more accurate, context-driven
-decisions based on your target audience: optimizing BigPipe for authenticated
+A clear separation of responsibilities enables more accurate, context-driven
+decisions based on the target audience: optimizing BigPipe for authenticated
 users with highly dynamic, PHP-driven interactions, while relying on stable,
 cached HTML for anonymous traffic. Within this model, Blazy remains a focused,
-media-level solution—addressing only media delivery and media-induced shifts,
-not structural layout changes introduced by the rendering pipeline itself.
+media-level solution—addressing only media delivery and media-induced layout
+shifts, not structural changes introduced by the rendering pipeline itself.
 
 During BigPipe’s progressive rendering phase, Blazy functions as a coordinating
 layer within its own ecosystem. By extending `core/once` and responding to the
@@ -273,21 +280,24 @@ completion of BigPipe’s placeholder replacements, Blazy ensures that media
 assets are initialized only after their structural containers have stabilized
 in the DOM.
 
-With this approach, beginning with Blazy 2.17, the vast majority of
+With this approach, starting from Blazy 2.17, the vast majority of
 Blazy–BigPipe interoperability issues have been resolved. The remaining edge
-cases are primarily related to CSS reordering behavior (only if still an issue,
-which lies outside Blazy’s responsibility), as well as any currently unknown
-scenarios. We welcome reproducible reports for any such incompatibilities to
-make Blazy fully compatible with Core BigPipe.
+cases are primarily related to CSS reordering behavior (if still present, and
+outside Blazy’s scope), as well as any currently unknown scenarios. Reproducible
+reports for such cases are welcome to help ensure full compatibility with Core
+BigPipe.
 
-> **Disclaimer on documentation**
+> **Documentation note**
 >
-> This section is OOT and not Blazy's responsibility, like a few other things
-anywhere else; it is comprehensive to serve as a definitive resource and reduce
-repetitive support inquiries unrelated to the Blazy ecosystem. If you are an
-experienced site-builder, feel free to bypass the foundational steps; however,
-ensure to validate your issues against the documentation before posting.
-Spending a 15-minute reading or skim will save us both from unnecessary issues.
+> This section is out of scope for Blazy itself, as are a few related topics
+elsewhere. It is included to provide a complete reference and to reduce
+repetitive support requests that originate outside the Blazy ecosystem.
 >
-> Proper isolation enables accurate evaluation.
-[Have your cake and eat it too](#cls).
+> Experienced site builders may skip foundational steps; however, issues should
+be validated against this documentation before reporting. A brief review or
+skim (≈15 minutes) often prevents misattribution and unnecessary
+troubleshooting.
+>
+> Proper [isolation](#cls) and [configuration](#optimization) enable accurate
+> evaluation.
+> [Have your cake and eat it too](#cls)

@@ -29,11 +29,16 @@ class Preloader {
    */
   public static function preload(array &$load, array $settings): void {
     $blazies = $settings['blazies'];
-    $images  = array_filter($blazies->get('images', []));
+    $images  = $blazies->get('images', []);
+    $check   = array_filter($images);
     $sources = $blazies->get('resimage.sources', []);
+    $initial = $blazies->get('initial', -1);
 
-    // @todo refine to just a hero image, not always 0 for sliders.
-    if (empty($images) || empty($images[0]['uri'])) {
+    // A hero is not always 0 for sliders basing on `start` or `InitialSlide`
+    // However, 0 is always there since the logic is JS, not PHP; except for the
+    // 3.0.18 Blazy Layout Hero which may not always have media on first region
+    // given the potential of Native Grid complex design.
+    if (empty($check) || empty($check[$initial]['uri'])) {
       return;
     }
 
@@ -82,6 +87,7 @@ class Preloader {
         BlazyImage::dimensions($settings, $image, $uri, TRUE);
       }
 
+      // Ensures the Hero is the image being displayed, not original URI.
       $style_uri = NULL;
       if ($style && $url) {
         $style_uri = BlazyFile::buildUri($url);
@@ -241,11 +247,9 @@ class Preloader {
         $start = $delta == $blazies->get('initial', -1);
 
         // Preloading 1px data URI makes no sense, see if image_url exists.
-        if ($url) {
-          $data_uri = Blazy::isDataUri($url);
-          if ($data_uri && $url2 = $source['url'] ?? NULL) {
-            $url = $url2;
-          }
+        $data_uri = Blazy::isDataUri($url);
+        if ($data_uri && $url2 = $source['url'] ?? NULL) {
+          $url = $url2;
         }
 
         $image = [

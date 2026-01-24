@@ -49,11 +49,42 @@ modern architecture prioritizes **Critical Path Optimization** and
 
 Reducing total byte-count via lazyloading is secondary to **LCP orchestration**.
 An architect does not just lighten the ship; they ensure the lighthouse is
-visible first. Native lazyloading without LCP optimization is simply
+visible first. Native lazyloading without [LCP optimization](#heroes) is simply
 "fast waiting"—the user still stares at a blank canvas while your unprioritized
 "light" assets trickle in.
 
-#### II. Resource Consolidation
+**Architectural Continuity & Refinement**
+
+These positions are not retrospective interpretations of modern metrics, but the
+result of long-standing architectural constraints and real-world usage.
+
+With the introduction of the Blazy [media player](#media-architecture)—initially
+integrated with Slick in 2014—the ecosystem operated without unsolicited
+tracking or external dependencies. In practice, this aligned with what would
+later become strict **GDPR** requirements, years before formal enforcement.
+
+Likewise, Blazy’s emphasis on **selective enhancement**, explicit
+[layout reservation](#aspect-ratio), and a deliberate avoidance of global
+“auto-lazy” strategies addressed [layout stability](#layouts) and
+[perceptual timing concerns](#optimization) that were later formalized as
+**Core Web Vitals**—well before those metrics were defined.
+
+**Refinement phase (2026)**
+
+By 2026, the architectural focus shifts from *capability* to *constraint
+enforcement*. Patterns that were previously configurable—such as preloading,
+priority hints, and early media discovery—are now being tightened with stronger
+defaults and clearer limits to prevent overuse, even when explicit warnings
+already exist.
+
+This refinement reflects maturity, not reversal: lessons from large-scale,
+real-world usage are translated into guardrails that reduce accidental misuse
+while preserving intentional, expert-level control.
+
+> _2026 marks the transition from enabling performance to enforcing it._
+
+
+#### <a name="resource-manager"> </a>II. Resource Consolidation
 > Blazy is not just a lazy-loader; it is an **intelligent resource manager**:
 
 - **Precision Orchestration:**
@@ -71,7 +102,7 @@ visible first. Native lazyloading without LCP optimization is simply
     Transforms traditional, passive lazy-loading into an active, prioritized
     media delivery system.
 
-#### III. Modern Consolidation
+#### <a name="orchestration"> </a>III. Modern Consolidation
 
 - **Main-Thread Liberation:**
 
@@ -89,7 +120,7 @@ visible first. Native lazyloading without LCP optimization is simply
     viewport to ensure **LCP dominance** and eliminate
     **CLS (Cumulative Layout Shift)** through rigid structural integrity.
 
-#### IV. Architectural Consolidation (DRY)
+#### <a name="interoperability"> </a>IV. Architectural Consolidation (DRY)
 To ensure long-term maintainability, redundant logic across the ecosystem is systematically merged into the Blazy core. This prevents "duplication of effort"
 and ensures core performance fixes immediately benefit all submodules.
 
@@ -112,7 +143,7 @@ and ensures core performance fixes immediately benefit all submodules.
     Every integration inherits our **Core Web Vitals** optimizations (LCP, CLS,
     and fetchpriority) by default.
 
-#### V. Asset Efficiency & Granular Architecture
+#### <a name="granularity"> </a>V. Asset Efficiency & Granular Architecture
 Evaluation of "bloat" must be based on **Granular Delivery**, not repository
 size. While the total potential JS library is **~33kB** (excluding polyfills
 **~4.8kB** and admin **~1.4kB**), the architecture is strictly fragmented.
@@ -141,7 +172,7 @@ This **Just-In-Time execution** eliminates the overhead of traditional
 "all-in-one" libraries, providing a feature-rich experience with the footprint
 of a micro-library.
 
-#### VI. Independent Audit: The Minimalist Truth
+#### <a name="audit"> </a>VI. Independent Audit: The Minimalist Truth
 We encourage an independent audit of the Blazy footprint to demystify the
 architecture. Do not be distracted by the presence of fragmented files; in
 production, Core asset aggregation resolves these into a singular, streamlined

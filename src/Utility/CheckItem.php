@@ -153,7 +153,7 @@ class CheckItem {
   /**
    * A simple wrapper for stripos().
    */
-  public static function has($content, $needle) {
+  public static function has($content, $needle): bool {
     if ($content && $needle = trim($needle ?: '')) {
       // stripos() won't work with diacritical signs.
       $needle = strtolower($needle);

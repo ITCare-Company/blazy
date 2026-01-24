@@ -16,6 +16,7 @@ trait TraitLayoutDescriptions {
   protected function description(array $data = []): array {
     $scope = $data['css_scope'] ?? '';
     $ui_url = $data['ui_url'] ?? '';
+    $blazy_help = $data['blazy_help'] ?? '';
 
     $css_scope = '';
     $ui_url_desc = '';
@@ -58,10 +59,11 @@ trait TraitLayoutDescriptions {
   <li>External imports and remote URLs are ignored</li>
   <li>Leave empty to avoid unnecessary layout instability</li>
 </ul>
-Incorrect CSS may break layout rendering or affect unrelated components. This option is intended primarily to mitigate CLS issues when the provided <code>min-height</code> utility classes (<b>xxs xs sm md lg xl xxl x2l x3l x4l x5l</b>) are insufficient.",
+Incorrect CSS may break layout rendering or affect unrelated components. This option is intended primarily to mitigate <a href=':cls'>CLS issues</a> when the provided <code>min-height</code> utility classes (<b>xxs xs sm md lg xl xxl x2l x3l x4l x5l</b>) are insufficient.",
         [
           '@css_scope' => $css_scope,
           '@ui_url' => $ui_url_desc,
+          ':cls' => $blazy_help . '#cls',
         ]
       ),
 
