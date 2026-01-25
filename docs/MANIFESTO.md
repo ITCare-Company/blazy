@@ -173,17 +173,20 @@ measurement, and correction — often informed by patches and data from others.
 
 Blazy’s architecture is shaped by measurement, not preference.
 
-As of this writing, given [LCP requirements](#heroes) and other media types than
-`IMG` and `IFRAME` (except [optimized IFRAME](#media-architecture)):
+As of this writing, given [LCP requirements](#heroes) with
+**multi-value fields**:
 - Lighter page weight
 - Faster JavaScript execution
 - Lower memory footprint
 - More stable CWV metrics under sliders and media-heavy layouts
 
 This includes comparisons against alternative implementations,
-including Splide|Slick-based solutions. Productive performance discussions
-require shared grounding in technical context, reproducible methodology, and
-clearly defined constraints. Minimum requirements:
+including Splide|Slick-based solutions.
+
+Productive performance discussions require shared grounding in technical
+context, reproducible methodology, and clearly defined constraints.
+
+Minimum requirements:
 
 - **Objective Benchmarking:**
 
@@ -202,7 +205,9 @@ clearly defined constraints. Minimum requirements:
 
 - **Resolved Issue Isolation:**
 
-  Leverage the provided configuration and [Strategic Optimization Checklist](#optimization) to ensure resolved issues remain isolated.
+  The provided configuration and
+  [Strategic Optimization Checklist](#optimization) exist to ensure resolved
+  issues remain isolated.
 
 Claims without [reproduction steps](#contribution) or metrics are not
 actionable.
