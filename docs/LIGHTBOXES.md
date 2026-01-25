@@ -107,3 +107,7 @@ duplicate folders. Blazy will automatically detect and use any valid
 installation.
 
 DOMPurify is optional. Without it, Blazy (sub-)modules will sanitize captions server-side using basic sanitization rules.
+
+---
+<a href="#top">Back to top &uarr;</a>
+---

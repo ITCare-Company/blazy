@@ -84,6 +84,7 @@ an issue:
 * Install the samples, if provided by sub-modules, to observe a verified,
   working implementation. Any display issues must be confronted against the
   working samples.
+* [Isolate](#cls) the issue against [configuration](#optimization).
 * Search the issue queue; many solutions are already documented.
 
 **For Validated Bug Reports:**

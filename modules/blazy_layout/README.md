@@ -3,10 +3,10 @@
 
 **Blazy Layout** provides a single layout template with dynamic regions for
 **Layout Builder** (LB). This isn't just another layout handler; it is a
-sophisticated re-imagining of the established Blazy Grid system. By
+sophisticated re-imagining of the established **Blazy Grid** system. By
 transforming dynamic grid options into responsive layout variants, it eliminates
 the redundant need for dozens of individual templates while providing a
-**CLS-zero** strategy utilizing its simple configuration.
+**CLS-zero** strategy utilizing its simple configurations.
 
 We have mastered the art of the "One"—a single, noble template capable of
 infinite expression.
@@ -38,6 +38,13 @@ infinite expression.
     Read the provided descriptions and adjust any relevant options accordingly.
 
 ### MASTERING THE DYNAMIC LAYOUT
+The **dynamic** part refers to **configurable regions**, not the actual
+**layout** itself which is basically just a single **static** template under the
+hood. Within this framework, they are known as **layout variants** similar to
+**separated block layout variants**, and so on; only in the **Blazy Layout**,
+they are **unified and modifiable at the same time**, unlike regular
+**multiple layout templates**.
+
 Whether you require Flexbox, CSS3 Columns, or Native Grid—including their
 Masonry counterparts—**Blazy Layout** delivers a "one for all" solution. It is hyper-efficient, leveraging modern browser capabilities with a remarkably small
 CSS footprint and lean markups to produce limitless, high-performance results.
@@ -59,15 +66,16 @@ engine, they refer to a region or sub-section in layout terminology.
   primary layout manager beyond regular hard-coded regions and traditional
   block placement in templates. Two Hero builders:
 
-  + Place a dynamic slider or static media Views block and treat it as a
-    [Hero](/admin/help/blazy_ui#heroes).
+  1. Place a dynamic slider or static media Views block and treat it as a
+     [Hero](/admin/help/blazy_ui#heroes).
 
-    **Benefits:** single and multi-value field are supported.
+     **Benefits:** single and multi-value field are supported.
 
-  + Assign a Hero delta directly into **Hero region** option, and upload a Hero
-    media ((Responsive) img, Picture, Media player, Video, Audio).
+  2. Assign a Hero delta directly into **Hero region** option, and upload or
+     re-use a Hero media ((Responsive) Image, Picture, Media player, Video,
+     Audio).
 
-    **Benefits:** a single, prominent and optimized Hero without Views overhead
+     **Benefits:** a single, prominent and optimized Hero without Views overhead
 
 * **Universal Application:**
 
@@ -99,20 +107,35 @@ engine, they refer to a region or sub-section in layout terminology.
 
 * **Composition:**
 
-  Place regular content blocks over your defined layout regions.
+    1. **Overlayed blocks**:
+
+       Place regular content blocks over your defined layout regions.
+
+    2. **CSS backgrounds**:
+
+       To impress depth, use the background colors or images:
+       - Select **Styles > Media** and check **Use CSS background** option.
+       - Alternatively, add solid **Styles > Colors** without images.
+       - Adjust Text, Heading and Link colors to ensure perfect contrast.
+
+    3. **Nested Grids**:
+
+       - Add a Blazy formatter and assign **Grid** options within the formatter.
+       - Alternatively, add multiple columns within 100% or 12 column constraint
+         to impress nested grids without additional wrappers.
 
 * **Custom CSS (advanced):**
 
   The CSS is injected directly into the page `<head>` and applied at
   render time.
   + Provide a scoped selector at [Blazy UI](/admin/config/media/blazy)
-    after enabling **Allow custom inline CSS for Blazy layout**.
+    after enabling **Allow custom inline CSS for Blazy layout**
   + Avoid targeting global elements (`html`, `body`)
   + External imports and remote URLs are ignored
   + Leave empty to avoid unnecessary layout instability
 
    Incorrect CSS may break layout rendering or affect unrelated components. This
-   option is intended primarily to mitigate
+   option is intended primarily for CSS-savvy site builders to mitigate
    [**CLS issues**](/admin/help/blazy_ui#cls) when the provided `min-height`
    utility classes (**xxs xs sm md lg xl xxl x2l x3l x4l x5l**) are
    insufficient.
@@ -123,18 +146,18 @@ engine, they refer to a region or sub-section in layout terminology.
   unlimited possibilities with unparalleled efficiency.
 
 ### MEDIA BACKGROUND
-Three ways to add Media (image or local|remote video) as CSS background:
+Three ways to add Media (image, local|remote video, audio) as CSS backgrounds:
 
 1. **With builtin Media library (Recommended):**
 
    * Install [Media library form element](https://www.drupal.org/project/media_library_form_element).
 
    * This is alternative to core **Layout Builder Expose All Field Blocks**
-     which was deprecated, also a more efficient solution than the first two
-     options above to avoid creating useless/ unused Media fields. This
+     which was deprecated, also a more efficient solution than the last two
+     options below to avoid creating useless/ unused Media fields. This
      background is available for all regions, including the main layout. If
      provided, be sure to **NOT** enable **Use CSS background** option for
-     other Blazy formatters if provided within the same region to avoid
+     other Blazy formatters when overlayed above the same region to avoid
      multiple and conflicting backgrounds.
 
    * Select image/media at **Layout Builder** page under:
@@ -184,16 +207,18 @@ Three ways to add Media (image or local|remote video) as CSS background:
 #### The following is applicable to background options above:
 * **Custom Hi-Res Image:**
 
-  To have a custom hi-res image/poster for (local|remote) video:
+  To have a custom hi-res image/poster for (local|remote) video and audio:
 
   + Visit bundle pages:
 
     * [Remote video](/admin/structure/media/manage/remote_video/fields)
     * [Video](/admin/structure/media/manage/video/fields)
+    * [Audio](/admin/structure/media/manage/audio/fields)
 
-  + Re-use the existing `field_media_image` into each bundle.
+  + **Re-use** the existing `field_media_image` into each bundle.
 
-    The same principle is applicable to non-background (Document, Audio, etc.)
+    Avoid creating a new field of Image, it will fail mixed-media scenarios.
+    The same principle is applicable to non-background (Document, etc.)
     when being used with/without background purposes. Normally you would select
     this field under **Blazy formatter > Main stage** to be sure.
 

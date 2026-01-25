@@ -297,7 +297,6 @@ class BlazyDefault {
       'one_pixel'           => TRUE,
       'visible_class'       => FALSE,
       'wrapper_class'       => FALSE,
-      'max_region_count'    => 0,
       'noscript'            => FALSE,
       'placeholder'         => '',
       'privacy_consent'     => FALSE,
@@ -307,6 +306,7 @@ class BlazyDefault {
       'use_oembed'          => FALSE,
       'use_custom_css'      => FALSE,
       'css_scope'           => '',
+      'max_region_count'    => 0,
       'unstyled_extensions' => '',
     ];
   }

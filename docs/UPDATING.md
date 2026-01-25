@@ -134,3 +134,7 @@ a total environment rebuild:
 Alpha, Beta, and DEV releases are for development environments. Always align
 your versions (Dev-to-Dev, Stable-to-Stable) as outlined in the
 [Version compatibility](#first).
+
+---
+<a href="#top">Back to top &uarr;</a>
+---

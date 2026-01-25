@@ -76,3 +76,7 @@ break; normally unwanted trailing commas.
 > To avoid potential security issues, please only install the `dist` directory,
 if any, or only the required files, and not any other files from the archive.
 Check out the relevant module project requirements for the exact needed files.
+
+---
+<a href="#top">Back to top &uarr;</a>
+---

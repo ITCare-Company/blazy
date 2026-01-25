@@ -63,56 +63,58 @@ class BlazyConfigForm extends BlazyConfigFormBase {
     $class = $exists ? 'info' : 'warning';
     $hints = [];
     $help = '/admin/help/blazy_ui';
+    $bl_help = '/admin/help/blazy_layout';
     $bl_exists = $this->manager->moduleExists('blazy_layout');
 
     if ($this->manager->moduleExists('help')) {
       $help = Url::fromUri('internal:/admin/help/blazy_ui')->toString();
+      $bl_help = Url::fromUri('internal:/admin/help/blazy_layout')->toString();
     }
 
     // Adapted from Colorbox module, thanks.
     $dom_text = $dom_exists ?
-      '[v] ' . $this->t('The DOMPurify library is installed to sanitize lightbox captions. Be sure to clear cache for library discoveries. [<a href=":ui">Blazy UI help</a>]', [
-        ':ui' => $help . '#dompurify',
-      ])
+      '[&check;] ' . $this->t(
+        'The DOMPurify library is installed to sanitize lightbox captions. [<a href=":ui">Blazy help</a>]',
+        [
+          ':ui' => $help . '#dompurify',
+        ]
+      )
       :
-      '[x] ' . $this->t('<strong>Warning!</strong> The <a href=":url">DOMPurify</a> library is not installed. It is necessary for HTML in lightbox captions. Without it, they are only sanitized server-side, or builtin. [<a href=":ui">Blazy UI help</a>].',
+      '[&cross;] ' . $this->t(
+        '<b>Warning!</b> The <a href=":url">DOMPurify</a> library is not installed; required for HTML in lightbox captions. Without it, they are only sanitized server-side, or builtin. [<a href=":ui">Blazy help</a>].',
         [
           ':url' => 'https://github.com/cure53/DOMPurify/archive/main.zip',
           ':ui' => $help . '#dompurify',
-        ]);
+        ]
+      );
 
     $hints[] = [
       '#theme' => 'container',
-      '#children'   => ['#markup' => $dom_text],
-      // '#attributes' => [
-      // 'class' => ['messages', 'messages--' .
-      // ($dom_exists ? 'info' : 'warning')],
-      // ],
+      '#children' => ['#markup' => $dom_text],
     ];
 
     $svg_text = $svg_exists ?
-      '[v] ' . $this->t('The SVG Sanitizer library is installed to sanitize inline SVG. [<a href=":ui">Blazy UI help</a>]', [
-        ':ui' => $help . '#svg',
-      ])
+      '[&check;] ' . $this->t(
+        'The SVG Sanitizer library is installed to sanitize inline SVG. [<a href=":ui">Blazy help</a>]',
+        [
+          ':ui' => $help . '#svg',
+        ]
+      )
       :
-      '[x] ' . $this->t('<strong>Warning!</strong> The <a href=":url">SVG Sanitizer</a> library is not installed. This library is required if you want to use SVG inline.  [<a href=":ui">Blazy UI help</a>].',
+      '[&cross;] ' . $this->t(
+        '<b>Warning!</b> The <a href=":url">SVG Sanitizer</a> library is not installed; required to use SVG inline.  [<a href=":ui">Blazy help</a>].',
         [
           ':url' => $svg_sanitizer,
           ':ui' => $help . '#svg',
-        ]);
+        ]
+      );
 
     $hints[] = [
       '#theme' => 'container',
-      '#children'   => ['#markup' => $svg_text],
-      // '#attributes' => [
-      // 'class' => ['messages', 'messages--' .
-      // ($svg_exists ? 'info' : 'warning')],
-      // ],
+      '#children' => ['#markup' => $svg_text],
     ];
 
     $form['library_hints'] = [
-      // '#theme' => 'item_list',
-      // '#items' => $hints,
       '#type' => 'container',
       'items' => $hints,
       '#attributes' => [
@@ -127,6 +129,8 @@ class BlazyConfigForm extends BlazyConfigFormBase {
 
     $data = [
       'help' => $help,
+      'bl_exists' => $bl_exists,
+      'bl_help' => $bl_help,
     ];
     $descriptions = $this->description($data);
 
@@ -134,26 +138,6 @@ class BlazyConfigForm extends BlazyConfigFormBase {
       '#type'          => 'checkbox',
       '#title'         => $this->t('Admin CSS'),
       '#default_value' => $config->get('admin_css'),
-      '#enabled'       => $bl_exists,
-    ];
-
-    $form['use_custom_css'] = [
-      '#type'          => 'checkbox',
-      '#title'         => $this->t('Allow custom inline CSS for Blazy layout'),
-      '#default_value' => $config->get('use_custom_css'),
-      '#disabled'      => !$bl_exists,
-    ];
-
-    $form['css_scope'] = [
-      '#type'          => 'textfield',
-      '#title'         => $this->t('CSS selector scope'),
-      '#default_value' => $config->get('css_scope'),
-      '#disabled'      => !$bl_exists,
-      '#states'        => [
-        'visible' => [
-          'input[name="use_custom_css"]' => ['checked' => TRUE],
-        ],
-      ],
     ];
 
     $form['use_oembed'] = [
@@ -282,27 +266,16 @@ class BlazyConfigForm extends BlazyConfigFormBase {
       }
     }
 
-    $form['max_region_count'] = [
-      '#type'          => 'number',
-      '#title'         => $this->t('Max region count'),
-      '#default_value' => $config->get('max_region_count'),
-      '#access'        => $this->manager->moduleExists('blazy_layout'),
-    ];
-
     foreach ($descriptions as $key => $description) {
       if (isset($form[$key])) {
         $form[$key]['#description'] = $description;
       }
     }
 
-    if (!$bl_exists) {
-      $form['use_custom_css']['#description'] .= ' ' . $this->t('<b>Requires Blazy layout</b>.');
-    }
-
     $form['blazy'] = [
       '#type'        => 'details',
       '#tree'        => TRUE,
-      '#open'        => TRUE,
+      '#open'        => FALSE,
       '#title'       => $this->t('Blazy settings'),
       '#description' => $descriptions['blazy'],
     ];
@@ -356,7 +329,7 @@ class BlazyConfigForm extends BlazyConfigFormBase {
     $form['io'] = [
       '#type'        => 'details',
       '#tree'        => TRUE,
-      '#open'        => TRUE,
+      '#open'        => FALSE,
       '#title'       => $this->t('Intersection Observer API (IO) settings'),
       '#description' => $descriptions['io'],
     ];
@@ -393,6 +366,47 @@ class BlazyConfigForm extends BlazyConfigFormBase {
       if (isset($form['io'][$key])
         && $description = $this->description($data)[$key] ?? NULL) {
         $form['io'][$key]['#description'] = $description;
+      }
+    }
+
+    $form['blazy_layout'] = [
+      '#type'        => 'details',
+      '#tree'        => FALSE,
+      '#open'        => TRUE,
+      '#title'       => $this->t('Blazy Layout settings'),
+      '#description' => $descriptions['blazy_layout'],
+    ];
+
+    $form['blazy_layout']['use_custom_css'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Allow custom inline CSS'),
+      '#default_value' => $config->get('use_custom_css'),
+      '#disabled'      => !$bl_exists,
+    ];
+
+    $form['blazy_layout']['css_scope'] = [
+      '#type'          => 'textfield',
+      '#title'         => $this->t('CSS selector scope'),
+      '#default_value' => $config->get('css_scope'),
+      '#disabled'      => !$bl_exists,
+      '#states'        => [
+        'visible' => [
+          'input[name="use_custom_css"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['blazy_layout']['max_region_count'] = [
+      '#type'          => 'number',
+      '#title'         => $this->t('Max region count'),
+      '#default_value' => $config->get('max_region_count'),
+      '#disabled'      => !$bl_exists,
+    ];
+
+    foreach (array_keys($form['blazy_layout']) as $key) {
+      if (isset($form['blazy_layout'][$key])
+        && $description = $this->description($data)[$key] ?? NULL) {
+        $form['blazy_layout'][$key]['#description'] = $description;
       }
     }
 

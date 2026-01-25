@@ -85,3 +85,7 @@ before the 3.x release:
   - **Last Resort:** Override `blazy.html.twig`. Note that even the core
     author avoids this—the provided hooks are 100% sufficient for custom
     architectural requirements.
+
+---
+<a href="#top">Back to top &uarr;</a>
+---

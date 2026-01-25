@@ -128,7 +128,7 @@ integrity.
      - **Implementation:**
 
        Use specialized Twig templates—`block--no-wrapper.html.twig` or `views--no-wrapper.html.twig`—to strip the container to its core
-       components conditionally, whenever possible. And use the
+       components selectively, whenever possible. And use the
        **field/view wrapper CSS classes** for more contextual styling.
 
      - **Result:**

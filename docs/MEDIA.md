@@ -137,3 +137,7 @@ threshold is actually met.
 - **Update 2020-04-24:** Added logic to only trigger lazy-loading once the
 initial viewport asset is confirmed loaded, preventing bandwidth contention, see
 [#3120696](https://drupal.org/node/3120696)
+
+---
+<a href="#top">Back to top &uarr;</a>
+---

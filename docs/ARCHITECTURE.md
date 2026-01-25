@@ -28,12 +28,12 @@ markup, rendering strategies, and interacting subsystems—not media alone.
 > _Why would I care about CWV and specifically LCP, when I can have overall
 > lighter page weight with native lazy loading alone?_
 
-**Short answer:**
+**_Short answer:_**
 
 We don't view it as a user preference, but we value diverse POVs. Feel free to
 choose your own adventure!
 
-**Long answer:**
+**_Long answer:_**
 
 The obsolete obsession with **page weight** is a relic of the dial-up era;
 modern architecture prioritizes **Critical Path Optimization** and
@@ -143,7 +143,7 @@ and ensures core performance fixes immediately benefit all submodules.
     Every integration inherits our **Core Web Vitals** optimizations (LCP, CLS,
     and fetchpriority) by default.
 
-#### <a name="granularity"> </a>V. Asset Efficiency & Granular Architecture
+#### <a name="javascript"> </a>V. Asset Efficiency & Granular Architecture
 Evaluation of "bloat" must be based on **Granular Delivery**, not repository
 size. While the total potential JS library is **~33kB** (excluding polyfills
 **~4.8kB** and admin **~1.4kB**), the architecture is strictly fragmented.
@@ -203,3 +203,7 @@ offers an intuitive way to reason about performance bottlenecks and
 architectural focus. It is intended as an explanatory abstraction, not a literal
 description of web threading behavior. I hope this minor cross-disciplinary
 perspective improves clarity for the reader.
+
+---
+<a href="#top">Back to top &uarr;</a>
+---

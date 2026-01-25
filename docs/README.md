@@ -1,4 +1,4 @@
-## <a name="top"> </a>CONTENTS OF THIS FILE
+## <a name="top"> </a>TABLE OF CONTENTS
 
  * [Introduction](#introduction)
  * [Upgrading from 1.x](https://www.drupal.org/project/blazy#blazy-upgrade)
@@ -55,14 +55,14 @@ all Blazy-related modules match the latest release date or version number. **Uni
 Composer with proper constraints will install dependency tree correctly
 eliminating this issue in the first place.
 
-### VERSION ROADMAP
+### <a name="version-roadmap"> </a>VERSION ROADMAP
 1. **Blazy 3.x (Drupal ≥ 9.4)**
 
    Ecosytem stability with lingering baggages.
 
 2. **Blazy 4.x (Drupal ≥ 11.0)**
 
-   Ecosytem consolidation with minimum BC for D12.
+   Ecosytem consolidation with minimum BC and maximum FC as a bridge for D12.
 
    * Requires PHP ≥ 8.2
    * Internals are strictly typed
@@ -72,7 +72,7 @@ eliminating this issue in the first place.
 
 3. **Blazy 5.x (Drupal ≥ 12.0)**
 
-   A breaking change phase without BC.
+   A breaking change phase for D11 below without BC.
 
    * Public APIs are tightened
    * Full strict typing enforced
@@ -131,22 +131,23 @@ high-performance experience compliant with **Core Web Vitals**.
 - **Deep Integration**:
 
     Seamless orchestration for Core Media, Views,
-    Paragraphs, and Media contrib. Supports Image, Responsive image, Picture,
-    (local|remote|iframe) video, audio, [SVG](#svg), multi-breakpoint CSS
-    backgrounds, and HTML media type.
+    Paragraphs, Media contrib, and [**Layout Builder**](#layouts). Supports
+    Image, Responsive image, Picture, (local|remote|iframe) video, audio,
+    [SVG](#svg), multi-breakpoint CSS backgrounds, and HTML media type.
 
 - **Main-Thread Protection**:
 
-    Offloads heavy third-party embeds (Instagram, Pinterest, Twitter, YouTube,
-    Vimeo, SoundCloud, etc) via **Lazyload HTML** and **Media Switcher** options
-    to prevent UI "jank" and prioritize interaction.
+    [Offloads heavy third-party embeds](#media-architecture) (Instagram,
+    Pinterest, Twitter, YouTube, Vimeo, SoundCloud, etc) via **Lazyload HTML**
+    and **Media Switcher** options to prevent UI "jank" and prioritize
+    interaction.
 
 - **LCP & CLS Management**:
 
     Engineered for a **"CLS-zero" strategy** using modern CSS `aspect-ratio`
     with legacy `padding-bottom` fallbacks to ensure layout stability across all
-    browser generations. See [Aspect ratio](#aspect-ratio)
-    and [CLS Prevention](#cls).
+    browser generations. See [Aspect ratio](#aspect-ratio),
+    [CLS Prevention](#cls) and [**Blazy Layout**](#layouts).
 
 - **Critical Path Optimization**:
 
@@ -280,3 +281,7 @@ See the bLazy docs at:
 * [gambry](https://www.drupal.org/u/gambry)
 * [Contributors](https://www.drupal.org/node/2663268/committers)
 * CHANGELOG.txt for helpful souls with their patches, suggestions and reports.
+
+---
+<a href="#top">Back to top &uarr;</a>
+---

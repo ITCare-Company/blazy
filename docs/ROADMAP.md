@@ -32,12 +32,16 @@
 
       24/01/2026
 
-      - Add `declare(strict_types=1);` to all .php files
+      - Add `declare(strict_types=1);` to all .php files, excluding `.module`
       - Convert all procedural hooks into #[(Hook)] attributes.
       - Explicit return and parameter types to a great extent.
       - Postponed `blazy.api.php` changes till Blazy 5.x
 
 * [?] Maturity and stabilization.
 
-  This follows the well-known principe of **premature optimization** in software
-  developments.
+  This follows the well-known principle of **premature optimization** in
+  software developments.
+
+---
+<a href="#top">Back to top &uarr;</a>
+---

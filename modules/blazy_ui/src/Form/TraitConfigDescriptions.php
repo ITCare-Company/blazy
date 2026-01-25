@@ -15,18 +15,12 @@ trait TraitConfigDescriptions {
    */
   protected function description(array $data = []): array {
     $help = $data['help'] ?? '';
+    $bl_exists = $data['bl_exists'] ?? FALSE;
+    $bl_help = $data['bl_help'] ?? FALSE;
 
     return [
       'admin_css' => $this->t(
         'Uncheck to disable Blazy-specific compact admin form styling. Only disable this if it conflicts with your admin theme.'
-      ),
-
-      'use_custom_css' => $this->t(
-        'Enables a raw CSS textarea for fine-grained visual adjustments. <b>Warning!</b> Inline CSS may affect page rendering and stability beyond Blazy layouts if used incorrectly. Only enable this for trusted site builders who understand CSS scope and impact. When enabled, a <b>Custom CSS</b> textarea becomes available on <b>Layout Builder</b> administrative pages where <b>Blazy dynamic layout</b> is added.'
-      ),
-
-      'css_scope' => $this->t(
-        'Provide a single CSS selector scope (e.g. <code>.region-content</code>) to prevent targeting global elements such as <code>html</code> or <code>body</code>. Strongly recommended to reduce misuse. If provided, rules like <code>body { display: none }</code> are rewritten as <code>.region-content body { display: none }</code>. Leave empty only for solo development environments.'
       ),
 
       'use_oembed' => $this->t(
@@ -125,8 +119,20 @@ trait TraitConfigDescriptions {
         'Enable Blur only when the image style width exceeds this value (e.g. 767). Useful to disable Blur on mobile devices to avoid potential OOM (Out of Memory) issues or unnecessary effects on small thumbnails.'
       ),
 
+      'blazy_layout' => $bl_exists
+        ? $this->t('The following relates to <a href=":bl"><b>Blazy Layout</b></a>.', [':bl' => $bl_help])
+        : $this->t('Requires <a href=":bl"><b>Blazy Layout</b></a> to be installed.', [':bl' => '/admin/modules#edit-modules-blazy']),
+
+      'use_custom_css' => $this->t(
+        'Enables a raw CSS textarea for fine-grained visual adjustments. <b>Warning!</b> Inline CSS may affect page rendering and stability beyond Blazy layouts if used incorrectly. Only enable this for trusted site builders who understand CSS scope and impact. When enabled, a <b>Custom CSS</b> textarea becomes available on <b>Layout Builder</b> administrative pages where <b>Blazy dynamic layout</b> is added. Disabling this option will automatically remove all injected custom CSS from <b>Blazy Layout</b> variant pages, and effectively disable the <b>Custom CSS</b> form item.'
+      ),
+
+      'css_scope' => $this->t(
+        'Provide a single CSS selector scope (e.g. <code>.region-content</code>) to prevent targeting global elements such as <code>html</code> or <code>body</code>. Strongly recommended to reduce misuse. If provided, rules like <code>body { display: none }</code> are rewritten as <code>.region-content body { display: none }</code>. Leave empty only for solo development environments.'
+      ),
+
       'max_region_count' => $this->t(
-        'Specific to Blazy layout. Defines the maximum number of regions. Defaults to 20 when set to 0 or below 9. Regions beyond this limit are hidden. Clear caches after changing to re-register regions.'
+        'Defines the maximum number of regions. Defaults to 20 when set to 0 or below 9. Regions beyond this limit are hidden. Clear caches after changing to re-register regions.'
       ),
 
       'blazy' => $this->t(

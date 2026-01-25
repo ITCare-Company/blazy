@@ -58,3 +58,7 @@ toggle this option, and you'll know which works. Only checked if Blazy formatter
 is a standalone output from Views so to use field template in this case.
 
 Check out the relevant sub-module docs for details.
+
+---
+<a href="#top">Back to top &uarr;</a>
+---
