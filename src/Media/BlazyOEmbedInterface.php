@@ -74,7 +74,7 @@ interface BlazyOEmbedInterface {
   /**
    * Checks the given input URL.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings being modified.
    * @param string $input
    *   The input to modify.
@@ -90,7 +90,7 @@ interface BlazyOEmbedInterface {
    * The settings fallbacks are preserved for minimal BVEF compat. This method
    * allows VEF to have TITLE or ALT for media related displays.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings being modified.
    * @param bool $fallback
    *   If it is as fallback to fetch image, else just global definitions.

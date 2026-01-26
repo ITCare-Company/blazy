@@ -19,11 +19,20 @@ use Drupal\blazy\internals\Internals;
  * @internal
  *   This is an internal part of the Blazy system and should only be used by
  *   blazy-related code in Blazy module.
+ *
+ * @todo refactor to use Hook at D11.
  */
 class Lightbox {
 
   /**
    * Provides lightbox libraries.
+   *
+   * @param array $load
+   *   The library to load.
+   * @param array $attach
+   *   The modified settings.
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
    */
   public static function attach(array &$load, array &$attach, $blazies): void {
     if ($name = $blazies->get('lightbox.name')) {
@@ -48,8 +57,10 @@ class Lightbox {
    *   The element being modified.
    */
   public static function build(array &$element): void {
-    $manager    = Internals::service('blazy.manager');
-    $settings   = &$element['#settings'];
+    /** @var array<string, mixed> $settings */
+    $settings = &$element['#settings'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
     $switch     = $blazies->get('switch') ?: $blazies->get('lightbox.name');
     $switch_css = str_replace('_', '-', $switch);
@@ -79,6 +90,7 @@ class Lightbox {
       || $blazies->use('content');
 
     // Provide relevant URL since it is a lightbox.
+    /** @var array<string, mixed> $attrs */
     $attrs = &$element['#url_attributes'];
     $attrs['class'][] = sprintf($multimedia ? $format2 : $format1, $switch_css);
     $attrs['data-' . $switch_css . '-trigger'] = TRUE;
@@ -172,7 +184,7 @@ class Lightbox {
             'box_style' => $_box_style,
             'uri' => $uri,
           ];
-          $_resimage = self::responsiveImage($element, $options, $manager);
+          $_resimage = self::responsiveImage($element, $options);
           $check = $check ?: $url;
         }
 
@@ -240,13 +252,15 @@ class Lightbox {
       $json,
       $attrs,
       $options,
-      $settings,
-      $manager
+      $settings
     );
   }
 
   /**
    * Attaches Colorbox if so configured.
+   *
+   * @param array $load
+   *   The library to load.
    */
   private static function attachColorbox(array &$load): void {
     if ($service = Internals::service('colorbox.attachment')) {
@@ -261,6 +275,17 @@ class Lightbox {
 
   /**
    * Provides html content for lightboxes.
+   *
+   * @param array<string, mixed> $element
+   *   The element being modified.
+   * @param array<string, mixed> $json
+   *   The json being modified.
+   * @param array<string, mixed> $attrs
+   *   The elemeattrsnt being modified.
+   * @param array<string, mixed> $options
+   *   The contextual options.
+   * @param array<string, mixed> $settings
+   *   The contextual settings.
    */
   private static function content(
     array &$element,
@@ -268,7 +293,6 @@ class Lightbox {
     array &$attrs,
     array $options,
     array $settings,
-    $manager,
   ): void {
     [
       'box_url' => $box_url,
@@ -280,6 +304,7 @@ class Lightbox {
       '_resimage' => $_resimage,
     ] = $options;
 
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $provider = $json['provider'] ?? NULL;
 
@@ -372,7 +397,7 @@ class Lightbox {
 
       // Responsive image is unwrapped. Local videos wrapped.
       $content = $_resimage ? $box_html : $html;
-      $content = $manager->renderInIsolation($content);
+      $content = \blazy()->renderInIsolation($content);
       $content = is_object($content) ? $content->__toString() : $content;
 
       // @todo merge with BlazyDefault::TAGS when mixed contents supported.
@@ -409,7 +434,7 @@ class Lightbox {
 
     // Provides captions if so configured.
     if (!empty($settings['box_caption'])) {
-      $element['#captions']['lightbox'] = self::getCaptions($settings, $item, $manager);
+      $element['#captions']['lightbox'] = self::getCaptions($settings, $item);
     }
 
     // Do not show icon for local video file unless supported.
@@ -445,7 +470,7 @@ class Lightbox {
   /**
    * Provides responsive image for lightboxes.
    */
-  private static function responsiveImage(array &$element, array $options, $manager): bool {
+  private static function responsiveImage(array &$element, array $options): bool {
     [
       'blazies' => $blazies,
       'box_style' => $box_style,
@@ -455,7 +480,7 @@ class Lightbox {
     // The _responsive_image_build_source_attributes is WSOD if missing.
     $_resimage = FALSE;
     try {
-      if ($resimage = $manager->load($box_style, 'responsive_image_style')) {
+      if ($resimage = \blazy()->load($box_style, 'responsive_image_style')) {
         $_resimage = TRUE;
         $alt = $blazies->get('image.alt');
 
@@ -483,17 +508,16 @@ class Lightbox {
   /**
    * Builds lightbox captions.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings to work with.
    * @param object $item
    *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item or \stdClass.
-   * @param object $manager
-   *   The \Drupal\blazy\BlazyManager service.
    *
    * @return array
    *   The renderable array of caption, or empty array.
    */
-  private static function getCaptions(array $settings, $item, $manager): array {
+  private static function getCaptions(array $settings, $item): array {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $title   = $blazies->get('image.raw.title');
     $alt     = $blazies->get('image.raw.alt');
@@ -546,13 +570,13 @@ class Lightbox {
         // $object can be file or media for plain images, or media entities.
         if ($custom && $object instanceof EntityInterface) {
           $options = ['clear' => TRUE];
-          $params  = [$object->getEntityTypeId() => $manager->getTranslatedEntity($object)];
+          $params  = [$object->getEntityTypeId() => \blazy()->getTranslatedEntity($object)];
 
           if (BlazyFile::isFile($file) && $file != $object) {
-            $params += ['file' => $manager->getTranslatedEntity($file)];
+            $params += ['file' => \blazy()->getTranslatedEntity($file)];
           }
           if ($node && $node != $object) {
-            $params += [$node->getEntityTypeId() => $manager->getTranslatedEntity($node)];
+            $params += [$node->getEntityTypeId() => \blazy()->getTranslatedEntity($node)];
           }
 
           $caption = \Drupal::token()->replace($custom, $params, $options);

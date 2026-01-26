@@ -17,7 +17,9 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    * {@inheritdoc}
    */
   public function attach(array $attach = []): array {
-    $load    = $this->libraries->attach($attach);
+    $load = $this->libraries->attach($attach);
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $attach['blazies'];
 
     Internals::count($blazies);
@@ -60,6 +62,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    * {@inheritdoc}
    */
   public function imageStyles(array &$settings, $multiple = FALSE, array $styles = []): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $styles  = $styles ?: BlazyDefault::imageStyles();
 
@@ -124,7 +127,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    * {@inheritdoc}
    */
   public function preBlazy(array &$build, $item = NULL): BlazySettings {
-    $this->hashtag($build);
+    // @todo remove $this->hashtag($build);.
     $settings = &$build['#settings'];
 
     $this->verifySafely($settings);
@@ -132,6 +135,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
     // Prevents double checks.
     // BlazySettings is a self containing object, initialized at container level
     // and must be renewed at item level to get correct delta, see #3278525.
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies']->reset($settings);
     $delta   = $blazies->get('delta', $build['#delta'] ?? 0);
     $style   = $settings['image_style'] ?? NULL;
@@ -174,6 +178,7 @@ abstract class BlazyManagerBase extends BlazyBase implements BlazyManagerBaseInt
    * {@inheritdoc}
    */
   public function preSettings(array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $this->verifySafely($settings);
     $ui = $this->config();
     $iframe_domain = $this->config('iframe_domain', 'media.settings');

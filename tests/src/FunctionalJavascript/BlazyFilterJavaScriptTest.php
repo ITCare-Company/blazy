@@ -175,6 +175,7 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
     $this->createScreenshot($this->imagePath . '/3_blazy_filter_loaded.png');
 
     // Verifies the library is loaded.
+    /** @var \Drupal\filter\FilterProcessResult $result */
     ['result' => $result, 'html' => $html] = $this->applyFilter($text);
     $this->assertNotSame($html, $text);
     $attachments = $result->getAttachments();

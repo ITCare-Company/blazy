@@ -13,8 +13,14 @@ class BlazySvg {
 
   /**
    * Provides svg dimensions, if any.
+   *
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
+   * @param string $uri
+   *   The uri.
    */
   public static function dimensions(array &$settings, $uri): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $fluid   = $blazies->is('fluid');
     $valid   = BlazyFile::isValidUri($uri) && $blazies->is('svg');
@@ -76,6 +82,13 @@ class BlazySvg {
    * contents of <svg> element by a factor of 5
    * (1500 / 300 = 5 and 1000 / 200 = 5) and the contents will be 1/5 the size
    * they would be without the viewBox but the <svg>.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
+   * @param \SimpleXMLElement $svg
+   *   The svg instance.
+   * @param string $attrs
+   *   The attributes string.
    */
   private static function extract($blazies, \SimpleXMLElement $svg, $attrs): array {
     $width = $height = NULL;

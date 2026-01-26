@@ -324,7 +324,7 @@ class BlazySettings implements \Countable {
    *
    * Normally called at item level so to get correct delta or settings per item.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings to reset/ renew the instance.
    * @param string $key
    *   The key identifying this reset object.

@@ -60,6 +60,7 @@ class Thumbnail {
    * @see https://www.drupal.org/node/2489544
    */
   private static function image(array $settings, $item = NULL, $class = NULL): array {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $tn_uri  = $blazies->get('thumbnail.uri');
     $uri     = $tn_uri ?: $blazies->get('image.uri');
@@ -86,6 +87,11 @@ class Thumbnail {
 
     // @todo move it out of here, required by vanilla Splide navigation.
     CheckItem::unstyled($settings, $uri);
+
+    // @todo figure out for phpstan.
+    $settings = is_array($settings) ? $settings : [];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
 
     // Thumbnails can use image styles, except for SVG for now.

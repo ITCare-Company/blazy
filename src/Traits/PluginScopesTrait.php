@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Traits;
 
 use Drupal\blazy\Blazy;
+use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\internals\Internals;
 
@@ -17,9 +18,16 @@ trait PluginScopesTrait {
 
   /**
    * Converts old plugin scopes array into BlazySettings object to interop.
+   *
+   * @param array<string, mixed> $scopes
+   *   The scopes being passed.
+   *
+   * @return \Drupal\blazy\BlazySettings
+   *   The BlazySettings instance.
    */
-  protected function toPluginScopes(array $scopes = []) {
-    $definitions = $current = [];
+  protected function toPluginScopes(array $scopes = []): BlazySettings {
+    $current = [];
+    $definitions = [];
 
     if (empty($scopes)) {
       return Internals::settings($definitions);
@@ -84,6 +92,11 @@ trait PluginScopesTrait {
 
   /**
    * Modifies the specific plugin settings.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
    */
   protected function pluginSettings(&$blazies, array &$settings): void {
     if ($settings['namespace'] == 'blazy') {

@@ -13,6 +13,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    * {@inheritdoc}
    */
   public function basicImageForm(array &$form, array $definition): void {
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes = $this->toScopes($definition);
     $data = $scopes->get('data');
 
@@ -32,6 +33,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    * {@inheritdoc}
    */
   public function imageStyleForm(array &$form, array $definition): void {
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes     = $this->toScopes($definition);
     $blazies    = $definition['blazies'];
     $field_type = $blazies->get('field.type');
@@ -144,6 +146,7 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
    * Exclude the field formatter settings summary as required.
    */
   protected function getExcludedSettingsSummary(array &$definition): void {
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes       = $this->toScopes($definition);
     $settings     = &$definition['settings'];
     $excludes     = $scopes->data('excludes');

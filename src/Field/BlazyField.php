@@ -95,6 +95,8 @@ class BlazyField {
    */
   public static function settings(array &$settings, $field, array $data = []): array {
     $settings['blazies'] = $settings['blazies'] ?? Internals::settings();
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $bundles = self::getAvailableBundles($field);
 

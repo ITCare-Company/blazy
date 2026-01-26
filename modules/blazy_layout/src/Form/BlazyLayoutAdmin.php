@@ -141,6 +141,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
       '#description' => $this->description()['colors'],
     ];
 
+    /** @var array<string, mixed> $colors */
     $colors = &$form['styles'][$form_id];
 
     foreach (array_keys(Defaults::styleSettings()) as $key) {
@@ -161,7 +162,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
 
       $value = $settings[$form_id][$key] ?? '';
 
-      if ($colors[$key]['#type'] == 'range') {
+      if (is_array($colors[$key]) && $colors[$key]['#type'] == 'range') {
         $colors[$key]['#min'] = 0;
         $colors[$key]['#max'] = 1;
         $colors[$key]['#step'] = 0.1;
@@ -360,7 +361,7 @@ class BlazyLayoutAdmin extends BlazyAdminBase implements BlazyLayoutAdminInterfa
           break;
 
         case 'align_items':
-          $options = Defaults::aligItems();
+          $options = Defaults::alignItems();
           $description = $this->description()['align_items'];
           break;
 

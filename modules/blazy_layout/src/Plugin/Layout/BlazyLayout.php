@@ -13,13 +13,16 @@ class BlazyLayout extends BlazyLayoutForm {
   public function build(array $regions): array {
     $this->init();
 
-    $build    = parent::build($regions);
+    $build = parent::build($regions);
+
+    /** @var array<string, mixed> $settings */
     $settings = $this->settings();
 
     $build['#settings'] = $settings;
     $build['#count']    = static::$count;
 
     // Modifies output.
+    /** @var array<string, mixed> $output */
     $output = $this->interpolate($settings, $build);
 
     // Modifies attributes.

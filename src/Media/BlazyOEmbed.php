@@ -146,14 +146,17 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * {@inheritdoc}
    */
   public function build(array &$build): void {
+    /** @var array<string, mixed> $settings */
+    $settings = &$build['#settings'];
     $access   = $build['#access'] ?? FALSE;
     $entity   = $build['#entity'] ?? NULL;
-    $settings = &$build['#settings'];
-    $blazies  = $settings['blazies'];
-    $valid    = $entity instanceof MediaInterface;
-    $stage    = $settings['image'] ?? NULL;
-    $stage    = $blazies->get('field.formatter.image', $stage);
-    $media    = $valid ? $entity : NULL;
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
+    $valid   = $entity instanceof MediaInterface;
+    $stage   = $settings['image'] ?? NULL;
+    $stage   = $blazies->get('field.formatter.image', $stage);
+    $media   = $valid ? $entity : NULL;
 
     // Checks for access.
     if (!$access && $denied = $this->blazyManager->denied($entity)) {
@@ -234,6 +237,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * {@inheritdoc}
    */
   public function checkInputUrl(array &$settings, $input): ?string {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $privacy = $blazies->is('privacy_consent');
     $input = Blazy::sanitizeInputUrl($input, $privacy);
@@ -246,6 +250,7 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * {@inheritdoc}
    */
   public function getThumbnail(array &$settings, $fallback = TRUE): ?object {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $input   = $blazies->get('media.input_url', $settings['input_url'] ?? NULL);
     $item    = NULL;
@@ -388,10 +393,13 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    *   The modified array containing: settings, and candidate video thumbnail.
    */
   private function fromMedia(array &$build): void {
+    /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];
-    $blazies  = $settings['blazies'];
-    $input    = $blazies->get('media.value');
-    $source   = $blazies->get('media.source');
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
+    $input   = $blazies->get('media.value');
+    $source  = $blazies->get('media.source');
 
     // Local video/ audio file were fully supported since 2.17.
     // @todo support other media sources: Resource::TYPE_PHOTO,
@@ -502,10 +510,11 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * Converts input URL into embed URL, run after ::prepare() populated.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings array being modified.
    */
   private function toEmbed(array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $input   = $blazies->get('media.input_url');
     $switch  = $settings['media_switch'] ?? NULL;

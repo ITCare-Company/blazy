@@ -73,6 +73,7 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
     $definition['_views'] = TRUE;
 
     $this->blazyAdminFormatter->openingForm($form, $definition);
+    /** @var array<string, mixed> $form */
     $this->assertEquals($vanilla, !empty($form['vanilla']));
 
     $this->blazyAdminFormatter->buildSettingsForm($form, $definition);

@@ -111,6 +111,7 @@ class BlazyMedia implements BlazyMediaInterface {
       $data['content'][] = $this->view($data);
     }
 
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $blazies->set('is.denied', empty($data['#access']));
 
@@ -131,12 +132,14 @@ class BlazyMedia implements BlazyMediaInterface {
    * {@inheritdoc}
    */
   public function view(array $build): array {
-    $entity   = $build['#media'] ?? $build['#entity'];
+    /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];
+    $entity   = $build['#media'] ?? $build['#entity'];
     $item     = $build['#item'] ?? NULL;
 
     // Ensures the essentials setup early here since it enters theme_blazy() as
     // non-workable content.
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $this->manager->preBlazy($build, $item);
     $settings['blazies'] = $blazies;
 
@@ -181,10 +184,12 @@ class BlazyMedia implements BlazyMediaInterface {
    * {@inheritdoc}
    */
   public function fromFile(array $data): ?object {
-    $file     = $data['#entity'];
+    /** @var array<string, mixed> $settings */
     $settings = &$data['#settings'];
+    $file     = $data['#entity'];
 
     // In case called outside the workflow.
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $this->manager->verifySafely($settings);
 
     // Seen at IO/Slick Entity Browser specific with file lacking of media data.
@@ -317,10 +322,11 @@ class BlazyMedia implements BlazyMediaInterface {
    * Modifies item attributes for iframes if any.
    */
   public function iframeable(array &$item, array &$settings): bool {
-    $iframeable = FALSE;
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
     $original   = $item;
     $uri        = $blazies->get('image.uri');
+    $iframeable = FALSE;
 
     // Checks if we have iframes.
     if ($content = $this->manager->renderInIsolation($item)) {
@@ -482,6 +488,7 @@ class BlazyMedia implements BlazyMediaInterface {
    * @todo add an option for thumbnail preview rather than entity view.
    */
   private function disableFeatures(array &$settings, $rendered = TRUE, $link = NULL): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $blazies->set('use.content', $rendered);
 
@@ -499,6 +506,7 @@ class BlazyMedia implements BlazyMediaInterface {
    * Modifies item attributes for local audio/video item.
    */
   private function toLocal(array &$item, array &$settings, $file): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
 
     // @todo multiple sources, not crucial for now.
@@ -532,9 +540,12 @@ class BlazyMedia implements BlazyMediaInterface {
    *   The array of the media item to be wrapped directly by theme_blazy().
    */
   private function unfield(array &$field): array {
-    $item      = $field[0];
-    $settings  = &$field['#settings'];
+    /** @var array<string, mixed> $settings */
+    $settings = &$field['#settings'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies   = $settings['blazies'];
+    $item      = $field[0];
     $is_iframe = ($item['#tag'] ?? NULL) == 'iframe';
 
     if (!isset($item['#attributes'])) {

@@ -77,7 +77,7 @@ trait BlazyUnitTestTrait {
   /**
    * Sets formatter settings.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The given settings.
    *
    * @return $this
@@ -229,20 +229,24 @@ trait BlazyUnitTestTrait {
   /**
    * Pre render Blazy image.
    *
-   * @param array $build
+   * @param array<string, mixed> $build
    *   The data containing: settings and image item.
    *
    * @return array
    *   The pre_render element.
    */
   protected function doPreRenderImage(array $build) {
+    /** @var array<string, mixed> $settings */
     $settings = $this->blazyManager->toHashtag($build);
     $this->blazyManager->postSettings($settings);
 
+    /** @var array<string, mixed> $image */
     $image = $this->blazyManager->getBlazy($build);
 
-    $image['#build']['#item'] = empty($image['#build']['#item'])
-      ? $build['#item'] : $image['#build']['#item'];
+    /** @var array<string, mixed> $subbuild */
+    $subbuild = $image['#build'] ?? [];
+
+    $image['#build']['#item'] = $subbuild['#item'] ?? ($build['#item'] ?? []);
     return $this->blazyManager->preRenderBlazy($image);
   }
 

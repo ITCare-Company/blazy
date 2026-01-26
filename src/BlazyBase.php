@@ -442,6 +442,8 @@ abstract class BlazyBase implements BlazyInterface {
     $condition = 'IN',
   ): array {
     $storage = $this->getStorage($type);
+
+    /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
     $query = $storage->getQuery($conjunction);
 
     $query->accessCheck($access);
@@ -629,9 +631,10 @@ abstract class BlazyBase implements BlazyInterface {
   /**
    * Builds an entity query.
    */
-  private function buildPropertyQuery($query, array $values, $condition = 'IN'): void {
+  private function buildPropertyQuery($query, array $values, string $condition = 'IN'): void {
     foreach ($values as $name => $value) {
       // Cast scalars to array so we can consistently use an IN condition.
+      /** @var \Drupal\Core\Entity\Query\QueryInterface $query */
       $query->condition($name, (array) $value, $condition);
     }
   }

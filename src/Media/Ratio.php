@@ -18,8 +18,15 @@ class Ratio {
    * Returns whether aspect ratio padding hack applicable, or not.
    *
    * Prevents double padding hacks with AMP which also uses similar technique.
+   *
+   * @param array<string, mixed> $settings
+   *   The settings array.
+   *
+   * @return array
+   *   The ratio and hack array.
    */
   public static function hack(array $settings): array {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
     $disabled = $blazies->is('amp');
     $fluid    = $blazies->is('fluid');
@@ -73,10 +80,18 @@ class Ratio {
 
   /**
    * Provides a computed image ratio aka fluid ratio.
+   *
+   * @param array<string, mixed> $data
+   *   The data array.
+   * @param bool $force
+   *   Whether to force the output.
+   *
+   * @return string|null
+   *   The fluid value or NULL.
    */
-  public static function fluid(array $data, $force = FALSE): ?string {
-    $width  = $data['width'];
-    $height = $data['height'];
+  public static function fluid(array $data, bool $force = FALSE): ?string {
+    $width  = $data['width'] ?? 0;
+    $height = $data['height'] ?? 0;
     $ratios = $data['ratios'] ?? BlazyDefault::RATIO;
     $output = NULL;
 
@@ -116,6 +131,14 @@ class Ratio {
 
   /**
    * Reduced to the exact ratio.
+   *
+   * @param int $a
+   *   The first value.
+   * @param int $b
+   *   The last value.
+   *
+   * @return int
+   *   The closest value to the exact ratio.
    */
   private static function gcd(int $a, int $b): int {
     while ($b !== 0) {
@@ -126,6 +149,20 @@ class Ratio {
 
   /**
    * Provides a computed image ratio aka fluid ratio.
+   *
+   * @param int $width
+   *   The width value.
+   * @param int $height
+   *   The height value.
+   * @param array $ratios
+   *   The available aspect ratios.
+   * @param bool $force
+   *   Whether to output as is.
+   * @param float $tolerance
+   *   The closest tolerance.
+   *
+   * @return string|null
+   *   The aspect ratio or empty.
    */
   private static function resolve(
     int $width,

@@ -61,7 +61,7 @@ class Sanitize {
    * should be taken care of by HTML filters before/ after Blazy. Blazy is not
    * responsible for iframes/ images put into text filters, nor managing them.
    *
-   * @param array $attributes
+   * @param array<string, mixed> $attributes
    *   The given attributes to sanitize.
    * @param bool $escaped
    *   Sets to FALSE to avoid double escapes, for further processing.

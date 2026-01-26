@@ -43,7 +43,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
   /**
    * Tests BlazyManager image.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings being tested.
    * @param bool $expected_has_responsive_image
    *   Has the responsive image style ID.
@@ -55,6 +55,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
     $url = $settings['content_url'] ?? '';
     $this->blazyManager->postSettings($settings);
 
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $blazies->set('count', $this->maxItems)
       ->set('entity.url', $url)
@@ -70,6 +71,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     $element = $this->doPreRenderImage($build);
 
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $build['#settings']['blazies'];
     if ($url && $blazies->get('switch') == 'content') {
       $this->assertEquals($blazies->get('entity.url'), $element['#url']);
@@ -130,7 +132,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
   /**
    * Tests building Blazy attributes.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings being tested.
    * @param bool $use_uri
    *   Whether to provide image URI, or not.
@@ -146,10 +148,14 @@ class BlazyManagerTest extends BlazyKernelTestBase {
   public function testPreprocessBlazy(array $settings, $use_uri, $use_item, $iframe, $expected) {
     $variables = ['attributes' => []];
     $input_url = $settings['input_url'] ?? NULL;
+
+    /** @var array<string, mixed> $settings */
     $settings  = array_merge($this->getFormatterSettings(), $settings);
     $settings += Blazy::init();
-    $blazies   = $settings['blazies'];
-    $id        = 'blazy';
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
+    $id = 'blazy';
 
     $blazies->set('item.id', $id)
       ->set('is.blazy', TRUE)
@@ -165,6 +171,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
 
     $this->blazyManager->postSettings($settings);
 
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies']->reset($settings);
     $item    = $use_item ? $this->testItem : NULL;
 

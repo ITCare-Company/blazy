@@ -44,11 +44,14 @@ trait TraitScopes {
   public function toScopes(array &$definition): BlazySettings {
     // Looks like unit test failed with manager methods given a Trait.
     $definition += Blazy::init();
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $definition['blazies'];
     $namespace = $blazies->get('namespace') ?: ($definition['namespace'] ?? '');
 
     static::$namespace = $namespace;
 
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes = $definition['scopes'] ?? $this->toPluginScopes();
     if (!$scopes->get('initializer')) {
       $definition['scopes'] = $scopes = $this->getScopes($definition);
@@ -71,6 +74,13 @@ trait TraitScopes {
    * Temporary re-definitions during migration after BlazyFormatterTrait
    * ::getScopedFormElements() for sensible checks.
    *
+   * @param \Drupal\blazy\BlazySettings $scopes
+   *   The given $scopes.
+   * @param array<string, mixed> $definition
+   *   The definition being modified.
+   * @param bool $refresh
+   *   Whether refreshed.
+   *
    * @todo remove most after sub-module migrations.
    */
   protected function checkScopes(&$scopes, array &$definition, $refresh = FALSE): void {
@@ -81,6 +91,8 @@ trait TraitScopes {
     $namespace = static::$namespace;
     $definition['plugin_id'] = $definition['plugin_id'] ?? 'x';
     $settings = $definition['settings'] ?? [];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $definition['blazies'];
     $lightboxes = $this->blazyManager->getLightboxes();
     $is_responsive = function_exists('responsive_image_get_image_dimensions');
@@ -216,6 +228,12 @@ trait TraitScopes {
 
   /**
    * Returns the plugin scopes.
+   *
+   * @param array<string, mixed> $definition
+   *   The definition being modified.
+   *
+   * @return \Drupal\blazy\BlazySettings
+   *   The BlazySettings.
    */
   protected function getScopes(array &$definition): BlazySettings {
     return $this->toPluginScopes($definition);

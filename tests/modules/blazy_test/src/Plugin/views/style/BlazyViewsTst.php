@@ -96,7 +96,10 @@ class BlazyViewsTst extends BlazyStylePluginBase {
    * Overrides StylePluginBase::render().
    */
   public function render() {
+    /** @var array<string, mixed> $settings */
     $settings = $this->buildSettings() + BlazyDefault::entitySettings();
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
 
     $settings['caption']   = array_filter($settings['caption']);

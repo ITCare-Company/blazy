@@ -127,7 +127,10 @@ trait BlazyFormatterTrait {
    * Builds the settings.
    */
   public function buildSettings() {
+    /** @var array<string, mixed> $settings */
     $settings = array_merge($this->getCommonFieldDefinition(), $this->getSettings());
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
     $multiple = $this->isMultiple();
     $is_grid  = !empty($settings['style']) && !empty($settings['grid']);
@@ -180,7 +183,7 @@ trait BlazyFormatterTrait {
     if ($type == 'entity') {
       $instance->blazyEntity = $instance->blazyEntity ?? $container->get('blazy.entity');
       $instance->blazyOembed = $instance->blazyOembed ?? $instance->blazyEntity->oembed();
-      $instance->blazyMedia  = $instance->blazyMedia ?? $instance->blazyOembed->blazyMedia();
+      $instance->blazyMedia = $instance->blazyMedia ?? $instance->blazyOembed->blazyMedia();
     }
 
     return $instance;
@@ -219,6 +222,7 @@ trait BlazyFormatterTrait {
    * Returns Views delta_limit option.
    */
   protected function getViewLimit(array $settings): int {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     return Internals::getViewLimit($blazies);
   }

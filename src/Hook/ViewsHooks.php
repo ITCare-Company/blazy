@@ -140,10 +140,12 @@ class ViewsHooks {
         'media_switch' => $lightbox,
       ];
 
+      /** @var array<string, mixed> $settings */
       $settings = Blazy::init($data);
 
       $settings[$lightbox] = $lightbox;
 
+      /** @var \Drupal\blazy\BlazySettings $blazies */
       $blazies = $settings['blazies'];
       $count = count($view->result);
       $blazies->set('count', $count)
@@ -176,7 +178,6 @@ class ViewsHooks {
 
     // Load Blazy library once, not per field, if any Blazy Views field found.
     if ($blazy = self::viewsField($view)) {
-      $manager   = \blazy();
       $plugin_id = $view->getStyle()->getPluginId();
       $settings  = $blazy->mergedSettings ?: $blazy->mergedViewsSettings();
 
@@ -184,8 +185,8 @@ class ViewsHooks {
         $blazies->set('unlazy', FALSE);
       }
 
-      $load  = $manager->attach($settings);
-      $loads = $manager->merge($load, $loads);
+      $load  = \blazy()->attach($settings);
+      $loads = \blazy()->merge($load, $loads);
       $grid  = $plugin_id == 'blazy';
 
       if ($options = $view->getStyle()->options) {
@@ -194,7 +195,7 @@ class ViewsHooks {
 
       // Prevents dup [data-LIGHTBOX-gallery] if the Views style supports Grid.
       if (!$grid) {
-        $manager->moduleHandler()->alter('blazy_is_view', $settings, $variables);
+        \blazy()->moduleHandler()->alter('blazy_is_view', $settings, $variables);
         Attributes::container($variables['attributes'], $settings);
       }
 

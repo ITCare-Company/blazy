@@ -31,7 +31,7 @@ CLS), using [**selective enhancement**](#architecture).
 
 ---
 
-#### Blazy Is Not a Feature Module
+#### 1.a. Blazy Is Not a Feature Module
 
 Blazy exists to solve the **coordination problem** between
 [layout](#layouts),
@@ -49,7 +49,7 @@ That is not its target environment.
 
 ---
 
-#### Native Feature Is Embraced, Not Threatening
+#### 1.b. Native Feature Is Embraced, Not Threatening
 
 Native features solve *specific problems*.
 
@@ -61,7 +61,7 @@ lazy-loading, since its early incubation.
 
 ---
 
-#### Blazy Existence & Scope
+#### 1.c. Blazy Existence & Scope
 
 Blazy exists to align with how **Core Web Vitals** are actually measured and how
 browsers behave in real-world conditions — not just for images, but across media
@@ -94,7 +94,7 @@ Blazy exists for the concerns it does not attempt to solve.
 
 ---
 
-#### On Blazy Removal
+#### 1.d. On Blazy Removal
 
 Blazy is not mandatory.
 
@@ -361,7 +361,7 @@ not a dismissal of contributors.
 
 #### 12.a. On Perceived Scope and Complexity
 
-> *“Blazy is a big mess, bloated, and extremely complex.”*
+> *“A big mess, bloated, and extremely complex.”*
 
 This perception is understandable when Blazy is evaluated outside its intended
 scope. We also recognize that handling this level of complexity is constrained
@@ -375,7 +375,7 @@ viewed in isolation.
 
 ---
 
-> *“Blazy is a big mess”*
+> *“A big mess”*
 
 Blazy addresses [layout stability](#layouts),
 [media discovery](#optimization),
@@ -390,7 +390,7 @@ that as well.
 
 ---
 
-> *“Blazy is bloated”*
+> *“Bloated”*
 
 What may be perceived as “bloat” is primarily the result of:
 - supporting multiple media types (images, video, audio, third-party embeds),
@@ -405,7 +405,7 @@ appropriate.
 
 ---
 
-> *“Blazy is extremely complex”*
+> *“Extremely complex”*
 
 The complexity in Blazy is intentional and reflects the complexity of the
 problems it addresses.
@@ -417,7 +417,7 @@ Diverse perspectives are valid, and choosing not to use Blazy is a reasonable
 decision when its scope does not match a project’s needs.
 
 ---
-> *“Blazy is over-engineered.”*
+> *“Over-engineered.”*
 
 Every guardrail in Blazy exists because a real site failed without it.
 
@@ -501,16 +501,14 @@ years before modern metrics like **Core Web Vitals** arrives.
 
 #### 12.c. On Quality and Ongoing Maintenance
 
-> *“Blazy is not perfect! It has many mistakes.”*
+> *“Buggy & fatal errors.”*
 
-Absolutely.
+During 2.17 dev storms, we did have have those issues. The storms have subsided
+for a while now.
 
-When starting or maintaining a project, we expect contributors to help identify
-and correct mistakes.
-
-Please use the project issue queue; you are very much appreciated for revealing
-mistakes or bugs under the [contribution guidelines](#contribution).
-Many contributors have received
+Should you encounter bugs again, please use the project issue queue; you are
+very much appreciated for revealing mistakes or bugs under the
+[contribution guidelines](#contribution). Many contributors have received
 [due credit](https://www.drupal.org/node/2663268/committers) for guiding and
 improving the project.
 

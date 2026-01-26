@@ -89,7 +89,7 @@ class Content extends Multimedia {
   ): array {
     $result = [];
     foreach ($keys as $key) {
-      $value = $data[$key] ?? $data["#$key"] ?? [];
+      $value = $data[$key] ?? $data['#' . $key] ?? [];
       if ($value) {
         $result = $value;
         break;

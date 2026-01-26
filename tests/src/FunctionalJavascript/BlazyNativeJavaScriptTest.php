@@ -36,6 +36,7 @@ class BlazyNativeJavaScriptTest extends BlazyJavaScriptTestBase {
    * Test the Blazy element from loading to loaded states.
    */
   public function testFormatterDisplay() {
+    $settings = $data = [];
     $settings['ratio'] = '';
     $settings['image_style'] = '';
 

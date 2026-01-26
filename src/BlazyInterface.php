@@ -314,7 +314,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @param array $attrs
    *   The container attributes to add into .blazy, normally #attributes.
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings defining the grids.
    */
   public function gridAttributes(array &$attrs, array $settings): void;
@@ -355,7 +355,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
    * @param array $content_attrs
    *   The content attributes, if any to add into .grid__content. Bootstrap
    *   CSS .card/ .well is best here.
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings grabbed from self::initGrid() returned settings.
    *
    * @see \Drupal\blazy\Theme\Grid
@@ -584,7 +584,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @param array|\Generator $items
    *   The grid items.
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The given settings.
    *
    * @return array
@@ -628,7 +628,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
   /**
    * Reset blazies object with the optional added data.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings to add data.
    * @param array $data
    *   The data to be added into $key object.
@@ -650,7 +650,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
   /**
    * Verifies BlazySettings exists since few may be called outside the workflow.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings being modified.
    * @param string $key
    *   The object key within the settings, normally stupid plural keys: blazies,

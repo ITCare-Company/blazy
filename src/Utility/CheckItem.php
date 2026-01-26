@@ -59,6 +59,8 @@ class CheckItem {
     if (!$entity->isNew()) {
       try {
         // Provides translated $entity, if any.
+        /** @var \Drupal\Core\Entity\EntityInterface
+         * |\Drupal\media\MediaInterface $entity */
         $entity = Blazy::translated($entity, $langcode);
 
         // Edge case when an entity does a stupid thing.
@@ -73,13 +75,22 @@ class CheckItem {
       }
     }
 
+    $rid = NULL;
+    if (method_exists($entity, 'getRevisionId')) {
+      $rid = $entity->getRevisionId();
+    }
+    // @todo remove, looks like a mispelled?
+    elseif (method_exists($entity, 'getRevisionID')) {
+      $rid = $entity->getRevisionID();
+    }
+
     // Only eat what we can chew.
     $data = [
       'bundle'  => $entity->bundle(),
       'id'      => $entity->id(),
       'label'   => $entity->label(),
       'path'    => $internal_path,
-      'rid'     => $entity->getRevisionID(),
+      'rid'     => $rid,
       'type_id' => $entity->getEntityTypeId(),
       'url'     => $absolute_path,
     ];
@@ -105,6 +116,7 @@ class CheckItem {
     // Must be here for tests to pass file cache checks.
     // File cache tags cannot be read by tests from #pre_render.
     // Accounts for VEF conversion from video_embed_field into faked image item.
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $item    = $blazies->get('image.item', $item);
 
@@ -181,6 +193,7 @@ class CheckItem {
    * individual level, such as non-blazy Image formatter within Blazy ecosystem.
    */
   public static function insanity(array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
     $ratio      = $settings['ratio'] ?? '';
     $heroes     = $blazies->is('slider') || $blazies->is('unloading');
@@ -236,6 +249,7 @@ class CheckItem {
    * @requires CheckItem::essentials()
    */
   public static function unstyled(array &$settings, $uri): bool {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
     $ext        = pathinfo($uri, PATHINFO_EXTENSION) ?: 'x';
     $ext        = strtolower($ext);
@@ -280,6 +294,7 @@ class CheckItem {
    * @todo remove $settings['type'], only after BVEF synced/ updated, or at 3.x.
    */
   private static function multimedia(array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies   = $settings['blazies'];
     $switch    = $settings['media_switch'] ?? NULL;
     $switch    = $blazies->get('switch', $switch);

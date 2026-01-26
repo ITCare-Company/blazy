@@ -27,10 +27,8 @@ class Attributes {
    * Provides attachments when not using the provided API.
    */
   public static function attach(array &$variables, array $settings = []): void {
-    if ($blazy = Internals::service('blazy.manager')) {
-      $attachments = $blazy->attach($settings) ?: [];
-      $variables['#attached'] = Arrays::merge($attachments, $variables, '#attached');
-    }
+    $attachments = \blazy()->attach($settings) ?: [];
+    $variables['#attached'] = Arrays::merge($attachments, $variables, '#attached');
   }
 
   /**
@@ -39,8 +37,14 @@ class Attributes {
    * Relevant for JS lookups, lightbox galleries, also to accommodate
    * block__no_wrapper, views__no_wrapper, etc. with helpful CSS classes, useful
    * for DOM diets.
+   *
+   * @param array<string, mixed> $attributes
+   *   The attributes being modified.
+   * @param array<string, mixed> $settings
+   *   The settings.
    */
   public static function container(array &$attributes, array $settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = Internals::verify($settings);
 
     if ($attrs = $blazies->get('container.attributes', [])) {
@@ -49,7 +53,7 @@ class Attributes {
 
     $classes  = (array) ($attributes['class'] ?? []);
     $data     = $blazies->get('data.blazy');
-    $switcher = $blazies->get('lightbox.name') ?: $settings['media_switch'] ?? NULL;
+    $switcher = $blazies->get('lightbox.name') ?: ($settings['media_switch'] ?? NULL);
 
     // Might be by-passed due to minimal settings, or outside the workflow.
     // See \Drupal\blazy\Hook\ViewsHooks::preprocessViewsView().
@@ -100,11 +104,19 @@ class Attributes {
 
   /**
    * Modifies container attributes with aspect ratio for iframe, image, etc.
+   *
+   * @param array<string, mixed> $variables
+   *   The variables being modified.
    */
   public static function finalize(array &$variables): void {
+    /** @var array<string, mixed> $attributes */
     $attributes = &$variables['attributes'];
-    $settings   = &$variables['settings'];
-    $blazies    = $settings['blazies'];
+
+    /** @var array<string, mixed> $settings */
+    $settings = &$variables['settings'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
 
     // Aspect ratio to fix layout reflow with lazyloaded images responsively.
     // This is outside 'lazy' to allow non-lazyloaded iframe/content use it too.
@@ -161,8 +173,16 @@ class Attributes {
 
   /**
    * Provides the media container classes.
+   *
+   * @param array<string, mixed> $variables
+   *   The variables being modified.
+   * @param array<string, mixed> $attributes
+   *   The attributes being modified.
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
    */
   public static function finalizeAnyway(array &$variables, array &$attributes, array $settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
     $provider = $blazies->get('media.provider');
 
@@ -190,12 +210,15 @@ class Attributes {
    * player: If no lightboxes, it is an image to iframe switcher.
    * data- : Gets consistent with lightboxes to share JS manipulation.
    *
-   * @param array $variables
+   * @param array<string, mixed> $variables
    *   The variables being modified.
    */
   public static function buildIframe(array &$variables): void {
+    /** @var array<string, mixed> $settings */
     $settings = &$variables['settings'];
-    $blazies  = $settings['blazies'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
 
     // Only provide iframe if not for lightboxes, identified by URL.
     if (empty($variables['url'])) {
@@ -218,12 +241,17 @@ class Attributes {
   /**
    * Modifies variables for image and iframe.
    *
-   * @param array $variables
+   * @param array<string, mixed> $variables
    *   The variables being modified.
    */
   public static function buildMedia(array &$variables): void {
-    $attributes  = &$variables['attributes'];
-    $settings    = &$variables['settings'];
+    /** @var array<string, mixed> $settings */
+    $settings = &$variables['settings'];
+
+    /** @var array<string, mixed> $attributes */
+    $attributes = &$variables['attributes'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies     = $settings['blazies'];
     $local_video = $blazies->is('video_file') && !$blazies->is('lightbox');
     $bgs         = [];
@@ -306,13 +334,14 @@ class Attributes {
   /**
    * Returns common iframe attributes, including those not handled by blazy.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The given settings.
    *
    * @return array
    *   The iframe attributes.
    */
   public static function iframe(array &$settings): array {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $attributes = ['allowfullscreen' => TRUE];
 
@@ -367,8 +396,13 @@ class Attributes {
 
   /**
    * Modifies inline style to not nullify others.
+   *
+   * @param array<string, mixed> $attributes
+   *   The attributes being modified.
+   * @param string $css
+   *   The css value.
    */
-  public static function inlineStyle(array &$attributes, $css): void {
+  public static function inlineStyle(array &$attributes, string $css): void {
     $attributes['style'] = ($attributes['style'] ?? '') . $css;
   }
 
@@ -380,14 +414,14 @@ class Attributes {
    * While [data-src] is reserved by Blazy.
    * The data-[SRC|SCRSET] is if `nojs` disabled, background, or video.
    *
-   * @param array $attributes
+   * @param array<string, mixed> $attributes
    *   The attributes being modified.
-   * @param object $blazies
+   * @param \Drupal\blazy\BlazySettings $blazies
    *   The given $blazies.
    * @param bool $bg
    *   If a background image.
    */
-  public static function lazy(array &$attributes, $blazies, $bg = FALSE): void {
+  public static function lazy(array &$attributes, $blazies, bool $bg = FALSE): void {
     if ($url = $blazies->get('image.url')) {
       $trusted = $blazies->get('image.trusted');
       $url = $trusted ? $url : UrlHelper::stripDangerousProtocols($url);
@@ -417,6 +451,14 @@ class Attributes {
 
   /**
    * Return the image alt and title, also accounts for multimedia and UGC.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The given $blazies.
+   * @param object|null $item
+   *   If a background image.
+   *
+   * @return array
+   *   The al and title array.
    */
   public static function altTitle($blazies, $item = NULL): array {
     [
@@ -470,8 +512,16 @@ class Attributes {
 
   /**
    * Return the escaped string.
+   *
+   * @param string|null $text
+   *   The text to escape.
+   * @param bool $strip
+   *   Whether stripped.
+   *
+   * @return string|null
+   *   The escaped text or empty.
    */
-  public static function escape($text, $strip = FALSE): ?string {
+  public static function escape($text, bool $strip = FALSE): ?string {
     if ($text) {
       if ($strip) {
         $text = strip_tags($text);
@@ -487,6 +537,11 @@ class Attributes {
 
   /**
    * Return the raw image alt and title, normally for captions, not attributes.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The given $blazies.
+   * @param object|null $item
+   *   If a background image.
    */
   private static function altTitleRaw($blazies, $item = NULL): array {
     // Ensures no double processes.
@@ -545,6 +600,11 @@ class Attributes {
   /**
    * Provide common attributes for IMG and IFRAME/VIDEO elements.
    *
+   * @param array<string, mixed> $attributes
+   *   The attributes being modified.
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The given $blazies.
+   *
    * @todo at 2022/2 core has no loading Responsive.
    */
   private static function common(array &$attributes, $blazies): void {
@@ -582,6 +642,13 @@ class Attributes {
 
   /**
    * Modifies $variables to provide background (Responsive) image attributes.
+   *
+   * @param array<string, mixed> $attributes
+   *   The attributes being modified.
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The given $blazies.
+   * @param \stdClass $bgs
+   *   The background images.
    */
   private static function background(array &$attributes, $blazies, $bgs): void {
     $str = Json::encode($bgs);
@@ -602,12 +669,18 @@ class Attributes {
 
   /**
    * Modifies $variables to provide optional (Responsive) image attributes.
+   *
+   * @param array<string, mixed> $variables
+   *   The variables being modified.
    */
   private static function image(array &$variables): void {
+    /** @var array<string, mixed> $settings */
     $settings   = &$variables['settings'];
     $image      = &$variables['image'];
     $attributes = &$variables['item_attributes'];
-    $blazies    = $settings['blazies'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
 
     // Sticks to blazy.api.php design to avoid issues with image styles, etc.
     if ($attrs = $blazies->get('image.attributes', [])) {
@@ -679,10 +752,16 @@ class Attributes {
 
   /**
    * Modifies variables for blazy (non-)lazyloaded image.
+   *
+   * @param array<string, mixed> $variables
+   *   The variables being modified.
    */
   private static function buildImage(array &$variables): void {
-    $attributes  = &$variables['attributes'];
-    $settings    = &$variables['settings'];
+    /** @var array<string, mixed> $settings */
+    $settings   = &$variables['settings'];
+    $attributes = &$variables['attributes'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies     = $settings['blazies'];
     $url         = $blazies->get('image.url');
     $placeholder = $blazies->get('placeholder.url') ?: Placeholder::generate();
@@ -717,9 +796,15 @@ class Attributes {
 
   /**
    * Provides (Responsive) image noscript if so configured.
+   *
+   * @param array<string, mixed> $variables
+   *   The variables being modified.
    */
   private static function buildNoscriptImage(array &$variables): void {
+    /** @var array<string, mixed> $settings */
     $settings = $variables['settings'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
     $noscript = $variables['image'];
 
@@ -748,12 +833,15 @@ class Attributes {
    * _responsive_image_build_source_attributes(). Very necessary for
    * external file system like Amazon S3.
    *
-   * @param array $variables
+   * @param array<string, mixed> $variables
    *   The variables being modified.
    */
   private static function buildResponsiveImage(array &$variables): void {
+    /** @var array<string, mixed> $settings */
     $settings = &$variables['settings'];
-    $blazies  = $settings['blazies'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
 
     if ($blazies->use('bg')) {
       // Attach BG data attributes to a DIV container.
@@ -778,6 +866,13 @@ class Attributes {
 
   /**
    * Returns the classes applicable only to the first, not nested containers.
+   *
+   * @param array<string, mixed> $attributes
+   *   The attributes being modified.
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The given $blazies.
+   * @param array<string, mixed> $options
+   *   The options.
    */
   private static function firstClasses(array &$attributes, $blazies, array $options): array {
     [
@@ -850,6 +945,12 @@ class Attributes {
 
   /**
    * Return the image title.
+   *
+   * @param array $translation
+   *   The translation array.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The translatable markup.
    */
   private static function mediaTitle(array $translation): TranslatableMarkup {
     return new TranslatableMarkup('Preview image for the @bundle "@label".', $translation);

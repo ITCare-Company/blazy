@@ -38,9 +38,12 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
   protected function buildElement(array &$element, $row, $delta) {
     $this->manager->hashtag($element);
 
+    /** @var array<string, mixed> $settings */
     $settings = &$element['#settings'];
-    $blazies  = $this->reset($settings);
-    $_image   = $settings['image'] ?? NULL;
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $this->reset($settings);
+    $_image = $settings['image'] ?? NULL;
 
     $blazies->set('delta', $delta);
     $captions = $this->getCaption($delta, $settings, $row);
@@ -59,6 +62,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
     // Supports individual grid/box image style either inline IMG, or CSS.
     $element['#delta'] = $delta;
     if ($_image || $captions) {
+      /** @var array<string, mixed> $image */
       $image = $this->getImageRenderable($settings, $row, $delta);
       $rendered = $image['rendered'] ?? [];
       $element['#item'] = $image['raw'] ?? NULL;
@@ -251,6 +255,7 @@ abstract class BlazyStylePluginBase extends BlazyStyleBase implements BlazyStyle
           $options['classes'][$field] = $field_names[$field];
         }
 
+        /** @var \Drupal\blazy\BlazySettings $blazies */
         $blazies = strpos($handler['field'], 'blazy_') !== FALSE;
         if ($blazies) {
           $options['images'][$field] = $field_names[$field];

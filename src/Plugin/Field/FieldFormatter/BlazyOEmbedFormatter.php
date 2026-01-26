@@ -205,6 +205,7 @@ class BlazyOEmbedFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   protected function postSettings(array &$settings, $langcode): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $blazies->set('language.code', $langcode);
     // The form is not loaded at views UI, provides the minimum.

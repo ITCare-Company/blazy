@@ -130,8 +130,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   /**
    * {@inheritdoc}
    */
-  public function getRegionConfig($name, $key): string {
-    $config = $this->configuration['regions'][$name] ?? [];
+  public function getRegionConfig(string $name, string $key): string {
+    /** @var array<string, mixed> $regions */
+    $regions = $this->configuration['regions'] ?? [];
+    $config = $regions[$name] ?? [];
     if ($key == 'label') {
       return $config[$key] ?? '';
     }
@@ -141,8 +143,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   /**
    * {@inheritdoc}
    */
-  public function setRegionConfig($name, array $values): self {
-    $config = $this->configuration['regions'][$name] ?? [];
+  public function setRegionConfig(string $name, array $values): self {
+    /** @var array<string, mixed> $regions */
+    $regions = $this->configuration['regions'] ?? [];
+    $config = $$regions[$name] ?? [];
 
     $this->configuration['regions'][$name] = $this->manager->merge($values, $config);
     return $this;
@@ -162,9 +166,11 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       $attachments
     );
 
-    $element['#attached']['library'][] = 'blazy_layout/layout';
-    if ($this->inPreview) {
-      $element['#attached']['library'][] = 'blazy_layout/admin';
+    if (isset($element['#attached'])) {
+      $element['#attached']['library'][] = 'blazy_layout/layout';
+      if ($this->inPreview) {
+        $element['#attached']['library'][] = 'blazy_layout/admin';
+      }
     }
   }
 
@@ -173,6 +179,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    */
   protected function init() {
     $layout = clone $this->pluginDefinition;
+
+    /** @var array<string, mixed> $settings */
     $settings = $this->getConfiguration();
     $factory_regions = $layout->getRegions();
     $dynamic_regions = $factory_regions;
@@ -216,6 +224,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    * Returns settings.
    */
   protected function settings(): array {
+    /** @var array<string, mixed> $settings */
     $settings = $this->getConfiguration();
     return $this->manager->layoutSettings($settings, static::$count);
   }
@@ -264,6 +273,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $id      = static::$instanceId;
     $colors  = $settings['styles']['colors'] ?? [];
     $layouts = $settings['styles']['layouts'] ?? [];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
 
     if ($mid = $settings['styles']['media']['id'] ?? NULL) {
@@ -302,6 +313,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
         $output[$name][$name . '-bg']['#markup'] = ' ';
       }
 
+      /** @var \Drupal\blazy\BlazySettings $blazies */
       $blazies = $subsets['blazies']->reset($subsets);
       $blazies->set('delta', $delta);
 
@@ -332,6 +344,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
           if ($fieldsets = $block['content'][0]['#blazy'] ?? []) {
             // Pass the layout settings, not formatter's.
             // $blazies = $subsets['blazies']->reset($subsets);
+            /** @var \Drupal\blazy\BlazySettings $subblazies */
             $subblazies = $fieldsets['blazies'];
             $output[$name][$uuid]['#blazy'] = $subsets;
 
@@ -629,6 +642,7 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
     $hero = FALSE,
   ): void {
     $data = [];
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $config = [
       'background' => TRUE,
@@ -655,6 +669,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
         $use_overlay = !empty($styles['colors']['overlay_color']);
         $config = $this->manager->merge($mediasets, $config);
+
+        /** @var \Drupal\blazy\BlazySettings $blazies */
         $blazies = $config['blazies']->reset($config);
 
         $blazies->set('use.bg', TRUE);

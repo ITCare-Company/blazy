@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\blazy\Unit;
 
 use Drupal\Tests\UnitTestCase;
@@ -26,11 +28,16 @@ class BlazyMediaUnitTest extends UnitTestCase {
   /**
    * Tests \Drupal\blazy\Media\BlazyMedia::view().
    *
+   * @param array<string, mixed> $markup
+   *   The markup being tested.
+   *
    * @dataProvider providerTestBlazyMediaBuild
    */
-  public function testBlazyMediaBuild($markup) {
+  public function testBlazyMediaBuild(array $markup) {
     $source_field = $this->randomMachineName();
     $view_mode = 'default';
+
+    /** @var array<string, mixed> $settings */
     $settings = [
       'image_style'  => 'blazy_crop',
       'ratio'        => 'fluid',
@@ -39,6 +46,7 @@ class BlazyMediaUnitTest extends UnitTestCase {
       // @todo 'bundle' => 'entity_test',
     ] + Blazy::init();
 
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $info = [
       // 'input_url'    => $input_url,
@@ -108,7 +116,10 @@ class BlazyMediaUnitTest extends UnitTestCase {
       ],
     ];
 
-    $markup['#markup'] = '<iframe src="//www.youtube.com/watch?v=E03HFA923kw" class="b-lazy"></iframe>';
+    /** @var array<string, string> $markup */
+    $markup = [
+      '#markup' => '<iframe src="//www.youtube.com/watch?v=E03HFA923kw" class="b-lazy"></iframe>',
+    ];
 
     return [
       'With children, has iframe tag' => [

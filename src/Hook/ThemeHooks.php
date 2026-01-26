@@ -31,7 +31,7 @@ class ThemeHooks {
    *
    * Most heavy liftings are performed at BlazyManager::preRender().
    *
-   * @param array $variables
+   * @param array<string, mixed> $variables
    *   An associative array containing:
    *   - captions: An optional renderable array of inline or lightbox captions.
    *   - item: The image item containing alt, title, etc.
@@ -124,7 +124,10 @@ class ThemeHooks {
       return;
     }
 
+    /** @var array<string, mixed> $element */
     $element = &$variables['element'];
+
+    /** @var array<string, mixed> $settings */
     $settings = self::formatterSettings($variables);
 
     // 1. Hence Blazy is not the formatter, lacks of settings.
@@ -286,7 +289,10 @@ class ThemeHooks {
       // Adds a poster image if so configured.
       // Accessed only by BlazyMedia::build().
       if ($blazy = Internals::toHashtag($files[0])) {
+        /** @var array<string, mixed> $settings */
         $settings = $blazy->storage();
+
+        /** @var \Drupal\blazy\BlazySettings $blazies */
         $blazies = $blazy->get('blazies');
         $url = $blazies->get('image.url');
 
@@ -341,12 +347,15 @@ class ThemeHooks {
    */
   private static function thirdPartyField(array &$variables): void {
     $element = $variables['element'];
+
+    /** @var array<string, mixed> $settings */
     $settings = self::formatterSettings($variables, TRUE);
 
     if (!isset($settings['blazies'])) {
       return;
     }
 
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     if ($bundle = $element['#bundle'] ?? NULL) {
       $blazies->set('field.target_bundles.' . $bundle, $bundle);

@@ -66,6 +66,7 @@ trait BlazyFormatterViewBaseTrait {
    * Prepare the settings, allows sub-modules to re-use and override.
    */
   protected function preSettings(array &$settings, $langcode): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $blazies->set('language.code', $langcode);
   }

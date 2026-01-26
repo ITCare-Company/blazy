@@ -22,10 +22,15 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
 
     if ($entity instanceof Media) {
       $options['defer'] = TRUE;
+
+      /** @var array<string, mixed> $settings */
       $settings = $this->mergedViewsSettings($options, $entity);
 
       // Due to minimal settings, assumed core fields are in use.
       $settings['image'] = 'field_media_image';
+
+      $data = [];
+
       $data['#entity']   = $entity;
       $data['#settings'] = $settings;
       $data['#delta']    = $values->index;

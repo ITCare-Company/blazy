@@ -171,6 +171,7 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
    * Extracts setting from attributes.
    */
   protected function extractSettings(\DOMElement $node, array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
 
     // Ensures these settings are re-checked.

@@ -63,14 +63,12 @@ class BlazyDefault {
   /**
    * Returns alterable plugin settings to pass the tests.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings being modified.
    */
   public static function alterableSettings(array &$settings) {
-    if ($manager = Internals::service('blazy.manager')) {
-      $context = ['class' => get_called_class()];
-      $manager->moduleHandler()->alter('blazy_base_settings', $settings, $context);
-    }
+    $context = ['class' => get_called_class()];
+    \blazy()->moduleHandler()->alter('blazy_base_settings', $settings, $context);
   }
 
   /**
@@ -587,18 +585,12 @@ class BlazyDefault {
    * Please bear with the silly plural `blazies` object, no better ideas.
    */
   private static function blazies() {
-    $ui = self::uiSettings();
-
-    // For convenience when by-passing the provided API.
-    if ($manager = Internals::service('blazy.manager')) {
-      $ui = $manager->config();
-    }
     return [
       'initial' => 0,
       'is' => [],
       'lazy' => ['id' => 'blazy', 'attribute' => 'src', 'class' => 'b-lazy'],
       'libs' => [],
-      'ui' => $ui,
+      'ui' => \blazy()->config(),
       'use' => [],
     ];
   }

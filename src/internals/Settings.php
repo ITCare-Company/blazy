@@ -21,13 +21,21 @@ class Settings {
 
   /**
    * Implements hook_config_schema_info_alter().
+   *
+   * @param array<string, mixed> $definitions
+   *   The definitions being modified.
+   * @param string $formatter
+   *   The formatter being passed.
+   * @param array<string, mixed> $settings
+   *   The settings being passed.
    */
   public static function configSchemaInfoAlter(
     array &$definitions,
     $formatter = 'blazy_base',
     array $settings = [],
   ): void {
-    if (isset($definitions[$formatter])) {
+    // Phpstan requires is_array().
+    if (isset($definitions[$formatter]) && is_array($definitions[$formatter])) {
       $mappings = &$definitions[$formatter]['mapping'];
       $settings += BlazyDefault::extendedSettings();
       $settings += BlazyDefault::gridSettings();
@@ -39,6 +47,10 @@ class Settings {
         // Seems double is ignored, and causes a missing schema, unlike float.
         $type = gettype($value);
         $type = $type == 'double' ? 'float' : $type;
+
+        if (!isset($mappings[$key])) {
+          $mappings[$key] = [];
+        }
         $mappings[$key]['type'] = is_array($value) ? 'sequence' : $type;
 
         if (!is_array($value)) {
@@ -50,8 +62,12 @@ class Settings {
 
   /**
    * Provides common content settings.
+   *
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
    */
   public static function contently(array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
 
     // Disable all lazy stuffs since we got a brick here.
@@ -73,8 +89,16 @@ class Settings {
    * Returns the highest views rows, or field items count to determine gallery.
    *
    * Sliders may trick count 100 into just 2 for their magic chunk trick.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
+   * @param int $default
+   *   The default value.
+   *
+   * @return int
+   *   The total amount of items.
    */
-  public static function count($blazies, $default = 0): int {
+  public static function count($blazies, int $default = 0): int {
     $field = $blazies->get('total', 0) ?: $blazies->get('count', 0);
     $views = $blazies->get('view.count', 0);
     $count = $views > $field ? $views : $field;
@@ -87,8 +111,12 @@ class Settings {
 
   /**
    * Update count by delta option.
+   *
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
    */
   public static function updateCountByDelta(array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
     $by_delta = $settings['by_delta'] ?? -1;
     $total    = $blazies->total();
@@ -103,11 +131,19 @@ class Settings {
 
   /**
    * Returns minimal View data.
+   *
+   * * @param \Drupal\views\Views $view
+   *   The Views instance.
+   *
+   * @return array
+   *   The view field data.
    */
   public static function getViewFieldData($view): array {
     $data = $names = [];
+
     foreach ($view->field as $field_name => $field) {
       if ($options = $field->options ?? []) {
+        $options = is_array($options) ? $options : [];
         $names[] = $field_name;
         $subsets = $options['settings'] ?? [];
         $type = $options['type'] ?? 'x';
@@ -141,6 +177,12 @@ class Settings {
 
   /**
    * Returns delta_limit option.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
+   *
+   * @return int
+   *   The view limit.
    */
   public static function getViewLimit($blazies): int {
     $data = $blazies->get('view.data', []);
@@ -150,6 +192,12 @@ class Settings {
 
   /**
    * Alias for BlazySettings().
+   *
+   * @param array<string, mixed> $data
+   *   The data being passed.
+   *
+   * @return \Drupal\blazy\BlazySettings
+   *   The BlazySettings instance.
    */
   public static function init(array $data = []): BlazySettings {
     return new BlazySettings($data);
@@ -162,6 +210,12 @@ class Settings {
    * - lcp: Hero static/slider is chosen for initial item, normally delta 0.
    * Since Blazy:3.0.17, it supports static Heroes apart from slider Heroes.
    * - static: CK Editor/ preview mode, AMP, and sandboxed mode.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
+   *
+   * @return bool
+   *   Whether unlazied.
    */
   public static function isUnlazyBg($blazies): bool {
     return $blazies->is('lcp')
@@ -176,6 +230,12 @@ class Settings {
    * Since Blazy:3.0.17, it supports static Heroes apart from slider Heroes.
    * - unlazy: globally disabled, or by request.
    * - static: CK Editor/ preview mode, AMP, and sandboxed mode.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
+   *
+   * @return bool
+   *   Whether unlazied.
    */
   public static function isUndata($blazies): bool {
     return $blazies->is('lcp')
@@ -189,6 +249,12 @@ class Settings {
    * The following will disable old lazyload [data-] attributes if:
    * - [data-SRC|SRCSET] is removed.
    * - nojs: globally disabled via `No JavaScript` option.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
+   *
+   * @return bool
+   *   Whether unladied.
    */
   public static function isUnlazy($blazies): bool {
     return self::isUndata($blazies)
@@ -197,14 +263,26 @@ class Settings {
 
   /**
    * Prepares the essential settings, URI, delta, cache , etc.
+   *
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
+   * @param object|null $item
+   *   The image item or null.
+   * @param bool $called
+   *   Whether has been called.
    */
-  public static function prepare(array &$settings, $item, $called = FALSE): void {
+  public static function prepare(array &$settings, $item, bool $called = FALSE): void {
     CheckItem::essentials($settings, $item, $called);
     CheckItem::insanity($settings);
   }
 
   /**
    * Blazy is prepared with an URI.
+   *
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
+   * @param object|null $item
+   *   The image item or null.
    */
   public static function prepared(array &$settings, $item): void {
     BlazyImage::prepare($settings, $item);
@@ -220,6 +298,11 @@ class Settings {
    * This way at Views style, the container can have lightbox galleries without
    * extra settings, as long as `Use field template` is disabled under
    * `Style settings`, otherwise flattened out as a string.
+   *
+   * @param array<string, mixed> $parentsets
+   *   The parentsets being modified.
+   * @param array<string, mixed> $childsets
+   *   The childsets being modified.
    *
    * @see \Drupa\blazy\BlazyManagerBase::isBlazy()
    */
@@ -238,8 +321,11 @@ class Settings {
         : $fallback;
     }
 
+    /** @var \Drupal\blazy\BlazySettings $parent */
     $parent = $parentsets['blazies'];
-    $child  = $childsets['blazies'];
+
+    /** @var \Drupal\blazy\BlazySettings $child */
+    $child = $childsets['blazies'];
 
     if ($bg = $parentsets['background'] ?? FALSE) {
       $parent->set('use.bg', $bg);
@@ -274,9 +360,15 @@ class Settings {
   /**
    * Preliminary settings, normally at container/ global level.
    *
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
+   * @param bool $root
+   *   Whether a container or child element.
+   *
    * @todo refine to separate container from item level. At least move grid out.
    */
-  public static function preSettings(array &$settings, $root = TRUE): void {
+  public static function preSettings(array &$settings, bool $root = TRUE): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = self::verify($settings);
 
     // Checks for basic features, here for both formatters and views fields.
@@ -306,9 +398,13 @@ class Settings {
 
   /**
    * Modifies the common UI settings inherited down to each item.
+   *
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
    */
   public static function postSettings(array &$settings): void {
     // Failsafe, might be called directly at ::attach() outside the workflow.
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = self::verify($settings);
     if (!$blazies->was('initialized')) {
       self::preSettings($settings);
@@ -317,12 +413,24 @@ class Settings {
 
   /**
    * Reset the BlazySettings per item to have unique URI, delta, style, etc.
+   *
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
+   * @param string $key
+   *   The settings key.
+   * @param array<string, mixed> $defaults
+   *   The defaults if any.
    */
-  public static function reset(array &$settings, $key = 'blazies', array $defaults = []): BlazySettings {
+  public static function reset(
+    array &$settings,
+    string $key = 'blazies',
+    array $defaults = [],
+  ): BlazySettings {
     // Other implementors should verify the $key prior to calling this.
     self::verify($settings, $key, $defaults);
 
     // The settings instance must be unique per item.
+    /** @var \Drupal\blazy\BlazySettings $config */
     $config = &$settings[$key];
     if (!$config->was('reset')) {
       $config->reset($settings, $key);
@@ -334,8 +442,19 @@ class Settings {
 
   /**
    * A helper to gradually convert things to #things to avoid render error.
+   *
+   * @param array<string, mixed> $data
+   *   The data being modified.
+   * @param string $key
+   *   The data key.
+   * @param bool $unset
+   *   Whether to unset.
    */
-  public static function hashtag(array &$data, $key = 'settings', $unset = FALSE): void {
+  public static function hashtag(
+    array &$data,
+    string $key = 'settings',
+    bool $unset = FALSE,
+  ): void {
     if (!isset($data["#$key"])) {
       $data["#$key"] = $data[$key] ?? [];
     }
@@ -358,8 +477,24 @@ class Settings {
 
   /**
    * A helper to gradually convert things to #things to avoid render error.
+   *
+   * @param array<string, mixed> $data
+   *   The data being passed.
+   * @param string $key
+   *   The data key.
+   * @param array<string, mixed>|null $default
+   *   The default if any.
+   *
+   * @return mixed
+   *   The result data.
+   *
+   * @todo refactor avoid mixed.
    */
-  public static function toHashtag(array $data, $key = 'settings', $default = []) {
+  public static function toHashtag(
+    array $data,
+    string $key = 'settings',
+    $default = [],
+  ) {
     $result = $data["#$key"] ?? $data[$key] ?? $default;
     if (!$result && $key == 'settings') {
       $result = $data["#blazy"] ?? $default;
@@ -369,6 +504,9 @@ class Settings {
 
   /**
    * Sets a token based on media or image url.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
    */
   public static function tokenize($blazies): void {
     $url = $blazies->get('media.embed_url') ?: $blazies->get('image.url');
@@ -382,10 +520,20 @@ class Settings {
 
   /**
    * Verify `blazies` exists, in case accessed outside the workflow.
+   *
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
+   * @param string $key
+   *   The settings key.
+   * @param array<string, mixed> $defaults
+   *   The defaults if any.
+   *
+   * @return \Drupal\blazy\BlazySettings
+   *   The BlazySettings instance.
    */
   public static function verify(
     array &$settings,
-    $key = 'blazies',
+    string $key = 'blazies',
     array $defaults = [],
   ): BlazySettings {
     if (!isset($settings[$key])) {
@@ -404,6 +552,9 @@ class Settings {
 
   /**
    * Sets Instagram script if so configured, for oembed:instagram, not VEF.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
    */
   private static function scriptable($blazies): void {
     if (!$blazies->is('iframeable')) {

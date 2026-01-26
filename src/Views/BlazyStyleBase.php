@@ -48,6 +48,16 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
 
   /**
    * Checks if we can work with this formatter, otherwise no go if flattened.
+   *
+   * @param object $row
+   *   The views row.
+   * @param int $index
+   *   The views row index.
+   * @param string $field_image
+   *   The field image.
+   *
+   * @return array
+   *   The doable flag and item object.
    */
   protected function getImageArray($row, $index, $field_image): array {
     if ($image = $this->getFieldRenderable($row, $index, $field_image)) {
@@ -70,8 +80,14 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    * Get the image item to work with out of this formatter.
    *
    * All this mess is because Views may render/flatten images earlier.
+   *
+   * @param array<string, mixed> $image
+   *   The stored image.
+   *
+   * @return object|null
+   *   The image item or NULL.
    */
-  protected function getImageItem($image): ?object {
+  protected function getImageItem(array $image): ?object {
     $item = NULL;
 
     if ($rendered = ($image['rendered'] ?? [])) {
@@ -91,6 +107,16 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
 
   /**
    * Returns the modified renderable image_formatter to support lazyload.
+   *
+   * @param array<string, mixed> $settings
+   *   The modified settings.
+   * @param object $row
+   *   The Views row.
+   * @param int $index
+   *   The Views index.
+   *
+   * @return array
+   *   The renderable array.
    */
   protected function getImageRenderable(array &$settings, $row, $index): array {
     $_image = $settings['image'] ?? NULL;
@@ -98,6 +124,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
       return [];
     }
 
+    /** @var array<string, mixed> $image */
     $image    = $this->getImageArray($row, $index, $_image);
     $rendered = $image['rendered'] ?? [];
     $item     = $image['raw'] ?? NULL;
@@ -150,10 +177,24 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    * Be sure to reset settings before calling this method:
    * $this->reset($sets);
    *
+   * @param array<string, mixed> $sets
+   *   The settings being modified.
+   * @param object $row
+   *   The views row.
+   * @param int $index
+   *   The views row index.
+   * @param string $field_caption
+   *   The field caption.
+   *
+   * @return array
+   *   The doable flag and item object.
+   *
    * @todo remove the new param default NULL at/ by 3.x after sub-modules.
    */
   protected function getThumbnail(array &$sets, $row, $index, $field_caption = NULL): array {
-    $name    = $sets['thumbnail'] ?? NULL;
+    $name = $sets['thumbnail'] ?? NULL;
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $sets['blazies'];
 
     $blazies->set('is.reset', TRUE);
@@ -184,6 +225,13 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
 
   /**
    * Extract image style and url from blazy image formatter.
+   *
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
+   * @param array<string, mixed> $rendered
+   *   The contextual rendered.
+   * @param int $index
+   *   The views row index.
    */
   protected function withBlazyFormatter(array &$settings, array $rendered, $index): void {
     // Pass Blazy field formatter settings into Views style plugin.
@@ -192,12 +240,15 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
     // such as with GridStack which may have its own breakpoints.
     $newbies   = $this->manager->toHashtag($rendered['#build']);
     $formatter = array_filter($newbies);
-    $settings  = array_merge($formatter, array_filter($settings));
+
+    /** @var array<string, mixed> $settings */
+    $settings = array_merge($formatter, array_filter($settings));
 
     // Reserves crucial blazy specific settings.
     Internals::preserve($settings, $formatter);
 
     // Each blazy delta is always 0 within a view, this makes it gallery.
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $blazies->merge($formatter['blazies']->storage());
     $blazies->set('delta', $index)
@@ -225,8 +276,16 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
 
   /**
    * Extract image style and url from core image formatter.
+   *
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
+   * @param array<string, mixed> $rendered
+   *   The contextual rendered.
+   * @param int $index
+   *   The views row index.
    */
   protected function withImageFormatter(array &$settings, array $rendered, $index): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
 
     // Deals with "link to content/image" by formatters.
@@ -256,6 +315,18 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
    *
    * Be sure to reset settings before calling this method:
    * $this->reset($sets);
+   *
+   * @param array<string, mixed> $sets
+   *   The settings being modified.
+   * @param object $row
+   *   The views row index.
+   * @param string $name
+   *   The contextual rendered.
+   * @param int $index
+   *   The views row index.
+   *
+   * @return array
+   *   The doable flag and item object.
    */
   private function getWorkableThumbnail(array &$sets, $row, $name, $index): array {
     if (!$name) {
@@ -264,6 +335,7 @@ abstract class BlazyStyleBase extends BlazyStyleVanilla implements BlazyStyleBas
 
     // Can only have one thumbnail even if multiple.
     // Supports core image formatter, the most sensible, and Blazy formatter.
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $sets['blazies'];
     $doable   = FALSE;
     $result   = $this->getFieldRenderable($row, 0, $name);

@@ -429,6 +429,7 @@ class BlazyFile implements BlazyFileInterface {
    * Returns the File entity from settings, if applicable, relevant for Filter.
    */
   private static function fromSettings(array $settings, $uri = NULL): ?object {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'] ?? NULL;
     $uri     = $uri ?: self::uri(NULL, $settings);
     $uuid    = $blazies ? $blazies->get('entity.uuid') : NULL;

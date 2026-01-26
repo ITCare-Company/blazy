@@ -29,6 +29,7 @@ class BlazyEntityTest extends BlazyKernelTestBase {
 
     $bundle = $this->bundle;
 
+    $settings = [];
     $settings['fields']['field_text_multiple'] = 'text';
 
     $this->setUpContentTypeTest($bundle, $settings);

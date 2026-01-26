@@ -15,6 +15,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
   public function buildSettingsForm(array &$form, array $definition): void {
     parent::buildSettingsForm($form, $definition);
 
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes = $this->toScopes($definition);
 
     $this->openingForm($form, $definition);
@@ -42,6 +43,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
   public function openingForm(array &$form, array &$definition): void {
     parent::openingForm($form, $definition);
 
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes = $this->toScopes($definition);
     $namespace = static::$namespace;
     $descriptions = $this->formatterDescriptions($scopes);
@@ -77,6 +79,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
   public function fieldableForm(array &$form, array $definition): void {
     parent::fieldableForm($form, $definition);
 
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes = $this->toScopes($definition);
     $data = $scopes->get('data', []);
     $base_image = $this->baseForm($definition)['image'] ?? [];
@@ -146,6 +149,7 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
    * {@inheritdoc}
    */
   public function closingForm(array &$form, array $definition): void {
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes = $this->toScopes($definition);
     $descriptions = $this->formatterDescriptions($scopes);
 

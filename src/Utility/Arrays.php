@@ -45,6 +45,7 @@ class Arrays {
   public static function mergeSettings($keys, array $defaults, array $configs): array {
     $keys = is_string($keys) ? [$keys] : $keys;
     foreach ($keys as $key) {
+      /** @var \Drupal\blazy\BlazySettings|null $object */
       $object = $defaults[$key] ?? NULL;
       $oldies = $object ? $object->storage() : [];
 
@@ -52,6 +53,7 @@ class Arrays {
         $configs[$key] = $object;
       }
 
+      /** @var \Drupal\blazy\BlazySettings|null $newbies */
       if ($newbies = $configs[$key] ?? NULL) {
         $data = $newbies->storage();
         $data = $oldies ? NestedArray::mergeDeepArray([$oldies, $data], TRUE) : $data;

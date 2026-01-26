@@ -3,7 +3,6 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\blazy\Theme\Attributes;
-use Drupal\blazy\internals\Internals;
 
 /**
  * Provides placeholder thumbnail image.
@@ -46,6 +45,8 @@ class Placeholder {
    */
   public static function blur(array &$variables, array &$settings) {
     $attributes = &$variables['attributes'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $uri = $blazies->get('blur.uri');
     $url = $blazies->get('blur.url');
@@ -151,6 +152,7 @@ class Placeholder {
     self::thumbnails($settings);
 
     // Apply attributes related to Blur and Thumbnail image style.
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     if ($url = $blazies->get('thumbnail.url')) {
       $attributes[Attributes::data($blazies, 'thumb')] = $url;
@@ -168,6 +170,7 @@ class Placeholder {
    * Checks for blur settings, required Image style and dimensions setup.
    */
   private static function blurs(array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     if (!$blazies->use('blur')) {
       return;
@@ -195,15 +198,14 @@ class Placeholder {
    * which was already warned about anyway.
    */
   private static function dataImage(array &$settings, $uri, $tn_uri, $tn_url, $style): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     if (!$blazies->use('blur')) {
       return;
     }
 
     // Provides default path, in case required by global, but not provided.
-    if ($manager = Internals::service('blazy.manager')) {
-      $style = $style ?: $manager->load('thumbnail', 'image_style');
-    }
+    $style = $style ?: \blazy()->load('thumbnail', 'image_style');
 
     if (empty($tn_uri) && $style && BlazyFile::isValidUri($uri)) {
       $options['unsafe'] = FALSE;
@@ -258,6 +260,7 @@ class Placeholder {
    * @see self::prepare()
    */
   private static function thumbnails(array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $style   = $blazies->get('thumbnail.style');
     $width   = $height = 1;

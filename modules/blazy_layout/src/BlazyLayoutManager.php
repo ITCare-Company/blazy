@@ -95,8 +95,11 @@ class BlazyLayoutManager extends BlazyManager implements BlazyLayoutManagerInter
     $this->verifySafely($settings);
     $this->preSettings($settings);
 
+    /** @var array<string, mixed> $settings */
     $settings = $this->toSettings($settings);
-    $blazies  = $settings['blazies'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
 
     $blazies->set('namespace', static::$namespace)
       ->set('is.grid', TRUE)

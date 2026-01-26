@@ -5,7 +5,6 @@ namespace Drupal\blazy\Hook;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Field\FormatterInterface;
 use Drupal\blazy\Blazy;
-use Drupal\blazy\internals\Internals;
 
 /**
  * Hook implementations for field.
@@ -67,10 +66,7 @@ class FieldHooks {
    * @todo make it private after another sub-module check.
    */
   public static function thirdPartyFormatters(): array {
-    $formatters = ['file_audio', 'file_video'];
-    if ($manager = Internals::service('blazy.manager')) {
-      $formatters = $manager->thirdPartyFormatters();
-    }
+    $formatters = \blazy()->thirdPartyFormatters();
     return array_unique($formatters);
   }
 

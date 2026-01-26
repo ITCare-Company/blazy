@@ -24,9 +24,9 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
   /**
    * Alias for Blazy::containerAttributes().
    *
-   * @param array $attributes
+   * @param array<string, mixed> $attributes
    *   The container attributes being modified.
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The given settings.
    */
   public function containerAttributes(array &$attributes, array $settings): void;
@@ -58,7 +58,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
   /**
    * Alias for Thumbnail::view() to forget looking up unknown classes.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The given settings.
    * @param object $item
    *   The optional image item.
@@ -78,7 +78,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    * defined by the respective key under $settings, e.g.: image_style to
    * blazies.image.style, etc. Nothing is loaded if no setting is provided.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The modified settings.
    * @param bool $multiple
    *   A flag for various Image styles: Blazy Filter, etc., old GridStack.
@@ -114,7 +114,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *
    * This still needs improvements and a little more simplified version.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings being modified.
    * @param array $data
    *   The first data containing settings or item keys.
@@ -166,7 +166,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    * Called by field formatters, views [styles|fields via BlazyEntity],
    * [blazy|splide|slick] filters.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings being modified.
    */
   public function preSettings(array &$settings): void;
@@ -174,7 +174,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
   /**
    * Modifies the post settings inherited down to each item.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings being modified.
    */
   public function postSettings(array &$settings): void;
@@ -182,7 +182,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
   /**
    * Overrides data massaged by [blazy|slick|splide, etc.]_settings_alter().
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings being modified.
    * @param object $entity
    *   The optional entity object.

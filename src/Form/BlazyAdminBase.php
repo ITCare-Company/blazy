@@ -94,6 +94,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function openingForm(array &$form, array &$definition): void {
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes = $this->toScopes($definition);
 
     $this->blazyManager
@@ -180,6 +181,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function gridForm(array &$form, array $definition): void {
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes    = $this->toScopes($definition);
     $required  = $scopes->is('grid_required');
     $multigrid = $this->isMultiBreakpoint($definition);
@@ -273,6 +275,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function closingForm(array &$form, array $definition): void {
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes = $this->toScopes($definition);
     $namespace = $scopes->get('namespace');
     $valid = $scopes->get('field') && $scopes->is('theme_field');
@@ -311,6 +314,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function baseForm(array &$definition): array {
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes       = $this->toScopes($definition);
     $blazies      = $definition['blazies'];
     $form         = [];
@@ -476,6 +480,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function mediaSwitchForm(array &$form, array $definition): void {
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes    = $this->toScopes($definition);
     $base_form = $this->baseForm($definition);
     $classes   = $this->getTitleClasses(['media-switch', 'hideable'], TRUE);
@@ -505,6 +510,7 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * {@inheritdoc}
    */
   public function finalizeForm(array &$form, array $definition): void {
+    /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes    = $this->toScopes($definition);
     $settings  = $definition['settings'] ?? [];
     $admin_css = $this->isAdminCss();

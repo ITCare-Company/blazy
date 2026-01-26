@@ -12,7 +12,7 @@ interface BlazyLayoutManagerInterface extends BlazyManagerInterface {
   /**
    * Returns CSS classes.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings array.
    *
    * @return array
@@ -45,7 +45,7 @@ interface BlazyLayoutManagerInterface extends BlazyManagerInterface {
   /**
    * Returns updated settings.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings array.
    * @param int $count
    *   The amount of region, default to 9.
@@ -60,7 +60,7 @@ interface BlazyLayoutManagerInterface extends BlazyManagerInterface {
    *
    * @param array $output
    *   The output being modified.
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings array.
    */
   public function parseClasses(array &$output, array $settings): void;

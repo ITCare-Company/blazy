@@ -165,7 +165,10 @@ class BlazyEntity implements BlazyEntityInterface {
     $manager = $this->blazyManager;
     $manager->hashtag($data);
 
+    /** @var array<string, mixed> $settings */
     $settings = &$data['#settings'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $manager->verifySafely($settings);
 
     if ($blazies->was('entity_prepared')) {

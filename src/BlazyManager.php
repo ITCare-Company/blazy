@@ -47,7 +47,9 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
       $build[$k] = $this->toHashtag($build, $key, $default);
     }
 
-    $item     = $this->toHashtag($build, 'item', NULL);
+    $item = $build['#item'] ?? NULL;
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $this->preBlazy($build, $item);
     $settings = $build['#settings'];
     $delta    = $build['#delta'] ?? $blazies->get('delta');
@@ -80,7 +82,10 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $this->prepareBlazy($element, $build);
 
     // Fetch the newly modified settings with hashed key.
+    /** @var array<string, mixed> $settings */
     $settings = &$element['#settings'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $switch = $blazies->get('switch');
 
@@ -111,15 +116,18 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Blazy outputs can be formatted using either flat list via theme_field(), or
    * a grid of Field items or Views rows via theme_item_list().
    *
-   * @param array $data
+   * @param array<string, mixed> $data
    *   The array containing: settings, children elements, or optional items.
    *
    * @return array
    *   The alterable and renderable array of contents.
    */
   public function build(array $data): array {
+    /** @var array<string, mixed> $settings */
     $settings = $this->getBlazySettings($data);
-    $blazies  = $settings['blazies'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
 
     // This #pre_render doesn't work if called from Views results, hence the
     // output is split either as theme_field() or theme_item_list().
@@ -259,8 +267,11 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Build out (rich media) content.
    */
   private function buildContent(array &$element, array &$build): void {
+    /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];
-    $blazies  = $settings['blazies'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
 
     if (empty($build['content'])) {
       return;
@@ -408,9 +419,12 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    *   we can mess up before printing them into the $element.
    */
   private function prepareBlazy(array &$element, array $build) {
-    $item       = $build['#item'];
-    $settings   = &$build['#settings'];
+    /** @var array<string, mixed> $settings */
+    $settings = &$build['#settings'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
+    $item       = $build['#item'];
     $attributes = &$build['#attributes'];
     $captions   = Internals::toContent($build, TRUE, ['captions', 'caption']);
     $captions   = array_filter($captions);
@@ -450,7 +464,8 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     $this->moduleHandler->alter('blazy_item', $settings, $attributes, $item_attributes);
 
     // Update media switcher based on the hook_blazy_item_alter.
-    $blazies    = $settings['blazies'];
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
     $api_switch = $blazies->get('switch');
     if ($api_switch && $switch = $settings['media_switch'] ?? NULL) {
       if ($switch != $api_switch) {
@@ -470,6 +485,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Was planned to replace sub-module item markups if similarity is found for
     // theme_gridstack_box(), theme_slick_slide(), etc. Likely for Blazy 3.x+.
     // Since 2.17, it is optional at Blazy UI under `Use theme_blazy()` option.
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     foreach ($theme_attributes as $key) {
       $key   = $key . '_attributes';
@@ -488,6 +504,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
     // Composing or layering is crucial for mixed media (icon over CTA or text
     // or lightbox links or iframe over image or CSS background over noscript
     // which cannot be simply dumped as array without elaborate arrangements).
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     foreach (BlazyDefault::themeContents() as $key => $default) {
       $defaults         = $this->toHashtag($build, $key, $default);
@@ -577,6 +594,7 @@ class BlazyManager extends BlazyManagerBase implements BlazyManagerInterface, Tr
    * Provides captions, if any.
    */
   private function toCaption(array &$element, array &$settings, array $captions): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $id      = $blazies->get('item.id', 'blazy');
     $id      = $id == 'content' ? 'blazy' : $id;

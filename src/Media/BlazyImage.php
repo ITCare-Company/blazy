@@ -50,7 +50,7 @@ class BlazyImage {
   /**
    * Sets dimensions once to reduce method calls, if image style contains crop.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The settings being modified.
    * @param object $style
    *   The image style to check for crp effect.
@@ -61,6 +61,7 @@ class BlazyImage {
     if ($style && !isset(static::$isCropSet[$id])) {
       // If image style contains crop, sets dimension once, and let all inherit.
       if ($crop = self::getCrop($style)) {
+        /** @var \Drupal\blazy\BlazySettings $blazies */
         $blazies = $settings['blazies'];
         $data = self::transformDimensions($crop, $blazies);
 
@@ -84,6 +85,7 @@ class BlazyImage {
    * Sources: formatters, filters or any hard-coded unmanaged files like VEF.
    */
   public static function dimensions(array &$settings, $item, $uri, $initial = FALSE): array {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $_width  = 'width';
     $_height = 'height';
@@ -170,7 +172,7 @@ class BlazyImage {
    *
    * @param object $object
    *   The optional Media, File entity, or ER, etc. to get image item from.
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The optional settings.
    *
    * @return object|null
@@ -180,6 +182,7 @@ class BlazyImage {
    * @todo return image item directly without settings.
    */
   public static function fromAny($object, array &$settings = []): ?object {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = Internals::verify($settings);
     $output  = $uri = NULL;
 
@@ -307,7 +310,7 @@ class BlazyImage {
    * Checks if we have image item.
    */
   public static function isValidItem($item): bool {
-    $item = is_array($item) ? Internals::toHashtag($item, 'item', NULL) : $item;
+    $item = is_array($item) ? Internals::toHashtag($item, 'item') : $item;
     if ($item instanceof ImageItem) {
       return TRUE;
     }
@@ -332,7 +335,7 @@ class BlazyImage {
    * Hence URI validity is not crucial in regards to anything but #4.
    * The image will fail silently at any rate given non-expected URI.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The given settings being modified.
    * @param object $item
    *   The image item.
@@ -347,6 +350,7 @@ class BlazyImage {
     // media is not directly managed by theme_blazy() aka outside the workflow,
     // it is an embedded field. The correct solution is to call this method
     // before working with local media. They won't re-enter this method again.
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies']->reset($settings);
     $uri = $uri ?: $blazies->get('image.uri');
 
@@ -376,9 +380,7 @@ class BlazyImage {
    * @todo remove for BlazyManager::imageStyles().
    */
   public static function styles(array &$settings, $multiple = FALSE): void {
-    if ($manager = Internals::service('blazy.manager')) {
-      $manager->imageStyles($settings, $multiple);
-    }
+    \blazy()->imageStyles($settings, $multiple);
   }
 
   /**
@@ -487,6 +489,7 @@ class BlazyImage {
    * @todo remove fallbacks after another check, also settings after migration.
    */
   public static function toUrl(array $settings, $style = NULL, $uri = NULL): string {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $uri     = $uri ?: $blazies->get('image.uri', $settings['uri'] ?? '');
     $valid   = BlazyFile::isValidUri($uri);
@@ -636,6 +639,7 @@ class BlazyImage {
    * @requires self::styles()
    */
   private static function transformed(array &$settings, $uri): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
 
     // GIF, etc. can be converted. We'll refine SVG, external URL down below.
@@ -656,6 +660,7 @@ class BlazyImage {
    * Provides result of self::transformDimensions() for internal urls.
    */
   private static function transformedInternal(array &$settings, $uri): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     foreach (BlazyDefault::imageStyles() as $key) {
       if ($style = $blazies->get($key . '.style')) {

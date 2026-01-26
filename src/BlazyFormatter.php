@@ -38,7 +38,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    * @todo make it protected after sub-modules, mostly are just tests + BVEF.
    */
   public function buildSettings(array &$build, $items) {
-    $this->hashtag($build);
+    // @todo remove $this->hashtag($build);.
+    /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];
 
     // BC for mismatched minor versions.
@@ -65,7 +66,8 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    * {@inheritdoc}
    */
   public function preBuildElements(array &$build, $items, array $entities = []) {
-    $this->hashtag($build);
+    // @todo remove $this->hashtag($build);.
+    /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];
 
     // BC for mismatched minor versions.
@@ -106,6 +108,7 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
   public function preElements(array &$build, $items, array $entities = []): void {
     $this->preBuildElements($build, $items, $entities);
 
+    /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];
 
     $build['#vanilla'] = !empty($settings['vanilla']);
@@ -123,8 +126,11 @@ class BlazyFormatter extends BlazyManager implements BlazyFormatterInterface {
    * {@inheritdoc}
    */
   public function postBuildElements(array &$build, $items, array $entities = []) {
+    /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];
-    $blazies  = $settings['blazies'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
 
     // The last method before being passed to each manager builders.
     // Supports lightbox gallery if using Blazy formatter.

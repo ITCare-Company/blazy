@@ -171,7 +171,10 @@ abstract class BlazyFileFormatterBase extends FileFormatterBase {
    * Returns the Blazy elements, also for sub-modules to re-use.
    */
   protected function getElements(array $build, $files): \Generator {
+    /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
     $limit    = $this->getViewLimit($settings);
     $by_delta = $settings['by_delta'] ?? -1;

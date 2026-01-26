@@ -30,6 +30,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
   protected function setUp(): void {
     parent::setUp();
 
+    $data = [];
     $data['fields'] = [
       // 'field_video' => 'image',
       'field_image_multiple' => 'image',
@@ -54,9 +55,9 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
    */
   public function testBlazyFormatterCache() {
     // Tests type definition.
-    $this->typeDefinition = $this->blazyAdminFormatter
-      ->getTypedConfig()
-      ->getDefinition('blazy.settings');
+    /** @var \Drupal\Core\Config\TypedConfigManagerInterface $type_config */
+    $type_config = $this->blazyAdminFormatter->getTypedConfig();
+    $this->typeDefinition = $type_config->getDefinition('blazy.settings');
 
     $this->assertEquals('Blazy settings', $this->typeDefinition['label']);
 
@@ -135,6 +136,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
     $formatter_settings = $this->formatterInstance->buildSettings($build, NULL);
     $this->assertArrayHasKey('blazies', $formatter_settings);
 
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $formatter_settings['blazies'];
 
     $this->assertArrayHasKey('field', $blazies->storage());
@@ -156,10 +158,12 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     $format['#settings'] = array_merge($this->getFormatterSettings(), $formatter_settings);
 
+    /** @var array<string, mixed> $settings */
     $settings = &$format['#settings'];
 
     $this->assertArrayHasKey('blazies', $settings);
 
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
 
     // 2. Test theme_field(), no grid.
@@ -228,12 +232,14 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
       $entity = $this->entity;
 
+      /** @var array<string, mixed> $settings */
       $settings = [
         'view_mode'       => 'default',
         'thumbnail_style' => 'thumbnail',
         'uri'             => $this->uri,
       ] + Blazy::init();
 
+      /** @var \Drupal\blazy\BlazySettings $blazies */
       $blazies = $settings['blazies'];
       $info = [
         'bundle'       => $this->bundle,

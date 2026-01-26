@@ -26,6 +26,7 @@ class Check {
    * @todo remove some settings after sub-modules.
    */
   public static function container(array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies      = $settings['blazies'];
     $item_id      = $blazies->get('item.id', 'blazy');
     $item_caption = $blazies->get('item.caption', 'captions');
@@ -52,6 +53,7 @@ class Check {
    * Mostly for third party settings, using the global UI settings.
    */
   public static function uiContainer(array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies      = $settings['blazies'];
     $ui           = $blazies->get('ui');
     $bundles      = $blazies->get('field.target_bundles', []);
@@ -142,6 +144,7 @@ class Check {
    */
   public static function blazyOrNot(array &$settings, array $data = []): void {
     // Retrieves Blazy formatter related settings from within Views style.
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = Internals::verify($settings);
     $data    = $data ?: $blazies->get('first.data');
 
@@ -176,10 +179,10 @@ class Check {
       Internals::preserve($settings, $subsets);
 
       // Rechecks container, etc. since we have $subsets.
-      if ($manager = Internals::service('blazy.manager')) {
-        $blazies->set('was.initialized', FALSE);
-        $manager->preSettings($settings);
-      }
+      $blazies->set('was.initialized', FALSE);
+
+      // @todo refactor to instance class at D11.
+      \blazy()->preSettings($settings);
     }
 
     // 4. No longer needed once extracted above, remove.
@@ -197,6 +200,7 @@ class Check {
 
     Blazy::entitySettings($settings, $entity);
 
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     if ($blazies->was('field')) {
       return;
@@ -258,6 +262,7 @@ class Check {
    * Checks for grids, also supports Slick which requires no `style`.
    */
   public static function grids(array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
     $has_grid = !empty($settings['grid']);
     $sub_grid = $has_grid && !empty($settings['visible_items']);
@@ -297,8 +302,11 @@ class Check {
    * Checks for lightboxes.
    */
   public static function lightboxes(array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $switch  = $blazies->get('switch', $settings['media_switch'] ?? NULL);
+
+    /** @var \Drupal\blazy\BlazyManagerInterface $manager */
     $manager = Internals::service('blazy.manager');
 
     // Bail out early if not so configured.
@@ -345,7 +353,10 @@ class Check {
    * Checks for settings alter.
    */
   public static function settingsAlter(array &$settings, $entity = NULL): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
+
+    /** @var \Drupal\blazy\BlazyManagerInterface $manager */
     $manager = Internals::service('blazy.manager');
 
     // Bail out early if not so configured.

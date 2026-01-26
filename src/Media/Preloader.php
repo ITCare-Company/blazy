@@ -5,7 +5,6 @@ namespace Drupal\blazy\Media;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\Utility\CheckItem;
-use Drupal\blazy\internals\Internals;
 
 /**
  * Provides preload utility.
@@ -28,17 +27,19 @@ class Preloader {
    * @nottodo support multiple hero images like carousels.
    */
   public static function preload(array &$load, array $settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     $images  = $blazies->get('images', []);
     $check   = array_filter($images);
     $sources = $blazies->get('resimage.sources', []);
     $initial = $blazies->get('initial', -1);
+    $inits   = $check[$initial] ?? [];
 
     // A hero is not always 0 for sliders basing on `start` or `InitialSlide`
     // However, 0 is always there since the logic is JS, not PHP; except for the
     // 3.0.18 Blazy Layout Hero which may not always have media on first region
     // given the potential of Native Grid complex design.
-    if (empty($check) || empty($check[$initial]['uri'])) {
+    if (empty($check) || empty($inits['uri'])) {
       return;
     }
 
@@ -61,6 +62,7 @@ class Preloader {
    * field formatters like this one, blazy_filter, views field, or manual call.
    */
   public static function prepare(array &$settings, $items, array $entities = []): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     if (array_filter($blazies->get('images', []))) {
       return;
@@ -143,9 +145,7 @@ class Preloader {
         if ($heroes = $blazies->get('heroes')) {
           if ($hero_style = $heroes['responsive_image_style'] ?? NULL) {
             if (!$blazies->get('heroes.responsive_image.id')) {
-              if ($manager = Internals::service('blazy.manager')) {
-                $resimage = $manager->load($hero_style, 'responsive_image_style') ?: $resimage;
-              }
+              $resimage = \blazy()->load($hero_style, 'responsive_image_style') ?: $resimage;
             }
           }
         }

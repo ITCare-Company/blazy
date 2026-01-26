@@ -32,6 +32,7 @@ class BlazyIoJavaScriptTest extends BlazyJavaScriptTestBase {
    * Test the Blazy element from loading to loaded states.
    */
   public function testFormatterDisplay() {
+    $settings = $data = [];
     $settings['blazy'] = TRUE;
     $settings['ratio'] = 'fluid';
     $settings['image_style'] = '';

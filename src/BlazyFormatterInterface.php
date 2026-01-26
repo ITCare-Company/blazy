@@ -10,7 +10,7 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
   /**
    * Modifies the field formatter base settings inherited by child elements.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The array containing: field-related settings.
    * @param \Drupal\Core\Field\FieldItemListInterface $items
    *   The Drupal\Core\Field\FieldItemListInterface items.
@@ -30,7 +30,7 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
   /**
    * Modifies the field formatter minimal settings inherited by child elements.
    *
-   * @param array $settings
+   * @param array<string, mixed> $settings
    *   The array containing: grid settings, in the least.
    * @param \Drupal\Core\Field\FieldItemListInterface $items
    *   The Drupal\Core\Field\FieldItemListInterface items.

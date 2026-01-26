@@ -191,6 +191,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    * Merges the settings.
    */
   public function mergedViewsSettings(array $data = [], $entity = NULL) {
+    /** @var array<string, mixed> $settings */
     $settings = BlazyDefault::entitySettings();
     $config   = [];
     $view     = $this->view;
@@ -215,8 +216,11 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
       ],
     ];
 
+    /** @var array<string, mixed> $settings */
     $settings = BlazyViews::settings($view, $settings, $info);
-    $blazies  = $settings['blazies'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
 
     $blazies->set('item.id', static::$itemId)
       ->set('item.prefix', static::$itemPrefix)
@@ -251,9 +255,14 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
    * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().
    */
   public function getScopedFormElements() {
-    $scopes   = $this->getPluginScopes();
-    $scopes  += Blazy::init();
-    $blazies  = $scopes['blazies'];
+    /** @var array<string, mixed> $scopes */
+    $scopes = $this->getPluginScopes();
+    $scopes += Blazy::init();
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $scopes['blazies'];
+
+    /** @var array<string, mixed> $settings */
     $settings = $this->options;
 
     // Mimick field formatters for consistency.

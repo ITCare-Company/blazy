@@ -3,7 +3,6 @@
 namespace Drupal\blazy\Hook;
 
 use Drupal\blazy\BlazyDefault;
-use Drupal\blazy\internals\Internals;
 
 /**
  * Hook implementations for library.
@@ -63,18 +62,16 @@ class LibraryHooks {
     }
 
     if ($extension === 'blazy') {
-      if ($manager = Internals::service('blazy.manager')) {
-        $names = ['DOMPurify', 'dompurify'];
-        if ($path = $manager->getLibrariesPath($names)) {
-          $js = [
-            '/' . $path . '/dist/purify.min.js' => [
-              'minified' => TRUE,
-              'weight' => -16,
-            ],
-          ];
-          $libraries['dompurify']['js'] = $js;
-          $libraries['dblazy']['dependencies'][] = 'blazy/dompurify';
-        }
+      $names = ['DOMPurify', 'dompurify'];
+      if ($path = \blazy()->getLibrariesPath($names)) {
+        $js = [
+          '/' . $path . '/dist/purify.min.js' => [
+            'minified' => TRUE,
+            'weight' => -16,
+          ],
+        ];
+        $libraries['dompurify']['js'] = $js;
+        $libraries['dblazy']['dependencies'][] = 'blazy/dompurify';
       }
 
       // Add blazy/bio.ajax only if both core drupal.ajax and blazy exist.

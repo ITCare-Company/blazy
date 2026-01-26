@@ -50,6 +50,12 @@ class Multimedia extends Settings {
   /**
    * Disables linkable Pinterest, Twitter, etc.
    *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
+   *
+   * @return bool
+   *   Whether the media content can be linked.
+   *
    * @todo refine or excludes other providers that should not be linked.
    */
   public static function linkable($blazies): bool {
@@ -64,6 +70,14 @@ class Multimedia extends Settings {
   /**
    * Provider sometimes NULL when called by sub-modules, not Blazy.
    *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
+   * @param string|null $provider
+   *   The provider name.
+   *
+   * @return string|null
+   *   The provider name or NULL.
+   *
    * @fixme somewhere else.
    */
   public static function provider($blazies, $provider = NULL): ?string {
@@ -75,13 +89,27 @@ class Multimedia extends Settings {
 
   /**
    * Alias for Youtube::fromEmbed().
+   *
+   * @param string|null $input
+   *   The input URL.
+   * @param bool $privacy
+   *   Whether to enforce privacy.
+   *
+   * @return string|null
+   *   The youtube URL.
    */
-  public static function youtube($input, $privacy = FALSE): ?string {
+  public static function youtube($input, bool $privacy = FALSE): ?string {
     return Youtube::fromEmbed($input, $privacy);
   }
 
   /**
    * Checks if it is a video.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
+   *
+   * @return bool
+   *   Whether the media is video or not.
    */
   public static function isVideo($blazies): bool {
     if ($blazies->get('media.input_url')) {
@@ -93,8 +121,18 @@ class Multimedia extends Settings {
 
   /**
    * Modifies settings to support iframes.
+   *
+   * @param \Drupal\blazy\BlazySettings $blazies
+   *   The blazies instance.
+   * @param string|null $src
+   *   The input URL.
+   * @param bool $sanitized
+   *   Whether to sanitized.
+   *
+   * @return \Drupal\blazy\BlazySettings
+   *   The BlazySettings object.
    */
-  public static function toPlayable($blazies, $src = NULL, $sanitized = FALSE): BlazySettings {
+  public static function toPlayable($blazies, $src = NULL, bool $sanitized = FALSE): BlazySettings {
     if ($src) {
       if (!$sanitized) {
         $src = Sanitize::url($src);

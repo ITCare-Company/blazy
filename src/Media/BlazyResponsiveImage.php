@@ -42,6 +42,7 @@ class BlazyResponsiveImage {
    * Do not let SVG alike mess up with ResponsiveImage, else fatal.
    */
   public static function transformed(array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
     $unstyled = $blazies->is('unstyled');
 
@@ -71,6 +72,7 @@ class BlazyResponsiveImage {
    * and Picture are checked with its multiple dimensions aka art direction.
    */
   public static function background(array &$attributes, array &$settings): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
     $resimage   = $blazies->get('resimage.style');
     $background = $blazies->use('bg');
@@ -134,6 +136,7 @@ class BlazyResponsiveImage {
     $resimage = NULL,
     $initial = FALSE,
   ): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
     $dimensions = $blazies->get('resimage.dimensions', []);
     $resimage   = $resimage ?: $blazies->get('resimage.style');
@@ -199,10 +202,7 @@ class BlazyResponsiveImage {
 
     if (!isset(self::$styles[$id])) {
       $cache_tags = $resimage->getCacheTags();
-      $image_styles = [];
-      if ($manager = Internals::service('blazy.manager')) {
-        $image_styles = $manager->loadMultiple('image_style', $resimage->getImageStyleIds());
-      }
+      $image_styles = \blazy()->loadMultiple('image_style', $resimage->getImageStyleIds());
 
       foreach ($image_styles as $image_style) {
         $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
@@ -229,6 +229,7 @@ class BlazyResponsiveImage {
    * to reduce complication at Blazy UI, and here.
    */
   public static function fallback(array &$settings, $placeholder): void {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
     $id       = '_empty image_';
     $width    = $height = 1;
@@ -256,28 +257,27 @@ class BlazyResponsiveImage {
       }
       else {
         $id = $fallback;
-        if ($blazy = Internals::service('blazy.manager')) {
-          $uri = $blazies->get('image.uri');
 
-          // @todo use dimensions based on the chosen fallback.
-          if ($uri && $style = $blazy->load($id, 'image_style')) {
-            $data_src = BlazyImage::toUrl($settings, $style, $uri);
-            $tn_uri = $style->buildUri($uri);
+        $uri = $blazies->get('image.uri');
 
-            [
-              'width'  => $width,
-              'height' => $height,
-              'ratio'  => $ratio,
-            ] = BlazyImage::transformDimensions($style, $blazies, $tn_uri);
+        // @todo use dimensions based on the chosen fallback.
+        if ($uri && $style = \blazy()->load($id, 'image_style')) {
+          $data_src = BlazyImage::toUrl($settings, $style, $uri);
+          $tn_uri = $style->buildUri($uri);
 
-            $blazies->set('resimage.fallback.style', $style);
-            $blazies->set('resimage.fallback.uri', $tn_uri);
+          [
+            'width'  => $width,
+            'height' => $height,
+            'ratio'  => $ratio,
+          ] = BlazyImage::transformDimensions($style, $blazies, $tn_uri);
 
-            // Prevents double downloadings.
-            $placeholder = Placeholder::generate($width, $height);
-            if (empty($settings['thumbnail_style'])) {
-              $settings['thumbnail_style'] = $id;
-            }
+          $blazies->set('resimage.fallback.style', $style);
+          $blazies->set('resimage.fallback.uri', $tn_uri);
+
+          // Prevents double downloadings.
+          $placeholder = Placeholder::generate($width, $height);
+          if (empty($settings['thumbnail_style'])) {
+            $settings['thumbnail_style'] = $id;
           }
         }
       }
@@ -310,6 +310,7 @@ class BlazyResponsiveImage {
    * @requires `unstyled` defined
    */
   public static function toStyle(array $settings, $unstyled = FALSE): ?object {
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies  = $settings['blazies'];
     $exist    = $blazies->is('resimage');
     $_style   = $settings['responsive_image_style'] ?? NULL;
@@ -319,10 +320,8 @@ class BlazyResponsiveImage {
 
     // Multiple is a flag for various styles: Blazy Filter, GridStack, etc.
     // While fields can only have one image style per field.
-    if ($valid && $manager = Internals::service('blazy.manager')) {
-      if (!$unstyled && (!$style || $multiple)) {
-        $style = $manager->load($_style, 'responsive_image_style');
-      }
+    if ($valid && !$unstyled && (!$style || $multiple)) {
+      $style = \blazy()->load($_style, 'responsive_image_style');
     }
 
     return $style;
@@ -349,6 +348,7 @@ class BlazyResponsiveImage {
       return [];
     }
 
+    /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
     if ($sources = $blazies->get('resimage.sources', [])) {
       return $sources;

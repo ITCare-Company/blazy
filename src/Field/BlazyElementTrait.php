@@ -51,13 +51,16 @@ trait BlazyElementTrait {
    * @todo move it into ::getBlazy() for more available data, like title, etc.
    */
   protected function viewSvg(array &$element): void {
+    /** @var array<string, mixed> $settings */
     $settings = $this->formatter->toHashtag($element);
     $item     = $this->formatter->toHashtag($element, 'item', NULL);
-    $blazies  = $settings['blazies'];
-    $inline   = $settings['svg_inline'] ?? FALSE;
-    $bg       = $settings['background'] ?? FALSE;
-    $exist    = Blazy::svgSanitizerExists();
-    $valid    = $inline && $exist && !$bg;
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
+    $inline  = $settings['svg_inline'] ?? FALSE;
+    $bg      = $settings['background'] ?? FALSE;
+    $exist   = Blazy::svgSanitizerExists();
+    $valid   = $inline && $exist && !$bg;
 
     if ($valid && $uri = $blazies->get('image.uri')) {
       $options = BlazyDefault::toSvgOptions($settings);

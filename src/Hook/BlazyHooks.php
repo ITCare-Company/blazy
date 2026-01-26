@@ -24,8 +24,11 @@ class BlazyHooks {
    * caused 2.16 chaotic markups with Views embedded blazy formatters.
    */
   public static function blazySettingsAlter(array &$build, $object): void {
+    /** @var array<string, mixed> $settings */
     $settings = &$build['#settings'];
-    $blazies  = $settings['blazies'];
+
+    /** @var \Drupal\blazy\BlazySettings $blazies */
+    $blazies = $settings['blazies'];
 
     // Adds bio.ajax to fix product variation AJAX within BigPipe.
     // Views AJAX will automatically work, however to support other non-views
