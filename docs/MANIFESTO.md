@@ -6,47 +6,107 @@
 Blazy is intentionally opinionated by design.
 
 This is not accidental, and not a limitation — it is a requirement for building
-performant media delivery at scale.
+performant **media delivery** at scale. However, as just one inhabitant of the
+page, Blazy is not aware of the **entire page ecosystem’s performance**.
+Understanding this limited scope helps set clear expectations for what Blazy
+can and cannot do.
 
 ---
 
-### 1. Blazy Is Not a Feature Module
+### 1. Blazy & Native Lazy-Loading
 
 Blazy is not “just lazy-loading”.
 
-Lazy-loading is a [**primitive**](#why-cwv).
-Blazy is a [**coordination layer**](#resource-manager).
+JavaScript-based lazy-loading was originally introduced as a
+[**primitive**](#why-cwv) for backward and forward compatibility, and was later
+superseded in part by native lazy-loading.
 
-Native lazy-loading is necessary — but not sufficient.
+Native lazy-loading is **necessary** — but it is also **scoped by design**.
 
-Blazy exists to solve the **coordination problem** between [layout](#layouts),
-[media](#media-architecture), [JavaScript](#javascript), and
-[rendering order](#cls) interact under [real content](#content-architecture),
-[real ditors](/filter/tips), and [real production constraints](#optimization)
-— the exact areas where CWV regressions usually occur.
+Blazy operates as a [**coordination layer**](#resource-manager).
 
-If your site only renders static images in isolation, Blazy may indeed feel
-unnecessary. That is not its target environment.
+It adopted native lazy-loading early, integrates it deliberately, and constrains
+it where unconstrained usage would harm **Core Web Vitals** (such as LCP or
+CLS), using [**selective enhancement**](#architecture).
 
 ---
 
-### 2. Native Features Are Embraced, Not Threatening
+#### Blazy Is Not a Feature Module
 
-Native lazy-loading is a good thing.
+Blazy exists to solve the **coordination problem** between
+[layout](#layouts),
+[media](#media-architecture),
+[JavaScript](#javascript),
+and [rendering order](#cls) as they interact under
+[real content](#content-architecture),
+[real editors](/filter/tips),
+and [real production constraints](#optimization)
+— the exact areas where CWV regressions most often occur.
 
-Blazy adopted it early, integrates it deliberately, and constrains it where it
-would harm CWV metrics such as LCP or CLS using
-[**selective enhancement**](#architecture).
+If a site renders only static images in isolation, Blazy may indeed feel
+unnecessary.
+That is not its target environment.
+
+---
+
+#### Native Feature Is Embraced, Not Threatening
 
 Native features solve *specific problems*.
+
 Blazy exists because **frontend systems rarely fail in isolation**.
 
 Blazy does not compete with native behavior.
-It **embraces** and **orchestrates** it early since incubation.
+It **embraces**, **orchestrates**, and builds upon it, including native
+lazy-loading, since its early incubation.
 
 ---
 
-### 3. Performance Is a Structural Problem
+#### Blazy Existence & Scope
+
+Blazy exists to align with how **Core Web Vitals** are actually measured and how
+browsers behave in real-world conditions — not just for images, but across media
+types and rendering strategies.
+
+It coordinates adaptive priority, decoding and loading strategies, selective
+preloading, AMP and sandboxed modes, backward compatibility,
+[LCP element coordination](#heroes), and a **CLS-zero** strategy via
+[Blazy Layout](#layouts).
+
+Native lazy-loading in core intentionally covers a
+**narrow, declarative subset** of use cases, primarily `IMG` and `IFRAME`. As of
+this writing, it does not extend to `VIDEO`, `AUDIO`, or third-party `HTML`
+embeds, nor does it manage script weight, media player initialization, or layout
+reservation.
+
+**Blazy addresses these adjacent concerns by:**
+- unifying lazy-loading across media types,
+- deferring or replacing heavyweight iframes with lighter media switchers
+  (players, posters, lightbox integrations, links to content or by Link field),
+- blocking third-party scripts until user intent is explicit.
+
+These tradeoffs — media substitution, script suppression, layout stability,
+and LCP protection — are intentionally outside the scope of native lazy-loading,
+which is **non-opinionated by design**.
+
+For clarity: native lazy-loading is not insufficient; it is
+**intentionally scoped**.
+Blazy exists for the concerns it does not attempt to solve.
+
+---
+
+#### On Blazy Removal
+
+Blazy is not mandatory.
+
+If a completed and maintained alternative reaches feature parity and replaces
+its current scope — whether in Slick or elsewhere — Blazy can be removed.
+
+Until such an implementation exists, Blazy remains the maintained solution for
+these concerns.
+
+---
+
+### 2. Performance Is a Structural Problem
 
 Most performance regressions are not bugs.
 They are emergent behavior from **unconstrained configuration**.
@@ -61,6 +121,17 @@ Common causes include:
 - Failing to defer IFRAME and HTML third-party contents
 - “It worked on my machine”
 
+Performance is structural, not cosmetic.
+
+Blazy approaches performance as a **structural problem**:
+- Layout defines performance
+- Dimensions define stability
+- Priority defines loading order
+- Constraints define predictability
+
+Optimizing after the fact is fragile.
+Blazy instead **prevents entire classes of performance regressions by design**.
+
 Blazy encodes [**performance constraints**](#optimization) directly into its
 architecture to prevent these failures before they occur.
 
@@ -68,7 +139,7 @@ Blazy encodes guardrails because documentation alone does not stop regressions.
 
 ---
 
-### 4. Layout Is Performance Policy
+### 3. Layout Is Performance Policy
 
 Blazy treats layout as a first-class performance concern.
 
@@ -80,14 +151,21 @@ Layout decisions directly affect:
 - JavaScript execution
 
 [**Blazy Layout**](#layouts) exists to make these tradeoffs explicit and
-controllable.
+controllable:
+- Prevent layout instability
+- Provide predictable rendering
+- Enable grid-aware media handling
+- Integrate with CWV-safe constraints
+
+**Blazy Layout** is not decoration.
+It is intentionally opinionated.
 
 If layout feels “philosophically unrelated” to lazy-loading,
 that usually means the performance cost has not been measured yet.
 
 ---
 
-### 5. Configuration Is Not Neutral
+### 4. Configuration Is Not Neutral
 
 Every option has consequences.
 
@@ -95,14 +173,23 @@ Blazy makes those consequences explicit through:
 - Scoped configuration
 - Contextual warnings
 - Limited “power” features
+- Documented unsafe configurations
+- Scoped and restricted inline CSS
+- Global overrides are discouraged
+- Unsupported “Vanilla” modes by design
 - Documentation that explains *why*, not just *how*
+
+Configuration is power — and responsibility.
+Blazy exposes configuration because real sites are complex.
+Blazy will not silently sabotage performance.
+If performance degrades, the system explains why.
 
 This may feel restrictive to some users.
 It is protective for production systems.
 
 ---
 
-### 6. Defaults Favor Stability Over Surprise
+### 5. Defaults Favor Stability Over Surprise
 
 Blazy’s defaults are conservative on purpose:
 
@@ -120,7 +207,7 @@ This is intentional.
 
 ---
 
-### 7. Opinionated Does Not Mean Inflexible
+### 6. Opinionated Does Not Mean Inflexible
 
 Blazy allows you to:
 - Bypass processing
@@ -134,7 +221,7 @@ Blazy will not silently sacrifice performance for convenience.
 
 ---
 
-### 8. Complexity Is Not an Accident
+### 7. Complexity Is Not an Accident
 
 Blazy supports:
 - Sliders
@@ -154,7 +241,43 @@ Blazy documents that complexity instead of hiding it.
 
 ---
 
-### 9. This System Was Built Under Constraints
+### 8. JavaScript Is a Cost, Not a Feature
+
+Sliders and lightboxes are inherently expensive — large images, third-party
+videos, library sizes and so on.
+
+Blazy does not pretend otherwise.
+
+Instead, it provides:
+
+- Deferred loading
+- Visibility constraints
+- Native Grid alternatives
+- On-demand loading
+- Explicit warnings when complexity increases
+
+When JavaScript is required, it is introduced **intentionally** in granular
+delivery and intelligent exclusion.
+
+---
+
+### 9. LCP Is Treated as a Singular Event
+
+Largest Contentful Paint is not a toggle.
+It is a **decision**.
+
+Blazy:
+
+- Treats [hero media](#heroes) as a first-class concept
+- Limits `slider` and `unlazy` loading to prevent abuse
+- Ties preload behavior to late-discovered critical assets
+- Discourages multiple competing “heroes”
+
+This aligns with browser heuristics, not design trends.
+
+---
+
+### 10. This System Was Built Under Constraints
 
 Blazy evolved under real client pressure:
 - Short timelines
@@ -169,7 +292,7 @@ measurement, and correction — often informed by patches and data from others.
 
 ---
 
-### 10. Benchmarks Matter More Than Opinions
+### 11. Benchmarks Matter More Than Opinions
 
 Blazy’s architecture is shaped by measurement, not preference.
 
@@ -186,7 +309,7 @@ including Splide|Slick-based solutions.
 Productive performance discussions require shared grounding in technical
 context, reproducible methodology, and clearly defined constraints.
 
-Minimum requirements:
+**Minimum requirements:**
 
 - **Objective Benchmarking:**
 
@@ -217,7 +340,7 @@ They are treated accordingly.
 
 ---
 
-### 11. On Criticism
+### 12. On Criticism
 
 Constructive feedback is welcome.
 Evidence-backed reports are appreciated.
@@ -226,23 +349,97 @@ Successful contributions and data-driven disagreements are given
 [due credit](https://www.drupal.org/node/2663268/committers) with sincere
 gratitude.
 
-**Unsubstantiated claims**, **subjective critiques** and **legacy anecdotes**
+**Unsubstantiated claims**, **subjective critiques**, and **legacy anecdotes**
 without configuration, output, metrics, or reproduction steps do not improve the
-project. They are unexpected noise. When reaching over 120 dBA
-(*the threshold of professional pain*), they cease to be collaborative
-feedback and become static that must be filtered. Silence in such cases should
-be understood as a boundary, not a dismissal.
-
-> *“Blazy is too complex.”*
-
-Blazy addresses [layout stability](#layouts), [media discovery](#optimization), [JavaScript cost](#javascript), and [CWV constraints](#why-cwv) simultaneously.
-
-Performance at scale is inherently complex.
-Blazy documents that complexity instead of hiding it.
-
-If a simpler configuration works for your use case, Blazy supports that as well.
+project. They introduce unactionable signal. When repetition reaches an
+unproductive threshold (*analogous to sustained overload*), it ceases to be
+collaborative feedback and becomes static that must be filtered.
+Silence in such repeated cases should be understood as a boundary on engagement,
+not a dismissal of contributors.
 
 ---
+
+#### 12.a. On Perceived Scope and Complexity
+
+> *“Blazy is a big mess, bloated, and extremely complex.”*
+
+This perception is understandable when Blazy is evaluated outside its intended
+scope. We also recognize that handling this level of complexity is constrained
+by time, available resources, and the limits of our collective knowledge.
+
+Blazy is not designed as a single-purpose feature or a minimal helper. It exists
+to address **coordination problems** across layout, media, JavaScript execution,
+and rendering order under real-world content and production constraints. That
+coordination introduces structure and configuration that may appear complex when
+viewed in isolation.
+
+---
+
+> *“Blazy is a big mess”*
+
+Blazy addresses [layout stability](#layouts),
+[media discovery](#optimization),
+[JavaScript cost](#javascript),
+and [Core Web Vitals constraints](#why-cwv) simultaneously.
+
+Performance at scale is inherently complex.
+Blazy documents that complexity rather than hiding it.
+
+If a simpler configuration is sufficient for a given use case, Blazy supports
+that as well.
+
+---
+
+> *“Blazy is bloated”*
+
+What may be perceived as “bloat” is primarily the result of:
+- supporting multiple media types (images, video, audio, third-party embeds),
+- maintaining backward and forward compatibility,
+- protecting **Core Web Vitals** such as CLS and LCP across diverse
+  environments,
+- making tradeoffs explicit rather than implicit.
+
+Blazy does not aim to be minimal for all use cases.
+If a site requires only basic image lazy-loading, simpler solutions may be more
+appropriate.
+
+---
+
+> *“Blazy is extremely complex”*
+
+The complexity in Blazy is intentional and reflects the complexity of the
+problems it addresses.
+
+Different tools serve different scopes. Blazy operates where performance issues
+emerge from interactions between systems rather than isolated features.
+
+Diverse perspectives are valid, and choosing not to use Blazy is a reasonable
+decision when its scope does not match a project’s needs.
+
+---
+> *“Blazy is over-engineered.”*
+
+Every guardrail in Blazy exists because a real site failed without it.
+
+Performance issues rarely appear in demos.
+They appear in production, under load, with real content and editors.
+
+---
+
+> *“Other modules don’t require this.”*
+
+Some modules optimize for convenience or KISS principle, others stability.
+
+Blazy optimizes for:
+- Predictable rendering
+- CWV safety
+- Production resilience
+
+Different tools serve different priorities. We value diverse perspectives.
+
+---
+
+#### 12.b. On Perceived Failures and Expectation Mismatch
 
 > *“This should work automatically.”*
 
@@ -277,28 +474,6 @@ Without evidence and reproducible steps, the cause cannot be evaluated.
 
 ---
 
-> *“Other modules don’t require this.”*
-
-Some modules optimize for convenience, others stability.
-
-Blazy optimizes for:
-- Predictable rendering
-- CWV safety
-- Production resilience
-
-Different tools serve different priorities. We value diverse perspectives.
-
----
-
-> *“This is over-engineered.”*
-
-Every guardrail in Blazy exists because a real site failed without it.
-
-Performance issues rarely appear in demos.
-They appear in production, under load, with real content and editors.
-
----
-
 > *“Blazy caused my CWV regression.”*
 
 Blazy does not alter browser metrics arbitrarily.
@@ -320,33 +495,42 @@ Lazy-loading everything is a known anti-pattern for LCP and CLS.
 
 Blazy treats lazy loading as a tool — not a default — and limits its use
 where it would harm performance. It has been [carefully thought](#architecture)
-years before modern metrics like **Core Web Vitals** arrives. We are not
-"four-chin tellers", we understand the pattern.
+years before modern metrics like **Core Web Vitals** arrives.
 
 ---
+
+#### 12.c. On Quality and Ongoing Maintenance
 
 > *“Blazy is not perfect! It has many mistakes.”*
 
 Absolutely.
 
-When starting a new project, we expect contributors to correct our mistakes.
+When starting or maintaining a project, we expect contributors to help identify
+and correct mistakes.
 
-Please use the provided project issues, you will be very much appreciated for
-revealing the mistakes or bugs under [contribution guildelines](#contribution).
-Many contributors have recieved
-[due credit](https://www.drupal.org/node/2663268/committers) for guiding us.
+Please use the project issue queue; you are very much appreciated for revealing
+mistakes or bugs under the [contribution guidelines](#contribution).
+Many contributors have received
+[due credit](https://www.drupal.org/node/2663268/committers) for guiding and
+improving the project.
 
 ---
 
 ### A Friendly Closing Note
 
-Blazy is opinionated because performance is fragile.
+Blazy is opinionated because performance is delicate, and small decisions
+matter.
 
-It exists to make good outcomes repeatable,
+Blazy does not promise perfect Lighthouse scores, nor does it attempt to control
+or measure the performance of an entire page. Lighthouse reflects whole-page
+behavior; Blazy is a **media-level solution**, addressing only media delivery
+and media-induced layout shifts as one part of a larger page ecosystem.
+
+Blazy exists to make good outcomes repeatable,
 bad outcomes harder to achieve,
-and tradeoffs visible, not hidden.
+and tradeoffs visible—not hidden.
 
-The goal is not to restrict users —
+The goal is not restriction—
 the goal is to **make good performance the natural outcome**.
 
 ---

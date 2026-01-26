@@ -173,6 +173,10 @@ integrity.
     cockpit for precision tuning.
 
 ---
+> **Blazy does not optimize media performance by magic.  
+> It prevents media performance failure by design.**
+---
+
 ## <a name="cls"> </a>The Big Picture: CLS Prevention
 
 While **Blazy** is optimized to eliminate shifts for media, it is only one
