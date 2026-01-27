@@ -48,6 +48,14 @@ class BlazyLayout extends BlazyLayoutForm {
 
   /**
    * Interpolate data from Layout Builder to extract grid attributes.
+   *
+   * @param array<string, mixed> $settings
+   *   The settings being modified.
+   * @param array<string, mixed> $build
+   *   The build being passed.
+   *
+   * @return array
+   *   The $build element with modified attributes.
    */
   private function interpolate(array &$settings, array $build): array {
     $sets = $settings;

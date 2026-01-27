@@ -1,5 +1,18 @@
+## <a name="top"> </a>TABLE OF CONTENTS
 
-# BLAZY LAYOUT: THE ARCHITECT’S CHOICE
+ * [Introduction](#introduction)
+ * [Requirements](#requirements)
+ * [Installation](#installation)
+ * [Configuration](#configuration)
+   * [Mastering the Dynamic Layout](#mastering-layout)
+   * [Media Background](#media-background)
+   * [Semantic Layout](#semantic-layout)
+ * [Known Issues/Limitations](#issues)
+ * [Maintainers](#maintainers)
+
+
+---
+## <a name="introduction"> </a>BLAZY LAYOUT: THE ARCHITECT’S CHOICE
 
 **Blazy Layout** provides a single layout template with dynamic regions for
 **Layout Builder** (LB). This isn't just another layout handler; it is a
@@ -14,35 +27,40 @@ infinite expression.
 > In an era of over-engineering, **Blazy Layout** honors the original intent of
 > the web: _clean, fast, and infinitely adaptable_.
 
-## REQUIREMENTS
+---
+## <a name="requirements"> </a>REQUIREMENTS
 * Core Layout Discovery.
 * [Media library form element](https://www.drupal.org/project/media_library_form_element) to have builtin Media library integration
   (Optional).
 
-## INSTALLATION
+---
+## <a name="installation"> </a>INSTALLATION
 * [Installing Drupal Modules](https://drupal.org/node/1897420).
 
-## CONFIGURATION
-* **Integration:**
+---
+## <a name="configuration"> </a>CONFIGURATION
+
+- **Integration:**
 
     Navigate to your **Layout Builder** default configuration
     (`/admin/structure/types/manage/page/display/default/layout`) or any
     administrative variant (`/node/123/layout`).
 
-* **Selection:**
+- **Selection:**
 
     When adding a new section, choose **Blazy dynamic layout**.
 
-* **Adjustment:**
+- **Adjustment:**
 
     Read the provided descriptions and adjust any relevant options accordingly.
 
-### MASTERING THE DYNAMIC LAYOUT
+---
+### <a name="mastering-layout"> </a>MASTERING THE DYNAMIC LAYOUT
 The **dynamic** part refers to **configurable regions**, not the actual
 **layout** itself which is basically just a single **static** template under the
 hood. Within this framework, they are known as **layout variants** similar to
 **separated block layout variants**, and so on; only in the **Blazy Layout**,
-they are **unified and modifiable at the same time**, unlike regular
+they are **unified and modifiable at the same time** without touching it, unlike regular
 **multiple layout templates**.
 
 Whether you require Flexbox, CSS3 Columns, or Native Grid—including their
@@ -52,7 +70,7 @@ CSS footprint and lean markups to produce limitless, high-performance results.
 While Grid impresses a box, and Column a pillar depending on the selected layout
 engine, they refer to a region or sub-section in layout terminology.
 
-* **Layout Definition:**
+- **Layout Definition:**
 
   + Select **Region count** to define the allowed amount of regions.
   + Utilize the three core Grid options to define your region structure.
@@ -60,7 +78,16 @@ engine, they refer to a region or sub-section in layout terminology.
     (two-dimensional), or a stacked mobile-first design, a single baseline
     handles it all.
 
-* **Hero Friendly:**
+- **Semantic Layout:**
+
+    Enable the **Semantic Layout** when a Hero or any section below it contains
+    related lists. Use it only if appropriate:
+
+    * Article summaries or blog post listings
+    * Hero structural info to navigate features or services
+    * [Learn more](#semantic-layout)
+
+- **Hero Friendly:**
 
   Defining a region as a Hero allows you to make **Layout Builder** as the
   primary layout manager beyond regular hard-coded regions and traditional
@@ -77,13 +104,13 @@ engine, they refer to a region or sub-section in layout terminology.
 
      **Benefits:** a single, prominent and optimized Hero without Views overhead
 
-* **Universal Application:**
+- **Universal Application:**
 
   Effortlessly apply CSS backgrounds, solid colors, or transparent washes to the
   entire layout or specific sub-sections to create a striking visual
   foundation.
 
-* **Atmospheric Overlays & Contrast:**
+- **Atmospheric Overlays & Contrast:**
 
   For truly "eye-catching" depth, utilize the **RGBA Overlay** option. This
   allows you to stack semi-transparent color filters over your images, working
@@ -92,7 +119,7 @@ engine, they refer to a region or sub-section in layout terminology.
   controlling the overlay and the text color within a single interface, you
   aren't just building a page—you are composing a masterpiece of readability.
 
-* **Instant Feedback:**
+- **Instant Feedback:**
 
   Design at the speed of thought. A **Live Preview** is integrated directly into
   the configuration UI, providing immediate visual confirmation as you fine-tune
@@ -100,12 +127,12 @@ engine, they refer to a region or sub-section in layout terminology.
   probably background images are added first to the page, otherwise nothing to
   see.
 
-* **Perspective:**
+- **Perspective:**
 
   Engage the **Edge-to-Edge** option to allow your layout to span the full
   horizontal width of the viewport.
 
-* **Composition:**
+- **Composition:**
 
     1. **Overlayed blocks**:
 
@@ -114,6 +141,7 @@ engine, they refer to a region or sub-section in layout terminology.
     2. **CSS backgrounds**:
 
        To impress depth, use the background colors or images:
+
        - Select **Styles > Media** and check **Use CSS background** option.
        - Alternatively, add solid **Styles > Colors** without images.
        - Adjust Text, Heading and Link colors to ensure perfect contrast.
@@ -124,14 +152,16 @@ engine, they refer to a region or sub-section in layout terminology.
        - Alternatively, add multiple columns within 100% or 12 column constraint
          to impress nested grids without additional wrappers.
 
-* **Custom CSS (advanced):**
+- **Custom CSS (advanced):**
 
   The CSS is injected directly into the page `<head>` and applied at
   render time.
+
   + Provide a scoped selector at [Blazy UI](/admin/config/media/blazy)
     after enabling **Allow custom inline CSS for Blazy layout**
   + Avoid targeting global elements (`html`, `body`)
   + External imports and remote URLs are ignored
+  + Direct descendant (`>`) is escaped
   + Leave empty to avoid unnecessary layout instability
 
    Incorrect CSS may break layout rendering or affect unrelated components. This
@@ -140,12 +170,13 @@ engine, they refer to a region or sub-section in layout terminology.
    utility classes (**xxs xs sm md lg xl xxl x2l x3l x4l x5l**) are
    insufficient.
 
-* **The Result:**
+- **The Result:**
 
   Experience the power of a single, refined layout engine that offers
   unlimited possibilities with unparalleled efficiency.
 
-### MEDIA BACKGROUND
+---
+### <a name="media-background"> </a>MEDIA BACKGROUND
 Three ways to add Media (image, local|remote video, audio) as CSS backgrounds:
 
 1. **With builtin Media library (Recommended):**
@@ -232,8 +263,188 @@ Three ways to add Media (image, local|remote video, audio) as CSS backgrounds:
   + select it under **Link** option,
   + choose **Media switcher > Image linked by Link field**.
 
+---
+## <a name="semantic-layout"> </a>SEMANTIC LAYOUT
 
-## KNOWN ISSUES/ LIMITATIONS
+Enabling the **Semantic Layout** option replaces generic `<div>` wrappers with a semantic, structural list (`<ul>`)
+**only where the content is inherently list-like**. This is especially relevant
+for Heroes that include not only a prominent visual, but also structured
+supporting information such as features, highlights, or services. Because the
+layout remains scoped to that section, it does not apply list semantics to the
+entire page. In this context, a Hero is not purely presentational; it can also
+convey structure and meaning.
+
+Using a `<ul>` is generally appropriate when content represents a collection of
+related items (for example, features, services, or summaries). Compared to a
+generic `<div>`, a list element communicates intent and relationships more
+explicitly, benefiting both users and user agents.
+
+### Hero Structural Information
+Supporting attributes or secondary signals that accompany a primary Hero
+message.
+
+A hero may participate in a semantic list **only when it is the lead item of
+that list**—that is, when it represents the first entry in a sequence of
+related information. When the hero serves a distinct narrative, branding, or
+promotional role, it must remain structurally separate.
+
+**Rules of thumb:**
+
+- **Common workflow:**
+
+   * When **Semantic layout** is enabled, the main background region will be
+     placed before the list to maintain the semantic order.
+   * Fill in **0** in **Hero** textfield for builtin Hero Media.
+   * Empty **Hero** textfield if using Blazy or slider Media formatters.
+   * When **Semantic layout** is disabled, **Hero** textfield can be any number
+     when using Native Grid with complex composition. The largest region is the
+     Hero.
+   * When placing a Hero, disable image-based main layout backgrounds to avoid
+     competing large media and to ensure the hero remains the first meaningful
+     list item, rather than being preceded by background media.
+   * A solid-color background may still be applied via **Styles > Colors**
+     option, as it does not participate in media loading or affect semantic
+     order.
+   * Turn on **Remove main Background region** option if not using background
+     color, or background is not utilized, to shave off empty markups.
+   * Refer to [Building Heroes](/admin/help/blazy_ui#heroes).
+
+- **Default:**
+
+    It requires two sections to function.
+
+    * Turn off **Semantic layout**; place the hero in its own section.
+    * Turn on **Semantic layout**; place features listed containing `<ul>` in a
+      separate section below the hero.
+
+- **Allowed:**
+
+    It requires one section to function.
+
+    * Turn on **Semantic layout**.
+    * Include the hero as the first `<li>` *only* when it follows the
+      same informational flow as the list items.
+    * Follow **Common workflow** above.
+
+- **Avoid:**
+
+    Placing the hero inside a list purely for layout or grid convenience.
+
+### Why `<ul>` Can Be Appropriate
+
+- **Semantic Structure**
+
+  A `<ul>` indicates that its children form a group of related items. This
+  structural signal is not conveyed by `<div>`, which is intentionally generic.
+  Applying semantic structure can improve document clarity, particularly in
+  layouts where visual grouping alone may not be sufficient.
+
+- **Accessibility & Navigability**
+
+  Assistive technologies can announce lists, their length, and item positions
+  (for example, “list of 4 items”). This enables more predictable navigation
+  for keyboard and screen-reader users, especially in Hero sections that present
+  multiple actions or highlights.
+
+- **Content Interpretation & SEO**
+
+  Search engines use semantic HTML to better interpret content roles and
+  relationships. While semantic markup alone does not guarantee ranking
+  improvements, it can support clearer content indexing when combined with
+  headings, landmarks, and meaningful text.
+
+- **Resilience Across Render Paths**
+
+  Semantic markup remains meaningful even when styling or scripting is delayed
+  or unavailable, such as during streaming, partial hydration, or progressive
+  rendering. A list retains its structure independent of presentation.
+
+### Relevance to Core Web Vitals (CWV)
+
+Semantic Layout does not directly optimize Core Web Vitals, but it supports
+structural patterns that can make CWV-related work more predictable:
+
+- **CLS (Cumulative Layout Shift)**
+
+  List-based structures encourage consistent item flow and sizing. When list
+  items use stable dimensions or placeholders, layout shifts during hydration
+  or media loading are easier to anticipate and manage.
+
+- **LCP (Largest Contentful Paint)**
+
+  Separating primary Hero content (such as headings or media) from supporting
+  lists can help reduce unnecessary reflows that may delay LCP stabilization.
+
+- **INP (Interaction to Next Paint)**
+
+  Clear, shallow DOM structures can make interaction-related layout behavior
+  easier to reason about and reduce reflow or repaint costs during interactions,
+  particularly when Heroes include interactive elements.
+
+In short, semantic layout does not replace performance optimization, but it can
+reduce the likelihood of structural choices that complicate it.
+
+### When to Use Semantic Layout
+
+Use it when the content represents a **collection of related items**, rather
+than a purely decorative grouping.
+
+**Common examples include:**
+
+- **Navigation Menus**
+
+  Each link functions as a list item (`<li>`), making `<ul>` a natural
+  structural choice.
+
+- **Feature or Service Lists**
+
+  Product highlights, service offerings, or capability summaries.
+
+- **Article or Content Summaries**
+
+  Blog listings, cards, or teaser collections.
+
+- **Hero Structural Information**
+
+  A hero may participate in a semantic list **only when it is the lead item of
+  that list**—that is, when it represents the first entry in a sequence of
+  related information. When the hero serves a distinct narrative, branding, or
+  promotional role, it must remain structurally separate.
+
+### Considerations When Using `<div>` for Structure
+
+- **Generic Semantics**
+
+  `<div>` does not convey meaning beyond grouping. When used exclusively for
+  structural layout, relationships between elements may need to be inferred
+  visually or through additional attributes.
+
+- **Accessibility Considerations**
+
+  A sequence of `<div>` elements does not expose list structure, item count,
+  or grouping semantics to assistive technologies by default, which may affect
+  navigability for some users.
+
+- **Maintenance Over Time**
+
+  As layouts evolve, `<div>`-only structures may require additional ARIA roles
+  or refactoring to clarify intent that semantic elements would otherwise
+  provide.
+
+### Practical Guideline
+
+Use the **most appropriate semantic element for the content being presented**:
+
+- Use `<ul>` when items are meaningfully related.
+- Use `<div>` for styling or layout when no more specific semantic element
+  applies.
+
+Semantic Layout focuses on clarity rather than enforcement: it helps make
+structure explicit, accessibility more natural, and performance considerations
+easier to reason about in progressively rendered pages.
+
+---
+## <a name="issues"> </a>KNOWN ISSUES/ LIMITATIONS
 * This module does not provide a CSS framework integration aka framework
   agnostic. Instead using the existing grid solutions with few tweaks to support
   regular floating elements commonly seen at one-dimensional layouts. However,
@@ -241,11 +452,12 @@ Three ways to add Media (image, local|remote video, audio) as CSS backgrounds:
   options.
 * Background images are not draggable, simply replace and reuse them.
 
-## AUTHOR/MAINTAINER/CREDITS
+---
+## <a name="maintainers"> </a>AUTHOR/MAINTAINER/CREDITS
 * [Gaus Surahman](https://www.drupal.org/user/159062)
 * CHANGELOG.txt for helpful souls with their patches, suggestions and reports.
 
-
+---
 ## READ MORE
 See the project page on drupal.org for more updated info:
 

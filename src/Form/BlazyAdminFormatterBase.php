@@ -144,6 +144,9 @@ abstract class BlazyAdminFormatterBase extends BlazyAdminBase {
 
   /**
    * Exclude the field formatter settings summary as required.
+   *
+   * @param array<string, mixed> $definition
+   *   The definition being modified.
    */
   protected function getExcludedSettingsSummary(array &$definition): void {
     /** @var \Drupal\blazy\BlazySettings $scopes */

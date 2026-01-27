@@ -47,7 +47,6 @@ demands of the modern Hero.
              static Heroes are never fully elaborated until 3.0.17 as a PoC for
              those who have no interests in sliders.
 
-
      - **slider (Dynamic Heroes):**
 
         Designed for multi-value fields using Slick or Splide. This is intended
@@ -58,7 +57,7 @@ demands of the modern Hero.
 2. **Preloading**
 
      Vital for Heroes, especially for "late-discovered" assets like CSS
-     backgrounds that the browser cannot see until the CSS is parsed.
+     backgrounds that the browser cannot see until the CSS or JS is parsed.
 
 3. **Media Switcher**
 
@@ -78,6 +77,14 @@ demands of the modern Hero.
     the Hero container exists in the DOM at the correct proportions before the
     media even begins to download. Be sure to fill in the **Aspect ratio**
     option as required.
+
+5. **Semantic Heroes:**
+
+     [**Blazy Layout**](#layouts) exists to build more complex Hero contents or
+     blocks composition with decent LCP (Heroes) and CLS (layout stability)
+     management. Enabling **Semantic Layout** option tells browsers and
+     assistive technologies (like screen readers) that its contents form a
+     list of related feature or service items; it helps improve SEO.
 
 #### The Hero Logic: Performance by Design
 The following ensures Heroes meet LCP and CLS requirements without manual micro-management:

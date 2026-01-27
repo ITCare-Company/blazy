@@ -136,7 +136,7 @@ and ensures core performance fixes immediately benefit all submodules.
 
 - **Centralized Logic:**
 
-    Primary functions—lightbox embedding, interoperable grids, and LCP-optimized sliders—are managed through a single, optimized source.
+    Primary functions—lightbox embedding, interoperable grids, media player, and LCP-optimized sliders—are managed through a single, optimized source.
 
 - **Interoperability:**
 
@@ -149,6 +149,8 @@ size. While the total potential JS library is **~33kB** (excluding polyfills
 **~4.8kB** and admin **~1.4kB**), the architecture is strictly fragmented.
 By disabling polyfills or opting for native browser capabilities (via
 **No JavaScript** option) on modern sites, significant reductions are achieved.
+Bearing in mind that Native lazyloading only supports `IMG`
+and [defaut](#media-architecture) `IFRAME`.
 
 - **On-Demand Loading:**
 

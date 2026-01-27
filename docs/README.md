@@ -26,12 +26,13 @@
  * [Contribution](#contribution)
  * [Maintainers](#maintainers)
  * [Notable changes](#changes)
+ * [Scope & Responsibilities](#scope-and-responsibilities)
 
 
 ---
 ## <a name="introduction"> </a>OPTIMIZED MEDIA DELIVERY
 
-Blazy is a high-performance media delivery engine engineered to meet the
+Blazy is a high-performance **media delivery** engine engineered to meet the
 rigorous demands of modern **Core Web Vitals**. By intelligently leveraging the **Intersection Observer API**, browser-native lazy loading, or the bLazy
 library, it ensures assets are served only when necessary and in the optimal
 format for the user's device.

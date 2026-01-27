@@ -31,12 +31,19 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
 
     $settings = $form_state->getValue('settings');
     $count = (int) $settings['count'];
+    $hero = (int) $settings['hero'];
+    $semantic_layout = (bool) $settings['semantic_layout'];
+    $remove_bg = (bool) $settings['remove_bg'];
 
-    // Yes, stupid, but satisfying stupidity is harmless.
+    // @todo figure out a better way like blazy.schema than overriding it here.
     if ($count < 1) {
       $count = 1;
     }
+
     $form_state->setValue(['settings', 'count'], $count);
+    $form_state->setValue(['settings', 'hero'], $hero);
+    $form_state->setValue(['settings', 'remove_bg'], $remove_bg);
+    $form_state->setValue(['settings', 'semantic_layout'], $semantic_layout);
 
     if (empty($settings['id'])) {
       $id = Crypt::randomBytesBase64(8);
@@ -130,11 +137,24 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
     $extras      = $entity_form ? $this->getEntityData($entity_form) : [];
     $url         = '/admin/config/media/blazy';
     $help        = '/admin/help/blazy_ui';
+    $bl_help     = '/admin/help/blazy_layout';
 
     if ($this->manager->moduleExists('blazy_ui')) {
       $url = Url::fromUri('internal:/admin/config/media/blazy')->toString();
       $help = Url::fromUri('internal:/admin/help/blazy_ui')->toString();
+      $bl_help = Url::fromUri('internal:/admin/help/blazy_layout')->toString();
     }
+
+    $use_custom_css = $this->manager->config('use_custom_css');
+    $scopes = [
+      'bl_help' => $bl_help,
+      'blazy_help' => $help,
+      'blazy_ui' => $url,
+      'css_scope' => $this->manager->config('css_scope'),
+      'use_custom_css' => $use_custom_css,
+    ];
+
+    $scopes['blazy_help'] = $help;
 
     $form['settings'] = [
       '#type'        => 'details',
@@ -217,26 +237,29 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       }
     }
 
+    $form['settings']['semantic_layout'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Semantic layout'),
+      '#description'   => $this->description($scopes)['semantic_layout'],
+      '#default_value' => $settings['semantic_layout'],
+      '#weight'        => 27,
+    ];
+
+    $form['settings']['remove_bg'] = [
+      '#type'          => 'checkbox',
+      '#title'         => $this->t('Remove main Background region'),
+      '#description'   => $this->description($scopes)['remove_bg'],
+      '#default_value' => $settings['remove_bg'],
+      '#weight'        => 28,
+    ];
+
     $form['settings']['hero'] = [
       '#type'          => 'textfield',
       '#title'         => $this->t('Hero region'),
-      '#description'   => $this->description()['hero'],
+      '#description'   => $this->description($scopes)['hero'],
       '#default_value' => $settings['hero'],
-      '#weight'        => 30,
+      '#weight'        => 29,
     ];
-
-    $this->admin->themeDescription($form['settings']['hero']);
-
-    $use_custom_css = $this->manager->config('use_custom_css');
-    $scopes = [
-      'css_scope' => $this->manager->config('css_scope'),
-    ];
-
-    if (!$use_custom_css) {
-      $scopes['ui_url'] = $url;
-    }
-
-    $scopes['blazy_help'] = $help;
 
     $form['settings']['custom_css'] = [
       '#type'          => 'textarea',
@@ -247,7 +270,9 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
       '#weight'        => 30,
     ];
 
-    $this->admin->themeDescription($form['settings']['custom_css']);
+    foreach (array_keys(Defaults::heroSettings()) as $key) {
+      $this->admin->themeDescription($form['settings'][$key]);
+    }
 
     // AJAX element.
     $form['settings']['count']['#ajax'] = [
@@ -396,7 +421,7 @@ abstract class BlazyLayoutForm extends BlazyLayoutBase {
           $style = '';
         }
       }
-      $form_state->setValue($keys, array_filter($styles));
+      $form_state->setValue($keys, $styles);
     }
   }
 

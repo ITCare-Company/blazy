@@ -27,6 +27,7 @@ function blazy_ui_help($route_name) {
       'ROADMAP',
       'CONTRIBUTION',
       'CHANGES',
+      'SCOPE',
     ];
 
     $output = '';

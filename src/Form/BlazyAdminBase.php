@@ -354,6 +354,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
   /**
    * Provides basic image options.
+   *
+   * @param array<string, mixed> $form
+   *   The form being modified.
+   * @param array<string, mixed> $definition
+   *   The definition being passed.
    */
   protected function baseImageForm(array &$form, array $definition): void {
     $scopes = $this->scopes;
@@ -718,6 +723,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
   /**
    * Provides lightbox options.
+   *
+   * @param array<string, mixed> $form
+   *   The form being modified.
+   * @param array<string, mixed> $definition
+   *   The definition being passed.
+   * @param \Drupal\blazy\BlazySettings $scopes
+   *   The scopes being passed.
    */
   protected function lightboxForm(array &$form, array $definition, $scopes): void {
     $blazies    = $definition['blazies'];
@@ -807,6 +819,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
   /**
    * Provides link options serving plain image, fieldable and views ui.
+   *
+   * @param array<string, mixed> $form
+   *   The form being modified.
+   * @param array<string, mixed> $definition
+   *   The definition being passed.
+   * @param \Drupal\blazy\BlazySettings $scopes
+   *   The scopes being passed.
    */
   protected function linkForm(array &$form, array $definition, $scopes): void {
     $data = $scopes->get('data');
@@ -825,6 +844,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
 
   /**
    * Provides SVG options.
+   *
+   * @param array<string, mixed> $form
+   *   The form being modified.
+   * @param array<string, mixed> $definition
+   *   The definition being passed.
    */
   protected function svgForm(array &$form, array $definition): void {
     foreach (BlazyDefault::svgSettings() as $key => $value) {

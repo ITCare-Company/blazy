@@ -169,6 +169,12 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
 
   /**
    * Returns formatter descriptions.
+   *
+   * @param \Drupal\blazy\BlazySettings $scopes
+   *   The scopes being passed.
+   *
+   * @return array
+   *   The form item descriptions.
    */
   protected function formatterDescriptions($scopes): array {
     $namespace = $scopes->get('namespace', 'blazy');

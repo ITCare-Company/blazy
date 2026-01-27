@@ -38,6 +38,7 @@
   min-height: 0;
 }
 
+.b-layout-wrapper > .region--bg,
 .b-layout .is-b-bg,
 .b-layout .b-link--bg,
 .b-layout .litebox--bg,
@@ -110,6 +111,7 @@
   transform: translateX(-50%);
 }
 
+.b-layout-wrapper--ete > .region--bg,
 .blazy.b-layout--ete > .region--bg {
   left: 50%;
   width: 100vw !important;

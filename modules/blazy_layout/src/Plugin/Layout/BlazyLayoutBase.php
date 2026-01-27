@@ -154,6 +154,13 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
   /**
    * Provides attachments and cache common for all blazy-related modules.
+   *
+   * @param array<string, mixed> $element
+   *   The element being modified.
+   * @param array<string, mixed> $settings
+   *   The settings being passed.
+   * @param array<string, mixed> $attachments
+   *   The attachments being passed.
    */
   protected function attachments(
     array &$element,
@@ -166,11 +173,9 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       $attachments
     );
 
-    if (isset($element['#attached'])) {
-      $element['#attached']['library'][] = 'blazy_layout/layout';
-      if ($this->inPreview) {
-        $element['#attached']['library'][] = 'blazy_layout/admin';
-      }
+    $element['#attached']['library'][] = 'blazy_layout/layout';
+    if ($this->inPreview) {
+      $element['#attached']['library'][] = 'blazy_layout/admin';
     }
   }
 
@@ -259,8 +264,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
       $output['bg']['dummy']['#markup'] = ' ';
     }
 
+    // Modifies blocks.
     $this->blocks($output, $settings);
 
+    // Preload Hero assets.
     if ($entities = $this->entities ?? []) {
       Preloader::prepare($settings, $entities, $entities);
     }
@@ -270,9 +277,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    * Modifies blocks.
    */
   protected function blocks(array &$output, array &$settings): void {
-    $id      = static::$instanceId;
-    $colors  = $settings['styles']['colors'] ?? [];
-    $layouts = $settings['styles']['layouts'] ?? [];
+    $id       = static::$instanceId;
+    $colors   = $settings['styles']['colors'] ?? [];
+    $layouts  = $settings['styles']['layouts'] ?? [];
+    $semantic = !empty($settings['semantic_layout']);
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -377,7 +385,12 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
           }
         }
 
-        $options = ['empty' => $empty, 'block_bg' => $block_bg];
+        $options = [
+          'empty' => $empty,
+          'block_bg' => $block_bg,
+          'semantic' => $semantic,
+
+        ];
         $this->texts($name, $colorsets, 'text', $options);
         $this->texts($name, $colorsets, 'heading', $options);
         $this->links($name, $colorsets, $options);
@@ -473,8 +486,13 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
 
     // Put this in the head to avoid ugly inline element styles.
     if ($rules = static::$styles[$id] ?? []) {
-      $custom_css = $settings['custom_css'] ?? '';
-      $css = $this->manager->toRules($rules, $id, $custom_css);
+      $options = [
+        'id' => $id,
+        'custom_css' => $settings['custom_css'] ?? '',
+        'semantic_layout' => !empty($settings['semantic_layout']),
+      ];
+
+      $css = $this->manager->toRules($rules, $options);
       $css = preg_replace('/\s+/', ' ', $css);
 
       $output['#attached']['html_head'][] = [

@@ -315,29 +315,6 @@ Image styles and video dimensions must match the ratio, or distortion will occur
   }
 
   /**
-   * Returns formatter base descriptions.
-   */
-  protected function resimageDescriptions(): string {
-    $scopes = $this->scopes;
-    if (!$scopes->is('responsive_image')) {
-      return '';
-    }
-    $url = Url::fromRoute('entity.responsive_image_style.collection')->toString();
-    $description = $this->t(
-      'Responsive image style for the main stage image is more reasonable for large images. Works with multi-serving IMG, PICTURE element, or CSS background to have multi-breakpoint backgrounds. Leave empty to disable. <a href=":url" target="_blank">Manage responsive image styles</a>.',
-      [
-        ':url' => $url,
-      ]
-    );
-    if ($this->blazyManager->moduleExists('blazy_ui')) {
-      $description .= ' ' . $this->t('<a href=":url2">Enable lazyloading Responsive image</a>.', [
-        ':url2' => Url::fromRoute('blazy.settings')->toString(),
-      ]);
-    }
-    return $description;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function svgDescriptions(): array {
@@ -400,7 +377,36 @@ Requires <a href=":url2">SVG Sanitizer</a>.',
   }
 
   /**
+   * Returns formatter base descriptions.
+   *
+   * @return string
+   *   The form item description.
+   */
+  protected function resimageDescriptions(): string {
+    $scopes = $this->scopes;
+    if (!$scopes->is('responsive_image')) {
+      return '';
+    }
+    $url = Url::fromRoute('entity.responsive_image_style.collection')->toString();
+    $description = $this->t(
+      'Responsive image style for the main stage image is more reasonable for large images. Works with multi-serving IMG, PICTURE element, or CSS background to have multi-breakpoint backgrounds. Leave empty to disable. <a href=":url" target="_blank">Manage responsive image styles</a>.',
+      [
+        ':url' => $url,
+      ]
+    );
+    if ($this->blazyManager->moduleExists('blazy_ui')) {
+      $description .= ' ' . $this->t('<a href=":url2">Enable lazyloading Responsive image</a>.', [
+        ':url2' => Url::fromRoute('blazy.settings')->toString(),
+      ]);
+    }
+    return $description;
+  }
+
+  /**
    * Returns background description, due to dups till sub-module updates.
+   *
+   * @return string
+   *   The form item description.
    */
   private function background(): string {
     $lb = $this->isAdminLb();

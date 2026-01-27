@@ -41,6 +41,21 @@ class BlazyLayoutDefault {
   }
 
   /**
+   * Returns the hero settings.
+   *
+   * @return array
+   *   The layout settings.
+   */
+  public static function heroSettings(): array {
+    return [
+      'hero'            => '',
+      'custom_css'      => '',
+      'remove_bg'       => FALSE,
+      'semantic_layout' => FALSE,
+    ];
+  }
+
+  /**
    * Returns the layout settings.
    *
    * @return array
@@ -51,15 +66,13 @@ class BlazyLayoutDefault {
       'id'             => '',
       'regions'        => [],
       'count'          => static::REGION_COUNT,
-      'hero'           => '',
-      'custom_css'     => '',
       'style'          => 'nativegrid',
       'grid'           => '4x4 4x3 2x2 2x4 2x2 2x3 2x3 4x2 4x2',
       'grid_medium'    => '3',
       'grid_small'     => '1',
       'grid_auto_rows' => '',
       'align_items'    => '',
-    ] + self::sharedSettings();
+    ] + self::sharedSettings() + self::heroSettings();
   }
 
   /**

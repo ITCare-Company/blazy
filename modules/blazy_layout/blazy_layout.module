@@ -87,6 +87,10 @@ function blazy_layout_preprocess_layout(array &$variables) {
   }
 
   if ($in_preview) {
+    if ($id = $settings['id'] ?? NULL) {
+      $variables['wrapper_attributes']['data-b-id'] = $id;
+    }
+
     $attributes['class'][] = 'b-layout--preview';
     if (is_array($variables['region_attributes'])) {
       $variables['region_attributes']['bg']['title'] = t('Background');
@@ -95,11 +99,18 @@ function blazy_layout_preprocess_layout(array &$variables) {
   }
 
   if ($background) {
-    $variables['region_attributes']['bg']['data-b-w'] = $style == 'nativegrid' ? 12 : 100;
+    $variables['region_attributes']['bg']['data-b-w'] = $style == 'nativegrid'
+      ? 12
+      : 100;
+
+    if (!empty($settings['remove_bg'])) {
+      $settings['background'] = FALSE;
+    }
   }
 
   // Cleanup unused regions.
   _blazy_layout_cleanup_regions($variables, $count);
+
   // Phpstan requires assurance.
   // @todo recheck $variables = is_array($variables) ? $variables : [];.
   // Create an attributes variable for each region.
@@ -153,6 +164,8 @@ function blazy_layout_preprocess_layout(array &$variables) {
  *   The amount of regions.
  */
 function _blazy_layout_cleanup_regions(array &$variables, int $count) {
+  /** @var array<string, mixed> $settings */
+  $settings = &$variables['settings'];
   $content = &$variables['content'];
   $bg = $content['bg'] ?? [];
 
@@ -164,7 +177,9 @@ function _blazy_layout_cleanup_regions(array &$variables, int $count) {
     }
   }
 
-  $content['bg'] = $bg;
+  if (empty($settings['remove_bg'])) {
+    $content['bg'] = $bg;
+  }
 }
 
 /**

@@ -41,11 +41,17 @@
       var selector = selectors[key];
 
       if (selector) {
-        id = '.blazy.' + id;
-        selector = id + ' ' + selector;
+        if (selector === 'SEMANTIC_BG') {
+          id = id.replace('b-layout--', '');
+          selector = '.b-semantic.b-layout-wrapper--' + id + ' > .region--bg';
+        }
+        else {
+          id = '.blazy.' + id;
+          selector = id + ' ' + selector;
 
-        if ($.contains(selector, ',')) {
-          selector = selector.replaceAll(',', ', ' + id);
+          if ($.contains(selector, ',')) {
+            selector = selector.replaceAll(',', ', ' + id);
+          }
         }
       }
 
@@ -177,7 +183,9 @@
       var rid;
       var formRegion;
       var layout;
+      var wrapper;
       var id;
+      var wid;
 
       updateValue(el);
 
@@ -189,10 +197,11 @@
           return;
         }
 
+        wrapper = layout.parentNode;
         id = layout.id;
         if (formRegion) {
           rid = formRegion.dataset.bRegion;
-          region = $.find(layout, '[data-region="' + rid + '"]');
+          region = $.find(wrapper, '[data-region="' + rid + '"]');
 
           if (region) {
             updateStyle(id, el, region);

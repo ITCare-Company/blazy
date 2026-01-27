@@ -1,4 +1,5 @@
 
+
 Blazy 3.0.x-dev, 2026-01-22
 ---------------------------
 - Refactored hooks for easy D12 update.
