@@ -38,23 +38,27 @@ class BlazyMedia implements BlazyMediaInterface {
   /**
    * The http client service.
    *
-   * @var \GuzzleHttp\Client   */
+   * @var \GuzzleHttp\Client
+   */
   protected $httpClient;
 
   /**
    * The blazy manager service.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface   */
+   * @var \Drupal\blazy\BlazyManagerInterface
+   */
   protected $manager;
 
   /**
    * The iFrame URL helper service.
    *
-   * @var \Drupal\media\IFrameUrlHelper   */
+   * @var \Drupal\media\IFrameUrlHelper
+   */
   protected $iFrameUrlHelper;
 
   /**
-   * Constructs a BlazyFormatter instance.   */
+   * Constructs a BlazyFormatter instance.
+   */
   public function __construct(
     BlazyManagerInterface $manager,
     Client $http_client,
@@ -66,7 +70,8 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('blazy.manager'),
@@ -76,19 +81,22 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function httpClient(): Client {
     return $this->httpClient;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function manager(): BlazyManagerInterface {
     return $this->manager;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function build(array $data): array {
     $manager  = $this->manager;
     $settings = &$data['#settings'];
@@ -121,9 +129,10 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function view(array $build): array {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$build['#settings'];
     $entity   = $build['#media'] ?? $build['#entity'];
     $item     = $build['#item'] ?? NULL;
@@ -172,9 +181,10 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function fromFile(array $data): ?object {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$data['#settings'];
     $file     = $data['#entity'];
 
@@ -198,7 +208,8 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function fromField($entity, $field_name, $value = NULL): ?object {
     $media = NULL;
     if ($value) {
@@ -248,7 +259,8 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getMetadata(MediaInterface $media, $view_mode, $langcode): array {
     // @fixme ambiguous NULL with broken Media, see #3222843.
     $source     = $media->getSource();
@@ -288,7 +300,8 @@ class BlazyMedia implements BlazyMediaInterface {
   /**
    * {@inheritdoc}
    *
-   * @todo recheck other local file-related media sources.   */
+   * @todo recheck other local file-related media sources.
+   */
   public function getSource($file): ?string {
     $mime = $file->getMimeType();
     [$type] = explode('/', $mime, 2);
@@ -306,7 +319,8 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * Modifies item attributes for iframes if any.   */
+   * {@inheritdoc}
+   */
   public function iframeable(array &$item, array &$settings): bool {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies    = $settings['blazies'];
@@ -352,7 +366,8 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function prepare(array &$data): MediaInterface {
     $media     = $data['#media'] ?? $data['#entity'];
     $settings  = &$data['#settings'];
@@ -406,7 +421,8 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function toEmbedUrl($input, $iframe_domain, array $parameters = []): string {
     $query = [
       'url' => $input,
@@ -430,7 +446,8 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * Returns media sources that do not kill the site when disconnected.   */
+   * Returns media sources that do not kill the site when disconnected.
+   */
   private function getSafeSource($source) {
     return in_array($source, [
       'd500px',
@@ -444,7 +461,8 @@ class BlazyMedia implements BlazyMediaInterface {
   /**
    * The media.type is a legacy 1.x with VEF, not official Media property.
    *
-   * Just to simplify usage, or complex application downstream.   */
+   * Just to simplify usage, or complex application downstream.
+   */
   private function getType($source_id): string {
     $images = in_array($source_id, ['image', 'svg']);
     $videos = in_array($source_id, [
@@ -467,7 +485,8 @@ class BlazyMedia implements BlazyMediaInterface {
   /**
    * Disable fancy features with the unknown land.
    *
-   * @todo add an option for thumbnail preview rather than entity view.   */
+   * @todo add an option for thumbnail preview rather than entity view.
+   */
   private function disableFeatures(array &$settings, $rendered = TRUE, $link = NULL): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -484,7 +503,8 @@ class BlazyMedia implements BlazyMediaInterface {
   }
 
   /**
-   * Modifies item attributes for local audio/video item.   */
+   * Modifies item attributes for local audio/video item.
+   */
   private function toLocal(array &$item, array &$settings, $file): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -517,9 +537,10 @@ class BlazyMedia implements BlazyMediaInterface {
    *   The source renderable array to remove field markups from for DOM diet.
    *
    * @return array
-   *   The array of the media item to be wrapped directly by theme_blazy().   */
+   *   The array of the media item to be wrapped directly by theme_blazy().
+   */
   private function unfield(array &$field): array {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$field['#settings'];
 
     /** @var \Drupal\blazy\BlazySettings $blazies */

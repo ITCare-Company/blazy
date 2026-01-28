@@ -32,7 +32,8 @@
    * Blazy media utility functions.
    *
    * @param {HTMLElement} el
-   *   The media player HTML element.   */
+   *   The media player HTML element.
+   */
   function process(el) {
     var $el = $(el);
     var iframe = $el.find(IFRAME);
@@ -243,7 +244,8 @@
    *   video metadata. [data-media] is deprecated for [data-b-media].
    *
    * @return {HTMLElement}
-   *   Returns a HTMLElement object.   */
+   *   Returns a HTMLElement object.
+   */
   Drupal.theme.blazyMedia = function (settings) {
     // PhotoSwipe5 has element, PhotoSwipe4 el, etc.
     var el = settings.el || settings.element;
@@ -337,7 +339,8 @@
   /**
    * Attaches Blazy media behavior to HTML element.
    *
-   * @type {Drupal~behavior}   */
+   * @type {Drupal~behavior}
+   */
   Drupal.behaviors.blazyMedia = {
     attach: function (context) {
       $.once(process, ID_ONCE, S_ELEMENT, context);

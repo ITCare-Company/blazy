@@ -26,7 +26,8 @@ class Youtube {
    *   Whether to prioritize privacy, or default.
    *
    * @return string
-   *   The input url.   */
+   *   The input url.
+   */
   public static function fromEmbed($input, $privacy = FALSE): ?string {
     if ($input) {
       if (strpos($input, 'youtube.com') !== FALSE || strpos($input, 'youtu.be') !== FALSE) {
@@ -55,7 +56,8 @@ class Youtube {
    *   The given url.
    *
    * @return string
-   *   The input url.   */
+   *   The input url.
+   */
   public static function toNoCookieEmbed(string $url): ?string {
     $parts = parse_url(trim($url));
 

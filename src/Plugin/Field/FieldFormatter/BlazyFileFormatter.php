@@ -26,35 +26,42 @@ use Drupal\blazy\BlazyDefault;
 class BlazyFileFormatter extends BlazyFormatterBlazy {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $fieldType = 'entity';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $byDelta = TRUE;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $useOembed = TRUE;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $useSvg = TRUE;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function defaultSettings() {
     return BlazyDefault::svgSettings() + parent::defaultSettings();
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function isApplicable(FieldDefinitionInterface $field_definition) {
     return $field_definition->getFieldStorageDefinition()->getSetting('target_type') === 'file';
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function getPluginScopes(): array {
     return $this->getEntityScopes() + parent::getPluginScopes();
   }

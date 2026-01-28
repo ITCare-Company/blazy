@@ -17,13 +17,15 @@ trait TraitScopes {
   /**
    * The form scopes.
    *
-   * @var array   */
+   * @var array
+   */
   protected $definition = [];
 
   /**
    * The form scopes.
    *
-   * @var \Drupal\blazy\BlazySettings   */
+   * @var \Drupal\blazy\BlazySettings
+   */
   protected $scopes;
 
   /**
@@ -32,11 +34,13 @@ trait TraitScopes {
    * Unlike classes, slick_views, etc. will be under slick namespace with this.
    *
    * @var string
-   * @see https://www.php.net/manual/en/reserved.keywords.php   */
+   * @see https://www.php.net/manual/en/reserved.keywords.php
+   */
   protected static $namespace = 'blazy';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function toScopes(array &$definition): BlazySettings {
     // Looks like unit test failed with manager methods given a Trait.
     $definition += Blazy::init();
@@ -72,12 +76,13 @@ trait TraitScopes {
    *
    * @param \Drupal\blazy\BlazySettings $scopes
    *   The given $scopes.
-   * @param array<string, mixed> $definition
+   * @param array $definition
    *   The definition being modified.
    * @param bool $refresh
    *   Whether refreshed.
    *
-   * @todo remove most after sub-module migrations.   */
+   * @todo remove most after sub-module migrations.
+   */
   protected function checkScopes(&$scopes, array &$definition, $refresh = FALSE): void {
     if ($scopes->was('scoped') && !$refresh) {
       return;
@@ -224,11 +229,12 @@ trait TraitScopes {
   /**
    * Returns the plugin scopes.
    *
-   * @param array<string, mixed> $definition
+   * @param array $definition
    *   The definition being modified.
    *
    * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings.   */
+   *   The BlazySettings.
+   */
   protected function getScopes(array &$definition): BlazySettings {
     return $this->toPluginScopes($definition);
   }

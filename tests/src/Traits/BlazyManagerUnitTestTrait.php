@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\blazy\Traits;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
@@ -10,7 +12,8 @@ use Drupal\Core\DependencyInjection\ContainerBuilder;
 trait BlazyManagerUnitTestTrait {
 
   /**
-   * Setup the unit manager.   */
+   * Setup the unit manager.
+   */
   protected function setUpUnitServices() {
     $this->entityStorage      = $this->createMock('\Drupal\Core\Entity\EntityStorageInterface');
     $this->entityViewBuilder  = $this->createMock('\Drupal\Core\Entity\EntityViewBuilderInterface');
@@ -79,7 +82,8 @@ trait BlazyManagerUnitTestTrait {
   }
 
   /**
-   * Setup the unit manager.   */
+   * Setup the unit manager.
+   */
   protected function setUpUnitContainer() {
     $container = new ContainerBuilder();
     $container->set('entity_field.manager', $this->entityFieldManager);
@@ -97,7 +101,8 @@ trait BlazyManagerUnitTestTrait {
   }
 
   /**
-   * Prepare image styles.   */
+   * Prepare image styles.
+   */
   protected function setUpImageStyle() {
     $styles = [];
 
@@ -140,7 +145,8 @@ trait BlazyManagerUnitTestTrait {
   }
 
   /**
-   * Prepare Responsive image styles.   */
+   * Prepare Responsive image styles.
+   */
   protected function setUpResponsiveImageStyle() {
     $styles = $image_styles = [];
     foreach (['fallback', 'small', 'medium', 'large'] as $style) {

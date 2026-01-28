@@ -22,7 +22,8 @@
   /**
    * Attaches Blazy behavior to HTML element identified by .b-nativegrid.
    *
-   * @type {Drupal~behavior}   */
+   * @type {Drupal~behavior}
+   */
   Drupal.behaviors.blazyNativeGrid = {
     attach: function (context) {
 

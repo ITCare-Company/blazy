@@ -12,9 +12,9 @@ class LayoutHooks {
   /**
    * Implements hook_layout_alter().
    *
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function layoutAlter(array &$definitions) {
-    LayoutHooks::layoutAlter($definitions);
     if ($layout = $definitions['blazy_layout'] ?? NULL) {
       if ($regions = $layout->getRegions()) {
         $count = count($regions);

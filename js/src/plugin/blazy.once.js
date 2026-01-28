@@ -33,7 +33,8 @@
    *   A value to use as `this` when executing cb, default to `undefined`.
    *
    * @return {Array.<Element>}
-   *   An array of elements to process, or empty for old behavior.   */
+   *   An array of elements to process, or empty for old behavior.
+   */
   function onceCompat(cb, id, selector, ctx, scope) {
     var els = [];
 
@@ -82,7 +83,8 @@
    *   The executed function.
    *
    * @return {Object}
-   *   The function result.   */
+   *   The function result.
+   */
   function _once(cb) {
     var result;
     var ran = false;
@@ -188,7 +190,8 @@
   /**
    * Attaches Blazy behavior to nothing for BigPipe compat.
    *
-   * @type {Drupal~behavior}   */
+   * @type {Drupal~behavior}
+   */
   Drupal.behaviors.blazyOnce = {
     attach: function (context) {
 

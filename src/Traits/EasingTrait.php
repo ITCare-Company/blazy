@@ -14,7 +14,8 @@ trait EasingTrait {
   /**
    * The JS easing options.
    *
-   * @var array   */
+   * @var array
+   */
   protected $jsEasingOptions;
 
   /**
@@ -22,7 +23,8 @@ trait EasingTrait {
    *
    * @return array
    *   An array of available jQuery Easing options as fallback for browsers that
-   *   don't support pure CSS easing.   */
+   *   don't support pure CSS easing.
+   */
   protected function getJsEasingOptions() {
     if (!isset($this->jsEasingOptions)) {
       $this->jsEasingOptions = [
@@ -74,7 +76,8 @@ trait EasingTrait {
    *
    * @see https://github.com/kenwheeler/slick/issues/118
    * @see https://matthewlein.com/ceaser/
-   * @see https://www.w3.org/TR/css3-transitions/   */
+   * @see https://www.w3.org/TR/css3-transitions/
+   */
   protected function getCssEasingOptions($map = FALSE) {
     $css_easings = [];
     $available_easings = [
@@ -128,7 +131,8 @@ trait EasingTrait {
    *   The name of the human readable easing.
    *
    * @return string
-   *   A string of unfriendly bezier equivalent, or NULL.   */
+   *   A string of unfriendly bezier equivalent, or NULL.
+   */
   protected function getBezier($easing = NULL) {
     $css_easing = '';
     if ($easing) {

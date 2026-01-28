@@ -24,7 +24,8 @@ class Color extends BaseColor {
    *   Whether to keep hex, else RGB.
    *
    * @return string
-   *   The RGBA if opacity is provided, else RGB or just hex.   */
+   *   The RGBA if opacity is provided, else RGB or just hex.
+   */
   public static function hexToRgba($hex, $opacity = FALSE, $use_hex = TRUE): string {
     $rgb = array_values(self::hexToRgb($hex));
 

@@ -19,41 +19,48 @@ class Config implements ConfigInterface {
   /**
    * The app root.
    *
-   * @var string   */
+   * @var string
+   */
   protected $root;
 
   /**
    * The cache backend.
    *
-   * @var \Drupal\Core\Cache\CacheBackendInterface   */
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
   protected $cache;
 
   /**
    * The config factory.
    *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface   */
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
   protected $configFactory;
 
   /**
    * The module handler service.
    *
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface   */
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
   protected $moduleHandler;
 
   /**
    * The route match service.
    *
-   * @var \Drupal\Core\Routing\RouteMatchInterface   */
+   * @var \Drupal\Core\Routing\RouteMatchInterface
+   */
   protected $routeMatch;
 
   /**
    * The cached data/ options.
    *
-   * @var array   */
+   * @var array
+   */
   protected $cachedData;
 
   /**
-   * Constructs a Libraries manager object.   */
+   * Constructs a Libraries manager object.
+   */
   public function __construct(
     $root,
     CacheBackendInterface $cache,
@@ -69,7 +76,8 @@ class Config implements ConfigInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->getParameter('app.root'),
@@ -81,37 +89,43 @@ class Config implements ConfigInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function cache(): CacheBackendInterface {
     return $this->cache;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function configFactory(): ConfigFactoryInterface {
     return $this->configFactory;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function moduleHandler(): ModuleHandlerInterface {
     return $this->moduleHandler;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function root(): string {
     return $this->root;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function routeMatch(): RouteMatchInterface {
     return $this->routeMatch;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function config($key = NULL, $group = 'blazy.settings') {
     $config  = $this->configFactory->get($group);
     $configs = $config->get();
@@ -120,13 +134,15 @@ class Config implements ConfigInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function configMultiple($group = 'blazy.settings'): array {
     return $this->config(NULL, $group) ?: [];
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getCachedData(
     $cid,
     array $data = [],
@@ -175,7 +191,8 @@ class Config implements ConfigInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getCacheMetadata(array $build): array {
     $settings  = Internals::toHashtag($build) ?: $build;
     $blazies   = Internals::verify($settings);
@@ -203,7 +220,8 @@ class Config implements ConfigInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getIoSettings(array $attach = []): object {
     $io = [];
     $thold = $this->config('io.threshold');
@@ -232,7 +250,8 @@ class Config implements ConfigInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function import(array $options): void {
     $options = $options + ['folder' => 'install'];
 
@@ -253,7 +272,8 @@ class Config implements ConfigInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function toOptions(array $options): array {
     if ($options) {
       $options = array_map('\Drupal\Component\Utility\Html::escape', $options);

@@ -21,35 +21,42 @@ use Drupal\blazy\Field\BlazyEntityVanillaBase;
 class BlazyEntityFormatter extends BlazyEntityVanillaBase {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $namespace = 'blazy';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $itemId = 'content';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $itemPrefix = 'blazy';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $captionId = 'captions';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function defaultSettings() {
     return BlazyDefault::gridEntitySettings() + parent::defaultSettings();
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function isApplicable(FieldDefinitionInterface $field_definition) {
     return $field_definition->getFieldStorageDefinition()->isMultiple();
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function getPluginScopes(): array {
     return [
       'grid_form'     => TRUE,
@@ -60,7 +67,8 @@ class BlazyEntityFormatter extends BlazyEntityVanillaBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function pluginSettings(&$blazies, array &$settings): void {
     parent::pluginSettings($blazies, $settings);
 

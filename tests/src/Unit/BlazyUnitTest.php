@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\blazy\Unit;
 
 use Drupal\Tests\UnitTestCase;
@@ -19,7 +21,8 @@ class BlazyUnitTest extends UnitTestCase {
   use BlazyManagerUnitTestTrait;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -37,12 +40,13 @@ class BlazyUnitTest extends UnitTestCase {
    * @param mixed|bool|int $expected
    *   The expected output.
    *
-   * @dataProvider providerTestBuildIframe   */
+   * @dataProvider providerTestBuildIframe
+   */
   public function testBuildIframe(array $data, $expected) {
-    /** @var array<string, mixed> $variables */
+    /** @var array $variables */
     $variables = ['attributes' => [], 'image' => []];
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings  = Blazy::init();
     $uri       = 'public://example.jpg';
     $embed_url = '//www.youtube.com/watch?v=E03HFA923kw';
@@ -62,7 +66,8 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Provide test cases for ::testBuildIframe().   */
+   * Provide test cases for ::testBuildIframe().
+   */
   public static function providerTestBuildIframe() {
     return [
       [
@@ -87,7 +92,7 @@ class BlazyUnitTest extends UnitTestCase {
   /**
    * Tests \Drupal\blazy\Hook\ThemeHooks::preprocessBlazy.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being tested.
    * @param object $item
    *   Whether to provide image item, or not.
@@ -96,13 +101,14 @@ class BlazyUnitTest extends UnitTestCase {
    * @param bool $expected_iframe
    *   Whether to expect an iframe, or not.
    *
-   * @dataProvider providerPreprocessBlazy   */
+   * @dataProvider providerPreprocessBlazy
+   */
   public function testPreprocessBlazy(array $settings, $item, $expected_image, $expected_iframe) {
-    /** @var array<string, mixed> $variables */
+    /** @var array $variables */
     $variables = ['attributes' => []];
     $build     = $this->data;
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings  = array_merge($build['#settings'], $settings);
     $settings += Blazy::init();
 
@@ -144,10 +150,11 @@ class BlazyUnitTest extends UnitTestCase {
   }
 
   /**
-   * Provider for ::testPreprocessBlazy.   */
+   * Provider for ::testPreprocessBlazy.
+   */
   public static function providerPreprocessBlazy() {
     $uri = 'public://example.jpg';
-    /** @var array<string, mixed> $data */
+    /** @var array $data */
     $data = [];
     $data[] = [
       [
@@ -207,15 +214,16 @@ class BlazyUnitTest extends UnitTestCase {
    * This is here as we need BlazyFile::transformRelative() for
    * both Blazy and its lightbox.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being tested.
    *
-   * @dataProvider providerTestPreRenderImageLightbox   */
+   * @dataProvider providerTestPreRenderImageLightbox
+   */
   public function todoTestPreRenderImageLightbox(array $settings = []) {
-    /** @var array<string, mixed> $build */
+    /** @var array $build */
     $build = $this->data;
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings += Blazy::init();
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -236,7 +244,7 @@ class BlazyUnitTest extends UnitTestCase {
       $build[$key . '_attributes']['class'][] = $key . '-test';
     }
 
-    /** @var array<string, mixed> $element */
+    /** @var array $element */
     $element = $this->doPreRenderImage($build);
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -255,9 +263,10 @@ class BlazyUnitTest extends UnitTestCase {
    * Provide test cases for ::testPreRenderImageLightbox().
    *
    * @return array
-   *   An array of tested data.   */
+   *   An array of tested data.
+   */
   public static function providerTestPreRenderImageLightbox() {
-    /** @var array<string, mixed> $data */
+    /** @var array $data */
     $data = [];
     $data[] = [
       [

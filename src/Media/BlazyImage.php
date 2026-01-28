@@ -23,19 +23,22 @@ class BlazyImage {
   /**
    * Checks if the image style contains crop in the effect name.
    *
-   * @var array   */
+   * @var array
+   */
   protected static $crop;
 
   /**
    * Checks if image dimensions are set.
    *
-   * @var array   */
+   * @var array
+   */
   protected static $isCropSet;
 
   /**
    * Prepares CSS background image.
    *
-   * @todo refactor this, to get rid of settings for blazies object at/ by 3.x.   */
+   * @todo refactor this, to get rid of settings for blazies object at/ by 3.x.
+   */
   public static function background(array $settings, $style = NULL) {
     // @tbd replace src with URL before 3.x, or keep it.
     return [
@@ -47,10 +50,11 @@ class BlazyImage {
   /**
    * Sets dimensions once to reduce method calls, if image style contains crop.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being modified.
    * @param object $style
-   *   The image style to check for crp effect.   .*/
+   *   The image style to check for crp effect.
+   */
   public static function cropDimensions(array &$settings, $style): void {
     $id = $style->id();
 
@@ -78,7 +82,8 @@ class BlazyImage {
    * Provides original unstyled image dimensions based on the given image item.
    *
    * This one is original image, not styled like self:transformDimensions().
-   * Sources: formatters, filters or any hard-coded unmanaged files like VEF.   */
+   * Sources: formatters, filters or any hard-coded unmanaged files like VEF.
+   */
   public static function dimensions(array &$settings, $item, $uri, $initial = FALSE): array {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -167,14 +172,15 @@ class BlazyImage {
    *
    * @param object $object
    *   The optional Media, File entity, or ER, etc. to get image item from.
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The optional settings.
    *
    * @return object|null
    *   The object of image item, or NULL.
    *
    * @todo simplify this, like everything else. An obvious confusion here.
-   * @todo return image item directly without settings.   */
+   * @todo return image item directly without settings.
+   */
   public static function fromAny($object, array &$settings = []): ?object {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = Internals::verify($settings);
@@ -222,7 +228,8 @@ class BlazyImage {
   }
 
   /**
-   * Returns TRUE if an ImageItem.   */
+   * Returns TRUE if an ImageItem.
+   */
   public static function isImage($item): bool {
     return $item instanceof ImageItem;
   }
@@ -230,7 +237,8 @@ class BlazyImage {
   /**
    * Returns the image item from any sources, if available.
    *
-   * PHP 7.2 accepts object. D8 >= PHP 7.3. Not good for D7 backport.   */
+   * PHP 7.2 accepts object. D8 >= PHP 7.3. Not good for D7 backport.
+   */
   public static function item($item = NULL, array $options = [], $name = NULL): ?object {
     return self::isValidItem($item) ? $item : self::fromContent($options, $name);
   }
@@ -241,7 +249,8 @@ class BlazyImage {
    * This block is a bit scary yet it is a more organized way to extract Image
    * item from various sources in tandem with custom settings.image previously
    * scattered with if-else. This has saved more than 60 lines, and two methods:
-   * ::fromMedia(), already gone. Can be better.   */
+   * ::fromMedia(), already gone. Can be better.
+   */
   public static function fromContent(array $options, $name = NULL): ?object {
     $settings = Internals::toHashtag($options);
     $blazies  = $settings['blazies'] ?? NULL;
@@ -298,7 +307,8 @@ class BlazyImage {
   }
 
   /**
-   * Checks if we have image item.   */
+   * Checks if we have image item.
+   */
   public static function isValidItem($item): bool {
     $item = is_array($item) ? Internals::toHashtag($item, 'item') : $item;
     if ($item instanceof ImageItem) {
@@ -325,7 +335,7 @@ class BlazyImage {
    * Hence URI validity is not crucial in regards to anything but #4.
    * The image will fail silently at any rate given non-expected URI.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The given settings being modified.
    * @param object $item
    *   The image item.
@@ -333,7 +343,8 @@ class BlazyImage {
    *   The image uri.
    *
    * @requires CheckItem::unstyled()
-   * @requires self::styles()   */
+   * @requires self::styles()
+   */
   public static function prepare(array &$settings, $item = NULL, $uri = NULL): void {
     // Problems: the audio/ video poster is not synced. The root cause, local
     // media is not directly managed by theme_blazy() aka outside the workflow,
@@ -366,7 +377,8 @@ class BlazyImage {
   /**
    * Checks for Image styles at container level once, except for multi-styles.
    *
-   * @todo remove for BlazyManager::imageStyles().   */
+   * @todo remove for BlazyManager::imageStyles().
+   */
   public static function styles(array &$settings, $multiple = FALSE): void {
     if ($manager = Internals::blazy()) {
       $manager->imageStyles($settings, $multiple);
@@ -383,7 +395,8 @@ class BlazyImage {
    *   - Store both as just array into blazies.image.
    *
    * Since 2.17, a reliance on ImageItem has been gradually removed like seen at
-   * Lightbox, at least made a fallback, no longer the dominance.   */
+   * Lightbox, at least made a fallback, no longer the dominance.
+   */
   public static function toArray($item): array {
     $data = [];
 
@@ -414,7 +427,8 @@ class BlazyImage {
    * @param array|object $config
    *   The data config: width, height, and uri, or $blazies as config source.
    * @param string $uri
-   *   The optional URI if differs from main image, such as thumbnail URI.   .*/
+   *   The optional URI if differs from main image, such as thumbnail URI.
+   */
   public static function transformDimensions($style, $config, $uri = NULL): array {
     $fluid  = FALSE;
     $ratios = [];
@@ -474,7 +488,8 @@ class BlazyImage {
    * @see self::background()
    * @see BlazyResponsiveImage::background()
    *
-   * @todo remove fallbacks after another check, also settings after migration.   */
+   * @todo remove fallbacks after another check, also settings after migration.
+   */
   public static function toUrl(array $settings, $style = NULL, $uri = NULL): string {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -495,7 +510,8 @@ class BlazyImage {
   }
 
   /**
-   * Returns image URL with an optional image style.   */
+   * Returns image URL with an optional image style.
+   */
   public static function url($uri, $style = NULL, array $options = []): string {
     $unsafe   = $options['unsafe'] ?? TRUE;
     $data_uri = $options['use_data_uri'] ?? FALSE;
@@ -511,7 +527,8 @@ class BlazyImage {
   }
 
   /**
-   * Returns data to provide fake image item of file entity via ImageFactory.   */
+   * Returns data to provide fake image item of file entity via ImageFactory.
+   */
   private static function fromFile($file, $factory, $alt = NULL, $title = NULL): array {
     // Might be a video/ audio file URI, not just image.
     // @todo recheck not available beyond formatters, such as View Fields:
@@ -548,7 +565,8 @@ class BlazyImage {
    * Returns data to provide fake image item of file entity via ImageFactory.
    *
    * @todo remove ImageItem, fake or real, at 3.x. No longer neccessary with
-   * $blazies as object as planned at BlazyMedia since 2.6.   */
+   * $blazies as object as planned at BlazyMedia since 2.6.
+   */
   private static function fakeFromFactory($blazies, $file, $factory): ?object {
     $alt = $blazies->get('image.alt');
     $title = $blazies->get('image.title');
@@ -577,7 +595,8 @@ class BlazyImage {
    *   The image style to check for.
    *
    * @return object
-   *   Returns the image style instance if it contains crop effect, else NULL.   */
+   *   Returns the image style instance if it contains crop effect, else NULL.
+   */
   private static function getCrop($style): ?object {
     $id = $style->id();
 
@@ -596,7 +615,8 @@ class BlazyImage {
   }
 
   /**
-   * Converts dimensions to integer unless empty.   */
+   * Converts dimensions to integer unless empty.
+   */
   private static function toInt(array &$data, $width, $height): void {
     $data[$width] = empty($data[$width]) ? NULL : (int) $data[$width];
     $data[$height] = empty($data[$height]) ? NULL : (int) $data[$height];
@@ -618,7 +638,8 @@ class BlazyImage {
    * URI is not available at container level, except for the first,
    * or when preload option is enabled, unless enforced in the far future.
    *
-   * @requires self::styles()   */
+   * @requires self::styles()
+   */
   private static function transformed(array &$settings, $uri): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -638,7 +659,8 @@ class BlazyImage {
   }
 
   /**
-   * Provides result of self::transformDimensions() for internal urls.   */
+   * Provides result of self::transformDimensions() for internal urls.
+   */
   private static function transformedInternal(array &$settings, $uri): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];

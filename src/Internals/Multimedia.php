@@ -22,7 +22,8 @@ class Multimedia extends Settings {
    *   The given url.
    *
    * @return string
-   *   The input url.   */
+   *   The input url.
+   */
   public static function correct($input): ?string {
     // If you bang your head around why suddenly Instagram failed, this is it.
     // Only relevant for VEF, not core, in case ::toEmbedUrl() is by-passed:
@@ -33,7 +34,8 @@ class Multimedia extends Settings {
   }
 
   /**
-   * Checks if a provider can not use aspect ratio due to anti-mainstream sizes.   */
+   * Checks if a provider can not use aspect ratio due to anti-mainstream sizes.
+   */
   public static function irrational($provider): bool {
     return in_array($provider ?: 'x', [
       'd500px',
@@ -54,7 +56,8 @@ class Multimedia extends Settings {
    * @return bool
    *   Whether the media content can be linked.
    *
-   * @todo refine or excludes other providers that should not be linked.   */
+   * @todo refine or excludes other providers that should not be linked.
+   */
   public static function linkable($blazies): bool {
     if ($provider = $blazies->get('media.provider')) {
       if (self::irrational($provider) || in_array($provider, ['facebook'])) {
@@ -75,7 +78,8 @@ class Multimedia extends Settings {
    * @return string|null
    *   The provider name or NULL.
    *
-   * @fixme somewhere else.   */
+   * @fixme somewhere else.
+   */
   public static function provider($blazies, $provider = NULL): ?string {
     if (!$provider && $input = $blazies->get('media.input_url')) {
       $provider = str_ireplace(['www.', '.com'], '', parse_url($input, PHP_URL_HOST));
@@ -92,7 +96,8 @@ class Multimedia extends Settings {
    *   Whether to enforce privacy.
    *
    * @return string|null
-   *   The youtube URL.   */
+   *   The youtube URL.
+   */
   public static function youtube($input, bool $privacy = FALSE): ?string {
     return Youtube::fromEmbed($input, $privacy);
   }
@@ -104,7 +109,8 @@ class Multimedia extends Settings {
    *   The blazies instance.
    *
    * @return bool
-   *   Whether the media is video or not.   */
+   *   Whether the media is video or not.
+   */
   public static function isVideo($blazies): bool {
     if ($blazies->get('media.input_url')) {
       $type = $blazies->get('media.resource.type') ?: $blazies->get('media.type');
@@ -124,7 +130,8 @@ class Multimedia extends Settings {
    *   Whether to sanitized.
    *
    * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings object.   */
+   *   The BlazySettings object.
+   */
   public static function toPlayable($blazies, $src = NULL, bool $sanitized = FALSE): BlazySettings {
     if ($src) {
       if (!$sanitized) {

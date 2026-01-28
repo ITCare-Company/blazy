@@ -16,35 +16,40 @@ interface ConfigInterface {
    * Returns the cache service.
    *
    * @return \Drupal\Core\Cache\CacheBackendInterface
-   *   The app root.   */
+   *   The app root.
+   */
   public function cache(): CacheBackendInterface;
 
   /**
    * Retrieves the config factory service.
    *
    * @return \Drupal\Core\Config\ConfigFactoryInterface
-   *   The config factory.   */
+   *   The config factory.
+   */
   public function configFactory(): ConfigFactoryInterface;
 
   /**
    * Retrieves the module handler service.
    *
    * @return \Drupal\Core\Extension\ModuleHandlerInterface
-   *   The module handler.   */
+   *   The module handler.
+   */
   public function moduleHandler(): ModuleHandlerInterface;
 
   /**
    * Returns the app root.
    *
    * @return string
-   *   The app root.   */
+   *   The app root.
+   */
   public function root(): string;
 
   /**
    * Retrieves the currently active route match object.
    *
    * @return \Drupal\Core\Routing\RouteMatchInterface
-   *   The currently active route match object.   */
+   *   The currently active route match object.
+   */
   public function routeMatch(): RouteMatchInterface;
 
   /**
@@ -56,7 +61,8 @@ interface ConfigInterface {
    *   The settings object group key.
    *
    * @return mixed
-   *   The config value(s), or empty.   */
+   *   The config value(s), or empty.
+   */
   public function config($key = NULL, $group = 'blazy.settings');
 
   /**
@@ -66,7 +72,8 @@ interface ConfigInterface {
    *   The settings object group key.
    *
    * @return array
-   *   The config values, or empty array.   */
+   *   The config values, or empty array.
+   */
   public function configMultiple($group = 'blazy.settings'): array;
 
   /**
@@ -85,7 +92,8 @@ interface ConfigInterface {
    *   - context: additional data or contextual info for the hook_alter.
    *
    * @return array
-   *   The cache data/ options.   */
+   *   The cache data/ options.
+   */
   public function getCachedData(
     $cid,
     array $data = [],
@@ -100,7 +108,8 @@ interface ConfigInterface {
    *   The build containing #settings which has cache definitions.
    *
    * @return array
-   *   The cache metadata suitable for #cache property.   */
+   *   The cache metadata suitable for #cache property.
+   */
   public function getCacheMetadata(array $build): array;
 
   /**
@@ -110,7 +119,8 @@ interface ConfigInterface {
    *   The settings which determine what library to attach, empty for defaults.
    *
    * @return object
-   *   The supported IO drupalSettings.   */
+   *   The supported IO drupalSettings.
+   */
   public function getIoSettings(array $attach = []): object;
 
   /**
@@ -120,7 +130,8 @@ interface ConfigInterface {
    *   Containing:
    *     - module, the module name where config to be imported is stored.
    *     - basename, file name without .yml extension: slick.optionset.nav, etc.
-   *     - folder, whether install, or optional.   .*/
+   *     - folder, whether install, or optional.
+   */
   public function import(array $options): void;
 
   /**
@@ -130,7 +141,8 @@ interface ConfigInterface {
    *   The given options.
    *
    * @return array
-   *   The modified array of options suitable for select options.   */
+   *   The modified array of options suitable for select options.
+   */
   public function toOptions(array $options): array;
 
 }

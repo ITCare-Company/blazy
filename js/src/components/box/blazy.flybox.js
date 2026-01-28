@@ -40,7 +40,8 @@
    * Launch a flybox.
    *
    * @param {Event} e
-   *   The click event.   */
+   *   The click event.
+   */
   function launch(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -54,7 +55,8 @@
    * Flybox utility functions.
    *
    * @param {HTMLElement} el
-   *   The flybox gallery HTML element.   */
+   *   The flybox gallery HTML element.
+   */
   function process(el) {
     $.on(el, 'click.' + ID, S_TRIGGER, launch);
     $.addClass(el, C_MOUNTED);
@@ -64,7 +66,8 @@
    * Trigger click on a flybox link.
    *
    * @param {HTMLElement} el
-   *   The triggering element of flybox.   */
+   *   The triggering element of flybox.
+   */
   function subprocess(el) {
     $.on(el, 'click.' + ID, launch);
   }
@@ -72,7 +75,8 @@
   /**
    * Attaches flybox behavior to HTML element.
    *
-   * @type {Drupal~behavior}   */
+   * @type {Drupal~behavior}
+   */
   Drupal.behaviors.flyBox = {
     attach: function (context) {
 

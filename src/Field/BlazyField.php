@@ -14,7 +14,8 @@ use Drupal\blazy\Internals\Internals;
 class BlazyField {
 
   /**
-   * Returns the string value of the fields: link, or text.   */
+   * Returns the string value of the fields: link, or text.
+   */
   public static function getString($entity, $field_name, $langcode, $clean = TRUE): string {
     if ($entity->hasField($field_name)) {
       $values = self::getValue($entity, $field_name, $langcode);
@@ -33,7 +34,8 @@ class BlazyField {
   }
 
   /**
-   * Returns the text or link value of the fields: link, or text.   */
+   * Returns the text or link value of the fields: link, or text.
+   */
   public static function getTextOrLink($entity, $field_name, $view_mode, $langcode, $multiple = TRUE): array {
     if ($entity->hasField($field_name)) {
       if ($text = self::getValue($entity, $field_name, $langcode)) {
@@ -57,7 +59,8 @@ class BlazyField {
   }
 
   /**
-   * Returns the value of the fields: link, or text.   */
+   * Returns the value of the fields: link, or text.
+   */
   public static function getValue($entity, $field_name, $langcode) {
     if ($entity->hasField($field_name)) {
       $entity = Blazy::translated($entity, $langcode);
@@ -68,7 +71,8 @@ class BlazyField {
   }
 
   /**
-   * Returns available bundles.   */
+   * Returns available bundles.
+   */
   public static function getAvailableBundles($field): array {
     $type     = $field->getSetting('target_type');
     $views_ui = $field->getSetting('handler') == 'default';
@@ -87,7 +91,8 @@ class BlazyField {
   }
 
   /**
-   * Provides field-related settings, called by back-end and front-end.   */
+   * Provides field-related settings, called by back-end and front-end.
+   */
   public static function settings(array &$settings, $field, array $data = []): array {
     $settings['blazies'] = $settings['blazies'] ?? Internals::settings();
 
@@ -139,7 +144,8 @@ class BlazyField {
   }
 
   /**
-   * Returns the formatted renderable array of the field.   */
+   * Returns the formatted renderable array of the field.
+   */
   public static function view($entity, $field_name, $view_mode, $multiple = TRUE): array {
     if ($entity && $entity->hasField($field_name)) {
       $view = $entity->get($field_name)->view($view_mode);

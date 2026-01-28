@@ -17,43 +17,48 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *   The settings which determine what library to attach, empty to defaults.
    *
    * @return array
-   *   The supported libraries.   */
+   *   The supported libraries.
+   */
   public function attach(array $attach = []): array;
 
   /**
    * Alias for Blazy::containerAttributes().
    *
-   * @param array<string, mixed> $attributes
+   * @param array $attributes
    *   The container attributes being modified.
-   * @param array<string, mixed> $settings
-   *   The given settings.   .*/
+   * @param array $settings
+   *   The given settings.
+   */
   public function containerAttributes(array &$attributes, array $settings): void;
 
   /**
    * Returns the supported image effects.
    *
    * @return array
-   *   The supported image effects.   */
+   *   The supported image effects.
+   */
   public function getImageEffects(): array;
 
   /**
    * Gets the supported lightboxes.
    *
    * @return array
-   *   The supported lightboxes.   */
+   *   The supported lightboxes.
+   */
   public function getLightboxes(): array;
 
   /**
    * Provides alterable display styles.
    *
    * @return array
-   *   The supported display styles.   */
+   *   The supported display styles.
+   */
   public function getStyles(): array;
 
   /**
    * Alias for Thumbnail::view() to forget looking up unknown classes.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The given settings.
    * @param object $item
    *   The optional image item.
@@ -61,7 +66,8 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *   The optional thumbnail captions.
    *
    * @return array
-   *   The thumbnail image style, or empty.   */
+   *   The thumbnail image style, or empty.
+   */
   public function getThumbnail(array $settings, $item = NULL, array $captions = []): array;
 
   /**
@@ -72,7 +78,7 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    * defined by the respective key under $settings, e.g.: image_style to
    * blazies.image.style, etc. Nothing is loaded if no setting is provided.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The modified settings.
    * @param bool $multiple
    *   A flag for various Image styles: Blazy Filter, etc., old GridStack.
@@ -82,7 +88,8 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *   If more to be added, the convention is to not suffix it with _style,
    *   e.g.: image will be auto-suffixed as image_style, etc.
    *
-   * @see \Drupal\blazy\BlazyDefault::imageStyles()   */
+   * @see \Drupal\blazy\BlazyDefault::imageStyles()
+   */
   public function imageStyles(array &$settings, $multiple = FALSE, array $styles = []): void;
 
   /**
@@ -107,14 +114,15 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *
    * This still needs improvements and a little more simplified version.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being modified.
    * @param array $data
    *   The first data containing settings or item keys.
    *
    * @see \Drupal\blazy\BlazyManager::prepareBuild()
    * @see \Drupal\blazy\Field\BlazyEntityVanillaBase::buildElements()
-   * @todo change the second param back to array at 3.x when BVEF is dropped.   */
+   * @todo change the second param back to array at 3.x when BVEF is dropped.
+   */
   public function isBlazy(array &$settings, array $data = []): void;
 
   /**
@@ -126,7 +134,8 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    *   The optional image item.
    *
    * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings object.   */
+   *   The BlazySettings object.
+   */
   public function preBlazy(array &$build, $item = NULL): BlazySettings;
 
   /**
@@ -135,7 +144,8 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    * @param array $build
    *   The build array being modified.
    * @param array $blazy
-   *   The blazy renderable array available after ::getBlazy() called.   .*/
+   *   The blazy renderable array available after ::getBlazy() called.
+   */
   public function postBlazy(array &$build, array $blazy): void;
 
   /**
@@ -144,7 +154,8 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    * This is to overcome the limitation of self::postSettings().
    *
    * @param array $build
-   *   The build data containing settings, entity, etc.   .*/
+   *   The build data containing settings, entity, etc.
+   */
   public function prepareData(array &$build): void;
 
   /**
@@ -155,24 +166,27 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    * Called by field formatters, views [styles|fields via BlazyEntity],
    * [blazy|splide|slick] filters.
    *
-   * @param array<string, mixed> $settings
-   *   The settings being modified.   .*/
+   * @param array $settings
+   *   The settings being modified.
+   */
   public function preSettings(array &$settings): void;
 
   /**
    * Modifies the post settings inherited down to each item.
    *
-   * @param array<string, mixed> $settings
-   *   The settings being modified.   .*/
+   * @param array $settings
+   *   The settings being modified.
+   */
   public function postSettings(array &$settings): void;
 
   /**
    * Overrides data massaged by [blazy|slick|splide, etc.]_settings_alter().
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being modified.
    * @param object $entity
-   *   The optional entity object.   .*/
+   *   The optional entity object.
+   */
   public function postSettingsAlter(array &$settings, $entity = NULL): void;
 
   /**
@@ -190,7 +204,8 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    * @see \Drupal\blazy\Hook\ThemeHooks::preprocessBlazy()
    * @see \Drupal\blazy\Hook\ThemeHooks::preprocessField()
    * @see \Drupal\blazy\Hook\ThemeHooks::preprocessFileVideo()
-   * @see blazy_preprocess_file_video()   */
+   * @see blazy_preprocess_file_video()
+   */
   public function thirdPartyFormatters(): array;
 
   /**
@@ -208,11 +223,13 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    * @param array $captions
    *   The captions being modified.
    * @param int $delta
-   *   The current delta for convenience.   .*/
+   *   The current delta for convenience.
+   */
   public function toBlazy(array &$data, array &$captions, $delta): void;
 
   /**
-   * Provides attachments and cache common for all blazy-related modules.   */
+   * Provides attachments and cache common for all blazy-related modules.
+   */
   public function setAttachments(
     array &$element,
     array $settings,
@@ -225,7 +242,8 @@ interface BlazyManagerBaseInterface extends BlazyInterface {
    * @param string $module
    *   The module being uninstall.
    *
-   * @todo remove when core filter takes care of its own plugins removal.   */
+   * @todo remove when core filter takes care of its own plugins removal.
+   */
   public function filterCleanup($module = 'blazy'): void;
 
 }

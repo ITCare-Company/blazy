@@ -14,8 +14,11 @@ use Drupal\blazy_layout\BlazyLayoutDefault;
 class ThemeHooks {
 
   /**
-   * Implements hook_theme().   */
-  public static function theme() {
+   * Implements hook_theme().
+   *
+   * {@inheritdoc}
+   */
+  public static function theme(): array {
     return [
       'block__blazy' => [
         'base hook' => 'block',
@@ -32,15 +35,16 @@ class ThemeHooks {
   /**
    * Overrides variables for layout.html.twig templates.
    *
-   * {@inheritdoc}   */
-  public static function preprocessLayout(array &$variables) {
-    /** @var array<string, mixed> $attributes */
+   * {@inheritdoc}
+   */
+  public static function preprocessLayout(array &$variables): void {
+    /** @var array $attributes */
     $attributes = &$variables['attributes'];
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$variables['settings'];
 
-    /** @var array<string, mixed> $content */
+    /** @var array $content */
     $content = $variables['content'];
     $namespace = $content['#namespace'] ?? 'x';
 
@@ -140,8 +144,9 @@ class ThemeHooks {
   /**
    * Overrides variables for block.html.twig templates.
    *
-   * {@inheritdoc}   */
-  public static function preprocessBlock(array &$variables) {
+   * {@inheritdoc}
+   */
+  public static function preprocessBlock(array &$variables): void {
     if ($settings = $variables['elements']['#blazy'] ?? []) {
       $variables['blazies'] = $settings['blazies']->storage();
     }
@@ -150,8 +155,9 @@ class ThemeHooks {
   /**
    * Overrides variables for field.html.twig templates.
    *
-   * {@inheritdoc}   */
-  public static function preprocessField(array &$variables) {
+   * {@inheritdoc}
+   */
+  public static function preprocessField(array &$variables): void {
     $element = &$variables['element'];
     $formatter = $element['#formatter'] ?? 'null';
     $blazy = strpos($formatter, 'blazy') !== FALSE;
@@ -190,14 +196,15 @@ class ThemeHooks {
   /**
    * Implements hook_theme_suggestions_alter().
    *
-   * {@inheritdoc}   */
-  public static function themeSuggestionsAlter(array &$suggestions, array $variables, $hook) {
-    /** @var array<string, mixed> $elements */
+   * {@inheritdoc}
+   */
+  public static function themeSuggestionsAlter(array &$suggestions, array $variables, $hook): void {
+    /** @var array $elements */
     $elements = $variables['elements'] ?? [];
-    /** @var array<string, mixed> $content */
+    /** @var array $content */
     $content = $variables['content'] ?? [];
     if ($hook == 'layout') {
-      /** @var array<string, mixed> $settings */
+      /** @var array $settings */
       $settings = $content['#settings'] ?? [];
       if (!empty($settings['blazy_layout'])) {
         $suggestions[] = 'layout__blazy';
@@ -208,20 +215,20 @@ class ThemeHooks {
       // Basically reverting to stable9 logic with minimal divities.
       $settings = [];
       if ($hook == 'field') {
-        /** @var array<string, mixed> $element */
+        /** @var array $element */
         $element = $variables['element'] ?? [];
-        /** @var array<string, mixed> $settings */
+        /** @var array $settings */
         $settings = $element['#blazy'] ?? [];
         if (!empty($settings['use_theme_field'])) {
           $settings = [];
         }
       }
       elseif ($hook == 'block') {
-        /** @var array<string, mixed> $content */
+        /** @var array $content */
         $content = $elements['content'] ?? [];
         $first_item = $content[0] ?? [];
 
-        /** @var array<string, mixed> $settings */
+        /** @var array $settings */
         $settings = $first_item['#blazy'] ?? [];
       }
 
@@ -239,12 +246,13 @@ class ThemeHooks {
   /**
    * Cleanup unused regions.
    *
-   * @param array<string, mixed> $variables
+   * @param array $variables
    *   The variables being modified.
    * @param int $count
-   *   The amount of regions.   .*/
-  private static function cleanupRegions(array &$variables, int $count) {
-    /** @var array<string, mixed> $settings */
+   *   The amount of regions.
+   */
+  private static function cleanupRegions(array &$variables, int $count): void {
+    /** @var array $settings */
     $settings = &$variables['settings'];
     $content = &$variables['content'];
     $bg = $content['bg'] ?? [];
@@ -265,12 +273,13 @@ class ThemeHooks {
   /**
    * Cleanup unwanted block attributes from builtin Media background.
    *
-   * @param array<string, mixed> $variables
+   * @param array $variables
    *   The variables being modified.
    * @param string $name
-   *   The name of region.   .*/
-  private static function cleanupBlockAttributes(array &$variables, string $name) {
-    /** @var array<string, mixed> $contents */
+   *   The name of region.
+   */
+  private static function cleanupBlockAttributes(array &$variables, string $name): void {
+    /** @var array $contents */
     $contents = &$variables['content'];
     if (isset($contents[$name])) {
       $subcontents = &$contents[$name];
@@ -297,11 +306,12 @@ class ThemeHooks {
   /**
    * Provides regions attributes.
    *
-   * @param array<string, mixed> $variables
+   * @param array $variables
    *   The variables being modified.
    * @param string $name
-   *   The name of region.   .*/
-  private static function regionAttributes(array &$variables, string $name) {
+   *   The name of region.
+   */
+  private static function regionAttributes(array &$variables, string $name): void {
     foreach (['attributes', 'content_attributes'] as $key) {
       if (!isset($variables["region_$key"][$name])) {
         if (!isset($variables['content'][$name]["#$key"])) {

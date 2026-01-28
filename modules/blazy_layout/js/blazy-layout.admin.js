@@ -17,7 +17,8 @@
    * Processes a blazy layout form.
    *
    * @param {HTMLElement} elm
-   *   The container HTML element.   */
+   *   The container HTML element.
+   */
   function process(elm) {
     var dataset = elm.dataset.bLayout;
     var data;
@@ -51,7 +52,8 @@
   /**
    * Attaches Blazy behavior to HTML element.
    *
-   * @type {Drupal~behavior}   */
+   * @type {Drupal~behavior}
+   */
   Drupal.behaviors.blazyLayoutAdmin = {
     attach: function (context) {
 

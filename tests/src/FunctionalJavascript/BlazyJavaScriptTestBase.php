@@ -31,17 +31,20 @@ abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
   use BlazyCreationTestTrait;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected $defaultTheme = 'stark';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected $minkDefaultDriverClass = DrupalSelenium2Driver::class;
 
   /**
    * {@inheritdoc}
    *
-   * @var array<string>   */
+   * @var array<string>
+   */
   protected static $modules = [
     'field',
     'filter',
@@ -56,7 +59,8 @@ abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
   ];
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -83,7 +87,8 @@ abstract class BlazyJavaScriptTestBase extends WebDriverTestBase {
   }
 
   /**
-   * Test the Blazy element from loading to loaded states.   */
+   * Test the Blazy element from loading to loaded states.
+   */
   public function doTestFormatterDisplay() {
     $image_path = $this->getImagePath(TRUE);
 

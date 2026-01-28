@@ -13,70 +13,80 @@ interface BlazyInterface extends ContainerInjectionInterface {
    * Returns the app root.
    *
    * @return string
-   *   The app root.   */
+   *   The app root.
+   */
   public function root();
 
   /**
    * Returns the entity repository service.
    *
    * @return \Drupal\Core\Entity\EntityRepositoryInterface
-   *   The entity repository.   */
+   *   The entity repository.
+   */
   public function entityRepository();
 
   /**
    * Returns the entity type manager service.
    *
    * @return \Drupal\Core\Entity\EntityTypeManagerInterface
-   *   The entity type manager.   */
+   *   The entity type manager.
+   */
   public function entityTypeManager();
 
   /**
    * Returns the libraries service.
    *
    * @return \Drupal\blazy\Asset\LibrariesInterface
-   *   The libraries service.   */
+   *   The libraries service.
+   */
   public function libraries();
 
   /**
    * Returns the module handler service.
    *
    * @return \Drupal\Core\Extension\ModuleHandlerInterface
-   *   The module handler.   */
+   *   The module handler.
+   */
   public function moduleHandler();
 
   /**
    * Returns the renderer service.
    *
    * @return \Drupal\Core\Render\RendererInterface
-   *   The renderer.   */
+   *   The renderer.
+   */
   public function renderer();
 
   /**
    * Returns the config factory service.
    *
    * @return \Drupal\Core\Config\ConfigFactoryInterface
-   *   The config factory.   */
+   *   The config factory.
+   */
   public function configFactory();
 
   /**
    * Returns the cache service.
    *
    * @return \Drupal\Core\Cache\CacheBackendInterface
-   *   The app root.   */
+   *   The app root.
+   */
   public function cache();
 
   /**
    * Returns the language manager service.
    *
    * @return \Drupal\Core\Language\LanguageManagerInterface
-   *   The language manager.   */
+   *   The language manager.
+   */
   public function languageManager();
 
   /**
    * Retrieves the currently active route match object.
    *
    * @return \Drupal\Core\Routing\RouteMatchInterface
-   *   The currently active route match object.   */
+   *   The currently active route match object.
+   */
   public function routeMatch();
 
   /**
@@ -88,7 +98,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The settings object group key.
    *
    * @return mixed
-   *   The config value(s), or empty.   */
+   *   The config value(s), or empty.
+   */
   public function config($key = NULL, $group = 'blazy.settings');
 
   /**
@@ -98,7 +109,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The settings object group key.
    *
    * @return array
-   *   The config values, or empty array.   */
+   *   The config values, or empty array.
+   */
   public function configMultiple($group = 'blazy.settings'): array;
 
   /**
@@ -108,18 +120,21 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The setting key.
    *
    * @return mixed
-   *   The config value(s), or empty.   */
+   *   The config value(s), or empty.
+   */
   public function myConfig($key = NULL);
 
   /**
    * Returns any config by "self::$namespace.settings" convension.
    *
    * @return array
-   *   The config values, or empty array.   */
+   *   The config values, or empty array.
+   */
   public function myConfigMultiple(): array;
 
   /**
-   * Implements hook_config_schema_info_alter().   */
+   * Implements hook_config_schema_info_alter().
+   */
   public function configSchemaInfoAlter(
     array &$definitions,
     $formatter = 'blazy_base',
@@ -133,7 +148,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The expected entity interface object to check for its view access.
    *
    * @return array
-   *   The renderable array of the minimal denial info, or empty if accessible.   */
+   *   The renderable array of the minimal denial info, or empty if accessible.
+   */
   public function denied($entity): array;
 
   /**
@@ -147,7 +163,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   Whether checked with access, or not.
    *
    * @return object
-   *   The entity query object.   */
+   *   The entity query object.
+   */
   public function entityQuery($type, $conjunction = 'AND', $access = TRUE);
 
   /**
@@ -164,7 +181,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   - context: additional data or contextual info for the hook_alter.
    *
    * @return array
-   *   The cache data.   */
+   *   The cache data.
+   */
   public function getCachedData(
     $cid,
     array $data = [],
@@ -187,7 +205,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   - context: additional data or contextual info for the hook_alter.
    *
    * @return array
-   *   The cache data/ options.   */
+   *   The cache data/ options.
+   */
   public function getCachedOptions(
     $cid,
     array $data = [],
@@ -202,7 +221,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The provided build info.
    *
    * @return array
-   *   The cache metadata.   */
+   *   The cache metadata.
+   */
   public function getCacheMetadata(array $build): array;
 
   /**
@@ -214,7 +234,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The entity type.
    *
    * @return array
-   *   The entity types   */
+   *   The entity types
+   */
   public function getEntityAsOptions($entity_type): array;
 
   /**
@@ -226,7 +247,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The optional hardcoded ID.
    *
    * @return string
-   *   The static CSS ID.   */
+   *   The static CSS ID.
+   */
   public function getHtmlId($name = 'blazy', $id = ''): string;
 
   /**
@@ -243,7 +265,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   Whether to prefix it with an a base path.
    *
    * @return string|null
-   *   The first found path to the library, or NULL if not found.   */
+   *   The first found path to the library, or NULL if not found.
+   */
   public function getLibrariesPath($name, $base_path = FALSE): ?string;
 
   /**
@@ -257,7 +280,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   Whether to return an absolute path.
    *
    * @return string|null
-   *   The path to object, or NULL if not found.   */
+   *   The path to object, or NULL if not found.
+   */
   public function getPath($type, $name, $absolute = FALSE): ?string;
 
   /**
@@ -267,7 +291,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The entity type.
    *
    * @return object|null
-   *   The entity type storage object.   */
+   *   The entity type storage object.
+   */
   public function getStorage($type = 'media');
 
   /**
@@ -280,7 +305,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   content language.
    *
    * @return object
-   *   The translated entity, if available.   */
+   *   The translated entity, if available.
+   */
   public function getTranslatedEntity($object, $langcode = NULL);
 
   /**
@@ -288,8 +314,9 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @param array $attrs
    *   The container attributes to add into .blazy, normally #attributes.
-   * @param array<string, mixed> $settings
-   *   The settings defining the grids.   .*/
+   * @param array $settings
+   *   The settings defining the grids.
+   */
   public function gridAttributes(array &$attrs, array $settings): void;
 
   /**
@@ -302,7 +329,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    * @param object $blazies
    *   The settings.blazies object.
    * @param bool $root
-   *   Whether to apply it for the root container, or item attributes.   .*/
+   *   Whether to apply it for the root container, or item attributes.
+   */
   public function gridCheckAttributes(
     array &$attrs,
     array &$content_attrs,
@@ -327,13 +355,14 @@ interface BlazyInterface extends ContainerInjectionInterface {
    * @param array $content_attrs
    *   The content attributes, if any to add into .grid__content. Bootstrap
    *   CSS .card/ .well is best here.
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings grabbed from self::initGrid() returned settings.
    *
    * @see \Drupal\blazy\Theme\Grid
    * @see \Drupal\io_browser\IoBrowserWidget::mediaLibraryItem()
    * @see \Drupal\blazy\Form\BlazyAdminBase
-   * @see \Drupal\blazy\Form\BlazyEntityFormBase   */
+   * @see \Drupal\blazy\Form\BlazyEntityFormBase
+   */
   public function gridItemAttributes(
     array &$attrs,
     array &$content_attrs,
@@ -347,7 +376,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   Containing:
    *     - module, the module name where config to be imported is stored.
    *     - basename, file name without .yml extension: slick.optionset.nav, etc.
-   *     - folder, whether install, or optional.   .*/
+   *     - folder, whether install, or optional.
+   */
   public function import(array $options): void;
 
   /**
@@ -378,7 +408,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return array
    *   - attributes: to apply/ merge into existing containers,
-   *   - settings: to use for self::gridItemAttributes() last parameter.   */
+   *   - settings: to use for self::gridItemAttributes() last parameter.
+   */
   public function initGrid(array $options): array;
 
   /**
@@ -390,7 +421,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The entity type, can be configuration object like blazy.settings.
    *
    * @return mixed
-   *   The entity, or config values: string, bool, etc.   */
+   *   The entity, or config values: string, bool, etc.
+   */
   public function load($id, $type = 'image_style');
 
   /**
@@ -402,7 +434,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The entity ID(s) as filters.
    *
    * @return array
-   *   The entities, or empty array.   */
+   *   The entities, or empty array.
+   */
   public function loadMultiple($type = 'image_style', $ids = NULL): array;
 
   /**
@@ -411,7 +444,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    * The only difference from EntityStorageBase::loadByProperties() is the
    * explicit access TRUE specific for content entities, FALSE config ones.
    *
-   * @see https://www.drupal.org/node/3201242   */
+   * @see https://www.drupal.org/node/3201242
+   */
   public function loadByProperties(
     array $values,
     $type = 'file',
@@ -431,7 +465,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The entity type.
    *
    * @return object|null
-   *   The entity, else NULL.   */
+   *   The entity, else NULL.
+   */
   public function loadByProperty($porperty, $value, $type): ?object;
 
   /**
@@ -443,7 +478,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The entity type.
    *
    * @return object|null
-   *   The entity, else NULL.   */
+   *   The entity, else NULL.
+   */
   public function loadByUuid($uuid, $type = 'file'): ?object;
 
   /**
@@ -457,7 +493,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   True, if the text should be sanitized.
    *
    * @return string
-   *   The HTML string.   */
+   *   The HTML string.
+   */
   public function markdown($string, $help = TRUE, $sanitize = TRUE): string;
 
   /**
@@ -473,7 +510,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   An optional $element key.
    *
    * @return array
-   *   The merged array.   */
+   *   The merged array.
+   */
   public function merge(array $data, array $element, $key = NULL): array;
 
   /**
@@ -490,7 +528,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   An array containing new data.
    *
    * @return array
-   *   The merged configuration inside $configs.   */
+   *   The merged configuration inside $configs.
+   */
   public function mergeSettings($keys, array $defaults, array $configs): array;
 
   /**
@@ -500,7 +539,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The structured array describing the data to be rendered.
    *
    * @return \Drupal\Component\Render\MarkupInterface
-   *   The rendered HTML.   */
+   *   The rendered HTML.
+   */
   public function renderInIsolation(array &$elements);
 
   /**
@@ -510,7 +550,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The module name.
    *
    * @return bool
-   *   Whether the module exists, or not.   */
+   *   Whether the module exists, or not.
+   */
   public function moduleExists($name): bool;
 
   /**
@@ -520,7 +561,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The service name.
    *
    * @return object|null
-   *   The service if already initialized, or NULL.   */
+   *   The service if already initialized, or NULL.
+   */
   public function service($name): ?object;
 
   /**
@@ -530,7 +572,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The optional initial data array.
    *
    * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings object.   */
+   *   The BlazySettings object.
+   */
   public function settings(array $data = []): BlazySettings;
 
   /**
@@ -541,7 +584,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @param array|\Generator $items
    *   The grid items.
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The given settings.
    *
    * @return array
@@ -551,7 +594,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    * @see \Drupal\slick\SlickManager::buildGridItem()
    * @see \Drupal\slick_ui\Controller\SlickListBuilder::render()
    * @see \Drupal\splide\SplideManager::buildGridItem()
-   * @see \Drupal\splide_ui\Controller\SplideListBuilder::render()   */
+   * @see \Drupal\splide_ui\Controller\SplideListBuilder::render()
+   */
   public function toGrid($items, array $settings): array;
 
   /**
@@ -566,7 +610,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   It can a string of class, or an array of attributes.
    *
    * @return array
-   *   The content to be wrapped with #html_tag, or as is if no class provided.   */
+   *   The content to be wrapped with #html_tag, or as is if no class provided.
+   */
   public function toHtml($content, $tag = 'div', $class = NULL): array;
 
   /**
@@ -576,13 +621,14 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The given options.
    *
    * @return array
-   *   The modified array of options suitable for select options.   */
+   *   The modified array of options suitable for select options.
+   */
   public function toOptions(array $options): array;
 
   /**
    * Reset blazies object with the optional added data.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings to add data.
    * @param array $data
    *   The data to be added into $key object.
@@ -592,7 +638,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The defaults containing object other than blazies, if not initialized.
    *
    * @return array
-   *   The modified settings.   */
+   *   The modified settings.
+   */
   public function toSettings(
     array &$settings,
     array $data = [],
@@ -603,7 +650,7 @@ interface BlazyInterface extends ContainerInjectionInterface {
   /**
    * Verifies BlazySettings exists since few may be called outside the workflow.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being modified.
    * @param string $key
    *   The object key within the settings, normally stupid plural keys: blazies,
@@ -616,7 +663,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *
    * @return object
    *   The \Drupal\blazy\BlazySettings object identified by $key.
-   *   We do not add return type BlazySettings for easy relocation at 3.x.   */
+   *   We do not add return type BlazySettings for easy relocation at 3.x.
+   */
   public function verifySafely(array &$settings, $key = 'blazies', array $defaults = []);
 
   /**
@@ -625,7 +673,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    * @param array $element
    *   The element being modified containing: #settings, #item, #entity, etc.
    * @param int $delta
-   *   The current item delta.   .*/
+   *   The current item delta.
+   */
   public function verifyItem(array &$element, $delta): void;
 
   /**
@@ -637,7 +686,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    * @return array
    *   The renderable array of the view builder, fallback, or empty array.
    *
-   * @see https://www.drupal.org/node/3033656   */
+   * @see https://www.drupal.org/node/3033656
+   */
   public function view(array $data): array;
 
   /**
@@ -647,7 +697,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The source data.
    *
    * @return array
-   *   The array without renderable.   */
+   *   The array without renderable.
+   */
   public function withHashtag(array $data): array;
 
   /**
@@ -662,7 +713,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    * @param string $key
    *   The given key.
    * @param bool $unset
-   *   Whether to unset original data, default to FALSE till fully migrated.   .*/
+   *   Whether to unset original data, default to FALSE till fully migrated.
+   */
   public function hashtag(array &$data, $key = 'settings', $unset = FALSE): void;
 
   /**
@@ -680,7 +732,8 @@ interface BlazyInterface extends ContainerInjectionInterface {
    *   The default value.
    *
    * @return mixed
-   *   The checked value.   */
+   *   The checked value.
+   */
   public function toHashtag(array $data, $key = 'settings', $default = []);
 
 }

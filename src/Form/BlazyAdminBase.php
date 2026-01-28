@@ -25,27 +25,33 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   use TraitAdminBase;
 
   /**
-   * A state that represents the responsive image style is disabled.   */
+   * A state that represents the responsive image style is disabled.
+   */
   const STATE_RESPONSIVE_IMAGE_STYLE_DISABLED = 0;
 
   /**
-   * A state that represents the media switch lightbox is enabled.   */
+   * A state that represents the media switch lightbox is enabled.
+   */
   const STATE_LIGHTBOX_ENABLED = 1;
 
   /**
-   * A state that represents the media switch iframe is enabled.   */
+   * A state that represents the media switch iframe is enabled.
+   */
   const STATE_IFRAME_ENABLED = 2;
 
   /**
-   * A state that represents the thumbnail style is enabled.   */
+   * A state that represents the thumbnail style is enabled.
+   */
   const STATE_THUMBNAIL_STYLE_ENABLED = 3;
 
   /**
-   * A state that represents the custom lightbox caption is enabled.   */
+   * A state that represents the custom lightbox caption is enabled.
+   */
   const STATE_LIGHTBOX_CUSTOM = 4;
 
   /**
-   * A state that represents the image rendered switch is enabled.   */
+   * A state that represents the image rendered switch is enabled.
+   */
   const STATE_IMAGE_RENDERED_ENABLED = 5;
 
   /**
@@ -58,7 +64,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
    * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
    *   The date formatter service.
    * @param \Drupal\blazy\BlazyManagerInterface $blazy_manager
-   *   The blazy manager service.   .*/
+   *   The blazy manager service.
+   */
   public function __construct(
     EntityDisplayRepositoryInterface $entity_display_repository,
     TypedConfigManagerInterface $typed_config,
@@ -72,7 +79,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_display.repository'),
@@ -83,7 +91,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function openingForm(array &$form, array &$definition): void {
     /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes = $this->toScopes($definition);
@@ -169,7 +178,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function gridForm(array &$form, array $definition): void {
     /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes    = $this->toScopes($definition);
@@ -253,7 +263,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function gridOnlyForm(array &$form, array &$definition): void {
     $this->openingForm($form, $definition);
     $this->gridForm($form, $definition);
@@ -261,7 +272,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function closingForm(array &$form, array $definition): void {
     /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes = $this->toScopes($definition);
@@ -299,7 +311,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function baseForm(array &$definition): array {
     /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes       = $this->toScopes($definition);
@@ -342,10 +355,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * Provides basic image options.
    *
-   * @param array<string, mixed> $form
+   * @param array $form
    *   The form being modified.
-   * @param array<string, mixed> $definition
-   *   The definition being passed.   .*/
+   * @param array $definition
+   *   The definition being passed.
+   */
   protected function baseImageForm(array &$form, array $definition): void {
     $scopes = $this->scopes;
     $data = $scopes->get('data');
@@ -468,7 +482,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function mediaSwitchForm(array &$form, array $definition): void {
     /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes    = $this->toScopes($definition);
@@ -497,7 +512,8 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function finalizeForm(array &$form, array $definition): void {
     /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes    = $this->toScopes($definition);
@@ -708,12 +724,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * Provides lightbox options.
    *
-   * @param array<string, mixed> $form
+   * @param array $form
    *   The form being modified.
-   * @param array<string, mixed> $definition
+   * @param array $definition
    *   The definition being passed.
    * @param \Drupal\blazy\BlazySettings $scopes
-   *   The scopes being passed.   .*/
+   *   The scopes being passed.
+   */
   protected function lightboxForm(array &$form, array $definition, $scopes): void {
     $blazies    = $definition['blazies'];
     $multimedia = $scopes->is('multimedia');
@@ -803,12 +820,13 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * Provides link options serving plain image, fieldable and views ui.
    *
-   * @param array<string, mixed> $form
+   * @param array $form
    *   The form being modified.
-   * @param array<string, mixed> $definition
+   * @param array $definition
    *   The definition being passed.
    * @param \Drupal\blazy\BlazySettings $scopes
-   *   The scopes being passed.   .*/
+   *   The scopes being passed.
+   */
   protected function linkForm(array &$form, array $definition, $scopes): void {
     $data = $scopes->get('data');
     $description = $this->baseDescriptions();
@@ -827,10 +845,11 @@ abstract class BlazyAdminBase implements BlazyAdminInterface {
   /**
    * Provides SVG options.
    *
-   * @param array<string, mixed> $form
+   * @param array $form
    *   The form being modified.
-   * @param array<string, mixed> $definition
-   *   The definition being passed.   .*/
+   * @param array $definition
+   *   The definition being passed.
+   */
   protected function svgForm(array &$form, array $definition): void {
     foreach (BlazyDefault::svgSettings() as $key => $value) {
       $base  = str_replace('svg_', '', $key);

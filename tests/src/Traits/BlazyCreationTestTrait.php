@@ -33,7 +33,8 @@ trait BlazyCreationTestTrait {
   /**
    * Testing node type.
    *
-   * @var \Drupal\node\Entity\NodeType|null   */
+   * @var \Drupal\node\Entity\NodeType|null
+   */
   protected $nodeType = NULL;
 
   /**
@@ -45,9 +46,10 @@ trait BlazyCreationTestTrait {
    *   May contain formatter settings to be added to defaults.
    *
    * @return \Drupal\Core\Entity\Entity\EntityViewDisplay
-   *   The formatter display instance.   */
+   *   The formatter display instance.
+   */
   protected function setUpFormatterDisplay($bundle = '', array $data = []) {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings   = $data['settings'] ?? [];
     $view_mode  = empty($data['view_mode']) ? 'default' : $data['view_mode'];
     $plugin_id  = empty($data['plugin_id']) ? $this->testPluginId : $data['plugin_id'];
@@ -90,7 +92,8 @@ trait BlazyCreationTestTrait {
    * @return \Drupal\Core\Field\FieldDefinitionInterface
    *   The field definition.
    *
-   * @see BaseFieldDefinition::createFromFieldStorageDefinition()   */
+   * @see BaseFieldDefinition::createFromFieldStorageDefinition()
+   */
   protected function getBlazyFieldDefinition($field_name = '') {
     $field_name = empty($field_name) ? $this->testFieldName : $field_name;
     $field_storage_config = $this->getBlazyFieldStorageDefinition($field_name);
@@ -104,7 +107,8 @@ trait BlazyCreationTestTrait {
    *   Formatted field name.
    *
    * @return \Drupal\Core\Field\FieldStorageDefinitionInterface|null
-   *   The field storage definition.   */
+   *   The field storage definition.
+   */
   protected function getBlazyFieldStorageDefinition($field_name = '') {
     $field_name = empty($field_name) ? $this->testFieldName : $field_name;
     $field_storage_definitions = $this->entityFieldManager->getFieldStorageDefinitions($this->entityType);
@@ -120,12 +124,13 @@ trait BlazyCreationTestTrait {
    *   Formatted field name.
    *
    * @return \Drupal\blazy\BlazyFormatterInterface|\Drupal\Core\Field\FormatterInterface|null
-   *   The field formatter instance.   */
+   *   The field formatter instance.
+   */
   protected function getFormatterInstance($plugin_id = '', $field_name = '') {
     $plugin_id  = empty($plugin_id) ? $this->testPluginId : $plugin_id;
     $field_name = empty($field_name) ? $this->testFieldName : $field_name;
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = $this->getFormatterSettings() + $this->formatterPluginManager->getDefaultSettings($plugin_id);
 
     if (!$this->getBlazyFieldDefinition($field_name)) {
@@ -149,8 +154,9 @@ trait BlazyCreationTestTrait {
    *
    * @param string $bundle
    *   The bundle name.
-   * @param array<string, mixed> $settings
-   *   (Optional) configurable settings.   .*/
+   * @param array $settings
+   *   (Optional) configurable settings.
+   */
   protected function setUpContentTypeTest($bundle = '', array $settings = []) {
     $bundle = $bundle ?: $this->bundle;
     $values = [
@@ -196,11 +202,12 @@ trait BlazyCreationTestTrait {
    *
    * @param string $bundle
    *   The bundle name.
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   (Optional) configurable settings.
    *
    * @return \Drupal\node\NodeInterface|\Drupal\node\Entity\Node|null
-   *   The node instance.   */
+   *   The node instance.
+   */
   protected function setUpContentWithItems($bundle = '', array $settings = []) {
     $bundle = $bundle ?: $this->bundle;
     $title = $settings['title'] ?? $this->testPluginId;
@@ -275,11 +282,12 @@ trait BlazyCreationTestTrait {
    *   An array of entity objects that will be referenced.
    * @param string $type
    *   The formatter plugin ID.
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   Settings specific to the formatter. Defaults to the formatter's defaults.
    *
    * @return array
-   *   A render array.   */
+   *   A render array.
+   */
   protected function buildEntityReferenceRenderArray(array $referenced_entities, $type = '', array $settings = []) {
     $type = empty($type) ? $this->entityPluginId : $type;
     /** @phpstan-ignore-next-line */
@@ -301,8 +309,9 @@ trait BlazyCreationTestTrait {
   /**
    * Build dummy contents with entity references.
    *
-   * @param array<string, mixed> $settings
-   *   (Optional) configurable settings.   .*/
+   * @param array $settings
+   *   (Optional) configurable settings.
+   */
   protected function setUpContentWithEntityReference(array $settings = []): void {
     $target_bundle   = $this->targetBundle;
     $bundle          = $this->bundle;
@@ -357,7 +366,8 @@ trait BlazyCreationTestTrait {
   }
 
   /**
-   * Create referencing entity.   */
+   * Create referencing entity.
+   */
   protected function createReferencingEntity(array $data = []) {
     if (empty($data['values']) && $this->referencedEntity->id()) {
       $data['values'] = [
@@ -371,7 +381,8 @@ trait BlazyCreationTestTrait {
   }
 
   /**
-   * Set up dummy image.   */
+   * Set up dummy image.
+   */
   protected function setUpRealImage(): void {
     /** @phpstan-ignore-next-line */
     $this->uri = $this->getImagePath();
@@ -404,7 +415,8 @@ trait BlazyCreationTestTrait {
   }
 
   /**
-   * Returns path to the stored image location.   */
+   * Returns path to the stored image location.
+   */
   protected function getImagePath($is_dir = FALSE) {
     $path            = $this->root . '/sites/default/files/simpletest/' . $this->testPluginId;
     $item            = $this->createDummyImage();
@@ -419,7 +431,8 @@ trait BlazyCreationTestTrait {
   }
 
   /**
-   * Returns the created image file.   */
+   * Returns the created image file.
+   */
   protected function createDummyImage($name = '', $source = '') {
     $path   = $this->root . '/sites/default/files/simpletest/' . $this->testPluginId;
     $name   = empty($name) ? $this->testPluginId . '.png' : $name;
@@ -447,7 +460,8 @@ trait BlazyCreationTestTrait {
   }
 
   /**
-   * Prepares test directory to store screenshots, or images.   */
+   * Prepares test directory to store screenshots, or images.
+   */
   protected function prepareTestDirectory() {
     $this->testDirPath = $this->root . '/sites/default/files/simpletest/' . $this->testPluginId;
     $this->fileSystem->prepareDirectory($this->testDirPath, FileSystemInterface::CREATE_DIRECTORY);
@@ -459,7 +473,8 @@ trait BlazyCreationTestTrait {
    * @param string $bundle
    *   The bundle name.
    * @param array $data
-   *   (Optional) A list of field data.   .*/
+   *   (Optional) A list of field data.
+   */
   protected function setUpFieldConfig($bundle = '', array $data = []): void {
     $bundle    = $bundle ?: $this->bundle;
     $node_type = $this->nodeType ?? NodeType::load($bundle);
@@ -478,7 +493,8 @@ trait BlazyCreationTestTrait {
   }
 
   /**
-   * Ensures field being created once.   */
+   * Ensures field being created once.
+   */
   protected function ensureFieldCreatedOnce(array $data, string $bundle = 'bundle_test'): void {
     $default    = $this->testFieldType ?: 'image';
     $field_type = $data['field_type'] ?? $default;
@@ -566,7 +582,8 @@ trait BlazyCreationTestTrait {
   }
 
   /**
-   * Setups body field displays.   */
+   * Setups body field displays.
+   */
   protected function setupBodyField() {
     $type = $this->nodeType;
 
@@ -605,7 +622,8 @@ trait BlazyCreationTestTrait {
   }
 
   /**
-   * Add test fields.   */
+   * Add test fields.
+   */
   protected function addTestField(
     array $data,
     string $bundle = '',
@@ -654,7 +672,8 @@ trait BlazyCreationTestTrait {
   }
 
   /**
-   * Prepares filter formats.   */
+   * Prepares filter formats.
+   */
   protected function setupFilterFormat(): void {
     $full_html = $this->blazyManager->load('full_html', 'filter_format');
     $restricted_html = $this->blazyManager->load('restricted_html', 'filter_format');
@@ -688,7 +707,8 @@ trait BlazyCreationTestTrait {
   /**
    * Generate random paragraphs.
    *
-   * @todo remove once core ::getRandomGenerator()->paragraphs() works again.   */
+   * @todo remove once core ::getRandomGenerator()->paragraphs() works again.
+   */
   protected function randomParagraphs(
     int $count = 100,
     int $per_paragraph = 5,

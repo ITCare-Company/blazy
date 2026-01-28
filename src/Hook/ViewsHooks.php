@@ -16,7 +16,10 @@ use Drupal\blazy\Views\BlazyStylePluginInterface;
 class ViewsHooks {
 
   /**
-   * Implements hook_views_data_alter().   */
+   * Implements hook_views_data_alter().
+   *
+   * {@inheritdoc}
+   */
   public static function viewsDataAlter(&$data): void {
     // @todo let's keep it for a while as this can be useful for EB.
     $data['file_managed']['blazy_file'] = [
@@ -40,7 +43,10 @@ class ViewsHooks {
   }
 
   /**
-   * Implements hook_views_plugins_style_alter().   */
+   * Implements hook_views_plugins_style_alter().
+   *
+   * {@inheritdoc}
+   */
   public static function viewsPluginsStyleAlter(array &$plugins): void {
     $plugins['blazy'] = [
       'id'             => 'blazy',
@@ -59,7 +65,8 @@ class ViewsHooks {
   }
 
   /**
-   * Returns one of the Blazy Views fields, if available.   */
+   * Returns one of the Blazy Views fields, if available.
+   */
   public static function viewsField($view) {
     foreach (['file', 'media'] as $entity) {
       if (isset($view->field['blazy_' . $entity])) {
@@ -70,7 +77,8 @@ class ViewsHooks {
   }
 
   /**
-   * Checks if Blazy is applicable in a view.   */
+   * Checks if Blazy is applicable in a view.
+   */
   public static function isApplicable(array &$variables): array {
     $view      = $variables['view'];
     $blazy     = self::viewsField($view);
@@ -83,7 +91,10 @@ class ViewsHooks {
   }
 
   /**
-   * Implements hook_preprocess_views_view().   */
+   * Implements hook_preprocess_views_view().
+   *
+   * {@inheritdoc}
+   */
   public static function preprocessViewsView(array &$variables): void {
     $check = self::isApplicable($variables);
     $valid = FALSE;
@@ -120,7 +131,8 @@ class ViewsHooks {
   }
 
   /**
-   * Implements hook_preprocess_views_view().   */
+   * Implements hook_preprocess_views_view().
+   */
   private static function withViewsView(array &$variables): bool {
     $manager = Internals::blazy();
     if (!$manager) {
@@ -140,7 +152,7 @@ class ViewsHooks {
         'media_switch' => $lightbox,
       ];
 
-      /** @var array<string, mixed> $settings */
+      /** @var array $settings */
       $settings = Blazy::init($data);
 
       $settings[$lightbox] = $lightbox;
@@ -162,7 +174,8 @@ class ViewsHooks {
   }
 
   /**
-   * Implements hook_preprocess_views_view().   */
+   * Implements hook_preprocess_views_view().
+   */
   private static function withViewsField(array &$variables): bool {
     $manager = Internals::blazy();
     if (!$manager) {

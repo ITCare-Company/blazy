@@ -21,79 +21,93 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   /**
    * The blazy layout admin service.
    *
-   * @var \Drupal\blazy_layout\Form\BlazyLayoutAdminInterface   */
+   * @var \Drupal\blazy_layout\Form\BlazyLayoutAdminInterface
+   */
   protected $admin;
 
   /**
    * The blazy layout service.
    *
-   * @var \Drupal\blazy_layout\BlazyLayoutManagerInterface   */
+   * @var \Drupal\blazy_layout\BlazyLayoutManagerInterface
+   */
   protected $manager;
 
   /**
    * The blazy entity service.
    *
-   * @var \Drupal\blazy\BlazyEntityInterface   */
+   * @var \Drupal\blazy\BlazyEntityInterface
+   */
   protected $blazyEntity;
 
   /**
    * The current entity.
    *
-   * @var \Drupal\Core\Entity\EntityInterface|null   */
+   * @var \Drupal\Core\Entity\EntityInterface|null
+   */
   protected $entity;
 
   /**
    * The media entities.
    *
-   * @var \Drupal\media\MediaInterface[]|null   */
+   * @var \Drupal\media\MediaInterface[]|null
+   */
   protected $entities;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $namespace = 'blazy';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $itemPrefix = 'blazy';
 
   /**
    * Provides factory regions.
    *
-   * @var array   */
+   * @var array
+   */
   protected static $factoryRegions;
 
   /**
    * Provides instance regions.
    *
-   * @var array   */
+   * @var array
+   */
   protected static $instanceRegions;
 
   /**
    * Provides CSS selectors.
    *
-   * @var array   */
+   * @var array
+   */
   protected static $selectors;
 
   /**
    * Provides CSS rules.
    *
-   * @var array   */
+   * @var array
+   */
   protected static $styles;
 
   /**
    * Provides region amount.
    *
-   * @var int   */
+   * @var int
+   */
   protected static $count = 0;
 
   /**
    * Provides instance ID.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $instanceId;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(
     ContainerInterface $container,
     array $configuration,
@@ -114,9 +128,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getRegionConfig(string $name, string $key): string {
-    /** @var array<string, mixed> $regions */
+    /** @var array $regions */
     $regions = $this->configuration['regions'] ?? [];
     $config = $regions[$name] ?? [];
     if ($key == 'label') {
@@ -126,9 +141,10 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function setRegionConfig(string $name, array $values): self {
-    /** @var array<string, mixed> $regions */
+    /** @var array $regions */
     $regions = $this->configuration['regions'] ?? [];
     $config = $$regions[$name] ?? [];
 
@@ -139,12 +155,13 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   /**
    * Provides attachments and cache common for all blazy-related modules.
    *
-   * @param array<string, mixed> $element
+   * @param array $element
    *   The element being modified.
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being passed.
-   * @param array<string, mixed> $attachments
-   *   The attachments being passed.   .*/
+   * @param array $attachments
+   *   The attachments being passed.
+   */
   protected function attachments(
     array &$element,
     array $settings,
@@ -163,11 +180,12 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * Initialize dynamic layout regions.   */
+   * Initialize dynamic layout regions.
+   */
   protected function init() {
     $layout = clone $this->pluginDefinition;
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = $this->getConfiguration();
     $factory_regions = $layout->getRegions();
     $dynamic_regions = $factory_regions;
@@ -211,15 +229,17 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
    * Returns settings.
    *
    * @return array
-   *   The settings.   */
+   *   The settings.
+   */
   protected function settings(): array {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = $this->getConfiguration();
     return $this->manager->layoutSettings($settings, static::$count);
   }
 
   /**
-   * Modifies regions.   */
+   * Modifies regions.
+   */
   protected function regions(array &$output, array &$settings): void {
     // Add dummy regions to keep layout intact.
     foreach (range(1, static::$count) as $delta => $value) {
@@ -257,7 +277,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * Modifies blocks.   */
+   * Modifies blocks.
+   */
   protected function blocks(array &$output, array &$settings): void {
     $id       = static::$instanceId;
     $colors   = $settings['styles']['colors'] ?? [];
@@ -406,7 +427,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * Modifies attributes.   */
+   * Modifies attributes.
+   */
   protected function attributes(array &$output, array $settings): void {
     $id    = $selector = static::$instanceId;
     $style = $settings['style'] ?? '';
@@ -459,7 +481,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * Provides CSS rules.   */
+   * Provides CSS rules.
+   */
   protected function styles(array &$output, array $settings): void {
     $id  = static::$instanceId;
     $css = '';
@@ -497,7 +520,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * Provides background styles.   */
+   * Provides background styles.
+   */
   protected function backgrounds(
     $region,
     array $colors,
@@ -535,7 +559,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * Provides text styles.   */
+   * Provides text styles.
+   */
   protected function texts(
     $region,
     array $colors,
@@ -572,7 +597,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * Provides link styles.   */
+   * Provides link styles.
+   */
   protected function links(
     $region,
     array $colors,
@@ -603,7 +629,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * Provides layout styles.   */
+   * Provides layout styles.
+   */
   protected function layouts(
     $region,
     array $settings,
@@ -625,7 +652,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * Returns the formatted media as Blazy CSS background.   */
+   * Returns the formatted media as Blazy CSS background.
+   */
   protected function media(
     array &$output,
     array &$settings,
@@ -759,7 +787,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * Returns current entity.   */
+   * Returns current entity.
+   */
   private function entity() {
     if (!isset($this->entity)) {
       $entity = NULL;
@@ -779,7 +808,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * Returns layout id.   */
+   * Returns layout id.
+   */
   private function id(array $settings): string {
     // For some reason, short coalesce always fails.
     if ($id = $settings['id'] ?? NULL) {
@@ -794,7 +824,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * Returns links.   */
+   * Returns links.
+   */
   private function viewLinks($name, $entity): array {
     $links = [];
     if ($entity && isset($entity->{$name})) {
@@ -813,7 +844,8 @@ abstract class BlazyLayoutBase extends LayoutDefault implements BlazyLayoutInter
   }
 
   /**
-   * Returns overlay markup.   */
+   * Returns overlay markup.
+   */
   private function overlay(): array {
     return [
       '#theme' => 'container',

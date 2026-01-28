@@ -34,7 +34,8 @@
   'use strict';
 
   /**
-   * Private variables.   */
+   * Private variables.
+   */
   var DOC = document;
   var DATA = 'data-';
   var SRC = 'src';
@@ -60,7 +61,8 @@
    * @return {object}
    *   The BioMedia instance.
    *
-   * @namespace   */
+   * @namespace
+   */
   function BioMedia(options) {
     var me = _bio.apply($.extend({}, SUPER, $.extend({}, FN, this)), arguments);
 

@@ -14,10 +14,11 @@ class BlazySvg {
   /**
    * Provides svg dimensions, if any.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being modified.
    * @param string $uri
-   *   The uri.   .*/
+   *   The uri.
+   */
   public static function dimensions(array &$settings, $uri): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -87,7 +88,8 @@ class BlazySvg {
    * @param \SimpleXMLElement $svg
    *   The svg instance.
    * @param string $attrs
-   *   The attributes string.   .*/
+   *   The attributes string.
+   */
   private static function extract($blazies, \SimpleXMLElement $svg, $attrs): array {
     $width = $height = NULL;
 

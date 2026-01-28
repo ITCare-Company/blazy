@@ -25,7 +25,8 @@ class Preloader {
    * @see https://caniuse.com/?search=preload
    * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preload
    * @see https://developer.chrome.com/blog/new-in-chrome-73/#more
-   * @nottodo support multiple hero images like carousels.   */
+   * @nottodo support multiple hero images like carousels.
+   */
   public static function preload(array &$load, array $settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -59,7 +60,8 @@ class Preloader {
    * Also extract the found image for gallery/ zoom like, ElevateZoomPlus, etc.
    *
    * @todo merge urls here as well once puzzles are solved: URI may be fed by
-   * field formatters like this one, blazy_filter, views field, or manual call.   */
+   * field formatters like this one, blazy_filter, views field, or manual call.
+   */
   public static function prepare(array &$settings, $items, array $entities = []): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -169,7 +171,8 @@ class Preloader {
   }
 
   /**
-   * Generates preload urls.   */
+   * Generates preload urls.
+   */
   private static function generate(array $images, array $sources, $blazies): \Generator {
     $loading = $blazies->get('image.loading', 'lazy');
     $heroes = in_array($loading, ['slider', 'unlazy']);

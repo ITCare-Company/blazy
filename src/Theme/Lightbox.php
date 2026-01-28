@@ -32,7 +32,8 @@ class Lightbox {
    * @param array $attach
    *   The modified settings.
    * @param \Drupal\blazy\BlazySettings $blazies
-   *   The blazies instance.   .*/
+   *   The blazies instance.
+   */
   public static function attach(array &$load, array &$attach, $blazies): void {
     if ($name = $blazies->get('lightbox.name')) {
       $load['library'][] = 'blazy/lightbox';
@@ -53,9 +54,10 @@ class Lightbox {
    * Gets media switch elements: all lightboxes, not content, nor iframe.
    *
    * @param array $element
-   *   The element being modified.   .*/
+   *   The element being modified.
+   */
   public static function build(array &$element): void {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$element['#settings'];
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -88,7 +90,7 @@ class Lightbox {
       || $blazies->use('content');
 
     // Provide relevant URL since it is a lightbox.
-    /** @var array<string, mixed> $attrs */
+    /** @var array $attrs */
     $attrs = &$element['#url_attributes'];
     $attrs['class'][] = sprintf($multimedia ? $format2 : $format1, $switch_css);
     $attrs['data-' . $switch_css . '-trigger'] = TRUE;
@@ -258,7 +260,8 @@ class Lightbox {
    * Attaches Colorbox if so configured.
    *
    * @param array $load
-   *   The library to load.   .*/
+   *   The library to load.
+   */
   private static function attachColorbox(array &$load): void {
     if ($service = Internals::service('colorbox.attachment')) {
       $dummy = [];
@@ -273,22 +276,17 @@ class Lightbox {
   /**
    * Provides html content for lightboxes.
    *
-   * @param array<string, mixed> $element
+   * @param array $element
    *   The element being modified.
-   *
-   * @param-out array<string, mixed> $element
-   * @param array<string, mixed> $json
+   * @param array $json
    *   The json being modified.
-   *
-   * @param-out array<string, mixed> $json
-   * @param array<string, mixed> $attrs
+   * @param array $attrs
    *   The elemeattrsnt being modified.
-   *
-   * @param-out array<string, mixed> $attrs
-   * @param array<string, mixed> $options
+   * @param array $options
    *   The contextual options.
-   * @param array<string, mixed> $settings
-   *   The contextual settings.   .*/
+   * @param array $settings
+   *   The contextual settings.
+   */
   private static function content(
     array &$element,
     array &$json,
@@ -473,7 +471,8 @@ class Lightbox {
   }
 
   /**
-   * Provides responsive image for lightboxes.   */
+   * Provides responsive image for lightboxes.
+   */
   private static function responsiveImage(array &$element, array $options): bool {
     $manager = Internals::blazy();
     if (!$manager) {
@@ -517,13 +516,14 @@ class Lightbox {
   /**
    * Builds lightbox captions.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings to work with.
    * @param object $item
    *   The \Drupal\image\Plugin\Field\FieldType\ImageItem item or \stdClass.
    *
    * @return array
-   *   The renderable array of caption, or empty array.   */
+   *   The renderable array of caption, or empty array.
+   */
   private static function getCaptions(array $settings, $item): array {
     $manager = Internals::blazy();
     if (!$manager) {

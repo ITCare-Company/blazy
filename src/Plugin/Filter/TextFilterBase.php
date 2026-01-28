@@ -18,47 +18,55 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
    * Defines the module namespace.
    *
    * @var string
-   * @see https://www.php.net/manual/en/reserved.keywords.php   */
+   * @see https://www.php.net/manual/en/reserved.keywords.php
+   */
   protected static $namespace = 'blazy';
 
   /**
    * The item identifier for content: content, slide, box, etc.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $itemId = 'slide';
 
   /**
    * The item identifier for captions: .blazy__caption, .slide__caption, etc.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $itemPrefix = 'slide';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $captionId = 'caption';
 
   /**
    * The shortcode item identifier for grid, or slide, etc.: [item] or [slide].
    *
-   * @var string   */
+   * @var string
+   */
   protected static $shortcode = 'slide';
 
   /**
    * The app root.
    *
-   * @var string   */
+   * @var string
+   */
   protected $root;
 
   /**
    * The entity field manager service.
    *
-   * @var \Drupal\Core\Entity\EntityFieldManagerInterface   */
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
   protected $entityFieldManager;
 
   /**
    * Filter manager.
    *
-   * @var \Drupal\filter\FilterPluginManager   */
+   * @var \Drupal\filter\FilterPluginManager
+   */
   protected $filterManager;
 
   /**
@@ -66,53 +74,62 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
    *
    * @var \Drupal\blazy\BlazyFormatterInterface
    *
-   * @todo remove for $formatter to get consistent with sub-modules.   */
+   * @todo remove for $formatter to get consistent with sub-modules.
+   */
   protected $blazyManager;
 
   /**
    * The blazy formatter.
    *
-   * @var \Drupal\blazy\BlazyFormatterInterface   */
+   * @var \Drupal\blazy\BlazyFormatterInterface
+   */
   protected $formatter;
 
   /**
    * The sub-modules manager service.
    *
-   * @var \Drupal\blazy\BlazyFormatterInterface   */
+   * @var \Drupal\blazy\BlazyFormatterInterface
+   */
   protected $manager;
 
   /**
    * The sub-modules admin service.
    *
-   * @var \Drupal\blazy\Form\BlazyAdminInterface   */
+   * @var \Drupal\blazy\Form\BlazyAdminInterface
+   */
   protected $admin;
 
   /**
    * The filter HTML plugin.
    *
-   * @var \Drupal\filter\Plugin\Filter\FilterHtml|null   */
+   * @var \Drupal\filter\Plugin\Filter\FilterHtml|null
+   */
   protected $htmlFilter;
 
   /**
    * The langcode.
    *
-   * @var string   */
+   * @var string
+   */
   protected $langcode;
 
   /**
    * The result.
    *
-   * @var \Drupal\filter\FilterProcessResult|null   */
+   * @var \Drupal\filter\FilterProcessResult|null
+   */
   protected $result;
 
   /**
    * The excluded settings to fetch from attributes.
    *
-   * @var array   */
+   * @var array
+   */
   protected $excludedSettings = ['filter_tags'];
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(
     ContainerInterface $container,
     array $configuration,
@@ -137,7 +154,8 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Returns settings for attachments.   */
+   * Returns settings for attachments.
+   */
   protected function attach(array $settings = []): array {
     $all = ['blazy' => TRUE, 'filter' => TRUE, 'ratio' => TRUE] + $settings;
     $all['media_switch'] = $switch = $settings['media_switch'] ?? '';
@@ -150,7 +168,8 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Extracts setting from attributes.   */
+   * Extracts setting from attributes.
+   */
   protected function extractSettings(\DOMElement $node, array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -196,7 +215,8 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Return sanitized caption, stolen from Filter caption.   */
+   * Return sanitized caption, stolen from Filter caption.
+   */
   protected function filterHtml($text): string {
     // Read the data-caption attribute's value, then delete it.
     $caption = Html::escape($text);
@@ -216,7 +236,8 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   /**
    * Returns the inner HTML of the DOMElement node.
    *
-   * See https://www.php.net/manual/en/class.domelement.php#101243   */
+   * See https://www.php.net/manual/en/class.domelement.php#101243
+   */
   protected function getHtml($node): ?string {
     $text = '';
     foreach ($node->childNodes as $child) {
@@ -228,7 +249,8 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Returns DOMElement nodes expected to be grid, or slide items.   */
+   * Returns DOMElement nodes expected to be grid, or slide items.
+   */
   protected function getNodes(\DOMDocument $dom, $tag = '//grid') {
     $xpath = new \DOMXPath($dom);
 
@@ -236,7 +258,8 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Returns a valid node, excluding blur/ bg images.   */
+   * Returns a valid node, excluding blur/ bg images.
+   */
   protected function getValidNode($children) {
     $child = $children->item(0);
 
@@ -261,7 +284,8 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Return common definitions.   */
+   * Return common definitions.
+   */
   protected function getPluginScopes(): array {
     return [
       'caches'    => FALSE,
@@ -271,7 +295,8 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Initialize the settings.   */
+   * Initialize the settings.
+   */
   protected function init(array &$settings, $text): void {
     if (!isset($this->htmlFilter)) {
       $this->htmlFilter = $this->filterManager->createInstance('filter_html', [
@@ -285,25 +310,29 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Alias for Shortcode::parse().   */
+   * Alias for Shortcode::parse().
+   */
   protected function shortcode($text, $container = 'blazy', $item = 'item'): string {
     return Shortcode::parse($text, $container, $item);
   }
 
   /**
-   * Prepares the settings.   */
+   * Prepares the settings.
+   */
   protected function preSettings(array &$settings, $text): void {
     // Do nothing.
   }
 
   /**
-   * Modifies the settings.   */
+   * Modifies the settings.
+   */
   protected function postSettings(array &$settings): void {
     // Do nothing.
   }
 
   /**
-   * Removes nodes.   */
+   * Removes nodes.
+   */
   protected function removeNodes(&$nodes): void {
     foreach ($nodes as $node) {
       if ($node->parentNode) {
@@ -313,7 +342,8 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Render the output.   */
+   * Render the output.
+   */
   protected function render(\DOMElement $node, array $output): void {
     $dom = $node->ownerDocument;
     $altered_html = $this->manager->renderer()->render($output);
@@ -337,7 +367,8 @@ abstract class TextFilterBase extends FilterBase implements ContainerFactoryPlug
   }
 
   /**
-   * Return valid nodes based on the allowed tags.   */
+   * Return valid nodes based on the allowed tags.
+   */
   protected function validNodes(\DOMDocument $dom, array $allowed_tags = [], $exclude = ''): array {
     $valid_nodes = [];
     foreach ($allowed_tags as $allowed_tag) {

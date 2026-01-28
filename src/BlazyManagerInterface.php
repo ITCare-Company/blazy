@@ -19,7 +19,8 @@ interface BlazyManagerInterface extends BlazyManagerBaseInterface {
    * @return array
    *   The alterable and renderable array of enforced content, or theme_blazy().
    *
-   * @todo remove/ unify ImageItem, or fake one, as plain array at 3.x.   */
+   * @todo remove/ unify ImageItem, or fake one, as plain array at 3.x.
+   */
   public function getBlazy(array $build): array;
 
   /**
@@ -29,7 +30,8 @@ interface BlazyManagerInterface extends BlazyManagerBaseInterface {
    *   The pre-rendered element.
    *
    * @return array
-   *   The renderable array of pre-rendered element.   */
+   *   The renderable array of pre-rendered element.
+   */
   public function preRenderBlazy(array $element): array;
 
   /**
@@ -42,7 +44,8 @@ interface BlazyManagerInterface extends BlazyManagerBaseInterface {
    *   The array containing: settings, children elements, or optional items.
    *
    * @return array
-   *   The alterable and renderable array of contents.   */
+   *   The alterable and renderable array of contents.
+   */
   public function build(array $build): array;
 
   /**
@@ -52,7 +55,8 @@ interface BlazyManagerInterface extends BlazyManagerBaseInterface {
    *   The pre-rendered element.
    *
    * @return array
-   *   The renderable array of pre-rendered element.   */
+   *   The renderable array of pre-rendered element.
+   */
   public function preRenderBuild(array $element): array;
 
   /**
@@ -62,7 +66,8 @@ interface BlazyManagerInterface extends BlazyManagerBaseInterface {
    *   The settings which determine what library to attach, empty for defaults.
    *
    * @return object
-   *   The supported IO drupalSettings.   */
+   *   The supported IO drupalSettings.
+   */
   public function getIoSettings(array $attach = []): object;
 
 }

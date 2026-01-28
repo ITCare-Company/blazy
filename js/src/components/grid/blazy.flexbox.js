@@ -21,7 +21,8 @@
   /**
    * Attaches Blazy behavior to HTML element identified by .b-flexbox.
    *
-   * @type {Drupal~behavior}   */
+   * @type {Drupal~behavior}
+   */
   Drupal.behaviors.blazyFlexbox = {
     attach: function (context) {
 

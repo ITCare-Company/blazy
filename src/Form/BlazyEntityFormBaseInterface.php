@@ -8,11 +8,13 @@ namespace Drupal\blazy\Form;
 interface BlazyEntityFormBaseInterface {
 
   /**
-   * Returns the blazy admin service.   */
+   * Returns the blazy admin service.
+   */
   public function admin();
 
   /**
-   * Returns the blazy manager service.   */
+   * Returns the blazy manager service.
+   */
   public function manager();
 
 }

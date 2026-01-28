@@ -8,20 +8,21 @@ namespace Drupal\blazy_layout\Plugin\Layout;
 class BlazyLayout extends BlazyLayoutForm {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function build(array $regions): array {
     $this->init();
 
     $build = parent::build($regions);
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = $this->settings();
 
     $build['#settings'] = $settings;
     $build['#count']    = static::$count;
 
     // Modifies output.
-    /** @var array<string, mixed> $output */
+    /** @var array $output */
     $output = $this->interpolate($settings, $build);
 
     // Modifies attributes.
@@ -48,13 +49,14 @@ class BlazyLayout extends BlazyLayoutForm {
   /**
    * Interpolate data from Layout Builder to extract grid attributes.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being modified.
-   * @param array<string, mixed> $build
+   * @param array $build
    *   The build being passed.
    *
    * @return array
-   *   The $build element with modified attributes.   */
+   *   The $build element with modified attributes.
+   */
   private function interpolate(array &$settings, array $build): array {
     $sets = $settings;
     $sets['is_form'] = FALSE;

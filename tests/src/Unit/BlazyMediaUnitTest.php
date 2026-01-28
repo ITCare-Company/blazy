@@ -16,7 +16,8 @@ class BlazyMediaUnitTest extends UnitTestCase {
   use BlazyUnitTestTrait;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -27,15 +28,16 @@ class BlazyMediaUnitTest extends UnitTestCase {
   /**
    * Tests \Drupal\blazy\Media\BlazyMedia::view().
    *
-   * @param array<string, mixed> $markup
+   * @param array $markup
    *   The markup being tested.
    *
-   * @dataProvider providerTestBlazyMediaBuild   */
+   * @dataProvider providerTestBlazyMediaBuild
+   */
   public function testBlazyMediaBuild(array $markup) {
     $source_field = $this->randomMachineName();
     $view_mode = 'default';
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = [
       'image_style'  => 'blazy_crop',
       'ratio'        => 'fluid',
@@ -98,7 +100,8 @@ class BlazyMediaUnitTest extends UnitTestCase {
   }
 
   /**
-   * Provider for ::testBlazyMediaBuild.   */
+   * Provider for ::testBlazyMediaBuild.
+   */
   public static function providerTestBlazyMediaBuild() {
     $iframe = [
       '#type' => 'html_tag',

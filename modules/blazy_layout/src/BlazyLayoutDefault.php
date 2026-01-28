@@ -11,14 +11,16 @@ use Drupal\blazy\BlazyDefault;
 class BlazyLayoutDefault {
 
   /**
-   * Defines region count.   */
+   * Defines region count.
+   */
   const REGION_COUNT = 9;
 
   /**
    * Returns display style options, different from core Blazy for layouts.
    *
    * @return array
-   *   The display style settings.   */
+   *   The display style settings.
+   */
   public static function displayStyle(): array {
     return [
       'column' => 'CSS3 Columns',
@@ -32,7 +34,8 @@ class BlazyLayoutDefault {
    * Returns sensible default options common for entities lacking of UI.
    *
    * @return array
-   *   The entity settings.   */
+   *   The entity settings.
+   */
   public static function entitySettings(): array {
     return BlazyDefault::entitySettings();
   }
@@ -41,7 +44,8 @@ class BlazyLayoutDefault {
    * Returns the hero settings.
    *
    * @return array
-   *   The layout settings.   */
+   *   The layout settings.
+   */
   public static function heroSettings(): array {
     return [
       'hero'            => '',
@@ -55,7 +59,8 @@ class BlazyLayoutDefault {
    * Returns the layout settings.
    *
    * @return array
-   *   The layout settings.   */
+   *   The layout settings.
+   */
   public static function layoutSettings(): array {
     return [
       'id'             => '',
@@ -74,7 +79,8 @@ class BlazyLayoutDefault {
    * Returns the sub-layout settings.
    *
    * @return array
-   *   The sublayout settings.   */
+   *   The sublayout settings.
+   */
   public static function sublayoutSettings(): array {
     return [
       'ete'       => FALSE,
@@ -88,7 +94,8 @@ class BlazyLayoutDefault {
    * Returns the media settings.
    *
    * @return array
-   *   The layout media settings.   */
+   *   The layout media settings.
+   */
   public static function layoutMediaSettings(): array {
     return [
       'id' => '',
@@ -110,7 +117,8 @@ class BlazyLayoutDefault {
    * Returns the region layout settings.
    *
    * @return array
-   *   The region settings.   */
+   *   The region settings.
+   */
   public static function regionSettings(): array {
     return [
       'label'    => '',
@@ -122,7 +130,8 @@ class BlazyLayoutDefault {
    * Returns the region layout settings.
    *
    * @return array
-   *   The style settings.   */
+   *   The style settings.
+   */
   public static function styleSettings(): array {
     return [
       'background_color'   => '',
@@ -142,7 +151,8 @@ class BlazyLayoutDefault {
    * Returns align items options.
    *
    * @return array
-   *   The align_items settings.   */
+   *   The align_items settings.
+   */
   public static function alignItems(): array {
     return [
       'normal' => 'normal',
@@ -171,7 +181,8 @@ class BlazyLayoutDefault {
    * Returns the main wrapper Layout Builder select options.
    *
    * @return array
-   *   The main wrapper options.   */
+   *   The main wrapper options.
+   */
   public static function mainWrapperOptions(): array {
     return [
       'div'     => 'Div',
@@ -187,7 +198,8 @@ class BlazyLayoutDefault {
    * Returns wrapper Layout Builder select options.
    *
    * @return array
-   *   The region wrapper options.   */
+   *   The region wrapper options.
+   */
   public static function regionWrapperOptions(): array {
     return self::mainWrapperOptions() + [
       'figure' => 'Figure',
@@ -202,7 +214,8 @@ class BlazyLayoutDefault {
    *   The layout ID.
    *
    * @return string
-   *   The standardized layout ID.   */
+   *   The standardized layout ID.
+   */
   public static function layoutId(string|int $id): string {
     return 'b-layout--' . (string) $id;
   }
@@ -214,7 +227,8 @@ class BlazyLayoutDefault {
    *   The layout label.
    *
    * @return string
-   *   The standardized layout label.   */
+   *   The standardized layout label.
+   */
   public static function layoutLabel(string $label): string {
     return 'Blazy: ' . (string) $label;
   }
@@ -226,7 +240,8 @@ class BlazyLayoutDefault {
    *   The region ID.
    *
    * @return string
-   *   The standardized region ID.   */
+   *   The standardized region ID.
+   */
   public static function regionId(string|int $id): string {
     return 'blzyr_' . (string) $id;
   }
@@ -238,7 +253,8 @@ class BlazyLayoutDefault {
    *   The layout label.
    *
    * @return string
-   *   The standardized region label.   */
+   *   The standardized region label.
+   */
   public static function regionLabel(string $label): string {
     return 'Region ' . (string) $label;
   }
@@ -250,7 +266,8 @@ class BlazyLayoutDefault {
    *   The layout label.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
-   *   The translatable region label.   */
+   *   The translatable region label.
+   */
   public static function regionTranslatableLabel(string $label): TranslatableMarkup {
     return new TranslatableMarkup('@label', ['@label' => $label], [
       'context' => 'layout_region',
@@ -261,7 +278,8 @@ class BlazyLayoutDefault {
    * Returns the shared settings.
    *
    * @return array
-   *   The shared settings.   */
+   *   The shared settings.
+   */
   public static function sharedSettings(): array {
     return [
       'wrapper'     => 'div',

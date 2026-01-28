@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\blazy\Unit\Form;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
@@ -18,7 +20,8 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
   use BlazyManagerUnitTestTrait;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -48,7 +51,8 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
   }
 
   /**
-   * Provide test cases for ::testBuildSettingsForm.   */
+   * Provide test cases for ::testBuildSettingsForm.
+   */
   public static function providerTestBuildSettingsForm() {
     return [
       [FALSE],
@@ -59,7 +63,8 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
   /**
    * Tests settings form.
    *
-   * @dataProvider providerTestBuildSettingsForm   */
+   * @dataProvider providerTestBuildSettingsForm
+   */
   public function testBuildSettingsForm($vanilla) {
     $form = [];
     $definition = $this->getDefaulEntityFormatterDefinition()
@@ -70,7 +75,7 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
     $definition['_views'] = TRUE;
 
     $this->blazyAdminFormatter->openingForm($form, $definition);
-    /** @var array<string, mixed> $form */
+    /** @var array $form */
     $this->assertEquals($vanilla, !empty($form['vanilla']));
 
     $this->blazyAdminFormatter->buildSettingsForm($form, $definition);
@@ -80,7 +85,8 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
   }
 
   /**
-   * Provider for ::testGetSettingsSummary.   */
+   * Provider for ::testGetSettingsSummary.
+   */
   public static function providerTestGetSettingsSummary() {
     return [
       [FALSE, FALSE, FALSE, '', FALSE],
@@ -92,7 +98,8 @@ class BlazyAdminFormatterUnitTest extends UnitTestCase {
   /**
    * Tests the Blazy admin ::getSettingsSummary().
    *
-   * @dataProvider providerTestGetSettingsSummary   */
+   * @dataProvider providerTestGetSettingsSummary
+   */
   public function testGetSettingsSummary($use_settings, $vanilla, $override, $responsive_image_style, $expected) {
     $definition = $this->getFormatterDefinition();
     $settings = array_merge(BlazyDefault::gridSettings(), $definition['settings'] ?? []);
@@ -123,7 +130,8 @@ namespace Drupal\blazy\Form;
 if (!function_exists('responsive_image_get_image_dimensions')) {
 
   /**
-   * Dummy function.   */
+   * Dummy function.
+   */
   function responsive_image_get_image_dimensions() {
     // Empty block to satisfy coder.
   }

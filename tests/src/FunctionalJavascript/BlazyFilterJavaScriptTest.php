@@ -36,21 +36,25 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
   use BlazyCreationTestTrait;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected $defaultTheme = 'stark';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected $minkDefaultDriverClass = DrupalSelenium2Driver::class;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected $imagePath;
 
   /**
    * {@inheritdoc}
    *
-   * @var array<string>   */
+   * @var array<string>
+   */
   protected static $modules = [
     'field',
     'filter',
@@ -63,7 +67,8 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
   ];
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -99,7 +104,8 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
   }
 
   /**
-   * Test the Blazy filter has media-wrapper--blazy for IMG and IFRAME elements.   */
+   * Test the Blazy filter has media-wrapper--blazy for IMG and IFRAME elements.
+   */
   public function testFilterDisplay() {
     $text = $this->dummyText();
     $settings = Blazy::init();
@@ -189,7 +195,8 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
    *
    * @return array
    *   The filtered text, wrapped in a FilterProcessResult object, and possibly
-   *   with associated assets, cacheability metadata and placeholders.   */
+   *   with associated assets, cacheability metadata and placeholders.
+   */
   protected function applyFilter($text, $identifier = 'media-wrapper--blazy', $langcode = 'en') {
     $this->assertStringNotContainsString($identifier, $text);
     $result = $this->processText($text, $langcode);
@@ -214,7 +221,8 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
    *   The filtered text, wrapped in a FilterProcessResult object, and possibly
    *   with associated assets, cacheability metadata and placeholders.
    *
-   * @see \Drupal\filter\Element\ProcessedText::preRenderText()   */
+   * @see \Drupal\filter\Element\ProcessedText::preRenderText()
+   */
   protected function processText($text, $langcode = LanguageInterface::LANGCODE_NOT_SPECIFIED, array $filter_ids = ['blazy_filter']) {
     $manager = $this->container->get('plugin.manager.filter');
     $bag = new FilterPluginCollection($manager, []);
@@ -242,7 +250,8 @@ class BlazyFilterJavaScriptTest extends WebDriverTestBase {
   }
 
   /**
-   * Returns a dummy text.   */
+   * Returns a dummy text.
+   */
   protected function dummyText(): string {
     $uuid = $this->dummyItem->uuid();
     $text = '<div style="width: 640px;">';

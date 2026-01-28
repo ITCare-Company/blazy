@@ -14,11 +14,13 @@ abstract class BlazyListBuilderBase extends DraggableListBuilder {
   /**
    * The blazy manager.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface   */
+   * @var \Drupal\blazy\BlazyManagerInterface
+   */
   protected $manager;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getDefaultOperations(EntityInterface $entity) {
     $operations = parent::getDefaultOperations($entity);
 
@@ -40,7 +42,8 @@ abstract class BlazyListBuilderBase extends DraggableListBuilder {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
 

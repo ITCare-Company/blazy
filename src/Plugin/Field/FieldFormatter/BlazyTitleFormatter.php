@@ -23,7 +23,8 @@ use Drupal\blazy\Internals\Internals;
 class BlazyTitleFormatter extends StringFormatter {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function defaultSettings() {
     return [
       'delimiter' => '|',
@@ -33,7 +34,8 @@ class BlazyTitleFormatter extends StringFormatter {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $elements    = [];
     $settings    = $this->getSettings();
@@ -61,7 +63,8 @@ class BlazyTitleFormatter extends StringFormatter {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $form = parent::settingsForm($form, $form_state);
     $form['delimiter'] = [
@@ -90,7 +93,8 @@ class BlazyTitleFormatter extends StringFormatter {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function settingsSummary() {
     $summary = [];
     $summary[] = $this->t('Delimiter: <strong>@delimiter</strong> <br />Sub-title tag: <strong>@tag</strong> <br />Linebreak: <strong>@break</strong><br />Link: <strong>@link</strong>', [

@@ -29,35 +29,41 @@ class BlazyFile implements BlazyFileInterface {
   /**
    * The file system service.
    *
-   * @var \Drupal\Core\File\FileSystemInterface   */
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
   protected $fileSystem;
 
   /**
    * The file repository service.
    *
-   * @var \Drupal\file\FileRepository   */
+   * @var \Drupal\file\FileRepository
+   */
   protected $fileRepository;
 
   /**
    * The image object.
    *
-   * @var \Drupal\Core\Image\ImageInterface|null   */
+   * @var \Drupal\Core\Image\ImageInterface|null
+   */
   protected $image;
 
   /**
    * The image factory service.
    *
-   * @var \Drupal\Core\Image\ImageFactory   */
+   * @var \Drupal\Core\Image\ImageFactory
+   */
   protected $imageFactory;
 
   /**
    * A logger instance.
    *
-   * @var \Drupal\Core\Logger\LoggerChannelInterface   */
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
   protected $logger;
 
   /**
-   * Constructs a SVG manager object.   */
+   * Constructs a SVG manager object.
+   */
   public function __construct(
     FileSystemInterface $file_system,
     FileRepository $file_repository,
@@ -71,7 +77,8 @@ class BlazyFile implements BlazyFileInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('file_system'),
@@ -82,43 +89,50 @@ class BlazyFile implements BlazyFileInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function fileSystem(): FileSystemInterface {
     return $this->fileSystem;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function fileRepository(): FileRepository {
     return $this->fileRepository;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function imageFactory(): ImageFactory {
     return $this->imageFactory;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function image($source = NULL, $toolkit_id = NULL): ImageInterface {
     return $this->imageFactory->get($source, $toolkit_id);
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function realpath($uri): string {
     return $this->fileSystem->realpath($uri);
   }
 
   /**
-   * Returns TRUE if an external URL.   */
+   * Returns TRUE if an external URL.
+   */
   public static function isExternal($uri): bool {
     return $uri && UrlHelper::isExternal($uri);
   }
 
   /**
-   * Returns TRUE if a File entity.   */
+   * Returns TRUE if a File entity.
+   */
   public static function isFile($file): bool {
     return $file instanceof FileInterface;
   }
@@ -130,7 +144,8 @@ class BlazyFile implements BlazyFileInterface {
    *   The URI to be tested.
    *
    * @return bool
-   *   TRUE if the URI is valid.   */
+   *   TRUE if the URI is valid.
+   */
   public static function isValidUri($uri): bool {
     if (!empty($uri) && $manager = Path::streamWrapperManager()) {
       return $manager->isValidUri($uri);
@@ -147,7 +162,8 @@ class BlazyFile implements BlazyFileInterface {
    *   Whether to return an relative or absolute URL.
    *
    * @return string
-   *   Returns an absolute web-accessible URL string.   */
+   *   Returns an absolute web-accessible URL string.
+   */
   public static function createUrl($uri, $relative = FALSE): string {
     if ($gen = Path::fileUrlGenerator()) {
       // @todo recheck ::generateAbsoluteString doesn't return web-accessible
@@ -175,7 +191,8 @@ class BlazyFile implements BlazyFileInterface {
    *   Returns an absolute URL of a local file to a relative one.
    *
    * @see BlazyOEmbed::getThumbnail()
-   * @see BlazyFilter::getImageItemFromImageSrc()   */
+   * @see BlazyFilter::getImageItemFromImageSrc()
+   */
   public static function transformRelative($uri, $style = NULL, array $options = []): string {
     $url = $options['url'] ?? '';
 
@@ -207,7 +224,8 @@ class BlazyFile implements BlazyFileInterface {
    *
    * Converts `/sites/default/files/image.jpg` into `public://image.jpg`.
    *
-   * @todo re-check if core has this type of conversion.   */
+   * @todo re-check if core has this type of conversion.
+   */
   public static function buildUri($url): ?string {
     $manager = Internals::blazy();
     if (!$manager) {
@@ -241,13 +259,15 @@ class BlazyFile implements BlazyFileInterface {
   }
 
   /**
-   * Returns a file object from an URI.   */
+   * Returns a file object from an URI.
+   */
   public static function fromUri($uri, $manager = NULL): ?object {
     return Internals::loadByProperty('uri', $uri, 'file', $manager);
   }
 
   /**
-   * Returns TRUE if an SVG URI.   */
+   * Returns TRUE if an SVG URI.
+   */
   public static function isSvg($uri): bool {
     // Some guy uploaded images without extensions, seen at wildlife.
     if ($ext = pathinfo($uri, PATHINFO_EXTENSION)) {
@@ -259,7 +279,8 @@ class BlazyFile implements BlazyFileInterface {
   }
 
   /**
-   * Normalizes URI for BlazyFilter URLs, etc., hardly formatters.   */
+   * Normalizes URI for BlazyFilter URLs, etc., hardly formatters.
+   */
   public static function normalizeUri($path): string {
     $uri = $path;
     $manager = Internals::blazy();
@@ -279,7 +300,8 @@ class BlazyFile implements BlazyFileInterface {
   }
 
   /**
-   * Returns web-accessible URI if an invalid is given.   */
+   * Returns web-accessible URI if an invalid is given.
+   */
   public static function toAccessibleUri($uri): string {
     $abs = $uri;
     // Must be valid URI, or web-accessible url, not: /modules|themes/...
@@ -292,7 +314,8 @@ class BlazyFile implements BlazyFileInterface {
   }
 
   /**
-   * Returns URI from image item, fake or valid one, no problem.   */
+   * Returns URI from image item, fake or valid one, no problem.
+   */
   public static function uri($item, array $settings = []): ?string {
     $uri = NULL;
     if ($item && BlazyImage::isValidItem($item)) {
@@ -315,7 +338,8 @@ class BlazyFile implements BlazyFileInterface {
   /**
    * Returns the File entity from any object, or just settings, if applicable.
    *
-   * Should be named entity, but for consistency with BlazyImage:item().   */
+   * Should be named entity, but for consistency with BlazyImage:item().
+   */
   public static function item($object = NULL, array $settings = [], $uri = NULL): ?object {
     $file = $object;
     Internals::verify($settings);
@@ -377,7 +401,8 @@ class BlazyFile implements BlazyFileInterface {
    * Fallback to default thumbnail if any, which has no file API. This used to
    * be for non-media File Entity Reference at 1.x, things changed since then.
    * Some core methods during Blazy 1.x are now gone at 2.x.
-   * Re-purposed for Paragraphs, Node, etc. which embeds Media or File.   */
+   * Re-purposed for Paragraphs, Node, etc. which embeds Media or File.
+   */
   private static function fromField($entity, $name, array $settings): ?object {
     $file = NULL;
 
@@ -411,7 +436,8 @@ class BlazyFile implements BlazyFileInterface {
   }
 
   /**
-   * Returns the File entity from settings, if applicable, relevant for Filter.   */
+   * Returns the File entity from settings, if applicable, relevant for Filter.
+   */
   private static function fromSettings(array $settings, $uri = NULL): ?object {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'] ?? NULL;

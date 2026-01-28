@@ -20,7 +20,7 @@ function blazy_test_theme() {
  * {@inheritdoc}
  */
 function template_preprocess_blazy_test(array &$variables) {
-  /** @var array<string, mixed> $element */
+  /** @var array $element */
   $element = $variables['element'];
 
   $variables['content'] = $element['#children'] ?? [];

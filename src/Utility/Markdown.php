@@ -30,7 +30,8 @@ class Markdown {
    *   True, if the text should be sanitized.
    *
    * @return string
-   *   The filtered, or raw converted text.   */
+   *   The filtered, or raw converted text.
+   */
   public static function parse(string $text, $help = TRUE, $sanitize = TRUE): string {
     if (!self::isApplicable()) {
       $text = $sanitize ? Xss::filterAdmin($text) : $text;
@@ -72,7 +73,8 @@ class Markdown {
   }
 
   /**
-   * Checks if we have the needed classes.   */
+   * Checks if we have the needed classes.
+   */
   private static function isApplicable(): bool {
     return class_exists(CommonMarkConverter::class)
       || class_exists(MarkdownExtra::class);

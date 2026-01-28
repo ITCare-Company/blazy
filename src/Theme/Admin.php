@@ -17,10 +17,11 @@ class Admin {
   /**
    * Provides compact description due to small estates in modal.
    *
-   * @param array<string, mixed> $form
+   * @param array $form
    *   The form being modified.
-   * @param array<string, mixed> $parents
-   *   The parent elements.   .*/
+   * @param array $parents
+   *   The parent elements.
+   */
   public static function themeDescription(array &$form, array $parents = []): void {
     if (!empty($form['#description'])) {
       $desc = [
@@ -51,7 +52,7 @@ class Admin {
   /**
    * Provides horizontal tabs menu for nested details elements.
    *
-   * @param array<string, mixed> $form
+   * @param array $form
    *   The form being modified.
    * @param string $form_id
    *   The form ID.

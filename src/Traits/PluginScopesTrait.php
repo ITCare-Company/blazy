@@ -19,11 +19,12 @@ trait PluginScopesTrait {
   /**
    * Converts old plugin scopes array into BlazySettings object to interop.
    *
-   * @param array<string, mixed> $scopes
+   * @param array $scopes
    *   The scopes being passed.
    *
    * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings instance.   */
+   *   The BlazySettings instance.
+   */
   protected function toPluginScopes(array $scopes = []): BlazySettings {
     $current = [];
     $definitions = [];
@@ -94,12 +95,9 @@ trait PluginScopesTrait {
    *
    * @param \Drupal\blazy\BlazySettings $blazies
    *   The blazies instance.
-   *
-   * @param-out \Drupal\blazy\BlazySettings $blazies
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being modified.
-   *
-   * @param-out array<string, mixed> $settings   */
+   */
   protected function pluginSettings(&$blazies, array &$settings): void {
     if ($settings['namespace'] == 'blazy') {
       $id = 'blazy';

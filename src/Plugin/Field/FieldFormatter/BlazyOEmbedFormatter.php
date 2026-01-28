@@ -38,50 +38,59 @@ class BlazyOEmbedFormatter extends FormatterBase {
    * The module namespace.
    *
    * @var string
-   * @see https://www.php.net/manual/en/reserved.keywords.php   */
+   * @see https://www.php.net/manual/en/reserved.keywords.php
+   */
   protected static $namespace = 'blazy';
 
   /**
    * The item id: blazy, slide, box, etc.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $itemId = 'content';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $itemPrefix = 'blazy';
 
   /**
    * The caption id.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $captionId = 'captions';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $fieldType = 'entity';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     return static::injectServices($instance, $container, static::$fieldType);
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function defaultSettings() {
     return BlazyDefault::baseImageSettings();
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     return $this->commonViewElements($items, $langcode);
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $element = [];
     $definition = $this->getScopedFormElements();
@@ -99,7 +108,8 @@ class BlazyOEmbedFormatter extends FormatterBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function isApplicable(FieldDefinitionInterface $field_definition) {
     if ($field_definition->getTargetEntityTypeId() !== 'media') {
       return FALSE;
@@ -114,7 +124,8 @@ class BlazyOEmbedFormatter extends FormatterBase {
   }
 
   /**
-   * Provides the blazy elements.   */
+   * Provides the blazy elements.
+   */
   protected function buildElements(array &$build, $items, $langcode) {
     $settings = $build['#settings'];
     $limit    = $this->getViewLimit($settings);
@@ -131,7 +142,8 @@ class BlazyOEmbedFormatter extends FormatterBase {
   }
 
   /**
-   * Generates the Blazy elements.   */
+   * Generates the Blazy elements.
+   */
   protected function getElements(array &$build, $items): \Generator {
     $settings   = &$build['#settings'];
     $field_name = $this->fieldDefinition->getName();
@@ -176,7 +188,8 @@ class BlazyOEmbedFormatter extends FormatterBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function getPluginScopes(): array {
     return [
       'image_style_form'  => TRUE,
@@ -189,7 +202,8 @@ class BlazyOEmbedFormatter extends FormatterBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function postSettings(array &$settings, $langcode): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];

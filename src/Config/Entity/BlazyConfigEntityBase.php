@@ -18,35 +18,41 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
   /**
    * The legacy CTools ID for the configurable optionset.
    *
-   * @var string   */
+   * @var string
+   */
   protected $name;
 
   /**
    * The human-readable name for the optionset.
    *
-   * @var string   */
+   * @var string
+   */
   protected $label;
 
   /**
    * The weight to re-arrange the order of slick optionsets.
    *
-   * @var int   */
+   * @var int
+   */
   protected $weight = 0;
 
   /**
    * The plugin instance options.
    *
-   * @var array   */
+   * @var array
+   */
   protected $options = [];
 
   /**
-   * Overrides Drupal\Core\Entity\Entity::id().   */
+   * Overrides Drupal\Core\Entity\Entity::id().
+   */
   public function id() {
     return $this->name;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getOptions($group = NULL, $property = NULL) {
     $default = self::load('default');
     $default_options = $default ? $default->options : [];
@@ -66,21 +72,24 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function setOptions(array $options, $merged = TRUE): self {
     $this->options = $merged ? Arrays::merge($options, $this->options) : $options;
     return $this;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getOption($group, $default = NULL) {
     // Makes sure to not call ::getOptions($group), else everything is dumped.
     return $this->getOptions()[$group] ?? $default;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function setOption($group, $value): self {
     if ($group == 'settings') {
       $value = array_merge(($this->options[$group] ?? []), $value);
@@ -91,7 +100,8 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getSettings($ansich = FALSE): array {
     $settings = $this->options['settings'] ?? [];
     if ($ansich && $settings) {
@@ -103,7 +113,8 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function setSettings(array $values, $merged = TRUE): self {
     $settings = $this->options['settings'] ?? [];
     $this->options['settings'] = $merged
@@ -113,13 +124,15 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getSetting($name, $default = NULL) {
     return $this->getSettings()[$name] ?? $default;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function setSetting($name, $value): self {
     $this->options['settings'][$name] = $value;
     return $this;
@@ -132,7 +145,8 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
    *   The name of group: settings, responsives.
    *
    * @return array
-   *   The default settings under options.   */
+   *   The default settings under options.
+   */
   public static function defaultSettings($group = 'settings'): array {
     return self::load('default')->options[$group] ?? [];
   }
@@ -144,7 +158,8 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
    *   The optionset name.
    *
    * @return object
-   *   The optionset object.   */
+   *   The optionset object.
+   */
   public static function loadSafely($name) {
     $optionset = self::load($name);
 
@@ -161,7 +176,8 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
    *   The optionset name.
    *
    * @return object
-   *   The optionset object.   */
+   *   The optionset object.
+   */
   public static function verifyOptionset(array &$build, $name) {
     // The element is normally present at template_preprocess, not builders.
     $key = isset($build['element']) ? 'optionset' : '#optionset';
@@ -183,7 +199,9 @@ abstract class BlazyConfigEntityBase extends ConfigEntityBase implements BlazyCo
    *
    * @todo deprecated in blazy:8.x-2.17 and is removed from blazy:3.0.0. Use
    *   self::loadSafely() instead.
-   * @see https://www.drupal.org/node/3103018   */
+   *
+   * @see https://www.drupal.org/node/3103018
+   */
   public static function loadWithFallback($id) {
     return self::loadSafely($id);
   }

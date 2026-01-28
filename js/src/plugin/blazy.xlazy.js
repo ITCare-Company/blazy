@@ -123,7 +123,8 @@
    *   The Image or Iframe element.
    *
    * @return {bool}
-   *   True if the image or iframe is loaded.   */
+   *   True if the image or iframe is loaded.
+   */
   $.isCompleted = function (el) {
     if ($.isElm(el)) {
       if ($.equal(el, 'img')) {

@@ -15,7 +15,8 @@ use Drupal\blazy\Field\BlazyEntitySvgBase;
 abstract class BlazyMediaFormatterBase extends BlazyEntitySvgBase {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function defaultSettings() {
     return BlazyDefault::extendedSettings()
       + BlazyDefault::gridSettings()
@@ -23,7 +24,8 @@ abstract class BlazyMediaFormatterBase extends BlazyEntitySvgBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function isApplicable(FieldDefinitionInterface $field_definition) {
     return $field_definition->getFieldStorageDefinition()->getSetting('target_type') == 'media';
   }

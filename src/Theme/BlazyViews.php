@@ -16,7 +16,8 @@ use Drupal\blazy\Internals\Internals;
 class BlazyViews {
 
   /**
-   * Provides common views-related settings.   */
+   * Provides common views-related settings.
+   */
   public static function settings($view, array $settings, array $data = []): array {
     $count     = count($view->result);
     $view_name = $view->storage->id();
@@ -77,7 +78,8 @@ class BlazyViews {
   }
 
   /**
-   * Returns one of the Blazy Views fields, if available.   */
+   * Returns one of the Blazy Views fields, if available.
+   */
   public static function viewsField($view) {
     foreach (['file', 'media'] as $entity) {
       if (isset($view->field['blazy_' . $entity])) {
@@ -90,7 +92,8 @@ class BlazyViews {
   /**
    * Implements hook_preprocess_views_view().
    *
-   * @todo delete this when min D11.   */
+   * @todo delete this when min D11.
+   */
   public static function preprocessViewsView(array &$variables): void {
     ViewsHooks::preprocessViewsView($variables);
   }

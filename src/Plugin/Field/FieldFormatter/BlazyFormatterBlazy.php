@@ -15,21 +15,25 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 class BlazyFormatterBlazy extends BlazyFileSvgFormatterBase {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $namespace = 'blazy';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $itemId = 'content';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $itemPrefix = 'blazy';
 
   /**
    * {@inheritdoc}
    *
-   * @todo make it caption similar to sub-modules for easy 3.x migrations.   */
+   * @todo make it caption similar to sub-modules for easy 3.x migrations.
+   */
   protected static $captionId = 'captions';
 
 }

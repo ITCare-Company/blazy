@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\blazy\Traits;
 
 use Drupal\blazy\Blazy;
@@ -17,38 +19,44 @@ trait BlazyUnitTestTrait {
   /**
    * The mocked translator.
    *
-   * @var \Drupal\Core\StringTranslation\TranslationInterface   */
+   * @var \Drupal\Core\StringTranslation\TranslationInterface
+   */
   protected $stringTranslation;
 
   /**
    * The entity display repository.
    *
-   * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface   */
+   * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
+   */
   protected $entityDisplayRepository;
 
   /**
    * The type config manager.
    *
-   * @var \Drupal\Core\Config\TypedConfigManagerInterface   */
+   * @var \Drupal\Core\Config\TypedConfigManagerInterface
+   */
   protected $typedConfig;
 
   /**
    * The date formatter.
    *
-   * @var \Drupal\Core\Datetime\DateFormatter   */
+   * @var \Drupal\Core\Datetime\DateFormatter
+   */
   protected $dateFormatter;
 
   /**
    * The formatter settings.
    *
-   * @var array   */
+   * @var array
+   */
   protected $formatterSettings = [];
 
   /**
    * Returns sensible formatter settings for testing purposes.
    *
    * @return array
-   *   The formatter settings.   */
+   *   The formatter settings.
+   */
   protected function getFormatterSettings() {
     $defaults = [
       'box_caption'     => 'custom',
@@ -71,11 +79,12 @@ trait BlazyUnitTestTrait {
   /**
    * Sets formatter settings.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The given settings.
    *
    * @return $this
-   *   The class instance that this method is called on.   */
+   *   The class instance that this method is called on.
+   */
   protected function setFormatterSettings(array $settings = []) {
     $this->formatterSettings = array_merge($this->getFormatterSettings(), $settings);
     return $this;
@@ -90,7 +99,8 @@ trait BlazyUnitTestTrait {
    *   The given value.
    *
    * @return $this
-   *   The class instance that this method is called on.   */
+   *   The class instance that this method is called on.
+   */
   protected function setFormatterSetting($setting, $value) {
     $this->formatterSettings[$setting] = $value;
     return $this;
@@ -100,7 +110,8 @@ trait BlazyUnitTestTrait {
    * Returns the default field definition.
    *
    * @return array
-   *   The default field definition.   */
+   *   The default field definition.
+   */
   protected function getDefaultFieldDefinition() {
     $bundle = $this->bundle;
     if (!$bundle) {
@@ -118,7 +129,8 @@ trait BlazyUnitTestTrait {
    * Returns the default field formatter definition.
    *
    * @return array
-   *   The default field formatter settings.   */
+   *   The default field formatter settings.
+   */
   protected function getCommonScopedFormElements() {
     return ['settings' => $this->getFormatterSettings()]
       + $this->getDefaultFieldDefinition();
@@ -127,7 +139,8 @@ trait BlazyUnitTestTrait {
   /**
    * Defines the scope for the form elements.
    *
-   * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().   */
+   * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().
+   */
   public function getScopedFormElements() {
     $commons = $this->getCommonScopedFormElements();
     $scopes = $this->getPluginScopes();
@@ -139,7 +152,8 @@ trait BlazyUnitTestTrait {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function getPluginScopes(): array {
     return [
       'background'        => TRUE,
@@ -168,7 +182,8 @@ trait BlazyUnitTestTrait {
    * Returns the default field formatter definition.
    *
    * @return array
-   *   The default field formatter settings.   */
+   *   The default field formatter settings.
+   */
   protected function getDefaulEntityFormatterDefinition() {
     return [
       'nav'              => TRUE,
@@ -188,7 +203,8 @@ trait BlazyUnitTestTrait {
    * Returns the field formatter definition along with settings.
    *
    * @return array
-   *   The field formatter settings.   */
+   *   The field formatter settings.
+   */
   protected function getFormatterDefinition() {
     $defaults = $this->getScopedFormElements();
 
@@ -205,7 +221,8 @@ trait BlazyUnitTestTrait {
    *   The defined value.
    *
    * @return $this
-   *   The class instance that this method is called on.   */
+   *   The class instance that this method is called on.
+   */
   protected function setFormatterDefinition($definition, $value) {
     $this->formatterDefinition[$definition] = $value;
     return $this;
@@ -214,20 +231,21 @@ trait BlazyUnitTestTrait {
   /**
    * Pre render Blazy image.
    *
-   * @param array<string, mixed> $build
+   * @param array $build
    *   The data containing: settings and image item.
    *
    * @return array
-   *   The pre_render element.   */
+   *   The pre_render element.
+   */
   protected function doPreRenderImage(array $build) {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = $this->blazyManager->toHashtag($build);
     $this->blazyManager->postSettings($settings);
 
-    /** @var array<string, mixed> $image */
+    /** @var array $image */
     $image = $this->blazyManager->getBlazy($build);
 
-    /** @var array<string, mixed> $subbuild */
+    /** @var array $subbuild */
     $subbuild = $image['#build'] ?? [];
 
     $image['#build']['#item'] = $subbuild['#item'] ?? ($build['#item'] ?? []);
@@ -238,7 +256,8 @@ trait BlazyUnitTestTrait {
    * Returns dummy fields for an entity reference.
    *
    * @return array
-   *   A common field array for Blazy related entity reference formatter.   */
+   *   A common field array for Blazy related entity reference formatter.
+   */
   protected function getDefaultFields($select = FALSE) {
     $fields = [
       'field_class'  => 'text',
@@ -263,7 +282,8 @@ trait BlazyUnitTestTrait {
   }
 
   /**
-   * Set up Blazy variables.   */
+   * Set up Blazy variables.
+   */
   protected function setUpVariables() {
     $this->entityType    = 'node';
     $this->bundle        = 'bundle_test';
@@ -275,7 +295,8 @@ trait BlazyUnitTestTrait {
   }
 
   /**
-   * Setup the unit images.   */
+   * Setup the unit images.
+   */
   protected function setUpUnitImages() {
     $item = new \stdClass();
     $item->uri = 'public://example.jpg';
@@ -296,7 +317,8 @@ trait BlazyUnitTestTrait {
   }
 
   /**
-   * Setup the unit images.   */
+   * Setup the unit images.
+   */
   protected function setUpMockImage() {
     $entity = $this->createMock('\Drupal\Core\Entity\ContentEntityInterface');
 

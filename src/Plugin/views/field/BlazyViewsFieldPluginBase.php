@@ -23,47 +23,56 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   use PluginScopesTrait;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $namespace = 'blazy';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $itemId = 'content';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $itemPrefix = 'blazy';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $captionId = 'captions';
 
   /**
    * The blazy service manager.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface   */
+   * @var \Drupal\blazy\BlazyManagerInterface
+   */
   protected $blazyManager;
 
   /**
    * The blazy entity service.
    *
-   * @var \Drupal\blazy\BlazyEntityInterface   */
+   * @var \Drupal\blazy\BlazyEntityInterface
+   */
   protected $blazyEntity;
 
   /**
    * The blazy media service.
    *
-   * @var \Drupal\blazy\Media\BlazyMediaInterface   */
+   * @var \Drupal\blazy\Media\BlazyMediaInterface
+   */
   protected $blazyMedia;
 
   /**
    * The blazy merged settings.
    *
-   * @var array   */
+   * @var array
+   */
   public $mergedSettings = [];
 
   /**
-   * Constructs a BlazyViewsFieldPluginBase object.   */
+   * Constructs a BlazyViewsFieldPluginBase object.
+   */
   public function __construct(
     array $configuration,
     $plugin_id,
@@ -78,7 +87,8 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(
     ContainerInterface $container,
     array $configuration,
@@ -95,7 +105,8 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   }
 
   /**
-   * Returns the blazy admin.   */
+   * Returns the blazy admin.
+   */
   public function blazyAdmin() {
     return Internals::service('blazy.admin');
   }
@@ -103,13 +114,15 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * Returns the blazy manager.
    *
-   * @todo remove, hardly called outside the formatters.   */
+   * @todo remove, hardly called outside the formatters.
+   */
   public function blazyManager() {
     return $this->blazyManager;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function defineOptions() {
     $options = parent::defineOptions();
 
@@ -120,7 +133,8 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     $definitions = $this->getScopedFormElements();
 
@@ -143,19 +157,22 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function render(ResultRow $values) {
     return '';
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function query() {
     // Do nothing -- to override the parent query.
   }
 
   /**
-   * Defines the default values.   */
+   * Defines the default values.
+   */
   protected function getDefaultValues() {
     return [
       'box_style'          => '',
@@ -171,9 +188,10 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   }
 
   /**
-   * Merges the settings.   */
+   * Merges the settings.
+   */
   public function mergedViewsSettings(array $data = [], $entity = NULL) {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = BlazyDefault::entitySettings();
     $config   = [];
     $view     = $this->view;
@@ -198,7 +216,7 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
       ],
     ];
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = BlazyViews::settings($view, $settings, $info);
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -218,7 +236,8 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function getPluginScopes(): array {
     $type = $this->view->getBaseEntityType();
     return [
@@ -233,16 +252,17 @@ abstract class BlazyViewsFieldPluginBase extends FieldPluginBase {
   /**
    * Defines the scope for the form elements.
    *
-   * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().   */
+   * Since 2.10 sub-modules can forget this, and use self::getPluginScopes().
+   */
   public function getScopedFormElements() {
-    /** @var array<string, mixed> $scopes */
+    /** @var array $scopes */
     $scopes = $this->getPluginScopes();
     $scopes += Blazy::init();
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $scopes['blazies'];
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = $this->options;
 
     // Mimick field formatters for consistency.

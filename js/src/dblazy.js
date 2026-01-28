@@ -63,7 +63,8 @@
    * @namespace
    *
    * @return {dBlazy}
-   *   Returns this instance.   */
+   *   Returns this instance.
+   */
   var dBlazy = function () {
     function dBlazy(selector, ctx) {
       var me = this;
@@ -144,7 +145,8 @@
    * @return {Object}
    *   The current dBlazy collection object.
    *
-   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining   */
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining
+   */
   function chain(cb) {
     var me = this;
     // Ok, this is insanely me.
@@ -190,7 +192,8 @@
    *   The name to test for its type.
    *
    * @return {bool}
-   *   True if name matches the PROTO_TOSTRING result.   */
+   *   True if name matches the PROTO_TOSTRING result.
+   */
   function isTag(name) {
     var tag = '[object ' + name + ']';
     return function (obj) {
@@ -207,7 +210,8 @@
    *   The key to test in an object.
    *
    * @return {mixed}
-   *   String, object, undefined.   */
+   *   String, object, undefined.
+   */
   function shallowProperty(key) {
     return function (obj) {
       return isNull(obj) ? void 0 : obj[key];
@@ -223,7 +227,8 @@
    *   The callback to test length property.
    *
    * @return {bool}
-   *   True if argument is property is number.   */
+   *   True if argument is property is number.
+   */
   function checkLength(cb) {
     return function (collection) {
       var size = cb(collection);
@@ -240,7 +245,8 @@
    * @private
    *
    * @return {bool}
-   *   True if argument is an array-like object.   */
+   *   True if argument is an array-like object.
+   */
   var isArrayLike = checkLength(getLength);
 
   /**
@@ -254,7 +260,8 @@
    *   The x to test for its properties.
    *
    * @return {array}
-   *   The object keys, or empty array.   */
+   *   The object keys, or empty array.
+   */
   function keys(x) {
     return !isObj(x) ? [] : Object.keys(x);
   }
@@ -268,7 +275,8 @@
    *   The x to check for its type.
    *
    * @return {bool}
-   *   True if x is an instanceof dBlazy.   */
+   *   True if x is an instanceof dBlazy.
+   */
   function isMe(x) {
     return x instanceof dBlazy;
   }
@@ -286,7 +294,8 @@
    * @return {bool}
    *   True if the argument is an instanceof Array.
    *
-   * @todo refine, like everything else.   */
+   * @todo refine, like everything else.
+   */
   function isArr(x) {
     // String has length.
     if (isStr(x)) {
@@ -304,7 +313,8 @@
    *   The x to check for its type truthy.
    *
    * @return {bool}
-   *   True if x is an instanceof bool.   */
+   *   True if x is an instanceof bool.
+   */
   function isBool(x) {
     return x === true || x === false || PROTO_TOSTRING.call(x) === '[object Boolean]';
   }
@@ -318,7 +328,8 @@
    *   The x to check for its type truthy.
    *
    * @return {bool}
-   *   True if x is an instanceof Element.   */
+   *   True if x is an instanceof Element.
+   */
   function isElm(x) {
     return x && (x instanceof Element || x.querySelector);
   }
@@ -335,7 +346,8 @@
    *   True if x is an integer.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt
-   * @see https://stackoverflow.com/questions/175739   */
+   * @see https://stackoverflow.com/questions/175739
+   */
   function isInt(x) {
     return !isNaN(x) &&
       parseInt(Number(x)) === x &&
@@ -356,7 +368,8 @@
    * @private
    *
    * @return {bool}
-   *   True if argument is an instanceof Function.   */
+   *   True if argument is an instanceof Function.
+   */
   var isFun = isTag('Function');
 
   /**
@@ -374,7 +387,8 @@
    *   True if null, undefined, false or empty string or array.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
-   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_NOT   */
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_NOT
+   */
   function isEmpty(x) {
     if (isNull(x) || isUnd(x) || x === false) {
       return true;
@@ -403,7 +417,8 @@
    *   The x to check for its type truthy.
    *
    * @return {bool}
-   *   True if null.   */
+   *   True if null.
+   */
   function isNull(x) {
     return x === null;
   }
@@ -417,7 +432,8 @@
    *   The x to check for its type truthy.
    *
    * @return {bool}
-   *   True if number.   */
+   *   True if number.
+   */
   function isNum(x) {
     return !isNaN(parseFloat(x)) && isFinite(x);
   }
@@ -433,7 +449,8 @@
    *   The x to check for its type truthy.
    *
    * @return {bool}
-   *   True if x is an instanceof Object.   */
+   *   True if x is an instanceof Object.
+   */
   function isObj(x) {
     if (!x || typeof x !== 'object') {
       return false;
@@ -453,7 +470,8 @@
    *   The x to check for its type string.
    *
    * @return {bool}
-   *   True if argument is a string.   */
+   *   True if argument is a string.
+   */
   function isStr(x) {
     return x && typeof x === 'string';
   }
@@ -467,7 +485,8 @@
    *   The x to check for its type truthy.
    *
    * @return {bool}
-   *   True if x is undefined.   */
+   *   True if x is undefined.
+   */
   function isUnd(x) {
     return typeof x === 'undefined';
   }
@@ -481,7 +500,8 @@
    *   The x to check for its type truthy.
    *
    * @return {bool}
-   *   True if x is window.   */
+   *   True if x is window.
+   */
   function isWin(x) {
     return !!x && x === x.window;
   }
@@ -500,7 +520,8 @@
    * 1: Node.ELEMENT_NODE
    * 9: Node.DOCUMENT_NODE
    * 11: Node.DOCUMENT_FRAGMENT_NODE
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType   */
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
+   */
   function isDoc(x) {
     return [9, 11].indexOf(!!x && x.nodeType) !== -1;
   }
@@ -519,7 +540,8 @@
    * 1: Node.ELEMENT_NODE
    * 9: Node.DOCUMENT_NODE
    * 11: Node.DOCUMENT_FRAGMENT_NODE
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType   */
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
+   */
   function isQsa(x) {
     return x && (x.querySelector || [1, 9, 11].indexOf(!!x && x.nodeType) !== -1);
   }
@@ -533,7 +555,8 @@
    *   The x to check for its type truthy.
    *
    * @return {bool}
-   *   True if x is valid for event listener.   */
+   *   True if x is valid for event listener.
+   */
   function isEvt(x) {
     return isQsa(x) || isWin(x);
   }
@@ -551,7 +574,8 @@
    *   The x to check for its type truthy.
    *
    * @return {bool}
-   *   True if x is valid for for attribute operations.   */
+   *   True if x is valid for for attribute operations.
+   */
   function isAttr(x) {
     return x && 'getAttribute' in x;
   }
@@ -587,7 +611,8 @@
    *   The callback function called on matchMedia change.
    *
    * @return {bool}
-   *   True if a touch device.   */
+   *   True if a touch device.
+   */
   function isTouch(cb) {
     var query = {};
 
@@ -611,7 +636,8 @@
   /**
    * Dynamically add [no-]touchevents class to html.
    *
-   * Basically similar to core/drupal.touchevents-test, only with change.   */
+   * Basically similar to core/drupal.touchevents-test, only with change.
+   */
   function touchOrNot() {
     var html = _doc.documentElement;
     var matches = isTouch(touchOrNot);
@@ -631,7 +657,8 @@
    *   The optional current scope.
    *
    * @return {object}
-   *   The simplified iterable object.   */
+   *   The simplified iterable object.
+   */
   function nodeMapAttr(obj, scope) {
     var info = {};
     if (obj && obj.length) {
@@ -665,7 +692,8 @@
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
    * @see https://developer.mozilla.org/en-US/docs/Web/API/NodeList/forEach
-   * @todo refactor, unreliable given unexpected properties.   */
+   * @todo refactor, unreliable given unexpected properties.
+   */
   function each(obj, cb, scope) {
     if (isFun(obj) || isStr(obj) || isBool(obj) || isNum(obj)) {
       return [];
@@ -733,7 +761,8 @@
    *   The property nane.
    *
    * @return {bool}
-   *   Returns true if the property found.   */
+   *   Returns true if the property found.
+   */
   function hasProp(obj, prop) {
     return PROTO_O.hasOwnProperty.call(obj, prop);
   }
@@ -747,7 +776,8 @@
    *   The string to convert into JSON object.
    *
    * @return {Object}
-   *   The JSON object, or empty in case invalid.   */
+   *   The JSON object, or empty in case invalid.
+   */
   function parse(str) {
     try {
       return str.length === 0 || str === '1' ? {} : JSON.parse(str);
@@ -766,7 +796,8 @@
    *   The object to make array.
    *
    * @return {Array}
-   *   The resulting array.   */
+   *   The resulting array.
+   */
   function toArray(x) {
     if (isStr(x)) {
       x = x.trim();
@@ -811,7 +842,8 @@
    *   True if should get with defValue. Or a prefix such as data- for removal.
    *
    * @return {Object|string}
-   *   The attribute value, or fallback, for getters, or this for setters.   */
+   *   The attribute value, or fallback, for getters, or this for setters.
+   */
   function _attr(els, attr, defValue, withDefault) {
     var me = this;
     var _undefined = isUnd(defValue);
@@ -905,7 +937,8 @@
    *   The attribute name(s), space delimited if many.
    *
    * @return {bool}
-   *   True if it has the attribute(s).   */
+   *   True if it has the attribute(s).
+   */
   function hasAttr(el, names) {
     var found = 0;
 
@@ -934,7 +967,8 @@
    *   The attribute prefix if any, normally `data-`.
    *
    * @return {Object}
-   *   This dBlazy object.   */
+   *   This dBlazy object.
+   */
   function removeAttr(els, attr, prefix) {
     return _attr(els, attr, null, prefix || '');
   }
@@ -950,7 +984,8 @@
    *   The class name, can be space-delimited for multiple names.
    *
    * @return {bool}
-   *   True if it has the class name.   */
+   *   True if it has the class name.
+   */
   function hasClass(el, names) {
     var found = 0;
 
@@ -992,7 +1027,8 @@
    *   Whether to add or remove the class, or undefined to toggle.
    *
    * @return {Object}
-   *   This dBlazy object.   */
+   *   This dBlazy object.
+   */
   function toggleClass(els, name, op) {
     var chainCallback = function (el, i) {
       if (isAttr(el)) {
@@ -1029,7 +1065,8 @@
    *   The class name, or space-delimited class names.
    *
    * @return {Object}
-   *   This dBlazy object.   */
+   *   This dBlazy object.
+   */
   function addClass(els, name) {
     return toggleClass(els, name, V_ADD);
   }
@@ -1045,7 +1082,8 @@
    *   The class name, or space-delimited class names.
    *
    * @return {Object}
-   *   This dBlazy object.   */
+   *   This dBlazy object.
+   */
   function removeClass(els, name) {
     return toggleClass(els, name, V_REMOVE);
   }
@@ -1064,7 +1102,8 @@
    *   The target element(s) or sub-string to check for, can be a string array.
    *
    * @return {bool}
-   *   True if it has the needle.   */
+   *   True if it has the needle.
+   */
   function contains(str, substr) {
     var found = 0;
 
@@ -1102,7 +1141,8 @@
    *   The original source string.
    *
    * @return {string}
-   *   The modified string.   */
+   *   The modified string.
+   */
   function escape(string) {
     // $& means the whole matched string.
     return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
@@ -1119,7 +1159,8 @@
    *   The target sub-string to check for, can be a string array.
    *
    * @return {bool}
-   *   True if it starts with the needle.   */
+   *   True if it starts with the needle.
+   */
   function startsWith(str, substr) {
     var found = 0;
 
@@ -1142,7 +1183,8 @@
    *   The original source string.
    *
    * @return {string}
-   *   The modified string.   */
+   *   The modified string.
+   */
   function trimSpaces(string) {
     // v return string.replace(/\s\s+/g, ' ').trim();
     return string.replace(/\s+/g, ' ').trim();
@@ -1159,7 +1201,8 @@
    *   Selector to match against (class, ID, data attribute, or tag).
    *
    * @return {Element|Null}
-   *   Returns null if no match found, else the element.   */
+   *   Returns null if no match found, else the element.
+   */
   function closest(el, selector) {
     return (isElm(el) && isStr(selector)) ? el.closest(selector) : null;
   }
@@ -1178,7 +1221,8 @@
    *   Returns true if found, else false.
    *
    * @see https://caniuse.com/#feat=matchesselector
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches   */
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
+   */
   function is(el, selector) {
     if (isElm(el)) {
       if (isStr(selector)) {
@@ -1204,7 +1248,8 @@
    *   HTML tag(s) to match against.
    *
    * @return {bool}
-   *   Returns true if matches, else false.   */
+   *   Returns true if matches, else false.
+   */
   function equal(el, tags) {
     if (!el || !el.nodeName) {
       return false;
@@ -1240,7 +1285,8 @@
    *   Force returning an array if expected to operate on.
    *
    * @return {Element|null|?Array.<Element>}
-   *   Empty array or null if not found, else the expected element(s).   */
+   *   Empty array or null if not found, else the expected element(s).
+   */
   function find(el, selector, asArray) {
     var single = isUnd(asArray) && isStr(selector);
     el = el || _doc;
@@ -1266,7 +1312,8 @@
    *   The CSS selector or HTML tag to query.
    *
    * @return {string}
-   *   The corrected selector with :scope.   */
+   *   The corrected selector with :scope.
+   */
   function toScope(selector) {
     var sel = selector;
     // Direct descendant.
@@ -1293,7 +1340,8 @@
    *   The CSS selector or HTML tag to query.
    *
    * @return {?Array.<Element>}
-   *   Empty array if not found, else the expected elements.   */
+   *   Empty array if not found, else the expected elements.
+   */
   function findAll(el, selector) {
     return find(el, selector, 1);
   }
@@ -1304,7 +1352,8 @@
    * @private
    *
    * @param {Element} el
-   *   The HTML element to remove.   */
+   *   The HTML element to remove.
+   */
   function remove(el) {
     if (isElm(el)) {
       var cn = parent(el);
@@ -1323,7 +1372,8 @@
    *   The element to check for more contextual property/ feature detection.
    *
    * @return {bool}
-   *   True if an IE browser.   */
+   *   True if an IE browser.
+   */
   function ie(el) {
     return (isElm(el) && el.currentStyle) || !isUnd(_doc.documentMode);
   }
@@ -1334,7 +1384,8 @@
    * @private
    *
    * @return {number}
-   *   Returns the device pixel ratio.   */
+   *   Returns the device pixel ratio.
+   */
   function pixelRatio() {
     return _win.devicePixelRatio || 1;
   }
@@ -1345,7 +1396,8 @@
    * @private
    *
    * @return {number}
-   *   Returns the window width.   */
+   *   Returns the window width.
+   */
   function windowWidth() {
     return _win.innerWidth || _doc.documentElement[V_CLIENTWIDTH] || _win.screen[V_WIDTH];
   }
@@ -1356,7 +1408,8 @@
    * @private
    *
    * @return {Object}
-   *   Returns the window width and height.   */
+   *   Returns the window width and height.
+   */
   function windowSize() {
     return {
       width: windowWidth(),
@@ -1380,7 +1433,8 @@
    *   Containing ww: windowWidth, and up: to determine min-width or max-width.
    *
    * @return {Mixed}
-   *   Returns data from the current active window.   */
+   *   Returns data from the current active window.
+   */
   function activeWidth(dataset, winData) {
     var mobileFirst = winData.up || false;
     var _k = keys(dataset);
@@ -1421,7 +1475,8 @@
    *   as a whole since there is no event name `blazy`.
    *
    * @return {Object}
-   *   This dBlazy object.   */
+   *   This dBlazy object.
+   */
   function on(els, eventName, selector, cb, params, isCustom) {
     return toEvent(els, eventName, selector, cb, params, isCustom, V_ADD);
   }
@@ -1445,7 +1500,8 @@
    *   True, if a custom event.
    *
    * @return {Object}
-   *   This dBlazy object.   */
+   *   This dBlazy object.
+   */
   function off(els, eventName, selector, cb, params, isCustom) {
     return toEvent(els, eventName, selector, cb, params, isCustom, V_REMOVE);
   }
@@ -1465,7 +1521,8 @@
    *   True, if a custom event.
    *
    * @return {Object}
-   *   This dBlazy object.   */
+   *   This dBlazy object.
+   */
   function one(els, eventName, cb, isCustom) {
     return on(els, eventName, cb, {
       once: true
@@ -1481,7 +1538,8 @@
    *   The Image object.
    *
    * @return {bool}
-   *   True if the image is loaded.   */
+   *   True if the image is loaded.
+   */
   function isDecoded(img) {
     return img.decoded || img.complete;
   }
@@ -1499,7 +1557,8 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
    *
    * @return {Array.<Element>}
-   *   An array of elements.   */
+   *   An array of elements.
+   */
   function slice(elements) {
     return PROTO_A.slice.call(elements);
   }
@@ -1515,7 +1574,8 @@
    *   An element to use as context for querySelectorAll.
    *
    * @return {Array.<Element>}
-   *   An array of elements to process.   */
+   *   An array of elements to process.
+   */
   function toElms(selector, ctx) {
     ctx = ctx || _doc;
 
@@ -1663,7 +1723,8 @@
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
    * @see https://caniuse.com/once-event-listener
-   * @see https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md   */
+   * @see https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md
+   */
   function toEvent(els, eventName, selector, cb, params, isCustom, op) {
     var _cbt = cb;
     var _ie = ie();
@@ -1734,7 +1795,8 @@
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events
    * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/Document/createEvent   */
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Document/createEvent
+   */
   function trigger(els, eventNames, details, param) {
     // Supports $.trigger('resize') for window;
     if (isStr(els)) {
@@ -1795,7 +1857,8 @@
    * @param {Function} callback
    *   The optional callback function.
    * @param {string} id
-   *   The script id.   */
+   *   The script id.
+   */
   function getScript(url, callback, id) {
     var script = _doc.createElement('script');
     var prior = _doc.getElementsByTagName('script')[0];
@@ -1930,7 +1993,8 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
    * @see https://github.com/taylorhakes/promise-polyfill
    * @see https://chromestatus.com/feature/5637156160667648
-   * @see https://html.spec.whatwg.org/multipage/embedded-content.html#dom-img-decode   */
+   * @see https://html.spec.whatwg.org/multipage/embedded-content.html#dom-img-decode
+   */
   DB.decode = function (img) {
     if (isDecoded(img)) {
       return Promise.resolve(img);
@@ -1962,7 +2026,8 @@
    *   The scope of the function to apply to, normally this.
    *
    * @return {Function}
-   *   The function executed at the specified minDelay.   */
+   *   The function executed at the specified minDelay.
+   */
   DB.throttle = function (cb, minDelay, scope) {
     minDelay = minDelay || 50;
     var lastCall = 0;
@@ -2018,7 +2083,8 @@
    *   The callback function.
    *
    * See https://dev.to/murashow/quick-guide-to-resize-observer-gam
-   * See https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver   */
+   * See https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver
+   */
   DB.resize = function (cb, t, cbt) {
     // Preserves oldies till updated: lory, extended, etc.
     // Safe to replace, previously only called: $.resize(cb)();
@@ -2076,7 +2142,8 @@
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll
    * @see https://caniuse.com/mdn-javascript_builtins_string_replaceall
    * @see https://stackoverflow.com/questions/1144783
-   * @todo use template string or replaceAll for D10, or D11 at the latest.   */
+   * @todo use template string or replaceAll for D10, or D11 at the latest.
+   */
   DB.template = function (string, map) {
     for (var key in map) {
       if (hasProp(map, key)) {
@@ -2103,7 +2170,8 @@
    * @return {Element|Document|DocumentFragment}
    *   The Element|Document|DocumentFragment to not fail querySelector, etc.
    *
-   * @todo refine core/once expects Element only, or patch it for [1,9,11].   */
+   * @todo refine core/once expects Element only, or patch it for [1,9,11].
+   */
   function context(ctx, selector) {
     // Weirdo: context may be null after Colorbox close.
     ctx = ctx || _doc;

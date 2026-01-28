@@ -24,17 +24,20 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * The blazy admin service.
    *
-   * @var \Drupal\blazy\Form\BlazyAdminInterface   */
+   * @var \Drupal\blazy\Form\BlazyAdminInterface
+   */
   protected $blazyAdmin;
 
   /**
    * The blazy oembed service.
    *
-   * @var \Drupal\blazy\Media\BlazyOEmbedInterface   */
+   * @var \Drupal\blazy\Media\BlazyOEmbedInterface
+   */
   protected $blazyOembed;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(
     ContainerInterface $container,
     array $configuration,
@@ -57,11 +60,12 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *   The provided text.
    *
    * @return array
-   *   The main settings for current filter.   */
+   *   The main settings for current filter.
+   */
   protected function buildSettings($text) {
     $config = $this->settings;
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$this->settings;
     $settings += Defaults::lazySettings();
 
@@ -113,7 +117,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   }
 
   /**
-   * Build the field item list using the node ID and field_name.   */
+   * Build the field item list using the node ID and field_name.
+   */
   protected function formatterSettings(array &$settings, $attribute): ?object {
     [$entity_type, $id, $field_name, $field_image] = array_pad(array_map('trim', explode(":", $attribute, 4)), 4, NULL);
 
@@ -167,16 +172,15 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * Returns the faked image item for the image, uploaded or hard-coded.
    *
-   * @param array<string, mixed> $build
+   * @param array $build
    *   The content array being modified.
    * @param object $node
    *   The HTML DOM object.
-   *
-   * @param-out object $node
    * @param int $delta
-   *   The item index.   .*/
+   *   The item index.
+   */
   protected function buildImageItem(array &$build, &$node, $delta = 0): void {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$build['#settings'];
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -218,19 +222,18 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * Gets the caption if available.
    *
-   * @param array<string, mixed> $build
+   * @param array $build
    *   The content array being modified.
    * @param object $node
    *   The HTML DOM object.
    *
-   * @param-out object $node
-   *
    * @return \DOMElement|null
    *   The HTML DOM object, or null if not found.
    *
-   * @todo add return type after sub-modules: ?\DOMElement.   */
+   * @todo add return type after sub-modules: ?\DOMElement.
+   */
   protected function buildImageCaption(array &$build, &$node) {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$build['#settings'];
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -268,7 +271,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *   The HTML DOM object.
    *
    * @return \DOMElement|null
-   *   The HTML DOM object, or null if not found.   */
+   *   The HTML DOM object, or null if not found.
+   */
   protected function getCaptionElement($node): ?\DOMElement {
     if ($node->parentNode) {
       if ($node->parentNode->tagName === 'figure') {
@@ -288,7 +292,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *   The HTML DOM object.
    *
    * @return \DOMElement|null
-   *   The HTML DOM object, or null if not found.   */
+   *   The HTML DOM object, or null if not found.
+   */
   protected function getCaptionFallback($node): ?\DOMElement {
     $caption = NULL;
 
@@ -316,7 +321,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   }
 
   /**
-   * Cleanups image caption.   */
+   * Cleanups image caption.
+   */
   protected function cleanupImageCaption(array &$build, &$node, &$item): void {
     // Do nothing.
   }
@@ -324,16 +330,17 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * Returns the real or faked image item from SRC, depending on the SRC.
    *
-   * @param array<string, mixed> $build
+   * @param array $build
    *   The content array being modified: item, settings.
    * @param object $node
    *   The HTML DOM object.
    * @param string $src
    *   The corrected SRC value.
    *
-   * @todo refactor to move ImageItem downstream, or remove it completely.   */
+   * @todo refactor to move ImageItem downstream, or remove it completely.
+   */
   protected function getImageItemFromImageSrc(array &$build, $node, $src): void {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$build['#settings'];
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -404,18 +411,17 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * Returns the faked image item from SRC.
    *
-   * @param array<string, mixed> $build
+   * @param array $build
    *   The content array being modified: item, settings.
    * @param object $node
    *   The HTML DOM object.
-   *
-   * @param-out object $node
    * @param string $src
    *   The corrected SRC value.
    * @param int $delta
-   *   The delta.   .*/
+   *   The delta.
+   */
   protected function getImageItemFromIframeSrc(array &$build, &$node, $src, $delta = 0): void {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$build['#settings'];
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -437,7 +443,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   }
 
   /**
-   * Provides the shortcode ITEM|SLIDE attributes, and caption. Not IMG/IFRAME.   */
+   * Provides the shortcode ITEM|SLIDE attributes, and caption. Not IMG/IFRAME.
+   */
   protected function buildItemAttributes(array &$build, $node, $delta = 0): void {
     $sets = &$build['#settings'];
     $blazies = $sets['blazies'];
@@ -468,7 +475,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * Provides the shortcode ITEM|SLIDE attributes, and caption. Not IMG/IFRAME.
    *
-   * @todo refine all these against sub-modules.   */
+   * @todo refine all these against sub-modules.
+   */
   protected function shortcodeItemAttributes(array &$build, $node, $blazies, array $attrs): void {
     // Move it to .grid__content for better displays like .well/ .card.
     if ($classes = $attrs['class'] ?? '') {
@@ -495,9 +503,10 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   }
 
   /**
-   * Provides the media IMG|IFRAME attributes w/o shortcodes ITEM|SLIDE.   */
+   * Provides the media IMG|IFRAME attributes w/o shortcodes ITEM|SLIDE.
+   */
   protected function buildMediaAttributes(array &$build, $node, $delta = 0): void {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$build['#settings'];
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -568,7 +577,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   /**
    * Returns the item settings for the current $node.
    *
-   * @param array<string, mixed> $build
+   * @param array $build
    *   The settings being modified.
    * @param object $node
    *   The HTML DOM object.
@@ -576,9 +585,10 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    *   The item index.
    *
    * @return bool
-   *   TRUE if it has different image style from the selected option.   */
+   *   TRUE if it has different image style from the selected option.
+   */
   protected function buildItemSettings(array &$build, $node, $delta = 0): bool {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$build['#settings'];
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -618,7 +628,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
    * @param object $node
    *   The HTML DOM object.
    * @param int $delta
-   *   The item index.   .*/
+   *   The item index.
+   */
   protected function buildItemContent(array &$build, $node, $delta = 0): void {
     // To minimize dups, or misses, for something obvious.
     $build['#delta'] = $delta;
@@ -639,7 +650,7 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
     // Responsive image is at item level due to requiring URI detection.
     // Must have an URI set above.
     if ($update) {
-      /** @var array<string, mixed> $settings */
+      /** @var array $settings */
       $settings = &$build['#settings'];
 
       /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -651,7 +662,8 @@ abstract class BlazyFilterBase extends TextFilterBase implements BlazyFilterInte
   }
 
   /**
-   * Provides media switch form.   */
+   * Provides media switch form.
+   */
   protected function mediaSwitchForm(array &$form): void {
     $lightboxes = $this->manager->getLightboxes();
 

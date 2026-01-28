@@ -39,7 +39,8 @@
    *   A current playing video/ audio element.
    *
    * @return {Object}
-   *   The current dBlazy collection object.   */
+   *   The current dBlazy collection object.
+   */
   function pause(type, ctx, current) {
     type = type || 'audio, video';
 
@@ -59,7 +60,8 @@
    * Pause other video/ audio elements.
    *
    * @param {Event} e
-   *   A playing video/ audio event.   */
+   *   A playing video/ audio event.
+   */
   function pauseOthers(e) {
     var target = e.target;
     var el = $.find(_doc, S_PLAYING);
@@ -81,7 +83,8 @@
    * Initialize a video/ audio element.
    *
    * @param {Element} el
-   *   A video/ audio element.   */
+   *   A video/ audio element.
+   */
   function init(el) {
     $.on(el, 'playing', pauseOthers);
   }

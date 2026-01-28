@@ -22,17 +22,20 @@ use Drupal\blazy\Utility\Path;
 class Internals extends Content {
 
   /**
-   * The data URI text.   */
+   * The data URI text.
+   */
   const DATA_TEXT = 'data:text/plain;base64,';
 
   /**
    * The blazy HTML ID.
    *
-   * @var int|null   */
+   * @var int|null
+   */
   protected static $blazyId;
 
   /**
-   * Alias for FileExists::Replace for easy D10.3 removal.   */
+   * Alias for FileExists::Replace for easy D10.3 removal.
+   */
   public static function fileExistsReplace() {
     if (class_exists(FileExists::class)) {
       return FileExists::Replace;
@@ -45,13 +48,15 @@ class Internals extends Content {
   /**
    * Alias for base_path() for easy removal.
    *
-   * @todo replace base_path() if any replacement by D11.   */
+   * @todo replace base_path() if any replacement by D11.
+   */
   public static function basePath(): ?string {
     return \base_path() ?: '';
   }
 
   /**
-   * Returns TRUE if the link has empty title, or just plain URL or text.   */
+   * Returns TRUE if the link has empty title, or just plain URL or text.
+   */
   public static function emptyOrPlainTextLink(array $link): bool {
     $empty = FALSE;
     if ($title = $link['#title'] ?? NULL) {
@@ -69,7 +74,8 @@ class Internals extends Content {
   }
 
   /**
-   * Returns the URI elements of the entity.   */
+   * Returns the URI elements of the entity.
+   */
   public static function entityUrl($entity) {
     $url = NULL;
     if ($entity instanceof EntityInterface) {
@@ -90,7 +96,8 @@ class Internals extends Content {
   }
 
   /**
-   * Returns the trusted HTML ID of a single instance.   */
+   * Returns the trusted HTML ID of a single instance.
+   */
   public static function getHtmlId($namespace = 'blazy', $id = ''): string {
     if (!isset(static::$blazyId)) {
       static::$blazyId = 0;
@@ -102,31 +109,36 @@ class Internals extends Content {
   }
 
   /**
-   * Alias for Path::getPath().   */
+   * Alias for Path::getPath().
+   */
   public static function getPath($type, $name, $absolute = FALSE): ?string {
     return Path::getPath($type, $name, $absolute);
   }
 
   /**
-   * Checks if it is an SVG.   */
+   * Checks if it is an SVG.
+   */
   public static function isSvg($uri): bool {
     return BlazyFile::isSvg($uri);
   }
 
   /**
-   * Returns markdown.   */
+   * Returns markdown.
+   */
   public static function markdown($string, $help = TRUE, $sanitize = TRUE): string {
     return Markdown::parse($string, $help, $sanitize);
   }
 
   /**
-   * Alias for Settings::init().   */
+   * Alias for Settings::init().
+   */
   public static function settings(array $data = []): BlazySettings {
     return static::init($data);
   }
 
   /**
-   * Alias for Grid::toNativeGrid().   */
+   * Alias for Grid::toNativeGrid().
+   */
   public static function toNativeGrid(array &$settings): void {
     Grid::toNativeGrid($settings);
   }
@@ -134,7 +146,8 @@ class Internals extends Content {
   /**
    * Returns a entity object by a property.
    *
-   * @todo remove for BlazyInterface::loadByProperty().   */
+   * @todo remove for BlazyInterface::loadByProperty().
+   */
   public static function loadByProperty($property, $value, $type, $manager = NULL): ?object {
     $manager = $manager ?: self::service('blazy.manager');
     return $manager ? $manager->loadByProperty($property, $value, $type) : NULL;
@@ -143,7 +156,8 @@ class Internals extends Content {
   /**
    * Returns a entity object by a UUID.
    *
-   * @todo remove for BlazyInterface::loadByUuid().   */
+   * @todo remove for BlazyInterface::loadByUuid().
+   */
   public static function loadByUuid($uuid, $type, $manager = NULL): ?object {
     $manager = $manager ?: self::service('blazy.manager');
     return $manager ? $manager->loadByUuid($uuid, $type) : NULL;
@@ -152,7 +166,8 @@ class Internals extends Content {
   /**
    * Returns the app root.
    *
-   * @todo remove after usage checks.   */
+   * @todo remove after usage checks.
+   */
   public static function root($container) {
     return $container->getParameter('app.root');
   }

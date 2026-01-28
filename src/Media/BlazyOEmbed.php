@@ -18,47 +18,55 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * Core Media oEmbed url resolver.
    *
-   * @var \Drupal\media\OEmbed\UrlResolverInterface   */
+   * @var \Drupal\media\OEmbed\UrlResolverInterface
+   */
   protected $urlResolver;
 
   /**
    * Core Media oEmbed resource fetcher.
    *
-   * @var \Drupal\media\OEmbed\ResourceFetcherInterface   */
+   * @var \Drupal\media\OEmbed\ResourceFetcherInterface
+   */
   protected $resourceFetcher;
 
   /**
    * The blazy manager service.
    *
-   * @var \Drupal\blazy\BlazyManagerInterface   */
+   * @var \Drupal\blazy\BlazyManagerInterface
+   */
   protected $blazyManager;
 
   /**
    * The blazy manager service.
    *
-   * @var \Drupal\blazy\Media\BlazyMediaInterface   */
+   * @var \Drupal\blazy\Media\BlazyMediaInterface
+   */
   protected $blazyMedia;
 
   /**
    * The Media oEmbed Resource.
    *
-   * @var \Drupal\media\OEmbed\Resource   */
+   * @var \Drupal\media\OEmbed\Resource
+   */
   protected $resource;
 
   /**
    * The Provider and Resource cache.
    *
-   * @var array   */
+   * @var array
+   */
   protected $providerAndResource = [];
 
   /**
    * The thumbnail cache.
    *
-   * @var array   */
+   * @var array
+   */
   protected $thumbnail = [];
 
   /**
-   * Constructs a Blazy oEmbed object.   */
+   * Constructs a Blazy oEmbed object.
+   */
   public function __construct(
     BlazyMediaInterface $blazy_media,
     ResourceFetcherInterface $resource_fetcher,
@@ -71,7 +79,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('blazy.media'),
@@ -81,31 +90,36 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getResourceFetcher() {
     return $this->resourceFetcher;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getUrlResolver() {
     return $this->urlResolver;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function blazyManager() {
     return $this->blazyManager;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function blazyMedia() {
     return $this->blazyMedia;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getProvider($input): ?object {
     try {
       return $this->urlResolver->getProviderByUrl($input);
@@ -116,7 +130,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getResource($input): ?object {
     try {
       $url = $this->urlResolver->getResourceUrl($input, 0, 0);
@@ -128,9 +143,10 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function build(array &$build): void {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$build['#settings'];
     $access   = $build['#access'] ?? FALSE;
     $entity   = $build['#entity'] ?? NULL;
@@ -218,7 +234,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function checkInputUrl(array &$settings, $input): ?string {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -230,7 +247,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getThumbnail(array &$settings, $fallback = TRUE): ?object {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];
@@ -295,7 +313,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function toEmbedUrl($blazies, $input, array $params = []): string {
     $iframe_domain = $blazies->get('iframe_domain');
 
@@ -303,7 +322,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
-   * Checks for the provider to determine oembed, or not.   */
+   * Checks for the provider to determine oembed, or not.
+   */
   private function checkProvider($input, $blazies): void {
     if (!$blazies->was('provider')) {
       $name = $blazies->get('media.provider');
@@ -333,7 +353,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   }
 
   /**
-   * Checks for the provider resources.   */
+   * Checks for the provider resources.
+   */
   private function checkResource($input, $blazies): void {
     if (!$blazies->get('media.resource.input')
       && $resource = $this->fromResource($input)) {
@@ -348,7 +369,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * @param string $input
    *   The media input url.
    * @param object $blazies
-   *   The blazies object to check and store the provider and its resources.   .*/
+   *   The blazies object to check and store the provider and its resources.
+   */
   private function checkProviderAndResource($input, $blazies): void {
     $id = md5($input);
     if (!isset($this->providerAndResource[$id])) {
@@ -368,9 +390,10 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    * Modifies data to provide Media item thumbnail, embed URL, or rich content.
    *
    * @param array $build
-   *   The modified array containing: settings, and candidate video thumbnail.   .*/
+   *   The modified array containing: settings, and candidate video thumbnail.
+   */
   private function fromMedia(array &$build): void {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$build['#settings'];
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -448,7 +471,8 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
    *   The input url.
    *
    * @return array
-   *   The media data from a resource.   */
+   *   The media data from a resource.
+   */
   private function fromResource($input): array {
     $output = [];
 
@@ -486,8 +510,9 @@ class BlazyOEmbed implements BlazyOEmbedInterface {
   /**
    * Converts input URL into embed URL, run after ::prepare() populated.
    *
-   * @param array<string, mixed> $settings
-   *   The settings array being modified.   .*/
+   * @param array $settings
+   *   The settings array being modified.
+   */
   private function toEmbed(array &$settings): void {
     /** @var \Drupal\blazy\BlazySettings $blazies */
     $blazies = $settings['blazies'];

@@ -13,7 +13,8 @@ use Drupal\views\ResultRow;
 class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function render(ResultRow $values) {
     /** @var \Drupal\media\Entity\Media $entity */
     // @todo recheck relationship and remove this $entity = $values->_entity;
@@ -22,7 +23,7 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
     if ($entity instanceof Media) {
       $options['defer'] = TRUE;
 
-      /** @var array<string, mixed> $settings */
+      /** @var array $settings */
       $settings = $this->mergedViewsSettings($options, $entity);
 
       // Due to minimal settings, assumed core fields are in use.
@@ -56,7 +57,8 @@ class BlazyViewsFieldMedia extends BlazyViewsFieldPluginBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function getPluginScopes(): array {
     return [
       'multimedia' => TRUE,

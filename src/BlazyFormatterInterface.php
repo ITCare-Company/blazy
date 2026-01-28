@@ -10,10 +10,11 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
   /**
    * Modifies the field formatter base settings inherited by child elements.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The array containing: field-related settings.
    * @param \Drupal\Core\Field\FieldItemListInterface $items
-   *   The Drupal\Core\Field\FieldItemListInterface items.   .*/
+   *   The Drupal\Core\Field\FieldItemListInterface items.
+   */
   public function fieldSettings(array &$settings, $items): void;
 
   /**
@@ -22,16 +23,18 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
    * @param array $build
    *   The array containing: settings, or potential optionset for extensions.
    * @param \Drupal\Core\Field\FieldItemListInterface|null $items
-   *   The Drupal\Core\Field\FieldItemListInterface items.   .*/
+   *   The Drupal\Core\Field\FieldItemListInterface items.
+   */
   public function buildSettings(array &$build, $items);
 
   /**
    * Modifies the field formatter minimal settings inherited by child elements.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The array containing: grid settings, in the least.
    * @param \Drupal\Core\Field\FieldItemListInterface $items
-   *   The Drupal\Core\Field\FieldItemListInterface items.   .*/
+   *   The Drupal\Core\Field\FieldItemListInterface items.
+   */
   public function minimalSettings(array &$settings, $items): void;
 
   /**
@@ -42,7 +45,8 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
    * @param \Drupal\Core\Field\FieldItemListInterface $items
    *   The Drupal\Core\Field\FieldItemListInterface items.
    * @param array $entities
-   *   The optional entities array, not available for non-entities: text, image.   .*/
+   *   The optional entities array, not available for non-entities: text, image.
+   */
   public function preBuildElements(array &$build, $items, array $entities = []);
 
   /**
@@ -58,7 +62,8 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
    * @param \Drupal\Core\Field\FieldItemListInterface $items
    *   The Drupal\Core\Field\FieldItemListInterface items.
    * @param array $entities
-   *   The optional entities array, not available for non-entities: text, image.   .*/
+   *   The optional entities array, not available for non-entities: text, image.
+   */
   public function preElements(array &$build, $items, array $entities = []): void;
 
   /**
@@ -69,7 +74,8 @@ interface BlazyFormatterInterface extends BlazyManagerInterface {
    * @param \Drupal\Core\Field\FieldItemListInterface $items
    *   The Drupal\Core\Field\FieldItemListInterface items.
    * @param array $entities
-   *   The optional entities array, not available for non-entities: text, image.   .*/
+   *   The optional entities array, not available for non-entities: text, image.
+   */
   public function postBuildElements(array &$build, $items, array $entities = []);
 
 }

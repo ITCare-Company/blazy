@@ -13,17 +13,20 @@ abstract class SkinPluginBase extends PluginBase implements SkinPluginInterface 
   /**
    * The blazy skin definitions.
    *
-   * @var array   */
+   * @var array
+   */
   protected $skins;
 
   /**
    * The manager service.
    *
-   * @var \Drupal\blazy\BlazyInterface   */
+   * @var \Drupal\blazy\BlazyInterface
+   */
   protected $manager;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(
     ContainerInterface $container,
     array $configuration,
@@ -39,25 +42,29 @@ abstract class SkinPluginBase extends PluginBase implements SkinPluginInterface 
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function label() {
     return $this->pluginDefinition['label'];
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function skins() {
     return $this->skins;
   }
 
   /**
-   * Alias for BlazyInterface::getPath().   */
+   * Alias for BlazyInterface::getPath().
+   */
   protected function getPath($type, $name, $absolute = TRUE): ?string {
     return $this->manager->getPath($type, $name, $absolute);
   }
 
   /**
-   * Sets the required plugin skins.   */
+   * Sets the required plugin skins.
+   */
   abstract protected function setSkins();
 
 }

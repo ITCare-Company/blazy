@@ -17,74 +17,86 @@ abstract class SkinManagerBase extends DefaultPluginManager implements SkinManag
   /**
    * The app root.
    *
-   * @var string   */
+   * @var string
+   */
   protected $root;
 
   /**
    * The config factory.
    *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface   */
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
   protected $config;
 
   /**
    * The blazy service.
    *
-   * @var \Drupal\blazy\BlazyInterface   */
+   * @var \Drupal\blazy\BlazyInterface
+   */
   protected $manager;
 
   /**
    * The library info definition.
    *
-   * @var array|null   */
+   * @var array|null
+   */
   protected $libraryInfoBuild;
 
   /**
    * Static cache for the skin definition.
    *
-   * @var array|null   */
+   * @var array|null
+   */
   protected $skinDefinition;
 
   /**
    * The main module namespace.
    *
    * @var string
-   * @see https://www.php.net/manual/en/reserved.keywords.php   */
+   * @see https://www.php.net/manual/en/reserved.keywords.php
+   */
   protected static $namespace = 'blazy';
 
   /**
    * The plugin path.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $path = 'Plugin/blazy';
 
   /**
    * The plugin interface.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $interface = 'Drupal\blazy\Plugin\SkinPluginInterface';
 
   /**
    * The plugin annotation.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $annotation = 'Drupal\blazy\Annotation\BlazySkin';
 
   /**
    * The plugin key.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $key = 'blazy_skin';
 
   /**
    * The skin methods.
    *
-   * @var array   */
+   * @var array
+   */
   protected static $methods = [
     'skins',
   ];
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function __construct(
     \Traversable $namespaces,
     CacheBackendInterface $cache_backend,
@@ -102,20 +114,23 @@ abstract class SkinManagerBase extends DefaultPluginManager implements SkinManag
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function config($key = '', $group = NULL) {
     $group = $group ?: static::$namespace . '.settings';
     return $this->manager->config($key, $group);
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function load($plugin_id): SkinPluginInterface {
     return $this->createInstance($plugin_id);
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function loadMultiple(): array {
     $skins = [];
     foreach ($this->getDefinitions() as $definition) {
@@ -125,7 +140,8 @@ abstract class SkinManagerBase extends DefaultPluginManager implements SkinManag
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getSkins(): array {
     if (!isset($this->skinDefinition)) {
       $cid   = static::$key . 's_data';
@@ -143,7 +159,8 @@ abstract class SkinManagerBase extends DefaultPluginManager implements SkinManag
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function libraryInfoBuild(): array {
     if (!isset($this->libraryInfoBuild)) {
       $libraries = $this->getSkinLibraries();
@@ -158,13 +175,15 @@ abstract class SkinManagerBase extends DefaultPluginManager implements SkinManag
   }
 
   /**
-   * Returns additional libraries.   */
+   * Returns additional libraries.
+   */
   protected function getAdditionalLibraries(): array {
     return [];
   }
 
   /**
-   * Returns available skins.   */
+   * Returns available skins.
+   */
   protected function getAvailableSkins(): array {
     $skins = $items = [];
     foreach ($this->loadMultiple() as $skin) {
@@ -178,7 +197,8 @@ abstract class SkinManagerBase extends DefaultPluginManager implements SkinManag
   }
 
   /**
-   * Returns skin libraries.   */
+   * Returns skin libraries.
+   */
   protected function getSkinLibraries(): array {
     $libraries = [];
     if ($skins = $this->getSkins()) {
@@ -207,7 +227,8 @@ abstract class SkinManagerBase extends DefaultPluginManager implements SkinManag
   }
 
   /**
-   * Returns available dependencies.   */
+   * Returns available dependencies.
+   */
   abstract protected function getDependencies(): array;
 
 }

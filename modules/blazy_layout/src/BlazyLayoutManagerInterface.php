@@ -12,11 +12,12 @@ interface BlazyLayoutManagerInterface extends BlazyManagerInterface {
   /**
    * Returns CSS classes.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings array.
    *
    * @return array
-   *   The CSS classes, if any.   */
+   *   The CSS classes, if any.
+   */
   public function getClasses(array $settings): array;
 
   /**
@@ -26,7 +27,8 @@ interface BlazyLayoutManagerInterface extends BlazyManagerInterface {
    *   The array elements.
    *
    * @return array
-   *   The element keys.   */
+   *   The element keys.
+   */
   public function getKeys(array $elements): array;
 
   /**
@@ -36,19 +38,21 @@ interface BlazyLayoutManagerInterface extends BlazyManagerInterface {
    *   The amount of region, default to 9.
    *
    * @return array
-   *   The region array.   */
+   *   The region array.
+   */
   public function getRegions($count = NULL): array;
 
   /**
    * Returns updated settings.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings array.
    * @param int $count
    *   The amount of region, default to 9.
    *
    * @return array
-   *   The updated settings.   */
+   *   The updated settings.
+   */
   public function layoutSettings(array $settings, $count): array;
 
   /**
@@ -56,8 +60,9 @@ interface BlazyLayoutManagerInterface extends BlazyManagerInterface {
    *
    * @param array $output
    *   The output being modified.
-   * @param array<string, mixed> $settings
-   *   The settings array.   .*/
+   * @param array $settings
+   *   The settings array.
+   */
   public function parseClasses(array &$output, array $settings): void;
 
   /**
@@ -71,7 +76,8 @@ interface BlazyLayoutManagerInterface extends BlazyManagerInterface {
    *   The options array.
    *
    * @return string
-   *   The CSS selector.   */
+   *   The CSS selector.
+   */
   public function selector($key, $region, array $options = []): string;
 
   /**
@@ -83,13 +89,15 @@ interface BlazyLayoutManagerInterface extends BlazyManagerInterface {
    *   The options being passed.
    *
    * @return string
-   *   The CSS rules.   */
+   *   The CSS rules.
+   */
   public function toRules(array $data, array $options): string;
 
   /**
    * Returns the available admin theme to fetch the media library styling.
    *
-   * @todo remove, useless.   */
+   * @todo remove, useless.
+   */
   public function getMediaLibraries(): array;
 
   /**
@@ -97,8 +105,9 @@ interface BlazyLayoutManagerInterface extends BlazyManagerInterface {
    *
    * Basically turning DIVITIS into UL list.
    *
-   * @param array<string, mixed> $settings
-   *   The settings array.   .*/
+   * @param array $settings
+   *   The settings array.
+   */
   public function semantic(array &$settings): void;
 
 }

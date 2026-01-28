@@ -13,17 +13,20 @@ abstract class BlazyDeleteFormBase extends EntityConfirmFormBase {
   /**
    * Defines the nice anme.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $niceName = 'Slick';
 
   /**
    * Defines machine name.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $machineName = 'slick';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getQuestion() {
     return $this->t('Are you sure you want to delete the %name optionset %label?', [
       '%name' => static::$niceName,
@@ -32,13 +35,15 @@ abstract class BlazyDeleteFormBase extends EntityConfirmFormBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getConfirmText() {
     return $this->t('Delete');
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->delete();
 

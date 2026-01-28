@@ -37,7 +37,8 @@ class Sanitize {
    *   which case relative URLs are guaranteed to work.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes
-   * @see https://stackoverflow.com/questions/2725156/complete-list-of-html-tag-attributes-which-have-a-url-value   */
+   * @see https://stackoverflow.com/questions/2725156/complete-list-of-html-tag-attributes-which-have-a-url-value
+   */
   protected static $uriAttributes = [
     'about',
     'action',
@@ -60,7 +61,7 @@ class Sanitize {
    * should be taken care of by HTML filters before/ after Blazy. Blazy is not
    * responsible for iframes/ images put into text filters, nor managing them.
    *
-   * @param array<string, mixed> $attributes
+   * @param array $attributes
    *   The given attributes to sanitize.
    * @param bool $escaped
    *   Sets to FALSE to avoid double escapes, for further processing.
@@ -69,7 +70,8 @@ class Sanitize {
    *   This option doesn't respect space-delimited string value, use array.
    *
    * @return array
-   *   The sanitized $attributes suitable for UGC, such as Blazy filter.   */
+   *   The sanitized $attributes suitable for UGC, such as Blazy filter.
+   */
   public static function attribute(array $attributes, $escaped = TRUE, $lowercase = FALSE): array {
     $list = static::$uriAttributes;
     $output = [];
@@ -137,7 +139,8 @@ class Sanitize {
    *   The options relevant to common caption container HTML tags.
    *
    * @return string
-   *   The relatively non-broken $input.   */
+   *   The relatively non-broken $input.
+   */
   public static function caption($input, array $options = []): string {
     $admin = $options['admin'] ?? FALSE;
     $check = $input;
@@ -168,7 +171,8 @@ class Sanitize {
   }
 
   /**
-   * Returns all available attributes which may contain URI.   */
+   * Returns all available attributes which may contain URI.
+   */
   public static function getUriAttributes(): array {
     return static::$uriAttributes;
   }
@@ -184,7 +188,8 @@ class Sanitize {
    *   The options: admin, paths, striptags, tags.
    *
    * @return array|string
-   *   The relatively sanitized $input suitable for UGC.   */
+   *   The relatively sanitized $input suitable for UGC.
+   */
   public static function input($input, $name, array $options) {
     $admin = $options['admin'] ?? FALSE;
     $paths = $options['paths'] ?? [];
@@ -245,7 +250,8 @@ class Sanitize {
    *   Whether to prioritize privacy, or default.
    *
    * @return string
-   *   The sanitized input url.   */
+   *   The sanitized input url.
+   */
   public static function inputUrl($input, $privacy = FALSE): ?string {
     // @todo move it out of here at 3.x:
     if ($input = Internals::youtube($input, $privacy)) {
@@ -271,7 +277,8 @@ class Sanitize {
    *
    * @see https://www.drupal.org/project/drupal/issues/3109650
    * @see https://learn.microsoft.com/en-us/previous-versions//cc848897(v=vs.85)?redirectedfrom=MSDN
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img   */
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img
+   */
   public static function unstrip($content, array $options): string {
     $prestyle = $options['prestyle'] ?? '';
     $style = $options['style'] ?? '';
@@ -315,7 +322,8 @@ class Sanitize {
    * @return string
    *   The required url.
    *
-   * @todo re-check to completely remove data URI option.   */
+   * @todo re-check to completely remove data URI option.
+   */
   public static function url($url, $use_data_uri = FALSE): string {
     // This should be enough, unless data:image is tweakable.
     $allow = Blazy::isDataUri($url) && $use_data_uri;
@@ -337,7 +345,8 @@ class Sanitize {
    *   Whether an attempted kidding, or normal input.
    *
    * @see https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
-   * @see https://en.wikipedia.org/wiki/ASCII   */
+   * @see https://en.wikipedia.org/wiki/ASCII
+   */
   public static function kid($value): bool {
     // Should use the proper filter before/after Blazy, not this naive.
     // At least useless when already passed to self::attribute() upstream.

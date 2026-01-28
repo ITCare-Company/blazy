@@ -10,27 +10,33 @@ use Drupal\blazy\BlazySettings;
 interface BlazyAdminInterface extends BlazyAdminInteropInterface {
 
   /**
-   * Returns the entity display repository.   */
+   * Returns the entity display repository.
+   */
   public function getEntityDisplayRepository();
 
   /**
-   * Returns the typed config.   */
+   * Returns the typed config.
+   */
   public function getTypedConfig();
 
   /**
-   * Returns the blazy manager.   */
+   * Returns the blazy manager.
+   */
   public function blazyManager();
 
   /**
-   * Returns simple form elements common for Views field, EB widget, formatters.   */
+   * Returns simple form elements common for Views field, EB widget, formatters.
+   */
   public function baseForm(array &$definition): array;
 
   /**
-   * Returns time in interval for select options.   */
+   * Returns time in interval for select options.
+   */
   public function getCacheOptions(): array;
 
   /**
-   * Returns available lightbox captions for select options.   */
+   * Returns available lightbox captions for select options.
+   */
   public function getLightboxCaptionOptions(): array;
 
   /**
@@ -40,7 +46,8 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    *   The entity type.
    *
    * @return array
-   *   The entity types   */
+   *   The entity types
+   */
   public function getEntityAsOptions($entity_type): array;
 
   /**
@@ -52,7 +59,8 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    *   The entity type.
    *
    * @return array
-   *   The entity types   */
+   *   The entity types
+   */
   public function getOptionsetOptions($entity_type): array;
 
   /**
@@ -62,14 +70,16 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    *   The target entity type.
    *
    * @return array
-   *   The target entity types   */
+   *   The target entity types
+   */
   public function getViewModeOptions($target_type): array;
 
   /**
    * Returns Responsive image for select options.
    *
    * @return array
-   *   The responsive images as options.   */
+   *   The responsive images as options.
+   */
   public function getResponsiveImageOptions(): array;
 
   /**
@@ -79,7 +89,8 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    *   The setting definition.
    *
    * @return array
-   *   The settings summary.   */
+   *   The settings summary.
+   */
   public function getSettingsSummary(array $definition): array;
 
   /**
@@ -95,7 +106,8 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    *   The optional target type.
    *
    * @return array
-   *   The available fields as options.   */
+   *   The available fields as options.
+   */
   public function getFieldOptions(
     array $target_bundles = [],
     array $allowed_field_types = [],
@@ -112,7 +124,8 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    *   Whether to flatten the array.
    *
    * @return string|array
-   *   The title classes.   */
+   *   The title classes.
+   */
   public function getTitleClasses(array $options = [], $flatten = FALSE);
 
   /**
@@ -124,40 +137,47 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    *   Whether to flatten the array.
    *
    * @return string|array
-   *   The tooltip classes.   */
+   *   The tooltip classes.
+   */
   public function getTooltipClasses(array $options = [], $flatten = FALSE);
 
   /**
-   * Modifies the grid only form elements.   */
+   * Modifies the grid only form elements.
+   */
   public function gridOnlyForm(array &$form, array &$definition): void;
 
   /**
    * Returns TRUE if admin_css option enabled, else FALSE.
    *
    * @return bool
-   *   TRUE if admin CSS is enabled.   */
+   *   TRUE if admin CSS is enabled.
+   */
   public function isAdminCss(): bool;
 
   /**
    * Returns TRUE if a Layout Builder admin page.
    *
    * @return bool
-   *   TRUE if Layout Builder admin page.   */
+   *   TRUE if Layout Builder admin page.
+   */
   public function isAdminLb(): bool;
 
   /**
-   * Provides horizontal tabs menu for nested details elements.   */
+   * Provides horizontal tabs menu for nested details elements.
+   */
   public function tabify(array &$form, $form_id, $region): void;
 
   /**
-   * Provides compact description due to small estates in modal.   */
+   * Provides compact description due to small estates in modal.
+   */
   public function themeDescription(array &$form, array $parents = []): void;
 
   /**
    * Returns escaped options.
    *
    * @return array
-   *   The escaped options.   */
+   *   The escaped options.
+   */
   public function toOptions(array $data): array;
 
   /**
@@ -167,35 +187,43 @@ interface BlazyAdminInterface extends BlazyAdminInteropInterface {
    *   The setting definition.
    *
    * @return \Drupal\blazy\BlazySettings
-   *   The BlazySettings object.   */
+   *   The BlazySettings object.
+   */
   public function toScopes(array &$definition): BlazySettings;
 
   /**
-   * Returns native grid description.   */
+   * Returns native grid description.
+   */
   public function nativeGridDescription();
 
   /**
-   * Returns base descriptions.   */
+   * Returns base descriptions.
+   */
   public function baseDescriptions(): array;
 
   /**
-   * Returns grid descriptions.   */
+   * Returns grid descriptions.
+   */
   public function gridDescriptions(): array;
 
   /**
-   * Returns grid header description.   */
+   * Returns grid header description.
+   */
   public function gridHeaderDescription();
 
   /**
-   * Returns opening descriptions.   */
+   * Returns opening descriptions.
+   */
   public function openingDescriptions(): array;
 
   /**
-   * Returns SVG description, from SVG image field to support it in Blazy.   */
+   * Returns SVG description, from SVG image field to support it in Blazy.
+   */
   public function svgDescriptions(): array;
 
   /**
-   * Returns closing form descriptions.   */
+   * Returns closing form descriptions.
+   */
   public function closingDescriptions(): array;
 
 }

@@ -13,7 +13,10 @@ use Drupal\editor\Entity\Editor;
 class EditorHooks {
 
   /**
-   * Implements hook_ckeditor_css_alter().   */
+   * Implements hook_ckeditor_css_alter().
+   *
+   * {@inheritdoc}
+   */
   public static function ckeditorCssAlter(array &$css, Editor $editor): void {
     if (self::isCkeditorApplicable($editor)) {
       $path = Internals::getPath('module', 'blazy', TRUE);
@@ -24,7 +27,10 @@ class EditorHooks {
   }
 
   /**
-   * Checks if Entity/Media Embed is enabled.   */
+   * Checks if Entity/Media Embed is enabled.
+   *
+   * {@inheritdoc}
+   */
   private static function isCkeditorApplicable(Editor $editor): bool {
     foreach (['entity_embed', 'media_embed'] as $filter) {
       if (!$editor->isNew()

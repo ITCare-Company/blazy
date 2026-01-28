@@ -77,7 +77,8 @@
    * Processes a blazy layout modal form.
    *
    * @param {HTMLElement} elm
-   *   The container HTML element.   */
+   *   The container HTML element.
+   */
   function process(elm) {
     var colors = $.findAll(elm, 'input[type="color"]');
     var ranges = $.findAll(elm, 'input[type="range"]');
@@ -225,7 +226,8 @@
   /**
    * Attaches Blazy behavior to HTML element.
    *
-   * @type {Drupal~behavior}   */
+   * @type {Drupal~behavior}
+   */
   Drupal.behaviors.blazyLayoutModal = {
     attach: function (context) {
 

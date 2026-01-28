@@ -8,25 +8,29 @@ namespace Drupal\blazy\Media;
 interface BlazyOEmbedInterface {
 
   /**
-   * Returns the Media oEmbed resource fecther.   */
+   * Returns the Media oEmbed resource fecther.
+   */
   public function getResourceFetcher();
 
   /**
-   * Returns the Media oEmbed url resolver fecthers.   */
+   * Returns the Media oEmbed url resolver fecthers.
+   */
   public function getUrlResolver();
 
   /**
    * Returns the blazy manager service.
    *
    * @return \Drupal\blazy\BlazyManagerInterface
-   *   The blazy manager.   */
+   *   The blazy manager.
+   */
   public function blazyManager();
 
   /**
    * Returns the blazy media.
    *
    * @return \Drupal\blazy\Media\BlazyMediaInterface
-   *   The blazy manager.   */
+   *   The blazy manager.
+   */
   public function blazyMedia();
 
   /**
@@ -36,7 +40,8 @@ interface BlazyOEmbedInterface {
    *   The input url.
    *
    * @return \Drupal\media\OEmbed\Provider|null
-   *   The oEmbed provider if available, or NULL.   */
+   *   The oEmbed provider if available, or NULL.
+   */
   public function getProvider($input): ?object;
 
   /**
@@ -46,7 +51,8 @@ interface BlazyOEmbedInterface {
    *   The input url.
    *
    * @return \Drupal\media\OEmbed\Resource|null
-   *   The oEmbed resource.   */
+   *   The oEmbed resource.
+   */
   public function getResource($input): ?object;
 
   /**
@@ -61,19 +67,21 @@ interface BlazyOEmbedInterface {
    *   Or just settings content for old deprecated approach.
    *
    * @todo should be at non-static BlazyMedia at 4.x, if too late for 3.x.
-   * @todo add a return to avoid potential issues with references at 3.x.   */
+   * @todo add a return to avoid potential issues with references at 3.x.
+   */
   public function build(array &$build): void;
 
   /**
    * Checks the given input URL.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being modified.
    * @param string $input
    *   The input to modify.
    *
    * @return string
-   *   The modified input url.   */
+   *   The modified input url.
+   */
   public function checkInputUrl(array &$settings, $input): ?string;
 
   /**
@@ -82,13 +90,14 @@ interface BlazyOEmbedInterface {
    * The settings fallbacks are preserved for minimal BVEF compat. This method
    * allows VEF to have TITLE or ALT for media related displays.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being modified.
    * @param bool $fallback
    *   If it is as fallback to fetch image, else just global definitions.
    *
    * @return object
-   *   The fake image item, or null if failed, or not a fallback.   */
+   *   The fake image item, or null if failed, or not a fallback.
+   */
   public function getThumbnail(array &$settings, $fallback = TRUE): ?object;
 
   /**
@@ -102,7 +111,8 @@ interface BlazyOEmbedInterface {
    *   The optional parameters, normally just autoplay.
    *
    * @return string
-   *   The media oembed url.   */
+   *   The media oembed url.
+   */
   public function toEmbedUrl($blazies, $input, array $params = []): string;
 
 }

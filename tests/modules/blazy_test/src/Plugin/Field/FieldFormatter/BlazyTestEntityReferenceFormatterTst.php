@@ -20,24 +20,28 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class BlazyTestEntityReferenceFormatterTst extends BlazyEntityReferenceBase {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $fieldType = 'entity';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     return static::injectServices($instance, $container, static::$fieldType);
   }
 
   /**
-   * Returns the blazy_test admin service shortcut.   */
+   * Returns the blazy_test admin service shortcut.
+   */
   public function admin() {
     return Internals::service('blazy_test.admin');
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function defaultSettings() {
     return BlazyDefault::extendedSettings()
       + BlazyDefault::gridSettings()
@@ -45,7 +49,8 @@ class BlazyTestEntityReferenceFormatterTst extends BlazyEntityReferenceBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $entities = $this->getEntitiesToView($items, $langcode);
 
@@ -58,7 +63,8 @@ class BlazyTestEntityReferenceFormatterTst extends BlazyEntityReferenceBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function getPluginScopes(): array {
     $admin       = $this->admin();
     $target_type = $this->getFieldSetting('target_type');

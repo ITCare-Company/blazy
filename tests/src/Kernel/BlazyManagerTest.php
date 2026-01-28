@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\blazy\Kernel;
 
 use Drupal\blazy\Blazy;
@@ -26,7 +28,8 @@ use Drupal\blazy\Theme\BlazyTheme;
 class BlazyManagerTest extends BlazyKernelTestBase {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -42,12 +45,13 @@ class BlazyManagerTest extends BlazyKernelTestBase {
   /**
    * Tests BlazyManager image.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being tested.
    * @param bool $expected_has_responsive_image
    *   Has the responsive image style ID.
    *
-   * @dataProvider providerTestPreRenderImage   */
+   * @dataProvider providerTestPreRenderImage
+   */
   public function testPreRenderImage(array $settings, $expected_has_responsive_image = FALSE) {
     $build = $this->data;
     $url = $settings['content_url'] ?? '';
@@ -92,7 +96,8 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * Provide test cases for ::testPreRenderImage().
    *
    * @return array
-   *   An array of tested data.   */
+   *   An array of tested data.
+   */
   public static function providerTestPreRenderImage() {
     $data[] = [
       [
@@ -129,7 +134,7 @@ class BlazyManagerTest extends BlazyKernelTestBase {
   /**
    * Tests building Blazy attributes.
    *
-   * @param array<string, mixed> $settings
+   * @param array $settings
    *   The settings being tested.
    * @param bool $use_uri
    *   Whether to provide image URI, or not.
@@ -140,12 +145,13 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * @param bool $expected
    *   Whether the expected output is an image.
    *
-   * @dataProvider providerPreprocessBlazy   */
+   * @dataProvider providerPreprocessBlazy
+   */
   public function testPreprocessBlazy(array $settings, $use_uri, $use_item, $iframe, $expected) {
     $variables = ['attributes' => []];
     $input_url = $settings['input_url'] ?? NULL;
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings  = array_merge($this->getFormatterSettings(), $settings);
     $settings += Blazy::init();
 
@@ -201,7 +207,8 @@ class BlazyManagerTest extends BlazyKernelTestBase {
   }
 
   /**
-   * Provider for ::testPreprocessBlazy.   */
+   * Provider for ::testPreprocessBlazy.
+   */
   public static function providerPreprocessBlazy() {
     // $use_uri, $use_item, $iframe, $expected.
     $data[] = [
@@ -259,7 +266,8 @@ class BlazyManagerTest extends BlazyKernelTestBase {
    * @param bool $expected
    *   The expected output_image_tag.
    *
-   * @dataProvider providerResponsiveImage   */
+   * @dataProvider providerResponsiveImage
+   */
   public function testPreprocessResponsiveImage($responsive_image_style_id, $expected) {
     $variables = [
       'item' => $this->testItem,
@@ -289,7 +297,8 @@ class BlazyManagerTest extends BlazyKernelTestBase {
   }
 
   /**
-   * Provider for ::testPreprocessResponsiveImage.   */
+   * Provider for ::testPreprocessResponsiveImage.
+   */
   public static function providerResponsiveImage() {
     return [
       'Responsive image with picture 8.x-3' => [
@@ -304,7 +313,8 @@ class BlazyManagerTest extends BlazyKernelTestBase {
   }
 
   /**
-   * Tests cases for various methods.   */
+   * Tests cases for various methods.
+   */
   public function testBlazyManagerMethods() {
     // Tests Blazy attachments.
     $attach = ['blazy' => TRUE, 'media_switch' => 'blazy_test'];

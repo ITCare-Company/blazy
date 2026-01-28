@@ -8,7 +8,8 @@ namespace Drupal\blazy\Plugin\Field\FieldFormatter;
 trait BlazyFormatterEntityTrait {
 
   /**
-   * Returns available field options by bundles.   */
+   * Returns available field options by bundles.
+   */
   protected function getFieldOptionsWithBundles(
     array $target_bundles,
     array $allowed_field_types = [],
@@ -60,7 +61,8 @@ trait BlazyFormatterEntityTrait {
   }
 
   /**
-   * Declutters options from less relevant options, specific to captions.   */
+   * Declutters options from less relevant options, specific to captions.
+   */
   protected function getExcludedFieldOptions(): array {
     // @todo figure out a more efficient way than blacklisting.
     // Do not exclude field_media_image as needed for Main stage.

@@ -18,7 +18,8 @@
    * Adds blazy container attributes required for grouping, or by lightboxes.
    *
    * @param {HTMLElement} elm
-   *   The .media-wrapper--blazy HTML element.   */
+   *   The .media-wrapper--blazy HTML element.
+   */
   function process(elm) {
     var cn = $.closest(elm, '.text-formatted') || $.closest(elm, '.field');
     if (!$.isElm(cn) || $.hasClass(cn, ID)) {
@@ -57,7 +58,8 @@
   /**
    * Attaches Blazy filter behavior to HTML element.
    *
-   * @type {Drupal~behavior}   */
+   * @type {Drupal~behavior}
+   */
   Drupal.behaviors.blazyFilter = {
     attach: function (context) {
       $.once(process, ID_ONCE, S_ELEMENT, context);

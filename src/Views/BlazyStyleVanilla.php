@@ -20,7 +20,8 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
    * The main module namespace.
    *
    * @var string
-   * @see https://www.php.net/manual/en/reserved.keywords.php   */
+   * @see https://www.php.net/manual/en/reserved.keywords.php
+   */
   protected static $namespace = 'blazy';
 
   /**
@@ -28,37 +29,43 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
    *
    * Prioritize sub-modules in case mismatched versions.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $itemId = 'slide';
 
   /**
    * The item prefix for captions, e.g.: blazy__caption, slide__caption, etc.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $itemPrefix = 'slide';
 
   /**
    * The caption property to store captions.
    *
-   * @var string   */
+   * @var string
+   */
   protected static $captionId = 'caption';
 
   /**
    * Whether using the SVG.
    *
-   * @var bool   */
+   * @var bool
+   */
   protected static $useSvg = FALSE;
 
   /**
    * The blazy formatter service manager.
    *
-   * @var \Drupal\blazy\BlazyFormatterInterface   */
+   * @var \Drupal\blazy\BlazyFormatterInterface
+   */
   protected $formatter;
 
   /**
    * The blazy formatter service manager, dups but no dups for sub-modules.
    *
-   * @var \Drupal\blazy\BlazyFormatterInterface   */
+   * @var \Drupal\blazy\BlazyFormatterInterface
+   */
   protected $manager;
 
   /**
@@ -66,23 +73,27 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
    *
    * @var \Drupal\blazy\BlazyManagerInterface
    *
-   * @todo remove at/by 3.x, no longer in use.   */
+   * @todo remove at/by 3.x, no longer in use.
+   */
   protected $blazyManager;
 
   /**
    * The first Blazy formatter found to get data from for lightbox gallery, etc.
    *
-   * @var array|null   */
+   * @var array|null
+   */
   protected $firstImage;
 
   /**
    * The dynamic html settings.
    *
-   * @var array   */
+   * @var array
+   */
   protected $htmlSettings = [];
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(
     ContainerInterface $container,
     array $configuration,
@@ -102,13 +113,15 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function blazyManager() {
     return $this->blazyManager;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getFieldString($row, $name, $index, $clean = TRUE): array {
     $values = [];
 
@@ -152,7 +165,8 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
   }
 
   /**
-   * Provides commons settings for the style plugins.   */
+   * Provides commons settings for the style plugins.
+   */
   protected function buildSettings() {
     $view    = $this->view;
     $options = $this->options;
@@ -206,7 +220,8 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
    *
    * Make this view container aware of Blazy formatters, normally to inject
    * relevant lightbox info about which it is not aware of due to such info is
-   * not provided at view style level, but field formatter one.   */
+   * not provided at view style level, but field formatter one.
+   */
   protected function checkBlazy(array &$settings, array $build, array $rows = []) {
     // Extracts Blazy formatter settings if available.
     // @todo re-check and remove, first.data already takes care of this.
@@ -238,7 +253,8 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
    *
    * Given 100 images on a page, Blazy will call
    * ImageStyle::transformDimensions() once rather than 100 times and let the
-   * 100 images inherit it as long as the image style has CROP in the name.   */
+   * 100 images inherit it as long as the image style has CROP in the name.
+   */
   protected function getFirstImage($row): array {
     if (!isset($this->firstImage)) {
       $view = $this->view;
@@ -302,7 +318,8 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
   }
 
   /**
-   * Returns the renderable array of field containing rendered and raw data.   */
+   * Returns the renderable array of field containing rendered and raw data.
+   */
   protected function getFieldRenderable($row, $index, $name, $multiple = FALSE): array {
     // Be sure to not check "Use field template" under "Style settings" to have
     // renderable array to work with, otherwise flattened string!
@@ -323,7 +340,8 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
   }
 
   /**
-   * Returns the rendered field, either string or array.   */
+   * Returns the rendered field, either string or array.
+   */
   protected function getFieldRendered($index, $name, $restricted = FALSE, $row = NULL): array {
     if ($name) {
       $output = $this->getField($index, $name);
@@ -345,25 +363,29 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
   }
 
   /**
-   * Returns TRUE if a valid image item, else FALSE.   */
+   * Returns TRUE if a valid image item, else FALSE.
+   */
   protected function isValidImageItem($item): bool {
     return is_object($item) && (isset($item->uri) || isset($item->target_id));
   }
 
   /**
-   * Prepares commons settings for the style plugins.   */
+   * Prepares commons settings for the style plugins.
+   */
   protected function prepareSettings(array &$settings): void {
     // Do nothing to let extenders modify.
   }
 
   /**
-   * Provide post settings for the style plugins.   */
+   * Provide post settings for the style plugins.
+   */
   protected function postSettings(array &$settings): void {
     // Do nothing to let extenders modify.
   }
 
   /**
-   * Renew settings per item.   */
+   * Renew settings per item.
+   */
   protected function reset(array &$settings, $key = 'blazies', array $defaults = []) {
     return Internals::reset($settings, $key, $defaults);
   }
@@ -371,7 +393,8 @@ abstract class BlazyStyleVanilla extends StylePluginBase implements BlazyStyleVa
   /**
    * Merges source with element array, excluding renderable array.
    *
-   * Since 2.17, $source is no longer accessible downtream for just $element.   */
+   * Since 2.17, $source is no longer accessible downtream for just $element.
+   */
   protected function withHashtag(array $source, array $element): array {
     $data = $this->formatter->withHashtag($source);
     return array_merge($data, $element);

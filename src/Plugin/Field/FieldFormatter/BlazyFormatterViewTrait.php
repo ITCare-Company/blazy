@@ -18,7 +18,8 @@ trait BlazyFormatterViewTrait {
   use BlazyFormatterViewBaseTrait;
 
   /**
-   * Returns similar view elements across sub-modules.   */
+   * Returns similar view elements across sub-modules.
+   */
   protected function commonViewElements(
     FieldItemListInterface $items,
     $langcode,
@@ -42,7 +43,7 @@ trait BlazyFormatterViewTrait {
     // Collects specific settings to this formatter.
     $defaults = $this->buildSettings();
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = $this->formatter->merge($settings, $defaults);
 
     // Internal overrides before enough data is populated below.

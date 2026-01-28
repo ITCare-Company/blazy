@@ -28,7 +28,8 @@
    *   True if should remove the original/ temporary holder.
    *
    * @return {Object}
-   *   This dBlazy object.   */
+   *   This dBlazy object.
+   */
   function mapAttr(els, attr, remove) {
     var chainCallback = function (el) {
       if ($.isElm(el)) {
@@ -67,7 +68,8 @@
    *   Native lazy doesn't support VIDEO as per 2022/1, exclude till required.
    *
    * @return {Object}
-   *   This dBlazy object.   */
+   *   This dBlazy object.
+   */
   function mapSource(els, attr, remove, withVideo) {
     if ($.isUnd(withVideo)) {
       withVideo = true;

@@ -13,37 +13,45 @@ use Drupal\blazy\Views\BlazyStyleVanilla;
 class BlazyViews extends BlazyStyleVanilla implements BlazyViewsInterface {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $namespace = 'blazy';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $itemId = 'content';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $itemPrefix = 'blazy';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected static $captionId = 'captions';
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected $usesRowPlugin = TRUE;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected $usesGrouping = FALSE;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function admin() {
     return Internals::service('blazy.admin');
   }
 
   /**
-   * Overrides StylePluginBase::buildOptionsForm().   */
+   * Overrides StylePluginBase::buildOptionsForm().
+   */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     $definition = [
       'plugin_id'      => $this->getPluginId(),
@@ -63,9 +71,10 @@ class BlazyViews extends BlazyStyleVanilla implements BlazyViewsInterface {
   }
 
   /**
-   * Overrides StylePluginBase::render().   */
+   * Overrides StylePluginBase::render().
+   */
   public function render() {
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = $this->buildSettings();
 
     /** @var \Drupal\blazy\BlazySettings $blazies */
@@ -97,7 +106,8 @@ class BlazyViews extends BlazyStyleVanilla implements BlazyViewsInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function defineOptions() {
     $options = [];
     foreach (BlazyDefault::gridSettings() as $key => $value) {

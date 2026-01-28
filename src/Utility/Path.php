@@ -17,19 +17,22 @@ class Path {
   /**
    * The AMP page.
    *
-   * @var bool|null   */
+   * @var bool|null
+   */
   protected static $isAmp;
 
   /**
    * The preview mode to disable Blazy where JS is not available, or useless.
    *
-   * @var bool|null   */
+   * @var bool|null
+   */
   protected static $isPreview;
 
   /**
    * The preview mode to disable interactive elements.
    *
-   * @var bool|null   */
+   * @var bool|null
+   */
   protected static $isSandboxed;
 
   /**
@@ -38,7 +41,8 @@ class Path {
    * @return \Drupal\Core\File\FileUrlGenerator|null
    *   The file url generator.
    *
-   * @see https://www.drupal.org/node/2940031   */
+   * @see https://www.drupal.org/node/2940031
+   */
   public static function fileUrlGenerator() {
     return Internals::service('file_url_generator');
   }
@@ -47,7 +51,8 @@ class Path {
    * Retrieves the path resolver.
    *
    * @return \Drupal\Core\Extension\ExtensionPathResolver|null
-   *   The path resolver.   */
+   *   The path resolver.
+   */
   public static function pathResolver() {
     return Internals::service('extension.path.resolver');
   }
@@ -56,7 +61,8 @@ class Path {
    * Retrieves the request stack.
    *
    * @return \Symfony\Component\HttpFoundation\RequestStack|null
-   *   The request stack.   */
+   *   The request stack.
+   */
   public static function requestStack() {
     return Internals::service('request_stack');
   }
@@ -65,7 +71,8 @@ class Path {
    * Retrieves the currently active route match object.
    *
    * @return \Drupal\Core\Routing\RouteMatchInterface|null
-   *   The currently active route match object.   */
+   *   The currently active route match object.
+   */
   public static function routeMatch() {
     return Internals::service('current_route_match');
   }
@@ -74,7 +81,8 @@ class Path {
    * Retrieves the stream wrapper manager service.
    *
    * @return \Drupal\Core\StreamWrapper\StreamWrapperManager|null
-   *   The stream wrapper manager.   */
+   *   The stream wrapper manager.
+   */
   public static function streamWrapperManager() {
     return Internals::service('stream_wrapper_manager');
   }
@@ -85,7 +93,8 @@ class Path {
    * @return \Symfony\Component\HttpFoundation\Request|null
    *   The request.
    *
-   * @see https://github.com/symfony/symfony/blob/6.0/src/Symfony/Component/HttpFoundation/Request.php   */
+   * @see https://github.com/symfony/symfony/blob/6.0/src/Symfony/Component/HttpFoundation/Request.php
+   */
   public static function request() {
     if ($stack = self::requestStack()) {
       return $stack->getCurrentRequest();
@@ -94,7 +103,8 @@ class Path {
   }
 
   /**
-   * Returns the commonly used path, or just the base path.   */
+   * Returns the commonly used path, or just the base path.
+   */
   public static function getPath($type, $name, $absolute = FALSE): ?string {
     if ($resolver = self::pathResolver()) {
       $path = $resolver->getPath($type, $name);
@@ -105,7 +115,8 @@ class Path {
   }
 
   /**
-   * Checks if Blazy is in CKEditor preview mode where no JS assets are loaded.   */
+   * Checks if Blazy is in CKEditor preview mode where no JS assets are loaded.
+   */
   public static function isPreview(): bool {
     if (!isset(static::$isPreview)) {
       static::$isPreview = self::isAmp() || self::isSandboxed();
@@ -114,7 +125,8 @@ class Path {
   }
 
   /**
-   * Checks if Blazy is in AMP pages.   */
+   * Checks if Blazy is in AMP pages.
+   */
   public static function isAmp(): bool {
     if (!isset(static::$isAmp)) {
       $request = self::request();
@@ -124,7 +136,8 @@ class Path {
   }
 
   /**
-   * In CKEditor without JS assets, interactive elements must be sandboxed.   */
+   * In CKEditor without JS assets, interactive elements must be sandboxed.
+   */
   public static function isSandboxed(): bool {
     if (!isset(static::$isSandboxed)) {
       $check = FALSE;

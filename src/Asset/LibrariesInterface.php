@@ -14,7 +14,8 @@ interface LibrariesInterface extends ConfigInterface {
    * Retrieves the library descovery service.
    *
    * @return \Drupal\Core\Asset\LibraryDiscoveryInterface
-   *   The library discovery.   */
+   *   The library discovery.
+   */
   public function discovery(): LibraryDiscoveryInterface;
 
   /**
@@ -24,7 +25,8 @@ interface LibrariesInterface extends ConfigInterface {
    *   The settings which determine what library to attach, empty to defaults.
    *
    * @return array
-   *   The supported libraries.   */
+   *   The supported libraries.
+   */
   public function attach(array &$attach): array;
 
   /**
@@ -37,7 +39,8 @@ interface LibrariesInterface extends ConfigInterface {
    *
    * @return array
    *   The definition of the requested library, if $name was passed and it
-   *   exists, otherwise empty array.   */
+   *   exists, otherwise empty array.
+   */
   public function byName($extension, $name): array;
 
   /**
@@ -49,11 +52,13 @@ interface LibrariesInterface extends ConfigInterface {
    *   Whether to prefix it with an a base path.
    *
    * @return array
-   *   The found libraries keyed by its name, or empty array.   */
+   *   The found libraries keyed by its name, or empty array.
+   */
   public function getLibraries(array $names, $base_path = FALSE): array;
 
   /**
-   * Return the available lightboxes, to be cached to avoid disk lookups.   */
+   * Return the available lightboxes, to be cached to avoid disk lookups.
+   */
   public function getLightboxes(): array;
 
   /**
@@ -70,7 +75,8 @@ interface LibrariesInterface extends ConfigInterface {
    *   Whether to prefix it with a base path.
    *
    * @return string|null
-   *   The first found path to the library, or NULL if not found.   */
+   *   The first found path to the library, or NULL if not found.
+   */
   public function getPath($name, $base_path = FALSE): ?string;
 
 }

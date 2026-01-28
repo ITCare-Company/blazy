@@ -24,7 +24,8 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
    *   The name of specific property.
    *
    * @return mixed|array|null
-   *   Available options by $group, $property, all, or NULL.   */
+   *   Available options by $group, $property, all, or NULL.
+   */
   public function getOptions($group = NULL, $property = NULL);
 
   /**
@@ -36,7 +37,8 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
    *   Whether to merge, or replace.
    *
    * @return $this
-   *   The class instance that this method is called on.   */
+   *   The class instance that this method is called on.
+   */
   public function setOptions(array $options, $merged = TRUE): self;
 
   /**
@@ -46,7 +48,8 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
    *   The group name: settings, icon, etc.
    *
    * @return mixed
-   *   The option value merged with defaults.   */
+   *   The option value merged with defaults.
+   */
   public function getOption($group);
 
   /**
@@ -58,7 +61,8 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
    *   The option value.
    *
    * @return $this
-   *   The class is being called.   */
+   *   The class is being called.
+   */
   public function setOption($name, $value): self;
 
   /**
@@ -68,7 +72,8 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
    *   Whether to return the settings as is, normally without defaults.
    *
    * @return array
-   *   The array of settings.   */
+   *   The array of settings.
+   */
   public function getSettings($ansich = FALSE): array;
 
   /**
@@ -80,7 +85,8 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
    *   Whether to merge with default values.
    *
    * @return $this
-   *   The class instance that this method is called on.   */
+   *   The class instance that this method is called on.
+   */
   public function setSettings(array $values, $merged = TRUE): self;
 
   /**
@@ -92,7 +98,8 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
    *   The default value.
    *
    * @return mixed
-   *   The setting value.   */
+   *   The setting value.
+   */
   public function getSetting($name, $default = NULL);
 
   /**
@@ -104,7 +111,8 @@ interface BlazyConfigEntityBaseInterface extends ConfigEntityInterface {
    *   The setting value.
    *
    * @return $this
-   *   The class instance that this method is called on.   */
+   *   The class instance that this method is called on.
+   */
   public function setSetting($name, $value): self;
 
 }

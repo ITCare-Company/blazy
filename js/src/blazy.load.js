@@ -34,7 +34,8 @@
   /**
    * Blazy public methods.
    *
-   * @namespace   */
+   * @namespace
+   */
   Drupal.blazy = $.extend(Drupal.blazy || {}, {
 
     clearScript: function (el) {
@@ -108,7 +109,8 @@
    * This is not needed by `No JavaScript` version due to no libraries.
    *
    * @param {HTMLElement} context
-   *   The documentElement.   */
+   *   The documentElement.
+   */
   var init = function (context) {
     var me = this;
     var opts = {
@@ -144,7 +146,8 @@
    * Blazy utility functions.
    *
    * @param {HTMLElement} elm
-   *   The .blazy/[data-blazy] container, not the lazyloaded .b-lazy element.   */
+   *   The .blazy/[data-blazy] container, not the lazyloaded .b-lazy element.
+   */
   function process(elm) {
     var me = this;
     var opts = $.parse($.attr(elm, 'data-' + ID));
@@ -196,7 +199,8 @@
    * The .b-lazy is the individual IMG, IFRAME, PICTURE, VIDEO, DIV, BODY, etc.
    * The lazy-loaded element is .b-lazy, not its container. Note the hypen (b-)!
    *
-   * @type {Drupal~behavior}   */
+   * @type {Drupal~behavior}
+   */
   Drupal.behaviors.blazy = {
     attach: function (context) {
 

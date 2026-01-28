@@ -45,7 +45,8 @@
   }
 
   /**
-   * Private variables.   */
+   * Private variables.
+   */
   var DOC = _win.document;
   var ROOT = DOC;
   var NICK = 'bio';
@@ -78,7 +79,8 @@
    * @return {Bio}
    *   The Bio instance.
    *
-   * @namespace   */
+   * @namespace
+   */
   function Bio(options) {
     var me = $.extend({}, FN, this);
 

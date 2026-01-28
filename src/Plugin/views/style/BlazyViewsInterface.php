@@ -10,7 +10,8 @@ use Drupal\blazy\Views\BlazyStyleBaseInterface;
 interface BlazyViewsInterface extends BlazyStyleBaseInterface {
 
   /**
-   * Returns the blazy admin.   */
+   * Returns the blazy admin.
+   */
   public function admin();
 
 }

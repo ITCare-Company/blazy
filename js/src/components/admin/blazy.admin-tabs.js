@@ -17,7 +17,8 @@
    * Utility functions.
    *
    * @param {HTMLElement} el
-   *   The HTML element.   */
+   *   The HTML element.
+   */
   function process(el) {
     var labels = $.findAll(el, S_LABEL);
     $.addClass(labels[0], IS_ACTIVE);
@@ -31,7 +32,8 @@
   /**
    * Attaches Blazy tabs behavior to HTML element.
    *
-   * @type {Drupal~behavior}   */
+   * @type {Drupal~behavior}
+   */
   Drupal.behaviors.blazyAdminTabs = {
     attach: function (context) {
       $.once(process, ID_ONCE, S_ELEMENT, context);

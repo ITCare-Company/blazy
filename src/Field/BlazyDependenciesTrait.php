@@ -10,7 +10,8 @@ use Drupal\blazy\BlazyDefault;
 trait BlazyDependenciesTrait {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function calculateDependencies() {
     $dependencies = parent::calculateDependencies();
     $style_ids = [];
@@ -48,7 +49,8 @@ trait BlazyDependenciesTrait {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function onDependencyRemoval(array $dependencies) {
     $changed = parent::onDependencyRemoval($dependencies);
     $style_ids = [];

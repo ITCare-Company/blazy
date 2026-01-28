@@ -13,15 +13,18 @@ use Drupal\file\FileRepository;
 interface BlazyFileInterface {
 
   /**
-   * Returns file system service.   */
+   * Returns file system service.
+   */
   public function fileSystem(): FileSystemInterface;
 
   /**
-   * Returns file repository service.   */
+   * Returns file repository service.
+   */
   public function fileRepository(): FileRepository;
 
   /**
-   * Returns the image factory.   */
+   * Returns the image factory.
+   */
   public function imageFactory(): ImageFactory;
 
   /**
@@ -45,7 +48,8 @@ interface BlazyFileInterface {
    * @return \Drupal\Core\Image\ImageInterface
    *   An Image object.
    *
-   * @see ImageFactory::setToolkitId()   */
+   * @see ImageFactory::setToolkitId()
+   */
   public function image($source = NULL, $toolkit_id = NULL): ImageInterface;
 
   /**
@@ -55,7 +59,8 @@ interface BlazyFileInterface {
    *   URI to convert.
    *
    * @return string
-   *   The realpath.   */
+   *   The realpath.
+   */
   public function realpath($uri): string;
 
 }

@@ -14,31 +14,36 @@ class Vectorizer implements VectorizerInterface {
   /**
    * Image source path.
    *
-   * @var string   */
+   * @var string
+   */
   protected $path;
 
   /**
    * GDImageIdentifier.
    *
-   * @var object|bool|null   */
+   * @var object|bool|null
+   */
   protected $image;
 
   /**
    * Image pixel width.
    *
-   * @var int   */
+   * @var int
+   */
   protected $width;
 
   /**
    * Image pixel $this->height.
    *
-   * @var int   */
+   * @var int
+   */
   protected $height;
 
   /**
    * Image options.
    *
-   * @var array   */
+   * @var array
+   */
   protected $options;
 
   /**
@@ -48,11 +53,13 @@ class Vectorizer implements VectorizerInterface {
    * dimensions. e.g.: RGB( 0, 0, 255 ) and RGB( 0, 0, 0 ) would be merged
    * with a threshold greater than 255.
    *
-   * @var int   */
+   * @var int
+   */
   protected $threshold = 0;
 
   /**
-   * Constructs a Vectorizer object.   */
+   * Constructs a Vectorizer object.
+   */
   public function __construct($path, array $options = []) {
     if (!is_readable($path) && !filter_var($path, FILTER_VALIDATE_URL)) {
       throw new \InvalidArgumentException(sprintf("Supplied URL / path is invalid : '%s'", $path));
@@ -63,19 +70,22 @@ class Vectorizer implements VectorizerInterface {
   }
 
   /**
-   * Destructs the current instance.   */
+   * Destructs the current instance.
+   */
   public function __destruct() {
     $this->flushImageSettings();
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getThreshold(): int {
     return $this->threshold;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function setThreshold(int $threshold): self {
     $threshold = filter_var($threshold, FILTER_VALIDATE_INT, [
       'options' => [
@@ -94,7 +104,8 @@ class Vectorizer implements VectorizerInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function loadImage(string $path): self {
     if (!is_readable($path) && !filter_var($path, FILTER_VALIDATE_URL)) {
       throw new \InvalidArgumentException(sprintf("Supplied URL / path is invalid : '%s'", $path));
@@ -105,26 +116,30 @@ class Vectorizer implements VectorizerInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getLoadedImagePath(): string {
     return $this->path;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function vectorize(): string {
     $svg = $this->toXml();
     return $svg->saveXml($svg->documentElement);
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function saveSvg(string $path): int {
     return $this->toXml()->save($path);
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function toXml(): \DOMDocument {
     $this->setImageSettings();
 
@@ -140,7 +155,8 @@ class Vectorizer implements VectorizerInterface {
   }
 
   /**
-   * Remove image settings.   */
+   * Remove image settings.
+   */
   protected function flushImageSettings() {
     if (!is_null($this->image)) {
       imagedestroy($this->image);
@@ -154,7 +170,8 @@ class Vectorizer implements VectorizerInterface {
    * Initializes Image settings.
    *
    * @throws \InvalidArgumentException
-   *   If the image is not yet loaded.   */
+   *   If the image is not yet loaded.
+   */
   protected function setImageSettings() {
     $this->flushImageSettings();
 
@@ -174,7 +191,8 @@ class Vectorizer implements VectorizerInterface {
    *   Whether horizontal or vertical.
    *
    * @return \DOMDocument
-   *   The DOM document object.   */
+   *   The DOM document object.
+   */
   protected function vectorizeFromRaster($direction): \DOMDocument {
     $svg = $this->createSvgDocument();
     if ($direction == self::DIRECTION_HORIZONTAL) {
@@ -201,7 +219,8 @@ class Vectorizer implements VectorizerInterface {
    * Creates a template SVG file.
    *
    * @return \DOMDocument
-   *   The DOM document object.   */
+   *   The DOM document object.
+   */
   protected function createSvgDocument(): \DOMDocument {
     $imp = new \DOMImplementation();
     $dom = $imp->createDocument(
@@ -238,7 +257,8 @@ class Vectorizer implements VectorizerInterface {
    *   Whether horizontal or vertical.
    *
    * @return int
-   *   The number of consecutive pixels.   */
+   *   The number of consecutive pixels.
+   */
   protected function createLine(\DOMDocument $svg, $x, $y, $direction): int {
     $rgba  = $this->getPixelColors($x, $y);
     $delta = 1;
@@ -259,7 +279,8 @@ class Vectorizer implements VectorizerInterface {
    *   The Y coordinate.
    *
    * @return array
-   *   Color array, [red: int, green: int, blue: int, alpha: int].   */
+   *   Color array, [red: int, green: int, blue: int, alpha: int].
+   */
   protected function getPixelColors($x, $y): array {
     // @todo recheck return imagecolorat($this->image, $x, $y);.
     return imagecolorsforindex($this->image, imagecolorat($this->image, $x, $y));
@@ -280,7 +301,8 @@ class Vectorizer implements VectorizerInterface {
    *   Whether horizontal OR vertical.
    *
    * @return bool
-   *   Whether the pixel are similar in color depending on the direction.   */
+   *   Whether the pixel are similar in color depending on the direction.
+   */
   protected function isSimilarPixel(array $rgba, $x, $y, $delta, $direction): bool {
     if ($direction == self::DIRECTION_HORIZONTAL) {
       $res = $x + $delta;
@@ -307,7 +329,8 @@ class Vectorizer implements VectorizerInterface {
    * @param int $width
    *   The element width.
    * @param int $direction
-   *   Whether horizontal or vertical.   .*/
+   *   Whether horizontal or vertical.
+   */
   protected function createRectElement(
     \DOMDocument $svg,
     array $rgba,
@@ -363,7 +386,8 @@ class Vectorizer implements VectorizerInterface {
    *   Color array, [ red: int, green: int, blue: int ].
    *
    * @return string
-   *   Either black or white closest to the given color.   */
+   *   Either black or white closest to the given color.
+   */
   protected function isColor(array $rgba): string {
     $color = (0.2126 * $rgba['red']) + (0.7152 * $rgba['green']) + (0.0722 * $rgba['red']);
     return $color < 128 ? 'black' : 'white';
@@ -379,7 +403,8 @@ class Vectorizer implements VectorizerInterface {
    *
    * @return bool
    *   TRUE if the colors are within the tolerance,
-   *   FALSE if they are outside the tolerance.   */
+   *   FALSE if they are outside the tolerance.
+   */
   protected function checkThreshold(array $color_a, array $color_b): bool {
     $distance = sqrt(
       pow($color_b['red'] - $color_a['red'], 2) +

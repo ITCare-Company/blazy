@@ -62,7 +62,8 @@
    * @return {Blazy}
    *   The Blazy instance.
    *
-   * @namespace   */
+   * @namespace
+   */
   return function Blazy(options) {
     var me = this;
 

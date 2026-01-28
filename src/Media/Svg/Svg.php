@@ -17,7 +17,8 @@ use enshrined\svgSanitize\Sanitizer;
 class Svg extends BlazyFile implements SvgInterface {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function sanitize($file, array $options = []): ?string {
     $uri   = $file instanceof File ? $file->getFileUri() : $file;
     $ext   = pathinfo($uri, PATHINFO_EXTENSION);
@@ -48,13 +49,15 @@ class Svg extends BlazyFile implements SvgInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function sanitizer(): ?object {
     return class_exists(Sanitizer::class) ? new Sanitizer() : NULL;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function transparentize(
     $uri,
     $destination,
@@ -145,13 +148,15 @@ class Svg extends BlazyFile implements SvgInterface {
    *
    * Was planned to have more elaborate SVG works than ::sanitize() method:
    * transparentizing, vectorizing, rasterizing, blur, etc. via its options.
-   * Dups for now, but no dups if we can make it. Perhaps at 4.x or so.   */
+   * Dups for now, but no dups if we can make it. Perhaps at 4.x or so.
+   */
   public function view($uri, array $options = []): ?string {
     return $this->sanitize($uri, $options);
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function vectorize($url, array $options = []): string {
     $converter = new Vectorizer($url, $options);
     return $converter->vectorize();
@@ -166,7 +171,8 @@ class Svg extends BlazyFile implements SvgInterface {
    *   The attribute options.
    *
    * @return string
-   *   The modified SVG string, or original.   */
+   *   The modified SVG string, or original.
+   */
   protected function attributes($svg, array $options): string {
     $fill   = $options['fill'] ?? FALSE;
     $_title = $options['title'] ?? NULL;
@@ -222,7 +228,8 @@ class Svg extends BlazyFile implements SvgInterface {
    *   The SVG content.
    *
    * @return string
-   *   The cleaned SVG string.   */
+   *   The cleaned SVG string.
+   */
   protected function clean(string $svg): string {
     $svg = preg_replace(['/<\?xml.*\?>/i', '/<!DOCTYPE((.|\n|\r)*?)">/i'], '', $svg);
     $svg = str_replace(["\n", "  "], '', $svg);
@@ -230,7 +237,8 @@ class Svg extends BlazyFile implements SvgInterface {
   }
 
   /**
-   * Converts image to the supported transparent formats.   */
+   * Converts image to the supported transparent formats.
+   */
   protected function toTransparentFormat($source, $ext = 'png', $toolkit_id = NULL): bool {
     $image = $this->image($source, $toolkit_id);
     $this->image = $image;
@@ -252,7 +260,8 @@ class Svg extends BlazyFile implements SvgInterface {
    * @return bool
    *   TRUE if the shell command exists, else false.
    *
-   * @todo use ImagemagickExecManagerInterface::execute|runOsShell for cross-os.   */
+   * @todo use ImagemagickExecManagerInterface::execute|runOsShell for cross-os.
+   */
   private function commandExists(string $command): bool {
     return !empty(shell_exec("which $command"));
   }
@@ -261,7 +270,8 @@ class Svg extends BlazyFile implements SvgInterface {
    * Returns the shell command result.
    *
    * @todo use ImagemagickExecManagerInterface::execute|runOsShell for cross-os.
-   * @see http://php.net/manual/en/function.shell-exec.php   */
+   * @see http://php.net/manual/en/function.shell-exec.php
+   */
   private function runOsShell($command, string $arguments): ?string {
     try {
       return shell_exec($command . ' ' . $arguments);

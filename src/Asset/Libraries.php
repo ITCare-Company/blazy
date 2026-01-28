@@ -19,17 +19,20 @@ class Libraries extends Config implements LibrariesInterface {
   /**
    * The library discovery service.
    *
-   * @var \Drupal\Core\Asset\LibraryDiscoveryInterface   */
+   * @var \Drupal\Core\Asset\LibraryDiscoveryInterface
+   */
   protected $discovery;
 
   /**
    * The library finder service.
    *
-   * @var \Drupal\Core\Asset\LibrariesDirectoryFileFinder   */
+   * @var \Drupal\Core\Asset\LibrariesDirectoryFileFinder
+   */
   protected $finder;
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container) {
     $instance = parent::create($container);
 
@@ -39,27 +42,31 @@ class Libraries extends Config implements LibrariesInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function discovery(): LibraryDiscoveryInterface {
     return $this->discovery;
   }
 
   /**
-   * Sets library discovery service.   */
+   * Sets library discovery service.
+   */
   public function setDiscovery(LibraryDiscoveryInterface $discovery): self {
     $this->discovery = $discovery;
     return $this;
   }
 
   /**
-   * Sets library finder service.   */
+   * Sets library finder service.
+   */
   public function setFinder(LibrariesDirectoryFileFinder $finder): self {
     $this->finder = $finder;
     return $this;
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function attach(array &$attach): array {
     Internals::postSettings($attach);
 
@@ -141,13 +148,15 @@ class Libraries extends Config implements LibrariesInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function byName($extension, $name): array {
     return $this->discovery->getLibraryByName($extension, $name) ?: [];
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getLibraries(array $names, $base_path = FALSE): array {
     $libraries = [];
     foreach ($this->find($names, TRUE) as $key => $path) {
@@ -159,7 +168,8 @@ class Libraries extends Config implements LibrariesInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getLightboxes(): array {
     $lightboxes = ['flybox'];
     if (function_exists('colorbox_theme')) {
@@ -180,7 +190,8 @@ class Libraries extends Config implements LibrariesInterface {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function getPath($name, $base_path = FALSE): ?string {
     $library = '';
     $names = is_array($name) ? $name : [$name];
@@ -194,7 +205,8 @@ class Libraries extends Config implements LibrariesInterface {
   }
 
   /**
-   * Retrieves libraries.   */
+   * Retrieves libraries.
+   */
   private function find(array $libraries, $keyed = FALSE): \Generator {
     foreach ($libraries as $library) {
       $result = $this->finder->find($library);

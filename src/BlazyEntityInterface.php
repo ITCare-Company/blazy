@@ -20,21 +20,24 @@ interface BlazyEntityInterface {
    * Returns the blazy oembed service.
    *
    * @return \Drupal\blazy\Media\BlazyOEmbedInterface
-   *   The blazy oembed.   */
+   *   The blazy oembed.
+   */
   public function oembed();
 
   /**
    * Returns the blazy manager service.
    *
    * @return \Drupal\blazy\BlazyManagerInterface
-   *   The blazy manager.   */
+   *   The blazy manager.
+   */
   public function blazyManager();
 
   /**
    * Returns the blazy media.
    *
    * @return \Drupal\blazy\Media\BlazyMediaInterface
-   *   The blazy media.   */
+   *   The blazy media.
+   */
   public function blazyMedia();
 
   /**
@@ -55,7 +58,8 @@ interface BlazyEntityInterface {
    *     - fallback, when all fails, probably just entity label.
    *
    * @return array
-   *   The renderable array of theme_blazy(), or view builder, else empty array.   */
+   *   The renderable array of theme_blazy(), or view builder, else empty array.
+   */
   public function build(array $data): array;
 
   /**
@@ -65,7 +69,8 @@ interface BlazyEntityInterface {
    * Call this method once at the container level for multiple entities.
    *
    * @param array $data
-   *   An array of data containing settings, image item, entity, and fallback.   .*/
+   *   An array of data containing settings, image item, entity, and fallback.
+   */
   public function prepare(array &$data): void;
 
   /**
@@ -86,7 +91,8 @@ interface BlazyEntityInterface {
    *     - fallback, when all fails, probably just entity label.
    *
    * @return array
-   *   The renderable array of the view builder, or empty if not applicable.   */
+   *   The renderable array of the view builder, or empty if not applicable.
+   */
   public function view(array $data): array;
 
 }

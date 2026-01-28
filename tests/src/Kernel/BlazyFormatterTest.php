@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\blazy\Kernel;
 
 // @todo use Drupal\Core\Render\Element;
@@ -25,7 +27,8 @@ use GuzzleHttp\Exception\GuzzleException;
 class BlazyFormatterTest extends BlazyKernelTestBase {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   protected function setUp(): void {
     parent::setUp();
 
@@ -50,7 +53,8 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
   }
 
   /**
-   * Tests the Blazy formatter buid methods.   */
+   * Tests the Blazy formatter buid methods.
+   */
   public function testBlazyFormatterCache() {
     // Tests type definition.
     /** @var \Drupal\Core\Config\TypedConfigManagerInterface $type_config */
@@ -113,7 +117,8 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
   }
 
   /**
-   * Tests the Blazy formatter settings form.   */
+   * Tests the Blazy formatter settings form.
+   */
   public function testBlazySettingsForm() {
     // Tests ::settingsForm.
     $form = [];
@@ -126,7 +131,8 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
   }
 
   /**
-   * Tests the Blazy formatter view display.   */
+   * Tests the Blazy formatter view display.
+   */
   public function testFormatterViewDisplay() {
     $build['#settings'] = Blazy::init();
     $formatter_settings = $this->formatterInstance->buildSettings($build, NULL);
@@ -154,7 +160,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
     $format['#settings'] = array_merge($this->getFormatterSettings(), $formatter_settings);
 
-    /** @var array<string, mixed> $settings */
+    /** @var array $settings */
     $settings = &$format['#settings'];
 
     $this->assertArrayHasKey('blazies', $settings);
@@ -214,7 +220,8 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
    * @param bool $expected
    *   The expected output.
    *
-   * @dataProvider providerTestBlazyMedia   */
+   * @dataProvider providerTestBlazyMedia
+   */
   public function testBlazyMedia($input_url, $expected) {
     // Attempts to fix undefined DRUPAL_TEST_IN_CHILD_SITE for PHP 8 at 9.1.x.
     // The middleware test.http_client.middleware calls drupal_generate_test_ua
@@ -227,7 +234,7 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
 
       $entity = $this->entity;
 
-      /** @var array<string, mixed> $settings */
+      /** @var array $settings */
       $settings = [
         'view_mode'       => 'default',
         'thumbnail_style' => 'thumbnail',
@@ -275,7 +282,8 @@ class BlazyFormatterTest extends BlazyKernelTestBase {
    * Provide test cases for ::testBlazyMedia().
    *
    * @return array
-   *   An array of tested data.   */
+   *   An array of tested data.
+   */
   public static function providerTestBlazyMedia() {
     return [
       ['', FALSE],

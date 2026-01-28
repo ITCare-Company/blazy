@@ -10,7 +10,8 @@ use Drupal\blazy\BlazyDefault;
 class BlazyAdminFormatter extends BlazyAdminFormatterBase {
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function buildSettingsForm(array &$form, array $definition): void {
     parent::buildSettingsForm($form, $definition);
 
@@ -37,7 +38,8 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function openingForm(array &$form, array &$definition): void {
     parent::openingForm($form, $definition);
 
@@ -72,7 +74,8 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function fieldableForm(array &$form, array $definition): void {
     parent::fieldableForm($form, $definition);
 
@@ -143,7 +146,8 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
   }
 
   /**
-   * {@inheritdoc}   */
+   * {@inheritdoc}
+   */
   public function closingForm(array &$form, array $definition): void {
     /** @var \Drupal\blazy\BlazySettings $scopes */
     $scopes = $this->toScopes($definition);
@@ -170,7 +174,8 @@ class BlazyAdminFormatter extends BlazyAdminFormatterBase {
    *   The scopes being passed.
    *
    * @return array
-   *   The form item descriptions.   */
+   *   The form item descriptions.
+   */
   protected function formatterDescriptions($scopes): array {
     $namespace = $scopes->get('namespace', 'blazy');
 
