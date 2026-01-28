@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Hook;
 
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Hook implementations for library.
@@ -63,7 +64,7 @@ class LibraryHooks {
 
     if ($extension === 'blazy') {
       $names = ['DOMPurify', 'dompurify'];
-      if ($path = \blazy()->getLibrariesPath($names)) {
+      if ($path = Internals::blazy()->getLibrariesPath($names)) {
         $js = [
           '/' . $path . '/dist/purify.min.js' => [
             'minified' => TRUE,

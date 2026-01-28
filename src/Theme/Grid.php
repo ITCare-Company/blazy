@@ -4,9 +4,9 @@ namespace Drupal\blazy\Theme;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Utility\Check;
-use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides grid utilities.
@@ -43,8 +43,8 @@ class Grid {
     // Might be called outside Blazy workflows, allows altering settings once.
     $attachments = $attrs = [];
 
-    \blazy()->moduleHandler()->alter('blazy_settings_grid', $settings);
-    $attachments = $refresh ? \blazy()->attach($settings) : [];
+    Internals::blazy()->moduleHandler()->alter('blazy_settings_grid', $settings);
+    $attachments = $refresh ? Internals::blazy()->attach($settings) : [];
 
     // @todo separate grid item attributes from contents.
     $contents = self::content($items, $settings);

@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Theme;
 
 use Drupal\Core\Render\Element;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides non-reusable blazy admin static methods.
@@ -41,7 +42,7 @@ class Admin {
         '#markup' => $form['#description'],
       ];
 
-      $form['#description'] = \blazy()->renderInIsolation($desc);
+      $form['#description'] = Internals::blazy()->renderInIsolation($desc);
       $form['#wrapper_attributes']['class'][] = 'form-item--collapsidesc';
     }
   }

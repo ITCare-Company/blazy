@@ -11,8 +11,8 @@ use Drupal\Core\Image\ImageInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\StreamWrapper\PublicStream;
-use Drupal\blazy\Utility\Path;
 use Drupal\blazy\Internals\Internals;
+use Drupal\blazy\Utility\Path;
 use Drupal\file\FileInterface;
 use Drupal\file\FileRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -237,7 +237,7 @@ class BlazyFile implements BlazyFileInterface {
         $normal_path = str_replace($base_path, '', $normal_path);
       }
 
-      $scheme = \blazy()->config('default_scheme', 'system.file');
+      $scheme = Internals::blazy()->config('default_scheme', 'system.file');
 
       $active_path = $scheme == 'public'
         ? PublicStream::basePath()
@@ -281,7 +281,7 @@ class BlazyFile implements BlazyFileInterface {
     if ($stream = Path::streamWrapperManager()) {
       // The double slash was from buildUri.
       if (substr($path, 0, 2) === '//') {
-        $scheme = \blazy()->config('default_scheme', 'system.file');
+        $scheme = Internals::blazy()->config('default_scheme', 'system.file');
         $uri = $scheme . ':' . $path;
       }
       $uri = $stream->normalizeUri($uri);

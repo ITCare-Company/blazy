@@ -130,13 +130,6 @@ class Internals extends Content {
   }
 
   /**
-   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
-   */
-  public static function service($service) {
-    return \Drupal::hasService($service) ? \Drupal::service($service) : NULL;
-  }
-
-  /**
    * Alias for Settings::init().
    */
   public static function settings(array $data = []): BlazySettings {

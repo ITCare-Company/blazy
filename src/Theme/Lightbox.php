@@ -8,10 +8,10 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Utility\Sanitize;
-use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides lightbox utilities.
@@ -400,7 +400,7 @@ class Lightbox {
 
       // Responsive image is unwrapped. Local videos wrapped.
       $content = $_resimage ? $box_html : $html;
-      $content = \blazy()->renderInIsolation($content);
+      $content = Internals::blazy()->renderInIsolation($content);
       $content = is_object($content) ? $content->__toString() : $content;
 
       // @todo merge with BlazyDefault::TAGS when mixed contents supported.
@@ -483,7 +483,7 @@ class Lightbox {
     // The _responsive_image_build_source_attributes is WSOD if missing.
     $_resimage = FALSE;
     try {
-      if ($resimage = \blazy()->load($box_style, 'responsive_image_style')) {
+      if ($resimage = Internals::blazy()->load($box_style, 'responsive_image_style')) {
         $_resimage = TRUE;
         $alt = $blazies->get('image.alt');
 
@@ -573,13 +573,13 @@ class Lightbox {
         // $object can be file or media for plain images, or media entities.
         if ($custom && $object instanceof EntityInterface) {
           $options = ['clear' => TRUE];
-          $params  = [$object->getEntityTypeId() => \blazy()->getTranslatedEntity($object)];
+          $params  = [$object->getEntityTypeId() => Internals::blazy()->getTranslatedEntity($object)];
 
           if (BlazyFile::isFile($file) && $file != $object) {
-            $params += ['file' => \blazy()->getTranslatedEntity($file)];
+            $params += ['file' => Internals::blazy()->getTranslatedEntity($file)];
           }
           if ($node && $node != $object) {
-            $params += [$node->getEntityTypeId() => \blazy()->getTranslatedEntity($node)];
+            $params += [$node->getEntityTypeId() => Internals::blazy()->getTranslatedEntity($node)];
           }
 
           $caption = \Drupal::token()->replace($custom, $params, $options);

@@ -69,7 +69,7 @@ class BlazyDefault {
    */
   public static function alterableSettings(array &$settings) {
     $context = ['class' => get_called_class()];
-    \blazy()->moduleHandler()->alter('blazy_base_settings', $settings, $context);
+    Internals::blazy()->moduleHandler()->alter('blazy_base_settings', $settings, $context);
   }
 
   /**
@@ -591,7 +591,7 @@ class BlazyDefault {
       'is' => [],
       'lazy' => ['id' => 'blazy', 'attribute' => 'src', 'class' => 'b-lazy'],
       'libs' => [],
-      'ui' => \blazy()->config(),
+      'ui' => Internals::blazy()->config(),
       'use' => [],
     ];
   }

@@ -2,12 +2,12 @@
 
 namespace Drupal\blazy;
 
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Utility\CheckItem;
 use Drupal\blazy\Utility\Sanitize;
-use Drupal\blazy\Internals\Internals;
 use enshrined\svgSanitize\Sanitizer;
 
 /**
@@ -159,7 +159,7 @@ class Blazy extends BlazyBase {
    * Returns the translated entity if available.
    */
   public static function translated($entity, $langcode = NULL): object {
-    return \blazy()->getTranslatedEntity($entity, $langcode);
+    return Internals::blazy()->getTranslatedEntity($entity, $langcode);
   }
 
   /**

@@ -6,13 +6,13 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Media\BlazyResponsiveImage;
 use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Media\Ratio;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Utility\Check;
-use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides non-reusable blazy attribute static methods.
@@ -27,7 +27,7 @@ class Attributes {
    * Provides attachments when not using the provided API.
    */
   public static function attach(array &$variables, array $settings = []): void {
-    $attachments = \blazy()->attach($settings) ?: [];
+    $attachments = Internals::blazy()->attach($settings) ?: [];
     $variables['#attached'] = Arrays::merge($attachments, $variables, '#attached');
   }
 

@@ -6,11 +6,11 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Template\Attribute;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\Placeholder;
 use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Utility\Check;
 use Drupal\blazy\Utility\Path;
-use Drupal\blazy\Internals\Internals;
 
 /**
  * Hook implementations for theme.

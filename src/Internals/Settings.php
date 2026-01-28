@@ -5,6 +5,7 @@ namespace Drupal\blazy\Internals;
 use Drupal\Component\Utility\Unicode;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
+use Drupal\blazy\BlazyManagerInterface;
 use Drupal\blazy\BlazySettings;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Utility\Check;
@@ -560,6 +561,23 @@ class Settings {
     // In case overriden above without extending self::init().
     $settings += Blazy::init();
     return $settings[$key];
+  }
+
+  /**
+   * Returns blazy manager service.
+   *
+   * @return \Drupal\blazy\BlazyManagerInterface
+   *   The blazy.manager instance.
+   */
+  public static function blazy(): BlazyManagerInterface {
+    return self::service('blazy.manager');
+  }
+
+  /**
+   * Returns a wrapper to pass tests, or DI where adding params is troublesome.
+   */
+  public static function service($service) {
+    return \Drupal::hasService($service) ? \Drupal::service($service) : NULL;
   }
 
   /**

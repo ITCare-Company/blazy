@@ -6,9 +6,9 @@ use Drupal\Core\Asset\LibrariesDirectoryFileFinder;
 use Drupal\Core\Asset\LibraryDiscoveryInterface;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Config\Config;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\Preloader;
 use Drupal\blazy\Theme\Lightbox;
-use Drupal\blazy\Internals\Internals;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

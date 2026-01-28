@@ -5,10 +5,10 @@ namespace Drupal\blazy\Utility;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\BlazyFile;
 use Drupal\blazy\Media\BlazyImage;
 use Drupal\blazy\Theme\Attributes;
-use Drupal\blazy\Internals\Internals;
 
 /**
  * Provides feature check methods at item level.

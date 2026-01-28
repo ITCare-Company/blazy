@@ -2,6 +2,7 @@
 
 namespace Drupal\blazy\Media;
 
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Theme\Attributes;
 
 /**
@@ -205,7 +206,7 @@ class Placeholder {
     }
 
     // Provides default path, in case required by global, but not provided.
-    $style = $style ?: \blazy()->load('thumbnail', 'image_style');
+    $style = $style ?: Internals::blazy()->load('thumbnail', 'image_style');
 
     if (empty($tn_uri) && $style && BlazyFile::isValidUri($uri)) {
       $options['unsafe'] = FALSE;

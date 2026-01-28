@@ -5,8 +5,8 @@ namespace Drupal\blazy\Utility;
 use Drupal\blazy\Blazy;
 use Drupal\blazy\BlazyDefault;
 use Drupal\blazy\Field\BlazyField;
-use Drupal\blazy\Theme\BlazyViews;
 use Drupal\blazy\Internals\Internals;
+use Drupal\blazy\Theme\BlazyViews;
 
 /**
  * Provides feature check methods at container level, or globally.
@@ -182,7 +182,7 @@ class Check {
       $blazies->set('was.initialized', FALSE);
 
       // @todo refactor to instance class at D11.
-      \blazy()->preSettings($settings);
+      Internals::blazy()->preSettings($settings);
     }
 
     // 4. No longer needed once extracted above, remove.

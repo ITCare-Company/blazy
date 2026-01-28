@@ -3,8 +3,8 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Internals\Internals;
+use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Utility\CheckItem;
 
 /**

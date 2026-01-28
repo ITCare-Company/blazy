@@ -3,9 +3,9 @@
 namespace Drupal\blazy;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Media\BlazyOEmbedInterface;
 use Drupal\blazy\Utility\CheckItem;
-use Drupal\blazy\Internals\Internals;
 use Drupal\media\MediaInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

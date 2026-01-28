@@ -5,6 +5,7 @@ namespace Drupal\blazy\Hook;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Field\FormatterInterface;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\Internals\Internals;
 
 /**
  * Hook implementations for field.
@@ -66,7 +67,7 @@ class FieldHooks {
    * @todo make it private after another sub-module check.
    */
   public static function thirdPartyFormatters(): array {
-    $formatters = \blazy()->thirdPartyFormatters();
+    $formatters = Internals::blazy()->thirdPartyFormatters();
     return array_unique($formatters);
   }
 

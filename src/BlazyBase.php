@@ -11,9 +11,9 @@ use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\blazy\Asset\LibrariesInterface;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Theme\Grid;
 use Drupal\blazy\Utility\Arrays;
-use Drupal\blazy\Internals\Internals;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

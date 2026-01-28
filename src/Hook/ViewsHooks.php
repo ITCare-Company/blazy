@@ -3,6 +3,7 @@
 namespace Drupal\blazy\Hook;
 
 use Drupal\blazy\Blazy;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Utility\Arrays;
 use Drupal\blazy\Views\BlazyStylePluginInterface;
@@ -127,7 +128,7 @@ class ViewsHooks {
    * Implements hook_preprocess_views_view().
    */
   private static function withViewsView(array &$variables): bool {
-    $lightboxes = \blazy()->getLightboxes();
+    $lightboxes = Internals::blazy()->getLightboxes();
 
     preg_match('~blazy--(.*?)-gallery~', $variables['css_class'], $matches);
     $lightbox = $matches[1] ? str_replace('-', '_', $matches[1]) : FALSE;
@@ -152,7 +153,7 @@ class ViewsHooks {
         ->set('total', $count)
         ->set('use.ajax', $view->ajaxEnabled());
 
-      \blazy()->moduleHandler()->alter('blazy_is_view', $settings, $variables);
+      Internals::blazy()->moduleHandler()->alter('blazy_is_view', $settings, $variables);
 
       Attributes::container($variables['attributes'], $settings);
       $variables['blazy'] = $settings;
@@ -185,8 +186,8 @@ class ViewsHooks {
         $blazies->set('unlazy', FALSE);
       }
 
-      $load  = \blazy()->attach($settings);
-      $loads = \blazy()->merge($load, $loads);
+      $load  = Internals::blazy()->attach($settings);
+      $loads = Internals::blazy()->merge($load, $loads);
       $grid  = $plugin_id == 'blazy';
 
       if ($options = $view->getStyle()->options) {
@@ -195,7 +196,7 @@ class ViewsHooks {
 
       // Prevents dup [data-LIGHTBOX-gallery] if the Views style supports Grid.
       if (!$grid) {
-        \blazy()->moduleHandler()->alter('blazy_is_view', $settings, $variables);
+        Internals::blazy()->moduleHandler()->alter('blazy_is_view', $settings, $variables);
         Attributes::container($variables['attributes'], $settings);
       }
 

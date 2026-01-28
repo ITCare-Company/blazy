@@ -3,8 +3,8 @@
 namespace Drupal\blazy\Media;
 
 use Drupal\Core\Cache\Cache;
-use Drupal\blazy\Theme\Attributes;
 use Drupal\blazy\Internals\Internals;
+use Drupal\blazy\Theme\Attributes;
 
 /**
  * Provides responsive image utilities.
@@ -202,7 +202,7 @@ class BlazyResponsiveImage {
 
     if (!isset(self::$styles[$id])) {
       $cache_tags = $resimage->getCacheTags();
-      $image_styles = \blazy()->loadMultiple('image_style', $resimage->getImageStyleIds());
+      $image_styles = Internals::blazy()->loadMultiple('image_style', $resimage->getImageStyleIds());
 
       foreach ($image_styles as $image_style) {
         $cache_tags = Cache::mergeTags($cache_tags, $image_style->getCacheTags());
@@ -261,7 +261,7 @@ class BlazyResponsiveImage {
         $uri = $blazies->get('image.uri');
 
         // @todo use dimensions based on the chosen fallback.
-        if ($uri && $style = \blazy()->load($id, 'image_style')) {
+        if ($uri && $style = Internals::blazy()->load($id, 'image_style')) {
           $data_src = BlazyImage::toUrl($settings, $style, $uri);
           $tn_uri = $style->buildUri($uri);
 
@@ -321,7 +321,7 @@ class BlazyResponsiveImage {
     // Multiple is a flag for various styles: Blazy Filter, GridStack, etc.
     // While fields can only have one image style per field.
     if ($valid && !$unstyled && (!$style || $multiple)) {
-      $style = \blazy()->load($_style, 'responsive_image_style');
+      $style = Internals::blazy()->load($_style, 'responsive_image_style');
     }
 
     return $style;

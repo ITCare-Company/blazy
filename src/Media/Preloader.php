@@ -4,6 +4,7 @@ namespace Drupal\blazy\Media;
 
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\blazy\Blazy;
+use Drupal\blazy\Internals\Internals;
 use Drupal\blazy\Utility\CheckItem;
 
 /**
@@ -145,7 +146,7 @@ class Preloader {
         if ($heroes = $blazies->get('heroes')) {
           if ($hero_style = $heroes['responsive_image_style'] ?? NULL) {
             if (!$blazies->get('heroes.responsive_image.id')) {
-              $resimage = \blazy()->load($hero_style, 'responsive_image_style') ?: $resimage;
+              $resimage = Internals::blazy()->load($hero_style, 'responsive_image_style') ?: $resimage;
             }
           }
         }
