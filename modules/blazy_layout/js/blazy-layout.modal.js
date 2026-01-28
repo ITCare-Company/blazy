@@ -185,7 +185,6 @@
       var layout;
       var wrapper;
       var id;
-      var wid;
 
       updateValue(el);
 

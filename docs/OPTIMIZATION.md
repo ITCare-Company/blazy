@@ -173,7 +173,7 @@ integrity.
     cockpit for precision tuning.
 
 ---
-> **Blazy does not optimize media performance by magic.  
+> **Blazy does not optimize media performance by magic.
 > It prevents media performance failure by design.**
 ---
 

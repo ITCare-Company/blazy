@@ -59,7 +59,6 @@ class BlazyUnitTest extends UnitTestCase {
     $variables['settings'] = array_merge($settings, $data);
     $variables['image'] = 'x';
     Attributes::buildIframe($variables);
-    $variables = is_array($variables) ? $variables : [];
 
     $this->assertNotEmpty($variables[$expected]);
   }
@@ -134,8 +133,6 @@ class BlazyUnitTest extends UnitTestCase {
     // @todo update to ThemeHooks::preprocessBlazy($variables).
     BlazyTheme::blazy($variables);
 
-    // Phpstan requires elaboration.
-    $variables = is_array($variables) ? $variables : [];
     $image = $variables['image'] ?? [];
     $iframe = $variables['iframe'] ?? [];
 
@@ -145,8 +142,6 @@ class BlazyUnitTest extends UnitTestCase {
     $this->assertTrue($image);
     $this->assertTrue($iframe);
 
-    // Phpstan requires elaboration.
-    $settings = is_array($variables['settings']) ? $variables['settings'] : [];
     /** @var \Drupal\blazy\BlazySettings $processed */
     $processed = $settings['blazies'];
     $this->assertEquals($blazies->get('lazy.id'), $processed->get('lazy.id'));
