@@ -576,12 +576,14 @@ class Settings {
   }
 
   /**
-   * Returns blazy manager service.
+   * Returns the blazy manager service if available.
    *
-   * @return \Drupal\blazy\BlazyManagerInterface
+   * May return NULL in unit-test or early-bootstrap contexts.
+   *
+   * @return \Drupal\blazy\BlazyManagerInterface|null
    *   The blazy.manager instance.
    */
-  public static function blazy(): BlazyManagerInterface {
+  public static function blazy(): ?BlazyManagerInterface {
     return self::service('blazy.manager');
   }
 
